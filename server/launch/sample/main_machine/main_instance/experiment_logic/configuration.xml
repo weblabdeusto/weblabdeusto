@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server
+	xmlns="http://www.weblab.deusto.es/configuration" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"
+>
+
+	<configuration file="server_config.py" />
+
+	<type>weblab.data.ServerType::Experiment</type>
+	<methods>weblab.methods::Experiment</methods>
+
+	<implementation>weblab.experiment.experiments.ud_logic_experiment.LogicExperiment.LogicExperiment</implementation>
+
+	<restriction>ud-logic@Dummy experiments</restriction>
+
+	<protocols>
+		<!-- This server supports both Direct calls, as SOAP calls -->
+		<protocol name="Direct">
+			<coordinations>
+				<coordination></coordination>
+			</coordinations>
+			<creation></creation>
+		</protocol>
+	</protocols>
+</server>
+

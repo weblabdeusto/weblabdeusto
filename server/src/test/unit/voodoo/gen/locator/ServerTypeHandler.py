@@ -1,0 +1,105 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2005-2009 University of Deusto
+# All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution.
+#
+# This software consists of contributions made by many individuals, 
+# listed below:
+#
+# Author: Pablo Orduña <pablo@ordunya.com>
+# 
+import unittest 
+
+import voodoo.gen.locator.ServerTypeHandler as ServerTypeHandler
+import voodoo.gen.exceptions.locator.LocatorExceptions as LocatorExceptions
+
+import test.unit.voodoo.gen.locator.ServerTypeSample as ServerTypeSample
+
+class ServerTypeHandlerTestCase(unittest.TestCase):
+    def test_exceptions(self):
+        self.assertRaises(
+            LocatorExceptions.NoMethodFoundForServerException,
+            ServerTypeHandler.ServerTypeHandler,
+            ServerTypeSample.ServerTypeSample,
+            {
+                #No "Login" key
+            }
+        )
+
+        self.assertRaises(
+            LocatorExceptions.InvalidListOfMethodsException,
+            ServerTypeHandler.ServerTypeHandler,
+            ServerTypeSample.ServerTypeSample,
+            {
+                #:-) and :-( are not a list of methods
+                'Login' : ':-)',
+                'Coordinator' : ':-('
+            }
+        )
+
+        self.assertRaises(
+            LocatorExceptions.MoreServersThanExpectedException,
+            ServerTypeHandler.ServerTypeHandler,
+            ServerTypeSample.ServerTypeSample,
+            {
+                'Login' : ('method1','method2'),
+                'Coordinator' : ('method1','method2'),
+                'DoesntExist': ('method1','method2')
+            }
+        )
+        server_type_handler = ServerTypeHandler.ServerTypeHandler(
+                    ServerTypeSample.ServerTypeSample,
+                    {
+                        'Login' : ('method1','method2'),
+                        'Coordinator' : ('method3','method4')
+                    }
+                )
+        self.assertRaises(
+            LocatorExceptions.NoSuchServerTypeFoundException,
+            server_type_handler.retrieve_methods,
+            ':-)'
+        )
+
+
+    def test_variables(self):
+        server_type_handler = ServerTypeHandler.ServerTypeHandler(
+                    ServerTypeSample.ServerTypeSample,
+                    {
+                        'Login' : ('method1','method2'),
+                        'Coordinator' : ('method3','method4')
+                    }
+                )
+        self.assertEquals(server_type_handler.name,'ServerTypeSample')
+        values = server_type_handler.getValues()
+        self.assertEquals(len(values),2)
+        self.assertEquals(values[0].name,'Login')
+        self.assertEquals(values[1].name,'Coordinator')
+        
+        self.assertEquals(server_type_handler.isMember(values[0]),True)
+        self.assertEquals(server_type_handler.isMember(5),False)
+
+        self.assertEquals(
+                server_type_handler.getEnumerated('Login'),
+                values[0]
+            )
+        
+        self.assertEquals(
+                server_type_handler.retrieve_methods('Login'),
+                ('method1','method2')
+            )
+        self.assertEquals(
+                server_type_handler.module,
+                ServerTypeSample
+            )
+
+    
+def suite():
+    return unittest.makeSuite(ServerTypeHandlerTestCase)
+
+if __name__ == '__main__':
+    unittest.main()
+

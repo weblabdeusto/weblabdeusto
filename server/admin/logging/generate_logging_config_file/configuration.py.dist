@@ -1,0 +1,29 @@
+MODULES = {
+        'weblab'                             : ('WARNING', True),
+        'weblab.facade'                      : ('INFO',    True),
+        'weblab.login'                       : ('INFO',    True),
+        'weblab.login.database'              : ('WARNING', False),
+        'weblab.login.facade'                : ('WARNING', False),
+        'weblab.user_processing'             : ('INFO',    True),
+        'weblab.user_processing.coordinator' : ('WARNING', False),
+        'weblab.user_processing.facade'      : ('WARNING', False),
+        'weblab.user_processing.database'    : ('WARNING', False),
+        'weblab.laboratory'                  : ('INFO',    True),
+#        'weblab.experiment'                  : ('WARNING', False),
+#        'weblab.database'                    : ('WARNING', False),
+        'voodoo'                             : ('WARNING', True),
+#         'voodoo.sessions'                    : ('WARNING', False),
+#         'voodoo.cache'                       : ('WARNING', False),
+#         'voodoo.log'                         : ('WARNING', False),
+#         'voodoo.threaded'                    : ('WARNING', False),
+#         'voodoo.gen'                         : ('WARNING', False),
+#         'voodoo.gen.protocols'               : ('WARNING', False),
+#         'voodoo.gen.coordinator'             : ('WARNING', False),
+#         'voodoo.gen.loader'                  : ('WARNING', False),
+    }
+
+PREFIX = 'logs/sample_'
+SUFFIX = 'logs.txt'
+
+MAX_FILE_SIZE    = 50 * 1024 * 1024
+MAX_HANDLER_SIZE = 1024 * 1024 * 1024 * 1024

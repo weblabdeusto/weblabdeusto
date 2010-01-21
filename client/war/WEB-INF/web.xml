@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+  
+  <!-- Servlets -->
+  <servlet>
+    <servlet-name>requestForwarder</servlet-name>
+    <servlet-class>es.deusto.weblab.server.RequestForwarder</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>requestForwarder</servlet-name>
+    <url-pattern>/weblab/*</url-pattern>
+  </servlet-mapping>
+  
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+  </welcome-file-list>
+
+</web-app>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server
+	xmlns="http://www.weblab.deusto.es/configuration" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"
+>
+
+	<configuration file="server_config.py" />
+
+	<type>weblab.data.ServerType::Experiment</type>
+	<methods>weblab.methods::Experiment</methods>
+
+	<implementation>weblab.experiment.experiments.dummy_experiment.DummyExperiment.DummyExperiment</implementation>
+
+	<restriction>dummy@Dummy experiments</restriction>
+
+	<protocols>
+		<!-- This server supports both Direct calls, as SOAP calls -->
+		<protocol name="Direct">
+			<coordinations>
+				<coordination></coordination>
+			</coordinations>
+			<creation></creation>
+		</protocol>
+		<protocol name="XMLRPC">
+			<coordinations>
+				<coordination>
+                    <parameter name="address" value="192.168.56.3:10039/weblab@PLD" />
+				</coordination>
+				<!-- <coordination>
+					<parameter name="address" value="192.168.0.1:10039@LABORATORYNETWORK" />
+				</coordination>
+				<coordination>
+					<parameter name="address" value="130.206.100.16:10039@INTERNET" />
+				</coordination> -->
+			</coordinations>
+			<creation>
+				<parameter name="address" value=""     />
+				<parameter name="port"    value="10039" />
+			</creation>
+		</protocol>
+	</protocols>
+</server>
+

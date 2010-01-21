@@ -1,0 +1,6 @@
+<project name="WebLab" default="all">
+	<target name="all">
+		<ant dir="client"     antfile="build.xml" target="test" />
+		<ant dir="server/src" antfile="build.xml"            target="test" />
+	</target>
+</project>

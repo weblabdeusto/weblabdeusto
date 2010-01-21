@@ -1,0 +1,16 @@
+"""
+configuration.py.dist
+
+This is a configuration.py sample file. Copy its content to create your own configuration.py file.
+"""
+
+OUTPUT_FILE         = "tester_dummy.sql"
+
+DATABASE_NAME       = "WebLab"
+
+USER_LOGIN          = "etox"
+EXPERIMENT_NAME     = "ud-pic"
+EXPERIMENT_CATEGORY = "PIC experiments"
+UPI_NAME            = "%s::weblab-pic" % (USER_LOGIN)
+UPI_OWNER_ID        = "prof1"
+UPI_COMMENTS        = "Permission for %s to use WebLab-PIC" % (USER_LOGIN)

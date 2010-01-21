@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="WebLabXmlRpcServer">
+	
+    <path id="WebLabXmlRpcServer.classpath">
+        <pathelement location="bin"/>
+        <pathelement location="lib/commons-logging-1.1.jar"/>
+        <pathelement location="lib/ws-commons-util-1.0.2.jar"/>
+        <pathelement location="lib/xmlrpc-client-3.1.jar"/>
+        <pathelement location="lib/xmlrpc-client-3.1-javadoc.jar"/>
+        <pathelement location="lib/xmlrpc-client-3.1-sources.jar"/>
+        <pathelement location="lib/xmlrpc-common-3.1.jar"/>
+        <pathelement location="lib/xmlrpc-common-3.1-javadoc.jar"/>
+        <pathelement location="lib/xmlrpc-common-3.1-sources.jar"/>
+        <pathelement location="lib/xmlrpc-server-3.1.jar"/>
+        <pathelement location="lib/xmlrpc-server-3.1-javadoc.jar"/>
+        <pathelement location="lib/xmlrpc-server-3.1-sources.jar"/>
+        <pathelement location="more.libs/commons-httpclient-3.1.jar"/>
+        <pathelement location="more.libs/commons-codec-1.3.jar"/>
+    </path>
+    <target name="clean">
+        <delete dir="bin"/>
+    </target>
+	
+    <target name="build">
+        <mkdir dir="bin"/>
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" destdir="bin" source="1.4" target="1.4">
+            <src path="src"/>
+            <classpath refid="WebLabXmlRpcServer.classpath"/>
+        </javac>
+    </target>
+	
+    <target name="run">
+        <java classname="com.example.weblab.DummyExperimentServerMain" failonerror="true" fork="yes">
+            <classpath refid="WebLabXmlRpcServer.classpath"/>
+        </java>
+    </target>
+</project>

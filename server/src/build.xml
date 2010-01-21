@@ -1,0 +1,22 @@
+<project name="WebLab" default="test"> 
+	<property name="test.xml.dir" value="cruisecontrol/build/test-results" />
+
+	<target name="deploy">
+        <mkdir dir="cruisecontrol/logs"/>
+		<exec executable="python" failonerror="true">
+			<arg value="deploy.py"/>
+		</exec>
+	</target>
+
+	<target name="test" depends="deploy">
+        <mkdir dir="${test.xml.dir}"/>
+		<exec executable="python" failonerror="true">
+			<arg value="launch_flakes.py"/>
+		</exec>
+		<exec executable="python" failonerror="true">
+			<arg value="launch_tests.py"/>
+			<arg value="xml"/>
+			<arg value="${test.xml.dir}" />
+        </exec>
+	</target>
+</project>

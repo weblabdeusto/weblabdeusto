@@ -1,0 +1,44 @@
+
+
+*** C++ EXPERIMENT SERVER LIBRARY ***
+
+This library can be used to easily implement new experiments using the C++
+programming language.
+
+Currently the library has been tested on Windows using Microsoft Visual C++
+2008 and Ubuntu GNU/Linux with GNU g++. Prebuilt binaries for this Microsoft
+Windows are included in the win32 folder, for both Debug and Release.
+
+Nonetheless, the library should compile on any standard C++ compiler, as long as
+the libraries it depends on are available (mainly xmlrpc-c, see below).
+
+
+*** USING THE LIBRARY ON WINDOWS VC++ 2008 ***
+
+New experiments can be based on the cpp_microserver_dummy project (which can be
+found on the win32 folder).
+This experiment simply links to the library and declares a class which inherits
+from the abstract ExperimentServer, overriding the following events:
+
+	virtual std::string onStartExperiment() = 0;
+	virtual std::string onSendFile(std::string const & encoded_file, std::string const & fileinfo) = 0;
+	virtual std::string onSendCommand(std::string const & command) = 0;
+	virtual std::string onDispose() = 0;
+	
+Once an instance of the new class has been created and launched (through the
+launch member function), the server will listen for connections and the virtual
+member functions above will be automatically called as requests are received.
+
+
+*** COMPILING & DEPENDENCIES ***
+
+This library depends on the xmlrpc-c library. Though theorethically you should
+be able to use any version of it, older versions don't seem to support windows
+properly. The prebuilt binaries are linked against the xmlrpc-c "advanced"
+version from their repository.
+
+
+*** KNOWN BUGS ***
+
+Seems to crash under certain situations, especially if there are a high number
+of simultaneous connections to the server.

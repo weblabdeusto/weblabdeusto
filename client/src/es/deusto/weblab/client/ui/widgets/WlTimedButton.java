@@ -1,0 +1,100 @@
+/*
+* Copyright (C) 2005-2009 University of Deusto
+* All rights reserved.
+*
+* This software is licensed as described in the file COPYING, which
+* you should have received as part of this distribution.
+*
+* This software consists of contributions made by many individuals, 
+* listed below:
+*
+* Author: Pablo Orduña <pablo@ordunya.com>
+*
+*/ 
+package es.deusto.weblab.client.ui.widgets;
+
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
+
+import es.deusto.weblab.client.ui.widgets.WlButton.IWlButtonUsed;
+import es.deusto.weblab.client.ui.widgets.exceptions.WlWidgetException;
+
+public class WlTimedButton implements IWlWidget{
+
+	public static int DEFAULT_TIME = 1000;
+	
+	private final WlButton button;
+	private final WlIntegerTextbox textbox;
+	private final VerticalPanel visiblePanel;
+	private final WlActionListenerContainer actionListenerContainer;
+	private int time;
+	
+	public WlTimedButton(){
+		this(WlTimedButton.DEFAULT_TIME);
+	}
+
+	public WlTimedButton(int time){
+		this.button = new WlButton();
+		this.button.setTime(time);
+		this.textbox = new WlIntegerTextbox();
+		this.textbox.setText(new Integer(time));
+		this.time = time;
+		
+		this.actionListenerContainer = new WlActionListenerContainer();
+		
+		this.visiblePanel = new VerticalPanel();
+		this.visiblePanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		this.visiblePanel.add(this.button.getWidget());
+		this.visiblePanel.add(this.textbox.getWidget());
+
+		this.button.addActionListener(new IWlActionListener(){
+			public void onAction(IWlWidget widget) {
+				WlTimedButton.this.fireActionListeners();
+			}
+		});
+		
+		this.textbox.addActionListener(new IWlActionListener(){
+			public void onAction(IWlWidget widget) {
+				int intValue;
+				try {
+					intValue = WlTimedButton.this.textbox.getValue().intValue();
+				} catch (final WlWidgetException e) {
+					return;
+				}
+				WlTimedButton.this.time = intValue;
+				WlTimedButton.this.button.setTime(intValue);
+			}
+		});
+	}
+	
+	public void dispose(){
+		this.button.dispose();
+		this.textbox.dispose();
+	}
+	
+	public void addActionListener(IWlActionListener listener){
+		this.actionListenerContainer.addActionListener(listener);
+	}
+	
+	public void removeActionListener(IWlActionListener listener){
+		this.actionListenerContainer.removeActionListener(listener);
+	}
+	
+	public void addButtonListener(IWlButtonUsed listener){
+		this.button.addButtonListener(listener);
+	}
+	
+	protected void fireActionListeners(){
+		this.actionListenerContainer.fireActionListeners(this);
+	}
+	
+	public int getTime(){
+		return this.time;
+	}
+	
+	@Override
+	public Widget getWidget() {
+		return this.visiblePanel;
+	}
+}

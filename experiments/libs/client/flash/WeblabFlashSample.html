@@ -1,0 +1,174 @@
+
+<html>
+<head>
+
+<script language="JavaScript">
+
+
+	function wl_getIntProprety(name)
+	{
+		return 2;
+	}
+	
+	function wl_getIntPropertyDef(name, defaultVal)
+	{
+		return defaultVal;
+	}
+	
+	function wl_getProperty(name)
+	{
+		return name;
+	}
+	
+	function wl_getPropertyDef(name, defaultVal)
+	{
+		return defaultVal;
+	}
+	
+	function callSucceeded(fl, msg, id)
+	{
+		fl.handleCommandResponse(msg, id);
+	}
+	
+	function callFailed(fl, msg, id)
+	{
+		fl.handleCommandError(msg, id);
+	}
+	
+	function wl_sendCommand(message, commandId)
+	{
+		//alert('Command received: ' + message + ' Id: ' + commandId);
+	
+		var cmd_regex = /SetPulse (on|off) ([0-9])/;
+		var result = message.match(cmd_regex);
+		var button = result[2];
+		
+		var fl = getAndTestFlashObject();
+		
+		if(result == null)
+		{
+			setTimeout(function(){callFailed(fl, 'Could not parse command', commandId);}, 1000);
+		}
+		else if(button == 3)
+		{
+			setTimeout(function(){callFailed(fl, 'Third buttons command does not work!', commandId);}, 1000);
+		}
+		else
+		{
+			setTimeout(function(){callSucceeded(fl, 'Command succeeded', commandId);}, 1000);
+		}
+	}
+	
+	function wl_onClean()
+	{
+		alert('onClean()');
+	}
+	
+	function debugMsg(msg)
+	{
+		alert(msg);
+	}
+
+</script>
+
+<!-- NOTE: The flash object must be declared *after* the javascript callbacks but 
+'*before* the function that calls getAndTestFlashObject() -->
+<!-- type="application/x-shockwave-flash" -->
+
+<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"  width="550" height="400" id="flashobj">
+<param name="movie" value="WeblabFlashSample.swf"/>
+<embed src="WeblabFlashSample.swf" width="550" height="400" id="flash_emb">
+</embed>
+</object>
+
+
+<script language="JavaScript">
+
+// Returns a reference to a flash object, whether it is an <object> or an <embed>. The <object> must have 'flash_obj' as id, 
+// and the <embed> 'flash_emb'. It uses flash testEcho to test the JS/Flash connection.
+function getAndTestFlashObject()
+{
+	var errorMessages = "";
+
+	try
+	{
+		var fl = document.getElementById('flashobj');
+		var test = fl.testEcho('teststr');
+		if( test == 'teststr' )
+			return fl;
+		else
+			errorMessages = errorMessages + ' returned ' + test;
+	}
+	catch(err)
+	{
+		errorMessages = errorMessages + '  raised ' + err + ' ' + err.description;
+	}
+	
+	try
+	{
+		var fl = document.getElementById('flash_emb');
+		var test = fl.testEcho('teststr');
+		if( test == 'teststr' )
+			return fl;
+		else
+			errorMessages = errorMessages + ' returned ' + test;
+	}
+	catch(err)
+	{
+		errorMessages = errorMessages + ' raised ' + err.description;
+	}
+	
+
+	throw "Flash does not seem to be working: " + errorMessages;
+}
+
+function go()
+{
+	try
+	{
+		//var fl = getAndTestFlashObject();
+		
+		setTimeout( function() { 
+			var fl = getAndTestFlashObject();
+			fl.setTime(30);
+			fl.startInteraction();
+			}, 1000);
+			
+		setTimeout( function() {
+			var fl = getAndTestFlashObject();
+			fl.end();
+			}, 31000 );
+			
+	}
+	catch(err)
+	{
+		var error = true;
+		alert(err);
+	}
+	if(!error)
+	{
+		//alert('Flash object WORKING');
+	}
+}
+
+// Apparently flash needs time to load before calls to it may succeed.
+//setTimeout( go, 4000 );
+
+</script>
+
+</head>
+
+<body onload="javascript:setTimeout( go, 4000 )">
+
+
+<div align="center">
+ <a href="#" onClick="try { var fl = getAndTestFlashObject(); fl.setTime(30); } catch(err) { alert(err); }">setTime(30)</a> <br>
+ <a href="#" onClick="var fl = getAndTestFlashObject(); fl.startInteraction();">startInteraction()</a> 
+ <a href="#" onClick="var fl = getAndTestFlashObject(); fl.end();">end()</a> <br>
+</div>
+
+<script language="JavaScript">
+</script>
+
+</html>
+</body>

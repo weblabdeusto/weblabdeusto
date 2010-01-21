@@ -1,0 +1,11 @@
+"""
+configuration.py.dist
+
+This is a configuration.py sample file. Copy its content to create your own configuration.py file.
+"""
+
+HOSTNAME = "localhost"
+DATABASE = "WebLab"
+PREFIX   = "wl_"
+USERNAME = "wl_admin_read"
+PASSWORD = "wl_admin_read_password"

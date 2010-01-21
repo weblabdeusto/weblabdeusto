@@ -1,0 +1,11 @@
+"""
+configuration.py.dist
+
+This is a configuration.py sample file. Copy its content to create your own configuration.py file.
+"""
+
+DATABASE_NAME   = 'WebLab'
+
+GROUP_NAME      = 'FooBar'
+GROUP_OWNER_ID  = 'prof1'
+USERS           = ['student1', 'student2']

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server
+	xmlns="http://www.weblab.deusto.es/configuration" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"
+>
+
+	<configuration file="server_config.py" />
+
+	<type>weblab.data.ServerType::Laboratory</type>
+	<methods>weblab.methods::Laboratory</methods>
+
+	<implementation>weblab.laboratory.LaboratoryServer.LaboratoryServer</implementation>
+
+	<!-- <restriction>something else</restriction> -->
+
+	<protocols>
+		<!-- This server supports both Direct calls, as SOAP calls -->
+		<protocol name="Direct">
+			<coordinations>
+				<coordination></coordination>
+			</coordinations>
+			<creation></creation>
+		</protocol>
+		<protocol name="UnixSocket">
+			<coordinations>
+				<coordination>
+					<parameter name="sockpath" value="launch_unixsocket_sample_laboratory.sock" />
+				</coordination>
+			</coordinations>
+			<creation>
+				<parameter name="socketpath"    value="launch_unixsocket_sample_laboratory.sock" />
+			</creation>
+		</protocol>
+
+	</protocols>
+</server>
+

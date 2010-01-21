@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<project name="WeblabFlashSample" default="deploy" basedir=".">
+	<description>
+		WeblabFlashSample build file.  This is used to package up your project as a jar,
+		if you want to distribute it.  This isn't needed for normal operation.
+	</description>
+
+    <property name="client.project.directory" location="../../../../client/"/>
+    <property name="client.public.directory" location="${client.project.directory}/src/es/deusto/weblab/public/"/>
+    <property name="swf.name" value="WeblabFlashSample.swf" />
+
+    <target name="compile" description="Should compile the flash file">
+        <echo>You must compile the flash file with Adobe Flash</echo>
+	</target>
+	
+	<target name="deploy" depends="compile" description="Move to weblab folder">
+        <copy file="${swf.name}" todir="${client.public.directory}"/>
+	</target>
+	
+</project>

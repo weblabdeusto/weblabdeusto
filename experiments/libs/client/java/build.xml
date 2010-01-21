@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<project name="WeblabJavaSample" default="deploy" basedir=".">
+	<description>
+		WeblabJavaSample build file.  This is used to package up your project as a jar,
+		if you want to distribute it.  This isn't needed for normal operation.
+	</description>
+	
+	<!--
+	***********************************
+		Classpath Configuration
+	***********************************
+	-->
+	<path id="project.class.path">
+		<pathelement path="src"/>
+		<pathelement path="libs/plugin.jar"/>
+	</path>
+
+    <property name="client.project.directory" location="../../../../client/"/>
+    <property name="client.public.directory" location="${client.project.directory}/src/es/deusto/weblab/public/"/>
+    <property name="jar.name" value="WeblabJavaSample.jar" />
+
+	<!--
+	***********************************
+		Targets
+	***********************************
+	-->
+	<target name="compile" description="Compile src to bin">
+		<mkdir dir="bin"/>
+		<javac srcdir="src" destdir="bin" includes="**" debug="on" debuglevel="lines,vars,source" encoding="UTF-8">
+			<classpath refid="project.class.path"/>
+		</javac>
+	</target>
+	
+	<target name="package" depends="compile" description="Package up the project as a jar">
+        <jar destfile="${jar.name}">
+			<fileset dir="bin">
+				<include name="**/*.class"/>
+			</fileset>
+		</jar>
+	</target>
+
+	<target name="deploy" depends="package" description="Move to weblab folder">
+        <copy file="${jar.name}" todir="${client.public.directory}"/>
+	</target>
+	
+	<target name="clean">
+		<!-- Delete the bin directory tree -->
+        <delete file="${jar.name}"/>
+		<delete>
+			<fileset dir="bin" includes="**/*.class"/>
+		</delete>
+	</target>
+	
+	<target name="all" depends="package"/>
+
+</project>

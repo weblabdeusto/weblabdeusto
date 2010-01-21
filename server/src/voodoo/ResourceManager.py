@@ -1,0 +1,83 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2005-2009 University of Deusto
+# All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution.
+#
+# This software consists of contributions made by many individuals, 
+# listed below:
+#
+# Author: Pablo Orduña <pablo@ordunya.com>
+# 
+
+import threading
+from voodoo.lock import locked
+import voodoo.abstraction.abstract_class_generator as acg
+import voodoo.log as log
+
+class ResourceManager(acg.AbstractClass(['dispose_resource'])):
+    def __init__(self):
+        acg.call_abstract_constructors(ResourceManager,self)
+        self._lock = threading.RLock()
+        self._resources = []
+
+    @locked('_lock')
+    def add_resource(self, resource):
+        self._resources.append(resource)
+    
+    @locked('_lock')
+    def remove_resource(self, resource):
+        if resource in self._resources:
+            self._resources.remove(resource)
+
+    @locked('_lock')
+    def get_current_resources(self):
+        return self._resources[:]
+
+    @locked('_lock')
+    def _get_different_resources(self, old_resources):
+        different_resources = []
+        for i in self._resources:
+            if not i in old_resources:
+                different_resources.append(i)
+        return different_resources
+
+    def remove_resources_from(self, old_resources):
+        different_resources = self._get_different_resources(old_resources)
+        for i in different_resources:
+            self.dispose_resource(i)
+            self.remove_resource(i)
+
+class CancelAndJoinResourceManager(ResourceManager):
+    def __init__(self, name, cancel = True, log_level = log.LogLevel.Info, log_exc_level = log.LogLevel.Debug, timeout = None):
+        ResourceManager.__init__(self)
+        self._name          = name
+        self._cancel        = True
+        self._timeout       = timeout
+        self._log_level     = log_level
+        self._log_exc_level = log_exc_level
+
+    def dispose_resource(self, resource):
+        try:
+            if self._cancel:
+                resource.cancel()
+        except Exception, e:
+            log.log( CancelAndJoinResourceManager, self._log_level,
+                    "Exception joining resource at %s: %s" % (self._name, e)
+                )
+            log.log_exc( CancelAndJoinResourceManager, self._log_exc_level)
+
+        try:
+            if self._timeout is not None:
+                resource.join(self._timeout)
+            else:
+                resource.join()
+        except Exception, e:
+            log.log( CancelAndJoinResourceManager, self._log_level,
+                    "Exception joining resource at %s: %s" % (self._name, e)
+                )
+            log.log_exc( CancelAndJoinResourceManager, self._log_exc_level)
+

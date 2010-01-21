@@ -1,0 +1,112 @@
+body
+{
+	font: 14px normal "Lucida Grande", Arial;
+}
+
+.wl-main_title
+{
+	font-size: x-large;
+	font-weight: bold;
+	padding: 30px;
+}
+
+.wl-error_message
+{
+	color : #FF0000;
+}
+
+.wl-time_remaining
+{
+	color : #FF0000;
+	font-weight: bold;
+	font-size: 150%;
+	display: block;
+}
+
+.wl-clock_activation_panel
+{
+	display: block;
+	text-align: right;
+}
+
+.main_weblab
+{
+	font-family: sans-serif;
+}
+
+.main-panel
+{
+	margin: 0;
+	padding: 20px;
+}
+
+.north-panel
+{
+
+}
+
+.left-menu
+{
+
+}
+
+.center-panel
+{
+}
+
+.table-header
+{
+	font-weight: bold;
+}
+
+.experiment-detail
+{
+	font-weight: bold;
+}
+
+.results-popup
+{
+	background-color: #7590AE;
+	border: 3px solid black;
+	padding: 20px;
+	margin: 40px;
+	width: 550px;
+}
+
+.results-title
+{
+	font-size: 16px;
+	font-weight: bold;
+	color: white;	
+}
+
+.results-label
+{
+	color: white;	
+}
+
+.title-label
+{
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.terminal
+{
+	color: white;
+	background-color: black;
+	font: 14px normal "monospace";
+	overflow: hidden;
+}
+
+.logic-input-value-label
+{
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.logic-mouse-pointer-hand
+{
+    cursor: pointer;
+    cursor: hand;
+}

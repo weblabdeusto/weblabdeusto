@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<instances
+	xmlns="http://www.weblab.deusto.es/configuration" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="machine_configuration.xsd"
+>
+	<configuration file="machine_config.py" />
+
+	<instance>main_instance</instance>
+	<instance>dummy_instance</instance>
+</instances>
+

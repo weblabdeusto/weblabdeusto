@@ -1,0 +1,8 @@
+#
+# users_to_add_list.conf.dist
+#
+# This is a users_to_add_list.conf sample file. Copy its content to create your own users_to_add_list.conf file.
+#
+user1login
+user2login
+user3login

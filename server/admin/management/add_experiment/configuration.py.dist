@@ -1,0 +1,13 @@
+"""
+configuration.py.dist
+
+This is a configuration.py sample file. Copy its content to create your own configuration.py file.
+"""
+
+DATABASE_NAME              = 'WebLab'
+
+CREATE_EXPERIMENT_CATEGORY = True
+EXPERIMENT_CATEGORY_NAME   = 'PLD experiments'
+
+EXPERIMENT_OWNER_NAME      = 'prof1'
+EXPERIMENT_NAME            = 'ud-binary'

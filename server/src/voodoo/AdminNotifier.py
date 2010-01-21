@@ -1,0 +1,144 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2005-2009 University of Deusto
+# All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution.
+#
+# This software consists of contributions made by many individuals, 
+# listed below:
+#
+# Author: Pablo Orduña <pablo@ordunya.com>
+# 
+import voodoo.log as log
+import voodoo.exceptions.configuration.ConfigurationExceptions as ConfigurationExceptions
+
+import smtplib
+
+EMAIL_BODY = """From: WebLab Notifier <%(mail_notif_sender)s>
+To: %(recipients)s
+Subject: %(subject)s
+
+There was a critical error in WebLab server %(server_hostaddress)s!
+
+Message: %(message)s
+    
+WebLab
+"""
+
+MAIL_NOTIFICATION_ENABLED_NAME = 'mail_notification_enabled'
+DEFAULT_MAIL_NOTIFICATION_ENABLED_NAME = False
+
+SERVER_HOSTADDRESS_NAME        = 'server_hostaddress'
+SERVER_ADMIN_NAME              = 'server_admin'
+MAIL_SERVER_HOST_NAME          = 'mail_server_host'
+MAIL_SERVER_USE_TLS_NAME       = 'mail_server_use_tls'
+MAIL_SERVER_HELO_NAME          = 'mail_server_helo'
+MAIL_NOTIFICATION_SENDER_NAME  = 'mail_notification_sender'
+MAIL_NOTIFICATION_SUBJECT_NAME = 'mail_notification_subject'
+
+class AdminNotifier(object):
+    """ 
+        This class wraps the notification system.
+        In the future, it would be cool if different
+        notifier engines were available and used 
+        transparently through this class, but right now
+        the only system available is the mailing system.
+
+        The configuration parameters are:
+
+        [REQUIRED]
+        * server_hostaddress
+        * server_admin
+        * mail_server_host
+        * mail_server_use_tls
+        * mail_server_helo
+        * mail_notification_sender
+        [OPTIONAL]
+        * mail_notification_subject
+
+        Examples for this values are:
+
+        server_hostaddress  = 'weblab.deusto.es'
+        server_admin        = 'porduna@tecnologico.deusto.es'
+
+        (or, if many administrators are set)
+        server_admin        = 'porduna@tecnologico.deusto.es, pablo@ordunya.com'
+
+        mail_server_host    = 'rigel.deusto.es' # Mail server machine
+        mail_server_use_tls = 'yes' # or 'no'
+        mail_server_helo    = 'weblab.deusto.es'
+
+        mail_notification_sender  = 'porduna@tecnologico.deusto.es'
+        mail_notification_subject = '[WebLab] CRITICAL ERROR!'
+    """
+    DEFAULT_NOTIFICATION_SUBJECT = "[WebLab] CRITICAL ERROR!"
+
+    def __init__(self, cfg_manager):
+        self._configuration = cfg_manager
+        
+    def notify(self, message):
+        if self._configuration.get_value(MAIL_NOTIFICATION_ENABLED_NAME, DEFAULT_MAIL_NOTIFICATION_ENABLED_NAME):
+            try:
+                server_hostaddress  = self._configuration.get_value(SERVER_HOSTADDRESS_NAME)
+                server_admin        = self._configuration.get_value(SERVER_ADMIN_NAME)
+                mail_server_host    = self._configuration.get_value(MAIL_SERVER_HOST_NAME)
+                mail_server_use_tls = self._configuration.get_value(MAIL_SERVER_USE_TLS_NAME)
+                mail_server_helo    = self._configuration.get_value(MAIL_SERVER_HELO_NAME)
+                mail_notif_sender   = self._configuration.get_value(MAIL_NOTIFICATION_SENDER_NAME)
+            except ConfigurationExceptions.KeyNotFoundException, knfe:
+                log.log(
+                    AdminNotifier, 
+                    log.LogLevel.Critical, 
+                    "Couldn't find property %s. Couldn't notify administrator about critical problem with message <%s>..." % (knfe.key, message)
+                )
+                return -1
+            
+            mail_notification_subject = self._configuration.get_value(MAIL_NOTIFICATION_SUBJECT_NAME,
+                    AdminNotifier.DEFAULT_NOTIFICATION_SUBJECT
+                )
+
+            try:
+                recipients = self._parse_recipients(server_admin)
+
+                server = self._create_mailer(mail_server_host)
+                try:
+                    if mail_server_use_tls == 'yes':
+                        server.starttls()
+                    server.helo(mail_server_helo)
+
+                    server.sendmail(
+                        mail_notif_sender,
+                        recipients,
+                        EMAIL_BODY % {
+                            'mail_notif_sender' : mail_notif_sender,
+                            'recipients' : recipients,
+                            'server_hostaddress' : server_hostaddress,
+                            'subject' : mail_notification_subject,
+                            'message' : message
+                        }
+                    )
+                finally:
+                    try:
+                        server.close()
+                    except:
+                        pass
+                
+            except Exception, e:
+                log.log(
+                    AdminNotifier, 
+                    log.LogLevel.Critical, 
+                    "Unexpected error while notifying administrator with message %s: %s" % (message, e)
+                )
+                return -2
+        return 0
+
+    def _create_mailer(self, mail_server):
+        return smtplib.SMTP(mail_server)
+
+    def _parse_recipients(self, server_admin):
+        server_admin = server_admin.replace(' ','')
+        return tuple(server_admin.split(','))
+

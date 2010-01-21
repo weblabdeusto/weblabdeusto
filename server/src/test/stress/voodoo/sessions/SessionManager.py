@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+#-*-*- encoding: utf-8 -*-*-
+#
+# Copyright (C) 2005-2009 University of Deusto
+# All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution.
+#
+# This software consists of contributions made by many individuals, 
+# listed below:
+#
+# Author: Pablo Orduña <pablo@ordunya.com>
+# 
+
+import unittest
+
+import test.util.stress as stress_util
+
+import test.unit.configuration as configuration_module
+import voodoo.configuration.ConfigurationManager as ConfigurationManager
+
+import voodoo.sessions.SessionManager as SessionManager
+import voodoo.sessions.SessionType    as SessionType
+
+class SessionManagerTestCase(unittest.TestCase):
+    def setUp(self):
+        self.cfg_manager= ConfigurationManager.ConfigurationManager()
+        self.cfg_manager.append_module(configuration_module)
+
+        self.session_manager = SessionManager.SessionManager( 
+                                    self.cfg_manager,
+                                    SessionType.Memory,
+                                    "foo"
+                                )
+
+        def func():
+            self.session_manager.create_session()
+
+        self.runner = stress_util.MainRunner(func, "SessionManager")
+
+    def test_sequential(self):
+        iterations = 10000
+        max_time   = 0.3
+        print "seq",max(self.runner.run_sequential(iterations, max_time))
+
+    def test_concurrent(self):
+        threads    = 200
+        iterations =  50
+        max_time   =  0.7 # And this is far too much
+        print "con",max(self.runner.run_threaded(threads, iterations, max_time))
+
+def suite():
+    return unittest.makeSuite(SessionManagerTestCase)
+
+if __name__ == '__main__':
+    unittest.main()
+

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 1.7.1//EN" "http://google-web-toolkit.googlecode.com/svn/tags/1.7.1/distro-source/core/src/gwt-module.dtd">
+<module rename-to="weblabclient">
+	<!-- Inherit the core Web Toolkit stuff.                  -->
+	<inherits name='com.google.gwt.user.User'   />
+	<inherits name='com.google.gwt.xml.XML'     />
+	<!--	<inherits name='com.google.gwt.junit.JUnit' /> -->
+	<inherits name='com.google.gwt.http.HTTP'   />
+	<inherits name="com.google.gwt.i18n.I18N"   />
+	<inherits name="com.google.gwt.json.JSON" />
+
+	<inherits name='com.google.gwt.user.theme.standard.Standard'/>
+
+	<!-- Specify the app entry point class.                   -->
+	<entry-point class='es.deusto.weblab.client.WebLabClient'/>
+	
+	<!-- Languages available -->
+	<extend-property name="locale" values="en"/>
+	<extend-property name="locale" values="es"/>
+	<extend-property name="locale" values="eu"/>
+	
+	<public path="public"></public>
+</module>

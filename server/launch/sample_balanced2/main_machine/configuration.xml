@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<instances
+	xmlns="http://www.weblab.deusto.es/configuration" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="machine_configuration.xsd"
+>
+	<configuration file="machine_config.py" />
+
+	<instance>main_instance1</instance>
+	<instance>main_instance2</instance>
+	<instance>main_instance3</instance>
+	<instance>lab_and_experiment</instance>
+</instances>
+

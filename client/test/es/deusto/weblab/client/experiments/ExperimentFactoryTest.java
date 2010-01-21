@@ -1,0 +1,99 @@
+/*
+* Copyright (C) 2005-2009 University of Deusto
+* All rights reserved.
+*
+* This software is licensed as described in the file COPYING, which
+* you should have received as part of this distribution.
+*
+* This software consists of contributions made by many individuals, 
+* listed below:
+*
+* Author: Pablo Orduña <pablo@ordunya.com>
+*
+*/ 
+package es.deusto.weblab.client.experiments;
+
+import java.util.HashMap;
+
+import junit.framework.Assert;
+
+import com.google.gwt.junit.client.GWTTestCase;
+
+import es.deusto.weblab.client.comm.UploadStructure;
+import es.deusto.weblab.client.comm.callbacks.IResponseCommandCallback;
+import es.deusto.weblab.client.configuration.FakeConfiguration;
+import es.deusto.weblab.client.dto.experiments.Category;
+import es.deusto.weblab.client.dto.experiments.Command;
+import es.deusto.weblab.client.dto.experiments.ExperimentID;
+import es.deusto.weblab.client.exceptions.experiments.ExperimentNotFoundException;
+import es.deusto.weblab.client.exceptions.experiments.WlExperimentException;
+import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.fpga.WebLabFpgaExperiment;
+import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.gpib.WebLabGpibExperiment;
+import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.gpib1.WebLabGpib1Experiment;
+import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.gpib2.WebLabGpib2Experiment;
+import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.pld.WebLabPldExperiment;
+import es.deusto.weblab.client.ui.BoardBase.IBoardBaseController;
+
+public class ExperimentFactoryTest extends GWTTestCase {
+
+	public final void testWrongExperimentID() throws WlExperimentException{
+		final ExperimentFactory factory = new ExperimentFactory(null, new IBoardBaseController(){
+			public void sendCommand(Command command) {
+			}
+
+			public void onClean() {
+				
+			}
+
+			public void sendCommand(Command command, IResponseCommandCallback callback) {
+			    
+			}
+
+			public void sendFile(UploadStructure uploadStructure,
+				IResponseCommandCallback callback) {
+			    
+			}
+		});
+		try {
+			factory.experimentFactory(new ExperimentID(new Category("whatever"), "whatever"));
+			Assert.fail("ExperimentNotFoundException expected");
+		} catch (final ExperimentNotFoundException e) {}
+	}
+
+	public final void testRightExperimentID() throws WlExperimentException{
+		final FakeConfiguration fakeConfiguration = new FakeConfiguration(new HashMap<String, String>());
+		final ExperimentFactory factory = new ExperimentFactory(fakeConfiguration, new IBoardBaseController(){
+			public void sendCommand(Command command) {
+			}
+
+			public void onClean() {
+			}
+
+			public void sendCommand(Command command, IResponseCommandCallback callback) {
+			}
+
+			public void sendFile(UploadStructure uploadStructure,
+				IResponseCommandCallback callback) {
+			}
+		});
+		ExperimentBase base = factory.experimentFactory(new ExperimentID(new Category("PLD experiments"), "ud-pld"));
+		Assert.assertTrue(base instanceof WebLabPldExperiment);
+		
+		base = factory.experimentFactory(new ExperimentID(new Category("FPGA experiments"), "ud-fpga"));
+		Assert.assertTrue(base instanceof WebLabFpgaExperiment);
+		
+		base = factory.experimentFactory(new ExperimentID(new Category("GPIB experiments"), "ud-gpib"));
+		Assert.assertTrue(base instanceof WebLabGpibExperiment);
+		
+		base = factory.experimentFactory(new ExperimentID(new Category("GPIB experiments"), "ud-gpib1"));
+		Assert.assertTrue(base instanceof WebLabGpib1Experiment);
+	
+		base = factory.experimentFactory(new ExperimentID(new Category("GPIB experiments"), "ud-gpib2"));
+		Assert.assertTrue(base instanceof WebLabGpib2Experiment);
+	}
+
+	@Override
+	public String getModuleName() {
+		return "es.deusto.weblab.WebLabClient";
+	}
+}

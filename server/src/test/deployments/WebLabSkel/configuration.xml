@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<machines
+	xmlns="http://www.weblab.deusto.es/configuration" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="global_configuration.xsd"
+>
+	<!-- you can put more than one file; the last ones will overwrite the first ones -->
+	<configuration file="global_config.py" />
+	<configuration file="global_config.py" />
+
+	<machine>NAME_OF_MACHINE1</machine>
+</machines>
+

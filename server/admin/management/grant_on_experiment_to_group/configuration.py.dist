@@ -1,0 +1,16 @@
+"""
+configuration.py.dist
+
+This is a configuration.py sample file. Copy its content to create your own configuration.py file.
+"""
+
+OUTPUT_FILE         = "tester_dummy.sql"
+
+DATABASE_NAME       = "WebLab"
+
+GROUP_NAME          = "5A"
+EXPERIMENT_NAME     = "ud-pld"
+EXPERIMENT_CATEGORY = "PLD experiments"
+GPI_NAME            = "%s::weblab-pld" % GROUP_NAME
+GPI_OWNER_ID        = "prof1"
+GPI_COMMENTS        = "Permission for %s to use WebLab-PLD" % GROUP_NAME
