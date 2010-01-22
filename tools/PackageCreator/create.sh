@@ -97,6 +97,7 @@ if $VERSION_PER_OS; then
     rm -rf weblab/server/lib/{linux2,win32}
     zip -r weblab-macosx_$VERSION.zip weblab
     rm -rf weblab
-
+else
+    rm -rf weblab
 fi
 
