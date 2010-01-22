@@ -22,7 +22,11 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import es.deusto.weblab.client.comm.UploadStructure;
+import es.deusto.weblab.client.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.exceptions.comm.WlCommException;
 import es.deusto.weblab.client.ui.BoardBase;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
 import es.deusto.weblab.client.ui.widgets.WlPotentiometer;
@@ -35,22 +39,24 @@ import es.deusto.weblab.client.ui.widgets.WlWebcam;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 public class WlDeustoPicBasedBoard extends BoardBase{
+	
 	public static class Style{
-		public static final String TIME_REMAINING         = "wl-time_remaining";
+		public static final String TIME_REMAINING = "wl-time_remaining";
 		public static final String CLOCK_ACTIVATION_PANEL = "wl-clock_activation_panel"; 
 	}
 	
 	public static final String PIC_WEBCAM_IMAGE_URL_PROPERTY = "es.deusto.weblab.pic.webcam.image.url";
-	public static final String DEFAULT_PIC_WEBCAM_IMAGE_URL       = "http://fpga.weblab.deusto.es/webcam/fpga0/image.jpg";
+	public static final String DEFAULT_PIC_WEBCAM_IMAGE_URL = "https://fpga.weblab.deusto.es/webcam/fpga0/image.jpg";
 	
 	public static final String PIC_WEBCAM_REFRESH_TIME_PROPERTY = "es.deusto.weblab.pic.webcam.refresh.millis";
-	public static final int    DEFAULT_PIC_WEBCAM_REFRESH_TIME       = 400;
+	public static final int DEFAULT_PIC_WEBCAM_REFRESH_TIME = 400;
 	
 	private static final int TIMED_BUTTON_NUMBER = 4;
 	private static final int SWITCH_NUMBER = 4;
-	
+
 	protected IConfigurationManager configurationManager;
-	
+
+	private VerticalPanel widget;
 	private VerticalPanel verticalPanel;
 	private final List<Widget> interactiveWidgets;
 	
@@ -59,26 +65,94 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	private WlTimer timer;
 	private WlWaitingLabel messages;
 	
-	private WlSwitch [] switches;
-	
-	private WlTimedButton [] buttons;
-	
-	private WlTextBoxWithButton serialPortText;
-	
+	private WlSwitch [] switches;	
+	private WlTimedButton [] buttons;	
+	private WlTextBoxWithButton serialPortText;	
 	private WlPotentiometer potentiometer;
+	private UploadStructure uploadStructure;
 	
 	public WlDeustoPicBasedBoard(IConfigurationManager configurationManager, IBoardBaseController boardController){
 		super(boardController);
 		
 		this.configurationManager = configurationManager;
-		
-		this.interactiveWidgets = new Vector<Widget>();
-		
-		this.loadWidgets();
-		
-		this.disableInteractiveWidgets();
-	}
 
+		this.interactiveWidgets = new Vector<Widget>();
+		this.verticalPanel = new VerticalPanel();
+		this.widget        = new VerticalPanel();
+		this.widget.add(this.verticalPanel);
+	}
+	
+	@Override
+	public void initialize(){
+	    this.widget.setWidth("100%");
+	    this.widget.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+	    	
+		this.verticalPanel.setWidth("100%");
+		this.verticalPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		
+		this.verticalPanel.add(new Label("Select the program to send:"));
+		this.uploadStructure = new UploadStructure();
+		this.uploadStructure.setFileInfo("program");
+		this.widget.add(this.uploadStructure.getFormPanel());
+	}
+	
+	@Override
+	public void queued(){
+	    	this.widget.setVisible(false);
+	}
+	
+	@Override
+	public void start(){
+	    this.widget.setVisible(true);
+		this.loadWidgets();
+		this.disableInteractiveWidgets();
+		
+		this.uploadStructure.getFormPanel().setVisible(false);
+		
+		this.boardController.sendFile(this.uploadStructure, new IResponseCommandCallback() {
+		    
+		    @Override
+		    public void onSuccess(ResponseCommand response) {
+		    	WlDeustoPicBasedBoard.this.enableInteractiveWidgets();
+		    	WlDeustoPicBasedBoard.this.messages.setText("Device ready");
+		    	WlDeustoPicBasedBoard.this.messages.stop();
+		    }
+
+		    @Override
+		    public void onFailure(WlCommException e) {
+		    	WlDeustoPicBasedBoard.this.messages.setText("Error sending file: " + e.getMessage());
+		    }
+		});
+	}
+	
+	@Override
+	public void end(){
+		if(this.webcam != null){
+			this.webcam.dispose();
+			this.webcam = null;
+		}		
+		if(this.timer != null){
+			this.timer.dispose();
+			this.timer = null;
+		}			
+		if(this.switches != null){
+			for(int i = 0; i < this.switches.length; ++i)
+				this.switches[i].dispose();
+			this.switches = null;
+		}		
+		this.messages.stop();		
+	}	
+	
+	@Override
+	public void setTime(int time) {
+		this.timer.updateTime(time);
+	}
+	
+	@Override
+	public Widget getWidget() {
+		return this.widget;
+	}
+	
 	private void loadWidgets() {
 		final Widget firstRow = this.createFirstRow();
 		
@@ -221,45 +295,7 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		fourthRow.add(this.serialPortText.getWidget());
 		
 		return fourthRow;
-	}
-
-	@Override
-	public void end(){
-		if(this.webcam != null){
-			this.webcam.dispose();
-			this.webcam = null;
-		}
-		
-		if(this.timer != null){
-			this.timer.dispose();
-			this.timer = null;
-		}
-		
-		if(this.switches != null){
-			for(int i = 0; i < this.switches.length; ++i)
-				this.switches[i].dispose();
-			this.switches = null;
-		}
-		
-		this.messages.stop();
-	}
-	
-	@Override
-	public void start(){
-		this.enableInteractiveWidgets();
-		this.messages.setText("Device ready");
-		this.messages.stop();
-	}
-	
-	@Override
-	public void setTime(int time) {
-		this.timer.updateTime(time);
-	}
-	
-	@Override
-	public Widget getWidget() {
-		return this.verticalPanel;
-	}
+	}	
 
 	private String getWebcamImageUrl() {
 		return this.configurationManager.getProperty(
