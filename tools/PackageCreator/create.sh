@@ -30,7 +30,7 @@ VERSION_PER_OS=false
 SVN_PATH="http://weblabdeusto.googlecode.com/svn/trunk/weblab/"
 
 if [ "$REVISION" == "" ] ; then
-    REVISION=$(svn info --xml 2> /dev/null |grep revision|tail -1|cut -d\" -f2)
+    REVISION=$(svn info --xml 2> /dev/null |grep revision|head -1|cut -d\" -f2)
 fi
 
 if [ "$REVISION" == "" -o "$REVISION" == "0" ] ; then
