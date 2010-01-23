@@ -3,7 +3,7 @@
 #
 # Current version
 # 
-VERSION="3.9"
+VERSION="3.9.0"
 
 # 
 # Set up this revision number or we'll retrieve the last one from the SVN 
@@ -46,25 +46,32 @@ rm -rf packages
 mkdir packages
 cd packages
 
+echo -n "Creating source only zip file..."
+
 # 
 # Download the project, without .svn folders, without libs
 # 
-svn export --ignore-externals $REVISION_ARG $SVN_PATH weblab
+svn export --ignore-externals $REVISION_ARG $SVN_PATH weblab > /dev/null
 
 # 
 # Zip it
-zip -r weblab_$VERSION.zip weblab
+zip -r weblabdeusto_$VERSION.zip weblab > /dev/null
+echo "[done]"
 
 # 
 # Remove the folder and download it again, but with libs this time
 #
 rm -rf weblab
-svn export $REVISION_ARG $SVN_PATH weblab
+
+echo -n "Creating zip file with libs..."
+
+svn export $REVISION_ARG $SVN_PATH weblab > /dev/null
 
 # 
 # Zip the with-libs version
 # 
-zip -r weblab-with-libs_$VERSION.zip weblab
+zip -r weblabdeusto-with-libs_$VERSION.zip weblab > /dev/null
+echo "[done]"
 
 if $VERSION_PER_OS; then
 
@@ -85,17 +92,17 @@ if $VERSION_PER_OS; then
     # 
     mv weblab_windows weblab
     rm -rf weblab/server/lib/{darwin,linux2}
-    zip -r weblab-windows_$VERSION.zip weblab
+    zip -r weblabdeusto-windows_$VERSION.zip weblab > /dev/null
     rm -rf weblab
 
     mv weblab_linux weblab
     rm -rf weblab/server/lib/{darwin,win32}
-    zip -r weblab-linux_$VERSION.zip weblab
+    zip -r weblabdeusto-linux_$VERSION.zip weblab > /dev/null
     rm -rf weblab
 
     mv weblab_macosx weblab
     rm -rf weblab/server/lib/{linux2,win32}
-    zip -r weblab-macosx_$VERSION.zip weblab
+    zip -r weblabdeusto-macosx_$VERSION.zip weblab > /dev/null
     rm -rf weblab
 else
     rm -rf weblab
