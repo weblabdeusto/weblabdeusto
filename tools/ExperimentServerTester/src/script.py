@@ -1,7 +1,7 @@
 
 
 
-connect("127.0.0.1", "5678/weblab")
+connect("127.0.0.1", "10039", "/weblab")
 
 test_me("hello")
 
