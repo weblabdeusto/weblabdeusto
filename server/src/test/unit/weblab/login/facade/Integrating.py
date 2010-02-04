@@ -101,7 +101,7 @@ class LoginIntegratingRemoteFacadeManager(unittest.TestCase):
             finally:
                 self.rfs.stop()
     else:
-        print >> sys.stderr, "Optional module 'ZSI' not available. Tests in weblab.login.facade.Integrating skipped"
+        print >> sys.stderr, "Optional module 'ZSI' not available (or maybe didn't run deploy.py?). Tests in weblab.login.facade.Integrating skipped"
 
 def suite():
     return unittest.makeSuite(LoginIntegratingRemoteFacadeManager)
