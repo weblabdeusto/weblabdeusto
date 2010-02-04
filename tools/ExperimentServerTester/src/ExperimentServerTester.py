@@ -168,7 +168,10 @@ class ExperimentServerTester(object):
         
     @threaded()
     def msg_box(self, msg, title = "Info"):
-        __import__("wx").MessageBox(msg, title)
+        import wx
+        wx.PostEvent(self.mWindow, ResultEvent(
+                lambda : wx.MessageBox(msg, title)
+           ))
     
     def run_script(self, script_file):
         loc = dict()
