@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Aug 25 2009)
+## Python code generated with wxFormBuilder (version Dec 17 2009)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO "NOT" EDIT THIS FILE!
@@ -17,7 +17,7 @@ import wx.grid
 class MainFrameBase ( wx.Frame ):
 	
 	def __init__( self, parent ):
-		wx.Frame.__init__  ( self, parent, id = wx.ID_ANY, title = u"WebLab-Deusto Experiment Server Tester", pos = wx.DefaultPosition, size = wx.Size( 571,507 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"WebLab-Deusto Experiment Server Tester", pos = wx.DefaultPosition, size = wx.Size( 611,507 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 		
 		self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
 		self.SetBackgroundColour( wx.Colour( 221, 232, 249 ) )
@@ -72,8 +72,15 @@ class MainFrameBase ( wx.Frame ):
 		self.m_staticText6.Wrap( -1 )
 		mCmdsTabFileSizer.Add( self.m_staticText6, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.mFilePicker = wx.FilePickerCtrl( self.mCommandsTab, wx.ID_ANY, u"\" \"", u"Select a file", u"*.*", wx.DefaultPosition, wx.DefaultSize, wx.FLP_FILE_MUST_EXIST|wx.FLP_USE_TEXTCTRL )
-		mCmdsTabFileSizer.Add( self.mFilePicker, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		bSizer18 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.mFilePickerPath = wx.TextCtrl( self.mCommandsTab, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer18.Add( self.mFilePickerPath, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
+		
+		self.mFilePickerButton = wx.Button( self.mCommandsTab, wx.ID_ANY, u"...", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer18.Add( self.mFilePickerButton, 1, wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		mCmdsTabFileSizer.Add( bSizer18, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.m_staticText7 = wx.StaticText( self.mCommandsTab, wx.ID_ANY, u"FileInfo:", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText7.Wrap( -1 )
@@ -120,7 +127,7 @@ class MainFrameBase ( wx.Frame ):
 		self.mCommandsTab.SetSizer( commandsSizer )
 		self.mCommandsTab.Layout()
 		commandsSizer.Fit( self.mCommandsTab )
-		self.mNotebook.AddPage( self.mCommandsTab, u"Commands", True )
+		self.mNotebook.AddPage( self.mCommandsTab, u"Commands", False )
 		self.mScriptsTab = wx.Panel( self.mNotebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		self.mScriptsTab.SetBackgroundColour( wx.Colour( 221, 254, 216 ) )
 		
@@ -130,8 +137,15 @@ class MainFrameBase ( wx.Frame ):
 		self.mScriptLabel.Wrap( -1 )
 		scriptsSizer.Add( self.mScriptLabel, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.mScriptFilePicker = wx.FilePickerCtrl( self.mScriptsTab, wx.ID_ANY, wx.EmptyString, u"Select a script file", u"*.*", wx.DefaultPosition, wx.DefaultSize, wx.FLP_DEFAULT_STYLE )
-		scriptsSizer.Add( self.mScriptFilePicker, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		bSizer181 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.mScriptPickerPath = wx.TextCtrl( self.mScriptsTab, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer181.Add( self.mScriptPickerPath, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
+		
+		self.mScriptPickerButton = wx.Button( self.mScriptsTab, wx.ID_ANY, u"...", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer181.Add( self.mScriptPickerButton, 1, wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		scriptsSizer.Add( bSizer181, 1, wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.mRunScriptButton = wx.Button( self.mScriptsTab, wx.ID_ANY, u"Run Script", wx.DefaultPosition, wx.DefaultSize, 0 )
 		scriptsSizer.Add( self.mRunScriptButton, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -139,7 +153,7 @@ class MainFrameBase ( wx.Frame ):
 		self.mScriptsTab.SetSizer( scriptsSizer )
 		self.mScriptsTab.Layout()
 		scriptsSizer.Fit( self.mScriptsTab )
-		self.mNotebook.AddPage( self.mScriptsTab, u"Scripts", False )
+		self.mNotebook.AddPage( self.mScriptsTab, u"Scripts", True )
 		
 		tabsSizer.Add( self.mNotebook, 1, wx.EXPAND |wx.ALL, 5 )
 		
@@ -205,7 +219,7 @@ class MainFrameBase ( wx.Frame ):
 		self.mPortText.Bind( wx.EVT_TEXT, self.OnPortText )
 		self.mPortText.Bind( wx.EVT_TEXT_ENTER, self.OnPortTextEnter )
 		self.mConnectButton.Bind( wx.EVT_BUTTON, self.OnConnect )
-		self.mFilePicker.Bind( wx.EVT_FILEPICKER_CHANGED, self.OnFileChanged )
+		self.mFilePickerButton.Bind( wx.EVT_BUTTON, self.OnFilePickerButtonClicked )
 		self.mFileInfoText.Bind( wx.EVT_TEXT, self.OnFileInfoText )
 		self.mFileInfoText.Bind( wx.EVT_TEXT_ENTER, self.OnFileInfoTextEnter )
 		self.mCommandText.Bind( wx.EVT_TEXT, self.OnCommandText )
@@ -214,7 +228,7 @@ class MainFrameBase ( wx.Frame ):
 		self.mSendFileButton.Bind( wx.EVT_BUTTON, self.OnSendFile )
 		self.mSendCommand.Bind( wx.EVT_BUTTON, self.OnSendCommand )
 		self.mDisposeButton.Bind( wx.EVT_BUTTON, self.OnDispose )
-		self.mScriptFilePicker.Bind( wx.EVT_FILEPICKER_CHANGED, self.OnScriptFileChanged )
+		self.mScriptPickerButton.Bind( wx.EVT_BUTTON, self.OnScriptPickerButtonClicked )
 		self.mRunScriptButton.Bind( wx.EVT_BUTTON, self.OnRunScript )
 		self.mLogGrid.Bind( wx.grid.EVT_GRID_CELL_CHANGE, self.OnLogCellChange )
 		self.mLogGrid.Bind( wx.grid.EVT_GRID_CELL_LEFT_CLICK, self.OnLogCellLeftClick )
@@ -271,7 +285,7 @@ class MainFrameBase ( wx.Frame ):
 	def OnConnect( self, event ):
 		event.Skip()
 	
-	def OnFileChanged( self, event ):
+	def OnFilePickerButtonClicked( self, event ):
 		event.Skip()
 	
 	def OnFileInfoText( self, event ):
@@ -298,7 +312,7 @@ class MainFrameBase ( wx.Frame ):
 	def OnDispose( self, event ):
 		event.Skip()
 	
-	def OnScriptFileChanged( self, event ):
+	def OnScriptPickerButtonClicked( self, event ):
 		event.Skip()
 	
 	def OnRunScript( self, event ):
@@ -342,7 +356,7 @@ class MainFrameBase ( wx.Frame ):
 class LogViewerBase ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__  ( self, parent, id = wx.ID_ANY, title = u"Log Viewer", pos = wx.DefaultPosition, size = wx.Size( 400,500 ), style = wx.CAPTION|wx.CLOSE_BOX|wx.DEFAULT_DIALOG_STYLE|wx.MAXIMIZE_BOX|wx.RESIZE_BORDER )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Log Viewer", pos = wx.DefaultPosition, size = wx.Size( 400,500 ), style = wx.CAPTION|wx.CLOSE_BOX|wx.DEFAULT_DIALOG_STYLE|wx.MAXIMIZE_BOX|wx.RESIZE_BORDER )
 		
 		self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
 		self.SetBackgroundColour( wx.Colour( 216, 228, 248 ) )

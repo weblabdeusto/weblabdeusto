@@ -55,18 +55,18 @@ class MainFrame(mst_gui.MainFrameBase, IExperimentServerTesterNotifier):
     Status = property(GetStatus, SetStatus)
     
     def SaveControlContents(self):
-        # BUG: Currently SaveControlContents crashes on Linux, so we do nothing
-        # if we're not on windows.
-        if os.name != 'nt':
-            return;
+        # BUG: Currently wxFilePicker does not work on Linux, so we're using a text field and a button instead.
         
         host = self.mHostText.GetValue()
         port = self.mPortText.GetValue()
         uri = self.mUriText.GetValue()
         
-        # BUG: Linux crashes on the following line.
-        script_file = self.mScriptFilePicker.GetTextCtrlValue()
-        sendfile = self.mFilePicker.GetTextCtrlValue()
+        #script_file = self.mScriptFilePicker.GetTextCtrlValue()
+        script_file = self.mScriptPickerPath.GetValue()
+        
+        #sendfile = self.mFilePicker.GetTextCtrlValue()
+        sendfile = self.mScriptPickerPath.GetValue()
+        
         self.mControlsPersistence["host"] = host
         self.mControlsPersistence["port"] = port
         self.mControlsPersistence["scriptfile"] = script_file
@@ -85,8 +85,13 @@ class MainFrame(mst_gui.MainFrameBase, IExperimentServerTesterNotifier):
                 self.mHostText.SetValue(self.mControlsPersistence["host"])
                 self.mPortText.SetValue(self.mControlsPersistence["port"])
                 self.mUriText.SetValue(self.mControlsPersistence["uri"])
-                self.mScriptFilePicker.SetPath(self.mControlsPersistence["scriptfile"])
-                self.mFilePicker.SetPath(self.mControlsPersistence["sendfile"])
+                
+                #self.mScriptFilePicker.SetPath(self.mControlsPersistence["scriptfile"])
+                self.mScriptPickerPath.SetValue(self.mControlsPersistence["scriptfile"])
+                
+                #self.mFilePicker.SetPath(self.mControlsPersistence["sendfile"])
+                self.mFilePickerPath.SetValue(self.mControlsPersistence["sendfile"])
+                
         except Exception, e:
             wx.MessageBox("Possibly corrupt persistence.dat. Removing it. Error: %s" % str(e))
             os.remove("persistence.dat")
@@ -202,7 +207,10 @@ class MainFrame(mst_gui.MainFrameBase, IExperimentServerTesterNotifier):
     def OnSendFile(self, event):
         try:
             self.SaveControlContents()
-            path = self.mFilePicker.GetTextCtrlValue()
+           
+            #path = self.mFilePicker.GetTextCtrlValue()
+            path = self.mFilePickerPath.GetValue()
+            
             if path == "":
                 wx.MessageBox("A file must be chosen", "Error")
                 return
@@ -233,7 +241,10 @@ class MainFrame(mst_gui.MainFrameBase, IExperimentServerTesterNotifier):
     def OnRunScript(self, event):
         try:
             self.SaveControlContents()
-            script_file = self.mScriptFilePicker.GetTextCtrlValue()
+            
+            script_file = self.mScriptPickerPath.GetValue()
+            #script_file = self.mScriptFilePicker.GetTextCtrlValue()
+            
             if(script_file == ""):
                 wx.MessageBox("A script file must be chosen", "Error")
                 return
@@ -308,7 +319,12 @@ class MainFrame(mst_gui.MainFrameBase, IExperimentServerTesterNotifier):
         
     
     def ControlsEnable(self, connection = True, commands = False, connect_button = True):    
-        self.mFilePicker.Enable(commands)
+        
+        # TODO: Consider replacing it back once the wxFilePicker works on Linux.
+        #self.mFilePicker.Enable(commands)
+        self.mFilePickerButton.Enable(commands)
+        self.mFilePickerPath.Enable(commands);
+        
         self.mFileInfoText.Enable(commands)
         self.mStartExperimentButton.Enable(commands)
         self.mCommandText.Enable(commands)
@@ -367,5 +383,17 @@ class MainFrame(mst_gui.MainFrameBase, IExperimentServerTesterNotifier):
         self.Log("{Disconnected}", "")
         self.ControlsEnable(True, False, True)
         self.mConnectButton.SetLabel("Connect")
+        
+    
+    def OnFilePickerButtonClicked( self, event ):
+        filename = wx.FileSelector( u"Choose the file" )
+        if len(filename) > 0:
+            self.mFilePickerPath.SetValue(filename)
+            
+        
+    def OnScriptPickerButtonClicked( self, event ):
+        filename = wx.FileSelector(u"Choose the script file", "", "", ".py", "*.py")
+        if len(filename) > 0:
+            self.mScriptPickerPath.SetValue(filename)
     
     
