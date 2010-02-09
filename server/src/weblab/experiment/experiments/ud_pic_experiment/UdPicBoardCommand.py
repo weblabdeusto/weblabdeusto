@@ -78,7 +78,7 @@ def bool_to_on_off(on_off):
 
 class ChangeSwitchCommand(UdPicBoardSimpleCommand):
 
-    Syntax = "SWITCH=([0-3]) (ON|OFF)"
+    Syntax = "SWITCH=([0-4]) (ON|OFF)"
 
     def __init__(self, number, switch_on):
         super(ChangeSwitchCommand,self).__init__()
@@ -114,7 +114,7 @@ UdPicBoardSimpleCommand.SUBCLASSES += (SetPulseCommand,)
 
 class AdjustCommand(UdPicBoardSimpleCommand):
 
-    Syntax = "ADJUST=([0]) ([0-4].[0-9]|5.0)"
+    Syntax = "ADJUST=([0-3]) ([0-4].[0-9]|5.0)"
 
     def __init__(self, number, power):
         super(AdjustCommand,self).__init__()
