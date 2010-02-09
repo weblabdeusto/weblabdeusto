@@ -86,7 +86,7 @@ class ChangeSwitchCommand(UdPicBoardSimpleCommand):
         self.number = int(number)
     
     def __str__(self):
-        return "SWITCH %s %s" % (
+        return "SWITCH=%s %s" % (
                 self.number,
                 bool_to_on_off(self.switch_on)
             )

@@ -97,12 +97,12 @@ class UdPicExperimentTestCase(unittest.TestCase):
                 pmock.once()
             ).urlopen(
                 pmock.eq('http://localhost:80/pic.cgi'),
-                pmock.eq('PULSE 0 1000')
+                pmock.eq('PULSE=0 1000')
             ).will(
                 pmock.return_value(StringIO.StringIO('ok'))
             )
         self.experiment.do_send_command_to_device(
-                "PULSE 0 1000"
+                "PULSE=0 1000"
             )
         self.urllib_mock.verify()
 
@@ -111,7 +111,7 @@ class UdPicExperimentTestCase(unittest.TestCase):
                 pmock.once()
             ).urlopen(
                 pmock.eq('http://localhost:80/pic.cgi'),
-                pmock.eq('PULSE 0 1000')
+                pmock.eq('PULSE=0 1000')
             ).will(
                 pmock.return_value(StringIO.StringIO('ok'))
             )
@@ -119,12 +119,12 @@ class UdPicExperimentTestCase(unittest.TestCase):
                 pmock.once()
             ).urlopen(
                 pmock.eq('http://localhost:80/pic.cgi'),
-                pmock.eq('PULSE 0 500')
+                pmock.eq('PULSE=0 500')
             ).will(
                 pmock.return_value(StringIO.StringIO('ok'))
             )
         self.experiment.do_send_command_to_device(
-                "PULSE 0 1000, PULSE 0 500"
+                "PULSE=0 1000, PULSE=0 500"
             )
         self.urllib_mock.verify()
 
@@ -132,7 +132,7 @@ class UdPicExperimentTestCase(unittest.TestCase):
         self.assertRaises(
             UdPicExperimentExceptions.InvalidUdPicBoardCommandException,
             self.experiment.do_send_command_to_device,
-            "PULSE.THAT.DOES.NOT.EXIST 0 1000"
+            "PULSE.THAT.DOES.NOT.EXIST=0 1000"
         )
 
 # TODO: The PIC actually returns an index.html web page, so this must be changed
@@ -220,7 +220,7 @@ class UdPicExperimentTestCase(unittest.TestCase):
                 pmock.once()
             ).urlopen(
                 pmock.eq('http://localhost:80/pic.cgi'),
-                pmock.eq('RESET')
+                pmock.eq('RESET=')
             ).will(
                 pmock.return_value(StringIO.StringIO('ok'))
             )
@@ -266,7 +266,7 @@ class UdPicExperimentTestCase(unittest.TestCase):
                 pmock.once()
             ).urlopen(
                 pmock.eq('http://localhost:80/pic.cgi'),
-                pmock.eq('RESET')
+                pmock.eq('RESET=')
             ).will(
                 pmock.return_value(StringIO.StringIO('ok'))
             )
@@ -315,7 +315,7 @@ class UdPicExperimentTestCase(unittest.TestCase):
                 pmock.once()
             ).urlopen(
                 pmock.eq('http://localhost:80/pic.cgi'),
-                pmock.eq('RESET')
+                pmock.eq('RESET=')
             ).will(
                 pmock.return_value(StringIO.StringIO('ok'))
             )
@@ -364,7 +364,7 @@ class UdPicExperimentTestCase(unittest.TestCase):
                 pmock.once()
             ).urlopen(
                 pmock.eq('http://localhost:80/pic.cgi'),
-                pmock.eq('RESET')
+                pmock.eq('RESET=')
             ).will(
                 pmock.return_value(StringIO.StringIO('ok'))
             )

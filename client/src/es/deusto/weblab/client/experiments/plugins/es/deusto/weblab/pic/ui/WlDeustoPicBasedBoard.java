@@ -16,9 +16,7 @@ package es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.pic.ui;
 import java.util.List;
 import java.util.Vector;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -30,11 +28,13 @@ import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.exceptions.comm.WlCommException;
 import es.deusto.weblab.client.ui.BoardBase;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
+import es.deusto.weblab.client.ui.widgets.WlHorizontalPanel;
 import es.deusto.weblab.client.ui.widgets.WlPotentiometer;
 import es.deusto.weblab.client.ui.widgets.WlSwitch;
 import es.deusto.weblab.client.ui.widgets.WlTextBoxWithButton;
 import es.deusto.weblab.client.ui.widgets.WlTimedButton;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
+import es.deusto.weblab.client.ui.widgets.WlVerticalPanel;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
@@ -54,11 +54,12 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	
 	private static final int TIMED_BUTTON_NUMBER = 4;
 	private static final int SWITCH_NUMBER = 4;
+	private static final int POTENTIOMETER_NUMBER = 4;
 
 	protected IConfigurationManager configurationManager;
 
 	private VerticalPanel widget;
-	private VerticalPanel verticalPanel;
+	private VerticalPanel removableWidgetsPanel;
 	private final List<Widget> interactiveWidgets;
 	
 	private WlWebcam webcam;
@@ -68,8 +69,9 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	
 	private WlSwitch [] switches;	
 	private WlTimedButton [] buttons;	
-	private WlTextBoxWithButton serialPortText;	
-	private WlPotentiometer potentiometer;
+	private WlPotentiometer[] potentiometers;
+	private WlTextBoxWithButton serialPortText;
+	private WlSwitch triggerSwitch;
 	private UploadStructure uploadStructure;
 	
 	public WlDeustoPicBasedBoard(IConfigurationManager configurationManager, IBoardBaseController boardController){
@@ -78,9 +80,9 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		this.configurationManager = configurationManager;
 
 		this.interactiveWidgets = new Vector<Widget>();
-		this.verticalPanel = new VerticalPanel();
+		this.removableWidgetsPanel = new VerticalPanel();
 		this.widget        = new VerticalPanel();
-		this.widget.add(this.verticalPanel);
+		this.widget.add(this.removableWidgetsPanel);
 	}
 	
 	@Override
@@ -88,10 +90,10 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	    this.widget.setWidth("100%");
 	    this.widget.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 	    	
-		this.verticalPanel.setWidth("100%");
-		this.verticalPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		this.removableWidgetsPanel.setWidth("100%");
+		this.removableWidgetsPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		
-		this.verticalPanel.add(new Label("Select the program to send:"));
+		this.removableWidgetsPanel.add(new Label("Select the program to send:"));
 		this.uploadStructure = new UploadStructure();
 		this.uploadStructure.setFileInfo("program");
 		this.widget.add(this.uploadStructure.getFormPanel());
@@ -155,29 +157,232 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	}
 	
 	private void loadWidgets() {
-		final Widget firstRow = this.createFirstRow();
+
+		this.removableWidgetsPanel.setSpacing(10);
+		this.removableWidgetsPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		
-		final HorizontalPanel secondRow = this.createSecondRow();
-		final HorizontalPanel thirdRow = this.createThirdRow();
-		final HorizontalPanel fourthRow = this.createFourthRow();
+		while(this.removableWidgetsPanel.getWidgetCount() > 0)
+		    this.removableWidgetsPanel.remove(0);
 		
-		while(this.verticalPanel.getWidgetCount() > 0)
-		    this.verticalPanel.remove(0);
+		// Webcam
+		this.webcam = new WlWebcam(
+				this.getWebcamRefreshingTime(),
+				this.getWebcamImageUrl()
+			);
+		this.webcam.start();
+		this.removableWidgetsPanel.add(this.webcam.getWidget());
 		
-		this.verticalPanel.setWidth("100%");
-		this.verticalPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		// Timer
+		this.timer = new WlTimer();
+		this.timer.setStyleName(WlDeustoPicBasedBoard.Style.TIME_REMAINING);
+		this.timer.getWidget().setWidth("30%");
+		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
+			public void onFinished() {
+			    WlDeustoPicBasedBoard.this.boardController.onClean();
+			}
+		});
+		this.removableWidgetsPanel.add(this.timer.getWidget());	
+		this.addInteractiveWidget(this.timer.getWidget());
 		
-		final VerticalPanel otherVerticalPanel = new VerticalPanel();
-		otherVerticalPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		otherVerticalPanel.setSpacing(20);
-		otherVerticalPanel.setWidth("85%");
+		// Input Widgets
+		WlHorizontalPanel inputWidgetsPanel = new WlHorizontalPanel();
+		inputWidgetsPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		this.removableWidgetsPanel.add(inputWidgetsPanel);		
+		this.addInteractiveWidget(inputWidgetsPanel.getWidget());
 		
-		otherVerticalPanel.add(firstRow);
-		otherVerticalPanel.add(secondRow);
-		otherVerticalPanel.add(thirdRow);
-		otherVerticalPanel.add(fourthRow);
+		// 1st column: Switches and Potentiometers
+		final WlVerticalPanel firstCol = new WlVerticalPanel();
+		firstCol.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		firstCol.setWidth("100%");
+		inputWidgetsPanel.add(firstCol);
 		
-		this.verticalPanel.add(otherVerticalPanel);
+		// Switches
+		final WlHorizontalPanel switchesPanel = new WlHorizontalPanel();
+		switchesPanel.setWidth("100%");
+		switchesPanel.setSpacing(20);
+		this.switches = new WlSwitch[WlDeustoPicBasedBoard.SWITCH_NUMBER];
+		for(int i = 0; i < WlDeustoPicBasedBoard.SWITCH_NUMBER; ++i){
+			this.switches[i] = new WlSwitch();
+			final IWlActionListener actionListener = new SwitchListener(i, this.boardController);
+			this.switches[i].addActionListener(actionListener);
+			final WlVerticalPanel switchPanel = new WlVerticalPanel();
+			switchPanel.setWidth("100%");
+			switchPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+			switchPanel.add(this.switches[i].getWidget());
+			switchPanel.add(new Label("" + (WlDeustoPicBasedBoard.SWITCH_NUMBER - i - 1)));			
+			switchesPanel.add(switchPanel);
+		}
+		firstCol.add(switchesPanel);
+
+		// Potentiometers
+		final WlHorizontalPanel potentiometersPanel = new WlHorizontalPanel();
+		potentiometersPanel.setSpacing(20);
+		this.potentiometers = new WlPotentiometer[WlDeustoPicBasedBoard.POTENTIOMETER_NUMBER];
+		for(int i = 0; i < WlDeustoPicBasedBoard.TIMED_BUTTON_NUMBER; ++i){
+			this.potentiometers[i] = new WlPotentiometer();
+			final PotentiometerListener potentiometerListener = new PotentiometerListener(i, this.boardController);
+			this.potentiometers[i].addActionListener(potentiometerListener);
+			final WlVerticalPanel potentiometerPanel = new WlVerticalPanel();
+			potentiometerPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+			potentiometerPanel.add(this.potentiometers[i].getWidget());
+			potentiometerPanel.add(new Label("" + (WlDeustoPicBasedBoard.POTENTIOMETER_NUMBER - i + 1)));			
+			potentiometersPanel.add(potentiometerPanel);
+		}	
+		firstCol.add(potentiometersPanel);	
+		
+		// 2nd column: Pulses and Write
+		final WlVerticalPanel secondCol = new WlVerticalPanel();
+		secondCol.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		secondCol.setWidth("100%");
+		inputWidgetsPanel.add(secondCol);
+		
+		// Pulses
+		final WlHorizontalPanel pulsesPanel = new WlHorizontalPanel();
+		pulsesPanel.setSpacing(20);
+		this.buttons = new WlTimedButton[WlDeustoPicBasedBoard.TIMED_BUTTON_NUMBER];
+		for(int i = 0; i < WlDeustoPicBasedBoard.TIMED_BUTTON_NUMBER; ++i){
+			this.buttons[i] = new WlTimedButton();
+			final ButtonListener buttonListener = new ButtonListener(i, this.buttons[i], this.boardController);
+			this.buttons[i].addButtonListener(buttonListener);
+			final WlVerticalPanel pulsePanel = new WlVerticalPanel();
+			pulsePanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+			pulsePanel.add(this.buttons[i].getWidget());
+			pulsePanel.add(new Label("" + (WlDeustoPicBasedBoard.TIMED_BUTTON_NUMBER - i + 3)));			
+			pulsesPanel.add(pulsePanel);
+		}	
+		secondCol.add(pulsesPanel);	
+		
+		// Write and "Trigger" Switch Panel
+		final WlHorizontalPanel writeAndTriggerSwitchPanel = new WlHorizontalPanel();
+		writeAndTriggerSwitchPanel.setSpacing(20);
+		writeAndTriggerSwitchPanel.setWidth("100%");
+		secondCol.add(writeAndTriggerSwitchPanel);
+		
+		// Write
+		this.serialPortText = new WlTextBoxWithButton();
+		this.serialPortText.addActionListener(
+			new WriteListener(
+				0, // The only one by the moment :-)
+				this.boardController
+			)
+		);
+		final WlVerticalPanel writePanel = new WlVerticalPanel();
+		writePanel.setWidth("100%");
+		writePanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		writePanel.add(this.serialPortText.getWidget());
+		writePanel.add(new Label("UART"));					
+		writeAndTriggerSwitchPanel.add(writePanel);	
+		
+		// "Trigger" Switch
+		this.triggerSwitch = new WlSwitch();
+		final IWlActionListener actionListener = new SwitchListener(4, this.boardController);
+		this.triggerSwitch.addActionListener(actionListener);
+		final WlVerticalPanel triggerSwitchPanel = new WlVerticalPanel();
+		triggerSwitchPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		triggerSwitchPanel.add(this.triggerSwitch.getWidget());
+		triggerSwitchPanel.add(new Label("Trigger"));					
+		writeAndTriggerSwitchPanel.add(triggerSwitchPanel);	
+		
+		
+/*		
+		// 3rd column: "Trigger" Switch
+		final WlVerticalPanel thirdCol = new WlVerticalPanel();
+		thirdCol.setSpacing(15);
+		thirdCol.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		thirdCol.setWidth("100%");
+		inputWidgetsPanel.add(thirdCol);			
+*/		
+		
+		// Messages
+		this.messages = new WlWaitingLabel("Programming device");
+		this.messages.start();
+		this.removableWidgetsPanel.add(this.messages.getWidget());
+		
+		/*
+		// 1st row: Switches and Pulses
+		final WlHorizontalPanel firstRow = new WlHorizontalPanel();
+		firstRow.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		firstRow.setWidth("100%");
+		this.removableWidgetsPanel.add(firstRow);
+		this.addInteractiveWidget(firstRow);
+		
+		// Switches
+		final WlHorizontalPanel switchesPanel = new WlHorizontalPanel();
+		this.switches = new WlSwitch[WlDeustoPicBasedBoard.SWITCH_NUMBER];
+		for(int i = 0; i < WlDeustoPicBasedBoard.SWITCH_NUMBER; ++i){
+			this.switches[i] = new WlSwitch();
+			final IWlActionListener actionListener = new SwitchListener(i, this.boardController);
+			this.switches[i].addActionListener(actionListener);
+			final WlVerticalPanel switchPanel = new WlVerticalPanel();
+			switchPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+			switchPanel.add(this.switches[i].getWidget());
+			switchPanel.add(new Label("" + (WlDeustoPicBasedBoard.SWITCH_NUMBER - i - 1)));			
+			switchesPanel.add(switchPanel);
+		}
+		firstRow.add(switchesPanel);
+		
+		// Pulses
+		final WlHorizontalPanel pulsesPanel = new WlHorizontalPanel();
+		this.buttons = new WlTimedButton[WlDeustoPicBasedBoard.TIMED_BUTTON_NUMBER];
+		for(int i = 0; i < WlDeustoPicBasedBoard.TIMED_BUTTON_NUMBER; ++i){
+			this.buttons[i] = new WlTimedButton();
+			final ButtonListener buttonListener = new ButtonListener(i, this.buttons[i], this.boardController);
+			this.buttons[i].addButtonListener(buttonListener);
+			final WlVerticalPanel pulsePanel = new WlVerticalPanel();
+			pulsePanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+			pulsePanel.add(this.buttons[i].getWidget());
+			pulsePanel.add(new Label("" + (WlDeustoPicBasedBoard.TIMED_BUTTON_NUMBER - i - 1)));			
+			pulsesPanel.add(pulsePanel);
+		}	
+		firstRow.add(pulsesPanel);
+		
+		// 2nd row: Potentiometers, Write and "trigger" Switch
+		final WlHorizontalPanel secondRow = new WlHorizontalPanel();
+		secondRow.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		secondRow.setWidth("100%");
+		this.removableWidgetsPanel.add(secondRow);
+		this.addInteractiveWidget(secondRow);
+		
+		// Potentiometers
+		final WlHorizontalPanel potentiometersPanel = new WlHorizontalPanel();
+		this.potentiometers = new WlPotentiometer[WlDeustoPicBasedBoard.POTENTIOMETER_NUMBER];
+		for(int i = 0; i < WlDeustoPicBasedBoard.TIMED_BUTTON_NUMBER; ++i){
+			this.potentiometers[i] = new WlPotentiometer();
+			final PotentiometerListener potentiometerListener = new PotentiometerListener(i, this.boardController);
+			this.potentiometers[i].addActionListener(potentiometerListener);
+			final WlVerticalPanel potentiometerPanel = new WlVerticalPanel();
+			potentiometerPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+			potentiometerPanel.add(this.potentiometers[i].getWidget());
+			potentiometerPanel.add(new Label("" + (WlDeustoPicBasedBoard.POTENTIOMETER_NUMBER - i - 1)));			
+			pulsesPanel.add(potentiometerPanel);		
+			potentiometersPanel.add(potentiometerPanel);
+		}	
+		secondRow.add(potentiometersPanel);		
+		
+		// Write
+		this.serialPortText = new WlTextBoxWithButton();
+		this.serialPortText.addActionListener(
+			new WriteListener(
+				0, // The only one by the moment :-)
+				this.boardController
+			)
+		);
+		final WlVerticalPanel writePanel = new WlVerticalPanel();
+		writePanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		writePanel.add(this.serialPortText.getWidget());
+		writePanel.add(new Label("UART"));					
+		secondRow.add(writePanel);		
+		
+		// "Trigger" Switch
+		this.triggerSwitch = new WlSwitch();
+		final IWlActionListener actionListener = new SwitchListener(4, this.boardController);
+		this.triggerSwitch.addActionListener(actionListener);
+		final WlVerticalPanel triggetSwitchPanel = new WlVerticalPanel();
+		triggetSwitchPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		triggetSwitchPanel.add(this.triggerSwitch.getWidget());
+		triggetSwitchPanel.add(new Label("Trigger"));					
+		secondRow.add(triggetSwitchPanel);	
+		*/
 	}
 	
 	private void addInteractiveWidget(Widget widget){
@@ -193,112 +398,6 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		for(int i = 0; i < this.interactiveWidgets.size(); ++i)
 			this.interactiveWidgets.get(i).setVisible(false);
 	}
-
-	private Widget createFirstRow() {
-		this.webcam = new WlWebcam(
-				this.getWebcamRefreshingTime(),
-				this.getWebcamImageUrl()
-			);
-		this.webcam.start();
-		return this.webcam.getWidget();
-	}
-	
-	private HorizontalPanel createSecondRow() {
-		this.timer = new WlTimer();
-		this.timer.setStyleName(WlDeustoPicBasedBoard.Style.TIME_REMAINING);
-		this.timer.getWidget().setWidth("30%");
-		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
-			public void onFinished() {
-			    WlDeustoPicBasedBoard.this.boardController.onClean();
-			}
-		});
-		
-		this.messages = new WlWaitingLabel("Programming device");
-		this.messages.start();
-		
-		this.potentiometer = new WlPotentiometer();
-		final PotentiometerListener potentiometerListener = new PotentiometerListener(
-										0, // The only one by the moment :-) 
-										this.boardController
-								);
-		this.potentiometer.addActionListener(potentiometerListener);
-		this.potentiometer.getWidget().setWidth("70%");
-		
-		final HorizontalPanel secondRow = new HorizontalPanel();
-		secondRow.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		secondRow.setWidth("100%");
-		secondRow.add(this.timer.getWidget());
-		secondRow.add(this.messages.getWidget());
-		secondRow.add(this.potentiometer.getWidget());
-		
-		this.addInteractiveWidget(this.timer.getWidget());
-		
-		return secondRow;
-	}
-	
-	private HorizontalPanel createThirdRow() {
-		this.switches = new WlSwitch[WlDeustoPicBasedBoard.SWITCH_NUMBER];
-		for(int i = 0; i < WlDeustoPicBasedBoard.SWITCH_NUMBER; ++i){
-			this.switches[i] = new WlSwitch();
-			final IWlActionListener actionListener = new SwitchListener(i, this.boardController);
-			this.switches[i].addActionListener(actionListener);
-		}
-		
-		this.buttons = new WlTimedButton[WlDeustoPicBasedBoard.TIMED_BUTTON_NUMBER];
-		for(int i = 0; i < WlDeustoPicBasedBoard.TIMED_BUTTON_NUMBER; ++i){
-			this.buttons[i] = new WlTimedButton();
-			final ButtonListener buttonListener = new ButtonListener(i, this.buttons[i], this.boardController);
-			this.buttons[i].addButtonListener(buttonListener);
-		}
-		
-		final HorizontalPanel thirdRow = new HorizontalPanel();
-		thirdRow.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		thirdRow.setWidth("100%");
-		
-		for(int i = 0; i < WlDeustoPicBasedBoard.SWITCH_NUMBER; ++i){
-			this.switches[i].getWidget().setWidth("100%");
-			
-			final VerticalPanel vp = new VerticalPanel();
-			vp.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-			vp.add(new Label("" + (WlDeustoPicBasedBoard.SWITCH_NUMBER - i - 1)));
-			vp.add(this.switches[i].getWidget());
-			thirdRow.add(vp);
-			
-			this.addInteractiveWidget(vp);
-		}
-		
-		for(int i = 0; i < WlDeustoPicBasedBoard.TIMED_BUTTON_NUMBER; ++i){
-			this.buttons[i].getWidget().setWidth("100%");
-			
-			final VerticalPanel vp = new VerticalPanel();
-			vp.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-			vp.add(new Label("" + (WlDeustoPicBasedBoard.TIMED_BUTTON_NUMBER - i - 1)));
-			vp.add(this.buttons[i].getWidget());
-			thirdRow.add(vp);
-			
-			this.addInteractiveWidget(vp);
-		}
-		
-		return thirdRow;
-	}
-
-	private HorizontalPanel createFourthRow() {
-		this.serialPortText = new WlTextBoxWithButton();
-		this.serialPortText.addActionListener(
-			new WriteListener(
-				0, // The only one by the moment :-)
-				this.boardController
-			)
-		);
-		
-		final HorizontalPanel fourthRow = new HorizontalPanel();
-		fourthRow.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		fourthRow.setWidth("100%");
-		
-		fourthRow.add(this.serialPortText.getWidget());
-		
-		return fourthRow;
-	}	
 
 	private String getWebcamImageUrl() {
 		return this.configurationManager.getProperty(
