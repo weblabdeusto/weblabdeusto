@@ -40,6 +40,6 @@ public class AdjustCommand extends Command{
         if(floatPart.length() > 1)
                 finalValue += floatPart;
 
-        return "ADJUST " + this.potentiometerCode + " " + finalValue;
+        return "ADJUST=" + this.potentiometerCode + " " + finalValue;
     }
 }

@@ -26,6 +26,6 @@ public class PulseCommand extends Command{
 
 	@Override
 	public String getCommandString() {
-		return "PULSE " + this.number + " " + this.millis;
+		return "PULSE=" + this.number + " " + this.millis;
 	}
 }

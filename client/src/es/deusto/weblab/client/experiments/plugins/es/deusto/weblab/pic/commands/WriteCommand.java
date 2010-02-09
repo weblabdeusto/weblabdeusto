@@ -26,6 +26,6 @@ public class WriteCommand extends Command{
 	
 	@Override
 	public String getCommandString() {
-		return "WRITE " + this.boxCode + " " + this.text + " EOT";
+		return "WRITE=" + this.boxCode + " " + this.text + " EOT";
 	}
 }

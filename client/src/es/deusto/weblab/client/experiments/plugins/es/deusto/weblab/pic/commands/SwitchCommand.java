@@ -26,6 +26,6 @@ public class SwitchCommand extends Command{
 	
 	@Override
 	public String getCommandString() {
-		return "SWITCH " + this.n + " " + (this.state?"ON":"OFF");
+		return "SWITCH=" + this.n + " " + (this.state?"ON":"OFF");
 	}
 }
