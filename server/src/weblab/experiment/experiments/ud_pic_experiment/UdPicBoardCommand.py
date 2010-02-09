@@ -47,7 +47,7 @@ class UdPicBoardSimpleCommand(object):
     @staticmethod
     def create(str_command):
         for SubClass in UdPicBoardSimpleCommand.SUBCLASSES:
-            mo = re.match(SubClass.Syntax, str_command)
+            mo = re.match(SubClass.Syntax, str_command+"=")
             if mo != None:
                 return SubClass(*(mo.groups()))
 
@@ -78,7 +78,7 @@ def bool_to_on_off(on_off):
 
 class ChangeSwitchCommand(UdPicBoardSimpleCommand):
 
-    Syntax = "SWITCH ([0-3]) (ON|OFF)"
+    Syntax = "SWITCH=([0-3]) (ON|OFF)"
 
     def __init__(self, number, switch_on):
         super(ChangeSwitchCommand,self).__init__()
@@ -96,7 +96,7 @@ UdPicBoardSimpleCommand.SUBCLASSES += (ChangeSwitchCommand,)
 
 class SetPulseCommand(UdPicBoardSimpleCommand):
 
-    Syntax        = "PULSE ([0-3]) ([0-9]{1,5})"
+    Syntax        = "PULSE=([0-3]) ([0-9]{1,5})"
 
     def __init__(self, number, millis):
         super(SetPulseCommand,self).__init__()
@@ -104,7 +104,7 @@ class SetPulseCommand(UdPicBoardSimpleCommand):
         self.millis = int(millis)
     
     def __str__(self):
-        return "PULSE %s %s" % (
+        return "PULSE=%s %s" % (
                 self.number,
                 self.millis
             )
@@ -114,7 +114,7 @@ UdPicBoardSimpleCommand.SUBCLASSES += (SetPulseCommand,)
 
 class AdjustCommand(UdPicBoardSimpleCommand):
 
-    Syntax = "ADJUST ([0]) ([0-4].[0-9]|5.0)"
+    Syntax = "ADJUST=([0]) ([0-4].[0-9]|5.0)"
 
     def __init__(self, number, power):
         super(AdjustCommand,self).__init__()
@@ -122,14 +122,14 @@ class AdjustCommand(UdPicBoardSimpleCommand):
         self.power    = float(power)
     
     def __str__(self):
-        return "ADJUST %s %s" % (self.number, self.power)
+        return "ADJUST=%s %s" % (self.number, self.power)
 
 #Register AdjustCommand
 UdPicBoardSimpleCommand.SUBCLASSES += (AdjustCommand,)
 
 class WriteCommand(UdPicBoardSimpleCommand):
 
-    Syntax = "WRITE ([0]) (.*) EOT" # EOT = End Of Text
+    Syntax = "WRITE=([0]) (.*) EOT" # EOT = End Of Text
 
     def __init__(self, number, text):
         super(WriteCommand,self).__init__()
@@ -137,20 +137,20 @@ class WriteCommand(UdPicBoardSimpleCommand):
         self.text     = text
     
     def __str__(self):
-        return "WRITE %s %s EOT" % (self.number, self.text)
+        return "WRITE=%s %s EOT" % (self.number, self.text)
 
 #Register WriteCommand
 UdPicBoardSimpleCommand.SUBCLASSES += (WriteCommand,)
 
 class ResetCommand(UdPicBoardSimpleCommand):
 
-    Syntax = "RESET"
+    Syntax = "RESET="
 
     def __init__(self):
         super(ResetCommand,self).__init__()
     
     def __str__(self):
-        return "RESET"
+        return "RESET="
 
 #Register ChangeSwitchCommand
 UdPicBoardSimpleCommand.SUBCLASSES += (ResetCommand,)

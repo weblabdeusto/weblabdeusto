@@ -16,6 +16,7 @@ package es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.pic.ui;
 import java.util.List;
 import java.util.Vector;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -46,7 +47,7 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	}
 	
 	public static final String PIC_WEBCAM_IMAGE_URL_PROPERTY = "es.deusto.weblab.pic.webcam.image.url";
-	public static final String DEFAULT_PIC_WEBCAM_IMAGE_URL = "https://fpga.weblab.deusto.es/webcam/fpga0/image.jpg";
+	public static final String DEFAULT_PIC_WEBCAM_IMAGE_URL = "https://www.weblab.deusto.es/webcam/fpga0/image.jpg";
 	
 	public static final String PIC_WEBCAM_REFRESH_TIME_PROPERTY = "es.deusto.weblab.pic.webcam.refresh.millis";
 	public static final int DEFAULT_PIC_WEBCAM_REFRESH_TIME = 400;
@@ -106,7 +107,7 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	    this.widget.setVisible(true);
 		this.loadWidgets();
 		this.disableInteractiveWidgets();
-		
+    	
 		this.uploadStructure.getFormPanel().setVisible(false);
 		
 		this.boardController.sendFile(this.uploadStructure, new IResponseCommandCallback() {
@@ -159,8 +160,10 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		final HorizontalPanel secondRow = this.createSecondRow();
 		final HorizontalPanel thirdRow = this.createThirdRow();
 		final HorizontalPanel fourthRow = this.createFourthRow();
-
-		this.verticalPanel = new VerticalPanel();
+		
+		while(this.verticalPanel.getWidgetCount() > 0)
+		    this.verticalPanel.remove(0);
+		
 		this.verticalPanel.setWidth("100%");
 		this.verticalPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		

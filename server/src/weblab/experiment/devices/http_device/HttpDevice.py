@@ -33,7 +33,9 @@ class HttpDevice(object):
                         'port':self.port,
                         'app':self.app
                     }
+            print "conectando por http..."
             url = self._urlmodule().urlopen( full_url, text )
+            print "conectado. leyendo respuesta..."
             return url.read()
         except urllib2.HTTPError, e:
             raise WlHttpDeviceExceptions.WlHttpDeviceHTTPErrorException(e)

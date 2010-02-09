@@ -46,10 +46,13 @@ class UdPicExperiment(Experiment.Experiment):
         self._cfg_manager= cfg_manager
 
         self._initialize_tftp()
+        print "TFTP initialized"
         self._initialize_http()
+        print "HTTP initialized"
 
     def _initialize_tftp(self):
         tftp_server_hostname, tftp_server_port = self._parse_tftp_configuration()
+        print "TFTP configuration loaded"
         self._tftp_device = self._create_tftp_device(
                 tftp_server_hostname,
                 tftp_server_port
@@ -61,6 +64,7 @@ class UdPicExperiment(Experiment.Experiment):
 
     def _initialize_http(self):
         http_server_hostname, http_server_port, http_server_app = self._parse_http_configuration()
+        print "HTTP configuration loaded"
         self._http_device = self._create_http_device(
                 http_server_hostname,
                 http_server_port,
@@ -86,11 +90,20 @@ class UdPicExperiment(Experiment.Experiment):
     def _create_http_device(self, hostname, port, app):
         # For testing purposes
         return HttpDevice.HttpDevice(hostname, port, app)
-        
+
+    @Override(Experiment.Experiment)
+    @logged("info")
+    @caller_check(ServerType.Laboratory)
+    def do_start_experiment(self):
+        """ Implemented to avoid the problem related to returning None in XML-RPC """
+        print "call received: do_start_experiment"
+        return ""
+ 
     @Override(Experiment.Experiment)
     @logged("info",except_for=(('file_content',1),))
     @caller_check(ServerType.Laboratory)
     def do_send_file_to_device(self, file_content, file_info):
+        print "call received: do_send_file_to_device"
         try:
             #TODO: encode? utf8?
             if isinstance(file_content, unicode):
@@ -99,10 +112,14 @@ class UdPicExperiment(Experiment.Experiment):
                 file_content_encoded = file_content
             file_content_recovered = ExperimentUtil.deserialize(file_content_encoded)
             reset_command = UdPicBoardCommand.UdPicBoardSimpleCommand.create("RESET")
+            print "sending RESET command..."
             reset_response = self._http_device.send_message(str(reset_command))
+            print "response received"
             # TODO: Check reset_response (200)
             time.sleep(DEFAULT_SLEEP_TIME)
+            print "sending file..."
             self._tftp_program_sender.send_content(file_content_recovered)
+            print "file sent"
         except Exception, e:
             log.log(
                 UdPicExperiment,
@@ -121,6 +138,7 @@ class UdPicExperiment(Experiment.Experiment):
     @Override(Experiment.Experiment)
     @caller_check(ServerType.Laboratory)
     def do_send_command_to_device(self, command):
+        print "call received: do_send_command_to_device"
         cmds = UdPicBoardCommand.UdPicBoardCommand(command)
         for cmd in cmds.get_commands():
             response = self._http_device.send_message(str(cmd))
@@ -129,3 +147,42 @@ class UdPicExperiment(Experiment.Experiment):
             #   raise UdPicExperimentExceptions.UdPicInvalidResponseException("the ") #TODO: message
             pass
 
+    @logged("info")
+    @Override(Experiment.Experiment)
+    @caller_check(ServerType.Laboratory)
+    def do_dispose(self):
+        """ Implemented to avoid the problem related to returning None in XML-RPC """
+        print "called received: do_dispose"
+        return ""
+    
+
+class UdPicDummyExperiment(Experiment.Experiment):
+    """ Dummy Experiment class to debug this experiment in local. """
+    
+    def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
+        super(UdPicDummyExperiment,self).__init__(*args, **kwargs)
+        self._cfg_manager= cfg_manager
+
+    @Override(Experiment.Experiment)
+    @logged("info")
+    @caller_check(ServerType.Laboratory)
+    def do_start_experiment(self):
+        print "do_start_experiment()"
+
+    @Override(Experiment.Experiment)
+    @logged("info",except_for=(('file_content',1),))
+    @caller_check(ServerType.Laboratory)
+    def do_send_file_to_device(self, file_content, file_info):
+        print "do_send_file_to_device(%s, %s)" % (file_content, file_info)
+
+    @logged("info")
+    @Override(Experiment.Experiment)
+    @caller_check(ServerType.Laboratory)
+    def do_send_command_to_device(self, command):
+        print "do_send_command_to_device(%s)" % command
+        
+    @Override(Experiment.Experiment)
+    @logged("info")
+    @caller_check(ServerType.Laboratory)
+    def do_dispose(self):
+        print "do_dispose()"        
