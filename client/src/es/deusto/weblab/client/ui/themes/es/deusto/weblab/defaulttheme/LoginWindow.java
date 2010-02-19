@@ -13,6 +13,7 @@
 */ 
 package es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -20,25 +21,60 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.uibinder.client.UiTemplate;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.i18n.IWebLabDeustoThemeMessages;
+import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.widgets.EasyGrid;
 import es.deusto.weblab.client.ui.widgets.WlHorizontalPanel;
 import es.deusto.weblab.client.ui.widgets.WlUtil;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
 public class LoginWindow extends BaseWindow {
 
+	
+	/******************
+	 * UIBINDER RELATED
+	 ******************/
+	
+	interface MyUiBinder extends UiBinder<Widget, LoginWindow> {
+	}
+
+	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
+	
+
+	@UiField WlHorizontalPanel langsPanel;
+	
+	@UiField Label usernameLabel;
+	@UiField Label passwordLabel;
+	@UiField Label usernameErrorLabel;
+	@UiField Label passwordErrorLabel;
+	@UiField TextBox usernameTextbox;
+	@UiField PasswordTextBox passwordTextbox;
+	@UiField Button loginButton;
+	@UiField EasyGrid grid;
+	
+	@UiField WlWaitingLabel waitingLabel;
+	@UiField Label generalErrorLabel;
+	
+	@UiField HTMLPanel demoAvailableHTML;
+	@UiField HTMLPanel supportHTML;
+	
 	public interface ILoginWindowCallback {
 		public void onLoginButtonClicked(String username, String password);
 	}
@@ -53,22 +89,49 @@ public class LoginWindow extends BaseWindow {
 	private static final String DEFAULT_DEMO_PASSWORD = "demo";
 	
 	private final ILoginWindowCallback callback;
-
-	// Widgets
-	private TextBox usernameTextbox;
-	private PasswordTextBox passwordTextbox;
-	private Label usernameErrorLabel;
-	private Label passwordErrorLabel;
-	private WlWaitingLabel waitingLabel;
-	private Button loginButton;
-	private Label generalErrorLabel;
+	
 
 	public LoginWindow(IConfigurationManager configurationManager, ILoginWindowCallback callback) {
 	    super(configurationManager);
+	    
 	    this.callback = callback;
 
+	    // Load UIBinder widgets.
+		final Widget wid = uiBinder.createAndBindUi(this);
+		
 	    this.loadWidgets();
+	    
+	    // Apply internationalization to UIBinder-declared widgets.
+	    applyI18n();
+	    
+	    // Add UIBinder widget to main panel.
+	    this.mainPanel.add(wid);
+	    
+	    // Additional setup of the UIBinder controls (which can't be done
+	    // before they are into the mainPanel).
+	    setupWidgets();
 	}
+	
+	
+	private void setupWidgets() {
+		this.mainPanel.setCellHeight(this.loginButton, "40px");
+		this.mainPanel.setCellHeight(this.waitingLabel.getWidget(), "30px");
+		this.mainPanel.setCellHeight(this.generalErrorLabel, "30px");
+		
+		this.mainPanel.setCellHeight(demoAvailableHTML, "40px");
+	}
+
+
+	/**
+	 * Applies internationalization to UIBinder-declared widgets.
+	 * @param i18n Provider of the messages.
+	 */
+	public void applyI18n() {
+		usernameLabel.setText(this.i18nMessages.username() + ":");
+		passwordLabel.setText(this.i18nMessages.password() + ":");
+		loginButton.setText(this.i18nMessages.logIn());
+	}
+	
 	
 	@Override
 	protected void loadWidgets(){
@@ -78,17 +141,16 @@ public class LoginWindow extends BaseWindow {
 		// in order to design the layout easily.
 		final boolean DESIGN_MODE = false;
 		
-		final LoginClickHandler buttonListener = new LoginClickHandler();
+		 
+		// If ENTER is pressed, login as if the button had been clicked.
 		final KeyPressHandler keyboardHandler = new KeyPressHandler(){
 			@Override
 			public void onKeyPress(KeyPressEvent event) {
 			    if(event.getCharCode() == KeyCodes.KEY_ENTER)
-				buttonListener.onClick(null);
-			    
+					LoginWindow.this.onLoginButtonClicked(null);   
 			}
 		};
 		
-		final WlHorizontalPanel languagesPanel = new WlHorizontalPanel();
 		for(int i = 0; i < IWebLabDeustoThemeMessages.LANGUAGES.length; ++i){
 			final String curLanguage = IWebLabDeustoThemeMessages.LANGUAGES[i];
 			final String curLanguageCode = IWebLabDeustoThemeMessages.LANGUAGE_CODES[i];
@@ -96,49 +158,31 @@ public class LoginWindow extends BaseWindow {
 			languageButton.addClickHandler(
 					new LanguageButtonClickHandler(curLanguageCode)
 				);
-			languagesPanel.add(languageButton);
+			langsPanel.add(languageButton);
 		}		
-		languagesPanel.setSpacing(15);
+		langsPanel.setSpacing(15);
 		
-		this.mainPanel.add(languagesPanel);
-
-		final Grid grid = new Grid(2,3);
-		grid.setWidget(0,0, new Label(this.i18nMessages.username() + ": "));
-		grid.setWidget(1,0, new Label(this.i18nMessages.password() + ": "));
-		grid.setCellSpacing(5);
+		this.mainPanel.add(langsPanel);
 		
-		this.usernameTextbox = new TextBox();
-		this.passwordTextbox = new PasswordTextBox();
+		
 		this.loadUsernameAndPassword();
-		this.usernameTextbox.addKeyPressHandler(keyboardHandler);
-		this.passwordTextbox.addKeyPressHandler(keyboardHandler);
-
-		grid.setWidget(0,1, this.usernameTextbox);
-		grid.setWidget(1,1, this.passwordTextbox);
-
-		this.usernameErrorLabel = new Label(" ");
-		this.passwordErrorLabel = new Label(" ");
-		this.usernameErrorLabel.setStyleName(DefaultTheme.Style.ERROR_MESSAGE);
-		this.passwordErrorLabel.setStyleName(DefaultTheme.Style.ERROR_MESSAGE);
-
-		grid.setWidget(0, 2, this.usernameErrorLabel);
-		grid.setWidget(1, 2, this.passwordErrorLabel);
-
-		this.mainPanel.add(grid);
-			
-		this.loginButton = new Button(this.i18nMessages.logIn());
-		this.loginButton.addClickHandler(buttonListener);
-		this.mainPanel.add(this.loginButton);
-		this.mainPanel.setCellHeight(this.loginButton, "40px");
+		usernameTextbox.addKeyPressHandler(keyboardHandler);
+		passwordTextbox.addKeyPressHandler(keyboardHandler);
 		
-		this.waitingLabel = new WlWaitingLabel();
-		this.mainPanel.add(this.waitingLabel.getWidget());
-		this.mainPanel.setCellHeight(this.waitingLabel.getWidget(), "30px");
 		
-		this.generalErrorLabel = new Label("");
-		this.generalErrorLabel.setStyleName(DefaultTheme.Style.ERROR_MESSAGE);
-		this.mainPanel.add(this.generalErrorLabel);
-		this.mainPanel.setCellHeight(this.generalErrorLabel, "30px");
+		// TODO: This is not currently handled the same way. Consider alternatives.
+//		this.usernameErrorLabel.setStyleName(DefaultTheme.Style.ERROR_MESSAGE);
+//		this.passwordErrorLabel.setStyleName(DefaultTheme.Style.ERROR_MESSAGE);
+		
+		
+		//this.waitingLabel = new WlWaitingLabel();
+		//this.mainPanel.add(this.waitingLabel.getWidget());
+
+		
+		//this.generalErrorLabel = new Label("");
+		//this.generalErrorLabel.setStyleName(DefaultTheme.Style.ERROR_MESSAGE);
+		//this.mainPanel.add(this.generalErrorLabel);
+
 		
 		boolean demoAvailable = this.configurationManager.getBoolProperty(
 				LoginWindow.DEMO_AVAILABLE_PROPERTY,
@@ -152,26 +196,37 @@ public class LoginWindow extends BaseWindow {
 			String demoPassword = this.configurationManager.getProperty(
 					LoginWindow.DEMO_PASSWORD_PROPERTY,
 					LoginWindow.DEFAULT_DEMO_PASSWORD
-				);			
-			HTML demoAvailableHTML = new HTML(this.i18nMessages.demoLoginDetails(demoUsername, demoPassword));
-			this.mainPanel.add(demoAvailableHTML);
-			this.mainPanel.setCellHeight(demoAvailableHTML, "40px");
+				);	
+			
+			
+//			// TODO: Re-enable this.
+//			this.demoAvailableHTML.add(
+//					new HTML(
+//							this.i18nMessages.demoLoginDetails(demoUsername, demoPassword)
+//							), "saferfasfd"
+//					);
+
 		}
 		
 		String adminEmail = this.configurationManager.getProperty(
 				LoginWindow.ADMIN_EMAIL_PROPERTY,
 				LoginWindow.DEFAULT_ADMIN_EMAIL
-			);		
-		HTML supportHTML = new HTML(this.i18nMessages.ifYouHaveTechnicalProblems("<a href=\"mailto:" + WlUtil.escape(adminEmail) + "\" target=\"_blank\">" + WlUtil.escapeNotQuote(adminEmail) + "</a>"));
-		this.mainPanel.add(supportHTML);
+			);	
+		
+//		this.supportHTML.add(
+//				new HTML(
+//						this.i18nMessages.ifYouHaveTechnicalProblems("<a href=\"mailto:" + WlUtil.escape(adminEmail) + "\" target=\"_blank\">" + WlUtil.escapeNotQuote(adminEmail) + "</a>")
+//						)
+//				);
 		
 		if ( DESIGN_MODE )
 		{
 			this.mainPanel.setBorderWidth(1);
-			languagesPanel.setBorderWidth(1);
+			langsPanel.setBorderWidth(1);
 			grid.setBorderWidth(1);
 		}
 	}
+	
 	
 	private void loadUsernameAndPassword() {
 		final Element usernameField = DOM.getElementById("hiddenUsername");
@@ -186,6 +241,7 @@ public class LoginWindow extends BaseWindow {
 		if(passwordField instanceof InputElement)
 			this.passwordTextbox.setText(((InputElement)passwordField).getValue());
 	}
+
 
 	private class LanguageButtonClickHandler implements ClickHandler{
 		private final String languageCode;
@@ -207,6 +263,7 @@ public class LoginWindow extends BaseWindow {
 		this.loginButton.setEnabled(true);
 	}
 
+
 	public void showError(String message) {
 		this.generalErrorLabel.setText(message);
 		this.waitingLabel.stop();
@@ -214,58 +271,64 @@ public class LoginWindow extends BaseWindow {
 		this.loginButton.setEnabled(true);
 	}
 	
-	private class LoginClickHandler implements ClickHandler{
+	
+	@UiHandler("loginButton")
+	void onLoginButtonClicked(ClickEvent e) {
+		System.out.println("Handing loginButton event");
 		
-		public void onClick(ClickEvent sender) {
-			boolean errors = false;
-			LoginWindow.this.generalErrorLabel.setText("");
-			errors |= this.checkUsernameTextbox();
-			errors |= this.checkPasswordTextbox();
-			if(!errors){
-				LoginWindow.this.waitingLabel.setText(LoginWindow.this.i18nMessages.loggingIn());
-				LoginWindow.this.waitingLabel.start();
-				LoginWindow.this.loginButton.setEnabled(false);
-				LoginWindow.this.callback.onLoginButtonClicked(
-						this.getUsername(), 
-						this.getPassword()
-					);
-			}
-		}
-		
-		private String getUsername(){
-			return LoginWindow.this.usernameTextbox.getText();
-		}
-		
-		private String getPassword(){
-			return LoginWindow.this.passwordTextbox.getText(); 
-		}
-		
-		private boolean checkUsernameTextbox(){
-			if(this.getUsername().length() == 0){
-				LoginWindow.this.usernameErrorLabel.setText(
-						LoginWindow.this.i18nMessages.thisFieldCantBeEmpty()
-					);
-				return true;
-			}else{
-				LoginWindow.this.usernameErrorLabel.setText("");
-				return false;
-			}
-		}
-		private boolean checkPasswordTextbox(){
-			if(this.getPassword().length() == 0){
-				LoginWindow.this.passwordErrorLabel.setText(
-						LoginWindow.this.i18nMessages.thisFieldCantBeEmpty()
-					);
-				return true;
-			}else{
-				LoginWindow.this.passwordErrorLabel.setText("");
-				return false;
-			}
+		boolean errors = false;
+		LoginWindow.this.generalErrorLabel.setText("");
+		errors |= checkUsernameTextbox();
+		errors |= checkPasswordTextbox();
+		if(!errors){
+			LoginWindow.this.waitingLabel.setText(LoginWindow.this.i18nMessages.loggingIn());
+			LoginWindow.this.waitingLabel.start();
+			LoginWindow.this.loginButton.setEnabled(false);
+			LoginWindow.this.callback.onLoginButtonClicked(
+					getUsername(), 
+					getPassword()
+				);
 		}
 	}
+	
 
 	public void showMessage(String message) {
 		this.generalErrorLabel.setText(message);
 		this.loginButton.setEnabled(true);
 	}
+	
+	
+	public String getUsername(){
+		return usernameTextbox.getText();
+	}
+	
+	public String getPassword(){
+		return passwordTextbox.getText(); 
+	}
+	
+	public boolean checkUsernameTextbox(){
+		if(this.getUsername().length() == 0){
+			usernameErrorLabel.setText(
+					this.i18nMessages.thisFieldCantBeEmpty()
+				);
+			return true;
+		}else{
+			usernameErrorLabel.setText("");
+			return false;
+		}
+	}
+	
+	public boolean checkPasswordTextbox() {
+		if(this.getPassword().length() == 0){
+			passwordErrorLabel.setText(
+				this.i18nMessages.thisFieldCantBeEmpty()
+				);
+			return true;
+		}else{
+			passwordErrorLabel.setText("");
+			this.i18nMessages.thisFieldCantBeEmpty();
+			return false;
+		}
+	}
+	
 }

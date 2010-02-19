@@ -1,0 +1,33 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+    xmlns:g='urn:import:com.google.gwt.user.client.ui'
+    xmlns:my='urn:import:es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.widgets'
+    xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
+    
+    
+    <!-- This WlVerticalPanel goes into the LoggedPanel contentPanel -->
+    
+    <w:WlVerticalPanel width='100%' horizontalAlignment='ALIGN_CENTER'>
+        
+		<w:WlVerticalPanel ui:field='preExperimentAreaPanel' width='100%' horizontalAlignment='ALIGN_CENTER'>
+		<g:Hidden></g:Hidden>
+		</w:WlVerticalPanel>
+	
+		<w:WlVerticalPanel ui:field='experimentAreaPanel' width='100%' horizontalAlignment='ALIGN_CENTER'>
+		<g:Hidden></g:Hidden>
+		</w:WlVerticalPanel>
+	
+		<w:WlVerticalPanel ui:field='postExperimentAreaPanel' width='100%' horizontalAlignment='ALIGN_CENTER'>
+		<g:Hidden></g:Hidden>
+		</w:WlVerticalPanel>
+		
+		
+		<!-- This one was originally added to the mainPanel rather than the 
+		contentPanel. -->
+		<g:Label ui:field='generalErrorLabel' styleName='wl-error_message'>
+		</g:Label>
+		
+	
+	</w:WlVerticalPanel>
+	
+
+</ui:UiBinder>

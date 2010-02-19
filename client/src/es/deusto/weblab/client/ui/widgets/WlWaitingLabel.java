@@ -17,12 +17,18 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
-public class WlWaitingLabel implements IWlWidget{
+// TODO: I've made WlWaitingLabel extend Label so that it can be used with
+// UIBinder. Consider alternatives. (I've tried overloading
+// WlVerticalPanel's Add(), but it is ambiguous, because quite a few
+// types (such as WlVerticalPanel itself) seem to be both a 
+// Widget and a IWlWidget.
+
+public class WlWaitingLabel extends Label implements IWlWidget{
 
 	private static final int MOVING_TIME = 500;
 	private static final int MAX_DOTS    = 3;
 	
-	private final Label label;
+	private final Label label = this;
 	private String realText;
 	private boolean running;
 	private int counter;
@@ -30,13 +36,13 @@ public class WlWaitingLabel implements IWlWidget{
 	
 	public WlWaitingLabel(){
 		this.running = false;
-		this.label = new Label();
+		//this.label = new Label();
 		this.counter = 0;
 	}
 	
 	public WlWaitingLabel(String text){
 		this();
-		this.setText(text);
+		setText(text);
 	}
 	
 	public void setText(String text){
@@ -46,7 +52,7 @@ public class WlWaitingLabel implements IWlWidget{
 	}
 	
 	private void showText(String text){
-		this.label.setText(text);
+		super.setText(text);
 	}
 	
 	public String getText(){

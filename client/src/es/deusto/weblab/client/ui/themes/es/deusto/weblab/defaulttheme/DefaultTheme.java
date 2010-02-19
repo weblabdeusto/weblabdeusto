@@ -101,7 +101,7 @@ public class DefaultTheme extends ThemeBase {
 	    
 	    // Important note: the calling order MUST be this or FileUpload will cause problems
 	    this.loadExperimentWindow();
-	    this.themePanel.add(this.experimentWindow.getWidget());	    
+	    this.themePanel.add(this.experimentWindow.getWidget());    
 	    this.experimentWindow.loadExperimentReservationPanels();
 	    // end of Important note
 	}

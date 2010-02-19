@@ -38,7 +38,7 @@ public abstract class BaseWindow {
 		return this.mainPanel;
 	}
 	
-	protected void loadWidgets() {
+	void loadWidgets() {
 		this.mainPanel = new WlVerticalPanel();
 		this.mainPanel.setStyleName("main-panel");
 		this.mainPanel.setWidth("100%");

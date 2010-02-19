@@ -31,4 +31,10 @@ public class WlVerticalPanel extends VerticalPanel implements IWlWidget {
 	@Override
 	public void dispose() {	    
 	}
+	
+	
+//	public void add(IWlWidget widget) {
+//		Widget wid = widget.getWidget();
+//		add((Widget) wid);
+//	}
 }

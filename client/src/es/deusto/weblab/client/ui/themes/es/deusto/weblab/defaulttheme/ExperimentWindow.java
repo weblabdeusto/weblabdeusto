@@ -13,8 +13,11 @@
 */ 
 package es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
@@ -22,19 +25,38 @@ import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.experiments.ExperimentBase;
 import es.deusto.weblab.client.ui.BoardBase;
+import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.LoggedPanel.ILoggedPanelCallback;
+import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.LoggedPanel.LoggedPanelUiBinder;
+import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.i18n.IWebLabDeustoThemeMessages;
+import es.deusto.weblab.client.ui.widgets.WlHorizontalPanel;
 import es.deusto.weblab.client.ui.widgets.WlUtil;
 import es.deusto.weblab.client.ui.widgets.WlVerticalPanel;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
-public class ExperimentWindow extends LoggedBaseWindow {
+public class ExperimentWindow extends BaseWindow {
+	
+	
+	/******************
+	 * UIBINDER RELATED
+	 ******************/
+	
+	interface ExperimentWindowUiBinder extends UiBinder<Widget, ExperimentWindow> {
+	}
 
-	public interface IExperimentWindowCallback extends ILoggedBaseWindowCallback {
+	private static ExperimentWindowUiBinder uiBinder = GWT.create(ExperimentWindowUiBinder.class);
+
+	
+	
+	
+
+	public interface IExperimentWindowCallback extends ILoggedPanelCallback {
 		public void onBackButtonClicked();
 		public void onReserveButtonClicked();
 		public void onFinishButtonClicked();
@@ -43,15 +65,20 @@ public class ExperimentWindow extends LoggedBaseWindow {
 	private static final String ADMIN_EMAIL_PROPERTY = "admin.email";
 	private static final String DEFAULT_ADMIN_EMAIL = "<admin.email not set>";
     
+	// Logged panel
+	private LoggedPanel loggedPanel;
+	private WlVerticalPanel contentPanel;
+	
 	// Widgets
 	private WlWaitingLabel waitingLabel;
-	private Label generalErrorLabel;
-	private WlVerticalPanel experimentAreaPanel;
-	private WlVerticalPanel preExperimentAreaPanel;
-	private WlVerticalPanel postExperimentAreaPanel;
+	@UiField WlVerticalPanel experimentAreaPanel;
+	@UiField WlVerticalPanel preExperimentAreaPanel;
+	@UiField WlVerticalPanel postExperimentAreaPanel;
 	private Anchor backLink;
 	private Button reserveButton;
 	private Button finishButton;
+	
+	@UiField Label generalErrorLabel;
 	
 	// DTOs
 	private ExperimentAllowed experimentAllowed;
@@ -59,8 +86,17 @@ public class ExperimentWindow extends LoggedBaseWindow {
 	private BoardBase boardBase;
 	private int timeAllowed;
 	
+	// Callback
+	IExperimentWindowCallback callback;
+	
+    
 	public ExperimentWindow(IConfigurationManager configurationManager, User user, ExperimentAllowed experimentAllowed, ExperimentBase experimentBase, IExperimentWindowCallback callback){
-	    super(configurationManager, user, callback);
+	    super(configurationManager);
+	
+	    loggedPanel = new LoggedPanel(user, callback);
+	    contentPanel = loggedPanel.contentPanel;
+	    
+	    this.callback = callback;
 	    this.experimentAllowed = experimentAllowed;
 	    this.experimentBase = experimentBase;	
 	    this.boardBase = this.experimentBase.getUI();
@@ -73,33 +109,18 @@ public class ExperimentWindow extends LoggedBaseWindow {
 	}
 
 	@Override
-	protected void loadWidgets(){
+	public void loadWidgets(){
 		super.loadWidgets();
-				
-		this.preExperimentAreaPanel = new WlVerticalPanel();
-		this.preExperimentAreaPanel.setWidth("100%");
-		this.preExperimentAreaPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		
-		this.experimentAreaPanel = new WlVerticalPanel();
-		this.experimentAreaPanel.setWidth("100%");
-		this.experimentAreaPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-
-		this.contentPanel.add(this.experimentAreaPanel);		
+		mainPanel.add(loggedPanel);
 		
-		this.postExperimentAreaPanel = new WlVerticalPanel();
-		this.postExperimentAreaPanel.setWidth("100%");
-		this.preExperimentAreaPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		final Widget wid = uiBinder.createAndBindUi(this);
+		this.contentPanel.add(wid);
 		
-		this.contentPanel.add(this.preExperimentAreaPanel);
-		this.contentPanel.add(this.experimentAreaPanel);
-		this.contentPanel.add(this.postExperimentAreaPanel);
-		
-		this.mainPanel.add(this.contentPanel);
-		
-		this.generalErrorLabel = new Label();
-		this.generalErrorLabel.setStyleName(DefaultTheme.Style.ERROR_MESSAGE);
-		
-		this.mainPanel.add(this.generalErrorLabel);	
+		setupWidgets();
+	}
+	
+	public void setupWidgets() {
 		this.mainPanel.setCellHeight(this.generalErrorLabel, "30px");
 	}
 
@@ -111,6 +132,8 @@ public class ExperimentWindow extends LoggedBaseWindow {
 		navigationPanel.setSize("100%", "30px");
 		
 		this.backLink = new Anchor("< " + this.i18nMessages.backToMyExperiments());
+		this.backLink.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		
 		this.backLink.addClickHandler(new ClickHandler() {
 		    @Override
 		    public void onClick(ClickEvent event) {

@@ -1,0 +1,49 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+    xmlns:g='urn:import:com.google.gwt.user.client.ui'
+    xmlns:my='urn:import:es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.widgets'
+    xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
+    
+    
+    <w:WlVerticalPanel horizontalAlignment='ALIGN_CENTER' styleName='main-panel'>
+    
+    
+    	<w:WlHorizontalPanel ui:field="langsPanel">
+    	</w:WlHorizontalPanel>
+    
+    
+    	<my:EasyGrid ui:field="grid" cols='3' rows='2' cellSpacing='5'>
+			<g:Label ui:field="usernameLabel">Username (ui):</g:Label>
+			<g:TextBox ui:field="usernameTextbox"></g:TextBox>
+			
+			<g:Label ui:field="usernameErrorLabel" visible='true' styleName='wl-error_message'></g:Label>
+			
+			<g:Label ui:field="passwordLabel">Password (ui):</g:Label>
+			<g:PasswordTextBox ui:field="passwordTextbox"></g:PasswordTextBox>
+			
+			<g:Label ui:field="passwordErrorLabel" visible='true' styleName='wl-error_message'></g:Label>
+    	</my:EasyGrid>
+    	
+    	<g:HTMLPanel>
+    		<div align="center">
+    			
+    			<g:Button ui:field="loginButton">Log in</g:Button>
+    	
+    	
+		    	<w:WlWaitingLabel ui:field="waitingLabel">
+		    	</w:WlWaitingLabel>
+		    	
+		    	
+		    	<g:Label ui:field="generalErrorLabel" styleName='wl-error_message'>
+		    	</g:Label>
+	    	
+	    	</div>
+		</g:HTMLPanel>
+		
+		<g:HTMLPanel ui:field="demoAvailableHTML"></g:HTMLPanel>
+		<g:HTMLPanel ui:field="supportHTML"></g:HTMLPanel>
+    	
+	
+	</w:WlVerticalPanel>
+    
+
+</ui:UiBinder>
