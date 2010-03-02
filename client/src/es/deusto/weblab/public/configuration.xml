@@ -2,4 +2,5 @@
 <configuration>
 	<property name="admin.email" value="weblab@deusto.es" />
 	<property name="demo.available" value="true" />
+	<!-- <property name="weblab.service.fileupload.post.url" value="/weblab/fileUpload.php" />  -->
 </configuration>
