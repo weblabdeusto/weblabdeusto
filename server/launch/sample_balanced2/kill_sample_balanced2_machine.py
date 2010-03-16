@@ -14,7 +14,7 @@
 # 
 
 import sys
-sys.path.append('../src')
+sys.path.append('../../src')
 
 import libraries
 import voodoo.gen.loader.Launcher as Launcher

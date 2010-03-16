@@ -16,7 +16,7 @@
 import signal
 
 import sys
-sys.path.append('../src')
+sys.path.append('../../src')
 import libraries
 import weblab
 import voodoo.gen.loader.Launcher as Launcher
@@ -28,7 +28,7 @@ import voodoo.rt_debugger as rt_debugger
 rt_debugger.launch_debugger()
 
 launcher = Launcher.MachineLauncher(
-            'sample_internetsocket',
+            '.',
             'main_machine',
             (
                 Launcher.SignalWait(signal.SIGTERM),
@@ -40,7 +40,7 @@ launcher = Launcher.MachineLauncher(
             (
                  Launcher.FileNotifier("_file_notifier", "server started"),
             ),
-            pid_file = 'sample_internetsocket_machine.pid'
+            pid_file = '._machine.pid'
         )
 launcher.launch()
 

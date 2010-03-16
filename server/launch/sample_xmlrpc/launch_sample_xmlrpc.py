@@ -16,7 +16,7 @@
 import signal
 
 import sys
-sys.path.append('../src')
+sys.path.append('../../src')
 import libraries
 import weblab
 import voodoo.gen.loader.Launcher as Launcher
@@ -28,7 +28,7 @@ import voodoo.rt_debugger as rt_debugger
 rt_debugger.launch_debugger()
 
 launcher = Launcher.Launcher(
-            'sample_xmlrpc',
+            '.',
             'main_machine',
             'main_instance',
             (

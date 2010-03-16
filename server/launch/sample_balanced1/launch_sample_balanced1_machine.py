@@ -16,7 +16,7 @@
 import signal
 
 import sys
-sys.path.append('../src')
+sys.path.append('../../src')
 import libraries
 import weblab
 import voodoo.gen.loader.Launcher as Launcher
@@ -24,20 +24,25 @@ import voodoo.gen.loader.Launcher as Launcher
 def before_shutdown():
     print "Stopping servers..."
 
-import voodoo.rt_debugger as rt_debugger
-rt_debugger.launch_debugger()
-
-launcher = Launcher.Launcher(
-            'sample_xmlrpc2',
+launcher = Launcher.MachineLauncher(
+            '.',
             'main_machine',
-            'main_instance',
             (
                 Launcher.SignalWait(signal.SIGTERM),
                 Launcher.SignalWait(signal.SIGINT),
                 Launcher.RawInputWait("Press <enter> or send a sigterm or a sigint to finish\n")
             ),
-            "logging.configuration.txt",
-            before_shutdown
+            {
+                "main_instance1"     : "logging.configuration.server1.txt",
+                "main_instance2"     : "logging.configuration.server2.txt",
+                "lab_and_experiment" : "logging.configuration.other_server.txt",
+            },
+            before_shutdown,
+            (
+                 Launcher.FileNotifier("_file_notifier", "server started"),
+            ),
+            pid_file = '._machine.pid',
+            debugger_ports = { 'main_instance1' : 31337, 'main_instance2' : 31338 }
         )
 launcher.launch()
 

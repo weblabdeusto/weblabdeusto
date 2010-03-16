@@ -14,10 +14,10 @@
 # 
 
 import sys
-sys.path.append('../src')
+sys.path.append('../../src')
 
 import libraries
 import voodoo.gen.loader.Launcher as Launcher
 
-Launcher.kill_launcher('sample_balanced1_machine.pid')
+Launcher.kill_launcher('._machine.pid')
 
