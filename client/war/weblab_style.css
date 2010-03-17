@@ -3,6 +3,13 @@ body
 	font: 14px normal "Lucida Grande", Arial;
 }
 
+.gwt-Anchor
+{
+	text-decoration: underline;
+    cursor: pointer;
+	cursor: hand;
+}
+
 .wl-main_title
 {
 	font-size: x-large;
