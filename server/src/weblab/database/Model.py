@@ -211,11 +211,14 @@ class DbUserAuth(Base):
         self.configuration = configuration
         
     def __repr__(self):
+        configuration_str = "None"
+        if self.configuration is not None:
+           configuration_str = ( "*".join("" for _ in self.configuration) )
         return "DbUserAuth(id = %i, user = %r, auth = %r, configuration = '%s')" % (
             self.id,
             self.user,
             self.auth,
-            ( "*".join("" for _ in self.configuration) ) if self.configuration is not None else "None"
+            configuration_str
         )
         
     def to_business(self):
@@ -268,10 +271,13 @@ class DbGroup(Base):
         link_relation(self, parent, "parent")
 
     def __repr__(self):
+        parent_str = "<None>"
+        if self.parent is not None:
+            parent_str = "<" + self.parent.name + ">"
         return "DbGroup(id = %i, name = '%s', parent = '%s')" % (
             self.id,
             self.name,
-            "<"+self.parent.name+">" if self.parent is not None else "<None>"
+            parent_str
         )       
 
 ##############################################################################
