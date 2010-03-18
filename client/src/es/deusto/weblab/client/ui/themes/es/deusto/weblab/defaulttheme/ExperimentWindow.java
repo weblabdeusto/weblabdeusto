@@ -158,8 +158,7 @@ public class ExperimentWindow extends BaseWindow {
 		
 		grid.setWidget(0, 0, new Label(this.i18nMessages.experimentName() + ":"));
 		grid.setWidget(1, 0, new Label(this.i18nMessages.experimentCategory() + ":"));
-		grid.setWidget(2, 0, new Label(this.i18nMessages.experimentOwner() + ":"));
-		grid.setWidget(3, 0, new Label(this.i18nMessages.timeAllowed() + ":"));
+		grid.setWidget(2, 0, new Label(this.i18nMessages.timeAllowed() + ":"));
 		
 		final Label experimentName = new Label(this.experimentAllowed.getExperiment().getName());
 		experimentName.setStyleName("experiment-detail");
@@ -167,16 +166,12 @@ public class ExperimentWindow extends BaseWindow {
 		final Label experimentCategoryName = new Label(this.experimentAllowed.getExperiment().getCategory().getCategory());
 		experimentCategoryName.setStyleName("experiment-detail");
 		
-		final Label experimentOwner = new HTML("<a href=\"mailto:" + WlUtil.escape(this.experimentAllowed.getExperiment().getOwner()) + "\" target=\"_blank\">" + WlUtil.escapeNotQuote(this.experimentAllowed.getExperiment().getOwner()) + "</a>");
-		experimentOwner.setStyleName("experiment-detail");
-		
 		final Label experimentTime = new Label(""+this.experimentAllowed.getTimeAllowed());
 		experimentTime.setStyleName("experiment-detail");		
 		
 		grid.setWidget(0, 1, experimentName);
 		grid.setWidget(1, 1, experimentCategoryName);
-		grid.setWidget(2, 1, experimentOwner);
-		grid.setWidget(3, 1, experimentTime);
+		grid.setWidget(2, 1, experimentTime);
 		
 		this.preExperimentAreaPanel.add(grid);
 		this.preExperimentAreaPanel.setCellHeight(grid, "130px");

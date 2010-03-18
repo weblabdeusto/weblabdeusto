@@ -18,16 +18,14 @@ import java.util.Date;
 public class Experiment{
 	
 	private String name;
-	private String owner;
 	private Category category;
 	private Date startDate;
 	private Date endDate;
 	
 	public Experiment(){}
 	
-	public Experiment(String name, String owner, Category category, Date startDate, Date endDate){
+	public Experiment(String name, Category category, Date startDate, Date endDate){
 		this.name      = name;
-		this.owner     = owner;
 		this.category  = category;
 		this.startDate = startDate;
 		this.endDate   = endDate;
@@ -57,12 +55,6 @@ public class Experiment{
 	}
 	public void setName(String name) {
 		this.name = name;
-	}
-	public String getOwner() {
-		return this.owner;
-	}
-	public void setOwner(String owner) {
-		this.owner = owner;
 	}
 	public Date getStartDate() {
 		return this.startDate;

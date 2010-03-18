@@ -285,7 +285,7 @@ public class WebLabCommunicationTest extends GWTTestCase {
 		final String ERROR_MESSAGE = "whatever the error message";
 		final ExperimentAllowed [] experiments = new ExperimentAllowed[1];
 		experiments[0] = new ExperimentAllowed(
-				new Experiment("Experiment name", "p0wn", new Category("Category name"), new Date(), new Date()), 
+				new Experiment("Experiment name", new Category("Category name"), new Date(), new Date()), 
 				100
 			);
 		

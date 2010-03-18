@@ -127,9 +127,9 @@ public class WebLabSerializerJSON implements IWebLabSerializer {
     public ExperimentAllowed[] parseListExperimentsResponse(String responseText)
     	throws SerializationException, SessionNotFoundException, UserProcessingException, WlServerException {	
 //	"{\"result\": [" +
-//		"{\"experiment\": {\"category\": {\"name\": \"Dummy experiments\"}, \"owner\": \"porduna@tecnologico.deusto.es\", " +
+//		"{\"experiment\": {\"category\": {\"name\": \"Dummy experiments\"}, " +
 //			"\"name\": \"ud-dummy\", \"end_date\": \"2008-01-01\", \"start_date\": \"2007-08-17\"}, \"time_allowed\": 30.0}, " +
-//		"{\"experiment\": {\"category\": {\"name\": \"FPGA experiments\"}, \"owner\": \"porduna@tecnologico.deusto.es\", " +
+//		"{\"experiment\": {\"category\": {\"name\": \"FPGA experiments\"}, " +
 //			"\"name\": \"ud-fpga\", \"end_date\": \"2006-01-01\", \"start_date\": \"2005-01-01\"}, \"time_allowed\": 30.0}" +
 //	"], \"is_exception\": false}"
 	JSONArray result = this.parseResultArray(responseText);
@@ -157,24 +157,29 @@ public class WebLabSerializerJSON implements IWebLabSerializer {
 	    Experiment experiment = new Experiment();
 	    experiment.setCategory(category);
 	    experiment.setName(this.json2string(jsonExperiment.get("name")));
-	    experiment.setOwner(this.json2string(jsonExperiment.get("owner")));
 	    
 	    String startDateString = this.json2string(jsonExperiment.get("start_date"));
 	    String endDateString   = this.json2string(jsonExperiment.get("end_date"));
 	    
 	    DateTimeFormat formatter1 = DateTimeFormat.getFormat("yyyy-MM-dd");
 	    DateTimeFormat formatter2 = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss");
+	    DateTimeFormat formatter3 = DateTimeFormat.getFormat("yyyy-MM-ddTHH:mm:ss");
 	    
 	    try{
 		experiment.setStartDate(formatter1.parse(startDateString));
 		experiment.setEndDate(formatter1.parse(endDateString));
 	    }catch(IllegalArgumentException iae){
-		try{
-		    experiment.setStartDate(formatter2.parse(startDateString));
-		    experiment.setEndDate(formatter2.parse(endDateString));
-		}catch(IllegalArgumentException iae2){
-		    throw new SerializationException("Couldn't parse date: " + startDateString + "; or: " + endDateString);
-		}
+			try{
+			    experiment.setStartDate(formatter2.parse(startDateString));
+			    experiment.setEndDate(formatter2.parse(endDateString));
+			}catch(IllegalArgumentException iae2){
+				try{
+				    experiment.setStartDate(formatter3.parse(startDateString));
+				    experiment.setEndDate(formatter3.parse(endDateString));
+				}catch(IllegalArgumentException iae3){
+				    throw new SerializationException("Couldn't parse date: " + startDateString + "; or: " + endDateString);
+				}
+			}
 	    }
 	    
 	    ExperimentAllowed experimentAllowed = new ExperimentAllowed();

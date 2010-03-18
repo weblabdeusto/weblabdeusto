@@ -795,7 +795,6 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 		// 0
 		Assert.assertEquals(30,                              experiments[0].getTimeAllowed());
 		Assert.assertEquals("ud-dummy",                      experiments[0].getExperiment().getName());
-		Assert.assertEquals("porduna@tecnologico.deusto.es", experiments[0].getExperiment().getOwner());
 		Assert.assertEquals("Dummy experiments",             experiments[0].getExperiment().getCategory().getCategory());
 		
 		// 2007-01-01 00:00:00
@@ -806,7 +805,6 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 		// 1
 		Assert.assertEquals(30,                              experiments[1].getTimeAllowed());
 		Assert.assertEquals("ud-fpga",                       experiments[1].getExperiment().getName());
-		Assert.assertEquals("porduna@tecnologico.deusto.es", experiments[1].getExperiment().getOwner());
 		Assert.assertEquals("FPGA experiments",              experiments[1].getExperiment().getCategory().getCategory());
 		
 		// 2005-01-01 00:00:00
@@ -831,7 +829,6 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 		// 0
 		Assert.assertEquals(30,                              experiments[0].getTimeAllowed());
 		Assert.assertEquals("ud-dummy",                      experiments[0].getExperiment().getName());
-		Assert.assertEquals("porduna@tecnologico.deusto.es", experiments[0].getExperiment().getOwner());
 		Assert.assertEquals("Dummy experiments",             experiments[0].getExperiment().getCategory().getCategory());
 		
 		// 2007-01-01 00:00:00
@@ -842,7 +839,6 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 		// 1
 		Assert.assertEquals(30,                              experiments[1].getTimeAllowed());
 		Assert.assertEquals("ud-fpga",                       experiments[1].getExperiment().getName());
-		Assert.assertEquals("porduna@tecnologico.deusto.es", experiments[1].getExperiment().getOwner());
 		Assert.assertEquals("FPGA experiments",              experiments[1].getExperiment().getCategory().getCategory());
 		
 		// 2005-01-01 00:00:00

@@ -333,7 +333,6 @@ public class WebLabControllerTest  extends GWTTestCase{
 		final Experiment experiment = new Experiment();
 		experiment.setCategory(new Category("Dummy experiments"));
 		experiment.setName("ud-dummy");
-		experiment.setOwner("owner");
 		return experiment;
 	}	
 	

@@ -19,7 +19,6 @@ public interface IWebLabDeustoThemeMessages extends Messages {
 	
 	public String experimentName();
 	public String experimentCategory();
-	public String experimentOwner();
 	public String timeAllowed();
 	public String username();
 	public String password();
