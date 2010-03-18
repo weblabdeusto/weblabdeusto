@@ -43,6 +43,7 @@ class DbGateway(object):
             
     def insert_experiment_category(self, id, name):
         experiment_category = Model.DbExperimentCategory(name=name)
+        experiment_category.id = id
         self.session.add(experiment_category)
         self.session.commit()
         return experiment_category
