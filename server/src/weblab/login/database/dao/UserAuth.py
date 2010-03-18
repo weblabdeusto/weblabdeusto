@@ -29,17 +29,18 @@ class UserAuth(object):
 
 class LdapUserAuth(object):
     NAME = 'LDAP'
-    REGEX = 'domain=([a-zA-Z0-9\._-]+);ldap_uri=(ldaps?://[a-zA-Z0-9\./_-]+)'
+    REGEX = 'ldap_uri=(ldaps?://[a-zA-Z0-9\./_-]+);domain=([a-zA-Z0-9\._-]+);base=([a-zA-Z0-9=\,_-]+)'
     def __init__(self, configuration):
         mo = re.match(LdapUserAuth.REGEX, configuration)
         if mo is None:
             raise DbExceptions.DbInvalidUserAuthConfigurationException(
                 "Invalid configuration: %s" % configuration
             )
-        domain, ldap_uri = mo.groups()
+        ldap_uri, domain, base = mo.groups()
 
-        self.domain = domain
         self.ldap_uri = ldap_uri
+        self.domain = domain
+        self.base = base
 
     @property
     def name(self):
@@ -60,3 +61,14 @@ class TrustedIpAddressesUserAuth(object):
     def __repr__(self):
         return "<TrustedIpAddressesUserAuth addresses='%s'/>" % self.addresses
 
+class DbUserAuth(object):
+    NAME = 'DB'
+    def __init__(self, configuration):
+        self.database = configuration #TODO: Should be used for something
+
+    @property
+    def name(self):
+        return DbUserAuth.NAME
+
+    def __repr__(self):
+        return "<DbUserAuth database='%s'/>" % self.database

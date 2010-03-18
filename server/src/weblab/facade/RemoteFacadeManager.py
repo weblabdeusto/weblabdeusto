@@ -135,7 +135,7 @@ class AbstractXMLRPC(object):
     def _fix_dates_in_experiments(self, experiments_allowed):
         for experiment_allowed in experiments_allowed:
             experiment = experiment_allowed.experiment
-            experiment_allowed.experiment = Experiment.Experiment(experiment.name, experiment.owner, experiment.category,
+            experiment_allowed.experiment = Experiment.Experiment(experiment.name, experiment.category,
                                 datetime.datetime( experiment.start_date.year, experiment.start_date.month, experiment.start_date.day ),
                                 datetime.datetime( experiment.end_date.year, experiment.end_date.month, experiment.end_date.day )
                             )

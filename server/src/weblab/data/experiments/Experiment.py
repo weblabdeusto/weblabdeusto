@@ -17,18 +17,16 @@ import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
 import weblab.data.experiments.ExperimentId as ExperimentId
 
 class Experiment(object):
-    def __init__(self, name, owner, category, start_date, end_date):
+    def __init__(self, name, category, start_date, end_date):
         super(Experiment,self).__init__()
         self.name       = name
-        self.owner      = owner
         self.category   = category
         self.start_date = start_date
         self.end_date   = end_date
 
     def __repr__(self):
-        return '<Experiment name="%s" owner="%s" category="%s" start_date="%s" end_date="%s">' % (
+        return '<Experiment name="%s" category="%s" start_date="%s" end_date="%s">' % (
                 self.name,
-                self.owner,
                 self.category,
                 self.start_date,
                 self.end_date

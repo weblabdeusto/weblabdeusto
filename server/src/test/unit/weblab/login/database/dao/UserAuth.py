@@ -38,9 +38,10 @@ class DbUserAuthTestCase(unittest.TestCase):
     def test_create_user_auth_right(self):
         ldap_uri = 'ldaps://castor.cdk.deusto.es'
         domain   = 'cdk.deusto.es'
+        base     = 'dc=cdk,dc=deusto,dc=es'
         ldap_user_auth = UserAuth.UserAuth.create_user_auth(
                 UserAuth.LdapUserAuth.NAME,
-                'domain=' + domain + ';ldap_uri=' + ldap_uri
+                'ldap_uri=' + ldap_uri + ';domain=' + domain + ';base=' + base 
             )
         self.assertTrue(
                 isinstance(
@@ -49,18 +50,23 @@ class DbUserAuthTestCase(unittest.TestCase):
                 )
             )
         self.assertEquals(
+                ldap_uri,
+                ldap_user_auth.ldap_uri
+            )
+        self.assertEquals(
                 domain,
                 ldap_user_auth.domain
             )
         self.assertEquals(
-                ldap_uri,
-                ldap_user_auth.ldap_uri
+                base,
+                ldap_user_auth.base
             )
         ldap_uri = 'ldaps://castor-4.cdk_4.deusto.es/'
         domain   = 'cdk_4-3.deusto.es'
+        base     = 'dc=cdk,dc=de_us-to,dc=es'
         ldap_user_auth = UserAuth.UserAuth.create_user_auth(
                 UserAuth.LdapUserAuth.NAME,
-                'domain=' + domain + ';ldap_uri=' + ldap_uri
+                'ldap_uri=' + ldap_uri + ';domain=' + domain + ';base=' + base
             )
         self.assertTrue(
                 isinstance(
@@ -69,12 +75,16 @@ class DbUserAuthTestCase(unittest.TestCase):
                 )
             )
         self.assertEquals(
+                ldap_uri,
+                ldap_user_auth.ldap_uri
+            )
+        self.assertEquals(
                 domain,
                 ldap_user_auth.domain
             )
         self.assertEquals(
-                ldap_uri,
-                ldap_user_auth.ldap_uri
+                base,
+                ldap_user_auth.base
             )
 
     def test_create_trusted_addresses_user_auth_right(self):

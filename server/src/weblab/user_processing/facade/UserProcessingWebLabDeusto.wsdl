@@ -35,7 +35,6 @@
 			<xsd:complexType name="ExperimentType">
 				<xsd:sequence>
 					<xsd:element minOccurs="0" maxOccurs="1" name="name" type="xsd:string"/> 
-					<xsd:element minOccurs="0" maxOccurs="1" name="owner" type="xsd:string"/>
 					<xsd:element minOccurs="0" maxOccurs="1" name="category" type="tns:CategoryType"/> 
 					<xsd:element minOccurs="0" maxOccurs="1" name="start_date" type="xsd:string"/> 
 					<xsd:element minOccurs="0" maxOccurs="1" name="end_date" type="xsd:string"/> 

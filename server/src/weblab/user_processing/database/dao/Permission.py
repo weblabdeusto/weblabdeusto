@@ -36,11 +36,10 @@ class PermissionParameter(object):
         self.value          = value
 
 class PermissionInstance(object):
-    def __init__(self, id, permission_type, owner, date, name, comments, parameters = None):
+    def __init__(self, id, permission_type, date, name, comments, parameters = None):
         super(PermissionInstance,self).__init__()
         self.id                     = id
         self.permission_type        = permission_type
-        self.owner                  = owner
         self.date                   = date
         self.name                   = name
         self.comments               = comments

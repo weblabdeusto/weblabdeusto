@@ -125,14 +125,12 @@ class UserProcessingFacadeManagerTestCase(unittest.TestCase):
         def _generate_two_experiments(self):
             experimentA = Experiment.Experiment(
                     'weblab-pld',
-                    'weblab@deusto.es',
                     Category.ExperimentCategory('WebLab-PLD experiments'),
                     'start_date',
                     'end_date'
                 )
             experimentB = Experiment.Experiment(
                     'weblab-pld',
-                    'weblab@deusto.es',
                     Category.ExperimentCategory('WebLab-PLD experiments'),
                     'start_date',
                     'end_date'

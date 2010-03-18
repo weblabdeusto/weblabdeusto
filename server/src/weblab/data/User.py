@@ -18,14 +18,13 @@ import weblab.exceptions.data.DataExceptions as DataExceptions
 class User(object):
     def __init__(self, login, full_name, email, user_type):
         super(User,self).__init__()
-        self.login     = login
+        self.login = login
         self.full_name = full_name
-        self.email     = email
+        self.email = email
         self.user_type = user_type
 
     def __repr__(self):
-        return "User %s; login = %s, full_name = %s, email = %s, type = %s " % (
-                self.__class__,
+        return "User(login = '%s', full_name = '%s', email = '%s', user_type = '%s')" % (
                 self.login,
                 self.full_name,
                 self.email,

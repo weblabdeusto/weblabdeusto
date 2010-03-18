@@ -11,19 +11,29 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
 import re
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.exc import NoResultFound
+
+import weblab.database.Model as Model
 
 import voodoo.hashing as hashlib
 from voodoo.log import logged
 
 import weblab.exceptions.database.DatabaseExceptions as DbExceptions
-from weblab.database.DatabaseConstants import READ, NAME, SELECT
 import weblab.database.DatabaseMySQLGateway as dbMySQLGateway
-import weblab.login.database.dao.UserAuth as UserAuth
 import weblab.data.UserType as UserType
 
+WEBLAB_DB_USERNAME_PROPERTY = 'weblab_db_username'
+DEFAULT_WEBLAB_DB_USERNAME  = 'weblab'
+
+WEBLAB_DB_PASSWORD_PROPERTY = 'weblab_db_password'
+DEFAULT_WEBLAB_DB_PASSWORD  = 'weblab'
 
 #TODO: capture MySQL Exceptions!!!
 
@@ -31,44 +41,41 @@ class AuthDatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
 
     def __init__(self, cfg_manager):
         super(AuthDatabaseGateway, self).__init__(cfg_manager)
+        connection_url = "mysql://%(USER)s:%(PASSWORD)s@%(HOST)s/%(DATABASE)s" % \
+                            { "USER": cfg_manager.get_value(WEBLAB_DB_USERNAME_PROPERTY, DEFAULT_WEBLAB_DB_USERNAME),
+                              "PASSWORD": cfg_manager.get_value(WEBLAB_DB_USERNAME_PROPERTY, DEFAULT_WEBLAB_DB_USERNAME),
+                              "HOST": self.host,
+                              "DATABASE": self.database_name }                
+        self.Session = sessionmaker(bind=create_engine(connection_url, echo=False))
 
     ####################################################################
     ##################   check_user_password   #########################
     ####################################################################
-    @dbMySQLGateway._db_credentials_checker
     @logged(except_for='passwd')
-    def check_user_password(self,cursors,user,passwd):
-        """check_user_password(credentials,user,passwd) -> UserType, user_id, auth_required
+    def check_user_password(self,username,passwd):
+        """check_user_password(credentials,username,passwd) -> UserType, user_id, auth_required
 
         Provided user and password, the method returns the UserType
         of the user if user and password are correct, and a if not.
         """
-        sentence = """SELECT user_password, user_role_id, user_id 
-                FROM %(table_name)s 
-                WHERE user_login = %(provided_login)s""" % {
-                        'table_name'    : self._get_table('User',cursors[NAME],SELECT),
-                        'provided_login': '%s' #a parameter
-                    }
-        cursors[READ].execute(sentence,user)
-        line = cursors[READ].fetchone()
-        if line == None:
-            raise DbExceptions.DbUserNotFoundException("User <%s> not found in database" % user)
-        else:
-            retrieved_password = line[0]
-            user_authenticated = False
-            if retrieved_password is not None:
-                user_authenticated = self._check_password(retrieved_password, passwd)
-                    
-            role_id = int(line[1]) 
-            user_id = int(line[2])
-            user_role = self._get_user_role(cursors,role_id)
+        session = self.Session()
+        try:
+            user = session.query(Model.DbUser).filter_by(login=username).one()
+        except NoResultFound:
+            raise DbExceptions.DbUserNotFoundException("User '%s' not found in database" % username)
 
-            if user_authenticated:
-                auth_info = None
-            else:
-                auth_info = self._retrieve_auth_information(cursors, user_id)
-            
-            return UserType.getUserTypeEnumerated(user_role),user_id,auth_info
+        try:
+            retrieved_password = [ userauth.configuration for userauth in user.auths if userauth.auth.auth_type.name == "DB" ][0]
+            user_authenticated = self._check_password(retrieved_password, passwd)
+        except IndexError:
+            user_authenticated = False            
+        
+        if user_authenticated:
+            auth_info = None
+        else:
+            auth_info = self._retrieve_auth_information(user)
+        
+        return UserType.getUserTypeEnumerated(user.role.name), user.id, auth_info
 
     def _check_password(self, retrieved_password, provided_passwd):
         #Now, user_password is the value stored in the database
@@ -105,30 +112,14 @@ class AuthDatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         hashobj.update((first_chars + provided_passwd).encode())
         return hashobj.hexdigest() == hashed_passwd
 
-    def _retrieve_auth_information(self, cursors, user_id):
-        sentence = """SELECT auth_name, uai_configuration
-                FROM %(UserAuthTable)s, %(UserAuthInstanceTable)s, %(UserAuthUserRelationTable)s
-                WHERE 
-                    uai_user_auth_id = user_auth_id
-                    AND uaur_user_auth_instance_id = user_auth_instance_id
-                    AND uaur_user_id = %(provided_user_id)s
-            """ % {
-            'UserAuthTable':        self._get_table('UserAuth',cursors[NAME],SELECT),
-            'UserAuthInstanceTable':    self._get_table('UserAuthInstance',cursors[NAME],SELECT),
-            'UserAuthUserRelationTable':    self._get_table('UserAuthUserRelation',cursors[NAME],SELECT),
-            'provided_user_id':         '%s' #a parameter
-        }
-        cursors[READ].execute(sentence,user_id)
-        results = cursors[READ].fetchall()
-        user_auths = []
-        for auth_name, configuration in results:
-            user_auth = UserAuth.UserAuth.create_user_auth(auth_name, configuration)
-            user_auths.append(user_auth)
-
-        if len(user_auths) == 0:
+    def _retrieve_auth_information(self, p_user):
+        session = self.Session()
+        # Kludge: We exclude the "WebLab DB" Auth, since it has already been checked when checking user/password.
+        weblab_db_auth = session.query(Model.DbAuth).filter_by(name="WebLab DB").one()
+        user_auths = session.query(Model.DbUserAuth).filter_by(user=p_user).filter(Model.DbUserAuth.auth != weblab_db_auth).all()
+        if len(user_auths) > 0:
+            return [ user_auth.to_business() for user_auth in user_auths ]
+        else:
             raise DbExceptions.DbNoUserAuthNorPasswordFoundException(
                     "No UserAuth found"
                 )
-
-        return user_auths
- 

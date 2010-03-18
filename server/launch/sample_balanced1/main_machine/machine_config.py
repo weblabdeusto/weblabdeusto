@@ -2,8 +2,8 @@
 # Login configuration #
 #######################
 
-login_db_users_auth_read_username        = 'wl_auth_read'
-login_db_users_auth_read_password        = 'wl_auth_read_password'
+weblab_db_username = 'weblab'
+weblab_db_password = 'weblab'
 db_driver        = "MySQLdb"
 db_host          = "localhost"
 db_database = "WebLab"

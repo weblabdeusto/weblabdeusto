@@ -64,9 +64,6 @@ def suite():
 def runGui(avoid_integration):
     "python /usr/lib/python2.4/site-packages/unittestgui.py launch_test.suite"
 
-    if CHECK_FLAKES:
-        check_flakes()
-
     global AVOID_INTEGRATION
     AVOID_INTEGRATION = avoid_integration
 
@@ -77,9 +74,6 @@ def runConsole(avoid_integration):
     if os.name == 'posix':
         os.system("clear")
 
-    if CHECK_FLAKES:
-        check_flakes()
-
     sys.exit = lambda *args : 0
     global AVOID_INTEGRATION
     AVOID_INTEGRATION = avoid_integration
@@ -88,9 +82,6 @@ def runConsole(avoid_integration):
     debugThreads()
 
 def runXml(folder):
-    if CHECK_FLAKES:
-        check_flakes()
-
     def runSuite(suite, file_name):
         output = open(file_name,'w')
         try:
@@ -140,11 +131,9 @@ def debugThreads():
     import voodoo.gen.protocols.SOAP.ServerSOAP as SSOAP
     print "ServerSoap:",SSOAP._resource_manager.get_current_resources()
 
-#DEFAULT_UI = 'xml'
-#DEFAULT_UI = 'gui'
-DEFAULT_UI = 'console' 
-
-CHECK_FLAKES = False
+#DEFAULT_UI     = 'xml'
+#DEFAULT_UI     = 'gui'
+DEFAULT_UI     = 'console' 
 
 def check_flakes():
     try:

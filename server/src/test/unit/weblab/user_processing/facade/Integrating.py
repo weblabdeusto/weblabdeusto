@@ -71,14 +71,12 @@ class UserProcessingIntegratingRemoteFacadeManager(unittest.TestCase):
         def _generate_two_experiments(self):
             experimentA = Experiment.Experiment(
                     'weblab-pld',
-                    'weblab@deusto.es',
                     Category.ExperimentCategory('WebLab-PLD experiments'),
                     datetime.datetime(2007,1,1),
                     datetime.datetime(2008,1,1)
                 )
             experimentB = Experiment.Experiment(
                     'weblab-fpga',
-                    'weblab@deusto.es',
                     Category.ExperimentCategory('WebLab-FPGA experiments'),
                     datetime.datetime(2005,1,1),
                     datetime.datetime(2006,1,1)

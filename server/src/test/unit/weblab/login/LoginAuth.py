@@ -102,7 +102,7 @@ class LoginAuthTestCase(unittest.TestCase):
         def _create_user_auth(self):
             return UserAuth.UserAuth.create_user_auth(
                     UserAuth.LdapUserAuth.NAME,
-                    'domain=cdk.deusto.es;ldap_uri=ldaps://castor.cdk.deusto.es'
+                    'ldap_uri=ldaps://castor.cdk.deusto.es;domain=cdk.deusto.es;base=dc=cdk,dc=deusto,dc=es'
                 )
 
         def test_create(self):

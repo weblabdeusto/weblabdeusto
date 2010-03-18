@@ -58,12 +58,6 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
         """
         sess_id = self._parse_session_id(session_id)
         experiments = self._server.list_experiments(sess_id)
-        # TODO: it would actually be a good idea to send the whole structure
-        # It would need changes in the WSDL, Serializers and so on
-        # Until that moment...
-        for i in experiments:
-            if hasattr(i.experiment.owner,'email'):
-                i.experiment.owner = i.experiment.owner.email
 
         self._fix_dates_in_experiments(experiments)
         return experiments

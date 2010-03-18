@@ -188,8 +188,7 @@ class FakeLocator(object):
 
 def generate_experiment(exp_name,exp_cat_name):
     cat = Category.ExperimentCategory(exp_cat_name)
-    owner = User.AdminUser( '1paordun', 'Pablo Orduña', 'pablo@ordunya.com' )
-    exp = Experiment.Experiment( exp_name, owner, cat, '01/01/2007', '31/12/2007' )
+    exp = Experiment.Experiment( exp_name, cat, '01/01/2007', '31/12/2007' )
     return exp
 
 def generate_experiment_allowed(time_allowed, exp_name, exp_cat_name):

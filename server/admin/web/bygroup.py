@@ -11,24 +11,23 @@ def index(req):
         cursor = connection.cursor()
         try:
             for group in GROUPS:
-                SENTENCE = "SELECT user_login, user_full_name, wl_User.user_id " + \
-                            "FROM wl_User, wl_UserIsMemberOf " + \
-                            "WHERE wl_User.user_id = wl_UserIsMemberOf.user_id AND group_id = GetGroupIDByName('%s')" % group
+                SENTENCE = "SELECT u.login, u.full_name, u.id " + \
+                            "FROM %(DB)s.User as u, %(DB)s.UserIsMemberOf as m, %(DB)s.Group as g " % { 'DB': DB_NAME } + \
+                            "WHERE u.id = m.user_id AND m.group_id = g.id AND g.name = '%(GROUP)s'" % { 'GROUP': group }
                 cursor.execute(SENTENCE)
                 users = cursor.fetchall()
                 uses_per_user = {}
                 user_names    = {}
                 total_uses    = 0
                 for user, user_full_name, user_id in users:
-                    SENTENCE = "SELECT COUNT(uue_user_id) " + \
-                                "FROM wl_UserUsedExperiment " + \
-                                "WHERE uue_user_id = %s AND uue_experiment_id = GetExperimentIDByName('%s', '%s')" % (user_id, GROUPS[group][0], GROUPS[group][1])
+                    SENTENCE = "SELECT COUNT(uue.user_id) " + \
+                                "FROM UserUsedExperiment as uue, Experiment as e, ExperimentCategory as c " + \
+                                "WHERE uue.user_id = %s AND uue.experiment_id = e.id AND e.name = '%s' AND e.category_id = c.id AND c.name = '%s'" % (user_id, GROUPS[group][0], GROUPS[group][1])
                     cursor.execute(SENTENCE)
                     uses = cursor.fetchall()[0][0]
                     uses_per_user[user] = uses
                     user_names[user] = user_full_name
                     total_uses += uses
-
                 result += "<br><br>\n"
                 result += "<b>Experiment: %s</b><br>\n" % (GROUPS[group][0] + '@' + GROUPS[group][1])
                 result += "<b>Group: %s</b><br>\n" % group

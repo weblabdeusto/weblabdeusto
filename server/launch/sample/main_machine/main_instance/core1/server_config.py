@@ -18,22 +18,8 @@ core_facade_json_port   = 18345
 # Core Server Database configuration #
 ######################################
 
-core_db_users_student_read_username         = 'wl_student_read'
-core_db_users_student_read_password         = 'wl_student_read_password'
-core_db_users_student_write_username        = 'wl_student_write'
-core_db_users_student_write_password        = 'wl_student_write_password'
-core_db_users_professor_read_username       = 'wl_prof_read'
-core_db_users_professor_read_password       = 'wl_prof_read_password'
-core_db_users_professor_write_username      = 'wl_prof_write'
-core_db_users_professor_write_password      = 'wl_prof_write_password'
-core_db_users_administrator_read_username   = 'wl_admin_read'
-core_db_users_administrator_read_password   = 'wl_admin_read_password'
-core_db_users_administrator_write_username  = 'wl_admin_write'
-core_db_users_administrator_write_password  = 'wl_admin_write_password'
-core_db_users_externalentity_read_username  = 'wl_exter_read'
-core_db_users_externalentity_read_password  = 'wl_exter_read_password'
-core_db_users_externalentity_write_username = 'wl_exter_write'
-core_db_users_externalentity_write_password = 'wl_exter_write_password'
+weblab_db_username = 'weblab'
+weblab_db_password = 'weblab'
 
 #########################################
 # Core Server Coordinator configuration #

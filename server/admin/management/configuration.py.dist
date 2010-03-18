@@ -1,0 +1,31 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+"""
+configuration.py.dist
+
+This is a configuration.py sample file. Copy its content to create your own configuration.py file.
+"""
+
+#
+# Required parameters
+#
+
+DB_HOST   = "localhost"
+SMTP_HOST = "mail.deusto.es"
+SMTP_HELO = "deusto.es"
+
+#
+# Default values
+#
+
+DEFAULT_DB_NAME                = "WebLab"
+DEFAULT_DB_USER                = "weblab"
+DEFAULT_DB_PASS                = "weblab"
+
+DEFAULT_LDAP_USERS_FILE        = "USERS"
+
+DEFAULT_NOTIFICATION_FROM      = "WebLab-Deusto <weblab@deusto.es>"
+DEFAULT_NOTIFICATION_BCC       = "irurzun@deusto.es, pablo.orduna@deusto.es, luis.rodriguez@opendeusto.es"
+DEFAULT_NOTIFICATION_SUBJECT   = "Notificación de WebLab-Deusto"
+DEFAULT_NOTIFICATION_TEXT_FILE = "NOTIFICATION"

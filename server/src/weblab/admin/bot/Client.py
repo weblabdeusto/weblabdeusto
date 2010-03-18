@@ -253,7 +253,7 @@ if ZSI_AVAILABLE:
             experiments = []
             for experiment in [ holder.experiment for holder in experiment_list_holders]:
                 category = Category.ExperimentCategory(experiment.category.name)
-                exp = Experiment.Experiment(experiment.name, experiment.owner, category, experiment.start_date, experiment.end_date)
+                exp = Experiment.Experiment(experiment.name, category, experiment.start_date, experiment.end_date)
                 experiments.append(exp)
             return experiments
 
@@ -286,7 +286,7 @@ class AbstractBotDict(AbstractBot):
         experiments = []
         for experiment in [ holder['experiment'] for holder in experiment_list_holders]:
             category = Category.ExperimentCategory(experiment['category']['name'])
-            exp = Experiment.Experiment(experiment['name'], experiment['owner'], category, experiment['start_date'], experiment['end_date'])
+            exp = Experiment.Experiment(experiment['name'], category, experiment['start_date'], experiment['end_date'])
             experiments.append(exp)
         return experiments
 

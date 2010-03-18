@@ -464,14 +464,8 @@ class FakeConfirmer(object):
 
 def generate_experiment(exp_name,exp_cat_name):
     cat = Category.ExperimentCategory(exp_cat_name)
-    owner = User.AdminUser(
-        '1paordun',
-        'Pablo Orduña',
-        'pablo@ordunya.com'
-    )
     exp = Experiment.Experiment(
         exp_name,
-        owner,
         cat,
         '01/01/2007',
         '31/12/2007'

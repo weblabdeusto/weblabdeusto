@@ -53,7 +53,7 @@ class DbIllegalStatusException(DatabaseException):
 class DbMisconfiguredException(DatabaseException):
     def __init__(self, *args, **kargs):
         DatabaseException.__init__(self,*args,**kargs)
-
+        
 class InvalidPermissionParameterFormatException(DatabaseException):
     def __init__(self, *args, **kargs):
         DatabaseException.__init__(self,*args,**kargs)

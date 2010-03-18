@@ -10,5 +10,5 @@ login_facade_json_port   = 18645
 # Login Server Database configuration #
 #######################################
 
-login_db_users_auth_read_username = 'wl_auth_read'
-login_db_users_auth_read_password = 'wl_auth_read_password'
+weblab_db_username = 'weblab'
+weblab_db_password = 'weblab'

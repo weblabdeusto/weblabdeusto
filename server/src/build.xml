@@ -4,7 +4,7 @@
 	<target name="deploy">
         <mkdir dir="cruisecontrol/logs"/>
 		<exec executable="python" failonerror="true">
-			<arg value="deploy.py"/>
+			<arg value="../deploy/deploy.py"/>
 		</exec>
 	</target>
 

@@ -1,0 +1,5 @@
+# This file can be used to import Users to WebLab-Deusto through LDAP.
+# Each User's login must be filled in one line.
+# Every line begining with the '#' character will be ommited. 
+jaime.irurzun
+luis.rodriguez

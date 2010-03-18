@@ -11,7 +11,9 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
+
 import unittest
 
 import test.unit.configuration as configuration
@@ -20,31 +22,24 @@ import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
 import weblab.data.UserType as UserType
 
-import weblab.login.database.DatabaseGateway as DatabaseGateway
-import weblab.database.DatabaseAccountManager as DAM
+import weblab.login.database.DatabaseMySQLGateway as DatabaseMySQLGateway
 import weblab.login.database.dao.UserAuth as UserAuth
 
 import weblab.exceptions.database.DatabaseExceptions as DbExceptions
 
-from weblab.database.DatabaseConstants import AUTH
-from weblab.database.DatabaseConstants import READ, NAME
 
 class DatabaseMySQLGatewayTestCase(unittest.TestCase):
+    
     def setUp(self):
-        auth_user = DAM.DatabaseUserInformation( 'wl_auth_read', 'wl_auth_read_password' )
-        self.auth_credentials = { NAME : AUTH, READ : auth_user }
-
         cfg_manager= ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration)
-
-        self.auth_gateway = DatabaseGateway.create_auth_gateway(cfg_manager)
+        self.auth_gateway = DatabaseMySQLGateway.AuthDatabaseGateway(cfg_manager)
 
     def test_user_password(self):
         #This user doesn't exist
         self.assertRaises(
                 DbExceptions.DbUserNotFoundException,
                 self.auth_gateway.check_user_password,
-                self.auth_credentials,
                 'user',
                 'password'
             )
@@ -53,14 +48,12 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         self.assertRaises(
                 DbExceptions.DbNoUserAuthNorPasswordFoundException,
                 self.auth_gateway.check_user_password,
-                self.auth_credentials,
                 'admin1',
                 'wrong_password'
             )
 
         #This user exists and the password is correct
         user_type, user_id, user_auths = self.auth_gateway.check_user_password(
-                    self.auth_credentials,
                     'admin1',
                     'password'
                 )
@@ -81,7 +74,6 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         self.assertRaises(
             DbExceptions.DbHashAlgorithmNotFoundException,
             self.auth_gateway.check_user_password,
-            self.auth_credentials,
             'student7',
             'password'
         )
@@ -90,14 +82,12 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         self.assertRaises(
             DbExceptions.DbInvalidPasswordFormatException,
             self.auth_gateway.check_user_password,
-            self.auth_credentials,
             'student8',
             'password'
         )
         
     def test_user_password_ldap(self):
         user_type, user_id, user_auths = self.auth_gateway.check_user_password(
-                self.auth_credentials,
                 'studentLDAP1',
                 None
             )
@@ -125,10 +115,10 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         self.assertRaises(
             DbExceptions.DbNoUserAuthNorPasswordFoundException,
             self.auth_gateway.check_user_password,
-            self.auth_credentials,
             'studentLDAPwithoutUserAuth',
             None
         )
+        
 
 def suite():
     return unittest.makeSuite(DatabaseMySQLGatewayTestCase)
