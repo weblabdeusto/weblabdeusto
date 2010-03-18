@@ -14,10 +14,10 @@ def index(req):
     try:
         cursor = connection.cursor()
         try:
-            SENTENCE = "select experiment_name, experiment_category_name, uue_start_date, uue_from " + \
-                        "from wl_UserUsedExperiment, wl_User, wl_Experiment, wl_ExperimentCategory " + \
-                        "WHERE user_login = 'demo' AND user_id = uue_user_id AND experiment_id = uue_experiment_id AND wl_Experiment.experiment_category_id = wl_ExperimentCategory.experiment_category_id " + \
-                        "order by uue_start_date desc limit %s" % LIMIT
+            SENTENCE = "SELECT e.name, c.name, uue.start_date, uue.origin " + \
+                        "FROM UserUsedExperiment as uue, User as u, Experiment as e, ExperimentCategory as c " + \
+                        "WHERE u.login = 'demo' AND u.id = uue.user_id AND e.id = uue.experiment_id AND e.category_id = c.id " + \
+                        "ORDER BY uue.start_date DESC LIMIT %s" % LIMIT
             cursor.execute(SENTENCE)
             elements = cursor.fetchall()
             result = """<html><head><title>Latest uses of demo</title></head><body><table cellspacing="20">
