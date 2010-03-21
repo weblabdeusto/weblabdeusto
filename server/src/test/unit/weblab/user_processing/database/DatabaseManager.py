@@ -20,7 +20,6 @@ import test.unit.configuration as configuration
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 import weblab.user_processing.database.DatabaseManager as DatabaseManager
 import weblab.database.DatabaseSession as DatabaseSession
-import weblab.database.DatabaseConstants as Constants
 import weblab.data.User as User
 
 class DatabaseServerTestCase(unittest.TestCase):
@@ -30,7 +29,7 @@ class DatabaseServerTestCase(unittest.TestCase):
         self.dm = DatabaseManager.UserProcessingDatabaseManager(cfg_manager)
         
     def test_get_available_experiments(self):
-        session_id = DatabaseSession.ValidDatabaseSessionId("student2", Constants.STUDENT)
+        session_id = DatabaseSession.ValidDatabaseSessionId("student2", "student")
         experiments = self.dm.get_available_experiments(session_id)
         self.assertTrue(
                 len(experiments) >= 3
@@ -43,7 +42,7 @@ class DatabaseServerTestCase(unittest.TestCase):
         self.assertTrue( 'ud-gpib' in experiment_names )
         
     def test_retrieve_user_information_admin(self):
-        session_id = DatabaseSession.ValidDatabaseSessionId("admin1", Constants.ADMINISTRATOR)
+        session_id = DatabaseSession.ValidDatabaseSessionId("admin1", "administrator")
         user = self.dm.retrieve_user_information(session_id)
 
         self.assertNotEquals(user, None)
@@ -53,7 +52,7 @@ class DatabaseServerTestCase(unittest.TestCase):
         self.assertEquals("weblab@deusto.es",user.email)
 
     def test_retrieve_user_information_professor(self):
-        session_id = DatabaseSession.ValidDatabaseSessionId("prof1", Constants.PROFESSOR)
+        session_id = DatabaseSession.ValidDatabaseSessionId("prof1", "professor")
         user = self.dm.retrieve_user_information(session_id)
 
         self.assertNotEquals(user, None)
@@ -63,7 +62,7 @@ class DatabaseServerTestCase(unittest.TestCase):
         self.assertEquals("weblab@deusto.es",user.email)
 
     def test_retrieve_user_information_student(self):
-        session_id = DatabaseSession.ValidDatabaseSessionId("student1", Constants.STUDENT)
+        session_id = DatabaseSession.ValidDatabaseSessionId("student1", "student")
         user = self.dm.retrieve_user_information(session_id)
 
         self.assertNotEquals(user, None)

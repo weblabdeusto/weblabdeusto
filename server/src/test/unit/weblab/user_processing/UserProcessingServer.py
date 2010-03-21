@@ -27,7 +27,6 @@ import weblab.user_processing.coordinator.Confirmer   as Confirmer
 import weblab.user_processing.coordinator.Coordinator as Coordinator
 import voodoo.configuration.ConfigurationManager      as ConfigurationManager
 import weblab.database.DatabaseSession                as DatabaseSession
-import weblab.database.DatabaseConstants              as DbConstants
 import weblab.data.ServerType                         as ServerType
 import weblab.data.ClientAddress                      as ClientAddress
 
@@ -79,7 +78,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
     #########
 
     def test_reserve_session(self):
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', DbConstants.STUDENT)
+        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
 
         session_manager = self.ups._session_manager
@@ -90,7 +89,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
 
     def test_list_experiments(self):
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', DbConstants.STUDENT)
+        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
 
         experiments = self.ups.list_experiments(sess_id)
@@ -103,7 +102,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.ups.logout(sess_id)
 
     def test_get_user_information(self):
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', DbConstants.STUDENT)
+        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
 
         user = self.ups.get_user_information(sess_id)
@@ -116,7 +115,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
 
     def test_reserve_experiment(self):
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', DbConstants.STUDENT)
+        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
 
         exp_id = ExperimentId.ExperimentId('this does not experiment','this neither')
