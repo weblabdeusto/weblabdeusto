@@ -314,7 +314,7 @@ public class WebLabController implements IWebLabController {
 	    try {
 			ExperimentBase experimentBase = factory.experimentFactory(experimentAllowed.getExperiment().getExperimentID());
 			this.sessionVariables.setCurrentExperimentBase(experimentBase);
-			this.uimanager.onExperimentChoosen(experimentAllowed, experimentBase);
+			this.uimanager.onExperimentChosen(experimentAllowed, experimentBase);
 	    } catch (WlExperimentException e) {
 			this.uimanager.onError("Couldn't instantiate experiment: " + e.getMessage());
 			e.printStackTrace();

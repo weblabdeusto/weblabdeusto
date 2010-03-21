@@ -12,12 +12,12 @@
 *
 */
 
-package es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb;
+package es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultmobile;
 
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 
-interface Resources extends ClientBundle {
+public interface Resources extends ClientBundle {
 	@Source("res/logo.png")
 	ImageResource logo();
 }

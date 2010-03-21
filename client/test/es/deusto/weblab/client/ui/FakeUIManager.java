@@ -64,7 +64,7 @@ public class FakeUIManager extends WlFake implements IUIManager {
     }    
     
     @Override
-    public void onExperimentChoosen(ExperimentAllowed experimentAllowed,
+    public void onExperimentChosen(ExperimentAllowed experimentAllowed,
 	    ExperimentBase experimentBase) {
 	experimentBase.getUI().initialize();
 	this.append(FakeUIManager.ON_EXPERIMENT_CHOOSEN, new Object[] {experimentAllowed, experimentBase});

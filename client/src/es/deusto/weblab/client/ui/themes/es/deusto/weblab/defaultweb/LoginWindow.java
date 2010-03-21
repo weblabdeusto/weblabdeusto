@@ -42,7 +42,7 @@ import es.deusto.weblab.client.ui.widgets.WlHorizontalPanel;
 import es.deusto.weblab.client.ui.widgets.WlUtil;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
-public class LoginWindow extends BaseWindow {
+class LoginWindow extends BaseWindow {
 
 	
 	/******************

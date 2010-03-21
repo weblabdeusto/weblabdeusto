@@ -36,7 +36,7 @@ import es.deusto.weblab.client.ui.widgets.WlVerticalPanel;
 /**
  *  Logged-in panel that is included in some windows.
  */
-public class LoggedPanel extends Composite {
+class LoggedPanel extends Composite {
 	
 	
 	/******************

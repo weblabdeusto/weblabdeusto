@@ -31,7 +31,7 @@ import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb.LoggedPanel
 import es.deusto.weblab.client.ui.widgets.WlVerticalPanel;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
-public class AllowedExperimentsWindow extends BaseWindow {
+class AllowedExperimentsWindow extends BaseWindow {
 
 	interface AllowedExperimentsWindowUiBinder extends 
 		UiBinder<Widget, AllowedExperimentsWindow> {

@@ -94,7 +94,7 @@ public class DefaultTheme extends ThemeBase {
 	}
 
 	@Override
-	public void onExperimentChoosen(final ExperimentAllowed experimentAllowed, ExperimentBase experimentBase) {
+	public void onExperimentChosen(final ExperimentAllowed experimentAllowed, ExperimentBase experimentBase) {
 		this.experimentAllowed = experimentAllowed;
 		this.experimentBase = experimentBase;
 
