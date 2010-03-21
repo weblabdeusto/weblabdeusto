@@ -33,7 +33,6 @@ import weblab.data.ClientAddress                      as ClientAddress
 
 import weblab.exceptions.user_processing.UserProcessingExceptions as UserProcessingExceptions
 
-import weblab.data.User as User
 import weblab.data.experiments.ExperimentId as ExperimentId
 import weblab.data.experiments.Category as Category
 import weblab.data.experiments.Experiment as Experiment
