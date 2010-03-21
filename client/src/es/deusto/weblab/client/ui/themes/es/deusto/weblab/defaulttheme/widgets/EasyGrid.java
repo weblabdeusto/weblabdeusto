@@ -46,12 +46,12 @@ public class EasyGrid extends Grid {
 	{
 		System.out.println("Creating table.");
 		
-		this.resize(rows, cols);
+		this.resize(this.rows, this.cols);
 		
 		int widgetsSet = 0;
-		for(int j = 0; j < rows && widgetsSet < widgets.size(); j++) {
-			for(int i = 0; i < cols && widgetsSet < widgets.size(); i++) {
-				this.setWidget(j, i, widgets.get(widgetsSet));
+		for(int j = 0; j < this.rows && widgetsSet < this.widgets.size(); j++) {
+			for(int i = 0; i < this.cols && widgetsSet < this.widgets.size(); i++) {
+				this.setWidget(j, i, this.widgets.get(widgetsSet));
 				widgetsSet++;
 			}
 		}
@@ -74,7 +74,7 @@ public class EasyGrid extends Grid {
 	public void setCols(int cols) {
 		System.out.println("Settings cols.");
 		this.cols = cols;
-		if(rows != -1 && cols != -1)
+		if(this.rows != -1 && cols != -1)
 			createTable();
 	}
 	
@@ -85,7 +85,7 @@ public class EasyGrid extends Grid {
 	public void setRows(int rows) {
 		System.out.println("Settings rows.");
 		this.rows = rows;
-		if(rows != -1 && cols != -1)
+		if(rows != -1 && this.cols != -1)
 			createTable();
 	}
 	
@@ -98,7 +98,7 @@ public class EasyGrid extends Grid {
 	public void add(Widget widget)
 	{
 		System.out.println("Adding widget to the internal list.");
-		widgets.add(widget);
+		this.widgets.add(widget);
 	}
 
 }

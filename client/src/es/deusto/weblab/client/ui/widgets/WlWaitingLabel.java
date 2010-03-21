@@ -45,6 +45,7 @@ public class WlWaitingLabel extends Label implements IWlWidget{
 		setText(text);
 	}
 	
+	@Override
 	public void setText(String text){
 		this.realText = text;
 		this.counter = 0;
@@ -55,6 +56,7 @@ public class WlWaitingLabel extends Label implements IWlWidget{
 		super.setText(text);
 	}
 	
+	@Override
 	public String getText(){
 		return this.realText;
 	}

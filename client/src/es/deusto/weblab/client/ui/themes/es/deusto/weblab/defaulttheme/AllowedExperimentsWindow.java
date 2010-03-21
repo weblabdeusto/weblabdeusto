@@ -18,23 +18,16 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.uibinder.client.UiTemplate;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
 
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.LoggedPanel.ILoggedPanelCallback;
-import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.LoginWindow.MyUiBinder;
-import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.i18n.IWebLabDeustoThemeMessages;
-import es.deusto.weblab.client.ui.widgets.WlHorizontalPanel;
 import es.deusto.weblab.client.ui.widgets.WlVerticalPanel;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
@@ -74,8 +67,8 @@ public class AllowedExperimentsWindow extends BaseWindow {
 	    super(configurationManager);
 	    
 	    this.callback = callback;
-		loggedPanel = new LoggedPanel(user, callback);
-		contentPanel = loggedPanel.contentPanel;
+		this.loggedPanel = new LoggedPanel(user, callback);
+		this.contentPanel = this.loggedPanel.contentPanel;
 	    this.experimentsAllowed = experimentsAllowed;
 	    
 	    this.loadWidgets();	    
@@ -92,9 +85,9 @@ public class AllowedExperimentsWindow extends BaseWindow {
 		experimentCategoryHeader.setStyleName("table-header");
 		final Label experimentNameHeader = new Label(this.i18nMessages.experimentName());
 		experimentNameHeader.setStyleName("table-header");
-		experimentsTable.setWidget(0, 0, experimentCategoryHeader);
-		experimentsTable.setWidget(0, 1, experimentNameHeader);
-		experimentsTable.setWidget(0, 2, new Label(""));
+		this.experimentsTable.setWidget(0, 0, experimentCategoryHeader);
+		this.experimentsTable.setWidget(0, 1, experimentNameHeader);
+		this.experimentsTable.setWidget(0, 2, new Label(""));
 		
 		for(int i = 0; i < this.experimentsAllowed.length; ++i){
 			final String category = this.experimentsAllowed[i].getExperiment().getCategory().getCategory();
@@ -102,13 +95,13 @@ public class AllowedExperimentsWindow extends BaseWindow {
 			final Anchor nameLink = new Anchor(this.experimentsAllowed[i].getExperiment().getName());
 			nameLink.addClickHandler(new ExperimentClickListener(i));
 
-			experimentsTable.setWidget(i + 1, 0, new Label(category));
-			experimentsTable.setWidget(i + 1, 1, nameLink);
+			this.experimentsTable.setWidget(i + 1, 0, new Label(category));
+			this.experimentsTable.setWidget(i + 1, 1, nameLink);
 		}
 		
-		while(listExperimentsPanel.getWidgetCount() > 0)
-			listExperimentsPanel.remove(0);
-		listExperimentsPanel.add(experimentsTable);
+		while(this.listExperimentsPanel.getWidgetCount() > 0)
+			this.listExperimentsPanel.remove(0);
+		this.listExperimentsPanel.add(this.experimentsTable);
 		
 	}
 	
@@ -120,18 +113,19 @@ public class AllowedExperimentsWindow extends BaseWindow {
 		
 		// TODO: Find out whether we can somehow call a two-parameters 
 		// setter from UiBinder to replace this statement.
-		navigationPanel.setSize("100%", "30px");
+		this.navigationPanel.setSize("100%", "30px");
 		
-		contentTitleLabel.setText(this.i18nMessages.myExperiments());
-		this.contentPanel.setCellHeight(contentTitleLabel, "40px");
+		this.contentTitleLabel.setText(this.i18nMessages.myExperiments());
+		this.contentPanel.setCellHeight(this.contentTitleLabel, "40px");
 		
 		generateExperimentsTableContent();
 	}
 
+	@Override
 	protected void loadWidgets(){
 		super.loadWidgets();
 		
-		this.mainPanel.add(loggedPanel);
+		this.mainPanel.add(this.loggedPanel);
 		
 		
 		// Note: At the moment, the whole UiBinder UI of this window
@@ -163,7 +157,7 @@ public class AllowedExperimentsWindow extends BaseWindow {
 		@Override
 		public void onClick(ClickEvent event) {
 			final ExperimentAllowed ea = AllowedExperimentsWindow.this.experimentsAllowed[this.number];
-			callback.onChooseExperimentButtonClicked(ea);
+			AllowedExperimentsWindow.this.callback.onChooseExperimentButtonClicked(ea);
 		}
 	}	
 }

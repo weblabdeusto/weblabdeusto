@@ -20,10 +20,13 @@ import es.deusto.weblab.client.exceptions.ui.themes.WlThemeException;
 import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.DefaultTheme;
 
 public class ThemeFactory {
-	public static ThemeBase themeFactory(IConfigurationManager configurationManager, IWebLabController controller, String themeName) throws WlThemeException{
-		if(themeName.equals("deusto"))
-			return new DefaultTheme(configurationManager, controller);
-		else
+	public static ThemeBase themeFactory(IConfigurationManager configurationManager, IWebLabController controller, String themeName, boolean mobile) throws WlThemeException{
+		if(themeName.equals("deusto")){
+			if(mobile)
+				return new DefaultTheme(configurationManager, controller);
+			else
+				return new DefaultTheme(configurationManager, controller);
+		}else
 			throw new ThemeNotFoundException("Theme " + themeName + " not found");
 	}
 }

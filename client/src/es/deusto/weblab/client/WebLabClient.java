@@ -43,7 +43,9 @@ public class WebLabClient implements EntryPoint {
 	private static final String SCRIPT_CONFIG_FILE = "configuration.xml";
 	private static final String HOSTED_CONFIG_FILE = "debug_configuration.xml";
 	private static final String SESSION_ID_URL_PARAM = "session_id";	
+	private static final String MOBILE_URL_PARAM = "mobile";
 	private static final String LOCALE_URL_PARAM = "locale";
+	
 	public static final String LOCALE_COOKIE = "weblabdeusto.locale";
 
 	private static final String THEME_PROPERTY = "theme";
@@ -63,7 +65,12 @@ public class WebLabClient implements EntryPoint {
 	}
 	
 	private boolean localeConfigured(){
-	    	return Window.Location.getParameter(WebLabClient.LOCALE_URL_PARAM) != null;
+	    return Window.Location.getParameter(WebLabClient.LOCALE_URL_PARAM) != null;
+	}
+	
+	private boolean isMobile(){
+		final String urlSaysIsMobile = Window.Location.getParameter(MOBILE_URL_PARAM);
+		return urlSaysIsMobile != null && (urlSaysIsMobile.toLowerCase().equals("yes") || urlSaysIsMobile.toLowerCase().equals("true")); 
 	}
 	
 	private void selectLanguage(){
@@ -123,7 +130,8 @@ public class WebLabClient implements EntryPoint {
 							WebLabClient.this.configurationManager.getProperty(
 									WebLabClient.THEME_PROPERTY, 
 									WebLabClient.DEFAULT_THEME
-								)
+								),
+							isMobile()
 						);
 				} catch (final WlThemeException e) {
 					WebLabClient.this.showError("Error creating theme: " + e.getMessage());

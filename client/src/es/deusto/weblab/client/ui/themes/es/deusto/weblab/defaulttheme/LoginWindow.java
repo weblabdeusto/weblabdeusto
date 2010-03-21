@@ -24,12 +24,10 @@ import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.uibinder.client.UiTemplate;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -42,7 +40,6 @@ import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.i18n.IWebLabDeustoThemeMessages;
 import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.widgets.EasyGrid;
 import es.deusto.weblab.client.ui.widgets.WlHorizontalPanel;
-import es.deusto.weblab.client.ui.widgets.WlUtil;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
 public class LoginWindow extends BaseWindow {
@@ -72,7 +69,7 @@ public class LoginWindow extends BaseWindow {
 	@UiField WlWaitingLabel waitingLabel;
 	@UiField Label generalErrorLabel;
 	
-	@UiField HTMLPanel demoAvailableHTML;
+	@UiField HTML demoAvailableHTML;
 	@UiField HTMLPanel supportHTML;
 	
 	public interface ILoginWindowCallback {
@@ -118,7 +115,7 @@ public class LoginWindow extends BaseWindow {
 		this.mainPanel.setCellHeight(this.waitingLabel.getWidget(), "30px");
 		this.mainPanel.setCellHeight(this.generalErrorLabel, "30px");
 		
-		this.mainPanel.setCellHeight(demoAvailableHTML, "40px");
+		this.mainPanel.setCellHeight(this.demoAvailableHTML, "40px");
 	}
 
 
@@ -127,9 +124,9 @@ public class LoginWindow extends BaseWindow {
 	 * @param i18n Provider of the messages.
 	 */
 	public void applyI18n() {
-		usernameLabel.setText(this.i18nMessages.username() + ":");
-		passwordLabel.setText(this.i18nMessages.password() + ":");
-		loginButton.setText(this.i18nMessages.logIn());
+		this.usernameLabel.setText(this.i18nMessages.username() + ":");
+		this.passwordLabel.setText(this.i18nMessages.password() + ":");
+		this.loginButton.setText(this.i18nMessages.logIn());
 	}
 	
 	
@@ -158,16 +155,16 @@ public class LoginWindow extends BaseWindow {
 			languageButton.addClickHandler(
 					new LanguageButtonClickHandler(curLanguageCode)
 				);
-			langsPanel.add(languageButton);
+			this.langsPanel.add(languageButton);
 		}		
-		langsPanel.setSpacing(15);
+		this.langsPanel.setSpacing(15);
 		
-		this.mainPanel.add(langsPanel);
+		this.mainPanel.add(this.langsPanel);
 		
 		
 		this.loadUsernameAndPassword();
-		usernameTextbox.addKeyPressHandler(keyboardHandler);
-		passwordTextbox.addKeyPressHandler(keyboardHandler);
+		this.usernameTextbox.addKeyPressHandler(keyboardHandler);
+		this.passwordTextbox.addKeyPressHandler(keyboardHandler);
 		
 		
 		// TODO: This is not currently handled the same way. Consider alternatives.
@@ -188,6 +185,7 @@ public class LoginWindow extends BaseWindow {
 				LoginWindow.DEMO_AVAILABLE_PROPERTY,
 				LoginWindow.DEFAULT_DEMO_AVAILABLE
 			);
+		
 		if ( demoAvailable ) {
 			String demoUsername = this.configurationManager.getProperty(
 					LoginWindow.DEMO_USERNAME_PROPERTY,
@@ -199,13 +197,8 @@ public class LoginWindow extends BaseWindow {
 				);	
 			
 			
-//			// TODO: Re-enable this.
-//			this.demoAvailableHTML.add(
-//					new HTML(
-//							this.i18nMessages.demoLoginDetails(demoUsername, demoPassword)
-//							), "saferfasfd"
-//					);
-
+			// TODO: reenable this
+			// this.demoAvailableHTML.setHTML(this.i18nMessages.demoLoginDetails(demoUsername, demoPassword));
 		}
 		
 		String adminEmail = this.configurationManager.getProperty(
@@ -222,8 +215,8 @@ public class LoginWindow extends BaseWindow {
 		if ( DESIGN_MODE )
 		{
 			this.mainPanel.setBorderWidth(1);
-			langsPanel.setBorderWidth(1);
-			grid.setBorderWidth(1);
+			this.langsPanel.setBorderWidth(1);
+			this.grid.setBorderWidth(1);
 		}
 	}
 	
@@ -299,33 +292,33 @@ public class LoginWindow extends BaseWindow {
 	
 	
 	public String getUsername(){
-		return usernameTextbox.getText();
+		return this.usernameTextbox.getText();
 	}
 	
 	public String getPassword(){
-		return passwordTextbox.getText(); 
+		return this.passwordTextbox.getText(); 
 	}
 	
 	public boolean checkUsernameTextbox(){
 		if(this.getUsername().length() == 0){
-			usernameErrorLabel.setText(
+			this.usernameErrorLabel.setText(
 					this.i18nMessages.thisFieldCantBeEmpty()
 				);
 			return true;
 		}else{
-			usernameErrorLabel.setText("");
+			this.usernameErrorLabel.setText("");
 			return false;
 		}
 	}
 	
 	public boolean checkPasswordTextbox() {
 		if(this.getPassword().length() == 0){
-			passwordErrorLabel.setText(
+			this.passwordErrorLabel.setText(
 				this.i18nMessages.thisFieldCantBeEmpty()
 				);
 			return true;
 		}else{
-			passwordErrorLabel.setText("");
+			this.passwordErrorLabel.setText("");
 			this.i18nMessages.thisFieldCantBeEmpty();
 			return false;
 		}

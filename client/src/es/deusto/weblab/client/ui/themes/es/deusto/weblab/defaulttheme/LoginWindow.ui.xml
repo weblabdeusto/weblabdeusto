@@ -4,7 +4,7 @@
     xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
     
     
-    <w:WlVerticalPanel horizontalAlignment='ALIGN_CENTER' styleName='main-panel'>
+    <w:WlVerticalPanel horizontalAlignment='ALIGN_CENTER'  styleName='main-panel'>
     
     
     	<w:WlHorizontalPanel ui:field="langsPanel">
@@ -39,11 +39,9 @@
 	    	</div>
 		</g:HTMLPanel>
 		
-		<g:HTMLPanel ui:field="demoAvailableHTML"></g:HTMLPanel>
+		<g:HTML ui:field="demoAvailableHTML"></g:HTML>
 		<g:HTMLPanel ui:field="supportHTML"></g:HTMLPanel>
-    	
-	
+		
 	</w:WlVerticalPanel>
-    
 
 </ui:UiBinder>

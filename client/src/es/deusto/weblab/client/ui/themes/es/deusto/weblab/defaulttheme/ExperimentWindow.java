@@ -33,10 +33,6 @@ import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.experiments.ExperimentBase;
 import es.deusto.weblab.client.ui.BoardBase;
 import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.LoggedPanel.ILoggedPanelCallback;
-import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.LoggedPanel.LoggedPanelUiBinder;
-import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.i18n.IWebLabDeustoThemeMessages;
-import es.deusto.weblab.client.ui.widgets.WlHorizontalPanel;
-import es.deusto.weblab.client.ui.widgets.WlUtil;
 import es.deusto.weblab.client.ui.widgets.WlVerticalPanel;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
@@ -93,8 +89,8 @@ public class ExperimentWindow extends BaseWindow {
 	public ExperimentWindow(IConfigurationManager configurationManager, User user, ExperimentAllowed experimentAllowed, ExperimentBase experimentBase, IExperimentWindowCallback callback){
 	    super(configurationManager);
 	
-	    loggedPanel = new LoggedPanel(user, callback);
-	    contentPanel = loggedPanel.contentPanel;
+	    this.loggedPanel = new LoggedPanel(user, callback);
+	    this.contentPanel = this.loggedPanel.contentPanel;
 	    
 	    this.callback = callback;
 	    this.experimentAllowed = experimentAllowed;
@@ -112,7 +108,7 @@ public class ExperimentWindow extends BaseWindow {
 	public void loadWidgets(){
 		super.loadWidgets();
 		
-		mainPanel.add(loggedPanel);
+		this.mainPanel.add(this.loggedPanel);
 		
 		final Widget wid = uiBinder.createAndBindUi(this);
 		this.contentPanel.add(wid);
@@ -137,7 +133,7 @@ public class ExperimentWindow extends BaseWindow {
 		this.backLink.addClickHandler(new ClickHandler() {
 		    @Override
 		    public void onClick(ClickEvent event) {
-			((IExperimentWindowCallback)ExperimentWindow.this.callback).onBackButtonClicked();
+			ExperimentWindow.this.callback.onBackButtonClicked();
 			
 		    }
 		});
@@ -200,7 +196,7 @@ public class ExperimentWindow extends BaseWindow {
 		    	    	ExperimentWindow.this.backLink.setVisible(false);
 		    	    	ExperimentWindow.this.waitingLabel.setText(ExperimentWindow.this.i18nMessages.reserving());
 		    	    	ExperimentWindow.this.waitingLabel.start();
-		    	    	((IExperimentWindowCallback)ExperimentWindow.this.callback).onReserveButtonClicked();
+		    	    	ExperimentWindow.this.callback.onReserveButtonClicked();
 			}
 		});
 		
@@ -245,7 +241,7 @@ public class ExperimentWindow extends BaseWindow {
 		this.finishButton.addClickHandler(new ClickHandler() {
 		    @Override
 		    public void onClick(ClickEvent sender) {
-			((IExperimentWindowCallback)ExperimentWindow.this.callback).onFinishButtonClicked();			
+			ExperimentWindow.this.callback.onFinishButtonClicked();			
 		    }
 		});
 		this.postExperimentAreaPanel.add(this.finishButton);

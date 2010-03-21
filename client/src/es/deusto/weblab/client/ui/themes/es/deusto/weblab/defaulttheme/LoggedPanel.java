@@ -15,22 +15,17 @@ package es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.uibinder.client.UiTemplate;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
-import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.users.User;
-import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.LoginWindow.MyUiBinder;
 import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.i18n.IWebLabDeustoThemeMessages;
 import es.deusto.weblab.client.ui.widgets.WlHorizontalPanel;
 import es.deusto.weblab.client.ui.widgets.WlUtil;
@@ -87,15 +82,15 @@ public class LoggedPanel extends Composite {
 	 * that are not done from UiBinder.
 	 */
 	void setupWidgets() {
-		logo.setUrl(GWT.getModuleBaseURL() + "img/logo-header.png");
-		userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
-		logoutLink.setText(this.i18nMessages.logOut());
+		this.logo.setUrl(GWT.getModuleBaseURL() + "img/logo-header.png");
+		this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
+		this.logoutLink.setText(this.i18nMessages.logOut());
 		
-		this.headerPanel.setCellHorizontalAlignment(logo, HasHorizontalAlignment.ALIGN_LEFT);
-		this.headerPanel.setCellHorizontalAlignment(userLabel, HasHorizontalAlignment.ALIGN_RIGHT);		
-		this.headerPanel.setCellHorizontalAlignment(separatorLabel, HasHorizontalAlignment.ALIGN_CENTER);
-		this.headerPanel.setCellHorizontalAlignment(logoutLink, HasHorizontalAlignment.ALIGN_LEFT);
-		this.headerPanel.setCellWidth(separatorLabel, "20px");
+		this.headerPanel.setCellHorizontalAlignment(this.logo, HasHorizontalAlignment.ALIGN_LEFT);
+		this.headerPanel.setCellHorizontalAlignment(this.userLabel, HasHorizontalAlignment.ALIGN_RIGHT);		
+		this.headerPanel.setCellHorizontalAlignment(this.separatorLabel, HasHorizontalAlignment.ALIGN_CENTER);
+		this.headerPanel.setCellHorizontalAlignment(this.logoutLink, HasHorizontalAlignment.ALIGN_LEFT);
+		this.headerPanel.setCellWidth(this.separatorLabel, "20px");
 	}
 	
 	/**
