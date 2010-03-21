@@ -2,13 +2,13 @@ import MySQLdb as dbi
 import time
 import calendar
 
-from configuration import DB_NAME, USERNAME, PASSWORD, LOGIC_EXP_ID
+from configuration import DB_NAME, _USERNAME, _PASSWORD, LOGIC_EXP_ID
 
 def utc2local_str(utc_datetime, format="%Y-%m-%d %H:%M:%S"):
     return time.strftime(format, time.localtime(calendar.timegm(utc_datetime.timetuple())))
 
 def index(req):
-    connection = dbi.connect(host="localhost",user=USERNAME, passwd=PASSWORD, db=DB_NAME)
+    connection = dbi.connect(host="localhost",user=_USERNAME, passwd=_PASSWORD, db=DB_NAME)
     try:
         cursor = connection.cursor()
         try:

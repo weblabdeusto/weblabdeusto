@@ -1,8 +1,8 @@
 DIRECTORY = '/home/weblab/weblab/server/admin/monitor/'
 
 DB_NAME ="WebLab"
-USERNAME="wl_administrator"
-PASSWORD="wl_administrator_password"
+_USERNAME="wl_administrator"
+_PASSWORD="wl_administrator_password"
 
 GROUPS = { 
             '5-Ing.Tel_GPIB_2009-2010' : ('ud-gpib1', 'GPIB experiments'),

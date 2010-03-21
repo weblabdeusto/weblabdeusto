@@ -2,10 +2,10 @@ import MySQLdb as dbi
 import time
 import calendar
 
-from configuration import USERNAME, PASSWORD, DB_NAME, GROUPS
+from configuration import _USERNAME, _PASSWORD, DB_NAME, GROUPS
 
 def index(req):
-    connection = dbi.connect(host="localhost",user=USERNAME, passwd=PASSWORD, db=DB_NAME)
+    connection = dbi.connect(host="localhost",user=_USERNAME, passwd=_PASSWORD, db=DB_NAME)
     result = """<html><head><title>Uses per experiment</title></head><body>"""
     try:
         cursor = connection.cursor()
