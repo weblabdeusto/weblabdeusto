@@ -13,6 +13,7 @@
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
+import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
@@ -33,99 +34,133 @@ DEFAULT_WEBLAB_DB_USERNAME  = 'weblab'
 WEBLAB_DB_PASSWORD_PROPERTY = 'weblab_db_password'
 DEFAULT_WEBLAB_DB_PASSWORD  = 'weblab'
 
+def getconn():
+    import MySQLdb as dbi
+    return dbi.connect(user = DatabaseGateway.user, passwd = DatabaseGateway.password,
+            host = DatabaseGateway.host, db = DatabaseGateway.dbname, client_flag = 2)
+
+
 class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
+
+    user     = None
+    password = None
+    host     = None
+    dbname   = None
+
+    pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20)
 
     def __init__(self, cfg_manager):
         super(DatabaseGateway, self).__init__(cfg_manager)
+       
+        DatabaseGateway.user     = cfg_manager.get_value(WEBLAB_DB_USERNAME_PROPERTY, DEFAULT_WEBLAB_DB_USERNAME)
+        DatabaseGateway.password = cfg_manager.get_value(WEBLAB_DB_PASSWORD_PROPERTY, DEFAULT_WEBLAB_DB_PASSWORD)
+        DatabaseGateway.host     = self.host
+        DatabaseGateway.dbname   = self.database_name
+
         connection_url = "mysql://%(USER)s:%(PASSWORD)s@%(HOST)s/%(DATABASE)s" % \
-                            { "USER": cfg_manager.get_value(WEBLAB_DB_USERNAME_PROPERTY, DEFAULT_WEBLAB_DB_USERNAME),           
-                              "PASSWORD": cfg_manager.get_value(WEBLAB_DB_PASSWORD_PROPERTY, DEFAULT_WEBLAB_DB_PASSWORD),
-                              "HOST": self.host,
-                              "DATABASE": self.database_name }    
-        self.Session = sessionmaker(bind=create_engine(connection_url, echo=False))
+                            { "USER":     self.user,
+                              "PASSWORD": self.password,
+                              "HOST":     self.host,
+                              "DATABASE": self.dbname  }
+        self.Session = sessionmaker(bind=create_engine(connection_url, echo=False, pool = self.pool))
 
     @logged()
     def get_user_by_name(self, user_login):
         session = self.Session()
-        return self._get_user(session, user_login).to_business()
+        try:
+            return self._get_user(session, user_login).to_business()
+        finally:
+            session.close()
 
     @logged()
     def list_experiments(self, user_login):
         session = self.Session()
-        user = self._get_user(session, user_login)
-        permissions = self._gather_permissions(session, user, 'experiment_allowed')
-        
-        grouped_experiments = {}
-        for permission in permissions:
-            p_permanent_id = self._get_parameter_from_permission(session, permission, 'experiment_permanent_id')
-            p_category_id = self._get_parameter_from_permission(session, permission, 'experiment_category_id')
-            p_time_allowed = self._get_float_parameter_from_permission(session, permission, 'time_allowed')
+        try:
+            user = self._get_user(session, user_login)
+            permissions = self._gather_permissions(session, user, 'experiment_allowed')
             
-            experiment = session.query(Model.DbExperiment).filter_by(name=p_permanent_id).filter(Model.DbExperimentCategory.name==p_category_id).one() 
-            experiment_allowed = ExperimentAllowed(experiment.to_business(), p_time_allowed)
-            
-            experiment_unique_id = p_permanent_id+"@"+p_category_id
-            if grouped_experiments.has_key(experiment_unique_id):
-                grouped_experiments[experiment_unique_id].append(experiment_allowed)
-            else:
-                grouped_experiments[experiment_unique_id] = [experiment_allowed]
-            
-        # If any experiment is duplicated, only the less restrictive one is given
-        experiments = []
-        for experiment_unique_id in grouped_experiments:
-            less_restrictive_experiment_allowed = grouped_experiments[experiment_unique_id][0]
-            for experiment_allowed in grouped_experiments[experiment_unique_id]:
-                if experiment_allowed.time_allowed > less_restrictive_experiment_allowed.time_allowed:
-                    less_restrictive_experiment_allowed = experiment_allowed
-            experiments.append(less_restrictive_experiment_allowed)
+            grouped_experiments = {}
+            for permission in permissions:
+                p_permanent_id = self._get_parameter_from_permission(session, permission, 'experiment_permanent_id')
+                p_category_id = self._get_parameter_from_permission(session, permission, 'experiment_category_id')
+                p_time_allowed = self._get_float_parameter_from_permission(session, permission, 'time_allowed')
+                
+                experiment = session.query(Model.DbExperiment).filter_by(name=p_permanent_id).filter(Model.DbExperimentCategory.name==p_category_id).one() 
+                experiment_allowed = ExperimentAllowed(experiment.to_business(), p_time_allowed)
+                
+                experiment_unique_id = p_permanent_id+"@"+p_category_id
+                if grouped_experiments.has_key(experiment_unique_id):
+                    grouped_experiments[experiment_unique_id].append(experiment_allowed)
+                else:
+                    grouped_experiments[experiment_unique_id] = [experiment_allowed]
+                
+            # If any experiment is duplicated, only the less restrictive one is given
+            experiments = []
+            for experiment_unique_id in grouped_experiments:
+                less_restrictive_experiment_allowed = grouped_experiments[experiment_unique_id][0]
+                for experiment_allowed in grouped_experiments[experiment_unique_id]:
+                    if experiment_allowed.time_allowed > less_restrictive_experiment_allowed.time_allowed:
+                        less_restrictive_experiment_allowed = experiment_allowed
+                experiments.append(less_restrictive_experiment_allowed)
 
-        experiments.sort(lambda x,y: cmp(x.experiment.category.name, y.experiment.category.name))
-        return tuple(experiments)        
+            experiments.sort(lambda x,y: cmp(x.experiment.category.name, y.experiment.category.name))
+            return tuple(experiments)
+        finally:
+            session.close()
 
     @logged()
     def store_experiment_usage(self, user_login, experiment_usage):
         session = self.Session()
-        use = Model.DbUserUsedExperiment(
-                    self._get_user(session, user_login),
-                    self._get_experiment(session, experiment_usage.experiment_id.exp_name, experiment_usage.experiment_id.cat_name),
-                    experiment_usage.start_date,
-                    experiment_usage.from_ip,
-                    experiment_usage.coord_address.address,
-                    experiment_usage.end_date
-            )
-        session.add(use)
-        for c in experiment_usage.commands:
-            session.add(Model.DbUserCommand(
-                            use,
-                            c.command.commandstring,
-                            c.timestamp_before,
-                            c.response.commandstring,
-                            c.timestamp_after
-                        ))
-        for f in experiment_usage.sent_files:
-            session.add(Model.DbUserFile(
-                            use,
-                            f.file_sent,
-                            f.file_hash,
-                            f.timestamp_before,
-                            f.file_info,
-                            f.response.commandstring,
-                            f.timestamp_after
-                        ))
-        session.commit()
+        try:
+            use = Model.DbUserUsedExperiment(
+                        self._get_user(session, user_login),
+                        self._get_experiment(session, experiment_usage.experiment_id.exp_name, experiment_usage.experiment_id.cat_name),
+                        experiment_usage.start_date,
+                        experiment_usage.from_ip,
+                        experiment_usage.coord_address.address,
+                        experiment_usage.end_date
+                )
+            session.add(use)
+            for c in experiment_usage.commands:
+                session.add(Model.DbUserCommand(
+                                use,
+                                c.command.commandstring,
+                                c.timestamp_before,
+                                c.response.commandstring,
+                                c.timestamp_after
+                            ))
+            for f in experiment_usage.sent_files:
+                session.add(Model.DbUserFile(
+                                use,
+                                f.file_sent,
+                                f.file_hash,
+                                f.timestamp_before,
+                                f.file_info,
+                                f.response.commandstring,
+                                f.timestamp_after
+                            ))
+            session.commit()
+        finally:
+            session.close()
     
     @logged()
     def list_usages_per_user(self, user_login, first=0, limit=20):
         session = self.Session()
-        user = self._get_user(session, user_login)
-        uses = session.query(Model.DbUserUsedExperiment).filter_by(user=user).offset(first).limit(limit).all()
-        return [ use.to_business_light() for use in uses ]
+        try:
+            user = self._get_user(session, user_login)
+            uses = session.query(Model.DbUserUsedExperiment).filter_by(user=user).offset(first).limit(limit).all()
+            return [ use.to_business_light() for use in uses ]
+        finally:
+            session.close()
     
     @logged()
     def retrieve_usage(self, usage_id):
         session = self.Session()
-        use = session.query(Model.DbUserUsedExperiment).filter_by(id=usage_id).one()
-        return use.to_business()
+        try:
+            use = session.query(Model.DbUserUsedExperiment).filter_by(id=usage_id).one()
+            return use.to_business()
+        finally:
+            session.close()
     
     def _get_user(self, session, user_login):
         try:
@@ -180,11 +215,14 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
     def _delete_all_uses(self):
         """ IMPORTANT: SHOULD NEVER BE USED IN PRODUCTION, IT'S HERE ONLY FOR TESTS """
         session = self.Session()
-        uu = session.query(Model.DbUserUsedExperiment).all()
-        for i in uu:
-            session.delete(i)
-            session.commit()
-        eu = session.query(Model.DbExternalEntityUsedExperiment).all()
-        for i in eu:
-            session.delete(i)
-            session.commit()                
+        try:
+            uu = session.query(Model.DbUserUsedExperiment).all()
+            for i in uu:
+                session.delete(i)
+                session.commit()
+            eu = session.query(Model.DbExternalEntityUsedExperiment).all()
+            for i in eu:
+                session.delete(i)
+                session.commit()               
+        finally:
+            session.close()

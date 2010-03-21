@@ -16,6 +16,7 @@
 
 import re
 
+import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
@@ -35,18 +36,36 @@ DEFAULT_WEBLAB_DB_USERNAME  = 'weblab'
 WEBLAB_DB_PASSWORD_PROPERTY = 'weblab_db_password'
 DEFAULT_WEBLAB_DB_PASSWORD  = 'weblab'
 
+def getconn():
+    import MySQLdb as dbi
+    return dbi.connect(user = AuthDatabaseGateway.user, passwd = AuthDatabaseGateway.password,
+            host = AuthDatabaseGateway.host, db = AuthDatabaseGateway.dbname, client_flag = 2)
+
 #TODO: capture MySQL Exceptions!!!
 
 class AuthDatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
 
+    user     = None
+    password = None
+    host     = None
+    dbname   = None
+
+    pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20)
+
     def __init__(self, cfg_manager):
         super(AuthDatabaseGateway, self).__init__(cfg_manager)
+
+        AuthDatabaseGateway.user     = cfg_manager.get_value(WEBLAB_DB_USERNAME_PROPERTY, DEFAULT_WEBLAB_DB_USERNAME)
+        AuthDatabaseGateway.password = cfg_manager.get_value(WEBLAB_DB_PASSWORD_PROPERTY, DEFAULT_WEBLAB_DB_PASSWORD)
+        AuthDatabaseGateway.host     = self.host
+        AuthDatabaseGateway.dbname   = self.database_name
+
         connection_url = "mysql://%(USER)s:%(PASSWORD)s@%(HOST)s/%(DATABASE)s" % \
-                            { "USER": cfg_manager.get_value(WEBLAB_DB_USERNAME_PROPERTY, DEFAULT_WEBLAB_DB_USERNAME),
-                              "PASSWORD": cfg_manager.get_value(WEBLAB_DB_USERNAME_PROPERTY, DEFAULT_WEBLAB_DB_USERNAME),
-                              "HOST": self.host,
-                              "DATABASE": self.database_name }                
-        self.Session = sessionmaker(bind=create_engine(connection_url, echo=False))
+                            { "USER":     self.user,
+                              "PASSWORD": self.password,
+                              "HOST":     self.host,
+                              "DATABASE": self.dbname }
+        self.Session = sessionmaker(bind=create_engine(connection_url, echo=False, pool = self.pool))
 
     ####################################################################
     ##################   check_user_password   #########################
@@ -60,22 +79,25 @@ class AuthDatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         """
         session = self.Session()
         try:
-            user = session.query(Model.DbUser).filter_by(login=username).one()
-        except NoResultFound:
-            raise DbExceptions.DbUserNotFoundException("User '%s' not found in database" % username)
+            try:
+                user = session.query(Model.DbUser).filter_by(login=username).one()
+            except NoResultFound:
+                raise DbExceptions.DbUserNotFoundException("User '%s' not found in database" % username)
 
-        try:
-            retrieved_password = [ userauth.configuration for userauth in user.auths if userauth.auth.auth_type.name == "DB" ][0]
-            user_authenticated = self._check_password(retrieved_password, passwd)
-        except IndexError:
-            user_authenticated = False            
-        
-        if user_authenticated:
-            auth_info = None
-        else:
-            auth_info = self._retrieve_auth_information(user)
-        
-        return UserType.getUserTypeEnumerated(user.role.name), user.id, auth_info
+            try:
+                retrieved_password = [ userauth.configuration for userauth in user.auths if userauth.auth.auth_type.name == "DB" ][0]
+                user_authenticated = self._check_password(retrieved_password, passwd)
+            except IndexError:
+                user_authenticated = False            
+            
+            if user_authenticated:
+                auth_info = None
+            else:
+                auth_info = self._retrieve_auth_information(user, session)
+            
+            return UserType.getUserTypeEnumerated(user.role.name), user.id, auth_info
+        finally:
+            session.close()
 
     def _check_password(self, retrieved_password, provided_passwd):
         #Now, user_password is the value stored in the database
@@ -112,8 +134,7 @@ class AuthDatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         hashobj.update((first_chars + provided_passwd).encode())
         return hashobj.hexdigest() == hashed_passwd
 
-    def _retrieve_auth_information(self, p_user):
-        session = self.Session()
+    def _retrieve_auth_information(self, p_user, session):
         # Kludge: We exclude the "WebLab DB" Auth, since it has already been checked when checking user/password.
         weblab_db_auth = session.query(Model.DbAuth).filter_by(name="WebLab DB").one()
         user_auths = session.query(Model.DbUserAuth).filter_by(user=p_user).filter(Model.DbUserAuth.auth != weblab_db_auth).all()
