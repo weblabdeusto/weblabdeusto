@@ -32,7 +32,6 @@ WEBLAB_DB_USERNAME_PROPERTY = 'weblab_db_username'
 DEFAULT_WEBLAB_DB_USERNAME  = 'weblab'
 
 WEBLAB_DB_PASSWORD_PROPERTY = 'weblab_db_password'
-DEFAULT_WEBLAB_DB_PASSWORD  = 'weblab'
 
 def getconn():
     import MySQLdb as dbi
@@ -53,7 +52,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         super(DatabaseGateway, self).__init__(cfg_manager)
        
         DatabaseGateway.user     = cfg_manager.get_value(WEBLAB_DB_USERNAME_PROPERTY, DEFAULT_WEBLAB_DB_USERNAME)
-        DatabaseGateway.password = cfg_manager.get_value(WEBLAB_DB_PASSWORD_PROPERTY, DEFAULT_WEBLAB_DB_PASSWORD)
+        DatabaseGateway.password = cfg_manager.get_value(WEBLAB_DB_PASSWORD_PROPERTY)
         DatabaseGateway.host     = self.host
         DatabaseGateway.dbname   = self.database_name
 
