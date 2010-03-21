@@ -1,6 +1,6 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
     xmlns:g='urn:import:com.google.gwt.user.client.ui'
-    xmlns:my='urn:import:es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.widgets'
+    xmlns:my='urn:import:es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb.widgets'
     xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
     
     

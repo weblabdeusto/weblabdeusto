@@ -41,6 +41,7 @@ public class DefaultTheme extends ThemeBase {
 
 	private final IConfigurationManager configurationManager;
 	private final IWebLabController controller;
+	
 
 	// Window management
 	private BaseWindow activeWindow = null; // Pointer to the window being used
@@ -58,7 +59,7 @@ public class DefaultTheme extends ThemeBase {
 	public DefaultTheme(final IConfigurationManager configurationManager, final IWebLabController controller){
 		this.configurationManager = configurationManager;
 		this.controller = controller;
-
+		
 		this.themePanel = new WlVerticalPanel();
 		this.themePanel.setWidth("100%");
 		this.themePanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);

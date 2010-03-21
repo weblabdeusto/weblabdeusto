@@ -13,19 +13,10 @@
 */ 
 package es.deusto.weblab.client.ui;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Widget;
 
-import es.deusto.weblab.client.ui.IUIManager;
-import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb.i18n.IWebLabDeustoThemeMessages;
-
 public abstract class ThemeBase implements IUIManager{
-
-	protected final IWebLabDeustoThemeMessages i18nMessages;
-	
-	protected ThemeBase() {
-	    this.i18nMessages = (IWebLabDeustoThemeMessages)GWT.create(IWebLabDeustoThemeMessages.class);
-	}
 	
 	public abstract Widget getWidget();
+	
 }
