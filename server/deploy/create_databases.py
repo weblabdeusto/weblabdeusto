@@ -1,6 +1,7 @@
 import sys, os
 sys.path.append( os.sep.join( ('..', 'src') ) )
 
+import traceback
 import getpass
 import datetime
 import subprocess
@@ -37,7 +38,14 @@ def create_database(admin_username, admin_password, database_name, new_user, new
     sentence3 = "GRANT ALL ON %(DATABASE_NAME)s.* TO %(USER)s@%(HOST)s IDENTIFIED BY '%(PASSWORD)s';" % args
     
     for sentence in (sentence1, sentence2, sentence3):
-        connection = MySQLdb.connect(user = admin_username, passwd = admin_password)
+        try:
+            connection = MySQLdb.connect(user = admin_username, passwd = admin_password)
+        except MySQLdb.OperationalError, oe:
+            traceback.print_exc()
+            print >> sys.stderr, ""
+            print >> sys.stderr, "    Tip: did you run create_weblab_administrator.py first?"
+            print >> sys.stderr, ""
+            sys.exit(-1)
         cursor = connection.cursor()
         cursor.execute(sentence)
         connection.commit()

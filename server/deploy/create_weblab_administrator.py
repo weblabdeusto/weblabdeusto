@@ -19,7 +19,7 @@ else:
                                     "wl_admin_password = '%s'\n") %  (wl_admin_username, wl_admin_password) )
     import weblab_administrator_credentials as wac
 
-username = raw_input("MySQL administrator username (usually root): ")
+username = raw_input("MySQL administrator username (default 'root'): ") or "root"
 password = getpass.getpass( "MySQL administrator password: " )
 
 sentence1 = "DROP USER '%s'@'localhost'" % wac.wl_admin_username
