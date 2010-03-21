@@ -11,7 +11,7 @@
 * Author: Pablo Orduña <pablo@ordunya.com>
 *
 */ 
-package es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme;
+package es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
@@ -36,8 +36,8 @@ import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
-import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.i18n.IWebLabDeustoThemeMessages;
-import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.widgets.EasyGrid;
+import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb.i18n.IWebLabDeustoThemeMessages;
+import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb.widgets.EasyGrid;
 import es.deusto.weblab.client.ui.widgets.WlHorizontalPanel;
 import es.deusto.weblab.client.ui.widgets.WlUtil;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
@@ -193,7 +193,7 @@ public class LoginWindow extends BaseWindow {
 					LoginWindow.DEFAULT_DEMO_PASSWORD
 				);	
 			
-			this.demoAvailableHTML.setHTML("<p>" + this.i18nMessages.demoLoginDetails(demoUsername, demoPassword) + "</p>");
+			this.demoAvailableHTML.setHTML("<br/><br/><p>" + this.i18nMessages.demoLoginDetails(demoUsername, demoPassword) + "</p>");
 		}
 		
 		final String adminEmail = this.configurationManager.getProperty(

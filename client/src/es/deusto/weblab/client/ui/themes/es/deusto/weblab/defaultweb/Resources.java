@@ -8,11 +8,11 @@
 * This software consists of contributions made by many individuals, 
 * listed below:
 *
-* Author: FILLME
+* Author: Pablo Orduña <pablo@ordunya.com>
 *
 */
 
-package es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme;
+package es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb;
 
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;

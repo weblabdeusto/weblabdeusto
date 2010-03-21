@@ -11,7 +11,7 @@
 * Author: Pablo Orduña <pablo@ordunya.com>
 *
 */ 
-package es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme;
+package es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb;
 
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Widget;
@@ -27,9 +27,9 @@ import es.deusto.weblab.client.dto.reservations.WaitingReservationStatus;
 import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.experiments.ExperimentBase;
 import es.deusto.weblab.client.ui.ThemeBase;
-import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.AllowedExperimentsWindow.IAllowedExperimentsWindowCallback;
-import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.ExperimentWindow.IExperimentWindowCallback;
-import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.LoginWindow.ILoginWindowCallback;
+import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb.AllowedExperimentsWindow.IAllowedExperimentsWindowCallback;
+import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb.ExperimentWindow.IExperimentWindowCallback;
+import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb.LoginWindow.ILoginWindowCallback;
 import es.deusto.weblab.client.ui.widgets.WlVerticalPanel;
 
 public class DefaultTheme extends ThemeBase {

@@ -12,7 +12,7 @@
 *
 */
 
-package es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.widgets;
+package es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb.widgets;
 
 import java.util.ArrayList;
 

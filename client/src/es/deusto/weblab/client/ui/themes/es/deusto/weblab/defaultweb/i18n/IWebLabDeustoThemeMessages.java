@@ -1,4 +1,4 @@
-package es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.i18n;
+package es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb.i18n;
 
 import com.google.gwt.i18n.client.Messages;
 
