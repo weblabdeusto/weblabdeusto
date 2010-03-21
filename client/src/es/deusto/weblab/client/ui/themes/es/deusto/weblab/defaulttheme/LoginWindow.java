@@ -29,7 +29,6 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.TextBox;
@@ -40,6 +39,7 @@ import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.i18n.IWebLabDeustoThemeMessages;
 import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaulttheme.widgets.EasyGrid;
 import es.deusto.weblab.client.ui.widgets.WlHorizontalPanel;
+import es.deusto.weblab.client.ui.widgets.WlUtil;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
 public class LoginWindow extends BaseWindow {
@@ -70,7 +70,7 @@ public class LoginWindow extends BaseWindow {
 	@UiField Label generalErrorLabel;
 	
 	@UiField HTML demoAvailableHTML;
-	@UiField HTMLPanel supportHTML;
+	@UiField HTML supportHTML;
 	
 	public interface ILoginWindowCallback {
 		public void onLoginButtonClicked(String username, String password);
@@ -99,14 +99,14 @@ public class LoginWindow extends BaseWindow {
 	    this.loadWidgets();
 	    
 	    // Apply internationalization to UIBinder-declared widgets.
-	    applyI18n();
+	    this.applyI18n();
 	    
 	    // Add UIBinder widget to main panel.
 	    this.mainPanel.add(wid);
 	    
 	    // Additional setup of the UIBinder controls (which can't be done
 	    // before they are into the mainPanel).
-	    setupWidgets();
+	    this.setupWidgets();
 	}
 	
 	
@@ -159,9 +159,6 @@ public class LoginWindow extends BaseWindow {
 		}		
 		this.langsPanel.setSpacing(15);
 		
-		this.mainPanel.add(this.langsPanel);
-		
-		
 		this.loadUsernameAndPassword();
 		this.usernameTextbox.addKeyPressHandler(keyboardHandler);
 		this.passwordTextbox.addKeyPressHandler(keyboardHandler);
@@ -181,36 +178,31 @@ public class LoginWindow extends BaseWindow {
 		//this.mainPanel.add(this.generalErrorLabel);
 
 		
-		boolean demoAvailable = this.configurationManager.getBoolProperty(
+		final boolean demoAvailable = this.configurationManager.getBoolProperty(
 				LoginWindow.DEMO_AVAILABLE_PROPERTY,
 				LoginWindow.DEFAULT_DEMO_AVAILABLE
 			);
 		
 		if ( demoAvailable ) {
-			String demoUsername = this.configurationManager.getProperty(
+			final String demoUsername = this.configurationManager.getProperty(
 					LoginWindow.DEMO_USERNAME_PROPERTY,
 					LoginWindow.DEFAULT_DEMO_USERNAME
 				);		
-			String demoPassword = this.configurationManager.getProperty(
+			final String demoPassword = this.configurationManager.getProperty(
 					LoginWindow.DEMO_PASSWORD_PROPERTY,
 					LoginWindow.DEFAULT_DEMO_PASSWORD
 				);	
 			
-			
-			// TODO: reenable this
-			// this.demoAvailableHTML.setHTML(this.i18nMessages.demoLoginDetails(demoUsername, demoPassword));
+			this.demoAvailableHTML.setHTML("<p>" + this.i18nMessages.demoLoginDetails(demoUsername, demoPassword) + "</p>");
 		}
 		
-		String adminEmail = this.configurationManager.getProperty(
+		final String adminEmail = this.configurationManager.getProperty(
 				LoginWindow.ADMIN_EMAIL_PROPERTY,
 				LoginWindow.DEFAULT_ADMIN_EMAIL
 			);	
 		
-//		this.supportHTML.add(
-//				new HTML(
-//						this.i18nMessages.ifYouHaveTechnicalProblems("<a href=\"mailto:" + WlUtil.escape(adminEmail) + "\" target=\"_blank\">" + WlUtil.escapeNotQuote(adminEmail) + "</a>")
-//						)
-//				);
+		final String translatedSupportHTML = "<p>" + this.i18nMessages.ifYouHaveTechnicalProblems("<a href=\"mailto:" + WlUtil.escape(adminEmail) + "\" target=\"_blank\">" + WlUtil.escapeNotQuote(adminEmail) + "</a>") + "</p>";
+		this.supportHTML.setHTML(translatedSupportHTML);
 		
 		if ( DESIGN_MODE )
 		{
@@ -266,6 +258,7 @@ public class LoginWindow extends BaseWindow {
 	
 	
 	@UiHandler("loginButton")
+	@SuppressWarnings("unused")
 	void onLoginButtonClicked(ClickEvent e) {
 		System.out.println("Handing loginButton event");
 		
