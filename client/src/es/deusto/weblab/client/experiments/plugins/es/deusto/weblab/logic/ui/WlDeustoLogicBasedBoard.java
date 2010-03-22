@@ -236,7 +236,7 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 		
 		// Connections
 		for(RowColumnPair pair : RowColumnPair.getRowsColumnPairs()){
-		    final Image pairImage = new Image(pair.getURL());
+		    final Image pairImage = new Image(pair.getImageResourceWeb());
 		    this.circuitGrid.setWidget(pair.getRow(), pair.getColumn() + 1, pairImage);
 		}
 		

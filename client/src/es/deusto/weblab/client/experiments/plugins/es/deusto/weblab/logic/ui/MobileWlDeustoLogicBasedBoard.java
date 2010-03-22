@@ -16,9 +16,9 @@ package es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.logic.ui;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
@@ -55,7 +55,7 @@ import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 
 	public static final String LOGIC_WEBCAM_IMAGE_URL_PROPERTY = "es.deusto.weblab.logic.webcam.image.url";
-	public static final String DEFAULT_LOGIC_WEBCAM_IMAGE_URL = GWT.isScript() ? "https://www.weblab.deusto.es/webcam/logic0/image.jpg?size=2" : "";
+	public static final String DEFAULT_LOGIC_WEBCAM_IMAGE_URL = "https://www.weblab.deusto.es/webcam/logic0/image.jpg?size=1";
 	
 	private static final String LOGIC_WEBCAM_REFRESH_TIME_PROPERTY = "es.deusto.weblab.logic.webcam.refresh.millis";
 	private static final int DEFAULT_LOGIC_WEBCAM_REFRESH_TIME = 400;
@@ -63,14 +63,12 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 	public static class Style{
 		public static final String TIME_REMAINING          = "wl-time_remaining";
 		public static final String CLOCK_ACTIVATION_PANEL  = "wl-clock_activation_panel"; 
-		public static final String LOGIC_INPUT_VALUE_LABEL = "logic-input-value-label"; 
+		public static final String LOGIC_INPUT_VALUE_LABEL = "logic-small-input-value-label"; 
 		public static final String LOGIC_MOUSE_POINTER_HAND = "logic-mouse-pointer-hand";
 	}
 
 	private final IConfigurationManager configurationManager;
-	private final Map<Operation, String> operation2url = new HashMap<Operation, String>();
-	private final Map<String, Operation> url2operation = new HashMap<String, Operation>();
-	private final String unknownOperationUrl = GWT.getModuleBaseURL() + "img/logic/UNKNOWN.png";
+	private final Map<Operation, ImageResource> operation2url = new HashMap<Operation, ImageResource>();
 	
 	private final String zeroString = "0";
 	private final String oneString  = "1";
@@ -78,7 +76,7 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 	// Widgets
 	private final WlVerticalPanel widget;
 	private final WlVerticalPanel removableWidgetsPanel;
-	private WlHorizontalPanel circuitAndWebcamPanel;
+	private WlHorizontalPanel circuitPanel;
 	private WlWebcam webcam;
 	private WlTimer timer;
 	private WlWaitingLabel messages;
@@ -103,6 +101,7 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 	private Circuit circuit;
 	private boolean solving = true;
 	private int points = 0;
+	private final ClickHandler unkownGateHandler;
 	
 	private IResponseCommandCallback commandCallback = new IResponseCommandCallback(){
 
@@ -130,31 +129,42 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 		this.removableWidgetsPanel.setWidth("100%");
 		this.removableWidgetsPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		this.removableWidgetsPanel.setSpacing(20);
+		
+		this.unkownGateHandler = new ClickHandler(){
+		    @Override
+		    public void onClick(ClickEvent event) {
+			if(MobileWlDeustoLogicBasedBoard.this.solving)
+			    MobileWlDeustoLogicBasedBoard.this.changeUnknownGateDialogBox.show();
+			    MobileWlDeustoLogicBasedBoard.this.changeUnknownGateDialogBox.showRelativeTo(MobileWlDeustoLogicBasedBoard.this.referenceToShowBoxesLabel);
+			
+		    }
+		};
 	}
 	
 	private void fillMaps(){
-	    this.operation2url.put(Operation.AND,  GWT.getModuleBaseURL() + "img/logic/AND.png");
-	    this.operation2url.put(Operation.NAND, GWT.getModuleBaseURL() + "img/logic/NAND.png");
-	    this.operation2url.put(Operation.OR,   GWT.getModuleBaseURL() + "img/logic/OR.png");
-	    this.operation2url.put(Operation.NOR,  GWT.getModuleBaseURL() + "img/logic/NOR.png");
-	    this.operation2url.put(Operation.XOR,  GWT.getModuleBaseURL() + "img/logic/XOR.png");
-	    
-	    for(Operation op : this.operation2url.keySet())
-		this.url2operation.put(this.operation2url.get(op), op);
+		final Resources res = Resources.INSTANCE;
+		
+	    this.operation2url.put(Operation.AND,  res.smallAND());
+	    this.operation2url.put(Operation.NAND, res.smallNAND());
+	    this.operation2url.put(Operation.OR,   res.smallOR());
+	    this.operation2url.put(Operation.NOR,  res.smallNOR());
+	    this.operation2url.put(Operation.XOR,  res.smallXOR());
 	}
 	
-	public String getURL(Operation operation){
+	public ImageResource getURL(Operation operation){
 	    return this.operation2url.get(operation);
 	}
 		
-	public Operation getOperation(String url){
-	    return this.url2operation.get(url);
-	}
-		
 	void changeUnknownGate(Operation operation) {
-	    this.unknownGateImage.setUrl(this.getURL(operation));
+	    this.setUnknownGate(this.getURL(operation));
 	    this.sendSolutionButton.setEnabled(true);
 	    this.circuit.setUnknownOperation(0, operation);
+	}
+	
+	private void setUnknownGate(ImageResource resource){
+		final Image image = new Image(resource);
+		this.circuitGrid.setWidget(2, 2, image);
+		image.addClickHandler(this.unkownGateHandler);
 	}
 
 	@Override
@@ -168,7 +178,7 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 	
 	@Override
 	public void queued(){
-	    	this.widget.setVisible(false);
+	    this.widget.setVisible(false);
 	}	
 	
 	@Override
@@ -190,17 +200,22 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 		});
 		this.removableWidgetsPanel.add(this.timer.getWidget());		
 
+		// Webcam
+    	this.webcam = new WlWebcam(this.getWebcamRefreshingTime(), this.getWebcamImageUrl());
+    	this.webcam.start();
+    	this.removableWidgetsPanel.add(this.webcam.getWidget());
+    	
 		// Horizontal Panel
-		this.circuitAndWebcamPanel = new WlHorizontalPanel();
-		this.circuitAndWebcamPanel.setWidth("100%");
-		this.circuitAndWebcamPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		this.circuitPanel = new WlHorizontalPanel();
+		this.circuitPanel.setWidth("100%");
+		this.circuitPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		
-		this.circuitAndWebcamPanel.add(this.referenceToShowBoxesLabel);
+		this.circuitPanel.add(this.referenceToShowBoxesLabel);
 		
 		// Circuit
 		this.circuitGrid = new Grid(5, 8);
 		this.circuitGrid.setBorderWidth(0);
-		this.circuitAndWebcamPanel.add(this.circuitGrid);
+		this.circuitPanel.add(this.circuitGrid);
 		
 		// Inputs
 		this.input1Label = new HTML(this.getFormatedInputLabel(this.zeroString, 1));
@@ -217,52 +232,38 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 		this.circuitGrid.setWidget(4, 0, this.input4Label);
 		
 		// Gates (level A)
-		this.gateA1Image = new Image(this.unknownOperationUrl);
+		this.gateA1Image = new Image(Resources.INSTANCE.smallUNKNOWN());
 		this.circuitGrid.setWidget(0, 2, this.gateA1Image);
-		this.gateA2Image = new Image(this.unknownOperationUrl);
+		this.gateA2Image = new Image(Resources.INSTANCE.smallUNKNOWN());
 		this.circuitGrid.setWidget(2, 2, this.gateA2Image);
-		this.gateA3Image = new Image(this.unknownOperationUrl);
+		this.gateA3Image = new Image(Resources.INSTANCE.smallUNKNOWN());
 		this.circuitGrid.setWidget(4, 2, this.gateA3Image);
 
 		// Gates (level B)
-		this.gateB1Image = new Image(this.unknownOperationUrl);
+		this.gateB1Image = new Image(Resources.INSTANCE.smallUNKNOWN());
 		this.circuitGrid.setWidget(1, 4, this.gateB1Image);
-		this.gateB2Image = new Image(this.unknownOperationUrl);
+		this.gateB2Image = new Image(Resources.INSTANCE.smallUNKNOWN());
 		this.circuitGrid.setWidget(3, 4, this.gateB2Image);
 
 		// Gates (level C)
-		this.gateC1Image = new Image(this.unknownOperationUrl);
+		this.gateC1Image = new Image(Resources.INSTANCE.smallUNKNOWN());
 		this.circuitGrid.setWidget(2, 6, this.gateC1Image);
 		
 		// Connections
 		for(RowColumnPair pair : RowColumnPair.getRowsColumnPairs()){
-		    final Image pairImage = new Image(pair.getURL());
+		    final Image pairImage = new Image(pair.getImageResourceMobile());
 		    this.circuitGrid.setWidget(pair.getRow(), pair.getColumn() + 1, pairImage);
 		}
 		
 		// Setting the Unknown Gate
 		this.unknownGateImage = this.gateA2Image;
 		this.unknownGateImage.addStyleName(Style.LOGIC_MOUSE_POINTER_HAND);
-		// this.changeUnknownGateDialogBox = new ChangeUnknownGateDialogBox(this);
-		this.unknownGateImage.addClickHandler(new ClickHandler(){
-		    @Override
-		    public void onClick(ClickEvent event) {
-			if(MobileWlDeustoLogicBasedBoard.this.solving)
-			    //WlDeustoLogicBasedBoard.this.changeUnknownGateDialogBox.show();
-			    MobileWlDeustoLogicBasedBoard.this.changeUnknownGateDialogBox.showRelativeTo(MobileWlDeustoLogicBasedBoard.this.referenceToShowBoxesLabel);
-			
-		    }
-		});
+		this.changeUnknownGateDialogBox = new MobileChangeUnknownGateDialogBox(this);
 		
-		// Webcam
-    		this.webcam = new WlWebcam(this.getWebcamRefreshingTime(), this.getWebcamImageUrl());
-    		this.webcam.start();
-		this.circuitAndWebcamPanel.add(this.webcam.getWidget());
-
-		this.circuitAndWebcamPanel.setCellHorizontalAlignment(this.circuitGrid, HasHorizontalAlignment.ALIGN_RIGHT);
-		this.circuitAndWebcamPanel.setCellVerticalAlignment(this.webcam.getWidget(), HasVerticalAlignment.ALIGN_MIDDLE);
-		this.circuitAndWebcamPanel.setCellHorizontalAlignment(this.webcam.getWidget(), HasHorizontalAlignment.ALIGN_LEFT);
-		this.removableWidgetsPanel.add(this.circuitAndWebcamPanel);
+		this.circuitPanel.setCellHorizontalAlignment(this.circuitGrid, HasHorizontalAlignment.ALIGN_RIGHT);
+		this.circuitPanel.setCellVerticalAlignment(this.webcam.getWidget(), HasVerticalAlignment.ALIGN_MIDDLE);
+		this.circuitPanel.setCellHorizontalAlignment(this.webcam.getWidget(), HasHorizontalAlignment.ALIGN_LEFT);
+		this.removableWidgetsPanel.add(this.circuitPanel);
 		
 		// Messages
 		this.messages = new WlWaitingLabel("Receiving the circuit");
@@ -384,19 +385,19 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 	    final Switch switch3 = (Switch)gateA2.getLeft();
 	    final Switch switch4 = (Switch)gateA3.getLeft();
 	    
-	    this.gateC1Image.setUrl(this.getURL(gateC1.getOperation()));
-	    this.gateB1Image.setUrl(this.getURL(gateB1.getOperation()));
-	    this.gateB2Image.setUrl(this.getURL(gateB2.getOperation()));
-	    this.gateA1Image.setUrl(this.getURL(gateA1.getOperation()));
-	    this.gateA2Image.setUrl(this.getURL(gateA2.getOperation()));
-	    this.gateA3Image.setUrl(this.getURL(gateA3.getOperation()));
+	    this.circuitGrid.setWidget(2, 6, new Image(this.getURL(gateC1.getOperation())));
+	    this.circuitGrid.setWidget(1, 4, new Image(this.getURL(gateB1.getOperation())));
+	    this.circuitGrid.setWidget(3, 4, new Image(this.getURL(gateB2.getOperation())));
+	    this.circuitGrid.setWidget(0, 2, new Image(this.getURL(gateA1.getOperation())));
+	    this.circuitGrid.setWidget(2, 2, new Image(this.getURL(gateA2.getOperation())));
+	    this.circuitGrid.setWidget(4, 2, new Image(this.getURL(gateA3.getOperation())));
 	    
 	    this.input1Label.setHTML(this.getFormatedInputLabel(switch1.turned?this.oneString:this.zeroString, 1));
 	    this.input2Label.setHTML(this.getFormatedInputLabel(switch2.turned?this.oneString:this.zeroString, 2));
 	    this.input3Label.setHTML(this.getFormatedInputLabel(switch3.turned?this.oneString:this.zeroString, 3));
 	    this.input4Label.setHTML(this.getFormatedInputLabel(switch4.turned?this.oneString:this.zeroString, 4));
-	    
-	    this.unknownGateImage.setUrl(this.unknownOperationUrl);
+
+	    this.setUnknownGate(Resources.INSTANCE.smallUNKNOWN());
 	}
 	
 	private String getFormatedInputLabel(String labelText, int inputNumber)

@@ -112,6 +112,12 @@ body
     font-weight: bold;
 }
 
+.logic-small-input-value-label
+{
+    font-size: 12px;
+    font-weight: bold;
+}
+
 .logic-mouse-pointer-hand
 {
     cursor: pointer;

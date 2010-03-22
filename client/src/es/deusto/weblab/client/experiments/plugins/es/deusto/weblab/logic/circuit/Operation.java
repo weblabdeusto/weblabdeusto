@@ -40,7 +40,7 @@ public class Operation {
     }
     
     public static Operation [] getOperations(){
-	return OPERATIONS;
+    	return OPERATIONS;
     }
     
     public String getName(){
