@@ -40,15 +40,23 @@ public class ExperimentFactory {
 		this.boardBaseController  = boardBaseController;
 	}
 
-	private boolean isSameExperiment(ExperimentID experimentID, ExperimentID other){
+	private static boolean isSameExperiment(ExperimentID experimentID, ExperimentID other){
 		return experimentID.getCategory().getCategory().equals(other.getCategory().getCategory())
 			&& experimentID.getExperimentName().equals(other.getExperimentName());
+	}
+	
+	public static MobileSupport retrieveMobileSupport(ExperimentID experimentID){
+		for(ExperimentEntry entry : EntryRegistry.entries){
+			if(isSameExperiment(experimentID, entry.getExperimentID()))
+				return entry.getMobileSupport();
+		}
+		return MobileSupport.disabled;
 	}
 
 	public void experimentFactory(ExperimentID experimentID, IExperimentLoadedCallback callback){
 		try{
         	for(ExperimentEntry entry : EntryRegistry.entries)
-        		if(this.isSameExperiment(experimentID, entry.getExperimentID())){
+        		if(isSameExperiment(experimentID, entry.getExperimentID())){
         			entry.createWeb(this.configurationManager, this.boardBaseController, callback);
         			return;
         		}

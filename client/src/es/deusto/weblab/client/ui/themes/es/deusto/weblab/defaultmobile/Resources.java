@@ -14,10 +14,23 @@
 
 package es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultmobile;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 
 public interface Resources extends ClientBundle {
+	
+	public final Resources INSTANCE = GWT.create(Resources.class); 
+	
 	@Source("res/logo.png")
 	ImageResource logo();
+	
+	@Source("res/green.png")
+	ImageResource greenBall();
+	
+	@Source("res/yellow.png")
+	ImageResource yellowBall();
+	
+	@Source("res/red.png")
+	ImageResource redBall();
 }

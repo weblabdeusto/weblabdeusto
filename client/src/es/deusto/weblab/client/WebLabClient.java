@@ -135,6 +135,7 @@ public class WebLabClient implements EntryPoint {
 								controller.startLoggedIn(new SessionID(sessionId));
 						}catch(Exception e){
 							WebLabClient.this.showError("Error initializing theme: " + e.getMessage());
+							e.printStackTrace();
 							return;
 						}
 

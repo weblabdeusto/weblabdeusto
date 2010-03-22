@@ -2,20 +2,15 @@
     xmlns:g='urn:import:com.google.gwt.user.client.ui'
     xmlns:my='urn:import:es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultmobile.widgets'
     xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
-    
-	<w:WlVerticalPanel>
+ 
+	<w:WlVerticalPanel spacing="10">
 		
 		<g:Label ui:field="contentTitleLabel" styleName="title-label" horizontalAlignment='ALIGN_CENTER'></g:Label>
 		
 		<g:Label ui:field="generalErrorLabel" styleName="wl-error_message"></g:Label>
 		
-		<w:WlVerticalPanel width="100%" horizontalAlignment="ALIGN_CENTER">
-		
-			<!-- Content is dynamically generated in code -->
-			<g:Grid ui:field="experimentsTable" cellPadding='10' borderWidth='0'>
-			</g:Grid>
-		
-		</w:WlVerticalPanel>
+		<g:VerticalPanel ui:field="experimentsTable" width="100%" horizontalAlignment="ALIGN_CENTER">
+		</g:VerticalPanel>
 		
 		
 		<w:WlWaitingLabel ui:field='waitingLabel'>
