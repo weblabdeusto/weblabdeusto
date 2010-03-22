@@ -259,10 +259,10 @@ end_date = start_date.replace(year=start_date.year+10)
 dummy = Model.DbExperiment("ud-dummy", cat_dummy, start_date, end_date)
 session.add(dummy)
 
-flashdummy = Model.DbExperiment("ud-flashdummy", cat_dummy, start_date, end_date)
+flashdummy = Model.DbExperiment("flashdummy", cat_dummy, start_date, end_date)
 session.add(flashdummy)
 
-javadummy = Model.DbExperiment("ud-javadummy", cat_dummy, start_date, end_date)
+javadummy = Model.DbExperiment("javadummy", cat_dummy, start_date, end_date)
 session.add(javadummy)
 
 logic = Model.DbExperiment("ud-logic", cat_pic, start_date, end_date)
@@ -307,7 +307,7 @@ gp_5A_flashdummy_allowed = Model.DbGroupPermission(
     "Permission for group 5A to use WebLab-FlashDummy"
 )
 session.add(gp_5A_flashdummy_allowed)
-gp_5A_flashdummy_allowed_p1 = Model.DbGroupPermissionParameter(gp_5A_flashdummy_allowed, experiment_allowed_p1, "ud-flashdummy")
+gp_5A_flashdummy_allowed_p1 = Model.DbGroupPermissionParameter(gp_5A_flashdummy_allowed, experiment_allowed_p1, "flashdummy")
 session.add(gp_5A_flashdummy_allowed_p1)
 gp_5A_flashdummy_allowed_p2 = Model.DbGroupPermissionParameter(gp_5A_flashdummy_allowed, experiment_allowed_p2, "Dummy experiments")
 session.add(gp_5A_flashdummy_allowed_p2)
@@ -322,7 +322,7 @@ gp_5A_javadummy_allowed = Model.DbGroupPermission(
     "Permission for group 5A to use WebLab-JavaDummy"
 )
 session.add(gp_5A_javadummy_allowed)
-gp_5A_javadummy_allowed_p1 = Model.DbGroupPermissionParameter(gp_5A_javadummy_allowed, experiment_allowed_p1, "ud-javadummy")
+gp_5A_javadummy_allowed_p1 = Model.DbGroupPermissionParameter(gp_5A_javadummy_allowed, experiment_allowed_p1, "javadummy")
 session.add(gp_5A_javadummy_allowed_p1)
 gp_5A_javadummy_allowed_p2 = Model.DbGroupPermissionParameter(gp_5A_javadummy_allowed, experiment_allowed_p2, "Dummy experiments")
 session.add(gp_5A_javadummy_allowed_p2)
