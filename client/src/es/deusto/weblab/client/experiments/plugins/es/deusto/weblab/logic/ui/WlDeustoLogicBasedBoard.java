@@ -160,8 +160,9 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 	@Override
 	public void initialize(){
 		this.removableWidgetsPanel.add(new Label("Welcome to the WebLab-Deusto Logic Game!"));
-		this.removableWidgetsPanel.add(new Label("Replace the unknown door with the correct one so the LED turns on."));
+		this.removableWidgetsPanel.add(new Label("Replace the unknown gate with the correct one so the LED turns on."));
 		this.removableWidgetsPanel.add(new Label("Solve as many circuits as possible to get more points and become the champion!"));
+		this.removableWidgetsPanel.add(new HTML("You can check your score at <a href='/weblab/admin/winners.py'>the winners page</a>"));
 		
 		this.widget.add(this.removableWidgetsPanel);
 	}	
