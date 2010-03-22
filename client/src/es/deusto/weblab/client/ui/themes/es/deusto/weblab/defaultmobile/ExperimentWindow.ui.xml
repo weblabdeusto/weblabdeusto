@@ -26,12 +26,18 @@
 		</g:VerticalPanel>
 		
 		<g:VerticalPanel ui:field="reserveSide" width='100%' horizontalAlignment='ALIGN_CENTER'>
-			<w:WlWaitingLabel ui:field="waitingLabel"/>
-			<g:Button ui:field="reserveButton" text="{i18n.reserve}"/>
+			<g:Cell horizontalAlignment="ALIGN_CENTER" width="100%">
+				<w:WlWaitingLabel ui:field="waitingLabel"/>
+			</g:Cell>
+			<g:Cell horizontalAlignment="ALIGN_CENTER" width="100%">
+				<g:Button ui:field="reserveButton" text="{i18n.reserve}"/>
+			</g:Cell>
 		</g:VerticalPanel>
 		
 		<g:VerticalPanel ui:field="finishSide" width='100%' horizontalAlignment='ALIGN_CENTER' visible="false">
-			<g:Button ui:field="finishButton" text="{i18n.finish}"/>
+			<g:Cell horizontalAlignment="ALIGN_CENTER" width="100%">
+				<g:Button ui:field="finishButton" text="{i18n.finish}"/>
+			</g:Cell>
 		</g:VerticalPanel>
 		
 		<g:Label ui:field='generalErrorLabel' styleName='wl-error_message' >

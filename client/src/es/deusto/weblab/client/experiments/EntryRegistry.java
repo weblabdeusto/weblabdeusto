@@ -164,7 +164,7 @@ class EntryRegistry {
 		
 		
 		
-		new ExperimentEntry("PIC experiments", "ud-logic", MobileSupport.limited){
+		new ExperimentEntry("PIC experiments", "ud-logic", MobileSupport.full){
 			@Override
 			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 				GWT.runAsync(new RunAsyncCallback() {
