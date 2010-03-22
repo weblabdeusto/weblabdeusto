@@ -51,14 +51,15 @@ class AllowedExperimentsWindow extends BaseWindow {
 		super.loadWidgets();
 		this.mainPanel.add(this.loggedPanel);
 		
-		final Grid grid = new Grid(experimentsAllowed.length, 3);
+		final Grid grid = new Grid(experimentsAllowed.length, 2);
 		this.mainPanel.add(grid);
 		
 	    for(int i = 0; i < experimentsAllowed.length; ++i){
 	    	final ExperimentAllowed experimentAllowed = experimentsAllowed[i];
 	    	
-	    	final Label name = new Label(experimentAllowed.getExperiment().getName());
-	    	final Label category = new Label(experimentAllowed.getExperiment().getCategory().getCategory());
+	    	final Label name        = new Label(experimentAllowed.getExperiment().getName());
+	    	final Label category    = new Label(experimentAllowed.getExperiment().getCategory().getCategory());
+	    	
 	    	grid.setWidget(i, 0, name);
 	    	grid.setWidget(i, 1, category);
 	    }
@@ -67,7 +68,6 @@ class AllowedExperimentsWindow extends BaseWindow {
 	@Override
 	void showError(String message) {
 		// TODO Auto-generated method stub
-		
 	}
 	
 	@Override

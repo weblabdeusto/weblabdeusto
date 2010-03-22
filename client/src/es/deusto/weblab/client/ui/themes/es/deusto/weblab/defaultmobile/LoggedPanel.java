@@ -66,7 +66,6 @@ class LoggedPanel extends Composite {
 
 	@UiHandler("logoutLink")
 	void onLogoutClicked(@SuppressWarnings("unused") ClickEvent ev) {
-		System.out.println("Logout button clicked.");
 		this.callback.onLogoutButtonClicked();
 	}
 	

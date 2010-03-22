@@ -16,21 +16,27 @@ package es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultmobile;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DecoratedPopupPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultmobile.widgets.EasyGrid;
+import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb.i18n.IWebLabDeustoThemeMessages;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
 class LoginWindow extends BaseWindow {
@@ -72,6 +78,10 @@ class LoginWindow extends BaseWindow {
 		final Widget wid = this.uiBinder.createAndBindUi(this);
 		this.applyI18n();
 		
+		setupWidgets(wid);
+	}
+
+	private void setupWidgets(final Widget wid) {
 		// If ENTER is pressed, login as if the button had been clicked.
 		final KeyPressHandler keyboardHandler = new KeyPressHandler(){
 			@Override
@@ -83,10 +93,49 @@ class LoginWindow extends BaseWindow {
 		this.usernameTextbox.addKeyPressHandler(keyboardHandler);
 		this.passwordTextbox.addKeyPressHandler(keyboardHandler);
 		
+		final DecoratedPopupPanel simplePopup = new DecoratedPopupPanel(true);
+		final VerticalPanel languageList = new VerticalPanel();
+		for(int i = 0; i < IWebLabDeustoThemeMessages.LANGUAGES.length; ++i){
+			final String curLanguage = IWebLabDeustoThemeMessages.LANGUAGES[i];
+			final String curLanguageCode = IWebLabDeustoThemeMessages.LANGUAGE_CODES[i];
+			final Anchor languageButton = new Anchor(curLanguage);
+			languageButton.addClickHandler(
+					new LanguageButtonClickHandler(curLanguageCode)
+				);
+			languageList.add(languageButton);
+		}		
+		languageList.setSpacing(15);
+		
+		simplePopup.setWidget(languageList);
+		
+		this.languages.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+	            final Widget source = (Widget) event.getSource();
+	            final int left = source.getAbsoluteLeft() + 10;
+	            final int top = source.getAbsoluteTop() + 10;
+	            simplePopup.setPopupPosition(left, top);
+	            simplePopup.setModal(true);
+				simplePopup.show();
+			}
+		});
 		
 		this.mainPanel.add(wid);
 	}
 
+	private static class LanguageButtonClickHandler implements ClickHandler{
+		private final String languageCode;
+		
+		public LanguageButtonClickHandler(String languageCode){
+			this.languageCode = languageCode;
+		}
+
+		public void onClick(ClickEvent sender) {
+			Cookies.setCookie(WebLabClient.LOCALE_COOKIE, this.languageCode);
+			WebLabClient.refresh(this.languageCode);
+		}
+	}
+	
 	@UiHandler("loginButton")
 	@SuppressWarnings("unused")
 	void onLoginButtonClicked(ClickEvent e) {

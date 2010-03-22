@@ -123,8 +123,8 @@ public class DefaultMobileTheme extends ThemeBase {
 
 	@Override
 	public void onLoggedOut() {
-		// TODO Auto-generated method stub
-		
+		this.clearSession();
+		this.loadLoginWindow();
 	}
 
 
@@ -212,6 +212,13 @@ public class DefaultMobileTheme extends ThemeBase {
 		 this.experimentWindow = null;
 		 while(this.themePanel.getWidgetCount() > 0)
 			 this.themePanel.remove(0);
+	 }
+
+	 private void clearSession() {
+		 this.user = null;
+		 this.experimentsAllowed = null;
+		 this.experimentBase = null;
+		 this.experimentAllowed = null;
 	 }
 
 	 private void showError(String message) {
