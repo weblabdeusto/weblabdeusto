@@ -34,7 +34,7 @@ core_coordinator_laboratory_servers = [
     "laboratory1:main_instance@main_machine;exp1|ud-gpib|GPIB experiments",
     "laboratory1:main_instance@main_machine;exp1|ud-pic|PIC experiments",    
     "laboratory1:main_instance@main_machine;exp1|ud-dummy|Dummy experiments",
-    "laboratory1:main_instance@main_machine;exp1|ud-logic|Dummy experiments",
+    "laboratory1:main_instance@main_machine;exp1|ud-logic|PIC experiments",
     "laboratory1:main_instance@main_machine;exp1|flashdummy|Dummy experiments",
     "laboratory1:main_instance@main_machine;exp1|javadummy|Dummy experiments",
 ]

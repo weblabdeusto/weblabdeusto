@@ -265,7 +265,7 @@ session.add(flashdummy)
 javadummy = Model.DbExperiment("ud-javadummy", cat_dummy, start_date, end_date)
 session.add(javadummy)
 
-logic = Model.DbExperiment("ud-logic", cat_dummy, start_date, end_date)
+logic = Model.DbExperiment("ud-logic", cat_pic, start_date, end_date)
 session.add(logic)
 
 pld = Model.DbExperiment("ud-pld", cat_pld, start_date, end_date)

@@ -12,7 +12,7 @@
 
 	<implementation>weblab.experiment.experiments.ud_logic_experiment.LogicExperiment.LogicExperiment</implementation>
 
-	<restriction>ud-logic@Dummy experiments</restriction>
+	<restriction>ud-logic@PIC experiments</restriction>
 
 	<protocols>
 		<!-- This server supports both Direct calls, as SOAP calls -->
