@@ -73,7 +73,7 @@ public class ExperimentFactoryTest extends GWTTestCase {
 		
 		final ExperimentLoadedCallback callback = new ExperimentLoadedCallback();
 		
-		factory.experimentFactory(new ExperimentID(new Category("whatever"), "whatever"), callback);
+		factory.experimentFactory(new ExperimentID(new Category("whatever"), "whatever"), callback, false);
 		
 		Assert.assertNotNull(callback.lastThrowable);
 		Assert.assertTrue(callback.lastThrowable instanceof ExperimentNotFoundException);
@@ -98,19 +98,19 @@ public class ExperimentFactoryTest extends GWTTestCase {
 		
 		final ExperimentLoadedCallback callback = new ExperimentLoadedCallback();
 		
-		factory.experimentFactory(new ExperimentID(new Category("PLD experiments"), "ud-pld"), callback);
+		factory.experimentFactory(new ExperimentID(new Category("PLD experiments"), "ud-pld"), callback, false);
 		Assert.assertTrue(callback.lastExperiment instanceof WebLabPldExperiment);
 		
-		factory.experimentFactory(new ExperimentID(new Category("FPGA experiments"), "ud-fpga"), callback);
+		factory.experimentFactory(new ExperimentID(new Category("FPGA experiments"), "ud-fpga"), callback, false);
 		Assert.assertTrue(callback.lastExperiment instanceof WebLabFpgaExperiment);
 		
-		factory.experimentFactory(new ExperimentID(new Category("GPIB experiments"), "ud-gpib"), callback);
+		factory.experimentFactory(new ExperimentID(new Category("GPIB experiments"), "ud-gpib"), callback, false);
 		Assert.assertTrue(callback.lastExperiment instanceof WebLabGpibExperiment);
 		
-		factory.experimentFactory(new ExperimentID(new Category("GPIB experiments"), "ud-gpib1"), callback);
+		factory.experimentFactory(new ExperimentID(new Category("GPIB experiments"), "ud-gpib1"), callback, false);
 		Assert.assertTrue(callback.lastExperiment instanceof WebLabGpib1Experiment);
 	
-		factory.experimentFactory(new ExperimentID(new Category("GPIB experiments"), "ud-gpib2"), callback);
+		factory.experimentFactory(new ExperimentID(new Category("GPIB experiments"), "ud-gpib2"), callback, false);
 		Assert.assertTrue(callback.lastExperiment instanceof WebLabGpib2Experiment);
 	}
 

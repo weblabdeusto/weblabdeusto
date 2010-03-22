@@ -85,15 +85,18 @@ public class WebLabController implements IWebLabController {
 	}
 	
 	private final SessionVariables     sessionVariables = new SessionVariables();
+	private final boolean              isMobile;
 	
 	public WebLabController(
 				IConfigurationManager configurationManager,
 				IWebLabCommunication  communications,
-				IPollingHandler       pollingHandler
+				IPollingHandler       pollingHandler,
+				boolean               isMobile
 			){
 		this.configurationManager = configurationManager;
 		this.communications       = communications;
-		this.pollingHandler       = pollingHandler;		
+		this.pollingHandler       = pollingHandler;
+		this.isMobile             = isMobile;
 	}
 	
 	private class ExtendedTimer extends Timer{
@@ -325,7 +328,7 @@ public class WebLabController implements IWebLabController {
 				WebLabController.this.uimanager.onExperimentChosen(experimentAllowed, experimentBase);
 			}
 		};
-	    factory.experimentFactory(experimentAllowed.getExperiment().getExperimentID(), experimentLoadedCallback);
+	    factory.experimentFactory(experimentAllowed.getExperiment().getExperimentID(), experimentLoadedCallback, this.isMobile);
 	}
 
 	public void cleanReservation() {

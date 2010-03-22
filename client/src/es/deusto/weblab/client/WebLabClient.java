@@ -114,10 +114,14 @@ public class WebLabClient implements EntryPoint {
 				final PollingHandler pollingHandler = new PollingHandler(
 						WebLabClient.this.configurationManager 
 				);
+				
+				final boolean isUsingMobile = isMobile();
+				
 				final IWebLabController controller = new WebLabController(
 						WebLabClient.this.configurationManager,
 						communications,
-						pollingHandler
+						pollingHandler,
+						isUsingMobile
 				);
 				
 				pollingHandler.setController(controller);
@@ -157,7 +161,7 @@ public class WebLabClient implements EntryPoint {
 									WebLabClient.THEME_PROPERTY, 
 									WebLabClient.DEFAULT_THEME
 								),
-							isMobile(),
+							isUsingMobile,
 							themeLoadedCallback
 						);
 				} catch (Exception e){

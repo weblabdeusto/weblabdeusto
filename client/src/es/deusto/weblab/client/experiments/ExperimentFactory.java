@@ -53,11 +53,14 @@ public class ExperimentFactory {
 		return MobileSupport.disabled;
 	}
 
-	public void experimentFactory(ExperimentID experimentID, IExperimentLoadedCallback callback){
+	public void experimentFactory(ExperimentID experimentID, IExperimentLoadedCallback callback, boolean forMobile){
 		try{
         	for(ExperimentEntry entry : EntryRegistry.entries)
         		if(isSameExperiment(experimentID, entry.getExperimentID())){
-        			entry.createWeb(this.configurationManager, this.boardBaseController, callback);
+        			if(forMobile)
+        				entry.createMobile(this.configurationManager, this.boardBaseController, callback);
+        			else
+        				entry.createWeb(this.configurationManager, this.boardBaseController, callback);
         			return;
         		}
 		}catch(final Exception e){

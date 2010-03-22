@@ -9,8 +9,8 @@
 		
 		<g:Label ui:field="generalErrorLabel" styleName="wl-error_message"></g:Label>
 		
-		<g:VerticalPanel ui:field="experimentsTable" width="100%" horizontalAlignment="ALIGN_CENTER">
-		</g:VerticalPanel>
+		<g:Grid ui:field="experimentsTable" width="100%" cellPadding="5" cellSpacing="0">
+		</g:Grid>
 		
 		
 		<w:WlWaitingLabel ui:field='waitingLabel'>

@@ -44,7 +44,7 @@ abstract class ExperimentEntry{
 	public abstract void createWeb(IConfigurationManager configurationManager, IBoardBaseController boardController, IExperimentLoadedCallback callback);
 	
 	public void createMobile(IConfigurationManager configurationManager, IBoardBaseController boardController, IExperimentLoadedCallback callback){
-		if(this.mobileSupport != MobileSupport.disabled)
+		if(this.mobileSupport == MobileSupport.disabled)
 			callback.onFailure(new WlExperimentException("Couldn't create mobile version of experiment " + this.experimentID + ": not supported"));
 		else
 			this.createWeb(configurationManager, boardController, callback);

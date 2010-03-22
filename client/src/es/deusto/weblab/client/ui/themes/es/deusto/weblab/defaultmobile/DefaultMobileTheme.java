@@ -26,11 +26,11 @@ import es.deusto.weblab.client.dto.reservations.WaitingConfirmationReservationSt
 import es.deusto.weblab.client.dto.reservations.WaitingInstancesReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingReservationStatus;
 import es.deusto.weblab.client.dto.users.User;
-import es.deusto.weblab.client.exceptions.experiments.WlExperimentException;
 import es.deusto.weblab.client.experiments.ExperimentBase;
 import es.deusto.weblab.client.ui.ThemeBase;
-import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultmobile.LoginWindow.ILoginWindowCallback;
 import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultmobile.AllowedExperimentsWindow.IAllowedExperimentsWindowCallback;
+import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultmobile.ExperimentWindow.IExperimentWindowCallback;
+import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultmobile.LoginWindow.ILoginWindowCallback;
 import es.deusto.weblab.client.ui.widgets.WlVerticalPanel;
 
 public class DefaultMobileTheme extends ThemeBase {
@@ -87,32 +87,34 @@ public class DefaultMobileTheme extends ThemeBase {
 	}
 
 	@Override
-	public void onExperimentChosen(ExperimentAllowed experimentAllowed,
-			ExperimentBase experimentBase) {
-		// TODO Auto-generated method stub
-		
+	public void onExperimentChosen(ExperimentAllowed experimentAllowed, ExperimentBase experimentBase) {
+		this.experimentAllowed = experimentAllowed;
+		this.experimentBase = experimentBase;
+
+		// Important note: the calling order MUST be this or FileUpload will cause problems
+		this.loadExperimentWindow();
+		this.themePanel.add(this.experimentWindow.getWidget());    
+		this.experimentWindow.loadExperimentReservationPanels();
+		// end of Important note
 	}
 
 	@Override
 	public void onWaitingReservation(WaitingReservationStatus reservationStatus) {
-		// TODO Auto-generated method stub
-		
+		this.experimentWindow.showWaitingReservation(reservationStatus.getPosition());
 	}
 
 	@Override
-	public void onWaitingReservationConfirmation(
-			WaitingConfirmationReservationStatus reservationStatus) {
-		// TODO Auto-generated method stub
-		
+	public void onWaitingReservationConfirmation(WaitingConfirmationReservationStatus reservationStatus) {
+		this.experimentWindow.showWaitingReservationConfirmation();
 	}
 
 	@Override
-	public void onExperimentReserved(
-			ConfirmedReservationStatus reservationStatus,
-			ExperimentID experimentID, ExperimentBase experimentBase)
-			throws WlExperimentException {
-		// TODO Auto-generated method stub
-		
+	public void onExperimentReserved(ConfirmedReservationStatus reservationStatus, ExperimentID experimentID, ExperimentBase experimentBase){
+		this.experimentBase = experimentBase;
+
+		// Important note: the calling order MUST be this or FileUpload will cause problems
+		this.experimentWindow.loadUsingExperimentPanels(reservationStatus.getTime());
+		// end of Important note
 	}
 
 	@Override
@@ -202,6 +204,29 @@ public class DefaultMobileTheme extends ThemeBase {
 		this.themePanel.add(this.allowedExperimentsWindow.getWidget());	    
 	}	
 	
+	private void loadExperimentWindow() {
+		this.clearWindow();
+
+		this.experimentWindow = new ExperimentWindow(this.configurationManager, this.user, this.experimentAllowed, this.experimentBase, new IExperimentWindowCallback(){
+			public void onReserveButtonClicked() {
+				DefaultMobileTheme.this.controller.reserveExperiment(DefaultMobileTheme.this.experimentAllowed.getExperiment().getExperimentID());
+			}
+
+			public void onBackButtonClicked() {
+				DefaultMobileTheme.this.loadAllowedExperimentsWindow();
+			}
+
+			public void onFinishButtonClicked() {
+				DefaultMobileTheme.this.controller.finishReservation();
+			}
+
+			public void onLogoutButtonClicked() {
+				DefaultMobileTheme.this.controller.finishReservationAndLogout();
+			}
+		});
+		this.activeWindow = this.experimentWindow;
+	}
+
 	/*
 	 * Auxiliar methods
 	 */

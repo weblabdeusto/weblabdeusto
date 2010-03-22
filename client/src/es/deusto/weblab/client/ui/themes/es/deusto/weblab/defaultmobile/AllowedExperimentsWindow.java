@@ -16,16 +16,15 @@ package es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultmobile;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.HTMLTable.Cell;
 
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
@@ -46,7 +45,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 	@UiField Label contentTitleLabel;
 	@UiField WlWaitingLabel waitingLabel;
 	@UiField Label generalErrorLabel;
-	@UiField VerticalPanel experimentsTable;
+	@UiField Grid experimentsTable;
 	
 	// DTOs
 	private final ExperimentAllowed [] experimentsAllowed;
@@ -76,7 +75,8 @@ class AllowedExperimentsWindow extends BaseWindow {
 			final Widget wid = this.uiBinder.createAndBindUi(this);
 			this.contentTitleLabel.setText(this.i18nMessages.myExperiments());
 		
-			this.mainPanel.add(wid);
+			this.loggedPanel.contentPanel.clear();
+			this.loggedPanel.contentPanel.add(wid);
 		
 			loadExperiments();
 		}catch(Exception e){
@@ -85,48 +85,22 @@ class AllowedExperimentsWindow extends BaseWindow {
 	}
 
 	private void loadExperiments() {
+		
+		this.experimentsTable.resize(this.experimentsAllowed.length, 3);
+		
 		for(int i = 0; i < this.experimentsAllowed.length; ++i){
 	    	final ExperimentAllowed experimentAllowed = this.experimentsAllowed[i];
 	    	
 	    	final ExperimentID experimentID = experimentAllowed.getExperiment().getExperimentID();
 	    	final MobileSupport mobileSupport = ExperimentFactory.retrieveMobileSupport(experimentID);
 	    	
-	    	final Widget name;
-	    	final Widget category;
-	    	
-	    	if(mobileSupport == MobileSupport.disabled){
-	    		final Label lname        = new Label(experimentAllowed.getExperiment().getName());
-	    		final Label lcategory    = new Label(experimentAllowed.getExperiment().getCategory().getCategory());
-	    		
-	    		lname.setWidth("100%");
-	    		lname.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-	    		lcategory.setWidth("100%");
-	    		lcategory.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-	    		
-	    		name     = lname;
-	    		category = lcategory;
-	    	}else{
-	    		final Anchor aname        = new Anchor(experimentAllowed.getExperiment().getName());
-	    		final Anchor acategory    = new Anchor(experimentAllowed.getExperiment().getCategory().getCategory());
-	    		
-	    		aname.setWidth("100%");
-	    		aname.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-	    		acategory.setWidth("100%");
-	    		acategory.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-	    		
-	    		name     = aname;
-	    		category = acategory;
-	    		
-	    		final ClickHandler clickHandler = new ClickHandler() {
-					@Override
-					public void onClick(ClickEvent event) {
-						AllowedExperimentsWindow.this.callback.onChooseExperimentButtonClicked(experimentAllowed);
-					}
-				};
-				
-				aname.addClickHandler(clickHandler);
-				acategory.addClickHandler(clickHandler);
-	    	}
+    		final Label name        = new Label(experimentAllowed.getExperiment().getName());
+    		final Label category    = new Label(experimentAllowed.getExperiment().getCategory().getCategory());
+    		
+    		name.setWidth("100%");
+    		name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+    		category.setWidth("100%");
+    		category.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 	    	
 	    	final String currentStyle;
 	    	if(i % 2 == 0)
@@ -134,12 +108,6 @@ class AllowedExperimentsWindow extends BaseWindow {
 	    	else
 	    		currentStyle = "even-row";
 	    	
-	    	
-	    	final HorizontalPanel row = new HorizontalPanel();
-	    	row.setStyleName(currentStyle);
-	    	row.setWidth("100%");
-	    	row.setSpacing(10);
-	    	row.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 	    	
 	    	final Image img;
 	    	
@@ -156,12 +124,19 @@ class AllowedExperimentsWindow extends BaseWindow {
 	    	
 	    	img.setWidth("100%");
 	    	
-	    	row.add(img);
-	    	row.add(name);
-	    	row.add(category);
+	    	this.experimentsTable.setWidget(i, 0, img);
+	    	this.experimentsTable.setWidget(i, 1, name);
+	    	this.experimentsTable.setWidget(i, 2, category);
 	    	
-	    	this.experimentsTable.add(row);
+	    	this.experimentsTable.getRowFormatter().setStyleName(i, currentStyle);
 	    }
+	}
+
+	@UiHandler("experimentsTable")
+	void onExperimentsTableClicked(ClickEvent event){
+		final Cell cell = this.experimentsTable.getCellForEvent(event);
+		final ExperimentAllowed expAllowed = this.experimentsAllowed[cell.getRowIndex()];
+		this.callback.onChooseExperimentButtonClicked(expAllowed);
 	}
 	
 	@Override
