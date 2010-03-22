@@ -108,7 +108,7 @@ class EntryRegistry {
 		
 		
 		
-		new ExperimentEntry("Dummy experiments", "ud-logic"){
+		new ExperimentEntry("PIC experiments", "ud-logic"){
 			@Override
 			public ExperimentBase create( IConfigurationManager configurationManager, IBoardBaseController boardController) {
 				return new WebLabLogicExperiment(configurationManager, boardController);
