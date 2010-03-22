@@ -30,6 +30,7 @@ import es.deusto.weblab.client.exceptions.experiments.WlExperimentException;
 import es.deusto.weblab.client.experiments.ExperimentBase;
 import es.deusto.weblab.client.ui.ThemeBase;
 import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultmobile.LoginWindow.ILoginWindowCallback;
+import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultmobile.AllowedExperimentsWindow.IAllowedExperimentsWindowCallback;
 import es.deusto.weblab.client.ui.widgets.WlVerticalPanel;
 
 public class DefaultMobileTheme extends ThemeBase {
@@ -43,6 +44,11 @@ public class DefaultMobileTheme extends ThemeBase {
 	private LoginWindow loginWindow;
 	private AllowedExperimentsWindow allowedExperimentsWindow;
 	private ExperimentWindow experimentWindow;
+	
+	private User user;
+	private ExperimentAllowed[] experimentsAllowed;
+	private ExperimentAllowed experimentAllowed;
+	private ExperimentBase experimentBase;
 	
 	public DefaultMobileTheme(IConfigurationManager configurationManager, IWebLabController controller){
 		this.configurationManager = configurationManager;
@@ -64,21 +70,20 @@ public class DefaultMobileTheme extends ThemeBase {
 	
 	@Override
 	public void onInit() {
-		// TODO Auto-generated method stub
-		
+		this.loadLoginWindow();
 	}
 	
 	@Override
 	public void onLoggedIn(User user) {
-		// TODO Auto-generated method stub
-		
+		this.user = user;
+		this.controller.retrieveAllowedExperiments();
 	}
 
 	@Override
 	public void onAllowedExperimentsRetrieved(
 			ExperimentAllowed[] experimentsAllowed) {
-		// TODO Auto-generated method stub
-		
+		this.experimentsAllowed = experimentsAllowed;
+		this.loadAllowedExperimentsWindow();
 	}
 
 	@Override
@@ -129,26 +134,23 @@ public class DefaultMobileTheme extends ThemeBase {
 	
 	@Override
 	public void onError(String message) {
-		// TODO Auto-generated method stub
-		
+		this.showError(message);
 	}
 
 	@Override
 	public void onErrorAndFinishReservation(String message) {
-		// TODO Auto-generated method stub
-		
+		this.showError(message);
 	}
 
 	@Override
 	public void onErrorAndFinishSession(String message) {
-		// TODO Auto-generated method stub
-		
+		this.loadLoginWindow();
+		this.showError(message);
 	}
 
 	@Override
 	public void onMessage(String message) {
-		// TODO Auto-generated method stub
-		
+		this.activeWindow.showMessage(message);
 	}
 
 	@Override
@@ -182,6 +184,23 @@ public class DefaultMobileTheme extends ThemeBase {
 		this.themePanel.add(this.loginWindow.getWidget());	    
 	}
 
+	private void loadAllowedExperimentsWindow() {
+		this.clearWindow();
+
+		this.allowedExperimentsWindow = new AllowedExperimentsWindow(this.configurationManager, this.user, this.experimentsAllowed, new IAllowedExperimentsWindowCallback(){
+			public void onChooseExperimentButtonClicked(
+					ExperimentAllowed experimentAllowed) {
+				DefaultMobileTheme.this.controller.chooseExperiment(experimentAllowed);
+			}
+
+			public void onLogoutButtonClicked() {
+				DefaultMobileTheme.this.controller.logout();
+			}
+		});
+		this.activeWindow = this.allowedExperimentsWindow;
+
+		this.themePanel.add(this.allowedExperimentsWindow.getWidget());	    
+	}	
 	
 	/*
 	 * Auxiliar methods
@@ -195,5 +214,8 @@ public class DefaultMobileTheme extends ThemeBase {
 			 this.themePanel.remove(0);
 	 }
 
+	 private void showError(String message) {
+		 this.activeWindow.showError(message);
+	 }	
 
 }

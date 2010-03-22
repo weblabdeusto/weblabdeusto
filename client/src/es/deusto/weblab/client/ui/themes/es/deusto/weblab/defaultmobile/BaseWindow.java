@@ -25,7 +25,7 @@ public abstract class BaseWindow {
 	
 	protected final IConfigurationManager configurationManager;
 	protected final IWebLabDeustoThemeMessages i18nMessages;
-
+	
 	// Widgets
 	protected WlVerticalPanel mainPanel;
 	
@@ -44,4 +44,7 @@ public abstract class BaseWindow {
 		this.mainPanel.setWidth("100%");
 		this.mainPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 	}
+	
+	abstract void showMessage(String message);
+	abstract void showError(String message);
 }

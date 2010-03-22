@@ -249,6 +249,7 @@ class LoginWindow extends BaseWindow {
 	}
 
 
+    @Override
 	public void showError(String message) {
 		this.generalErrorLabel.setText(message);
 		this.waitingLabel.stop();
@@ -278,6 +279,7 @@ class LoginWindow extends BaseWindow {
 	}
 	
 
+    @Override
 	public void showMessage(String message) {
 		this.generalErrorLabel.setText(message);
 		this.loginButton.setEnabled(true);
@@ -292,7 +294,7 @@ class LoginWindow extends BaseWindow {
 		return this.passwordTextbox.getText(); 
 	}
 	
-	public boolean checkUsernameTextbox(){
+	private boolean checkUsernameTextbox(){
 		if(this.getUsername().length() == 0){
 			this.usernameErrorLabel.setText(
 					this.i18nMessages.thisFieldCantBeEmpty()
@@ -304,7 +306,7 @@ class LoginWindow extends BaseWindow {
 		}
 	}
 	
-	public boolean checkPasswordTextbox() {
+	private boolean checkPasswordTextbox() {
 		if(this.getPassword().length() == 0){
 			this.passwordErrorLabel.setText(
 				this.i18nMessages.thisFieldCantBeEmpty()

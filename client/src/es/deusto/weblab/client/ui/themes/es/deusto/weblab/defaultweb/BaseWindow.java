@@ -44,4 +44,7 @@ abstract class BaseWindow {
 		this.mainPanel.setWidth("100%");
 		this.mainPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 	}
+	
+	abstract void showMessage(String message);
+	abstract void showError(String message);
 }

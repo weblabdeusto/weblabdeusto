@@ -68,7 +68,7 @@ class LoggedPanel extends Composite {
 	@UiField Anchor logoutLink;
 	
 	// DTOs
-	protected User user;
+	protected final User user;
 
 	
 	LoggedPanel(User user, ILoggedPanelCallback callback){
@@ -101,7 +101,7 @@ class LoggedPanel extends Composite {
 	@UiHandler("logoutLink")
 	void onLogoutClicked(ClickEvent ev) {
 		System.out.println("Logout button clicked.");
-		LoggedPanel.this.callback.onLogoutButtonClicked();
+		this.callback.onLogoutButtonClicked();
 	}
 
 	public void loadWidgets() {

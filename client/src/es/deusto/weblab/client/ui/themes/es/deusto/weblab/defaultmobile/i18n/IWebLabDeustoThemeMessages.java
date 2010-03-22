@@ -17,6 +17,7 @@ public interface IWebLabDeustoThemeMessages extends Messages {
 			"eu"
 	};
 	
+	public String moreLanguages();
 	public String experimentName();
 	public String experimentCategory();
 	public String timeAllowed();

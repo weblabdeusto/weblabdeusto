@@ -169,15 +169,7 @@ public class DefaultTheme extends ThemeBase {
 
 	@Override
 	public void onMessage(String message){
-		if(this.loginWindow != null){
-			this.loginWindow.showMessage(message);
-		}
-		if(this.allowedExperimentsWindow != null){
-			this.allowedExperimentsWindow.showMessage(message);
-		}
-		if(this.experimentWindow != null){
-			this.experimentWindow.showMessage(message);
-		}
+		this.activeWindow.showMessage(message);
 	}
 
 	/*
@@ -262,11 +254,6 @@ public class DefaultTheme extends ThemeBase {
 	 }
 
 	 private void showError(String message) {
-		 if ( this.activeWindow instanceof LoginWindow )
-			 ((LoginWindow)this.activeWindow).showError(message);
-		 else if ( this.activeWindow instanceof AllowedExperimentsWindow )
-			 ((AllowedExperimentsWindow)this.activeWindow).showError(message);
-		 else if ( this.activeWindow instanceof ExperimentWindow )
-			 ((ExperimentWindow)this.activeWindow).showError(message);
+		 this.activeWindow.showError(message);
 	 }	
 }

@@ -143,12 +143,16 @@ public class WebLabClient implements EntryPoint {
 				}*/
 
 				controller.setUIManager(theme);
-				
-				final String sessionId = Window.Location.getParameter(WebLabClient.SESSION_ID_URL_PARAM);
-				if(sessionId == null)
-				    theme.onInit();
-				else
-				    controller.startLoggedIn(new SessionID(sessionId));
+				try{
+					final String sessionId = Window.Location.getParameter(WebLabClient.SESSION_ID_URL_PARAM);
+					if(sessionId == null)
+						theme.onInit();
+					else
+						controller.startLoggedIn(new SessionID(sessionId));
+				}catch(Exception e){
+					WebLabClient.this.showError("Error initializing theme: " + e.getMessage());
+					return;
+				}
 
 				WebLabClient.this.putWidget(theme.getWidget());
 			}

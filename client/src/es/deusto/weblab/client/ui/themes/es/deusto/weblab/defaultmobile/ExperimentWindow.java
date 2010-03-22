@@ -22,4 +22,16 @@ class ExperimentWindow extends BaseWindow {
 		super(configurationManager);
 	}
 
+	@Override
+	void showError(String message) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	void showMessage(String message) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

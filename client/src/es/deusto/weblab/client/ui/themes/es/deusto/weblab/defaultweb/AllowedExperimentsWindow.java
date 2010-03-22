@@ -136,12 +136,14 @@ class AllowedExperimentsWindow extends BaseWindow {
 	    this.setupWidgets();
 	}
 	
+    @Override
     public void showError(String message) {
         this.generalErrorLabel.setText(message);
         this.waitingLabel.stop();
         this.waitingLabel.setText("");
     }	
 	
+    @Override
 	public void showMessage(String message) {
 		this.generalErrorLabel.setText(message);
 	}

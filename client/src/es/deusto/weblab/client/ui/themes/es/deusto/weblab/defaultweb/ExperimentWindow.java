@@ -99,7 +99,8 @@ class ExperimentWindow extends BaseWindow {
 		
 	    this.loadWidgets();
 	}
-	
+
+    @Override
 	public void showError(String message){
 		this.generalErrorLabel.setText(message);
 	}
@@ -248,21 +249,22 @@ class ExperimentWindow extends BaseWindow {
 		this.postExperimentAreaPanel.setCellHorizontalAlignment(this.finishButton, HasHorizontalAlignment.ALIGN_CENTER);
 	}	
 	
+    @Override
 	public void showMessage(String message) {
 		this.generalErrorLabel.setText(message);
 	}
 
-        public void showWaitingInstances(int position) {
-        	this.waitingLabel.setText(
-        		this.i18nMessages.waitingForAnInstancePosition(
-        			this.configurationManager.getProperty(
-        					ExperimentWindow.ADMIN_EMAIL_PROPERTY,
-        					ExperimentWindow.DEFAULT_ADMIN_EMAIL
-        				),
-        			position
-        		)
-        	);
-        }
+    public void showWaitingInstances(int position) {
+    	this.waitingLabel.setText(
+    			this.i18nMessages.waitingForAnInstancePosition(
+    					this.configurationManager.getProperty(
+    							ExperimentWindow.ADMIN_EMAIL_PROPERTY,
+    							ExperimentWindow.DEFAULT_ADMIN_EMAIL
+    					),
+    					position
+    			)
+    	);
+    }
 
 	public void showWaitingReservation(int position) {
 	    	this.waitingLabel.setText(this.i18nMessages.waitingInQueuePosition(position));

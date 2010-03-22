@@ -12,7 +12,7 @@
 *
 */
 
-package es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb.widgets;
+package es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultmobile.widgets;
 
 import java.util.ArrayList;
 
@@ -44,8 +44,6 @@ public class EasyGrid extends Grid {
 	 */
 	private void createTable()
 	{
-		System.out.println("Creating table.");
-		
 		this.resize(this.rows, this.cols);
 		
 		int widgetsSet = 0;
@@ -63,7 +61,6 @@ public class EasyGrid extends Grid {
 	public EasyGrid() {
 		this.resize(4, 4);
 		Label label = new Label("TESTING EASYGRID");
-		System.out.println("Constructing EASYGRID");
 		this.setWidget(0, 0, label);
 	}
 	
@@ -72,7 +69,6 @@ public class EasyGrid extends Grid {
 	 * @param cols Number of columns.
 	 */
 	public void setCols(int cols) {
-		System.out.println("Settings cols.");
 		this.cols = cols;
 		if(this.rows != -1 && cols != -1)
 			createTable();
@@ -83,7 +79,6 @@ public class EasyGrid extends Grid {
 	 * @param rows Number of rows.
 	 */
 	public void setRows(int rows) {
-		System.out.println("Settings rows.");
 		this.rows = rows;
 		if(rows != -1 && this.cols != -1)
 			createTable();
@@ -97,7 +92,6 @@ public class EasyGrid extends Grid {
 	@Override
 	public void add(Widget widget)
 	{
-		System.out.println("Adding widget to the internal list.");
 		this.widgets.add(widget);
 	}
 
