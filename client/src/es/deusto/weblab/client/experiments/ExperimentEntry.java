@@ -17,18 +17,36 @@ package es.deusto.weblab.client.experiments;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.Category;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
+import es.deusto.weblab.client.exceptions.experiments.WlExperimentException;
+import es.deusto.weblab.client.experiments.ExperimentFactory.IExperimentLoadedCallback;
+import es.deusto.weblab.client.experiments.ExperimentFactory.MobileSupport;
 import es.deusto.weblab.client.ui.BoardBase.IBoardBaseController;
 
 abstract class ExperimentEntry{
-	private ExperimentID experimentID;
 	
-	public ExperimentEntry(String categoryName, String experimentName){
+	private final ExperimentID experimentID;
+	private final MobileSupport mobileSupport;
+	
+	
+	public ExperimentEntry(String categoryName, String experimentName, MobileSupport mobileSupport){
 		this.experimentID = new ExperimentID(new Category(categoryName), experimentName);
+		this.mobileSupport = mobileSupport;
 	}
 	
 	public ExperimentID getExperimentID(){
 		return this.experimentID;
 	}
 	
-	public abstract ExperimentBase create(IConfigurationManager configurationManager, IBoardBaseController boardController);
+	public MobileSupport getMobileSupport(){
+		return this.mobileSupport;
+	}
+	
+	public abstract void createWeb(IConfigurationManager configurationManager, IBoardBaseController boardController, IExperimentLoadedCallback callback);
+	
+	public void createMobile(IConfigurationManager configurationManager, IBoardBaseController boardController, IExperimentLoadedCallback callback){
+		if(this.mobileSupport != MobileSupport.disabled)
+			callback.onFailure(new WlExperimentException("Couldn't create mobile version of experiment " + this.experimentID + ": not supported"));
+		else
+			this.createWeb(configurationManager, boardController, callback);
+	}
 }

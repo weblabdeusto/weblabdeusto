@@ -19,8 +19,8 @@ package es.deusto.weblab.client.controller;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Timer;
 
-import es.deusto.weblab.client.comm.UploadStructure;
 import es.deusto.weblab.client.comm.IWebLabCommunication;
+import es.deusto.weblab.client.comm.UploadStructure;
 import es.deusto.weblab.client.comm.callbacks.IExperimentsAllowedCallback;
 import es.deusto.weblab.client.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
@@ -35,9 +35,9 @@ import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.exceptions.comm.WlCommException;
 import es.deusto.weblab.client.exceptions.comm.login.LoginException;
-import es.deusto.weblab.client.exceptions.experiments.WlExperimentException;
 import es.deusto.weblab.client.experiments.ExperimentBase;
 import es.deusto.weblab.client.experiments.ExperimentFactory;
+import es.deusto.weblab.client.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.ui.IUIManager;
 import es.deusto.weblab.client.ui.BoardBase.IBoardBaseController;
 
@@ -279,7 +279,7 @@ public class WebLabController implements IWebLabController {
 	}
 
 	@Override
-	public void chooseExperiment(ExperimentAllowed experimentAllowed) {
+	public void chooseExperiment(final ExperimentAllowed experimentAllowed) {
 	    IBoardBaseController boardBaseController = new IBoardBaseController(){
 	    	public void onClean(){
 	    		WebLabController.this.finishReservation();
@@ -310,16 +310,22 @@ public class WebLabController implements IWebLabController {
 		    
 		}
 	    };
-	    ExperimentFactory factory = new ExperimentFactory(this.configurationManager, boardBaseController);
-	    try {
-			ExperimentBase experimentBase = factory.experimentFactory(experimentAllowed.getExperiment().getExperimentID());
-			this.sessionVariables.setCurrentExperimentBase(experimentBase);
-			this.uimanager.onExperimentChosen(experimentAllowed, experimentBase);
-	    } catch (WlExperimentException e) {
-			this.uimanager.onError("Couldn't instantiate experiment: " + e.getMessage());
-			e.printStackTrace();
-			return;
-	    }
+	    final ExperimentFactory factory = new ExperimentFactory(this.configurationManager, boardBaseController);
+	    final IExperimentLoadedCallback experimentLoadedCallback = new IExperimentLoadedCallback() {
+			
+			@Override
+			public void onFailure(Throwable e) {
+				WebLabController.this.uimanager.onError("Couldn't instantiate experiment: " + e.getMessage());
+				e.printStackTrace();
+			}
+			
+			@Override
+			public void onExperimentLoaded(ExperimentBase experimentBase) {
+				WebLabController.this.sessionVariables.setCurrentExperimentBase(experimentBase);
+				WebLabController.this.uimanager.onExperimentChosen(experimentAllowed, experimentBase);
+			}
+		};
+	    factory.experimentFactory(experimentAllowed.getExperiment().getExperimentID(), experimentLoadedCallback);
 	}
 
 	public void cleanReservation() {

@@ -26,15 +26,15 @@ import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.comm.IWebLabCommunication;
 import es.deusto.weblab.client.comm.WebLabCommunication;
-import es.deusto.weblab.client.configuration.IConfigurationLoadedCallback;
 import es.deusto.weblab.client.configuration.ConfigurationManager;
-import es.deusto.weblab.client.controller.PollingHandler;
+import es.deusto.weblab.client.configuration.IConfigurationLoadedCallback;
 import es.deusto.weblab.client.controller.IWebLabController;
+import es.deusto.weblab.client.controller.PollingHandler;
 import es.deusto.weblab.client.controller.WebLabController;
 import es.deusto.weblab.client.dto.SessionID;
-import es.deusto.weblab.client.exceptions.ui.themes.WlThemeException;
 import es.deusto.weblab.client.ui.ThemeBase;
 import es.deusto.weblab.client.ui.ThemeFactory;
+import es.deusto.weblab.client.ui.ThemeFactory.IThemeLoadedCallback;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
 public class WebLabClient implements EntryPoint {
@@ -122,39 +122,47 @@ public class WebLabClient implements EntryPoint {
 				
 				pollingHandler.setController(controller);
 				
-				final ThemeBase theme;
+				final IThemeLoadedCallback themeLoadedCallback = new IThemeLoadedCallback() {
+					
+					@Override
+					public void onThemeLoaded(ThemeBase theme) {
+						controller.setUIManager(theme);
+						try{
+							final String sessionId = Window.Location.getParameter(WebLabClient.SESSION_ID_URL_PARAM);
+							if(sessionId == null)
+								theme.onInit();
+							else
+								controller.startLoggedIn(new SessionID(sessionId));
+						}catch(Exception e){
+							WebLabClient.this.showError("Error initializing theme: " + e.getMessage());
+							return;
+						}
+
+						WebLabClient.this.putWidget(theme.getWidget());
+					}
+					
+					@Override
+					public void onFailure(Throwable e) {
+						showError("Error creating theme: " + e.getMessage() + "; " + e);
+						return;
+					}
+				};
+				
 				try {
-					theme = ThemeFactory.themeFactory(
+					ThemeFactory.themeFactory(
 							WebLabClient.this.configurationManager,
 							controller, 
 							WebLabClient.this.configurationManager.getProperty(
 									WebLabClient.THEME_PROPERTY, 
 									WebLabClient.DEFAULT_THEME
 								),
-							isMobile()
+							isMobile(),
+							themeLoadedCallback
 						);
-				} catch (final WlThemeException e) {
-					WebLabClient.this.showError("Error creating theme: " + e.getMessage());
-					return;
-				} 
-				/*catch (Exception e){
+				} catch (Exception e){
 					showError("Error creating theme: " + e.getMessage() + "; " + e);
 					return;
-				}*/
-
-				controller.setUIManager(theme);
-				try{
-					final String sessionId = Window.Location.getParameter(WebLabClient.SESSION_ID_URL_PARAM);
-					if(sessionId == null)
-						theme.onInit();
-					else
-						controller.startLoggedIn(new SessionID(sessionId));
-				}catch(Exception e){
-					WebLabClient.this.showError("Error initializing theme: " + e.getMessage());
-					return;
 				}
-
-				WebLabClient.this.putWidget(theme.getWidget());
 			}
 
 			public void onFailure(Throwable t) {

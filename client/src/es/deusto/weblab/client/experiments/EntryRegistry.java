@@ -14,7 +14,12 @@
 
 package es.deusto.weblab.client.experiments;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.RunAsyncCallback;
+
 import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.experiments.ExperimentFactory.IExperimentLoadedCallback;
+import es.deusto.weblab.client.experiments.ExperimentFactory.MobileSupport;
 import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.binary.WebLabBinaryExperiment;
 import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.dummy.WebLabDummyExperiment;
 import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.fpga.WebLabFpgaExperiment;
@@ -52,111 +57,221 @@ class EntryRegistry {
 		 */
 		
 		
-		new ExperimentEntry("Dummy experiments", "flashdummy"){
+		new ExperimentEntry("Dummy experiments", "flashdummy", MobileSupport.disabled){
 			@Override
-			public ExperimentBase create( IConfigurationManager configurationManager, IBoardBaseController boardController) {
+			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 				final int width      = 500;
 				final int height     = 350;
 				final String swfFile = "WeblabFlashSample.swf";
 				final String message = "Note: This is not a real experiment, it's just a demo so as to show that WebLab-Deusto can integrate different web technologies (such as Adobe Flash in this experiment). This demostrates that developing experiments in WebLab-Deusto is really flexible.";
 
-				return new FlashAppExperimentBase(configurationManager, boardController, width, height, swfFile, message);
+				GWT.runAsync(new RunAsyncCallback() {
+					@Override
+					public void onSuccess() {
+						callback.onExperimentLoaded(new FlashAppExperimentBase(configurationManager, boardController, width, height, swfFile, message));
+					}
+					
+					@Override
+					public void onFailure(Throwable e){
+						callback.onFailure(e);
+					}
+				});
 			}
 		},
 		
 		
 		
-		new ExperimentEntry("Dummy experiments", "javadummy"){
+		new ExperimentEntry("Dummy experiments", "javadummy", MobileSupport.disabled){
 			@Override
-			public ExperimentBase create( IConfigurationManager configurationManager, IBoardBaseController boardController) {
+			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 				final int width      = 500;
 				final int height     = 350;
 				final String archive = "WeblabJavaSample.jar";
 				final String code    = "es.deusto.weblab.client.experiment.plugins.es.deusto.weblab.javadummy.JavaDummyApplet";
 				final String message = "Note: This is not a real experiment, it's just a demo so as to show that WebLab-Deusto can integrate different web technologies (such as Java Applets in this experiment). This demostrates that developing experiments in WebLab-Deusto is really flexible."; 
 				
-				return new JavaAppletExperimentBase(configurationManager, boardController, width, height, archive, code, message);
+				GWT.runAsync(new RunAsyncCallback() {
+					@Override
+					public void onSuccess() {
+						callback.onExperimentLoaded(new JavaAppletExperimentBase(configurationManager, boardController, width, height, archive, code, message));
+					}
+					
+					@Override
+					public void onFailure(Throwable e){
+						callback.onFailure(e);
+					}
+				});
 			}
 		},
 		
 		
 		
-		new ExperimentEntry("PLD experiments", "ud-pld"){
+		new ExperimentEntry("PLD experiments", "ud-pld", MobileSupport.limited){
 			@Override
-			public ExperimentBase create( IConfigurationManager configurationManager, IBoardBaseController boardController) {
-				return new WebLabPldExperiment(configurationManager, boardController);
+			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+				GWT.runAsync(new RunAsyncCallback() {
+					@Override
+					public void onSuccess() {
+						callback.onExperimentLoaded(new WebLabPldExperiment(configurationManager, boardController));
+					}
+					
+					@Override
+					public void onFailure(Throwable e){
+						callback.onFailure(e);
+					}
+				});
 			}
 		},
 		
 		
 		
-		new ExperimentEntry("FPGA experiments", "ud-fpga"){
+		new ExperimentEntry("FPGA experiments", "ud-fpga", MobileSupport.limited){
 			@Override
-			public ExperimentBase create( IConfigurationManager configurationManager, IBoardBaseController boardController) {
-				return new WebLabFpgaExperiment(configurationManager, boardController);
+			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+				GWT.runAsync(new RunAsyncCallback() {
+					@Override
+					public void onSuccess() {
+						callback.onExperimentLoaded(new WebLabFpgaExperiment(configurationManager, boardController));
+					}
+					
+					@Override
+					public void onFailure(Throwable e){
+						callback.onFailure(e);
+					}
+				});
 			}
 		},
 		
 		
 		
-		new ExperimentEntry("Dummy experiments", "ud-dummy"){
+		new ExperimentEntry("Dummy experiments", "ud-dummy", MobileSupport.limited){
 			@Override
-			public ExperimentBase create( IConfigurationManager configurationManager, IBoardBaseController boardController) {
-				return new WebLabDummyExperiment(configurationManager, boardController);
+			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+				GWT.runAsync(new RunAsyncCallback() {
+					@Override
+					public void onSuccess() {
+						callback.onExperimentLoaded(new WebLabDummyExperiment(configurationManager, boardController));
+					}
+					
+					@Override
+					public void onFailure(Throwable e){
+						callback.onFailure(e);
+					}
+				});
 			}
 		},
 		
 		
 		
-		new ExperimentEntry("PIC experiments", "ud-logic"){
+		new ExperimentEntry("PIC experiments", "ud-logic", MobileSupport.limited){
 			@Override
-			public ExperimentBase create( IConfigurationManager configurationManager, IBoardBaseController boardController) {
-				return new WebLabLogicExperiment(configurationManager, boardController);
+			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+				GWT.runAsync(new RunAsyncCallback() {
+					@Override
+					public void onSuccess() {
+						callback.onExperimentLoaded(new WebLabLogicExperiment(configurationManager, boardController));
+					}
+					
+					@Override
+					public void onFailure(Throwable e){
+						callback.onFailure(e);
+					}
+				});
 			}
 		},
 		
 		
 		
-		new ExperimentEntry("PLD experiments", "ud-binary"){
+		new ExperimentEntry("PLD experiments", "ud-binary", MobileSupport.limited){
 			@Override
-			public ExperimentBase create( IConfigurationManager configurationManager, IBoardBaseController boardController) {
-				return new WebLabBinaryExperiment(configurationManager, boardController);
+			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+				GWT.runAsync(new RunAsyncCallback() {
+					@Override
+					public void onSuccess() {
+						callback.onExperimentLoaded(new WebLabBinaryExperiment(configurationManager, boardController));
+					}
+					
+					@Override
+					public void onFailure(Throwable e){
+						callback.onFailure(e);
+					}
+				});
 			}
 		},
 		
 		
 		
-		new ExperimentEntry("GPIB experiments", "ud-gpib"){
+		new ExperimentEntry("GPIB experiments", "ud-gpib", MobileSupport.limited){
 			@Override
-			public ExperimentBase create( IConfigurationManager configurationManager, IBoardBaseController boardController) {
-				return new WebLabGpibExperiment(configurationManager, boardController);
+			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+				GWT.runAsync(new RunAsyncCallback() {
+					@Override
+					public void onSuccess() {
+						callback.onExperimentLoaded(new WebLabGpibExperiment(configurationManager, boardController));
+					}
+					
+					@Override
+					public void onFailure(Throwable e){
+						callback.onFailure(e);
+					}
+				});
 			}
 		},
 		
 		
 		
-		new ExperimentEntry("GPIB experiments", "ud-gpib1"){
+		new ExperimentEntry("GPIB experiments", "ud-gpib1", MobileSupport.limited){
 			@Override
-			public ExperimentBase create( IConfigurationManager configurationManager, IBoardBaseController boardController) {
-				return new WebLabGpib1Experiment(configurationManager, boardController);
+			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+				GWT.runAsync(new RunAsyncCallback() {
+					@Override
+					public void onSuccess() {
+						callback.onExperimentLoaded(new WebLabGpib1Experiment(configurationManager, boardController));
+					}
+					
+					@Override
+					public void onFailure(Throwable e){
+						callback.onFailure(e);
+					}
+				});
 			}
 		},
 		
 		
 		
-		new ExperimentEntry("GPIB experiments", "ud-gpib2"){
+		new ExperimentEntry("GPIB experiments", "ud-gpib2", MobileSupport.limited){
 			@Override
-			public ExperimentBase create( IConfigurationManager configurationManager, IBoardBaseController boardController) {
-				return new WebLabGpib2Experiment(configurationManager, boardController);
+			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+				GWT.runAsync(new RunAsyncCallback() {
+					@Override
+					public void onSuccess() {
+						callback.onExperimentLoaded(new WebLabGpib2Experiment(configurationManager, boardController));
+					}
+					
+					@Override
+					public void onFailure(Throwable e){
+						callback.onFailure(e);
+					}
+				});
 			}
 		},
 		
 		
 		
-		new ExperimentEntry("PIC experiments", "ud-pic"){
+		new ExperimentEntry("PIC experiments", "ud-pic", MobileSupport.limited){
 			@Override
-			public ExperimentBase create( IConfigurationManager configurationManager, IBoardBaseController boardController) {
-				return new WebLabPicExperiment(configurationManager, boardController);
+			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+				GWT.runAsync(new RunAsyncCallback() {
+					@Override
+					public void onSuccess() {
+						callback.onExperimentLoaded(new WebLabPicExperiment(configurationManager, boardController));
+					}
+					
+					@Override
+					public void onFailure(Throwable e){
+						callback.onFailure(e);
+					}
+				});
 			}
 		},
 	};

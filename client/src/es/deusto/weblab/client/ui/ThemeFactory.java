@@ -13,21 +13,46 @@
 */ 
 package es.deusto.weblab.client.ui;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.RunAsyncCallback;
+
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.controller.IWebLabController;
 import es.deusto.weblab.client.exceptions.ui.themes.ThemeNotFoundException;
-import es.deusto.weblab.client.exceptions.ui.themes.WlThemeException;
 import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultmobile.DefaultMobileTheme;
 import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb.DefaultTheme;
 
 public class ThemeFactory {
-	public static ThemeBase themeFactory(IConfigurationManager configurationManager, IWebLabController controller, String themeName, boolean mobile) throws WlThemeException{
+	
+	public interface IThemeLoadedCallback{
+		public void onThemeLoaded(ThemeBase theme);
+		public void onFailure(Throwable reason);
+	}
+	
+	public static void themeFactory(final IConfigurationManager configurationManager, final IWebLabController controller, String themeName, boolean mobile, final IThemeLoadedCallback callback){
 		if(themeName.equals("deusto")){
-			if(mobile)
-				return new DefaultMobileTheme(configurationManager, controller);
-			else
-				return new DefaultTheme(configurationManager, controller);
+			if(mobile){
+				GWT.runAsync(new RunAsyncCallback() {
+					@Override
+					public void onSuccess() {
+						final ThemeBase themeBase = new DefaultMobileTheme(configurationManager, controller);
+						callback.onThemeLoaded(themeBase);
+					}
+					@Override
+					public void onFailure(Throwable reason) {}
+				});
+			}else{
+				GWT.runAsync(new RunAsyncCallback() {
+					@Override
+					public void onSuccess() {
+						final ThemeBase themeBase = new DefaultTheme(configurationManager, controller);
+						callback.onThemeLoaded(themeBase);
+					}
+					@Override
+					public void onFailure(Throwable reason) {}
+				});
+			}
 		}else
-			throw new ThemeNotFoundException("Theme " + themeName + " not found");
+			callback.onFailure(new ThemeNotFoundException("Theme " + themeName + " not found"));
 	}
 }

@@ -17,10 +17,20 @@ import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.exceptions.experiments.ExperimentInstanciationException;
 import es.deusto.weblab.client.exceptions.experiments.ExperimentNotFoundException;
-import es.deusto.weblab.client.exceptions.experiments.WlExperimentException;
 import es.deusto.weblab.client.ui.BoardBase.IBoardBaseController;
 
 public class ExperimentFactory {
+
+	public static enum MobileSupport{
+		full,
+		limited,
+		disabled
+	}
+	
+	public interface IExperimentLoadedCallback{
+		public void onExperimentLoaded(ExperimentBase experiment);
+		public void onFailure(Throwable e);
+	}
 	
 	private final IConfigurationManager configurationManager;
 	private final IBoardBaseController boardBaseController;
@@ -35,14 +45,16 @@ public class ExperimentFactory {
 			&& experimentID.getExperimentName().equals(other.getExperimentName());
 	}
 
-	public ExperimentBase experimentFactory(ExperimentID experimentID) throws WlExperimentException{
+	public void experimentFactory(ExperimentID experimentID, IExperimentLoadedCallback callback){
 		try{
         	for(ExperimentEntry entry : EntryRegistry.entries)
-        		if(this.isSameExperiment(experimentID, entry.getExperimentID()))
-        			return entry.create(this.configurationManager, this.boardBaseController);
+        		if(this.isSameExperiment(experimentID, entry.getExperimentID())){
+        			entry.createWeb(this.configurationManager, this.boardBaseController, callback);
+        			return;
+        		}
 		}catch(final Exception e){
-		    throw new ExperimentInstanciationException("Exception while instanciating experiment with experimentID: " + experimentID + "; reason: " + e.getMessage(), e);
+		    callback.onFailure(new ExperimentInstanciationException("Exception while instanciating experiment with experimentID: " + experimentID + "; reason: " + e.getMessage(), e));
 		}
-    	throw new ExperimentNotFoundException("Experiment " + experimentID + " not implemented in the client");
+    	callback.onFailure(new ExperimentNotFoundException("Experiment " + experimentID + " not implemented in the client"));
 	}
 }
