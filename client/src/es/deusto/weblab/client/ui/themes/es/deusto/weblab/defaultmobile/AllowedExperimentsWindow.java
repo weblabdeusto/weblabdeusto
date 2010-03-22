@@ -42,7 +42,6 @@ class AllowedExperimentsWindow extends BaseWindow {
 	private final AllowedExperimentsWindowUiBinder uiBinder = GWT.create(AllowedExperimentsWindowUiBinder.class);
 	 
 
-	@UiField Label contentTitleLabel;
 	@UiField WlWaitingLabel waitingLabel;
 	@UiField Label generalErrorLabel;
 	@UiField Grid experimentsTable;
@@ -73,7 +72,6 @@ class AllowedExperimentsWindow extends BaseWindow {
 		
 		try{
 			final Widget wid = this.uiBinder.createAndBindUi(this);
-			this.contentTitleLabel.setText(this.i18nMessages.myExperiments());
 		
 			this.loggedPanel.contentPanel.clear();
 			this.loggedPanel.contentPanel.add(wid);

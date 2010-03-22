@@ -27,6 +27,7 @@ import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.gpib.WebLabG
 import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.gpib1.WebLabGpib1Experiment;
 import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.gpib2.WebLabGpib2Experiment;
 import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.logic.WebLabLogicExperiment;
+import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.logic.MobileWebLabLogicExperiment;
 import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.pic.WebLabPicExperiment;
 import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.pld.WebLabPldExperiment;
 import es.deusto.weblab.client.experiments.util.applets.flash.FlashAppExperimentBase;
@@ -170,6 +171,21 @@ class EntryRegistry {
 					@Override
 					public void onSuccess() {
 						callback.onExperimentLoaded(new WebLabLogicExperiment(configurationManager, boardController));
+					}
+					
+					@Override
+					public void onFailure(Throwable e){
+						callback.onFailure(e);
+					}
+				});
+			}
+			
+			@Override
+			public void createMobile(final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback){
+				GWT.runAsync(new RunAsyncCallback() {
+					@Override
+					public void onSuccess() {
+						callback.onExperimentLoaded(new MobileWebLabLogicExperiment(configurationManager, boardController));
 					}
 					
 					@Override

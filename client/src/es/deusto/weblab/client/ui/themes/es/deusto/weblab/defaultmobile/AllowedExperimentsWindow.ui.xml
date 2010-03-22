@@ -3,20 +3,18 @@
     xmlns:my='urn:import:es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultmobile.widgets'
     xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
  
+    <ui:with field="i18n" type="es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultmobile.i18n.IWebLabDeustoThemeMessages"/>
+    
 	<w:WlVerticalPanel spacing="10">
 		
-		<g:Label ui:field="contentTitleLabel" styleName="title-label" horizontalAlignment='ALIGN_CENTER'></g:Label>
+		<g:Label text="{i18n.myExperiments}" styleName="title-label" horizontalAlignment='ALIGN_CENTER' />
 		
-		<g:Label ui:field="generalErrorLabel" styleName="wl-error_message"></g:Label>
+		<g:Label ui:field="generalErrorLabel" styleName="wl-error_message" />
 		
-		<g:Grid ui:field="experimentsTable" width="100%" cellPadding="5" cellSpacing="0">
-		</g:Grid>
+		<g:Grid ui:field="experimentsTable" width="100%" cellPadding="5" cellSpacing="0" />
 		
+		<w:WlWaitingLabel ui:field='waitingLabel' />
 		
-		<w:WlWaitingLabel ui:field='waitingLabel'>
-		</w:WlWaitingLabel>
-		
-	
 	</w:WlVerticalPanel>
 
 </ui:UiBinder>

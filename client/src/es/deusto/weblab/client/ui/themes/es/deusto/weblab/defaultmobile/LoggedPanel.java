@@ -25,16 +25,11 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.dto.users.User;
-import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultmobile.i18n.IWebLabDeustoThemeMessages;
 import es.deusto.weblab.client.ui.widgets.WlUtil;
 import es.deusto.weblab.client.ui.widgets.WlVerticalPanel;
 
 class LoggedPanel extends Composite {
 	
-    // i18n
-    private IWebLabDeustoThemeMessages i18nMessages = (IWebLabDeustoThemeMessages)
-    	GWT.create(IWebLabDeustoThemeMessages.class);
-    	
     interface ILoggedPanelCallback {
     	public void onLogoutButtonClicked();
     }
@@ -61,7 +56,6 @@ class LoggedPanel extends Composite {
 	    this.initWidget(wid);
 
 		this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
-		this.logoutLink.setText(this.i18nMessages.logOut());
 	}
 
 	@UiHandler("logoutLink")

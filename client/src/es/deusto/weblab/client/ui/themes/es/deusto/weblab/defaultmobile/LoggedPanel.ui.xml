@@ -3,6 +3,7 @@
     xmlns:my='urn:import:es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultmobile.widgets'
     xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
     
+    <ui:with field="i18n" type="es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultmobile.i18n.IWebLabDeustoThemeMessages"/>
 	<ui:with field='res' type='es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultmobile.Resources'/>
     
 	<g:VerticalPanel horizontalAlignment='ALIGN_CENTER' width="100%" spacing="5">
@@ -15,7 +16,7 @@
 					<g:Label ui:field="userLabel">here goes the username</g:Label>
 				</g:Cell>
 				<g:Cell horizontalAlignment="ALIGN_RIGHT">
-				 	<g:Anchor ui:field="logoutLink"></g:Anchor>
+				 	<g:Anchor text="{i18n.logOut}" ui:field="logoutLink"></g:Anchor>
 				</g:Cell>
 			</g:HorizontalPanel>
 		</g:Cell>

@@ -50,8 +50,6 @@ class LoginWindow extends BaseWindow {
 
 	private final LoginWindowUiBinder uiBinder = GWT.create(LoginWindowUiBinder.class);
 
-	@UiField Label usernameLabel;
-	@UiField Label passwordLabel;
 	@UiField TextBox usernameTextbox;
 	@UiField PasswordTextBox passwordTextbox;
 	@UiField WlWaitingLabel waitingLabel;
@@ -76,7 +74,6 @@ class LoginWindow extends BaseWindow {
 		super.loadWidgets();
 		
 		final Widget wid = this.uiBinder.createAndBindUi(this);
-		this.applyI18n();
 		
 		setupWidgets(wid);
 	}
@@ -173,13 +170,6 @@ class LoginWindow extends BaseWindow {
 		
 		hideError(this.passwordErrorLabel);
 		return false;
-	}
-	
-	private void applyI18n() {
-		this.usernameLabel.setText(this.i18nMessages.username() + ":");
-		this.passwordLabel.setText(this.i18nMessages.password() + ":");
-		this.loginButton.setText(this.i18nMessages.logIn());
-		this.languages.setText(this.i18nMessages.moreLanguages());
 	}
 	
 	@Override

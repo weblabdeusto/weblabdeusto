@@ -11,6 +11,7 @@
     	.visible-message { display: block; color: #000000; }
   	</ui:style>
     
+    <ui:with field="i18n" type="es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultmobile.i18n.IWebLabDeustoThemeMessages"/>
     <ui:with field='res' type='es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultmobile.Resources'/>
     
     <g:VerticalPanel horizontalAlignment='ALIGN_CENTER' width="100%" spacing="10">
@@ -22,13 +23,13 @@
 		
    		<g:Cell horizontalAlignment="ALIGN_CENTER">
 			<my:EasyGrid ui:field="grid" cols='2' rows='4' cellSpacing='1'>
-				<g:Label ui:field="usernameLabel">Username (ui):</g:Label>
+				<g:Label text="{i18n.username}" />
 				<g:TextBox ui:field="usernameTextbox"></g:TextBox>
 				
 				<g:Label/>
 				<g:Label ui:field="usernameErrorLabel" styleName=".invisible"/>
 
-				<g:Label ui:field="passwordLabel">Password (ui):</g:Label>
+				<g:Label text="{i18n.password}" />
 				<g:PasswordTextBox ui:field="passwordTextbox"></g:PasswordTextBox>
 				
 				<g:Label/>
@@ -37,7 +38,7 @@
    		</g:Cell>
    		 
    		<g:Cell horizontalAlignment="ALIGN_CENTER">
-			<g:Button ui:field="loginButton">Log in</g:Button>
+			<g:Button ui:field="loginButton" text="{i18n.logIn}" />
 		</g:Cell>
 		
    		<g:Cell horizontalAlignment="ALIGN_CENTER">
@@ -68,7 +69,7 @@
 		</g:Cell>
 		
 		<g:Cell horizontalAlignment="ALIGN_LEFT">
-			<g:Anchor text="More languages..." ui:field="languages"></g:Anchor>
+			<g:Anchor text="{i18n.moreLanguages}" ui:field="languages"></g:Anchor>
 		</g:Cell>
 		
 	</g:VerticalPanel>
