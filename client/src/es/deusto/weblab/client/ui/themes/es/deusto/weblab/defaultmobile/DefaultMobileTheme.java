@@ -119,8 +119,8 @@ public class DefaultMobileTheme extends ThemeBase {
 
 	@Override
 	public void onReservationFinished() {
-		// TODO Auto-generated method stub
-		
+		this.experimentBase.getUI().end(); // Critical: Everything (i.e: timers) must be disposed.
+		this.loadAllowedExperimentsWindow();	    
 	}
 
 	@Override
@@ -158,14 +158,12 @@ public class DefaultMobileTheme extends ThemeBase {
 	@Override
 	public void onWaitingInstances(
 			WaitingInstancesReservationStatus reservationStatus) {
-		// TODO Auto-generated method stub
-		
+		this.experimentWindow.showWaitingInstances(reservationStatus.getPosition() + 1); // the first one in the queue is 0
 	}
 
 	@Override
 	public void onWrongLoginOrPasswordGiven() {
-		// TODO Auto-generated method stub
-		
+		this.loginWindow.showWrongLoginOrPassword();
 	}
 
 	/*

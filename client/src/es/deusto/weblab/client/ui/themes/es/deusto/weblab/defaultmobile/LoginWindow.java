@@ -206,4 +206,11 @@ class LoginWindow extends BaseWindow {
 		this.messages.setText(message);
 		this.messages.setStyleName(".visible-message");
 	}
+
+	void showWrongLoginOrPassword() {
+		this.messages.setText(this.i18nMessages.invalidUsernameOrPassword());
+		this.waitingLabel.stop();
+		this.waitingLabel.setText("");
+		this.loginButton.setEnabled(true);
+	}
 }

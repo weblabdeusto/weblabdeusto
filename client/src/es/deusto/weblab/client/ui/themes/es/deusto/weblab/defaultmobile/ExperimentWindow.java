@@ -60,6 +60,9 @@ class ExperimentWindow extends BaseWindow {
 	@UiField Label experimentName;
 	@UiField Label experimentCategory;
 	@UiField Label timeAllowed;
+	@UiField VerticalPanel upperSide;
+	@UiField VerticalPanel reserveSide;
+	@UiField VerticalPanel finishSide;
 	
 	// Logged panel
 	private LoggedPanel loggedPanel;
@@ -133,38 +136,21 @@ class ExperimentWindow extends BaseWindow {
 	}
 	
 	public void loadUsingExperimentPanels(int time) {
-		/*
-	    while ( this.preExperimentAreaPanel.getWidgetCount() > 0)
-		this.preExperimentAreaPanel.remove(0);
-	    while ( this.postExperimentAreaPanel.getWidgetCount() > 0)
-		this.postExperimentAreaPanel.remove(0);
-	    
-		AbsolutePanel navigationPanel = new AbsolutePanel();
-		navigationPanel.setSize("100%", "30px");
-		this.preExperimentAreaPanel.add(navigationPanel);
 		
-		final Label contentTitleLabel = new Label(this.experimentAllowed.getExperiment().getName());
-		contentTitleLabel.setStyleName("title-label");				
-		this.preExperimentAreaPanel.add(contentTitleLabel);
-
+		this.upperSide.setVisible(false);
+		this.reserveSide.setVisible(false);
+		this.finishSide.setVisible(true);
+	    
 		// This can't be before adding the widget to the DOM tree 
 		// If it's done, applets will not work 
 		this.experimentBase.getUI().start();
 		this.experimentBase.getUI().setTime(time);
-		
-		this.postExperimentAreaPanel.add(new HTML("&nbsp;"));
-		
-		this.finishButton = new Button(this.i18nMessages.finish());		
-		this.finishButton.addClickHandler(new ClickHandler() {
-		    @Override
-		    public void onClick(ClickEvent sender) {
-			ExperimentWindow.this.callback.onFinishButtonClicked();			
-		    }
-		});
-		this.postExperimentAreaPanel.add(this.finishButton);
-		this.postExperimentAreaPanel.setCellHorizontalAlignment(this.finishButton, HasHorizontalAlignment.ALIGN_CENTER);
-		*/
-	}		
+	}
+	
+	@UiHandler("finishButton")
+	void onFinishButtonClicked(@SuppressWarnings("unused") ClickEvent event){
+		this.callback.onFinishButtonClicked();
+	}
 	
 	void showWaitingInstances(int position) {
 		this.waitingLabel.setText(

@@ -43,6 +43,9 @@ abstract class ExperimentEntry{
 	
 	public abstract void createWeb(IConfigurationManager configurationManager, IBoardBaseController boardController, IExperimentLoadedCallback callback);
 	
+	// 
+	// Override this method to implement a mobile user interface
+	// 
 	public void createMobile(IConfigurationManager configurationManager, IBoardBaseController boardController, IExperimentLoadedCallback callback){
 		if(this.mobileSupport == MobileSupport.disabled)
 			callback.onFailure(new WlExperimentException("Couldn't create mobile version of experiment " + this.experimentID + ": not supported"));
