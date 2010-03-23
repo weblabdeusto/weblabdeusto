@@ -4,62 +4,48 @@
     xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
     
     <ui:with field='res' type='es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb.Resources'/>
+        
+    <g:VerticalPanel ui:field="containerPanel" styleName="web-login-container">
     
+    	<g:VerticalPanel styleName="web-login-box">
     
-    <g:VerticalPanel horizontalAlignment='ALIGN_CENTER' width="100%">
-   		<g:Cell horizontalAlignment="ALIGN_CENTER"> 
-		    <g:VerticalPanel horizontalAlignment='ALIGN_CENTER'  styleName='main-title'>
-		    	<g:Image resource='{res.logo}' styleName="wl-main_title"/>
-		    </g:VerticalPanel>
-		</g:Cell>
-	    
-   		<g:Cell horizontalAlignment="ALIGN_CENTER"> 
-		    <g:VerticalPanel horizontalAlignment='ALIGN_CENTER'  styleName='main-panel'>
-		    	<g:Cell horizontalAlignment="ALIGN_CENTER"> 
-		    		<w:WlHorizontalPanel ui:field="langsPanel" horizontalAlignment='ALIGN_CENTER' />
-		    	</g:Cell>
-		    
-		    	<g:Cell horizontalAlignment="ALIGN_CENTER"> 
-			    	<my:EasyGrid ui:field="grid" cols='3' rows='2' cellSpacing='5'>
-						<g:Label ui:field="usernameLabel">Username (ui):</g:Label>
-						<g:TextBox ui:field="usernameTextbox"></g:TextBox>
-						
-						<g:Label ui:field="usernameErrorLabel" visible='true' styleName='wl-error_message'></g:Label>
-						
-						<g:Label ui:field="passwordLabel">Password (ui):</g:Label>
-						<g:PasswordTextBox ui:field="passwordTextbox"></g:PasswordTextBox>
-						
-						<g:Label ui:field="passwordErrorLabel" visible='true' styleName='wl-error_message'></g:Label>
-			    	</my:EasyGrid>
-			    </g:Cell>
+	    	<g:HorizontalPanel styleName="web-login-logo">
+		   		<g:Image resource='{res.logo}' />
+			</g:HorizontalPanel>
+			
+	   		<g:HorizontalPanel ui:field="langsPanel" styleName="web-login-languages" />		    	
+	    	
+	    	<g:VerticalPanel styleName="web-login-form">
+	    	
+		    	<my:EasyGrid ui:field="grid" cols='2' rows='2' styleName="web-login-form-fields">
 		    	
-		    	<g:Cell horizontalAlignment="ALIGN_CENTER"> 
-		    		<g:HTMLPanel>
-			    		<div align="center">
-			    			
-			    			<g:Button ui:field="loginButton">Log in</g:Button>
+					<g:Label ui:field="usernameLabel"></g:Label>
+					<g:TextBox ui:field="usernameTextbox"></g:TextBox>
+					
+					<g:Label ui:field="passwordLabel"></g:Label>
+					<g:PasswordTextBox ui:field="passwordTextbox"></g:PasswordTextBox>
+		    	
+		    	</my:EasyGrid>			    	
 			    	
-			    	
-					    	<w:WlWaitingLabel ui:field="waitingLabel">
-					    	</w:WlWaitingLabel>
-					    	
-					    	
-					    	<g:Label ui:field="generalErrorLabel" styleName='wl-error_message'>
-					    	</g:Label>
-				    	
-				    	</div>
-					</g:HTMLPanel>
-				</g:Cell>
-				
-				<g:Cell horizontalAlignment="ALIGN_CENTER" > 
-					<g:HTML ui:field="demoAvailableHTML"></g:HTML>
-				</g:Cell>
-				
-				<g:Cell horizontalAlignment="ALIGN_CENTER"> 
-					<g:HTML ui:field="supportHTML"></g:HTML>
-				</g:Cell>
-				
+			    <g:HorizontalPanel styleName="web-login-form-button">
+					<g:Button ui:field="loginButton">Log in</g:Button>
+				</g:HorizontalPanel>
+	
 			</g:VerticalPanel>
-		</g:Cell>
+			
+			<w:WlWaitingLabel ui:field="waitingLabel" styleName="web-waiting-label"></w:WlWaitingLabel>
+			<g:Label ui:field="generalErrorLabel" styleName="web-error-message"></g:Label>
+		
+		</g:VerticalPanel>
+	
+		<g:HorizontalPanel styleName="web-login-foot-message">
+			<g:HTML ui:field="demoAvailableHTML"></g:HTML>	
+		</g:HorizontalPanel>
+		
+		<g:HorizontalPanel styleName="web-login-foot-message">
+			<g:HTML ui:field="supportHTML"></g:HTML>
+		</g:HorizontalPanel>
+				
 	</g:VerticalPanel>
+	
 </ui:UiBinder>

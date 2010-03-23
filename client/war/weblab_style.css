@@ -1,27 +1,3 @@
-body
-{
-	font: 14px normal "Lucida Grande", Arial;
-}
-
-.gwt-Anchor
-{
-	text-decoration: underline;
-    cursor: pointer;
-	cursor: hand;
-}
-
-.wl-main_title
-{
-	font-size: x-large;
-	font-weight: bold;
-	padding: 30px;
-}
-
-.wl-error_message
-{
-	color : #FF0000;
-}
-
 .wl-time_remaining
 {
 	color : #FF0000;
@@ -36,41 +12,219 @@ body
 	text-align: right;
 }
 
-.main_weblab
+
+/************************************************
+ * es.deusto.weblab.defaultweb Template
+ */
+ 
+body
 {
-	font-family: sans-serif;
+	font: 14px normal "Lucida Grande", Arial;
 }
 
-.main-panel
+.gwt-Anchor
 {
-	margin: 0;
-	padding: 20px;
+	text-decoration: underline;
+    cursor: pointer;
+	cursor: hand;
 }
 
-.north-panel
-{
-
+.odd-row
+{ 
+	background-color: #f2f2ff;  
 }
 
-.left-menu
-{
-
+.even-row
+{ 
+	background-color: #d3def6;  
 }
 
-.center-panel
+.web-error-message
 {
+	color : #FF0000;
+	text-align: center;
+	height: 25px;
 }
 
-.table-header
+.web-waiting-label
+{
+	text-align: center;
+	height: 25px;
+}
+
+/*
+ * Login Window
+ */
+
+.web-login-container
+{
+	margin-right: auto;
+	margin-left: auto;	
+	margin-top: 6%;
+	border-spacing: 30px;
+}
+
+.web-login-logo
+{
+	margin-right: auto;
+	margin-left: auto;	
+}
+
+.web-login-languages
+{
+	margin-right: auto;
+	margin-left: auto;
+	border-spacing: 10px;
+}
+
+.web-login-box
+{
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.web-login-form
+{
+	margin-right: auto;
+	margin-left: auto;	
+	border-spacing: 10px;
+}
+
+.web-login-form-fields
+{
+	border-spacing: 5px;
+}
+
+.web-login-form-button
+{
+	margin-right: auto;
+	margin-left: auto;	
+}
+
+.web-login-foot-message
+{
+	margin-right: auto;
+	margin-left: auto;	
+}
+
+/* Logged Windows */
+
+.web-logged-container
+{
+	width: 800px;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.web-logged-header
+{
+	height: 75px;
+	width: 100%;
+}
+
+.web-logged-header-logo
+{
+	width: 100%;
+}
+
+.web-logged-header-profile
+{
+	margin-right: 0px;
+	margin-left: auto;
+	margin-top: 25px;
+	padding-right: 0px;
+	height: 100%;
+	text-align: right !important;
+	display: block;
+	border-spacing: 8px;
+}
+
+.web-logged-navigation
+{
+	width: 100%;
+	height: 25px;
+	margin-top: 8px;
+	margin-bottom: 8px;
+}
+
+.web-logged-content
+{
+	width: 100%;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.web-logged-content-title
+{
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+/*
+ * Allowed Experiments Window
+ */
+
+.web-allowedexperiments-list
+{
+	border-spacing: 15px;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.web-allowedexperiments-table-header
+{
+	font-weight: bold;
+	text-align: center;
+}
+
+/*
+ * Experiment Window
+ */
+
+.web-experiment-detail
 {
 	font-weight: bold;
 }
 
-.experiment-detail
+.web-experiment-details
 {
-	font-weight: bold;
+	border-spacing: 10px;
+	margin-right: auto;
+	margin-left: auto;
 }
 
+.web-experiment-upload-form
+{
+	border-spacing: 10px;
+	margin-right: auto;
+	margin-left: auto;
+	width: 100%;
+}
+
+.web-experiment-upload-form-fields
+{
+	border-spacing: 8px;
+	width: 100%;
+}
+
+.web-experiment-reserve-button
+{
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.web-experiment-finish-button
+{
+	margin-right: auto;
+	margin-left: auto;
+}
+
+/****************************************************
+ * experiments.plugins.es.deusto.weblab.gpib Related
+ */
+ 
 .results-popup
 {
 	background-color: #7590AE;
@@ -92,20 +246,10 @@ body
 	color: white;	
 }
 
-.title-label
-{
-    font-size: 18px;
-    font-weight: bold;
-}
-
-.terminal
-{
-	color: white;
-	background-color: black;
-	font: 14px normal "monospace";
-	overflow: hidden;
-}
-
+/*****************************************************
+ * experiments.plugins.es.deusto.weblab.logic Related
+ */
+ 
 .logic-input-value-label
 {
     font-size: 24px;
@@ -122,12 +266,4 @@ body
 {
     cursor: pointer;
     cursor: hand;
-}
-
-.odd-row  { 
-	background-color: #f2f2ff;  
-}
-
-.even-row { 
-	background-color: #d3def6;  
 }

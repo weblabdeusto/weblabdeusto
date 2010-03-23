@@ -3,31 +3,77 @@
     xmlns:my='urn:import:es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb.widgets'
     xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
     
+    <ui:with field="res" type='es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb.Resources' />
+    <ui:with field="i18n" type="es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb.i18n.IWebLabDeustoThemeMessages" />
     
-    <!-- This WlVerticalPanel goes into the LoggedPanel contentPanel -->
-    
-    <w:WlVerticalPanel width='100%' horizontalAlignment='ALIGN_CENTER'>
-        
-		<w:WlVerticalPanel ui:field='preExperimentAreaPanel' width='100%' horizontalAlignment='ALIGN_CENTER'>
-		<g:Hidden></g:Hidden>
-		</w:WlVerticalPanel>
-	
-		<w:WlVerticalPanel ui:field='experimentAreaPanel' width='100%' horizontalAlignment='ALIGN_CENTER'>
-		<g:Hidden></g:Hidden>
-		</w:WlVerticalPanel>
-	
-		<w:WlVerticalPanel ui:field='postExperimentAreaPanel' width='100%' horizontalAlignment='ALIGN_CENTER'>
-		<g:Hidden></g:Hidden>
-		</w:WlVerticalPanel>
+	<g:VerticalPanel ui:field="containerPanel" styleName="web-logged-container">
+
+		<g:HorizontalPanel styleName="web-logged-header">
+
+			<g:HorizontalPanel styleName="web-logged-header-logo">
+				
+				<g:Image resource='{res.logo}' />
+			
+			</g:HorizontalPanel>
+			
+			<g:HorizontalPanel styleName="web-logged-header-profile">
+			
+				<g:Label ui:field="userLabel"></g:Label>
 		
+			 	<g:Label ui:field="separatorLabel" text="|" styleName="web-logged-header-profile-separator"></g:Label>
+			 	
+			 	<g:Anchor ui:field="logoutLink" text="{i18n.logOut}"></g:Anchor>		
+
+			</g:HorizontalPanel>
+
+		</g:HorizontalPanel>
 		
-		<!-- This one was originally added to the mainPanel rather than the 
-		contentPanel. -->
-		<g:Label ui:field='generalErrorLabel' styleName='wl-error_message'>
-		</g:Label>
+		<g:HorizontalPanel styleName="web-logged-navigation">
+			
+			<g:AbsolutePanel ui:field="navigationPanel">
+			
+				<g:Anchor ui:field="backLink" text="&lt; {i18n.backToMyExperiments}"></g:Anchor>
+			
+			</g:AbsolutePanel>
 		
+		</g:HorizontalPanel>
+		
+		<g:VerticalPanel styleName="web-logged-content">
+		        
+			<g:Label ui:field="contentTitleLabel" text="{i18n.reserveThisExperiment}" styleName="web-logged-content-title"></g:Label>
+			
+			<my:EasyGrid ui:field="detailsGrid" rows="3" cols="2" styleName="web-experiment-details">
+				<g:Label text="{i18n.experimentName}:"></g:Label>
+				<g:Label ui:field="experimentNameLabel" styleName="web-experiment-detail"></g:Label>
+
+				<g:Label text="{i18n.experimentCategory}:"></g:Label>
+				<g:Label ui:field="experimentCategoryLabel" styleName="web-experiment-detail"></g:Label>
+
+				<g:Label text="{i18n.timeAllowed}:"></g:Label>
+				<g:Label ui:field="timeAllowedLabel" styleName="web-experiment-detail"></g:Label>
+			</my:EasyGrid>
+			
+			<g:VerticalPanel width="100%" styleName="web-experiment-upload-form">
+			
+				<g:VerticalPanel width="100%" ui:field='experimentAreaPanel' styleName="web-experiment-upload-form-fields">
+				
+				</g:VerticalPanel>
+
+				<g:HorizontalPanel styleName="web-experiment-reserve-button">			
+					<g:Button ui:field="reserveButton" text="{i18n.reserve}"></g:Button>
+				</g:HorizontalPanel>
+							
+				<g:HorizontalPanel styleName="web-experiment-finish-button">
+					<g:Button ui:field="finishButton" text="{i18n.finish}" visible="false"></g:Button>
+				</g:HorizontalPanel>					
+			
+			</g:VerticalPanel>
+					
+			<w:WlWaitingLabel ui:field="waitingLabel" styleName="web-waiting-label"></w:WlWaitingLabel>
+			<g:Label ui:field="generalErrorLabel" styleName="web-error-message"></g:Label>
 	
-	</w:WlVerticalPanel>
-	
+		</g:VerticalPanel>
+		
+	</g:VerticalPanel>
 
 </ui:UiBinder>

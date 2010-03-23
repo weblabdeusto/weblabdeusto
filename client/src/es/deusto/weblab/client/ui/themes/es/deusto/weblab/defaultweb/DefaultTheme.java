@@ -14,6 +14,7 @@
 package es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb;
 
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.configuration.IConfigurationManager;
@@ -30,7 +31,6 @@ import es.deusto.weblab.client.ui.ThemeBase;
 import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb.AllowedExperimentsWindow.IAllowedExperimentsWindowCallback;
 import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb.ExperimentWindow.IExperimentWindowCallback;
 import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb.LoginWindow.ILoginWindowCallback;
-import es.deusto.weblab.client.ui.widgets.WlVerticalPanel;
 
 public class DefaultTheme extends ThemeBase {
 
@@ -45,7 +45,7 @@ public class DefaultTheme extends ThemeBase {
 
 	// Window management
 	private BaseWindow activeWindow = null; // Pointer to the window being used
-	private final WlVerticalPanel themePanel;	
+	private final VerticalPanel themePanel;	
 	private LoginWindow loginWindow;
 	private AllowedExperimentsWindow allowedExperimentsWindow;
 	private ExperimentWindow experimentWindow;
@@ -60,7 +60,7 @@ public class DefaultTheme extends ThemeBase {
 		this.configurationManager = configurationManager;
 		this.controller = controller;
 		
-		this.themePanel = new WlVerticalPanel();
+		this.themePanel = new VerticalPanel();
 		this.themePanel.setWidth("100%");
 		this.themePanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 	}

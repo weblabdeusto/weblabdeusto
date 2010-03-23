@@ -102,7 +102,12 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 
 	@Override
 	public void start(){
-	    	this.widget.setVisible(true);
+    	this.widget.setWidth("100%");
+    	this.widget.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		this.verticalPanel.setWidth("100%");
+		this.verticalPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+
+		this.widget.setVisible(true);
 		this.loadWidgets();
 		this.disableInteractiveWidgets();
 		
@@ -139,8 +144,8 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 		
 		final VerticalPanel otherVerticalPanel = new VerticalPanel();
 		otherVerticalPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		otherVerticalPanel.setSpacing(20);
-		otherVerticalPanel.setWidth("85%");
+		otherVerticalPanel.setSpacing(15);
+		otherVerticalPanel.setWidth("100%");
 		
 		otherVerticalPanel.add(firstRow);
 		otherVerticalPanel.add(secondRow);

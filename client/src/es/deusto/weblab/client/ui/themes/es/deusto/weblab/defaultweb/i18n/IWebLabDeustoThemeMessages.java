@@ -24,7 +24,7 @@ public interface IWebLabDeustoThemeMessages extends Messages {
 	public String password();
 	public String invalidUsernameOrPassword();
 	public String loggingIn();
-	public String thisFieldCantBeEmpty();
+	public String thisFieldCantBeEmpty(String label);
 	public String backToMyExperiments();
 	public String reserve();
 	public String reserving();

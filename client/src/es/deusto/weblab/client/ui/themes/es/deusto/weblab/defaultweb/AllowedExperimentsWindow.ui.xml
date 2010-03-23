@@ -3,33 +3,48 @@
     xmlns:my='urn:import:es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb.widgets'
     xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
     
+    <ui:with field='res' type='es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb.Resources'/>
+    <ui:with field="i18n" type="es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb.i18n.IWebLabDeustoThemeMessages" />
     
-    
-	<w:WlVerticalPanel>
+	<g:VerticalPanel ui:field="containerPanel" styleName="web-logged-container">
+
+		<g:HorizontalPanel styleName="web-logged-header">
+
+			<g:HorizontalPanel styleName="web-logged-header-logo">
+				
+				<g:Image resource='{res.logo}' />
+			
+			</g:HorizontalPanel>
+			
+			<g:HorizontalPanel styleName="web-logged-header-profile">
+			
+				<g:Label ui:field="userLabel"></g:Label>
 		
+			 	<g:Label ui:field="separatorLabel" text="|" styleName="web-logged-header-profile-separator"></g:Label>
+			 	
+			 	<g:Anchor ui:field="logoutLink" text="{i18n.logOut}"></g:Anchor>	
+
+			</g:HorizontalPanel>
+
+		</g:HorizontalPanel>
 		
-		<g:AbsolutePanel ui:field="navigationPanel">
-		</g:AbsolutePanel>
+		<g:HorizontalPanel styleName="web-logged-navigation">
+			
+			<g:AbsolutePanel ui:field="navigationPanel"></g:AbsolutePanel>
 		
-		<g:Label ui:field="contentTitleLabel" styleName="title-label" horizontalAlignment='ALIGN_CENTER'>
-		</g:Label>
+		</g:HorizontalPanel>
 		
-		<g:Label ui:field="generalErrorLabel" styleName="wl-error_message">
-		</g:Label>
-		
-		<w:WlVerticalPanel ui:field="listExperimentsPanel" width="100%" horizontalAlignment="ALIGN_CENTER">
-		
-			<!-- Content is dynamically generated in code -->
-			<g:FlexTable ui:field="experimentsTable" cellPadding='10' borderWidth='0'>
-			</g:FlexTable>
-		
-		</w:WlVerticalPanel>
-		
-		
-		<w:WlWaitingLabel ui:field='waitingLabel'>
-		</w:WlWaitingLabel>
-		
+		<g:VerticalPanel styleName="web-logged-content">
+			
+			<g:Label ui:field="contentTitleLabel" text="{i18n.myExperiments}" styleName="web-logged-content-title"></g:Label>
+			
+			<g:Grid ui:field="experimentsTable" styleName="web-allowedexperiments-list"></g:Grid>
+			
+			<w:WlWaitingLabel ui:field="waitingLabel" styleName="web-waiting-label"></w:WlWaitingLabel>
+			<g:Label ui:field="generalErrorLabel" styleName="web-error-message"></g:Label>
 	
-	</w:WlVerticalPanel>
+		</g:VerticalPanel>
+		
+	</g:VerticalPanel>
 
 </ui:UiBinder>
