@@ -27,7 +27,7 @@ public class ConfigurationManagerTest extends GWTTestCase {
 	
 	public void testNotExistingConfigurationFile(){
 		this.delayTestFinish(500);
-		this.confManager = new ConfigurationManager("this.file.does.not.exist.xml",
+		this.confManager = new ConfigurationManager("this.file.does.not.exist.js",
 				new IConfigurationLoadedCallback(){
 
 					public void onLoaded() {
@@ -47,10 +47,10 @@ public class ConfigurationManagerTest extends GWTTestCase {
 		this.confManager.start();
 	}
 	
-	public void testNotXMLConfigurationFile(){
+	public void testNotJsonConfigurationFile(){
 		if(!GWT.isScript()){
 			this.delayTestFinish(500);
-			this.confManager = new ConfigurationManager( GWT.getModuleBaseURL() + "configuration_test_3.xml",
+			this.confManager = new ConfigurationManager( GWT.getModuleBaseURL() + "configuration_test_3.js",
 					new IConfigurationLoadedCallback(){
 	
 						public void onLoaded() {
@@ -75,7 +75,7 @@ public class ConfigurationManagerTest extends GWTTestCase {
 	
 	public void testRightSimpleConfiguration(){
 		this.delayTestFinish(500);
-		this.confManager = new ConfigurationManager( GWT.getModuleBaseURL() + "configuration_test.xml", 
+		this.confManager = new ConfigurationManager( GWT.getModuleBaseURL() + "configuration_test.js", 
 				new IConfigurationLoadedCallback(){
 					public void onLoaded() {
 						try{
@@ -112,7 +112,7 @@ public class ConfigurationManagerTest extends GWTTestCase {
 	
 	public void testWrongConfiguration(){
 		this.delayTestFinish(500);
-		this.confManager = new ConfigurationManager( GWT.getModuleBaseURL() + "configuration_test.xml", 
+		this.confManager = new ConfigurationManager( GWT.getModuleBaseURL() + "configuration_test.js", 
 				new IConfigurationLoadedCallback(){
 					public void onLoaded() {
 						try{

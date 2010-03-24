@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-	<property name="property1" value="value1"/>
-	<property name="property2" value="value2"/>
-	<property name="property3" value="value3"/>
-	<property name="intproperty1" value="15"/>
-	<property name="wrongintproperty" value="this.is.not.an.int"/>
-</configuration>
-

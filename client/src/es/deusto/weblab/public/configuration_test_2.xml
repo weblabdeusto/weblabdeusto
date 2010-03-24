@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-	<property name="polling.time" value="5000"/>
-	<property name="poll.time.waiting" value="200" />
-	<property name="poll.time.waiting.instances" value="200" />
-	<property name="poll.time.waiting.confirmation" value="200" />
-</configuration>
-

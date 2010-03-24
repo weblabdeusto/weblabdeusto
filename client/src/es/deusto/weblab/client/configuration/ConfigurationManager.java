@@ -21,13 +21,10 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.xml.client.DOMException;
-import com.google.gwt.xml.client.Document;
-import com.google.gwt.xml.client.Element;
-import com.google.gwt.xml.client.NamedNodeMap;
-import com.google.gwt.xml.client.Node;
-import com.google.gwt.xml.client.NodeList;
-import com.google.gwt.xml.client.XMLParser;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.JSONValue;
 
 import es.deusto.weblab.client.exceptions.configuration.ConfigurationKeyNotFoundException;
 import es.deusto.weblab.client.exceptions.configuration.InvalidConfigurationValueException;
@@ -36,7 +33,7 @@ import es.deusto.weblab.client.exceptions.configuration.WlConfigurationException
 public class ConfigurationManager implements IConfigurationManager {
 
 	private final String configurationPath;
-	private Map<String, String> configurationMap = new HashMap<String, String>();
+	private final Map<String, String> configurationMap = new HashMap<String, String>();
 	private final IConfigurationLoadedCallback callback;
 		
 	public ConfigurationManager(String path, IConfigurationLoadedCallback callback){
@@ -54,39 +51,34 @@ public class ConfigurationManager implements IConfigurationManager {
 
 				public void onResponseReceived(Request request, Response response) {
 					if(response.getStatusCode() / 100 == 2 || response.getStatusCode() / 100 == 3){
+						final JSONValue value;
 						try{
-							final Document document = XMLParser.parse(response.getText());
-							final NodeList rootNodes = document.getChildNodes();
-							
-							Node configurationNode = null;
-							for(int i = 0;  i< rootNodes.getLength(); ++i){
-								final Node item = rootNodes.item(i);
-								if(item instanceof Element){
-									configurationNode = item;
-									break;
-								}
-							}
-							if(configurationNode == null){
-								ConfigurationManager.this.callback.onFailure(new WlConfigurationException("Invalid root node"));
-								return;
-							}
-							
-							final NodeList list = configurationNode.getChildNodes();
-							final int length = list.getLength();
-							for(int i = 0; i < length; ++i){
-								final Node property = list.item(i);
-								if(property.getNodeName().equals("property")){
-									final NamedNodeMap map = property.getAttributes();
-									final Node name = map.getNamedItem("name");
-									final Node value = map.getNamedItem("value");
-									ConfigurationManager.this.configurationMap.put(name.getNodeValue(), value.getNodeValue());
-								}
-							}
-						}catch(final DOMException e){
-							ConfigurationManager.this.configurationMap = new HashMap<String, String>();
-							ConfigurationManager.this.callback.onFailure(e);
+							value = JSONParser.parse(response.getText());
+						}catch(Exception e){
+							ConfigurationManager.this.callback.onFailure(new WlConfigurationException("Error parsing configuration: " + e.getMessage(), e));
 							return;
 						}
+						
+						final JSONObject objValue = value.isObject();
+						if(objValue == null){
+							ConfigurationManager.this.callback.onFailure(new WlConfigurationException("Error parsing configuration: object expected"));
+							return;
+						}
+						
+						for(String key : objValue.keySet()){
+							final JSONValue currentValue = objValue.get(key);
+							if(currentValue == null){
+								ConfigurationManager.this.callback.onFailure(new WlConfigurationException("Error parsing configuration: empty value for key: " + key));
+								return;
+							}
+							final JSONString valueString = currentValue.isString();
+							if(valueString == null){
+								ConfigurationManager.this.callback.onFailure(new WlConfigurationException("Error parsing configuration: string expected for key: " + key));
+								return;
+							}
+							ConfigurationManager.this.configurationMap.put(key, valueString.stringValue());
+						}
+						
 						ConfigurationManager.this.callback.onLoaded();
 					}else{
 						ConfigurationManager.this.callback.onFailure(new WlConfigurationException("Invalid status code: " + response.getStatusCode() + "; " + response.getStatusText()));

@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-	<property name="admin.email" value="weblab@deusto.es" />
-	<property name="demo.available" value="true" />
-</configuration>
