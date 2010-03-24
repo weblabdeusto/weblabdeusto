@@ -103,7 +103,7 @@
 	      <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
 	      <arg value="${module.name}"/>
 		  <arg value="-style"/>
-		  <arg value="PRETTY"/>
+		  <arg value="OBFUSCATED"/>
 	    </java>
 	</target>	
 	
@@ -117,8 +117,6 @@
 	      <jvmarg value="-Xmx512M"/>
 	      <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
 	      <arg value="${module.name}"/>
-		  <arg value="-style"/>
-		  <arg value="PRETTY"/>
 		  <arg value="-draftCompile"/>
 	    </java>
 	</target>
