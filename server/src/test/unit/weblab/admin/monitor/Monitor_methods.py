@@ -33,10 +33,10 @@ import weblab.data.experiments.Category as Category
 import weblab.data.experiments.Experiment as Experiment
 import weblab.data.experiments.ExperimentId as ExperimentId
 import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
-import weblab.data.User as User
 import weblab.data.experiments.ExperimentAllowed as ExperimentAllowed
 import weblab.data.ServerType                         as ServerType
 import weblab.data.ClientAddress                      as ClientAddress
+from weblab.data.User import User, Role
 
 import voodoo.gen.coordinator.CoordAddress  as CoordAddress
 
@@ -260,7 +260,7 @@ class FakeDatabase(object):
         return self.experiments
 
     def retrieve_user_information(self, db_session_id):
-        return User("student2", "Name of student 2", "porduna@tecnologico.deusto.es", "student")
+        return User("student2", "Name of student 2", "porduna@tecnologico.deusto.es", Role("student"))
 
 def generate_experiment(exp_name,exp_cat_name):
     cat = Category.ExperimentCategory(exp_cat_name)
