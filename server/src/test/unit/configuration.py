@@ -21,6 +21,7 @@ import os
 # General configuration #
 #########################
 
+debug_mode                = True
 server_hostaddress        = 'weblab.deusto.es'
 server_admin              = 'weblab@deusto.es'
 

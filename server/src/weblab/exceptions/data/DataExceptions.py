@@ -17,8 +17,3 @@ import weblab.exceptions.WebLabExceptions as WebLabExceptions
 class DataException(WebLabExceptions.WebLabException):
     def __init__(self,*args,**kargs):
         WebLabExceptions.WebLabException.__init__(self,*args,**kargs)
-
-class UserTypeNotFound(DataException):
-    def __init__(self,*args,**kargs):
-        DataException.__init__(self,*args,**kargs)
-

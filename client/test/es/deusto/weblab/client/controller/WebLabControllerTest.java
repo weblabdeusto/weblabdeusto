@@ -42,7 +42,7 @@ import es.deusto.weblab.client.dto.reservations.ConfirmedReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingConfirmationReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingInstancesReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingReservationStatus;
-import es.deusto.weblab.client.dto.users.StudentUser;
+import es.deusto.weblab.client.dto.users.Role;
 import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.exceptions.comm.WlCommException;
 import es.deusto.weblab.client.exceptions.comm.login.LoginException;
@@ -83,10 +83,13 @@ public class WebLabControllerTest  extends GWTTestCase{
 	}
 	
 	public void testLoginSucceeded() throws Exception{
-		final User user = new StudentUser();
+		final User user = new User();
 		user.setFullName("Pablo Orduña Fernández");
 		user.setLogin("porduna");
 		user.setEmail("porduna@tecnologico.deusto.es");
+		final Role role = new Role();
+		role.setName("student");
+		user.setRole(role);
 
 		final WebLabController controller = this.createController();
 		
@@ -351,10 +354,13 @@ public class WebLabControllerTest  extends GWTTestCase{
 		Methods m;
 		List<Methods> v;
 		
-		final User user = new StudentUser();
+		final User user = new User();
 		user.setFullName("Pablo Orduña Fernández");
 		user.setLogin("porduna");
 		user.setEmail("porduna@tecnologico.deusto.es");
+		final Role role = new Role();
+		role.setName("student");
+		user.setRole(role);
 		
 		// Data creation
 		final SessionID sessionID = new SessionID("something");

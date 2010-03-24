@@ -27,7 +27,7 @@ import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.reservations.ConfirmedReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingConfirmationReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingReservationStatus;
-import es.deusto.weblab.client.dto.users.StudentUser;
+import es.deusto.weblab.client.dto.users.Role;
 import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.exceptions.experiments.WlExperimentException;
 import es.deusto.weblab.client.ui.IUIManager;
@@ -43,20 +43,26 @@ public class MockController implements IWebLabController {
 
 	@Override
 	public void login(String username, String password) {
-		final User user = new StudentUser();
+		final User user = new User();
 		user.setLogin(username);
 		user.setEmail("weblab@deusto.es");
 		user.setFullName(username + "full name");
+		final Role role = new Role();
+		role.setName("student");
+		user.setRole(role);
 		
 		this.uimanager.onLoggedIn(user);
 	}
 
 	@Override
 	public void startLoggedIn(SessionID sessionId) {
-		final User user = new StudentUser();
+		final User user = new User();
 		user.setLogin("tester");
 		user.setEmail("weblab@deusto.es");
 		user.setFullName("tester full name");
+		final Role role = new Role();
+		role.setName("student");
+		user.setRole(role);
 		
 	    	this.uimanager.onLoggedIn(user);
 	}

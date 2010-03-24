@@ -30,7 +30,6 @@ import weblab.user_processing.Reservation as Reservation
 import weblab.data.experiments.Category as Category
 import weblab.data.experiments.Experiment as Experiment
 import weblab.data.User as User
-import weblab.data.UserType as UserType
 import weblab.data.Command as Command
 import weblab.facade.RemoteFacadeServer as RemoteFacadeServer
 
@@ -261,9 +260,7 @@ if ZSI_AVAILABLE:
             return Reservation.Reservation.translate_reservation_from_data(reservation_holder.status, reservation_holder.position, reservation_holder.time)
 
         def _parse_user(self, holder):
-            user_type = UserType.getUserTypeEnumerated(holder.user_type)
-            user_information = User.create_user(holder.login, holder.full_name, holder.email, user_type)
-            return user_information
+            return User(holder.login, holder.full_name, holder.email, holder.role)
 
         def _parse_command(self, command_holder):
             command = Command.Command(command_holder.commandstring)
@@ -296,9 +293,7 @@ class AbstractBotDict(AbstractBot):
 
     @possibleKeyError
     def _parse_user(self, holder):
-        user_type = UserType.getUserTypeEnumerated(holder['user_type'])
-        user_information = User.create_user(holder['login'], holder['full_name'], holder['email'], user_type)
-        return user_information
+        return User(holder['login'], holder['full_name'], holder['email'], holder['role'])
 
     @possibleKeyError
     def _parse_command(self, command_holder):

@@ -41,35 +41,16 @@ class DatabaseServerTestCase(unittest.TestCase):
         self.assertTrue( 'ud-pld' in experiment_names )
         self.assertTrue( 'ud-gpib' in experiment_names )
         
-    def test_retrieve_user_information_admin(self):
+    def test_retrieve_user_information(self):
         session_id = DatabaseSession.ValidDatabaseSessionId("admin1", "administrator")
         user = self.dm.retrieve_user_information(session_id)
 
         self.assertNotEquals(user, None)
-        self.assertTrue(isinstance(user,User.AdminUser))
+        self.assertEquals(user.role.name, "administrator")
         self.assertEquals("admin1",user.login)
         self.assertEquals("Name of administrator 1",user.full_name)
         self.assertEquals("weblab@deusto.es",user.email)
 
-    def test_retrieve_user_information_professor(self):
-        session_id = DatabaseSession.ValidDatabaseSessionId("prof1", "professor")
-        user = self.dm.retrieve_user_information(session_id)
-
-        self.assertNotEquals(user, None)
-        self.assertTrue(isinstance(user,User.ProfessorUser))
-        self.assertEquals("prof1",user.login)
-        self.assertEquals("Name of professor 1",user.full_name)
-        self.assertEquals("weblab@deusto.es",user.email)
-
-    def test_retrieve_user_information_student(self):
-        session_id = DatabaseSession.ValidDatabaseSessionId("student1", "student")
-        user = self.dm.retrieve_user_information(session_id)
-
-        self.assertNotEquals(user, None)
-        self.assertTrue(isinstance(user,User.StudentUser))
-        self.assertEquals("student1",user.login)
-        self.assertEquals("Name of student 1",user.full_name)
-        self.assertEquals("weblab@deusto.es",user.email)
 
 def suite():
     return unittest.makeSuite(DatabaseServerTestCase)

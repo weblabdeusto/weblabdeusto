@@ -260,7 +260,7 @@ class FakeDatabase(object):
         return self.experiments
 
     def retrieve_user_information(self, db_session_id):
-        return User.StudentUser("student2", "Name of student 2", "porduna@tecnologico.deusto.es")
+        return User("student2", "Name of student 2", "porduna@tecnologico.deusto.es", "student")
 
 def generate_experiment(exp_name,exp_cat_name):
     cat = Category.ExperimentCategory(exp_cat_name)

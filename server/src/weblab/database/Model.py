@@ -24,8 +24,6 @@ import voodoo.gen.coordinator.CoordAddress as CoordAddress
 
 import weblab.login.database.dao.UserAuth as UserAuth
 
-from weblab.data.User import AdminUser, ProfessorUser, StudentUser   
-
 from weblab.data.experiments.Experiment import Experiment  
 from weblab.data.experiments.Category import ExperimentCategory  
 from weblab.data.experiments.ExperimentId import ExperimentId  
@@ -33,6 +31,7 @@ from weblab.data.experiments.Usage import ExperimentUsage
 from weblab.data.experiments.Usage import FileSent  
 from weblab.data.experiments.Usage import CommandSent  
 from weblab.data.Command import Command
+from weblab.data.User import User, Role
 
 
 Base = declarative_base()
@@ -92,6 +91,9 @@ class DbRole(Base):
             self.name
         )
 
+    def to_business(self):        
+        return Role(self.name)   
+    
         
 class DbUser(Base):
     __tablename__  = 'User'
@@ -105,7 +107,6 @@ class DbUser(Base):
     role_id   = Column(Integer, ForeignKey("Role.id"))
     
     role = relation("DbRole", backref=backref("users", order_by=id))
-
             
     def __init__(self, login, full_name, email, avatar=None, role=None):
         super(DbUser,self).__init__()
@@ -126,17 +127,7 @@ class DbUser(Base):
             )
         
     def to_business(self):        
-        # Temporal implementation:
-        if self.role.name == "administrator":
-            Klz = AdminUser
-        elif self.role.name == "professor":
-            Klz = ProfessorUser
-        elif self.role.name == "student":
-            Klz = StudentUser
-        else:
-            raise Exception("Exception in DbUser.to_business: Unknown role.name value: '%s'" % self.role.name)
-        return Klz(self.login, self.full_name, self.email)    
-            
+        return User(self.login, self.full_name, self.email, self.role.to_business())   
                
     
 class DbAuthType(Base):

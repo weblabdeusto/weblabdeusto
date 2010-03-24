@@ -20,8 +20,6 @@ import test.unit.configuration as configuration
 
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
-import weblab.data.UserType as UserType
-
 import weblab.login.database.DatabaseMySQLGateway as DatabaseMySQLGateway
 import weblab.login.database.dao.UserAuth as UserAuth
 
@@ -53,13 +51,13 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
             )
 
         #This user exists and the password is correct
-        user_type, user_id, user_auths = self.auth_gateway.check_user_password(
+        role, user_id, user_auths = self.auth_gateway.check_user_password(
                     'admin1',
                     'password'
                 )
         self.assertEquals(
-            UserType.administrator,
-            user_type
+            "administrator",
+            role.name
         )
         self.assertEquals(
             1,
@@ -87,13 +85,13 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         )
         
     def test_user_password_ldap(self):
-        user_type, user_id, user_auths = self.auth_gateway.check_user_password(
+        role, user_id, user_auths = self.auth_gateway.check_user_password(
                 'studentLDAP1',
                 None
             )
         self.assertEquals(
-            UserType.student,
-            user_type
+            "student",
+            role.name
         )
         self.assertEquals(
             1,

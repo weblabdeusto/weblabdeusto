@@ -31,9 +31,6 @@ import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingConfirmationReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingInstancesReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingReservationStatus;
-import es.deusto.weblab.client.dto.users.AdminUser;
-import es.deusto.weblab.client.dto.users.ProfessorUser;
-import es.deusto.weblab.client.dto.users.StudentUser;
 import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.exceptions.comm.SerializationException;
 import es.deusto.weblab.client.exceptions.comm.WlServerException;
@@ -109,37 +106,15 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 		}
 	}
 	
-	public void testParseGetUserInformationResponse_Student() throws Exception{
+	public void testParseGetUserInformationResponse() throws Exception{
 		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
 		final User user = weblabSerializer.parseGetUserInformationResponse(
-			"{\"result\": {\"login\": \"porduna\", \"email\": \"porduna@tecnologico.deusto.es\", \"full_name\": \"Pablo Orduna\", \"user_type\": \"student\"}, \"is_exception\": false}"
+				"{\"result\": {\"login\": \"porduna\", \"email\": \"porduna@tecnologico.deusto.es\", \"full_name\": \"Pablo Orduna\", \"role\": {\"name\": \"student\"}}, \"is_exception\": false}"
 		);
-		Assert.assertTrue(user instanceof StudentUser);
 		Assert.assertEquals("porduna", user.getLogin());
 		Assert.assertEquals("Pablo Orduna", user.getFullName());
 		Assert.assertEquals("porduna@tecnologico.deusto.es", user.getEmail());
-	}
-
-	public void testParseGetUserInformationResponse_Admin() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
-		final User user = weblabSerializer.parseGetUserInformationResponse(
-			"{\"result\": {\"login\": \"porduna\", \"email\": \"porduna@tecnologico.deusto.es\", \"full_name\": \"Pablo Orduna\", \"user_type\": \"administrator\"}, \"is_exception\": false}"
-		);
-		Assert.assertTrue(user instanceof AdminUser);
-		Assert.assertEquals("porduna", user.getLogin());
-		Assert.assertEquals("Pablo Orduna", user.getFullName());
-		Assert.assertEquals("porduna@tecnologico.deusto.es", user.getEmail());
-	}
-
-	public void testParseGetUserInformationResponse_Professor() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
-		final User user = weblabSerializer.parseGetUserInformationResponse(
-			"{\"result\": {\"login\": \"porduna\", \"email\": \"porduna@tecnologico.deusto.es\", \"full_name\": \"Pablo Orduna\", \"user_type\": \"professor\"}, \"is_exception\": false}"
-		);
-		Assert.assertTrue(user instanceof ProfessorUser);
-		Assert.assertEquals("porduna", user.getLogin());
-		Assert.assertEquals("Pablo Orduna", user.getFullName());
-		Assert.assertEquals("porduna@tecnologico.deusto.es", user.getEmail());
+		Assert.assertEquals("student", user.getRole().getName());
 	}
 
 	public void testParseGetUserInformationResponse_Exceptions() throws Exception{

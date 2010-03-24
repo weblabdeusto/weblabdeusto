@@ -28,7 +28,6 @@ from voodoo.log import logged
 
 import weblab.exceptions.database.DatabaseExceptions as DbExceptions
 import weblab.database.DatabaseMySQLGateway as dbMySQLGateway
-import weblab.data.UserType as UserType
 
 WEBLAB_DB_USERNAME_PROPERTY = 'weblab_db_username'
 DEFAULT_WEBLAB_DB_USERNAME  = 'weblab'
@@ -71,9 +70,9 @@ class AuthDatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
     ####################################################################
     @logged(except_for='passwd')
     def check_user_password(self,username,passwd):
-        """check_user_password(credentials,username,passwd) -> UserType, user_id, auth_required
+        """check_user_password(credentials,username,passwd) -> role, user_id, auth_required
 
-        Provided user and password, the method returns the UserType
+        Provided user and password, the method returns the Role
         of the user if user and password are correct, and a if not.
         """
         session = self.Session()
@@ -94,7 +93,7 @@ class AuthDatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             else:
                 auth_info = self._retrieve_auth_information(user, session)
             
-            return UserType.getUserTypeEnumerated(user.role.name), user.id, auth_info
+            return user.role, user.id, auth_info
         finally:
             session.close()
 

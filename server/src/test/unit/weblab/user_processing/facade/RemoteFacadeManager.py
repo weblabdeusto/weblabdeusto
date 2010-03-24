@@ -38,7 +38,7 @@ import weblab.data.experiments.Experiment as Experiment
 import weblab.data.experiments.Category as Category
 import weblab.data.Command as Command
 
-import weblab.data.User as User
+from weblab.data.User import User, Role
 
 import weblab.exceptions.user_processing.UserProcessingExceptions as UserProcessingExceptions
 import weblab.exceptions.WebLabExceptions as WebLabExceptions
@@ -303,10 +303,11 @@ class UserProcessingFacadeManagerTestCase(unittest.TestCase):
         def test_return_get_user_information(self):
             expected_sess_id = SessionId.SessionId("whatever")
 
-            expected_user_information = User.StudentUser(
+            expected_user_information = User(
                     'porduna', 
                     'Pablo Orduna', 
-                    'weblab@deusto.es'
+                    'weblab@deusto.es',
+                    Role("student")
                 )
         
             self.mock_ups.return_values['get_user_information'] = expected_user_information
@@ -334,8 +335,8 @@ class UserProcessingFacadeManagerTestCase(unittest.TestCase):
                 )
 
             self.assertEquals(
-                    expected_user_information.user_type,
-                    user_information.user_type
+                    expected_user_information.role.name,
+                    user_information.role.name
                 )
 
         def _generate_real_mock_raising(self, method, exception, message):

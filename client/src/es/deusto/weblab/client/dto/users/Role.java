@@ -8,11 +8,19 @@
 * This software consists of contributions made by many individuals, 
 * listed below:
 *
-* Author: Pablo Orduña <pablo@ordunya.com>
+* Author: FILLME
 *
-*/ 
+*/
+
 package es.deusto.weblab.client.dto.users;
 
-public class ProfessorUser extends User {
+public class Role {
+	private String name;
 
+	public String getName() {
+		return this.name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
 }

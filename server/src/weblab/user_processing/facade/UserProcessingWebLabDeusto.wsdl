@@ -55,17 +55,18 @@
 				</xsd:sequence>
 			</xsd:complexType>
 
+			<xsd:complexType name="RoleType">
+				<xsd:sequence>
+					<xsd:element minOccurs="0" maxOccurs="1" name="name" type="xsd:string"/> 
+				</xsd:sequence>
+			</xsd:complexType>
+
 			<xsd:complexType name="UserInformationType">
 				<xsd:sequence>
 					<xsd:element minOccurs="0" maxOccurs="1" name="login" type="xsd:string" />
 					<xsd:element minOccurs="0" maxOccurs="1" name="full_name" type="xsd:string" />
 					<xsd:element minOccurs="0" maxOccurs="1" name="email" type="xsd:string" />
-					<xsd:element minOccurs="0" maxOccurs="1" name="user_type" type="xsd:string" />
-		<!-- XXX This should be a restricted version of "string"
-			only supporting "administrator", "professor" 
-			and "student", but I'm not sure how the code 
-			generators will handle it
-		-->
+					<xsd:element minOccurs="0" maxOccurs="1" name="role" type="tns:RoleType"/>
 				</xsd:sequence>
 			</xsd:complexType>
 

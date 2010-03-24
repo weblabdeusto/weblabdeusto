@@ -28,7 +28,7 @@ import weblab.data.experiments.ExperimentAllowed as ExperimentAllowed
 import weblab.data.experiments.Experiment as Experiment
 import weblab.data.experiments.Category as Category
 
-import weblab.data.User as User
+from weblab.data.User import User, Role
 import weblab.data.Command as Command
 
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
@@ -330,10 +330,11 @@ class UserProcessingIntegratingRemoteFacadeManager(unittest.TestCase):
                 MESSAGE  = 'my message'
                 NUMBER   = 5
 
-                expected_user_information = User.StudentUser(
+                expected_user_information = User(
                         'porduna', 
                         'Pablo Orduna', 
-                        'weblab@deusto.es'
+                        'weblab@deusto.es',
+                        Role("student")
                     )
                 self.mock_server.return_values['get_user_information'] = expected_user_information
 
@@ -354,6 +355,10 @@ class UserProcessingIntegratingRemoteFacadeManager(unittest.TestCase):
                 self.assertEquals(
                         expected_user_information.email,
                         user_information.email
+                    )
+                self.assertEquals(
+                        expected_user_information.role.name,
+                        user_information.role.name
                     )
             finally:
                 self.rfs.stop()

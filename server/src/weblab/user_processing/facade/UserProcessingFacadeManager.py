@@ -137,9 +137,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
             raise SessionNotFoundException
         """
         sess_id = self._parse_session_id(session_id)
-        user_information = self._server.get_user_information(sess_id)
-        user_information.user_type = user_information.user_type.name
-        return user_information
+        return self._server.get_user_information(sess_id)
 
     def _fix_dates_in_experiments(self, experiments_allowed):
         # This is the default behaviour. Overrided by XML-RPC

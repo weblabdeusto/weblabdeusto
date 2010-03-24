@@ -21,8 +21,7 @@
 # don't need to parse Python code, etc.
 #
 
-import weblab.data.User as User
-import weblab.data.UserType as UserType
+from weblab.data.User import User, Role
 from weblab.admin.monitor.Monitor import monitor_method
 from weblab.user_processing.UserProcessingServer import UserProcessingServer
 
@@ -112,7 +111,7 @@ def list_all_users():
             user_info = session['user_information']
         else: 
             # It may happen if we list the experiments before gathering this information
-            user_info = User.create_user('<unknown>', '<unknown>', '<unknown>', UserType.student)
+            user_info = User('<unknown>', '<unknown>', '<unknown>', Role("student"))
         last = session.get('latest_timestamp') or 0
         sessions.append((session_id, user_info, last))
     return sessions

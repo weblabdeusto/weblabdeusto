@@ -42,7 +42,7 @@ import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.dto.reservations.ConfirmedReservationStatus;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
-import es.deusto.weblab.client.dto.users.StudentUser;
+import es.deusto.weblab.client.dto.users.Role;
 import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.exceptions.comm.CommunicationException;
 import es.deusto.weblab.client.exceptions.comm.ServerException;
@@ -191,10 +191,13 @@ public class WebLabCommunicationTest extends GWTTestCase {
 		
 		final String SERIALIZED_MESSAGE = "serialized get reservation status request";
 		final String ERROR_MESSAGE = "whatever the error message";
-		final User user = new StudentUser();
+		final User user = new User();
 		user.setEmail("porduna@tecnologico.deusto.es");
 		user.setFullName("Pablo Orduña");
 		user.setLogin("porduna");
+		final Role role = new Role();
+		role.setName("student");
+		user.setRole(role);
 		
 		weblabSerializer.appendReturn(
 					FakeWebLabSerializer.PARSE_GET_USER_INFORMATION_RESPONSE, 

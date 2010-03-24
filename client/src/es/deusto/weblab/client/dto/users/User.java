@@ -13,10 +13,11 @@
 */ 
 package es.deusto.weblab.client.dto.users;
 
-public abstract class User {
+public class User {
 	private String login;
 	private String fullName;
 	private String email;
+	private Role role;
 
 	public String getLogin() {
 		return this.login;
@@ -35,5 +36,11 @@ public abstract class User {
 	}
 	public void setEmail(String email) {
 		this.email = email;
+	}	
+	public Role getRole() {
+		return this.role;
+	}
+	public void setRole(Role role) {
+		this.role = role;
 	}	
 }

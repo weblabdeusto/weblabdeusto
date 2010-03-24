@@ -25,7 +25,7 @@ class LoginDatabaseManager(object):
     def check_credentials(self,username,password):
         try:
             role, user_id, user_auths = self._auth_gateway.check_user_password( username, password )
-        except DbExceptions.DbInvalidUserOrPasswordException,e:
+        except DbExceptions.DbInvalidUserOrPasswordException:
             return DbSession.InvalidDatabaseSessionId()
 
         if user_auths is None:
