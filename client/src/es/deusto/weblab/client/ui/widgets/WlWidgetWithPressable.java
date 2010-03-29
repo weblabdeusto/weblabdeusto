@@ -15,21 +15,53 @@ package es.deusto.weblab.client.ui.widgets;
 
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public abstract class WlWidgetWithPressable implements IWlWidget, IWlPressable{
+public abstract class WlWidgetWithPressable extends VerticalPanel implements IWlWidget, IWlPressable{
 	
 	private Image currentImage;
 	private Image oldImage;
 	private final VerticalPanel visiblePanel;
 	private final WlActionListenerContainer actionListenerContainer;
 	
+	private final Label title = new Label("");
+	
 	public WlWidgetWithPressable(){
 		this.visiblePanel = new VerticalPanel();
 		this.visiblePanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		this.visiblePanel.setWidth("100%");
 		this.actionListenerContainer = new WlActionListenerContainer();
+		
+		this.setWidth("100%");
+		this.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);		
+		this.visiblePanel.add(this.title);
+		
+		this.add(this.visiblePanel);
 	}
+	
+	
+	
+	/**
+	 * Retrieves the title of the switch. The title is empty by default
+	 * and may be set through the setTitle method.
+	 */
+	@Override
+	public String getTitle() {
+		return this.title.getText();
+	}
+	
+	/**
+	 * If set, shows a label containing the specified text. The title
+	 * may be used to identify the widget.
+	 */
+	@Override
+	public void setTitle(String title) {
+		this.title.setVisible(true);
+		this.title.setText(title);
+	}
+	
 	
 	public void addActionListener(IWlActionListener listener){
 		this.actionListenerContainer.addActionListener(listener);
@@ -65,7 +97,7 @@ public abstract class WlWidgetWithPressable implements IWlWidget, IWlPressable{
 	
 	@Override
 	public Widget getWidget(){
-		return this.visiblePanel;
+		return this;
 	}
 
 	protected Image getCurrentImage() {
@@ -80,6 +112,7 @@ public abstract class WlWidgetWithPressable implements IWlWidget, IWlPressable{
 		this.currentImage = currentImage;
 		for(int i = 0; i < this.visiblePanel.getWidgetCount(); ++i)
 			this.visiblePanel.remove(i);
+		this.visiblePanel.add(this.title);
 		this.visiblePanel.add(this.currentImage);
 	}
 
@@ -89,5 +122,5 @@ public abstract class WlWidgetWithPressable implements IWlWidget, IWlPressable{
 
 	protected void setOldImage(Image oldImage) {
 		this.oldImage = oldImage;
-	}
+	} 
 }

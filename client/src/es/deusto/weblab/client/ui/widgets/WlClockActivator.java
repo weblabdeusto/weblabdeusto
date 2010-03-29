@@ -21,7 +21,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.ui.widgets.exceptions.WlWidgetException;
 
-public class WlClockActivator implements IWlWidget{
+public class WlClockActivator extends Widget implements IWlWidget{
 
 	private final HorizontalPanel horizontalPanel;
 	private final WlNumberChooser numberChooser;
@@ -41,8 +41,16 @@ public class WlClockActivator implements IWlWidget{
 	private IWlClockActivationListener listener;
 	private IWlClockActivationErrorHandler errorHandler;
 	
+	@Override
+	public void setWidth(String width) {
+		super.setWidth(width);
+		this.horizontalPanel.setWidth(width);
+		this.horizontalPanel.setSpacing(25);
+	}
+	
 	public WlClockActivator(){
 		this.horizontalPanel = new HorizontalPanel();
+		this.setElement(this.horizontalPanel.getElement());
 		
 		this.numberChooser = new WlNumberChooser(Integer.class);
 		
@@ -63,6 +71,7 @@ public class WlClockActivator implements IWlWidget{
 				}
 			}
 		});
+		
 		this.deactivate.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent sender) {
 				if(WlClockActivator.this.listener != null)
@@ -95,6 +104,7 @@ public class WlClockActivator implements IWlWidget{
 		this.errorHandler = handler;
 	}
 	
+	@Override
 	public void setStyleName(String style){
 		this.horizontalPanel.setStyleName(style);
 	}

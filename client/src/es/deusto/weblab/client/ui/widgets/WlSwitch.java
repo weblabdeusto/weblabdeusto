@@ -51,6 +51,7 @@ public class WlSwitch extends WlWidgetWithPressable{
 		this.switchedOn = false;
 	}
 	
+	
 	public void dispose(){}
 	
 	public boolean isSwitched(){

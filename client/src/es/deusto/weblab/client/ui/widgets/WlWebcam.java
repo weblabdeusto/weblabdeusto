@@ -19,10 +19,12 @@ import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
 
-public class WlWebcam implements IWlWidget{
+public class WlWebcam extends Widget implements IWlWidget{
 	
 	public static final String DEFAULT_IMAGE_URL = "http://pld.weblab.deusto.es/webcam/pld0/image.jpg";
 	public static final int DEFAULT_REFRESH_TIME = 400;
@@ -39,10 +41,20 @@ public class WlWebcam implements IWlWidget{
 	}
 	
 	public WlWebcam(int time, String url){
+		
+		final HorizontalPanel panel = new HorizontalPanel();
+		panel.setWidth("100%");
+		panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		//panel.setHeight("1px");
+		//panel.setBorderWidth(1);
 		this.time = time;
 		this.url = url;
 		
 		this.image = new Image(this.getDifferentUrl());
+		
+		panel.add(this.image);
+	
+		this.setElement(panel.getElement());
 	}
 	
 	public void start(){
@@ -58,7 +70,10 @@ public class WlWebcam implements IWlWidget{
 	
 	public void dispose(){
 		this.running = false;
-		this.timer.cancel();
+		
+		if(this.timer != null)
+			this.timer.cancel();
+		
 		this.timer = null;
 	}
 	

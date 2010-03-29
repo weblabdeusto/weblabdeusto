@@ -14,13 +14,14 @@
 package es.deusto.weblab.client.ui.widgets;
 
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.ui.widgets.WlButton.IWlButtonUsed;
 import es.deusto.weblab.client.ui.widgets.exceptions.WlWidgetException;
 
-public class WlTimedButton implements IWlWidget{
+public class WlTimedButton extends VerticalPanel implements IWlWidget{
 
 	public static int DEFAULT_TIME = 1000;
 	
@@ -30,11 +31,14 @@ public class WlTimedButton implements IWlWidget{
 	private final WlActionListenerContainer actionListenerContainer;
 	private int time;
 	
+	private final Label titleLabel = new Label();
+	
 	public WlTimedButton(){
 		this(WlTimedButton.DEFAULT_TIME);
 	}
 
 	public WlTimedButton(int time){
+		
 		this.button = new WlButton();
 		this.button.setTime(time);
 		this.textbox = new WlIntegerTextbox();
@@ -43,8 +47,10 @@ public class WlTimedButton implements IWlWidget{
 		
 		this.actionListenerContainer = new WlActionListenerContainer();
 		
-		this.visiblePanel = new VerticalPanel();
+		this.visiblePanel = this;
+		this.setWidth("100%"); 
 		this.visiblePanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		this.visiblePanel.add(this.titleLabel);
 		this.visiblePanel.add(this.button.getWidget());
 		this.visiblePanel.add(this.textbox.getWidget());
 
@@ -56,7 +62,7 @@ public class WlTimedButton implements IWlWidget{
 		
 		this.textbox.addActionListener(new IWlActionListener(){
 			public void onAction(IWlWidget widget) {
-				int intValue;
+				final int intValue;
 				try {
 					intValue = WlTimedButton.this.textbox.getValue().intValue();
 				} catch (final WlWidgetException e) {
@@ -66,6 +72,18 @@ public class WlTimedButton implements IWlWidget{
 				WlTimedButton.this.button.setTime(intValue);
 			}
 		});
+		
+	}
+	
+	
+	@Override
+	public String getTitle() {
+		return this.titleLabel.getText();
+	}
+	
+	@Override
+	public void setTitle(String title) {
+		this.titleLabel.setText(title);
 	}
 	
 	public void dispose(){

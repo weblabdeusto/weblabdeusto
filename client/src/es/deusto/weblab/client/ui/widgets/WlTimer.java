@@ -14,10 +14,11 @@
 package es.deusto.weblab.client.ui.widgets;
 
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
-public class WlTimer implements IWlWidget{
+public class WlTimer extends Widget implements IWlWidget{
 
 	public static int DEFAULT_START_VALUE = 5;
 	
@@ -29,14 +30,9 @@ public class WlTimer implements IWlWidget{
 	private int time;
 	private Timer timer;
 	private IWlTimerFinishedCallback timerFinishedCallback = null;
-	
-	public WlTimer(){
-		this(WlTimer.DEFAULT_START_VALUE);
-	}
-	
-	public WlTimer(int startValue){
-		this.time = startValue;
-		this.label = new Label(Integer.toString(startValue));
+
+	public void start() {
+		this.label.setText(Integer.toString(this.time));
 		this.timer = new Timer(){
 			@Override
 			public void run(){
@@ -49,6 +45,47 @@ public class WlTimer implements IWlWidget{
 			}
 		};
 		this.timer.scheduleRepeating(1000);
+	}
+	
+	/**
+	 * Creates a WlTimer using the default start value.
+	 * @param startNow If true, the timer is automatically started.
+	 * If false, the timer is not started until the method start is called.
+	 */
+	public WlTimer(boolean startNow) {
+		this.time = WlTimer.DEFAULT_START_VALUE;
+		this.label = new Label();
+		this.label.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		this.setElement(this.label.getElement());
+		
+		if(startNow)
+			this.start();
+	}
+	
+	/**
+	 * Creates a WlTimer using the specified start value.
+	 * @param startValue The value to initialise the timer.
+	 * @param startNow If true, the timer is automatically started.
+	 * If false, the timer is not started until the method start is called.
+	 */
+	public WlTimer(int startValue, boolean startNow) {
+		this.time = startValue;
+		this.label = new Label();
+		this.label.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		this.setElement(this.label.getElement());
+		
+		if(startNow)
+			this.start();
+	}
+	
+	public WlTimer(){
+		this(WlTimer.DEFAULT_START_VALUE);
+	}
+	
+	public WlTimer(int startValue){
+		this.time = startValue;
+		this.label = new Label();
+		this.start();
 	}
 	
 	public void setTimerFinishedCallback(IWlTimerFinishedCallback callback){
@@ -78,6 +115,7 @@ public class WlTimer implements IWlWidget{
 		}
 	}
 	
+	@Override
 	public void setStyleName(String style){
 		this.label.setStyleName(style);
 	}

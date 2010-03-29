@@ -13,11 +13,11 @@
 */ 
 package es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.xilinx.ui;
 
-import java.util.List;
 import java.util.Vector;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -41,34 +41,54 @@ import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 
+	
+	 /******************
+	 * UIBINDER RELATED
+	 ******************/
+	
+	interface WlDeustoXilinxBasedBoardUiBinder extends UiBinder<Widget, WlDeustoXilinxBasedBoard> {
+	}
+
+	private static final WlDeustoXilinxBasedBoardUiBinder uiBinder = GWT.create(WlDeustoXilinxBasedBoardUiBinder.class);
+	
+	
 	public static class Style{
 		public static final String TIME_REMAINING         = "wl-time_remaining";
 		public static final String CLOCK_ACTIVATION_PANEL = "wl-clock_activation_panel"; 
 	}
 	
 	protected IConfigurationManager configurationManager;
+
+	protected static final boolean DEBUG_ENABLED = false;
 	
-	private static final int TIMED_BUTTON_NUMBER = 4;
-	private static final int SWITCH_NUMBER = 10;
+	@UiField public VerticalPanel verticalPanel;
+	@UiField VerticalPanel widget;
+	@UiField VerticalPanel innerVerticalPanel;
+	@UiField HorizontalPanel uploadStructurePanel;
 	
-	protected VerticalPanel verticalPanel;
-	private VerticalPanel widget;
-	private final List<Widget> interactiveWidgets;
+	@UiField Label selectProgram;
 	
-	private WlWebcam webcam;
+	@UiField WlWaitingLabel messages;
+	@UiField WlClockActivator clockActivator;
+
+	@UiField HorizontalPanel switchesRow;
+	@UiField HorizontalPanel buttonsRow;
 	
-	private WlTimer timer;
-	private WlWaitingLabel messages;
-	private WlClockActivator clockActivator;
+	//@UiField(provided=true)
+	private UploadStructure uploadStructure;
 	
-	private WlSwitch [] switches;
+	@UiField(provided = true) 
+	WlWebcam webcam;
 	
-	private WlTimedButton [] timedButtons;
+	@UiField(provided = true)
+	WlTimer timer;
+
+	private final Vector<Widget> interactiveWidgets;
 	
 	protected abstract int getWebcamRefreshingTime();
 	protected abstract String getWebcamImageUrl();
 	
-	private UploadStructure uploadStructure;
+
 	
 	public WlDeustoXilinxBasedBoard(IConfigurationManager configurationManager, IBoardBaseController boardController){
 		super(boardController);
@@ -76,38 +96,87 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 		this.configurationManager = configurationManager;
 		
 		this.interactiveWidgets = new Vector<Widget>();
-		this.verticalPanel = new VerticalPanel();
-		this.widget        = new VerticalPanel();
-		this.widget.add(this.verticalPanel);
+		
+		this.createProvidedWidgets();
+		
+		uiBinder.createAndBindUi(this);
+
+		this.findInteractiveWidgets();
+		
+		this.disableInteractiveWidgets();
+	}
+	
+	/**
+	 * Will find those interactive widgets that are defined on UiBinder
+	 * and add them to the interactive widgets array, so that they can
+	 * be disabled. This isn't too convenient but currently there doesn't 
+	 * seem to be any other way around. That may change in the future.
+	 */
+	private void findInteractiveWidgets() {
+		
+		// Find switches
+		for(int i = 0; i < this.switchesRow.getWidgetCount(); ++i){
+			final Widget wid = this.switchesRow.getWidget(i);
+			if(wid instanceof WlSwitch) {
+				final WlSwitch swi = (WlSwitch)wid;
+				this.addInteractiveWidget(swi);
+			}
+		}
+		
+		// Find timed buttons
+		for(int i = 0; i < this.buttonsRow.getWidgetCount(); ++i) {
+			final Widget wid = this.buttonsRow.getWidget(i);
+			if(wid instanceof WlTimedButton) {
+				final WlTimedButton swi = (WlTimedButton)wid;
+				this.addInteractiveWidget(swi);
+			}
+		}
+		
+	}
+	
+	/**
+	 * Creates those widgets that are specified in the UiBinder xml
+	 * file but which are marked as provided because they can't be
+	 * allocated using the default ctor.
+	 */
+	private void createProvidedWidgets() {
+		this.webcam = new WlWebcam(
+				this.getWebcamRefreshingTime(),
+				this.getWebcamImageUrl()
+			);
+		
+		this.timer = new WlTimer(false);
+		
+		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
+			public void onFinished() {
+				WlDeustoXilinxBasedBoard.this.boardController.onClean();
+			}
+		});
+		
+		this.uploadStructure = new UploadStructure();
 	}
 	
 	@Override
 	public void initialize(){
-	    	this.widget.setWidth("100%");
-	    	this.widget.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-	    	
-		this.verticalPanel.setWidth("100%");
-		this.verticalPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		
-		this.verticalPanel.add(new Label("Select the program to send:"));
-		this.uploadStructure = new UploadStructure();
-		this.uploadStructure.setFileInfo("program");
-		this.widget.add(this.uploadStructure.getFormPanel());
+		// Doesn't seem to work from UiBinder.
+		this.uploadStructurePanel.add(this.uploadStructure.getFormPanel());
+	
+		this.webcam.setVisible(false);
+		
 	}
 	
 	@Override
 	public void queued(){
-	    	this.widget.setVisible(false);
+	    this.widget.setVisible(false);
+	    this.selectProgram.setVisible(false);
 	}
 
 	@Override
 	public void start(){
-    	this.widget.setWidth("100%");
-    	this.widget.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		this.verticalPanel.setWidth("100%");
-		this.verticalPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-
-		this.widget.setVisible(true);
+	    this.widget.setVisible(true);
+	    this.selectProgram.setVisible(false);
+	    
 		this.loadWidgets();
 		this.disableInteractiveWidgets();
 		
@@ -117,42 +186,45 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 		    
 		    @Override
 		    public void onSuccess(ResponseCommand response) {
-			WlDeustoXilinxBasedBoard.this.enableInteractiveWidgets();
-			WlDeustoXilinxBasedBoard.this.messages.setText("Device ready");
-			WlDeustoXilinxBasedBoard.this.messages.stop();
+				WlDeustoXilinxBasedBoard.this.enableInteractiveWidgets();
+				WlDeustoXilinxBasedBoard.this.messages.setText("Device ready");
+				WlDeustoXilinxBasedBoard.this.messages.stop();
 		    }
 
 		    @Override
 		    public void onFailure(WlCommException e) {
-			WlDeustoXilinxBasedBoard.this.messages.setText("Error sending file: " + e.getMessage());
+		    	
+			    if(DEBUG_ENABLED)
+			    	WlDeustoXilinxBasedBoard.this.enableInteractiveWidgets();
+			    
+		    	WlDeustoXilinxBasedBoard.this.messages.stop();
+					
+				WlDeustoXilinxBasedBoard.this.messages.setText("Error sending file: " + e.getMessage());
+			    
 		    }
 		});
 	}
 	
 	private void loadWidgets() {
-		final Widget firstRow = this.createFirstRow();
 		
-		final HorizontalPanel secondRow = this.createSecondRow();
-		final HorizontalPanel thirdRow = this.createThirdRow();
-		final HorizontalPanel fourthRow = this.createFourthRow();
-
-		while(this.verticalPanel.getWidgetCount() > 0)
-		    this.verticalPanel.remove(0);
+		this.webcam.setVisible(true);
+		this.webcam.start();
 		
-		this.verticalPanel.setWidth("100%");
-		this.verticalPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		this.timer.start();
 		
-		final VerticalPanel otherVerticalPanel = new VerticalPanel();
-		otherVerticalPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		otherVerticalPanel.setSpacing(15);
-		otherVerticalPanel.setWidth("100%");
+		this.messages.setText("Programming device");
+		this.messages.start();
 		
-		otherVerticalPanel.add(firstRow);
-		otherVerticalPanel.add(secondRow);
-		otherVerticalPanel.add(thirdRow);
-		otherVerticalPanel.add(fourthRow);
+		final ClockActivationListener clockActivationListener = new ClockActivationListener(this.boardController, this.getResponseCommandCallback());
+		this.clockActivator.addClockActivationListener(clockActivationListener);
 		
-		this.verticalPanel.add(otherVerticalPanel);
+		this.addInteractiveWidget(this.timer.getWidget());
+		this.addInteractiveWidget(this.clockActivator.getWidget());
+		
+		this.prepareSwitchesRow();
+		this.prepareButtonsRow();
+		
+		this.innerVerticalPanel.setSpacing(20);
 	}
 	
 	private void addInteractiveWidget(Widget widget){
@@ -168,92 +240,59 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 		for(int i = 0; i < this.interactiveWidgets.size(); ++i)
 			this.interactiveWidgets.get(i).setVisible(false);
 	}
-
-	private Widget createFirstRow() {
-		this.webcam = new WlWebcam(
-				this.getWebcamRefreshingTime(),
-				this.getWebcamImageUrl()
-			);
-		this.webcam.start();
-		return this.webcam.getWidget();
-	}
 	
-	private HorizontalPanel createSecondRow() {
-		this.timer = new WlTimer();
-		this.timer.setStyleName(WlDeustoXilinxBasedBoard.Style.TIME_REMAINING);
-		this.timer.getWidget().setWidth("30%");
-		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
-			public void onFinished() {
-				WlDeustoXilinxBasedBoard.this.boardController.onClean();
+	/* Iterates through every switch in the switchesRow panel,
+	 * setting up a listener for each of them. Switches found on it
+	 * are defined anonymously on UiBinder, along with their title.
+	 * This title is currently used as an integral identifier.
+	 */
+	private HorizontalPanel prepareSwitchesRow() {
+		
+		for(int i = 0; i < this.switchesRow.getWidgetCount(); ++i){
+			final Widget wid = this.switchesRow.getWidget(i);
+			if(wid instanceof WlSwitch) {
+				final WlSwitch swi = (WlSwitch)wid;
+				
+				// Avoid trying to convert non-numerical titles (which serve
+				// as identifiers). Not exactly an elegant way to do it.
+				if(swi.getTitle().length() != 1) 
+					continue;
+				
+				final int id = Integer.parseInt(swi.getTitle());
+				final IWlActionListener actionListener = new SwitchListener(id, this.boardController, this.getResponseCommandCallback());
+				swi.addActionListener(actionListener);
+				this.addInteractiveWidget(swi);
 			}
-		});
-		
-		this.messages = new WlWaitingLabel("Programming device");
-		this.messages.start();
-		this.clockActivator = new WlClockActivator();
-		this.clockActivator.getWidget().setWidth("70%");
-		this.clockActivator.setStyleName(WlDeustoXilinxBasedBoard.Style.CLOCK_ACTIVATION_PANEL);
-		final ClockActivationListener clockActivationListener = new ClockActivationListener(this.boardController, this.getResponseCommandCallback());
-		this.clockActivator.addClockActivationListener(clockActivationListener);
-		
-		final HorizontalPanel secondRow = new HorizontalPanel();
-		secondRow.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		secondRow.setWidth("100%");
-		secondRow.add(this.timer.getWidget());
-		secondRow.add(this.messages.getWidget());
-		secondRow.add(this.clockActivator.getWidget());
-		
-		this.addInteractiveWidget(this.timer.getWidget());
-		this.addInteractiveWidget(this.clockActivator.getWidget());
-		
-		return secondRow;
-	}
-	
-	private HorizontalPanel createThirdRow() {
-		this.switches = new WlSwitch[WlDeustoXilinxBasedBoard.SWITCH_NUMBER];
-		for(int i = 0; i < WlDeustoXilinxBasedBoard.SWITCH_NUMBER; ++i){
-			this.switches[i] = new WlSwitch();
-			final IWlActionListener actionListener = new SwitchListener(i, this.boardController, this.getResponseCommandCallback());
-			this.switches[i].addActionListener(actionListener);
 		}
 		
-		final HorizontalPanel thirdRow = new HorizontalPanel();
-		thirdRow.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		thirdRow.setWidth("100%");
-		for(int i = 0; i < WlDeustoXilinxBasedBoard.SWITCH_NUMBER; ++i){
-			this.switches[i].getWidget().setWidth("100%");
-			
-			final VerticalPanel vp = new VerticalPanel();
-			vp.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-			vp.add(new Label("" + (WlDeustoXilinxBasedBoard.SWITCH_NUMBER - i - 1)));
-			vp.add(this.switches[i].getWidget());
-			thirdRow.add(vp);
-			
-			this.addInteractiveWidget(vp);
-		}
-		return thirdRow;
+		return this.switchesRow;
 	}
 
-	private HorizontalPanel createFourthRow() {
-		this.timedButtons = new WlTimedButton[WlDeustoXilinxBasedBoard.TIMED_BUTTON_NUMBER];
-		for(int i = 0; i < WlDeustoXilinxBasedBoard.TIMED_BUTTON_NUMBER; ++i){
-			this.timedButtons[i] = new WlTimedButton();
-			final IWlButtonUsed buttonUsed = new ButtonListener(i, this.boardController, this.getResponseCommandCallback());
-			this.timedButtons[i].addButtonListener(buttonUsed);
+	/*
+	 * Iterates through every timed button in the buttonsRow panel,
+	 * setting up a listener for each of them. Buttons found on it
+	 * are defined anonymously on UiBinder, along with their title.
+	 * This title is currently used as an integral identifier.
+	 */
+	private HorizontalPanel prepareButtonsRow() {
+
+		for(int i = 0; i < this.buttonsRow.getWidgetCount(); ++i) {
+			final Widget wid = this.buttonsRow.getWidget(i);
+			if(wid instanceof WlTimedButton) {
+				final WlTimedButton timedButton = (WlTimedButton)wid;
+				
+				if(timedButton.getTitle().length() != 1)
+					continue;
+				
+				final int id = Integer.parseInt(timedButton.getTitle());
+				final IWlButtonUsed buttonUsed = 
+					new ButtonListener(id, this.boardController, this.getResponseCommandCallback());
+				timedButton.addButtonListener(buttonUsed);
+				this.addInteractiveWidget(timedButton);
+			}
 		}
 		
-		final HorizontalPanel fourthRow = new HorizontalPanel();
-		fourthRow.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		fourthRow.setWidth("100%");
-		for(int i = 0; i < WlDeustoXilinxBasedBoard.TIMED_BUTTON_NUMBER; ++i){
-			final VerticalPanel vp = new VerticalPanel();
-			vp.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-			vp.add(new Label("" + (WlDeustoXilinxBasedBoard.TIMED_BUTTON_NUMBER - i - 1)));
-			vp.add(this.timedButtons[i].getWidget());
-			fourthRow.add(vp);
-			this.addInteractiveWidget(vp);
-		}
-		return fourthRow;
+		return this.buttonsRow;
 	}
 
 	@Override
@@ -273,17 +312,18 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 			this.clockActivator = null;
 		}
 		
-		if(this.switches != null){
-			for(int i = 0; i < this.switches.length; ++i)
-				this.switches[i].dispose();
-			this.switches = null;
+		for(int i = 0; i < this.switchesRow.getWidgetCount(); ++i) {
+			final Widget wid = this.switchesRow.getWidget(i);
+			if(wid instanceof WlSwitch)
+				((WlSwitch)wid).dispose();
 		}
 		
-		if(this.timedButtons != null){
-			for(int i = 0; i < this.timedButtons.length; ++i)
-				this.timedButtons[i].dispose();
-			this.timedButtons = null;
+		for(int i = 0; i < this.buttonsRow.getWidgetCount(); ++i) {
+			final Widget wid = this.buttonsRow.getWidget(i);
+			if(wid instanceof WlTimedButton)
+				((WlTimedButton)wid).dispose();
 		}
+		
 		this.messages.stop();
 	}
 	

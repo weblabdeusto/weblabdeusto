@@ -29,6 +29,7 @@ import com.google.gwt.user.client.ui.Widget;
  * setWidget() is no longer required. Widgets are arranged in the table in order (as they
  * appear in the XML), from left to right and from top to bottom.
  */
+@SuppressWarnings("unused")
 public class EasyGrid extends Grid {
 	
 	/**
@@ -44,17 +45,12 @@ public class EasyGrid extends Grid {
 	 */
 	private void createTable()
 	{
-		System.out.println("Creating table.");
-		
 		this.resize(this.rows, this.cols);
 		
 		int widgetsSet = 0;
-		for(int j = 0; j < this.rows && widgetsSet < this.widgets.size(); j++) {
-			for(int i = 0; i < this.cols && widgetsSet < this.widgets.size(); i++) {
+		for(int j = 0; j < this.rows && widgetsSet < this.widgets.size(); j++)
+			for(int i = 0; i < this.cols && widgetsSet < this.widgets.size(); i++, widgetsSet++)
 				this.setWidget(j, i, this.widgets.get(widgetsSet));
-				widgetsSet++;
-			}
-		}
 	}
 
 	/**
@@ -62,9 +58,6 @@ public class EasyGrid extends Grid {
 	 */
 	public EasyGrid() {
 		this.resize(4, 4);
-		Label label = new Label("TESTING EASYGRID");
-		System.out.println("Constructing EASYGRID");
-		this.setWidget(0, 0, label);
 	}
 	
 	/**
@@ -72,10 +65,9 @@ public class EasyGrid extends Grid {
 	 * @param cols Number of columns.
 	 */
 	public void setCols(int cols) {
-		System.out.println("Settings cols.");
 		this.cols = cols;
 		if(this.rows != -1 && cols != -1)
-			createTable();
+			this.createTable();
 	}
 	
 	/**
@@ -83,10 +75,9 @@ public class EasyGrid extends Grid {
 	 * @param rows Number of rows.
 	 */
 	public void setRows(int rows) {
-		System.out.println("Settings rows.");
 		this.rows = rows;
 		if(rows != -1 && this.cols != -1)
-			createTable();
+			this.createTable();
 	}
 	
 	/**
@@ -97,7 +88,6 @@ public class EasyGrid extends Grid {
 	@Override
 	public void add(Widget widget)
 	{
-		System.out.println("Adding widget to the internal list.");
 		this.widgets.add(widget);
 	}
 

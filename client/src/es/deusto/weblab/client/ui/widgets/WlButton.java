@@ -66,7 +66,7 @@ public class WlButton extends WlWidgetWithPressable{
 		this.setOldImage(this.pressedImage);
 		this.setCurrentVisibleImage(this.releasedImage);
 	}
-
+	
 	protected void buttonPressed(){
 		this.press();
 		if(WlButton.this.buttonUsed != null)

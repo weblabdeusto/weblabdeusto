@@ -19,8 +19,9 @@ import com.google.gwt.user.client.ui.HasAlignment;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
-public class UploadStructure implements HasAlignment{
+public class UploadStructure extends Widget implements HasAlignment{
 	
 	private VerticalPanel panel;
 	private final FormPanel     formPanel;
@@ -32,6 +33,8 @@ public class UploadStructure implements HasAlignment{
 		this.fileUploader = new FileUpload();		
 		this.configurePanel();
 		this.setWidth("100%");
+		
+		this.setElement(this.panel.getElement());
 	}
 	
 	private void configurePanel() {
@@ -73,6 +76,7 @@ public class UploadStructure implements HasAlignment{
 		this.panel.setVerticalAlignment(align);
 	}
 	
+	@Override
 	public void setWidth(String width){
 		this.panel.setWidth(width);
 		this.formPanel.setWidth(width);

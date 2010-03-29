@@ -13,8 +13,10 @@
 */ 
 package es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.gpib.ui;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
@@ -46,6 +48,19 @@ import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 public class WlDeustoGpibBoard extends BoardBase {
 	
+	
+	/******************
+	 * UIBINDER RELATED
+	 ******************/
+
+	interface WlDeustoGpibBoardUiBinder extends UiBinder<Widget, WlDeustoGpibBoard> {
+	}
+
+	private static final WlDeustoGpibBoardUiBinder uiBinder = GWT.create(WlDeustoGpibBoardUiBinder.class);
+
+	
+	
+	
 	public static final String GPIB_WEBCAM_IMAGE_URL_PROPERTY = "es.deusto.weblab.gpib.webcam.image.url";
 	public static final String DEFAULT_GPIB_WEBCAM_IMAGE_URL       = "http://gpib.weblab.deusto.es/cliente/camview.jpg";
 	
@@ -59,6 +74,9 @@ public class WlDeustoGpibBoard extends BoardBase {
 		public static final String TIME_REMAINING         = "wl-time_remaining";
 		public static final String CLOCK_ACTIVATION_PANEL = "wl-clock_activation_panel"; 
 	}
+	
+	
+	
 
 	private final IConfigurationManager configurationManager;
 	

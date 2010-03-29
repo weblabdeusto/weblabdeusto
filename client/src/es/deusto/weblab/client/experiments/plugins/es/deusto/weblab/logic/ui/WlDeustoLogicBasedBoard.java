@@ -19,15 +19,18 @@ import java.util.Map;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.comm.callbacks.IResponseCommandCallback;
@@ -35,7 +38,6 @@ import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.exceptions.comm.WlCommException;
-import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.gpib.ui.WlDeustoGpibBoard;
 import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.logic.circuit.Circuit;
 import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.logic.circuit.CircuitParser;
 import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.logic.circuit.Gate;
@@ -45,6 +47,7 @@ import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.logic.circui
 import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.logic.commands.GetCircuitCommand;
 import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.logic.commands.SolveCircuitCommand;
 import es.deusto.weblab.client.ui.BoardBase;
+import es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb.widgets.EasyGrid;
 import es.deusto.weblab.client.ui.widgets.WlHorizontalPanel;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
 import es.deusto.weblab.client.ui.widgets.WlVerticalPanel;
@@ -53,6 +56,17 @@ import es.deusto.weblab.client.ui.widgets.WlWebcam;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 public class WlDeustoLogicBasedBoard extends BoardBase {
+	
+	
+	/******************
+	 * UIBINDER RELATED
+	 ******************/
+	
+	interface WlDeustoLogicBasedBoardUiBinder extends UiBinder<Widget, WlDeustoLogicBasedBoard> {
+	}
+
+	private static final WlDeustoLogicBasedBoardUiBinder uiBinder = GWT.create(WlDeustoLogicBasedBoardUiBinder.class);
+	
 
 	public static final String LOGIC_WEBCAM_IMAGE_URL_PROPERTY = "es.deusto.weblab.logic.webcam.image.url";
 	public static final String DEFAULT_LOGIC_WEBCAM_IMAGE_URL = GWT.isScript() ? "https://www.weblab.deusto.es/webcam/logic0/image.jpg?size=2" : "";
@@ -60,7 +74,7 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 	private static final String LOGIC_WEBCAM_REFRESH_TIME_PROPERTY = "es.deusto.weblab.logic.webcam.refresh.millis";
 	private static final int DEFAULT_LOGIC_WEBCAM_REFRESH_TIME = 400;
 	
-	public static class Style{
+	public static class Style   {
 		public static final String TIME_REMAINING          = "wl-time_remaining";
 		public static final String CLOCK_ACTIVATION_PANEL  = "wl-clock_activation_panel"; 
 		public static final String LOGIC_INPUT_VALUE_LABEL = "logic-input-value-label"; 
@@ -75,14 +89,31 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 	private final String zeroString = "0";
 	private final String oneString  = "1";
 	
-	// Widgets
-	private final WlVerticalPanel widget;
-	private final WlVerticalPanel removableWidgetsPanel;
-	private WlHorizontalPanel circuitAndWebcamPanel;
-	private WlWebcam webcam;
-	private WlTimer timer;
-	private WlWaitingLabel messages;
-	private Grid circuitGrid;
+	/** WIDGETS **/
+	
+	// Root panel.
+	@UiField WlVerticalPanel widget;
+	
+	// Contains the experiment introduction. (Welcome message, etc).
+	@UiField WlVerticalPanel introPanel;
+	
+	// Contains the intro text itself.
+	@UiField VerticalPanel textIntroPanel;
+	
+	// The panel of the experiment itself.
+	@UiField WlVerticalPanel expPanel;
+	
+	@UiField WlHorizontalPanel circuitAndWebcamPanel;
+	
+	@UiField(provided=true)
+	WlTimer timer;
+	
+	@UiField(provided=true)
+	WlWebcam webcam;
+	
+	@UiField WlWaitingLabel messages;
+	@UiField EasyGrid circuitGrid;
+	
 	private HTML input1Label; // Input values
 	private HTML input2Label;
 	private HTML input3Label;
@@ -95,8 +126,11 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 	private Image gateC1Image; // 3rd level (C) of gates
 	private Image unknownGateImage;
 	private DialogBox changeUnknownGateDialogBox;
-	private Button sendSolutionButton;
-	private Label referenceToShowBoxesLabel = new Label("");
+	
+	// Button to send the solution.
+	@UiField Button sendSolutionButton;
+	
+	@UiField Label referenceToShowBoxesLabel;
 	
 	// DTOs
 	private Command lastCommand;
@@ -113,6 +147,7 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 	    public void onFailure(WlCommException e) {
 		WlDeustoLogicBasedBoard.this.messages.setText("Error: " + e.getMessage() + ". Please, notify the WebLab-Deusto administrators at weblab@deusto.es about this error.");
 	    }
+	    
 	};
 	
 	public WlDeustoLogicBasedBoard(IConfigurationManager configurationManager, IBoardBaseController commandSender) {
@@ -122,17 +157,31 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 		
 		this.configurationManager = configurationManager;
 		
-		this.widget = new WlVerticalPanel();
-		this.widget.setWidth("100%");
-		this.widget.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		this.createProvidedWidgets();
 		
-		this.removableWidgetsPanel = new WlVerticalPanel();
-		this.removableWidgetsPanel.setWidth("100%");
-		this.removableWidgetsPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		this.removableWidgetsPanel.setSpacing(20);
+		uiBinder.createAndBindUi(this);
+	}
+	
+	/* Creates those widgets that are placed through UiBinder but
+	 * whose ctors need to take certain parameters and hence be
+	 * instanced in code.
+	 */
+	private void createProvidedWidgets() {
+		
+		this.webcam = new WlWebcam(this.getWebcamRefreshingTime(), this.getWebcamImageUrl());
+		
+		this.timer = new WlTimer(false);
+		
+		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
+			public void onFinished() {
+			    WlDeustoLogicBasedBoard.this.boardController.onClean();
+			}
+		});	
+		
 	}
 	
 	private void fillMaps(){
+		
 	    this.operation2url.put(Operation.AND,  GWT.getModuleBaseURL() + "img/logic/AND.png");
 	    this.operation2url.put(Operation.NAND, GWT.getModuleBaseURL() + "img/logic/NAND.png");
 	    this.operation2url.put(Operation.OR,   GWT.getModuleBaseURL() + "img/logic/OR.png");
@@ -140,7 +189,8 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 	    this.operation2url.put(Operation.XOR,  GWT.getModuleBaseURL() + "img/logic/XOR.png");
 	    
 	    for(Operation op : this.operation2url.keySet())
-		this.url2operation.put(this.operation2url.get(op), op);
+	    	this.url2operation.put(this.operation2url.get(op), op);
+	    
 	}
 	
 	public String getURL(Operation operation){
@@ -157,51 +207,33 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 	    this.circuit.setUnknownOperation(0, operation);
 	}
 
+	/**
+	 * The initialize function gets called on the "reserve" stage,
+	 * before the experiment starts.
+	 */
 	@Override
 	public void initialize(){
-		this.removableWidgetsPanel.add(new Label("Welcome to the WebLab-Deusto Logic Game!"));
-		this.removableWidgetsPanel.add(new Label("Replace the unknown gate with the correct one so the LED turns on."));
-		this.removableWidgetsPanel.add(new Label("Solve as many circuits as possible to get more points and become the champion!"));
-		this.removableWidgetsPanel.add(new HTML("You can check your score at <a href='/weblab/admin/winners.py'>the winners page</a>"));
-		
-		this.widget.add(this.removableWidgetsPanel);
 	}	
 	
 	@Override
 	public void queued(){
-	    	this.widget.setVisible(false);
+	    this.widget.setVisible(false);
 	}	
 	
+	/**
+	 * This function gets called just when the actual experiment starts, after
+	 * the reserve is done and the queue is over.
+	 */
 	@Override
 	public void start() {
-	    	this.points = 0;
-	    	this.widget.setVisible(true);
 		
-		while(this.removableWidgetsPanel.getWidgetCount() > 0)
-		    this.removableWidgetsPanel.remove(0);
-
-		// Timer
-		this.timer = new WlTimer();
-		this.timer.setStyleName(WlDeustoGpibBoard.Style.TIME_REMAINING);
-		this.timer.getWidget().setWidth("30%");
-		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
-			public void onFinished() {
-			    WlDeustoLogicBasedBoard.this.boardController.onClean();
-			}
-		});
-		this.removableWidgetsPanel.add(this.timer.getWidget());		
-
-		// Horizontal Panel
-		this.circuitAndWebcamPanel = new WlHorizontalPanel();
-		this.circuitAndWebcamPanel.setWidth("100%");
-		this.circuitAndWebcamPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		this.textIntroPanel.setVisible(false);
+		this.webcam.setVisible(true);
 		
-		this.circuitAndWebcamPanel.add(this.referenceToShowBoxesLabel);
+	    this.points = 0;
+	    this.widget.setVisible(true);
 		
-		// Circuit
-		this.circuitGrid = new Grid(5, 8);
-		this.circuitGrid.setBorderWidth(0);
-		this.circuitAndWebcamPanel.add(this.circuitGrid);
+	    this.timer.start();	
 		
 		// Inputs
 		this.input1Label = new HTML(this.getFormatedInputLabel(this.zeroString, 1));
@@ -236,7 +268,7 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 		this.circuitGrid.setWidget(2, 6, this.gateC1Image);
 		
 		// Connections
-		for(RowColumnPair pair : RowColumnPair.getRowsColumnPairs()){
+		for(final RowColumnPair pair : RowColumnPair.getRowsColumnPairs()){
 		    final Image pairImage = new Image(pair.getImageResourceWeb());
 		    this.circuitGrid.setWidget(pair.getRow(), pair.getColumn() + 1, pairImage);
 		}
@@ -246,46 +278,45 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 		this.unknownGateImage.addStyleName(Style.LOGIC_MOUSE_POINTER_HAND);
 		this.changeUnknownGateDialogBox = new ChangeUnknownGateDialogBox(this);
 		this.unknownGateImage.addClickHandler(new ClickHandler(){
+			
 		    @Override
 		    public void onClick(ClickEvent event) {
-			if(WlDeustoLogicBasedBoard.this.solving)
-			    //WlDeustoLogicBasedBoard.this.changeUnknownGateDialogBox.show();
-			    WlDeustoLogicBasedBoard.this.changeUnknownGateDialogBox.showRelativeTo(WlDeustoLogicBasedBoard.this.referenceToShowBoxesLabel);
-			
+		    	if(WlDeustoLogicBasedBoard.this.solving)
+		    		//WlDeustoLogicBasedBoard.this.changeUnknownGateDialogBox.show();
+		    		WlDeustoLogicBasedBoard.this.changeUnknownGateDialogBox.showRelativeTo(WlDeustoLogicBasedBoard.this.referenceToShowBoxesLabel);
 		    }
+		    
 		});
 		
 		// Webcam
-    		this.webcam = new WlWebcam(this.getWebcamRefreshingTime(), this.getWebcamImageUrl());
-    		this.webcam.start();
+    	this.webcam.start();
 		this.circuitAndWebcamPanel.add(this.webcam.getWidget());
 
 		this.circuitAndWebcamPanel.setCellHorizontalAlignment(this.circuitGrid, HasHorizontalAlignment.ALIGN_RIGHT);
 		this.circuitAndWebcamPanel.setCellVerticalAlignment(this.webcam.getWidget(), HasVerticalAlignment.ALIGN_MIDDLE);
 		this.circuitAndWebcamPanel.setCellHorizontalAlignment(this.webcam.getWidget(), HasHorizontalAlignment.ALIGN_LEFT);
-		this.removableWidgetsPanel.add(this.circuitAndWebcamPanel);
 		
 		// Messages
-		this.messages = new WlWaitingLabel("Receiving the circuit");
+		this.messages.setText("Receiving the circuit");
 		this.messages.start();
-		this.removableWidgetsPanel.add(this.messages.getWidget());
 		
-		// Send Solution button
-		this.sendSolutionButton = new Button("Send Solution");
-		this.sendSolutionButton.setEnabled(false);
-		this.sendSolutionButton.addClickHandler(new ClickHandler(){
-
-		    @Override
-		    public void onClick(ClickEvent event) {
-			WlDeustoLogicBasedBoard.this.sendCommand(new SolveCircuitCommand(WlDeustoLogicBasedBoard.this.circuit));
-			WlDeustoLogicBasedBoard.this.messages.setText("Sending solution");
-			WlDeustoLogicBasedBoard.this.messages.start();
-		    }
-		});
-		this.removableWidgetsPanel.add(this.sendSolutionButton);
-
 		this.sendCommand(new GetCircuitCommand());
+	
+    	this.sendSolutionButton.setVisible(true);
 	}	
+	
+	
+	/**
+	 * @param event Click event that is passed to the handler. 
+	 */
+	@UiHandler("sendSolutionButton")
+	public void onSendSolutionClicked(ClickEvent event) {
+		WlDeustoLogicBasedBoard.this.messages.setVisible(true);
+		WlDeustoLogicBasedBoard.this.sendCommand(new SolveCircuitCommand(WlDeustoLogicBasedBoard.this.circuit));
+		WlDeustoLogicBasedBoard.this.messages.setText("Sending solution");
+		WlDeustoLogicBasedBoard.this.messages.start();
+	}
+	
 	
 	@Override
 	public void setTime(int time) {
@@ -336,39 +367,46 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 		this.boardController.sendCommand(command, this.commandCallback);
 	}
 	
-	private void processCommandSent(ResponseCommand responseCommand){
-	    	if ( this.lastCommand instanceof GetCircuitCommand ){
-	    	    this.messages.stop();
-	    	    this.messages.setText("");
-		    final CircuitParser circuitParser = new CircuitParser();
-		    try {
-			this.circuit = circuitParser.parseCircuit(responseCommand.getCommandString());
-		    } catch (InvalidCircuitException e) {
-			this.messages.setText("Invalid Circuit received: " + e.getMessage());
-			return;
-		    }
-            this.sendSolutionButton.setEnabled(false);
-		    this.updateCircuitGrid();
-	    	} else if ( this.lastCommand instanceof SolveCircuitCommand ) {
-	    	    this.messages.stop();
-	    	    
-	    	    if(responseCommand.getCommandString().startsWith("FAIL")){
-	    		this.solving = false;
-	    		this.messages.setText("Wrong one! Game over. Total points: " + this.points);
-	    		this.sendSolutionButton.setEnabled(false);
-	    	    }else if(responseCommand.getCommandString().startsWith("OK")){
-	    		this.points++;
-	    		this.messages.setText("Well done! 1 point. Let's see the next one!");
-	    		Timer sleepTimer = new Timer(){
+	private void processCommandSent(ResponseCommand responseCommand) {
+		if (this.lastCommand instanceof GetCircuitCommand) {
+			this.messages.stop();
+			this.messages.setText("");
+			final CircuitParser circuitParser = new CircuitParser();
+			try {
+				this.circuit = circuitParser.parseCircuit(responseCommand
+						.getCommandString());
+			} catch (InvalidCircuitException e) {
+				this.messages.setText("Invalid Circuit received: "
+						+ e.getMessage());
+				return;
+			}
+			this.sendSolutionButton.setEnabled(false);
+			this.updateCircuitGrid();
+		} else if (this.lastCommand instanceof SolveCircuitCommand) {
+			this.messages.stop();
 
-			    @Override
-			    public void run() {
-				WlDeustoLogicBasedBoard.this.sendCommand(new GetCircuitCommand());
-			    }};
-	    		sleepTimer.schedule(2000);
-	    	    }
-	    	    
-		}else{
+			if (responseCommand.getCommandString().startsWith("FAIL")) {
+				this.solving = false;
+				this.messages.setText("Wrong one! Game over. Total points: "
+						+ this.points);
+				this.sendSolutionButton.setEnabled(false);
+			} else if (responseCommand.getCommandString().startsWith("OK")) {
+				this.points++;
+				this.messages
+						.setText("Well done! 1 point. Let's see the next one!");
+				final Timer sleepTimer = new Timer() {
+
+					@Override
+					public void run() {
+						WlDeustoLogicBasedBoard.this
+								.sendCommand(new GetCircuitCommand());
+					}
+					
+				};
+				sleepTimer.schedule(2000);
+			}
+
+		} else {
 			// TODO: Unknown command!
 		}
 	}
