@@ -87,7 +87,7 @@
 		$missing_params = "";
 		foreach ( $missing as $miss )
 		{
-			$missing_params .= sprintf("Missing paramater: %s<br>", $miss);
+			$missing_params .= sprintf("Missing paramater: %s", $miss);
 		}
 		$message = sprintf("ERROR@%s@%s", $WEBLAB_GENERAL_EXCEPTION_CODE, $missing_params);
 	}

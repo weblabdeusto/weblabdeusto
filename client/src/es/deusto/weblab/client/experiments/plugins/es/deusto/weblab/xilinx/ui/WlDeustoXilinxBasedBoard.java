@@ -154,6 +154,7 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 		});
 		
 		this.uploadStructure = new UploadStructure();
+		this.uploadStructure.setFileInfo("program");
 	}
 	
 	@Override
