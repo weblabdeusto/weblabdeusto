@@ -220,7 +220,7 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 		this.clockActivator.addClockActivationListener(clockActivationListener);
 		
 		this.addInteractiveWidget(this.timer.getWidget());
-		this.addInteractiveWidget(this.clockActivator.getWidget());
+		this.addInteractiveWidget(this.clockActivator);
 		
 		this.prepareSwitchesRow();
 		this.prepareButtonsRow();
