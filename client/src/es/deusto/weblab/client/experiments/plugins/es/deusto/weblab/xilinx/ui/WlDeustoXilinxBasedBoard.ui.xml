@@ -15,7 +15,7 @@
 			<!-- Originally the width was 85% but apparently the webcam doesn't appear centered in that case. -->
 			<g:VerticalPanel ui:field="innerVerticalPanel" borderWidth='0' horizontalAlignment='ALIGN_CENTER' width='100%' spacing='0'>
 			
-				<w:WlWebcam ui:field="webcam"></w:WlWebcam>
+				<g:HorizontalPanel ui:field="webcamPanel" width="100%" horizontalAlignment="ALIGN_CENTER" />
 							
 				<g:HorizontalPanel ui:field="timerMessagesPanel" borderWidth="0" width="100%" horizontalAlignment="ALIGN_CENTER">
 					<w:WlTimer ui:field="timer" width="30%" styleName="wl-time_remaining"></w:WlTimer>

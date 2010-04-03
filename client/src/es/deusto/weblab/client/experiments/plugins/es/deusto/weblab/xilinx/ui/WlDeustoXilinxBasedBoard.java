@@ -74,12 +74,12 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 
 	@UiField HorizontalPanel switchesRow;
 	@UiField HorizontalPanel buttonsRow;
+	@UiField HorizontalPanel webcamPanel;
 	
 	//@UiField(provided=true)
 	private UploadStructure uploadStructure;
 	
-	@UiField(provided = true) 
-	WlWebcam webcam;
+	private WlWebcam webcam;
 	
 	@UiField(provided = true)
 	WlTimer timer;
@@ -102,8 +102,8 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 		
 		uiBinder.createAndBindUi(this);
 		
-		// this.timerMessagesPanel.add(this.clockActivator);
-
+		this.webcamPanel.add(this.webcam.getWidget());
+		
 		this.findInteractiveWidgets();
 		
 		this.disableInteractiveWidgets();
@@ -167,7 +167,6 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 		this.uploadStructurePanel.add(this.uploadStructure.getFormPanel());
 	
 		this.webcam.setVisible(false);
-		
 	}
 	
 	@Override

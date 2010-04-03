@@ -77,6 +77,12 @@ public class WlWebcam extends Widget implements IWlWidget{
 		this.timer = null;
 	}
 	
+	@Override
+	public void setVisible(boolean visible){
+		super.setVisible(visible);
+		this.image.setVisible(visible);
+	}
+	
 	public void reload(){
 		if(this.running){
 			this.image.setUrl(this.getDifferentUrl());
