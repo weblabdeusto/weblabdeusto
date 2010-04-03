@@ -12,7 +12,12 @@
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 
-from Controller import Controller
+import sys, os
+sys.path.append(os.sep.join(('..','..','src')))
+
+import libraries
+
+from weblab.admin.dbmanager.Controller import Controller
 
 if __name__ == "__main__":
     controller = Controller()

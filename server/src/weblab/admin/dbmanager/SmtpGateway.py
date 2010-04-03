@@ -12,10 +12,6 @@
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 
-import sys, os
-sys.path.append(os.sep.join(("..","..","src")))
-
-import libraries
 import smtplib
 
 TEMPLATE = """From: %(FROM)s
