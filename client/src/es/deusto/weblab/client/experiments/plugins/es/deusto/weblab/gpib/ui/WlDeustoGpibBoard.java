@@ -56,7 +56,7 @@ public class WlDeustoGpibBoard extends BoardBase {
 	interface WlDeustoGpibBoardUiBinder extends UiBinder<Widget, WlDeustoGpibBoard> {
 	}
 
-	private static final WlDeustoGpibBoardUiBinder uiBinder = GWT.create(WlDeustoGpibBoardUiBinder.class);
+	static final WlDeustoGpibBoardUiBinder uiBinder = GWT.create(WlDeustoGpibBoardUiBinder.class);
 
 	
 	

@@ -109,7 +109,10 @@ public abstract class WlNumberTextBoxBase implements IWlWidget{
 	protected abstract Widget getTextWidget();
 	
 	public void setLength(int length){
-	    	final String formattedLength = length + "em";
+	    final String formattedLength = (length * 10) + "px";
+	    // XXX: this can't be used until bug 4772 of GWT is fixed:
+	    //   http://code.google.com/p/google-web-toolkit/issues/detail?id=4772
+	    // final String formattedLength = length + "em";
 		this.getTextWidget().setWidth(formattedLength);
 	}
 	

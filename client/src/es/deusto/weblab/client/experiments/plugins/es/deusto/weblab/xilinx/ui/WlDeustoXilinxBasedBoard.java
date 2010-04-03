@@ -68,6 +68,7 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 	
 	@UiField Label selectProgram;
 	
+	@UiField HorizontalPanel timerMessagesPanel;
 	@UiField WlWaitingLabel messages;
 	@UiField WlClockActivator clockActivator;
 
@@ -100,6 +101,8 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 		this.createProvidedWidgets();
 		
 		uiBinder.createAndBindUi(this);
+		
+		// this.timerMessagesPanel.add(this.clockActivator);
 
 		this.findInteractiveWidgets();
 		
