@@ -16,7 +16,7 @@ import sys
 import os
 import getpass
 
-from Exceptions import GoBackException
+from Exceptions import GoBackException, InvalidNullableAndDefaultValuesException
 
 GO_BACK_KEYWORD = "[back]"
 
