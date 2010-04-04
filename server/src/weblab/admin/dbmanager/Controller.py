@@ -22,8 +22,9 @@ from DbGateway import DbGateway
 from SmtpGateway import SmtpGateway
 try:
     from LdapGateway import LdapGateway
+    LdapGatewayClass = LdapGateway
 except ImportError:
-    LdapGateway = None
+    LdapGatewayClass = None
 
 try:
     from configuration import DB_HOST, SMTP_HOST, SMTP_HELO
@@ -138,7 +139,7 @@ class Controller(object):
             return
         
     def add_users_with_ldap_authtype(self):
-        if LdapGateway is None:
+        if LdapGatewayClass is None:
             self.ui.error("LDAP is not available. Is python-ldap installed?")
             self.ui.wait()
             return
@@ -155,7 +156,7 @@ class Controller(object):
             role = roles[role_index] if role_index is not None else None
             auth = auths[auth_index]
             auth_username, auth_password, auth_domain = self.ui.dialog_authenticate_on_ldap()
-            ldap = LdapGateway(auth.get_config_value("ldap_uri"),
+            ldap = LdapGatewayClass(auth.get_config_value("ldap_uri"),
                                auth_domain,
                                auth.get_config_value("base"),
                                auth_username, auth_password)

@@ -18,14 +18,6 @@ class DatabaseException(WebLabExceptions.WebLabException):
     def __init__(self,*args,**kargs):
         WebLabExceptions.WebLabException.__init__(self,*args,**kargs)
 
-class DbCredentialsLevelNotFoundException(DatabaseException):
-    def __init__(self,*args,**kargs):
-        DatabaseException.__init__(self,*args,**kargs)
-
-class DaoUserNotFoundException(DatabaseException):
-    def __init__(self,*args,**kargs):
-        DatabaseException.__init__(self,*args,**kargs)
-
 class DbInvalidUserOrPasswordException(DatabaseException):
     def __init__(self,*args,**kargs):
         DatabaseException.__init__(self,*args,**kargs)
