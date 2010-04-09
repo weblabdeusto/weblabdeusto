@@ -13,7 +13,7 @@
 		   		<g:Image resource='{res.logo}' />
 			</g:HorizontalPanel>
 			
-	   		<g:HorizontalPanel ui:field="langsPanel" styleName="web-login-languages" />		    	
+	   		<g:HorizontalPanel ui:field="langsPanel" spacing="15" styleName="web-login-languages" />		    	
 	    	
 	    	<g:VerticalPanel styleName="web-login-form">
 	    	
