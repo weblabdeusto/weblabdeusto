@@ -261,7 +261,7 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 				if(swi.getTitle().length() != 1) 
 					continue;
 				
-				final int id = Integer.parseInt(swi.getTitle());
+				final int id = this.switchesRow.getWidgetCount() - Integer.parseInt(swi.getTitle()) - 1;
 				final IWlActionListener actionListener = new SwitchListener(id, this.boardController, this.getResponseCommandCallback());
 				swi.addActionListener(actionListener);
 				this.addInteractiveWidget(swi);
