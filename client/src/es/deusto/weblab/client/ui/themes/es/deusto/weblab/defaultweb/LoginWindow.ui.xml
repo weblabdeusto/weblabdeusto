@@ -4,6 +4,10 @@
     xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
     
     <ui:with field='res' type='es.deusto.weblab.client.ui.themes.es.deusto.weblab.defaultweb.Resources'/>
+
+    <ui:style>
+    	.bold-text { font-weight: bold;  }
+    </ui:style>
         
     <g:VerticalPanel ui:field="containerPanel" styleName="web-login-container">
     
@@ -45,6 +49,17 @@
 		<g:HorizontalPanel styleName="web-login-foot-message">
 			<g:HTML ui:field="supportHTML"></g:HTML>
 		</g:HorizontalPanel>
+				
+   		<g:Cell horizontalAlignment="ALIGN_CENTER">
+			<g:HorizontalPanel width="100%" horizontalAlignment="ALIGN_CENTER" spacing="10">
+				<g:Cell width="50%" horizontalAlignment="ALIGN_RIGHT">
+					<g:Label text="classic" styleName="{style.bold-text}"></g:Label>
+				</g:Cell>
+				<g:Cell horizontalAlignment="ALIGN_LEFT">
+					<g:Anchor text="mobile (beta)" href=".?mobile=true"></g:Anchor>
+				</g:Cell>
+			</g:HorizontalPanel>
+		</g:Cell>
 				
 	</g:VerticalPanel>
 	
