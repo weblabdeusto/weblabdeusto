@@ -52,38 +52,38 @@ class DbGateway(object):
                 
     def get_groups(self):
         try:
-            return self.session.query(Model.DbGroup).all()
+            return self.session.query(Model.DbGroup).order_by('id').all()
         except NoResultFound:
             return []
                 
     def get_users(self):
         try:
-            return self.session.query(Model.DbUser).all()
+            return self.session.query(Model.DbUser).order_by('id').all()
         except NoResultFound:
             return []
         
     def get_experiment_categories(self):
         try:
-            return self.session.query(Model.DbExperimentCategory).all()
+            return self.session.query(Model.DbExperimentCategory).order_by('id').all()
         except NoResultFound:
             return []
         
     def get_experiments(self):
         try:
-            return self.session.query(Model.DbExperiment).all()
+            return self.session.query(Model.DbExperiment).order_by('id').all()
         except NoResultFound:
             return []
                 
     def get_roles(self):
         try:
-            return self.session.query(Model.DbRole).all()
+            return self.session.query(Model.DbRole).order_by('id').all()
         except NoResultFound:
             return []
 
     def get_auths(self, authtype_name):
-        auth_type = self.session.query(Model.DbAuthType).filter_by(name=authtype_name).one()
+        auth_type = self.session.query(Model.DbAuthType).filter_by(name=authtype_name).order_by('id').one()
         try:
-            return self.session.query(Model.DbAuth).filter_by(auth_type=auth_type).all()
+            return self.session.query(Model.DbAuth).filter_by(auth_type=auth_type).order_by('id').all()
         except NoResultFound:
             return []
 

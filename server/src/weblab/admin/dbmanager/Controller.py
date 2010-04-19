@@ -77,10 +77,10 @@ class Controller(object):
 
     def add_group(self):
         groups = self.db.get_groups()
-        group_names = [ group.name for group in groups ]
+        group_names = [ (group.id, group.name) for group in groups ]
         try:
-            group_name, parent_group_index = self.ui.dialog_add_group(group_names)
-            parent_group = groups[parent_group_index] if parent_group_index is not None else None             
+            group_name, parent_group_id = self.ui.dialog_add_group(group_names)
+            parent_group = [ group for group in groups if group.id == parent_group_id ][0] if parent_group_id is not None else None             
             group = self.db.insert_group(group_name, parent_group)
             if group is not None:
                 self.ui.notify("Group created:\n%r" % group)
@@ -104,10 +104,10 @@ class Controller(object):
                     
     def add_experiment(self):
         categories = self.db.get_experiment_categories()
-        category_names = [ category.name for category in categories ]
+        category_names = [ (category.id, category.name) for category in categories ]
         try:
-            experiment_name, category_index = self.ui.dialog_add_experiment(category_names)
-            category = categories[category_index]
+            experiment_name, category_id = self.ui.dialog_add_experiment(category_names)
+            category = [ category for category in categories if category.id == category_id ][0]
             start_date = datetime.datetime.utcnow()
             end_date = start_date.replace(year=start_date.year+10)
             experiment = self.db.insert_experiment(experiment_name, category, start_date, end_date)
@@ -121,13 +121,13 @@ class Controller(object):
         
     def add_user_with_db_authtype(self):
         roles = self.db.get_roles()
-        role_names = [ role.name for role in roles ]
+        role_names = [ (role.id, role.name) for role in roles ]
         auths = self.db.get_auths("DB")
-        auth_names = [ auth.name for auth in auths ]
+        auth_names = [ (auth.id, auth.name) for auth in auths ]
         try:
-            login, full_name, email, avatar, role_index, auth_index, user_auth_config = self.ui.dialog_add_user_with_db_authtype(role_names, auth_names)
-            role = roles[role_index] if role_index is not None else None
-            auth = auths[auth_index]
+            login, full_name, email, avatar, role_id, auth_id, user_auth_config = self.ui.dialog_add_user_with_db_authtype(role_names, auth_names)
+            role = [ role for role in roles if role.id == role_id ][0] if role_id is not None else None
+            auth = [ auth for auth in auths if auth.id == auth_id ][0]
             user = self.db.insert_user(login, full_name, email, avatar, role)
             if user is not None:
                 self.ui.notify("User created:\n%r" % user)
@@ -146,17 +146,17 @@ class Controller(object):
             self.ui.wait()
             return
         roles = self.db.get_roles()
-        role_names = [ role.name for role in roles ]
+        role_names = [ (role.id, role.name) for role in roles ]
         auths = self.db.get_auths("LDAP")
-        auth_names = [ auth.name for auth in auths ]
+        auth_names = [ (auth.id, auth.name) for auth in auths ]
         try:
-            user_logins, role_index, auth_index = self.ui.dialog_add_users_with_ldap_authtype(
+            user_logins, role_id, auth_id = self.ui.dialog_add_users_with_ldap_authtype(
                                                             role_names,
                                                             auth_names,
                                                             DEFAULT_LDAP_USERS_FILE
                                                   )
-            role = roles[role_index] if role_index is not None else None
-            auth = auths[auth_index]
+            role = [ role for role in roles if role.id == role_id ][0] if role_id is not None else None
+            auth = [ auth for auth in auths if auth.id == auth_id ][0]
             auth_username, auth_password, auth_domain = self.ui.dialog_authenticate_on_ldap()
             ldap = LdapGatewayClass(auth.get_config_value("ldap_uri"),
                                auth_domain,
@@ -177,14 +177,14 @@ class Controller(object):
         
     def grant_on_experiment_to_group(self):
         groups = self.db.get_groups()
-        group_names = [ group.name for group in groups ]
+        group_names = [ (group.id, group.name) for group in groups ]
         experiments = self.db.get_experiments()
-        experiment_names = [ experiment.name for experiment in experiments ]
+        experiment_names = [ (experiment.id, experiment.name) for experiment in experiments ]
         permission_type = self.db.get_permission_type("experiment_allowed")
         try:
-            group_index, experiment_index, time_allowed = self.ui.dialog_grant_on_experiment_to_group(group_names, experiment_names)
-            group = groups[group_index] if group_index is not None else None
-            experiment = experiments[experiment_index] if experiment_index is not None else None
+            group_id, experiment_id, time_allowed = self.ui.dialog_grant_on_experiment_to_group(group_names, experiment_names)
+            group = [ group for group in groups if group.id == group_id ][0] if group_id is not None else None
+            experiment = [ experiment for experiment in experiments if experiment.id == experiment_id ][0] if experiment_id is not None else None
             experiment_unique_id = "%s@%s" % (experiment.name, experiment.category.name)
             group_permission_permanent_id = "%s::%s" % (group.name, experiment_unique_id) 
             group_permission = self.db.grant_on_experiment_to_group(
@@ -208,14 +208,14 @@ class Controller(object):
         
     def grant_on_experiment_to_user(self):
         users = self.db.get_users()
-        user_names = [ user.login for user in users ]
+        user_names = [ (user.id, user.login) for user in users ]
         experiments = self.db.get_experiments()
-        experiment_names = [ experiment.name for experiment in experiments ]
+        experiment_names = [ (experiment.id, experiment.name) for experiment in experiments ]
         permission_type = self.db.get_permission_type("experiment_allowed")
         try:
-            user_index, experiment_index, time_allowed = self.ui.dialog_grant_on_experiment_to_user(user_names, experiment_names)
-            user = users[user_index] if user_index is not None else None
-            experiment = experiments[experiment_index] if experiment_index is not None else None
+            user_id, experiment_id, time_allowed = self.ui.dialog_grant_on_experiment_to_user(user_names, experiment_names)
+            user = [ user for user in users if user.id == user_id ][0] if user_id is not None else None
+            experiment = [ experiment for experiment in experiments if experiment.id == experiment_id ][0] if experiment_id is not None else None
             experiment_unique_id = "%s@%s" % (experiment.name, experiment.category.name)
             user_permission_permanent_id = "%s::%s" % (user.login, experiment_unique_id) 
             user_permission = self.db.grant_on_experiment_to_user(
@@ -239,13 +239,10 @@ class Controller(object):
         
     def list_users(self):
         groups = self.db.get_groups()
-        group_names = [ group.name for group in groups ]
+        group_names = [ (group.id, group.name) for group in groups ]
         try:
-            group_index = self.ui.dialog_list_users_get_group(group_names)
-            if group_index is not None:
-                users = groups[group_index].users
-            else:
-                users = self.db.get_users()
+            group_id = self.ui.dialog_list_users_get_group(group_names)
+            users = [ group.users for group in groups if group.id == group_id ][0] if group_id is not None else self.db.get_users()
             self.ui.dialog_list_users_show_users(users)
             self.ui.wait()
         except GoBackException:
@@ -253,19 +250,16 @@ class Controller(object):
         
     def notify_users(self):
         groups = self.db.get_groups()
-        group_names = [ group.name for group in groups ]
+        group_names = [ (group.id, group.name) for group in groups ]
         try:
-            fromm, group_index, bcc, subject, text = self.ui.dialog_notify_users(
+            fromm, group_id, bcc, subject, text = self.ui.dialog_notify_users(
                                                             group_names,
                                                             DEFAULT_NOTIFICATION_FROM,
                                                             DEFAULT_NOTIFICATION_BCC,
                                                             DEFAULT_NOTIFICATION_SUBJECT,
                                                             DEFAULT_NOTIFICATION_TEXT_FILE
                                                      )
-            if group_index is not None:
-                users = groups[group_index].users
-            else:
-                users = self.db.get_users()
+            users = [ group.users for group in groups if group.id == group_id ][0] if group_id is not None else self.db.get_users()
             if len(users) > 0:
                 smtp = SmtpGateway(SMTP_HOST, SMTP_HELO)
                 for user in users:
@@ -283,4 +277,5 @@ class Controller(object):
         for _ in range(4):
             c = chr(ord('a') + random.randint(0,25))
             randomstuff += c
+        password = password if password is not None else ''
         return randomstuff + "{sha}" + sha.new(randomstuff + password).hexdigest()

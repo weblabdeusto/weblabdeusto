@@ -166,10 +166,18 @@ class ConsoleUITestCase(unittest.TestCase):
         self.ui._raw_input_buffer = "5"
         number = self.ui._read_field_int("Number", nullable=False)
         self.assertEquals(number, 5)
-        
-    # these cases should also be tested
-    #def test_read_field_int_not_nullable_empty(self):
-    #def test_read_field_int_not_in_range(self):
+      
+    #
+    # _read_field_int_from_list()
+    #
+    
+    def test_read_field_int_from_list_ok(self):
+        self.ui._raw_input_buffer = "0"
+        option = self.ui._read_field_int_from_list("Option", [0,2,3])
+        self.assertEquals(option, 0)
+
+    # this case should also be tested
+    #def test_read_field_int_from_list_not_in_list(self):
       
     #
     # _read_field_str()
@@ -199,14 +207,14 @@ class ConsoleUITestCase(unittest.TestCase):
     
     def test_read_field_choose_ok(self):
         self.ui._raw_input_buffer = "0"
-        option = self.ui._read_field_choose("Option", ["first", "second", "third"])
+        option = self.ui._read_field_choose("Option", [(0,"red"), (2,"green"), (3,"blue")])
         self.assertEquals(option, 0)
         
     def test_read_field_choose_no_options_and_not_nullable(self):
         self.assertRaises(AssertionError,
                           self.ui._read_field_choose,
                           "Option", [], nullable=False)
-        
+
         
 
   

@@ -31,7 +31,7 @@ class ConsoleUI(object):
     def _getpass(self, prompt):
         return getpass.getpass(prompt)
     
-    def _print(self, text):
+    def _print(self, text=""):
         print text
         
     """
@@ -116,6 +116,13 @@ class ConsoleUI(object):
         while ( not nullable and response is None ) or ( response is not None and not self._in_range(response, min_value, max_value) ):
             response = self._read_int(label, default)
         return response
+
+    def _read_field_int_from_list(self, label, values, nullable=False, default=None):
+        label = self._format_label(label, nullable, default)
+        response = self._read_int(label, default)
+        while ( not nullable and response is None ) or ( response is not None and response not in values ):
+            response = self._read_int(label, default)
+        return response
             
     def _read_field_str(self, label, nullable=False, default=None):
         label = self._format_label(label, nullable, default)
@@ -127,12 +134,12 @@ class ConsoleUI(object):
     def _read_field_choose(self, label, options, nullable=False, default=None):
         if len(options) > 0:
             self._print()
-            for num, option in enumerate(options):
+            for num, option in options:
                 self._print(" %i. %s" % (num, option))
         else:
             assert nullable
             self._print(" [No options to choose]")
-        response = self._read_field_int(label, 0, len(options)-1, nullable, default)
+        response = self._read_field_int_from_list(label, map(lambda x: x[0], options), nullable, default)
         return response
             
     def _read_field_password(self, label, nullable=False, default=None):
