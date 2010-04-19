@@ -14,6 +14,8 @@
 
 import sys
 import datetime
+import random
+import sha
 
 from ConsoleUI import ConsoleUI
 from Exceptions import GoBackException
@@ -129,7 +131,7 @@ class Controller(object):
             user = self.db.insert_user(login, full_name, email, avatar, role)
             if user is not None:
                 self.ui.notify("User created:\n%r" % user)
-                user_auth = self.db.insert_user_auth(user, auth, user_auth_config)
+                user_auth = self.db.insert_user_auth(user, auth, self._password2sha(user_auth_config))
                 assert user_auth is not None
                 self.ui.notify("UserAuth created:\n%r" % user_auth)
             else:
@@ -275,3 +277,10 @@ class Controller(object):
             self.ui.wait()
         except GoBackException:
             return
+        
+    def _password2sha(self, password):
+        randomstuff = ""
+        for _ in range(4):
+            c = chr(ord('a') + random.randint(0,25))
+            randomstuff += c
+        return randomstuff + "{sha}" + sha.new(randomstuff + password).hexdigest()
