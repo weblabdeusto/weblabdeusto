@@ -15,13 +15,13 @@
 
 import unittest
 
-from weblab.admin.dbmanager.ConsoleUI import ConsoleUI
-from weblab.admin.dbmanager.Exceptions import InvalidNullableAndDefaultValuesException
+from weblab.admin.dbmanager.ConsoleUI import ConsoleUI, GO_BACK_KEYWORD
+from weblab.admin.dbmanager.Exceptions import InvalidNullableAndDefaultValuesException, GoBackException
 
 class ConsoleUITestCase(unittest.TestCase):
     
     def setUp(self):
-        self.ui = ConsoleUI()
+        self.ui = MockedConsoleUI()
         
     # _format_label()
     
@@ -80,6 +80,74 @@ class ConsoleUITestCase(unittest.TestCase):
         tuple_resulted = self.ui._csv_to_tuple(None)
         self.assertEquals(tuple_resulted, ())
       
+    # _read_int()
+
+    def test_read_int_ok(self):
+        self.ui._raw_input_buffer = "5"
+        number = self.ui._read_int("Name", default=None)
+        self.assertEquals(number, 5)
+
+    def test_read_int_default(self):
+        self.ui._raw_input_buffer = ""
+        number = self.ui._read_int("Name", default=5)
+        self.assertEquals(number, 5)
+
+    def test_read_int_back(self):
+        self.ui._raw_input_buffer = GO_BACK_KEYWORD
+        self.assertRaises(GoBackException,
+                          self.ui._read_int,
+                          "Name", default=None)
+      
+    # _read_str()
+
+    def test_read_str_ok(self):
+        self.ui._raw_input_buffer = "Jaime"
+        text = self.ui._read_str("Name", default=None)
+        self.assertEquals(text, "Jaime")
+
+    def test_read_str_default(self):
+        self.ui._raw_input_buffer = ""
+        text = self.ui._read_str("Name", default="Jaime")
+        self.assertEquals(text, "Jaime")
+
+    def test_read_str_back(self):
+        self.ui._raw_input_buffer = GO_BACK_KEYWORD
+        self.assertRaises(GoBackException,
+                          self.ui._read_str,
+                          "Name", default=None)
+      
+    # _read_password()
+
+    def test_read_password_ok(self):
+        self.ui._getpass_buffer = "password"
+        password = self.ui._read_password("Password", default=None)
+        self.assertEquals(password, "password")
+
+    def test_read_password_default(self):
+        self.ui._getpass_buffer = ""
+        password = self.ui._read_password("Password", default="password")
+        self.assertEquals(password, "password")
+
+    def test_read_password_back(self):
+        self.ui._getpass_buffer = GO_BACK_KEYWORD
+        self.assertRaises(GoBackException,
+                          self.ui._read_password,
+                          "Password", default=None)
+        
+
+class MockedConsoleUI(ConsoleUI):
+            
+    def __init__(self):
+        super(MockedConsoleUI, self).__init__()
+        self._raw_input_buffer = ""
+        self._getpass_buffer = ""
+        
+    def _raw_input(self, prompt):
+        return self._raw_input_buffer
+        
+    def _getpass(self, prompt):
+        return self._getpass_buffer
+    
 
 def suite():
     return unittest.makeSuite(ConsoleUITestCase)

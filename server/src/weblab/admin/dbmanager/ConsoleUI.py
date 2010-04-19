@@ -25,6 +25,12 @@ class ConsoleUI(object):
     def __init__(self):
         super(ConsoleUI, self).__init__()
         
+    def _raw_input(self, prompt):
+        return raw_input(prompt)
+    
+    def _getpass(self, prompt):
+        return getpass.getpass(prompt)
+        
     """
     These reading functions consider the following pre-conditions:
         * Keeping the input value blank means to accept the default value.
@@ -59,7 +65,7 @@ class ConsoleUI(object):
     def _read_int(self, label, default):
         while True:
             try:
-                input = raw_input(label)
+                input = self._raw_input(label)
                 if input == GO_BACK_KEYWORD:
                     raise GoBackException()
                 if len(input) == 0:
@@ -73,7 +79,7 @@ class ConsoleUI(object):
     def _read_str(self, label, default):
         while True:
             try:
-                input = raw_input(label)
+                input = self._raw_input(label)
                 if input == GO_BACK_KEYWORD:
                     raise GoBackException()
                 if len(input) == 0:
@@ -87,7 +93,7 @@ class ConsoleUI(object):
     def _read_password(self, label, default):
         while True:
             try:
-                input = getpass.getpass(label)
+                input = self._getpass(label)
                 if input == GO_BACK_KEYWORD:
                     raise GoBackException()
                 if len(input) == 0:
@@ -333,7 +339,7 @@ class ConsoleUI(object):
         print
         response = ""
         while response.lower() not in ("y", "n"):
-            response = raw_input("%s (y/n): " % question)
+            response = self._raw_input("%s (y/n): " % question)
         return response == "y"  
     
     def notify(self, message):
