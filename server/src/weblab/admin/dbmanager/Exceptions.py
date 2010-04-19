@@ -15,7 +15,3 @@
 class GoBackException(Exception):
     def __init__(self):
         super(GoBackException, self).__init__()
-
-class InvalidNullableAndDefaultValuesException(Exception):
-    def __init__(self, message):
-        super(InvalidNullableAndDefaultValuesException, self).__init__(message)

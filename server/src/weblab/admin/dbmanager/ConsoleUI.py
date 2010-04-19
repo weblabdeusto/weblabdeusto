@@ -16,7 +16,7 @@ import sys
 import os
 import getpass
 
-from Exceptions import GoBackException, InvalidNullableAndDefaultValuesException
+from Exceptions import GoBackException
 
 GO_BACK_KEYWORD = "[back]"
 
@@ -30,6 +30,9 @@ class ConsoleUI(object):
     
     def _getpass(self, prompt):
         return getpass.getpass(prompt)
+    
+    def _print(self, text):
+        print text
         
     """
     These reading functions consider the following pre-conditions:
@@ -39,8 +42,7 @@ class ConsoleUI(object):
     """        
         
     def _format_label(self, label, nullable=False, default=None):
-        if nullable and default is not None:
-            raise InvalidNullableAndDefaultValuesException("Programming error: it's not allowed to give a default value for a nullable field.")
+        assert not ( nullable and default is not None )
         if default is not None:
             label += " [default: %s]" % default
         else:
@@ -124,11 +126,12 @@ class ConsoleUI(object):
 
     def _read_field_choose(self, label, options, nullable=False, default=None):
         if len(options) > 0:
-            print
+            self._print()
             for num, option in enumerate(options):
-                print " %i. %s" % (num, option)
+                self._print(" %i. %s" % (num, option))
         else:
-            print " [No options to choose]"
+            assert nullable
+            self._print(" [No options to choose]")
         response = self._read_field_int(label, 0, len(options)-1, nullable, default)
         return response
             
@@ -195,19 +198,19 @@ class ConsoleUI(object):
     #
             
     def _clean(self, can_go_back=True):
-        for i in xrange(50):
-            print
-        print "----------------------------------"
-        print "- WebLab-Deusto Database Manager -"
-        print "----------------------------------"
+        for _ in xrange(50):
+            self._print()
+        self._print("----------------------------------")
+        self._print("- WebLab-Deusto Database Manager -")
+        self._print("----------------------------------")
         if can_go_back:
-            print "     type '%s' to go back" % GO_BACK_KEYWORD
-        print
+            self._print("     type '%s' to go back" % GO_BACK_KEYWORD)
+        self._print()
         
     def dialog_init(self, default_db_name, default_db_user, default_db_pass):
         self._clean(False)
-        print "Connection"
-        print 
+        self._print("Connection")
+        self._print()
         return self._read_field_str("Database name", default=default_db_name), \
                self._read_field_str("Database user", default=default_db_user), \
                self._read_field_password("Database password", default=default_db_pass)
@@ -215,20 +218,20 @@ class ConsoleUI(object):
                 
     def dialog_menu(self):
         self._clean(False)
-        print "Main Menu"
-        print 
-        print "1. Add Group"
-        print "2. Add Experiment Category"
-        print "3. Add Experiment"
-        print "4. Add User with DB AuthType"
-        print "5. Add Users with LDAP AuthType"
-        print "6. Grant on Experiment to Group"
-        print "7. Grant on Experiment to User"
-        print "8. List Users"
-        print "9. Notify Users"
-        print
-        print "0. Exit"
-        print
+        self._print("Main Menu")
+        self._print() 
+        self._print("1. Add Group")
+        self._print("2. Add Experiment Category")
+        self._print("3. Add Experiment")
+        self._print("4. Add User with DB AuthType")
+        self._print("5. Add Users with LDAP AuthType")
+        self._print("6. Grant on Experiment to Group")
+        self._print("7. Grant on Experiment to User")
+        self._print("8. List Users")
+        self._print("9. Notify Users")
+        self._print()
+        self._print("0. Exit")
+        self._print()
         while True:
             try:
                 option = self._read_field_int("Option", 0, 9)
@@ -239,28 +242,28 @@ class ConsoleUI(object):
 
     def dialog_add_group(self, groups):
         self._clean()
-        print "Add Group"
-        print
+        self._print("Add Group")
+        self._print()
         return self._read_field_str("Name"), \
                self._read_field_choose("Parent Group", groups, True)
 
     def dialog_add_experiment_category(self):
         self._clean()
-        print "Add Experiment Category"
-        print 
+        self._print("Add Experiment Category")
+        self._print()
         return self._read_field_str("Name")
         
     def dialog_add_experiment(self, categories):
         self._clean()
-        print "Add Experiment"
-        print 
+        self._print("Add Experiment")
+        self._print()
         return self._read_field_str("Name"), \
                self._read_field_choose("Category", categories)
                
     def dialog_add_user_with_db_authtype(self, roles, auths):
         self._clean()
-        print "Add User with DB AuthType"
-        print 
+        self._print("Add User with DB AuthType")
+        self._print()
         return self._read_field_str("Login"), \
                self._read_field_str("Full name"), \
                self._read_field_email("Email"), \
@@ -271,49 +274,49 @@ class ConsoleUI(object):
                
     def dialog_authenticate_on_ldap(self):
         self._clean()
-        print "LDAP Authentication"
-        print 
+        self._print("LDAP Authentication")
+        self._print()
         return self._read_field_str("Username"), \
                self._read_field_password("Password"), \
                self._read_field_str("Domain")               
                
     def dialog_add_users_with_ldap_authtype(self, roles, auths, default_users_file):
         self._clean()
-        print "Add Users with LDAP AuthType"
-        print 
+        self._print("Add Users with LDAP AuthType")
+        self._print()
         user_logins = self._read_field_users_file("Users file", default=default_users_file)
         for user_login in user_logins:
-            print " %s" % user_login
+            self._print(" %s" % user_login)
         return user_logins, \
                self._read_field_choose("Role", roles, True), \
                self._read_field_choose("Auth", auths)               
                
     def dialog_grant_on_experiment_to_group(self, groups, experiments):
         self._clean()
-        print "Grant on Experiment to Group"
-        print 
+        self._print("Grant on Experiment to Group")
+        self._print()
         return self._read_field_choose("Group", groups), \
                self._read_field_choose("Experiment", experiments), \
                self._read_field_int("Time allowed")               
                
     def dialog_grant_on_experiment_to_user(self, users, experiments):
         self._clean()
-        print "Grant on Experiment to User"
-        print 
+        self._print("Grant on Experiment to User")
+        self._print()
         return self._read_field_choose("User", users), \
                self._read_field_choose("Experiment", experiments), \
                self._read_field_int("Time allowed")         
                
     def dialog_list_users_get_group(self, groups):
         self._clean()
-        print "List Users"
-        print 
+        self._print("List Users")
+        self._print()
         return self._read_field_choose("Group", groups, True)
   
     def dialog_notify_users(self, groups, default_from, default_bcc, default_subject, default_text_file):
         self._clean()
-        print "Notify Users"
-        print
+        self._print("Notify Users")
+        self._print()
         return self._read_field_email("From", default=default_from), \
                self._read_field_choose("To", groups), \
                self._read_field_emails("BCC", default=default_bcc), \
@@ -322,42 +325,42 @@ class ConsoleUI(object):
 
     def dialog_list_users_show_users(self, users):
         self._clean()
-        print "List Users"
-        print
+        self._print("List Users")
+        self._print()
         if len(users) > 0: 
             for user in users:
-                print user
+                self._print(user)
         else:
-            print "[No Users in the database]"
+            self._print("[No Users in the database]")
                
     def dialog_exit(self):
         self._clean(False)
-        print "Good bye."
-        print 
+        self._print("Good bye.")
+        self._print()
         
     def ask(self, question):
-        print
+        self._print()
         response = ""
         while response.lower() not in ("y", "n"):
             response = self._raw_input("%s (y/n): " % question)
         return response == "y"  
     
     def notify(self, message):
-        print
-        print message
+        self._print()
+        self._print(message)
     
     def notify_begin(self, message):
-        print
-        print message,
+        self._print()
+        self._print(message,)
 
     def notify_end(self, message):
-        print message
+        self._print(message)
         
     def error(self, message):
-        print
-        print "Error: " + message
+        self._print()
+        self._print("Error: " + message)
         
     def wait(self):
-        print
-        print "Press any key to continue...",
+        self._print()
+        self._print("Press any key to continue...",)
         sys.stdin.read(1)

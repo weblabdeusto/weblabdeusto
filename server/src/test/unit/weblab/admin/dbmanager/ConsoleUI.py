@@ -16,14 +16,16 @@
 import unittest
 
 from weblab.admin.dbmanager.ConsoleUI import ConsoleUI, GO_BACK_KEYWORD
-from weblab.admin.dbmanager.Exceptions import InvalidNullableAndDefaultValuesException, GoBackException
+from weblab.admin.dbmanager.Exceptions import GoBackException
 
 class ConsoleUITestCase(unittest.TestCase):
     
     def setUp(self):
         self.ui = MockedConsoleUI()
         
+    #
     # _format_label()
+    #
     
     def test_format_label_not_nullable_and_not_default(self):
         label = self.ui._format_label("Name", nullable=False, default=None)
@@ -38,11 +40,13 @@ class ConsoleUITestCase(unittest.TestCase):
         self.assertEquals(label, "Name [default: <null>]: ")
         
     def test_format_label_nullable_and_default(self):
-        self.assertRaises(InvalidNullableAndDefaultValuesException,
+        self.assertRaises(AssertionError,
                           self.ui._format_label,
                           "Name", nullable=True, default="Jaime")
     
+    #
     # _in_range()
+    #
     
     def test_in_range_ok(self):
         inrange = self.ui._in_range(5, 4, 6)
@@ -56,7 +60,9 @@ class ConsoleUITestCase(unittest.TestCase):
         inrange = self.ui._in_range(7, 4, 6)
         self.assertFalse(inrange)
         
+    #
     # _valid_list_of_emails()
+    #
     
     def test_valid_list_of_emails_ok(self):
         valid = self.ui._valid_list_of_emails(["a@a.com", "b@b.com"])
@@ -70,7 +76,9 @@ class ConsoleUITestCase(unittest.TestCase):
         valid = self.ui._valid_list_of_emails(["a@a.com", "b@bcom"])
         self.assertFalse(valid)
 
+    #
     # _csv_to_tuple()
+    #
 
     def test_csv_to_tuple_ok(self):
         tuple_resulted = self.ui._csv_to_tuple("a, b")
@@ -80,25 +88,29 @@ class ConsoleUITestCase(unittest.TestCase):
         tuple_resulted = self.ui._csv_to_tuple(None)
         self.assertEquals(tuple_resulted, ())
       
+    #
     # _read_int()
+    #
 
     def test_read_int_ok(self):
         self.ui._raw_input_buffer = "5"
-        number = self.ui._read_int("Name", default=None)
+        number = self.ui._read_int("Number", default=None)
         self.assertEquals(number, 5)
 
     def test_read_int_default(self):
         self.ui._raw_input_buffer = ""
-        number = self.ui._read_int("Name", default=5)
+        number = self.ui._read_int("Number", default=5)
         self.assertEquals(number, 5)
 
     def test_read_int_back(self):
         self.ui._raw_input_buffer = GO_BACK_KEYWORD
         self.assertRaises(GoBackException,
                           self.ui._read_int,
-                          "Name", default=None)
+                          "Number", default=None)
       
+    #
     # _read_str()
+    #
 
     def test_read_str_ok(self):
         self.ui._raw_input_buffer = "Jaime"
@@ -116,7 +128,9 @@ class ConsoleUITestCase(unittest.TestCase):
                           self.ui._read_str,
                           "Name", default=None)
       
+    #
     # _read_password()
+    #
 
     def test_read_password_ok(self):
         self.ui._getpass_buffer = "password"
@@ -133,7 +147,69 @@ class ConsoleUITestCase(unittest.TestCase):
         self.assertRaises(GoBackException,
                           self.ui._read_password,
                           "Password", default=None)
+      
+    #
+    # _read_field_int()
+    #
+    
+    def test_read_field_int_nullable_ok(self):
+        self.ui._raw_input_buffer = "5"
+        number = self.ui._read_field_int("Number", nullable=True)
+        self.assertEquals(number, 5)
+    
+    def test_read_field_int_nullable_empty(self):
+        self.ui._raw_input_buffer = ""
+        number = self.ui._read_field_int("Number", nullable=True)
+        self.assertEquals(number, None)
         
+    def test_read_field_int_not_nullable_ok(self):
+        self.ui._raw_input_buffer = "5"
+        number = self.ui._read_field_int("Number", nullable=False)
+        self.assertEquals(number, 5)
+        
+    # these cases should also be tested
+    #def test_read_field_int_not_nullable_empty(self):
+    #def test_read_field_int_not_in_range(self):
+      
+    #
+    # _read_field_str()
+    #
+    
+    def test_read_field_str_nullable_ok(self):
+        self.ui._raw_input_buffer = "Jaime"
+        text = self.ui._read_field_str("Name", nullable=True)
+        self.assertEquals(text, "Jaime")
+    
+    def test_read_field_str_nullable_empty(self):
+        self.ui._raw_input_buffer = ""
+        text = self.ui._read_field_str("Name", nullable=True)
+        self.assertEquals(text, None)
+        
+    def test_read_field_str_not_nullable_ok(self):
+        self.ui._raw_input_buffer = "Jaime"
+        text = self.ui._read_field_str("Name", nullable=False)
+        self.assertEquals(text, "Jaime")
+        
+    # this case should also be tested
+    #def test_read_field_str_not_nullable_empty(self):
+      
+    #
+    # _read_field_choose()
+    #
+    
+    def test_read_field_choose_ok(self):
+        self.ui._raw_input_buffer = "0"
+        option = self.ui._read_field_choose("Option", ["first", "second", "third"])
+        self.assertEquals(option, 0)
+        
+    def test_read_field_choose_no_options_and_not_nullable(self):
+        self.assertRaises(AssertionError,
+                          self.ui._read_field_choose,
+                          "Option", [], nullable=False)
+        
+        
+
+  
 
 class MockedConsoleUI(ConsoleUI):
             
@@ -141,12 +217,16 @@ class MockedConsoleUI(ConsoleUI):
         super(MockedConsoleUI, self).__init__()
         self._raw_input_buffer = ""
         self._getpass_buffer = ""
+        self._stdout_buffer = ""
         
     def _raw_input(self, prompt):
         return self._raw_input_buffer
         
     def _getpass(self, prompt):
         return self._getpass_buffer
+    
+    def _print(self, text=""):
+        self._stdout_buffer += text
     
 
 def suite():
