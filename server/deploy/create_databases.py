@@ -160,7 +160,10 @@ admin2 = Model.DbUser("admin2", "Name of administrator 2", "weblab@deusto.es", N
 session.add(admin2)    
 
 admin3 = Model.DbUser("admin3", "Name of administrator 3", "weblab@deusto.es", None, administrator)
-session.add(admin3)    
+session.add(admin3)   
+
+any = Model.DbUser("any", "Name of any", "weblab@deusto.es", None, student)
+session.add(any) 
 
 prof1 = Model.DbUser("prof1", "Name of professor 1", "weblab@deusto.es", None, professor)
 session.add(prof1)    
@@ -211,6 +214,7 @@ session.add(studentLDAPwithoutUserAuth)
 session.add(Model.DbUserAuth(admin1,   weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
 session.add(Model.DbUserAuth(admin2,   weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
 session.add(Model.DbUserAuth(admin3,   weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
+session.add(Model.DbUserAuth(any, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
 session.add(Model.DbUserAuth(prof1,    weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
 session.add(Model.DbUserAuth(prof2,    weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
 session.add(Model.DbUserAuth(prof3,    weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
@@ -393,20 +397,21 @@ gp_5A_fpga_allowed_p3 = Model.DbGroupPermissionParameter(gp_5A_fpga_allowed, exp
 session.add(gp_5A_fpga_allowed_p3)     
 
 
-gp_5A_visirtest_allowed = Model.DbGroupPermission(
-    group5A,
+up_any_visirtest_allowed = Model.DbUserPermission(
+    any,
     experiment_allowed.group_applicable,
-    "5A::weblab-visirtest",
+    "any::weblab-visirtest",
     datetime.datetime.utcnow(),
-    "Permission for group 5A to use WebLab-VisirTest"
+    "Permission for any to use WebLab-VisirTest"
 )
-session.add(gp_5A_visirtest_allowed)
-gp_5A_visirtest_allowed_p1 = Model.DbGroupPermissionParameter(gp_5A_visirtest_allowed, experiment_allowed_p1, "visirtest")
-session.add(gp_5A_visirtest_allowed_p1)
-gp_5A_visirtest_allowed_p2 = Model.DbGroupPermissionParameter(gp_5A_visirtest_allowed, experiment_allowed_p2, "Dummy experiments")
-session.add(gp_5A_visirtest_allowed_p2)
-gp_5A_visirtest_allowed_p3 = Model.DbGroupPermissionParameter(gp_5A_visirtest_allowed, experiment_allowed_p3, "200")
-session.add(gp_5A_visirtest_allowed_p3)
+session.add(up_any_visirtest_allowed)
+up_any_visirtest_allowed_p1 = Model.DbUserPermissionParameter(up_any_visirtest_allowed, experiment_allowed_p1, "visirtest")
+session.add(up_any_visirtest_allowed_p1)
+up_any_visirtest_allowed_p2 = Model.DbUserPermissionParameter(up_any_visirtest_allowed, experiment_allowed_p2, "Dummy experiments")
+session.add(up_any_visirtest_allowed_p2)
+up_any_visirtest_allowed_p3 = Model.DbUserPermissionParameter(up_any_visirtest_allowed, experiment_allowed_p3, "200")
+session.add(up_any_visirtest_allowed_p3)    
+
   
 
 up_student2_gpib_allowed = Model.DbUserPermission(
@@ -425,20 +430,20 @@ up_student2_gpib_allowed_p3 = Model.DbUserPermissionParameter(up_student2_gpib_a
 session.add(up_student2_gpib_allowed_p3)             
             
             
-up_student2_pic_allowed = Model.DbUserPermission(
- student2,
+up_any_pic_allowed = Model.DbUserPermission(
+ any,
 experiment_allowed.group_applicable,
-"student2::weblab-pic",
+"any::weblab-pic",
 datetime.datetime.utcnow(),
-"Permission for student2 to use WebLab-pic"
+"Permission for any to use WebLab-pic"
 )
-session.add(up_student2_pic_allowed)
-up_student2_pic_allowed_p1 = Model.DbUserPermissionParameter(up_student2_pic_allowed, experiment_allowed_p1, "ud-pic")
-session.add(up_student2_pic_allowed_p1)
-up_student2_pic_allowed_p2 = Model.DbUserPermissionParameter(up_student2_pic_allowed, experiment_allowed_p2, "pic experiments")
-session.add(up_student2_pic_allowed_p2)
-up_student2_pic_allowed_p3 = Model.DbUserPermissionParameter(up_student2_pic_allowed, experiment_allowed_p3, "150")
-session.add(up_student2_pic_allowed_p3)      
+session.add(up_any_pic_allowed)
+up_any_pic_allowed_p1 = Model.DbUserPermissionParameter(up_any_pic_allowed, experiment_allowed_p1, "ud-pic")
+session.add(up_any_pic_allowed_p1)
+up_any_pic_allowed_p2 = Model.DbUserPermissionParameter(up_any_pic_allowed, experiment_allowed_p2, "pic experiments")
+session.add(up_any_pic_allowed_p2)
+up_any_pic_allowed_p3 = Model.DbUserPermissionParameter(up_any_pic_allowed, experiment_allowed_p3, "150")
+session.add(up_any_pic_allowed_p3)      
             
             
 session.commit()
