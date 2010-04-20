@@ -283,6 +283,9 @@ session.add(gpib)
 pic = Model.DbExperiment("ud-pic", cat_pic, start_date, end_date)
 session.add(pic)
 
+visirtest = Model.DbExperiment("visirtest", cat_dummy, start_date, end_date)
+session.add(visirtest)
+
 # Permissions
 gp_5A_dummy_allowed = Model.DbGroupPermission(
     group5A,
@@ -387,7 +390,24 @@ session.add(gp_5A_fpga_allowed_p1)
 gp_5A_fpga_allowed_p2 = Model.DbGroupPermissionParameter(gp_5A_fpga_allowed, experiment_allowed_p2, "FPGA experiments")
 session.add(gp_5A_fpga_allowed_p2)
 gp_5A_fpga_allowed_p3 = Model.DbGroupPermissionParameter(gp_5A_fpga_allowed, experiment_allowed_p3, "30")
-session.add(gp_5A_fpga_allowed_p3)       
+session.add(gp_5A_fpga_allowed_p3)     
+
+
+gp_5A_visirtest_allowed = Model.DbGroupPermission(
+    group5A,
+    experiment_allowed.group_applicable,
+    "5A::weblab-visirtest",
+    datetime.datetime.utcnow(),
+    "Permission for group 5A to use WebLab-VisirTest"
+)
+session.add(gp_5A_visirtest_allowed)
+gp_5A_visirtest_allowed_p1 = Model.DbGroupPermissionParameter(gp_5A_visirtest_allowed, experiment_allowed_p1, "visirtest")
+session.add(gp_5A_visirtest_allowed_p1)
+gp_5A_visirtest_allowed_p2 = Model.DbGroupPermissionParameter(gp_5A_visirtest_allowed, experiment_allowed_p2, "Dummy experiments")
+session.add(gp_5A_visirtest_allowed_p2)
+gp_5A_visirtest_allowed_p3 = Model.DbGroupPermissionParameter(gp_5A_visirtest_allowed, experiment_allowed_p3, "200")
+session.add(gp_5A_visirtest_allowed_p3)
+  
 
 up_student2_gpib_allowed = Model.DbUserPermission(
     student2,
@@ -403,6 +423,23 @@ up_student2_gpib_allowed_p2 = Model.DbUserPermissionParameter(up_student2_gpib_a
 session.add(up_student2_gpib_allowed_p2)
 up_student2_gpib_allowed_p3 = Model.DbUserPermissionParameter(up_student2_gpib_allowed, experiment_allowed_p3, "150")
 session.add(up_student2_gpib_allowed_p3)             
+            
+            
+up_student2_pic_allowed = Model.DbUserPermission(
+ student2,
+experiment_allowed.group_applicable,
+"student2::weblab-pic",
+datetime.datetime.utcnow(),
+"Permission for student2 to use WebLab-pic"
+)
+session.add(up_student2_pic_allowed)
+up_student2_pic_allowed_p1 = Model.DbUserPermissionParameter(up_student2_pic_allowed, experiment_allowed_p1, "ud-pic")
+session.add(up_student2_pic_allowed_p1)
+up_student2_pic_allowed_p2 = Model.DbUserPermissionParameter(up_student2_pic_allowed, experiment_allowed_p2, "pic experiments")
+session.add(up_student2_pic_allowed_p2)
+up_student2_pic_allowed_p3 = Model.DbUserPermissionParameter(up_student2_pic_allowed, experiment_allowed_p3, "150")
+session.add(up_student2_pic_allowed_p3)      
+            
             
 session.commit()
 

@@ -12,4 +12,5 @@ laboratory_assigned_experiments = [
         'exp1|ud-logic|PIC experiments;experiment_logic:main_instance@main_machine',
         'exp1|flashdummy|Dummy experiments;experiment_flashdummy:main_instance@main_machine',
         'exp1|javadummy|Dummy experiments;experiment_javadummy:main_instance@main_machine',
+        'exp1|visirtest|Dummy experiments;experiment_testvisir:main_instance@main_machine'
     ]

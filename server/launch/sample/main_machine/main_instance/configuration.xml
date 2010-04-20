@@ -18,4 +18,5 @@
 	<server>experiment_logic</server> 
 	<server>experiment_flashdummy</server> 
 	<server>experiment_javadummy</server> 
+	<server>experiment_testvisir</server>
 </servers>
