@@ -77,7 +77,8 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	@UiField VerticalPanel removableWidgetsPanel;
 	private final List<Widget> interactiveWidgets;
 	
-	private WlWebcam webcam;
+	@UiField(provided = true)
+	WlWebcam webcam;
 	
 	private WlTimer timer;
 	private WlWaitingLabel messages;
@@ -96,6 +97,11 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 
 		this.interactiveWidgets = new Vector<Widget>();
 		
+		this.webcam = new WlWebcam(
+				this.getWebcamRefreshingTime(),
+				this.getWebcamImageUrl()
+			);
+		
 		uiBinder.createAndBindUi(this);
 		
 		//this.removableWidgetsPanel = new VerticalPanel();
@@ -112,7 +118,8 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		//this.removableWidgetsPanel.setWidth("100%");
 		//this.removableWidgetsPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		
-		this.removableWidgetsPanel.add(new Label("Select the program to send:"));
+		
+		//this.removableWidgetsPanel.add(new Label("Select the program to send:"));
 		this.uploadStructure = new UploadStructure();
 		this.uploadStructure.setFileInfo("program");
 		this.widget.add(this.uploadStructure.getFormPanel());
@@ -191,11 +198,10 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		    this.removableWidgetsPanel.remove(0);
 		
 		// Webcam
-		this.webcam = new WlWebcam(
-				this.getWebcamRefreshingTime(),
-				this.getWebcamImageUrl()
-			);
+		this.webcam.setVisible(true);
 		this.webcam.start();
+		
+		// We gotta re-add it because it's been removed before.
 		this.removableWidgetsPanel.add(this.webcam.getWidget());
 		
 		// Timer

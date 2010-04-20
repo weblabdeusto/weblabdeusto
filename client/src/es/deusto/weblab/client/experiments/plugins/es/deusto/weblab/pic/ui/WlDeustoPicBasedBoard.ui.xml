@@ -6,6 +6,11 @@
 	    <w:WlVerticalPanel ui:field="widget" width='100%' horizontalAlignment='ALIGN_CENTER'>
 	        
 			<g:VerticalPanel ui:field="removableWidgetsPanel" width='100%' horizontalAlignment='ALIGN_CENTER'>
+			
+				<g:Label text="Select the program to send:" horizontalAlignment='ALIGN_CENTER'></g:Label>
+
+				<w:WlWebcam ui:field="webcam" visible="false"></w:WlWebcam>
+
 			</g:VerticalPanel>
 		
 		</w:WlVerticalPanel>
