@@ -59,7 +59,7 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 	
 	protected IConfigurationManager configurationManager;
 
-	protected static final boolean DEBUG_ENABLED = false;
+	private static final boolean DEBUG_ENABLED = false;
 	
 	@UiField public VerticalPanel verticalPanel;
 	@UiField VerticalPanel widget;

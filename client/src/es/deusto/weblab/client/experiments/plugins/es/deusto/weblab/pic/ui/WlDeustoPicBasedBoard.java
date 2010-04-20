@@ -16,6 +16,9 @@ package es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.pic.ui;
 import java.util.List;
 import java.util.Vector;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -41,6 +44,18 @@ import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 public class WlDeustoPicBasedBoard extends BoardBase{
 	
+	
+	 /******************
+	 * UIBINDER RELATED
+	 ******************/
+	
+	interface PicBasedBoardUiBinder extends UiBinder<Widget, WlDeustoPicBasedBoard> {
+	}
+
+	private static final PicBasedBoardUiBinder uiBinder = GWT.create(PicBasedBoardUiBinder.class);
+	
+	protected static final boolean DEBUG_ENABLED = false;
+	
 	public static class Style{
 		public static final String TIME_REMAINING = "wl-time_remaining";
 		public static final String CLOCK_ACTIVATION_PANEL = "wl-clock_activation_panel"; 
@@ -58,8 +73,8 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 
 	protected IConfigurationManager configurationManager;
 
-	private VerticalPanel widget;
-	private VerticalPanel removableWidgetsPanel;
+	@UiField VerticalPanel widget;
+	@UiField VerticalPanel removableWidgetsPanel;
 	private final List<Widget> interactiveWidgets;
 	
 	private WlWebcam webcam;
@@ -80,18 +95,22 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		this.configurationManager = configurationManager;
 
 		this.interactiveWidgets = new Vector<Widget>();
-		this.removableWidgetsPanel = new VerticalPanel();
-		this.widget        = new VerticalPanel();
-		this.widget.add(this.removableWidgetsPanel);
+		
+		uiBinder.createAndBindUi(this);
+		
+		//this.removableWidgetsPanel = new VerticalPanel();
+		
+		//this.widget = new VerticalPanel();
+		//this.widget.add(this.removableWidgetsPanel);
 	}
 	
 	@Override
 	public void initialize(){
-	    this.widget.setWidth("100%");
-	    this.widget.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+	    //this.widget.setWidth("100%");
+	    //this.widget.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 	    	
-		this.removableWidgetsPanel.setWidth("100%");
-		this.removableWidgetsPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		//this.removableWidgetsPanel.setWidth("100%");
+		//this.removableWidgetsPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		
 		this.removableWidgetsPanel.add(new Label("Select the program to send:"));
 		this.uploadStructure = new UploadStructure();
@@ -124,6 +143,13 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		    @Override
 		    public void onFailure(WlCommException e) {
 		    	WlDeustoPicBasedBoard.this.messages.setText("Error sending file: " + e.getMessage());
+		    
+		    	if(WlDeustoPicBasedBoard.DEBUG_ENABLED) {
+			    	WlDeustoPicBasedBoard.this.enableInteractiveWidgets();
+			    	WlDeustoPicBasedBoard.this.messages.setText("Device not ready but debugging enabled");
+			    	WlDeustoPicBasedBoard.this.messages.stop();
+		    	}
+		    
 		    }
 		});
 	}

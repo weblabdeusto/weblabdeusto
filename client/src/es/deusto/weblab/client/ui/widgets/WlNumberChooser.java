@@ -43,6 +43,7 @@ public class WlNumberChooser extends WlNumberTextBoxBase {
 		
 		this.label = new Label();
 		this.label.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		
 		this.setLength(length);
 		
 		this.setText(defaultValue);

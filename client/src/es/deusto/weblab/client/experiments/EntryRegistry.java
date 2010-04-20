@@ -58,6 +58,29 @@ class EntryRegistry {
 		 */
 		
 		
+		new ExperimentEntry("Dummy experiments", "visirtest", MobileSupport.disabled) {
+			@Override
+			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+				final int width      = 500;
+				final int height     = 350;
+				final String swfFile = "loader.swf";
+				final String message = "This experiment is for testing visir integration.";
+
+				GWT.runAsync(new RunAsyncCallback() {
+					@Override
+					public void onSuccess() {
+						callback.onExperimentLoaded(new FlashAppExperimentBase(configurationManager, boardController, width, height, swfFile, message));
+					}
+					
+					@Override
+					public void onFailure(Throwable e){
+						callback.onFailure(e);
+					}
+				});
+			}
+		},
+		
+		
 		new ExperimentEntry("Dummy experiments", "flashdummy", MobileSupport.disabled){
 			@Override
 			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
