@@ -14,7 +14,40 @@
 				<w:WlTimer ui:field="timer" width="30%" styleName="wl-time_remaining"></w:WlTimer>
 
 				<w:WlHorizontalPanel ui:field="inputWidgetsPanel" horizontalAlignment='ALIGN_CENTER'>
-					<g:Hidden></g:Hidden>
+					
+					<w:WlVerticalPanel ui:field="firstCol" horizontalAlignment='ALIGN_CENTER' width='100%'>
+						
+						<w:WlHorizontalPanel ui:field="switchesPanel" width="100%" spacing="20">
+							<g:Hidden></g:Hidden>
+						</w:WlHorizontalPanel>
+						
+						<w:WlHorizontalPanel ui:field="potentiometersPanel" spacing="20">
+							<g:Hidden></g:Hidden>
+						</w:WlHorizontalPanel>
+			
+					</w:WlVerticalPanel>
+					
+					<w:WlVerticalPanel ui:field="secondCol" horizontalAlignment="ALIGN_CENTER" width="100%">
+						
+						<w:WlHorizontalPanel ui:field="pulsesPanel" spacing="20">
+							<g:Hidden></g:Hidden>
+						</w:WlHorizontalPanel>
+						
+						<w:WlHorizontalPanel ui:field="writeAndTriggerSwitchPanel" spacing="20" width="100%">
+							
+							<w:WlVerticalPanel ui:field="writePanel" width="100%" horizontalAlignment='ALIGN_CENTER'>
+								<g:Hidden></g:Hidden>
+							</w:WlVerticalPanel>
+							
+							<w:WlVerticalPanel ui:field="triggerSwitchPanel" horizontalAlignment='ALIGN_CENTER'>
+								<g:Hidden></g:Hidden>
+							</w:WlVerticalPanel>
+						
+						</w:WlHorizontalPanel>
+						
+					</w:WlVerticalPanel>
+					
+				
 				</w:WlHorizontalPanel>
 
 			</g:VerticalPanel>

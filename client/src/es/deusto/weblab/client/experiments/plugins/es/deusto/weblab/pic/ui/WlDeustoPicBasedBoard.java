@@ -84,6 +84,14 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	WlTimer timer;
 	
 	@UiField WlHorizontalPanel inputWidgetsPanel;
+	@UiField WlVerticalPanel firstCol;
+	@UiField WlHorizontalPanel switchesPanel;
+	@UiField WlHorizontalPanel potentiometersPanel;
+	@UiField WlVerticalPanel secondCol;
+	@UiField WlHorizontalPanel pulsesPanel;
+	@UiField WlHorizontalPanel writeAndTriggerSwitchPanel;
+	@UiField WlVerticalPanel writePanel;
+	@UiField WlVerticalPanel triggerSwitchPanel;
 	
 	private WlWaitingLabel messages;
 	
@@ -236,15 +244,15 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		this.addInteractiveWidget(this.inputWidgetsPanel);
 		
 		// 1st column: Switches and Potentiometers
-		final WlVerticalPanel firstCol = new WlVerticalPanel();
-		firstCol.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		firstCol.setWidth("100%");
-		this.inputWidgetsPanel.add(firstCol);
+		//final WlVerticalPanel firstCol = new WlVerticalPanel();
+		//this.firstCol.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		//this.firstCol.setWidth("100%");
+		this.inputWidgetsPanel.add(this.firstCol);
 		
 		// Switches
-		final WlHorizontalPanel switchesPanel = new WlHorizontalPanel();
-		switchesPanel.setWidth("100%");
-		switchesPanel.setSpacing(20);
+		//final WlHorizontalPanel switchesPanel = new WlHorizontalPanel();
+		//switchesPanel.setWidth("100%");
+		//switchesPanel.setSpacing(20);
 		this.switches = new WlSwitch[WlDeustoPicBasedBoard.SWITCH_NUMBER];
 		for(int i = 0; i < WlDeustoPicBasedBoard.SWITCH_NUMBER; ++i){
 			this.switches[i] = new WlSwitch();
@@ -255,13 +263,13 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 			switchPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 			switchPanel.add(this.switches[i].getWidget());
 			switchPanel.add(new Label("" + (WlDeustoPicBasedBoard.SWITCH_NUMBER - i - 1)));			
-			switchesPanel.add(switchPanel);
+			this.switchesPanel.add(switchPanel);
 		}
-		firstCol.add(switchesPanel);
+		this.firstCol.add(this.switchesPanel);
 
 		// Potentiometers
-		final WlHorizontalPanel potentiometersPanel = new WlHorizontalPanel();
-		potentiometersPanel.setSpacing(20);
+		//final WlHorizontalPanel potentiometersPanel = new WlHorizontalPanel();
+		//potentiometersPanel.setSpacing(20);
 		this.potentiometers = new WlPotentiometer[WlDeustoPicBasedBoard.POTENTIOMETER_NUMBER];
 		for(int i = 0; i < WlDeustoPicBasedBoard.TIMED_BUTTON_NUMBER; ++i){
 			this.potentiometers[i] = new WlPotentiometer();
@@ -271,19 +279,19 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 			potentiometerPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 			potentiometerPanel.add(this.potentiometers[i].getWidget());
 			potentiometerPanel.add(new Label("" + (WlDeustoPicBasedBoard.POTENTIOMETER_NUMBER - i + 1)));			
-			potentiometersPanel.add(potentiometerPanel);
+			this.potentiometersPanel.add(potentiometerPanel);
 		}	
-		firstCol.add(potentiometersPanel);	
+		this.firstCol.add(this.potentiometersPanel);	
 		
 		// 2nd column: Pulses and Write
-		final WlVerticalPanel secondCol = new WlVerticalPanel();
-		secondCol.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		secondCol.setWidth("100%");
-		this.inputWidgetsPanel.add(secondCol);
+		//final WlVerticalPanel secondCol = new WlVerticalPanel();
+		//secondCol.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		//secondCol.setWidth("100%");
+		this.inputWidgetsPanel.add(this.secondCol);
 		
 		// Pulses
-		final WlHorizontalPanel pulsesPanel = new WlHorizontalPanel();
-		pulsesPanel.setSpacing(20);
+		//final WlHorizontalPanel pulsesPanel = new WlHorizontalPanel();
+		//pulsesPanel.setSpacing(20);
 		this.buttons = new WlTimedButton[WlDeustoPicBasedBoard.TIMED_BUTTON_NUMBER];
 		for(int i = 0; i < WlDeustoPicBasedBoard.TIMED_BUTTON_NUMBER; ++i){
 			this.buttons[i] = new WlTimedButton();
@@ -293,15 +301,15 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 			pulsePanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 			pulsePanel.add(this.buttons[i].getWidget());
 			pulsePanel.add(new Label("" + (WlDeustoPicBasedBoard.TIMED_BUTTON_NUMBER - i + 3)));			
-			pulsesPanel.add(pulsePanel);
+			this.pulsesPanel.add(pulsePanel);
 		}	
-		secondCol.add(pulsesPanel);	
+		this.secondCol.add(this.pulsesPanel);	
 		
 		// Write and "Trigger" Switch Panel
-		final WlHorizontalPanel writeAndTriggerSwitchPanel = new WlHorizontalPanel();
-		writeAndTriggerSwitchPanel.setSpacing(20);
-		writeAndTriggerSwitchPanel.setWidth("100%");
-		secondCol.add(writeAndTriggerSwitchPanel);
+//		final WlHorizontalPanel writeAndTriggerSwitchPanel = new WlHorizontalPanel();
+//		writeAndTriggerSwitchPanel.setSpacing(20);
+//		writeAndTriggerSwitchPanel.setWidth("100%");
+		this.secondCol.add(this.writeAndTriggerSwitchPanel);
 		
 		// Write
 		this.serialPortText = new WlTextBoxWithButton();
@@ -316,17 +324,18 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		writePanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		writePanel.add(this.serialPortText.getWidget());
 		writePanel.add(new Label("UART"));					
-		writeAndTriggerSwitchPanel.add(writePanel);	
+		this.writeAndTriggerSwitchPanel.add(writePanel);	
 		
 		// "Trigger" Switch
 		this.triggerSwitch = new WlSwitch();
 		final IWlActionListener actionListener = new SwitchListener(4, this.boardController);
 		this.triggerSwitch.addActionListener(actionListener);
-		final WlVerticalPanel triggerSwitchPanel = new WlVerticalPanel();
-		triggerSwitchPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		triggerSwitchPanel.add(this.triggerSwitch.getWidget());
-		triggerSwitchPanel.add(new Label("Trigger"));					
-		writeAndTriggerSwitchPanel.add(triggerSwitchPanel);	
+		
+		//final WlVerticalPanel triggerSwitchPanel = new WlVerticalPanel();
+		//triggerSwitchPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		this.triggerSwitchPanel.add(this.triggerSwitch.getWidget());
+		this.triggerSwitchPanel.add(new Label("Trigger"));					
+		this.writeAndTriggerSwitchPanel.add(this.triggerSwitchPanel);	
 		
 		
 /*		
