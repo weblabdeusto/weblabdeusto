@@ -93,7 +93,7 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	@UiField WlVerticalPanel writePanel;
 	@UiField WlVerticalPanel triggerSwitchPanel;
 	
-	private WlWaitingLabel messages;
+	@UiField WlWaitingLabel messages;
 	
 	private WlSwitch [] switches;	
 	private WlTimedButton [] buttons;	
@@ -210,6 +210,9 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	}
 	
 	private void loadWidgets() {
+		
+		// Previously invisible so as not to take space on the reserve screen.
+		this.inputWidgetsPanel.setVisible(true);
 
 		this.removableWidgetsPanel.setSpacing(10);
 		this.removableWidgetsPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
@@ -333,8 +336,8 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		
 		//final WlVerticalPanel triggerSwitchPanel = new WlVerticalPanel();
 		//triggerSwitchPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		this.triggerSwitchPanel.add(this.triggerSwitch.getWidget());
-		this.triggerSwitchPanel.add(new Label("Trigger"));					
+		this.triggerSwitchPanel.add(this.triggerSwitch);
+		//this.triggerSwitchPanel.add(new Label("Trigger"));					
 		this.writeAndTriggerSwitchPanel.add(this.triggerSwitchPanel);	
 		
 		
@@ -348,9 +351,10 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 */		
 		
 		// Messages
-		this.messages = new WlWaitingLabel("Programming device");
+		//this.messages = new WlWaitingLabel("Programming device");
+		this.messages.setText("Programming device");
 		this.messages.start();
-		this.removableWidgetsPanel.add(this.messages.getWidget());
+		this.removableWidgetsPanel.add(this.messages);
 		
 		/*
 		// 1st row: Switches and Pulses

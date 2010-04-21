@@ -104,7 +104,7 @@ public class WlWaitingLabel extends Label implements IWlWidget{
 	
 	@Override
 	public Widget getWidget() {
-		return this.label;
+		return this;
 	}
 
 	public void dispose() {

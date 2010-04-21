@@ -5,15 +5,18 @@
 	    
 	    <w:WlVerticalPanel ui:field="widget" width='100%' horizontalAlignment='ALIGN_CENTER'>
 	        
-			<g:VerticalPanel ui:field="removableWidgetsPanel" width='100%' horizontalAlignment='ALIGN_CENTER'>
+			<w:WlVerticalPanel borderWidth="0" ui:field="removableWidgetsPanel" width='100%' horizontalAlignment='ALIGN_CENTER'>
 			
 				<g:Label text="Select the program to send:" horizontalAlignment='ALIGN_CENTER'></g:Label>
 
+				<g:HorizontalPanel borderWidth="0">
 				<w:WlWebcam ui:field="webcam" visible="false"></w:WlWebcam>
+				</g:HorizontalPanel>
 
 				<w:WlTimer ui:field="timer" width="30%" styleName="wl-time_remaining"></w:WlTimer>
 
-				<w:WlHorizontalPanel ui:field="inputWidgetsPanel" horizontalAlignment='ALIGN_CENTER'>
+				<!-- Needs to be initially hidden so as not to take space on the reserve screen. -->
+				<w:WlHorizontalPanel borderWidth="0" ui:field="inputWidgetsPanel" visible="false" horizontalAlignment='ALIGN_CENTER'>
 					
 					<w:WlVerticalPanel ui:field="firstCol" horizontalAlignment='ALIGN_CENTER' width='100%'>
 						
@@ -40,7 +43,7 @@
 							</w:WlVerticalPanel>
 							
 							<w:WlVerticalPanel ui:field="triggerSwitchPanel" horizontalAlignment='ALIGN_CENTER'>
-								<g:Hidden></g:Hidden>
+								<g:Label>Trigger</g:Label>
 							</w:WlVerticalPanel>
 						
 						</w:WlHorizontalPanel>
@@ -50,7 +53,10 @@
 				
 				</w:WlHorizontalPanel>
 
-			</g:VerticalPanel>
+				<w:WlWaitingLabel ui:field="messages" horizontalAlignment="ALIGN_CENTER">
+				</w:WlWaitingLabel>
+
+			</w:WlVerticalPanel>
 		
 		</w:WlVerticalPanel>
 		
