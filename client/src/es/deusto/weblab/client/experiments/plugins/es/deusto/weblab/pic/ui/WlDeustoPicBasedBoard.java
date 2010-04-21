@@ -54,7 +54,7 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 
 	private static final PicBasedBoardUiBinder uiBinder = GWT.create(PicBasedBoardUiBinder.class);
 	
-	protected static final boolean DEBUG_ENABLED = false;
+	protected static final boolean DEBUG_ENABLED = true;
 	
 	public static class Style{
 		public static final String TIME_REMAINING = "wl-time_remaining";
@@ -80,7 +80,11 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	@UiField(provided = true)
 	WlWebcam webcam;
 	
-	private WlTimer timer;
+	@UiField(provided = true)
+	WlTimer timer;
+	
+	@UiField WlHorizontalPanel inputWidgetsPanel;
+	
 	private WlWaitingLabel messages;
 	
 	private WlSwitch [] switches;	
@@ -97,17 +101,25 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 
 		this.interactiveWidgets = new Vector<Widget>();
 		
-		this.webcam = new WlWebcam(
-				this.getWebcamRefreshingTime(),
-				this.getWebcamImageUrl()
-			);
+		this.createProvidedWidgets();
 		
-		uiBinder.createAndBindUi(this);
+		WlDeustoPicBasedBoard.uiBinder.createAndBindUi(this);
 		
 		//this.removableWidgetsPanel = new VerticalPanel();
 		
 		//this.widget = new VerticalPanel();
 		//this.widget.add(this.removableWidgetsPanel);
+	}
+	
+	public void createProvidedWidgets() {
+		
+		this.webcam = new WlWebcam(
+				this.getWebcamRefreshingTime(),
+				this.getWebcamImageUrl()
+			);
+		
+		this.timer = new WlTimer(false);
+		
 	}
 	
 	@Override
@@ -205,28 +217,29 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		this.removableWidgetsPanel.add(this.webcam.getWidget());
 		
 		// Timer
-		this.timer = new WlTimer();
-		this.timer.setStyleName(WlDeustoPicBasedBoard.Style.TIME_REMAINING);
-		this.timer.getWidget().setWidth("30%");
+		//this.timer = new WlTimer();
+		//this.timer.setStyleName(WlDeustoPicBasedBoard.Style.TIME_REMAINING);
+		//this.timer.getWidget().setWidth("30%");
 		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
 			public void onFinished() {
 			    WlDeustoPicBasedBoard.this.boardController.onClean();
 			}
 		});
-		this.removableWidgetsPanel.add(this.timer.getWidget());	
-		this.addInteractiveWidget(this.timer.getWidget());
+		this.timer.start();
+		this.removableWidgetsPanel.add(this.timer);	
+		this.addInteractiveWidget(this.timer);
 		
 		// Input Widgets
-		WlHorizontalPanel inputWidgetsPanel = new WlHorizontalPanel();
-		inputWidgetsPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		this.removableWidgetsPanel.add(inputWidgetsPanel);		
-		this.addInteractiveWidget(inputWidgetsPanel.getWidget());
+		//WlHorizontalPanel inputWidgetsPanel = new WlHorizontalPanel();
+		//inputWidgetsPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		this.removableWidgetsPanel.add(this.inputWidgetsPanel);		
+		this.addInteractiveWidget(this.inputWidgetsPanel);
 		
 		// 1st column: Switches and Potentiometers
 		final WlVerticalPanel firstCol = new WlVerticalPanel();
 		firstCol.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		firstCol.setWidth("100%");
-		inputWidgetsPanel.add(firstCol);
+		this.inputWidgetsPanel.add(firstCol);
 		
 		// Switches
 		final WlHorizontalPanel switchesPanel = new WlHorizontalPanel();
@@ -266,7 +279,7 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		final WlVerticalPanel secondCol = new WlVerticalPanel();
 		secondCol.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		secondCol.setWidth("100%");
-		inputWidgetsPanel.add(secondCol);
+		this.inputWidgetsPanel.add(secondCol);
 		
 		// Pulses
 		final WlHorizontalPanel pulsesPanel = new WlHorizontalPanel();

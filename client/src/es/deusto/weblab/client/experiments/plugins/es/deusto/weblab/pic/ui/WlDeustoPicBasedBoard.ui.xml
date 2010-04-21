@@ -11,6 +11,12 @@
 
 				<w:WlWebcam ui:field="webcam" visible="false"></w:WlWebcam>
 
+				<w:WlTimer ui:field="timer" width="30%" styleName="wl-time_remaining"></w:WlTimer>
+
+				<w:WlHorizontalPanel ui:field="inputWidgetsPanel" horizontalAlignment='ALIGN_CENTER'>
+					<g:Hidden></g:Hidden>
+				</w:WlHorizontalPanel>
+
 			</g:VerticalPanel>
 		
 		</w:WlVerticalPanel>
