@@ -23,11 +23,11 @@ public class FlashAppExperimentBase extends ExperimentBase {
 
 	private final WebLabFlashAppBasedBoard board;
 
-	public FlashAppExperimentBase(IConfigurationManager configurationManager, IBoardBaseController boardController, int width, int height, String swfFile, String message){
+	public FlashAppExperimentBase(IConfigurationManager configurationManager, IBoardBaseController boardController, int width, int height, String swfFile, String flashvars, String message){
 		this.board = new WebLabFlashAppBasedBoard(
 					configurationManager,
 					boardController, swfFile,
-					width, height, message
+					width, height, flashvars, message
 				);
 	}
 	

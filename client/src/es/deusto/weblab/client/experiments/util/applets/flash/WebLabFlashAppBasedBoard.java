@@ -26,17 +26,20 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 	private final int width;
 	private final int height;
 	private final String swfFile;
+	private final String flashvars;
 	
 	public WebLabFlashAppBasedBoard(IConfigurationManager configurationManager, IBoardBaseController boardController,
 			String swfFile,
 			int width,
 			int height, 
+			String flashvars,
 			String message
 	) {
 		super(configurationManager, boardController);
 		this.height  = height;
 		this.width   = width;
 		this.swfFile = GWT.getModuleBaseURL() + swfFile;
+		this.flashvars = flashvars;
 		this.message.setText(message);
 		
 		WebLabFlashAppBasedBoard.createJavaScriptCode(this.html.getElement(), this.swfFile, width + 10, height + 10);
@@ -58,7 +61,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 	
 	@Override
 	public void initialize(){
-		WebLabFlashAppBasedBoard.populateIframe(this.swfFile, this.width, this.height);
+		WebLabFlashAppBasedBoard.populateIframe(this.swfFile, this.width, this.height, this.flashvars);
 	}
 
 	@Override
@@ -79,7 +82,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 		AbstractExternalAppBasedBoard.endImpl();
 	}
 
-	private static native void populateIframe(String swfFile, int width, int height) /*-{
+	private static native void populateIframe(String swfFile, int width, int height, String flashvars) /*-{
 		var doc = $wnd.wl_iframe.contentDocument;
     	if (doc == undefined || doc == null)
         	doc = $wnd.wl_iframe.contentWindow.document;
@@ -111,7 +114,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 				"</script>";
 		var flashHtml    = "<object classid=\"clsid:D27CDB6E-AE6D-11cf-96B8-444553540000\" type=\"application/x-shockwave-flash\" width=\"" + width + "\" height=\"" + height + "\" id=\"flashobj\">" + 
 								"<param name=\"movie\" value=\"" + swfFile + "\" id\"flash_emb\"/>" + 
-								"<embed src=\"" + swfFile + "\" width=\"" + width + "\" height=\"" + height + "\" />" + 
+								"<embed src=\"" + swfFile + "\" width=\"" + width + "\" height=\"" + height + "\" flashvars=\"" + flashvars + "\"   />" + 
 							"</object>";
 		
 		var completeHtml = "<html>" +

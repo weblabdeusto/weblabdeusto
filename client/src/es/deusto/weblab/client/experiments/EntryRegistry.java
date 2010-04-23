@@ -69,7 +69,7 @@ class EntryRegistry {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new FlashAppExperimentBase(configurationManager, boardController, width, height, swfFile, message));
+						callback.onExperimentLoaded(new FlashAppExperimentBase(configurationManager, boardController, width, height, swfFile, "cookie=9b892c8784ea6119939a27b34102b1c14e37c156", message));
 					}
 					
 					@Override
@@ -92,7 +92,7 @@ class EntryRegistry {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new FlashAppExperimentBase(configurationManager, boardController, width, height, swfFile, message));
+						callback.onExperimentLoaded(new FlashAppExperimentBase(configurationManager, boardController, width, height, swfFile, "", message));
 					}
 					
 					@Override
