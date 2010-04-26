@@ -43,7 +43,7 @@ class VisirTestExperiment(Experiment.Experiment):
     
     
     def do_send_command_to_device_real(self, command):
-        command = self.transform_request(command)
+        #command = self.transform_request(command)
         return self.send_request(command)
     
     def transform_request(self, command):
