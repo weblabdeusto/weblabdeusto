@@ -302,6 +302,7 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		// Potentiometers
 		//final WlHorizontalPanel potentiometersPanel = new WlHorizontalPanel();
 		//potentiometersPanel.setSpacing(20);
+		
 		this.potentiometers = new WlPotentiometer[WlDeustoPicBasedBoard.POTENTIOMETER_NUMBER];
 		for(int i = 0; i < WlDeustoPicBasedBoard.TIMED_BUTTON_NUMBER; ++i){
 			this.potentiometers[i] = new WlPotentiometer();
@@ -314,6 +315,12 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 			this.potentiometersPanel.add(potentiometerPanel);
 		}	
 		this.firstCol.add(this.potentiometersPanel);	
+		
+		WlPotentiometer p = new WlPotentiometer();
+		p.setTitle("23");
+		this.potentiometersPanel.add(p.getWidget());
+		
+		preparePotentiometers();
 		
 		// 2nd column: Pulses and Write
 		//final WlVerticalPanel secondCol = new WlVerticalPanel();
@@ -472,6 +479,12 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		*/
 	}
 	
+	private void preparePotentiometers() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
 	private void prepareSwitches() {
 		for(int i = 0; i < this.switchesPanel.getWidgetCount(); ++i){
 			final Widget wid = this.switchesPanel.getWidget(i);

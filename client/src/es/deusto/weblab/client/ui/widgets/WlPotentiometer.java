@@ -1,12 +1,13 @@
 package es.deusto.weblab.client.ui.widgets;
 
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.ui.widgets.exceptions.WlWidgetException;
 
-public class WlPotentiometer implements IWlWidget {
+public class WlPotentiometer extends VerticalPanel implements IWlWidget {
 	
 	//TODO
 	private static double MAX_POWER     = 5.0;
@@ -18,12 +19,15 @@ public class WlPotentiometer implements IWlWidget {
 	private final VerticalPanel visiblePanel;
 	private final WlActionListenerContainer actionListenerContainer;
 	private double power;
+	
+	private final Label title = new Label("");
 
 	public WlPotentiometer(){
 		this(WlPotentiometer.DEFAULT_POWER);
 	}
 	
 	public WlPotentiometer(double power){
+		
 		this.button = new WlButton();
 		this.button.setTime(WlPotentiometer.DEFAULT_BUTTON_TIME);
 		this.textbox = new WlDoubleTextbox();
@@ -55,6 +59,16 @@ public class WlPotentiometer implements IWlWidget {
 				WlPotentiometer.this.power = doubleValue;
 			}
 		});
+		
+		this.setWidth("100%");
+		this.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);		
+		this.visiblePanel.add(this.title);
+		
+		this.add(this.visiblePanel);
+	}
+	
+	public void setTitle(String title) {
+		this.title.setText(title);
 	}
 	
 	public void dispose(){
@@ -84,6 +98,6 @@ public class WlPotentiometer implements IWlWidget {
 	
 	@Override
 	public Widget getWidget() {
-		return this.visiblePanel;
+		return this;
 	}
 }
