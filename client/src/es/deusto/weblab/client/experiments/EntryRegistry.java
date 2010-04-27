@@ -61,9 +61,9 @@ class EntryRegistry {
 		new ExperimentEntry("Dummy experiments", "visirtest", MobileSupport.disabled) {
 			@Override
 			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
-				final int width      = 500;
-				final int height     = 350;
-				final String swfFile = "loader.swf";
+				final int width      = 800;
+				final int height     = 500;
+				final String swfFile = "visir/loader.swf";
 				final String message = "This experiment is for testing visir integration.";
 
 				GWT.runAsync(new RunAsyncCallback() {
