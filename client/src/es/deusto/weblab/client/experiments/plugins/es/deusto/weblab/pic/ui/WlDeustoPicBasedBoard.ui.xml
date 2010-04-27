@@ -43,7 +43,7 @@
 							</w:WlVerticalPanel>
 							
 							<w:WlVerticalPanel ui:field="triggerSwitchPanel" horizontalAlignment='ALIGN_CENTER'>
-								<g:Label>Trigger</g:Label>
+								<w:WlSwitch ui:field="triggerSwitch" title="Trigger"></w:WlSwitch>
 							</w:WlVerticalPanel>
 						
 						</w:WlHorizontalPanel>

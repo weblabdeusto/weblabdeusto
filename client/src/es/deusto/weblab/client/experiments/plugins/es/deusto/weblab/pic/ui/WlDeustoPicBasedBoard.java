@@ -99,7 +99,7 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	private WlTimedButton [] buttons;	
 	private WlPotentiometer[] potentiometers;
 	private WlTextBoxWithButton serialPortText;
-	private WlSwitch triggerSwitch;
+	@UiField WlSwitch triggerSwitch;
 	private UploadStructure uploadStructure;
 	
 	public WlDeustoPicBasedBoard(IConfigurationManager configurationManager, IBoardBaseController boardController){
@@ -112,6 +112,8 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		this.createProvidedWidgets();
 		
 		WlDeustoPicBasedBoard.uiBinder.createAndBindUi(this);
+		
+		this.disableInteractiveWidgets();
 		
 		//this.removableWidgetsPanel = new VerticalPanel();
 		
@@ -217,8 +219,8 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		this.removableWidgetsPanel.setSpacing(10);
 		this.removableWidgetsPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		
-		while(this.removableWidgetsPanel.getWidgetCount() > 0)
-		    this.removableWidgetsPanel.remove(0);
+		//while(this.removableWidgetsPanel.getWidgetCount() > 0)
+		//    this.removableWidgetsPanel.remove(0);
 		
 		// Webcam
 		this.webcam.setVisible(true);
@@ -327,18 +329,18 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		writePanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		writePanel.add(this.serialPortText.getWidget());
 		writePanel.add(new Label("UART"));					
-		this.writeAndTriggerSwitchPanel.add(writePanel);	
+		//this.writeAndTriggerSwitchPanel.add(writePanel);	
 		
 		// "Trigger" Switch
-		this.triggerSwitch = new WlSwitch();
+		//this.triggerSwitch = new WlSwitch();
 		final IWlActionListener actionListener = new SwitchListener(4, this.boardController);
 		this.triggerSwitch.addActionListener(actionListener);
 		
 		//final WlVerticalPanel triggerSwitchPanel = new WlVerticalPanel();
 		//triggerSwitchPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		this.triggerSwitchPanel.add(this.triggerSwitch);
+		//this.triggerSwitchPanel.add(this.triggerSwitch);
 		//this.triggerSwitchPanel.add(new Label("Trigger"));					
-		this.writeAndTriggerSwitchPanel.add(this.triggerSwitchPanel);	
+		//this.writeAndTriggerSwitchPanel.add(this.triggerSwitchPanel);	
 		
 		
 /*		
