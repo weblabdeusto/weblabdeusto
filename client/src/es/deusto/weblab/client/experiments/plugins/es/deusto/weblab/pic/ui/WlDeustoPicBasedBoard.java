@@ -20,6 +20,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -113,12 +114,34 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		
 		WlDeustoPicBasedBoard.uiBinder.createAndBindUi(this);
 		
+		this.findInteractiveWidgets();
+		
 		this.disableInteractiveWidgets();
 		
 		//this.removableWidgetsPanel = new VerticalPanel();
 		
 		//this.widget = new VerticalPanel();
 		//this.widget.add(this.removableWidgetsPanel);
+	}
+	
+	
+	/**
+	 * Will find those interactive widgets that are defined on UiBinder
+	 * and add them to the interactive widgets list, so that they can
+	 * be disabled. This isn't too convenient but currently there doesn't 
+	 * seem to be any other way around. That may change in the future.
+	 */
+	public void findInteractiveWidgets() {
+		
+		// Find switches
+		for(int i = 0; i < this.switchesPanel.getWidgetCount(); ++i){
+			final Widget wid = this.switchesPanel.getWidget(i);
+			if(wid instanceof WlSwitch) {
+				final WlSwitch swi = (WlSwitch)wid;
+				this.addInteractiveWidget(swi);
+			}
+		}
+		
 	}
 	
 	public void createProvidedWidgets() {
@@ -258,20 +281,24 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		//final WlHorizontalPanel switchesPanel = new WlHorizontalPanel();
 		//switchesPanel.setWidth("100%");
 		//switchesPanel.setSpacing(20);
-		this.switches = new WlSwitch[WlDeustoPicBasedBoard.SWITCH_NUMBER];
-		for(int i = 0; i < WlDeustoPicBasedBoard.SWITCH_NUMBER; ++i){
-			this.switches[i] = new WlSwitch();
-			final IWlActionListener actionListener = new SwitchListener(i, this.boardController);
-			this.switches[i].addActionListener(actionListener);
-			final WlVerticalPanel switchPanel = new WlVerticalPanel();
-			switchPanel.setWidth("100%");
-			switchPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-			switchPanel.add(this.switches[i].getWidget());
-			switchPanel.add(new Label("" + (WlDeustoPicBasedBoard.SWITCH_NUMBER - i - 1)));			
-			this.switchesPanel.add(switchPanel);
-		}
-		this.firstCol.add(this.switchesPanel);
-
+		
+//		this.switches = new WlSwitch[WlDeustoPicBasedBoard.SWITCH_NUMBER];
+//		for(int i = 0; i < WlDeustoPicBasedBoard.SWITCH_NUMBER; ++i){
+//			this.switches[i] = new WlSwitch();
+//			final IWlActionListener actionListener = new SwitchListener(i, this.boardController);
+//			this.switches[i].addActionListener(actionListener);
+//			final WlVerticalPanel switchPanel = new WlVerticalPanel();
+//			switchPanel.setWidth("100%");
+//			switchPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+//			switchPanel.add(this.switches[i].getWidget());
+//			switchPanel.add(new Label("" + (WlDeustoPicBasedBoard.SWITCH_NUMBER - i - 1)));			
+//			this.switchesPanel.add(switchPanel);
+//		}
+//		this.firstCol.add(this.switchesPanel);
+		
+		prepareSwitches();
+		
+		
 		// Potentiometers
 		//final WlHorizontalPanel potentiometersPanel = new WlHorizontalPanel();
 		//potentiometersPanel.setSpacing(20);
@@ -445,6 +472,26 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		*/
 	}
 	
+	private void prepareSwitches() {
+		for(int i = 0; i < this.switchesPanel.getWidgetCount(); ++i){
+			final Widget wid = this.switchesPanel.getWidget(i);
+			if(wid instanceof WlSwitch) {
+				final WlSwitch swi = (WlSwitch)wid;
+				
+				// Avoid trying to convert non-numerical titles (which serve
+				// as identifiers). Not exactly an elegant way to do it.
+				if(swi.getTitle().length() != 1) 
+					continue;
+				
+				final int id = this.switchesPanel.getWidgetCount() - Integer.parseInt(swi.getTitle()) - 1;
+				final IWlActionListener actionListener = new SwitchListener(id, this.boardController);
+				swi.addActionListener(actionListener);
+				this.addInteractiveWidget(swi);
+			}
+		}
+	}
+
+
 	private void addInteractiveWidget(Widget widget){
 		this.interactiveWidgets.add(widget);
 	}

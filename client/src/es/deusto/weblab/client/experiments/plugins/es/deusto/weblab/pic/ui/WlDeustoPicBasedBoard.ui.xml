@@ -21,7 +21,10 @@
 					<w:WlVerticalPanel ui:field="firstCol" horizontalAlignment='ALIGN_CENTER' width='100%'>
 						
 						<w:WlHorizontalPanel ui:field="switchesPanel" width="100%" spacing="20">
-							<g:Hidden></g:Hidden>
+							<w:WlSwitch title="3"/>
+							<w:WlSwitch title="2"/>
+							<w:WlSwitch title="1"/>
+							<w:WlSwitch title="0"/>
 						</w:WlHorizontalPanel>
 						
 						<w:WlHorizontalPanel ui:field="potentiometersPanel" spacing="20">
