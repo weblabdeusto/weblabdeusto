@@ -84,6 +84,8 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	@UiField(provided = true)
 	WlTimer timer;
 	
+	@UiField Label selectProgramLabel;
+	
 	@UiField WlHorizontalPanel inputWidgetsPanel;
 	@UiField WlVerticalPanel firstCol;
 	@UiField WlHorizontalPanel switchesPanel;
@@ -189,6 +191,8 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	    this.widget.setVisible(true);
 		this.loadWidgets();
 		this.disableInteractiveWidgets();
+		
+		this.selectProgramLabel.setVisible(false);
     	
 		this.uploadStructure.getFormPanel().setVisible(false);
 		
@@ -284,7 +288,7 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		//final WlVerticalPanel firstCol = new WlVerticalPanel();
 		//this.firstCol.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		//this.firstCol.setWidth("100%");
-		this.inputWidgetsPanel.add(this.firstCol);
+		//this.inputWidgetsPanel.add(this.firstCol);
 		
 		// Switches
 		//final WlHorizontalPanel switchesPanel = new WlHorizontalPanel();
@@ -338,7 +342,7 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		//final WlVerticalPanel secondCol = new WlVerticalPanel();
 		//secondCol.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		//secondCol.setWidth("100%");
-		this.inputWidgetsPanel.add(this.secondCol);
+		//this.inputWidgetsPanel.add(this.secondCol);
 		
 		// Pulses
 		//final WlHorizontalPanel pulsesPanel = new WlHorizontalPanel();
