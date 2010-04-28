@@ -215,7 +215,7 @@ def _deploy_stubs(error_handler, folder, wsdl_file):
             if i.strip() != '':
                 error_handler.write_msg('stdout::%s' % i)
         for i in pr.stderr.read().split('\n'):
-            if i.strip() != '':
+            if i.strip() != '' and i.find("DeprecationWarning: the multifile module has been deprecated") < 0 and i.find("import multifile, mimetools") < 0:
                 error_handler.write_warning('stderr::%s' % i)
 
     # Little bug in the stubs generation :-)
@@ -245,7 +245,7 @@ def _deploy_stubs(error_handler, folder, wsdl_file):
             if i.strip() != '':
                 error_handler.write_msg('stdout::%s' % i)
         for i in pr.stderr.read().split('\n'):
-            if i.strip() != '':
+            if i.strip() != '' and i.find("DeprecationWarning: the multifile module has been deprecated") < 0 and i.find("import multifile, mimetools") < 0:
                 error_handler.write_warning('stderr::%s' % i)
     
     return False
