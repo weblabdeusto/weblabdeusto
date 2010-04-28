@@ -28,7 +28,10 @@
 						</w:WlHorizontalPanel>
 						
 						<w:WlHorizontalPanel ui:field="potentiometersPanel" spacing="20">
-							<g:Hidden></g:Hidden>
+							<w:WlPotentiometer title="5"/>
+							<w:WlPotentiometer title="4"/>
+							<w:WlPotentiometer title="3"/>
+							<w:WlPotentiometer title="2"/>
 						</w:WlHorizontalPanel>
 			
 					</w:WlVerticalPanel>

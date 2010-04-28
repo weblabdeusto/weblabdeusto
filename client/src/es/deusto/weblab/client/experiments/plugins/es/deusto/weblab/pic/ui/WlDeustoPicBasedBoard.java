@@ -142,6 +142,15 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 			}
 		}
 		
+		// Find potentiometers
+		for(int i = 0; i < this.potentiometersPanel.getWidgetCount(); ++i){
+			final Widget wid = this.potentiometersPanel.getWidget(i);
+			if(wid instanceof WlPotentiometer) {
+				final WlPotentiometer swi = (WlPotentiometer)wid;
+				this.addInteractiveWidget(swi);
+			}
+		}
+		
 	}
 	
 	public void createProvidedWidgets() {
@@ -303,22 +312,25 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		//final WlHorizontalPanel potentiometersPanel = new WlHorizontalPanel();
 		//potentiometersPanel.setSpacing(20);
 		
-		this.potentiometers = new WlPotentiometer[WlDeustoPicBasedBoard.POTENTIOMETER_NUMBER];
-		for(int i = 0; i < WlDeustoPicBasedBoard.TIMED_BUTTON_NUMBER; ++i){
-			this.potentiometers[i] = new WlPotentiometer();
-			final PotentiometerListener potentiometerListener = new PotentiometerListener(i, this.boardController);
-			this.potentiometers[i].addActionListener(potentiometerListener);
-			final WlVerticalPanel potentiometerPanel = new WlVerticalPanel();
-			potentiometerPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-			potentiometerPanel.add(this.potentiometers[i].getWidget());
-			potentiometerPanel.add(new Label("" + (WlDeustoPicBasedBoard.POTENTIOMETER_NUMBER - i + 1)));			
-			this.potentiometersPanel.add(potentiometerPanel);
-		}	
-		this.firstCol.add(this.potentiometersPanel);	
+		// There might be some problem here. Loop uses TIMED_BUTTON_NUMBER but it is actually workign with POTENTIOMETERS.
+		// The numbers are originally 5, 4, 3, 2. 
 		
-		WlPotentiometer p = new WlPotentiometer();
-		p.setTitle("23");
-		this.potentiometersPanel.add(p.getWidget());
+//		this.potentiometers = new WlPotentiometer[WlDeustoPicBasedBoard.POTENTIOMETER_NUMBER];
+//		for(int i = 0; i < WlDeustoPicBasedBoard.TIMED_BUTTON_NUMBER; ++i){
+//			this.potentiometers[i] = new WlPotentiometer();
+//			final PotentiometerListener potentiometerListener = new PotentiometerListener(i, this.boardController);
+//			this.potentiometers[i].addActionListener(potentiometerListener);
+//			final WlVerticalPanel potentiometerPanel = new WlVerticalPanel();
+//			potentiometerPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+//			potentiometerPanel.add(this.potentiometers[i].getWidget());
+//			potentiometerPanel.add(new Label("" + (WlDeustoPicBasedBoard.POTENTIOMETER_NUMBER - i + 1)));			
+//			this.potentiometersPanel.add(potentiometerPanel);
+//		}	
+//		this.firstCol.add(this.potentiometersPanel);	
+		
+//		WlPotentiometer p = new WlPotentiometer();
+//		p.setTitle("23");
+//		this.potentiometersPanel.add(p.getWidget());
 		
 		preparePotentiometers();
 		
@@ -479,12 +491,36 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		*/
 	}
 	
+	/**
+	 * Will prepare every potentiometer setting up a listener for it using 
+	 * its title as its integer identifier.
+	 */
 	private void preparePotentiometers() {
-		// TODO Auto-generated method stub
-		
+		for(int i = 0; i < this.potentiometersPanel.getWidgetCount(); ++i){
+			final Widget wid = this.potentiometersPanel.getWidget(i);
+			if(wid instanceof WlPotentiometer) {
+				final WlPotentiometer pot = (WlPotentiometer)wid;
+				
+				// Avoid trying to convert non-numerical titles (which serve
+				// as identifiers). Not exactly an elegant way to do it.
+				if(pot.getTitle().length() != 1) 
+					continue;
+				
+				final int id = this.potentiometersPanel.getWidgetCount() - 
+					Integer.parseInt(pot.getTitle()) - 1;
+				final PotentiometerListener potentiometerListener = 
+					new PotentiometerListener(i, this.boardController);
+				pot.addActionListener(potentiometerListener);
+				this.addInteractiveWidget(pot);
+			}
+		}
 	}
 
 
+	/**
+	 * Will prepare every switch setting up a listener for it using 
+	 * its title as its integer identifier.
+	 */
 	private void prepareSwitches() {
 		for(int i = 0; i < this.switchesPanel.getWidgetCount(); ++i){
 			final Widget wid = this.switchesPanel.getWidget(i);
@@ -496,8 +532,10 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 				if(swi.getTitle().length() != 1) 
 					continue;
 				
-				final int id = this.switchesPanel.getWidgetCount() - Integer.parseInt(swi.getTitle()) - 1;
-				final IWlActionListener actionListener = new SwitchListener(id, this.boardController);
+				final int id = this.switchesPanel.getWidgetCount() - 
+					Integer.parseInt(swi.getTitle()) - 1;
+				final IWlActionListener actionListener = 
+					new SwitchListener(id, this.boardController);
 				swi.addActionListener(actionListener);
 				this.addInteractiveWidget(swi);
 			}
