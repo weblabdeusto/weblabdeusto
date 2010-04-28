@@ -148,11 +148,19 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		for(int i = 0; i < this.potentiometersPanel.getWidgetCount(); ++i){
 			final Widget wid = this.potentiometersPanel.getWidget(i);
 			if(wid instanceof WlPotentiometer) {
-				final WlPotentiometer swi = (WlPotentiometer)wid;
-				this.addInteractiveWidget(swi);
+				final WlPotentiometer pot = (WlPotentiometer)wid;
+				this.addInteractiveWidget(pot);
 			}
 		}
 		
+		// Find timed buttons
+		for(int i = 0; i < this.pulsesPanel.getWidgetCount(); ++i){
+			final Widget wid = this.pulsesPanel.getWidget(i);
+			if(wid instanceof WlTimedButton) {
+				final WlTimedButton button = (WlTimedButton)wid;
+				this.addInteractiveWidget(button);
+			}
+		}
 	}
 	
 	public void createProvidedWidgets() {
@@ -347,18 +355,20 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		// Pulses
 		//final WlHorizontalPanel pulsesPanel = new WlHorizontalPanel();
 		//pulsesPanel.setSpacing(20);
-		this.buttons = new WlTimedButton[WlDeustoPicBasedBoard.TIMED_BUTTON_NUMBER];
-		for(int i = 0; i < WlDeustoPicBasedBoard.TIMED_BUTTON_NUMBER; ++i){
-			this.buttons[i] = new WlTimedButton();
-			final ButtonListener buttonListener = new ButtonListener(i, this.buttons[i], this.boardController);
-			this.buttons[i].addButtonListener(buttonListener);
-			final WlVerticalPanel pulsePanel = new WlVerticalPanel();
-			pulsePanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-			pulsePanel.add(this.buttons[i].getWidget());
-			pulsePanel.add(new Label("" + (WlDeustoPicBasedBoard.TIMED_BUTTON_NUMBER - i + 3)));			
-			this.pulsesPanel.add(pulsePanel);
-		}	
-		this.secondCol.add(this.pulsesPanel);	
+//		this.buttons = new WlTimedButton[WlDeustoPicBasedBoard.TIMED_BUTTON_NUMBER];
+//		for(int i = 0; i < WlDeustoPicBasedBoard.TIMED_BUTTON_NUMBER; ++i){
+//			this.buttons[i] = new WlTimedButton();
+//			final ButtonListener buttonListener = new ButtonListener(i, this.buttons[i], this.boardController);
+//			this.buttons[i].addButtonListener(buttonListener);
+//			final WlVerticalPanel pulsePanel = new WlVerticalPanel();
+//			pulsePanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+//			pulsePanel.add(this.buttons[i].getWidget());
+//			pulsePanel.add(new Label("" + (WlDeustoPicBasedBoard.TIMED_BUTTON_NUMBER - i + 3)));			
+//			this.pulsesPanel.add(pulsePanel);
+//		}	
+//		this.secondCol.add(this.pulsesPanel);	
+		
+		prepareTimedButtons();
 		
 		// Write and "Trigger" Switch Panel
 //		final WlHorizontalPanel writeAndTriggerSwitchPanel = new WlHorizontalPanel();
@@ -495,6 +505,26 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		*/
 	}
 	
+	private void prepareTimedButtons() {
+		for(int i = 0; i < this.pulsesPanel.getWidgetCount(); ++i){
+			final Widget wid = this.pulsesPanel.getWidget(i);
+			if(wid instanceof WlTimedButton) {
+				final WlTimedButton button = (WlTimedButton)wid;
+				
+				// Avoid trying to convert non-numerical titles (which serve
+				// as identifiers). Not exactly an elegant way to do it.
+				if(button.getTitle().length() != 1) 
+					continue;
+		
+				final int id = this.pulsesPanel.getWidgetCount() - 
+					Integer.parseInt(button.getTitle()) - 1;
+				final ButtonListener buttonListener = new ButtonListener(i, button, this.boardController);
+				button.addButtonListener(buttonListener);
+			}
+		}
+	}
+
+
 	/**
 	 * Will prepare every potentiometer setting up a listener for it using 
 	 * its title as its integer identifier.
@@ -515,7 +545,6 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 				final PotentiometerListener potentiometerListener = 
 					new PotentiometerListener(i, this.boardController);
 				pot.addActionListener(potentiometerListener);
-				this.addInteractiveWidget(pot);
 			}
 		}
 	}
@@ -541,7 +570,6 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 				final IWlActionListener actionListener = 
 					new SwitchListener(id, this.boardController);
 				swi.addActionListener(actionListener);
-				this.addInteractiveWidget(swi);
 			}
 		}
 	}
