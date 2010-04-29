@@ -3,11 +3,12 @@ package es.deusto.weblab.client.ui.widgets;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
-public class WlTextBoxWithButton implements IWlWidget{
+public class WlTextBoxWithButton extends HorizontalPanel implements IWlWidget{
 
 	private final TextBox textbox;
 	private final WlButton sendButton;
@@ -19,6 +20,10 @@ public class WlTextBoxWithButton implements IWlWidget{
 	
 	public WlTextBoxWithButton(){
 		this(WlTextBoxWithButton.DEFAULT_LENGTH);
+		
+		this.setWidth("100%");
+		this.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		this.add(this.widget);
 	}
 	
 	public WlTextBoxWithButton(int length){
@@ -47,7 +52,11 @@ public class WlTextBoxWithButton implements IWlWidget{
 		hpanel.add(this.textbox);
 		hpanel.add(this.sendButton.getWidget());
 		
-		this.widget = hpanel;		
+		this.widget = hpanel;	
+		
+		this.setWidth("100%");
+		this.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		this.add(this.widget);
 	}
 
 	public String getText(){
@@ -73,7 +82,7 @@ public class WlTextBoxWithButton implements IWlWidget{
 
 	@Override
 	public Widget getWidget() {
-		return this.widget;
+		return this;
 	}
 
 	public void dispose() {
