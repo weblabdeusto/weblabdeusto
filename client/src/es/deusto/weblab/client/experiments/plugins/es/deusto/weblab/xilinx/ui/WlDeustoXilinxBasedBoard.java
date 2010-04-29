@@ -111,7 +111,7 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 	
 	/**
 	 * Will find those interactive widgets that are defined on UiBinder
-	 * and add them to the interactive widgets array, so that they can
+	 * and add them to the interactive widgets list, so that they can
 	 * be disabled. This isn't too convenient but currently there doesn't 
 	 * seem to be any other way around. That may change in the future.
 	 */
