@@ -374,7 +374,7 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 //		final WlHorizontalPanel writeAndTriggerSwitchPanel = new WlHorizontalPanel();
 //		writeAndTriggerSwitchPanel.setSpacing(20);
 //		writeAndTriggerSwitchPanel.setWidth("100%");
-		this.secondCol.add(this.writeAndTriggerSwitchPanel);
+		//this.secondCol.add(this.writeAndTriggerSwitchPanel);
 		
 		// Write
 		this.serialPortText = new WlTextBoxWithButton();
@@ -518,7 +518,7 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		
 				final int id = this.pulsesPanel.getWidgetCount() - 
 					Integer.parseInt(button.getTitle()) - 1;
-				final ButtonListener buttonListener = new ButtonListener(i, button, this.boardController);
+				final ButtonListener buttonListener = new ButtonListener(id, button, this.boardController);
 				button.addButtonListener(buttonListener);
 			}
 		}
@@ -543,7 +543,7 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 				final int id = this.potentiometersPanel.getWidgetCount() - 
 					Integer.parseInt(pot.getTitle()) - 1;
 				final PotentiometerListener potentiometerListener = 
-					new PotentiometerListener(i, this.boardController);
+					new PotentiometerListener(id, this.boardController);
 				pot.addActionListener(potentiometerListener);
 			}
 		}

@@ -66,7 +66,8 @@ public class WlPotentiometer extends VerticalPanel implements IWlWidget {
 		
 		this.add(this.visiblePanel);
 	}
-	
+	 
+	@Override
 	public void setTitle(String title) {
 		this.title.setText(title);
 	}
