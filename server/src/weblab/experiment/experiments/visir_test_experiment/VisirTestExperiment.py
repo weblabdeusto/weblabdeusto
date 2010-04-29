@@ -17,10 +17,14 @@ import weblab.experiment.Experiment as Experiment
 
 import xml.dom.minidom as minidom
 import httplib
-import urllib
+#import urllib
 
 from voodoo.override import Override
 
+
+
+CFG_MEASURE_SERVER_ADDRESS = "vt_measure_server_addr"
+CFG_MEASURE_SERVER_TARGET = "vt_measure_server_target"
 
 
 
@@ -31,10 +35,17 @@ class VisirTestExperiment(Experiment.Experiment):
     
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(VisirTestExperiment, self).__init__(*args, **kwargs)
+        self._cfg_manager = cfg_manager
+        self.read_config()
+        
+    def read_config(self):
+        self.measure_server_addr = self._cfg_manager.get_value(CFG_MEASURE_SERVER_ADDRESS)
+        self.measure_server_target = self._cfg_manager.get_value(CFG_MEASURE_SERVER_TARGET)
 
     @Override(Experiment.Experiment)
     def do_start_experiment(self):
-        print "do_start_experiment"
+        print "Measure server address: ", self.measure_server_addr
+        print "Measure server target: ", self.measure_server_target
         return "Ok"
 
     @Override(Experiment.Experiment)
@@ -61,8 +72,8 @@ class VisirTestExperiment(Experiment.Experiment):
         
     def send_request(self, request):
         print "Sending request: ", request
-        conn = httplib.HTTPConnection(VisirTestExperiment.MEASURE_SERVER_ADDR)
-        conn.request("POST", VisirTestExperiment.MEASURE_SERVER_TARGET, request)
+        conn = httplib.HTTPConnection(self.measure_server_addr)
+        conn.request("POST", self.measure_server_target, request)
         response = conn.getresponse()
         print response.status, response.reason
         data = response.read()
