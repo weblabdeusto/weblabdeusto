@@ -4,11 +4,14 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class WlTextBoxWithButton extends HorizontalPanel implements IWlWidget{
+public class WlTextBoxWithButton extends VerticalPanel implements IWlWidget{
 
 	private final TextBox textbox;
 	private final WlButton sendButton;
@@ -18,12 +21,22 @@ public class WlTextBoxWithButton extends HorizontalPanel implements IWlWidget{
 	private static final int DEFAULT_LENGTH      = 10;
 	private static final int BUTTON_MILLISECONDS = 500;
 	
+	private final Label title = new Label();
+	
 	public WlTextBoxWithButton(){
 		this(WlTextBoxWithButton.DEFAULT_LENGTH);
 		
 		this.setWidth("100%");
 		this.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		this.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+		
 		this.add(this.widget);
+		this.add(this.title);
+	}
+	
+	@Override
+	public void setTitle(String title) {
+		this.title.setText(title);
 	}
 	
 	public WlTextBoxWithButton(int length){
@@ -56,7 +69,9 @@ public class WlTextBoxWithButton extends HorizontalPanel implements IWlWidget{
 		
 		this.setWidth("100%");
 		this.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		this.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 		this.add(this.widget);
+		this.add(this.title);
 	}
 
 	public String getText(){

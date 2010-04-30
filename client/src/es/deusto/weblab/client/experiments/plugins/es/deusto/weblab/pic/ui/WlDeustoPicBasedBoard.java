@@ -94,7 +94,7 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	
 	@UiField WlWaitingLabel messages;
 	
-	private WlTextBoxWithButton serialPortText;
+	@UiField WlTextBoxWithButton serialPortText;
 	@UiField WlSwitch triggerSwitch;
 	private UploadStructure uploadStructure;
 	
@@ -270,12 +270,7 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 				0, // The only one by the moment :-)
 				this.boardController
 			)
-		);
-		final WlVerticalPanel writePanel = new WlVerticalPanel();
-		writePanel.setWidth("100%");
-		writePanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		writePanel.add(this.serialPortText.getWidget());
-		writePanel.add(new Label("UART"));						
+		);					
 		
 		// "Trigger" Switch
 		final IWlActionListener actionListener = new SwitchListener(4, this.boardController);

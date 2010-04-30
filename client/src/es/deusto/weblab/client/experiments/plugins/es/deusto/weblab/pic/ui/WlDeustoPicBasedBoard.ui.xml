@@ -50,7 +50,7 @@
 						<w:WlHorizontalPanel ui:field="writeAndTriggerSwitchPanel" spacing="20" width="100%">
 							
 							<w:WlVerticalPanel ui:field="writePanel" width="100%" horizontalAlignment='ALIGN_CENTER'>
-								<g:Hidden></g:Hidden>
+								<w:WlTextBoxWithButton ui:field="serialPortText" title="UART"/>
 							</w:WlVerticalPanel>
 							
 							<w:WlVerticalPanel ui:field="triggerSwitchPanel" horizontalAlignment='ALIGN_CENTER'>
