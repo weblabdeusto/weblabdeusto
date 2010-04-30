@@ -98,6 +98,7 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	@UiField WlSwitch triggerSwitch;
 	private UploadStructure uploadStructure;
 	
+	
 	public WlDeustoPicBasedBoard(IConfigurationManager configurationManager, IBoardBaseController boardController){
 		super(boardController);
 		
@@ -118,6 +119,9 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	 * seem to be any other way around. That may change in the future.
 	 */
 	public void findInteractiveWidgets() {
+		
+		this.addInteractiveWidget(this.timer);
+		this.addInteractiveWidget(this.inputWidgetsPanel);
 		
 		// Find switches
 		for(int i = 0; i < this.switchesPanel.getWidgetCount(); ++i){
@@ -154,20 +158,11 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 				this.getWebcamImageUrl()
 			);
 		
-		this.timer = new WlTimer(false);
-		
+		this.timer = new WlTimer(false);	
 	}
 	
 	@Override
 	public void initialize(){
-	    //this.widget.setWidth("100%");
-	    //this.widget.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-	    	
-		//this.removableWidgetsPanel.setWidth("100%");
-		//this.removableWidgetsPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		
-		
-		//this.removableWidgetsPanel.add(new Label("Select the program to send:"));
 		this.uploadStructure = new UploadStructure();
 		this.uploadStructure.setFileInfo("program");
 		this.widget.add(this.uploadStructure.getFormPanel());
@@ -175,18 +170,14 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	
 	@Override
 	public void queued(){
-	    	this.widget.setVisible(false);
+	    this.widget.setVisible(false);
 	}
 	
 	@Override
 	public void start(){
-	    this.widget.setVisible(true);
-		this.loadWidgets();
-		this.disableInteractiveWidgets();
 		
-		this.selectProgramLabel.setVisible(false);
-    	
-		this.uploadStructure.getFormPanel().setVisible(false);
+		this.setupWidgets();
+		this.disableInteractiveWidgets();
 		
 		this.boardController.sendFile(this.uploadStructure, new IResponseCommandCallback() {
 		    
@@ -222,7 +213,32 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 			this.timer = null;
 		}			
 		
-		// TODO: Handle disposal of controls. As of writing this only switches seem to be disposed of.
+		// Dispose of switches
+		for(int i = 0; i < this.switchesPanel.getWidgetCount(); ++i){
+			final Widget wid = this.switchesPanel.getWidget(i);
+			if(wid instanceof WlSwitch) {
+				final WlSwitch swi = (WlSwitch)wid;
+				swi.dispose();
+			}
+		}
+		
+		// Dispose of potentiometers
+		for(int i = 0; i < this.potentiometersPanel.getWidgetCount(); ++i){
+			final Widget wid = this.potentiometersPanel.getWidget(i);
+			if(wid instanceof WlPotentiometer) {
+				final WlPotentiometer pot = (WlPotentiometer)wid;
+				pot.dispose();
+			}
+		}
+		
+		// Dispose of timed buttons
+		for(int i = 0; i < this.pulsesPanel.getWidgetCount(); ++i){
+			final Widget wid = this.pulsesPanel.getWidget(i);
+			if(wid instanceof WlTimedButton) {
+				final WlTimedButton button = (WlTimedButton)wid;
+				button.dispose();
+			}
+		}
 		
 		this.messages.stop();		
 	}	
@@ -237,13 +253,15 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		return this.widget;
 	}
 	
-	private void loadWidgets() {
+	private void setupWidgets() {
 		
 		// Previously invisible so as not to take space on the reserve screen.
+	    this.widget.setVisible(true);
 		this.inputWidgetsPanel.setVisible(true);
+		this.selectProgramLabel.setVisible(false);
+		this.uploadStructure.getFormPanel().setVisible(false);
 
 		this.mainWidgetsPanel.setSpacing(10);
-		this.mainWidgetsPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		
 		// Webcam
 		this.webcam.setVisible(true);
@@ -255,16 +273,12 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 			}
 		});
 		this.timer.start();
-		this.addInteractiveWidget(this.timer);
-		
-		this.addInteractiveWidget(this.inputWidgetsPanel);
 		
 		prepareSwitches();
 		preparePotentiometers();
 		prepareTimedButtons();
 		
 		// Write
-		this.serialPortText = new WlTextBoxWithButton();
 		this.serialPortText.addActionListener(
 			new WriteListener(
 				0, // The only one by the moment :-)
