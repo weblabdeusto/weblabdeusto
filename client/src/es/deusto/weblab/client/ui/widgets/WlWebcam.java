@@ -117,6 +117,7 @@ public class WlWebcam extends Widget implements IWlWidget{
 
 	public void setUrl(String url) {
 		this.url = url;
+		this.reload();
 	}
 	
 	@Override

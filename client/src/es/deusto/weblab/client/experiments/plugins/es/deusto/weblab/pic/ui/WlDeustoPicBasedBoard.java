@@ -19,7 +19,6 @@ import java.util.Vector;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -29,6 +28,7 @@ import es.deusto.weblab.client.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.exceptions.comm.WlCommException;
+import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.pic.commands.RequestWebcamCommand;
 import es.deusto.weblab.client.ui.BoardBase;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
 import es.deusto.weblab.client.ui.widgets.WlHorizontalPanel;
@@ -179,6 +179,8 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		this.setupWidgets();
 		this.disableInteractiveWidgets();
 		
+		//this.obtainWebcamURL();
+		
 		this.boardController.sendFile(this.uploadStructure, new IResponseCommandCallback() {
 		    
 		    @Override
@@ -202,6 +204,35 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		});
 	}
 	
+	private void obtainWebcamURL() {
+		
+		final RequestWebcamCommand command = new RequestWebcamCommand();
+		
+		this.boardController.sendCommand(command,
+				new IResponseCommandCallback() {
+
+					@Override
+					public void onSuccess(ResponseCommand responseCommand) {
+						String url = RequestWebcamCommand.retrieveWebcamURL(responseCommand.getCommandString());
+						WlDeustoPicBasedBoard.this.messages.setText("The webcam URL is: " + url);
+						WlDeustoPicBasedBoard.this.webcam.setUrl(url);
+						
+						System.out.println("The webcam URL is: " + url);
+					}
+
+					@Override
+					public void onFailure(WlCommException e) {
+						WlDeustoPicBasedBoard.this.messages.setText("Failed to obtain the webcam URL");
+						
+						System.out.println("Failed to obtain the webcam URL");
+					}
+			
+				}
+		);
+		
+	}
+
+
 	@Override
 	public void end(){
 		if(this.webcam != null){
