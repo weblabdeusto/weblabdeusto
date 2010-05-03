@@ -153,6 +153,13 @@ class UdPicExperiment(Experiment.Experiment):
     def do_send_command_to_device(self, command):
         if DEBUG:
             print "call received: do_send_command_to_device"
+            
+                   
+        if command.startswith('WEBCAMURL'):
+            print "WEBCAMURL command received."
+            return """WEBCAMURL=http://fbesoain.files.wordpress.com/2009/06/google-chrome.jpg"""
+
+            
         cmds = UdPicBoardCommand.UdPicBoardCommand(command)
         for cmd in cmds.get_commands():
             response = self._http_device.send_message(str(cmd))
@@ -195,6 +202,9 @@ class UdPicDummyExperiment(Experiment.Experiment):
     @caller_check(ServerType.Laboratory)
     def do_send_command_to_device(self, command):
         print "do_send_command_to_device(%s)" % command
+        if command.startswith('WEBCAMURL'):
+            print "WEBCAMURL command received."
+            return """WEBCAMURL=http://fbesoain.files.wordpress.com/2009/06/google-chrome.jpg"""
         
     @Override(Experiment.Experiment)
     @logged("info")

@@ -94,6 +94,8 @@ class ChangeSwitchCommand(UdPicBoardSimpleCommand):
 #Register ChangeSwitchCommand
 UdPicBoardSimpleCommand.SUBCLASSES += (ChangeSwitchCommand,)
 
+
+
 class SetPulseCommand(UdPicBoardSimpleCommand):
 
     Syntax        = "PULSE=([0-3]) ([0-9]{1,5})"
