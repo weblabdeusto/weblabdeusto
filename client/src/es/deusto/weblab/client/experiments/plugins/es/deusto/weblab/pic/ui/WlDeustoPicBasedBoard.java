@@ -179,7 +179,7 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		this.setupWidgets();
 		this.disableInteractiveWidgets();
 		
-		//this.obtainWebcamURL();
+		this.obtainWebcamURL();
 		
 		this.boardController.sendFile(this.uploadStructure, new IResponseCommandCallback() {
 		    
@@ -214,17 +214,13 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 					@Override
 					public void onSuccess(ResponseCommand responseCommand) {
 						String url = RequestWebcamCommand.retrieveWebcamURL(responseCommand.getCommandString());
-						WlDeustoPicBasedBoard.this.messages.setText("The webcam URL is: " + url);
+						//WlDeustoPicBasedBoard.this.messages.setText("The webcam URL is: " + url);
 						WlDeustoPicBasedBoard.this.webcam.setUrl(url);
-						
-						System.out.println("The webcam URL is: " + url);
 					}
 
 					@Override
 					public void onFailure(WlCommException e) {
 						WlDeustoPicBasedBoard.this.messages.setText("Failed to obtain the webcam URL");
-						
-						System.out.println("Failed to obtain the webcam URL");
 					}
 			
 				}

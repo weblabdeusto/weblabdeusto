@@ -37,6 +37,7 @@ TFTP_SERVER_FILENAME = 'pic_tftp_server_filename'
 HTTP_SERVER_HOSTNAME = 'pic_http_server_hostname'
 HTTP_SERVER_PORT     = 'pic_http_server_port'
 HTTP_SERVER_APP      = 'pic_http_server_app'
+CFG_WEBCAM_URL       = 'pic_webcam_url'
 
 DEFAULT_SLEEP_TIME   = 5
 
@@ -47,6 +48,7 @@ class UdPicExperiment(Experiment.Experiment):
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(UdPicExperiment,self).__init__(*args, **kwargs)
         self._cfg_manager= cfg_manager
+        self.webcam_url = self._cfg_manager.get_value(CFG_WEBCAM_URL)
 
         self._initialize_tftp()
         if DEBUG:
@@ -54,6 +56,8 @@ class UdPicExperiment(Experiment.Experiment):
         self._initialize_http()
         if DEBUG:
             print "HTTP initialized"
+            
+        
 
     def _initialize_tftp(self):
         tftp_server_hostname, tftp_server_port = self._parse_tftp_configuration()
@@ -156,8 +160,9 @@ class UdPicExperiment(Experiment.Experiment):
             
                    
         if command.startswith('WEBCAMURL'):
-            print "WEBCAMURL command received."
-            return """WEBCAMURL=http://fbesoain.files.wordpress.com/2009/06/google-chrome.jpg"""
+            if DEBUG:
+                print "WEBCAMURL command received."
+            return "WEBCAMURL=" + self.webcam_url
 
             
         cmds = UdPicBoardCommand.UdPicBoardCommand(command)
@@ -183,7 +188,9 @@ class UdPicDummyExperiment(Experiment.Experiment):
     
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(UdPicDummyExperiment,self).__init__(*args, **kwargs)
-        self._cfg_manager= cfg_manager
+        self._cfg_manager = cfg_manager
+        self.webcam_url = self._cfg_manager.get_value(CFG_WEBCAM_URL)
+
 
     @Override(Experiment.Experiment)
     @logged("info")
@@ -202,9 +209,10 @@ class UdPicDummyExperiment(Experiment.Experiment):
     @caller_check(ServerType.Laboratory)
     def do_send_command_to_device(self, command):
         print "do_send_command_to_device(%s)" % command
+        
         if command.startswith('WEBCAMURL'):
             print "WEBCAMURL command received."
-            return """WEBCAMURL=http://fbesoain.files.wordpress.com/2009/06/google-chrome.jpg"""
+            return "WEBCAMURL=" + self.webcam_url
         
     @Override(Experiment.Experiment)
     @logged("info")

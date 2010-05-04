@@ -30,9 +30,6 @@ CFG_MEASURE_SERVER_TARGET = "vt_measure_server_target"
 
 class VisirTestExperiment(Experiment.Experiment):
     
-    MEASURE_SERVER_ADDR = "130.206.138.35:8080"
-    MEASURE_SERVER_TARGET = "/measureserver"
-    
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(VisirTestExperiment, self).__init__(*args, **kwargs)
         self._cfg_manager = cfg_manager
