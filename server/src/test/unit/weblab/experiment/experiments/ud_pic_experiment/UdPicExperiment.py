@@ -34,6 +34,8 @@ TFTP_SERVER_HOSTNAME = "localhost"
 TFTP_SERVER_PORT     = 69
 TFTP_SERVER_FILENAME = "sample_filename"
 
+CFG_WEBCAM_URL = "http://localhost"
+
 class WrappedUdPicExperiment(UdPicExperiment.UdPicExperiment):
     def __init__(self, coord_address, locator, cfg_manager, tftp, http):
         self.__tftp = tftp
