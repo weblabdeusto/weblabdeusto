@@ -214,7 +214,6 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 					@Override
 					public void onSuccess(ResponseCommand responseCommand) {
 						String url = RequestWebcamCommand.retrieveWebcamURL(responseCommand.getCommandString());
-						//WlDeustoPicBasedBoard.this.messages.setText("The webcam URL is: " + url);
 						WlDeustoPicBasedBoard.this.webcam.setUrl(url);
 					}
 
@@ -301,6 +300,7 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		});
 		this.timer.start();
 		
+		// Prepares every UiBinder-defined control for usage, setting up their listeners.
 		prepareSwitches();
 		preparePotentiometers();
 		prepareTimedButtons();
@@ -320,7 +320,6 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		// Messages
 		this.messages.setText("Programming device");
 		this.messages.start();
-		this.mainWidgetsPanel.add(this.messages);
 	}
 	
 	/**

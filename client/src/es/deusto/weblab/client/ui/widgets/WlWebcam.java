@@ -24,7 +24,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
 
-public class WlWebcam extends Widget implements IWlWidget{
+public class WlWebcam extends HorizontalPanel implements IWlWidget{
 	
 	public static final String DEFAULT_IMAGE_URL = "http://pld.weblab.deusto.es/webcam/pld0/image.jpg";
 	public static final int DEFAULT_REFRESH_TIME = 400;
@@ -42,19 +42,14 @@ public class WlWebcam extends Widget implements IWlWidget{
 	
 	public WlWebcam(int time, String url){
 		
-		final HorizontalPanel panel = new HorizontalPanel();
-		panel.setWidth("100%");
-		panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		//panel.setHeight("1px");
-		//panel.setBorderWidth(1);
+		this.setWidth("100%");
+		this.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		this.time = time;
 		this.url = url;
 		
 		this.image = new Image(this.getDifferentUrl());
 		
-		panel.add(this.image);
-	
-		this.setElement(panel.getElement());
+		this.add(this.image);
 	}
 	
 	public void start(){
@@ -115,6 +110,11 @@ public class WlWebcam extends Widget implements IWlWidget{
 		return this.url;
 	}
 
+	/**
+	 * Sets the URL to obtain the webcam image from and reloads the webcam
+	 * so as to display that new image.
+	 * @param url URL of the image.
+	 */
 	public void setUrl(String url) {
 		this.url = url;
 		this.reload();
