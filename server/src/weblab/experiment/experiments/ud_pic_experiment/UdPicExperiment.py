@@ -48,7 +48,11 @@ class UdPicExperiment(Experiment.Experiment):
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(UdPicExperiment,self).__init__(*args, **kwargs)
         self._cfg_manager= cfg_manager
-        self.webcam_url = self._cfg_manager.get_value(CFG_WEBCAM_URL)
+        
+        try:
+            self.webcam_url = self._cfg_manager.get_value(CFG_WEBCAM_URL)
+        except:
+            self.webcam_url = 'http://localhost'
 
         self._initialize_tftp()
         if DEBUG:
@@ -189,7 +193,11 @@ class UdPicDummyExperiment(Experiment.Experiment):
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(UdPicDummyExperiment,self).__init__(*args, **kwargs)
         self._cfg_manager = cfg_manager
-        self.webcam_url = self._cfg_manager.get_value(CFG_WEBCAM_URL)
+        
+        try:
+            self.webcam_url = self._cfg_manager.get_value(CFG_WEBCAM_URL)
+        except:
+            self.webcam_url = 'http://localhost'
 
 
     @Override(Experiment.Experiment)
