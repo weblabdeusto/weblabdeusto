@@ -165,6 +165,7 @@ pic_tftp_server_filename = 'sample_filename'
 pic_http_server_hostname = 'localhost'
 pic_http_server_port     = 80
 pic_http_server_app      = 'pic.cgi'
+pic_webcam_url           = 'http://localhost'
 
 ##################################
 # Laboratory Server configuration #
