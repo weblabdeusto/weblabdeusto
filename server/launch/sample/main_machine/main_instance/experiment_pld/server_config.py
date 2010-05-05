@@ -33,3 +33,4 @@ Program -p 1 -e -defaultVersion 0
 quit
 """
 
+pld_webcam_url          = '''http://fbesoain.files.wordpress.com/2009/06/google-chrome.jpg'''

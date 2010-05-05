@@ -34,3 +34,5 @@ gpib_linker_command   = [
 gpib_just_testing = True
 
 gpib_public_output_file_filename = 'gpib.txt'
+
+gpib_webcam_url          = '''http://fbesoain.files.wordpress.com/2009/06/google-chrome.jpg'''

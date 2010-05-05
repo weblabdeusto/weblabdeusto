@@ -47,7 +47,7 @@ class UdPicExperiment(Experiment.Experiment):
 
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(UdPicExperiment,self).__init__(*args, **kwargs)
-        self._cfg_manager= cfg_manager
+        self._cfg_manager = cfg_manager
         
         try:
             self.webcam_url = self._cfg_manager.get_value(CFG_WEBCAM_URL)
@@ -161,13 +161,11 @@ class UdPicExperiment(Experiment.Experiment):
     def do_send_command_to_device(self, command):
         if DEBUG:
             print "call received: do_send_command_to_device"
-            
                    
         if command.startswith('WEBCAMURL'):
             if DEBUG:
                 print "WEBCAMURL command received."
             return "WEBCAMURL=" + self.webcam_url
-
             
         cmds = UdPicBoardCommand.UdPicBoardCommand(command)
         for cmd in cmds.get_commands():

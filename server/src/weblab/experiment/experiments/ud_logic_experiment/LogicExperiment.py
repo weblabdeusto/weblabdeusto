@@ -24,6 +24,10 @@ from voodoo.override import Override
 
 import simplejson
 
+
+CFG_WEBCAM_URL = 'logic_webcam_url'
+
+
 class Switch(object):
     def __init__(self, turned = False):
         self.turned = turned
@@ -139,6 +143,11 @@ class LogicExperiment(Experiment.Experiment):
         super(LogicExperiment,self).__init__(*args, **kwargs)
         self.circuit_generator = CircuitGenerator()
         self.encoder           = simplejson.JSONEncoder()
+        self._cfg_manager = cfg_manager
+        try:
+            self.webcam_url = self._cfg_manager.get_value(CFG_WEBCAM_URL)
+        except:
+            self.webcam_url = 'http://localhost'
 
     @Override(Experiment.Experiment)
     def do_dispose(self):
@@ -201,6 +210,8 @@ class LogicExperiment(Experiment.Experiment):
                     return "FAIL"
         elif command == 'GET_CIRCUIT':
             return self.encoder.encode(self.current_circuit.to_dict())
+        elif command.startswith('WEBCAMURL'):
+            return "WEBCAMURL=" + self.webcam_url
         else:
             return 'Error: Invalid command: %s' % command
 

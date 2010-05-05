@@ -30,3 +30,6 @@ exit
 weblab_xilinx_experiment_xilinx_device = 'FPGA'
 weblab_xilinx_experiment_port_number   = 1
 
+
+fpga_webcam_url          = '''http://fbesoain.files.wordpress.com/2009/06/google-chrome.jpg'''
+
