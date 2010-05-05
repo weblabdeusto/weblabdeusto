@@ -28,6 +28,7 @@ import es.deusto.weblab.client.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.exceptions.comm.WlCommException;
+import es.deusto.weblab.client.experiments.commands.RequestWebcamCommand;
 import es.deusto.weblab.client.ui.BoardBase;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
 import es.deusto.weblab.client.ui.widgets.WlClockActivator;
@@ -177,6 +178,10 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 
 	@Override
 	public void start(){
+		
+		RequestWebcamCommand.createAndSend(this.boardController, this.webcam, 
+				this.messages);
+		
 	    this.widget.setVisible(true);
 	    this.selectProgram.setVisible(false);
 	    
