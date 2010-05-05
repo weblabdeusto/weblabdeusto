@@ -28,7 +28,7 @@ import es.deusto.weblab.client.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.exceptions.comm.WlCommException;
-import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.pic.commands.RequestWebcamCommand;
+import es.deusto.weblab.client.experiments.commands.RequestWebcamCommand;
 import es.deusto.weblab.client.ui.BoardBase;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
 import es.deusto.weblab.client.ui.widgets.WlHorizontalPanel;

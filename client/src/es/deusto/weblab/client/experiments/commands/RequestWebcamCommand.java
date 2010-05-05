@@ -11,7 +11,7 @@
 * Author: Luis Rodríguez <luis.rodriguez@opendeusto.es>
 *
 */ 
-package es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.pic.commands;
+package es.deusto.weblab.client.experiments.commands;
 
 import es.deusto.weblab.client.dto.experiments.Command;
 
