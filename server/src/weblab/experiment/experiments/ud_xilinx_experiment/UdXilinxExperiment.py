@@ -36,6 +36,8 @@ from voodoo.gen.caller_checker import caller_check
 
 from voodoo.override import Override
 
+
+
 #TODO: which exceptions should the user see and which ones should not?
 class UdXilinxExperiment(Experiment.Experiment):
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
@@ -43,6 +45,13 @@ class UdXilinxExperiment(Experiment.Experiment):
 
         xilinx_device = cfg_manager.get_value('weblab_xilinx_experiment_xilinx_device')
         port_number   = cfg_manager.get_value('weblab_xilinx_experiment_port_number')
+        
+        # Expect a certain name for the webcam url config depending on the device name.
+        cfg_webcam_url = "%s_webcam_url" % xilinx_device.lower()
+        try:
+            self.webcam_url = cfg_manager.get_value(cfg_webcam_url)
+        except: 
+            self.webcam_url = "http://localhost"
 
         devices = [ i for i in XilinxDevices.getXilinxDevicesValues() if i.name == xilinx_device ] 
         if len(devices) == 1:
@@ -53,6 +62,9 @@ class UdXilinxExperiment(Experiment.Experiment):
         self._port_number   = port_number
 
         self._serial_port_lock = threading.Lock()
+        
+        
+        
 
     def _create_xilinx_impact(self, xilinx_device, cfg_manager):
         return XilinxImpact.create(xilinx_device, cfg_manager)
@@ -117,6 +129,8 @@ class UdXilinxExperiment(Experiment.Experiment):
     @caller_check(ServerType.Laboratory)
     def do_send_command_to_device(self, command):
         try:
+            if command == 'WEBCAMURL':
+                return "WEBCAMURL=" + self.webcam_url
             cmd = UdBoardCommand.UdBoardCommand(command)
             codes = cmd.get_codes()
             self._send_codes(codes)
