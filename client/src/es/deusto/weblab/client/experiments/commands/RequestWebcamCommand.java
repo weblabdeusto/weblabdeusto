@@ -13,7 +13,14 @@
 */ 
 package es.deusto.weblab.client.experiments.commands;
 
+import com.google.gwt.user.client.ui.Label;
+
+import es.deusto.weblab.client.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.dto.experiments.Command;
+import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.exceptions.comm.WlCommException;
+import es.deusto.weblab.client.ui.BoardBase.IBoardBaseController;
+import es.deusto.weblab.client.ui.widgets.WlWebcam;
 
 public class RequestWebcamCommand extends Command{
 	
@@ -40,6 +47,40 @@ public class RequestWebcamCommand extends Command{
 			return null;
 		String url = requestResponse.substring(eqsign+1);
 		return url;
+	}
+	
+	/**
+	 * Helper method which creates a RequestWebcamCommands and sends it, 
+	 * updating by itself the webcam if it is successful or setting an error 
+	 * message if not.
+	 *
+	 * @param boardController Reference to the board controller to send
+	 * the command through.
+	 * @param webcam Reference to the wecam whose URL should be set.
+	 * @param messages Reference to the label which will display the 
+	 * error message, if any. If null, no error message will be set.
+	 */
+	public static void createAndSend(IBoardBaseController boardController, final WlWebcam webcam, final Label messages) {
+		
+		final RequestWebcamCommand command = new RequestWebcamCommand();
+		
+		boardController.sendCommand(command,
+				new IResponseCommandCallback() {
+
+					@Override
+					public void onSuccess(ResponseCommand responseCommand) {
+						String url = RequestWebcamCommand.retrieveWebcamURL(responseCommand.getCommandString());
+						webcam.setUrl(url);
+					}
+
+					@Override
+					public void onFailure(WlCommException e) {
+						if(messages != null)
+							messages.setText("Failed to obtain the webcam URL");
+					}
+				}
+		);
+		
 	}
 	
 	

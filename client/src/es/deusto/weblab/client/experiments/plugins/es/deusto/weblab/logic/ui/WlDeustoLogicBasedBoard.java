@@ -38,6 +38,7 @@ import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.exceptions.comm.WlCommException;
+import es.deusto.weblab.client.experiments.commands.RequestWebcamCommand;
 import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.logic.circuit.Circuit;
 import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.logic.circuit.CircuitParser;
 import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.logic.circuit.Gate;
@@ -226,6 +227,10 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 	 */
 	@Override
 	public void start() {
+		
+		// Ask the server for the webcam URL.
+		RequestWebcamCommand.createAndSend(this.boardController, this.webcam, 
+				this.messages);
 		
 		this.textIntroPanel.setVisible(false);
 		this.webcam.setVisible(true);
