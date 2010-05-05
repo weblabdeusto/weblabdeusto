@@ -20,11 +20,6 @@
 			 </div>
 			</g:HTMLPanel>
 			</g:VerticalPanel>
-			
-			<g:HorizontalPanel borderWidth="0" width="100%" horizontalAlignment='ALIGN_CENTER'>
-				<w:WlWaitingLabel ui:field="messages" horizontalAlignment='ALIGN_CENTER'>
-				</w:WlWaitingLabel>
-			</g:HorizontalPanel>
        
             <g:HorizontalPanel borderWidth="0" width="100%" horizontalAlignment="ALIGN_CENTER">
        			<w:WlTimer ui:field="timer" styleName="wl-time_remaining" width="100%">
@@ -51,6 +46,10 @@
        
         </w:WlVerticalPanel>
         
+        <g:HorizontalPanel borderWidth="0" width="100%" horizontalAlignment='ALIGN_CENTER' spacing='30'>
+			<w:WlWaitingLabel ui:field="messages" horizontalAlignment='ALIGN_CENTER'>
+			</w:WlWaitingLabel>
+		</g:HorizontalPanel>
 		
 		<g:HTMLPanel>
 		  <div align='center'>
