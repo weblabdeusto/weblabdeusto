@@ -30,3 +30,7 @@ exit
 weblab_xilinx_experiment_xilinx_device = 'FPGA'
 weblab_xilinx_experiment_port_number   = 1
 
+# Though it is not really a FPGA, the webcam url var name depends on the device,
+# specified above.
+fpga_webcam_url = '''https://www.weblab.deusto.es/webcam/fpga0/image.jpg'''
+
