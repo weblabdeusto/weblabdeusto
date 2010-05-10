@@ -3,4 +3,4 @@
 
 
 
-logic_webcam_url = '''http://fbesoain.files.wordpress.com/2009/06/google-chrome.jpg'''
+logic_webcam_url = '''https://www.weblab.deusto.es/webcam/logic0/image.jpg?size=2'''

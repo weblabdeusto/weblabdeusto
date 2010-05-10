@@ -52,7 +52,7 @@ class UdPicExperiment(Experiment.Experiment):
         try:
             self.webcam_url = self._cfg_manager.get_value(CFG_WEBCAM_URL)
         except:
-            self.webcam_url = 'http://localhost'
+            self.webcam_url = ''
 
         self._initialize_tftp()
         if DEBUG:
@@ -195,7 +195,7 @@ class UdPicDummyExperiment(Experiment.Experiment):
         try:
             self.webcam_url = self._cfg_manager.get_value(CFG_WEBCAM_URL)
         except:
-            self.webcam_url = 'http://localhost'
+            self.webcam_url = ''
 
 
     @Override(Experiment.Experiment)

@@ -37,6 +37,9 @@ from voodoo.gen.caller_checker import caller_check
 from voodoo.override import Override
 
 
+DEBUG = True
+
+
 
 #TODO: which exceptions should the user see and which ones should not?
 class UdXilinxExperiment(Experiment.Experiment):
@@ -48,9 +51,13 @@ class UdXilinxExperiment(Experiment.Experiment):
         
         # Expect a certain name for the webcam url config depending on the device name.
         cfg_webcam_url = "%s_webcam_url" % xilinx_device.lower()
-        try:
+        try:    
             self.webcam_url = cfg_manager.get_value(cfg_webcam_url)
+            if DEBUG:
+                print "[DEBUG] Webcam set: " + self.webcam_url
+                print "[DEBUG] Var name: " + cfg_webcam_url
         except: 
+            print "[DEBUG] Couldn't set webcam url properly."
             self.webcam_url = "http://localhost"
 
         devices = [ i for i in XilinxDevices.getXilinxDevicesValues() if i.name == xilinx_device ] 
@@ -130,7 +137,10 @@ class UdXilinxExperiment(Experiment.Experiment):
     def do_send_command_to_device(self, command):
         try:
             if command == 'WEBCAMURL':
-                return "WEBCAMURL=" + self.webcam_url
+                reply = "WEBCAMURL=" + self.webcam_url
+                if DEBUG:
+                    print '[Debug] Sending WEBCAMURL command: ' + reply
+                return reply
             cmd = UdBoardCommand.UdBoardCommand(command)
             codes = cmd.get_codes()
             self._send_codes(codes)

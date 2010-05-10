@@ -70,7 +70,8 @@ public class RequestWebcamCommand extends Command{
 					@Override
 					public void onSuccess(ResponseCommand responseCommand) {
 						String url = RequestWebcamCommand.retrieveWebcamURL(responseCommand.getCommandString());
-						webcam.setUrl(url);
+						if(url != null && url.length() > 0)
+							webcam.setUrl(url);
 					}
 
 					@Override
