@@ -37,7 +37,7 @@ from voodoo.gen.caller_checker import caller_check
 from voodoo.override import Override
 
 
-DEBUG = True
+DEBUG = False
 
 
 
