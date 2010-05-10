@@ -18,6 +18,14 @@ import junit.framework.Assert;
 
 import com.google.gwt.junit.client.GWTTestCase;
 
+import es.deusto.weblab.client.comm.exceptions.SerializationException;
+import es.deusto.weblab.client.comm.exceptions.WlServerException;
+import es.deusto.weblab.client.comm.exceptions.login.InvalidCredentialsException;
+import es.deusto.weblab.client.comm.exceptions.login.LoginException;
+import es.deusto.weblab.client.comm.exceptions.user_processing.NoCurrentReservationException;
+import es.deusto.weblab.client.comm.exceptions.user_processing.SessionNotFoundException;
+import es.deusto.weblab.client.comm.exceptions.user_processing.UnknownExperimentIdException;
+import es.deusto.weblab.client.comm.exceptions.user_processing.UserProcessingException;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Category;
 import es.deusto.weblab.client.dto.experiments.Command;
@@ -32,15 +40,7 @@ import es.deusto.weblab.client.dto.reservations.WaitingConfirmationReservationSt
 import es.deusto.weblab.client.dto.reservations.WaitingInstancesReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingReservationStatus;
 import es.deusto.weblab.client.dto.users.User;
-import es.deusto.weblab.client.exceptions.comm.SerializationException;
-import es.deusto.weblab.client.exceptions.comm.WlServerException;
-import es.deusto.weblab.client.exceptions.comm.login.InvalidCredentialsException;
-import es.deusto.weblab.client.exceptions.comm.login.LoginException;
-import es.deusto.weblab.client.exceptions.comm.user_processing.NoCurrentReservationException;
-import es.deusto.weblab.client.exceptions.comm.user_processing.SessionNotFoundException;
-import es.deusto.weblab.client.exceptions.comm.user_processing.UnknownExperimentIdException;
-import es.deusto.weblab.client.exceptions.comm.user_processing.UserProcessingException;
-import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.xilinx.commands.PulseCommand;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.commands.PulseCommand;
 
 public class WebLabSerializerJSONTest extends GWTTestCase{
     

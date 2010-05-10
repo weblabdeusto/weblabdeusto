@@ -18,8 +18,8 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 
 import es.deusto.weblab.client.comm.callbacks.IWlAsyncCallback;
-import es.deusto.weblab.client.exceptions.comm.CommunicationException;
-import es.deusto.weblab.client.exceptions.comm.ServerException;
+import es.deusto.weblab.client.comm.exceptions.CommunicationException;
+import es.deusto.weblab.client.comm.exceptions.ServerException;
 
 abstract class WlRequestCallback implements RequestCallback{
 

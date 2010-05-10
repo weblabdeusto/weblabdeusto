@@ -1,0 +1,15 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+    xmlns:g='urn:import:com.google.gwt.user.client.ui'
+    xmlns:my='urn:import:es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.widgets'
+    xmlns:w="urn:import:es.deusto.weblab.client.lab.ui.widgets">
+    
+    
+    <w:WlVerticalPanel width='100%' horizontalAlignment='ALIGN_CENTER'>
+        
+		<g:Hidden>
+		</g:Hidden>
+	
+	</w:WlVerticalPanel>
+	
+
+</ui:UiBinder>

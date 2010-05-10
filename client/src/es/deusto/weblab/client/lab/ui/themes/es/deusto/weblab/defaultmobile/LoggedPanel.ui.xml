@@ -1,0 +1,30 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+    xmlns:g='urn:import:com.google.gwt.user.client.ui'
+    xmlns:my='urn:import:es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.widgets'
+    xmlns:w="urn:import:es.deusto.weblab.client.lab.ui.widgets">
+    
+    <ui:with field="i18n" type="es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.i18n.IWebLabDeustoThemeMessages"/>
+	<ui:with field='res' type='es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.Resources'/>
+    
+	<g:VerticalPanel horizontalAlignment='ALIGN_CENTER' width="100%" spacing="5">
+		<g:Cell horizontalAlignment="ALIGN_LEFT"> 
+			<g:HorizontalPanel>
+				<g:Cell horizontalAlignment="ALIGN_LEFT">
+					<g:Image resource='{res.logo}' styleName="wl-main_title"/>
+				</g:Cell>
+				<g:Cell horizontalAlignment="ALIGN_RIGHT">
+					<g:Label ui:field="userLabel">here goes the username</g:Label>
+				</g:Cell>
+				<g:Cell horizontalAlignment="ALIGN_RIGHT">
+				 	<g:Anchor text="{i18n.logOut}" ui:field="logoutLink"></g:Anchor>
+				</g:Cell>
+			</g:HorizontalPanel>
+		</g:Cell>
+
+		<g:Cell>
+			<w:WlVerticalPanel ui:field="contentPanel" width='100%' styleName='center-panel' horizontalAlignment='ALIGN_CENTER'>
+			</w:WlVerticalPanel>
+		</g:Cell>
+	</g:VerticalPanel>
+
+</ui:UiBinder>

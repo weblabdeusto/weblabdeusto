@@ -13,6 +13,9 @@
 */ 
 package es.deusto.weblab.client.comm;
 
+import es.deusto.weblab.client.comm.exceptions.SerializationException;
+import es.deusto.weblab.client.comm.exceptions.WlServerException;
+import es.deusto.weblab.client.comm.exceptions.user_processing.SessionNotFoundException;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
@@ -20,9 +23,6 @@ import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.dto.users.User;
-import es.deusto.weblab.client.exceptions.comm.SerializationException;
-import es.deusto.weblab.client.exceptions.comm.WlServerException;
-import es.deusto.weblab.client.exceptions.comm.user_processing.SessionNotFoundException;
 import es.deusto.weblab.client.testing.util.WlFake;
 
 public class FakeWebLabSerializer extends WlFake implements IWebLabSerializer {

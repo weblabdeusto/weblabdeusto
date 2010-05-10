@@ -13,8 +13,8 @@
 */ 
 package es.deusto.weblab.client.configuration;
 
-import es.deusto.weblab.client.exceptions.configuration.ConfigurationKeyNotFoundException;
-import es.deusto.weblab.client.exceptions.configuration.InvalidConfigurationValueException;
+import es.deusto.weblab.client.configuration.exceptions.ConfigurationKeyNotFoundException;
+import es.deusto.weblab.client.configuration.exceptions.InvalidConfigurationValueException;
 
 public interface IConfigurationManager {
 

@@ -32,6 +32,14 @@ import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.comm.callbacks.IWlAsyncCallback;
+import es.deusto.weblab.client.comm.exceptions.CommunicationException;
+import es.deusto.weblab.client.comm.exceptions.SerializationException;
+import es.deusto.weblab.client.comm.exceptions.WlCommException;
+import es.deusto.weblab.client.comm.exceptions.WlServerException;
+import es.deusto.weblab.client.comm.exceptions.login.InvalidCredentialsException;
+import es.deusto.weblab.client.comm.exceptions.login.LoginException;
+import es.deusto.weblab.client.comm.exceptions.user_processing.SessionNotFoundException;
+import es.deusto.weblab.client.comm.exceptions.user_processing.UnknownExperimentIdException;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Command;
@@ -40,14 +48,6 @@ import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.dto.users.User;
-import es.deusto.weblab.client.exceptions.comm.CommunicationException;
-import es.deusto.weblab.client.exceptions.comm.SerializationException;
-import es.deusto.weblab.client.exceptions.comm.WlCommException;
-import es.deusto.weblab.client.exceptions.comm.WlServerException;
-import es.deusto.weblab.client.exceptions.comm.login.InvalidCredentialsException;
-import es.deusto.weblab.client.exceptions.comm.login.LoginException;
-import es.deusto.weblab.client.exceptions.comm.user_processing.SessionNotFoundException;
-import es.deusto.weblab.client.exceptions.comm.user_processing.UnknownExperimentIdException;
 
 
 public class WebLabCommunication implements IWebLabCommunication {

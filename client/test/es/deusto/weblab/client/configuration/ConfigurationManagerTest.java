@@ -18,8 +18,8 @@ import junit.framework.Assert;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.junit.client.GWTTestCase;
 
-import es.deusto.weblab.client.exceptions.configuration.ConfigurationKeyNotFoundException;
-import es.deusto.weblab.client.exceptions.configuration.InvalidConfigurationValueException;
+import es.deusto.weblab.client.configuration.exceptions.ConfigurationKeyNotFoundException;
+import es.deusto.weblab.client.configuration.exceptions.InvalidConfigurationValueException;
 
 public class ConfigurationManagerTest extends GWTTestCase {
 

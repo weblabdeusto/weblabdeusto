@@ -32,6 +32,9 @@ import es.deusto.weblab.client.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
+import es.deusto.weblab.client.comm.exceptions.CommunicationException;
+import es.deusto.weblab.client.comm.exceptions.ServerException;
+import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.configuration.FakeConfiguration;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Category;
@@ -44,10 +47,7 @@ import es.deusto.weblab.client.dto.reservations.ConfirmedReservationStatus;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.dto.users.Role;
 import es.deusto.weblab.client.dto.users.User;
-import es.deusto.weblab.client.exceptions.comm.CommunicationException;
-import es.deusto.weblab.client.exceptions.comm.ServerException;
-import es.deusto.weblab.client.exceptions.comm.WlCommException;
-import es.deusto.weblab.client.experiments.plugins.es.deusto.weblab.xilinx.commands.SwitchCommand;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.commands.SwitchCommand;
 
 public class WebLabCommunicationTest extends GWTTestCase {
 

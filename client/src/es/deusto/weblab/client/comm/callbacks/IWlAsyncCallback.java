@@ -13,7 +13,7 @@
 */ 
 package es.deusto.weblab.client.comm.callbacks;
 
-import es.deusto.weblab.client.exceptions.comm.WlCommException;
+import es.deusto.weblab.client.comm.exceptions.WlCommException;
 
 public interface IWlAsyncCallback {
 	//onSuccess( <whatever> );

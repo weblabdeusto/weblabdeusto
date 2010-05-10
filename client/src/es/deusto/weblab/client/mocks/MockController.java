@@ -17,7 +17,6 @@ import com.google.gwt.user.client.Timer;
 
 import es.deusto.weblab.client.comm.UploadStructure;
 import es.deusto.weblab.client.comm.callbacks.IResponseCommandCallback;
-import es.deusto.weblab.client.controller.IWebLabController;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Category;
 import es.deusto.weblab.client.dto.experiments.Command;
@@ -29,8 +28,9 @@ import es.deusto.weblab.client.dto.reservations.WaitingConfirmationReservationSt
 import es.deusto.weblab.client.dto.reservations.WaitingReservationStatus;
 import es.deusto.weblab.client.dto.users.Role;
 import es.deusto.weblab.client.dto.users.User;
-import es.deusto.weblab.client.exceptions.experiments.WlExperimentException;
-import es.deusto.weblab.client.ui.IUIManager;
+import es.deusto.weblab.client.lab.controller.IWebLabController;
+import es.deusto.weblab.client.lab.experiments.exceptions.WlExperimentException;
+import es.deusto.weblab.client.lab.ui.IUIManager;
 
 public class MockController implements IWebLabController {
 

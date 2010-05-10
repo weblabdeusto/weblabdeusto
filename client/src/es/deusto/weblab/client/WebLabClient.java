@@ -28,14 +28,14 @@ import es.deusto.weblab.client.comm.IWebLabCommunication;
 import es.deusto.weblab.client.comm.WebLabCommunication;
 import es.deusto.weblab.client.configuration.ConfigurationManager;
 import es.deusto.weblab.client.configuration.IConfigurationLoadedCallback;
-import es.deusto.weblab.client.controller.IWebLabController;
-import es.deusto.weblab.client.controller.PollingHandler;
-import es.deusto.weblab.client.controller.WebLabController;
 import es.deusto.weblab.client.dto.SessionID;
-import es.deusto.weblab.client.ui.ThemeBase;
-import es.deusto.weblab.client.ui.ThemeFactory;
-import es.deusto.weblab.client.ui.ThemeFactory.IThemeLoadedCallback;
-import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
+import es.deusto.weblab.client.lab.controller.IWebLabController;
+import es.deusto.weblab.client.lab.controller.PollingHandler;
+import es.deusto.weblab.client.lab.controller.WebLabController;
+import es.deusto.weblab.client.lab.ui.ThemeBase;
+import es.deusto.weblab.client.lab.ui.ThemeFactory;
+import es.deusto.weblab.client.lab.ui.ThemeFactory.IThemeLoadedCallback;
+import es.deusto.weblab.client.lab.ui.widgets.WlWaitingLabel;
 
 public class WebLabClient implements EntryPoint {
 	
