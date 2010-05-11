@@ -13,8 +13,8 @@
 */ 
 package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.ui;
 
-import es.deusto.weblab.client.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.dto.experiments.Command;
+import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.commands.ClockActivationCommand;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.commands.ClockDeactivationCommand;
 import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;

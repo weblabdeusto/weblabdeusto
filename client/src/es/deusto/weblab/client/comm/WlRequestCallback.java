@@ -21,7 +21,7 @@ import es.deusto.weblab.client.comm.callbacks.IWlAsyncCallback;
 import es.deusto.weblab.client.comm.exceptions.CommunicationException;
 import es.deusto.weblab.client.comm.exceptions.ServerException;
 
-abstract class WlRequestCallback implements RequestCallback{
+abstract public class WlRequestCallback implements RequestCallback{
 
 	private final IWlAsyncCallback callback;
 	

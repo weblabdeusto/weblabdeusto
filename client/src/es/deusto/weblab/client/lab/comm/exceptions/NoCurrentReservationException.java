@@ -11,7 +11,9 @@
 * Author: Pablo Orduña <pablo@ordunya.com>
 *
 */ 
-package es.deusto.weblab.client.comm.exceptions.user_processing;
+package es.deusto.weblab.client.lab.comm.exceptions;
+
+import es.deusto.weblab.client.comm.exceptions.core.UserProcessingException;
 
 public class NoCurrentReservationException extends UserProcessingException {
 	private static final long serialVersionUID = -2781285087668712686L;

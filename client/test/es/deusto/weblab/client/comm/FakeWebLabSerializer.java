@@ -13,9 +13,12 @@
 */ 
 package es.deusto.weblab.client.comm;
 
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONValue;
+
 import es.deusto.weblab.client.comm.exceptions.SerializationException;
 import es.deusto.weblab.client.comm.exceptions.WlServerException;
-import es.deusto.weblab.client.comm.exceptions.user_processing.SessionNotFoundException;
+import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
@@ -23,9 +26,10 @@ import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.dto.users.User;
+import es.deusto.weblab.client.lab.comm.IWlLabSerializer;
 import es.deusto.weblab.client.testing.util.WlFake;
 
-public class FakeWebLabSerializer extends WlFake implements IWebLabSerializer {
+public class FakeWebLabSerializer extends WlFake implements IWlLabSerializer {
 	
 	public static final String PARSE_GET_RESERVATION_STATUS_RESPONSE    = "FakeWebLabSerializer::parseGetReservationStatus";
 	public static final String PARSE_GET_USER_INFORMATION_RESPONSE      = "FakeWebLabSerializer::parseGetUserInformation";
@@ -194,5 +198,29 @@ public class FakeWebLabSerializer extends WlFake implements IWebLabSerializer {
 				command
 		});
 		return (String)this.retrieveReturn(FakeWebLabSerializer.SERIALIZE_SEND_COMMAND_REQUEST);
+	}
+
+	protected ReservationStatus parseReservationStatus(final JSONObject result)
+			throws SerializationException {
+		return null;
+	}
+
+	protected void throwException(JSONObject responseObject) throws WlServerException {
+	}
+
+	protected WlServerException buildException(final String faultCode, final String faultString) {
+		return null;
+	}
+
+	protected String json2string(JSONValue value) throws SerializationException {
+		return null;
+	}
+
+	protected double json2double(JSONValue value) throws SerializationException {
+		return 0;
+	}
+
+	protected int json2int(JSONValue value) throws SerializationException {
+		return 0;
 	}
 }

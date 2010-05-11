@@ -20,13 +20,13 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-import es.deusto.weblab.client.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.configuration.exceptions.ConfigurationKeyNotFoundException;
 import es.deusto.weblab.client.configuration.exceptions.InvalidConfigurationValueException;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.ui.BoardBase;
 
 public abstract class AbstractExternalAppBasedBoard extends BoardBase {

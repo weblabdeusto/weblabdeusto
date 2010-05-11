@@ -33,11 +33,11 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-import es.deusto.weblab.client.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.circuit.Circuit;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.circuit.CircuitParser;

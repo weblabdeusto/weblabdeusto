@@ -11,7 +11,9 @@
 * Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 *
 */ 
-package es.deusto.weblab.client.comm.exceptions.user_processing;
+package es.deusto.weblab.client.lab.comm.exceptions;
+
+import es.deusto.weblab.client.comm.exceptions.core.UserProcessingException;
 
 public class UnknownExperimentIdException extends UserProcessingException {
 	private static final long serialVersionUID = -2781285087668712686L;

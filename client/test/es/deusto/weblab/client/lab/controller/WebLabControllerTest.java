@@ -23,9 +23,6 @@ import junit.framework.Assert;
 import com.google.gwt.junit.client.GWTTestCase;
 
 import es.deusto.weblab.client.comm.FakeWebLabCommunication;
-import es.deusto.weblab.client.comm.callbacks.IExperimentsAllowedCallback;
-import es.deusto.weblab.client.comm.callbacks.IReservationCallback;
-import es.deusto.weblab.client.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
@@ -46,6 +43,9 @@ import es.deusto.weblab.client.dto.reservations.WaitingInstancesReservationStatu
 import es.deusto.weblab.client.dto.reservations.WaitingReservationStatus;
 import es.deusto.weblab.client.dto.users.Role;
 import es.deusto.weblab.client.dto.users.User;
+import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
+import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
+import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.controller.WebLabController;
 import es.deusto.weblab.client.lab.ui.FakeUIManager;
 import es.deusto.weblab.client.testing.util.WlFake.Methods;

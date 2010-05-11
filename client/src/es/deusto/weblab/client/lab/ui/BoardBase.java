@@ -13,9 +13,9 @@
 */ 
 package es.deusto.weblab.client.lab.ui;
 
-import es.deusto.weblab.client.comm.UploadStructure;
-import es.deusto.weblab.client.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.dto.experiments.Command;
+import es.deusto.weblab.client.lab.comm.UploadStructure;
+import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.ui.widgets.IWlWidget;
 
 public abstract class BoardBase implements IWlWidget{

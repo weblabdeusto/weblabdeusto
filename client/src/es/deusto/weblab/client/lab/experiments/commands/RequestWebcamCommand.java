@@ -15,10 +15,10 @@ package es.deusto.weblab.client.lab.experiments.commands;
 
 import com.google.gwt.user.client.ui.Label;
 
-import es.deusto.weblab.client.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
 import es.deusto.weblab.client.lab.ui.widgets.WlWebcam;
 

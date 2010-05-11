@@ -13,13 +13,13 @@
 */ 
 package es.deusto.weblab.client.lab.controller;
 
-import es.deusto.weblab.client.comm.IWebLabCommunication;
-import es.deusto.weblab.client.comm.callbacks.IReservationCallback;
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
+import es.deusto.weblab.client.lab.comm.IWlLabCommunication;
+import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
 import es.deusto.weblab.client.lab.controller.WebLabController.TimerCreator;
 import es.deusto.weblab.client.lab.controller.exceptions.WlUnknownReservationException;
 import es.deusto.weblab.client.lab.controller.reservations.ReservationStatusTransition;
@@ -32,7 +32,7 @@ public class ReservationStatusCallback implements IReservationCallback{
 	private IConfigurationManager configurationManager;
 	private IPollingHandler       pollingHandler;
 	private TimerCreator          timerCreator;
-	private IWebLabCommunication  communications;
+	private IWlLabCommunication  communications;
 	private SessionID             sessionID;
 	private ExperimentID          experimentBeingReserved;
 	private ExperimentBase        experimentBaseBeingReserved;
@@ -75,7 +75,7 @@ public class ReservationStatusCallback implements IReservationCallback{
 		return this.timerCreator;
 	}
 
-	public IWebLabCommunication getCommunications() {
+	public IWlLabCommunication getCommunications() {
 		return this.communications;
 	}
 
@@ -111,7 +111,7 @@ public class ReservationStatusCallback implements IReservationCallback{
 		this.timerCreator = timerCreator;
 	}
 
-	void setCommunications(IWebLabCommunication communications) {
+	void setCommunications(IWlLabCommunication communications) {
 		this.communications = communications;
 	}
 

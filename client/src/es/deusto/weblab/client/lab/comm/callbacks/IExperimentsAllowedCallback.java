@@ -11,11 +11,14 @@
 * Author: Pablo Orduña <pablo@ordunya.com>
 *
 */ 
-package es.deusto.weblab.client.comm.callbacks;
+package es.deusto.weblab.client.lab.comm.callbacks;
 
-import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.comm.callbacks.IWlAsyncCallback;
+import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 
-public interface IResponseCommandCallback extends IWlAsyncCallback {
-	public void onSuccess(ResponseCommand responseCommand);
+
+public interface IExperimentsAllowedCallback extends IWlAsyncCallback {
+	public void onSuccess(ExperimentAllowed [] experiments);
+	
 	//throws WlCommException, SessionNotFoundException
 }

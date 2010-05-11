@@ -11,7 +11,7 @@
 * Author: Pablo Orduña <pablo@ordunya.com>
 *
 */ 
-package es.deusto.weblab.client.comm.exceptions.user_processing;
+package es.deusto.weblab.client.comm.exceptions.core;
 
 import es.deusto.weblab.client.comm.exceptions.WlServerException;
 

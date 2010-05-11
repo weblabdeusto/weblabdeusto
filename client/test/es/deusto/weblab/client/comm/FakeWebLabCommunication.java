@@ -13,18 +13,20 @@
 */ 
 package es.deusto.weblab.client.comm;
 
-import es.deusto.weblab.client.comm.callbacks.IExperimentsAllowedCallback;
-import es.deusto.weblab.client.comm.callbacks.IReservationCallback;
-import es.deusto.weblab.client.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
+import es.deusto.weblab.client.lab.comm.IWlLabCommunication;
+import es.deusto.weblab.client.lab.comm.UploadStructure;
+import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
+import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
+import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.testing.util.WlFake;
 
-public class FakeWebLabCommunication extends WlFake implements IWebLabCommunication{
+public class FakeWebLabCommunication extends WlFake implements IWlLabCommunication{
 
 	public static final String SEND_FILE              = "FakeWebLabCommunication::sendFile";
 	public static final String SEND_COMMAND           = "FakeWebLabCommunication::sendCommand";

@@ -11,7 +11,7 @@
 * Author: Pablo Orduña <pablo@ordunya.com>
 *
 */ 
-package es.deusto.weblab.client.comm;
+package es.deusto.weblab.client.lab.comm;
 
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FormPanel;

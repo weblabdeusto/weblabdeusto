@@ -24,11 +24,11 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-import es.deusto.weblab.client.comm.IWebLabCommunication;
-import es.deusto.weblab.client.comm.WebLabCommunication;
 import es.deusto.weblab.client.configuration.ConfigurationManager;
 import es.deusto.weblab.client.configuration.IConfigurationLoadedCallback;
 import es.deusto.weblab.client.dto.SessionID;
+import es.deusto.weblab.client.lab.comm.IWlLabCommunication;
+import es.deusto.weblab.client.lab.comm.WlLabCommunication;
 import es.deusto.weblab.client.lab.controller.IWebLabController;
 import es.deusto.weblab.client.lab.controller.PollingHandler;
 import es.deusto.weblab.client.lab.controller.WebLabController;
@@ -96,8 +96,79 @@ public class WebLabClient implements EntryPoint {
 		Window.Location.replace(newUrl);
 	}
 	
-	public void mainWebLab(){
-		final WlWaitingLabel loadingLabel = new WlWaitingLabel("Loading WebLab");
+	public void loadLabApp() {
+		final IWlLabCommunication communications = new WlLabCommunication(
+				WebLabClient.this.configurationManager
+		);
+		
+		final PollingHandler pollingHandler = new PollingHandler(
+				WebLabClient.this.configurationManager 
+		);
+		
+		final boolean isUsingMobile = isMobile();
+		
+		final IWebLabController controller = new WebLabController(
+				WebLabClient.this.configurationManager,
+				communications,
+				pollingHandler,
+				isUsingMobile
+		);
+		
+		pollingHandler.setController(controller);
+		
+		final IThemeLoadedCallback themeLoadedCallback = new IThemeLoadedCallback() {
+			
+			@Override
+			public void onThemeLoaded(ThemeBase theme) {
+				controller.setUIManager(theme);
+				try{
+					final String sessionId = Window.Location.getParameter(WebLabClient.SESSION_ID_URL_PARAM);
+					if(sessionId == null)
+						theme.onInit();
+					else
+						controller.startLoggedIn(new SessionID(sessionId));
+				}catch(Exception e){
+					WebLabClient.this.showError("Error initializing theme: " + e.getMessage());
+					e.printStackTrace();
+					return;
+				}
+
+				WebLabClient.this.putWidget(theme.getWidget());
+			}
+			
+			@Override
+			public void onFailure(Throwable e) {
+				showError("Error creating theme: " + e.getMessage() + "; " + e);
+				return;
+			}
+		};
+		
+		try {
+			ThemeFactory.themeFactory(
+					WebLabClient.this.configurationManager,
+					controller, 
+					WebLabClient.this.configurationManager.getProperty(
+							WebLabClient.THEME_PROPERTY, 
+							WebLabClient.DEFAULT_THEME
+						),
+					isUsingMobile,
+					themeLoadedCallback
+				);
+		} catch (Exception e){
+			showError("Error creating theme: " + e.getMessage() + "; " + e);
+			return;
+		}		
+	}
+
+	
+	public void loadAdminApp() {
+		/* final IWlAdminCommunication communications = new WlAdminCommunication(
+				WebLabClient.this.configurationManager
+		);*/		
+	}
+	
+	public void onModuleLoad() {
+		final WlWaitingLabel loadingLabel = new WlWaitingLabel("Loading WebLab-Deusto");
 		loadingLabel.start();
 		this.putWidget(loadingLabel.getWidget());
 				
@@ -107,66 +178,11 @@ public class WebLabClient implements EntryPoint {
 		
 		this.configurationManager = new ConfigurationManager(configFile, new IConfigurationLoadedCallback(){
 			public void onLoaded() {
-				final IWebLabCommunication communications = new WebLabCommunication(
-						WebLabClient.this.configurationManager
-				);
-				
-				final PollingHandler pollingHandler = new PollingHandler(
-						WebLabClient.this.configurationManager 
-				);
-				
-				final boolean isUsingMobile = isMobile();
-				
-				final IWebLabController controller = new WebLabController(
-						WebLabClient.this.configurationManager,
-						communications,
-						pollingHandler,
-						isUsingMobile
-				);
-				
-				pollingHandler.setController(controller);
-				
-				final IThemeLoadedCallback themeLoadedCallback = new IThemeLoadedCallback() {
-					
-					@Override
-					public void onThemeLoaded(ThemeBase theme) {
-						controller.setUIManager(theme);
-						try{
-							final String sessionId = Window.Location.getParameter(WebLabClient.SESSION_ID_URL_PARAM);
-							if(sessionId == null)
-								theme.onInit();
-							else
-								controller.startLoggedIn(new SessionID(sessionId));
-						}catch(Exception e){
-							WebLabClient.this.showError("Error initializing theme: " + e.getMessage());
-							e.printStackTrace();
-							return;
-						}
-
-						WebLabClient.this.putWidget(theme.getWidget());
-					}
-					
-					@Override
-					public void onFailure(Throwable e) {
-						showError("Error creating theme: " + e.getMessage() + "; " + e);
-						return;
-					}
-				};
-				
-				try {
-					ThemeFactory.themeFactory(
-							WebLabClient.this.configurationManager,
-							controller, 
-							WebLabClient.this.configurationManager.getProperty(
-									WebLabClient.THEME_PROPERTY, 
-									WebLabClient.DEFAULT_THEME
-								),
-							isUsingMobile,
-							themeLoadedCallback
-						);
-				} catch (Exception e){
-					showError("Error creating theme: " + e.getMessage() + "; " + e);
-					return;
+				RootPanel panel = RootPanel.get("adminAppIdentifierDiv");
+				if ( panel != null ) {
+					WebLabClient.this.loadAdminApp();
+				} else {
+					WebLabClient.this.loadLabApp();	
 				}
 			}
 
@@ -175,9 +191,5 @@ public class WebLabClient implements EntryPoint {
 			}
 		});
 		this.configurationManager.start();
-	}
-
-	public void onModuleLoad() {
-		this.mainWebLab();
 	}
 }

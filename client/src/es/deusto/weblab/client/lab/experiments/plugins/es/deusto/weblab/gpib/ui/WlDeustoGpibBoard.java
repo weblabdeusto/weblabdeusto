@@ -26,12 +26,12 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
 
-import es.deusto.weblab.client.comm.UploadStructure;
-import es.deusto.weblab.client.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.lab.comm.UploadStructure;
+import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.commands.PollCommand;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.commands.ResultCodeCommand;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.commands.ResultFileCommand;

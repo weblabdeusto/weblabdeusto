@@ -26,9 +26,6 @@ import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 
-import es.deusto.weblab.client.comm.callbacks.IExperimentsAllowedCallback;
-import es.deusto.weblab.client.comm.callbacks.IReservationCallback;
-import es.deusto.weblab.client.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
@@ -47,6 +44,11 @@ import es.deusto.weblab.client.dto.reservations.ConfirmedReservationStatus;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.dto.users.Role;
 import es.deusto.weblab.client.dto.users.User;
+import es.deusto.weblab.client.lab.comm.UploadStructure;
+import es.deusto.weblab.client.lab.comm.WlLabCommunication;
+import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
+import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
+import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.commands.SwitchCommand;
 
 public class WebLabCommunicationTest extends GWTTestCase {
@@ -987,7 +989,7 @@ public class WebLabCommunicationTest extends GWTTestCase {
 		Assert.assertNotNull(fakeFormPanel.getAction());
 		Assert.assertEquals(FormPanel.ENCODING_MULTIPART, fakeFormPanel.getEncoding());
 		Assert.assertEquals(FormPanel.METHOD_POST,        fakeFormPanel.getMethod());
-		Assert.assertEquals(WebLabCommunication.FILE_SENT_ATTR, fakeFileUpload.getName());
+		Assert.assertEquals(WlLabCommunication.FILE_SENT_ATTR, fakeFileUpload.getName());
 		
 		Assert.assertEquals(0, this.stepCounter);
 		

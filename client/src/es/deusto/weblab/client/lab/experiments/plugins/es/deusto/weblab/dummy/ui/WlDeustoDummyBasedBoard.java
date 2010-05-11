@@ -16,10 +16,10 @@ package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.dummy.u
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Label;
 
-import es.deusto.weblab.client.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.ui.WlDeustoXilinxBasedBoard;
 
 public class WlDeustoDummyBasedBoard extends WlDeustoXilinxBasedBoard {

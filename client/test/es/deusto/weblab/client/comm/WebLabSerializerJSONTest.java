@@ -20,12 +20,10 @@ import com.google.gwt.junit.client.GWTTestCase;
 
 import es.deusto.weblab.client.comm.exceptions.SerializationException;
 import es.deusto.weblab.client.comm.exceptions.WlServerException;
+import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
+import es.deusto.weblab.client.comm.exceptions.core.UserProcessingException;
 import es.deusto.weblab.client.comm.exceptions.login.InvalidCredentialsException;
 import es.deusto.weblab.client.comm.exceptions.login.LoginException;
-import es.deusto.weblab.client.comm.exceptions.user_processing.NoCurrentReservationException;
-import es.deusto.weblab.client.comm.exceptions.user_processing.SessionNotFoundException;
-import es.deusto.weblab.client.comm.exceptions.user_processing.UnknownExperimentIdException;
-import es.deusto.weblab.client.comm.exceptions.user_processing.UserProcessingException;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Category;
 import es.deusto.weblab.client.dto.experiments.Command;
@@ -40,12 +38,16 @@ import es.deusto.weblab.client.dto.reservations.WaitingConfirmationReservationSt
 import es.deusto.weblab.client.dto.reservations.WaitingInstancesReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingReservationStatus;
 import es.deusto.weblab.client.dto.users.User;
+import es.deusto.weblab.client.lab.comm.IWlLabSerializer;
+import es.deusto.weblab.client.lab.comm.WlLabSerializerJSON;
+import es.deusto.weblab.client.lab.comm.exceptions.NoCurrentReservationException;
+import es.deusto.weblab.client.lab.comm.exceptions.UnknownExperimentIdException;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.commands.PulseCommand;
 
 public class WebLabSerializerJSONTest extends GWTTestCase{
     
 	public void testParseGetReservationStatusResponse_Waiting() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseGetReservationStatusResponse(
 			"{\"result\": {\"status\": \"Reservation::waiting\", \"position\": 5}, \"is_exception\": false}"
 		);
@@ -54,7 +56,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseGetReservationStatusResponse_WaitingConfirmation()  throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseGetReservationStatusResponse(
 			"{\"result\": {\"status\": \"Reservation::waiting_confirmation\"}, \"is_exception\": false}"
 		);
@@ -62,7 +64,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseGetReservationStatusResponse_WaitingInstances()  throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseGetReservationStatusResponse(
 			"{\"result\": {\"status\": \"Reservation::waiting_instances\", \"position\" : 5}, \"is_exception\": false}"
 		);
@@ -71,7 +73,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseGetReservationStatusResponse_Cancelling()  throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseGetReservationStatusResponse(
 			"{\"result\": {\"status\": \"Reservation::cancelling\"}, \"is_exception\": false}"
 		);
@@ -79,7 +81,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseGetReservationStatusResponse_Confirmed() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseGetReservationStatusResponse(
 			"{\"result\": {\"status\": \"Reservation::confirmed\", \"time\": 28.771512031555176}, \"is_exception\": false}"
 		);
@@ -88,7 +90,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 	
 	public void testParseGetReservationStatusResponse_Exceptions() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		try{
 			weblabSerializer.parseGetReservationStatusResponse(
 				"");
@@ -107,7 +109,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 	
 	public void testParseGetUserInformationResponse() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final User user = weblabSerializer.parseGetUserInformationResponse(
 				"{\"result\": {\"login\": \"porduna\", \"email\": \"porduna@tecnologico.deusto.es\", \"full_name\": \"Pablo Orduna\", \"role\": {\"name\": \"student\"}}, \"is_exception\": false}"
 		);
@@ -118,7 +120,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseGetUserInformationResponse_Exceptions() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		try{
 			weblabSerializer.parseGetUserInformationResponse(
 					""
@@ -138,7 +140,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 	
 	public void testParseLoginResponse() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final SessionID sessionId = weblabSerializer.parseLoginResponse(
 				"{\"result\": {\"id\": \"whatever\"}, \"is_exception\":false}"
 			);
@@ -146,7 +148,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseLoginResponse_Faults() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		
 		final String MESSAGE = "my message";
 		final String whole_message = "{\"message\": \"" + MESSAGE + "\", \"code\": \"THE_FAULT_CODE\", \"is_exception\": true}";
@@ -194,7 +196,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseLoginResponse_Exceptions() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		try{
 			weblabSerializer.parseLoginResponse(
 				""
@@ -215,14 +217,14 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 	
 	public void testParseLogoutResponse() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		weblabSerializer.parseLogoutResponse(
 				"{\"result\": {}, \"is_exception\": false}"
 			);
 	}
 
 	public void testParseLogoutResponse_Faults() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		
 		final String MESSAGE = "my message";
 		final String whole_message = "{\"message\": \"" + MESSAGE + "\", \"code\": \"THE_FAULT_CODE\", \"is_exception\": true}";
@@ -270,7 +272,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseLogoutResponse_Exceptions() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		try{
 			weblabSerializer.parseLogoutResponse(
 					""
@@ -291,14 +293,14 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParsePollResponse() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		weblabSerializer.parsePollResponse(
 				"{\"result\": {}, \"is_exception\": false}"
 			);
 	}
 
 	public void testParsePollResponse_Faults() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		
 		final String MESSAGE = "my message";
 		final String whole_message = "{\"message\": \"" + MESSAGE + "\", \"code\": \"THE_FAULT_CODE\", \"is_exception\": true}";
@@ -354,7 +356,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParsePollResponse_Exceptions() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		try{
 			weblabSerializer.parsePollResponse(
 					""
@@ -375,7 +377,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseSendCommandResponse() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final ResponseCommand command = weblabSerializer.parseSendCommandResponse(
 			"{\"result\": {\"commandstring\": null}, \"is_exception\": false}"
 		);
@@ -389,7 +391,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseSendCommandResponse_Faults() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		
 		final String MESSAGE = "my message";
 		final String whole_message = "{\"message\": \"" + MESSAGE + "\", \"code\": \"THE_FAULT_CODE\", \"is_exception\": true}";
@@ -445,7 +447,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseSendCommandResponse_Exceptions() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		try{
 			weblabSerializer.parseSendCommandResponse(
 					""
@@ -466,7 +468,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseSendFileResponse() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final String realResponse = "the_real_response";
 		final ResponseCommand command2 = weblabSerializer.parseSendFileResponse(
 			"<body>SUCCESS@" + realResponse + "</body>"
@@ -475,7 +477,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseSendFileResponse_Faults() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		
 		final String MESSAGE = "my message";
 		final String whole_message = "<body>ERROR@THE_FAULT_CODE@" + MESSAGE + "</body>";
@@ -531,7 +533,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseSendFileResponse_Exceptions() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		try{
 			weblabSerializer.parseSendFileResponse(
 					""
@@ -553,14 +555,14 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	
 	
 	public void testParseFinishedExperimentResponse() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		weblabSerializer.parseFinishedExperimentResponse(
 			"{\"result\": {}, \"is_exception\": false}"
 		);
 	}
 
 	public void testParseFinishedExperimentResponse_Faults() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		
 		final String MESSAGE = "my message";
 		final String whole_message = "{\"message\": \"" + MESSAGE + "\", \"code\": \"THE_FAULT_CODE\", \"is_exception\": true}";
@@ -616,7 +618,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseFinishedExperimentResponse_Exceptions() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		try{
 			weblabSerializer.parseFinishedExperimentResponse(
 					""
@@ -637,7 +639,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseReserveExperimentResponse_Waiting() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseReserveExperimentResponse(
 			"{\"result\": {\"status\": \"Reservation::waiting\", \"position\": 5}, \"is_exception\": false}"
 		);
@@ -646,7 +648,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseReserveExperimentResponse_Faults() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		
 		final String MESSAGE = "my message";
 		final String whole_message = "{\"message\": \"" + MESSAGE + "\", \"code\": \"THE_FAULT_CODE\", \"is_exception\": true}";
@@ -702,7 +704,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseReserveExperimentResponse_WaitingConfirmation()  throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseReserveExperimentResponse(
 			"{\"result\": {\"status\": \"Reservation::waiting_confirmation\"}, \"is_exception\": false}"
 		);
@@ -710,7 +712,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseReserveExperimentResponse_WaitingInstances()  throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseReserveExperimentResponse(
 			"{\"result\": {\"status\": \"Reservation::waiting_instances\", \"position\": 5}, \"is_exception\": false}"
 		);
@@ -719,7 +721,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseReserveExperimentResponse_Cancelling()  throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseReserveExperimentResponse(
 			"{\"result\": {\"status\": \"Reservation::cancelling\"}, \"is_exception\": false}"
 		);
@@ -727,7 +729,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseReserveExperimentResponse_Confirmed() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseReserveExperimentResponse(
 			"{\"result\": {\"status\": \"Reservation::confirmed\", \"time\": 28.771512031555176}, \"is_exception\": false}"
 		);
@@ -736,7 +738,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 	
 	public void testParseReserveExperimentResponse_Exceptions() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		try{
 			weblabSerializer.parseReserveExperimentResponse(
 				"");
@@ -755,7 +757,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseListExperimentsResponse() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final ExperimentAllowed [] experiments = weblabSerializer.parseListExperimentsResponse(
 			"{\"result\": [" +
 				"{\"experiment\": {\"category\": {\"name\": \"Dummy experiments\"}, \"owner\": \"porduna@tecnologico.deusto.es\", " +
@@ -789,7 +791,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseListExperimentsResponseWithOtherDateFormat() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final ExperimentAllowed [] experiments = weblabSerializer.parseListExperimentsResponse(
 			"{\"result\": [" +
 				"{\"experiment\": {\"category\": {\"name\": \"Dummy experiments\"}, \"owner\": \"porduna@tecnologico.deusto.es\", " +
@@ -823,7 +825,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseListExperimentsResponse_Faults() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		
 		final String MESSAGE = "my message";
 		final String whole_message = "{\"message\": \"" + MESSAGE + "\", \"code\": \"THE_FAULT_CODE\", \"is_exception\": true}";
@@ -871,7 +873,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testSerializeGetReservationStatusRequest() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final String MESSAGE = "whatever the session id real id";
 		
 		final SessionID sessionId = new SessionID(MESSAGE);
@@ -884,7 +886,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 	
 	public void testSerializeGetUserInformationRequest() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final String MESSAGE = "whatever the session id real id";
 		
 		final SessionID sessionId = new SessionID(MESSAGE);
@@ -897,7 +899,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 	
 	public void testSerializeListExperimentsRequest() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final String MESSAGE = "whatever the session id real id";
 		
 		final SessionID sessionId = new SessionID(MESSAGE);
@@ -910,7 +912,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 	
 	public void testSerializeLogoutRequest() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final String MESSAGE = "whatever the session id real id";
 		
 		final SessionID sessionId = new SessionID(MESSAGE);
@@ -923,7 +925,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 	
 	public void testSerializePollRequest() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final String MESSAGE = "whatever the session id real id";
 		
 		final SessionID sessionId = new SessionID(MESSAGE);
@@ -936,7 +938,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 	
 	public void testSerializeFinishedExperimentRequest() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final String MESSAGE = "whatever the session id real id";
 		
 		final SessionID sessionId = new SessionID(MESSAGE);
@@ -949,7 +951,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 	
 	public void testSerializeLoginRequest() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		
 		final String USERNAME = "my username";
 		final String PASSWORD = "my password";
@@ -963,7 +965,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 	
 	public void testSerializeReserveExperimentRequest() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		
 		final String MESSAGE = "whatever the session id real id";
 		
@@ -983,7 +985,7 @@ public class WebLabSerializerJSONTest extends GWTTestCase{
 	}
 	
 	public void testSerializeCommandRequest() throws Exception{
-		final WebLabSerializerJSON weblabSerializer = new WebLabSerializerJSON();
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		
 		final String MESSAGE = "whatever the session id real id";
 		

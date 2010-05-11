@@ -19,10 +19,6 @@ package es.deusto.weblab.client.lab.controller;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Timer;
 
-import es.deusto.weblab.client.comm.IWebLabCommunication;
-import es.deusto.weblab.client.comm.UploadStructure;
-import es.deusto.weblab.client.comm.callbacks.IExperimentsAllowedCallback;
-import es.deusto.weblab.client.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
@@ -35,6 +31,10 @@ import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.dto.users.User;
+import es.deusto.weblab.client.lab.comm.IWlLabCommunication;
+import es.deusto.weblab.client.lab.comm.UploadStructure;
+import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
+import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
@@ -62,7 +62,7 @@ public class WebLabController implements IWebLabController {
 
 	// Managers
 	private final IConfigurationManager configurationManager;
-	private final IWebLabCommunication communications;
+	private final IWlLabCommunication communications;
 	private IUIManager uimanager;
 	
 	// Current session variables
@@ -89,7 +89,7 @@ public class WebLabController implements IWebLabController {
 	
 	public WebLabController(
 				IConfigurationManager configurationManager,
-				IWebLabCommunication  communications,
+				IWlLabCommunication  communications,
 				IPollingHandler       pollingHandler,
 				boolean               isMobile
 			){

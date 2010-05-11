@@ -13,12 +13,12 @@
 */ 
 package es.deusto.weblab.client.lab.controller;
 
-import es.deusto.weblab.client.comm.UploadStructure;
-import es.deusto.weblab.client.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
+import es.deusto.weblab.client.lab.comm.UploadStructure;
+import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.ui.IUIManager;
 
 public interface IWebLabController {

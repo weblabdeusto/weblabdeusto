@@ -19,12 +19,12 @@ import junit.framework.Assert;
 
 import com.google.gwt.junit.client.GWTTestCase;
 
-import es.deusto.weblab.client.comm.UploadStructure;
-import es.deusto.weblab.client.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.configuration.FakeConfiguration;
 import es.deusto.weblab.client.dto.experiments.Category;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
+import es.deusto.weblab.client.lab.comm.UploadStructure;
+import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
