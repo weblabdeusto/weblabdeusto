@@ -162,9 +162,11 @@ public class WebLabClient implements EntryPoint {
 
 	
 	public void loadAdminApp() {
-		/* final IWlAdminCommunication communications = new WlAdminCommunication(
+		/*final IWlAdminCommunication communications = new WlAdminCommunication(
 				WebLabClient.this.configurationManager
-		);*/		
+		);*/
+		
+		
 	}
 	
 	public void onModuleLoad() {

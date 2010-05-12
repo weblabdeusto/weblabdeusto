@@ -22,6 +22,7 @@ import junit.framework.Assert;
 
 import com.google.gwt.junit.client.GWTTestCase;
 
+import es.deusto.weblab.client.comm.FakeWlCommonCommunication;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
@@ -67,7 +68,7 @@ public class WebLabControllerTest  extends GWTTestCase{
 		final WebLabController controller = this.createController();
 		controller.login("whatever", "whatever");
 		
-		List<Methods> v = this.fakeCommunications.getMethodByName(FakeWlLabCommunication.LOGIN);
+		List<Methods> v = this.fakeCommunications.getMethodByName(FakeWlCommonCommunication.LOGIN);
 		Assert.assertEquals(1, v.size());
 		final Methods m = v.get(0);
 		final Object [] parametersReceived = m.getParameters();
@@ -96,7 +97,7 @@ public class WebLabControllerTest  extends GWTTestCase{
 		
 		// login
 		controller.login("whatever", "whatever");
-		List<Methods> v = this.fakeCommunications.getMethodByName(FakeWlLabCommunication.LOGIN);
+		List<Methods> v = this.fakeCommunications.getMethodByName(FakeWlCommonCommunication.LOGIN);
 		Assert.assertEquals(1, v.size());
 		Methods m = v.get(0);
 		final Object [] parametersReceived = m.getParameters();
@@ -379,7 +380,7 @@ public class WebLabControllerTest  extends GWTTestCase{
 		context.controller = controller;
 		
 		controller.login("whatever", "whatever");
-		m = this.fakeCommunications.getMethodByName(FakeWlLabCommunication.LOGIN).get(0); 
+		m = this.fakeCommunications.getMethodByName(FakeWlCommonCommunication.LOGIN).get(0); 
 		final ISessionIdCallback sic = (ISessionIdCallback)m.getParameters()[2];
 		sic.onSuccess(sessionID);
 		m = this.fakeCommunications.getMethodByName(FakeWlLabCommunication.GET_USER_INFORMATION).get(0);
