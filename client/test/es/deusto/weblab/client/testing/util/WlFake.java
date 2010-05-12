@@ -18,7 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-public abstract class WlFake {
+public class WlFake {
+	
 	private final Map<String, Object> nextReturn = new HashMap<String, Object>();
 	private final Map<String, List<Methods>> methodsCalled = new HashMap<String, List<Methods>>();
 	private int number = 0;

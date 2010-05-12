@@ -30,15 +30,11 @@ import es.deusto.weblab.client.comm.exceptions.core.UserProcessingException;
 import es.deusto.weblab.client.comm.exceptions.login.InvalidCredentialsException;
 import es.deusto.weblab.client.comm.exceptions.login.LoginException;
 import es.deusto.weblab.client.dto.SessionID;
-import es.deusto.weblab.client.lab.comm.exceptions.NoCurrentReservationException;
-import es.deusto.weblab.client.lab.comm.exceptions.UnknownExperimentIdException;
 
-public class WebLabSerializerJSON implements IWebLabSerializer {
+public abstract class WlCommonSerializerJSON implements IWlCommonSerializer {
 
 	public static final String ERR_CLIENT_INVALID_CREDENTIALS = "JSON:Client.InvalidCredentials";
 	public static final String ERR_CLIENT_SESSION_NOT_FOUND = "JSON:Client.SessionNotFound";
-	public static final String ERR_CLIENT_NO_CURRENT_RESERVATION = "JSON:Client.NoCurrentReservation";
-	public static final String ERR_CLIENT_UNKNOWN_EXPERIMENT_ID = "JSON:Client.UnknownExperimentId";
 	public static final String ERR_LOGIN_GENERAL = "JSON:Server.Login";
 	public static final String ERR_UPS_GENERAL = "JSON:Server.UserProcessing";
 	public static final String ERR_WEBLAB_GENERAL = "JSON:Server.WebLab";
@@ -80,23 +76,19 @@ public class WebLabSerializerJSON implements IWebLabSerializer {
 	}
 
 	protected WlServerException buildException(final String faultCode, final String faultString) {
-		if(faultCode.equals(WebLabSerializerJSON.ERR_CLIENT_INVALID_CREDENTIALS)){
+		if(faultCode.equals(WlCommonSerializerJSON.ERR_CLIENT_INVALID_CREDENTIALS)){
 		    return new InvalidCredentialsException(faultString);
-		}else if(faultCode.equals(WebLabSerializerJSON.ERR_CLIENT_SESSION_NOT_FOUND)){
+		}else if(faultCode.equals(WlCommonSerializerJSON.ERR_CLIENT_SESSION_NOT_FOUND)){
 		    return new SessionNotFoundException(faultString);
-		}else if(faultCode.equals(WebLabSerializerJSON.ERR_CLIENT_NO_CURRENT_RESERVATION)){
-		    return new NoCurrentReservationException(faultString);
-		}else if(faultCode.equals(WebLabSerializerJSON.ERR_CLIENT_UNKNOWN_EXPERIMENT_ID)){
-		    return new UnknownExperimentIdException(faultString);
-		}else if(faultCode.equals(WebLabSerializerJSON.ERR_LOGIN_GENERAL)){
+		}else if(faultCode.equals(WlCommonSerializerJSON.ERR_LOGIN_GENERAL)){
 		    return new LoginException(faultString);
-		}else if(faultCode.equals(WebLabSerializerJSON.ERR_UPS_GENERAL)){
+		}else if(faultCode.equals(WlCommonSerializerJSON.ERR_UPS_GENERAL)){
 		    return new UserProcessingException(faultString);
-		}else if(faultCode.equals(WebLabSerializerJSON.ERR_WEBLAB_GENERAL)){
+		}else if(faultCode.equals(WlCommonSerializerJSON.ERR_WEBLAB_GENERAL)){
 		    return new WlServerException(faultString);
-		}else if(faultCode.equals(WebLabSerializerJSON.ERR_VOODOO_GENERAL)){
+		}else if(faultCode.equals(WlCommonSerializerJSON.ERR_VOODOO_GENERAL)){
 		    return new WlServerException(faultString);
-		}else if(faultCode.equals(WebLabSerializerJSON.ERR_PYTHON_GENERAL)){
+		}else if(faultCode.equals(WlCommonSerializerJSON.ERR_PYTHON_GENERAL)){
 		    return new WlServerException(faultString);
 		}else{
 		    return new WlServerException(faultString);    

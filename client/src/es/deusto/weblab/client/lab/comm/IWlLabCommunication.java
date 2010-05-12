@@ -13,7 +13,7 @@
 */ 
 package es.deusto.weblab.client.lab.comm;
 
-import es.deusto.weblab.client.comm.IWebLabCommunication;
+import es.deusto.weblab.client.comm.IWlCommonCommunication;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.dto.SessionID;
@@ -23,7 +23,7 @@ import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 
-public interface IWlLabCommunication extends IWebLabCommunication {
+public interface IWlLabCommunication extends IWlCommonCommunication {
 	
 	public void logout(SessionID sessionId, IVoidCallback callback);
 

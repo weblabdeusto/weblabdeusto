@@ -16,6 +16,6 @@ package es.deusto.weblab.client.comm;
 
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
 
-public interface IWebLabCommunication {
-	public void login(String username, String password, ISessionIdCallback callback);
+public interface IWlCommonCommunication {
+	void login(String username, String password, ISessionIdCallback callback);
 }

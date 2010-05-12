@@ -12,7 +12,7 @@
 *
 */
 
-package es.deusto.weblab.client.comm;
+package es.deusto.weblab.client.lab.comm;
 
 import junit.framework.Assert;
 
@@ -44,7 +44,7 @@ import es.deusto.weblab.client.lab.comm.exceptions.NoCurrentReservationException
 import es.deusto.weblab.client.lab.comm.exceptions.UnknownExperimentIdException;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.commands.PulseCommand;
 
-public class WebLabSerializerJSONTest extends GWTTestCase{
+public class WlLabSerializerJSONTest extends GWTTestCase{
     
 	public void testParseGetReservationStatusResponse_Waiting() throws Exception{
 		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();

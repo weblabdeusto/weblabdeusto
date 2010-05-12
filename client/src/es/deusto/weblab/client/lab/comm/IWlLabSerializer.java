@@ -13,7 +13,7 @@
 */ 
 package es.deusto.weblab.client.lab.comm;
 
-import es.deusto.weblab.client.comm.IWebLabSerializer;
+import es.deusto.weblab.client.comm.IWlCommonSerializer;
 import es.deusto.weblab.client.comm.exceptions.SerializationException;
 import es.deusto.weblab.client.comm.exceptions.WlServerException;
 import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
@@ -28,7 +28,7 @@ import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.lab.comm.exceptions.NoCurrentReservationException;
 import es.deusto.weblab.client.lab.comm.exceptions.UnknownExperimentIdException;
 
-public interface IWlLabSerializer extends IWebLabSerializer{
+public interface IWlLabSerializer extends IWlCommonSerializer{
 
 	void parseLogoutResponse(String responseText) 
 		throws SerializationException, SessionNotFoundException, UserProcessingException, WlServerException;

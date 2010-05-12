@@ -30,35 +30,30 @@ import es.deusto.weblab.client.comm.exceptions.login.InvalidCredentialsException
 import es.deusto.weblab.client.comm.exceptions.login.LoginException;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
-import es.deusto.weblab.client.lab.comm.IWlLabSerializer;
-import es.deusto.weblab.client.lab.comm.WlLabSerializerJSON;
 
-public abstract class WebLabCommunication implements IWebLabCommunication {
+public abstract class WlCommonCommunication implements IWlCommonCommunication {
 	
 	public static final String WEBLAB_LOGIN_SERVICE_URL_PROPERTY = "weblab.service.login.url";
 	public static final String DEFAULT_WEBLAB_LOGIN_SERVICE_URL = "/weblab/login/json/";
 
 	protected final IConfigurationManager configurationManager;
-	protected IWlLabSerializer serializer;
+	protected IWlCommonSerializer serializer;
 	
-	protected WebLabCommunication(IConfigurationManager configurationManager){
+	protected WlCommonCommunication(IConfigurationManager configurationManager){
 		this.configurationManager = configurationManager;
-		this.createSerializer();
+		this.serializer = createSerializer();
 	}
-	
-	// For testing purposes
-	protected void createSerializer(){
-		this.setSerializer(new WlLabSerializerJSON());
-	}
-	
-	protected void setSerializer(IWlLabSerializer serializer){
+
+	protected abstract IWlCommonSerializer createSerializer();
+
+	protected void setSerializer(IWlCommonSerializer serializer){
 		this.serializer = serializer;
 	}
 	
 	private String getLoginServiceUrl(){
 		return this.configurationManager.getProperty(
-					WebLabCommunication.WEBLAB_LOGIN_SERVICE_URL_PROPERTY,
-					WebLabCommunication.DEFAULT_WEBLAB_LOGIN_SERVICE_URL
+					WlCommonCommunication.WEBLAB_LOGIN_SERVICE_URL_PROPERTY,
+					WlCommonCommunication.DEFAULT_WEBLAB_LOGIN_SERVICE_URL
 				);
 	}
 	
@@ -93,7 +88,7 @@ public abstract class WebLabCommunication implements IWebLabCommunication {
 		public void onSuccessResponseReceived(String response) {
 			SessionID sessionId;
 			try {
-				sessionId = WebLabCommunication.this.serializer.parseLoginResponse(response);
+				sessionId = WlCommonCommunication.this.serializer.parseLoginResponse(response);
 			} catch (final SerializationException e) {
 				this.sessionIdCallback.onFailure(e);
 				return;
@@ -146,6 +141,4 @@ public abstract class WebLabCommunication implements IWebLabCommunication {
 				new LoginRequestCallback(callback, username, password)
 			);
 	}
-
-
 }

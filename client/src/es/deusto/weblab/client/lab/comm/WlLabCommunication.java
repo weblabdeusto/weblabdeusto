@@ -22,7 +22,8 @@ import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 
-import es.deusto.weblab.client.comm.WebLabCommunication;
+import es.deusto.weblab.client.comm.IWlCommonSerializer;
+import es.deusto.weblab.client.comm.WlCommonCommunication;
 import es.deusto.weblab.client.comm.WlRequestCallback;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
@@ -46,7 +47,7 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.comm.exceptions.UnknownExperimentIdException;
 
 
-public class WlLabCommunication extends WebLabCommunication implements IWlLabCommunication {
+public class WlLabCommunication extends WlCommonCommunication implements IWlLabCommunication {
 
 	public static final String FILE_SENT_ATTR  = "file_sent";
 	public static final String SESSION_ID_ATTR = "session_id";
@@ -97,7 +98,7 @@ public class WlLabCommunication extends WebLabCommunication implements IWlLabCom
 		public void onSuccessResponseReceived(String response) {
 			ReservationStatus reservation;
 			try {
-				reservation = WlLabCommunication.this.serializer.parseGetReservationStatusResponse(response);
+				reservation = ((IWlLabSerializer)WlLabCommunication.this.serializer).parseGetReservationStatusResponse(response);
 			} catch (final SerializationException e) {
 				this.reservationCallback.onFailure(e);
 				return;
@@ -115,7 +116,7 @@ public class WlLabCommunication extends WebLabCommunication implements IWlLabCom
 	public void getReservationStatus(SessionID sessionId, IReservationCallback callback) {
 		String requestSerialized;
 		try {
-			requestSerialized = this.serializer.serializeGetReservationStatusRequest(sessionId);
+			requestSerialized = ((IWlLabSerializer)this.serializer).serializeGetReservationStatusRequest(sessionId);
 		} catch (final SerializationException e1) {
 			callback.onFailure(e1);
 			return;
@@ -139,7 +140,7 @@ public class WlLabCommunication extends WebLabCommunication implements IWlLabCom
 		public void onSuccessResponseReceived(String response) {
 			User user;
 			try {
-				user = WlLabCommunication.this.serializer.parseGetUserInformationResponse(response);
+				user = ((IWlLabSerializer)WlLabCommunication.this.serializer).parseGetUserInformationResponse(response);
 			} catch (final SerializationException e) {
 				this.userInformationCallback.onFailure(e);
 				return;
@@ -157,7 +158,7 @@ public class WlLabCommunication extends WebLabCommunication implements IWlLabCom
 	public void getUserInformation(SessionID sessionId, IUserInformationCallback callback) {
 		String requestSerialized;
 		try {
-			requestSerialized = this.serializer.serializeGetUserInformationRequest(sessionId);
+			requestSerialized = ((IWlLabSerializer)this.serializer).serializeGetUserInformationRequest(sessionId);
 		} catch (final SerializationException e1) {
 			callback.onFailure(e1);
 			return;
@@ -181,7 +182,7 @@ public class WlLabCommunication extends WebLabCommunication implements IWlLabCom
 		public void onSuccessResponseReceived(String response){
 			ExperimentAllowed [] experimentsAllowed;
 			try {
-				experimentsAllowed = WlLabCommunication.this.serializer.parseListExperimentsResponse(response);
+				experimentsAllowed = ((IWlLabSerializer)WlLabCommunication.this.serializer).parseListExperimentsResponse(response);
 			} catch (final SerializationException e) {
 				this.experimentsAllowedCallback.onFailure(e);
 				return;
@@ -199,7 +200,7 @@ public class WlLabCommunication extends WebLabCommunication implements IWlLabCom
 	public void listExperiments(SessionID sessionId, IExperimentsAllowedCallback callback) {
 		String requestSerialized;
 		try {
-			requestSerialized = this.serializer.serializeListExperimentsRequest(sessionId);
+			requestSerialized = ((IWlLabSerializer)this.serializer).serializeListExperimentsRequest(sessionId);
 		} catch (final SerializationException e1) {
 			callback.onFailure(e1);
 			return;
@@ -222,7 +223,7 @@ public class WlLabCommunication extends WebLabCommunication implements IWlLabCom
 		@Override
 		public void onSuccessResponseReceived(String response) {
 			try {
-				WlLabCommunication.this.serializer.parseLogoutResponse(response);
+				((IWlLabSerializer)WlLabCommunication.this.serializer).parseLogoutResponse(response);
 			} catch (final SerializationException e) {
 				this.voidCallback.onFailure(e);
 				return;
@@ -237,7 +238,7 @@ public class WlLabCommunication extends WebLabCommunication implements IWlLabCom
 	public void logout(SessionID sessionId, IVoidCallback callback) {
 		String requestSerialized;
 		try {
-			requestSerialized = this.serializer.serializeLogoutRequest(sessionId);
+			requestSerialized = ((IWlLabSerializer)this.serializer).serializeLogoutRequest(sessionId);
 		} catch (final SerializationException e1) {
 			callback.onFailure(e1);
 			return;
@@ -260,7 +261,7 @@ public class WlLabCommunication extends WebLabCommunication implements IWlLabCom
 		@Override
 		public void onSuccessResponseReceived(String response) {
 			try {
-				WlLabCommunication.this.serializer.parsePollResponse(response);
+				((IWlLabSerializer)WlLabCommunication.this.serializer).parsePollResponse(response);
 			} catch (final SerializationException e) {
 				this.voidCallback.onFailure(e);
 				return;
@@ -278,7 +279,7 @@ public class WlLabCommunication extends WebLabCommunication implements IWlLabCom
 	public void poll(SessionID sessionId, IVoidCallback callback) {
 		String requestSerialized;
 		try {
-			requestSerialized = this.serializer.serializePollRequest(sessionId);
+			requestSerialized = ((IWlLabSerializer)this.serializer).serializePollRequest(sessionId);
 		} catch (final SerializationException e1) {
 			callback.onFailure(e1);
 			return;
@@ -302,7 +303,7 @@ public class WlLabCommunication extends WebLabCommunication implements IWlLabCom
 		public void onSuccessResponseReceived(String response) {
 			ReservationStatus reservation;
 			try {
-				reservation = WlLabCommunication.this.serializer.parseReserveExperimentResponse(response);
+				reservation = ((IWlLabSerializer)WlLabCommunication.this.serializer).parseReserveExperimentResponse(response);
 			} catch (final SerializationException e) {
 				this.reservationCallback.onFailure(e);
 				return;
@@ -323,7 +324,7 @@ public class WlLabCommunication extends WebLabCommunication implements IWlLabCom
 	public void reserveExperiment(SessionID sessionId, ExperimentID experimentId, IReservationCallback callback) {
 		String requestSerialized;
 		try {
-			requestSerialized = this.serializer.serializeReserveExperimentRequest(sessionId, experimentId);
+			requestSerialized = ((IWlLabSerializer)this.serializer).serializeReserveExperimentRequest(sessionId, experimentId);
 		} catch (final SerializationException e1) {
 			callback.onFailure(e1);
 			return;
@@ -347,7 +348,7 @@ public class WlLabCommunication extends WebLabCommunication implements IWlLabCom
 		public void onSuccessResponseReceived(String response) {
 			ResponseCommand command;
 			try {
-				command = WlLabCommunication.this.serializer.parseSendCommandResponse(response);
+				command = ((IWlLabSerializer)WlLabCommunication.this.serializer).parseSendCommandResponse(response);
 			} catch (final SerializationException e) {
 				this.responseCommandCallback.onFailure(e);
 				return;
@@ -365,7 +366,7 @@ public class WlLabCommunication extends WebLabCommunication implements IWlLabCom
 	public void sendCommand(SessionID sessionId, Command command, IResponseCommandCallback callback) {
 		String requestSerialized;
 		try {
-			requestSerialized = this.serializer.serializeSendCommandRequest(sessionId, command);
+			requestSerialized = ((IWlLabSerializer)this.serializer).serializeSendCommandRequest(sessionId, command);
 		} catch (final SerializationException e1) {
 			callback.onFailure(e1);
 			return;
@@ -388,7 +389,7 @@ public class WlLabCommunication extends WebLabCommunication implements IWlLabCom
 		@Override
 		public void onSuccessResponseReceived(String response) {
 			try {
-				WlLabCommunication.this.serializer.parseFinishedExperimentResponse(response);
+				((IWlLabSerializer)WlLabCommunication.this.serializer).parseFinishedExperimentResponse(response);
 			} catch (final SerializationException e) {
 				this.voidCallback.onFailure(e);
 				return;
@@ -406,7 +407,7 @@ public class WlLabCommunication extends WebLabCommunication implements IWlLabCom
 	public void finishedExperiment(SessionID sessionId, IVoidCallback callback) {
 		String requestSerialized;
 		try {
-			requestSerialized = this.serializer.serializeFinishedExperimentRequest(sessionId);
+			requestSerialized = ((IWlLabSerializer)this.serializer).serializeFinishedExperimentRequest(sessionId);
 		} catch (final SerializationException e1) {
 			callback.onFailure(e1);
 			return;
@@ -454,7 +455,7 @@ public class WlLabCommunication extends WebLabCommunication implements IWlLabCom
 		    private void processResultMessage(IResponseCommandCallback callback, String resultMessage) {
 			final ResponseCommand parsedResponseCommand;
 			try {
-			    parsedResponseCommand = WlLabCommunication.this.serializer.parseSendFileResponse(resultMessage);
+			    parsedResponseCommand = ((IWlLabSerializer)WlLabCommunication.this.serializer).parseSendFileResponse(resultMessage);
 			} catch (final SerializationException e) {
 			    callback.onFailure(e);
 			    return;
@@ -475,5 +476,11 @@ public class WlLabCommunication extends WebLabCommunication implements IWlLabCom
 	    
 		// Submit
 		uploadStructure.getFormPanel().submit();
+	}
+
+	@Override
+	// For testing purposes
+	protected IWlCommonSerializer createSerializer(){
+		return new WlLabSerializerJSON();
 	}
 }

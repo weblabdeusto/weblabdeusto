@@ -21,7 +21,7 @@ import es.deusto.weblab.client.comm.exceptions.login.InvalidCredentialsException
 import es.deusto.weblab.client.comm.exceptions.login.LoginException;
 import es.deusto.weblab.client.dto.SessionID;
 
-public interface IWebLabSerializer {
+public interface IWlCommonSerializer {
 	SessionID parseLoginResponse(String responseText) throws SerializationException, InvalidCredentialsException, LoginException, UserProcessingException, WlServerException;
 	String serializeLoginRequest(String username, String password) throws SerializationException;
 }

@@ -11,22 +11,20 @@
 * Author: Pablo Orduña <pablo@ordunya.com>
 *
 */ 
-package es.deusto.weblab.client.comm;
+package es.deusto.weblab.client.lab.comm;
 
-import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
+import es.deusto.weblab.client.comm.FakeWlCommonCommunication;
+import es.deusto.weblab.client.comm.IWlCommonSerializer;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
-import es.deusto.weblab.client.lab.comm.IWlLabCommunication;
-import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
-import es.deusto.weblab.client.testing.util.WlFake;
 
-public class FakeWebLabCommunication extends WlFake implements IWlLabCommunication{
+public class FakeWlLabCommunication extends FakeWlCommonCommunication implements IWlLabCommunication {
 
 	public static final String SEND_FILE              = "FakeWebLabCommunication::sendFile";
 	public static final String SEND_COMMAND           = "FakeWebLabCommunication::sendCommand";
@@ -34,82 +32,87 @@ public class FakeWebLabCommunication extends WlFake implements IWlLabCommunicati
 	public static final String FINISHED_EXPERIMENT    = "FakeWebLabCommunication::finishedExperiment";
 	public static final String POLL                   = "FakeWebLabCommunication::poll";
 	public static final String LOGOUT                 = "FakeWebLabCommunication::logout";
-	public static final String LOGIN                  = "FakeWebLabCommunication::login";
 	public static final String LIST_EXPERIMENTS       = "FakeWebLabCommunication::listExperiments";
 	public static final String GET_USER_INFORMATION   = "FakeWebLabCommunication::getUserInformation";
 	public static final String GET_RESERVATION_STATUS = "FakeWebLabCommunication::getReservationStatus";
 	
+	@Override
 	public void getReservationStatus(SessionID sessionId, IReservationCallback callback) {
-		this.append(FakeWebLabCommunication.GET_RESERVATION_STATUS, new Object[]{
+		this.append(FakeWlLabCommunication.GET_RESERVATION_STATUS, new Object[]{
 				sessionId,
 				callback
 		});
 	}
 
+	@Override
 	public void getUserInformation(SessionID sessionId, IUserInformationCallback callback) {
-		this.append(FakeWebLabCommunication.GET_USER_INFORMATION, new Object[]{
+		this.append(FakeWlLabCommunication.GET_USER_INFORMATION, new Object[]{
 				sessionId,
 				callback
 		});
 	}
 
+	@Override
 	public void listExperiments(SessionID sessionId, IExperimentsAllowedCallback callback) {
-		this.append(FakeWebLabCommunication.LIST_EXPERIMENTS, new Object[]{
+		this.append(FakeWlLabCommunication.LIST_EXPERIMENTS, new Object[]{
 				sessionId,
 				callback
 		});
 	}
 
-	public void login(String username, String password, ISessionIdCallback callback) {
-		this.append(FakeWebLabCommunication.LOGIN, new Object[]{
-				username,
-				password,
-				callback
-		});
-	}
-
+	@Override
 	public void logout(SessionID sessionId, IVoidCallback callback) {
-		this.append(FakeWebLabCommunication.LOGOUT, new Object[]{
+		this.append(FakeWlLabCommunication.LOGOUT, new Object[]{
 				sessionId,
 				callback
 		});
 	}
 
+	@Override
 	public void poll(SessionID sessionId, IVoidCallback callback) {
-		this.append(FakeWebLabCommunication.POLL, new Object[]{
+		this.append(FakeWlLabCommunication.POLL, new Object[]{
 				sessionId,
 				callback
 		});
 	}
 
+	@Override
 	public void reserveExperiment(SessionID sessionId, ExperimentID experimentId, IReservationCallback callback) {
-		this.append(FakeWebLabCommunication.RESERVE_EXPERIMENT, new Object[]{
+		this.append(FakeWlLabCommunication.RESERVE_EXPERIMENT, new Object[]{
 				sessionId,
 				experimentId,
 				callback
 		});
 	}
 
+	@Override
 	public void sendCommand(SessionID sessionId, Command command, IResponseCommandCallback callback) {
-		this.append(FakeWebLabCommunication.SEND_COMMAND, new Object[]{
+		this.append(FakeWlLabCommunication.SEND_COMMAND, new Object[]{
 				sessionId,
 				command,
 				callback
 		});
 	}
 
+	@Override
 	public void sendFile(SessionID sessionId, UploadStructure uploadStructure, IResponseCommandCallback callback) {
-		this.append(FakeWebLabCommunication.SEND_FILE, new Object[]{
+		this.append(FakeWlLabCommunication.SEND_FILE, new Object[]{
 				sessionId,
 				uploadStructure,
 				callback
 		});
 	}
 
+	@Override
 	public void finishedExperiment(SessionID sessionId, IVoidCallback callback) {
-		this.append(FakeWebLabCommunication.FINISHED_EXPERIMENT, new Object[]{ 
+		this.append(FakeWlLabCommunication.FINISHED_EXPERIMENT, new Object[]{ 
 				sessionId,
 				callback
 		});
+	}
+
+	@Override
+	protected IWlCommonSerializer createSerializer() {
+		return new FakeWlLabSerializer();
 	}
 }

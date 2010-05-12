@@ -11,28 +11,29 @@
 * Author: Pablo Orduña <pablo@ordunya.com>
 *
 */ 
-package es.deusto.weblab.client.comm;
+package es.deusto.weblab.client.lab.comm;
 
 import com.google.gwt.http.client.RequestBuilder;
 
+import es.deusto.weblab.client.comm.IWlCommonSerializer;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
-import es.deusto.weblab.client.lab.comm.IWlLabSerializer;
-import es.deusto.weblab.client.lab.comm.WlLabCommunication;
 
-public class WrappedWebLabCommunication extends WlLabCommunication {
+public class WrappedWlLabCommunication extends WlLabCommunication {
 	
 	private final IWlLabSerializer wrappedSerializer;
 	private final RequestBuilder wrappedRequestBuilder;
 	
-	public WrappedWebLabCommunication(IWlLabSerializer wrappedSerializer, RequestBuilder wrappedRequestBuilder, IConfigurationManager configurationManager){
+	public WrappedWlLabCommunication(IWlLabSerializer wrappedSerializer, RequestBuilder wrappedRequestBuilder, IConfigurationManager configurationManager){
 		super(configurationManager);
 		this.wrappedSerializer = wrappedSerializer;
 		this.wrappedRequestBuilder = wrappedRequestBuilder;
-		this.setSerializer(this.wrappedSerializer);
+		this.serializer = this.wrappedSerializer;
 	}
 	
 	@Override
-	protected void createSerializer(){}
+	protected IWlCommonSerializer createSerializer(){
+		return null;
+	}
 	
 	@Override
 	protected RequestBuilder createRequestBuilder(RequestBuilder.Method method, String url){

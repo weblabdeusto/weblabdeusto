@@ -21,7 +21,7 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 
-import es.deusto.weblab.client.comm.WebLabSerializerJSON;
+import es.deusto.weblab.client.comm.WlCommonSerializerJSON;
 import es.deusto.weblab.client.comm.exceptions.SerializationException;
 import es.deusto.weblab.client.comm.exceptions.WlServerException;
 import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
@@ -45,7 +45,10 @@ import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.lab.comm.exceptions.NoCurrentReservationException;
 import es.deusto.weblab.client.lab.comm.exceptions.UnknownExperimentIdException;
 
-public class WlLabSerializerJSON extends WebLabSerializerJSON implements IWlLabSerializer {
+public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLabSerializer {
+	
+	public static final String ERR_CLIENT_NO_CURRENT_RESERVATION = "JSON:Client.NoCurrentReservation";
+	public static final String ERR_CLIENT_UNKNOWN_EXPERIMENT_ID = "JSON:Client.UnknownExperimentId";
     
 	public WlLabSerializerJSON(){}
 	
@@ -316,4 +319,15 @@ public class WlLabSerializerJSON extends WebLabSerializerJSON implements IWlLabS
 		session_id.put("id", new JSONString(sessionId.getRealId()));
 		return session_id;
     }
+    
+    @Override
+	protected WlServerException buildException(final String faultCode, final String faultString) {
+		if(faultCode.equals(WlLabSerializerJSON.ERR_CLIENT_NO_CURRENT_RESERVATION)){
+		    return new NoCurrentReservationException(faultString);
+		}else if(faultCode.equals(WlLabSerializerJSON.ERR_CLIENT_UNKNOWN_EXPERIMENT_ID)){
+		    return new UnknownExperimentIdException(faultString);
+		} else {
+			return super.buildException(faultCode, faultString);
+		}
+	}    
 }
