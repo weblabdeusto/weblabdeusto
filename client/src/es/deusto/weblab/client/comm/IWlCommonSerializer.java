@@ -21,6 +21,7 @@ import es.deusto.weblab.client.comm.exceptions.core.UserProcessingException;
 import es.deusto.weblab.client.comm.exceptions.login.InvalidCredentialsException;
 import es.deusto.weblab.client.comm.exceptions.login.LoginException;
 import es.deusto.weblab.client.dto.SessionID;
+import es.deusto.weblab.client.dto.users.User;
 
 public interface IWlCommonSerializer {
 	
@@ -32,5 +33,9 @@ public interface IWlCommonSerializer {
 		throws SerializationException, SessionNotFoundException, UserProcessingException, WlServerException;
 	
 	String serializeLogoutRequest(SessionID sessionId) throws SerializationException;
-	
+
+	User parseGetUserInformationResponse(String responseText) 
+		throws SerializationException, SessionNotFoundException, UserProcessingException, WlServerException;
+
+	String serializeGetUserInformationRequest(SessionID sessionId) throws SerializationException;
 }

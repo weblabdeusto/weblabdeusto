@@ -22,15 +22,18 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.user.client.DOM;
 
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
+import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.comm.callbacks.IWlAsyncCallback;
 import es.deusto.weblab.client.comm.exceptions.CommunicationException;
 import es.deusto.weblab.client.comm.exceptions.SerializationException;
 import es.deusto.weblab.client.comm.exceptions.WlServerException;
+import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
 import es.deusto.weblab.client.comm.exceptions.login.InvalidCredentialsException;
 import es.deusto.weblab.client.comm.exceptions.login.LoginException;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
+import es.deusto.weblab.client.dto.users.User;
 
 public abstract class WlCommonCommunication implements IWlCommonCommunication {
 	
@@ -202,4 +205,48 @@ public abstract class WlCommonCommunication implements IWlCommonCommunication {
 				new LogoutRequestCallback(callback)
 			);
 	}	
+	
+	private class UserInformationRequestCallback extends WlRequestCallback{
+		private final IUserInformationCallback userInformationCallback;
+		
+		public UserInformationRequestCallback(IUserInformationCallback userInformationCallback){
+			super(userInformationCallback);
+			this.userInformationCallback = userInformationCallback;
+		}
+		
+		@Override
+		public void onSuccessResponseReceived(String response) {
+			User user;
+			try {
+				user = WlCommonCommunication.this.serializer.parseGetUserInformationResponse(response);
+			} catch (final SerializationException e) {
+				this.userInformationCallback.onFailure(e);
+				return;
+			} catch (final SessionNotFoundException e) {
+				this.userInformationCallback.onFailure(e);
+				return;
+			} catch (final WlServerException e) {
+				this.userInformationCallback.onFailure(e);
+				return;
+			}
+			this.userInformationCallback.onSuccess(user);
+		}
+	}
+	
+	public void getUserInformation(SessionID sessionId, IUserInformationCallback callback) {
+		String requestSerialized;
+		try {
+			requestSerialized = this.serializer.serializeGetUserInformationRequest(sessionId);
+		} catch (final SerializationException e1) {
+			callback.onFailure(e1);
+			return;
+		}
+		this.performRequest(
+				requestSerialized, 
+				callback, 
+				new UserInformationRequestCallback(callback)
+			);
+	}	
+	
+	
 }

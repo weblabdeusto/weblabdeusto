@@ -30,6 +30,8 @@ import es.deusto.weblab.client.comm.exceptions.core.UserProcessingException;
 import es.deusto.weblab.client.comm.exceptions.login.InvalidCredentialsException;
 import es.deusto.weblab.client.comm.exceptions.login.LoginException;
 import es.deusto.weblab.client.dto.SessionID;
+import es.deusto.weblab.client.dto.users.Role;
+import es.deusto.weblab.client.dto.users.User;
 
 public abstract class WlCommonSerializerJSON implements IWlCommonSerializer {
 
@@ -72,12 +74,45 @@ public abstract class WlCommonSerializerJSON implements IWlCommonSerializer {
 		this.parseResultObject(responseText);
     }
     
-    public String serializeLogoutRequest(SessionID sessionId)
-	    throws SerializationException {
+    public String serializeLogoutRequest(SessionID sessionId) throws SerializationException {
 		// {"params": {"session_id": {"id": "RqpLBRTlRW8ZVN1d"}}, "method": "logout"}
 		final JSONObject params = new JSONObject();
 		params.put("session_id", serializeSessionId(sessionId));
 		return this.serializeRequest("logout", params);
+    }
+    
+    public User parseGetUserInformationResponse(String responseText)
+    	throws SerializationException, SessionNotFoundException, UserProcessingException, WlServerException {
+		//"{\"result\": {\"login\": \"student1\", \"email\": \"porduna@tecnologico.deusto.es\", 
+		// \"full_name\": \"Name of student 1\", \"role\": {\"name\": \"student\"}}, \"is_exception\": false}"
+		final JSONObject result = this.parseResultObject(responseText);
+		final String login    = this.json2string(result.get("login"));
+		final String email    = this.json2string(result.get("email"));
+		final String fullName = this.json2string(result.get("full_name"));
+		
+	    JSONValue roleValue = result.get("role");
+	    if(roleValue == null)
+	    	throw new SerializationException("Expected role field in UserInformation");
+	    JSONObject jsonRole = roleValue.isObject();
+	    if(jsonRole == null)
+	    	throw new SerializationException("Expected JSON Object as Role, found: " + roleValue);
+	    final String role_name = this.json2string(jsonRole.get("name"));
+		
+	    final Role role = new Role();
+	    role.setName(role_name);
+	    
+		final User user = new User();
+		user.setLogin(login);
+		user.setFullName(fullName);
+		user.setEmail(email);
+		user.setRole(role);
+		return user;
+	}    
+
+    public String serializeGetUserInformationRequest(SessionID sessionId) throws SerializationException {
+		final JSONObject params = new JSONObject();
+		params.put("session_id", this.serializeSessionId(sessionId));
+		return this.serializeRequest("get_user_information", params);
     }
     
     // General

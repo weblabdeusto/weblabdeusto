@@ -18,12 +18,14 @@ import es.deusto.weblab.client.admin.comm.IWlAdminCommunication;
 import es.deusto.weblab.client.admin.ui.IUIManager;
 import es.deusto.weblab.client.admin.ui.WlAdminThemeBase;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
+import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.comm.exceptions.login.LoginException;
 import es.deusto.weblab.client.configuration.ConfigurationManager;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
+import es.deusto.weblab.client.dto.users.User;
 
 public class WlAdminController implements IWlAdminController {
 
@@ -74,20 +76,20 @@ public class WlAdminController implements IWlAdminController {
 			public void onFailure(WlCommException e) {
 				WlAdminController.this.uimanager.onErrorAndFinishSession(e.getMessage());
 			}
-		});		
+		});
 	}
 
 	private void startSession(SessionID sessionID) {
 		this.currentSession = sessionID;
 		
-		/*this.communications.getUserInformation(this.currentSession, new IUserInformationCallback(){
+		this.communications.getUserInformation(this.currentSession, new IUserInformationCallback(){
 			public void onSuccess(final User userInformation) {
-				WlLabController.this.uimanager.onLoggedIn(userInformation);
+				WlAdminController.this.uimanager.onLoggedIn(userInformation);
 			}
 			
 			public void onFailure(WlCommException e) {
-				WlLabController.this.uimanager.onError(e.getMessage());
+				WlAdminController.this.uimanager.onError(e.getMessage());
 			}
-		});	*/			
+		});			
 	}
 }

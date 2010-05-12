@@ -22,7 +22,6 @@ import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import es.deusto.weblab.client.comm.IWlCommonSerializer;
 import es.deusto.weblab.client.comm.WlCommonCommunication;
 import es.deusto.weblab.client.comm.WlRequestCallback;
-import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.comm.exceptions.SerializationException;
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
@@ -35,7 +34,6 @@ import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
-import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
@@ -101,48 +99,6 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 				requestSerialized, 
 				callback, 
 				new ReservationRequestCallback(callback)
-			);
-	}
-	
-	private class UserInformationRequestCallback extends WlRequestCallback{
-		private final IUserInformationCallback userInformationCallback;
-		
-		public UserInformationRequestCallback(IUserInformationCallback userInformationCallback){
-			super(userInformationCallback);
-			this.userInformationCallback = userInformationCallback;
-		}
-		
-		@Override
-		public void onSuccessResponseReceived(String response) {
-			User user;
-			try {
-				user = ((IWlLabSerializer)WlLabCommunication.this.serializer).parseGetUserInformationResponse(response);
-			} catch (final SerializationException e) {
-				this.userInformationCallback.onFailure(e);
-				return;
-			} catch (final SessionNotFoundException e) {
-				this.userInformationCallback.onFailure(e);
-				return;
-			} catch (final WlServerException e) {
-				this.userInformationCallback.onFailure(e);
-				return;
-			}
-			this.userInformationCallback.onSuccess(user);
-		}
-	}
-	
-	public void getUserInformation(SessionID sessionId, IUserInformationCallback callback) {
-		String requestSerialized;
-		try {
-			requestSerialized = ((IWlLabSerializer)this.serializer).serializeGetUserInformationRequest(sessionId);
-		} catch (final SerializationException e1) {
-			callback.onFailure(e1);
-			return;
-		}
-		this.performRequest(
-				requestSerialized, 
-				callback, 
-				new UserInformationRequestCallback(callback)
 			);
 	}
 	

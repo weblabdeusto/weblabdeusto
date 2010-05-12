@@ -32,4 +32,5 @@ public interface IUIManager {
 	 */
 	public void onWrongLoginOrPasswordGiven();
 	public void onErrorAndFinishSession(String message);
+	public void onError(String message);
 }

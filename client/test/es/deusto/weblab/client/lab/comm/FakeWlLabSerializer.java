@@ -25,12 +25,10 @@ import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
-import es.deusto.weblab.client.dto.users.User;
 
 public class FakeWlLabSerializer extends FakeWlCommonSerializer implements IWlLabSerializer {
 	
 	public static final String PARSE_GET_RESERVATION_STATUS_RESPONSE    = "FakeWebLabSerializer::parseGetReservationStatus";
-	public static final String PARSE_GET_USER_INFORMATION_RESPONSE      = "FakeWebLabSerializer::parseGetUserInformation";
 	public static final String PARSE_LIST_EXPERIMENTS_RESPONSE          = "FakeWebLabSerializer::parseListExperimentsResponse";
 	public static final String PARSE_POLL_RESPONSE                      = "FakeWebLabSerializer::parsePollResponse";
 	public static final String PARSE_RESERVE_EXPERIMENT_RESPONSE        = "FakeWebLabSerializer::parseReserveExperimentResponse";
@@ -39,7 +37,6 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements IWlLa
 	public static final String PARSE_SEND_FILE_RESPONSE                 = "FakeWebLabSerializer::parseSendFileResponse";
 
 	public static final String SERIALIZE_GET_RESERVATION_STATUS_REQUEST = "FakeWebLabSerializer::serializeGetReservationStatusRequest";
-	public static final String SERIALIZE_GET_USER_INFORMATION_REQUEST   = "FakeWebLabSerializer::serializeGetUserInformationRequest";
 	public static final String SERIALIZE_LIST_EXPERIMENTS_REQUEST       = "FakeWebLabSerializer::serializeListExperimentsRequest";
 	public static final String SERIALIZE_POLL_REQUEST                   = "FakeWebLabSerializer::serializePollRequest";
 	public static final String SERIALIZE_RESERVE_EXPERIMENT_REQUEST     = "FakeWebLabSerializer::serializeReserveExperimentRequest";
@@ -53,13 +50,6 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements IWlLa
 		return (ReservationStatus)this.retrieveReturn(FakeWlLabSerializer.PARSE_GET_RESERVATION_STATUS_RESPONSE);
 	}
 
-	public User parseGetUserInformationResponse(String responseText) {
-		this.append(FakeWlLabSerializer.PARSE_GET_USER_INFORMATION_RESPONSE, new Object[]{
-				responseText
-		});
-		return (User)this.retrieveReturn(FakeWlLabSerializer.PARSE_GET_USER_INFORMATION_RESPONSE);
-	}
-	
 	public ExperimentAllowed [] parseListExperimentsResponse(String responseText){
 		this.append(FakeWlLabSerializer.PARSE_LIST_EXPERIMENTS_RESPONSE, new Object[]{
 				responseText
@@ -119,13 +109,6 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements IWlLa
 		return (String)this.retrieveReturn(FakeWlLabSerializer.SERIALIZE_GET_RESERVATION_STATUS_REQUEST);
 	}
 
-	public String serializeGetUserInformationRequest(SessionID sessionId) {
-		this.append(FakeWlLabSerializer.SERIALIZE_GET_USER_INFORMATION_REQUEST, new Object[]{
-				sessionId
-		});
-		return (String)this.retrieveReturn(FakeWlLabSerializer.SERIALIZE_GET_USER_INFORMATION_REQUEST);
-	}
-	
 	public String serializeListExperimentsRequest(SessionID sessionId){
 		this.append(FakeWlLabSerializer.SERIALIZE_LIST_EXPERIMENTS_REQUEST, new Object[]{
 				sessionId

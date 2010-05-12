@@ -14,7 +14,6 @@
 package es.deusto.weblab.client.lab.comm;
 
 import es.deusto.weblab.client.comm.IWlCommonCommunication;
-import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Command;
@@ -38,6 +37,4 @@ public interface IWlLabCommunication extends IWlCommonCommunication {
 	public void sendCommand(SessionID sessionId, Command command, IResponseCommandCallback callback);
 
 	public void poll(SessionID sessionId, IVoidCallback callback);
-
-	public void getUserInformation(SessionID sessionId, IUserInformationCallback callback);
 }

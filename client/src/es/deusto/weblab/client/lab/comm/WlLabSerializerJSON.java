@@ -40,8 +40,6 @@ import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingConfirmationReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingInstancesReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingReservationStatus;
-import es.deusto.weblab.client.dto.users.Role;
-import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.lab.comm.exceptions.NoCurrentReservationException;
 import es.deusto.weblab.client.lab.comm.exceptions.UnknownExperimentIdException;
 
@@ -86,34 +84,6 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
 		    throw new SerializationException("Unknown status: " + status);
     }
     
-    public User parseGetUserInformationResponse(String responseText)
-	    throws SerializationException, SessionNotFoundException, UserProcessingException, WlServerException {
-		//"{\"result\": {\"login\": \"student1\", \"email\": \"porduna@tecnologico.deusto.es\", 
-		// \"full_name\": \"Name of student 1\", \"role\": {\"name\": \"student\"}}, \"is_exception\": false}"
-		final JSONObject result = this.parseResultObject(responseText);
-		final String login    = this.json2string(result.get("login"));
-		final String email    = this.json2string(result.get("email"));
-		final String fullName = this.json2string(result.get("full_name"));
-		
-	    JSONValue roleValue = result.get("role");
-	    if(roleValue == null)
-	    	throw new SerializationException("Expected role field in UserInformation");
-	    JSONObject jsonRole = roleValue.isObject();
-	    if(jsonRole == null)
-	    	throw new SerializationException("Expected JSON Object as Role, found: " + roleValue);
-	    final String role_name = this.json2string(jsonRole.get("name"));
-		
-	    final Role role = new Role();
-	    role.setName(role_name);
-	    
-		final User user = new User();
-		user.setLogin(login);
-		user.setFullName(fullName);
-		user.setEmail(email);
-		user.setRole(role);
-		return user;
-    }
-
     public ExperimentAllowed[] parseListExperimentsResponse(String responseText)
     	throws SerializationException, SessionNotFoundException, UserProcessingException, WlServerException {	
 	//	"{\"result\": [" +
@@ -247,18 +217,10 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
 		return this.serializeRequest("finished_experiment", params);
     }
 
-    public String serializeGetReservationStatusRequest(SessionID sessionId)
-	    throws SerializationException {
+    public String serializeGetReservationStatusRequest(SessionID sessionId) throws SerializationException {
 		final JSONObject params = new JSONObject();
 		params.put("session_id", this.serializeSessionId(sessionId));
 		return this.serializeRequest("get_reservation_status", params);
-    }
-
-    public String serializeGetUserInformationRequest(SessionID sessionId)
-	    throws SerializationException {
-		final JSONObject params = new JSONObject();
-		params.put("session_id", this.serializeSessionId(sessionId));
-		return this.serializeRequest("get_user_information", params);
     }
 
     public String serializeListExperimentsRequest(SessionID sessionId)

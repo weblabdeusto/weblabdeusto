@@ -15,7 +15,6 @@ package es.deusto.weblab.client.lab.comm;
 
 import es.deusto.weblab.client.comm.FakeWlCommonCommunication;
 import es.deusto.weblab.client.comm.IWlCommonSerializer;
-import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Command;
@@ -32,20 +31,11 @@ public class FakeWlLabCommunication extends FakeWlCommonCommunication implements
 	public static final String FINISHED_EXPERIMENT    = "FakeWebLabCommunication::finishedExperiment";
 	public static final String POLL                   = "FakeWebLabCommunication::poll";
 	public static final String LIST_EXPERIMENTS       = "FakeWebLabCommunication::listExperiments";
-	public static final String GET_USER_INFORMATION   = "FakeWebLabCommunication::getUserInformation";
 	public static final String GET_RESERVATION_STATUS = "FakeWebLabCommunication::getReservationStatus";
 	
 	@Override
 	public void getReservationStatus(SessionID sessionId, IReservationCallback callback) {
 		this.append(FakeWlLabCommunication.GET_RESERVATION_STATUS, new Object[]{
-				sessionId,
-				callback
-		});
-	}
-
-	@Override
-	public void getUserInformation(SessionID sessionId, IUserInformationCallback callback) {
-		this.append(FakeWlLabCommunication.GET_USER_INFORMATION, new Object[]{
 				sessionId,
 				callback
 		});

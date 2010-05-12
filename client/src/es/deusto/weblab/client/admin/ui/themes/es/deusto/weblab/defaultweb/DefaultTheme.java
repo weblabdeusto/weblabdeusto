@@ -15,6 +15,7 @@
 package es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb;
 
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -65,6 +66,9 @@ public class DefaultTheme extends WlAdminThemeBase {
 		this.user = user;
 		// Feedback...?
 		// TODO: controller.somethingToRetrieveNeededInformation (or just to paint)
+		this.themePanel.add(new Label(this.user.getLogin()));
+		this.themePanel.add(new Label(this.user.getFullName()));
+		this.themePanel.add(new Label(this.user.getEmail()));
 	}
 
 	@Override
@@ -87,6 +91,11 @@ public class DefaultTheme extends WlAdminThemeBase {
 	public void onWrongLoginOrPasswordGiven() {
 		this.loginWindow.showWrongLoginOrPassword();
 	}
+
+	@Override
+	public void onError(String message) {
+		this.showError(message);
+	}	
 	
 	/*
 	 * Window management
@@ -122,5 +131,5 @@ public class DefaultTheme extends WlAdminThemeBase {
 	 
 	 private void showError(String message) {
 		 this.activeWindow.showError(message);
-	 }	
+	 }
 }

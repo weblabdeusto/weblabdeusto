@@ -106,7 +106,7 @@ public class WlLabControllerTest  extends GWTTestCase{
 		final SessionID sessionID = new SessionID("your session!");
 
 		sessionIdCallback.onSuccess(sessionID);
-		v = this.fakeCommunications.getMethodByName(FakeWlLabCommunication.GET_USER_INFORMATION);
+		v = this.fakeCommunications.getMethodByName(FakeWlCommonCommunication.GET_USER_INFORMATION);
 		Assert.assertEquals(1, v.size());		
 		m = v.get(0);
 		Assert.assertEquals(2, m.getParameters().length);
@@ -383,7 +383,7 @@ public class WlLabControllerTest  extends GWTTestCase{
 		m = this.fakeCommunications.getMethodByName(FakeWlCommonCommunication.LOGIN).get(0); 
 		final ISessionIdCallback sic = (ISessionIdCallback)m.getParameters()[2];
 		sic.onSuccess(sessionID);
-		m = this.fakeCommunications.getMethodByName(FakeWlLabCommunication.GET_USER_INFORMATION).get(0);
+		m = this.fakeCommunications.getMethodByName(FakeWlCommonCommunication.GET_USER_INFORMATION).get(0);
 		final IUserInformationCallback uic = (IUserInformationCallback)m.getParameters()[1];
 		uic.onSuccess(user);
 

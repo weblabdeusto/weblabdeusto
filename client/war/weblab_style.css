@@ -82,6 +82,8 @@ body
 	padding-top: 15px;
 	padding-bottom: 10px;
 	text-align: center;
+	font-weight: bold;
+	font-size: 16px;
 }
 
 .web-login-box

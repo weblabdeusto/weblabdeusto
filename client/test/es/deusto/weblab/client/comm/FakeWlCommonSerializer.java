@@ -20,6 +20,7 @@ import com.google.gwt.json.client.JSONValue;
 import es.deusto.weblab.client.comm.exceptions.SerializationException;
 import es.deusto.weblab.client.comm.exceptions.WlServerException;
 import es.deusto.weblab.client.dto.SessionID;
+import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.testing.util.WlFake;
 
 public class FakeWlCommonSerializer extends WlFake implements IWlCommonSerializer {
@@ -28,6 +29,8 @@ public class FakeWlCommonSerializer extends WlFake implements IWlCommonSerialize
 	public static final String SERIALIZE_LOGIN_REQUEST                  = "FakeWebLabSerializer::serializeLoginRequest";
 	public static final String PARSE_LOGOUT_RESPONSE                    = "FakeWebLabSerializer::parseLogoutResponse";
 	public static final String SERIALIZE_LOGOUT_REQUEST                 = "FakeWebLabSerializer::serializeLogoutRequest";
+	public static final String PARSE_GET_USER_INFORMATION_RESPONSE      = "FakeWebLabSerializer::parseGetUserInformation";
+	public static final String SERIALIZE_GET_USER_INFORMATION_REQUEST   = "FakeWebLabSerializer::serializeGetUserInformationRequest";
 
 	
 	@Override
@@ -55,6 +58,20 @@ public class FakeWlCommonSerializer extends WlFake implements IWlCommonSerialize
 				sessionId
 		});
 		return (String)this.retrieveReturn(FakeWlCommonSerializer.SERIALIZE_LOGOUT_REQUEST);
+	}
+	
+	public User parseGetUserInformationResponse(String responseText) {
+		this.append(FakeWlCommonSerializer.PARSE_GET_USER_INFORMATION_RESPONSE, new Object[]{
+				responseText
+		});
+		return (User)this.retrieveReturn(FakeWlCommonSerializer.PARSE_GET_USER_INFORMATION_RESPONSE);
+	}
+
+	public String serializeGetUserInformationRequest(SessionID sessionId) {
+		this.append(FakeWlCommonSerializer.SERIALIZE_GET_USER_INFORMATION_REQUEST, new Object[]{
+				sessionId
+		});
+		return (String)this.retrieveReturn(FakeWlCommonSerializer.SERIALIZE_GET_USER_INFORMATION_REQUEST);
 	}
 
 	@SuppressWarnings("unused")
