@@ -25,14 +25,14 @@ import es.deusto.weblab.client.dto.reservations.WaitingConfirmationReservationSt
 import es.deusto.weblab.client.dto.reservations.WaitingInstancesReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingReservationStatus;
 import es.deusto.weblab.client.dto.users.User;
-import es.deusto.weblab.client.lab.controller.IWebLabController;
+import es.deusto.weblab.client.lab.controller.IWlLabController;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
-import es.deusto.weblab.client.lab.ui.ThemeBase;
+import es.deusto.weblab.client.lab.ui.WlLabThemeBase;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.AllowedExperimentsWindow.IAllowedExperimentsWindowCallback;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.ExperimentWindow.IExperimentWindowCallback;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.LoginWindow.ILoginWindowCallback;
 
-public class DefaultTheme extends ThemeBase {
+public class DefaultTheme extends WlLabThemeBase {
 
 	public static class Style {
 		public static final String ERROR_MESSAGE  = "wl-error_message";
@@ -40,7 +40,7 @@ public class DefaultTheme extends ThemeBase {
 	}
 
 	private final IConfigurationManager configurationManager;
-	private final IWebLabController controller;
+	private final IWlLabController controller;
 	
 
 	// Window management
@@ -56,7 +56,7 @@ public class DefaultTheme extends ThemeBase {
 	private ExperimentAllowed experimentAllowed;
 	private ExperimentBase experimentBase;
 
-	public DefaultTheme(final IConfigurationManager configurationManager, final IWebLabController controller){
+	public DefaultTheme(final IConfigurationManager configurationManager, final IWlLabController controller){
 		this.configurationManager = configurationManager;
 		this.controller = controller;
 		

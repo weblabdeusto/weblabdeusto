@@ -20,7 +20,7 @@ import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.lab.comm.IWlLabCommunication;
 import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
-import es.deusto.weblab.client.lab.controller.WebLabController.TimerCreator;
+import es.deusto.weblab.client.lab.controller.WlLabController.TimerCreator;
 import es.deusto.weblab.client.lab.controller.exceptions.WlUnknownReservationException;
 import es.deusto.weblab.client.lab.controller.reservations.ReservationStatusTransition;
 import es.deusto.weblab.client.lab.controller.reservations.ReservationStatusTransitionFactory;
@@ -36,7 +36,7 @@ public class ReservationStatusCallback implements IReservationCallback{
 	private SessionID             sessionID;
 	private ExperimentID          experimentBeingReserved;
 	private ExperimentBase        experimentBaseBeingReserved;
-	private IWebLabController     controller;
+	private IWlLabController     controller;
 	
 	ReservationStatusCallback(){}
 	
@@ -87,7 +87,7 @@ public class ReservationStatusCallback implements IReservationCallback{
 		return this.experimentBeingReserved;
 	}
 	
-	public IWebLabController getController(){
+	public IWlLabController getController(){
 		return this.controller;
 	}
 	
@@ -123,7 +123,7 @@ public class ReservationStatusCallback implements IReservationCallback{
 		this.experimentBeingReserved = experimentId;
 	}
 	
-	void setController(IWebLabController controller){
+	void setController(IWlLabController controller){
 		this.controller = controller;
 	}
 	

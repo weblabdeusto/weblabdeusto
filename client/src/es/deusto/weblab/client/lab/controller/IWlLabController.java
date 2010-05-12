@@ -21,7 +21,7 @@ import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.ui.IUIManager;
 
-public interface IWebLabController {
+public interface IWlLabController {
 	public void login(String username, String password);
 	public void startLoggedIn(SessionID sessionId);
 	public void logout();

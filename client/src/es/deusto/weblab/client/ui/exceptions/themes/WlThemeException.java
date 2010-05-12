@@ -11,9 +11,9 @@
 * Author: Pablo Orduña <pablo@ordunya.com>
 *
 */ 
-package es.deusto.weblab.client.lab.ui.exceptions.themes;
+package es.deusto.weblab.client.ui.exceptions.themes;
 
-import es.deusto.weblab.client.lab.ui.exceptions.WlUIException;
+import es.deusto.weblab.client.ui.exceptions.WlUIException;
 
 public class WlThemeException extends WlUIException {
 	private static final long serialVersionUID = -1527186553163231260L;

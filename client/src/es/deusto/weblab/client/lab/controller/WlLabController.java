@@ -41,7 +41,7 @@ import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoad
 import es.deusto.weblab.client.lab.ui.IUIManager;
 import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
 
-public class WebLabController implements IWebLabController {
+public class WlLabController implements IWlLabController {
 	
 	// Constants
 	public static final String WAITING_INSTANCES_MIN_POLLING_TIME_PROPERTY = "polling.time.waitinginstances.min";
@@ -87,7 +87,7 @@ public class WebLabController implements IWebLabController {
 	private final SessionVariables     sessionVariables = new SessionVariables();
 	private final boolean              isMobile;
 	
-	public WebLabController(
+	public WlLabController(
 				IConfigurationManager configurationManager,
 				IWlLabCommunication  communications,
 				IPollingHandler       pollingHandler,
@@ -134,7 +134,7 @@ public class WebLabController implements IWebLabController {
 
 	public class TimerCreator{
 		public void createTimer(int millis, IControllerRunnable runnable){
-			WebLabController.this.createTimer(millis, runnable);
+			WlLabController.this.createTimer(millis, runnable);
 		}
 	}
 	
@@ -143,11 +143,11 @@ public class WebLabController implements IWebLabController {
 		
 		this.communications.getUserInformation(this.currentSession, new IUserInformationCallback(){
 			public void onSuccess(final User userInformation) {
-				WebLabController.this.uimanager.onLoggedIn(userInformation);
+				WlLabController.this.uimanager.onLoggedIn(userInformation);
 			}
 			
 			public void onFailure(WlCommException e) {
-				WebLabController.this.uimanager.onError(e.getMessage());
+				WlLabController.this.uimanager.onError(e.getMessage());
 			}
 		});		
 	}	
@@ -156,14 +156,14 @@ public class WebLabController implements IWebLabController {
 	public void login(String username, String password){
 		this.communications.login(username, password, new ISessionIdCallback(){
 			public void onSuccess(SessionID sessionId) {
-				WebLabController.this.startSession(sessionId);
+				WlLabController.this.startSession(sessionId);
 			}
 
 			public void onFailure(WlCommException e) {
 				if(e instanceof LoginException){
-					WebLabController.this.uimanager.onWrongLoginOrPasswordGiven();
+					WlLabController.this.uimanager.onWrongLoginOrPasswordGiven();
 				}else{
-					WebLabController.this.uimanager.onErrorAndFinishSession(e.getMessage());
+					WlLabController.this.uimanager.onErrorAndFinishSession(e.getMessage());
 				}
 			}
 		});
@@ -171,31 +171,31 @@ public class WebLabController implements IWebLabController {
 
 	@Override
 	public void startLoggedIn(SessionID sessionId){
-		WebLabController.this.startSession(sessionId);
+		WlLabController.this.startSession(sessionId);
 	}
 
 	@Override
 	public void logout(){
 		this.communications.logout(this.currentSession, new IVoidCallback(){
 			public void onSuccess() {
-				WebLabController.this.uimanager.onLoggedOut();
+				WlLabController.this.uimanager.onLoggedOut();
 			}
 			
 			public void onFailure(WlCommException e) {
-				WebLabController.this.uimanager.onErrorAndFinishSession(e.getMessage());
+				WlLabController.this.uimanager.onErrorAndFinishSession(e.getMessage());
 			}
 		});
 	}
 
 	@Override
 	public void retrieveAllowedExperiments() {
-		WebLabController.this.communications.listExperiments(WebLabController.this.currentSession, new IExperimentsAllowedCallback(){
+		WlLabController.this.communications.listExperiments(WlLabController.this.currentSession, new IExperimentsAllowedCallback(){
 			public void onSuccess(ExperimentAllowed[] experimentsAllowed) {
-				WebLabController.this.uimanager.onAllowedExperimentsRetrieved(experimentsAllowed);
+				WlLabController.this.uimanager.onAllowedExperimentsRetrieved(experimentsAllowed);
 			}
 			
 			public void onFailure(WlCommException e) {
-				WebLabController.this.uimanager.onError(e.getMessage());
+				WlLabController.this.uimanager.onError(e.getMessage());
 			}
 		});	    
 	}
@@ -225,12 +225,12 @@ public class WebLabController implements IWebLabController {
 	public void finishReservation() {
 		this.communications.finishedExperiment(this.currentSession, new IVoidCallback(){
 			public void onSuccess(){
-				WebLabController.this.cleanReservation();
+				WlLabController.this.cleanReservation();
 				// TODO: Cancelling State, it should "poll" somehow
 				// TODO: If the user is in any queue and clicks "finish", he'll be in this state 
 			}
 			public void onFailure(WlCommException e) {
-				WebLabController.this.uimanager.onErrorAndFinishReservation(e.getMessage());
+				WlLabController.this.uimanager.onErrorAndFinishReservation(e.getMessage());
 			}
 		});
 	}
@@ -239,13 +239,13 @@ public class WebLabController implements IWebLabController {
 	public void finishReservationAndLogout(){
 		this.communications.finishedExperiment(this.currentSession, new IVoidCallback(){
 			public void onSuccess(){
-				WebLabController.this.cleanReservation();
+				WlLabController.this.cleanReservation();
 				// TODO: Cancelling State, it should "poll" somehow
 				// TODO: If the user is in any queue and clicks "finish", he'll be in this state 
-				WebLabController.this.logout();
+				WlLabController.this.logout();
 			}
 			public void onFailure(WlCommException e) {
-				WebLabController.this.uimanager.onErrorAndFinishReservation(e.getMessage());
+				WlLabController.this.uimanager.onErrorAndFinishReservation(e.getMessage());
 			}
 		});
 	}
@@ -270,12 +270,12 @@ public class WebLabController implements IWebLabController {
 						// Nothing to do
 					}
 					public void onFailure(WlCommException e) {
-						if(WebLabController.this.lastExperiment != null && WebLabController.this.lastExperiment.getExperimentName().equals("ud-visir"))
+						if(WlLabController.this.lastExperiment != null && WlLabController.this.lastExperiment.getExperimentName().equals("ud-visir"))
 							return;
 						
 						// TODO: 
-						WebLabController.this.uimanager.onErrorAndFinishReservation(e.getMessage());
-						WebLabController.this.finishReservation();
+						WlLabController.this.uimanager.onErrorAndFinishReservation(e.getMessage());
+						WlLabController.this.finishReservation();
 					}
 				}
 			);
@@ -285,31 +285,31 @@ public class WebLabController implements IWebLabController {
 	public void chooseExperiment(final ExperimentAllowed experimentAllowed) {
 	    IBoardBaseController boardBaseController = new IBoardBaseController(){
 	    	public void onClean(){
-	    		WebLabController.this.finishReservation();
+	    		WlLabController.this.finishReservation();
 	    	}
 	    	
 	    	// Ignore the callback
 	    	public void sendCommand(Command command){
-	    	    WebLabController.this.sendCommand(command, new IResponseCommandCallback(){
+	    	    WlLabController.this.sendCommand(command, new IResponseCommandCallback(){
 	    		public void onSuccess(
 	    			ResponseCommand responseCommand) {
 	    		    // nothing
 	    		}
 
 	    		public void onFailure(WlCommException e) {
-	    		    WebLabController.this.uimanager.onError("Error sending command: " + e.getMessage());
+	    		    WlLabController.this.uimanager.onError("Error sending command: " + e.getMessage());
 	    		}
 	    	    });
 	    	}
 
 	    	public void sendCommand(Command command,
 	    		IResponseCommandCallback callback) {
-	    	    WebLabController.this.sendCommand(command, callback);
+	    	    WlLabController.this.sendCommand(command, callback);
 	    	}
 
 		public void sendFile(UploadStructure uploadStructure,
 			IResponseCommandCallback callback) {
-		    WebLabController.this.sendFile(uploadStructure, callback);
+		    WlLabController.this.sendFile(uploadStructure, callback);
 		    
 		}
 	    };
@@ -318,14 +318,14 @@ public class WebLabController implements IWebLabController {
 			
 			@Override
 			public void onFailure(Throwable e) {
-				WebLabController.this.uimanager.onError("Couldn't instantiate experiment: " + e.getMessage());
+				WlLabController.this.uimanager.onError("Couldn't instantiate experiment: " + e.getMessage());
 				e.printStackTrace();
 			}
 			
 			@Override
 			public void onExperimentLoaded(ExperimentBase experimentBase) {
-				WebLabController.this.sessionVariables.setCurrentExperimentBase(experimentBase);
-				WebLabController.this.uimanager.onExperimentChosen(experimentAllowed, experimentBase);
+				WlLabController.this.sessionVariables.setCurrentExperimentBase(experimentBase);
+				WlLabController.this.uimanager.onExperimentChosen(experimentAllowed, experimentBase);
 			}
 		};
 	    factory.experimentFactory(experimentAllowed.getExperiment().getExperimentID(), experimentLoadedCallback, this.isMobile);

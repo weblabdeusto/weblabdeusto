@@ -28,11 +28,11 @@ import es.deusto.weblab.client.dto.users.Role;
 import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
-import es.deusto.weblab.client.lab.controller.IWebLabController;
+import es.deusto.weblab.client.lab.controller.IWlLabController;
 import es.deusto.weblab.client.lab.experiments.exceptions.WlExperimentException;
 import es.deusto.weblab.client.lab.ui.IUIManager;
 
-public class MockController implements IWebLabController {
+public class MockController implements IWlLabController {
 
 	private IUIManager uimanager;
 	private int n;

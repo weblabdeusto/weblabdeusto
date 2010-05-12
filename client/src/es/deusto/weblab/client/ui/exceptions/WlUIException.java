@@ -11,24 +11,26 @@
 * Author: Pablo Orduña <pablo@ordunya.com>
 *
 */ 
-package es.deusto.weblab.client.lab.ui.exceptions;
+package es.deusto.weblab.client.ui.exceptions;
 
-public class InvalidUIStateException extends WlUIException {
-	private static final long serialVersionUID = 7654097372488843493L;
+import es.deusto.weblab.client.WlClientException;
 
-	public InvalidUIStateException() {
+public class WlUIException extends WlClientException {
+	private static final long serialVersionUID = -5011397264280350488L;
+
+	public WlUIException() {
 		super();
 	}
 
-	public InvalidUIStateException(String arg0, Throwable arg1) {
+	public WlUIException(String arg0, Throwable arg1) {
 		super(arg0, arg1);
 	}
 
-	public InvalidUIStateException(String arg0) {
+	public WlUIException(String arg0) {
 		super(arg0);
 	}
 
-	public InvalidUIStateException(Throwable arg0) {
+	public WlUIException(Throwable arg0) {
 		super(arg0);
 	}
 }

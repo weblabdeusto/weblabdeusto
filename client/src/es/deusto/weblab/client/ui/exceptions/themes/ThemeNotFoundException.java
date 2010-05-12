@@ -11,7 +11,7 @@
 * Author: Pablo Orduña <pablo@ordunya.com>
 *
 */ 
-package es.deusto.weblab.client.lab.ui.exceptions.themes;
+package es.deusto.weblab.client.ui.exceptions.themes;
 
 public class ThemeNotFoundException extends WlThemeException {
 	private static final long serialVersionUID = -7575207146232442585L;

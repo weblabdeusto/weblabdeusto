@@ -25,13 +25,13 @@ public class PollingHandler implements IPollingHandler {
 	
 	private Timer pollingTimer;
 	private final IConfigurationManager configurationManager;
-	private IWebLabController controller;
+	private IWlLabController controller;
 	
 	public PollingHandler(IConfigurationManager configurationManager){
 		this.configurationManager = configurationManager;
 	}
 	
-	public void setController(IWebLabController controller){
+	public void setController(IWlLabController controller){
 		this.controller = controller;
 	}
 	

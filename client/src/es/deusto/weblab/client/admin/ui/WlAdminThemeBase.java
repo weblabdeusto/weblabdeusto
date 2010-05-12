@@ -8,14 +8,16 @@
 * This software consists of contributions made by many individuals, 
 * listed below:
 *
-* Author: Pablo Orduña <pablo@ordunya.com>
+* Author: FILLME
 *
-*/ 
-package es.deusto.weblab.client.lab.ui;
+*/
+
+package es.deusto.weblab.client.admin.ui;
 
 import com.google.gwt.user.client.ui.Widget;
 
-public abstract class ThemeBase implements IUIManager{
+
+public abstract class WlAdminThemeBase implements IUIManager {
 	
 	public abstract Widget getWidget();
 	

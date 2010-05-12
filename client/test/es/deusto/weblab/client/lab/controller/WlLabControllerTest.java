@@ -47,11 +47,11 @@ import es.deusto.weblab.client.lab.comm.FakeWlLabCommunication;
 import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
-import es.deusto.weblab.client.lab.controller.WebLabController;
+import es.deusto.weblab.client.lab.controller.WlLabController;
 import es.deusto.weblab.client.lab.ui.FakeUIManager;
 import es.deusto.weblab.client.testing.util.WlFake.Methods;
 
-public class WebLabControllerTest  extends GWTTestCase{
+public class WlLabControllerTest  extends GWTTestCase{
 	
 	private IConfigurationManager configurationManager;
 	private FakeWlLabCommunication fakeCommunications;
@@ -65,7 +65,7 @@ public class WebLabControllerTest  extends GWTTestCase{
 	private static final int WAITING_CONFIRMATION_POLL_TIME  = 12347;
 	
 	public void testLoginFailure() throws Exception{
-		final WebLabController controller = this.createController();
+		final WlLabController controller = this.createController();
 		controller.login("whatever", "whatever");
 		
 		List<Methods> v = this.fakeCommunications.getMethodByName(FakeWlCommonCommunication.LOGIN);
@@ -93,7 +93,7 @@ public class WebLabControllerTest  extends GWTTestCase{
 		role.setName("student");
 		user.setRole(role);
 
-		final WebLabController controller = this.createController();
+		final WlLabController controller = this.createController();
 		
 		// login
 		controller.login("whatever", "whatever");
@@ -206,7 +206,7 @@ public class WebLabControllerTest  extends GWTTestCase{
 		final List<CreateTimerParameters> v2 = context.controller.getCreateTimerCalled();
 		Assert.assertEquals(1, v2.size());
 		final CreateTimerParameters ctp = v2.get(0);
-		Assert.assertEquals( WebLabControllerTest.WAITING_INSTANCES_MIN_POLL_TIME, ctp.millis);
+		Assert.assertEquals( WlLabControllerTest.WAITING_INSTANCES_MIN_POLL_TIME, ctp.millis);
 	}
 
 	public void testWaitingExperimentReservation() throws Exception{
@@ -225,7 +225,7 @@ public class WebLabControllerTest  extends GWTTestCase{
 		final List<CreateTimerParameters> v2 = context.controller.getCreateTimerCalled();
 		Assert.assertEquals(1, v2.size());
 		final CreateTimerParameters ctp = v2.get(0);
-		Assert.assertEquals( WebLabControllerTest.WAITING_MIN_POLL_TIME, ctp.millis);
+		Assert.assertEquals( WlLabControllerTest.WAITING_MIN_POLL_TIME, ctp.millis);
 	}
 
 	public void testWaitingConfirmationExperimentReservation() throws Exception{
@@ -244,7 +244,7 @@ public class WebLabControllerTest  extends GWTTestCase{
 		final List<CreateTimerParameters> v2 = context.controller.getCreateTimerCalled();
 		Assert.assertEquals(1, v2.size());
 		final CreateTimerParameters ctp = v2.get(0);
-		Assert.assertEquals( WebLabControllerTest.WAITING_CONFIRMATION_POLL_TIME, ctp.millis);
+		Assert.assertEquals( WlLabControllerTest.WAITING_CONFIRMATION_POLL_TIME, ctp.millis);
 	}
 	
 	public void testConfirmedExperimentReservation() throws Exception{
@@ -311,11 +311,11 @@ public class WebLabControllerTest  extends GWTTestCase{
 	
 	private Map<String, String> createConfiguration(){
 		final Map<String, String> map = new HashMap<String, String>();
-		map.put(WebLabController.WAITING_INSTANCES_MIN_POLLING_TIME_PROPERTY, ""+WebLabControllerTest.WAITING_INSTANCES_MIN_POLL_TIME);
-		map.put(WebLabController.WAITING_INSTANCES_MAX_POLLING_TIME_PROPERTY, ""+WebLabControllerTest.WAITING_INSTANCES_MAX_POLL_TIME);
-		map.put(WebLabController.WAITING_MIN_POLLING_TIME_PROPERTY, ""+WebLabControllerTest.WAITING_MIN_POLL_TIME);
-		map.put(WebLabController.WAITING_MAX_POLLING_TIME_PROPERTY, ""+WebLabControllerTest.WAITING_MAX_POLL_TIME);
-		map.put(WebLabController.WAITING_CONFIRMATION_POLLING_TIME_PROPERTY, ""+WebLabControllerTest.WAITING_CONFIRMATION_POLL_TIME);
+		map.put(WlLabController.WAITING_INSTANCES_MIN_POLLING_TIME_PROPERTY, ""+WlLabControllerTest.WAITING_INSTANCES_MIN_POLL_TIME);
+		map.put(WlLabController.WAITING_INSTANCES_MAX_POLLING_TIME_PROPERTY, ""+WlLabControllerTest.WAITING_INSTANCES_MAX_POLL_TIME);
+		map.put(WlLabController.WAITING_MIN_POLLING_TIME_PROPERTY, ""+WlLabControllerTest.WAITING_MIN_POLL_TIME);
+		map.put(WlLabController.WAITING_MAX_POLLING_TIME_PROPERTY, ""+WlLabControllerTest.WAITING_MAX_POLL_TIME);
+		map.put(WlLabController.WAITING_CONFIRMATION_POLLING_TIME_PROPERTY, ""+WlLabControllerTest.WAITING_CONFIRMATION_POLL_TIME);
 		return map;
 	}
 	
@@ -431,7 +431,7 @@ public class WebLabControllerTest  extends GWTTestCase{
 		}
 	}
 	
-	private class FakeWebLabController extends WebLabController{
+	private class FakeWebLabController extends WlLabController{
 	    	private FakeUIManager uimanager;
 	    	
 		public FakeWebLabController(
