@@ -28,6 +28,7 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -48,13 +49,11 @@ import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.ci
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.commands.GetCircuitCommand;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.commands.SolveCircuitCommand;
 import es.deusto.weblab.client.lab.ui.BoardBase;
-import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.widgets.EasyGrid;
-import es.deusto.weblab.client.lab.ui.widgets.WlHorizontalPanel;
-import es.deusto.weblab.client.lab.ui.widgets.WlTimer;
-import es.deusto.weblab.client.lab.ui.widgets.WlVerticalPanel;
-import es.deusto.weblab.client.lab.ui.widgets.WlWaitingLabel;
-import es.deusto.weblab.client.lab.ui.widgets.WlWebcam;
-import es.deusto.weblab.client.lab.ui.widgets.WlTimer.IWlTimerFinishedCallback;
+import es.deusto.weblab.client.ui.widgets.EasyGrid;
+import es.deusto.weblab.client.ui.widgets.WlTimer;
+import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
+import es.deusto.weblab.client.ui.widgets.WlWebcam;
+import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 public class WlDeustoLogicBasedBoard extends BoardBase {
 	
@@ -93,18 +92,18 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 	/** WIDGETS **/
 	
 	// Root panel.
-	@UiField WlVerticalPanel widget;
+	@UiField VerticalPanel widget;
 	
 	// Contains the experiment introduction. (Welcome message, etc).
-	@UiField WlVerticalPanel introPanel;
+	@UiField VerticalPanel introPanel;
 	
 	// Contains the intro text itself.
 	@UiField VerticalPanel textIntroPanel;
 	
 	// The panel of the experiment itself.
-	@UiField WlVerticalPanel expPanel;
+	@UiField VerticalPanel expPanel;
 	
-	@UiField WlHorizontalPanel circuitAndWebcamPanel;
+	@UiField HorizontalPanel circuitAndWebcamPanel;
 	
 	@UiField(provided=true)
 	WlTimer timer;

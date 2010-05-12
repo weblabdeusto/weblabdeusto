@@ -4,12 +4,12 @@
     xmlns:w="urn:import:es.deusto.weblab.client.lab.ui.widgets">
     
     
-    <w:WlVerticalPanel width='100%' horizontalAlignment='ALIGN_CENTER'>
+    <g:VerticalPanel width='100%' horizontalAlignment='ALIGN_CENTER'>
         
 		<g:Hidden>
 		</g:Hidden>
 	
-	</w:WlVerticalPanel>
+	</g:VerticalPanel>
 	
 
 </ui:UiBinder>

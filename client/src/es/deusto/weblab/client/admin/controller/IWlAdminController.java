@@ -18,8 +18,10 @@ import es.deusto.weblab.client.admin.ui.WlAdminThemeBase;
 import es.deusto.weblab.client.dto.SessionID;
 
 public interface IWlAdminController {
+	
+	void login(String username, String password);
+	void startLoggedIn(SessionID sessionId);
+	void logout();
 
 	void setUIManager(WlAdminThemeBase theme);
-
-	void startLoggedIn(SessionID sessionID);
 }

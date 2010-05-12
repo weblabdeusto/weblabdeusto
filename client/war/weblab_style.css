@@ -77,6 +77,13 @@ body
 	border-spacing: 10px;
 }
 
+.web-login-administration-panel
+{
+	padding-top: 15px;
+	padding-bottom: 10px;
+	text-align: center;
+}
+
 .web-login-box
 {
 	margin-right: auto;

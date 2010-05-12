@@ -1,8 +1,7 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
     xmlns:g='urn:import:com.google.gwt.user.client.ui'
-    xmlns:my='urn:import:es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.widgets'
-    xmlns:w="urn:import:es.deusto.weblab.client.lab.ui.widgets">
+    xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
     
     <ui:style>
     	.bold-text { font-weight: bold;  }
@@ -22,7 +21,7 @@
 		</g:Cell>
 		
    		<g:Cell horizontalAlignment="ALIGN_CENTER">
-			<my:EasyGrid ui:field="grid" cols='2' rows='4' cellSpacing='1'>
+			<w:EasyGrid ui:field="grid" cols='2' rows='4' cellSpacing='1'>
 				<g:Label text="{i18n.username}" />
 				<g:TextBox ui:field="usernameTextbox"></g:TextBox>
 				
@@ -34,7 +33,7 @@
 				
 				<g:Label/>
 				<g:Label ui:field="passwordErrorLabel" styleName=".invisible"/>
-			</my:EasyGrid>
+			</w:EasyGrid>
    		</g:Cell>
    		 
    		<g:Cell horizontalAlignment="ALIGN_CENTER">

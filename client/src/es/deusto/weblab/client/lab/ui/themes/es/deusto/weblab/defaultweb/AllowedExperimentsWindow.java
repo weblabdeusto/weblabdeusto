@@ -29,8 +29,8 @@ import com.google.gwt.user.client.ui.Widget;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.users.User;
-import es.deusto.weblab.client.lab.ui.widgets.WlUtil;
-import es.deusto.weblab.client.lab.ui.widgets.WlWaitingLabel;
+import es.deusto.weblab.client.ui.widgets.WlUtil;
+import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
 class AllowedExperimentsWindow extends BaseWindow {
 

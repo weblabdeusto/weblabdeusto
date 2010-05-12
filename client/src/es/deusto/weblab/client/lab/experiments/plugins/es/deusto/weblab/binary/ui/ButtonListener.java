@@ -17,7 +17,7 @@ import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.commands.PulseCommand;
 import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
-import es.deusto.weblab.client.lab.ui.widgets.WlButton.IWlButtonUsed;
+import es.deusto.weblab.client.ui.widgets.WlButton.IWlButtonUsed;
 
 class ButtonListener implements IWlButtonUsed {
 	

@@ -14,9 +14,6 @@
 package es.deusto.weblab.client.lab.comm;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
@@ -27,8 +24,6 @@ import es.deusto.weblab.client.comm.WlCommonCommunication;
 import es.deusto.weblab.client.comm.WlRequestCallback;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
-import es.deusto.weblab.client.comm.callbacks.IWlAsyncCallback;
-import es.deusto.weblab.client.comm.exceptions.CommunicationException;
 import es.deusto.weblab.client.comm.exceptions.SerializationException;
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.comm.exceptions.WlServerException;
@@ -52,9 +47,7 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 	public static final String FILE_SENT_ATTR  = "file_sent";
 	public static final String SESSION_ID_ATTR = "session_id";
 	public static final String FILE_INFO_ATTR  = "file_info"; 
-
-	public static final String WEBLAB_SERVICE_URL_PROPERTY = "weblab.service.url";
-	public static final String DEFAULT_WEBLAB_SERVICE_URL = "/weblab/json/";
+	
 	public static final String WEBLAB_FILE_UPLOAD_POST_SERVICE_URL_PROPERTY = "weblab.service.fileupload.post.url";
 	public static final String DEFAULT_WEBLAB_FILE_UPLOAD_POST_SERVICE_URL = "/weblab/fileUpload.py"; 
 	
@@ -62,23 +55,6 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 		super(configurationManager);
 	}
 	
-	private String getServiceUrl(){
-		return this.configurationManager.getProperty(
-					WlLabCommunication.WEBLAB_SERVICE_URL_PROPERTY,
-					WlLabCommunication.DEFAULT_WEBLAB_SERVICE_URL
-				);
-	}
-	
-	protected void performRequest(String requestSerialized,
-			IWlAsyncCallback failureCallback, RequestCallback rci){
-		final RequestBuilder rb = this.createRequestBuilder(RequestBuilder.POST, this.getServiceUrl());
-		try {
-			rb.sendRequest(requestSerialized, rci);
-		} catch (final RequestException e) {
-			failureCallback.onFailure(new CommunicationException(e.getMessage(), e));
-		}
-	}
-
 	private String getFilePostUrl(){
 		return this.configurationManager.getProperty(
 					WlLabCommunication.WEBLAB_FILE_UPLOAD_POST_SERVICE_URL_PROPERTY, 
@@ -209,44 +185,6 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 				requestSerialized, 
 				callback, 
 				new ListExperimentsRequestCallback(callback)
-			);
-	}
-
-	private class LogoutRequestCallback extends WlRequestCallback{
-		private final IVoidCallback voidCallback;
-		
-		public LogoutRequestCallback(IVoidCallback voidCallback){
-			super(voidCallback);
-			this.voidCallback = voidCallback;
-		}
-		
-		@Override
-		public void onSuccessResponseReceived(String response) {
-			try {
-				((IWlLabSerializer)WlLabCommunication.this.serializer).parseLogoutResponse(response);
-			} catch (final SerializationException e) {
-				this.voidCallback.onFailure(e);
-				return;
-			} catch (final WlServerException e) {
-				this.voidCallback.onFailure(e);
-				return;
-			}
-			this.voidCallback.onSuccess();
-		}
-	}
-
-	public void logout(SessionID sessionId, IVoidCallback callback) {
-		String requestSerialized;
-		try {
-			requestSerialized = ((IWlLabSerializer)this.serializer).serializeLogoutRequest(sessionId);
-		} catch (final SerializationException e1) {
-			callback.onFailure(e1);
-			return;
-		}
-		this.performRequest(
-				requestSerialized, 
-				callback, 
-				new LogoutRequestCallback(callback)
 			);
 	}
 

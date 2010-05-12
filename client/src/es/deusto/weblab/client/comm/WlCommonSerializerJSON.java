@@ -66,7 +66,28 @@ public abstract class WlCommonSerializerJSON implements IWlCommonSerializer {
 				params.put("password", new JSONString(password));
 				return this.serializeRequest("login", params);
 			}
+	
+    public void parseLogoutResponse(String responseText)
+	    throws SerializationException, WlServerException {
+		this.parseResultObject(responseText);
+    }
+    
+    public String serializeLogoutRequest(SessionID sessionId)
+	    throws SerializationException {
+		// {"params": {"session_id": {"id": "RqpLBRTlRW8ZVN1d"}}, "method": "logout"}
+		final JSONObject params = new JSONObject();
+		params.put("session_id", serializeSessionId(sessionId));
+		return this.serializeRequest("logout", params);
+    }
+    
+    // General
 
+    protected JSONObject serializeSessionId(SessionID sessionId) {
+		final JSONObject session_id = new JSONObject();
+		session_id.put("id", new JSONString(sessionId.getRealId()));
+		return session_id;
+    }
+    
 	private void throwException(JSONObject responseObject) throws WlServerException {
 		// {"message": "No UserAuth found", "code": "JSON:Server.WebLab", "is_exception": true}
 		final String faultCode = responseObject.get("code").isString().stringValue();

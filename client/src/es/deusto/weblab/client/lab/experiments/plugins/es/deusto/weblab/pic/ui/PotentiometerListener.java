@@ -3,9 +3,9 @@ package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic.ui;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic.commands.AdjustCommand;
 import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
-import es.deusto.weblab.client.lab.ui.widgets.IWlActionListener;
-import es.deusto.weblab.client.lab.ui.widgets.IWlWidget;
-import es.deusto.weblab.client.lab.ui.widgets.WlPotentiometer;
+import es.deusto.weblab.client.ui.widgets.IWlActionListener;
+import es.deusto.weblab.client.ui.widgets.IWlWidget;
+import es.deusto.weblab.client.ui.widgets.WlPotentiometer;
 
 class PotentiometerListener implements IWlActionListener{
 	private final IBoardBaseController commandSender;

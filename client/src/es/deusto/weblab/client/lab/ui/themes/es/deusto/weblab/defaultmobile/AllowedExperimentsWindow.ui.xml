@@ -1,11 +1,10 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
     xmlns:g='urn:import:com.google.gwt.user.client.ui'
-    xmlns:my='urn:import:es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.widgets'
-    xmlns:w="urn:import:es.deusto.weblab.client.lab.ui.widgets">
+    xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
  
     <ui:with field="i18n" type="es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.i18n.IWebLabDeustoThemeMessages"/>
     
-	<w:WlVerticalPanel spacing="10">
+	<g:VerticalPanel spacing="10">
 		
 		<g:Label text="{i18n.myExperiments}" styleName="title-label" horizontalAlignment='ALIGN_CENTER' />
 		
@@ -15,6 +14,6 @@
 		
 		<w:WlWaitingLabel ui:field='waitingLabel' />
 		
-	</w:WlVerticalPanel>
+	</g:VerticalPanel>
 
 </ui:UiBinder>

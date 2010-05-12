@@ -30,15 +30,15 @@ import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
 import es.deusto.weblab.client.lab.ui.BoardBase;
-import es.deusto.weblab.client.lab.ui.widgets.IWlActionListener;
-import es.deusto.weblab.client.lab.ui.widgets.WlClockActivator;
-import es.deusto.weblab.client.lab.ui.widgets.WlSwitch;
-import es.deusto.weblab.client.lab.ui.widgets.WlTimedButton;
-import es.deusto.weblab.client.lab.ui.widgets.WlTimer;
-import es.deusto.weblab.client.lab.ui.widgets.WlWaitingLabel;
-import es.deusto.weblab.client.lab.ui.widgets.WlWebcam;
-import es.deusto.weblab.client.lab.ui.widgets.WlButton.IWlButtonUsed;
-import es.deusto.weblab.client.lab.ui.widgets.WlTimer.IWlTimerFinishedCallback;
+import es.deusto.weblab.client.ui.widgets.IWlActionListener;
+import es.deusto.weblab.client.ui.widgets.WlClockActivator;
+import es.deusto.weblab.client.ui.widgets.WlSwitch;
+import es.deusto.weblab.client.ui.widgets.WlTimedButton;
+import es.deusto.weblab.client.ui.widgets.WlTimer;
+import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
+import es.deusto.weblab.client.ui.widgets.WlWebcam;
+import es.deusto.weblab.client.ui.widgets.WlButton.IWlButtonUsed;
+import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 

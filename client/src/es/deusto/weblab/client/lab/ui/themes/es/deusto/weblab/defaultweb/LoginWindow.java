@@ -39,9 +39,9 @@ import com.google.gwt.user.client.ui.Widget;
 import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.i18n.IWebLabDeustoThemeMessages;
-import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.widgets.EasyGrid;
-import es.deusto.weblab.client.lab.ui.widgets.WlUtil;
-import es.deusto.weblab.client.lab.ui.widgets.WlWaitingLabel;
+import es.deusto.weblab.client.ui.widgets.EasyGrid;
+import es.deusto.weblab.client.ui.widgets.WlUtil;
+import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
 class LoginWindow extends BaseWindow {
 	
@@ -85,18 +85,11 @@ class LoginWindow extends BaseWindow {
 	    this.callback = callback;
 
 	    this.loadWidgets();
-	    this.applyI18n();
 	}
 	
 	@Override
 	public Widget getWidget(){
 		return this.containerPanel;
-	}
-	
-	public void applyI18n() {
-		this.usernameLabel.setText(this.i18nMessages.username() + ":");
-		this.passwordLabel.setText(this.i18nMessages.password() + ":");
-		this.loginButton.setText(this.i18nMessages.logIn());
 	}
 	
 	protected void loadWidgets(){

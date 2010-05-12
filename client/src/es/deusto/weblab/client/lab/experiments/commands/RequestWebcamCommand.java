@@ -20,7 +20,7 @@ import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
-import es.deusto.weblab.client.lab.ui.widgets.WlWebcam;
+import es.deusto.weblab.client.ui.widgets.WlWebcam;
 
 public class RequestWebcamCommand extends Command{
 	

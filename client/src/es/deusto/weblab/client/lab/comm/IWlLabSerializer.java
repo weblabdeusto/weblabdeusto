@@ -30,9 +30,6 @@ import es.deusto.weblab.client.lab.comm.exceptions.UnknownExperimentIdException;
 
 public interface IWlLabSerializer extends IWlCommonSerializer{
 
-	void parseLogoutResponse(String responseText) 
-		throws SerializationException, SessionNotFoundException, UserProcessingException, WlServerException;
-	
 	ExperimentAllowed [] parseListExperimentsResponse(String responseText) 
 		throws SerializationException, SessionNotFoundException, UserProcessingException, WlServerException;
 	
@@ -60,7 +57,6 @@ public interface IWlLabSerializer extends IWlCommonSerializer{
 	String serializeGetReservationStatusRequest(SessionID sessionId) throws SerializationException;
 	String serializeGetUserInformationRequest(SessionID sessionId) throws SerializationException;
 	String serializeListExperimentsRequest(SessionID sessionId) throws SerializationException;
-	String serializeLogoutRequest(SessionID sessionId) throws SerializationException;
 	String serializePollRequest(SessionID sessionId) throws SerializationException;
 	String serializeReserveExperimentRequest(SessionID sessionId, ExperimentID experimentId) throws SerializationException;
 	String serializeSendCommandRequest(SessionID sessionId, Command command) throws SerializationException;

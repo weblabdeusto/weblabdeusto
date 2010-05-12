@@ -181,11 +181,6 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
 		return experiments;
     }
 
-    public void parseLogoutResponse(String responseText)
-	    throws SerializationException, WlServerException {
-		this.parseResultObject(responseText);
-    }
-
     public void parsePollResponse(String responseText)
 	    throws SerializationException, SessionNotFoundException, NoCurrentReservationException, UserProcessingException, WlServerException {
     	this.parseResultObject(responseText);
@@ -272,14 +267,6 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
 		params.put("session_id", this.serializeSessionId(sessionId));
 		return this.serializeRequest("list_experiments", params);
     }
-    
-    public String serializeLogoutRequest(SessionID sessionId)
-	    throws SerializationException {
-		// {"params": {"session_id": {"id": "RqpLBRTlRW8ZVN1d"}}, "method": "logout"}
-		final JSONObject params = new JSONObject();
-		params.put("session_id", serializeSessionId(sessionId));
-		return this.serializeRequest("logout", params);
-    }
 
     public String serializePollRequest(SessionID sessionId)
 	    throws SerializationException {
@@ -313,12 +300,6 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
     }
 
     // General
-    
-    private JSONObject serializeSessionId(SessionID sessionId) {
-		final JSONObject session_id = new JSONObject();
-		session_id.put("id", new JSONString(sessionId.getRealId()));
-		return session_id;
-    }
     
     @Override
 	protected WlServerException buildException(final String faultCode, final String faultString) {

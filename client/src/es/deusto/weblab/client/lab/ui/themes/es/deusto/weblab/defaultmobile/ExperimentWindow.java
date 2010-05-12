@@ -32,7 +32,7 @@ import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.LoggedPanel.ILoggedPanelCallback;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.widgets.EasyGrid;
-import es.deusto.weblab.client.lab.ui.widgets.WlWaitingLabel;
+import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
 class ExperimentWindow extends BaseWindow {
 

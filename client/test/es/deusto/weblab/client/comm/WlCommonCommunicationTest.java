@@ -24,11 +24,14 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.junit.client.GWTTestCase;
 
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
+import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.comm.exceptions.CommunicationException;
 import es.deusto.weblab.client.comm.exceptions.ServerException;
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.configuration.FakeConfiguration;
 import es.deusto.weblab.client.dto.SessionID;
+import es.deusto.weblab.client.lab.comm.FakeWlLabSerializer;
+import es.deusto.weblab.client.lab.comm.WrappedWlLabCommunication;
 
 public class WlCommonCommunicationTest extends GWTTestCase {
 	
@@ -155,6 +158,87 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 		comms.login(USERNAME, PASSWORD, eac);
 		Assert.assertEquals(4, this.stepCounter);
 	}
+		
+	public void testLogout(){
+		this.stepCounter = 0;
+		final FakeWlLabSerializer weblabSerializer = new FakeWlLabSerializer();
+		final FakeRequestBuilder requestBuilder = new FakeRequestBuilder();
+		final FakeConfiguration configurationManager = new FakeConfiguration(new HashMap<String, String>());
+				
+		final WrappedWlLabCommunication comms = new WrappedWlLabCommunication(
+					weblabSerializer,
+					requestBuilder,
+					configurationManager
+				);
+		final SessionID sessionId = new SessionID("whatever the session id");
+		
+		final String SERIALIZED_MESSAGE = "serialized get reservation status request";
+		final String ERROR_MESSAGE = "whatever the error message";
+		
+		weblabSerializer.appendReturn(
+					FakeWlCommonSerializer.SERIALIZE_LOGOUT_REQUEST, 
+					SERIALIZED_MESSAGE
+				);
+		
+		IVoidCallback eac = new IVoidCallback(){
+			public void onSuccess() {
+				WlCommonCommunicationTest.this.stepCounter++;
+			}
+
+			public void onFailure(WlCommException e) {
+				Assert.fail("onFailure not expected");
+			}
+		};
+		
+		requestBuilder.setNextReceivedMessage(SERIALIZED_MESSAGE);		
+		comms.logout(sessionId, eac);
+		Assert.assertEquals(1, this.stepCounter);
+		
+		requestBuilder.setNextToThrow(new RequestException(ERROR_MESSAGE));
+		eac = new IVoidCallback(){
+			public void onSuccess(){
+				Assert.fail("onSuccess not expected");
+			}
+			
+			public void onFailure(WlCommException e){
+				Assert.assertTrue(e instanceof CommunicationException);
+				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
+				WlCommonCommunicationTest.this.stepCounter++;
+			}
+		};
+		comms.logout(sessionId, eac);
+		Assert.assertEquals(2, this.stepCounter);
+		
+		requestBuilder.setNextToError(new Exception(ERROR_MESSAGE));
+		eac = new IVoidCallback(){
+			public void onSuccess(){
+				Assert.fail("onSuccess not expected");
+			}
+			
+			public void onFailure(WlCommException e){
+				Assert.assertTrue(e instanceof CommunicationException);
+				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
+				WlCommonCommunicationTest.this.stepCounter++;
+			}
+		};
+		comms.logout(sessionId, eac);
+		Assert.assertEquals(3, this.stepCounter);
+		
+		requestBuilder.setNextReceivedMessage("");
+		requestBuilder.setResponseToSend(this.generateBadResponse());
+		eac = new IVoidCallback(){
+			public void onSuccess(){
+				Assert.fail("onSuccess not expected");
+			}
+			
+			public void onFailure(WlCommException e){
+				Assert.assertTrue(e instanceof ServerException);
+				WlCommonCommunicationTest.this.stepCounter++;
+			}
+		};
+		comms.logout(sessionId, eac);
+		Assert.assertEquals(4, this.stepCounter);
+	}	
 
 	@Override
 	public String getModuleName() {

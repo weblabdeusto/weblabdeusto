@@ -25,8 +25,6 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 
 public interface IWlLabCommunication extends IWlCommonCommunication {
 	
-	public void logout(SessionID sessionId, IVoidCallback callback);
-
 	public void listExperiments(SessionID sessionId, IExperimentsAllowedCallback callback);
 
 	public void reserveExperiment(SessionID sessionId, ExperimentID experimentId, IReservationCallback callback);

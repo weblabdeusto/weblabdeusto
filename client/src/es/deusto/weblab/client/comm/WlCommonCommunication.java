@@ -22,6 +22,7 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.user.client.DOM;
 
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
+import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.comm.callbacks.IWlAsyncCallback;
 import es.deusto.weblab.client.comm.exceptions.CommunicationException;
 import es.deusto.weblab.client.comm.exceptions.SerializationException;
@@ -35,6 +36,8 @@ public abstract class WlCommonCommunication implements IWlCommonCommunication {
 	
 	public static final String WEBLAB_LOGIN_SERVICE_URL_PROPERTY = "weblab.service.login.url";
 	public static final String DEFAULT_WEBLAB_LOGIN_SERVICE_URL = "/weblab/login/json/";
+	public static final String WEBLAB_SERVICE_URL_PROPERTY = "weblab.service.url";
+	public static final String DEFAULT_WEBLAB_SERVICE_URL = "/weblab/json/";
 
 	protected final IConfigurationManager configurationManager;
 	protected IWlCommonSerializer serializer;
@@ -49,6 +52,23 @@ public abstract class WlCommonCommunication implements IWlCommonCommunication {
 	protected void setSerializer(IWlCommonSerializer serializer){
 		this.serializer = serializer;
 	}
+	
+	private String getServiceUrl(){
+		return this.configurationManager.getProperty(
+					WlCommonCommunication.WEBLAB_SERVICE_URL_PROPERTY,
+					WlCommonCommunication.DEFAULT_WEBLAB_SERVICE_URL
+				);
+	}
+	
+	protected void performRequest(String requestSerialized,
+			IWlAsyncCallback failureCallback, RequestCallback rci){
+		final RequestBuilder rb = this.createRequestBuilder(RequestBuilder.POST, this.getServiceUrl());
+		try {
+			rb.sendRequest(requestSerialized, rci);
+		} catch (final RequestException e) {
+			failureCallback.onFailure(new CommunicationException(e.getMessage(), e));
+		}
+	}	
 	
 	private String getLoginServiceUrl(){
 		return this.configurationManager.getProperty(
@@ -127,6 +147,7 @@ public abstract class WlCommonCommunication implements IWlCommonCommunication {
 		}
 	}
 
+	@Override
 	public void login(String username, String password, ISessionIdCallback callback) {
 		String requestSerialized;
 		try {
@@ -141,4 +162,44 @@ public abstract class WlCommonCommunication implements IWlCommonCommunication {
 				new LoginRequestCallback(callback, username, password)
 			);
 	}
+	
+
+
+	private class LogoutRequestCallback extends WlRequestCallback{
+		private final IVoidCallback voidCallback;
+		
+		public LogoutRequestCallback(IVoidCallback voidCallback){
+			super(voidCallback);
+			this.voidCallback = voidCallback;
+		}
+		
+		@Override
+		public void onSuccessResponseReceived(String response) {
+			try {
+				WlCommonCommunication.this.serializer.parseLogoutResponse(response);
+			} catch (final SerializationException e) {
+				this.voidCallback.onFailure(e);
+				return;
+			} catch (final WlServerException e) {
+				this.voidCallback.onFailure(e);
+				return;
+			}
+			this.voidCallback.onSuccess();
+		}
+	}
+
+	public void logout(SessionID sessionId, IVoidCallback callback) {
+		String requestSerialized;
+		try {
+			requestSerialized = this.serializer.serializeLogoutRequest(sessionId);
+		} catch (final SerializationException e1) {
+			callback.onFailure(e1);
+			return;
+		}
+		this.performRequest(
+				requestSerialized, 
+				callback, 
+				new LogoutRequestCallback(callback)
+			);
+	}	
 }

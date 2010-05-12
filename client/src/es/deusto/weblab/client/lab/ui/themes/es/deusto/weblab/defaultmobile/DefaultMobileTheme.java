@@ -15,6 +15,7 @@
 package es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile;
 
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.configuration.IConfigurationManager;
@@ -31,11 +32,11 @@ import es.deusto.weblab.client.lab.ui.WlLabThemeBase;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.AllowedExperimentsWindow.IAllowedExperimentsWindowCallback;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.ExperimentWindow.IExperimentWindowCallback;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.LoginWindow.ILoginWindowCallback;
-import es.deusto.weblab.client.lab.ui.widgets.WlVerticalPanel;
+
 
 public class DefaultMobileTheme extends WlLabThemeBase {
 
-	private final WlVerticalPanel themePanel;	
+	private final VerticalPanel themePanel;	
 	private final IConfigurationManager configurationManager;
 	private final IWlLabController controller;
 	
@@ -54,7 +55,7 @@ public class DefaultMobileTheme extends WlLabThemeBase {
 		this.configurationManager = configurationManager;
 		this.controller           = controller;
 		
-		this.themePanel = new WlVerticalPanel();
+		this.themePanel = new VerticalPanel();
 		this.themePanel.setWidth("100%");
 		this.themePanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 	}

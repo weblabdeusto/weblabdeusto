@@ -31,7 +31,6 @@ public class FakeWlLabCommunication extends FakeWlCommonCommunication implements
 	public static final String RESERVE_EXPERIMENT     = "FakeWebLabCommunication::reserveExperiment";
 	public static final String FINISHED_EXPERIMENT    = "FakeWebLabCommunication::finishedExperiment";
 	public static final String POLL                   = "FakeWebLabCommunication::poll";
-	public static final String LOGOUT                 = "FakeWebLabCommunication::logout";
 	public static final String LIST_EXPERIMENTS       = "FakeWebLabCommunication::listExperiments";
 	public static final String GET_USER_INFORMATION   = "FakeWebLabCommunication::getUserInformation";
 	public static final String GET_RESERVATION_STATUS = "FakeWebLabCommunication::getReservationStatus";
@@ -55,14 +54,6 @@ public class FakeWlLabCommunication extends FakeWlCommonCommunication implements
 	@Override
 	public void listExperiments(SessionID sessionId, IExperimentsAllowedCallback callback) {
 		this.append(FakeWlLabCommunication.LIST_EXPERIMENTS, new Object[]{
-				sessionId,
-				callback
-		});
-	}
-
-	@Override
-	public void logout(SessionID sessionId, IVoidCallback callback) {
-		this.append(FakeWlLabCommunication.LOGOUT, new Object[]{
 				sessionId,
 				callback
 		});

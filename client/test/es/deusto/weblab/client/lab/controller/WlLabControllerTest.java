@@ -139,7 +139,7 @@ public class WlLabControllerTest  extends GWTTestCase{
 		
 		// logout
 		controller.logout();		
-		v = this.fakeCommunications.getMethodByName(FakeWlLabCommunication.LOGOUT);
+		v = this.fakeCommunications.getMethodByName(FakeWlCommonCommunication.LOGOUT);
 		Assert.assertEquals(1,v.size());
 		m = v.get(0);
 		Assert.assertEquals(2,m.getParameters().length);

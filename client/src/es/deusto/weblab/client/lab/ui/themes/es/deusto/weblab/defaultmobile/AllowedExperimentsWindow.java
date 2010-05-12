@@ -33,7 +33,7 @@ import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.LoggedPanel.ILoggedPanelCallback;
-import es.deusto.weblab.client.lab.ui.widgets.WlWaitingLabel;
+import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
 class AllowedExperimentsWindow extends BaseWindow {
 

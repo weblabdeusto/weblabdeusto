@@ -1,10 +1,10 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
     xmlns:g='urn:import:com.google.gwt.user.client.ui'
-    xmlns:my='urn:import:es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.widgets'
-    xmlns:w="urn:import:es.deusto.weblab.client.lab.ui.widgets">
+    xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
     
-    <ui:with field='res' type='es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.Resources'/>
-
+    <ui:with field='res' type='es.deusto.weblab.client.ui.Resources'/>
+	<ui:with field="i18n" type="es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.i18n.IWebLabDeustoThemeMessages" />
+	
     <ui:style>
     	.bold-text { font-weight: bold;  }
     </ui:style>
@@ -21,18 +21,18 @@
 	    	
 	    	<g:VerticalPanel styleName="web-login-form">
 	    	
-		    	<my:EasyGrid ui:field="grid" cols='2' rows='2' styleName="web-login-form-fields">
+		    	<w:EasyGrid ui:field="grid" cols='2' rows='2' styleName="web-login-form-fields">
 		    	
-					<g:Label ui:field="usernameLabel"></g:Label>
+					<g:Label ui:field="usernameLabel" text="{i18n.username}:"></g:Label>
 					<g:TextBox ui:field="usernameTextbox"></g:TextBox>
 					
-					<g:Label ui:field="passwordLabel"></g:Label>
+					<g:Label ui:field="passwordLabel" text="{i18n.password}:"></g:Label>
 					<g:PasswordTextBox ui:field="passwordTextbox"></g:PasswordTextBox>
 		    	
-		    	</my:EasyGrid>			    	
+		    	</w:EasyGrid>			    	
 			    	
 			    <g:HorizontalPanel styleName="web-login-form-button">
-					<g:Button ui:field="loginButton">Log in</g:Button>
+					<g:Button ui:field="loginButton" text="{i18n.logIn}" />
 				</g:HorizontalPanel>
 	
 			</g:VerticalPanel>

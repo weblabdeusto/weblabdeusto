@@ -14,16 +14,22 @@
 
 package es.deusto.weblab.client.admin.ui;
 
+import es.deusto.weblab.client.dto.users.User;
+
 
 public interface IUIManager {
 
 	/*
 	 * "Happy path" scenario
 	 */
-	void onInit();
+	public void onInit();
+    public void onLoggedIn(User user);
+	public void onLoggedOut();
 	
 	
 	/*
 	 * Alternative scenarios
 	 */
+	public void onWrongLoginOrPasswordGiven();
+	public void onErrorAndFinishSession(String message);
 }

@@ -17,7 +17,7 @@ import junit.framework.Assert;
 
 import com.google.gwt.junit.client.GWTTestCase;
 
-import es.deusto.weblab.client.lab.ui.widgets.WlUtil;
+import es.deusto.weblab.client.ui.widgets.WlUtil;
 
 public class WlUtilTest extends GWTTestCase  {
 	

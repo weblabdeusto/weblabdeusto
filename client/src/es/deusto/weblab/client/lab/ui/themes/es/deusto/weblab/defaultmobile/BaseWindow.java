@@ -15,11 +15,11 @@ package es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.i18n.IWebLabDeustoThemeMessages;
-import es.deusto.weblab.client.lab.ui.widgets.WlVerticalPanel;
 
 public abstract class BaseWindow {
 	
@@ -27,7 +27,7 @@ public abstract class BaseWindow {
 	protected final IWebLabDeustoThemeMessages i18nMessages;
 	
 	// Widgets
-	protected WlVerticalPanel mainPanel;
+	protected VerticalPanel mainPanel;
 	
 	protected BaseWindow(IConfigurationManager configurationManager){
 	    	this.configurationManager = configurationManager;
@@ -39,7 +39,7 @@ public abstract class BaseWindow {
 	}
 	
 	void loadWidgets() {
-		this.mainPanel = new WlVerticalPanel();
+		this.mainPanel = new VerticalPanel();
 		this.mainPanel.setStyleName("main-panel");
 		this.mainPanel.setWidth("100%");
 		this.mainPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);

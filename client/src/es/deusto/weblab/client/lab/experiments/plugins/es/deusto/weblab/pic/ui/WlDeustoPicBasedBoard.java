@@ -19,6 +19,7 @@ import java.util.Vector;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -30,17 +31,15 @@ import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
 import es.deusto.weblab.client.lab.ui.BoardBase;
-import es.deusto.weblab.client.lab.ui.widgets.IWlActionListener;
-import es.deusto.weblab.client.lab.ui.widgets.WlHorizontalPanel;
-import es.deusto.weblab.client.lab.ui.widgets.WlPotentiometer;
-import es.deusto.weblab.client.lab.ui.widgets.WlSwitch;
-import es.deusto.weblab.client.lab.ui.widgets.WlTextBoxWithButton;
-import es.deusto.weblab.client.lab.ui.widgets.WlTimedButton;
-import es.deusto.weblab.client.lab.ui.widgets.WlTimer;
-import es.deusto.weblab.client.lab.ui.widgets.WlVerticalPanel;
-import es.deusto.weblab.client.lab.ui.widgets.WlWaitingLabel;
-import es.deusto.weblab.client.lab.ui.widgets.WlWebcam;
-import es.deusto.weblab.client.lab.ui.widgets.WlTimer.IWlTimerFinishedCallback;
+import es.deusto.weblab.client.ui.widgets.IWlActionListener;
+import es.deusto.weblab.client.ui.widgets.WlPotentiometer;
+import es.deusto.weblab.client.ui.widgets.WlSwitch;
+import es.deusto.weblab.client.ui.widgets.WlTextBoxWithButton;
+import es.deusto.weblab.client.ui.widgets.WlTimedButton;
+import es.deusto.weblab.client.ui.widgets.WlTimer;
+import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
+import es.deusto.weblab.client.ui.widgets.WlWebcam;
+import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 public class WlDeustoPicBasedBoard extends BoardBase{
 	
@@ -82,15 +81,15 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	
 	@UiField Label selectProgramLabel;
 	
-	@UiField WlHorizontalPanel inputWidgetsPanel;
-	@UiField WlVerticalPanel firstCol;
-	@UiField WlHorizontalPanel switchesPanel;
-	@UiField WlHorizontalPanel potentiometersPanel;
-	@UiField WlVerticalPanel secondCol;
-	@UiField WlHorizontalPanel pulsesPanel;
-	@UiField WlHorizontalPanel writeAndTriggerSwitchPanel;
-	@UiField WlVerticalPanel writePanel;
-	@UiField WlVerticalPanel triggerSwitchPanel;
+	@UiField HorizontalPanel inputWidgetsPanel;
+	@UiField VerticalPanel firstCol;
+	@UiField HorizontalPanel switchesPanel;
+	@UiField HorizontalPanel potentiometersPanel;
+	@UiField VerticalPanel secondCol;
+	@UiField HorizontalPanel pulsesPanel;
+	@UiField HorizontalPanel writeAndTriggerSwitchPanel;
+	@UiField VerticalPanel writePanel;
+	@UiField VerticalPanel triggerSwitchPanel;
 	
 	@UiField WlWaitingLabel messages;
 	

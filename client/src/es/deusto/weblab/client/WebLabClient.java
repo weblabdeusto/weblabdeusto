@@ -42,7 +42,7 @@ import es.deusto.weblab.client.lab.controller.WlLabController;
 import es.deusto.weblab.client.lab.ui.WlLabThemeBase;
 import es.deusto.weblab.client.lab.ui.WlLabThemeFactory;
 import es.deusto.weblab.client.lab.ui.WlLabThemeFactory.IWlLabThemeLoadedCallback;
-import es.deusto.weblab.client.lab.ui.widgets.WlWaitingLabel;
+import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
 public class WebLabClient implements EntryPoint {
 	

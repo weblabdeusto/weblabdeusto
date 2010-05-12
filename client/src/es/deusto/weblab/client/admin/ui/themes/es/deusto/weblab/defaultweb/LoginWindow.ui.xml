@@ -1,0 +1,49 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+    xmlns:g='urn:import:com.google.gwt.user.client.ui'
+    xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
+    
+    <ui:with field='res' type='es.deusto.weblab.client.ui.Resources'/>
+	<ui:with field="i18n" type="es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb.i18n.IWebLabDeustoThemeMessages" />
+	
+    <ui:style>
+    	.bold-text { font-weight: bold;  }
+    </ui:style>
+        
+    <g:VerticalPanel ui:field="containerPanel" styleName="web-login-container">
+    
+    	<g:VerticalPanel styleName="web-login-box">
+    
+	    	<g:HorizontalPanel styleName="web-login-logo">
+		   		<g:Image resource='{res.logo}' />
+			</g:HorizontalPanel>
+			
+	   		<g:HorizontalPanel ui:field="langsPanel" spacing="15" styleName="web-login-languages" />		    	
+	    	
+	    	<g:Label text="{i18n.administrationPanel}" styleName="web-login-administration-panel" />
+	    	
+	    	<g:VerticalPanel styleName="web-login-form">
+	    	
+		    	<w:EasyGrid ui:field="grid" cols='2' rows='2' styleName="web-login-form-fields">
+		    	
+					<g:Label ui:field="usernameLabel" text="{i18n.username}:"></g:Label>
+					<g:TextBox ui:field="usernameTextbox"></g:TextBox>
+					
+					<g:Label ui:field="passwordLabel" text="{i18n.password}:"></g:Label>
+					<g:PasswordTextBox ui:field="passwordTextbox"></g:PasswordTextBox>
+		    	
+		    	</w:EasyGrid>			    	
+			    	
+			    <g:HorizontalPanel styleName="web-login-form-button">
+					<g:Button ui:field="loginButton" text="{i18n.logIn}" />
+				</g:HorizontalPanel>
+	
+			</g:VerticalPanel>
+			
+			<w:WlWaitingLabel ui:field="waitingLabel" styleName="web-waiting-label"></w:WlWaitingLabel>
+			<g:Label ui:field="generalErrorLabel" styleName="web-error-message"></g:Label>
+		
+		</g:VerticalPanel>
+	
+	</g:VerticalPanel>
+	
+</ui:UiBinder>

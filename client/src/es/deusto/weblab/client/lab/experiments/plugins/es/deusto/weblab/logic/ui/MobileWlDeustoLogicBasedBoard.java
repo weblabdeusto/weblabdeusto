@@ -26,8 +26,10 @@ import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
@@ -45,12 +47,10 @@ import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.ci
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.commands.GetCircuitCommand;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.commands.SolveCircuitCommand;
 import es.deusto.weblab.client.lab.ui.BoardBase;
-import es.deusto.weblab.client.lab.ui.widgets.WlHorizontalPanel;
-import es.deusto.weblab.client.lab.ui.widgets.WlTimer;
-import es.deusto.weblab.client.lab.ui.widgets.WlVerticalPanel;
-import es.deusto.weblab.client.lab.ui.widgets.WlWaitingLabel;
-import es.deusto.weblab.client.lab.ui.widgets.WlWebcam;
-import es.deusto.weblab.client.lab.ui.widgets.WlTimer.IWlTimerFinishedCallback;
+import es.deusto.weblab.client.ui.widgets.WlTimer;
+import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
+import es.deusto.weblab.client.ui.widgets.WlWebcam;
+import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 
@@ -74,9 +74,9 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 	private final String oneString  = "1";
 	
 	// Widgets
-	private final WlVerticalPanel widget;
-	private final WlVerticalPanel removableWidgetsPanel;
-	private WlHorizontalPanel circuitPanel;
+	private final VerticalPanel widget;
+	private final VerticalPanel removableWidgetsPanel;
+	private HorizontalPanel circuitPanel;
 	private WlWebcam webcam;
 	private WlTimer timer;
 	private WlWaitingLabel messages;
@@ -121,11 +121,11 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 		
 		this.configurationManager = configurationManager;
 		
-		this.widget = new WlVerticalPanel();
+		this.widget = new VerticalPanel();
 		this.widget.setWidth("100%");
 		this.widget.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		
-		this.removableWidgetsPanel = new WlVerticalPanel();
+		this.removableWidgetsPanel = new VerticalPanel();
 		this.removableWidgetsPanel.setWidth("100%");
 		this.removableWidgetsPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		this.removableWidgetsPanel.setSpacing(20);
@@ -207,7 +207,7 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
     	this.removableWidgetsPanel.add(this.webcam.getWidget());
     	
 		// Horizontal Panel
-		this.circuitPanel = new WlHorizontalPanel();
+		this.circuitPanel = new HorizontalPanel();
 		this.circuitPanel.setWidth("100%");
 		this.circuitPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		

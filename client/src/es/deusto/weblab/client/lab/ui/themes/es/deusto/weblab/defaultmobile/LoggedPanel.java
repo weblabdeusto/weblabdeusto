@@ -22,11 +22,11 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.dto.users.User;
-import es.deusto.weblab.client.lab.ui.widgets.WlUtil;
-import es.deusto.weblab.client.lab.ui.widgets.WlVerticalPanel;
+import es.deusto.weblab.client.ui.widgets.WlUtil;
 
 class LoggedPanel extends Composite {
 	
@@ -40,7 +40,7 @@ class LoggedPanel extends Composite {
 	private static LoggedPanelUiBinder uiBinder = GWT.create(LoggedPanelUiBinder.class);
     
 	// Widgets
-    @UiField WlVerticalPanel contentPanel;  
+    @UiField VerticalPanel contentPanel;  
     @UiField Label userLabel;
 	@UiField Anchor logoutLink;
 	

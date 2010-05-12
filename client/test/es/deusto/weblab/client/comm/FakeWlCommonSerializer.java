@@ -26,6 +26,9 @@ public class FakeWlCommonSerializer extends WlFake implements IWlCommonSerialize
 
 	public static final String PARSE_LOGIN_RESPONSE                     = "FakeWebLabSerializer::parseLoginResponse";
 	public static final String SERIALIZE_LOGIN_REQUEST                  = "FakeWebLabSerializer::serializeLoginRequest";
+	public static final String PARSE_LOGOUT_RESPONSE                    = "FakeWebLabSerializer::parseLogoutResponse";
+	public static final String SERIALIZE_LOGOUT_REQUEST                 = "FakeWebLabSerializer::serializeLogoutRequest";
+
 	
 	@Override
 	public SessionID parseLoginResponse(String responseText) throws SerializationException {
@@ -37,6 +40,21 @@ public class FakeWlCommonSerializer extends WlFake implements IWlCommonSerialize
 	public String serializeLoginRequest(String username, String password) throws SerializationException {
 		this.append(FakeWlCommonSerializer.SERIALIZE_LOGIN_REQUEST, new Object[]{	username, password});
 		return (String)this.retrieveReturn(FakeWlCommonSerializer.SERIALIZE_LOGIN_REQUEST);
+	}
+	
+	public void parseLogoutResponse(String responseText)
+		throws SerializationException {
+		this.append(FakeWlCommonSerializer.PARSE_LOGOUT_RESPONSE, new Object[]{
+				responseText
+		});
+	}
+
+	public String serializeLogoutRequest(SessionID sessionId)
+			throws SerializationException {
+		this.append(FakeWlCommonSerializer.SERIALIZE_LOGOUT_REQUEST, new Object[]{
+				sessionId
+		});
+		return (String)this.retrieveReturn(FakeWlCommonSerializer.SERIALIZE_LOGOUT_REQUEST);
 	}
 
 	@SuppressWarnings("unused")

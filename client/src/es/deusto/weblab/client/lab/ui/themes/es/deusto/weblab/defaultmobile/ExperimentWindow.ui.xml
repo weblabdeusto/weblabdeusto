@@ -1,7 +1,6 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
     xmlns:g='urn:import:com.google.gwt.user.client.ui'
-    xmlns:my='urn:import:es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.widgets'
-    xmlns:w="urn:import:es.deusto.weblab.client.lab.ui.widgets">
+    xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
     
     <ui:with field="i18n" type="es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.i18n.IWebLabDeustoThemeMessages"/>
     
@@ -10,7 +9,7 @@
 		<g:VerticalPanel ui:field="upperSide" width='100%' spacing="10" horizontalAlignment='ALIGN_CENTER'>
 			<g:Anchor text="&lt; {i18n.backToMyExperiments}" ui:field="back" horizontalAlignment="ALIGN_LEFT"></g:Anchor>
 			<g:Label text="{i18n.reserveThisExperiment}" styleName="title-label" />
-			<my:EasyGrid ui:field="grid" cols='2' rows='3' cellSpacing='1'>
+			<w:EasyGrid ui:field="grid" cols='2' rows='3' cellSpacing='1'>
 				<g:Label text="{i18n.experimentName}:"/>
 				<g:Label ui:field="experimentName" styleName="experiment-detail"/>
 				
@@ -19,7 +18,7 @@
 				
 				<g:Label text="{i18n.timeAllowed}:"/>
 				<g:Label ui:field="timeAllowed" styleName="experiment-detail"/>
-			</my:EasyGrid>
+			</w:EasyGrid>
 		</g:VerticalPanel>
 		
 		<g:VerticalPanel ui:field='experimentArea' width='100%' horizontalAlignment='ALIGN_CENTER'>

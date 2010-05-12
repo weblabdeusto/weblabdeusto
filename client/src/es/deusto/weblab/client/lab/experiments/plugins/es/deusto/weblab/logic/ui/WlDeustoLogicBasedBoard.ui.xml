@@ -1,14 +1,13 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
     xmlns:g='urn:import:com.google.gwt.user.client.ui'
-    xmlns:my='urn:import:es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.widgets'
-    xmlns:w="urn:import:es.deusto.weblab.client.lab.ui.widgets">
+    xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
     
     
-    <w:WlVerticalPanel ui:field='widget' width='100%' horizontalAlignment='ALIGN_CENTER'>
+    <g:VerticalPanel ui:field='widget' width='100%' horizontalAlignment='ALIGN_CENTER'>
         
         
         <!-- This panel contains the introduction. -->
-        <w:WlVerticalPanel ui:field='introPanel' width='100%' horizontalAlignment='ALIGN_CENTER' spacing='0'>
+        <g:VerticalPanel ui:field='introPanel' width='100%' horizontalAlignment='ALIGN_CENTER' spacing='0'>
         
         	<g:VerticalPanel ui:field="textIntroPanel" borderWidth='0' horizontalAlignment='ALIGN_CENTER' width="100%">
         	<g:HTMLPanel>
@@ -26,25 +25,25 @@
        			</w:WlTimer>
        		</g:HorizontalPanel>
         
-        </w:WlVerticalPanel>
+        </g:VerticalPanel>
         
         <!--  This panel contains the experiment itself: Logic gates, etc. -->
-        <w:WlVerticalPanel borderWidth="0" ui:field='expPanel' width='100%' spacing='0' horizontalAlignment="ALIGN_CENTER">
+        <g:VerticalPanel borderWidth="0" ui:field='expPanel' width='100%' spacing='0' horizontalAlignment="ALIGN_CENTER">
        
        
-       		<w:WlHorizontalPanel ui:field='circuitAndWebcamPanel' horizontalAlignment='ALIGN_CENTER'>
+       		<g:HorizontalPanel ui:field='circuitAndWebcamPanel' horizontalAlignment='ALIGN_CENTER'>
        		
        			<w:WlWebcam ui:field="webcam" visible="false"></w:WlWebcam>
        		
        			<g:Label ui:field="referenceToShowBoxesLabel"></g:Label>
        			
-       			<my:EasyGrid ui:field='circuitGrid' rows='5' cols='8' borderWidth='0'>
-       			</my:EasyGrid>
+       			<w:EasyGrid ui:field='circuitGrid' rows='5' cols='8' borderWidth='0'>
+       			</w:EasyGrid>
        		
-       		</w:WlHorizontalPanel>
+       		</g:HorizontalPanel>
        		
        
-        </w:WlVerticalPanel>
+        </g:VerticalPanel>
         
         <g:HorizontalPanel borderWidth="0" width="100%" horizontalAlignment='ALIGN_CENTER' spacing='30'>
 			<w:WlWaitingLabel ui:field="messages" horizontalAlignment='ALIGN_CENTER'>
@@ -59,7 +58,7 @@
 		  </div>
 		</g:HTMLPanel>
 	
-	</w:WlVerticalPanel>
+	</g:VerticalPanel>
 	
 
 </ui:UiBinder>

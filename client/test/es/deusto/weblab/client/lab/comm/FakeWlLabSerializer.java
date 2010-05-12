@@ -32,7 +32,6 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements IWlLa
 	public static final String PARSE_GET_RESERVATION_STATUS_RESPONSE    = "FakeWebLabSerializer::parseGetReservationStatus";
 	public static final String PARSE_GET_USER_INFORMATION_RESPONSE      = "FakeWebLabSerializer::parseGetUserInformation";
 	public static final String PARSE_LIST_EXPERIMENTS_RESPONSE          = "FakeWebLabSerializer::parseListExperimentsResponse";
-	public static final String PARSE_LOGOUT_RESPONSE                    = "FakeWebLabSerializer::parseLogoutResponse";
 	public static final String PARSE_POLL_RESPONSE                      = "FakeWebLabSerializer::parsePollResponse";
 	public static final String PARSE_RESERVE_EXPERIMENT_RESPONSE        = "FakeWebLabSerializer::parseReserveExperimentResponse";
 	public static final String PARSE_SEND_COMMAND_RESPONSE              = "FakeWebLabSerializer::parseSendCommandResponse";
@@ -42,7 +41,6 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements IWlLa
 	public static final String SERIALIZE_GET_RESERVATION_STATUS_REQUEST = "FakeWebLabSerializer::serializeGetReservationStatusRequest";
 	public static final String SERIALIZE_GET_USER_INFORMATION_REQUEST   = "FakeWebLabSerializer::serializeGetUserInformationRequest";
 	public static final String SERIALIZE_LIST_EXPERIMENTS_REQUEST       = "FakeWebLabSerializer::serializeListExperimentsRequest";
-	public static final String SERIALIZE_LOGOUT_REQUEST                 = "FakeWebLabSerializer::serializeLogoutRequest";
 	public static final String SERIALIZE_POLL_REQUEST                   = "FakeWebLabSerializer::serializePollRequest";
 	public static final String SERIALIZE_RESERVE_EXPERIMENT_REQUEST     = "FakeWebLabSerializer::serializeReserveExperimentRequest";
 	public static final String SERIALIZE_SEND_COMMAND_REQUEST           = "FakeWebLabSerializer::serializeSendCommandRequest";
@@ -74,13 +72,6 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements IWlLa
 			this.append(FakeWlLabSerializer.PARSE_FINISHED_EXPERIMENT_RESPONSE, new Object[]{
 					responseText
 			});
-	}
-	
-	public void parseLogoutResponse(String responseText)
-		throws SerializationException {
-		this.append(FakeWlLabSerializer.PARSE_LOGOUT_RESPONSE, new Object[]{
-				responseText
-		});
 	}
 	
 	public void parsePollResponse(String responseText)
@@ -148,14 +139,6 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements IWlLa
 				sessionId
 		});
 		return (String)this.retrieveReturn(FakeWlLabSerializer.SERIALIZE_FINISHED_EXPERIMENT_REQUEST);
-	}
-
-	public String serializeLogoutRequest(SessionID sessionId)
-			throws SerializationException {
-		this.append(FakeWlLabSerializer.SERIALIZE_LOGOUT_REQUEST, new Object[]{
-				sessionId
-		});
-		return (String)this.retrieveReturn(FakeWlLabSerializer.SERIALIZE_LOGOUT_REQUEST);
 	}
 
 	public String serializePollRequest(SessionID sessionId)

@@ -22,7 +22,9 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
@@ -33,14 +35,12 @@ import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.c
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.commands.PulseCommand;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.ui.WlDeustoXilinxBasedBoard;
 import es.deusto.weblab.client.lab.ui.BoardBase;
-import es.deusto.weblab.client.lab.ui.widgets.IWlActionListener;
-import es.deusto.weblab.client.lab.ui.widgets.WlHorizontalPanel;
-import es.deusto.weblab.client.lab.ui.widgets.WlSwitch;
-import es.deusto.weblab.client.lab.ui.widgets.WlTimer;
-import es.deusto.weblab.client.lab.ui.widgets.WlVerticalPanel;
-import es.deusto.weblab.client.lab.ui.widgets.WlWaitingLabel;
-import es.deusto.weblab.client.lab.ui.widgets.WlWebcam;
-import es.deusto.weblab.client.lab.ui.widgets.WlTimer.IWlTimerFinishedCallback;
+import es.deusto.weblab.client.ui.widgets.IWlActionListener;
+import es.deusto.weblab.client.ui.widgets.WlSwitch;
+import es.deusto.weblab.client.ui.widgets.WlTimer;
+import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
+import es.deusto.weblab.client.ui.widgets.WlWebcam;
+import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 public class WlDeustoBinaryBasedBoard extends BoardBase {
 
@@ -64,8 +64,8 @@ public class WlDeustoBinaryBasedBoard extends BoardBase {
 	private IConfigurationManager configurationManager;
 		
 	// Widgets
-	private WlVerticalPanel verticalPanel;
-	private WlVerticalPanel widget;
+	private VerticalPanel verticalPanel;
+	private VerticalPanel widget;
 	private final List<Widget> interactiveWidgets;	
 	private WlWebcam webcam;	
 	private WlTimer timer;
@@ -81,11 +81,11 @@ public class WlDeustoBinaryBasedBoard extends BoardBase {
 		
 		this.interactiveWidgets = new Vector<Widget>();
 		
-		this.widget = new WlVerticalPanel();
+		this.widget = new VerticalPanel();
 	    	this.widget.setWidth("100%");
 	    	this.widget.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 	    	
-		this.verticalPanel = new WlVerticalPanel();
+		this.verticalPanel = new VerticalPanel();
 		this.verticalPanel.setWidth("100%");
 		this.verticalPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		this.widget.add(this.verticalPanel);
@@ -197,7 +197,7 @@ public class WlDeustoBinaryBasedBoard extends BoardBase {
 		while(this.verticalPanel.getWidgetCount() > 0)
 		    this.verticalPanel.remove(0);	    
 
-		final WlVerticalPanel otherVerticalPanel = new WlVerticalPanel();
+		final VerticalPanel otherVerticalPanel = new VerticalPanel();
 		otherVerticalPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		otherVerticalPanel.setSpacing(15);
 
@@ -267,13 +267,13 @@ public class WlDeustoBinaryBasedBoard extends BoardBase {
 			final IWlActionListener actionListener = new SwitchListener(6 + i, this.boardController, this.getResponseCommandCallback());
 			this.switches[i].addActionListener(actionListener);
 		}		
-		final WlHorizontalPanel switchesPanel = new WlHorizontalPanel();
+		final HorizontalPanel switchesPanel = new HorizontalPanel();
 		switchesPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		switchesPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 		switchesPanel.setSpacing(25);
 		for(int i = 0; i < WlDeustoBinaryBasedBoard.NUMBER_OF_SWITCHES; ++i){
 			this.switches[i].getWidget().setWidth("100%");			
-			final WlVerticalPanel vp = new WlVerticalPanel();
+			final VerticalPanel vp = new VerticalPanel();
 			vp.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 			vp.add(new Label("" + (WlDeustoBinaryBasedBoard.NUMBER_OF_SWITCHES - i - 1)));
 			vp.add(this.switches[i].getWidget());

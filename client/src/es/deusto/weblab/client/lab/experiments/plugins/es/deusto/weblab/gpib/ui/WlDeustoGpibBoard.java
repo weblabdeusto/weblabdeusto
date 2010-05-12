@@ -21,9 +21,11 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextArea;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
@@ -38,12 +40,10 @@ import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.com
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.commands.ResultStderrCommand;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.commands.ResultStdoutCommand;
 import es.deusto.weblab.client.lab.ui.BoardBase;
-import es.deusto.weblab.client.lab.ui.widgets.WlHorizontalPanel;
-import es.deusto.weblab.client.lab.ui.widgets.WlTimer;
-import es.deusto.weblab.client.lab.ui.widgets.WlVerticalPanel;
-import es.deusto.weblab.client.lab.ui.widgets.WlWaitingLabel;
-import es.deusto.weblab.client.lab.ui.widgets.WlWebcam;
-import es.deusto.weblab.client.lab.ui.widgets.WlTimer.IWlTimerFinishedCallback;
+import es.deusto.weblab.client.ui.widgets.WlTimer;
+import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
+import es.deusto.weblab.client.ui.widgets.WlWebcam;
+import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 
 public class WlDeustoGpibBoard extends BoardBase {
@@ -81,8 +81,8 @@ public class WlDeustoGpibBoard extends BoardBase {
 	private final IConfigurationManager configurationManager;
 	
 	// Widgets
-	private WlVerticalPanel widget;
-	private WlVerticalPanel removableWidgetsPanel;
+	private VerticalPanel widget;
+	private VerticalPanel removableWidgetsPanel;
 	private WlWebcam webcam;
 	private WlTimer timer;
 	private WlWaitingLabel messages;
@@ -111,11 +111,11 @@ public class WlDeustoGpibBoard extends BoardBase {
 		
 		this.configurationManager = configurationManager;
 		
-		this.widget = new WlVerticalPanel();
+		this.widget = new VerticalPanel();
 		this.widget.setWidth("100%");
 		this.widget.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		
-		this.removableWidgetsPanel = new WlVerticalPanel();
+		this.removableWidgetsPanel = new VerticalPanel();
 		this.removableWidgetsPanel.setWidth("100%");
 		this.removableWidgetsPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		this.removableWidgetsPanel.setSpacing(20);
@@ -285,7 +285,7 @@ public class WlDeustoGpibBoard extends BoardBase {
 		
 		popup.setStyleName("results-popup");
 		
-		WlVerticalPanel mainPanel = new WlVerticalPanel();
+		VerticalPanel mainPanel = new VerticalPanel();
 		mainPanel.setWidth("100%");
 		mainPanel.setSpacing(10);
 		
@@ -300,7 +300,7 @@ public class WlDeustoGpibBoard extends BoardBase {
 			textAreaFileResult.setWidth("100%");
 			mainPanel.add(textAreaFileResult);
 		
-			WlVerticalPanel stdoutPanel = new WlVerticalPanel();
+			VerticalPanel stdoutPanel = new VerticalPanel();
 				Label stdoutLabel = new Label("stdout:");
 				stdoutLabel.setStyleName("results-label");
 				stdoutPanel.add(stdoutLabel);
@@ -312,7 +312,7 @@ public class WlDeustoGpibBoard extends BoardBase {
 					stdoutPanel.setWidth("100%");						
 			mainPanel.add(stdoutPanel);
 			
-			WlVerticalPanel stderrPanel = new WlVerticalPanel();
+			VerticalPanel stderrPanel = new VerticalPanel();
 				Label stderrLabel = new Label("stderr:");
 				stderrLabel.setStyleName("results-label");
 				stderrPanel.add(stderrLabel);
@@ -324,7 +324,7 @@ public class WlDeustoGpibBoard extends BoardBase {
 					stderrPanel.setWidth("100%");
 			mainPanel.add(stderrPanel);
 
-			WlHorizontalPanel buttonPanel = new WlHorizontalPanel();
+			HorizontalPanel buttonPanel = new HorizontalPanel();
 			buttonPanel.setSpacing(10);
 			buttonPanel.setSize("100%", "100%");
 			
