@@ -25,6 +25,7 @@ from voodoo.override import Override
 
 CFG_MEASURE_SERVER_ADDRESS = "vt_measure_server_addr"
 CFG_MEASURE_SERVER_TARGET = "vt_measure_server_target"
+CFG_COOKIE = "vt_cookie"
 
 
 
@@ -38,6 +39,7 @@ class VisirTestExperiment(Experiment.Experiment):
     def read_config(self):
         self.measure_server_addr = self._cfg_manager.get_value(CFG_MEASURE_SERVER_ADDRESS)
         self.measure_server_target = self._cfg_manager.get_value(CFG_MEASURE_SERVER_TARGET)
+        self.cookie = self._cfg_manager.get_value(CFG_COOKIE)
 
     @Override(Experiment.Experiment)
     def do_start_experiment(self):
@@ -81,6 +83,10 @@ class VisirTestExperiment(Experiment.Experiment):
     
     def do_send_command_to_device_hc(self, command):
         print "Command: %s" % command
+        
+        if command == 'GIVEMECOOKIE':
+            return self.cookie
+        
         doc = minidom.parseString(command)
         protocol_tag = doc.getElementsByTagName("protocol")
         for tag in protocol_tag[0].childNodes:
