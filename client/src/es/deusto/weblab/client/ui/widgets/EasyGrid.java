@@ -17,7 +17,6 @@ package es.deusto.weblab.client.ui.widgets;
 import java.util.ArrayList;
 
 import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
 
@@ -29,7 +28,6 @@ import com.google.gwt.user.client.ui.Widget;
  * setWidget() is no longer required. Widgets are arranged in the table in order (as they
  * appear in the XML), from left to right and from top to bottom.
  */
-@SuppressWarnings("unused")
 public class EasyGrid extends Grid {
 	
 	/**
