@@ -27,7 +27,21 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 	private final int height;
 	private final String swfFile;
 	private final String flashvars;
+	private final boolean deferred;
 	
+	/**
+	 * Constructs a WeblabFlashAppBasedBoard. The flash applet is placed on the
+	 * website immediately.
+	 * 
+	 * @param configurationManager Reference to the configuration manager.
+	 * @param boardController Reference to the board controller.
+	 * @param swfFile The path to the SWF file, including its name.
+	 * @param width Width of the flash app.
+	 * @param height Height of the flash app.
+	 * @param flashvars String which will be passed to the flash app as its
+	 * flashvars parameters.
+	 * @param message Message to display.
+	 */
 	public WebLabFlashAppBasedBoard(IConfigurationManager configurationManager, IBoardBaseController boardController,
 			String swfFile,
 			int width,
@@ -41,9 +55,47 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 		this.swfFile = GWT.getModuleBaseURL() + swfFile;
 		this.flashvars = flashvars;
 		this.message.setText(message);
+		this.deferred = false;
 		
 		WebLabFlashAppBasedBoard.createJavaScriptCode(this.html.getElement(), this.swfFile, width + 10, height + 10);
 	}
+	
+	
+	/**
+	 * Constructs a WeblabFlashAppBasedBoard. If deferFlashApp is set to true,
+	 * the flash applet is not placed on the website until the experiment is
+	 * started and hence the start() method is called.
+	 * 
+	 * @param configurationManager Reference to the configuration manager.
+	 * @param boardController Reference to the board controller.
+	 * @param swfFile The path to the SWF file, including its name.
+	 * @param width Width of the flash app.
+	 * @param height Height of the flash app.
+	 * @param flashvars String which will be passed to the flash app as its
+	 * flashvars parameters.
+	 * @param message Message to display.
+	 * @param deferFlashApp If true, the flash applet won't be placed until
+	 * the experiment starts.
+	 */
+	public WebLabFlashAppBasedBoard(IConfigurationManager configurationManager, IBoardBaseController boardController,
+			String swfFile,
+			int width,
+			int height, 
+			String flashvars,
+			String message,
+			boolean deferFlashApp
+	) {
+		super(configurationManager, boardController);
+		this.height  = height;
+		this.width   = width;
+		this.swfFile = GWT.getModuleBaseURL() + swfFile;
+		this.flashvars = flashvars;
+		this.message.setText(message);
+		this.deferred = deferFlashApp;
+		
+		WebLabFlashAppBasedBoard.createJavaScriptCode(this.html.getElement(), this.swfFile, width + 10, height + 10);
+	}
+	
 
 	/*
 	 * We must create an iframe and inside this iframe build the flash object because Flash's ExternalInterface
@@ -61,7 +113,9 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 	
 	@Override
 	public void initialize(){
-		WebLabFlashAppBasedBoard.populateIframe(this.swfFile, this.width, this.height, this.flashvars);
+		if(!this.deferred)
+			WebLabFlashAppBasedBoard.populateIframe(this.swfFile, this.width, 
+					this.height, this.flashvars);
 	}
 
 	@Override
@@ -72,6 +126,9 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 
 	@Override
 	public void start() {
+		if(this.deferred)
+			WebLabFlashAppBasedBoard.populateIframe(this.swfFile, this.width, 
+					this.height, this.flashvars);
 		WebLabFlashAppBasedBoard.findFlashReference();
 		AbstractExternalAppBasedBoard.startInteractionImpl();
 	}

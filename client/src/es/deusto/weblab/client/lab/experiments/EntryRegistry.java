@@ -60,7 +60,8 @@ class EntryRegistry {
 		
 		new ExperimentEntry("Dummy experiments", "visirtest", MobileSupport.disabled) {
 			@Override
-			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+			public void createWeb( final IConfigurationManager configurationManager, 
+					final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 				final int width      = 800;
 				final int height     = 500;
 				final String swfFile = "visir/loader.swf";
@@ -69,7 +70,10 @@ class EntryRegistry {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new FlashAppExperimentBase(configurationManager, boardController, width, height, swfFile, "cookie=9b892c8784ea6119939a27b34102b1c14e37c156", message));
+						callback.onExperimentLoaded(new FlashAppExperimentBase(configurationManager, 
+								boardController, width, height, swfFile, 
+								"cookie=9b892c8784ea6119939a27b34102b1c14e37c156",
+								message, true));
 					}
 					
 					@Override
