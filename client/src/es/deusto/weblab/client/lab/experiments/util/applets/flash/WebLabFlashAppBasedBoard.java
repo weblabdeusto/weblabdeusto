@@ -17,6 +17,7 @@ package es.deusto.weblab.client.lab.experiments.util.applets.flash;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Timer;
 
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard;
@@ -126,11 +127,25 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 
 	@Override
 	public void start() {
-		if(this.deferred)
+		if(this.deferred) {
 			WebLabFlashAppBasedBoard.populateIframe(this.swfFile, this.width, 
 					this.height, this.flashvars);
-		WebLabFlashAppBasedBoard.findFlashReference();
-		AbstractExternalAppBasedBoard.startInteractionImpl();
+		
+			Timer t = new Timer() {
+				
+				@Override
+				public void run() {
+					WebLabFlashAppBasedBoard.findFlashReference();
+					AbstractExternalAppBasedBoard.startInteractionImpl();
+				}
+				
+			};
+			
+			t.schedule(10000);
+		} else {
+				WebLabFlashAppBasedBoard.findFlashReference();
+				AbstractExternalAppBasedBoard.startInteractionImpl();
+		}
 	}
 	
 	@Override
