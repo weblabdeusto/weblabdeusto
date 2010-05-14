@@ -24,11 +24,16 @@ import es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppB
 
 public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 
+	public static final int WAIT_AFTER_START = 4000;
+	
 	private final int width;
 	private final int height;
 	private final String swfFile;
 	private final String flashvars;
 	private final boolean deferred;
+	
+	// We need to store the time set when we are in deferred mode.
+	private int timeSet;
 	
 	/**
 	 * Constructs a WeblabFlashAppBasedBoard. The flash applet is placed on the
@@ -121,8 +126,12 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 
 	@Override
 	public void setTime(int time) {
-		WebLabFlashAppBasedBoard.findFlashReference();
-		AbstractExternalAppBasedBoard.setTimeImpl(time);
+		if(!this.deferred) {
+			WebLabFlashAppBasedBoard.findFlashReference();
+			AbstractExternalAppBasedBoard.setTimeImpl(time);
+		} else {
+			this.timeSet = time;
+		}
 	}
 
 	@Override
@@ -137,11 +146,13 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 				public void run() {
 					WebLabFlashAppBasedBoard.findFlashReference();
 					AbstractExternalAppBasedBoard.startInteractionImpl();
+					
+					AbstractExternalAppBasedBoard.setTimeImpl(WebLabFlashAppBasedBoard.this.timeSet);
 				}
 				
 			};
 			
-			t.schedule(10000);
+			t.schedule(WAIT_AFTER_START);
 		} else {
 				WebLabFlashAppBasedBoard.findFlashReference();
 				AbstractExternalAppBasedBoard.startInteractionImpl();
