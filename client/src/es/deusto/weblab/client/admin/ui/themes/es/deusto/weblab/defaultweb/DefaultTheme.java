@@ -22,6 +22,7 @@ import com.google.gwt.user.client.ui.Widget;
 import es.deusto.weblab.client.admin.controller.IWlAdminController;
 import es.deusto.weblab.client.admin.ui.WlAdminThemeBase;
 import es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb.LoginWindow.ILoginWindowCallback;
+import es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb.AdminPanelWindow.IAdminPanelWindowCallback;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.users.User;
 
@@ -37,6 +38,7 @@ public class DefaultTheme extends WlAdminThemeBase {
 	private BaseWindow activeWindow = null; // Pointer to the window being used
 	private final VerticalPanel themePanel;	
 	private LoginWindow loginWindow;
+	private AdminPanelWindow adminPanelWindow;
 	
 	public DefaultTheme(IConfigurationManager configurationManager, IWlAdminController controller) {
 		this.configurationManager = configurationManager;
@@ -66,9 +68,7 @@ public class DefaultTheme extends WlAdminThemeBase {
 		this.user = user;
 		// Feedback...?
 		// TODO: controller.somethingToRetrieveNeededInformation (or just to paint)
-		this.themePanel.add(new Label(this.user.getLogin()));
-		this.themePanel.add(new Label(this.user.getFullName()));
-		this.themePanel.add(new Label(this.user.getEmail()));
+		this.loadAdminPanelWindow();
 	}
 
 	@Override
@@ -113,6 +113,19 @@ public class DefaultTheme extends WlAdminThemeBase {
 		this.activeWindow = this.loginWindow;
 
 		this.themePanel.add(this.loginWindow.getWidget());	    
+	}
+
+	private void loadAdminPanelWindow() {
+		this.clearWindow();
+
+		this.adminPanelWindow = new AdminPanelWindow(this.configurationManager, this.user, new IAdminPanelWindowCallback(){
+			public void onLogoutButtonClicked() {
+				DefaultTheme.this.controller.logout();
+			}
+		});
+		this.activeWindow = this.adminPanelWindow;
+
+		this.themePanel.add(this.adminPanelWindow.getWidget());	    
 	}
 
 	/*
