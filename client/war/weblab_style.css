@@ -14,7 +14,11 @@
 
 
 /************************************************
- * es.deusto.weblab.defaultweb Template
+ *
+ * lab's es.deusto.weblab.defaultweb Template
+ *
+ *
+ *
  */
  
 body
@@ -75,15 +79,6 @@ body
 	margin-right: auto;
 	margin-left: auto;
 	border-spacing: 10px;
-}
-
-.web-login-administration-panel
-{
-	padding-top: 15px;
-	padding-bottom: 10px;
-	text-align: center;
-	font-weight: bold;
-	font-size: 16px;
 }
 
 .web-login-box
@@ -275,4 +270,131 @@ body
 {
     cursor: pointer;
     cursor: hand;
+}
+
+
+
+
+/************************************************
+ *
+ * admin's es.deusto.weblab.defaultweb Template
+ *
+ *
+ *
+ */
+
+.web-admin-error-message
+{
+	color : #FF0000;
+	text-align: center;
+	height: 25px;
+}
+
+.web-admin-waiting-label
+{
+	text-align: center;
+	height: 25px;
+}
+
+/*
+ * Login Window
+ */
+
+.web-admin-login-container
+{
+	margin-right: auto;
+	margin-left: auto;	
+	margin-top: 6%;
+	border-spacing: 30px;
+}
+
+.web-admin-login-logo
+{
+	margin-right: auto;
+	margin-left: auto;	
+}
+
+.web-admin-login-languages
+{
+	margin-right: auto;
+	margin-left: auto;
+	border-spacing: 10px;
+}
+
+.web-admin-login
+{
+	padding-top: 15px;
+	padding-bottom: 10px;
+	text-align: center;
+	font-weight: bold;
+	font-size: 16px;
+}
+
+.web-admin-login-box
+{
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.web-admin-login-form
+{
+	margin-right: auto;
+	margin-left: auto;	
+	border-spacing: 10px;
+}
+
+.web-admin-login-form-fields
+{
+	border-spacing: 5px;
+}
+
+.web-admin-login-form-button
+{
+	margin-right: auto;
+	margin-left: auto;	
+}
+
+.web-admin-login-foot-message
+{
+	margin-right: auto;
+	margin-left: auto;	
+}
+
+/* Logged Windows */
+
+.web-admin-logged-container
+{
+	width: 800px;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.web-admin-logged-header
+{
+	height: 75px;
+	width: 100%;
+}
+
+.web-admin-logged-header-logo
+{
+	width: 100%;
+}
+
+.web-admin-logged-header-profile
+{
+	margin-right: 0px;
+	margin-left: auto;
+	margin-top: 25px;
+	padding-right: 0px;
+	height: 100%;
+	text-align: right !important;
+	display: block;
+	border-spacing: 8px;
+}
+
+.web-admin-logged-content
+{
+	width: 100%;
+	margin-right: auto;
+	margin-left: auto;
 }

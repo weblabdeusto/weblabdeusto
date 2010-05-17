@@ -9,21 +9,21 @@
     	.bold-text { font-weight: bold;  }
     </ui:style>
         
-    <g:VerticalPanel ui:field="containerPanel" styleName="web-login-container">
+    <g:VerticalPanel ui:field="containerPanel" styleName="web-admin-login-container">
     
-    	<g:VerticalPanel styleName="web-login-box">
+    	<g:VerticalPanel styleName="web-admin-login-box">
     
-	    	<g:HorizontalPanel styleName="web-login-logo">
+	    	<g:HorizontalPanel styleName="web-admin-login-logo">
 		   		<g:Image resource='{res.logo}' />
 			</g:HorizontalPanel>
 			
-	   		<g:HorizontalPanel ui:field="langsPanel" spacing="15" styleName="web-login-languages" />		    	
+	   		<g:HorizontalPanel ui:field="langsPanel" spacing="15" styleName="web-admin-login-languages" />		    	
 	    	
-	    	<g:Label text="{i18n.administrationPanel}" styleName="web-login-administration-panel" />
+	    	<g:Label text="{i18n.administrationPanel}" styleName="web-admin-login" />
 	    	
-	    	<g:VerticalPanel styleName="web-login-form">
+	    	<g:VerticalPanel styleName="web-admin-login-form">
 	    	
-		    	<w:EasyGrid ui:field="grid" cols='2' rows='2' styleName="web-login-form-fields">
+		    	<w:EasyGrid ui:field="grid" cols='2' rows='2' styleName="web-admin-login-form-fields">
 		    	
 					<g:Label ui:field="usernameLabel" text="{i18n.username}:"></g:Label>
 					<g:TextBox ui:field="usernameTextbox"></g:TextBox>
@@ -33,14 +33,14 @@
 		    	
 		    	</w:EasyGrid>			    	
 			    	
-			    <g:HorizontalPanel styleName="web-login-form-button">
+			    <g:HorizontalPanel styleName="web-admin-login-form-button">
 					<g:Button ui:field="loginButton" text="{i18n.logIn}" />
 				</g:HorizontalPanel>
 	
 			</g:VerticalPanel>
 			
-			<w:WlWaitingLabel ui:field="waitingLabel" styleName="web-waiting-label"></w:WlWaitingLabel>
-			<g:Label ui:field="generalErrorLabel" styleName="web-error-message"></g:Label>
+			<w:WlWaitingLabel ui:field="waitingLabel" styleName="web-admin-waiting-label"></w:WlWaitingLabel>
+			<g:Label ui:field="generalErrorLabel" styleName="web-admin-error-message"></g:Label>
 		
 		</g:VerticalPanel>
 	

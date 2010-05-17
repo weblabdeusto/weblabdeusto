@@ -5,21 +5,21 @@
     <ui:with field='res' type='es.deusto.weblab.client.ui.Resources'/>
     <ui:with field="i18n" type="es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb.i18n.IWebLabDeustoThemeMessages" />
     
-	<g:VerticalPanel ui:field="containerPanel" styleName="web-logged-container">
+	<g:VerticalPanel ui:field="containerPanel" styleName="web-admin-logged-container">
 
-		<g:HorizontalPanel styleName="web-logged-header">
+		<g:HorizontalPanel styleName="web-admin-logged-header">
 
-			<g:HorizontalPanel styleName="web-logged-header-logo">
+			<g:HorizontalPanel styleName="web-admin-logged-header-logo">
 				
 				<g:Image resource='{res.logo}' />
 			
 			</g:HorizontalPanel>
 			
-			<g:HorizontalPanel styleName="web-logged-header-profile">
+			<g:HorizontalPanel styleName="web-admin-logged-header-profile">
 			
 				<g:Label ui:field="userLabel"></g:Label>
 		
-			 	<g:Label ui:field="separatorLabel" text="|" styleName="web-logged-header-profile-separator"></g:Label>
+			 	<g:Label ui:field="separatorLabel" text="|" styleName="web-admin-logged-header-profile-separator"></g:Label>
 			 	
 			 	<g:Anchor ui:field="logoutLink" text="{i18n.logOut}"></g:Anchor>	
 
@@ -27,18 +27,18 @@
 
 		</g:HorizontalPanel>
 		
-		<g:HorizontalPanel styleName="web-logged-navigation">
+		<g:HorizontalPanel styleName="web-admin-logged-navigation">
 			
 			<g:AbsolutePanel ui:field="navigationPanel"></g:AbsolutePanel>
 		
 		</g:HorizontalPanel>
 		
-		<g:VerticalPanel styleName="web-logged-content">
+		<g:VerticalPanel styleName="web-admin-logged-content">
 			
 			
 			
-			<w:WlWaitingLabel ui:field="waitingLabel" styleName="web-waiting-label"></w:WlWaitingLabel>
-			<g:Label ui:field="generalErrorLabel" styleName="web-error-message"></g:Label>
+			<w:WlWaitingLabel ui:field="waitingLabel" styleName="web-admin-waiting-label"></w:WlWaitingLabel>
+			<g:Label ui:field="generalErrorLabel" styleName="web-admin-error-message"></g:Label>
 	
 		</g:VerticalPanel>
 		
