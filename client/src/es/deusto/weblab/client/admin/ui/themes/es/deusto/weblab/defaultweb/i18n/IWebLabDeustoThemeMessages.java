@@ -39,4 +39,5 @@ public interface IWebLabDeustoThemeMessages extends Messages {
 	public String thisFieldCantBeEmpty(String field);
 	public String administrationPanel();
 	public String logOut();
+	public String accesses();
 }

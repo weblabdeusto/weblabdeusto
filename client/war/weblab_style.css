@@ -392,6 +392,19 @@ body
 	border-spacing: 8px;
 }
 
+.web-admin-logged-menu
+{
+	width: 100%;
+	height: 25px;
+	margin-top: 15px;
+	margin-bottom: 15px;
+}
+
+.web-admin-logged-menu-option
+{
+	font-size: 14px;
+}
+
 .web-admin-logged-content
 {
 	width: 100%;

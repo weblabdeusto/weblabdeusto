@@ -19,6 +19,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -44,6 +45,8 @@ public class AdminPanelWindow extends BaseWindow {
 	@UiField Anchor logoutLink;
 	@UiField WlWaitingLabel waitingLabel;
 	@UiField Label generalErrorLabel;
+	@UiField AbsolutePanel menuPanel;
+	@UiField Label accessesLink; // It'll be an Anchor when more options are added
 
 	// Callbacks
 	private final IAdminPanelWindowCallback callback;

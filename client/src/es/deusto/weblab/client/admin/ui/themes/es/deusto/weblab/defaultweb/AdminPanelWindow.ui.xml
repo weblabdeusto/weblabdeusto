@@ -27,9 +27,11 @@
 
 		</g:HorizontalPanel>
 		
-		<g:HorizontalPanel styleName="web-admin-logged-navigation">
+		<g:HorizontalPanel styleName="web-admin-logged-menu">
 			
-			<g:AbsolutePanel ui:field="navigationPanel"></g:AbsolutePanel>
+			<g:AbsolutePanel ui:field="menuPanel">
+				<g:Label ui:field="accessesLink" text="{i18n.accesses} |" styleName="web-admin-logged-menu-option" />
+			</g:AbsolutePanel>
 		
 		</g:HorizontalPanel>
 		
