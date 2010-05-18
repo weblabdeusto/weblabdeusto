@@ -364,7 +364,7 @@ body
 
 .web-admin-logged-container
 {
-	width: 800px;
+	width: 1024px;
 	margin-right: auto;
 	margin-left: auto;
 }
@@ -412,12 +412,25 @@ body
 	width: 100%;
 	margin-right: auto;
 	margin-left: auto;
-	line-height: 130%;
+	padding: 7px;
 }
 
-.web-admin-logged-accesses-search-from-to
+.web-admin-logged-content-title
+{
+    font-size: 18px;
+    font-weight: bold;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.web-admin-logged-accesses-search-form
 {
 	border-spacing: 10px;
+	border: 1px solid black;
+}
+
+.web-admin-logged-accesses-search-form-item
+{
 }
 
 .gwt-MenuBar-horizontal {

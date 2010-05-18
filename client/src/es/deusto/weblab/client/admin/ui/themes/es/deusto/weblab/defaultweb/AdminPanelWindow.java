@@ -16,17 +16,18 @@ package es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
+import com.google.gwt.user.datepicker.client.DateBox.Format;
 
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.users.User;
@@ -48,12 +49,11 @@ public class AdminPanelWindow extends BaseWindow {
 	@UiField Anchor logoutLink;
 	@UiField WlWaitingLabel waitingLabel;
 	@UiField Label generalErrorLabel;
-	/*
 	@UiField DateBox fromDateBox;
 	@UiField DateBox toDateBox;
 	@UiField ListBox groupConditionListBox;
 	@UiField ListBox experimentConditionListBox;
-	*/
+	@UiField Button searchButton;
 	
 	// Callbacks
 	private final IAdminPanelWindowCallback callback;
@@ -74,19 +74,6 @@ public class AdminPanelWindow extends BaseWindow {
 		AdminPanelWindow.uiBinder.createAndBindUi(this);
 
 		this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
-		/*
-		VerticalPanel vp1 = new VerticalPanel();
-		vp1.add(new Label("perro1"));
-		
-		VerticalPanel vp2 = new VerticalPanel();
-		vp2.add(new Label("gato1"));
-		
-		this.tabPanel.add(vp1, "Perro");
-		this.tabPanel.add(vp2, "Gato");	
-		
-		this.tabPanel.setWidth("450px");
-		this.tabPanel.setHeight("250px");
-		*/
 	}
 
 	@Override

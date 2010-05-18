@@ -29,9 +29,9 @@
 		</g:HorizontalPanel>
 		
 		<g:MenuBar>
-			<g:MenuItem>Accesses
+			<g:MenuItem text="{i18n.accesses}">
 				<g:MenuBar vertical="true">
-					<g:MenuItem>Search</g:MenuItem>
+					<g:MenuItem text="{i18n.search}" />
 					<!--
 					<g:MenuItem>[today]</g:MenuItem>
 					<g:MenuItem>[last week]</g:MenuItem>
@@ -72,6 +72,30 @@
 		
 		<g:VerticalPanel styleName="web-admin-logged-content">
 		
+		    <g:VerticalPanel>
+		    
+		    	<g:Label styleName="web-admin-logged-content-title">Search for users accesses</g:Label>
+		    
+		    	<g:HorizontalPanel styleName="web-admin-logged-accesses-search-form">
+		    	
+		    		<g:Label styleName="web-admin-logged-accesses-search-form-item">From:</g:Label>
+			    	<gd:DateBox ui:field="fromDateBox" styleName="web-admin-logged-accesses-search-form-item"></gd:DateBox>
+			    	
+		    		<g:Label styleName="web-admin-logged-accesses-search-form-item">To:</g:Label>
+			    	<gd:DateBox ui:field="toDateBox" styleName="web-admin-logged-accesses-search-form-item"></gd:DateBox>
+		    	
+		    		<g:ListBox ui:field="groupConditionListBox" styleName="web-admin-logged-accesses-search-form-item" />
+		    	
+		    		<g:ListBox ui:field="experimentConditionListBox" styleName="web-admin-logged-accesses-search-form-item" />
+		    		
+		    		<g:Label styleName="web-admin-logged-accesses-search-form-item">Grouped by:</g:Label>
+		    		<g:ListBox ui:field="groupedByListBox" styleName="web-admin-logged-accesses-search-form-item" />
+		    		
+		    		<g:Button ui:field="searchButton">Search</g:Button>
+		    	
+		    	</g:HorizontalPanel>
+		    	
+			</g:VerticalPanel>		
 
 					
 			<!-- 

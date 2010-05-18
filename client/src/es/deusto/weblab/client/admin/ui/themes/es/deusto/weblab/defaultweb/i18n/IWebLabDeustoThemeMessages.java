@@ -40,4 +40,5 @@ public interface IWebLabDeustoThemeMessages extends Messages {
 	public String administrationPanel();
 	public String logOut();
 	public String accesses();
+	public String search();
 }

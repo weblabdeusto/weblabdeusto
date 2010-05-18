@@ -15,14 +15,13 @@
 package es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb;
 
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.admin.controller.IWlAdminController;
 import es.deusto.weblab.client.admin.ui.WlAdminThemeBase;
-import es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb.LoginWindow.ILoginWindowCallback;
 import es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb.AdminPanelWindow.IAdminPanelWindowCallback;
+import es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb.LoginWindow.ILoginWindowCallback;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.users.User;
 
