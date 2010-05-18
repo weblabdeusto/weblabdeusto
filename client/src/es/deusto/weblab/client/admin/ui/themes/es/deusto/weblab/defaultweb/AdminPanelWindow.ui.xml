@@ -1,5 +1,6 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
     xmlns:g='urn:import:com.google.gwt.user.client.ui'
+    xmlns:gd="urn:import:com.google.gwt.user.datepicker.client"
     xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
     
     <ui:with field='res' type='es.deusto.weblab.client.ui.Resources'/>
@@ -27,18 +28,96 @@
 
 		</g:HorizontalPanel>
 		
-		<g:HorizontalPanel styleName="web-admin-logged-menu">
-			
-			<g:AbsolutePanel ui:field="menuPanel">
-				<g:Label ui:field="accessesLink" text="{i18n.accesses} |" styleName="web-admin-logged-menu-option" />
-			</g:AbsolutePanel>
-		
-		</g:HorizontalPanel>
+		<g:MenuBar>
+			<g:MenuItem>Accesses
+				<g:MenuBar vertical="true">
+					<g:MenuItem>Search</g:MenuItem>
+					<!--
+					<g:MenuItem>[today]</g:MenuItem>
+					<g:MenuItem>[last week]</g:MenuItem>
+					<g:MenuItem>[last month]</g:MenuItem>
+					<g:MenuItem>[all]</g:MenuItem>
+					-->
+				</g:MenuBar>
+			</g:MenuItem>
+			<!-- 
+			<g:MenuItem>Users
+				<g:MenuBar vertical="true">
+					<g:MenuItem>Users</g:MenuItem>
+					<g:MenuItem>External Entities</g:MenuItem>
+					<g:MenuItem>Groups</g:MenuItem>
+					<g:MenuItem>Roles</g:MenuItem>
+					<g:MenuItem>Authentication</g:MenuItem>
+				</g:MenuBar>
+			</g:MenuItem>
+			<g:MenuItem>Configuration
+				<g:MenuBar vertical="true">
+					<g:MenuItem>Deployment</g:MenuItem>
+				</g:MenuBar>
+			</g:MenuItem>
+			<g:MenuItem>Status
+				<g:MenuBar vertical="true">
+					<g:MenuItem>Connections</g:MenuItem>
+					<g:MenuItem>Queues</g:MenuItem>
+				</g:MenuBar>
+			</g:MenuItem>
+			<g:MenuItem>Tools
+				<g:MenuBar vertical="true">
+					<g:MenuItem>Notifier</g:MenuItem>
+					<g:MenuItem>Backup</g:MenuItem>
+				</g:MenuBar>
+			</g:MenuItem>
+			-->
+		</g:MenuBar>		
 		
 		<g:VerticalPanel styleName="web-admin-logged-content">
-			
-			
-			
+		
+
+					
+			<!-- 
+			<g:TabLayoutPanel barUnit='EM' barHeight='1.5' width="800px" height="600px">
+				  <g:tab>
+					    <g:header>Search</g:header>
+
+					    <g:VerticalPanel>
+					    
+					    	<g:HorizontalPanel styleName="web-admin-logged-accesses-search-from-to">
+					    	
+					    		<g:Label>From:</g:Label>
+						    	<gd:DateBox ui:field="fromDateBox"></gd:DateBox>
+						    	
+					    		<g:Label>To:</g:Label>
+						    	<gd:DateBox ui:field="toDateBox"></gd:DateBox>
+					    	
+					    	</g:HorizontalPanel>
+					    
+					    	<g:Label>List all the uses that match the following criteria:</g:Label>
+					    	
+					    	<g:HorizontalPanel>
+					    	
+					    		<g:Label>Group:</g:Label>
+					    		<g:ListBox ui:field="groupConditionListBox"></g:ListBox>
+					    	
+					    	</g:HorizontalPanel>
+					    	
+					    	<g:HorizontalPanel>
+					    	
+					    		<g:Label>Experiment:</g:Label>
+					    		<g:ListBox ui:field="experimentConditionListBox"></g:ListBox>
+					    	
+					    	</g:HorizontalPanel>
+					    	
+					    	<g:HorizontalPanel>
+					    	
+					    		<g:Label>Use Time:</g:Label>
+					    	
+					    	</g:HorizontalPanel>
+					    							
+						</g:VerticalPanel>
+				  </g:tab>
+			 </g:TabLayoutPanel>
+ 			-->
+ 			
 			<w:WlWaitingLabel ui:field="waitingLabel" styleName="web-admin-waiting-label"></w:WlWaitingLabel>
 			<g:Label ui:field="generalErrorLabel" styleName="web-admin-error-message"></g:Label>
 	

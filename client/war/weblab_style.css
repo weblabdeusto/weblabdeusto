@@ -398,6 +398,8 @@ body
 	height: 25px;
 	margin-top: 15px;
 	margin-bottom: 15px;
+	border: 1px solid black;
+	padding: 8px;
 }
 
 .web-admin-logged-menu-option
@@ -410,4 +412,20 @@ body
 	width: 100%;
 	margin-right: auto;
 	margin-left: auto;
+	line-height: 130%;
+}
+
+.web-admin-logged-accesses-search-from-to
+{
+	border-spacing: 10px;
+}
+
+.gwt-MenuBar-horizontal {
+	margin-top: 12px;
+	padding: 5px;
+}
+
+.gwt-MenuBar-horizontal .gwt-MenuItem {
+	font-size: 14px;
+	font-weight: normal;
 }
