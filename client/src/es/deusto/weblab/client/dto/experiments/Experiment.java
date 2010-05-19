@@ -62,4 +62,8 @@ public class Experiment{
 	public void setStartDate(Date startDate) {
 		this.startDate = startDate;
 	}
+	
+	public String getUniqueName() {
+		return this.name + "@" + this.category.getCategory();
+	}
 }

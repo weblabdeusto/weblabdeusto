@@ -16,6 +16,8 @@ package es.deusto.weblab.client.admin.controller;
 
 import es.deusto.weblab.client.admin.ui.WlAdminThemeBase;
 import es.deusto.weblab.client.dto.SessionID;
+import es.deusto.weblab.client.dto.experiments.Experiment;
+import es.deusto.weblab.client.dto.users.Group;
 
 public interface IWlAdminController {
 	
@@ -24,4 +26,6 @@ public interface IWlAdminController {
 	void logout();
 
 	void setUIManager(WlAdminThemeBase theme);
+	Experiment[] getExperiments();
+	Group[] getGroups();
 }

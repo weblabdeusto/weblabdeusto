@@ -23,6 +23,8 @@ import es.deusto.weblab.client.admin.ui.WlAdminThemeBase;
 import es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb.AdminPanelWindow.IAdminPanelWindowCallback;
 import es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb.LoginWindow.ILoginWindowCallback;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.dto.experiments.Experiment;
+import es.deusto.weblab.client.dto.users.Group;
 import es.deusto.weblab.client.dto.users.User;
 
 public class DefaultTheme extends WlAdminThemeBase {
@@ -118,8 +120,19 @@ public class DefaultTheme extends WlAdminThemeBase {
 		this.clearWindow();
 
 		this.adminPanelWindow = new AdminPanelWindow(this.configurationManager, this.user, new IAdminPanelWindowCallback(){
+			@Override
 			public void onLogoutButtonClicked() {
 				DefaultTheme.this.controller.logout();
+			}
+
+			@Override
+			public Experiment[] getExperiments() {
+				return DefaultTheme.this.controller.getExperiments();
+			}
+
+			@Override
+			public Group[] getGroups() {
+				return DefaultTheme.this.controller.getGroups();
 			}
 		});
 		this.activeWindow = this.adminPanelWindow;

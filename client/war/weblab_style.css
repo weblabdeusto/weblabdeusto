@@ -426,11 +426,7 @@ body
 .web-admin-logged-accesses-search-form
 {
 	border-spacing: 10px;
-	border: 1px solid black;
-}
-
-.web-admin-logged-accesses-search-form-item
-{
+	vertical-align: bottom;
 }
 
 .gwt-MenuBar-horizontal {

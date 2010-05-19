@@ -16,7 +16,6 @@ package es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -27,9 +26,10 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
-import com.google.gwt.user.datepicker.client.DateBox.Format;
 
 import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.dto.experiments.Experiment;
+import es.deusto.weblab.client.dto.users.Group;
 import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.ui.widgets.WlUtil;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
@@ -41,6 +41,8 @@ public class AdminPanelWindow extends BaseWindow {
 
 	public interface IAdminPanelWindowCallback {
 		public void onLogoutButtonClicked();
+		public Group[] getGroups();
+		public Experiment[] getExperiments();
 	}	
 	
 	// Widgets
@@ -53,6 +55,7 @@ public class AdminPanelWindow extends BaseWindow {
 	@UiField DateBox toDateBox;
 	@UiField ListBox groupConditionListBox;
 	@UiField ListBox experimentConditionListBox;
+	@UiField ListBox groupedByListBox;
 	@UiField Button searchButton;
 	
 	// Callbacks
@@ -67,13 +70,30 @@ public class AdminPanelWindow extends BaseWindow {
 	    this.user = user;
 	    this.callback = callback;
 	    
-	    this.loadWidgets();	    
+	    this.loadWidgets();
 	}	
 	
 	private void loadWidgets() {
 		AdminPanelWindow.uiBinder.createAndBindUi(this);
 
 		this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
+		
+		Group[] groups = this.callback.getGroups();
+		this.groupConditionListBox.addItem("(any)"); // #i18n
+		for ( Group group: groups ) {
+			this.groupConditionListBox.addItem(group.getFullName());
+		}
+		
+		Experiment[] experiments = this.callback.getExperiments();
+		this.experimentConditionListBox.addItem("(any)"); // #i18n
+		for ( Experiment experiment: experiments ) {
+			this.experimentConditionListBox.addItem(experiment.getUniqueName());
+		}
+		
+		this.groupedByListBox.addItem("(don't group)");
+		this.groupedByListBox.addItem("User");
+		this.groupedByListBox.addItem("Group");
+		this.groupedByListBox.addItem("Experiment");
 	}
 
 	@Override

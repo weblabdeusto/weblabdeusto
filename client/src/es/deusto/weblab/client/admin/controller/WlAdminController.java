@@ -14,6 +14,8 @@
 
 package es.deusto.weblab.client.admin.controller;
 
+import java.util.Date;
+
 import es.deusto.weblab.client.admin.comm.IWlAdminCommunication;
 import es.deusto.weblab.client.admin.ui.IUIManager;
 import es.deusto.weblab.client.admin.ui.WlAdminThemeBase;
@@ -25,6 +27,9 @@ import es.deusto.weblab.client.comm.exceptions.login.LoginException;
 import es.deusto.weblab.client.configuration.ConfigurationManager;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
+import es.deusto.weblab.client.dto.experiments.Category;
+import es.deusto.weblab.client.dto.experiments.Experiment;
+import es.deusto.weblab.client.dto.users.Group;
 import es.deusto.weblab.client.dto.users.User;
 
 public class WlAdminController implements IWlAdminController {
@@ -91,5 +96,25 @@ public class WlAdminController implements IWlAdminController {
 				WlAdminController.this.uimanager.onError(e.getMessage());
 			}
 		});			
+	}
+
+	@Override
+	public Experiment[] getExperiments() {
+		// Temporal Fake
+		Experiment[] experiments = new Experiment[3];
+		experiments[0] = new Experiment("ud-fpga", new Category("FPGA experiments"), new Date(), new Date());
+		experiments[1] = new Experiment("ud-pld", new Category("PLD experiments"), new Date(), new Date());
+		experiments[2] = new Experiment("ud-logic", new Category("PIC experiments"), new Date(), new Date());
+		return experiments;
+	}
+
+	@Override
+	public Group[] getGroups() {
+		// Temporal Fake
+		Group[] groups = new Group[3];
+		groups[0] = new Group("Course 2009/10", null);
+		groups[1] = new Group("Telecomunications", groups[0]);
+		groups[2] = new Group("Mechatronics", groups[0]);
+		return groups;
 	}
 }
