@@ -18,7 +18,15 @@ public class User {
 	private String fullName;
 	private String email;
 	private Role role;
-
+	
+	public User(String login, String fullName, String email, Role role) {
+		super();
+		this.login = login;
+		this.fullName = fullName;
+		this.email = email;
+		this.role = role;
+	}
+		
 	public String getLogin() {
 		return this.login;
 	}

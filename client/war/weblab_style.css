@@ -429,6 +429,26 @@ body
 	vertical-align: bottom;
 }
 
+.web-admin-logged-accesses-grid
+{
+	width: 100%;
+	padding-top: 10px;
+	border-spacing: 10px;
+}
+
+.web-admin-logged-accesses-grid-header
+{
+	font-weight: bold;
+	border-bottom: 1px solid black;
+}
+
+.web-admin-logged-accesses-download
+{
+	margin-right: 0;
+	margin-left: auto;
+	padding-top: 15px;
+}
+
 .gwt-MenuBar-horizontal {
 	margin-top: 12px;
 	padding: 5px;

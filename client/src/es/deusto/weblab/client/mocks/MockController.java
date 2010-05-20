@@ -43,28 +43,14 @@ public class MockController implements IWlLabController {
 
 	@Override
 	public void login(String username, String password) {
-		final User user = new User();
-		user.setLogin(username);
-		user.setEmail("weblab@deusto.es");
-		user.setFullName(username + "full name");
-		final Role role = new Role();
-		role.setName("student");
-		user.setRole(role);
-		
+		final User user = new User(username, username + "full name", "weblab@deusto.es", new Role("student"));
 		this.uimanager.onLoggedIn(user);
 	}
 
 	@Override
 	public void startLoggedIn(SessionID sessionId) {
-		final User user = new User();
-		user.setLogin("tester");
-		user.setEmail("weblab@deusto.es");
-		user.setFullName("tester full name");
-		final Role role = new Role();
-		role.setName("student");
-		user.setRole(role);
-		
-	    	this.uimanager.onLoggedIn(user);
+		final User user = new User("tester", "tester full name", "weblab@deusto.es", new Role("student"));
+	    this.uimanager.onLoggedIn(user);
 	}
 
 	@Override

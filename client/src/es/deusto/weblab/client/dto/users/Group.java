@@ -36,7 +36,7 @@ public class Group {
 	public void setParent(Group parent) {
 		this.parent = parent;
 	}
-	
+
 	public String getFullName() {
 		if ( this.parent == null ) {
 			return this.name;

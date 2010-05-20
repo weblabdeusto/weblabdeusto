@@ -16,7 +16,12 @@ package es.deusto.weblab.client.dto.users;
 
 public class Role {
 	private String name;
-
+	
+	public Role(String name) {
+		super();
+		this.name = name;
+	}
+		
 	public String getName() {
 		return this.name;
 	}

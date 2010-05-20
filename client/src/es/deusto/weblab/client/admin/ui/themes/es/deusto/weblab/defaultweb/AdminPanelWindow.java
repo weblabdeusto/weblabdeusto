@@ -14,6 +14,9 @@
 
 package es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb;
 
+import java.util.ArrayList;
+import java.util.Date;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -29,8 +32,10 @@ import com.google.gwt.user.datepicker.client.DateBox;
 
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.Experiment;
+import es.deusto.weblab.client.dto.experiments.ExperimentUse;
 import es.deusto.weblab.client.dto.users.Group;
 import es.deusto.weblab.client.dto.users.User;
+import es.deusto.weblab.client.ui.widgets.EasyGrid;
 import es.deusto.weblab.client.ui.widgets.WlUtil;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
@@ -41,8 +46,9 @@ public class AdminPanelWindow extends BaseWindow {
 
 	public interface IAdminPanelWindowCallback {
 		public void onLogoutButtonClicked();
-		public Group[] getGroups();
-		public Experiment[] getExperiments();
+		public ArrayList<Group> getGroups();
+		public ArrayList<Experiment> getExperiments();
+		public ArrayList<ExperimentUse> onSearchButtonClicked(Date fromDate, Date toDate, Group group, Experiment experiment);
 	}	
 	
 	// Widgets
@@ -57,12 +63,16 @@ public class AdminPanelWindow extends BaseWindow {
 	@UiField ListBox experimentConditionListBox;
 	@UiField ListBox groupedByListBox;
 	@UiField Button searchButton;
+	@UiField EasyGrid accessesGrid;
 	
 	// Callbacks
 	private final IAdminPanelWindowCallback callback;
 	
 	// DTOs
 	private final User user;
+	private ArrayList<Group> groups;
+	private ArrayList<Experiment> experiments;
+	private ArrayList<ExperimentUse> accesses;
 
 	public AdminPanelWindow(IConfigurationManager configurationManager, User user, IAdminPanelWindowCallback callback) {
 	    super(configurationManager);
@@ -78,15 +88,15 @@ public class AdminPanelWindow extends BaseWindow {
 
 		this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
 		
-		Group[] groups = this.callback.getGroups();
+		this.groups = this.callback.getGroups();
 		this.groupConditionListBox.addItem("(any)"); // #i18n
-		for ( Group group: groups ) {
-			this.groupConditionListBox.addItem(group.getFullName());
+		for ( Group group: this.groups ) {
+			this.groupConditionListBox.addItem(group.getFullName() );
 		}
 		
-		Experiment[] experiments = this.callback.getExperiments();
+		this.experiments = this.callback.getExperiments();
 		this.experimentConditionListBox.addItem("(any)"); // #i18n
-		for ( Experiment experiment: experiments ) {
+		for ( Experiment experiment: this.experiments ) {
 			this.experimentConditionListBox.addItem(experiment.getUniqueName());
 		}
 		
@@ -117,4 +127,39 @@ public class AdminPanelWindow extends BaseWindow {
 	void onLogoutClicked(@SuppressWarnings("unused") ClickEvent ev) {
 		this.callback.onLogoutButtonClicked();
 	}
+    
+    @UiHandler("searchButton")
+    void onSearchButtonClicked(@SuppressWarnings("unused") ClickEvent ev) {
+    	Date fromDate = this.fromDateBox.getDatePicker().getValue();
+    	
+    	Date toDate = this.toDateBox.getDatePicker().getValue();
+    	
+    	int groupIndex = this.groupConditionListBox.getSelectedIndex();
+    	Group group;
+    	if ( groupIndex == 0 ) {
+    		group = null;
+    	} else {
+    		group = this.groups.get(groupIndex-1);
+    	}
+
+    	int experimentIndex = this.experimentConditionListBox.getSelectedIndex();
+    	Experiment experiment;
+    	if ( experimentIndex == 0 ) {
+    		experiment = null;
+    	} else {
+    		experiment = this.experiments.get(experimentIndex-1);
+    	}
+    	
+    	this.accesses = this.callback.onSearchButtonClicked(fromDate, toDate, group, experiment);
+    	this.accessesGrid.clear();
+    	for ( ExperimentUse eu: this.accesses ) {
+    		this.accessesGrid.add(new Label(eu.getStartTimestamp().toString()));
+    		this.accessesGrid.add(new Label(eu.getEndTimestamp().toString()));
+    		this.accessesGrid.add(new Label(eu.getUser().getLogin()));
+    		this.accessesGrid.add(new Label(eu.getUser().getFullName()));
+    		this.accessesGrid.add(new Label(eu.getExperiment().getUniqueName()));
+    	}
+    	this.accessesGrid.setRows(this.accesses.size()+1);
+    	this.accessesGrid.setCols(5);
+    }
 }

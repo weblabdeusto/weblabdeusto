@@ -98,15 +98,9 @@ public abstract class WlCommonSerializerJSON implements IWlCommonSerializer {
 	    	throw new SerializationException("Expected JSON Object as Role, found: " + roleValue);
 	    final String role_name = this.json2string(jsonRole.get("name"));
 		
-	    final Role role = new Role();
-	    role.setName(role_name);
+	    final Role role = new Role(role_name);
 	    
-		final User user = new User();
-		user.setLogin(login);
-		user.setFullName(fullName);
-		user.setEmail(email);
-		user.setRole(role);
-		return user;
+		return new User(login, fullName, email, role);
 	}    
 
     public String serializeGetUserInformationRequest(SessionID sessionId) throws SerializationException {

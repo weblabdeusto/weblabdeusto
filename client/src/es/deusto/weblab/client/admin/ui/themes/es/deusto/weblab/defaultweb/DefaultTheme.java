@@ -14,6 +14,9 @@
 
 package es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb;
 
+import java.util.ArrayList;
+import java.util.Date;
+
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -24,6 +27,7 @@ import es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb.Admin
 import es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb.LoginWindow.ILoginWindowCallback;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.Experiment;
+import es.deusto.weblab.client.dto.experiments.ExperimentUse;
 import es.deusto.weblab.client.dto.users.Group;
 import es.deusto.weblab.client.dto.users.User;
 
@@ -126,13 +130,18 @@ public class DefaultTheme extends WlAdminThemeBase {
 			}
 
 			@Override
-			public Experiment[] getExperiments() {
+			public ArrayList<Experiment> getExperiments() {
 				return DefaultTheme.this.controller.getExperiments();
 			}
 
 			@Override
-			public Group[] getGroups() {
+			public ArrayList<Group> getGroups() {
 				return DefaultTheme.this.controller.getGroups();
+			}
+
+			@Override
+			public ArrayList<ExperimentUse> onSearchButtonClicked(Date fromDate, Date toDate, Group group, Experiment experiment) {
+				return DefaultTheme.this.controller.getUses(fromDate, toDate, group, experiment);
 			}
 		});
 		this.activeWindow = this.adminPanelWindow;

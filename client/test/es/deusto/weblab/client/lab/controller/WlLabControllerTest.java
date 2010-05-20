@@ -85,13 +85,7 @@ public class WlLabControllerTest  extends GWTTestCase{
 	}
 	
 	public void testLoginSucceeded() throws Exception{
-		final User user = new User();
-		user.setFullName("Pablo Orduña Fernández");
-		user.setLogin("porduna");
-		user.setEmail("porduna@tecnologico.deusto.es");
-		final Role role = new Role();
-		role.setName("student");
-		user.setRole(role);
+		final User user = new User("porduna", "Pablo Orduña Fernández", "porduna@tecnologico.deusto.es", new Role("student"));
 
 		final WlLabController controller = this.createController();
 		
@@ -356,13 +350,7 @@ public class WlLabControllerTest  extends GWTTestCase{
 		Methods m;
 		List<Methods> v;
 		
-		final User user = new User();
-		user.setFullName("Pablo Orduña Fernández");
-		user.setLogin("porduna");
-		user.setEmail("porduna@tecnologico.deusto.es");
-		final Role role = new Role();
-		role.setName("student");
-		user.setRole(role);
+		final User user = new User("porduna", "Pablo Orduña Fernández", "porduna@tecnologico.deusto.es", new Role("student"));
 		
 		// Data creation
 		final SessionID sessionID = new SessionID("something");

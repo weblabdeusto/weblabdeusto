@@ -261,13 +261,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 		
 		final String SERIALIZED_MESSAGE = "serialized get reservation status request";
 		final String ERROR_MESSAGE = "whatever the error message";
-		final User user = new User();
-		user.setEmail("porduna@tecnologico.deusto.es");
-		user.setFullName("Pablo Orduña");
-		user.setLogin("porduna");
-		final Role role = new Role();
-		role.setName("student");
-		user.setRole(role);
+		final User user = new User("porduna", "Pablo Orduña", "porduna@tecnologico.deusto.es", new Role("student"));
 		
 		weblabSerializer.appendReturn(
 					FakeWlCommonSerializer.PARSE_GET_USER_INFORMATION_RESPONSE, 

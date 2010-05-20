@@ -14,6 +14,7 @@
 
 package es.deusto.weblab.client.admin.controller;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 import es.deusto.weblab.client.admin.comm.IWlAdminCommunication;
@@ -29,7 +30,9 @@ import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Category;
 import es.deusto.weblab.client.dto.experiments.Experiment;
+import es.deusto.weblab.client.dto.experiments.ExperimentUse;
 import es.deusto.weblab.client.dto.users.Group;
+import es.deusto.weblab.client.dto.users.Role;
 import es.deusto.weblab.client.dto.users.User;
 
 public class WlAdminController implements IWlAdminController {
@@ -99,22 +102,44 @@ public class WlAdminController implements IWlAdminController {
 	}
 
 	@Override
-	public Experiment[] getExperiments() {
+	public ArrayList<Experiment> getExperiments() {
 		// Temporal Fake
-		Experiment[] experiments = new Experiment[3];
-		experiments[0] = new Experiment("ud-fpga", new Category("FPGA experiments"), new Date(), new Date());
-		experiments[1] = new Experiment("ud-pld", new Category("PLD experiments"), new Date(), new Date());
-		experiments[2] = new Experiment("ud-logic", new Category("PIC experiments"), new Date(), new Date());
+		ArrayList<Experiment> experiments = new ArrayList<Experiment>();
+		experiments.add(new Experiment("ud-fpga", new Category("FPGA experiments"), new Date(), new Date()));
+		experiments.add(new Experiment("ud-pld", new Category("PLD experiments"), new Date(), new Date()));
+		experiments.add(new Experiment("ud-logic", new Category("PIC experiments"), new Date(), new Date()));
 		return experiments;
 	}
 
 	@Override
-	public Group[] getGroups() {
+	public ArrayList<Group> getGroups() {
 		// Temporal Fake
-		Group[] groups = new Group[3];
-		groups[0] = new Group("Course 2009/10", null);
-		groups[1] = new Group("Telecomunications", groups[0]);
-		groups[2] = new Group("Mechatronics", groups[0]);
+		ArrayList<Group> groups = new ArrayList<Group>();
+		groups.add(new Group("Course 2009/10", null));
+		groups.add(new Group("Telecomunications", groups.get(0)));
+		groups.add(new Group("Mechatronics", groups.get(0)));
 		return groups;
+	}
+
+	@Override
+	public ArrayList<ExperimentUse> getUses(Date fromDate, Date toDate, Group group, Experiment experiment) {
+		// Temporal Fake
+		ArrayList<ExperimentUse> experimentUses = new ArrayList<ExperimentUse>();
+		experimentUses.add(new ExperimentUse(
+				new User("jaime.irurzun", "Jaime Irurzun", "jaime.irurzun@opendeusto.es", new Role("student")),
+				new Experiment("ud-fpga", new Category("FPGA experiments"), new Date(), new Date()),
+				new Date(), new Date()
+		));
+		experimentUses.add(new ExperimentUse(
+				new User("pablo.orduna", "Pablo Orduña", "pablo.ordunya@opendeusto.es", new Role("student")),
+				new Experiment("ud-fpga", new Category("FPGA experiments"), new Date(), new Date()),
+				new Date(), new Date()
+		));
+		experimentUses.add(new ExperimentUse(
+				new User("jaime.irurzun", "Jaime Irurzun", "jaime.irurzun@opendeusto.es", new Role("student")),
+				new Experiment("ud-pld", new Category("PLD experiments"), new Date(), new Date()),
+				new Date(), new Date()
+		));
+		return experimentUses;
 	}
 }
