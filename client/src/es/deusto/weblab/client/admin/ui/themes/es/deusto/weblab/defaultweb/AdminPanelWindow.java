@@ -19,6 +19,7 @@ import java.util.Date;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -29,6 +30,8 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
+import com.google.gwt.user.datepicker.client.DateBox.DefaultFormat;
+import com.google.gwt.user.datepicker.client.DateBox.Format;
 
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.Experiment;
@@ -88,6 +91,9 @@ public class AdminPanelWindow extends BaseWindow {
 
 		this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
 		
+		this.fromDateBox.setFormat(new DefaultFormat(DateTimeFormat.getMediumDateFormat()));
+		this.toDateBox.setFormat(new DefaultFormat(DateTimeFormat.getMediumDateFormat()));
+		
 		this.groups = this.callback.getGroups();
 		this.groupConditionListBox.addItem("(any)"); // #i18n
 		for ( Group group: this.groups ) {
@@ -130,9 +136,9 @@ public class AdminPanelWindow extends BaseWindow {
     
     @UiHandler("searchButton")
     void onSearchButtonClicked(@SuppressWarnings("unused") ClickEvent ev) {
-    	Date fromDate = this.fromDateBox.getDatePicker().getValue();
+    	Date fromDate = this.fromDateBox.getValue();
     	
-    	Date toDate = this.toDateBox.getDatePicker().getValue();
+    	Date toDate = this.toDateBox.getValue();
     	
     	int groupIndex = this.groupConditionListBox.getSelectedIndex();
     	Group group;
@@ -150,15 +156,20 @@ public class AdminPanelWindow extends BaseWindow {
     		experiment = this.experiments.get(experimentIndex-1);
     	}
     	
+    	this.showMessage("fromDate="+fromDate+", toDate="+toDate);
+    	
     	this.accesses = this.callback.onSearchButtonClicked(fromDate, toDate, group, experiment);
     	this.accessesGrid.clear();
+    	String debug = "";
     	for ( ExperimentUse eu: this.accesses ) {
-    		this.accessesGrid.add(new Label(eu.getStartTimestamp().toString()));
-    		this.accessesGrid.add(new Label(eu.getEndTimestamp().toString()));
+    		this.accessesGrid.add(new Label(DateTimeFormat.getMediumDateTimeFormat().format(eu.getStartTimestamp())));
+    		this.accessesGrid.add(new Label((eu.getEndTimestamp().getTime()-eu.getStartTimestamp().getTime())/1000 + ""));
     		this.accessesGrid.add(new Label(eu.getUser().getLogin()));
     		this.accessesGrid.add(new Label(eu.getUser().getFullName()));
     		this.accessesGrid.add(new Label(eu.getExperiment().getUniqueName()));
+    		debug += "["+eu.getStartTimestamp()+","+eu.getEndTimestamp()+"], ";
     	}
+    	this.showError(debug);
     	this.accessesGrid.setRows(this.accesses.size()+1);
     	this.accessesGrid.setCols(5);
     }

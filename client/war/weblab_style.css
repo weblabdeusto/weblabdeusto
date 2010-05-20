@@ -427,6 +427,7 @@ body
 {
 	border-spacing: 10px;
 	vertical-align: bottom;
+	background-color: #eef1f6;
 }
 
 .web-admin-logged-accesses-grid
@@ -439,7 +440,10 @@ body
 .web-admin-logged-accesses-grid-header
 {
 	font-weight: bold;
+	border-top: 1px solid black;
 	border-bottom: 1px solid black;
+	padding-top: 2px;
+	padding-bottom: 2px;
 }
 
 .web-admin-logged-accesses-download

@@ -124,22 +124,48 @@ public class WlAdminController implements IWlAdminController {
 	@Override
 	public ArrayList<ExperimentUse> getUses(Date fromDate, Date toDate, Group group, Experiment experiment) {
 		// Temporal Fake
-		ArrayList<ExperimentUse> experimentUses = new ArrayList<ExperimentUse>();
-		experimentUses.add(new ExperimentUse(
+		ArrayList<ExperimentUse> allExperimentUses = new ArrayList<ExperimentUse>();
+		Date now = new Date();
+		allExperimentUses.add(new ExperimentUse(
 				new User("jaime.irurzun", "Jaime Irurzun", "jaime.irurzun@opendeusto.es", new Role("student")),
 				new Experiment("ud-fpga", new Category("FPGA experiments"), new Date(), new Date()),
-				new Date(), new Date()
+				new Date(now.getTime()-(86400000*3)), new Date(now.getTime()-(86400000*3)+32000)
 		));
-		experimentUses.add(new ExperimentUse(
+		allExperimentUses.add(new ExperimentUse(
 				new User("pablo.orduna", "Pablo Orduña", "pablo.ordunya@opendeusto.es", new Role("student")),
 				new Experiment("ud-fpga", new Category("FPGA experiments"), new Date(), new Date()),
-				new Date(), new Date()
+				new Date(now.getTime()-(86400000*2)), new Date(now.getTime()-(86400000*2)+15000)
 		));
-		experimentUses.add(new ExperimentUse(
+		allExperimentUses.add(new ExperimentUse(
 				new User("jaime.irurzun", "Jaime Irurzun", "jaime.irurzun@opendeusto.es", new Role("student")),
 				new Experiment("ud-pld", new Category("PLD experiments"), new Date(), new Date()),
-				new Date(), new Date()
+				new Date(now.getTime()-25000), new Date(now.getTime())
 		));
+		
+		ArrayList<ExperimentUse> experimentUses = new ArrayList<ExperimentUse>();
+		
+		if ( fromDate != null && toDate != null ) {
+			for ( ExperimentUse eu: allExperimentUses ) {
+				if ( eu.getStartTimestamp().after(fromDate) && eu.getStartTimestamp().before(toDate) ) {
+					experimentUses.add(eu);
+				}
+			}
+		} else if ( fromDate == null && toDate == null ) {
+			experimentUses.addAll(allExperimentUses);
+		} else if ( fromDate == null ) {
+			for ( ExperimentUse eu: allExperimentUses ) {
+				if ( eu.getStartTimestamp().before(toDate) ) {
+					experimentUses.add(eu);
+				}
+			}			
+		} else if ( toDate == null ) {
+			for ( ExperimentUse eu: allExperimentUses ) {
+				if ( eu.getStartTimestamp().after(fromDate) ) {
+					experimentUses.add(eu);
+				}
+			}			
+		}
+		
 		return experimentUses;
 	}
 }
