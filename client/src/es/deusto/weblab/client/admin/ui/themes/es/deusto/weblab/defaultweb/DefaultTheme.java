@@ -141,7 +141,7 @@ public class DefaultTheme extends WlAdminThemeBase {
 
 			@Override
 			public ArrayList<ExperimentUse> onSearchButtonClicked(Date fromDate, Date toDate, Group group, Experiment experiment) {
-				return DefaultTheme.this.controller.getUses(fromDate, toDate, group, experiment);
+				return DefaultTheme.this.controller.getExperimentUses(fromDate, toDate, group, experiment);
 			}
 		});
 		this.activeWindow = this.adminPanelWindow;

@@ -121,7 +121,7 @@
 		    	
 		    	</g:HorizontalPanel>
 		    	
-				<w:EasyGrid ui:field="accessesGrid" rows="1" cols="7" styleName="web-admin-logged-accesses-grid">
+				<w:EasyGrid ui:field="experimentUsesGrid" rows="1" cols="7" styleName="web-admin-logged-accesses-grid">
 					<g:Label styleName="web-admin-logged-accesses-grid-header">Started</g:Label>
 					<g:Label styleName="web-admin-logged-accesses-grid-header">Time</g:Label>
 					<g:Label styleName="web-admin-logged-accesses-grid-header">Username</g:Label>

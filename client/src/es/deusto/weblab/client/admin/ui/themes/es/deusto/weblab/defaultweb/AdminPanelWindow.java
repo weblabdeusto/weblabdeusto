@@ -31,7 +31,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.user.datepicker.client.DateBox.DefaultFormat;
-import com.google.gwt.user.datepicker.client.DateBox.Format;
 
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.Experiment;
@@ -66,7 +65,7 @@ public class AdminPanelWindow extends BaseWindow {
 	@UiField ListBox experimentConditionListBox;
 	@UiField ListBox groupedByListBox;
 	@UiField Button searchButton;
-	@UiField EasyGrid accessesGrid;
+	@UiField EasyGrid experimentUsesGrid;
 	
 	// Callbacks
 	private final IAdminPanelWindowCallback callback;
@@ -75,7 +74,7 @@ public class AdminPanelWindow extends BaseWindow {
 	private final User user;
 	private ArrayList<Group> groups;
 	private ArrayList<Experiment> experiments;
-	private ArrayList<ExperimentUse> accesses;
+	private ArrayList<ExperimentUse> experimentUses;
 
 	public AdminPanelWindow(IConfigurationManager configurationManager, User user, IAdminPanelWindowCallback callback) {
 	    super(configurationManager);
@@ -158,19 +157,22 @@ public class AdminPanelWindow extends BaseWindow {
     	
     	this.showMessage("fromDate="+fromDate+", toDate="+toDate);
     	
-    	this.accesses = this.callback.onSearchButtonClicked(fromDate, toDate, group, experiment);
-    	this.accessesGrid.clear();
+    	this.experimentUses = this.callback.onSearchButtonClicked(fromDate, toDate, group, experiment);
+    	//this.experimentUsesGrid.clear();
+    	for ( int i = 0; i < this.experimentUsesGrid.getRowCount(); i++ ) {
+    		this.experimentUsesGrid.removeRow(i);
+    	}
     	String debug = "";
-    	for ( ExperimentUse eu: this.accesses ) {
-    		this.accessesGrid.add(new Label(DateTimeFormat.getMediumDateTimeFormat().format(eu.getStartTimestamp())));
-    		this.accessesGrid.add(new Label((eu.getEndTimestamp().getTime()-eu.getStartTimestamp().getTime())/1000 + ""));
-    		this.accessesGrid.add(new Label(eu.getUser().getLogin()));
-    		this.accessesGrid.add(new Label(eu.getUser().getFullName()));
-    		this.accessesGrid.add(new Label(eu.getExperiment().getUniqueName()));
-    		debug += "["+eu.getStartTimestamp()+","+eu.getEndTimestamp()+"], ";
+    	for ( ExperimentUse eu: this.experimentUses ) {
+    		this.experimentUsesGrid.add(new Label(DateTimeFormat.getMediumDateTimeFormat().format(eu.getStartTimestamp())));
+    		this.experimentUsesGrid.add(new Label((eu.getEndTimestamp().getTime()-eu.getStartTimestamp().getTime())/1000 + ""));
+    		this.experimentUsesGrid.add(new Label(eu.getUser().getLogin()));
+    		this.experimentUsesGrid.add(new Label(eu.getUser().getFullName()));
+    		this.experimentUsesGrid.add(new Label(eu.getExperiment().getUniqueName()));
+    		debug += eu.getStartTimestamp()+" | ";
     	}
     	this.showError(debug);
-    	this.accessesGrid.setRows(this.accesses.size()+1);
-    	this.accessesGrid.setCols(5);
+    	this.experimentUsesGrid.setRows(this.experimentUses.size()+1);
+    	this.experimentUsesGrid.setCols(5);
     }
 }

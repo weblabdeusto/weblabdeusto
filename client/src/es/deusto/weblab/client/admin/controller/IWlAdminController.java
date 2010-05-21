@@ -33,5 +33,5 @@ public interface IWlAdminController {
 	ArrayList<Group> getGroups();
 
 	void setUIManager(WlAdminThemeBase theme);
-	ArrayList<ExperimentUse> getUses(Date fromDate, Date toDate, Group group,	Experiment experiment);
+	ArrayList<ExperimentUse> getExperimentUses(Date fromDate, Date toDate, Group group,	Experiment experiment);
 }
