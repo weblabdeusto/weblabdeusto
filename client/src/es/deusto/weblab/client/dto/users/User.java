@@ -13,11 +13,14 @@
 */ 
 package es.deusto.weblab.client.dto.users;
 
+import java.util.ArrayList;
+
 public class User {
 	private String login;
 	private String fullName;
 	private String email;
 	private Role role;
+	private ArrayList<Group> groups;
 	
 	public User(String login, String fullName, String email, Role role) {
 		super();
@@ -25,6 +28,7 @@ public class User {
 		this.fullName = fullName;
 		this.email = email;
 		this.role = role;
+		this.groups = new ArrayList<Group>();
 	}
 		
 	public String getLogin() {
@@ -50,5 +54,25 @@ public class User {
 	}
 	public void setRole(Role role) {
 		this.role = role;
+	}
+	
+	public void addToGroup(Group group) {
+		// Be careful with the circular references!
+		this.groups.add(group);
+		group.addUser(this);
+	}
+	
+	public boolean isMemberOf(Group group) {
+		return this.groups.contains(group);
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if ( other instanceof User ) {
+			return this.login.equals(((User)other).login);
+		} else {
+			return false;
+		}
+		
 	}	
 }

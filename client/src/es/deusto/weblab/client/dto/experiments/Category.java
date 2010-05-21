@@ -38,8 +38,12 @@ public class Category {
 	}
 	
 	@Override
-	public boolean equals(Object o){
-	    return (o instanceof Category)
-	    	&& this.category.equals(((Category)o).category);
+	public boolean equals(Object other) {
+		if ( other instanceof Category ) {
+			return this.category.equals(((Category)other).category);	
+		} else {
+			return false;
+		}
+		
 	}
 }

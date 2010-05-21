@@ -119,26 +119,38 @@ public class WlAdminController implements IWlAdminController {
 		
 		ArrayList<ExperimentUse> experimentUses = new ArrayList<ExperimentUse>();
 		
-		if ( fromDate != null && toDate != null ) {
-			for ( ExperimentUse eu: this.temporalFakeData.allExperimentUses ) {
-				if ( eu.getStartTimestamp().after(fromDate) && eu.getStartTimestamp().before(toDate) ) {
-					experimentUses.add(eu);
+		for ( ExperimentUse eu: this.temporalFakeData.allExperimentUses ) {
+			boolean valid = true;
+			
+			if ( fromDate != null && toDate != null ) {
+				if ( ! ( eu.getStartTimestamp().after(fromDate) && eu.getStartTimestamp().before(toDate) ) ) {
+					valid = false;
+				}
+			} else if ( fromDate == null && toDate != null ) {
+				if ( ! eu.getStartTimestamp().before(toDate) ) {
+					valid = false;
+				}
+			} else if ( toDate == null && fromDate != null ) {
+				if ( ! eu.getStartTimestamp().after(fromDate) ) {
+					valid = false;
 				}
 			}
-		} else if ( fromDate == null && toDate == null ) {
-			experimentUses.addAll(this.temporalFakeData.allExperimentUses);
-		} else if ( fromDate == null ) {
-			for ( ExperimentUse eu: this.temporalFakeData.allExperimentUses ) {
-				if ( eu.getStartTimestamp().before(toDate) ) {
-					experimentUses.add(eu);
+			
+			if ( group != null ) {
+				if ( ! eu.getUser().isMemberOf(group) ) {
+					valid = false;
 				}
-			}			
-		} else if ( toDate == null ) {
-			for ( ExperimentUse eu: this.temporalFakeData.allExperimentUses ) {
-				if ( eu.getStartTimestamp().after(fromDate) ) {
-					experimentUses.add(eu);
+			}
+			
+			if ( experiment != null ) {
+				if ( ! eu.getExperiment().equals(experiment) ) {
+					valid = false;
 				}
-			}			
+			}
+			
+			if ( valid ) {
+				experimentUses.add(eu);
+			}
 		}
 		
 		return experimentUses;

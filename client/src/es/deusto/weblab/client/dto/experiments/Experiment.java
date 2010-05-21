@@ -15,6 +15,8 @@ package es.deusto.weblab.client.dto.experiments;
 
 import java.util.Date;
 
+import es.deusto.weblab.client.dto.users.Group;
+
 public class Experiment{
 	
 	private String name;
@@ -65,5 +67,15 @@ public class Experiment{
 	
 	public String getUniqueName() {
 		return this.name + "@" + this.category.getCategory();
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if ( other instanceof Experiment ) {
+			return this.name.equals(((Experiment)other).name) && this.category.equals(((Experiment)other).category);	
+		} else {
+			return false;
+		}
+		
 	}
 }

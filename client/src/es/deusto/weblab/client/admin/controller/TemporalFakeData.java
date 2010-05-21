@@ -31,15 +31,21 @@ public class TemporalFakeData {
 	ArrayList<Group> groups;
 	
 	public TemporalFakeData() {
+
+		Group course200910 = new Group("Course 2009/10", null);
+		Group telecomunications = new Group("Telecomunications", course200910);
+		Group mechatronics = new Group("Mechatronics", course200910);
 		
 		Role student = new Role("student");
 		
 		User jaime = new User("jaime.irurzun", "Jaime Irurzun", "jaime.irurzun@opendeusto.es", student);
-		User pablo = new User("pablo.orduna", "Pablo Orduña", "pablo.ordunya@opendeusto.es", student);	
+		jaime.addToGroup(telecomunications);
 		
-		Group course200910 = new Group("Course 2009/10", null);
-		Group telecomunications = new Group("Telecomunications", course200910);
-		Group mechatronics = new Group("Mechatronics", course200910);
+		User pablo = new User("pablo.orduna", "Pablo Orduña", "pablo.ordunya@opendeusto.es", student);
+		pablo.addToGroup(telecomunications);
+		
+		User luis = new User("luis.rodriguez", "Luis Rodríguez", "luis.rodriguez@opendeusto.es", student);
+		luis.addToGroup(mechatronics);
 		
 		Category fpgaExp = new Category("FPGA experiments");
 		Category pldExp = new Category("PLD experiments");
@@ -59,8 +65,8 @@ public class TemporalFakeData {
 		this.groups.add(mechatronics);
 		
 		this.allExperimentUses = new ArrayList<ExperimentUse>();		
-		this.allExperimentUses.add(new ExperimentUse(jaime, fpga,   new Date(2010-1900, 04, 17, 15, 00, 00), new Date(2010-1900, 04, 17, 15, 00, 30)));
-		this.allExperimentUses.add(new ExperimentUse(pablo, pld,    new Date(2010-1900, 04, 18, 15, 00, 00), new Date(2010-1900, 04, 18, 15, 00, 15)));
-		this.allExperimentUses.add(new ExperimentUse(jaime, binary, new Date(2010-1900, 04, 20, 15, 00, 00), new Date(2010-1900, 04, 20, 15, 00, 25)));		
+		this.allExperimentUses.add(new ExperimentUse(jaime, fpga,  new Date(2010-1900, 04, 17, 15, 00, 00), new Date(2010-1900, 04, 17, 15, 00, 30)));
+		this.allExperimentUses.add(new ExperimentUse(pablo, pld,   new Date(2010-1900, 04, 18, 15, 00, 00), new Date(2010-1900, 04, 18, 15, 00, 15)));
+		this.allExperimentUses.add(new ExperimentUse(luis, binary, new Date(2010-1900, 04, 20, 15, 00, 00), new Date(2010-1900, 04, 20, 15, 00, 25)));		
 	}
 }

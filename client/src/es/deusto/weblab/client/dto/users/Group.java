@@ -14,14 +14,19 @@
 
 package es.deusto.weblab.client.dto.users;
 
+import java.util.ArrayList;
+
 public class Group {
+	
 	private String name;
 	private Group parent;
+	private ArrayList<User> users;
 	
 	public Group(String name, Group parent) {
 		super();
 		this.name = name;
 		this.parent = parent;
+		this.users = new ArrayList<User>();
 	}
 	
 	public String getName() {
@@ -43,5 +48,23 @@ public class Group {
 		} else {
 			return this.parent.getFullName() + " > " + this.name;
 		}
+	}
+	
+	public void addUser(User user) {
+		this.users.add(user);
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if ( other instanceof Group ) {
+			if ( this.parent == null ) {
+				return this.name.equals(((Group)other).name);
+			} else {
+				return this.name.equals(((Group)other).name) && this.parent.equals(((Group)other).parent);	
+			}
+		} else {
+			return false;
+		}
+		
 	}
 }
