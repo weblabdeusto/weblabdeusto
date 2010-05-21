@@ -42,10 +42,12 @@ public class WlAdminController implements IWlAdminController {
 	private IWlAdminCommunication communications;
 	private IUIManager uimanager;
 	private SessionID currentSession;
-
+	private TemporalFakeData temporalFakeData;
+	
 	public WlAdminController(ConfigurationManager configurationManager, IWlAdminCommunication communications) {
 		this.configurationManager = configurationManager;
 		this.communications = communications;
+		this.temporalFakeData = new TemporalFakeData();
 	}
 
 	@Override
@@ -104,63 +106,35 @@ public class WlAdminController implements IWlAdminController {
 
 	@Override
 	public ArrayList<Experiment> getExperiments() {
-		// Temporal Fake
-		ArrayList<Experiment> experiments = new ArrayList<Experiment>();
-		experiments.add(new Experiment("ud-fpga", new Category("FPGA experiments"), new Date(), new Date()));
-		experiments.add(new Experiment("ud-pld", new Category("PLD experiments"), new Date(), new Date()));
-		experiments.add(new Experiment("ud-logic", new Category("PIC experiments"), new Date(), new Date()));
-		return experiments;
+		return this.temporalFakeData.experiments;
 	}
 
 	@Override
 	public ArrayList<Group> getGroups() {
-		// Temporal Fake
-		ArrayList<Group> groups = new ArrayList<Group>();
-		groups.add(new Group("Course 2009/10", null));
-		groups.add(new Group("Telecomunications", groups.get(0)));
-		groups.add(new Group("Mechatronics", groups.get(0)));
-		return groups;
+		return this.temporalFakeData.groups;
 	}
 
 	@Override
 	public ArrayList<ExperimentUse> getExperimentUses(Date fromDate, Date toDate, Group group, Experiment experiment) {
-		// Temporal Fake
-		ArrayList<ExperimentUse> allExperimentUses = new ArrayList<ExperimentUse>();		
-		
-		allExperimentUses.add(new ExperimentUse(
-				new User("jaime.irurzun", "Jaime Irurzun", "jaime.irurzun@opendeusto.es", new Role("student")),
-				new Experiment("ud-fpga", new Category("FPGA experiments"), new Date(), new Date()),
-				new Date(2010-1900, 04, 17, 15, 00, 00), new Date(2010-1900, 04, 17, 15, 00, 30))
-		);
-		allExperimentUses.add(new ExperimentUse(
-				new User("pablo.orduna", "Pablo Orduña", "pablo.ordunya@opendeusto.es", new Role("student")),
-				new Experiment("ud-fpga", new Category("FPGA experiments"), new Date(), new Date()),
-				new Date(2010-1900, 04, 18, 15, 00, 00), new Date(2010-1900, 04, 18, 15, 00, 15))
-		);
-		allExperimentUses.add(new ExperimentUse(
-				new User("jaime.irurzun", "Jaime Irurzun", "jaime.irurzun@opendeusto.es", new Role("student")),
-				new Experiment("ud-pld", new Category("PLD experiments"), new Date(), new Date()),
-				new Date(2010-1900, 04, 20, 15, 00, 00), new Date(2010-1900, 04, 20, 15, 00, 25))
-		);
 		
 		ArrayList<ExperimentUse> experimentUses = new ArrayList<ExperimentUse>();
 		
 		if ( fromDate != null && toDate != null ) {
-			for ( ExperimentUse eu: allExperimentUses ) {
+			for ( ExperimentUse eu: this.temporalFakeData.allExperimentUses ) {
 				if ( eu.getStartTimestamp().after(fromDate) && eu.getStartTimestamp().before(toDate) ) {
 					experimentUses.add(eu);
 				}
 			}
 		} else if ( fromDate == null && toDate == null ) {
-			experimentUses.addAll(allExperimentUses);
+			experimentUses.addAll(this.temporalFakeData.allExperimentUses);
 		} else if ( fromDate == null ) {
-			for ( ExperimentUse eu: allExperimentUses ) {
+			for ( ExperimentUse eu: this.temporalFakeData.allExperimentUses ) {
 				if ( eu.getStartTimestamp().before(toDate) ) {
 					experimentUses.add(eu);
 				}
 			}			
 		} else if ( toDate == null ) {
-			for ( ExperimentUse eu: allExperimentUses ) {
+			for ( ExperimentUse eu: this.temporalFakeData.allExperimentUses ) {
 				if ( eu.getStartTimestamp().after(fromDate) ) {
 					experimentUses.add(eu);
 				}

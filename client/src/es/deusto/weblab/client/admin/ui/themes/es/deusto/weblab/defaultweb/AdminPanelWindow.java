@@ -158,10 +158,10 @@ public class AdminPanelWindow extends BaseWindow {
     	this.showMessage("fromDate="+fromDate+", toDate="+toDate);
     	
     	this.experimentUses = this.callback.onSearchButtonClicked(fromDate, toDate, group, experiment);
-    	//this.experimentUsesGrid.clear();
-    	for ( int i = 0; i < this.experimentUsesGrid.getRowCount(); i++ ) {
+    	this.experimentUsesGrid.clear();
+    	/*for ( int i = 0; i < this.experimentUsesGrid.getRowCount(); i++ ) {
     		this.experimentUsesGrid.removeRow(i);
-    	}
+    	}*/
     	String debug = "";
     	for ( ExperimentUse eu: this.experimentUses ) {
     		this.experimentUsesGrid.add(new Label(DateTimeFormat.getMediumDateTimeFormat().format(eu.getStartTimestamp())));
@@ -169,7 +169,7 @@ public class AdminPanelWindow extends BaseWindow {
     		this.experimentUsesGrid.add(new Label(eu.getUser().getLogin()));
     		this.experimentUsesGrid.add(new Label(eu.getUser().getFullName()));
     		this.experimentUsesGrid.add(new Label(eu.getExperiment().getUniqueName()));
-    		debug += eu.getStartTimestamp()+" | ";
+    		debug += eu.getStartTimestamp()+"("+eu.getExperiment().getUniqueName()+")"+" | ";
     	}
     	this.showError(debug);
     	this.experimentUsesGrid.setRows(this.experimentUses.size()+1);
