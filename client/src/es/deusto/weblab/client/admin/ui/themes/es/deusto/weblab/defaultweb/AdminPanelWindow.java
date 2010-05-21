@@ -63,9 +63,9 @@ public class AdminPanelWindow extends BaseWindow {
 	@UiField DateBox toDateBox;
 	@UiField ListBox groupConditionListBox;
 	@UiField ListBox experimentConditionListBox;
-	@UiField ListBox groupedByListBox;
 	@UiField Button searchButton;
 	@UiField EasyGrid experimentUsesGrid;
+	@UiField Button downloadButton;
 	
 	// Callbacks
 	private final IAdminPanelWindowCallback callback;
@@ -105,10 +105,12 @@ public class AdminPanelWindow extends BaseWindow {
 			this.experimentConditionListBox.addItem(experiment.getUniqueName());
 		}
 		
+		/* Future functionality
 		this.groupedByListBox.addItem("(don't group)");
 		this.groupedByListBox.addItem("User");
 		this.groupedByListBox.addItem("Group");
 		this.groupedByListBox.addItem("Experiment");
+		*/
 	}
 
 	@Override
@@ -138,6 +140,10 @@ public class AdminPanelWindow extends BaseWindow {
     	Date fromDate = this.fromDateBox.getValue();
     	
     	Date toDate = this.toDateBox.getValue();
+    	if ( toDate != null ) {
+    		// We force the end of the day, because DateBox with this format gets 00:00:00.
+    		toDate = new Date(this.toDateBox.getValue().getTime()+86399999); 
+    	}
     	
     	int groupIndex = this.groupConditionListBox.getSelectedIndex();
     	Group group;
@@ -174,5 +180,7 @@ public class AdminPanelWindow extends BaseWindow {
     	this.showError(debug);
     	this.experimentUsesGrid.setRows(this.experimentUses.size()+1);
     	this.experimentUsesGrid.setCols(5);
+    	
+    	this.downloadButton.setVisible(this.experimentUses.size() > 0);
     }
 }

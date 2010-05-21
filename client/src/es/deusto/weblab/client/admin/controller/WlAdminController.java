@@ -16,6 +16,8 @@ package es.deusto.weblab.client.admin.controller;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 
 import es.deusto.weblab.client.admin.comm.IWlAdminCommunication;
@@ -152,6 +154,13 @@ public class WlAdminController implements IWlAdminController {
 				experimentUses.add(eu);
 			}
 		}
+		
+		Collections.sort(experimentUses, new Comparator<ExperimentUse>() {
+			@Override
+			public int compare(ExperimentUse o1, ExperimentUse o2) {
+				return o2.getStartTimestamp().compareTo(o1.getStartTimestamp());
+			}
+		});
 		
 		return experimentUses;
 	}

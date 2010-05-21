@@ -106,13 +106,15 @@
 			    	
 			    	</g:VerticalPanel>
 		    	
+		    		<!-- 
 		    		<g:VerticalPanel>
 		    		
 			    		<g:Label>Grouped by:</g:Label>
 			    		<g:ListBox ui:field="groupedByListBox" />
 			    	
 			    	</g:VerticalPanel>
-		    	
+		    	 	-->
+		    		
 		    		<g:VerticalPanel>
 		    		
 		    			<g:Button ui:field="searchButton">Search</g:Button>
@@ -130,7 +132,7 @@
 				</w:EasyGrid>
 				
 				<g:HorizontalPanel styleName="web-admin-logged-accesses-download">
-					<g:Button>Download as .csv</g:Button>
+					<g:Button ui:field="downloadButton" visible="false">Download as .csv</g:Button>
 				</g:HorizontalPanel>
 		    	
 			</g:VerticalPanel>		
