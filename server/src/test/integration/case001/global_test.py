@@ -801,7 +801,7 @@ if ServerSOAP.SOAPPY_AVAILABLE:
         def get_protocols(self):
             return (Protocols.SOAP, )
         def get_session_type(self):
-            return SessionType.MySQL
+            return SessionType.sqlalchemy
 
     Case001_SOAP_MySQL_TestCase = case_uses_module(UserProcessingServer)(Case001_SOAP_MySQL_TestCase)
 

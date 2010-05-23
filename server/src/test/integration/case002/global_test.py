@@ -709,7 +709,7 @@ class Case002_Direct_MySQL_TestCase(Case002TestCase):
     def get_protocols(self):
         return (Protocols.Direct, )
     def get_session_type(self):
-        return SessionType.MySQL
+        return SessionType.sqlalchemy
 
 Case002_Direct_MySQL_TestCase = case_uses_module(UserProcessingServer)(Case002_Direct_MySQL_TestCase)
 

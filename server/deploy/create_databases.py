@@ -10,6 +10,10 @@ import libraries
 import MySQLdb
 import weblab.database.Model as Model
 import weblab.user_processing.coordinator.dao as dao
+
+import voodoo.sessions.DbLockData as DbLockData
+import voodoo.sessions.SessionSqlalchemyData as SessionSqlalchemyData
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -20,7 +24,7 @@ except ImportError:
     sys.exit(1)
 
 try:
-	from configuration import weblab_db_username, weblab_db_password, core_coordinator_db_username , core_coordinator_db_password
+	from configuration import weblab_db_username, weblab_db_password, core_coordinator_db_username , core_coordinator_db_password, weblab_sessions_db_username, weblab_sessions_db_password
 except ImportError, e:
 	print >> sys.stderr, "Error: configuration.py doesn't exist or doesn't have all the required parameters: %s " % e
 	sys.exit(2)
@@ -56,6 +60,7 @@ def create_database(admin_username, admin_password, database_name, new_user, new
 create_database(wac.wl_admin_username, wac.wl_admin_password, "WebLab",             weblab_db_username, weblab_db_password)
 create_database(wac.wl_admin_username, wac.wl_admin_password, "WebLabTests",        weblab_db_username, weblab_db_password)
 create_database(wac.wl_admin_username, wac.wl_admin_password, "WebLabCoordination", core_coordinator_db_username, core_coordinator_db_password)
+create_database(wac.wl_admin_username, wac.wl_admin_password, "WebLabSessions",     weblab_sessions_db_username, weblab_sessions_db_password)
 
 print "Databases created."
 
@@ -468,20 +473,21 @@ print "[done]"
 
 #####################################################################
 # 
-# Populating sessions database
+# Populating Sessions database
 # 
 
 
-print "Rebuilding 'WebLabSessions' database...\t\t",
-pr = subprocess.Popen(
-			'mysql' + ' -u' + wac.wl_admin_username + ' -p' + wac.wl_admin_password + ' < ' + 'create_SessionsDB.sql',
-			shell=True, 
-			stdout=subprocess.PIPE, 
-			stderr=subprocess.PIPE
-	  )
-if pr.wait() != 0:
-	raise Exception("Error rebuilding WebLabSessions database: %s" % pr.stderr.read())
+print "Populating 'WebLabSessions' database...\t",
+
+engine = create_engine('mysql://wl_session_user:wl_session_user_password@localhost/WebLabSessions', echo = False)
+
+metadata = DbLockData.SessionLockBase.metadata
+metadata.drop_all(engine)
+metadata.create_all(engine)    
+
+metadata = SessionSqlalchemyData.SessionBase.metadata
+metadata.drop_all(engine)
+metadata.create_all(engine)   
 
 print "[done]"
-
 

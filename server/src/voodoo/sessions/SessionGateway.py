@@ -16,10 +16,7 @@ import voodoo.sessions.SessionType as SessionType
 import voodoo.exceptions.sessions.SessionExceptions as SessionExceptions
 
 def get_gateway_class(session_type):
-    if session_type == SessionType.MySQL:
-        from voodoo.sessions.SessionMySQLGateway  import SessionMySQLGateway
-        return SessionMySQLGateway
-    elif session_type == SessionType.Memory:
+    if session_type == SessionType.Memory:
         from voodoo.sessions.SessionMemoryGateway import SessionMemoryGateway
         return SessionMemoryGateway
     elif session_type == SessionType.sqlalchemy:
