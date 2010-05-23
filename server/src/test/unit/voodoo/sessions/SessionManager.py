@@ -45,21 +45,21 @@ class SessionManagerTestCase(unittest.TestCase):
                     SessionType.Memory,
                     "bar"
                 )
-        self.mysql_server1 = SessionManager.SessionManager(
+        self.sqlalchemy_server1 = SessionManager.SessionManager(
                     cfg_manager,
-                    SessionType.MySQL,
+                    SessionType.sqlalchemy,
                     "foo"
                 )
-        self.mysql_server2 = SessionManager.SessionManager(
+        self.sqlalchemy_server2 = SessionManager.SessionManager(
                     cfg_manager,
-                    SessionType.MySQL,
+                    SessionType.sqlalchemy,
                     "bar"
                 )
 
         self.memory_server1.clear()
         self.memory_server2.clear()
-        self.mysql_server1.clear()
-        self.mysql_server2.clear()
+        self.sqlalchemy_server1.clear()
+        self.sqlalchemy_server2.clear()
 
     def test_checking_parameter(self):
         self.assertRaises(
@@ -201,17 +201,17 @@ class SessionManagerTestCase(unittest.TestCase):
     def test_memory_pool_ids(self):
         self.session_tester_pool_ids(self.memory_server1, self.memory_server2)
     
-    def test_mysql_session(self):
-        self.session_tester(self.mysql_server1)
+    def test_sqlalchemy_session(self):
+        self.session_tester(self.sqlalchemy_server1)
 
-    def test_mysql_session_locking(self):
-        self.session_tester_locking(self.mysql_server1)
+    def test_sqlalchemy_session_locking(self):
+        self.session_tester_locking(self.sqlalchemy_server1)
         
-    def test_mysql_session_list_sessions(self):
-        self.session_tester_list_sessions(self.mysql_server1)
+    def test_sqlalchemy_session_list_sessions(self):
+        self.session_tester_list_sessions(self.sqlalchemy_server1)
 
-    def test_mysql_pool_ids(self):
-        self.session_tester_pool_ids(self.mysql_server1, self.mysql_server2)
+    def test_sqlalchemy_pool_ids(self):
+        self.session_tester_pool_ids(self.sqlalchemy_server1, self.sqlalchemy_server2)
 
 def suite():
     return unittest.makeSuite(SessionManagerTestCase)

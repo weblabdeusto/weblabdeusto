@@ -34,7 +34,7 @@ DEFAULT_SESSION_LOCK_SQLALCHEMY_DB_NAME = 'WebLabSessions'
 SESSION_LOCK_SQLALCHEMY_USERNAME  = 'session_lock_sqlalchemy_username'
 SESSION_LOCK_SQLALCHEMY_PASSWORD  = 'session_lock_sqlalchemy_password'
 
-MAX_TIME_TRYING_TO_LOCK  = 300 # seconds
+MAX_TIME_TRYING_TO_LOCK  = 120 # seconds
 
 def getconn():
     import MySQLdb as dbi
@@ -44,6 +44,7 @@ def getconn():
 
 class DbLock(object):
 
+    MAX_TIME_TRYING_TO_LOCK = MAX_TIME_TRYING_TO_LOCK
     pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20)
 
     def __init__(self, cfg_manager, session_pool_id):
@@ -78,7 +79,7 @@ class DbLock(object):
 
     def acquire(self, session_id):
         time_to_sleep = 0.1
-        number_of_tries = MAX_TIME_TRYING_TO_LOCK / time_to_sleep
+        number_of_tries = self.MAX_TIME_TRYING_TO_LOCK / time_to_sleep
 
         while number_of_tries > 0:
             try:

@@ -57,6 +57,12 @@ session_mysql_db_name  = 'WebLabSessions'
 session_mysql_username = 'wl_session_user'
 session_mysql_password = 'wl_session_user_password'
 
+session_sqlalchemy_host     = 'localhost'
+session_sqlalchemy_db_name  = 'WebLabSessions'
+session_sqlalchemy_username = 'wl_session_user'
+session_sqlalchemy_password = 'wl_session_user_password'
+
+
 ##########################################
 # Sessions locker database configuration #
 ##########################################
@@ -65,6 +71,12 @@ session_locker_mysql_host     = 'localhost'
 session_locker_mysql_db_name  = 'WebLabSessions'
 session_locker_mysql_username = 'wl_session_user'
 session_locker_mysql_password = 'wl_session_user_password'
+
+session_lock_sqlalchemy_host     = 'localhost'
+session_lock_sqlalchemy_db_name  = 'WebLabSessions'
+session_lock_sqlalchemy_username = 'wl_session_user'
+session_lock_sqlalchemy_password = 'wl_session_user_password'
+
 
 ########################
 # Loader configuration #

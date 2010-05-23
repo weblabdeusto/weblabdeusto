@@ -17,6 +17,7 @@ import datetime
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import and_
 
 import voodoo.sessions.SessionSqlalchemyData as DbData
 
@@ -46,16 +47,12 @@ def getconn():
     return dbi.connect(user = SessionSqlalchemyGateway.username, passwd = SessionSqlalchemyGateway.password, 
                         host = SessionSqlalchemyGateway.host, db = SessionSqlalchemyGateway.dbname, client_flag = 2)
 
-# TODO:
-# - Implement "locker"
-# - Access fields are not updated
-
 class SessionSqlalchemyGateway(object):
 
     pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20)
 
     def __init__(self, cfg_manager, session_pool_id, timeout):
-        super(SessionSqlalchemyGateway).__init__()
+        super(SessionSqlalchemyGateway, self).__init__()
 
         self.session_pool_id = session_pool_id
         self.timeout         = timeout
@@ -86,12 +83,12 @@ class SessionSqlalchemyGateway(object):
 
 
     def _parse_config(self):
-        engine     = self.cfg_manager.get_value(SESSION_SQLALCHEMY_ENGINE, DEFAULT_SESSION_SQLALCHEMY_ENGINE)
+        engine   = self.cfg_manager.get_value(SESSION_SQLALCHEMY_ENGINE, DEFAULT_SESSION_SQLALCHEMY_ENGINE)
         host     = self.cfg_manager.get_value(SESSION_SQLALCHEMY_HOST, DEFAULT_SESSION_SQLALCHEMY_HOST)
         db_name  = self.cfg_manager.get_value(SESSION_SQLALCHEMY_DB_NAME, DEFAULT_SESSION_SQLALCHEMY_DB_NAME)
         username = self.cfg_manager.get_value(SESSION_SQLALCHEMY_USERNAME)
         password = self.cfg_manager.get_value(SESSION_SQLALCHEMY_PASSWORD)
-        return host, db_name, username, password
+        return engine, host, db_name, username, password
 
 
     def create_session(self):
@@ -100,7 +97,7 @@ class SessionSqlalchemyGateway(object):
             new_id = self._generator.generate_id()
             none_s = self._serializer.serialize({})
 
-            db_session = DbData.Session(new_id, self.session_pool_id, datetime.now(), none_s)
+            db_session = DbData.Session(new_id, self.session_pool_id, datetime.datetime.now(), none_s)
             session = self._session_maker()
             session.add(db_session)
             try:
@@ -108,7 +105,7 @@ class SessionSqlalchemyGateway(object):
             except IntegrityError, ie:
                 continue
             else:
-                break
+                return new_id
             finally:
                 session.close()
 
@@ -127,27 +124,15 @@ class SessionSqlalchemyGateway(object):
             if result is None:
                 raise SessionExceptions.SessionNotFoundException( "Session not found: " + session_id )
             session_object = result.session_obj
-            result.latest_access = datetime.now()
+            result.latest_access = datetime.datetime.now()
             session.commit()
         finally:
             session.close()
-
-    def get_session_locking(self, session_id):
-        self.lock.acquire(session_id)
-        try:
-            return self.get_session(session_id)
-        except:
-            self.lock.release(session_id)
-            raise
-
-    def modify_session_unlocking(self, sess_id, sess_obj):
-        try:
-            return self.modify_session(sess_id, sess_obj)
-        finally:
-            self.lock.release(sess_id)
+        pickled_sess_obj = str(session_object)
+        return self._serializer.deserialize(pickled_sess_obj)
 
     def modify_session(self, sess_id, sess_obj):
-        serialized_sess_obj = self.serializer.serialize(sess_obj)
+        serialized_sess_obj = self._serializer.serialize(sess_obj)
 
         session = self._session_maker()
         try:
@@ -156,10 +141,27 @@ class SessionSqlalchemyGateway(object):
                 raise SessionExceptions.SessionNotFoundException( "Session not found: %s" % sess_id)
 
             result.session_obj = serialized_sess_obj
+            result.latest_access = datetime.datetime.now()
+            result.latest_change = result.latest_access
 
             session.commit()
         finally:
             session.close()
+
+    def get_session_locking(self, session_id):
+        self._lock.acquire(session_id)
+        try:
+            return self.get_session(session_id)
+        except:
+            self._lock.release(session_id)
+            raise
+
+    def modify_session_unlocking(self, sess_id, sess_obj):
+        try:
+            return self.modify_session(sess_id, sess_obj)
+        finally:
+            self._lock.release(sess_id)
+
 
     def list_sessions(self):
         session = self._session_maker()
@@ -184,7 +186,8 @@ class SessionSqlalchemyGateway(object):
             # NOW() - latest_access > timeout
             # is the same as
             # latest_access > timeout + NOW()
-            for session_to_delete in session.query(DbData.Session).filter_by(DbData.Session.session_pool_id == self.session_pool_id, DbData.Session.latest_access > (self.timeout + self._get_time())  ).all():
+            timeout_datetime = self._get_time() + datetime.timedelta(seconds = (self.timeout / 1000.0))
+            for session_to_delete in session.query(DbData.Session).filter(and_(DbData.Session.session_pool_id == self.session_pool_id, DbData.Session.latest_access >  timeout_datetime )).all():
                 session.delete(session_to_delete)
             session.commit()
         finally:
@@ -204,6 +207,8 @@ class SessionSqlalchemyGateway(object):
             session.delete(result)
             session.commit()
 
+        except SessionExceptions.SessionNotFoundException:
+            raise
         except Exception, e:
             raise SessionExceptions.SessionDatabaseExecutionException( "Database exception retrieving session: %s" % e, e )
 
@@ -211,5 +216,5 @@ class SessionSqlalchemyGateway(object):
         try:
             return self.delete_session(sess_id)
         finally:
-            self.locker.release(sess_id)
+            self._locker.release(sess_id)
 

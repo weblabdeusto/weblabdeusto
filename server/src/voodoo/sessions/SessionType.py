@@ -12,9 +12,9 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
-#Strong-typed enumeration of 'MySQL','Memory'
+#Strong-typed enumeration of 'MySQL','Memory', 'sqlalchemy'
 
-values=['MySQL','Memory']
+values=['MySQL','Memory','sqlalchemy']
 name='SessionType'
 
 import voodoo.abstraction.enumeration as enumeration
