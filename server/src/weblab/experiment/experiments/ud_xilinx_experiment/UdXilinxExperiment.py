@@ -56,9 +56,10 @@ class UdXilinxExperiment(Experiment.Experiment):
             if DEBUG:
                 print "[DEBUG] Webcam set: " + self.webcam_url
                 print "[DEBUG] Var name: " + cfg_webcam_url
-        except: 
-            print "[DEBUG] Couldn't set webcam url properly."
-            self.webcam_url = "http://localhost"
+        except:
+            if DEBUG:
+                print "[DEBUG] Couldn't set webcam url properly."
+                self.webcam_url = "http://localhost"
 
         devices = [ i for i in XilinxDevices.getXilinxDevicesValues() if i.name == xilinx_device ] 
         if len(devices) == 1:
