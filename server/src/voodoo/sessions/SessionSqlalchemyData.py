@@ -12,12 +12,8 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import datetime
-import time
 from sqlalchemy import Column, String, DateTime, Binary
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.exc import IntegrityError
-
 
 SessionBase = declarative_base()
 

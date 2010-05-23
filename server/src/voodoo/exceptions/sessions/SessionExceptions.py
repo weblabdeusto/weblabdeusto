@@ -23,10 +23,6 @@ class SessionNotFoundException(SessionException):
     def __init__(self,*args,**kargs):
         SessionException.__init__(self,*args,**kargs)
 
-class SessionDatabaseException(SessionException):
-    def __init__(self,*args,**kargs):
-        SessionException.__init__(self,*args,**kargs)
-
 class SessionDatabaseConnectionException(SessionException):
     def __init__(self,*args,**kargs):
         SessionException.__init__(self,*args,**kargs)
