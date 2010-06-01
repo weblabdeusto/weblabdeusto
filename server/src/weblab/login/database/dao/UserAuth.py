@@ -24,6 +24,8 @@ class UserAuth(object):
             return LdapUserAuth(configuration)
         elif name == TrustedIpAddressesUserAuth.NAME:
             return TrustedIpAddressesUserAuth(configuration)
+        elif name == TrustedIpAddressesUserAuth.NAME:
+            return TrustedIpAddressesUserAuth(configuration)
         else:
             raise DbExceptions.DbUnsupportedUserAuth("UserAuth %s not supported" % name)
 
@@ -61,14 +63,14 @@ class TrustedIpAddressesUserAuth(object):
     def __repr__(self):
         return "<TrustedIpAddressesUserAuth addresses='%s'/>" % self.addresses
 
-class DbUserAuth(object):
+class WebLabDbUserAuth(object):
     NAME = 'DB'
     def __init__(self, configuration):
-        self.database = configuration #TODO: Should be used for something
+        self.configuration = configuration #TODO: It could be used for something
 
     @property
     def name(self):
-        return DbUserAuth.NAME
+        return WebLabDbUserAuth.NAME
 
     def __repr__(self):
-        return "<DbUserAuth database='%s'/>" % self.database
+        return "<WebLabDbUserAuth/>"

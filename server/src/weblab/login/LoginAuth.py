@@ -120,7 +120,7 @@ LoginAuth.HANDLERS += (TrustedIpAddressesLoginAuth,)
 
 
 class WebLabDBLoginAuth(LoginAuth):
-    NAME = UserAuth.TrustedIpAddressesUserAuth.NAME
+    NAME = UserAuth.WebLabDbUserAuth.NAME
 
     def __init__(self, user_auth):
         self._user_auth = user_auth
@@ -131,4 +131,4 @@ class WebLabDBLoginAuth(LoginAuth):
         client_address = password.client_address
         return client_address in self._user_auth.addresses
 
-LoginAuth.HANDLERS += (TrustedIpAddressesLoginAuth,)
+LoginAuth.HANDLERS += (WebLabDBLoginAuth,)
