@@ -11,7 +11,7 @@
 * Author: Pablo Orduña <pablo@ordunya.com>
 *
 */ 
-package es.deusto.weblab.client.lab.ui.widgets;
+package es.deusto.weblab.client.ui.widgets;
 
 import junit.framework.Assert;
 
