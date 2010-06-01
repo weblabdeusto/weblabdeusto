@@ -15,7 +15,6 @@ package es.deusto.weblab.client.dto.experiments;
 
 import java.util.Date;
 
-import es.deusto.weblab.client.dto.users.Group;
 
 public class Experiment{
 	

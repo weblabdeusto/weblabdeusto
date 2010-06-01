@@ -123,6 +123,8 @@
 		    	
 		    	</g:HorizontalPanel>
 		    	
+		    	<g:Grid ui:field="experimentUsesGrid" styleName="web-admin-logged-accesses-grid" />
+		    	<!-- 
 				<w:EasyGrid ui:field="experimentUsesGrid" rows="1" cols="7" styleName="web-admin-logged-accesses-grid">
 					<g:Label styleName="web-admin-logged-accesses-grid-header">Started</g:Label>
 					<g:Label styleName="web-admin-logged-accesses-grid-header">Time</g:Label>
@@ -130,11 +132,14 @@
 					<g:Label styleName="web-admin-logged-accesses-grid-header">User's full name</g:Label>
 					<g:Label styleName="web-admin-logged-accesses-grid-header">Experiment</g:Label>
 				</w:EasyGrid>
-				
+				-->
+				 
+				<!--
 				<g:HorizontalPanel styleName="web-admin-logged-accesses-download">
 					<g:Button ui:field="downloadButton" visible="false">Download as .csv</g:Button>
 				</g:HorizontalPanel>
-		    	
+		    	 -->
+		    	 
 			</g:VerticalPanel>		
 
 					

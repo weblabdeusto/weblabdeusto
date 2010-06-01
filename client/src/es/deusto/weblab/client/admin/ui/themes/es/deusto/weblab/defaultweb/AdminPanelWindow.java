@@ -25,6 +25,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -37,7 +38,6 @@ import es.deusto.weblab.client.dto.experiments.Experiment;
 import es.deusto.weblab.client.dto.experiments.ExperimentUse;
 import es.deusto.weblab.client.dto.users.Group;
 import es.deusto.weblab.client.dto.users.User;
-import es.deusto.weblab.client.ui.widgets.EasyGrid;
 import es.deusto.weblab.client.ui.widgets.WlUtil;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
@@ -64,8 +64,14 @@ public class AdminPanelWindow extends BaseWindow {
 	@UiField ListBox groupConditionListBox;
 	@UiField ListBox experimentConditionListBox;
 	@UiField Button searchButton;
-	@UiField EasyGrid experimentUsesGrid;
-	@UiField Button downloadButton;
+	@UiField Grid experimentUsesGrid;
+	//@UiField Button downloadButton; // Future functionality
+	
+	private Label startedHeader;
+	private Label timeHeader;
+	private Label usernameHeader;
+	private Label fullnameHeader;
+	private Label experimentHeader;
 	
 	// Callbacks
 	private final IAdminPanelWindowCallback callback;
@@ -111,6 +117,27 @@ public class AdminPanelWindow extends BaseWindow {
 		this.groupedByListBox.addItem("Group");
 		this.groupedByListBox.addItem("Experiment");
 		*/
+		
+		/*
+		 * We need to create the Grid this way because its UiBinder support is too limited right now.
+		 * We will improve it when GWT 2.1 is released, which will provide better data presentation components.
+		 */
+		
+		// #i18n
+    	this.startedHeader = new Label("Started");
+    	this.startedHeader.setStyleName("web-admin-logged-accesses-grid-header");
+    	
+    	this.timeHeader = new Label("Time");
+    	this.timeHeader.setStyleName("web-admin-logged-accesses-grid-header");
+    	
+    	this.usernameHeader = new Label("Username");
+    	this.usernameHeader.setStyleName("web-admin-logged-accesses-grid-header");
+    	
+    	this.fullnameHeader = new Label("User's full name");
+    	this.fullnameHeader.setStyleName("web-admin-logged-accesses-grid-header");
+    	
+    	this.experimentHeader = new Label("Experiment");
+    	this.experimentHeader.setStyleName("web-admin-logged-accesses-grid-header");
 	}
 
 	@Override
@@ -142,7 +169,7 @@ public class AdminPanelWindow extends BaseWindow {
     	Date toDate = this.toDateBox.getValue();
     	if ( toDate != null ) {
     		// We force the end of the day, because DateBox with this format gets 00:00:00.
-    		toDate = new Date(this.toDateBox.getValue().getTime()+86399999); 
+    		toDate = new Date(toDate.getTime()+86399999); 
     	}
     	
     	int groupIndex = this.groupConditionListBox.getSelectedIndex();
@@ -161,26 +188,27 @@ public class AdminPanelWindow extends BaseWindow {
     		experiment = this.experiments.get(experimentIndex-1);
     	}
     	
-    	this.showMessage("fromDate="+fromDate+", toDate="+toDate);
-    	
     	this.experimentUses = this.callback.onSearchButtonClicked(fromDate, toDate, group, experiment);
+
     	this.experimentUsesGrid.clear();
-    	/*for ( int i = 0; i < this.experimentUsesGrid.getRowCount(); i++ ) {
-    		this.experimentUsesGrid.removeRow(i);
-    	}*/
-    	String debug = "";
-    	for ( ExperimentUse eu: this.experimentUses ) {
-    		this.experimentUsesGrid.add(new Label(DateTimeFormat.getMediumDateTimeFormat().format(eu.getStartTimestamp())));
-    		this.experimentUsesGrid.add(new Label((eu.getEndTimestamp().getTime()-eu.getStartTimestamp().getTime())/1000 + ""));
-    		this.experimentUsesGrid.add(new Label(eu.getUser().getLogin()));
-    		this.experimentUsesGrid.add(new Label(eu.getUser().getFullName()));
-    		this.experimentUsesGrid.add(new Label(eu.getExperiment().getUniqueName()));
-    		debug += eu.getStartTimestamp()+"("+eu.getExperiment().getUniqueName()+")"+" | ";
-    	}
-    	this.showError(debug);
-    	this.experimentUsesGrid.setRows(this.experimentUses.size()+1);
-    	this.experimentUsesGrid.setCols(5);
+    	this.experimentUsesGrid.resize(this.experimentUses.size()+1, 5);
     	
-    	this.downloadButton.setVisible(this.experimentUses.size() > 0);
+    	this.experimentUsesGrid.setWidget(0, 0, this.startedHeader);
+    	this.experimentUsesGrid.setWidget(0, 1, this.timeHeader);
+    	this.experimentUsesGrid.setWidget(0, 2, this.usernameHeader);
+    	this.experimentUsesGrid.setWidget(0, 3, this.fullnameHeader);
+    	this.experimentUsesGrid.setWidget(0, 4, this.experimentHeader);
+
+        for (int row = 0; row < this.experimentUses.size(); row++) {
+        	ExperimentUse eu = this.experimentUses.get(row);
+      		this.experimentUsesGrid.setWidget(row+1, 0, new Label(DateTimeFormat.getMediumDateTimeFormat().format(eu.getStartTimestamp())));
+    		this.experimentUsesGrid.setWidget(row+1, 1, new Label((eu.getEndTimestamp().getTime()-eu.getStartTimestamp().getTime())/1000 + ""));
+    		this.experimentUsesGrid.setWidget(row+1, 2, new Label(eu.getUser().getLogin()));
+    		this.experimentUsesGrid.setWidget(row+1, 3, new Label(eu.getUser().getFullName()));
+    		this.experimentUsesGrid.setWidget(row+1, 4, new Label(eu.getExperiment().getUniqueName()));
+        }
+
+    	// Future functionality:
+    	//this.downloadButton.setVisible(this.experimentUses.size() > 0);
     }
 }
