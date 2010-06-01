@@ -103,7 +103,23 @@ class LdapLoginAuth(LoginAuth):
 
 LoginAuth.HANDLERS += (LdapLoginAuth,)
 
+
 class TrustedIpAddressesLoginAuth(LoginAuth):
+    NAME = UserAuth.TrustedIpAddressesUserAuth.NAME
+
+    def __init__(self, user_auth):
+        self._user_auth = user_auth
+
+    def authenticate(self, login, password):
+        if not isinstance(password, ClientAddress.ClientAddress):
+            return False
+        client_address = password.client_address
+        return client_address in self._user_auth.addresses
+
+LoginAuth.HANDLERS += (TrustedIpAddressesLoginAuth,)
+
+
+class WebLabDBLoginAuth(LoginAuth):
     NAME = UserAuth.TrustedIpAddressesUserAuth.NAME
 
     def __init__(self, user_auth):

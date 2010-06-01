@@ -105,7 +105,7 @@ class LoginServerTestCase(unittest.TestCase):
     def tearDown(self):
         self.login_server.stop()
 
-    def test_invalid_user_or_password(self):
+    def test_invalid_user_and_invalid_password(self):
         LoginServer.LOGIN_FAILED_DELAY = 0.2
         self.assertRaises(
             LoginExceptions.InvalidCredentialsException,
@@ -114,6 +114,15 @@ class LoginServerTestCase(unittest.TestCase):
             fake_wrong_passwd
         )
 
+    def test_valid_user_and_invalid_password(self):
+        LoginServer.LOGIN_FAILED_DELAY = 0.2
+        self.assertRaises(
+            LoginExceptions.InvalidCredentialsException,
+            self.login_server.login,
+            fake_right_user,
+            fake_wrong_passwd
+        )
+        
     if LoginAuth.LDAP_AVAILABLE:
         def test_ldap_user_right(self):
             ldap_module = LoginAuthTest.create_ldap_module(

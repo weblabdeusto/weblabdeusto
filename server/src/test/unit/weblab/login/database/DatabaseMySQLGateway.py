@@ -44,7 +44,7 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
 
         #This user exists, but the password is wrong
         self.assertRaises(
-                DbExceptions.DbNoUserAuthNorPasswordFoundException,
+                DbExceptions.DbInvalidUserOrPasswordException,
                 self.auth_gateway.check_user_password,
                 'admin1',
                 'wrong_password'

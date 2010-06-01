@@ -84,11 +84,13 @@ class AuthDatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
 
             try:
                 retrieved_password = [ userauth.configuration for userauth in user.auths if userauth.auth.auth_type.name == "DB" ][0]
-                user_authenticated = self._check_password(retrieved_password, passwd)
+                has_password = True
             except IndexError:
-                user_authenticated = False            
-            
-            if user_authenticated:
+                has_password = False
+
+            if has_password:
+                if not self._check_password(retrieved_password, passwd):
+                    raise DbExceptions.DbInvalidUserOrPasswordException("Invalid password: '%s'" % passwd)
                 auth_info = None
             else:
                 auth_info = self._retrieve_auth_information(user, session)
@@ -124,7 +126,7 @@ class AuthDatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
 
         try:
             hashobj = hashlib.new(algorithm)
-        except Exception, e:
+        except Exception:
             raise DbExceptions.DbHashAlgorithmNotFoundException(
                     "Algorithm %s not found" % algorithm
                 )
