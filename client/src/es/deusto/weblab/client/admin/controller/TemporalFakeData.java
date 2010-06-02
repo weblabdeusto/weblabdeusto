@@ -32,9 +32,11 @@ public class TemporalFakeData {
 	
 	public TemporalFakeData() {
 
-		Group course200910 = new Group("Course 2009/10", null);
-		Group telecomunications = new Group("Telecomunications", course200910);
-		Group mechatronics = new Group("Mechatronics", course200910);
+		Group telecomunications = new Group("Telecomunications");
+		Group mechatronics = new Group("Mechatronics");
+		Group course200910 = new Group("Course 2009/10");
+		course200910.addChild(telecomunications);
+		course200910.addChild(mechatronics);
 		
 		Role student = new Role("student");
 		
@@ -61,8 +63,6 @@ public class TemporalFakeData {
 		
 		this.groups = new ArrayList<Group>();
 		this.groups.add(course200910);
-		this.groups.add(telecomunications);
-		this.groups.add(mechatronics);
 		
 		this.allExperimentUses = new ArrayList<ExperimentUse>();		
 		this.allExperimentUses.add(new ExperimentUse(jaime, fpga,  new Date(2010-1900, 04, 17, 15, 00, 00), new Date(2010-1900, 04, 17, 15, 00, 30)));

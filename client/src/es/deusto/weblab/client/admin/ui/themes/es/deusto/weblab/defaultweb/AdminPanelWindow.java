@@ -16,6 +16,7 @@ package es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -48,10 +49,12 @@ public class AdminPanelWindow extends BaseWindow {
 
 	public interface IAdminPanelWindowCallback {
 		public void onLogoutButtonClicked();
-		public ArrayList<Group> getGroups();
+		public void getGroups();
 		public ArrayList<Experiment> getExperiments();
 		public ArrayList<ExperimentUse> onSearchButtonClicked(Date fromDate, Date toDate, Group group, Experiment experiment);
-	}	
+	}
+	
+	private AdminPanelWindowHelper helper;
 	
 	// Widgets
 	@UiField VerticalPanel containerPanel;
@@ -79,6 +82,7 @@ public class AdminPanelWindow extends BaseWindow {
 	// DTOs
 	private final User user;
 	private ArrayList<Group> groups;
+	private ArrayList<Group> groupsList;
 	private ArrayList<Experiment> experiments;
 	private ArrayList<ExperimentUse> experimentUses;
 
@@ -87,9 +91,14 @@ public class AdminPanelWindow extends BaseWindow {
 	    
 	    this.user = user;
 	    this.callback = callback;
-	    
+
+	    this.helper = new AdminPanelWindowHelper(); 
 	    this.loadWidgets();
-	}	
+	}
+	
+	public void init() {
+		this.callback.getGroups();
+	}
 	
 	private void loadWidgets() {
 		AdminPanelWindow.uiBinder.createAndBindUi(this);
@@ -98,12 +107,6 @@ public class AdminPanelWindow extends BaseWindow {
 		
 		this.fromDateBox.setFormat(new DefaultFormat(DateTimeFormat.getMediumDateFormat()));
 		this.toDateBox.setFormat(new DefaultFormat(DateTimeFormat.getMediumDateFormat()));
-		
-		this.groups = this.callback.getGroups();
-		this.groupConditionListBox.addItem("(any)"); // #i18n
-		for ( Group group: this.groups ) {
-			this.groupConditionListBox.addItem(group.getFullName() );
-		}
 		
 		this.experiments = this.callback.getExperiments();
 		this.experimentConditionListBox.addItem("(any)"); // #i18n
@@ -138,6 +141,15 @@ public class AdminPanelWindow extends BaseWindow {
     	
     	this.experimentHeader = new Label("Experiment");
     	this.experimentHeader.setStyleName("web-admin-logged-accesses-grid-header");
+	}
+	
+	public void fillGroupsCombobox(ArrayList<Group> groups) {
+		this.groupConditionListBox.addItem("(any)"); // #i18n
+		this.groups = groups;
+		this.groupsList = this.helper.extractGroupsTreeToList(groups);
+		for ( Group group: this.groupsList ) {
+			this.groupConditionListBox.addItem(group.getFullName());
+		}
 	}
 
 	@Override
@@ -177,7 +189,7 @@ public class AdminPanelWindow extends BaseWindow {
     	if ( groupIndex == 0 ) {
     		group = null;
     	} else {
-    		group = this.groups.get(groupIndex-1);
+    		group = this.groupsList.get(groupIndex-1);
     	}
 
     	int experimentIndex = this.experimentConditionListBox.getSelectedIndex();

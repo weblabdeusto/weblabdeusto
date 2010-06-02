@@ -82,6 +82,11 @@ public class DefaultTheme extends WlAdminThemeBase {
 		this.loadLoginWindow();
 	}
 
+	@Override
+	public void onGroupsRetrieved(ArrayList<Group> groups) {
+		this.adminPanelWindow.fillGroupsCombobox(groups);
+	}
+
 	/*
 	 * Alternative scenarios
 	 */
@@ -135,8 +140,8 @@ public class DefaultTheme extends WlAdminThemeBase {
 			}
 
 			@Override
-			public ArrayList<Group> getGroups() {
-				return DefaultTheme.this.controller.getGroups();
+			public void getGroups() {
+				DefaultTheme.this.controller.getGroups();
 			}
 
 			@Override
@@ -144,6 +149,7 @@ public class DefaultTheme extends WlAdminThemeBase {
 				return DefaultTheme.this.controller.getExperimentUses(fromDate, toDate, group, experiment);
 			}
 		});
+		this.adminPanelWindow.init();
 		this.activeWindow = this.adminPanelWindow;
 
 		this.themePanel.add(this.adminPanelWindow.getWidget());	    

@@ -30,7 +30,7 @@ public interface IWlAdminController {
 	void logout();
 	
 	ArrayList<Experiment> getExperiments();
-	ArrayList<Group> getGroups();
+	void getGroups();
 
 	void setUIManager(WlAdminThemeBase theme);
 	ArrayList<ExperimentUse> getExperimentUses(Date fromDate, Date toDate, Group group,	Experiment experiment);

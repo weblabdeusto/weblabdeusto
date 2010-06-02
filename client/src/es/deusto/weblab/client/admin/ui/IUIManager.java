@@ -14,6 +14,9 @@
 
 package es.deusto.weblab.client.admin.ui;
 
+import java.util.ArrayList;
+
+import es.deusto.weblab.client.dto.users.Group;
 import es.deusto.weblab.client.dto.users.User;
 
 
@@ -25,6 +28,8 @@ public interface IUIManager {
 	public void onInit();
     public void onLoggedIn(User user);
 	public void onLoggedOut();
+	
+	public void onGroupsRetrieved(ArrayList<Group> groups);
 	
 	
 	/*

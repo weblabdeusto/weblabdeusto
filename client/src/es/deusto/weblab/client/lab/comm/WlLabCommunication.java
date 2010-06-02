@@ -87,6 +87,7 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 		}
 	}
 	
+	@Override
 	public void getReservationStatus(SessionID sessionId, IReservationCallback callback) {
 		String requestSerialized;
 		try {
@@ -128,7 +129,8 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 			this.experimentsAllowedCallback.onSuccess(experimentsAllowed);
 		}
 	}
-	
+
+	@Override
 	public void listExperiments(SessionID sessionId, IExperimentsAllowedCallback callback) {
 		String requestSerialized;
 		try {
@@ -170,6 +172,7 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 		}
 	}
 
+	@Override
 	public void poll(SessionID sessionId, IVoidCallback callback) {
 		String requestSerialized;
 		try {
@@ -215,6 +218,7 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 		}
 	}
 
+	@Override
 	public void reserveExperiment(SessionID sessionId, ExperimentID experimentId, IReservationCallback callback) {
 		String requestSerialized;
 		try {
@@ -256,7 +260,8 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 			this.responseCommandCallback.onSuccess(command);
 		}
 	}
-	
+
+	@Override
 	public void sendCommand(SessionID sessionId, Command command, IResponseCommandCallback callback) {
 		String requestSerialized;
 		try {
@@ -297,7 +302,8 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 			this.voidCallback.onSuccess();
 		}
 	}
-	
+
+	@Override
 	public void finishedExperiment(SessionID sessionId, IVoidCallback callback) {
 		String requestSerialized;
 		try {

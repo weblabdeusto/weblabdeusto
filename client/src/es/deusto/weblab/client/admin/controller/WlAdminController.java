@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.Date;
 
 import es.deusto.weblab.client.admin.comm.IWlAdminCommunication;
+import es.deusto.weblab.client.admin.comm.callbacks.IGroupsCallback;
 import es.deusto.weblab.client.admin.ui.IUIManager;
 import es.deusto.weblab.client.admin.ui.WlAdminThemeBase;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
@@ -109,8 +110,19 @@ public class WlAdminController implements IWlAdminController {
 	}
 
 	@Override
-	public ArrayList<Group> getGroups() {
-		return this.temporalFakeData.groups;
+	public void getGroups() {
+		WlAdminController.this.uimanager.onGroupsRetrieved(this.temporalFakeData.groups);
+		/*
+		this.communications.getGroups(this.currentSession, new IGroupsCallback(){
+			public void onSuccess(final ArrayList<Group> groups) {
+				WlAdminController.this.uimanager.onGroupsRetrieved(groups);
+			}
+			
+			public void onFailure(WlCommException e) {
+				WlAdminController.this.uimanager.onError(e.getMessage());
+			}
+		});
+		*/	
 	}
 
 	@Override

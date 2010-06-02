@@ -20,12 +20,22 @@ public class Group {
 	
 	private String name;
 	private Group parent;
+	private ArrayList<Group> children;
 	private ArrayList<User> users;
 	
-	public Group(String name, Group parent) {
+	public Group(String name) {
 		super();
 		this.name = name;
-		this.parent = parent;
+		this.parent = null;
+		this.children = new ArrayList<Group>();
+		this.users = new ArrayList<User>();
+	}
+	
+	public Group(String name, ArrayList<Group> children) {
+		super();
+		this.name = name;
+		this.parent = null;
+		this.children = children;
 		this.users = new ArrayList<User>();
 	}
 	
@@ -38,8 +48,12 @@ public class Group {
 	public Group getParent() {
 		return this.parent;
 	}
-	public void setParent(Group parent) {
+	private void setParent(Group parent) {
 		this.parent = parent;
+	}
+
+	public ArrayList<Group> getChildren() {
+		return this.children;
 	}
 
 	public String getFullName() {
@@ -48,6 +62,11 @@ public class Group {
 		} else {
 			return this.parent.getFullName() + " > " + this.name;
 		}
+	}
+	
+	public void addChild(Group group) {
+		group.setParent(this);
+		this.children.add(group);
 	}
 	
 	public void addUser(User user) {

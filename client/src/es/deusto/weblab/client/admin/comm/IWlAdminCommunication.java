@@ -14,8 +14,12 @@
 
 package es.deusto.weblab.client.admin.comm;
 
+import es.deusto.weblab.client.admin.comm.callbacks.IGroupsCallback;
 import es.deusto.weblab.client.comm.IWlCommonCommunication;
+import es.deusto.weblab.client.dto.SessionID;
 
 public interface IWlAdminCommunication extends IWlCommonCommunication {
+
+	void getGroups(SessionID currentSession, IGroupsCallback iGroupsCallback);
 
 }
