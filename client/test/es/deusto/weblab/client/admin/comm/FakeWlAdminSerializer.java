@@ -31,6 +31,7 @@ public class FakeWlAdminSerializer extends FakeWlCommonSerializer implements IWl
 	
 	public static final String SERIALIZE_GET_GROUPS_REQUEST       = "FakeWebLabSerializer::serializeGetGroupsRequest";
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public ArrayList<Group> parseGetGroupsResponse(String response)
 		throws SerializationException, SessionNotFoundException, UserProcessingException, WlServerException {

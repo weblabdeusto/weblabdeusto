@@ -20,7 +20,6 @@ import java.util.Comparator;
 import java.util.Date;
 
 import es.deusto.weblab.client.admin.comm.IWlAdminCommunication;
-import es.deusto.weblab.client.admin.comm.callbacks.IGroupsCallback;
 import es.deusto.weblab.client.admin.ui.IUIManager;
 import es.deusto.weblab.client.admin.ui.WlAdminThemeBase;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;

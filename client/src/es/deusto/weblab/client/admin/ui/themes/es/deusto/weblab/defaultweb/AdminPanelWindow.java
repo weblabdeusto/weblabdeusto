@@ -16,7 +16,6 @@ package es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -81,7 +80,7 @@ public class AdminPanelWindow extends BaseWindow {
 	
 	// DTOs
 	private final User user;
-	private ArrayList<Group> groups;
+	private ArrayList<Group> groupsTree;
 	private ArrayList<Group> groupsList;
 	private ArrayList<Experiment> experiments;
 	private ArrayList<ExperimentUse> experimentUses;
@@ -145,7 +144,7 @@ public class AdminPanelWindow extends BaseWindow {
 	
 	public void fillGroupsCombobox(ArrayList<Group> groups) {
 		this.groupConditionListBox.addItem("(any)"); // #i18n
-		this.groups = groups;
+		this.groupsTree = groups;
 		this.groupsList = this.helper.extractGroupsTreeToList(groups);
 		for ( Group group: this.groupsList ) {
 			this.groupConditionListBox.addItem(group.getFullName());
