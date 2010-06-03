@@ -16,6 +16,7 @@ package es.deusto.weblab.client.admin.comm;
 
 import java.util.ArrayList;
 
+import es.deusto.weblab.client.comm.IWlCommonSerializer;
 import es.deusto.weblab.client.comm.exceptions.SerializationException;
 import es.deusto.weblab.client.comm.exceptions.WlServerException;
 import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
@@ -23,7 +24,7 @@ import es.deusto.weblab.client.comm.exceptions.core.UserProcessingException;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.users.Group;
 
-public interface IWlAdminSerializer {
+public interface IWlAdminSerializer extends IWlCommonSerializer {
 
 	ArrayList<Group> parseGetGroupsResponse(String response)
 		throws SerializationException, SessionNotFoundException, UserProcessingException, WlServerException;
