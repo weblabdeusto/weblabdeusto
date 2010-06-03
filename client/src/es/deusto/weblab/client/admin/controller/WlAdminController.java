@@ -20,14 +20,13 @@ import java.util.Comparator;
 import java.util.Date;
 
 import es.deusto.weblab.client.admin.comm.IWlAdminCommunication;
+import es.deusto.weblab.client.admin.comm.callbacks.IGroupsCallback;
 import es.deusto.weblab.client.admin.ui.IUIManager;
-import es.deusto.weblab.client.admin.ui.WlAdminThemeBase;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.comm.exceptions.login.LoginException;
-import es.deusto.weblab.client.configuration.ConfigurationManager;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Experiment;
@@ -43,14 +42,14 @@ public class WlAdminController implements IWlAdminController {
 	private SessionID currentSession;
 	private TemporalFakeData temporalFakeData;
 	
-	public WlAdminController(ConfigurationManager configurationManager, IWlAdminCommunication communications) {
+	public WlAdminController(IConfigurationManager configurationManager, IWlAdminCommunication communications) {
 		this.configurationManager = configurationManager;
 		this.communications = communications;
 		this.temporalFakeData = new TemporalFakeData();
 	}
 
 	@Override
-	public void setUIManager(WlAdminThemeBase uimanager) {
+	public void setUIManager(IUIManager uimanager) {
 		this.uimanager = uimanager;
 	}
 
@@ -110,8 +109,6 @@ public class WlAdminController implements IWlAdminController {
 
 	@Override
 	public void getGroups() {
-		WlAdminController.this.uimanager.onGroupsRetrieved(this.temporalFakeData.groups);
-		/*
 		this.communications.getGroups(this.currentSession, new IGroupsCallback(){
 			public void onSuccess(final ArrayList<Group> groups) {
 				WlAdminController.this.uimanager.onGroupsRetrieved(groups);
@@ -121,7 +118,6 @@ public class WlAdminController implements IWlAdminController {
 				WlAdminController.this.uimanager.onError(e.getMessage());
 			}
 		});
-		*/	
 	}
 
 	@Override

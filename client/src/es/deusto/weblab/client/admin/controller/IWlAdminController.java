@@ -17,7 +17,7 @@ package es.deusto.weblab.client.admin.controller;
 import java.util.ArrayList;
 import java.util.Date;
 
-import es.deusto.weblab.client.admin.ui.WlAdminThemeBase;
+import es.deusto.weblab.client.admin.ui.IUIManager;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Experiment;
 import es.deusto.weblab.client.dto.experiments.ExperimentUse;
@@ -32,6 +32,6 @@ public interface IWlAdminController {
 	ArrayList<Experiment> getExperiments();
 	void getGroups();
 
-	void setUIManager(WlAdminThemeBase theme);
+	void setUIManager(IUIManager theme);
 	ArrayList<ExperimentUse> getExperimentUses(Date fromDate, Date toDate, Group group,	Experiment experiment);
 }
