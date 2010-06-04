@@ -160,6 +160,28 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             return use.to_business()
         finally:
             session.close()
+
+    @logged()
+    def get_groups(self, user_login):
+        """ All the groups are returned by the moment """
+        
+        def get_business_children_recursively(groups):
+            business_groups = []
+            for group in groups:
+                business_group = group.to_business_light()
+                if len(group.children) > 0:
+                    business_group.set_children(get_business_children_recursively(group.children))
+                business_groups.append(business_group)
+            return business_groups
+        
+        session = self.Session()
+        try:
+            user = self._get_user(session, user_login)
+            groups = session.query(Model.DbGroup).filter_by(parent=None).all()
+            business_groups = get_business_children_recursively(groups)
+            return tuple(business_groups)
+        finally:
+            session.close()
     
     def _get_user(self, session, user_login):
         try:

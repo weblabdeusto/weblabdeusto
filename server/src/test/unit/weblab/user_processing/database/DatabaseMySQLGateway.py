@@ -217,7 +217,21 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         self.assertEquals(fpga_permission.get_parameter('time_allowed').value, '30')
         self.assertEquals(fpga_permission.get_permission_type().name, 'experiment_allowed')
         self.assertEquals(fpga_permission.get_parameter('experiment_permanent_id').get_name(), 'experiment_permanent_id')
-        self.assertEquals(fpga_permission.get_parameter('experiment_permanent_id').get_datatype(), 'string')
+        self.assertEquals(fpga_permission.get_parameter('experiment_permanent_id').get_datatype(), 'string')   
+
+    def test_get_groups(self):
+        student1 = self.gateway.get_user_by_name('student1')
+        student2 = self.gateway.get_user_by_name('student2')
+        
+        groups1 = self.gateway.get_groups(student1.login)
+        self.assertEquals(len(groups1), 1)
+
+        groups2 = self.gateway.get_groups(student2.login)
+        self.assertEquals(len(groups2), 1)
+
+        groups1_names = list( ( group.name for group in groups1 ))
+
+        self.assertTrue( '5A' in groups1_names )
 
         
 def suite():

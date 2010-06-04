@@ -36,6 +36,7 @@ _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessor"
 
 #TODO: configuration
 LIST_EXPERIMENTS_CACHE_TIME     = 15  # seconds
+GET_GROUPS_CACHE_TIME           = 15  # seconds
 GET_USER_INFORMATION_CACHE_TIME = 200 # seconds
 DEFAULT_EXPERIMENT_POLL_TIME    = 300  # seconds
 EXPERIMENT_POLL_TIME            = 'core_experiment_poll_time'
@@ -47,6 +48,10 @@ def list_experiments(db_manager, db_session_id):
 @cache(GET_USER_INFORMATION_CACHE_TIME, _resource_manager)
 def get_user_information(db_manager, db_session_id):
     return db_manager.retrieve_user_information(db_session_id)
+
+@cache(GET_GROUPS_CACHE_TIME, _resource_manager)
+def get_groups(db_manager, db_session_id):
+    return db_manager.get_groups(db_session_id)
 
 class UserProcessor(object):
 
@@ -367,5 +372,11 @@ class UserProcessor(object):
 
     def is_polling(self):
         return self._session.has_key('session_polling')
+    
+    #
+    # admin service
+    #
 
-
+    def get_groups(self):
+        db_session_id         = self._session['db_session_id']
+        return get_groups(self._db_manager, db_session_id)

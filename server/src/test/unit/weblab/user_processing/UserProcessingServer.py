@@ -101,6 +101,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         
         self.ups.logout(sess_id)
 
+
     def test_get_user_information(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
@@ -165,6 +166,21 @@ class UserProcessingServerTestCase(unittest.TestCase):
                 self.locator,
                 self.cfg_manager
             )
+
+
+    def test_get_groups(self):
+        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
+        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+
+        groups = self.ups.get_groups(sess_id)
+        self.assertEquals(1, len(groups) )
+
+        groups_names = list(( group.name for group in groups ))
+
+        self.assertTrue( '5A' in groups_names )
+        
+        self.ups.logout(sess_id)
+
 
 UserProcessingServerTestCase = case_uses_module(UserProcessingServer)(UserProcessingServerTestCase)
 UserProcessingServerTestCase = case_uses_module(UserProcessor)(UserProcessingServerTestCase)

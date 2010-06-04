@@ -29,9 +29,10 @@ from weblab.data.experiments.Category import ExperimentCategory
 from weblab.data.experiments.ExperimentId import ExperimentId  
 from weblab.data.experiments.Usage import ExperimentUsage  
 from weblab.data.experiments.Usage import FileSent  
-from weblab.data.experiments.Usage import CommandSent  
+from weblab.data.experiments.Usage import CommandSent   
 from weblab.data.Command import Command
 from weblab.data.User import User, Role
+from weblab.data.Group import Group  
 
 
 Base = declarative_base()
@@ -269,7 +270,10 @@ class DbGroup(Base):
             self.id,
             self.name,
             parent_str
-        )       
+        )        
+        
+    def to_business_light(self):
+        return Group(self.name)
 
 ##############################################################################
 # EXPERIMENTS DEFINITION

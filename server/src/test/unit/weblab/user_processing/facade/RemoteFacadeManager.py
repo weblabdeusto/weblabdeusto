@@ -37,6 +37,7 @@ import weblab.data.experiments.ExperimentAllowed as ExperimentAllowed
 import weblab.data.experiments.Experiment as Experiment
 import weblab.data.experiments.Category as Category
 import weblab.data.Command as Command
+import weblab.data.Group as Group
 
 from weblab.data.User import User, Role
 
@@ -104,6 +105,12 @@ class MockUPS(object):
         if self.exceptions.has_key('get_user_information'):
             raise self.exceptions['get_user_information']
         return self.return_values['get_user_information']
+    
+    def get_groups(self, session_id):
+        self.arguments['get_groups'] = (session_id, )
+        if self.exceptions.has_key('get_groups'):
+            raise self.exceptions['get_groups']
+        return self.return_values['get_groups']
 
 class UserProcessingFacadeManagerTestCase(unittest.TestCase):
     if ZSI_AVAILABLE:
@@ -148,6 +155,15 @@ class UserProcessingFacadeManagerTestCase(unittest.TestCase):
                     100
                 )
             return exp_allowedA, exp_allowedB
+
+        def _generate_groups(self):
+            group1 = Group.Group("group 1")
+            group11 = Group.Group("group 1.1")
+            group12 = Group.Group("group 1.2")
+            group2 = Group.Group("group 2")
+            group1.add_child(group11)
+            group1.add_child(group12)
+            return group1, group2
 
         def test_return_logout(self):
             expected_sess_id = SessionId.SessionId("whatever")
@@ -338,6 +354,22 @@ class UserProcessingFacadeManagerTestCase(unittest.TestCase):
                     expected_user_information.role.name,
                     user_information.role.name
                 )
+        
+        def test_return_get_groups(self):
+            expected_sess_id = SessionId.SessionId("whatever")
+            groups = self._generate_groups()
+        
+            self.mock_ups.return_values['get_groups'] = groups
+
+            self.assertEquals(
+                    groups,
+                    self.rfm.get_groups(expected_sess_id)
+                )
+            
+            self.assertEquals(
+                    expected_sess_id.id,
+                    self.mock_ups.arguments['get_groups'][0].id
+                )
 
         def _generate_real_mock_raising(self, method, exception, message):
             self.mock_ups.exceptions[method] = exception(message)
@@ -514,6 +546,17 @@ class UserProcessingFacadeManagerTestCase(unittest.TestCase):
                             'ZSI:' + UserProcessingRFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE, MESSAGE)
                 
             self._test_general_exceptions('get_user_information', expected_sess_id)
+
+
+        def test_exception_get_groups(self):
+            MESSAGE = "The exception message"
+            expected_sess_id  = SessionId.SessionId("whatever")
+            
+            self._test_exception('get_groups', (expected_sess_id,),  
+                            UserProcessingExceptions.SessionNotFoundException, MESSAGE, 
+                            'ZSI:' + UserProcessingRFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE, MESSAGE)
+            
+            self._test_general_exceptions('get_groups', expected_sess_id)
             
     else:
         print >> sys.stderr, "Optional module 'ZSI' not available. Tests in UserProcessingFacadeManagerTestCase skipped."

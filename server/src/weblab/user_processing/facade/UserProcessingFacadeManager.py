@@ -138,6 +138,19 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
         """
         sess_id = self._parse_session_id(session_id)
         return self._server.get_user_information(sess_id)
+   
+    #
+    # admin service
+    #
+    @logged()
+    @RFM.check_exceptions(EXCEPTIONS)
+    def get_groups(self, session_id):
+        """ get_groups(session_id) -> array of Group
+            raises SessionNotFoundException
+        """
+        sess_id = self._parse_session_id(session_id)
+        groups = self._server.get_groups(sess_id)
+        return groups
 
     def _fix_dates_in_experiments(self, experiments_allowed):
         # This is the default behaviour. Overrided by XML-RPC

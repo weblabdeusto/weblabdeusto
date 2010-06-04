@@ -30,6 +30,7 @@ import weblab.data.ServerType as ServerType
 import weblab.data.ClientAddress as ClientAddress
 
 import weblab.data.Command as Command
+import weblab.data.Group as Group
 import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
 import weblab.data.experiments.ExperimentId as ExperimentId
 import weblab.data.experiments.Category as Category
@@ -431,6 +432,7 @@ class FakeDatabase(object):
                         'Dummy experiments'
                     )
             ]
+        self.groups = [ Group.Group("5A") ]
 
     def store_experiment_usage(self, db_session_id, experiment_usage):
         pass
@@ -440,6 +442,9 @@ class FakeDatabase(object):
 
     def retrieve_user_information(self, db_session_id):
         pass
+
+    def get_groups(self, db_session_id):
+        return self.groups
 
 class FakeLocator(object):
     def __init__(self, lab):
