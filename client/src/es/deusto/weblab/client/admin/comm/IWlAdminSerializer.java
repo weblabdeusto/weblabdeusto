@@ -22,12 +22,18 @@ import es.deusto.weblab.client.comm.exceptions.WlServerException;
 import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
 import es.deusto.weblab.client.comm.exceptions.core.UserProcessingException;
 import es.deusto.weblab.client.dto.SessionID;
+import es.deusto.weblab.client.dto.experiments.Experiment;
 import es.deusto.weblab.client.dto.users.Group;
 
 public interface IWlAdminSerializer extends IWlCommonSerializer {
 
+	ArrayList<Experiment> parseGetExperimentsResponse(String response)
+		throws SerializationException, SessionNotFoundException, UserProcessingException, WlServerException;	
+
 	ArrayList<Group> parseGetGroupsResponse(String response)
 		throws SerializationException, SessionNotFoundException, UserProcessingException, WlServerException;
 
-	String serializeGetGroupsRequest(SessionID sessionId) throws SerializationException;	
+	String serializeGetExperimentsRequest(SessionID sessionId) throws SerializationException;
+
+	String serializeGetGroupsRequest(SessionID sessionId) throws SerializationException;
 }

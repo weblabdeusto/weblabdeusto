@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.Date;
 
 import es.deusto.weblab.client.admin.comm.IWlAdminCommunication;
+import es.deusto.weblab.client.admin.comm.callbacks.IExperimentsCallback;
 import es.deusto.weblab.client.admin.comm.callbacks.IGroupsCallback;
 import es.deusto.weblab.client.admin.ui.IUIManager;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
@@ -104,7 +105,15 @@ public class WlAdminController implements IWlAdminController {
 
 	@Override
 	public void getExperiments() {
-		WlAdminController.this.uimanager.onExperimentsRetrieved(this.temporalFakeData.experiments);
+		this.communications.getExperiments(this.currentSession, new IExperimentsCallback(){
+			public void onSuccess(final ArrayList<Experiment> experiments) {
+				WlAdminController.this.uimanager.onExperimentsRetrieved(experiments);
+			}
+			
+			public void onFailure(WlCommException e) {
+				WlAdminController.this.uimanager.onError(e.getMessage());
+			}
+		});
 	}
 
 	@Override

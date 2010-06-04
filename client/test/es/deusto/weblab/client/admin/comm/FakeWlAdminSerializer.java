@@ -22,23 +22,37 @@ import es.deusto.weblab.client.comm.exceptions.WlServerException;
 import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
 import es.deusto.weblab.client.comm.exceptions.core.UserProcessingException;
 import es.deusto.weblab.client.dto.SessionID;
+import es.deusto.weblab.client.dto.experiments.Experiment;
 import es.deusto.weblab.client.dto.users.Group;
 
 
 public class FakeWlAdminSerializer extends FakeWlCommonSerializer implements IWlAdminSerializer {
 	
-	public static final String PARSE_GET_GROUPS_RESPONSE          = "FakeWebLabSerializer::parseGetGroupsResponse";
+	public static final String PARSE_GET_GROUPS_RESPONSE      = "FakeWebLabSerializer::parseGetGroupsResponse";
+	public static final String PARSE_GET_EXPERIMENTS_RESPONSE = "FakeWebLabSerializer::parseGetExperimentsResponse";
 	
-	public static final String SERIALIZE_GET_GROUPS_REQUEST       = "FakeWebLabSerializer::serializeGetGroupsRequest";
+	public static final String SERIALIZE_GET_GROUPS_REQUEST      = "FakeWebLabSerializer::serializeGetGroupsRequest";
+	public static final String SERIALIZE_GET_EXPERIMENTS_REQUEST = "FakeWebLabSerializer::serializeGetExperimentsRequest";
+
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public ArrayList<Group> parseGetGroupsResponse(String response)
-		throws SerializationException, SessionNotFoundException, UserProcessingException, WlServerException {
+			throws SerializationException, SessionNotFoundException, UserProcessingException, WlServerException {
 		this.append(FakeWlAdminSerializer.PARSE_GET_GROUPS_RESPONSE, new Object[]{
 				response
 		});
 		return (ArrayList<Group>)this.retrieveReturn(FakeWlAdminSerializer.PARSE_GET_GROUPS_RESPONSE);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public ArrayList<Experiment> parseGetExperimentsResponse(String response)
+			throws SerializationException, SessionNotFoundException, UserProcessingException, WlServerException {
+		this.append(FakeWlAdminSerializer.PARSE_GET_EXPERIMENTS_RESPONSE, new Object[]{
+				response
+		});
+		return (ArrayList<Experiment>)this.retrieveReturn(FakeWlAdminSerializer.PARSE_GET_EXPERIMENTS_RESPONSE);
 	}
 
 	@Override
@@ -49,4 +63,11 @@ public class FakeWlAdminSerializer extends FakeWlCommonSerializer implements IWl
 		return (String)this.retrieveReturn(FakeWlAdminSerializer.SERIALIZE_GET_GROUPS_REQUEST);
 	}
 
+	@Override
+	public String serializeGetExperimentsRequest(SessionID sessionId) throws SerializationException {
+		this.append(FakeWlAdminSerializer.SERIALIZE_GET_EXPERIMENTS_REQUEST, new Object[]{
+				sessionId
+		});
+		return (String)this.retrieveReturn(FakeWlAdminSerializer.SERIALIZE_GET_EXPERIMENTS_REQUEST);
+	}
 }

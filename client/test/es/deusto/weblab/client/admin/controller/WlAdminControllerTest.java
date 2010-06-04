@@ -24,6 +24,7 @@ import junit.framework.Assert;
 import com.google.gwt.junit.client.GWTTestCase;
 
 import es.deusto.weblab.client.admin.comm.FakeWlAdminCommunication;
+import es.deusto.weblab.client.admin.comm.callbacks.IExperimentsCallback;
 import es.deusto.weblab.client.admin.comm.callbacks.IGroupsCallback;
 import es.deusto.weblab.client.admin.ui.FakeUIManager;
 import es.deusto.weblab.client.comm.FakeWlCommonCommunication;
@@ -35,6 +36,7 @@ import es.deusto.weblab.client.comm.exceptions.login.LoginException;
 import es.deusto.weblab.client.configuration.FakeConfiguration;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
+import es.deusto.weblab.client.dto.experiments.Experiment;
 import es.deusto.weblab.client.dto.users.Group;
 import es.deusto.weblab.client.dto.users.Role;
 import es.deusto.weblab.client.dto.users.User;
@@ -112,6 +114,26 @@ public class WlAdminControllerTest  extends GWTTestCase {
     		Assert.assertEquals(1,this.fakeUIManager.getMethodByName(FakeUIManager.ON_GROUPS_RETRIEVED).size());
     		Assert.assertEquals(1,(this.fakeUIManager.getMethodByName(FakeUIManager.ON_GROUPS_RETRIEVED).get(0)).getParameters().length);
     		Assert.assertEquals(groups,(this.fakeUIManager.getMethodByName(FakeUIManager.ON_GROUPS_RETRIEVED).get(0)).getParameters()[0]);
+		
+		// getExperiments
+		controller.getExperiments();		
+		v = this.fakeCommunications.getMethodByName(FakeWlAdminCommunication.GET_EXPERIMENTS);
+		Assert.assertEquals(1, v.size());
+		m = v.get(0);
+		Assert.assertEquals(2, m.getParameters().length);
+		Assert.assertEquals(sessionID, m.getParameters()[0]);		
+		final IExperimentsCallback experimentsCallback = (IExperimentsCallback)(m.getParameters()[1]);
+		
+			// failure
+			experimentsCallback.onFailure(new WlCommException("error retrieving experiments"));
+    		Assert.assertEquals(2,this.fakeUIManager.getMethodByName(FakeUIManager.ON_ERROR).size());
+    		
+    		// success
+    		final ArrayList<Experiment> experiments = new ArrayList<Experiment>();
+    		experimentsCallback.onSuccess(experiments);
+    		Assert.assertEquals(1,this.fakeUIManager.getMethodByName(FakeUIManager.ON_EXPERIMENTS_RETRIEVED).size());
+    		Assert.assertEquals(1,(this.fakeUIManager.getMethodByName(FakeUIManager.ON_EXPERIMENTS_RETRIEVED).get(0)).getParameters().length);
+    		Assert.assertEquals(experiments,(this.fakeUIManager.getMethodByName(FakeUIManager.ON_EXPERIMENTS_RETRIEVED).get(0)).getParameters()[0]);    		
 		
 		// logout
 		controller.logout();		
