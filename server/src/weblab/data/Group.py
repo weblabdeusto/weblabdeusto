@@ -18,25 +18,22 @@ class Group(object):
     def __init__(self, name):
         super(Group, self).__init__()
         self.name = name
-        self.parent = None
-        self._children = []
+        self._parent = None
+        self.children = []
         
     def add_child(self, child):
-        child.parent = self
-        self._children.append(child)
-        
-    def get_children(self):
-        return self._children
+        child._parent = self
+        self.children.append(child)
     
     def set_children(self, children):
         for child in children:
             self.add_child(child) 
         
     def get_full_name(self):
-        if self.parent is None:
+        if self._parent is None:
             return self.name
         else:
-            return self.parent.get_full_name() + " > " + self.name
+            return self._parent.get_full_name() + " > " + self.name
 
     def __repr__(self):
         return "Group(full_name = '%s')" % (

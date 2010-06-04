@@ -36,7 +36,7 @@ import es.deusto.weblab.client.dto.users.Group;
 public class WlAdminCommunication extends WlCommonCommunication implements IWlAdminCommunication {
 	
 	public static final String WEBLAB_ADMIN_SERVICE_URL_PROPERTY = "weblab.service.admin.url";
-	public static final String DEFAULT_WEBLAB_ADMIN_SERVICE_URL = "/weblab/admin/json/";
+	public static final String DEFAULT_WEBLAB_ADMIN_SERVICE_URL = "/weblab/json/";
 
 	public WlAdminCommunication(IConfigurationManager configurationManager) {
 		super(configurationManager);
