@@ -103,8 +103,8 @@ public class WlAdminController implements IWlAdminController {
 	}
 
 	@Override
-	public ArrayList<Experiment> getExperiments() {
-		return this.temporalFakeData.experiments;
+	public void getExperiments() {
+		WlAdminController.this.uimanager.onExperimentsRetrieved(this.temporalFakeData.experiments);
 	}
 
 	@Override

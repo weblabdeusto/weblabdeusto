@@ -83,6 +83,11 @@ public class DefaultTheme extends WlAdminThemeBase {
 	}
 
 	@Override
+	public void onExperimentsRetrieved(ArrayList<Experiment> experiments) {
+		this.adminPanelWindow.fillExperimentsCombobox(experiments);
+	}
+
+	@Override
 	public void onGroupsRetrieved(ArrayList<Group> groups) {
 		this.adminPanelWindow.fillGroupsCombobox(groups);
 	}
@@ -135,8 +140,8 @@ public class DefaultTheme extends WlAdminThemeBase {
 			}
 
 			@Override
-			public ArrayList<Experiment> getExperiments() {
-				return DefaultTheme.this.controller.getExperiments();
+			public void getExperiments() {
+				DefaultTheme.this.controller.getExperiments();
 			}
 
 			@Override

@@ -49,7 +49,7 @@ public class AdminPanelWindow extends BaseWindow {
 	public interface IAdminPanelWindowCallback {
 		public void onLogoutButtonClicked();
 		public void getGroups();
-		public ArrayList<Experiment> getExperiments();
+		public void getExperiments();
 		public ArrayList<ExperimentUse> onSearchButtonClicked(Date fromDate, Date toDate, Group group, Experiment experiment);
 	}
 	
@@ -96,6 +96,7 @@ public class AdminPanelWindow extends BaseWindow {
 	}
 	
 	public void init() {
+		this.callback.getExperiments();
 		this.callback.getGroups();
 	}
 	
@@ -106,12 +107,6 @@ public class AdminPanelWindow extends BaseWindow {
 		
 		this.fromDateBox.setFormat(new DefaultFormat(DateTimeFormat.getMediumDateFormat()));
 		this.toDateBox.setFormat(new DefaultFormat(DateTimeFormat.getMediumDateFormat()));
-		
-		this.experiments = this.callback.getExperiments();
-		this.experimentConditionListBox.addItem("(any)"); // #i18n
-		for ( Experiment experiment: this.experiments ) {
-			this.experimentConditionListBox.addItem(experiment.getUniqueName());
-		}
 		
 		/* Future functionality
 		this.groupedByListBox.addItem("(don't group)");
@@ -140,6 +135,14 @@ public class AdminPanelWindow extends BaseWindow {
     	
     	this.experimentHeader = new Label("Experiment");
     	this.experimentHeader.setStyleName("web-admin-logged-accesses-grid-header");
+	}
+
+	public void fillExperimentsCombobox(ArrayList<Experiment> experiments) {
+		this.experimentConditionListBox.addItem("(any)"); // #i18n
+		this.experiments = experiments;
+		for ( Experiment experiment: this.experiments ) {
+			this.experimentConditionListBox.addItem(experiment.getUniqueName());
+		}
 	}
 	
 	public void fillGroupsCombobox(ArrayList<Group> groups) {

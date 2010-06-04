@@ -29,7 +29,7 @@ public interface IWlAdminController {
 	void startLoggedIn(SessionID sessionId);
 	void logout();
 	
-	ArrayList<Experiment> getExperiments();
+	void getExperiments();
 	void getGroups();
 
 	void setUIManager(IUIManager theme);

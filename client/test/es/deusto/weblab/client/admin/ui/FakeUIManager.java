@@ -16,6 +16,7 @@ package es.deusto.weblab.client.admin.ui;
 
 import java.util.ArrayList;
 
+import es.deusto.weblab.client.dto.experiments.Experiment;
 import es.deusto.weblab.client.dto.users.Group;
 import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.testing.util.WlFake;
@@ -25,6 +26,7 @@ public class FakeUIManager extends WlFake implements IUIManager {
     public static final String ON_INIT                          = "FakeUIManager::onInit";
     public static final String ON_LOGGED_IN                     = "FakeUIManager::onLoggedIn";
     public static final String ON_LOGGED_OUT                    = "FakeUIManager::onLoggedOut";
+    public static final String ON_EXPERIMENTS_RETRIEVED         = "FakeUIManager::onExperimentsRetrieved";
     public static final String ON_GROUPS_RETRIEVED              = "FakeUIManager::onGroupsRetrieved";
     
     public static final String ON_WRONG_LOGIN_OR_PASSWORD_GIVEN = "FakeUIManager::onWrongLoginOrPasswordGiven";
@@ -50,6 +52,11 @@ public class FakeUIManager extends WlFake implements IUIManager {
     public void onLoggedOut() {
     	this.append(FakeUIManager.ON_LOGGED_OUT);
     }    
+
+	@Override
+	public void onExperimentsRetrieved(ArrayList<Experiment> experiments) {
+		this.append(FakeUIManager.ON_EXPERIMENTS_RETRIEVED, new Object[]{experiments});
+	}
 
 	@Override
 	public void onGroupsRetrieved(ArrayList<Group> groups) {
