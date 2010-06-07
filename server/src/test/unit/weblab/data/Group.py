@@ -21,9 +21,9 @@ import weblab.data.Group as Group
 class GroupTestCase(unittest.TestCase):
     
     def test_get_full_name(self):
-        group1 = Group.Group("group 1")
-        group12 = Group.Group("group 1.2")
-        group121 = Group.Group("group 1.2.1")
+        group1 = Group.Group(0, "group 1")
+        group12 = Group.Group(0, "group 1.2")
+        group121 = Group.Group(0, "group 1.2.1")
         group12.add_child(group121)
         group1.add_child(group12)
         

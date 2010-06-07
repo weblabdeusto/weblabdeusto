@@ -17,7 +17,8 @@ package es.deusto.weblab.client.dto.users;
 import java.util.ArrayList;
 
 public class Group {
-	
+
+	private int id;
 	private String name;
 	private Group parent;
 	private ArrayList<Group> children;
@@ -31,14 +32,18 @@ public class Group {
 		this.users = new ArrayList<User>();
 	}
 	
-	public Group(String name, ArrayList<Group> children) {
+	public Group(int id, String name, ArrayList<Group> children) {
 		super();
+		this.id = id;
 		this.name = name;
 		this.parent = null;
 		this.children = children;
 		this.users = new ArrayList<User>();
 	}
 	
+	public int getId() {
+		return this.id;
+	}
 	public String getName() {
 		return this.name;
 	}

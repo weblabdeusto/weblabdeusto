@@ -163,10 +163,10 @@ class UserProcessingFacadeManagerTestCase(unittest.TestCase):
             return exp_allowedA, exp_allowedB
 
         def _generate_groups(self):
-            group1 = Group.Group("group 1")
-            group11 = Group.Group("group 1.1")
-            group12 = Group.Group("group 1.2")
-            group2 = Group.Group("group 2")
+            group1 = Group.Group(0, "group 1")
+            group11 = Group.Group(0, "group 1.1")
+            group12 = Group.Group(0, "group 1.2")
+            group2 = Group.Group(0, "group 2")
             group1.add_child(group11)
             group1.add_child(group12)
             return group1, group2

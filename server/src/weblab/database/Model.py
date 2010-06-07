@@ -273,7 +273,7 @@ class DbGroup(Base):
         )        
         
     def to_business_light(self):
-        return Group(self.name)
+        return Group(self.id, self.name)
 
 ##############################################################################
 # EXPERIMENTS DEFINITION

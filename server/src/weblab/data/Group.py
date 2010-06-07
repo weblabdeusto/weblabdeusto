@@ -15,8 +15,9 @@
 
 class Group(object):
     
-    def __init__(self, name):
+    def __init__(self, id, name):
         super(Group, self).__init__()
+        self.id = id
         self.name = name
         self._parent = None
         self.children = []
@@ -36,6 +37,7 @@ class Group(object):
             return self._parent.get_full_name() + " > " + self.name
 
     def __repr__(self):
-        return "Group(full_name = '%s')" % (
+        return "Group(id = %i, full_name = '%s')" % (
+                self.id,
                 self.get_full_name()
             )

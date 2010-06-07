@@ -47,7 +47,13 @@ public class WlAdminSerializerJSON extends WlCommonSerializerJSON implements IWl
 		    JSONObject jsonGroup = value.isObject();
 		    if(jsonGroup == null)
 		    	throw new SerializationException("Expected JSON Object as Group, found: " + value);
-		    
+
+			// id
+			JSONValue jsonIdValue = jsonGroup.get("id");
+			if ( jsonIdValue == null )
+				throw new SerializationException("Expected id field in Group");
+			int id = this.json2int(jsonIdValue);		    
+			
 			// name
 			JSONValue jsonNameValue = jsonGroup.get("name");
 			if ( jsonNameValue == null )
@@ -63,7 +69,7 @@ public class WlAdminSerializerJSON extends WlCommonSerializerJSON implements IWl
 		    	throw new SerializationException("Expected JSON Array as children, found: " + jsonChildrenValue);
 		    ArrayList<Group> children = parseGetGroupsRecursively(jsonChildren);
 			
-		    groups.add(new Group(name, children));
+		    groups.add(new Group(id, name, children));
 		}		
 
 		return groups;
