@@ -191,6 +191,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         try:
             user = self._get_user(session, user_login)
             experiments = session.query(Model.DbExperiment).all()
+            experiments.sort(cmp=lambda x,y: cmp(x.category.name, y.category.name))
             business_experiments = [ experiment.to_business() for experiment in experiments ]
             return tuple(business_experiments)
         finally:
