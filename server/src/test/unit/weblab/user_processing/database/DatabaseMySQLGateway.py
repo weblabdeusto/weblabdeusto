@@ -231,7 +231,26 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
 
         groups1_names = list( ( group.name for group in groups1 ))
 
-        self.assertTrue( '5A' in groups1_names )
+        self.assertTrue( '5A' in groups1_names ) 
+
+    def test_get_experiments(self):
+        student2 = self.gateway.get_user_by_name('student2')
+        
+        experiments = self.gateway.get_experiments(student2.login)
+        self.assertEquals(len(experiments), 10)
+
+        experiments_names = list( ( experiment.name for experiment in experiments ))
+
+        self.assertTrue( 'ud-dummy' in experiments_names )
+        self.assertTrue( 'flashdummy' in experiments_names )
+        self.assertTrue( 'javadummy' in experiments_names )
+        self.assertTrue( 'ud-logic' in experiments_names )
+        self.assertTrue( 'ud-pld' in experiments_names )
+        self.assertTrue( 'ud-pld2' in experiments_names )
+        self.assertTrue( 'ud-fpga' in experiments_names )
+        self.assertTrue( 'ud-gpib' in experiments_names )
+        self.assertTrue( 'ud-pic' in experiments_names )
+        self.assertTrue( 'visirtest' in experiments_names )
 
         
 def suite():

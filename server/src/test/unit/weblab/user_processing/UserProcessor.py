@@ -167,7 +167,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         poll_time = self.cfg_manager.get_value(UserProcessor.EXPERIMENT_POLL_TIME)
         added = poll_time - 5 # for example
-        self.db.experiments[0].time_allowed = poll_time - 10
+        self.db.experiments_allowed[0].time_allowed = poll_time - 10
         self.assertTrue( added > 0 )
 
         time_mock = self.mocker.mock()
@@ -425,7 +425,7 @@ UserProcessorTestCase = case_uses_module(Confirmer)(UserProcessorTestCase)
 
 class FakeDatabase(object):
     def __init__(self):
-        self.experiments = [
+        self.experiments_allowed = [
                 generate_experiment_allowed(
                         100,
                         'ud-dummy',
@@ -433,18 +433,22 @@ class FakeDatabase(object):
                     )
             ]
         self.groups = [ Group.Group("5A") ]
+        self.experiments = [ generate_experiment('ud-dummy', 'Dummy experiments') ]
 
     def store_experiment_usage(self, db_session_id, experiment_usage):
         pass
 
     def get_available_experiments(self, db_session_id):
-        return self.experiments
+        return self.experiments_allowed
 
     def retrieve_user_information(self, db_session_id):
         pass
 
     def get_groups(self, db_session_id):
         return self.groups
+
+    def get_experiments(self, db_session_id):
+        return self.experiments
 
 class FakeLocator(object):
     def __init__(self, lab):

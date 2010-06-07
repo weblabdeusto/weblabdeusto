@@ -182,6 +182,19 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             return tuple(business_groups)
         finally:
             session.close()
+
+    @logged()
+    def get_experiments(self, user_login):
+        """ All the experiments are returned by the moment """
+        
+        session = self.Session()
+        try:
+            user = self._get_user(session, user_login)
+            experiments = session.query(Model.DbExperiment).all()
+            business_experiments = [ experiment.to_business() for experiment in experiments ]
+            return tuple(business_experiments)
+        finally:
+            session.close()
     
     def _get_user(self, session, user_login):
         try:

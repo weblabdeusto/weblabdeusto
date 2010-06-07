@@ -37,3 +37,6 @@ class Experiment(object):
 
     def to_experiment_id(self):
         return ExperimentId.ExperimentId(self.name, self.category.name)
+
+    def get_unique_name(self):
+        return self.name + "@" + self.category.name

@@ -167,7 +167,6 @@ class UserProcessingServerTestCase(unittest.TestCase):
                 self.cfg_manager
             )
 
-
     def test_get_groups(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
@@ -178,6 +177,28 @@ class UserProcessingServerTestCase(unittest.TestCase):
         groups_names = list(( group.name for group in groups ))
 
         self.assertTrue( '5A' in groups_names )
+        
+        self.ups.logout(sess_id)
+
+    def test_get_experiments(self):
+        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
+        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+
+        experiments = self.ups.get_experiments(sess_id)
+        self.assertEquals(10, len(experiments) )
+
+        experiments_unique_names = list(( experiment.get_unique_name() for experiment in experiments ))
+
+        self.assertTrue( 'ud-dummy@Dummy experiments' in experiments_unique_names )
+        self.assertTrue( 'flashdummy@Dummy experiments' in experiments_unique_names )
+        self.assertTrue( 'javadummy@Dummy experiments' in experiments_unique_names )
+        self.assertTrue( 'ud-logic@PIC experiments' in experiments_unique_names )
+        self.assertTrue( 'ud-pld@PLD experiments' in experiments_unique_names )
+        self.assertTrue( 'ud-pld2@PLD experiments' in experiments_unique_names )
+        self.assertTrue( 'ud-fpga@FPGA experiments' in experiments_unique_names )
+        self.assertTrue( 'ud-gpib@GPIB experiments' in experiments_unique_names )
+        self.assertTrue( 'ud-pic@PIC experiments' in experiments_unique_names )
+        self.assertTrue( 'visirtest@Dummy experiments' in experiments_unique_names )
         
         self.ups.logout(sess_id)
 

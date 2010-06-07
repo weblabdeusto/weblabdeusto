@@ -111,6 +111,12 @@ class MockUPS(object):
         if self.exceptions.has_key('get_groups'):
             raise self.exceptions['get_groups']
         return self.return_values['get_groups']
+    
+    def get_experiments(self, session_id):
+        self.arguments['get_experiments'] = (session_id, )
+        if self.exceptions.has_key('get_experiments'):
+            raise self.exceptions['get_experiments']
+        return self.return_values['get_experiments']
 
 class UserProcessingFacadeManagerTestCase(unittest.TestCase):
     if ZSI_AVAILABLE:
