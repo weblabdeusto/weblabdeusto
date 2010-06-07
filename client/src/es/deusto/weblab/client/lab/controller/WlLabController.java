@@ -328,7 +328,7 @@ public class WlLabController implements IWlLabController {
 				WlLabController.this.uimanager.onExperimentChosen(experimentAllowed, experimentBase);
 			}
 		};
-	    factory.experimentFactory(experimentAllowed.getExperiment().getExperimentID(), experimentLoadedCallback, this.isMobile);
+	    factory.experimentFactory(experimentAllowed.getExperiment().getExperimentUniqueName(), experimentLoadedCallback, this.isMobile);
 	}
 
 	public void cleanReservation() {

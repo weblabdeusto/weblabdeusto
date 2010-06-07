@@ -215,7 +215,7 @@ public class DefaultTheme extends WlLabThemeBase {
 
 		this.experimentWindow = new ExperimentWindow(this.configurationManager, this.user, this.experimentAllowed, this.experimentBase, new IExperimentWindowCallback(){
 			public void onReserveButtonClicked() {
-				DefaultTheme.this.controller.reserveExperiment(DefaultTheme.this.experimentAllowed.getExperiment().getExperimentID());
+				DefaultTheme.this.controller.reserveExperiment(DefaultTheme.this.experimentAllowed.getExperiment().getExperimentUniqueName());
 			}
 
 			public void onBackButtonClicked() {

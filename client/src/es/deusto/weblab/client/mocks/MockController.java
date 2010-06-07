@@ -55,8 +55,8 @@ public class MockController implements IWlLabController {
 
 	@Override
 	public void retrieveAllowedExperiments() {
-	    	final Category category = new Category("PLD experiments");
-		final Experiment experiment = new Experiment("pld-deusto", category, null, null);
+	    final Category category = new Category("PLD experiments");
+		final Experiment experiment = new Experiment(-1, "pld-deusto", category, null, null);
 		final ExperimentAllowed experimentAllowed = new ExperimentAllowed(experiment, 100);
 		
 		this.uimanager.onAllowedExperimentsRetrieved(new ExperimentAllowed[] {experimentAllowed});

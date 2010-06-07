@@ -208,7 +208,7 @@ public class DefaultMobileTheme extends WlLabThemeBase {
 
 		this.experimentWindow = new ExperimentWindow(this.configurationManager, this.user, this.experimentAllowed, this.experimentBase, new IExperimentWindowCallback(){
 			public void onReserveButtonClicked() {
-				DefaultMobileTheme.this.controller.reserveExperiment(DefaultMobileTheme.this.experimentAllowed.getExperiment().getExperimentID());
+				DefaultMobileTheme.this.controller.reserveExperiment(DefaultMobileTheme.this.experimentAllowed.getExperiment().getExperimentUniqueName());
 			}
 
 			public void onBackButtonClicked() {

@@ -432,7 +432,7 @@ class FakeDatabase(object):
                         'Dummy experiments'
                     )
             ]
-        self.groups = [ Group.Group(0, "5A") ]
+        self.groups = [ Group.Group("5A") ]
         self.experiments = [ generate_experiment('ud-dummy', 'Dummy experiments') ]
 
     def store_experiment_usage(self, db_session_id, experiment_usage):

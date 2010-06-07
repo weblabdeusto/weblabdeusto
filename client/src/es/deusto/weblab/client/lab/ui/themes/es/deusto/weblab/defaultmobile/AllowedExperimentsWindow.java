@@ -89,7 +89,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 		for(int i = 0; i < this.experimentsAllowed.length; ++i){
 	    	final ExperimentAllowed experimentAllowed = this.experimentsAllowed[i];
 	    	
-	    	final ExperimentID experimentID = experimentAllowed.getExperiment().getExperimentID();
+	    	final ExperimentID experimentID = experimentAllowed.getExperiment().getExperimentUniqueName();
 	    	final MobileSupport mobileSupport = ExperimentFactory.retrieveMobileSupport(experimentID);
 	    	
     		final Label name        = new Label(experimentAllowed.getExperiment().getName());

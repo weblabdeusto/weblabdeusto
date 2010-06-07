@@ -17,8 +17,9 @@ import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
 import weblab.data.experiments.ExperimentId as ExperimentId
 
 class Experiment(object):
-    def __init__(self, name, category, start_date, end_date):
+    def __init__(self, name, category, start_date, end_date, id=None):
         super(Experiment,self).__init__()
+        self.id         = id
         self.name       = name
         self.category   = category
         self.start_date = start_date

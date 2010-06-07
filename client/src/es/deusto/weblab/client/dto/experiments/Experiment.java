@@ -17,7 +17,8 @@ import java.util.Date;
 
 
 public class Experiment{
-	
+
+	private int id;
 	private String name;
 	private Category category;
 	private Date startDate;
@@ -25,20 +26,27 @@ public class Experiment{
 	
 	public Experiment(){}
 	
-	public Experiment(String name, Category category, Date startDate, Date endDate){
+	public Experiment(int id, String name, Category category, Date startDate, Date endDate){
+		this.id        = id;
 		this.name      = name;
 		this.category  = category;
 		this.startDate = startDate;
 		this.endDate   = endDate;
 	}
 	
-	public ExperimentID getExperimentID(){
+	public ExperimentID getExperimentUniqueName(){
 		final ExperimentID experimentID = new ExperimentID();
 		experimentID.setCategory(this.category);
 		experimentID.setExperimentName(this.name);
 		return experimentID;
 	}
-	
+
+	public void setId(int id) {
+		this.id = id;
+	}
+	public int getId() {
+		return this.id;
+	}
 	public Category getCategory() {
 		return this.category;
 	}

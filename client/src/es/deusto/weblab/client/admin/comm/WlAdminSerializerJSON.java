@@ -88,11 +88,17 @@ public class WlAdminSerializerJSON extends WlCommonSerializerJSON implements IWl
 		    	throw new SerializationException("Expected JSON Object as Experiment, found: " + value);
 		    Experiment experiment = new Experiment();
 		    
+		    // id
+		    JSONValue jsonIdValue = jsonExperiment.get("id");
+		    if(jsonIdValue == null)
+		    	throw new SerializationException("Expected id field in Experiment");
+		    experiment.setId(this.json2int(jsonIdValue));
+		    
 		    // name
 		    JSONValue jsonNameValue = jsonExperiment.get("name");
 		    if(jsonNameValue == null)
 		    	throw new SerializationException("Expected name field in Experiment");
-		    experiment.setName(this.json2string(jsonExperiment.get("name")));
+		    experiment.setName(this.json2string(jsonNameValue));
 		    
 		    // category
 		    JSONValue jsonCategoryValue = jsonExperiment.get("category");

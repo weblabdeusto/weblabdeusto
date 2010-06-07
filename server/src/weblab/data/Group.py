@@ -15,7 +15,7 @@
 
 class Group(object):
     
-    def __init__(self, id, name):
+    def __init__(self, name, id=None):
         super(Group, self).__init__()
         self.id = id
         self.name = name

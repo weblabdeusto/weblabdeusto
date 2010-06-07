@@ -120,14 +120,15 @@ public class WlAdminSerializerJSONTest extends GWTTestCase {
 		final IWlAdminSerializer weblabSerializer = new WlAdminSerializerJSON();
 		final ArrayList<Experiment> experiments = weblabSerializer.parseGetExperimentsResponse(
 			"{\"result\": [" +
-				"{\"name\": \"ud-dummy\", \"category\": {\"name\": \"Dummy experiments\"}, \"start_date\": \"2007-01-01\", \"end_date\": \"2008-01-01\"}, " +
-				"{\"name\": \"ud-fpga\", \"category\": {\"name\": \"FPGA experiments\"}, \"start_date\": \"2005-01-01\", \"end_date\": \"2006-01-01\"}" +
+				"{\"id\": 1, \"name\": \"ud-dummy\", \"category\": {\"name\": \"Dummy experiments\"}, \"start_date\": \"2007-01-01\", \"end_date\": \"2008-01-01\"}, " +
+				"{\"id\": 2, \"name\": \"ud-fpga\", \"category\": {\"name\": \"FPGA experiments\"}, \"start_date\": \"2005-01-01\", \"end_date\": \"2006-01-01\"}" +
 			"], \"is_exception\": false}"
 		);
 		
 		Assert.assertEquals(2, experiments.size());
 		
-		// 0
+		// 1
+		Assert.assertEquals(1,                   experiments.get(0).getId());
 		Assert.assertEquals("ud-dummy",          experiments.get(0).getName());
 		Assert.assertEquals("Dummy experiments", experiments.get(0).getCategory().getCategory());
 		// 2007-01-01 00:00:00
@@ -135,7 +136,8 @@ public class WlAdminSerializerJSONTest extends GWTTestCase {
 		// 2008-01-01 00:00:00
 		Assert.assertEquals(1199142000000l,      experiments.get(0).getEndDate().getTime());
 		
-		// 1
+		// 2
+		Assert.assertEquals(2,                  experiments.get(1).getId());
 		Assert.assertEquals("ud-fpga",          experiments.get(1).getName());
 		Assert.assertEquals("FPGA experiments", experiments.get(1).getCategory().getCategory());
 		// 2005-01-01 00:00:00
@@ -149,14 +151,15 @@ public class WlAdminSerializerJSONTest extends GWTTestCase {
 		final IWlAdminSerializer weblabSerializer = new WlAdminSerializerJSON();
 		final ArrayList<Experiment> experiments = weblabSerializer.parseGetExperimentsResponse(
 			"{\"result\": [" +
-				"{\"name\": \"ud-dummy\", \"category\": {\"name\": \"Dummy experiments\"}, \"start_date\": \"2007-01-01 00:00:00\", \"end_date\": \"2008-01-01 00:00:00\"}, " +
-				"{\"name\": \"ud-fpga\", \"category\": {\"name\": \"FPGA experiments\"}, \"start_date\": \"2005-01-01 00:00:00\", \"end_date\": \"2006-01-01 00:00:00\"}" +
+				"{\"id\": 1, \"name\": \"ud-dummy\", \"category\": {\"name\": \"Dummy experiments\"}, \"start_date\": \"2007-01-01 00:00:00\", \"end_date\": \"2008-01-01 00:00:00\"}, " +
+				"{\"id\": 2, \"name\": \"ud-fpga\", \"category\": {\"name\": \"FPGA experiments\"}, \"start_date\": \"2005-01-01 00:00:00\", \"end_date\": \"2006-01-01 00:00:00\"}" +
 			"], \"is_exception\": false}"
 		);
 		
 		Assert.assertEquals(2, experiments.size());
 		
-		// 0
+		// 1
+		Assert.assertEquals(1,                   experiments.get(0).getId());
 		Assert.assertEquals("ud-dummy",          experiments.get(0).getName());
 		Assert.assertEquals("Dummy experiments", experiments.get(0).getCategory().getCategory());
 		// 2007-01-01 00:00:00
@@ -164,7 +167,8 @@ public class WlAdminSerializerJSONTest extends GWTTestCase {
 		// 2008-01-01 00:00:00
 		Assert.assertEquals(1199142000000l,      experiments.get(0).getEndDate().getTime());
 		
-		// 1
+		// 2
+		Assert.assertEquals(2,                  experiments.get(1).getId());
 		Assert.assertEquals("ud-fpga",          experiments.get(1).getName());
 		Assert.assertEquals("FPGA experiments", experiments.get(1).getCategory().getCategory());
 		// 2005-01-01 00:00:00

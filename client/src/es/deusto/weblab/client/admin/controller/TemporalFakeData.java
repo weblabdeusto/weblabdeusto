@@ -52,9 +52,9 @@ public class TemporalFakeData {
 		Category fpgaExp = new Category("FPGA experiments");
 		Category pldExp = new Category("PLD experiments");
 		
-		Experiment fpga = new Experiment("ud-fpga", fpgaExp, new Date(), new Date());
-		Experiment pld = new Experiment("ud-pld", pldExp, new Date(), new Date());
-		Experiment binary = new Experiment("ud-binary", pldExp, new Date(), new Date());
+		Experiment fpga = new Experiment(1, "ud-fpga", fpgaExp, new Date(), new Date());
+		Experiment pld = new Experiment(2, "ud-pld", pldExp, new Date(), new Date());
+		Experiment binary = new Experiment(3, "ud-binary", pldExp, new Date(), new Date());
 		
 		this.experiments = new ArrayList<Experiment>();
 		this.experiments.add(fpga);

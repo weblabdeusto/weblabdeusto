@@ -273,7 +273,7 @@ class DbGroup(Base):
         )        
         
     def to_business_light(self):
-        return Group(self.id, self.name)
+        return Group(self.name, self.id)
 
 ##############################################################################
 # EXPERIMENTS DEFINITION
@@ -333,7 +333,8 @@ class DbExperiment(Base):
             self.name,
             self.category.to_business(),
             self.start_date,
-            self.end_date
+            self.end_date,
+            self.id
             )          
         
 

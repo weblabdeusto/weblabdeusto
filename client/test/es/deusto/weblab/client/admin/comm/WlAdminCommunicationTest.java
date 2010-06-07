@@ -155,7 +155,7 @@ public class WlAdminCommunicationTest extends WlCommonCommunicationTest {
 		final String ERROR_MESSAGE = "whatever the error message";
 		
 		final ArrayList<Experiment> expectedExperiments = new ArrayList<Experiment>();
-		expectedExperiments.add(new Experiment("ud-fpga", new Category("FPGA experiments"), new Date(), new Date()));
+		expectedExperiments.add(new Experiment(-1, "ud-fpga", new Category("FPGA experiments"), new Date(), new Date()));
 		
 		weblabSerializer.appendReturn(
 					FakeWlAdminSerializer.PARSE_GET_EXPERIMENTS_RESPONSE, 
