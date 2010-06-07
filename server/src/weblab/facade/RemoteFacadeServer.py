@@ -40,6 +40,7 @@ import voodoo.ResourceManager as ResourceManager
 
 import weblab.facade.RemoteFacadeManager as RemoteFacadeManager
 from weblab.facade.RemoteFacadeContext import get_context, create_context, delete_context
+from weblab.facade.RemoteFacadeManagerCodes import WEBLAB_GENERAL_EXCEPTION_CODE
 import weblab.exceptions.facade.FacadeExceptions as FacadeExceptions
 import voodoo.exceptions.configuration.ConfigurationExceptions as ConfigurationExceptions
 
@@ -104,29 +105,29 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             try:
                 decoded = json_decoder.decode(post_content)
             except ValueError:
-                response = {"is_exception":True,"message":"Couldn't deserialize message"}
+                response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"Couldn't deserialize message"}
                 self.finish_error(response)
                 return
 
             method_name = decoded.get('method')
             if method_name is None:
-                response = {"is_exception":True,"message":"Missing 'method' attr"}
+                response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"Missing 'method' attr"}
                 self.finish_error(response)
                 return
 
             params = decoded.get('params')
             if params is None:
-                response = {"is_exception":True,"message":"Missing 'params' attr"}
+                response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"Missing 'params' attr"}
                 self.finish_error(response)
                 return
 
             if self.facade_manager is None:
-                response = {"is_exception":True,"message":"Facade manager not set"}
+                response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"Facade manager not set"}
                 self.finish_error(response)
                 return
 
             if not hasattr(self.facade_manager, method_name):
-                response = {"is_exception":True,"message":"Method not recognized"}
+                response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"Method not recognized"}
                 self.finish_error(response)
                 return
 
@@ -137,7 +138,7 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 for param in params:
                     newparams[str(param)] = params[param]
             except Exception, e:
-                response = {"is_exception":True,"message":"unicode not accepted in param names"}
+                response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"unicode not accepted in param names"}
                 self.finish_error(response)
                 return
 
@@ -148,7 +149,7 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 self.finish_error(response)
                 return
             except Exception, e:
-                response = {"is_exception":True,"message":"Unexpected exception: %s" % e}
+                response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"Unexpected exception: %s" % e}
                 self.finish_error(response)
                 return
 
@@ -156,7 +157,7 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 parsed_return_value = simplify_response(return_value)
                 response = json_encoder.encode({"result":parsed_return_value, "is_exception" : False})
             except Exception, e:
-                response = {"is_exception":True,"message":"Error encoding return value"}
+                response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"Error encoding return value"}
                 self.finish_error(response)
                 return
                 
