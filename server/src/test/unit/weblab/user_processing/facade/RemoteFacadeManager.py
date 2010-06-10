@@ -37,7 +37,7 @@ import weblab.data.experiments.ExperimentAllowed as ExperimentAllowed
 import weblab.data.experiments.Experiment as Experiment
 import weblab.data.experiments.Category as Category
 import weblab.data.Command as Command
-import weblab.data.Group as Group
+import weblab.data.dto.Group as Group
 
 from weblab.data.User import User, Role
 

@@ -15,7 +15,7 @@
 
 import unittest
 
-import weblab.data.Group as Group
+import weblab.data.dto.Group as Group
 
 
 class GroupTestCase(unittest.TestCase):

@@ -14,6 +14,9 @@
 
 package es.deusto.weblab.client.admin.comm;
 
+import java.util.Date;
+
+import es.deusto.weblab.client.admin.comm.callbacks.IExperimentUsesCallback;
 import es.deusto.weblab.client.admin.comm.callbacks.IExperimentsCallback;
 import es.deusto.weblab.client.admin.comm.callbacks.IGroupsCallback;
 import es.deusto.weblab.client.comm.FakeWlCommonCommunication;
@@ -22,8 +25,9 @@ import es.deusto.weblab.client.dto.SessionID;
 
 public class FakeWlAdminCommunication extends FakeWlCommonCommunication implements IWlAdminCommunication {
 
-	public static final String GET_GROUPS      = "FakeWebLabCommunication::getGroups";
-	public static final String GET_EXPERIMENTS = "FakeWebLabCommunication::getExperiments";
+	public static final String GET_GROUPS          = "FakeWebLabCommunication::getGroups";
+	public static final String GET_EXPERIMENTS     = "FakeWebLabCommunication::getExperiments";
+	public static final String GET_EXPERIMENT_USES = "FakeWebLabCommunication::getExperimentUses";
 	
 	@Override
 	protected IWlCommonSerializer createSerializer() {
@@ -41,6 +45,14 @@ public class FakeWlAdminCommunication extends FakeWlCommonCommunication implemen
 	@Override
 	public void getExperiments(SessionID sessionId, IExperimentsCallback callback) {
 		this.append(FakeWlAdminCommunication.GET_EXPERIMENTS, new Object[]{
+				sessionId,
+				callback
+		});
+	}
+
+	@Override
+	public void getExperimentUses(SessionID sessionId, Date fromDate, Date toDate, int groupId, int experimentId, IExperimentUsesCallback callback) {
+		this.append(FakeWlAdminCommunication.GET_EXPERIMENT_USES, new Object[]{
 				sessionId,
 				callback
 		});

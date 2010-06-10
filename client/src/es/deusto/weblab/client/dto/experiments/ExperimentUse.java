@@ -16,44 +16,61 @@ package es.deusto.weblab.client.dto.experiments;
 
 import java.util.Date;
 
-import es.deusto.weblab.client.dto.users.User;
+import es.deusto.weblab.client.dto.users.Agent;
 
 public class ExperimentUse {
-	private User user;
+	
+	private int id;
+	private Date startDate;
+	private Date endDate;
 	private Experiment experiment;
-	private Date startTimestamp;
-	private Date endTimestamp;
+	private Agent agent;
+	private String origin;
 	
-	public ExperimentUse(User user, Experiment experiment, Date startTimestamp, Date endTimestamp) {
-		super();
-		this.user = user;
+	public ExperimentUse() {}
+	
+	public ExperimentUse(Date startDate, Date endDate, Agent agent, Experiment experiment, String origin) {
+		this.agent = agent;
 		this.experiment = experiment;
-		this.startTimestamp = startTimestamp;
-		this.endTimestamp = endTimestamp;
+		this.startDate = startDate;
+		this.endDate = endDate;
+		this.origin = origin;
 	}
-	
-	public User getUser() {
-		return this.user;
+		
+	public int getId() {
+		return this.id;
 	}
-	public void setUser(User user) {
-		this.user = user;
+	public void setId(int id) {
+		this.id = id;
 	}
-	public Experiment getExperiment() {
-		return this.experiment;
+	public Date getStartDate() {
+		return this.startDate;
+	}
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+	public Date getEndDate() {
+		return this.endDate;
+	}
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
 	}
 	public void setExperiment(Experiment experiment) {
 		this.experiment = experiment;
 	}
-	public Date getStartTimestamp() {
-		return this.startTimestamp;
+	public Experiment getExperiment() {
+		return this.experiment;
 	}
-	public void setStartTimestamp(Date startTimestamp) {
-		this.startTimestamp = startTimestamp;
+	public String getOrigin() {
+		return this.origin;
 	}
-	public Date getEndTimestamp() {
-		return this.endTimestamp;
+	public void setOrigin(String origin) {
+		this.origin = origin;
 	}
-	public void setEndTimestamp(Date endTimestamp) {
-		this.endTimestamp = endTimestamp;
+	public void setAgent(Agent agent) {
+		this.agent = agent;
+	}
+	public Agent getAgent() {
+		return this.agent;
 	}
 }

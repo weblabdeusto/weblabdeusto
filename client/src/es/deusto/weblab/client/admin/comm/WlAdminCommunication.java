@@ -15,11 +15,13 @@
 package es.deusto.weblab.client.admin.comm;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 
+import es.deusto.weblab.client.admin.comm.callbacks.IExperimentUsesCallback;
 import es.deusto.weblab.client.admin.comm.callbacks.IExperimentsCallback;
 import es.deusto.weblab.client.admin.comm.callbacks.IGroupsCallback;
 import es.deusto.weblab.client.comm.IWlCommonSerializer;
@@ -33,6 +35,7 @@ import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Experiment;
+import es.deusto.weblab.client.dto.experiments.ExperimentUse;
 import es.deusto.weblab.client.dto.users.Group;
 
 public class WlAdminCommunication extends WlCommonCommunication implements IWlAdminCommunication {
@@ -148,6 +151,49 @@ public class WlAdminCommunication extends WlCommonCommunication implements IWlAd
 				requestSerialized, 
 				callback, 
 				new GetGroupsRequestCallback(callback)
+			);
+	}
+	
+	private class GetExperimentUsesRequestCallback extends WlRequestCallback{
+		private final IExperimentUsesCallback experimentUsesCallback;
+		
+		public GetExperimentUsesRequestCallback(IExperimentUsesCallback callback){
+			super(callback);
+			this.experimentUsesCallback = callback;
+		}
+		
+		@Override
+		public void onSuccessResponseReceived(String response){
+			ArrayList<ExperimentUse> groups;
+			try {
+				groups = ((IWlAdminSerializer)WlAdminCommunication.this.serializer).parseGetExperimentUsesResponse(response);
+			} catch (final SerializationException e) {
+				this.experimentUsesCallback.onFailure(e);
+				return;
+			} catch (final SessionNotFoundException e) {
+				this.experimentUsesCallback.onFailure(e);
+				return;
+			} catch (final WlServerException e) {
+				this.experimentUsesCallback.onFailure(e);
+				return;
+			}
+			this.experimentUsesCallback.onSuccess(groups);
+		}
+	}
+
+	@Override
+	public void getExperimentUses(SessionID sessionId, Date fromDate, Date toDate, int groupId, int experimentId, IExperimentUsesCallback callback) {
+		String requestSerialized;
+		try {
+			requestSerialized = ((IWlAdminSerializer)this.serializer).serializeGetExperimentUsesRequest(sessionId, fromDate, toDate, groupId, experimentId);
+		} catch (final SerializationException e) {
+			callback.onFailure(e);
+			return;
+		}
+		this.performAdminRequest(
+				requestSerialized, 
+				callback, 
+				new GetExperimentUsesRequestCallback(callback)
 			);
 	}
 }

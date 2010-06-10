@@ -15,10 +15,13 @@
 package es.deusto.weblab.client.admin.comm;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONNull;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 
 import es.deusto.weblab.client.comm.WlCommonSerializerJSON;
@@ -27,8 +30,8 @@ import es.deusto.weblab.client.comm.exceptions.WlServerException;
 import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
 import es.deusto.weblab.client.comm.exceptions.core.UserProcessingException;
 import es.deusto.weblab.client.dto.SessionID;
-import es.deusto.weblab.client.dto.experiments.Category;
 import es.deusto.weblab.client.dto.experiments.Experiment;
+import es.deusto.weblab.client.dto.experiments.ExperimentUse;
 import es.deusto.weblab.client.dto.users.Group;
 
 public class WlAdminSerializerJSON extends WlCommonSerializerJSON implements IWlAdminSerializer {
@@ -86,57 +89,89 @@ public class WlAdminSerializerJSON extends WlCommonSerializerJSON implements IWl
 		    JSONObject jsonExperiment = value.isObject();
 		    if(jsonExperiment == null)
 		    	throw new SerializationException("Expected JSON Object as Experiment, found: " + value);
-		    Experiment experiment = new Experiment();
-		    
-		    // id
-		    JSONValue jsonIdValue = jsonExperiment.get("id");
-		    if(jsonIdValue == null)
-		    	throw new SerializationException("Expected id field in Experiment");
-		    experiment.setId(this.json2int(jsonIdValue));
-		    
-		    // name
-		    JSONValue jsonNameValue = jsonExperiment.get("name");
-		    if(jsonNameValue == null)
-		    	throw new SerializationException("Expected name field in Experiment");
-		    experiment.setName(this.json2string(jsonNameValue));
-		    
-		    // category
-		    JSONValue jsonCategoryValue = jsonExperiment.get("category");
-		    if(jsonCategoryValue == null)
-		    	throw new SerializationException("Expected category field in Experiment");
-		    JSONObject jsonCategory = jsonCategoryValue.isObject();
-		    if(jsonCategory == null)
-		    	throw new SerializationException("Expected JSON Object as Category, found: " + jsonCategoryValue);
-		    experiment.setCategory(new Category(this.json2string(jsonCategory.get("name"))));
-		    
-		    // startDate && endDate
-		    String startDateString = this.json2string(jsonExperiment.get("start_date"));
-		    String endDateString   = this.json2string(jsonExperiment.get("end_date"));
-		    DateTimeFormat formatter1 = DateTimeFormat.getFormat("yyyy-MM-dd");
-		    DateTimeFormat formatter2 = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss");
-		    DateTimeFormat formatter3 = DateTimeFormat.getFormat("yyyy-MM-ddTHH:mm:ss");
-		    try {
-				experiment.setStartDate(formatter1.parse(startDateString));
-				experiment.setEndDate(formatter1.parse(endDateString));
-		    } catch( IllegalArgumentException iae ) {
-				try{
-				    experiment.setStartDate(formatter2.parse(startDateString));
-				    experiment.setEndDate(formatter2.parse(endDateString));
-				}catch(IllegalArgumentException iae2){
-					try{
-					    experiment.setStartDate(formatter3.parse(startDateString));
-					    experiment.setEndDate(formatter3.parse(endDateString));
-					}catch(IllegalArgumentException iae3){
-					    throw new SerializationException("Couldn't parse date: " + startDateString + "; or: " + endDateString);
-					}
-				}
-		    }		 
-		    experiments.add(experiment);   
+		    experiments.add(this.parseExperiment(jsonExperiment));   
 		}		
 
 		return experiments;
 	}
-	
+
+	@Override
+	public ArrayList<ExperimentUse> parseGetExperimentUsesResponse(	String response)
+			throws SerializationException, 	SessionNotFoundException, UserProcessingException, WlServerException {
+		ArrayList<ExperimentUse> experimentUses = new ArrayList<ExperimentUse>();
+		
+		JSONArray result = this.parseResultArray(response);
+		for( int i = 0; i < result.size(); ++i ) {
+		    JSONValue value = result.get(i);
+		    JSONObject jsonExperimentUse = value.isObject();
+		    if(jsonExperimentUse == null)
+		    	throw new SerializationException("Expected JSON Object as ExperimentUse, found: " + value);
+		    ExperimentUse experimentUse = new ExperimentUse();
+		    
+		    // id
+		    JSONValue jsonIdValue = jsonExperimentUse.get("id");
+		    if(jsonIdValue == null)
+		    	throw new SerializationException("Expected id field in ExperimentUse");
+		    experimentUse.setId(this.json2int(jsonIdValue));
+		    
+		    // startDate && endDate
+		    String startDateString = this.json2string(jsonExperimentUse.get("start_date"));
+		    String endDateString   = this.json2string(jsonExperimentUse.get("end_date"));
+		    DateTimeFormat formatter1 = DateTimeFormat.getFormat("yyyy-MM-dd");
+		    DateTimeFormat formatter2 = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss");
+		    DateTimeFormat formatter3 = DateTimeFormat.getFormat("yyyy-MM-ddTHH:mm:ss");
+		    try {
+		    	experimentUse.setStartDate(formatter1.parse(startDateString));
+		    	experimentUse.setEndDate(formatter1.parse(endDateString));
+		    } catch( IllegalArgumentException iae ) {
+				try{
+					experimentUse.setStartDate(formatter2.parse(startDateString));
+					experimentUse.setEndDate(formatter2.parse(endDateString));
+				}catch(IllegalArgumentException iae2){
+					try{
+						experimentUse.setStartDate(formatter3.parse(startDateString));
+						experimentUse.setEndDate(formatter3.parse(endDateString));
+					}catch(IllegalArgumentException iae3){
+					    throw new SerializationException("Couldn't parse date: " + startDateString + "; or: " + endDateString);
+					}
+				}
+		    }		 	
+		    
+		    // experiment
+		    JSONValue jsonExperimentValue = jsonExperimentUse.get("experiment");
+		    if(jsonExperimentValue == null)
+		    	throw new SerializationException("Expected experiment field in ExperimentUse");
+		    JSONObject jsonExperiment = jsonExperimentValue.isObject();
+		    if(jsonExperiment == null)
+		    	throw new SerializationException("Expected JSON Object as Experiment, found: " + jsonExperimentValue);
+		    experimentUse.setExperiment(this.parseExperiment(jsonExperiment));
+		    
+		    // agent (User or ExternalEntity)
+		    JSONValue jsonAgentValue = jsonExperimentUse.get("agent");
+		    if(jsonAgentValue == null)
+		    	throw new SerializationException("Expected agent field in ExperimentUse");
+		    JSONObject jsonAgent = jsonAgentValue.isObject();
+		    if(jsonAgent == null)
+		    	throw new SerializationException("Expected JSON Object as Agent, found: " + jsonAgentValue);
+		    JSONValue jsonAgentLoginValue = jsonAgent.get("login");
+		    if(jsonAgentLoginValue == null) {
+		    	experimentUse.setAgent(this.parseExternalEntity(jsonAgent));
+		    } else {
+		    	experimentUse.setAgent(this.parseUser(jsonAgent));
+		    }
+
+		    // origin
+		    JSONValue jsonOriginValue = jsonExperimentUse.get("origin");
+		    if(jsonOriginValue == null)
+		    	throw new SerializationException("Expected origin field in ExperimentUse");
+		    experimentUse.setOrigin(this.json2string(jsonOriginValue));
+		    
+		    experimentUses.add(experimentUse);   
+		}		
+
+		return experimentUses;
+	}
+
 	@Override
 	public String serializeGetGroupsRequest(SessionID sessionId) throws SerializationException {
 		final JSONObject params = new JSONObject();
@@ -149,5 +184,32 @@ public class WlAdminSerializerJSON extends WlCommonSerializerJSON implements IWl
 		final JSONObject params = new JSONObject();
 		params.put("session_id", this.serializeSessionId(sessionId));
 		return this.serializeRequest("get_experiments", params);
+	}
+
+	@Override
+	public String serializeGetExperimentUsesRequest(SessionID sessionId, Date fromDate, Date toDate, int groupId, int experimentId) throws SerializationException {
+		final JSONObject params = new JSONObject();
+		params.put("session_id", this.serializeSessionId(sessionId));
+		if ( fromDate != null ) {
+			params.put("from_date", new JSONString(fromDate.toString()));	
+		} else {
+			params.put("from_date", new JSONObject(null));	
+		}
+		if ( toDate != null ) {
+			params.put("to_date", new JSONString(toDate.toString()));
+		} else {
+			params.put("to_date", new JSONObject(null));
+		}
+		if ( groupId != -1 ) {
+			params.put("group_id", new JSONString(groupId+""));
+		} else {
+			params.put("group_id", new JSONObject(null));
+		}
+		if ( experimentId != -1 ) {
+			params.put("experiment_id", new JSONString(experimentId+""));
+		} else {
+			params.put("experiment_id", new JSONObject(null));
+		}
+		return this.serializeRequest("get_experiment_uses", params);
 	}
 }

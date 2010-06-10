@@ -15,11 +15,10 @@
 package es.deusto.weblab.client.admin.controller;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 
 import es.deusto.weblab.client.admin.comm.IWlAdminCommunication;
+import es.deusto.weblab.client.admin.comm.callbacks.IExperimentUsesCallback;
 import es.deusto.weblab.client.admin.comm.callbacks.IExperimentsCallback;
 import es.deusto.weblab.client.admin.comm.callbacks.IGroupsCallback;
 import es.deusto.weblab.client.admin.ui.IUIManager;
@@ -41,12 +40,10 @@ public class WlAdminController implements IWlAdminController {
 	private IWlAdminCommunication communications;
 	private IUIManager uimanager;
 	private SessionID currentSession;
-	private TemporalFakeData temporalFakeData;
 	
 	public WlAdminController(IConfigurationManager configurationManager, IWlAdminCommunication communications) {
 		this.configurationManager = configurationManager;
 		this.communications = communications;
-		this.temporalFakeData = new TemporalFakeData();
 	}
 
 	@Override
@@ -130,8 +127,27 @@ public class WlAdminController implements IWlAdminController {
 	}
 
 	@Override
-	public ArrayList<ExperimentUse> getExperimentUses(Date fromDate, Date toDate, Group group, Experiment experiment) {
+	public void getExperimentUses(Date fromDate, Date toDate, Group group, Experiment experiment) {
+
+		IExperimentUsesCallback callback = new IExperimentUsesCallback() {
+			public void onSuccess(final ArrayList<ExperimentUse> experimentUses) {
+				WlAdminController.this.uimanager.onExperimentUsesRetrieved(experimentUses);
+			}
+			
+			public void onFailure(WlCommException e) {
+				WlAdminController.this.uimanager.onError(e.getMessage());
+			}
+		};
 		
+		this.communications.getExperimentUses(
+				this.currentSession,
+				fromDate,
+				toDate,
+				group != null ? group.getId(): -1,
+				experiment != null ? experiment.getId(): -1,
+				callback
+		);		
+		/*
 		ArrayList<ExperimentUse> experimentUses = new ArrayList<ExperimentUse>();
 		
 		for ( ExperimentUse eu: this.temporalFakeData.allExperimentUses ) {
@@ -176,5 +192,6 @@ public class WlAdminController implements IWlAdminController {
 		});
 		
 		return experimentUses;
+		*/
 	}
 }

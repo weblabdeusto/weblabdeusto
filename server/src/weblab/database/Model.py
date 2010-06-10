@@ -32,7 +32,9 @@ from weblab.data.experiments.Usage import FileSent
 from weblab.data.experiments.Usage import CommandSent   
 from weblab.data.Command import Command
 from weblab.data.User import User, Role
-from weblab.data.Group import Group  
+from weblab.data.dto.Group import Group  
+from weblab.data.dto.ExternalEntity import ExternalEntity
+from weblab.data.dto.ExperimentUse import ExperimentUse
 
 
 Base = declarative_base()
@@ -128,7 +130,10 @@ class DbUser(Base):
             )
         
     def to_business(self):        
-        return User(self.login, self.full_name, self.email, self.role.to_business())   
+        return User(self.login, self.full_name, self.email, self.role.to_business())
+       
+    def to_dto(self):        
+        return self.to_business() # Temporal
                
     
 class DbAuthType(Base):
@@ -244,6 +249,13 @@ class DbExternalEntity(Base):
             self.description,
             self.email
         )    
+        
+    def to_business(self):
+        return ExternalEntity(self.id, self.name, self.country, self.description, self.email)    
+    
+    def to_dto(self):
+        return self.to_business() # Temporal
+    
 
 class DbGroup(Base):
     __tablename__  = 'Group'
@@ -335,7 +347,10 @@ class DbExperiment(Base):
             self.start_date,
             self.end_date,
             self.id
-            )          
+            )      
+        
+    def to_dto(self):
+        return self.to_business() # Temporal        
         
 
 ##############################################################################
@@ -393,9 +408,19 @@ class DbUserUsedExperiment(Base):
         
     def to_business(self):
         usage = self.to_business_light()
-        usage.commands          = [ command.to_business() for command in self.commands ]
-        usage.sent_files        = [ file.to_business() for file in self.files ]
+        usage.commands   = [ command.to_business() for command in self.commands ]
+        usage.sent_files = [ file.to_business() for file in self.files ]
         return usage
+    
+    def to_dto(self):
+        use = ExperimentUse()
+        use.id = self.id
+        use.start_date = _splitted_utc_datetime_to_timestamp(self.start_date, self.start_date_micro)
+        use.end_date   = _splitted_utc_datetime_to_timestamp(self.end_date, self.end_date_micro)
+        use.experiment = self.experiment.to_dto()
+        use.agent      = self.user.to_dto()
+        use.origin     = self.origin
+        return use
 
 
 class DbUserFile(Base):
@@ -533,7 +558,17 @@ class DbExternalEntityUsedExperiment(Base):
             self.end_date_micro,
             self.origin,
             self.coord_address
-        )       
+        )   
+        
+    def to_dto(self):
+        use = ExperimentUse()
+        use.id         = self.id
+        use.start_date = _splitted_utc_datetime_to_timestamp(self.start_date, self.start_date_micro)
+        use.end_date   = _splitted_utc_datetime_to_timestamp(self.end_date, self.end_date_micro)
+        use.experiment = self.experiment.to_dto()
+        use.agent      = self.ee.to_dto()
+        use.origin     = self.origin
+        return use
         
 
 class DbExternalEntityFile(Base):

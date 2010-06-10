@@ -30,7 +30,7 @@ import weblab.data.ServerType as ServerType
 import weblab.data.ClientAddress as ClientAddress
 
 import weblab.data.Command as Command
-import weblab.data.Group as Group
+import weblab.data.dto.Group as Group
 import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
 import weblab.data.experiments.ExperimentId as ExperimentId
 import weblab.data.experiments.Category as Category

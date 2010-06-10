@@ -14,6 +14,9 @@
 
 package es.deusto.weblab.client.admin.comm;
 
+import java.util.Date;
+
+import es.deusto.weblab.client.admin.comm.callbacks.IExperimentUsesCallback;
 import es.deusto.weblab.client.admin.comm.callbacks.IExperimentsCallback;
 import es.deusto.weblab.client.admin.comm.callbacks.IGroupsCallback;
 import es.deusto.weblab.client.comm.IWlCommonCommunication;
@@ -21,6 +24,7 @@ import es.deusto.weblab.client.dto.SessionID;
 
 public interface IWlAdminCommunication extends IWlCommonCommunication {
 
-	void getExperiments(SessionID currentSession, IExperimentsCallback iExperimentsCallback);
-	void getGroups(SessionID currentSession, IGroupsCallback iGroupsCallback);
+	void getExperiments(SessionID sessionId, IExperimentsCallback iExperimentsCallback);
+	void getGroups(SessionID sessionId, IGroupsCallback iGroupsCallback);
+	void getExperimentUses(SessionID sessionId, Date fromDate, Date toDate, int groupId, int experimentId, IExperimentUsesCallback callback);
 }

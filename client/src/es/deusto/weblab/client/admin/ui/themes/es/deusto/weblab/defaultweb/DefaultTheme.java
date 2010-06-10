@@ -92,6 +92,11 @@ public class DefaultTheme extends WlAdminThemeBase {
 		this.adminPanelWindow.fillGroupsCombobox(groups);
 	}
 
+	@Override
+	public void onExperimentUsesRetrieved(ArrayList<ExperimentUse> experimentUses) {
+		this.adminPanelWindow.fillExperimentUsesGrid(experimentUses);
+	}
+
 	/*
 	 * Alternative scenarios
 	 */
@@ -150,8 +155,8 @@ public class DefaultTheme extends WlAdminThemeBase {
 			}
 
 			@Override
-			public ArrayList<ExperimentUse> onSearchButtonClicked(Date fromDate, Date toDate, Group group, Experiment experiment) {
-				return DefaultTheme.this.controller.getExperimentUses(fromDate, toDate, group, experiment);
+			public void onSearchButtonClicked(Date fromDate, Date toDate, Group group, Experiment experiment) {
+				DefaultTheme.this.controller.getExperimentUses(fromDate, toDate, group, experiment);
 			}
 		});
 		this.adminPanelWindow.init();

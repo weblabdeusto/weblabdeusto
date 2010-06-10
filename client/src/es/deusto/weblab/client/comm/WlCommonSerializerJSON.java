@@ -14,6 +14,7 @@
 
 package es.deusto.weblab.client.comm;
 
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONException;
@@ -30,6 +31,9 @@ import es.deusto.weblab.client.comm.exceptions.core.UserProcessingException;
 import es.deusto.weblab.client.comm.exceptions.login.InvalidCredentialsException;
 import es.deusto.weblab.client.comm.exceptions.login.LoginException;
 import es.deusto.weblab.client.dto.SessionID;
+import es.deusto.weblab.client.dto.experiments.Category;
+import es.deusto.weblab.client.dto.experiments.Experiment;
+import es.deusto.weblab.client.dto.users.ExternalEntity;
 import es.deusto.weblab.client.dto.users.Role;
 import es.deusto.weblab.client.dto.users.User;
 
@@ -86,24 +90,11 @@ public abstract class WlCommonSerializerJSON implements IWlCommonSerializer {
 		//"{\"result\": {\"login\": \"student1\", \"email\": \"porduna@tecnologico.deusto.es\", 
 		// \"full_name\": \"Name of student 1\", \"role\": {\"name\": \"student\"}}, \"is_exception\": false}"
 		final JSONObject result = this.parseResultObject(responseText);
-		final String login    = this.json2string(result.get("login"));
-		final String email    = this.json2string(result.get("email"));
-		final String fullName = this.json2string(result.get("full_name"));
 		
-	    JSONValue roleValue = result.get("role");
-	    if(roleValue == null)
-	    	throw new SerializationException("Expected role field in UserInformation");
-	    JSONObject jsonRole = roleValue.isObject();
-	    if(jsonRole == null)
-	    	throw new SerializationException("Expected JSON Object as Role, found: " + roleValue);
-	    final String role_name = this.json2string(jsonRole.get("name"));
-		
-	    final Role role = new Role(role_name);
-	    
-		return new User(login, fullName, email, role);
-	}    
+		return this.parseUser(result);
+	}  
 
-    public String serializeGetUserInformationRequest(SessionID sessionId) throws SerializationException {
+	public String serializeGetUserInformationRequest(SessionID sessionId) throws SerializationException {
 		final JSONObject params = new JSONObject();
 		params.put("session_id", this.serializeSessionId(sessionId));
 		return this.serializeRequest("get_user_information", params);
@@ -143,6 +134,88 @@ public abstract class WlCommonSerializerJSON implements IWlCommonSerializer {
 		}else{
 		    return new WlServerException(faultString);    
 		}
+	}  
+
+    protected Role parseRole(JSONObject jsonRole) throws SerializationException {
+    	Role role = new Role();
+    	role.setName(this.json2string(jsonRole.get("name")));
+    	return role;
+	}
+    
+    protected User parseUser(JSONObject jsonUser) throws SerializationException {
+		final String login    = this.json2string(jsonUser.get("login"));
+		final String email    = this.json2string(jsonUser.get("email"));
+		final String fullName = this.json2string(jsonUser.get("full_name"));
+		
+	    JSONValue roleValue = jsonUser.get("role");
+	    if(roleValue == null)
+	    	throw new SerializationException("Expected role field in User");
+	    JSONObject jsonRole = roleValue.isObject();
+	    if(jsonRole == null)
+	    	throw new SerializationException("Expected JSON Object as Role, found: " + roleValue);
+	    final Role role = this.parseRole(jsonRole);
+	    
+		return new User(login, fullName, email, role);
+	}
+	
+    protected ExternalEntity parseExternalEntity(JSONObject jsonExternalEntity) throws SerializationException {
+		final int id = this.json2int(jsonExternalEntity.get("id"));
+		final String name = this.json2string(jsonExternalEntity.get("name"));
+		final String country = this.json2string(jsonExternalEntity.get("country"));
+		final String description = this.json2string(jsonExternalEntity.get("description"));
+		final String email = this.json2string(jsonExternalEntity.get("email"));
+		
+		return new ExternalEntity(id, name, country, description, email);
+	}
+	
+	protected Experiment parseExperiment(JSONObject jsonExperiment) throws SerializationException {
+	    Experiment experiment = new Experiment();
+	    
+	    // id
+	    JSONValue jsonIdValue = jsonExperiment.get("id");
+	    if(jsonIdValue == null)
+	    	throw new SerializationException("Expected id field in Experiment");
+	    experiment.setId(this.json2int(jsonIdValue));
+	    
+	    // name
+	    JSONValue jsonNameValue = jsonExperiment.get("name");
+	    if(jsonNameValue == null)
+	    	throw new SerializationException("Expected name field in Experiment");
+	    experiment.setName(this.json2string(jsonNameValue));
+	    
+	    // category
+	    JSONValue jsonCategoryValue = jsonExperiment.get("category");
+	    if(jsonCategoryValue == null)
+	    	throw new SerializationException("Expected category field in Experiment");
+	    JSONObject jsonCategory = jsonCategoryValue.isObject();
+	    if(jsonCategory == null)
+	    	throw new SerializationException("Expected JSON Object as Category, found: " + jsonCategoryValue);
+	    experiment.setCategory(new Category(this.json2string(jsonCategory.get("name"))));
+	    
+	    // startDate && endDate
+	    String startDateString = this.json2string(jsonExperiment.get("start_date"));
+	    String endDateString   = this.json2string(jsonExperiment.get("end_date"));
+	    DateTimeFormat formatter1 = DateTimeFormat.getFormat("yyyy-MM-dd");
+	    DateTimeFormat formatter2 = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss");
+	    DateTimeFormat formatter3 = DateTimeFormat.getFormat("yyyy-MM-ddTHH:mm:ss");
+	    try {
+			experiment.setStartDate(formatter1.parse(startDateString));
+			experiment.setEndDate(formatter1.parse(endDateString));
+	    } catch( IllegalArgumentException iae ) {
+			try{
+			    experiment.setStartDate(formatter2.parse(startDateString));
+			    experiment.setEndDate(formatter2.parse(endDateString));
+			}catch(IllegalArgumentException iae2){
+				try{
+				    experiment.setStartDate(formatter3.parse(startDateString));
+				    experiment.setEndDate(formatter3.parse(endDateString));
+				}catch(IllegalArgumentException iae3){
+				    throw new SerializationException("Couldn't parse date: " + startDateString + "; or: " + endDateString);
+				}
+			}
+	    }
+	    
+	    return experiment;
 	}
 
 	protected JSONObject parseResultObject(String response)

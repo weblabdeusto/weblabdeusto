@@ -65,8 +65,8 @@ public class TemporalFakeData {
 		this.groups.add(course200910);
 		
 		this.allExperimentUses = new ArrayList<ExperimentUse>();		
-		this.allExperimentUses.add(new ExperimentUse(jaime, fpga,  new Date(2010-1900, 04, 17, 15, 00, 00), new Date(2010-1900, 04, 17, 15, 00, 30)));
-		this.allExperimentUses.add(new ExperimentUse(pablo, pld,   new Date(2010-1900, 04, 18, 15, 00, 00), new Date(2010-1900, 04, 18, 15, 00, 15)));
-		this.allExperimentUses.add(new ExperimentUse(luis, binary, new Date(2010-1900, 04, 20, 15, 00, 00), new Date(2010-1900, 04, 20, 15, 00, 25)));		
+		this.allExperimentUses.add(new ExperimentUse(new Date(2010-1900, 04, 17, 15, 00, 00), new Date(2010-1900, 04, 17, 15, 00, 30), jaime, fpga, "unknown"));
+		this.allExperimentUses.add(new ExperimentUse(new Date(2010-1900, 04, 18, 15, 00, 00), new Date(2010-1900, 04, 18, 15, 00, 15), pablo, pld, "unknown"));
+		this.allExperimentUses.add(new ExperimentUse(new Date(2010-1900, 04, 20, 15, 00, 00), new Date(2010-1900, 04, 20, 15, 00, 25), luis, binary, "unknown"));		
 	}
 }

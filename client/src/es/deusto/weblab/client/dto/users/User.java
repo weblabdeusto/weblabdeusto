@@ -15,13 +15,16 @@ package es.deusto.weblab.client.dto.users;
 
 import java.util.ArrayList;
 
-public class User {
+public class User extends Agent {
+	
 	private String login;
 	private String fullName;
 	private String email;
 	private Role role;
 	private ArrayList<Group> groups;
 	
+	public User() {}
+
 	public User(String login, String fullName, String email, Role role) {
 		super();
 		this.login = login;
@@ -29,8 +32,8 @@ public class User {
 		this.email = email;
 		this.role = role;
 		this.groups = new ArrayList<Group>();
-	}
-		
+	}	
+	
 	public String getLogin() {
 		return this.login;
 	}
