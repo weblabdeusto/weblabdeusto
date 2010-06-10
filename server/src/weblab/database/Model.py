@@ -31,7 +31,7 @@ from weblab.data.experiments.Usage import ExperimentUsage
 from weblab.data.experiments.Usage import FileSent  
 from weblab.data.experiments.Usage import CommandSent   
 from weblab.data.Command import Command
-from weblab.data.User import User, Role
+from weblab.data.dto.User import User, Role
 from weblab.data.dto.Group import Group  
 from weblab.data.dto.ExternalEntity import ExternalEntity
 from weblab.data.dto.ExperimentUse import ExperimentUse
