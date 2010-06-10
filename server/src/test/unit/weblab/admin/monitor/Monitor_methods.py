@@ -36,7 +36,8 @@ import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
 import weblab.data.experiments.ExperimentAllowed as ExperimentAllowed
 import weblab.data.ServerType                         as ServerType
 import weblab.data.ClientAddress                      as ClientAddress
-from weblab.data.dto.User import User, Role
+from weblab.data.dto.User import User
+from weblab.data.dto.Role import Role
 
 import voodoo.gen.coordinator.CoordAddress  as CoordAddress
 

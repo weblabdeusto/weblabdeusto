@@ -28,7 +28,8 @@ import weblab.data.experiments.ExperimentAllowed as ExperimentAllowed
 import weblab.data.experiments.Experiment as Experiment
 import weblab.data.experiments.Category as Category
 
-from weblab.data.dto.User import User, Role
+from weblab.data.dto.User import User
+from weblab.data.dto.Role import Role
 import weblab.data.Command as Command
 
 import voodoo.configuration.ConfigurationManager as ConfigurationManager

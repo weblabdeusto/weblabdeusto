@@ -39,7 +39,8 @@ import weblab.data.experiments.Category as Category
 import weblab.data.Command as Command
 import weblab.data.dto.Group as Group
 
-from weblab.data.dto.User import User, Role
+from weblab.data.dto.User import User
+from weblab.data.dto.Role import Role
 
 import weblab.exceptions.user_processing.UserProcessingExceptions as UserProcessingExceptions
 import weblab.exceptions.WebLabExceptions as WebLabExceptions

@@ -29,15 +29,3 @@ class User(object):
                 self.email,
                 self.role
             )
-
-        
-class Role(object):
-    
-    def __init__(self, name):
-        super(Role, self).__init__()
-        self.name = name
-        
-    def __repr__(self):
-        return "Role(name = '%s')" % (
-                self.name
-            )    
