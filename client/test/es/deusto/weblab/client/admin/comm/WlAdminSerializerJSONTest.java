@@ -422,8 +422,8 @@ public class WlAdminSerializerJSONTest extends GWTTestCase {
 					"\"session_id\":{\"id\":\"" + SESSION_ID + "\"}, " +
 					"\"from_date\":\"" + fromDate + "\", " + 
 					"\"to_date\":\"" + toDate + "\", " + 
-					"\"group_id\":\"" + groupId + "\", " + 
-					"\"experiment_id\":\"" + experimentId + "\"" + 
+					"\"group_id\":" + groupId + ", " + 
+					"\"experiment_id\":" + experimentId + 
 				"}, \"method\":\"get_experiment_uses\"}",
 				serializedMessage
 			);

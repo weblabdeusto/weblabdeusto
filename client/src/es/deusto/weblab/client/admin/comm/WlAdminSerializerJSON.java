@@ -20,6 +20,7 @@ import java.util.Date;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNull;
+import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
@@ -201,12 +202,12 @@ public class WlAdminSerializerJSON extends WlCommonSerializerJSON implements IWl
 			params.put("to_date", new JSONObject(null));
 		}
 		if ( groupId != -1 ) {
-			params.put("group_id", new JSONString(groupId+""));
+			params.put("group_id", new JSONNumber(groupId));
 		} else {
 			params.put("group_id", new JSONObject(null));
 		}
 		if ( experimentId != -1 ) {
-			params.put("experiment_id", new JSONString(experimentId+""));
+			params.put("experiment_id", new JSONNumber(experimentId));
 		} else {
 			params.put("experiment_id", new JSONObject(null));
 		}
