@@ -33,9 +33,9 @@ import weblab.data.Command as Command
 import weblab.data.dto.Group as Group
 import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
 import weblab.data.experiments.ExperimentId as ExperimentId
-import weblab.data.experiments.Category as Category
-import weblab.data.experiments.Experiment as Experiment
-import weblab.data.experiments.ExperimentAllowed as ExperimentAllowed
+import weblab.data.dto.Category as Category
+import weblab.data.dto.Experiment as Experiment
+import weblab.data.dto.ExperimentAllowed as ExperimentAllowed
 
 import weblab.exceptions.user_processing.UserProcessingExceptions as UserProcessingExceptions
 import weblab.exceptions.laboratory.LaboratoryExceptions as LaboratoryExceptions

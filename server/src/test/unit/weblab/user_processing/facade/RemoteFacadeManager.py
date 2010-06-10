@@ -33,9 +33,9 @@ import weblab.facade.RemoteFacadeManager as RFM
 import weblab.user_processing.facade.UserProcessingFacadeCodes as UserProcessingRFCodes
 import weblab.user_processing.Reservation as Reservation
 
-import weblab.data.experiments.ExperimentAllowed as ExperimentAllowed
-import weblab.data.experiments.Experiment as Experiment
-import weblab.data.experiments.Category as Category
+import weblab.data.dto.ExperimentAllowed as ExperimentAllowed
+import weblab.data.dto.Experiment as Experiment
+import weblab.data.dto.Category as Category
 import weblab.data.Command as Command
 import weblab.data.dto.Group as Group
 

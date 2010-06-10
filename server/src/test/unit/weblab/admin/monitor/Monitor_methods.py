@@ -29,11 +29,11 @@ import weblab.exceptions.user_processing.UserProcessingExceptions as UPSExc
 
 import weblab.database.DatabaseSession                as DatabaseSession
 
-import weblab.data.experiments.Category as Category
-import weblab.data.experiments.Experiment as Experiment
+import weblab.data.dto.Category as Category
+import weblab.data.dto.Experiment as Experiment
+import weblab.data.dto.ExperimentAllowed as ExperimentAllowed
 import weblab.data.experiments.ExperimentId as ExperimentId
 import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
-import weblab.data.experiments.ExperimentAllowed as ExperimentAllowed
 import weblab.data.ServerType                         as ServerType
 import weblab.data.ClientAddress                      as ClientAddress
 from weblab.data.dto.User import User

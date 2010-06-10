@@ -24,9 +24,9 @@ except ImportError:
 import datetime
 
 import voodoo.sessions.SessionId as SessionId
-import weblab.data.experiments.ExperimentAllowed as ExperimentAllowed
-import weblab.data.experiments.Experiment as Experiment
-import weblab.data.experiments.Category as Category
+import weblab.data.dto.ExperimentAllowed as ExperimentAllowed
+import weblab.data.dto.Experiment as Experiment
+import weblab.data.dto.Category as Category
 
 from weblab.data.dto.User import User
 from weblab.data.dto.Role import Role

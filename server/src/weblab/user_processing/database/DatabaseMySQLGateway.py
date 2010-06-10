@@ -24,7 +24,7 @@ import weblab.database.Model as Model
 
 import weblab.database.DatabaseMySQLGateway as dbMySQLGateway
 
-from weblab.data.experiments.ExperimentAllowed import ExperimentAllowed
+from weblab.data.dto.ExperimentAllowed import ExperimentAllowed
 
 import weblab.exceptions.database.DatabaseExceptions as DbExceptions
 

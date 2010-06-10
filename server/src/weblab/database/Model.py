@@ -24,8 +24,8 @@ import voodoo.gen.coordinator.CoordAddress as CoordAddress
 
 import weblab.login.database.dao.UserAuth as UserAuth
 
-from weblab.data.experiments.Experiment import Experiment  
-from weblab.data.experiments.Category import ExperimentCategory  
+from weblab.data.dto.Experiment import Experiment  
+from weblab.data.dto.Category import ExperimentCategory  
 from weblab.data.experiments.ExperimentId import ExperimentId  
 from weblab.data.experiments.Usage import ExperimentUsage  
 from weblab.data.experiments.Usage import FileSent  

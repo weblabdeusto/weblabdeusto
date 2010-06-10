@@ -33,9 +33,9 @@ import weblab.data.ClientAddress                      as ClientAddress
 import weblab.exceptions.user_processing.UserProcessingExceptions as UserProcessingExceptions
 
 import weblab.data.experiments.ExperimentId as ExperimentId
-import weblab.data.experiments.Category as Category
-import weblab.data.experiments.Experiment as Experiment
-import weblab.data.experiments.ExperimentAllowed as ExperimentAllowed
+import weblab.data.dto.Category as Category
+import weblab.data.dto.Experiment as Experiment
+import weblab.data.dto.ExperimentAllowed as ExperimentAllowed
 
 import voodoo.sessions.SessionId as SessionId
 import voodoo.gen.coordinator.CoordAddress  as CoordAddress
