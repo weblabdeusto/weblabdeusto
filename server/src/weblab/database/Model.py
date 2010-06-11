@@ -286,7 +286,10 @@ class DbGroup(Base):
         )        
         
     def to_business_light(self):
-        return Group(self.name, self.id)
+        return Group(self.name, self.id) 
+        
+    def to_dto(self):
+        return self.to_business_light() # Temporal
 
 ##############################################################################
 # EXPERIMENTS DEFINITION
@@ -414,13 +417,14 @@ class DbUserUsedExperiment(Base):
         return usage
     
     def to_dto(self):
-        use = ExperimentUse()
-        use.id = self.id
-        use.start_date = _splitted_utc_datetime_to_timestamp(self.start_date, self.start_date_micro)
-        use.end_date   = _splitted_utc_datetime_to_timestamp(self.end_date, self.end_date_micro)
-        use.experiment = self.experiment.to_dto()
-        use.agent      = self.user.to_dto()
-        use.origin     = self.origin
+        use = ExperimentUse(
+            _splitted_utc_datetime_to_timestamp(self.start_date, self.start_date_micro),
+            _splitted_utc_datetime_to_timestamp(self.end_date, self.end_date_micro),
+            self.experiment.to_dto(),
+            self.user.to_dto(),
+            self.origin,
+            self.id
+        )
         return use
 
 
@@ -537,14 +541,12 @@ class DbExternalEntityUsedExperiment(Base):
     ee         = relation("DbExternalEntity", backref=backref("experiment_uses", order_by=id))  
     experiment = relation("DbExperiment", backref=backref("ee_uses", order_by=id))
     
-    def __init__(self, ee, experiment, start_date, start_date_micro, origin, coord_address, end_date=None, end_date_micro=None):
+    def __init__(self, ee, experiment, start_date, origin, coord_address, end_date=None):
         super(DbExternalEntityUsedExperiment, self).__init__()
         link_relation(self, ee, "ee")
         link_relation(self, experiment, "experiment")
-        self.start_date = start_date
-        self.start_date_micro = start_date_micro
-        self.end_date = end_date
-        self.end_date_micro = end_date_micro
+        self.start_date, self.start_date_micro = _timestamp_to_splitted_utc_datetime(start_date)
+        self.end_date, self.end_date_micro = _timestamp_to_splitted_utc_datetime(end_date)
         self.origin = origin
         self.coord_address = coord_address
 
@@ -560,15 +562,16 @@ class DbExternalEntityUsedExperiment(Base):
             self.origin,
             self.coord_address
         )   
-        
+    
     def to_dto(self):
-        use = ExperimentUse()
-        use.id         = self.id
-        use.start_date = _splitted_utc_datetime_to_timestamp(self.start_date, self.start_date_micro)
-        use.end_date   = _splitted_utc_datetime_to_timestamp(self.end_date, self.end_date_micro)
-        use.experiment = self.experiment.to_dto()
-        use.agent      = self.ee.to_dto()
-        use.origin     = self.origin
+        use = ExperimentUse(
+            _splitted_utc_datetime_to_timestamp(self.start_date, self.start_date_micro),
+            _splitted_utc_datetime_to_timestamp(self.end_date, self.end_date_micro),
+            self.experiment.to_dto(),
+            self.ee.to_dto(),
+            self.origin,
+            self.id
+        )
         return use
         
 

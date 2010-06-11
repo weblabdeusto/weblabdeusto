@@ -16,6 +16,7 @@
 
 import unittest
 import time
+import datetime
 
 import test.unit.configuration as configuration
 
@@ -251,6 +252,42 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         self.assertTrue( 'ud-gpib' in experiments_names )
         self.assertTrue( 'ud-pic' in experiments_names )
         self.assertTrue( 'visirtest' in experiments_names )
+
+    def test_get_experiment_uses(self):
+        student2 = self.gateway.get_user_by_name('student2')
+        from_date = datetime.datetime.utcnow()
+        to_date = datetime.datetime.utcnow()
+        group_id = 1
+        experiment_id = 1
+        
+        self.gateway._insert_user_used_experiment("student2", "ud-fpga", "FPGA experiments", time.time(), "unknown", "fpga:process1@scabb", time.time())
+        self.gateway._insert_ee_used_experiment("ee1", "ud-dummy", "Dummy experiments", time.time(), "unknown", "dummy:process1@plunder", time.time())
+        
+        experiment_uses = self.gateway.get_experiment_uses(student2.login, from_date, to_date, group_id, experiment_id)
+        self.assertEquals(len(experiment_uses), 2)
+
+        experiment_uses_names = list( ( experiment_use.experiment.name for experiment_use in experiment_uses ))
+
+        self.assertTrue( 'ud-dummy' in experiment_uses_names )
+        self.assertTrue( 'ud-fpga' in experiment_uses_names )
+
+    def test_get_experiment_uses_with_null_params(self):
+        student2 = self.gateway.get_user_by_name('student2')
+        from_date = None
+        to_date = None
+        group_id = None
+        experiment_id = None
+        
+        self.gateway._insert_user_used_experiment("student2", "ud-fpga", "FPGA experiments", time.time(), "unknown", "fpga:process1@scabb", time.time())
+        self.gateway._insert_ee_used_experiment("ee1", "ud-dummy", "Dummy experiments", time.time(), "unknown", "dummy:process1@plunder", time.time())
+        
+        experiment_uses = self.gateway.get_experiment_uses(student2.login, from_date, to_date, group_id, experiment_id)
+        self.assertEquals(len(experiment_uses), 2)
+
+        experiment_uses_names = list( ( experiment_use.experiment.name for experiment_use in experiment_uses ))
+
+        self.assertTrue( 'ud-dummy' in experiment_uses_names )
+        self.assertTrue( 'ud-fpga' in experiment_uses_names )
 
         
 def suite():

@@ -65,6 +65,7 @@ WEBLAB_USER_PROCESSING_SERVER_CLEAN_COORDINATOR    = "core_coordinator_clean"
 class UserProcessingServer(object):
 
     LABORATORY_SERVER_REGEX = r"^(.*);(.*)\|(.*)\|(.*)$"
+    FACADE_SERVER = UserProcessingFacadeServer.UserProcessingRemoteFacadeServer
 
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(UserProcessingServer,self).__init__(*args, **kwargs)
@@ -100,7 +101,7 @@ class UserProcessingServer(object):
 
         self._parse_configuration()
 
-        self._facade_server = UserProcessingFacadeServer.UserProcessingRemoteFacadeServer( self, cfg_manager ) 
+        self._facade_server = self.FACADE_SERVER( self, cfg_manager ) 
         self._facade_server.start()
 
         self._initialize_checker_timer()
@@ -332,5 +333,14 @@ class UserProcessingServer(object):
         user_processor = self._load_user(session)
         try:
             return user_processor.get_experiments()
+        finally:
+            user_processor.update_latest_timestamp()
+
+    @logged(LogLevel.Info)
+    @check_session(*check_session_params)
+    def get_experiment_uses(self, session, from_date, to_date, group_id, experiment_id):
+        user_processor = self._load_user(session)
+        try:
+            return user_processor.get_experiment_uses(from_date, to_date, group_id, experiment_id)
         finally:
             user_processor.update_latest_timestamp()

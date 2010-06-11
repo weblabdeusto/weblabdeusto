@@ -162,6 +162,16 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
         sess_id = self._parse_session_id(session_id)
         experiments = self._server.get_experiments(sess_id)
         return experiments
+    
+    @logged()
+    @RFM.check_exceptions(EXCEPTIONS)
+    def get_experiment_uses(self, session_id, from_date, to_date, group_id, experiment_id):
+        """ get_experiment_uses(session_id, from_date, to_date, group_id, experiment_id) -> array of ExperimentUse
+            raises SessionNotFoundException
+        """
+        sess_id = self._parse_session_id(session_id)
+        experiment_uses = self._server.get_experiment_uses(sess_id, from_date, to_date, group_id, experiment_id)
+        return experiment_uses
 
     def _fix_dates_in_experiments(self, experiments_allowed):
         # This is the default behaviour. Overrided by XML-RPC

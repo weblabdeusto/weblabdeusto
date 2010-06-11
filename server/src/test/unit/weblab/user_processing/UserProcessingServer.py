@@ -14,6 +14,8 @@
 # 
 
 import unittest
+import datetime
+import time
 
 import mocker
 
@@ -64,11 +66,13 @@ class UserProcessingServerTestCase(unittest.TestCase):
         coordinator._clean()
 
         # External server generation
-        self.ups = UserProcessingServer.UserProcessingServer(
+        self.ups = WrappedUPS(
                 self.coord_address,
                 self.locator,
                 self.cfg_manager
             )
+        
+        self.ups._db_manager._gateway._delete_all_uses()
 
     def tearDown(self):
         self.ups.stop()
@@ -202,6 +206,27 @@ class UserProcessingServerTestCase(unittest.TestCase):
         
         self.ups.logout(sess_id)
 
+    def test_get_experiment_uses(self):
+        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
+        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+        from_date = datetime.datetime.utcnow()
+        to_date = datetime.datetime.utcnow()
+        group_id = 1
+        experiment_id = 1
+        
+        self.ups._db_manager._gateway._insert_user_used_experiment("student2", "ud-fpga", "FPGA experiments", time.time(), "unknown", "fpga:process1@scabb", time.time())
+        self.ups._db_manager._gateway._insert_ee_used_experiment("ee1", "ud-dummy", "Dummy experiments", time.time(), "unknown", "dummy:process1@plunder", time.time())
+        
+        experiment_uses = self.ups.get_experiment_uses(sess_id, from_date, to_date, group_id, experiment_id)
+        self.assertEquals(2, len(experiment_uses) )
+
+        experiment_names = list(( experiment_use.experiment.name for experiment_use in experiment_uses ))
+
+        self.assertTrue( 'ud-fpga' in experiment_names )
+        self.assertTrue( 'ud-dummy' in experiment_names )
+        
+        self.ups.logout(sess_id)
+
 
 UserProcessingServerTestCase = case_uses_module(UserProcessingServer)(UserProcessingServerTestCase)
 UserProcessingServerTestCase = case_uses_module(UserProcessor)(UserProcessingServerTestCase)
@@ -220,6 +245,17 @@ class FakeLocator(object):
         if server_type == ServerType.Laboratory and laboratory_coordaddr == coord_addr:
             return self.lab
         raise Exception("Server not found")
+
+class FakeFacade(object):
+    def __init__(self, *args, **kwargs):
+        pass
+    def start(self):
+        pass
+    def stop(self):
+        pass
+    
+class WrappedUPS(UserProcessingServer.UserProcessingServer):
+    FACADE_SERVER = FakeFacade
 
 def generate_experiment(exp_name,exp_cat_name):
     cat = Category.ExperimentCategory(exp_cat_name)

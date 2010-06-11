@@ -15,12 +15,12 @@
 
 class ExperimentUse(object):
     
-    def __init__(self):
-        self.id         = None
-        self.start_date = None
-        self.end_date   = None
-        self.experiment = None
-        self.agent      = None # User or ExternalEntity
+    def __init__(self, start_date, end_date, experiment, agent, origin, id=None):
+        self.id         = id
+        self.start_date = start_date
+        self.end_date   = end_date
+        self.experiment = experiment
+        self.agent      = agent # User or ExternalEntity
         self.origin     = u"unknown"
 
     def __repr__(self):

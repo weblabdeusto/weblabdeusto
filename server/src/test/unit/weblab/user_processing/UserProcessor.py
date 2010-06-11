@@ -15,6 +15,7 @@
 
 import unittest
 import time
+import datetime
 
 import mocker
 
@@ -36,6 +37,9 @@ import weblab.data.experiments.ExperimentId as ExperimentId
 import weblab.data.dto.Category as Category
 import weblab.data.dto.Experiment as Experiment
 import weblab.data.dto.ExperimentAllowed as ExperimentAllowed
+import weblab.data.dto.ExperimentUse as ExperimentUse
+import weblab.data.dto.User as User
+import weblab.data.dto.Role as Role
 
 import weblab.exceptions.user_processing.UserProcessingExceptions as UserProcessingExceptions
 import weblab.exceptions.laboratory.LaboratoryExceptions as LaboratoryExceptions
@@ -434,6 +438,7 @@ class FakeDatabase(object):
             ]
         self.groups = [ Group.Group("5A") ]
         self.experiments = [ generate_experiment('ud-dummy', 'Dummy experiments') ]
+        self.experiment_uses = [ generate_experiment_use("student2", self.experiments[0]) ]
 
     def store_experiment_usage(self, db_session_id, experiment_usage):
         pass
@@ -449,6 +454,10 @@ class FakeDatabase(object):
 
     def get_experiments(self, db_session_id):
         return self.experiments
+        return self.groups
+
+    def get_experiment_uses(self, db_session_id, from_date, to_date, group_id, experiment_id):
+        return self.experiment_uses
 
 class FakeLocator(object):
     def __init__(self, lab):
@@ -483,6 +492,19 @@ def generate_experiment(exp_name,exp_cat_name):
 def generate_experiment_allowed(time_allowed, exp_name, exp_cat_name):
     exp = generate_experiment(exp_name, exp_cat_name)
     return ExperimentAllowed.ExperimentAllowed(exp, time_allowed)
+
+def generate_experiment_use(user_login, exp):
+    exp_use = ExperimentUse.ExperimentUse(
+        datetime.datetime.utcnow(),
+        datetime.datetime.utcnow(),
+        exp,
+        User.User(
+            user_login,
+            "Jaime Irurzun",
+            "jaime.irurzun@opendeusto.es",
+            Role.Role("student")),
+        "unknown")
+    return exp_use
 
 def suite():
     return unittest.makeSuite(UserProcessorTestCase)

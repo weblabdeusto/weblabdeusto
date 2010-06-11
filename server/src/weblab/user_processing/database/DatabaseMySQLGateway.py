@@ -165,21 +165,21 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
     def get_groups(self, user_login):
         """ All the groups are returned by the moment """
         
-        def get_business_children_recursively(groups):
-            business_groups = []
+        def get_dto_children_recursively(groups):
+            dto_groups = []
             for group in groups:
-                business_group = group.to_business_light()
+                dto_group = group.to_dto()
                 if len(group.children) > 0:
-                    business_group.set_children(get_business_children_recursively(group.children))
-                business_groups.append(business_group)
-            return business_groups
+                    dto_group.set_children(get_dto_children_recursively(group.children))
+                dto_groups.append(dto_group)
+            return dto_groups
         
         session = self.Session()
         try:
             user = self._get_user(session, user_login)
             groups = session.query(Model.DbGroup).filter_by(parent=None).all()
-            business_groups = get_business_children_recursively(groups)
-            return tuple(business_groups)
+            dto_groups = get_dto_children_recursively(groups)
+            return tuple(dto_groups)
         finally:
             session.close()
 
@@ -192,8 +192,26 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             user = self._get_user(session, user_login)
             experiments = session.query(Model.DbExperiment).all()
             experiments.sort(cmp=lambda x,y: cmp(x.category.name, y.category.name))
-            business_experiments = [ experiment.to_business() for experiment in experiments ]
-            return tuple(business_experiments)
+            dto_experiments = [ experiment.to_dto() for experiment in experiments ]
+            return tuple(dto_experiments)
+        finally:
+            session.close()
+
+    @logged()
+    def get_experiment_uses(self, user_login, from_date, to_date, group_id, experiment_id):
+        """ All the experiments uses are returned by the moment """
+        
+        session = self.Session()
+        try:
+            user = self._get_user(session, user_login)
+            user_used_experiments = session.query(Model.DbUserUsedExperiment).all()
+            ee_used_experiments = session.query(Model.DbExternalEntityUsedExperiment).all()
+            experiment_uses = []
+            experiment_uses.extend(user_used_experiments)
+            experiment_uses.extend(ee_used_experiments)
+            #experiment_uses.sort(cmp=lambda x,y: cmp(x.category.name, y.category.name))
+            dto_experiment_uses = [ experiment_use.to_dto() for experiment_use in experiment_uses ]
+            return tuple(dto_experiment_uses)
         finally:
             session.close()
     
@@ -261,3 +279,33 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                 session.commit()               
         finally:
             session.close()
+
+    def _insert_user_used_experiment(self, user_login, experiment_name, experiment_category_name, start_time, origin, coord_address, end_date):
+        """ IMPORTANT: SHOULD NEVER BE USED IN PRODUCTION, IT'S HERE ONLY FOR TESTS """
+        session = self.Session()
+        try:
+            user = session.query(Model.DbUser).filter_by(login=user_login).one()
+            category = session.query(Model.DbExperimentCategory).filter_by(name=experiment_category_name).one()
+            experiment = session.query(Model.DbExperiment). \
+                                    filter_by(name=experiment_name). \
+                                    filter_by(category=category).one()
+            exp_use = Model.DbUserUsedExperiment(user, experiment, start_time, origin, coord_address, end_date)
+            session.add(exp_use)
+            session.commit()
+        finally:
+            session.close()
+            
+    def _insert_ee_used_experiment(self, ee_name, experiment_name, experiment_category_name, start_time, origin, coord_address, end_date):
+        """ IMPORTANT: SHOULD NEVER BE USED IN PRODUCTION, IT'S HERE ONLY FOR TESTS """
+        session = self.Session()
+        try:
+            ee = session.query(Model.DbExternalEntity).filter_by(name=ee_name).one()
+            category = session.query(Model.DbExperimentCategory).filter_by(name=experiment_category_name).one()
+            experiment = session.query(Model.DbExperiment). \
+                                    filter_by(name=experiment_name). \
+                                    filter_by(category=category).one()
+            exp_use = Model.DbExternalEntityUsedExperiment(ee, experiment, start_time, origin, coord_address, end_date)
+            session.add(exp_use)
+            session.commit()
+        finally:
+            session.close()              

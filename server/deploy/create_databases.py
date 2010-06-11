@@ -5,6 +5,7 @@ import traceback
 import getpass
 import datetime
 import subprocess
+import time
 
 import libraries
 import MySQLdb
@@ -215,11 +216,15 @@ session.add(studentLDAP3)
 studentLDAPwithoutUserAuth = Model.DbUser("studentLDAPwithoutUserAuth", "Name of student LDAPwithoutUserAuth", "weblab@deusto.es", None, student)
 session.add(studentLDAPwithoutUserAuth)
 
+# External Entities
+ee1 = Model.DbExternalEntity("ee1", "Country of ee1", "Description of ee1", "weblab@other.es", "password")
+session.add(ee1)
+
 # Authentication
 session.add(Model.DbUserAuth(admin1,   weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
 session.add(Model.DbUserAuth(admin2,   weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
 session.add(Model.DbUserAuth(admin3,   weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-session.add(Model.DbUserAuth(any, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
+session.add(Model.DbUserAuth(any,      weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
 session.add(Model.DbUserAuth(prof1,    weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
 session.add(Model.DbUserAuth(prof2,    weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
 session.add(Model.DbUserAuth(prof3,    weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
@@ -436,11 +441,11 @@ session.add(up_student2_gpib_allowed_p3)
             
             
 up_any_pic_allowed = Model.DbUserPermission(
- any,
-experiment_allowed.group_applicable,
-"any::weblab-pic",
-datetime.datetime.utcnow(),
-"Permission for any to use WebLab-pic"
+    any,
+    experiment_allowed.group_applicable,
+    "any::weblab-pic",
+    datetime.datetime.utcnow(),
+    "Permission for any to use WebLab-pic"
 )
 session.add(up_any_pic_allowed)
 up_any_pic_allowed_p1 = Model.DbUserPermissionParameter(up_any_pic_allowed, experiment_allowed_p1, "ud-pic")
@@ -449,7 +454,7 @@ up_any_pic_allowed_p2 = Model.DbUserPermissionParameter(up_any_pic_allowed, expe
 session.add(up_any_pic_allowed_p2)
 up_any_pic_allowed_p3 = Model.DbUserPermissionParameter(up_any_pic_allowed, experiment_allowed_p3, "150")
 session.add(up_any_pic_allowed_p3)      
-            
+
             
 session.commit()
 
