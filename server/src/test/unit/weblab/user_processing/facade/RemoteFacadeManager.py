@@ -512,7 +512,7 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         self._test_general_exceptions('get_user_information', expected_sess_id)
      
 
-"""
+
 class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -555,7 +555,7 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
         return experimentA, experimentB
     
     def test_return_get_groups(self):
-        expected_sess_id = SessionId.SessionId("whatever")
+        expected_sess_id = {'id' : 'whatever'}
         groups = self._generate_groups()
     
         self.mock_ups.return_values['get_groups'] = groups
@@ -566,32 +566,28 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
             )
         
         self.assertEquals(
-                expected_sess_id.id,
+                expected_sess_id['id'],
                 self.mock_ups.arguments['get_groups'][0].id
             )
     
     def test_return_get_experiments(self):
-        expected_sess_id = SessionId.SessionId("whatever")
+        expected_sess_id = {'id' : "whatever"}
         experiments = self._generate_experiments()
     
         self.mock_ups.return_values['get_experiments'] = experiments
-
-        print "SETUP", self.mock_ups.exceptions
 
         self.assertEquals(
                 experiments,
                 self.rfm.get_experiments(expected_sess_id)
             )
         
-        print "FOO" * 100
-        
         self.assertEquals(
-                expected_sess_id.id,
+                expected_sess_id['id'],
                 self.mock_ups.arguments['get_experiments'][0].id
             )
     
     def test_return_get_experiment_uses(self):
-        expected_sess_id = SessionId.SessionId("whatever")
+        expected_sess_id = {'id' : "whatever"}
         experiment_uses = _generate_experiment_uses()
     
         self.mock_ups.return_values['get_experiment_uses'] = experiment_uses
@@ -602,7 +598,7 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
             )
         
         self.assertEquals(
-                expected_sess_id.id,
+                expected_sess_id['id'],
                 self.mock_ups.arguments['get_experiment_uses'][0].id
             )
 
@@ -660,7 +656,7 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
         self._test_exception(method, args,  
                         Exception, MESSAGE, 
                         'JSON:' + RFCodes.PYTHON_GENERAL_EXCEPTION_CODE, MESSAGE)            
-"""
+
 
 def _generate_two_experiments():
     experimentA = Experiment.Experiment(
@@ -724,8 +720,7 @@ def _generate_experiment_uses():
 
 
 def suite():
-    #test_cases = [ unittest.makeSuite(UserProcessingFacadeManagerJSONTestCase) ]
-    test_cases = []
+    test_cases = [ unittest.makeSuite(UserProcessingFacadeManagerJSONTestCase) ]
     if ZSI_AVAILABLE:
         test_cases.append(unittest.makeSuite(UserProcessingFacadeManagerZSITestCase))
     else:
