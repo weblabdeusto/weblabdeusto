@@ -554,6 +554,198 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
             )
         return experimentA, experimentB
     
+
+
+    def test_return_logout(self):
+        expected_sess_id = {'id': "whatever"}
+    
+        self.mock_ups.return_values['logout'] = expected_sess_id
+
+        self.assertEquals(
+                expected_sess_id['id'],
+                self.rfm.logout(expected_sess_id)['id']
+            )
+        
+        self.assertEquals(
+                expected_sess_id['id'],
+                self.mock_ups.arguments['logout'][0].id
+            )
+    
+    def test_return_list_experiments(self):
+        expected_sess_id = {'id': "whatever"}
+        experiments_allowed = _generate_experiments_allowed()
+    
+        self.mock_ups.return_values['list_experiments'] = experiments_allowed
+
+        self.assertEquals(
+                experiments_allowed,
+                self.rfm.list_experiments(expected_sess_id)
+            )
+        
+        self.assertEquals(
+                expected_sess_id['id'],
+                self.mock_ups.arguments['list_experiments'][0].id
+            )
+    
+    def test_return_reserve_experiment(self):
+        expected_sess_id = {'id': "whatever"}
+        experimentA, _ = _generate_two_experiments()
+        expected_reservation = Reservation.ConfirmedReservation(100)
+    
+        self.mock_ups.return_values['reserve_experiment'] = expected_reservation
+
+        self.assertEquals(
+                expected_reservation,
+                self.rfm.reserve_experiment(
+                    expected_sess_id, 
+                    experimentA.to_experiment_id().to_dict()
+                )
+            )
+        
+        self.assertEquals(
+                expected_sess_id['id'],
+                self.mock_ups.arguments['reserve_experiment'][0].id
+            )
+        self.assertEquals(
+                experimentA.name,
+                self.mock_ups.arguments['reserve_experiment'][1].exp_name
+            )
+        self.assertEquals(
+                experimentA.category.name,
+                self.mock_ups.arguments['reserve_experiment'][1].cat_name
+            )
+
+    def test_return_finished_experiment(self):
+        expected_sess_id = {'id': "whatever"}
+
+        self.mock_ups.return_values['finished_experiment'] = None   
+
+        self.rfm.finished_experiment(expected_sess_id)
+        
+        self.assertEquals(
+                expected_sess_id['id'],
+                self.mock_ups.arguments['finished_experiment'][0].id
+            )
+    
+    def test_return_get_reservation_status(self):
+        expected_sess_id = {'id': "whatever"}
+    
+        expected_reservation = Reservation.ConfirmedReservation(100)
+
+        self.mock_ups.return_values['get_reservation_status'] = expected_reservation
+
+
+        reservation = self.rfm.get_reservation_status(expected_sess_id)
+        
+        self.assertEquals(
+                expected_sess_id['id'],
+                self.mock_ups.arguments['get_reservation_status'][0].id
+            )
+        
+        self.assertEquals(
+                expected_reservation.status,
+                reservation.status
+            )
+
+        self.assertEquals(
+                expected_reservation.time,
+                reservation.time
+            )
+
+    def test_return_send_file(self):
+        expected_sess_id      = {'id': "whatever"}
+        expected_file_content = "<content of the file>"
+
+        self.mock_ups.return_values['send_file']        = None
+
+        self.rfm.send_file(
+                expected_sess_id,
+                expected_file_content,
+                'program'
+            )
+        
+        self.assertEquals(
+                expected_sess_id['id'],
+                self.mock_ups.arguments['send_file'][0].id
+            )
+        
+        self.assertEquals(
+                expected_file_content,
+                self.mock_ups.arguments['send_file'][1]
+            )
+
+    def test_return_send_command(self):
+        expected_sess_id = {'id': "whatever"}
+        expected_command = Command.Command("ChangeSwitch on 9")
+
+        self.mock_ups.return_values['send_command'] = None
+
+        self.rfm.send_command(
+                expected_sess_id,
+                expected_command.to_dict()
+            )
+        
+        self.assertEquals(
+                expected_sess_id['id'],
+                self.mock_ups.arguments['send_command'][0].id
+            )
+        
+        self.assertEquals(
+                expected_command.get_command_string(),
+                self.mock_ups.arguments['send_command'][1].get_command_string()
+            )
+
+    def test_return_poll(self):
+        expected_sess_id = {'id': "whatever"}
+    
+        self.mock_ups.return_values['poll'] = None
+
+        self.rfm.poll(expected_sess_id)
+        
+        self.assertEquals(
+                expected_sess_id['id'],
+                self.mock_ups.arguments['poll'][0].id
+            )
+
+    def test_return_get_user_information(self):
+        expected_sess_id = {'id': "whatever"}
+
+        expected_user_information = User(
+                'porduna', 
+                'Pablo Orduna', 
+                'weblab@deusto.es',
+                Role("student")
+            )
+    
+        self.mock_ups.return_values['get_user_information'] = expected_user_information
+
+        user_information = self.rfm.get_user_information(expected_sess_id)
+        
+        self.assertEquals(
+                expected_sess_id['id'],
+                self.mock_ups.arguments['get_user_information'][0].id
+            )
+
+        self.assertEquals(
+                expected_user_information.login,
+                user_information.login
+            )
+
+        self.assertEquals(
+                expected_user_information.full_name,
+                user_information.full_name
+            )
+
+        self.assertEquals(
+                expected_user_information.email,
+                user_information.email
+            )
+
+        self.assertEquals(
+                expected_user_information.role.name,
+                user_information.role.name
+            )
+    
     def test_return_get_groups(self):
         expected_sess_id = {'id' : 'whatever'}
         groups = self._generate_groups()

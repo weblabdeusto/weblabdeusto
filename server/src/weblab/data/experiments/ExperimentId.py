@@ -37,4 +37,7 @@ class ExperimentId(object):
                     self.exp_name,
                     self.cat_name
                 )
+    
+    def to_dict(self):
+        return {'exp_name': self.exp_name, 'cat_name': self.cat_name}
 
