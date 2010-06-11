@@ -418,8 +418,8 @@ class DbUserUsedExperiment(Base):
     
     def to_dto(self):
         use = ExperimentUse(
-            _splitted_utc_datetime_to_timestamp(self.start_date, self.start_date_micro),
-            _splitted_utc_datetime_to_timestamp(self.end_date, self.end_date_micro),
+            self.start_date,
+            self.end_date,
             self.experiment.to_dto(),
             self.user.to_dto(),
             self.origin,
