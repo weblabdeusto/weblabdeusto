@@ -90,7 +90,7 @@ class DbRole(Base):
         self.name = name
         
     def __repr__(self):
-        return "DbRole(id = %i, name = '%s')" % (
+        return "DbRole(id = %r, name = '%s')" % (
             self.id,
             self.name
         )
@@ -121,7 +121,7 @@ class DbUser(Base):
         link_relation(self, role, "role")
 
     def __repr__(self):
-        return "DbUser(id = %i, login = '%s', full_name = '%s', email = '%s', avatar = '%s', role = %r)" % (
+        return "DbUser(id = %r, login = '%s', full_name = '%s', email = '%s', avatar = '%s', role = %r)" % (
                 self.id,
                 self.login,
                 self.full_name,
@@ -149,7 +149,7 @@ class DbAuthType(Base):
         self.name = name
         
     def __repr__(self):
-        return "DbAuthType(id = %i, name = '%s')" % (
+        return "DbAuthType(id = %r, name = '%s')" % (
             self.id,
             self.name
         )
@@ -175,7 +175,7 @@ class DbAuth(Base):
         self.configuration = configuration
         
     def __repr__(self):
-        return "DbAuth(id = %i, auth_type = %r, name = '%s', priority = %i, configuration = '%s')" % (
+        return "DbAuth(id = %r, auth_type = %r, name = '%s', priority = %i, configuration = '%s')" % (
             self.id,
             self.auth_type,
             self.name,
@@ -212,7 +212,7 @@ class DbUserAuth(Base):
         configuration_str = "None"
         if self.configuration is not None:
            configuration_str = ( "*".join("" for _ in self.configuration) )
-        return "DbUserAuth(id = %i, user = %r, auth = %r, configuration = '%s')" % (
+        return "DbUserAuth(id = %r, user = %r, auth = %r, configuration = '%s')" % (
             self.id,
             self.user,
             self.auth,
@@ -243,7 +243,7 @@ class DbExternalEntity(Base):
         self.password = password # calculate hash?
         
     def __repr__(self):
-        return "DbExternalEntity(id = %i, name = '%s', country = '%s', description = '%s', email = '%s')" % (
+        return "DbExternalEntity(id = %r, name = '%s', country = '%s', description = '%s', email = '%s')" % (
             self.id,
             self.name,
             self.country,
@@ -276,10 +276,11 @@ class DbGroup(Base):
         link_relation(self, parent, "parent")
 
     def __repr__(self):
-        parent_str = "<None>"
-        if self.parent is not None:
+        if self.parent is None:
+            parent_str = "<None>"
+        else:
             parent_str = "<" + self.parent.name + ">"
-        return "DbGroup(id = %i, name = '%s', parent = '%s')" % (
+        return "DbGroup(id = %r, name = '%s', parent = '%s')" % (
             self.id,
             self.name,
             parent_str
@@ -307,7 +308,7 @@ class DbExperimentCategory(Base):
         self.name = name
 
     def __repr__(self):
-        return "DbExperimentCategory(id = %i, name = '%s')" % (
+        return "DbExperimentCategory(id = %r, name = '%s')" % (
             self.id,
             self.name
         )      
@@ -336,7 +337,7 @@ class DbExperiment(Base):
         self.end_date = end_date
         
     def __repr__(self):
-        return "DbExperiment(id = %i, name = '%s', category = %r, start_date = %r, end_date = %r)" % (
+        return "DbExperiment(id = %r, name = '%s', category = %r, start_date = %r, end_date = %r)" % (
             self.id,
             self.name,
             self.category,
@@ -388,7 +389,7 @@ class DbUserUsedExperiment(Base):
         self.coord_address = coord_address
 
     def __repr__(self):
-        return "DbUserUsedExperiment(id = %i, user = %r, experiment = %r, start_date = %r, start_date_micro = %i, end_date = %r, end_date_micro = %i, origin = '%s', coord_address = '%s')" % (
+        return "DbUserUsedExperiment(id = %r, user = %r, experiment = %r, start_date = %r, start_date_micro = %i, end_date = %r, end_date_micro = %i, origin = '%s', coord_address = '%s')" % (
             self.id,
             self.user,
             self.experiment,
@@ -456,7 +457,7 @@ class DbUserFile(Base):
         self.timestamp_after, self.timestamp_after_micro = _timestamp_to_splitted_utc_datetime(timestamp_after)
 
     def __repr__(self):
-        return "DbUserFile(id = %i, experiment_use = %r, file_sent = '%s', file_hash = '%s', file_info = '%s', response = '%s', timestamp_before = %r, timestamp_before_micro = %i, timestamp_after = %r, timestamp_after_micro = %r)" % (
+        return "DbUserFile(id = %r, experiment_use = %r, file_sent = '%s', file_hash = '%s', file_info = '%s', response = '%s', timestamp_before = %r, timestamp_before_micro = %i, timestamp_after = %r, timestamp_after_micro = %r)" % (
             self.id,
             self.experiment_use,
             self.file_sent,
@@ -504,7 +505,7 @@ class DbUserCommand(Base):
         self.timestamp_after, self.timestamp_after_micro = _timestamp_to_splitted_utc_datetime(timestamp_after)
 
     def __repr__(self):
-        return "DbUserCommand(id = %i, experiment_use = %r, command = '%s', response = '%s', timestamp_before = %r, timestamp_before_micro = %i, timestamp_after = %r, timestamp_after_micro = %r)" % (
+        return "DbUserCommand(id = %r, experiment_use = %r, command = '%s', response = '%s', timestamp_before = %r, timestamp_before_micro = %i, timestamp_after = %r, timestamp_after_micro = %r)" % (
             self.id,
             self.experiment_use,
             self.command,
@@ -551,7 +552,7 @@ class DbExternalEntityUsedExperiment(Base):
         self.coord_address = coord_address
 
     def __repr__(self):
-        return "DbExternalEntityUsedExperiment(id = %i, ee = %r, experiment = %r, start_date = %r, start_date_micro = %i, end_date = %r, end_date_micro = %i, origin = '%s', coord_address = '%s')" % (
+        return "DbExternalEntityUsedExperiment(id = %r, ee = %r, experiment = %r, start_date = %r, start_date_micro = %i, end_date = %r, end_date_micro = %i, origin = '%s', coord_address = '%s')" % (
             self.id,
             self.ee,
             self.experiment,
@@ -605,7 +606,7 @@ class DbExternalEntityFile(Base):
         self.timestamp_after_micro = timestamp_after_micro
 
     def __repr__(self):
-        return "DbExternalEntityFile(id = %i, experiment_use = %r, file_sent = '%s', file_hash = '%s', file_info = '%s', response = '%s', timestamp_before = %r, timestamp_before_micro = %i, timestamp_after = %r, timestamp_after_micro = %r)" % (
+        return "DbExternalEntityFile(id = %r, experiment_use = %r, file_sent = '%s', file_hash = '%s', file_info = '%s', response = '%s', timestamp_before = %r, timestamp_before_micro = %i, timestamp_after = %r, timestamp_after_micro = %r)" % (
             self.id,
             self.experiment_use,
             self.file_sent,
@@ -645,7 +646,7 @@ class DbExternalEntityCommand(Base):
         self.timestamp_after_micro = timestamp_after_micro
 
     def __repr__(self):
-        return "DbExternalEntityCommand(id = %i, experiment_use = %r, command = '%s', response = '%s', timestamp_before = %r, timestamp_before_micro = %i, timestamp_after = %r, timestamp_after_micro = %r)" % (
+        return "DbExternalEntityCommand(id = %r, experiment_use = %r, command = '%s', response = '%s', timestamp_before = %r, timestamp_before_micro = %i, timestamp_after = %r, timestamp_after_micro = %r)" % (
             self.id,
             self.experiment_use,
             self.command,
@@ -692,7 +693,7 @@ class DbPermissionType(Base):
             link_relation(self, DbExternalEntityApplicablePermissionType(), "ee_applicable")
 
     def __repr__(self):
-        return "DbPermissionType(id = %i, name = '%s', description = '%s', user_applicable = %r, role_applicable = %r, group_applicable = %r, ee_applicable = %r)" % (
+        return "DbPermissionType(id = %r, name = '%s', description = '%s', user_applicable = %r, role_applicable = %r, group_applicable = %r, ee_applicable = %r)" % (
             self.id,
             self.name,
             self.description,
@@ -726,7 +727,7 @@ class DbPermissionTypeParameter(Base):
         self.description = description
 
     def __repr__(self):
-        return "DbPermissionTypeParameter(id = %i, permission_type = %r, name = '%s', datatype = '%s', description = '%s')" % (
+        return "DbPermissionTypeParameter(id = %r, permission_type = %r, name = '%s', datatype = '%s', description = '%s')" % (
             self.id,
             self.permission_type,
             self.name,
@@ -745,7 +746,7 @@ class DbUserApplicablePermissionType(Base):
         super(DbUserApplicablePermissionType, self).__init__()
 
     def __repr__(self):
-        return "DbUserApplicablePermissionType(id = %i)" % (
+        return "DbUserApplicablePermissionType(id = %r)" % (
             self.id
         )       
                       
@@ -773,7 +774,7 @@ class DbUserPermission(Base):
         self.comments = comments
 
     def __repr__(self):
-        return "DbUserPermission(id = %i, user = %r, applicable_permission_type = %r, permanent_id = '%s', date = %r, comments = '%s')" % (
+        return "DbUserPermission(id = %r, user = %r, applicable_permission_type = %r, permanent_id = '%s', date = %r, comments = '%s')" % (
             self.id,
             self.user,
             self.applicable_permission_type,
@@ -808,7 +809,7 @@ class DbUserPermissionParameter(Base):
         self.value = value
 
     def __repr__(self):
-        return "DbUserPermissionParameter(id = %i, permission = %r, permission_type_parameter = %r, value = '%s')" % (
+        return "DbUserPermissionParameter(id = %r, permission = %r, permission_type_parameter = %r, value = '%s')" % (
             self.id,
             self.permission,
             self.permission_type_parameter,
@@ -832,7 +833,7 @@ class DbRoleApplicablePermissionType(Base):
         super(DbRoleApplicablePermissionType, self).__init__()
 
     def __repr__(self):
-        return "DbRoleApplicablePermissionType(id = %i)" % (
+        return "DbRoleApplicablePermissionType(id = %r)" % (
             self.id
         )               
 
@@ -859,7 +860,7 @@ class DbRolePermission(Base):
         self.comments = comments
 
     def __repr__(self):
-        return "DbRolePermission(id = %i, role = %r, applicable_permission_type = %r, permanent_id = '%s', date = %r, comments = '%s')" % (
+        return "DbRolePermission(id = %r, role = %r, applicable_permission_type = %r, permanent_id = '%s', date = %r, comments = '%s')" % (
             self.id,
             self.role,
             self.applicable_permission_type,
@@ -894,7 +895,7 @@ class DbRolePermissionParameter(Base):
         self.value = value
 
     def __repr__(self):
-        return "DbRolePermissionParameter(id = %i, permission = %r, permission_type_parameter = %r, value = '%s')" % (
+        return "DbRolePermissionParameter(id = %r, permission = %r, permission_type_parameter = %r, value = '%s')" % (
             self.id,
             self.permission,
             self.permission_type_parameter,
@@ -918,7 +919,7 @@ class DbGroupApplicablePermissionType(Base):
         super(DbGroupApplicablePermissionType, self).__init__()
 
     def __repr__(self):
-        return "DbGroupApplicablePermissionType(id = %i)" % (
+        return "DbGroupApplicablePermissionType(id = %r)" % (
             self.id
         )               
 
@@ -945,7 +946,7 @@ class DbGroupPermission(Base):
         self.comments = comments
 
     def __repr__(self):
-        return "DbGroupPermission(id = %i, group = %r, applicable_permission_type = %r, permanent_id = '%s', date = %r, comments = '%s')" % (
+        return "DbGroupPermission(id = %r, group = %r, applicable_permission_type = %r, permanent_id = '%s', date = %r, comments = '%s')" % (
             self.id,
             self.group,
             self.applicable_permission_type,
@@ -979,7 +980,7 @@ class DbGroupPermissionParameter(Base):
         self.value = value
 
     def __repr__(self):
-        return "DbGroupPermissionParameter(id = %i, permission = %r, permission_type_parameter = %r, value = '%s')" % (
+        return "DbGroupPermissionParameter(id = %r, permission = %r, permission_type_parameter = %r, value = '%s')" % (
             self.id,
             self.permission,
             self.permission_type_parameter,
@@ -1003,7 +1004,7 @@ class DbExternalEntityApplicablePermissionType(Base):
         super(DbExternalEntityApplicablePermissionType, self).__init__()
 
     def __repr__(self):
-        return "DbExternalEntityApplicablePermissionType(id = %i)" % (
+        return "DbExternalEntityApplicablePermissionType(id = %r)" % (
             self.id
         )               
 
@@ -1030,7 +1031,7 @@ class DbExternalEntityPermission(Base):
         self.comments = comments
 
     def __repr__(self):
-        return "DbExternalEntityPermission(id = %i, ee = %r, applicable_permission_type = %r, permanent_id = '%s', date = %r, comments = '%s')" % (
+        return "DbExternalEntityPermission(id = %r, ee = %r, applicable_permission_type = %r, permanent_id = '%s', date = %r, comments = '%s')" % (
             self.id,
             self.ee,
             self.applicable_permission_type,
@@ -1065,7 +1066,7 @@ class DbExternalEntityPermissionParameter(Base):
         self.value = value        
 
     def __repr__(self):
-        return "DbExternalEntityPermissionParameter(id = %i, permission = %r, permission_type_parameter = %r, value = '%s')" % (
+        return "DbExternalEntityPermissionParameter(id = %r, permission = %r, permission_type_parameter = %r, value = '%s')" % (
             self.id,
             self.permission,
             self.permission_type_parameter,

@@ -422,7 +422,7 @@ session.add(up_any_visirtest_allowed_p2)
 up_any_visirtest_allowed_p3 = Model.DbUserPermissionParameter(up_any_visirtest_allowed, experiment_allowed_p3, "200")
 session.add(up_any_visirtest_allowed_p3)    
 
-  
+
 
 up_student2_gpib_allowed = Model.DbUserPermission(
     student2,
