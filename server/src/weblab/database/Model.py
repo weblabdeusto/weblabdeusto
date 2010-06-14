@@ -95,7 +95,7 @@ class DbRole(Base):
             self.name
         )
 
-    def to_business(self):        
+    def to_dto(self):        
         return Role(self.name)   
     
         
@@ -129,12 +129,9 @@ class DbUser(Base):
                 self.avatar,
                 self.role
             )
-        
-    def to_business(self):        
-        return User(self.login, self.full_name, self.email, self.role.to_business())
        
     def to_dto(self):        
-        return self.to_business() # Temporal
+        return User(self.login, self.full_name, self.email, self.role.to_dto())
                
     
 class DbAuthType(Base):
@@ -211,7 +208,7 @@ class DbUserAuth(Base):
     def __repr__(self):
         configuration_str = "None"
         if self.configuration is not None:
-           configuration_str = ( "*".join("" for _ in self.configuration) )
+            configuration_str = ( "*".join("" for _ in self.configuration) )
         return "DbUserAuth(id = %r, user = %r, auth = %r, configuration = '%s')" % (
             self.id,
             self.user,
@@ -232,7 +229,7 @@ class DbExternalEntity(Base):
     country     = Column(String(20), nullable = False)
     description = Column(Text, nullable = False)
     email       = Column(String(255), nullable = False)    
-    password    = Column(String(255), nullable = False) 
+    password    = Column(String(255), nullable = False)
     
     def __init__(self, name, country, description, email, password):
         super(DbExternalEntity, self).__init__()

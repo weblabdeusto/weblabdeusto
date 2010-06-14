@@ -67,7 +67,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
     def get_user_by_name(self, user_login):
         session = self.Session()
         try:
-            return self._get_user(session, user_login).to_business()
+            return self._get_user(session, user_login).to_dto()
         finally:
             session.close()
 
