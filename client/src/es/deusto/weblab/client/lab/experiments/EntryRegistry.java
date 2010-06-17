@@ -30,6 +30,7 @@ import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.Mo
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.WebLabLogicExperiment;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic.WebLabPicExperiment;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pld.WebLabPldExperiment;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.visir.VisirFlash;
 import es.deusto.weblab.client.lab.experiments.util.applets.flash.FlashAppExperimentBase;
 import es.deusto.weblab.client.lab.experiments.util.applets.java.JavaAppletExperimentBase;
 import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
@@ -58,31 +59,73 @@ class EntryRegistry {
 		 */
 		
 		
+//		new ExperimentEntry("Dummy experiments", "visirtest", MobileSupport.disabled) {
+//			@Override
+//			public void createWeb( final IConfigurationManager configurationManager, 
+//					final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+//				final int width      = 800;
+//				final int height     = 500;
+//				final String swfFile = "visir/loader.swf";
+//				final String message = "This experiment is for testing visir integration.";
+//
+//				GWT.runAsync(new RunAsyncCallback() {
+//					@Override
+//					public void onSuccess() {
+//						callback.onExperimentLoaded(new FlashAppExperimentBase(configurationManager, 
+//								boardController, width, height, swfFile, 
+//								"cookie=9b892c8784ea6119939a27b34102b1c14e37c156",
+//								message, true));
+//					}
+//					
+//					@Override
+//					public void onFailure(Throwable e){
+//						callback.onFailure(e);
+//					}
+//				});
+//			}
+//		},
+		
+		
 		new ExperimentEntry("Dummy experiments", "visirtest", MobileSupport.disabled) {
-			@Override
-			public void createWeb( final IConfigurationManager configurationManager, 
-					final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
-				final int width      = 800;
-				final int height     = 500;
-				final String swfFile = "visir/loader.swf";
-				final String message = "This experiment is for testing visir integration.";
+		@Override
+		public void createWeb( final IConfigurationManager configurationManager, 
+				final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 
-				GWT.runAsync(new RunAsyncCallback() {
-					@Override
-					public void onSuccess() {
-						callback.onExperimentLoaded(new FlashAppExperimentBase(configurationManager, 
-								boardController, width, height, swfFile, 
-								"cookie=9b892c8784ea6119939a27b34102b1c14e37c156",
-								message, true));
-					}
-					
-					@Override
-					public void onFailure(Throwable e){
-						callback.onFailure(e);
-					}
-				});
-			}
-		},
+			GWT.runAsync(new RunAsyncCallback() {
+				@Override
+				public void onSuccess() {
+					callback.onExperimentLoaded(
+							new VisirFlash(configurationManager, boardController));
+				}
+				
+				@Override
+				public void onFailure(Throwable e){
+					callback.onFailure(e);
+				}
+			});
+		}
+	},
+		
+		
+//		new ExperimentEntry("Dummy experiments", "visirtest", MobileSupport.disabled) {
+//			@Override
+//			public void createWeb( final IConfigurationManager configurationManager, 
+//					final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+//
+//				GWT.runAsync(new RunAsyncCallback() {
+//					@Override
+//					public void onSuccess() {
+//						callback.onExperimentLoaded(
+//								new VisirFlash(configurationManager, boardController));
+//					}
+//					
+//					@Override
+//					public void onFailure(Throwable e){
+//						callback.onFailure(e);
+//					}
+//				});
+//			}
+//		},
 		
 		
 		new ExperimentEntry("Dummy experiments", "flashdummy", MobileSupport.disabled){
