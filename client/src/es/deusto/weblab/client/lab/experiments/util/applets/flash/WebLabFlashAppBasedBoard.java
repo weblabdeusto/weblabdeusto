@@ -29,7 +29,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 	private final int width;
 	private final int height;
 	private final String swfFile;
-	private final String flashvars;
+	private String flashvars;
 	private final boolean deferred;
 	
 	// We need to store the time set when we are in deferred mode.
@@ -100,6 +100,16 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 		this.deferred = deferFlashApp;
 		
 		WebLabFlashAppBasedBoard.createJavaScriptCode(this.html.getElement(), this.swfFile, width + 10, height + 10);
+	}
+	
+	
+	/**
+	 * Sets the flashvars string. Once the iFrame has been populated, and the
+	 * flashvars added to it, setting the flashvars will have no real effect.
+	 * @param flashvars Flashvars string.
+	 */
+	public void setFlashVars(String flashvars) {
+		this.flashvars = flashvars;
 	}
 	
 

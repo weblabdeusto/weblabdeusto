@@ -49,7 +49,6 @@ public class VisirFlashBoard extends WebLabFlashAppBasedBoard {
 
 	@Override
 	public void start() {
-		super.start();
 		
 		// Request the visir session "cookie" to the server.
 		VisirCookieRequestCommand reqCookie = new VisirCookieRequestCommand();
@@ -59,14 +58,30 @@ public class VisirFlashBoard extends WebLabFlashAppBasedBoard {
 					@Override
 					public void onSuccess(ResponseCommand responseCommand) {
 						cookie = responseCommand.getCommandString();
+						
+						VisirFlashBoard.this.setCookie(cookie);
+						VisirFlashBoard.super.start();
 					}
 
 					@Override
 					public void onFailure(WlCommException e) {
 						System.out.println("Error: Could not retrieve cookie");
+						VisirFlashBoard.super.start();
 					}
 				}
 		);
 		
+	}
+
+	/**
+	 * Will set the cookie to the specified string and update the flashvars
+	 * accordingly. Flashvars updates have no effect once the iframe containing
+	 * the flash object has been populated.
+	 * @param cookie The cookie string
+	 */
+	protected void setCookie(String cookie) {
+		this.cookie = cookie;
+		String flashvars = "cookie="+cookie;
+		this.setFlashVars(flashvars);
 	}
 }
