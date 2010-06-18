@@ -14,10 +14,16 @@
 
 package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.visir;
 
+import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.util.applets.flash.WebLabFlashAppBasedBoard;
 
 public class VisirFlashBoard extends WebLabFlashAppBasedBoard {
+	
+	
+	private String cookie = null;
 
 	public VisirFlashBoard(IConfigurationManager configurationManager,
 			IBoardBaseController boardController) {
@@ -44,5 +50,23 @@ public class VisirFlashBoard extends WebLabFlashAppBasedBoard {
 	@Override
 	public void start() {
 		super.start();
+		
+		// Request the visir session "cookie" to the server.
+		VisirCookieRequestCommand reqCookie = new VisirCookieRequestCommand();
+		boardController.sendCommand(reqCookie, 
+				new IResponseCommandCallback() {
+
+					@Override
+					public void onSuccess(ResponseCommand responseCommand) {
+						cookie = responseCommand.getCommandString();
+					}
+
+					@Override
+					public void onFailure(WlCommException e) {
+						System.out.println("Error: Could not retrieve cookie");
+					}
+				}
+		);
+		
 	}
 }

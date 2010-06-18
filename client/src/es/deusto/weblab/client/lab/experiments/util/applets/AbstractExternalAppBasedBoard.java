@@ -32,7 +32,7 @@ import es.deusto.weblab.client.lab.ui.BoardBase;
 public abstract class AbstractExternalAppBasedBoard extends BoardBase {
 
 	private static IConfigurationManager configurationManager;
-	private static IBoardBaseController boardController;
+	protected static IBoardBaseController boardController;
 	private final VerticalPanel panel;
 	protected Label message;
 	protected final HTML html;
