@@ -82,6 +82,7 @@ public class AdminPanelWindow extends BaseWindow {
 	
 	// Users panel related
 	@UiField FlexTable usersListTable;
+	Cell selectedUserCell = null;
 	
 	// Menu items
 	@UiField MenuItem accessesSearchMenuItem;
@@ -201,8 +202,13 @@ public class AdminPanelWindow extends BaseWindow {
 					return;
 				
 				final int row = cell.getRowIndex();
-				final int col = cell.getCellIndex();
 				final CellFormatter cellFormatter = AdminPanelWindow.this.usersListTable.getCellFormatter();
+				
+				if(row == 0) // The header may not be selected.
+					return;
+				
+				// Store the selected cell.
+				AdminPanelWindow.this.selectedUserCell = cell;
 				
 				// Mark the cell as selected. (Eventually to be handled by some third party library).
 				// Update every cell's style.
@@ -227,7 +233,6 @@ public class AdminPanelWindow extends BaseWindow {
 		this.accessesSearchMenuItem.setCommand(new Command() {
 			@Override
 			public void execute() {
-				System.out.println("ACCESSES/SEARCH PANEL SELECTED");
 				AdminPanelWindow.this.accessesSearchPanel.setVisible(true);
 				AdminPanelWindow.this.usersUsersPanel.setVisible(false);
 			}
@@ -238,7 +243,6 @@ public class AdminPanelWindow extends BaseWindow {
 		this.usersUsersMenuItem.setCommand(new Command() {
 			@Override
 			public void execute() {
-				System.out.println("USERS/USERS PANEL SELECTED");
 				AdminPanelWindow.this.accessesSearchPanel.setVisible(false);
 				AdminPanelWindow.this.usersUsersPanel.setVisible(true);
 			}

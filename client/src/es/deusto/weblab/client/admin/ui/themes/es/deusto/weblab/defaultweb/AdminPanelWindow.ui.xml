@@ -150,17 +150,58 @@
 			<g:VerticalPanel ui:field="usersUsersPanel">
 				<g:Label styleName="web-admin-logged-content-title">Users/Users Panel</g:Label>
 				
-				<g:HorizontalPanel>
+				<g:HorizontalPanel width="100%" spacing="30" height="100%">
 				
 					<!-- Users/Users left user list panel -->
-					<g:VerticalPanel >
+					<g:VerticalPanel>
 						
 						<g:HorizontalPanel borderWidth="1">
 							<g:FlexTable ui:field="usersListTable">
 							</g:FlexTable>
 						</g:HorizontalPanel>
 						
+						<g:HorizontalPanel borderWidth="1" width="100%">
+							<g:HorizontalPanel spacing="10">
+								<g:Button>Add</g:Button>
+								<g:Button>Remove</g:Button>
+							</g:HorizontalPanel>
+						</g:HorizontalPanel>
+						
 					</g:VerticalPanel>
+					<!-- EndOf Users/Users left user list panel -->
+					
+					<!-- Users/Users right user details panel -->
+					<g:VerticalPanel borderWidth="1" width="100%" height="100%" verticalAlignment="ALIGN_BOTTOM">
+					
+						<g:HorizontalPanel width="350px" height="300px">
+						
+							<g:TabLayoutPanel height="300px" width="100%" barHeight="20">
+								<g:tab>
+									<g:header>Profile</g:header>
+									<g:Button>Test</g:Button>
+								</g:tab>
+								<g:tab>
+									<g:header>Groups</g:header>
+									<g:Label>Groups Test</g:Label>
+								</g:tab>
+								<g:tab>
+									<g:header>Permissions</g:header>
+									<g:Label>Permissions</g:Label>
+								</g:tab>
+								<g:tab>
+									<g:header>Authentication</g:header>
+									<g:Label>Authentication</g:Label>
+								</g:tab>
+							</g:TabLayoutPanel>
+						
+						</g:HorizontalPanel>
+						
+						<g:HorizontalPanel verticalAlignment="ALIGN_BOTTOM">
+							<g:Button>Save changes</g:Button>
+						</g:HorizontalPanel>
+					
+					</g:VerticalPanel>
+					<!-- EndOf Users/Users right user details panel -->
 				
 				</g:HorizontalPanel>
 				
