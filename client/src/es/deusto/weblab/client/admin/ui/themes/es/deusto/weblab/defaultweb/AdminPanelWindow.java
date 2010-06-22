@@ -19,6 +19,7 @@ import java.util.Date;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -26,12 +27,15 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.HTMLTable.Cell;
+import com.google.gwt.user.client.ui.HTMLTable.CellFormatter;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.user.datepicker.client.DateBox.DefaultFormat;
 
@@ -76,6 +80,9 @@ public class AdminPanelWindow extends BaseWindow {
 	@UiField VerticalPanel accessesSearchPanel;
 	@UiField VerticalPanel usersUsersPanel;
 	
+	// Users panel related
+	@UiField FlexTable usersListTable;
+	
 	// Menu items
 	@UiField MenuItem accessesSearchMenuItem;
 	@UiField MenuItem usersUsersMenuItem;
@@ -113,7 +120,12 @@ public class AdminPanelWindow extends BaseWindow {
 	private void loadWidgets() {
 		AdminPanelWindow.uiBinder.createAndBindUi(this);
 		
+		// Show only one panel
+		this.usersUsersPanel.setVisible(false);
+		this.accessesSearchPanel.setVisible(true);
+		
 		this.registerMenuCallbacks();
+		this.setupUsersPanel(); // TODO: Do this on-demand only.
 
 		this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
 		
@@ -147,6 +159,67 @@ public class AdminPanelWindow extends BaseWindow {
     	
     	this.experimentHeader = new Label("Experiment");
     	this.experimentHeader.setStyleName("web-admin-logged-accesses-grid-header");
+	}
+
+	private void setupUsersPanel() {
+		
+		final CellFormatter cellFormatter = AdminPanelWindow.this.usersListTable.getCellFormatter();
+		
+		// Column headers.
+		this.usersListTable.setText(0, 0, "Login");
+		this.usersListTable.setText(0, 1, "Full name");
+		this.usersListTable.setCellSpacing(20);
+		cellFormatter.setStylePrimaryName(0, 0, "web-admin-table-cell-header");
+		cellFormatter.setStylePrimaryName(0, 1, "web-admin-table-cell-header");
+
+		
+		// Test data
+		int row = 1;
+		this.usersListTable.setText(row, 0, "username.username");
+		this.usersListTable.setText(row++, 1, "Full Name Full name Full Name");
+		this.usersListTable.setText(row, 0, "username.username");
+		this.usersListTable.setText(row++, 1, "Full Name Full name Full Name");
+		this.usersListTable.setText(row, 0, "username.username");
+		this.usersListTable.setText(row++, 1, "Full Name Full name Full Name");
+		this.usersListTable.setText(row, 0, "username.username");
+		this.usersListTable.setText(row++, 1, "Full Name Full name Full Name");
+		this.usersListTable.setText(row, 0, "username.username");
+		this.usersListTable.setText(row++, 1, "Full Name Full name Full Name");
+		this.usersListTable.setText(row, 0, "username.username");
+		this.usersListTable.setText(row++, 1, "Full Name Full name Full Name");
+		this.usersListTable.setText(row, 0, "username.username");
+		this.usersListTable.setText(row++, 1, "Full Name Full name Full Name");
+		
+		this.usersListTable.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				final FlexTable table = AdminPanelWindow.this.usersListTable;
+				Cell cell = AdminPanelWindow.this.usersListTable.getCellForEvent(event);
+				
+				if(cell == null) // What was clicked isn't a cell.
+					return;
+				
+				final int row = cell.getRowIndex();
+				final int col = cell.getCellIndex();
+				final CellFormatter cellFormatter = AdminPanelWindow.this.usersListTable.getCellFormatter();
+				
+				// Mark the cell as selected. (Eventually to be handled by some third party library).
+				// Update every cell's style.
+				for(int i = 1; i < table.getRowCount(); i++) {
+					if( i == row) {
+						cellFormatter.setStylePrimaryName(i, 0, "web-admin-table-cell-selected");
+						cellFormatter.setStylePrimaryName(i, 1, "web-admin-table-cell-selected");	
+					} else {
+						cellFormatter.setStylePrimaryName(i, 0, "web-admin-table-cell-not-selected");
+						cellFormatter.setStylePrimaryName(i, 1, "web-admin-table-cell-not-selected");
+					}
+				}
+			}
+			
+		}
+		);
+		
 	}
 
 	private void registerMenuCallbacks() {

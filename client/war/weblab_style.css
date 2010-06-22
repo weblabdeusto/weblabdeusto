@@ -453,6 +453,25 @@ body
 	padding-top: 15px;
 }
 
+.web-admin-table-cell-selected
+{
+    font-weight: bold;
+	background-color: #FFFF99;
+	color:black;
+}
+
+.web-admin-table-cell-not-selected
+{
+    font-weight: normal;
+}
+
+.web-admin-table-cell-header
+{
+	font-weight: bold;
+	background-color: grey;
+	color: white;
+}
+
 .gwt-MenuBar-horizontal {
 	margin-top: 12px;
 	padding: 5px;
@@ -462,3 +481,4 @@ body
 	font-size: 14px;
 	font-weight: normal;
 }
+

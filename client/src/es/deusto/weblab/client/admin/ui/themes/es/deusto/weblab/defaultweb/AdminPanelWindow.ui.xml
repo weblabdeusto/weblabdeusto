@@ -148,7 +148,22 @@
 			
 			<!--  USERS/users panel -->
 			<g:VerticalPanel ui:field="usersUsersPanel">
-				<g:Label styleName="web-admin-logged-content-title">Users Panel</g:Label>
+				<g:Label styleName="web-admin-logged-content-title">Users/Users Panel</g:Label>
+				
+				<g:HorizontalPanel>
+				
+					<!-- Users/Users left user list panel -->
+					<g:VerticalPanel >
+						
+						<g:HorizontalPanel borderWidth="1">
+							<g:FlexTable ui:field="usersListTable">
+							</g:FlexTable>
+						</g:HorizontalPanel>
+						
+					</g:VerticalPanel>
+				
+				</g:HorizontalPanel>
+				
 			</g:VerticalPanel>	
 			<!-- EndOf usersPanel -->
 
