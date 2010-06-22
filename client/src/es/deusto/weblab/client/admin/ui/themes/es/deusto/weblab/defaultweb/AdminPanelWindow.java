@@ -23,11 +23,13 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
@@ -70,6 +72,14 @@ public class AdminPanelWindow extends BaseWindow {
 	@UiField Grid experimentUsesGrid;
 	//@UiField Button downloadButton; // Future functionality
 	
+	// Panels
+	@UiField VerticalPanel accessesSearchPanel;
+	@UiField VerticalPanel usersUsersPanel;
+	
+	// Menu items
+	@UiField MenuItem accessesSearchMenuItem;
+	@UiField MenuItem usersUsersMenuItem;
+	
 	private Label startedHeader;
 	private Label timeHeader;
 	private Label usernameHeader;
@@ -102,6 +112,8 @@ public class AdminPanelWindow extends BaseWindow {
 	
 	private void loadWidgets() {
 		AdminPanelWindow.uiBinder.createAndBindUi(this);
+		
+		this.registerMenuCallbacks();
 
 		this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
 		
@@ -135,6 +147,31 @@ public class AdminPanelWindow extends BaseWindow {
     	
     	this.experimentHeader = new Label("Experiment");
     	this.experimentHeader.setStyleName("web-admin-logged-accesses-grid-header");
+	}
+
+	private void registerMenuCallbacks() {
+		
+		this.accessesSearchMenuItem.setCommand(new Command() {
+			@Override
+			public void execute() {
+				System.out.println("ACCESSES/SEARCH PANEL SELECTED");
+				AdminPanelWindow.this.accessesSearchPanel.setVisible(true);
+				AdminPanelWindow.this.usersUsersPanel.setVisible(false);
+			}
+		}
+		);
+		
+		
+		this.usersUsersMenuItem.setCommand(new Command() {
+			@Override
+			public void execute() {
+				System.out.println("USERS/USERS PANEL SELECTED");
+				AdminPanelWindow.this.accessesSearchPanel.setVisible(false);
+				AdminPanelWindow.this.usersUsersPanel.setVisible(true);
+			}
+		}
+		);
+		
 	}
 
 	public void fillExperimentsCombobox(ArrayList<Experiment> experiments) {
@@ -199,6 +236,12 @@ public class AdminPanelWindow extends BaseWindow {
 	void showMessage(String message) {
 		this.generalErrorLabel.setText(message);		
 	}
+	
+	
+//	@UiHandler("usersMenuItem")
+//	void onUsersMenuItemClicked(@SuppressWarnings("unused") ClickEvent ev) {
+//		System.out.println("USERS MENU ITEM WAS CLICKED");
+//	}
 
     @UiHandler("logoutLink")
 	void onLogoutClicked(@SuppressWarnings("unused") ClickEvent ev) {

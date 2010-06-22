@@ -31,7 +31,7 @@
 		<g:MenuBar>
 			<g:MenuItem text="{i18n.accesses}">
 				<g:MenuBar vertical="true">
-					<g:MenuItem text="{i18n.search}" />
+					<g:MenuItem ui:field="accessesSearchMenuItem" text="{i18n.search}" />
 					<!--
 					<g:MenuItem>[today]</g:MenuItem>
 					<g:MenuItem>[last week]</g:MenuItem>
@@ -40,16 +40,17 @@
 					-->
 				</g:MenuBar>
 			</g:MenuItem>
-			<!-- 
 			<g:MenuItem>Users
 				<g:MenuBar vertical="true">
-					<g:MenuItem>Users</g:MenuItem>
-					<g:MenuItem>External Entities</g:MenuItem>
+					<g:MenuItem ui:field="usersUsersMenuItem">Users</g:MenuItem>
+					<!--<g:MenuItem>External Entities</g:MenuItem>
 					<g:MenuItem>Groups</g:MenuItem>
 					<g:MenuItem>Roles</g:MenuItem>
 					<g:MenuItem>Authentication</g:MenuItem>
+					-->
 				</g:MenuBar>
 			</g:MenuItem>
+			<!--
 			<g:MenuItem>Configuration
 				<g:MenuBar vertical="true">
 					<g:MenuItem>Deployment</g:MenuItem>
@@ -72,7 +73,9 @@
 		
 		<g:VerticalPanel styleName="web-admin-logged-content">
 		
-		    <g:VerticalPanel>
+		
+			<!-- ACCESSES/search panel -->
+		    <g:VerticalPanel ui:field="accessesSearchPanel">
 		    
 		    	<g:Label styleName="web-admin-logged-content-title">Search for users accesses</g:Label>
 		    
@@ -140,7 +143,14 @@
 				</g:HorizontalPanel>
 		    	 -->
 		    	 
-			</g:VerticalPanel>		
+			</g:VerticalPanel>	
+			<!-- EndOf accessesPanel -->
+			
+			<!--  USERS/users panel -->
+			<g:VerticalPanel ui:field="usersUsersPanel">
+				<g:Label styleName="web-admin-logged-content-title">Users Panel</g:Label>
+			</g:VerticalPanel>	
+			<!-- EndOf usersPanel -->
 
 					
 			<!-- 
