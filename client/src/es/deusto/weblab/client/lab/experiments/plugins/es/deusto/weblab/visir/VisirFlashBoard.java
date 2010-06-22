@@ -71,6 +71,8 @@ public class VisirFlashBoard extends WebLabFlashAppBasedBoard {
 				}
 		);
 		
+		//super.start();
+		
 	}
 
 	/**

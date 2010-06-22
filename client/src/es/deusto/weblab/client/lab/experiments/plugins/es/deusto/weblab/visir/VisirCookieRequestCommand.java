@@ -20,7 +20,7 @@ public class VisirCookieRequestCommand extends Command {
 
 	@Override
 	public String getCommandString() {
-		return "GIVECOOKIE";
+		return "GIVEMECOOKIE";
 	}
 
 }
