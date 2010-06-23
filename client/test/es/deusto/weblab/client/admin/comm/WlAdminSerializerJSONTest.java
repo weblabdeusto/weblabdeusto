@@ -33,6 +33,12 @@ import es.deusto.weblab.client.dto.users.Group;
 import es.deusto.weblab.client.dto.users.User;
 
 public class WlAdminSerializerJSONTest extends GWTTestCase {
+	
+	
+	// TODO: This.
+	public void testParseGetUsersResponse() throws Exception {
+		
+	}
 
 	public void testParseGetGroupsResponse() throws Exception {
 		final IWlAdminSerializer weblabSerializer = new WlAdminSerializerJSON();

@@ -25,6 +25,7 @@ import com.google.gwt.http.client.RequestException;
 import es.deusto.weblab.client.admin.comm.callbacks.IExperimentUsesCallback;
 import es.deusto.weblab.client.admin.comm.callbacks.IExperimentsCallback;
 import es.deusto.weblab.client.admin.comm.callbacks.IGroupsCallback;
+import es.deusto.weblab.client.admin.comm.callbacks.IUsersCallback;
 import es.deusto.weblab.client.comm.FakeRequestBuilder;
 import es.deusto.weblab.client.comm.WlCommonCommunicationTest;
 import es.deusto.weblab.client.comm.exceptions.CommunicationException;
@@ -140,6 +141,107 @@ public class WlAdminCommunicationTest extends WlCommonCommunicationTest {
 		comms.getGroups(sessionId, callback);
 		Assert.assertEquals(4, this.stepCounter);
 	}	
+	
+	
+	public void testGetUsers(){
+		
+		this.stepCounter = 0;
+		final FakeWlAdminSerializer weblabSerializer = new FakeWlAdminSerializer();
+		final FakeRequestBuilder requestBuilder = new FakeRequestBuilder();
+		final FakeConfiguration configurationManager = new FakeConfiguration(new HashMap<String,String>());
+				
+		final WrappedWlAdminCommunication comms = new WrappedWlAdminCommunication(
+					weblabSerializer,
+					requestBuilder,
+					configurationManager
+				);
+		final SessionID sessionId = new SessionID();
+		
+		final String SERIALIZED_MESSAGE = "serialized get reservation status request";
+		final String ERROR_MESSAGE = "whatever the error message";
+		
+		final ArrayList<User> expectedUsers = new ArrayList<User>();
+		expectedUsers.add(new User("login", "fullName", "email", new Role("role")));
+		
+		weblabSerializer.appendReturn(
+					FakeWlAdminSerializer.PARSE_GET_USERS_RESPONSE, 
+					expectedUsers
+				);
+		weblabSerializer.appendReturn(
+				FakeWlAdminSerializer.SERIALIZE_GET_USERS_REQUEST, 
+					SERIALIZED_MESSAGE
+				);
+		
+		IUsersCallback callback = new IUsersCallback(){
+			@Override
+			public void onSuccess(ArrayList<User> users) {
+				Assert.assertEquals(expectedUsers.size(), users.size());
+				Assert.assertEquals(expectedUsers.get(0), users.get(0));
+				WlAdminCommunicationTest.this.stepCounter++;
+			}
+
+			@Override
+			public void onFailure(WlCommException e) {
+				Assert.fail("onFailure not expected");
+			}
+		};
+		
+		requestBuilder.setNextReceivedMessage(SERIALIZED_MESSAGE);		
+		comms.getUsers(sessionId, callback);
+		Assert.assertEquals(1, this.stepCounter);
+		
+		requestBuilder.setNextToThrow(new RequestException(ERROR_MESSAGE));
+		callback = new IUsersCallback(){
+			@Override
+			public void onSuccess(ArrayList<User> users) {
+				Assert.fail("onSuccess not expected");
+			}
+
+			@Override
+			public void onFailure(WlCommException e){
+				Assert.assertTrue(e instanceof CommunicationException);
+				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
+				WlAdminCommunicationTest.this.stepCounter++;
+			}
+		};
+		comms.getUsers(sessionId, callback);
+		Assert.assertEquals(2, this.stepCounter);
+		
+		requestBuilder.setNextToError(new Exception(ERROR_MESSAGE));
+		callback = new IUsersCallback(){
+			@Override
+			public void onSuccess(ArrayList<User> users) {
+				Assert.fail("onSuccess not expected");
+			}
+
+			@Override
+			public void onFailure(WlCommException e){
+				Assert.assertTrue(e instanceof CommunicationException);
+				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
+				WlAdminCommunicationTest.this.stepCounter++;
+			}
+		};
+		comms.getUsers(sessionId, callback);
+		Assert.assertEquals(3, this.stepCounter);
+		
+		requestBuilder.setNextReceivedMessage("");
+		requestBuilder.setResponseToSend(this.generateBadResponse());
+		callback = new IUsersCallback(){
+			@Override
+			public void onSuccess(ArrayList<User> users) {
+				Assert.fail("onSuccess not expected");
+			}
+
+			@Override
+			public void onFailure(WlCommException e){
+				Assert.assertTrue(e instanceof ServerException);
+				WlAdminCommunicationTest.this.stepCounter++;
+			}
+		};
+		comms.getUsers(sessionId, callback);
+		Assert.assertEquals(4, this.stepCounter);
+	}	
+	
 
 	public void testGetExperiments() {
 		

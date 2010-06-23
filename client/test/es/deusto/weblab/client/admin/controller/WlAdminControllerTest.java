@@ -27,6 +27,7 @@ import es.deusto.weblab.client.admin.comm.FakeWlAdminCommunication;
 import es.deusto.weblab.client.admin.comm.callbacks.IExperimentUsesCallback;
 import es.deusto.weblab.client.admin.comm.callbacks.IExperimentsCallback;
 import es.deusto.weblab.client.admin.comm.callbacks.IGroupsCallback;
+import es.deusto.weblab.client.admin.comm.callbacks.IUsersCallback;
 import es.deusto.weblab.client.admin.ui.FakeUIManager;
 import es.deusto.weblab.client.comm.FakeWlCommonCommunication;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
@@ -97,6 +98,8 @@ public class WlAdminControllerTest  extends GWTTestCase {
 		v = this.fakeUIManager.getMethodByName(FakeUIManager.ON_LOGGED_IN);
 		Assert.assertEquals(1, v.size());
 		
+		int expectedOnErrors = 1;
+		
 		// getGroups
 		controller.getGroups();		
 		v = this.fakeCommunications.getMethodByName(FakeWlAdminCommunication.GET_GROUPS);
@@ -108,7 +111,7 @@ public class WlAdminControllerTest  extends GWTTestCase {
 		
 			// failure
     		groupsCallback.onFailure(new WlCommException("error retrieving groups"));
-    		Assert.assertEquals(1,this.fakeUIManager.getMethodByName(FakeUIManager.ON_ERROR).size());
+    		Assert.assertEquals(expectedOnErrors++,this.fakeUIManager.getMethodByName(FakeUIManager.ON_ERROR).size());
     		
     		// success
     		final ArrayList<Group> groups = new ArrayList<Group>();
@@ -117,6 +120,26 @@ public class WlAdminControllerTest  extends GWTTestCase {
     		Assert.assertEquals(1,(this.fakeUIManager.getMethodByName(FakeUIManager.ON_GROUPS_RETRIEVED).get(0)).getParameters().length);
     		Assert.assertEquals(groups,(this.fakeUIManager.getMethodByName(FakeUIManager.ON_GROUPS_RETRIEVED).get(0)).getParameters()[0]);
 		
+    	// getUsers
+    	controller.getUsers();
+    	v = this.fakeCommunications.getMethodByName(FakeWlAdminCommunication.GET_USERS);
+    	Assert.assertEquals(1, v.size());
+    	m = v.get(0);
+    	Assert.assertEquals(2, m.getParameters().length);
+    	Assert.assertEquals(sessionID, m.getParameters()[0]);
+    	final IUsersCallback usersCallback = (IUsersCallback)(m.getParameters()[1]);
+    	
+    		// failure
+    		usersCallback.onFailure(new WlCommException("error retrieving users"));
+    		Assert.assertEquals(expectedOnErrors++, this.fakeUIManager.getMethodByName(FakeUIManager.ON_ERROR).size());
+    		
+    		// success
+    		final ArrayList<User> users = new ArrayList<User>();
+    		usersCallback.onSuccess(users);
+    		Assert.assertEquals(1,this.fakeUIManager.getMethodByName(FakeUIManager.ON_USERS_RETRIEVED).size());
+    		Assert.assertEquals(1,(this.fakeUIManager.getMethodByName(FakeUIManager.ON_USERS_RETRIEVED).get(0)).getParameters().length);
+    		Assert.assertEquals(users,(this.fakeUIManager.getMethodByName(FakeUIManager.ON_USERS_RETRIEVED).get(0)).getParameters()[0]);
+    	
 		// getExperiments
 		controller.getExperiments();		
 		v = this.fakeCommunications.getMethodByName(FakeWlAdminCommunication.GET_EXPERIMENTS);
@@ -128,7 +151,7 @@ public class WlAdminControllerTest  extends GWTTestCase {
 		
 			// failure
 			experimentsCallback.onFailure(new WlCommException("error retrieving experiments"));
-    		Assert.assertEquals(2,this.fakeUIManager.getMethodByName(FakeUIManager.ON_ERROR).size());
+    		Assert.assertEquals(expectedOnErrors++,this.fakeUIManager.getMethodByName(FakeUIManager.ON_ERROR).size());
     		
     		// success
     		final ArrayList<Experiment> experiments = new ArrayList<Experiment>();
@@ -148,7 +171,7 @@ public class WlAdminControllerTest  extends GWTTestCase {
 		
 			// failure
 			experimentUsesCallback.onFailure(new WlCommException("error retrieving experiment uses"));
-    		Assert.assertEquals(3,this.fakeUIManager.getMethodByName(FakeUIManager.ON_ERROR).size());
+    		Assert.assertEquals(expectedOnErrors++,this.fakeUIManager.getMethodByName(FakeUIManager.ON_ERROR).size());
     		
     		// success
     		final ArrayList<ExperimentUse> experimentUses = new ArrayList<ExperimentUse>();
