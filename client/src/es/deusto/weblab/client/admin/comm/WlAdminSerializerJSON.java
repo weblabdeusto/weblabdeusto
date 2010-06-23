@@ -19,7 +19,6 @@ import java.util.Date;
 
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONNull;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
@@ -34,6 +33,7 @@ import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Experiment;
 import es.deusto.weblab.client.dto.experiments.ExperimentUse;
 import es.deusto.weblab.client.dto.users.Group;
+import es.deusto.weblab.client.dto.users.User;
 
 public class WlAdminSerializerJSON extends WlCommonSerializerJSON implements IWlAdminSerializer {
 
@@ -78,6 +78,25 @@ public class WlAdminSerializerJSON extends WlCommonSerializerJSON implements IWl
 
 		return groups;
 	}	
+	
+	@Override
+	public ArrayList<User> parseGetUsersResponse(String response)
+			throws SerializationException, SessionNotFoundException,
+			UserProcessingException, WlServerException {
+		
+		ArrayList<User> users = new ArrayList<User>();
+		
+		JSONArray result = this.parseResultArray(response);
+		for(int i = 0; i < result.size(); ++i) {
+			JSONValue value = result.get(i);
+			JSONObject jsonUser = value.isObject();
+			if(jsonUser == null)
+				throw new SerializationException("Expected JSON Object as User, found: " + value);
+			users.add(this.parseUser(jsonUser));
+		}
+		
+		return users;
+	}
 
 	@Override
 	public ArrayList<Experiment> parseGetExperimentsResponse(String response)
@@ -179,6 +198,14 @@ public class WlAdminSerializerJSON extends WlCommonSerializerJSON implements IWl
 		params.put("session_id", this.serializeSessionId(sessionId));
 		return this.serializeRequest("get_groups", params);
 	}
+	
+	@Override
+	public String serializeGetUsersRequest(SessionID sessionId)
+			throws SerializationException {
+		final JSONObject params = new JSONObject();
+		params.put("session_id", this.serializeSessionId(sessionId));
+		return this.serializeRequest("get_users", params);
+	}
 
 	@Override
 	public String serializeGetExperimentsRequest(SessionID sessionId) throws SerializationException {
@@ -213,4 +240,5 @@ public class WlAdminSerializerJSON extends WlCommonSerializerJSON implements IWl
 		}
 		return this.serializeRequest("get_experiment_uses", params);
 	}
+
 }

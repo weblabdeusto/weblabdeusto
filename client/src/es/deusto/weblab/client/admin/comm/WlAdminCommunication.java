@@ -24,6 +24,7 @@ import com.google.gwt.http.client.RequestException;
 import es.deusto.weblab.client.admin.comm.callbacks.IExperimentUsesCallback;
 import es.deusto.weblab.client.admin.comm.callbacks.IExperimentsCallback;
 import es.deusto.weblab.client.admin.comm.callbacks.IGroupsCallback;
+import es.deusto.weblab.client.admin.comm.callbacks.IUsersCallback;
 import es.deusto.weblab.client.comm.IWlCommonSerializer;
 import es.deusto.weblab.client.comm.WlCommonCommunication;
 import es.deusto.weblab.client.comm.WlRequestCallback;
@@ -37,6 +38,7 @@ import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Experiment;
 import es.deusto.weblab.client.dto.experiments.ExperimentUse;
 import es.deusto.weblab.client.dto.users.Group;
+import es.deusto.weblab.client.dto.users.User;
 
 public class WlAdminCommunication extends WlCommonCommunication implements IWlAdminCommunication {
 	
@@ -110,6 +112,53 @@ public class WlAdminCommunication extends WlCommonCommunication implements IWlAd
 				new GetExperimentsRequestCallback(callback)
 			);
 	}
+	
+	
+	
+	private class GetUsersRequestCallback extends WlRequestCallback{
+		private final IUsersCallback usersCallback;
+		
+		public GetUsersRequestCallback(IUsersCallback usersCallback){
+			super(usersCallback);
+			this.usersCallback = usersCallback;
+		}
+		
+		@Override
+		public void onSuccessResponseReceived(String response){
+			ArrayList<User> users;
+			try {
+				users = ((IWlAdminSerializer)WlAdminCommunication.this.serializer).parseGetUsersResponse(response);
+			} catch (final SerializationException e) {
+				this.usersCallback.onFailure(e);
+				return;
+			} catch (final SessionNotFoundException e) {
+				this.usersCallback.onFailure(e);
+				return;
+			} catch (final WlServerException e) {
+				this.usersCallback.onFailure(e);
+				return;
+			}
+			this.usersCallback.onSuccess(users);
+		}
+	}
+	
+	
+	@Override
+	public void getUsers(SessionID sessionId, IUsersCallback callback) {
+		String requestSerialized;
+		try {
+			requestSerialized = ((IWlAdminSerializer)this.serializer).serializeGetUsersRequest(sessionId);
+		} catch (final SerializationException e) {
+			callback.onFailure(e);
+			return;
+		}
+		this.performAdminRequest(
+				requestSerialized, 
+				callback, 
+				new GetUsersRequestCallback(callback)
+			);
+	}
+	
 	
 	private class GetGroupsRequestCallback extends WlRequestCallback{
 		private final IGroupsCallback groupsCallback;
@@ -196,4 +245,5 @@ public class WlAdminCommunication extends WlCommonCommunication implements IWlAd
 				new GetExperimentUsesRequestCallback(callback)
 			);
 	}
+
 }

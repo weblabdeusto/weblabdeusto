@@ -26,6 +26,7 @@ import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Experiment;
 import es.deusto.weblab.client.dto.experiments.ExperimentUse;
 import es.deusto.weblab.client.dto.users.Group;
+import es.deusto.weblab.client.dto.users.User;
 
 public interface IWlAdminSerializer extends IWlCommonSerializer {
 
@@ -38,9 +39,14 @@ public interface IWlAdminSerializer extends IWlCommonSerializer {
 	ArrayList<ExperimentUse> parseGetExperimentUsesResponse(String response)
 		throws SerializationException, SessionNotFoundException, UserProcessingException, WlServerException;
 
+	ArrayList<User> parseGetUsersResponse(String response)
+		throws SerializationException, SessionNotFoundException, UserProcessingException, WlServerException;
+	
 	String serializeGetExperimentsRequest(SessionID sessionId) throws SerializationException;
 
 	String serializeGetGroupsRequest(SessionID sessionId) throws SerializationException;
 
 	String serializeGetExperimentUsesRequest(SessionID sessionId, Date fromDate, Date toDate, int groupId, int experimentId) throws SerializationException;
+
+	String serializeGetUsersRequest(SessionID sessionId) throws SerializationException;
 }

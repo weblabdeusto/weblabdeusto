@@ -26,10 +26,11 @@ public interface IWlAdminController {
 	void login(String username, String password);
 	void startLoggedIn(SessionID sessionId);
 	void logout();
-	
+
+	void getUsers();
 	void getExperiments();
 	void getGroups();
 	void getExperimentUses(Date fromDate, Date toDate, Group group,	Experiment experiment);
-
+	
 	void setUIManager(IUIManager theme);
 }

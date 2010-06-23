@@ -21,6 +21,7 @@ import es.deusto.weblab.client.admin.comm.IWlAdminCommunication;
 import es.deusto.weblab.client.admin.comm.callbacks.IExperimentUsesCallback;
 import es.deusto.weblab.client.admin.comm.callbacks.IExperimentsCallback;
 import es.deusto.weblab.client.admin.comm.callbacks.IGroupsCallback;
+import es.deusto.weblab.client.admin.comm.callbacks.IUsersCallback;
 import es.deusto.weblab.client.admin.ui.IUIManager;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
@@ -98,6 +99,19 @@ public class WlAdminController implements IWlAdminController {
 				WlAdminController.this.uimanager.onError(e.getMessage());
 			}
 		});			
+	}
+	
+	@Override
+	public void getUsers() {
+		this.communications.getUsers(this.currentSession, new IUsersCallback(){
+			public void onSuccess(final ArrayList<User> users) {
+				WlAdminController.this.uimanager.onUsersRetrieved(users);
+			}
+			
+			public void onFailure(WlCommException e) {
+				WlAdminController.this.uimanager.onError(e.getMessage());
+			}
+		});
 	}
 
 	@Override
