@@ -29,6 +29,7 @@ public class FakeWlAdminCommunication extends FakeWlCommonCommunication implemen
 	public static final String GET_GROUPS          = "FakeWebLabCommunication::getGroups";
 	public static final String GET_EXPERIMENTS     = "FakeWebLabCommunication::getExperiments";
 	public static final String GET_EXPERIMENT_USES = "FakeWebLabCommunication::getExperimentUses";
+	public static final String GET_USERS		   = "FakeWebLabCommunication::getUsers";
 	
 	@Override
 	protected IWlCommonSerializer createSerializer() {
@@ -40,6 +41,14 @@ public class FakeWlAdminCommunication extends FakeWlCommonCommunication implemen
 		this.append(FakeWlAdminCommunication.GET_GROUPS, new Object[]{
 				sessionId,
 				callback
+		});
+	}
+	
+	@Override
+	public void getUsers(SessionID sessionId, IUsersCallback callback) {
+		this.append(FakeWlAdminCommunication.GET_USERS, new Object[] {
+			sessionId,
+			callback
 		});
 	}
 
@@ -57,11 +66,6 @@ public class FakeWlAdminCommunication extends FakeWlCommonCommunication implemen
 				sessionId,
 				callback
 		});
-	}
-
-	// TODO: This.
-	@Override
-	public void getUsers(SessionID sessionId, IUsersCallback iUsersCallback) {
 	}
 
 }

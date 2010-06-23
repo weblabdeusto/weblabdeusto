@@ -29,6 +29,7 @@ public class FakeUIManager extends WlFake implements IUIManager {
     public static final String ON_LOGGED_OUT                    = "FakeUIManager::onLoggedOut";
     public static final String ON_EXPERIMENTS_RETRIEVED         = "FakeUIManager::onExperimentsRetrieved";
     public static final String ON_GROUPS_RETRIEVED              = "FakeUIManager::onGroupsRetrieved";
+    public static final String ON_USERS_RETRIEVED				= "FakeUIManager::onUsersRetrieved";
     public static final String ON_EXPERIMENT_USES_RETRIEVED     = "FakeUIManager::onExperimentUsesRetrieved";
     
     public static final String ON_WRONG_LOGIN_OR_PASSWORD_GIVEN = "FakeUIManager::onWrongLoginOrPasswordGiven";
@@ -64,6 +65,11 @@ public class FakeUIManager extends WlFake implements IUIManager {
 	public void onGroupsRetrieved(ArrayList<Group> groups) {
 		this.append(FakeUIManager.ON_GROUPS_RETRIEVED, new Object[]{groups});
 	}
+	
+	@Override
+	public void onUsersRetrieved(ArrayList<User> users) {
+		this.append(FakeUIManager.ON_USERS_RETRIEVED, new Object[]{users});
+	}
 
 	@Override
 	public void onExperimentUsesRetrieved(ArrayList<ExperimentUse> experimentUses) {
@@ -89,9 +95,4 @@ public class FakeUIManager extends WlFake implements IUIManager {
     	this.append(FakeUIManager.ON_ERROR_AND_FINISH_SESSION, new Object[] {message});
     }
 
-    // TODO: This.
-	@Override
-	public void onUsersRetrieved(ArrayList<User> users) {
-		
-	}
 }

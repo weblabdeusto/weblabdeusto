@@ -34,11 +34,12 @@ public class FakeWlAdminSerializer extends FakeWlCommonSerializer implements IWl
 	public static final String PARSE_GET_GROUPS_RESPONSE          = "FakeWebLabSerializer::parseGetGroupsResponse";
 	public static final String PARSE_GET_EXPERIMENTS_RESPONSE     = "FakeWebLabSerializer::parseGetExperimentsResponse";
 	public static final String PARSE_GET_EXPERIMENT_USES_RESPONSE = "FakeWebLabSerializer::parseGetExperimentUsesResponse";
+	public static final String PARSE_GET_USERS_RESPONSE			  = "FakeWebLabSerializer::parseGetUsersResponse";
 	
 	public static final String SERIALIZE_GET_GROUPS_REQUEST          = "FakeWebLabSerializer::serializeGetGroupsRequest";
 	public static final String SERIALIZE_GET_EXPERIMENTS_REQUEST     = "FakeWebLabSerializer::serializeGetExperimentsRequest";
 	public static final String SERIALIZE_GET_EXPERIMENT_USES_REQUEST = "FakeWebLabSerializer::serializeGetExperimentUsesRequest";
-
+	public static final String SERIALIZE_GET_USERS_REQUEST 			 = "FakeWebLabSerializer::serializeGetUsersRequest";
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -94,18 +95,22 @@ public class FakeWlAdminSerializer extends FakeWlCommonSerializer implements IWl
 		return (String)this.retrieveReturn(FakeWlAdminSerializer.SERIALIZE_GET_EXPERIMENT_USES_REQUEST);
 	}
 
-	// TODO: This.
+	@SuppressWarnings("unchecked")
 	@Override
 	public ArrayList<User> parseGetUsersResponse(String response)
-			throws SerializationException, SessionNotFoundException,
-			UserProcessingException, WlServerException {
-		return null;
+			throws SerializationException, SessionNotFoundException, UserProcessingException, WlServerException {
+		
+		this.append(FakeWlAdminSerializer.PARSE_GET_USERS_RESPONSE, new Object[]{
+				response
+		});
+		return (ArrayList<User>)this.retrieveReturn(FakeWlAdminSerializer.PARSE_GET_USERS_RESPONSE);
 	}
 
-	// TODO: This.
 	@Override
-	public String serializeGetUsersRequest(SessionID sessionId)
-			throws SerializationException {
-		return null;
+	public String serializeGetUsersRequest(SessionID sessionId) throws SerializationException {
+		this.append(FakeWlAdminSerializer.SERIALIZE_GET_USERS_REQUEST, new Object[]{
+			sessionId
+		});
+		return (String)this.retrieveReturn(FakeWlAdminSerializer.SERIALIZE_GET_USERS_REQUEST);
 	}
 }

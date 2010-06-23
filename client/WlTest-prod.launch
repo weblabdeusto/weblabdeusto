@@ -18,6 +18,6 @@
 </listAttribute>
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value=""/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="TrunkClient"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="client"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dgwt.args=&quot;-prod -out www-test&quot;"/>
 </launchConfiguration>
