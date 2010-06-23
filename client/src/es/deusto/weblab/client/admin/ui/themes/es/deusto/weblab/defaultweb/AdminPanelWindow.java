@@ -57,6 +57,7 @@ public class AdminPanelWindow extends BaseWindow {
 		public void onLogoutButtonClicked();
 		public void getGroups();
 		public void getExperiments();
+		public void getUsers();
 		public void onSearchButtonClicked(Date fromDate, Date toDate, Group group, Experiment experiment);
 	}
 	
@@ -253,6 +254,7 @@ public class AdminPanelWindow extends BaseWindow {
 			public void execute() {
 				AdminPanelWindow.this.accessesSearchPanel.setVisible(false);
 				AdminPanelWindow.this.usersUsersPanel.setVisible(true);
+		    	AdminPanelWindow.this.callback.getUsers();
 			}
 		}
 		);
@@ -363,6 +365,7 @@ public class AdminPanelWindow extends BaseWindow {
     }
 
 	public void fillUsersList(ArrayList<User> users) {
-		
+		for(User user : users)
+			System.out.println(user.getLogin());
 	}
 }

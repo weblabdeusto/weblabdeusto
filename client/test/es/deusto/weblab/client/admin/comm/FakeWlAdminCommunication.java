@@ -19,6 +19,7 @@ import java.util.Date;
 import es.deusto.weblab.client.admin.comm.callbacks.IExperimentUsesCallback;
 import es.deusto.weblab.client.admin.comm.callbacks.IExperimentsCallback;
 import es.deusto.weblab.client.admin.comm.callbacks.IGroupsCallback;
+import es.deusto.weblab.client.admin.comm.callbacks.IUsersCallback;
 import es.deusto.weblab.client.comm.FakeWlCommonCommunication;
 import es.deusto.weblab.client.comm.IWlCommonSerializer;
 import es.deusto.weblab.client.dto.SessionID;
@@ -56,6 +57,11 @@ public class FakeWlAdminCommunication extends FakeWlCommonCommunication implemen
 				sessionId,
 				callback
 		});
+	}
+
+	// TODO: This.
+	@Override
+	public void getUsers(SessionID sessionId, IUsersCallback iUsersCallback) {
 	}
 
 }

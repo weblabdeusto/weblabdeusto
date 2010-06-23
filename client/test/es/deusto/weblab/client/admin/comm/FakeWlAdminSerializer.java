@@ -26,6 +26,7 @@ import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Experiment;
 import es.deusto.weblab.client.dto.experiments.ExperimentUse;
 import es.deusto.weblab.client.dto.users.Group;
+import es.deusto.weblab.client.dto.users.User;
 
 
 public class FakeWlAdminSerializer extends FakeWlCommonSerializer implements IWlAdminSerializer {
@@ -91,5 +92,20 @@ public class FakeWlAdminSerializer extends FakeWlCommonSerializer implements IWl
 				sessionId
 		});
 		return (String)this.retrieveReturn(FakeWlAdminSerializer.SERIALIZE_GET_EXPERIMENT_USES_REQUEST);
+	}
+
+	// TODO: This.
+	@Override
+	public ArrayList<User> parseGetUsersResponse(String response)
+			throws SerializationException, SessionNotFoundException,
+			UserProcessingException, WlServerException {
+		return null;
+	}
+
+	// TODO: This.
+	@Override
+	public String serializeGetUsersRequest(SessionID sessionId)
+			throws SerializationException {
+		return null;
 	}
 }

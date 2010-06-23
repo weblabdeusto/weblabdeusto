@@ -88,4 +88,10 @@ public class FakeUIManager extends WlFake implements IUIManager {
     public void onErrorAndFinishSession(String message) {
     	this.append(FakeUIManager.ON_ERROR_AND_FINISH_SESSION, new Object[] {message});
     }
+
+    // TODO: This.
+	@Override
+	public void onUsersRetrieved(ArrayList<User> users) {
+		
+	}
 }

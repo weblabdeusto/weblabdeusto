@@ -163,6 +163,11 @@ public class DefaultTheme extends WlAdminThemeBase {
 			public void onSearchButtonClicked(Date fromDate, Date toDate, Group group, Experiment experiment) {
 				DefaultTheme.this.controller.getExperimentUses(fromDate, toDate, group, experiment);
 			}
+			
+			@Override
+			public void getUsers() {
+				DefaultTheme.this.controller.getUsers();
+			}
 		});
 		this.adminPanelWindow.init();
 		this.activeWindow = this.adminPanelWindow;
