@@ -34,6 +34,7 @@ public interface IUIManager {
 	public void onGroupsRetrieved(ArrayList<Group> groups);
 	public void onExperimentsRetrieved(ArrayList<Experiment> experiments);
 	public void onExperimentUsesRetrieved(ArrayList<ExperimentUse> experimentUses);
+	public void onUsersRetrieved(ArrayList<User> users);
 	
 	
 	/*

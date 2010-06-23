@@ -82,6 +82,7 @@ public class AdminPanelWindow extends BaseWindow {
 	
 	// Users panel related
 	@UiField FlexTable usersListTable;
+	@UiField ListBox rolesList;
 	Cell selectedUserCell = null;
 	
 	// Menu items
@@ -161,6 +162,11 @@ public class AdminPanelWindow extends BaseWindow {
     	this.experimentHeader = new Label("Experiment");
     	this.experimentHeader.setStyleName("web-admin-logged-accesses-grid-header");
 	}
+	
+	private void fillRolesList() {
+		this.rolesList.addItem("Student");
+		this.rolesList.addItem("Administrator");
+	}
 
 	private void setupUsersPanel() {
 		
@@ -173,6 +179,8 @@ public class AdminPanelWindow extends BaseWindow {
 		cellFormatter.setStylePrimaryName(0, 0, "web-admin-table-cell-header");
 		cellFormatter.setStylePrimaryName(0, 1, "web-admin-table-cell-header");
 
+		// Fill roles list
+		fillRolesList();
 		
 		// Test data
 		int row = 1;
@@ -353,4 +361,8 @@ public class AdminPanelWindow extends BaseWindow {
     	
     	this.callback.onSearchButtonClicked(fromDate, toDate, group, experiment);
     }
+
+	public void fillUsersList(ArrayList<User> users) {
+		
+	}
 }

@@ -171,26 +171,35 @@
 					<!-- EndOf Users/Users left user list panel -->
 					
 					<!-- Users/Users right user details panel -->
-					<g:VerticalPanel borderWidth="1" width="100%" height="100%" verticalAlignment="ALIGN_BOTTOM">
+					<g:VerticalPanel borderWidth="0" width="100%" height="100%" verticalAlignment="ALIGN_BOTTOM">
 					
 						<g:HorizontalPanel width="350px" height="300px">
 						
 							<g:TabLayoutPanel height="300px" width="100%" barHeight="20">
-								<g:tab>
+								<g:tab width="100%">
 									<g:header>Profile</g:header>
-									<g:Button>Test</g:Button>
+									<w:EasyGrid rows="4" cols="2" width="100%">
+										<g:Label>Username:</g:Label>
+										<g:TextBox>username.here</g:TextBox>
+										<g:Label>Name:</g:Label>
+										<g:TextBox>Name goes here</g:TextBox>
+										<g:Label>Email</g:Label>
+										<g:TextBox>email@whatever.dom</g:TextBox>
+										<g:Label>Role:</g:Label>
+										<g:ListBox ui:field="rolesList"></g:ListBox>
+									</w:EasyGrid>
 								</g:tab>
 								<g:tab>
 									<g:header>Groups</g:header>
-									<g:Label>Groups Test</g:Label>
+									<g:Label>Groups. Not yet implemented.</g:Label>
 								</g:tab>
 								<g:tab>
 									<g:header>Permissions</g:header>
-									<g:Label>Permissions</g:Label>
+									<g:Label>Permissions. Not yet implemented.</g:Label>
 								</g:tab>
 								<g:tab>
 									<g:header>Authentication</g:header>
-									<g:Label>Authentication</g:Label>
+									<g:Label>Authentication. Not yet implemented.</g:Label>
 								</g:tab>
 							</g:TabLayoutPanel>
 						

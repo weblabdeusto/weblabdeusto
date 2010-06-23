@@ -91,6 +91,11 @@ public class DefaultTheme extends WlAdminThemeBase {
 	public void onGroupsRetrieved(ArrayList<Group> groups) {
 		this.adminPanelWindow.fillGroupsCombobox(groups);
 	}
+	
+	@Override
+	public void onUsersRetrieved(ArrayList<User> users) {
+		this.adminPanelWindow.fillUsersList(users);
+	}
 
 	@Override
 	public void onExperimentUsesRetrieved(ArrayList<ExperimentUse> experimentUses) {
