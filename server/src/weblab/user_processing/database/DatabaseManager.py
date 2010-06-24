@@ -35,7 +35,7 @@ class UserProcessingDatabaseManager(object):
         return self._gateway.get_groups( session_id.username )
     
     def get_users(self, session_id):
-        return self._gateway.get_users( session_id.username )
+        return self._gateway.get_users( )
     
     def get_experiments(self, session_id):
         return self._gateway.get_experiments( session_id.username )
