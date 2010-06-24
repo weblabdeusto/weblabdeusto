@@ -30,14 +30,39 @@ import es.deusto.weblab.client.dto.experiments.Experiment;
 import es.deusto.weblab.client.dto.experiments.ExperimentUse;
 import es.deusto.weblab.client.dto.users.ExternalEntity;
 import es.deusto.weblab.client.dto.users.Group;
+import es.deusto.weblab.client.dto.users.Role;
 import es.deusto.weblab.client.dto.users.User;
 
 public class WlAdminSerializerJSONTest extends GWTTestCase {
 	
-	
-	// TODO: This.
 	public void testParseGetUsersResponse() throws Exception {
+		final IWlAdminSerializer weblabSerializer = new WlAdminSerializerJSON();
+		final ArrayList<User> users = weblabSerializer.parseGetUsersResponse(
+				"{\"result\": [" +
+					  "{\"id\":1, \"login\":\"firstlogin\", \"full_name\":\"First Student\", \"email\":\"stud1@mail.com\", \"avatar\":\"av1\", \"role\":{\"id\":1, \"name\":\"firstrole\"} }," +
+					  "{\"id\":2, \"login\":\"secondlogin\", \"full_name\":\"Second Student\", \"email\":\"stud2@mail.com\", \"avatar\":\"av2\", \"role\":{\"id\":3, \"name\":\"secondrole\"} }," +
+					  "], \"is_exception\": false }"
+				);
 		
+		Assert.assertEquals(2, users.size());
+		
+		final User us1 = users.get(0);
+		//Assert.assertEquals(1, users.get(0).getId());
+		Assert.assertEquals("firstlogin", us1.getLogin());
+		Assert.assertEquals("First Student", us1.getFullName());
+		Assert.assertEquals("stud1@mail.com", us1.getEmail());
+		//Assert.assertEquals("av1", users.get(0).getAvatar());
+		final Role rol1 = us1.getRole();
+		Assert.assertEquals("firstrole", rol1.getName());
+		
+		final User us2 = users.get(1);
+		//Assert.assertEquals(2, us2.getId());
+		Assert.assertEquals("secondlogin", us2.getLogin());
+		Assert.assertEquals("Second Student", us2.getFullName());
+		Assert.assertEquals("stud2@mail.com", us2.getEmail());
+		//Assert.assertEquals("av2", us2.getAvatar());
+		final Role rol2 = us2.getRole();
+		Assert.assertEquals("secondrole", rol2.getName());
 	}
 
 	public void testParseGetGroupsResponse() throws Exception {
