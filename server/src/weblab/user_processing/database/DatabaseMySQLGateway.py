@@ -184,15 +184,14 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             session.close()
             
     @logged()
-    def get_users(self, user_login):
-        """ For now, every user is returned """
+    def get_users(self):
+        """ Retrieves every user from the database """
         
         session = self.Session()
         try:
-            user = self._get_user(session, user_login)
             users = session.query(Model.DbUser).all()
             # TODO: Consider sorting users.
-            dto_users = [ users.to_dto() for user in users ]
+            dto_users = [ user.to_dto() for user in users ]
             return tuple(dto_users)
         finally:
             session.close()

@@ -233,6 +233,39 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         groups1_names = list( ( group.name for group in groups1 ))
 
         self.assertTrue( '5A' in groups1_names ) 
+        
+    def test_get_users(self):
+        users = self.gateway.get_users()
+        
+        # Make sure that the number of users it returns matches the number of users
+        # that we currently have in the test database.
+        self.assertEquals(len(users), 19)
+        
+        user_logins = list( ( user.login for user in users ) )
+        
+        # Make sure every single user login we currently have is present
+        for i in range(1,9):
+            self.assertTrue( "student%d" % i in user_logins )
+        for i in range(1, 4):
+            self.assertTrue( "admin%d" % i in user_logins )
+            self.assertTrue( "prof%d" % i in user_logins )
+            self.assertTrue( "studentLDAP%d" % i in user_logins )
+        self.assertTrue("any" in user_logins)
+        self.assertTrue("studentLDAPwithoutUserAuth" in user_logins)
+        
+        # Check mails
+        user_mails = list( user.email for user in users ) 
+        user_mails_set = set(user_mails)
+        self.assertEquals(len(user_mails_set), 1)
+        self.assertTrue( "weblab@deusto.es" in user_mails_set )
+        
+        # Check a few login / full name pairs
+        user_logins_names = list( (user.login, user.full_name) for user in users )
+        for i in range(1, 9):
+            self.assertTrue( ("student%d" % i, "Name of student %d" % i) in user_logins_names )
+        for i in range(1, 3):
+            self.assertTrue( ("admin%d" % i, "Name of administrator %d" % i) in user_logins_names )
+            
 
     def test_get_experiments(self):
         student2 = self.gateway.get_user_by_name('student2')
