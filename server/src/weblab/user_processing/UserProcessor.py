@@ -37,6 +37,7 @@ _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessor"
 #TODO: configuration
 LIST_EXPERIMENTS_CACHE_TIME     = 15  # seconds
 GET_GROUPS_CACHE_TIME           = 15  # seconds
+GET_USERS_CACHE_TIME            = 15  # seconds
 GET_EXPERIMENTS_CACHE_TIME      = 15  # seconds
 GET_EXPERIMENT_USES_CACHE_TIME  = 15  # seconds
 GET_USER_INFORMATION_CACHE_TIME = 200 # seconds
@@ -54,6 +55,10 @@ def get_user_information(db_manager, db_session_id):
 @cache(GET_GROUPS_CACHE_TIME, _resource_manager)
 def get_groups(db_manager, db_session_id):
     return db_manager.get_groups(db_session_id)
+
+@cache(GET_USERS_CACHE_TIME, _resource_manager)
+def get_users(db_manager, db_session_id):
+    return db_manager.get_users(db_session_id)
 
 @cache(GET_EXPERIMENTS_CACHE_TIME, _resource_manager)
 def get_experiments(db_manager, db_session_id):
@@ -387,6 +392,10 @@ class UserProcessor(object):
     #
     # admin service
     #
+    
+    def get_users(self):
+        db_session_id        = self._session['db_session_id']
+        return get_users(self._db_manager, db_session_id)
 
     def get_groups(self):
         db_session_id         = self._session['db_session_id']

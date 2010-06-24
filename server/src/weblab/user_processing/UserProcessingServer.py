@@ -326,6 +326,15 @@ class UserProcessingServer(object):
             return user_processor.get_groups()
         finally:
             user_processor.update_latest_timestamp()
+            
+    @logged(LogLevel.Info)
+    @check_session(*check_session_params)
+    def get_users(self, session):
+        user_processor = self._load_user(session)
+        try:
+            return user_processor.get_users()
+        finally:
+            user_processor.update_latest_timestamp()
 
     @logged(LogLevel.Info)
     @check_session(*check_session_params)

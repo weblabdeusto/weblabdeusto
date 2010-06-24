@@ -162,6 +162,16 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
         sess_id = self._parse_session_id(session_id)
         experiments = self._server.get_experiments(sess_id)
         return experiments
+       
+    @logged()
+    @RFM.check_exceptions(EXCEPTIONS)
+    def get_users(self, session_id):
+        """get_users(session_id) -> array of User
+    	   raises SessionNotFoundException
+		"""
+        sess_id = self._parse_session_id(session_id)
+        users = self._server.get_users(sess_id)
+        return users
     
     @logged()
     @RFM.check_exceptions(EXCEPTIONS)
