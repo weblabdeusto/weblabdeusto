@@ -171,7 +171,7 @@
 					<!-- EndOf Users/Users left user list panel -->
 					
 					<!-- Users/Users right user details panel -->
-					<g:VerticalPanel borderWidth="0" width="100%" height="100%" verticalAlignment="ALIGN_BOTTOM">
+					<g:VerticalPanel borderWidth="0" width="100%" verticalAlignment="ALIGN_BOTTOM">
 					
 						<g:HorizontalPanel width="350px" height="300px">
 						
@@ -180,13 +180,13 @@
 									<g:header>Profile</g:header>
 									<w:EasyGrid rows="4" cols="2" width="100%">
 										<g:Label>Username:</g:Label>
-										<g:TextBox>username.here</g:TextBox>
+										<g:TextBox ui:field="userDetailLogin">username.here</g:TextBox>
 										<g:Label>Name:</g:Label>
-										<g:TextBox>Name goes here</g:TextBox>
+										<g:TextBox ui:field="userDetailFullName">Name goes here</g:TextBox>
 										<g:Label>Email</g:Label>
-										<g:TextBox>email@whatever.dom</g:TextBox>
+										<g:TextBox ui:field="userDetailEmail">email@whatever.dom</g:TextBox>
 										<g:Label>Role:</g:Label>
-										<g:ListBox ui:field="rolesList"></g:ListBox>
+										<g:ListBox ui:field="userDetailRolesList"></g:ListBox>
 									</w:EasyGrid>
 								</g:tab>
 								<g:tab>
@@ -205,7 +205,7 @@
 						
 						</g:HorizontalPanel>
 						
-						<g:HorizontalPanel verticalAlignment="ALIGN_BOTTOM">
+						<g:HorizontalPanel borderWidth="0" width="100%" verticalAlignment="ALIGN_TOP" horizontalAlignment="ALIGN_RIGHT">
 							<g:Button>Save changes</g:Button>
 						</g:HorizontalPanel>
 					

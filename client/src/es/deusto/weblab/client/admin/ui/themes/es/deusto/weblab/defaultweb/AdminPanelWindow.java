@@ -32,6 +32,7 @@ import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.MenuItem;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.client.ui.HTMLTable.Cell;
@@ -83,8 +84,13 @@ public class AdminPanelWindow extends BaseWindow {
 	
 	// Users panel related
 	@UiField FlexTable usersListTable;
-	@UiField ListBox rolesList;
-	Cell selectedUserCell = null;
+	private Cell selectedUserCell = null;
+	private User selectedUser = null;
+	private ArrayList<User> usersList;
+	@UiField TextBox userDetailLogin;
+	@UiField TextBox userDetailFullName;
+	@UiField TextBox userDetailEmail;
+	@UiField ListBox userDetailRolesList;
 	
 	// Menu items
 	@UiField MenuItem accessesSearchMenuItem;
@@ -165,8 +171,9 @@ public class AdminPanelWindow extends BaseWindow {
 	}
 	
 	private void fillRolesList() {
-		this.rolesList.addItem("Student");
-		this.rolesList.addItem("Administrator");
+		this.userDetailRolesList.addItem("student");
+		this.userDetailRolesList.addItem("professor");
+		this.userDetailRolesList.addItem("administrator");
 	}
 
 	private void setupUsersPanel() {
@@ -182,23 +189,6 @@ public class AdminPanelWindow extends BaseWindow {
 
 		// Fill roles list
 		fillRolesList();
-		
-		// Test data
-		int row = 1;
-		this.usersListTable.setText(row, 0, "username.username");
-		this.usersListTable.setText(row++, 1, "Full Name Full name Full Name");
-		this.usersListTable.setText(row, 0, "username.username");
-		this.usersListTable.setText(row++, 1, "Full Name Full name Full Name");
-		this.usersListTable.setText(row, 0, "username.username");
-		this.usersListTable.setText(row++, 1, "Full Name Full name Full Name");
-		this.usersListTable.setText(row, 0, "username.username");
-		this.usersListTable.setText(row++, 1, "Full Name Full name Full Name");
-		this.usersListTable.setText(row, 0, "username.username");
-		this.usersListTable.setText(row++, 1, "Full Name Full name Full Name");
-		this.usersListTable.setText(row, 0, "username.username");
-		this.usersListTable.setText(row++, 1, "Full Name Full name Full Name");
-		this.usersListTable.setText(row, 0, "username.username");
-		this.usersListTable.setText(row++, 1, "Full Name Full name Full Name");
 		
 		this.usersListTable.addClickHandler(new ClickHandler() {
 
@@ -219,6 +209,14 @@ public class AdminPanelWindow extends BaseWindow {
 				// Store the selected cell.
 				AdminPanelWindow.this.selectedUserCell = cell;
 				
+				// Retrieve the user the selected cell corresponds to.
+				if( AdminPanelWindow.this.usersList != null && AdminPanelWindow.this.usersList.size() > (row - 1) ) {
+					final User user = AdminPanelWindow.this.usersList.get(row - 1);
+					AdminPanelWindow.this.updateSelectedUser(user);
+				} else {
+					AdminPanelWindow.this.updateSelectedUser(null);
+				}
+				
 				// Mark the cell as selected. (Eventually to be handled by some third party library).
 				// Update every cell's style.
 				for(int i = 1; i < table.getRowCount(); i++) {
@@ -235,6 +233,38 @@ public class AdminPanelWindow extends BaseWindow {
 		}
 		);
 		
+	}
+
+	/**
+	 * Stores the specified user as the currently selected one and updates
+	 * the selected user details panel. 
+	 * @param user Selected user. May be null.
+	 */
+	private void updateSelectedUser(User user) {
+		
+		this.selectedUser = user;
+		
+		if(user == null) {
+			this.userDetailLogin.setText("");
+			this.userDetailFullName.setText("");
+			this.userDetailEmail.setText("");
+			this.userDetailRolesList.setSelectedIndex(0);
+		} else {
+			this.userDetailLogin.setText(user.getLogin());
+			this.userDetailFullName.setText(user.getFullName());
+			this.userDetailEmail.setText(user.getEmail());
+			
+			final String role = user.getRole().getName();
+			if(role.equals("student"))
+				this.userDetailRolesList.setSelectedIndex(0);
+			else if(role.equals("professor"))
+				this.userDetailRolesList.setSelectedIndex(1);
+			else if(role.equals("administrator"))
+				this.userDetailRolesList.setSelectedIndex(2);
+			else {
+				System.out.println("Unrecognized role: " + role);
+			}
+		}
 	}
 
 	private void registerMenuCallbacks() {
@@ -364,8 +394,28 @@ public class AdminPanelWindow extends BaseWindow {
     	this.callback.onSearchButtonClicked(fromDate, toDate, group, experiment);
     }
 
+    /**
+     * Fills the user lists table with the specified list of users. Every user previously on the
+     * table is removed. The headers of the table are not modified. It also stores the user list
+     * for later use.
+     * @param users List of the users to fill the table with.
+     */
 	public void fillUsersList(ArrayList<User> users) {
-		for(User user : users)
-			System.out.println(user.getLogin());
+		
+		// Store the user list to be able to access each user object easily later.
+		this.usersList = users;
+		
+		// Remove old users before adding new ones.
+		for(int i = 1; i < this.usersListTable.getRowCount(); i++) {
+			this.usersListTable.removeRow(i);
+		}
+		
+		// Add users to the list (being careful not to replace the table header).
+		int insertrow = 1;
+		for(User user : users) {
+			this.usersListTable.setText(insertrow, 0, user.getLogin());
+			this.usersListTable.setText(insertrow, 1, user.getFullName());
+			insertrow++;
+		}
 	}
 }
