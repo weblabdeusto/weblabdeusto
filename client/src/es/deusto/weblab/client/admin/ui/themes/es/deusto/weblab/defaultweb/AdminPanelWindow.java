@@ -184,7 +184,7 @@ public class AdminPanelWindow extends BaseWindow {
 
 	private void setupUsersPanel() {
 		
-		final CellFormatter cellFormatter = AdminPanelWindow.this.usersListTable.getCellFormatter();
+		final CellFormatter cellFormatter = this.usersListTable.getCellFormatter();
 		
 		// Column headers.
 		this.usersListTable.setText(0, 0, "Login");
@@ -192,7 +192,7 @@ public class AdminPanelWindow extends BaseWindow {
 		this.usersListTable.setCellSpacing(20);
 		cellFormatter.setStylePrimaryName(0, 0, "web-admin-table-cell-header");
 		cellFormatter.setStylePrimaryName(0, 1, "web-admin-table-cell-header");
-
+		
 		// Fill roles list
 		fillRolesList();
 		
@@ -240,7 +240,7 @@ public class AdminPanelWindow extends BaseWindow {
 		);
 		
 	}
-
+	
 	/**
 	 * Stores the specified user as the currently selected one and updates
 	 * the selected user details panel. 
@@ -417,10 +417,13 @@ public class AdminPanelWindow extends BaseWindow {
 		}
 		
 		// Add users to the list (being careful not to replace the table header).
+		final CellFormatter cf = this.usersListTable.getCellFormatter();
 		int insertrow = 1;
 		for(User user : users) {
 			this.usersListTable.setText(insertrow, 0, user.getLogin());
 			this.usersListTable.setText(insertrow, 1, user.getFullName());
+			cf.setStylePrimaryName(insertrow, 0, "web-admin-table-cell-not-selected");
+			cf.setStylePrimaryName(insertrow, 1, "web-admin-table-cell-not-selected");
 			insertrow++;
 		}
 	}

@@ -458,11 +458,22 @@ body
     font-weight: bold;
 	background-color: #FFFF99;
 	color:black;
+	cursor: hand;
+}
+
+.web-admin-table-cell-selected:hover{
+	background-color: grey;
 }
 
 .web-admin-table-cell-not-selected
 {
     font-weight: normal;
+    cursor: pointer;
+    cursor: hand;
+}
+
+.web-admin-table-cell-not-selected:hover{
+	background-color: grey;
 }
 
 .web-admin-table-cell-header
