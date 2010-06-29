@@ -180,18 +180,21 @@
 									<g:header>Profile</g:header>
 									<w:EasyGrid rows="4" cols="2" width="100%">
 										<g:Label>Username:</g:Label>
-										<g:TextBox ui:field="userDetailLogin">username.here</g:TextBox>
+										<g:TextBox ui:field="userDetailLogin"></g:TextBox>
 										<g:Label>Name:</g:Label>
-										<g:TextBox ui:field="userDetailFullName">Name goes here</g:TextBox>
+										<g:TextBox ui:field="userDetailFullName"></g:TextBox>
 										<g:Label>Email</g:Label>
-										<g:TextBox ui:field="userDetailEmail">email@whatever.dom</g:TextBox>
+										<g:TextBox ui:field="userDetailEmail"></g:TextBox>
 										<g:Label>Role:</g:Label>
 										<g:ListBox ui:field="userDetailRolesList"></g:ListBox>
 									</w:EasyGrid>
 								</g:tab>
 								<g:tab>
 									<g:header>Groups</g:header>
-									<g:Label>Groups. Not yet implemented.</g:Label>
+									<g:HorizontalPanel width="100%">
+										<g:Tree ui:field="userDetailGroups">
+										</g:Tree>
+									</g:HorizontalPanel>
 								</g:tab>
 								<g:tab>
 									<g:header>Permissions</g:header>

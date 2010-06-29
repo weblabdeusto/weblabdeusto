@@ -33,6 +33,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.client.ui.HTMLTable.Cell;
@@ -91,6 +92,7 @@ public class AdminPanelWindow extends BaseWindow {
 	@UiField TextBox userDetailFullName;
 	@UiField TextBox userDetailEmail;
 	@UiField ListBox userDetailRolesList;
+	@UiField Tree userDetailGroups;
 	
 	// Menu items
 	@UiField MenuItem accessesSearchMenuItem;
