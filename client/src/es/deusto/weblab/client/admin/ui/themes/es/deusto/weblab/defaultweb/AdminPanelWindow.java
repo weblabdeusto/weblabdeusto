@@ -93,6 +93,10 @@ public class AdminPanelWindow extends BaseWindow {
 	@UiField TextBox userDetailEmail;
 	@UiField ListBox userDetailRolesList;
 	@UiField Tree userDetailGroups;
+	@UiField Button userAuthAllowButton;
+	@UiField Button userAuthDisallowButton;
+	@UiField ListBox userAuthAllowedList;
+	@UiField ListBox userAuthNotAllowedList;
 	
 	// Menu items
 	@UiField MenuItem accessesSearchMenuItem;
