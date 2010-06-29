@@ -330,6 +330,10 @@ class UserProcessingServer(object):
     @logged(LogLevel.Info)
     @check_session(*check_session_params)
     def get_users(self, session):
+        """
+        Receives the get_users petition sent by the client and handles the request through
+        a user processor for the calling session.
+        """
         user_processor = self._load_user(session)
         try:
             return user_processor.get_users()

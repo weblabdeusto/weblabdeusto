@@ -58,6 +58,9 @@ def get_groups(db_manager, db_session_id):
 
 @cache(GET_USERS_CACHE_TIME, _resource_manager)
 def get_users(db_manager, db_session_id):
+    """
+    Retrieves the users from the database, through the database manager.
+    """
     return db_manager.get_users(db_session_id)
 
 @cache(GET_EXPERIMENTS_CACHE_TIME, _resource_manager)

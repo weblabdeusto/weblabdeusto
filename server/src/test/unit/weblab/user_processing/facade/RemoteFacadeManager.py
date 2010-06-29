@@ -116,6 +116,12 @@ class MockUPS(object):
             raise self.exceptions['get_groups']
         return self.return_values['get_groups']
     
+    def get_users(self, session_id):
+        self.arguments['get_users'] = (session_id, )
+        if self.exceptions.has_key('get_users'):
+            raise self.exceptions['get_users']
+        return self.return_values['get_users']
+    
     def get_experiments(self, session_id):
         self.arguments['get_experiments'] = (session_id, )
         if self.exceptions.has_key('get_experiments'):

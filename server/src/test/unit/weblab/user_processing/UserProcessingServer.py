@@ -183,6 +183,21 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.assertTrue( '5A' in groups_names )
         
         self.ups.logout(sess_id)
+        
+        
+    def test_get_users(self):
+        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', 'student')
+        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+        
+        users = self.ups.get_users(sess_id)
+        self.assertEquals(19, len(users) )
+        
+        users_names = list( user.login for user in users )
+        
+        self.assertTrue( 'student1' in users_names )
+        
+        self.ups.logout(sess_id)
+        
 
     def test_get_experiments(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")

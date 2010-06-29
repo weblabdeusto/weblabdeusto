@@ -439,6 +439,7 @@ class FakeDatabase(object):
         self.groups = [ Group.Group("5A") ]
         self.experiments = [ generate_experiment('ud-dummy', 'Dummy experiments') ]
         self.experiment_uses = [ generate_experiment_use("student2", self.experiments[0]) ]
+        self.users = [ User.User("admin1", "Admin Test User", "admin1@deusto.es", Role.Role("administrator")) ]
 
     def store_experiment_usage(self, db_session_id, experiment_usage):
         pass
@@ -451,7 +452,11 @@ class FakeDatabase(object):
 
     def get_groups(self, db_session_id):
         return self.groups
+    
+    def get_users(self, db_session_id):
+        return self.users
 
+    # TODO: remove second return?
     def get_experiments(self, db_session_id):
         return self.experiments
         return self.groups
