@@ -38,6 +38,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.client.ui.HTMLTable.Cell;
 import com.google.gwt.user.client.ui.HTMLTable.CellFormatter;
+import com.google.gwt.user.client.ui.HTMLTable.RowFormatter;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.user.datepicker.client.DateBox.DefaultFormat;
 
@@ -184,14 +185,13 @@ public class AdminPanelWindow extends BaseWindow {
 
 	private void setupUsersPanel() {
 		
-		final CellFormatter cellFormatter = this.usersListTable.getCellFormatter();
+		final RowFormatter rowFormatter = this.usersListTable.getRowFormatter();
 		
 		// Column headers.
 		this.usersListTable.setText(0, 0, "Login");
 		this.usersListTable.setText(0, 1, "Full name");
-		this.usersListTable.setCellSpacing(20);
-		cellFormatter.setStylePrimaryName(0, 0, "web-admin-table-cell-header");
-		cellFormatter.setStylePrimaryName(0, 1, "web-admin-table-cell-header");
+		this.usersListTable.setCellSpacing(0);
+		rowFormatter.setStylePrimaryName(0, "web-admin-table-row-header");
 		
 		// Fill roles list
 		fillRolesList();
@@ -207,7 +207,7 @@ public class AdminPanelWindow extends BaseWindow {
 					return;
 				
 				final int row = cell.getRowIndex();
-				final CellFormatter cellFormatter = AdminPanelWindow.this.usersListTable.getCellFormatter();
+				final RowFormatter rowFormatter = AdminPanelWindow.this.usersListTable.getRowFormatter();
 				
 				if(row == 0) // The header may not be selected.
 					return;
@@ -227,11 +227,9 @@ public class AdminPanelWindow extends BaseWindow {
 				// Update every cell's style.
 				for(int i = 1; i < table.getRowCount(); i++) {
 					if( i == row) {
-						cellFormatter.setStylePrimaryName(i, 0, "web-admin-table-cell-selected");
-						cellFormatter.setStylePrimaryName(i, 1, "web-admin-table-cell-selected");	
+						rowFormatter.setStylePrimaryName(i, "web-admin-table-row-selected");
 					} else {
-						cellFormatter.setStylePrimaryName(i, 0, "web-admin-table-cell-not-selected");
-						cellFormatter.setStylePrimaryName(i, 1, "web-admin-table-cell-not-selected");
+						rowFormatter.setStylePrimaryName(i, "web-admin-table-row-not-selected");
 					}
 				}
 			}
@@ -417,13 +415,12 @@ public class AdminPanelWindow extends BaseWindow {
 		}
 		
 		// Add users to the list (being careful not to replace the table header).
-		final CellFormatter cf = this.usersListTable.getCellFormatter();
+		final RowFormatter rf = this.usersListTable.getRowFormatter();
 		int insertrow = 1;
 		for(User user : users) {
 			this.usersListTable.setText(insertrow, 0, user.getLogin());
 			this.usersListTable.setText(insertrow, 1, user.getFullName());
-			cf.setStylePrimaryName(insertrow, 0, "web-admin-table-cell-not-selected");
-			cf.setStylePrimaryName(insertrow, 1, "web-admin-table-cell-not-selected");
+			rf.setStylePrimaryName(insertrow, "web-admin-table-row-not-selected");
 			insertrow++;
 		}
 	}

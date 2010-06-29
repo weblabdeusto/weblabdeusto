@@ -453,30 +453,32 @@ body
 	padding-top: 15px;
 }
 
-.web-admin-table-cell-selected
+
+.web-admin-table-row-selected
 {
     font-weight: bold;
 	background-color: #FFFF99;
 	color:black;
+	cursor: pointer;
 	cursor: hand;
 }
 
-.web-admin-table-cell-selected:hover{
+.web-admin-table-row-selected:hover{
 	background-color: grey;
 }
 
-.web-admin-table-cell-not-selected
+.web-admin-table-row-not-selected
 {
     font-weight: normal;
     cursor: pointer;
     cursor: hand;
 }
 
-.web-admin-table-cell-not-selected:hover{
+.web-admin-table-row-not-selected:hover{
 	background-color: grey;
 }
 
-.web-admin-table-cell-header
+.web-admin-table-row-header
 {
 	font-weight: bold;
 	background-color: grey;
