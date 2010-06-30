@@ -8,6 +8,8 @@
 	<inherits name="com.google.gwt.json.JSON" />
 	
 	<inherits name='com.google.gwt.user.theme.standard.Standard'/>
+	
+	<inherits name="com.smartgwt.SmartGwt"/>
 
 	<!-- Specify the app entry point class.                   -->
 	<entry-point class='es.deusto.weblab.client.WebLabClient'/>
