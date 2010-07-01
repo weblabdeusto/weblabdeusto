@@ -551,6 +551,11 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
         group1.add_child(group12)
         return group1, group2
     
+    def _generate_users(self):
+        user1 = User("Login", "FullName", "Email@deusto.es", Role("student"))
+        user2 = User("Login2", "FullName2", "Email2@deusto.es", Role("administrator"))
+        return user1, user2
+    
     def _generate_roles(self):
         role1 = Role("student")
         role2 = Role("professor")
@@ -778,6 +783,22 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
         self.assertEquals(
                 expected_sess_id['id'],
                 self.mock_ups.arguments['get_groups'][0].id
+            )
+        
+    def test_return_get_users(self):
+        expected_sess_id = {'id' : "whatever"}
+        users = self._generate_users()
+        
+        self.mock_ups.return_values['get_users'] = users
+
+        self.assertEquals(
+                users,
+                self.rfm.get_users(expected_sess_id)
+            )
+        
+        self.assertEquals(
+                expected_sess_id['id'],
+                self.mock_ups.arguments['get_users'][0].id
             )
         
         

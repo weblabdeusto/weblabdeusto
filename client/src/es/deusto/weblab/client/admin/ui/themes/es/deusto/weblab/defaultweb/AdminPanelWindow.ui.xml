@@ -1,7 +1,9 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
     xmlns:g='urn:import:com.google.gwt.user.client.ui'
     xmlns:gd="urn:import:com.google.gwt.user.datepicker.client"
-    xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
+    xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets"
+    xmlns:sc="urn:import:com.smartgwt.client.widgets"
+    xmlns:sct="urn:import:com.smartgwt.client.widgets.tab">
     
     <ui:with field='res' type='es.deusto.weblab.client.ui.Resources'/>
     <ui:with field="i18n" type="es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb.i18n.IWebLabDeustoThemeMessages" />
@@ -198,7 +200,9 @@
 								</g:tab>
 								<g:tab>
 									<g:header>Permissions</g:header>
-									<g:Label>Permissions. Not yet implemented.</g:Label>
+									<g:VerticalPanel width="100%">
+										<g:Label>Permissions. Not yet implemented.</g:Label>
+									</g:VerticalPanel>
 								</g:tab>
 								<g:tab>
 									<g:header>Authentication</g:header>

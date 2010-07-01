@@ -8,7 +8,8 @@
 * This software consists of contributions made by many individuals, 
 * listed below:
 *
-* Author: FILLME
+* Author: Jaime Irurzun <jaime.irurzun@gmail.com>
+*         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 *
 */
 
@@ -41,6 +42,8 @@ import com.google.gwt.user.client.ui.HTMLTable.CellFormatter;
 import com.google.gwt.user.client.ui.HTMLTable.RowFormatter;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.user.datepicker.client.DateBox.DefaultFormat;
+import com.smartgwt.client.widgets.tab.Tab;
+import com.smartgwt.client.widgets.tab.TabSet;
 
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.Experiment;
