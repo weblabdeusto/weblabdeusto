@@ -175,6 +175,16 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     
     @logged()
     @RFM.check_exceptions(EXCEPTIONS)
+    def get_roles(self, session_id):
+        """get_roles(session_id) -> array of Role
+           raises SessionNotFoundException
+        """
+        sess_id = self._parse_session_id(session_id)
+        roles = self._server.get_roles(sess_id)
+        return roles
+    
+    @logged()
+    @RFM.check_exceptions(EXCEPTIONS)
     def get_experiment_uses(self, session_id, from_date, to_date, group_id, experiment_id):
         """ get_experiment_uses(session_id, from_date, to_date, group_id, experiment_id) -> array of ExperimentUse
             raises SessionNotFoundException

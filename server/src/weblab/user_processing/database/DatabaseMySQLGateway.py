@@ -196,6 +196,17 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         finally:
             session.close()
             
+    @logged()
+    def get_roles(self):
+        """ Retrieves every role from the database """
+        session = self.Session()
+        try:
+            roles = session.query(Model.DbRole).all()
+            dto_roles = [role.to_dto() for role in roles]
+            return tuple(dto_roles)
+        finally:
+            session.close()
+            
 
     @logged()
     def get_experiments(self, user_login):

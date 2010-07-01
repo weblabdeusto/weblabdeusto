@@ -110,6 +110,12 @@ class MockUPS(object):
             raise self.exceptions['get_user_information']
         return self.return_values['get_user_information']
     
+    def get_roles(self, session_id):
+        self.arguments['get_roles'] = (session_id, )
+        if self.exceptions.has_key('get_roles'):
+            raise self.exceptions['get_roles']
+        return self.return_values['get_roles']
+    
     def get_groups(self, session_id):
         self.arguments['get_groups'] = (session_id, )
         if self.exceptions.has_key('get_groups'):
@@ -544,6 +550,12 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
         group1.add_child(group11)
         group1.add_child(group12)
         return group1, group2
+    
+    def _generate_roles(self):
+        role1 = Role("student")
+        role2 = Role("professor")
+        role3 = Role("administrator")
+        return role1, role2, role3
 
     def _generate_experiments(self):
         experimentA = Experiment.Experiment(
@@ -767,6 +779,24 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
                 expected_sess_id['id'],
                 self.mock_ups.arguments['get_groups'][0].id
             )
+        
+        
+    def test_return_get_roles(self):
+        expected_sess_id = {'id' : "whatever"}
+        roles = self._generate_roles()
+    
+        self.mock_ups.return_values['get_roles'] = roles
+
+        self.assertEquals(
+                roles,
+                self.rfm.get_roles(expected_sess_id)
+            )
+        
+        self.assertEquals(
+                expected_sess_id['id'],
+                self.mock_ups.arguments['get_roles'][0].id
+            )
+        
     
     def test_return_get_experiments(self):
         expected_sess_id = {'id' : "whatever"}

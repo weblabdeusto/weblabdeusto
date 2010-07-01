@@ -183,7 +183,21 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.assertTrue( '5A' in groups_names )
         
         self.ups.logout(sess_id)
+    
+    def test_get_roles(self):
+        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
+        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+
+        roles = self.ups.get_roles(sess_id)
+        self.assertEquals(3, len(roles) )
+
+        role_names = list( role.name for role in roles )
+
+        self.assertTrue( 'student' in role_names )
+        self.assertTrue( 'professor' in role_names )
+        self.assertTrue( 'administrator' in role_names )
         
+        self.ups.logout(sess_id)
         
     def test_get_users(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', 'student')

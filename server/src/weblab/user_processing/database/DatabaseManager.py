@@ -34,10 +34,12 @@ class UserProcessingDatabaseManager(object):
     def get_groups(self, session_id):
         return self._gateway.get_groups( session_id.username )
     
+    def get_roles(self, session_id):
+        """ Retrieves every role (through the database gateway) """
+        return self._gateway.get_roles( )
+    
     def get_users(self, session_id):
-        """
-        Retrieves the users through the database gateway
-        """
+        """ Retrieves the users (through the database gateway) """
         return self._gateway.get_users( )
     
     def get_experiments(self, session_id):

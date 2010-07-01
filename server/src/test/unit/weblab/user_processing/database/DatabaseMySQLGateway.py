@@ -234,6 +234,18 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
 
         self.assertTrue( '5A' in groups1_names ) 
         
+    def test_get_roles(self):
+        roles = self.gateway.get_roles()
+        
+        self.assertEquals(len(roles), 3)
+        
+        user_roles = list ( role.name for role in roles )
+        
+        expected_roles = ('student', 'professor', 'administrator')
+        
+        for rn in expected_roles:
+            self.assertTrue( rn in user_roles )
+    
     def test_get_users(self):
         users = self.gateway.get_users()
         

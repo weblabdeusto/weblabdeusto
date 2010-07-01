@@ -59,6 +59,18 @@ class DatabaseServerTestCase(unittest.TestCase):
 
         self.assertTrue( '5A' in groups_names )
         
+    def test_get_roles(self):
+        session_id = DatabaseSession.ValidDatabaseSessionId("student2", "student")
+        roles = self.dm.get_roles(session_id)
+        self.assertTrue( len(roles) == 3 )
+
+        role_names = list( ( role.name for role in roles ))
+        
+        self.assertTrue('student' in role_names)
+        self.assertTrue('administrator' in role_names)
+        self.assertTrue('professor' in role_names)
+
+        
     def test_get_experiments(self):
         session_id = DatabaseSession.ValidDatabaseSessionId("student2", "student")
         experiments = self.dm.get_experiments(session_id)

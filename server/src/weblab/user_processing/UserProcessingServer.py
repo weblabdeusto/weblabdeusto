@@ -329,6 +329,15 @@ class UserProcessingServer(object):
             
     @logged(LogLevel.Info)
     @check_session(*check_session_params)
+    def get_roles(self, session):
+        user_processor = self._load_user(session)
+        try:
+            return user_processor.get_roles()
+        finally:
+            user_processor.update_latest_timestamp()
+            
+    @logged(LogLevel.Info)
+    @check_session(*check_session_params)
     def get_users(self, session):
         """
         Receives the get_users petition sent by the client and handles the request through
