@@ -37,7 +37,7 @@ import es.deusto.weblab.client.dto.users.ExternalEntity;
 import es.deusto.weblab.client.dto.users.Role;
 import es.deusto.weblab.client.dto.users.User;
 
-public abstract class WlCommonSerializerJSON implements IWlCommonSerializer {
+public class WlCommonSerializerJSON implements IWlCommonSerializer {
 
 	public static final String ERR_CLIENT_INVALID_CREDENTIALS = "JSON:Client.InvalidCredentials";
 	public static final String ERR_CLIENT_SESSION_NOT_FOUND = "JSON:Client.SessionNotFound";

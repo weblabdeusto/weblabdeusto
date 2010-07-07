@@ -22,8 +22,6 @@ import es.deusto.weblab.client.comm.exceptions.SerializationException;
 import es.deusto.weblab.client.comm.exceptions.WlServerException;
 import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
 import es.deusto.weblab.client.comm.exceptions.core.UserProcessingException;
-import es.deusto.weblab.client.comm.exceptions.login.InvalidCredentialsException;
-import es.deusto.weblab.client.comm.exceptions.login.LoginException;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Category;
 import es.deusto.weblab.client.dto.experiments.Command;
@@ -37,9 +35,6 @@ import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingConfirmationReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingInstancesReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingReservationStatus;
-import es.deusto.weblab.client.dto.users.User;
-import es.deusto.weblab.client.lab.comm.IWlLabSerializer;
-import es.deusto.weblab.client.lab.comm.WlLabSerializerJSON;
 import es.deusto.weblab.client.lab.comm.exceptions.NoCurrentReservationException;
 import es.deusto.weblab.client.lab.comm.exceptions.UnknownExperimentIdException;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.commands.PulseCommand;
@@ -108,190 +103,6 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 		}
 	}
 	
-	public void testParseGetUserInformationResponse() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
-		final User user = weblabSerializer.parseGetUserInformationResponse(
-				"{\"result\": {\"login\": \"porduna\", \"email\": \"porduna@tecnologico.deusto.es\", \"full_name\": \"Pablo Orduna\", \"role\": {\"name\": \"student\"}}, \"is_exception\": false}"
-		);
-		Assert.assertEquals("porduna", user.getLogin());
-		Assert.assertEquals("Pablo Orduna", user.getFullName());
-		Assert.assertEquals("porduna@tecnologico.deusto.es", user.getEmail());
-		Assert.assertEquals("student", user.getRole().getName());
-	}
-
-	public void testParseGetUserInformationResponse_Exceptions() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
-		try{
-			weblabSerializer.parseGetUserInformationResponse(
-					""
-			);
-			Assert.fail("expected exception");
-		}catch(final SerializationException e){
-			// Ok
-		}
-		try{
-			weblabSerializer.parseGetUserInformationResponse(
-					"this is not a json response :-D"
-			);
-			Assert.fail("expected exception");
-		}catch(final SerializationException e){
-			// Ok
-		}
-	}
-	
-	public void testParseLoginResponse() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
-		final SessionID sessionId = weblabSerializer.parseLoginResponse(
-				"{\"result\": {\"id\": \"whatever\"}, \"is_exception\":false}"
-			);
-		Assert.assertEquals("whatever",sessionId.getRealId());
-	}
-
-	public void testParseLoginResponse_Faults() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
-		
-		final String MESSAGE = "my message";
-		final String whole_message = "{\"message\": \"" + MESSAGE + "\", \"code\": \"THE_FAULT_CODE\", \"is_exception\": true}";
-		
-		try {
-			weblabSerializer.parseLoginResponse(
-				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Client.InvalidCredentials")
-			);
-			Assert.fail("Exception expected");
-		} catch (final InvalidCredentialsException e) {
-			Assert.assertEquals(MESSAGE, e.getMessage());
-		}
-		try {
-			weblabSerializer.parseLoginResponse(
-				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.Login")
-			);
-			Assert.fail("Exception expected");
-		} catch (final LoginException e) {
-			Assert.assertEquals(MESSAGE, e.getMessage());
-		}
-		try {
-			weblabSerializer.parseLoginResponse(
-				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.WebLab")
-			);
-			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
-			Assert.assertEquals(MESSAGE, e.getMessage());
-		}
-		try {
-			weblabSerializer.parseLoginResponse(
-				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.Voodoo")
-			);
-			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
-			Assert.assertEquals(MESSAGE, e.getMessage());
-		}
-		try {
-			weblabSerializer.parseLoginResponse(
-				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.Python")
-			);
-			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
-			Assert.assertEquals(MESSAGE, e.getMessage());
-		}
-	}
-
-	public void testParseLoginResponse_Exceptions() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
-		try{
-			weblabSerializer.parseLoginResponse(
-				""
-			);
-			Assert.fail("exception expected");
-		}catch(final SerializationException se){
-			//Ok
-		}
-		
-		try{
-			weblabSerializer.parseLoginResponse(
-				"not a json response"
-			);
-			Assert.fail("exception expected");
-		}catch(final SerializationException se){
-			//Ok
-		}
-	}
-	
-	public void testParseLogoutResponse() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
-		weblabSerializer.parseLogoutResponse(
-				"{\"result\": {}, \"is_exception\": false}"
-			);
-	}
-
-	public void testParseLogoutResponse_Faults() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
-		
-		final String MESSAGE = "my message";
-		final String whole_message = "{\"message\": \"" + MESSAGE + "\", \"code\": \"THE_FAULT_CODE\", \"is_exception\": true}";
-		
-		try {
-			weblabSerializer.parseLogoutResponse(
-				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Client.SessionNotFound")
-			);
-			Assert.fail("Exception expected");
-		} catch (final SessionNotFoundException e) {
-			Assert.assertEquals(MESSAGE, e.getMessage());
-		}
-		try {
-			weblabSerializer.parseLogoutResponse(
-				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.UserProcessing")
-			);
-			Assert.fail("Exception expected");
-		} catch (final UserProcessingException e) {
-			Assert.assertEquals(MESSAGE, e.getMessage());
-		}
-		try {
-			weblabSerializer.parseLogoutResponse(
-				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.WebLab")
-			);
-			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
-			Assert.assertEquals(MESSAGE, e.getMessage());
-		}
-		try {
-			weblabSerializer.parseLogoutResponse(
-				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.Voodoo")
-			);
-			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
-			Assert.assertEquals(MESSAGE, e.getMessage());
-		}
-		try {
-			weblabSerializer.parseLogoutResponse(
-				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.Python")
-			);
-			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
-			Assert.assertEquals(MESSAGE, e.getMessage());
-		}
-	}
-
-	public void testParseLogoutResponse_Exceptions() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
-		try{
-			weblabSerializer.parseLogoutResponse(
-					""
-			);
-			Assert.fail("exception expected");
-		}catch(final SerializationException se){
-			//Ok
-		}
-		
-		try{
-			weblabSerializer.parseLogoutResponse(
-				"not a json response"
-			);
-			Assert.fail("exception expected");
-		}catch(final SerializationException se){
-			//Ok
-		}
-	}
-
 	public void testParsePollResponse() throws Exception{
 		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		weblabSerializer.parsePollResponse(
@@ -885,19 +696,6 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 			);
 	}
 	
-	public void testSerializeGetUserInformationRequest() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
-		final String MESSAGE = "whatever the session id real id";
-		
-		final SessionID sessionId = new SessionID(MESSAGE);
-		final String serializedMessage = weblabSerializer.serializeGetUserInformationRequest(sessionId);
-		
-		Assert.assertEquals(
-				"{\"params\":{\"session_id\":{\"id\":\"" + MESSAGE + "\"}}, \"method\":\"get_user_information\"}",
-				serializedMessage
-			);
-	}
-	
 	public void testSerializeListExperimentsRequest() throws Exception{
 		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final String MESSAGE = "whatever the session id real id";
@@ -907,19 +705,6 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 		
 		Assert.assertEquals(
 				"{\"params\":{\"session_id\":{\"id\":\"" + MESSAGE + "\"}}, \"method\":\"list_experiments\"}",
-				serializedMessage
-			);
-	}
-	
-	public void testSerializeLogoutRequest() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
-		final String MESSAGE = "whatever the session id real id";
-		
-		final SessionID sessionId = new SessionID(MESSAGE);
-		final String serializedMessage = weblabSerializer.serializeLogoutRequest(sessionId);
-		
-		Assert.assertEquals(
-				"{\"params\":{\"session_id\":{\"id\":\"" + MESSAGE + "\"}}, \"method\":\"logout\"}",
 				serializedMessage
 			);
 	}
@@ -946,20 +731,6 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 		
 		Assert.assertEquals(
 				"{\"params\":{\"session_id\":{\"id\":\"" + MESSAGE + "\"}}, \"method\":\"finished_experiment\"}",
-				serializedMessage
-			);
-	}
-	
-	public void testSerializeLoginRequest() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
-		
-		final String USERNAME = "my username";
-		final String PASSWORD = "my password";
-		
-		final String serializedMessage = weblabSerializer.serializeLoginRequest(USERNAME, PASSWORD);
-		
-		Assert.assertEquals(
-				"{\"params\":{\"username\":\"" + USERNAME + "\", \"password\":\"" + PASSWORD + "\"}, \"method\":\"login\"}",
 				serializedMessage
 			);
 	}
