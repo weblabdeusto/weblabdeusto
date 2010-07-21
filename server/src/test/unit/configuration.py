@@ -158,6 +158,43 @@ quit
 weblab_xilinx_experiment_xilinx_device = 'PLD'
 weblab_xilinx_experiment_port_number   = 1
 
+############################
+# JTagBlazer configuration #
+############################
+
+jtag_blazer_xilinx_home = "."
+jtag_blazer_xilinx_impact_full_path      = ["python","./test/unit/weblab/experiment/devices/jtag_blazer/fake_impact.py" ]
+jtag_blazer_jbmanager_svf2jsvf_full_path = ["python","./test/unit/weblab/experiment/devices/jtag_blazer/fake_jbmanager_svf2jsvf.py" ]
+jtag_blazer_jbmanager_target_full_path   = ["python","./test/unit/weblab/experiment/devices/jtag_blazer/fake_jbmanager_target.py" ]
+
+# Must check the really needed commands!
+jtag_blazer_xilinx_batch_content_FPGA = """setMode -bs
+setMode -bs
+setMode -bs
+setMode -bs
+setCable -port svf -file "$SVF_FILE"
+addDevice -p 1 -file "$SOURCE_FILE"
+Program -p 1 -e -v
+exit
+"""
+
+jtag_blazer_xilinx_batch_content_PLD = """setMode -bs
+setMode -bs
+setMode -bs
+setMode -bs
+setCable -port svf -file "$SVF_FILE"
+addDevice -p 1 -file "$SOURCE_FILE"
+Program -p 1 -e -v
+exit
+"""
+
+jtag_blazer_device_ip_FPGA = "192.168.50.137"
+jtag_blazer_device_ip_PLD  = "192.168.50.138"
+
+jtag_blazer_weblab_xilinx_experiment_xilinx_device = 'PLD'
+jtag_blazer_weblab_xilinx_experiment_port_number   = 1
+
+
 ######################
 # GPIB configuration #
 ######################
