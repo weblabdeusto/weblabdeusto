@@ -71,68 +71,68 @@ class JTagBlazer(object):
         self._busy = False
         self._lock.release()
         
-    def _source_to_svf(self, source_file_name, device):
-        xilinx_impact_path = self._get_property('jtag_blazer_xilinx_impact_full_path')
-        batch_file_content = self._get_property('jtag_blazer_xilinx_batch_content_' + device.name)
-        
-        # 1st step: .(jed|bit) -> .svf using Xilinx Impact
-        svf_file_name = source_file_name.replace("."+self.get_suffix(), ".svf")
-        xilinx_batch_file_name = self._create_batch_file(batch_file_content, source_file_name, svf_file_name)
-        try:
-            full_cmd_line = xilinx_impact_path + ['-batch', xilinx_batch_file_name]
-            try:
-                popen = subprocess.Popen(
-                    full_cmd_line,
-                    stdin  = subprocess.PIPE,
-                    stdout = subprocess.PIPE,
-                    stderr = subprocess.PIPE
-                )
-            except Exception, e:
-                raise JTagBlazerExceptions.ErrorProgrammingDeviceException(
-                    "There was an error generating the SVF file: %s" % e
-                )
-            # TODO: make use of popen.poll to make this asynchronous
-            try:
-                result = popen.wait()
-            except Exception, e:
-                raise JTagBlazerExceptions.ErrorWaitingForProgrammingFinishedException(
-                    "There was an error while waiting for JBManager to generate the SVF file: %s" % e
-                )    
-            try:
-                stdout_result = popen.stdout.read()
-                stderr_result = popen.stderr.read()
-            except Exception, e:
-                raise JTagBlazerExceptions.ErrorRetrievingOutputFromProgrammingProgramException(
-                    "There was an error while retrieving the output of the SVF file generator program: %s" % e
-                )
-        finally:
-            os.remove(xilinx_batch_file_name)
-        
-        log.log(JTagBlazer, log.LogLevel.Info, "SVF file generated. Result code: %i\n<output>\n%s\n</output><stderr>\n%s\n</stderr>" % (
-                result,
-                stdout_result,
-                stderr_result
-            )
-        )
-        
-        # TODO: this could be improved :-D
-        if stdout_result.find("ERROR") >= 0 or len(stderr_result) > 0:
-            error_messages = [ i for i in stdout_result.split('\n') if i.find('ERROR') >= 0 ] 
-            error_messages += '; ' + stderr_result
-            raise JTagBlazerExceptions.ProgrammingGotErrors(
-                    "JTagBlazer raised errors while programming the device: %s" % error_messages
-                )
-        if result != 0:
-            raise JTagBlazerExceptions.ProgrammingGotErrors(
-                    "JTagBlazer returned %i" % result
-                )         
-        
-        return svf_file_name
+#    def _source_to_svf(self, source_file_name, device):
+#        xilinx_impact_path = self._get_property('jtag_blazer_xilinx_impact_full_path')
+#        batch_file_content = self._get_property('jtag_blazer_xilinx_batch_content_' + device.name)
+#        
+#        # 1st step: .(jed|bit) -> .svf using Xilinx Impact
+#        svf_file_name = source_file_name.replace("."+self.get_suffix(), ".svf")
+#        xilinx_batch_file_name = self._create_batch_file(batch_file_content, source_file_name, svf_file_name)
+#        try:
+#            full_cmd_line = xilinx_impact_path + ['-batch', xilinx_batch_file_name]
+#            try:
+#                popen = subprocess.Popen(
+#                    full_cmd_line,
+#                    stdin  = subprocess.PIPE,
+#                    stdout = subprocess.PIPE,
+#                    stderr = subprocess.PIPE
+#                )
+#            except Exception, e:
+#                raise JTagBlazerExceptions.ErrorProgrammingDeviceException(
+#                    "There was an error generating the SVF file: %s" % e
+#                )
+#            # TODO: make use of popen.poll to make this asynchronous
+#            try:
+#                result = popen.wait()
+#            except Exception, e:
+#                raise JTagBlazerExceptions.ErrorWaitingForProgrammingFinishedException(
+#                    "There was an error while waiting for JBManager to generate the SVF file: %s" % e
+#                )    
+#            try:
+#                stdout_result = popen.stdout.read()
+#                stderr_result = popen.stderr.read()
+#            except Exception, e:
+#                raise JTagBlazerExceptions.ErrorRetrievingOutputFromProgrammingProgramException(
+#                    "There was an error while retrieving the output of the SVF file generator program: %s" % e
+#                )
+#        finally:
+#            os.remove(xilinx_batch_file_name)
+#        
+#        log.log(JTagBlazer, log.LogLevel.Info, "SVF file generated. Result code: %i\n<output>\n%s\n</output><stderr>\n%s\n</stderr>" % (
+#                result,
+#                stdout_result,
+#                stderr_result
+#            )
+#        )
+#        
+#        # TODO: this could be improved :-D
+#        if stdout_result.find("ERROR") >= 0 or len(stderr_result) > 0:
+#            error_messages = [ i for i in stdout_result.split('\n') if i.find('ERROR') >= 0 ] 
+#            error_messages += '; ' + stderr_result
+#            raise JTagBlazerExceptions.ProgrammingGotErrors(
+#                    "JTagBlazer raised errors while programming the device: %s" % error_messages
+#                )
+#        if result != 0:
+#            raise JTagBlazerExceptions.ProgrammingGotErrors(
+#                    "JTagBlazer returned %i" % result
+#                )         
+#        
+#        return svf_file_name
         
     def _svf_to_jsvf(self, svf_file_name):    
         jbmanager_svf2jsvf_path = self._get_property('jtag_blazer_jbmanager_svf2jsvf_full_path')
           
-        # 2nd step: .svf -> .jsvf using JBManager
+        # 1st step: .svf -> .jsvf
         jsvf_file_name = svf_file_name.replace(".svf", ".jsvf")
         #try:
         full_cmd_line = jbmanager_svf2jsvf_path + ['-o', jsvf_file_name, svf_file_name]
@@ -151,14 +151,14 @@ class JTagBlazer(object):
         try:
             result = popen.wait()
         except Exception, e:
-            raise JTagBlazerExceptions.ErrorProgrammingDeviceException(
+            raise JTagBlazerExceptions.ErrorWaitingForJTagBlazerSvf2JsvfFinishedException(
                 "There was an error while waiting for JBManager to generate the JSVF file: %s" % e
             )    
         try:
             stdout_result = popen.stdout.read()
             stderr_result = popen.stderr.read()
         except Exception, e:
-            raise JTagBlazerExceptions.ErrorProgrammingDeviceException(
+            raise JTagBlazerExceptions.ErrorRetrievingOutputFromJTagBlazerSvf2JsvfException(
                 "There was an error while retrieving the output of the JSVF file generator program: %s" % e
             )
         #finally:
@@ -170,45 +170,61 @@ class JTagBlazer(object):
                 stderr_result
             )
         )        
+        
+        # TODO: this could be improved :-D
+        if stdout_result.find("ERROR") >= 0 or len(stderr_result) > 0:
+            error_messages = [ i for i in stdout_result.split('\n') if i.find('ERROR') >= 0 ] 
+            error_messages += '; ' + stderr_result
+            raise JTagBlazerExceptions.JTagBlazerSvf2JsvfErrorException(
+                    "JTagBlazer svf2jsvf raised errors while generating the JSVF file: %s" % error_messages
+                )
+        if result != 0:
+            raise JTagBlazerExceptions.JTagBlazerSvf2JsvfErrorException(
+                    "JTagBlazer svf2jsvf returned %i" % result
+                )         
+        
         return jsvf_file_name
         
-    def _program(self, jsvf_file_name, device_ip):
+    def _program(self, device_ip, jsvf_file_name):
         jbmanager_target_path = self._get_property('jtag_blazer_jbmanager_target_full_path')
         
-        # 3rd step: Program the device using JBManager
-        #try:
-        self._reserve_device()
+        # 2nd step: Program the device
         try:
-            full_cmd_line = jbmanager_target_path + [device_ip, jsvf_file_name]
+            self._reserve_device()
             try:
-                popen = subprocess.Popen(
-                    full_cmd_line,
-                    stdin  = subprocess.PIPE,
-                    stdout = subprocess.PIPE,
-                    stderr = subprocess.PIPE
-                )
-            except Exception, e:
-                raise JTagBlazerExceptions.ErrorProgrammingDeviceException(
-                    "There was an error while programming the device: %s" % e
-                )
-            # TODO: make use of popen.poll to make this asynchronous
-            try:
-                result = popen.wait()
-            except Exception, e:
-                raise JTagBlazerExceptions.ErrorProgrammingDeviceException(
-                    "There was an error while waiting for the programming program to finish: %s" % e
-                )    
-            try:
-                stdout_result = popen.stdout.read()
-                stderr_result = popen.stderr.read()
-            except Exception, e:
-                raise JTagBlazerExceptions.ErrorProgrammingDeviceException(
-                    "There was an error while retrieving the output of the programming program: %s" % e
-                )
+                full_cmd_line = jbmanager_target_path + [device_ip, jsvf_file_name]
+                try:
+                    popen = subprocess.Popen(
+                        full_cmd_line,
+                        stdin  = subprocess.PIPE,
+                        stdout = subprocess.PIPE,
+                        stderr = subprocess.PIPE
+                    )
+                except Exception, e:
+                    raise JTagBlazerExceptions.ErrorProgrammingDeviceException(
+                        "There was an error while programming the device: %s" % e
+                    )
+                # TODO: make use of popen.poll to make this asynchronous
+                try:
+                    result = popen.wait()
+                except Exception, e:
+                    raise JTagBlazerExceptions.ErrorWaitingForJTagBlazerTargetFinishedException(
+                        "There was an error while waiting for the programming program to finish: %s" % e
+                    )    
+                try:
+                    stdout_result = popen.stdout.read()
+                    stderr_result = popen.stderr.read()
+                except Exception, e:
+                    raise JTagBlazerExceptions.ErrorRetrievingOutputFromJTagBlazerTargetException(
+                        "There was an error while retrieving the output of the programming program: %s" % e
+                    )
+            finally:
+                self._release_device()
         finally:
-            self._release_device()
-        #finally:
-        #    os.remove(jsvf_file_name)
+            try:
+                os.remove(jsvf_file_name)
+            except OSError:
+                pass
 
         log.log(JTagBlazer, log.LogLevel.Info, "Device programming was finished. Result code: %i\n<output>\n%s\n</output><stderr>\n%s\n</stderr>" % (
                 result,
@@ -221,19 +237,21 @@ class JTagBlazer(object):
         if stdout_result.find("ERROR") >= 0 or len(stderr_result) > 0:
             error_messages = [ i for i in stdout_result.split('\n') if i.find('ERROR') >= 0 ] 
             error_messages += '; ' + stderr_result
-            raise JTagBlazerExceptions.ProgrammingGotErrors(
-                    "JTagBlazer raised errors while programming the device: %s" % error_messages
+            raise JTagBlazerExceptions.JTagBlazerTargetErrorException(
+                    "JTagBlazer target raised errors while programming the device: %s" % error_messages
                 )
         if result != 0:
-            raise JTagBlazerExceptions.ProgrammingGotErrors(
-                    "JTagBlazer returned %i" % result
+            raise JTagBlazerExceptions.JTagBlazerTargetErrorException(
+                    "JTagBlazer target returned %i" % result
                 ) 
         
     @logged()
-    def program_device(self, source_file_name, device):
+    def program_device(self, svf_file_name, device):
         device_ip = self._get_property('jtag_blazer_device_ip_' + device.name)
         
-        svf_file_name = self._source_to_svf(source_file_name, device)
+        if svf_file_name[-4:] != ".svf":
+            raise JTagBlazerExceptions.InvalidSvfFileExtException("Invalid file extension: %s" % svf_file_name)
+        
         jsvf_file_name = self._svf_to_jsvf(svf_file_name)
         self._program(device_ip, jsvf_file_name)
 
@@ -245,36 +263,21 @@ class JTagBlazer(object):
                     "Can't find in configuration manager the property '%s'" % knfe.key
                 )
         return value
-
-    def _create_batch_file(self, content, source_file_name, svf_file_name):
-        fd, file_name = tempfile.mkstemp(prefix='jtag_blazer_xilinx_batch_file_',suffix='.cmd')
-        os.write(fd, content.replace('$SOURCE_FILE', source_file_name).replace('$SVF_FILE', svf_file_name))
-        os.close(fd)
-        return file_name
-
-    def get_suffix(self):
-        return 'file.extension.retrieved.by.jtag.blazer.implementor'
     
 
 class JTagBlazerPLD(JTagBlazer):
     
     def __init__(self, *args, **kargs):
-        super(JTagBlazerPLD,self).__init__(*args, **kargs)
+        super(JTagBlazerPLD, self).__init__(*args, **kargs)
     
-    def program_device(self, jed_file_name):
-        return super(JTagBlazerPLD,self).program_device(jed_file_name, JTagBlazerDevices.PLD)
-    
-    def get_suffix(self):
-        return 'jed'
+    def program_device(self, svf_file_name):
+        return super(JTagBlazerPLD,self).program_device(svf_file_name, JTagBlazerDevices.PLD)
     
 
 class JTagBlazerFPGA(JTagBlazer):
     
     def __init__(self, *args, **kargs):
-        super(JTagBlazerFPGA,self).__init__(*args, **kargs)
+        super(JTagBlazerFPGA, self).__init__(*args, **kargs)
     
-    def program_device(self, bit_file_name):
-        return super(JTagBlazerFPGA,self).program_device(bit_file_name, JTagBlazerDevices.FPGA)
-    
-    def get_suffix(self):
-        return 'bit'
+    def program_device(self, svf_file_name):
+        return super(JTagBlazerFPGA,self).program_device(svf_file_name, JTagBlazerDevices.FPGA)

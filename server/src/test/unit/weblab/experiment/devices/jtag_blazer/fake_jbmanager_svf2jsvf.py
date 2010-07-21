@@ -15,9 +15,9 @@
 
 if __name__ == '__main__':
     import sys
-    if sys.argv[2].find("show error") >= 0:
+    if sys.argv[3] == "svf2jsvf_error.svf":
         print "ERROR: bla bla bla"
-    elif sys.argv[2].find("show stderr") >= 0:
+    elif sys.argv[3] == "svf2jsvf_stderr.svf":
         print >> sys.stderr, "bla bla bla"
-    elif sys.argv[2].find("return -1") >= 0:
+    elif sys.argv[3] == "svf2jsvf_return-1.svf":
         sys.exit(-1)

@@ -15,10 +15,9 @@
 
 if __name__ == '__main__':
     import sys
-    print sys.argv
-    if sys.argv[2].find("show error") >= 0:
+    if sys.argv[2] == "target_error.jsvf":
         print "ERROR: bla bla bla"
-    elif sys.argv[2].find("show stderr") >= 0:
+    elif sys.argv[2] == "target_stderr.jsvf":
         print >> sys.stderr, "bla bla bla"
-    elif sys.argv[2].find("return -1") >= 0:
+    elif sys.argv[2] == "target_return-1.jsvf":
         sys.exit(-1)

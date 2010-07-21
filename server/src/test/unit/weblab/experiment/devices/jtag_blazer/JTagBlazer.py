@@ -28,55 +28,91 @@ class JTagBlazerTestCase(unittest.TestCase):
     def setUp(self):
         self.cfg_manager= ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
+        self._jtag_blazer_fpga = JTagBlazer.JTagBlazerFPGA(self.cfg_manager)
+        self._jtag_blazer_pld = JTagBlazer.JTagBlazerPLD(self.cfg_manager)
 
-    def _test_jtag_blazer(self, jtag_blazer):
-        jtag_blazer.program_device("hello world")
-
+    def test_program_device_ok(self):
+        self._jtag_blazer_fpga.program_device("everything_ok.svf")
+        self._jtag_blazer_pld.program_device("everything_ok.svf")
+        
+    def _test_program_device_errors(self, jtag_blazer):
         self.assertRaises(
-            JTagBlazerExceptions.ProgrammingGotErrors,
+            JTagBlazerExceptions.JTagBlazerSvf2JsvfErrorException,
             jtag_blazer.program_device,
-            "show error"
+            "svf2jsvf_error.svf"
         )
+        
         self.assertRaises(
-            JTagBlazerExceptions.ProgrammingGotErrors,
+            JTagBlazerExceptions.JTagBlazerSvf2JsvfErrorException,
             jtag_blazer.program_device,
-            "show stderr"
+            "svf2jsvf_stderr.svf"
         )
+        
         self.assertRaises(
-            JTagBlazerExceptions.ProgrammingGotErrors,
+            JTagBlazerExceptions.JTagBlazerSvf2JsvfErrorException,
             jtag_blazer.program_device,
-            "return -1"
+            "svf2jsvf_return-1.svf"
+        )    
+        
+        self.assertRaises(
+            JTagBlazerExceptions.JTagBlazerTargetErrorException,
+            jtag_blazer.program_device,
+            "target_error.svf"
         )
-
-    def test_normal(self):
-        self._test_jtag_blazer(JTagBlazer.JTagBlazerFPGA(self.cfg_manager))
-        self._test_jtag_blazer(JTagBlazer.JTagBlazerPLD(self.cfg_manager))
-
-    def test_errors(self):
-        jtag_blazer = JTagBlazer.JTagBlazerFPGA(self.cfg_manager)
+        
+        self.assertRaises(
+            JTagBlazerExceptions.JTagBlazerTargetErrorException,
+            jtag_blazer.program_device,
+            "target_stderr.svf"
+        )
+        
+        self.assertRaises(
+            JTagBlazerExceptions.JTagBlazerTargetErrorException,
+            jtag_blazer.program_device,
+            "target_return-1.svf"
+        )    
+    
         jtag_blazer._busy = True
         self.assertRaises(
             JTagBlazerExceptions.AlreadyProgrammingDeviceException,
             jtag_blazer.program_device,
-            "foo"
+            "file.svf"
         )
         jtag_blazer._busy = False
 
-        self.cfg_manager._values['jtag_blazer_xilinx_impact_full_path'] = ['p0wn3d']
-
+        self.cfg_manager._values['jtag_blazer_jbmanager_svf2jsvf_full_path'] = ['p0wn3d']
         self.assertRaises(
             JTagBlazerExceptions.ErrorProgrammingDeviceException,
             jtag_blazer.program_device,
-            "bar"
+            "file.svf"
         )
-        self.cfg_manager._values.pop('jtag_blazer_xilinx_impact_full_path')
-                
+        
+        self.cfg_manager._values.pop('jtag_blazer_jbmanager_svf2jsvf_full_path')
         self.assertRaises(
             JTagBlazerExceptions.CantFindJTagBlazerProperty,
             jtag_blazer.program_device,
-            "bar"
+            "file.svf"
         )
         self.cfg_manager.reload()
+
+        self.cfg_manager._values['jtag_blazer_jbmanager_target_full_path'] = ['p0wn3d']
+        self.assertRaises(
+            JTagBlazerExceptions.ErrorProgrammingDeviceException,
+            jtag_blazer.program_device,
+            "file.svf"
+        )
+        
+        self.cfg_manager._values.pop('jtag_blazer_jbmanager_target_full_path')
+        self.assertRaises(
+            JTagBlazerExceptions.CantFindJTagBlazerProperty,
+            jtag_blazer.program_device,
+            "file.svf"
+        )
+        self.cfg_manager.reload()
+        
+    def test_program_device_errors(self):
+        self._test_program_device_errors(self._jtag_blazer_fpga)
+        self._test_program_device_errors(self._jtag_blazer_pld)
 
 
 def suite():

@@ -26,17 +26,29 @@ class AlreadyProgrammingDeviceException(DeviceExceptions.AlreadyProgrammingDevic
         
 class ErrorProgrammingDeviceException(DeviceExceptions.ProgrammingDeviceException):
     def __init__(self,*args,**kargs):
-        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
-
-class ErrorRetrievingOutputFromProgrammingProgramException(DeviceExceptions.ProgrammingDeviceException):
+        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)        
+        
+class JTagBlazerSvf2JsvfErrorException(DeviceExceptions.ProgrammingDeviceException):
     def __init__(self,*args,**kargs):
         DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
 
-class ErrorWaitingForProgrammingFinishedException(DeviceExceptions.ProgrammingDeviceException):
+class ErrorRetrievingOutputFromJTagBlazerSvf2JsvfException(DeviceExceptions.ProgrammingDeviceException):
     def __init__(self,*args,**kargs):
         DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
 
-class ProgrammingGotErrors(DeviceExceptions.ProgrammingDeviceException):
+class ErrorWaitingForJTagBlazerSvf2JsvfFinishedException(DeviceExceptions.ProgrammingDeviceException):
+    def __init__(self,*args,**kargs):
+        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
+
+class JTagBlazerTargetErrorException(DeviceExceptions.ProgrammingDeviceException):
+    def __init__(self,*args,**kargs):
+        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
+
+class ErrorRetrievingOutputFromJTagBlazerTargetException(DeviceExceptions.ProgrammingDeviceException):
+    def __init__(self,*args,**kargs):
+        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
+
+class ErrorWaitingForJTagBlazerTargetFinishedException(DeviceExceptions.ProgrammingDeviceException):
     def __init__(self,*args,**kargs):
         DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
 
@@ -45,5 +57,9 @@ class JTagBlazerDeviceNotFoundException(DeviceExceptions.DeviceException):
         DeviceExceptions.DeviceException.__init__(self, *args, **kargs)
 
 class NotAJTagBlazerDeviceEnumException(DeviceExceptions.DeviceException):
+    def __init__(self, *args, **kargs):
+        DeviceExceptions.DeviceException.__init__(self, *args, **kargs)
+
+class InvalidSvfFileExtException(DeviceExceptions.DeviceException):
     def __init__(self, *args, **kargs):
         DeviceExceptions.DeviceException.__init__(self, *args, **kargs)
