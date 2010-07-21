@@ -37,6 +37,12 @@ class JTagBlazerTestCase(unittest.TestCase):
         
     def _test_program_device_errors(self, jtag_blazer):
         self.assertRaises(
+            JTagBlazerExceptions.InvalidSvfFileExtException,
+            jtag_blazer.program_device,
+            "file.svfxxx"
+        )
+        
+        self.assertRaises(
             JTagBlazerExceptions.JTagBlazerSvf2JsvfErrorException,
             jtag_blazer.program_device,
             "svf2jsvf_error.svf"

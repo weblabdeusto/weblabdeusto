@@ -134,35 +134,38 @@ class JTagBlazer(object):
           
         # 1st step: .svf -> .jsvf
         jsvf_file_name = svf_file_name.replace(".svf", ".jsvf")
-        #try:
-        full_cmd_line = jbmanager_svf2jsvf_path + ['-o', jsvf_file_name, svf_file_name]
         try:
-            popen = subprocess.Popen(
-                full_cmd_line,
-                stdin  = subprocess.PIPE,
-                stdout = subprocess.PIPE,
-                stderr = subprocess.PIPE
-            )
-        except Exception, e:
-            raise JTagBlazerExceptions.ErrorProgrammingDeviceException(
-                "There was an error generating the JSVF file: %s" % e
-            )
-        # TODO: make use of popen.poll to make this asynchronous
-        try:
-            result = popen.wait()
-        except Exception, e:
-            raise JTagBlazerExceptions.ErrorWaitingForJTagBlazerSvf2JsvfFinishedException(
-                "There was an error while waiting for JBManager to generate the JSVF file: %s" % e
-            )    
-        try:
-            stdout_result = popen.stdout.read()
-            stderr_result = popen.stderr.read()
-        except Exception, e:
-            raise JTagBlazerExceptions.ErrorRetrievingOutputFromJTagBlazerSvf2JsvfException(
-                "There was an error while retrieving the output of the JSVF file generator program: %s" % e
-            )
-        #finally:
-            #os.remove(svf_file_name)
+            full_cmd_line = jbmanager_svf2jsvf_path + ['-o', jsvf_file_name, svf_file_name]
+            try:
+                popen = subprocess.Popen(
+                    full_cmd_line,
+                    stdin  = subprocess.PIPE,
+                    stdout = subprocess.PIPE,
+                    stderr = subprocess.PIPE
+                )
+            except Exception, e:
+                raise JTagBlazerExceptions.ErrorProgrammingDeviceException(
+                    "There was an error generating the JSVF file: %s" % e
+                )
+            # TODO: make use of popen.poll to make this asynchronous
+            try:
+                result = popen.wait()
+            except Exception, e:
+                raise JTagBlazerExceptions.ErrorWaitingForJTagBlazerSvf2JsvfFinishedException(
+                    "There was an error while waiting for JBManager to generate the JSVF file: %s" % e
+                )    
+            try:
+                stdout_result = popen.stdout.read()
+                stderr_result = popen.stderr.read()
+            except Exception, e:
+                raise JTagBlazerExceptions.ErrorRetrievingOutputFromJTagBlazerSvf2JsvfException(
+                    "There was an error while retrieving the output of the JSVF file generator program: %s" % e
+                )
+        finally:
+            try:
+                os.remove(svf_file_name)
+            except OSError:
+                pass
             
         log.log(JTagBlazer, log.LogLevel.Info, "JSVF file generated. Result code: %i\n<output>\n%s\n</output><stderr>\n%s\n</stderr>" % (
                 result,
