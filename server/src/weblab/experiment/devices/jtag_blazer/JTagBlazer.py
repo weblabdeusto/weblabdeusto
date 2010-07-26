@@ -21,24 +21,8 @@ import threading
 import voodoo.log as log
 from voodoo.log import logged
 
-import weblab.experiment.devices.jtag_blazer.JTagBlazerDevices as JTagBlazerDevices
 import voodoo.exceptions.configuration.ConfigurationExceptions as ConfigurationExceptions
 import weblab.exceptions.experiment.devices.jtag_blazer.JTagBlazerExceptions as JTagBlazerExceptions
-
-
-def create(jtag_blazer_device, cfg_manager):
-    if not JTagBlazerDevices.isJTagBlazerDevices(jtag_blazer_device):
-        raise JTagBlazerExceptions.NotAJTagBlazerDeviceEnumException(
-                "Not a JTagBlazer Device Enumeration: %s" % jtag_blazer_device
-            )
-    if jtag_blazer_device == JTagBlazerDevices.FPGA:
-        return JTagBlazerFPGA(cfg_manager)
-    elif jtag_blazer_device == JTagBlazerDevices.PLD:
-        return JTagBlazerPLD(cfg_manager)
-    else:
-        raise JTagBlazerExceptions.JTagBlazerDeviceNotFoundException(
-                "Couldn't find jtag_blazer device gateway: %s" % jtag_blazer_device.name
-            )
 
 
 class JTagBlazer(object):
@@ -190,9 +174,7 @@ class JTagBlazer(object):
                 ) 
         
     @logged()
-    def program_device(self, svf_file_name, device):
-        device_ip = self._get_property('xilinx_jtag_blazer_device_ip_' + device.name)
-        
+    def program_device(self, svf_file_name, device_ip):
         if svf_file_name[-4:] != ".svf":
             raise JTagBlazerExceptions.InvalidSvfFileExtException("Invalid file extension: %s" % svf_file_name)
         
@@ -207,21 +189,3 @@ class JTagBlazer(object):
                     "Can't find in configuration manager the property '%s'" % knfe.key
                 )
         return value
-    
-
-class JTagBlazerPLD(JTagBlazer):
-    
-    def __init__(self, *args, **kargs):
-        super(JTagBlazerPLD, self).__init__(*args, **kargs)
-    
-    def program_device(self, svf_file_name):
-        return super(JTagBlazerPLD,self).program_device(svf_file_name, JTagBlazerDevices.PLD)
-    
-
-class JTagBlazerFPGA(JTagBlazer):
-    
-    def __init__(self, *args, **kargs):
-        super(JTagBlazerFPGA, self).__init__(*args, **kargs)
-    
-    def program_device(self, svf_file_name):
-        return super(JTagBlazerFPGA,self).program_device(svf_file_name, JTagBlazerDevices.FPGA)

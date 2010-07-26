@@ -138,8 +138,8 @@ login_facade_xmlrpc_port      = 19445
 xilinx_home = "."
 xilinx_impact_full_path = ["python","./test/unit/weblab/experiment/devices/xilinx_impact/fake_impact.py" ]
 
-xilinx_use_jtag_blazer_to_program = True # if not, 'Xilinx'
-xilinx_use_http_to_send_commands  = True # if not, 'SerialPort'
+xilinx_use_jtag_blazer_to_program = False # if not, 'Xilinx'
+xilinx_use_http_to_send_commands  = False # if not, 'SerialPort'
 
 # Only when using Xilinx to program the device:
 
@@ -196,9 +196,13 @@ exit
 
 xilinx_jtag_blazer_device_ip_FPGA = "192.168.50.137"
 xilinx_http_device_ip_FPGA        = "192.168.50.138"
+xilinx_http_device_port_FPGA      = 80
+xilinx_http_device_app_FPGA       = ""
 
 xilinx_jtag_blazer_device_ip_PLD = "192.168.50.139"
 xilinx_http_device_ip_PLD        = "192.168.50.140"
+xilinx_http_device_port_PLD      = 80
+xilinx_http_device_app_PLD       = ""
 
 ######################
 # GPIB configuration #

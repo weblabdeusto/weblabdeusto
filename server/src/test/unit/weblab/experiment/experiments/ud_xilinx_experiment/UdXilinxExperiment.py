@@ -26,6 +26,8 @@ class FakeImpact(object):
         super(FakeImpact,self).__init__()
     def program_device(self, program_path):
         pass
+    def source2svf(self, program_path):
+        pass
     def get_suffix(self):
         return "whatever"
 
@@ -44,95 +46,140 @@ class FakeSerialPort(object):
     def close_serial_port(self):
         self._increment('close')
 
+class FakeJTagBlazer(object):
+    def __init__(self):
+        super(FakeJTagBlazer,self).__init__()
+    def program_device(self, svf_file_name, device_ip):
+        pass
+
+class FakeHttpDevice(object):
+    def __init__(self):
+        super(FakeHttpDevice, self).__init__()
+        self.sent = 0
+        self.msgs = []
+    def send_message(self, msg):
+        self.sent += len(msg)
+        self.msgs.append(msg)
+        
+
 class UdXilinxExperimentTestCase(unittest.TestCase):
-    def test_general(self):
+    
+    def test_xilinx_with_serial_port(self):
+
         cfg_manager= ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration_module)
-        uxm = UdXilinxExperiment.UdXilinxExperiment(
+        
+        cfg_manager._set_value('xilinx_use_jtag_blazer_to_program', False)
+        cfg_manager._set_value('xilinx_use_http_to_send_commands', False)
+        
+        self.uxm = UdXilinxExperiment.UdXilinxExperiment(
                 None,
                 None,
                 cfg_manager
-            )
-
+            )        
+        
         # Hook _xilinx_impact and _serial_port
-        uxm._xilinx_impact = FakeImpact()
-        uxm._serial_port   = FakeSerialPort()
-
-        self.assertEquals(
-                0,
-                uxm._serial_port.dict['open']
-            )
-        self.assertEquals(
-                0,
-                uxm._serial_port.dict['close']
-            )
-        self.assertEquals(
-                0,
-                uxm._serial_port.dict['send']
-            )
-        self.assertEquals(
-                0,
-                len(uxm._serial_port.codes)
-            )
+        self.uxm._xilinx_impact = FakeImpact()
+        self.uxm._serial_port   = FakeSerialPort()
 
         # No problem
-        uxm.do_send_file_to_device(ExperimentUtil.serialize(open(__file__).read()), 'program')
+        self.uxm.do_send_file_to_device(ExperimentUtil.serialize("whatever " * 400), 'program')
 
-        initial_open  = 1
+        initial_open  = 20
         initial_send  = 20
-        initial_close = 1
+        initial_close = 20
 
         self.assertEquals(
                 initial_open,
-                uxm._serial_port.dict['open']
+                self.uxm._serial_port.dict['open']
             )
         self.assertEquals(
                 initial_close,
-                uxm._serial_port.dict['close']
+                self.uxm._serial_port.dict['close']
             )
         self.assertEquals(
                 initial_send,
-                uxm._serial_port.dict['send']
+                self.uxm._serial_port.dict['send']
             )
         self.assertEquals(
                 initial_send,
-                len(uxm._serial_port.codes)
+                len(self.uxm._serial_port.codes)
             )
 
 
-        uxm.do_send_command_to_device("ClockActivation off, ClockActivation on 1500, SetPulse on 3")
+        self.uxm.do_send_command_to_device("ClockActivation off, ClockActivation on 1500, SetPulse on 3")
 
         self.assertEquals(
                 1 + initial_open,
-                uxm._serial_port.dict['open']
+                self.uxm._serial_port.dict['open']
             )
         self.assertEquals(
                 1 + initial_close,
-                uxm._serial_port.dict['close']
+                self.uxm._serial_port.dict['close']
             )
         self.assertEquals(
                 3 + initial_send,
-                uxm._serial_port.dict['send']
+                self.uxm._serial_port.dict['send']
             )
         self.assertEquals(
                 3 + initial_send,
-                len(uxm._serial_port.codes)
+                len(self.uxm._serial_port.codes)
             )
         self.assertEquals(
                 37,
-                uxm._serial_port.codes[0 + initial_send]
+                self.uxm._serial_port.codes[0 + initial_send]
             )
 
         self.assertEquals(
                 35,
-                uxm._serial_port.codes[1 + initial_send]
+                self.uxm._serial_port.codes[1 + initial_send]
             )
 
         self.assertEquals(
                 27,
-                uxm._serial_port.codes[2 + initial_send]
+                self.uxm._serial_port.codes[2 + initial_send]
             )
 
+    def test_jtag_blazer_with_http(self):
+
+        cfg_manager= ConfigurationManager.ConfigurationManager()
+        cfg_manager.append_module(configuration_module)
+        
+        cfg_manager._set_value('xilinx_use_jtag_blazer_to_program', True)
+        cfg_manager._set_value('xilinx_use_http_to_send_commands', True)
+        
+        self.uxm = UdXilinxExperiment.UdXilinxExperiment(
+                None,
+                None,
+                cfg_manager
+            )        
+
+        # Hook _xilinx_impact and _serial_port
+        self.uxm._jtag_blazer = FakeJTagBlazer()
+        self.uxm._http_device = FakeHttpDevice()
+
+        # No problem
+        self.uxm.do_send_file_to_device(ExperimentUtil.serialize("whatever " * 400), 'program')
+
+        initial_send  = 20
+
+        self.assertEquals(
+                initial_send,
+                len(self.uxm._http_device.msgs)
+            )
+
+        self.uxm.do_send_command_to_device("ClockActivation off, ClockActivation on 1500, SetPulse on 3")
+
+        self.assertEquals(
+                1 + initial_send,
+                len(self.uxm._http_device.msgs)
+            )
+        
+        self.assertEquals(
+                "ClockActivation off, ClockActivation on 1500, SetPulse on 3",
+                self.uxm._http_device.msgs[0 + initial_send]
+            )
+        
 def suite():
     return unittest.makeSuite(UdXilinxExperimentTestCase)
 

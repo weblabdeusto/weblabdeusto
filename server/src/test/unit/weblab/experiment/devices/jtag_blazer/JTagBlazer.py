@@ -28,95 +28,89 @@ class JTagBlazerTestCase(unittest.TestCase):
     def setUp(self):
         self.cfg_manager= ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
-        self._jtag_blazer_fpga = JTagBlazer.JTagBlazerFPGA(self.cfg_manager)
-        self._jtag_blazer_pld = JTagBlazer.JTagBlazerPLD(self.cfg_manager)
+        self._jtag_blazer = JTagBlazer.JTagBlazer(self.cfg_manager)
 
     def test_program_device_ok(self):
-        self._jtag_blazer_fpga.program_device("everything_ok.svf")
-        self._jtag_blazer_pld.program_device("everything_ok.svf")
+        self._jtag_blazer.program_device("everything_ok.svf", "0.0.0.0")
         
     def test_program_device_errors(self):
-        self._test_program_device_errors(self._jtag_blazer_fpga)
-        self._test_program_device_errors(self._jtag_blazer_pld)
-        
-    def _test_program_device_errors(self, jtag_blazer):
         self.assertRaises(
             JTagBlazerExceptions.InvalidSvfFileExtException,
-            jtag_blazer.program_device,
-            "file.svfxxx"
+            self._jtag_blazer.program_device,
+            "file.svfxxx", "0.0.0.0"
         )
         
         self.assertRaises(
             JTagBlazerExceptions.JTagBlazerSvf2JsvfErrorException,
-            jtag_blazer.program_device,
-            "svf2jsvf_error.svf"
+            self._jtag_blazer.program_device,
+            "svf2jsvf_error.svf", "0.0.0.0"
         )
         
         self.assertRaises(
             JTagBlazerExceptions.JTagBlazerSvf2JsvfErrorException,
-            jtag_blazer.program_device,
-            "svf2jsvf_stderr.svf"
+            self._jtag_blazer.program_device,
+            "svf2jsvf_stderr.svf", "0.0.0.0"
         )
         
         self.assertRaises(
             JTagBlazerExceptions.JTagBlazerSvf2JsvfErrorException,
-            jtag_blazer.program_device,
-            "svf2jsvf_return-1.svf"
+            self._jtag_blazer.program_device,
+            "svf2jsvf_return-1.svf", "0.0.0.0"
         )    
         
         self.assertRaises(
             JTagBlazerExceptions.JTagBlazerTargetErrorException,
-            jtag_blazer.program_device,
-            "target_error.svf"
+            self._jtag_blazer.program_device,
+            "target_error.svf", "0.0.0.0"
         )
         
         self.assertRaises(
             JTagBlazerExceptions.JTagBlazerTargetErrorException,
-            jtag_blazer.program_device,
-            "target_stderr.svf"
+            self._jtag_blazer.program_device,
+            "target_stderr.svf", "0.0.0.0"
         )
         
         self.assertRaises(
             JTagBlazerExceptions.JTagBlazerTargetErrorException,
-            jtag_blazer.program_device,
-            "target_return-1.svf"
+            self._jtag_blazer.program_device,
+            "target_return-1.svf", "0.0.0.0"
         )    
     
-        jtag_blazer._busy = True
+        self._jtag_blazer._busy = True
         self.assertRaises(
             JTagBlazerExceptions.AlreadyProgrammingDeviceException,
-            jtag_blazer.program_device,
-            "file.svf"
+            self._jtag_blazer.program_device,
+            "file.svf", "0.0.0.0"
         )
-        jtag_blazer._busy = False
+        self._jtag_blazer._busy = False
 
         self.cfg_manager._values['xilinx_jtag_blazer_jbmanager_svf2jsvf_full_path'] = ['p0wn3d']
         self.assertRaises(
             JTagBlazerExceptions.ErrorProgrammingDeviceException,
-            jtag_blazer.program_device,
-            "file.svf"
+            self._jtag_blazer.program_device,
+            "file.svf", "0.0.0.0"
         )
         
         self.cfg_manager._values.pop('xilinx_jtag_blazer_jbmanager_svf2jsvf_full_path')
         self.assertRaises(
             JTagBlazerExceptions.CantFindJTagBlazerProperty,
-            jtag_blazer.program_device,
-            "file.svf"
+            self._jtag_blazer.program_device,
+            "file.svf", "0.0.0.0"
         )
         self.cfg_manager.reload()
 
         self.cfg_manager._values['xilinx_jtag_blazer_jbmanager_target_full_path'] = ['p0wn3d']
         self.assertRaises(
             JTagBlazerExceptions.ErrorProgrammingDeviceException,
-            jtag_blazer.program_device,
-            "file.svf"
+            self._jtag_blazer.program_device,
+            "file.svf", "0.0.0.0"
         )
         
         self.cfg_manager._values.pop('xilinx_jtag_blazer_jbmanager_target_full_path')
         self.assertRaises(
             JTagBlazerExceptions.CantFindJTagBlazerProperty,
-            jtag_blazer.program_device,
-            "file.svf"
+            self._jtag_blazer.program_device,
+            "file.svf", "0.0.0.0"
         )
         self.cfg_manager.reload()
 
