@@ -138,6 +138,11 @@ login_facade_xmlrpc_port      = 19445
 xilinx_home = "."
 xilinx_impact_full_path = ["python","./test/unit/weblab/experiment/devices/xilinx_impact/fake_impact.py" ]
 
+xilinx_use_jtag_blazer_to_program = True # if not, 'Xilinx'
+xilinx_use_http_to_send_commands  = True # if not, 'SerialPort'
+
+# Only when using Xilinx to program the device:
+
 xilinx_batch_content_FPGA = """setMode -bs
 setCable -port auto
 addDevice -position 1 -file $FILE
@@ -155,18 +160,21 @@ Program -p 1 -e -defaultVersion 0
 quit
 """
 
-weblab_xilinx_experiment_xilinx_device = 'PLD'
+# Only when using JTagBlazer to program the device:
+
+xilinx_jtag_blazer_jbmanager_svf2jsvf_full_path = ["python","./test/unit/weblab/experiment/devices/jtag_blazer/fake_jbmanager_svf2jsvf.py" ]
+xilinx_jtag_blazer_jbmanager_target_full_path   = ["python","./test/unit/weblab/experiment/devices/jtag_blazer/fake_jbmanager_target.py" ]
+
+
+# Only when using Serial Port to send commands to the device:
+
 weblab_xilinx_experiment_port_number   = 1
+weblab_xilinx_experiment_xilinx_device = 'PLD'
 
-############################
-# JTagBlazer configuration #
-############################
-
-jtag_blazer_jbmanager_svf2jsvf_full_path = ["python","./test/unit/weblab/experiment/devices/jtag_blazer/fake_jbmanager_svf2jsvf.py" ]
-jtag_blazer_jbmanager_target_full_path   = ["python","./test/unit/weblab/experiment/devices/jtag_blazer/fake_jbmanager_target.py" ]
+# Only when using HTTP to send commands to the device:
 
 # Must check the really needed commands for FPGA!
-jtag_blazer_xilinx_batch_content_FPGA = """setMode -bs
+xilinx_jtag_blazer_batch_content_FPGA = """setMode -bs
 setMode -bs
 setMode -bs
 setMode -bs
@@ -176,7 +184,7 @@ Program -p 1 -e -v
 exit
 """
 
-jtag_blazer_xilinx_batch_content_PLD = """setMode -bs
+xilinx_jtag_blazer_batch_content_PLD = """setMode -bs
 setMode -bs
 setMode -bs
 setMode -bs
@@ -186,8 +194,11 @@ Program -p 1 -e -v
 exit
 """
 
-jtag_blazer_device_ip_FPGA = "192.168.50.137"
-jtag_blazer_device_ip_PLD  = "192.168.50.138"
+xilinx_jtag_blazer_device_ip_FPGA = "192.168.50.137"
+xilinx_http_device_ip_FPGA        = "192.168.50.138"
+
+xilinx_jtag_blazer_device_ip_PLD = "192.168.50.139"
+xilinx_http_device_ip_PLD        = "192.168.50.140"
 
 ######################
 # GPIB configuration #

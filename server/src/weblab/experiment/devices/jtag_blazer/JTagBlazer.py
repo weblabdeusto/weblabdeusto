@@ -15,7 +15,6 @@
 # 
 
 import os
-import tempfile
 import subprocess
 import threading
 
@@ -71,66 +70,8 @@ class JTagBlazer(object):
         self._busy = False
         self._lock.release()
         
-#    def _source_to_svf(self, source_file_name, device):
-#        xilinx_impact_path = self._get_property('jtag_blazer_xilinx_impact_full_path')
-#        batch_file_content = self._get_property('jtag_blazer_xilinx_batch_content_' + device.name)
-#        
-#        # 1st step: .(jed|bit) -> .svf using Xilinx Impact
-#        svf_file_name = source_file_name.replace("."+self.get_suffix(), ".svf")
-#        xilinx_batch_file_name = self._create_batch_file(batch_file_content, source_file_name, svf_file_name)
-#        try:
-#            full_cmd_line = xilinx_impact_path + ['-batch', xilinx_batch_file_name]
-#            try:
-#                popen = subprocess.Popen(
-#                    full_cmd_line,
-#                    stdin  = subprocess.PIPE,
-#                    stdout = subprocess.PIPE,
-#                    stderr = subprocess.PIPE
-#                )
-#            except Exception, e:
-#                raise JTagBlazerExceptions.ErrorProgrammingDeviceException(
-#                    "There was an error generating the SVF file: %s" % e
-#                )
-#            # TODO: make use of popen.poll to make this asynchronous
-#            try:
-#                result = popen.wait()
-#            except Exception, e:
-#                raise JTagBlazerExceptions.ErrorWaitingForProgrammingFinishedException(
-#                    "There was an error while waiting for JBManager to generate the SVF file: %s" % e
-#                )    
-#            try:
-#                stdout_result = popen.stdout.read()
-#                stderr_result = popen.stderr.read()
-#            except Exception, e:
-#                raise JTagBlazerExceptions.ErrorRetrievingOutputFromProgrammingProgramException(
-#                    "There was an error while retrieving the output of the SVF file generator program: %s" % e
-#                )
-#        finally:
-#            os.remove(xilinx_batch_file_name)
-#        
-#        log.log(JTagBlazer, log.LogLevel.Info, "SVF file generated. Result code: %i\n<output>\n%s\n</output><stderr>\n%s\n</stderr>" % (
-#                result,
-#                stdout_result,
-#                stderr_result
-#            )
-#        )
-#        
-#        # TODO: this could be improved :-D
-#        if stdout_result.find("ERROR") >= 0 or len(stderr_result) > 0:
-#            error_messages = [ i for i in stdout_result.split('\n') if i.find('ERROR') >= 0 ] 
-#            error_messages += '; ' + stderr_result
-#            raise JTagBlazerExceptions.ProgrammingGotErrors(
-#                    "JTagBlazer raised errors while programming the device: %s" % error_messages
-#                )
-#        if result != 0:
-#            raise JTagBlazerExceptions.ProgrammingGotErrors(
-#                    "JTagBlazer returned %i" % result
-#                )         
-#        
-#        return svf_file_name
-        
     def _svf_to_jsvf(self, svf_file_name):    
-        jbmanager_svf2jsvf_path = self._get_property('jtag_blazer_jbmanager_svf2jsvf_full_path')
+        jbmanager_svf2jsvf_path = self._get_property('xilinx_jtag_blazer_jbmanager_svf2jsvf_full_path')
           
         # 1st step: .svf -> .jsvf
         jsvf_file_name = svf_file_name.replace(".svf", ".jsvf")
@@ -189,7 +130,7 @@ class JTagBlazer(object):
         return jsvf_file_name
         
     def _program(self, device_ip, jsvf_file_name):
-        jbmanager_target_path = self._get_property('jtag_blazer_jbmanager_target_full_path')
+        jbmanager_target_path = self._get_property('xilinx_jtag_blazer_jbmanager_target_full_path')
         
         # 2nd step: Program the device
         try:
@@ -250,7 +191,7 @@ class JTagBlazer(object):
         
     @logged()
     def program_device(self, svf_file_name, device):
-        device_ip = self._get_property('jtag_blazer_device_ip_' + device.name)
+        device_ip = self._get_property('xilinx_jtag_blazer_device_ip_' + device.name)
         
         if svf_file_name[-4:] != ".svf":
             raise JTagBlazerExceptions.InvalidSvfFileExtException("Invalid file extension: %s" % svf_file_name)

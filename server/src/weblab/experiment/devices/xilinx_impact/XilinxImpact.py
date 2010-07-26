@@ -69,13 +69,13 @@ class XilinxImpact(object):
 
     @logged()
     def program_device(self, program_path, device):
-        file_content, xilinx_impact = self._parse_configuration(device)
+        file_content, xilinx_impact, _ = self._parse_configuration(device)
 
         cmd_file_name = self._create_batch_file(file_content,program_path)
         try:
             self._reserve_device()
             try:
-                res, out, err = self._program(cmd_file_name, xilinx_impact)
+                res, out, err = self._execute(cmd_file_name, xilinx_impact)
             finally:
                 self._release_device()
         finally:
@@ -95,9 +95,31 @@ class XilinxImpact(object):
                     "Impact returned %i" % res
                 )
 
+    @logged()
+    def source2svf(self, source_file_full_name, device):
+        _, xilinx_impact, file_content = self._parse_configuration(device)
+        
+        cmd_file_name = self._create_source2svf_batch_file(file_content, source_file_full_name)
+        try:
+            res, out, err = self._execute(cmd_file_name, xilinx_impact)
+        finally:
+            os.remove(cmd_file_name)
 
+        self._log(res,out,err)
+
+        # TODO: this could be improved :-D
+        if out.find("ERROR") >= 0 or len(err) > 0:
+            error_messages = [ i for i in out.split('\n') if i.find('ERROR') >= 0 ] 
+            error_messages += '; ' + err
+            raise XilinxImpactExceptions.GeneratingSvfFileGotErrors(
+                    "Impact raised errors while generating the .SVF file: %s" % error_messages
+                )
+        if res != 0:
+            raise XilinxImpactExceptions.GeneratingSvfFileGotErrors(
+                    "Impact returned %i" % res
+                )        
     
-    def _program(self, cmd_file_name, xilinx_impact):
+    def _execute(self, cmd_file_name, xilinx_impact):
         full_cmd_line = xilinx_impact + ['-batch',cmd_file_name]
 
         try:
@@ -109,14 +131,14 @@ class XilinxImpact(object):
             )
         except Exception, e:
             raise XilinxImpactExceptions.ErrorProgrammingDeviceException(
-                "There was an error while programming the device: %s" % e
+                "There was an error while executing Xilinx Impact: %s" % e
             )
         # TODO: make use of popen.poll to make this asynchronous
         try:
             result = popen.wait()
         except Exception, e:
             raise XilinxImpactExceptions.ErrorWaitingForProgrammingFinishedException(
-                "There was an error while waiting for the programming program to finish: %s" % e
+                "There was an error while waiting for Xilinx Impact to finish: %s" % e
             )
 
         try:
@@ -124,26 +146,32 @@ class XilinxImpact(object):
             stderr_result = popen.stderr.read()
         except Exception, e:
             raise XilinxImpactExceptions.ErrorRetrievingOutputFromProgrammingProgramException(
-                "There was an error while retrieving the output of the programming program: %s" % e
+                "There was an error while retrieving the output of Xilinx Impact: %s" % e
             )
         return result, stdout_result, stderr_result
 
     def _parse_configuration(self, device):
         try:
-            file_content = self._cfg_manager.get_value('xilinx_batch_content_' + device.name)
+            program_file_content = self._cfg_manager.get_value('xilinx_batch_content_' + device.name)
             xilinx_impact = self._cfg_manager.get_value('xilinx_impact_full_path')
+            svf2jsvf_file_content = self._cfg_manager.get_value('xilinx_jtag_blazer_batch_content_' + device.name)
         except ConfigurationExceptions.KeyNotFoundException,knfe:
             raise XilinxImpactExceptions.CantFindXilinxProperty(
                     "Can't find in configuration manager the property '%s'" % knfe.key
                 )
-        return file_content, xilinx_impact
+        return program_file_content, xilinx_impact, svf2jsvf_file_content
 
     def _create_batch_file(self, content, program_path):
         fd, file_name = tempfile.mkstemp(prefix='xilinx_batch_file_',suffix='.cmd')
         os.write(fd, content.replace('$FILE',program_path))
         os.close(fd)
         return file_name
-
+    
+    def _create_source2svf_batch_file(self, content, source_file_full_name):
+        fd, file_name = tempfile.mkstemp(prefix='xilinx_source2svf_batch_file_',suffix='.cmd')
+        os.write(fd, content.replace('$SOURCE_FILE', source_file_full_name).replace('$SVF_FILE', source_file_full_name.replace('.'+self.get_suffix(), '.svf')))
+        os.close(fd)
+        return file_name    
 
     def _log(self, result_code, output, stderr):
         log.log(XilinxImpact,log.LogLevel.Info,"Device programming was finished. Result code: %i\n<output>\n%s\n</output><stderr>\n%s\n</stderr>" % (
@@ -160,6 +188,8 @@ class XilinxImpactPLD(XilinxImpact):
         super(XilinxImpactPLD,self).__init__(*args, **kargs)
     def program_device(self, program):
         return super(XilinxImpactPLD,self).program_device( program, XilinxDevices.PLD)
+    def source2svf(self, program):
+        return super(XilinxImpactPLD,self).source2svf( program, XilinxDevices.PLD)
     def get_suffix(self):
         return 'jed'
 
@@ -168,6 +198,7 @@ class XilinxImpactFPGA(XilinxImpact):
         super(XilinxImpactFPGA,self).__init__(*args, **kargs)
     def program_device(self, program):
         return super(XilinxImpactFPGA,self).program_device( program, XilinxDevices.FPGA)
+    def source2svf(self, program):
+        return super(XilinxImpactFPGA,self).source2svf( program, XilinxDevices.FPGA)
     def get_suffix(self):
         return 'bit'
-

@@ -35,6 +35,10 @@ class JTagBlazerTestCase(unittest.TestCase):
         self._jtag_blazer_fpga.program_device("everything_ok.svf")
         self._jtag_blazer_pld.program_device("everything_ok.svf")
         
+    def test_program_device_errors(self):
+        self._test_program_device_errors(self._jtag_blazer_fpga)
+        self._test_program_device_errors(self._jtag_blazer_pld)
+        
     def _test_program_device_errors(self, jtag_blazer):
         self.assertRaises(
             JTagBlazerExceptions.InvalidSvfFileExtException,
@@ -86,14 +90,14 @@ class JTagBlazerTestCase(unittest.TestCase):
         )
         jtag_blazer._busy = False
 
-        self.cfg_manager._values['jtag_blazer_jbmanager_svf2jsvf_full_path'] = ['p0wn3d']
+        self.cfg_manager._values['xilinx_jtag_blazer_jbmanager_svf2jsvf_full_path'] = ['p0wn3d']
         self.assertRaises(
             JTagBlazerExceptions.ErrorProgrammingDeviceException,
             jtag_blazer.program_device,
             "file.svf"
         )
         
-        self.cfg_manager._values.pop('jtag_blazer_jbmanager_svf2jsvf_full_path')
+        self.cfg_manager._values.pop('xilinx_jtag_blazer_jbmanager_svf2jsvf_full_path')
         self.assertRaises(
             JTagBlazerExceptions.CantFindJTagBlazerProperty,
             jtag_blazer.program_device,
@@ -101,24 +105,20 @@ class JTagBlazerTestCase(unittest.TestCase):
         )
         self.cfg_manager.reload()
 
-        self.cfg_manager._values['jtag_blazer_jbmanager_target_full_path'] = ['p0wn3d']
+        self.cfg_manager._values['xilinx_jtag_blazer_jbmanager_target_full_path'] = ['p0wn3d']
         self.assertRaises(
             JTagBlazerExceptions.ErrorProgrammingDeviceException,
             jtag_blazer.program_device,
             "file.svf"
         )
         
-        self.cfg_manager._values.pop('jtag_blazer_jbmanager_target_full_path')
+        self.cfg_manager._values.pop('xilinx_jtag_blazer_jbmanager_target_full_path')
         self.assertRaises(
             JTagBlazerExceptions.CantFindJTagBlazerProperty,
             jtag_blazer.program_device,
             "file.svf"
         )
         self.cfg_manager.reload()
-        
-    def test_program_device_errors(self):
-        self._test_program_device_errors(self._jtag_blazer_fpga)
-        self._test_program_device_errors(self._jtag_blazer_pld)
 
 
 def suite():
