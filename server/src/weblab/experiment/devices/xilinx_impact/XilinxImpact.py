@@ -69,7 +69,7 @@ class XilinxImpact(object):
 
     @logged()
     def program_device(self, program_path, device):
-        file_content, xilinx_impact, _ = self._parse_configuration(device)
+        file_content, xilinx_impact = self._parse_configuration_to_program(device)
 
         cmd_file_name = self._create_batch_file(file_content,program_path)
         try:
@@ -97,7 +97,7 @@ class XilinxImpact(object):
 
     @logged()
     def source2svf(self, source_file_full_name, device):
-        _, xilinx_impact, file_content = self._parse_configuration(device)
+        file_content, xilinx_impact = self._parse_configuration_to_source2svf(device)
         
         cmd_file_name = self._create_source2svf_batch_file(file_content, source_file_full_name)
         try:
@@ -150,16 +150,25 @@ class XilinxImpact(object):
             )
         return result, stdout_result, stderr_result
 
-    def _parse_configuration(self, device):
+    def _parse_configuration_to_program(self, device):
         try:
             program_file_content = self._cfg_manager.get_value('xilinx_batch_content_' + device.name)
             xilinx_impact = self._cfg_manager.get_value('xilinx_impact_full_path')
-            svf2jsvf_file_content = self._cfg_manager.get_value('xilinx_jtag_blazer_batch_content_' + device.name)
         except ConfigurationExceptions.KeyNotFoundException,knfe:
             raise XilinxImpactExceptions.CantFindXilinxProperty(
                     "Can't find in configuration manager the property '%s'" % knfe.key
                 )
-        return program_file_content, xilinx_impact, svf2jsvf_file_content
+        return program_file_content, xilinx_impact
+
+    def _parse_configuration_to_source2svf(self, device):
+        try:
+            svf2jsvf_file_content = self._cfg_manager.get_value('xilinx_jtag_blazer_batch_content_' + device.name)
+            xilinx_impact = self._cfg_manager.get_value('xilinx_impact_full_path')
+        except ConfigurationExceptions.KeyNotFoundException,knfe:
+            raise XilinxImpactExceptions.CantFindXilinxProperty(
+                    "Can't find in configuration manager the property '%s'" % knfe.key
+                )
+        return svf2jsvf_file_content, xilinx_impact
 
     def _create_batch_file(self, content, program_path):
         fd, file_name = tempfile.mkstemp(prefix='xilinx_batch_file_',suffix='.cmd')

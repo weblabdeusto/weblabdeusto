@@ -52,7 +52,6 @@ class UdXilinxExperiment(Experiment.Experiment):
         self._cfg_manager = cfg_manager
 
         xilinx_device = cfg_manager.get_value('weblab_xilinx_experiment_xilinx_device')
-        port_number   = cfg_manager.get_value('weblab_xilinx_experiment_port_number')
         
         # Expect a certain name for the webcam url config depending on the device name.
         cfg_webcam_url = "%s_webcam_url" % xilinx_device.lower()
@@ -85,9 +84,10 @@ class UdXilinxExperiment(Experiment.Experiment):
             http_app = cfg_manager.get_value('xilinx_http_device_app_' + self._xilinx_device.name)
             self._http_device = self._create_http_device(http_ip, http_port, http_app)
         else:
+            self._port_number = cfg_manager.get_value('weblab_xilinx_experiment_port_number')
             self._serial_port = self._create_serial_port()
         
-        self._port_number   = port_number
+        
 
         self._serial_port_lock = threading.Lock()
         
