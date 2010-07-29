@@ -18,6 +18,7 @@ import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
+import es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard;
 import es.deusto.weblab.client.lab.experiments.util.applets.flash.WebLabFlashAppBasedBoard;
 
 public class VisirFlashBoard extends WebLabFlashAppBasedBoard {
@@ -51,15 +52,15 @@ public class VisirFlashBoard extends WebLabFlashAppBasedBoard {
 	public void start() {
 		
 		// Request the visir session "cookie" to the server.
-		VisirCookieRequestCommand reqCookie = new VisirCookieRequestCommand();
-		boardController.sendCommand(reqCookie, 
+		final VisirCookieRequestCommand reqCookie = new VisirCookieRequestCommand();
+		AbstractExternalAppBasedBoard.boardController.sendCommand(reqCookie, 
 				new IResponseCommandCallback() {
 
 					@Override
 					public void onSuccess(ResponseCommand responseCommand) {
-						cookie = responseCommand.getCommandString();
+						VisirFlashBoard.this.cookie = responseCommand.getCommandString();
 						
-						VisirFlashBoard.this.setCookie(cookie);
+						VisirFlashBoard.this.setCookie(VisirFlashBoard.this.cookie);
 						VisirFlashBoard.super.start();
 					}
 
@@ -83,7 +84,7 @@ public class VisirFlashBoard extends WebLabFlashAppBasedBoard {
 	 */
 	protected void setCookie(String cookie) {
 		this.cookie = cookie;
-		String flashvars = "cookie="+cookie;
+		final String flashvars = "cookie="+cookie;
 		this.setFlashVars(flashvars);
 	}
 }

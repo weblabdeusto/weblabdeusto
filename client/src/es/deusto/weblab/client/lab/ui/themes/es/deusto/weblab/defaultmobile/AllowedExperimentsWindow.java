@@ -76,8 +76,8 @@ class AllowedExperimentsWindow extends BaseWindow {
 			this.loggedPanel.contentPanel.clear();
 			this.loggedPanel.contentPanel.add(wid);
 		
-			loadExperiments();
-		}catch(Exception e){
+			this.loadExperiments();
+		}catch(final Exception e){
 			e.printStackTrace();
 		}
 	}

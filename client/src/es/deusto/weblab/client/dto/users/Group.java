@@ -21,8 +21,8 @@ public class Group {
 	private int id;
 	private String name;
 	private Group parent;
-	private ArrayList<Group> children;
-	private ArrayList<User> users;
+	private final ArrayList<Group> children;
+	private final ArrayList<User> users;
 	
 	public Group(String name) {
 		super();

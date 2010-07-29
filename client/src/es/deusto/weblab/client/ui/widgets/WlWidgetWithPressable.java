@@ -75,6 +75,7 @@ public abstract class WlWidgetWithPressable extends VerticalPanel implements IWl
 		this.actionListenerContainer.fireActionListeners(this);
 	}
 	
+	@Override
 	public void press(){
 		this.changeState(this.currentImage,this.oldImage);
 		this.toggleCurrent();

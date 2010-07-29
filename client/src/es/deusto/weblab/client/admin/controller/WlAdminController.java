@@ -38,8 +38,8 @@ import es.deusto.weblab.client.dto.users.User;
 
 public class WlAdminController implements IWlAdminController {
 
-	private IConfigurationManager configurationManager;
-	private IWlAdminCommunication communications;
+	private final IConfigurationManager configurationManager;
+	private final IWlAdminCommunication communications;
 	private IUIManager uimanager;
 	private SessionID currentSession;
 	
@@ -56,10 +56,12 @@ public class WlAdminController implements IWlAdminController {
 	@Override
 	public void login(String username, String password) {
 		this.communications.login(username, password, new ISessionIdCallback(){
+			@Override
 			public void onSuccess(SessionID sessionId) {
 				WlAdminController.this.startSession(sessionId);
 			}
 
+			@Override
 			public void onFailure(WlCommException e) {
 				if(e instanceof LoginException){
 					WlAdminController.this.uimanager.onWrongLoginOrPasswordGiven();
@@ -78,10 +80,12 @@ public class WlAdminController implements IWlAdminController {
 	@Override
 	public void logout() {
 		this.communications.logout(this.currentSession, new IVoidCallback(){
+			@Override
 			public void onSuccess() {
 				WlAdminController.this.uimanager.onLoggedOut();
 			}
 			
+			@Override
 			public void onFailure(WlCommException e) {
 				WlAdminController.this.uimanager.onErrorAndFinishSession(e.getMessage());
 			}
@@ -92,10 +96,12 @@ public class WlAdminController implements IWlAdminController {
 		this.currentSession = sessionID;
 		
 		this.communications.getUserInformation(this.currentSession, new IUserInformationCallback(){
+			@Override
 			public void onSuccess(final User userInformation) {
 				WlAdminController.this.uimanager.onLoggedIn(userInformation);
 			}
 			
+			@Override
 			public void onFailure(WlCommException e) {
 				WlAdminController.this.uimanager.onError(e.getMessage());
 			}
@@ -105,10 +111,12 @@ public class WlAdminController implements IWlAdminController {
 	@Override
 	public void getUsers() {
 		this.communications.getUsers(this.currentSession, new IUsersCallback(){
+			@Override
 			public void onSuccess(final ArrayList<User> users) {
 				WlAdminController.this.uimanager.onUsersRetrieved(users);
 			}
 			
+			@Override
 			public void onFailure(WlCommException e) {
 				WlAdminController.this.uimanager.onError(e.getMessage());
 			}
@@ -118,10 +126,12 @@ public class WlAdminController implements IWlAdminController {
 	@Override
 	public void getExperiments() {
 		this.communications.getExperiments(this.currentSession, new IExperimentsCallback(){
+			@Override
 			public void onSuccess(final ArrayList<Experiment> experiments) {
 				WlAdminController.this.uimanager.onExperimentsRetrieved(experiments);
 			}
 			
+			@Override
 			public void onFailure(WlCommException e) {
 				WlAdminController.this.uimanager.onError(e.getMessage());
 			}
@@ -131,10 +141,12 @@ public class WlAdminController implements IWlAdminController {
 	@Override
 	public void getGroups() {
 		this.communications.getGroups(this.currentSession, new IGroupsCallback(){
+			@Override
 			public void onSuccess(final ArrayList<Group> groups) {
 				WlAdminController.this.uimanager.onGroupsRetrieved(groups);
 			}
 			
+			@Override
 			public void onFailure(WlCommException e) {
 				WlAdminController.this.uimanager.onError(e.getMessage());
 			}
@@ -144,11 +156,13 @@ public class WlAdminController implements IWlAdminController {
 	@Override
 	public void getExperimentUses(Date fromDate, Date toDate, Group group, Experiment experiment) {
 
-		IExperimentUsesCallback callback = new IExperimentUsesCallback() {
+		final IExperimentUsesCallback callback = new IExperimentUsesCallback() {
+			@Override
 			public void onSuccess(final ArrayList<ExperimentUse> experimentUses) {
 				WlAdminController.this.uimanager.onExperimentUsesRetrieved(experimentUses);
 			}
 			
+			@Override
 			public void onFailure(WlCommException e) {
 				WlAdminController.this.uimanager.onError(e.getMessage());
 			}

@@ -60,18 +60,22 @@ public class UploadStructure extends Widget implements HasAlignment{
 		this.panel.remove(information);
 	}
 
+	@Override
 	public HorizontalAlignmentConstant getHorizontalAlignment() {
 		return this.panel.getHorizontalAlignment();
 	}
 
+	@Override
 	public void setHorizontalAlignment(HorizontalAlignmentConstant align) {
 		this.panel.setHorizontalAlignment(align);
 	}
 
+	@Override
 	public VerticalAlignmentConstant getVerticalAlignment() {
 		return this.panel.getVerticalAlignment();
 	}
 
+	@Override
 	public void setVerticalAlignment(VerticalAlignmentConstant align) {
 		this.panel.setVerticalAlignment(align);
 	}

@@ -21,16 +21,16 @@ import es.deusto.weblab.client.dto.users.Group;
 public class AdminPanelWindowHelper {
 
 	public ArrayList<Group> extractGroupsTreeToList(ArrayList<Group> tree) {
-		ArrayList<Group> list = new ArrayList<Group>();
-		extractGroupsTreeToListRecursively(tree, list);
+		final ArrayList<Group> list = new ArrayList<Group>();
+		this.extractGroupsTreeToListRecursively(tree, list);
 		return list;
 	}	
 	
 	private void extractGroupsTreeToListRecursively(ArrayList<Group> tree, ArrayList<Group> list) {
-		for ( Group group: tree ) {
+		for ( final Group group: tree ) {
 			list.add(group);
 			if ( group.getChildren().size() > 0 ) {
-				extractGroupsTreeToListRecursively(group.getChildren(), list);
+				this.extractGroupsTreeToListRecursively(group.getChildren(), list);
 			}
 		}
 	}

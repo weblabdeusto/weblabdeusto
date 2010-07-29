@@ -29,11 +29,13 @@ class ClockActivationListener implements IWlClockActivationListener{
 		this.commandCallback = commandCallback;
 	}
 
+	@Override
 	public void onActivate(int value) {
 		final Command command = new ClockActivationCommand(value);
 		this.commandSender.sendCommand(command, this.commandCallback);
 	}
 
+	@Override
 	public void onDeactivate() {
 		final Command command = new ClockDeactivationCommand();
 		this.commandSender.sendCommand(command, this.commandCallback);

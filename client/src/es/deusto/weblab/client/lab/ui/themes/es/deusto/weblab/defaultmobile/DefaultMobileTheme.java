@@ -176,6 +176,7 @@ public class DefaultMobileTheme extends WlLabThemeBase {
 		this.clearWindow();
 
 		this.loginWindow = new LoginWindow(this.configurationManager, new ILoginWindowCallback(){
+			@Override
 			public void onLoginButtonClicked(String username, String password) {
 				DefaultMobileTheme.this.controller.login(username, password);
 			}			
@@ -189,11 +190,13 @@ public class DefaultMobileTheme extends WlLabThemeBase {
 		this.clearWindow();
 
 		this.allowedExperimentsWindow = new AllowedExperimentsWindow(this.configurationManager, this.user, this.experimentsAllowed, new IAllowedExperimentsWindowCallback(){
+			@Override
 			public void onChooseExperimentButtonClicked(
 					ExperimentAllowed experimentAllowed) {
 				DefaultMobileTheme.this.controller.chooseExperiment(experimentAllowed);
 			}
 
+			@Override
 			public void onLogoutButtonClicked() {
 				DefaultMobileTheme.this.controller.logout();
 			}
@@ -207,18 +210,22 @@ public class DefaultMobileTheme extends WlLabThemeBase {
 		this.clearWindow();
 
 		this.experimentWindow = new ExperimentWindow(this.configurationManager, this.user, this.experimentAllowed, this.experimentBase, new IExperimentWindowCallback(){
+			@Override
 			public void onReserveButtonClicked() {
 				DefaultMobileTheme.this.controller.reserveExperiment(DefaultMobileTheme.this.experimentAllowed.getExperiment().getExperimentUniqueName());
 			}
 
+			@Override
 			public void onBackButtonClicked() {
 				DefaultMobileTheme.this.loadAllowedExperimentsWindow();
 			}
 
+			@Override
 			public void onFinishButtonClicked() {
 				DefaultMobileTheme.this.controller.finishReservation();
 			}
 
+			@Override
 			public void onLogoutButtonClicked() {
 				DefaultMobileTheme.this.controller.finishReservationAndLogout();
 			}

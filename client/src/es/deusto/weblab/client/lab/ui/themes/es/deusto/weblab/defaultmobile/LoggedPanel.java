@@ -46,13 +46,13 @@ class LoggedPanel extends Composite {
 	
 	// DTOs
 	private final User user;
-    private ILoggedPanelCallback callback;
+    private final ILoggedPanelCallback callback;
 	
     LoggedPanel(User user, ILoggedPanelCallback callback) {
 		this.user = user;
 		this.callback = callback;
 	
-	    final Widget wid = uiBinder.createAndBindUi(this);
+	    final Widget wid = LoggedPanel.uiBinder.createAndBindUi(this);
 	    this.initWidget(wid);
 
 		this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));

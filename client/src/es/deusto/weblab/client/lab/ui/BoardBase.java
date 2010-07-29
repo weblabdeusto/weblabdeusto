@@ -66,6 +66,7 @@ public abstract class BoardBase implements IWlWidget{
 	public abstract void setTime(int time);
 
 	// The method "end" should be called instead of dispose.
+	@Override
 	public final void dispose(){
 	    this.end();
 	}	

@@ -101,7 +101,7 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 		
 		this.createProvidedWidgets();
 		
-		uiBinder.createAndBindUi(this);
+		WlDeustoXilinxBasedBoard.uiBinder.createAndBindUi(this);
 		
 		this.webcamPanel.add(this.webcam.getWidget());
 		
@@ -152,6 +152,7 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 		this.timer = new WlTimer(false);
 		
 		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
+			@Override
 			public void onFinished() {
 				WlDeustoXilinxBasedBoard.this.boardController.onClean();
 			}
@@ -202,7 +203,7 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 		    @Override
 		    public void onFailure(WlCommException e) {
 		    	
-			    if(DEBUG_ENABLED)
+			    if(WlDeustoXilinxBasedBoard.DEBUG_ENABLED)
 			    	WlDeustoXilinxBasedBoard.this.enableInteractiveWidgets();
 			    
 		    	WlDeustoXilinxBasedBoard.this.messages.stop();
@@ -347,12 +348,16 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 	
 	protected IResponseCommandCallback getResponseCommandCallback(){
 	    return new IResponseCommandCallback(){
-		    public void onSuccess(ResponseCommand responseCommand) {
-			GWT.log("responseCommand: success", null);
+		    @Override
+			public void onSuccess(ResponseCommand responseCommand) {
+	    		GWT.log("responseCommand: success", null);
 		    }
 
-		    public void onFailure(WlCommException e) {
-			GWT.log("responseCommand: failure", null);
+		    @Override
+			public void onFailure(WlCommException e) {
+    			GWT.log("responseCommand: failure", null);
+    			WlDeustoXilinxBasedBoard.this.messages.stop();
+    			WlDeustoXilinxBasedBoard.this.messages.setText("Error sending command: " + e.getMessage());
 		    }
 		};	    
 	}

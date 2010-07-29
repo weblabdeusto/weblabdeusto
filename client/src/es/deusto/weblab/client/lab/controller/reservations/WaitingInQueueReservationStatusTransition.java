@@ -25,8 +25,8 @@ public abstract class WaitingInQueueReservationStatusTransition extends GeneralW
 	
 	@Override
 	protected int getPollTime(ReservationStatus reservationStatus) {
-		int position = this.getPosition(reservationStatus);
-		int pollTime = (position + 1) * this.getMinPollTime();
+		final int position = this.getPosition(reservationStatus);
+		final int pollTime = (position + 1) * this.getMinPollTime();
 		if(pollTime > this.getMaxPollTime())
 			return this.getMaxPollTime();
 		else

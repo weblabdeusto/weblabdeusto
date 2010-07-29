@@ -63,6 +63,7 @@ public class WlClockActivator extends HorizontalPanel implements IWlWidget{
 		this.deactivate = new Button();
 		
 		this.activate.addClickHandler(new ClickHandler(){
+			@Override
 			public void onClick(ClickEvent sender) {
 				if(WlClockActivator.this.listener != null){
 					try {
@@ -78,6 +79,7 @@ public class WlClockActivator extends HorizontalPanel implements IWlWidget{
 		});
 		
 		this.deactivate.addClickHandler(new ClickHandler(){
+			@Override
 			public void onClick(ClickEvent sender) {
 				if(WlClockActivator.this.listener != null)
 					WlClockActivator.this.listener.onDeactivate();
@@ -92,6 +94,7 @@ public class WlClockActivator extends HorizontalPanel implements IWlWidget{
 		this.horizontalPanel.add(this.deactivate);
 	}
 	
+	@Override
 	public void dispose(){
 		this.numberChooser.dispose();
 	}

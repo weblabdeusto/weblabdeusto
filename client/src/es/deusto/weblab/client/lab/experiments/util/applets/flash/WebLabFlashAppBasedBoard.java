@@ -150,7 +150,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 			WebLabFlashAppBasedBoard.populateIframe(this.swfFile, this.width, 
 					this.height, this.flashvars);
 		
-			Timer t = new Timer() {
+			final Timer t = new Timer() {
 				
 				@Override
 				public void run() {
@@ -162,7 +162,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 				
 			};
 			
-			t.schedule(WAIT_AFTER_START);
+			t.schedule(WebLabFlashAppBasedBoard.WAIT_AFTER_START);
 		} else {
 				WebLabFlashAppBasedBoard.findFlashReference();
 				AbstractExternalAppBasedBoard.startInteractionImpl();

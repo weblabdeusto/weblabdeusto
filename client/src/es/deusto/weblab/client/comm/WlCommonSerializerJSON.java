@@ -55,16 +55,18 @@ public class WlCommonSerializerJSON implements IWlCommonSerializer {
 		return request.toString();
     }
     
+	@Override
 	public SessionID parseLoginResponse(String responseText)
 			throws SerializationException, InvalidCredentialsException,
 			LoginException, UserProcessingException, WlServerException {
 				// "{\"result\": {\"id\": \"svAsc-rCIKLP1qeU\"}}"
 				final JSONObject result = this.parseResultObject(responseText);
-				String sessionIdStr = this.json2string(result.get("id"));
+				final String sessionIdStr = this.json2string(result.get("id"));
 				final SessionID sessionId = new SessionID(sessionIdStr);
 				return sessionId;
 			}
 
+	@Override
 	public String serializeLoginRequest(String username, String password)
 			throws SerializationException {
 				// {"params": {"username": "student1", "password": "password"}, "method": "login"}
@@ -74,19 +76,22 @@ public class WlCommonSerializerJSON implements IWlCommonSerializer {
 				return this.serializeRequest("login", params);
 			}
 	
-    public void parseLogoutResponse(String responseText)
+    @Override
+	public void parseLogoutResponse(String responseText)
 	    throws SerializationException, WlServerException {
 		this.parseResultObject(responseText);
     }
     
-    public String serializeLogoutRequest(SessionID sessionId) throws SerializationException {
+    @Override
+	public String serializeLogoutRequest(SessionID sessionId) throws SerializationException {
 		// {"params": {"session_id": {"id": "RqpLBRTlRW8ZVN1d"}}, "method": "logout"}
 		final JSONObject params = new JSONObject();
-		params.put("session_id", serializeSessionId(sessionId));
+		params.put("session_id", this.serializeSessionId(sessionId));
 		return this.serializeRequest("logout", params);
     }
     
-    public User parseGetUserInformationResponse(String responseText)
+    @Override
+	public User parseGetUserInformationResponse(String responseText)
     	throws SerializationException, SessionNotFoundException, UserProcessingException, WlServerException {
 		//"{\"result\": {\"login\": \"student1\", \"email\": \"porduna@tecnologico.deusto.es\", 
 		// \"full_name\": \"Name of student 1\", \"role\": {\"name\": \"student\"}}, \"is_exception\": false}"
@@ -95,6 +100,7 @@ public class WlCommonSerializerJSON implements IWlCommonSerializer {
 		return this.parseUser(result);
 	}  
 
+	@Override
 	public String serializeGetUserInformationRequest(SessionID sessionId) throws SerializationException {
 		final JSONObject params = new JSONObject();
 		params.put("session_id", this.serializeSessionId(sessionId));
@@ -138,7 +144,7 @@ public class WlCommonSerializerJSON implements IWlCommonSerializer {
 	}  
 
     protected Role parseRole(JSONObject jsonRole) throws SerializationException {
-    	Role role = new Role();
+    	final Role role = new Role();
     	role.setName(this.json2string(jsonRole.get("name")));
     	return role;
 	}
@@ -148,10 +154,10 @@ public class WlCommonSerializerJSON implements IWlCommonSerializer {
 		final String email    = this.json2string(jsonUser.get("email"));
 		final String fullName = this.json2string(jsonUser.get("full_name"));
 		
-	    JSONValue roleValue = jsonUser.get("role");
+	    final JSONValue roleValue = jsonUser.get("role");
 	    if(roleValue == null)
 	    	throw new SerializationException("Expected role field in User");
-	    JSONObject jsonRole = roleValue.isObject();
+	    final JSONObject jsonRole = roleValue.isObject();
 	    if(jsonRole == null)
 	    	throw new SerializationException("Expected JSON Object as Role, found: " + roleValue);
 	    final Role role = this.parseRole(jsonRole);
@@ -170,47 +176,47 @@ public class WlCommonSerializerJSON implements IWlCommonSerializer {
 	}
 	
 	protected Experiment parseExperiment(JSONObject jsonExperiment) throws SerializationException {
-	    Experiment experiment = new Experiment();
+	    final Experiment experiment = new Experiment();
 	    
 	    // id
-	    JSONValue jsonIdValue = jsonExperiment.get("id");
+	    final JSONValue jsonIdValue = jsonExperiment.get("id");
 	    if(jsonIdValue == null)
 	    	throw new SerializationException("Expected id field in Experiment");
 	    experiment.setId(this.json2int(jsonIdValue));
 	    
 	    // name
-	    JSONValue jsonNameValue = jsonExperiment.get("name");
+	    final JSONValue jsonNameValue = jsonExperiment.get("name");
 	    if(jsonNameValue == null)
 	    	throw new SerializationException("Expected name field in Experiment");
 	    experiment.setName(this.json2string(jsonNameValue));
 	    
 	    // category
-	    JSONValue jsonCategoryValue = jsonExperiment.get("category");
+	    final JSONValue jsonCategoryValue = jsonExperiment.get("category");
 	    if(jsonCategoryValue == null)
 	    	throw new SerializationException("Expected category field in Experiment");
-	    JSONObject jsonCategory = jsonCategoryValue.isObject();
+	    final JSONObject jsonCategory = jsonCategoryValue.isObject();
 	    if(jsonCategory == null)
 	    	throw new SerializationException("Expected JSON Object as Category, found: " + jsonCategoryValue);
 	    experiment.setCategory(new Category(this.json2string(jsonCategory.get("name"))));
 	    
 	    // startDate && endDate
-	    String startDateString = this.json2string(jsonExperiment.get("start_date"));
-	    String endDateString   = this.json2string(jsonExperiment.get("end_date"));
-	    DateTimeFormat formatter1 = DateTimeFormat.getFormat("yyyy-MM-dd");
-	    DateTimeFormat formatter2 = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss");
-	    DateTimeFormat formatter3 = DateTimeFormat.getFormat("yyyy-MM-ddTHH:mm:ss");
+	    final String startDateString = this.json2string(jsonExperiment.get("start_date"));
+	    final String endDateString   = this.json2string(jsonExperiment.get("end_date"));
+	    final DateTimeFormat formatter1 = DateTimeFormat.getFormat("yyyy-MM-dd");
+	    final DateTimeFormat formatter2 = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss");
+	    final DateTimeFormat formatter3 = DateTimeFormat.getFormat("yyyy-MM-ddTHH:mm:ss");
 	    try {
 			experiment.setStartDate(formatter1.parse(startDateString));
 			experiment.setEndDate(formatter1.parse(endDateString));
-	    } catch( IllegalArgumentException iae ) {
+	    } catch( final IllegalArgumentException iae ) {
 			try{
 			    experiment.setStartDate(formatter2.parse(startDateString));
 			    experiment.setEndDate(formatter2.parse(endDateString));
-			}catch(IllegalArgumentException iae2){
+			}catch(final IllegalArgumentException iae2){
 				try{
 				    experiment.setStartDate(formatter3.parse(startDateString));
 				    experiment.setEndDate(formatter3.parse(endDateString));
-				}catch(IllegalArgumentException iae3){
+				}catch(final IllegalArgumentException iae3){
 				    throw new SerializationException("Couldn't parse date: " + startDateString + "; or: " + endDateString);
 				}
 			}
@@ -221,7 +227,7 @@ public class WlCommonSerializerJSON implements IWlCommonSerializer {
 
 	protected JSONObject parseResultObject(String response)
 			throws SerializationException, WlServerException {
-				final JSONValue result = parseResult(response);
+				final JSONValue result = this.parseResult(response);
 				final JSONObject resultObject = result.isObject();
 				if(resultObject == null)
 				    throw new SerializationException("Expecting an object as a result; found: " + result);
@@ -230,7 +236,7 @@ public class WlCommonSerializerJSON implements IWlCommonSerializer {
 
 	protected JSONArray parseResultArray(String response)
 			throws SerializationException, WlServerException {
-				final JSONValue result = parseResult(response);
+				final JSONValue result = this.parseResult(response);
 				final JSONArray resultArray = result.isArray();
 				if(resultArray == null)
 				    throw new SerializationException("Expecting an array as a result; found: " + result);
@@ -242,9 +248,9 @@ public class WlCommonSerializerJSON implements IWlCommonSerializer {
 				final JSONValue value;
 				try {
 				    value = JSONParser.parse(response);
-				} catch (IllegalArgumentException e) {
+				} catch (final IllegalArgumentException e) {
 				    throw new SerializationException("Invalid response: " + e.getMessage());
-				} catch (JSONException e){
+				} catch (final JSONException e){
 				    throw new SerializationException("Invalid response: " + e.getMessage());
 				}
 				final JSONObject responseObject = value.isObject();
@@ -254,7 +260,7 @@ public class WlCommonSerializerJSON implements IWlCommonSerializer {
 				final JSONValue isException = responseObject.get("is_exception");
 				final JSONBoolean isExceptionB = isException.isBoolean();
 				if(isExceptionB.booleanValue())
-				    throwException(responseObject);
+				    this.throwException(responseObject);
 				
 				final JSONValue result = responseObject.get("result");
 				if(result == null)
@@ -265,7 +271,7 @@ public class WlCommonSerializerJSON implements IWlCommonSerializer {
 	protected String json2string(JSONValue value) throws SerializationException {
 		if(value == null)
 		    throw new SerializationException("String expected, found null");
-		JSONString jsonstring = value.isString();
+		final JSONString jsonstring = value.isString();
 		if(jsonstring == null)
 		    throw new SerializationException("String expected, found: " + value);
 		return jsonstring.stringValue();
@@ -274,7 +280,7 @@ public class WlCommonSerializerJSON implements IWlCommonSerializer {
 	protected double json2double(JSONValue value) throws SerializationException {
 		if(value == null)
 		    throw new SerializationException("Double expected, found null");
-		JSONNumber jsonnumber = value.isNumber();
+		final JSONNumber jsonnumber = value.isNumber();
 		if(jsonnumber == null)
 		    throw new SerializationException("Double expected, found: " + value);
 		return jsonnumber.doubleValue();
@@ -283,7 +289,7 @@ public class WlCommonSerializerJSON implements IWlCommonSerializer {
 	protected int json2int(JSONValue value) throws SerializationException {
 		if(value == null)
 		    throw new SerializationException("Int expected, found null");
-		JSONNumber jsonnumber = value.isNumber();
+		final JSONNumber jsonnumber = value.isNumber();
 		if(jsonnumber == null)
 		    throw new SerializationException("Int expected, found: " + value);
 		return (int)jsonnumber.doubleValue();

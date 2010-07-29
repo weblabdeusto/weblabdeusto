@@ -77,12 +77,12 @@ public class WebLabClient implements EntryPoint {
 	}
 	
 	private boolean isMobile(){
-		final String urlSaysIsMobile = Window.Location.getParameter(MOBILE_URL_PARAM);
+		final String urlSaysIsMobile = Window.Location.getParameter(WebLabClient.MOBILE_URL_PARAM);
 		return urlSaysIsMobile != null && (urlSaysIsMobile.toLowerCase().equals("yes") || urlSaysIsMobile.toLowerCase().equals("true")); 
 	}
 	
 	private boolean wantsAdminApp(){
-		final String urlSaysWantsAdminApp = Window.Location.getParameter(ADMIN_URL_PARAM);
+		final String urlSaysWantsAdminApp = Window.Location.getParameter(WebLabClient.ADMIN_URL_PARAM);
 		return urlSaysWantsAdminApp != null && (urlSaysWantsAdminApp.toLowerCase().equals("yes") || urlSaysWantsAdminApp.toLowerCase().equals("true")); 
 	}	
 	
@@ -95,12 +95,12 @@ public class WebLabClient implements EntryPoint {
 
 	public static void refresh(String locale){
 		String newUrl = Window.Location.getPath() + "?";
-		Map<String, List<String>> parameters = Window.Location.getParameterMap();
+		final Map<String, List<String>> parameters = Window.Location.getParameterMap();
 
-		for(String parameter : parameters.keySet())
+		for(final String parameter : parameters.keySet())
 		    if(!parameter.equals(WebLabClient.LOCALE_URL_PARAM)){
         		    String value = "";
-        		    for(String v : parameters.get(parameter))
+        		    for(final String v : parameters.get(parameter))
         		    	value = v;
         		    newUrl += parameter + "=" + value + "&";
 		    }
@@ -118,7 +118,7 @@ public class WebLabClient implements EntryPoint {
 				WebLabClient.this.configurationManager 
 		);
 		
-		final boolean isUsingMobile = isMobile();
+		final boolean isUsingMobile = this.isMobile();
 		
 		final IWlLabController controller = new WlLabController(
 				WebLabClient.this.configurationManager,
@@ -140,7 +140,7 @@ public class WebLabClient implements EntryPoint {
 						theme.onInit();
 					else
 						controller.startLoggedIn(new SessionID(sessionId));
-				}catch(Exception e){
+				}catch(final Exception e){
 					WebLabClient.this.showError("Error initializing theme: " + e.getMessage());
 					e.printStackTrace();
 					return;
@@ -151,7 +151,7 @@ public class WebLabClient implements EntryPoint {
 			
 			@Override
 			public void onFailure(Throwable e) {
-				showError("Error creating theme: " + e.getMessage() + "; " + e);
+				WebLabClient.this.showError("Error creating theme: " + e.getMessage() + "; " + e);
 				return;
 			}
 		};
@@ -167,8 +167,8 @@ public class WebLabClient implements EntryPoint {
 					isUsingMobile,
 					themeLoadedCallback
 				);
-		} catch (Exception e){
-			showError("Error creating theme: " + e.getMessage() + "; " + e);
+		} catch (final Exception e){
+			this.showError("Error creating theme: " + e.getMessage() + "; " + e);
 			return;
 		}	
 	}
@@ -196,7 +196,7 @@ public class WebLabClient implements EntryPoint {
 						theme.onInit();
 					else
 						controller.startLoggedIn(new SessionID(sessionId));
-				}catch(Exception e){
+				}catch(final Exception e){
 					WebLabClient.this.showError("Error initializing theme: " + e.getMessage());
 					e.printStackTrace();
 					return;
@@ -207,7 +207,7 @@ public class WebLabClient implements EntryPoint {
 			
 			@Override
 			public void onFailure(Throwable e) {
-				showError("Error creating theme: " + e.getMessage() + "; " + e);
+				WebLabClient.this.showError("Error creating theme: " + e.getMessage() + "; " + e);
 				return;
 			}
 		};
@@ -222,12 +222,13 @@ public class WebLabClient implements EntryPoint {
 						),
 					themeLoadedCallback
 				);
-		} catch (Exception e){
-			showError("Error creating theme: " + e.getMessage() + "; " + e);
+		} catch (final Exception e){
+			this.showError("Error creating theme: " + e.getMessage() + "; " + e);
 			return;
 		}
 	}
 	
+	@Override
 	public void onModuleLoad() {
 		final WlWaitingLabel loadingLabel = new WlWaitingLabel("Loading WebLab-Deusto");
 		loadingLabel.start();
@@ -238,6 +239,7 @@ public class WebLabClient implements EntryPoint {
 		final String configFile = GWT.isScript() ? WebLabClient.SCRIPT_CONFIG_FILE : WebLabClient.HOSTED_CONFIG_FILE;
 		
 		this.configurationManager = new ConfigurationManager(configFile, new IConfigurationLoadedCallback(){
+			@Override
 			public void onLoaded() {
 				if ( WebLabClient.this.wantsAdminApp() ) {
 					GWT.runAsync(new RunAsyncCallback() {
@@ -260,6 +262,7 @@ public class WebLabClient implements EntryPoint {
 				}
 			}
 
+			@Override
 			public void onFailure(Throwable t) {
 				WebLabClient.this.showError("Error loading configuration file: " + t.getMessage());
 			}

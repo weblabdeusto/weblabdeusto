@@ -36,6 +36,7 @@ public class WlSwitch extends WlWidgetWithPressable{
 		this.switchedDownImage = new Image(switchedOffImageUrl);
 		
 		final ClickHandler clickListener = new ClickHandler(){
+			@Override
 			public void onClick(ClickEvent sender) {
 				WlSwitch.this.switchedOn = !WlSwitch.this.switchedOn;
 				WlSwitch.this.press();
@@ -52,6 +53,7 @@ public class WlSwitch extends WlWidgetWithPressable{
 	}
 	
 	
+	@Override
 	public void dispose(){}
 	
 	public boolean isSwitched(){

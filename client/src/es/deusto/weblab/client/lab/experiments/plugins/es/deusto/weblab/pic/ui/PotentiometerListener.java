@@ -32,6 +32,7 @@ class PotentiometerListener implements IWlActionListener{
 		return decimals;
 	}
 	
+	@Override
 	public void onAction(IWlWidget widget) {
 		if(widget instanceof WlPotentiometer){
 			final WlPotentiometer potentiometer = (WlPotentiometer)widget;

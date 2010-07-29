@@ -26,7 +26,7 @@ public class CircuitParser {
 	try{
 	    final JSONValue value = JSONParser.parse(serializedCircuit);
 	    return new Circuit((Gate)this.parseInput(value));
-	}catch(Exception e){
+	}catch(final Exception e){
 	    throw new InvalidCircuitException("Invalid serialized circuit!" + e.getMessage(), e);
 	}
     }

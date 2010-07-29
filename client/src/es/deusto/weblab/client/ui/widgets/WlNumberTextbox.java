@@ -44,14 +44,15 @@ public abstract class WlNumberTextbox extends WlNumberTextBoxBase {
 		this.setText(defaultValue);
 		
 		this.textBox.addKeyPressHandler(new KeyPressHandler(){
-
-		    	public void onKeyPress(KeyPressEvent event) {
+		    	@Override
+				public void onKeyPress(KeyPressEvent event) {
 				if(!WlNumberTextbox.this.isDigit(event.getCharCode()) && !WlNumberTextbox.this.isMoveKey(event.getCharCode()))
 					((TextBox)event.getSource()).cancelKey();
 			}
 		});
 		
 		this.textBox.addChangeHandler(new ChangeHandler() {
+			@Override
 			public void onChange(ChangeEvent sender) {
 				WlNumberTextbox.this.fireActionListeners();
 			}

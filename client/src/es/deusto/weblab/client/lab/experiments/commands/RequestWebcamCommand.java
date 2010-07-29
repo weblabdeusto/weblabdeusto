@@ -45,7 +45,7 @@ public class RequestWebcamCommand extends Command{
 		final int eqsign = requestResponse.indexOf("=");
 		if(eqsign == -1)
 			return null;
-		String url = requestResponse.substring(eqsign+1);
+		final String url = requestResponse.substring(eqsign+1);
 		return url;
 	}
 	
@@ -69,7 +69,7 @@ public class RequestWebcamCommand extends Command{
 
 					@Override
 					public void onSuccess(ResponseCommand responseCommand) {
-						String url = RequestWebcamCommand.retrieveWebcamURL(responseCommand.getCommandString());
+						final String url = RequestWebcamCommand.retrieveWebcamURL(responseCommand.getCommandString());
 						if(url != null && url.length() > 0)
 							webcam.setUrl(url);
 					}

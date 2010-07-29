@@ -120,6 +120,7 @@ public class WlLabController implements IWlLabController {
 		public void run();
 	}
 	
+	@Override
 	public void setUIManager(IUIManager uimanager){
 		this.uimanager = uimanager;
 	}
@@ -142,10 +143,12 @@ public class WlLabController implements IWlLabController {
 		this.currentSession = sessionID;
 		
 		this.communications.getUserInformation(this.currentSession, new IUserInformationCallback(){
+			@Override
 			public void onSuccess(final User userInformation) {
 				WlLabController.this.uimanager.onLoggedIn(userInformation);
 			}
 			
+			@Override
 			public void onFailure(WlCommException e) {
 				WlLabController.this.uimanager.onError(e.getMessage());
 			}
@@ -155,10 +158,12 @@ public class WlLabController implements IWlLabController {
 	@Override
 	public void login(String username, String password){
 		this.communications.login(username, password, new ISessionIdCallback(){
+			@Override
 			public void onSuccess(SessionID sessionId) {
 				WlLabController.this.startSession(sessionId);
 			}
 
+			@Override
 			public void onFailure(WlCommException e) {
 				if(e instanceof LoginException){
 					WlLabController.this.uimanager.onWrongLoginOrPasswordGiven();
@@ -177,10 +182,12 @@ public class WlLabController implements IWlLabController {
 	@Override
 	public void logout(){
 		this.communications.logout(this.currentSession, new IVoidCallback(){
+			@Override
 			public void onSuccess() {
 				WlLabController.this.uimanager.onLoggedOut();
 			}
 			
+			@Override
 			public void onFailure(WlCommException e) {
 				WlLabController.this.uimanager.onErrorAndFinishSession(e.getMessage());
 			}
@@ -190,10 +197,12 @@ public class WlLabController implements IWlLabController {
 	@Override
 	public void retrieveAllowedExperiments() {
 		WlLabController.this.communications.listExperiments(WlLabController.this.currentSession, new IExperimentsAllowedCallback(){
+			@Override
 			public void onSuccess(ExperimentAllowed[] experimentsAllowed) {
 				WlLabController.this.uimanager.onAllowedExperimentsRetrieved(experimentsAllowed);
 			}
 			
+			@Override
 			public void onFailure(WlCommException e) {
 				WlLabController.this.uimanager.onError(e.getMessage());
 			}
@@ -224,11 +233,13 @@ public class WlLabController implements IWlLabController {
 	@Override
 	public void finishReservation() {
 		this.communications.finishedExperiment(this.currentSession, new IVoidCallback(){
+			@Override
 			public void onSuccess(){
 				WlLabController.this.cleanReservation();
 				// TODO: Cancelling State, it should "poll" somehow
 				// TODO: If the user is in any queue and clicks "finish", he'll be in this state 
 			}
+			@Override
 			public void onFailure(WlCommException e) {
 				WlLabController.this.uimanager.onErrorAndFinishReservation(e.getMessage());
 			}
@@ -238,12 +249,14 @@ public class WlLabController implements IWlLabController {
 	@Override
 	public void finishReservationAndLogout(){
 		this.communications.finishedExperiment(this.currentSession, new IVoidCallback(){
+			@Override
 			public void onSuccess(){
 				WlLabController.this.cleanReservation();
 				// TODO: Cancelling State, it should "poll" somehow
 				// TODO: If the user is in any queue and clicks "finish", he'll be in this state 
 				WlLabController.this.logout();
 			}
+			@Override
 			public void onFailure(WlCommException e) {
 				WlLabController.this.uimanager.onErrorAndFinishReservation(e.getMessage());
 			}
@@ -266,9 +279,11 @@ public class WlLabController implements IWlLabController {
 		this.communications.poll(
 				this.currentSession, 
 				new IVoidCallback(){
+					@Override
 					public void onSuccess() {
 						// Nothing to do
 					}
+					@Override
 					public void onFailure(WlCommException e) {
 						if(WlLabController.this.lastExperiment != null && WlLabController.this.lastExperiment.getExperimentName().equals("ud-visir"))
 							return;
@@ -283,30 +298,36 @@ public class WlLabController implements IWlLabController {
 
 	@Override
 	public void chooseExperiment(final ExperimentAllowed experimentAllowed) {
-	    IBoardBaseController boardBaseController = new IBoardBaseController(){
-	    	public void onClean(){
+	    final IBoardBaseController boardBaseController = new IBoardBaseController(){
+	    	@Override
+			public void onClean(){
 	    		WlLabController.this.finishReservation();
 	    	}
 	    	
 	    	// Ignore the callback
-	    	public void sendCommand(Command command){
+	    	@Override
+			public void sendCommand(Command command){
 	    	    WlLabController.this.sendCommand(command, new IResponseCommandCallback(){
-	    		public void onSuccess(
+	    		@Override
+				public void onSuccess(
 	    			ResponseCommand responseCommand) {
 	    		    // nothing
 	    		}
 
-	    		public void onFailure(WlCommException e) {
+	    		@Override
+				public void onFailure(WlCommException e) {
 	    		    WlLabController.this.uimanager.onError("Error sending command: " + e.getMessage());
 	    		}
 	    	    });
 	    	}
 
-	    	public void sendCommand(Command command,
+	    	@Override
+			public void sendCommand(Command command,
 	    		IResponseCommandCallback callback) {
 	    	    WlLabController.this.sendCommand(command, callback);
 	    	}
 
+		@Override
 		public void sendFile(UploadStructure uploadStructure,
 			IResponseCommandCallback callback) {
 		    WlLabController.this.sendFile(uploadStructure, callback);
@@ -331,6 +352,7 @@ public class WlLabController implements IWlLabController {
 	    factory.experimentFactory(experimentAllowed.getExperiment().getExperimentUniqueName(), experimentLoadedCallback, this.isMobile);
 	}
 
+	@Override
 	public void cleanReservation() {
 	    this.pollingHandler.stop();
 	    this.uimanager.onReservationFinished();

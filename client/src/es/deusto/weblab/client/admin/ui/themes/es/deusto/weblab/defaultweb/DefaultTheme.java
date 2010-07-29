@@ -132,6 +132,7 @@ public class DefaultTheme extends WlAdminThemeBase {
 		this.clearWindow();
 
 		this.loginWindow = new LoginWindow(this.configurationManager, new ILoginWindowCallback(){
+			@Override
 			public void onLoginButtonClicked(String username, String password) {
 				DefaultTheme.this.controller.login(username, password);
 			}			

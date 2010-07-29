@@ -64,7 +64,7 @@ class ExperimentWindow extends BaseWindow {
 	@UiField Label generalErrorLabel;
 
 	// Callbacks
-	private IExperimentWindowCallback callback;
+	private final IExperimentWindowCallback callback;
 
 	// Properties
 	private static final String ADMIN_EMAIL_PROPERTY = "admin.email";
@@ -72,9 +72,9 @@ class ExperimentWindow extends BaseWindow {
     
 	// DTOs
 	private final User user;
-	private ExperimentAllowed experimentAllowed;
-	private ExperimentBase experimentBase;
-	private BoardBase boardBase;
+	private final ExperimentAllowed experimentAllowed;
+	private final ExperimentBase experimentBase;
+	private final BoardBase boardBase;
     
 	public ExperimentWindow(IConfigurationManager configurationManager, User user, ExperimentAllowed experimentAllowed, ExperimentBase experimentBase, IExperimentWindowCallback callback){
 	    super(configurationManager);

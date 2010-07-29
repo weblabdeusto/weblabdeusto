@@ -61,11 +61,11 @@ public class WlDeustoBinaryBasedBoard extends BoardBase {
 		public static final String CLOCK_ACTIVATION_PANEL = "wl-clock_activation_panel"; 
 	}
 	
-	private IConfigurationManager configurationManager;
+	private final IConfigurationManager configurationManager;
 		
 	// Widgets
-	private VerticalPanel verticalPanel;
-	private VerticalPanel widget;
+	private final VerticalPanel verticalPanel;
+	private final VerticalPanel widget;
 	private final List<Widget> interactiveWidgets;	
 	private WlWebcam webcam;	
 	private WlTimer timer;
@@ -213,6 +213,7 @@ public class WlDeustoBinaryBasedBoard extends BoardBase {
 		this.timer = new WlTimer();
 		this.timer.setStyleName(WlDeustoXilinxBasedBoard.Style.TIME_REMAINING);
 		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
+			@Override
 			public void onFinished() {
 			    WlDeustoBinaryBasedBoard.this.boardController.onClean();
 			}
@@ -359,17 +360,20 @@ public class WlDeustoBinaryBasedBoard extends BoardBase {
 		this.timer.updateTime(time);
 	}
 	
+	@Override
 	public Widget getWidget() {
 		return this.widget;
 	}
 	
 	protected IResponseCommandCallback getResponseCommandCallback(){
 	    return new IResponseCommandCallback(){
-		    public void onSuccess(ResponseCommand responseCommand) {
+		    @Override
+			public void onSuccess(ResponseCommand responseCommand) {
 			GWT.log("responseCommand: success", null);
 		    }
 
-		    public void onFailure(WlCommException e) {
+		    @Override
+			public void onFailure(WlCommException e) {
 			GWT.log("responseCommand: failure", null);
 		    }
 		};	    

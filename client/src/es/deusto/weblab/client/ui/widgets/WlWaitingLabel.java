@@ -43,7 +43,7 @@ public class WlWaitingLabel extends Label implements IWlWidget{
 	
 	public WlWaitingLabel(String text){
 		this();
-		setText(text);
+		this.setText(text);
 	}
 	
 	@Override
@@ -108,6 +108,7 @@ public class WlWaitingLabel extends Label implements IWlWidget{
 		return this;
 	}
 
+	@Override
 	public void dispose() {
 		this.stop();
 	}

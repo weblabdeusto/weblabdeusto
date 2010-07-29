@@ -142,13 +142,13 @@ public class LoginWindow extends BaseWindow {
 	void onLoginButtonClicked(@SuppressWarnings("unused") ClickEvent e) {
 		boolean errors = false;
 		LoginWindow.this.generalErrorLabel.setText("");
-		errors |= checkUsernameTextbox();
-		errors |= checkPasswordTextbox();
+		errors |= this.checkUsernameTextbox();
+		errors |= this.checkPasswordTextbox();
 		if(!errors){
 			LoginWindow.this.waitingLabel.setText(LoginWindow.this.i18nMessages.loggingIn());
 			LoginWindow.this.waitingLabel.start();
 			LoginWindow.this.loginButton.setEnabled(false);
-			LoginWindow.this.callback.onLoginButtonClicked(getUsername(), getPassword());
+			LoginWindow.this.callback.onLoginButtonClicked(this.getUsername(), this.getPassword());
 		}
 	}
 	
@@ -168,7 +168,7 @@ public class LoginWindow extends BaseWindow {
 	
 	private boolean checkUsernameTextbox(){
 		if(this.getUsername().length() == 0){
-			String username = this.i18nMessages.username();
+			final String username = this.i18nMessages.username();
 			this.showError(this.i18nMessages.thisFieldCantBeEmpty(username));
 			return true;
 		}else{
@@ -178,7 +178,7 @@ public class LoginWindow extends BaseWindow {
 	
 	private boolean checkPasswordTextbox() {
 		if(this.getPassword().length() == 0){
-			String password = this.i18nMessages.password();
+			final String password = this.i18nMessages.password();
 			this.showError(this.i18nMessages.thisFieldCantBeEmpty(password));
 			return true;
 		}else{
@@ -193,6 +193,7 @@ public class LoginWindow extends BaseWindow {
 			this.languageCode = languageCode;
 		}
 
+		@Override
 		public void onClick(ClickEvent sender) {
 			Cookies.setCookie(WebLabClient.LOCALE_COOKIE, this.languageCode);
 			WebLabClient.refresh(this.languageCode);

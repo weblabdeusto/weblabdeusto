@@ -5,6 +5,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
-	<classpathentry kind="lib" path="/home/etox/Proyectos/weblab/trunk/weblab/client/external/lib-client/smartgwt.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/SmartGWT"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

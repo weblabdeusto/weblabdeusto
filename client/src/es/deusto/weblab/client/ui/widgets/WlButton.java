@@ -57,6 +57,7 @@ public class WlButton extends WlWidgetWithPressable{
 		this.releasedImage = new Image(buttonReleasedImageUrl);
 		
 		this.releasedImage.addClickHandler(new ClickHandler() {
+			@Override
 			public void onClick(ClickEvent sender) {
 				WlButton.this.buttonPressed();
 				WlButton.this.fireActionListeners();
@@ -108,6 +109,7 @@ public class WlButton extends WlWidgetWithPressable{
 		this.currentTimers.clear();
 	}
 	
+	@Override
 	public void dispose(){
 		this.cleanOldTimers();
 		this.cancelTimers();

@@ -138,13 +138,15 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 	private boolean solving = true;
 	private int points = 0;
 	
-	private IResponseCommandCallback commandCallback = new IResponseCommandCallback(){
+	private final IResponseCommandCallback commandCallback = new IResponseCommandCallback(){
 
-	    public void onSuccess(ResponseCommand responseCommand) {
+	    @Override
+		public void onSuccess(ResponseCommand responseCommand) {
 		WlDeustoLogicBasedBoard.this.processCommandSent(responseCommand);		    
 	    }
 
-	    public void onFailure(WlCommException e) {
+	    @Override
+		public void onFailure(WlCommException e) {
 		WlDeustoLogicBasedBoard.this.messages.setText("Error: " + e.getMessage() + ". Please, notify the WebLab-Deusto administrators at weblab@deusto.es about this error.");
 	    }
 	    
@@ -159,7 +161,7 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 		
 		this.createProvidedWidgets();
 		
-		uiBinder.createAndBindUi(this);
+		WlDeustoLogicBasedBoard.uiBinder.createAndBindUi(this);
 	}
 	
 	/* Creates those widgets that are placed through UiBinder but
@@ -173,6 +175,7 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 		this.timer = new WlTimer(false);
 		
 		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
+			@Override
 			public void onFinished() {
 			    WlDeustoLogicBasedBoard.this.boardController.onClean();
 			}
@@ -188,7 +191,7 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 	    this.operation2url.put(Operation.NOR,  GWT.getModuleBaseURL() + "img/logic/NOR.png");
 	    this.operation2url.put(Operation.XOR,  GWT.getModuleBaseURL() + "img/logic/XOR.png");
 	    
-	    for(Operation op : this.operation2url.keySet())
+	    for(final Operation op : this.operation2url.keySet())
 	    	this.url2operation.put(this.operation2url.get(op), op);
 	    
 	}
@@ -379,7 +382,7 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 			try {
 				this.circuit = circuitParser.parseCircuit(responseCommand
 						.getCommandString());
-			} catch (InvalidCircuitException e) {
+			} catch (final InvalidCircuitException e) {
 				this.messages.setText("Invalid Circuit received: "
 						+ e.getMessage());
 				return;

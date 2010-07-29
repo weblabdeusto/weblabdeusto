@@ -49,6 +49,7 @@ public abstract class WlNumberTextBoxBase implements IWlWidget{
 		this.minusButton = new WlButton(WlNumberTextBoxBase.PRESSED_TIME, minusPressedImageUrl, minusReleasedImageUrl);
 		
 		this.plusButton.addActionListener(new IWlActionListener(){
+			@Override
 			public void onAction(IWlWidget widget) {
 				Number numberValue;
 				try {
@@ -64,6 +65,7 @@ public abstract class WlNumberTextBoxBase implements IWlWidget{
 		});
 		
 		this.minusButton.addActionListener(new IWlActionListener(){
+			@Override
 			public void onAction(IWlWidget widget){
 				Number numberValue;
 				try {
@@ -86,6 +88,7 @@ public abstract class WlNumberTextBoxBase implements IWlWidget{
 		this.visiblePanel.add(this.plusButton.getWidget());
 	}
 	
+	@Override
 	public void dispose(){
 		this.plusButton.dispose();
 		this.minusButton.dispose();

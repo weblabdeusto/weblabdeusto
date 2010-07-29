@@ -37,6 +37,7 @@ public class MockController implements IWlLabController {
 	private IUIManager uimanager;
 	private int n;
 	
+	@Override
 	public void setUIManager(IUIManager uimanager){
 		this.uimanager = uimanager;
 	}

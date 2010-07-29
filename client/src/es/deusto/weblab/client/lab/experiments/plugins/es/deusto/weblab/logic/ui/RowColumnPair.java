@@ -34,8 +34,8 @@ class RowColumnPair {
 
 	public static RowColumnPair [] getRowsColumnPairs(){
 		final List<RowColumnPair> pairs = new Vector<RowColumnPair>();
-		for(int row : ROWS)
-			for(int column : COLUMNS)
+		for(final int row : RowColumnPair.ROWS)
+			for(final int column : RowColumnPair.COLUMNS)
 				pairs.add(new RowColumnPair(row, column));
 
 		return pairs.toArray(new RowColumnPair[]{});
@@ -49,7 +49,7 @@ class RowColumnPair {
 	public ImageResource getImageResourceWeb(){
 		final Resources res = Resources.INSTANCE;
 		
-		if(BLANKS.contains(this))
+		if(RowColumnPair.BLANKS.contains(this))
 			return res.bigBLANK();
 		
 		switch(this.row){
@@ -98,7 +98,7 @@ class RowColumnPair {
 	public ImageResource getImageResourceMobile(){
 		final Resources res = Resources.INSTANCE;
 		
-		if(BLANKS.contains(this))
+		if(RowColumnPair.BLANKS.contains(this))
 			return res.smallBLANK();
 		
 		switch(this.row){

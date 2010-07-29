@@ -43,12 +43,14 @@ public class WlPotentiometer extends VerticalPanel implements IWlWidget {
 		this.visiblePanel.add(this.textbox.getWidget());
 
 		this.button.addActionListener(new IWlActionListener(){
+			@Override
 			public void onAction(IWlWidget widget) {
 				WlPotentiometer.this.fireActionListeners();
 			}
 		});
 		
 		this.textbox.addActionListener(new IWlActionListener(){
+			@Override
 			public void onAction(IWlWidget widget) {
 				double doubleValue;
 				try {
@@ -72,6 +74,7 @@ public class WlPotentiometer extends VerticalPanel implements IWlWidget {
 		this.title.setText(title);
 	}
 	
+	@Override
 	public void dispose(){
 		this.button.dispose();
 		this.textbox.dispose();

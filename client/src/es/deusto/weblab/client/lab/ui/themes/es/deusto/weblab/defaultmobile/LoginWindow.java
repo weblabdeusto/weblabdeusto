@@ -75,7 +75,7 @@ class LoginWindow extends BaseWindow {
 		
 		final Widget wid = this.uiBinder.createAndBindUi(this);
 		
-		setupWidgets(wid);
+		this.setupWidgets(wid);
 	}
 
 	private void setupWidgets(final Widget wid) {
@@ -127,6 +127,7 @@ class LoginWindow extends BaseWindow {
 			this.languageCode = languageCode;
 		}
 
+		@Override
 		public void onClick(ClickEvent sender) {
 			Cookies.setCookie(WebLabClient.LOCALE_COOKIE, this.languageCode);
 			WebLabClient.refresh(this.languageCode);
@@ -137,9 +138,9 @@ class LoginWindow extends BaseWindow {
 	@SuppressWarnings("unused")
 	void onLoginButtonClicked(ClickEvent e) {
 		boolean errors = false;
-		hideMessage();
-		errors |= checkUsernameTextbox();
-		errors |= checkPasswordTextbox();
+		this.hideMessage();
+		errors |= this.checkUsernameTextbox();
+		errors |= this.checkPasswordTextbox();
 		if(!errors){
 			this.waitingLabel.setStyleName(".visible-message");
 			this.waitingLabel.setText(LoginWindow.this.i18nMessages.loggingIn());
@@ -154,27 +155,27 @@ class LoginWindow extends BaseWindow {
 	
 	private boolean checkUsernameTextbox(){
 		if(this.usernameTextbox.getText().length() == 0){
-			showError(this.usernameErrorLabel, this.i18nMessages.thisFieldCantBeEmpty());
+			this.showError(this.usernameErrorLabel, this.i18nMessages.thisFieldCantBeEmpty());
 			return true;
 		}
 		
-		hideError(this.usernameErrorLabel);
+		this.hideError(this.usernameErrorLabel);
 		return false;
 	}
 	
 	private boolean checkPasswordTextbox() {
 		if(this.passwordTextbox.getText().length() == 0){
-			showError(this.passwordErrorLabel, this.i18nMessages.thisFieldCantBeEmpty());
+			this.showError(this.passwordErrorLabel, this.i18nMessages.thisFieldCantBeEmpty());
 			return true;
 		}
 		
-		hideError(this.passwordErrorLabel);
+		this.hideError(this.passwordErrorLabel);
 		return false;
 	}
 	
 	@Override
 	void showError(String message) {
-		showError(this.messages, message);
+		this.showError(this.messages, message);
 	}
 
 	private void showError(Label where, String message) {
@@ -188,7 +189,7 @@ class LoginWindow extends BaseWindow {
 	}
 
 	private void hideMessage() {
-		hideError(this.messages);
+		this.hideError(this.messages);
 	}
 	
 	@Override

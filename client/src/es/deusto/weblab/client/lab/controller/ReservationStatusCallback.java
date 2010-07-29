@@ -40,6 +40,7 @@ public class ReservationStatusCallback implements IReservationCallback{
 	
 	ReservationStatusCallback(){}
 	
+	@Override
 	public void onSuccess(ReservationStatus reservationStatus) {
 		try {
 			final ReservationStatusTransition reservationStatusTransition = ReservationStatusTransitionFactory.create(
@@ -53,6 +54,7 @@ public class ReservationStatusCallback implements IReservationCallback{
 		}
 	}
 
+	@Override
 	public void onFailure(WlCommException e) {
 		this.uimanager.onErrorAndFinishReservation(e.getMessage());
 		//TODO: how to tell the controller that this has finished?

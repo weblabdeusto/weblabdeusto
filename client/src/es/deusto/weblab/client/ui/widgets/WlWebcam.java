@@ -63,6 +63,7 @@ public class WlWebcam extends HorizontalPanel implements IWlWidget{
 		this.reload();
 	}
 	
+	@Override
 	public void dispose(){
 		this.running = false;
 		

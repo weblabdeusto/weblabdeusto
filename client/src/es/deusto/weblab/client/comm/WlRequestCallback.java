@@ -29,10 +29,12 @@ abstract public class WlRequestCallback implements RequestCallback{
 		this.callback = callback;
 	}
 	
+	@Override
 	public void onError(Request request, Throwable exception) {
 		this.callback.onFailure(new CommunicationException(exception.getMessage(), exception));
 	}
 
+	@Override
 	public void onResponseReceived(Request request, Response response) {
 		final int stateCode = response.getStatusCode();
 		// 5XX and 4XX are server errors

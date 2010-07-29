@@ -271,6 +271,7 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		this.webcam.start();
 		
 		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
+			@Override
 			public void onFinished() {
 			    WlDeustoPicBasedBoard.this.boardController.onClean();
 			}
@@ -278,9 +279,9 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		this.timer.start();
 		
 		// Prepares every UiBinder-defined control for usage, setting up their listeners.
-		prepareSwitches();
-		preparePotentiometers();
-		prepareTimedButtons();
+		this.prepareSwitches();
+		this.preparePotentiometers();
+		this.prepareTimedButtons();
 		
 		// Write
 		this.serialPortText.addActionListener(

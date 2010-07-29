@@ -33,10 +33,11 @@ class MobileChangeUnknownGateDialogBox extends DialogBox {
 	private final Map<Image, Operation> images2operations = new HashMap<Image, Operation>();
 	
     public MobileChangeUnknownGateDialogBox(final MobileWlDeustoLogicBasedBoard board) {
-      setText("Choose the correct gate:");
+      this.setText("Choose the correct gate:");
 
       final ClickHandler imageHandler = new ClickHandler() {
-	        public void onClick(ClickEvent event) {
+	        @Override
+			public void onClick(ClickEvent event) {
 	  	  MobileChangeUnknownGateDialogBox.this.hide();
 	  	  
 	  	  final Operation operation = MobileChangeUnknownGateDialogBox.this.images2operations.get(event.getSource());
@@ -46,7 +47,7 @@ class MobileChangeUnknownGateDialogBox extends DialogBox {
       
       final VerticalPanel figures = new VerticalPanel();
       
-      for(Operation operation : Operation.getOperations()){
+      for(final Operation operation : Operation.getOperations()){
 		  final Image image = new Image(board.getURL(operation));
 		  this.images2operations.put(image, operation);
 		  image.addClickHandler(imageHandler);
@@ -54,6 +55,6 @@ class MobileChangeUnknownGateDialogBox extends DialogBox {
 		  figures.add(image);
       }
       
-      setWidget(figures);	  
+      this.setWidget(figures);	  
     }
   }

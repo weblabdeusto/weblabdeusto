@@ -30,11 +30,13 @@ class ButtonListener implements IWlButtonUsed{
 		this.commandSender = commandSender;
 	}
 
+	@Override
 	public void onPressed() {
 		final Command command = new PulseCommand(this.n, this.button.getTime());
 		this.commandSender.sendCommand(command);
 	}
 
+	@Override
 	public void onReleased() {
 		final Command command = new PulseCommand(this.n, this.button.getTime());
 		this.commandSender.sendCommand(command);

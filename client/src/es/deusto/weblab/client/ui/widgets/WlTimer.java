@@ -108,6 +108,7 @@ public class WlTimer extends Widget implements IWlWidget{
 		this.label.setText(Integer.toString(time));
 	}
 
+	@Override
 	public void dispose(){
 		if(this.timer != null){
 			this.timer.cancel();

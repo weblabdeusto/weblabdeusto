@@ -48,7 +48,7 @@ public abstract class WlCommonCommunication implements IWlCommonCommunication {
 	
 	protected WlCommonCommunication(IConfigurationManager configurationManager){
 		this.configurationManager = configurationManager;
-		this.serializer = createSerializer();
+		this.serializer = this.createSerializer();
 	}
 
 	protected abstract IWlCommonSerializer createSerializer();
@@ -192,6 +192,7 @@ public abstract class WlCommonCommunication implements IWlCommonCommunication {
 		}
 	}
 
+	@Override
 	public void logout(SessionID sessionId, IVoidCallback callback) {
 		String requestSerialized;
 		try {
@@ -234,6 +235,7 @@ public abstract class WlCommonCommunication implements IWlCommonCommunication {
 		}
 	}
 	
+	@Override
 	public void getUserInformation(SessionID sessionId, IUserInformationCallback callback) {
 		String requestSerialized;
 		try {

@@ -46,8 +46,8 @@ public class ExperimentFactory {
 	}
 	
 	public static MobileSupport retrieveMobileSupport(ExperimentID experimentID){
-		for(ExperimentEntry entry : EntryRegistry.entries){
-			if(isSameExperiment(experimentID, entry.getExperimentID()))
+		for(final ExperimentEntry entry : EntryRegistry.entries){
+			if(ExperimentFactory.isSameExperiment(experimentID, entry.getExperimentID()))
 				return entry.getMobileSupport();
 		}
 		return MobileSupport.disabled;
@@ -55,8 +55,8 @@ public class ExperimentFactory {
 
 	public void experimentFactory(ExperimentID experimentID, IExperimentLoadedCallback callback, boolean forMobile){
 		try{
-        	for(ExperimentEntry entry : EntryRegistry.entries)
-        		if(isSameExperiment(experimentID, entry.getExperimentID())){
+        	for(final ExperimentEntry entry : EntryRegistry.entries)
+        		if(ExperimentFactory.isSameExperiment(experimentID, entry.getExperimentID())){
         			if(forMobile)
         				entry.createMobile(this.configurationManager, this.boardBaseController, callback);
         			else

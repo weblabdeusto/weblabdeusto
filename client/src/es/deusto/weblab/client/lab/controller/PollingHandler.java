@@ -35,6 +35,7 @@ public class PollingHandler implements IPollingHandler {
 		this.controller = controller;
 	}
 	
+	@Override
 	public void start(){
 		if(this.pollingTimer != null)
 			this.pollingTimer.cancel();
@@ -53,6 +54,7 @@ public class PollingHandler implements IPollingHandler {
 		this.pollingTimer.scheduleRepeating(pollingTime);
 	}
 	
+	@Override
 	public void stop(){
 		if(this.pollingTimer != null){
 			this.pollingTimer.cancel();

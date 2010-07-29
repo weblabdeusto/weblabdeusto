@@ -23,7 +23,7 @@ public class WlShell implements IWlWidget {
 	}
     }
 
-    private ShellTextArea shellTextArea;
+    private final ShellTextArea shellTextArea;
     private IWlShellListener shellListener;
     
 	public interface IWlShellListener{
@@ -52,12 +52,13 @@ public class WlShell implements IWlWidget {
 	return this.shellTextArea;
     }
 
-    public void dispose() {
+    @Override
+	public void dispose() {
 	
     }
 
     public void print(String string) {
-	String oldText = this.shellTextArea.getText();
+	final String oldText = this.shellTextArea.getText();
 	this.shellTextArea.setText(oldText+string);
     }
 }

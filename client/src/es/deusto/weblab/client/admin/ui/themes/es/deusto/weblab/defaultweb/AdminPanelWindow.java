@@ -64,7 +64,7 @@ public class AdminPanelWindow extends BaseWindow {
 		public void onSearchButtonClicked(Date fromDate, Date toDate, Group group, Experiment experiment);
 	}
 	
-	private AdminPanelWindowHelper helper;
+	private final AdminPanelWindowHelper helper;
 	
 	// Widgets
 	@UiField VerticalPanel containerPanel;
@@ -194,14 +194,14 @@ public class AdminPanelWindow extends BaseWindow {
 		rowFormatter.setStylePrimaryName(0, "web-admin-table-row-header");
 		
 		// Fill roles list
-		fillRolesList();
+		this.fillRolesList();
 		
 		this.usersListTable.addClickHandler(new ClickHandler() {
 
 			@Override
 			public void onClick(ClickEvent event) {
 				final FlexTable table = AdminPanelWindow.this.usersListTable;
-				Cell cell = AdminPanelWindow.this.usersListTable.getCellForEvent(event);
+				final Cell cell = AdminPanelWindow.this.usersListTable.getCellForEvent(event);
 				
 				if(cell == null) // What was clicked isn't a cell.
 					return;
@@ -298,7 +298,7 @@ public class AdminPanelWindow extends BaseWindow {
 	public void fillExperimentsCombobox(ArrayList<Experiment> experiments) {
 		this.experimentConditionListBox.addItem("(any)"); // #i18n
 		this.experiments = experiments;
-		for ( Experiment experiment: this.experiments ) {
+		for ( final Experiment experiment: this.experiments ) {
 			this.experimentConditionListBox.addItem(experiment.getUniqueName());
 		}
 	}
@@ -306,7 +306,7 @@ public class AdminPanelWindow extends BaseWindow {
 	public void fillGroupsCombobox(ArrayList<Group> groups) {
 		this.groupConditionListBox.addItem("(any)"); // #i18n
 		this.groupsList = this.helper.extractGroupsTreeToList(groups);
-		for ( Group group: this.groupsList ) {
+		for ( final Group group: this.groupsList ) {
 			this.groupConditionListBox.addItem(group.getFullName());
 		}
 	}
@@ -324,7 +324,7 @@ public class AdminPanelWindow extends BaseWindow {
     	this.experimentUsesGrid.setWidget(0, 4, this.experimentHeader);
 
         for (int row = 0; row < this.experimentUses.size(); row++) {
-        	ExperimentUse eu = this.experimentUses.get(row);
+        	final ExperimentUse eu = this.experimentUses.get(row);
       		this.experimentUsesGrid.setWidget(row+1, 0, new Label(DateTimeFormat.getMediumDateTimeFormat().format(eu.getStartDate())));
     		this.experimentUsesGrid.setWidget(row+1, 1, new Label((eu.getEndDate().getTime()-eu.getStartDate().getTime())/1000 + ""));
     		if ( eu.getAgent() instanceof User ) {
@@ -371,7 +371,7 @@ public class AdminPanelWindow extends BaseWindow {
     
     @UiHandler("searchButton")
     void onSearchButtonClicked(@SuppressWarnings("unused") ClickEvent ev) {
-    	Date fromDate = this.fromDateBox.getValue();
+    	final Date fromDate = this.fromDateBox.getValue();
     	
     	Date toDate = this.toDateBox.getValue();
     	if ( toDate != null ) {
@@ -379,7 +379,7 @@ public class AdminPanelWindow extends BaseWindow {
     		toDate = new Date(toDate.getTime()+86399999); 
     	}
     	
-    	int groupIndex = this.groupConditionListBox.getSelectedIndex();
+    	final int groupIndex = this.groupConditionListBox.getSelectedIndex();
     	Group group;
     	if ( groupIndex == 0 ) {
     		group = null;
@@ -387,7 +387,7 @@ public class AdminPanelWindow extends BaseWindow {
     		group = this.groupsList.get(groupIndex-1);
     	}
 
-    	int experimentIndex = this.experimentConditionListBox.getSelectedIndex();
+    	final int experimentIndex = this.experimentConditionListBox.getSelectedIndex();
     	Experiment experiment;
     	if ( experimentIndex == 0 ) {
     		experiment = null;
@@ -417,7 +417,7 @@ public class AdminPanelWindow extends BaseWindow {
 		// Add users to the list (being careful not to replace the table header).
 		final RowFormatter rf = this.usersListTable.getRowFormatter();
 		int insertrow = 1;
-		for(User user : users) {
+		for(final User user : users) {
 			this.usersListTable.setText(insertrow, 0, user.getLogin());
 			this.usersListTable.setText(insertrow, 1, user.getFullName());
 			rf.setStylePrimaryName(insertrow, "web-admin-table-row-not-selected");

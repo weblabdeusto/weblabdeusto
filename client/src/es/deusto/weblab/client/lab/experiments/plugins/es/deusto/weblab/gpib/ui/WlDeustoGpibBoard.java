@@ -81,8 +81,8 @@ public class WlDeustoGpibBoard extends BoardBase {
 	private final IConfigurationManager configurationManager;
 	
 	// Widgets
-	private VerticalPanel widget;
-	private VerticalPanel removableWidgetsPanel;
+	private final VerticalPanel widget;
+	private final VerticalPanel removableWidgetsPanel;
 	private WlWebcam webcam;
 	private WlTimer timer;
 	private WlWaitingLabel messages;
@@ -95,13 +95,15 @@ public class WlDeustoGpibBoard extends BoardBase {
 	private String resultStdout = "";
 	private String resultStderr = "";
 	
-	private IResponseCommandCallback commandCallback = new IResponseCommandCallback(){
+	private final IResponseCommandCallback commandCallback = new IResponseCommandCallback(){
 
-	    public void onSuccess(ResponseCommand responseCommand) {
+	    @Override
+		public void onSuccess(ResponseCommand responseCommand) {
 		WlDeustoGpibBoard.this.processCommandSent(responseCommand);		    
 	    }
 
-	    public void onFailure(WlCommException e) {
+	    @Override
+		public void onFailure(WlCommException e) {
 		WlDeustoGpibBoard.this.messages.setText("Error: " + e.getMessage() + ". Please, notify the WebLab-Deusto administrators at weblab@deusto.es about this error.");
 	    }
 	};
@@ -123,7 +125,7 @@ public class WlDeustoGpibBoard extends BoardBase {
 		
 	@Override
 	public void initialize(){
-	    	this.removableWidgetsPanel.add(new HTML("<a href='" + DEFAULT_GPIB_USER_GUIDE_LINK + "' alt='GPIB User Guide'>User Guide</a>"));
+	    	this.removableWidgetsPanel.add(new HTML("<a href='" + WlDeustoGpibBoard.DEFAULT_GPIB_USER_GUIDE_LINK + "' alt='GPIB User Guide'>User Guide</a>"));
 	    
 		this.removableWidgetsPanel.add(new Label("Select the program to send:"));
 		
@@ -156,6 +158,7 @@ public class WlDeustoGpibBoard extends BoardBase {
 		this.timer.setStyleName(WlDeustoGpibBoard.Style.TIME_REMAINING);
 		this.timer.getWidget().setWidth("30%");
 		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
+			@Override
 			public void onFinished() {
 				WlDeustoGpibBoard.this.boardController.onClean();
 			}
@@ -239,7 +242,7 @@ public class WlDeustoGpibBoard extends BoardBase {
 	private void processCommandSent(ResponseCommand responseCommand){
 		
 		if ( this.lastCommand instanceof PollCommand ){
-			String response = responseCommand.getCommandString();
+			final String response = responseCommand.getCommandString();
 			if ( response.substring(0, 2).equals("OK") ){
 			    	this.pollingTimer = null;
 				this.messages.setText("File executed, retrieving results...");
@@ -264,8 +267,8 @@ public class WlDeustoGpibBoard extends BoardBase {
 			this.resultStderr = responseCommand.getCommandString();
 		}else if ( this.lastCommand instanceof ResultFileCommand ){
 			this.messages.setText("");
-			String code = responseCommand.getCommandString().substring(0, 2);
-			String text = responseCommand.getCommandString().substring(2);
+			final String code = responseCommand.getCommandString().substring(0, 2);
+			final String text = responseCommand.getCommandString().substring(2);
 			if ( code.equals("OK") ){
 				this.resultFileContent = text;
 			}else{
@@ -285,26 +288,26 @@ public class WlDeustoGpibBoard extends BoardBase {
 		
 		popup.setStyleName("results-popup");
 		
-		VerticalPanel mainPanel = new VerticalPanel();
+		final VerticalPanel mainPanel = new VerticalPanel();
 		mainPanel.setWidth("100%");
 		mainPanel.setSpacing(10);
 		
-			Label title = new Label("Your experiment's results");
+			final Label title = new Label("Your experiment's results");
 			title.setStyleName("results-title");
 			mainPanel.add(title);
 			mainPanel.setCellHorizontalAlignment(title, HasHorizontalAlignment.ALIGN_CENTER);
 			
-			TextArea textAreaFileResult = new TextArea();
+			final TextArea textAreaFileResult = new TextArea();
 			textAreaFileResult.setText(this.resultFileContent);
 			textAreaFileResult.setVisibleLines(15);
 			textAreaFileResult.setWidth("100%");
 			mainPanel.add(textAreaFileResult);
 		
-			VerticalPanel stdoutPanel = new VerticalPanel();
-				Label stdoutLabel = new Label("stdout:");
+			final VerticalPanel stdoutPanel = new VerticalPanel();
+				final Label stdoutLabel = new Label("stdout:");
 				stdoutLabel.setStyleName("results-label");
 				stdoutPanel.add(stdoutLabel);
-					TextArea textAreaStdout  = new TextArea();
+					final TextArea textAreaStdout  = new TextArea();
 					textAreaStdout.setVisibleLines(8);
 					textAreaStdout.setText(this.resultStdout);
 					textAreaStdout.setSize("100%", "100%");
@@ -312,11 +315,11 @@ public class WlDeustoGpibBoard extends BoardBase {
 					stdoutPanel.setWidth("100%");						
 			mainPanel.add(stdoutPanel);
 			
-			VerticalPanel stderrPanel = new VerticalPanel();
-				Label stderrLabel = new Label("stderr:");
+			final VerticalPanel stderrPanel = new VerticalPanel();
+				final Label stderrLabel = new Label("stderr:");
 				stderrLabel.setStyleName("results-label");
 				stderrPanel.add(stderrLabel);
-					TextArea textAreaStderr  = new TextArea();
+					final TextArea textAreaStderr  = new TextArea();
 					textAreaStderr.setVisibleLines(4);
 					textAreaStderr.setText(this.resultStderr);
 					textAreaStderr.setSize("100%", "100%");
@@ -324,13 +327,14 @@ public class WlDeustoGpibBoard extends BoardBase {
 					stderrPanel.setWidth("100%");
 			mainPanel.add(stderrPanel);
 
-			HorizontalPanel buttonPanel = new HorizontalPanel();
+			final HorizontalPanel buttonPanel = new HorizontalPanel();
 			buttonPanel.setSpacing(10);
 			buttonPanel.setSize("100%", "100%");
 			
-				Button button = new Button("Close");
+				final Button button = new Button("Close");
 				button.addClickHandler(new ClickHandler(){
-				    public void onClick(ClickEvent event) {
+				    @Override
+					public void onClick(ClickEvent event) {
 					popup.hide();
 				    }
 				});

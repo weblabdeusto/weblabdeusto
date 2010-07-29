@@ -80,9 +80,11 @@ public abstract class AbstractExternalAppBasedBoard extends BoardBase {
 				return command;
 			}
 		}, new IResponseCommandCallback(){
+			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
 				AbstractExternalAppBasedBoard.handleCommandResponse(responseCommand.getCommandString(), commandId);
 			}
+			@Override
 			public void onFailure(WlCommException e) {
 				AbstractExternalAppBasedBoard.handleCommandError(e.getMessage(), commandId);
 			}

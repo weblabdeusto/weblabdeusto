@@ -94,7 +94,7 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 	private Image unknownGateImage;
 	private DialogBox changeUnknownGateDialogBox;
 	private Button sendSolutionButton;
-	private Label referenceToShowBoxesLabel = new Label("");
+	private final Label referenceToShowBoxesLabel = new Label("");
 	
 	// DTOs
 	private Command lastCommand;
@@ -103,13 +103,15 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 	private int points = 0;
 	private final ClickHandler unkownGateHandler;
 	
-	private IResponseCommandCallback commandCallback = new IResponseCommandCallback(){
+	private final IResponseCommandCallback commandCallback = new IResponseCommandCallback(){
 
-	    public void onSuccess(ResponseCommand responseCommand) {
+	    @Override
+		public void onSuccess(ResponseCommand responseCommand) {
 		MobileWlDeustoLogicBasedBoard.this.processCommandSent(responseCommand);		    
 	    }
 
-	    public void onFailure(WlCommException e) {
+	    @Override
+		public void onFailure(WlCommException e) {
 		MobileWlDeustoLogicBasedBoard.this.messages.setText("Error: " + e.getMessage() + ". Please, notify the WebLab-Deusto administrators at weblab@deusto.es about this error.");
 	    }
 	};
@@ -195,6 +197,7 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 		this.timer.setStyleName(WlDeustoGpibBoard.Style.TIME_REMAINING);
 		this.timer.getWidget().setWidth("30%");
 		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
+			@Override
 			public void onFinished() {
 			    MobileWlDeustoLogicBasedBoard.this.boardController.onClean();
 			}
@@ -251,7 +254,7 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 		this.circuitGrid.setWidget(2, 6, this.gateC1Image);
 		
 		// Connections
-		for(RowColumnPair pair : RowColumnPair.getRowsColumnPairs()){
+		for(final RowColumnPair pair : RowColumnPair.getRowsColumnPairs()){
 		    final Image pairImage = new Image(pair.getImageResourceMobile());
 		    this.circuitGrid.setWidget(pair.getRow(), pair.getColumn() + 1, pairImage);
 		}
@@ -344,7 +347,7 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 		    final CircuitParser circuitParser = new CircuitParser();
 		    try {
 			this.circuit = circuitParser.parseCircuit(responseCommand.getCommandString());
-		    } catch (InvalidCircuitException e) {
+		    } catch (final InvalidCircuitException e) {
 			this.messages.setText("Invalid Circuit received: " + e.getMessage());
 			return;
 		    }
@@ -360,7 +363,7 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 	    	    }else if(responseCommand.getCommandString().startsWith("OK")){
 	    		this.points++;
 	    		this.messages.setText("Well done! 1 point. Let's see the next one!");
-	    		Timer sleepTimer = new Timer(){
+	    		final Timer sleepTimer = new Timer(){
 
 			    @Override
 			    public void run() {

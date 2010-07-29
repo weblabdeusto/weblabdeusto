@@ -31,6 +31,7 @@ public abstract class GeneralWaitingReservationStatusTransition extends Reservat
 		this.showReservation(reservationStatus);
 		final int pollTime = this.getPollTime(reservationStatus);
 		this.reservationStatusCallback.getTimerCreator().createTimer(pollTime, new IControllerRunnable(){
+			@Override
 			public void run() {
 				GeneralWaitingReservationStatusTransition.this.reservationStatusCallback.getCommunications().getReservationStatus(
 						GeneralWaitingReservationStatusTransition.this.reservationStatusCallback.getSessionID(), 

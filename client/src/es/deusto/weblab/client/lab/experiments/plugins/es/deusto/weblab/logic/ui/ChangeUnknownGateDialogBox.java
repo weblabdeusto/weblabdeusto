@@ -28,10 +28,11 @@ import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.ci
 class ChangeUnknownGateDialogBox extends DialogBox {
         
     public ChangeUnknownGateDialogBox(final WlDeustoLogicBasedBoard board) {
-      setText("Choose the correct gate:");
+      this.setText("Choose the correct gate:");
 
       final ClickHandler imageHandler = new ClickHandler() {
-	        public void onClick(ClickEvent event) {
+	        @Override
+			public void onClick(ClickEvent event) {
 	  	  ChangeUnknownGateDialogBox.this.hide();
 	  	  
 	  	  final Image source        = (Image)event.getSource();
@@ -44,13 +45,13 @@ class ChangeUnknownGateDialogBox extends DialogBox {
       
       final VerticalPanel figures = new VerticalPanel();
       
-      for(Operation operation : Operation.getOperations()){
+      for(final Operation operation : Operation.getOperations()){
 	  final Image image = new Image(board.getURL(operation));
 	  image.addClickHandler(imageHandler);
 	  image.addStyleName(WlDeustoLogicBasedBoard.Style.LOGIC_MOUSE_POINTER_HAND);
 	  figures.add(image);
       }
       
-      setWidget(figures);	  
+      this.setWidget(figures);	  
     }
   }

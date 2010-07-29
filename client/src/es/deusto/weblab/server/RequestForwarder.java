@@ -55,16 +55,16 @@ public class RequestForwarder extends HttpServlet{
 	    final Enumeration<?> headersIn = req.getHeaderNames();
 	    while(headersIn.hasMoreElements()){
 	    	final String header = (String)headersIn.nextElement();
-	    	if(isValidHeader(header))
+	    	if(this.isValidHeader(header))
 	    	    serverConnection.addRequestProperty(header, req.getHeader(header));
 	    }
 	}
 
 	private void forwardHeadersToBrowser(HttpServletResponse resp,
 		final URLConnection serverConnection) {
-	    for(String header : new String[]{ "Server", "Date", "Content-type", "Content-length", "Set-Cookie"}){
+	    for(final String header : new String[]{ "Server", "Date", "Content-type", "Content-length", "Set-Cookie"}){
 	        final String value = serverConnection.getHeaderField(header);
-	        if(isValidHeader(header) && value != null){
+	        if(this.isValidHeader(header) && value != null){
 	    		resp.addHeader(header, value);
 	        }
 	    }
@@ -73,7 +73,7 @@ public class RequestForwarder extends HttpServlet{
 	private final static Collection<String> badHeaders = Arrays.asList("host", "connection", "keep-alive");
 	
 	private boolean isValidHeader(String header) {
-	    return header != null && !badHeaders.contains(header.toLowerCase());
+	    return header != null && !RequestForwarder.badHeaders.contains(header.toLowerCase());
 	}
 
 	private void forwardStreamToEnd(final InputStream is, final OutputStream os) throws IOException {

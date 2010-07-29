@@ -24,6 +24,7 @@ public class PetitionsController implements IPetitionsController {
 		this.running = false;
 	}
 	
+	@Override
 	public void push(PetitionNode node){
 		this.queue.push(node);
 		if(!this.running)
@@ -34,6 +35,7 @@ public class PetitionsController implements IPetitionsController {
 		final PetitionNode node = this.queue.pop();
 		if(node != null){
 			node.addCallback(new IPetitionFinishedCallback(){
+				@Override
 				public void onLoaded() {
 					PetitionsController.this.running = false;
 					PetitionsController.this.processNext();

@@ -29,18 +29,18 @@ public class Operation {
     public final static Operation XOR  = new Operation("xor");
     
     private final static Operation [] OPERATIONS = {
-	AND, NAND, OR, NOR, XOR    
+	Operation.AND, Operation.NAND, Operation.OR, Operation.NOR, Operation.XOR    
     };
     
     public static Operation get(String name){
-	for(Operation op : OPERATIONS)
+	for(final Operation op : Operation.OPERATIONS)
 	    if(op.getName().equals(name.toLowerCase()))
 		return op;
 	throw new IllegalArgumentException("Operation " + name + " not found");
     }
     
     public static Operation [] getOperations(){
-    	return OPERATIONS;
+    	return Operation.OPERATIONS;
     }
     
     public String getName(){

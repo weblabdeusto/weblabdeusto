@@ -33,6 +33,7 @@ class SwitchListener implements IWlActionListener{
 		this.commandCallback = commandCallback;
 	}
 	
+	@Override
 	public void onAction(IWlWidget widget) {
 		final WlSwitch wlswitch = (WlSwitch)widget;
 		final Command command = new SwitchCommand(this.n, wlswitch.isSwitched());

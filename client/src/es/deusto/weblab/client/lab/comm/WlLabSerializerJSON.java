@@ -52,16 +52,18 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
 	
     // Parsing
 
-    public void parseFinishedExperimentResponse(String responseText)
+    @Override
+	public void parseFinishedExperimentResponse(String responseText)
     	throws SerializationException, SessionNotFoundException, NoCurrentReservationException, UserProcessingException, WlServerException {
     	this.parseResultObject(responseText);
     }
 
-    public ReservationStatus parseGetReservationStatusResponse(String responseText)
+    @Override
+	public ReservationStatus parseGetReservationStatusResponse(String responseText)
     	throws SerializationException, SessionNotFoundException, NoCurrentReservationException, UserProcessingException, WlServerException {
 		// "{\"result\": {\"status\": \"Reservation::waiting_confirmation\"}, \"is_exception\": false}"
-		final JSONObject result = parseResultObject(responseText);
-		return parseReservationStatus(result);
+		final JSONObject result = this.parseResultObject(responseText);
+		return this.parseReservationStatus(result);
     }
 
     private ReservationStatus parseReservationStatus(final JSONObject result)
@@ -70,21 +72,22 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
 		if(status.equals("Reservation::waiting_confirmation")){
 		    return new WaitingConfirmationReservationStatus();
 		}else if(status.equals("Reservation::confirmed")){
-		    double time = this.json2double(result.get("time"));
+		    final double time = this.json2double(result.get("time"));
 		    return new ConfirmedReservationStatus((int)time);
 		}else if(status.equals("Reservation::waiting")){
-		    int position = this.json2int(result.get("position"));
+		    final int position = this.json2int(result.get("position"));
 		    return new WaitingReservationStatus(position);
 		}else if(status.equals("Reservation::cancelling")){
 		    return new CancellingReservationStatus();
 		}else if(status.equals("Reservation::waiting_instances")){
-		    int position = this.json2int(result.get("position"));
+		    final int position = this.json2int(result.get("position"));
 		    return new WaitingInstancesReservationStatus(position);
 		}else
 		    throw new SerializationException("Unknown status: " + status);
     }
     
-    public ExperimentAllowed[] parseListExperimentsResponse(String responseText)
+    @Override
+	public ExperimentAllowed[] parseListExperimentsResponse(String responseText)
     	throws SerializationException, SessionNotFoundException, UserProcessingException, WlServerException {	
 	//	"{\"result\": [" +
 	//		"{\"experiment\": {\"category\": {\"name\": \"Dummy experiments\"}, " +
@@ -92,57 +95,57 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
 	//		"{\"experiment\": {\"category\": {\"name\": \"FPGA experiments\"}, " +
 	//			"\"name\": \"ud-fpga\", \"end_date\": \"2006-01-01\", \"start_date\": \"2005-01-01\"}, \"time_allowed\": 30.0}" +
 	//	"], \"is_exception\": false}"
-		JSONArray result = this.parseResultArray(responseText);
-		ExperimentAllowed [] experiments = new ExperimentAllowed[result.size()];
+		final JSONArray result = this.parseResultArray(responseText);
+		final ExperimentAllowed [] experiments = new ExperimentAllowed[result.size()];
 		for(int i = 0; i < result.size(); ++i){
-		    JSONValue value = result.get(i);
-		    JSONObject jsonExperimentAllowed = value.isObject();
+		    final JSONValue value = result.get(i);
+		    final JSONObject jsonExperimentAllowed = value.isObject();
 		    if(jsonExperimentAllowed == null)
 			throw new SerializationException("Expected JSON Object as ExperimentAllowed, found: " + value);
-		    JSONValue jsonExperimentValue = jsonExperimentAllowed.get("experiment");
+		    final JSONValue jsonExperimentValue = jsonExperimentAllowed.get("experiment");
 		    if(jsonExperimentValue == null)
 			throw new SerializationException("Expected experiment field in ExperimentAllowed");
-		    JSONObject jsonExperiment = jsonExperimentValue.isObject();
+		    final JSONObject jsonExperiment = jsonExperimentValue.isObject();
 		    if(jsonExperiment == null)
 			throw new SerializationException("Expected JSON Object as Experiment, found: " + jsonExperimentValue);
-		    JSONValue jsonCategoryValue = jsonExperiment.get("category");
+		    final JSONValue jsonCategoryValue = jsonExperiment.get("category");
 		    if(jsonCategoryValue == null)
 			throw new SerializationException("Expected category field in Experiment");
-		    JSONObject jsonCategory = jsonCategoryValue.isObject();
+		    final JSONObject jsonCategory = jsonCategoryValue.isObject();
 		    if(jsonCategory == null)
 			throw new SerializationException("Expected JSON Object as Category, found: " + jsonCategoryValue);
 		    
-		    Category category = new Category(this.json2string(jsonCategory.get("name")));
+		    final Category category = new Category(this.json2string(jsonCategory.get("name")));
 		    
-		    Experiment experiment = new Experiment();
+		    final Experiment experiment = new Experiment();
 		    experiment.setCategory(category);
 		    experiment.setName(this.json2string(jsonExperiment.get("name")));
 		    
-		    String startDateString = this.json2string(jsonExperiment.get("start_date"));
-		    String endDateString   = this.json2string(jsonExperiment.get("end_date"));
+		    final String startDateString = this.json2string(jsonExperiment.get("start_date"));
+		    final String endDateString   = this.json2string(jsonExperiment.get("end_date"));
 		    
-		    DateTimeFormat formatter1 = DateTimeFormat.getFormat("yyyy-MM-dd");
-		    DateTimeFormat formatter2 = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss");
-		    DateTimeFormat formatter3 = DateTimeFormat.getFormat("yyyy-MM-ddTHH:mm:ss");
+		    final DateTimeFormat formatter1 = DateTimeFormat.getFormat("yyyy-MM-dd");
+		    final DateTimeFormat formatter2 = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss");
+		    final DateTimeFormat formatter3 = DateTimeFormat.getFormat("yyyy-MM-ddTHH:mm:ss");
 		    
 		    try{
 			experiment.setStartDate(formatter1.parse(startDateString));
 			experiment.setEndDate(formatter1.parse(endDateString));
-		    }catch(IllegalArgumentException iae){
+		    }catch(final IllegalArgumentException iae){
 				try{
 				    experiment.setStartDate(formatter2.parse(startDateString));
 				    experiment.setEndDate(formatter2.parse(endDateString));
-				}catch(IllegalArgumentException iae2){
+				}catch(final IllegalArgumentException iae2){
 					try{
 					    experiment.setStartDate(formatter3.parse(startDateString));
 					    experiment.setEndDate(formatter3.parse(endDateString));
-					}catch(IllegalArgumentException iae3){
+					}catch(final IllegalArgumentException iae3){
 					    throw new SerializationException("Couldn't parse date: " + startDateString + "; or: " + endDateString);
 					}
 				}
 		    }
 		    
-		    ExperimentAllowed experimentAllowed = new ExperimentAllowed();
+		    final ExperimentAllowed experimentAllowed = new ExperimentAllowed();
 		    experimentAllowed.setTimeAllowed(this.json2int(jsonExperimentAllowed.get("time_allowed")));
 		    experimentAllowed.setExperiment(experiment);
 		    
@@ -151,29 +154,33 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
 		return experiments;
     }
 
-    public void parsePollResponse(String responseText)
+    @Override
+	public void parsePollResponse(String responseText)
 	    throws SerializationException, SessionNotFoundException, NoCurrentReservationException, UserProcessingException, WlServerException {
     	this.parseResultObject(responseText);
     }
 
-    public ReservationStatus parseReserveExperimentResponse(String responseText)
+    @Override
+	public ReservationStatus parseReserveExperimentResponse(String responseText)
     	throws SerializationException, SessionNotFoundException, UnknownExperimentIdException, UserProcessingException, WlServerException {
 		final JSONObject result = this.parseResultObject(responseText);
 		return this.parseReservationStatus(result);
     }
 
-    public ResponseCommand parseSendCommandResponse(String responseText)
+    @Override
+	public ResponseCommand parseSendCommandResponse(String responseText)
 	    throws SerializationException, SessionNotFoundException, NoCurrentReservationException, UserProcessingException, WlServerException {
 		// "{\"result\": {\"commandstring\": null}, \"is_exception\": false}"
 		final JSONObject result = this.parseResultObject(responseText);
-		JSONValue value = result.get("commandstring");
+		final JSONValue value = result.get("commandstring");
 		if(value.isNull() != null)
 		    return new EmptyResponseCommand();
-		String commandString = this.json2string(value);
+		final String commandString = this.json2string(value);
 		return new ResponseCommand(commandString);
     }
 
-    public ResponseCommand parseSendFileResponse(String responseText)
+    @Override
+	public ResponseCommand parseSendFileResponse(String responseText)
 	    throws SerializationException, SessionNotFoundException, NoCurrentReservationException, UserProcessingException, WlServerException {
 		if(!GWT.isScript() && responseText == null)
 			return new EmptyResponseCommand();
@@ -209,7 +216,8 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
 		    throw new SerializationException("Sending file failed: first element must be 'success' or 'error'");
     }
 
-    public String serializeFinishedExperimentRequest(SessionID sessionId)
+    @Override
+	public String serializeFinishedExperimentRequest(SessionID sessionId)
 	    throws SerializationException {
 		// "{\"params\":{\"session_id\":{\"id\":\"" + MESSAGE + "\"}}, \"method\":\"finished_experiment\"}",
 		final JSONObject params = new JSONObject();
@@ -217,27 +225,31 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
 		return this.serializeRequest("finished_experiment", params);
     }
 
-    public String serializeGetReservationStatusRequest(SessionID sessionId) throws SerializationException {
+    @Override
+	public String serializeGetReservationStatusRequest(SessionID sessionId) throws SerializationException {
 		final JSONObject params = new JSONObject();
 		params.put("session_id", this.serializeSessionId(sessionId));
 		return this.serializeRequest("get_reservation_status", params);
     }
 
-    public String serializeListExperimentsRequest(SessionID sessionId)
+    @Override
+	public String serializeListExperimentsRequest(SessionID sessionId)
 	    throws SerializationException {
 		final JSONObject params = new JSONObject();
 		params.put("session_id", this.serializeSessionId(sessionId));
 		return this.serializeRequest("list_experiments", params);
     }
 
-    public String serializePollRequest(SessionID sessionId)
+    @Override
+	public String serializePollRequest(SessionID sessionId)
 	    throws SerializationException {
 		final JSONObject params = new JSONObject();
-		params.put("session_id", serializeSessionId(sessionId));
+		params.put("session_id", this.serializeSessionId(sessionId));
 		return this.serializeRequest("poll", params);
     }
 
-    public String serializeReserveExperimentRequest(SessionID sessionId,
+    @Override
+	public String serializeReserveExperimentRequest(SessionID sessionId,
 	    ExperimentID experimentId) throws SerializationException {
 		//{"params": {"session_id": {"id": "svAsc-rCIKLP1qeU"}, 
 		//  "experiment_id": {"exp_name": "ud-dummy", "cat_name": "Dummy experiments"}}, 
@@ -251,7 +263,8 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
 		return this.serializeRequest("reserve_experiment", params);
     }
 
-    public String serializeSendCommandRequest(SessionID sessionId,
+    @Override
+	public String serializeSendCommandRequest(SessionID sessionId,
 	    Command command) throws SerializationException {
 		final JSONObject params = new JSONObject();
 		params.put("session_id", this.serializeSessionId(sessionId));

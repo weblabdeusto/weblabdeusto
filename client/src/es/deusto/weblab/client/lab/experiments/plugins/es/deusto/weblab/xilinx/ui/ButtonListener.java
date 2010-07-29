@@ -31,11 +31,13 @@ class ButtonListener implements IWlButtonUsed {
 		this.commandCallback = commandCallback;
 	}
 
+	@Override
 	public void onPressed() {
 		final Command command = new PulseCommand(this.n, true); 
 		this.commandSender.sendCommand(command, this.commandCallback);
 	}
 
+	@Override
 	public void onReleased() {
 		final Command command = new PulseCommand(this.n, false); 
 		this.commandSender.sendCommand(command, this.commandCallback);

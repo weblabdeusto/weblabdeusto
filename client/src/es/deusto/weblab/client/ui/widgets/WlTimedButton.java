@@ -55,12 +55,14 @@ public class WlTimedButton extends VerticalPanel implements IWlWidget{
 		this.visiblePanel.add(this.textbox.getWidget());
 
 		this.button.addActionListener(new IWlActionListener(){
+			@Override
 			public void onAction(IWlWidget widget) {
 				WlTimedButton.this.fireActionListeners();
 			}
 		});
 		
 		this.textbox.addActionListener(new IWlActionListener(){
+			@Override
 			public void onAction(IWlWidget widget) {
 				final int intValue;
 				try {
@@ -86,6 +88,7 @@ public class WlTimedButton extends VerticalPanel implements IWlWidget{
 		this.titleLabel.setText(title);
 	}
 	
+	@Override
 	public void dispose(){
 		this.button.dispose();
 		this.textbox.dispose();

@@ -45,16 +45,18 @@ public class ConfigurationManager implements IConfigurationManager {
 		final RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, this.configurationPath);
 		try {
 			builder.sendRequest(null, new RequestCallback(){
+				@Override
 				public void onError(Request request, Throwable exception) {
 					ConfigurationManager.this.callback.onFailure(exception);
 				}
 
+				@Override
 				public void onResponseReceived(Request request, Response response) {
 					if(response.getStatusCode() / 100 == 2 || response.getStatusCode() / 100 == 3){
 						final JSONValue value;
 						try{
 							value = JSONParser.parse(response.getText());
-						}catch(Exception e){
+						}catch(final Exception e){
 							ConfigurationManager.this.callback.onFailure(new WlConfigurationException("Error parsing configuration: " + e.getMessage(), e));
 							return;
 						}
@@ -65,7 +67,7 @@ public class ConfigurationManager implements IConfigurationManager {
 							return;
 						}
 						
-						for(String key : objValue.keySet()){
+						for(final String key : objValue.keySet()){
 							final JSONValue currentValue = objValue.get(key);
 							if(currentValue == null){
 								ConfigurationManager.this.callback.onFailure(new WlConfigurationException("Error parsing configuration: empty value for key: " + key));
@@ -90,6 +92,7 @@ public class ConfigurationManager implements IConfigurationManager {
 		}
 	}
 
+	@Override
 	public int getIntProperty(String key) 
 		throws ConfigurationKeyNotFoundException, InvalidConfigurationValueException
 	{
@@ -104,6 +107,7 @@ public class ConfigurationManager implements IConfigurationManager {
 			}
 	}
 	
+	@Override
 	public int getIntProperty(String key, int def){
 		final String value = this.configurationMap.get(key);
 		if(value == null)
@@ -116,6 +120,7 @@ public class ConfigurationManager implements IConfigurationManager {
 			}
 	}
 	
+	@Override
 	public String getProperty(String key) throws ConfigurationKeyNotFoundException{
 		final String s = this.configurationMap.get(key);
 		if(s == null)
@@ -124,6 +129,7 @@ public class ConfigurationManager implements IConfigurationManager {
 			return s;
 	}
 	 
+	@Override
 	public String getProperty(String key, String def){
 		final String s = this.configurationMap.get(key);
 		if(s == null)
@@ -132,6 +138,7 @@ public class ConfigurationManager implements IConfigurationManager {
 			return s;
 	}
 	
+	@Override
 	public boolean getBoolProperty(String key) throws ConfigurationKeyNotFoundException
 	{
 		final String value = this.configurationMap.get(key);
@@ -141,6 +148,7 @@ public class ConfigurationManager implements IConfigurationManager {
 			return value.equals("true");
 	}
 
+	@Override
 	public boolean getBoolProperty(String key, boolean def)
 	{
 		final String value = this.configurationMap.get(key);

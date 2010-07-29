@@ -46,6 +46,7 @@ public class WlTextBoxWithButton extends VerticalPanel implements IWlWidget{
 		this.textbox.setWidth(length + "em");
 		
 		final KeyPressHandler keyboardHandler = new KeyPressHandler(){
+			@Override
 			public void onKeyPress(KeyPressEvent event) {
 				if(event.getCharCode() == KeyCodes.KEY_ENTER){
 					WlTextBoxWithButton.this.fireEnterKey();
@@ -56,6 +57,7 @@ public class WlTextBoxWithButton extends VerticalPanel implements IWlWidget{
 		
 		this.sendButton = new WlButton(WlTextBoxWithButton.BUTTON_MILLISECONDS);
 		this.sendButton.addActionListener(new IWlActionListener(){
+			@Override
 			public void onAction(IWlWidget widget) {
 				WlTextBoxWithButton.this.fireActionListener();
 			}
@@ -100,6 +102,7 @@ public class WlTextBoxWithButton extends VerticalPanel implements IWlWidget{
 		return this;
 	}
 
+	@Override
 	public void dispose() {
 	}
 }

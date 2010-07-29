@@ -319,6 +319,7 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 			);
 	}
 
+	@Override
 	public void sendFile(SessionID sessionId, final UploadStructure uploadStructure, final IResponseCommandCallback callback) {
 		// "Serialize" sessionId
 	    	
@@ -341,7 +342,8 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 		// Register handler
 		uploadStructure.getFormPanel().addSubmitCompleteHandler(new SubmitCompleteHandler() {
 
-		    public void onSubmitComplete(SubmitCompleteEvent event) {
+		    @Override
+			public void onSubmitComplete(SubmitCompleteEvent event) {
 			uploadStructure.removeInformation(sessionIdElement);
 
 			final String resultMessage = event.getResults();
