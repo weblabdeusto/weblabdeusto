@@ -26,21 +26,21 @@ import es.deusto.weblab.client.dto.users.Group;
 public class AdminPanelWindowHelperTest extends GWTTestCase {
 	
 	public void testExtractGroupsTreeToList() {
-		AdminPanelWindowHelper helper = new AdminPanelWindowHelper();
+		final AdminPanelWindowHelper helper = new AdminPanelWindowHelper();
 		
-		Group group1 = new Group("group 1");
-		Group group11 = new Group("group 1.1");
-		Group group12 = new Group("group 1.2");
-		Group group121 = new Group("group 1.2.1");
-		Group group2 = new Group("group 2");
-		ArrayList<Group> tree = new ArrayList<Group>();
+		final Group group1 = new Group("group 1");
+		final Group group11 = new Group("group 1.1");
+		final Group group12 = new Group("group 1.2");
+		final Group group121 = new Group("group 1.2.1");
+		final Group group2 = new Group("group 2");
+		final ArrayList<Group> tree = new ArrayList<Group>();
 		group12.addChild(group121);
 		group1.addChild(group11);
 		group1.addChild(group12);
 		tree.add(group1);
 		tree.add(group2);
 		
-		ArrayList<Group> list = helper.extractGroupsTreeToList(tree);
+		final ArrayList<Group> list = helper.extractGroupsTreeToList(tree);
 		
 		Assert.assertEquals(5, list.size());
 		

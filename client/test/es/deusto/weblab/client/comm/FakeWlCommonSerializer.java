@@ -46,6 +46,7 @@ public class FakeWlCommonSerializer extends WlFake implements IWlCommonSerialize
 		return (String)this.retrieveReturn(FakeWlCommonSerializer.SERIALIZE_LOGIN_REQUEST);
 	}
 	
+	@Override
 	public void parseLogoutResponse(String responseText)
 		throws SerializationException {
 		this.append(FakeWlCommonSerializer.PARSE_LOGOUT_RESPONSE, new Object[]{
@@ -53,6 +54,7 @@ public class FakeWlCommonSerializer extends WlFake implements IWlCommonSerialize
 		});
 	}
 
+	@Override
 	public String serializeLogoutRequest(SessionID sessionId)
 			throws SerializationException {
 		this.append(FakeWlCommonSerializer.SERIALIZE_LOGOUT_REQUEST, new Object[]{
@@ -61,6 +63,7 @@ public class FakeWlCommonSerializer extends WlFake implements IWlCommonSerialize
 		return (String)this.retrieveReturn(FakeWlCommonSerializer.SERIALIZE_LOGOUT_REQUEST);
 	}
 	
+	@Override
 	public User parseGetUserInformationResponse(String responseText) {
 		this.append(FakeWlCommonSerializer.PARSE_GET_USER_INFORMATION_RESPONSE, new Object[]{
 				responseText
@@ -68,6 +71,7 @@ public class FakeWlCommonSerializer extends WlFake implements IWlCommonSerialize
 		return (User)this.retrieveReturn(FakeWlCommonSerializer.PARSE_GET_USER_INFORMATION_RESPONSE);
 	}
 
+	@Override
 	public String serializeGetUserInformationRequest(SessionID sessionId) {
 		this.append(FakeWlCommonSerializer.SERIALIZE_GET_USER_INFORMATION_REQUEST, new Object[]{
 				sessionId

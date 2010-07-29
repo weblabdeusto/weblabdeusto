@@ -26,6 +26,7 @@ public class FakeConfiguration implements IConfigurationManager {
 		this.map = map;
 	}
 	
+	@Override
 	public int getIntProperty(String key)
 			throws ConfigurationKeyNotFoundException,
 			InvalidConfigurationValueException {
@@ -40,6 +41,7 @@ public class FakeConfiguration implements IConfigurationManager {
 			}
 	}
 
+	@Override
 	public int getIntProperty(String key, int def) {
 		final String value = this.map.get(key);
 		if(value == null)
@@ -52,6 +54,7 @@ public class FakeConfiguration implements IConfigurationManager {
 			}
 	}
 
+	@Override
 	public String getProperty(String key)
 			throws ConfigurationKeyNotFoundException {
 		final String s = this.map.get(key);
@@ -61,6 +64,7 @@ public class FakeConfiguration implements IConfigurationManager {
 			return s;
 	}
 
+	@Override
 	public String getProperty(String key, String def) {
 		final String s = this.map.get(key);
 		if(s == null)
@@ -69,6 +73,7 @@ public class FakeConfiguration implements IConfigurationManager {
 			return s;
 	}
 
+	@Override
 	public boolean getBoolProperty(String key)
 			throws ConfigurationKeyNotFoundException {
 		final String value = this.map.get(key);
@@ -78,6 +83,7 @@ public class FakeConfiguration implements IConfigurationManager {
 			return value.equals("true");
 	}
 
+	@Override
 	public boolean getBoolProperty(String key, boolean def) {
 		final String value = this.map.get(key);
 		if(value == null)

@@ -14,6 +14,8 @@
 
 package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.circuit;
 
+import junit.framework.Assert;
+
 import com.google.gwt.junit.client.GWTTestCase;
 
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.circuit.CircuitParser;
@@ -30,8 +32,8 @@ public class CircuitParserTestCase extends GWTTestCase {
 	final CircuitParser circuitParser = new CircuitParser();
 	try{
 	    circuitParser.parseCircuit("foo");
-	    fail(InvalidCircuitException.class.getName() + " expected");
-	}catch(InvalidCircuitException invalidCircuit){
+	    Assert.fail(InvalidCircuitException.class.getName() + " expected");
+	}catch(final InvalidCircuitException invalidCircuit){
 	    // expected
 	}
     }

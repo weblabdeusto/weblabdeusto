@@ -56,17 +56,21 @@ public class ExperimentFactoryTest extends GWTTestCase {
 	
 	public final void testWrongExperimentID(){
 		final ExperimentFactory factory = new ExperimentFactory(null, new IBoardBaseController(){
+			@Override
 			public void sendCommand(Command command) {
 			}
 
+			@Override
 			public void onClean() {
 				
 			}
 
+			@Override
 			public void sendCommand(Command command, IResponseCommandCallback callback) {
 			    
 			}
 
+			@Override
 			public void sendFile(UploadStructure uploadStructure,
 				IResponseCommandCallback callback) {
 			    
@@ -84,15 +88,19 @@ public class ExperimentFactoryTest extends GWTTestCase {
 	public final void testRightExperimentID(){
 		final FakeConfiguration fakeConfiguration = new FakeConfiguration(new HashMap<String, String>());
 		final ExperimentFactory factory = new ExperimentFactory(fakeConfiguration, new IBoardBaseController(){
+			@Override
 			public void sendCommand(Command command) {
 			}
 
+			@Override
 			public void onClean() {
 			}
 
+			@Override
 			public void sendCommand(Command command, IResponseCommandCallback callback) {
 			}
 
+			@Override
 			public void sendFile(UploadStructure uploadStructure,
 				IResponseCommandCallback callback) {
 			}

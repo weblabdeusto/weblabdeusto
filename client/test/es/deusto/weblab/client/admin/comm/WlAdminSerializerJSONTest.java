@@ -175,7 +175,7 @@ public class WlAdminSerializerJSONTest extends GWTTestCase {
 	}
 
 	public void testParseGetExperimentsResponse() throws Exception {
-		parseGetExperimentsResponse(
+		this.parseGetExperimentsResponse(
 			"{\"result\": [" +
 				"{\"id\": 1, \"name\": \"ud-dummy\", \"category\": {\"name\": \"Dummy experiments\"}, \"start_date\": \"2007-01-01\", \"end_date\": \"2008-01-01\"}, " +
 				"{\"id\": 2, \"name\": \"ud-fpga\", \"category\": {\"name\": \"FPGA experiments\"}, \"start_date\": \"2005-01-01\", \"end_date\": \"2006-01-01\"}" +
@@ -184,7 +184,7 @@ public class WlAdminSerializerJSONTest extends GWTTestCase {
 	}
 	
 	public void testParseGetExperimentsResponseWithOtherDateFormat() throws Exception{
-		parseGetExperimentsResponse(
+		this.parseGetExperimentsResponse(
 			"{\"result\": [" +
 				"{\"id\": 1, \"name\": \"ud-dummy\", \"category\": {\"name\": \"Dummy experiments\"}, \"start_date\": \"2007-01-01 00:00:00\", \"end_date\": \"2008-01-01 00:00:00\"}, " +
 				"{\"id\": 2, \"name\": \"ud-fpga\", \"category\": {\"name\": \"FPGA experiments\"}, \"start_date\": \"2005-01-01 00:00:00\", \"end_date\": \"2006-01-01 00:00:00\"}" +
@@ -283,7 +283,7 @@ public class WlAdminSerializerJSONTest extends GWTTestCase {
 	}
 	
 	public void testParseGetExperimentUsesResponse() throws Exception {
-		parseGetExperimentUsesResponse(
+		this.parseGetExperimentUsesResponse(
 			"{\"result\": [" +
 				"{\"id\": 1, " +
 					"\"start_date\": \"2005-01-01\", " +
@@ -324,7 +324,7 @@ public class WlAdminSerializerJSONTest extends GWTTestCase {
 	}
 	
 	public void testParseGetExperimentUsesResponseWithOtherDateFormat() throws Exception{
-		parseGetExperimentUsesResponse(
+		this.parseGetExperimentUsesResponse(
 				"{\"result\": [" +
 					"{\"id\": 1, " +
 						"\"start_date\": \"2005-01-01 00:00:00\", " +

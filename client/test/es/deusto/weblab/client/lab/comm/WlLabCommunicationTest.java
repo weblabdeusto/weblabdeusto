@@ -74,12 +74,14 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 				);
 		
 		IReservationCallback rc = new IReservationCallback(){
+			@Override
 			public void onSuccess(ReservationStatus reservation) {
 				Assert.assertTrue(reservation instanceof ConfirmedReservationStatus);
 				Assert.assertEquals(TIME, ((ConfirmedReservationStatus)reservation).getTime());
 				WlLabCommunicationTest.this.stepCounter++;
 			}
 
+			@Override
 			public void onFailure(WlCommException e) {
 				Assert.fail("onFailure not expected");
 			}
@@ -91,10 +93,12 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		
 		requestBuilder.setNextToThrow(new RequestException(ERROR_MESSAGE));
 		rc = new IReservationCallback(){
+			@Override
 			public void onSuccess(ReservationStatus reservation){
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
@@ -106,10 +110,12 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		
 		requestBuilder.setNextToError(new Exception(ERROR_MESSAGE));
 		rc = new IReservationCallback(){
+			@Override
 			public void onSuccess(ReservationStatus reservation){
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
@@ -122,10 +128,12 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		requestBuilder.setNextReceivedMessage("");
 		requestBuilder.setResponseToSend(this.generateBadResponse());
 		rc = new IReservationCallback(){
+			@Override
 			public void onSuccess(ReservationStatus reservation){
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof ServerException);
 				WlLabCommunicationTest.this.stepCounter++;
@@ -166,12 +174,14 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 				);
 		
 		IExperimentsAllowedCallback eac = new IExperimentsAllowedCallback(){
+			@Override
 			public void onSuccess(ExperimentAllowed [] experimentsAllowed) {
 				Assert.assertEquals(experiments.length, experimentsAllowed.length);
 				Assert.assertEquals(experiments[0], experimentsAllowed[0]);
 				WlLabCommunicationTest.this.stepCounter++;
 			}
 
+			@Override
 			public void onFailure(WlCommException e) {
 				Assert.fail("onFailure not expected");
 			}
@@ -183,10 +193,12 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		
 		requestBuilder.setNextToThrow(new RequestException(ERROR_MESSAGE));
 		eac = new IExperimentsAllowedCallback(){
+			@Override
 			public void onSuccess(ExperimentAllowed [] experimentsAllowed){
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
@@ -198,10 +210,12 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		
 		requestBuilder.setNextToError(new Exception(ERROR_MESSAGE));
 		eac = new IExperimentsAllowedCallback(){
+			@Override
 			public void onSuccess(ExperimentAllowed [] experimentsAllowed){
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
@@ -214,10 +228,12 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		requestBuilder.setNextReceivedMessage("");
 		requestBuilder.setResponseToSend(this.generateBadResponse());
 		eac = new IExperimentsAllowedCallback(){
+			@Override
 			public void onSuccess(ExperimentAllowed [] experimentsAllowed){
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof ServerException);
 				WlLabCommunicationTest.this.stepCounter++;
@@ -249,10 +265,12 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 				);
 		
 		IVoidCallback eac = new IVoidCallback(){
+			@Override
 			public void onSuccess() {
 				WlLabCommunicationTest.this.stepCounter++;
 			}
 
+			@Override
 			public void onFailure(WlCommException e) {
 				Assert.fail("onFailure not expected");
 			}
@@ -264,10 +282,12 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		
 		requestBuilder.setNextToThrow(new RequestException(ERROR_MESSAGE));
 		eac = new IVoidCallback(){
+			@Override
 			public void onSuccess(){
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
@@ -279,10 +299,12 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		
 		requestBuilder.setNextToError(new Exception(ERROR_MESSAGE));
 		eac = new IVoidCallback(){
+			@Override
 			public void onSuccess(){
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
@@ -295,10 +317,12 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		requestBuilder.setNextReceivedMessage("");
 		requestBuilder.setResponseToSend(this.generateBadResponse());
 		eac = new IVoidCallback(){
+			@Override
 			public void onSuccess(){
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof ServerException);
 				WlLabCommunicationTest.this.stepCounter++;
@@ -336,11 +360,13 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 				);
 		
 		IReservationCallback eac = new IReservationCallback(){
+			@Override
 			public void onSuccess(ReservationStatus reservation) {
 				Assert.assertEquals(expectedReservation, reservation);
 				WlLabCommunicationTest.this.stepCounter++;
 			}
 
+			@Override
 			public void onFailure(WlCommException e) {
 				Assert.fail("onFailure not expected");
 			}
@@ -352,10 +378,12 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		
 		requestBuilder.setNextToThrow(new RequestException(ERROR_MESSAGE));
 		eac = new IReservationCallback(){
+			@Override
 			public void onSuccess(ReservationStatus reservation) {
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
@@ -367,10 +395,12 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		
 		requestBuilder.setNextToError(new Exception(ERROR_MESSAGE));
 		eac = new IReservationCallback(){
+			@Override
 			public void onSuccess(ReservationStatus reservation) {
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
@@ -383,10 +413,12 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		requestBuilder.setNextReceivedMessage("");
 		requestBuilder.setResponseToSend(this.generateBadResponse());
 		eac = new IReservationCallback(){
+			@Override
 			public void onSuccess(ReservationStatus reservation) {
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof ServerException);
 				WlLabCommunicationTest.this.stepCounter++;
@@ -424,11 +456,13 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			);
 	
 		IResponseCommandCallback eac = new IResponseCommandCallback(){
+			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
 				//TODO
 				WlLabCommunicationTest.this.stepCounter++;
 			}
 
+			@Override
 			public void onFailure(WlCommException e) {
 				Assert.fail("onFailure not expected");
 			}
@@ -440,10 +474,12 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		
 		requestBuilder.setNextToThrow(new RequestException(ERROR_MESSAGE));
 		eac = new IResponseCommandCallback(){
+			@Override
 			public void onSuccess(ResponseCommand responseCommand){
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
@@ -455,10 +491,12 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		
 		requestBuilder.setNextToError(new Exception(ERROR_MESSAGE));
 		eac = new IResponseCommandCallback(){
+			@Override
 			public void onSuccess(ResponseCommand responseCommand){
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
@@ -471,10 +509,12 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		requestBuilder.setNextReceivedMessage("");
 		requestBuilder.setResponseToSend(this.generateBadResponse());
 		eac = new IResponseCommandCallback(){
+			@Override
 			public void onSuccess(ResponseCommand responseCommand){
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof ServerException);
 				WlLabCommunicationTest.this.stepCounter++;
@@ -506,10 +546,12 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 				);
 		
 		IVoidCallback eac = new IVoidCallback(){
+			@Override
 			public void onSuccess() {
 				WlLabCommunicationTest.this.stepCounter++;
 			}
 
+			@Override
 			public void onFailure(WlCommException e) {
 				Assert.fail("onFailure not expected");
 			}
@@ -521,10 +563,12 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		
 		requestBuilder.setNextToThrow(new RequestException(ERROR_MESSAGE));
 		eac = new IVoidCallback(){
+			@Override
 			public void onSuccess(){
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
@@ -536,10 +580,12 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		
 		requestBuilder.setNextToError(new Exception(ERROR_MESSAGE));
 		eac = new IVoidCallback(){
+			@Override
 			public void onSuccess(){
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
@@ -552,10 +598,12 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		requestBuilder.setNextReceivedMessage("");
 		requestBuilder.setResponseToSend(this.generateBadResponse());
 		eac = new IVoidCallback(){
+			@Override
 			public void onSuccess(){
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof ServerException);
 				WlLabCommunicationTest.this.stepCounter++;
@@ -667,11 +715,13 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		};
 		
 		final IResponseCommandCallback callback = new IResponseCommandCallback(){
+			@Override
 			public void onSuccess(ResponseCommand command){
 				WlLabCommunicationTest.this.stepCounter++;
 				WlLabCommunicationTest.this.sentFileResponse = command;
 			}
 
+			@Override
 			public void onFailure(WlCommException e){
 			}
 		};

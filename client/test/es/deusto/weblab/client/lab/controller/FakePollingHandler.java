@@ -21,10 +21,12 @@ public class FakePollingHandler extends WlFake implements IPollingHandler {
 	public static final String START = "start";
 	public static final String STOP  = "stop";
 	
+	@Override
 	public void start() {
 		this.append(FakePollingHandler.START);
 	}
 
+	@Override
 	public void stop() {
 		this.append(FakePollingHandler.STOP);
 	}

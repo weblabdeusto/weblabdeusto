@@ -30,26 +30,32 @@ public class PollingHandlerTest extends GWTTestCase  {
 	
 	class FakeConfigurationManager implements IConfigurationManager{
 
+		@Override
 		public int getIntProperty(String key) throws ConfigurationKeyNotFoundException, InvalidConfigurationValueException {
 			throw new IllegalStateException("getIntProperty(String) should not be called");
 		}
 
+		@Override
 		public int getIntProperty(String key, int def) {
 			return PollingHandlerTest.TEST_POLLING_TIME;
 		}
 
+		@Override
 		public String getProperty(String key) throws ConfigurationKeyNotFoundException {
 			throw new IllegalStateException("getProperty(String) should not be called");
 		}
 
+		@Override
 		public String getProperty(String key, String def) {
 			throw new IllegalStateException("getProperty(String, String) should not be called");
 		}
 		
+		@Override
 		public boolean getBoolProperty(String key) {
 			throw new IllegalStateException("getBoolProperty(String) should not be called");
 		}			
 		
+		@Override
 		public boolean getBoolProperty(String key, boolean def) {
 			throw new IllegalStateException("getBoolProperty(String, boolean) should not be called");
 		}		
@@ -57,6 +63,7 @@ public class PollingHandlerTest extends GWTTestCase  {
 	
 	class FakePetitionsController implements IPetitionsController{
 		List<PetitionNode> pushedNodes = new Vector<PetitionNode>();
+		@Override
 		public void push(PetitionNode node) {
 			this.pushedNodes.add(node);
 		}

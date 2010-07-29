@@ -101,11 +101,13 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 				);
 		
 		ISessionIdCallback eac = new ISessionIdCallback(){
+			@Override
 			public void onSuccess(SessionID sessionId) {
 				Assert.assertEquals(expectedSessionId, sessionId);
 				WlCommonCommunicationTest.this.stepCounter++;
 			}
 
+			@Override
 			public void onFailure(WlCommException e) {
 				Assert.fail("onFailure not expected");
 			}
@@ -117,10 +119,12 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 		
 		requestBuilder.setNextToThrow(new RequestException(ERROR_MESSAGE));
 		eac = new ISessionIdCallback(){
+			@Override
 			public void onSuccess(SessionID sessionId){
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
@@ -132,10 +136,12 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 		
 		requestBuilder.setNextToError(new Exception(ERROR_MESSAGE));
 		eac = new ISessionIdCallback(){
+			@Override
 			public void onSuccess(SessionID sessionId){
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
@@ -148,10 +154,12 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 		requestBuilder.setNextReceivedMessage("");
 		requestBuilder.setResponseToSend(this.generateBadResponse());
 		eac = new ISessionIdCallback(){
+			@Override
 			public void onSuccess(SessionID sessionId){
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof ServerException);
 				WlCommonCommunicationTest.this.stepCounter++;
@@ -183,10 +191,12 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 				);
 		
 		IVoidCallback eac = new IVoidCallback(){
+			@Override
 			public void onSuccess() {
 				WlCommonCommunicationTest.this.stepCounter++;
 			}
 
+			@Override
 			public void onFailure(WlCommException e) {
 				Assert.fail("onFailure not expected");
 			}
@@ -198,10 +208,12 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 		
 		requestBuilder.setNextToThrow(new RequestException(ERROR_MESSAGE));
 		eac = new IVoidCallback(){
+			@Override
 			public void onSuccess(){
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
@@ -213,10 +225,12 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 		
 		requestBuilder.setNextToError(new Exception(ERROR_MESSAGE));
 		eac = new IVoidCallback(){
+			@Override
 			public void onSuccess(){
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
@@ -229,10 +243,12 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 		requestBuilder.setNextReceivedMessage("");
 		requestBuilder.setResponseToSend(this.generateBadResponse());
 		eac = new IVoidCallback(){
+			@Override
 			public void onSuccess(){
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof ServerException);
 				WlCommonCommunicationTest.this.stepCounter++;
@@ -274,6 +290,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 				);
 		
 		IUserInformationCallback uic = new IUserInformationCallback(){
+			@Override
 			public void onSuccess(User userInformation) {
 				Assert.assertEquals(user.getEmail(),    userInformation.getEmail());
 				Assert.assertEquals(user.getFullName(), userInformation.getFullName());
@@ -281,6 +298,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 				WlCommonCommunicationTest.this.stepCounter++;
 			}
 
+			@Override
 			public void onFailure(WlCommException e) {
 				Assert.fail("onFailure not expected");
 			}
@@ -292,10 +310,12 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 		
 		requestBuilder.setNextToThrow(new RequestException(ERROR_MESSAGE));
 		uic = new IUserInformationCallback(){
+			@Override
 			public void onSuccess(User userInformation){
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
@@ -307,10 +327,12 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 		
 		requestBuilder.setNextToError(new Exception(ERROR_MESSAGE));
 		uic = new IUserInformationCallback(){
+			@Override
 			public void onSuccess(User userInformation){
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
@@ -323,10 +345,12 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 		requestBuilder.setNextReceivedMessage("");
 		requestBuilder.setResponseToSend(this.generateBadResponse());
 		uic = new IUserInformationCallback(){
+			@Override
 			public void onSuccess(User userInformation){
 				Assert.fail("onSuccess not expected");
 			}
 			
+			@Override
 			public void onFailure(WlCommException e){
 				Assert.assertTrue(e instanceof ServerException);
 				WlCommonCommunicationTest.this.stepCounter++;

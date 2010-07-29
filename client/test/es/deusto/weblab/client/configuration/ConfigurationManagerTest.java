@@ -30,6 +30,7 @@ public class ConfigurationManagerTest extends GWTTestCase {
 		this.confManager = new ConfigurationManager("this.file.does.not.exist.js",
 				new IConfigurationLoadedCallback(){
 
+					@Override
 					public void onLoaded() {
 						try{
 							Assert.fail("The file should not have been found and an exception should have raised");
@@ -38,6 +39,7 @@ public class ConfigurationManagerTest extends GWTTestCase {
 						}
 					}
 
+					@Override
 					public void onFailure(Throwable t) {
 						//Ok
 						ConfigurationManagerTest.this.finishTest();
@@ -53,6 +55,7 @@ public class ConfigurationManagerTest extends GWTTestCase {
 			this.confManager = new ConfigurationManager( GWT.getModuleBaseURL() + "configuration_test_3.js",
 					new IConfigurationLoadedCallback(){
 	
+						@Override
 						public void onLoaded() {
 							try{
 								Assert.fail("The file should not have been found and an exception should have raised");
@@ -61,6 +64,7 @@ public class ConfigurationManagerTest extends GWTTestCase {
 							}
 						}
 	
+						@Override
 						public void onFailure(Throwable t) {
 							//Ok
 							ConfigurationManagerTest.this.finishTest();
@@ -77,6 +81,7 @@ public class ConfigurationManagerTest extends GWTTestCase {
 		this.delayTestFinish(500);
 		this.confManager = new ConfigurationManager( GWT.getModuleBaseURL() + "configuration_test.js", 
 				new IConfigurationLoadedCallback(){
+					@Override
 					public void onLoaded() {
 						try{
 							//Using default values
@@ -102,6 +107,7 @@ public class ConfigurationManagerTest extends GWTTestCase {
 							ConfigurationManagerTest.this.finishTest();
 						}
 					}
+					@Override
 					public void onFailure(Throwable t) {
 						Assert.fail("onFailure called when instanciating the ConfigurationManager: " + t.getMessage());
 					}
@@ -114,6 +120,7 @@ public class ConfigurationManagerTest extends GWTTestCase {
 		this.delayTestFinish(500);
 		this.confManager = new ConfigurationManager( GWT.getModuleBaseURL() + "configuration_test.js", 
 				new IConfigurationLoadedCallback(){
+					@Override
 					public void onLoaded() {
 						try{
 							//Using default values
@@ -155,6 +162,7 @@ public class ConfigurationManagerTest extends GWTTestCase {
 						}
 					}
 
+					@Override
 					public void onFailure(Throwable t) {
 						Assert.fail("onFailure called when instanciating the ConfigurationManager: " + t.getMessage());
 					}

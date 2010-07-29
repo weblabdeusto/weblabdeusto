@@ -276,10 +276,12 @@ public class WlLabControllerTest  extends GWTTestCase{
 		final String commandMsg = "First command";
 		final MyCommand myCommand = new MyCommand(commandMsg);
 		final IResponseCommandCallback commandCallback = new IResponseCommandCallback(){
-		    public void onSuccess(ResponseCommand responseCommand) {
+		    @Override
+			public void onSuccess(ResponseCommand responseCommand) {
 		    }
 
-		    public void onFailure(WlCommException e) {
+		    @Override
+			public void onFailure(WlCommException e) {
 		    }
 		}; 
 		
@@ -420,7 +422,7 @@ public class WlLabControllerTest  extends GWTTestCase{
 	}
 	
 	private class FakeWebLabController extends WlLabController{
-	    	private FakeUIManager uimanager;
+	    	private final FakeUIManager uimanager;
 	    	
 		public FakeWebLabController(
 				IConfigurationManager configurationManager,
