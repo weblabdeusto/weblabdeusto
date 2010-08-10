@@ -52,14 +52,6 @@ class ErrorWaitingForJTagBlazerTargetFinishedException(DeviceExceptions.Programm
     def __init__(self,*args,**kargs):
         DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
 
-class JTagBlazerDeviceNotFoundException(DeviceExceptions.DeviceException):
-    def __init__(self, *args, **kargs):
-        DeviceExceptions.DeviceException.__init__(self, *args, **kargs)
-
-class NotAJTagBlazerDeviceEnumException(DeviceExceptions.DeviceException):
-    def __init__(self, *args, **kargs):
-        DeviceExceptions.DeviceException.__init__(self, *args, **kargs)
-
 class InvalidSvfFileExtException(DeviceExceptions.DeviceException):
     def __init__(self, *args, **kargs):
         DeviceExceptions.DeviceException.__init__(self, *args, **kargs)
