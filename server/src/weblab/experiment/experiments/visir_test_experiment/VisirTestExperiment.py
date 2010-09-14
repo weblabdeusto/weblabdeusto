@@ -31,6 +31,7 @@ CFG_COOKIE = "vt_cookie"
 CFG_LOGIN_EMAIL = "vt_login_email"
 CFG_LOGIN_PASSWORD = "vt_login_password"
 
+DEBUG = True
 
 
 class VisirTestExperiment(Experiment.Experiment):
@@ -41,96 +42,76 @@ class VisirTestExperiment(Experiment.Experiment):
         self.read_config()
         
     def read_config(self):
+        """
+        Reads the config parameters from the config file (such as the
+        measurement server address)
+        """
         self.measure_server_addr = self._cfg_manager.get_value(CFG_MEASURE_SERVER_ADDRESS)
         self.measure_server_target = self._cfg_manager.get_value(CFG_MEASURE_SERVER_TARGET)
-        #self.cookie = self._cfg_manager.get_value(CFG_COOKIE)
         self.loginurl = self._cfg_manager.get_value(CFG_LOGIN_URL)
         self.login_email = self._cfg_manager.get_value(CFG_LOGIN_EMAIL)
         self.login_password = self._cfg_manager.get_value(CFG_LOGIN_PASSWORD)
 
     @Override(Experiment.Experiment)
     def do_start_experiment(self):
+        """
+        Callback run when the experiment is started
+        """
         print "Measure server address: ", self.measure_server_addr
         print "Measure server target: ", self.measure_server_target
         return "Ok"
 
     @Override(Experiment.Experiment)
     def do_send_command_to_device(self, command):
-        return self.do_send_command_to_device_real(command)
-    
-    
-    def do_send_command_to_device_real(self, command):
-        #command = self.transform_request(command)
+        """
+        Callback run when the client sends a command to the experiment
+        @param command Command sent by the client, as a string.
+        """
         
+        # Check whether it's a GIVEMECOOKIE command, which will carry out
+        # a login to obtain the cookie the client should use
         if command == 'GIVEMECOOKIE':
-            # Perform a login
-            print "COOKIE REQUESTED"
+            if(DEBUG):
+                print "[VisirTestExperiment] Performing login with %s / %s"  % (self.login_email, self.login_password)
+            
             cookie = self.perform_visir_web_login(self.loginurl, 
                 self.login_email, self.login_password)
-            print "COOKIE OBTAINED: ", cookie
+            
+            if(DEBUG):
+                print "[VisirTestExperiment] Login result: ", cookie
+           
             return cookie
         
-        return self.send_request(command)
-    
-    def transform_request(self, command):
-        print "Transforming request: ", command
-        doc = minidom.parseString(command)
-        tags = doc.getElementsByTagName("login")
-        if len(tags) == 0:
-            return command
-        tag = tags[0]
-        tag.setAttribute("keepalive", "1")
-        command = doc.toxml()
-        return command
-         
+        # Otherwise, it's a VISIR XML command, and should just be forwarded
+        # to the VISIR measurement server
+        return self.forward_request(command) 
+
         
         
-    def send_request(self, request):
-        print "Sending req: ", request
+    def forward_request(self, request):
+        """
+        Forwards a request to the VISIR Measurement Server through an
+        HTTP POST.
+        @param request String containing the request to be forwarded
+        """
+        if(DEBUG):
+            print "[VisirTestExperiment] Forwarding request: ", request
+            
         conn = httplib.HTTPConnection(self.measure_server_addr)
         conn.request("POST", self.measure_server_target, request)
         response = conn.getresponse()
-        print response.status, response.reason
         data = response.read()
         conn.close()
-        print "Received response: ", data
+        
+        if(DEBUG):
+            print "[VisirTestExperiment] Received response: ", data
+            
         return data
 
-    
-    def do_send_command_to_device_hc(self, command):
-  #      print "Command: %s" % command
-        
-        if command == 'GIVEMECOOKIE':
-            # Perform a login
-            print "COOKIE REQUESTED"
-            cookie = self.perform_visir_web_login(self.loginurl, "guest", "guest")
-            print "COOKIE OBTAINED: ", cookie
-            return cookie
-        
-        doc = minidom.parseString(command)
-        protocol_tag = doc.getElementsByTagName("protocol")
-        for tag in protocol_tag[0].childNodes:
-            if tag.nodeType == tag.ELEMENT_NODE and tag.localName == "login":
-                return self.handle_login_command(tag)
-            elif tag.nodeType == tag.ELEMENT_NODE and tag.localName == "request":
-                return self.handle_response_command(tag)
-        return """"""
-    
-    def handle_response_command_hc(self, tag):
-        return """<protocol version="1.3"><response/></protocol>"""
-
-    def handle_login_command_hc(self, tag):
-        '''
-        Handles a login command.
-        @param tag The XML "login" tag describing the command.
-        @return Response to the command
-        '''
-        print "Returning LOGIN command"
-        return """<protocol version="1.3"><login sessionkey="123"/></protocol>"""
 
 
     def perform_visir_web_login(self, url, email, password):
-        '''
+        """
         Performs a login through the specified visir web url.
         @param url Url to the file through which to login. May contain
         GET parameters if required.
@@ -138,11 +119,11 @@ class VisirTestExperiment(Experiment.Experiment):
         @param password Password to use
         @return The cookie that was returned upon a successful login, and
         None upon a failed one
-        '''
+        """
         
         # Create the POST data with the parameters
-        postvals = {'email' : email,
-                    'password' : password }
+        postvals = {"email" : email,
+                    "password" : password }
         postdata = urllib.urlencode(postvals)
 
         # We need to use a Cookie processor to be able to retrieve
@@ -169,12 +150,22 @@ class VisirTestExperiment(Experiment.Experiment):
 
     @Override(Experiment.Experiment)
     def do_send_file_to_device(self, content, file_info):
-        print "On send file"
+        """ 
+        Callback for when the client sends a file to the experiment
+        server. Currently unused for this experiment, should never get 
+        called.
+        """
+        if(DEBUG):
+            print "[VisirTestExperiment] do_send_file_to_device called"
         return "Ok"
 
 
     @Override(Experiment.Experiment)
     def do_dispose(self):
-        print "On do dispose"
+        """
+        Callback to perform cleaning after the experiment ends.
+        """
+        if(DEBUG):
+            print "[VisirTestExperiment] do_dispose called"
         return "Ok"
 
