@@ -17,7 +17,8 @@ import weblab.experiment.Experiment as Experiment
 
 import xml.dom.minidom as minidom
 import httplib
-#import urllib
+import urllib
+import urllib2
 
 from voodoo.override import Override
 
@@ -25,7 +26,10 @@ from voodoo.override import Override
 
 CFG_MEASURE_SERVER_ADDRESS = "vt_measure_server_addr"
 CFG_MEASURE_SERVER_TARGET = "vt_measure_server_target"
+CFG_LOGIN_URL = "vt_login_url"
 CFG_COOKIE = "vt_cookie"
+CFG_LOGIN_EMAIL = "vt_login_email"
+CFG_LOGIN_PASSWORD = "vt_login_password"
 
 
 
@@ -39,7 +43,10 @@ class VisirTestExperiment(Experiment.Experiment):
     def read_config(self):
         self.measure_server_addr = self._cfg_manager.get_value(CFG_MEASURE_SERVER_ADDRESS)
         self.measure_server_target = self._cfg_manager.get_value(CFG_MEASURE_SERVER_TARGET)
-        self.cookie = self._cfg_manager.get_value(CFG_COOKIE)
+        #self.cookie = self._cfg_manager.get_value(CFG_COOKIE)
+        self.loginurl = self._cfg_manager.get_value(CFG_LOGIN_URL)
+        self.login_email = self._cfg_manager.get_value(CFG_LOGIN_EMAIL)
+        self.login_password = self._cfg_manager.get_value(CFG_LOGIN_PASSWORD)
 
     @Override(Experiment.Experiment)
     def do_start_experiment(self):
@@ -54,6 +61,15 @@ class VisirTestExperiment(Experiment.Experiment):
     
     def do_send_command_to_device_real(self, command):
         #command = self.transform_request(command)
+        
+        if command == 'GIVEMECOOKIE':
+            # Perform a login
+            print "COOKIE REQUESTED"
+            cookie = self.perform_visir_web_login(self.loginurl, 
+                self.login_email, self.login_password)
+            print "COOKIE OBTAINED: ", cookie
+            return cookie
+        
         return self.send_request(command)
     
     def transform_request(self, command):
@@ -70,7 +86,7 @@ class VisirTestExperiment(Experiment.Experiment):
         
         
     def send_request(self, request):
-        print "Sending request: ", request
+        print "Sending req: ", request
         conn = httplib.HTTPConnection(self.measure_server_addr)
         conn.request("POST", self.measure_server_target, request)
         response = conn.getresponse()
@@ -82,10 +98,14 @@ class VisirTestExperiment(Experiment.Experiment):
 
     
     def do_send_command_to_device_hc(self, command):
-        print "Command: %s" % command
+  #      print "Command: %s" % command
         
         if command == 'GIVEMECOOKIE':
-            return self.cookie
+            # Perform a login
+            print "COOKIE REQUESTED"
+            cookie = self.perform_visir_web_login(self.loginurl, "guest", "guest")
+            print "COOKIE OBTAINED: ", cookie
+            return cookie
         
         doc = minidom.parseString(command)
         protocol_tag = doc.getElementsByTagName("protocol")
@@ -108,6 +128,44 @@ class VisirTestExperiment(Experiment.Experiment):
         print "Returning LOGIN command"
         return """<protocol version="1.3"><login sessionkey="123"/></protocol>"""
 
+
+    def perform_visir_web_login(self, url, email, password):
+        '''
+        Performs a login through the specified visir web url.
+        @param url Url to the file through which to login. May contain
+        GET parameters if required.
+        @param email Email or account name to use
+        @param password Password to use
+        @return The cookie that was returned upon a successful login, and
+        None upon a failed one
+        '''
+        
+        # Create the POST data with the parameters
+        postvals = {'email' : email,
+                    'password' : password }
+        postdata = urllib.urlencode(postvals)
+
+        # We need to use a Cookie processor to be able to retrieve
+        # the auth cookie that we seek
+        cp = urllib2.HTTPCookieProcessor()
+        o = urllib2.build_opener( cp )
+        urllib2.install_opener(o)
+        
+        # Do the request iself. The cookies retrieved (which should
+        # actually be a single cookie) will be stored in the 
+        # aforementioned cookie processor's CookieJar
+        r = o.open(url, postdata)
+        r.close()
+        
+        # If there is a cookie in the jar, assume it's the one we seek,
+        # and return its value.
+        for c in cp.cookiejar:
+            print "Cookie found: ", c
+            return c.value
+        
+        # No cookies retrieved, login must have failed.
+        return None
+    
 
     @Override(Experiment.Experiment)
     def do_send_file_to_device(self, content, file_info):
