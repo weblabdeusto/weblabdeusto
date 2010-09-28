@@ -118,7 +118,7 @@ import sys
 
 @patch
 def patchXmlrpcObjectsSerialization():
-    if sys.version_info[:2] in ((2,5), (2,4)):
+    if sys.version_info[:2] == (2,5):
         from types import InstanceType
         # This code is copied from python2.6 xmlrpclib
         def _new__dump(self, value, write):

@@ -25,7 +25,7 @@
 import xmlrpclib
 import sys
 
-if sys.version_info[:2] in ((2,5), (2,4)):
+if sys.version_info[:2] == (2,5):
     from types import InstanceType
     # This code is copied from python2.6 xmlrpclib
     def _new__dump(self, value, write):
@@ -101,10 +101,7 @@ class _CookiesTransport(xmlrpclib.Transport):
             connection.putheader("Cookie", self._sessid_cookie)
 
 def _create_weblab_client(url, session_id):
-    if sys.version_info[:2] == (2,4):
-        server = xmlrpclib.Server(url)
-    else:
-        server = xmlrpclib.Server(url, allow_none = True)
+    server = xmlrpclib.Server(url, allow_none = True)
     transport = server._ServerProxy__transport
     transport.__class__  = _CookiesTransport
     transport._sessid_cookie = session_id

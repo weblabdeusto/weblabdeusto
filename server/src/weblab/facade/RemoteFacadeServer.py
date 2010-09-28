@@ -255,11 +255,7 @@ class XmlRpcServer(SocketServer.ThreadingMixIn, SimpleXMLRPCServer.SimpleXMLRPCS
         class NewXmlRpcRequestHandler(XmlRpcRequestHandler):
             server_route = the_server_route
 
-        if sys.version_info[:2] == (2,4):
-            SimpleXMLRPCServer.SimpleXMLRPCServer.__init__(self, server_address, NewXmlRpcRequestHandler)
-        else:
-            SimpleXMLRPCServer.SimpleXMLRPCServer.__init__(self, server_address, NewXmlRpcRequestHandler, allow_none = True)
-
+        SimpleXMLRPCServer.SimpleXMLRPCServer.__init__(self, server_address, NewXmlRpcRequestHandler, allow_none = True)
         self.register_instance(manager)
 
     def get_request(self):
