@@ -227,21 +227,22 @@ class ConsoleUI(object):
         self._clean(False)
         self._print("Main Menu")
         self._print() 
-        self._print("1. Add Group")
-        self._print("2. Add Experiment Category")
-        self._print("3. Add Experiment")
-        self._print("4. Add User with DB AuthType")
-        self._print("5. Add Users with LDAP AuthType")
-        self._print("6. Grant on Experiment to Group")
-        self._print("7. Grant on Experiment to User")
-        self._print("8. List Users")
-        self._print("9. Notify Users")
+        self._print(" 1. Add Group")
+        self._print(" 2. Add Experiment Category")
+        self._print(" 3. Add Experiment")
+        self._print(" 4. Add Users to Group")
+        self._print(" 5. Add User with DB AuthType")
+        self._print(" 6. Add Users with LDAP AuthType")
+        self._print(" 7. Grant on Experiment to Group")
+        self._print(" 8. Grant on Experiment to User")
+        self._print(" 9. List Users")
+        self._print("10. Notify Users")
         self._print()
         self._print("0. Exit")
         self._print()
         while True:
             try:
-                option = self._read_field_int("Option", 0, 9)
+                option = self._read_field_int("Option", 0, 10)
                 break
             except GoBackException:
                 pass
@@ -265,7 +266,18 @@ class ConsoleUI(object):
         self._print("Add Experiment")
         self._print()
         return self._read_field_str("Name"), \
-               self._read_field_choose("Category", categories)
+               self._read_field_choose("Category", categories)        
+               
+    def dialog_add_users_to_group(self, groups, default_users_file):
+        self._clean()
+        self._print("Add Users to Group")
+        self._print()
+        user_logins = self._read_field_users_file("Users file", default=default_users_file)
+        for user_login in user_logins:
+            self._print(" %s" % user_login)
+        return self._read_field_choose("Group", groups), \
+               user_logins
+               
                
     def dialog_add_user_with_db_authtype(self, roles, auths):
         self._clean()

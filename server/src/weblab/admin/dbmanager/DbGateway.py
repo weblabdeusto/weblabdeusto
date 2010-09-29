@@ -56,9 +56,12 @@ class DbGateway(object):
         except NoResultFound:
             return []
                 
-    def get_users(self):
+    def get_users(self, users_logins=None):
         try:
-            return self.session.query(Model.DbUser).order_by('id').all()
+            if users_logins is None:
+                return self.session.query(Model.DbUser).order_by('id').all()
+            else:
+                return self.session.query(Model.DbUser).filter(Model.DbUser.login.in_(users_logins)).all()
         except NoResultFound:
             return []
         
@@ -131,6 +134,14 @@ class DbGateway(object):
             return user_auth
         except IntegrityError:
             return None
+                
+    def add_user_to_group(self, user, group):
+        try:
+            group.users.append(user)
+            self.session.commit()
+            return user, group
+        except IntegrityError:
+            return None, None
                 
     def grant_on_experiment_to_group(self, group, permission_type, permanent_id, date, comments, experiment, time_allowed):
         try:

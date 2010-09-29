@@ -61,16 +61,18 @@ class Controller(object):
             elif option == 3:
                 self.add_experiment()
             elif option == 4:
-                self.add_user_with_db_authtype()
+                self.add_users_to_group()
             elif option == 5:
-                self.add_users_with_ldap_authtype()
+                self.add_user_with_db_authtype()
             elif option == 6:
-                self.grant_on_experiment_to_group()
+                self.add_users_with_ldap_authtype()
             elif option == 7:
-                self.grant_on_experiment_to_user()
+                self.grant_on_experiment_to_group()
             elif option == 8:
-                self.list_users()
+                self.grant_on_experiment_to_user()
             elif option == 9:
+                self.list_users()
+            elif option == 10:
                 self.notify_users()
         self.ui.dialog_exit()
         sys.exit(0)
@@ -115,6 +117,33 @@ class Controller(object):
                 self.ui.notify("Experiment created:\n%r" % experiment)
             else:
                 self.ui.error("The Experiment '%s' already exists." % experiment_name)     
+            self.ui.wait()
+        except GoBackException:
+            return
+        
+    def add_users_to_group(self):
+        groups = self.db.get_groups()
+        group_names = [ (group.id, group.name) for group in groups ]
+        try:
+            group_id, user_logins = self.ui.dialog_add_users_to_group(group_names, DEFAULT_LDAP_USERS_FILE)
+            group = [ group for group in groups if group.id == group_id ][0]
+            users = self.db.get_users(user_logins)
+            if len(user_logins) > 0:
+                self.ui.notify("The following Users have been added to the Group:\n%r" % group)
+                error_users = []
+                for user in users:
+                    u, g = self.db.add_user_to_group(user, group)
+                    if (u, g) is not (None, None):
+                        self.ui.notify("%r" % u)
+                    else:
+                        error_users.append(user)
+                self.ui.notify("Total added Users: %i" % (len(users)-len(error_users)))
+                if len(error_users) > 0:
+                    self.ui.error("Warning! The following Users could not be added to the Group: %r" % error_users)
+                if len(user_logins) > len(users):
+                    self.ui.notify("Warning! %i Users did not exist in the database." % (len(user_logins) - len(users)))
+            else:
+                self.ui.error("There are no Users to be added to the Group.")
             self.ui.wait()
         except GoBackException:
             return
