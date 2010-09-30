@@ -19,13 +19,16 @@ import os
 import weblab.exceptions.experiment.experiments.ud_pic_experiment.UdPicExperimentExceptions as UdPicExperimentExceptions
 
 class TFtpProgramSender(object):
+    
+    _tempfile = tempfile
+    
     def __init__(self, tftp_device, tftp_remote_filename):
         super(TFtpProgramSender, self).__init__()
         self._tftp_device = tftp_device
         self._tftp_remote_filename =  tftp_remote_filename
 
     def send_content(self, file_content):
-        fd, file_name = tempfile.mkstemp(
+        fd, file_name = self._tempfile.mkstemp(
                 prefix='ud_pic_experiment_program',suffix='.hex'
             )
         try:
