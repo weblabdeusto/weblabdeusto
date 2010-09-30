@@ -9,5 +9,10 @@ GROUPS = {
             '5-Ing.Ind_2009-2010'      : ('ud-fpga',  'FPGA experiments')
         }
 
+GROUP_KEYS = [
+        '5-Ing.Ind_2009-2010',
+        '5-Ing.Tel_GPIB_2009-2010'
+    ]
+
 LOGIC_EXP_ID="11"
 

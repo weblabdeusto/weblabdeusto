@@ -2,15 +2,22 @@ import MySQLdb as dbi
 import time
 import calendar
 
-from configuration import _USERNAME, _PASSWORD, DB_NAME, GROUPS
+from configuration import _USERNAME, _PASSWORD, DB_NAME, GROUPS, GROUP_KEYS
 
 def index(req):
+    for group in GROUPS:
+        if not group in GROUP_KEYS:
+            return """<html><body>Missing group %s in GROUP_KEYS</body></html>""" % group
+    for group in GROUP_KEYS:
+        if not group in GROUPS:
+            return """<html><body>Missing group %s in GROUPS</body></html>""" % group
+
     connection = dbi.connect(host="localhost",user=_USERNAME, passwd=_PASSWORD, db=DB_NAME)
     result = """<html><head><title>Uses per experiment</title></head><body>"""
     try:
         cursor = connection.cursor()
         try:
-            for group in GROUPS:
+            for group in GROUP_KEYS:
                 SENTENCE = "SELECT u.login, u.full_name, u.id " + \
                             "FROM %(DB)s.User as u, %(DB)s.UserIsMemberOf as m, %(DB)s.Group as g " % { 'DB': DB_NAME } + \
                             "WHERE u.id = m.user_id AND m.group_id = g.id AND g.name = '%(GROUP)s'" % { 'GROUP': group }
