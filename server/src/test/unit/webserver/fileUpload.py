@@ -13,10 +13,12 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+from __future__ import with_statement
+
 import unittest
-import pmock
 import StringIO
 import xmlrpclib
+from mocker import Mocker
 
 import weblab.experiment.Util     as ExperimentUtil
 import webserver.fileUpload as fileUpload
@@ -51,7 +53,9 @@ def extract_success_message(message):
     return message
 
 class FileUploadTestCase(unittest.TestCase):
+    
     def setUp(self):
+        self.mocker = Mocker()
         self.file_content = "content of the file"
         self.serialized_file_content = ExperimentUtil.serialize(self.file_content)
         self.session_id   = fileUpload.SessionId('session_id')
@@ -84,28 +88,24 @@ class FileUploadTestCase(unittest.TestCase):
     def test_index(self):
         return_message = "success!!!"
         return_value   = { "commandstring" : return_message }
-        self.weblab_client = pmock.Mock()
-        self.weblab_client.expects(pmock.at_least_once()).send_file(
-                pmock.eq(self.session_id),
-                pmock.eq(self.serialized_file_content),
-                pmock.eq(self.file_info)
-            ).will( pmock.return_value(return_value) )
-        result = fileUpload.index(self.req)
+        self.weblab_client = self.mocker.mock()
+        self.weblab_client.send_file(self.session_id, self.serialized_file_content, self.file_info)
+        self.mocker.result(return_value)
+        
+        with self.mocker:
+            result = fileUpload.index(self.req)
+        
         message = extract_success_message(result)
         self.assertTrue(return_message, message)
 
     def test_raise_exception(self):
-        self.weblab_client = pmock.Mock()
-        self.weblab_client.expects(pmock.at_least_once()).send_file(
-                pmock.eq(self.session_id),
-                pmock.eq(self.serialized_file_content),
-                pmock.eq(self.file_info)
-            ).will(
-                pmock.raise_exception(
-                    Exception('whatever')
-                )
-            )
-        result = fileUpload.index(self.req)
+        self.weblab_client = self.mocker.mock()
+        self.weblab_client.send_file(self.session_id, self.serialized_file_content, self.file_info)
+        self.mocker.throw(Exception('whatever'))
+
+        with self.mocker:
+            result = fileUpload.index(self.req)
+        
         fault_code = extract_fault_code(result)
         fault_string = extract_fault_string(result)
         self.assertEquals(
@@ -118,15 +118,13 @@ class FileUploadTestCase(unittest.TestCase):
             )
 
     def test_raise_xmlrpc_fault(self):
-        self.weblab_client = pmock.Mock()
-        self.weblab_client.expects(pmock.at_least_once()).send_file(
-                pmock.eq(self.session_id),
-                pmock.eq(self.serialized_file_content),
-                pmock.eq(self.file_info)
-            ).will(
-                pmock.raise_exception( xmlrpclib.Fault( 'my code','whatever2' ) )
-            )
-        result = fileUpload.index(self.req)
+        self.weblab_client = self.mocker.mock()
+        self.weblab_client.send_file(self.session_id, self.serialized_file_content, self.file_info)
+        self.mocker.throw(xmlrpclib.Fault( 'my code','whatever2' ))
+
+        with self.mocker:
+            result = fileUpload.index(self.req)
+            
         fault_code = extract_fault_code(result)
         fault_string = extract_fault_string(result)
         self.assertEquals(

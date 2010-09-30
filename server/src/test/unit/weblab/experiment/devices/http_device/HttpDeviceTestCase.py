@@ -13,9 +13,12 @@
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
+from __future__ import with_statement
+
 import unittest
-import pmock
 import urllib2
+from mocker import Mocker
+
 from test.unit.weblab.experiment.devices.http_device.FakeHttpServer import FakeHttpServer
 from weblab.experiment.devices.http_device.HttpDevice import HttpDevice
 import weblab.exceptions.experiment.devices.http_device.WlHttpDeviceExceptions as WlHttpDeviceExceptions
@@ -38,7 +41,8 @@ class HttpDeviceTestCase(unittest.TestCase):
         self.fake_http_server.start()
         self.fake_http_server.wait_until_handling()
         self.real_device = HttpDevice("localhost", 7779)
-        self.urllib_mocked = pmock.Mock()
+        self.mocker = Mocker()
+        self.urllib_mocked = self.mocker.mock()
         self.mocked_device = MockedHttpDevice(self.urllib_mocked, "localhost", 7779)
 
     def tearDown(self):
@@ -59,35 +63,28 @@ class HttpDeviceTestCase(unittest.TestCase):
             )
 
     def test_url_error_response(self):
-        self.urllib_mocked.expects(
-                pmock.once()
-            ).method('urlopen').will(
-                pmock.raise_exception(
-                    urllib2.URLError("error message")
-                )
+        self.urllib_mocked.urlopen('http://localhost:7779/', 'any command')
+        self.mocker.throw(urllib2.URLError("error message"))
+        
+        with self.mocker:
+            self.assertRaises(
+                WlHttpDeviceExceptions.WlHttpDeviceURLErrorException,
+                self.mocked_device.send_message,
+                "any command"
             )
-        self.assertRaises(
-            WlHttpDeviceExceptions.WlHttpDeviceURLErrorException,
-            self.mocked_device.send_message,
-            "any command"
-        )
-        self.urllib_mocked.verify()
         
     def test_general_error_response(self):
-        self.urllib_mocked.expects(
-                pmock.once()
-            ).method('urlopen').will(
-                pmock.raise_exception(
-                    Exception("error message")
-                )
+        self.urllib_mocked.urlopen('http://localhost:7779/', 'any command')
+        self.mocker.throw(Exception("error message"))
+        
+        with self.mocker:
+            self.assertRaises(
+                WlHttpDeviceExceptions.WlHttpDeviceException,
+                self.mocked_device.send_message,
+                "any command"
             )
-        self.assertRaises(
-            WlHttpDeviceExceptions.WlHttpDeviceException,
-            self.mocked_device.send_message,
-            "any command"
-        )
-        self.urllib_mocked.verify()
-
+        
+        
 def suite():
     return unittest.makeSuite(HttpDeviceTestCase)
 

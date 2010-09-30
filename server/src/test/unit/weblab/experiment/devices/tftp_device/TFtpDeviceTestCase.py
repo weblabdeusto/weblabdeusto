@@ -13,8 +13,11 @@
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 #
 
+from __future__ import with_statement
+
 import unittest
-import pmock
+from mocker import Mocker
+
 from weblab.experiment.devices.tftp_device.TFtpDevice import TFtpDevice
 import weblab.exceptions.experiment.devices.tftp_device.WlTFtpDeviceExceptions as WlTFtpDeviceExceptions
         
@@ -39,103 +42,56 @@ class TFtpDeviceTestCase(unittest.TestCase):
         unittest.TestCase.__init__(self, *args, **kargs)
 
     def setUp(self):
-        self.mocked_popen = pmock.Mock()
-        self.mocked_popen.stdin = pmock.Mock()
-        self.mocked_popen.stdout = pmock.Mock()
-        self.mocked_popen.stderr = pmock.Mock()
+        self.mocker = Mocker()
+        self.mocked_popen = self.mocker.mock()
         self.device = LierTFtpDevice(self.mocked_popen, "localhost", 69)
 
     def test_put_ok(self):
-        self.mocked_popen.stdin.expects(
-                pmock.once()
-            ).write(
-                pmock.eq("binary\nany command\n")
-            )
-        self.mocked_popen.stdin.expects(
-                pmock.once()
-            ).close()
-        self.mocked_popen.expects(
-                pmock.once()
-            ).wait()
-        self.mocked_popen.stdout.expects(
-                pmock.once()
-            ).read()
-        self.mocked_popen.stderr.expects(
-                pmock.once()
-            ).read()
+        self.mocked_popen.stdin.write("binary\nany command\n")
+        self.mocked_popen.stdin.close()
+        self.mocked_popen.wait()
+        self.mocked_popen.stdout.read()
+        self.mocked_popen.stderr.read()
 
-        self.device.put("any command")
-        self.mocked_popen.verify()
-        self.mocked_popen.stdin.verify()
-        self.mocked_popen.stdout.verify()
-        self.mocked_popen.stderr.verify()
-
+        with self.mocker:
+            self.device.put("any command")
+            
     def test_put_create_popen_fail_value_error(self):
-        self.device.force_raise(Exception("some error..."))
-        self.assertRaises(
-            WlTFtpDeviceExceptions.WlTFtpDeviceCallingProcessException,
-            self.device.put,
-            "any command"
-        )
+        with self.mocker:
+            self.device.force_raise(Exception("some error..."))
+            self.assertRaises(
+                WlTFtpDeviceExceptions.WlTFtpDeviceCallingProcessException,
+                self.device.put,
+                "any command"
+            )
 
     def test_put_create_popen_fail_wait(self):
-        self.mocked_popen.stdin.expects(
-                pmock.once()
-            ).write(
-                pmock.eq("binary\nany command\n")
-            )
-        self.mocked_popen.stdin.expects(
-                pmock.once()
-            ).close()
-        self.mocked_popen.expects(
-                pmock.once()
-            ).wait().will(
-                pmock.raise_exception(
-                    Exception("some error...")
-                )
-            )
-        self.mocked_popen.stdout.expects(
-                pmock.once()
-            ).read()
-        self.mocked_popen.stderr.expects(
-                pmock.once()
-            ).read()
+        self.mocked_popen.stdin.write("binary\nany command\n")
+        self.mocked_popen.stdin.close()
+        self.mocked_popen.wait()
+        self.mocker.throw(Exception("some error..."))
 
-        self.assertRaises(
-            WlTFtpDeviceExceptions.WlTFtpDeviceWaitingCommandException,
-            self.device.put,
-            "any command"
-        )
+        with self.mocker:
+            self.assertRaises(
+                WlTFtpDeviceExceptions.WlTFtpDeviceWaitingCommandException,
+                self.device.put,
+                "any command"
+            )
 
     def test_put_create_popen_fail_reading_output(self):
-        self.mocked_popen.stdin.expects(
-                pmock.once()
-            ).write(
-                pmock.eq("binary\nany command\n")
-            )
-        self.mocked_popen.stdin.expects(
-                pmock.once()
-            ).close()
-        self.mocked_popen.expects(
-                pmock.once()
-            ).wait()
-        self.mocked_popen.stdout.expects(
-                pmock.once()
-            ).read().will(
-                pmock.raise_exception(
-                    Exception("some error...")
-                )
-            )
-        self.mocked_popen.stderr.expects(
-                pmock.once()
-            ).read()
+        self.mocked_popen.stdin.write("binary\nany command\n")
+        self.mocked_popen.stdin.close()
+        self.mocked_popen.wait()
+        self.mocked_popen.stdout.read()
+        self.mocker.throw(Exception("some error..."))
 
-        self.assertRaises(
-            WlTFtpDeviceExceptions.WlTFtpDeviceRetrievingOutputFromCommandException,
-            self.device.put,
-            "any command"
-        )
-    
+        with self.mocker:
+            self.assertRaises(
+                WlTFtpDeviceExceptions.WlTFtpDeviceRetrievingOutputFromCommandException,
+                self.device.put,
+                "any command"
+            )
+            
         
 def suite():
     return unittest.makeSuite(TFtpDeviceTestCase)
