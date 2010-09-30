@@ -13,11 +13,9 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-from __future__ import with_statement
-
 import unittest
 import StringIO
-from mocker import Mocker
+import mocker
 
 import test.unit.configuration as configuration_module
 
@@ -30,7 +28,6 @@ import voodoo.configuration.ConfigurationManager as ConfigurationManager
 import weblab.exceptions.experiment.ExperimentExceptions as ExperimentExceptions
 import weblab.exceptions.experiment.experiments.ud_pic_experiment.UdPicExperimentExceptions as UdPicExperimentExceptions
 
-import FakeTempfile
 
 HTTP_SERVER_HOSTNAME = "localhost"
 HTTP_SERVER_PORT     = 80
@@ -46,8 +43,7 @@ class WrappedUdPicExperiment(UdPicExperiment.UdPicExperiment):
         self.__tftp = tftp
         self.__http = http
         super(WrappedUdPicExperiment, self).__init__(coord_address, locator, cfg_manager)
-        self._tftp_program_sender._tempfile = FakeTempfile
-        
+
     def _create_tftp_device(self, hostname, port):
         assert hostname == TFTP_SERVER_HOSTNAME
         assert port     == TFTP_SERVER_PORT
@@ -77,11 +73,11 @@ class WrappedTFtpDevice(TFtpDevice.TFtpDevice):
     def _create_popen(self, cmd_file):
         assert cmd_file == ['tftp',TFTP_SERVER_HOSTNAME, str(TFTP_SERVER_PORT)]
         return self.__popen
+    
 
-class UdPicExperimentTestCase(unittest.TestCase):
+class UdPicExperimentTestCase(mocker.MockerTestCase):
     
     def setUp(self):
-        self.mocker = Mocker()
         self.urllib_mock = self.mocker.mock()
         self.popen_mock  = self.mocker.mock()
 
@@ -112,8 +108,8 @@ class UdPicExperimentTestCase(unittest.TestCase):
         self.urllib_mock.urlopen('http://localhost:80/pic.cgi', 'PULSE=0 1000')
         self.mocker.result(StringIO.StringIO('ok'))
         
-        with self.mocker:
-            self.experiment.do_send_command_to_device("PULSE=0 1000")
+        self.mocker.replay()
+        self.experiment.do_send_command_to_device("PULSE=0 1000")
 
     def test_send_commands_plural(self):
         self.urllib_mock.urlopen('http://localhost:80/pic.cgi', 'PULSE=0 1000')
@@ -121,16 +117,16 @@ class UdPicExperimentTestCase(unittest.TestCase):
         self.urllib_mock.urlopen('http://localhost:80/pic.cgi', 'PULSE=0 500')
         self.mocker.result(StringIO.StringIO('ok'))
         
-        with self.mocker:
-            self.experiment.do_send_command_to_device("PULSE=0 1000, PULSE=0 500")
+        self.mocker.replay()
+        self.experiment.do_send_command_to_device("PULSE=0 1000, PULSE=0 500")
 
     def test_send_command_invalid_command(self):
-        with self.mocker:
-            self.assertRaises(
-                UdPicExperimentExceptions.InvalidUdPicBoardCommandException,
-                self.experiment.do_send_command_to_device,
-                "PULSE.THAT.DOES.NOT.EXIST=0 1000"
-            )
+        self.mocker.replay()
+        self.assertRaises(
+            UdPicExperimentExceptions.InvalidUdPicBoardCommandException,
+            self.experiment.do_send_command_to_device,
+            "PULSE.THAT.DOES.NOT.EXIST=0 1000"
+        )
 
 # TODO: The PIC actually returns an index.html web page, so this must be changed
 #   def test_send_command_invalid_response(self):
@@ -188,7 +184,7 @@ class UdPicExperimentTestCase(unittest.TestCase):
 
     def test_send_file(self):
         FILE_CONTENT = ""
-        self.popen_mock.stdin.write('binary\nput /tmp/ud_pic_experiment_programT3MP0R4L.hex sample_filename\n')
+        self.popen_mock.stdin.write(mocker.ANY)
         self.popen_mock.stdin.close()
         self.popen_mock.wait()
         self.mocker.result(0)
@@ -199,15 +195,15 @@ class UdPicExperimentTestCase(unittest.TestCase):
         self.urllib_mock.urlopen('http://localhost:80/pic.cgi', 'RESET=')
         self.mocker.result(StringIO.StringIO('ok'))
 
-        with self.mocker:
-            self.experiment.do_send_file_to_device(
-                    ExperimentUtil.serialize(FILE_CONTENT),
-                    'program'
-                )
+        self.mocker.replay()
+        self.experiment.do_send_file_to_device(
+                ExperimentUtil.serialize(FILE_CONTENT),
+                'program'
+            )
 
     def test_send_file_returns_nonzero(self):
         FILE_CONTENT = "whatever the file content is \xff\x00"
-        self.popen_mock.stdin.write('binary\nput /tmp/ud_pic_experiment_programT3MP0R4L.hex sample_filename\n')
+        self.popen_mock.stdin.write(mocker.ANY)
         self.popen_mock.stdin.close()
         self.popen_mock.wait()
         self.mocker.result(-1) # There was an error!
@@ -218,17 +214,17 @@ class UdPicExperimentTestCase(unittest.TestCase):
         self.urllib_mock.urlopen('http://localhost:80/pic.cgi', 'RESET=')
         self.mocker.result(StringIO.StringIO('ok'))
 
-        with self.mocker:
-            self.assertRaises(
-                    ExperimentExceptions.SendingFileFailureException,
-                    self.experiment.do_send_file_to_device,
-                    ExperimentUtil.serialize(FILE_CONTENT),
-                    'program'
-                )
+        self.mocker.replay()
+        self.assertRaises(
+                ExperimentExceptions.SendingFileFailureException,
+                self.experiment.do_send_file_to_device,
+                ExperimentUtil.serialize(FILE_CONTENT),
+                'program'
+            )
 
     def test_send_file_not_sent_message(self):
         FILE_CONTENT = "whatever the file content is \xff\x00"
-        self.popen_mock.stdin.write('binary\nput /tmp/ud_pic_experiment_programT3MP0R4L.hex sample_filename\n')
+        self.popen_mock.stdin.write(mocker.ANY)
         self.popen_mock.stdin.close()
         self.popen_mock.wait()
         self.mocker.result(0)
@@ -239,18 +235,18 @@ class UdPicExperimentTestCase(unittest.TestCase):
         self.urllib_mock.urlopen('http://localhost:80/pic.cgi', 'RESET=')
         self.mocker.result(StringIO.StringIO('ok'))
 
-        with self.mocker:
-            self.assertRaises(
-                    ExperimentExceptions.SendingFileFailureException,
-                    
-                    self.experiment.do_send_file_to_device,
-                    ExperimentUtil.serialize(FILE_CONTENT),
-                    'program'
-                )
+        self.mocker.replay()
+        self.assertRaises(
+                ExperimentExceptions.SendingFileFailureException,
+                
+                self.experiment.do_send_file_to_device,
+                ExperimentUtil.serialize(FILE_CONTENT),
+                'program'
+            )
 
     def test_send_file_stderr_used(self):
         FILE_CONTENT = "whatever the file content is \xff\x00"
-        self.popen_mock.stdin.write('binary\nput /tmp/ud_pic_experiment_programT3MP0R4L.hex sample_filename\n')
+        self.popen_mock.stdin.write(mocker.ANY)
         self.popen_mock.stdin.close()
         self.popen_mock.wait()
         self.mocker.result(0)
@@ -261,14 +257,13 @@ class UdPicExperimentTestCase(unittest.TestCase):
         self.urllib_mock.urlopen('http://localhost:80/pic.cgi', 'RESET=')
         self.mocker.result(StringIO.StringIO('ok'))
         
-        with self.mocker:
-            self.assertRaises(
-                    ExperimentExceptions.SendingFileFailureException,
-                    
-                    self.experiment.do_send_file_to_device,
-                    ExperimentUtil.serialize(FILE_CONTENT),
-                    'program'
-                )
+        self.mocker.replay()
+        self.assertRaises(
+                ExperimentExceptions.SendingFileFailureException,                
+                self.experiment.do_send_file_to_device,
+                ExperimentUtil.serialize(FILE_CONTENT),
+                'program'
+            )
 
 
 def suite():

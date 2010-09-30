@@ -13,11 +13,9 @@
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
-from __future__ import with_statement
-
 import unittest
 import urllib2
-from mocker import Mocker
+import mocker
 
 from test.unit.weblab.experiment.devices.http_device.FakeHttpServer import FakeHttpServer
 from weblab.experiment.devices.http_device.HttpDevice import HttpDevice
@@ -31,17 +29,13 @@ class MockedHttpDevice(HttpDevice):
     def _urlmodule(self):
         return self.__urlmodule
 
-class HttpDeviceTestCase(unittest.TestCase):
-    
-    def __init__(self, *args, **kargs):
-        unittest.TestCase.__init__(self, *args, **kargs)
-            
+class HttpDeviceTestCase(mocker.MockerTestCase):
+                
     def setUp(self):
         self.fake_http_server = FakeHttpServer(7779)
         self.fake_http_server.start()
         self.fake_http_server.wait_until_handling()
         self.real_device = HttpDevice("localhost", 7779)
-        self.mocker = Mocker()
         self.urllib_mocked = self.mocker.mock()
         self.mocked_device = MockedHttpDevice(self.urllib_mocked, "localhost", 7779)
 
@@ -63,26 +57,26 @@ class HttpDeviceTestCase(unittest.TestCase):
             )
 
     def test_url_error_response(self):
-        self.urllib_mocked.urlopen('http://localhost:7779/', 'any command')
+        self.urllib_mocked.urlopen(mocker.ARGS)
         self.mocker.throw(urllib2.URLError("error message"))
         
-        with self.mocker:
-            self.assertRaises(
-                WlHttpDeviceExceptions.WlHttpDeviceURLErrorException,
-                self.mocked_device.send_message,
-                "any command"
-            )
+        self.mocker.replay()
+        self.assertRaises(
+            WlHttpDeviceExceptions.WlHttpDeviceURLErrorException,
+            self.mocked_device.send_message,
+            "any command"
+        )
         
     def test_general_error_response(self):
-        self.urllib_mocked.urlopen('http://localhost:7779/', 'any command')
+        self.urllib_mocked.urlopen(mocker.ARGS)
         self.mocker.throw(Exception("error message"))
         
-        with self.mocker:
-            self.assertRaises(
-                WlHttpDeviceExceptions.WlHttpDeviceException,
-                self.mocked_device.send_message,
-                "any command"
-            )
+        self.mocker.replay()
+        self.assertRaises(
+            WlHttpDeviceExceptions.WlHttpDeviceException,
+            self.mocked_device.send_message,
+            "any command"
+        )
         
         
 def suite():
