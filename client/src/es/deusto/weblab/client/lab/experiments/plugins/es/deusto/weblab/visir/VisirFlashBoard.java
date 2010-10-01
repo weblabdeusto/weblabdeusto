@@ -26,10 +26,18 @@ public class VisirFlashBoard extends WebLabFlashAppBasedBoard {
 	
 	private String cookie = null;
 
+	/**
+	 * Constructs a Board for the Visir client. It does not actually generate the
+	 * full HTML code until the experiment is started (and hence Start called), as
+	 * it uses the WebLabFlashAppBasedBoard's deferred mode.
+	 * 
+	 * @param configurationManager
+	 * @param boardController
+	 */
 	public VisirFlashBoard(IConfigurationManager configurationManager,
 			IBoardBaseController boardController) {
 		super(configurationManager, boardController, "visir/loader.swf", 800, 500,
-				 "cookie=9b892c8784ea6119939a27b34102b1c14e37c156",
+				 "",
 				 "Visir Flash Experiment", true);
 	}
 	
