@@ -27,6 +27,8 @@ public class VisirFlashBoard extends WebLabFlashAppBasedBoard {
 	
 	
 	private String cookie = null;
+	private String url = null;
+	private String savedata = null;
 
 	/**
 	 * Constructs a Board for the Visir client. It does not actually generate the
@@ -38,7 +40,7 @@ public class VisirFlashBoard extends WebLabFlashAppBasedBoard {
 	 */
 	public VisirFlashBoard(IConfigurationManager configurationManager,
 			IBoardBaseController boardController) {
-		super(configurationManager, boardController, "visir/loader.swf", 800, 500,
+		super(configurationManager, boardController, "", 800, 500,
 				 "",
 				 "Visir Flash Experiment", true);
 	}
@@ -62,21 +64,33 @@ public class VisirFlashBoard extends WebLabFlashAppBasedBoard {
 	public void start() {
 		
 		// Request the visir session "cookie" to the server.
-		final VisirCookieRequestCommand reqCookie = new VisirCookieRequestCommand();
-		AbstractExternalAppBasedBoard.boardController.sendCommand(reqCookie, 
+		final VisirSetupDataRequestCommand reqData = new VisirSetupDataRequestCommand();
+		AbstractExternalAppBasedBoard.boardController.sendCommand(reqData, 
 				new IResponseCommandCallback() {
 
 					@Override
 					public void onSuccess(ResponseCommand responseCommand) {
-						VisirFlashBoard.this.cookie = responseCommand.getCommandString();
 						
-						VisirFlashBoard.this.setCookie(VisirFlashBoard.this.cookie);
-						VisirFlashBoard.super.start();
+						// Use the command's helper method to parse the JSON response
+						boolean success = reqData.parseResponse(responseCommand.getCommandString());
+						
+						if(success) {
+							VisirFlashBoard.this.cookie = reqData.getCookie();
+							VisirFlashBoard.this.savedata = reqData.getSaveData();
+							VisirFlashBoard.this.url = reqData.getURL();
+						
+							VisirFlashBoard.this.updateFlashVars();
+							VisirFlashBoard.this.setSwfFile(VisirFlashBoard.this.url);
+							
+							VisirFlashBoard.super.start();
+						} else {
+							System.out.println("Could not parse response: " + responseCommand.getCommandString());
+						}
 					}
 
 					@Override
 					public void onFailure(WlCommException e) {
-						System.out.println("Error: Could not retrieve cookie");
+						System.out.println("Error: Could not retrieve data");
 						VisirFlashBoard.super.start();
 					}
 				}
@@ -87,15 +101,14 @@ public class VisirFlashBoard extends WebLabFlashAppBasedBoard {
 	}
 
 	/**
-	 * Will set the cookie to the specified string and update the flashvars
-	 * accordingly. Flashvars updates have no effect once the iframe containing
+	 * Will set or update the flash vars with local parameters such as cookie or savedata.
+	 * These parameters should be set beforehand. Flashvars updates have no effect once the iframe containing
 	 * the flash object has been populated.
-	 * @param cookie The cookie string
+	 * Note that savedata is assumed to be URL-encoded.
 	 */
-	protected void setCookie(String cookie) {
-		this.cookie = cookie;
-		final String flashvars = "cookie="+cookie;
-		final String savedata = "<save><instruments+list=\"breadboard/breadboard.swf|multimeter/multimeter.swf|functiongenerator/functiongenerator.swf|oscilloscope/oscilloscope.swf|tripledc/tripledc.swf\"+/><multimeter+/><circuit><circuitlist><component>R+1.6k+52+26+0</component><component>R+2.7k+117+26+0</component><component>R+10k+182+78+0</component><component>R+10k+182+52+0</component><component>R+10k+182+26+0</component><component>C+56n+247+39+0</component><component>C+56n+247+91+0</component></circuitlist></circuit></save>&amp;http=1<save><instruments+list=\"breadboard/breadboard.swf|multimeter/multimeter.swf|functiongenerator/functiongenerator.swf|oscilloscope/oscilloscope.swf|tripledc/tripledc.swf\"+/><multimeter+/><circuit><circuitlist><component>R+1.6k+52+26+0</component><component>R+2.7k+117+26+0</component><component>R+10k+182+78+0</component><component>R+10k+182+52+0</component><component>R+10k+182+26+0</component><component>C+56n+247+39+0</component><component>C+56n+247+91+0</component></circuitlist></circuit></save>";
-		this.setFlashVars(flashvars+"&savedata="+URL.encode(savedata));
+	protected void updateFlashVars() {
+		final String flashvars = "cookie="+this.cookie+"&savedata="+this.savedata;
+		//final String savedata = "<save><instruments+list=\"breadboard/breadboard.swf|multimeter/multimeter.swf|functiongenerator/functiongenerator.swf|oscilloscope/oscilloscope.swf|tripledc/tripledc.swf\"+/><multimeter+/><circuit><circuitlist><component>R+1.6k+52+26+0</component><component>R+2.7k+117+26+0</component><component>R+10k+182+78+0</component><component>R+10k+182+52+0</component><component>R+10k+182+26+0</component><component>C+56n+247+39+0</component><component>C+56n+247+91+0</component></circuitlist></circuit></save>&amp;http=1<save><instruments+list=\"breadboard/breadboard.swf|multimeter/multimeter.swf|functiongenerator/functiongenerator.swf|oscilloscope/oscilloscope.swf|tripledc/tripledc.swf\"+/><multimeter+/><circuit><circuitlist><component>R+1.6k+52+26+0</component><component>R+2.7k+117+26+0</component><component>R+10k+182+78+0</component><component>R+10k+182+52+0</component><component>R+10k+182+26+0</component><component>C+56n+247+39+0</component><component>C+56n+247+91+0</component></circuitlist></circuit></save>";
+		//this.setFlashVars(flashvars+"&savedata="+URL.encode(savedata));
 	}
 }

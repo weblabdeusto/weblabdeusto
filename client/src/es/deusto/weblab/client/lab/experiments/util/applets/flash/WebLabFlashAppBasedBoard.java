@@ -28,9 +28,11 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 	
 	private final int width;
 	private final int height;
-	private final String swfFile;
-	private String flashvars;
 	private final boolean deferred;
+	
+	private String swfFile;
+	private String flashvars;
+	
 	
 	// We need to store the time set when we are in deferred mode.
 	private int timeSet;
@@ -58,12 +60,13 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 		super(configurationManager, boardController);
 		this.height  = height;
 		this.width   = width;
-		this.swfFile = GWT.getModuleBaseURL() + swfFile;
+		if(this.swfFile != null)
+			this.swfFile = GWT.getModuleBaseURL() + swfFile;
 		this.flashvars = flashvars;
 		this.message.setText(message);
 		this.deferred = false;
 		
-		WebLabFlashAppBasedBoard.createJavaScriptCode(this.html.getElement(), this.swfFile, width + 10, height + 10);
+		WebLabFlashAppBasedBoard.createJavaScriptCode(this.html.getElement(), width + 10, height + 10);
 	}
 	
 	
@@ -74,7 +77,8 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 	 * 
 	 * @param configurationManager Reference to the configuration manager.
 	 * @param boardController Reference to the board controller.
-	 * @param swfFile The path to the SWF file, including its name.
+	 * @param swfFile The path to the SWF file, including its name. May be NULL, and set
+	 * deferredly through setSwfFile instead (though only before the experiment starts).
 	 * @param width Width of the flash app.
 	 * @param height Height of the flash app.
 	 * @param flashvars String which will be passed to the flash app as its
@@ -94,12 +98,13 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 		super(configurationManager, boardController);
 		this.height  = height;
 		this.width   = width;
-		this.swfFile = GWT.getModuleBaseURL() + swfFile;
+		if(swfFile != null)
+			this.swfFile = GWT.getModuleBaseURL() + swfFile;
 		this.flashvars = flashvars;
 		this.message.setText(message);
 		this.deferred = deferFlashApp;
 		
-		WebLabFlashAppBasedBoard.createJavaScriptCode(this.html.getElement(), this.swfFile, width + 10, height + 10);
+		WebLabFlashAppBasedBoard.createJavaScriptCode(this.html.getElement(), width + 10, height + 10);
 	}
 	
 	
@@ -112,13 +117,24 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 		this.flashvars = flashvars;
 	}
 	
+	
+	/**
+	 * Sets or resets the swfFile to load.
+	 * Takes no effect after the page has been populated (which is done on experiment start,
+	 * if on deferred mode).
+	 * @param swfFile Path to the swf file, relative to the gwt module base.
+	 */
+	public void setSwfFile(String swfFile) {
+		this.swfFile = GWT.getModuleBaseURL() + swfFile;
+	}
+	
 
 	/*
 	 * We must create an iframe and inside this iframe build the flash object because Flash's ExternalInterface
 	 * doesn't seem to work on Microsoft Internet Explorer (v8) if the flash object is dynamically created. Opera, 
 	 * Chrome, Firefox performed well with the dynamically created flash object.
 	 */
-	private static native void createJavaScriptCode(Element element, String swfFile, int width, int height) /*-{
+	private static native void createJavaScriptCode(Element element, int width, int height) /*-{
 		var iFrameHtml   = "<iframe name=\"wlframe\" frameborder=\"0\"  vspace=\"0\"  hspace=\"0\"  marginwidth=\"0\"  marginheight=\"0\" " +
 									"width=\"" + width + "\"  scrolling=\"no\"  height=\"" + height +  "\" " +
 								"></iframe>";
