@@ -19,6 +19,8 @@ import xml.dom.minidom as minidom
 import httplib
 import urllib
 import urllib2
+import json
+import urllib
 
 from voodoo.override import Override
 
@@ -30,6 +32,8 @@ CFG_LOGIN_URL = "vt_login_url"
 CFG_COOKIE = "vt_cookie"
 CFG_LOGIN_EMAIL = "vt_login_email"
 CFG_LOGIN_PASSWORD = "vt_login_password"
+CFG_SAVEDATA = "vt_savedata"
+CFG_CLIENT_URL = "vt_client_url"
 
 DEBUG = True
 
@@ -51,6 +55,8 @@ class VisirTestExperiment(Experiment.Experiment):
         self.loginurl = self._cfg_manager.get_value(CFG_LOGIN_URL)
         self.login_email = self._cfg_manager.get_value(CFG_LOGIN_EMAIL)
         self.login_password = self._cfg_manager.get_value(CFG_LOGIN_PASSWORD)
+        self.savedata = self._cfg_manager.get_value(CFG_SAVEDATA)
+        self.client_url = self._cfg_manager.get_value(CFG_CLIENT_URL);
 
     @Override(Experiment.Experiment)
     def do_start_experiment(self):
@@ -70,12 +76,14 @@ class VisirTestExperiment(Experiment.Experiment):
         
         # Check whether it's a GIVEMECOOKIE command, which will carry out
         # a login to obtain the cookie the client should use
-        if command == 'GIVEMECOOKIE':
+        if command == 'GIVE_ME_SETUP_DATA':
             if(DEBUG):
                 print "[VisirTestExperiment] Performing login with %s / %s"  % (self.login_email, self.login_password)
             
             cookie = self.perform_visir_web_login(self.loginurl, 
                 self.login_email, self.login_password)
+            
+            return self.build_setup_data(cookie, self.savedata, self.client_url)
             
             if(DEBUG):
                 print "[VisirTestExperiment] Login result: ", cookie
@@ -87,6 +95,19 @@ class VisirTestExperiment(Experiment.Experiment):
         return self.forward_request(command) 
 
         
+    def build_setup_data(self, cookie, savedata, url):
+        """
+        Helper function that will build and return a JSON-encoded reply to the 
+        SETUP_DATA request.
+        """
+        data = {
+                "cookie" : cookie,
+                "savedata" : urllib.quote(savedata, ''),
+                "url" : url
+                }
+        resp = json.dumps(data)
+        return str(resp)
+    
         
     def forward_request(self, request):
         """
