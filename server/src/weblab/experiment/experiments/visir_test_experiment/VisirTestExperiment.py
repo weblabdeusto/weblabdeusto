@@ -19,8 +19,12 @@ import xml.dom.minidom as minidom
 import httplib
 import urllib
 import urllib2
-import json
 import urllib
+
+try:
+    import json
+except ImportError:
+    import simplejson as json
 
 from voodoo.override import Override
 
