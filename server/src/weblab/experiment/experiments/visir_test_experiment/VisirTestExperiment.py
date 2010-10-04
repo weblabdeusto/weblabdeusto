@@ -33,11 +33,22 @@ from voodoo.override import Override
 CFG_MEASURE_SERVER_ADDRESS = "vt_measure_server_addr"
 CFG_MEASURE_SERVER_TARGET = "vt_measure_server_target"
 CFG_LOGIN_URL = "vt_login_url"
+CFG_BASE_URL = "vt_base_url"
 CFG_COOKIE = "vt_cookie"
 CFG_LOGIN_EMAIL = "vt_login_email"
 CFG_LOGIN_PASSWORD = "vt_login_password"
 CFG_SAVEDATA = "vt_savedata"
 CFG_CLIENT_URL = "vt_client_url"
+
+DEFAULT_MEASURE_SERVER_ADDRESS = "130.206.138.35:8080"
+DEFAULT_MEASURE_SERVER_TARGET = "/measureserver"
+DEFAULT_LOGIN_URL = """https://weblab-visir.deusto.es/electronics/student.php"""
+DEFAULT_BASE_URL = """https://weblab-visir.deusto.es/"""
+DEFAULT_COOKIE = "9b892c8784ea6119939a27b34102b1c14e37c156"
+DEFAULT_LOGIN_EMAIL = "guest"
+DEFAULT_LOGIN_PASSWORD = "guest"
+DEFAULT_SAVEDATA = ""
+DEFAULT_CLIENT_URL = "visir/loader.swf"
 
 DEBUG = True
 
@@ -54,13 +65,14 @@ class VisirTestExperiment(Experiment.Experiment):
         Reads the config parameters from the config file (such as the
         measurement server address)
         """
-        self.measure_server_addr = self._cfg_manager.get_value(CFG_MEASURE_SERVER_ADDRESS)
-        self.measure_server_target = self._cfg_manager.get_value(CFG_MEASURE_SERVER_TARGET)
-        self.loginurl = self._cfg_manager.get_value(CFG_LOGIN_URL)
-        self.login_email = self._cfg_manager.get_value(CFG_LOGIN_EMAIL)
-        self.login_password = self._cfg_manager.get_value(CFG_LOGIN_PASSWORD)
-        self.savedata = self._cfg_manager.get_value(CFG_SAVEDATA)
-        self.client_url = self._cfg_manager.get_value(CFG_CLIENT_URL);
+        self.measure_server_addr = self._cfg_manager.get_value(CFG_MEASURE_SERVER_ADDRESS, DEFAULT_MEASURE_SERVER_ADDRESS)
+        self.measure_server_target = self._cfg_manager.get_value(CFG_MEASURE_SERVER_TARGET, DEFAULT_MEASURE_SERVER_TARGET)
+        self.loginurl = self._cfg_manager.get_value(CFG_LOGIN_URL, DEFAULT_LOGIN_URL)
+        self.baseurl = self._cfg_manager.get_value(CFG_BASE_URL, DEFAULT_BASE_URL)
+        self.login_email = self._cfg_manager.get_value(CFG_LOGIN_EMAIL, DEFAULT_LOGIN_EMAIL)
+        self.login_password = self._cfg_manager.get_value(CFG_LOGIN_PASSWORD, DEFAULT_LOGIN_PASSWORD)
+        self.savedata = self._cfg_manager.get_value(CFG_SAVEDATA, DEFAULT_SAVEDATA)
+        self.client_url = self._cfg_manager.get_value(CFG_CLIENT_URL, DEFAULT_CLIENT_URL);
 
     @Override(Experiment.Experiment)
     def do_start_experiment(self):
@@ -155,7 +167,7 @@ class VisirTestExperiment(Experiment.Experiment):
         # the auth cookie that we seek
         cp = urllib2.HTTPCookieProcessor()
         o = urllib2.build_opener( cp )
-        urllib2.install_opener(o)
+        #urllib2.install_opener(o)
         
         # Do the request iself. The cookies retrieved (which should
         # actually be a single cookie) will be stored in the 
@@ -167,6 +179,9 @@ class VisirTestExperiment(Experiment.Experiment):
         # and return its value.
         for c in cp.cookiejar:
             print "Cookie found: ", c
+            experiments_page = o.open("%s/electronics/experiment.php?cookie=%s" % (self.baseurl, c.value))
+            experiments_content = experiments_page.read()
+            #"<a href=/electronics/experiment.php?[a-zA-Z0-9;&=]+\">(.*)"
             return c.value
         
         # No cookies retrieved, login must have failed.
