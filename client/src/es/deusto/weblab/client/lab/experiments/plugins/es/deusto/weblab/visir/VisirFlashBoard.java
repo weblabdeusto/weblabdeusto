@@ -108,10 +108,19 @@ public class VisirFlashBoard extends WebLabFlashAppBasedBoard {
 	 */
 	protected void updateFlashVars() {
 		//final String testsavedata = "<save><instruments+list=\"breadboard/breadboard.swf|multimeter/multimeter.swf|functiongenerator/functiongenerator.swf|oscilloscope/oscilloscope.swf|tripledc/tripledc.swf\"+/><multimeter+/><circuit><circuitlist><component>R+1.6k+52+26+0</component><component>R+2.7k+117+26+0</component><component>R+10k+182+78+0</component><component>R+10k+182+52+0</component><component>R+10k+182+26+0</component><component>C+56n+247+39+0</component><component>C+56n+247+91+0</component></circuitlist></circuit></save>&amp;http=1<save><instruments+list=\"breadboard/breadboard.swf|multimeter/multimeter.swf|functiongenerator/functiongenerator.swf|oscilloscope/oscilloscope.swf|tripledc/tripledc.swf\"+/><multimeter+/><circuit><circuitlist><component>R+1.6k+52+26+0</component><component>R+2.7k+117+26+0</component><component>R+10k+182+78+0</component><component>R+10k+182+52+0</component><component>R+10k+182+26+0</component><component>C+56n+247+39+0</component><component>C+56n+247+91+0</component></circuitlist></circuit></save>";
-		final String testsavedata = URL.decodeComponent(this.savedata);
-		final String flashvars = "cookie="+this.cookie+"&savedata="+URL.encode(testsavedata);
+		
+		// Data is received encoded through Python, decoded, and encoded again. This avoids certain
+		// encoding issues that seem to be occurring. We enable teacher mode so that the
+		// plus sign that gives us access to the full component palette is available.
+		final String decodedSaveData = URL.decodeComponent(this.savedata);
+		final String flashvars = "teacher=1"+"&cookie="+this.cookie+"&savedata="+URL.encode(decodedSaveData);
+		
+		// Data is received encoded, and used to generate the website straightaway.
+		//final String flashvars = "cookie="+this.cookie+"&savedata="+this.savedata;
+		
+		System.out.println(this.savedata);
 		System.out.println(URL.decodeComponent(this.savedata));
-		//this.setFlashVars(flashvars+"&savedata="+URL.encode(savedata));
+		
 		this.setFlashVars(flashvars);
 	}
 }
