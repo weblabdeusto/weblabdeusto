@@ -20,6 +20,7 @@ import com.google.gwt.core.client.RunAsyncCallback;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.vm.VMExperiment;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.binary.WebLabBinaryExperiment;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.dummy.WebLabDummyExperiment;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.fpga.WebLabFpgaExperiment;
@@ -222,6 +223,25 @@ class EntryRegistry {
 					@Override
 					public void onSuccess() {
 						callback.onExperimentLoaded(new WebLabDummyExperiment(configurationManager, boardController));
+					}
+					
+					@Override
+					public void onFailure(Throwable e){
+						callback.onFailure(e);
+					}
+				});
+			}
+		},
+		
+		
+		
+		new ExperimentEntry("Dummy experiments", "ud-vm", MobileSupport.disabled){
+			@Override
+			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+				GWT.runAsync(new RunAsyncCallback() {
+					@Override
+					public void onSuccess() {
+						callback.onExperimentLoaded(new VMExperiment(configurationManager, boardController));
 					}
 					
 					@Override

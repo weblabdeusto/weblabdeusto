@@ -118,8 +118,8 @@ public class VisirFlashBoard extends WebLabFlashAppBasedBoard {
 		// Data is received encoded, and used to generate the website straightaway.
 		//final String flashvars = "cookie="+this.cookie+"&savedata="+this.savedata;
 		
-		System.out.println(this.savedata);
-		System.out.println(URL.decodeComponent(this.savedata));
+		//System.out.println(this.savedata);
+		//System.out.println(URL.decodeComponent(this.savedata));
 		
 		this.setFlashVars(flashvars);
 	}
