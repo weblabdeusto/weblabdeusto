@@ -4,60 +4,15 @@
     
     
     <g:VerticalPanel ui:field='widget' width='100%' horizontalAlignment='ALIGN_CENTER'>
-        
-        
-        <!-- This panel contains the introduction. -->
-        <g:VerticalPanel ui:field='introPanel' width='100%' horizontalAlignment='ALIGN_CENTER' spacing='0'>
-        
-        	<g:VerticalPanel ui:field="textIntroPanel" borderWidth='0' horizontalAlignment='ALIGN_CENTER' width="100%">
-        	<g:HTMLPanel>
-			 <div align="center">
-				<g:Label height='40'>Welcome to the WebLab-Deusto Logic Game!</g:Label>
-				<g:Label height='40'>Replace the unknown gate with the correct one so the LED turns on.</g:Label>
-				<g:Label height='40'>Solve as many circuits as possible to get more points and become the champion!</g:Label>
-			 	<g:HTML height='40'>You can check your score at <a href='/weblab/admin/winners.py'>the winners page</a></g:HTML>
-			 </div>
-			</g:HTMLPanel>
-			</g:VerticalPanel>
-       
-            <g:HorizontalPanel borderWidth="0" width="100%" horizontalAlignment="ALIGN_CENTER">
-       			<w:WlTimer ui:field="timer" styleName="wl-time_remaining" width="100%">
-       			</w:WlTimer>
-       		</g:HorizontalPanel>
-        
-        </g:VerticalPanel>
-        
-        <!--  This panel contains the experiment itself: Logic gates, etc. -->
-        <g:VerticalPanel borderWidth="0" ui:field='expPanel' width='100%' spacing='0' horizontalAlignment="ALIGN_CENTER">
-       
-       
-       		<g:HorizontalPanel ui:field='circuitAndWebcamPanel' horizontalAlignment='ALIGN_CENTER'>
-       		
-       			<w:WlWebcam ui:field="webcam" visible="false"></w:WlWebcam>
-       		
-       			<g:Label ui:field="referenceToShowBoxesLabel"></g:Label>
-       			
-       			<w:EasyGrid ui:field='circuitGrid' rows='5' cols='8' borderWidth='0'>
-       			</w:EasyGrid>
-       		
-       		</g:HorizontalPanel>
-       		
-       
-        </g:VerticalPanel>
-        
-        <g:HorizontalPanel borderWidth="0" width="100%" horizontalAlignment='ALIGN_CENTER' spacing='30'>
-			<w:WlWaitingLabel ui:field="messages" horizontalAlignment='ALIGN_CENTER'>
-			</w:WlWaitingLabel>
-		</g:HorizontalPanel>
-		
-		<g:HTMLPanel>
-		  <div align='center'>
-			<g:Button ui:field="sendSolutionButton" enabled='false' visible='false'>
-			Send Solution
-			</g:Button>
-		  </div>
-		</g:HTMLPanel>
-	
+
+				<g:HorizontalPanel borderWidth="0" verticalAlignment="ALIGN_MIDDLE" horizontalAlignment="ALIGN_CENTER" width="100%">
+					<w:WlTimer ui:field="timer" height="50%" width="100%" styleName="wl-time_remaining"></w:WlTimer>
+				</g:HorizontalPanel>
+
+				<w:WlWaitingLabel ui:field="messages" horizontalAlignment="ALIGN_CENTER"/>
+				
+				<g:Label ui:field="url" horizontalAlignment="ALIGN_CENTER"></g:Label>
+
 	</g:VerticalPanel>
 	
 

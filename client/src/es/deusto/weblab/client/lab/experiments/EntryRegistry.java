@@ -235,7 +235,7 @@ class EntryRegistry {
 		
 		
 		
-		new ExperimentEntry("Dummy experiments", "ud-vm", MobileSupport.disabled){
+		new ExperimentEntry("Dummy experiments", "vm", MobileSupport.disabled){
 			@Override
 			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 				GWT.runAsync(new RunAsyncCallback() {
