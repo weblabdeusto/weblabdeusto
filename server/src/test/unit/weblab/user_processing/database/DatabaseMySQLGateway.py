@@ -283,7 +283,7 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         student2 = self.gateway.get_user_by_name('student2')
         
         experiments = self.gateway.get_experiments(student2.login)
-        self.assertEquals(len(experiments), 10)
+        self.assertEquals(len(experiments), 11)
 
         experiments_names = list( ( experiment.name for experiment in experiments ))
 
@@ -297,6 +297,7 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         self.assertTrue( 'ud-gpib' in experiments_names )
         self.assertTrue( 'ud-pic' in experiments_names )
         self.assertTrue( 'visirtest' in experiments_names )
+        self.assertTrue( 'vm' in experiments_names )
 
     def test_get_experiment_uses(self):
         student2 = self.gateway.get_user_by_name('student2')

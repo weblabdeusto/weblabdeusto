@@ -218,7 +218,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
 
         experiments = self.ups.get_experiments(sess_id)
-        self.assertEquals(10, len(experiments) )
+        self.assertEquals(11, len(experiments) )
 
         experiments_unique_names = list(( experiment.get_unique_name() for experiment in experiments ))
 
@@ -232,6 +232,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.assertTrue( 'ud-gpib@GPIB experiments' in experiments_unique_names )
         self.assertTrue( 'ud-pic@PIC experiments' in experiments_unique_names )
         self.assertTrue( 'visirtest@Dummy experiments' in experiments_unique_names )
+        self.assertTrue( 'vm@Dummy experiments' in experiments_unique_names)
         
         self.ups.logout(sess_id)
 

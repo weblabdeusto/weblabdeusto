@@ -300,6 +300,9 @@ session.add(pic)
 visirtest = Model.DbExperiment("visirtest", cat_dummy, start_date, end_date)
 session.add(visirtest)
 
+vm = Model.DbExperiment("vm", cat_dummy, start_date, end_date)
+session.add(vm)
+
 # Permissions
 gp_5A_dummy_allowed = Model.DbGroupPermission(
     group5A,
@@ -414,6 +417,7 @@ up_any_visirtest_allowed = Model.DbUserPermission(
     datetime.datetime.utcnow(),
     "Permission for any to use WebLab-VisirTest"
 )
+
 session.add(up_any_visirtest_allowed)
 up_any_visirtest_allowed_p1 = Model.DbUserPermissionParameter(up_any_visirtest_allowed, experiment_allowed_p1, "visirtest")
 session.add(up_any_visirtest_allowed_p1)
@@ -422,6 +426,22 @@ session.add(up_any_visirtest_allowed_p2)
 up_any_visirtest_allowed_p3 = Model.DbUserPermissionParameter(up_any_visirtest_allowed, experiment_allowed_p3, "200")
 session.add(up_any_visirtest_allowed_p3)    
 
+
+up_any_vm_allowed = Model.DbUserPermission(
+    any,
+    experiment_allowed.group_applicable,
+    "any::weblab-vm",
+    datetime.datetime.utcnow(),
+    "Permission for any to use WebLab-vm"
+)
+
+session.add(up_any_vm_allowed)
+up_any_vm_allowed_p1 = Model.DbUserPermissionParameter(up_any_vm_allowed, experiment_allowed_p1, "vm")
+session.add(up_any_vm_allowed_p1)
+up_any_vm_allowed_p2 = Model.DbUserPermissionParameter(up_any_vm_allowed, experiment_allowed_p2, "Dummy experiments")
+session.add(up_any_vm_allowed_p2)
+up_any_vm_allowed_p3 = Model.DbUserPermissionParameter(up_any_vm_allowed, experiment_allowed_p3, "200")
+session.add(up_any_vm_allowed_p3)    
 
 
 up_student2_gpib_allowed = Model.DbUserPermission(
