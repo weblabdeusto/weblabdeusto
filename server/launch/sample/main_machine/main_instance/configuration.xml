@@ -19,4 +19,5 @@
 	<server>experiment_flashdummy</server> 
 	<server>experiment_javadummy</server> 
 	<server>experiment_testvisir</server>
+	<server>experiment_vm</server>
 </servers>
