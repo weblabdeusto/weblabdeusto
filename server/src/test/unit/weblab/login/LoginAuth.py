@@ -68,7 +68,6 @@ class LoginAuthTestCase(mocker.MockerTestCase):
         def test_ldap_login_auth_valid(self):
             user_auth = self._create_user_auth()
             login_auth = LoginAuth.LoginAuth.create(user_auth)
-
             ldap_object = self.mocker.mock()
             ldap_object.simple_bind_s(valid_user + '@cdk.deusto.es', valid_passwd)
             self.mocker.result(None)

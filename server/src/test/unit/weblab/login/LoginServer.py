@@ -13,10 +13,20 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+from __future__ import with_statement
+
 import sys
 import unittest
+import mocker
 import time
 
+try:
+    import ldap
+except ImportError:
+    LDAP_AVAILABLE = False
+else:
+    LDAP_AVAILABLE = True
+    
 import weblab.data.ServerType as ServerType
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
@@ -31,7 +41,6 @@ import weblab.login.LoginServer as LoginServer
 import weblab.login.LoginAuth as LoginAuth
 import weblab.exceptions.login.LoginExceptions as LoginExceptions
 
-import test.unit.weblab.login.LoginAuth as LoginAuthTest
 import test.unit.configuration as configuration_module
 
 fake_wrong_user           = "fake_wrong_user"
@@ -82,6 +91,7 @@ def broken_reserve_session(self, db_session_id):
     raise ProtocolExceptions.RemoteException("p0wn3d","p0wn3d")
 
 class LoginServerTestCase(unittest.TestCase):
+    
     def setUp(self):
         coord_address = CoordAddress.CoordAddress.translate_address(
                 "server0:instance0@machine0"
@@ -123,37 +133,35 @@ class LoginServerTestCase(unittest.TestCase):
             fake_wrong_passwd
         )
         
-    if LoginAuth.LDAP_AVAILABLE:
+    if LDAP_AVAILABLE:
         def test_ldap_user_right(self):
-            ldap_module = LoginAuthTest.create_ldap_module(
-                    fake_ldap_user,
-                    fake_ldap_passwd, 
-                    fake_ldap_invalid_passwd, 
-                    'not exercised', 
-                    'not exercised'
-                )
-            LoginAuth._ldap_provider.ldap_module = ldap_module
+            mockr = mocker.Mocker()
+            LoginAuth._ldap_provider.ldap_module = mockr.mock()
             session_id = self.login_server.login(fake_ldap_user, fake_ldap_passwd)
+            
             self.assertEquals(
                 fake_ups_session_id,
                 session_id
             )
 
         def test_ldap_user_invalid(self):
-            ldap_module = LoginAuthTest.create_ldap_module(
-                    fake_ldap_user,
-                    fake_ldap_passwd, 
-                    fake_ldap_invalid_passwd, 
-                    'not exercised', 
-                    'not exercised'
+            mockr = mocker.Mocker()
+            ldap_object = mockr.mock()
+            ldap_object.simple_bind_s(fake_ldap_user + '@cdk.deusto.es', fake_ldap_invalid_passwd)
+            mockr.throw(ldap.INVALID_CREDENTIALS)
+            ldap_module = mockr.mock()
+            ldap_module.initialize('ldaps://castor.cdk.deusto.es')
+            mockr.result(ldap_object)
+            LoginAuth._ldap_provider.ldap_module = ldap_module 
+
+            with mockr:
+                self.assertRaises(
+                    LoginExceptions.InvalidCredentialsException,
+                    self.login_server.login,
+                    fake_ldap_user, 
+                    fake_ldap_invalid_passwd
                 )
-            LoginAuth._ldap_provider.ldap_module = ldap_module
-            self.assertRaises(
-                LoginExceptions.InvalidCredentialsException,
-                self.login_server.login,
-                fake_ldap_user, 
-                fake_ldap_invalid_passwd
-            )
+
     else:
         print >> sys.stderr, "Two tests skipped in LoginServer since ldap is not available"
 
