@@ -14,7 +14,7 @@
 # 
 
 import unittest
-import pmock
+import mocker
 
 import test.unit.configuration as configuration_module
 
@@ -23,6 +23,7 @@ import voodoo.configuration.ConfigurationManager as ConfigurationManager
 import voodoo.exceptions.configuration.ConfigurationExceptions as ConfigurationExceptions
 
 class AdminNotifierFake(AdminNotifier.AdminNotifier):
+    
     def __init__(self, configuration, expected, smtp_mock):
         super(AdminNotifierFake, self).__init__(configuration)
         self.verification = False
@@ -53,15 +54,9 @@ class ConfigurationManagerFake(object):
                 'lelele'
             )
 
-class AdminNotifierTestCase(unittest.TestCase):
+class AdminNotifierTestCase(mocker.MockerTestCase):
+    
     def setUp(self):
-        self.smtp_mock   = pmock.Mock()
-        self.smtp_mock.expects(pmock.once()).starttls()
-        self.smtp_mock.expects(pmock.once()).helo(
-                pmock.eq('weblab.deusto.es')
-            ).after('starttls')
-        self.smtp_mock.expects(pmock.once()).method('sendmail')
-        self.smtp_mock.expects(pmock.once()).close().after('sendmail')
         self.default_config = dict(
             server_hostaddress        = 'weblab.deusto.es',
             server_admin              = 'weblab@deusto.es',
@@ -75,67 +70,48 @@ class AdminNotifierTestCase(unittest.TestCase):
     def test_with_real_configuration(self):
         cfg_manager= ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration_module)
-        cfg_manager._set_value('mail_notification_enabled',True)
+        cfg_manager._set_value('mail_notification_enabled', True)
+        self.smtp_mock = self.mocker.mock()
+        self.smtp_mock.starttls()
+        self.smtp_mock.helo('weblab.deusto.es')
+        self.smtp_mock.sendmail(mocker.ARGS)
+        self.smtp_mock.close()
+        notifier = AdminNotifierFake(cfg_manager, 'rigel.deusto.es', self.smtp_mock)
 
-        
-        notifier    = AdminNotifierFake(
-                    cfg_manager,
-                    'rigel.deusto.es',
-                    self.smtp_mock
-                )
-
+        self.mocker.replay()
         result = notifier.notify('message')
-        self.assertEquals(
-                0,
-                result
-            )
-
-        self.assertTrue(
-                notifier.verify()
-            )
-        self.smtp_mock.verify()
+        self.assertEquals(0, result)
+        self.assertTrue(notifier.verify())
 
     def test_without_enough_configuration(self):
         self.default_config.pop('server_hostaddress')
-        cfg_manager= ConfigurationManagerFake(
-                self.default_config
-            )
+        cfg_manager= ConfigurationManagerFake(self.default_config)
+        self.smtp_mock = self.mocker.mock()
+        notifier = AdminNotifierFake(cfg_manager, 'rigel.deusto.es', self.smtp_mock)
         
-        notifier    = AdminNotifierFake(
-                    cfg_manager,
-                    'rigel.deusto.es',
-                    self.smtp_mock
-                )
-
+        self.mocker.replay()
         result = notifier.notify('message')
-        self.assertEquals(
-                -1,
-                result
-            )
+        self.assertEquals(-1, result)
 
     def test_with_wrong_configuration(self):
         self.default_config['mail_server_helo'] = 'lalala'
-        cfg_manager= ConfigurationManagerFake(
-                self.default_config
-            )
-        
-        notifier    = AdminNotifierFake(
-                    cfg_manager,
-                    'rigel.deusto.es',
-                    self.smtp_mock
-                )
+        cfg_manager= ConfigurationManagerFake(self.default_config)
+        self.smtp_mock = self.mocker.mock()
+        self.smtp_mock.starttls()
+        self.smtp_mock.helo('lalala')
+        self.smtp_mock.close()
+        notifier = AdminNotifierFake(cfg_manager, 'rigel.deusto.es', self.smtp_mock)
 
+        self.mocker.replay()
         result = notifier.notify('message')
-        self.assertEquals(
-                -2,
-                result
-            )
+        self.assertEquals(-2, result)
+
 
 def real_test():
     cfg_manager= ConfigurationManager.ConfigurationManager()
     cfg_manager.append_module(configuration_module)
 
-    notifier    = AdminNotifier.AdminNotifier(cfg_manager)
+    notifier = AdminNotifier.AdminNotifier(cfg_manager)
     result = notifier.notify('message')
     
     print "Verify in your e-mail address :-D"
