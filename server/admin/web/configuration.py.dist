@@ -4,6 +4,10 @@ DB_NAME ="WebLab"
 _USERNAME="wl_administrator"
 _PASSWORD="wl_administrator_password"
 
+LOCATIONS_DB_NAME ="Locations"
+_LOCATIONS_USERNAME=_USERNAME
+_LOCATIONS_PASSWORD=_PASSWORD
+
 GROUPS = { 
             '5-Ing.Tel_GPIB_2009-2010' : ('ud-gpib1', 'GPIB experiments'),
             '5-Ing.Ind_2009-2010'      : ('ud-fpga',  'FPGA experiments')
