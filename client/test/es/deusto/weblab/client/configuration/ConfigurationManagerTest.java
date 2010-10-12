@@ -85,31 +85,51 @@ public class ConfigurationManagerTest extends GWTTestCase {
 					public void onLoaded() {
 						try{
 							//Using default values
-							int dato = ConfigurationManagerTest.this.confManager.getIntProperty("intproperty1",-1);
-							Assert.assertEquals(dato,15);
+							int number = ConfigurationManagerTest.this.confManager.getIntProperty("intproperty1",-1);
+							Assert.assertEquals(number,15);
 							String s = ConfigurationManagerTest.this.confManager.getProperty("property1","whatever");
 							Assert.assertEquals(s,"value1");
 							
 							//Without using default values
 							try {
-								dato = ConfigurationManagerTest.this.confManager.getIntProperty("intproperty1");
-								Assert.assertEquals(dato,15);
+								number = ConfigurationManagerTest.this.confManager.getIntProperty("intproperty1");
+								Assert.assertEquals(number,15);
 								s = ConfigurationManagerTest.this.confManager.getProperty("property1");
 								Assert.assertEquals(s,"value1");
 							} catch (final ConfigurationKeyNotFoundException e) {
 								Assert.fail("ConfigurationKeyNotFoundException raised: " + e.getMessage() );
-								e.printStackTrace();
 							} catch (final InvalidConfigurationValueException e) {
 								Assert.fail("InvalidConfigurationValueException raised: " + e.getMessage());
-								e.printStackTrace();
 							}
+							
+							// Parsing experiments
+							final IConfigurationRetriever[] flashRetrievers;
+							try {
+								flashRetrievers = ConfigurationManagerTest.this.confManager.getExperimentsConfiguration("flash");
+							} catch (InvalidConfigurationValueException e) {
+								Assert.fail(InvalidConfigurationValueException.class.getName()+ " raised: " + e.getMessage());
+								return;
+							}
+							
+							Assert.assertEquals(1, flashRetrievers.length);
+							final String experimentName = flashRetrievers[0].getProperty("experiment.name","not this");
+							Assert.assertEquals("flashdummy", experimentName);
+							
+							final int width = flashRetrievers[0].getIntProperty("width", -1);
+							Assert.assertEquals(500, width);
+							
 						}finally{
 							ConfigurationManagerTest.this.finishTest();
 						}
 					}
+					
 					@Override
 					public void onFailure(Throwable t) {
-						Assert.fail("onFailure called when instanciating the ConfigurationManager: " + t.getMessage());
+						try{
+							Assert.fail("onFailure called when instanciating the ConfigurationManager: " + t.getMessage());
+						}finally{
+							ConfigurationManagerTest.this.finishTest();
+						}
 					}
 				}
 		);
@@ -139,7 +159,6 @@ public class ConfigurationManagerTest extends GWTTestCase {
 								//Ok
 							}catch (final InvalidConfigurationValueException e) {
 								Assert.fail("InvalidConfigurationValueException raised: " + e.getMessage());
-								e.printStackTrace();
 							}
 														
 							try {
@@ -156,6 +175,8 @@ public class ConfigurationManagerTest extends GWTTestCase {
 								Assert.fail("ConfigurationKeyNotFoundException expected and not raised; returned: " + s);
 							} catch (final ConfigurationKeyNotFoundException e) {
 								//Ok
+							} catch (InvalidConfigurationValueException e) {
+								Assert.fail(InvalidConfigurationValueException.class.getName() + " raised: " + e.getMessage());
 							}
 						}finally{
 							ConfigurationManagerTest.this.finishTest();

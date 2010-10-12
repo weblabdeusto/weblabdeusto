@@ -14,13 +14,15 @@
 
 package es.deusto.weblab.client.lab.experiments;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
 
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.vm.VMExperiment;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.binary.WebLabBinaryExperiment;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.dummy.WebLabDummyExperiment;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.fpga.WebLabFpgaExperiment;
@@ -32,6 +34,7 @@ import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.We
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic.WebLabPicExperiment;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pld.WebLabPldExperiment;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.visir.VisirFlash;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.vm.VMExperiment;
 import es.deusto.weblab.client.lab.experiments.util.applets.flash.FlashAppExperimentBase;
 import es.deusto.weblab.client.lab.experiments.util.applets.java.JavaAppletExperimentBase;
 import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
@@ -41,7 +44,8 @@ import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
  * In order to add a new experiment, just add another element to the list as the sample one (the one commented)
  */
 class EntryRegistry {
-	static final ExperimentEntry [] entries = {
+	
+	static final List<ExperimentEntry> entries = Arrays.asList(new ExperimentEntry[]{
 		
 		//
 		// Example of new entry
@@ -88,24 +92,24 @@ class EntryRegistry {
 		
 		
 		new ExperimentEntry("Dummy experiments", "visirtest", MobileSupport.disabled) {
-		@Override
-		public void createWeb( final IConfigurationManager configurationManager, 
-				final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
-
-			GWT.runAsync(new RunAsyncCallback() {
-				@Override
-				public void onSuccess() {
-					callback.onExperimentLoaded(
-							new VisirFlash(configurationManager, boardController));
-				}
-				
-				@Override
-				public void onFailure(Throwable e){
-					callback.onFailure(e);
-				}
-			});
-		}
-	},
+			@Override
+			public void createWeb( final IConfigurationManager configurationManager, 
+					final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+	
+				GWT.runAsync(new RunAsyncCallback() {
+					@Override
+					public void onSuccess() {
+						callback.onExperimentLoaded(
+								new VisirFlash(configurationManager, boardController));
+					}
+					
+					@Override
+					public void onFailure(Throwable e){
+						callback.onFailure(e);
+					}
+				});
+			}
+		},
 		
 		
 //		new ExperimentEntry("Dummy experiments", "visirtest", MobileSupport.disabled) {
@@ -380,5 +384,5 @@ class EntryRegistry {
 				});
 			}
 		},
-	};
+	});
 }

@@ -91,4 +91,10 @@ public class FakeConfiguration implements IConfigurationManager {
 		else
 			return value.equals("true");
 	}
+
+	@Override
+	public IConfigurationRetriever[] getExperimentsConfiguration(
+			String experimentType) throws InvalidConfigurationValueException {
+		throw new IllegalStateException("getExperimentsConfiguration(String) should not be called");
+	}
 }

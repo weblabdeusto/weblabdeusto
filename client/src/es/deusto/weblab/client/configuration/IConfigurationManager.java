@@ -13,23 +13,10 @@
 */ 
 package es.deusto.weblab.client.configuration;
 
-import es.deusto.weblab.client.configuration.exceptions.ConfigurationKeyNotFoundException;
 import es.deusto.weblab.client.configuration.exceptions.InvalidConfigurationValueException;
 
-public interface IConfigurationManager {
-
-	public abstract int getIntProperty(String key)
-		throws ConfigurationKeyNotFoundException, InvalidConfigurationValueException;
-
-	public abstract int getIntProperty(String key, int def);
-
-	public abstract boolean getBoolProperty(String key)
-		throws ConfigurationKeyNotFoundException;
-
-	public abstract boolean getBoolProperty(String key, boolean def);
+public interface IConfigurationManager extends IConfigurationRetriever{
 	
-	public abstract String getProperty(String key)
-		throws ConfigurationKeyNotFoundException;
-
-	public abstract String getProperty(String key, String def);
+	public IConfigurationRetriever [] getExperimentsConfiguration(String experimentType) throws InvalidConfigurationValueException;
+	
 }

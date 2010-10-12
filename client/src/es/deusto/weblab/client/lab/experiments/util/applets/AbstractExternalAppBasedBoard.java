@@ -65,7 +65,7 @@ public abstract class AbstractExternalAppBasedBoard extends BoardBase {
 		return AbstractExternalAppBasedBoard.configurationManager.getIntProperty(key, def);
 	}
 
-	static String getProperty(String key) throws ConfigurationKeyNotFoundException{
+	static String getProperty(String key) throws ConfigurationKeyNotFoundException, InvalidConfigurationValueException{
 		return AbstractExternalAppBasedBoard.configurationManager.getProperty(key);
 	}
 

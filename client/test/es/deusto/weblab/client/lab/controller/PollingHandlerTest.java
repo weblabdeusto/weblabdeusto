@@ -19,6 +19,7 @@ import java.util.Vector;
 import com.google.gwt.junit.client.GWTTestCase;
 
 import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.configuration.exceptions.ConfigurationKeyNotFoundException;
 import es.deusto.weblab.client.configuration.exceptions.InvalidConfigurationValueException;
 import es.deusto.weblab.client.lab.controller.IPetitionsController;
@@ -58,6 +59,13 @@ public class PollingHandlerTest extends GWTTestCase  {
 		@Override
 		public boolean getBoolProperty(String key, boolean def) {
 			throw new IllegalStateException("getBoolProperty(String, boolean) should not be called");
+		}
+
+		@Override
+		public IConfigurationRetriever[] getExperimentsConfiguration(
+				String experimentType)
+				throws InvalidConfigurationValueException {
+			throw new IllegalStateException("getExperimentsConfiguration(String) should not be called");
 		}		
 	}
 	

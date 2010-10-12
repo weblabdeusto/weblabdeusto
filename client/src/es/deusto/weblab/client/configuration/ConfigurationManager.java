@@ -21,19 +21,17 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 
-import es.deusto.weblab.client.configuration.exceptions.ConfigurationKeyNotFoundException;
 import es.deusto.weblab.client.configuration.exceptions.InvalidConfigurationValueException;
 import es.deusto.weblab.client.configuration.exceptions.WlConfigurationException;
 
-public class ConfigurationManager implements IConfigurationManager {
+public class ConfigurationManager extends ConfigurationRetriever implements IConfigurationManager {
 
 	private final String configurationPath;
-	private final Map<String, String> configurationMap = new HashMap<String, String>();
 	private final IConfigurationLoadedCallback callback;
 		
 	public ConfigurationManager(String path, IConfigurationLoadedCallback callback){
@@ -73,12 +71,7 @@ public class ConfigurationManager implements IConfigurationManager {
 								ConfigurationManager.this.callback.onFailure(new WlConfigurationException("Error parsing configuration: empty value for key: " + key));
 								return;
 							}
-							final JSONString valueString = currentValue.isString();
-							if(valueString == null){
-								ConfigurationManager.this.callback.onFailure(new WlConfigurationException("Error parsing configuration: string expected for key: " + key));
-								return;
-							}
-							ConfigurationManager.this.configurationMap.put(key, valueString.stringValue());
+							ConfigurationManager.this.configurationMap.put(key, currentValue);
 						}
 						
 						ConfigurationManager.this.callback.onLoaded();
@@ -93,68 +86,37 @@ public class ConfigurationManager implements IConfigurationManager {
 	}
 
 	@Override
-	public int getIntProperty(String key) 
-		throws ConfigurationKeyNotFoundException, InvalidConfigurationValueException
-	{
-		final String value = this.configurationMap.get(key);
-		if(value == null)
-			throw new ConfigurationKeyNotFoundException("Configuration key: " + key + " not found");
-		else
-			try{
-				return Integer.parseInt(value);
-			}catch(final NumberFormatException exc){
-				throw new InvalidConfigurationValueException("Invalid number format exception caught: " + exc.getMessage());
-			}
-	}
-	
-	@Override
-	public int getIntProperty(String key, int def){
-		final String value = this.configurationMap.get(key);
-		if(value == null)
-			return def;
-		else
-			try{
-				return Integer.parseInt(value);
-			}catch(final NumberFormatException exc){
-				return def;
-			}
-	}
-	
-	@Override
-	public String getProperty(String key) throws ConfigurationKeyNotFoundException{
-		final String s = this.configurationMap.get(key);
-		if(s == null)
-			throw new ConfigurationKeyNotFoundException("Configuration key: " + key + " not found");
-		else
-			return s;
-	}
-	 
-	@Override
-	public String getProperty(String key, String def){
-		final String s = this.configurationMap.get(key);
-		if(s == null)
-			return def;
-		else
-			return s;
-	}
-	
-	@Override
-	public boolean getBoolProperty(String key) throws ConfigurationKeyNotFoundException
-	{
-		final String value = this.configurationMap.get(key);
-		if(value == null)
-			throw new ConfigurationKeyNotFoundException("Configuration key: " + key + " not found");
-		else
-			return value.equals("true");
-	}
-
-	@Override
-	public boolean getBoolProperty(String key, boolean def)
-	{
-		final String value = this.configurationMap.get(key);
-		if(value == null)
-			return def;
-		else
-			return value.equals("true");
+	public IConfigurationRetriever [] getExperimentsConfiguration(String experimentType) throws InvalidConfigurationValueException {
+		final JSONValue value = this.configurationMap.get("experiments");
+		if(value == null) // If no experiment is configured, just return an empty array
+			return new IConfigurationRetriever[]{};
+		
+		final JSONObject objectValue = value.isObject();
+		if(objectValue == null)
+			throw new InvalidConfigurationValueException("'experiments' field in the configuration file must be an object!!!");
+		
+		final JSONValue experimentTypeValue = objectValue.get(experimentType);
+		if(experimentTypeValue == null) // If no experiment of that type is configured, just return an empty array
+			return new IConfigurationRetriever[]{};
+		
+		final JSONArray experimentTypeArray = experimentTypeValue.isArray();
+		if(experimentTypeArray == null)
+			throw new InvalidConfigurationValueException("Any experiment type in the 'experiments' field of the configuration file must be an array!");
+		
+		final IConfigurationRetriever [] resultingConfigurationRetrievers = new IConfigurationRetriever[experimentTypeArray.size()];
+		for(int i = 0; i < experimentTypeArray.size(); ++i){
+			final JSONValue currentExperimentConfiguration = experimentTypeArray.get(i);
+			final JSONObject currentExperimentConfigurationObject = currentExperimentConfiguration.isObject();
+			if(currentExperimentConfigurationObject == null)
+				throw new InvalidConfigurationValueException("Any experiment in the array of experiment types of 'experiments' in the configuration file must be an object!");
+			
+			final Map<String, JSONValue> experimentConfiguration = new HashMap<String, JSONValue>();
+			for(final String key : currentExperimentConfigurationObject.keySet())
+				experimentConfiguration.put(key, currentExperimentConfigurationObject.get(key));
+			
+			resultingConfigurationRetrievers[i] = new ConfigurationRetriever(experimentConfiguration);
+		}
+		
+		return resultingConfigurationRetrievers;
 	}
 }
