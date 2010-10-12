@@ -85,7 +85,8 @@
 		<mkdir dir="war/WEB-INF/classes"/>
 		<javac srcdir="src:test" destdir="war/WEB-INF/classes" 
 			includes="**" debug="on" debuglevel="lines,vars,source" 
-			encoding="utf-8">
+            encoding="utf-8">
+            <compilerarg value="-Xlint"/>
 			<classpath refid="project.class.path"/>
 		</javac>
 		<copy todir="war/WEB-INF/classes">
