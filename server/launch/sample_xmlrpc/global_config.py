@@ -1,1 +1,1 @@
-
+debug_mode = True
