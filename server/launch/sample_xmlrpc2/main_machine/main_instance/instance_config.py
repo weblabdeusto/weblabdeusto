@@ -1,3 +1,6 @@
+xilinx_use_jtag_blazer_to_program = False
+
+
 #########################
 # General configuration #
 #########################

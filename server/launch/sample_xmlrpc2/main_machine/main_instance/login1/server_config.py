@@ -1,9 +1,7 @@
 weblab_db_username = 'weblab'
 weblab_db_password = 'weblab'
-db_driver        = "MySQLdb"
 db_host          = "localhost"
-db_database = "WebLab"
-db_prefix        = "wl_"
+db_database = "WebLabTests"
 
 ##############################
 # RemoteFacade configuration #

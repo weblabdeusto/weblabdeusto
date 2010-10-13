@@ -7,6 +7,9 @@ core_session_type = 'Memory'
 core_coordinator_db_username = 'weblab'
 core_coordinator_db_password = 'weblab'
 
+weblab_db_username = 'weblab'
+weblab_db_password = 'weblab'
+
 core_coordinator_laboratory_servers   = [
     "laboratory1:main_instance@main_machine;exp1|ud-fpga|FPGA experiments",
     "laboratory1:main_instance@main_machine;exp1|ud-pld|PLD experiments",
@@ -39,8 +42,8 @@ core_db_users_externalentity_write_password     = 'wl_exter_write_password'
 
 db_driver        = "MySQLdb"
 db_host          = "localhost"
-db_database = "WebLab"
-db_prefix        = "wl_"
+db_database = "WebLabTests"
+db_prefix        = ""
 
 ##############################
 # RemoteFacade configuration #
