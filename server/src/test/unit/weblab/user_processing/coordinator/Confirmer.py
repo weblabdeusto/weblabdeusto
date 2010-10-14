@@ -14,7 +14,7 @@
 # 
 
 import unittest
-import pmock
+import mocker
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.gen.locator.EasyLocator      as EasyLocator
@@ -32,6 +32,7 @@ import weblab.user_processing.coordinator.Coordinator as Coordinator
 import weblab.user_processing.coordinator.WebLabQueueStatus as WQS
 
 class MockLocator(object):
+    
     def __init__(self):
         self.real_mock = None
         # This way, a MockLocator is passed to the Confirmer,
@@ -47,7 +48,8 @@ class MockLocator(object):
 def coord_addr(coord_addr_str):
     return CoordAddress.CoordAddress.translate_address( coord_addr_str )
 
-class ConfirmerTestCase(unittest.TestCase):
+class ConfirmerTestCase(mocker.MockerTestCase):
+    
     def setUp(self):
 
         self.coord_address = CoordAddress.CoordAddress.translate_address(
@@ -68,32 +70,33 @@ class ConfirmerTestCase(unittest.TestCase):
         self.coordinator.add_experiment_instance_id(self.lab_address, ExperimentInstanceId('inst1', 'exp1','cat1'))
 
     def test_free_experiment_success(self):
-        mock_laboratory = pmock.Mock()
-        mock_laboratory.expects(
-                pmock.once()
-            ).free_experiment( pmock.eq('lab_session_id') )
+        mock_laboratory = self.mocker.mock()
+        mock_laboratory.free_experiment('lab_session_id')
+        
+        self.mock_locator.real_mock = self.mocker.mock()
+        self.mock_locator.real_mock.get_server_from_coordaddress(
+                self.coord_address,
+                coord_addr(self.lab_address),
+                ServerType.Laboratory,
+                'all'
+        )
+        self.mocker.result((mock_laboratory,))
 
-        self.mock_locator.real_mock = pmock.Mock()
-        self.mock_locator.real_mock.expects(
-                pmock.once()
-            ).get_server_from_coordaddress(
-                pmock.eq(self.coord_address), pmock.eq(coord_addr(self.lab_address)), pmock.eq(ServerType.Laboratory), pmock.eq('all')
-            ).will( pmock.return_value( (mock_laboratory,) ) )
-
-
+        self.mocker.replay()
         self.confirmer.enqueue_free_experiment(self.lab_address, 'lab_session_id')
         self.confirmer._free_handler.join()
 
-        mock_laboratory.verify()
-
     def test_free_experiment_raises_exception(self):
-        self.mock_locator.real_mock = pmock.Mock()
-        self.mock_locator.real_mock.expects(
-                pmock.once()
-            ).get_server_from_coordaddress(
-                pmock.eq(self.coord_address), pmock.eq(coord_addr(self.lab_address)), pmock.eq(ServerType.Laboratory), pmock.eq('all')
-            ).will( pmock.raise_exception( Exception('foo') ) )
+        self.mock_locator.real_mock = self.mocker.mock()
+        self.mock_locator.real_mock.get_server_from_coordaddress(
+                self.coord_address,
+                coord_addr(self.lab_address),
+                ServerType.Laboratory,
+                'all'
+        )
+        self.mocker.throw( Exception('foo') )
 
+        self.mocker.replay()
         self.confirmer.enqueue_free_experiment(self.lab_address, 'lab_session_id')
         self.confirmer._free_handler.join()
 
@@ -102,20 +105,20 @@ class ConfirmerTestCase(unittest.TestCase):
     def test_confirm_experiment(self):
         lab_session_id = SessionId.SessionId("samplesession_id")
 
-        mock_laboratory = pmock.Mock()
-        mock_laboratory.expects(
-                pmock.once()
-            ).reserve_experiment(
-                pmock.eq(ExperimentInstanceId('inst1','exp1','cat1'))
-            ).will( pmock.return_value( lab_session_id ) )
+        mock_laboratory = self.mocker.mock()
+        mock_laboratory.reserve_experiment(ExperimentInstanceId('inst1','exp1','cat1'))
+        self.mocker.result(lab_session_id)
 
-        self.mock_locator.real_mock = pmock.Mock()
-        self.mock_locator.real_mock.expects(
-                pmock.once()
-            ).get_server_from_coordaddress(
-                pmock.eq(self.coord_address), pmock.eq(coord_addr(self.lab_address)), pmock.eq(ServerType.Laboratory), pmock.eq('all')
-            ).will( pmock.return_value( (mock_laboratory,) ) )
+        self.mock_locator.real_mock = self.mocker.mock()
+        self.mock_locator.real_mock.get_server_from_coordaddress(
+                self.coord_address,
+                coord_addr(self.lab_address),
+                ServerType.Laboratory,
+                'all'
+        )
+        self.mocker.result((mock_laboratory,))
 
+        self.mocker.replay()
         status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5)
         self.coordinator.confirmer._confirm_handler.join()
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
@@ -125,20 +128,20 @@ class ConfirmerTestCase(unittest.TestCase):
         self.assertEquals( expected_status, status )
 
     def test_reject_experiment_laboratory_raises_exception(self):
-        mock_laboratory = pmock.Mock()
-        mock_laboratory.expects(
-                pmock.once()
-            ).reserve_experiment(
-                pmock.eq(ExperimentInstanceId('inst1','exp1','cat1'))
-            ).will( pmock.raise_exception( Exception("Any unhandled exception") ) )
+        mock_laboratory = self.mocker.mock()
+        mock_laboratory.reserve_experiment(ExperimentInstanceId('inst1','exp1','cat1'))
+        self.mocker.throw( Exception("Any unhandled exception") )
 
-        self.mock_locator.real_mock = pmock.Mock()
-        self.mock_locator.real_mock.expects(
-                pmock.once()
-            ).get_server_from_coordaddress(
-                pmock.eq(self.coord_address), pmock.eq(coord_addr(self.lab_address)), pmock.eq(ServerType.Laboratory), pmock.eq('all')
-            ).will( pmock.return_value( (mock_laboratory,) ) )
+        self.mock_locator.real_mock = self.mocker.mock()
+        self.mock_locator.real_mock.get_server_from_coordaddress(
+                self.coord_address,
+                coord_addr(self.lab_address),
+                ServerType.Laboratory,
+                'all'
+        )
+        self.mocker.result((mock_laboratory,))
 
+        self.mocker.replay()
         status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5)
         self.coordinator.confirmer._confirm_handler.join()
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
@@ -148,13 +151,16 @@ class ConfirmerTestCase(unittest.TestCase):
         self.assertEquals( expected_status, status )
 
     def test_reject_experiment_voodoo_gen_raises_exception(self):
-        self.mock_locator.real_mock = pmock.Mock()
-        self.mock_locator.real_mock.expects(
-                pmock.once()
-            ).get_server_from_coordaddress(
-                pmock.eq(self.coord_address), pmock.eq(coord_addr(self.lab_address)), pmock.eq(ServerType.Laboratory), pmock.eq('all')
-            ).will( pmock.raise_exception( Exception("Unhandled exception") ) )
+        self.mock_locator.real_mock = self.mocker.mock()
+        self.mock_locator.real_mock.get_server_from_coordaddress(
+                self.coord_address,
+                coord_addr(self.lab_address),
+                ServerType.Laboratory,
+                'all'
+        )
+        self.mocker.throw( Exception("Unhandled exception") )
 
+        self.mocker.replay()
         status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5)
         self.coordinator.confirmer._confirm_handler.join()
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
