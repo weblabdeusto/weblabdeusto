@@ -15,6 +15,7 @@
 
 import unittest
 import pmock
+import mocker
 
 import test.unit.configuration as configuration_module
 
@@ -25,52 +26,61 @@ import weblab.exceptions.experiment.devices.gpib.GpibExceptions as GpibException
 
 import test.unit.weblab.experiment.devices.gpib.fake_compiler_linker_nice as fake_compiler_linker_nice
 
-class WrappedCompiler(Gpib.Compiler):
-    def _check(self, file_path):
-        pass
-
-class WrappedCompilerPopen(WrappedCompiler):
-    def __init__(self, *args, **kargs):
-        self.raise_exception = False
-        self.mocked_popen    = pmock.Mock()
-        WrappedCompiler.__init__(self, *args, **kargs)
-
-    def _create_popen(self, cmd_file):
-        if self.raise_exception:
-            raise Exception("alehop")
-        return self.mocked_popen
 
 class FakeTimer(object):
     @staticmethod
     def sleep(time):
         pass # :-)
+       
+class WrappedCompiler(Gpib.Compiler):
+    
+    _time = FakeTimer
+    
+    _fail_in_create_popen = False
+    
+    def __init__(self, popen_mock, *args, **kargs):
+        super(WrappedCompiler, self).__init__(*args, **kargs)
+        self._popen_mock = popen_mock
+     
+    def _create_popen(self, cmd_file):
+        if self._fail_in_create_popen:
+            raise Exception("alehop")
+        # We accept both a mock or using real popen in tests
+        if self._popen_mock is None:
+            return super(WrappedCompiler, self)._create_popen(cmd_file)
+        else:
+            return self._popen_mock
+        
+    def _check(self, file_path):
+        pass
+    
+    def _log(self, action, result_code, output, stderr):
+        pass
 
-class GpibCompilerTestCase(unittest.TestCase):
+class GpibCompilerTestCase(mocker.MockerTestCase):
     
     def setUp(self):
         self.cfg_manager= ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
 
     def test_error_creating_popen(self):
-        compiler = WrappedCompilerPopen(self.cfg_manager)
-        compiler._time_module = FakeTimer
-        compiler.raise_exception = True
-
+        compiler = WrappedCompiler(None, self.cfg_manager)
+        compiler._fail_in_create_popen = True
+        
         self.assertRaises(
             GpibExceptions.ErrorProgrammingDeviceException,
             compiler.compile_file,
             'whatever.exe'
         )
+        
+        self.mocker.restore()
 
     def test_error_waiting(self):
-        compiler = WrappedCompilerPopen(self.cfg_manager)
-        compiler._time_module = FakeTimer
-        compiler.mocked_popen.expects(
-                pmock.once()
-            ).method('poll').will(
-                pmock.raise_exception(Exception("alehop"))
-            )
+        compiler = WrappedCompiler(self.mocker.mock(), self.cfg_manager)
+        compiler._popen_mock.poll()
+        self.mocker.throw(Exception("alehop"))
 
+        self.mocker.replay()
         self.assertRaises(
             GpibExceptions.ErrorWaitingForProgrammingFinishedException,
             compiler.compile_file,
@@ -78,21 +88,13 @@ class GpibCompilerTestCase(unittest.TestCase):
         )
 
     def test_error_reading(self):
-        compiler = WrappedCompilerPopen(self.cfg_manager)
-        compiler._time_module = FakeTimer
-        compiler.mocked_popen.expects(
-                pmock.once()
-            ).method('poll').will(
-                pmock.return_value(0)
-            )
+        compiler = WrappedCompiler(self.mocker.mock(), self.cfg_manager)
+        compiler._popen_mock.poll()
+        self.mocker.result(0)
+        compiler._popen_mock.stdout.read()
+        self.mocker.throw(Exception('alehop'))
 
-        compiler.mocked_popen.stdout = pmock.Mock()
-        compiler.mocked_popen.stdout.expects(
-                pmock.once()
-            ).method('read').will(
-                pmock.raise_exception(Exception('alehop'))
-            )
-
+        self.mocker.replay()
         self.assertRaises(
             GpibExceptions.ErrorRetrievingOutputFromProgrammingProgramException,
             compiler.compile_file,
@@ -100,11 +102,10 @@ class GpibCompilerTestCase(unittest.TestCase):
         )
 
     def test_compiler(self):
-        compiler = WrappedCompiler(self.cfg_manager)
-        compiler._time_module = FakeTimer
-
         gpib_compiler_command_property = 'gpib_compiler_command'
         gpib_linker_command_property = 'gpib_linker_command'
+
+        compiler = WrappedCompiler(None, self.cfg_manager)
 
         # It works
         self.assertEquals(
@@ -167,10 +168,9 @@ class GpibCompilerTestCase(unittest.TestCase):
             compiler.compile_file,
             "return -1.cpp"
         )
-
+        
     def test_compiler_errors(self):
-        compiler = WrappedCompiler(self.cfg_manager)
-        compiler._time_module = FakeTimer
+        compiler = WrappedCompiler(None, self.cfg_manager)
 
         self.cfg_manager._values['gpib_compiler_command'] = []
 
@@ -188,7 +188,7 @@ class GpibCompilerTestCase(unittest.TestCase):
         )
         self.cfg_manager.reload()
 
-        compiler = WrappedCompiler(self.cfg_manager)
+        compiler = WrappedCompiler(None, self.cfg_manager)
 
         self.cfg_manager._values['gpib_linker_command'] = []
 
@@ -204,7 +204,7 @@ class GpibCompilerTestCase(unittest.TestCase):
             compiler.compile_file,
             "bar"
         )
-
+        
     def tearDown(self):
         self.cfg_manager.reload()
 

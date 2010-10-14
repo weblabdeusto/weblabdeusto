@@ -29,9 +29,12 @@ EXE_FILE = '$EXE_FILE'
 
 class Launcher(object):
     
+    _time = time
+    
     def __init__(self, cfg_manager):
+        super(Launcher, self).__init__()
         self._cfg_manager = cfg_manager
-        self._time_module = time
+        self.popen = None
 
     def _create_popen(self, cmd_file):
         return subprocess.Popen(
@@ -63,7 +66,7 @@ class Launcher(object):
             while result is None and ((initial_time + MAX_TIME) > time.time()):
                 result = self.popen.poll()
                 if result is None:
-                    self._time_module.sleep(0.1)
+                    self._time.sleep(0.1)
             if result is None:
                 raise Exception("Program took too much time to run")
             return result
@@ -106,8 +109,9 @@ class Launcher(object):
 
 
 class Compiler(Launcher):
+    
     def __init__(self, cfg_manager):
-        Launcher.__init__(self, cfg_manager)
+        super(Compiler, self).__init__(cfg_manager)
 
     @logged()
     def compile_file(self, file_path):
