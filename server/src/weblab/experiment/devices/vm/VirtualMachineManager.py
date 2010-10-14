@@ -35,6 +35,7 @@ class VirtualMachineManager(object):
     def is_alive_vm(self):
         """
         Returns true if the Virtual Machine is ready to use, false otherwise.
+        Should also return false if for any reason, it wasn't possible to check the machine's state.
         """
         pass
     

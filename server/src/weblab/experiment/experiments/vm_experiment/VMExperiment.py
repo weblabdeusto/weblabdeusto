@@ -66,7 +66,7 @@ class VMExperiment(Experiment.Experiment):
         Callback run when the experiment is started
         """
         self.handle_start_exp_t()
-        return "Ok"
+        return "Starting"
 
     @Override(Experiment.Experiment)
     def do_send_command_to_device(self, command):
@@ -83,8 +83,13 @@ class VMExperiment(Experiment.Experiment):
         elif command == "is_ready":
             if self.is_ready: return "1"
             return "0"
+        
+        elif command == "is_alive":
+            if not self.is_ready: return "0"
+            if self.vm.is_alive_vm(): return "1"
+            return "0"
             
-        return "Ok"
+        return "cmd_not_supported"
 
 
     @Override(Experiment.Experiment)
@@ -105,7 +110,7 @@ class VMExperiment(Experiment.Experiment):
         Callback to perform cleaning after the experiment ends.
         """
         self.handle_dispose_t()
-        return "Ok"
+        return "Disposing"
     
 
     @threaded()

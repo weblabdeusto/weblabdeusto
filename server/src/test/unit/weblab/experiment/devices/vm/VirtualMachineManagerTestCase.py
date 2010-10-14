@@ -21,7 +21,7 @@ import weblab.experiment.devices.vm.VirtualMachineManager as VirtualMachineManag
 class VirtualMachineManagerTestCase(mocker.MockerTestCase):
                 
     def setUp(self):
-        self.vmm = VirtualMachineManager(None)
+        self.vmm = VirtualMachineManager.VirtualMachineManager(None)
 
     def tearDown(self):
         pass
