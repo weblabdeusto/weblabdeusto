@@ -48,7 +48,7 @@ class SOAPAddressTestCase(unittest.TestCase):
         self.message1 = "hello"
         self.message2 = "olleh"
         self.host = 'localhost'
-        self.port = 10000
+        self.port = 10005
 
     if ServerSOAP.SOAPPY_AVAILABLE:
         def test_equals(self):
