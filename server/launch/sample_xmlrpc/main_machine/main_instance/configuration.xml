@@ -11,4 +11,5 @@
 	<server>ups1</server>
 	<server>laboratory1</server>
     <server>experiment_javadummy</server>
+    <server>experiment_vm</server>
 </servers>

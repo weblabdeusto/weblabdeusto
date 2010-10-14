@@ -10,9 +10,9 @@
 # This software consists of contributions made by many individuals, 
 # listed below:
 #
-# Author: Luis Rodríguez <luis.rodriguez@opendeusto.es>
+# Author: Luis Rodrï¿½guez <luis.rodriguez@opendeusto.es>
 # 
 
 
 
-__all__ = ["VirtualMachineManager", "VirtualBox"]
+__all__ = ["VirtualMachineManager", "VirtualMachineDummy", "VirtualBox"]

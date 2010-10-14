@@ -34,7 +34,7 @@ CFG_USER_MANAGER_TYPE = "vm_user_manager_type"
 CFG_SHOULD_STORE_IMAGE = "vm_should_store_image"
 
 DEFAULT_URL = "rdp://localhost:6667"
-DEFAULT_VM_TYPE = "VirtualBox"
+DEFAULT_VM_TYPE = "VirtualMachineDummy"
 DEFAULT_USER_MANAGER_TYPE = "DummyUserManager"
 DEFAULT_SHOULD_STORE_IMAGE = True
 
@@ -77,9 +77,9 @@ class VMExperiment(Experiment.Experiment):
         
         # Returns the URL to access the VM. The VM itself is not necessarily ready for access yet.
         if command == "get_configuration":
-            self.url
+            return self.url
             
-        # Returns 1 if the client should be able to connect to the VM already, 0 otherwise.
+        # Returns 1 if the client should be able to connect to the VM already, if it isn't ready yet.
         elif command == "is_ready":
             if self.is_ready: return "1"
             return "0"

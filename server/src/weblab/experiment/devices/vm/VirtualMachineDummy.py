@@ -16,7 +16,7 @@
 from VirtualMachineManager import VirtualMachineManager
 from voodoo.override import Override
 
-class VirtualBox(VirtualMachineManager):
+class VirtualMachineDummy(VirtualMachineManager):
     
     def __init__(self, cfg_manager):
         VirtualMachineManager.__init__(self, cfg_manager)
