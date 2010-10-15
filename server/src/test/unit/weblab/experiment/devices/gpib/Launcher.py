@@ -14,7 +14,7 @@
 # 
 
 import unittest
-import pmock
+import mocker
 
 import test.unit.configuration as configuration_module
 
@@ -25,26 +25,30 @@ import weblab.exceptions.experiment.devices.gpib.GpibExceptions as GpibException
 
 class WrappedLauncherPopen(Gpib.Launcher):
     
-    def __init__(self, *args, **kargs):
+    _fail_in_create_popen = False
+    
+    def __init__(self, popen_mock, *args, **kargs):
         self.raise_exception = False
-        self.mocked_popen    = pmock.Mock()
+        self._popen_mock = popen_mock
         Gpib.Launcher.__init__(self, *args, **kargs)
 
     def _create_popen(self, cmd_file):
-        if self.raise_exception:
+        if self._fail_in_create_popen:
             raise Exception("alehop")
-        return self.mocked_popen
+        return self._popen_mock
     
-class GpibLauncherTestCase(unittest.TestCase):
+    
+class GpibLauncherTestCase(mocker.MockerTestCase):
     
     def setUp(self):
         self.cfg_manager= ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
         
     def test_error_creating_popen_not_background(self):
-        launcher = WrappedLauncherPopen(self.cfg_manager)
-        launcher.raise_exception = True
+        launcher = WrappedLauncherPopen(self.mocker.mock(), self.cfg_manager)
+        launcher._fail_in_create_popen = True
 
+        self.mocker.replay()
         self.assertRaises(
             GpibExceptions.ErrorProgrammingDeviceException,
             launcher.execute,
@@ -53,9 +57,10 @@ class GpibLauncherTestCase(unittest.TestCase):
         )
 
     def test_error_creating_popen_background(self):
-        launcher = WrappedLauncherPopen(self.cfg_manager)
-        launcher.raise_exception = True
+        launcher = WrappedLauncherPopen(self.mocker.mock(), self.cfg_manager)
+        launcher._fail_in_create_popen = True
 
+        self.mocker.replay()
         self.assertRaises(
             GpibExceptions.ErrorProgrammingDeviceException,
             launcher.execute,
@@ -64,13 +69,11 @@ class GpibLauncherTestCase(unittest.TestCase):
         )
 
     def test_error_waiting_not_background(self):
-        launcher = WrappedLauncherPopen(self.cfg_manager)
-        launcher.mocked_popen.expects(
-                pmock.once()
-            ).method('poll').will(
-                pmock.raise_exception(Exception("alehop"))
-            )
+        launcher = WrappedLauncherPopen(self.mocker.mock(), self.cfg_manager)
+        launcher._popen_mock.poll()
+        self.mocker.throw(Exception("alehop"))
 
+        self.mocker.replay()
         self.assertRaises(
             GpibExceptions.ErrorWaitingForProgrammingFinishedException,
             launcher.execute,
@@ -79,13 +82,11 @@ class GpibLauncherTestCase(unittest.TestCase):
         )
 
     def test_error_waiting_background(self):
-        launcher = WrappedLauncherPopen(self.cfg_manager)
-        launcher.mocked_popen.expects(
-                pmock.once()
-            ).method('poll').will(
-                pmock.raise_exception(Exception("alehop"))
-            )
+        launcher = WrappedLauncherPopen(self.mocker.mock(), self.cfg_manager)
+        launcher._popen_mock.poll()
+        self.mocker.throw(Exception("alehop"))
 
+        self.mocker.replay()
         result_execute = launcher.execute("whatever.exe", True)
         self.assertEquals(None, result_execute)
 
@@ -95,20 +96,13 @@ class GpibLauncherTestCase(unittest.TestCase):
         )
 
     def test_error_reading_not_background(self):
-        launcher = WrappedLauncherPopen(self.cfg_manager)
-        launcher.mocked_popen.expects(
-                pmock.once()
-            ).method('poll').will(
-                pmock.return_value(0)
-            )
+        launcher = WrappedLauncherPopen(self.mocker.mock(), self.cfg_manager)
+        launcher._popen_mock.poll()
+        self.mocker.result(0)
+        launcher._popen_mock.stdout.read()
+        self.mocker.throw(Exception('alehop'))
 
-        launcher.mocked_popen.stdout = pmock.Mock()
-        launcher.mocked_popen.stdout.expects(
-                pmock.once()
-            ).method('read').will(
-                pmock.raise_exception(Exception('alehop'))
-            )
-
+        self.mocker.replay()
         self.assertRaises(
             GpibExceptions.ErrorRetrievingOutputFromProgrammingProgramException,
             launcher.execute,
@@ -117,20 +111,13 @@ class GpibLauncherTestCase(unittest.TestCase):
         )
         
     def test_error_reading_background(self):
-        launcher = WrappedLauncherPopen(self.cfg_manager)
-        launcher.mocked_popen.expects(
-                pmock.once()
-            ).method('poll').will(
-                pmock.return_value(0)
-            )
+        launcher = WrappedLauncherPopen(self.mocker.mock(), self.cfg_manager)
+        launcher._popen_mock.poll()
+        self.mocker.result(0)
+        launcher._popen_mock.stdout.read()
+        self.mocker.throw(Exception('alehop'))
 
-        launcher.mocked_popen.stdout = pmock.Mock()
-        launcher.mocked_popen.stdout.expects(
-                pmock.once()
-            ).method('read').will(
-                pmock.raise_exception(Exception('alehop'))
-            )
-            
+        self.mocker.replay()
         result_execute = launcher.execute("whatever.exe", True)
         self.assertEquals(None, result_execute)
 

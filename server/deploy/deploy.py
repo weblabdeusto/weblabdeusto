@@ -120,11 +120,10 @@ def check_installed_python_modules(error_handler):
         * python-ldap    [optional]
         * python-lxml    [optional]
         * python-serial  [optional]
-        * python-pmock   [optional]
         * mocker         [optional]
     """
     REQUIRED_MODULES = ('MySQLdb','sqlalchemy','simplejson')
-    OPTIONAL_MODULES = ('ZSI','SOAPpy','lxml','pmock','mocker','serial','ldap')
+    OPTIONAL_MODULES = ('ZSI','SOAPpy','lxml','mocker','serial','ldap')
 
     not_installed_modules = []
 

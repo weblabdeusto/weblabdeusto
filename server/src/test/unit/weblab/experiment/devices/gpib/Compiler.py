@@ -14,7 +14,6 @@
 # 
 
 import unittest
-import pmock
 import mocker
 
 import test.unit.configuration as configuration_module

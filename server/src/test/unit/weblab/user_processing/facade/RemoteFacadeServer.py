@@ -75,8 +75,6 @@ class UserProcessingRemoteFacadeServerTestCase(mocker.MockerTestCase):
         
         @uses_module(RemoteFacadeServer)
         def test_simple_use_zsi(self):
-            session = SessionId.SessionId(REAL_ID)
-            command = Command.Command(COMMAND)
             response_command = Command.Command(RESPONSE_COMMAND)
             rfm_obj = self.mocker.mock()
             rfm_obj.send_command(mocker.ARGS)
