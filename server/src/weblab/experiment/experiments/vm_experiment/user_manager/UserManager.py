@@ -14,7 +14,7 @@
 # 
 
 class ConfigureError(Exception):
-    """ Configure error of any kind """
+    """ Configure error of any kind. """
     pass
 
 class PermanentConfigureError(ConfigureError):
@@ -22,7 +22,7 @@ class PermanentConfigureError(ConfigureError):
     pass
 
 class TemporaryConfigureError(ConfigureError):
-    """ Configure error that is likely to not be permanent """
+    """ Configure error that is likely to not be permanent. Server will retry whenever this is received. """
     pass
 
 class UserManager(object):
@@ -43,8 +43,9 @@ class UserManager(object):
         through the configuration script and accessed through the UserManager's config reader.
         @param sid Unique session id of the user.
         @return None
-        @raise ConfigureError If the configure attempt failed. Failure and the ConfigureError may be either
-        a PermanentConfigureError or a TemporaryConfigureError.
+        @raise ConfigureError If the configure attempt failed. Failure and the ConfigureError should be either
+        a PermanentConfigureError or a TemporaryConfigureError. Should a different kind of exception be
+        raised however, it would be considered permanent.
         """
         pass
     

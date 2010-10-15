@@ -49,6 +49,8 @@ class VMExperiment(Experiment.Experiment):
         self.vm = self.find_vm_manager(self.vm_type)(self._cfg_manager) # Instance the appropriate VM manager
         self.user_manager = self.find_user_manager(self.user_manager_type)(self._cfg_manager) # Instance the appropiate user manager
         self.is_ready = False # Indicate whether the machine is ready to be used
+        self.is_error = False # Indicate whether we are in an error state
+        self.error = None # The error
         
     def read_base_config(self):
         """
@@ -82,6 +84,7 @@ class VMExperiment(Experiment.Experiment):
         # Returns 1 if the client should be able to connect to the VM already, if it isn't ready yet.
         elif command == "is_ready":
             if self.is_ready: return "1"
+            if self.is_error: return "3;"+str(self.error)
             return "0"
         
         elif command == "is_alive":
@@ -137,14 +140,28 @@ class VMExperiment(Experiment.Experiment):
         if( self.should_store_image ):
             self.vm.store_image()
         
-    #TODO: Consider adding proper except information (possibly a third state for the is_ready polling)
-    #TODO: Consider whether we should finish the experiment straightway if a permanent error arises, etc.
+        
     def setup(self):
         """ Configures the VM """
-        try:
-            self.user_manager.configure(self.session_id)
-        except UserManager.ConfigureError as ce:
-            print ce
+        done = False
+        while(not done):
+            try:
+                self.user_manager.configure(self.session_id)
+                done = True
+            except Exception as ex:
+                if type(ex) == UserManager.PermanentConfigureError:
+                    self.is_error = True
+                    self.error = ex
+                    done = True
+                elif type(ex) == UserManager.TemporaryConfigureError:
+                    pass
+                else:
+                    done = True
+                    self.is_error = True
+                    self.error = ex
+                    
+                
+
     
     def generate_session_id(self):
         """ Generates and returns a unique id """
