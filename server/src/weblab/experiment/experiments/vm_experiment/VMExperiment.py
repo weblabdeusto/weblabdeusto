@@ -67,6 +67,10 @@ class VMExperiment(Experiment.Experiment):
         """
         Callback run when the experiment is started
         """
+        if self.is_ready:
+            return "Already started and ready"
+        if self.is_error:
+            return "Can't start. Error state: ", str(self.error)
         self.handle_start_exp_t()
         return "Starting"
 
@@ -112,6 +116,9 @@ class VMExperiment(Experiment.Experiment):
         """
         Callback to perform cleaning after the experiment ends.
         """
+        self.is_ready = False
+        self.error = None
+        self.is_error = False
         self.handle_dispose_t()
         return "Disposing"
     
@@ -128,14 +135,13 @@ class VMExperiment(Experiment.Experiment):
         self.setup()
         self.is_ready = True
         
-    #TODO: Consider whether this should actually be threaded, and in that case, consider what would happen
+    #TODO: Consider whether this should indeed be threaded, and in that case, consider what would happen
     # if an experiment was started with this function still running, after dispose has returned.
     @threaded()
     def handle_dispose_t(self):
         """
         Executed on a work thread, will handle clean-up.
         """
-        self.is_ready = False
         self.vm.kill_vm()
         if( self.should_store_image ):
             self.vm.store_image()
