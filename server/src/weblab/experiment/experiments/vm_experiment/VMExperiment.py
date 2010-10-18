@@ -51,6 +51,8 @@ class VMExperiment(Experiment.Experiment):
         self.is_ready = False # Indicate whether the machine is ready to be used
         self.is_error = False # Indicate whether we are in an error state
         self.error = None # The error
+        self._start_t = None
+        self._dispose_t = None
         
     def read_base_config(self):
         """
@@ -65,13 +67,16 @@ class VMExperiment(Experiment.Experiment):
     @Override(Experiment.Experiment)
     def do_start_experiment(self):
         """
-        Callback run when the experiment is started
+        Callback run when the experiment is started. After the starting
+        thread finishes successfully, it will set is_ready to True.
         """
         if self.is_ready:
             return "Already started and ready"
         if self.is_error:
             return "Can't start. Error state: ", str(self.error)
-        self.handle_start_exp_t()
+        if self._start_t != None and self._start_t.is_alive():
+            return "Already starting"
+        self._start_t = self.handle_start_exp_t()
         return "Starting"
 
     @Override(Experiment.Experiment)
@@ -119,7 +124,7 @@ class VMExperiment(Experiment.Experiment):
         self.is_ready = False
         self.error = None
         self.is_error = False
-        self.handle_dispose_t()
+        self._dispose_t = self.handle_dispose_t()
         return "Disposing"
     
 
@@ -129,11 +134,17 @@ class VMExperiment(Experiment.Experiment):
         Executed on a work thread, will prepare the VM for use, and unless an exception is raised, 
         will not return until it's fully ready (and then it will set the is_ready attribute). 
         """
+        print "t_starting"
         self.session_id = self.generate_session_id()
         self.vm.prepare_vm()
+        print "t_prepared"
+        print type(self.vm)
+        print self.vm_type
         self.vm.launch_vm()
+        print "t_launched"
         self.setup()
         self.is_ready = True
+        print "Ready now"
         
     #TODO: Consider whether this should indeed be threaded, and in that case, consider what would happen
     # if an experiment was started with this function still running, after dispose has returned.

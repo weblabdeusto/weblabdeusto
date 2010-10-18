@@ -22,34 +22,34 @@ class VirtualMachineDummy(VirtualMachineManager):
         VirtualMachineManager.__init__(self, cfg_manager)
         self.running = False
         self.launched = False
+        self.prepared = False
+        self.error = False
+        self.stored = False
     
     @Override(VirtualMachineManager)
     def launch_vm(self):
-        print "VM has been launched."
-        self.launched = True
+        if prepared and not running and not error:
+            self.launched = True
+        else:
+            self.launched = False
     
     @Override(VirtualMachineManager)
     def kill_vm(self):
-        print "VM has been killed."
         self.running = False
         self.launched = False     
+        self.prepared = False
              
     @Override(VirtualMachineManager)
     def store_image_vm(self):
-        print "Storing VM image"
+        self.stored = True
     
     @Override(VirtualMachineManager)
     def is_alive_vm(self):
-        print "Checking whether it is alive"
         return self.running
     
     @Override(VirtualMachineManager)
     def prepare_vm(self):
-        if(not self.launched):
-            print "Error: VM currently not launched"
-        else:
-            self.running = True
-            print "VM is now running."
+            self.prepared = True
         
     
     
