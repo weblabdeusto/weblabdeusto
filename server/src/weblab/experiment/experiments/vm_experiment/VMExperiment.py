@@ -165,7 +165,7 @@ class VMExperiment(Experiment.Experiment):
             try:
                 self.user_manager.configure(self.session_id)
                 done = True
-            except Exception as ex:
+            except Exception, ex:
                 if type(ex) == UserManager.PermanentConfigureError:
                     self.is_error = True
                     self.error = ex
