@@ -74,7 +74,7 @@ class VMExperiment(Experiment.Experiment):
             return "Already started and ready"
         if self.is_error:
             return "Can't start. Error state: ", str(self.error)
-        if self._start_t != None and self._start_t.is_alive():
+        if self._start_t != None and self._start_t.isAlive():
             return "Already starting"
         self._start_t = self.handle_start_exp_t()
         return "Starting"

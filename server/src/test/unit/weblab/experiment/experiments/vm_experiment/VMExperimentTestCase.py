@@ -96,6 +96,7 @@ class VMExperimentTestCase(mocker.MockerTestCase):
     
     def test_init(self):
         """ Tests the ctor, using config-specified variables """
+        print "VERSION: ", __import__("sys").version_info
         cfg_manager = ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration_module)
         
@@ -160,7 +161,7 @@ class VMExperimentTestCase(mocker.MockerTestCase):
         ret = vmexp.do_dispose()
         self.assertEqual("Disposing", ret)
         
-        while vmexp._dispose_t.is_alive():
+        while vmexp._dispose_t.isAlive():
             pass
         
         self.assertFalse(vm.launched)
