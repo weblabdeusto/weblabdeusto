@@ -15,9 +15,7 @@
 
 import weblab.experiment.Experiment as Experiment
 
-import xml.dom.minidom as minidom
 import httplib
-import urllib
 import urllib2
 import urllib
 
@@ -180,7 +178,7 @@ class VisirTestExperiment(Experiment.Experiment):
         for c in cp.cookiejar:
             print "Cookie found: ", c
             experiments_page = o.open("%s/electronics/experiment.php?cookie=%s" % (self.baseurl, c.value))
-            experiments_content = experiments_page.read()
+            #experiments_content = experiments_page.read()
             #"<a href=/electronics/experiment.php?[a-zA-Z0-9;&=]+\">(.*)"
             return c.value
         
