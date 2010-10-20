@@ -22,8 +22,12 @@ from voodoo.threaded import threaded
 import weblab.experiment.Experiment as Experiment
 from voodoo.override import Override
 
-import simplejson
-
+try:
+    import json as json_module # Python >= 2.6
+    json = json_module
+except ImportError:
+    import simplejson as json_mod
+    json = json_mod
 
 CFG_WEBCAM_URL = 'logic_webcam_url'
 
@@ -142,7 +146,6 @@ class LogicExperiment(Experiment.Experiment):
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(LogicExperiment,self).__init__(*args, **kwargs)
         self.circuit_generator = CircuitGenerator()
-        self.encoder           = simplejson.JSONEncoder()
         self._cfg_manager = cfg_manager
         try:
             self.webcam_url = self._cfg_manager.get_value(CFG_WEBCAM_URL)
@@ -209,7 +212,7 @@ class LogicExperiment(Experiment.Experiment):
                     self.send("Fail :-(;0")
                     return "FAIL"
         elif command == 'GET_CIRCUIT':
-            return self.encoder.encode(self.current_circuit.to_dict())
+            return json.dumps(self.current_circuit.to_dict())
         elif command.startswith('WEBCAMURL'):
             return "WEBCAMURL=" + self.webcam_url
         else:

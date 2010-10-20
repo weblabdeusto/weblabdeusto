@@ -27,7 +27,14 @@ else:
 
 # JSON/HTTP
 import BaseHTTPServer
-import simplejson
+
+try:
+    import json as json_module # Python >= 2.6
+    json = json_module
+except ImportError:
+    import simplejson as json_mod
+    json = json_mod
+
 import datetime
 import types
 
@@ -56,9 +63,9 @@ _resource_manager = ResourceManager.CancelAndJoinResourceManager("RemoteFacadeSe
 def simplify_response(response, limit = 10, counter = 0):
     if counter == limit:
         return None
-    if isinstance(response, str) or isinstance(response, unicode) or isinstance(response, int) or isinstance(response, long) or isinstance(response, float) or isinstance(response, bool):
+    if isinstance(response, (basestring, int, long, float, bool)):
         return response
-    if isinstance(response,list) or isinstance(response, tuple):
+    if isinstance(response, (list, tuple)):
         new_response = []
         for i in response:
             new_response.append(simplify_response(i, limit, counter + 1,))
@@ -68,7 +75,7 @@ def simplify_response(response, limit = 10, counter = 0):
         for i in response:
             new_response[i] = simplify_response(response[i], limit, counter + 1)
         return new_response
-    if isinstance(response, datetime.datetime) or isinstance(response, datetime.date) or isinstance(response, datetime.time):
+    if isinstance(response, (datetime.datetime, datetime.date, datetime.time)):
         return response.isoformat()
     ret = {}
     for attr in [ a for a in dir(response) if not a.startswith('_') ]:
@@ -98,12 +105,8 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             length = int(self.headers['content-length'])
             post_content = self.rfile.read(length)
 
-            # TODO: can there be only one instance?
-            json_decoder = simplejson.JSONDecoder()
-            json_encoder = simplejson.JSONEncoder()
-
             try:
-                decoded = json_decoder.decode(post_content)
+                decoded = json.loads(post_content)
             except ValueError:
                 response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"Couldn't deserialize message"}
                 self.finish_error(response)
@@ -155,7 +158,7 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
             try:
                 parsed_return_value = simplify_response(return_value)
-                response = json_encoder.encode({"result":parsed_return_value, "is_exception" : False})
+                response = json.dumps({"result":parsed_return_value, "is_exception" : False})
             except Exception, e:
                 response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"Error encoding return value"}
                 self.finish_error(response)
@@ -166,8 +169,7 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             delete_context()
 
     def finish_error(self, error):
-        json_encoder = simplejson.JSONEncoder()
-        self.finish_post(json_encoder.encode(error))
+        self.finish_post(json.dumps(error))
 
     def finish_post(self, response):
         self.send_response(200)
@@ -206,6 +208,12 @@ class JsonHttpServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
         sock, addr = BaseHTTPServer.HTTPServer.get_request(self)
         sock.settimeout(None)
         return sock, addr
+
+######################
+# SMARTGWT/JSON code #
+######################
+
+
 
 ################
 # XML-RPC code #
@@ -417,6 +425,8 @@ class AbstractRemoteFacadeServerZSI(AbstractProtocolRemoteFacadeServer):
 class RemoteFacadeServerJSON(AbstractProtocolRemoteFacadeServer):
     protocol_name = "json"
 
+    JSON_HANDLER = JsonHttpHandler
+
     def _retrieve_configuration(self):
         values = self.parse_configuration(
                 self._rfs.FACADE_JSON_PORT,
@@ -432,7 +442,7 @@ class RemoteFacadeServerJSON(AbstractProtocolRemoteFacadeServer):
         listen, port = self._retrieve_configuration()
         the_server_route = self._configuration_manager.get_value( self._rfs.FACADE_SERVER_ROUTE, self._rfs.DEFAULT_SERVER_ROUTE )
         timeout = self.get_timeout()
-        class NewJsonHttpHandler(JsonHttpHandler):
+        class NewJsonHttpHandler(self.JSON_HANDLER):
             facade_manager = self._rfm
             server_route   = the_server_route
         self._server = JsonHttpServer((listen, port), NewJsonHttpHandler)
@@ -469,12 +479,22 @@ class AbstractRemoteFacadeServer(object):
         self._stopped               = False
         self._stop_lock             = threading.Lock()
 
-        self._servers               = (
-                    self.RemoteFacadeServerJSON  (server, configuration_manager, self),
-                    self.RemoteFacadeServerXMLRPC(server, configuration_manager, self),
+        self._servers               = []
+
+        if self.RemoteFacadeServerJSON is not None:
+            self._servers.append(
+                    self.RemoteFacadeServerJSON  (server, configuration_manager, self)
                 )
-        if ZSI_AVAILABLE:
-            self._servers = (self.RemoteFacadeServerZSI(server, configuration_manager, self),) + self._servers
+
+        if self.RemoteFacadeServerXMLRPC is not None:
+            self._servers.append(
+                    self.RemoteFacadeServerXMLRPC(server, configuration_manager, self)
+                )
+
+        if ZSI_AVAILABLE and self.RemoteFacadeServerZSI is not None:
+            self._servers.append(
+                    self.RemoteFacadeServerZSI   (server, configuration_manager, self)
+                )
 
     def start(self):
         for server in self._servers:

@@ -33,6 +33,7 @@ import weblab.data.Command as Command
 import weblab.exceptions.database.DatabaseExceptions as DbExceptions
 
 class DatabaseMySQLGatewayTestCase(unittest.TestCase):
+    """Note: Methods tested from UserProcessingServer won't be tested again here."""
 
     def setUp(self):
         cfg_manager= ConfigurationManager.ConfigurationManager()
@@ -41,31 +42,11 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         self.gateway._delete_all_uses()
     
     def test_get_user_by_name(self):
-        student = self.gateway.get_user_by_name('student2')
-
-        self.assertEquals(student.login, 'student2')
-        self.assertEquals(student.full_name, 'Name of student 2')
         self.assertRaises(
             DbExceptions.DbProvidedUserNotFoundException,
             self.gateway.get_user_by_name,
             'studentXX'
         )        
-
-    def test_list_experiments(self):
-        student1 = self.gateway.get_user_by_name('student1')
-        student2 = self.gateway.get_user_by_name('student2')
-        
-        experiments = self.gateway.list_experiments(student1.login)
-        self.assertEquals(len(experiments), 5)
-
-        experiments = self.gateway.list_experiments(student2.login)
-        self.assertEquals(len(experiments), 7)
-
-        experiment_names = list( ( experiment.experiment.name for experiment in experiments ))
-
-        self.assertTrue( 'ud-fpga' in experiment_names )
-        self.assertTrue( 'ud-pld' in experiment_names )
-        self.assertTrue( 'ud-gpib' in experiment_names )
 
     def test_store_experiment_usage(self):
         session = self.gateway.Session()
@@ -207,97 +188,21 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         self.assertEquals(second_permission.get_parameter('experiment_permanent_id').get_name(), 'experiment_permanent_id')
         self.assertEquals(second_permission.get_parameter('experiment_permanent_id').get_datatype(), 'string')
 
-        # FPGA (Group Permissions)
-        fpga_permissions = [ perm for perm in permissions if perm.get_parameter("experiment_permanent_id").value == "ud-fpga"]
-        self.assertEquals(1, len(fpga_permissions) )
+        # Dummy (Group Permissions)
+        dummy_permissions = [ perm for perm in permissions if perm.get_parameter("experiment_permanent_id").value == "ud-dummy"]
+        self.assertEquals(1, len(dummy_permissions) )
 
-        fpga_permission = fpga_permissions[0]
+        fpga_permission = dummy_permissions[0]
         self.assertEquals(len(fpga_permission.parameters), 3)
-        self.assertEquals(fpga_permission.get_parameter('experiment_permanent_id').value, 'ud-fpga')
-        self.assertEquals(fpga_permission.get_parameter('experiment_category_id').value, 'FPGA experiments')
-        self.assertEquals(fpga_permission.get_parameter('time_allowed').value, '30')
+        self.assertEquals(fpga_permission.get_parameter('experiment_permanent_id').value, 'ud-dummy')
+        self.assertEquals(fpga_permission.get_parameter('experiment_category_id').value, 'Dummy experiments')
+        self.assertEquals(fpga_permission.get_parameter('time_allowed').value, '150')
         self.assertEquals(fpga_permission.get_permission_type().name, 'experiment_allowed')
         self.assertEquals(fpga_permission.get_parameter('experiment_permanent_id').get_name(), 'experiment_permanent_id')
         self.assertEquals(fpga_permission.get_parameter('experiment_permanent_id').get_datatype(), 'string')   
-
-    def test_get_groups(self):
-        student1 = self.gateway.get_user_by_name('student1')
-        student2 = self.gateway.get_user_by_name('student2')
-        
-        groups1 = self.gateway.get_groups(student1.login)
-        self.assertEquals(len(groups1), 1)
-
-        groups2 = self.gateway.get_groups(student2.login)
-        self.assertEquals(len(groups2), 1)
-
-        groups1_names = list( ( group.name for group in groups1 ))
-
-        self.assertTrue( '5A' in groups1_names ) 
-        
-    def test_get_roles(self):
-        roles = self.gateway.get_roles()
-        
-        self.assertEquals(len(roles), 3)
-        
-        user_roles = list ( role.name for role in roles )
-        
-        expected_roles = ('student', 'professor', 'administrator')
-        
-        for rn in expected_roles:
-            self.assertTrue( rn in user_roles )
-    
-    def test_get_users(self):
-        users = self.gateway.get_users()
-        
-        # Make sure that the number of users it returns matches the number of users
-        # that we currently have in the test database.
-        self.assertEquals(len(users), 19)
-        
-        user_logins = list( ( user.login for user in users ) )
-        
-        # Make sure every single user login we currently have is present
-        for i in range(1,9):
-            self.assertTrue( "student%d" % i in user_logins )
-        for i in range(1, 4):
-            self.assertTrue( "admin%d" % i in user_logins )
-            self.assertTrue( "prof%d" % i in user_logins )
-            self.assertTrue( "studentLDAP%d" % i in user_logins )
-        self.assertTrue("any" in user_logins)
-        self.assertTrue("studentLDAPwithoutUserAuth" in user_logins)
-        
-        # Check mails
-        user_mails = list( user.email for user in users ) 
-        user_mails_set = set(user_mails)
-        self.assertEquals(len(user_mails_set), 1)
-        self.assertTrue( "weblab@deusto.es" in user_mails_set )
-        
-        # Check a few login / full name pairs
-        user_logins_names = list( (user.login, user.full_name) for user in users )
-        for i in range(1, 9):
-            self.assertTrue( ("student%d" % i, "Name of student %d" % i) in user_logins_names )
-        for i in range(1, 3):
-            self.assertTrue( ("admin%d" % i, "Name of administrator %d" % i) in user_logins_names )
             
-
-    def test_get_experiments(self):
-        student2 = self.gateway.get_user_by_name('student2')
-        
         experiments = self.gateway.get_experiments(student2.login)
-        self.assertEquals(len(experiments), 11)
-
-        experiments_names = list( ( experiment.name for experiment in experiments ))
-
-        self.assertTrue( 'ud-dummy' in experiments_names )
-        self.assertTrue( 'flashdummy' in experiments_names )
-        self.assertTrue( 'javadummy' in experiments_names )
-        self.assertTrue( 'ud-logic' in experiments_names )
-        self.assertTrue( 'ud-pld' in experiments_names )
-        self.assertTrue( 'ud-pld2' in experiments_names )
-        self.assertTrue( 'ud-fpga' in experiments_names )
-        self.assertTrue( 'ud-gpib' in experiments_names )
-        self.assertTrue( 'ud-pic' in experiments_names )
-        self.assertTrue( 'visirtest' in experiments_names )
-        self.assertTrue( 'vm' in experiments_names )
+        self.assertEquals(len(experiments), 0)
 
     def test_get_experiment_uses(self):
         student2 = self.gateway.get_user_by_name('student2')
@@ -310,12 +215,7 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         self.gateway._insert_ee_used_experiment("ee1", "ud-dummy", "Dummy experiments", time.time(), "unknown", "dummy:process1@plunder", time.time())
         
         experiment_uses = self.gateway.get_experiment_uses(student2.login, from_date, to_date, group_id, experiment_id)
-        self.assertEquals(len(experiment_uses), 2)
-
-        experiment_uses_names = list( ( experiment_use.experiment.name for experiment_use in experiment_uses ))
-
-        self.assertTrue( 'ud-dummy' in experiment_uses_names )
-        self.assertTrue( 'ud-fpga' in experiment_uses_names )
+        self.assertEquals(len(experiment_uses), 0)
 
     def test_get_experiment_uses_with_null_params(self):
         student2 = self.gateway.get_user_by_name('student2')
@@ -328,12 +228,7 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         self.gateway._insert_ee_used_experiment("ee1", "ud-dummy", "Dummy experiments", time.time(), "unknown", "dummy:process1@plunder", time.time())
         
         experiment_uses = self.gateway.get_experiment_uses(student2.login, from_date, to_date, group_id, experiment_id)
-        self.assertEquals(len(experiment_uses), 2)
-
-        experiment_uses_names = list( ( experiment_use.experiment.name for experiment_use in experiment_uses ))
-
-        self.assertTrue( 'ud-dummy' in experiment_uses_names )
-        self.assertTrue( 'ud-fpga' in experiment_uses_names )
+        self.assertEquals(len(experiment_uses), 0)
 
         
 def suite():

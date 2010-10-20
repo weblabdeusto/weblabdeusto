@@ -91,7 +91,19 @@ def _insert_required_initial_data(engine):
     session.add(experiment_allowed_p2)
     experiment_allowed_p3 = Model.DbPermissionTypeParameter(experiment_allowed, 'time_allowed', 'float', 'Time allowed (in seconds)')
     session.add(experiment_allowed_p3)
-    session.commit()        
+    session.commit()    
+    
+    admin_panel_access = Model.DbPermissionType(
+            'admin_panel_access',
+            'Users with this permission will be allowed to access the administration panel. The only parameter determines if the user has full_privileges to use the admin panel.',
+            user_applicable = True,
+            group_applicable = True,
+            ee_applicable = True
+    )
+    session.add(admin_panel_access)
+    admin_panel_access_p1 = Model.DbPermissionTypeParameter(admin_panel_access, 'full_privileges', 'bool', 'full privileges (True) or not (False)')
+    session.add(admin_panel_access_p1)
+    session.commit()
 
 #####################################################################
 # 
@@ -134,6 +146,9 @@ experiment_allowed = session.query(Model.DbPermissionType).filter_by(name="exper
 experiment_allowed_p1 = [ p for p in experiment_allowed.parameters if p.name == "experiment_permanent_id" ][0]
 experiment_allowed_p2 = [ p for p in experiment_allowed.parameters if p.name == "experiment_category_id" ][0]
 experiment_allowed_p3 = [ p for p in experiment_allowed.parameters if p.name == "time_allowed" ][0]
+
+admin_panel_access = session.query(Model.DbPermissionType).filter_by(name="admin_panel_access").one()
+admin_panel_access_p1 = [ p for p in admin_panel_access.parameters if p.name == "full_privileges" ][0]
 
 # Auths
 weblab_db = Model.DbAuth(db, "WebLab DB", 1)
@@ -241,14 +256,29 @@ session.add(Model.DbUserAuth(studentLDAP2, cdk_ldap))
 session.add(Model.DbUserAuth(studentLDAP3, deusto_ldap))
 
 # Groups
-group5A = Model.DbGroup("5A")
-group5A.users.append(student1)
-group5A.users.append(student2)    
-group5A.users.append(student3)   
-group5A.users.append(student4)   
-group5A.users.append(student5)   
-group5A.users.append(student6)   
-session.add(group5A)
+groupCourse0809 = Model.DbGroup("Course 2008/09")
+groupCourse0809.users.append(student1)
+groupCourse0809.users.append(student2)
+session.add(groupCourse0809)
+
+groupMechatronics = Model.DbGroup("Mechatronics", groupCourse0809)
+groupMechatronics.users.append(student3)
+groupMechatronics.users.append(student4)
+session.add(groupMechatronics)
+
+groupTelecomunications = Model.DbGroup("Telecomunications", groupCourse0809)
+groupTelecomunications.users.append(student5)
+groupTelecomunications.users.append(student6)
+session.add(groupTelecomunications)
+
+groupCourse0910 = Model.DbGroup("Course 2009/10")
+groupCourse0910.users.append(student1)
+groupCourse0910.users.append(student2)    
+groupCourse0910.users.append(student3)   
+groupCourse0910.users.append(student4)   
+groupCourse0910.users.append(student5)   
+groupCourse0910.users.append(student6)   
+session.add(groupCourse0910)
 
 # Experiment Categories
 cat_dummy = Model.DbExperimentCategory("Dummy experiments")
@@ -304,65 +334,95 @@ vm = Model.DbExperiment("vm", cat_dummy, start_date, end_date)
 session.add(vm)
 
 # Permissions
-gp_5A_dummy_allowed = Model.DbGroupPermission(
-    group5A,
+gp_course0809_fpga_allowed = Model.DbGroupPermission(
+    groupCourse0809,
     experiment_allowed.group_applicable,
-    "5A::weblab-dummy",
+    "Course 2008/09::weblab-fpga",
     datetime.datetime.utcnow(),
-    "Permission for group 5A to use WebLab-Dummy"
+    "Permission for group Course 2008/09 to use WebLab-FPGA"
 )
-session.add(gp_5A_dummy_allowed)
-gp_5A_dummy_allowed_p1 = Model.DbGroupPermissionParameter(gp_5A_dummy_allowed, experiment_allowed_p1, "ud-dummy")
-session.add(gp_5A_dummy_allowed_p1)
-gp_5A_dummy_allowed_p2 = Model.DbGroupPermissionParameter(gp_5A_dummy_allowed, experiment_allowed_p2, "Dummy experiments")
-session.add(gp_5A_dummy_allowed_p2)
-gp_5A_dummy_allowed_p3 = Model.DbGroupPermissionParameter(gp_5A_dummy_allowed, experiment_allowed_p3, "300")
-session.add(gp_5A_dummy_allowed_p3)
+session.add(gp_course0809_fpga_allowed)
+gp_course0809_fpga_allowed_p1 = Model.DbGroupPermissionParameter(gp_course0809_fpga_allowed, experiment_allowed_p1, "ud-fpga")
+session.add(gp_course0809_fpga_allowed_p1)
+gp_course0809_fpga_allowed_p2 = Model.DbGroupPermissionParameter(gp_course0809_fpga_allowed, experiment_allowed_p2, "FPGA experiments")
+session.add(gp_course0809_fpga_allowed_p2)
+gp_course0809_fpga_allowed_p3 = Model.DbGroupPermissionParameter(gp_course0809_fpga_allowed, experiment_allowed_p3, "300")
+session.add(gp_course0809_fpga_allowed_p3)
 
-gp_5A_flashdummy_allowed = Model.DbGroupPermission(
-    group5A,
+gp_course0809_flashdummy_allowed = Model.DbGroupPermission(
+    groupCourse0809,
     experiment_allowed.group_applicable,
-    "5A::weblab-flashdummy",
+    "Course 2008/09::weblab-flashdummy",
     datetime.datetime.utcnow(),
-    "Permission for group 5A to use WebLab-FlashDummy"
+    "Permission for group Course 2008/09 to use WebLab-FlashDummy"
 )
-session.add(gp_5A_flashdummy_allowed)
-gp_5A_flashdummy_allowed_p1 = Model.DbGroupPermissionParameter(gp_5A_flashdummy_allowed, experiment_allowed_p1, "flashdummy")
-session.add(gp_5A_flashdummy_allowed_p1)
-gp_5A_flashdummy_allowed_p2 = Model.DbGroupPermissionParameter(gp_5A_flashdummy_allowed, experiment_allowed_p2, "Dummy experiments")
-session.add(gp_5A_flashdummy_allowed_p2)
-gp_5A_flashdummy_allowed_p3 = Model.DbGroupPermissionParameter(gp_5A_flashdummy_allowed, experiment_allowed_p3, "30")
-session.add(gp_5A_flashdummy_allowed_p3)
+session.add(gp_course0809_flashdummy_allowed)
+gp_course0809_flashdummy_allowed_p1 = Model.DbGroupPermissionParameter(gp_course0809_flashdummy_allowed, experiment_allowed_p1, "flashdummy")
+session.add(gp_course0809_flashdummy_allowed_p1)
+gp_course0809_flashdummy_allowed_p2 = Model.DbGroupPermissionParameter(gp_course0809_flashdummy_allowed, experiment_allowed_p2, "Dummy experiments")
+session.add(gp_course0809_flashdummy_allowed_p2)
+gp_course0809_flashdummy_allowed_p3 = Model.DbGroupPermissionParameter(gp_course0809_flashdummy_allowed, experiment_allowed_p3, "30")
+session.add(gp_course0809_flashdummy_allowed_p3)
 
-gp_5A_javadummy_allowed = Model.DbGroupPermission(
-    group5A,
+gp_course0809_javadummy_allowed = Model.DbGroupPermission(
+    groupCourse0809,
     experiment_allowed.group_applicable,
-    "5A::weblab-javadummy",
+    "Course 2008/09::weblab-javadummy",
     datetime.datetime.utcnow(),
-    "Permission for group 5A to use WebLab-JavaDummy"
+    "Permission for group Course 2008/09 to use WebLab-JavaDummy"
 )
-session.add(gp_5A_javadummy_allowed)
-gp_5A_javadummy_allowed_p1 = Model.DbGroupPermissionParameter(gp_5A_javadummy_allowed, experiment_allowed_p1, "javadummy")
-session.add(gp_5A_javadummy_allowed_p1)
-gp_5A_javadummy_allowed_p2 = Model.DbGroupPermissionParameter(gp_5A_javadummy_allowed, experiment_allowed_p2, "Dummy experiments")
-session.add(gp_5A_javadummy_allowed_p2)
-gp_5A_javadummy_allowed_p3 = Model.DbGroupPermissionParameter(gp_5A_javadummy_allowed, experiment_allowed_p3, "30")
-session.add(gp_5A_javadummy_allowed_p3)
+session.add(gp_course0809_javadummy_allowed)
+gp_course0809_javadummy_allowed_p1 = Model.DbGroupPermissionParameter(gp_course0809_javadummy_allowed, experiment_allowed_p1, "javadummy")
+session.add(gp_course0809_javadummy_allowed_p1)
+gp_course0809_javadummy_allowed_p2 = Model.DbGroupPermissionParameter(gp_course0809_javadummy_allowed, experiment_allowed_p2, "Dummy experiments")
+session.add(gp_course0809_javadummy_allowed_p2)
+gp_course0809_javadummy_allowed_p3 = Model.DbGroupPermissionParameter(gp_course0809_javadummy_allowed, experiment_allowed_p3, "30")
+session.add(gp_course0809_javadummy_allowed_p3)
 
-gp_5A_logic_allowed = Model.DbGroupPermission(
-    group5A,
+gp_course0809_logic_allowed = Model.DbGroupPermission(
+    groupCourse0809,
     experiment_allowed.group_applicable,
-    "5A::weblab-logic",
+    "Course 2008/09::weblab-logic",
     datetime.datetime.utcnow(),
-    "Permission for group 5A to use WebLab-Logic"
+    "Permission for group Course 2008/09 to use WebLab-Logic"
 )
-session.add(gp_5A_logic_allowed)
-gp_5A_logic_allowed_p1 = Model.DbGroupPermissionParameter(gp_5A_logic_allowed, experiment_allowed_p1, "ud-logic")
-session.add(gp_5A_logic_allowed_p1)
-gp_5A_logic_allowed_p2 = Model.DbGroupPermissionParameter(gp_5A_logic_allowed, experiment_allowed_p2, "Dummy experiments")
-session.add(gp_5A_logic_allowed_p2)
-gp_5A_logic_allowed_p3 = Model.DbGroupPermissionParameter(gp_5A_logic_allowed, experiment_allowed_p3, "150")
-session.add(gp_5A_logic_allowed_p3)
+session.add(gp_course0809_logic_allowed)
+gp_course0809_logic_allowed_p1 = Model.DbGroupPermissionParameter(gp_course0809_logic_allowed, experiment_allowed_p1, "ud-logic")
+session.add(gp_course0809_logic_allowed_p1)
+gp_course0809_logic_allowed_p2 = Model.DbGroupPermissionParameter(gp_course0809_logic_allowed, experiment_allowed_p2, "Dummy experiments")
+session.add(gp_course0809_logic_allowed_p2)
+gp_course0809_logic_allowed_p3 = Model.DbGroupPermissionParameter(gp_course0809_logic_allowed, experiment_allowed_p3, "150")
+session.add(gp_course0809_logic_allowed_p3)
+
+gp_course0809_dummy_allowed = Model.DbGroupPermission(
+    groupCourse0809,
+    experiment_allowed.group_applicable,
+    "Course 2008/09::weblab-dummy",
+    datetime.datetime.utcnow(),
+    "Permission for group Course 2008/09 to use WebLab-Dummy"
+)
+session.add(gp_course0809_dummy_allowed)
+gp_course0809_dummy_allowed_p1 = Model.DbGroupPermissionParameter(gp_course0809_dummy_allowed, experiment_allowed_p1, "ud-dummy")
+session.add(gp_course0809_dummy_allowed_p1)
+gp_course0809_dummy_allowed_p2 = Model.DbGroupPermissionParameter(gp_course0809_dummy_allowed, experiment_allowed_p2, "Dummy experiments")
+session.add(gp_course0809_dummy_allowed_p2)
+gp_course0809_dummy_allowed_p3 = Model.DbGroupPermissionParameter(gp_course0809_dummy_allowed, experiment_allowed_p3, "150")
+session.add(gp_course0809_dummy_allowed_p3)
+
+gp_course0910_fpga_allowed = Model.DbGroupPermission(
+    groupCourse0910,
+    experiment_allowed.group_applicable,
+    "Course 2009/10::weblab-fpga",
+    datetime.datetime.utcnow(),
+    "Permission for group Course 2009/10 to use WebLab-FPGA"
+)
+session.add(gp_course0910_fpga_allowed)
+gp_course0910_fpga_allowed_p1 = Model.DbGroupPermissionParameter(gp_course0910_fpga_allowed, experiment_allowed_p1, "ud-fpga")
+session.add(gp_course0910_fpga_allowed_p1)
+gp_course0910_fpga_allowed_p2 = Model.DbGroupPermissionParameter(gp_course0910_fpga_allowed, experiment_allowed_p2, "FPGA experiments")
+session.add(gp_course0910_fpga_allowed_p2)
+gp_course0910_fpga_allowed_p3 = Model.DbGroupPermissionParameter(gp_course0910_fpga_allowed, experiment_allowed_p3, "300")
+session.add(gp_course0910_fpga_allowed_p3)
 
 up_student2_pld_allowed = Model.DbUserPermission(
     student2,
@@ -394,22 +454,6 @@ session.add(up_student6_pld_allowed_p2)
 up_student6_pld_allowed_p3 = Model.DbUserPermissionParameter(up_student6_pld_allowed, experiment_allowed_p3, "140")
 session.add(up_student6_pld_allowed_p3)    
 
-gp_5A_fpga_allowed = Model.DbGroupPermission(
-    group5A,
-    experiment_allowed.group_applicable,
-    "5A::weblab-fpga",
-    datetime.datetime.utcnow(),
-    "Permission for group 5A to use WebLab-FPGA"
-)
-session.add(gp_5A_fpga_allowed)
-gp_5A_fpga_allowed_p1 = Model.DbGroupPermissionParameter(gp_5A_fpga_allowed, experiment_allowed_p1, "ud-fpga")
-session.add(gp_5A_fpga_allowed_p1)
-gp_5A_fpga_allowed_p2 = Model.DbGroupPermissionParameter(gp_5A_fpga_allowed, experiment_allowed_p2, "FPGA experiments")
-session.add(gp_5A_fpga_allowed_p2)
-gp_5A_fpga_allowed_p3 = Model.DbGroupPermissionParameter(gp_5A_fpga_allowed, experiment_allowed_p3, "30")
-session.add(gp_5A_fpga_allowed_p3)     
-
-
 up_any_visirtest_allowed = Model.DbUserPermission(
     any,
     experiment_allowed.group_applicable,
@@ -425,7 +469,6 @@ up_any_visirtest_allowed_p2 = Model.DbUserPermissionParameter(up_any_visirtest_a
 session.add(up_any_visirtest_allowed_p2)
 up_any_visirtest_allowed_p3 = Model.DbUserPermissionParameter(up_any_visirtest_allowed, experiment_allowed_p3, "200")
 session.add(up_any_visirtest_allowed_p3)    
-
 
 up_any_vm_allowed = Model.DbUserPermission(
     any,
@@ -473,7 +516,18 @@ session.add(up_any_pic_allowed_p1)
 up_any_pic_allowed_p2 = Model.DbUserPermissionParameter(up_any_pic_allowed, experiment_allowed_p2, "pic experiments")
 session.add(up_any_pic_allowed_p2)
 up_any_pic_allowed_p3 = Model.DbUserPermissionParameter(up_any_pic_allowed, experiment_allowed_p3, "150")
-session.add(up_any_pic_allowed_p3)      
+session.add(up_any_pic_allowed_p3)                
+                        
+up_student1_admin_panel_access = Model.DbUserPermission(
+    student1,
+    admin_panel_access.user_applicable,
+    "student1::admin_panel_access",
+    datetime.datetime.utcnow(),
+    "Access to the admin panel for student1 with full_privileges"
+)
+session.add(up_student1_admin_panel_access)
+up_student1_admin_panel_access_p1 = Model.DbUserPermissionParameter(up_student1_admin_panel_access, admin_panel_access_p1, True)
+session.add(up_student1_admin_panel_access_p1)
 
             
 session.commit()

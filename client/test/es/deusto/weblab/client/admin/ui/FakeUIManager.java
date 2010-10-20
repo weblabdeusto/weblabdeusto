@@ -14,28 +14,21 @@
 
 package es.deusto.weblab.client.admin.ui;
 
-import java.util.ArrayList;
-
-import es.deusto.weblab.client.dto.experiments.Experiment;
-import es.deusto.weblab.client.dto.experiments.ExperimentUse;
-import es.deusto.weblab.client.dto.users.Group;
+import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.testing.util.WlFake;
 
 public class FakeUIManager extends WlFake implements IUIManager {
 
-    public static final String ON_INIT                          = "FakeUIManager::onInit";
-    public static final String ON_LOGGED_IN                     = "FakeUIManager::onLoggedIn";
-    public static final String ON_LOGGED_OUT                    = "FakeUIManager::onLoggedOut";
-    public static final String ON_EXPERIMENTS_RETRIEVED         = "FakeUIManager::onExperimentsRetrieved";
-    public static final String ON_GROUPS_RETRIEVED              = "FakeUIManager::onGroupsRetrieved";
-    public static final String ON_USERS_RETRIEVED				= "FakeUIManager::onUsersRetrieved";
-    public static final String ON_EXPERIMENT_USES_RETRIEVED     = "FakeUIManager::onExperimentUsesRetrieved";
+    public static final String ON_INIT                              = "FakeUIManager::onInit";
+    public static final String ON_LOGGED_IN                         = "FakeUIManager::onLoggedIn";
+    public static final String ON_LOGGED_OUT                        = "FakeUIManager::onLoggedOut";
     
-    public static final String ON_WRONG_LOGIN_OR_PASSWORD_GIVEN = "FakeUIManager::onWrongLoginOrPasswordGiven";
-    public static final String ON_ERROR                         = "FakeUIManager::onError";
-    public static final String ON_ERROR_AND_FINISH_SESSION      = "FakeUIManager::onErrorAndFinishSession";
-    public static final String ON_MESSAGE                       = "FakeUIManager::onMessage";
+    public static final String ON_WRONG_LOGIN_OR_PASSWORD_GIVEN     = "FakeUIManager::onWrongLoginOrPasswordGiven";
+    public static final String ON_NOT_ALLOWED_TO_ACCESS_ADMIN_PANEL = "FakeUIManager::onNotAllowedToAccessAdminPanel";
+    public static final String ON_ERROR                             = "FakeUIManager::onError";
+    public static final String ON_ERROR_AND_FINISH_SESSION          = "FakeUIManager::onErrorAndFinishSession";
+    public static final String ON_MESSAGE                           = "FakeUIManager::onMessage";
 
     /*
      * Happy path scenario
@@ -47,8 +40,8 @@ public class FakeUIManager extends WlFake implements IUIManager {
     }
 
     @Override
-    public void onLoggedIn(User user) {
-    	this.append(FakeUIManager.ON_LOGGED_IN, new Object[]{user});
+    public void onLoggedIn(User user, SessionID sessionId) {
+    	this.append(FakeUIManager.ON_LOGGED_IN, new Object[]{user, sessionId});
     }
 
     @Override
@@ -56,26 +49,6 @@ public class FakeUIManager extends WlFake implements IUIManager {
     	this.append(FakeUIManager.ON_LOGGED_OUT);
     }    
 
-	@Override
-	public void onExperimentsRetrieved(ArrayList<Experiment> experiments) {
-		this.append(FakeUIManager.ON_EXPERIMENTS_RETRIEVED, new Object[]{experiments});
-	}
-
-	@Override
-	public void onGroupsRetrieved(ArrayList<Group> groups) {
-		this.append(FakeUIManager.ON_GROUPS_RETRIEVED, new Object[]{groups});
-	}
-	
-	@Override
-	public void onUsersRetrieved(ArrayList<User> users) {
-		this.append(FakeUIManager.ON_USERS_RETRIEVED, new Object[]{users});
-	}
-
-	@Override
-	public void onExperimentUsesRetrieved(ArrayList<ExperimentUse> experimentUses) {
-		this.append(FakeUIManager.ON_EXPERIMENT_USES_RETRIEVED, new Object[]{experimentUses});
-	}
-    
     /*
      * Alternative scenario
      */
@@ -84,6 +57,11 @@ public class FakeUIManager extends WlFake implements IUIManager {
     public void onWrongLoginOrPasswordGiven() {
     	this.append(FakeUIManager.ON_WRONG_LOGIN_OR_PASSWORD_GIVEN);
     }       
+
+	@Override
+	public void onNotAllowedToAccessAdminPanel() {
+		this.append(FakeUIManager.ON_NOT_ALLOWED_TO_ACCESS_ADMIN_PANEL);
+	}
     
     @Override
     public void onError(String message) {
@@ -94,5 +72,4 @@ public class FakeUIManager extends WlFake implements IUIManager {
     public void onErrorAndFinishSession(String message) {
     	this.append(FakeUIManager.ON_ERROR_AND_FINISH_SESSION, new Object[] {message});
     }
-
 }

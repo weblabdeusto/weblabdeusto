@@ -208,10 +208,7 @@ class ModelTestCase(unittest.TestCase):
         self.assertEquals("string", ee_permission_p1.get_datatype())
         self.assertEquals("string", ee_permission_p2.get_datatype())
         self.assertEquals("float", ee_permission_p3.get_datatype())
-        
-        
-        
-        
+                
 
     def test_splitted_utc_datetime_to_timestamp(self):
         dt = datetime.datetime(2010, 06, 14, 15, 45, 00)

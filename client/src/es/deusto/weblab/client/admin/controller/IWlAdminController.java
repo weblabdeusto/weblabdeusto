@@ -15,12 +15,8 @@
 
 package es.deusto.weblab.client.admin.controller;
 
-import java.util.Date;
-
 import es.deusto.weblab.client.admin.ui.IUIManager;
 import es.deusto.weblab.client.dto.SessionID;
-import es.deusto.weblab.client.dto.experiments.Experiment;
-import es.deusto.weblab.client.dto.users.Group;
 
 public interface IWlAdminController {
 	
@@ -28,10 +24,5 @@ public interface IWlAdminController {
 	void startLoggedIn(SessionID sessionId);
 	void logout();
 
-	void getUsers();
-	void getExperiments();
-	void getGroups();
-	void getExperimentUses(Date fromDate, Date toDate, Group group,	Experiment experiment);
-	
 	void setUIManager(IUIManager theme);
 }

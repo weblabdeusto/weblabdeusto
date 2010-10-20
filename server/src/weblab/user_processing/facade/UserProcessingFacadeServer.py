@@ -23,10 +23,6 @@ except ImportError:
 else:
     ZSI_AVAILABLE = True
 
-if ZSI_AVAILABLE:
-    class UserProcessingRemoteFacadeServerZSI(RFS.AbstractRemoteFacadeServerZSI):
-        WebLabDeusto = WebLabDeusto_interface.WebLabDeusto
-
 USER_PROCESSING_FACADE_ZSI_LISTEN                     = 'core_facade_soap_bind'
 DEFAULT_USER_PROCESSING_FACADE_ZSI_LISTEN             = ''
 
@@ -56,7 +52,8 @@ DEFAULT_USER_PROCESSING_SERVER_ROUTE                  = '<route-to-server>'
 class UserProcessingRemoteFacadeServer(RFS.AbstractRemoteFacadeServer):
 
     if ZSI_AVAILABLE:
-        RemoteFacadeServerZSI = UserProcessingRemoteFacadeServerZSI
+        class RemoteFacadeServerZSI(RFS.AbstractRemoteFacadeServerZSI):
+            WebLabDeusto = WebLabDeusto_interface.WebLabDeusto
 
     FACADE_ZSI_LISTEN                            = USER_PROCESSING_FACADE_ZSI_LISTEN   
     DEFAULT_FACADE_ZSI_LISTEN                    = DEFAULT_USER_PROCESSING_FACADE_ZSI_LISTEN   

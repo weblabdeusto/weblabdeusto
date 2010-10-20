@@ -185,13 +185,23 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     
     @logged()
     @RFM.check_exceptions(EXCEPTIONS)
-    def get_experiment_uses(self, session_id, from_date, to_date, group_id, experiment_id):
+    def get_experiment_uses(self, session_id, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by):
         """ get_experiment_uses(session_id, from_date, to_date, group_id, experiment_id) -> array of ExperimentUse
             raises SessionNotFoundException
         """
         sess_id = self._parse_session_id(session_id)
-        experiment_uses = self._server.get_experiment_uses(sess_id, from_date, to_date, group_id, experiment_id)
+        experiment_uses = self._server.get_experiment_uses(sess_id, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by)
         return experiment_uses
+    
+    @logged()
+    @RFM.check_exceptions(EXCEPTIONS)
+    def get_user_permissions(self, session_id):
+        """ get_user_permissions(session_id) -> array of Permission
+            raises SessionNotFoundException
+        """
+        sess_id = self._parse_session_id(session_id)
+        permissions = self._server.get_user_permissions(sess_id)
+        return permissions
 
     def _fix_dates_in_experiments(self, experiments_allowed):
         # This is the default behaviour. Overrided by XML-RPC
@@ -242,4 +252,6 @@ class UserProcessingRemoteFacadeManagerJSON(RFM.AbstractJSON, AbstractUserProces
 
 class UserProcessingRemoteFacadeManagerXMLRPC(RFM.AbstractXMLRPC, AbstractUserProcessingRemoteFacadeManagerDict):
     pass
+
+
 

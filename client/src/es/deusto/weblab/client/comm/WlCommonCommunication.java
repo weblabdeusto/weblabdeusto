@@ -64,8 +64,7 @@ public abstract class WlCommonCommunication implements IWlCommonCommunication {
 				);
 	}
 	
-	protected void performRequest(String requestSerialized,
-			IWlAsyncCallback failureCallback, RequestCallback rci){
+	protected void performRequest(String requestSerialized, IWlAsyncCallback failureCallback, RequestCallback rci){
 		final RequestBuilder rb = this.createRequestBuilder(RequestBuilder.POST, this.getServiceUrl());
 		try {
 			rb.sendRequest(requestSerialized, rci);

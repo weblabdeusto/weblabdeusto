@@ -45,7 +45,7 @@ import weblab.user_processing.Reservation as Reservation
 
 import weblab.exceptions.user_processing.UserProcessingExceptions as UserProcessingExceptions
 
-from RemoteFacadeManager import MockUPS
+from UserProcessingRemoteFacadeManager import MockUPS
 
 class UserProcessingIntegratingRemoteFacadeManager(unittest.TestCase):
     if UserProcessingFacadeServer.ZSI_AVAILABLE:

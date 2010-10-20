@@ -26,6 +26,7 @@ import weblab.login.database.dao.UserAuth as UserAuth
 
 from weblab.data.dto.Experiment import Experiment  
 from weblab.data.dto.Category import ExperimentCategory  
+from weblab.data.dto.Permission import Permission, PermissionParameter
 from weblab.data.experiments.ExperimentId import ExperimentId  
 from weblab.data.experiments.Usage import ExperimentUsage  
 from weblab.data.experiments.Usage import FileSent  
@@ -671,6 +672,9 @@ class DbPermissionType(Base):
     group_applicable_id = Column(Integer, ForeignKey("GroupApplicablePermissionType.id"))
     ee_applicable_id    = Column(Integer, ForeignKey("ExternalEntityApplicablePermissionType.id"))
 
+    # I think there's a mistake here: this creates 1-N relationships, while they should be 1-1.
+    # A quick search made me think that we're not using backref properly in this case, but now
+    # it's not time to change this, so it'll be in a future upgrading version 0:-) (Jaime I, Oct 6th 2010)
     user_applicable  = relation("DbUserApplicablePermissionType", backref=backref("permission_type", order_by=id))
     role_applicable  = relation("DbRoleApplicablePermissionType", backref=backref("permission_type", order_by=id))
     group_applicable = relation("DbGroupApplicablePermissionType", backref=backref("permission_type", order_by=id))
@@ -784,7 +788,15 @@ class DbUserPermission(Base):
         return self.applicable_permission_type.permission_type[0]
         
     def get_parameter(self, parameter_name):          
-        return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]
+        return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]      
+        
+    def to_dto(self):
+        permission = Permission(
+            self.applicable_permission_type.permission_type[0].name
+        )
+        for param in self.parameters:
+            permission.add_parameter(param.to_dto())
+        return permission
     
 
 class DbUserPermissionParameter(Base):
@@ -819,6 +831,12 @@ class DbUserPermissionParameter(Base):
     def get_datatype(self):
         return self.permission_type_parameter.datatype        
         
+    def to_dto(self):
+        return PermissionParameter(
+                    self.permission_type_parameter.name,
+                    self.permission_type_parameter.datatype,
+                    self.value
+                )
 
 class DbRoleApplicablePermissionType(Base):
     __tablename__  = 'RoleApplicablePermissionType'
@@ -870,7 +888,15 @@ class DbRolePermission(Base):
         return self.applicable_permission_type.permission_type[0]
         
     def get_parameter(self, parameter_name):          
-        return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]
+        return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]     
+        
+    def to_dto(self):
+        permission = Permission(
+            self.applicable_permission_type.permission_type[0].name
+        )
+        for param in self.parameters:
+            permission.add_parameter(param.to_dto())
+        return permission
         
 
 class DbRolePermissionParameter(Base):
@@ -904,6 +930,13 @@ class DbRolePermissionParameter(Base):
         
     def get_datatype(self):
         return self.permission_type_parameter.datatype            
+        
+    def to_dto(self):
+        return PermissionParameter(
+                    self.permission_type_parameter.name,
+                    self.permission_type_parameter.datatype,
+                    self.value
+                )      
                 
     
 class DbGroupApplicablePermissionType(Base):
@@ -919,6 +952,7 @@ class DbGroupApplicablePermissionType(Base):
         return "DbGroupApplicablePermissionType(id = %r)" % (
             self.id
         )               
+        
 
 class DbGroupPermission(Base):
     __tablename__  = 'GroupPermission'
@@ -956,7 +990,16 @@ class DbGroupPermission(Base):
         return self.applicable_permission_type.permission_type[0]
         
     def get_parameter(self, parameter_name):          
-        return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]
+        return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]     
+        
+    def to_dto(self):
+        permission = Permission(
+            self.applicable_permission_type.permission_type[0].name
+        )
+        for param in self.parameters:
+            permission.add_parameter(param.to_dto())
+        return permission
+    
 
 class DbGroupPermissionParameter(Base):
     __tablename__  = 'GroupPermissionParameter'
@@ -988,7 +1031,14 @@ class DbGroupPermissionParameter(Base):
         return self.permission_type_parameter.name      
         
     def get_datatype(self):
-        return self.permission_type_parameter.datatype      
+        return self.permission_type_parameter.datatype            
+        
+    def to_dto(self):
+        return PermissionParameter(
+                    self.permission_type_parameter.name,
+                    self.permission_type_parameter.datatype,
+                    self.value
+                )
                 
 
 class DbExternalEntityApplicablePermissionType(Base):
@@ -1041,7 +1091,15 @@ class DbExternalEntityPermission(Base):
         return self.applicable_permission_type.permission_type[0]
         
     def get_parameter(self, parameter_name):          
-        return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]
+        return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]     
+        
+    def to_dto(self):
+        permission = Permission(
+            self.applicable_permission_type.permission_type[0].name
+        )
+        for param in self.parameters:
+            permission.add_parameter(param.to_dto())
+        return permission
                      
 
 class DbExternalEntityPermissionParameter(Base):
@@ -1074,7 +1132,14 @@ class DbExternalEntityPermissionParameter(Base):
         return self.permission_type_parameter.name         
         
     def get_datatype(self):
-        return self.permission_type_parameter.datatype
+        return self.permission_type_parameter.datatype      
+        
+    def to_dto(self):
+        return PermissionParameter(
+                    self.permission_type_parameter.name,
+                    self.permission_type_parameter.datatype,
+                    self.value
+                )
 
 
 def _splitted_utc_datetime_to_timestamp(dt, ms):

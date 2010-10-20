@@ -17,7 +17,14 @@
 import time
 import traceback
 import urllib2
-import simplejson
+
+try:
+    import json_module # Python >= 2.6
+    json = json_module
+except ImportError:
+    import simplejson as json_mod
+    json = json_mod
+
 import cookielib
 
 import xmlrpclib
@@ -216,6 +223,12 @@ class AbstractBot(object):
         holder = self._call('get_user_information', session_id=self.session_id)
         return self._parse_user(holder)
 
+    @logged
+    def do_get_user_permissions(self):
+        holder = self._call('get_user_permissions', session_id=self.session_id)
+        print holder
+        return self._parse_user(holder)
+
 if ZSI_AVAILABLE:
     class BotZSI(AbstractBot):
 
@@ -309,11 +322,10 @@ class BotJSON(AbstractBotDict):
 
     def _call(self, method, **kwargs):
         params = {}
-        encoder = simplejson.JSONEncoder()
         for key in kwargs:
             parsed_response = RemoteFacadeServer.simplify_response(kwargs[key])
             params[key] = parsed_response
-        whole_request = encoder.encode({
+        whole_request = json.dumps({
                             "method" : method,
                             "params" : params
                         })
@@ -325,8 +337,7 @@ class BotJSON(AbstractBotDict):
         cookies = [ c for c in self.cj if c.name == 'weblabsessionid' ]
         if len(cookies) > 0:
             self.weblabsessionid = cookies[0].value
-        decoder = simplejson.JSONDecoder()
-        response = decoder.decode(content)
+        response = json.loads(content)
         if response.has_key('is_exception') and response['is_exception']:
             raise Exception(response["message"])
         return response['result']

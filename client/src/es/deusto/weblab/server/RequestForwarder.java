@@ -17,6 +17,7 @@ package es.deusto.weblab.server;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Arrays;
@@ -44,7 +45,26 @@ public class RequestForwarder extends HttpServlet{
 		
 		this.forwardStreamToEnd(req.getInputStream(), serverConnection.getOutputStream());
 		
-		this.forwardHeadersToBrowser(resp, serverConnection);
+		String[] postHeaders = new String[]{ "Server", "Date", "Content-type", "Content-length", "Set-Cookie"};
+		this.forwardHeadersToBrowser(resp, serverConnection, postHeaders);
+		resp.addHeader("Connection", "close");
+		resp.addHeader("X-Foo", "bar");
+		
+		this.forwardStreamToSize(serverConnection.getInputStream(), resp.getOutputStream(), serverConnection.getContentLength());
+	}
+	
+	@Override
+	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		final HttpURLConnection serverConnection = (HttpURLConnection)new URL("http", this.host, req.getRequestURI()+"?"+req.getQueryString()).openConnection();
+		serverConnection.setDoOutput(true);
+		serverConnection.setRequestMethod(req.getMethod());
+
+		this.forwardHeadersFromBrowser(req, serverConnection);
+		serverConnection.addRequestProperty("Connection", "close");
+		serverConnection.addRequestProperty("X-Faa", "ber");
+		
+		String[] getHeaders = new String[]{ "Server", "Date", "Set-Cookie"};
+		this.forwardHeadersToBrowser(resp, serverConnection, getHeaders); // This makes the request!
 		resp.addHeader("Connection", "close");
 		resp.addHeader("X-Foo", "bar");
 		
@@ -60,9 +80,8 @@ public class RequestForwarder extends HttpServlet{
 	    }
 	}
 
-	private void forwardHeadersToBrowser(HttpServletResponse resp,
-		final URLConnection serverConnection) {
-	    for(final String header : new String[]{ "Server", "Date", "Content-type", "Content-length", "Set-Cookie"}){
+	private void forwardHeadersToBrowser(HttpServletResponse resp, final URLConnection serverConnection, String[] headers) {
+	    for(final String header : headers){
 	        final String value = serverConnection.getHeaderField(header);
 	        if(this.isValidHeader(header) && value != null){
 	    		resp.addHeader(header, value);
@@ -81,6 +100,7 @@ public class RequestForwarder extends HttpServlet{
     	int bytesRead;
     	do{
     		bytesRead = is.read(buffer);
+    		
     		if(bytesRead > 0)
     		    os.write(buffer, 0, bytesRead);
     	}while(bytesRead != -1);

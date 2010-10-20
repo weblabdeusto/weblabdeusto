@@ -35,6 +35,7 @@ import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Category;
 import es.deusto.weblab.client.dto.experiments.Experiment;
 import es.deusto.weblab.client.dto.users.ExternalEntity;
+import es.deusto.weblab.client.dto.users.PermissionParameter;
 import es.deusto.weblab.client.dto.users.Role;
 import es.deusto.weblab.client.dto.users.User;
 
@@ -94,7 +95,7 @@ public class WlCommonSerializerJSON implements IWlCommonSerializer {
 	public User parseGetUserInformationResponse(String responseText)
     	throws SerializationException, SessionNotFoundException, UserProcessingException, WlServerException {
 		//"{\"result\": {\"login\": \"student1\", \"email\": \"porduna@tecnologico.deusto.es\", 
-		// \"full_name\": \"Name of student 1\", \"role\": {\"name\": \"student\"}}, \"is_exception\": false}"
+		// \"full_name\": \"Name of student 1\", \"role\": {\"name\": \"student\"} }, \"is_exception\": false}"
 		final JSONObject result = this.parseResultObject(responseText);
 		
 		return this.parseUser(result);
@@ -142,6 +143,14 @@ public class WlCommonSerializerJSON implements IWlCommonSerializer {
 		    return new WlServerException(faultString);    
 		}
 	}  
+	
+    protected PermissionParameter parsePermissionParameter(JSONObject jsonPermissionParameter) throws SerializationException {
+    	return new PermissionParameter(
+    			this.json2string(jsonPermissionParameter.get("name")),
+    			this.json2string(jsonPermissionParameter.get("datatype")),
+    			this.json2string(jsonPermissionParameter.get("value"))
+    	);
+	}	
 
     protected Role parseRole(JSONObject jsonRole) throws SerializationException {
     	final Role role = new Role();
@@ -161,11 +170,11 @@ public class WlCommonSerializerJSON implements IWlCommonSerializer {
 	    if(jsonRole == null)
 	    	throw new SerializationException("Expected JSON Object as Role, found: " + roleValue);
 	    final Role role = this.parseRole(jsonRole);
-	    
+	    	    
 		return new User(login, fullName, email, role);
 	}
-	
-    protected ExternalEntity parseExternalEntity(JSONObject jsonExternalEntity) throws SerializationException {
+
+	protected ExternalEntity parseExternalEntity(JSONObject jsonExternalEntity) throws SerializationException {
 		final int id = this.json2int(jsonExternalEntity.get("id"));
 		final String name = this.json2string(jsonExternalEntity.get("name"));
 		final String country = this.json2string(jsonExternalEntity.get("country"));
@@ -293,6 +302,16 @@ public class WlCommonSerializerJSON implements IWlCommonSerializer {
 		if(jsonnumber == null)
 		    throw new SerializationException("Int expected, found: " + value);
 		return (int)jsonnumber.doubleValue();
+	}
+	
+    @SuppressWarnings("unused")
+	private boolean json2bool(JSONValue value) throws SerializationException {
+		if(value == null)
+		    throw new SerializationException("Boolean expected, found null");
+		final JSONBoolean jsonboolean = value.isBoolean();
+		if ( jsonboolean == null )
+			throw new SerializationException("Boolean expected, found: " + value);
+		return jsonboolean.booleanValue();
 	}
 
 }

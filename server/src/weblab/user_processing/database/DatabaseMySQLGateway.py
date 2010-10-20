@@ -17,6 +17,7 @@ import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql.expression import desc
 
 from voodoo.log import logged
 
@@ -37,6 +38,22 @@ def getconn():
     import MySQLdb as dbi
     return dbi.connect(user = DatabaseGateway.user, passwd = DatabaseGateway.password,
             host = DatabaseGateway.host, db = DatabaseGateway.dbname, client_flag = 2)
+
+def admin_panel_operation(func):
+    """It checks if the requesting user has the admin_panel_access permission with full_privileges (temporal policy)."""
+    def proxy(self, user_login, *args, **kargs):
+        session = self.Session()
+        try:
+            user = self._get_user(session, user_login)
+            admin_panel_access_permissions = self._gather_permissions(session, user, "admin_panel_access")
+            if len(admin_panel_access_permissions) > 0:
+                # The only requirement for now is to have full_privileges, this will be changed in further versions
+                if self._get_bool_parameter_from_permission(session, admin_panel_access_permissions[0], "full_privileges"):
+                    return func(self, user_login, *args, **kargs)
+            return ()
+        finally:
+            session.close()
+    return proxy
 
 
 class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
@@ -160,10 +177,11 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             return use.to_business()
         finally:
             session.close()
-
+            
+    @admin_panel_operation
     @logged()
-    def get_groups(self, user_login):
-        """ All the groups are returned by the moment """
+    def get_groups(self, user_login, parent_id=None):
+        """ The user's permissions are not checked at the moment """
         
         def get_dto_children_recursively(groups):
             dto_groups = []
@@ -176,15 +194,15 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         
         session = self.Session()
         try:
-            user = self._get_user(session, user_login)
-            groups = session.query(Model.DbGroup).filter_by(parent=None).all()
+            groups = session.query(Model.DbGroup).filter_by(parent_id=parent_id).order_by(Model.DbGroup.name).all()
             dto_groups = get_dto_children_recursively(groups)
             return tuple(dto_groups)
         finally:
             session.close()
             
+    @admin_panel_operation
     @logged()
-    def get_users(self):
+    def get_users(self, user_login):
         """ Retrieves every user from the database """
         
         session = self.Session()
@@ -196,8 +214,9 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         finally:
             session.close()
             
+    @admin_panel_operation
     @logged()
-    def get_roles(self):
+    def get_roles(self, user_login):
         """ Retrieves every role from the database """
         session = self.Session()
         try:
@@ -208,35 +227,144 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             session.close()
             
 
+    @admin_panel_operation
     @logged()
     def get_experiments(self, user_login):
         """ All the experiments are returned by the moment """
         
+        def sort_by_category_and_exp_name(exp1, exp2):
+            if exp1.category.name != exp2.category.name:
+                return cmp(exp1.category.name, exp2.category.name)
+            else:
+                return cmp(exp1.name, exp2.name)
+            
         session = self.Session()
         try:
             user = self._get_user(session, user_login)
             experiments = session.query(Model.DbExperiment).all()
-            experiments.sort(cmp=lambda x,y: cmp(x.category.name, y.category.name))
+            experiments.sort(cmp=sort_by_category_and_exp_name)
             dto_experiments = [ experiment.to_dto() for experiment in experiments ]
             return tuple(dto_experiments)
         finally:
             session.close()
 
+    @admin_panel_operation
     @logged()
-    def get_experiment_uses(self, user_login, from_date, to_date, group_id, experiment_id):
-        """ All the experiments uses are returned by the moment """
-        
+    def get_experiment_uses(self, user_login, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by):
+        """ All the experiment uses are returned by the moment. Filters are optional (they may be null), but if 
+        applied the results should chang.e The result is represented as (dto_objects, total_number_of_registers) """
+
+        session = self.Session()
+        try:
+            query_object = session.query(Model.DbUserUsedExperiment)
+
+            # Applying filters
+
+            if from_date is not None:
+                query_object = query_object.filter(Model.DbUserUsedExperiment.end_date >= from_date)
+            if to_date is not None:
+                query_object = query_object.filter(Model.DbUserUsedExperiment.start_date <= to_date)
+            if experiment_id is not None:
+                query_object = query_object.filter(Model.DbUserUsedExperiment.experiment_id == experiment_id)
+
+            if group_id is not None:
+                def get_children_recursively(groups):
+                    new_groups = groups[:]
+                    for group in groups:
+                        new_groups.extend(get_children_recursively(group.children))
+                    return [ group for group in new_groups ]
+
+                parent_groups = session.query(Model.DbGroup).filter(Model.DbGroup.id == group_id).all()
+                group_ids = [ group.id for group in get_children_recursively(parent_groups) ]
+
+                groups = session.query(Model.DbGroup).filter(Model.DbGroup.id.in_(group_ids)).subquery()
+                users = session.query(Model.DbUser)
+                users_in_group = users.join((groups, Model.DbUser.groups)).subquery()
+                query_object = query_object.join((users_in_group, Model.DbUserUsedExperiment.user))
+ 
+            # Sorting
+            if sort_by is not None and len(sort_by) > 0:
+                # Lists instead of sets, since the order of elements inside matters (first add Experiment, only then Category)
+                tables_to_join = []
+                sorters = []
+
+                for current_sort_by in sort_by:
+                    if current_sort_by in ('start_date','-start_date','end_date','-end_date','origin','-origin','id','-id'):
+                        if current_sort_by.startswith('-'):
+                            sorters.append(desc(getattr(Model.DbUserUsedExperiment, current_sort_by[1:])))
+                        else:
+                            sorters.append(getattr(Model.DbUserUsedExperiment, current_sort_by))
+
+                    elif current_sort_by in ('agent_login', '-agent_login', 'agent_name', '-agent_name', 'agent_email', '-agent_email'):
+                        tables_to_join.append((Model.DbUser, Model.DbUserUsedExperiment.user))
+                        if current_sort_by.endswith('agent_login'):
+                            sorter = Model.DbUser.login
+                        elif current_sort_by.endswith('agent_name'):
+                            sorter = Model.DbUser.full_name
+                        else: # current_sort_by.endswith('agent_email')
+                            sorter = Model.DbUser.email
+
+                        if current_sort_by.startswith('-'):
+                            sorters.append(desc(sorter))
+                        else:
+                            sorters.append(sorter)
+
+                    elif current_sort_by in ('experiment_name', '-experiment_name'):
+                        tables_to_join.append((Model.DbExperiment, Model.DbUserUsedExperiment.experiment))
+                        if current_sort_by.startswith('-'):
+                            sorters.append(desc(Model.DbExperiment.name))
+                        else:
+                            sorters.append(Model.DbExperiment.name)
+
+                    elif current_sort_by in ('experiment_category', '-experiment_category'):
+                        tables_to_join.append((Model.DbExperiment, Model.DbUserUsedExperiment.experiment))
+                        tables_to_join.append((Model.DbExperimentCategory, Model.DbExperiment.category))
+                        if current_sort_by.startswith('-'):
+                            sorters.append(desc(Model.DbExperimentCategory.name))
+                        else:
+                            sorters.append(Model.DbExperimentCategory.name)
+
+                while len(tables_to_join) > 0:
+                    table, field = tables_to_join.pop(0)
+                    # Just in case it was added twice, for instance if sorting by experiment name *and* category name
+                    if (table,field) in tables_to_join:
+                        tables_to_join.remove((table,field)) 
+                    query_object = query_object.join((table, field))
+
+                query_object = query_object.order_by(*sorters) # Apply all sorters in order
+
+
+            # Counting
+
+            total_number = query_object.count()
+
+            if start_row is not None:
+                starting = start_row
+            else:
+                starting = 0
+            if end_row is not None:
+                ending = end_row
+            else:
+                ending = total_number
+            
+            experiment_uses = query_object[starting:ending]
+
+            dto_experiment_uses = [ experiment_use.to_dto() for experiment_use in experiment_uses ]
+            return tuple(dto_experiment_uses), total_number
+        finally:
+            session.close()
+
+    @logged()
+    def get_user_permissions(self, user_login):
         session = self.Session()
         try:
             user = self._get_user(session, user_login)
-            user_used_experiments = session.query(Model.DbUserUsedExperiment).all()
-            ee_used_experiments = session.query(Model.DbExternalEntityUsedExperiment).all()
-            experiment_uses = []
-            experiment_uses.extend(user_used_experiments)
-            experiment_uses.extend(ee_used_experiments)
-            #experiment_uses.sort(cmp=lambda x,y: cmp(x.category.name, y.category.name))
-            dto_experiment_uses = [ experiment_use.to_dto() for experiment_use in experiment_uses ]
-            return tuple(dto_experiment_uses)
+            permission_types = session.query(Model.DbPermissionType).all()
+            permissions = []
+            for pt in permission_types:
+                permissions.extend(self._gather_permissions(session, user, pt.name))
+            dto_permissions = [ permission.to_dto() for permission in permissions ]
+            return tuple(dto_permissions)
         finally:
             session.close()
     
@@ -290,6 +418,9 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                 )
             )       
     
+    def _get_bool_parameter_from_permission(self, session, permission, parameter_name):
+        return self._get_parameter_from_permission(session, permission, parameter_name) 
+    
     def _delete_all_uses(self):
         """ IMPORTANT: SHOULD NEVER BE USED IN PRODUCTION, IT'S HERE ONLY FOR TESTS """
         session = self.Session()
@@ -297,11 +428,10 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             uu = session.query(Model.DbUserUsedExperiment).all()
             for i in uu:
                 session.delete(i)
-                session.commit()
             eu = session.query(Model.DbExternalEntityUsedExperiment).all()
             for i in eu:
                 session.delete(i)
-                session.commit()               
+            session.commit()               
         finally:
             session.close()
 
@@ -314,9 +444,11 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             experiment = session.query(Model.DbExperiment). \
                                     filter_by(name=experiment_name). \
                                     filter_by(category=category).one()
+            experiment_id = experiment.id
             exp_use = Model.DbUserUsedExperiment(user, experiment, start_time, origin, coord_address, end_date)
             session.add(exp_use)
             session.commit()
+            return experiment_id
         finally:
             session.close()
             

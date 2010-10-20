@@ -15,11 +15,7 @@
 
 package es.deusto.weblab.client.admin.ui;
 
-import java.util.ArrayList;
-
-import es.deusto.weblab.client.dto.experiments.Experiment;
-import es.deusto.weblab.client.dto.experiments.ExperimentUse;
-import es.deusto.weblab.client.dto.users.Group;
+import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.users.User;
 
 
@@ -29,19 +25,14 @@ public interface IUIManager {
 	 * "Happy path" scenario
 	 */
 	public void onInit();
-    public void onLoggedIn(User user);
+    public void onLoggedIn(User user, SessionID sessionId);
 	public void onLoggedOut();
-	
-	public void onGroupsRetrieved(ArrayList<Group> groups);
-	public void onExperimentsRetrieved(ArrayList<Experiment> experiments);
-	public void onExperimentUsesRetrieved(ArrayList<ExperimentUse> experimentUses);
-	public void onUsersRetrieved(ArrayList<User> users);
-	
 	
 	/*
 	 * Alternative scenarios
 	 */
 	public void onWrongLoginOrPasswordGiven();
+	public void onNotAllowedToAccessAdminPanel();
 	public void onErrorAndFinishSession(String message);
 	public void onError(String message);
 }

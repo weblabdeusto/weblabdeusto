@@ -105,6 +105,8 @@ core_facade_json_port        = 18345
 core_facade_xmlrpc_bind    = ''
 core_facade_xmlrpc_port      = 19345
 
+admin_facade_json_port       = 19545
+
 login_facade_soap_bind       = ''
 login_facade_soap_port         = 10223
 login_facade_soap_service_name = '/weblab/login/soap/'

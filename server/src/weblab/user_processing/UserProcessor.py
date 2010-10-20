@@ -42,6 +42,7 @@ GET_USERS_CACHE_TIME            = 15  # seconds
 GET_EXPERIMENTS_CACHE_TIME      = 15  # seconds
 GET_EXPERIMENT_USES_CACHE_TIME  = 15  # seconds
 GET_USER_INFORMATION_CACHE_TIME = 200 # seconds
+GET_USER_PERMISSIONS_CACHE_TIME = 200 # seconds
 DEFAULT_EXPERIMENT_POLL_TIME    = 300  # seconds
 EXPERIMENT_POLL_TIME            = 'core_experiment_poll_time'
 
@@ -54,8 +55,8 @@ def get_user_information(db_manager, db_session_id):
     return db_manager.retrieve_user_information(db_session_id)
 
 @cache(GET_GROUPS_CACHE_TIME, _resource_manager)
-def get_groups(db_manager, db_session_id):
-    return db_manager.get_groups(db_session_id)
+def get_groups(db_manager, db_session_id, parent_id):
+    return db_manager.get_groups(db_session_id, parent_id)
 
 @cache(GET_ROLES_CACHE_TIME, _resource_manager)
 def get_roles(db_manager, db_session_id):
@@ -71,8 +72,12 @@ def get_experiments(db_manager, db_session_id):
     return db_manager.get_experiments(db_session_id)
 
 @cache(GET_EXPERIMENT_USES_CACHE_TIME, _resource_manager)
-def get_experiment_uses(db_manager, db_session_id, from_date, to_date, group_id, experiment_id):
-    return db_manager.get_experiment_uses(db_session_id, from_date, to_date, group_id, experiment_id)
+def get_experiment_uses(db_manager, db_session_id, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by):
+    return db_manager.get_experiment_uses(db_session_id, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by)
+
+@cache(GET_USER_PERMISSIONS_CACHE_TIME, _resource_manager)
+def get_user_permissions(db_manager, db_session_id):
+    return db_manager.get_user_permissions(db_session_id)
 
 
 class UserProcessor(object):
@@ -403,9 +408,9 @@ class UserProcessor(object):
         db_session_id        = self._session['db_session_id']
         return get_users(self._db_manager, db_session_id)
 
-    def get_groups(self):
+    def get_groups(self, parent_id=None):
         db_session_id         = self._session['db_session_id']
-        return get_groups(self._db_manager, db_session_id)
+        return get_groups(self._db_manager, db_session_id, parent_id)
     
     def get_roles(self):
         db_session_id         = self._session['db_session_id']
@@ -415,6 +420,10 @@ class UserProcessor(object):
         db_session_id         = self._session['db_session_id']
         return get_experiments(self._db_manager, db_session_id)
 
-    def get_experiment_uses(self, from_date, to_date, group_id, experiment_id):
+    def get_experiment_uses(self, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by):
         db_session_id         = self._session['db_session_id']
-        return get_experiment_uses(self._db_manager, db_session_id, from_date, to_date, group_id, experiment_id)
+        return get_experiment_uses(self._db_manager, db_session_id, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by)
+
+    def get_user_permissions(self):
+        db_session_id         = self._session['db_session_id']
+        return get_user_permissions(self._db_manager, db_session_id)

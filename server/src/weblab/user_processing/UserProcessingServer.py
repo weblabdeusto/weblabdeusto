@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
 import threading
@@ -31,6 +32,7 @@ import weblab.user_processing.database.DatabaseManager as DatabaseManager
 
 import weblab.exceptions.user_processing.UserProcessingExceptions as UserProcessingExceptions
 import weblab.user_processing.facade.UserProcessingFacadeServer as UserProcessingFacadeServer
+import weblab.user_processing.facade.AdminFacadeServer as AdminFacadeServer
 
 from voodoo.gen.caller_checker import caller_check
 from voodoo.threaded import threaded
@@ -65,7 +67,10 @@ WEBLAB_USER_PROCESSING_SERVER_CLEAN_COORDINATOR    = "core_coordinator_clean"
 class UserProcessingServer(object):
 
     LABORATORY_SERVER_REGEX = r"^(.*);(.*)\|(.*)\|(.*)$"
-    FACADE_SERVER = UserProcessingFacadeServer.UserProcessingRemoteFacadeServer
+    FACADE_SERVERS = (
+                        UserProcessingFacadeServer.UserProcessingRemoteFacadeServer,
+                        AdminFacadeServer.AdminRemoteFacadeServer
+                    )
 
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(UserProcessingServer,self).__init__(*args, **kwargs)
@@ -101,8 +106,11 @@ class UserProcessingServer(object):
 
         self._parse_configuration()
 
-        self._facade_server = self.FACADE_SERVER( self, cfg_manager ) 
-        self._facade_server.start()
+        self._facade_servers = []
+        for FacadeClass in self.FACADE_SERVERS:
+            facade_server = FacadeClass(self, cfg_manager)
+            self._facade_servers.append(facade_server)
+            facade_server.start()
 
         self._initialize_checker_timer()
 
@@ -111,7 +119,8 @@ class UserProcessingServer(object):
     def stop(self):
         if hasattr(super(UserProcessingServer, self), 'stop'):
             super(UserProcessingServer, self).stop()
-        self._facade_server.stop()
+        for facade_server in self._facade_servers:
+            facade_server.stop()
 
     def _parse_configuration(self):
         laboratory_servers_str = self._cfg_manager.get_value(COORDINATOR_LABORATORY_SERVERS)
@@ -320,10 +329,28 @@ class UserProcessingServer(object):
 
     @logged(LogLevel.Info)
     @check_session(*check_session_params)
-    def get_groups(self, session):
+    def get_groups(self, session, parent_id=None):
         user_processor = self._load_user(session)
         try:
-            return user_processor.get_groups()
+            return user_processor.get_groups(parent_id)
+        finally:
+            user_processor.update_latest_timestamp()
+
+    @logged(LogLevel.Info)
+    @check_session(*check_session_params)
+    def get_experiments(self, session):
+        user_processor = self._load_user(session)
+        try:
+            return user_processor.get_experiments()
+        finally:
+            user_processor.update_latest_timestamp()
+
+    @logged(LogLevel.Info)
+    @check_session(*check_session_params)
+    def get_experiment_uses(self, session, from_date=None, to_date=None, group_id=None, experiment_id=None, start_row=None, end_row=None, sort_by=None):
+        user_processor = self._load_user(session)
+        try:
+            return user_processor.get_experiment_uses(from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by)
         finally:
             user_processor.update_latest_timestamp()
             
@@ -351,18 +378,9 @@ class UserProcessingServer(object):
 
     @logged(LogLevel.Info)
     @check_session(*check_session_params)
-    def get_experiments(self, session):
+    def get_user_permissions(self, session):
         user_processor = self._load_user(session)
         try:
-            return user_processor.get_experiments()
-        finally:
-            user_processor.update_latest_timestamp()
-
-    @logged(LogLevel.Info)
-    @check_session(*check_session_params)
-    def get_experiment_uses(self, session, from_date, to_date, group_id, experiment_id):
-        user_processor = self._load_user(session)
-        try:
-            return user_processor.get_experiment_uses(from_date, to_date, group_id, experiment_id)
+            return user_processor.get_user_permissions()
         finally:
             user_processor.update_latest_timestamp()

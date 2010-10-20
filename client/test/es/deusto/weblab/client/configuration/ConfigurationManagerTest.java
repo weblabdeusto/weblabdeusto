@@ -122,7 +122,7 @@ public class ConfigurationManagerTest extends GWTTestCase {
 							ConfigurationManagerTest.this.finishTest();
 						}
 					}
-					
+
 					@Override
 					public void onFailure(Throwable t) {
 						try{

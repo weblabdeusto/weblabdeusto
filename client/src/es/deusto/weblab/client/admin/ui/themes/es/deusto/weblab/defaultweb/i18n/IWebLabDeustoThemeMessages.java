@@ -35,6 +35,7 @@ public interface IWebLabDeustoThemeMessages extends Messages {
 	public String password();
 	public String logIn();
 	public String invalidUsernameOrPassword();
+	public String notAllowedToAccessAdminPanel();
 	public String loggingIn();
 	public String thisFieldCantBeEmpty(String field);
 	public String administrationPanel();

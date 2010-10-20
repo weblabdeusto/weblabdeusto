@@ -52,3 +52,5 @@ core_facade_xmlrpc_port      = 19345
 core_facade_json_listen      = ''
 core_facade_json_port        = 18345
 
+admin_facade_json_port        = 18545
+

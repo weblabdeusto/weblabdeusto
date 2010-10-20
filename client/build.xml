@@ -87,6 +87,7 @@
 			includes="**" debug="on" debuglevel="lines,vars,source" 
             encoding="utf-8">
             <compilerarg value="-Xlint"/>
+            <compilerarg value="-Xlint"/>
 			<classpath refid="project.class.path"/>
 		</javac>
 		<copy todir="war/WEB-INF/classes">

@@ -123,12 +123,12 @@ public class LoginWindow extends BaseWindow {
 	}
 
 	public void showWrongLoginOrPassword(){
-		this.generalErrorLabel.setText(this.i18nMessages.invalidUsernameOrPassword());
-		this.waitingLabel.stop();
-		this.waitingLabel.setText("");
-		this.loginButton.setEnabled(true);
+		this.showError(this.i18nMessages.invalidUsernameOrPassword());
 	}
 
+	public void showNotAllowedToAccessAdminPanel() {
+		this.showError(this.i18nMessages.notAllowedToAccessAdminPanel());
+	}	
 
     @Override
 	public void showError(String message) {
@@ -198,5 +198,5 @@ public class LoginWindow extends BaseWindow {
 			Cookies.setCookie(WebLabClient.LOCALE_COOKIE, this.languageCode);
 			WebLabClient.refresh(this.languageCode);
 		}
-	}	
+	}
 }

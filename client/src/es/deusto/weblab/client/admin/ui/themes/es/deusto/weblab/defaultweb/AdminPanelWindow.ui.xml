@@ -2,8 +2,7 @@
     xmlns:g='urn:import:com.google.gwt.user.client.ui'
     xmlns:gd="urn:import:com.google.gwt.user.datepicker.client"
     xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets"
-    xmlns:sc="urn:import:com.smartgwt.client.widgets"
-    xmlns:sct="urn:import:com.smartgwt.client.widgets.tab">
+    xmlns:sl="urn:import:com.smartgwt.client.widgets.layout">
     
     <ui:with field='res' type='es.deusto.weblab.client.ui.Resources'/>
     <ui:with field="i18n" type="es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb.i18n.IWebLabDeustoThemeMessages" />
@@ -17,302 +16,54 @@
 				<g:Image resource='{res.logo}' />
 			
 			</g:HorizontalPanel>
+
+			<g:HorizontalPanel ui:field="headerProfilePanel" styleName="web-admin-logged-header-profile">
 			
-			<g:HorizontalPanel styleName="web-admin-logged-header-profile">
-			
-				<g:Label ui:field="userLabel"></g:Label>
-		
-			 	<g:Label ui:field="separatorLabel" text="|" styleName="web-admin-logged-header-profile-separator"></g:Label>
-			 	
-			 	<g:Anchor ui:field="logoutLink" text="{i18n.logOut}"></g:Anchor>	
+				<g:Label ui:field="userLabel" />
+
+				<g:Label text="|" />
+
+				<g:Anchor ui:field="logoutLink" text="{i18n.logOut}" />
 
 			</g:HorizontalPanel>
+			
+			<!-- Future version:
+			<g:HorizontalPanel ui:field="headerProfilePanel" styleName="web-admin-logged-header-profile">
+			
+				<g:Image resource='{res.avatar}' />
+		
+				<g:VerticalPanel>
+
+					<g:Label ui:field="userLabel" styleName="web-admin-logged-header-profile-name"></g:Label>
+
+					<g:Anchor ui:field="logoutLink" text="{i18n.logOut}"></g:Anchor>
+
+				</g:VerticalPanel>		
+
+			</g:HorizontalPanel>
+			-->
 
 		</g:HorizontalPanel>
 		
-		<g:MenuBar>
-			<g:MenuItem text="{i18n.accesses}">
-				<g:MenuBar vertical="true">
-					<g:MenuItem ui:field="accessesSearchMenuItem" text="{i18n.search}" />
-					<!--
-					<g:MenuItem>[today]</g:MenuItem>
-					<g:MenuItem>[last week]</g:MenuItem>
-					<g:MenuItem>[last month]</g:MenuItem>
-					<g:MenuItem>[all]</g:MenuItem>
-					-->
-				</g:MenuBar>
-			</g:MenuItem>
-			<g:MenuItem>Users
-				<g:MenuBar vertical="true">
-					<g:MenuItem ui:field="usersUsersMenuItem">Users</g:MenuItem>
-					<!--<g:MenuItem>External Entities</g:MenuItem>
-					<g:MenuItem>Groups</g:MenuItem>
-					<g:MenuItem>Roles</g:MenuItem>
-					<g:MenuItem>Authentication</g:MenuItem>
-					-->
-				</g:MenuBar>
-			</g:MenuItem>
-			<!--
-			<g:MenuItem>Configuration
-				<g:MenuBar vertical="true">
-					<g:MenuItem>Deployment</g:MenuItem>
-				</g:MenuBar>
-			</g:MenuItem>
-			<g:MenuItem>Status
-				<g:MenuBar vertical="true">
-					<g:MenuItem>Connections</g:MenuItem>
-					<g:MenuItem>Queues</g:MenuItem>
-				</g:MenuBar>
-			</g:MenuItem>
-			<g:MenuItem>Tools
-				<g:MenuBar vertical="true">
-					<g:MenuItem>Notifier</g:MenuItem>
-					<g:MenuItem>Backup</g:MenuItem>
-				</g:MenuBar>
-			</g:MenuItem>
-			-->
-		</g:MenuBar>		
+		<!-- 
+		<g:HorizontalPanel ui:field="menuBarPanel" styleName="web-admin-logged-menu-bar">
 		
+			<g:Anchor styleName="web-admin-logged-menu-item">Accesses</g:Anchor>
+		
+			<g:Label styleName="web-admin-logged-menu-item" text="|" />
+		
+			<g:Anchor styleName="web-admin-logged-menu-item">Users</g:Anchor>
+		
+		</g:HorizontalPanel>		
+		-->
+		
+		<g:Label text="{i18n.administrationPanel}" styleName="web-admin-login" />
+		 		 
 		<g:VerticalPanel styleName="web-admin-logged-content">
-		
-		
-			<!-- ACCESSES/search panel -->
-		    <g:VerticalPanel ui:field="accessesSearchPanel">
-		    
-		    	<g:Label styleName="web-admin-logged-content-title">Search for users accesses</g:Label>
-		    
-		    	<g:HorizontalPanel styleName="web-admin-logged-accesses-search-form">
 		    	
-		    		<g:VerticalPanel>
-		    	
-		    			<g:Label>From:</g:Label>
-			    		<gd:DateBox ui:field="fromDateBox"></gd:DateBox>
-			    	
-			    	</g:VerticalPanel>
-		    	
-		    		<g:VerticalPanel>
-			    	
-			    		<g:Label>To:</g:Label>
-				    	<gd:DateBox ui:field="toDateBox"></gd:DateBox>
-			    	
-			    	</g:VerticalPanel>
-		    	
-		    		<g:VerticalPanel>
-		    	
-		    			<g:Label>Group:</g:Label>
-		    			<g:ListBox ui:field="groupConditionListBox" />
-			    	
-			    	</g:VerticalPanel>
-		    	
-		    		<g:VerticalPanel>
-		    	
-		    			<g:Label>Experiment:</g:Label>
-		    			<g:ListBox ui:field="experimentConditionListBox" />
-			    	
-			    	</g:VerticalPanel>
-		    	
-		    		<!-- 
-		    		<g:VerticalPanel>
-		    		
-			    		<g:Label>Grouped by:</g:Label>
-			    		<g:ListBox ui:field="groupedByListBox" />
-			    	
-			    	</g:VerticalPanel>
-		    	 	-->
-		    		
-		    		<g:VerticalPanel>
-		    		
-		    			<g:Button ui:field="searchButton">Search</g:Button>
-			    	
-			    	</g:VerticalPanel>
-		    	
-		    	</g:HorizontalPanel>
-		    	
-		    	<g:Grid ui:field="experimentUsesGrid" styleName="web-admin-logged-accesses-grid" />
-		    	<!-- 
-				<w:EasyGrid ui:field="experimentUsesGrid" rows="1" cols="7" styleName="web-admin-logged-accesses-grid">
-					<g:Label styleName="web-admin-logged-accesses-grid-header">Started</g:Label>
-					<g:Label styleName="web-admin-logged-accesses-grid-header">Time</g:Label>
-					<g:Label styleName="web-admin-logged-accesses-grid-header">Username</g:Label>
-					<g:Label styleName="web-admin-logged-accesses-grid-header">User's full name</g:Label>
-					<g:Label styleName="web-admin-logged-accesses-grid-header">Experiment</g:Label>
-				</w:EasyGrid>
-				-->
-				 
-				<!--
-				<g:HorizontalPanel styleName="web-admin-logged-accesses-download">
-					<g:Button ui:field="downloadButton" visible="false">Download as .csv</g:Button>
-				</g:HorizontalPanel>
-		    	 -->
-		    	 
-			</g:VerticalPanel>	
-			<!-- EndOf accessesPanel -->
-			
-			<!--  USERS/users panel -->
-			<g:VerticalPanel ui:field="usersUsersPanel">
-				<g:Label styleName="web-admin-logged-content-title">Users/Users Panel</g:Label>
-				
-				<g:HorizontalPanel width="100%" spacing="30" height="100%">
-				
-					<!-- Users/Users left user list panel -->
-					<g:VerticalPanel>
-						
-						<g:HorizontalPanel borderWidth="1">
-							<g:FlexTable ui:field="usersListTable">
-							</g:FlexTable>
-						</g:HorizontalPanel>
-						
-						<g:HorizontalPanel borderWidth="1" width="100%">
-							<g:HorizontalPanel spacing="10">
-								<g:Button>Add</g:Button>
-								<g:Button>Remove</g:Button>
-							</g:HorizontalPanel>
-						</g:HorizontalPanel>
-						
-					</g:VerticalPanel>
-					<!-- EndOf Users/Users left user list panel -->
-					
-					<!-- Users/Users right user details panel -->
-					<g:VerticalPanel borderWidth="0" width="100%" verticalAlignment="ALIGN_BOTTOM">
-					
-						<g:HorizontalPanel width="350px" height="300px">
-						
-							<g:TabLayoutPanel height="300px" width="100%" barHeight="20">
-								<g:tab width="100%">
-									<g:header>Profile</g:header>
-									<w:EasyGrid rows="4" cols="2" width="100%">
-										<g:Label>Username:</g:Label>
-										<g:TextBox ui:field="userDetailLogin"></g:TextBox>
-										<g:Label>Name:</g:Label>
-										<g:TextBox ui:field="userDetailFullName"></g:TextBox>
-										<g:Label>Email</g:Label>
-										<g:TextBox ui:field="userDetailEmail"></g:TextBox>
-										<g:Label>Role:</g:Label>
-										<g:ListBox ui:field="userDetailRolesList"></g:ListBox>
-									</w:EasyGrid>
-								</g:tab>
-								<g:tab>
-									<g:header>Groups</g:header>
-									<g:HorizontalPanel width="100%">
-										<g:Tree ui:field="userDetailGroups">
-										</g:Tree>
-									</g:HorizontalPanel>
-								</g:tab>
-								<g:tab>
-									<g:header>Permissions</g:header>
-									<g:VerticalPanel width="100%">
-										<g:Label>Permissions. Not yet implemented.</g:Label>
-									</g:VerticalPanel>
-								</g:tab>
-								<g:tab>
-									<g:header>Authentication</g:header>
-									<!-- Seems to actually be ignoring the horizontalAlignment attr, 
-									it isn't centering the vertical panels. -->
-									<g:HorizontalPanel width="100%" height="100%" horizontalAlignment="ALIGN_CENTER">
-										<g:Cell width="40%">
-											<g:VerticalPanel borderWidth="0" height="100%" width="100%">
-												<g:Label width="100%" text="Allowed"></g:Label>
-												<g:ListBox ui:field="userAuthAllowedList" width="100%" visibleItemCount="10"></g:ListBox>
-											</g:VerticalPanel>
-										</g:Cell>
-										<g:Cell width="20%" height="50%" horizontalAlignment="ALIGN_CENTER" verticalAlignment="ALIGN_TOP">
-										<g:VerticalPanel borderWidth="0" height="100%">
-											
-											<!-- The first vertical panel is simply for space -->
-											
-											<g:Cell height="20%">
-												<g:VerticalPanel borderWidth="0" height="100%">
-													<g:Hidden></g:Hidden>
-												</g:VerticalPanel>
-											</g:Cell>
-											
-											<g:Cell height="80%">
-												<g:VerticalPanel spacing="10" borderWidth="0" width="100%" height="30%">
-												<!-- Using a dash or a double arrow (&#21D2) makes the website fail with no error -->
-												<g:Button ui:field="userAuthAllowButton" width="100%" text='&lt;&lt;'></g:Button>
-												<g:Button ui:field="userAuthDisallowButton" width="100%" text='&gt;&gt;'></g:Button>
-												</g:VerticalPanel>
-											</g:Cell>
-										
-										</g:VerticalPanel>
-										</g:Cell>
-										<g:Cell width="40%">
-										<g:VerticalPanel borderWidth="0" width="100%" height="100%">
-											<g:Label width="100%">Not allowed</g:Label>
-											<g:ListBox ui:field="userAuthNotAllowedList" width="100%" visibleItemCount="10"></g:ListBox>
-										</g:VerticalPanel>
-										</g:Cell>
-									</g:HorizontalPanel>
-								</g:tab>
-							</g:TabLayoutPanel>
-						
-						</g:HorizontalPanel>
-						
-						<g:HorizontalPanel borderWidth="0" width="100%" verticalAlignment="ALIGN_TOP" horizontalAlignment="ALIGN_RIGHT">
-							<g:cell width="50%">
-								<g:HorizontalPanel width="100%"></g:HorizontalPanel>
-							</g:cell>
-							
-							<g:cell width="50%">
-								<g:HorizontalPanel spacing="10">
-									<g:Button>Save changes</g:Button>
-								</g:HorizontalPanel>
-							</g:cell>
-						</g:HorizontalPanel>
-					
-					</g:VerticalPanel>
-					<!-- EndOf Users/Users right user details panel -->
-				
-				</g:HorizontalPanel>
-				
-			</g:VerticalPanel>	
-			<!-- EndOf usersPanel -->
-
-					
-			<!-- 
-			<g:TabLayoutPanel barUnit='EM' barHeight='1.5' width="800px" height="600px">
-				  <g:tab>
-					    <g:header>Search</g:header>
-
-					    <g:VerticalPanel>
-					    
-					    	<g:HorizontalPanel styleName="web-admin-logged-accesses-search-from-to">
-					    	
-					    		<g:Label>From:</g:Label>
-						    	<gd:DateBox ui:field="fromDateBox"></gd:DateBox>
-						    	
-					    		<g:Label>To:</g:Label>
-						    	<gd:DateBox ui:field="toDateBox"></gd:DateBox>
-					    	
-					    	</g:HorizontalPanel>
-					    
-					    	<g:Label>List all the uses that match the following criteria:</g:Label>
-					    	
-					    	<g:HorizontalPanel>
-					    	
-					    		<g:Label>Group:</g:Label>
-					    		<g:ListBox ui:field="groupConditionListBox"></g:ListBox>
-					    	
-					    	</g:HorizontalPanel>
-					    	
-					    	<g:HorizontalPanel>
-					    	
-					    		<g:Label>Experiment:</g:Label>
-					    		<g:ListBox ui:field="experimentConditionListBox"></g:ListBox>
-					    	
-					    	</g:HorizontalPanel>
-					    	
-					    	<g:HorizontalPanel>
-					    	
-					    		<g:Label>Use Time:</g:Label>
-					    	
-					    	</g:HorizontalPanel>
-					    							
-						</g:VerticalPanel>
-				  </g:tab>
-			 </g:TabLayoutPanel>
- 			-->
- 			
+	    	<sl:VLayout ui:field="smartGWTLayout" styleName="web-admin-smartgwt-layout" />
+	    	<!-- <g:VerticalPanel ui:field="contentPanel" styleName="web-admin-smartgwt-layout" /> -->
+								
 			<w:WlWaitingLabel ui:field="waitingLabel" styleName="web-admin-waiting-label"></w:WlWaitingLabel>
 			<g:Label ui:field="generalErrorLabel" styleName="web-admin-error-message"></g:Label>
 	

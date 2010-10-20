@@ -8,7 +8,7 @@
 * This software consists of contributions made by many individuals, 
 * listed below:
 *
-* Author: FILLME
+* Author: Pablo Orduña <pablo@ordunya.com>
 *
 */
 

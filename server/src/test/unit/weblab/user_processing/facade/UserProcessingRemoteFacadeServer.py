@@ -13,7 +13,6 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 import unittest
-import mocker
 
 import sys
 import time
@@ -30,6 +29,7 @@ import test.unit.configuration as configuration
 import voodoo.sessions.SessionId as SessionId
 from test.util.ModuleDisposer import uses_module
 
+import pmock
 
 USERNAME         ='myusername'
 PASSWORD         ='mypassword'
@@ -37,22 +37,7 @@ REAL_ID          ='this_is_the_real_id'
 COMMAND          ='mycommand'
 RESPONSE_COMMAND = 'myresponsecommand'
 
-
-class WrappedRemoteFacadeServer(UserProcessingFacadeServer.UserProcessingRemoteFacadeServer):
-    rfm_mock = None
-    
-    def _create_zsi_remote_facade_manager(self, *args, **kwargs):
-        return self.rfm_mock
-    
-    def _create_json_remote_facade_manager(self, *args, **kwargs):
-        return self.rfm_mock
-    
-    def _create_xmlrpc_remote_facade_manager(self, *args, **kwargs):
-        return self.rfm_mock
-    
-
-class UserProcessingRemoteFacadeServerTestCase(mocker.MockerTestCase):
-    
+class UserProcessingRemoteFacadeServerTestCase(unittest.TestCase):
     def setUp(self):
         self.configurationManager = ConfigurationManager.ConfigurationManager()
         self.configurationManager.append_module(configuration)
@@ -70,19 +55,36 @@ class UserProcessingRemoteFacadeServerTestCase(mocker.MockerTestCase):
         self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_XMLRPC_PORT, 10225)
         self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_XMLRPC_LISTEN, '')
 
+        rfm_obj = pmock.Mock()
 
-    if RemoteFacadeServer.ZSI_AVAILABLE:
+        session          = SessionId.SessionId(REAL_ID)
+        command          = Command.Command(COMMAND)
+        response_command = Command.Command(RESPONSE_COMMAND)
+        rfm_obj.expects(pmock.once()).method("send_command").will( pmock.return_value( response_command ))
+
+        session          = {'id' : REAL_ID}
+        command          = {'commandstring' : COMMAND }
+        response_command = {'commandstring' : RESPONSE_COMMAND }
+
+        rfm_xmlrpc = pmock.Mock()
+        rfm_xmlrpc.expects(pmock.once())._dispatch( pmock.eq('send_command'), pmock.eq((session, command)) ).will( pmock.return_value(response_command) )
+
+        rfm_json = pmock.Mock()
+        rfm_json.expects(pmock.once()).send_command( session_id = pmock.eq(session), command = pmock.eq(command)).will( pmock.return_value(response_command) )
+
+        class WrappedRemoteFacadeServer(UserProcessingFacadeServer.UserProcessingRemoteFacadeServer):
+            def _create_zsi_remote_facade_manager(self, *args, **kwargs):
+                return rfm_obj
+            def _create_json_remote_facade_manager(self, *args, **kwargs):
+                return rfm_json
+            def _create_xmlrpc_remote_facade_manager(self, *args, **kwargs):
+                return rfm_xmlrpc
+
+        self.rfs = WrappedRemoteFacadeServer(None, self.configurationManager)
         
+    if RemoteFacadeServer.ZSI_AVAILABLE:
         @uses_module(RemoteFacadeServer)
         def test_simple_use_zsi(self):
-            response_command = Command.Command(RESPONSE_COMMAND)
-            rfm_obj = self.mocker.mock()
-            rfm_obj.send_command(mocker.ARGS)
-            self.mocker.result( response_command )
-            WrappedRemoteFacadeServer.rfm_mock = rfm_obj
-            self.rfs = WrappedRemoteFacadeServer(None, self.configurationManager)
-        
-            self.mocker.replay()            
             self.rfs.start()
             try:
                 zsi_client = Client.BotZSI("http://localhost:10223/weblab/soap/", "http://localhost:10223/weblab/login/soap/")
@@ -92,21 +94,10 @@ class UserProcessingRemoteFacadeServerTestCase(mocker.MockerTestCase):
             finally:
                 self.rfs.stop()
     else:
-        
         print >> sys.stderr, "Optional library 'ZSI' not available. Skipped test in weblab.user_processing.facade.RemoteFacadeServer"
 
     @uses_module(RemoteFacadeServer)
     def test_simple_use_json(self):
-        session = {'id' : REAL_ID}
-        command = {'commandstring' : COMMAND }
-        response_command = {'commandstring' : RESPONSE_COMMAND }
-        rfm_json = self.mocker.mock()
-        rfm_json.send_command( session_id = session, command = command)
-        self.mocker.result(response_command)
-        WrappedRemoteFacadeServer.rfm_mock = rfm_json
-        self.rfs = WrappedRemoteFacadeServer(None, self.configurationManager)
-        
-        self.mocker.replay()
         self.rfs.start()
         try:
             json_client = Client.BotJSON("http://localhost:10224/weblab/json/", "http://localhost:10224/weblab/login/json/")
@@ -118,16 +109,6 @@ class UserProcessingRemoteFacadeServerTestCase(mocker.MockerTestCase):
 
     @uses_module(RemoteFacadeServer)
     def test_simple_use_xmlrpc(self):
-        session = {'id' : REAL_ID}
-        command = {'commandstring' : COMMAND }
-        response_command = {'commandstring' : RESPONSE_COMMAND }
-        rfm_xmlrpc = self.mocker.mock()
-        rfm_xmlrpc._dispatch('send_command', (session, command))
-        self.mocker.result(response_command)
-        WrappedRemoteFacadeServer.rfm_mock = rfm_xmlrpc
-        self.rfs = WrappedRemoteFacadeServer(None, self.configurationManager)
-        
-        self.mocker.replay()
         self.rfs.start()
         try:
             xmlrpc_client = Client.BotXMLRPC("http://localhost:10225/weblab/xmlrpc/", "http://localhost:10225/weblab/login/xmlrpc")

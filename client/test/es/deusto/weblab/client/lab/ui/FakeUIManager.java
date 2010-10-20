@@ -27,22 +27,22 @@ import es.deusto.weblab.client.testing.util.WlFake;
 
 public class FakeUIManager extends WlFake implements IUIManager {
 
-    public static final String ON_INIT 			           = "FakeUIManager::onInit";
-    public static final String ON_LOGGED_IN 			   = "FakeUIManager::onLoggedIn";
-    public static final String ON_ALLOWED_EXPERIMENTS_RETRIEVED    = "FakeUIManager::onAllowedExperimentsRetrieved";
-    public static final String ON_EXPERIMENT_CHOOSEN 		   = "FakeUIManager::onExperimentChoosen";
-    public static final String ON_WAITING_RESERVATION 		   = "FakeUIManager::onWaitingReservation";
-    public static final String ON_WAITING_RESERVATION_CONFIRMATION = "FakeUIManager::onWaitingReservationConfirmation";
-    public static final String ON_EXPERIMENT_RESERVED 		   = "FakeUIManager::onExperimentReserved";
-    public static final String ON_RESERVATION_FINISHED 	           = "FakeUIManager::onReservationFinished";
-    public static final String ON_LOGGED_OUT 			   = "FakeUIManager::onLoggedOut";
+    public static final String ON_INIT 			                    = "FakeUIManager::onInit";
+    public static final String ON_LOGGED_IN 			            = "FakeUIManager::onLoggedIn";
+    public static final String ON_ALLOWED_EXPERIMENTS_RETRIEVED     = "FakeUIManager::onAllowedExperimentsRetrieved";
+    public static final String ON_EXPERIMENT_CHOOSEN 		        = "FakeUIManager::onExperimentChoosen";
+    public static final String ON_WAITING_RESERVATION 		        = "FakeUIManager::onWaitingReservation";
+    public static final String ON_WAITING_RESERVATION_CONFIRMATION  = "FakeUIManager::onWaitingReservationConfirmation";
+    public static final String ON_EXPERIMENT_RESERVED 		        = "FakeUIManager::onExperimentReserved";
+    public static final String ON_RESERVATION_FINISHED 	            = "FakeUIManager::onReservationFinished";
+    public static final String ON_LOGGED_OUT 			            = "FakeUIManager::onLoggedOut";
     
-    public static final String ON_WRONG_LOGIN_OR_PASSWORD_GIVEN    = "FakeUIManager::onWrongLoginOrPasswordGiven";
-    public static final String ON_WAITING_INSTANCES 		   = "FakeUIManager::onWaitingInstances";
-    public static final String ON_ERROR 			   = "FakeUIManager::onError";
-    public static final String ON_ERROR_AND_FINISH_RESERVATION     = "FakeUIManager::onErrorAndFinishReservation";
-    public static final String ON_ERROR_AND_FINISH_SESSION 	   = "FakeUIManager::onErrorAndFinishSession";
-    public static final String ON_MESSAGE 			   = "FakeUIManager::onMessage";
+    public static final String ON_WRONG_LOGIN_OR_PASSWORD_GIVEN     = "FakeUIManager::onWrongLoginOrPasswordGiven";
+    public static final String ON_WAITING_INSTANCES 		        = "FakeUIManager::onWaitingInstances";
+    public static final String ON_ERROR 			                = "FakeUIManager::onError";
+    public static final String ON_ERROR_AND_FINISH_RESERVATION      = "FakeUIManager::onErrorAndFinishReservation";
+    public static final String ON_ERROR_AND_FINISH_SESSION 	        = "FakeUIManager::onErrorAndFinishSession";
+    public static final String ON_MESSAGE 			                = "FakeUIManager::onMessage";
 
     /*
      * Happy path scenario

@@ -49,6 +49,10 @@
 		<g:HorizontalPanel styleName="web-login-foot-message">
 			<g:HTML ui:field="supportHTML"></g:HTML>
 		</g:HorizontalPanel>
+		
+		<g:HorizontalPanel styleName="web-login-foot-message">
+			<g:Anchor text="Go to the Admin Panel >" href=".?admin=true"></g:Anchor>
+		</g:HorizontalPanel>
 				
    		<g:Cell horizontalAlignment="ALIGN_CENTER">
 			<g:HorizontalPanel width="100%" horizontalAlignment="ALIGN_CENTER" spacing="10">

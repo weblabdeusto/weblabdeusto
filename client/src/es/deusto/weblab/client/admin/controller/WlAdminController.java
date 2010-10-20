@@ -15,14 +15,8 @@
 
 package es.deusto.weblab.client.admin.controller;
 
-import java.util.ArrayList;
-import java.util.Date;
-
 import es.deusto.weblab.client.admin.comm.IWlAdminCommunication;
-import es.deusto.weblab.client.admin.comm.callbacks.IExperimentUsesCallback;
-import es.deusto.weblab.client.admin.comm.callbacks.IExperimentsCallback;
-import es.deusto.weblab.client.admin.comm.callbacks.IGroupsCallback;
-import es.deusto.weblab.client.admin.comm.callbacks.IUsersCallback;
+import es.deusto.weblab.client.admin.comm.callbacks.IPermissionsCallback;
 import es.deusto.weblab.client.admin.ui.IUIManager;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
@@ -31,13 +25,12 @@ import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.comm.exceptions.login.LoginException;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
-import es.deusto.weblab.client.dto.experiments.Experiment;
-import es.deusto.weblab.client.dto.experiments.ExperimentUse;
-import es.deusto.weblab.client.dto.users.Group;
+import es.deusto.weblab.client.dto.users.Permission;
 import es.deusto.weblab.client.dto.users.User;
 
 public class WlAdminController implements IWlAdminController {
 
+	@SuppressWarnings("unused")
 	private final IConfigurationManager configurationManager;
 	private final IWlAdminCommunication communications;
 	private IUIManager uimanager;
@@ -95,132 +88,39 @@ public class WlAdminController implements IWlAdminController {
 	private void startSession(SessionID sessionID) {
 		this.currentSession = sessionID;
 		
-		this.communications.getUserInformation(this.currentSession, new IUserInformationCallback(){
+		this.communications.getUserPermissions(this.currentSession, new IPermissionsCallback() {
+			
 			@Override
-			public void onSuccess(final User userInformation) {
-				WlAdminController.this.uimanager.onLoggedIn(userInformation);
+			public void onSuccess(Permission[] permissions) {
+				if ( WlAdminController.this.hasAdminPanelAccessPermission(permissions) ) {
+					WlAdminController.this.communications.getUserInformation(WlAdminController.this.currentSession, new IUserInformationCallback(){
+						@Override
+						public void onSuccess(final User userInformation) {
+							WlAdminController.this.uimanager.onLoggedIn(userInformation, WlAdminController.this.currentSession);
+						}
+						
+						@Override
+						public void onFailure(WlCommException e) {
+							WlAdminController.this.uimanager.onError(e.getMessage());
+						}
+					});					
+				} else {
+					WlAdminController.this.uimanager.onNotAllowedToAccessAdminPanel();
+				}
 			}
 			
 			@Override
 			public void onFailure(WlCommException e) {
 				WlAdminController.this.uimanager.onError(e.getMessage());
-			}
-		});			
+			}			
+		});					
 	}
 	
-	@Override
-	public void getUsers() {
-		this.communications.getUsers(this.currentSession, new IUsersCallback(){
-			@Override
-			public void onSuccess(final ArrayList<User> users) {
-				WlAdminController.this.uimanager.onUsersRetrieved(users);
-			}
-			
-			@Override
-			public void onFailure(WlCommException e) {
-				WlAdminController.this.uimanager.onError(e.getMessage());
-			}
-		});
-	}
-
-	@Override
-	public void getExperiments() {
-		this.communications.getExperiments(this.currentSession, new IExperimentsCallback(){
-			@Override
-			public void onSuccess(final ArrayList<Experiment> experiments) {
-				WlAdminController.this.uimanager.onExperimentsRetrieved(experiments);
-			}
-			
-			@Override
-			public void onFailure(WlCommException e) {
-				WlAdminController.this.uimanager.onError(e.getMessage());
-			}
-		});
-	}
-
-	@Override
-	public void getGroups() {
-		this.communications.getGroups(this.currentSession, new IGroupsCallback(){
-			@Override
-			public void onSuccess(final ArrayList<Group> groups) {
-				WlAdminController.this.uimanager.onGroupsRetrieved(groups);
-			}
-			
-			@Override
-			public void onFailure(WlCommException e) {
-				WlAdminController.this.uimanager.onError(e.getMessage());
-			}
-		});
-	}
-
-	@Override
-	public void getExperimentUses(Date fromDate, Date toDate, Group group, Experiment experiment) {
-
-		final IExperimentUsesCallback callback = new IExperimentUsesCallback() {
-			@Override
-			public void onSuccess(final ArrayList<ExperimentUse> experimentUses) {
-				WlAdminController.this.uimanager.onExperimentUsesRetrieved(experimentUses);
-			}
-			
-			@Override
-			public void onFailure(WlCommException e) {
-				WlAdminController.this.uimanager.onError(e.getMessage());
-			}
-		};
-		
-		this.communications.getExperimentUses(
-				this.currentSession,
-				fromDate,
-				toDate,
-				group != null ? group.getId(): -1,
-				experiment != null ? experiment.getId(): -1,
-				callback
-		);
-		/*
-		ArrayList<ExperimentUse> experimentUses = new ArrayList<ExperimentUse>();
-		
-		for ( ExperimentUse eu: this.temporalFakeData.allExperimentUses ) {
-			boolean valid = true;
-			
-			if ( fromDate != null && toDate != null ) {
-				if ( ! ( eu.getStartTimestamp().after(fromDate) && eu.getStartTimestamp().before(toDate) ) ) {
-					valid = false;
-				}
-			} else if ( fromDate == null && toDate != null ) {
-				if ( ! eu.getStartTimestamp().before(toDate) ) {
-					valid = false;
-				}
-			} else if ( toDate == null && fromDate != null ) {
-				if ( ! eu.getStartTimestamp().after(fromDate) ) {
-					valid = false;
-				}
-			}
-			
-			if ( group != null ) {
-				if ( ! eu.getUser().isMemberOf(group) ) {
-					valid = false;
-				}
-			}
-			
-			if ( experiment != null ) {
-				if ( ! eu.getExperiment().equals(experiment) ) {
-					valid = false;
-				}
-			}
-			
-			if ( valid ) {
-				experimentUses.add(eu);
-			}
+	private boolean hasAdminPanelAccessPermission(Permission[] permissions) {
+		for ( Permission p: permissions ) {
+			if ( p.getName().equals("admin_panel_access") )
+				return true;
 		}
-		
-		Collections.sort(experimentUses, new Comparator<ExperimentUse>() {
-			@Override
-			public int compare(ExperimentUse o1, ExperimentUse o2) {
-				return o2.getStartTimestamp().compareTo(o1.getStartTimestamp());
-			}
-		});
-		
-		return experimentUses;
-		*/
+		return false;
 	}
 }

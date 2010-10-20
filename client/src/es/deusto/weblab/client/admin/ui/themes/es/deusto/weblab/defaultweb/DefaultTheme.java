@@ -15,9 +15,6 @@
 
 package es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb;
 
-import java.util.ArrayList;
-import java.util.Date;
-
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -27,9 +24,7 @@ import es.deusto.weblab.client.admin.ui.WlAdminThemeBase;
 import es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb.AdminPanelWindow.IAdminPanelWindowCallback;
 import es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb.LoginWindow.ILoginWindowCallback;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
-import es.deusto.weblab.client.dto.experiments.Experiment;
-import es.deusto.weblab.client.dto.experiments.ExperimentUse;
-import es.deusto.weblab.client.dto.users.Group;
+import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.users.User;
 
 public class DefaultTheme extends WlAdminThemeBase {
@@ -39,6 +34,7 @@ public class DefaultTheme extends WlAdminThemeBase {
 
 	// DTOs
 	private User user;
+	private SessionID sessionId;
 	
 	// Window management
 	private BaseWindow activeWindow = null; // Pointer to the window being used
@@ -70,8 +66,9 @@ public class DefaultTheme extends WlAdminThemeBase {
 	}
 
 	@Override
-	public void onLoggedIn(User user) {
+	public void onLoggedIn(User user, SessionID sessionId) {
 		this.user = user;
+		this.sessionId = sessionId;
 		// Feedback...?
 		// TODO: controller.somethingToRetrieveNeededInformation (or just to paint)
 		this.loadAdminPanelWindow();
@@ -81,26 +78,6 @@ public class DefaultTheme extends WlAdminThemeBase {
 	public void onLoggedOut() {
 		this.clearSession();
 		this.loadLoginWindow();
-	}
-
-	@Override
-	public void onExperimentsRetrieved(ArrayList<Experiment> experiments) {
-		this.adminPanelWindow.fillExperimentsCombobox(experiments);
-	}
-
-	@Override
-	public void onGroupsRetrieved(ArrayList<Group> groups) {
-		this.adminPanelWindow.fillGroupsCombobox(groups);
-	}
-	
-	@Override
-	public void onUsersRetrieved(ArrayList<User> users) {
-		this.adminPanelWindow.fillUsersList(users);
-	}
-
-	@Override
-	public void onExperimentUsesRetrieved(ArrayList<ExperimentUse> experimentUses) {
-		this.adminPanelWindow.fillExperimentUsesGrid(experimentUses);
 	}
 
 	/*
@@ -116,6 +93,11 @@ public class DefaultTheme extends WlAdminThemeBase {
 	@Override
 	public void onWrongLoginOrPasswordGiven() {
 		this.loginWindow.showWrongLoginOrPassword();
+	}
+
+	@Override
+	public void onNotAllowedToAccessAdminPanel() {
+		this.loginWindow.showNotAllowedToAccessAdminPanel();
 	}
 
 	@Override
@@ -145,30 +127,10 @@ public class DefaultTheme extends WlAdminThemeBase {
 	private void loadAdminPanelWindow() {
 		this.clearWindow();
 
-		this.adminPanelWindow = new AdminPanelWindow(this.configurationManager, this.user, new IAdminPanelWindowCallback(){
+		this.adminPanelWindow = new AdminPanelWindow(this.configurationManager, this.user, this.sessionId, new IAdminPanelWindowCallback(){
 			@Override
 			public void onLogoutButtonClicked() {
 				DefaultTheme.this.controller.logout();
-			}
-
-			@Override
-			public void getExperiments() {
-				DefaultTheme.this.controller.getExperiments();
-			}
-
-			@Override
-			public void getGroups() {
-				DefaultTheme.this.controller.getGroups();
-			}
-
-			@Override
-			public void onSearchButtonClicked(Date fromDate, Date toDate, Group group, Experiment experiment) {
-				DefaultTheme.this.controller.getExperimentUses(fromDate, toDate, group, experiment);
-			}
-			
-			@Override
-			public void getUsers() {
-				DefaultTheme.this.controller.getUsers();
 			}
 		});
 		this.adminPanelWindow.init();
@@ -189,6 +151,7 @@ public class DefaultTheme extends WlAdminThemeBase {
 
 	 private void clearSession() {
 		 this.user = null;
+		 this.sessionId = null;
 	 }
 	 
 	 private void showError(String message) {

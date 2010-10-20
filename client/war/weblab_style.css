@@ -384,27 +384,55 @@ body
 {
 	margin-right: 0px;
 	margin-left: auto;
-	margin-top: 25px;
 	padding-right: 0px;
 	height: 100%;
-	text-align: right !important;
 	display: block;
-	border-spacing: 8px;
-}
-
-.web-admin-logged-menu
-{
+	border-spacing: 10px;
 	width: 100%;
-	height: 25px;
-	margin-top: 15px;
-	margin-bottom: 15px;
-	border: 1px solid black;
-	padding: 8px;
+	float: right;
+	margin-top: 25px;
 }
 
-.web-admin-logged-menu-option
+/* Future version
+.web-admin-logged-header-profile
 {
-	font-size: 14px;
+	margin-right: 0px;
+	margin-left: auto;
+	padding-right: 0px;
+	height: 100%;
+	display: block;
+	border-spacing: 10px;
+	width: 100%;
+	float: right;
+	margin-top: 5px;
+}
+*/
+
+.web-admin-logged-header-profile-name
+{
+	padding-top: 7px;
+	padding-bottom: 7px;
+}
+
+.web-admin-logged-menu-bar
+{
+	border: 1px solid #646464;
+	padding: 10px;
+	margin-top: 10px;
+}	
+
+.web-admin-logged-menu-item
+{
+	text-align: left;
+}
+
+.web-admin-logged-title
+{
+	padding-top: 15px;
+	padding-bottom: 10px;
+	text-align: center;
+	font-weight: bold;
+	font-size: 16px;
 }
 
 .web-admin-logged-content
@@ -412,7 +440,14 @@ body
 	width: 100%;
 	margin-right: auto;
 	margin-left: auto;
-	padding: 7px;
+}
+
+.web-admin-smartgwt-layout
+{
+	width: 100%;
+	margin-right: auto;
+	margin-left: auto;
+	margin-top: 15px;
 }
 
 .web-admin-logged-content-title

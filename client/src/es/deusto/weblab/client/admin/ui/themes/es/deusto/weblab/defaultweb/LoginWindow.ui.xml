@@ -19,7 +19,7 @@
 			
 	   		<g:HorizontalPanel ui:field="langsPanel" spacing="15" styleName="web-admin-login-languages" />		    	
 	    	
-	    	<g:Label text="{i18n.administrationPanel}" styleName="web-admin-login" />
+	    	<g:Label text="{i18n.administrationPanel}" styleName="web-admin-logged-title" />
 	    	
 	    	<g:VerticalPanel styleName="web-admin-login-form">
 	    	
@@ -43,6 +43,10 @@
 			<g:Label ui:field="generalErrorLabel" styleName="web-admin-error-message"></g:Label>
 		
 		</g:VerticalPanel>
+		
+		<g:HorizontalPanel styleName="web-login-foot-message">
+			<g:Anchor text="&lt; Back to the Remote Lab" href=".?admin=false"></g:Anchor>
+		</g:HorizontalPanel>		
 	
 	</g:VerticalPanel>
 	

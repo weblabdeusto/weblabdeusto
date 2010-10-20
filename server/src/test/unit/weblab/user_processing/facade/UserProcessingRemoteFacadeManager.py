@@ -43,6 +43,7 @@ import weblab.data.dto.Group as Group
 from weblab.data.dto.User import User
 from weblab.data.dto.Role import Role
 from weblab.data.dto.ExperimentUse import ExperimentUse
+from weblab.data.dto.Permission import Permission, PermissionParameter
 
 import weblab.exceptions.user_processing.UserProcessingExceptions as UserProcessingExceptions
 import weblab.exceptions.WebLabExceptions as WebLabExceptions
@@ -134,11 +135,17 @@ class MockUPS(object):
             raise self.exceptions['get_experiments']
         return self.return_values['get_experiments']
     
-    def get_experiment_uses(self, session_id, from_date, to_date, group_id, experiment_id):
-        self.arguments['get_experiment_uses'] = (session_id, from_date, to_date, group_id, experiment_id)
+    def get_experiment_uses(self, session_id, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by):
+        self.arguments['get_experiment_uses'] = (session_id, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by)
         if self.exceptions.has_key('get_experiment_uses'):
             raise self.exceptions['get_experiment_uses']
         return self.return_values['get_experiment_uses']
+    
+    def get_user_permissions(self, session_id):
+        self.arguments['get_user_permissions'] = (session_id, )
+        if self.exceptions.has_key('get_user_permissions'):
+            raise self.exceptions['get_user_permissions']
+        return self.return_values['get_user_permissions']
 
 
 class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
@@ -843,12 +850,48 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
 
         self.assertEquals(
                 experiment_uses,
-                self.rfm.get_experiment_uses(expected_sess_id, None, None, None, None)
+                self.rfm.get_experiment_uses(expected_sess_id, None, None, None, None, None, None, None)
             )
         
         self.assertEquals(
                 expected_sess_id['id'],
                 self.mock_ups.arguments['get_experiment_uses'][0].id
+            )
+        
+        self.assertEquals(
+                None,
+                self.mock_ups.arguments['get_experiment_uses'][1]
+            )
+        
+        self.assertEquals(
+                None,
+                self.mock_ups.arguments['get_experiment_uses'][2]
+            )
+        
+        self.assertEquals(
+                None,
+                self.mock_ups.arguments['get_experiment_uses'][3]
+            )
+        
+        self.assertEquals(
+                None,
+                self.mock_ups.arguments['get_experiment_uses'][4]
+            )
+    
+    def test_return_get_user_permissions(self):
+        expected_sess_id = {'id' : "whatever"}
+        permissions = _generate_permissions()
+    
+        self.mock_ups.return_values['get_user_permissions'] = permissions
+
+        self.assertEquals(
+                permissions,
+                self.rfm.get_user_permissions(expected_sess_id)
+            )
+        
+        self.assertEquals(
+                expected_sess_id['id'],
+                self.mock_ups.arguments['get_user_permissions'][0].id
             )
 
     def _generate_real_mock_raising(self, method, exception, message):
@@ -922,6 +965,7 @@ def _generate_two_experiments():
         )
     return experimentA, experimentB
 
+
 def _generate_experiments_allowed():
     experimentA, experimentB = _generate_two_experiments()
     exp_allowedA = ExperimentAllowed.ExperimentAllowed(
@@ -934,6 +978,7 @@ def _generate_experiments_allowed():
         )
     return exp_allowedA, exp_allowedB
 
+
 def _generate_groups():
     group1 = Group.Group("group 1")
     group11 = Group.Group("group 1.1")
@@ -942,6 +987,7 @@ def _generate_groups():
     group1.add_child(group11)
     group1.add_child(group12)
     return group1, group2
+
 
 def _generate_experiment_uses():
     exp1, exp2 = _generate_two_experiments()
@@ -965,7 +1011,17 @@ def _generate_experiment_uses():
             "pablo.ordunya@opendeusto.es",
             Role("student")),
         "unknown")
-    return use1, use2
+    return (use1, use2), 2
+    
+    
+def _generate_permissions():
+    p1 = Permission("experiment_allowed")
+    p1.add_parameter(PermissionParameter("experiment_name", "string", "ud-fpga"))
+    p1.add_parameter(PermissionParameter("experiment_category", "string", "FPGA experiments"))
+    p1.add_parameter(PermissionParameter("time_allowed", "float", "300"))
+    p2 = Permission("admin_panel_access")
+    p2.add_parameter(PermissionParameter("full_privileges", "bool", "300"))
+    return p1, p2
 
 
 def suite():

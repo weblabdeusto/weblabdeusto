@@ -14,11 +14,10 @@
 
 package es.deusto.weblab.client.admin.comm.callbacks;
 
-import java.util.ArrayList;
-
 import es.deusto.weblab.client.comm.callbacks.IWlAsyncCallback;
-import es.deusto.weblab.client.dto.users.Group;
+import es.deusto.weblab.client.dto.users.Permission;
 
-public interface IGroupsCallback extends IWlAsyncCallback {
-	public void onSuccess(ArrayList<Group> groups);	
+public interface IPermissionsCallback extends IWlAsyncCallback  {
+
+	public void onSuccess(Permission [] permissions);
 }

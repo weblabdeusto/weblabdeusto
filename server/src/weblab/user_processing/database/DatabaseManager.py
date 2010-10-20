@@ -31,19 +31,22 @@ class UserProcessingDatabaseManager(object):
     def store_experiment_usage(self, session_id, experiment_usage):
         return self._gateway.store_experiment_usage( session_id.username, experiment_usage )
     
-    def get_groups(self, session_id):
-        return self._gateway.get_groups( session_id.username )
+    def get_groups(self, session_id, parent_id=None):
+        return self._gateway.get_groups(session_id.username, parent_id)
     
     def get_roles(self, session_id):
         """ Retrieves every role (through the database gateway) """
-        return self._gateway.get_roles( )
+        return self._gateway.get_roles(session_id.username)
     
     def get_users(self, session_id):
         """ Retrieves the users (through the database gateway) """
-        return self._gateway.get_users( )
+        return self._gateway.get_users(session_id.username)
     
     def get_experiments(self, session_id):
-        return self._gateway.get_experiments( session_id.username )
+        return self._gateway.get_experiments(session_id.username)
     
-    def get_experiment_uses(self, session_id, from_date, to_date, group_id, experiment_id):
-        return self._gateway.get_experiment_uses( session_id.username, from_date, to_date, group_id, experiment_id )
+    def get_experiment_uses(self, session_id, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by ):
+        return self._gateway.get_experiment_uses( session_id.username, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by )
+    
+    def get_user_permissions(self, session_id):
+        return self._gateway.get_user_permissions( session_id.username )

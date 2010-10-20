@@ -21,10 +21,10 @@ class ExperimentUse(object):
         self.end_date   = end_date
         self.experiment = experiment
         self.agent      = agent # User or ExternalEntity
-        self.origin     = u"unknown"
+        self.origin     = origin
 
     def __repr__(self):
-        return u"ExperimentUse(id = %i, start_date = '%s', end_date = '%s', experiment = %r, agent = %r, origin = '%s')" % (
+        return u"ExperimentUse(id = %s, start_date = '%s', end_date = '%s', experiment = %r, agent = %r, origin = '%s')" % (
                 self.id,
                 self.start_date,
                 self.end_date,
