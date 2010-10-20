@@ -322,10 +322,13 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.assertEquals(0, experiment_uses_number )
 
     def test_get_experiment_uses_filtering_group_with_single_user(self):
+        groups = self._test_get_groups_with_permission(None)
+        mechatronics_class = groups[0].children[0]
+
         long_time_ago = datetime.datetime(2000, 1, 1)
         use_experiment_id = False
         # Group mechatronics has only student4
-        experiment_uses, experiment_uses_number = self._test_get_experiment_uses(long_time_ago, datetime.datetime.utcnow(), 2, use_experiment_id, 0, 50, ('start_date',))
+        experiment_uses, experiment_uses_number = self._test_get_experiment_uses(long_time_ago, datetime.datetime.utcnow(), mechatronics_class.id, use_experiment_id, 0, 50, ('start_date',))
         
         self.assertEquals(1, len(experiment_uses) )
         self.assertEquals(1, experiment_uses_number )
@@ -333,10 +336,13 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.assertEquals('student4',  experiment_uses[0].agent.login)
 
     def test_get_experiment_uses_filtering_group_with_single_user_parent_group(self):
+        groups = self._test_get_groups_with_permission(None)
+        parent_group = groups[0]
+
         long_time_ago = datetime.datetime(2000, 1, 1)
         use_experiment_id = False
         # Group mechatronics has only student2 and student4
-        experiment_uses, experiment_uses_number = self._test_get_experiment_uses(long_time_ago, datetime.datetime.utcnow(), 1, use_experiment_id, 0, 50, ('start_date',))
+        experiment_uses, experiment_uses_number = self._test_get_experiment_uses(long_time_ago, datetime.datetime.utcnow(), parent_group.id, use_experiment_id, 0, 50, ('start_date',))
         
         self.assertEquals(2, len(experiment_uses) )
         self.assertEquals(2, experiment_uses_number )
