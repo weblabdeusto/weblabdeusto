@@ -17,15 +17,35 @@ import unittest
 import mocker
 import test.unit.configuration as configuration_module
 
-import weblab.experiment.Util as ExperimentUtil
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
+
 import weblab.experiment.experiments.vm_experiment.VMExperiment as VMExperiment
 import weblab.experiment.experiments.vm_experiment.user_manager as user_manager
 import weblab.experiment.devices.vm.VirtualMachineDummy as VirtualMachineDummy
 
 from weblab.experiment.devices.vm.VirtualMachineManager import VirtualMachineManager
+from weblab.experiment.experiments.vm_experiment.user_manager.UserManager import UserManager
+
 from voodoo.override import Override
 
+class TestPermanentConfigError(user_manager.UserManager.PermanentConfigureError):
+    pass
+
+class TestTempConfigError(user_manager.UserManager.TemporaryConfigureError):
+    pass
+
+class TestUserManager(UserManager):
+    
+    def __init__(self, cfg_manager):
+            self.cfg = cfg_manager
+            self.except_to_raise = None
+            self.configure_called = 0
+    
+    def configure(self, sid):
+        self.configure_called += 1
+        if self.except_to_raise is not None:
+            raise self.except_to_raise
+        
 
 class TestVirtualMachine(VirtualMachineManager):
     
@@ -38,33 +58,28 @@ class TestVirtualMachine(VirtualMachineManager):
 
     @Override(VirtualMachineManager)
     def launch_vm(self):
-        print "wut"
         if not self.prepared:
-            print "VM has not been prepared"
+            pass
         else:
-            print "VM has been launched."
             self.launched = True
     
     @Override(VirtualMachineManager)
     def kill_vm(self):
-        print "VM has been killed."
         self.running = False
         self.launched = False     
         self.prepared = False
              
     @Override(VirtualMachineManager)
     def store_image_vm(self):
-        print "Storing VM image"
+        pass
     
     @Override(VirtualMachineManager)
     def is_alive_vm(self):
-        print "Checking whether it is alive"
-        return self.running
+        pass
     
     @Override(VirtualMachineManager)
     def prepare_vm(self):
             self.prepared = True
-            print "VM is now prepared."
 
 class VMExperimentTestCase(mocker.MockerTestCase):
                 
@@ -96,7 +111,6 @@ class VMExperimentTestCase(mocker.MockerTestCase):
     
     def test_init(self):
         """ Tests the ctor, using config-specified variables """
-        print "VERSION: ", __import__("sys").version_info
         cfg_manager = ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration_module)
         
@@ -106,12 +120,12 @@ class VMExperimentTestCase(mocker.MockerTestCase):
         self.assertTrue(vmexp.url.__contains__("127.0.0.1"))
         self.assertFalse(vmexp.should_store_image)
         self.assertEqual(vmexp.vm_type, "TestVirtualMachine")
-        self.assertEqual(vmexp.user_manager_type, "DummyUserManager")
+        self.assertEqual(vmexp.user_manager_type, "TestUserManager")
         
         vm = vmexp.vm
         um = vmexp.user_manager
         self.assertIs(type(vm), TestVirtualMachine)
-        self.assertIs(type(um), user_manager.DummyUserManager.DummyUserManager)
+        self.assertIs(type(um), TestUserManager)
         self.assertFalse(vmexp.is_ready)
         self.assertFalse(vmexp.is_error)
     
@@ -123,7 +137,7 @@ class VMExperimentTestCase(mocker.MockerTestCase):
         
         l = []
         s = set()
-        for i in range(100):
+        for i in range(100): #@UnusedVariable
             id = vmexp.generate_session_id()
             self.assertNotEqual(id, None)
             l.append(id)
@@ -133,7 +147,7 @@ class VMExperimentTestCase(mocker.MockerTestCase):
         self.assertEqual(len(l), len(s))
 
     
-    def test_do_start_experiment(self):
+    def test_standard_process(self):
         cfg_manager = ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration_module)
         
@@ -144,6 +158,8 @@ class VMExperimentTestCase(mocker.MockerTestCase):
     
         ret = vmexp.do_start_experiment()   
         self.assertEqual("Starting", ret)
+        
+        self.assertTrue(um.configure_called == 0)
     
         # Check that if we try again, it doesn't handle it the same way, but rather
         # tells us that it's already started or that it is still starting.    
@@ -151,12 +167,13 @@ class VMExperimentTestCase(mocker.MockerTestCase):
         self.assertTrue( ret.__contains__("Already") )
         
         # Wait until it is ready
-        while not vmexp.is_ready:
+        while not vmexp.is_ready and not vmexp.is_error:
             pass    # TODO: Consider Sleep()'ing here, or setting a timeout
         
         self.assertTrue(vm.launched)
         
-        # TODO: Check whether it was prepared properly through a custom UserManager.
+        self.assertTrue(um.configure_called > 0)
+        
         
         ret = vmexp.do_dispose()
         self.assertEqual("Disposing", ret)
@@ -167,6 +184,39 @@ class VMExperimentTestCase(mocker.MockerTestCase):
         self.assertFalse(vm.launched)
         self.assertFalse(vm.prepared)
         self.assertFalse(vm.running)
+
+
+    def test_config_permanent_raise(self):
+        cfg_manager = ConfigurationManager.ConfigurationManager()
+        cfg_manager.append_module(configuration_module)
+        
+        vmexp = VMExperiment.VMExperiment(None, None, cfg_manager) 
+        
+        vm = vmexp.vm
+        um = vmexp.user_manager
+        
+        excep = TestPermanentConfigError()
+        um.except_to_raise = excep
+        
+        vmexp.do_start_experiment()   
+    
+        while not vmexp.is_ready and not vmexp.is_error:
+            pass    # TODO: Consider Sleep()'ing here, or setting a timeout
+    
+        self.assertTrue(vmexp.error != None)
+        self.assertTrue(vmexp.is_error)
+        self.assertFalse(vmexp.is_ready)
+        self.assertIs(type(vmexp.error), TestPermanentConfigError)
+    
+        vmexp.do_dispose()
+        
+        while vmexp._dispose_t.isAlive():
+            pass
+        
+        self.assertFalse(vm.launched)
+        self.assertFalse(vm.prepared)
+        self.assertFalse(vm.running)
+        
         
 def suite():
     return unittest.makeSuite(VMExperimentTestCase)

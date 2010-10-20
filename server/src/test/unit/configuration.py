@@ -255,7 +255,7 @@ pic_http_server_app      = 'pic.cgi'
 
 vm_url = "rdp://127.0.0.1:8080"
 vm_vm_type = "TestVirtualMachine"
-vm_user_manager_type = "DummyUserManager"
+vm_user_manager_type = "TestUserManager"
 vm_should_store_image = False
 
 

@@ -143,8 +143,11 @@ class VMExperiment(Experiment.Experiment):
         self.vm.launch_vm()
         print "t_launched"
         self.setup()
-        self.is_ready = True
-        print "Ready now"
+        if self.is_error == True:
+            self.is_ready = False
+        else:
+            self.is_ready = True
+        
         
     #TODO: Consider whether this should indeed be threaded, and in that case, consider what would happen
     # if an experiment was started with this function still running, after dispose has returned.
@@ -196,9 +199,9 @@ class VMExperiment(Experiment.Experiment):
         for sc in subclasses:
             if sc.__name__ == name:
                 return sc
-            raise Exception("""Could not find an implementation for the specified User Manager. Make sure the
-                class name specified is not the fully-qualified one, and that it is present in the module's
-                __all__ list.""") 
+        raise Exception("""Could not find an implementation for the specified User Manager. Make sure the
+            class name specified is not the fully-qualified one, and that it is present in the module's
+            __all__ list.""") 
         
     
     def find_vm_manager(self, name):
