@@ -16,7 +16,6 @@ package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.vm;
 
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.ui.WlDeustoLogicBasedBoard;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.vm.ui.VMBoard;
 import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
