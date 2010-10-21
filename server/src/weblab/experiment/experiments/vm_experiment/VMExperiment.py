@@ -23,8 +23,8 @@ from voodoo.threaded import threaded
 
 # Those imports are required for the experiment to locate the config-specified classes dynamically.
 # It is known which classes to bring into the namespace through the __init__'s __all__
-from weblab.experiment.devices.vm import * #@UnusedWildImport
-from weblab.experiment.experiments.vm_experiment.user_manager import * #@UnusedWildImport
+import weblab.experiment.devices.vm.VirtualMachineManager as VirtualMachineManager
+import weblab.experiment.experiments.vm_experiment.user_manager.UserManager as UserManager
 
 DEBUG = True
 

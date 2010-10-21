@@ -13,6 +13,11 @@
 # Author: Luis Rodr�guez <luis.rodriguez@opendeusto.es>
 # 
 
+import VirtualMachineManager
+import VirtualMachineDummy
+import VirtualBox
 
+def _():
+    print VirtualMachineManager, VirtualMachineDummy, VirtualBox
 
 __all__ = ["VirtualMachineManager", "VirtualMachineDummy", "VirtualBox"]

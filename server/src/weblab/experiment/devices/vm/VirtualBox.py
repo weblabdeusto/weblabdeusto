@@ -41,4 +41,3 @@ class VirtualBox(VirtualMachineManager):
     def prepare_vm(self):
         pass
     
-    

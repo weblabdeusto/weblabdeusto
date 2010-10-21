@@ -28,7 +28,7 @@ class VirtualMachineDummy(VirtualMachineManager):
     
     @Override(VirtualMachineManager)
     def launch_vm(self):
-        if prepared and not running and not error:
+        if self.prepared and not self.running and not self.error:
             self.launched = True
         else:
             self.launched = False
@@ -51,5 +51,4 @@ class VirtualMachineDummy(VirtualMachineManager):
     def prepare_vm(self):
             self.prepared = True
         
-    
     

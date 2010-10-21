@@ -59,4 +59,3 @@ class VirtualMachineManager(object):
         shutil.copy(src, dst)
     
     
-        

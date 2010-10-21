@@ -23,4 +23,3 @@ class DummyUserManager(UserManager):
     def configure(self, sid):
         print "Configuring with sid %s" % (sid)
         
-        

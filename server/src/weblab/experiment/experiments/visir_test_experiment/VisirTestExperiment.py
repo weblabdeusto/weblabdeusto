@@ -20,9 +20,11 @@ import urllib2
 import urllib
 
 try:
-    import json
+    import json as json_mod
+    json = json_mod
 except ImportError:
-    import simplejson as json
+    import simplejson as json_module
+    json = json_module
 
 from voodoo.override import Override
 
