@@ -32,11 +32,13 @@ import com.smartgwt.client.data.Criteria;
 import com.smartgwt.client.data.Record;
 import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.types.DateDisplayFormat;
+import com.smartgwt.client.types.DragDataAction;
 import com.smartgwt.client.types.OperatorId;
 import com.smartgwt.client.types.Side;
 import com.smartgwt.client.types.VerticalAlignment;
 import com.smartgwt.client.widgets.Button;
 import com.smartgwt.client.widgets.Img;
+import com.smartgwt.client.widgets.TransferImgButton;
 import com.smartgwt.client.widgets.form.DynamicForm;
 import com.smartgwt.client.widgets.form.FormItemValueFormatter;
 import com.smartgwt.client.widgets.form.events.ItemChangedEvent;
@@ -65,6 +67,7 @@ import com.smartgwt.client.widgets.tab.Tab;
 import com.smartgwt.client.widgets.tab.TabSet;
 import com.smartgwt.client.widgets.tree.TreeGrid;
 
+import es.deusto.weblab.client.admin.comm.datasources.AuthsDataSource;
 import es.deusto.weblab.client.admin.comm.datasources.ExperimentUsesDataSource;
 import es.deusto.weblab.client.admin.comm.datasources.ExperimentsDataSource;
 import es.deusto.weblab.client.admin.comm.datasources.GroupsDataSource;
@@ -89,12 +92,16 @@ public class AdminPanelWindow extends BaseWindow {
 		public void onLogoutButtonClicked();
 	}
 	
+	
+	private static boolean DEVELOPMENT = false;
+	
 	// DataSources
 	private WebLabRestDataSource experimentUsesDS;
 	private WebLabRestDataSource experimentsDS;
 	private WebLabRestDataSource groupsDS;
 	private WebLabRestDataSource rolesDS;
 	private WebLabRestDataSource usersDS;
+	private WebLabRestDataSource authsDS;
 
 	// Widgets
 	@UiField VerticalPanel containerPanel;
@@ -148,6 +155,9 @@ public class AdminPanelWindow extends BaseWindow {
 
 		this.usersDS = new UsersDataSource(sessionId);
 		this.usersDS.initialize();
+		
+		this.authsDS = new AuthsDataSource(sessionId);
+		this.authsDS.initialize();
 
 		this.loadWidgets();
 	}
@@ -181,16 +191,20 @@ public class AdminPanelWindow extends BaseWindow {
 		this.tabSet.addTab(this.accessesTab);
 		this.buildAccessesLayout();
 		
-		/* Under development: uncommented to hide it in the production version
-		this.usersTab = new Tab("Users");				
-		this.usersLayout = new VLayout();
-		this.usersLayout.setWidth100();
-		this.usersLayout.setHeight100();		
-		this.usersLayout.setPadding(10);
-		this.usersLayout.setMembersMargin(15);		
-		this.usersTab.setPane(this.usersLayout);
-		this.tabSet.addTab(this.usersTab);
-		this.buildUsersLayout();*/
+		
+		if(DEVELOPMENT)
+		{
+			/* Under development: uncommented to hide it in the production version */
+			this.usersTab = new Tab("Users");				
+			this.usersLayout = new VLayout();
+			this.usersLayout.setWidth100();
+			this.usersLayout.setHeight100();		
+			this.usersLayout.setPadding(10);
+			this.usersLayout.setMembersMargin(15);		
+			this.usersTab.setPane(this.usersLayout);
+			this.tabSet.addTab(this.usersTab);
+			this.buildUsersLayout();
+		}
 		
 		this.smartGWTLayout.addMember(this.tabSet);	
 	}
@@ -495,14 +509,12 @@ public class AdminPanelWindow extends BaseWindow {
         saveChangesForm.setLayoutAlign(Alignment.RIGHT);
         saveChangesForm.setNumCols(1);
         final ButtonItem saveChangesIt = new ButtonItem("saveChanges", "Save Changes");
-        saveChangesIt.setAutoFit(true);
+        saveChangesIt.setAlign(Alignment.RIGHT);
+        saveChangesIt.setAutoFit(false);
         
         // If we don't set the value for the width, for some reason the button
         // appers in half, displaced to the left.
         saveChangesIt.setWidth(100);
-        
-        // Unfortunately this padding seems to actually have no effect. 
-        saveChangesForm.setCellPadding(50);
         
         saveChangesForm.setFields(saveChangesIt);
         
@@ -664,18 +676,38 @@ public class AdminPanelWindow extends BaseWindow {
         toRightLayout.setLayoutMargin(20);
         toLeftLayout.setLayoutMargin(20);
         
+        final ListGridField allowedField = new ListGridField("name", "Allowed");
         final ListGrid allowedList = new ListGrid();
+        allowedList.setCanDragRecordsOut(true);
+        allowedList.setCanAcceptDroppedRecords(true);
+        allowedList.setCanReorderFields(true);
+        allowedList.setDragDataAction(DragDataAction.MOVE);
         allowedList.setTitle("Allowed");
-        allowedList.setShowHeader(false);
+        allowedList.setShowHeader(true);
         allowedList.setShowEmptyMessage(false);
-        final ListGrid notAllowedList = new ListGrid();
-        notAllowedList.setShowHeader(false);
-        notAllowedList.setShowEmptyMessage(false);
+        allowedList.setFields(allowedField);
+        allowedList.setDataSource(this.authsDS);
+        allowedList.fetchData();
         
-        final Button allowButton = new Button("->");
+        System.out.println(allowedList.getDataAsRecordList().getLength());
+        
+        final ListGridField notAllowedField = new ListGridField("name", "Not allowed");
+        final ListGrid notAllowedList = new ListGrid();
+        notAllowedList.setCanDragRecordsOut(true);
+        notAllowedList.setCanAcceptDroppedRecords(true);
+        notAllowedList.setCanReorderFields(true);
+        notAllowedList.setDragDataAction(DragDataAction.MOVE);
+        notAllowedList.setShowHeader(true);
+        notAllowedList.setShowEmptyMessage(false);
+        notAllowedList.setFields(notAllowedField);
+        notAllowedList.setDataSource(this.authsDS);
+        notAllowedList.fetchData();
+        
+        //final Button allowButton = new Button("->");
+        final TransferImgButton allowButton = new TransferImgButton(TransferImgButton.RIGHT);
         allowButton.setSize("50", "20");
         allowButton.setValign(VerticalAlignment.BOTTOM);
-        final Button disallowButton = new Button("<-");
+        final TransferImgButton disallowButton = new TransferImgButton(TransferImgButton.LEFT);
         disallowButton.setSize("50", "20");
         toRightLayout.addMember(allowButton);
         toLeftLayout.addMember(disallowButton);
@@ -725,6 +757,33 @@ public class AdminPanelWindow extends BaseWindow {
 	        }
 		});
 		
+		// Handle User/Auths allowed and disallowed auths transfer
+		allowButton.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler()
+		{
+			@Override
+			public void onClick(
+					com.smartgwt.client.widgets.events.ClickEvent event) {
+				ListGridRecord record = allowedList.getSelectedRecord();
+				System.out.println(record);
+				System.out.println(record.getAttributeAsString("name"));
+				allowedList.invalidateCache();
+				allowedList.transferSelectedData(notAllowedList);
+			}
+		});
+		
+		disallowButton.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler()
+		{
+			@Override
+			public void onClick(
+					com.smartgwt.client.widgets.events.ClickEvent event) {
+				notAllowedList.invalidateCache();
+				notAllowedList.transferSelectedData(allowedList);
+			}
+		
+		});
+		
+		
+		
 		// Handle new user addition
 		addIt.addClickHandler(new ClickHandler() {
 			@Override
@@ -735,7 +794,7 @@ public class AdminPanelWindow extends BaseWindow {
 				AdminPanelWindow.this.usersUsersGrid.addData(newRec);
 			}
 		});
-		
+
 		// Handle selected user removal
 		remIt.addClickHandler(new ClickHandler() {
 			@Override
