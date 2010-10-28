@@ -30,6 +30,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.smartgwt.client.data.Criteria;
 import com.smartgwt.client.data.Record;
+import com.smartgwt.client.data.RecordList;
 import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.types.DateDisplayFormat;
 import com.smartgwt.client.types.DragDataAction;
@@ -71,6 +72,7 @@ import es.deusto.weblab.client.admin.comm.datasources.AuthsDataSource;
 import es.deusto.weblab.client.admin.comm.datasources.ExperimentUsesDataSource;
 import es.deusto.weblab.client.admin.comm.datasources.ExperimentsDataSource;
 import es.deusto.weblab.client.admin.comm.datasources.GroupsDataSource;
+import es.deusto.weblab.client.admin.comm.datasources.UserPermissionsDataSource;
 import es.deusto.weblab.client.admin.comm.datasources.RolesDataSource;
 import es.deusto.weblab.client.admin.comm.datasources.UsersDataSource;
 import es.deusto.weblab.client.admin.comm.datasources.WebLabRestDataSource;
@@ -102,6 +104,7 @@ public class AdminPanelWindow extends BaseWindow {
 	private WebLabRestDataSource rolesDS;
 	private WebLabRestDataSource usersDS;
 	private WebLabRestDataSource authsDS;
+	private WebLabRestDataSource userPermissionsDS;
 
 	// Widgets
 	@UiField VerticalPanel containerPanel;
@@ -158,6 +161,9 @@ public class AdminPanelWindow extends BaseWindow {
 		
 		this.authsDS = new AuthsDataSource(sessionId);
 		this.authsDS.initialize();
+		
+		this.userPermissionsDS = new UserPermissionsDataSource(sessionId);
+		this.userPermissionsDS.initialize();
 
 		this.loadWidgets();
 	}
@@ -293,7 +299,6 @@ public class AdminPanelWindow extends BaseWindow {
 		/*
 		 * Clear button
 		 */
-
 		final com.smartgwt.client.widgets.Button clearButton = new com.smartgwt.client.widgets.Button("Clear Filter"); // i18n
 		clearButton.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
 					@Override
@@ -627,8 +632,16 @@ public class AdminPanelWindow extends BaseWindow {
         final Button permissionRemoveButton = new Button("Remove");
         
         final DynamicForm permissionForm = new DynamicForm();
-        final TextItem permIdIt = new TextItem("permIdIt");
+        final TextItem permIdIt = new TextItem("PermissionType", "Permission Type");
         permissionForm.setFields(permIdIt);
+        
+
+        final ListGridField namePermissionsField = new ListGridField("permanent_id", "Permanent Id");
+        permissionsListGrid.setFields(namePermissionsField);
+        permissionsListGrid.setDataSource(this.userPermissionsDS);
+        //permissionsListGrid.fetchData();
+        
+        
         
         permissionsAddRemoveLayout.setLayoutMargin(10);
         //permissionsAddRemoveLayout.setBorder("2px solid navy");
@@ -644,6 +657,10 @@ public class AdminPanelWindow extends BaseWindow {
         
         permissionDetailsLayout.setSize("90%", "100%");
         permissionsListAndButtonsLayout.setSize("90%", "100%");
+        permissionsListAndButtonsLayout.setPadding(5);
+        permissionsListLayout.setPadding(5);
+
+    
         
         
         permissionsTab.setPane(permissionsLayout);
@@ -754,6 +771,16 @@ public class AdminPanelWindow extends BaseWindow {
 	        		avatarImg.setSrc("");
 	        		avatarImg.redraw();
 	        	}
+	        	
+	        	// Update user permissions
+	        	// TODO: Fix issue which causes the records in the grid to not be removed when a user is deleted.
+	        	if(userRec != null) {
+		        	final String userId = userRec.getAttributeAsString("id");
+		            final Criteria crit = new Criteria("user_id", userId);
+		            permissionsListGrid.filterData();
+	        	} else {
+	        		permissionsListGrid.clear();
+	        	}
 	        }
 		});
 		
@@ -764,10 +791,14 @@ public class AdminPanelWindow extends BaseWindow {
 			public void onClick(
 					com.smartgwt.client.widgets.events.ClickEvent event) {
 				ListGridRecord record = allowedList.getSelectedRecord();
-				System.out.println(record);
-				System.out.println(record.getAttributeAsString("name"));
-				allowedList.invalidateCache();
-				allowedList.transferSelectedData(notAllowedList);
+				if( record != null )
+				{
+					System.out.println(record);
+					System.out.println(record.getAttributeAsString("name"));
+					allowedList.invalidateCache();
+					allowedList.transferSelectedData(notAllowedList);
+				}
+
 			}
 		});
 		
@@ -776,8 +807,13 @@ public class AdminPanelWindow extends BaseWindow {
 			@Override
 			public void onClick(
 					com.smartgwt.client.widgets.events.ClickEvent event) {
-				notAllowedList.invalidateCache();
-				notAllowedList.transferSelectedData(allowedList);
+				
+				ListGridRecord record = notAllowedList.getSelectedRecord();
+				if( record != null )
+				{
+					notAllowedList.invalidateCache();
+					notAllowedList.transferSelectedData(allowedList);
+				}
 			}
 		
 		});
