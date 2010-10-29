@@ -8,11 +8,15 @@
 * This software consists of contributions made by many individuals, 
 * listed below:
 *
-* Author: FILLME
+* Author: Luis Rodriguez <luis.rodriguez@opendeusto.es>
 *
 */
 
 package es.deusto.weblab.client.admin.comm.datasources;
+
+
+// TODO: Not implemented, consider in fact deleting this.
+
 
 public class PermissionDetailsDataSource {
 

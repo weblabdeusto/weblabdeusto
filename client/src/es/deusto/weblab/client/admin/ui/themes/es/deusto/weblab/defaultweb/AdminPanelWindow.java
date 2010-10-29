@@ -30,7 +30,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.smartgwt.client.data.Criteria;
 import com.smartgwt.client.data.Record;
-import com.smartgwt.client.data.RecordList;
 import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.types.DateDisplayFormat;
 import com.smartgwt.client.types.DragDataAction;
@@ -72,9 +71,10 @@ import es.deusto.weblab.client.admin.comm.datasources.AuthsDataSource;
 import es.deusto.weblab.client.admin.comm.datasources.ExperimentUsesDataSource;
 import es.deusto.weblab.client.admin.comm.datasources.ExperimentsDataSource;
 import es.deusto.weblab.client.admin.comm.datasources.GroupsDataSource;
-import es.deusto.weblab.client.admin.comm.datasources.UserPermissionsDataSource;
 import es.deusto.weblab.client.admin.comm.datasources.RolesDataSource;
+import es.deusto.weblab.client.admin.comm.datasources.UserPermissionsDataSource;
 import es.deusto.weblab.client.admin.comm.datasources.UsersDataSource;
+import es.deusto.weblab.client.admin.comm.datasources.PermissionTypeDataSource;
 import es.deusto.weblab.client.admin.comm.datasources.WebLabRestDataSource;
 import es.deusto.weblab.client.admin.dto.ExperimentRecord;
 import es.deusto.weblab.client.admin.dto.ExperimentUseRecord;
@@ -105,6 +105,8 @@ public class AdminPanelWindow extends BaseWindow {
 	private WebLabRestDataSource usersDS;
 	private WebLabRestDataSource authsDS;
 	private WebLabRestDataSource userPermissionsDS;
+	private WebLabRestDataSource permissionTypeDS;
+	private WebLabRestDataSource permissionTypeParameterDS;
 
 	// Widgets
 	@UiField VerticalPanel containerPanel;
@@ -164,10 +166,13 @@ public class AdminPanelWindow extends BaseWindow {
 		
 		this.userPermissionsDS = new UserPermissionsDataSource(sessionId);
 		this.userPermissionsDS.initialize();
-
+		
+		this.permissionTypeDS = new PermissionTypeDataSource(sessionId);
+		this.permissionTypeDS.initialize();
+	
 		this.loadWidgets();
 	}
-
+		
 	public void init() {
 	}
 
@@ -741,6 +746,11 @@ public class AdminPanelWindow extends BaseWindow {
         
         
         //
+        // Development test
+        //
+        devT3est();
+        
+        //
         // Add callbacks
         // 
         
@@ -777,7 +787,7 @@ public class AdminPanelWindow extends BaseWindow {
 	        	if(userRec != null) {
 		        	final String userId = userRec.getAttributeAsString("id");
 		            final Criteria crit = new Criteria("user_id", userId);
-		            permissionsListGrid.filterData();
+		            permissionsListGrid.filterData(crit);
 	        	} else {
 	        		permissionsListGrid.clear();
 	        	}
@@ -852,6 +862,10 @@ public class AdminPanelWindow extends BaseWindow {
 					profileForm.saveData();
 			}
 			});
+	}
+
+	private void devT3est() {
+		
 	}
 
 	/**

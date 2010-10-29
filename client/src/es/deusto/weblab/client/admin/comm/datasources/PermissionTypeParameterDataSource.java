@@ -22,9 +22,13 @@ import com.smartgwt.client.types.DSProtocol;
 
 import es.deusto.weblab.client.dto.SessionID;
 
-public class PermissionTypesDataSource extends WebLabRestDataSource {
+/**
+ * DataSource for PermissionTypeParameter, the class which contains the parameters of each permission type,
+ * including its name and its type.
+ */
+public class PermissionTypeParameterDataSource extends WebLabRestDataSource {
 
-	public PermissionTypesDataSource(SessionID sessionId) {
+	public PermissionTypeParameterDataSource(SessionID sessionId) {
 		super(sessionId);
 	}
 	
@@ -39,10 +43,12 @@ public class PermissionTypesDataSource extends WebLabRestDataSource {
         final DataSourceIntegerField idField = new DataSourceIntegerField("id", "ID");  
         idField.setPrimaryKey(true);
         idField.setCanEdit(false);  
+        final DataSourceIntegerField permTypeIdField = new DataSourceIntegerField("permission_type_id", "permission_type_id"); 
         final DataSourceTextField nameDSField = new DataSourceTextField("name", "Name");
-        final DataSourceIntegerField descDSField = new DataSourceIntegerField("description", "Description");    
+        final DataSourceTextField dataTypeDSField = new DataSourceTextField("datatype", "Datatype");
+        final DataSourceTextField descDSField = new DataSourceTextField("description", "description");
         
-	    this.setFields(idField, nameDSField, descDSField);  
-	    this.setFetchDataURL("data/permission_types_fetch.js");
+	    this.setFields(idField, permTypeIdField, nameDSField, dataTypeDSField, descDSField);  
+	    this.setFetchDataURL("data/permission_type_parameter_fetch.js");
 	}
 }
