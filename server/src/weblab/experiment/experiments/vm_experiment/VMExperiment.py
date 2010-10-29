@@ -134,14 +134,17 @@ class VMExperiment(Experiment.Experiment):
         Executed on a work thread, will prepare the VM for use, and unless an exception is raised, 
         will not return until it's fully ready (and then it will set the is_ready attribute). 
         """
-        print "t_starting"
+        if DEBUG:
+            print "t_starting"
         self.session_id = self.generate_session_id()
         self.vm.prepare_vm()
-        print "t_prepared"
-        print type(self.vm)
-        print self.vm_type
+        if DEBUG:
+            print "t_prepared"
+            print type(self.vm)
+            print self.vm_type
         self.vm.launch_vm()
-        print "t_launched"
+        if DEBUG:
+            print "t_launched"
         self.setup()
         if self.is_error == True:
             self.is_ready = False
@@ -163,23 +166,20 @@ class VMExperiment(Experiment.Experiment):
         
     def setup(self):
         """ Configures the VM """
-        done = False
-        while(not done):
+        while True:
             try:
                 self.user_manager.configure(self.session_id)
-                done = True
-            except Exception, ex:
-                if type(ex) == UserManager.PermanentConfigureError:
-                    self.is_error = True
-                    self.error = ex
-                    done = True
-                elif type(ex) == UserManager.TemporaryConfigureError:
-                    pass
-                else:
-                    done = True
-                    self.is_error = True
-                    self.error = ex
-                    
+                break
+            except UserManager.PermanentConfigureError, ex:
+                self.is_error = True
+                self.error = ex
+                break
+            except UserManager.TemporaryConfigureError:
+                pass
+            except Exception, e:
+                self.is_error = True
+                self.error = ex
+                return
                 
 
     

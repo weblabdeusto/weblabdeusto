@@ -17,11 +17,16 @@ import unittest
 import mocker
 import weblab.experiment.devices.vm.VirtualMachineManager as VirtualMachineManager
 
+import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import test.unit.configuration as configuration_module
 
 class VirtualMachineManagerTestCase(mocker.MockerTestCase):
                 
     def setUp(self):
-        self.vmm = VirtualMachineManager.VirtualMachineManager(None)
+        cfg_manager = ConfigurationManager.ConfigurationManager()
+        cfg_manager.append_module(configuration_module)
+
+        self.vmm = VirtualMachineManager.VirtualMachineManager(cfg_manager)
 
     def tearDown(self):
         pass
