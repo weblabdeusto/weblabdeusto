@@ -5,7 +5,7 @@
 		if you want to distribute it.  This isn't needed for normal operation.
 	</description>
 
-    <property name="client.project.directory" location="../../../../client/"/>
+    <property name="client.project.directory" location="../../../../../client/"/>
     <property name="client.public.directory" location="${client.project.directory}/src/es/deusto/weblab/public/"/>
     <property name="swf.name" value="WeblabFlashSample.swf" />
 

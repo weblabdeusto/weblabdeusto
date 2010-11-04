@@ -15,7 +15,7 @@
 		<pathelement path="libs/plugin.jar"/>
 	</path>
 
-    <property name="client.project.directory" location="../../../../client/"/>
+    <property name="client.project.directory" location="../../../../../client/"/>
     <property name="client.public.directory" location="${client.project.directory}/src/es/deusto/weblab/public/"/>
     <property name="jar.name" value="WeblabJavaSample.jar" />
 
