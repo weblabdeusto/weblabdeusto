@@ -8,7 +8,10 @@ using System.DirectoryServices.AccountManagement;
 namespace WebLab.VM.WindowsRDP
 {
 
-
+    /// <summary>
+    /// Provides straightforward facilities for the account management
+    /// that we require.
+    /// </summary>
     public class AccountsManager : IDisposable
     {
         private PrincipalContext mPrincipalContext;

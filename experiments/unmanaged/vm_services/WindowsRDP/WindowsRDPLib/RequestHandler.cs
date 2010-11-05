@@ -6,6 +6,10 @@ using System.DirectoryServices.AccountManagement;
 
 namespace WebLab.VM.WindowsRDP
 {
+
+    /// <summary>
+    /// Handles specific HTTP requests
+    /// </summary>
     public class RequestHandler
     {
         private HttpListenerContext context;

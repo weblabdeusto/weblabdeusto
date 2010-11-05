@@ -4,14 +4,31 @@ using System.Diagnostics;
 
 namespace WebLab.VM.WindowsRDP
 {
+
+    /// <summary>
+    /// Listens for HTTP requests according to the ListenerPrefix
+    /// and handles them.
+    /// </summary>
     public class RequestsListener
     {
+        public string ListenerPrefix { get; set; }
+
+        public RequestsListener()
+        {
+            ListenerPrefix = "http://*:6789/";
+        }
+
+        public RequestsListener(string prefix)
+        {
+            ListenerPrefix = prefix;
+        }
+
         public void Run()
         {
             Trace.WriteLine("Starting Windows RDP VM Service");
 
             HttpListener listener = new HttpListener();
-            listener.Prefixes.Add("http://*:6789/");
+            listener.Prefixes.Add(ListenerPrefix);
             listener.Start();
 
             while (true)

@@ -2,6 +2,7 @@
 using System;
 using System.Net;
 using System.Diagnostics;
+using System.Configuration;
 
 
 namespace WebLab.VM.WindowsRDP
@@ -11,6 +12,7 @@ namespace WebLab.VM.WindowsRDP
 		public static void Main(string[] args)
 		{
             InitializeLogSystem();
+
             Program program = new Program();
             program.Run();
 		}
@@ -23,7 +25,8 @@ namespace WebLab.VM.WindowsRDP
 
         public void Run()
         {
-            RequestsListener listener = new RequestsListener();
+            var prefix = ConfigurationManager.AppSettings["request_prefix"];
+            RequestsListener listener = new RequestsListener(prefix);
             listener.Run();
         }
 	}
