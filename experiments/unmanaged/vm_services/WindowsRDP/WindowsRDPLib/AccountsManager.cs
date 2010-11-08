@@ -10,8 +10,7 @@ namespace WebLab.VM.WindowsRDP
 
     /// <summary>
     /// Provides straightforward facilities for the account management
-    /// that we require. User should make sure that AccountsManager 
-    /// objects ARE disposed.
+    /// that we require.
     /// </summary>
     public class AccountsManager : IDisposable
     {
@@ -30,18 +29,8 @@ namespace WebLab.VM.WindowsRDP
             return principal;
         }
 
-        public AccountsManager(string admin_acc, string admin_pwd)
+        public AccountsManager()
         {
-            //mPrincipalContext = new PrincipalContext(ContextType.Machine, null, admin_acc, admin_pwd);
-
-            //// We need to separatedly validate the credentials
-            //bool success = mPrincipalContext.ValidateCredentials(admin_acc, admin_pwd);
-
-            //if (!success)
-            //{                
-            //    mPrincipalContext.Dispose();
-            //    throw new Exception("Could not validate credentials");
-            //}
             mPrincipalContext = new PrincipalContext(ContextType.Machine);
 
             Validated = true;
@@ -55,16 +44,8 @@ namespace WebLab.VM.WindowsRDP
 
             Trace.WriteLine("Trying to set password... ");
             user.SetPassword(pwd);
-            user.Dispose();
             Trace.WriteLine("done.");
         }
-
-        //public void CreateAccount(string acc, string pwd)
-        //{
-        //    var user = new UserPrincipal(mPrincipalContext, acc, pwd, true);
-        //    user.Save();
-        //    user.Dispose();
-        //}
 
         public void Dispose()
         {

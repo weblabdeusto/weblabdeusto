@@ -15,10 +15,10 @@ namespace WebLab.VM.WindowsRDP
 
         private AccountsManager mAccountsManager;
 
-        public RequestsListener(string prefix, AccountsManager accountsManager)
+        public RequestsListener(string prefix)
         {
             ListenerPrefix = prefix;
-            mAccountsManager = accountsManager;
+            mAccountsManager = new AccountsManager();
         }
 
         public void Run()

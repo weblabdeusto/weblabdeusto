@@ -33,14 +33,10 @@ namespace WebLab.VM.WindowsRDP
         public void Run()
         {
             var prefix = "";
-            var acc = "";
-            var pwd = "";
 
             try
             {
                 prefix = ConfigurationManager.AppSettings["request_prefix"];
-                acc = ConfigurationManager.AppSettings["admin_account"];
-                pwd = ConfigurationManager.AppSettings["admin_password"];
             }
             catch (Exception e)
             {
@@ -48,17 +44,14 @@ namespace WebLab.VM.WindowsRDP
                 return;
             }
 
-            if (prefix == "" || acc == "" || pwd == "")
+            if (prefix == "")
             {
-                Trace.WriteLine("request_prefix, admin_account and admin_password configuration variables must all be specified");
+                Trace.WriteLine("request_prefix config variable must be specified");
                 return;
             }
 
-            using (AccountsManager accountsManager = new AccountsManager(acc, pwd))
-            {
-                RequestsListener listener = new RequestsListener(prefix, accountsManager);
-                listener.Run();
-            }
+            RequestsListener listener = new RequestsListener(prefix);
+            listener.Run();
         }
 	}
 }

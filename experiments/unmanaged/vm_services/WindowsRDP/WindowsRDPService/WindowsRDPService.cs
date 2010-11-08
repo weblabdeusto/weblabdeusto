@@ -16,8 +16,6 @@ namespace WebLab.VM.WindowsRDP
         private RequestsListener mListener;
         private Thread mListenerThread;
 
-        private string mAdminAccount = "";
-        private string mAdminPassword = "";
         private string mPrefix = "";
 
         public WindowsRDPService()
@@ -30,22 +28,20 @@ namespace WebLab.VM.WindowsRDP
             try
             {
                 mPrefix = ConfigurationManager.AppSettings["request_prefix"];
-                mAdminAccount = ConfigurationManager.AppSettings["admin_account"];
-                mAdminPassword = ConfigurationManager.AppSettings["admin_password"];
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Trace.WriteLine("Could not read the required configuration variables");
+                Trace.WriteLine("Could not read the required configuration variables: " + ex.Message);
                 return;
             }
 
-            if (mPrefix == "" || mAdminAccount == "" || mAdminPassword == "")
+            if (mPrefix == "")
             {
-                Trace.WriteLine("request_prefix, admin_account and admin_password configuration variables must all be specified");
+                Trace.WriteLine("request_prefix must be specified");
                 return;
             }
 
-            Trace.WriteLine(String.Format("Admin Acc: {0}\nAdmin Pass: {1}\nPrefix: {2}", mAdminAccount, mAdminPassword, mPrefix));
+            Trace.WriteLine(String.Format("Prefix: {0}", mPrefix));
         }
 
 
@@ -53,11 +49,8 @@ namespace WebLab.VM.WindowsRDP
         {
             try
             {
-                using (AccountsManager accsManager = new AccountsManager(mAdminAccount, mAdminPassword))
-                {
-                    mListener = new RequestsListener(mPrefix, accsManager);
-                    mListener.Run();
-                }
+                mListener = new RequestsListener(mPrefix);
+                mListener.Run();
             }
             catch (Exception e)
             {
