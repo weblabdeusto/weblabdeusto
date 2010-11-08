@@ -12,16 +12,18 @@ namespace WebLab.VM.WindowsRDP
     /// </summary>
     public class RequestHandler
     {
-        private HttpListenerContext context;
+        private HttpListenerContext mContext;
+        private AccountsManager mAccountsManager;
 
         /// <summary>
         /// Create a new Handler object, which will handle the received HTTP
         /// requests.
         /// </summary>
         /// <param name="ctx">Reference to the HttpListenerContext to handle.</param>
-        public RequestHandler(HttpListenerContext ctx)
+        public RequestHandler(HttpListenerContext ctx, AccountsManager accountsManager)
         {
-            context = ctx;
+            mContext = ctx;
+            mAccountsManager = accountsManager;
         }
 
         /// <summary>
@@ -30,15 +32,19 @@ namespace WebLab.VM.WindowsRDP
         public void ProcessRequest()
         {
             // Write the request we received to console for debugging purposeses.
-            string info = "Request: " + context.Request.HttpMethod + " " + context.Request.Url;
+            string info = "Request: " + mContext.Request.HttpMethod + " " + mContext.Request.Url;
             Trace.WriteLine(info);
 
             // Retrieve the session id from the request, which will be used as password.
-            string sessionid = context.Request.QueryString["sessionid"];
+            string sessionid = mContext.Request.QueryString["sessionid"];
+            if (sessionid == null || sessionid == "")
+            {
+                Trace.WriteLine("Received session id is not valid");
+                return;
+            }
 
             // Change the password of the weblab user
-            AccountsManager accManager = new AccountsManager("", "");
-            accManager.SetPassword("weblab", sessionid);
+            mAccountsManager.SetPassword("weblab", sessionid);
         }
     }
 

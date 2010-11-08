@@ -13,37 +13,41 @@ namespace WebLab.VM.WindowsRDP
     {
         public string ListenerPrefix { get; set; }
 
-        public RequestsListener()
-        {
-            ListenerPrefix = "http://*:6789/";
-        }
+        private AccountsManager mAccountsManager;
 
-        public RequestsListener(string prefix)
+        public RequestsListener(string prefix, AccountsManager accountsManager)
         {
             ListenerPrefix = prefix;
+            mAccountsManager = accountsManager;
         }
 
         public void Run()
         {
-            Trace.WriteLine("Starting Windows RDP VM Service");
-
-            HttpListener listener = new HttpListener();
-            listener.Prefixes.Add(ListenerPrefix);
-            listener.Start();
-
-            while (true)
+            try
             {
-                try
+                Trace.WriteLine("Starting Windows RDP VM Service");
+
+                HttpListener listener = new HttpListener();
+                listener.Prefixes.Add(ListenerPrefix);
+                listener.Start();
+
+                while (true)
                 {
-                    HttpListenerContext ctx = listener.GetContext();
-                    RequestHandler handler = new RequestHandler(ctx);
-                    handler.ProcessRequest();
+                    try
+                    {
+                        HttpListenerContext ctx = listener.GetContext();
+                        RequestHandler handler = new RequestHandler(ctx, mAccountsManager);
+                        handler.ProcessRequest();
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.WriteLine("Exception caught: " + ex.Message + "\n" + ex.StackTrace);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    Trace.WriteLine("Exception caught: ");
-                    Trace.WriteLine(ex.Message);
-                }
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine("Exception caught @ run: " + e.Message);
             }
         }
     }
