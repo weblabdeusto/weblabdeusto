@@ -8,7 +8,7 @@
     <ProjectGuid>{9ACC6758-0BEE-40D5-AC60-D3F1A3234EAA}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WindowsRDPService</RootNamespace>
+    <RootNamespace>WindowsVNCService</RootNamespace>
     <AssemblyName>WindowsRDPService</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
@@ -53,11 +53,11 @@
     <Compile Include="Installer.Designer.cs">
       <DependentUpon>Installer.cs</DependentUpon>
     </Compile>
-    <Compile Include="WindowsRDPService.cs">
+    <Compile Include="WindowsVNCService.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="WindowsRDPService.Designer.cs">
-      <DependentUpon>WindowsRDPService.cs</DependentUpon>
+    <Compile Include="WindowsVNCService.Designer.cs">
+      <DependentUpon>WindowsVNCService.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -66,8 +66,8 @@
     <EmbeddedResource Include="Installer.resx">
       <DependentUpon>Installer.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="WindowsRDPService.resx">
-      <DependentUpon>WindowsRDPService.cs</DependentUpon>
+    <EmbeddedResource Include="WindowsVNCService.resx">
+      <DependentUpon>WindowsVNCService.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Configuration;
 
 
-namespace WebLab.VM.WindowsRDP
+namespace WebLab.VM.WindowsVNC
 {
 	class Program
 	{
@@ -22,10 +22,10 @@ namespace WebLab.VM.WindowsRDP
             TextWriterTraceListener traceListener = new TextWriterTraceListener(System.Console.Out);
             System.Diagnostics.Trace.Listeners.Add(traceListener);
 
-            if(!EventLog.SourceExists("Weblab WinRDP"))
-                EventLog.CreateEventSource("Weblab WinRDP", "Weblab Log");
+            if(!EventLog.SourceExists("Weblab WinVNC"))
+                EventLog.CreateEventSource("Weblab WinVNC", "Weblab Log");
             EventLog evLog = new EventLog("Weblab Log");
-            evLog.Source = "Weblab WinRDP";
+            evLog.Source = "Weblab WinVNC";
             EventLogTraceListener evTraceListener = new EventLogTraceListener(evLog);
             System.Diagnostics.Trace.Listeners.Add(evTraceListener);
         }
@@ -33,10 +33,12 @@ namespace WebLab.VM.WindowsRDP
         public void Run()
         {
             var prefix = "";
+            var ultravnc_path = "";
 
             try
             {
                 prefix = ConfigurationManager.AppSettings["request_prefix"];
+                ultravnc_path = ConfigurationManager.AppSettings["ultravnc_path"];
             }
             catch (Exception e)
             {
@@ -50,7 +52,7 @@ namespace WebLab.VM.WindowsRDP
                 return;
             }
 
-            RequestsListener listener = new RequestsListener(prefix);
+            RequestsListener listener = new RequestsListener(prefix, ultravnc_path);
             listener.Run();
         }
 	}

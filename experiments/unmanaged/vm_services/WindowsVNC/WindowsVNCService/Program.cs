@@ -5,7 +5,7 @@ using System.ServiceProcess;
 using System.Text;
 using System.Diagnostics;
 
-namespace WebLab.VM.WindowsRDP
+namespace WebLab.VM.WindowsVNC
 {
     static class Program
     {
@@ -15,12 +15,12 @@ namespace WebLab.VM.WindowsRDP
         static void Main()
         {
             InitializeLogSystem();
-            Trace.WriteLine("Registering WindowsRDP Service");
+            Trace.WriteLine("Registering WindowsVNC Service");
 
             ServiceBase[] ServicesToRun;
             ServicesToRun = new ServiceBase[] 
 			{ 
-				new WindowsRDPService() 
+				new WindowsVNCService() 
 			};
             ServiceBase.Run(ServicesToRun);
         }

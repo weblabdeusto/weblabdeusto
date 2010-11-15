@@ -16,9 +16,10 @@ namespace WebLab.VM.WindowsVNC
 
         private UltraVNCManager mUVNCManager;
 
-        public RequestsListener(string prefix)
+        public RequestsListener(string prefix, string ultravnc_path)
         {
             ListenerPrefix = prefix;
+            UltraVNCPath = ultravnc_path;
             mUVNCManager = new UltraVNCManager(UltraVNCPath);
         }
 

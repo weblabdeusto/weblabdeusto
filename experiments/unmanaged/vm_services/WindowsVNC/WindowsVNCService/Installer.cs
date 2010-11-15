@@ -6,7 +6,7 @@ using System.Configuration.Install;
 using System.Linq;
 
 
-namespace WindowsRDPService
+namespace WindowsVNCService
 {
     [RunInstaller(true)]
     public partial class Installer : System.Configuration.Install.Installer

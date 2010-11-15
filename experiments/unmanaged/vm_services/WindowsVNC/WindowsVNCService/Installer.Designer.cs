@@ -1,4 +1,4 @@
-﻿namespace WindowsRDPService
+﻿namespace WindowsVNCService
 {
     partial class Installer
     {
