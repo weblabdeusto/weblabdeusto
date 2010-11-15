@@ -1,4 +1,8 @@
-﻿@echo off
+﻿
+@echo off
+
+@setlocal enableextensions
+@cd /d "%~dp0"
 
 REM The following directory is for .NET 2.0
 set DOTNETFX2=%SystemRoot%\Microsoft.NET\Framework\v2.0.50727
@@ -10,7 +14,7 @@ set PATH=%PATH%;%DOTNETFX4%
 
 echo Uninstalling Weblab Windows RDP Service...
 echo ---------------------------------------------------
-InstallUtil /i WindowsRDPService.exe
+InstallUtil /u WindowsRDPService.exe
 echo ---------------------------------------------------
 echo Done.
 pause
