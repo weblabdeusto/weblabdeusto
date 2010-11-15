@@ -2,7 +2,7 @@
 using System.Net;
 using System.Diagnostics;
 
-namespace WebLab.VM.WindowsRDP
+namespace WebLab.VM.WindowsVNC
 {
 
     /// <summary>
@@ -12,20 +12,21 @@ namespace WebLab.VM.WindowsRDP
     public class RequestsListener
     {
         public string ListenerPrefix { get; set; }
+        public string UltraVNCPath { get; set; }
 
-        private AccountsManager mAccountsManager;
+        private UltraVNCManager mUVNCManager;
 
         public RequestsListener(string prefix)
         {
             ListenerPrefix = prefix;
-            mAccountsManager = new AccountsManager();
+            mUVNCManager = new UltraVNCManager(UltraVNCPath);
         }
 
         public void Run()
         {
             try
             {
-                Trace.WriteLine("Starting Windows RDP VM Service");
+                Trace.WriteLine("Starting Windows VNC VM Service");
 
                 HttpListener listener = new HttpListener();
                 listener.Prefixes.Add(ListenerPrefix);
@@ -36,7 +37,7 @@ namespace WebLab.VM.WindowsRDP
                     try
                     {
                         HttpListenerContext ctx = listener.GetContext();
-                        RequestHandler handler = new RequestHandler(ctx, mAccountsManager);
+                        RequestHandler handler = new RequestHandler(ctx, mUVNCManager);
                         handler.ProcessRequest();
                     }
                     catch (Exception ex)

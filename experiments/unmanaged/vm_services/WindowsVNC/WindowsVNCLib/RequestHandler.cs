@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.DirectoryServices.AccountManagement;
 
 
-namespace WebLab.VM.WindowsRDP
+namespace WebLab.VM.WindowsVNC
 {
 
     /// <summary>
@@ -13,17 +13,17 @@ namespace WebLab.VM.WindowsRDP
     public class RequestHandler
     {
         private HttpListenerContext mContext;
-        private AccountsManager mAccountsManager;
+        private UltraVNCManager mUVNCManager;
 
         /// <summary>
         /// Create a new Handler object, which will handle the received HTTP
         /// requests.
         /// </summary>
         /// <param name="ctx">Reference to the HttpListenerContext to handle.</param>
-        public RequestHandler(HttpListenerContext ctx, AccountsManager accountsManager)
+        public RequestHandler(HttpListenerContext ctx, UltraVNCManager accountsManager)
         {
             mContext = ctx;
-            mAccountsManager = accountsManager;
+            mUVNCManager = accountsManager;
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace WebLab.VM.WindowsRDP
             }
 
             // Change the password of the weblab user
-            mAccountsManager.SetPassword("weblab", sessionid);
+            mUVNCManager.SetPassword(sessionid);
         }
     }
 
