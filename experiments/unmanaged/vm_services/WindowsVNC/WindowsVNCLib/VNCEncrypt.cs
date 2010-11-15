@@ -56,6 +56,9 @@ namespace WebLab.VM.WindowsVNC
          */
         public static void load()
         {
+            if (loaded)
+                return;
+
             loaded = true;
 
             generateIP();
