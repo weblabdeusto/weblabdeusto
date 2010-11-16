@@ -45,6 +45,7 @@ namespace WebLab.VM.WindowsVNC
 
             // Change the password of the weblab user
             mUVNCManager.SetPassword(sessionid);
+            mUVNCManager.Restart();
         }
     }
 

@@ -31,10 +31,10 @@ namespace WebLab.VM.WindowsVNC
             TextWriterTraceListener textWriter = new TextWriterTraceListener("WeblabWinRDP.log");
             System.Diagnostics.Trace.Listeners.Add(textWriter);
 
-            if (!EventLog.SourceExists("Weblab WinRDP"))
-                EventLog.CreateEventSource("Weblab WinRDP", "Weblab Log");
+            if (!EventLog.SourceExists("Weblab WinVNC"))
+                EventLog.CreateEventSource("Weblab WinVNC", "Weblab Log");
             EventLog evLog = new EventLog("Weblab Log");
-            evLog.Source = "Weblab WinRDP";
+            evLog.Source = "Weblab WinVNC";
             EventLogTraceListener evTraceListener = new EventLogTraceListener(evLog);
             System.Diagnostics.Trace.Listeners.Add(evTraceListener);
         }

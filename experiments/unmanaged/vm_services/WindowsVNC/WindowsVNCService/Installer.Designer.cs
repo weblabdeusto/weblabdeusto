@@ -1,4 +1,6 @@
-﻿namespace WindowsVNCService
+﻿
+
+namespace WindowsVNCService
 {
     partial class Installer
     {
@@ -39,10 +41,10 @@
             // 
             // serviceInstaller
             // 
-            this.serviceInstaller.Description = "The WebLab Windows RDP service will listen for HTTP requests and change the passw" +
+            this.serviceInstaller.Description = "The WebLab Windows VNC service will listen for HTTP requests and change the passw" +
                 "ord of the weblab account accordingly";
-            this.serviceInstaller.DisplayName = "Weblab Windows RDP Service";
-            this.serviceInstaller.ServiceName = "Weblab Windows RDP Service";
+            this.serviceInstaller.DisplayName = "Weblab Windows VNC Service";
+            this.serviceInstaller.ServiceName = "Weblab Windows VNC Service";
             // 
             // Installer
             // 

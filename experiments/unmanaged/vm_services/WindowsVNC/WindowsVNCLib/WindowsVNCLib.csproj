@@ -8,8 +8,8 @@
     <ProjectGuid>{538A9F3A-08AB-4827-B9BF-07866EB21D24}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WindowsRDPLib</RootNamespace>
-    <AssemblyName>WindowsRDPLib</AssemblyName>
+    <RootNamespace>WindowsVNCLib</RootNamespace>
+    <AssemblyName>WindowsVNCLib</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -34,6 +34,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.DirectoryServices.AccountManagement" />
+    <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
