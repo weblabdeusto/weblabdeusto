@@ -17,7 +17,7 @@ namespace WebLab.VM.WindowsVNC
     public class UltraVNCManager : IDisposable
     {
         private const string UVNCServiceName = "uvnc_service";
-        private const int ServiceOpTimeout = 5000;
+        private const int ServiceOpTimeout = 20000;
 
         /// <summary>
         /// Standard DES key
@@ -66,17 +66,22 @@ namespace WebLab.VM.WindowsVNC
         /// <summary>
         /// Restarts the specified service, using ServiceOpTimeout as timeout for 
         /// individual service operations. Throws an Exception if not succesful.
+        /// Starts it if it isn't already running.
         /// </summary>
         /// <param name="serviceName"></param>
         private static void RestartService(string serviceName)
         {
             ServiceController service = new ServiceController(serviceName);
+
             try
             {
                 TimeSpan timeout = TimeSpan.FromMilliseconds(ServiceOpTimeout);
 
-                service.Stop();
-                service.WaitForStatus(ServiceControllerStatus.Stopped, timeout);
+                if (service.Status == ServiceControllerStatus.Running)
+                {
+                    service.Stop();
+                    service.WaitForStatus(ServiceControllerStatus.Stopped, timeout);
+                }
 
                 service.Start();
                 service.WaitForStatus(ServiceControllerStatus.Running, timeout);

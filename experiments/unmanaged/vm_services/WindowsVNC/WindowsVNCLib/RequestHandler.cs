@@ -2,6 +2,7 @@
 using System.Net;
 using System.Diagnostics;
 using System.DirectoryServices.AccountManagement;
+using System.IO;
 
 
 namespace WebLab.VM.WindowsVNC
@@ -31,21 +32,39 @@ namespace WebLab.VM.WindowsVNC
         /// </summary>
         public void ProcessRequest()
         {
-            // Write the request we received to console for debugging purposeses.
-            string info = "Request: " + mContext.Request.HttpMethod + " " + mContext.Request.Url;
-            Trace.WriteLine(info);
+            var respWriter = new StreamWriter(mContext.Response.OutputStream);
 
-            // Retrieve the session id from the request, which will be used as password.
-            string sessionid = mContext.Request.QueryString["sessionid"];
-            if (sessionid == null || sessionid == "")
+            try
             {
-                Trace.WriteLine("Received session id is not valid");
-                return;
-            }
+                // Write the request we received to console for debugging purposeses.
+                string info = "Request: " + mContext.Request.HttpMethod + " " + mContext.Request.Url;
+                Trace.WriteLine(info);
 
-            // Change the password of the weblab user
-            mUVNCManager.SetPassword(sessionid);
-            mUVNCManager.Restart();
+                // Retrieve the session id from the request, which will be used as password.
+                string sessionid = mContext.Request.QueryString["sessionid"];
+                if (sessionid == null || sessionid == "")
+                {
+                    Trace.WriteLine("Received session id is not valid");
+                    return;
+                }
+
+                // Change the password of the weblab user
+                mUVNCManager.SetPassword(sessionid);
+                mUVNCManager.Restart();
+
+                respWriter.WriteLine("Done");
+            }
+            catch (Exception ex)
+            {
+                var msg = "Exception caught: " + ex.Message;
+                Trace.WriteLine(msg);
+
+                respWriter.WriteLine("Failed");
+            }
+            finally
+            {
+                respWriter.Close();
+            }
         }
     }
 
