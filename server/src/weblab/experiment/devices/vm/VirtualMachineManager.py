@@ -21,7 +21,7 @@ import datetime
 VM_DISKS_TO_SAVE_NAME          = 'vm_disks_to_save_name'
 VM_DISKS_TO_SAVE_DEFAULT_VALUE = []
 
-VM_STORAGE_DIR_NAME = "vbox_storage_dir"
+VM_STORAGE_DIR_NAME = "vm_storage_dir"
 VM_STORAGE_DIR_DEFAULT_VALUE = "/tmp/"
 
 VM_DISKS_TO_PREPARE_NAME = 'vm_prepare_name' # A dictionary like { '/home/nctrun/.virtualbox/image.vdi', '/usr/local/weblab/original_vms/image.vdi' }

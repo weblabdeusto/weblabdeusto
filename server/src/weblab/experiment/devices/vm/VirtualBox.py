@@ -35,7 +35,7 @@ class VirtualBox(VirtualMachineManager):
 
     @Override(VirtualMachineManager)
     def launch_vm(self):
-        process = subprocess.Popen([self.vboxmanage,'-startvm',self.vm_name])
+        process = subprocess.Popen([self.vboxmanage,'startvm',self.vm_name])
         process.wait()
     
     @Override(VirtualMachineManager)
