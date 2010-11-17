@@ -10,7 +10,7 @@ import time
 import libraries
 import MySQLdb
 import weblab.database.Model as Model
-import weblab.user_processing.coordinator.dao as dao
+import weblab.user_processing.coordinator.CoordinatorModel as CoordinatorModel
 
 import voodoo.sessions.DbLockData as DbLockData
 import voodoo.sessions.SessionSqlalchemyData as SessionSqlalchemyData
@@ -544,7 +544,9 @@ print "Populating 'WebLabCoordination' database...\t",
 
 engine = create_engine('mysql://weblab:weblab@localhost/WebLabCoordination', echo = False)
 
-metadata = dao.Base.metadata
+CoordinatorModel.load()
+
+metadata = CoordinatorModel.Base.metadata
 metadata.drop_all(engine)
 metadata.create_all(engine)    
 

@@ -262,7 +262,7 @@ class XmlRpcServer(SocketServer.ThreadingMixIn, SimpleXMLRPCServer.SimpleXMLRPCS
     def __init__(self, server_address, manager, the_server_route):
         class NewXmlRpcRequestHandler(XmlRpcRequestHandler):
             server_route = the_server_route
-
+        
         SimpleXMLRPCServer.SimpleXMLRPCServer.__init__(self, server_address, NewXmlRpcRequestHandler, allow_none = True)
         self.register_instance(manager)
 
@@ -354,6 +354,7 @@ class AbstractProtocolRemoteFacadeServer(threading.Thread):
     def __init__(self, server, configuration_manager, remote_facade_server):
         threading.Thread.__init__(self)
         self.setName(counter.next_name("RemoteFacadeServer_" + self.protocol_name))
+        self.setDaemon(True)
         self._configuration_manager = configuration_manager
         self._stopped               = False
         self._rfm                   = getattr(remote_facade_server,'_create_%s_remote_facade_manager' % self.protocol_name)(

@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
 import threading
@@ -37,7 +38,7 @@ class AssignedExperiments(object):
         self._experiments_lock = threading.RLock()
 
     @locked('_experiments_lock')
-    def add_server(self, exp_inst_id, experiment_coord_address):
+    def add_server(self, exp_inst_id, experiment_coord_address, checking_handlers):
         by_category = self._experiments.get( exp_inst_id.cat_name )
         if by_category == None:
             by_category = {}
@@ -54,7 +55,7 @@ class AssignedExperiments(object):
                 "Experiment instance already found in server"
             )
 
-        by_experiment[exp_inst_id.inst_name] = ExperimentHandler.ExperimentHandler( experiment_coord_address )
+        by_experiment[exp_inst_id.inst_name] = ExperimentHandler.ExperimentHandler( experiment_coord_address, checking_handlers )
 
     @locked('_experiments_lock')
     def reserve_experiment(self, experiment_instance_id, lab_sess_id):
@@ -86,6 +87,10 @@ class AssignedExperiments(object):
         cat_name  = experiment_instance_id.cat_name
         try:
             return self._experiments[cat_name][exp_name][inst_name]
-        except KeyError, ke:
+        except KeyError:
             raise LaboratoryExceptions.ExperimentNotFoundException( "Experiment instance not found! %s" % experiment_instance_id )
-
+        
+    @locked('_experiments_lock')
+    def get_is_up_and_running_handlers(self, experiment_instance_id):
+        exp_handler = self._retrieve_experiment_handler( experiment_instance_id )
+        return exp_handler.is_up_and_running_handlers

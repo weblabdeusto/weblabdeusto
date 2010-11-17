@@ -1,4 +1,4 @@
-package es.deusto.weblab.experimentservers;
+package es.deusto.weblab.experimentservers.exceptions;
 
 public class WebLabException extends Exception {
 	private static final long serialVersionUID = 3007058296396828608L;

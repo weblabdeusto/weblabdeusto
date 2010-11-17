@@ -16,10 +16,15 @@
 import libraries, sys, os, unittest
 
 if len(sys.argv) < 2:
-        print >> sys.stderr, "python %s <testfile>" % sys.argv[0]
+        print >> sys.stderr, "python %s [-g] <testfile>" % sys.argv[0]
         sys.exit(1)
 
-testfile = sys.argv[1]
+if len(sys.argv) == 3 and sys.argv[1] == '-g':
+    testfile = sys.argv[2]
+    gui = True
+else:
+    testfile = sys.argv[1]
+    gui = False
 
 if not testfile.endswith('.py'):
         print >> sys.stderr, "python %s <testfile>" % sys.argv[0]
@@ -30,5 +35,8 @@ module_name = testfile[:-3].replace(os.sep,'.')
 print "Launching... %s" % module_name
 module =  __import__(module_name, globals(), locals(), [module_name])
 suite = module.suite
-
-unittest.main(module = module, defaultTest = 'suite', argv = [sys.argv[0]] + sys.argv[2:])
+if gui:
+    import unittestgui
+    unittestgui.main(__name__ + '.suite')
+else:
+    unittest.main(module = module, defaultTest = 'suite', argv = [sys.argv[0]] + sys.argv[2:])

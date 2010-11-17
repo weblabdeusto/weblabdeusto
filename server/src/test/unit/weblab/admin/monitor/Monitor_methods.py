@@ -42,6 +42,9 @@ from weblab.data.dto.Role import Role
 import voodoo.gen.coordinator.CoordAddress  as CoordAddress
 
 class ConfirmerMock(object):
+    def __init__(self, *args, **kwargs):
+        pass
+
     def enqueue_confirmation(self, lab_coordaddress, reservation_id, experiment_instance_id):
         pass
 
@@ -63,7 +66,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         self.cfg_manager._set_value("core_coordinator_laboratory_servers", [])
 
         # With this one we clean everything before creating the UPS
-        self.coordinator = Coordinator.Coordinator(self.locator, self.cfg_manager)
+        self.coordinator = Coordinator.Coordinator(self.locator, self.cfg_manager, ConfirmerClass = ConfirmerMock)
         self.coordinator._clean()
 
         self.coord_address = CoordAddress.CoordAddress.translate_address( "server0:instance0@machine0" )
@@ -74,10 +77,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
                 self.cfg_manager
             )
         
-        self.coordinator = self.ups._coordinator
-
-        self.assertNotEquals( None, self.coordinator.confirmer ) 
-        self.coordinator.confirmer = ConfirmerMock()
+        self.ups._coordinator = self.coordinator
         self.coordinator.add_experiment_instance_id("server:laboratoryserver@labmachine", ExperimentInstanceId.ExperimentInstanceId('inst','ud-dummy','Dummy experiments'))
 
 
@@ -88,8 +88,8 @@ class MonitorMethodsTestCase(unittest.TestCase):
     def test_list_experiments(self):
         self.coordinator.add_experiment_instance_id("server:laboratoryserver@labmachine", ExperimentInstanceId.ExperimentInstanceId('inst','ud-dummy2','Dummy experiments'))
 
-        expected =  "ud-dummy@Dummy experiments\n"
-        expected += "ud-dummy2@Dummy experiments\n"
+        expected = "ud-dummy2@Dummy experiments\n"
+        expected +=  "ud-dummy@Dummy experiments\n"
 
         result   = methods.list_experiments.call()
         self.assertEquals(expected, result)
@@ -106,7 +106,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         category   = "Dummy experiments"
         experiment = "ud-dummy"
 
-        status, reservation_id = self.coordinator.reserve_experiment(ExperimentId.ExperimentId(experiment, category), 30, 5)
+        status, reservation_id = self.coordinator.reserve_experiment(ExperimentId.ExperimentId(experiment, category), 30, 5, 'sample initial data')
 
         result   = methods.get_experiment_status.call(category, experiment)
         self.assertEquals({reservation_id : status}, result)

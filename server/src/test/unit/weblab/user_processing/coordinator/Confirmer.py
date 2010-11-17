@@ -119,7 +119,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.mocker.result((mock_laboratory,))
 
         self.mocker.replay()
-        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5)
+        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5, 'sample initial data')
         self.coordinator.confirmer._confirm_handler.join()
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
         
@@ -142,7 +142,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.mocker.result((mock_laboratory,))
 
         self.mocker.replay()
-        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5)
+        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5, 'sample initial data')
         self.coordinator.confirmer._confirm_handler.join()
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
         
@@ -161,7 +161,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.mocker.throw( Exception("Unhandled exception") )
 
         self.mocker.replay()
-        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5)
+        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5, 'sample initial data')
         self.coordinator.confirmer._confirm_handler.join()
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
         

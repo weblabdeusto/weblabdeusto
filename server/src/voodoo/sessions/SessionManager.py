@@ -94,8 +94,9 @@ class SessionManager(object):
     def session_type(self):
         return self._session_type
 
-    def create_session(self):
-        return SessionId.SessionId(self.gateway.create_session())
+    def create_session(self, desired_sess_id=None):
+        """@param desired_sess_id If given, it's the precise sess_id we want to use as a key to store data in the session_manager."""
+        return SessionId.SessionId(self.gateway.create_session(desired_sess_id))
 
     def has_session(self, sess_id):
         return self.gateway.has_session(sess_id.id)
@@ -156,5 +157,3 @@ class SessionManager(object):
 
     def delete_expired_sessions(self):
         self.gateway.delete_expired_sessions()
-
-

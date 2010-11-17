@@ -276,10 +276,26 @@ network_tftp_server_filename = 'sample_filename'
 
 laboratory_session_type = 'Memory'
 
-laboratory_assigned_experiments = [
-        'exp1|ud-fpga|FPGA experiments;experiment1:WL_SERVER1@WL_MACHINE1',
-        'exp1|ud-pld|PLD experiments;experiment2:WL_SERVER1@WL_MACHINE1'
-    ]
+laboratory_assigned_experiments = {
+        'exp1:ud-fpga@FPGA experiments':
+            {
+                 'coord_address': 'experiment1:WL_SERVER1@WL_MACHINE1',
+                 'checkers':
+                    (
+                        ('WebcamIsUpAndRunningHandler', ("https://...",)),
+                        ('HostIsUpAndRunningHandler', ("hostname", 80), {}),
+                    )
+            },
+        'exp1:ud-pld@PLD experiments':
+            {
+                 'coord_address': 'experiment2:WL_SERVER1@WL_MACHINE1',
+                 'checkers':
+                    (
+                        ('WebcamIsUpAndRunningHandler', ("https://...",)),
+                        ('HostIsUpAndRunningHandler', ("hostname", 80)),
+                    )
+            }
+    }
 
 ########################################
 # User Processing Server configuration #
@@ -292,6 +308,14 @@ core_coordinator_laboratory_servers   = [
         "laboratory1:WL_SERVER1@WL_MACHINE1;exp1|ud-pld|PLD experiments",
     ]
 
+core_scheduling_systems = {
+        "ud-fpga@FPGA experiments"   : ("PRIORITY_QUEUE", {}),
+        "ud-pld@PLD experiments"     : ("PRIORITY_QUEUE", {}),
+        "exp1@cat1"                  : ("PRIORITY_QUEUE", {}),
+        "ud-dummy@Dummy experiments" : ("PRIORITY_QUEUE", {}),
+        "ud-dummy2@Dummy experiments" : ("PRIORITY_QUEUE", {}),
+    }
+
 core_coordinator_db_username = 'weblab'
 core_coordinator_db_password = 'weblab'
 
@@ -301,3 +325,8 @@ core_coordinator_db_password = 'weblab'
 
 coordinator_server_session_type = 'Memory'
 
+####################################
+# Proxy Server configuration #
+####################################
+
+proxy_store_students_programs_path = "./test/unit/weblab/proxy/files_stored".replace('/',os.sep)

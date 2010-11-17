@@ -13,9 +13,10 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+from voodoo.sessions import SessionId
 import cPickle as pickle
-
 import voodoo.exceptions.sessions.SessionExceptions as SessionExceptions
+
 
 def check_session_parameters(parameters):
     def real_check_session_parameters(func):
@@ -58,6 +59,9 @@ def check_session(
     """
     def real_check_session(func):
         def session_checked_wrapper(self, session_id, *args, **kargs):
+            # Make it compatible for both SessionId and SessionId.id datatypes
+            if isinstance(session_id, str):
+                session_id = SessionId.SessionId(session_id)
             session_manager = getattr(self,session_manager_field_name)
             if session_manager.has_session(session_id):
                 session = session_manager.get_session_locking(session_id)

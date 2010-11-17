@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
 import unittest
@@ -30,38 +31,52 @@ class AssignedExperimentsTestCase(unittest.TestCase):
     
     def test_add_server(self):
         clients_coord_addresses = CoordAddress.CoordAddress.translate_address("myserver:myinstance@mymachine")
+        checking_handlers = ('WebcamIsUpAndRunningHandler',)
 
-        self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses )
+        self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, checking_handlers )
 
         self.assertRaises(
             LaboratoryExceptions.ExperimentAlreadyFoundException,
             self._assigned_micro_servers.add_server,
             self.exp_inst_id,
-            clients_coord_addresses
+            clients_coord_addresses,
+            checking_handlers
         )
 
     def test_get_coord_address(self):
         clients_coord_addresses = CoordAddress.CoordAddress.translate_address("myserver:myinstance@mymachine")
+        checking_handlers = ('WebcamIsUpAndRunningHandler',)
 
-        self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses )
+        self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, checking_handlers )
 
         coord_address = self._assigned_micro_servers.get_coord_address(self.exp_inst_id)
         self.assertEquals(clients_coord_addresses, coord_address)
 
     def test_get_lab_session_id(self):
         clients_coord_addresses = CoordAddress.CoordAddress.translate_address("myserver:myinstance@mymachine")
+        checking_handlers = ('WebcamIsUpAndRunningHandler',)
 
-        self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses )
+        self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, checking_handlers )
 
         self._assigned_micro_servers.reserve_experiment(self.exp_inst_id, "foo")
         lab_session_id = self._assigned_micro_servers.get_lab_session_id(self.exp_inst_id)
         self.assertEquals("foo", lab_session_id)
+        
+    def test_get_is_up_and_running_handlers(self):
+        clients_coord_addresses = CoordAddress.CoordAddress.translate_address("myserver:myinstance@mymachine")
+        checking_handlers = ('WebcamIsUpAndRunningHandler',)
+
+        self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, checking_handlers )
+
+        retrieved_is_up_and_running_handlers = self._assigned_micro_servers.get_is_up_and_running_handlers(self.exp_inst_id)
+        self.assertEquals(checking_handlers, retrieved_is_up_and_running_handlers)
 
 
     def test_reserve_experiment(self):
         clients_coord_addresses = CoordAddress.CoordAddress.translate_address("myserver:myinstance@mymachine")
+        checking_handlers = ('WebcamIsUpAndRunningHandler',)
 
-        self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses )
+        self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, checking_handlers )
 
         def check_reserve():
             result = self._assigned_micro_servers.reserve_experiment( self.exp_inst_id, "my session id" )

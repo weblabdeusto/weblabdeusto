@@ -11,14 +11,16 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
 class ExperimentHandler(object):
-    def __init__(self, experiment_coord_address):
+    def __init__(self, experiment_coord_address, is_up_and_running_handlers):
         super(ExperimentHandler, self).__init__()
-        self._experiment_coord_address  = experiment_coord_address
-        self._busy                      = False
-        self._lab_session_id            = None
+        self._experiment_coord_address   = experiment_coord_address
+        self._is_up_and_running_handlers = is_up_and_running_handlers
+        self._busy                       = False
+        self._lab_session_id             = None
 
     def reserve(self, lab_session_id):
         if self._busy:
@@ -45,3 +47,6 @@ class ExperimentHandler(object):
     def experiment_coord_address(self):
         return self._experiment_coord_address
 
+    @property
+    def is_up_and_running_handlers(self):
+        return self._is_up_and_running_handlers

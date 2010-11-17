@@ -27,3 +27,6 @@ class ExpiredSessionException(CoordinatorException):
 class InvalidExperimentConfigException(CoordinatorException):
     pass
 
+class UnregisteredSchedulingSystemException(CoordinatorException):
+    pass
+

@@ -102,7 +102,7 @@ def generate(cfg_manager, methods):
                 if _xmlrpc_server == None:
                     _xmlrpc_server = {}
                 if not _xmlrpc_server.has_key(port):
-                    _xmlrpc_server[port] = _AvoidTimeoutXMLRPCServer((who,port), requestHandler=UtilRequestHandlerClass)
+                    _xmlrpc_server[port] = _AvoidTimeoutXMLRPCServer((who,port), requestHandler=UtilRequestHandlerClass, allow_none = True)
                     _xmlrpc_server[port].socket.settimeout(MAX_TIMEOUT)
                 self.server = _xmlrpc_server[port]
 

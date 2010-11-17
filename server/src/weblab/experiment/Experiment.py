@@ -43,3 +43,5 @@ class Experiment(object):
         # Default implementation: empty
         pass
 
+    def do_is_up_and_running(self):
+        return "OK"

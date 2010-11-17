@@ -7,6 +7,10 @@ import java.io.IOException;
 import org.apache.ws.commons.util.Base64;
 import org.apache.ws.commons.util.Base64.DecodingException;
 
+import es.deusto.weblab.experimentservers.exceptions.ExperimentServerInternalException;
+import es.deusto.weblab.experimentservers.exceptions.InvalidContentException;
+import es.deusto.weblab.experimentservers.exceptions.WebLabException;
+
 
 public final class ExperimentServerXMLRPC {
 	
@@ -30,7 +34,16 @@ public final class ExperimentServerXMLRPC {
 		return message;
 	}
 	
-	public final String send_file_to_device(String fileEncodedWithBase64, String fileInfo) throws WebLabException{
+	public final boolean is_up_and_running(){
+		return this.implementor.isUpAndRunning();
+	}
+	
+	public final String start_experiment() throws WebLabException{
+		this.implementor.startExperiment();
+		return "ok";
+	}
+	
+	public final String send_file(String fileEncodedWithBase64, String fileInfo) throws WebLabException{
 		System.out.println(fileEncodedWithBase64);
 		byte [] buffer;
 		try {
@@ -53,13 +66,8 @@ public final class ExperimentServerXMLRPC {
 		return this.implementor.sendFile(outputFile, fileInfo);
 	}
 	
-	public final String send_command_to_device(String command) throws WebLabException{
+	public final String send_command(String command) throws WebLabException{
 		return this.implementor.sendCommand(command);
-	}
-	
-	public final String start_experiment() throws WebLabException{
-		this.implementor.startExperiment();
-		return "ok";
 	}
 	
 	public final String dispose(){

@@ -98,16 +98,26 @@ class SessionMemoryGateway(object):
                 log.log_exc( self, log.LogLevel.Warning )
                 continue
 
-    def create_session(self):
-        #Then we generate the session_id:
-        must_repeat = True
-        while must_repeat:
-            session_id = self._generator.generate_id()
-            lock, sessions = self._get_lock_and_sessions(session_id)
+    def create_session(self, desired_sess_id=None):
+        if desired_sess_id is not None:
+            # The user wants a specific session_id
+            lock, sessions = self._get_lock_and_sessions(desired_sess_id)
             lock.acquire()
-            must_repeat = sessions.has_key(session_id)
-            if must_repeat:
+            if sessions.has_key(desired_sess_id):
                 lock.release()
+                raise SessionExceptions.DesiredSessionIdAlreadyExistsException("session_id: %s" % desired_sess_id)
+            session_id = desired_sess_id
+            
+        else:
+            # We generate the session_id:
+            must_repeat = True
+            while must_repeat:
+                session_id = self._generator.generate_id()
+                lock, sessions = self._get_lock_and_sessions(session_id)
+                lock.acquire()
+                must_repeat = sessions.has_key(session_id)
+                if must_repeat:
+                    lock.release()
 
         #lock is not released: we're sure that session_id is unique in self.sessions
         if self._serialize:
@@ -115,6 +125,20 @@ class SessionMemoryGateway(object):
         else:
             obj = {}
         sessions[session_id]      = SessionObj(obj)
+        # If a single thread calls:
+        #  session = get_session_locking(session_id)
+        #  something()
+        #  modify_session_unlocking(session_id, session)
+        # 
+        # And something() calls again:
+        # session = get_session_locking(same_session_id)
+        # session['foo'] = 'bar'
+        # modify_session_unlocking(same_session_id, session)
+        # 
+        # Then once "something" is called, the first function will store 
+        # the original session, therefore removing the changes performed
+        # in "something". That's really dangerous, so we use here a
+        # threading.Lock so the thread is locked and this can't happen.
         self._session_locks[session_id[:2]][session_id] = threading.Lock()
         lock.release()
         return session_id

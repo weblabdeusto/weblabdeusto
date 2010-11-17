@@ -1,4 +1,4 @@
-package es.deusto.weblab.experimentservers;
+package es.deusto.weblab.experimentservers.exceptions;
 
 public class InvalidContentException extends WebLabException {
 	private static final long serialVersionUID = -7195769272072683196L;

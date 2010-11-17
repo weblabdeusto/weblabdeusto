@@ -114,8 +114,10 @@ class FakeSerialPort(object):
     def clear(self):
         self.dict = {'open':[], 'close':[], 'send' : []}
         self.cycle = 0
+
+# Abstract
+class Case001TestCase(object):
     
-class Case001TestCase(unittest.TestCase):
     def gen_coordination_map(self, protocols):
         map = CoordInfo.CoordinationMap()
 
@@ -236,11 +238,13 @@ class Case001TestCase(unittest.TestCase):
         server_type_handler = ServerTypeHandler.ServerTypeHandler(
             ServerType.ServerType,
             {
-                ServerType.Coordinator.name :       voodoo_exported_methods.coordinator,
-                ServerType.Login.name :             weblab_exported_methods.Login,
-                ServerType.Experiment.name :       weblab_exported_methods.Experiment,
-                ServerType.Laboratory.name :         weblab_exported_methods.Laboratory,
-                ServerType.UserProcessing.name :    weblab_exported_methods.UserProcessing,
+                ServerType.Coordinator.name :    voodoo_exported_methods.coordinator,
+                ServerType.Login.name :          weblab_exported_methods.Login,
+                ServerType.UserProcessing.name : weblab_exported_methods.UserProcessing,
+                ServerType.Proxy.name :          weblab_exported_methods.Proxy,
+                ServerType.Laboratory.name :     weblab_exported_methods.Laboratory,
+                ServerType.Translator.name :     weblab_exported_methods.Translator,
+                ServerType.Experiment.name :     weblab_exported_methods.Experiment
             }
         )
 
@@ -788,7 +792,7 @@ class Case001TestCase(unittest.TestCase):
         for i in self.real_servers:
             i.stop()
 
-class Case001_Direct_Memory_TestCase(Case001TestCase):
+class Case001_Direct_Memory_TestCase(Case001TestCase, unittest.TestCase):
     def get_protocols(self):
         return (Protocols.Direct, )
     def get_session_type(self):
@@ -797,7 +801,7 @@ class Case001_Direct_Memory_TestCase(Case001TestCase):
 Case001_Direct_Memory_TestCase = case_uses_module(UserProcessingServer)(Case001_Direct_Memory_TestCase)
 
 if ServerSOAP.SOAPPY_AVAILABLE:
-    class Case001_SOAP_MySQL_TestCase(Case001TestCase):
+    class Case001_SOAP_MySQL_TestCase(Case001TestCase, unittest.TestCase):
         def get_protocols(self):
             return (Protocols.SOAP, )
         def get_session_type(self):
@@ -805,7 +809,7 @@ if ServerSOAP.SOAPPY_AVAILABLE:
 
     Case001_SOAP_MySQL_TestCase = case_uses_module(UserProcessingServer)(Case001_SOAP_MySQL_TestCase)
 
-    class Case001_SOAP_Memory_TestCase(Case001TestCase):
+    class Case001_SOAP_Memory_TestCase(Case001TestCase, unittest.TestCase):
         def get_protocols(self):
             return (Protocols.SOAP, )
         def get_session_type(self):

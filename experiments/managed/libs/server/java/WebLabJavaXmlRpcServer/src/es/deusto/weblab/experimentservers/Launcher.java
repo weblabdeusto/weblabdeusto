@@ -35,5 +35,6 @@ public class Launcher {
 		serverConfig.setContentLengthOptional(false);
 		
 		webServer.start();
+		System.out.println("Running XML-RPC server on port "+this.port+"...\n");
 	}
 }

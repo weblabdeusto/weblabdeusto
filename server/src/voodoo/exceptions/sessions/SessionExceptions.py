@@ -71,3 +71,6 @@ class SessionAlreadyAcquiredException(SessionException):
     def __init__(self,*args,**kargs):
         SessionException.__init__(self,*args,**kargs)
 
+class DesiredSessionIdAlreadyExistsException(SessionException):
+    def __init__(self,*args,**kargs):
+        SessionException.__init__(self,*args,**kargs)

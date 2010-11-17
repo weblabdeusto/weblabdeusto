@@ -126,13 +126,15 @@ class UserProcessor(object):
             )
 
         priority = 5 # TODO: this should be part of experiment_allowed
+        initial_data = None # TODO: this must be passed by the client
         experiment_allowed = experiments[0]
 
         try:
             status, reservation_id    = self._coordinator.reserve_experiment(
                     experiment_allowed.experiment.to_experiment_id(), 
                     experiment_allowed.time_allowed, 
-                    priority
+                    priority,
+                    initial_data
                 )
         except CoordExc.ExperimentNotFoundException, enfe:
             raise UserProcessingExceptions.NoAvailableExperimentFoundException(
@@ -190,8 +192,7 @@ class UserProcessor(object):
 
 
     def finished_experiment(self):
-        errors = []
-        errors.append(self._finish_reservation())
+        error = self._finish_reservation()
         self._stop_polling()
         if self._session.has_key('experiment_usage') and self._session['experiment_usage'] != None:
             experiment_usage = self._session.pop('experiment_usage')
@@ -203,9 +204,9 @@ class UserProcessor(object):
                         experiment_usage
                     )
 
-        if errors.count(None) != len(errors):
+        if error is not None:
             raise UserProcessingExceptions.FailedToFreeReservationException(
-                    "There was an error freeing reservation"
+                    "There was an error freeing reservation: %s" % error
                 )
 
     def logout(self):
@@ -427,3 +428,4 @@ class UserProcessor(object):
     def get_user_permissions(self):
         db_session_id         = self._session['db_session_id']
         return get_user_permissions(self._db_manager, db_session_id)
+

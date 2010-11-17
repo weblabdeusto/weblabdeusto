@@ -91,10 +91,16 @@ class SessionSqlalchemyGateway(object):
         return engine, host, db_name, username, password
 
 
-    def create_session(self):
+    def create_session(self, desired_sess_id=None):
+        if desired_sess_id is not None:
+            # The user wants a specific session_id
+            if self.has_session(desired_sess_id):
+                raise SessionExceptions.DesiredSessionIdAlreadyExistsException("session_id: %s" % desired_sess_id)
+            new_id = desired_sess_id
+        else:
+            new_id = self._generator.generate_id()
 
         while True:
-            new_id = self._generator.generate_id()
             none_s = self._serializer.serialize({})
 
             db_session = DbData.Session(new_id, self.session_pool_id, datetime.datetime.now(), none_s)
@@ -102,7 +108,8 @@ class SessionSqlalchemyGateway(object):
             session.add(db_session)
             try:
                 session.commit()
-            except IntegrityError, ie:
+            except IntegrityError:
+                new_id = self._generator.generate_id()
                 continue
             else:
                 return new_id

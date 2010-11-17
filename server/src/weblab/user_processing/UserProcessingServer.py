@@ -139,7 +139,7 @@ class UserProcessingServer(object):
                 ) = groups
                 
                 experiment_instance_id = ExperimentInstanceId.ExperimentInstanceId( inst_name, exp_name, exp_cat_name )
-                self._coordinator.add_experiment_instance_id(laboratory_server_coord_address_str, experiment_instance_id)                
+                self._coordinator.add_experiment_instance_id(laboratory_server_coord_address_str, experiment_instance_id) 
 
     def _load_user(self, session):
         return UserProcessor.UserProcessor(self._locator, session, self._cfg_manager, self._coordinator, self._db_manager)
@@ -384,3 +384,4 @@ class UserProcessingServer(object):
             return user_processor.get_user_permissions()
         finally:
             user_processor.update_latest_timestamp()
+

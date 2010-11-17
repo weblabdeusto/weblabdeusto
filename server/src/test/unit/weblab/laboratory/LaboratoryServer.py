@@ -11,9 +11,11 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
 import unittest
+import mocker
 
 import weblab.data.Command as Command
 
@@ -32,6 +34,9 @@ import weblab.exceptions.laboratory.LaboratoryExceptions as LaboratoryExceptions
 import weblab.methods as weblab_methods
 
 import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
+
+import FakeUrllib2
+import FakeSocket
 
 # 
 # In this file you'll find three test cases:
@@ -76,21 +81,30 @@ class LaboratoryServerLoadingTestCase(unittest.TestCase):
 
     def test_correct_single_instance(self):
         self.cfg_manager._set_value(LaboratoryServer.WEBLAB_LABORATORY_SERVER_ASSIGNED_EXPERIMENTS,
-                ['exp_inst|exp_name|exp_cat;myserver:myinstance@mymachine'])
+                { 'exp_inst:exp_name@exp_cat': { 'coord_address': 'myserver:myinstance@mymachine',
+                                                 'checkers': ( ('WebcamIsUpAndRunningHandler', ("https://...",)),
+                                                               ('HostIsUpAndRunningHandler', ("hostname", 80), {}), )} })
 
         self.lab = LaboratoryServer.LaboratoryServer( None, self.locator, self.cfg_manager )
 
     def test_correct_two_instances(self):
         self.cfg_manager._set_value(LaboratoryServer.WEBLAB_LABORATORY_SERVER_ASSIGNED_EXPERIMENTS,
-                ['exp_inst1|exp_name|exp_cat;myserver:myinstance@mymachine',
-                 'exp_inst2|exp_name|exp_cat;myserver:myinstance@mymachine'])
+                { 'exp_inst:exp_name1@exp_cat1': { 'coord_address': 'myserver1:myinstance@mymachine',
+                                                   'checkers': ( ('WebcamIsUpAndRunningHandler', ("https://...",) ),
+                                                                 ('HostIsUpAndRunningHandler', ("hostname",), {'port': 80}), )},
+                  'exp_inst:exp_name2@exp_cat2': { 'coord_address': 'myserver2:myinstance@mymachine',
+                                                   'checkers': ( ('WebcamIsUpAndRunningHandler', ("https://...",) ), ) } })
 
         self.lab = LaboratoryServer.LaboratoryServer( None, self.locator, self.cfg_manager )
 
     def test_wrong_coordaddress_format(self):
         self.cfg_manager._set_value(LaboratoryServer.WEBLAB_LABORATORY_SERVER_ASSIGNED_EXPERIMENTS,
-                ['exp_inst1|exp_name|exp_cat;myserver:myinstance@mymachine',
-                 'exp_inst2|exp_name|exp_cat;myserver:myinstancemymachine'])
+                { 'exp_inst:exp_name1@exp_cat1': { 'coord_address': 'myserver1:myinstance@mymachine',
+                                                   'checkers': ( ('WebcamIsUpAndRunningHandler', ("https://...",)),
+                                                                 ('HostIsUpAndRunningHandler', ("hostname", 80), {}), )},
+                  'exp_inst:exp_name2@exp_cat2': { 'coord_address': 'myserver2:myinstancemymachine',
+                                                   'checkers': ( ('WebcamIsUpAndRunningHandler', ("https://...",)),
+                                                                 ('HostIsUpAndRunningHandler', ("hostname", 80), {}), )} })
 
         self.assertRaises( LaboratoryExceptions.InvalidLaboratoryConfigurationException,
                             LaboratoryServer.LaboratoryServer,
@@ -98,13 +112,17 @@ class LaboratoryServerLoadingTestCase(unittest.TestCase):
 
     def test_wrong_invalid_format(self):
         self.cfg_manager._set_value(LaboratoryServer.WEBLAB_LABORATORY_SERVER_ASSIGNED_EXPERIMENTS,
-                ['exp_inst1|exp_nameexp_cat;myserver:myinstance@mymachine',
-                 'exp_inst2|exp_name|exp_cat;myserver:myinstance@mymachine'])
+                { 'exp_inst:exp_name1exp_cat1': { 'coord_address': 'myserver1:myinstance@mymachine',
+                                                  'checkers': ( ('WebcamIsUpAndRunningHandler', ("https://...",)),
+                                                                ('HostIsUpAndRunningHandler', ("hostname", 80), {}), )},
+                  'exp_inst:exp_name2@exp_cat2': { 'coord_address': 'myserver2:myinstance@mymachine',
+                                                   'checkers': ( ('WebcamIsUpAndRunningHandler', ("https://...",)),
+                                                                 ('HostIsUpAndRunningHandler', ("hostname", 80), {}), )} })
 
         self.assertRaises( LaboratoryExceptions.InvalidLaboratoryConfigurationException,
                             LaboratoryServer.LaboratoryServer,
                             None, self.locator, self.cfg_manager )
-
+        
 #####################################################
 # 
 # This TestCase test the management of experiments.
@@ -125,7 +143,10 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self.experiment_instance_id = ExperimentInstanceId.ExperimentInstanceId("exp_inst","exp_name","exp_cat")
         self.experiment_coord_address = CoordAddress.CoordAddress.translate_address('myserver:myinstance@mymachine')
 
-        cfg_manager._set_value('laboratory_assigned_experiments',['exp_inst|exp_name|exp_cat;myserver:myinstance@mymachine'])
+        cfg_manager._set_value('laboratory_assigned_experiments',
+                            { 'exp_inst:exp_name@exp_cat': { 'coord_address': 'myserver:myinstance@mymachine',
+                                                             'checkers': ( ('WebcamIsUpAndRunningHandler', ("https://...",)),
+                                                                           ('HostIsUpAndRunningHandler', ("hostname", 80), {}), )} })
 
         self.lab = LaboratoryServer.LaboratoryServer(
                 None,
@@ -191,23 +212,60 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
 
         self.assertEquals(3, self.fake_client.started)
         self.assertEquals(3, self.fake_client.disposed)
+        
+    def _fake_is_up_and_running_handlers(self):
+        exp_handler = self.lab._assigned_experiments._retrieve_experiment_handler(self.experiment_instance_id)
+        exp_handler.is_up_and_running_handlers[0]._urllib2 = FakeUrllib2
+        exp_handler.is_up_and_running_handlers[1]._socket = FakeSocket   
+        
+    def test_experiment_is_up_and_running_ok_implemented(self):
+        self._fake_is_up_and_running_handlers()
+        FakeClient.is_up_and_running_response = "OK"
+        self.lab.do_experiment_is_up_and_running(self.experiment_instance_id)
 
+    def test_experiment_is_up_and_running_ok_not_implemented(self):
+        self._fake_is_up_and_running_handlers()
+        FakeClient.check = lambda x: None
+        self.lab.do_experiment_is_up_and_running(self.experiment_instance_id)
 
+    def test_experiment_is_up_and_running_error(self):
+        self._fake_is_up_and_running_handlers()
+        FakeClient.is_up_and_running_response = "ER Something I only know went wrong!"
+        self.assertRaises(
+            LaboratoryExceptions.ExperimentIsUpAndRunningErrorException,
+            self.lab.do_experiment_is_up_and_running,
+            self.experiment_instance_id
+        )
+
+    def test_experiment_is_up_and_running_invalid_response_format(self):
+        self._fake_is_up_and_running_handlers()
+        FakeClient.is_up_and_running_response = "I don't like established formats!"
+        self.assertRaises(
+            LaboratoryExceptions.InvalidIsUpAndRunningResponseFormatException,
+            self.lab.do_experiment_is_up_and_running,
+            self.experiment_instance_id
+        )
+        
+        
 class LaboratoryServerSendingTestCase(unittest.TestCase):
+    
     def setUp(self):
         cfg_manager= ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration_module)
 
         self.fake_client = FakeClient()
-        locator        = EasyLocator.EasyLocator(
+        locator = EasyLocator.EasyLocator(
                     CoordAddress.CoordAddress('mach','inst','serv'),
                     FakeLocator((self.fake_client,))
-                )
+                  )
 
         self.experiment_instance_id = ExperimentInstanceId.ExperimentInstanceId("exp_inst","exp_name","exp_cat")
         self.experiment_coord_address = CoordAddress.CoordAddress.translate_address('myserver:myinstance@mymachine')
 
-        cfg_manager._set_value('laboratory_assigned_experiments',['exp_inst|exp_name|exp_cat;myserver:myinstance@mymachine'])
+        cfg_manager._set_value('laboratory_assigned_experiments',
+                        { 'exp_inst:exp_name@exp_cat': { 'coord_address': 'myserver1:myinstance@mymachine',
+                                                         'checkers': ( ('WebcamIsUpAndRunningHandler', ("https://...",)),
+                                                                       ('HostIsUpAndRunningHandler', ("hostname", 80), {}), )} })
 
         self.lab = LaboratoryServer.LaboratoryServer(
                 None,
@@ -292,6 +350,9 @@ class FakeLocator(object):
 # 
 
 class FakeClient(object):
+    
+    is_up_and_running_response = ""
+    
     def __init__(self):
         super(FakeClient,self).__init__()
         self.files     = []
@@ -320,6 +381,9 @@ class FakeClient(object):
         else:
             self.files.append((file, file_info))
             return self.responses.pop(0)
+    
+    def is_up_and_running(self):
+        return self.is_up_and_running_response
 
     def verify_commands(self, expected):
         return self.commands == expected

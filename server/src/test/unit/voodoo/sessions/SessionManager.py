@@ -103,7 +103,19 @@ class SessionManagerTestCase(unittest.TestCase):
             SessionId.SessionId,
             5
         )
-
+                
+    def session_create_session_given_a_sess_id(self, server):
+        # The first time works ok
+        DESIRED_SESS_ID1 = '-pw0EvJ1+kEQ+WC2'
+        sess_id1 = server.create_session(DESIRED_SESS_ID1)
+        self.assertEquals(DESIRED_SESS_ID1, sess_id1)
+        
+        # The second time must fail
+        self.assertRaises(
+            SessionExceptions.DesiredSessionIdAlreadyExistsException,
+            server.create_session, DESIRED_SESS_ID1
+        )
+        
     def session_tester(self,server):
         sess_id = server.create_session()
         information = { 'test':'mytest' }
@@ -200,6 +212,9 @@ class SessionManagerTestCase(unittest.TestCase):
 
     def test_memory_pool_ids(self):
         self.session_tester_pool_ids(self.memory_server1, self.memory_server2)
+        
+    def test_memory_create_session_given_a_sess_id(self):
+        self.session_create_session_given_a_sess_id(self.memory_server1)
     
     def test_sqlalchemy_session(self):
         self.session_tester(self.sqlalchemy_server1)
@@ -212,6 +227,10 @@ class SessionManagerTestCase(unittest.TestCase):
 
     def test_sqlalchemy_pool_ids(self):
         self.session_tester_pool_ids(self.sqlalchemy_server1, self.sqlalchemy_server2)
+        
+    def test_sqlalchemy_create_session_given_a_sess_id(self):
+        self.session_create_session_given_a_sess_id(self.sqlalchemy_server1)
+
 
 def suite():
     return unittest.makeSuite(SessionManagerTestCase)

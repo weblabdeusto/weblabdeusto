@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
 import re
@@ -32,6 +33,7 @@ import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
 import weblab.data.Command as Command
 
 import weblab.laboratory.AssignedExperiments as AssignedExperiments
+import weblab.laboratory.IsUpAndRunningHandler as IsUpAndRunningHandler
 
 import voodoo.sessions.SessionManager as SessionManager
 
@@ -58,7 +60,11 @@ WEBLAB_LABORATORY_SERVER_ASSIGNED_EXPERIMENTS    = "laboratory_assigned_experime
 class LaboratoryServer(object):
 
     # exp_inst_name|exp_name|exp_cat;coord_address
-    ASSIGNED_EXPERIMENT_SERVER_REGEX = r"^(.*)\|(.*)\|(.*);(.*)$"
+    EXPERIMENT_INSTANCE_ID_REGEX = r"^(.*)\:(.*)\@(.*)$"
+    
+    EXPERIMENT_IS_UP_AND_RUNNING_RESPONSE_CODE_OK    = 'OK'
+    EXPERIMENT_IS_UP_AND_RUNNING_RESPONSE_CODE_ERROR = 'ER'
+    EXPERIMENT_IS_UP_AND_RUNNING_RESPONSE_REGEX      = r"^(%s|%s) ?(.*)$" % (EXPERIMENT_IS_UP_AND_RUNNING_RESPONSE_CODE_OK, EXPERIMENT_IS_UP_AND_RUNNING_RESPONSE_CODE_ERROR)
 
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(LaboratoryServer,self).__init__(*args, **kwargs)
@@ -89,33 +95,48 @@ class LaboratoryServer(object):
 
         parsed_experiments = []
 
-        for assigned_experiment in assigned_experiments:
-            mo = re.match(self.ASSIGNED_EXPERIMENT_SERVER_REGEX, assigned_experiment)
+        for experiment_instance_id, data in assigned_experiments.items():
+            mo = re.match(self.EXPERIMENT_INSTANCE_ID_REGEX, experiment_instance_id)
             if mo == None:
                 raise LaboratoryExceptions.InvalidLaboratoryConfigurationException("Invalid configuration entry. Expected format: %s; found: %s" % 
-                    (LaboratoryServer.ASSIGNED_EXPERIMENT_SERVER_REGEX, assigned_experiment))
+                    (LaboratoryServer.EXPERIMENT_INSTANCE_ID_REGEX, experiment_instance_id))
             else:
+                # ExperimentInstanceId
                 groups = mo.groups()
                 (   exp_inst_name,
                     exp_name,
-                    exp_cat_name,
-                    coord_address
+                    exp_cat_name
                 ) = groups
+                experiment_instance_id = ExperimentInstanceId.ExperimentInstanceId(exp_inst_name, exp_name, exp_cat_name)
 
-                experiment_instance_id = ExperimentInstanceId.ExperimentInstanceId( exp_inst_name, 
-                                exp_name, exp_cat_name )
+                # CoordAddress
                 try:
-                    coord_address = CoordAddress.CoordAddress.translate_address(coord_address)
+                    coord_address = CoordAddress.CoordAddress.translate_address(data['coord_address'])
                 except GeneratorExceptions.GeneratorException:
-                    raise LaboratoryExceptions.InvalidLaboratoryConfigurationException("Invalid coordination address: %s" % coord_address)
-                parsed_experiments.append(  (experiment_instance_id, coord_address) )
+                    raise LaboratoryExceptions.InvalidLaboratoryConfigurationException("Invalid coordination address: %s" % data['coord_address'])
+                
+                # CheckingHandlers
+                checkers = data.get('checkers', ())
+                checking_handlers = []
+                for checker in checkers:
+                    klazz = checker[0]
+                    if klazz in IsUpAndRunningHandler.HANDLERS:
+                        argss, kargss = (), {}
+                        if len(checker) >= 3:
+                            kargss = checker[2]
+                        if len(checker) >= 2:
+                            argss = checker[1]
+                        checking_handlers.append(eval('IsUpAndRunningHandler.'+klazz)(*argss, **kargss))
+                    else:
+                        raise LaboratoryExceptions.InvalidLaboratoryConfigurationException("Invalid IsUpAndRunningHandler: %s" % klazz)
+                parsed_experiments.append( (experiment_instance_id, coord_address, checking_handlers) )
         return parsed_experiments
-    
+
     def _load_assigned_experiments(self):
         self._assigned_experiments = AssignedExperiments.AssignedExperiments()
         parsed_experiments         = self._parse_assigned_experiments()
-        for exp_inst_id, coord_address in parsed_experiments:
-            self._assigned_experiments.add_server(exp_inst_id, coord_address)
+        for exp_inst_id, coord_address, checking_handlers in parsed_experiments:
+            self._assigned_experiments.add_server(exp_inst_id, coord_address, checking_handlers)
 
 
     #####################################################
@@ -185,6 +206,31 @@ class LaboratoryServer(object):
         experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
         experiment_server.dispose()
 
+    @logged(LogLevel.Info)
+    @caller_check(ServerType.UserProcessing)
+    def do_experiment_is_up_and_running(self, experiment_instance_id):
+        # Run the generic IsUpAndRunningHandlers
+        handlers = self._assigned_experiments.get_is_up_and_running_handlers(experiment_instance_id)
+        for h in handlers:
+            h.run()
+        # Run the Experiment's is_up_and_running() method, if exists
+        experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
+        experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
+        response = experiment_server.is_up_and_running()
+        if response is not None:
+            mo = re.match(self.EXPERIMENT_IS_UP_AND_RUNNING_RESPONSE_REGEX, response)
+            if mo == None:
+                raise LaboratoryExceptions.InvalidIsUpAndRunningResponseFormatException(
+                            "Invalid response format from experiment's is_up_and_running() method. Expected: %s. Received: %s" %
+                            ( self.EXPERIMENT_IS_UP_AND_RUNNING_RESPONSE_REGEX, response ) )
+            else:
+                code, details = mo.groups()
+                if code == self.EXPERIMENT_IS_UP_AND_RUNNING_RESPONSE_CODE_OK:
+                    pass
+                elif code == self.EXPERIMENT_IS_UP_AND_RUNNING_RESPONSE_CODE_ERROR:
+                    raise LaboratoryExceptions.ExperimentIsUpAndRunningErrorException("Reason: %s" % details)
+                else:
+                    raise RuntimeError("What? This just can't happen if re module works!")
 
     # 
     # TODO
@@ -235,4 +281,3 @@ class LaboratoryServer(object):
             raise LaboratoryExceptions.FailedToSendCommandException("Couldn't send command: %s" % str(e))
 
         return Command.Command(str(response))
-

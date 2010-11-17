@@ -109,7 +109,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.assertTrue( 'ud-fpga' in experiment_names )
         self.assertTrue( 'flashdummy' in experiment_names )
         self.assertTrue( 'javadummy' in experiment_names )
-        
+       
         self.ups.logout(sess_id1)
 
         # student2
@@ -553,7 +553,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         users = self.ups.get_users(sess_id)
         self.ups.logout(sess_id)
 
-       # Make sure that the number of users it returns matches the number of users
+        # Make sure that the number of users it returns matches the number of users
         # that we currently have in the test database.
         self.assertEquals(len(users), 19)
         
@@ -574,7 +574,6 @@ class UserProcessingServerTestCase(unittest.TestCase):
         user_mails_set = set(user_mails)
         self.assertEquals(len(user_mails_set), 1)
         self.assertTrue( "weblab@deusto.es" in user_mails_set )
-        
         # Check a few login / full name pairs
         user_logins_names = list( (user.login, user.full_name) for user in users )
         for i in range(1, 9):
@@ -638,8 +637,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.assertEquals('full_privileges', permissions[6].parameters[0].name)
         self.assertEquals('bool',            permissions[6].parameters[0].datatype)
         self.assertEquals('1',               permissions[6].parameters[0].value)
-
-
+        
 UserProcessingServerTestCase = case_uses_module(UserProcessingServer)(UserProcessingServerTestCase)
 UserProcessingServerTestCase = case_uses_module(UserProcessor)(UserProcessingServerTestCase)
 UserProcessingServerTestCase = case_uses_module(Confirmer)(UserProcessingServerTestCase)

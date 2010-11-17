@@ -86,7 +86,7 @@ def generate(methods):
     class ClientXMLRPC(clientSkel):
         
         def __init__(self, url, port=80, uri='/'):
-            clientSkel.__init__(self,xmlrpclib.Server('http://'+url+':'+str(port)+uri))
+            clientSkel.__init__(self,xmlrpclib.Server('http://'+url+':'+str(port)+uri, allow_none = True))
 
     # Adding properly the testing method to check availability
     if isinstance(methods,dict):

@@ -32,4 +32,3 @@ class SessionGenerator(object):
             id += self.alphabet[ bits % 64 ]
             bits /= 64
         return id
-

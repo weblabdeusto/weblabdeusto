@@ -54,3 +54,30 @@ class InvalidLaboratoryConfigurationException(LaboratoryException):
     def __init__(self, *args, **kargs):
         LaboratoryException.__init__(self,*args,**kargs)
 
+class CheckingHandlerException(LaboratoryException):
+    def __init__(self, *args, **kargs):
+        LaboratoryException.__init__(self,*args,**kargs)
+
+class WebcamIsReturningAnImageHandlerException(CheckingHandlerException):
+    def __init__(self, *args, **kargs):
+        LaboratoryException.__init__(self,*args,**kargs)
+
+class ImageURLDidNotRetrieveAResponseException(WebcamIsReturningAnImageHandlerException):
+    def __init__(self, *args, **kargs):
+        LaboratoryException.__init__(self,*args,**kargs)
+
+class InvalidContentTypeRetrievedFromImageURLException(WebcamIsReturningAnImageHandlerException):
+    def __init__(self, *args, **kargs):
+        LaboratoryException.__init__(self,*args,**kargs)
+
+class UnableToConnectHostnameInPortException(CheckingHandlerException):
+    def __init__(self, *args, **kargs):
+        LaboratoryException.__init__(self,*args,**kargs)
+        
+class ExperimentIsUpAndRunningErrorException(LaboratoryException):
+    def __init__(self, *args, **kargs):
+        LaboratoryException.__init__(self,*args,**kargs)
+        
+class InvalidIsUpAndRunningResponseFormatException(LaboratoryException):
+    def __init__(self, *args, **kargs):
+        LaboratoryException.__init__(self,*args,**kargs)

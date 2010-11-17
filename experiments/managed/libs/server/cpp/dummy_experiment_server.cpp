@@ -1,4 +1,3 @@
-
 //
 // Copyright (C) 2005-2009 University of Deusto
 // All rights reserved.
@@ -6,12 +5,12 @@
 // This software is licensed as described in the file COPYING, which
 // you should have received as part of this distribution.
 //
-// This software consists of contributions made by many individuals, 
+// This software consists of contributions made by many individuals,
 // listed below:
 //
-// Author: Luis Rodríguez <4lurodri@rigel.deusto.es>
-// 
-
+// Author: Luis Rodrï¿½guez <4lurodri@rigel.deusto.es>
+//         Jaime Irurzun <jaime.irurzun@gmail.com>
+//
 
 #include "weblabdeusto_experiment_server.hpp"
 
@@ -48,5 +47,5 @@ public:
 int main(int argc, char const * argv[])
 {
 	DummyExperimentServer testServer;
-	testServer.launch(12345, "c:\\rpc_log.txt");
+	testServer.launch(12345, "rpc_log.txt");
 }

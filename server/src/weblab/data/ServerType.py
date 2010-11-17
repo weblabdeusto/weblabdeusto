@@ -16,11 +16,12 @@
 
 values = [
     'Coordinator', # Voodoo Coordinator; it will always be there
-
     'Login',
     'UserProcessing',
-    'Experiment',
-    'Laboratory'
+    'Proxy',
+    'Laboratory',
+    'Translator',
+    'Experiment'
 ]
 name='ServerType'
 

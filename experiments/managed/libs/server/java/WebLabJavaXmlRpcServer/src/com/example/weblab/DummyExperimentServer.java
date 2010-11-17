@@ -2,14 +2,13 @@ package com.example.weblab;
 
 import java.io.File;
 
-import es.deusto.weblab.experimentservers.IExperimentServer;
-import es.deusto.weblab.experimentservers.WebLabException;
+import es.deusto.weblab.experimentservers.ExperimentServer;
+import es.deusto.weblab.experimentservers.exceptions.WebLabException;
 
-public class DummyExperimentServer implements IExperimentServer {
-	
-	public String sendCommand(String command)  throws WebLabException {
-		System.out.println("I'm at send_command: " + command);
-		return "ok";
+public class DummyExperimentServer extends ExperimentServer {
+
+	public void startExperiment() throws WebLabException {
+		System.out.println("I'm at startExperiment");
 	}
 
 	public String sendFile(File file, String fileInfo)  throws WebLabException {
@@ -17,11 +16,18 @@ public class DummyExperimentServer implements IExperimentServer {
 		return "ok";
 	}
 	
+	public String sendCommand(String command)  throws WebLabException {
+		System.out.println("I'm at send_command: " + command);
+		return "ok";
+	}
+	
 	public void dispose() {
 		System.out.println("I'm at dispose");
 	}
-
-	public void startExperiment() throws WebLabException {
-		System.out.println("I'm at startExperiment");
+	
+	/* Optional methods (Override, Java 1.4 compatible...) */
+	
+	public boolean isUpAndRunning() {
+		return false;
 	}
 }

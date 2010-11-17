@@ -1,4 +1,3 @@
-
 //
 // Copyright (C) 2005-2009 University of Deusto
 // All rights reserved.
@@ -9,7 +8,7 @@
 // This software consists of contributions made by many individuals, 
 // listed below:
 //
-// Author: Luis Rodríguez <4lurodri@rigel.deusto.es>
+// Author: Luis Rodrï¿½guez <4lurodri@rigel.deusto.es>
 // 
 
 #ifndef __WEBLABSERVER_HPP
@@ -22,7 +21,6 @@
 #include <xmlrpc-c/server_abyss.h>
 
 
-
 class ExperimentServer
 {
 
@@ -32,6 +30,7 @@ public:
 	virtual std::string onSendFile(std::string const & encoded_file, std::string const & fileinfo) = 0;
 	virtual std::string onSendCommand(std::string const & command) = 0;
 	virtual std::string onDispose() = 0;
+	virtual bool onIsUpAndRunning();
 
 	void launch(unsigned short port, std::string const & log_file = "");
 	
@@ -41,13 +40,12 @@ public:
 
 private:
 
-	static xmlrpc_value * c_xmlrpc_test_me(xmlrpc_env *   const env, xmlrpc_value * const param_array, void * const user_data);
-	static xmlrpc_value * c_xmlrpc_send_file_to_device(xmlrpc_env *   const env, xmlrpc_value * const param_array, void * const user_data);
-	static xmlrpc_value * c_xmlrpc_send_command_to_device(xmlrpc_env *   const env, xmlrpc_value * const param_array, void * const user_data);
-	static xmlrpc_value * c_xmlrpc_start_experiment(xmlrpc_env *   const env, xmlrpc_value * const param_array, void * const user_data);
-	static xmlrpc_value * c_xmlrpc_dispose(xmlrpc_env *   const env, xmlrpc_value * const param_array, void * const user_data);	
-	
+	static xmlrpc_value * c_xmlrpc_test_me(xmlrpc_env * const env, xmlrpc_value * const param_array, void * const user_data);
+	static xmlrpc_value * c_xmlrpc_is_up_and_running(xmlrpc_env * const env, xmlrpc_value * const param_array, void * const user_data);
+	static xmlrpc_value * c_xmlrpc_start_experiment(xmlrpc_env * const env, xmlrpc_value * const param_array, void * const user_data);
+	static xmlrpc_value * c_xmlrpc_send_file(xmlrpc_env * const env, xmlrpc_value * const param_array, void * const user_data);
+	static xmlrpc_value * c_xmlrpc_send_command(xmlrpc_env * const env, xmlrpc_value * const param_array, void * const user_data);
+	static xmlrpc_value * c_xmlrpc_dispose(xmlrpc_env * const env, xmlrpc_value * const param_array, void * const user_data);
 };
-
 
 #endif

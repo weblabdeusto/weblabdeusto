@@ -41,3 +41,13 @@ class ExperimentId(object):
     def to_dict(self):
         return {'exp_name': self.exp_name, 'cat_name': self.cat_name}
 
+    def to_weblab_str(self):
+        return '%s@%s' % (self.exp_name, self.cat_name)
+
+    @staticmethod
+    def parse(weblab_str):
+        pos = weblab_str.find("@")
+        experiment_name = weblab_str[:pos]
+        category_name   = weblab_str[pos + 1 :]
+        return ExperimentId(experiment_name, category_name)
+

@@ -19,10 +19,14 @@ import voodoo.gen.exceptions.locator.LocatorExceptions as LocatorExceptions
 import voodoo.gen.locator.ServerLocator as ServerLocator
 
 class EasyLocator(object):
+    
     def __init__(self, server_coordadd, server_locator):
         super(EasyLocator, self).__init__()
         self._server_coordaddr = server_coordadd
         self._server_locator          = server_locator
+    
+    def get_server_coordaddr(self):
+        return self._server_coordaddr
 
     def get_server(self, server_type, restrictions = ()):
         return self._server_locator.get_server(
