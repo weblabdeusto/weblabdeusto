@@ -16,8 +16,7 @@
 import unittest
 
 from weblab.laboratory.IsUpAndRunningHandler import WebcamIsUpAndRunningHandler, HostIsUpAndRunningHandler, AbstractIsUpAndRunningHandler
-from weblab.exceptions.laboratory.LaboratoryExceptions import *
-
+import weblab.exceptions.laboratory.LaboratoryExceptions as LaboratoryExceptions
 import FakeUrllib2
 import FakeSocket
 
@@ -45,14 +44,14 @@ class WebcamIsUpAndRunningHandlerTestCase(unittest.TestCase):
     def test_run_exception_bad_response(self):
         FakeUrllib2.expected_action = FakeUrllib2.HTTP_URL_ERROR
         self.assertRaises(
-            ImageURLDidNotRetrieveAResponseException,
+            LaboratoryExceptions.ImageURLDidNotRetrieveAResponseException,
             self.handler.run
         )
         
     def test_run_exception_bad_content(self):
         FakeUrllib2.expected_action = FakeUrllib2.HTTP_BAD_CONTENT
         self.assertRaises(
-            InvalidContentTypeRetrievedFromImageURLException,
+            LaboratoryExceptions.InvalidContentTypeRetrievedFromImageURLException,
             self.handler.run
         )
         
@@ -70,7 +69,7 @@ class HostIsUpAndRunningHandlerTestCase(unittest.TestCase):
     def test_run_error(self):
         FakeSocket.expected_action = FakeSocket.ERROR
         self.assertRaises(
-            UnableToConnectHostnameInPortException,
+            LaboratoryExceptions.UnableToConnectHostnameInPortException,
             self.handler.run
         )
         

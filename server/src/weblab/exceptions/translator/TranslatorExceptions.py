@@ -22,10 +22,6 @@ class TranslatorException(WebLabExceptions.WebLabException):
 #
 # from TranslatorException
 #        
-
-class InvalidTranslatorConfigurationException(TranslatorException):
-    def __init__(self, *args, **kargs):
-        TranslatorException.__init__(self, *args, **kargs)
         
 class NotASessionTypeException(TranslatorException):
     def __init__(self, *args, **kargs):

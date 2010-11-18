@@ -15,7 +15,6 @@
 # 
 
 import unittest
-import mocker
 
 import weblab.data.Command as Command
 
