@@ -42,11 +42,6 @@ from voodoo.override import Override
 
 DEBUG = False
 
-mofaca = open("/tmp/mofaca", "w+")
-def printar(msg):
-   mofaca.write(msg)
-   mofaca.flush()
-
 
 #TODO: which exceptions should the user see and which ones should not?
 class UdXilinxExperiment(Experiment.Experiment):
