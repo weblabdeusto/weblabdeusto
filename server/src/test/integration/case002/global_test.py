@@ -74,8 +74,8 @@ class FakeUdXilinxExperiment(UdXilinxExperiment.UdXilinxExperiment):
     def __init__(self, coord_address, locator, cfg_manager, xilinx_device, fake_xilinx_impact, fake_serial_port, *args, **kargs):
         super(FakeUdXilinxExperiment,self).__init__(coord_address, locator, cfg_manager, *args, **kargs)
         self._xilinx_impact = fake_xilinx_impact
-        self._serial_port   = fake_serial_port
-        self._xilinx_device = xilinx_device
+        self._device_to_send_commands   = fake_serial_port
+        self._device_to_program = xilinx_device
 
     def _create_xilinx_impact(self, xilinx_device, cfg_manager):
         return None

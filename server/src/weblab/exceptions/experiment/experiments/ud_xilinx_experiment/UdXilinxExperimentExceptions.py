@@ -29,3 +29,15 @@ class InvalidUdBoardCommandException(UdBoardCommandException):
 class IllegalStatusUdBoardCommandException(UdBoardCommandException):
     def __init__(self, *args, **kargs):
         UdBoardCommandException.__init__(self, *args, **kargs)
+
+class InvalidDeviceToProgramException(UdBoardCommandException):
+    def __init__(self, *args, **kargs):
+        UdBoardCommandException.__init__(self, *args, **kargs)
+
+class InvalidDeviceToSendCommandsException(UdBoardCommandException):
+    def __init__(self, *args, **kargs):
+        UdBoardCommandException.__init__(self, *args, **kargs)
+
+class InvalidXilinxDeviceException(UdBoardCommandException):
+    def __init__(self, *args, **kargs):
+        UdBoardCommandException.__init__(self, *args, **kargs)

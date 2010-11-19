@@ -13,14 +13,194 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
-import unittest
-
-
+from weblab.exceptions.experiment.experiments.ud_xilinx_experiment import UdXilinxExperimentExceptions
 import test.unit.configuration as configuration_module
-
-import weblab.experiment.experiments.ud_xilinx_experiment.UdXilinxExperiment as UdXilinxExperiment
-import weblab.experiment.Util as ExperimentUtil
+import unittest
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import weblab.experiment.Util as ExperimentUtil
+import weblab.experiment.experiments.ud_xilinx_experiment.UdXilinxExperiment as UdXilinxExperiment
+
+
+class CreatingUdXilinxExperimentTestCase(unittest.TestCase):
+    
+    def setUp(self):
+        self.cfg_manager = ConfigurationManager.ConfigurationManager()
+        self.cfg_manager.append_module(configuration_module)
+                
+    def test_invalid_device_to_program(self):
+        self.cfg_manager._set_value('xilinx_device_to_program', 'ThisWillNeverBeAValidDeviceToProgramName')
+        self.assertRaises(
+            UdXilinxExperimentExceptions.InvalidDeviceToProgramException,
+            UdXilinxExperiment.UdXilinxExperiment,
+            None, None, self.cfg_manager
+        )
+                
+    def test_invalid_device_to_send_commands(self):
+        self.cfg_manager._set_value('xilinx_device_to_send_commands', 'ThisWillNeverBeAValidDeviceToSendCommandsName')
+        self.assertRaises(
+            UdXilinxExperimentExceptions.InvalidDeviceToSendCommandsException,
+            UdXilinxExperiment.UdXilinxExperiment,
+            None, None, self.cfg_manager
+        )
+
+class UsingUdXilinxExperimentTestCase(unittest.TestCase):
+    
+    def setUp(self):
+        self.cfg_manager = ConfigurationManager.ConfigurationManager()
+        self.cfg_manager.append_module(configuration_module)
+    
+    def test_xilinx_with_serial_port(self):        
+        self.cfg_manager._set_value('xilinx_device_to_program', 'XilinxImpact')
+        self.cfg_manager._set_value('xilinx_device_to_send_commands', 'SerialPort')
+        
+        self.uxm = UdXilinxExperiment.UdXilinxExperiment(
+                None,
+                None,
+                self.cfg_manager
+            )        
+        
+        # Hook _xilinx_impact and _serial_port
+        self.uxm._device_to_program = FakeImpact()
+        self.uxm._device_to_send_commands = FakeSerialPort()
+
+        # No problem
+        self.uxm.do_send_file_to_device(ExperimentUtil.serialize("whatever " * 400), 'program')
+
+        initial_open  = 20
+        initial_send  = 20
+        initial_close = 20
+
+        self.assertEquals(
+                initial_open,
+                self.uxm._device_to_send_commands.dict['open']
+            )
+        self.assertEquals(
+                initial_close,
+                self.uxm._device_to_send_commands.dict['close']
+            )
+        self.assertEquals(
+                initial_send,
+                self.uxm._device_to_send_commands.dict['send']
+            )
+        self.assertEquals(
+                initial_send,
+                len(self.uxm._device_to_send_commands.codes)
+            )
+        
+        self.uxm.do_send_command_to_device("ClockActivation off, ClockActivation on 1500, SetPulse on 3")
+
+        self.assertEquals(
+                1 + initial_open,
+                self.uxm._device_to_send_commands.dict['open']
+            )
+        self.assertEquals(
+                1 + initial_close,
+                self.uxm._device_to_send_commands.dict['close']
+            )
+        self.assertEquals(
+                3 + initial_send,
+                self.uxm._device_to_send_commands.dict['send']
+            )
+        self.assertEquals(
+                3 + initial_send,
+                len(self.uxm._device_to_send_commands.codes)
+            )
+        self.assertEquals(
+                37,
+                self.uxm._device_to_send_commands.codes[0 + initial_send]
+            )
+
+        self.assertEquals(
+                35,
+                self.uxm._device_to_send_commands.codes[1 + initial_send]
+            )
+
+        self.assertEquals(
+                27,
+                self.uxm._device_to_send_commands.codes[2 + initial_send]
+            )
+
+    def test_jtag_blazer_with_http(self):        
+        self.cfg_manager._set_value('xilinx_device_to_program', 'JTagBlazer')
+        self.cfg_manager._set_value('xilinx_device_to_send_commands', 'HttpDevice')
+        
+        self.uxm = UdXilinxExperiment.UdXilinxExperiment(
+                None,
+                None,
+                self.cfg_manager
+            )        
+        
+        # Hook _jtag_blazer and _http_device
+        self.uxm._device_to_program = FakeJTagBlazer()
+        self.uxm._device_to_send_commands = FakeHttpDevice()
+
+        # No problem
+        self.uxm.do_send_file_to_device(ExperimentUtil.serialize("whatever " * 400), 'program')
+
+        initial_send  = 20
+
+        self.assertEquals(
+                initial_send,
+                len(self.uxm._device_to_send_commands.msgs)
+            )
+
+        self.uxm.do_send_command_to_device("ClockActivation off, ClockActivation on 1500, SetPulse on 3")
+
+        self.assertEquals(
+                1 + initial_send,
+                len(self.uxm._device_to_send_commands.msgs)
+            )
+        
+        self.assertEquals(
+                "ClockActivation off, ClockActivation on 1500, SetPulse on 3",
+                self.uxm._device_to_send_commands.msgs[0 + initial_send]
+            )
+
+    def test_digilent_adept_with_http(self):        
+        self.cfg_manager._set_value('xilinx_device_to_program', 'DigilentAdept')
+        self.cfg_manager._set_value('xilinx_device_to_send_commands', 'HttpDevice')
+        
+        self.uxm = UdXilinxExperiment.UdXilinxExperiment(
+                None,
+                None,
+                self.cfg_manager
+            )        
+        
+        # Hook _digilent_adept and _http_device
+        self.uxm._device_to_program = FakeDigilentAdept()
+        self.uxm._device_to_send_commands = FakeHttpDevice()
+
+        # No problem
+        self.uxm.do_send_file_to_device(ExperimentUtil.serialize("whatever " * 400), 'program')
+
+        initial_send  = 20
+
+        self.assertEquals(
+                initial_send,
+                len(self.uxm._device_to_send_commands.msgs)
+            )
+
+        self.uxm.do_send_command_to_device("ClockActivation off, ClockActivation on 1500, SetPulse on 3")
+
+        self.assertEquals(
+                1 + initial_send,
+                len(self.uxm._device_to_send_commands.msgs)
+            )
+        
+        self.assertEquals(
+                "ClockActivation off, ClockActivation on 1500, SetPulse on 3",
+                self.uxm._device_to_send_commands.msgs[0 + initial_send]
+            )
+ 
+        
+def suite():
+    return unittest.TestSuite(
+            (
+                unittest.makeSuite(CreatingUdXilinxExperimentTestCase),
+                unittest.makeSuite(UsingUdXilinxExperimentTestCase)
+            )
+        )
+
 
 class FakeImpact(object):
     def __init__(self):
@@ -69,173 +249,7 @@ class FakeHttpDevice(object):
     def send_message(self, msg):
         self.sent += len(msg)
         self.msgs.append(msg)
-        
 
-class UdXilinxExperimentTestCase(unittest.TestCase):
-    
-    def test_xilinx_with_serial_port(self):
-
-        cfg_manager= ConfigurationManager.ConfigurationManager()
-        cfg_manager.append_module(configuration_module)
-        
-        cfg_manager._set_value('xilinx_use_jtag_blazer_to_program', False)
-        cfg_manager._set_value('xilinx_use_digilent_adept_to_program', False)
-        cfg_manager._set_value('xilinx_use_http_to_send_commands', False)
-        
-        self.uxm = UdXilinxExperiment.UdXilinxExperiment(
-                None,
-                None,
-                cfg_manager
-            )        
-        
-        # Hook _xilinx_impact and _serial_port
-        self.uxm._xilinx_impact = FakeImpact()
-        self.uxm._serial_port   = FakeSerialPort()
-
-        # No problem
-        self.uxm.do_send_file_to_device(ExperimentUtil.serialize("whatever " * 400), 'program')
-
-        initial_open  = 20
-        initial_send  = 20
-        initial_close = 20
-
-        self.assertEquals(
-                initial_open,
-                self.uxm._serial_port.dict['open']
-            )
-        self.assertEquals(
-                initial_close,
-                self.uxm._serial_port.dict['close']
-            )
-        self.assertEquals(
-                initial_send,
-                self.uxm._serial_port.dict['send']
-            )
-        self.assertEquals(
-                initial_send,
-                len(self.uxm._serial_port.codes)
-            )
-
-
-        self.uxm.do_send_command_to_device("ClockActivation off, ClockActivation on 1500, SetPulse on 3")
-
-        self.assertEquals(
-                1 + initial_open,
-                self.uxm._serial_port.dict['open']
-            )
-        self.assertEquals(
-                1 + initial_close,
-                self.uxm._serial_port.dict['close']
-            )
-        self.assertEquals(
-                3 + initial_send,
-                self.uxm._serial_port.dict['send']
-            )
-        self.assertEquals(
-                3 + initial_send,
-                len(self.uxm._serial_port.codes)
-            )
-        self.assertEquals(
-                37,
-                self.uxm._serial_port.codes[0 + initial_send]
-            )
-
-        self.assertEquals(
-                35,
-                self.uxm._serial_port.codes[1 + initial_send]
-            )
-
-        self.assertEquals(
-                27,
-                self.uxm._serial_port.codes[2 + initial_send]
-            )
-
-    def test_jtag_blazer_with_http(self):
-
-        cfg_manager= ConfigurationManager.ConfigurationManager()
-        cfg_manager.append_module(configuration_module)
-        
-        cfg_manager._set_value('xilinx_use_jtag_blazer_to_program', True)
-        cfg_manager._set_value('xilinx_use_digilent_adept_to_program', False)
-        cfg_manager._set_value('xilinx_use_http_to_send_commands', True)
-        
-        self.uxm = UdXilinxExperiment.UdXilinxExperiment(
-                None,
-                None,
-                cfg_manager
-            )        
-
-        # Hook _xilinx_impact and _serial_port
-        self.uxm._jtag_blazer = FakeJTagBlazer()
-        self.uxm._http_device = FakeHttpDevice()
-
-        # No problem
-        self.uxm.do_send_file_to_device(ExperimentUtil.serialize("whatever " * 400), 'program')
-
-        initial_send  = 20
-
-        self.assertEquals(
-                initial_send,
-                len(self.uxm._http_device.msgs)
-            )
-
-        self.uxm.do_send_command_to_device("ClockActivation off, ClockActivation on 1500, SetPulse on 3")
-
-        self.assertEquals(
-                1 + initial_send,
-                len(self.uxm._http_device.msgs)
-            )
-        
-        self.assertEquals(
-                "ClockActivation off, ClockActivation on 1500, SetPulse on 3",
-                self.uxm._http_device.msgs[0 + initial_send]
-            )
-
-    def test_digilent_adept_with_http(self):
-
-        cfg_manager= ConfigurationManager.ConfigurationManager()
-        cfg_manager.append_module(configuration_module)
-        
-        cfg_manager._set_value('xilinx_use_digilent_adept_to_program', True)
-        cfg_manager._set_value('xilinx_use_jtag_blazer_to_program', False)
-        cfg_manager._set_value('xilinx_use_http_to_send_commands', True)
-        
-        self.uxm = UdXilinxExperiment.UdXilinxExperiment(
-                None,
-                None,
-                cfg_manager
-            )        
-
-        # Hook _xilinx_impact and _serial_port
-        self.uxm._digilent_adept = FakeDigilentAdept()
-        self.uxm._http_device = FakeHttpDevice()
-
-        # No problem
-        self.uxm.do_send_file_to_device(ExperimentUtil.serialize("whatever " * 400), 'program')
-
-        initial_send  = 20
-
-        self.assertEquals(
-                initial_send,
-                len(self.uxm._http_device.msgs)
-            )
-
-        self.uxm.do_send_command_to_device("ClockActivation off, ClockActivation on 1500, SetPulse on 3")
-
-        self.assertEquals(
-                1 + initial_send,
-                len(self.uxm._http_device.msgs)
-            )
-        
-        self.assertEquals(
-                "ClockActivation off, ClockActivation on 1500, SetPulse on 3",
-                self.uxm._http_device.msgs[0 + initial_send]
-            )
- 
-        
-def suite():
-    return unittest.makeSuite(UdXilinxExperimentTestCase)
 
 if __name__ == '__main__':
     unittest.main()
-

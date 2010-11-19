@@ -118,31 +118,14 @@ login_facade_xmlrpc_bind    = ''
 login_facade_xmlrpc_port      = 19445
 
 ########################
-# Xilinx configuration #
+# Xilinx Configuration #
 ########################
-
-# This should be something like this:
-# import os as _os
-# xilinx_home = _os.getenv('XILINX_HOME')
-# if xilinx_home == None:
-#   if _os.name == 'nt':
-#       xilinx_home = r'C:\Program Files\Xilinx'
-#   elif _os.name == 'posix':
-#       xilinx_home = r"/home/nctrun/Xilinx"
-# 
-# if _os.name == 'nt':
-#   xilinx_impact_full_path = [xilinx_home + r'\bin\nt\impact']
-# elif _os.name == 'posix':
-#   xilinx_impact_full_path = [xilinx_home + r'/bin/lin/impact']
-
-# But for testing we are going to fake it:
 
 xilinx_home = "."
 xilinx_impact_full_path = ["python","./test/unit/weblab/experiment/devices/xilinx_impact/fake_impact.py" ]
 
-xilinx_use_jtag_blazer_to_program = False # if not, 'Xilinx'
-xilinx_use_digilent_adept_to_program = False
-xilinx_use_http_to_send_commands  = False # if not, 'SerialPort'
+xilinx_device_to_program = 'XilinxImpact' # 'JTagBlazer', 'DigilentAdept'
+xilinx_device_to_send_commands = 'SerialPort' # 'HttpDevice'
 
 # Only when using Xilinx to program the device:
 
