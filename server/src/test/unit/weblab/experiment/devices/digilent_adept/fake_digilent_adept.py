@@ -16,11 +16,8 @@
 if __name__ == '__main__':
     import sys
     for param in sys.argv:
-    	if param.find("error") >= 0:
-	    print "ERROR: bla bla bla"
+        if param.find("error") >= 0:
+            print "ERROR: bla bla bla"
             break
-	elif param.find("stderr") >= 0:
-	    print >> sys.stderr, "bla bla bla"
-            break
-	elif param.find("return-1") >= 0:
+        elif param.find("return-1") >= 0:
             sys.exit(-1)

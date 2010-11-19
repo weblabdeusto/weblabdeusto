@@ -63,7 +63,7 @@ class DigilentAdept(object):
     def program_device(self, program_path):
         file_content, digilent_adept = self._parse_configuration_to_program()
 
-	cmd_params = file_content.replace('$FILE',program_path)
+        cmd_params = file_content.replace('$FILE',program_path)
         self._reserve_device()
         try:
             res, out, err = self._execute(cmd_params, digilent_adept)
@@ -73,8 +73,7 @@ class DigilentAdept(object):
         self._log(res,out,err)
 
         # TODO: this could be improved :-D
-	# TODO: this should be checked with the real output from digilent_adept
-        if out.find("ERROR") >= 0 or len(err) > 0:
+        if out.find("ERROR") >= 0:
             error_messages = [ i for i in out.split('\n') if i.find('ERROR') >= 0 ] 
             error_messages += '; ' + err
             raise DigilentAdeptExceptions.ProgrammingGotErrors(

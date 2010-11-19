@@ -33,45 +33,37 @@ class DigilentAdeptTestCase(unittest.TestCase):
         self._device.program_device("ok.svf")
 
     def test_program_device_errors(self):
-        self._test_program_device_errors(self._device)
-
-    def _test_program_device_errors(self, device):
         self.assertRaises(
             DigilentAdeptExceptions.ProgrammingGotErrors,
-            device.program_device,
+            self._device.program_device,
             "error.svf"
         )
         self.assertRaises(
             DigilentAdeptExceptions.ProgrammingGotErrors,
-            device.program_device,
-            "stderr.svf"
-        )
-        self.assertRaises(
-            DigilentAdeptExceptions.ProgrammingGotErrors,
-            device.program_device,
+            self._device.program_device,
             "return-1.svf"
         )
                 
-        device._busy = True
+        self._device._busy = True
         self.assertRaises(
             DigilentAdeptExceptions.AlreadyProgrammingDeviceException,
-            device.program_device,
+            self._device.program_device,
             "ok.svf"
         )
-        device._busy = False
+        self._device._busy = False
 
         self.cfg_manager._values['digilent_adept_full_path'] = ['p0wn3d']
 
         self.assertRaises(
             DigilentAdeptExceptions.ErrorProgrammingDeviceException,
-            device.program_device,
+            self._device.program_device,
             "ok.svf"
         )
         self.cfg_manager._values.pop('digilent_adept_full_path')
                 
         self.assertRaises(
             DigilentAdeptExceptions.CantFindDigilentAdeptProperty,
-            device.program_device,
+            self._device.program_device,
             "ok.svf"
         )
         self.cfg_manager.reload()
