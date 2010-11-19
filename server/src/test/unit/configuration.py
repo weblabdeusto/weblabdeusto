@@ -141,6 +141,7 @@ xilinx_home = "."
 xilinx_impact_full_path = ["python","./test/unit/weblab/experiment/devices/xilinx_impact/fake_impact.py" ]
 
 xilinx_use_jtag_blazer_to_program = False # if not, 'Xilinx'
+xilinx_use_digilent_adept_to_program = False
 xilinx_use_http_to_send_commands  = False # if not, 'SerialPort'
 
 # Only when using Xilinx to program the device:
@@ -162,11 +163,41 @@ Program -p 1 -e -defaultVersion 0
 quit
 """
 
+# Both when using JTagBlazer or Digilent Adept to program the device:
+
+xilinx_source2svf_batch_content_FPGA = """setMode -bs
+setMode -bs
+setMode -bs
+setMode -bs
+setCable -port svf -file "$SVF_FILE"
+addDevice -p 1 -file "$SOURCE_FILE"
+Program -p 1
+exit
+"""
+
+xilinx_source2svf_batch_content_PLD = """setMode -bs
+setMode -bs
+setMode -bs
+setMode -bs
+setCable -port svf -file "$SVF_FILE"
+addDevice -p 1 -file "$SOURCE_FILE"
+Program -p 1 -e -v
+exit
+"""
+
 # Only when using JTagBlazer to program the device:
 
 xilinx_jtag_blazer_jbmanager_svf2jsvf_full_path = ["python","./test/unit/weblab/experiment/devices/jtag_blazer/fake_jbmanager_svf2jsvf.py" ]
 xilinx_jtag_blazer_jbmanager_target_full_path   = ["python","./test/unit/weblab/experiment/devices/jtag_blazer/fake_jbmanager_target.py" ]
 
+xilinx_jtag_blazer_device_ip_FPGA = "192.168.50.137"
+xilinx_jtag_blazer_device_ip_PLD = "192.168.50.137"
+
+# Only when using Digilent Adept to program the device
+
+digilent_adept_full_path = ["python","./test/unit/weblab/experiment/devices/digilent_adept/fake_digilent_adept.py" ]
+
+digilent_adept_batch_content = """something with the variable $FILE"""
 
 # Only when using Serial Port to send commands to the device:
 
@@ -175,36 +206,15 @@ weblab_xilinx_experiment_xilinx_device = 'PLD'
 
 # Only when using HTTP to send commands to the device:
 
-# Must check the really needed commands for FPGA!
-xilinx_jtag_blazer_batch_content_FPGA = """setMode -bs
-setMode -bs
-setMode -bs
-setMode -bs
-setCable -port svf -file "$SVF_FILE"
-addDevice -p 1 -file "$SOURCE_FILE"
-Program -p 1 -e -v
-exit
-"""
-
-xilinx_jtag_blazer_batch_content_PLD = """setMode -bs
-setMode -bs
-setMode -bs
-setMode -bs
-setCable -port svf -file "$SVF_FILE"
-addDevice -p 1 -file "$SOURCE_FILE"
-Program -p 1 -e -v
-exit
-"""
-
-xilinx_jtag_blazer_device_ip_FPGA = "192.168.50.137"
 xilinx_http_device_ip_FPGA        = "192.168.50.138"
 xilinx_http_device_port_FPGA      = 80
 xilinx_http_device_app_FPGA       = ""
 
-xilinx_jtag_blazer_device_ip_PLD = "192.168.50.139"
-xilinx_http_device_ip_PLD        = "192.168.50.140"
+xilinx_http_device_ip_PLD        = "192.168.50.138"
 xilinx_http_device_port_PLD      = 80
 xilinx_http_device_app_PLD       = ""
+
+
 
 ######################
 # GPIB configuration #

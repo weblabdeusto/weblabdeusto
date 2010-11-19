@@ -27,6 +27,7 @@ import weblab.experiment.devices.xilinx_impact.XilinxImpact as XilinxImpact
 import weblab.experiment.devices.serial_port.SerialPort     as SerialPort
 import weblab.experiment.devices.jtag_blazer.JTagBlazer     as JTagBlazer
 import weblab.experiment.devices.http_device.HttpDevice     as HttpDevice
+import weblab.experiment.devices.digilent_adept.DigilentAdept as DigilentAdept
 
 import weblab.experiment.devices.xilinx_impact.XilinxDevices as XilinxDevices
 
@@ -41,6 +42,10 @@ from voodoo.override import Override
 
 DEBUG = False
 
+mofaca = open("/tmp/mofaca", "w+")
+def printar(msg):
+   mofaca.write(msg)
+   mofaca.flush()
 
 
 #TODO: which exceptions should the user see and which ones should not?
@@ -72,11 +77,14 @@ class UdXilinxExperiment(Experiment.Experiment):
             self._xilinx_device = None
 
         self._use_jtag_blazer = cfg_manager.get_value('xilinx_use_jtag_blazer_to_program')
+        self._use_digilent_adept = cfg_manager.get_value('xilinx_use_digilent_adept_to_program')
         self._use_http = cfg_manager.get_value('xilinx_use_http_to_send_commands')
 
         self._xilinx_impact = self._create_xilinx_impact(self._xilinx_device, cfg_manager)
         if self._use_jtag_blazer:
             self._jtag_blazer = self._create_jtag_blazer(cfg_manager)
+	elif self._use_digilent_adept:
+            self._digilent_adept = self._create_digilent_adept(cfg_manager)
         
         if self._use_http:
             http_ip = cfg_manager.get_value('xilinx_http_device_ip_' + self._xilinx_device.name)
@@ -100,6 +108,9 @@ class UdXilinxExperiment(Experiment.Experiment):
     def _create_jtag_blazer(self, cfg_manager):
         return JTagBlazer.JTagBlazer(cfg_manager)
 
+    def _create_digilent_adept(self, cfg_manager):
+        return DigilentAdept.DigilentAdept(cfg_manager)
+
     def _create_http_device(self, ip, port, app):
         return HttpDevice.HttpDevice(ip, port, app)
     
@@ -109,6 +120,10 @@ class UdXilinxExperiment(Experiment.Experiment):
             svf_file_name = file_name.replace("."+self._xilinx_impact.get_suffix(), ".svf")
             device_ip = self._cfg_manager.get_value('xilinx_jtag_blazer_device_ip_' + self._xilinx_device.name)
             self._jtag_blazer.program_device(svf_file_name, device_ip)
+        elif self._use_digilent_adept:
+            self._xilinx_impact.source2svf(file_name)
+            svf_file_name = file_name.replace("."+self._xilinx_impact.get_suffix(), ".svf")
+            self._digilent_adept.program_device(svf_file_name)
         else:
             self._xilinx_impact.program_device(file_name)
     
@@ -164,14 +179,25 @@ class UdXilinxExperiment(Experiment.Experiment):
         self._clear()
 
     def _clear(self):
-        try:
-            for i in range(10):
-                self._send_command_to_device(str(UdBoardCommand.ChangeSwitchCommand("on",i)))
-                self._send_command_to_device(str(UdBoardCommand.ChangeSwitchCommand("off",i)))
-        except Exception, e:
-            raise ExperimentExceptions.SendingCommandFailureException(
-                    "Error sending command to device: %s" % e
-                )
+        # Kludge!!
+        xilinx_device = self._cfg_manager.get_value('weblab_xilinx_experiment_xilinx_device')
+        if xilinx_device == "PLD":
+	        try:
+	            for i in range(10):
+	                self._send_command_to_device(str(UdBoardCommand.ChangeSwitchCommand("on",i)))
+	                self._send_command_to_device(str(UdBoardCommand.ChangeSwitchCommand("off",i)))
+	        except Exception, e:
+	            raise ExperimentExceptions.SendingCommandFailureException(
+	                    "Error sending command to device: %s" % e
+	                )
+	else:
+		try:
+		    self._send_command_to_device("CleanInputs")
+		except Exception, e:
+                    raise ExperimentExceptions.SendingCommandFailureException(
+                            "Error sending command to device: %s" % e
+                        )
+
     
     @logged("info")
     @Override(Experiment.Experiment)

@@ -52,6 +52,14 @@ class FakeJTagBlazer(object):
     def program_device(self, svf_file_name, device_ip):
         pass
 
+class FakeDigilentAdept(object):
+    def __init__(self):
+        super(FakeDigilentAdept,self).__init__()
+    def program_device(self, svf_file_name):
+        pass
+    def get_suffix(self):
+        return "whatever"
+
 class FakeHttpDevice(object):
     def __init__(self):
         super(FakeHttpDevice, self).__init__()
@@ -70,6 +78,7 @@ class UdXilinxExperimentTestCase(unittest.TestCase):
         cfg_manager.append_module(configuration_module)
         
         cfg_manager._set_value('xilinx_use_jtag_blazer_to_program', False)
+        cfg_manager._set_value('xilinx_use_digilent_adept_to_program', False)
         cfg_manager._set_value('xilinx_use_http_to_send_commands', False)
         
         self.uxm = UdXilinxExperiment.UdXilinxExperiment(
@@ -146,6 +155,7 @@ class UdXilinxExperimentTestCase(unittest.TestCase):
         cfg_manager.append_module(configuration_module)
         
         cfg_manager._set_value('xilinx_use_jtag_blazer_to_program', True)
+        cfg_manager._set_value('xilinx_use_digilent_adept_to_program', False)
         cfg_manager._set_value('xilinx_use_http_to_send_commands', True)
         
         self.uxm = UdXilinxExperiment.UdXilinxExperiment(
@@ -179,6 +189,48 @@ class UdXilinxExperimentTestCase(unittest.TestCase):
                 "ClockActivation off, ClockActivation on 1500, SetPulse on 3",
                 self.uxm._http_device.msgs[0 + initial_send]
             )
+
+    def test_digilent_adept_with_http(self):
+
+        cfg_manager= ConfigurationManager.ConfigurationManager()
+        cfg_manager.append_module(configuration_module)
+        
+        cfg_manager._set_value('xilinx_use_digilent_adept_to_program', True)
+        cfg_manager._set_value('xilinx_use_jtag_blazer_to_program', False)
+        cfg_manager._set_value('xilinx_use_http_to_send_commands', True)
+        
+        self.uxm = UdXilinxExperiment.UdXilinxExperiment(
+                None,
+                None,
+                cfg_manager
+            )        
+
+        # Hook _xilinx_impact and _serial_port
+        self.uxm._digilent_adept = FakeDigilentAdept()
+        self.uxm._http_device = FakeHttpDevice()
+
+        # No problem
+        self.uxm.do_send_file_to_device(ExperimentUtil.serialize("whatever " * 400), 'program')
+
+        initial_send  = 20
+
+        self.assertEquals(
+                initial_send,
+                len(self.uxm._http_device.msgs)
+            )
+
+        self.uxm.do_send_command_to_device("ClockActivation off, ClockActivation on 1500, SetPulse on 3")
+
+        self.assertEquals(
+                1 + initial_send,
+                len(self.uxm._http_device.msgs)
+            )
+        
+        self.assertEquals(
+                "ClockActivation off, ClockActivation on 1500, SetPulse on 3",
+                self.uxm._http_device.msgs[0 + initial_send]
+            )
+ 
         
 def suite():
     return unittest.makeSuite(UdXilinxExperimentTestCase)

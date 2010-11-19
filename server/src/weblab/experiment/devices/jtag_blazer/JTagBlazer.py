@@ -134,7 +134,12 @@ class JTagBlazer(object):
                     )
                 # TODO: make use of popen.poll to make this asynchronous
                 try:
+                    f = open("/tmp/SALIDA", "w+")
+                    import time
+                    f.write("esperando... %f" % time.time())
                     result = popen.wait()
+                    f.write("terminado! %f" % time.time())
+                    f.close()
                 except Exception, e:
                     raise JTagBlazerExceptions.ErrorWaitingForJTagBlazerTargetFinishedException(
                         "There was an error while waiting for the programming program to finish: %s" % e

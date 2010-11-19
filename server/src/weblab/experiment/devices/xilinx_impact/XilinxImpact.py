@@ -108,16 +108,31 @@ class XilinxImpact(object):
         self._log(res,out,err)
 
         # TODO: this could be improved :-D
-        if out.find("ERROR") >= 0 or len(err) > 0:
-            error_messages = [ i for i in out.split('\n') if i.find('ERROR') >= 0 ] 
-            error_messages += '; ' + err
-            raise XilinxImpactExceptions.GeneratingSvfFileGotErrors(
-                    "Impact raised errors while generating the .SVF file: %s" % error_messages
-                )
-        if res != 0:
-            raise XilinxImpactExceptions.GeneratingSvfFileGotErrors(
-                    "Impact returned %i" % res
-                )        
+	# Kludge!
+        if device == XilinxDevices.PLD:
+	        if out.find("ERROR") >= 0:
+        	    error_messages = [ i for i in out.split('\n') if i.find('ERROR') >= 0 ] 
+	            error_messages += '; ' + err
+	            raise XilinxImpactExceptions.GeneratingSvfFileGotErrors(
+	                    "Impact raised errors while generating the .SVF file: %s" % error_messages
+	                )
+	        if res != 0:
+	            raise XilinxImpactExceptions.GeneratingSvfFileGotErrors(
+	                    "Impact returned %i" % res
+	                ) 
+	else:
+		if out.find("ERROR") >= 0:
+       	            error_messages = [ i for i in out.split('\n') if i.find('ERROR') >= 0 ]
+               	    error_messages += '; ' + err
+                    raise XilinxImpactExceptions.GeneratingSvfFileGotErrors(
+                            "Impact raised errors while generating the .SVF file: %s" % error_messages
+                        )
+                if res != 0:
+                    raise XilinxImpactExceptions.GeneratingSvfFileGotErrors(
+                            "Impact returned %i" % res
+                        )
+       
+
     
     def _execute(self, cmd_file_name, xilinx_impact):
         full_cmd_line = xilinx_impact + ['-batch',cmd_file_name]
@@ -162,7 +177,7 @@ class XilinxImpact(object):
 
     def _parse_configuration_to_source2svf(self, device):
         try:
-            svf2jsvf_file_content = self._cfg_manager.get_value('xilinx_jtag_blazer_batch_content_' + device.name)
+            svf2jsvf_file_content = self._cfg_manager.get_value('xilinx_source2svf_batch_content_' + device.name)
             xilinx_impact = self._cfg_manager.get_value('xilinx_impact_full_path')
         except ConfigurationExceptions.KeyNotFoundException,knfe:
             raise XilinxImpactExceptions.CantFindXilinxProperty(

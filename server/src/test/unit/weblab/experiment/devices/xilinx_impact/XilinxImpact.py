@@ -96,11 +96,6 @@ class XilinxImpactTestCase(unittest.TestCase):
         self.assertRaises(
             XilinxImpactExceptions.GeneratingSvfFileGotErrors,
             impact.source2svf,
-            "stderr.file"
-        )
-        self.assertRaises(
-            XilinxImpactExceptions.GeneratingSvfFileGotErrors,
-            impact.source2svf,
             "return-1.file"
         )
 
