@@ -26,8 +26,8 @@ class Translator(object):
             StoreEverythingTranslator the default value for that cfg property. In this case, the ProxyServer
             passes its own SessionManager to the Translator, so it can persist data easily."""
     
-    def __init__(self, coord_address, locator, cfg_manager, session_manager=None):
-        super(Translator, self).__init__()
+    def __init__(self, coord_address, locator, cfg_manager, session_manager=None, *args, **kargs):
+        super(Translator, self).__init__(*args, **kargs)
         self._coord_address = coord_address
         self._easy_locator = locator
         self._cfg_manager = cfg_manager

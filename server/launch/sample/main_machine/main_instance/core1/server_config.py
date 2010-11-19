@@ -53,5 +53,6 @@ core_scheduling_systems = {
         "flashdummy@Dummy experiments" : ("PRIORITY_QUEUE", {}),
         "javadummy@Dummy experiments"  : ("PRIORITY_QUEUE", {}),
         "visirtest@Dummy experiments"  : ("PRIORITY_QUEUE", {}),
+        "vm@Dummy experiments"         : ("PRIORITY_QUEUE", {}),
     }
 

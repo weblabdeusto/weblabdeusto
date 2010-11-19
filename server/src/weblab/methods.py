@@ -24,7 +24,7 @@ UserProcessing = [
 Proxy = [
         'enable_access',
         'disable_access',
-        'is_expired',
+        'are_expired',
         'retrieve_results'
     ]
 
