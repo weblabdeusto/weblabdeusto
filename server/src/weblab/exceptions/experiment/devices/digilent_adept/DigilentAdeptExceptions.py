@@ -10,7 +10,7 @@
 # This software consists of contributions made by many individuals, 
 # listed below:
 #
-# Author: Pablo Orduña <pablo@ordunya.com>
+# Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 import weblab.exceptions.experiment.devices.DeviceExceptions as DeviceExceptions
 

@@ -10,8 +10,7 @@
 # This software consists of contributions made by many individuals, 
 # listed below:
 #
-# Author: Pablo Orduña <pablo@ordunya.com>
-#         Jaime Irurzun <jaime.irurzun@gmail.com>
+# Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 #
  
 import os

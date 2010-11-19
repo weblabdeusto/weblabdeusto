@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 import unittest
 
