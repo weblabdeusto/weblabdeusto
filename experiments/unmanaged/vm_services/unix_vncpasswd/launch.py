@@ -38,22 +38,22 @@ import BaseHTTPServer
 def change_password(new_passwd):
     passwd = pexpect.spawn("%s %s" % (PASSWD_PATH, USERNAME))
 	
-	# wait for password: to come out of passwd's stdout
-	passwd.expect("Password: ")
-	# send pass to passwd's stdin
-	passwd.sendline(new_passwd)
+    # wait for password: to come out of passwd's stdout
+    passwd.expect("Password: ")
+    # send pass to passwd's stdin
+    passwd.sendline(new_passwd)
+    
+    time.sleep(0.1)
+    
+    passwd.expect("Verify: ")
+    passwd.sendline(new_passwd)
 	
-	time.sleep(0.1)
+    time.sleep(0.1)
 	
-	passwd.expect("Verify: ")
-	passwd.sendline(new_passwd)
-	
-	time.sleep(0.1)
-	
-	passwd.expect(" (y/n)?")
-	passwd.sendline("n");
-	
-	time.sleep(0.1)
+    passwd.expect(" (y/n)?")
+    passwd.sendline("n");
+    
+    time.sleep(0.1)
 
 class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_GET(self):
