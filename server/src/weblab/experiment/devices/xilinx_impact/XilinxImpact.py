@@ -217,6 +217,8 @@ class XilinxImpactPLD(XilinxImpact):
         return super(XilinxImpactPLD,self).source2svf( program, XilinxDevices.PLD)
     def get_suffix(self):
         return 'jed'
+    def get_name(self):
+        return "PLD"
 
 class XilinxImpactFPGA(XilinxImpact):
     def __init__(self, *args, **kargs):
@@ -227,3 +229,5 @@ class XilinxImpactFPGA(XilinxImpact):
         return super(XilinxImpactFPGA,self).source2svf( program, XilinxDevices.FPGA)
     def get_suffix(self):
         return 'bit'
+    def get_name(self):
+        return "FPGA"

@@ -18,6 +18,7 @@ from voodoo.gen.caller_checker import caller_check
 from voodoo.log import logged
 from voodoo.override import Override
 from weblab.exceptions.experiment.experiments.ud_xilinx_experiment import UdXilinxExperimentExceptions
+from weblab.experiment.experiments.ud_xilinx_experiment.UdXilinxProgrammers import UdXilinxProgrammer
 import os
 import tempfile
 import threading
@@ -47,22 +48,15 @@ class UdXilinxExperiment(Experiment.Experiment):
         self._xilinx_device_name, self._xilinx_device = self._load_xilinx_device()
         self._xilinx_impact = self._create_xilinx_impact(self._xilinx_device, cfg_manager)
         
-        self._device_to_program_name, self._device_to_program = self._load_device_to_program()
+        self._programmer = self._load_programmer()
         self._device_to_send_commands_name, self._device_to_send_commands = self._load_device_to_send_commands()
         self.webcam_url = self._load_webcam_url()
         
         self._serial_port_lock = threading.Lock()
         
-    def _load_device_to_program(self):
+    def _load_programmer(self):
         device_name = self._cfg_manager.get_value('xilinx_device_to_program')
-        if device_name == 'XilinxImpact':
-            return device_name, self._create_xilinx_impact(self._xilinx_device, self._cfg_manager)
-        elif device_name == 'JTagBlazer':
-            return device_name, self._create_jtag_blazer(self._cfg_manager)
-        elif device_name == 'DigilentAdept':
-            return device_name, self._create_digilent_adept(self._cfg_manager)
-        else:
-            raise UdXilinxExperimentExceptions.InvalidDeviceToProgramException("Provided: %s" % device_name)
+        return UdXilinxProgrammer.create(device_name, self._cfg_manager, self._xilinx_impact)
         
     def _load_device_to_send_commands(self):
         device_name = self._cfg_manager.get_value('xilinx_device_to_send_commands')
@@ -105,20 +99,6 @@ class UdXilinxExperiment(Experiment.Experiment):
     def _create_http_device(self, ip, port, app):
         return HttpDevice.HttpDevice(ip, port, app)
     
-    def _program_device(self, file_name):
-        # TODO: Refactor!
-        if self._device_to_program_name == 'DigilentAdept':
-            self._xilinx_impact.source2svf(file_name)
-            svf_file_name = file_name.replace("."+self._xilinx_impact.get_suffix(), ".svf")
-            self._device_to_program.program_device(svf_file_name)
-        elif self._device_to_program_name == 'JTagBlazer':
-            self._xilinx_impact.source2svf(file_name)
-            svf_file_name = file_name.replace("."+self._xilinx_impact.get_suffix(), ".svf")
-            device_ip = self._cfg_manager.get_value('xilinx_jtag_blazer_device_ip_' + self._xilinx_device.name)
-            self._device_to_program.program_device(svf_file_name, device_ip)
-        else:
-            self._xilinx_impact.program_device(file_name)
-    
     def _send_command_to_device(self, command):
         # TODO: Refactor!
         if self._device_to_send_commands_name == 'HttpDevice':
@@ -152,7 +132,7 @@ class UdXilinxExperiment(Experiment.Experiment):
                     os.write(fd, file_content_recovered)
                 finally:
                     os.close(fd)
-                self._program_device(file_name)
+                self._programmer.program(file_name)
             finally:
                 os.remove(file_name)
         except Exception, e:

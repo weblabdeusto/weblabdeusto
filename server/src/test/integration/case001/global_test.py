@@ -13,71 +13,60 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-import unittest
+from test.util.ModuleDisposer import uses_module, case_uses_module
+from voodoo.override import Override
+from weblab.experiment.experiments.ud_xilinx_experiment.UdXilinxProgrammers import UdXilinxProgrammer, XilinxImpactProgrammer
 import sys
+import test.unit.configuration as configuration
 import time
-
-import voodoo.methods as voodoo_exported_methods
-
-import voodoo.sessions.SessionType as SessionType
-
-import voodoo.gen.coordinator.AccessLevel as AccessLevel
+import unittest
+import voodoo.configuration.ConfigurationManager as ConfigurationManager
 import voodoo.gen.coordinator.Access as Access
+import voodoo.gen.coordinator.AccessLevel as AccessLevel
+import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.gen.coordinator.CoordinationInformation as CoordInfo
 import voodoo.gen.coordinator.CoordinatorServer as CoordinatorServer
-import voodoo.gen.coordinator.CoordAddress as CoordAddress
-
 import voodoo.gen.generators.ServerSkel as ServerSkel
-
-import voodoo.gen.protocols.Protocols as Protocols
-import voodoo.gen.protocols.Direct.Network as DirectNetwork
-import voodoo.gen.protocols.Direct.Address as DirectAddress
-import voodoo.gen.protocols.SOAP.Network as SOAPNetwork
-import voodoo.gen.protocols.SOAP.Address as SOAPAddress
-import voodoo.gen.protocols.SOAP.ServerSOAP as ServerSOAP
-
-import voodoo.gen.locator.ServerTypeHandler as ServerTypeHandler
-import voodoo.gen.locator.ServerLocator as ServerLocator
 import voodoo.gen.locator.EasyLocator as EasyLocator
-
+import voodoo.gen.locator.ServerLocator as ServerLocator
+import voodoo.gen.locator.ServerTypeHandler as ServerTypeHandler
+import voodoo.gen.protocols.Direct.Address as DirectAddress
+import voodoo.gen.protocols.Direct.Network as DirectNetwork
+import voodoo.gen.protocols.Protocols as Protocols
+import voodoo.gen.protocols.SOAP.Address as SOAPAddress
+import voodoo.gen.protocols.SOAP.Network as SOAPNetwork
+import voodoo.gen.protocols.SOAP.ServerSOAP as ServerSOAP
 import voodoo.gen.registry.ServerRegistry as ServerRegistry
-
-import weblab.data.ServerType as ServerType
-import weblab.data.Command as Command
+import voodoo.methods as voodoo_exported_methods
+import voodoo.sessions.SessionType as SessionType
 import weblab.data.ClientAddress as ClientAddress
-
-import weblab.methods as weblab_exported_methods
-
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
-
+import weblab.data.Command as Command
+import weblab.data.ServerType as ServerType
+import weblab.experiment.Util as ExperimentUtil
+import weblab.experiment.devices.xilinx_impact.XilinxDevices as XilinxDevices
+import weblab.experiment.experiments.ud_xilinx_experiment.UdXilinxExperiment as UdXilinxExperiment
+import weblab.laboratory.LaboratoryServer as LaboratoryServer
 import weblab.login.LoginServer as LoginServer
-
+import weblab.methods as weblab_exported_methods
 import weblab.user_processing.AliveUsersCollection    as AliveUsersCollection
+import weblab.user_processing.Reservation             as Reservation
 import weblab.user_processing.UserProcessingServer    as UserProcessingServer
 import weblab.user_processing.UserProcessor           as UserProcessor
-import weblab.user_processing.Reservation             as Reservation
 import weblab.user_processing.coordinator.Coordinator as Coordinator
 
-import weblab.experiment.experiments.ud_xilinx_experiment.UdXilinxExperiment as UdXilinxExperiment
-import weblab.experiment.devices.xilinx_impact.XilinxDevices as XilinxDevices
-import weblab.experiment.Util as ExperimentUtil
-
-import weblab.laboratory.LaboratoryServer as LaboratoryServer
-
-import test.unit.configuration as configuration
-from test.util.ModuleDisposer import uses_module, case_uses_module
 
 ########################################################
 # Case 001: a single instance of everything on a       #
 # single instance of the WebLab, with two experiments #
 ########################################################
 
+
 class FakeUdXilinxExperiment(UdXilinxExperiment.UdXilinxExperiment):
     def __init__(self, coord_address, locator, cfg_manager, fake_xilinx_device, fake_xilinx_impact, fake_serial_port, *args, **kwargs):
         super(FakeUdXilinxExperiment,self).__init__(coord_address, locator, cfg_manager, *args, **kwargs)
         self._xilinx_impact = fake_xilinx_impact
         self._device_to_send_commands   = fake_serial_port
-        self._device_to_program = fake_xilinx_device
+        self._programmer = XilinxImpactProgrammer(cfg_manager, fake_xilinx_impact)
 
     def _create_xilinx_impact(self, xilinx_device, cfg_manager):
         return None
