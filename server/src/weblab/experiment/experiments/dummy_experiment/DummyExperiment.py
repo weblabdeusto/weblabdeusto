@@ -20,9 +20,8 @@ import weblab.experiment.experiments.ud_xilinx_experiment.UdXilinxExperiment as 
 from voodoo.override import Override
 
 class FakeImpact(object):
-    def __init__(self, name):
+    def __init__(self):
         super(FakeImpact,self).__init__()
-        self.name = name
         self.clear()
     def program_device(self, program_path):
         print "FakeImpact::program_device: ", program_path
@@ -42,9 +41,8 @@ class FakeImpact(object):
         self._paths = []
 
 class FakeSerialPort(object):
-    def __init__(self, name):
+    def __init__(self):
         super(FakeSerialPort,self).__init__()
-        self.name = name
         self.clear()
     def open_serial_port(self, number):
         print "FakeSerialPort::open_serial_port:", number
@@ -66,14 +64,8 @@ class DummyExperiment(UdXilinxExperiment.UdXilinxExperiment):
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(DummyExperiment,self).__init__(coord_address, locator, cfg_manager, *args, **kwargs)
 
-        self._xilinx_impact = FakeImpact("FPGA")
-        self._serial_port   = FakeSerialPort("FPGA")
-
-    def _create_xilinx_impact(self, xilinx_device, cfg_manager):
-        return None
-
-    def _create_serial_port(self):
-        return None
+        self._xilinx_impact = FakeImpact()
+        self._serial_port   = FakeSerialPort()
 
     @Override(UdXilinxExperiment.UdXilinxExperiment)
     def do_dispose(self):

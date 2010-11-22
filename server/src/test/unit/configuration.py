@@ -121,6 +121,8 @@ login_facade_xmlrpc_port      = 19445
 # Xilinx Configuration #
 ########################
 
+weblab_xilinx_experiment_xilinx_device = 'PLD'
+
 xilinx_home = "."
 xilinx_impact_full_path = ["python","./test/unit/weblab/experiment/devices/xilinx_impact/fake_impact.py" ]
 
@@ -172,31 +174,22 @@ exit
 
 xilinx_jtag_blazer_jbmanager_svf2jsvf_full_path = ["python","./test/unit/weblab/experiment/devices/jtag_blazer/fake_jbmanager_svf2jsvf.py" ]
 xilinx_jtag_blazer_jbmanager_target_full_path   = ["python","./test/unit/weblab/experiment/devices/jtag_blazer/fake_jbmanager_target.py" ]
-
-xilinx_jtag_blazer_device_ip_FPGA = "192.168.50.137"
-xilinx_jtag_blazer_device_ip_PLD = "192.168.50.137"
+xilinx_jtag_blazer_device_ip = "192.168.50.137"
 
 # Only when using Digilent Adept to program the device
 
 digilent_adept_full_path = ["python","./test/unit/weblab/experiment/devices/digilent_adept/fake_digilent_adept.py" ]
-
 digilent_adept_batch_content = """something with the variable $FILE"""
 
 # Only when using Serial Port to send commands to the device:
 
-weblab_xilinx_experiment_port_number   = 1
-weblab_xilinx_experiment_xilinx_device = 'PLD'
+weblab_xilinx_experiment_port_number = 1
 
 # Only when using HTTP to send commands to the device:
 
-xilinx_http_device_ip_FPGA        = "192.168.50.138"
-xilinx_http_device_port_FPGA      = 80
-xilinx_http_device_app_FPGA       = ""
-
-xilinx_http_device_ip_PLD        = "192.168.50.138"
-xilinx_http_device_port_PLD      = 80
-xilinx_http_device_app_PLD       = ""
-
+xilinx_http_device_ip   = "192.168.50.138"
+xilinx_http_device_port = 80
+xilinx_http_device_app  = ""
 
 
 ######################

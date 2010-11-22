@@ -13,17 +13,17 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
+
+from voodoo.log import logged
 import os
-import tempfile
 import subprocess
+import tempfile
 import threading
+import voodoo.exceptions.configuration.ConfigurationExceptions as ConfigurationExceptions
+import voodoo.log as log
+import weblab.exceptions.experiment.devices.xilinx_impact.XilinxImpactExceptions as XilinxImpactExceptions
 import weblab.experiment.devices.xilinx_impact.XilinxDevices as XilinxDevices
 
-import voodoo.log as log
-from voodoo.log import logged
-
-import voodoo.exceptions.configuration.ConfigurationExceptions as ConfigurationExceptions
-import weblab.exceptions.experiment.devices.xilinx_impact.XilinxImpactExceptions as XilinxImpactExceptions
 
 def create(xilinx_device, cfg_manager):
     if not XilinxDevices.isXilinxDevices(xilinx_device):
@@ -31,9 +31,9 @@ def create(xilinx_device, cfg_manager):
                 "Not a Xilinx Device Enumeration: %s" % xilinx_device
             )
     if xilinx_device == XilinxDevices.FPGA:
-        return XilinxImpactFPGA(cfg_manager)
+        return _XilinxImpactFPGA(cfg_manager)
     elif xilinx_device == XilinxDevices.PLD:
-        return XilinxImpactPLD(cfg_manager)
+        return _XilinxImpactPLD(cfg_manager)
     else:
         raise XilinxImpactExceptions.XilinxDeviceNotFoundException(
                 "Couldn't find xilinx device gateway: %s" % xilinx_device.name
@@ -217,8 +217,6 @@ class XilinxImpactPLD(XilinxImpact):
         return super(XilinxImpactPLD,self).source2svf( program, XilinxDevices.PLD)
     def get_suffix(self):
         return 'jed'
-    def get_name(self):
-        return "PLD"
 
 class XilinxImpactFPGA(XilinxImpact):
     def __init__(self, *args, **kargs):
@@ -229,5 +227,7 @@ class XilinxImpactFPGA(XilinxImpact):
         return super(XilinxImpactFPGA,self).source2svf( program, XilinxDevices.FPGA)
     def get_suffix(self):
         return 'bit'
-    def get_name(self):
-        return "FPGA"
+    
+
+_XilinxImpactFPGA = XilinxImpactFPGA
+_XilinxImpactPLD = XilinxImpactPLD

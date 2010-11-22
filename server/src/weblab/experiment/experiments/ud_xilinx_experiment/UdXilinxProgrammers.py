@@ -17,7 +17,7 @@ from voodoo.override import Override
 from weblab.exceptions.experiment.experiments.ud_xilinx_experiment.UdXilinxExperimentExceptions import InvalidDeviceToProgramException
 from weblab.experiment.devices.digilent_adept.DigilentAdept import DigilentAdept
 from weblab.experiment.devices.jtag_blazer.JTagBlazer import JTagBlazer
-
+        
 
 class UdXilinxProgrammer(object):
     
@@ -25,7 +25,7 @@ class UdXilinxProgrammer(object):
         super(UdXilinxProgrammer, self).__init__()
         self._cfg_manager = cfg_manager
         self._xilinx_impact_device = xilinx_impact_device
-        
+
     @staticmethod
     def create(device_name, cfg_manager, xilinx_impact_device):
         if device_name == 'XilinxImpact':
@@ -37,10 +37,10 @@ class UdXilinxProgrammer(object):
         else:
             raise InvalidDeviceToProgramException(device_name)   
     
-    def program(self, *args, **kargs):
+    def program(self, file_name):
         raise NotImplementedError("This method must be overriden in a subclass.")
-    
-    
+
+
 class XilinxImpactProgrammer(UdXilinxProgrammer):
     
     def __init__(self, cfg_manager, xilinx_impact_device):
@@ -56,13 +56,13 @@ class JTagBlazerSvfProgrammer(UdXilinxProgrammer):
     def __init__(self, cfg_manager, xilinx_impact_device):
         super(JTagBlazerSvfProgrammer, self).__init__(cfg_manager, xilinx_impact_device)
         self._jtag_blazer = JTagBlazer(cfg_manager)
+        self._device_ip = self._cfg_manager.get_value('xilinx_jtag_blazer_device_ip')
     
     @Override(UdXilinxProgrammer)
     def program(self, file_name):
         self._xilinx_impact_device.source2svf(file_name)
         svf_file_name = file_name.replace("."+self._xilinx_impact_device.get_suffix(), ".svf")
-        device_ip = self._cfg_manager.get_value('xilinx_jtag_blazer_device_ip_' + self._xilinx_impact_device.get_name())
-        self._jtag_blazer.program_device(svf_file_name, device_ip)
+        self._jtag_blazer.program_device(svf_file_name, self._device_ip)
     
     
 class DigilentAdeptSvfProgrammer(UdXilinxProgrammer):

@@ -14,8 +14,8 @@
 # 
 
 from test.util.ModuleDisposer import uses_module, case_uses_module
-from voodoo.override import Override
-from weblab.experiment.experiments.ud_xilinx_experiment.UdXilinxProgrammers import UdXilinxProgrammer, XilinxImpactProgrammer
+from weblab.experiment.experiments.ud_xilinx_experiment.UdXilinxCommandSenders import SerialPortCommandSender
+from weblab.experiment.experiments.ud_xilinx_experiment.UdXilinxProgrammers import XilinxImpactProgrammer
 import sys
 import test.unit.configuration as configuration
 import time
@@ -65,19 +65,14 @@ class FakeUdXilinxExperiment(UdXilinxExperiment.UdXilinxExperiment):
     def __init__(self, coord_address, locator, cfg_manager, fake_xilinx_device, fake_xilinx_impact, fake_serial_port, *args, **kwargs):
         super(FakeUdXilinxExperiment,self).__init__(coord_address, locator, cfg_manager, *args, **kwargs)
         self._xilinx_impact = fake_xilinx_impact
-        self._device_to_send_commands   = fake_serial_port
         self._programmer = XilinxImpactProgrammer(cfg_manager, fake_xilinx_impact)
-
-    def _create_xilinx_impact(self, xilinx_device, cfg_manager):
-        return None
-
-    def _create_serial_port(self):
-        return None
+        self._programmer._xilinx_impact_device = fake_xilinx_impact
+        self._command_sender = SerialPortCommandSender(cfg_manager)
+        self._command_sender._serial_port = fake_serial_port
 
 class FakeImpact(object):
-    def __init__(self, name):
+    def __init__(self):
         super(FakeImpact,self).__init__()
-        self.name = name
         self.clear()
     def program_device(self, program_path):
         self._paths.append(open(program_path).read())
@@ -87,9 +82,8 @@ class FakeImpact(object):
         self._paths = []
 
 class FakeSerialPort(object):
-    def __init__(self, name):
+    def __init__(self):
         super(FakeSerialPort,self).__init__()
-        self.name = name
         self.clear()
     def open_serial_port(self, number):
         self.dict['open'].append((self.cycle, number))
@@ -398,11 +392,11 @@ class Case001TestCase(object):
 
         self.real_servers              = []
 
-        self.fake_impact1              = FakeImpact("FPGA")
-        self.fake_serial_port1         = FakeSerialPort("FPGA")
+        self.fake_impact1              = FakeImpact()
+        self.fake_serial_port1         = FakeSerialPort()
 
-        self.fake_impact2              = FakeImpact("PLD")
-        self.fake_serial_port2         = FakeSerialPort("PLD")
+        self.fake_impact2              = FakeImpact()
+        self.fake_serial_port2         = FakeSerialPort()
 
         self.cfg_manager               = self.generate_configuration_server()
 

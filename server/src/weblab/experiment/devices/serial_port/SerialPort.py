@@ -26,7 +26,7 @@ else:
 def check_serial_available(func):
     def wrapped(self, *args, **kargs):
         if not SERIAL_AVAILABLE:
-            msg = "The optional library 'ldap' is not available. The experiments trying to use the serial port will fail." 
+            msg = "The optional library 'pyserial' is not available. The experiments trying to use the serial port will fail." 
             print >> sys.stderr, msg
             log.log(self, log.LogLevel.Error, msg) 
             return
