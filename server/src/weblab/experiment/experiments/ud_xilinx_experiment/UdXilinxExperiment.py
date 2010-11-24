@@ -41,9 +41,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         self._locator = locator
         self._cfg_manager = cfg_manager
 
-        self._xilinx_device_name, self._xilinx_device = self._load_xilinx_device()
-        self._xilinx_impact = XilinxImpact.create(self._xilinx_device, cfg_manager)
-        
+        self._xilinx_device, self._xilinx_impact = self._load_xilinx_device()
         self._programmer = self._load_programmer()
         self._command_sender = self._load_command_sender()
         self.webcam_url = self._load_webcam_url()
@@ -52,7 +50,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         device_name = self._cfg_manager.get_value('weblab_xilinx_experiment_xilinx_device')
         devices = [ i for i in XilinxDevices.getXilinxDevicesValues() if i.name == device_name ]
         if len(devices) == 1:
-            return device_name, devices[0]
+            return devices[0], XilinxImpact.create(devices[0], self._cfg_manager)
         else:
             raise UdXilinxExperimentExceptions.InvalidXilinxDeviceException(device_name)
         
@@ -65,7 +63,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         return UdXilinxCommandSender.create(device_name, self._cfg_manager)
         
     def _load_webcam_url(self):
-        cfg_webcam_url = "%s_webcam_url" % self._xilinx_device_name.lower()        
+        cfg_webcam_url = "%s_webcam_url" % self._xilinx_device.name.lower()        
         return self._cfg_manager.get_value(cfg_webcam_url, "http://localhost")
     
     @Override(Experiment.Experiment)
@@ -106,7 +104,8 @@ class UdXilinxExperiment(Experiment.Experiment):
 
     def _clear(self):
         # Kludge!!
-        if self._xilinx_device_name == "PLD":
+        # As soon as our PLD hardware supports the CleanInputs command, we'll be able to remove this
+        if self._xilinx_device == XilinxDevices.PLD:
             try:
                 for i in range(10):
                     self._command_sender.send_command(str(UdBoardCommand.ChangeSwitchCommand("on",i)))
