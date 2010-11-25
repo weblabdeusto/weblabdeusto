@@ -142,7 +142,7 @@ class CoordAddress(object):
         """
         try:
             m = re.match(CoordAddress.REGEX_FORMAT,address)
-        except TypeError, te:
+        except TypeError:
             raise CoordExceptions.CoordInvalidAddressName(
                 "%(address)s is not a valid address. Format: %(format)s" % {
                 "address" : address,

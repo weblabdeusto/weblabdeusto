@@ -97,7 +97,7 @@ def AbstractClass(methods = [], name = "AbstractClass"):
                         )   and hasattr(getattr(self, method),'__call__') 
                             and method in NewAbstractClass.mustInheritMethods
                     ]   
-                cbac = class_before_abstract_class = self.__get_recursively_class_before_abstract(NewAbstractClass,self.__class__)
+                cbac = self.__get_recursively_class_before_abstract(NewAbstractClass,self.__class__)
                 methods = [ i for i in methodList if getattr(self.__class__,i) == getattr(NewAbstractClass,i) or getattr(self.__class__,i) == getattr(cbac,i)]
                 if len(methods) > 0:
                     method_handler(methods)

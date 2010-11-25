@@ -71,7 +71,7 @@ class BotUser(threading.Thread):
         try:
             try:
                 self.run_user()
-            except Exception, e:
+            except Exception:
                 # TODO: do something with this
                 traceback.print_exc()
         finally:
@@ -121,7 +121,6 @@ class StandardBotUser(BotUser):
             else:
                 raise Exceptions.ExperimentDoesNotExistException("Desired experiment doesn't exist: %s." % self.experiment_name)
 
-            last_time = 0
             while isinstance(reservation, Reservation.WaitingReservation) or isinstance(reservation, Reservation.WaitingConfirmationReservation):
                 if isinstance(reservation, Reservation.WaitingReservation):
                     time.sleep(self._get_waiting_reservation_poll_time(reservation.position))

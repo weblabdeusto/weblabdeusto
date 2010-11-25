@@ -150,7 +150,7 @@ class LaboratoryServer(object):
         lab_sess_id = self._session_manager.create_session()
         try:
             experiment_coord_address = self._assigned_experiments.reserve_experiment(experiment_instance_id, lab_sess_id)
-        except LaboratoryExceptions.BusyExperimentException, bee:
+        except LaboratoryExceptions.BusyExperimentException:
             # If it was already busy, free it and reserve it again
             try:
                 old_lab_sess_id = self._assigned_experiments.get_lab_session_id(experiment_instance_id)
@@ -163,7 +163,7 @@ class LaboratoryServer(object):
 
             try:
                 experiment_coord_address = self._assigned_experiments.reserve_experiment(experiment_instance_id, lab_sess_id)
-            except LaboratoryExceptions.BusyExperimentException, bee:
+            except LaboratoryExceptions.BusyExperimentException:
                 # The session might have expired and that's why this experiment is still reserved. Free it directly from
                 # assigned_experiments.
                 self._free_experiment_from_assigned_experiments(experiment_instance_id)
@@ -199,7 +199,7 @@ class LaboratoryServer(object):
     def _free_experiment_from_assigned_experiments(self, experiment_instance_id):
         try:
             self._assigned_experiments.free_experiment(experiment_instance_id)
-        except LaboratoryExceptions.AlreadyFreedExperimentException, afee:
+        except LaboratoryExceptions.AlreadyFreedExperimentException:
             return # Not a problem
 
         experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)

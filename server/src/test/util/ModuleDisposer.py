@@ -43,7 +43,7 @@ def uses_module(module, verbose = None):
                 print "Test %s: retrieved resources: %s" % (func.__name__, resources)
                 print "Test %s: running test..." % func.__name__
             try:
-                returnValue = func(self,*args,**kargs)
+                _ = func(self,*args,**kargs)
             finally:
                 if vvv:
                     print "Test %s: Test run..." % func.__name__
@@ -64,7 +64,7 @@ class _ResourceMonitor(object):
     def __init__(self):
         self.before_last_setup = None
 
-def case_uses_module(module, verbose = None):
+def case_uses_module(module):
     def wrapped_func(klass):
         if not hasattr(klass, '_module_disposer'):
             klass._module_disposer = {}

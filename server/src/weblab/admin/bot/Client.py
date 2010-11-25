@@ -105,7 +105,7 @@ def possibleKeyError(func):
     def wrapped(self, *args, **kargs):
         try:
             return func(self, *args, **kargs)
-        except KeyError, ke:
+        except KeyError:
             raise Exception("Unexpected response in method %s with args %s and kargs %s" % (func.__name__, str(args), str(kargs)) )
 
     wrapped.__name__ = func.__name__

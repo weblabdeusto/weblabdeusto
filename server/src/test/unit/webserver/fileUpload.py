@@ -44,7 +44,7 @@ def extract_fault_code(message):
 
 def extract_fault_string(message):
     message = extract_message(message)
-    _, code, message = message.split('@')
+    _, _, message = message.split('@')
     return message
 
 def extract_success_message(message):

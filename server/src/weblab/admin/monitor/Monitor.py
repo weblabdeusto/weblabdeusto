@@ -81,7 +81,7 @@ class WebLabShell(object):
 
     def _to_str(self, u):
         if isinstance(u, unicode):
-           return u.encode('utf-8')
+            return u.encode('utf-8')
         return u
         
     def send(self, command):
@@ -107,7 +107,7 @@ class WebLabShell(object):
             self.telnet = self._create_telnet()
             self._receive()
             self.send("from weblab.admin.monitor.Monitor_methods import *")
-        except Exception, e:
+        except Exception:
             raise
 
     def disconnect(self):

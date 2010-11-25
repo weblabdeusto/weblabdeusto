@@ -100,9 +100,9 @@ def factory(cfg_manager, protocols, methods):
     if not _Protocols.isProtocols(protocols): #Maybe it is just one protocol
         try:
             protocols[0]
-        except TypeError,te:
+        except TypeError:
             raise TypeError('protocols "%s" must be either a non-empty sequence or a Protocols' % protocols)
-        except IndexError,ie:
+        except IndexError:
             raise TypeError('protocols "%s" must be either a non-empty sequence or a Protocols' % protocols)
         
         for i in protocols:

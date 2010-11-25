@@ -100,21 +100,21 @@ class UdGpibExperiment(Experiment.Experiment):
 
     # Kludge: Converting outputs to ascii so as to avoid encoding problems
     def _remove_non_ascii_characters(self, text):
-        text = text.replace("á","a")
-        text = text.replace("é","e")
-        text = text.replace("í","i")
-        text = text.replace("ó","o")
-        text = text.replace("ú","u")
-        text = text.replace("Á","A")
-        text = text.replace("É","E")
-        text = text.replace("Í","I")
-        text = text.replace("Ó","O")
-        text = text.replace("Ú","U")
-        text = text.replace("ñ","ny")
-        text = text.replace("Ñ","NY")
+        text = text.replace("ï¿½","a")
+        text = text.replace("ï¿½","e")
+        text = text.replace("ï¿½","i")
+        text = text.replace("ï¿½","o")
+        text = text.replace("ï¿½","u")
+        text = text.replace("ï¿½","A")
+        text = text.replace("ï¿½","E")
+        text = text.replace("ï¿½","I")
+        text = text.replace("ï¿½","O")
+        text = text.replace("ï¿½","U")
+        text = text.replace("ï¿½","ny")
+        text = text.replace("ï¿½","NY")
         for i in xrange(len(text)):
             if ord(text[i]) >= 128:
-               text = text.replace(text[i], " ")
+                text = text.replace(text[i], " ")
         return text
 
     def _extract_content(self, initial_content):
@@ -149,7 +149,7 @@ class UdGpibExperiment(Experiment.Experiment):
             self._gpib_launcher.execute(exe_file_name, background)
         finally:
             if not background:
-                self._remove_file(exe_file_name)
+                self._remove_file()
             
     def _read_output_file(self):
         file_filename = self._cfg_manager.get_value('gpib_public_output_file_filename')
@@ -160,10 +160,10 @@ class UdGpibExperiment(Experiment.Experiment):
 #           pass
         return file_content
     
-    def _remove_file(self, file_name):
+    def _remove_file(self):
         try:
             os.remove(self.exec_basename)
-        except OSError, e:
+        except OSError:
             pass        
     
     @logged("info")
@@ -178,7 +178,7 @@ class UdGpibExperiment(Experiment.Experiment):
                     log.LogLevel.Info,
                     "Executed, saving results"
                 )
-                self._remove_file(self.exec_basename)
+                self._remove_file()
                 return "OK"
             else:
                 return "WAIT"

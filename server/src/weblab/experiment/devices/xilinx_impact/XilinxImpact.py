@@ -109,31 +109,25 @@ class XilinxImpact(object):
         self._log(res,out,err)
 
         # TODO: this could be improved :-D
-	# Kludge!
+        # Kludge!
         if device == XilinxDevices.PLD:
-	        if out.find("ERROR") >= 0:
-        	    error_messages = [ i for i in out.split('\n') if i.find('ERROR') >= 0 ] 
-	            error_messages += '; ' + err
-	            raise XilinxImpactExceptions.GeneratingSvfFileGotErrors(
-	                    "Impact raised errors while generating the .SVF file: %s" % error_messages
-	                )
-	        if res != 0:
-	            raise XilinxImpactExceptions.GeneratingSvfFileGotErrors(
-	                    "Impact returned %i" % res
-	                ) 
-	else:
-		if out.find("ERROR") >= 0:
-       	            error_messages = [ i for i in out.split('\n') if i.find('ERROR') >= 0 ]
-               	    error_messages += '; ' + err
-                    raise XilinxImpactExceptions.GeneratingSvfFileGotErrors(
-                            "Impact raised errors while generating the .SVF file: %s" % error_messages
-                        )
-                if res != 0:
-                    raise XilinxImpactExceptions.GeneratingSvfFileGotErrors(
-                            "Impact returned %i" % res
-                        )
-       
-
+            if out.find("ERROR") >= 0:
+                error_messages = [ i for i in out.split('\n') if i.find('ERROR') >= 0 ] 
+                error_messages += '; ' + err
+                raise XilinxImpactExceptions.GeneratingSvfFileGotErrors(
+                    "Impact raised errors while generating the .SVF file: %s" % error_messages
+                )
+            if res != 0:
+                raise XilinxImpactExceptions.GeneratingSvfFileGotErrors("Impact returned %i" % res) 
+        else:
+            if out.find("ERROR") >= 0:
+                error_messages = [ i for i in out.split('\n') if i.find('ERROR') >= 0 ]
+                error_messages += '; ' + err
+                raise XilinxImpactExceptions.GeneratingSvfFileGotErrors(
+                    "Impact raised errors while generating the .SVF file: %s" % error_messages
+                )
+            if res != 0:
+                raise XilinxImpactExceptions.GeneratingSvfFileGotErrors("Impact returned %i" % res)
     
     def _execute(self, cmd_file_name, xilinx_impact):
         full_cmd_line = xilinx_impact + ['-batch',cmd_file_name]

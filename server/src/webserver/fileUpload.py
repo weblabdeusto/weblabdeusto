@@ -46,7 +46,6 @@ if sys.version_info[:2] == (2,5):
             f = self.dispatch[InstanceType]
         f(self, value, write)
 
-    import xmlrpclib
     xmlrpclib.Marshaller._Marshaller__dump = _new__dump
 
 import base64

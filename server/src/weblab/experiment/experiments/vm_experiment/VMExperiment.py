@@ -176,7 +176,7 @@ class VMExperiment(Experiment.Experiment):
                 break
             except UserManager.TemporaryConfigureError:
                 pass
-            except Exception, e:
+            except Exception:
                 self.is_error = True
                 self.error = ex
                 return

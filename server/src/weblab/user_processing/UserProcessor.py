@@ -136,7 +136,7 @@ class UserProcessor(object):
                     priority,
                     initial_data
                 )
-        except CoordExc.ExperimentNotFoundException, enfe:
+        except CoordExc.ExperimentNotFoundException:
             raise UserProcessingExceptions.NoAvailableExperimentFoundException(
                 "No experiment of type <%s,%s> is currently deployed" % (
                         experiment_id.exp_name, 
@@ -233,10 +233,10 @@ class UserProcessor(object):
                 usage_file_sent.timestamp_after = self._utc_timestamp()
                 self._session['experiment_usage'].update_file(file_sent_id, usage_file_sent)
                 return response
-            except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException, snfisse:
+            except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
                 try:
                     self.finished_experiment()
-                except UserProcessingExceptions.FailedToFreeReservationException, ftfre:
+                except UserProcessingExceptions.FailedToFreeReservationException:
                     pass
                 raise UserProcessingExceptions.NoCurrentReservationException(
                     'Experiment reservation expired'
@@ -244,7 +244,7 @@ class UserProcessor(object):
             except LaboratoryExceptions.FailedToSendFileException, ftspe:
                 try:
                     self.finished_experiment()
-                except UserProcessingExceptions.FailedToFreeReservationException,ftfre:
+                except UserProcessingExceptions.FailedToFreeReservationException:
                     pass
                 raise UserProcessingExceptions.FailedToSendFileException(
                         "Failed to send file: %s" % ftspe
@@ -268,11 +268,11 @@ class UserProcessor(object):
                 self._update_command(command_id_pack, response)
 
                 return response
-            except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException, snfisse:
+            except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
                 self._update_command(command_id_pack, Command.Command("ERROR: SessionNotFound: None"))
                 try:
                     self.finished_experiment()
-                except UserProcessingExceptions.FailedToFreeReservationException, ftfre:
+                except UserProcessingExceptions.FailedToFreeReservationException:
                     pass
                 raise UserProcessingExceptions.NoCurrentReservationException(
                     'Experiment reservation expired'
@@ -281,7 +281,7 @@ class UserProcessor(object):
                 self._update_command(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
                 try:
                     self.finished_experiment()
-                except UserProcessingExceptions.FailedToFreeReservationException, ftfre:
+                except UserProcessingExceptions.FailedToFreeReservationException:
                     pass
 
                 raise UserProcessingExceptions.FailedToSendCommandException(
@@ -317,7 +317,6 @@ class UserProcessor(object):
         if should_i_store:
             # TODO not tested
             def get_time_in_str():
-                import time as time_module
                 cur_time = time_module.time()
                 s = time_module.strftime('%Y_%m_%d___%H_%M_%S_',time_module.gmtime(cur_time))
                 millis = int((cur_time - int(cur_time)) * 1000)

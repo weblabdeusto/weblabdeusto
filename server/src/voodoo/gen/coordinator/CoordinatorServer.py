@@ -102,7 +102,7 @@ class CoordinatorServer(object):
     def do_logout(self, session_id):
         try:
             self._session_manager.delete_session(session_id)
-        except SessionExceptions.SessionException, se:
+        except SessionExceptions.SessionException:
             pass
 
     def do_get_server(self, session_id):

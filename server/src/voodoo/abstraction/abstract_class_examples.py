@@ -332,7 +332,7 @@ class N(acg.AbstractClass(['methodN','methodNb'])):
     
     #We allow the subclasses to be instanciated without implementing methodN and methodNb
     def __init__(self): 
-        acg.call_abstract_constructors(N,self,lambda x : None)
+        acg.call_abstract_constructors(N,self,lambda _ : None)
 
 class O(N):
     pass

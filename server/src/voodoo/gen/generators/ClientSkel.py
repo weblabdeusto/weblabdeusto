@@ -44,7 +44,7 @@ def generate(methods):
                 new_methods.append('call_is_running_'+i)
                 new_methods.append('call_get_result_'+i)
             methods = new_methods
-    except TypeError, e:
+    except TypeError:
         raise TypeError('methods "%s" must be a dict or a list-able structure' % methods)
         
     #As the ClientSkel is dynamically generated

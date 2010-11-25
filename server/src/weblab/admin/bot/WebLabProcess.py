@@ -68,7 +68,7 @@ class WebLabProcess(object):
                 matches &= current_content.find("JSON service") > 0
 
             return matches
-        except Exception, e:
+        except Exception:
             return False
     
     def _has_finished(self):

@@ -41,7 +41,7 @@ class RemoteFacadeContext(object):
     def get_ip_address(self):
         try:
             return self._headers.get('X-Forwarded-For') or '<unknown client>'
-        except KeyError, err:
+        except KeyError:
             return '<unknown client>'
 
 class NullRemoteFacadeContext(object):

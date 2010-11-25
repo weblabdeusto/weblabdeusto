@@ -14,7 +14,7 @@
 # 
 
 class GenericSchedulerArguments(object):
-     def __init__(self, cfg_manager, experiment_id, reservations_manager, confirmer, session_maker, time_provider):
+    def __init__(self, cfg_manager, experiment_id, reservations_manager, confirmer, session_maker, time_provider):
         self.cfg_manager          = cfg_manager
         self.experiment_id        = experiment_id
         self.reservations_manager = reservations_manager

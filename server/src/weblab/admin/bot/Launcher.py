@@ -119,7 +119,7 @@ class BotLauncher(object):
             while len(waiting_botusers) > 0:
                 number_before = len(waiting_botusers)
                 waiting_botusers = [ botuser for botuser in waiting_botusers if botuser.isAlive() ]
-                for i in range(number_before - len(waiting_botusers)):
+                for _ in range(number_before - len(waiting_botusers)):
                         self._print(".")
                 time.sleep(0.3)
             iteration_time = time.time() - begin_time
