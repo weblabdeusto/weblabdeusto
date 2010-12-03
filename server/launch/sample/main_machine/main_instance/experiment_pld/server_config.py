@@ -23,8 +23,8 @@ weblab_xilinx_experiment_port_number   = 1
 xilinx_home = "."
 xilinx_impact_full_path = ["python","./tests/unit/weblab/experiment/devices/xilinx_impact/fake_impact.py" ]
 
-xilinx_device_to_program = 'JTagBlazer' # 'DigilentAdept', 'XilinxImpact'
-xilinx_device_to_send_commands = 'HttpDevice' # 'SerialPort'
+xilinx_device_to_program = 'XilinxImpact' # 'DigilentAdept', 'JTagBlazer'
+xilinx_device_to_send_commands = 'SerialPort' # 'HttpDevice'
 
 xilinx_jtag_blazer_jbmanager_svf2jsvf_full_path = ["python","./test/unit/weblab/experiment/devices/jtag_blazer/fake_jbmanager_svf2jsvf.py" ]
 xilinx_jtag_blazer_jbmanager_target_full_path   = ["python","./test/unit/weblab/experiment/devices/jtag_blazer/fake_jbmanager_target.py" ]

@@ -137,7 +137,9 @@ class VMExperiment(Experiment.Experiment):
         if DEBUG:
             print "t_starting"
         self.session_id = self.generate_session_id()
-        self.vm.prepare_vm()
+        # Avoid preparing the VM, just for specific debugging purposes. Probably this condition should eventually be removed.
+        if not DEBUG:
+            self.vm.prepare_vm()
         if DEBUG:
             print "t_prepared"
             print type(self.vm)

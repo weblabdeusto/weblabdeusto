@@ -25,6 +25,11 @@ VBOXMANAGE_COMMAND_DEFAULT_VALUE = 'VBoxManage' # Could be something like r'c:\P
 VBOX_VM_NAME = 'vbox_vm_name'
 VBOX_VM_DEFAULT_VALUE = 'weblab'
 
+
+# Note: These functions make use of the VBoxManage utility, which comes with VirtualBox
+# It should hence be accessible. Under windows, it will often have to be added to the PATH
+# environment variable.
+
 class VirtualBox(VirtualMachineManager):
     
     def __init__(self, cfg_manager):

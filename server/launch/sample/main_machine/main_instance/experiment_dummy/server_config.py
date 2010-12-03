@@ -23,8 +23,8 @@ weblab_xilinx_experiment_port_number   = 1
 xilinx_home = "."
 xilinx_impact_full_path = ["python","./tests/unit/weblab/experiment/devices/xilinx_impact/fake_impact.py" ]
 
-xilinx_device_to_program = 'DigilentAdept' # 'JTagBlazer', 'XilinxImpact'
-xilinx_device_to_send_commands = 'HttpDevice' # 'SerialPort'
+xilinx_device_to_program = 'XilinxImpact' # 'JTagBlazer', 'DigilentAdept'
+xilinx_device_to_send_commands = 'SerialPort' # 'HttpDevice'
 
 digilent_adept_full_path = ["python","./test/unit/weblab/experiment/devices/digilent_adept/fake_digilent_adept.py" ]
 digilent_adept_batch_content = """something with the variable $FILE"""
