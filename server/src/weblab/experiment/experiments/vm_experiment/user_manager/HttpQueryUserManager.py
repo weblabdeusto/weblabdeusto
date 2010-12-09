@@ -42,4 +42,6 @@ class HttpQueryUserManager(UserManager):
                 # actually quite common.
                 # The above error has the following tuple as its args: (error(10060, 'Operation timed out'),)
                 times_tried += 1
-            
+
+
+
