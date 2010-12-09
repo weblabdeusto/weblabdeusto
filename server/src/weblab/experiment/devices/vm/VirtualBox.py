@@ -40,6 +40,11 @@ class VirtualBox(VirtualMachineManager):
 
     @Override(VirtualMachineManager)
     def launch_vm(self):
+        """
+        Launches the VirtualMachine. Does not wait until the virtual OS is ready. It is hence
+        possible, and likely, for this function to return a relatively long time before
+        the Virtual Machine is truly ready for usage.
+        """
         process = subprocess.Popen([self.vboxmanage,'startvm',self.vm_name])
         process.wait()
     
