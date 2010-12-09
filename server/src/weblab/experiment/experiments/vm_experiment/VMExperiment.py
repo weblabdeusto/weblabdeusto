@@ -26,7 +26,8 @@ from voodoo.threaded import threaded
 import weblab.experiment.devices.vm.VirtualMachineManager as VirtualMachineManager
 import weblab.experiment.experiments.vm_experiment.user_manager.UserManager as UserManager
 
-DEBUG = True
+DEBUG = False
+DEBUG_NOT_PREPARE = False
 
 CFG_URL = "vm_url"
 CFG_VM_TYPE = "vm_vm_type"
@@ -138,7 +139,7 @@ class VMExperiment(Experiment.Experiment):
             print "t_starting"
         self.session_id = self.generate_session_id()
         # Avoid preparing the VM, just for specific debugging purposes. Probably this condition should eventually be removed.
-        if not DEBUG:
+        if not DEBUG_NOT_PREPARE:
             self.vm.prepare_vm()
         if DEBUG:
             print "t_prepared"
