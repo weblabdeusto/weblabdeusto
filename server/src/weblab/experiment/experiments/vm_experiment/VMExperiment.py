@@ -26,7 +26,7 @@ from voodoo.threaded import threaded
 import weblab.experiment.devices.vm.VirtualMachineManager as VirtualMachineManager
 import weblab.experiment.experiments.vm_experiment.user_manager.UserManager as UserManager
 
-DEBUG = False
+DEBUG = True
 
 CFG_URL = "vm_url"
 CFG_VM_TYPE = "vm_vm_type"
@@ -176,9 +176,9 @@ class VMExperiment(Experiment.Experiment):
                 self.is_error = True
                 self.error = ex
                 break
-            except UserManager.TemporaryConfigureError:
+            except UserManager.TemporaryConfigureError, ex:
                 pass
-            except Exception:
+            except Exception, ex:
                 self.is_error = True
                 self.error = ex
                 return
