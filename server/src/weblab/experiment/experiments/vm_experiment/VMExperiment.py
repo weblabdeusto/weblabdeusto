@@ -27,7 +27,7 @@ import weblab.experiment.devices.vm.VirtualMachineManager as VirtualMachineManag
 import weblab.experiment.experiments.vm_experiment.user_manager.UserManager as UserManager
 
 DEBUG = False
-DEBUG_NOT_PREPARE = False
+DEBUG_NOT_PREPARE = True
 
 CFG_URL = "vm_url"
 CFG_VM_TYPE = "vm_vm_type"
@@ -125,6 +125,7 @@ class VMExperiment(Experiment.Experiment):
         self.is_ready = False
         self.error = None
         self.is_error = False
+        self._start_t = None
         self._dispose_t = self.handle_dispose_t()
         return "Disposing"
     
@@ -157,7 +158,7 @@ class VMExperiment(Experiment.Experiment):
         
     #TODO: Consider whether this should indeed be threaded, and in that case, consider what would happen
     # if an experiment was started with this function still running, after dispose has returned.
-    @threaded()
+    #@threaded()
     def handle_dispose_t(self):
         """
         Executed on a work thread, will handle clean-up.
