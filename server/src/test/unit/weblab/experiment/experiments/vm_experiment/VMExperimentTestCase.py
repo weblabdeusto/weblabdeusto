@@ -13,6 +13,7 @@
 # Author: Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
+import time
 import unittest
 import mocker
 import test.unit.configuration as configuration_module
@@ -166,9 +167,13 @@ class VMExperimentTestCase(mocker.MockerTestCase):
         ret = vmexp.do_start_experiment()
         self.assertTrue( ret.__contains__("Already") )
         
+        initial_time = time.time()
         # Wait until it is ready
         while not vmexp.is_ready and not vmexp.is_error:
-            pass    # TODO: Consider Sleep()'ing here, or setting a timeout
+            time.sleep(0.01)
+            now = time.time()
+            if now - initial_time > 10:
+                self.fail("Waiting too long for vmexp")
         
         self.assertTrue(vm.launched)
         
@@ -178,8 +183,10 @@ class VMExperimentTestCase(mocker.MockerTestCase):
         ret = vmexp.do_dispose()
         self.assertEqual("Disposing", ret)
         
-        while vmexp._dispose_t.isAlive():
-            pass
+        if vmexp._dispose_t is not None:
+            vmexp._dispose_t.join(10)
+            if vmexp._dispose_t.isAlive():
+                self.fail("Dispose thread still alive after long timeout")
         
         self.assertFalse(vm.launched)
         self.assertFalse(vm.prepared)
@@ -200,8 +207,13 @@ class VMExperimentTestCase(mocker.MockerTestCase):
         
         vmexp.do_start_experiment()   
     
+        initial_time = time.time()
+        # Wait until it is ready
         while not vmexp.is_ready and not vmexp.is_error:
-            pass    # TODO: Consider Sleep()'ing here, or setting a timeout
+            time.sleep(0.01)
+            now = time.time()
+            if now - initial_time > 10:
+                self.fail("Waiting too long for vmexp")
     
         self.assertTrue(vmexp.error != None)
         self.assertTrue(vmexp.is_error)
@@ -210,8 +222,10 @@ class VMExperimentTestCase(mocker.MockerTestCase):
     
         vmexp.do_dispose()
         
-        while vmexp._dispose_t.isAlive():
-            pass
+        if vmexp._dispose_t is not None:
+            vmexp._dispose_t.join(10)
+            if vmexp._dispose_t.isAlive():
+                self.fail("Dispose thread still alive after long timeout")
         
         self.assertFalse(vm.launched)
         self.assertFalse(vm.prepared)

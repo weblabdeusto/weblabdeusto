@@ -19,6 +19,8 @@ from voodoo.override import Override
 
 import uuid
 
+import time
+
 from voodoo.threaded import threaded
 
 # Those imports are required for the experiment to locate the config-specified classes dynamically.
@@ -89,7 +91,7 @@ class VMExperiment(Experiment.Experiment):
         
         # Returns the URL to access the VM. The VM itself is not necessarily ready for access yet.
         if command == "get_configuration":
-            return self.url
+            return self.url + "     with password: " + self.session_id
             
         # Returns 1 if the client should be able to connect to the VM already, if it isn't ready yet.
         elif command == "is_ready":
@@ -138,6 +140,7 @@ class VMExperiment(Experiment.Experiment):
         """
         if DEBUG:
             print "t_starting"
+        self.ensure_vm_not_started()
         self.session_id = self.generate_session_id()
         # Avoid preparing the VM, just for specific debugging purposes. Probably this condition should eventually be removed.
         if not DEBUG_NOT_PREPARE:
@@ -154,7 +157,20 @@ class VMExperiment(Experiment.Experiment):
             self.is_ready = False
         else:
             self.is_ready = True
-        
+    
+    def ensure_vm_not_started(self):
+        """
+        Though it should never happen, this functions makes sure that the VM is not already
+        running, which would prevent proper initialization.
+        """
+        if DEBUG:
+            print "ensure_vm_not_started"
+        start_time = time.time()
+        while self.vm.is_alive_vm():
+            self.vm.kill_vm()
+            elapsed = time.time() - start_time
+            if elapsed > 20:
+                raise Exception("It was not possible to ensure that the machine is powered off")
         
     #TODO: Consider whether this should indeed be threaded, and in that case, consider what would happen
     # if an experiment was started with this function still running, after dispose has returned.

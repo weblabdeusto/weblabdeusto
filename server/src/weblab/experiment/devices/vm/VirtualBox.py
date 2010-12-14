@@ -62,7 +62,10 @@ class VirtualBox(VirtualMachineManager):
     def is_alive_vm(self):
         process = subprocess.Popen([self.vboxmanage,'-q','list','runningvms'], stdout=subprocess.PIPE)
         process.wait()
-        return self.vm_name in [ line.split('"')[0] for line in process.stdout.readlines() ]
+        lines = process.stdout.readlines()
+        if DEBUG: print "running: " + str(lines)
+        running = [ line.split('"')[1] for line in lines ]
+        return self.vm_name in running
 
     @Override(VirtualMachineManager)
     def prepare_vm(self):
