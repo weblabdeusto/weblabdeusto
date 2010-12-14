@@ -26,8 +26,8 @@ from voodoo.threaded import threaded
 import weblab.experiment.devices.vm.VirtualMachineManager as VirtualMachineManager
 import weblab.experiment.experiments.vm_experiment.user_manager.UserManager as UserManager
 
-DEBUG = False
-DEBUG_NOT_PREPARE = True
+DEBUG = True
+DEBUG_NOT_PREPARE = False
 
 CFG_URL = "vm_url"
 CFG_VM_TYPE = "vm_vm_type"
