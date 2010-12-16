@@ -399,9 +399,10 @@ class PriorityQueueScheduler(Scheduler):
             # Add the waiting reservation to the db
             # 
             for free_instance in free_instances:
-                #print "Creating CurrentReservation..."
                 current_reservation = CurrentReservation(free_instance, first_waiting_reservation.reservation_id, 
                                             first_waiting_reservation.time, self.time_provider.get_time(), first_waiting_reservation.priority, first_waiting_reservation.initial_data)
+
+                initial_data = first_waiting_reservation.initial_data
 
                 reservation_id = first_waiting_reservation.reservation_id
                 if reservation_id is None:
@@ -428,7 +429,7 @@ class PriorityQueueScheduler(Scheduler):
                     # so this method might take too long. That's why we enqueue these
                     # petitions and run them in other threads.
                     # 
-                    self.confirmer.enqueue_confirmation(laboratory_coord_address, reservation_id, experiment_instance_id)
+                    self.confirmer.enqueue_confirmation(laboratory_coord_address, reservation_id, experiment_instance_id, initial_data)
                     # 
                     # After it, keep in the while True in order to add the next 
                     # reservation

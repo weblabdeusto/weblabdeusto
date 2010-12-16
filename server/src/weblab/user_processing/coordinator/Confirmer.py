@@ -31,26 +31,27 @@ class ReservationConfirmer(object):
         self._enqueuing_timeout                 = 0
         self._initialize_and_dispose_experiment = True
 
-    @property
-    def enqueuing_timeout(self):
+    def _get_enqueuing_timeout(self):
         return self._enqueuing_timeout
 
-    @enqueuing_timeout.setter
-    def enqueuing_timeout(self, value):
+    def _set_enqueuing_timeout(self, value):
         self._enqueuing_timeout = value
 
-    def enqueue_confirmation(self, lab_coordaddress_str, reservation_id, experiment_instance_id):
+    enqueuing_timeout = property(_get_enqueuing_timeout, _set_enqueuing_timeout)
+
+    def enqueue_confirmation(self, lab_coordaddress_str, reservation_id, experiment_instance_id, initial_data):
         # We can stablish a politic such as using 
         # thread pools or a queue of threads or something
         # like that... here
         lab_coordaddress = CoordAddress.CoordAddress.translate_address(lab_coordaddress_str)
-        self._confirm_handler = self._confirm_experiment(lab_coordaddress, reservation_id, experiment_instance_id)
+        self._confirm_handler = self._confirm_experiment(lab_coordaddress, reservation_id, experiment_instance_id, initial_data)
         self._confirm_handler.join(self._enqueuing_timeout)
 
     @threaded(_resource_manager)
-    def _confirm_experiment(self, lab_coordaddress, reservation_id, experiment_instance_id):
+    def _confirm_experiment(self, lab_coordaddress, reservation_id, experiment_instance_id, initial_data):
         try:
             labserver = self.locator.get_server_from_coordaddr(lab_coordaddress, ServerType.Laboratory)
+            # TODO: use initial_data
             lab_session_id = labserver.reserve_experiment(experiment_instance_id)
         except Exception, e:
             self.coordinator.remove_experiment_instance_id(experiment_instance_id)
