@@ -62,8 +62,8 @@ EXPIRATION_TIME  = 3600 # seconds
 
 class PriorityQueueScheduler(Scheduler):
 
-    def __init__(self, generic_scheduler_arguments):
-        super(PriorityQueueScheduler, self).__init__(generic_scheduler_arguments)
+    def __init__(self, generic_scheduler_arguments, **kwargs):
+        super(PriorityQueueScheduler, self).__init__(generic_scheduler_arguments, **kwargs)
 
     @Override(Scheduler)
     def add_experiment_instance_id(self, laboratory_coord_address, experiment_instance_id):

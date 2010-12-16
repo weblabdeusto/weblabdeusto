@@ -72,6 +72,7 @@ class Coordinator(object):
 
 
     def __init__(self, locator, cfg_manager, ConfirmerClass = Confirmer.ReservationConfirmer):
+        self.cfg_manager = cfg_manager
 
         engine   = cfg_manager.get_value(COORDINATOR_DB_ENGINE,  DEFAULT_COORDINATOR_DB_ENGINE)
         username = Coordinator.username = cfg_manager.get_value(COORDINATOR_DB_USERNAME) # REQUIRED!
@@ -109,7 +110,7 @@ class Coordinator(object):
             SchedulingSystemClass = SCHEDULING_SYSTEMS[scheduling_system]
             experiment_id = ExperimentId.ExperimentId.parse(experiment_id_str)
             
-            generic_scheduler_arguments = Scheduler.GenericSchedulerArguments(cfg_manager, experiment_id, self.reservations_manager, self.confirmer, self._session_maker, self.time_provider)
+            generic_scheduler_arguments = Scheduler.GenericSchedulerArguments(self.cfg_manager, experiment_id, self.reservations_manager, self.confirmer, self._session_maker, self.time_provider)
 
             self.schedulers[experiment_id_str] = SchedulingSystemClass(generic_scheduler_arguments, **arguments)
 
@@ -127,6 +128,15 @@ class Coordinator(object):
     def _get_scheduler_per_experiment_id(self, experiment_id):
         experiment_id_str = experiment_id.to_weblab_str()
         if experiment_id_str not in self.schedulers:
+            # TODO: since at the moment we only provide a single scheduling schema, requiring to establish each scheduling schema does not make sense
+            # Therefore, we assume that if the experiment is not provided, a PriorityQueue with the default configuration is used.
+            # This solution will change in the future, as new scheduling systems are provided
+            import weblab.user_processing.coordinator.PriorityQueueScheduler as PQS
+            experiment_id = ExperimentId.ExperimentId.parse(experiment_id_str)
+            generic_scheduler_arguments = Scheduler.GenericSchedulerArguments(self.cfg_manager, experiment_id, self.reservations_manager, self.confirmer, self._session_maker, self.time_provider)
+            self.schedulers[experiment_id_str] = PQS.PriorityQueueScheduler(generic_scheduler_arguments)
+            return self.schedulers[experiment_id_str]
+            # TODO: This shoud
             raise CoordExc.ExperimentNotFoundException("Unregistered Experiment ID: %s. Check the %s property." % (experiment_id_str, CORE_SCHEDULING_SYSTEMS))
         return self.schedulers[experiment_id_str]
 

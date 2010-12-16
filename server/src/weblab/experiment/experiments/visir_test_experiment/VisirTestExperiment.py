@@ -34,7 +34,6 @@ CFG_MEASURE_SERVER_ADDRESS = "vt_measure_server_addr"
 CFG_MEASURE_SERVER_TARGET = "vt_measure_server_target"
 CFG_LOGIN_URL = "vt_login_url"
 CFG_BASE_URL = "vt_base_url"
-CFG_COOKIE = "vt_cookie"
 CFG_LOGIN_EMAIL = "vt_login_email"
 CFG_LOGIN_PASSWORD = "vt_login_password"
 CFG_SAVEDATA = "vt_savedata"
@@ -44,7 +43,6 @@ DEFAULT_MEASURE_SERVER_ADDRESS = "130.206.138.35:8080"
 DEFAULT_MEASURE_SERVER_TARGET = "/measureserver"
 DEFAULT_LOGIN_URL = """https://weblab-visir.deusto.es/electronics/student.php"""
 DEFAULT_BASE_URL = """https://weblab-visir.deusto.es/"""
-DEFAULT_COOKIE = "9b892c8784ea6119939a27b34102b1c14e37c156"
 DEFAULT_LOGIN_EMAIL = "guest"
 DEFAULT_LOGIN_PASSWORD = "guest"
 DEFAULT_SAVEDATA = ""
@@ -96,15 +94,9 @@ class VisirTestExperiment(Experiment.Experiment):
             if(DEBUG):
                 print "[VisirTestExperiment] Performing login with %s / %s"  % (self.login_email, self.login_password)
             
-            cookie = self.perform_visir_web_login(self.loginurl, 
-                self.login_email, self.login_password)
+            cookie = self.perform_visir_web_login(self.loginurl, self.login_email, self.login_password)
             
             return self.build_setup_data(cookie, self.savedata, self.client_url)
-            
-            if(DEBUG):
-                print "[VisirTestExperiment] Login result: ", cookie
-           
-            return cookie
         
         # Otherwise, it's a VISIR XML command, and should just be forwarded
         # to the VISIR measurement server

@@ -14,13 +14,17 @@
 # 
 
 class GenericSchedulerArguments(object):
-    def __init__(self, cfg_manager, experiment_id, reservations_manager, confirmer, session_maker, time_provider):
+    def __init__(self, cfg_manager, experiment_id, reservations_manager, confirmer, session_maker, time_provider, **kwargs):
         self.cfg_manager          = cfg_manager
         self.experiment_id        = experiment_id
         self.reservations_manager = reservations_manager
         self.confirmer            = confirmer
         self.session_maker        = session_maker
         self.time_provider        = time_provider
+        if 'enqueuing_timeout' in kwargs:
+            self.confirmer.enqueuing_timeout = kwargs.pop('enqueuing_timeout')
+        if len(kwargs) > 0:
+            raise RuntimeException("Unrecognized arguments: %s" % kwargs)
 
 ###################################################################
 # 

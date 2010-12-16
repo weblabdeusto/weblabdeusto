@@ -26,8 +26,18 @@ _resource_manager = ResourceManager.CancelAndJoinResourceManager("Coordinator")
 
 class ReservationConfirmer(object):
     def __init__(self, coordinator, locator):
-        self.coordinator = coordinator
-        self.locator     = locator
+        self.coordinator                        = coordinator
+        self.locator                            = locator
+        self._enqueuing_timeout                 = 0
+        self._initialize_and_dispose_experiment = True
+
+    @property
+    def enqueuing_timeout(self):
+        return self._enqueuing_timeout
+
+    @enqueuing_timeout.setter
+    def enqueuing_timeout(self, value):
+        self._enqueuing_timeout = value
 
     def enqueue_confirmation(self, lab_coordaddress_str, reservation_id, experiment_instance_id):
         # We can stablish a politic such as using 
@@ -35,6 +45,7 @@ class ReservationConfirmer(object):
         # like that... here
         lab_coordaddress = CoordAddress.CoordAddress.translate_address(lab_coordaddress_str)
         self._confirm_handler = self._confirm_experiment(lab_coordaddress, reservation_id, experiment_instance_id)
+        self._confirm_handler.join(self._enqueuing_timeout)
 
     @threaded(_resource_manager)
     def _confirm_experiment(self, lab_coordaddress, reservation_id, experiment_instance_id):
@@ -56,6 +67,7 @@ class ReservationConfirmer(object):
         # like that... here
         lab_coordaddress = CoordAddress.CoordAddress.translate_address(lab_coordaddress_str)
         self._free_handler = self._free_experiment(lab_coordaddress, lab_session_id)
+        self._free_handler.join(self._enqueuing_timeout)
 
 
     @threaded(_resource_manager)
