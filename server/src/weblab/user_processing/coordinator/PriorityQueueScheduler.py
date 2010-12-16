@@ -340,19 +340,23 @@ class PriorityQueueScheduler(Scheduler):
         self.reservations_manager.delete(session, reservation_id)
 
         current_reservation = session.query(CurrentReservation).filter(CurrentReservation.reservation_id == reservation_id).first()
+
+        self._clean_reservation(current_reservation)
+            
+        reservation_to_delete = current_reservation or session.query(WaitingReservation).filter(WaitingReservation.reservation_id == reservation_id).first()
+        if reservation_to_delete is not None:
+            session.delete(reservation_to_delete) 
+
+            session.commit()
+        session.close()
+
+    def _clean_reservation(self, current_reservation):
         if current_reservation is not None:
             experiment_instance = current_reservation.available_experiment_instance.experiment_instance
             if experiment_instance is not None:
                 lab_session_id     = current_reservation.lab_session_id
                 lab_coord_address  = experiment_instance.laboratory_coord_address
                 self.confirmer.enqueue_free_experiment(lab_coord_address, lab_session_id)
-
-        reservation_to_delete = current_reservation or session.query(WaitingReservation).filter(WaitingReservation.reservation_id == reservation_id).first()
-        session.delete(reservation_to_delete) 
-
-        session.commit()
-        session.close()
-
 
     #############################################################
     # 
@@ -452,6 +456,7 @@ class PriorityQueueScheduler(Scheduler):
             expired_reservation = current_expired_reservation.reservation_id
             if expired_reservation is None:
                 continue # Maybe it's not an expired_reservation anymore
+            self._clean_reservation(current_expired_reservation)
             session.delete(current_expired_reservation)
             self.reservations_manager.delete(session, expired_reservation)
             reservations_removed = True
@@ -459,6 +464,7 @@ class PriorityQueueScheduler(Scheduler):
         for expired_reservation_id in self.reservations_manager.list_expired_reservations(session, current_expiration_time):
             current_reservation = session.query(CurrentReservation).filter(CurrentReservation.reservation_id == expired_reservation_id).first()
             if current_reservation is not None:
+                self._clean_reservation(current_reservation)
                 session.delete(current_reservation)
             waiting_reservation = session.query(WaitingReservation).filter(WaitingReservation.reservation_id == expired_reservation_id).first()
             if waiting_reservation is not None:
