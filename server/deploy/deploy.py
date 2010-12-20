@@ -203,7 +203,7 @@ def _deploy_stubs(error_handler, folder, wsdl_file):
     cwd = os.getcwd()
     os.chdir(folder)
 
-    pr = subprocess.Popen(wsdl2py + " -e -f ../%s --simple-naming" % wsdl_file, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    pr = subprocess.Popen(sys.executable + " " + wsdl2py + " -e -f ../%s --simple-naming" % wsdl_file, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     result = pr.wait()
     if result != 0:
         for i in pr.stdout.read().split('\n'):
@@ -233,7 +233,7 @@ def _deploy_stubs(error_handler, folder, wsdl_file):
     services_types_content = services_types_content.replace("ZSI.TC.String(","ZSI.TC.String(strip=False,")
     open('WebLabDeusto_services_types.py','w').write(services_types_content)
 
-    pr = subprocess.Popen(wsdl2dispatch + " -e -f ../%s --simple-naming" % wsdl_file, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    pr = subprocess.Popen(sys.executable + " " + wsdl2dispatch + " -e -f ../%s --simple-naming" % wsdl_file, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     result = pr.wait()
     os.chdir(cwd)
     if result != 0:
