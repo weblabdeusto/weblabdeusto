@@ -105,13 +105,13 @@ class CurrentReservation(Base):
     priority                         = Column(Integer)
     lab_session_id                   = Column(String(255))
     # The initial data is provided by the client. It must be sent to the server as a first command.
-    initial_data                     = Column(Binary)
+    client_initial_data              = Column(Binary)
     # The initial configuration is provided by the server.
     initial_configuration            = Column(Binary)
 
     available_experiment_instance    = relation(AvailableExperimentInstance, backref=backref('current_reservations', order_by=id))
 
-    def __init__(self, available_experiment_instance, reservation_id, time, start_time, priority, initial_data):
+    def __init__(self, available_experiment_instance, reservation_id, time, start_time, priority, client_initial_data):
         self.available_experiment_instance = available_experiment_instance
         self.reservation_id                = reservation_id
         self.time                          = time
@@ -126,18 +126,18 @@ class WaitingReservation(Base):
 
     id = Column(Integer, primary_key=True)
 
-    experiment_type_id = Column(Integer, ForeignKey(SUFFIX + 'ExperimentTypes.id'))
-    reservation_id     = Column(String(36))
-    time               = Column(Integer)
-    priority           = Column(Integer)
-    initial_data       = Column(Binary)
+    experiment_type_id  = Column(Integer, ForeignKey(SUFFIX + 'ExperimentTypes.id'))
+    reservation_id      = Column(String(36))
+    time                = Column(Integer)
+    priority            = Column(Integer)
+    client_initial_data = Column(Binary)
 
-    experiment_type    = relation(ExperimentType, backref=backref('waiting_reservations', order_by=id))
+    experiment_type     = relation(ExperimentType, backref=backref('waiting_reservations', order_by=id))
 
-    def __init__(self, experiment_type, reservation_id, time, priority, initial_data):
+    def __init__(self, experiment_type, reservation_id, time, priority, client_initial_data):
         self.experiment_type = experiment_type
         self.reservation_id  = reservation_id
         self.time            = time
         self.priority        = priority
-        self.initial_data    = initial_data
+        self.client_initial_data    = client_initial_data
 

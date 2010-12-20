@@ -116,7 +116,7 @@ class Scheduler(object):
     # Kernel of the reservations
     # 
     # 
-    def reserve_experiment(self, time, priority, initial_data):
+    def reserve_experiment(self, time, priority, client_initial_data):
         pass
 
     def get_reservation_status(self, reservation_id):

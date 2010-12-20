@@ -167,12 +167,12 @@ class Coordinator(object):
     # 
     # Perform a new reservation
     # 
-    def reserve_experiment(self, experiment_id, time, priority, initial_data):
+    def reserve_experiment(self, experiment_id, time, priority, client_initial_data):
         """
         priority: the less, the more priority
         """
         scheduler = self._get_scheduler_per_experiment_id(experiment_id)
-        return scheduler.reserve_experiment(time, priority, initial_data)
+        return scheduler.reserve_experiment(time, priority, client_initial_data)
 
     #######################################################################
     # 

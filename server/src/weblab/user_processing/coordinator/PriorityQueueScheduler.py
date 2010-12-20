@@ -128,7 +128,7 @@ class PriorityQueueScheduler(Scheduler):
             if current_reservation is not None:
                 #print "Downgrading to WaitingReservation..."
                 waiting_reservation = WaitingReservation(experiment_instance.experiment_type, current_reservation.reservation_id, current_reservation.time,
-                        -1, current_reservation.initial_data ) # -1 : Highest priority
+                        -1, current_reservation.client_initial_data ) # -1 : Highest priority
                 session.add(waiting_reservation)
                 session.delete(current_reservation)
 
@@ -190,7 +190,7 @@ class PriorityQueueScheduler(Scheduler):
 
 
     @Override(Scheduler)
-    def reserve_experiment(self, time, priority, initial_data):
+    def reserve_experiment(self, time, priority, client_initial_data):
         """
         priority: the less, the more priority
         """
@@ -205,7 +205,7 @@ class PriorityQueueScheduler(Scheduler):
         reservation_id = self.reservations_manager.create(self.experiment_id.to_weblab_str(), self.time_provider.get_datetime)
 
         session = self.session_maker()
-        waiting_reservation = WaitingReservation(experiment_type, reservation_id, time, priority, initial_data)
+        waiting_reservation = WaitingReservation(experiment_type, reservation_id, time, priority, client_initial_data)
         session.add(waiting_reservation)
 
         session.commit()
@@ -400,9 +400,9 @@ class PriorityQueueScheduler(Scheduler):
             # 
             for free_instance in free_instances:
                 current_reservation = CurrentReservation(free_instance, first_waiting_reservation.reservation_id, 
-                                            first_waiting_reservation.time, self.time_provider.get_time(), first_waiting_reservation.priority, first_waiting_reservation.initial_data)
+                                            first_waiting_reservation.time, self.time_provider.get_time(), first_waiting_reservation.priority, first_waiting_reservation.client_initial_data)
 
-                initial_data = first_waiting_reservation.initial_data
+                client_initial_data = first_waiting_reservation.client_initial_data
 
                 reservation_id = first_waiting_reservation.reservation_id
                 if reservation_id is None:
@@ -429,7 +429,10 @@ class PriorityQueueScheduler(Scheduler):
                     # so this method might take too long. That's why we enqueue these
                     # petitions and run them in other threads.
                     # 
-                    self.confirmer.enqueue_confirmation(laboratory_coord_address, reservation_id, experiment_instance_id, initial_data)
+                    server_initial_data = None 
+                    # server_initial_data will contain information such as "what was the last experiment used?".
+                    # If a single resource was used by a binary experiment, then the next time may not require reprogramming the device
+                    self.confirmer.enqueue_confirmation(laboratory_coord_address, reservation_id, experiment_instance_id, client_initial_data, server_initial_data)
                     # 
                     # After it, keep in the while True in order to add the next 
                     # reservation

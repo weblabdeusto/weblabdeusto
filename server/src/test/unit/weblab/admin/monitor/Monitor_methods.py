@@ -45,7 +45,7 @@ class ConfirmerMock(object):
     def __init__(self, *args, **kwargs):
         pass
 
-    def enqueue_confirmation(self, lab_coordaddress, reservation_id, experiment_instance_id, initial_data):
+    def enqueue_confirmation(self, lab_coordaddress, reservation_id, experiment_instance_id, client_initial_data, server_initial_data):
         pass
 
     def enqueue_free_experiment(self, lab_coordaddress, lab_session_id):

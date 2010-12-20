@@ -126,7 +126,7 @@ class UserProcessor(object):
             )
 
         priority = 5 # TODO: this should be part of experiment_allowed
-        initial_data = None # TODO: this must be passed by the client
+        client_initial_data = None # TODO: this must be passed by the client
         experiment_allowed = experiments[0]
 
         try:
@@ -134,7 +134,7 @@ class UserProcessor(object):
                     experiment_allowed.experiment.to_experiment_id(), 
                     experiment_allowed.time_allowed, 
                     priority,
-                    initial_data
+                    client_initial_data
                 )
         except CoordExc.ExperimentNotFoundException:
             raise UserProcessingExceptions.NoAvailableExperimentFoundException(

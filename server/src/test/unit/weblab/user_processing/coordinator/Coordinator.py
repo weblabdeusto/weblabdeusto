@@ -46,8 +46,8 @@ class ConfirmerMock(object):
     def __init__(self, coordinator, locator):
         self.uses_confirm = []
         self.uses_free    = []
-    def enqueue_confirmation(self, lab_coordaddress, reservation_id, experiment_instance_id, initial_data):
-        self.uses_confirm.append((lab_coordaddress, reservation_id, experiment_instance_id, initial_data))
+    def enqueue_confirmation(self, lab_coordaddress, reservation_id, experiment_instance_id, client_initial_data, server_initial_data):
+        self.uses_confirm.append((lab_coordaddress, reservation_id, experiment_instance_id, client_initial_data, server_initial_data))
     def enqueue_free_experiment(self, lab_coordaddress, lab_session_id):
         self.uses_free.append((lab_coordaddress, lab_session_id))
 
