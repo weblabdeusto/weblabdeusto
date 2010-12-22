@@ -32,7 +32,7 @@ class HttpQueryUserManager(UserManager):
         times_tried = 0 # TODO: Tidy this up
         while(times_tried < 3):
             try:
-                response = urllib2.urlopen("%s?sessionid=%s" % (self._url, sid))
+                response = urllib2.urlopen("%s/?sessionid=%s" % (self._url, sid))
                 print response.read()
                 break
             except urllib2.HTTPError, ex:
