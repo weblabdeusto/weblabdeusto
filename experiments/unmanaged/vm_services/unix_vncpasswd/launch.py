@@ -19,7 +19,7 @@
 # This script must be run as root in a UNIX system.
 # Any call to http://(this-host):PORT/?sessionid=foo
 # Will cause the user USERNAME to have "foo" as 
-# password. This is useful for sharing the session
+# password. This is useful for sharing the sess
 # with the user through SSH or other systems based
 # on the systems password.
 # 
@@ -37,6 +37,9 @@ import BaseHTTPServer
 
 def change_password(new_passwd):
     passwd = pexpect.spawn("%s %s" % (PASSWD_PATH, USERNAME))
+    
+    # Note: The password has to be at least 6 characters long. If a shorter password is
+    # received vncpasswd fails and a not-so-intuitive error message results.
 	
     # wait for password: to come out of passwd's stdout
     passwd.expect("Password: ")
