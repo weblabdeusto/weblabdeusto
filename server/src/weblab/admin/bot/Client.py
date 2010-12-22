@@ -19,7 +19,7 @@ import traceback
 import urllib2
 
 try:
-    import json_module # Python >= 2.6
+    import json as json_module # Python >= 2.6
     json = json_module
 except ImportError:
     import simplejson as json_mod
