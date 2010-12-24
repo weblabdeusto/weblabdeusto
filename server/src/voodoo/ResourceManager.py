@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+import sys
 import threading
 from voodoo.lock import locked
 import voodoo.abstraction.abstract_class_generator as acg
@@ -24,9 +25,22 @@ class ResourceManager(acg.AbstractClass(['dispose_resource'])):
         self._lock = threading.RLock()
         self._resources = []
 
+    def _is_testing(self):
+        # if there is no test module loaded, it's not testing
+        if not sys.modules.has_key('test'):
+            return False
+        # if the test.* module is our test module...
+        voodoo_file = sys.modules['voodoo'].__file__
+        voodoo_path = voodoo_file[:voodoo_file.rfind('/') - len('voodoo')]
+        test_file = sys.modules['test'].__file__
+        test_path = test_file[:test_file.rfind('/') - len('test')]
+        testing = test_path == voodoo_path
+        return testing
+
     @locked('_lock')
     def add_resource(self, resource):
-        self._resources.append(resource)
+        if self._is_testing():
+            self._resources.append(resource)
     
     @locked('_lock')
     def remove_resource(self, resource):
