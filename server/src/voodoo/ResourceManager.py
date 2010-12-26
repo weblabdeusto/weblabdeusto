@@ -19,33 +19,48 @@ from voodoo.lock import locked
 import voodoo.abstraction.abstract_class_generator as acg
 import voodoo.log as log
 
+def _is_testing():
+    # if there is no test module loaded, it's not testing
+    if not sys.modules.has_key('test'):
+        return False
+    # if the test.* module is our test module...
+    voodoo_file = sys.modules['voodoo'].__file__
+    voodoo_path = voodoo_file[:voodoo_file.rfind('/') - len('voodoo')]
+    test_file = sys.modules['test'].__file__
+    test_path = test_file[:test_file.rfind('/') - len('test')]
+    testing = test_path == voodoo_path
+    return testing
+
 class ResourceManager(acg.AbstractClass(['dispose_resource'])):
     def __init__(self):
         acg.call_abstract_constructors(ResourceManager,self)
         self._lock = threading.RLock()
         self._resources = []
 
-    def _is_testing(self):
-        # if there is no test module loaded, it's not testing
-        if not sys.modules.has_key('test'):
-            return False
-        # if the test.* module is our test module...
-        voodoo_file = sys.modules['voodoo'].__file__
-        voodoo_path = voodoo_file[:voodoo_file.rfind('/') - len('voodoo')]
-        test_file = sys.modules['test'].__file__
-        test_path = test_file[:test_file.rfind('/') - len('test')]
-        testing = test_path == voodoo_path
-        return testing
-
-    @locked('_lock')
-    def add_resource(self, resource):
-        if self._is_testing():
+    # If the resource manager is not going to be used, we don't want
+    # to have @locked methods, since they have a performance impact in
+    # Python
+    if _is_testing():
+        @locked('_lock')
+        def add_resource(self, resource):
             self._resources.append(resource)
-    
-    @locked('_lock')
-    def remove_resource(self, resource):
-        if resource in self._resources:
-            self._resources.remove(resource)
+        
+        @locked('_lock')
+        def remove_resource(self, resource):
+            if resource in self._resources:
+                self._resources.remove(resource)
+    else:
+        def add_resource(self, resource):
+            pass
+
+        def remove_resource(self, resource):
+            pass
+
+    #
+    # The rest of the methods will never be called in
+    # production, so there is no need to reimplement
+    # them in a not-locked version
+    # 
 
     @locked('_lock')
     def get_current_resources(self):

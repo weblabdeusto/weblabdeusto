@@ -64,17 +64,8 @@ class ServerRegistry(object):
     def clear(self):
         self._servers.clear()
 
-_registry_lock = threading.Lock()
-_registry = None
+_registry = ServerRegistry()
 
 def get_instance():
-    global _registry
-    if _registry == None:
-        _registry_lock.acquire()
-        try:
-            if _registry == None:
-                _registry = ServerRegistry()
-        finally:
-            _registry_lock.release()
     return _registry
 
