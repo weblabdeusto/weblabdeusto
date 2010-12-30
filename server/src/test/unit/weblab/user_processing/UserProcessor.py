@@ -41,6 +41,8 @@ import weblab.data.dto.ExperimentUse as ExperimentUse
 import weblab.data.dto.User as User
 import weblab.data.dto.Role as Role
 
+from weblab.user_processing.coordinator.Resource import Resource
+
 import weblab.exceptions.user_processing.UserProcessingExceptions as UserProcessingExceptions
 import weblab.exceptions.laboratory.LaboratoryExceptions as LaboratoryExceptions
 
@@ -66,7 +68,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.coordinator = Coordinator.Coordinator(self.locator, self.cfg_manager)
         self.coordinator._clean()
-        self.coordinator.add_experiment_instance_id("server:laboratoryserver@labmachine", ExperimentInstanceId.ExperimentInstanceId('inst','ud-dummy','Dummy experiments'))
+        self.coordinator.add_experiment_instance_id("server:laboratoryserver@labmachine", ExperimentInstanceId.ExperimentInstanceId('inst','ud-dummy','Dummy experiments'), Resource("res_type", "res_inst"))
 
         self.processor = UserProcessor.UserProcessor(
                     self.locator,

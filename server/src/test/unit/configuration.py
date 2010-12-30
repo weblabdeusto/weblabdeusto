@@ -289,10 +289,12 @@ laboratory_assigned_experiments = {
 
 core_session_type         = 'Memory'
 
-core_coordinator_laboratory_servers   = [
-        "laboratory1:WL_SERVER1@WL_MACHINE1;exp1|ud-fpga|FPGA experiments",
-        "laboratory1:WL_SERVER1@WL_MACHINE1;exp1|ud-pld|PLD experiments",
-    ]
+core_coordinator_laboratory_servers   = {
+        "laboratory1:WL_SERVER1@WL_MACHINE1" : {
+                        "exp1|ud-fpga|FPGA experiments" : "fpga1@ud-fpga-board",
+                        "exp1|ud-pld|PLD experiments"   : "pld1@ud-pld-board",
+                    }
+    }
 
 core_scheduling_systems = {
         "ud-fpga@FPGA experiments"   : ("PRIORITY_QUEUE", {}),

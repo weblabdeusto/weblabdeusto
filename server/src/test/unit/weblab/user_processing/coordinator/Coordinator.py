@@ -22,6 +22,8 @@ import voodoo.sessions.SessionId as SessionId
 import weblab.user_processing.coordinator.Coordinator as Coordinator
 from weblab.data.experiments.ExperimentId import ExperimentId
 from weblab.data.experiments.ExperimentInstanceId import ExperimentInstanceId
+from weblab.user_processing.coordinator.Resource import Resource
+
 import weblab.user_processing.coordinator.WebLabQueueStatus as WQS
 import weblab.exceptions.user_processing.CoordinatorExceptions as CoordExc
 
@@ -64,8 +66,8 @@ class CoordinatorTestCase(unittest.TestCase):
         self.coordinator = WrappedCoordinator(locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
         self.coordinator._clean()
 
-        self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('inst1', 'exp1','cat1'))
-        self.coordinator.add_experiment_instance_id("lab2:inst@machine", ExperimentInstanceId('inst2', 'exp1','cat1'))
+        self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('inst1', 'exp1','cat1'), Resource("res_type", "res_inst1"))
+        self.coordinator.add_experiment_instance_id("lab2:inst@machine", ExperimentInstanceId('inst2', 'exp1','cat1'), Resource("res_type", "res_inst2"))
 
     def test_reserve_experiment(self):
 
@@ -83,8 +85,8 @@ class CoordinatorTestCase(unittest.TestCase):
         self.assertEquals( 1, len(experiment_ids ) )
         self.assertEquals( ExperimentId('exp1', 'cat1'), experiment_ids[0] )
 
-# TODO
-# This test will not work until we implement more scheduling schemas
+# 
+# TODO This test will not work until we implement more scheduling schemas
 # 
 #    def test_list_sessions_not_found(self):
 #
@@ -129,8 +131,8 @@ class CoordinatorTestCase(unittest.TestCase):
         # 
         # Adding twice an experiment that already exists is not a problem
         # 
-        self.coordinator.add_experiment_instance_id("lab2:inst@machine", ExperimentInstanceId('inst2', 'exp1', 'cat1'))
-        self.coordinator.add_experiment_instance_id("lab2:inst@machine", ExperimentInstanceId('inst2', 'exp1', 'cat1'))
+        self.coordinator.add_experiment_instance_id("lab2:inst@machine", ExperimentInstanceId('inst2', 'exp1', 'cat1'), Resource("res_type", "res_inst2"))
+        self.coordinator.add_experiment_instance_id("lab2:inst@machine", ExperimentInstanceId('inst2', 'exp1', 'cat1'), Resource("res_type", "res_inst2"))
 
         # 
         # But saying that that experiment is handled by other lab server 
@@ -140,8 +142,21 @@ class CoordinatorTestCase(unittest.TestCase):
                 CoordExc.InvalidExperimentConfigException,
                 self.coordinator.add_experiment_instance_id,
                 "lab3:inst@machine",  # This is different
-                ExperimentInstanceId('inst2', 'exp1', 'cat1')
+                ExperimentInstanceId('inst2', 'exp1', 'cat1'),
+                Resource("res_type", "res_inst2")
             )
+
+        # 
+        # Or saying that that experiment is bound to other resource instance
+        # 
+        self.assertRaises(
+                CoordExc.InvalidExperimentConfigException,
+                self.coordinator.add_experiment_instance_id,
+                "lab2:inst@machine",  
+                ExperimentInstanceId('inst2', 'exp1', 'cat1'),
+                Resource("res_type", "res_inst3") # Now this is different
+            )
+
 
     def test_reserve_experiment_with_priority(self):
 
@@ -183,7 +198,6 @@ class CoordinatorTestCase(unittest.TestCase):
         self.assertEquals( expected_status, status )
       
         
-
     def test_adding_experiment_instance_updates_waiting_users(self):
 
         "If there are users waiting in the queue, and a new instance is added, then the queue is updated "
@@ -204,7 +218,7 @@ class CoordinatorTestCase(unittest.TestCase):
         expected_status = WQS.WaitingQueueStatus(1)
         self.assertEquals( expected_status, status )
 
-        self.coordinator.add_experiment_instance_id("lab3:inst@machine", ExperimentInstanceId('inst3', 'exp1','cat1'))
+        self.coordinator.add_experiment_instance_id("lab3:inst@machine", ExperimentInstanceId('inst3', 'exp1','cat1'), Resource("res_type", "res_inst4"))
 
         status = self.coordinator.get_reservation_status(reservation3_id)
         expected_status = WQS.WaitingConfirmationQueueStatus(coord_addr("lab3:inst@machine"), DEFAULT_TIME)
@@ -229,7 +243,7 @@ class CoordinatorTestCase(unittest.TestCase):
         expected_status = WQS.WaitingInstancesQueueStatus(1)
         self.assertEquals( expected_status, status )
        
-        self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('inst1', 'exp1','cat1'))
+        self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('inst1', 'exp1','cat1'), Resource("res_type", "res_inst1"))
 
         status = self.coordinator.get_reservation_status(reservation1_id)
         expected_status = WQS.WaitingConfirmationQueueStatus(coord_addr("lab1:inst@machine"), DEFAULT_TIME)
@@ -468,23 +482,211 @@ class CoordinatorTestCase(unittest.TestCase):
 
         self.coordinator.remove_experiment_instance_id(ExperimentInstanceId("inst2", "exp1","cat1"))
 
+        # Now there is a single experiment instance available. We reserve it:
+
         status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId("exp1","cat1"), DEFAULT_TIME, DEFAULT_PRIORITY, DEFAULT_INITIAL_DATA)
         expected_status = WQS.WaitingConfirmationQueueStatus(coord_addr("lab1:inst@machine"), DEFAULT_TIME)
         self.assertEquals( expected_status, status )
 
+        # Then we put other user in the queue:
+
         status, reservation2_id = self.coordinator.reserve_experiment(ExperimentId("exp1","cat1"), DEFAULT_TIME, DEFAULT_PRIORITY, DEFAULT_INITIAL_DATA)
         expected_status = WQS.WaitingQueueStatus(0)
         self.assertEquals( expected_status, status )
+        # And we finish the first reservation
 
         self.coordinator.finish_reservation(reservation1_id)
+        # The second reservation should now be in WaitingConfirmation status
 
         status = self.coordinator.get_reservation_status(reservation2_id)
         expected_status = WQS.WaitingConfirmationQueueStatus(coord_addr("lab1:inst@machine"), DEFAULT_TIME)
         self.assertEquals( expected_status, status )
 
+class CoordinatorMultiResourceTestCase(unittest.TestCase):
+    def setUp(self):
+        locator_mock = None
+
+        self.cfg_manager = ConfigurationManager.ConfigurationManager()
+        self.cfg_manager.append_module(configuration_module)
+
+        self.coordinator = WrappedCoordinator(locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
+        self.coordinator._clean()
+
+    def _deploy_cplds_and_fpgas_configuration(self):
+        # 
+        # There are 3 physical devices:
+        # - pld1  (pld boards), in lab1:inst@machine
+        # - pld2  (pld boards), in lab2:inst@machine
+        # - fpga1 (fpga boards), in lab3:inst@machine
+        # 
+        # There are 3 types of experiments:
+        # - ud-pld@PLD experiments, which can only run on pld boards
+        # - ud-fpga@FPGA experiments, which can only run on fpga boards
+        # - ud-binary@Binary experiments, which can run on both types of boards
+        # 
+        # And we are managing 5 experiment instances:
+        # - exp1:binary@Binary experiments (using pld1:pld boards)
+        # - exp2:binary@Binary experiments (using fpga1:fpga boards)
+        # - exp1:ud-pld@PLD experiments (using pld1:pld boards)
+        # - exp2:ud-pld@PLD experiments (using pld2@pld boards)
+        # - exp1:ud-fpga@FPGA experiments (using fpga1:fpga boards)
+        #
+
+        self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('exp1', 'ud-binary','Binary experiments'), Resource("pld boards",  "pld1"  ))
+        self.coordinator.add_experiment_instance_id("lab3:inst@machine", ExperimentInstanceId('exp2', 'ud-binary','Binary experiments'), Resource("fpga boards", "fpga1" ))
+        self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('exp1', 'ud-pld',   'PLD experiments'),    Resource("pld boards",  "pld1"  ))
+        self.coordinator.add_experiment_instance_id("lab2:inst@machine", ExperimentInstanceId('exp2', 'ud-pld',   'PLD experiments'),    Resource("pld boards",  "pld2"  ))
+        self.coordinator.add_experiment_instance_id("lab3:inst@machine", ExperimentInstanceId('exp1', 'ud-fpga',  'FPGA experiments'),   Resource("fpga boards", "fpga1" ))
+
+    def _deploy_cplds_only_configuration(self):
+        # 
+        # There are 2 physical devices:
+        # - pld1  (pld boards), in lab1:inst@machine
+        # - pld2  (pld boards), in lab2:inst@machine
+        # 
+        # There are 2 types of experiments:
+        # - ud-pld@PLD experiments, which can only run on pld boards
+        # - ud-binary@Binary experiments, which can run on both types of boards
+        # 
+        # And we are managing 3 experiment instances:
+        # - exp1:binary@Binary experiments (using pld1:pld boards)
+        # - exp1:ud-pld@PLD experiments (using pld1:pld boards)
+        # - exp2:ud-pld@PLD experiments (using pld2@pld boards)
+        #
+
+        self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('exp1', 'ud-binary','Binary experiments'), Resource("pld boards",  "pld1"  ))
+        self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('exp1', 'ud-pld',   'PLD experiments'),    Resource("pld boards",  "pld1"  ))
+        self.coordinator.add_experiment_instance_id("lab2:inst@machine", ExperimentInstanceId('exp2', 'ud-pld',   'PLD experiments'),    Resource("pld boards",  "pld2"  ))
+
+    def test_reserve_full_scenario(self):
+        self._deploy_cplds_and_fpgas_configuration()
+
+        #
+        # Two users requesting a CPLD and a user requesting a FPGA get what they want
+        #
+
+        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId("ud-pld","PLD experiments"), DEFAULT_TIME + 1, DEFAULT_PRIORITY, DEFAULT_INITIAL_DATA)
+        expected_status = WQS.WaitingConfirmationQueueStatus(coord_addr("lab1:inst@machine"), DEFAULT_TIME + 1)
+        self.assertEquals( expected_status, status )
+
+        status, reservation2_id = self.coordinator.reserve_experiment(ExperimentId("ud-pld","PLD experiments"), DEFAULT_TIME + 2, DEFAULT_PRIORITY, DEFAULT_INITIAL_DATA)
+        expected_status = WQS.WaitingConfirmationQueueStatus(coord_addr("lab2:inst@machine"), DEFAULT_TIME + 2)
+        self.assertEquals( expected_status, status )
+
+        status, reservation3_id = self.coordinator.reserve_experiment(ExperimentId("ud-fpga","FPGA experiments"), DEFAULT_TIME + 3, DEFAULT_PRIORITY, DEFAULT_INITIAL_DATA)
+        expected_status = WQS.WaitingConfirmationQueueStatus(coord_addr("lab3:inst@machine"), DEFAULT_TIME + 3)
+        self.assertEquals( expected_status, status )
+
+        # 
+        # Then, somebody comes and requests a Binary experiment. He is in queue, position 0, waiting for both pld1 and fpga1
+        # 
+
+        status, reservation4_id = self.coordinator.reserve_experiment(ExperimentId("ud-binary","Binary experiments"), DEFAULT_TIME + 4, DEFAULT_PRIORITY, DEFAULT_INITIAL_DATA)
+        expected_status = WQS.WaitingQueueStatus(0)
+        self.assertEquals( expected_status, status )
+
+        # 
+        # Users requesting a FPGA or a CPLD will be in the next position
+        # 
+
+        status, reservation5_id = self.coordinator.reserve_experiment(ExperimentId("ud-fpga","FPGA experiments"), DEFAULT_TIME + 5, DEFAULT_PRIORITY, DEFAULT_INITIAL_DATA)
+        expected_status = WQS.WaitingQueueStatus(1)
+        self.assertEquals( expected_status, status )
+
+        status, reservation6_id = self.coordinator.reserve_experiment(ExperimentId("ud-pld","PLD experiments"), DEFAULT_TIME + 6, DEFAULT_PRIORITY, DEFAULT_INITIAL_DATA)
+        expected_status = WQS.WaitingQueueStatus(1)
+        self.assertEquals( expected_status, status )
+
+        # 
+        # If another user comes requesting a CPLD, he will be in the second position
+        # 
+        status, reservation7_id = self.coordinator.reserve_experiment(ExperimentId("ud-pld","PLD experiments"), DEFAULT_TIME + 7, DEFAULT_PRIORITY, DEFAULT_INITIAL_DATA)
+        expected_status = WQS.WaitingQueueStatus(2)
+        self.assertEquals( expected_status, status )
+
+        # 
+        # If a user comes requesting a Binary, he will be in position 2 rather than 3, since in the FPGA queues there are only two users before him
+        # 
+        status, reservation8_id = self.coordinator.reserve_experiment(ExperimentId("ud-binary","Binary experiments"), DEFAULT_TIME + 8, DEFAULT_PRIORITY, DEFAULT_INITIAL_DATA)
+        expected_status = WQS.WaitingQueueStatus(2)
+        self.assertEquals( expected_status, status )
+
+        # 
+        # However, it's not that this reservation is only waiting for an FPGA. If the two guys waiting for a CPLD get out, this guy will be promoted
+        # 
+        self.coordinator.finish_reservation(reservation6_id)
+        self.coordinator.finish_reservation(reservation7_id)
+
+        status = self.coordinator.get_reservation_status(reservation8_id)
+        expected_status = WQS.WaitingQueueStatus(1)
+        self.assertEquals( expected_status, status )
+
+        # 
+        # If a new user requests a CPLD, then he'll be 3rd (position = 2), since he has both users requesting a ud-binary before him:
+        # 
+        status, reservation9_id = self.coordinator.reserve_experiment(ExperimentId("ud-pld","PLD experiments"), DEFAULT_TIME + 9, DEFAULT_PRIORITY, DEFAULT_INITIAL_DATA)
+        expected_status = WQS.WaitingQueueStatus(2)
+        self.assertEquals( expected_status, status )
+
+        # 
+        # However, if the instance of the resource of "pld boards" that doesn't support ud-pld@PLD experiments is released, this last user goes first, since
+        # the other people waiting for "pld boards" are waiting for a resource instance of "pld boards" that supports "ud-binary@Binary experiments"
+        # 
+        self.coordinator.confirm_experiment(reservation2_id, SessionId.SessionId("the.session"))
+        self.coordinator.finish_reservation(reservation2_id)
+
+        status = self.coordinator.get_reservation_status(reservation9_id)
+        expected_status = WQS.WaitingConfirmationQueueStatus(coord_addr("lab2:inst@machine"), DEFAULT_TIME + 9)
+        self.assertEquals( expected_status, status )
+     
+        # 
+        # If this user goes out, then that experiment is available, so next user requesting a ud-pld@PLD experiments will get it
+        # 
+        self.coordinator.confirm_experiment(reservation9_id, SessionId.SessionId("the.session"))
+        self.coordinator.finish_reservation(reservation9_id)
+
+        status, reservation10_id = self.coordinator.reserve_experiment(ExperimentId("ud-pld","PLD experiments"), DEFAULT_TIME + 10, DEFAULT_PRIORITY, DEFAULT_INITIAL_DATA)
+        expected_status = WQS.WaitingConfirmationQueueStatus(coord_addr("lab2:inst@machine"), DEFAULT_TIME + 10)
+        self.assertEquals( expected_status, status )
+
+        # 
+        # If the user who was using the FPGA leaves it, the first user waiting for a
+        # binary experiment will get it.
+        # 
+        self.coordinator.confirm_experiment(reservation3_id, SessionId.SessionId("the.session"))
+        self.coordinator.finish_reservation(reservation3_id)
+
+        status = self.coordinator.get_reservation_status(reservation4_id)
+        expected_status = WQS.WaitingConfirmationQueueStatus(coord_addr("lab3:inst@machine"), DEFAULT_TIME + 4)
+        self.assertEquals( expected_status, status )
+
+        # If the user who was using the CPLD that supports binary leaves, the second user
+        # waiting for a binary experiment will get it
+        self.coordinator.confirm_experiment(reservation1_id, SessionId.SessionId("the.session"))
+        self.coordinator.finish_reservation(reservation1_id)
+
+        status = self.coordinator.get_reservation_status(reservation8_id)
+        expected_status = WQS.WaitingConfirmationQueueStatus(coord_addr("lab1:inst@machine"), DEFAULT_TIME + 8)
+        self.assertEquals( expected_status, status )
+
+        # 
+        # We remove the rest of the queues
+        # 
+        self.coordinator.finish_reservation(reservation5_id)
+
+        # And then the ones using the devices
+        self.coordinator.confirm_experiment(reservation4_id, SessionId.SessionId("the.session"))
+        self.coordinator.finish_reservation(reservation4_id)
+        self.coordinator.confirm_experiment(reservation8_id, SessionId.SessionId("the.session"))
+        self.coordinator.finish_reservation(reservation8_id)
+        self.coordinator.confirm_experiment(reservation10_id, SessionId.SessionId("the.session"))
+        self.coordinator.finish_reservation(reservation10_id)
 
 def suite():
-    return unittest.makeSuite(CoordinatorTestCase)
+    return unittest.TestSuite( (
+                    unittest.makeSuite(CoordinatorTestCase),
+                    unittest.makeSuite(CoordinatorMultiResourceTestCase),
+                ) )
 
 if __name__ == '__main__':
     unittest.main()

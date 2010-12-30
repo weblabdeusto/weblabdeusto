@@ -10,13 +10,15 @@ core_coordinator_db_password = 'weblab'
 weblab_db_username = 'weblab'
 weblab_db_password = 'weblab'
 
-core_coordinator_laboratory_servers   = [
-    "laboratory1:main_instance@main_machine;exp1|ud-fpga|FPGA experiments",
-    "laboratory1:main_instance@main_machine;exp1|ud-pld|PLD experiments",
-    "laboratory1:main_instance@main_machine;exp1|ud-gpib|GPIB experiments",
-    "laboratory1:main_instance@main_machine;exp1|ud-pic|PIC experiments",
-    "laboratory1:main_instance@main_machine;exp1|ud-dummy|Dummy experiments",
-]
+core_coordinator_laboratory_servers   = {
+    "laboratory1:main_instance@main_machine" : {
+        "exp1|ud-fpga|FPGA experiments"   : "fpga@ud-fpga",
+        "exp1|ud-pld|PLD experiments"     : "pld@ud-pld", 
+        "exp1|ud-gpib|GPIB experiments"   : "gpib@ud-gpib",
+        "exp1|ud-pic|PIC experiments"     : "pic@ud-pic",
+        "exp1|ud-dummy|Dummy experiments" : "dummy@ud-dummy",
+    }
+}
 
 ##########################
 # Database configuration #

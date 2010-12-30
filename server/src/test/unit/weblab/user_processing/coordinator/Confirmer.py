@@ -27,6 +27,8 @@ import weblab.data.ServerType as ServerType
 import weblab.methods as weblab_methods
 from weblab.data.experiments.ExperimentInstanceId import ExperimentInstanceId
 from weblab.data.experiments.ExperimentId import ExperimentId
+from weblab.user_processing.coordinator.Resource import Resource
+
 import weblab.user_processing.coordinator.Coordinator as Coordinator
 
 import weblab.user_processing.coordinator.WebLabQueueStatus as WQS
@@ -67,7 +69,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.confirmer   = self.coordinator.confirmer
 
         self.lab_address = u"lab1:inst@machine"
-        self.coordinator.add_experiment_instance_id(self.lab_address, ExperimentInstanceId('inst1', 'exp1','cat1'))
+        self.coordinator.add_experiment_instance_id(self.lab_address, ExperimentInstanceId('inst1', 'exp1','cat1'), Resource("res_type", "res_inst"))
 
     def test_free_experiment_success(self):
         mock_laboratory = self.mocker.mock()

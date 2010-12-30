@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-from weblab.user_processing.coordinator.CoordinatorModel import Reservation
+from weblab.user_processing.coordinator.CoordinatorModel import Reservation, CurrentReservation, ExperimentType
 import weblab.exceptions.user_processing.CoordinatorExceptions as CoordExc
 
 class ReservationsManager(object):
@@ -22,12 +22,17 @@ class ReservationsManager(object):
 
     def _clean(self):
         session = self._session_maker()
-        for reservation in session.query(Reservation).all():
-            session.delete(reservation)
-        session.commit()
+        try:
+            for current_reservation in session.query(CurrentReservation).all():
+                session.delete(current_reservation)
+            for reservation in session.query(Reservation).all():
+                session.delete(reservation)
+            session.commit()
+        finally:
+            session.close()
 
-    def create(self, now, latest_access = None):
-        return Reservation.create(self._session_maker, now, latest_access)
+    def create(self, experiment_type, now = None):
+        return Reservation.create(self._session_maker, experiment_type, now)
 
     def check(self, session, reservation_id):
         reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
@@ -39,7 +44,7 @@ class ReservationsManager(object):
             reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
             if reservation is None:
                 raise CoordExc.ExpiredSessionException("Expired reservation")
-            return reservation.experiment_id
+            return reservation.experiment_type.to_experiment_id()
         finally:
             session.close()
 
@@ -51,11 +56,47 @@ class ReservationsManager(object):
         
         reservation.update()
 
+    def confirm(self, session, reservation_id):
+        reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
+        if reservation is None:
+            session.close()
+            raise CoordExc.ExpiredSessionException("Expired reservation")
+
+        current_reservation = CurrentReservation(reservation.id)
+        session.add(current_reservation)
+
+    def downgrade_confirmation(self, session, reservation_id):
+        current_reservation = session.query(CurrentReservation).filter(CurrentReservation.id == reservation_id).first()
+        if current_reservation is None:
+            return # Already downgraded
+        session.delete(current_reservation)
+ 
     def list_expired_reservations(self, session, expiration_time):
         return ( expired_reservation.id for expired_reservation in session.query(Reservation).filter(Reservation.latest_access < expiration_time).all() )
+
+    def list_sessions(self, experiment_id ):
+        """ list_sessions( experiment_id ) -> [ session_id ] """
+        session = self._session_maker()
+        try:
+            experiment_type = session.query(ExperimentType).filter_by(exp_name = experiment_id.exp_name, cat_name = experiment_id.cat_name).first()
+            if experiment_type is None:
+                raise CoordExc.ExperimentNotFoundException("Experiment %s not found" % experiment_id)
+
+            reservation_ids = []
+            
+            for reservation in experiment_type.reservations:
+                reservation_ids.append(reservation.id)
+
+        finally:
+            session.close()
+
+        return reservation_ids
 
     def delete(self, session, reservation_id):
         reservation = session.query(Reservation).filter_by(id=reservation_id).first()
         if reservation is not None:
+            current_reservation = session.query(CurrentReservation).filter_by(id=reservation_id).first()
+            if current_reservation is not None:
+                session.delete(current_reservation)
             session.delete(reservation)
 

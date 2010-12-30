@@ -30,8 +30,12 @@ class ExperimentInstanceId(object):
                 and self.exp_name  == other.exp_name
                 and self.cat_name  == other.cat_name
             )
+
     def __cmp__(self, other):
         return cmp(str(self), str(other))
+
+    def __hash__(self):
+        return hash(self.inst_name) * 31 ** 3 + hash(self.exp_name) * 31 ** 2 + hash(self.cat_name) * 31 + hash("ExperimentInstanceId")
 
     def __repr__(self):
         return "<ExperimentInstanceId inst_name=%s; exp_name=%s; cat_name=%s />" % (

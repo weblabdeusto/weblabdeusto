@@ -33,6 +33,8 @@ import weblab.database.DatabaseSession                as DatabaseSession
 import weblab.data.ServerType                         as ServerType
 import weblab.data.ClientAddress                      as ClientAddress
 
+import weblab.user_processing.coordinator.CoordinationConfigurationParser as CoordinationConfigurationParser
+
 import weblab.exceptions.user_processing.UserProcessingExceptions as UserProcessingExceptions
 
 import weblab.data.experiments.ExperimentId as ExperimentId
@@ -56,8 +58,8 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
 
-        self.cfg_manager._set_value(UserProcessingServer.COORDINATOR_LABORATORY_SERVERS,
-                    [ 'server:laboratoryserver@labmachine;inst|ud-dummy|Dummy experiments' ] )
+        self.cfg_manager._set_value(CoordinationConfigurationParser.COORDINATOR_LABORATORY_SERVERS,
+                    { 'server:laboratoryserver@labmachine' : { 'inst|ud-dummy|Dummy experiments' : 'dummy1@ud-dummy' } } )
 
         self.mocker  = mocker.Mocker()
         self.lab_mock = self.mocker.mock()
@@ -177,23 +179,6 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
         self.ups.logout(sess_id)
 
-    def test_reserve_experiment_raises_parsing_exception(self):
-        self.cfg_manager._set_value(UserProcessingServer.COORDINATOR_LABORATORY_SERVERS,
-                    [ 'this.doesnt.respect.the.regex' ] )
-
-        # Clean the database
-        coordinator = Coordinator.Coordinator(self.locator, self.cfg_manager)
-        coordinator._clean()
-
-        # External server generation
-        self.assertRaises(
-                UserProcessingExceptions.CoordinationConfigurationParsingException,
-                UserProcessingServer.UserProcessingServer,
-                self.coord_address,
-                self.locator,
-                self.cfg_manager
-            )
-        
     def _test_get_groups_with_permission(self, parent_id):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
         

@@ -13,7 +13,10 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+import StringIO
+import traceback
 import threading
+
 import voodoo.log as log
 import voodoo.counter as counter
 
@@ -58,6 +61,9 @@ class _ThreadedFunc(threading.Thread):
                             e
                         )
                 )
+            sio = StringIO.StringIO()
+            traceback.print_exc(file=sio)
+            self.raised_exc_traceback = sio.getvalue()
 
 # This is used at most once per threaded method is created
 _global_threaded_thread = threading.Lock()

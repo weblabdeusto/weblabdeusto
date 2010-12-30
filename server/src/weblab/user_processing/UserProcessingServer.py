@@ -15,7 +15,6 @@
 # 
 
 import threading
-import re
 
 from voodoo.log import logged
 import voodoo.LogLevel as LogLevel
@@ -23,11 +22,11 @@ import voodoo.log as log
 import voodoo.counter as counter
 
 import weblab.data.ServerType as ServerType
-import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
 
 import weblab.user_processing.UserProcessor as UserProcessor
 import weblab.user_processing.AliveUsersCollection as AliveUsersCollection
 import weblab.user_processing.coordinator.Coordinator as Coordinator
+import weblab.user_processing.coordinator.CoordinationConfigurationParser as CoordinationConfigurationParser
 import weblab.user_processing.database.DatabaseManager as DatabaseManager
 
 import weblab.exceptions.user_processing.UserProcessingExceptions as UserProcessingExceptions
@@ -56,8 +55,6 @@ GET_USER_INFORMATION_CACHE_TIME = 15 #seconds
 CHECKING_TIME_NAME    = 'core_checking_time'
 DEFAULT_CHECKING_TIME = 3 # seconds
 
-COORDINATOR_LABORATORY_SERVERS = 'core_coordinator_laboratory_servers'
-
 WEBLAB_USER_PROCESSING_SERVER_SESSION_TYPE         = "core_session_type"
 DEFAULT_WEBLAB_USER_PROCESSING_SERVER_SESSION_TYPE = SessionType.Memory.name
 WEBLAB_USER_PROCESSING_SERVER_SESSION_POOL_ID      = "core_session_pool_id"
@@ -66,7 +63,6 @@ WEBLAB_USER_PROCESSING_SERVER_CLEAN_COORDINATOR    = "core_coordinator_clean"
 
 class UserProcessingServer(object):
 
-    LABORATORY_SERVER_REGEX = r"^(.*);(.*)\|(.*)\|(.*)$"
     FACADE_SERVERS = (
                         UserProcessingFacadeServer.UserProcessingRemoteFacadeServer,
                         AdminFacadeServer.AdminRemoteFacadeServer
@@ -104,7 +100,7 @@ class UserProcessingServer(object):
         self._alive_users_collection = AliveUsersCollection.AliveUsersCollection(
                 self._locator, self._cfg_manager, real_session_type, self._session_manager, self._db_manager)
 
-        self._parse_configuration()
+        self._parse_coordination_configuration()
 
         self._facade_servers = []
         for FacadeClass in self.FACADE_SERVERS:
@@ -122,24 +118,14 @@ class UserProcessingServer(object):
         for facade_server in self._facade_servers:
             facade_server.stop()
 
-    def _parse_configuration(self):
-        laboratory_servers_str = self._cfg_manager.get_value(COORDINATOR_LABORATORY_SERVERS)
-        for laboratory_server_str in laboratory_servers_str:
-            mo = re.match(self.LABORATORY_SERVER_REGEX, laboratory_server_str)
-            if mo == None:
-                raise UserProcessingExceptions.CoordinationConfigurationParsingException("Error in coordination parsing: %s doesn't match the regular expression %s" % (
-                            laboratory_server_str, self.LABORATORY_SERVER_REGEX))
-            else:
-                groups = mo.groups()
-                (
-                    laboratory_server_coord_address_str,
-                    inst_name,
-                    exp_name,
-                    exp_cat_name
-                ) = groups
-                
-                experiment_instance_id = ExperimentInstanceId.ExperimentInstanceId( inst_name, exp_name, exp_cat_name )
-                self._coordinator.add_experiment_instance_id(laboratory_server_coord_address_str, experiment_instance_id) 
+    def _parse_coordination_configuration(self):
+        coordination_configuration_parser = CoordinationConfigurationParser.CoordinationConfigurationParser(self._cfg_manager)
+        configuration = coordination_configuration_parser.parse_configuration()
+        for laboratory_server_coord_address_str in configuration:
+            experiment_instance_config = configuration[laboratory_server_coord_address_str]
+            for experiment_instance_id in experiment_instance_config:
+                resource = experiment_instance_config[experiment_instance_id]
+                self._coordinator.add_experiment_instance_id(laboratory_server_coord_address_str, experiment_instance_id, resource)
 
     def _load_user(self, session):
         return UserProcessor.UserProcessor(self._locator, session, self._cfg_manager, self._coordinator, self._db_manager)

@@ -19,7 +19,7 @@ core_coordinator_db_username = 'weblab'
 core_coordinator_db_password = 'weblab'
 
 core_coordinator_laboratory_servers = [
-            "laboratory:lab_and_experiment@main_machine;exp1|ud-dummy|Dummy experiments"
+            "laboratory:lab_and_experiment@main_machine" : { "exp1|ud-dummy|Dummy experiments" : "dummy@ud-dummy" }
         ]
 ##########################
 # Database configuration #

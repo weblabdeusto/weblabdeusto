@@ -14,17 +14,18 @@
 # 
 
 class GenericSchedulerArguments(object):
-    def __init__(self, cfg_manager, experiment_id, reservations_manager, confirmer, session_maker, time_provider, **kwargs):
+    def __init__(self, cfg_manager, resource_type_name, reservations_manager, resources_manager, confirmer, session_maker, time_provider, **kwargs):
         self.cfg_manager          = cfg_manager
-        self.experiment_id        = experiment_id
+        self.resource_type_name   = resource_type_name
         self.reservations_manager = reservations_manager
+        self.resources_manager    = resources_manager
         self.confirmer            = confirmer
         self.session_maker        = session_maker
         self.time_provider        = time_provider
         if 'enqueuing_timeout' in kwargs:
             self.confirmer.enqueuing_timeout = kwargs.pop('enqueuing_timeout')
         if len(kwargs) > 0:
-            raise RuntimeException("Unrecognized arguments: %s" % kwargs)
+            raise RuntimeError("Unrecognized arguments: %s" % kwargs)
 
 ###################################################################
 # 
@@ -65,6 +66,13 @@ class Scheduler(object):
         self.reservations_manager = generic_scheduler_arguments.reservations_manager
 
         # 
+        # resources_manager is the Resources Manager. You can perform operations
+        # with experiment instances, experiment types, resources, etc.
+        # 
+        self.resources_manager    = generic_scheduler_arguments.resources_manager
+
+
+        # 
         # An sqlalchemy session_maker. It is already configured, so you can directly use
         # it to create new sessions and perform changes against the database. As long as you
         # have used sqlalchemy in your tables, and added your module to CoordinatorModel.load,
@@ -81,9 +89,9 @@ class Scheduler(object):
         self.time_provider        = generic_scheduler_arguments.time_provider
 
         # 
-        # The Experiment Identifier of the experiment being managed by this scheduler.
+        # The Resource Type of the experiment being managed by this scheduler.
         # 
-        self.experiment_id        = generic_scheduler_arguments.experiment_id
+        self.resource_type_name   = generic_scheduler_arguments.resource_type_name
 
     #
     # TODO: 
@@ -99,16 +107,7 @@ class Scheduler(object):
     # administration panel. Otherwise, the scheduler should handle the notifications
     # of "experiment broken", "experiment fixed", etc.
     # 
-    def add_experiment_instance_id(self, laboratory_coord_address, experiment_instance_id):
-        pass
-
-    def remove_experiment_instance_id(self, experiment_instance_id):
-        pass
-
-    def list_experiments(self):
-        pass
-
-    def list_sessions(self):
+    def remove_resource_instance_id(self, session, resource_instance_id):
         pass
 
     #######################################
@@ -116,7 +115,7 @@ class Scheduler(object):
     # Kernel of the reservations
     # 
     # 
-    def reserve_experiment(self, time, priority, client_initial_data):
+    def reserve_experiment(self, reservation_id, experiment_id, time, priority, client_initial_data):
         pass
 
     def get_reservation_status(self, reservation_id):

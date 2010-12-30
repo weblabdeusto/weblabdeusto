@@ -10,10 +10,12 @@ core_coordinator_db_password = 'weblab'
 weblab_db_username = 'weblab'
 weblab_db_password = 'weblab'
 
-core_coordinator_laboratory_servers = [
-                "laboratory1:main_instance@main_machine;exp1|ud-dummy|Dummy experiments",
-                "laboratory1:main_instance@main_machine;exp1|javadummy|Dummy experiments"
-        ]
+core_coordinator_laboratory_servers = {
+                "laboratory1:main_instance@main_machine" : { 
+                    "exp1|ud-dummy|Dummy experiments"  : "dummy@dummy",
+                    "exp1|javadummy|Dummy experiments" : "javadummy@javadummy"
+                }
+        }
 
 
 ##############################

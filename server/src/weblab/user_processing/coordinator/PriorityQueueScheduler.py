@@ -18,14 +18,15 @@ import datetime
 import sqlalchemy
 from sqlalchemy import not_
 from sqlalchemy.orm import join
+from sqlalchemy.exc import IntegrityError
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.sessions.SessionId as SessionId
 from voodoo.override import Override
 
 from weblab.user_processing.coordinator.Scheduler import Scheduler
-from weblab.user_processing.coordinator.PriorityQueueSchedulerModel import ExperimentType, ExperimentInstance, CurrentReservation, WaitingReservation, AvailableExperimentInstance
-import weblab.exceptions.user_processing.CoordinatorExceptions as CoordExc
+from weblab.user_processing.coordinator.CoordinatorModel import ResourceType, ResourceInstance, CurrentResourceSlot
+from weblab.user_processing.coordinator.PriorityQueueSchedulerModel import ConcreteCurrentReservation, WaitingReservation
 import weblab.user_processing.coordinator.WebLabQueueStatus as WQS
 
 from weblab.data.experiments.ExperimentInstanceId import ExperimentInstanceId
@@ -35,29 +36,7 @@ EXPIRATION_TIME  = 3600 # seconds
 
 ###########################################################
 # 
-# There are types of experiments and instances of these 
-# types. ExperimentType identifies the types of experiments,
-# with a Category Name and a Experiment Name. This way, if
-# there are 4 different PLD experiments, you can describe
-# them with a Category called "PLD experiments" and with a
-# experiment name of "ud-pld". 
-# 
-# Then, you can have different instances of these 
-# experiments, which will be the different real experiments 
-# deployed. Each of these experiments will have a unique
-# identifier per experiment type. This way, we might have
-# 2 experiments of "ud-pld" deployed, one in the room 007 
-# and another in the room 505 of the faculty. We will then
-# have an instance "instance.505" of type ud-pld.
-# 
-# This way, the coordinator balances the load of the users
-# among the different instances of a certain Experiment
-# Type. If there are 4 instances of the type ud-pld and 
-# there are 5 users trying to use that type of experiment,
-# then 4 users will start using it, and the other one will 
-# be in a global queue of that experiment type. As soon as
-# one user finishes, the 5th user will start using that
-# instance.
+# TODO write some documentation 
 # 
 
 class PriorityQueueScheduler(Scheduler):
@@ -66,151 +45,41 @@ class PriorityQueueScheduler(Scheduler):
         super(PriorityQueueScheduler, self).__init__(generic_scheduler_arguments, **kwargs)
 
     @Override(Scheduler)
-    def add_experiment_instance_id(self, laboratory_coord_address, experiment_instance_id):
-        session = self.session_maker()
+    def remove_resource_instance_id(self, session, resource_instance_id):
+        resource_type = session.query(ResourceType).filter_by(name = resource_instance_id.resource_type).one()
+        resource_instance = session.query(ResourceInstance).filter_by(name = resource_instance_id.resource_instance, resource_type = resource_type).one()
 
-        experiment_id = experiment_instance_id.to_experiment_id()
-        experiment_type = ExperimentType(experiment_id.exp_name, experiment_id.cat_name)
-        session.add(experiment_type)
-        try:
-            session.commit()
-        except sqlalchemy.exceptions.IntegrityError:
-            # Maybe it's already there
-            session.rollback()
-        session.close()
+        current_resource_slot = resource_instance.slot
 
-        session = self.session_maker()
-        # 
-        # At this point, we know that the experiment type is in the database.
-        # 
-        experiment_type = session.query(ExperimentType).filter_by(exp_name = experiment_id.exp_name, cat_name = experiment_id.cat_name).first()
+        if current_resource_slot is not None:
+            slot_reservation = current_resource_slot.slot_reservation
+            if slot_reservation is not None:
+                current_reservations = current_resource_slot.slot_reservation.pq_current_reservations
+                if len(current_reservations) > 0:
+                    current_reservation = current_reservations[0]
+                    waiting_reservation = WaitingReservation(resource_instance.resource_type, current_reservation.current_reservation_id, current_reservation.time,
+                            -1, current_reservation.client_initial_data ) # -1 : Highest priority
+                    self.reservations_manager.downgrade_confirmation(session, current_reservation.current_reservation_id)
+                    self.resources_manager.release_resource(session, current_resource_slot.slot_reservation)
+                    session.add(waiting_reservation)
+                    session.delete(current_reservation)
 
-        experiment_instance = ExperimentInstance(experiment_type, laboratory_coord_address, experiment_instance_id.inst_name)
-
-        session.add(experiment_instance)
-
-        available_experiment_instance = AvailableExperimentInstance(experiment_instance)
-
-        session.add(available_experiment_instance)
-
-        try:
-            session.commit()
-            session.close()
-        except sqlalchemy.exceptions.IntegrityError:
-            session.rollback()
-            session.close()
-            session = self.session_maker()
-            experiment_type = session.query(ExperimentType).filter_by(exp_name = experiment_id.exp_name, cat_name = experiment_id.cat_name).first()
-            experiment_instance = session.query(ExperimentInstance).filter_by(experiment_type = experiment_type, experiment_instance_id = experiment_instance_id.inst_name).first()
-            retrieved_laboratory_coord_address = experiment_instance.laboratory_coord_address
-            if experiment_instance.laboratory_coord_address != laboratory_coord_address:
-                session.close()
-                raise CoordExc.InvalidExperimentConfigException("Attempt to register the experiment %s in the laboratory %s; this experiment is already registered in the laboratory %s" % (experiment_instance_id, laboratory_coord_address, retrieved_laboratory_coord_address))
-            session.close()
+            session.delete(current_resource_slot)
 
     @Override(Scheduler)
-    def remove_experiment_instance_id(self, experiment_instance_id):
-        session = self.session_maker()
-
-        experiment_id = experiment_instance_id.to_experiment_id()
-
-        experiment_instance = session.query(ExperimentInstance)\
-            .filter(ExperimentInstance.experiment_type_id     == ExperimentType.id)\
-            .filter(ExperimentInstance.experiment_instance_id == experiment_instance_id.inst_name)\
-            .filter(ExperimentType.exp_name                   == experiment_id.exp_name)\
-            .filter(ExperimentType.cat_name                   == experiment_id.cat_name).one()
-
-        available_experiment_instance = experiment_instance.available
-
-        if available_experiment_instance is not None:
-
-            current_reservation = available_experiment_instance.current_reservation
-            if current_reservation is not None:
-                #print "Downgrading to WaitingReservation..."
-                waiting_reservation = WaitingReservation(experiment_instance.experiment_type, current_reservation.reservation_id, current_reservation.time,
-                        -1, current_reservation.client_initial_data ) # -1 : Highest priority
-                session.add(waiting_reservation)
-                session.delete(current_reservation)
-
-            session.delete(available_experiment_instance)
-
-        session.delete(experiment_instance)
-
-        session.commit()
-        session.close()
-
-    @Override(Scheduler)
-    def list_experiments(self):
-        session = self.session_maker()
-
-        experiment_types = session.query(ExperimentType)\
-                            .filter(ExperimentType.exp_name == self.experiment_id.exp_name)\
-                            .filter(ExperimentType.cat_name == self.experiment_id.cat_name)\
-                            .order_by(ExperimentType.id).all()
-
-        experiment_ids = []
-
-        for experiment_type in experiment_types:
-            experiment_ids.append(experiment_type.to_experiment_id())
-
-        session.close()
-
-        return experiment_ids
-
-
-    @Override(Scheduler)
-    def list_sessions(self):
-        """ list_sessions( experiment_id ) -> { session_id : status } """
-        session = self.session_maker()
-
-        experiment_type = session.query(ExperimentType).filter_by(exp_name = self.experiment_id.exp_name, cat_name = self.experiment_id.cat_name).first()
-        if experiment_type is None:
-            raise CoordExc.ExperimentNotFoundException("Experiment %s not found" % self.experiment_id)
-
-        reservations = {}
-
-        reservation_ids = []
-        for instance in experiment_type.instances:
-            available_instance = instance.available
-            if available_instance is not None:
-                for current_reservation in available_instance.current_reservations:
-                    reservation_ids.append(current_reservation.reservation_id)
-
-
-        for waiting_reservation in experiment_type.waiting_reservations:
-            reservation_ids.append(waiting_reservation.reservation_id)
-
-        session.close()
-
-        for reservation_id in reservation_ids:
-            status = self.get_reservation_status(reservation_id)
-            reservations[reservation_id] = status
-
-        return reservations
-
-
-    @Override(Scheduler)
-    def reserve_experiment(self, time, priority, client_initial_data):
+    def reserve_experiment(self, reservation_id, experiment_id, time, priority, client_initial_data):
         """
         priority: the less, the more priority
         """
         session = self.session_maker()
+        try:
+            resource_type = session.query(ResourceType).filter_by(name = self.resource_type_name).one()
+            waiting_reservation = WaitingReservation(resource_type, reservation_id, time, priority, client_initial_data)
+            session.add(waiting_reservation)
 
-        experiment_type = session.query(ExperimentType).filter_by(exp_name = self.experiment_id.exp_name, cat_name = self.experiment_id.cat_name).first()
-        if experiment_type is None:
-            raise CoordExc.ExperimentNotFoundException("Experiment %s not found" % self.experiment_id)
-
-        session.close()
-
-        reservation_id = self.reservations_manager.create(self.experiment_id.to_weblab_str(), self.time_provider.get_datetime)
-
-        session = self.session_maker()
-        waiting_reservation = WaitingReservation(experiment_type, reservation_id, time, priority, client_initial_data)
-        session.add(waiting_reservation)
-
-        session.commit()
-
-        session.close()
+            session.commit()
+        finally:
+            session.close()
 
         return self.get_reservation_status(reservation_id), reservation_id
 
@@ -225,81 +94,79 @@ class PriorityQueueScheduler(Scheduler):
         self._remove_expired_reservations()
 
         session = self.session_maker()
+        try:
+            self.reservations_manager.update(session, reservation_id)
+            session.commit()
+        finally:
+            session.close()
 
-        self.reservations_manager.update(session, reservation_id)
-    
-        waiting_reservation = session.query(WaitingReservation).filter(WaitingReservation.reservation_id == reservation_id).first()
-        if waiting_reservation is not None:
-            experiment_type_id = waiting_reservation.experiment_type.id
-        else:
-            current_reservation = session.query(CurrentReservation).filter(CurrentReservation.reservation_id == reservation_id).first()
-            experiment_type_id  = None
-            if current_reservation is not None:
-                experiment_instance = current_reservation.available_experiment_instance.experiment_instance
-                if experiment_instance is not None:
-                    experiment_type_id = experiment_instance.experiment_type.id
-                    
-            if experiment_type_id is None:
-                session.close()
-                raise Exception("Invalid state: reservation must have either a waiting_reservation or a current_reservation with an experiment_instance. Check if you're using tables without transactions or similar")
+        self._update_queues()
 
-        session.commit()
-        session.close()
-
-        self._update_queues(experiment_type_id)
-
+        return_current_status = False
         session = self.session_maker()
+        try:
+            # 
+            # If the current user is actually in a reservation assigned to a 
+            # certain laboratory, it may be in a Reserved state or in a 
+            # WaitingConfirmation state (meaning that it is still waiting for
+            # a response from the Laboratory).
+            # 
+            current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == reservation_id).first()
+            if current_reservation is not None:
+                resource_instance     = current_reservation.slot_reservation.current_resource_slot.resource_instance
+                requested_experiment_instance = None
+                for experiment_instance in resource_instance.experiment_instances:
+                    if experiment_instance.experiment_type == current_reservation.current_reservation.reservation.experiment_type:
+                        requested_experiment_instance = experiment_instance
+                        break
+                if requested_experiment_instance is None:
+                    raise Exception("Invalid state: there is an resource_instance of the resource_type the user was waiting for which doesn't have any experiment_instance of the experiment_type the user was waiting for")
 
-        # 
-        # If the current user is actually in a reservation assigned to a 
-        # certain laboratory, it may be in a Reserved state or in a 
-        # WaitingConfirmation state (meaning that it is still waiting for
-        # a response from the Laboratory).
-        # 
-        current_reservation = session.query(CurrentReservation).filter(CurrentReservation.reservation_id == reservation_id).first()
-        if current_reservation is not None:
-            experiment_instance   = current_reservation.available_experiment_instance.experiment_instance
-            str_lab_coord_address = experiment_instance.laboratory_coord_address
-            lab_coord_address     = CoordAddress.CoordAddress.translate_address(str_lab_coord_address)
-            obtained_time         = current_reservation.time
-            lab_session_id        = current_reservation.lab_session_id
-            if lab_session_id is None:
-                status = WQS.WaitingConfirmationQueueStatus(lab_coord_address, obtained_time)
+                str_lab_coord_address = requested_experiment_instance.laboratory_coord_address
+                lab_coord_address     = CoordAddress.CoordAddress.translate_address(str_lab_coord_address)
+                obtained_time         = current_reservation.time
+                lab_session_id        = current_reservation.lab_session_id
+                if lab_session_id is None:
+                    return WQS.WaitingConfirmationQueueStatus(lab_coord_address, obtained_time)
+                else:
+                    return WQS.ReservedQueueStatus(lab_coord_address, SessionId.SessionId(lab_session_id), obtained_time)
+
+            resource_type = session.query(ResourceType).filter_by(name = self.resource_type_name).one()
+            waiting_reservation = session.query(WaitingReservation).filter_by(reservation_id = reservation_id, resource_type_id = resource_type.id).first()
+          
+            # 
+            # If it has not been assigned to any laboratory, then it might
+            # be waiting in the queue of that resource type (Waiting) or 
+            # waiting for instances (WaitingInstances, meaning that there is
+            # no resource of that type implemented)
+            # 
+            waiting_reservations = session.query(WaitingReservation)\
+                    .filter(WaitingReservation.resource_type == waiting_reservation.resource_type).order_by(WaitingReservation.priority, WaitingReservation.id).all()
+
+            if waiting_reservation is None or waiting_reservation not in waiting_reservations:
+                # 
+                # The position has changed and it is not in the list anymore! 
+                # This has happened using WebLab Bot with 65 users.
+                # 
+                return_current_status = True
+
             else:
-                status = WQS.ReservedQueueStatus(lab_coord_address, SessionId.SessionId(lab_session_id), obtained_time)
-
+                position      = waiting_reservations.index(waiting_reservation)
+                remaining_working_instances = False
+                for resource_instance in waiting_reservation.resource_type.instances:
+                    if resource_instance.slot is not None:
+                        remaining_working_instances = True
+                        break
+        finally:
             session.close()
-            return status
 
-        waiting_reservation = session.query(WaitingReservation).filter(WaitingReservation.reservation_id == reservation_id).first()
-      
-        # 
-        # If it has not been assigned to any laboratory, then it might
-        # be waiting in the queue of that experiment type (Waiting) or 
-        # waiting for instances (WaitingInstances, meaning that there is
-        # no experiment of that type implemented)
-        # 
-        waiting_reservations = session.query(WaitingReservation)\
-                .filter(WaitingReservation.experiment_type == waiting_reservation.experiment_type).order_by(WaitingReservation.priority, WaitingReservation.id).all()
-
-        if waiting_reservation is None or waiting_reservation not in waiting_reservations:
-            # 
-            # The position has changed and it is not in the list anymore! 
-            # This has happened using WebLab Bot with 65 users.
-            # 
-            session.close()
+        if return_current_status:
             return self.get_reservation_status(reservation_id)
 
-        position      = waiting_reservations.index(waiting_reservation)
-        instance_number = len(waiting_reservation.experiment_type.instances)
-
-        session.close()
-
-        if instance_number == 0:
-            return WQS.WaitingInstancesQueueStatus(position)
-        else:
+        if remaining_working_instances:
             return WQS.WaitingQueueStatus(position)
-
+        else:
+            return WQS.WaitingInstancesQueueStatus(position)
 
 
     ################################################################
@@ -311,58 +178,84 @@ class PriorityQueueScheduler(Scheduler):
         self._remove_expired_reservations()
 
         session = self.session_maker()
-        
-        if not self.reservations_manager.check(session, reservation_id):
+        try:    
+            if not self.reservations_manager.check(session, reservation_id):
+                session.close()
+                return
+
+            current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == reservation_id).first()
+            if current_reservation is None:
+                session.close()
+                return
+
+            current_reservation.lab_session_id = lab_session_id.id
+
+            session.commit()
+        finally:
             session.close()
-            return
-
-        current_reservation = session.query(CurrentReservation).filter(CurrentReservation.reservation_id == reservation_id).first()
-        if current_reservation is None:
-            session.close()
-            return
-
-        current_reservation.lab_session_id = lab_session_id.id
-
-        session.commit()
-        session.close()
 
 
     ################################################################
     #
-    # Called when the user disconnects or finishes the experiment.
+    # Called when the user disconnects or finishes the resource.
     #
     @Override(Scheduler)
     def finish_reservation(self, reservation_id):
         self._remove_expired_reservations()
 
         session = self.session_maker()
-        
-        self.reservations_manager.delete(session, reservation_id)
+        try: 
+            current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == reservation_id).first()
 
-        current_reservation = session.query(CurrentReservation).filter(CurrentReservation.reservation_id == reservation_id).first()
+            self._clean_current_reservation(session, current_reservation)
+                
+            reservation_to_delete = current_reservation or session.query(WaitingReservation).filter(WaitingReservation.reservation_id == reservation_id).first()
+            if reservation_to_delete is not None:
+                session.delete(reservation_to_delete) 
 
-        self._clean_reservation(current_reservation)
-            
-        reservation_to_delete = current_reservation or session.query(WaitingReservation).filter(WaitingReservation.reservation_id == reservation_id).first()
-        if reservation_to_delete is not None:
-            session.delete(reservation_to_delete) 
+            self.reservations_manager.delete(session, reservation_id)
 
-            session.commit()
-        session.close()
+            session.commit() 
+        finally:
+            session.close()
 
-    def _clean_reservation(self, current_reservation):
+    def _clean_current_reservation(self, session, current_reservation):
         if current_reservation is not None:
-            experiment_instance = current_reservation.available_experiment_instance.experiment_instance
-            if experiment_instance is not None:
+            resource_instance = current_reservation.slot_reservation.current_resource_slot.resource_instance
+            if resource_instance is not None: # If the resource instance does not exist anymore, there is no need to call the free_experiment method
                 lab_session_id     = current_reservation.lab_session_id
-                lab_coord_address  = experiment_instance.laboratory_coord_address
-                self.confirmer.enqueue_free_experiment(lab_coord_address, lab_session_id)
+                experiment_instance = None
+                for experiment_instance in resource_instance.experiment_instances:
+                    if experiment_instance.experiment_type == current_reservation.current_reservation.reservation.experiment_type:
+                        experiment_instance = experiment_instance
+                        break
+
+                if experiment_instance is not None: # If the experiment instance doesn't exist, there is no need to call the free_experiment method
+                    lab_coord_address  = experiment_instance.laboratory_coord_address
+                    self.confirmer.enqueue_free_experiment(lab_coord_address, lab_session_id)
+            self.reservations_manager.downgrade_confirmation(session, current_reservation.current_reservation_id)
+            self.resources_manager.release_resource(session, current_reservation.slot_reservation)
 
     #############################################################
     # 
-    # Take the queue of a given Experiment Type and update it
+    # Take the queue of a given Resource Type and update it
     # 
-    def _update_queues(self, experiment_type_id):
+    def _update_queues(self):
+        ###########################################################
+        # There are reasons why a waiting reservation may not be 
+        # able to be promoted while the next one is. For instance,
+        # if a user is waiting for "pld boards", but only for 
+        # instances of "pld boards" which have a "ud-binary@Binary
+        # experiments" server running, then the next user which is
+        # waiting for a "ud-pld@PLD Experiments" can be promoted.
+        # 
+        # Therefore, we have a list of the IDs of the waiting 
+        # reservations we previously thought that they couldn't be
+        # promoted. They will have another chance in the next run
+        # of _update_queues.
+        # 
+        previously_waiting_reservation_ids = []
+
         ###########################################################
         # While there are free instances and waiting reservations, 
         # take the first waiting reservation and set it to current 
@@ -371,120 +264,152 @@ class PriorityQueueScheduler(Scheduler):
         # 
         while True:
             session = self.session_maker()
-            experiment_type = session.query(ExperimentType).filter(ExperimentType.id == experiment_type_id).first()
+            try:
+                resource_type = session.query(ResourceType).filter(ResourceType.name == self.resource_type_name).first()
 
-            # 
-            # Retrieve the first waiting reservation. If there is no one,
-            # return
-            # 
-            first_waiting_reservation = session.query(WaitingReservation).filter(WaitingReservation.experiment_type == experiment_type).order_by(WaitingReservation.priority, WaitingReservation.id).first()
+                # 
+                # Retrieve the first waiting reservation. If there is no one that
+                # we haven't tried already, return
+                # 
+                first_waiting_reservations = session.query(WaitingReservation).filter(WaitingReservation.resource_type == resource_type).order_by(WaitingReservation.priority, WaitingReservation.id)[:len(previously_waiting_reservation_ids) + 1]
+                first_waiting_reservation = None
+                for waiting_reservation in first_waiting_reservations:
+                    if waiting_reservation.id not in previously_waiting_reservation_ids:
+                        first_waiting_reservation = waiting_reservation
+                        break
 
-            if first_waiting_reservation is None:
-                session.close()
-                return
+                if first_waiting_reservation is None:
+                    return
 
+                previously_waiting_reservation_ids.append(first_waiting_reservation.id)
 
-            # 
-            # For the current experiment_type, let's ask for 
-            # all the experiment instances available (i.e. those
-            # who have no CurrentReservation associated)
-            # 
-            free_instances = session.query(AvailableExperimentInstance)\
-                    .select_from(join(AvailableExperimentInstance, ExperimentInstance))\
-                    .filter(not_(AvailableExperimentInstance.current_reservations.any()))\
-                    .filter(ExperimentInstance.experiment_type == experiment_type)\
-                    .order_by(AvailableExperimentInstance.id).all()
+                # 
+                # For the current resource_type, let's ask for 
+                # all the resource instances available (i.e. those
+                # who have no ConcreteCurrentReservation associated)
+                # 
+                free_instances = session.query(CurrentResourceSlot)\
+                        .select_from(join(CurrentResourceSlot, ResourceInstance))\
+                        .filter(not_(CurrentResourceSlot.slot_reservations.any()))\
+                        .filter(ResourceInstance.resource_type == resource_type)\
+                        .order_by(CurrentResourceSlot.id).all()
 
-            #
-            # Add the waiting reservation to the db
-            # 
-            for free_instance in free_instances:
-                current_reservation = CurrentReservation(free_instance, first_waiting_reservation.reservation_id, 
-                                            first_waiting_reservation.time, self.time_provider.get_time(), first_waiting_reservation.priority, first_waiting_reservation.client_initial_data)
+                #
+                # Add the waiting reservation to the db
+                # 
+                for free_instance in free_instances:
+                    self.reservations_manager.confirm(session, first_waiting_reservation.reservation_id)
+                    slot_reservation = self.resources_manager.acquire_resource(session, free_instance)
+                    current_reservation = ConcreteCurrentReservation(slot_reservation, first_waiting_reservation.reservation_id, 
+                                                first_waiting_reservation.time, self.time_provider.get_time(), first_waiting_reservation.priority, first_waiting_reservation.client_initial_data)
 
-                client_initial_data = first_waiting_reservation.client_initial_data
+                    client_initial_data = first_waiting_reservation.client_initial_data
 
-                reservation_id = first_waiting_reservation.reservation_id
-                if reservation_id is None:
-                    break # If suddenly the waiting_reservation is not a waiting_reservation anymore, so reservation is None, go again to the while True.
+                    reservation_id = first_waiting_reservation.reservation_id
+                    if reservation_id is None:
+                        break # If suddenly the waiting_reservation is not a waiting_reservation anymore, so reservation is None, go again to the while True.
 
-                experiment_type = free_instance.experiment_instance.experiment_type
-                if experiment_type is None:
-                    continue # If suddenly the free_instance is not a free_instance anymore, try with other free_instance
+                    resource_type = free_instance.resource_instance.resource_type
+                    if resource_type is None:
+                        continue # If suddenly the free_instance is not a free_instance anymore, try with other free_instance
 
-                experiment_instance_id = ExperimentInstanceId(free_instance.experiment_instance.experiment_instance_id, experiment_type.exp_name, experiment_type.cat_name)
+                    requested_experiment_type = first_waiting_reservation.reservation.experiment_type
+                    selected_experiment_instance = None
+                    for experiment_instance in free_instance.resource_instance.experiment_instances:
+                        if experiment_instance.experiment_type == requested_experiment_type:
+                            selected_experiment_instance = experiment_instance
 
-                laboratory_coord_address = free_instance.experiment_instance.laboratory_coord_address
-                session.delete(first_waiting_reservation)
-                session.add(current_reservation)
-                try:
-                    session.commit()
-                except Exception:
-                    session.rollback()
+                    if selected_experiment_instance is None:
+                        # This resource is not valid for this user, other resource should be
+                        # selected. Try to do the loop again but with this user in the 
+                        # previously_waiting_reservation_ids list
+                        break
+
+                    experiment_instance_id = ExperimentInstanceId(selected_experiment_instance.experiment_instance_id, requested_experiment_type.exp_name, requested_experiment_type.cat_name)
+
+                    laboratory_coord_address = selected_experiment_instance.laboratory_coord_address
+                    session.delete(first_waiting_reservation)
+                    session.add(current_reservation)
+                    try:
+                        session.commit()
+                    except IntegrityError:
+                        pass # Other scheduler confirmed the user or booked the reservation, rollback and try again
+                        session.rollback()
+                        break
+                    except Exception:
+                        session.rollback()
+                        break
+                    else:
+                        # 
+                        # Enqueue the confirmation, since it might take a long time
+                        # (for instance, if the laboratory server does not reply because
+                        # of any network problem, or it just takes too much in replying),
+                        # so this method might take too long. That's why we enqueue these
+                        # petitions and run them in other threads.
+                        # 
+                        server_initial_data = None 
+                        # server_initial_data will contain information such as "what was the last experiment used?".
+                        # If a single resource was used by a binary experiment, then the next time may not require reprogramming the device
+                        self.confirmer.enqueue_confirmation(laboratory_coord_address, reservation_id, experiment_instance_id, client_initial_data, server_initial_data)
+                        # 
+                        # After it, keep in the while True in order to add the next 
+                        # reservation
+                        # 
+                        break
                 else:
-                    # 
-                    # Enqueue the confirmation, since it might take a long time
-                    # (for instance, if the laboratory server does not reply because
-                    # of any network problem, or it just takes too much in replying),
-                    # so this method might take too long. That's why we enqueue these
-                    # petitions and run them in other threads.
-                    # 
-                    server_initial_data = None 
-                    # server_initial_data will contain information such as "what was the last experiment used?".
-                    # If a single resource was used by a binary experiment, then the next time may not require reprogramming the device
-                    self.confirmer.enqueue_confirmation(laboratory_coord_address, reservation_id, experiment_instance_id, client_initial_data, server_initial_data)
-                    # 
-                    # After it, keep in the while True in order to add the next 
-                    # reservation
-                    # 
-                    break
-            else:
-                # There is no free_instance, return
+                    # There is no free_instance, return
+                    return
+            except IntegrityError:
+                # Something happened somewhere else, such as the user being confirmed twice, the experiment being reserved twice or so on.
+                # Rollback and start again
+                session.rollback()
+            finally:
                 session.close()
-                return
-            session.close()
 
 
     ################################################
     #
     # Remove all reservations whose session has expired
     #
+    # TODO: Move this code to the reservations manager. Here it doesn't make much
+    # sense.
     def _remove_expired_reservations(self):
         session = self.session_maker()
+        try:
+            now = self.time_provider.get_time()
+            current_expiration_time = datetime.datetime.utcfromtimestamp(now - EXPIRATION_TIME)
 
-        now = self.time_provider.get_time()
-        current_expiration_time = datetime.datetime.utcfromtimestamp(now - EXPIRATION_TIME)
+            reservations_removed = False
+            for current_expired_reservation in session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.start_time.op('+')(ConcreteCurrentReservation.time) < self.time_provider.get_time()).all():
+                expired_reservation = current_expired_reservation.current_reservation_id
+                if expired_reservation is None:
+                    continue # Maybe it's not an expired_reservation anymore
+                self._clean_current_reservation(session, current_expired_reservation)
+                session.delete(current_expired_reservation)
+                self.reservations_manager.delete(session, expired_reservation)
+                reservations_removed = True
 
-        reservations_removed = False
-        for current_expired_reservation in session.query(CurrentReservation).filter(CurrentReservation.start_time.op('+')(CurrentReservation.time) < self.time_provider.get_time()).all():
-            expired_reservation = current_expired_reservation.reservation_id
-            if expired_reservation is None:
-                continue # Maybe it's not an expired_reservation anymore
-            self._clean_reservation(current_expired_reservation)
-            session.delete(current_expired_reservation)
-            self.reservations_manager.delete(session, expired_reservation)
-            reservations_removed = True
+            for expired_reservation_id in self.reservations_manager.list_expired_reservations(session, current_expiration_time):
+                current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == expired_reservation_id).first()
+                if current_reservation is not None:
+                    self._clean_current_reservation(session, current_reservation)
+                    session.delete(current_reservation)
+                waiting_reservation = session.query(WaitingReservation).filter(WaitingReservation.reservation_id == expired_reservation_id).first()
+                if waiting_reservation is not None:
+                    session.delete(waiting_reservation)
 
-        for expired_reservation_id in self.reservations_manager.list_expired_reservations(session, current_expiration_time):
-            current_reservation = session.query(CurrentReservation).filter(CurrentReservation.reservation_id == expired_reservation_id).first()
-            if current_reservation is not None:
-                self._clean_reservation(current_reservation)
-                session.delete(current_reservation)
-            waiting_reservation = session.query(WaitingReservation).filter(WaitingReservation.reservation_id == expired_reservation_id).first()
-            if waiting_reservation is not None:
-                session.delete(waiting_reservation)
+                self.reservations_manager.delete(session, expired_reservation_id)
+                reservations_removed = True
 
-            self.reservations_manager.delete(session, expired_reservation_id)
-            reservations_removed = True
-
-        if reservations_removed:
-            try:
-                session.commit()
-            except sqlalchemy.exceptions.ConcurrentModificationError:
-                pass # Someone else removed these users before us.
-        else:
-            session.rollback()
-        session.close()
+            if reservations_removed:
+                try:
+                    session.commit()
+                except sqlalchemy.exceptions.ConcurrentModificationError:
+                    pass # Someone else removed these users before us.
+            else:
+                session.rollback()
+        finally:
+            session.close()
 
     ##############################################################
     # 
@@ -497,19 +422,15 @@ class PriorityQueueScheduler(Scheduler):
         try:
             for waiting_reservation in session.query(WaitingReservation).all():
                 session.delete(waiting_reservation)
-            for current_reservation in session.query(CurrentReservation).all():
+            for current_reservation in session.query(ConcreteCurrentReservation).all():
                 session.delete(current_reservation)
-            for available_experiment_instance in session.query(AvailableExperimentInstance).all():
-                session.delete(available_experiment_instance)
-            for experiment_instance in session.query(ExperimentInstance).all():
-                session.delete(experiment_instance)
-
-            for experiment_type in session.query(ExperimentType).all():
-                session.delete(experiment_type)
+            for current_resource_slot in session.query(CurrentResourceSlot).all():
+                session.delete(current_resource_slot)
 
             session.commit()
         except sqlalchemy.exceptions.ConcurrentModificationError:
             pass # Another process is cleaning concurrently
-        session.close()
+        finally:
+            session.close()
 
 

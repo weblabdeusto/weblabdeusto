@@ -30,18 +30,20 @@ weblab_db_password = 'weblab'
 core_coordinator_db_username = 'weblab'
 core_coordinator_db_password = 'weblab'
 
-core_coordinator_laboratory_servers = [
-    "laboratory1:main_instance@main_machine;exp1|ud-fpga|FPGA experiments",
-    "laboratory1:main_instance@main_machine;exp1|ud-pld|PLD experiments",
-    "laboratory1:main_instance@main_machine;exp1|ud-gpib|GPIB experiments",
-    "laboratory1:main_instance@main_machine;exp1|ud-pic|PIC experiments",    
-    "laboratory1:main_instance@main_machine;exp1|ud-dummy|Dummy experiments",
-    "laboratory1:main_instance@main_machine;exp1|ud-logic|PIC experiments",
-    "laboratory1:main_instance@main_machine;exp1|flashdummy|Dummy experiments",
-    "laboratory1:main_instance@main_machine;exp1|javadummy|Dummy experiments",
-    "laboratory1:main_instance@main_machine;exp1|visirtest|Dummy experiments",
-    "laboratory1:main_instance@main_machine;exp1|vm|Dummy experiments"
-]
+core_coordinator_laboratory_servers = {
+    "laboratory1:main_instance@main_machine" : {
+            "exp1|ud-fpga|FPGA experiments"     : "fpga@fpga",
+            "exp1|ud-pld|PLD experiments"       : "pld@pld",
+            "exp1|ud-gpib|GPIB experiments"     : "gpib@gpib",
+            "exp1|ud-pic|PIC experiments"       : "pic@pic",
+            "exp1|ud-dummy|Dummy experiments"   : "dummy@dummy",
+            "exp1|ud-logic|PIC experiments"     : "logic@logic",
+            "exp1|flashdummy|Dummy experiments" : "flashdummy@flashdummy",
+            "exp1|javadummy|Dummy experiments"  : "javadummy@javadummy",
+            "exp1|visirtest|Dummy experiments"  : "visirtest@visirtest",
+            "exp1|vm|Dummy experiments"         : "vm@vm",
+        }
+}
 
 core_scheduling_systems = {
         "ud-fpga@FPGA experiments"     : ("PRIORITY_QUEUE", {}),

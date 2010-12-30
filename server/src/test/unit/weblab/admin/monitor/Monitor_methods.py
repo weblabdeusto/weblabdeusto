@@ -38,6 +38,7 @@ import weblab.data.ServerType                         as ServerType
 import weblab.data.ClientAddress                      as ClientAddress
 from weblab.data.dto.User import User
 from weblab.data.dto.Role import Role
+from weblab.user_processing.coordinator.Resource import Resource
 
 import voodoo.gen.coordinator.CoordAddress  as CoordAddress
 
@@ -63,7 +64,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         self.locator = FakeLocator()
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
-        self.cfg_manager._set_value("core_coordinator_laboratory_servers", [])
+        self.cfg_manager._set_value("core_coordinator_laboratory_servers", {})
 
         # With this one we clean everything before creating the UPS
         self.coordinator = Coordinator.Coordinator(self.locator, self.cfg_manager, ConfirmerClass = ConfirmerMock)
@@ -78,7 +79,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
             )
         
         self.ups._coordinator = self.coordinator
-        self.coordinator.add_experiment_instance_id("server:laboratoryserver@labmachine", ExperimentInstanceId.ExperimentInstanceId('inst','ud-dummy','Dummy experiments'))
+        self.coordinator.add_experiment_instance_id("server:laboratoryserver@labmachine", ExperimentInstanceId.ExperimentInstanceId('inst','ud-dummy','Dummy experiments'), Resource("res_type", "res_inst"))
 
 
     def tearDown(self):
@@ -86,10 +87,10 @@ class MonitorMethodsTestCase(unittest.TestCase):
         self.ups.stop()
 
     def test_list_experiments(self):
-        self.coordinator.add_experiment_instance_id("server:laboratoryserver@labmachine", ExperimentInstanceId.ExperimentInstanceId('inst','ud-dummy2','Dummy experiments'))
+        self.coordinator.add_experiment_instance_id("server:laboratoryserver@labmachine", ExperimentInstanceId.ExperimentInstanceId('inst','ud-dummy2','Dummy experiments'), Resource("res_type", "res_inst"))
 
-        expected = "ud-dummy2@Dummy experiments\n"
-        expected +=  "ud-dummy@Dummy experiments\n"
+        expected = "ud-dummy@Dummy experiments\n"
+        expected +=  "ud-dummy2@Dummy experiments\n"
 
         result   = methods.list_experiments.call()
         self.assertEquals(expected, result)
