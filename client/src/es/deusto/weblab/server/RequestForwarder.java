@@ -119,7 +119,7 @@ public class RequestForwarder extends HttpServlet{
     		    os.write(buffer, 0, bytesRead);
     		    totalRead -= bytesRead;
     		}
-    	}while(bytesRead != -1 && totalRead <= 0);
+    	}while(bytesRead != -1 && totalRead > 0);
     	is.close();
     	os.flush();
     	os.close();

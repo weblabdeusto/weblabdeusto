@@ -30,11 +30,13 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.smartgwt.client.data.Criteria;
 import com.smartgwt.client.data.Record;
+import com.smartgwt.client.data.SortSpecifier;
 import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.types.DateDisplayFormat;
 import com.smartgwt.client.types.DragDataAction;
 import com.smartgwt.client.types.OperatorId;
 import com.smartgwt.client.types.Side;
+import com.smartgwt.client.types.SortDirection;
 import com.smartgwt.client.types.VerticalAlignment;
 import com.smartgwt.client.widgets.Button;
 import com.smartgwt.client.widgets.Img;
@@ -362,7 +364,9 @@ public class AdminPanelWindow extends BaseWindow {
 		this.accessesExperimentUsesGrid.setDataPageSize(50);
 		this.accessesExperimentUsesGrid.setAutoFetchData(true);
 		this.accessesExperimentUsesGrid.setFields(idField, dateField, timeField, agentLoginField, agentFullNameField, experimentNameField, experimentCategoryField, durationField);
-		this.accessesExperimentUsesGrid.setSortField(1);
+		this.accessesExperimentUsesGrid.setInitialSort(new SortSpecifier[]{
+			new SortSpecifier(dateField.getName(), SortDirection.DESCENDING),
+		});
 		this.accessesLayout.addMember(this.accessesExperimentUsesGrid);		
 	}
 	
