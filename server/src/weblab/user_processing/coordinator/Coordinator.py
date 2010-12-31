@@ -71,7 +71,8 @@ class Coordinator(object):
         #            }
         # 
         self.schedulers = {}
-        scheduling_systems = cfg_manager.get_value(CORE_SCHEDULING_SYSTEMS)
+        # TODO: Once there are more than one possible scheduling system, the default value should be forbidden
+        scheduling_systems = cfg_manager.get_value(CORE_SCHEDULING_SYSTEMS, {})
         for resource_type_name in scheduling_systems:
             scheduling_system, arguments = scheduling_systems[resource_type_name]
             if not scheduling_system in SCHEDULING_SYSTEMS:
