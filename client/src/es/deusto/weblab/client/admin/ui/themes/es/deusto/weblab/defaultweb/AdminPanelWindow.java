@@ -337,7 +337,10 @@ public class AdminPanelWindow extends BaseWindow {
 			@Override
 			public String format(Object value, ListGridRecord record, int row, int column) {
 				Date startDate = record.getAttributeAsDate(ExperimentUseRecord.START_DATE);
-				return "" + startDate.getHours() + ":" + startDate.getMinutes();
+                String minutes = Integer.valueOf(startDate.getMinutes()).toString();
+                if(minutes.length() < 2)
+                    minutes = "0" + minutes;
+				return "" + startDate.getHours() + ":" + minutes;
 			}
 		});
 
@@ -355,6 +358,7 @@ public class AdminPanelWindow extends BaseWindow {
 				return "" + (endDate.getTime() - startDate.getTime()) / 1000 + " sec."; // i18n
 			}
 		});
+		final ListGridField originField = new ListGridField(ExperimentUseRecord.ORIGIN, "Origin"); // i18n
 		
 		this.accessesExperimentUsesGrid = new ListGrid();
 		this.accessesExperimentUsesGrid.setWidth(950);
@@ -363,7 +367,7 @@ public class AdminPanelWindow extends BaseWindow {
 		this.accessesExperimentUsesGrid.setDataSource(this.experimentUsesDS);
 		this.accessesExperimentUsesGrid.setDataPageSize(50);
 		this.accessesExperimentUsesGrid.setAutoFetchData(true);
-		this.accessesExperimentUsesGrid.setFields(idField, dateField, timeField, agentLoginField, agentFullNameField, experimentNameField, experimentCategoryField, durationField);
+		this.accessesExperimentUsesGrid.setFields(idField, dateField, timeField, agentLoginField, agentFullNameField, experimentNameField, experimentCategoryField, durationField, originField);
 		this.accessesExperimentUsesGrid.setInitialSort(new SortSpecifier[]{
 			new SortSpecifier(dateField.getName(), SortDirection.DESCENDING),
 		});
