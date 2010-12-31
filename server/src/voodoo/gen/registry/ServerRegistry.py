@@ -12,7 +12,6 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
-import threading
 import voodoo.lock as lock
 from voodoo.lock import locked
 import voodoo.gen.exceptions.registry.RegistryExceptions as RegistryExceptions

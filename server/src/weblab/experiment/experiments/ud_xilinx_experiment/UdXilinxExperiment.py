@@ -70,6 +70,10 @@ class UdXilinxExperiment(Experiment.Experiment):
     @caller_check(ServerType.Laboratory)
     @logged("info",except_for='file_content')
     def do_send_file_to_device(self, file_content, file_info):
+        self._program_file(file_content)
+
+    # This is used in the demo experiment
+    def _program_file(self, file_content):
         try:
             fd, file_name = tempfile.mkstemp(prefix='ud_xilinx_experiment_program', suffix='.' + self._xilinx_impact.get_suffix())
             try:

@@ -16,7 +16,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint, Binary
 from sqlalchemy.orm import relation, backref
 
-from weblab.user_processing.coordinator.CoordinatorModel import Base, RESERVATION_ID_SIZE, CurrentResourceSlot, ResourceType, Reservation, SchedulingSchemaIndependentSlotReservation
+from weblab.user_processing.coordinator.CoordinatorModel import Base, RESERVATION_ID_SIZE, ResourceType, Reservation, SchedulingSchemaIndependentSlotReservation
 from weblab.user_processing.coordinator.CoordinatorModel import CurrentReservation as GlobalCurrentReservation
 
 TABLE_KWARGS = {'mysql_engine' : 'InnoDB'}
