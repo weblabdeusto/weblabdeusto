@@ -36,9 +36,6 @@ def load():
     import weblab.user_processing.coordinator.PriorityQueueSchedulerModel as PriorityQueueSchedulerModel
     assert PriorityQueueSchedulerModel.Base == Base # Just to avoid pyflakes warnings
 
-    import weblab.user_processing.coordinator.NewPriorityQueueSchedulerModel as NewPriorityQueueSchedulerModel
-    assert NewPriorityQueueSchedulerModel.Base == Base # Just to avoid pyflakes warnings
-
 TABLE_KWARGS = {'mysql_engine' : 'InnoDB'}
 
 ######################################################################################
