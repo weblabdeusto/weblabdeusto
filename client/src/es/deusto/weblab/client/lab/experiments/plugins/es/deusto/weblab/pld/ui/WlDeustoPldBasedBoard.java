@@ -13,7 +13,7 @@
 */ 
 package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pld.ui;
 
-import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.ui.WlDeustoXilinxBasedBoard;
 
 public class WlDeustoPldBasedBoard extends WlDeustoXilinxBasedBoard {
@@ -24,14 +24,14 @@ public class WlDeustoPldBasedBoard extends WlDeustoXilinxBasedBoard {
 	public static final String PLD_WEBCAM_REFRESH_TIME_PROPERTY = "es.deusto.weblab.pld.webcam.refresh.millis";
 	public static final int    DEFAULT_PLD_WEBCAM_REFRESH_TIME       = 400;
 	
-	public WlDeustoPldBasedBoard(IConfigurationManager configurationManager,
+	public WlDeustoPldBasedBoard(IConfigurationRetriever configurationRetriever,
 			IBoardBaseController commandSender) {
-		super(configurationManager, commandSender);
+		super(configurationRetriever, commandSender);
 	}
 
 	@Override
 	protected String getWebcamImageUrl() {
-		return this.configurationManager.getProperty(
+		return this.configurationRetriever.getProperty(
 				WlDeustoPldBasedBoard.PLD_WEBCAM_IMAGE_URL_PROPERTY, 
 				WlDeustoPldBasedBoard.DEFAULT_PLD_WEBCAM_IMAGE_URL
 			);
@@ -39,7 +39,7 @@ public class WlDeustoPldBasedBoard extends WlDeustoXilinxBasedBoard {
 
 	@Override
 	protected int getWebcamRefreshingTime() {
-		return this.configurationManager.getIntProperty(
+		return this.configurationRetriever.getIntProperty(
 				WlDeustoPldBasedBoard.PLD_WEBCAM_REFRESH_TIME_PROPERTY, 
 				WlDeustoPldBasedBoard.DEFAULT_PLD_WEBCAM_REFRESH_TIME
 			);

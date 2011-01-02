@@ -93,11 +93,11 @@ public class ExperimentFactory {
 			
 			final ExperimentEntry entry = new ExperimentEntry(experimentCategory, experimentName, MobileSupport.disabled){
 				@Override
-				public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+				public void createWeb( final IConfigurationRetriever configurationRetriever, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 					GWT.runAsync(new RunAsyncCallback() {
 						@Override
 						public void onSuccess() {
-							callback.onExperimentLoaded(new FlashAppExperimentBase(configurationManager, boardController, width, height, swfFile, "", message));
+							callback.onExperimentLoaded(new FlashAppExperimentBase(configurationRetriever, boardController, width, height, swfFile, "", message));
 						}
 						
 						@Override
@@ -123,11 +123,11 @@ public class ExperimentFactory {
 			
 			final ExperimentEntry entry = new ExperimentEntry(experimentCategory, experimentName, MobileSupport.disabled){
 				@Override
-				public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+				public void createWeb( final IConfigurationRetriever configurationRetriever, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 					GWT.runAsync(new RunAsyncCallback() {
 						@Override
 						public void onSuccess() {
-							callback.onExperimentLoaded(new JavaAppletExperimentBase(configurationManager, boardController, width, height, archive, code, message));
+							callback.onExperimentLoaded(new JavaAppletExperimentBase(configurationRetriever, boardController, width, height, archive, code, message));
 						}
 						
 						@Override

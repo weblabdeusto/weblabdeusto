@@ -17,19 +17,19 @@ package es.deusto.weblab.client.lab.experiments.util.applets.java;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
 
-import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard;
 
 public class WebLabJavaAppletsBasedBoard extends AbstractExternalAppBasedBoard{
 
-    public WebLabJavaAppletsBasedBoard(IConfigurationManager configurationManager, IBoardBaseController boardController,
+    public WebLabJavaAppletsBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController,
     		String archive,
     		String code,
     		int appletWidth,
     		int appletHeight,
     		String message
     ) {
-    	super(configurationManager, boardController);
+    	super(configurationRetriever, boardController);
     	
     	this.message.setText(message);
 

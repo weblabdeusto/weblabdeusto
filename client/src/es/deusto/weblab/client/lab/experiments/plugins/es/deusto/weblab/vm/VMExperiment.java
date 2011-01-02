@@ -14,7 +14,7 @@
 
 package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.vm;
 
-import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.vm.ui.VMBoard;
 import es.deusto.weblab.client.lab.ui.BoardBase;
@@ -22,13 +22,13 @@ import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
 
 public class VMExperiment extends ExperimentBase {
 	
-	private final IConfigurationManager configurationManager;
+	private final IConfigurationRetriever configurationRetriever;
 	private final VMBoard board;
 	
-	public VMExperiment(IConfigurationManager configurationManager, IBoardBaseController boardController){
-		this.configurationManager = configurationManager;
+	public VMExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController){
+		this.configurationRetriever = configurationRetriever;
 		this.board = new VMBoard(
-					this.configurationManager,
+					this.configurationRetriever,
 					boardController
 				);
 	}

@@ -14,7 +14,7 @@
 
 package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.visir;
 
-import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
@@ -23,10 +23,10 @@ public class VisirFlash extends ExperimentBase {
 
 	private final VisirFlashBoard board;
 	
-	public VisirFlash(IConfigurationManager configurationManager,
+	public VisirFlash(IConfigurationRetriever configurationRetriever,
 			IBoardBaseController boardController)
 	{
-		this.board = new VisirFlashBoard(configurationManager, boardController);
+		this.board = new VisirFlashBoard(configurationRetriever, boardController);
 	}
 
 	@Override

@@ -28,7 +28,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
-import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.commands.ClockActivationCommand;
@@ -61,7 +61,7 @@ public class WlDeustoBinaryBasedBoard extends BoardBase {
 		public static final String CLOCK_ACTIVATION_PANEL = "wl-clock_activation_panel"; 
 	}
 	
-	private final IConfigurationManager configurationManager;
+	private final IConfigurationRetriever configurationRetriever;
 		
 	// Widgets
 	private final VerticalPanel verticalPanel;
@@ -74,10 +74,10 @@ public class WlDeustoBinaryBasedBoard extends BoardBase {
 	private Button nextNumberButton;
 	private Button checkNumberButton;
 	
-	public WlDeustoBinaryBasedBoard(IConfigurationManager configurationManager, IBoardBaseController boardController){
+	public WlDeustoBinaryBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController){
 		super(boardController);
 		
-		this.configurationManager = configurationManager;
+		this.configurationRetriever = configurationRetriever;
 		
 		this.interactiveWidgets = new Vector<Widget>();
 		
@@ -92,14 +92,14 @@ public class WlDeustoBinaryBasedBoard extends BoardBase {
 	}
 	
 	protected String getWebcamImageUrl() {
-		return this.configurationManager.getProperty(
+		return this.configurationRetriever.getProperty(
 				WlDeustoBinaryBasedBoard.BINARY_WEBCAM_IMAGE_URL_PROPERTY, 
 				WlDeustoBinaryBasedBoard.DEFAULT_BINARY_WEBCAM_IMAGE_URL
 			);
 	}
 
 	protected int getWebcamRefreshingTime() {
-		return this.configurationManager.getIntProperty(
+		return this.configurationRetriever.getIntProperty(
 				WlDeustoBinaryBasedBoard.BINARY_WEBCAM_REFRESH_TIME_PROPERTY, 
 				WlDeustoBinaryBasedBoard.DEFAULT_BINARY_WEBCAM_REFRESH_TIME
 			);

@@ -22,7 +22,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
-import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
@@ -50,7 +50,7 @@ public class VMBoard extends BoardBase {
 	}
 
 	@SuppressWarnings("unused")
-	private final IConfigurationManager configurationManager;
+	private final IConfigurationRetriever configurationRetriever;
 	
 	// Root panel.
 	@UiField VerticalPanel widget;
@@ -63,10 +63,10 @@ public class VMBoard extends BoardBase {
 	private Timer readyTimer;
 	
 	
-	public VMBoard(IConfigurationManager configurationManager, IBoardBaseController commandSender) {
+	public VMBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
 		super(commandSender);
 		
-		this.configurationManager = configurationManager;
+		this.configurationRetriever = configurationRetriever;
 		
 		this.createProvidedWidgets();
 		

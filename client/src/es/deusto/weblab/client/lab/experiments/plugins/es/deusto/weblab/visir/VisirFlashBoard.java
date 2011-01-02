@@ -17,7 +17,7 @@ package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.visir;
 import com.google.gwt.http.client.URL;
 
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
-import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard;
@@ -35,12 +35,12 @@ public class VisirFlashBoard extends WebLabFlashAppBasedBoard {
 	 * full HTML code until the experiment is started (and hence Start called), as
 	 * it uses the WebLabFlashAppBasedBoard's deferred mode.
 	 * 
-	 * @param configurationManager
+	 * @param configurationRetriever
 	 * @param boardController
 	 */
-	public VisirFlashBoard(IConfigurationManager configurationManager,
+	public VisirFlashBoard(IConfigurationRetriever configurationRetriever,
 			IBoardBaseController boardController) {
-		super(configurationManager, boardController, "", 800, 500,
+		super(configurationRetriever, boardController, "", 800, 500,
 				 "",
 				 "Visir Flash Experiment", true);
 	}

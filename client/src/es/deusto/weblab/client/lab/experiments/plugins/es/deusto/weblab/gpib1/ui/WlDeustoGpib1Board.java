@@ -13,15 +13,15 @@
 */ 
 package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib1.ui;
 
-import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.ui.WlDeustoGpibBoard;
 
 public class WlDeustoGpib1Board extends WlDeustoGpibBoard {
 	
 	public static final String DEFAULT_GPIB1_WEBCAM_IMAGE_URL       = "https://www.weblab.deusto.es/webcam/gpib1/image.jpg";
 	
-	public WlDeustoGpib1Board(IConfigurationManager configurationManager, IBoardBaseController commandSender) {
-		super(configurationManager, commandSender);		
+	public WlDeustoGpib1Board(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
+		super(configurationRetriever, commandSender);		
 	}
 		
 	@Override

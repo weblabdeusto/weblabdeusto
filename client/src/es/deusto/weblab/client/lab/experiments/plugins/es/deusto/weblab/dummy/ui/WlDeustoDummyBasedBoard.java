@@ -17,7 +17,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Label;
 
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
-import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.ui.WlDeustoXilinxBasedBoard;
@@ -32,9 +32,9 @@ public class WlDeustoDummyBasedBoard extends WlDeustoXilinxBasedBoard {
 	
 	private final Label messages;
 	
-	public WlDeustoDummyBasedBoard(IConfigurationManager configurationManager,
+	public WlDeustoDummyBasedBoard(IConfigurationRetriever configurationRetriever,
 			IBoardBaseController boardController) {
-		super(configurationManager, boardController);
+		super(configurationRetriever, boardController);
 		this.messages = new Label("messages here");
 	}
 	
@@ -46,7 +46,7 @@ public class WlDeustoDummyBasedBoard extends WlDeustoXilinxBasedBoard {
 
 	@Override
 	protected String getWebcamImageUrl() {
-		return this.configurationManager.getProperty(
+		return this.configurationRetriever.getProperty(
 				WlDeustoDummyBasedBoard.DUMMY_WEBCAM_IMAGE_URL_PROPERTY, 
 				WlDeustoDummyBasedBoard.DEFAULT_DUMMY_WEBCAM_IMAGE_URL
 			);
@@ -77,7 +77,7 @@ public class WlDeustoDummyBasedBoard extends WlDeustoXilinxBasedBoard {
 		
 	@Override
 	protected int getWebcamRefreshingTime() {
-		return this.configurationManager.getIntProperty(
+		return this.configurationRetriever.getIntProperty(
 				WlDeustoDummyBasedBoard.DUMMY_WEBCAM_REFRESH_TIME_PROPERTY, 
 				WlDeustoDummyBasedBoard.DEFAULT_DUMMY_WEBCAM_REFRESH_TIME
 			);

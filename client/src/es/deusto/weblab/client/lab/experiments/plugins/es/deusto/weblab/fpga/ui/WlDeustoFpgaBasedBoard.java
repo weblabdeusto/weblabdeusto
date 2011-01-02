@@ -13,7 +13,7 @@
 */ 
 package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.fpga.ui;
 
-import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.ui.WlDeustoXilinxBasedBoard;
 
 public class WlDeustoFpgaBasedBoard extends WlDeustoXilinxBasedBoard {
@@ -24,14 +24,14 @@ public class WlDeustoFpgaBasedBoard extends WlDeustoXilinxBasedBoard {
 	public static final String FPGA_WEBCAM_REFRESH_TIME_PROPERTY = "es.deusto.weblab.pld.webcam.refresh.millis";
 	public static final int    DEFAULT_FPGA_WEBCAM_REFRESH_TIME       = 400;
 	
-	public WlDeustoFpgaBasedBoard(IConfigurationManager configurationManager,
+	public WlDeustoFpgaBasedBoard(IConfigurationRetriever configurationRetriever,
 			IBoardBaseController boardController) {
-		super(configurationManager, boardController);
+		super(configurationRetriever, boardController);
 	}
 
 	@Override
 	protected String getWebcamImageUrl() {
-		return this.configurationManager.getProperty(
+		return this.configurationRetriever.getProperty(
 				WlDeustoFpgaBasedBoard.FPGA_WEBCAM_IMAGE_URL_PROPERTY, 
 				WlDeustoFpgaBasedBoard.DEFAULT_FPGA_WEBCAM_IMAGE_URL
 			);
@@ -39,7 +39,7 @@ public class WlDeustoFpgaBasedBoard extends WlDeustoXilinxBasedBoard {
 
 	@Override
 	protected int getWebcamRefreshingTime() {
-		return this.configurationManager.getIntProperty(
+		return this.configurationRetriever.getIntProperty(
 				WlDeustoFpgaBasedBoard.FPGA_WEBCAM_REFRESH_TIME_PROPERTY, 
 				WlDeustoFpgaBasedBoard.DEFAULT_FPGA_WEBCAM_REFRESH_TIME
 			);

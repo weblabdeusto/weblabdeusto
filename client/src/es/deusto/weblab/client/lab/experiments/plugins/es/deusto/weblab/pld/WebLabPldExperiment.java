@@ -13,20 +13,20 @@
 */ 
 package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pld;
 
-import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pld.ui.WlDeustoPldBasedBoard;
 import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
 
 public class WebLabPldExperiment extends ExperimentBase {
-	private final IConfigurationManager configurationManager;
+	private final IConfigurationRetriever configurationRetriever;
 	private final WlDeustoPldBasedBoard board;
 	
-	public WebLabPldExperiment(IConfigurationManager configurationManager, IBoardBaseController boardController){
-		this.configurationManager = configurationManager;
+	public WebLabPldExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController){
+		this.configurationRetriever = configurationRetriever;
 		this.board = new WlDeustoPldBasedBoard(
-					this.configurationManager,
+					this.configurationRetriever,
 					boardController
 				);
 	}

@@ -33,7 +33,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
-import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
@@ -67,7 +67,7 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 		public static final String LOGIC_MOUSE_POINTER_HAND = "logic-mouse-pointer-hand";
 	}
 
-	private final IConfigurationManager configurationManager;
+	private final IConfigurationRetriever configurationRetriever;
 	private final Map<Operation, ImageResource> operation2url = new HashMap<Operation, ImageResource>();
 	
 	private final String zeroString = "0";
@@ -116,12 +116,12 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 	    }
 	};
 	
-	public MobileWlDeustoLogicBasedBoard(IConfigurationManager configurationManager, IBoardBaseController commandSender) {
+	public MobileWlDeustoLogicBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
 		super(commandSender);
 		
 		this.fillMaps();
 		
-		this.configurationManager = configurationManager;
+		this.configurationRetriever = configurationRetriever;
 		
 		this.widget = new VerticalPanel();
 		this.widget.setWidth("100%");
@@ -318,7 +318,7 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 	}
 	
 	private String getWebcamImageUrl() {
-		return this.configurationManager.getProperty(
+		return this.configurationRetriever.getProperty(
 			MobileWlDeustoLogicBasedBoard.LOGIC_WEBCAM_IMAGE_URL_PROPERTY, 
 				this.getDefaultWebcamImageUrl()
 			);
@@ -329,7 +329,7 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 	}
 
 	private int getWebcamRefreshingTime() {
-		return this.configurationManager.getIntProperty(
+		return this.configurationRetriever.getIntProperty(
 			MobileWlDeustoLogicBasedBoard.LOGIC_WEBCAM_REFRESH_TIME_PROPERTY, 
 			MobileWlDeustoLogicBasedBoard.DEFAULT_LOGIC_WEBCAM_REFRESH_TIME
 			);

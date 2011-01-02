@@ -24,7 +24,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
-import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
@@ -58,7 +58,7 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 		public static final String CLOCK_ACTIVATION_PANEL = "wl-clock_activation_panel"; 
 	}
 	
-	protected IConfigurationManager configurationManager;
+	protected IConfigurationRetriever configurationRetriever;
 
 	private static final boolean DEBUG_ENABLED = false;
 	
@@ -92,10 +92,10 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 	
 
 	
-	public WlDeustoXilinxBasedBoard(IConfigurationManager configurationManager, IBoardBaseController boardController){
+	public WlDeustoXilinxBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController){
 		super(boardController);
 		
-		this.configurationManager = configurationManager;
+		this.configurationRetriever = configurationRetriever;
 		
 		this.interactiveWidgets = new Vector<Widget>();
 		

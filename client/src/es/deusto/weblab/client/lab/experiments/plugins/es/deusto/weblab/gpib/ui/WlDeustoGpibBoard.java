@@ -29,7 +29,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
-import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
@@ -78,7 +78,7 @@ public class WlDeustoGpibBoard extends BoardBase {
 	
 	
 
-	private final IConfigurationManager configurationManager;
+	private final IConfigurationRetriever configurationRetriever;
 	
 	// Widgets
 	private final VerticalPanel widget;
@@ -108,10 +108,10 @@ public class WlDeustoGpibBoard extends BoardBase {
 	    }
 	};
 	
-	public WlDeustoGpibBoard(IConfigurationManager configurationManager, IBoardBaseController commandSender) {
+	public WlDeustoGpibBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
 		super(commandSender);
 		
-		this.configurationManager = configurationManager;
+		this.configurationRetriever = configurationRetriever;
 		
 		this.widget = new VerticalPanel();
 		this.widget.setWidth("100%");
@@ -217,7 +217,7 @@ public class WlDeustoGpibBoard extends BoardBase {
 	}
 	
 	private String getWebcamImageUrl() {
-		return this.configurationManager.getProperty(
+		return this.configurationRetriever.getProperty(
 				WlDeustoGpibBoard.GPIB_WEBCAM_IMAGE_URL_PROPERTY, 
 				this.getDefaultWebcamImageUrl()
 			);
@@ -228,7 +228,7 @@ public class WlDeustoGpibBoard extends BoardBase {
 	}
 
 	private int getWebcamRefreshingTime() {
-		return this.configurationManager.getIntProperty(
+		return this.configurationRetriever.getIntProperty(
 				WlDeustoGpibBoard.GPIB_WEBCAM_REFRESH_TIME_PROPERTY, 
 				WlDeustoGpibBoard.DEFAULT_GPIB_WEBCAM_REFRESH_TIME
 			);

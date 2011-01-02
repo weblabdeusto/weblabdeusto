@@ -14,7 +14,7 @@
 
 package es.deusto.weblab.client.lab.experiments;
 
-import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.Category;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
@@ -41,15 +41,15 @@ abstract class ExperimentEntry{
 		return this.mobileSupport;
 	}
 	
-	public abstract void createWeb(IConfigurationManager configurationManager, IBoardBaseController boardController, IExperimentLoadedCallback callback);
+	public abstract void createWeb(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController, IExperimentLoadedCallback callback);
 	
 	// 
 	// Override this method to implement a mobile user interface
 	// 
-	public void createMobile(IConfigurationManager configurationManager, IBoardBaseController boardController, IExperimentLoadedCallback callback){
+	public void createMobile(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController, IExperimentLoadedCallback callback){
 		if(this.mobileSupport == MobileSupport.disabled)
 			callback.onFailure(new WlExperimentException("Couldn't create mobile version of experiment " + this.experimentID + ": not supported"));
 		else
-			this.createWeb(configurationManager, boardController, callback);
+			this.createWeb(configurationRetriever, boardController, callback);
 	}
 }

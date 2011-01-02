@@ -13,20 +13,20 @@
 */ 
 package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.fpga;
 
-import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.fpga.ui.WlDeustoFpgaBasedBoard;
 import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
 
 public class WebLabFpgaExperiment extends ExperimentBase {
-	private final IConfigurationManager configurationManager;
+	private final IConfigurationRetriever configurationRetriever;
 	private final WlDeustoFpgaBasedBoard board;
 	
-	public WebLabFpgaExperiment(IConfigurationManager configurationManager, IBoardBaseController boardController){
-		this.configurationManager = configurationManager;
+	public WebLabFpgaExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController){
+		this.configurationRetriever = configurationRetriever;
 		this.board = new WlDeustoFpgaBasedBoard(
-					this.configurationManager,
+					this.configurationRetriever,
 					boardController
 				);
 	}

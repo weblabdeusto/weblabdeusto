@@ -21,7 +21,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
-import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.configuration.exceptions.ConfigurationKeyNotFoundException;
 import es.deusto.weblab.client.configuration.exceptions.InvalidConfigurationValueException;
 import es.deusto.weblab.client.dto.experiments.Command;
@@ -31,17 +31,17 @@ import es.deusto.weblab.client.lab.ui.BoardBase;
 
 public abstract class AbstractExternalAppBasedBoard extends BoardBase {
 
-	private static IConfigurationManager configurationManager;
+	private static IConfigurationRetriever configurationRetriever;
 	protected static IBoardBaseController boardController;
 	private final VerticalPanel panel;
 	protected Label message;
 	protected final HTML html;
 
-	public AbstractExternalAppBasedBoard(IConfigurationManager configurationManager, IBoardBaseController boardController) {
+	public AbstractExternalAppBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController) {
 		super(boardController);
 		
 		AbstractExternalAppBasedBoard.boardController      = boardController;
-		AbstractExternalAppBasedBoard.configurationManager = configurationManager;
+		AbstractExternalAppBasedBoard.configurationRetriever = configurationRetriever;
 		AbstractExternalAppBasedBoard.exportStaticMethods();
 		
 		this.panel = new VerticalPanel();
@@ -58,19 +58,19 @@ public abstract class AbstractExternalAppBasedBoard extends BoardBase {
 	}
 	
 	static int getIntProperty(String key) throws ConfigurationKeyNotFoundException, InvalidConfigurationValueException{
-		return AbstractExternalAppBasedBoard.configurationManager.getIntProperty(key);
+		return AbstractExternalAppBasedBoard.configurationRetriever.getIntProperty(key);
 	}
 
 	static int getIntProperty(String key, int def) {
-		return AbstractExternalAppBasedBoard.configurationManager.getIntProperty(key, def);
+		return AbstractExternalAppBasedBoard.configurationRetriever.getIntProperty(key, def);
 	}
 
 	static String getProperty(String key) throws ConfigurationKeyNotFoundException, InvalidConfigurationValueException{
-		return AbstractExternalAppBasedBoard.configurationManager.getProperty(key);
+		return AbstractExternalAppBasedBoard.configurationRetriever.getProperty(key);
 	}
 
 	static String getProperty(String key, String def){
-		return AbstractExternalAppBasedBoard.configurationManager.getProperty(key, def);
+		return AbstractExternalAppBasedBoard.configurationRetriever.getProperty(key, def);
 	}
 
 	static void sendCommand(final String command, final int commandId){

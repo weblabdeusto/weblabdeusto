@@ -13,7 +13,7 @@
 */ 
 package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib;
 
-import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.ui.WlDeustoGpibBoard;
 import es.deusto.weblab.client.lab.ui.BoardBase;
@@ -21,19 +21,19 @@ import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
 
 public class WebLabGpibExperiment extends ExperimentBase {
 
-	private final IConfigurationManager configurationManager;
+	private final IConfigurationRetriever configurationRetriever;
 	private final WlDeustoGpibBoard board;
 	
-	public WebLabGpibExperiment(IConfigurationManager configurationManager, IBoardBaseController boardController) {
-		this.configurationManager = configurationManager;
+	public WebLabGpibExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController) {
+		this.configurationRetriever = configurationRetriever;
 		this.board = this.createGpibBoard(
-				this.configurationManager,
+				this.configurationRetriever,
 				boardController
 			);
 	}
 	
-	protected WlDeustoGpibBoard createGpibBoard(IConfigurationManager configurationManager, IBoardBaseController boardController){
-		return new WlDeustoGpibBoard(configurationManager, boardController);
+	protected WlDeustoGpibBoard createGpibBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController){
+		return new WlDeustoGpibBoard(configurationRetriever, boardController);
 	}
 
 	@Override

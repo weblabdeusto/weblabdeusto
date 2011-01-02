@@ -13,20 +13,20 @@
 */ 
 package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.binary;
 
-import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.binary.ui.WlDeustoBinaryBasedBoard;
 import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
 
 public class WebLabBinaryExperiment extends ExperimentBase {
-	private final IConfigurationManager configurationManager;
+	private final IConfigurationRetriever configurationRetriever;
 	private final WlDeustoBinaryBasedBoard board;
 	
-	public WebLabBinaryExperiment(IConfigurationManager configurationManager, IBoardBaseController boardController){
-		this.configurationManager = configurationManager;
+	public WebLabBinaryExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController){
+		this.configurationRetriever = configurationRetriever;
 		this.board = new WlDeustoBinaryBasedBoard(
-					this.configurationManager,
+					this.configurationRetriever,
 					boardController
 				);
 	}

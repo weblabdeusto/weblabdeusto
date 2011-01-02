@@ -19,7 +19,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
 
-import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard;
 
 public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
@@ -41,7 +41,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 	 * Constructs a WeblabFlashAppBasedBoard. The flash applet is placed on the
 	 * website immediately.
 	 * 
-	 * @param configurationManager Reference to the configuration manager.
+	 * @param configurationRetriever Reference to the configuration manager.
 	 * @param boardController Reference to the board controller.
 	 * @param swfFile The path to the SWF file, including its name.
 	 * @param width Width of the flash app.
@@ -50,14 +50,14 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 	 * flashvars parameters.
 	 * @param message Message to display.
 	 */
-	public WebLabFlashAppBasedBoard(IConfigurationManager configurationManager, IBoardBaseController boardController,
+	public WebLabFlashAppBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController,
 			String swfFile,
 			int width,
 			int height, 
 			String flashvars,
 			String message
 	) {
-		super(configurationManager, boardController);
+		super(configurationRetriever, boardController);
 		this.height  = height;
 		this.width   = width;
 		if(this.swfFile != null)
@@ -75,7 +75,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 	 * the flash applet is not placed on the website until the experiment is
 	 * started and hence the start() method is called.
 	 * 
-	 * @param configurationManager Reference to the configuration manager.
+	 * @param configurationRetriever Reference to the configuration manager.
 	 * @param boardController Reference to the board controller.
 	 * @param swfFile The path to the SWF file, including its name. May be NULL, and set
 	 * deferredly through setSwfFile instead (though only before the experiment starts).
@@ -87,7 +87,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 	 * @param deferFlashApp If true, the flash applet won't be placed until
 	 * the experiment starts.
 	 */
-	public WebLabFlashAppBasedBoard(IConfigurationManager configurationManager, IBoardBaseController boardController,
+	public WebLabFlashAppBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController,
 			String swfFile,
 			int width,
 			int height, 
@@ -95,7 +95,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 			String message,
 			boolean deferFlashApp
 	) {
-		super(configurationManager, boardController);
+		super(configurationRetriever, boardController);
 		this.height  = height;
 		this.width   = width;
 		if(swfFile != null)

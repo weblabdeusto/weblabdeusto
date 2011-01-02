@@ -14,7 +14,7 @@
 
 package es.deusto.weblab.client.lab.experiments.util.applets.java;
 
-import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
@@ -23,9 +23,9 @@ public class JavaAppletExperimentBase extends ExperimentBase {
 
 	private final WebLabJavaAppletsBasedBoard board;
 	
-	public JavaAppletExperimentBase(IConfigurationManager configurationManager, IBoardBaseController boardController, int width, int height, String archive, String code, String message){
+	public JavaAppletExperimentBase(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController, int width, int height, String archive, String code, String message){
 		this.board = new WebLabJavaAppletsBasedBoard(
-					configurationManager,
+					configurationRetriever,
 					boardController,
 					archive, code,
 					width, height, message

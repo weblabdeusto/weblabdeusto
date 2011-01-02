@@ -20,7 +20,7 @@ import java.util.List;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
 
-import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.binary.WebLabBinaryExperiment;
@@ -54,7 +54,7 @@ class EntryRegistry {
 		
 		   new ExperimentEntry("Here write the category name", "Here write the experiment name of this category"){
 		 		@Override
-		 		public ExperimentBase create( IConfigurationManager configurationManager, IBoardBaseController boardController) {
+		 		public ExperimentBase create( IconfigurationRetriever configurationRetriever, IBoardBaseController boardController) {
 		 			// Here write down a constructor of something that implements ExperimentBase if you are using GWT
 		  			// In the case of Java Applets and Flash, use FlashAppExperimentBase and JavaAppletExperimentBase, as seen below (flashdummy and javadummy)
 		  			return new HereTheClassThatInheritsFromExperimentBase(arguments);
@@ -66,7 +66,7 @@ class EntryRegistry {
 		
 //		new ExperimentEntry("Dummy experiments", "visirtest", MobileSupport.disabled) {
 //			@Override
-//			public void createWeb( final IConfigurationManager configurationManager, 
+//			public void createWeb( final IconfigurationRetriever configurationRetriever, 
 //					final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 //				final int width      = 800;
 //				final int height     = 500;
@@ -76,7 +76,7 @@ class EntryRegistry {
 //				GWT.runAsync(new RunAsyncCallback() {
 //					@Override
 //					public void onSuccess() {
-//						callback.onExperimentLoaded(new FlashAppExperimentBase(configurationManager, 
+//						callback.onExperimentLoaded(new FlashAppExperimentBase(configurationRetriever, 
 //								boardController, width, height, swfFile, 
 //								"cookie=9b892c8784ea6119939a27b34102b1c14e37c156",
 //								message, true));
@@ -93,14 +93,14 @@ class EntryRegistry {
 		
 		new ExperimentEntry("Dummy experiments", "visirtest", MobileSupport.disabled) {
 			@Override
-			public void createWeb( final IConfigurationManager configurationManager, 
+			public void createWeb( final IConfigurationRetriever configurationRetriever, 
 					final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 	
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
 						callback.onExperimentLoaded(
-								new VisirFlash(configurationManager, boardController));
+								new VisirFlash(configurationRetriever, boardController));
 					}
 					
 					@Override
@@ -114,14 +114,14 @@ class EntryRegistry {
 		
 //		new ExperimentEntry("Dummy experiments", "visirtest", MobileSupport.disabled) {
 //			@Override
-//			public void createWeb( final IConfigurationManager configurationManager, 
+//			public void createWeb( final IConfigurationRetriever configurationRetriever, 
 //					final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 //
 //				GWT.runAsync(new RunAsyncCallback() {
 //					@Override
 //					public void onSuccess() {
 //						callback.onExperimentLoaded(
-//								new VisirFlash(configurationManager, boardController));
+//								new VisirFlash(configurationRetriever, boardController));
 //					}
 //					
 //					@Override
@@ -135,7 +135,7 @@ class EntryRegistry {
 		
 		new ExperimentEntry("Dummy experiments", "flashdummy", MobileSupport.disabled){
 			@Override
-			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+			public void createWeb( final IConfigurationRetriever configurationRetriever, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 				final int width      = 500;
 				final int height     = 350;
 				final String swfFile = "WeblabFlashSample.swf";
@@ -144,7 +144,7 @@ class EntryRegistry {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new FlashAppExperimentBase(configurationManager, boardController, width, height, swfFile, "", message));
+						callback.onExperimentLoaded(new FlashAppExperimentBase(configurationRetriever, boardController, width, height, swfFile, "", message));
 					}
 					
 					@Override
@@ -159,7 +159,7 @@ class EntryRegistry {
 		
 		new ExperimentEntry("Dummy experiments", "javadummy", MobileSupport.disabled){
 			@Override
-			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+			public void createWeb( final IConfigurationRetriever configurationRetriever, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 				final int width      = 500;
 				final int height     = 350;
 				final String archive = "WeblabJavaSample.jar";
@@ -169,7 +169,7 @@ class EntryRegistry {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new JavaAppletExperimentBase(configurationManager, boardController, width, height, archive, code, message));
+						callback.onExperimentLoaded(new JavaAppletExperimentBase(configurationRetriever, boardController, width, height, archive, code, message));
 					}
 					
 					@Override
@@ -184,11 +184,11 @@ class EntryRegistry {
 		
 		new ExperimentEntry("PLD experiments", "ud-pld", MobileSupport.limited){
 			@Override
-			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+			public void createWeb( final IConfigurationRetriever configurationRetriever, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new WebLabPldExperiment(configurationManager, boardController));
+						callback.onExperimentLoaded(new WebLabPldExperiment(configurationRetriever, boardController));
 					}
 					
 					@Override
@@ -203,11 +203,11 @@ class EntryRegistry {
 		
 		new ExperimentEntry("FPGA experiments", "ud-fpga", MobileSupport.limited){
 			@Override
-			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+			public void createWeb( final IConfigurationRetriever configurationRetriever, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new WebLabFpgaExperiment(configurationManager, boardController));
+						callback.onExperimentLoaded(new WebLabFpgaExperiment(configurationRetriever, boardController));
 					}
 					
 					@Override
@@ -222,11 +222,11 @@ class EntryRegistry {
 		
 		new ExperimentEntry("Dummy experiments", "ud-dummy", MobileSupport.limited){
 			@Override
-			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+			public void createWeb( final IConfigurationRetriever configurationRetriever, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new WebLabDummyExperiment(configurationManager, boardController));
+						callback.onExperimentLoaded(new WebLabDummyExperiment(configurationRetriever, boardController));
 					}
 					
 					@Override
@@ -241,11 +241,11 @@ class EntryRegistry {
 		
 		new ExperimentEntry("Dummy experiments", "vm", MobileSupport.disabled){
 			@Override
-			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+			public void createWeb( final IConfigurationRetriever configurationRetriever, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new VMExperiment(configurationManager, boardController));
+						callback.onExperimentLoaded(new VMExperiment(configurationRetriever, boardController));
 					}
 					
 					@Override
@@ -260,11 +260,11 @@ class EntryRegistry {
 		
 		new ExperimentEntry("PIC experiments", "ud-logic", MobileSupport.full){
 			@Override
-			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+			public void createWeb( final IConfigurationRetriever configurationRetriever, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new WebLabLogicExperiment(configurationManager, boardController));
+						callback.onExperimentLoaded(new WebLabLogicExperiment(configurationRetriever, boardController));
 					}
 					
 					@Override
@@ -275,11 +275,11 @@ class EntryRegistry {
 			}
 			
 			@Override
-			public void createMobile(final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback){
+			public void createMobile(final IConfigurationRetriever configurationRetriever, final IBoardBaseController boardController, final IExperimentLoadedCallback callback){
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new MobileWebLabLogicExperiment(configurationManager, boardController));
+						callback.onExperimentLoaded(new MobileWebLabLogicExperiment(configurationRetriever, boardController));
 					}
 					
 					@Override
@@ -294,11 +294,11 @@ class EntryRegistry {
 		
 		new ExperimentEntry("PLD experiments", "ud-binary", MobileSupport.limited){
 			@Override
-			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+			public void createWeb( final IConfigurationRetriever configurationRetriever, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new WebLabBinaryExperiment(configurationManager, boardController));
+						callback.onExperimentLoaded(new WebLabBinaryExperiment(configurationRetriever, boardController));
 					}
 					
 					@Override
@@ -313,11 +313,11 @@ class EntryRegistry {
 		
 		new ExperimentEntry("GPIB experiments", "ud-gpib", MobileSupport.limited){
 			@Override
-			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+			public void createWeb( final IConfigurationRetriever configurationRetriever, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new WebLabGpibExperiment(configurationManager, boardController));
+						callback.onExperimentLoaded(new WebLabGpibExperiment(configurationRetriever, boardController));
 					}
 					
 					@Override
@@ -332,11 +332,11 @@ class EntryRegistry {
 		
 		new ExperimentEntry("GPIB experiments", "ud-gpib1", MobileSupport.limited){
 			@Override
-			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+			public void createWeb( final IConfigurationRetriever configurationRetriever, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new WebLabGpib1Experiment(configurationManager, boardController));
+						callback.onExperimentLoaded(new WebLabGpib1Experiment(configurationRetriever, boardController));
 					}
 					
 					@Override
@@ -351,11 +351,11 @@ class EntryRegistry {
 		
 		new ExperimentEntry("GPIB experiments", "ud-gpib2", MobileSupport.limited){
 			@Override
-			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+			public void createWeb( final IConfigurationRetriever configurationRetriever, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new WebLabGpib2Experiment(configurationManager, boardController));
+						callback.onExperimentLoaded(new WebLabGpib2Experiment(configurationRetriever, boardController));
 					}
 					
 					@Override
@@ -370,11 +370,11 @@ class EntryRegistry {
 		
 		new ExperimentEntry("PIC experiments", "ud-pic", MobileSupport.limited){
 			@Override
-			public void createWeb( final IConfigurationManager configurationManager, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+			public void createWeb( final IConfigurationRetriever configurationRetriever, final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new WebLabPicExperiment(configurationManager, boardController));
+						callback.onExperimentLoaded(new WebLabPicExperiment(configurationRetriever, boardController));
 					}
 					
 					@Override

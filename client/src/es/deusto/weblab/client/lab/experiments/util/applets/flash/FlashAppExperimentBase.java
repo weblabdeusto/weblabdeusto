@@ -14,7 +14,7 @@
 
 package es.deusto.weblab.client.lab.experiments.util.applets.flash;
 
-import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
@@ -27,7 +27,7 @@ public class FlashAppExperimentBase extends ExperimentBase {
 	 * Constructs a WeblabFlashAppBasedBoard. The flash applet is placed on the
 	 * website immediately.
 	 * 
-	 * @param configurationManager Reference to the configuration manager.
+	 * @param configurationRetriever Reference to the configuration manager.
 	 * @param boardController Reference to the board controller.
 	 * @param swfFile The path to the SWF file, including its name.
 	 * @param width Width of the flash app.
@@ -36,9 +36,9 @@ public class FlashAppExperimentBase extends ExperimentBase {
 	 * flashvars parameters.
 	 * @param message Message to display.
 	 */
-	public FlashAppExperimentBase(IConfigurationManager configurationManager, IBoardBaseController boardController, int width, int height, String swfFile, String flashvars, String message){
+	public FlashAppExperimentBase(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController, int width, int height, String swfFile, String flashvars, String message){
 		this.board = new WebLabFlashAppBasedBoard(
-					configurationManager,
+					configurationRetriever,
 					boardController, swfFile,
 					width, height, flashvars, message
 				);
@@ -49,7 +49,7 @@ public class FlashAppExperimentBase extends ExperimentBase {
 	 * the flash applet is not placed on the website until the experiment is
 	 * started and hence the start() method is called.
 	 * 
-	 * @param configurationManager Reference to the configuration manager.
+	 * @param configurationRetriever Reference to the configuration manager.
 	 * @param boardController Reference to the board controller.
 	 * @param swfFile The path to the SWF file, including its name.
 	 * @param width Width of the flash app.
@@ -60,12 +60,12 @@ public class FlashAppExperimentBase extends ExperimentBase {
 	 * @param deferFlashApp If true, the flash applet won't be placed until
 	 * the experiment starts.
 	 */
-	public FlashAppExperimentBase(IConfigurationManager configurationManager, 
+	public FlashAppExperimentBase(IConfigurationRetriever configurationRetriever, 
 			IBoardBaseController boardController, int width, int height, 
 			String swfFile, String flashvars, String message, 
 			boolean deferFlashApp){
 		this.board = new WebLabFlashAppBasedBoard(
-					configurationManager,
+					configurationRetriever,
 					boardController, swfFile,
 					width, height, flashvars, message, deferFlashApp
 				);

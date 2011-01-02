@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
-import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
@@ -67,7 +67,7 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	public static final int DEFAULT_PIC_WEBCAM_REFRESH_TIME = 400;
 	
 
-	protected IConfigurationManager configurationManager;
+	protected IConfigurationRetriever configurationRetriever;
 
 	@UiField VerticalPanel widget;
 	@UiField VerticalPanel mainWidgetsPanel;
@@ -98,10 +98,10 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	private UploadStructure uploadStructure;
 	
 	
-	public WlDeustoPicBasedBoard(IConfigurationManager configurationManager, IBoardBaseController boardController){
+	public WlDeustoPicBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController){
 		super(boardController);
 		
-		this.configurationManager = configurationManager;
+		this.configurationRetriever = configurationRetriever;
 		
 		this.createProvidedWidgets();
 		WlDeustoPicBasedBoard.uiBinder.createAndBindUi(this);
@@ -389,14 +389,14 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	}
 
 	private String getWebcamImageUrl() {
-		return this.configurationManager.getProperty(
+		return this.configurationRetriever.getProperty(
 			WlDeustoPicBasedBoard.PIC_WEBCAM_IMAGE_URL_PROPERTY, 
 			WlDeustoPicBasedBoard.DEFAULT_PIC_WEBCAM_IMAGE_URL
 			);
 	}
 
 	private int getWebcamRefreshingTime() {
-		return this.configurationManager.getIntProperty(
+		return this.configurationRetriever.getIntProperty(
 			WlDeustoPicBasedBoard.PIC_WEBCAM_REFRESH_TIME_PROPERTY, 
 			WlDeustoPicBasedBoard.DEFAULT_PIC_WEBCAM_REFRESH_TIME
 			);
