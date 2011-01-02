@@ -74,16 +74,16 @@ public class ExperimentFactory {
 	}
 	
 	public static void loadExperiments(IConfigurationManager configurationManager) throws InvalidConfigurationValueException, ConfigurationKeyNotFoundException{
-		final Set<String> alreadyTriedLoaders = new HashSet<String>();
+		final Set<String> alreadyTriedCreatorFactories = new HashSet<String>();
 		final Set<String> alreadyRegisteredExperiments = new HashSet<String>();
 		
-		for(IExperimentEntryLoader loader : EntryRegistry.entryLoaders){
-			if(alreadyTriedLoaders.contains(loader.getCodeName()))
-				throw new InvalidConfigurationValueException("Loader codename: " + loader.getCodeName() + " already used before " + loader.getClass().getName());
+		for(IExperimentCreatorFactory creatorFactory : EntryRegistry.creatorFactories){
+			if(alreadyTriedCreatorFactories.contains(creatorFactory.getCodeName()))
+				throw new InvalidConfigurationValueException("CreatorFactory codename: " + creatorFactory.getCodeName() + " already used before " + creatorFactory.getClass().getName());
 			
-			alreadyTriedLoaders.add(loader.getCodeName());
+			alreadyTriedCreatorFactories.add(creatorFactory.getCodeName());
 			
-			for(IConfigurationRetriever configurationRetriever : configurationManager.getExperimentsConfiguration(loader.getCodeName())){
+			for(IConfigurationRetriever configurationRetriever : configurationManager.getExperimentsConfiguration(creatorFactory.getCodeName())){
 				final String experimentName     = configurationRetriever.getProperty("experiment.name");
 				final String experimentCategory = configurationRetriever.getProperty("experiment.category");
 				
@@ -92,7 +92,7 @@ public class ExperimentFactory {
 					throw new InvalidConfigurationValueException("Experiment " + compoundName + " already registered");
 				alreadyRegisteredExperiments.add(compoundName);
 				
-				final ExperimentEntry entry = new ExperimentEntry(experimentCategory, experimentName, loader.loadExperimentEntry(configurationRetriever));
+				final ExperimentEntry entry = new ExperimentEntry(experimentCategory, experimentName, creatorFactory.createExperimentCreator(configurationRetriever));
 				
 				EntryRegistry.entries.add(entry);
 			}

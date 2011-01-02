@@ -17,18 +17,18 @@ package es.deusto.weblab.client.lab.experiments;
 import java.util.List;
 import java.util.Vector;
 
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.binary.WebLabBinaryEntryLoader;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.dummy.WebLabDummyEntryLoader;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.WebLabXilinxEntryLoader;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.WebLabGpibEntryLoader;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib1.WebLabGpib1EntryLoader;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib2.WebLabGpib2EntryLoader;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.WebLabLogicEntryLoader;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic.WebLabPicEntryLoader;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.visir.VisirLoader;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.vm.VMEntryLoader;
-import es.deusto.weblab.client.lab.experiments.util.applets.flash.FlashAppEntryLoader;
-import es.deusto.weblab.client.lab.experiments.util.applets.java.JavaAppletEntryLoader;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.binary.WebLabBinaryCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.dummy.WebLabDummyCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.WebLabXilinxCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.WebLabGpibCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib1.WebLabGpib1CreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib2.WebLabGpib2CreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.WebLabLogicCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic.WebLabPicCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.visir.VisirCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.vm.VMCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.util.applets.flash.FlashAppCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.util.applets.java.JavaAppletCreatorFactory;
 
 /**
  * This class acts as a registry of all the available entries for the currently known experiments.
@@ -36,19 +36,19 @@ import es.deusto.weblab.client.lab.experiments.util.applets.java.JavaAppletEntry
  */
 class EntryRegistry {
 	
-	static final IExperimentEntryLoader [] entryLoaders = new IExperimentEntryLoader[]{
-		new VisirLoader(),
-		new FlashAppEntryLoader(),
-		new JavaAppletEntryLoader(),
-		new WebLabXilinxEntryLoader(),
-		new WebLabDummyEntryLoader(),
-		new VMEntryLoader(),
-		new WebLabLogicEntryLoader(),
-		new WebLabBinaryEntryLoader(),
-		new WebLabGpibEntryLoader(),
-		new WebLabGpib1EntryLoader(),
-		new WebLabGpib2EntryLoader(),
-		new WebLabPicEntryLoader(),
+	static final IExperimentCreatorFactory [] creatorFactories = new IExperimentCreatorFactory[]{
+		new VisirCreatorFactory(),
+		new FlashAppCreatorFactory(),
+		new JavaAppletCreatorFactory(),
+		new WebLabXilinxCreatorFactory(),
+		new WebLabDummyCreatorFactory(),
+		new VMCreatorFactory(),
+		new WebLabLogicCreatorFactory(),
+		new WebLabBinaryCreatorFactory(),
+		new WebLabGpibCreatorFactory(),
+		new WebLabGpib1CreatorFactory(),
+		new WebLabGpib2CreatorFactory(),
+		new WebLabPicCreatorFactory(),
 	};
 	
 	static final List<ExperimentEntry> entries = new Vector<ExperimentEntry>();

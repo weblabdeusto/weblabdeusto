@@ -19,12 +19,12 @@ import com.google.gwt.core.client.RunAsyncCallback;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
-import es.deusto.weblab.client.lab.experiments.IExperimentEntryLoader;
+import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
 import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
 
-public class FlashAppEntryLoader implements IExperimentEntryLoader {
+public class FlashAppCreatorFactory implements IExperimentCreatorFactory {
 
 	@Override
 	public String getCodeName() {
@@ -32,7 +32,7 @@ public class FlashAppEntryLoader implements IExperimentEntryLoader {
 	}
 
 	@Override
-	public ExperimentCreator loadExperimentEntry(final IConfigurationRetriever configurationRetriever) {
+	public ExperimentCreator createExperimentCreator(final IConfigurationRetriever configurationRetriever) {
 		return new ExperimentCreator(MobileSupport.disabled, getCodeName()){
 			@Override
 			public void createWeb(final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
