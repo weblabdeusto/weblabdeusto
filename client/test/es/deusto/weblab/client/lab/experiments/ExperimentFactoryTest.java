@@ -13,20 +13,15 @@
 */ 
 package es.deusto.weblab.client.lab.experiments;
 
-import java.util.HashMap;
-
 import junit.framework.Assert;
 
 import com.google.gwt.junit.client.GWTTestCase;
 
-import es.deusto.weblab.client.configuration.FakeConfiguration;
 import es.deusto.weblab.client.dto.experiments.Category;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
-import es.deusto.weblab.client.lab.experiments.ExperimentBase;
-import es.deusto.weblab.client.lab.experiments.ExperimentFactory;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentNotFoundException;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.fpga.WebLabFpgaExperiment;
@@ -55,7 +50,7 @@ public class ExperimentFactoryTest extends GWTTestCase {
 	}
 	
 	public final void testWrongExperimentID(){
-		final ExperimentFactory factory = new ExperimentFactory(null, new IBoardBaseController(){
+		final ExperimentFactory factory = new ExperimentFactory(new IBoardBaseController(){
 			@Override
 			public void sendCommand(Command command) {
 			}
@@ -86,8 +81,7 @@ public class ExperimentFactoryTest extends GWTTestCase {
 	}
 
 	public final void testRightExperimentID(){
-		final FakeConfiguration fakeConfiguration = new FakeConfiguration(new HashMap<String, String>());
-		final ExperimentFactory factory = new ExperimentFactory(fakeConfiguration, new IBoardBaseController(){
+		final ExperimentFactory factory = new ExperimentFactory(new IBoardBaseController(){
 			@Override
 			public void sendCommand(Command command) {
 			}

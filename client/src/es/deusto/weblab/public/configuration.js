@@ -30,6 +30,71 @@
 	                          },
 	                          // Other java experiments could be added here
 	                       ],
-	                // Other experiments, such as VM or so, could be added here
+	                "vm"    : [
+	                           {
+	                        	   "experiment.name"     : "vm",
+	                        	   "experiment.category" : "Dummy experiments",
+	                           }
+	                       ],
+	                "cpld" : [
+	                          {
+	                        	  "experiment.name"      : "ud-pld",
+	                        	  "experiment.category"  : "PLD experiments",
+	                          }
+	                       ],
+	                "fpga" : [
+	                          {
+	                        	  "experiment.name"      : "ud-fpga",
+	                        	  "experiment.category"  : "FPGA experiments",
+	                          }
+	                       ],
+	                "dummy" : [
+	                           {
+	                        	   "experiment.name"     : "ud-dummy",
+	                        	   "experiment.category" : "Dummy experiments",
+	                           }
+	                       ],
+	                "visir" : [
+	                           {
+	                        	   "experiment.name"     : "visirtest",
+	                        	   "experiment.category" : "Dummy experiments",
+	                           }
+	                       ],
+	                "logic" : [
+	                           {
+	                        	   "experiment.name"     : "ud-logic",
+	                        	   "experiment.category" : "PIC experiments",
+	                           }
+	                       ],
+	                "binary" : [
+	                            {
+	                               "experiment.name"     : "ud-binary",
+	                               "experiment.category" : "PLD experiments",
+	                            }
+	                       ],
+	                "gpib"   : [
+	                            {
+	                               "experiment.name"     : "ud-gpib",
+	                               "experiment.category" : "GPIB experiments",
+	                            }
+	                       ],
+	                "gpib1" : [
+	                            {
+	                               "experiment.name"     : "ud-gpib1",
+	                               "experiment.category" : "GPIB experiments",
+	                            }
+	                        ],
+	                "gpib2" : [
+	                           {
+	                        	   "experiment.name"     : "ud-gpib2",
+	                        	   "experiment.category" : "GPIB experiments",
+	                           }   
+	                        ],
+	                "pic"   : [
+	                           {
+	                        	   "experiment.name"     : "ud-pic",
+	                        	   "experiment.category" : "PIC experiments",
+	                           }
+	                        ]
 		}
 }

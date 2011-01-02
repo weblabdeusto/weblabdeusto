@@ -334,7 +334,7 @@ public class WlLabController implements IWlLabController {
 		    
 		}
 	    };
-	    final ExperimentFactory factory = new ExperimentFactory(this.configurationManager, boardBaseController);
+	    final ExperimentFactory factory = new ExperimentFactory(boardBaseController);
 	    final IExperimentLoadedCallback experimentLoadedCallback = new IExperimentLoadedCallback() {
 			
 			@Override

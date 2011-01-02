@@ -25,11 +25,11 @@ import com.google.gwt.json.client.JSONValue;
 import es.deusto.weblab.client.configuration.exceptions.ConfigurationKeyNotFoundException;
 import es.deusto.weblab.client.configuration.exceptions.InvalidConfigurationValueException;
 
-class ConfigurationRetriever implements IConfigurationRetriever {
+public class ConfigurationRetriever implements IConfigurationRetriever {
 	
 	protected final Map<String, JSONValue> configurationMap;
 	
-	ConfigurationRetriever(){
+	public ConfigurationRetriever(){
 		 this.configurationMap = new HashMap<String, JSONValue>();
 	}
 	

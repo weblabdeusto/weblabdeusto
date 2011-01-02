@@ -16,6 +16,8 @@ package es.deusto.weblab.client.lab.experiments;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 
+
 public interface IExperimentEntryLoader {
-	public ExperimentEntry loadExperimentEntry(IConfigurationRetriever configurationRetriever);
+	public String getCodeName();
+	public ExperimentCreator loadExperimentEntry(IConfigurationRetriever configurationRetriever);
 }

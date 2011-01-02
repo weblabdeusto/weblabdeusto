@@ -39,6 +39,7 @@ import es.deusto.weblab.client.lab.comm.WlLabCommunication;
 import es.deusto.weblab.client.lab.controller.IWlLabController;
 import es.deusto.weblab.client.lab.controller.PollingHandler;
 import es.deusto.weblab.client.lab.controller.WlLabController;
+import es.deusto.weblab.client.lab.experiments.ExperimentFactory;
 import es.deusto.weblab.client.lab.ui.WlLabThemeBase;
 import es.deusto.weblab.client.lab.ui.WlLabThemeFactory;
 import es.deusto.weblab.client.lab.ui.WlLabThemeFactory.IWlLabThemeLoadedCallback;
@@ -110,6 +111,14 @@ public class WebLabClient implements EntryPoint {
 	}
 	
 	public void loadLabApp() {
+		try{
+			ExperimentFactory.loadExperiments(WebLabClient.this.configurationManager);
+		}catch(final Exception e){
+			WebLabClient.this.showError("Error checking experiments: " + e.getMessage());
+			e.printStackTrace();
+			return;
+		}
+		
 		final IWlLabCommunication communications = new WlLabCommunication(
 				WebLabClient.this.configurationManager
 		);
