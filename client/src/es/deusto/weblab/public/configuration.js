@@ -36,16 +36,29 @@
 	                        	   "experiment.category" : "Dummy experiments",
 	                           }
 	                       ],
-	                "cpld" : [
+	                "xilinx" : [
+							  {
+								   "experiment.name"     : "ud-demo-pld",
+								   "experiment.category" : "PLD experiments",
+								   "is.demo"             : true
+							  },
+							  {
+								   "experiment.name"     : "ud-demo-fpga",
+								   "experiment.category" : "FPGA experiments",
+								   "is.demo"             : true"
+						      },
+						      {
+							       "experiment.name"     : "ud-demo-xilinx",
+							       "experiment.category" : "Xilinx experiments",
+							       "is.demo"             : true
+						      },
+							  {
+								   "experiment.name"     : "ud-fpga",
+								   "experiment.category" : "FPGA experiments",
+							  },
 	                          {
 	                        	  "experiment.name"      : "ud-pld",
 	                        	  "experiment.category"  : "PLD experiments",
-	                          }
-	                       ],
-	                "fpga" : [
-	                          {
-	                        	  "experiment.name"      : "ud-fpga",
-	                        	  "experiment.category"  : "FPGA experiments",
 	                          }
 	                       ],
 	                "dummy" : [

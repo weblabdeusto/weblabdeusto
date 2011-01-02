@@ -11,21 +11,21 @@
 * Author: Pablo Orduña <pablo@ordunya.com>
 *
 */ 
-package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pld;
+package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pld.ui.WlDeustoPldBasedBoard;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.ui.WlDeustoXilinxBasedBoard;
 import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
 
-public class WebLabPldExperiment extends ExperimentBase {
+public class WebLabXilinxExperiment extends ExperimentBase {
 	private final IConfigurationRetriever configurationRetriever;
-	private final WlDeustoPldBasedBoard board;
+	private final WlDeustoXilinxBasedBoard board;
 	
-	public WebLabPldExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController){
+	public WebLabXilinxExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController){
 		this.configurationRetriever = configurationRetriever;
-		this.board = new WlDeustoPldBasedBoard(
+		this.board = new WlDeustoXilinxBasedBoard(
 					this.configurationRetriever,
 					boardController
 				);

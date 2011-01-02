@@ -40,7 +40,7 @@ import es.deusto.weblab.client.ui.widgets.WlWebcam;
 import es.deusto.weblab.client.ui.widgets.WlButton.IWlButtonUsed;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
-public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
+public class WlDeustoXilinxBasedBoard extends BoardBase{
 
 	
 	 /******************
@@ -52,6 +52,14 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 
 	private static final WlDeustoXilinxBasedBoardUiBinder uiBinder = GWT.create(WlDeustoXilinxBasedBoardUiBinder.class);
 	
+	private static final String XILINX_DEMO_PROPERTY                  = "is.demo";
+	private static final boolean DEFAULT_XILINX_DEMO                  = false;
+	
+	private static final String XILINX_WEBCAM_IMAGE_URL_PROPERTY      = "webcam.image.url";
+	private static final String DEFAULT_XILINX_WEBCAM_IMAGE_URL       = GWT.getModuleBaseURL() + "/waiting_url_image.jpg";
+	
+	private static final String XILINX_WEBCAM_REFRESH_TIME_PROPERTY   = "webcam.refresh.millis";
+	private static final int    DEFAULT_XILINX_WEBCAM_REFRESH_TIME    = 400;
 	
 	public static class Style{
 		public static final String TIME_REMAINING         = "wl-time_remaining";
@@ -87,11 +95,6 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 
 	private final Vector<Widget> interactiveWidgets;
 	
-	protected abstract int getWebcamRefreshingTime();
-	protected abstract String getWebcamImageUrl();
-	
-
-	
 	public WlDeustoXilinxBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController){
 		super(boardController);
 		
@@ -109,6 +112,27 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 		
 		this.disableInteractiveWidgets();
 	}
+	
+	private boolean isDemo(){
+		return this.configurationRetriever.getBoolProperty(
+				WlDeustoXilinxBasedBoard.XILINX_DEMO_PROPERTY, 
+				WlDeustoXilinxBasedBoard.DEFAULT_XILINX_DEMO
+			);
+	}
+	
+	private String getWebcamImageUrl() {
+		return this.configurationRetriever.getProperty(
+				WlDeustoXilinxBasedBoard.XILINX_WEBCAM_IMAGE_URL_PROPERTY, 
+				WlDeustoXilinxBasedBoard.DEFAULT_XILINX_WEBCAM_IMAGE_URL
+			);
+	}
+
+	private int getWebcamRefreshingTime() {
+		return this.configurationRetriever.getIntProperty(
+				WlDeustoXilinxBasedBoard.XILINX_WEBCAM_REFRESH_TIME_PROPERTY, 
+				WlDeustoXilinxBasedBoard.DEFAULT_XILINX_WEBCAM_REFRESH_TIME
+			);
+	}	
 	
 	/**
 	 * Will find those interactive widgets that are defined on UiBinder
@@ -158,15 +182,19 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 			}
 		});
 		
-		this.uploadStructure = new UploadStructure();
-		this.uploadStructure.setFileInfo("program");
+		if(!isDemo()){
+			this.uploadStructure = new UploadStructure();
+			this.uploadStructure.setFileInfo("program");
+		}
 	}
 	
 	@Override
 	public void initialize(){
 		
 		// Doesn't seem to work from UiBinder.
-		this.uploadStructurePanel.add(this.uploadStructure.getFormPanel());
+		if(!isDemo()){
+			this.uploadStructurePanel.add(this.uploadStructure.getFormPanel());
+		}
 	
 		this.webcam.setVisible(false);
 	}
@@ -189,9 +217,7 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 		this.loadWidgets();
 		this.disableInteractiveWidgets();
 		
-		this.uploadStructure.getFormPanel().setVisible(false);
-		
-		this.boardController.sendFile(this.uploadStructure, new IResponseCommandCallback() {
+		final IResponseCommandCallback callback = new IResponseCommandCallback() {
 		    
 		    @Override
 		    public void onSuccess(ResponseCommand response) {
@@ -211,7 +237,15 @@ public abstract class WlDeustoXilinxBasedBoard extends BoardBase{
 				WlDeustoXilinxBasedBoard.this.messages.setText("Error sending file: " + e.getMessage());
 			    
 		    }
-		});
+		};
+		
+		if(!isDemo()){
+			this.uploadStructure.getFormPanel().setVisible(false);
+		
+			this.boardController.sendFile(this.uploadStructure, callback);
+		}else{
+			callback.onSuccess(new ResponseCommand(""));
+		}
 	}
 	
 	private void loadWidgets() {

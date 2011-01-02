@@ -45,14 +45,6 @@ public class WlDeustoDummyBasedBoard extends WlDeustoXilinxBasedBoard {
 	}
 
 	@Override
-	protected String getWebcamImageUrl() {
-		return this.configurationRetriever.getProperty(
-				WlDeustoDummyBasedBoard.DUMMY_WEBCAM_IMAGE_URL_PROPERTY, 
-				WlDeustoDummyBasedBoard.DEFAULT_DUMMY_WEBCAM_IMAGE_URL
-			);
-	}
-
-	@Override
 	protected IResponseCommandCallback getResponseCommandCallback(){
 	    return new IResponseCommandCallback(){
 
@@ -73,13 +65,5 @@ public class WlDeustoDummyBasedBoard extends WlDeustoXilinxBasedBoard {
 			this.messages.setText("Response command: " + responseCommand.getCommandString());
 		else
 			this.messages.setText("Response command: empty");
-	}
-		
-	@Override
-	protected int getWebcamRefreshingTime() {
-		return this.configurationRetriever.getIntProperty(
-				WlDeustoDummyBasedBoard.DUMMY_WEBCAM_REFRESH_TIME_PROPERTY, 
-				WlDeustoDummyBasedBoard.DEFAULT_DUMMY_WEBCAM_REFRESH_TIME
-			);
 	}
 }

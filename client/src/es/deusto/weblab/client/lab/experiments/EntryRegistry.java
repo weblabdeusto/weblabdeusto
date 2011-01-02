@@ -19,13 +19,12 @@ import java.util.Vector;
 
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.binary.WebLabBinaryEntryLoader;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.dummy.WebLabDummyEntryLoader;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.fpga.WebLabFpgaEntryLoader;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.WebLabXilinxEntryLoader;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.WebLabGpibEntryLoader;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib1.WebLabGpib1EntryLoader;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib2.WebLabGpib2EntryLoader;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.WebLabLogicEntryLoader;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic.WebLabPicEntryLoader;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pld.WebLabPldEntryLoader;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.visir.VisirLoader;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.vm.VMEntryLoader;
 import es.deusto.weblab.client.lab.experiments.util.applets.flash.FlashAppEntryLoader;
@@ -41,8 +40,7 @@ class EntryRegistry {
 		new VisirLoader(),
 		new FlashAppEntryLoader(),
 		new JavaAppletEntryLoader(),
-		new WebLabPldEntryLoader(),
-		new WebLabFpgaEntryLoader(),
+		new WebLabXilinxEntryLoader(),
 		new WebLabDummyEntryLoader(),
 		new VMEntryLoader(),
 		new WebLabLogicEntryLoader(),

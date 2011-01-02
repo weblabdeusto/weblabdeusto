@@ -13,6 +13,8 @@
 */ 
 package es.deusto.weblab.client.configuration;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import es.deusto.weblab.client.configuration.exceptions.ConfigurationKeyNotFoundException;
@@ -21,9 +23,15 @@ import es.deusto.weblab.client.configuration.exceptions.InvalidConfigurationValu
 public class FakeConfiguration implements IConfigurationManager {
 
 	Map<String, String> map;
+	Map<String, List<Map<String, String>>> experiments = new HashMap<String, List<Map<String, String>>>();
 	
 	public FakeConfiguration(Map<String, String> map){
 		this.map = map;
+	}
+	
+	public FakeConfiguration(Map<String, String> map, Map<String, List<Map<String, String>>> experiments){
+		this.map = map;
+		this.experiments = experiments;
 	}
 	
 	@Override
@@ -95,6 +103,13 @@ public class FakeConfiguration implements IConfigurationManager {
 	@Override
 	public IConfigurationRetriever[] getExperimentsConfiguration(
 			String experimentType) throws InvalidConfigurationValueException {
-		throw new IllegalStateException("getExperimentsConfiguration(String) should not be called");
+		final List<Map<String, String>> localMaps = this.experiments.get(experimentType);
+		final IConfigurationRetriever [] retrievers = new IConfigurationRetriever[localMaps.size()];
+		
+		for(int i = 0; i < retrievers.length; ++i){
+			final Map<String,String> localMap = localMaps.get(i);
+			retrievers[i] = new FakeConfiguration(localMap);
+		}
+		return retrievers;
 	}
 }

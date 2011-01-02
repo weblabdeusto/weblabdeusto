@@ -12,7 +12,7 @@
 *
 */
 
-package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pld;
+package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
@@ -24,13 +24,13 @@ import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoad
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
 import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
 
-public class WebLabPldEntryLoader implements IExperimentEntryLoader {
+public class WebLabXilinxEntryLoader implements IExperimentEntryLoader {
 
 	@Override
-	public String getCodeName(){
-		return "cpld";
+	public String getCodeName() {
+		return "xilinx";
 	}
-	
+
 	@Override
 	public ExperimentCreator loadExperimentEntry(final IConfigurationRetriever configurationRetriever) {
 		return new ExperimentCreator(MobileSupport.limited, getCodeName()){
@@ -39,7 +39,7 @@ public class WebLabPldEntryLoader implements IExperimentEntryLoader {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new WebLabPldExperiment(configurationRetriever, boardController));
+						callback.onExperimentLoaded(new WebLabXilinxExperiment(configurationRetriever, boardController));
 					}
 					
 					@Override

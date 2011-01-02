@@ -28,8 +28,8 @@ import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.comm.exceptions.login.LoginException;
-import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.configuration.FakeConfiguration;
+import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Category;
 import es.deusto.weblab.client.dto.experiments.Command;
@@ -47,7 +47,7 @@ import es.deusto.weblab.client.lab.comm.FakeWlLabCommunication;
 import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
-import es.deusto.weblab.client.lab.controller.WlLabController;
+import es.deusto.weblab.client.lab.experiments.ExperimentFactoryResetter;
 import es.deusto.weblab.client.lab.ui.FakeUIManager;
 import es.deusto.weblab.client.testing.util.WlFake.Methods;
 
@@ -63,6 +63,11 @@ public class WlLabControllerTest  extends GWTTestCase{
 	private static final int WAITING_MIN_POLL_TIME           = 12346;
 	private static final int WAITING_MAX_POLL_TIME           = 123460;
 	private static final int WAITING_CONFIRMATION_POLL_TIME  = 12347;
+	
+	@Override
+	public void gwtSetUp(){
+		ExperimentFactoryResetter.reset();
+	}
 	
 	public void testLoginFailure() throws Exception{
 		final WlLabController controller = this.createController();
