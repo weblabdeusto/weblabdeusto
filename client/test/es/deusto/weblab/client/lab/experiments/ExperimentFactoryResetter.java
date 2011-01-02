@@ -28,14 +28,16 @@ public class ExperimentFactoryResetter {
 		final Map<String, List<Map<String, String>>> experimentsConfiguration = new HashMap<String, List<Map<String, String>>>();
 		
 		experimentsConfiguration.put("xilinx", createXilinxConfig());
-		experimentsConfiguration.put("gpib", createSingleMap("ud-gpib","GPIB experiments"));
-		experimentsConfiguration.put("gpib1", createSingleMap("ud-gpib1","GPIB experiments"));
-		experimentsConfiguration.put("gpib2", createSingleMap("ud-gpib2","GPIB experiments"));
+		experimentsConfiguration.put("dummy",  createSingleMap("ud-dummy","Dummy experiments"));
+		experimentsConfiguration.put("gpib",   createSingleMap("ud-gpib","GPIB experiments"));
+		experimentsConfiguration.put("gpib1",  createSingleMap("ud-gpib1","GPIB experiments"));
+		experimentsConfiguration.put("gpib2",  createSingleMap("ud-gpib2","GPIB experiments"));
 		
 		final FakeConfiguration configuration = new FakeConfiguration(globalConfiguration, experimentsConfiguration);
 		try{
 			ExperimentFactory.loadExperiments(configuration);
 		}catch(Exception e){
+			e.printStackTrace();
 			throw new AssertionError("Unexpected exception raised: " + e.getMessage());
 		}
 	}

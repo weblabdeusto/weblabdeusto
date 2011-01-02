@@ -104,6 +104,9 @@ public class FakeConfiguration implements IConfigurationManager {
 	public IConfigurationRetriever[] getExperimentsConfiguration(
 			String experimentType) throws InvalidConfigurationValueException {
 		final List<Map<String, String>> localMaps = this.experiments.get(experimentType);
+		if(localMaps == null)
+			return new IConfigurationRetriever[]{};
+		
 		final IConfigurationRetriever [] retrievers = new IConfigurationRetriever[localMaps.size()];
 		
 		for(int i = 0; i < retrievers.length; ++i){
