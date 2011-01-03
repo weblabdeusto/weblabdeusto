@@ -45,7 +45,7 @@
 							  {
 								   "experiment.name"     : "ud-demo-fpga",
 								   "experiment.category" : "FPGA experiments",
-								   "is.demo"             : true"
+								   "is.demo"             : true
 						      },
 						      {
 							       "experiment.name"     : "ud-demo-xilinx",

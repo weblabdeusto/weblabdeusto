@@ -290,6 +290,9 @@ session.add(cat_pld)
 cat_fpga = Model.DbExperimentCategory("FPGA experiments")
 session.add(cat_fpga)
 
+cat_xilinx = Model.DbExperimentCategory("Xilinx experiments")
+session.add(cat_pld)
+
 cat_gpib = Model.DbExperimentCategory("GPIB experiments")
 session.add(cat_gpib)
 
@@ -315,11 +318,20 @@ session.add(logic)
 pld = Model.DbExperiment("ud-pld", cat_pld, start_date, end_date)
 session.add(pld)
 
+demo_pld = Model.DbExperiment("ud-demo-pld", cat_pld, start_date, end_date)
+session.add(demo_pld)
+
 pld2 = Model.DbExperiment("ud-pld2", cat_pld, start_date, end_date)
 session.add(pld2)
 
 fpga = Model.DbExperiment("ud-fpga", cat_fpga, start_date, end_date)
 session.add(fpga)
+
+demo_fpga = Model.DbExperiment("ud-demo-fpga", cat_fpga, start_date, end_date)
+session.add(demo_fpga)
+
+demo_xilinx = Model.DbExperiment("ud-demo-xilinx", cat_xilinx, start_date, end_date)
+session.add(demo_xilinx)
 
 gpib = Model.DbExperiment("ud-gpib", cat_gpib, start_date, end_date)
 session.add(gpib)
@@ -486,6 +498,53 @@ session.add(up_any_vm_allowed_p2)
 up_any_vm_allowed_p3 = Model.DbUserPermissionParameter(up_any_vm_allowed, experiment_allowed_p3, "200")
 session.add(up_any_vm_allowed_p3)    
 
+up_any_pld_demo_allowed = Model.DbUserPermission(
+    any,
+    experiment_allowed.group_applicable,
+    "any::weblab-pld-demo",
+    datetime.datetime.utcnow(),
+    "Permission for any to use WebLab-pld-demo"
+)
+
+session.add(up_any_pld_demo_allowed)
+up_any_pld_demo_allowed_p1 = Model.DbUserPermissionParameter(up_any_pld_demo_allowed, experiment_allowed_p1, "ud-demo-pld")
+session.add(up_any_pld_demo_allowed_p1)
+up_any_pld_demo_allowed_p2 = Model.DbUserPermissionParameter(up_any_pld_demo_allowed, experiment_allowed_p2, "PLD experiments")
+session.add(up_any_pld_demo_allowed_p2)
+up_any_pld_demo_allowed_p3 = Model.DbUserPermissionParameter(up_any_pld_demo_allowed, experiment_allowed_p3, "200")
+session.add(up_any_pld_demo_allowed_p3)    
+
+up_any_fpga_demo_allowed = Model.DbUserPermission(
+    any,
+    experiment_allowed.group_applicable,
+    "any::weblab-fpga-demo",
+    datetime.datetime.utcnow(),
+    "Permission for any to use WebLab-fpga-demo"
+)
+
+session.add(up_any_fpga_demo_allowed)
+up_any_fpga_demo_allowed_p1 = Model.DbUserPermissionParameter(up_any_fpga_demo_allowed, experiment_allowed_p1, "ud-demo-fpga")
+session.add(up_any_fpga_demo_allowed_p1)
+up_any_fpga_demo_allowed_p2 = Model.DbUserPermissionParameter(up_any_fpga_demo_allowed, experiment_allowed_p2, "FPGA experiments")
+session.add(up_any_fpga_demo_allowed_p2)
+up_any_fpga_demo_allowed_p3 = Model.DbUserPermissionParameter(up_any_fpga_demo_allowed, experiment_allowed_p3, "200")
+session.add(up_any_fpga_demo_allowed_p3)    
+
+up_any_xilinx_demo_allowed = Model.DbUserPermission(
+    any,
+    experiment_allowed.group_applicable,
+    "any::weblab-xilinx-demo",
+    datetime.datetime.utcnow(),
+    "Permission for any to use WebLab-xilinx-demo"
+)
+
+session.add(up_any_xilinx_demo_allowed)
+up_any_xilinx_demo_allowed_p1 = Model.DbUserPermissionParameter(up_any_xilinx_demo_allowed, experiment_allowed_p1, "ud-demo-xilinx")
+session.add(up_any_xilinx_demo_allowed_p1)
+up_any_xilinx_demo_allowed_p2 = Model.DbUserPermissionParameter(up_any_xilinx_demo_allowed, experiment_allowed_p2, "Xilinx experiments")
+session.add(up_any_xilinx_demo_allowed_p2)
+up_any_xilinx_demo_allowed_p3 = Model.DbUserPermissionParameter(up_any_xilinx_demo_allowed, experiment_allowed_p3, "200")
+session.add(up_any_xilinx_demo_allowed_p3)    
 
 up_student2_gpib_allowed = Model.DbUserPermission(
     student2,

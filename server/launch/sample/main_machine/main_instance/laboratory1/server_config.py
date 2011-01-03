@@ -8,9 +8,29 @@ laboratory_assigned_experiments = {
                  'coord_address': 'experiment_fpga:main_instance@main_machine',
                  'checkers': ()
             },
+        'exp1:ud-demo-fpga@FPGA experiments':
+            {
+                 'coord_address': 'experiment_demo_fpga:main_instance@main_machine',
+                 'checkers': ()
+            },
         'exp1:ud-pld@PLD experiments':
             {
                  'coord_address': 'experiment_pld:main_instance@main_machine',
+                 'checkers': ()
+            },
+        'exp1:ud-demo-pld@PLD experiments':
+            {
+                 'coord_address': 'experiment_demo_pld:main_instance@main_machine',
+                 'checkers': ()
+            },
+        'exp1:ud-demo-xilinx@Xilinx experiments':
+            {
+                 'coord_address': 'experiment_demo_xilinx1:main_instance@main_machine',
+                 'checkers': ()
+            },
+        'exp2:ud-demo-xilinx@Xilinx experiments':
+            {
+                 'coord_address': 'experiment_demo_xilinx2:main_instance@main_machine',
                  'checkers': ()
             },
         'exp1:ud-gpib@GPIB experiments':

@@ -32,29 +32,21 @@ core_coordinator_db_password = 'weblab'
 
 core_coordinator_laboratory_servers = {
     "laboratory1:main_instance@main_machine" : {
-            "exp1|ud-fpga|FPGA experiments"     : "fpga@fpga",
-            "exp1|ud-pld|PLD experiments"       : "pld@pld",
-            "exp1|ud-gpib|GPIB experiments"     : "gpib@gpib",
-            "exp1|ud-pic|PIC experiments"       : "pic@pic",
-            "exp1|ud-dummy|Dummy experiments"   : "dummy@dummy",
-            "exp1|ud-logic|PIC experiments"     : "logic@logic",
-            "exp1|flashdummy|Dummy experiments" : "flashdummy@flashdummy",
-            "exp1|javadummy|Dummy experiments"  : "javadummy@javadummy",
-            "exp1|visirtest|Dummy experiments"  : "visirtest@visirtest",
-            "exp1|vm|Dummy experiments"         : "vm@vm",
+            "exp1|ud-fpga|FPGA experiments"          : "fpga@fpga",
+            "exp1|ud-pld|PLD experiments"            : "pld@pld",
+            "exp1|ud-demo-pld|PLD experiments"       : "pld@pld",
+            "exp1|ud-demo-fpga|FPGA experiments"     : "fpga@fpga",
+            "exp1|ud-demo-xilinx|Xilinx experiments" : "pld@pld",
+            "exp2|ud-demo-xilinx|Xilinx experiments" : "fpga@fpga",
+            "exp1|ud-gpib|GPIB experiments"          : "gpib@gpib",
+            "exp1|ud-pic|PIC experiments"            : "pic@pic",
+            "exp1|ud-dummy|Dummy experiments"        : "dummy@dummy",
+            "exp1|ud-logic|PIC experiments"          : "logic@logic",
+            "exp1|flashdummy|Dummy experiments"      : "flashdummy@flashdummy",
+            "exp1|javadummy|Dummy experiments"       : "javadummy@javadummy",
+            "exp1|visirtest|Dummy experiments"       : "visirtest@visirtest",
+            "exp1|vm|Dummy experiments"              : "vm@vm",
         }
 }
 
-core_scheduling_systems = {
-        "ud-fpga@FPGA experiments"     : ("PRIORITY_QUEUE", {}),
-        "ud-pld@PLD experiments"       : ("PRIORITY_QUEUE", {}),
-        "ud-gpib@GPIB experiments"     : ("PRIORITY_QUEUE", {}),
-        "ud-pic@PIC experiments"       : ("PRIORITY_QUEUE", {}),
-        "ud-dummy@Dummy experiments"   : ("PRIORITY_QUEUE", {}),
-        "ud-logic@PIC experiments"     : ("PRIORITY_QUEUE", {}),
-        "flashdummy@Dummy experiments" : ("PRIORITY_QUEUE", {}),
-        "javadummy@Dummy experiments"  : ("PRIORITY_QUEUE", {}),
-        "visirtest@Dummy experiments"  : ("PRIORITY_QUEUE", {}),
-        "vm@Dummy experiments"         : ("PRIORITY_QUEUE", {}),
-    }
 

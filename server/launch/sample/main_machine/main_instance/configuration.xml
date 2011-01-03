@@ -13,7 +13,11 @@
 	<server>translator1</server>
 	<server>laboratory1</server>
 	<server>experiment_pld</server>
+	<server>experiment_demo_pld</server>
 	<server>experiment_fpga</server>
+	<server>experiment_demo_fpga</server>
+	<server>experiment_demo_xilinx1</server>
+	<server>experiment_demo_xilinx2</server>
 	<server>experiment_gpib</server>
 	<server>experiment_pic</server>
 	<server>experiment_dummy</server> 

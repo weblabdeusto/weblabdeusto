@@ -56,3 +56,14 @@ class UdDemoXilinxExperiment(UdXilinxExperiment.UdXilinxExperiment):
     def do_send_file_to_device(self, file_content, file_info):
         pass
 
+    @logged("info")
+    @Override(UdXilinxExperiment.UdXilinxExperiment)
+    @caller_check(ServerType.Laboratory)
+    def do_send_command_to_device(self, command):
+        if command == 'EXPERIMENT_FINISHED':
+            if self._program_handler.isAlive():
+                return "false"
+            else:
+                return "true"
+        return super(UdDemoXilinxExperiment, self).do_send_command_to_device(command)
+

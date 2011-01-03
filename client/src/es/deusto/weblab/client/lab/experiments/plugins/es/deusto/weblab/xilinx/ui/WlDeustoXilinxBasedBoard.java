@@ -18,6 +18,7 @@ import java.util.Vector;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -29,6 +30,7 @@ import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.commands.ExperimentFinishedCommand;
 import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
 import es.deusto.weblab.client.ui.widgets.WlClockActivator;
@@ -67,6 +69,8 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 	}
 	
 	protected IConfigurationRetriever configurationRetriever;
+	private static final ExperimentFinishedCommand experimentFinishedCommand = new ExperimentFinishedCommand();
+	
 
 	private static final boolean DEBUG_ENABLED = false;
 	
@@ -217,36 +221,65 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 		this.loadWidgets();
 		this.disableInteractiveWidgets();
 		
-		final IResponseCommandCallback callback = new IResponseCommandCallback() {
-		    
-		    @Override
-		    public void onSuccess(ResponseCommand response) {
-				WlDeustoXilinxBasedBoard.this.enableInteractiveWidgets();
-				WlDeustoXilinxBasedBoard.this.messages.setText("Device ready");
-				WlDeustoXilinxBasedBoard.this.messages.stop();
-		    }
-
-		    @Override
-		    public void onFailure(WlCommException e) {
-		    	
-			    if(WlDeustoXilinxBasedBoard.DEBUG_ENABLED)
-			    	WlDeustoXilinxBasedBoard.this.enableInteractiveWidgets();
-			    
-		    	WlDeustoXilinxBasedBoard.this.messages.stop();
-					
-				WlDeustoXilinxBasedBoard.this.messages.setText("Error sending file: " + e.getMessage());
-			    
-		    }
-		};
-		
 		if(!isDemo()){
 			this.uploadStructure.getFormPanel().setVisible(false);
 		
-			this.boardController.sendFile(this.uploadStructure, callback);
+			this.boardController.sendFile(this.uploadStructure, this.sendFileCallback);
 		}else{
-			callback.onSuccess(new ResponseCommand(""));
+			
+			this.boardController.sendCommand(WlDeustoXilinxBasedBoard.experimentFinishedCommand, this.sendExperimentFinishedRequestCommand);
 		}
 	}
+	
+	final IResponseCommandCallback sendFileCallback = new IResponseCommandCallback() {
+	    
+	    @Override
+	    public void onSuccess(ResponseCommand response) {
+			WlDeustoXilinxBasedBoard.this.enableInteractiveWidgets();
+			WlDeustoXilinxBasedBoard.this.messages.setText("Device ready");
+			WlDeustoXilinxBasedBoard.this.messages.stop();
+	    }
+
+	    @Override
+	    public void onFailure(WlCommException e) {
+	    	
+		    if(WlDeustoXilinxBasedBoard.DEBUG_ENABLED)
+		    	WlDeustoXilinxBasedBoard.this.enableInteractiveWidgets();
+		    
+	    	WlDeustoXilinxBasedBoard.this.messages.stop();
+				
+			WlDeustoXilinxBasedBoard.this.messages.setText("Error sending file: " + e.getMessage());
+		    
+	    }
+	};	
+	
+	private final IResponseCommandCallback sendExperimentFinishedRequestCommand = new IResponseCommandCallback(){
+		
+	    @Override
+	    public void onSuccess(ResponseCommand response) {
+			if(response.getCommandString().equals("false")){
+				final Timer timer = new Timer(){
+					@Override
+					public void run(){
+						WlDeustoXilinxBasedBoard.this.boardController.sendCommand(WlDeustoXilinxBasedBoard.experimentFinishedCommand, WlDeustoXilinxBasedBoard.this.sendExperimentFinishedRequestCommand);
+					}
+				};
+				timer.schedule(400);
+			}else
+				WlDeustoXilinxBasedBoard.this.sendFileCallback.onSuccess(new ResponseCommand(""));
+	    }
+	    
+	    @Override
+	    public void onFailure(WlCommException e) {
+	    	
+		    if(WlDeustoXilinxBasedBoard.DEBUG_ENABLED)
+		    	WlDeustoXilinxBasedBoard.this.enableInteractiveWidgets();
+		    
+	    	WlDeustoXilinxBasedBoard.this.messages.stop();
+				
+			WlDeustoXilinxBasedBoard.this.messages.setText("Error sending command: " + e.getMessage());
+	    }
+	};
 	
 	private void loadWidgets() {
 		
