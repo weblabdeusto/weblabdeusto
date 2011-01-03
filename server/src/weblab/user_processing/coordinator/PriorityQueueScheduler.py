@@ -15,6 +15,8 @@
 
 import datetime
 
+from voodoo.log import logged
+
 import sqlalchemy
 from sqlalchemy import not_
 from sqlalchemy.orm import join
@@ -44,6 +46,7 @@ class PriorityQueueScheduler(Scheduler):
     def __init__(self, generic_scheduler_arguments, **kwargs):
         super(PriorityQueueScheduler, self).__init__(generic_scheduler_arguments, **kwargs)
 
+    @logged()
     @Override(Scheduler)
     def remove_resource_instance_id(self, session, resource_instance_id):
         resource_type = session.query(ResourceType).filter_by(name = resource_instance_id.resource_type).one()
@@ -66,6 +69,7 @@ class PriorityQueueScheduler(Scheduler):
 
             session.delete(current_resource_slot)
 
+    @logged()
     @Override(Scheduler)
     def reserve_experiment(self, reservation_id, experiment_id, time, priority, client_initial_data):
         """
@@ -89,6 +93,7 @@ class PriorityQueueScheduler(Scheduler):
     # 
     # Given a reservation_id, it returns in which state the reservation is
     # 
+    @logged()
     @Override(Scheduler)
     def get_reservation_status(self, reservation_id):
         self._remove_expired_reservations()
@@ -173,6 +178,7 @@ class PriorityQueueScheduler(Scheduler):
     #
     # Called when it is confirmed by the Laboratory Server.
     #
+    @logged()
     @Override(Scheduler)
     def confirm_experiment(self, reservation_id, lab_session_id):
         self._remove_expired_reservations()
@@ -199,6 +205,7 @@ class PriorityQueueScheduler(Scheduler):
     #
     # Called when the user disconnects or finishes the resource.
     #
+    @logged()
     @Override(Scheduler)
     def finish_reservation(self, reservation_id):
         self._remove_expired_reservations()
@@ -212,8 +219,6 @@ class PriorityQueueScheduler(Scheduler):
             reservation_to_delete = current_reservation or session.query(WaitingReservation).filter(WaitingReservation.reservation_id == reservation_id).first()
             if reservation_to_delete is not None:
                 session.delete(reservation_to_delete) 
-
-            self.reservations_manager.delete(session, reservation_id)
 
             session.commit() 
         finally:

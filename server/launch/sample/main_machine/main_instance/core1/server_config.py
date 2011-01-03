@@ -49,4 +49,15 @@ core_coordinator_laboratory_servers = {
         }
 }
 
-
+core_scheduling_systems = {
+        "fpga"       : ("PRIORITY_QUEUE", {}),
+        "pld"        : ("PRIORITY_QUEUE", {}),
+        "gpib"       : ("PRIORITY_QUEUE", {}),
+        "pic"        : ("PRIORITY_QUEUE", {}),
+        "dummy"      : ("PRIORITY_QUEUE", {}),
+        "logic"      : ("PRIORITY_QUEUE", {}),
+        "flashdummy" : ("PRIORITY_QUEUE", {}),
+        "javadummy"  : ("PRIORITY_QUEUE", {}),
+        "visirtest"  : ("PRIORITY_QUEUE", {}),
+        "vm"         :("PRIORITY_QUEUE", {}),
+    }

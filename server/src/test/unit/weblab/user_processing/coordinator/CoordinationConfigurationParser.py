@@ -33,8 +33,8 @@ class CoordinationConfigurationParserTestCase(unittest.TestCase):
     def test_coordination_configuration_parser(self):
         self.cfg_manager._set_value(CoordinationConfigurationParser.COORDINATOR_LABORATORY_SERVERS, {
                         'laboratory1:WL_SERVER1@WL_MACHINE1' : {
-                                'exp1|ud-fpga|FPGA experiments' : 'fpga1@ud-fpga-board',
-                                'exp1|ud-pld|PLD experiments' : 'pld1@ud-pld-board',
+                                'exp1|ud-fpga|FPGA experiments' : 'fpga1@fpga boards',
+                                'exp1|ud-pld|PLD experiments' : 'pld1@pld boards',
                             },
                     })
 
@@ -46,15 +46,15 @@ class CoordinationConfigurationParserTestCase(unittest.TestCase):
         exp_pld  = ExperimentInstanceId.ExperimentInstanceId("exp1","ud-pld","PLD experiments")
 
         fpga_resource = lab_config[exp_fpga]
-        self.assertEquals(Resource("ud-fpga-board", "fpga1"), fpga_resource)
+        self.assertEquals(Resource("fpga boards", "fpga1"), fpga_resource)
 
         pld_resource = lab_config[exp_pld]
-        self.assertEquals(Resource("ud-pld-board", "pld1"), pld_resource)
+        self.assertEquals(Resource("pld boards", "pld1"), pld_resource)
 
     def test_coordination_configuration_parser_fail1(self):
         self.cfg_manager._set_value(CoordinationConfigurationParser.COORDINATOR_LABORATORY_SERVERS, {
                         'laboratory1:WL_SERVER1@WL_MACHINE1' : {
-                                'not.a.valid.experiment.instance.id' : 'fpga1@ud-fpga-board'
+                                'not.a.valid.experiment.instance.id' : 'fpga1@fpga boards'
                             },
                     })
         self.assertRaises(

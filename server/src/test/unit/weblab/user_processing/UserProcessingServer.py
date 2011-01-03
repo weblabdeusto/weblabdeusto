@@ -59,7 +59,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.cfg_manager.append_module(configuration_module)
 
         self.cfg_manager._set_value(CoordinationConfigurationParser.COORDINATOR_LABORATORY_SERVERS,
-                    { 'server:laboratoryserver@labmachine' : { 'inst|ud-dummy|Dummy experiments' : 'dummy1@ud-dummy' } } )
+                    { 'server:laboratoryserver@labmachine' : { 'inst|ud-dummy|Dummy experiments' : 'dummy1@dummy boards' } } )
 
         self.mocker  = mocker.Mocker()
         self.lab_mock = self.mocker.mock()

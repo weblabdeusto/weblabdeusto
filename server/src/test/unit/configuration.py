@@ -291,17 +291,16 @@ core_session_type         = 'Memory'
 
 core_coordinator_laboratory_servers   = {
         "laboratory1:WL_SERVER1@WL_MACHINE1" : {
-                        "exp1|ud-fpga|FPGA experiments" : "fpga1@ud-fpga-board",
-                        "exp1|ud-pld|PLD experiments"   : "pld1@ud-pld-board",
+                        "exp1|ud-fpga|FPGA experiments" : "fpga1@fpga boards",
+                        "exp1|ud-pld|PLD experiments"   : "pld1@pld boards",
                     }
     }
 
 core_scheduling_systems = {
-        "ud-fpga@FPGA experiments"   : ("PRIORITY_QUEUE", {}),
-        "ud-pld@PLD experiments"     : ("PRIORITY_QUEUE", {}),
-        "exp1@cat1"                  : ("PRIORITY_QUEUE", {}),
-        "ud-dummy@Dummy experiments" : ("PRIORITY_QUEUE", {}),
-        "ud-dummy2@Dummy experiments" : ("PRIORITY_QUEUE", {}),
+        "fpga boards"   : ("PRIORITY_QUEUE", {}),
+        "pld boards"     : ("PRIORITY_QUEUE", {}),
+        "dummy boards"     : ("PRIORITY_QUEUE", {}),
+        "res_type"     : ("PRIORITY_QUEUE", {}),
     }
 
 core_coordinator_db_username = 'weblab'

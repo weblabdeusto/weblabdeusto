@@ -51,7 +51,6 @@ class ReservationsManager(object):
     def update(self, session, reservation_id):
         reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
         if reservation is None:
-            session.close()
             raise CoordExc.ExpiredSessionException("Expired reservation")
         
         reservation.update()
@@ -59,7 +58,6 @@ class ReservationsManager(object):
     def confirm(self, session, reservation_id):
         reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
         if reservation is None:
-            session.close()
             raise CoordExc.ExpiredSessionException("Expired reservation")
 
         current_reservation = CurrentReservation(reservation.id)

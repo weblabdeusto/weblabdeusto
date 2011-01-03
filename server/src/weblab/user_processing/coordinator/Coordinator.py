@@ -15,6 +15,8 @@
 import time
 import datetime
 
+from voodoo.log import logged
+
 import weblab.exceptions.user_processing.CoordinatorExceptions as CoordExc
 
 import weblab.user_processing.coordinator.CoordinationDatabaseManager as CoordinationDatabaseManager
@@ -71,8 +73,7 @@ class Coordinator(object):
         #            }
         # 
         self.schedulers = {}
-        # TODO: Once there are more than one possible scheduling system, the default value should be forbidden
-        scheduling_systems = cfg_manager.get_value(CORE_SCHEDULING_SYSTEMS, {})
+        scheduling_systems = cfg_manager.get_value(CORE_SCHEDULING_SYSTEMS)
         for resource_type_name in scheduling_systems:
             scheduling_system, arguments = scheduling_systems[resource_type_name]
             if not scheduling_system in SCHEDULING_SYSTEMS:
@@ -100,34 +101,15 @@ class Coordinator(object):
         schedulers = []
         for resource_type_name in self.resources_manager.get_resource_types_by_experiment_id(experiment_id):
             if resource_type_name not in self.schedulers:
-                # TODO: since at the moment we only provide a single scheduling schema, requiring to establish each scheduling schema does not make sense
-                # Therefore, we assume that if the experiment is not provided, a PriorityQueue with the default configuration is used.
-                # This solution will change in the future, as new scheduling systems are provided
-                import weblab.user_processing.coordinator.PriorityQueueScheduler as PQS
-                generic_scheduler_arguments = Scheduler.GenericSchedulerArguments(self.cfg_manager, resource_type_name, self.reservations_manager, self.resources_manager, self.confirmer, self._session_maker, self.time_provider)
-                self.schedulers[resource_type_name] = PQS.PriorityQueueScheduler(generic_scheduler_arguments)
-                # TODO: This shoud happen
-                # raise CoordExc.ExperimentNotFoundException("Unregistered resource type name: %s. Check the %s property." % (experiment_id_str, CORE_SCHEDULING_SYSTEMS))
+                raise CoordExc.ExperimentNotFoundException("Unregistered resource type name: %s. Check the %s property." % (resource_type_name, CORE_SCHEDULING_SYSTEMS))
             schedulers.append(self.schedulers[resource_type_name])
         return schedulers
-
-    def _get_scheduler_per_resource(self, resource):
-        if resource.resource_type not in self.schedulers:
-            # TODO: since at the moment we only provide a single scheduling schema, requiring to establish each scheduling schema does not make sense
-            # Therefore, we assume that if the experiment is not provided, a PriorityQueue with the default configuration is used.
-            # This solution will change in the future, as new scheduling systems are provided
-            import weblab.user_processing.coordinator.PriorityQueueScheduler as PQS
-            generic_scheduler_arguments = Scheduler.GenericSchedulerArguments(self.cfg_manager, resource.resource_type, self.reservations_manager, self.resources_manager, self.confirmer, self._session_maker, self.time_provider)
-            self.schedulers[resource.resource_type] = PQS.PriorityQueueScheduler(generic_scheduler_arguments)
-            return self.schedulers[resource.resource_type]
-            # TODO: This shoud happen
-            # raise CoordExc.ExperimentNotFoundException("Unregistered resource type name: %s. Check the %s property." % (experiment_id_str, CORE_SCHEDULING_SYSTEMS))
-        return self.schedulers[resource.resource_type]
 
     ###########################################################################
     # 
     # General experiments and sessions management
     # 
+    @logged()
     def add_experiment_instance_id(self, laboratory_coord_address, experiment_instance_id, resource):
         session = self._session_maker()
         try:
@@ -136,6 +118,7 @@ class Coordinator(object):
         finally:
             session.close()
 
+    @logged()
     def remove_experiment_instance_id(self, experiment_instance_id):
         schedulers        = self._get_schedulers_per_experiment_instance_id(experiment_instance_id)
         resource_instance = self.resources_manager.get_resource_instance_by_experiment_instance_id(experiment_instance_id)
@@ -144,14 +127,15 @@ class Coordinator(object):
         try:
             for scheduler in schedulers:
                 scheduler.remove_resource_instance_id(session, resource_instance)
-            self.resources_manager.remove_experiment_instance_id(session, experiment_instance_id)
             session.commit()
         finally:
             session.close()
 
+    @logged()
     def list_experiments(self):
         return self.resources_manager.list_experiments()
 
+    @logged()
     def list_sessions(self, experiment_id):
         """ list_sessions( experiment_id ) -> { session_id : status } """
 
@@ -174,6 +158,7 @@ class Coordinator(object):
     # 
     # Perform a new reservation
     # 
+    @logged()
     def reserve_experiment(self, experiment_id, time, priority, client_initial_data):
         """
         priority: the less, the more priority
@@ -190,6 +175,7 @@ class Coordinator(object):
     # 
     # Given a reservation_id, it returns in which state the reservation is
     # 
+    @logged()
     def get_reservation_status(self, reservation_id):
         schedulers = self._get_schedulers_per_reservation(reservation_id)
         return self.meta_scheduler.query_best_reservation_status(schedulers, reservation_id)
@@ -198,6 +184,7 @@ class Coordinator(object):
     #
     # Called when it is confirmed by the Laboratory Server.
     #
+    @logged()
     def confirm_experiment(self, reservation_id, lab_session_id):
         schedulers = self._get_schedulers_per_reservation(reservation_id)
         for scheduler in schedulers:
@@ -207,10 +194,18 @@ class Coordinator(object):
     #
     # Called when the user disconnects or finishes the experiment.
     #
+    @logged()
     def finish_reservation(self, reservation_id):
         schedulers = self._get_schedulers_per_reservation(reservation_id)
         for scheduler in schedulers:
             scheduler.finish_reservation(reservation_id)
+        # The reservations_manager must remove the session once (not once per scheduler)
+        session = self._session_maker()
+        try:
+            self.reservations_manager.delete(session, reservation_id)
+            session.commit()
+        finally:
+            session.close()
 
     def _clean(self):
         for scheduler in self.schedulers.values():
