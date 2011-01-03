@@ -451,7 +451,7 @@ class FakeDatabase(object):
         return self.experiments_allowed
 
     def retrieve_user_information(self, db_session_id):
-        pass
+        return self.users[0]
 
     def get_groups(self, db_session_id):
         return self.groups

@@ -136,6 +136,10 @@ class Coordinator(object):
         return self.resources_manager.list_experiments()
 
     @logged()
+    def list_resource_types(self):
+        return self.schedulers.keys()
+
+    @logged()
     def list_sessions(self, experiment_id):
         """ list_sessions( experiment_id ) -> { session_id : status } """
 

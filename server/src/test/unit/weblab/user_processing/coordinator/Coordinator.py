@@ -85,6 +85,14 @@ class CoordinatorTestCase(unittest.TestCase):
         self.assertEquals( 1, len(experiment_ids ) )
         self.assertEquals( ExperimentId('exp1', 'cat1'), experiment_ids[0] )
 
+    def test_list_resource_types(self):
+
+        "List the available resource types"
+
+        resource_types = self.coordinator.list_resource_types()
+        self.assertTrue( "res_type" in resource_types )
+
+
     def test_list_sessions_not_found(self):
 
         "List the available sessions for an experiment which does not exist "

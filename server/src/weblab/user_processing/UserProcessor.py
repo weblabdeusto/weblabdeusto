@@ -125,7 +125,12 @@ class UserProcessor(object):
                     "User can't access that experiment (or that experiment type does not exist)"
             )
 
-        priority = 5 # TODO: this should be part of experiment_allowed
+        user_information = self.get_user_information()
+        if user_information.login == 'demo':
+            priority = 10 # TODO: this should be part of experiment_allowed
+        else:
+            priority = 5 # TODO: this should be part of experiment_allowed
+
         client_initial_data = None # TODO: this must be passed by the client
         experiment_allowed = experiments[0]
 
