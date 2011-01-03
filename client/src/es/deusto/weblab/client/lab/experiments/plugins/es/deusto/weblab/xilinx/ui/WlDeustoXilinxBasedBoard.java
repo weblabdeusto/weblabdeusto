@@ -115,6 +115,10 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 		this.findInteractiveWidgets();
 		
 		this.disableInteractiveWidgets();
+		
+		if(isDemo()){
+			this.selectProgram.setText("If this wasn't a demo, you would select here the program that would be sent to the device. Since it could be harmful, in the demo we always send the same demonstration file."); 
+		}
 	}
 	
 	private boolean isDemo(){
