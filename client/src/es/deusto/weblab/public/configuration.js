@@ -50,7 +50,8 @@
 						      {
 							       "experiment.name"     : "ud-demo-xilinx",
 							       "experiment.category" : "Xilinx experiments",
-							       "is.demo"             : true
+							       "is.demo"             : true,
+							       "is.multiresource.demo" : true
 						      },
 							  {
 								   "experiment.name"     : "ud-fpga",

@@ -57,6 +57,9 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 	private static final String XILINX_DEMO_PROPERTY                  = "is.demo";
 	private static final boolean DEFAULT_XILINX_DEMO                  = false;
 	
+	private static final String XILINX_MULTIRESOURCE_DEMO_PROPERTY   = "is.multiresource.demo";
+	private static final boolean DEFAULT_MULTIRESOURCE_XILINX_DEMO   = false;
+	
 	private static final String XILINX_WEBCAM_IMAGE_URL_PROPERTY      = "webcam.image.url";
 	private static final String DEFAULT_XILINX_WEBCAM_IMAGE_URL       = GWT.getModuleBaseURL() + "/waiting_url_image.jpg";
 	
@@ -117,7 +120,11 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 		this.disableInteractiveWidgets();
 		
 		if(isDemo()){
-			this.selectProgram.setText("If this wasn't a demo, you would select here the program that would be sent to the device. Since it could be harmful, in the demo we always send the same demonstration file."); 
+			if(isMultiresourceDemo()){
+				this.selectProgram.setText("If this wasn't a demo, you would select here the program that would be sent to the device. Since it could be harmful, in the demo we always send the same demonstration file.");
+			}else{
+				this.selectProgram.setText("This demo demonstrate the multiresource queues of WebLab-Deusto. You will use a CPLD or a FPGA depending on which one is available. You can test to log in ud-demo-pld and ud-demo-fpga and then log in this experiment to check that it will go to the one you free.");
+			}
 		}
 	}
 	
@@ -125,6 +132,13 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 		return this.configurationRetriever.getBoolProperty(
 				WlDeustoXilinxBasedBoard.XILINX_DEMO_PROPERTY, 
 				WlDeustoXilinxBasedBoard.DEFAULT_XILINX_DEMO
+			);
+	}
+	
+	private boolean isMultiresourceDemo(){
+		return this.configurationRetriever.getBoolProperty(
+				WlDeustoXilinxBasedBoard.XILINX_MULTIRESOURCE_DEMO_PROPERTY, 
+				WlDeustoXilinxBasedBoard.DEFAULT_MULTIRESOURCE_XILINX_DEMO
 			);
 	}
 	
