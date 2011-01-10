@@ -232,7 +232,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         experiments = self.ups.get_experiments(sess_id)
         self.ups.logout(sess_id)
 
-        self.assertEquals(14, len(experiments) )
+        self.assertTrue( len(experiments) > 14 )
         unique_names = [ exp.get_unique_name() for exp in experiments ]
         self.assertTrue('flashdummy@Dummy experiments' in unique_names)
         self.assertTrue('javadummy@Dummy experiments'  in unique_names)

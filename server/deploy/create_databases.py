@@ -339,6 +339,9 @@ session.add(gpib)
 pic = Model.DbExperiment("ud-pic", cat_pic, start_date, end_date)
 session.add(pic)
 
+pic2 = Model.DbExperiment("ud-pic2", cat_pic, start_date, end_date)
+session.add(pic2)
+
 visirtest = Model.DbExperiment("visirtest", cat_dummy, start_date, end_date)
 session.add(visirtest)
 
@@ -576,7 +579,23 @@ up_any_pic_allowed_p2 = Model.DbUserPermissionParameter(up_any_pic_allowed, expe
 session.add(up_any_pic_allowed_p2)
 up_any_pic_allowed_p3 = Model.DbUserPermissionParameter(up_any_pic_allowed, experiment_allowed_p3, "150")
 session.add(up_any_pic_allowed_p3)                
+
+up_any_pic2_allowed = Model.DbUserPermission(
+    any,
+    experiment_allowed.group_applicable,
+    "any::weblab-pic2",
+    datetime.datetime.utcnow(),
+    "Permission for any to use WebLab-pic2"
+)
+session.add(up_any_pic2_allowed)
+up_any_pic2_allowed_p1 = Model.DbUserPermissionParameter(up_any_pic2_allowed, experiment_allowed_p1, "ud-pic2")
+session.add(up_any_pic2_allowed_p1)
+up_any_pic2_allowed_p2 = Model.DbUserPermissionParameter(up_any_pic2_allowed, experiment_allowed_p2, "PIC experiments")
+session.add(up_any_pic2_allowed_p2)
+up_any_pic2_allowed_p3 = Model.DbUserPermissionParameter(up_any_pic2_allowed, experiment_allowed_p3, "150")
+session.add(up_any_pic2_allowed_p3)
                         
+                       
 up_student1_admin_panel_access = Model.DbUserPermission(
     student1,
     admin_panel_access.user_applicable,
