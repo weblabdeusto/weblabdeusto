@@ -68,8 +68,8 @@ class Launcher(object):
         self.server.register_function(self.experiment_server.test_me, "Util.test_me")
         self.server.register_function(self.experiment_server.is_up_and_running, "Util.is_up_and_running")
         self.server.register_function(self.experiment_server.start_experiment, "Util.start_experiment")
-        self.server.register_function(self.experiment_server.send_file, "Util.send_file")
-        self.server.register_function(self.experiment_server.send_command, "Util.send_command")
+        self.server.register_function(self.experiment_server.send_file, "Util.send_file_to_device")
+        self.server.register_function(self.experiment_server.send_command, "Util.send_command_to_device")
         self.server.register_function(self.experiment_server.dispose, "Util.dispose")
         print "Running XML-RPC server on port %i" % self.port
         self.server.serve_forever()

@@ -43,7 +43,7 @@ public final class ExperimentServerXMLRPC {
 		return "ok";
 	}
 	
-	public final String send_file(String fileEncodedWithBase64, String fileInfo) throws WebLabException{
+	public final String send_file_to_device(String fileEncodedWithBase64, String fileInfo) throws WebLabException{
 		System.out.println(fileEncodedWithBase64);
 		byte [] buffer;
 		try {
@@ -66,7 +66,7 @@ public final class ExperimentServerXMLRPC {
 		return this.implementor.sendFile(outputFile, fileInfo);
 	}
 	
-	public final String send_command(String command) throws WebLabException{
+	public final String send_command_to_device(String command) throws WebLabException{
 		return this.implementor.sendCommand(command);
 	}
 	

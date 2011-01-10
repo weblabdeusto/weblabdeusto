@@ -122,8 +122,8 @@ void ExperimentServer::launch(unsigned short port, std::string const & log_file)
 	xmlrpc_registry_add_method( &env, registryP, NULL, "Util.test_me", &ExperimentServer::c_xmlrpc_test_me, this);
 	xmlrpc_registry_add_method( &env, registryP, NULL, "Util.is_up_and_running", &ExperimentServer::c_xmlrpc_is_up_and_running, this);
 	xmlrpc_registry_add_method( &env, registryP, NULL, "Util.start_experiment", &ExperimentServer::c_xmlrpc_start_experiment, this);
-	xmlrpc_registry_add_method( &env, registryP, NULL, "Util.send_command", &ExperimentServer::c_xmlrpc_send_command, this);
-	xmlrpc_registry_add_method( &env, registryP, NULL, "Util.send_file", &ExperimentServer::c_xmlrpc_send_file, this);
+	xmlrpc_registry_add_method( &env, registryP, NULL, "Util.send_command_to_device", &ExperimentServer::c_xmlrpc_send_command, this);
+	xmlrpc_registry_add_method( &env, registryP, NULL, "Util.send_file_to_device", &ExperimentServer::c_xmlrpc_send_file, this);
 	xmlrpc_registry_add_method( &env, registryP, NULL, "Util.dispose", &ExperimentServer::c_xmlrpc_dispose, this);
 
 	serverparm.config_file_name = NULL;
