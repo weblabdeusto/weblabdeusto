@@ -320,10 +320,29 @@ public class WlLabController implements IWlLabController {
 	    		}
 	    	    });
 	    	}
+	    	
+	    	@Override
+	    	public void sendCommand(final String command){
+	    		sendCommand(new Command() {
+					@Override
+					public String getCommandString() {
+						return command;
+					}
+				});
+	    	}
 
 	    	@Override
-			public void sendCommand(Command command,
-	    		IResponseCommandCallback callback) {
+	    	public void sendCommand(final String command, IResponseCommandCallback callback){
+	    		sendCommand(new Command() {
+					@Override
+					public String getCommandString() {
+						return command;
+					}
+				}, callback);
+	    	}
+
+	    	@Override
+			public void sendCommand(Command command, IResponseCommandCallback callback) {
 	    	    WlLabController.this.sendCommand(command, callback);
 	    	}
 

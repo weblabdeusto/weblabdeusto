@@ -109,6 +109,12 @@
 	                        	   "experiment.name"     : "ud-pic",
 	                        	   "experiment.category" : "PIC experiments",
 	                           }
+	                        ],
+	                "pic2"  : [
+	                           {
+	                        	   "experiment.name"     : "ud-pic2",
+	                        	   "experiment.category" : "PIC experiments",
+	                           }
 	                        ]
 		}
 }

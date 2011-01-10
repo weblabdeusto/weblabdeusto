@@ -13,6 +13,7 @@
 */ 
 package es.deusto.weblab.client.ui.widgets;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ErrorEvent;
 import com.google.gwt.event.dom.client.ErrorHandler;
 import com.google.gwt.event.dom.client.LoadEvent;
@@ -26,7 +27,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class WlWebcam extends HorizontalPanel implements IWlWidget{
 	
-	public static final String DEFAULT_IMAGE_URL = "http://pld.weblab.deusto.es/webcam/pld0/image.jpg";
+	public static final String DEFAULT_IMAGE_URL = GWT.getModuleBaseURL() + "/waiting_url_image.jpg";
 	public static final int DEFAULT_REFRESH_TIME = 400;
 	
 	private final Image image;
@@ -38,6 +39,10 @@ public class WlWebcam extends HorizontalPanel implements IWlWidget{
 
 	public WlWebcam(){
 		this(WlWebcam.DEFAULT_REFRESH_TIME, WlWebcam.DEFAULT_IMAGE_URL);
+	}
+	
+	public WlWebcam(int time){
+		this(time, WlWebcam.DEFAULT_IMAGE_URL);
 	}
 	
 	public WlWebcam(int time, String url){

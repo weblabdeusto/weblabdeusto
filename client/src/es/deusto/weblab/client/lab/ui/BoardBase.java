@@ -20,8 +20,10 @@ import es.deusto.weblab.client.ui.widgets.IWlWidget;
 
 public abstract class BoardBase implements IWlWidget{
 	public interface IBoardBaseController{
-	    	public void sendCommand(Command command);
+	    public void sendCommand(Command command);
 		public void sendCommand(Command command, IResponseCommandCallback callback);
+	    public void sendCommand(String command);
+		public void sendCommand(String command, IResponseCommandCallback callback);
 		public void sendFile(UploadStructure uploadStructure, IResponseCommandCallback callback);
 		public void onClean();
 	}

@@ -25,6 +25,7 @@ import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib1.We
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib2.WebLabGpib2CreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.WebLabLogicCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic.WebLabPicCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic2.WebLabPic2CreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.visir.VisirCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.vm.VMCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.util.applets.flash.FlashAppCreatorFactory;
@@ -49,6 +50,7 @@ class EntryRegistry {
 		new WebLabGpib1CreatorFactory(),
 		new WebLabGpib2CreatorFactory(),
 		new WebLabPicCreatorFactory(),
+		new WebLabPic2CreatorFactory()
 	};
 	
 	static final List<ExperimentEntry> entries = new Vector<ExperimentEntry>();

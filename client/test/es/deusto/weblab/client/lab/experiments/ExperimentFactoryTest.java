@@ -74,6 +74,15 @@ public class ExperimentFactoryTest extends GWTTestCase {
 				IResponseCommandCallback callback) {
 			    
 			}
+
+			@Override
+			public void sendCommand(String command) {
+			}
+
+			@Override
+			public void sendCommand(String command,
+					IResponseCommandCallback callback) {
+			}
 		});
 		
 		final ExperimentLoadedCallback callback = new ExperimentLoadedCallback();
@@ -101,6 +110,15 @@ public class ExperimentFactoryTest extends GWTTestCase {
 			@Override
 			public void sendFile(UploadStructure uploadStructure,
 				IResponseCommandCallback callback) {
+			}
+
+			@Override
+			public void sendCommand(String command) {
+			}
+
+			@Override
+			public void sendCommand(String command,
+					IResponseCommandCallback callback) {
 			}
 		});
 		

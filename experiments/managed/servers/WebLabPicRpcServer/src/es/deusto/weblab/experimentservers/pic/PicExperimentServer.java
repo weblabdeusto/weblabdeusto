@@ -32,7 +32,7 @@ public class PicExperimentServer extends ExperimentServer {
 		if(command.equals("WEBCAMURL")){
 			return "WEBCAMURL=" + this.webcamUrl;
 		}
-		return "ok";
+		return "ok: " + command;
 	}
 
 	@Override
