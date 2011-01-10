@@ -60,8 +60,7 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 		public static final String CLOCK_ACTIVATION_PANEL = "wl-clock_activation_panel"; 
 	}
 	
-	public static final String PIC_WEBCAM_IMAGE_URL_PROPERTY = "es.deusto.weblab.pic.webcam.image.url";
-	public static final String DEFAULT_PIC_WEBCAM_IMAGE_URL = "https://www.weblab.deusto.es/webcam/pic0/image.jpg";
+	public static final String DEFAULT_PIC_WEBCAM_IMAGE_URL = GWT.getModuleBaseURL() + "/waiting_url_image.jpg";
 	
 	public static final String PIC_WEBCAM_REFRESH_TIME_PROPERTY = "es.deusto.weblab.pic.webcam.refresh.millis";
 	public static final int DEFAULT_PIC_WEBCAM_REFRESH_TIME = 400;
@@ -152,10 +151,7 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	
 	public void createProvidedWidgets() {
 		
-		this.webcam = new WlWebcam(
-				this.getWebcamRefreshingTime(),
-				this.getWebcamImageUrl()
-			);
+		this.webcam = new WlWebcam(this.getWebcamRefreshingTime(), WlDeustoPicBasedBoard.DEFAULT_PIC_WEBCAM_IMAGE_URL);
 		
 		this.timer = new WlTimer(false);	
 	}
@@ -386,13 +382,6 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	private void disableInteractiveWidgets(){
 		for(int i = 0; i < this.interactiveWidgets.size(); ++i)
 			this.interactiveWidgets.get(i).setVisible(false);
-	}
-
-	private String getWebcamImageUrl() {
-		return this.configurationRetriever.getProperty(
-			WlDeustoPicBasedBoard.PIC_WEBCAM_IMAGE_URL_PROPERTY, 
-			WlDeustoPicBasedBoard.DEFAULT_PIC_WEBCAM_IMAGE_URL
-			);
 	}
 
 	private int getWebcamRefreshingTime() {
