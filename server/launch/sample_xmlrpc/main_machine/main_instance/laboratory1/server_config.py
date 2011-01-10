@@ -13,7 +13,7 @@ laboratory_assigned_experiments = [
 laboratory_assigned_experiments = {
         'exp1:ud-pic@PIC experiments':
             {
-                 'coord_address': 'experiment_pic:main_instance@main_machine',
+                 'coord_address': 'experiment_pic:pic_instance@main_machine',
                  'checkers': ()
             },
         'exp1:ud-dummy@Dummy experiments':
