@@ -30,7 +30,7 @@ public class PicExperimentServer extends ExperimentServer {
 	public String sendCommand(String command) throws WebLabException {
 		System.out.println(command);
 		if(command.equals("WEBCAMURL")){
-			return this.webcamUrl;
+			return "WEBCAMURL=" + this.webcamUrl;
 		}
 		return "ok";
 	}
