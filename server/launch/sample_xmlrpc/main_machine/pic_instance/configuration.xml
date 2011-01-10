@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<servers 
+	xmlns="http://www.weblab.deusto.es/configuration" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="instance_configuration.xsd"
+>
+    <configuration file="instance_config.py"/>
+	<user>weblab</user>
+	
+	<server>experiment_pic</server>
+</servers>

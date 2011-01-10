@@ -8,5 +8,6 @@
 
 	<instance>main_instance</instance>
 	<instance>dummy_instance</instance>
+	<instance>pic_instance</instance>
 </instances>
 
