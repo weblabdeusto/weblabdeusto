@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="WebLabXmlRpcServer">
+
+    <property name="weblab.java.server.project.name" value="WebLabJavaXmlRpcServer"/>
+
+    <condition property="weblab.java.server" value="../${weblab.java.server.project.name}" else="../../libs/server/java/${weblab.java.server.project.name}">
+        <available file="../${weblab.java.server.project.name}" type="dir" />
+    </condition>
+
+    <echo >${weblab.java.server}</echo>
+
+    <path id="WebLabXmlRpcServer.classpath">
+        <pathelement location="${weblab.java.server}/bin"/>
+        <pathelement location="${weblab.java.server}/lib/commons-logging-1.1.jar"/>
+        <pathelement location="${weblab.java.server}/lib/ws-commons-util-1.0.2.jar"/>
+        <pathelement location="${weblab.java.server}/lib/xmlrpc-client-3.1.jar"/>
+        <pathelement location="${weblab.java.server}/lib/xmlrpc-client-3.1-javadoc.jar"/>
+        <pathelement location="${weblab.java.server}/lib/xmlrpc-client-3.1-sources.jar"/>
+        <pathelement location="${weblab.java.server}/lib/xmlrpc-common-3.1.jar"/>
+        <pathelement location="${weblab.java.server}/lib/xmlrpc-common-3.1-javadoc.jar"/>
+        <pathelement location="${weblab.java.server}/lib/xmlrpc-common-3.1-sources.jar"/>
+        <pathelement location="${weblab.java.server}/lib/xmlrpc-server-3.1.jar"/>
+        <pathelement location="${weblab.java.server}/lib/xmlrpc-server-3.1-javadoc.jar"/>
+        <pathelement location="${weblab.java.server}/lib/xmlrpc-server-3.1-sources.jar"/>
+        <pathelement location="${weblab.java.server}/more.libs/commons-httpclient-3.1.jar"/>
+        <pathelement location="${weblab.java.server}/more.libs/commons-codec-1.3.jar"/>
+    </path>
+    <path id="WebLabPicRpcServer.classpath">
+        <pathelement location="bin"/>
+    </path>
+
+    <target name="clean">
+        <ant antfile="build.xml" target="clean" dir="${weblab.java.server}"/>
+        <delete dir="bin"/>
+    </target>
+	
+    <target name="build">
+        <ant antfile="build.xml" target="build" dir="${weblab.java.server}"/>
+        <mkdir dir="bin"/>
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" destdir="bin">
+            <src path="src"/>
+            <classpath>
+                <path refid="WebLabXmlRpcServer.classpath"/>
+                <path refid="WebLabPicRpcServer.classpath"/>
+            </classpath>
+        </javac>
+    </target>
+	
+    <target name="run" depends="build">
+        <java classname="es.deusto.weblab.experimentservers.pic.PicExperimentServerMain" failonerror="true" fork="yes">
+            <classpath>
+                <path refid="WebLabXmlRpcServer.classpath"/>
+                <path refid="WebLabPicRpcServer.classpath"/>
+            </classpath>
+        </java>
+    </target>
+</project>
