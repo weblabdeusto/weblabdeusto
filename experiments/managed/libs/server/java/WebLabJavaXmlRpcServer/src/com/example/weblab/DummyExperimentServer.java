@@ -3,9 +3,15 @@ package com.example.weblab;
 import java.io.File;
 
 import es.deusto.weblab.experimentservers.ExperimentServer;
+import es.deusto.weblab.experimentservers.exceptions.ExperimentServerInstantiationException;
 import es.deusto.weblab.experimentservers.exceptions.WebLabException;
 
 public class DummyExperimentServer extends ExperimentServer {
+
+	public DummyExperimentServer()
+			throws ExperimentServerInstantiationException {
+		super();
+	}
 
 	public void startExperiment() throws WebLabException {
 		System.out.println("I'm at startExperiment");

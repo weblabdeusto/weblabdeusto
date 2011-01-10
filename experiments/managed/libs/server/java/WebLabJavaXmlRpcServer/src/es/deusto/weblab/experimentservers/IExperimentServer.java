@@ -10,4 +10,5 @@ public interface IExperimentServer{
 	public String sendCommand(String command) throws WebLabException;
 	public void dispose();
 	public boolean isUpAndRunning();
+	public boolean isDebugging();
 }

@@ -15,14 +15,14 @@ import es.deusto.weblab.experimentservers.exceptions.WebLabException;
 public final class ExperimentServerXMLRPC {
 	
 	static class IExperimentServerHolder{
-		private static IExperimentServer implementor;
+		private static volatile IExperimentServer implementor;
 		
 		static void initialize(IExperimentServer implementor){
 			IExperimentServerHolder.implementor = implementor;
 		}
 	}
 	
-	private IExperimentServer implementor;
+	private final IExperimentServer implementor;
 	
 	public ExperimentServerXMLRPC(){
 		this.implementor = IExperimentServerHolder.implementor;
@@ -39,12 +39,15 @@ public final class ExperimentServerXMLRPC {
 	}
 	
 	public final String start_experiment() throws WebLabException{
+		if(this.implementor.isDebugging())
+			System.out.println("Starting experiment...");
 		this.implementor.startExperiment();
 		return "ok";
 	}
 	
 	public final String send_file_to_device(String fileEncodedWithBase64, String fileInfo) throws WebLabException{
-		System.out.println(fileEncodedWithBase64);
+		if(this.implementor.isDebugging())
+			System.out.println("File sent:\n" + fileEncodedWithBase64);
 		byte [] buffer;
 		try {
 			buffer = Base64.decode(fileEncodedWithBase64);
@@ -67,10 +70,14 @@ public final class ExperimentServerXMLRPC {
 	}
 	
 	public final String send_command_to_device(String command) throws WebLabException{
+		if(this.implementor.isDebugging())
+			System.out.println("Command sent: " + command);
 		return this.implementor.sendCommand(command);
 	}
 	
 	public final String dispose(){
+		if(this.implementor.isDebugging())
+			System.out.println("Disposing");
 		this.implementor.dispose();
 		return "ok";
 	}
