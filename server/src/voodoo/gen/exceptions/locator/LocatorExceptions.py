@@ -46,10 +46,6 @@ class MoreServersThanExpectedException(LocatorException):
     def __init__(self,*args,**kargs):
         LocatorException.__init__(self,*args,**kargs)
 
-class NoMethodFoundForServerException(LocatorException):
-    def __init__(self,*args,**kargs):
-        LocatorException.__init__(self,*args,**kargs)
-
 class NoSuchServerTypeFoundException(LocatorException):
     def __init__(self,*args,**kargs):
         LocatorException.__init__(self,*args,**kargs)

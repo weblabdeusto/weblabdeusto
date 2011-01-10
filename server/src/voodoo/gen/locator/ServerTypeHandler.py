@@ -39,12 +39,11 @@ class ServerTypeHandler(object):
 
     def _generate_methods(self,methods):
         returnValue = {}
-        for i in [ i.name for i in self.getValues() ]:
-            if not methods.has_key(i):
-                raise LocatorExceptions.NoMethodFoundForServerException(
-                        "No method found for server %s" % i
-                    )
-            else:
+
+        possible_server_type_names = [ value.name for value in self.getValues() ]
+
+        for i in possible_server_type_names:
+            if methods.has_key(i):
                 method_names = methods[i]
                 if not isinstance(method_names,tuple) and not isinstance(method_names,list):
                     raise LocatorExceptions.InvalidListOfMethodsException(
@@ -52,10 +51,12 @@ class ServerTypeHandler(object):
                         )
                 else:
                     returnValue[i] = methods[i]
-        if len(methods.keys()) != len(self.getValues()):
-            raise LocatorExceptions.MoreServersThanExpectedException(
-                    'More servers than keys found in %s' % methods
-                )
+
+        for method in methods:
+            if method not in possible_server_type_names:
+                raise LocatorExceptions.MoreServersThanExpectedException(
+                        'More servers than keys found in %s' % methods
+                    )
 
         return returnValue
     

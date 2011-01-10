@@ -22,15 +22,6 @@ import test.unit.voodoo.gen.locator.ServerTypeSample as ServerTypeSample
 class ServerTypeHandlerTestCase(unittest.TestCase):
     def test_exceptions(self):
         self.assertRaises(
-            LocatorExceptions.NoMethodFoundForServerException,
-            ServerTypeHandler.ServerTypeHandler,
-            ServerTypeSample.ServerTypeSample,
-            {
-                #No "Login" key
-            }
-        )
-
-        self.assertRaises(
             LocatorExceptions.InvalidListOfMethodsException,
             ServerTypeHandler.ServerTypeHandler,
             ServerTypeSample.ServerTypeSample,
