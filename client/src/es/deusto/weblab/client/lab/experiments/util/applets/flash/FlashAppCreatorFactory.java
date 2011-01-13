@@ -18,10 +18,12 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
+import es.deusto.weblab.client.configuration.exceptions.WlConfigurationException;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
 import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
+import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentCreatorInstanciationException;
 import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
 
 public class FlashAppCreatorFactory implements IExperimentCreatorFactory {
@@ -32,21 +34,24 @@ public class FlashAppCreatorFactory implements IExperimentCreatorFactory {
 	}
 
 	@Override
-	public ExperimentCreator createExperimentCreator(final IConfigurationRetriever configurationRetriever) {
+	public ExperimentCreator createExperimentCreator(final IConfigurationRetriever configurationRetriever) throws ExperimentCreatorInstanciationException {
+		final int width;
+		final int height;
+		final String swfFile;
+		final String message;
+		
+		try{
+			width   = configurationRetriever.getIntProperty("width");
+			height  = configurationRetriever.getIntProperty("height");
+			swfFile = configurationRetriever.getProperty("swf.file");
+			message = configurationRetriever.getProperty("message");
+		}catch(WlConfigurationException icve){
+			throw new ExperimentCreatorInstanciationException("Misconfigured experiment: " + getCodeName() + ": " + icve.getMessage(), icve);
+		}
+
 		return new ExperimentCreator(MobileSupport.disabled, getCodeName()){
 			@Override
 			public void createWeb(final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
-				/* TODO
-				final int width                 = flashExperimentConfiguration.getIntProperty("width");
-				final int height                = flashExperimentConfiguration.getIntProperty("height");
-				final String swfFile            = flashExperimentConfiguration.getProperty("swf.file");
-				final String message            = flashExperimentConfiguration.getProperty("message");
-				 */
-				final int width      = 500;
-				final int height     = 350;
-				final String swfFile = "WeblabFlashSample.swf";
-				final String message = "Note: This is not a real experiment, it's just a demo so as to show that WebLab-Deusto can integrate different web technologies (such as Adobe Flash in this experiment). This demostrates that developing experiments in WebLab-Deusto is really flexible.";
-
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {

@@ -15,9 +15,10 @@
 package es.deusto.weblab.client.lab.experiments;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
+import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentCreatorInstanciationException;
 
 
 public interface IExperimentCreatorFactory {
 	public String getCodeName();
-	public ExperimentCreator createExperimentCreator(IConfigurationRetriever configurationRetriever);
+	public ExperimentCreator createExperimentCreator(IConfigurationRetriever configurationRetriever) throws ExperimentCreatorInstanciationException;
 }

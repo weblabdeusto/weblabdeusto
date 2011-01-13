@@ -21,6 +21,7 @@ import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.configuration.exceptions.ConfigurationKeyNotFoundException;
 import es.deusto.weblab.client.configuration.exceptions.InvalidConfigurationValueException;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
+import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentCreatorInstanciationException;
 import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentInstanciationException;
 import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentNotFoundException;
 import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
@@ -77,25 +78,29 @@ public class ExperimentFactory {
 		final Set<String> alreadyTriedCreatorFactories = new HashSet<String>();
 		final Set<String> alreadyRegisteredExperiments = new HashSet<String>();
 		
-		for(IExperimentCreatorFactory creatorFactory : EntryRegistry.creatorFactories){
-			if(alreadyTriedCreatorFactories.contains(creatorFactory.getCodeName()))
-				throw new InvalidConfigurationValueException("CreatorFactory codename: " + creatorFactory.getCodeName() + " already used before " + creatorFactory.getClass().getName());
-			
-			alreadyTriedCreatorFactories.add(creatorFactory.getCodeName());
-			
-			for(IConfigurationRetriever configurationRetriever : configurationManager.getExperimentsConfiguration(creatorFactory.getCodeName())){
-				final String experimentName     = configurationRetriever.getProperty("experiment.name");
-				final String experimentCategory = configurationRetriever.getProperty("experiment.category");
+		try{
+			for(IExperimentCreatorFactory creatorFactory : EntryRegistry.creatorFactories){
+				if(alreadyTriedCreatorFactories.contains(creatorFactory.getCodeName()))
+					throw new InvalidConfigurationValueException("CreatorFactory codename: " + creatorFactory.getCodeName() + " already used before " + creatorFactory.getClass().getName());
 				
-				final String compoundName = experimentName + "@" + experimentCategory;
-				if(alreadyRegisteredExperiments.contains(compoundName))
-					throw new InvalidConfigurationValueException("Experiment " + compoundName + " already registered");
-				alreadyRegisteredExperiments.add(compoundName);
+				alreadyTriedCreatorFactories.add(creatorFactory.getCodeName());
 				
-				final ExperimentEntry entry = new ExperimentEntry(experimentCategory, experimentName, creatorFactory.createExperimentCreator(configurationRetriever));
-				
-				EntryRegistry.entries.add(entry);
+				for(IConfigurationRetriever configurationRetriever : configurationManager.getExperimentsConfiguration(creatorFactory.getCodeName())){
+					final String experimentName     = configurationRetriever.getProperty("experiment.name");
+					final String experimentCategory = configurationRetriever.getProperty("experiment.category");
+					
+					final String compoundName = experimentName + "@" + experimentCategory;
+					if(alreadyRegisteredExperiments.contains(compoundName))
+						throw new InvalidConfigurationValueException("Experiment " + compoundName + " already registered");
+					alreadyRegisteredExperiments.add(compoundName);
+					
+					final ExperimentEntry entry = new ExperimentEntry(experimentCategory, experimentName, creatorFactory.createExperimentCreator(configurationRetriever));
+					
+					EntryRegistry.entries.add(entry);
+				}
 			}
+		}catch(ExperimentCreatorInstanciationException exc){
+			throw new InvalidConfigurationValueException("Misconfigured experiment: " + exc.getMessage(), exc);
 		}
 	}
 }
