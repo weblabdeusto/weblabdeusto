@@ -60,7 +60,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 		super(configurationRetriever, boardController);
 		this.height  = height;
 		this.width   = width;
-		if(this.swfFile != null)
+		if(swfFile != null)
 			this.swfFile = GWT.getModuleBaseURL() + swfFile;
 		this.flashvars = flashvars;
 		this.message.setText(message);
