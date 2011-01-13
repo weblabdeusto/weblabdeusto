@@ -27,6 +27,7 @@
 	                        	  "height"               : 350,
 	                        	  "jar.file"             : "WeblabJavaSample.jar",
 	                        	  "code"                 : "es.deusto.weblab.client.experiment.plugins.es.deusto.weblab.javadummy.JavaDummyApplet",
+	                        	  "message"             : "Note: This is not a real experiment, it's just a demo so as to show that WebLab-Deusto can integrate different web technologies (such as Java Applets in this experiment). This demostrates that developing experiments in WebLab-Deusto is really flexible."
 	                          },
 	                          // Other java experiments could be added here
 	                       ],
