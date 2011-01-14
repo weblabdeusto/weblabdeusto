@@ -21,6 +21,7 @@ import javax.swing.JPanel;
 
 import es.deusto.weblab.client.experiment.plugins.es.deusto.weblab.javadummy.commands.PulseCommand;
 import es.deusto.weblab.client.experiment.plugins.java.Command;
+import es.deusto.weblab.client.experiment.plugins.java.ConfigurationManager;
 import es.deusto.weblab.client.experiment.plugins.java.ICommandCallback;
 import es.deusto.weblab.client.experiment.plugins.java.ResponseCommand;
 import es.deusto.weblab.client.experiment.plugins.java.WebLabApplet;
@@ -28,8 +29,8 @@ import es.deusto.weblab.client.experiment.plugins.java.WebLabApplet;
 public class JavaDummyApplet extends WebLabApplet {
 	private static final long serialVersionUID = 1L;
 
-	public static final String WEBCAM_IMAGE_URL_PROPERTY_NAME = "es.deusto.weblab.pld.webcam.image";
-	public static final String DEFAULT_WEBCAM_IMAGE_URL       = "http://localhost/weblab/client/weblabclient/img/logo.png";
+	public static final String WEBCAM_IMAGE_URL_PROPERTY_NAME = "webcam.image";
+	public static final String DEFAULT_WEBCAM_IMAGE_URL       = "/img/logo.png";
 	
 	private final JPanel webcamPanel;
 	private final JLabel timeLabel;
@@ -93,7 +94,8 @@ public class JavaDummyApplet extends WebLabApplet {
 	private void startWebcam(){
 		final TimerTask timerTask = new TimerTask(){
 			public void run() {
-				final String path = JavaDummyApplet.this.getConfigurationManager().getProperty(JavaDummyApplet.WEBCAM_IMAGE_URL_PROPERTY_NAME, JavaDummyApplet.DEFAULT_WEBCAM_IMAGE_URL);
+				final String moduleURL = JavaDummyApplet.this.getConfigurationManager().getProperty(ConfigurationManager.GWT_MODULE_BASE_URL);
+				final String path = moduleURL + JavaDummyApplet.this.getConfigurationManager().getProperty(JavaDummyApplet.WEBCAM_IMAGE_URL_PROPERTY_NAME, JavaDummyApplet.DEFAULT_WEBCAM_IMAGE_URL);
 				final ImageIcon image = JavaDummyApplet.this.loadImage(path);
 				
 				JavaDummyApplet.this.webcamPanel.removeAll();

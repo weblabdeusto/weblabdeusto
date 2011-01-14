@@ -4,6 +4,11 @@ import netscape.javascript.JSObject;
 
 public class ConfigurationManager {
 	
+	public static final String GWT_HOST_PAGE_BASE_URL = "gwt.host.page.base.url";
+	public static final String GWT_MODULE_BASE_URL    = "gwt.module.base.url";
+	public static final String GWT_MODULE_NAME = "gwt.module.name";
+	public static final String GWT_VERSION = "gwt.version";
+	
 	private final JSObject jsobject; 
 	
 	ConfigurationManager(JSObject jsobject){

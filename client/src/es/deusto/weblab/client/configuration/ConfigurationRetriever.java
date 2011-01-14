@@ -17,6 +17,7 @@ package es.deusto.weblab.client.configuration;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONString;
@@ -29,12 +30,20 @@ public class ConfigurationRetriever implements IConfigurationRetriever {
 	
 	protected final Map<String, JSONValue> configurationMap;
 	
-	public ConfigurationRetriever(){
-		 this.configurationMap = new HashMap<String, JSONValue>();
-	}
-	
 	ConfigurationRetriever(Map<String, JSONValue> configurationMap){
 		this.configurationMap = configurationMap;
+		basicGwtInitialization();
+	}
+	
+	public ConfigurationRetriever(){
+		 this(new HashMap<String, JSONValue>());
+	}
+	
+	private void basicGwtInitialization(){
+		this.configurationMap.put("gwt.host.page.base.url", new JSONString(GWT.getHostPageBaseURL()));
+		this.configurationMap.put("gwt.module.base.url", new JSONString(GWT.getModuleBaseURL()));
+		this.configurationMap.put("gwt.module.name", new JSONString(GWT.getModuleName()));
+		this.configurationMap.put("gwt.version", new JSONString(GWT.getVersion()));
 	}
 
 	@Override
