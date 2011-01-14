@@ -30,6 +30,7 @@ import es.deusto.weblab.client.ui.widgets.WlPotentiometer;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
+import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 @SuppressWarnings("unqualified-field-access")
 public class WlDeustoPic2BasedBoard extends BoardBase{
@@ -52,7 +53,7 @@ public class WlDeustoPic2BasedBoard extends BoardBase{
 	private UploadStructure uploadStructure;
 	
 	
-	public WlDeustoPic2BasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController){
+	public WlDeustoPic2BasedBoard(IConfigurationRetriever configurationRetriever, final IBoardBaseController boardController){
 		super(boardController);
 		
 		this.configurationRetriever = configurationRetriever;
@@ -64,6 +65,12 @@ public class WlDeustoPic2BasedBoard extends BoardBase{
 		
 		webcam = new WlWebcam(refreshTime);
 		timer = new WlTimer(false);
+		timer.setTimerFinishedCallback(new IWlTimerFinishedCallback() {
+			@Override
+			public void onFinished() {
+				boardController.onClean();
+			}
+		});
 		messages = new WlWaitingLabel();
 		potentiometer = new WlPotentiometer(10.0);
 	}
