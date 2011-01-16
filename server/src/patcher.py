@@ -99,22 +99,18 @@ def patchZsiPyExpat():
 #  xmlrpclib is the default XML-RPC library, which comes
 #  with the Python Standard Library. This library 
 #  couldn't serialize "object"s until Python 2.6, so 
-#  everyone using Python 2.5 or Python 2.4 will not be
-#  able to do it. For this reason, we correct the problem
-#  here.
+#  everyone using Python 2.5 will not be able to do it. 
+# For this reason, we correct the problem here.
 # 
 # Further technical description:
 #  Before Python 2.6, if an object is given to              
 #  xmlrpclib.Marshaller.__dump, it doesn't understand       
 #  that it's an instance, so it can't marshall it. In       
 #  order to avoid this, we replace this method in previous  
-#  versions of Python. Right now we support both Python 2.5 
-#  and Python 2.4.                                          
+#  versions of Python. Right now we support Python 2.5.
 #                                                          
 #  So, _new__dump will replace __dump
 # 
-
-import sys
 
 @patch
 def patchXmlrpcObjectsSerialization():
