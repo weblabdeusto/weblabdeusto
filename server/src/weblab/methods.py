@@ -34,6 +34,7 @@ Laboratory = [
         'send_file',
         'send_command',
         'resolve_experiment_address',
+        'check_experiments_resources',
         'experiment_is_up_and_running'
     ]
 
@@ -50,6 +51,9 @@ Experiment = [
         'start_experiment',
         'send_file_to_device',
         'send_command_to_device',
+        'should_experiment_finish',
+        'are_resources_clean',
         'dispose',
-        'is_up_and_running'
+        'is_up_and_running',
     ]
+

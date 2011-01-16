@@ -20,6 +20,8 @@ is intended to be used for checking common issues to most of the
 experiments. Examples:
    -> Is that webcam (url) returning a JPG image?
    -> Is that host (ip, port) listening?
+All these requests will not require a slot in the scheduling system, so they can 
+be requested at any moment, even if there is a user using the experiment.
 """
 
 import urllib2
@@ -29,10 +31,10 @@ from voodoo.override import Override
 from weblab.exceptions.laboratory import LaboratoryExceptions as Laboratory
 
 
-VALID_IMAGE_FORMATS = ('image/jpg',)
+VALID_IMAGE_FORMATS = ('image/jpg','image/png')
 
 
-class AbstractIsUpAndRunningHandler(object):
+class AbstractLightweightIsUpAndRunningHandler(object):
     
     def run(self):
         raise NotImplementedError()
@@ -40,7 +42,7 @@ class AbstractIsUpAndRunningHandler(object):
 HANDLERS = ()
 
 
-class HostIsUpAndRunningHandler(AbstractIsUpAndRunningHandler):
+class HostIsUpAndRunningHandler(AbstractLightweightIsUpAndRunningHandler):
     
     _socket = socket
     
@@ -49,7 +51,7 @@ class HostIsUpAndRunningHandler(AbstractIsUpAndRunningHandler):
         self.hostname = hostname
         self.port = port
         
-    @Override(AbstractIsUpAndRunningHandler)
+    @Override(AbstractLightweightIsUpAndRunningHandler)
     def run(self):
         s = self._socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
@@ -59,10 +61,10 @@ class HostIsUpAndRunningHandler(AbstractIsUpAndRunningHandler):
         finally:
             s.close()
 
-HANDLERS += ('HostIsUpAndRunningHandler',)
+HANDLERS += (HostIsUpAndRunningHandler.__name__,)
         
 
-class WebcamIsUpAndRunningHandler(AbstractIsUpAndRunningHandler):
+class WebcamIsUpAndRunningHandler(AbstractLightweightIsUpAndRunningHandler):
     
     _urllib2 = urllib2
     
@@ -70,7 +72,7 @@ class WebcamIsUpAndRunningHandler(AbstractIsUpAndRunningHandler):
         super(WebcamIsUpAndRunningHandler, self).__init__()
         self.img_url = img_url
         
-    @Override(AbstractIsUpAndRunningHandler)
+    @Override(AbstractLightweightIsUpAndRunningHandler)
     def run(self):
         try:
             response = self._urllib2.urlopen(self.img_url)
@@ -79,4 +81,5 @@ class WebcamIsUpAndRunningHandler(AbstractIsUpAndRunningHandler):
         if response.headers['content-type'] not in VALID_IMAGE_FORMATS:
             raise Laboratory.InvalidContentTypeRetrievedFromImageURLException(self.img_url)
 
-HANDLERS += ('WebcamIsUpAndRunningHandler',)
+HANDLERS += (WebcamIsUpAndRunningHandler.__name__,)
+

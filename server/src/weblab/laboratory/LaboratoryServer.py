@@ -15,6 +15,7 @@
 # 
 
 import re
+import random
 
 import voodoo.log as log
 import voodoo.LogLevel as LogLevel
@@ -62,10 +63,6 @@ class LaboratoryServer(object):
     # exp_inst_name|exp_name|exp_cat;coord_address
     EXPERIMENT_INSTANCE_ID_REGEX = r"^(.*)\:(.*)\@(.*)$"
     
-    EXPERIMENT_IS_UP_AND_RUNNING_RESPONSE_CODE_OK    = 'OK'
-    EXPERIMENT_IS_UP_AND_RUNNING_RESPONSE_CODE_ERROR = 'ER'
-    EXPERIMENT_IS_UP_AND_RUNNING_RESPONSE_REGEX      = r"^(%s|%s) ?(.*)$" % (EXPERIMENT_IS_UP_AND_RUNNING_RESPONSE_CODE_OK, EXPERIMENT_IS_UP_AND_RUNNING_RESPONSE_CODE_ERROR)
-
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(LaboratoryServer,self).__init__(*args, **kwargs)
 
@@ -208,29 +205,50 @@ class LaboratoryServer(object):
 
     @logged(LogLevel.Info)
     @caller_check(ServerType.UserProcessing)
+    def do_check_experiments_resources(self):
+        """Are the resources that the assigned experiment servers use working? It does not matter if this 
+        experiment is being used or not, this method will only check things like certain IP addresses replying,
+        webcams returning valid images, or the experiment server returning correctly on test_me.
+        """
+        experiment_instance_ids = self._assigned_experiments.list_experiment_instance_ids()
+        failing_experiment_instance_ids = {
+                # experiment_instance_id : error_message
+            }
+        for experiment_instance_id in experiment_instance_ids:
+            handlers = self._assigned_experiments.get_is_up_and_running_handlers(experiment_instance_id)
+            try:
+                for h in handlers:
+                    h.run()
+                experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
+                experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
+                challenge = str(random.random())
+                response = experiment_server.test_me(challenge)
+                if response != challenge:
+                    raise Exception("Challenge failed when calling test_me on experiment server: expecting %s and got %s" % (challenge, response))
+            except Exception, e:
+                error_message = str(e)
+                failing_experiment_instance_ids[experiment_instance_id] = error_message
+                log.log(
+                    LaboratoryServer,
+                    LogLevel.Warning,
+                    "Exception testing experiment %s: %s" % (experiment_instance_id, error_message)
+                )
+                log.log_exc(
+                    LaboratoryServer,
+                    LogLevel.Info
+                )
+
+        return failing_experiment_instance_ids
+
+    @logged(LogLevel.Info)
+    @caller_check(ServerType.UserProcessing)
     def do_experiment_is_up_and_running(self, experiment_instance_id):
         # Run the generic IsUpAndRunningHandlers
-        handlers = self._assigned_experiments.get_is_up_and_running_handlers(experiment_instance_id)
-        for h in handlers:
-            h.run()
-        # Run the Experiment's is_up_and_running() method, if exists
         experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
         experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
-        response = experiment_server.is_up_and_running()
-        if response is not None:
-            mo = re.match(self.EXPERIMENT_IS_UP_AND_RUNNING_RESPONSE_REGEX, response)
-            if mo == None:
-                raise LaboratoryExceptions.InvalidIsUpAndRunningResponseFormatException(
-                            "Invalid response format from experiment's is_up_and_running() method. Expected: %s. Received: %s" %
-                            ( self.EXPERIMENT_IS_UP_AND_RUNNING_RESPONSE_REGEX, response ) )
-            else:
-                code, details = mo.groups()
-                if code == self.EXPERIMENT_IS_UP_AND_RUNNING_RESPONSE_CODE_OK:
-                    pass
-                elif code == self.EXPERIMENT_IS_UP_AND_RUNNING_RESPONSE_CODE_ERROR:
-                    raise LaboratoryExceptions.ExperimentIsUpAndRunningErrorException("Reason: %s" % details)
-                else:
-                    raise RuntimeError("What? This just can't happen if re module works!")
+
+        # Run the Experiment's is_up_and_running() method, if exists
+        # code, message = experiment_server.is_up_and_running()
 
     # 
     # TODO

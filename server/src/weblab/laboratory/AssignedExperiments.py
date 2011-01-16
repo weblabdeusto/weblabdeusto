@@ -14,10 +14,7 @@
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
-import threading
-
-from voodoo.lock import locked
-
+from weblab.data.experiments.ExperimentInstanceId import ExperimentInstanceId
 import weblab.laboratory.ExperimentHandler as ExperimentHandler
 import weblab.exceptions.laboratory.LaboratoryExceptions as LaboratoryExceptions
 
@@ -35,9 +32,7 @@ class AssignedExperiments(object):
                 #       }
                 #}
             }
-        self._experiments_lock = threading.RLock()
 
-    @locked('_experiments_lock')
     def add_server(self, exp_inst_id, experiment_coord_address, checking_handlers):
         by_category = self._experiments.get( exp_inst_id.cat_name )
         if by_category == None:
@@ -57,7 +52,18 @@ class AssignedExperiments(object):
 
         by_experiment[exp_inst_id.inst_name] = ExperimentHandler.ExperimentHandler( experiment_coord_address, checking_handlers )
 
-    @locked('_experiments_lock')
+    def list_experiment_instance_ids(self):
+        experiment_instance_ids = []
+        for category_name in self._experiments:
+            experiments = self._experiments[category_name]
+            for experiment_name in experiments:
+                instances = experiments[experiment_name]
+                for instance_name in instances:
+                    exp_instance_id = ExperimentInstanceId(instance_name, experiment_name, category_name)
+                    experiment_instance_ids.append(exp_instance_id)
+
+        return experiment_instance_ids
+
     def reserve_experiment(self, experiment_instance_id, lab_sess_id):
         experiment_handler = self._retrieve_experiment_handler( experiment_instance_id )
         if experiment_handler.reserve(lab_sess_id):
@@ -65,18 +71,15 @@ class AssignedExperiments(object):
         raise LaboratoryExceptions.BusyExperimentException( "Experiment was already reserved" )
 
 
-    @locked('_experiments_lock')
     def free_experiment(self, experiment_instance_id):
         exp_handler = self._retrieve_experiment_handler( experiment_instance_id )
         if not exp_handler.free():
             raise LaboratoryExceptions.AlreadyFreedExperimentException( "Experiment was already free" )
 
-    @locked('_experiments_lock')
     def get_coord_address(self, experiment_instance_id):
         exp_handler = self._retrieve_experiment_handler( experiment_instance_id )
         return exp_handler.experiment_coord_address
 
-    @locked('_experiments_lock')
     def get_lab_session_id(self, experiment_instance_id):
         exp_handler = self._retrieve_experiment_handler( experiment_instance_id )
         return exp_handler.lab_session_id
@@ -90,7 +93,6 @@ class AssignedExperiments(object):
         except KeyError:
             raise LaboratoryExceptions.ExperimentNotFoundException( "Experiment instance not found! %s" % experiment_instance_id )
         
-    @locked('_experiments_lock')
     def get_is_up_and_running_handlers(self, experiment_instance_id):
         exp_handler = self._retrieve_experiment_handler( experiment_instance_id )
         return exp_handler.is_up_and_running_handlers

@@ -15,16 +15,16 @@
 
 import unittest
 
-from weblab.laboratory.IsUpAndRunningHandler import WebcamIsUpAndRunningHandler, HostIsUpAndRunningHandler, AbstractIsUpAndRunningHandler
+from weblab.laboratory.IsUpAndRunningHandler import WebcamIsUpAndRunningHandler, HostIsUpAndRunningHandler, AbstractLightweightIsUpAndRunningHandler
 import weblab.exceptions.laboratory.LaboratoryExceptions as LaboratoryExceptions
 import FakeUrllib2
 import FakeSocket
 
 
-class AbstractIsUpAndRunningHandlerTestCase(unittest.TestCase):
+class AbstractLightweightIsUpAndRunningHandlerTestCase(unittest.TestCase):
     
     def test(self):
-        h = AbstractIsUpAndRunningHandler()
+        h = AbstractLightweightIsUpAndRunningHandler()
         self.assertRaises(
             NotImplementedError,
             h.run
@@ -77,7 +77,7 @@ class HostIsUpAndRunningHandlerTestCase(unittest.TestCase):
 def suite():
     return unittest.TestSuite(
             (
-                unittest.makeSuite(AbstractIsUpAndRunningHandlerTestCase),
+                unittest.makeSuite(AbstractLightweightIsUpAndRunningHandlerTestCase),
                 unittest.makeSuite(WebcamIsUpAndRunningHandlerTestCase),
                 unittest.makeSuite(HostIsUpAndRunningHandlerTestCase),
             )

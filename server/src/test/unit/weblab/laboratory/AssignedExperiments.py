@@ -43,6 +43,15 @@ class AssignedExperimentsTestCase(unittest.TestCase):
             checking_handlers
         )
 
+    def test_list_experiment_instance_ids(self):
+        clients_coord_addresses = CoordAddress.CoordAddress.translate_address("myserver:myinstance@mymachine")
+        checking_handlers = ('WebcamIsUpAndRunningHandler',)
+
+        self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, checking_handlers )
+
+        result = self._assigned_micro_servers.list_experiment_instance_ids()
+        self.assertEquals([self.exp_inst_id], result)
+
     def test_get_coord_address(self):
         clients_coord_addresses = CoordAddress.CoordAddress.translate_address("myserver:myinstance@mymachine")
         checking_handlers = ('WebcamIsUpAndRunningHandler',)
