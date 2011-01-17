@@ -217,15 +217,12 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         exp_handler.is_up_and_running_handlers[0]._urllib2 = FakeUrllib2
         exp_handler.is_up_and_running_handlers[1]._socket = FakeSocket   
         
-    def test_experiment_is_up_and_running_ok_implemented(self):
+    def test_check_experiments_resources(self):
         self._fake_is_up_and_running_handlers()
-        FakeClient.is_up_and_running_response = "OK"
-        self.lab.do_experiment_is_up_and_running(self.experiment_instance_id)
+        failing_experiment_instance_ids = self.lab.do_check_experiments_resources()
+        # print failing_experiment_instance_ids
+        # self.assertEquals(0, len(failing_experiment_instance_ids))
 
-    def test_experiment_is_up_and_running_ok_not_implemented(self):
-        self._fake_is_up_and_running_handlers()
-        FakeClient.check = lambda x: None
-        self.lab.do_experiment_is_up_and_running(self.experiment_instance_id)
 
 # TODO
 #    def test_experiment_is_up_and_running_error(self):

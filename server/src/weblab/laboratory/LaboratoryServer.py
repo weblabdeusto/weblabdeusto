@@ -243,12 +243,11 @@ class LaboratoryServer(object):
     @logged(LogLevel.Info)
     @caller_check(ServerType.UserProcessing)
     def do_experiment_is_up_and_running(self, experiment_instance_id):
-        # Run the generic IsUpAndRunningHandlers
+        """Does the experiment server consider that the experiment is up and running? This method will only
+        be called by teh coordinator whenever there is an available slot, so the experiment server can 
+        perform a test knowing that it is not going to be interrupted."""
         experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
         experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
-
-        # Run the Experiment's is_up_and_running() method, if exists
-        # code, message = experiment_server.is_up_and_running()
 
     # 
     # TODO
