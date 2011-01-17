@@ -100,6 +100,50 @@ class LoginIntegratingRemoteFacadeManager(unittest.TestCase):
                     )
             finally:
                 self.rfs.stop()
+
+        @uses_module(RemoteFacadeServer)
+        def test_extensible_login(self):
+            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, 14123)
+            self.rfs.start()
+            try:
+                wds = LoginWebLabDeustoSOAP("http://localhost:14123/weblab/soap/")
+
+                expected_sess_id = SessionId.SessionId("whatever")
+                SYSTEM = 'facebook'
+                CREDENTIALS = '(my credentials)'
+                MESSAGE  = 'my message'
+
+                self.mock_server.return_values['login_based_on_other_credentials'] = expected_sess_id
+
+                session = wds.login_based_on_other_credentials(SYSTEM, CREDENTIALS)
+                self.assertEquals(expected_sess_id.id, session.id)
+
+                self.assertEquals(
+                        SYSTEM,
+                        self.mock_server.arguments['login_based_on_other_credentials'][0]
+                    )
+                self.assertEquals(
+                        CREDENTIALS,
+                        self.mock_server.arguments['login_based_on_other_credentials'][1]
+                    )
+
+                self.mock_server.exceptions['login_based_on_other_credentials'] = LoginExceptions.InvalidCredentialsException(MESSAGE)
+
+                try:
+                    wds.login_based_on_other_credentials(SYSTEM, CREDENTIALS)
+                    self.fail('exception expected')
+                except ZSI.FaultException, e:
+                    self.assertEquals(
+                        LoginRFCodes.CLIENT_INVALID_CREDENTIALS_EXCEPTION_CODE,
+                        e.fault.code[1]
+                    )
+                    self.assertEquals(
+                        MESSAGE,
+                        e.fault.string
+                    )
+            finally:
+                self.rfs.stop()
+
     else:
         print >> sys.stderr, "Optional module 'ZSI' not available (or maybe didn't run deploy.py?). Tests in weblab.login.facade.Integrating skipped"
 

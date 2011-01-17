@@ -58,6 +58,24 @@
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
+
+			<!-- LoginBasedOnOtherCredentials -->
+			<xsd:element name="LoginBasedOnOtherCredentialsRequest">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element minOccurs="0" maxOccurs="1" name="system" type="xsd:string"/>
+						<xsd:element minOccurs="0" maxOccurs="1" name="credentials" type="xsd:string"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="LoginBasedOnOtherCredentialsResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element minOccurs="0" maxOccurs="1" name="LoginResult" type="tns:SessionIdType" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+
 		</xsd:schema>
 	</types>
 
@@ -76,6 +94,12 @@
 	<message name="LoginBasedOnClientAddressResponse">
 		<part name="parameters" element="tns:LoginBasedOnClientAddressResponse"/>
 	</message>
+	<message name="LoginBasedOnOtherCredentialsRequest">
+		<part name="parameters" element="tns:LoginBasedOnOtherCredentialsRequest" />
+	</message>
+	<message name="LoginBasedOnOtherCredentialsResponse">
+		<part name="parameters" element="tns:LoginBasedOnOtherCredentialsResponse"/>
+	</message>
 
 	<portType name="WebLabDeusto">
 		<operation name="login">
@@ -85,6 +109,10 @@
 		<operation name="login_based_on_client_address">
 			<input message="tns:LoginBasedOnClientAddressRequest"/>
 			<output message="tns:LoginBasedOnClientAddressResponse"/>
+		</operation>
+		<operation name="login_based_on_other_credentials">
+			<input message="tns:LoginBasedOnOtherCredentialsRequest"/>
+			<output message="tns:LoginBasedOnOtherCredentialsResponse"/>
 		</operation>
 	</portType>
 
@@ -103,6 +131,15 @@
 		</operation>
 		<operation name="login_based_on_client_address">
 			<soap:operation soapAction="login_based_on_client_address"/>
+			<input>
+				<soap:body use="literal"/> 
+			</input>
+			<output>
+				<soap:body use="literal"/> 
+			</output>
+		</operation>
+		<operation name="login_based_on_other_credentials">
+			<soap:operation soapAction="login_based_on_other_credentials"/>
 			<input>
 				<soap:body use="literal"/> 
 			</input>

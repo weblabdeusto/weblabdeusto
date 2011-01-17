@@ -77,3 +77,7 @@ class LoginServer(object):
         context.route = server_route
         return session_id
 
+    @logged(LogLevel.Info, except_for='password')
+    def extensible_login(self, system, credentials):
+        pass
+

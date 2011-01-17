@@ -49,6 +49,12 @@ class MockLogin(object):
             raise self.exceptions['login']
         return self.return_values['login']
 
+    def extensible_login(self, system, credentials):
+        self.arguments['login_based_on_other_credentials'] = (system, credentials)
+        if self.exceptions.has_key('login_based_on_other_credentials'):
+            raise self.exceptions['login_based_on_other_credentials']
+        return self.return_values['login_based_on_other_credentials']
+
 class LoginFacadeManagerTestCase(unittest.TestCase):
     if ZSI_AVAILABLE:
         def setUp(self):
@@ -78,6 +84,18 @@ class LoginFacadeManagerTestCase(unittest.TestCase):
                         expected_password
                     )
             self.assertEquals(expected_sess_id,  return_value)
+
+        def test_return_extensible_login(self):
+            expected_sess_id  = SessionId.SessionId("whatever")
+
+            self.mock_login.return_values['login_based_on_other_credentials'] = expected_sess_id
+
+            return_value = self.rfm.login_based_on_other_credentials(
+                        "facebook",
+                        "(my credentials)"
+                    )
+            self.assertEquals(expected_sess_id,  return_value)
+
 
         def _generate_real_mock_raising(self, method, exception, message):
             self.mock_login.exceptions[method] = exception(message)
@@ -145,6 +163,17 @@ class LoginFacadeManagerTestCase(unittest.TestCase):
 
                 
             self._test_general_exceptions('login', expected_username, expected_password)
+
+        def test_exception_extensible_login(self):
+            MESSAGE = 'whatever the message'
+
+            self._test_exception('login_based_on_other_credentials', ('facebook', '(my credentials)', ),  
+                            LoginExceptions.InvalidCredentialsException, MESSAGE, 
+                            'ZSI:' + LoginRFCodes.CLIENT_INVALID_CREDENTIALS_EXCEPTION_CODE, MESSAGE)
+
+                
+            self._test_general_exceptions('login_based_on_other_credentials', 'facebook', '(my credentials)')
+
     else:
         print >> sys.stderr, "Optional library 'ZSI' not available. Tests in weblab.login.facade.RemoteFacadeManager skipped"
             
