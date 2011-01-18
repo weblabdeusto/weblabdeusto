@@ -22,7 +22,7 @@ class LoginDatabaseManager(object):
     def __init__(self, cfg_manager):
         self._auth_gateway = DbGateway.create_auth_gateway(cfg_manager)
 
-    def check_credentials(self,username,password):
+    def check_credentials(self, username, password):
         try:
             role, user_id, user_auths = self._auth_gateway.check_user_password( username, password )
         except DbExceptions.DbInvalidUserOrPasswordException:
@@ -32,4 +32,8 @@ class LoginDatabaseManager(object):
             return DbSession.ValidDatabaseSessionId( username, role.name )
         else:
             return DbSession.NotAuthenticatedSessionId( username, role.name, user_auths )
+
+    def check_external_credentials(self, credentials, system):
+        login, role = self._auth_gateway.check_external_credentials(credentials, system)
+        return DbSession.ValidDatabaseSessionId( login, role.name)
 

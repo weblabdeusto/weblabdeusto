@@ -18,6 +18,7 @@ import voodoo.LogLevel as LogLevel
 import time
 
 import weblab.login.LoginAuth as LoginAuth
+import weblab.login.DelegatedLoginAuth as DelegatedLoginAuth
 import weblab.login.database.DatabaseManager as DatabaseManager
 import weblab.login.facade.LoginFacadeServer as LoginFacadeServer
 import weblab.data.ServerType as ServerType
@@ -36,6 +37,10 @@ class LoginServer(object):
 
         self._facade_server = LoginFacadeServer.LoginRemoteFacadeServer( self, cfg_manager ) 
         self._facade_server.start()
+
+        self._external_id_providers = {
+                    "FACEBOOK" : DelegatedLoginAuth.Facebook(self._db_manager)
+                }
 
     def stop(self):
         if hasattr(super(LoginServer, self), 'stop'):
@@ -70,14 +75,28 @@ class LoginServer(object):
                 raise LoginExceptions.InvalidCredentialsException(
                     "Invalid username or password!"
                 )
+        return self._reserve_session(db_session_id)
 
+    def _reserve_session(self, db_session_id):
         ups_server = self._locator.get_easy_server(ServerType.UserProcessing)
         session_id, server_route = ups_server.reserve_session(db_session_id)
         context = RemoteFacadeContext.get_context()
         context.route = server_route
         return session_id
 
-    @logged(LogLevel.Info, except_for='password')
+    @logged(LogLevel.Info)
     def extensible_login(self, system, credentials):
-        pass
+        system = system.upper()
+        if not system in self._external_id_providers:
+            raise LoginExceptions.LoginException("Invalid system!")
+
+        external_user_id = self._external_id_providers[system].get_user_id(credentials)
+        if external_user_id == "":
+            raise LoginExceptions.InvalidCredentialsException(
+                "Invalid username or password!"
+            )
+        
+        # It's a valid external user, book it if there is a user linked
+        db_session_id = self._db_manager.check_external_credentials(external_user_id, 'FACEBOOK')
+        return self._reserve_session(db_session_id)
 

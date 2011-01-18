@@ -257,6 +257,7 @@ session.add(Model.DbUserAuth(student5, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43
 session.add(Model.DbUserAuth(student6, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
 session.add(Model.DbUserAuth(student7, weblab_db, "aaaa{thishashdoesnotexist}a776159c8c7ff8b73e43aa54d081979e72511474"))
 session.add(Model.DbUserAuth(student8, weblab_db, "this.format.is.not.valid.for.the.password"))
+session.add(Model.DbUserAuth(any,      auth_facebook, "1168497114"))
 session.add(Model.DbUserAuth(studentLDAP1, cdk_ldap))
 session.add(Model.DbUserAuth(studentLDAP2, cdk_ldap))
 session.add(Model.DbUserAuth(studentLDAP3, deusto_ldap))

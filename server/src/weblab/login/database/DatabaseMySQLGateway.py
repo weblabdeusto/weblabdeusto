@@ -65,6 +65,33 @@ class AuthDatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                               "DATABASE": self.dbname }
         self.Session = sessionmaker(bind=create_engine(connection_url, echo=False, pool = self.pool))
 
+    ##################################################################################
+    ##################   retrieve_username_for_external_id   #########################
+    ##################################################################################
+    @logged()
+    def check_external_credentials(self, external_id, system):
+        """ Given an External ID, such as the ID in Facebook or Moodle or whatever, and selecting 
+        the system, return the first username that matches with that user_id. The method will 
+        expect that the system uses something that starts by the id"""
+        session = self.Session()
+        try:
+            try:
+                auth_type = session.query(Model.DbAuthType).filter_by(name=system).one()
+                auth = auth_type.auths[0]
+            except (NoResultFound, KeyError):
+                raise DbExceptions.DbUserNotFoundException("System '%s' not found in database" % system)
+
+            try:
+                user_auth = session.query(Model.DbUserAuth).filter_by(auth = auth, configuration=external_id).one()
+            except NoResultFound:
+                raise DbExceptions.DbUserNotFoundException("User '%s' not found in database" % external_id)
+
+            user = user_auth.user
+            return user.login, user.role
+        finally:
+            session.close()
+
+
     ####################################################################
     ##################   check_user_password   #########################
     ####################################################################
