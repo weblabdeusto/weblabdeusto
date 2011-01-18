@@ -132,3 +132,14 @@ class WebLabDBLoginAuth(LoginAuth):
         return client_address in self._user_auth.addresses
 
 LoginAuth.HANDLERS += (WebLabDBLoginAuth,)
+
+class FacebookLoginAuth(LoginAuth):
+    NAME = UserAuth.FacebookUserAuth.NAME
+
+    def __init__(self, user_auth):
+        self._user_auth = user_auth
+
+    def authenticate(self, login, password):
+        return False
+
+LoginAuth.HANDLERS += (FacebookLoginAuth,)

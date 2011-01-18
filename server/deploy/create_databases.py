@@ -75,6 +75,8 @@ def _insert_required_initial_data(engine):
     session.add(ldap)
     iptrusted = Model.DbAuthType("TRUSTED-IP-ADDRESSES")
     session.add(iptrusted)
+    facebook = Model.DbAuthType("FACEBOOK")
+    session.add(facebook)
     session.commit()
 
     experiment_allowed = Model.DbPermissionType(
@@ -141,6 +143,7 @@ session = Session()
 db = session.query(Model.DbAuthType).filter_by(name="DB").one()
 ldap = session.query(Model.DbAuthType).filter_by(name="LDAP").one()
 iptrusted = session.query(Model.DbAuthType).filter_by(name="TRUSTED-IP-ADDRESSES").one()
+facebook = session.query(Model.DbAuthType).filter_by(name="FACEBOOK").one()
 
 experiment_allowed = session.query(Model.DbPermissionType).filter_by(name="experiment_allowed").one()
 experiment_allowed_p1 = [ p for p in experiment_allowed.parameters if p.name == "experiment_permanent_id" ][0]
@@ -162,6 +165,9 @@ session.add(deusto_ldap)
 
 localhost_ip = Model.DbAuth(iptrusted, "trusting in localhost", 4, "127.0.0.1")
 session.add(localhost_ip)
+
+auth_facebook = Model.DbAuth(facebook, "Facebook", 5)
+session.add(auth_facebook)
 
 # Roles
 administrator = Model.DbRole("administrator")

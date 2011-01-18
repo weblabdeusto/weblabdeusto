@@ -26,6 +26,8 @@ class UserAuth(object):
             return TrustedIpAddressesUserAuth(configuration)
         elif name == TrustedIpAddressesUserAuth.NAME:
             return TrustedIpAddressesUserAuth(configuration)
+        elif name == FacebookUserAuth.NAME:
+            return FacebookUserAuth(configuration)
         else:
             raise DbExceptions.DbUnsupportedUserAuth("UserAuth %s not supported" % name)
 
@@ -66,7 +68,7 @@ class TrustedIpAddressesUserAuth(object):
 class WebLabDbUserAuth(object):
     NAME = 'DB'
     def __init__(self, configuration):
-        self.configuration = configuration #TODO: It could be used for something
+        self.configuration = configuration
 
     @property
     def name(self):
@@ -74,3 +76,16 @@ class WebLabDbUserAuth(object):
 
     def __repr__(self):
         return "<WebLabDbUserAuth/>"
+
+class FacebookUserAuth(object):
+    NAME = 'FACEBOOK'
+    def __init__(self, configuration):
+        self.configuration = configuration
+
+    @property
+    def name(self):
+        return FacebookUserAuth.NAME
+
+    def __repr__(self):
+        return "<FacebookUserAuth/>"
+
