@@ -144,8 +144,9 @@ public class WebLabClient implements EntryPoint {
 				controller.setUIManager(theme);
 				try{
 					final String sessionId = Window.Location.getParameter(WebLabClient.SESSION_ID_URL_PARAM);
-					theme.onInit();
-					if(sessionId != null)
+					if(sessionId == null)
+						theme.onInit();
+					else
 						controller.startLoggedIn(new SessionID(sessionId));
 				}catch(final Exception e){
 					WebLabClient.this.showError("Error initializing theme: " + e.getMessage());

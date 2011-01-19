@@ -53,6 +53,11 @@ public class MockController implements IWlLabController {
 		final User user = new User("tester", "tester full name", "weblab@deusto.es", new Role("student"));
 	    this.uimanager.onLoggedIn(user);
 	}
+	
+	@Override
+	public boolean startedLoggedIn(){
+		return false;
+	}
 
 	@Override
 	public void retrieveAllowedExperiments() {

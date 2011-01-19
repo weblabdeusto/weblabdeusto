@@ -38,6 +38,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 	
 	public interface IAllowedExperimentsWindowCallback {
+		public boolean startedLoggedIn();
 		public void onLogoutButtonClicked();
 		public void onChooseExperimentButtonClicked(ExperimentAllowed experimentAllowed);
 	}
@@ -51,6 +52,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 	@UiField Grid experimentsTable;
 	@UiField WlWaitingLabel waitingLabel;
 	@UiField Label generalErrorLabel;
+	@UiField Label separatorLabel;
 
 	// Callbacks
 	private final IAllowedExperimentsWindowCallback callback;
@@ -66,7 +68,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 	    this.experimentsAllowed = experimentsAllowed;
 	    this.callback = callback;
 	    
-	    this.loadWidgets();	    
+	    this.loadWidgets();
 	}
 	
 	@Override
@@ -96,7 +98,12 @@ class AllowedExperimentsWindow extends BaseWindow {
 
 			this.experimentsTable.setWidget(i+1, 0, new Label(category));
 			this.experimentsTable.setWidget(i+1, 1, nameLink);
-		}	    
+		}
+		
+	    if(this.callback.startedLoggedIn()){
+	    	this.logoutLink.setVisible(false);
+	    	this.separatorLabel.setVisible(false);
+	    }
 	}
 	
     @Override

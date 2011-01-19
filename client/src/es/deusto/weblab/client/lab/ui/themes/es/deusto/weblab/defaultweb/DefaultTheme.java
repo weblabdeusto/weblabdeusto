@@ -205,6 +205,11 @@ public class DefaultTheme extends WlLabThemeBase {
 			public void onLogoutButtonClicked() {
 				DefaultTheme.this.controller.logout();
 			}
+			
+			@Override
+			public boolean startedLoggedIn(){
+				return DefaultTheme.this.controller.startedLoggedIn();
+			}
 		}
 		);
 		this.activeWindow = this.allowedExperimentsWindow;
@@ -217,6 +222,11 @@ public class DefaultTheme extends WlLabThemeBase {
 		this.clearWindow();
 
 		this.experimentWindow = new ExperimentWindow(this.configurationManager, this.user, this.experimentAllowed, this.experimentBase, new IExperimentWindowCallback(){
+			@Override
+			public boolean startedLoggedIn(){
+				return DefaultTheme.this.controller.startedLoggedIn();
+			}
+			
 			@Override
 			public void onReserveButtonClicked() {
 				DefaultTheme.this.controller.reserveExperiment(DefaultTheme.this.experimentAllowed.getExperiment().getExperimentUniqueName());

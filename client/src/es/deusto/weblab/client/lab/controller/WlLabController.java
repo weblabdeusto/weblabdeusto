@@ -70,6 +70,8 @@ public class WlLabController implements IWlLabController {
 	private final IPollingHandler pollingHandler;
 	private boolean isUsingExperiment = false;
 	
+	private boolean loggedIn = false;
+	
 	// TODO: QUICK FIX TO INTEGRATE TINY VISIR
 	private ExperimentID lastExperiment;
 	
@@ -176,7 +178,13 @@ public class WlLabController implements IWlLabController {
 
 	@Override
 	public void startLoggedIn(SessionID sessionId){
+		this.loggedIn = true;
 		WlLabController.this.startSession(sessionId);
+	}
+	
+	@Override
+	public boolean startedLoggedIn(){
+		return this.loggedIn;
 	}
 
 	@Override

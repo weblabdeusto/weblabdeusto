@@ -24,6 +24,7 @@ import es.deusto.weblab.client.lab.ui.IUIManager;
 public interface IWlLabController {
 	public void login(String username, String password);
 	public void startLoggedIn(SessionID sessionId);
+	public boolean startedLoggedIn();
 	public void logout();
 	
 	public void setUIManager(IUIManager uimanager);

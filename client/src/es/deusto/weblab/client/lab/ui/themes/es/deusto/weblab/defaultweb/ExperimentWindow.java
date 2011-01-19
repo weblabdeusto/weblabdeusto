@@ -40,6 +40,7 @@ class ExperimentWindow extends BaseWindow {
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
 	public interface IExperimentWindowCallback {
+		public boolean startedLoggedIn();
 		public void onLogoutButtonClicked();
 		public void onBackButtonClicked();
 		public void onReserveButtonClicked();
@@ -62,6 +63,7 @@ class ExperimentWindow extends BaseWindow {
 	@UiField Button finishButton;
 	@UiField WlWaitingLabel waitingLabel;
 	@UiField Label generalErrorLabel;
+	@UiField Label separatorLabel;
 
 	// Callbacks
 	private final IExperimentWindowCallback callback;
@@ -103,6 +105,11 @@ class ExperimentWindow extends BaseWindow {
 		ExperimentWindow.uiBinder.createAndBindUi(this);
 		
 		this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
+		
+	    if(this.callback.startedLoggedIn()){
+	    	this.logoutLink.setVisible(false);
+	    	this.separatorLabel.setVisible(false);
+	    }
 	}
 	
 	public void loadExperimentReservationPanels() {	    
