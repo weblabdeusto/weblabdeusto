@@ -25,7 +25,7 @@ except ImportError:
     import simplejson as json_mod
     json = json_mod
 
-from facebook_config import _APP_ID, _CANVAS_URL, _CLIENT_ADDRESS
+from facebook_config import _APP_ID, _CANVAS_URL, _CLIENT_ADDRESS, _FACEBOOK_APP
 
 _AUTH_URL = "http://www.facebook.com/dialog/oauth?client_id=%s&redirect_uri=%s" % (_APP_ID, urllib2.quote(_CANVAS_URL))
 
@@ -35,9 +35,9 @@ WEBLAB_WS_URL  = 'http://localhost/weblab/login/xmlrpc/'
 def _create_weblab_client(url):
     return xmlrpclib.Server(url)
 
-def index(req, *args, **kargs):
+def index(req, *args, **kargs): 
     if not req.form.has_key(REQUEST_FIELD):
-        return "ERROR: Missing request field"
+        return "<html><body><script>top.location.href='%s';</script></body></html>" % _FACEBOOK_APP
 
     signed_request = kargs['signed_request']
 
@@ -67,4 +67,36 @@ def index(req, *args, **kargs):
         apache.log_error(msg)
         return "ERROR: There was an error on the server. Contact the administrator"
 
-    return """<html><body><iframe width="100%%" height="100%%" frameborder="0" scrolling="no" src="%s?session_id=%s"></body></html>""" % (_CLIENT_ADDRESS, session_id['id'])
+    return """<html>
+                   <head>
+                        <script>
+                            function recalculate_height(){
+                                var ifr = document.getElementById('weblab_iframe');
+                                var h = ifr.contentWindow.document.body.scrollHeight;
+                                ifr.height = h;
+                                setTimeout("recalculate_height();", 200);
+                            }
+                        </script>
+                   </head>
+                <body>
+                     <div id="fb-root">
+                        <iframe width="100%%" frameborder="0" height="100%%" id="weblab_iframe" scrolling="no" src="%s?session_id=%s">
+                        </iframe>
+                     </div>
+                    <script>
+                        window.fbAsyncInit = function() {
+                                FB.init({appId: '%s', status: true, cookie: true,
+                                xfbml: true});
+                                FB.Canvas.setAutoResize();
+                            };
+                        (function() {
+                            var e = document.createElement('script'); 
+                            e.async = true;
+                            e.src = document.location.protocol + '//connect.facebook.net/en_US/all.js';
+                            document.getElementById('fb-root').appendChild(e);
+                        }());
+                        setTimeout("recalculate_height();", 200);
+                    </script>
+                </body>
+            </html>
+        """ % (_CLIENT_ADDRESS, session_id['id'],_APP_ID)
