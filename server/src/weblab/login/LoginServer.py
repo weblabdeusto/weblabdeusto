@@ -23,6 +23,7 @@ import weblab.login.database.DatabaseManager as DatabaseManager
 import weblab.login.facade.LoginFacadeServer as LoginFacadeServer
 import weblab.data.ServerType as ServerType
 import weblab.exceptions.login.LoginExceptions as LoginExceptions
+import weblab.exceptions.database.DatabaseExceptions as DbExceptions
 import weblab.database.DatabaseSession as DbSession
 import weblab.facade.RemoteFacadeContext as RemoteFacadeContext
 
@@ -56,6 +57,10 @@ class LoginServer(object):
             LoginExceptions.InvalidCredentialsException 
         )
         """
+        db_session_id = self._validate_local_user(username, password)
+        return self._reserve_session(db_session_id)
+
+    def _validate_local_user(self, username, password):
         db_session_id = self._db_manager.check_credentials(username, str(password))
 
         if isinstance(db_session_id, DbSession.InvalidDatabaseSessionId):
@@ -75,7 +80,7 @@ class LoginServer(object):
                 raise LoginExceptions.InvalidCredentialsException(
                     "Invalid username or password!"
                 )
-        return self._reserve_session(db_session_id)
+        return db_session_id
 
     def _reserve_session(self, db_session_id):
         ups_server = self._locator.get_easy_server(ServerType.UserProcessing)
@@ -86,6 +91,10 @@ class LoginServer(object):
 
     @logged(LogLevel.Info)
     def extensible_login(self, system, credentials):
+        db_session_id = self._validate_remote_user(system, credentials)
+        return self._reserve_session(db_session_id)
+
+    def _validate_remote_user(self, system, credentials):
         system = system.upper()
         if not system in self._external_id_providers:
             raise LoginExceptions.LoginException("Invalid system!")
@@ -97,6 +106,17 @@ class LoginServer(object):
             )
         
         # It's a valid external user, book it if there is a user linked
-        db_session_id = self._db_manager.check_external_credentials(external_user_id, 'FACEBOOK')
-        return self._reserve_session(db_session_id)
+        try:
+            db_session_id = self._db_manager.check_external_credentials(external_user_id, system)
+        except DbExceptions.DbUserNotFoundException:
+            raise LoginExceptions.InvalidCredentialsException("%s User ID not found: %s" % (system, external_user_id))
+        return db_session_id
 
+
+    @logged(LogLevel.Info, except_for="password")
+    def grant_external_credentials(self, username, password, system, credentials):
+        local_db_session_id  = self._validate_local_user(username, password)
+        self._validate_remote_user(system, credentials)
+        # No exception prior to this: the user is the owner of both username and credentials
+        self._db_manager.grant_external_credentials(username, system, credentials)
+        return local_db_session_id

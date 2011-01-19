@@ -65,9 +65,9 @@ class AuthDatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                               "DATABASE": self.dbname }
         self.Session = sessionmaker(bind=create_engine(connection_url, echo=False, pool = self.pool))
 
-    ##################################################################################
-    ##################   retrieve_username_for_external_id   #########################
-    ##################################################################################
+    ###########################################################################
+    ##################   check_external_credentials   #########################
+    ###########################################################################
     @logged()
     def check_external_credentials(self, external_id, system):
         """ Given an External ID, such as the ID in Facebook or Moodle or whatever, and selecting 
@@ -88,6 +88,36 @@ class AuthDatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
 
             user = user_auth.user
             return user.login, user.role
+        finally:
+            session.close()
+
+    ###########################################################################
+    ##################   grant_external_credentials   #########################
+    ###########################################################################
+    @logged()
+    def grant_external_credentials(self, username, external_id, system):
+        """ Given a system and an external_id, grant access with those credentials for user user_id. Before calling
+        this method, the system has checked that this user is the owner of external_id and of user_id"""
+        session = self.Session()
+        try:
+            try:
+                auth_type = session.query(Model.DbAuthType).filter_by(name=system).one()
+                auth = auth_type.auths[0]
+            except (NoResultFound, KeyError):
+                raise DbExceptions.DbUserNotFoundException("System '%s' not found in database" % system)
+
+            try:
+                user = session.query(Model.DbUser).filter_by(login=username).one()
+            except NoResultFound:
+                raise DbExceptions.DbUserNotFoundException("User '%s' not found in database" % user)
+
+            for user_auth in user.auths:
+                if user_auth.auth == auth:
+                    raise DbExceptions.DbUserNotFoundException("User '%s' already has credentials in system %s" % (username, system))
+
+            user_auth = Model.DbUserAuth(user = user, auth = auth, configuration=str(external_id))
+            session.add(user_auth)
+            session.commit()
         finally:
             session.close()
 

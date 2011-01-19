@@ -37,3 +37,6 @@ class LoginDatabaseManager(object):
         login, role = self._auth_gateway.check_external_credentials(credentials, system)
         return DbSession.ValidDatabaseSessionId( login, role.name)
 
+    def grant_external_credentials(self, username, credentials, system):
+        self._auth_gateway.grant_external_credentials(username, credentials, system)
+

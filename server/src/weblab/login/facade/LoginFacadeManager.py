@@ -39,15 +39,6 @@ DEFAULT_ADDRESSES_CALLING_LOGIN_BASED_ON_CLIENT_ADDRESS = ('127.0.0.1',)
 
 class AbstractLoginRemoteFacadeManager(RFM.AbstractRemoteFacadeManager):
     @logged()
-    def login_based_on_other_credentials(self, system, credentials):
-        """ login_based_on_other_credentials(system, credentials) -> SessionID """
-        return self._extensible_login_impl(system, credentials)
-
-    @RFM.check_exceptions(EXCEPTIONS)
-    def _extensible_login_impl(self, system, credentials):
-        return self._server.extensible_login(system, credentials)
-        
-    @logged()
     def login_based_on_client_address(self, username, client_address):
         """ login_based_on_client_address(username, client_address) -> SessionID
             raises LoginException, InvalidCredentialsException
@@ -72,6 +63,24 @@ class AbstractLoginRemoteFacadeManager(RFM.AbstractRemoteFacadeManager):
     @RFM.check_exceptions(EXCEPTIONS)
     def _login_impl(self, username, password):
         return self._server.login(username, password)
+
+    @logged()
+    def login_based_on_other_credentials(self, system, credentials):
+        """ login_based_on_other_credentials(system, credentials) -> SessionID """
+        return self._extensible_login_impl(system, credentials)
+
+    @RFM.check_exceptions(EXCEPTIONS)
+    def _extensible_login_impl(self, system, credentials):
+        return self._server.extensible_login(system, credentials)
+        
+    @logged(except_for='password')
+    def grant_external_credentials(self, username, password, system, credentials):
+        """ grant_external_credentials(username, password, system, credentials) -> SessionID """
+        return self._grant_external_credentials_impl(system, credentials)
+
+    @RFM.check_exceptions(EXCEPTIONS)
+    def _grant_external_credentials_impl(self, username, password, system, credentials):
+        return self._server.grant_external_credentials(username, password, system, credentials)
 
 class LoginRemoteFacadeManagerZSI(RFM.AbstractZSI, AbstractLoginRemoteFacadeManager):
     pass
