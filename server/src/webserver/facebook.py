@@ -36,6 +36,9 @@ def _create_weblab_client(url):
     return xmlrpclib.Server(url)
 
 def _handle_linking_accounts(req, kargs, signed_request):
+    from mod_python import apache
+    username = kargs['username']
+    password = kargs['password']
     weblab_client = _create_weblab_client(WEBLAB_WS_URL)
     try:
         session_id = weblab_client.grant_external_credentials(username, password, 'FACEBOOK', signed_request)
@@ -45,37 +48,39 @@ def _handle_linking_accounts(req, kargs, signed_request):
         else:
             msg = str(f) + "\n" + traceback.format_exc()
             apache.log_error(msg)
-            return "ERROR: There was an error on the server. Contact the administrator"
+            return "ERROR: There was an error on the server linking accounts. Contact the administrator"
     except Exception, e:
         msg = str(e) + "\n" + traceback.format_exc()
         apache.log_error(msg)
-        return "ERROR: There was an error on the server. Contact the administrator"
+        return "ERROR: There was an error on the server linking accounts. Contact the administrator"
     else:
         return _show_weblab(session_id)
 
 def _handle_unauthenticated_clients(req, kargs, signed_request):
-    base_uri = "%s/%s" % (req.uri, req.args)
+    from mod_python import apache
 
-    if kargs.get('op').lower() == 'create':
+    if kargs.get('op','').lower() == 'create':
         return "Not supported yet..."
-    if kargs.get('op').lower() == 'link':
+    if kargs.get('op','').lower() == 'link':
         return _handle_linking_accounts(req, kargs, signed_request)
 
-    link_uri = base_uri + '&op=link'
-    create_uri = base_uri + '&op=link'
+    link_uri = req.uri + '?op=link'
+    create_uri = req.uri + '?op=link'
 
     return """<html><body>
             <p>It seems that your Facebook account has not been linked with a WebLab-Deusto account, or that you don't have a WebLab-Deusto account.</p>
             <p>If you'd like to link your existing WebLab-Deusto account, fill your credentials and press Log in</p>
             <center><form method="POST" action="%(LINK_URI)s">
-            Username: <input type="text" name="username"></input>
-            Username: <input type="password" name="password"></input>
+            Username: <input type="text" name="username"></input><br/>
+            Password: <input type="password" name="password"></input><br/>
+            <input type="hidden" name="signed_request" value="%(SIGNED_REQUEST)s"></input>
             <input type="submit" value="Link"></input>
             </form></center>
 <!--            <p>If you don't have a WebLab-Deusto account but you'd like to have one, just press <a href="%(CREATE_URI)s">here</a></p> -->
         </body></html>""" % {
                     'LINK_URI' : link_uri,
-                    'CREATE_URI' : create_uri
+                    'CREATE_URI' : create_uri,
+                    'SIGNED_REQUEST' : kargs['signed_request'],
                 }
 
 def _show_weblab(session_id):
@@ -134,7 +139,7 @@ def index(req, *args, **kargs):
     try:
         session_id = weblab_client.login_based_on_other_credentials('FACEBOOK', signed_request)
     except xmlrpclib.Fault, f:
-        if f.faultCode == u'XMLRPC:Client.Authentication':
+        if f.faultCode == u'XMLRPC:Client.Authentication' or f.faultCode == u'XMLRPC:Client.InvalidCredentials':
             return _handle_unauthenticated_clients(req, kargs, signed_request)
         else:
             msg = str(f) + "\n" + traceback.format_exc()

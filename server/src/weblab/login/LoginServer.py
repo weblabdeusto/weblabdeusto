@@ -91,7 +91,13 @@ class LoginServer(object):
 
     @logged(LogLevel.Info)
     def extensible_login(self, system, credentials):
-        db_session_id = self._validate_remote_user(system, credentials)
+        external_user_id = self._validate_remote_user(system, credentials)
+        # It's a valid external user, book it if there is a user linked
+        try:
+            db_session_id = self._db_manager.check_external_credentials(external_user_id, system)
+        except DbExceptions.DbUserNotFoundException:
+            raise LoginExceptions.InvalidCredentialsException("%s User ID not found: %s" % (system, external_user_id))
+
         return self._reserve_session(db_session_id)
 
     def _validate_remote_user(self, system, credentials):
@@ -104,19 +110,14 @@ class LoginServer(object):
             raise LoginExceptions.InvalidCredentialsException(
                 "Invalid username or password!"
             )
-        
-        # It's a valid external user, book it if there is a user linked
-        try:
-            db_session_id = self._db_manager.check_external_credentials(external_user_id, system)
-        except DbExceptions.DbUserNotFoundException:
-            raise LoginExceptions.InvalidCredentialsException("%s User ID not found: %s" % (system, external_user_id))
-        return db_session_id
+        return external_user_id
 
 
     @logged(LogLevel.Info, except_for="password")
     def grant_external_credentials(self, username, password, system, credentials):
         local_db_session_id  = self._validate_local_user(username, password)
-        self._validate_remote_user(system, credentials)
+        external_user_id = self._validate_remote_user(system, credentials)
         # No exception prior to this: the user is the owner of both username and credentials
-        self._db_manager.grant_external_credentials(username, system, credentials)
-        return local_db_session_id
+        self._db_manager.grant_external_credentials(username, external_user_id, system)
+        return self._reserve_session(local_db_session_id)
+

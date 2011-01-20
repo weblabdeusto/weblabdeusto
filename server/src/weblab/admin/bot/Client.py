@@ -306,7 +306,7 @@ class AbstractBotDict(AbstractBot):
 
     @possibleKeyError
     def _parse_user(self, holder):
-        return User(holder['login'], holder['full_name'], holder['email'], holder['role'])
+        return User.User(holder['login'], holder['full_name'], holder['email'], holder['role'])
 
     @possibleKeyError
     def _parse_command(self, command_holder):
