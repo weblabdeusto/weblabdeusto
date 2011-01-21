@@ -30,6 +30,8 @@ except ImportError:
     json = json_mod
 
 import voodoo.log as log
+from weblab.data.dto.User import User
+from weblab.data.dto.Role import StudentRole
 
 FACEBOOK_TOKEN_VALIDATOR = "https://graph.facebook.com/me?access_token=%s"
 
@@ -37,8 +39,8 @@ FACEBOOK_TOKEN_VALIDATOR = "https://graph.facebook.com/me?access_token=%s"
 class Facebook(object):
     def __init__(self, db_manager):
         self._db_manager = db_manager
-    
-    def get_user_id(self, credentials):
+
+    def get_user(self, credentials):
         payload = credentials[credentials.find('.') + 1:]
         payload = payload.replace('-','+').replace('_','/')
         payload = payload + "=="
@@ -47,10 +49,20 @@ class Facebook(object):
             data = json.loads(json_content)
             oauth_token = data['oauth_token']
             user_data = json.load(urllib2.urlopen(FACEBOOK_TOKEN_VALIDATOR % oauth_token))
-            facebook_id = user_data['id']
-            return facebook_id
+            if user_data['validated'] not in ('true','yes'):
+                raise Exception("Not validated user!!!")
+            login = '%s@facebook' % user_data['id']
+            full_name = user_data['name']
+            email = user_data.get('email','<not provided>')
+            user = User(login, full_name, email, StudentRole())
+            return user
         except Exception, e:
             log.log( Facebook, log.LogLevel.Warning, "Error: %s" % e )
             log.log_exc( Facebook, log.LogLevel.Info )
             return ""
+
+    def get_user_id(self, credentials):
+        login = self.get_user(credentials).login
+        # login is "13122142321@facebook"
+        return login.split('@')[0]
 

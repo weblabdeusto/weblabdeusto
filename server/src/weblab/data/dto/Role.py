@@ -23,3 +23,7 @@ class Role(object):
         return "Role(name = '%s')" % (
                 self.name
             )
+
+class StudentRole(Role):
+    def __init__(self):
+        super(StudentRole, self).__init__('student')

@@ -25,6 +25,7 @@ import weblab.database.Model as Model
 
 import voodoo.hashing as hashlib
 from voodoo.log import logged
+import voodoo.log as log
 
 import weblab.exceptions.database.DatabaseExceptions as DbExceptions
 import weblab.database.DatabaseMySQLGateway as dbMySQLGateway
@@ -121,6 +122,42 @@ class AuthDatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
+    #####################################################################
+    ##################   create_external_user   #########################
+    #####################################################################
+    @logged()
+    def create_external_user(self, external_user, external_id, system, group_names):
+        session = self.Session()
+        try:
+            try:
+                auth_type = session.query(Model.DbAuthType).filter_by(name=system).one()
+                auth = auth_type.auths[0]
+            except (NoResultFound, KeyError):
+                raise DbExceptions.DbUserNotFoundException("System '%s' not found in database" % system)
+
+            groups = []
+            for group_name in group_names:
+                try:
+                    group = session.query(Model.DbGroup).filter_by(name=group_name).one()
+                except NoResultFound:
+                    raise DbExceptions.DbUserNotFoundException("Group '%s' not found in database" % group_name)
+                groups.append(group)
+
+            try:
+                role = session.query(Model.DbRole).filter_by(name=external_user.role.name).one()
+                user = Model.DbUser(external_user.login, external_user.full_name, external_user.email, role = role)
+                user_auth = Model.DbUserAuth(user, auth)
+                for group in groups:
+                    group.users.append(user)
+                session.add(user)
+                session.add(user_auth)
+                session.commit()
+            except Exception, e:
+                log.log( AuthDatabaseGateway, log.LogLevel.Warning, "Couldn't create user: %s" % e)
+                log.log_exc(AuthDatabaseGateway, log.LogLevel.Info)
+                raise DbExceptions.DatabaseException("Couldn't create user! Contact administrator")
+        finally:
+            session.close()
 
     ####################################################################
     ##################   check_user_password   #########################
@@ -201,3 +238,4 @@ class AuthDatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             raise DbExceptions.DbNoUserAuthNorPasswordFoundException(
                     "No UserAuth found"
                 )
+

@@ -56,11 +56,31 @@ def _handle_linking_accounts(req, kargs, signed_request):
     else:
         return _show_weblab(session_id)
 
+def _handle_creating_accounts(req, kargs, signed_request):
+    from mod_python import apache
+    weblab_client = _create_weblab_client(WEBLAB_WS_URL)
+    try:
+        session_id = weblab_client.create_external_user('FACEBOOK', signed_request)
+    except xmlrpclib.Fault, f:
+        if f.faultCode == u'XMLRPC:Client.Authentication':
+            return "Invalid username or password!"
+        else:
+            msg = str(f) + "\n" + traceback.format_exc()
+            apache.log_error(msg)
+            return "ERROR: There was an error on the server creating account: %s. Contact the administrator" % f
+    except Exception, e:
+        msg = str(e) + "\n" + traceback.format_exc()
+        apache.log_error(msg)
+        return "ERROR: There was an error on the server creating account: %s. Contact the administrator" % e
+    else:
+        return _show_weblab(session_id)
+
+
 def _handle_unauthenticated_clients(req, kargs, signed_request):
     from mod_python import apache
 
     if kargs.get('op','').lower() == 'create':
-        return "Not supported yet..."
+        return _handle_creating_accounts(req, kargs, signed_request)
     if kargs.get('op','').lower() == 'link':
         return _handle_linking_accounts(req, kargs, signed_request)
 

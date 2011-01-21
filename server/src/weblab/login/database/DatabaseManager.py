@@ -40,3 +40,6 @@ class LoginDatabaseManager(object):
     def grant_external_credentials(self, username, credentials, system):
         self._auth_gateway.grant_external_credentials(username, credentials, system)
 
+    def create_external_user(self, external_user, credentials, system, group_names):
+        self._auth_gateway.create_external_user(external_user, credentials, system, group_names)
+

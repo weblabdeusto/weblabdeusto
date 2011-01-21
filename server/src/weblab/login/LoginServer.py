@@ -27,8 +27,9 @@ import weblab.exceptions.database.DatabaseExceptions as DbExceptions
 import weblab.database.DatabaseSession as DbSession
 import weblab.facade.RemoteFacadeContext as RemoteFacadeContext
 
-LOGIN_FAILED_DELAY=5
+LOGIN_FAILED_DELAY = 5
 NOT_LINKABLE_USERS = "login_not_linkable_users"
+DEFAULT_GROUPS     = "login_default_groups_for_external_users"
 
 class LoginServer(object):
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
@@ -93,7 +94,7 @@ class LoginServer(object):
 
     @logged(LogLevel.Info)
     def extensible_login(self, system, credentials):
-        external_user_id = self._validate_remote_user(system, credentials)
+        external_user_id, _ = self._validate_remote_user(system, credentials)
         # It's a valid external user, book it if there is a user linked
         try:
             db_session_id = self._db_manager.check_external_credentials(external_user_id, system)
@@ -112,7 +113,8 @@ class LoginServer(object):
             raise LoginExceptions.InvalidCredentialsException(
                 "Invalid username or password!"
             )
-        return external_user_id
+        external_user = self._external_id_providers[system].get_user(credentials)
+        return external_user_id, external_user
 
 
     @logged(LogLevel.Info, except_for="password")
@@ -123,8 +125,14 @@ class LoginServer(object):
                 raise LoginExceptions.LoginException("Username not linkable!")
 
         local_db_session_id  = self._validate_local_user(username, password)
-        external_user_id = self._validate_remote_user(system, credentials)
+        external_user_id, _ = self._validate_remote_user(system, credentials)
         # No exception prior to this: the user is the owner of both username and credentials
         self._db_manager.grant_external_credentials(username, external_user_id, system)
         return self._reserve_session(local_db_session_id)
 
+    @logged(LogLevel.Info)
+    def create_external_user(self, system, credentials):
+        external_user_id, external_user = self._validate_remote_user(system, credentials)
+        group_names = self._cfg_manager.get_value(DEFAULT_GROUPS, [])
+        self._db_manager.create_external_user(external_user, external_user_id, system, group_names)
+        return self.extensible_login(system, credentials)
