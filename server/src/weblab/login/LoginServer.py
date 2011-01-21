@@ -28,6 +28,7 @@ import weblab.database.DatabaseSession as DbSession
 import weblab.facade.RemoteFacadeContext as RemoteFacadeContext
 
 LOGIN_FAILED_DELAY=5
+NOT_LINKABLE_USERS = "login_not_linkable_users"
 
 class LoginServer(object):
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
@@ -35,6 +36,7 @@ class LoginServer(object):
         self._coord_address = coord_address
         self._db_manager    = DatabaseManager.LoginDatabaseManager(cfg_manager)
         self._locator       = locator
+        self._cfg_manager   = cfg_manager
 
         self._facade_server = LoginFacadeServer.LoginRemoteFacadeServer( self, cfg_manager ) 
         self._facade_server.start()
@@ -115,6 +117,11 @@ class LoginServer(object):
 
     @logged(LogLevel.Info, except_for="password")
     def grant_external_credentials(self, username, password, system, credentials):
+        not_linkable_users = self._cfg_manager.get_value(NOT_LINKABLE_USERS, [])
+        for not_linkable_user in not_linkable_users:
+            if username == not_linkable_user:
+                raise LoginExceptions.LoginException("Username not linkable!")
+
         local_db_session_id  = self._validate_local_user(username, password)
         external_user_id = self._validate_remote_user(system, credentials)
         # No exception prior to this: the user is the owner of both username and credentials
