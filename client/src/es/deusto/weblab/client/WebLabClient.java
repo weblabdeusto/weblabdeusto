@@ -58,6 +58,7 @@ public class WebLabClient implements EntryPoint {
 
 	private static final String THEME_PROPERTY = "theme";
 	private static final String DEFAULT_THEME = "deusto";
+	private static final String GOOGLE_ANALYTICS_TRACKING_CODE = "google.analytics.tracking.code";
 	
 	private ConfigurationManager configurationManager;
 	
@@ -248,6 +249,10 @@ public class WebLabClient implements EntryPoint {
 		this.configurationManager = new ConfigurationManager(configFile, new IConfigurationLoadedCallback(){
 			@Override
 			public void onLoaded() {
+				final String trackingCode = WebLabClient.this.configurationManager.getProperty(GOOGLE_ANALYTICS_TRACKING_CODE, null);
+				if(trackingCode != null)
+					loadGoogleAnalytics(trackingCode);
+				
 				if ( WebLabClient.this.wantsAdminApp() ) {
 					GWT.runAsync(new RunAsyncCallback() {
 						@Override
@@ -276,4 +281,18 @@ public class WebLabClient implements EntryPoint {
 		});
 		this.configurationManager.start();
 	}
+	
+	private static native void loadGoogleAnalytics(String trackingCode) /*-{
+		  $wnd._gaq = $wnd._gaq || [];
+		  $wnd._gaq.push(['_setAccount', trackingCode]);
+		  $wnd._gaq.push(['_trackPageview']);
+		
+		  (function() {
+		    var ga = document.createElement('script');
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 
+		        'http://www') + '.google-analytics.com/ga.js';
+		    ga.setAttribute('async', 'true');
+		    $doc.documentElement.firstChild.appendChild(ga);
+		  })();
+	}-*/;
 }

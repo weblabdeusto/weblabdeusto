@@ -1,7 +1,8 @@
 {
 	// "weblab.service.fileupload.post.url" : "/weblab/fileUpload.php", 
-	"admin.email"    : "weblab@deusto.es",
-	"demo.available" : true,
+	"admin.email"                    : "weblab@deusto.es",
+	"demo.available"                 : true,
+	"google.analytics.tracking.code" : "UA-12576838-6",
 	"experiments" : { 
 					// Experiments not developed in GWT (such as those developed in Flash or Java) don't require
 					// recompiling the client to be loaded. Adding them to this configuration file is enough.
