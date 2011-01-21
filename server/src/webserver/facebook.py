@@ -27,7 +27,7 @@ except ImportError:
 
 from facebook_config import _APP_ID, _CANVAS_URL, _CLIENT_ADDRESS, _FACEBOOK_APP
 
-_AUTH_URL = "http://www.facebook.com/dialog/oauth?client_id=%s&redirect_uri=%s" % (_APP_ID, urllib2.quote(_CANVAS_URL))
+_AUTH_URL = "http://www.facebook.com/dialog/oauth?client_id=%s&redirect_uri=%s&scope=email" % (_APP_ID, urllib2.quote(_CANVAS_URL))
 
 REQUEST_FIELD = 'signed_request'
 WEBLAB_WS_URL  = 'http://localhost/weblab/login/xmlrpc/'
