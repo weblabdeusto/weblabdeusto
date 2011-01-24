@@ -82,6 +82,16 @@ class AbstractLoginRemoteFacadeManager(RFM.AbstractRemoteFacadeManager):
     def _grant_external_credentials_impl(self, username, password, system, credentials):
         return self._server.grant_external_credentials(username, password, system, credentials)
 
+    @logged(except_for='password')
+    def create_external_user(self, system, credentials):
+        """ create_external_user(system, credentials) -> SessionID """
+        return self._create_external_user_impl(system, credentials)
+
+    @RFM.check_exceptions(EXCEPTIONS)
+    def _create_external_user_impl(self, system, credentials):
+        return self._server.create_external_user(system, credentials)
+
+
 class LoginRemoteFacadeManagerZSI(RFM.AbstractZSI, AbstractLoginRemoteFacadeManager):
     pass
 

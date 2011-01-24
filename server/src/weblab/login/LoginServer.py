@@ -28,8 +28,10 @@ import weblab.database.DatabaseSession as DbSession
 import weblab.facade.RemoteFacadeContext as RemoteFacadeContext
 
 LOGIN_FAILED_DELAY = 5
-NOT_LINKABLE_USERS = "login_not_linkable_users"
-DEFAULT_GROUPS     = "login_default_groups_for_external_users"
+NOT_LINKABLE_USERS = 'login_not_linkable_users'
+DEFAULT_GROUPS     = 'login_default_groups_for_external_users'
+CREATING_EXTERNAL_USERS = 'login_creating_external_users'
+LINKING_EXTERNAL_USERS  = 'login_linking_external_users'
 
 class LoginServer(object):
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
@@ -119,6 +121,8 @@ class LoginServer(object):
 
     @logged(LogLevel.Info, except_for="password")
     def grant_external_credentials(self, username, password, system, credentials):
+        if not self._cfg_manager.get_value(LINKING_EXTERNAL_USERS, True):
+            raise LoginExceptions.LoginException("Linking external users not enabled!")
         not_linkable_users = self._cfg_manager.get_value(NOT_LINKABLE_USERS, [])
         for not_linkable_user in not_linkable_users:
             if username == not_linkable_user:
@@ -132,6 +136,8 @@ class LoginServer(object):
 
     @logged(LogLevel.Info)
     def create_external_user(self, system, credentials):
+        if not self._cfg_manager.get_value(CREATING_EXTERNAL_USERS, True):
+            raise LoginExceptions.LoginException("Creating external users not enabled!")
         external_user_id, external_user = self._validate_remote_user(system, credentials)
         group_names = self._cfg_manager.get_value(DEFAULT_GROUPS, [])
         self._db_manager.create_external_user(external_user, external_user_id, system, group_names)

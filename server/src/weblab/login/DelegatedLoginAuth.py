@@ -49,8 +49,8 @@ class Facebook(object):
             data = json.loads(json_content)
             oauth_token = data['oauth_token']
             user_data = json.load(urllib2.urlopen(FACEBOOK_TOKEN_VALIDATOR % oauth_token))
-            if user_data['validated'] not in ('true','yes'):
-                raise Exception("Not validated user!!!")
+            if not user_data['verified']:
+                raise Exception("Not verified user!!!")
             login = '%s@facebook' % user_data['id']
             full_name = user_data['name']
             email = user_data.get('email','<not provided>')

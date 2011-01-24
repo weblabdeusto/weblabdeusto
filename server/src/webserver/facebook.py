@@ -85,18 +85,36 @@ def _handle_unauthenticated_clients(req, kargs, signed_request):
         return _handle_linking_accounts(req, kargs, signed_request)
 
     link_uri = req.uri + '?op=link'
-    create_uri = req.uri + '?op=link'
+    create_uri = req.uri + '?op=create'
 
-    return """<html><body>
+    return """<html>
+            <head>
+                <style>
+                    body{
+                        font: 14px normal "Lucida Grande", Arial;
+                    }
+                </style>
+            </head>
+            <body>
+            <center><img src="../logo.png"></center> 
             <p>It seems that your Facebook account has not been linked with a WebLab-Deusto account, or that you don't have a WebLab-Deusto account.</p>
-            <p>If you'd like to link your existing WebLab-Deusto account, fill your credentials and press Log in</p>
+            <br>
+            <h2>Already have a WebLab-Deusto account?</h2>
+            <p>If you'd like to link your existing WebLab-Deusto account, fill your credentials and press <i>Link</i> to link both accounts so as to use WebLab-Deusto with your permissions.</p>
             <center><form method="POST" action="%(LINK_URI)s">
             Username: <input type="text" name="username"></input><br/>
             Password: <input type="password" name="password"></input><br/>
             <input type="hidden" name="signed_request" value="%(SIGNED_REQUEST)s"></input>
             <input type="submit" value="Link"></input>
             </form></center>
-<!--            <p>If you don't have a WebLab-Deusto account but you'd like to have one, just press <a href="%(CREATE_URI)s">here</a></p> -->
+            <br>
+            <h2>New to WebLab-Deusto?</h2>
+            <p><a href="http://www.weblab.deusto.es/">WebLab-Deusto</a> is an <a href="http://code.google.com/p/weblabdeusto/">Open Source</a> Remote Laboratory developed in the <a href="http://www.deusto.es/">University of Deusto</a>. Students access experiments physically located in the University from any point in the Internet.
+            <p>If you don't have a WebLab-Deusto account but you'd like to have one, click on <i>Create</i> and you'll have a new account with permissions to the demos.</p>
+            <center> <form method="POST" action="%(CREATE_URI)s">
+                <input type="hidden" name="signed_request" value="%(SIGNED_REQUEST)s"></input>
+                <input type="submit" value="Create"></input>
+            </form> </center>
         </body></html>""" % {
                     'LINK_URI' : link_uri,
                     'CREATE_URI' : create_uri,
@@ -109,8 +127,10 @@ def _show_weblab(session_id):
                         <script>
                             function recalculate_height(){
                                 var ifr = document.getElementById('weblab_iframe');
-                                var h = ifr.contentWindow.document.body.scrollHeight;
-                                ifr.height = h;
+                                if(ifr.contentWindow.document.body != null){
+                                    var h = ifr.contentWindow.document.body.scrollHeight;
+                                    ifr.height = h;
+                                }
                                 setTimeout("recalculate_height();", 200);
                             }
                         </script>
@@ -164,7 +184,7 @@ def index(req, *args, **kargs):
         else:
             msg = str(f) + "\n" + traceback.format_exc()
             apache.log_error(msg)
-            return "ERROR: There was an error on the server. Contact the administrator"
+            return "ERROR: There was a XML-RPC error on the server. Contact the administrator"
     except Exception, e:
         msg = str(e) + "\n" + traceback.format_exc()
         apache.log_error(msg)

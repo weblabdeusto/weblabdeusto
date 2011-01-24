@@ -146,7 +146,7 @@ class AuthDatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             try:
                 role = session.query(Model.DbRole).filter_by(name=external_user.role.name).one()
                 user = Model.DbUser(external_user.login, external_user.full_name, external_user.email, role = role)
-                user_auth = Model.DbUserAuth(user, auth)
+                user_auth = Model.DbUserAuth(user, auth, configuration = external_id)
                 for group in groups:
                     group.users.append(user)
                 session.add(user)
