@@ -275,6 +275,9 @@ public class DefaultTheme extends WlLabThemeBase {
 	 }
 
 	 private void showError(String message) {
-		 this.activeWindow.showError(message);
+		 if(this.activeWindow != null)
+			 this.activeWindow.showError(message);
+		 else
+			 Window.alert(message);
 	 }	
 }
