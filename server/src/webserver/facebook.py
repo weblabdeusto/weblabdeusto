@@ -100,7 +100,7 @@ def _handle_unauthenticated_clients(req, kargs, signed_request):
             <p>It seems that your Facebook account has not been linked with a WebLab-Deusto account, or that you don't have a WebLab-Deusto account.</p>
             <br>
             <h2>Already have a WebLab-Deusto account?</h2>
-            <p>If you'd like to link your existing WebLab-Deusto account, fill your credentials and press <i>Link</i> to link both accounts so as to use WebLab-Deusto with your permissions.</p>
+            <p>If you have an account in the University of Deusto and you'd like to link your facebook account (highly recommendable), fill your credentials and press <i>Link</i> to link both accounts so as to use WebLab-Deusto. Doing this you will be able to use the same experiments you use in WebLab-Deusto from Facebook.</p>
             <center><form method="POST" action="%(LINK_URI)s">
             Username: <input type="text" name="username"></input><br/>
             Password: <input type="password" name="password"></input><br/>
@@ -109,8 +109,8 @@ def _handle_unauthenticated_clients(req, kargs, signed_request):
             </form></center>
             <br>
             <h2>New to WebLab-Deusto?</h2>
-            <p><a href="http://www.weblab.deusto.es/">WebLab-Deusto</a> is an <a href="http://code.google.com/p/weblabdeusto/">Open Source</a> Remote Laboratory developed in the <a href="http://www.deusto.es/">University of Deusto</a>. Students access experiments physically located in the University from any point in the Internet.
-            <p>If you don't have a WebLab-Deusto account but you'd like to have one, click on <i>Create</i> and you'll have a new account with permissions to the demos.</p>
+            <p><a href="http://www.weblab.deusto.es/">WebLab-Deusto</a> is an <a href="http://code.google.com/p/weblabdeusto/">Open Source</a> Remote Laboratory developed in the <a href="http://www.deusto.es/">University of Deusto</a>. Students access experiments physically located in the University from any point in the Internet, just as they would in a hands-on-lab session.
+            <p>If you don't have a WebLab-Deusto account but you'd like to see it, click on <i>Create</i> and you'll have a new account with permissions to the default demos we have deployed, with safe experiments that we know that final users will not be able to break.</p>
             <center> <form method="POST" action="%(CREATE_URI)s">
                 <input type="hidden" name="signed_request" value="%(SIGNED_REQUEST)s"></input>
                 <input type="submit" value="Create"></input>

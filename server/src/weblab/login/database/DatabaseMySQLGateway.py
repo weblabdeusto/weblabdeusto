@@ -64,7 +64,7 @@ class AuthDatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                               "PASSWORD": self.password,
                               "HOST":     self.host,
                               "DATABASE": self.dbname }
-        self.Session = sessionmaker(bind=create_engine(connection_url, echo=False, pool = self.pool))
+        self.Session = sessionmaker(bind=create_engine(connection_url, echo=False, convert_unicode=True, pool = self.pool))
 
     ###########################################################################
     ##################   check_external_credentials   #########################

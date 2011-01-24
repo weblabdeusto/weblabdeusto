@@ -30,6 +30,8 @@ except ImportError:
     json = json_mod
 
 import voodoo.log as log
+from voodoo.log import logged
+import voodoo.LogLevel as LogLevel
 from weblab.data.dto.User import User
 from weblab.data.dto.Role import StudentRole
 
@@ -40,6 +42,7 @@ class Facebook(object):
     def __init__(self, db_manager):
         self._db_manager = db_manager
 
+    @logged(LogLevel.Warning)
     def get_user(self, credentials):
         payload = credentials[credentials.find('.') + 1:]
         payload = payload.replace('-','+').replace('_','/')
@@ -48,7 +51,10 @@ class Facebook(object):
             json_content = base64.decodestring(payload)
             data = json.loads(json_content)
             oauth_token = data['oauth_token']
-            user_data = json.load(urllib2.urlopen(FACEBOOK_TOKEN_VALIDATOR % oauth_token))
+            req = urllib2.urlopen(FACEBOOK_TOKEN_VALIDATOR % oauth_token)
+            encoding = req.headers['content-type'].split('charset=')[-1]
+            ucontent = unicode(req.read(),encoding)
+            user_data = json.loads(ucontent)
             if not user_data['verified']:
                 raise Exception("Not verified user!!!")
             login = '%s@facebook' % user_data['id']

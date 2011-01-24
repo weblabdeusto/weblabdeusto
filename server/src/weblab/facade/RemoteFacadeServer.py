@@ -161,6 +161,9 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 response = json.dumps({"result":parsed_return_value, "is_exception" : False})
             except Exception, e:
                 response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"Error encoding return value"}
+                log.log( JsonHttpHandler, log.LogLevel.Error, "Request from %s: %s" % (get_context().get_ip_address(), "Error encoding return value: %s" % e))
+                log.log( JsonHttpHandler, log.LogLevel.Error, "Message was: %s" % return_value)
+                log.log_exc( JsonHttpHandler, log.LogLevel.Warning )
                 self.finish_error(response)
                 return
                 
