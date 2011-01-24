@@ -14,6 +14,7 @@
 
 package es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -153,7 +154,10 @@ public class DefaultMobileTheme extends WlLabThemeBase {
 
 	@Override
 	public void onMessage(String message) {
-		this.activeWindow.showMessage(message);
+		if(this.activeWindow != null)
+			this.activeWindow.showMessage(message);
+		else
+			Window.alert(message);
 	}
 
 	@Override

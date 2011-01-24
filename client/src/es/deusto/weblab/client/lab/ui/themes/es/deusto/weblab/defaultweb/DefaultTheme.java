@@ -13,6 +13,7 @@
 */ 
 package es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -169,7 +170,10 @@ public class DefaultTheme extends WlLabThemeBase {
 
 	@Override
 	public void onMessage(String message){
-		this.activeWindow.showMessage(message);
+		if(this.activeWindow != null)
+			this.activeWindow.showMessage(message);
+		else
+			Window.alert(message);
 	}
 
 	/*
