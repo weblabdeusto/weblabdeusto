@@ -19,6 +19,9 @@ import java.util.Map;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.ScriptElement;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Label;
@@ -282,17 +285,19 @@ public class WebLabClient implements EntryPoint {
 		this.configurationManager.start();
 	}
 	
-	private static native void loadGoogleAnalytics(String trackingCode) /*-{
-		  $wnd._gaq = $wnd._gaq || [];
-		  $wnd._gaq.push(['_setAccount', trackingCode]);
-		  $wnd._gaq.push(['_trackPageview']);
-		
-		  (function() {
-		    var ga = document.createElement('script');
-		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 
-		        'http://www') + '.google-analytics.com/ga.js';
-		    ga.setAttribute('async', 'true');
-		    $doc.documentElement.firstChild.appendChild(ga);
-		  })();
-	}-*/;
+    private void loadGoogleAnalytics(String trackingCode) {
+        final ScriptElement gaqScript = Document.get().createScriptElement(
+            "var _gaq = _gaq || [];" + 
+            "_gaq.push(['_setAccount', '" + trackingCode + "']);" + 
+            "_gaq.push(['_trackPageview']);"
+         );
+        final Element s = Document.get().getElementsByTagName("script").getItem(0);
+        s.getParentNode().insertBefore(gaqScript, s);
+
+        final ScriptElement ga = Document.get().createScriptElement();
+        ga.setSrc(("https:".equals(Window.Location.getProtocol()) ? "https://ssl" : "http://www") + ".google-analytics.com/ga.js");
+        ga.setType("text/javascript");
+        ga.setAttribute("async", "true");
+        s.getParentNode().insertBefore(ga, s);
+    }	
 }
