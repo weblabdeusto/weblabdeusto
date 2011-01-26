@@ -40,6 +40,16 @@
 	                       ],
 	                "xilinx" : [
 							  {
+								   "experiment.name"     : "ud-test-pld1",
+								   "experiment.category" : "PLD experiments",
+								   "is.demo"             : true
+							  },
+							  {
+								   "experiment.name"     : "ud-test-pld2",
+								   "experiment.category" : "PLD experiments",
+								   "is.demo"             : true
+							  },
+							  {
 								   "experiment.name"     : "ud-demo-pld",
 								   "experiment.category" : "PLD experiments",
 								   "is.demo"             : true
