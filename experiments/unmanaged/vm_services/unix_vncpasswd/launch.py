@@ -16,12 +16,14 @@
 
 ####################################################
 #
-# This script must be run as root in a UNIX system.
+# This script must be run on a system with the
+# vncpasswd command available, and on a user with enough 
+# privileges to change the VNC password through it.
 # Any call to http://(this-host):PORT/?sessionid=foo
-# Will cause the user USERNAME to have "foo" as 
-# password. This is useful for sharing the sess
-# with the user through SSH or other systems based
-# on the systems password.
+# will change the VNC password to "foo". Is is noteworthy,
+# however, that the maximum number of characters of a VNC
+# password is 8. Though longer strings might be specified,
+# any character after the eighth will be ignored.
 # 
 
 PORT        = 18080
@@ -36,7 +38,11 @@ import traceback
 import BaseHTTPServer
 
 def change_password(new_passwd):
-    passwd = pexpect.spawn("%s %s" % (PASSWD_PATH, USERNAME))
+    """
+    Changes the VNC password to the specified one using the vncpasswd tool,
+    which should be available.
+    """
+    passwd = pexpect.spawn("%s" % (PASSWD_PATH))
     
     # Note: The password has to be at least 6 characters long. If a shorter password is
     # received vncpasswd fails and a not-so-intuitive error message results.
