@@ -563,6 +563,32 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('exp1', 'ud-pld',   'PLD experiments'),    Resource("pld boards",  "pld1"  ))
         self.coordinator.add_experiment_instance_id("lab2:inst@machine", ExperimentInstanceId('exp2', 'ud-pld',   'PLD experiments'),    Resource("pld boards",  "pld2"  ))
 
+    def test_reserve_resource_does_not_support_expected_experiment(self):
+        self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('exp1', 'ud-binary','Binary experiments'), Resource("pld boards",  "pld1"  ))
+        self.coordinator.add_experiment_instance_id("lab2:inst@machine", ExperimentInstanceId('exp2', 'ud-pld',   'PLD experiments'),    Resource("pld boards",  "pld2"  ))
+
+        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId("ud-pld","PLD experiments"), DEFAULT_TIME + 1, DEFAULT_PRIORITY, DEFAULT_INITIAL_DATA)
+        expected_status = WQS.WaitingConfirmationQueueStatus(coord_addr("lab2:inst@machine"), DEFAULT_TIME + 1)
+        self.assertEquals( expected_status, status )
+
+    def test_reserve_resource_does_not_support_expected_experiment_and_there_are_waiting(self):
+        self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('exp1', 'ud-binary','Binary experiments'), Resource("pld boards",  "pld1"  ))
+        self.coordinator.add_experiment_instance_id("lab2:inst@machine", ExperimentInstanceId('exp2', 'ud-pld',   'PLD experiments'),    Resource("pld boards",  "pld2"  ))
+
+        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId("ud-pld","PLD experiments"), DEFAULT_TIME + 1, DEFAULT_PRIORITY, DEFAULT_INITIAL_DATA)
+        expected_status = WQS.WaitingConfirmationQueueStatus(coord_addr("lab2:inst@machine"), DEFAULT_TIME + 1)
+        self.assertEquals( expected_status, status )
+
+        # There is one student in the queue waiting for a "pld boards" that matches ud-pld
+        status, reservation2_id = self.coordinator.reserve_experiment(ExperimentId("ud-pld","PLD experiments"), DEFAULT_TIME + 2, DEFAULT_PRIORITY, DEFAULT_INITIAL_DATA)
+        expected_status = WQS.WaitingQueueStatus(0)
+        self.assertEquals( expected_status, status )
+
+        # There is a new student in the queue waiting for "pld boards" that matches ud-binary, but since it's free, it must be free
+        status, reservation3_id = self.coordinator.reserve_experiment(ExperimentId("ud-binary","Binary experiments"), DEFAULT_TIME + 3, DEFAULT_PRIORITY, DEFAULT_INITIAL_DATA)
+        expected_status = WQS.WaitingConfirmationQueueStatus(coord_addr("lab1:inst@machine"), DEFAULT_TIME + 3)
+        self.assertEquals( expected_status, status )
+
     def test_reserve_full_scenario(self):
         self._deploy_cplds_and_fpgas_configuration()
 

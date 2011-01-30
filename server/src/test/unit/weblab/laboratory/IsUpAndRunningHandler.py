@@ -23,7 +23,7 @@ import FakeSocket
 
 class AbstractLightweightIsUpAndRunningHandlerTestCase(unittest.TestCase):
     
-    def test(self):
+    def test_not_implemented(self):
         h = AbstractLightweightIsUpAndRunningHandler()
         self.assertRaises(
             NotImplementedError,
@@ -35,6 +35,7 @@ class WebcamIsUpAndRunningHandlerTestCase(unittest.TestCase):
     
     def setUp(self):
         self.handler = WebcamIsUpAndRunningHandler("https://...")
+        FakeUrllib2.reset()
         self.handler._urllib2 = FakeUrllib2
     
     def test_run_ok(self):
@@ -54,11 +55,19 @@ class WebcamIsUpAndRunningHandlerTestCase(unittest.TestCase):
             LaboratoryExceptions.InvalidContentTypeRetrievedFromImageURLException,
             self.handler.run
         )
+
+    def test_run_times(self):
+        messages = self.handler.run_times()
+        self.assertEquals([], messages)
+        FakeUrllib2.expected_action = FakeUrllib2.HTTP_BAD_CONTENT
+        messages = self.handler.run_times()
+        self.assertEquals(WebcamIsUpAndRunningHandler.DEFAULT_TIMES, len(messages))
         
 
 class HostIsUpAndRunningHandlerTestCase(unittest.TestCase):
     
     def setUp(self):
+        FakeSocket.reset()
         self.handler = HostIsUpAndRunningHandler("hostname", 80)
         self.handler._socket = FakeSocket
     

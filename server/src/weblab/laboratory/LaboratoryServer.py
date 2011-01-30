@@ -15,7 +15,6 @@
 # 
 
 import re
-import random
 
 import voodoo.log as log
 import voodoo.LogLevel as LogLevel
@@ -216,29 +215,32 @@ class LaboratoryServer(object):
             }
         for experiment_instance_id in experiment_instance_ids:
             handlers = self._assigned_experiments.get_is_up_and_running_handlers(experiment_instance_id)
-            try:
-                for h in handlers:
-                    h.run()
-                experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
-                experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
-                challenge = str(random.random())
-                response = experiment_server.test_me(challenge)
-                if response != challenge:
-                    raise Exception("Challenge failed when calling test_me on experiment server: expecting %s and got %s" % (challenge, response))
-            except Exception, e:
-                error_message = str(e)
+            error_messages = []
+            for h in handlers:
+                handler_messages = h.run_times()
+                error_messages.extend(handler_messages)
+
+            if len(error_messages) > 0:
+                error_message = '; '.join(error_messages)
                 failing_experiment_instance_ids[experiment_instance_id] = error_message
-                log.log(
-                    LaboratoryServer,
-                    LogLevel.Warning,
-                    "Exception testing experiment %s: %s" % (experiment_instance_id, error_message)
-                )
-                log.log_exc(
-                    LaboratoryServer,
-                    LogLevel.Info
-                )
+                self.log_error(experiment_instance_id, error_message)
+            else: 
+                # No error yet, so probably the host is up and running; try to call the WebLab service
+                experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
+                try:
+                    self._locator.check_server_at_coordaddr(experiment_coord_address, ServerType.Experiment)
+                except Exception, e:
+                    failing_experiment_instance_ids[experiment_instance_id] = str(e)
+                    self.log_error(experiment_instance_id, str(e))
 
         return failing_experiment_instance_ids
+
+    def log_error(self, experiment_instance_id, error_message):
+        log.log(
+            LaboratoryServer,
+            LogLevel.Warning,
+            "Exception testing experiment %s: %s" % (experiment_instance_id, error_message)
+        )
 
     @logged(LogLevel.Info)
     @caller_check(ServerType.UserProcessing)

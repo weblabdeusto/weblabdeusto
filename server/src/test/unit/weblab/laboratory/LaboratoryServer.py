@@ -27,6 +27,7 @@ import test.unit.configuration as configuration_module
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
 import weblab.laboratory.LaboratoryServer as LaboratoryServer
+import weblab.laboratory.IsUpAndRunningHandler as IsUpAndRunningHandler
 
 import weblab.exceptions.laboratory.LaboratoryExceptions as LaboratoryExceptions
 
@@ -133,10 +134,11 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         cfg_manager= ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration_module)
 
-        self.fake_client = FakeClient()
+        self.fake_client  = FakeClient()
+        self.fake_locator = FakeLocator((self.fake_client, ))
         locator        = EasyLocator.EasyLocator(
                     CoordAddress.CoordAddress('mach','inst','serv'),
-                    FakeLocator((self.fake_client,))
+                    self.fake_locator
                 )
 
         self.experiment_instance_id = ExperimentInstanceId.ExperimentInstanceId("exp_inst","exp_name","exp_cat")
@@ -213,6 +215,8 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self.assertEquals(3, self.fake_client.disposed)
         
     def _fake_is_up_and_running_handlers(self):
+        FakeUrllib2.reset()
+        FakeSocket.reset()
         exp_handler = self.lab._assigned_experiments._retrieve_experiment_handler(self.experiment_instance_id)
         exp_handler.is_up_and_running_handlers[0]._urllib2 = FakeUrllib2
         exp_handler.is_up_and_running_handlers[1]._socket = FakeSocket   
@@ -220,40 +224,38 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
     def test_check_experiments_resources(self):
         self._fake_is_up_and_running_handlers()
         failing_experiment_instance_ids = self.lab.do_check_experiments_resources()
-        # print failing_experiment_instance_ids
-        # self.assertEquals(0, len(failing_experiment_instance_ids))
+        self.assertEquals(0, len(failing_experiment_instance_ids))
 
+    def test_check_experiments_resources_handler_failed(self):
+        self._fake_is_up_and_running_handlers()
+        FakeUrllib2.expected_action = FakeUrllib2.HTTP_BAD_CONTENT
+        failing_experiment_instance_ids = self.lab.do_check_experiments_resources()
+        self.assertEquals(1, len(failing_experiment_instance_ids))
+        self.assertTrue(self.experiment_instance_id in failing_experiment_instance_ids)
+        fails = failing_experiment_instance_ids[self.experiment_instance_id]
+        self.assertEquals(IsUpAndRunningHandler.WebcamIsUpAndRunningHandler.DEFAULT_TIMES - 1, fails.count('; '))
 
-# TODO
-#    def test_experiment_is_up_and_running_error(self):
-#        self._fake_is_up_and_running_handlers()
-#        FakeClient.is_up_and_running_response = "ER Something I only know went wrong!"
-#        self.assertRaises(
-#            LaboratoryExceptions.ExperimentIsUpAndRunningErrorException,
-#            self.lab.do_experiment_is_up_and_running,
-#            self.experiment_instance_id
-#        )
-#
-#    def test_experiment_is_up_and_running_invalid_response_format(self):
-#        self._fake_is_up_and_running_handlers()
-#        FakeClient.is_up_and_running_response = "I don't like established formats!"
-#        self.assertRaises(
-#            LaboratoryExceptions.InvalidIsUpAndRunningResponseFormatException,
-#            self.lab.do_experiment_is_up_and_running,
-#            self.experiment_instance_id
-#        )
-        
-        
+    def test_check_experiments_resources_test_me_failed(self):
+        self._fake_is_up_and_running_handlers()
+        message = "fail asking for a server"
+        self.fake_locator.fail_on_server_request = message
+        failing_experiment_instance_ids = self.lab.do_check_experiments_resources()
+        self.assertEquals(1, len(failing_experiment_instance_ids))
+        self.assertTrue(self.experiment_instance_id in failing_experiment_instance_ids)
+        fails = failing_experiment_instance_ids[self.experiment_instance_id]
+        self.assertTrue(message in fails)
+       
 class LaboratoryServerSendingTestCase(unittest.TestCase):
     
     def setUp(self):
         cfg_manager= ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration_module)
 
-        self.fake_client = FakeClient()
+        self.fake_client  = FakeClient()
+        self.fake_locator = FakeLocator((self.fake_client,))
         locator = EasyLocator.EasyLocator(
                     CoordAddress.CoordAddress('mach','inst','serv'),
-                    FakeLocator((self.fake_client,))
+                    self.fake_locator
                   )
 
         self.experiment_instance_id = ExperimentInstanceId.ExperimentInstanceId("exp_inst","exp_name","exp_cat")
@@ -332,12 +334,15 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
 class FakeLocator(object):
     def __init__(self, clients):
         self.clients = clients
+        self.fail_on_server_request = None
 
     def retrieve_methods(self, server_type):
         return weblab_methods.Experiment
 
     def get_server_from_coord_address(self, coord_address, client_coord_address, server_type, restrictions):
-        return self.clients
+        if self.fail_on_server_request is None:
+            return self.clients
+        raise Exception(self.fail_on_server_request)
 
     def inform_server_not_working(self, server_not_working, server_type, restrictions_of_server):
         pass
@@ -347,8 +352,6 @@ class FakeLocator(object):
 # 
 
 class FakeClient(object):
-    
-    is_up_and_running_response = ""
     
     def __init__(self):
         super(FakeClient,self).__init__()
@@ -379,9 +382,6 @@ class FakeClient(object):
             self.files.append((file, file_info))
             return self.responses.pop(0)
     
-    def is_up_and_running(self):
-        return self.is_up_and_running_response
-
     def verify_commands(self, expected):
         return self.commands == expected
     

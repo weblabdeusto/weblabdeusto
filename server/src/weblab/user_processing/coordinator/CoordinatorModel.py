@@ -63,7 +63,7 @@ class ResourceType(Base):
         self.name = name
 
     def __repr__(self):
-        return "ResourceType(%s)" % repr(self.name)
+        return "ResourceType(%r)" % self.name
 
 class ResourceInstance(Base):
     __tablename__  = 'ResourceInstances'
@@ -89,7 +89,7 @@ class ResourceInstance(Base):
         return Resource(self.resource_type.name, self.name)
 
     def __repr__(self):
-        return "ResourceInstance(%s, %s)" % (self.resource_type, repr(self.name))
+        return "ResourceInstance(%r, %r)" % (self.resource_type, self.name)
 
 ######################################################################################
 # 
@@ -118,7 +118,7 @@ class CurrentResourceSlot(Base):
         return None
 
     def __repr__(self):
-        return "CurrentResourceSlot(%s)" % repr(self.resource_instance)
+        return "CurrentResourceSlot(%r)" % self.resource_instance
 
 ######################################################################################
 # 
@@ -140,7 +140,7 @@ class SchedulingSchemaIndependentSlotReservation(Base):
         self.current_resource_slot = current_resource_slot
 
     def __repr__(self):
-        return "SchedulingSchemaIndependentSlotReservation(%s)" % self.current_resource_slot
+        return "SchedulingSchemaIndependentSlotReservation(%r)" % self.current_resource_slot
 
 ######################################################################################
 # 
@@ -182,6 +182,9 @@ class ExperimentType(Base):
     def to_experiment_id(self):
         return ExperimentId.ExperimentId(self.exp_name, self.cat_name)
 
+    def __repr__(self):
+        return "ExperimentType(%r,%r)" % (self.exp_name, self.cat_name)
+
 
 class ExperimentInstance(Base):
     __tablename__  = 'ExperimentInstances'
@@ -207,6 +210,9 @@ class ExperimentInstance(Base):
         exp_id = self.experiment_type.to_experiment_id()
         return ExperimentInstanceId.ExperimentInstanceId(self.experiment_instance_id, exp_id.exp_name, exp_id.cat_name)
 
+    def __repr__(self):
+        return "ExperimentInstance(%r,%r,%r)" % (self.experiment_type, self.laboratory_coord_address, self.experiment_instance_id)
+
 ######################################################################################
 # 
 # 
@@ -224,7 +230,7 @@ class Reservation(Base):
 
     _now = None
 
-    def __init__(self, id, now):
+    def __init__(self, id, now = None):
         self.id = id
         if now is not None:
             Reservation._now = now
@@ -260,6 +266,9 @@ class Reservation(Base):
             finally:
                 session.close()
 
+    def __repr__(self):
+        return "Reservation(%r)" % self.id
+
 ######################################################################################
 # 
 # Since a reservation can apply to different scheduling schemas of different resource
@@ -280,5 +289,5 @@ class CurrentReservation(Base):
         self.id = id
     
     def __repr__(self):
-        return "CurrentReservation(%s)" % repr(self.reservation)
+        return "CurrentReservation(%r)" % self.reservation
 

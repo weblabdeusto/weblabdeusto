@@ -27,6 +27,7 @@ import weblab.user_processing.coordinator.Scheduler as Scheduler
 import weblab.user_processing.coordinator.MetaScheduler as MetaScheduler
 
 import weblab.user_processing.coordinator.PriorityQueueScheduler as PriorityQueueScheduler
+import weblab.user_processing.coordinator.ResourcesCheckerThread as ResourcesCheckerThread
 
 PRIORITY_QUEUE = 'PRIORITY_QUEUE'
 
@@ -35,6 +36,8 @@ SCHEDULING_SYSTEMS = {
     }
 
 CORE_SCHEDULING_SYSTEMS = 'core_scheduling_systems'
+RESOURCES_CHECKER_FREQUENCY = 'core_resources_checker_frequency'
+DEFAULT_RESOURCES_CHECKER_FREQUENCY = 30 # seconds
 
 class TimeProvider(object):
     def get_time(self):
@@ -53,6 +56,7 @@ class Coordinator(object):
         coordination_database_manager = CoordinationDatabaseManager.CoordinationDatabaseManager(cfg_manager)
         self._session_maker = coordination_database_manager.session_maker
 
+        self.locator   = locator # Used by ResourcesChecker
         self.confirmer = ConfirmerClass(self, locator)
 
         self.reservations_manager = ReservationsManager.ReservationsManager(self._session_maker)
@@ -60,6 +64,9 @@ class Coordinator(object):
         self.meta_scheduler       = MetaScheduler.MetaScheduler()
 
         self.time_provider = self.CoordinatorTimeProvider()
+
+        resources_checker_frequency = cfg_manager.get_value(RESOURCES_CHECKER_FREQUENCY, DEFAULT_RESOURCES_CHECKER_FREQUENCY)
+        ResourcesCheckerThread.set_coordinator(self, resources_checker_frequency)
 
         # 
         # The system administrator must define what scheduling system is used by each resource type

@@ -23,6 +23,9 @@ HTTP_BAD_CONTENT = "HTTP_BAD_CONTENT"
 
 expected_action = HTTP_OK
 
+def reset():
+    global expected_action
+    expected_action = HTTP_OK
 
 def urlopen(url):
     if expected_action == HTTP_OK:

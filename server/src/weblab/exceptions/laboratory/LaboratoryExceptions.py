@@ -74,10 +74,3 @@ class UnableToConnectHostnameInPortException(CheckingHandlerException):
     def __init__(self, *args, **kargs):
         LaboratoryException.__init__(self,*args,**kargs)
         
-class ExperimentIsUpAndRunningErrorException(LaboratoryException):
-    def __init__(self, *args, **kargs):
-        LaboratoryException.__init__(self,*args,**kargs)
-        
-class InvalidIsUpAndRunningResponseFormatException(LaboratoryException):
-    def __init__(self, *args, **kargs):
-        LaboratoryException.__init__(self,*args,**kargs)

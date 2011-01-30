@@ -60,10 +60,10 @@ class LoginIntegratingRemoteFacadeManager(unittest.TestCase):
 
         @uses_module(RemoteFacadeServer)
         def test_login(self):
-            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, 14123)
+            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, 14122)
             self.rfs.start()
             try:
-                wds = LoginWebLabDeustoSOAP("http://localhost:14123/weblab/soap/")
+                wds = LoginWebLabDeustoSOAP("http://localhost:14122/weblab/soap/")
 
                 expected_sess_id = SessionId.SessionId("whatever")
                 USERNAME = 'the username'

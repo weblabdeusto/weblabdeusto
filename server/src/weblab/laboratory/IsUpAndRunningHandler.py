@@ -35,6 +35,25 @@ VALID_IMAGE_FORMATS = ('image/jpg','image/png')
 
 
 class AbstractLightweightIsUpAndRunningHandler(object):
+
+    DEFAULT_TIMES = 1
+
+    def __init__(self, times = None):
+        if times is not None:
+            self.times = times
+        else:
+            self.times = self.DEFAULT_TIMES
+
+    def run_times(self):
+        messages = []
+        for _ in xrange(self.times):
+            try:
+                self.run()
+            except Exception, e:
+                messages.append("%s: %s" % (type(e).__name__,str(e)))
+            else:
+                return []
+        return messages
     
     def run(self):
         raise NotImplementedError()
@@ -45,9 +64,10 @@ HANDLERS = ()
 class HostIsUpAndRunningHandler(AbstractLightweightIsUpAndRunningHandler):
     
     _socket = socket
+    DEFAULT_TIMES = 2
     
-    def __init__(self, hostname, port):
-        super(HostIsUpAndRunningHandler, self).__init__()
+    def __init__(self, hostname, port, *args, **kwargs):
+        super(HostIsUpAndRunningHandler, self).__init__(*args, **kwargs)
         self.hostname = hostname
         self.port = port
         
@@ -67,9 +87,10 @@ HANDLERS += (HostIsUpAndRunningHandler.__name__,)
 class WebcamIsUpAndRunningHandler(AbstractLightweightIsUpAndRunningHandler):
     
     _urllib2 = urllib2
+    DEFAULT_TIMES = 3
     
-    def __init__(self, img_url):
-        super(WebcamIsUpAndRunningHandler, self).__init__()
+    def __init__(self, img_url, *args, **kwargs):
+        super(WebcamIsUpAndRunningHandler, self).__init__(*args, **kwargs)
         self.img_url = img_url
         
     @Override(AbstractLightweightIsUpAndRunningHandler)

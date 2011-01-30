@@ -20,6 +20,9 @@ ERROR = "ERROR"
 
 expected_action = OK
 
+def reset():
+    global expected_action
+    expected_action = OK
 
 class socket(object):
     

@@ -16,6 +16,8 @@
 import datetime
 
 from voodoo.log import logged
+import voodoo.LogLevel as LogLevel
+import voodoo.log as log
 
 import sqlalchemy
 from sqlalchemy import not_
@@ -251,13 +253,15 @@ class PriorityQueueScheduler(Scheduler):
         # able to be promoted while the next one is. For instance,
         # if a user is waiting for "pld boards", but only for 
         # instances of "pld boards" which have a "ud-binary@Binary
-        # experiments" server running, then the next user which is
-        # waiting for a "ud-pld@PLD Experiments" can be promoted.
+        # experiments" server running. If only a "ud-pld@PLD 
+        # Experiments" is available, then this user will not be
+        # promoted and the another user which is waiting for a 
+        # "ud-pld@PLD Experiments" can be promoted.
         # 
         # Therefore, we have a list of the IDs of the waiting 
         # reservations we previously thought that they couldn't be
-        # promoted. They will have another chance in the next run
-        # of _update_queues.
+        # promoted in this iteration. They will have another 
+        # chance in the next run of _update_queues.
         # 
         previously_waiting_reservation_ids = []
 
@@ -284,7 +288,7 @@ class PriorityQueueScheduler(Scheduler):
                         break
 
                 if first_waiting_reservation is None:
-                    return
+                    return # There is no waiting reservation for this resource that we haven't already tried
 
                 previously_waiting_reservation_ids.append(first_waiting_reservation.id)
 
@@ -299,8 +303,13 @@ class PriorityQueueScheduler(Scheduler):
                         .filter(ResourceInstance.resource_type == resource_type)\
                         .order_by(CurrentResourceSlot.id).all()
 
+                if len(free_instances) == 0:
+                    # If there is no free instance, just return
+                    return
+
                 #
-                # Add the waiting reservation to the db
+                # Select the correct free_instance for the current student among
+                # all the free_instances
                 # 
                 for free_instance in free_instances:
 
@@ -309,8 +318,8 @@ class PriorityQueueScheduler(Scheduler):
                         continue # If suddenly the free_instance is not a free_instance anymore, try with other free_instance
 
                     # 
-                    # Important: from here on there is no "continue". If there was, it should 
-                    # first revoke the reservations_manager and resources_manager confirmations
+                    # IMPORTANT: from here on every "continue" should first revoke the 
+                    # reservations_manager and resources_manager confirmations
                     # 
 
                     self.reservations_manager.confirm(session, first_waiting_reservation.reservation_id)
@@ -331,10 +340,11 @@ class PriorityQueueScheduler(Scheduler):
                             selected_experiment_instance = experiment_instance
 
                     if selected_experiment_instance is None:
-                        # This resource is not valid for this user, other resource should be
-                        # selected. Try to do the loop again but with this user in the 
-                        # previously_waiting_reservation_ids list
-                        break
+                        # This resource is not valid for this user, other free_instance should be
+                        # selected. Try with other, but first clean the acquired resources
+                        self.reservations_manager.downgrade_confirmation(session, first_waiting_reservation.reservation_id)
+                        self.resources_manager.release_resource(session, slot_reservation)
+                        continue
 
                     experiment_instance_id = ExperimentInstanceId(selected_experiment_instance.experiment_instance_id, requested_experiment_type.exp_name, requested_experiment_type.cat_name)
 
@@ -343,11 +353,20 @@ class PriorityQueueScheduler(Scheduler):
                     session.add(concrete_current_reservation)
                     try:
                         session.commit()
-                    except IntegrityError:
-                        pass # Other scheduler confirmed the user or booked the reservation, rollback and try again
+                    except IntegrityError, ie:
+                        # Other scheduler confirmed the user or booked the reservation, rollback and try again
+                        # But log just in case
+                        log.log(
+                            PriorityQueueScheduler, LogLevel.Warning,
+                            "IntegrityError looping on update_queues: %s" % ie )
+                        log.log_exc(PriorityQueueScheduler, LogLevel.Info)
                         session.rollback()
                         break
-                    except Exception:
+                    except Exception, e:
+                        log.log(
+                            PriorityQueueScheduler, LogLevel.Warning,
+                            "Exception looping on update_queues: %s" % e )
+                        log.log_exc(PriorityQueueScheduler, LogLevel.Info)
                         session.rollback()
                         break
                     else:
@@ -367,12 +386,13 @@ class PriorityQueueScheduler(Scheduler):
                         # reservation
                         # 
                         break
-                else:
-                    # There is no free_instance, return
-                    return
-            except IntegrityError:
+            except IntegrityError, ie:
                 # Something happened somewhere else, such as the user being confirmed twice, the experiment being reserved twice or so on.
                 # Rollback and start again
+                log.log(
+                    PriorityQueueScheduler, LogLevel.Warning,
+                    "IntegrityError: %s" % ie )
+                log.log_exc(PriorityQueueScheduler, LogLevel.Info)
                 session.rollback()
             finally:
                 session.close()
@@ -415,7 +435,11 @@ class PriorityQueueScheduler(Scheduler):
             if reservations_removed:
                 try:
                     session.commit()
-                except sqlalchemy.exceptions.ConcurrentModificationError:
+                except sqlalchemy.exceptions.ConcurrentModificationError, e:
+                    log.log(
+                        PriorityQueueScheduler, LogLevel.Warning,
+                        "IntegrityError: %s" % e )
+                    log.log_exc(PriorityQueueScheduler, LogLevel.Info)
                     pass # Someone else removed these users before us.
             else:
                 session.rollback()

@@ -38,6 +38,9 @@ class EasyLocator(object):
     def get_all_servers(self,original_server_address, server_type,restrictions =()):
         return self._server_locator.get_all_servers(original_server_address, server_type, restrictions)
 
+    def check_server_at_coordaddr(self, coord_addr, server_type):
+        self._get_server_from_coordaddr(coord_addr, server_type)
+       
     def _get_server_from_coordaddr(self, coord_addr, server_type, how_many=1):
         return self._server_locator.get_server_from_coord_address(
                 self._server_coordaddr,
