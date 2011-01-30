@@ -31,7 +31,6 @@ import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.LoggedPanel.ILoggedPanelCallback;
-import es.deusto.weblab.client.ui.widgets.EasyGrid;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
 class ExperimentWindow extends BaseWindow {
@@ -52,7 +51,6 @@ class ExperimentWindow extends BaseWindow {
     
 	@UiField VerticalPanel experimentArea;
 	@UiField Anchor back;
-	@UiField EasyGrid grid;
 	@UiField WlWaitingLabel waitingLabel;
 	@UiField Button reserveButton;
 	@UiField Label generalErrorLabel;

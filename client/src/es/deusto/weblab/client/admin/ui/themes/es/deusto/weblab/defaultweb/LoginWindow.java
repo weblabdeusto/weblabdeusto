@@ -40,7 +40,6 @@ import com.google.gwt.user.client.ui.Widget;
 import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb.i18n.IWebLabDeustoThemeMessages;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
-import es.deusto.weblab.client.ui.widgets.EasyGrid;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
 public class LoginWindow extends BaseWindow {
@@ -60,7 +59,6 @@ public class LoginWindow extends BaseWindow {
 	@UiField TextBox usernameTextbox;
 	@UiField PasswordTextBox passwordTextbox;
 	@UiField Button loginButton;
-	@UiField EasyGrid grid;
 	@UiField WlWaitingLabel waitingLabel;
 	@UiField Label generalErrorLabel;
 	

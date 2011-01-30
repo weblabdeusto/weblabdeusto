@@ -21,19 +21,40 @@
 		</g:Cell>
 		
    		<g:Cell horizontalAlignment="ALIGN_CENTER">
-			<w:EasyGrid ui:field="grid" cols='2' rows='4' cellSpacing='1'>
-				<g:Label text="{i18n.username}" />
-				<g:TextBox ui:field="usernameTextbox"></g:TextBox>
-				
-				<g:Label/>
-				<g:Label ui:field="usernameErrorLabel" styleName=".invisible"/>
-
-				<g:Label text="{i18n.password}" />
-				<g:PasswordTextBox ui:field="passwordTextbox"></g:PasswordTextBox>
-				
-				<g:Label/>
-				<g:Label ui:field="passwordErrorLabel" styleName=".invisible"/>
-			</w:EasyGrid>
+			<g:Grid cellSpacing='1'>
+				<g:row>
+					<g:customCell>
+						<g:Label text="{i18n.username}" />
+					</g:customCell>
+					<g:customCell>
+						<g:TextBox ui:field="usernameTextbox"></g:TextBox>
+					</g:customCell>
+				</g:row>
+				<g:row>
+					<g:customCell>
+						<g:Label/>
+					</g:customCell>
+					<g:customCell>
+						<g:Label ui:field="usernameErrorLabel" styleName=".invisible"/>
+					</g:customCell>
+				</g:row>
+				<g:row>
+					<g:customCell>
+						<g:Label text="{i18n.password}" />
+					</g:customCell>
+					<g:customCell>
+						<g:PasswordTextBox ui:field="passwordTextbox"></g:PasswordTextBox>
+					</g:customCell>
+				</g:row>
+				<g:row>
+					<g:customCell>
+						<g:Label/>
+					</g:customCell>
+					<g:customCell>
+						<g:Label ui:field="passwordErrorLabel" styleName=".invisible"/>
+					</g:customCell>
+				</g:row>
+			</g:Grid>
    		</g:Cell>
    		 
    		<g:Cell horizontalAlignment="ALIGN_CENTER">

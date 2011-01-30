@@ -41,16 +41,32 @@
 		        
 			<g:Label ui:field="contentTitleLabel" text="{i18n.reserveThisExperiment}" styleName="web-logged-content-title"></g:Label>
 			
-			<w:EasyGrid ui:field="detailsGrid" rows="3" cols="2" styleName="web-experiment-details">
-				<g:Label text="{i18n.experimentName}:"></g:Label>
-				<g:Label ui:field="experimentNameLabel" styleName="web-experiment-detail"></g:Label>
-
-				<g:Label text="{i18n.experimentCategory}:"></g:Label>
-				<g:Label ui:field="experimentCategoryLabel" styleName="web-experiment-detail"></g:Label>
-
-				<g:Label text="{i18n.timeAllowed}:"></g:Label>
-				<g:Label ui:field="timeAllowedLabel" styleName="web-experiment-detail"></g:Label>
-			</w:EasyGrid>
+			<g:Grid ui:field="detailsGrid" styleName="web-experiment-details">
+                <g:row>
+                    <g:customCell>
+    					<g:Label text="{i18n.experimentName}:"></g:Label>
+                    </g:customCell>
+                    <g:customCell>
+    					<g:Label ui:field="experimentNameLabel" styleName="web-experiment-detail"></g:Label>
+                    </g:customCell>
+				</g:row>
+                <g:row>
+                    <g:customCell>
+                        <g:Label text="{i18n.experimentCategory}:"></g:Label>
+                    </g:customCell>
+                    <g:customCell>
+    					<g:Label ui:field="experimentCategoryLabel" styleName="web-experiment-detail"></g:Label>
+                    </g:customCell>
+				</g:row>
+                <g:row>
+                    <g:customCell>
+    					<g:Label text="{i18n.timeAllowed}:"></g:Label>
+                    </g:customCell>
+                    <g:customCell>
+                        <g:Label ui:field="timeAllowedLabel" styleName="web-experiment-detail"></g:Label>
+                    </g:customCell>
+                </g:row>
+			</g:Grid>
 			
 			<g:VerticalPanel width="100%" styleName="web-experiment-upload-form">
 			

@@ -51,7 +51,7 @@ import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 public class WebLabClient implements EntryPoint {
 	
 	private static final String MAIN_SLOT = "weblab_slot";
-	private static final String SCRIPT_CONFIG_FILE = "configuration.js";
+	private static final String SCRIPT_CONFIG_FILE = GWT.getModuleBaseURL() + "configuration.js";
 	private static final String SESSION_ID_URL_PARAM = "session_id";	
 	private static final String MOBILE_URL_PARAM = "mobile";
 	private static final String LOCALE_URL_PARAM = "locale";

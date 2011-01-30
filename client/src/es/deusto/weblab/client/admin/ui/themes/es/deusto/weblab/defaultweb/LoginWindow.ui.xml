@@ -23,15 +23,25 @@
 	    	
 	    	<g:VerticalPanel styleName="web-admin-login-form">
 	    	
-		    	<w:EasyGrid ui:field="grid" cols='2' rows='2' styleName="web-admin-login-form-fields">
-		    	
-					<g:Label ui:field="usernameLabel" text="{i18n.username}:"></g:Label>
-					<g:TextBox ui:field="usernameTextbox"></g:TextBox>
-					
-					<g:Label ui:field="passwordLabel" text="{i18n.password}:"></g:Label>
-					<g:PasswordTextBox ui:field="passwordTextbox"></g:PasswordTextBox>
-		    	
-		    	</w:EasyGrid>			    	
+		    	<g:Grid styleName="web-admin-login-form-fields">
+
+                    <g:row>
+                        <g:customCell>
+        					<g:Label ui:field="usernameLabel" text="{i18n.username}:"></g:Label>
+                        </g:customCell>
+                        <g:customCell>
+        					<g:TextBox ui:field="usernameTextbox"></g:TextBox>
+                        </g:customCell>
+                    </g:row>
+                    <g:row>
+                        <g:customCell>
+                            <g:Label ui:field="passwordLabel" text="{i18n.password}:"></g:Label>
+                        </g:customCell>
+                        <g:customCell>
+        					<g:PasswordTextBox ui:field="passwordTextbox"></g:PasswordTextBox>
+                        </g:customCell>
+                    </g:row>
+		    	</g:Grid>			    	
 			    	
 			    <g:HorizontalPanel styleName="web-admin-login-form-button">
 					<g:Button ui:field="loginButton" text="{i18n.logIn}" />

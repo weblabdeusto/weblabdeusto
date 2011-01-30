@@ -21,6 +21,7 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -30,7 +31,6 @@ import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.ui.BoardBase;
-import es.deusto.weblab.client.ui.widgets.EasyGrid;
 import es.deusto.weblab.client.ui.widgets.WlUtil;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
@@ -55,7 +55,7 @@ class ExperimentWindow extends BaseWindow {
 	@UiField Anchor backLink;
 	@UiField VerticalPanel experimentAreaPanel;
 	@UiField Label contentTitleLabel;
-	@UiField EasyGrid detailsGrid;
+	@UiField Grid detailsGrid;
 	@UiField Label experimentNameLabel;
 	@UiField Label experimentCategoryLabel;
 	@UiField Label timeAllowedLabel;
