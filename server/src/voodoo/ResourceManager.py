@@ -42,13 +42,16 @@ class ResourceManager(acg.AbstractClass(['dispose_resource'])):
     # Python
     if _is_testing():
         @locked('_lock')
-        def add_resource(self, resource):
+        def add_resource_testing(self, resource):
             self._resources.append(resource)
         
         @locked('_lock')
-        def remove_resource(self, resource):
+        def remove_resource_testing(self, resource):
             if resource in self._resources:
                 self._resources.remove(resource)
+
+        add_resource    = add_resource_testing
+        remove_resource = remove_resource_testing
     else:
         def add_resource(self, resource):
             pass
