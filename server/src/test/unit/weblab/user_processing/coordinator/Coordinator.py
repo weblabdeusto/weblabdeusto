@@ -85,6 +85,16 @@ class CoordinatorTestCase(unittest.TestCase):
         self.assertEquals( 1, len(experiment_ids ) )
         self.assertEquals( ExperimentId('exp1', 'cat1'), experiment_ids[0] )
 
+    def test_list_laboratories_addresses(self):
+
+        "List the available laboratories"
+
+        addresses = self.coordinator.list_laboratories_addresses()
+        self.assertEquals( 2, len(addresses ) )
+        self.assertTrue( "lab1:inst@machine" in addresses )
+        self.assertTrue( "lab2:inst@machine" in addresses )
+
+
     def test_list_resource_types(self):
 
         "List the available resource types"

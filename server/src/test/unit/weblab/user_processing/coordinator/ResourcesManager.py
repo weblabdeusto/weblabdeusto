@@ -288,6 +288,31 @@ class ResourcesManagerTestCase(unittest.TestCase):
         self.assertEquals(1, len(resources))
         self.assertTrue(ExperimentId('ud-pld', 'PLD Experiments') in resources)
 
+    def test_list_laboratories_addresses(self):
+        session = self.session_maker()
+        try:
+            exp_id1 = ExperimentInstanceId.ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
+            resource_instance1 = Resource("type1", "instance1")
+            self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id1, resource_instance1)
+
+            # Repeating laboratory1, but a set is returned so no problem
+            exp_id2 = ExperimentInstanceId.ExperimentInstanceId("exp2","ud-pld","PLD Experiments")
+            resource_instance2 = Resource("type2", "instance1")
+            self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id2, resource_instance2)
+
+            exp_id3 = ExperimentInstanceId.ExperimentInstanceId("exp3","ud-pld","PLD Experiments")
+            resource_instance3 = Resource("type2", "instance2")
+            self.resources_manager.add_experiment_instance_id(session, "laboratory2:WL_SERVER1@WL_MACHINE1", exp_id3, resource_instance3)
+
+            session.commit()
+        finally:
+            session.close()
+
+        addresses = self.resources_manager.list_laboratories_addresses()
+        self.assertEquals(2, len(addresses))
+        self.assertTrue("laboratory1:WL_SERVER1@WL_MACHINE1" in addresses)
+        self.assertTrue("laboratory2:WL_SERVER1@WL_MACHINE1" in addresses)
+
 
 def suite():
     return unittest.makeSuite(ResourcesManagerTestCase)

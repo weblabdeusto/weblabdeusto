@@ -152,6 +152,21 @@ class ResourcesManager(object):
 
         return experiment_ids
 
+    def list_laboratories_addresses(self):
+        session = self._session_maker()
+
+        try:
+            experiment_instances = session.query(ExperimentInstance).all()
+
+            laboratories_addresses = set()
+
+            for experiment_instance in experiment_instances:
+                laboratories_addresses.add(experiment_instance.laboratory_coord_address)
+        finally:
+            session.close()
+        
+        return laboratories_addresses
+
     def _clean(self):
         session = self._session_maker()
         try:

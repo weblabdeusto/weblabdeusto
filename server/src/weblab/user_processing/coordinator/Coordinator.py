@@ -143,6 +143,10 @@ class Coordinator(object):
         return self.resources_manager.list_experiments()
 
     @logged()
+    def list_laboratories_addresses(self):
+        return self.resources_manager.list_laboratories_addresses()
+
+    @logged()
     def list_resource_types(self):
         return self.schedulers.keys()
 
