@@ -46,6 +46,7 @@ core_coordinator_laboratory_servers = {
             "exp1|javadummy|Dummy experiments"       : "javadummy@javadummy",
             "exp1|visirtest|Dummy experiments"       : "visirtest@visirtest",
             "exp1|vm|Dummy experiments"              : "vm@vm",
+            "exp1|vm-win|Dummy experiments"          : "vm-win@vm-win",
         }
 }
 
@@ -60,4 +61,5 @@ core_scheduling_systems = {
         "javadummy"  : ("PRIORITY_QUEUE", {}),
         "visirtest"  : ("PRIORITY_QUEUE", {}),
         "vm"         :("PRIORITY_QUEUE", {}),
+        "vm-win"     : ("PRIORITY_QUEUE", {}),
     }

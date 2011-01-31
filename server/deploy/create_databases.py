@@ -355,6 +355,9 @@ session.add(visirtest)
 vm = Model.DbExperiment("vm", cat_dummy, start_date, end_date)
 session.add(vm)
 
+vm_win = Model.DbExperiment("vm-win", cat_dummy, start_date, end_date)
+session.add(vm_win)
+
 # Permissions
 gp_course0809_fpga_allowed = Model.DbGroupPermission(
     groupCourse0809,
@@ -508,6 +511,25 @@ session.add(up_any_vm_allowed_p2)
 up_any_vm_allowed_p3 = Model.DbUserPermissionParameter(up_any_vm_allowed, experiment_allowed_p3, "200")
 session.add(up_any_vm_allowed_p3)    
 
+
+up_any_vm_win_allowed = Model.DbUserPermission(
+    any,
+    experiment_allowed.group_applicable,
+    "any::weblab-vm-win",
+    datetime.datetime.utcnow(),
+    "Permission for any to use WebLab-vm-win"
+)
+
+
+session.add(up_any_vm_win_allowed)
+up_any_vm_win_allowed_p1 = Model.DbUserPermissionParameter(up_any_vm_win_allowed, experiment_allowed_p1, "vm-win")
+session.add(up_any_vm_win_allowed_p1)
+up_any_vm_win_allowed_p2 = Model.DbUserPermissionParameter(up_any_vm_win_allowed, experiment_allowed_p2, "Dummy experiments")
+session.add(up_any_vm_win_allowed_p2)
+up_any_vm_win_allowed_p3 = Model.DbUserPermissionParameter(up_any_vm_win_allowed, experiment_allowed_p3, "200")
+
+            
+
 up_any_pld_demo_allowed = Model.DbUserPermission(
     any,
     experiment_allowed.group_applicable,
@@ -515,7 +537,8 @@ up_any_pld_demo_allowed = Model.DbUserPermission(
     datetime.datetime.utcnow(),
     "Permission for any to use WebLab-pld-demo"
 )
-
+            
+            
 session.add(up_any_pld_demo_allowed)
 up_any_pld_demo_allowed_p1 = Model.DbUserPermissionParameter(up_any_pld_demo_allowed, experiment_allowed_p1, "ud-demo-pld")
 session.add(up_any_pld_demo_allowed_p1)

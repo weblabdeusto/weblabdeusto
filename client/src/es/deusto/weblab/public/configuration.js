@@ -36,8 +36,11 @@
 	                           {
 	                        	   "experiment.name"     : "vm",
 	                        	   "experiment.category" : "Dummy experiments",
-	                           }
-	                       ],
+	                           },
+	                           {   "experiment.name"	 : "vm-win",
+	                               "experiment.category" : "Dummy experiments",
+	                           },
+	                       ],  
 	                "xilinx" : [
 							  {
 								   "experiment.name"     : "ud-test-pld1",

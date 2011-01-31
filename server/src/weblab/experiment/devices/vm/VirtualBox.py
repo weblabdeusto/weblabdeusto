@@ -26,7 +26,8 @@ VBOXMANAGE_COMMAND_DEFAULT_VALUE = 'VBoxManage' # Could be something like r'c:\P
 
 VBOX_VM_NAME = 'vbox_vm_name'
 VBOX_VM_DEFAULT_VALUE = 'weblab'
-VBOX_VM_BASE_SNAPSHOT = 'Snapshot 1'
+VBOX_VM_BASE_SNAPSHOT = 'vbox_base_snapshot'
+VBOX_VM_DEFAULT_BASE_SNAPSHOT = 'Snapshot 1'
 
 
 
@@ -41,7 +42,7 @@ class VirtualBox(VirtualMachineManager):
 
         self.vboxmanage       = cfg_manager.get_value(VBOXMANAGE_COMMAND_NAME, VBOXMANAGE_COMMAND_DEFAULT_VALUE)
         self.vm_name          = cfg_manager.get_value(VBOX_VM_NAME, VBOX_VM_DEFAULT_VALUE)
-        self.vm_base_snapshot = cfg_manager.get_value(VBOX_VM_BASE_SNAPSHOT, VBOX_VM_BASE_SNAPSHOT)
+        self.vm_base_snapshot = cfg_manager.get_value(VBOX_VM_BASE_SNAPSHOT, VBOX_VM_DEFAULT_BASE_SNAPSHOT)
 
     @Override(VirtualMachineManager)
     def launch_vm(self):

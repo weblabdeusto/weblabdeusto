@@ -77,5 +77,10 @@ laboratory_assigned_experiments = {
             {
                  'coord_address': 'experiment_vm:main_instance@main_machine',
                  'checkers': ()
+            },
+        'exp1:vm-win@Dummy experiments':
+            {
+                 'coord_address': 'experiment_vm_win:main_instance@main_machine',
+                 'checkers': ()
             }
     }
