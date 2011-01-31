@@ -20,8 +20,8 @@ import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.TextBoxBase;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.ValueBoxBase.TextAlignment;
 
 public abstract class WlNumberTextbox extends WlNumberTextBoxBase {
 
@@ -38,7 +38,7 @@ public abstract class WlNumberTextbox extends WlNumberTextBoxBase {
 		this.differenceValue = difference;
 		
 		this.textBox = new TextBox();
-		this.textBox.setTextAlignment(TextBoxBase.ALIGN_CENTER);
+		this.textBox.setAlignment(TextAlignment.CENTER);
 		this.setLength(length);
 		
 		this.setText(defaultValue);

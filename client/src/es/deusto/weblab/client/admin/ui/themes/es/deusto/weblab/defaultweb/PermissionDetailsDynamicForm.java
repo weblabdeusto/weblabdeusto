@@ -14,10 +14,10 @@
 
 package es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb;
 
-import com.google.gwt.core.client.JavaScriptObject;
 import com.smartgwt.client.data.Record;
 import com.smartgwt.client.widgets.form.DynamicForm;
 
+@SuppressWarnings("unused")
 public class PermissionDetailsDynamicForm extends DynamicForm {
 
 	private long userId;

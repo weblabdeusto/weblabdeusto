@@ -112,7 +112,7 @@ public class VisirFlashBoard extends WebLabFlashAppBasedBoard {
 		// Data is received encoded through Python, decoded, and encoded again. This avoids certain
 		// encoding issues that seem to be occurring. We enable teacher mode so that the
 		// plus sign that gives us access to the full component palette is available.
-		final String decodedSaveData = URL.decodeComponent(this.savedata);
+		final String decodedSaveData = URL.decodeQueryString(this.savedata);
 		final String flashvars = "teacher=1"+"&cookie="+this.cookie+"&savedata="+URL.encode(decodedSaveData);
 		
 		// Data is received encoded, and used to generate the website straightaway.

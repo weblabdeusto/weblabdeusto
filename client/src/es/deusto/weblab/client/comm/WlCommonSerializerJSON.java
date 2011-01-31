@@ -256,7 +256,7 @@ public class WlCommonSerializerJSON implements IWlCommonSerializer {
 			WlServerException {
 				final JSONValue value;
 				try {
-				    value = JSONParser.parse(response);
+				    value = JSONParser.parseStrict(response);
 				} catch (final IllegalArgumentException e) {
 				    throw new SerializationException("Invalid response: " + e.getMessage());
 				} catch (final JSONException e){

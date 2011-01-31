@@ -53,7 +53,7 @@ public class ConfigurationManager extends ConfigurationRetriever implements ICon
 					if(response.getStatusCode() / 100 == 2 || response.getStatusCode() / 100 == 3){
 						final JSONValue value;
 						try{
-							value = JSONParser.parse(response.getText());
+							value = JSONParser.parseStrict(response.getText());
 						}catch(final Exception e){
 							ConfigurationManager.this.callback.onFailure(new WlConfigurationException("Error parsing configuration: " + e.getMessage(), e));
 							return;

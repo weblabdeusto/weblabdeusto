@@ -47,7 +47,7 @@ public class VisirSetupDataRequestCommand extends Command {
 		
 		try {
 		
-			final JSONValue val = JSONParser.parse(response);
+			final JSONValue val = JSONParser.parseStrict(response);
 			final JSONObject obj = val.isObject();
 			if(obj == null)
 				return false;

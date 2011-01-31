@@ -108,6 +108,7 @@ public class AdminPanelWindow extends BaseWindow {
 	private WebLabRestDataSource authsDS;
 	private WebLabRestDataSource userPermissionsDS;
 	private WebLabRestDataSource permissionTypeDS;
+	@SuppressWarnings("unused")
 	private WebLabRestDataSource permissionTypeParameterDS;
 
 	// Widgets
@@ -120,7 +121,6 @@ public class AdminPanelWindow extends BaseWindow {
 	@UiField VLayout smartGWTLayout;
 	private TabSet tabSet;
 	private Tab accessesTab;
-	@SuppressWarnings("unused")
 	private Tab usersTab;
 	private VLayout accessesLayout;
 	private DynamicForm accessesExperimentUsesFilterForm;
@@ -374,7 +374,6 @@ public class AdminPanelWindow extends BaseWindow {
 		this.accessesLayout.addMember(this.accessesExperimentUsesGrid);		
 	}
 	
-	@SuppressWarnings("unused")
 	private void buildUsersLayout() {			
 		
 		this.usersTabSet = new TabSet();
