@@ -18,8 +18,8 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.dom.client.KeyPressEvent;
-import com.google.gwt.event.dom.client.KeyPressHandler;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -78,15 +78,15 @@ class LoginWindow extends BaseWindow {
 
 	private void setupWidgets(final Widget wid) {
 		// If ENTER is pressed, login as if the button had been clicked.
-		final KeyPressHandler keyboardHandler = new KeyPressHandler(){
+		final KeyDownHandler keyboardHandler = new KeyDownHandler(){
 			@Override
-			public void onKeyPress(KeyPressEvent event) {
-			    if(event.getCharCode() == KeyCodes.KEY_ENTER)
+			public void onKeyDown(KeyDownEvent event) {
+			    if(event.getNativeKeyCode() == KeyCodes.KEY_ENTER)
 					LoginWindow.this.onLoginButtonClicked(null);   
 			}
 		};
-		this.usernameTextbox.addKeyPressHandler(keyboardHandler);
-		this.passwordTextbox.addKeyPressHandler(keyboardHandler);
+		this.usernameTextbox.addKeyDownHandler(keyboardHandler);
+		this.passwordTextbox.addKeyDownHandler(keyboardHandler);
 		
 		final DecoratedPopupPanel simplePopup = new DecoratedPopupPanel(true);
 		final VerticalPanel languageList = new VerticalPanel();

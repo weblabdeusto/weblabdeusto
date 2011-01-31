@@ -1,7 +1,7 @@
 package es.deusto.weblab.client.ui.widgets;
 
-import com.google.gwt.event.dom.client.KeyPressEvent;
-import com.google.gwt.event.dom.client.KeyPressHandler;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -11,12 +11,12 @@ public class WlShell implements IWlWidget {
 	public ShellTextArea() {
 	    super();
 	    
-	    this.addKeyPressHandler(new KeyPressHandler() {
+	    this.addKeyDownHandler(new KeyDownHandler() {
 		@Override
-		public void onKeyPress(KeyPressEvent event) {
+		public void onKeyDown(KeyDownEvent event) {
 		    if ( WlShell.this.shellListener != null )
 		    {
-			WlShell.this.shellListener.onKeyPress(event);
+			WlShell.this.shellListener.onKeyDown(event);
 		    }
 		}
 	    });
@@ -27,7 +27,7 @@ public class WlShell implements IWlWidget {
     private IWlShellListener shellListener;
     
 	public interface IWlShellListener{
-		public void onKeyPress(KeyPressEvent event);
+		public void onKeyDown(KeyDownEvent event);
 	}    
     
     public WlShell(int widthInCharacters, int heightInLines)

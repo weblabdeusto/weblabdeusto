@@ -28,7 +28,7 @@ public class WlDoubleTextbox extends WlNumberTextbox{
 	}
 	
 	@Override
-	protected boolean isDigit(char keyCode) {
+	protected boolean isDigit(int keyCode) {
 		if(keyCode >= '0' && keyCode <= '9')
 			return true;
 		if(keyCode != '.' && keyCode != ',')

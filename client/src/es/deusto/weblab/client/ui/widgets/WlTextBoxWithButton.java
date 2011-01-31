@@ -1,8 +1,8 @@
 package es.deusto.weblab.client.ui.widgets;
 
 import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.dom.client.KeyPressEvent;
-import com.google.gwt.event.dom.client.KeyPressHandler;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -45,15 +45,15 @@ public class WlTextBoxWithButton extends VerticalPanel implements IWlWidget{
 		this.textbox = new TextBox();
 		this.textbox.setWidth(length + "em");
 		
-		final KeyPressHandler keyboardHandler = new KeyPressHandler(){
+		final KeyDownHandler keyboardHandler = new KeyDownHandler(){
 			@Override
-			public void onKeyPress(KeyPressEvent event) {
-				if(event.getCharCode() == KeyCodes.KEY_ENTER){
+			public void onKeyDown(KeyDownEvent event) {
+				if(event.getNativeKeyCode() == KeyCodes.KEY_ENTER){
 					WlTextBoxWithButton.this.fireEnterKey();
 				}
 			}
 		};
-		this.textbox.addKeyPressHandler(keyboardHandler);
+		this.textbox.addKeyDownHandler(keyboardHandler);
 		
 		this.sendButton = new WlButton(WlTextBoxWithButton.BUTTON_MILLISECONDS);
 		this.sendButton.addActionListener(new IWlActionListener(){

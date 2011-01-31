@@ -23,7 +23,7 @@ public class WlIntegerTextbox extends WlNumberTextbox{
 	}
 
 	@Override
-	protected boolean isDigit(char keyCode) {
+	protected boolean isDigit(int keyCode) {
 		return keyCode >= '0' && keyCode <= '9';
 	}
 

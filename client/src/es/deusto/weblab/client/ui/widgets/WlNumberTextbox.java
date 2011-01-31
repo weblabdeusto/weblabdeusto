@@ -16,8 +16,8 @@ package es.deusto.weblab.client.ui.widgets;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.dom.client.KeyPressEvent;
-import com.google.gwt.event.dom.client.KeyPressHandler;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
@@ -28,7 +28,7 @@ public abstract class WlNumberTextbox extends WlNumberTextBoxBase {
 	protected Number differenceValue;
 	protected TextBox textBox;
 	
-	protected abstract boolean isDigit(char keyCode);
+	protected abstract boolean isDigit(int keyCode);
 	public abstract Number  getMaxValue();
 	public abstract Number  getMinValue();
 	
@@ -43,10 +43,10 @@ public abstract class WlNumberTextbox extends WlNumberTextBoxBase {
 		
 		this.setText(defaultValue);
 		
-		this.textBox.addKeyPressHandler(new KeyPressHandler(){
+		this.textBox.addKeyDownHandler(new KeyDownHandler(){
 		    	@Override
-				public void onKeyPress(KeyPressEvent event) {
-				if(!WlNumberTextbox.this.isDigit(event.getCharCode()) && !WlNumberTextbox.this.isMoveKey(event.getCharCode()))
+				public void onKeyDown(KeyDownEvent event) {
+				if(!WlNumberTextbox.this.isDigit(event.getNativeKeyCode()) && !WlNumberTextbox.this.isMoveKey(event.getNativeKeyCode()))
 					((TextBox)event.getSource()).cancelKey();
 			}
 		});
@@ -61,7 +61,7 @@ public abstract class WlNumberTextbox extends WlNumberTextBoxBase {
 		super.configure();
 	}
 	
-	private boolean isMoveKey(char keyCode) {
+	private boolean isMoveKey(int keyCode) {
 		switch (keyCode) {
 			case KeyCodes.KEY_CTRL:
 			case KeyCodes.KEY_DELETE:
