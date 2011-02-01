@@ -247,8 +247,8 @@ class CoordinatorTestCase(unittest.TestCase):
 
         " If there are users waiting for instances, and a new instance is added, then the queue is updated "
 
-        self.coordinator.remove_experiment_instance_id(ExperimentInstanceId("inst1", "exp1","cat1"))
-        self.coordinator.remove_experiment_instance_id(ExperimentInstanceId("inst2", "exp1","cat1"))
+        self.coordinator.mark_experiment_as_broken(ExperimentInstanceId("inst1", "exp1","cat1"))
+        self.coordinator.mark_experiment_as_broken(ExperimentInstanceId("inst2", "exp1","cat1"))
 
         status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId("exp1","cat1"), DEFAULT_TIME, DEFAULT_PRIORITY, DEFAULT_INITIAL_DATA)
         expected_status = WQS.WaitingInstancesQueueStatus(0)
@@ -406,7 +406,7 @@ class CoordinatorTestCase(unittest.TestCase):
         # 
         # Remove the first instance of the experiment
         # 
-        self.coordinator.remove_experiment_instance_id(ExperimentInstanceId("inst1", "exp1","cat1"))
+        self.coordinator.mark_experiment_as_broken(ExperimentInstanceId("inst1", "exp1","cat1"))
 
         # 
         # Check that the first user is the first in the queue
@@ -451,8 +451,8 @@ class CoordinatorTestCase(unittest.TestCase):
 
         "Removes all the instances and then reserve"
 
-        self.coordinator.remove_experiment_instance_id(ExperimentInstanceId("inst1", "exp1","cat1"))
-        self.coordinator.remove_experiment_instance_id(ExperimentInstanceId("inst2", "exp1","cat1"))
+        self.coordinator.mark_experiment_as_broken(ExperimentInstanceId("inst1", "exp1","cat1"))
+        self.coordinator.mark_experiment_as_broken(ExperimentInstanceId("inst2", "exp1","cat1"))
 
 
         status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId("exp1","cat1"), DEFAULT_TIME, DEFAULT_PRIORITY, DEFAULT_INITIAL_DATA)
@@ -475,8 +475,8 @@ class CoordinatorTestCase(unittest.TestCase):
 
         "There is no problem removing experiment instances"
 
-        self.coordinator.remove_experiment_instance_id(ExperimentInstanceId("inst1", "exp1","cat1"))
-        self.coordinator.remove_experiment_instance_id(ExperimentInstanceId("inst2", "exp1","cat1"))
+        self.coordinator.mark_experiment_as_broken(ExperimentInstanceId("inst1", "exp1","cat1"))
+        self.coordinator.mark_experiment_as_broken(ExperimentInstanceId("inst2", "exp1","cat1"))
 
     def test_finish_user(self):
 
@@ -495,7 +495,7 @@ class CoordinatorTestCase(unittest.TestCase):
 
         "If a user finishes and had some room, this room is reused"
 
-        self.coordinator.remove_experiment_instance_id(ExperimentInstanceId("inst2", "exp1","cat1"))
+        self.coordinator.mark_experiment_as_broken(ExperimentInstanceId("inst2", "exp1","cat1"))
 
         # Now there is a single experiment instance available. We reserve it:
 

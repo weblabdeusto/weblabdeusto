@@ -126,19 +126,6 @@ class Coordinator(object):
             session.close()
 
     @logged()
-    def remove_experiment_instance_id(self, experiment_instance_id):
-        schedulers        = self._get_schedulers_per_experiment_instance_id(experiment_instance_id)
-        resource_instance = self.resources_manager.get_resource_instance_by_experiment_instance_id(experiment_instance_id)
-
-        session = self._session_maker()
-        try:
-            for scheduler in schedulers:
-                scheduler.remove_resource_instance_id(session, resource_instance)
-            session.commit()
-        finally:
-            session.close()
-
-    @logged()
     def list_experiments(self):
         return self.resources_manager.list_experiments()
 
@@ -168,6 +155,31 @@ class Coordinator(object):
                 continue
             result[reservation_id] = best_reservation_status
         return result
+
+    @logged()
+    def mark_experiment_as_broken(self, experiment_instance_id):
+        schedulers        = self._get_schedulers_per_experiment_instance_id(experiment_instance_id)
+        resource_instance = self.resources_manager.get_resource_instance_by_experiment_instance_id(experiment_instance_id)
+
+        session = self._session_maker()
+        try:
+            for scheduler in schedulers:
+                scheduler.removing_current_resource_slot(session, resource_instance)
+            self.resources_manager.mark_experiment_as_broken(session, resource_instance)
+            session.commit()
+        finally:
+            session.close()
+
+    @logged()
+    def mark_experiment_as_fixed(self, experiment_instance_d):
+        resource_instance = self.resources_manager.get_resource_instance_by_experiment_instance_id(experiment_instance_id)
+
+        session = self._session_maker()
+        try:
+            self.resources_manager.mark_experiment_as_fixed(session, resource_instance)
+            session.commit()
+        finally:
+            session.close()
 
     ##########################################################################
     # 

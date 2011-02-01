@@ -107,7 +107,7 @@ class Scheduler(object):
     # administration panel. Otherwise, the scheduler should handle the notifications
     # of "experiment broken", "experiment fixed", etc.
     # 
-    def remove_resource_instance_id(self, session, resource_instance_id):
+    def removing_current_resource_slot(self, session, resource_instance_id):
         pass
 
     #######################################

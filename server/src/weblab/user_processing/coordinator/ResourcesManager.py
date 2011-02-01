@@ -99,7 +99,27 @@ class ResourcesManager(object):
         finally:
             session.close()
 
-    def remove_experiment_instance_id(self, session, experiment_instance_id):
+    def _get_resource_instance(self, session, resource):
+        db_resource_type = session.query(ResourceType).filter_by(name = resource.resource_type).one()
+        db_resource_instance = session.query(ResourceInstance).filter_by(name = resource.resource_instance, resource_type = db_resource_type).one()
+        return db_resource_instance
+
+    def mark_experiment_as_broken(self, session, resource):
+        db_resource_instance = self._get_resource_instance(session, resource)
+               
+        db_slot = db_resource_instance.slot
+        if not db_slot is None:
+            session.delete(db_slot)
+
+    def mark_experiment_as_fixed(self, session, resource):
+        db_resource_instance = self._get_resource_instance(session, resource)
+       
+        db_slot = db_resource_instance.slot
+        if db_slot is None:
+            db_slot = CurrentResourceSlot(db_resource_instance)
+            session.add(db_slot)
+
+    def remove_resource_instance_id(self, session, experiment_instance_id):
         exp_type = session.query(ExperimentType).filter_by(cat_name = experiment_instance_id.cat_name).first()
         if exp_type is None:
             return # The experiment is not there anyway
@@ -121,7 +141,7 @@ class ResourcesManager(object):
         
         for experiment_instance in resource_instance.experiment_instances:
             experiment_instance_id = experiment_instance.to_experiment_instance_id()
-            self.remove_experiment_instance_id(session, experiment_instance_id)
+            self.remove_resource_instance_id(session, experiment_instance_id)
 
         session.delete(resource_instance)
 
@@ -158,10 +178,12 @@ class ResourcesManager(object):
         try:
             experiment_instances = session.query(ExperimentInstance).all()
 
-            laboratories_addresses = set()
+            laboratories_addresses = {}
 
             for experiment_instance in experiment_instances:
-                laboratories_addresses.add(experiment_instance.laboratory_coord_address)
+                current_set = laboratories_addresses.get(experiment_instance.laboratory_coord_address, set())
+                current_set.add(experiment_instance.to_experiment_instance_id())
+                laboratories_addresses[experiment_instance.laboratory_coord_address] = current_set
         finally:
             session.close()
         

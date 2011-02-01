@@ -23,6 +23,7 @@ import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
 
 from weblab.data.experiments.ExperimentId import ExperimentId
 from weblab.user_processing.coordinator.Resource import Resource
+from weblab.user_processing.coordinator.Coordinator import Coordinator
 import weblab.user_processing.coordinator.ResourcesManager as ResourcesManager
 import weblab.user_processing.coordinator.CoordinationDatabaseManager as CoordinationDatabaseManager
 import weblab.user_processing.coordinator.CoordinatorModel as CoordinatorModel
@@ -32,6 +33,9 @@ class ResourcesManagerTestCase(unittest.TestCase):
     def setUp(self):
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
+
+        coordinator = Coordinator(None, self.cfg_manager)
+        coordinator._clean()
 
         coordination_database = CoordinationDatabaseManager.CoordinationDatabaseManager(self.cfg_manager)
         self.session_maker = coordination_database.session_maker
@@ -207,7 +211,7 @@ class ResourcesManagerTestCase(unittest.TestCase):
         self.assertTrue(resource_type in experiment_type.resource_types)
         self.assertTrue(experiment_type in resource_type.experiment_types)
 
-    def test_remove_experiment_instance_id(self):
+    def test_mark_experiment_as_broken(self):
         session = self.session_maker()
         try:
             exp_id = ExperimentInstanceId.ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
@@ -216,7 +220,7 @@ class ResourcesManagerTestCase(unittest.TestCase):
             experiment_instances = session.query(CoordinatorModel.ExperimentInstance).all()
             self.assertEquals(1, len(experiment_instances))
 
-            self.resources_manager.remove_experiment_instance_id(session, exp_id)
+            self.resources_manager.remove_resource_instance_id(session, exp_id)
 
             experiment_instances = session.query(CoordinatorModel.ExperimentInstance).all()
             self.assertEquals(0, len(experiment_instances))
@@ -311,7 +315,12 @@ class ResourcesManagerTestCase(unittest.TestCase):
         addresses = self.resources_manager.list_laboratories_addresses()
         self.assertEquals(2, len(addresses))
         self.assertTrue("laboratory1:WL_SERVER1@WL_MACHINE1" in addresses)
+        self.assertEquals(2, len(addresses["laboratory1:WL_SERVER1@WL_MACHINE1"]))
+        self.assertTrue(exp_id1 in addresses["laboratory1:WL_SERVER1@WL_MACHINE1"])
+        self.assertTrue(exp_id2 in addresses["laboratory1:WL_SERVER1@WL_MACHINE1"])
         self.assertTrue("laboratory2:WL_SERVER1@WL_MACHINE1" in addresses)
+        self.assertEquals(1, len(addresses["laboratory2:WL_SERVER1@WL_MACHINE1"]))
+        self.assertTrue(exp_id3 in addresses["laboratory2:WL_SERVER1@WL_MACHINE1"])
 
 
 def suite():

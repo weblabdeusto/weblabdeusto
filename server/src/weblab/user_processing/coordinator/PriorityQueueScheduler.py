@@ -50,7 +50,7 @@ class PriorityQueueScheduler(Scheduler):
 
     @logged()
     @Override(Scheduler)
-    def remove_resource_instance_id(self, session, resource_instance_id):
+    def removing_current_resource_slot(self, session, resource_instance_id):
         resource_type = session.query(ResourceType).filter_by(name = resource_instance_id.resource_type).one()
         resource_instance = session.query(ResourceInstance).filter_by(name = resource_instance_id.resource_instance, resource_type = resource_type).one()
 
@@ -68,8 +68,6 @@ class PriorityQueueScheduler(Scheduler):
                     self.resources_manager.release_resource(session, current_resource_slot.slot_reservation)
                     session.add(waiting_reservation)
                     session.delete(concrete_current_reservation)
-
-            session.delete(current_resource_slot)
 
     @logged()
     @Override(Scheduler)
