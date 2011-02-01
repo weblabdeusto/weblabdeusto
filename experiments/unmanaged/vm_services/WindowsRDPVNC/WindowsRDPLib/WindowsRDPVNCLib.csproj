@@ -42,6 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccountsManager.cs" />
+    <Compile Include="IPasswordChanger.cs" />
+    <Compile Include="PasswordChangerManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequestHandler.cs" />
     <Compile Include="RequestsListener.cs" />

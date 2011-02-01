@@ -53,11 +53,11 @@
     <Compile Include="Installer.Designer.cs">
       <DependentUpon>Installer.cs</DependentUpon>
     </Compile>
-    <Compile Include="WindowsRDPService.cs">
+    <Compile Include="WindowsRDPVNCService.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="WindowsRDPService.Designer.cs">
-      <DependentUpon>WindowsRDPService.cs</DependentUpon>
+    <Compile Include="WindowsRDPVNCService.Designer.cs">
+      <DependentUpon>WindowsRDPVNCService.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -72,8 +72,8 @@
     <EmbeddedResource Include="Installer.resx">
       <DependentUpon>Installer.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="WindowsRDPService.resx">
-      <DependentUpon>WindowsRDPService.cs</DependentUpon>
+    <EmbeddedResource Include="WindowsRDPVNCService.resx">
+      <DependentUpon>WindowsRDPVNCService.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -83,7 +83,7 @@
     <None Include="install_service.bat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="WindowsRDPService.exe.config">
+    <None Include="WindowsRDPVNCService.exe.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
