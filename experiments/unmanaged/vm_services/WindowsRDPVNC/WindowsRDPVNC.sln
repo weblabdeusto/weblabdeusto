@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsRDP", "WindowsRDP\WindowsRDP.csproj", "{68A34F08-57CD-40AC-94C6-C4376FD62C5A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsRDPVNC", "WindowsRDP\WindowsRDPVNC.csproj", "{68A34F08-57CD-40AC-94C6-C4376FD62C5A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsRDPService", "WindowsRDPService\WindowsRDPService.csproj", "{9ACC6758-0BEE-40D5-AC60-D3F1A3234EAA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsRDPVNCService", "WindowsRDPService\WindowsRDPVNCService.csproj", "{9ACC6758-0BEE-40D5-AC60-D3F1A3234EAA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsRDPLib", "WindowsRDPLib\WindowsRDPLib.csproj", "{538A9F3A-08AB-4827-B9BF-07866EB21D24}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsRDPVNCLib", "WindowsRDPLib\WindowsRDPVNCLib.csproj", "{538A9F3A-08AB-4827-B9BF-07866EB21D24}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
