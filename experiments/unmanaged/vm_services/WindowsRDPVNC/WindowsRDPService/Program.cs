@@ -5,7 +5,7 @@ using System.ServiceProcess;
 using System.Text;
 using System.Diagnostics;
 
-namespace WebLab.VM.WindowsRDP
+namespace WebLab.VM.WindowsRDPVNC
 {
     static class Program
     {

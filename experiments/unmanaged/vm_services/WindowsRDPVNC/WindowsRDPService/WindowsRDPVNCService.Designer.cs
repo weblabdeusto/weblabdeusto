@@ -1,4 +1,4 @@
-﻿namespace WebLab.VM.WindowsRDP
+﻿namespace WebLab.VM.WindowsRDPVNC
 {
     partial class WindowsRDPService
     {

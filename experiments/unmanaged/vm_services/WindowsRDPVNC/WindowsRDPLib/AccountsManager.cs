@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.DirectoryServices.AccountManagement;
 
 
-namespace WebLab.VM.WindowsRDP
+namespace WebLab.VM.WindowsRDPVNC
 {
 
     /// <summary>

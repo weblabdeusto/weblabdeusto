@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Configuration;
 
-namespace WebLab.VM.WindowsRDP
+namespace WebLab.VM.WindowsRDPVNC
 {
     public partial class WindowsRDPService : ServiceBase
     {

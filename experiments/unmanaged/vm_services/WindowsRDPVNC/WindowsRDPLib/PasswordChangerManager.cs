@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace WindowsRDPLib
+namespace WebLab.VM.WindowsRDPVNC
 {
 
     /// <summary>

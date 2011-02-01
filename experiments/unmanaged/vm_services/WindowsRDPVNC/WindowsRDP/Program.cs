@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Configuration;
 
 
-namespace WebLab.VM.WindowsRDP
+namespace WebLab.VM.WindowsRDPVNC
 {
 	class Program
 	{

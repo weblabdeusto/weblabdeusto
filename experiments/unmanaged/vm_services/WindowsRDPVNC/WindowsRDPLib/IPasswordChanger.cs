@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace WindowsRDPLib
+namespace WebLab.VM.WindowsRDPVNC
 {
 
     /// <summary>
     /// Exception which will be thrown whenever an error occurs
     /// while trying to change a password.
     /// </summary>
-    class PasswordChangingException : Exception
+    public class PasswordChangingException : Exception
     {
         public PasswordChangingException(string msg)
             : base(msg)
@@ -24,7 +24,7 @@ namespace WindowsRDPLib
     /// every class capable of changing the password of some
     /// system or method. 
     /// </summary>
-    interface IPasswordChanger
+    public interface IPasswordChanger
     {
 
         /// <summary>

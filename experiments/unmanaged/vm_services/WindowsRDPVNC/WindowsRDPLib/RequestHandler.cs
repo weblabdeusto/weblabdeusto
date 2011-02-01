@@ -5,7 +5,7 @@ using System.DirectoryServices.AccountManagement;
 using System.IO;
 
 
-namespace WebLab.VM.WindowsRDP
+namespace WebLab.VM.WindowsRDPVNC
 {
 
     /// <summary>
