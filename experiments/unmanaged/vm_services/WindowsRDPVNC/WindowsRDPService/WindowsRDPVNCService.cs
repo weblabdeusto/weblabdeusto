@@ -41,6 +41,8 @@ namespace WebLab.VM.WindowsRDPVNC
                 return;
             }
 
+            PasswordChangerManager.Instance.registerPasswordChangers(ConfigurationManager.AppSettings);
+
             Trace.WriteLine(String.Format("Prefix: {0}", mPrefix));
         }
 

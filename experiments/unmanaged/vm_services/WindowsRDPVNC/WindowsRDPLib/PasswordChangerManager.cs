@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Collections.Specialized;
 
 namespace WebLab.VM.WindowsRDPVNC
 {
@@ -9,7 +10,7 @@ namespace WebLab.VM.WindowsRDPVNC
     /// <summary>
     /// Aids with password changing and changers management. 
     /// </summary>
-    class PasswordChangerManager
+    public class PasswordChangerManager
     {
         private static PasswordChangerManager mInstance = new PasswordChangerManager();
         public static PasswordChangerManager Instance { get { return mInstance; } }
@@ -34,6 +35,20 @@ namespace WebLab.VM.WindowsRDPVNC
         {
             foreach (var changer in mPasswordChangers.Values)
                 changer.ChangePassword(newPassword);
+        }
+
+
+        /// <summary>
+        /// Registers the appropiate changers by itself according to the specified
+        /// configuration.
+        /// </summary>
+        /// <param name="config">Configuration which will be used to choose the appropiate changers 
+        /// and to retrieve the specific information that each of they may require. Generally it will
+        /// simply be the app.config collection. Note that the presence of additional unrelated 
+        /// NameValues is allowed. </param>
+        public void registerPasswordChangers(NameValueCollection config)
+        {
+
         }
     }
 }

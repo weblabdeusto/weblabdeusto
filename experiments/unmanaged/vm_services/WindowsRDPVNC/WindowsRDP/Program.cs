@@ -50,6 +50,8 @@ namespace WebLab.VM.WindowsRDPVNC
                 return;
             }
 
+            PasswordChangerManager.Instance.registerPasswordChangers(ConfigurationManager.AppSettings);
+
             RequestsListener listener = new RequestsListener(prefix);
             listener.Run();
         }
