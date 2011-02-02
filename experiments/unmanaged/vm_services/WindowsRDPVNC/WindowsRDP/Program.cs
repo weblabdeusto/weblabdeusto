@@ -2,7 +2,6 @@
 using System;
 using System.Net;
 using System.Diagnostics;
-using System.Configuration;
 
 
 namespace WebLab.VM.WindowsRDPVNC
@@ -32,26 +31,7 @@ namespace WebLab.VM.WindowsRDPVNC
 
         public void Run()
         {
-            try
-            {
-                string prefix = ConfigurationManager.AppSettings["request_prefix"];
-                if (prefix == null)
-                    throw new ConfigException("request_prefix variable was not specified in the configuration file");
-
-                PasswordChangerManager.Instance.registerPasswordChangers(ConfigurationManager.AppSettings);
-
-                RequestsListener listener = new RequestsListener(prefix);
-                listener.Run();
-            }
-            catch (ConfigException e)
-            {
-                Trace.WriteLine(e.Message);
-            }
-            catch (Exception e)
-            {
-                Trace.WriteLine(e.Message);
-                Trace.WriteLine(e.StackTrace);
-            }
+            Server.Instance.Run();
         } //! Run()
 
 	} //! Class

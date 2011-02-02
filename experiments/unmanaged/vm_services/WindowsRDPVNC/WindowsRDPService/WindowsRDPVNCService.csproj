@@ -8,7 +8,7 @@
     <ProjectGuid>{9ACC6758-0BEE-40D5-AC60-D3F1A3234EAA}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WindowsRDPService</RootNamespace>
+    <RootNamespace>WebLab.VM.WindowsRDPVNC</RootNamespace>
     <AssemblyName>WindowsRDPService</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>

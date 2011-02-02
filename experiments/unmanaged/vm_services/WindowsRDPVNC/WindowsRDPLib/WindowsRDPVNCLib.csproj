@@ -8,7 +8,7 @@
     <ProjectGuid>{538A9F3A-08AB-4827-B9BF-07866EB21D24}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WindowsRDPLib</RootNamespace>
+    <RootNamespace>WebLab.VM.WindowsRDPVNC</RootNamespace>
     <AssemblyName>WindowsRDPLib</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -32,6 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.DirectoryServices.AccountManagement" />
     <Reference Include="System.ServiceProcess" />
@@ -48,6 +49,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query\RequestHandler.cs" />
     <Compile Include="Query\RequestsListener.cs" />
+    <Compile Include="Server.cs" />
     <Compile Include="Util\IniRW.cs" />
     <Compile Include="VNC\UltraVNCManager.cs" />
     <Compile Include="VNC\UltraVNCPasswordChanger.cs" />
