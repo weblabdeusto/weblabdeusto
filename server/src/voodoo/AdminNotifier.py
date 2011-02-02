@@ -17,11 +17,13 @@ import voodoo.exceptions.configuration.ConfigurationExceptions as ConfigurationE
 
 import smtplib
 
-EMAIL_BODY = """From: WebLab Notifier <%(mail_notif_sender)s>
+EMAIL_HEADER = """From: WebLab Notifier <%(mail_notif_sender)s>
 To: %(recipients)s
 Subject: %(subject)s
 
-There was a critical error in WebLab server %(server_hostaddress)s!
+"""
+
+EMAIL_BODY = """There was a critical error in WebLab server %(server_hostaddress)s!
 
 Message: %(message)s
     
@@ -79,7 +81,7 @@ class AdminNotifier(object):
     def __init__(self, cfg_manager):
         self._configuration = cfg_manager
         
-    def notify(self, message):
+    def notify(self, message = None, recipients = None, subject = None, body = None):
         if self._configuration.get_value(MAIL_NOTIFICATION_ENABLED_NAME, DEFAULT_MAIL_NOTIFICATION_ENABLED_NAME):
             try:
                 server_hostaddress  = self._configuration.get_value(SERVER_HOSTADDRESS_NAME)
@@ -96,12 +98,16 @@ class AdminNotifier(object):
                 )
                 return -1
             
-            mail_notification_subject = self._configuration.get_value(MAIL_NOTIFICATION_SUBJECT_NAME,
-                    AdminNotifier.DEFAULT_NOTIFICATION_SUBJECT
-                )
+            if subject is None:
+                mail_notification_subject = self._configuration.get_value(MAIL_NOTIFICATION_SUBJECT_NAME, AdminNotifier.DEFAULT_NOTIFICATION_SUBJECT)
+            else:
+                mail_notification_subject = subject
 
             try:
-                recipients = self._parse_recipients(server_admin)
+                if recipients is None:
+                    mail_recipients = self._parse_recipients(server_admin)
+                else:
+                    mail_recipients = recipients
 
                 server = self._create_mailer(mail_server_host)
                 try:
@@ -109,16 +115,25 @@ class AdminNotifier(object):
                         server.starttls()
                     server.helo(mail_server_helo)
 
+                    if body is None:
+                        email_body = EMAIL_BODY % {
+                                    'server_hostaddress' : server_hostaddress,
+                                    'message' : message
+                                }
+                    else:
+                        email_body = body
+
                     server.sendmail(
                         mail_notif_sender,
-                        recipients,
-                        EMAIL_BODY % {
-                            'mail_notif_sender' : mail_notif_sender,
-                            'recipients' : recipients,
-                            'server_hostaddress' : server_hostaddress,
-                            'subject' : mail_notification_subject,
-                            'message' : message
-                        }
+                        mail_recipients,
+                        "%s%s" % (
+                            (EMAIL_HEADER % {
+                                    'mail_notif_sender' : mail_notif_sender,
+                                    'recipients' : mail_recipients,
+                                    'subject' : mail_notification_subject,
+                                }),
+                            email_body
+                        )
                     )
                 finally:
                     try:
