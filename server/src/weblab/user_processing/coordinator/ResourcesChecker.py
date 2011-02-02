@@ -42,7 +42,7 @@ class ResourcesChecker(object):
                             "Laboratory server %s reported that experiment %s was failing; however this laboratory does NOT manage this experiment. Attack?" % (address_str, failing_experiment))
                     continue
 
-                self.coordinator.mark_experiment_as_broken(failing_experiment)
+                self.coordinator.mark_experiment_as_broken(failing_experiment, failing_experiments[failing_experiment])
 
             for experiment in experiments:
                 if not experiment in failing_experiments:

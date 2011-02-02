@@ -54,7 +54,7 @@ class ReservationConfirmer(object):
             # TODO: use client_initial_data and server_initial_data
             lab_session_id = labserver.reserve_experiment(experiment_instance_id)
         except Exception, e:
-            self.coordinator.mark_experiment_as_broken(experiment_instance_id)
+            self.coordinator.mark_experiment_as_broken(experiment_instance_id, [str(e)])
 
             log.log( ReservationConfirmer, log.LogLevel.Error, "Exception confirming experiment: %s" % e )
             log.log_exc( ReservationConfirmer, log.LogLevel.Warning )

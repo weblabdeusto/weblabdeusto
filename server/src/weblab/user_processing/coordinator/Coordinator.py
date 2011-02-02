@@ -16,6 +16,8 @@ import time
 import datetime
 
 from voodoo.log import logged
+import voodoo.LogLevel as LogLevel
+import voodoo.log as log
 import voodoo.AdminNotifier as AdminNotifier
 
 import weblab.exceptions.user_processing.CoordinatorExceptions as CoordExc
@@ -173,7 +175,7 @@ class Coordinator(object):
         return result
 
     @logged()
-    def mark_experiment_as_broken(self, experiment_instance_id):
+    def mark_experiment_as_broken(self, experiment_instance_id, messages = []):
         schedulers        = self._get_schedulers_per_experiment_instance_id(experiment_instance_id)
         resource_instance = self.resources_manager.get_resource_instance_by_experiment_instance_id(experiment_instance_id)
 
@@ -190,8 +192,12 @@ class Coordinator(object):
         finally:
             session.close()
 
-        if anything_changed and self.notifications_enabled:
-            self._notify_experiment_status('broken', experiment_instance_id)
+        if anything_changed:
+            log.log( Coordinator, LogLevel.Warning,
+                    "Experiment %s marked as broken: %r" % (experiment_instance_id.to_weblab_str(), messages) )
+
+            if self.notifications_enabled:
+                self._notify_experiment_status('broken', experiment_instance_id, messages)
 
     @logged()
     def mark_experiment_as_fixed(self, experiment_instance_id):
@@ -205,14 +211,20 @@ class Coordinator(object):
         finally:
             session.close()
 
-        if anything_changed and self.notifications_enabled:
-            self._notify_experiment_status('fixed', experiment_instance_id)
+        if anything_changed:
+            log.log( Coordinator, LogLevel.Warning,
+                    "Experiment %s marked as fixed" % experiment_instance_id.to_weblab_str() )
 
-    def _notify_experiment_status(self, new_status, experiment_instance_id):
+            if self.notifications_enabled:
+                self._notify_experiment_status('fixed', experiment_instance_id)
+
+    def _notify_experiment_status(self, new_status, experiment_instance_id, messages = []):
         body = """The experiment %s has changed its status to: %s""" % (
-                experiment_instance_id.to_weblab_str(), status)
+                experiment_instance_id.to_weblab_str(), new_status)
+        if len(messages) > 0:
+            body += "Reasons: %r" % messages
         recipients = self._retrieve_recipients(experiment_instance_id)
-        subject = "[WebLab] Experiment %s: %s" % (experiment_instance_id.to_weblab_str(), status)
+        subject = "[WebLab] Experiment %s: %s" % (experiment_instance_id.to_weblab_str(), new_status)
 
         if len(recipients) > 0:
             self.notifier.notify( recipients = recipients, body = body, subject = subject)
@@ -227,11 +239,11 @@ class Coordinator(object):
                 server_admins = (server_admin,)
             recipients += server_admins
 
-        general_recipients = self.cfg_manager.get(RESOURCES_CHECKER_GENERAL_RECIPIENTS, DEFAULT_RESOURCES_CHECKER_GENERAL_RECIPIENTS)
+        general_recipients = self.cfg_manager.get(RESOURCES_CHECKER_GENERAL_RECIPIENTS, DEFAULT_RESOURCES_GENERAL_CHECKER_RECIPIENTS)
         recipients += tuple(general_recipients)
 
         particular_recipients = self.cfg_manager.get(RESOURCES_CHECKER_PARTICULAR_RECIPIENTS, DEFAULT_RESOURCES_PARTICULAR_CHECKER_RECIPIENTS)
-        experiment_particular_recipients = particular_recipients.get(expeirment_instance_id.to_weblab_str(), ())
+        experiment_particular_recipients = particular_recipients.get(experiment_instance_id.to_weblab_str(), ())
         recipients += tuple(experiment_particular_recipients)
 
         return recipients
