@@ -48,6 +48,8 @@ DEFAULT_WEBLAB_LABORATORY_SERVER_SESSION_TYPE    = SessionType.Memory.name
 WEBLAB_LABORATORY_SERVER_SESSION_POOL_ID         = "laboratory_session_pool_id"
 DEFAULT_WEBLAB_LABORATORY_SERVER_SESSION_POOL_ID = "LaboratoryServer"
 WEBLAB_LABORATORY_SERVER_ASSIGNED_EXPERIMENTS    = "laboratory_assigned_experiments"
+WEBLAB_LABORATORY_EXCLUDE_CHECKING               = "laboratory_exclude_checking"
+DEFAULT_WEBLAB_LABORATORY_EXCLUDE_CHECKING       = []
 
 ##########################################################
 #
@@ -213,7 +215,13 @@ class LaboratoryServer(object):
         failing_experiment_instance_ids = {
                 # experiment_instance_id : error_message
             }
+
+        exclude_checking = self._cfg_manager.get_value(WEBLAB_LABORATORY_EXCLUDE_CHECKING, DEFAULT_WEBLAB_LABORATORY_EXCLUDE_CHECKING)
+        
         for experiment_instance_id in experiment_instance_ids:
+            if experiment_instance_id.to_weblab_str() in exclude_checking:
+                continue # Exclude experiment
+
             handlers = self._assigned_experiments.get_is_up_and_running_handlers(experiment_instance_id)
             error_messages = []
             for h in handlers:
