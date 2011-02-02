@@ -23,51 +23,20 @@ namespace WebLab.VM.WindowsRDPVNC
             InitializeComponent();
         }
 
-        private void ReadConfigVars()
-        {
-            try
-            {
-                mPrefix = ConfigurationManager.AppSettings["request_prefix"];
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine("Could not read the required configuration variables: " + ex.Message);
-                return;
-            }
-
-            if (mPrefix == "")
-            {
-                Trace.WriteLine("request_prefix must be specified");
-                return;
-            }
-
-            PasswordChangerManager.Instance.registerPasswordChangers(ConfigurationManager.AppSettings);
-
-            Trace.WriteLine(String.Format("Prefix: {0}", mPrefix));
-        }
-
 
         private void Run()
         {
-            try
-            {
-                mListener = new RequestsListener(mPrefix);
-                mListener.Run();
-            }
-            catch (Exception e)
-            {
-                Trace.WriteLine("Exception caught at main thread. Aborting. " + e.Message);
-            }
+            Server.Instance.Run();
         }
 
         protected override void OnStart(string[] args)
         {
             Trace.WriteLine("WindowsRDPService starting.");
 
-            ReadConfigVars();
-
             try
             {
+                Server.Instance.Initialize();
+
                 mListenerThread = new Thread(new ThreadStart(this.Run));
                 mListenerThread.Start();
             }

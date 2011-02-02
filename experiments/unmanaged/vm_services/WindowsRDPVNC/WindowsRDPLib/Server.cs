@@ -19,27 +19,67 @@ namespace WebLab.VM.WindowsRDPVNC
         private static Server mInstance = new Server();
         public static Server Instance { get { return mInstance; } }
 
-        public void Run()
+        public bool Initialized { get; set; }
+
+        // Prefix which will be used when listening for HTTP queries.
+        private string mPrefix;
+
+
+        private Server()
+        {
+            Initialized = false; // False by default. For clarity only.
+        }
+
+        /// <summary>
+        /// Initializes the Server, reading the appropiate configuration variables and
+        /// registering the changers specified on it. If an exception occurs, it will 
+        /// be traced and rethrown.
+        /// </summary>
+        public void Initialize()
         {
             try
             {
-                string prefix = ConfigurationManager.AppSettings["request_prefix"];
-                if (prefix == null)
+                mPrefix = ConfigurationManager.AppSettings["request_prefix"];
+                if (mPrefix == null)
                     throw new ConfigException("request_prefix variable was not specified in the configuration file");
 
                 PasswordChangerManager.Instance.registerPasswordChangers(ConfigurationManager.AppSettings);
-
-                RequestsListener listener = new RequestsListener(prefix);
-                listener.Run();
             }
             catch (ConfigException e)
             {
                 Trace.WriteLine(e.Message);
+                throw;
             }
             catch (Exception e)
             {
                 Trace.WriteLine(e.Message);
                 Trace.WriteLine(e.StackTrace);
+                throw;
+            }
+
+            Initialized = true;
+        }
+
+        /// <summary>
+        /// Starts listening for requests and handling them. Will initialize the server
+        /// through the Initialize method if it hasn't been done already.
+        /// If an error occurs, the exception will be traced and rethrown.
+        /// </summary>
+        public void Run()
+        {
+            if (!Initialized)
+                Initialize();
+
+            try
+            {
+                RequestsListener listener = new RequestsListener(mPrefix);
+                listener.Run();
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine(e.Message);
+                Trace.WriteLine(e.StackTrace);
+                throw;
             }
         }
 
