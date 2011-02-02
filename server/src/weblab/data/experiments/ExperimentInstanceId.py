@@ -24,6 +24,9 @@ class ExperimentInstanceId(object):
     def to_experiment_id(self):
         return ExperimentId.ExperimentId(self.exp_name, self.cat_name)
 
+    def to_weblab_str(self):
+        return "%s:%s@%s" % (self.inst_name, self.exp_name, self.cat_name)
+
     def __eq__(self, other):
         return ( isinstance(other, ExperimentInstanceId) 
                 and self.inst_name == other.inst_name

@@ -16,6 +16,7 @@ import time
 import datetime
 
 from voodoo.log import logged
+import voodoo.AdminNotifier as AdminNotifier
 
 import weblab.exceptions.user_processing.CoordinatorExceptions as CoordExc
 
@@ -36,8 +37,20 @@ SCHEDULING_SYSTEMS = {
     }
 
 CORE_SCHEDULING_SYSTEMS = 'core_scheduling_systems'
+
 RESOURCES_CHECKER_FREQUENCY = 'core_resources_checker_frequency'
 DEFAULT_RESOURCES_CHECKER_FREQUENCY = 30 # seconds
+
+RESOURCES_CHECKER_GENERAL_RECIPIENTS = 'core_resources_checker_general_recipients'
+DEFAULT_RESOURCES_GENERAL_CHECKER_RECIPIENTS = ()
+
+RESOURCES_CHECKER_PARTICULAR_RECIPIENTS = 'core_resources_checker_particular_recipients'
+DEFAULT_RESOURCES_PARTICULAR_CHECKER_RECIPIENTS = {
+            # "inst1:ud-pld@PLD Experiments" : ['admin1@whatever.edu', 'admin2@whatever.edu']
+        }
+
+RESOURCES_CHECKER_NOTIFICATIONS_ENABLED = 'core_resources_checker_notifications_enabled'
+DEFAULT_RESOURCES_CHECKER_NOTIFICATIONS_ENABLED = False
 
 class TimeProvider(object):
     def get_time(self):
@@ -52,6 +65,9 @@ class Coordinator(object):
 
     def __init__(self, locator, cfg_manager, ConfirmerClass = Confirmer.ReservationConfirmer):
         self.cfg_manager = cfg_manager
+
+        self.notifier = AdminNotifier.AdminNotifier(self.cfg_manager)
+        self.notifications_enabled = self.cfg_manager.get_value(RESOURCES_CHECKER_NOTIFICATIONS_ENABLED, DEFAULT_RESOURCES_CHECKER_NOTIFICATIONS_ENABLED)
 
         coordination_database_manager = CoordinationDatabaseManager.CoordinationDatabaseManager(cfg_manager)
         self._session_maker = coordination_database_manager.session_maker
@@ -161,25 +177,64 @@ class Coordinator(object):
         schedulers        = self._get_schedulers_per_experiment_instance_id(experiment_instance_id)
         resource_instance = self.resources_manager.get_resource_instance_by_experiment_instance_id(experiment_instance_id)
 
+        anything_changed = False
         session = self._session_maker()
         try:
             for scheduler in schedulers:
-                scheduler.removing_current_resource_slot(session, resource_instance)
-            self.resources_manager.mark_experiment_as_broken(session, resource_instance)
-            session.commit()
+                changed = scheduler.removing_current_resource_slot(session, resource_instance)
+                anything_changed = anything_changed or changed
+            changed = self.resources_manager.mark_experiment_as_broken(session, resource_instance)
+            anything_changed = anything_changed or changed
+            if anything_changed:
+                session.commit()
         finally:
             session.close()
 
+        if anything_changed and self.notifications_enabled:
+            self._notify_experiment_status('broken', experiment_instance_id)
+
     @logged()
-    def mark_experiment_as_fixed(self, experiment_instance_d):
+    def mark_experiment_as_fixed(self, experiment_instance_id):
         resource_instance = self.resources_manager.get_resource_instance_by_experiment_instance_id(experiment_instance_id)
 
         session = self._session_maker()
         try:
-            self.resources_manager.mark_experiment_as_fixed(session, resource_instance)
-            session.commit()
+            anything_changed = self.resources_manager.mark_experiment_as_fixed(session, resource_instance)
+            if anything_changed:
+                session.commit()
         finally:
             session.close()
+
+        if anything_changed and self.notifications_enabled:
+            self._notify_experiment_status('fixed', experiment_instance_id)
+
+    def _notify_experiment_status(self, new_status, experiment_instance_id):
+        body = """The experiment %s has changed its status to: %s""" % (
+                experiment_instance_id.to_weblab_str(), status)
+        recipients = self._retrieve_recipients(experiment_instance_id)
+        subject = "[WebLab] Experiment %s: %s" % (experiment_instance_id.to_weblab_str(), status)
+
+        if len(recipients) > 0:
+            self.notifier.notify( recipients = recipients, body = body, subject = subject)
+
+    def _retrieve_recipients(self, experiment_instance_id):
+        recipients = ()
+        server_admin = self.cfg_manager.get_value(AdminNotifier.SERVER_ADMIN_NAME, None)
+        if server_admin is not None:
+            if server_admin.find(","):
+                server_admins = tuple(server_admin.replace(" ","").split(","))
+            else:
+                server_admins = (server_admin,)
+            recipients += server_admins
+
+        general_recipients = self.cfg_manager.get(RESOURCES_CHECKER_GENERAL_RECIPIENTS, DEFAULT_RESOURCES_CHECKER_GENERAL_RECIPIENTS)
+        recipients += tuple(general_recipients)
+
+        particular_recipients = self.cfg_manager.get(RESOURCES_CHECKER_PARTICULAR_RECIPIENTS, DEFAULT_RESOURCES_PARTICULAR_CHECKER_RECIPIENTS)
+        experiment_particular_recipients = particular_recipients.get(expeirment_instance_id.to_weblab_str(), ())
+        recipients += tuple(experiment_particular_recipients)
+
+        return recipients
 
     ##########################################################################
     # 

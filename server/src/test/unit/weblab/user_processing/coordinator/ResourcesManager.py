@@ -211,7 +211,7 @@ class ResourcesManagerTestCase(unittest.TestCase):
         self.assertTrue(resource_type in experiment_type.resource_types)
         self.assertTrue(experiment_type in resource_type.experiment_types)
 
-    def test_mark_experiment_as_broken(self):
+    def test_remove_resource_instance_id(self):
         session = self.session_maker()
         try:
             exp_id = ExperimentInstanceId.ExperimentInstanceId("exp1","ud-pld","PLD Experiments")

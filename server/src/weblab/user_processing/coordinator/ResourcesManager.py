@@ -110,6 +110,8 @@ class ResourcesManager(object):
         db_slot = db_resource_instance.slot
         if not db_slot is None:
             session.delete(db_slot)
+            return True
+        return False
 
     def mark_experiment_as_fixed(self, session, resource):
         db_resource_instance = self._get_resource_instance(session, resource)
@@ -118,6 +120,8 @@ class ResourcesManager(object):
         if db_slot is None:
             db_slot = CurrentResourceSlot(db_resource_instance)
             session.add(db_slot)
+            return True
+        return False
 
     def remove_resource_instance_id(self, session, experiment_instance_id):
         exp_type = session.query(ExperimentType).filter_by(cat_name = experiment_instance_id.cat_name).first()

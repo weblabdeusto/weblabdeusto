@@ -423,6 +423,21 @@ class CoordinatorTestCase(unittest.TestCase):
         expected_status = WQS.WaitingQueueStatus(2)
         self.assertEquals( expected_status, status )
 
+        # Fix the broken experiment instance, check that the queue is restored
+
+        self.coordinator.mark_experiment_as_fixed(ExperimentInstanceId("inst1", "exp1", "cat1"))
+
+        status = self.coordinator.get_reservation_status(reservation1_id)
+        expected_status = WQS.WaitingConfirmationQueueStatus(coord_addr("lab1:inst@machine"), DEFAULT_TIME)
+        self.assertEquals( expected_status, status )
+
+        status = self.coordinator.get_reservation_status(reservation3_id)
+        expected_status = WQS.WaitingQueueStatus(0)
+        self.assertEquals( expected_status, status )
+
+        status = self.coordinator.get_reservation_status(reservation4_id)
+        expected_status = WQS.WaitingQueueStatus(1)
+        self.assertEquals( expected_status, status )
 
 
     def test_reserve_experiment_waiting(self):

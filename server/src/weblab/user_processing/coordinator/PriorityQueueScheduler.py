@@ -68,6 +68,8 @@ class PriorityQueueScheduler(Scheduler):
                     self.resources_manager.release_resource(session, current_resource_slot.slot_reservation)
                     session.add(waiting_reservation)
                     session.delete(concrete_current_reservation)
+                    return True
+        return False
 
     @logged()
     @Override(Scheduler)
