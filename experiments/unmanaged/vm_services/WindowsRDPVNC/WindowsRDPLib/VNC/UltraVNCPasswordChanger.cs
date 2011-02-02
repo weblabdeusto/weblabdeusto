@@ -5,7 +5,7 @@ using System.Text;
 
 namespace WebLab.VM.WindowsRDPVNC
 {
-    class UltraVNCPasswordChanger
+    class UltraVNCPasswordChanger : IPasswordChanger 
     {
 
         private string mUltraVNCPath;

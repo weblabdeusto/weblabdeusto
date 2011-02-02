@@ -5,8 +5,8 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <OutputType>Exe</OutputType>
-    <RootNamespace>WindowsRDP</RootNamespace>
-    <AssemblyName>WindowsRDP</AssemblyName>
+    <RootNamespace>WebLab.VM.WindowsRDPVNC</RootNamespace>
+    <AssemblyName>WindowsRDPVNC</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <AppDesignerFolder>Properties</AppDesignerFolder>

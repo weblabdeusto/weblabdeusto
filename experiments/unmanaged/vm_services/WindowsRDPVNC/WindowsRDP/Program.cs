@@ -32,28 +32,28 @@ namespace WebLab.VM.WindowsRDPVNC
 
         public void Run()
         {
-            var prefix = "";
-
             try
             {
-                prefix = ConfigurationManager.AppSettings["request_prefix"];
+                string prefix = ConfigurationManager.AppSettings["request_prefix"];
+                if (prefix == null)
+                    throw new ConfigException("request_prefix variable was not specified in the configuration file");
+
+                PasswordChangerManager.Instance.registerPasswordChangers(ConfigurationManager.AppSettings);
+
+                RequestsListener listener = new RequestsListener(prefix);
+                listener.Run();
+            }
+            catch (ConfigException e)
+            {
+                Trace.WriteLine(e.Message);
             }
             catch (Exception e)
             {
-                Trace.WriteLine("Could not read the required configuration variables");
-                return;
+                Trace.WriteLine(e.Message);
+                Trace.WriteLine(e.StackTrace);
             }
+        } //! Run()
 
-            if (prefix == "")
-            {
-                Trace.WriteLine("request_prefix config variable must be specified");
-                return;
-            }
+	} //! Class
 
-            PasswordChangerManager.Instance.registerPasswordChangers(ConfigurationManager.AppSettings);
-
-            RequestsListener listener = new RequestsListener(prefix);
-            listener.Run();
-        }
-	}
-}
+} //! Namespace
