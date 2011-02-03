@@ -31,7 +31,7 @@ from voodoo.override import Override
 from weblab.exceptions.laboratory import LaboratoryExceptions as Laboratory
 
 
-VALID_IMAGE_FORMATS = ('image/jpg','image/png')
+VALID_IMAGE_FORMATS = ('image/jpg','image/png','image/jpeg')
 
 
 class AbstractLightweightIsUpAndRunningHandler(object):
