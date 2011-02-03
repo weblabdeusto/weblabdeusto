@@ -129,7 +129,7 @@ class AdminNotifier(object):
                         "%s%s" % (
                             (EMAIL_HEADER % {
                                     'mail_notif_sender' : mail_notif_sender,
-                                    'recipients' : mail_recipients,
+                                    'recipients' : ', '.join(mail_recipients),
                                     'subject' : mail_notification_subject,
                                 }),
                             email_body
