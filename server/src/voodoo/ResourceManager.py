@@ -19,7 +19,7 @@ from voodoo.lock import locked
 import voodoo.abstraction.abstract_class_generator as acg
 import voodoo.log as log
 
-def _is_testing():
+def is_testing():
     # if there is no test module loaded, it's not testing
     if not sys.modules.has_key('test'):
         return False
@@ -40,7 +40,7 @@ class ResourceManager(acg.AbstractClass(['dispose_resource'])):
     # If the resource manager is not going to be used, we don't want
     # to have @locked methods, since they have a performance impact in
     # Python
-    if _is_testing():
+    if is_testing():
         @locked('_lock')
         def add_resource_testing(self, resource):
             self._resources.append(resource)

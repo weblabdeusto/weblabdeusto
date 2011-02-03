@@ -39,7 +39,8 @@ class EasyLocator(object):
         return self._server_locator.get_all_servers(original_server_address, server_type, restrictions)
 
     def check_server_at_coordaddr(self, coord_addr, server_type):
-        self._get_server_from_coordaddr(coord_addr, server_type)
+        if len(self._get_server_from_coordaddr(coord_addr, server_type)) == 0:
+            raise Exception("Could not connect to experiment %s through any interface" % coord_addr)
        
     def _get_server_from_coordaddr(self, coord_addr, server_type, how_many=1):
         return self._server_locator.get_server_from_coord_address(

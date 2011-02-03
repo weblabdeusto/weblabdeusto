@@ -239,10 +239,10 @@ class Coordinator(object):
                 server_admins = (server_admin,)
             recipients += server_admins
 
-        general_recipients = self.cfg_manager.get(RESOURCES_CHECKER_GENERAL_RECIPIENTS, DEFAULT_RESOURCES_GENERAL_CHECKER_RECIPIENTS)
+        general_recipients = self.cfg_manager.get_value(RESOURCES_CHECKER_GENERAL_RECIPIENTS, DEFAULT_RESOURCES_GENERAL_CHECKER_RECIPIENTS)
         recipients += tuple(general_recipients)
 
-        particular_recipients = self.cfg_manager.get(RESOURCES_CHECKER_PARTICULAR_RECIPIENTS, DEFAULT_RESOURCES_PARTICULAR_CHECKER_RECIPIENTS)
+        particular_recipients = self.cfg_manager.get_value(RESOURCES_CHECKER_PARTICULAR_RECIPIENTS, DEFAULT_RESOURCES_PARTICULAR_CHECKER_RECIPIENTS)
         experiment_particular_recipients = particular_recipients.get(experiment_instance_id.to_weblab_str(), ())
         recipients += tuple(experiment_particular_recipients)
 
