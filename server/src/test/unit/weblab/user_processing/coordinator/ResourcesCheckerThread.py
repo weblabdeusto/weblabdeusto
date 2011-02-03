@@ -93,7 +93,7 @@ class ResourcesCheckerThreadTestCase(unittest.TestCase):
             RCT.reset()
             try:
                 RCT.set_coordinator(original_coordinator, 10)
-                time.sleep(0.01)
+                time.sleep(0.02)
                 self.assertTrue(counter > 2) # It's still running
                 self.assertTrue(right_coordinator)
                 self.assertTrue(checked)
