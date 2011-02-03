@@ -25,7 +25,7 @@ namespace WebLab.VM.WindowsVM
         {
             try
             {
-                Trace.WriteLine("Starting Windows RDP VM Service");
+                Trace.WriteLine("Starting Windows VM Service");
 
                 HttpListener listener = new HttpListener();
                 listener.Prefixes.Add(ListenerPrefix);

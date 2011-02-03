@@ -53,11 +53,11 @@
     <Compile Include="Installer.Designer.cs">
       <DependentUpon>Installer.cs</DependentUpon>
     </Compile>
-    <Compile Include="WindowsRDPVNCService.cs">
+    <Compile Include="WindowsVMService.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="WindowsRDPVNCService.Designer.cs">
-      <DependentUpon>WindowsRDPVNCService.cs</DependentUpon>
+    <Compile Include="WindowsVMService.Designer.cs">
+      <DependentUpon>WindowsVMService.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -72,8 +72,8 @@
     <EmbeddedResource Include="Installer.resx">
       <DependentUpon>Installer.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="WindowsRDPVNCService.resx">
-      <DependentUpon>WindowsRDPVNCService.cs</DependentUpon>
+    <EmbeddedResource Include="WindowsVMService.resx">
+      <DependentUpon>WindowsVMService.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -48,8 +48,7 @@ namespace WebLab.VM.WindowsVM
                     return;
                 }
 
-                // Change the password of the weblab user
-                mAccountsManager.SetPassword("weblab", sessionid);
+                PasswordChangerManager.Instance.changePassword(sessionid);
 
                 respWriter.WriteLine("Done");
             }

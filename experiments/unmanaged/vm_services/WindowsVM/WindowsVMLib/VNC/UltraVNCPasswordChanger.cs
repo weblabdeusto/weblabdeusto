@@ -25,6 +25,7 @@ namespace WebLab.VM.WindowsVM
         public void ChangePassword(string newPassword)
         {
             mUltraVNCMngr.SetPassword(newPassword);
+            mUltraVNCMngr.Restart();
         }
     }
 }

@@ -42,7 +42,7 @@ namespace WebLab.VM.WindowsVM
             if (user == null)
                 throw new Exception("Could not find such user");
 
-            Trace.WriteLine("Trying to set password... ");
+            Trace.WriteLine("Trying to set account password... ");
             user.SetPassword(pwd);
             Trace.WriteLine("done.");
         }

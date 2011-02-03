@@ -41,8 +41,10 @@ namespace WebLab.VM.WindowsVM
         /// <param name="newPassword">Password to change everything to.</param>
         public void changePassword(string newPassword)
         {
+            Trace.WriteLine("Changing passwords... ");
             foreach (var changer in mPasswordChangers.Values)
                 changer.ChangePassword(newPassword);
+            Trace.WriteLine("done.");
         }
 
         /// <summary>

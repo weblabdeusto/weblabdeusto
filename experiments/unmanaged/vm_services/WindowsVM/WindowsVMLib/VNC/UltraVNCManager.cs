@@ -114,7 +114,7 @@ namespace WebLab.VM.WindowsVM
         /// <param name="pwd">New password. Only the first 8 characters are actually used.</param>
         public void SetPassword(string pwd)
         {
-            Trace.WriteLine("Trying to set password... ");
+            Trace.WriteLine("Trying to set VNC password... ");
 
             string enc_pwd = EncryptPassword(pwd);
             IniRW rw = new IniRW(UltraVNCPath + "\\ultravnc.ini");
