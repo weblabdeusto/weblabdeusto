@@ -220,16 +220,16 @@ class Coordinator(object):
 
     def _notify_experiment_status(self, new_status, resource_instance, messages = []):
         experiment_instance_ids = self.resources_manager.list_experiment_instance_ids_by_resource(resource_instance)
-        body = """The resource %s has changed its status to: %s\nTherefore following experiment instances will not work:\n""" % (
+        body = """The resource %s has changed its status to: %s\n\nTherefore the following experiment instances will not work:\n\n""" % (
                 resource_instance, new_status)
 
         for experiment_instance_id in experiment_instance_ids:
             body += ("\t%s\n" % experiment_instance_id.to_weblab_str())
 
         if len(messages) > 0:
-            body += "Reasons: %r" % messages
+            body += "\nReasons: %r\n\nThe WebLab-Deusto system" % messages
         recipients = self._retrieve_recipients(experiment_instance_ids)
-        subject = "[WebLab] Experiment %s: %s" % (experiment_instance_id.to_weblab_str(), new_status)
+        subject = "[WebLab] Experiment %s: %s" % (resource_instance, new_status)
 
         if len(recipients) > 0:
             self.notifier.notify( recipients = recipients, body = body, subject = subject)
