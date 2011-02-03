@@ -292,6 +292,30 @@ class ResourcesManagerTestCase(unittest.TestCase):
         self.assertEquals(1, len(resources))
         self.assertTrue(ExperimentId('ud-pld', 'PLD Experiments') in resources)
 
+    def test_list_experiment_instance_ids_by_resource(self):
+        session = self.session_maker()
+        try:
+            exp_id1 = ExperimentInstanceId.ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
+            resource_instance1 = Resource("type1", "instance1")
+            self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id1, resource_instance1)
+
+            exp_id2 = ExperimentInstanceId.ExperimentInstanceId("exp2","ud-pld","PLD Experiments")
+            self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id2, resource_instance1)
+
+            exp_id3 = ExperimentInstanceId.ExperimentInstanceId("exp3","ud-pld","PLD Experiments")
+            resource_instance2 = Resource("type1", "instance2")
+            self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id3, resource_instance2)
+
+            session.commit()
+        finally:
+            session.close()
+
+        experiment_instance_ids = self.resources_manager.list_experiment_instance_ids_by_resource(resource_instance1)
+        self.assertEquals(2, len(experiment_instance_ids))
+        self.assertTrue(ExperimentInstanceId.ExperimentInstanceId('exp1','ud-pld', 'PLD Experiments') in experiment_instance_ids)
+        self.assertTrue(ExperimentInstanceId.ExperimentInstanceId('exp2','ud-pld', 'PLD Experiments') in experiment_instance_ids)
+
+
     def test_list_laboratories_addresses(self):
         session = self.session_maker()
         try:

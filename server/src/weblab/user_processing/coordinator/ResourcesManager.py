@@ -176,6 +176,21 @@ class ResourcesManager(object):
 
         return experiment_ids
 
+    def list_experiment_instance_ids_by_resource(self, resource):
+        session = self._session_maker()
+
+        try:
+            db_resource_instance = self._get_resource_instance(session, resource)
+            experiment_instance_ids = []
+            for experiment_instance in db_resource_instance.experiment_instances:
+                experiment_instance_id = experiment_instance.to_experiment_instance_id()
+                experiment_instance_ids.append(experiment_instance_id)
+        finally:
+            session.close()
+
+        return experiment_instance_ids
+
+
     def list_laboratories_addresses(self):
         session = self._session_maker()
 

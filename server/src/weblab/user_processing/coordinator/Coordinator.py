@@ -197,7 +197,7 @@ class Coordinator(object):
                     "Experiment %s marked as broken: %r" % (experiment_instance_id.to_weblab_str(), messages) )
 
             if self.notifications_enabled:
-                self._notify_experiment_status('broken', experiment_instance_id, messages)
+                self._notify_experiment_status('broken', resource_instance, messages)
 
     @logged()
     def mark_experiment_as_fixed(self, experiment_instance_id):
@@ -216,20 +216,25 @@ class Coordinator(object):
                     "Experiment %s marked as fixed" % experiment_instance_id.to_weblab_str() )
 
             if self.notifications_enabled:
-                self._notify_experiment_status('fixed', experiment_instance_id)
+                self._notify_experiment_status('fixed', resource_instance)
 
-    def _notify_experiment_status(self, new_status, experiment_instance_id, messages = []):
-        body = """The experiment %s has changed its status to: %s""" % (
-                experiment_instance_id.to_weblab_str(), new_status)
+    def _notify_experiment_status(self, new_status, resource_instance, messages = []):
+        experiment_instance_ids = self.resources_manager.list_experiment_instance_ids_by_resource(resource_instance)
+        body = """The resource %s has changed its status to: %s\nTherefore following experiment instances will not work:\n""" % (
+                resource_instance, new_status)
+
+        for experiment_instance_id in experiment_instance_ids:
+            body += ("\t%s\n" % experiment_instance_id.to_weblab_str())
+
         if len(messages) > 0:
             body += "Reasons: %r" % messages
-        recipients = self._retrieve_recipients(experiment_instance_id)
+        recipients = self._retrieve_recipients(experiment_instance_ids)
         subject = "[WebLab] Experiment %s: %s" % (experiment_instance_id.to_weblab_str(), new_status)
 
         if len(recipients) > 0:
             self.notifier.notify( recipients = recipients, body = body, subject = subject)
 
-    def _retrieve_recipients(self, experiment_instance_id):
+    def _retrieve_recipients(self, experiment_instance_ids):
         recipients = ()
         server_admin = self.cfg_manager.get_value(AdminNotifier.SERVER_ADMIN_NAME, None)
         if server_admin is not None:
@@ -242,11 +247,12 @@ class Coordinator(object):
         general_recipients = self.cfg_manager.get_value(RESOURCES_CHECKER_GENERAL_RECIPIENTS, DEFAULT_RESOURCES_GENERAL_CHECKER_RECIPIENTS)
         recipients += tuple(general_recipients)
 
-        particular_recipients = self.cfg_manager.get_value(RESOURCES_CHECKER_PARTICULAR_RECIPIENTS, DEFAULT_RESOURCES_PARTICULAR_CHECKER_RECIPIENTS)
-        experiment_particular_recipients = particular_recipients.get(experiment_instance_id.to_weblab_str(), ())
-        recipients += tuple(experiment_particular_recipients)
+        for experiment_instance_id in experiment_instance_ids:
+            particular_recipients = self.cfg_manager.get_value(RESOURCES_CHECKER_PARTICULAR_RECIPIENTS, DEFAULT_RESOURCES_PARTICULAR_CHECKER_RECIPIENTS)
+            experiment_particular_recipients = particular_recipients.get(experiment_instance_id.to_weblab_str(), ())
+            recipients += tuple(experiment_particular_recipients)
 
-        return recipients
+        return tuple(set(recipients))
 
     ##########################################################################
     # 
