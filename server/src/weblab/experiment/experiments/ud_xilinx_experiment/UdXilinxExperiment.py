@@ -66,6 +66,35 @@ class UdXilinxExperiment(Experiment.Experiment):
         cfg_webcam_url = "%s_webcam_url" % self._xilinx_device.name.lower()        
         return self._cfg_manager.get_value(cfg_webcam_url, "http://localhost")
     
+#<<<<<<< .mine
+    @logged("info")
+    def _program_device(self, file_name):
+        if self._use_jtag_blazer:
+            self._xilinx_impact.source2svf(file_name)
+            svf_file_name = file_name.replace("."+self._xilinx_impact.get_suffix(), ".svf")
+            device_ip = self._cfg_manager.get_value('xilinx_jtag_blazer_device_ip_' + self._xilinx_device.name)
+            self._jtag_blazer.program_device(svf_file_name, device_ip)
+        else:
+            self._xilinx_impact.program_device(file_name)
+    
+    @logged("info")
+    def _send_command_to_device(self, command):
+        if self._use_http:
+            self._http_device.send_message(command)
+        else:
+            cmd = UdBoardCommand.UdBoardCommand(command)
+            codes = cmd.get_codes()
+            self._serial_port_lock.acquire()
+            try:
+                self._serial_port.open_serial_port(self._port_number)
+                for i in codes:
+                    self._serial_port.send_code(i)
+                self._serial_port.close_serial_port()
+            finally:
+                self._serial_port_lock.release()
+
+#=======
+#>>>>>>> .r707
     @Override(Experiment.Experiment)
     @caller_check(ServerType.Laboratory)
     @logged("info",except_for='file_content')
@@ -107,24 +136,12 @@ class UdXilinxExperiment(Experiment.Experiment):
         self._clear()
 
     def _clear(self):
-        # Kludge!!
-        # As soon as our PLD hardware supports the CleanInputs command, we'll be able to remove this
-        if self._xilinx_device == XilinxDevices.PLD:
-            try:
-                for i in range(10):
-                    self._command_sender.send_command(str(UdBoardCommand.ChangeSwitchCommand("on",i)))
-                    self._command_sender.send_command(str(UdBoardCommand.ChangeSwitchCommand("off",i)))
-            except Exception, e:
-                raise ExperimentExceptions.SendingCommandFailureException(
-                    "Error sending command to device: %s" % e
-                )
-        else:
-            try:
-                self._command_sender.send_command("CleanInputs")
-            except Exception, e:
-                raise ExperimentExceptions.SendingCommandFailureException(
-                    "Error sending command to device: %s" % e
-                )
+        try:
+            self._command_sender.send_command("CleanInputs")
+        except Exception, e:
+            raise ExperimentExceptions.SendingCommandFailureException(
+                "Error sending command to device: %s" % e
+            )
 
     
     @logged("info")
