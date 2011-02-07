@@ -87,7 +87,11 @@
 	                           {
 	                        	   "experiment.name"     : "visirtest",
 	                        	   "experiment.category" : "Dummy experiments",
-	                           }
+	                           },
+                               {
+	                        	   "experiment.name"     : "visir",
+	                        	   "experiment.category" : "Visir experiments",
+	                           },
 	                       ],
 	                "logic" : [
 	                           {
