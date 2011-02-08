@@ -1,6 +1,7 @@
 <project name="WebLab" default="all">
 	<target name="all">
         <ant dir="client"     antfile="build.xml" target="test" />
+        <ant dir="client"     antfile="build.xml" target="gwtc" />
         <copy file="../../weblab_administrator_credentials.py" tofile="server/deploy/weblab_administrator_credentials.py" failonerror="false" />
 		<ant dir="server/src" antfile="build.xml"            target="test" />
 	</target>
