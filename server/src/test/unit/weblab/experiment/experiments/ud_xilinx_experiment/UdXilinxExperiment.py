@@ -67,9 +67,9 @@ class UsingUdXilinxExperimentTestCase(unittest.TestCase):
         # No problem
         self.uxm.do_send_file_to_device(ExperimentUtil.serialize("whatever " * 400), 'program')
 
-        initial_open  = 20
-        initial_send  = 20
-        initial_close = 20
+        initial_open  = 1
+        initial_send  = 1
+        initial_close = 1
 
         self.assertEquals(
                 initial_open,
@@ -134,7 +134,7 @@ class UsingUdXilinxExperimentTestCase(unittest.TestCase):
         # No problem
         self.uxm.do_send_file_to_device(ExperimentUtil.serialize("whatever " * 400), 'program')
 
-        initial_send  = 20
+        initial_send  = 1
 
         self.assertEquals(
                 initial_send,
@@ -166,7 +166,7 @@ class UsingUdXilinxExperimentTestCase(unittest.TestCase):
         # No problem
         self.uxm.do_send_file_to_device(ExperimentUtil.serialize("whatever " * 400), 'program')
 
-        initial_send  = 20
+        initial_send  = 1
 
         self.assertEquals(
                 initial_send,

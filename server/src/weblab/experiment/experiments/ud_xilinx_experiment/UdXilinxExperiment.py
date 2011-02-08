@@ -66,7 +66,6 @@ class UdXilinxExperiment(Experiment.Experiment):
         cfg_webcam_url = "%s_webcam_url" % self._xilinx_device.name.lower()        
         return self._cfg_manager.get_value(cfg_webcam_url, "http://localhost")
     
-#<<<<<<< .mine
     @logged("info")
     def _program_device(self, file_name):
         if self._use_jtag_blazer:
@@ -93,8 +92,6 @@ class UdXilinxExperiment(Experiment.Experiment):
             finally:
                 self._serial_port_lock.release()
 
-#=======
-#>>>>>>> .r707
     @Override(Experiment.Experiment)
     @caller_check(ServerType.Laboratory)
     @logged("info",except_for='file_content')

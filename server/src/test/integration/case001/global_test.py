@@ -549,9 +549,9 @@ class Case001TestCase(object):
                 self.fake_impact1._paths[0]
             )
 
-        initial_open = 20
-        initial_send = 20
-        initial_close = 20
+        initial_open = 1
+        initial_send = 1
+        initial_close = 1
         initial_total = initial_open + initial_send + initial_close
 
         # ChangeSwitch on 0
@@ -690,9 +690,9 @@ class Case001TestCase(object):
                 self.fake_impact2._paths[0]
             )
 
-        initial_open  = 20
-        initial_send  = 20
-        initial_close = 20
+        initial_open  = 1
+        initial_send  = 1
+        initial_close = 1
 
         initial_total = initial_open + initial_send + initial_close
 

@@ -167,3 +167,19 @@ class ClockDeactivationCommand(UdBoardSimpleCommand):
 #Register ClockActivationCommand
 UdBoardSimpleCommand.SUBCLASSES += (ClockDeactivationCommand,)
 
+class CleanCommand(UdBoardSimpleCommand):
+
+    Syntax = "CleanInputs"
+
+    def __init__(self):
+        super(CleanCommand,self).__init__()
+    
+    def get_code(self):
+        return 0 # Not implemented in PIC
+
+    def __str__(self):
+        return "CleanInputs"
+
+#Register ClockActivationCommand
+UdBoardSimpleCommand.SUBCLASSES += (CleanCommand,)
+
