@@ -28,13 +28,16 @@ from voodoo.threaded import threaded
 import weblab.experiment.devices.vm.VirtualMachineManager as VirtualMachineManager
 import weblab.experiment.experiments.vm_experiment.user_manager.UserManager as UserManager
 
-DEBUG = False
+DEBUG = True
 DEBUG_NOT_PREPARE = False
 
 CFG_URL = "vm_url"
 CFG_VM_TYPE = "vm_vm_type"
 CFG_USER_MANAGER_TYPE = "vm_user_manager_type"
 CFG_SHOULD_STORE_IMAGE = "vm_should_store_image"
+
+# TODO: Consider adding this to the config
+PWD_LENGTH = 8
 
 DEFAULT_URL = "rdp://localhost:6667"
 DEFAULT_VM_TYPE = "VirtualMachineDummy"
@@ -160,13 +163,15 @@ class VMExperiment(Experiment.Experiment):
     
     def ensure_vm_not_started(self):
         """
-        Though it should never happen, this functions makes sure that the VM is not already
+        Though it should never happen, this function makes sure that the VM is not already
         running, which would prevent proper initialization.
         """
         if DEBUG:
             print "ensure_vm_not_started"
         start_time = time.time()
         while self.vm.is_alive_vm():
+            if DEBUG:
+                print "VM is alive. Killing..."
             self.vm.kill_vm()
             elapsed = time.time() - start_time
             if elapsed > 20:
@@ -205,10 +210,10 @@ class VMExperiment(Experiment.Experiment):
     
     def generate_session_id(self):
         """ Generates and returns a unique id """
+        """ TODO: Use SessionGenerator """
         id = uuid.uuid1()
-        idstr = id.get_hex()
+        idstr = id.get_hex()[:PWD_LENGTH]
         return idstr
-    
     
     def find_user_manager(self, name):
         """
