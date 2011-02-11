@@ -33,6 +33,7 @@ class ResourcesChecker(object):
 
     def check_laboratory(self, address_str, experiments):
         try:
+            broken_resources = {}
             address = CoordAddress.CoordAddress.translate_address(address_str)
             server = self.locator.get_server_from_coordaddr(address, ServerType.Laboratory)
             failing_experiments = server.check_experiments_resources()
@@ -42,12 +43,17 @@ class ResourcesChecker(object):
                             "Laboratory server %s reported that experiment %s was failing; however this laboratory does NOT manage this experiment. Attack?" % (address_str, failing_experiment))
                     continue
 
-                self.coordinator.mark_experiment_as_broken(failing_experiment, failing_experiments[failing_experiment])
+                broken_resources[experiments[failing_experiment]] = failing_experiments[failing_experiment]
+
+            for broken_resource in broken_resources:
+                self.coordinator.mark_resource_as_broken(broken_resource, broken_resources[broken_resource])
 
             for experiment in experiments:
                 if not experiment in failing_experiments:
                     # Experiment works!
-                    self.coordinator.mark_experiment_as_fixed(experiment)
+                    resource = experiments[experiment]
+                    if not resource in broken_resources:
+                        self.coordinator.mark_resource_as_fixed(resource)
             
         except:
             traceback.print_exc()

@@ -122,6 +122,9 @@ class Coordinator(object):
     def _get_schedulers_per_experiment_instance_id(self, experiment_instance_id):
         return self._get_schedulers_per_experiment_id(experiment_instance_id.to_experiment_id())
 
+    def _get_scheduler_per_resource(self, resource):
+        return self.schedulers[resource.resource_type]
+
     def _get_schedulers_per_experiment_id(self, experiment_id):
         schedulers = []
         for resource_type_name in self.resources_manager.get_resource_types_by_experiment_id(experiment_id):
@@ -176,16 +179,20 @@ class Coordinator(object):
 
     @logged()
     def mark_experiment_as_broken(self, experiment_instance_id, messages = []):
-        schedulers        = self._get_schedulers_per_experiment_instance_id(experiment_instance_id)
         resource_instance = self.resources_manager.get_resource_instance_by_experiment_instance_id(experiment_instance_id)
+        return self.mark_resource_as_broken(resource_instance, messages)
+
+    @logged()
+    def mark_resource_as_broken(self, resource_instance, messages = []):
+        scheduler = self._get_scheduler_per_resource(resource_instance)
 
         anything_changed = False
         session = self._session_maker()
         try:
-            for scheduler in schedulers:
-                changed = scheduler.removing_current_resource_slot(session, resource_instance)
-                anything_changed = anything_changed or changed
-            changed = self.resources_manager.mark_experiment_as_broken(session, resource_instance)
+            changed = scheduler.removing_current_resource_slot(session, resource_instance)
+            anything_changed = anything_changed or changed
+
+            changed = self.resources_manager.mark_resource_as_broken(session, resource_instance)
             anything_changed = anything_changed or changed
             if anything_changed:
                 session.commit()
@@ -194,18 +201,16 @@ class Coordinator(object):
 
         if anything_changed:
             log.log( Coordinator, LogLevel.Warning,
-                    "Experiment %s marked as broken: %r" % (experiment_instance_id.to_weblab_str(), messages) )
+                    "Resource %s marked as broken: %r" % (resource_instance, messages) )
 
             if self.notifications_enabled:
                 self._notify_experiment_status('broken', resource_instance, messages)
 
     @logged()
-    def mark_experiment_as_fixed(self, experiment_instance_id):
-        resource_instance = self.resources_manager.get_resource_instance_by_experiment_instance_id(experiment_instance_id)
-
+    def mark_resource_as_fixed(self, resource_instance):
         session = self._session_maker()
         try:
-            anything_changed = self.resources_manager.mark_experiment_as_fixed(session, resource_instance)
+            anything_changed = self.resources_manager.mark_resource_as_fixed(session, resource_instance)
             if anything_changed:
                 session.commit()
         finally:
@@ -213,7 +218,7 @@ class Coordinator(object):
 
         if anything_changed:
             log.log( Coordinator, LogLevel.Warning,
-                    "Experiment %s marked as fixed" % experiment_instance_id.to_weblab_str() )
+                    "Resource %s marked as fixed" % resource_instance )
 
             if self.notifications_enabled:
                 self._notify_experiment_status('fixed', resource_instance)

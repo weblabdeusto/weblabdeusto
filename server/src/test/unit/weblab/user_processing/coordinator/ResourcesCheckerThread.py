@@ -16,9 +16,6 @@
 import unittest
 import time
 
-import test.unit.configuration as configuration_module
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
-
 import weblab.user_processing.coordinator.ResourcesCheckerThread as RCT
 import weblab.user_processing.coordinator.ResourcesChecker as ResourcesChecker
 

@@ -104,7 +104,7 @@ class ResourcesManager(object):
         db_resource_instance = session.query(ResourceInstance).filter_by(name = resource.resource_instance, resource_type = db_resource_type).one()
         return db_resource_instance
 
-    def mark_experiment_as_broken(self, session, resource):
+    def mark_resource_as_broken(self, session, resource):
         db_resource_instance = self._get_resource_instance(session, resource)
                
         db_slot = db_resource_instance.slot
@@ -113,7 +113,7 @@ class ResourcesManager(object):
             return True
         return False
 
-    def mark_experiment_as_fixed(self, session, resource):
+    def mark_resource_as_fixed(self, session, resource):
         db_resource_instance = self._get_resource_instance(session, resource)
        
         db_slot = db_resource_instance.slot
@@ -200,9 +200,9 @@ class ResourcesManager(object):
             laboratories_addresses = {}
 
             for experiment_instance in experiment_instances:
-                current_set = laboratories_addresses.get(experiment_instance.laboratory_coord_address, set())
-                current_set.add(experiment_instance.to_experiment_instance_id())
-                laboratories_addresses[experiment_instance.laboratory_coord_address] = current_set
+                current  = laboratories_addresses.get(experiment_instance.laboratory_coord_address, {})
+                current[experiment_instance.to_experiment_instance_id()] = experiment_instance.resource_instance.to_resource()
+                laboratories_addresses[experiment_instance.laboratory_coord_address] = current
         finally:
             session.close()
         

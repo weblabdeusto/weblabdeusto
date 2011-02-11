@@ -346,6 +346,9 @@ class ResourcesManagerTestCase(unittest.TestCase):
         self.assertEquals(1, len(addresses["laboratory2:WL_SERVER1@WL_MACHINE1"]))
         self.assertTrue(exp_id3 in addresses["laboratory2:WL_SERVER1@WL_MACHINE1"])
 
+        self.assertEquals(resource_instance1, addresses["laboratory1:WL_SERVER1@WL_MACHINE1"][exp_id1])
+        self.assertEquals(resource_instance2, addresses["laboratory1:WL_SERVER1@WL_MACHINE1"][exp_id2])
+        self.assertEquals(resource_instance3, addresses["laboratory2:WL_SERVER1@WL_MACHINE1"][exp_id3])
 
 def suite():
     return unittest.makeSuite(ResourcesManagerTestCase)
