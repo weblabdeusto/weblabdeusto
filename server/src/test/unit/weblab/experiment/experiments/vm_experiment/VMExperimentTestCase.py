@@ -157,14 +157,14 @@ class VMExperimentTestCase(mocker.MockerTestCase):
         vm = vmexp.vm
         um = vmexp.user_manager
     
-        ret = vmexp.do_start_experiment()   
+        ret = vmexp.do_start_experiment("{}","{}")
         self.assertEqual("Starting", ret)
         
         self.assertTrue(um.configure_called == 0)
     
         # Check that if we try again, it doesn't handle it the same way, but rather
         # tells us that it's already started or that it is still starting.    
-        ret = vmexp.do_start_experiment()
+        ret = vmexp.do_start_experiment("{}","{}")
         self.assertTrue( ret.__contains__("Already") )
         
         initial_time = time.time()
@@ -205,7 +205,7 @@ class VMExperimentTestCase(mocker.MockerTestCase):
         excep = TestPermanentConfigError()
         um.except_to_raise = excep
         
-        vmexp.do_start_experiment()   
+        vmexp.do_start_experiment("{}","{}")
     
         initial_time = time.time()
         # Wait until it is ready

@@ -32,6 +32,13 @@ import weblab.exceptions.laboratory.LaboratoryExceptions as LaboratoryExceptions
 import weblab.experiment.Util as ExperimentUtil
 import weblab.data.experiments.Usage as Usage
 
+try:
+    import json as json_mod
+    json = json_mod
+except ImportError:
+    import simplejson as json_module
+    json = json_module
+
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessor")
 
 #TODO: configuration
@@ -112,7 +119,14 @@ class UserProcessor(object):
     # Experiments
     # 
 
-    def reserve_experiment(self, experiment_id, client_address):
+    def reserve_experiment(self, experiment_id, serialized_client_initial_data, client_address):
+        try:
+            client_initial_data = json.loads(serialized_client_initial_data)
+        except ValueError:
+            # TODO: to be tested
+            raise UserProcessingExceptions.UserProcessingException(
+                    "Invalid client_initial_data provided: a json-serialized object expected"
+            )
 
         experiments = [ 
                 exp for exp in self.list_experiments()
@@ -131,9 +145,7 @@ class UserProcessor(object):
         else:
             priority = 5 # TODO: this should be part of experiment_allowed
 
-        client_initial_data = None # TODO: this must be passed by the client
         experiment_allowed = experiments[0]
-
         try:
             status, reservation_id    = self._coordinator.reserve_experiment(
                     experiment_allowed.experiment.to_experiment_id(), 

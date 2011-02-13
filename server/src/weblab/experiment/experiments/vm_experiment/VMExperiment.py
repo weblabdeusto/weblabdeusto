@@ -71,7 +71,7 @@ class VMExperiment(Experiment.Experiment):
         self.should_store_image = self._cfg_manager.get_value(CFG_SHOULD_STORE_IMAGE, DEFAULT_SHOULD_STORE_IMAGE)
 
     @Override(Experiment.Experiment)
-    def do_start_experiment(self):
+    def do_start_experiment(self, *args, **kwargs):
         """
         Callback run when the experiment is started. After the starting
         thread finishes successfully, it will set is_ready to True.

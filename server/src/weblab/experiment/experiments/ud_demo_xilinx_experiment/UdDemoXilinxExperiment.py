@@ -37,7 +37,7 @@ class UdDemoXilinxExperiment(UdXilinxExperiment.UdXilinxExperiment):
     @Override(UdXilinxExperiment.UdXilinxExperiment)
     @caller_check(ServerType.Laboratory)
     @logged("info")
-    def do_start_experiment(self):
+    def do_start_experiment(self, *args, **kwargs):
         self._program_handler = self._t_program_file()
 
     @Override(UdXilinxExperiment.UdXilinxExperiment)

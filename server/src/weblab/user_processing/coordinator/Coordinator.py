@@ -268,11 +268,11 @@ class Coordinator(object):
         """
         priority: the less, the more priority
         """
-        reservation_id = self.reservations_manager.create(experiment_id, self.time_provider.get_datetime)
+        reservation_id = self.reservations_manager.create(experiment_id, client_initial_data, self.time_provider.get_datetime)
         schedulers = self._get_schedulers_per_experiment_id(experiment_id)
         all_reservation_status = []
         for scheduler in schedulers:
-            reservation_status = scheduler.reserve_experiment(reservation_id, experiment_id, time, priority, client_initial_data)
+            reservation_status = scheduler.reserve_experiment(reservation_id, experiment_id, time, priority)
             all_reservation_status.append(reservation_status)
         return self.meta_scheduler.select_best_reservation_status(all_reservation_status)
 

@@ -35,6 +35,12 @@ import weblab.user_processing.coordinator.WebLabQueueStatus as WQS
 
 from weblab.data.experiments.ExperimentInstanceId import ExperimentInstanceId
 
+try:
+    import json as json_mod
+    json = json_mod
+except ImportError:
+    import simplejson as json_module
+    json = json_module
 
 EXPIRATION_TIME  = 3600 # seconds
 
@@ -63,7 +69,7 @@ class PriorityQueueScheduler(Scheduler):
                 if len(concrete_current_reservations) > 0:
                     concrete_current_reservation = concrete_current_reservations[0]
                     waiting_reservation = WaitingReservation(resource_instance.resource_type, concrete_current_reservation.current_reservation_id, concrete_current_reservation.time,
-                            -1, concrete_current_reservation.client_initial_data ) # -1 : Highest priority
+                            -1) # -1 : Highest priority
                     self.reservations_manager.downgrade_confirmation(session, concrete_current_reservation.current_reservation_id)
                     self.resources_manager.release_resource(session, current_resource_slot.slot_reservation)
                     session.add(waiting_reservation)
@@ -73,14 +79,14 @@ class PriorityQueueScheduler(Scheduler):
 
     @logged()
     @Override(Scheduler)
-    def reserve_experiment(self, reservation_id, experiment_id, time, priority, client_initial_data):
+    def reserve_experiment(self, reservation_id, experiment_id, time, priority):
         """
         priority: the less, the more priority
         """
         session = self.session_maker()
         try:
             resource_type = session.query(ResourceType).filter_by(name = self.resource_type_name).one()
-            waiting_reservation = WaitingReservation(resource_type, reservation_id, time, priority, client_initial_data)
+            waiting_reservation = WaitingReservation(resource_type, reservation_id, time, priority)
             session.add(waiting_reservation)
 
             session.commit()
@@ -325,9 +331,9 @@ class PriorityQueueScheduler(Scheduler):
                     self.reservations_manager.confirm(session, first_waiting_reservation.reservation_id)
                     slot_reservation = self.resources_manager.acquire_resource(session, free_instance)
                     concrete_current_reservation = ConcreteCurrentReservation(slot_reservation, first_waiting_reservation.reservation_id, 
-                                                first_waiting_reservation.time, self.time_provider.get_time(), first_waiting_reservation.priority, first_waiting_reservation.client_initial_data)
+                                                first_waiting_reservation.time, self.time_provider.get_time(), first_waiting_reservation.priority)
 
-                    client_initial_data = first_waiting_reservation.client_initial_data
+                    client_initial_data = first_waiting_reservation.reservation.client_initial_data
 
                     reservation_id = first_waiting_reservation.reservation_id
                     if reservation_id is None:
@@ -377,7 +383,7 @@ class PriorityQueueScheduler(Scheduler):
                         # so this method might take too long. That's why we enqueue these
                         # petitions and run them in other threads.
                         # 
-                        server_initial_data = None 
+                        server_initial_data = "{}"
                         # server_initial_data will contain information such as "what was the last experiment used?".
                         # If a single resource was used by a binary experiment, then the next time may not require reprogramming the device
                         self.confirmer.enqueue_confirmation(laboratory_coord_address, reservation_id, experiment_instance_id, client_initial_data, server_initial_data)

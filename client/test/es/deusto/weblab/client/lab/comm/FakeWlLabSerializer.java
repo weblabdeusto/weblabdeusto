@@ -24,6 +24,7 @@ import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.dto.experiments.commands.InterchangedData;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 
 public class FakeWlLabSerializer extends FakeWlCommonSerializer implements IWlLabSerializer {
@@ -144,11 +145,11 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements IWlLa
 	}
 
 	@Override
-	public String serializeReserveExperimentRequest(SessionID sessionId,
-			ExperimentID experimentId) throws SerializationException {
+	public String serializeReserveExperimentRequest(SessionID sessionId, ExperimentID experimentId, InterchangedData clientInitialData) throws SerializationException {
 		this.append(FakeWlLabSerializer.SERIALIZE_RESERVE_EXPERIMENT_REQUEST, new Object[]{
 				sessionId,
-				experimentId
+				experimentId,
+				clientInitialData
 		});
 		return (String)this.retrieveReturn(FakeWlLabSerializer.SERIALIZE_RESERVE_EXPERIMENT_REQUEST);
 	}

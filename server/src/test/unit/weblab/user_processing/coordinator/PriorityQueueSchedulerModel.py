@@ -26,21 +26,21 @@ class PriorityQueueSchedulerModelTestCase(unittest.TestCase):
         slot_reservation = CM.SchedulingSchemaIndependentSlotReservation(current_resource_slot)
 
         experiment_type = CM.ExperimentType("exp", "cat")
-        reservation     = CM.Reservation("hola", None)
+        reservation     = CM.Reservation("hola", "{}", "{}", None)
         reservation.experiment_type = experiment_type
         current_reservation = CM.CurrentReservation("hola")
 
-        concrete_current_reservation = PQSM.ConcreteCurrentReservation(slot_reservation, current_reservation.id, 50, 100, 1, "foobar")
+        concrete_current_reservation = PQSM.ConcreteCurrentReservation(slot_reservation, current_reservation.id, 50, 100, 1)
 
         repr(concrete_current_reservation) # No exception is raised
 
     def test_repr_pq_waiting_reservation(self):
         resource_type         = CM.ResourceType("foo")
         experiment_type = CM.ExperimentType("exp", "cat")
-        reservation     = CM.Reservation("hola", None)
+        reservation     = CM.Reservation("hola", "{}", "{}", None)
         reservation.experiment_type = experiment_type
 
-        pq_waiting_reservation = PQSM.WaitingReservation(resource_type, reservation.id, 50, 1, "foobar")
+        pq_waiting_reservation = PQSM.WaitingReservation(resource_type, reservation.id, 50, 1)
 
         repr(pq_waiting_reservation) # No exception is raised
 

@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint, Binary
+from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint 
 from sqlalchemy.orm import relation, backref
 
 from weblab.user_processing.coordinator.CoordinatorModel import Base, RESERVATION_ID_SIZE, ResourceType, Reservation, SchedulingSchemaIndependentSlotReservation
@@ -39,29 +39,23 @@ class ConcreteCurrentReservation(Base):
     start_time                       = Column(Integer)
     priority                         = Column(Integer)
     lab_session_id                   = Column(String(255))
-    # The initial data is provided by the client. It must be sent to the server as a first command.
-    client_initial_data              = Column(Binary)
-    # The initial configuration is provided by the server.
-    initial_configuration            = Column(Binary)
 
-    def __init__(self, slot_reservation, current_reservation_id, time, start_time, priority, client_initial_data):
+    def __init__(self, slot_reservation, current_reservation_id, time, start_time, priority):
         self.slot_reservation              = slot_reservation
         self.current_reservation_id        = current_reservation_id
         self.time                          = time
         self.lab_session_id                = None
         self.start_time                    = start_time
         self.priority                      = priority
-        self.initial_configuration         = None
 
     def __repr__(self):
-        return SUFFIX + "ConcreteCurrentReservation(%s, %s, %s, %s, %s, %s, %s)" % (
+        return SUFFIX + "ConcreteCurrentReservation(%s, %s, %s, %s, %s, %s)" % (
                             repr(self.slot_reservation),
                             repr(self.current_reservation_id),
                             repr(self.time),
                             repr(self.lab_session_id),
                             repr(self.start_time),
                             repr(self.priority),
-                            repr(self.initial_configuration)
                         )
 
 class WaitingReservation(Base):
@@ -75,22 +69,19 @@ class WaitingReservation(Base):
     reservation         = relation(Reservation, backref=backref('pq_waiting_reservations', order_by=id))
     time                = Column(Integer)
     priority            = Column(Integer)
-    client_initial_data = Column(Binary)
 
     resource_type       = relation(ResourceType, backref=backref('pq_waiting_reservations', order_by=id))
 
-    def __init__(self, resource_type, reservation_id, time, priority, client_initial_data):
+    def __init__(self, resource_type, reservation_id, time, priority):
         self.resource_type   = resource_type
         self.reservation_id  = reservation_id
         self.time            = time
         self.priority        = priority
-        self.client_initial_data    = client_initial_data
 
     def __repr__(self):
-        return SUFFIX + "WaitingReservation(%s, %s, %s, %s %s)" % (
+        return SUFFIX + "WaitingReservation(%s, %s, %s, %s)" % (
                     repr(self.resource_type),
                     repr(self.reservation_id),
                     repr(self.time),
                     repr(self.priority),
-                    repr(self.client_initial_data)
                 )

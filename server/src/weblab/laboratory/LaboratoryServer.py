@@ -37,6 +37,14 @@ import weblab.laboratory.IsUpAndRunningHandler as IsUpAndRunningHandler
 
 import voodoo.sessions.SessionManager as SessionManager
 
+try:
+    import json as json_module
+    json = json_module
+except ImportError:
+    import simplejson as json_mod
+    json = json_mod
+
+
 check_session_params = (
         LaboratoryExceptions.SessionNotFoundInLaboratoryServerException,
         "Laboratory Server"
@@ -144,7 +152,7 @@ class LaboratoryServer(object):
 
     @logged(LogLevel.Info)
     @caller_check(ServerType.UserProcessing)
-    def do_reserve_experiment(self, experiment_instance_id):
+    def do_reserve_experiment(self, experiment_instance_id, client_initial_data, server_initial_data):
         lab_sess_id = self._session_manager.create_session()
         try:
             experiment_coord_address = self._assigned_experiments.reserve_experiment(experiment_instance_id, lab_sess_id)
@@ -174,7 +182,9 @@ class LaboratoryServer(object):
             })
 
         experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
-        experiment_server.start_experiment()
+        experiment_server_response = experiment_server.start_experiment(client_initial_data, server_initial_data)
+
+        # TODO: experiment_server_response
 
         return lab_sess_id
 

@@ -117,7 +117,7 @@ class StandardBotUser(BotUser):
                                         and exp.category.name == self.experiment_category_name 
                             ]
             if len(experiments_found) > 0:
-                reservation = self.bot.do_reserve_experiment(experiments_found[0].to_experiment_id())
+                reservation = self.bot.do_reserve_experiment(experiments_found[0].to_experiment_id(), "{}")
             else:
                 raise Exceptions.ExperimentDoesNotExistException("Desired experiment doesn't exist: %s." % self.experiment_name)
 

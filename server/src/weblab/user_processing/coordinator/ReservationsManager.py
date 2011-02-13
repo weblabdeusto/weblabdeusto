@@ -16,6 +16,13 @@
 from weblab.user_processing.coordinator.CoordinatorModel import Reservation, CurrentReservation, ExperimentType
 import weblab.exceptions.user_processing.CoordinatorExceptions as CoordExc
 
+try:
+    import json as json_mod
+    json = json_mod
+except ImportError:
+    import simplejson as json_module
+    json = json_module
+
 class ReservationsManager(object):
     def __init__(self, session_maker):
         self._session_maker = session_maker
@@ -31,8 +38,10 @@ class ReservationsManager(object):
         finally:
             session.close()
 
-    def create(self, experiment_type, now = None):
-        return Reservation.create(self._session_maker, experiment_type, now)
+    def create(self, experiment_type, client_initial_data, now = None):
+        serialized_client_initial_data = json.dumps(client_initial_data)
+        server_initial_data = "{}"
+        return Reservation.create(self._session_maker, experiment_type, serialized_client_initial_data, server_initial_data, now)
 
     def check(self, session, reservation_id):
         reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()

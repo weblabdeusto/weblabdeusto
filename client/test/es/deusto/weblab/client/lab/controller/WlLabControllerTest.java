@@ -395,10 +395,10 @@ public class WlLabControllerTest  extends GWTTestCase{
 		v = this.fakeCommunications.getMethodByName(FakeWlLabCommunication.RESERVE_EXPERIMENT);
 		Assert.assertEquals(1, v.size());
 		m = v.get(0); 
-		Assert.assertEquals(3, m.getParameters().length);
+		Assert.assertEquals(4, m.getParameters().length);
 		Assert.assertEquals(sessionID, m.getParameters()[0]);
 		Assert.assertEquals(experiment.getExperimentUniqueName(), m.getParameters()[1]);
-		final IReservationCallback callback = (IReservationCallback)m.getParameters()[2];
+		final IReservationCallback callback = (IReservationCallback)m.getParameters()[3];
 		context.reservationCallback = callback;
 		return context;
 	}	

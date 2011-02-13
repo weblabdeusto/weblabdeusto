@@ -51,8 +51,7 @@ class ReservationConfirmer(object):
     def _confirm_experiment(self, lab_coordaddress, reservation_id, experiment_instance_id, client_initial_data, server_initial_data):
         try:
             labserver = self.locator.get_server_from_coordaddr(lab_coordaddress, ServerType.Laboratory)
-            # TODO: use client_initial_data and server_initial_data
-            lab_session_id = labserver.reserve_experiment(experiment_instance_id)
+            lab_session_id = labserver.reserve_experiment(experiment_instance_id, client_initial_data, server_initial_data)
         except Exception, e:
             self.coordinator.mark_experiment_as_broken(experiment_instance_id, [str(e)])
 

@@ -159,7 +159,7 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self.assertEquals(0, self.fake_client.started)
         self.assertEquals(0, self.fake_client.disposed)
 
-        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id)
+        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         self.assertEquals(1, self.fake_client.started)
         self.assertEquals(0, self.fake_client.disposed)
 
@@ -168,7 +168,7 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self.assertEquals(1, self.fake_client.disposed)
         
     def test_resolve_experiment_address(self):
-        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id)
+        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         exp_coord_address = self.lab.do_resolve_experiment_address(lab_session_id)
         self.assertEquals(self.experiment_coord_address, exp_coord_address)
 
@@ -177,12 +177,12 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self.assertEquals(0, self.fake_client.started)
         self.assertEquals(0, self.fake_client.disposed)
 
-        lab_session_id1 = self.lab.do_reserve_experiment(self.experiment_instance_id)
+        lab_session_id1 = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
 
         self.assertEquals(1, self.fake_client.started)
         self.assertEquals(0, self.fake_client.disposed)
 
-        lab_session_id2 = self.lab.do_reserve_experiment(self.experiment_instance_id)
+        lab_session_id2 = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
 
         self.assertEquals(2, self.fake_client.started)
         self.assertEquals(1, self.fake_client.disposed)
@@ -196,7 +196,7 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
                 'foo'
             )
 
-        lab_session_id3 = self.lab.do_reserve_experiment(self.experiment_instance_id)
+        lab_session_id3 = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
 
         # Again
         self.assertRaises(
@@ -273,7 +273,7 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
             )
 
     def test_send_command_ok(self):
-        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id)
+        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         commands_sent = [ "foo", "bar" ]
         responses = ["result1", "result2" ]
         self.fake_client.responses = responses[:]
@@ -286,7 +286,7 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
         self.assertTrue( self.fake_client.verify_commands(commands_sent) )
  
     def test_send_command_fail(self):
-        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id)
+        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         self.fake_client.fail = True
 
         self.assertRaises(
@@ -297,7 +297,7 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
         )
 
     def test_send_file_ok(self):
-        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id)
+        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         files_sent = [ ("foo", "file_info1"), ("bar", "file_info2") ]
         responses = ["result1", "result2" ]
         self.fake_client.responses = responses[:]
@@ -310,7 +310,7 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
         self.assertTrue( self.fake_client.verify_files(files_sent) )
  
     def test_send_file_fail(self):
-        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id)
+        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         self.fake_client.fail = True
 
         self.assertRaises(
@@ -362,7 +362,7 @@ class FakeClient(object):
         self.started  = 0
         self.disposed = 0
 
-    def start_experiment(self):
+    def start_experiment(self, client_initial_data, server_initial_data):
         self.started += 1
 
     def dispose(self):

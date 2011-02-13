@@ -29,6 +29,8 @@ import es.deusto.weblab.client.dto.experiments.EmptyResponseCommand;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.dto.experiments.commands.ArrayOfInterchangedData;
+import es.deusto.weblab.client.dto.experiments.commands.InterchangedData;
 import es.deusto.weblab.client.dto.reservations.CancellingReservationStatus;
 import es.deusto.weblab.client.dto.reservations.ConfirmedReservationStatus;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
@@ -746,10 +748,10 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 				"weblab-pld"
 			);
 		
-		final String serializedMessage = weblabSerializer.serializeReserveExperimentRequest(sessionId, experiment);
+		final String serializedMessage = weblabSerializer.serializeReserveExperimentRequest(sessionId, experiment, new ArrayOfInterchangedData(new InterchangedData[]{}));
 		Assert.assertEquals(
 				"{\"params\":{\"session_id\":{\"id\":\"" + MESSAGE + "\"}," +
-						" \"experiment_id\":{\"exp_name\":\"weblab-pld\", \"cat_name\":\"WebLab-PLD experiments\"}}, " +
+						" \"experiment_id\":{\"exp_name\":\"weblab-pld\", \"cat_name\":\"WebLab-PLD experiments\"}, \"client_initial_data\":\"{\\\"elements\\\":[]}\"}, " +
 						"\"method\":\"reserve_experiment\"}",
 				serializedMessage
 			);

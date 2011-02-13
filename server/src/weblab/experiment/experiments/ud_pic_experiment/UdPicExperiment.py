@@ -109,7 +109,7 @@ class UdPicExperiment(Experiment.Experiment):
     @Override(Experiment.Experiment)
     @logged("info")
     @caller_check(ServerType.Laboratory)
-    def do_start_experiment(self):
+    def do_start_experiment(self, *args, **kwargs):
         """ Implemented to avoid the problem related to returning None in XML-RPC """
         if DEBUG:
             print "call received: do_start_experiment"
@@ -201,7 +201,7 @@ class UdPicDummyExperiment(Experiment.Experiment):
     @Override(Experiment.Experiment)
     @logged("info")
     @caller_check(ServerType.Laboratory)
-    def do_start_experiment(self):
+    def do_start_experiment(self, *args, **kwargs):
         print "do_start_experiment()"
 
     @Override(Experiment.Experiment)

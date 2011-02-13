@@ -243,11 +243,11 @@ class UserProcessingServer(object):
 
     @logged(LogLevel.Info)
     @check_session(*check_session_params)
-    def reserve_experiment(self, session, experiment_id, client_address):
+    def reserve_experiment(self, session, experiment_id, client_initial_data, client_address):
         user_processor = self._load_user(session)
         try:
             self._alive_users_collection.add_user(session['session_id'])
-            return user_processor.reserve_experiment( experiment_id, client_address ) 
+            return user_processor.reserve_experiment( experiment_id, client_initial_data, client_address ) 
         finally:
             user_processor.update_latest_timestamp()
 

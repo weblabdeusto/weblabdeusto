@@ -19,7 +19,7 @@ class Experiment(object):
     def __init__(self, *args, **kwargs):
         super(Experiment, self).__init__(*args, **kwargs)
 
-    def do_start_experiment(self):
+    def do_start_experiment(self, client_initial_data, server_initial_data):
         # Default implementation: empty
         pass
 

@@ -153,13 +153,13 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.assertRaises(
             UserProcessingExceptions.UnknownExperimentIdException,
             self.ups.reserve_experiment,
-            sess_id, exp_id, ClientAddress.ClientAddress("127.0.0.1")
+            sess_id, exp_id, "{}", ClientAddress.ClientAddress("127.0.0.1")
         )
 
         exp_id = ExperimentId.ExperimentId('ud-dummy','Dummy experiments')
        
         lab_sess_id = SessionId.SessionId("lab_session_id")
-        self.lab_mock.reserve_experiment(exp_id)
+        self.lab_mock.reserve_experiment(exp_id, "{}")
         self.mocker.result(lab_sess_id)
         self.mocker.count(0, 1)
         self.lab_mock.resolve_experiment_address(lab_sess_id)
@@ -170,6 +170,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         reservation = self.ups.reserve_experiment(
             sess_id,
             exp_id,
+            "{}",
             ClientAddress.ClientAddress("127.0.0.1")
         )
 

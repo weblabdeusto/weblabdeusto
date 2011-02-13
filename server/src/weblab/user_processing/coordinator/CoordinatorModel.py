@@ -22,7 +22,7 @@ import weblab.exceptions.user_processing.CoordinatorExceptions as CoordExc
 
 from weblab.user_processing.coordinator.Resource import Resource
 
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, UniqueConstraint, Table
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, UniqueConstraint, Table, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relation, backref
 import sqlalchemy
@@ -227,22 +227,28 @@ class Reservation(Base):
     latest_access      = Column(DateTime)
     experiment_type_id = Column(Integer, ForeignKey('ExperimentTypes.id'))
     experiment_type    = relation(ExperimentType, backref=backref('reservations', order_by=id))
+    # The initial data is provided by the client. It must be sent to the server as a first command.
+    client_initial_data   = Column(Text)
+    # The server initial data is provided by the server.
+    server_initial_data   = Column(Text)
 
     _now = None
 
-    def __init__(self, id, now = None):
+    def __init__(self, id, client_initial_data, server_initial_data, now):
         self.id = id
         if now is not None:
             Reservation._now = now
         else:
             Reservation._now = datetime.datetime.utcnow
-        self.latest_access  = Reservation._now()
+        self.latest_access       = Reservation._now()
+        self.client_initial_data = client_initial_data
+        self.server_initial_data = server_initial_data
 
     def update(self):
         self.latest_access = Reservation._now()
 
     @staticmethod
-    def create(session_maker, experiment_id, now):
+    def create(session_maker, experiment_id, client_initial_data, server_initial_data, now = None):
         MAX_TRIES = 10
         counter = 0
         while True:
@@ -253,7 +259,7 @@ class Reservation(Base):
                 if experiment_type is None:
                     raise CoordExc.ExperimentNotFoundException("Couldn't find experiment_type %s when creating Reservation" % experiment_id)
 
-                reservation = Reservation(id, now)
+                reservation = Reservation(id, client_initial_data, server_initial_data, now)
                 reservation.experiment_type = experiment_type
                 session.add(reservation)
                 try:
@@ -267,7 +273,7 @@ class Reservation(Base):
                 session.close()
 
     def __repr__(self):
-        return "Reservation(%r)" % self.id
+        return "Reservation(%r, %r, %r)" % (self.id, self.client_initial_data, self.server_initial_data)
 
 ######################################################################################
 # 

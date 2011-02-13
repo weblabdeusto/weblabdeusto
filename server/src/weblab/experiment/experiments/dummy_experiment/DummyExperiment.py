@@ -73,7 +73,7 @@ class DummyExperiment(UdXilinxExperiment.UdXilinxExperiment):
         return ""
 
     @Override(UdXilinxExperiment.UdXilinxExperiment)
-    def do_start_experiment(self):
+    def do_start_experiment(self, *args, **kwargs):
         print "Experiment started"
         return ""
 
