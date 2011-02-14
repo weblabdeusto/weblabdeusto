@@ -113,7 +113,11 @@ public class VisirFlashBoard extends WebLabFlashAppBasedBoard {
 		// encoding issues that seem to be occurring. We enable teacher mode so that the
 		// plus sign that gives us access to the full component palette is available.
 		final String decodedSaveData = URL.decodeQueryString(this.savedata);
-		final String flashvars = "teacher=1"+"&cookie="+this.cookie+"&savedata="+URL.encode(decodedSaveData);
+		String flashvars = "teacher=1";
+		if(this.cookie != "")
+			flashvars += "&cookie="+this.cookie;
+		if(this.savedata != "")
+			flashvars += "&savedata="+URL.encode(decodedSaveData);
 		
 		// Data is received encoded, and used to generate the website straightaway.
 		//final String flashvars = "cookie="+this.cookie+"&savedata="+this.savedata;
