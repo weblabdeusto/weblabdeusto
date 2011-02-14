@@ -103,6 +103,10 @@
 	                        	   "experiment.name"     : "visirtest",
 	                        	   "experiment.category" : "Dummy experiments"
 	                           },
+	                           {
+	                        	   "experiment.name"     : "lxi_visir",
+	                        	   "experiment.category" : "Visir experiments"
+	                           },
                                {
 	                        	   "experiment.name"     : "visir",
 	                        	   "experiment.category" : "Visir experiments"

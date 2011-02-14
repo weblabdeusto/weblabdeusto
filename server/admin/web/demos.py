@@ -6,7 +6,7 @@ import re
 import subprocess
 
 from configuration import _USERNAME, _PASSWORD, DB_NAME, LOCATIONS_DB_NAME, _LOCATIONS_USERNAME, _LOCATIONS_PASSWORD
-LIMIT   = 300
+LIMIT   = 1000
 
 _IPv4_EXPR = re.compile("^([1-2]?[0-9]?[0-9]\.){3}[1-2]?[0-9]?[0-9]$")
 _CACHE     = {}
