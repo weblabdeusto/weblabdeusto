@@ -51,7 +51,7 @@ class ResourcesCheckerThread(threading.Thread):
                     continue
 
                 coordinator = self.coordinator()
-                if coordinator is None:
+                if coordinator is None or coordinator.locator is None:
                     continue # coordinator not configured yet
                 checker = self.Checker(coordinator)
                 checker.check()
