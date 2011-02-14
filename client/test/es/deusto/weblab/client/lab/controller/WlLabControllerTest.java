@@ -434,7 +434,7 @@ public class WlLabControllerTest  extends GWTTestCase{
 				FakeWlLabCommunication fakeCommunications,
 				FakeUIManager fakeUIManager,
 				FakePollingHandler fakePollingHandler) {
-			super(configurationManager, fakeCommunications, fakePollingHandler, false);
+			super(configurationManager, fakeCommunications, fakePollingHandler, false, false);
 			this.uimanager = fakeUIManager;
 			this.setUIManager(fakeUIManager);
 		}

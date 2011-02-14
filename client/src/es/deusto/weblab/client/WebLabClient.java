@@ -55,6 +55,7 @@ public class WebLabClient implements EntryPoint {
 	private static final String SESSION_ID_URL_PARAM = "session_id";	
 	private static final String MOBILE_URL_PARAM = "mobile";
 	private static final String LOCALE_URL_PARAM = "locale";
+	private static final String FACEBOOK_URL_PARAM = "locale";
 	private static final String ADMIN_URL_PARAM = "admin";
 	
 	public static final String LOCALE_COOKIE = "weblabdeusto.locale";
@@ -78,6 +79,11 @@ public class WebLabClient implements EntryPoint {
 	
 	private boolean localeConfigured(){
 	    return Window.Location.getParameter(WebLabClient.LOCALE_URL_PARAM) != null;
+	}
+	
+	private boolean isFacebook(){
+	    final String urlSaysIsFacebook = Window.Location.getParameter(WebLabClient.FACEBOOK_URL_PARAM);
+	    return urlSaysIsFacebook != null && (urlSaysIsFacebook.toLowerCase().equals("yes") || urlSaysIsFacebook.toLowerCase().equals("true"));
 	}
 	
 	private boolean isMobile(){
@@ -136,7 +142,8 @@ public class WebLabClient implements EntryPoint {
 				WebLabClient.this.configurationManager,
 				communications,
 				pollingHandler,
-				isUsingMobile
+				isUsingMobile,
+				isFacebook()
 		);
 		
 		pollingHandler.setController(controller);

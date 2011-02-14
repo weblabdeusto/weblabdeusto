@@ -20,6 +20,7 @@ import es.deusto.weblab.client.ui.widgets.IWlWidget;
 
 public abstract class BoardBase implements IWlWidget{
 	public interface IBoardBaseController{
+		public boolean isFacebook();
 	    public void sendCommand(Command command);
 		public void sendCommand(Command command, IResponseCommandCallback callback);
 	    public void sendCommand(String command);

@@ -114,7 +114,7 @@ public class ConfigurationManager extends ConfigurationRetriever implements ICon
 			for(final String key : currentExperimentConfigurationObject.keySet())
 				experimentConfiguration.put(key, currentExperimentConfigurationObject.get(key));
 			
-			resultingConfigurationRetrievers[i] = new ConfigurationRetriever(experimentConfiguration);
+			resultingConfigurationRetrievers[i] = new ConfigurationRetriever(experimentConfiguration, this);
 		}
 		
 		return resultingConfigurationRetrievers;

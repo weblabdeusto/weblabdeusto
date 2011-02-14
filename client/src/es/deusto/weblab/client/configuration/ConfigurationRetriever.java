@@ -30,13 +30,18 @@ public class ConfigurationRetriever implements IConfigurationRetriever {
 	
 	protected final Map<String, JSONValue> configurationMap;
 	
-	ConfigurationRetriever(Map<String, JSONValue> configurationMap){
+	ConfigurationRetriever(Map<String, JSONValue> configurationMap, ConfigurationRetriever parent){
 		this.configurationMap = configurationMap;
 		basicGwtInitialization();
+		if(parent != null)
+			for(String key : parent.configurationMap.keySet())
+				// The parents' priorities will be overriden, so only add those not already contained
+				if(!this.configurationMap.containsKey(key))
+					this.configurationMap.put(key, parent.configurationMap.get(key));
 	}
 	
 	public ConfigurationRetriever(){
-		 this(new HashMap<String, JSONValue>());
+		 this(new HashMap<String, JSONValue>(), null);
 	}
 	
 	private void basicGwtInitialization(){
