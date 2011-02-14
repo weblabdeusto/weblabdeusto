@@ -19,7 +19,8 @@ import time
 import weblab.user_processing.coordinator.ResourcesCheckerThread as RCT
 import weblab.user_processing.coordinator.ResourcesChecker as ResourcesChecker
 
-class Coordinator(object): pass
+class Coordinator(object):
+    locator = ""
 
 original_coordinator = Coordinator()
 counter = None
