@@ -69,6 +69,8 @@ class VisirTestExperiment(Experiment.Experiment):
         # Common configuration values
         self.savedata = self._cfg_manager.get_value(CFG_SAVEDATA, DEFAULT_SAVEDATA)
         self.client_url = self._cfg_manager.get_value(CFG_CLIENT_URL, DEFAULT_CLIENT_URL);
+        self.measure_server_addr = self._cfg_manager.get_value(CFG_MEASURE_SERVER_ADDRESS, DEFAULT_MEASURE_SERVER_ADDRESS)
+        self.measure_server_target = self._cfg_manager.get_value(CFG_MEASURE_SERVER_TARGET, DEFAULT_MEASURE_SERVER_TARGET)
 
         # 
         # There are two ways of deploying VISIR:
@@ -80,8 +82,6 @@ class VisirTestExperiment(Experiment.Experiment):
         self.use_visir_php = self._cfg_manager.get_value(CFG_USE_VISIR_PHP, DEFAULT_USE_VISIR_PHP)
 
         if self.use_visir_php:
-            self.measure_server_addr = self._cfg_manager.get_value(CFG_MEASURE_SERVER_ADDRESS, DEFAULT_MEASURE_SERVER_ADDRESS)
-            self.measure_server_target = self._cfg_manager.get_value(CFG_MEASURE_SERVER_TARGET, DEFAULT_MEASURE_SERVER_TARGET)
             self.loginurl = self._cfg_manager.get_value(CFG_LOGIN_URL, DEFAULT_LOGIN_URL)
             self.baseurl = self._cfg_manager.get_value(CFG_BASE_URL, DEFAULT_BASE_URL)
             self.login_email = self._cfg_manager.get_value(CFG_LOGIN_EMAIL, DEFAULT_LOGIN_EMAIL)
@@ -107,7 +107,7 @@ class VisirTestExperiment(Experiment.Experiment):
         # a login to obtain the cookie the client should use
         if command == 'GIVE_ME_SETUP_DATA':
             if not self.use_visir_php:
-                return self.build_setup_data("", "", self.client_url)
+                return self.build_setup_data("", self.savedata, self.client_url)
 
             if(DEBUG):
                 print "[VisirTestExperiment] Performing login with %s / %s"  % (self.login_email, self.login_password)
