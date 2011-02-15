@@ -21,7 +21,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
-import com.smartgwt.client.widgets.calendar.Calendar;
+
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.configuration.exceptions.ConfigurationKeyNotFoundException;
@@ -121,7 +121,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 			System.out.println("Error reading flash.timeout for a flash experiment. Using default.");
 		}
 		
-		WebLabFlashAppBasedBoard.createJavaScriptCode(this.html.getElement(), width + 10, height + 10);
+		WebLabFlashAppBasedBoard.createJavaScriptCode(this.html.getElement(), width+10, 0);
 	}
 	
 	
@@ -146,7 +146,6 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 	}
 	
 	
-
 	/*
 	 * We must create an iframe and inside this iframe build the flash object because Flash's ExternalInterface
 	 * doesn't seem to work on Microsoft Internet Explorer (v8) if the flash object is dynamically created. Opera, 
@@ -165,7 +164,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 	public void initialize(){
 		if(!this.deferred)
 			WebLabFlashAppBasedBoard.populateIframe(this.swfFile, this.width, 
-					this.height, this.flashvars);
+					this.height, this.width + 10, this.height + 10, this.flashvars);
 	}
 
 	@Override
@@ -183,7 +182,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 		
 		if(this.deferred)
 			WebLabFlashAppBasedBoard.populateIframe(this.swfFile, this.width, 
-				this.height, this.flashvars);
+				this.height, this.width+10, this.height+10, this.flashvars);
 		
 		
 		final long whenStarted = (new Date()).getTime();
@@ -230,10 +229,13 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 		}
 	}
 
-	private static native void populateIframe(String swfFile, int width, int height, String flashvars) /*-{
+	private static native void populateIframe(String swfFile, int width, int height, int iframeWidth, int iframeHeight, String flashvars) /*-{
 		var doc = $wnd.wl_iframe.contentDocument;
     	if (doc == undefined || doc == null)
         	doc = $wnd.wl_iframe.contentWindow.document;
+        	
+        $wnd.wl_iframe.height = iframeHeight;
+        $wnd.wl_iframe.width = iframeWidth;
         
 		var functionsHtml = "<script language=\"JavaScript\">\n" +
 				"function wl_getIntProperty(name){ " +
