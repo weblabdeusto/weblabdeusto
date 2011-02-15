@@ -50,12 +50,13 @@ import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
 public class WebLabClient implements EntryPoint {
 	
+	public static final int MAX_FACEBOOK_WIDTH = 735;
 	private static final String MAIN_SLOT = "weblab_slot";
 	private static final String SCRIPT_CONFIG_FILE = GWT.getModuleBaseURL() + "configuration.js";
 	private static final String SESSION_ID_URL_PARAM = "session_id";	
 	private static final String MOBILE_URL_PARAM = "mobile";
 	private static final String LOCALE_URL_PARAM = "locale";
-	private static final String FACEBOOK_URL_PARAM = "locale";
+	private static final String FACEBOOK_URL_PARAM = "facebook";
 	private static final String ADMIN_URL_PARAM = "admin";
 	
 	public static final String LOCALE_COOKIE = "weblabdeusto.locale";
@@ -120,6 +121,7 @@ public class WebLabClient implements EntryPoint {
 	}
 	
 	public void loadLabApp() {
+		
 		try{
 			ExperimentFactory.loadExperiments(WebLabClient.this.configurationManager);
 		}catch(final Exception e){
@@ -145,6 +147,9 @@ public class WebLabClient implements EntryPoint {
 				isUsingMobile,
 				isFacebook()
 		);
+		
+		if(isFacebook())
+			RootPanel.get(WebLabClient.MAIN_SLOT).setWidth(MAX_FACEBOOK_WIDTH + "px");
 		
 		pollingHandler.setController(controller);
 		

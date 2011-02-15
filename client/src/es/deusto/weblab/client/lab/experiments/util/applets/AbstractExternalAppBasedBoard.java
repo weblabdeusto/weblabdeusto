@@ -20,6 +20,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.configuration.exceptions.ConfigurationKeyNotFoundException;
@@ -31,7 +32,7 @@ import es.deusto.weblab.client.lab.ui.BoardBase;
 
 public abstract class AbstractExternalAppBasedBoard extends BoardBase {
 
-	private static final int MAX_FACEBOOK_WIDTH = 730;
+	private static final int MAX_FACEBOOK_WIDTH = WebLabClient.MAX_FACEBOOK_WIDTH;
 	private static IConfigurationRetriever configurationRetriever;
 	protected static IBoardBaseController boardController;
 	private final VerticalPanel panel;
@@ -44,7 +45,7 @@ public abstract class AbstractExternalAppBasedBoard extends BoardBase {
 		super(boardController);
 		
 		if(boardController.isFacebook()){
-			if(this.width > MAX_FACEBOOK_WIDTH){
+			if(width > MAX_FACEBOOK_WIDTH){
 				this.width  = MAX_FACEBOOK_WIDTH;
 				final float scale = 1.0f * MAX_FACEBOOK_WIDTH / width;
 				this.height = Math.round(scale * height);
