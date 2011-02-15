@@ -31,14 +31,31 @@ import es.deusto.weblab.client.lab.ui.BoardBase;
 
 public abstract class AbstractExternalAppBasedBoard extends BoardBase {
 
+	private static final int MAX_FACEBOOK_WIDTH = 730;
 	private static IConfigurationRetriever configurationRetriever;
 	protected static IBoardBaseController boardController;
 	private final VerticalPanel panel;
 	protected Label message;
 	protected final HTML html;
+	protected final int width;
+	protected final int height;
 
-	public AbstractExternalAppBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController) {
+	public AbstractExternalAppBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController, int width, int height) {
 		super(boardController);
+		
+		if(boardController.isFacebook()){
+			if(this.width > MAX_FACEBOOK_WIDTH){
+				this.width  = MAX_FACEBOOK_WIDTH;
+				final float scale = 1.0f * MAX_FACEBOOK_WIDTH / width;
+				this.height = Math.round(scale * height);
+			}else{
+				this.width  = width;
+				this.height = height;
+			}
+		}else{
+			this.width  = width;
+			this.height = height;
+		}
 		
 		AbstractExternalAppBasedBoard.boardController      = boardController;
 		AbstractExternalAppBasedBoard.configurationRetriever = configurationRetriever;

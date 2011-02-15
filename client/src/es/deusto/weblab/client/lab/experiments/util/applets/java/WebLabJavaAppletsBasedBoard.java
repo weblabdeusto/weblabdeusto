@@ -25,15 +25,15 @@ public class WebLabJavaAppletsBasedBoard extends AbstractExternalAppBasedBoard{
     public WebLabJavaAppletsBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController,
     		String archive,
     		String code,
-    		int appletWidth,
-    		int appletHeight,
+    		int width,
+    		int height,
     		String message
     ) {
-    	super(configurationRetriever, boardController);
+    	super(configurationRetriever, boardController, width, height);
     	
     	this.message.setText(message);
 
-    	WebLabJavaAppletsBasedBoard.createJavaScriptCode(this.html.getElement(), GWT.getModuleBaseURL() + archive, code, appletWidth, appletHeight);
+    	WebLabJavaAppletsBasedBoard.createJavaScriptCode(this.html.getElement(), GWT.getModuleBaseURL() + archive, code, this.width, this.height);
     }
 
     private static native void createJavaScriptCode(Element element, String archive, String code, int width, int height) /*-{

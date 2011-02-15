@@ -32,8 +32,6 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 
 	public static final int WAIT_AFTER_START = 500;
 	
-	private final int width;
-	private final int height;
 	private final boolean deferred;
 	
 	private String swfFile;
@@ -104,9 +102,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 			String message,
 			boolean deferFlashApp
 	) {
-		super(configurationRetriever, boardController);
-		this.height  = height;
-		this.width   = width;
+		super(configurationRetriever, boardController, width, height);
 		if(swfFile != null)
 			this.swfFile = GWT.getModuleBaseURL() + swfFile;
 		this.flashvars = flashvars;
@@ -121,7 +117,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 			System.out.println("Error reading flash.timeout for a flash experiment. Using default.");
 		}
 		
-		WebLabFlashAppBasedBoard.createJavaScriptCode(this.html.getElement(), width+10, 0);
+		WebLabFlashAppBasedBoard.createJavaScriptCode(this.html.getElement(), this.width+10, 0);
 	}
 	
 	
