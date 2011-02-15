@@ -20,7 +20,7 @@ class SessionSerializer(object):
     def serialize(self,sess_obj):
         try:
             sess_obj_serialized = pickle.dumps(sess_obj)
-        except pickle.PickleError, pe:
+        except (pickle.PickleError, TypeError), pe:
             raise SessionExceptions.SessionNotSerializableException(
                     "Session object not serializable with pickle: %s" % pe,
                     pe
@@ -32,7 +32,7 @@ class SessionSerializer(object):
             sos = sess_obj_serialized[len("{pickle}".encode()):]
             try:
                 deserialized = pickle.loads(sos)
-            except pickle.PickleError, pe:
+            except (pickle.PickleError, TypeError), pe:
                 raise SessionExceptions.SessionNotDeserializableException(
                     "Session object not deserializable with pickle: %s" % pe,
                     pe
