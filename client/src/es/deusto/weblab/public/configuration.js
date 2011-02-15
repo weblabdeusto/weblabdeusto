@@ -28,6 +28,7 @@
 					           {
 					        	   "experiment.name"     : "flashdummy",
 					        	   "experiment.category" : "Dummy experiments",
+					        	   "flash.timeout"		 : 20,
 					        	   "width"               : 500,
 					        	   "height"              : 350,
 					        	   "swf.file"            : "WeblabFlashSample.swf",
