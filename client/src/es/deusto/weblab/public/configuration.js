@@ -52,6 +52,14 @@
 	                        	   "experiment.name"     : "vm",
 	                        	   "experiment.category" : "Dummy experiments"
 	                           },
+	                           {
+	                        	   "experiment.name"     : "ud-linux-vm",
+	                        	   "experiment.category" : "VM experiments"
+	                           },
+	                           {
+	                        	   "experiment.name"     : "ud-win-vm",
+	                        	   "experiment.category" : "VM experiments"
+	                           },
 	                           {   "experiment.name"	 : "vm-win",
 	                               "experiment.category" : "Dummy experiments"
 	                           }
