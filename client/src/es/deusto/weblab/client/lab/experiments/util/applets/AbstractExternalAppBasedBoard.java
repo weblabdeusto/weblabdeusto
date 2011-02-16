@@ -9,6 +9,7 @@
 * listed below:
 *
 * Author: Pablo Orduña <pablo@ordunya.com>
+*         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 *
 */
 
@@ -28,6 +29,7 @@ import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.ui.BoardBase;
+import es.deusto.weblab.client.ui.widgets.WlTimer;
 
 public abstract class AbstractExternalAppBasedBoard extends BoardBase {
 
@@ -44,6 +46,11 @@ public abstract class AbstractExternalAppBasedBoard extends BoardBase {
 	// file and displayed on the bottom of the page.
 	private final HTML pageFooter;
 	private final VerticalPanel pageFooterPanel;
+	
+	// Whether to display the standard count-down timer or not.
+	private final boolean displayStandardTimer;
+	private final VerticalPanel standardTimerPanel;
+	private final WlTimer standardTimer;
 	
 	public AbstractExternalAppBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController, int width, int height) {
 		super(boardController);
@@ -65,6 +72,14 @@ public abstract class AbstractExternalAppBasedBoard extends BoardBase {
 		AbstractExternalAppBasedBoard.boardController      = boardController;
 		AbstractExternalAppBasedBoard.configurationRetriever = configurationRetriever;
 		AbstractExternalAppBasedBoard.exportStaticMethods();
+		
+		// If the following display flag is disabled, we will simply never show the panel with the timer.
+		this.displayStandardTimer = configurationRetriever.getBoolProperty("page.timer", false);
+		this.standardTimerPanel = new VerticalPanel();
+		this.standardTimerPanel.setVisible(false);
+		this.standardTimer = new WlTimer(false);
+		this.standardTimerPanel.add(this.standardTimer);
+		this.standardTimer.setStyleName("wl-time_remaining");
 				
 		this.pageFooterPanel = new VerticalPanel();
 		this.pageFooter = new HTML(configurationRetriever.getProperty("page.footer", ""));
@@ -74,9 +89,25 @@ public abstract class AbstractExternalAppBasedBoard extends BoardBase {
 		this.message = new Label();
 		this.html = new HTML("<div/>");
 		this.panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		this.panel.add(this.standardTimerPanel);
 		this.panel.add(this.html);
 		this.panel.add(this.message);
 		this.panel.add(this.pageFooterPanel);
+	}
+	
+	
+	/**
+	 * This method is called automatically to set the time of an experiment. If enabled,
+	 * we need to use that information to set up the timer. If this method is overriden,
+	 * it will need to be called explicitly for the timer to work.
+	 */
+	@Override
+	public void setTime(int time) {
+		if(this.displayStandardTimer) {
+			this.standardTimerPanel.setVisible(true);
+			this.standardTimer.updateTime(time);
+			this.standardTimer.start();
+		}
 	}
 	
 	/**

@@ -112,16 +112,19 @@
 	                           {
 	                        	   "experiment.name"     : "visirtest",
 	                        	   "experiment.category" : "Dummy experiments",
+	                        	   "page.timer"          : true,
 	                        	   "page.footer"         : "Powered by the wonderful <a href='http://openlabs.bth.se/index.php?page=ElectroLab'>VISIR</a> <a href='http://svn.openlabs.bth.se/'>Open Source</a> project developed at the <a href='http://www.bth.se/'>BTH</a>"
 	                           },
 	                           {
 	                        	   "experiment.name"     : "lxi_visir",
 	                        	   "experiment.category" : "Visir experiments",
+	                        	   "page.timer"          : true,
 	                        	   "page.footer"         : "Powered by the wonderful <a href='http://openlabs.bth.se/index.php?page=ElectroLab'>VISIR</a> <a href='http://svn.openlabs.bth.se/'>Open Source</a> project developed at the <a href='http://www.bth.se/'>BTH</a>"
 	                           },
                                {
 	                        	   "experiment.name"     : "visir",
 	                        	   "experiment.category" : "Visir experiments",
+	                        	   "page.timer"          : true,
 	                        	   "page.footer"         : "Powered by the wonderful <a href='http://openlabs.bth.se/index.php?page=ElectroLab'>VISIR</a> <a href='http://svn.openlabs.bth.se/'>Open Source</a> project developed at the <a href='http://www.bth.se/'>BTH</a>"
 	                           }
 	                       ],

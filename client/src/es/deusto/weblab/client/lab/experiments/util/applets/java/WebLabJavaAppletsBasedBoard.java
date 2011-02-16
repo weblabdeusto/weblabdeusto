@@ -51,6 +51,10 @@ public class WebLabJavaAppletsBasedBoard extends AbstractExternalAppBasedBoard{
 
     @Override
     public void setTime(int time) {
+    	
+    	// Call required for the standard timer to work properly, if it is enabled.
+    	super.setTime(time);
+    	
     	AbstractExternalAppBasedBoard.setTimeImpl(time);
     }
 

@@ -158,6 +158,10 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 
 	@Override
 	public void setTime(int time) {
+		
+		// Call required for the standard timer to work properly, if it is enabled.
+		super.setTime(time);
+		
 		if(!this.deferred) {
 			WebLabFlashAppBasedBoard.findFlashReference();
 			AbstractExternalAppBasedBoard.setTimeImpl(time);
