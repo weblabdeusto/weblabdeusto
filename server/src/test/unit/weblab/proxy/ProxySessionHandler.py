@@ -86,7 +86,7 @@ class ProxySessionHandlerTestCase(mocker.MockerTestCase):
     #===================================================================
 
     def test_poll_when_polling(self):
-        session = {'session_polling': (time.time(), ProxySessionHandler.ProxySessionHandler.EXPIRATION_TIME_NOT_SET)}
+        session = {'session_polling': (time.time() - 1, ProxySessionHandler.ProxySessionHandler.EXPIRATION_TIME_NOT_SET)}
         psh = self._create_proxy_session_handler(session=session)
         
         timestamp_before = psh._session['session_polling'][0]
