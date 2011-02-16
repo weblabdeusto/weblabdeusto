@@ -160,7 +160,12 @@ class VMExperimentTestCase(mocker.MockerTestCase):
         ret = vmexp.do_start_experiment()   
         self.assertEqual("Starting", ret)
         
-        self.assertTrue(um.configure_called == 0)
+        initial_time = time.time()
+        while um.configure_called == 0:
+            time.sleep(0.01)
+            now = time.time()
+            if now - initial_time > 2:
+                self.fail("Waiting too long for start thread to run")
     
         # Check that if we try again, it doesn't handle it the same way, but rather
         # tells us that it's already started or that it is still starting.    

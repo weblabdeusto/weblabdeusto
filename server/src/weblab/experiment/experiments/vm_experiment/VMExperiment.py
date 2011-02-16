@@ -156,6 +156,8 @@ class VMExperiment(Experiment.Experiment):
         if DEBUG:
             print "t_launched"
         self.setup()
+        if DEBUG:
+            print "t_setup"
         if self.is_error == True:
             self.is_ready = False
         else:
@@ -194,6 +196,8 @@ class VMExperiment(Experiment.Experiment):
         while True:
             try:
                 self.user_manager.configure(self.session_id)
+                if DEBUG:
+                    print "t_configured"
                 break
             except UserManager.PermanentConfigureError, ex:
                 self.is_error = True
