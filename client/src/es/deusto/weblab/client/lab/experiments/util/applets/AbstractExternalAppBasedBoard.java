@@ -40,6 +40,11 @@ public abstract class AbstractExternalAppBasedBoard extends BoardBase {
 	protected final int width;
 	protected final int height;
 
+	// To store the html footer which is optionally specified through the configuration
+	// file and displayed on the bottom of the page.
+	private final HTML pageFooter;
+	private final VerticalPanel pageFooterPanel;
+	
 	public AbstractExternalAppBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController, int width, int height) {
 		super(boardController);
 		
@@ -60,6 +65,10 @@ public abstract class AbstractExternalAppBasedBoard extends BoardBase {
 		AbstractExternalAppBasedBoard.boardController      = boardController;
 		AbstractExternalAppBasedBoard.configurationRetriever = configurationRetriever;
 		AbstractExternalAppBasedBoard.exportStaticMethods();
+				
+		this.pageFooterPanel = new VerticalPanel();
+		this.pageFooter = new HTML(configurationRetriever.getProperty("page.footer", ""));
+		this.pageFooterPanel.add(this.pageFooter);
 		
 		this.panel = new VerticalPanel();
 		this.message = new Label();
@@ -67,6 +76,15 @@ public abstract class AbstractExternalAppBasedBoard extends BoardBase {
 		this.panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		this.panel.add(this.html);
 		this.panel.add(this.message);
+		this.panel.add(this.pageFooterPanel);
+	}
+	
+	/**
+	 * Shows or hides the footer.
+	 * @param show True to show, false to hide.
+	 */
+	public void showFooter(boolean show) {
+		this.pageFooterPanel.setVisible(show);
 	}
 
 	@Override

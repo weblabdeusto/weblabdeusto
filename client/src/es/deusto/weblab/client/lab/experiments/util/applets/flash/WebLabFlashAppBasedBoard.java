@@ -24,8 +24,6 @@ import com.google.gwt.user.client.Window;
 
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
-import es.deusto.weblab.client.configuration.exceptions.ConfigurationKeyNotFoundException;
-import es.deusto.weblab.client.configuration.exceptions.InvalidConfigurationValueException;
 import es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard;
 
 public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
@@ -41,7 +39,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 	// Time to wait for the flash app to load before we consider it has
 	// failed. Though it has a default, it can be specified through the js config file 
 	// for the experiment, and should often be higher for large flash files.
-	private int flashTimeout = 10;
+	private final int flashTimeout;
 	
 	// Timer to enforce the flash loading timeout.
 	private Timer initializationTimer;
@@ -109,13 +107,8 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 		this.message.setText(message);
 		this.deferred = deferFlashApp;
 		
-		try {
-			this.flashTimeout = configurationRetriever.getIntProperty("flash.timeout");
-		} catch (ConfigurationKeyNotFoundException e) {
-			System.out.println("flash.timeout not found for a flash experiment. Using default.");
-		} catch (InvalidConfigurationValueException e) {
-			System.out.println("Error reading flash.timeout for a flash experiment. Using default.");
-		}
+
+		this.flashTimeout = configurationRetriever.getIntProperty("flash.timeout", 10);
 		
 		WebLabFlashAppBasedBoard.createJavaScriptCode(this.html.getElement(), this.width+10, 0);
 	}

@@ -28,6 +28,7 @@
 					           {
 					        	   "experiment.name"     : "flashdummy",
 					        	   "experiment.category" : "Dummy experiments",
+					        	   "page.footer"		 : "",
 					        	   "flash.timeout"		 : 20,
 					        	   "width"               : 500,
 					        	   "height"              : 350,
@@ -110,15 +111,18 @@
 	                "visir" : [
 	                           {
 	                        	   "experiment.name"     : "visirtest",
-	                        	   "experiment.category" : "Dummy experiments"
+	                        	   "experiment.category" : "Dummy experiments",
+	                        	   "page.footer"         : "Powered by the wonderful <a href='http://openlabs.bth.se/index.php?page=ElectroLab'>VISIR</a> <a href='http://svn.openlabs.bth.se/'>Open Source</a> project developed at the <a href='http://www.bth.se/'>BTH</a>"
 	                           },
 	                           {
 	                        	   "experiment.name"     : "lxi_visir",
-	                        	   "experiment.category" : "Visir experiments"
+	                        	   "experiment.category" : "Visir experiments",
+	                        	   "page.footer"         : "Powered by the wonderful <a href='http://openlabs.bth.se/index.php?page=ElectroLab'>VISIR</a> <a href='http://svn.openlabs.bth.se/'>Open Source</a> project developed at the <a href='http://www.bth.se/'>BTH</a>"
 	                           },
                                {
 	                        	   "experiment.name"     : "visir",
-	                        	   "experiment.category" : "Visir experiments"
+	                        	   "experiment.category" : "Visir experiments",
+	                        	   "page.footer"         : "Powered by the wonderful <a href='http://openlabs.bth.se/index.php?page=ElectroLab'>VISIR</a> <a href='http://svn.openlabs.bth.se/'>Open Source</a> project developed at the <a href='http://www.bth.se/'>BTH</a>"
 	                           }
 	                       ],
 	                "logic" : [
