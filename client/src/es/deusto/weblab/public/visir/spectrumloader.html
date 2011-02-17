@@ -1,5 +1,5 @@
 <!-- saved from url=(0013)about:internet -->
-<html lang="en">
+<html lang="fr">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 <title>spectrumloader</title>
@@ -9,28 +9,28 @@
 <script language="JavaScript" type="text/javascript">
 <!--
 // -----------------------------------------------------------------------------
-// Globals
-// Major version of Flash required
+// Variables globales
+// Version majeure de Flash requise
 var requiredMajorVersion = 8;
-// Minor version of Flash required
+// Version mineure de Flash requise
 var requiredMinorVersion = 0;
-// Revision of Flash required
+// Révision de Flash requise
 var requiredRevision = 0;
 // -----------------------------------------------------------------------------
 // -->
 </script>
 </head>
 <body bgcolor="#ffffff">
-<!--url's used in the movie-->
-<!--text used in the movie-->
+<!--URL utilisées dans l'animation-->
+<!--texte utilisé dans l'animation-->
 <script language="JavaScript" type="text/javascript">
 <!--
 if (AC_FL_RunContent == 0 || DetectFlashVer == 0) {
-	alert("This page requires AC_RunActiveContent.js.");
+	alert("Cette page nécessite le fichier AC_RunActiveContent.js.");
 } else {
 	var hasRightVersion = DetectFlashVer(requiredMajorVersion, requiredMinorVersion, requiredRevision);
-	if(hasRightVersion) {  // if we've detected an acceptable version
-		// embed the flash movie
+	if(hasRightVersion) {  // si nous avons détecté une version acceptable
+		// intégrer le clip Flash
 		AC_FL_RunContent(
 			'codebase', 'http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=8,0,0,0',
 			'width', '970',
@@ -53,20 +53,20 @@ if (AC_FL_RunContent == 0 || DetectFlashVer == 0) {
 			'movie', 'spectrumloader',
 			'salign', ''
 			); //end AC code
-	} else {  // flash is too old or we can't detect the plugin
-		var alternateContent = 'Alternate HTML content should be placed here.'
-			+ 'This content requires the Adobe Flash Player.'
-			+ '<a href=http://www.macromedia.com/go/getflash/>Get Flash</a>';
-		document.write(alternateContent);  // insert non-flash content
+	} else {  // version Flash trop ancienne ou détection du plug-in impossible
+		var alternateContent = 'Un autre contenu HTML doit être inséré ici. '
+			+ 'Ce contenu requiert Adobe Flash Player. '
+			+ '<a href=http://www.macromedia.com/go/getflash/>Obtenir Flash</a>';
+		document.write(alternateContent);  // Insérer contenu non-Flash
 	}
 }
 // -->
 </script>
 <noscript>
-	// Provide alternate content for browsers that do not support scripting
-	// or for those that have scripting disabled.
-  	Alternate HTML content should be placed here. This content requires the Adobe Flash Player.
-  	<a href="http://www.macromedia.com/go/getflash/">Get Flash</a>
+	// Fournissez un autre contenu pour les navigateurs qui ne prennent pas en charge 
+	// les scripts ou dans lesquels les scripts sont désactivés.
+  	Un autre contenu HTML doit être inséré ici. Ce contenu requiert Adobe Flash Player.
+  	<a href="http://www.macromedia.com/go/getflash/">Obtenir Flash</a>  	
 </noscript>
 </body>
 </html>
