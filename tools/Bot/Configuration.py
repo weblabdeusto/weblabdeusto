@@ -23,7 +23,7 @@ from weblab.admin.bot.User import StandardBotUser, DisconnectedBotUser, NotRespo
 
 WEBLAB_PATH         = ('..','..','server','src')        # WebLab's source root path from this folder
 
-LAUNCH_FILE         = "launch_sample.py"                # Name of the file that launches a WebLab process
+LAUNCH_FILE         = "sample/launch_sample.py"                # Name of the file that launches a WebLab process
 
 HOST                = "localhost"                       # WebLab's hostname
 USERNAME            = "student1"                        # WebLab's username to login
@@ -165,6 +165,7 @@ for protocol in URL_MAPS.keys():
                     number
                 )
             )
+    break
     for number in range(5, 101, 5):
         SCENARIOS.append(
                 Scenario(
@@ -175,12 +176,12 @@ for protocol in URL_MAPS.keys():
             )
 
 CONFIGURATIONS      = [
-#                        "launch_sample.py"
-#                        "launch_sample_xmlrpc_machine.py"
-#                        "launch_sample_internetsocket_machine.py"
-#                        "launch_sample_unixsocket_machine.py"
-#                         "launch_sample_balanced1_machine.py"
-                         "launch_sample_balanced2_machine.py"
+                        "sample/launch_sample.py"
+#                        "sample_xmlrpc/launch_sample_xmlrpc_machine.py"
+#                        "sample_internetsocket/launch_sample_internetsocket_machine.py"
+#                        "sample_unixsocket/launch_sample_unixsocket_machine.py"
+#                        "sample_balanced1/launch_sample_balanced1_machine.py"
+#                        "sample_balanced2/launch_sample_balanced2_machine.py"
                       ]
 
 _default_ports = {
@@ -211,12 +212,12 @@ _three_facades_ports = {
             }
 
 PORTS = {
-        "launch_sample.py" : _default_ports,
-        "launch_sample_xmlrpc_machine.py" : _default_ports,
-        "launch_sample_internetsocket_machine.py" : _default_ports,
-        "launch_sample_unixsocket_machine.py" : _default_ports,
-        "launch_sample_balanced1_machine.py" : _two_facades_ports,
-        "launch_sample_balanced2_machine.py" : _three_facades_ports,
+        "sample/launch_sample.py" : _default_ports,
+        "sample_xmlrpc/launch_sample_xmlrpc_machine.py" : _default_ports,
+        "sample_internetsocket/launch_sample_internetsocket_machine.py" : _default_ports,
+        "sample_unixsocket/launch_sample_unixsocket_machine.py" : _default_ports,
+        "sample_balanced1/launch_sample_balanced1_machine.py" : _two_facades_ports,
+        "sample_balanced2/launch_sample_balanced2_machine.py" : _three_facades_ports,
     }
 
 RUNNING_CONFIGURATION = "r%s. %s iterations; step_delay: %s seconds; %s" % (REVISION, ITERATIONS, STEP_DELAY, CONFIGURATIONS)
