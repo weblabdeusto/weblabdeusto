@@ -50,6 +50,7 @@ import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
 public class WebLabClient implements EntryPoint {
 	
+	private static final String WEBLAB_SESSION_ID_COOKIE = "weblabsessionid";
 	public static final int MAX_FACEBOOK_WIDTH = 735;
 	private static final String MAIN_SLOT = "weblab_slot";
 	private static final String SCRIPT_CONFIG_FILE = GWT.getModuleBaseURL() + "configuration.js";
@@ -159,11 +160,20 @@ public class WebLabClient implements EntryPoint {
 			public void onThemeLoaded(WlLabThemeBase theme) {
 				controller.setUIManager(theme);
 				try{
-					final String sessionId = Window.Location.getParameter(WebLabClient.SESSION_ID_URL_PARAM);
-					if(sessionId == null)
+					final String providedCredentials = Window.Location.getParameter(WebLabClient.SESSION_ID_URL_PARAM);
+					if(providedCredentials == null)
 						theme.onInit();
-					else
+					else{
+						final String sessionId;
+						final int position = providedCredentials.indexOf(';');
+						if(position >= 0){
+							sessionId = providedCredentials.substring(0, position);
+							final String cookie = providedCredentials.substring(position + 1);
+							Cookies.setCookie(WEBLAB_SESSION_ID_COOKIE, cookie);
+						}else
+							sessionId = providedCredentials;
 						controller.startLoggedIn(new SessionID(sessionId));
+					}
 				}catch(final Exception e){
 					WebLabClient.this.showError("Error initializing theme: " + e.getMessage());
 					e.printStackTrace();
