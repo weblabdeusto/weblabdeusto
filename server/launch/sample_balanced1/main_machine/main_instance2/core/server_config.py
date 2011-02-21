@@ -28,4 +28,4 @@ core_scheduling_systems = {
         "visirtest@Dummy experiments"  : ("PRIORITY_QUEUE", {}),
     }
 
-
+core_coordinator_clean = False
