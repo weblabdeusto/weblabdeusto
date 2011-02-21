@@ -35,8 +35,21 @@ class WebLabProcess(object):
         self._set_paths()
         
     def _set_paths(self):
+        os_sep_found = os.sep in self.launch_file
+        slash_found = '/' in self.launch_file
+
+        if os.sep != '/' and os_sep_found and slash_found:
+            raise Exception("Both %s and / found in launch_file, only one expected" % os.sep)
+
         launch_path = copy.copy(self.weblab_path)
         launch_path.append(LAUNCH_DIR)
+
+        if os_sep_found or slash_found:
+            sep = os.sep if os_sep_found else '/'
+            additional_directory = self.launch_file[:self.launch_file.rfind(sep)]
+            launch_path.extend(additional_directory.split(sep))
+            self.launch_file = self.launch_file[self.launch_file.rfind(sep) + 1:]
+
         self.launch_path = os.path.abspath( os.sep.join(launch_path) )
         
     def _has_started(self):
@@ -81,7 +94,12 @@ class WebLabProcess(object):
                                       stdout=subprocess.PIPE,
                                       stderr=subprocess.PIPE)
         
-        time.sleep(10)
+        time.sleep(2)
+        if self.popen.poll() is not None:
+            print self.popen.stdout.read()
+            print self.popen.stderr.read()
+            raise Exception("Server couldn't start!")
+        time.sleep(8)
 
         max_iterations = 10
         while not self._has_started() and max_iterations > 0:
