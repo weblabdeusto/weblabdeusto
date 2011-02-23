@@ -26,4 +26,5 @@
 	<server>experiment_javadummy</server> 
 	<server>experiment_testvisir</server>
 	<server>experiment_vm</server>
+	<server>experiment_vm_win</server>
 </servers>
