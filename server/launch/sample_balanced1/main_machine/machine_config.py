@@ -4,10 +4,6 @@
 
 weblab_db_username = 'weblab'
 weblab_db_password = 'weblab'
-db_driver        = "MySQLdb"
-db_host          = "localhost"
-db_database = "WebLab"
-db_prefix        = "wl_"
 
 ########################################
 # User Processing Server configuration #
@@ -45,7 +41,7 @@ core_db_users_externalentity_write_password     = 'wl_exter_write_password'
 
 db_driver        = "MySQLdb"
 db_host          = "localhost"
-db_database = "WebLab"
+db_database = "WebLabTests"
 db_prefix        = "wl_"
 
 

@@ -2,6 +2,8 @@
 # RemoteFacade configuration #
 ##############################
 
+core_coordinator_clean = False
+
 core_facade_soap_bind       = ''
 core_facade_soap_port         = 20123
 core_facade_soap_service_name = '/weblab/soap/'
