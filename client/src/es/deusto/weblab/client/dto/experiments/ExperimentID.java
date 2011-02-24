@@ -50,7 +50,7 @@ public class ExperimentID {
 	@Override
 	public boolean equals(Object o){
 	    return o instanceof ExperimentID 
-	    	&& ((ExperimentID)o).experimentName == this.experimentName
+	    	&& ((ExperimentID)o).experimentName.equals(this.experimentName)
 	    	&& this.category.equals(((ExperimentID)o).category);
 	}
 }

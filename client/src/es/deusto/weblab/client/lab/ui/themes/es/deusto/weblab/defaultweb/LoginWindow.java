@@ -42,6 +42,7 @@ import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.i18n.IW
 import es.deusto.weblab.client.ui.widgets.WlUtil;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
+
 class LoginWindow extends BaseWindow {
 	
 	interface MyUiBinder extends UiBinder<Widget, LoginWindow> {}

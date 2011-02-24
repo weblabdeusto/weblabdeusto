@@ -17,6 +17,7 @@ public interface IWebLabDeustoThemeMessages extends Messages {
 			"eu"
 	};
 	
+	public String experimentPicture();
 	public String experimentName();
 	public String experimentCategory();
 	public String timeAllowed();
@@ -42,4 +43,5 @@ public interface IWebLabDeustoThemeMessages extends Messages {
 	public String reserveThisExperiment();
 	public String ifYouHaveTechnicalProblems(String adminMail);
 	public String demoLoginDetails(String demoUsername, String demoPassword);
+
 }

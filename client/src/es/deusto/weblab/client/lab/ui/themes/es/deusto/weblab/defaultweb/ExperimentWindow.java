@@ -34,6 +34,12 @@ import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.ui.widgets.WlUtil;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
+
+
+/**
+ * Window that displays basic information about a selected experiment and 
+ * lets the user Reserve it.
+ */
 class ExperimentWindow extends BaseWindow {
 	
 	interface MyUiBinder extends UiBinder<Widget, ExperimentWindow> {}

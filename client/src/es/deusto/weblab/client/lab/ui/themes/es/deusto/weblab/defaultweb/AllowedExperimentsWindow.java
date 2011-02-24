@@ -22,16 +22,24 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.users.User;
+import es.deusto.weblab.client.lab.experiments.ExperimentFactory;
 import es.deusto.weblab.client.ui.widgets.WlUtil;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
+/**
+ * Window that displays the list of allowed experiments for the logged in 
+ * user, and lets the user select one.
+ */
 class AllowedExperimentsWindow extends BaseWindow {
 
 	interface MyUiBinder extends UiBinder<Widget, AllowedExperimentsWindow> {}
@@ -81,7 +89,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 
 		this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
 		
-		this.experimentsTable.resize(this.experimentsAllowed.length+1, 2);
+		this.experimentsTable.resize(this.experimentsAllowed.length+1, 3);
 
 		final Label experimentCategoryHeader = new Label(this.i18nMessages.experimentCategory());
 		experimentCategoryHeader.setStyleName("web-allowedexperiments-table-header");
@@ -90,14 +98,39 @@ class AllowedExperimentsWindow extends BaseWindow {
 		final Label experimentNameHeader = new Label(this.i18nMessages.experimentName());
 		experimentNameHeader.setStyleName("web-allowedexperiments-table-header");
 		this.experimentsTable.setWidget(0, 1, experimentNameHeader);
+		
+		//final Label experimentPictureHeader = new Label(this.i18nMessages.experimentPicture());
+		//experimentPictureHeader.setStyleName("web-allowedexperiments-table-header");
+		//this.experimentsTable.setWidget(0,2, experimentPictureHeader);
 
 		for(int i = 0; i < this.experimentsAllowed.length; ++i) {
-			final String category = this.experimentsAllowed[i].getExperiment().getCategory().getCategory();
-			final Anchor nameLink = new Anchor(this.experimentsAllowed[i].getExperiment().getName());
+			
+			final ExperimentAllowed experiment = this.experimentsAllowed[i];
+			
+			final String category = experiment.getExperiment().getCategory().getCategory();
+			final Anchor nameLink = new Anchor(experiment.getExperiment().getName());
 			nameLink.addClickHandler(new ExperimentClickListener(i));
-
+			
+			
+			IConfigurationRetriever retriever = ExperimentFactory.getExperimentConfigurationRetriever(experiment.getExperiment().getExperimentUniqueName());
+			String picture = retriever.getProperty("experiment.picture", "");
+			
+			if(picture.isEmpty())
+				picture = retriever.getProperty("experiments.default_picture", "");
+			
+            if(picture.startsWith("/"))
+                picture = GWT.getModuleBaseURL() + picture;
+			final Image img = new Image(picture);
+            img.setHeight("40px");
+			img.setStyleName("web-allowedexperiments-image");
+			
+			img.addClickHandler(new ExperimentClickListener(i));
+						
 			this.experimentsTable.setWidget(i+1, 0, new Label(category));
 			this.experimentsTable.setWidget(i+1, 1, nameLink);
+			
+			this.experimentsTable.setWidget(i+1, 2, img);
+            this.experimentsTable.getCellFormatter().setHorizontalAlignment(i+1, 2, HasHorizontalAlignment.ALIGN_CENTER);
 		}
 		
 	    if(this.callback.startedLoggedIn()){

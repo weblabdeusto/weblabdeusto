@@ -183,6 +183,14 @@ body
 	text-align: center;
 }
 
+.web-allowedexperiments-image
+{
+	background-color: #7590AE;
+	//border: 1px solid navy;
+	cursor:pointer;
+	cursor:hand;
+}
+
 /*
  * Experiment Window
  */
