@@ -103,12 +103,12 @@
 						      },
 							  {
 								   "experiment.name"     : "ud-fpga",
-								   "experiment.category" : "FPGA experiments"
+								   "experiment.category" : "FPGA experiments",
 	                        	   "experiment.picture"   : "/img/experiments/xilinx.jpg"
 							  },
 	                          {
 	                        	  "experiment.name"      : "ud-pld",
-	                        	  "experiment.category"  : "PLD experiments"
+	                        	  "experiment.category"  : "PLD experiments",
 	                        	  "experiment.picture"   : "/img/experiments/xilinx.jpg"
 	                          }
 	                       ],
@@ -144,7 +144,7 @@
 	                "logic" : [
 	                           {
 	                        	   "experiment.name"     : "ud-logic",
-	                        	   "experiment.category" : "PIC experiments"
+	                        	   "experiment.category" : "PIC experiments",
 	                        	  "experiment.picture"   : "/img/experiments/logic.jpg"
 	                           }
 	                       ],
@@ -175,14 +175,14 @@
 	                "pic"   : [
 	                           {
 	                        	   "experiment.name"     : "ud-pic",
-	                        	   "experiment.category" : "PIC experiments"
+	                        	   "experiment.category" : "PIC experiments",
 	                        	   "experiment.picture"  : "/img/experiments/microchip.jpg"
 	                           }
 	                        ],
 	                "pic2"  : [
 	                           {
 	                        	   "experiment.name"     : "ud-pic2",
-	                        	   "experiment.category" : "PIC experiments"
+	                        	   "experiment.category" : "PIC experiments",
 	                        	   "experiment.picture"  : "/img/experiments/microchip.jpg"
 	                           }
 	                        ]
