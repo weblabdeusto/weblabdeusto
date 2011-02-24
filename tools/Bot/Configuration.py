@@ -23,7 +23,7 @@ from weblab.admin.bot.User import StandardBotUser, DisconnectedBotUser, NotRespo
 
 WEBLAB_PATH         = ('..','..','server','src')        # WebLab's source root path from this folder
 
-LAUNCH_FILE         = "sample/launch_sample.py"                # Name of the file that launches a WebLab process
+LAUNCH_FILE         = "sample_balanced2/launch_sample_balanced2_machine.py"                # Name of the file that launches a WebLab process
 
 HOST                = "localhost"                       # WebLab's hostname
 USERNAME            = "student1"                        # WebLab's username to login
@@ -32,7 +32,7 @@ EXPERIMENT_NAME     = "ud-dummy"                        # Experiment name to int
 CATEGORY_NAME       = "Dummy experiments"               # Experiment category name to interact with
 PROGRAM_FILE        = "this is the content of the file" # Program file to send
 
-ITERATIONS          = 8                                # Times to repeat each launch
+ITERATIONS          = 2                                # Times to repeat each launch
 
 URL_MAPS            = {
                         "SOAP" : ("http://%s/weblab/soap/" % HOST, "http://%s/weblab/login/soap/" % HOST),
@@ -52,6 +52,7 @@ SYSTEMS = {
             "hook"          : "Intel(R) Pentium(R) 4 CPU 2.8GHz; 1.0 GB RAM (32 bit); Ubuntu 9.10 Desktop. Python 2.6.4. Linux 2.6.31-16-generic",
             "ord3p"         : "Intel(R) Core(TM)2 Duo CPU T7250  @ 2.00GHz; 3.5 GB RAM (32 bit); Ubuntu 9.10 Desktop. Python 2.6.4. Linux 2.6.31-17-generic",
             "skull"         : "Intel(R) Core(TM)2 Duo CPU E8400  @ 3.00GHz; 3.0 GB RAM (32 bit); Ubuntu 10.10 Desktop. Python 2.6.6. Linux 2.6.35-25-generic",
+            "lrg-ubuntu"    : "Intel(R) Xeon(R) CPU E5502  @ 1.87GHz; 4.0 GB RAM (64 bit); Ubuntu 10.04 Desktop. Python 2.6.5. Linux 2.6.32-22-generic"
         }
 
 try:
@@ -176,12 +177,12 @@ for protocol in URL_MAPS.keys():
             )
 
 CONFIGURATIONS      = [
-                        "sample/launch_sample.py"
+#                        "sample/launch_sample.py"
 #                        "sample_xmlrpc/launch_sample_xmlrpc_machine.py"
 #                        "sample_internetsocket/launch_sample_internetsocket_machine.py"
 #                        "sample_unixsocket/launch_sample_unixsocket_machine.py"
 #                        "sample_balanced1/launch_sample_balanced1_machine.py"
-#                        "sample_balanced2/launch_sample_balanced2_machine.py"
+                        "sample_balanced2/launch_sample_balanced2_machine.py"
                       ]
 
 _default_ports = {

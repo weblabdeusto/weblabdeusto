@@ -12,7 +12,7 @@
 
 	<implementation>weblab.experiment.experiments.dummy_experiment.DummyExperiment.DummyExperiment</implementation>
 
-	<restriction>dummy@Dummy experiments</restriction>
+	<restriction>ud-dummy@Dummy experiments</restriction>
 
 	<protocols>
 		<protocol name="Direct">

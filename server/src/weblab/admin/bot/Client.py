@@ -273,7 +273,7 @@ if ZSI_AVAILABLE:
             return Reservation.Reservation.translate_reservation_from_data(reservation_holder.status, reservation_holder.position, reservation_holder.time)
 
         def _parse_user(self, holder):
-            return User(holder.login, holder.full_name, holder.email, holder.role)
+            return User.User(holder.login, holder.full_name, holder.email, holder.role)
 
         def _parse_command(self, command_holder):
             command = Command.Command(command_holder.commandstring)

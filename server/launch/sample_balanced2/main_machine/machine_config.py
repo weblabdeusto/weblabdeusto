@@ -18,6 +18,19 @@ core_coordinator_laboratory_servers = {
             "laboratory:lab_and_experiment@main_machine" : { "exp1|ud-dummy|Dummy experiments" : "dummy@ud-dummy" }
         }
 
+core_scheduling_systems = {
+        "ud-fpga"    : ("PRIORITY_QUEUE", {}),
+        "ud-pld"     : ("PRIORITY_QUEUE", {}),
+        "ud-gpib"    : ("PRIORITY_QUEUE", {}),
+        "ud-pic"     : ("PRIORITY_QUEUE", {}),
+        "ud-dummy"   : ("PRIORITY_QUEUE", {}),
+        "ud-logic"   : ("PRIORITY_QUEUE", {}),
+        "flashdummy" : ("PRIORITY_QUEUE", {}),
+        "javadummy"  : ("PRIORITY_QUEUE", {}),
+        "visirtest"  : ("PRIORITY_QUEUE", {}),
+    }
+
+
 ##########################
 # Database configuration #
 ##########################
