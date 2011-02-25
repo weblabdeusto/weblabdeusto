@@ -177,6 +177,11 @@ body
 	margin-left: auto;
 }
 
+.web-allowedexperiments-table-pic-cell
+{
+	padding: 0px 5px 0px 50px;
+}
+
 .web-allowedexperiments-table-header
 {
 	font-weight: bold;
