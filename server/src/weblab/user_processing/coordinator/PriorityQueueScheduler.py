@@ -22,7 +22,7 @@ import voodoo.log as log
 import sqlalchemy
 from sqlalchemy import not_
 from sqlalchemy.orm import join
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, OperationalError
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.sessions.SessionId as SessionId
@@ -35,7 +35,6 @@ import weblab.user_processing.coordinator.WebLabQueueStatus as WQS
 
 from weblab.data.experiments.ExperimentInstanceId import ExperimentInstanceId
 
-
 EXPIRATION_TIME  = 3600 # seconds
 
 ###########################################################
@@ -43,11 +42,38 @@ EXPIRATION_TIME  = 3600 # seconds
 # TODO write some documentation 
 # 
 
+def exc_checker(func):
+    def wrapper(*args, **kwargs):
+        try:
+            for _ in xrange(10):
+                try:
+                    return func(*args, **kwargs)
+                except OperationalError, oe:
+                    if oe.orig.args[0] == 1213:
+                        log.log(
+                            PriorityQueueScheduler, LogLevel.Error,
+                            "Deadlock found, restarting...%s" % func.__name__ )
+                        log.log_exc(PriorityQueueScheduler, LogLevel.Warning)
+                        continue
+                    else:
+                        raise
+        except:
+            log.log(
+                PriorityQueueScheduler, LogLevel.Error,
+                "Unexpected exception while running %s" % func.__name__ )
+            log.log_exc(PriorityQueueScheduler, LogLevel.Warning)
+            raise
+	wrapper.__name__ = func.__name__
+	wrapper.__doc__ = func.__doc__
+    return wrapper
+	
+
 class PriorityQueueScheduler(Scheduler):
 
     def __init__(self, generic_scheduler_arguments, **kwargs):
         super(PriorityQueueScheduler, self).__init__(generic_scheduler_arguments, **kwargs)
 
+    @exc_checker
     @logged()
     @Override(Scheduler)
     def removing_current_resource_slot(self, session, resource_instance_id):
@@ -71,6 +97,7 @@ class PriorityQueueScheduler(Scheduler):
                     return True
         return False
 
+    @exc_checker
     @logged()
     @Override(Scheduler)
     def reserve_experiment(self, reservation_id, experiment_id, time, priority, client_initial_data):
@@ -95,6 +122,7 @@ class PriorityQueueScheduler(Scheduler):
     # 
     # Given a reservation_id, it returns in which state the reservation is
     # 
+    @exc_checker
     @logged()
     @Override(Scheduler)
     def get_reservation_status(self, reservation_id):
@@ -180,6 +208,7 @@ class PriorityQueueScheduler(Scheduler):
     #
     # Called when it is confirmed by the Laboratory Server.
     #
+    @exc_checker
     @logged()
     @Override(Scheduler)
     def confirm_experiment(self, reservation_id, lab_session_id):
@@ -207,6 +236,7 @@ class PriorityQueueScheduler(Scheduler):
     #
     # Called when the user disconnects or finishes the resource.
     #
+    @exc_checker
     @logged()
     @Override(Scheduler)
     def finish_reservation(self, reservation_id):
@@ -349,9 +379,9 @@ class PriorityQueueScheduler(Scheduler):
                     experiment_instance_id = ExperimentInstanceId(selected_experiment_instance.experiment_instance_id, requested_experiment_type.exp_name, requested_experiment_type.cat_name)
 
                     laboratory_coord_address = selected_experiment_instance.laboratory_coord_address
-                    session.delete(first_waiting_reservation)
-                    session.add(concrete_current_reservation)
                     try:
+                        session.delete(first_waiting_reservation)
+                        session.add(concrete_current_reservation)
                         session.commit()
                     except IntegrityError, ie:
                         # Other scheduler confirmed the user or booked the reservation, rollback and try again
