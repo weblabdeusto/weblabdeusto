@@ -148,7 +148,9 @@ def _generate_call_from_coordaddr(server_type, method):
                     "Couldn't connect to %s" % server_type.name
                 )
 
+        tested = 0
         for server in servers:
+            tested += 1
             try:
                 return getattr(server, method)(*args, **kwargs)
             except ProtocolExceptions.RemoteException, re:
@@ -157,13 +159,14 @@ def _generate_call_from_coordaddr(server_type, method):
                     log.LogLevel.Warning, 
                     "%s failed in reserve_session" % server_type.name
                 )
+                log.log_exc( EasyLocator, log.LogLevel.Warning )
                 self._easy_locator.inform_server_not_working(
                         server,
                         server_type,
                         ()
                     )
         
-        log.log( EasyLocator, log.LogLevel.Error, "Can't get a %s server! Error in get_server " % server_type.name)
+        log.log( EasyLocator, log.LogLevel.Error, "Can't get a %s server! Error in get_server after testing %s servers " % (server_type.name, tested))
         raise LocatorExceptions.UnableToCompleteOperationException(
                 "Couldn't connect to any %s" % server_type.name
             )
