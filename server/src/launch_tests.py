@@ -61,23 +61,24 @@ def suite():
     suite = unittest.TestSuite(suites)
     return suite
 
-def runGui(avoid_integration):
+def runGui(avoid_integration, argv):
     "python /usr/lib/python2.4/site-packages/unittestgui.py launch_test.suite"
 
     global AVOID_INTEGRATION
     AVOID_INTEGRATION = avoid_integration
 
     import unittestgui
+    sys.argv = argv
     unittestgui.main(__name__ + '.suite')
 
-def runConsole(avoid_integration):
+def runConsole(avoid_integration, argv):
     if os.name == 'posix':
         os.system("clear")
 
     sys.exit = lambda *args : 0
     global AVOID_INTEGRATION
     AVOID_INTEGRATION = avoid_integration
-    sys.argv = [sys.argv[0]]
+    sys.argv = argv
     unittest.main(defaultTest = 'suite')
     debugThreads()
 
@@ -168,15 +169,25 @@ if __name__ == '__main__':
         if len(sys.argv) == 3:
             if sys.argv[2].lower() == 'true':
                 avoid_integration = True
+                argv = [sys.argv[0]] + sys.argv[3:]
+            else:
+                argv = [sys.argv[0]] + sys.argv[3:]
+        else:
+            argv = [sys.argv[0]] + sys.argv[2:]
             
-        runConsole(avoid_integration)
+        runConsole(avoid_integration, argv)
     elif ui == 'gui':
         avoid_integration = False
         if len(sys.argv) == 3:
             if sys.argv[2].lower() == 'true':
                 avoid_integration = True
+                argv = [sys.argv[0]] + sys.argv[3:]
+            else:
+                argv = [sys.argv[0]] + sys.argv[3:]
+        else:
+            argv = [sys.argv[0]] + sys.argv[2:]
 
-        runGui(avoid_integration)
+        runGui(avoid_integration, argv)
     elif ui == 'xml':
         if len(sys.argv) == 3:
             runXml(sys.argv[2])
@@ -185,3 +196,5 @@ if __name__ == '__main__':
     else:
         print >>sys.stderr, "Select ui [console|gui|xml]"
         print >>sys.stderr, "If console selected, you can pass an optional argument 'true' to avoid the long integration tests"
+        runConsole(False, sys.argv)
+
