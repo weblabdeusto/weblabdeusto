@@ -175,12 +175,13 @@ for protocol in URL_MAPS.keys():
             )
 
 CONFIGURATIONS      = [
-                        "sample/launch_sample.py"
+#                        "sample/launch_sample.py"
 #                        "sample_xmlrpc/launch_sample_xmlrpc_machine.py"
 #                        "sample_internetsocket/launch_sample_internetsocket_machine.py"
 #                        "sample_unixsocket/launch_sample_unixsocket_machine.py"
 #                        "sample_balanced1/launch_sample_balanced1_machine.py"
 #                        "sample_balanced2/launch_sample_balanced2_machine.py"
+                        "sample_balanced2_concurrent_experiments/launch_sample_balanced2_concurrent_experiments_machine.py"
                       ]
 
 _default_ports = {
@@ -217,6 +218,7 @@ PORTS = {
         "sample_unixsocket/launch_sample_unixsocket_machine.py" : _default_ports,
         "sample_balanced1/launch_sample_balanced1_machine.py" : _two_facades_ports,
         "sample_balanced2/launch_sample_balanced2_machine.py" : _three_facades_ports,
+        "sample_balanced2_concurrent_experiments/launch_sample_balanced2_concurrent_experiments_machine.py" : _three_facades_ports,
     }
 
 RUNNING_CONFIGURATION = "r%s. %s iterations; step_delay: %s seconds; %s" % (REVISION, ITERATIONS, STEP_DELAY, CONFIGURATIONS)
