@@ -102,7 +102,7 @@ def _generate_skeleton(METHOD_NAME):
 if SOAPPY_AVAILABLE:
     class _AvoidTimeoutSOAPServer(SOAPpy.ThreadingSOAPServer):
 
-        request_queue_size  = 50 #TODO: configure this
+        request_queue_size  = 80 #TODO: configure this
         allow_reuse_address = True
 
         def get_request(self):
