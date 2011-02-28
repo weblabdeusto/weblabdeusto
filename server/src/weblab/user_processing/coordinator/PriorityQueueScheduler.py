@@ -267,7 +267,7 @@ class PriorityQueueScheduler(Scheduler):
                         experiment_instance = experiment_instance
                         break
 
-                if experiment_instance is not None: # If the experiment instance doesn't exist, there is no need to call the free_experiment method
+                if experiment_instance is not None and lab_session_id is not None: # If the experiment instance doesn't exist, there is no need to call the free_experiment method
                     lab_coord_address  = experiment_instance.laboratory_coord_address
                     self.confirmer.enqueue_free_experiment(lab_coord_address, lab_session_id)
             self.reservations_manager.downgrade_confirmation(session, concrete_current_reservation.current_reservation_id)

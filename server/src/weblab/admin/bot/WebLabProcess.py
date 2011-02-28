@@ -111,6 +111,7 @@ class WebLabProcess(object):
                 print self.popen.stderr.read()
             raise Exception("Server couldn't start!")
         self._wait_file_notifier(os.path.join(self.launch_path, "_file_notifier"))
+        time.sleep(4)
         
     def _wait_file_notifier(self, filepath):
         while True:

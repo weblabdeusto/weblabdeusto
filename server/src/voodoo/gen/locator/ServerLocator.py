@@ -292,6 +292,7 @@ class ServerLocator(object):
                     e
                 )
             )
+            log.log_exc(ServerLocator, log.LogLevel.Info)
             return False
         else:
             return True
