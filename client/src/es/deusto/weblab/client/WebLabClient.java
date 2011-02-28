@@ -169,7 +169,7 @@ public class WebLabClient implements EntryPoint {
 						if(position >= 0){
 							sessionId = providedCredentials.substring(0, position);
 							final String cookie = providedCredentials.substring(position + 1);
-							Cookies.setCookie(WEBLAB_SESSION_ID_COOKIE, cookie);
+							Cookies.setCookie(WEBLAB_SESSION_ID_COOKIE, cookie, null, null, "/", false);
 						}else
 							sessionId = providedCredentials;
 						controller.startLoggedIn(new SessionID(sessionId));
