@@ -33,7 +33,7 @@ public class VMCreatorFactory implements IExperimentCreatorFactory {
 
 	@Override
 	public ExperimentCreator createExperimentCreator(final IConfigurationRetriever configurationRetriever) {
-		return	new ExperimentCreator(MobileSupport.disabled, getCodeName()){
+		return	new ExperimentCreator(MobileSupport.limited, getCodeName()){
 			@Override
 			public void createWeb(final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 				GWT.runAsync(new RunAsyncCallback() {
