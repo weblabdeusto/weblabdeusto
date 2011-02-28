@@ -15,7 +15,7 @@ core_coordinator_db_username = 'weblab'
 core_coordinator_db_password = 'weblab'
 
 core_coordinator_laboratory_servers = {
-            "laboratory:lab_and_experiment@main_machine" : { 
+            "laboratory:lab_and_experiment1@main_machine" : { 
                     "exp1|ud-dummy|Dummy experiments" : "dummy1@ud-dummy", 
                     "exp2|ud-dummy|Dummy experiments" : "dummy2@ud-dummy",
                     "exp3|ud-dummy|Dummy experiments" : "dummy3@ud-dummy",
@@ -56,6 +56,8 @@ core_coordinator_laboratory_servers = {
                     "exp38|ud-dummy|Dummy experiments" : "dummy38@ud-dummy",
                     "exp39|ud-dummy|Dummy experiments" : "dummy39@ud-dummy",
                     "exp40|ud-dummy|Dummy experiments" : "dummy40@ud-dummy",
+            },
+            "laboratory:lab_and_experiment2@main_machine" : { 
                     "exp41|ud-dummy|Dummy experiments" : "dummy41@ud-dummy",
                     "exp42|ud-dummy|Dummy experiments" : "dummy42@ud-dummy",
                     "exp43|ud-dummy|Dummy experiments" : "dummy43@ud-dummy",

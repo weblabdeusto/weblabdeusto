@@ -123,37 +123,37 @@ channel=weblab_login_database
 [handler_root_handler]
 class=handlers.RotatingFileHandler
 formatter=simpleFormatter
-args=('logs/sample__root_logs.other_server.txt','a',52428800,20971)
+args=('logs/sample__root_logs.other_server2.txt','a',52428800,20971)
 
 [handler_weblab_login_handler]
 class=handlers.RotatingFileHandler
 formatter=simpleFormatter
-args=('logs/sample__weblab_login_logs.other_server.txt','a',52428800,20971)
+args=('logs/sample__weblab_login_logs.other_server2.txt','a',52428800,20971)
 
 [handler_weblab_laboratory_handler]
 class=handlers.RotatingFileHandler
 formatter=simpleFormatter
-args=('logs/sample__weblab_laboratory_logs.other_server.txt','a',52428800,20971)
+args=('logs/sample__weblab_laboratory_logs.other_server2.txt','a',52428800,20971)
 
 [handler_weblab_facade_handler]
 class=handlers.RotatingFileHandler
 formatter=simpleFormatter
-args=('logs/sample__weblab_facade_logs.other_server.txt','a',52428800,20971)
+args=('logs/sample__weblab_facade_logs.other_server2.txt','a',52428800,20971)
 
 [handler_weblab_handler]
 class=handlers.RotatingFileHandler
 formatter=simpleFormatter
-args=('logs/sample__weblab_logs.other_server.txt','a',52428800,20971)
+args=('logs/sample__weblab_logs.other_server2.txt','a',52428800,20971)
 
 [handler_voodoo_handler]
 class=handlers.RotatingFileHandler
 formatter=simpleFormatter
-args=('logs/sample__voodoo_logs.other_server.txt','a',52428800,20971)
+args=('logs/sample__voodoo_logs.other_server2.txt','a',52428800,20971)
 
 [handler_weblab_user_processing_handler]
 class=handlers.RotatingFileHandler
 formatter=simpleFormatter
-args=('logs/sample__weblab_user_processing_logs.other_server.txt','a',52428800,20971)
+args=('logs/sample__weblab_user_processing_logs.other_server2.txt','a',52428800,20971)
 
 [formatter_simpleFormatter]
 format=%(asctime)s - %(name)s - %(levelname)s - %(message)s

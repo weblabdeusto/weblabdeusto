@@ -36,7 +36,8 @@ launcher = Launcher.MachineLauncher(
                 "main_instance1"     : "logging.configuration.server1.txt",
                 "main_instance2"     : "logging.configuration.server2.txt",
                 "main_instance3"     : "logging.configuration.server3.txt",
-                "lab_and_experiment" : "logging.configuration.other_server.txt",
+                "lab_and_experiment1" : "logging.configuration.other_server1.txt",
+                "lab_and_experiment2" : "logging.configuration.other_server2.txt",
             },
             before_shutdown,
             (
