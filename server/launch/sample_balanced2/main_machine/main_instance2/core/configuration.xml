@@ -19,7 +19,7 @@
 			</coordinations>
 			<creation></creation>
 		</protocol>
-		<protocol name="InternetSocket">
+		<protocol name="SOAP">
 			<coordinations>
 				<coordination>
 					<parameter name="address" value="127.0.0.1:20026@NETWORK" />
