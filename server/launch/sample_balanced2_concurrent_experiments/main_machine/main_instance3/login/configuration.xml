@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server
+	xmlns="http://www.weblab.deusto.es/configuration" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"
+>
+
+	<configuration file="server_config.py" />
+
+	<type>weblab.data.ServerType::Login</type>
+	<methods>weblab.methods::Login</methods>
+
+	<implementation>weblab.login.LoginServer.LoginServer</implementation>
+
+	<protocols>
+		<protocol name="Direct">
+			<coordinations>
+				<coordination></coordination>
+			</coordinations>
+			<creation></creation>
+		</protocol>
+	</protocols>
+</server>

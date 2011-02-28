@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server
+	xmlns="http://www.weblab.deusto.es/configuration" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"
+>
+
+	<configuration file="server_config.py" />
+
+	<type>weblab.data.ServerType::UserProcessing</type>
+	<methods>weblab.methods::UserProcessing</methods>
+
+	<implementation>weblab.user_processing.UserProcessingServer.UserProcessingServer</implementation>
+
+	<protocols>
+		<protocol name="Direct">
+			<coordinations>
+				<coordination></coordination>
+			</coordinations>
+			<creation></creation>
+		</protocol>
+		<protocol name="SOAP">
+			<coordinations>
+				<coordination>
+					<parameter name="address" value="127.0.0.1:20026@NETWORK" />
+				</coordination>
+			</coordinations>
+			<creation>
+				<parameter name="address" value=""     />
+				<parameter name="port"    value="20026" />
+			</creation>
+		</protocol>
+	</protocols>
+</server>
