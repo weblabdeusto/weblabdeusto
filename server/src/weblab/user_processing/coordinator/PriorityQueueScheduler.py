@@ -22,7 +22,7 @@ import voodoo.log as log
 import sqlalchemy
 from sqlalchemy import not_
 from sqlalchemy.orm import join
-from sqlalchemy.exc import IntegrityError, OperationalError
+from sqlalchemy.exc import IntegrityError, OperationalError, ConcurrentModificationError
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.sessions.SessionId as SessionId
@@ -246,17 +246,22 @@ class PriorityQueueScheduler(Scheduler):
         try: 
             concrete_current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == reservation_id).first()
 
-            self._clean_current_reservation(session, concrete_current_reservation)
+            enqueue_free_experiment_args = self._clean_current_reservation(session, concrete_current_reservation)
                 
             reservation_to_delete = concrete_current_reservation or session.query(WaitingReservation).filter(WaitingReservation.reservation_id == reservation_id).first()
             if reservation_to_delete is not None:
                 session.delete(reservation_to_delete) 
 
-            session.commit() 
+            session.commit()
+
+            if enqueue_free_experiment_args is not None:
+                self.confirmer.enqueue_free_experiment(*enqueue_free_experiment_args)
         finally:
             session.close()
 
+
     def _clean_current_reservation(self, session, concrete_current_reservation):
+        enqueue_free_experiment_args = None
         if concrete_current_reservation is not None:
             resource_instance = concrete_current_reservation.slot_reservation.current_resource_slot.resource_instance
             if resource_instance is not None: # If the resource instance does not exist anymore, there is no need to call the free_experiment method
@@ -269,9 +274,10 @@ class PriorityQueueScheduler(Scheduler):
 
                 if experiment_instance is not None and lab_session_id is not None: # If the experiment instance doesn't exist, there is no need to call the free_experiment method
                     lab_coord_address  = experiment_instance.laboratory_coord_address
-                    self.confirmer.enqueue_free_experiment(lab_coord_address, lab_session_id)
+                    enqueue_free_experiment_args = (lab_coord_address, lab_session_id)
             self.reservations_manager.downgrade_confirmation(session, concrete_current_reservation.current_reservation_id)
             self.resources_manager.release_resource(session, concrete_current_reservation.slot_reservation)
+        return enqueue_free_experiment_args
 
     #############################################################
     # 
@@ -416,12 +422,12 @@ class PriorityQueueScheduler(Scheduler):
                         # reservation
                         # 
                         break
-            except IntegrityError, ie:
+            except (ConcurrentModificationError, IntegrityError), ie:
                 # Something happened somewhere else, such as the user being confirmed twice, the experiment being reserved twice or so on.
                 # Rollback and start again
                 log.log(
                     PriorityQueueScheduler, LogLevel.Warning,
-                    "IntegrityError: %s" % ie )
+                    "Exception while updating queues, reverting and trying again: %s" % ie )
                 log.log_exc(PriorityQueueScheduler, LogLevel.Info)
                 session.rollback()
             finally:
@@ -441,11 +447,13 @@ class PriorityQueueScheduler(Scheduler):
             current_expiration_time = datetime.datetime.utcfromtimestamp(now - EXPIRATION_TIME)
 
             reservations_removed = False
+            enqueue_free_experiment_args_retrieved = []
             for expired_concrete_current_reservation in session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.start_time.op('+')(ConcreteCurrentReservation.time) < self.time_provider.get_time()).all():
                 expired_reservation = expired_concrete_current_reservation.current_reservation_id
                 if expired_reservation is None:
                     continue # Maybe it's not an expired_reservation anymore
-                self._clean_current_reservation(session, expired_concrete_current_reservation)
+                enqueue_free_experiment_args = self._clean_current_reservation(session, expired_concrete_current_reservation)
+                enqueue_free_experiment_args_retrieved.append(enqueue_free_experiment_args)
                 session.delete(expired_concrete_current_reservation)
                 self.reservations_manager.delete(session, expired_reservation)
                 reservations_removed = True
@@ -453,7 +461,8 @@ class PriorityQueueScheduler(Scheduler):
             for expired_reservation_id in self.reservations_manager.list_expired_reservations(session, current_expiration_time):
                 concrete_current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == expired_reservation_id).first()
                 if concrete_current_reservation is not None:
-                    self._clean_current_reservation(session, concrete_current_reservation)
+                    enqueue_free_experiment_args = self._clean_current_reservation(session, concrete_current_reservation)
+                    enqueue_free_experiment_args_retrieved.append(enqueue_free_experiment_args)
                     session.delete(concrete_current_reservation)
                 waiting_reservation = session.query(WaitingReservation).filter(WaitingReservation.reservation_id == expired_reservation_id).first()
                 if waiting_reservation is not None:
@@ -471,6 +480,10 @@ class PriorityQueueScheduler(Scheduler):
                         "IntegrityError: %s" % e )
                     log.log_exc(PriorityQueueScheduler, LogLevel.Info)
                     pass # Someone else removed these users before us.
+                else:
+                    for enqueue_free_experiment_args in enqueue_free_experiment_args_retrieved:
+                        if enqueue_free_experiment_args is not None:
+                            self.confirmer.enqueue_free_experiment(*enqueue_free_experiment_args)
             else:
                 session.rollback()
         finally:
