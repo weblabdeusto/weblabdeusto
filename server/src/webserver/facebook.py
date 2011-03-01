@@ -77,7 +77,7 @@ def _handle_linking_accounts(req, kargs, signed_request):
         apache.log_error(msg)
         return "ERROR: There was an error on the server linking accounts. Contact the administrator"
     else:
-        return _show_weblab(session_id, weblab_client.weblabsessionid.split('.')[-1])
+        return _show_weblab(session_id, weblab_client.weblabsessionid)
 
 def _handle_creating_accounts(req, kargs, signed_request):
     from mod_python import apache
@@ -96,7 +96,7 @@ def _handle_creating_accounts(req, kargs, signed_request):
         apache.log_error(msg)
         return "ERROR: There was an error on the server creating account: %s. Contact the administrator" % e
     else:
-        return _show_weblab(session_id, weblab_client.weblabsessionid.split('.')[-1])
+        return _show_weblab(session_id, weblab_client.weblabsessionid)
 
 
 def _handle_unauthenticated_clients(req, kargs, signed_request):
@@ -213,5 +213,5 @@ def index(req, *args, **kargs):
         apache.log_error(msg)
         return "ERROR: There was an error on the server. Contact the administrator"
 
-    return _show_weblab(session_id, weblab_client.weblabsessionid.split('.')[-1])
+    return _show_weblab(session_id, weblab_client.weblabsessionid)
 

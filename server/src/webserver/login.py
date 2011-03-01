@@ -65,4 +65,4 @@ def index(req, *args, **kargs):
         msg = str(e) + "\n" + traceback.format_exc()
         apache.log_error(msg)
         return "ERROR: There was an error on the server. Contact the administrator"
-    return '%s;%s' % (session_id['id'], weblab_client.weblabsessionid.split('.')[-1])
+    return '%s;%s' % (session_id['id'], weblab_client.weblabsessionid)
