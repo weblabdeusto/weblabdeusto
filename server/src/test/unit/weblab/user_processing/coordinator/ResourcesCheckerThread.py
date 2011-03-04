@@ -95,7 +95,7 @@ class ResourcesCheckerThreadTestCase(unittest.TestCase):
                 while not RCT.checker_thread.isAlive() and time.time() - initial_time <= 1:
                     time.sleep(0.02)
                 # Now it's alive or more than 1 seconds have passed
-                time.sleep(0.02)
+                time.sleep(0.2)
                 self.assertTrue(counter > 2) # It's still running
                 self.assertTrue(right_coordinator)
                 self.assertTrue(checked)
