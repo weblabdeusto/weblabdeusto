@@ -9,72 +9,131 @@
     	.bold-text { font-weight: bold;  }
     </ui:style>
         
-    <g:VerticalPanel ui:field="containerPanel" styleName="web-login-container">
-    
-    	<g:VerticalPanel styleName="web-login-box">
-    
-	    	<g:HorizontalPanel styleName="web-login-logo">
+    <g:VerticalPanel ui:field="containerPanel">
+    	<g:HorizontalPanel>
+    		<g:HorizontalPanel styleName="web-login-logo">
 		   		<g:Image resource='{res.logo}' />
+		   		<g:Image ui:field="hostEntityLogo" />
 			</g:HorizontalPanel>
-			
-	   		<g:HorizontalPanel ui:field="langsPanel" spacing="15" styleName="web-login-languages" />		    	
-	    	
-	    	<g:VerticalPanel styleName="web-login-form">
-	    	
-		    	<g:Grid styleName="web-login-form-fields">
+    	</g:HorizontalPanel>
+    	
+	    <g:HorizontalPanel>
+	    	<g:VerticalPanel width="70%" spacing="20">
+	    		<g:VerticalPanel spacing="5">
+	    			<g:Label styleName="web-login-title">WebLab-Deusto</g:Label>
+	    			<g:HTML ui:field="introText" />
+	    		</g:VerticalPanel>
+	    		
+    			<g:Grid ui:field="featuresGrid" cellSpacing="10">
 		    		<g:row>
 		    			<g:customCell>
-							<g:Label ui:field="usernameLabel" text="{i18n.username}:"></g:Label>
-						</g:customCell>
-						<g:customCell>
-							<g:TextBox ui:field="usernameTextbox"></g:TextBox>
-						</g:customCell>
-					</g:row>
-					
-					<g:row>
-						<g:customCell>
-							<g:Label ui:field="passwordLabel" text="{i18n.password}:"></g:Label>
-						</g:customCell>
-						<g:customCell>
-							<g:PasswordTextBox ui:field="passwordTextbox"></g:PasswordTextBox>
-						</g:customCell>
+		    				<g:Image resource="{res.support}"/>
+		    			</g:customCell>
+		    			<g:customCell>
+			    			<g:VerticalPanel spacing="2">
+			    				<g:Label text="{i18n.support}" styleName="web-login-small-titles"/>
+			    				<g:HTML ui:field="supportHTML" />
+			    			</g:VerticalPanel>
+			    		</g:customCell>
 		    		</g:row>
-		    	</g:Grid>			    	
-			    	
-			    <g:HorizontalPanel styleName="web-login-form-button">
-					<g:Button ui:field="loginButton" text="{i18n.logIn}" />
-				</g:HorizontalPanel>
-	
-			</g:VerticalPanel>
-			
-			<w:WlWaitingLabel ui:field="waitingLabel" styleName="web-waiting-label"></w:WlWaitingLabel>
-			<g:Label ui:field="generalErrorLabel" styleName="web-error-message"></g:Label>
-		
-		</g:VerticalPanel>
-	
-		<g:HorizontalPanel styleName="web-login-foot-message">
-			<g:HTML ui:field="demoAvailableHTML"></g:HTML>	
-		</g:HorizontalPanel>
-		
-		<g:HorizontalPanel styleName="web-login-foot-message">
-			<g:HTML ui:field="supportHTML"></g:HTML>
-		</g:HorizontalPanel>
-		
-		<g:HorizontalPanel styleName="web-login-foot-message">
-			<g:Anchor text="Go to the Admin Panel >" href=".?admin=true"></g:Anchor>
-		</g:HorizontalPanel>
+		    		
+		    		<!-- XXX: the code programatically removes the row number 1, so if you move this block somewhere else, weird results will occur -->
+		    		<g:row>
+		    			<g:customCell>
+	    					<g:Image resource="{res.demo}"/>
+	    				</g:customCell>
+	    				<g:customCell>
+			    			<g:VerticalPanel spacing="2">
+			    				<g:Label text="{i18n.demo}" styleName="web-login-small-titles"/>
+			    				<g:HTML ui:field="demoAvailableHTML" />
+			    			</g:VerticalPanel>
+			    		</g:customCell>
+		    		</g:row>
+		    		
+		    		<g:row>
+		    			<g:customCell>
+	    					<g:Image resource="{res.mobile}"/>
+	    				</g:customCell>
+	    				<g:customCell>
+			    			<g:VerticalPanel spacing="2">
+			    				<g:Label text="{i18n.mobile}" styleName="web-login-small-titles"/>
+			    				<!-- TODO: use the new refresh method -->
+			    				<g:HTML ui:field="mobileHTML"/>
+			    			</g:VerticalPanel>
+			    		</g:customCell>
+		    		</g:row>
+		    		
+		    		<g:row>
+		    			<g:customCell>
+	    					<g:Image resource="{res.openSource}"/>
+	    				</g:customCell>
+	    				<g:customCell>
+			    			<g:VerticalPanel spacing="2">
+			    				<g:Label text="{i18n.openSource}" styleName="web-login-small-titles"/>
+			    				<g:HTML ui:field="openSourceAddressHTML"/>
+			    			</g:VerticalPanel>
+		    			</g:customCell>
+		    		</g:row>
+	    		</g:Grid>
+	    	
+	    		<g:VerticalPanel width="100%" horizontalAlignment="CENTER" ui:field="facebookPanel">
+	    		</g:VerticalPanel>
+	    	</g:VerticalPanel>
+	    	
+	    	<!-- Login button and so -->
+	    	<g:VerticalPanel width="30%" spacing="20">
+				<g:DecoratorPanel width="100%">
+			    	<g:VerticalPanel styleName="web-login-box" spacing="20">
+			    		<g:Label styleName="web-allowedexperiments-table-header" text="{i18n.logIn}"/>
+				    	<g:VerticalPanel styleName="web-login-form">
+				    	
+					    	<g:Grid styleName="web-login-form-fields">
+					    		<g:row>
+					    			<g:customCell>
+										<g:Label ui:field="usernameLabel" text="{i18n.username}:"></g:Label>
+									</g:customCell>
+									<g:customCell>
+										<g:TextBox ui:field="usernameTextbox"></g:TextBox>
+									</g:customCell>
+								</g:row>
+								
+								<g:row>
+									<g:customCell>
+										<g:Label ui:field="passwordLabel" text="{i18n.password}:"></g:Label>
+									</g:customCell>
+									<g:customCell>
+										<g:PasswordTextBox ui:field="passwordTextbox"></g:PasswordTextBox>
+									</g:customCell>
+					    		</g:row>
+					    	</g:Grid>			    	
+						    	
+						    <g:HorizontalPanel styleName="web-login-form-button">
+								<g:Button ui:field="loginButton" text="{i18n.logIn}" />
+							</g:HorizontalPanel>
 				
-   		<g:Cell horizontalAlignment="ALIGN_CENTER">
-			<g:HorizontalPanel width="100%" horizontalAlignment="ALIGN_CENTER" spacing="10">
-				<g:Cell width="50%" horizontalAlignment="ALIGN_RIGHT">
-					<g:Label text="classic" styleName="{style.bold-text}"></g:Label>
-				</g:Cell>
-				<g:Cell horizontalAlignment="ALIGN_LEFT">
-					<g:Anchor text="mobile (beta)" href=".?mobile=true"></g:Anchor>
-				</g:Cell>
-			</g:HorizontalPanel>
-		</g:Cell>
+						</g:VerticalPanel>
+						<g:VerticalPanel>
+							<w:WlWaitingLabel ui:field="waitingLabel" styleName="web-waiting-label" visible="false"></w:WlWaitingLabel>
+							<g:Label ui:field="generalErrorLabel" styleName="web-error-message"  visible="false"></g:Label>
+						</g:VerticalPanel>
+					</g:VerticalPanel>
+				</g:DecoratorPanel>
 				
-	</g:VerticalPanel>
-	
+				<g:DecoratorPanel width="100%" ui:field="createAccountPanel">
+					<g:VerticalPanel styleName="web-login-foot-message" horizontalAlignment="CENTER" spacing="20">
+						<g:Label text="{i18n.dontHaveAnAccountFacebook}"/>
+						<g:Button text="{i18n.createAnAccount}" ui:field="createAccountButton"></g:Button>
+					</g:VerticalPanel>
+				</g:DecoratorPanel>
+				
+				<g:DecoratorPanel width="100%" ui:field="adminPanel">
+					<g:HorizontalPanel styleName="web-login-foot-message" spacing="20">
+						<g:Anchor text="{i18n.administrationPanel}" href=".?admin=true"></g:Anchor>
+					</g:HorizontalPanel>
+				</g:DecoratorPanel>
+	    	</g:VerticalPanel>
+	    </g:HorizontalPanel>
+	    
+	    <g:HorizontalPanel ui:field="langsPanel" spacing="15" styleName="web-login-languages" />		    	
+    </g:VerticalPanel>
 </ui:UiBinder>

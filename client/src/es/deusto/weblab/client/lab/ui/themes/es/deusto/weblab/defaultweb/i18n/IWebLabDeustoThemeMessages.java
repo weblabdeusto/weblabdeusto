@@ -43,5 +43,14 @@ public interface IWebLabDeustoThemeMessages extends Messages {
 	public String reserveThisExperiment();
 	public String ifYouHaveTechnicalProblems(String adminMail);
 	public String demoLoginDetails(String demoUsername, String demoPassword);
-
+	public String support();
+	public String demo();
+	public String mobile();
+	public String openSource();
+	public String createAnAccount();
+	public String dontHaveAnAccountFacebook();
+	public String administrationPanel();
+	public String weblabIsOpenSourceAvailable(String url);
+	public String useMobileVersionClicking(String url);
+	public String weblabDeustoIsARemote_long();
 }

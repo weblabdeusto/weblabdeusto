@@ -17,8 +17,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.AudioElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.media.client.Audio;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -49,6 +51,7 @@ import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.ci
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.commands.GetCircuitCommand;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.commands.SolveCircuitCommand;
 import es.deusto.weblab.client.lab.ui.BoardBase;
+import es.deusto.weblab.client.ui.audio.AudioManager;
 import es.deusto.weblab.client.ui.widgets.EasyGrid;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
@@ -394,6 +397,22 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 
 			if (responseCommand.getCommandString().startsWith("FAIL")) {
 				this.solving = false;
+				
+				if(Audio.isSupported()) {
+					final Audio audio = Audio.createIfSupported();
+				
+				}
+				
+				if( AudioManager.getInstance().getSoundEnabled() ) {
+					final Audio audio = Audio.createIfSupported();
+					if( audio != null ) {
+						System.out.println("Trying to play sound");
+						final AudioElement elem = audio.getAudioElement();
+						elem.setSrc(GWT.getModuleBaseURL() + "snd/wrong.wav");
+						elem.play();
+					}
+				}
+				
 				this.messages.setText("Wrong one! Game over. Total points: "
 						+ this.points);
 				this.sendSolutionButton.setEnabled(false);
@@ -401,6 +420,18 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 				this.points++;
 				this.messages
 						.setText("Well done! 1 point. Let's see the next one!");
+				
+				
+				if( AudioManager.getInstance().getSoundEnabled() ) {
+					final Audio audio = Audio.createIfSupported();
+					if( audio != null ) {
+						System.out.println("Trying to play sound");
+						final AudioElement elem = audio.getAudioElement();
+						elem.setSrc(GWT.getModuleBaseURL() + "snd/applause.wav");
+						elem.play();
+					}
+				}
+				
 				final Timer sleepTimer = new Timer() {
 
 					@Override

@@ -201,7 +201,11 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 				}
 				
 				AbstractExternalAppBasedBoard.startInteractionImpl();
-				AbstractExternalAppBasedBoard.setTimeImpl(WebLabFlashAppBasedBoard.this.timeSet);
+				
+				// TODO: Consider doc'ing / refactoring these so that the difference between standard and
+				// deferred behaviour is more clear.
+				if(WebLabFlashAppBasedBoard.this.deferred)
+					AbstractExternalAppBasedBoard.setTimeImpl(WebLabFlashAppBasedBoard.this.timeSet);
 			}
 			
 		};

@@ -9,14 +9,20 @@
 * listed below:
 *
 * Author: Pablo Orduña <pablo@ordunya.com>
+* 		  Luis Rodriguez <luis.rodriguez@opendeusto.es>
 *
 */ 
 package es.deusto.weblab.client.ui.widgets;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.AudioElement;
+import com.google.gwt.media.client.Audio;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
+
+import es.deusto.weblab.client.ui.audio.AudioManager;
 
 public class WlTimer extends Widget implements IWlWidget{
 
@@ -30,8 +36,14 @@ public class WlTimer extends Widget implements IWlWidget{
 	private int time;
 	private Timer timer;
 	private IWlTimerFinishedCallback timerFinishedCallback = null;
+	
+	private Audio timeRunningOutAudio = null;
+	private int timeRunningOutAudioLimit = 6;
 
 	public void start() {
+		
+		this.timeRunningOutAudio = Audio.createIfSupported();
+		
 		this.label.setText(Integer.toString(this.time));
 		this.timer = new Timer(){
 			@Override
@@ -88,15 +100,75 @@ public class WlTimer extends Widget implements IWlWidget{
 		this.start();
 	}
 	
+	/**
+	 * Sets the point of time from which the time running out audio will start playing.
+	 * @param limit Limit, in seconds, from which the audio will start playing.
+	 */
+	public void setTimeRunningOutAudioLimit(int limit) {
+		this.timeRunningOutAudioLimit = limit;
+	}
+	
 	public void setTimerFinishedCallback(IWlTimerFinishedCallback callback){
 		this.timerFinishedCallback = callback;
+	}
+	
+	/**
+	 * Updates the label which describes the time left. The time left is internally measured
+	 * in seconds, but this method will display it in the hh:mm:ss, mm:ss or just ss format,
+	 * depending on the amount of seconds left.
+	 */
+	private void updateTimeString() {
+		int seconds = this.time % 60;
+		int minutes = (this.time / 60) % 60;
+		int hours = this.time / 3600;
+		
+		final StringBuilder sb = new StringBuilder();
+		
+		if(hours > 0) {
+			if(hours < 10)
+				sb.append('0');
+			sb.append(hours);
+			sb.append(':');
+		}
+		
+		if(minutes > 0) {
+			if(minutes < 10)
+				sb.append('0');
+			sb.append(minutes);
+			sb.append(':');
+		}
+		
+		if(seconds < 10)
+			sb.append('0');
+		sb.append(seconds);
+		
+		this.label.setText(sb.toString());
 	}
 	
 	protected void decrement(){
 		if(this.time > 0){
 			--this.time;
-			this.label.setText(Integer.toString(this.time));
+			this.updateTimeString();
 		}
+		
+		if(AudioManager.getInstance().getSoundEnabled()) {
+			if(this.time == this.timeRunningOutAudioLimit && this.timeRunningOutAudio != null) {
+				System.out.println(this.getParent());
+				final AudioElement effect = this.timeRunningOutAudio.getAudioElement();
+				effect.setSrc(GWT.getModuleBaseURL() + "snd/clock.wav");
+				effect.setLoop(true);
+				effect.play();
+			} else if( this.time == 0 ) {
+				final AudioElement effect = this.timeRunningOutAudio.getAudioElement();
+				effect.setLoop(false);
+				effect.pause();
+	
+				// TODO: Make sure that this isn't a memory leak. There does not seem to be any method that provides a 
+				// "destroy" rather than "pause". Make also sure that there is no case under which a timer can not reach zero.
+				// Otherwise, the sound might play forever, which is significantly annoying.
+			}
+		}
+		
 	}
 	
 	public int getTime(){
@@ -105,7 +177,7 @@ public class WlTimer extends Widget implements IWlWidget{
 	
 	public void updateTime(int time){
 		this.time = time;
-		this.label.setText(Integer.toString(time));
+		this.updateTimeString();
 	}
 
 	@Override

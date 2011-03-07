@@ -46,6 +46,7 @@ import es.deusto.weblab.client.lab.experiments.ExperimentFactory;
 import es.deusto.weblab.client.lab.ui.WlLabThemeBase;
 import es.deusto.weblab.client.lab.ui.WlLabThemeFactory;
 import es.deusto.weblab.client.lab.ui.WlLabThemeFactory.IWlLabThemeLoadedCallback;
+import es.deusto.weblab.client.ui.audio.AudioManager;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
 public class WebLabClient implements EntryPoint {
@@ -55,7 +56,7 @@ public class WebLabClient implements EntryPoint {
 	private static final String MAIN_SLOT = "weblab_slot";
 	private static final String SCRIPT_CONFIG_FILE = GWT.getModuleBaseURL() + "configuration.js";
 	private static final String SESSION_ID_URL_PARAM = "session_id";	
-	private static final String MOBILE_URL_PARAM = "mobile";
+	public static final String MOBILE_URL_PARAM = "mobile";
 	private static final String LOCALE_URL_PARAM = "locale";
 	private static final String FACEBOOK_URL_PARAM = "facebook";
 	private static final String ADMIN_URL_PARAM = "admin";
@@ -65,6 +66,7 @@ public class WebLabClient implements EntryPoint {
 	private static final String THEME_PROPERTY = "theme";
 	private static final String DEFAULT_THEME = "deusto";
 	private static final String GOOGLE_ANALYTICS_TRACKING_CODE = "google.analytics.tracking.code";
+	private static final String SOUND_ENABLED = "sound.enabled";
 	
 	private ConfigurationManager configurationManager;
 	
@@ -104,6 +106,22 @@ public class WebLabClient implements EntryPoint {
 			WebLabClient.refresh(weblabLocaleCookie);
 		}
 	}
+	
+	public static String getNewUrl(String parameterName, String parameterValue){
+		String newUrl = Window.Location.getPath() + "?";
+		final Map<String, List<String>> parameters = Window.Location.getParameterMap();
+
+		for(final String parameter : parameters.keySet())
+		    if(!parameter.equals(parameterName)){
+        		    String value = "";
+        		    for(final String v : parameters.get(parameter))
+        		    	value = v;
+        		    newUrl += parameter + "=" + value + "&";
+		    }
+		    
+		newUrl += parameterName + "=" + parameterValue;
+		return newUrl;
+	}
 
 	public static void refresh(String locale){
 		String newUrl = Window.Location.getPath() + "?";
@@ -122,6 +140,11 @@ public class WebLabClient implements EntryPoint {
 	}
 	
 	public void loadLabApp() {
+		
+		// Retrieve the configuration property which defines whether sound should be globally enabled
+		// or not.
+		final boolean sound = WebLabClient.this.configurationManager.getBoolProperty("sound.enabled", false);
+		AudioManager.getInstance().setSoundEnabled(sound);
 		
 		try{
 			ExperimentFactory.loadExperiments(WebLabClient.this.configurationManager);
