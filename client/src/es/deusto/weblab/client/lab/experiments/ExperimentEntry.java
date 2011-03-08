@@ -14,6 +14,7 @@
 
 package es.deusto.weblab.client.lab.experiments;
 
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.Category;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
@@ -24,10 +25,16 @@ class ExperimentEntry{
 	
 	private final ExperimentID experimentID;
 	private final ExperimentCreator creator;
+	private final IConfigurationRetriever configurationRetriever;
 	
-	public ExperimentEntry(String categoryName, String experimentName, ExperimentCreator creator){
+	public ExperimentEntry(String categoryName, String experimentName, ExperimentCreator creator, IConfigurationRetriever configurationRetriever){
 		this.experimentID = new ExperimentID(new Category(categoryName), experimentName);
 		this.creator = creator;
+		this.configurationRetriever = configurationRetriever;
+	}
+	
+	public IConfigurationRetriever getConfigurationRetriever(){
+		return this.configurationRetriever;
 	}
 	
 	public ExperimentID getExperimentID(){

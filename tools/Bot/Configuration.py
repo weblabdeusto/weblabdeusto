@@ -23,8 +23,6 @@ from weblab.admin.bot.User import StandardBotUser, DisconnectedBotUser, NotRespo
 
 WEBLAB_PATH         = ('..','..','server','src')        # WebLab's source root path from this folder
 
-LAUNCH_FILE         = "launch_sample.py"                # Name of the file that launches a WebLab process
-
 HOST                = "localhost"                       # WebLab's hostname
 USERNAME            = "student1"                        # WebLab's username to login
 PASSWORD            = "password"                        # WebLab user's password do login
@@ -32,7 +30,7 @@ EXPERIMENT_NAME     = "ud-dummy"                        # Experiment name to int
 CATEGORY_NAME       = "Dummy experiments"               # Experiment category name to interact with
 PROGRAM_FILE        = "this is the content of the file" # Program file to send
 
-ITERATIONS          = 3                                # Times to repeat each launch
+ITERATIONS          = 8                                # Times to repeat each launch
 
 URL_MAPS            = {
                         "SOAP" : ("http://%s/weblab/soap/" % HOST, "http://%s/weblab/login/soap/" % HOST),
@@ -50,7 +48,9 @@ SYSTEMS = {
             "blood"         : "Intel(R) Core(TM)2 Duo CPU T7250@2.00GHz reduced to 1.60 GHz; 3.5 GB RAM (32 bit); Ubuntu 9.04 Desktop. Python 2.6.2. Linux 2.6.28-14-generic",
             "nctrun-laptop" : "Intel(R) Pentium(R) 4 CPU 3.40GHz with Hyperthreading (2); 2.0 GB RAM (32 bit); Ubuntu 9.04 Desktop. Python 2.6.2. Linux 2.6.28-15-generic",
             "hook"          : "Intel(R) Pentium(R) 4 CPU 2.8GHz; 1.0 GB RAM (32 bit); Ubuntu 9.10 Desktop. Python 2.6.4. Linux 2.6.31-16-generic",
-            "ord3p"         : "Intel(R) Core(TM)2 Duo CPU T7250  @ 2.00GHz; 3.5 GB RAM (32 bit); Ubuntu 9.10 Desktop. Python 2.6.4. Linux 2.6.31-17-generic"
+            "ord3p"         : "Intel(R) Core(TM)2 Duo CPU T7250  @ 2.00GHz; 3.5 GB RAM (32 bit); Ubuntu 9.10 Desktop. Python 2.6.4. Linux 2.6.31-17-generic",
+            "skull"         : "Intel(R) Core(TM)2 Duo CPU E8400  @ 3.00GHz; 3.0 GB RAM (32 bit); Ubuntu 10.10 Desktop. Python 2.6.6. Linux 2.6.35-25-generic",
+            "lrg-ubuntu"    : "Intel(R) Xeon(R) CPU E5502  @ 1.87GHz; 4.0 GB RAM (64 bit); Ubuntu 10.04 Desktop. Python 2.6.5. Linux 2.6.32-22-generic"
         }
 
 try:
@@ -175,12 +175,13 @@ for protocol in URL_MAPS.keys():
             )
 
 CONFIGURATIONS      = [
-#                        "launch_sample.py"
-#                        "launch_sample_xmlrpc_machine.py"
-#                        "launch_sample_internetsocket_machine.py"
-#                        "launch_sample_unixsocket_machine.py"
-#                         "launch_sample_balanced1_machine.py"
-                         "launch_sample_balanced2_machine.py"
+#                        "sample/launch_sample.py"
+#                        "sample_xmlrpc/launch_sample_xmlrpc_machine.py"
+#                        "sample_internetsocket/launch_sample_internetsocket_machine.py"
+#                        "sample_unixsocket/launch_sample_unixsocket_machine.py"
+#                        "sample_balanced1/launch_sample_balanced1_machine.py"
+#                        "sample_balanced2/launch_sample_balanced2_machine.py"
+                        "sample_balanced2_concurrent_experiments/launch_sample_balanced2_concurrent_experiments_machine.py"
                       ]
 
 _default_ports = {
@@ -211,12 +212,13 @@ _three_facades_ports = {
             }
 
 PORTS = {
-        "launch_sample.py" : _default_ports,
-        "launch_sample_xmlrpc_machine.py" : _default_ports,
-        "launch_sample_internetsocket_machine.py" : _default_ports,
-        "launch_sample_unixsocket_machine.py" : _default_ports,
-        "launch_sample_balanced1_machine.py" : _two_facades_ports,
-        "launch_sample_balanced2_machine.py" : _three_facades_ports,
+        "sample/launch_sample.py" : _default_ports,
+        "sample_xmlrpc/launch_sample_xmlrpc_machine.py" : _default_ports,
+        "sample_internetsocket/launch_sample_internetsocket_machine.py" : _default_ports,
+        "sample_unixsocket/launch_sample_unixsocket_machine.py" : _default_ports,
+        "sample_balanced1/launch_sample_balanced1_machine.py" : _two_facades_ports,
+        "sample_balanced2/launch_sample_balanced2_machine.py" : _three_facades_ports,
+        "sample_balanced2_concurrent_experiments/launch_sample_balanced2_concurrent_experiments_machine.py" : _three_facades_ports,
     }
 
 RUNNING_CONFIGURATION = "r%s. %s iterations; step_delay: %s seconds; %s" % (REVISION, ITERATIONS, STEP_DELAY, CONFIGURATIONS)

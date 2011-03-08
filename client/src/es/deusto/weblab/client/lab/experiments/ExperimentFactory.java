@@ -94,7 +94,7 @@ public class ExperimentFactory {
 						throw new InvalidConfigurationValueException("Experiment " + compoundName + " already registered");
 					alreadyRegisteredExperiments.add(compoundName);
 					
-					final ExperimentEntry entry = new ExperimentEntry(experimentCategory, experimentName, creatorFactory.createExperimentCreator(configurationRetriever));
+					final ExperimentEntry entry = new ExperimentEntry(experimentCategory, experimentName, creatorFactory.createExperimentCreator(configurationRetriever), configurationRetriever);
 					
 					EntryRegistry.entries.add(entry);
 				}
@@ -102,5 +102,13 @@ public class ExperimentFactory {
 		}catch(ExperimentCreatorInstanciationException exc){
 			throw new InvalidConfigurationValueException("Misconfigured experiment: " + exc.getMessage(), exc);
 		}
+	}
+	
+	public static IConfigurationRetriever getExperimentConfigurationRetriever(ExperimentID experimentId){
+		for(ExperimentEntry entry : EntryRegistry.entries)
+			if(entry.getExperimentID().equals(experimentId))
+				return entry.getConfigurationRetriever();
+		
+		throw new IllegalArgumentException("Experiment ID not found in the configuration file! " + experimentId);
 	}
 }

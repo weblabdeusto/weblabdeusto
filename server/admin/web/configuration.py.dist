@@ -1,4 +1,5 @@
 DIRECTORY = '/home/weblab/weblab/server/admin/monitor/'
+_FILES_PATH = '/home/weblab/files_stored/'
 
 DB_NAME ="WebLab"
 _USERNAME="wl_administrator"

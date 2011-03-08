@@ -12,6 +12,12 @@
 	text-align: right;
 }
 
+.gwt-DecoratorPanel .middleCenter {
+   height: 100%;
+   width: 100%;
+   /* background: #d0e4f6; */
+   background: #e7f1fb;
+}
 
 /************************************************
  *
@@ -66,6 +72,16 @@ body
 	margin-left: auto;	
 	margin-top: 6%;
 	border-spacing: 30px;
+}
+
+.web-login-title
+{
+	font-size: 150%;
+}
+
+.web-login-small-titles
+{
+	font-weight: bold;
 }
 
 .web-login-logo
@@ -177,10 +193,23 @@ body
 	margin-left: auto;
 }
 
+.web-allowedexperiments-table-pic-cell
+{
+	padding: 0px 5px 0px 50px;
+}
+
 .web-allowedexperiments-table-header
 {
 	font-weight: bold;
 	text-align: center;
+}
+
+.web-allowedexperiments-image
+{
+	background-color: #7590AE;
+	//border: 1px solid navy;
+	cursor:pointer;
+	cursor:hand;
 }
 
 /*

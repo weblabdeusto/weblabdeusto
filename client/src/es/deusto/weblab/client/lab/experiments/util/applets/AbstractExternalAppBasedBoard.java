@@ -9,6 +9,7 @@
 * listed below:
 *
 * Author: Pablo Orduña <pablo@ordunya.com>
+*         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 *
 */
 
@@ -28,28 +29,93 @@ import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.ui.BoardBase;
+import es.deusto.weblab.client.ui.widgets.WlTimer;
 
 public abstract class AbstractExternalAppBasedBoard extends BoardBase {
 
+	private static final int MAX_FACEBOOK_WIDTH = 710; // differs from WebClient.MAX_FACEBOOK_WIDTH taking into account the size of the whole page
 	private static IConfigurationRetriever configurationRetriever;
 	protected static IBoardBaseController boardController;
 	private final VerticalPanel panel;
 	protected Label message;
 	protected final HTML html;
+	protected final int width;
+	protected final int height;
 
-	public AbstractExternalAppBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController) {
+	// To store the html footer which is optionally specified through the configuration
+	// file and displayed on the bottom of the page.
+	private final HTML pageFooter;
+	private final VerticalPanel pageFooterPanel;
+	
+	// Whether to display the standard count-down timer or not.
+	private final boolean displayStandardTimer;
+	private final VerticalPanel standardTimerPanel;
+	private final WlTimer standardTimer;
+	
+	public AbstractExternalAppBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController, int width, int height) {
 		super(boardController);
+		
+		if(boardController.isFacebook()){
+			if(width > MAX_FACEBOOK_WIDTH){
+				this.width  = MAX_FACEBOOK_WIDTH;
+				final float scale = 1.0f * MAX_FACEBOOK_WIDTH / width;
+				this.height = Math.round(scale * height);
+			}else{
+				this.width  = width;
+				this.height = height;
+			}
+		}else{
+			this.width  = width;
+			this.height = height;
+		}
 		
 		AbstractExternalAppBasedBoard.boardController      = boardController;
 		AbstractExternalAppBasedBoard.configurationRetriever = configurationRetriever;
 		AbstractExternalAppBasedBoard.exportStaticMethods();
 		
+		// If the following display flag is disabled, we will simply never show the panel with the timer.
+		this.displayStandardTimer = configurationRetriever.getBoolProperty("page.timer", false);
+		this.standardTimerPanel = new VerticalPanel();
+		this.standardTimerPanel.setVisible(false);
+		this.standardTimer = new WlTimer(false);
+		this.standardTimerPanel.add(this.standardTimer);
+		this.standardTimer.setStyleName("wl-time_remaining");
+				
+		this.pageFooterPanel = new VerticalPanel();
+		this.pageFooter = new HTML(configurationRetriever.getProperty("page.footer", ""));
+		this.pageFooterPanel.add(this.pageFooter);
+		
 		this.panel = new VerticalPanel();
 		this.message = new Label();
 		this.html = new HTML("<div/>");
 		this.panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		this.panel.add(this.standardTimerPanel);
 		this.panel.add(this.html);
 		this.panel.add(this.message);
+		this.panel.add(this.pageFooterPanel);
+	}
+	
+	
+	/**
+	 * This method is called automatically to set the time of an experiment. If enabled,
+	 * we need to use that information to set up the timer. If this method is overriden,
+	 * it will need to be called explicitly for the timer to work.
+	 */
+	@Override
+	public void setTime(int time) {
+		if(this.displayStandardTimer) {
+			this.standardTimerPanel.setVisible(true);
+			this.standardTimer.updateTime(time);
+			this.standardTimer.start();
+		}
+	}
+	
+	/**
+	 * Shows or hides the footer.
+	 * @param show True to show, false to hide.
+	 */
+	public void showFooter(boolean show) {
+		this.pageFooterPanel.setVisible(show);
 	}
 
 	@Override

@@ -100,7 +100,8 @@ class UserProcessingServer(object):
         self._alive_users_collection = AliveUsersCollection.AliveUsersCollection(
                 self._locator, self._cfg_manager, real_session_type, self._session_manager, self._db_manager)
 
-        self._parse_coordination_configuration()
+        if clean:
+            self._parse_coordination_configuration()
 
         self._facade_servers = []
         for FacadeClass in self.FACADE_SERVERS:

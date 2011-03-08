@@ -66,11 +66,27 @@ class MapperTestCase(unittest.TestCase):
         jac1.otherReference = jac2
         
         # mc and moc can't be pickled
-        self.assertRaises(
-                pickle.PicklingError,
-                pickle.dumps,
-                mc
-            )
+        # pickle raises pickle.PicklingError in Python < 2.7 but TypeError in Python 2.7; we try both exceptions
+        try:
+            self.assertRaises(
+                   pickle.PicklingError,
+                   pickle.dumps,
+                   mc
+               )
+        except:
+            first_assertion_failed = True
+        else:
+            first_assertion_failed = False
+
+        try:
+            self.assertRaises(
+                   TypeError,
+                   pickle.dumps,
+                   mc
+               )
+        except:
+            if first_assertion_failed:
+               raise
 
         self.assertRaises(
                 TypeError,
@@ -257,11 +273,28 @@ class MapperTestCase(unittest.TestCase):
         jac1.otherReference = jac2
         
         # mc and moc can't be pickled
-        self.assertRaises(
+        # pickle raises pickle.PicklingError in Python < 2.7 but TypeError in Python 2.7; we try both exceptions
+        try:
+            self.assertRaises(
                 pickle.PicklingError,
                 pickle.dumps,
                 mc
             )
+        except:
+            failed_first_time = True
+        else:
+            failed_first_time = False
+
+        try:
+            self.assertRaises(
+                TypeError,
+                pickle.dumps,
+                mc
+            )
+        except:
+            if failed_first_time:
+               raise
+       
 
         self.assertRaises(
                 TypeError,

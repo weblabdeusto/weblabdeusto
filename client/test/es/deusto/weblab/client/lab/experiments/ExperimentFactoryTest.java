@@ -83,6 +83,11 @@ public class ExperimentFactoryTest extends GWTTestCase {
 			public void sendCommand(String command,
 					IResponseCommandCallback callback) {
 			}
+
+			@Override
+			public boolean isFacebook() {
+				return false;
+			}
 		});
 		
 		final ExperimentLoadedCallback callback = new ExperimentLoadedCallback();
@@ -119,6 +124,11 @@ public class ExperimentFactoryTest extends GWTTestCase {
 			@Override
 			public void sendCommand(String command,
 					IResponseCommandCallback callback) {
+			}
+
+			@Override
+			public boolean isFacebook() {
+				return false;
 			}
 		});
 		

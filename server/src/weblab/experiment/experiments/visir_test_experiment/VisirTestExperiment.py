@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Luis Rodríguez <luis.rodriguez@opendeusto.es>
+#         Pablo Orduña <pablo@ordunya.com>
 # 
 
 import weblab.experiment.Experiment as Experiment
@@ -28,7 +29,7 @@ except ImportError:
 
 from voodoo.override import Override
 
-
+CFG_USE_VISIR_PHP = "vt_use_visir_php"
 
 CFG_MEASURE_SERVER_ADDRESS = "vt_measure_server_addr"
 CFG_MEASURE_SERVER_TARGET = "vt_measure_server_target"
@@ -39,6 +40,7 @@ CFG_LOGIN_PASSWORD = "vt_login_password"
 CFG_SAVEDATA = "vt_savedata"
 CFG_CLIENT_URL = "vt_client_url"
 
+DEFAULT_USE_VISIR_PHP = True
 DEFAULT_MEASURE_SERVER_ADDRESS = "130.206.138.35:8080"
 DEFAULT_MEASURE_SERVER_TARGET = "/measureserver"
 DEFAULT_LOGIN_URL = """https://weblab-visir.deusto.es/electronics/student.php"""
@@ -63,14 +65,27 @@ class VisirTestExperiment(Experiment.Experiment):
         Reads the config parameters from the config file (such as the
         measurement server address)
         """
-        self.measure_server_addr = self._cfg_manager.get_value(CFG_MEASURE_SERVER_ADDRESS, DEFAULT_MEASURE_SERVER_ADDRESS)
-        self.measure_server_target = self._cfg_manager.get_value(CFG_MEASURE_SERVER_TARGET, DEFAULT_MEASURE_SERVER_TARGET)
-        self.loginurl = self._cfg_manager.get_value(CFG_LOGIN_URL, DEFAULT_LOGIN_URL)
-        self.baseurl = self._cfg_manager.get_value(CFG_BASE_URL, DEFAULT_BASE_URL)
-        self.login_email = self._cfg_manager.get_value(CFG_LOGIN_EMAIL, DEFAULT_LOGIN_EMAIL)
-        self.login_password = self._cfg_manager.get_value(CFG_LOGIN_PASSWORD, DEFAULT_LOGIN_PASSWORD)
+
+        # Common configuration values
         self.savedata = self._cfg_manager.get_value(CFG_SAVEDATA, DEFAULT_SAVEDATA)
         self.client_url = self._cfg_manager.get_value(CFG_CLIENT_URL, DEFAULT_CLIENT_URL);
+        self.measure_server_addr = self._cfg_manager.get_value(CFG_MEASURE_SERVER_ADDRESS, DEFAULT_MEASURE_SERVER_ADDRESS)
+        self.measure_server_target = self._cfg_manager.get_value(CFG_MEASURE_SERVER_TARGET, DEFAULT_MEASURE_SERVER_TARGET)
+
+        # 
+        # There are two ways of deploying VISIR:
+        # - with all the OpenLabs Web code
+        # - directly without authentication against the measurement server
+        # 
+        # We support both, depending on this variable.
+        # 
+        self.use_visir_php = self._cfg_manager.get_value(CFG_USE_VISIR_PHP, DEFAULT_USE_VISIR_PHP)
+
+        if self.use_visir_php:
+            self.loginurl = self._cfg_manager.get_value(CFG_LOGIN_URL, DEFAULT_LOGIN_URL)
+            self.baseurl = self._cfg_manager.get_value(CFG_BASE_URL, DEFAULT_BASE_URL)
+            self.login_email = self._cfg_manager.get_value(CFG_LOGIN_EMAIL, DEFAULT_LOGIN_EMAIL)
+            self.login_password = self._cfg_manager.get_value(CFG_LOGIN_PASSWORD, DEFAULT_LOGIN_PASSWORD)
 
     @Override(Experiment.Experiment)
     def do_start_experiment(self, *args, **kwargs):
@@ -91,6 +106,9 @@ class VisirTestExperiment(Experiment.Experiment):
         # Check whether it's a GIVEMECOOKIE command, which will carry out
         # a login to obtain the cookie the client should use
         if command == 'GIVE_ME_SETUP_DATA':
+            if not self.use_visir_php:
+                return self.build_setup_data("", self.savedata, self.client_url)
+
             if(DEBUG):
                 print "[VisirTestExperiment] Performing login with %s / %s"  % (self.login_email, self.login_password)
             

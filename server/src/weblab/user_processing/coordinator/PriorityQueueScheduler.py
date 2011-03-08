@@ -22,7 +22,7 @@ import voodoo.log as log
 import sqlalchemy
 from sqlalchemy import not_
 from sqlalchemy.orm import join
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, OperationalError, ConcurrentModificationError
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.sessions.SessionId as SessionId
@@ -49,11 +49,38 @@ EXPIRATION_TIME  = 3600 # seconds
 # TODO write some documentation 
 # 
 
+def exc_checker(func):
+    def wrapper(*args, **kwargs):
+        try:
+            for _ in xrange(10):
+                try:
+                    return func(*args, **kwargs)
+                except OperationalError, oe:
+                    if oe.orig.args[0] == 1213:
+                        log.log(
+                            PriorityQueueScheduler, LogLevel.Error,
+                            "Deadlock found, restarting...%s" % func.__name__ )
+                        log.log_exc(PriorityQueueScheduler, LogLevel.Warning)
+                        continue
+                    else:
+                        raise
+        except:
+            log.log(
+                PriorityQueueScheduler, LogLevel.Error,
+                "Unexpected exception while running %s" % func.__name__ )
+            log.log_exc(PriorityQueueScheduler, LogLevel.Warning)
+            raise
+	wrapper.__name__ = func.__name__
+	wrapper.__doc__ = func.__doc__
+    return wrapper
+	
+
 class PriorityQueueScheduler(Scheduler):
 
     def __init__(self, generic_scheduler_arguments, **kwargs):
         super(PriorityQueueScheduler, self).__init__(generic_scheduler_arguments, **kwargs)
 
+    @exc_checker
     @logged()
     @Override(Scheduler)
     def removing_current_resource_slot(self, session, resource_instance_id):
@@ -77,6 +104,7 @@ class PriorityQueueScheduler(Scheduler):
                     return True
         return False
 
+    @exc_checker
     @logged()
     @Override(Scheduler)
     def reserve_experiment(self, reservation_id, experiment_id, time, priority):
@@ -101,6 +129,7 @@ class PriorityQueueScheduler(Scheduler):
     # 
     # Given a reservation_id, it returns in which state the reservation is
     # 
+    @exc_checker
     @logged()
     @Override(Scheduler)
     def get_reservation_status(self, reservation_id):
@@ -186,6 +215,7 @@ class PriorityQueueScheduler(Scheduler):
     #
     # Called when it is confirmed by the Laboratory Server.
     #
+    @exc_checker
     @logged()
     @Override(Scheduler)
     def confirm_experiment(self, reservation_id, lab_session_id):
@@ -213,6 +243,7 @@ class PriorityQueueScheduler(Scheduler):
     #
     # Called when the user disconnects or finishes the resource.
     #
+    @exc_checker
     @logged()
     @Override(Scheduler)
     def finish_reservation(self, reservation_id):
@@ -222,17 +253,22 @@ class PriorityQueueScheduler(Scheduler):
         try: 
             concrete_current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == reservation_id).first()
 
-            self._clean_current_reservation(session, concrete_current_reservation)
+            enqueue_free_experiment_args = self._clean_current_reservation(session, concrete_current_reservation)
                 
             reservation_to_delete = concrete_current_reservation or session.query(WaitingReservation).filter(WaitingReservation.reservation_id == reservation_id).first()
             if reservation_to_delete is not None:
                 session.delete(reservation_to_delete) 
 
-            session.commit() 
+            session.commit()
+
+            if enqueue_free_experiment_args is not None:
+                self.confirmer.enqueue_free_experiment(*enqueue_free_experiment_args)
         finally:
             session.close()
 
+
     def _clean_current_reservation(self, session, concrete_current_reservation):
+        enqueue_free_experiment_args = None
         if concrete_current_reservation is not None:
             resource_instance = concrete_current_reservation.slot_reservation.current_resource_slot.resource_instance
             if resource_instance is not None: # If the resource instance does not exist anymore, there is no need to call the free_experiment method
@@ -243,11 +279,12 @@ class PriorityQueueScheduler(Scheduler):
                         experiment_instance = experiment_instance
                         break
 
-                if experiment_instance is not None: # If the experiment instance doesn't exist, there is no need to call the free_experiment method
+                if experiment_instance is not None and lab_session_id is not None: # If the experiment instance doesn't exist, there is no need to call the free_experiment method
                     lab_coord_address  = experiment_instance.laboratory_coord_address
-                    self.confirmer.enqueue_free_experiment(lab_coord_address, lab_session_id)
+                    enqueue_free_experiment_args = (lab_coord_address, lab_session_id)
             self.reservations_manager.downgrade_confirmation(session, concrete_current_reservation.current_reservation_id)
             self.resources_manager.release_resource(session, concrete_current_reservation.slot_reservation)
+        return enqueue_free_experiment_args
 
     #############################################################
     # 
@@ -355,9 +392,9 @@ class PriorityQueueScheduler(Scheduler):
                     experiment_instance_id = ExperimentInstanceId(selected_experiment_instance.experiment_instance_id, requested_experiment_type.exp_name, requested_experiment_type.cat_name)
 
                     laboratory_coord_address = selected_experiment_instance.laboratory_coord_address
-                    session.delete(first_waiting_reservation)
-                    session.add(concrete_current_reservation)
                     try:
+                        session.delete(first_waiting_reservation)
+                        session.add(concrete_current_reservation)
                         session.commit()
                     except IntegrityError, ie:
                         # Other scheduler confirmed the user or booked the reservation, rollback and try again
@@ -392,12 +429,12 @@ class PriorityQueueScheduler(Scheduler):
                         # reservation
                         # 
                         break
-            except IntegrityError, ie:
+            except (ConcurrentModificationError, IntegrityError), ie:
                 # Something happened somewhere else, such as the user being confirmed twice, the experiment being reserved twice or so on.
                 # Rollback and start again
                 log.log(
                     PriorityQueueScheduler, LogLevel.Warning,
-                    "IntegrityError: %s" % ie )
+                    "Exception while updating queues, reverting and trying again: %s" % ie )
                 log.log_exc(PriorityQueueScheduler, LogLevel.Info)
                 session.rollback()
             finally:
@@ -417,11 +454,13 @@ class PriorityQueueScheduler(Scheduler):
             current_expiration_time = datetime.datetime.utcfromtimestamp(now - EXPIRATION_TIME)
 
             reservations_removed = False
+            enqueue_free_experiment_args_retrieved = []
             for expired_concrete_current_reservation in session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.start_time.op('+')(ConcreteCurrentReservation.time) < self.time_provider.get_time()).all():
                 expired_reservation = expired_concrete_current_reservation.current_reservation_id
                 if expired_reservation is None:
                     continue # Maybe it's not an expired_reservation anymore
-                self._clean_current_reservation(session, expired_concrete_current_reservation)
+                enqueue_free_experiment_args = self._clean_current_reservation(session, expired_concrete_current_reservation)
+                enqueue_free_experiment_args_retrieved.append(enqueue_free_experiment_args)
                 session.delete(expired_concrete_current_reservation)
                 self.reservations_manager.delete(session, expired_reservation)
                 reservations_removed = True
@@ -429,7 +468,8 @@ class PriorityQueueScheduler(Scheduler):
             for expired_reservation_id in self.reservations_manager.list_expired_reservations(session, current_expiration_time):
                 concrete_current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == expired_reservation_id).first()
                 if concrete_current_reservation is not None:
-                    self._clean_current_reservation(session, concrete_current_reservation)
+                    enqueue_free_experiment_args = self._clean_current_reservation(session, concrete_current_reservation)
+                    enqueue_free_experiment_args_retrieved.append(enqueue_free_experiment_args)
                     session.delete(concrete_current_reservation)
                 waiting_reservation = session.query(WaitingReservation).filter(WaitingReservation.reservation_id == expired_reservation_id).first()
                 if waiting_reservation is not None:
@@ -447,6 +487,10 @@ class PriorityQueueScheduler(Scheduler):
                         "IntegrityError: %s" % e )
                     log.log_exc(PriorityQueueScheduler, LogLevel.Info)
                     pass # Someone else removed these users before us.
+                else:
+                    for enqueue_free_experiment_args in enqueue_free_experiment_args_retrieved:
+                        if enqueue_free_experiment_args is not None:
+                            self.confirmer.enqueue_free_experiment(*enqueue_free_experiment_args)
             else:
                 session.rollback()
         finally:

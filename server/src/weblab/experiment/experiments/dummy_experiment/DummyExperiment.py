@@ -64,8 +64,8 @@ class DummyExperiment(UdXilinxExperiment.UdXilinxExperiment):
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(DummyExperiment,self).__init__(coord_address, locator, cfg_manager, *args, **kwargs)
 
-        self._xilinx_impact = FakeImpact()
-        self._serial_port   = FakeSerialPort()
+        self._xilinx_impact                 = FakeImpact()
+        self._command_sender._serial_port   = FakeSerialPort()
 
     @Override(UdXilinxExperiment.UdXilinxExperiment)
     def do_dispose(self):

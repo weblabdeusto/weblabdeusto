@@ -4,10 +4,6 @@
 
 weblab_db_username = 'weblab'
 weblab_db_password = 'weblab'
-db_driver        = "MySQLdb"
-db_host          = "localhost"
-db_database = "WebLab"
-db_prefix        = "wl_"
 
 ########################################
 # User Processing Server configuration #
@@ -21,6 +17,19 @@ core_coordinator_db_password = 'weblab'
 core_coordinator_laboratory_servers = {
             "laboratory:lab_and_experiment@main_machine" : { "exp1|ud-dummy|Dummy experiments" : "dummy@ud-dummy" }
         }
+
+core_scheduling_systems = {
+        "ud-fpga"    : ("PRIORITY_QUEUE", {}),
+        "ud-pld"     : ("PRIORITY_QUEUE", {}),
+        "ud-gpib"    : ("PRIORITY_QUEUE", {}),
+        "ud-pic"     : ("PRIORITY_QUEUE", {}),
+        "ud-dummy"   : ("PRIORITY_QUEUE", {}),
+        "ud-logic"   : ("PRIORITY_QUEUE", {}),
+        "flashdummy" : ("PRIORITY_QUEUE", {}),
+        "javadummy"  : ("PRIORITY_QUEUE", {}),
+        "visirtest"  : ("PRIORITY_QUEUE", {}),
+    }
+
 
 ##########################
 # Database configuration #
@@ -46,7 +55,7 @@ core_db_users_externalentity_write_password     = 'wl_exter_write_password'
 
 db_driver        = "MySQLdb"
 db_host          = "localhost"
-db_database = "WebLab"
+db_database = "WebLabTests"
 db_prefix        = "wl_"
 
 

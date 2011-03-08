@@ -13,7 +13,6 @@
 */ 
 package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.dummy.ui;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Label;
 
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
@@ -48,15 +47,15 @@ public class WlDeustoDummyBasedBoard extends WlDeustoXilinxBasedBoard {
 	protected IResponseCommandCallback getResponseCommandCallback(){
 	    return new IResponseCommandCallback(){
 
-		@Override
-		public void onSuccess(ResponseCommand responseCommand) {
-		    GWT.log("vuelta a onSuccess de ResponseCommandCallback", null);
-		    WlDeustoDummyBasedBoard.this.processCommandSent(responseCommand);
-		}
-
-		@Override
-		public void onFailure(WlCommException e) {
-		}
+			@Override
+			public void onSuccess(ResponseCommand responseCommand) {
+			    WlDeustoDummyBasedBoard.this.processCommandSent(responseCommand);
+			}
+		
+			@Override
+			public void onFailure(WlCommException e) {
+				WlDeustoDummyBasedBoard.this.messages.setText("Error raised: " + e.getMessage());
+			}
 	    };
 	}
 	

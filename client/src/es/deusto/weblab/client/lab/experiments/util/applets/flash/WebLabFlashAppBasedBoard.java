@@ -15,23 +15,37 @@
 
 package es.deusto.weblab.client.lab.experiments.util.applets.flash;
 
+import java.util.Date;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
+
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard;
 
 public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 
-	public static final int WAIT_AFTER_START = 4000;
+	public static final int WAIT_AFTER_START = 500;
 	
-	private final int width;
-	private final int height;
 	private final boolean deferred;
 	
 	private String swfFile;
 	private String flashvars;
+	
+	
+	// Time to wait for the flash app to load before we consider it has
+	// failed. Though it has a default, it can be specified through the js config file 
+	// for the experiment, and should often be higher for large flash files.
+	private final int flashTimeout;
+	
+	// Timer to enforce the flash loading timeout.
+	private Timer initializationTimer;
+	
+	// True if flash failed to start.
+	private boolean startTimedOut = false;
 	
 	
 	// We need to store the time set when we are in deferred mode.
@@ -86,16 +100,17 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 			String message,
 			boolean deferFlashApp
 	) {
-		super(configurationRetriever, boardController);
-		this.height  = height;
-		this.width   = width;
+		super(configurationRetriever, boardController, width, height);
 		if(swfFile != null)
 			this.swfFile = GWT.getModuleBaseURL() + swfFile;
 		this.flashvars = flashvars;
 		this.message.setText(message);
 		this.deferred = deferFlashApp;
 		
-		WebLabFlashAppBasedBoard.createJavaScriptCode(this.html.getElement(), width + 10, height + 10);
+
+		this.flashTimeout = configurationRetriever.getIntProperty("flash.timeout", 10);
+		
+		WebLabFlashAppBasedBoard.createJavaScriptCode(this.html.getElement(), this.width+10, 0);
 	}
 	
 	
@@ -119,7 +134,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 		this.swfFile = GWT.getModuleBaseURL() + swfFile;
 	}
 	
-
+	
 	/*
 	 * We must create an iframe and inside this iframe build the flash object because Flash's ExternalInterface
 	 * doesn't seem to work on Microsoft Internet Explorer (v8) if the flash object is dynamically created. Opera, 
@@ -138,11 +153,15 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 	public void initialize(){
 		if(!this.deferred)
 			WebLabFlashAppBasedBoard.populateIframe(this.swfFile, this.width, 
-					this.height, this.flashvars);
+					this.height, this.width + 10, this.height + 10, this.flashvars);
 	}
 
 	@Override
 	public void setTime(int time) {
+		
+		// Call required for the standard timer to work properly, if it is enabled.
+		super.setTime(time);
+		
 		if(!this.deferred) {
 			WebLabFlashAppBasedBoard.findFlashReference();
 			AbstractExternalAppBasedBoard.setTimeImpl(time);
@@ -150,42 +169,70 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 			this.timeSet = time;
 		}
 	}
-
+	
 	@Override
 	public void start() {
-		if(this.deferred) {
-			WebLabFlashAppBasedBoard.populateIframe(this.swfFile, this.width, 
-					this.height, this.flashvars);
 		
-			final Timer t = new Timer() {
-				
-				@Override
-				public void run() {
+		if(this.deferred)
+			WebLabFlashAppBasedBoard.populateIframe(this.swfFile, this.width, 
+				this.height, this.width+10, this.height+10, this.flashvars);
+		
+		
+		final long whenStarted = (new Date()).getTime();
+		this.initializationTimer = new Timer() {
+			
+			@Override
+			public void run() {
+				try{
 					WebLabFlashAppBasedBoard.findFlashReference();
-					AbstractExternalAppBasedBoard.startInteractionImpl();
+				}catch(Exception e){
 					
-					AbstractExternalAppBasedBoard.setTimeImpl(WebLabFlashAppBasedBoard.this.timeSet);
+					final long ended = (new Date()).getTime();
+					final long elapsed = ended - whenStarted;
+					
+					// Make sure we have not spent too much time waiting for flash to start
+					if(elapsed > WebLabFlashAppBasedBoard.this.flashTimeout*1000){	
+						WebLabFlashAppBasedBoard.this.startTimedOut = true;
+						Window.alert("Flash does not seem to be reachable by your web browser. Contact the administrator saying what web browser you are using and this line: " + e.getMessage());
+						e.printStackTrace();
+					}else
+						WebLabFlashAppBasedBoard.this.initializationTimer.schedule(WebLabFlashAppBasedBoard.WAIT_AFTER_START);
+					return;
 				}
 				
-			};
-			
-			t.schedule(WebLabFlashAppBasedBoard.WAIT_AFTER_START);
-		} else {
-				WebLabFlashAppBasedBoard.findFlashReference();
 				AbstractExternalAppBasedBoard.startInteractionImpl();
-		}
+				
+				// TODO: Consider doc'ing / refactoring these so that the difference between standard and
+				// deferred behaviour is more clear.
+				if(WebLabFlashAppBasedBoard.this.deferred)
+					AbstractExternalAppBasedBoard.setTimeImpl(WebLabFlashAppBasedBoard.this.timeSet);
+			}
+			
+		};
+		
+		if(this.deferred)
+			this.initializationTimer.schedule(WebLabFlashAppBasedBoard.WAIT_AFTER_START);
+		else
+			this.initializationTimer.schedule(1);
 	}
 	
 	@Override
 	public void end() {
-		WebLabFlashAppBasedBoard.findFlashReference();
-		AbstractExternalAppBasedBoard.endImpl();
+		// Check that we were in fact able to access flash. Otherwise, it is pointless to
+		// try to call the end function on it.
+		if(!this.startTimedOut)  {
+			WebLabFlashAppBasedBoard.findFlashReference();
+			AbstractExternalAppBasedBoard.endImpl();
+		}
 	}
 
-	private static native void populateIframe(String swfFile, int width, int height, String flashvars) /*-{
+	private static native void populateIframe(String swfFile, int width, int height, int iframeWidth, int iframeHeight, String flashvars) /*-{
 		var doc = $wnd.wl_iframe.contentDocument;
     	if (doc == undefined || doc == null)
         	doc = $wnd.wl_iframe.contentWindow.document;
+        	
+        $wnd.wl_iframe.height = iframeHeight;
+        $wnd.wl_iframe.width = iframeWidth;
         
 		var functionsHtml = "<script language=\"JavaScript\">\n" +
 				"function wl_getIntProperty(name){ " +
@@ -263,7 +310,6 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 		        errorMessages = errorMessages + ' raised ' + err + ' ' + err.description  + ';';
 		    }
 		    
-		    alert("Flash does not seem to be reachable by your web browser. Contact the administrator saying what web browser you are using and this line: " + errorMessages);
 		    throw "Flash does not seem to be working: " + errorMessages;
 		}
 		if($wnd.wl_inst == null){

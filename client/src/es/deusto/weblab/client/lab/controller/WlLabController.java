@@ -90,17 +90,20 @@ public class WlLabController implements IWlLabController {
 	
 	private final SessionVariables     sessionVariables = new SessionVariables();
 	private final boolean              isMobile;
+	private final boolean              isFacebook;
 	
 	public WlLabController(
 				IConfigurationManager configurationManager,
 				IWlLabCommunication  communications,
 				IPollingHandler       pollingHandler,
-				boolean               isMobile
+				boolean               isMobile,
+				boolean               isFacebook
 			){
 		this.configurationManager = configurationManager;
 		this.communications       = communications;
 		this.pollingHandler       = pollingHandler;
 		this.isMobile             = isMobile;
+		this.isFacebook           = isFacebook;
 	}
 	
 	private class ExtendedTimer extends Timer{
@@ -309,6 +312,11 @@ public class WlLabController implements IWlLabController {
 	@Override
 	public void chooseExperiment(final ExperimentAllowed experimentAllowed) {
 	    final IBoardBaseController boardBaseController = new IBoardBaseController(){
+	    	@Override
+	    	public boolean isFacebook(){
+	    		return WlLabController.this.isFacebook;
+	    	}
+	    	
 	    	@Override
 			public void onClean(){
 	    		WlLabController.this.finishReservation();

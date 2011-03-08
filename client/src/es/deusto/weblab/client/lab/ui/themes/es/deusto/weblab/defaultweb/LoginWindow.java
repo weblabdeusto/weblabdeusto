@@ -26,10 +26,14 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DecoratorPanel;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.TextBox;
@@ -41,6 +45,7 @@ import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.i18n.IWebLabDeustoThemeMessages;
 import es.deusto.weblab.client.ui.widgets.WlUtil;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
+
 
 class LoginWindow extends BaseWindow {
 	
@@ -59,10 +64,19 @@ class LoginWindow extends BaseWindow {
 	@UiField TextBox usernameTextbox;
 	@UiField PasswordTextBox passwordTextbox;
 	@UiField Button loginButton;
+	@UiField Button createAccountButton;
 	@UiField WlWaitingLabel waitingLabel;
 	@UiField Label generalErrorLabel;
 	@UiField HTML demoAvailableHTML;
 	@UiField HTML supportHTML;
+	@UiField Grid featuresGrid;
+	@UiField VerticalPanel facebookPanel;
+	@UiField HTML openSourceAddressHTML;
+	@UiField HTML mobileHTML;
+	@UiField DecoratorPanel createAccountPanel;
+	@UiField DecoratorPanel adminPanel;
+	@UiField Image hostEntityLogo;
+	@UiField HTML introText;
 	
 	// Callbacks
 	private final ILoginWindowCallback callback;
@@ -70,12 +84,36 @@ class LoginWindow extends BaseWindow {
 	// Properties
 	private static final String ADMIN_EMAIL_PROPERTY = "admin.email";
 	private static final String DEFAULT_ADMIN_EMAIL = "<admin.email not set>";
+	
+	private static final String HOST_ENTITY_IMAGE_PROPERTY = "host.entity.image";
+	private static final String DEFAULT_HOST_ENTITY_IMAGE  = "";
+	
 	private static final String DEMO_AVAILABLE_PROPERTY = "demo.available";
 	private static final boolean DEFAULT_DEMO_AVAILABLE = false;
+	
 	private static final String DEMO_USERNAME_PROPERTY = "demo.username";
 	private static final String DEFAULT_DEMO_USERNAME = "demo";
-	private static final String DEMO_PASSWORD_PROPERTY = "demo.username";
+	
+	private static final String DEMO_PASSWORD_PROPERTY = "demo.password";
 	private static final String DEFAULT_DEMO_PASSWORD = "demo";
+	
+	private static final String CREATE_ACCOUNT_VISIBLE_PROPERTY = "create.account.visible";
+	private static final boolean DEFAULT_CREATE_ACCOUNT_VISIBLE = true;
+	
+	private static final String ADMIN_PANEL_VISIBLE_PROPERTY = "admin.panel.visible";
+	private static final boolean DEFAULT_ADMIN_PANEL_VISIBLE = true;
+	
+	private static final String FACEBOOK_LIKE_BOX_VISIBLE_PROPERTY = "facebook.like.box.visible";
+	private static final boolean DEFAULT_FACEBOOK_LIKE_BOX_VISIBLE = true;
+
+	private static final String FACEBOOK_LIKE_BOX_ID_PROPERTY = "facebook.like.box.app.id";
+	private static final String DEFAULT_FACEBOOK_LIKE_BOX_ID = "147077572014824";
+
+	private static final String FACEBOOK_LIKE_BOX_WIDTH_PROPERTY = "facebook.like.box.width";
+	private static final int DEFAULT_FACEBOOK_LIKE_BOX_WIDTH = 350;
+
+	private static final String FACEBOOK_LIKE_BOX_HEIGHT_PROPERTY = "facebook.like.box.height";
+	private static final int DEFAULT_FACEBOOK_LIKE_BOX_HEIGHT = 185;
 
 	public LoginWindow(IConfigurationManager configurationManager, ILoginWindowCallback callback) {
 	    super(configurationManager);
@@ -116,6 +154,15 @@ class LoginWindow extends BaseWindow {
 		this.usernameTextbox.addKeyDownHandler(keyboardHandler);
 		this.passwordTextbox.addKeyDownHandler(keyboardHandler);
 		
+		String hostEntityImage = this.configurationManager.getProperty(HOST_ENTITY_IMAGE_PROPERTY, DEFAULT_HOST_ENTITY_IMAGE);
+		if(!hostEntityImage.isEmpty()){
+			if(hostEntityImage.startsWith("/"))
+				hostEntityImage = GWT.getModuleBaseURL() + hostEntityImage;
+			this.hostEntityLogo.setUrl(hostEntityImage);
+		}
+		
+		this.introText.setHTML(this.i18nMessages.weblabDeustoIsARemote_long());
+		
 		final boolean demoAvailable = this.configurationManager.getBoolProperty(
 				LoginWindow.DEMO_AVAILABLE_PROPERTY,
 				LoginWindow.DEFAULT_DEMO_AVAILABLE
@@ -132,15 +179,44 @@ class LoginWindow extends BaseWindow {
 				);	
 			
 			this.demoAvailableHTML.setHTML(this.i18nMessages.demoLoginDetails(demoUsername, demoPassword));
+		}else{
+			this.featuresGrid.removeRow(1);
 		}
+		
+		final boolean createAccountVisible = this.configurationManager.getBoolProperty(CREATE_ACCOUNT_VISIBLE_PROPERTY, DEFAULT_CREATE_ACCOUNT_VISIBLE);
+		if(!createAccountVisible)
+			this.createAccountPanel.setVisible(false);
+		
+		final boolean adminPanelVisible = this.configurationManager.getBoolProperty(ADMIN_PANEL_VISIBLE_PROPERTY, DEFAULT_ADMIN_PANEL_VISIBLE);
+		if(!adminPanelVisible)
+			this.adminPanel.setVisible(false);
 		
 		final String adminEmail = this.configurationManager.getProperty(
 				LoginWindow.ADMIN_EMAIL_PROPERTY,
 				LoginWindow.DEFAULT_ADMIN_EMAIL
-			);	
+			);
 		
 		final String translatedSupportHTML = this.i18nMessages.ifYouHaveTechnicalProblems("<a href=\"mailto:" + WlUtil.escape(adminEmail) + "\" target=\"_blank\">" + WlUtil.escapeNotQuote(adminEmail) + "</a>");
 		this.supportHTML.setHTML(translatedSupportHTML);
+		
+		final String translatedOpenSourceAddress = this.i18nMessages.weblabIsOpenSourceAvailable("<a href=\"http://code.google.com/p/weblabdeusto/\" target=\"_blank\">http://code.google.com/p/weblabdeusto/</a>");
+		this.openSourceAddressHTML.setHTML(translatedOpenSourceAddress);
+		
+		final String mobileURL = WebLabClient.getNewUrl(WebLabClient.MOBILE_URL_PARAM, "true");
+		this.mobileHTML.setHTML(this.i18nMessages.useMobileVersionClicking(mobileURL));
+
+		final boolean facebookLikeBoxVisible = this.configurationManager.getBoolProperty(FACEBOOK_LIKE_BOX_VISIBLE_PROPERTY, DEFAULT_FACEBOOK_LIKE_BOX_VISIBLE);
+		if(facebookLikeBoxVisible){
+			final int facebookIFrameWidth  = this.configurationManager.getIntProperty(FACEBOOK_LIKE_BOX_WIDTH_PROPERTY, DEFAULT_FACEBOOK_LIKE_BOX_WIDTH);
+			final int facebookIFrameHeight = this.configurationManager.getIntProperty(FACEBOOK_LIKE_BOX_HEIGHT_PROPERTY, DEFAULT_FACEBOOK_LIKE_BOX_HEIGHT);
+			final String facebookIFrameAppID = this.configurationManager.getProperty(FACEBOOK_LIKE_BOX_ID_PROPERTY, DEFAULT_FACEBOOK_LIKE_BOX_ID);
+			final String facebookIFrameCode = "<iframe src=\"https://www.facebook.com/plugins/likebox.php?href=http://www.facebook.com/apps/application.php%3Fid%3D" + facebookIFrameAppID  
+												+ "&amp;width=" + facebookIFrameWidth + "&amp;colorscheme=light&amp;show_faces=true&amp;stream=false&amp;header=false&amp;height=" + facebookIFrameHeight
+												+ "\" scrolling=\"no\" frameborder=\"0\" style=\"border:none; overflow:hidden; width:" + facebookIFrameWidth 
+												+ "px; height:" + facebookIFrameHeight + "px; border-style:solid; border-color: #135cae\" allowTransparency=\"true\"></iframe>";
+			final HTML facebookIframe = new HTML(facebookIFrameCode);
+			this.facebookPanel.add(facebookIframe);
+		}
 	}	
 	
 	private void loadUsernameAndPassword() {
@@ -159,8 +235,10 @@ class LoginWindow extends BaseWindow {
 
 	public void showWrongLoginOrPassword(){
 		this.generalErrorLabel.setText(this.i18nMessages.invalidUsernameOrPassword());
+		this.generalErrorLabel.setVisible(true);
 		this.waitingLabel.stop();
 		this.waitingLabel.setText("");
+		this.waitingLabel.setVisible(false);
 		this.loginButton.setEnabled(true);
 	}
 
@@ -168,8 +246,10 @@ class LoginWindow extends BaseWindow {
     @Override
 	public void showError(String message) {
 		this.generalErrorLabel.setText(message);
+		this.generalErrorLabel.setVisible(true);
 		this.waitingLabel.stop();
 		this.waitingLabel.setText("");
+		this.waitingLabel.setVisible(false);
 		this.loginButton.setEnabled(true);
 	}
 	
@@ -177,19 +257,27 @@ class LoginWindow extends BaseWindow {
 	void onLoginButtonClicked(@SuppressWarnings("unused") ClickEvent e) {
 		boolean errors = false;
 		LoginWindow.this.generalErrorLabel.setText("");
+		LoginWindow.this.generalErrorLabel.setVisible(false);
 		errors |= this.checkUsernameTextbox();
 		errors |= this.checkPasswordTextbox();
 		if(!errors){
 			LoginWindow.this.waitingLabel.setText(LoginWindow.this.i18nMessages.loggingIn());
 			LoginWindow.this.waitingLabel.start();
+			LoginWindow.this.waitingLabel.setVisible(true);
 			LoginWindow.this.loginButton.setEnabled(false);
 			LoginWindow.this.callback.onLoginButtonClicked(this.getUsername(), this.getPassword());
 		}
 	}
 	
+	@UiHandler("createAccountButton")
+	void onCreateAccountClicked(@SuppressWarnings("unused") ClickEvent e){
+		Location.replace("http://apps.facebook.com/weblab-deusto");
+	}
+	
     @Override
 	public void showMessage(String message) {
 		this.generalErrorLabel.setText(message);
+		this.generalErrorLabel.setVisible(true);
 		this.loginButton.setEnabled(true);
 	}
 	

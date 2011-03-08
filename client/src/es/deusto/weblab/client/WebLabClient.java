@@ -46,15 +46,19 @@ import es.deusto.weblab.client.lab.experiments.ExperimentFactory;
 import es.deusto.weblab.client.lab.ui.WlLabThemeBase;
 import es.deusto.weblab.client.lab.ui.WlLabThemeFactory;
 import es.deusto.weblab.client.lab.ui.WlLabThemeFactory.IWlLabThemeLoadedCallback;
+import es.deusto.weblab.client.ui.audio.AudioManager;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
 public class WebLabClient implements EntryPoint {
 	
+	private static final String WEBLAB_SESSION_ID_COOKIE = "weblabsessionid";
+	public static final int MAX_FACEBOOK_WIDTH = 735;
 	private static final String MAIN_SLOT = "weblab_slot";
 	private static final String SCRIPT_CONFIG_FILE = GWT.getModuleBaseURL() + "configuration.js";
 	private static final String SESSION_ID_URL_PARAM = "session_id";	
-	private static final String MOBILE_URL_PARAM = "mobile";
+	public static final String MOBILE_URL_PARAM = "mobile";
 	private static final String LOCALE_URL_PARAM = "locale";
+	private static final String FACEBOOK_URL_PARAM = "facebook";
 	private static final String ADMIN_URL_PARAM = "admin";
 	
 	public static final String LOCALE_COOKIE = "weblabdeusto.locale";
@@ -62,6 +66,7 @@ public class WebLabClient implements EntryPoint {
 	private static final String THEME_PROPERTY = "theme";
 	private static final String DEFAULT_THEME = "deusto";
 	private static final String GOOGLE_ANALYTICS_TRACKING_CODE = "google.analytics.tracking.code";
+	private static final String SOUND_ENABLED = "sound.enabled";
 	
 	private ConfigurationManager configurationManager;
 	
@@ -80,6 +85,11 @@ public class WebLabClient implements EntryPoint {
 	    return Window.Location.getParameter(WebLabClient.LOCALE_URL_PARAM) != null;
 	}
 	
+	private boolean isFacebook(){
+	    final String urlSaysIsFacebook = Window.Location.getParameter(WebLabClient.FACEBOOK_URL_PARAM);
+	    return urlSaysIsFacebook != null && (urlSaysIsFacebook.toLowerCase().equals("yes") || urlSaysIsFacebook.toLowerCase().equals("true"));
+	}
+	
 	private boolean isMobile(){
 		final String urlSaysIsMobile = Window.Location.getParameter(WebLabClient.MOBILE_URL_PARAM);
 		return urlSaysIsMobile != null && (urlSaysIsMobile.toLowerCase().equals("yes") || urlSaysIsMobile.toLowerCase().equals("true")); 
@@ -95,6 +105,22 @@ public class WebLabClient implements EntryPoint {
 		if(weblabLocaleCookie != null && !this.localeConfigured()){
 			WebLabClient.refresh(weblabLocaleCookie);
 		}
+	}
+	
+	public static String getNewUrl(String parameterName, String parameterValue){
+		String newUrl = Window.Location.getPath() + "?";
+		final Map<String, List<String>> parameters = Window.Location.getParameterMap();
+
+		for(final String parameter : parameters.keySet())
+		    if(!parameter.equals(parameterName)){
+        		    String value = "";
+        		    for(final String v : parameters.get(parameter))
+        		    	value = v;
+        		    newUrl += parameter + "=" + value + "&";
+		    }
+		    
+		newUrl += parameterName + "=" + parameterValue;
+		return newUrl;
 	}
 
 	public static void refresh(String locale){
@@ -114,6 +140,12 @@ public class WebLabClient implements EntryPoint {
 	}
 	
 	public void loadLabApp() {
+		
+		// Retrieve the configuration property which defines whether sound should be globally enabled
+		// or not.
+		final boolean sound = WebLabClient.this.configurationManager.getBoolProperty("sound.enabled", false);
+		AudioManager.getInstance().setSoundEnabled(sound);
+		
 		try{
 			ExperimentFactory.loadExperiments(WebLabClient.this.configurationManager);
 		}catch(final Exception e){
@@ -136,8 +168,12 @@ public class WebLabClient implements EntryPoint {
 				WebLabClient.this.configurationManager,
 				communications,
 				pollingHandler,
-				isUsingMobile
+				isUsingMobile,
+				isFacebook()
 		);
+		
+		if(isFacebook())
+			RootPanel.get(WebLabClient.MAIN_SLOT).setWidth(MAX_FACEBOOK_WIDTH + "px");
 		
 		pollingHandler.setController(controller);
 		
@@ -147,11 +183,20 @@ public class WebLabClient implements EntryPoint {
 			public void onThemeLoaded(WlLabThemeBase theme) {
 				controller.setUIManager(theme);
 				try{
-					final String sessionId = Window.Location.getParameter(WebLabClient.SESSION_ID_URL_PARAM);
-					if(sessionId == null)
+					final String providedCredentials = Window.Location.getParameter(WebLabClient.SESSION_ID_URL_PARAM);
+					if(providedCredentials == null)
 						theme.onInit();
-					else
+					else{
+						final String sessionId;
+						final int position = providedCredentials.indexOf(';');
+						if(position >= 0){
+							sessionId = providedCredentials.substring(0, position);
+							final String cookie = providedCredentials.substring(position + 1);
+							Cookies.setCookie(WEBLAB_SESSION_ID_COOKIE, cookie, null, null, "/", false);
+						}else
+							sessionId = providedCredentials;
 						controller.startLoggedIn(new SessionID(sessionId));
+					}
 				}catch(final Exception e){
 					WebLabClient.this.showError("Error initializing theme: " + e.getMessage());
 					e.printStackTrace();

@@ -8,6 +8,5 @@
 	
 	<weblab>1</weblab>
 	<weblaburl>http://localhost:12345</weblaburl>
-	
 	<ignorecookie>1</ignorecookie>
 </configuration>

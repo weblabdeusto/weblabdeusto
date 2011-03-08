@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+import os
 import sys
 import threading
 from voodoo.lock import locked
@@ -25,9 +26,9 @@ def is_testing():
         return False
     # if the test.* module is our test module...
     voodoo_file = sys.modules['voodoo'].__file__
-    voodoo_path = voodoo_file[:voodoo_file.rfind('/') - len('voodoo')]
+    voodoo_path = voodoo_file[:voodoo_file.rfind(os.sep) - len('voodoo')]
     test_file = sys.modules['test'].__file__
-    test_path = test_file[:test_file.rfind('/') - len('test')]
+    test_path = test_file[:test_file.rfind(os.sep) - len('test')]
     testing = test_path == voodoo_path
     return testing
 

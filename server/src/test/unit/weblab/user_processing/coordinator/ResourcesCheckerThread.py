@@ -19,7 +19,8 @@ import time
 import weblab.user_processing.coordinator.ResourcesCheckerThread as RCT
 import weblab.user_processing.coordinator.ResourcesChecker as ResourcesChecker
 
-class Coordinator(object): pass
+class Coordinator(object):
+    locator = ""
 
 original_coordinator = Coordinator()
 counter = None
@@ -90,7 +91,11 @@ class ResourcesCheckerThreadTestCase(unittest.TestCase):
             RCT.reset()
             try:
                 RCT.set_coordinator(original_coordinator, 10)
-                time.sleep(0.02)
+                initial_time = time.time()
+                while not RCT.checker_thread.isAlive() and time.time() - initial_time <= 1:
+                    time.sleep(0.02)
+                # Now it's alive or more than 1 seconds have passed
+                time.sleep(0.2)
                 self.assertTrue(counter > 2) # It's still running
                 self.assertTrue(right_coordinator)
                 self.assertTrue(checked)
