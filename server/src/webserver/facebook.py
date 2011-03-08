@@ -77,7 +77,7 @@ def _handle_linking_accounts(req, kargs, signed_request):
         apache.log_error(msg)
         return "ERROR: There was an error on the server linking accounts. Contact the administrator"
     else:
-        return _show_weblab(session_id, weblab_client.weblabsessionid)
+        return _show_weblab(session_id, weblab_client.weblabsessionid, signed_request)
 
 def _handle_creating_accounts(req, kargs, signed_request):
     from mod_python import apache
@@ -96,7 +96,7 @@ def _handle_creating_accounts(req, kargs, signed_request):
         apache.log_error(msg)
         return "ERROR: There was an error on the server creating account: %s. Contact the administrator" % e
     else:
-        return _show_weblab(session_id, weblab_client.weblabsessionid)
+        return _show_weblab(session_id, weblab_client.weblabsessionid, signed_request)
 
 
 def _handle_unauthenticated_clients(req, kargs, signed_request):
@@ -144,7 +144,17 @@ def _handle_unauthenticated_clients(req, kargs, signed_request):
                     'SIGNED_REQUEST' : kargs['signed_request'],
                 }
 
-def _show_weblab(session_id, cookie_end):
+def _show_weblab(session_id, cookie_end, signed_request):
+    payload = signed_request[signed_request.find('.') + 1:]
+    payload = payload.replace('-','+').replace('_','/')
+    payload = payload + "=="
+    json_content = base64.decodestring(payload)
+    data = json.loads(json_content)
+    locale = ''
+    if 'user' in data:
+        if 'locale' in data['user']:
+            locale = "&locale=%s" % data['user']['locale']
+
     return """<html>
                    <head>
                         <script>
@@ -160,7 +170,7 @@ def _show_weblab(session_id, cookie_end):
                    </head>
                 <body>
                      <div id="fb-root">
-                        <iframe width="100%%" frameborder="0" height="100%%" id="weblab_iframe" scrolling="no" src="%s?session_id=%s&facebook=true">
+                        <iframe width="100%%" frameborder="0" height="100%%" id="weblab_iframe" scrolling="no" src="%s?session_id=%s&facebook=true%s">
                         </iframe>
                      </div>
                     <script>
@@ -179,7 +189,7 @@ def _show_weblab(session_id, cookie_end):
                     </script>
                 </body>
             </html>
-        """ % (_CLIENT_ADDRESS, '%s;%s' % (session_id['id'], cookie_end),_APP_ID)
+        """ % (_CLIENT_ADDRESS, '%s;%s' % (session_id['id'], cookie_end), locale, _APP_ID)
 
 def index(req, *args, **kargs): 
     if not req.form.has_key(REQUEST_FIELD):
@@ -194,7 +204,6 @@ def index(req, *args, **kargs):
     data = json.loads(json_content)
     if 'user_id' not in data:
         return "<html><body><script>top.location.href='%s';</script></body></html>" % _AUTH_URL
-
 
     from mod_python import apache
 
@@ -213,5 +222,5 @@ def index(req, *args, **kargs):
         apache.log_error(msg)
         return "ERROR: There was an error on the server. Contact the administrator"
 
-    return _show_weblab(session_id, weblab_client.weblabsessionid)
+    return _show_weblab(session_id, weblab_client.weblabsessionid, signed_request)
 
