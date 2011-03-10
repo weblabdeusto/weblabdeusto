@@ -178,12 +178,12 @@ def _show_weblab(session_id, cookie_end, signed_request):
                 <body>
                      <div id="fb-root">
                         <iframe width="100%%" frameborder="0" height="100%%" id="weblab_iframe" scrolling="no" src="%s?session_id=%s&facebook=true&mobile=no&%s">
-                        </iframe>
+                        </ifame>
                      </div>
                     <script src="http://connect.facebook.net/en_US/all.js"></script>
                     <script>
                         FB.init({
-                            appId  : %s,
+                            appId  : "%s",
                             channelUrl  : 'https://www.weblab.deusto.es/weblab/channel.html'  // custom channel
                         });
                             setTimeout("recalculate_height();", 200);
@@ -191,7 +191,7 @@ def _show_weblab(session_id, cookie_end, signed_request):
 
                 </body>
             </html>
-        """ % (_CLIENT_ADDRESS, '%s;%s' % (session_id['id'], cookie_end), locale, _APP_ID, _APP_ID)
+        """ % (_CLIENT_ADDRESS, '%s;%s' % (session_id['id'], cookie_end), locale, _APP_ID)
 
 def index(req, *args, **kargs): 
     if not req.form.has_key(REQUEST_FIELD):
