@@ -51,18 +51,25 @@ class _CookiesTransport(xmlrpclib.Transport):
         return _CookiesTransport.__bases__[0]._parse_response(self, *args, **kwargs)
 
 
-def _create_weblab_client(url):
+def _create_weblab_client(url, req):
+    from mod_python.Cookie import get_cookie
+
     server = xmlrpclib.Server(url)
     transport = server._ServerProxy__transport
     transport.__class__  = _CookiesTransport
     transport._real_server = weakref.ref(server)
+
+    cookie = get_cookie(req, "loginweblabsessionid")
+    if cookie is not None:
+        server._ServerProxy__transport._sessid_cookie = "loginweblabsessionid=%s" % cookie.value
+
     return server
 
 def _handle_linking_accounts(req, kargs, signed_request):
     from mod_python import apache
     username = kargs['username']
     password = kargs['password']
-    weblab_client = _create_weblab_client(WEBLAB_WS_URL)
+    weblab_client = _create_weblab_client(WEBLAB_WS_URL, req)
     try:
         session_id = weblab_client.grant_external_credentials(username, password, 'FACEBOOK', signed_request)
     except xmlrpclib.Fault, f:
@@ -81,7 +88,7 @@ def _handle_linking_accounts(req, kargs, signed_request):
 
 def _handle_creating_accounts(req, kargs, signed_request):
     from mod_python import apache
-    weblab_client = _create_weblab_client(WEBLAB_WS_URL)
+    weblab_client = _create_weblab_client(WEBLAB_WS_URL, req)
     try:
         session_id = weblab_client.create_external_user('FACEBOOK', signed_request)
     except xmlrpclib.Fault, f:
@@ -207,7 +214,7 @@ def index(req, *args, **kargs):
 
     from mod_python import apache
 
-    weblab_client = _create_weblab_client(WEBLAB_WS_URL)
+    weblab_client = _create_weblab_client(WEBLAB_WS_URL, req)
     try:
         session_id = weblab_client.login_based_on_other_credentials('FACEBOOK', signed_request)
     except xmlrpclib.Fault, f:
