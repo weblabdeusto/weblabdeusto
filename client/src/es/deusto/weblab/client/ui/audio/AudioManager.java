@@ -14,6 +14,10 @@
 
 package es.deusto.weblab.client.ui.audio;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.AudioElement;
+import com.google.gwt.media.client.Audio;
+
 
 public class AudioManager {
 	
@@ -45,5 +49,31 @@ public class AudioManager {
 	public void setSoundEnabled(boolean enable) {
 		this.soundEnabled = enable;
 	}
+	
+	
+	/**
+	 * Helper method which will play a sound if certain conditions are met:
+	 * Sound is enabled.
+	 * Sound is supported.
+	 * File type is supported.
+	 * If they are not, calling this method will have no effect.
+	 * @param file File to play. The path should be relative to the module base URL.
+	 * 
+	 * @return AudioElement being played, or null. May be used to modify the default behaviour, such
+	 * as enabling loop mode.
+	 */
+	public AudioElement play(String file) {
+		if( this.getSoundEnabled() ) {
+			final Audio audio = Audio.createIfSupported();
+			if( audio != null ) {
+				final AudioElement elem = audio.getAudioElement();
+				elem.setSrc(GWT.getModuleBaseURL() + file);
+				elem.play();
+				return elem;
+			}
+		}
+		return null;
+	}
+	
 	
 }

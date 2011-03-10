@@ -62,11 +62,19 @@ public class WebLabClient implements EntryPoint {
 	private static final String ADMIN_URL_PARAM = "admin";
 	
 	public static final String LOCALE_COOKIE = "weblabdeusto.locale";
+	public static final String MOBILE_COOKIE = "weblabdeusto.mobile";
 
 	private static final String THEME_PROPERTY = "theme";
 	private static final String DEFAULT_THEME = "deusto";
 	private static final String GOOGLE_ANALYTICS_TRACKING_CODE = "google.analytics.tracking.code";
 	private static final String SOUND_ENABLED = "sound.enabled";
+	
+	// These are the minimum width and height to choose the standard version over the
+	// mobile one automatically. The choice can nonetheless be forced upon the client
+	// by explicitly specifying the "mobile" GET variable.
+	private static final int MIN_NON_MOBILE_WIDTH = 350;
+	private static final int MIN_NON_MOBILE_HEIGHT = 300;
+	private static final int MIN_NON_MOBILE_AREA = 350 * 300;
 	
 	private ConfigurationManager configurationManager;
 	
@@ -90,9 +98,48 @@ public class WebLabClient implements EntryPoint {
 	    return urlSaysIsFacebook != null && (urlSaysIsFacebook.toLowerCase().equals("yes") || urlSaysIsFacebook.toLowerCase().equals("true"));
 	}
 	
+	/**
+	 * Check whether we must display the mobile or the standard version. If the "mobile" GET var is 
+	 * specified, we will comply. If it is not, we will display the standard version if the browser
+	 * resolution of the user is large enough, and the mobile one otherwise.
+	 * 
+	 * @return True if we should display the mobile version, false otherwise
+	 */
 	private boolean isMobile(){
+		
+		// If it was explicitly specified through the GET var, do what it says and set a cookie.
 		final String urlSaysIsMobile = Window.Location.getParameter(WebLabClient.MOBILE_URL_PARAM);
-		return urlSaysIsMobile != null && (urlSaysIsMobile.toLowerCase().equals("yes") || urlSaysIsMobile.toLowerCase().equals("true")); 
+		if(urlSaysIsMobile != null) {
+			if(urlSaysIsMobile.toLowerCase().equals("yes") || 
+					urlSaysIsMobile.toLowerCase().equals("true")) {
+				Cookies.setCookie(MOBILE_COOKIE, "true");
+				return true;
+			} else if(urlSaysIsMobile.toLowerCase().equals("no") ||
+					urlSaysIsMobile.toLowerCase().equals("false")) {
+				Cookies.setCookie(MOBILE_COOKIE, "false");
+				return false;
+			} else {
+				// We are receiving an unexpected value for the mobile parameter.
+				// We will not make assumptions about this parameter, and we will
+				// delete the mobile cookie. 
+				Cookies.removeCookie(MOBILE_COOKIE);
+			}
+		}
+		
+		// It was not specified. Now, we will first try to find a cookie that tells us what to do.
+		final String cookieSaysIsMobile = Cookies.getCookie(MOBILE_COOKIE);
+		if(cookieSaysIsMobile != null) 
+			return cookieSaysIsMobile.equals("true");
+		
+		
+		// It was not specified, and we did not find a cookie, so we will choose the best option
+		// depending on the user's browser resolution.
+		final int width = Window.getClientWidth();
+		final int height = Window.getClientHeight();
+		final int area = width * height;
+		if (width < MIN_NON_MOBILE_WIDTH || height < MIN_NON_MOBILE_HEIGHT || area < MIN_NON_MOBILE_AREA)
+			return true;
+		return false;
 	}
 	
 	private boolean wantsAdminApp(){

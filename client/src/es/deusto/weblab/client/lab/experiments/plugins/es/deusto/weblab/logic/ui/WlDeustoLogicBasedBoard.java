@@ -403,15 +403,7 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 				
 				}
 				
-				if( AudioManager.getInstance().getSoundEnabled() ) {
-					final Audio audio = Audio.createIfSupported();
-					if( audio != null ) {
-						System.out.println("Trying to play sound");
-						final AudioElement elem = audio.getAudioElement();
-						elem.setSrc(GWT.getModuleBaseURL() + "snd/wrong.wav");
-						elem.play();
-					}
-				}
+				AudioManager.getInstance().play("snd/wrong.wav");
 				
 				this.messages.setText("Wrong one! Game over. Total points: "
 						+ this.points);
@@ -420,17 +412,8 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 				this.points++;
 				this.messages
 						.setText("Well done! 1 point. Let's see the next one!");
-				
-				
-				if( AudioManager.getInstance().getSoundEnabled() ) {
-					final Audio audio = Audio.createIfSupported();
-					if( audio != null ) {
-						System.out.println("Trying to play sound");
-						final AudioElement elem = audio.getAudioElement();
-						elem.setSrc(GWT.getModuleBaseURL() + "snd/applause.wav");
-						elem.play();
-					}
-				}
+								
+				AudioManager.getInstance().play("snd/applause.wav");
 				
 				final Timer sleepTimer = new Timer() {
 

@@ -23,6 +23,8 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Image;
 
+import es.deusto.weblab.client.ui.audio.AudioManager;
+
 public class WlButton extends WlWidgetWithPressable{
 	
 	public static final String DEFAULT_BUTTON_PRESSED_IMAGE = GWT.getModuleBaseURL() + "img/button_pressed.png";
@@ -70,15 +72,19 @@ public class WlButton extends WlWidgetWithPressable{
 	
 	protected void buttonPressed(){
 		this.press();
-		if(WlButton.this.buttonUsed != null)
+		if(WlButton.this.buttonUsed != null) {
 			WlButton.this.buttonUsed.onPressed();
+			AudioManager.getInstance().play("snd/button.wav");
+		}
 		
 		final UtilTimer timer = new UtilTimer(){
 			@Override
 			public void realRun(){
 				WlButton.this.press();
-				if(WlButton.this.buttonUsed != null)
+				if(WlButton.this.buttonUsed != null) {
 					WlButton.this.buttonUsed.onReleased();
+					AudioManager.getInstance().play("snd/button.wav");
+				}
 			}
 		};
 		
