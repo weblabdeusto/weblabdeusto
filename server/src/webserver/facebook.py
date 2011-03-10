@@ -177,7 +177,7 @@ def _show_weblab(session_id, cookie_end, signed_request):
                    </head>
                 <body>
                      <div id="fb-root">
-                        <iframe width="100%%" frameborder="0" height="100%%" id="weblab_iframe" scrolling="no" src="%s?session_id=%s&facebook=true%s">
+                        <iframe width="100%%" frameborder="0" height="100%%" id="weblab_iframe" scrolling="no" src="%s?session_id=%s&facebook=true&mobile=no&%s">
                         </iframe>
                      </div>
                     <script>

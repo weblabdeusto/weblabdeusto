@@ -72,8 +72,8 @@ public class WebLabClient implements EntryPoint {
 	// These are the minimum width and height to choose the standard version over the
 	// mobile one automatically. The choice can nonetheless be forced upon the client
 	// by explicitly specifying the "mobile" GET variable.
-	private static final int MIN_NON_MOBILE_WIDTH = 350;
-	private static final int MIN_NON_MOBILE_HEIGHT = 300;
+	private static final int MIN_NON_MOBILE_WIDTH = 480;
+	private static final int MIN_NON_MOBILE_HEIGHT = 350;
 	private static final int MIN_NON_MOBILE_AREA = 350 * 300;
 	
 	private ConfigurationManager configurationManager;
@@ -137,7 +137,9 @@ public class WebLabClient implements EntryPoint {
 		final int width = Window.getClientWidth();
 		final int height = Window.getClientHeight();
 		final int area = width * height;
-		if (width < MIN_NON_MOBILE_WIDTH || height < MIN_NON_MOBILE_HEIGHT || area < MIN_NON_MOBILE_AREA)
+
+        // We check everything > 0 just in case there are issues with frames (such as facebook iframes)
+		if ((width > 0 && width <= MIN_NON_MOBILE_WIDTH) || (height > 0 && height <= MIN_NON_MOBILE_HEIGHT) || (area > 0 && area <= MIN_NON_MOBILE_AREA))
 			return true;
 		return false;
 	}
