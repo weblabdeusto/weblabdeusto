@@ -56,6 +56,9 @@ DEFAULT_TIMEOUT                       = 0.5
 
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("RemoteFacadeServer")
 
+def strdate(days=0,hours=0,minutes=0,seconds=0):
+    return (datetime.datetime.utcnow() + datetime.timedelta(days=days,hours=hours,minutes=minutes,seconds=seconds)).strftime("%a, %d %b %Y %H:%M:%S GMT")
+
 ##################
 # JSON/HTTP code #
 ##################
@@ -183,6 +186,7 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             if route is None:
                 route = self.server_route
             self.send_header("Set-Cookie", "weblabsessionid=anythinglikeasessid.%s; path=/" % route)
+            self.send_header("Set-Cookie", "loginweblabsessionid=anythinglikeasessid.%s; path=/; Expires=%s" % (route, strdate(hours=1)))
         self.end_headers()
         self.wfile.write(response)
         self.wfile.flush()
@@ -247,6 +251,7 @@ class XmlRpcRequestHandler(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
             if route is None:
                 route = self.server_route
             self.send_header("Set-Cookie","weblabsessionid=anythinglikeasessid.%s; path=/" % route)
+            self.send_header("Set-Cookie", "loginweblabsessionid=anythinglikeasessid.%s; path=/; Expires=%s" % (route, strdate(hours=1)))
         SimpleXMLRPCServer.SimpleXMLRPCRequestHandler.end_headers(self)
 
     def log_message(self, format, *args):
@@ -295,6 +300,7 @@ if ZSI_AVAILABLE:
                 if route is None:
                     route = self.server_route
                 self.send_header("Set-Cookie","weblabsessionid=anythinglikeasessid.%s; path=/" % route)
+                self.send_header("Set-Cookie","loginweblabsessionid=anythinglikeasessid.%s; path=/; Expires=%s" % (route, strdate(hours=1)))
             ServiceContainer.SOAPRequestHandler.end_headers(self)
 
         def log_message(self, format, *args):
