@@ -18,7 +18,7 @@
 	"admin.email"                    : "weblab@deusto.es",
 	"demo.available"                 : true,
 	"google.analytics.tracking.code" : "UA-12576838-6",
-	"sound.enabled"					 : true,
+	"sound.enabled"					 : false,
 	"experiments.default_picture"	 : "/img/experiments/default.jpg",
 	"host.entity.image"              : "/img/udeusto-logo.jpg",
 	"experiments" : { 
