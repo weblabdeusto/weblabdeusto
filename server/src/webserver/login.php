@@ -19,22 +19,29 @@
     * At least in Ubuntu GNU/Linux, it requires the package
     * "php5-xmlrpc" so as to avoid dynamic linking.
     */
+
 	
 	$host = "127.0.0.1";
     $uri = "/weblab/xmlrpc/";
-    $port = 80;
+    $port = 19645;
+    
+    print "Running...\r\n";
     
 	$message = "";
 
 	// Variable names
 	$USERNAME_FIELD_NAME = 'username';
+    $SESSIONID_COOKIE_NAME = 'loginweblabsessionid';
 	
+    
 	$ip = $_SERVER [ 'REMOTE_ADDR' ] ;
+    
+    print "|".$ip."|";
 	
 	// Necessary for the xu_rpc_http_concise function.
 	include("php_utils/utils.php");
 	
-	function call_login_based_on_client_address($username, $remote_addr)
+	function call_login_based_on_client_address($username, $remote_addr, $cookie)
 	{	
         global $host, $uri, $port;
 		$result = xu_rpc_http_concise(
@@ -43,13 +50,15 @@
 				'args'  => array($username, $remote_addr),
 				'host'  => $host,
 				'uri'  => $uri,
-				'port'  => $port
+				'port'  => $port,
+                //'cookies' => $port
 			)
 		);
 		
 		return $result;
 	}
 	
+    // Retrieve the username, passed as a POST parameter.
 	$username = $_POST[$USERNAME_FIELD_NAME];
 	
 	// Check for missing attributes.
@@ -57,9 +66,14 @@
 	{
 		die('ERROR: Missing username field');
 	}
-	
-	$result = call_login_based_on_client_address($username, $ip);
     
+    // Retrieve the WebLab sessionid cookie.
+    $wl_session_id = $_COOKIE[$SESSIONID_COOKIE_NAME];
+    print("DBG: Cookie was not found");
+	
+	$result = call_login_based_on_client_address($username, $ip, $wl_session_id);
+    
+    print_r('\r\nDBG: ' . $result .'\r\n\DBG');
 	
 	$faultCode = NULL;
 	if(is_array($result))
@@ -69,6 +83,12 @@
 		
 		if($faultCode == 'XMLRPC:Client.Authentication')
 			die('Error: Incorrect login or password');
+            
+        if($faultCode == 'XMLRPC:Client.InvalidCredentials')
+            die('Error: Cant login from that IP address');
+            
+        else
+            die('Error: Unrecognized fault code: ' . $result['faultString']);
 	}
 	
     $id = $result['id'];

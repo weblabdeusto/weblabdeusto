@@ -22,12 +22,22 @@ WEBLAB_WS_URL  = 'http://localhost/weblab/xmlrpc/'
 
 class _CookiesTransport(xmlrpclib.Transport):
     def send_user_agent(self, connection):
+        """ 
+        Called whenever an XMLRPC request is sent, we will extend the functionality
+        of its base class to also append a Cookie HTTP header with our loginweblabsessionid
+        cookie, if it is present.
+        """
         _CookiesTransport.__bases__[0].send_user_agent(self, connection)
         if hasattr(self, '_sessid_cookie'):
             connection.putheader("Cookie",self._sessid_cookie)
         self.__connection = connection
 
     def _parse_response(self, *args, **kwargs):
+        """
+        Called whenever the response of an XMLRPC request arrives, we will seek the 
+        set-cookie http header. If found, we assume that it is our weblabsessionid cookie
+        and store it locally as our weblabsessionid.
+        """
         for header, value in self.__connection.headers.items():
             if header.lower() == 'set-cookie':
                 real_value = value.split(';')[0]
@@ -39,18 +49,27 @@ class _CookiesTransport(xmlrpclib.Transport):
 
 
 def _create_weblab_client(url, req):
+    """ Create the weblab xmlrpc client to send the login request """
+    
     from mod_python.Cookie import get_cookie
     server = xmlrpclib.Server(url)
+    
+    # We need to override certain internal objects to be able to handle cookies 
+    # on the XMLRPC requests.
     transport = server._ServerProxy__transport
     transport.__class__  = _CookiesTransport
     transport._real_server = weakref.ref(server)
 
+    # Retrieve the loginweblabessionid cookie which was sent to this script.
+    # Save it on our transport so that it can forward that cookie when the
+    # XMLRPC request is carried out.
     cookie = get_cookie(req, "loginweblabsessionid")
     if cookie is not None:
         server._ServerProxy__transport._sessid_cookie = "loginweblabsessionid=%s" % cookie.value
 
     return server
 
+    
 def index(req, *args, **kargs):
     if not req.form.has_key(USERNAME_FIELD):
         return "ERROR: Missing username field"
