@@ -150,10 +150,7 @@ class WebProtocolRemoteFacadeServer(RFS.AbstractProtocolRemoteFacadeServer):
         self._server.socket.settimeout(timeout)
 
 class WebRemoteFacadeServer(RFS.AbstractRemoteFacadeServer):
-    RemoteFacadeServerJSON   = WebProtocolRemoteFacadeServer
-    RemoteFacadeServerXMLRPC = None
-    RemoteFacadeServerZSI    = None
-
+    SERVERS = ()
     def _create_web_remote_facade_manager(self, server, cfg_manager):
         pass
 

@@ -481,8 +481,7 @@ class RemoteFacadeServerXMLRPC(AbstractProtocolRemoteFacadeServer):
 
 
 class AbstractRemoteFacadeServer(object):
-    RemoteFacadeServerJSON   = RemoteFacadeServerJSON
-    RemoteFacadeServerXMLRPC = RemoteFacadeServerXMLRPC
+    SERVERS = (RemoteFacadeServerJSON, RemoteFacadeServerXMLRPC)
 
     def __init__(self, server, configuration_manager):
         self._configuration_manager = configuration_manager
@@ -491,19 +490,9 @@ class AbstractRemoteFacadeServer(object):
 
         self._servers               = []
 
-        if self.RemoteFacadeServerJSON is not None:
+        for ServerClass in self.SERVERS:
             self._servers.append(
-                    self.RemoteFacadeServerJSON  (server, configuration_manager, self)
-                )
-
-        if self.RemoteFacadeServerXMLRPC is not None:
-            self._servers.append(
-                    self.RemoteFacadeServerXMLRPC(server, configuration_manager, self)
-                )
-
-        if ZSI_AVAILABLE and self.RemoteFacadeServerZSI is not None:
-            self._servers.append(
-                    self.RemoteFacadeServerZSI   (server, configuration_manager, self)
+                    ServerClass(server, configuration_manager, self)
                 )
 
     def start(self):

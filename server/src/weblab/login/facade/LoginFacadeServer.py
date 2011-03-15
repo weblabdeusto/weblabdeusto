@@ -56,7 +56,7 @@ DEFAULT_LOGIN_SERVER_ROUTE                  = '<route-to-server>'
 class LoginRemoteFacadeServer(RFS.AbstractRemoteFacadeServer):
 
     if ZSI_AVAILABLE:
-        RemoteFacadeServerZSI = LoginRemoteFacadeServerZSI
+        SERVERS = RFS.AbstractRemoteFacadeServer.SERVERS + (LoginRemoteFacadeServerZSI,)
 
     FACADE_ZSI_LISTEN                            = LOGIN_FACADE_ZSI_LISTEN     
     DEFAULT_FACADE_ZSI_LISTEN                    = DEFAULT_LOGIN_FACADE_ZSI_LISTEN                    

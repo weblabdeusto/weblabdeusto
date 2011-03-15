@@ -34,6 +34,6 @@ class UserProcessingWebRemoteFacadeServer(WebFacadeServer.WebRemoteFacadeServer)
     FACADE_SERVER_ROUTE         = USER_PROCESSING_FACADE_SERVER_ROUTE
     DEFAULT_SERVER_ROUTE        = DEFAULT_USER_PROCESSING_SERVER_ROUTE
 
-    RemoteFacadeServerJSON = UserProcessingWebProtocolRemoteFacadeServer
+    SERVERS = (UserProcessingWebProtocolRemoteFacadeServer,)
 
 

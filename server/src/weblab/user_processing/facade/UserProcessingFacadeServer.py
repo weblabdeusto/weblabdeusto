@@ -54,6 +54,7 @@ class UserProcessingRemoteFacadeServer(RFS.AbstractRemoteFacadeServer):
     if ZSI_AVAILABLE:
         class RemoteFacadeServerZSI(RFS.AbstractRemoteFacadeServerZSI):
             WebLabDeusto = WebLabDeusto_interface.WebLabDeusto
+        SERVERS = RFS.AbstractRemoteFacadeServer.SERVERS + (RemoteFacadeServerZSI,)
 
     FACADE_ZSI_LISTEN                            = USER_PROCESSING_FACADE_ZSI_LISTEN   
     DEFAULT_FACADE_ZSI_LISTEN                    = DEFAULT_USER_PROCESSING_FACADE_ZSI_LISTEN   
