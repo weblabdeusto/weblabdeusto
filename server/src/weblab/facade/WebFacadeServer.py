@@ -41,8 +41,8 @@ class Method(object):
     def run(self):
         return "Hello world"
 
-    def raise_exc(self, code, message):
-        raise MethodException(code, message)
+    def raise_exc(self, status, message):
+        raise MethodException(status, message)
 
     def get_context(self):
         return get_context()
@@ -72,7 +72,7 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         except MethodException, e:
             log.log( self, log.LogLevel.Error, str(e))
             log.log_exc( self, log.LogLevel.Warning)
-            self._write(e.code, e.message)
+            self._write(e.status, e.msg)
         except Exception, e:
             import traceback
             traceback.print_exc()
@@ -83,8 +83,8 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         finally:
             delete_context()
 
-    def _write(self, code, response):
-        self.send_response(code)
+    def _write(self, status, response):
+        self.send_response(status)
         self.send_header("Content-type", "text/html")
         self.send_header("Content-length", str(len(response)))
         if self.server_route is not None:
@@ -115,11 +115,11 @@ class WebHttpServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
     request_queue_size  = 50 #TODO: parameter!
     allow_reuse_address = True
 
-    def __init__(self, server_address, methods, route, cfg_manager):
+    def __init__(self, server_address, server_methods, route, configuration_manager):
         class NewWebHttpHandler(WebHttpHandler):
-            methods      = methods
+            methods      = server_methods
             server_route = route
-            cfg_manager  = cfg_manager
+            cfg_manager  = configuration_manager
         BaseHTTPServer.HTTPServer.__init__(self, server_address, NewWebHttpHandler)
 
     def get_request(self):

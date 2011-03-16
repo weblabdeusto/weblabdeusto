@@ -107,6 +107,8 @@ core_facade_xmlrpc_port      = 19345
 
 admin_facade_json_port       = 19545
 
+core_web_facade_port         = 19645
+
 login_facade_soap_bind       = ''
 login_facade_soap_port         = 10223
 login_facade_soap_service_name = '/weblab/login/soap/'
@@ -116,6 +118,8 @@ login_facade_json_port        = 18445
 
 login_facade_xmlrpc_bind    = ''
 login_facade_xmlrpc_port      = 19445
+
+login_web_facade_port         = 19945
 
 ########################
 # Xilinx Configuration #

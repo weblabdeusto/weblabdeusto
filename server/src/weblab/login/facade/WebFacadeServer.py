@@ -15,25 +15,25 @@
 
 import weblab.facade.WebFacadeServer as WebFacadeServer
 
-from weblab.user_processing.facade.UserProcessingFacadeServer import USER_PROCESSING_FACADE_SERVER_ROUTE, DEFAULT_USER_PROCESSING_SERVER_ROUTE
+from weblab.login.facade.LoginFacadeServer import LOGIN_FACADE_SERVER_ROUTE, DEFAULT_LOGIN_SERVER_ROUTE
 
 
-WEB_FACADE_LISTEN                    = 'core_web_facade_bind'
+WEB_FACADE_LISTEN                    = 'login_web_facade_bind'
 DEFAULT_WEB_FACADE_LISTEN            = ''
 
-WEB_FACADE_PORT                      = 'core_web_facade_port'
+WEB_FACADE_PORT                      = 'login_web_facade_port'
 
-class UserProcessingWebProtocolRemoteFacadeServer(WebFacadeServer.WebProtocolRemoteFacadeServer):
+class LoginWebProtocolRemoteFacadeServer(WebFacadeServer.WebProtocolRemoteFacadeServer):
     METHODS = [] # TODO
 
-class UserProcessingWebRemoteFacadeServer(WebFacadeServer.WebRemoteFacadeServer):
+class LoginWebRemoteFacadeServer(WebFacadeServer.WebRemoteFacadeServer):
     FACADE_WEB_LISTEN          = WEB_FACADE_LISTEN    
     DEFAULT_FACADE_WEB_LISTEN  = DEFAULT_WEB_FACADE_LISTEN
     FACADE_WEB_PORT            = WEB_FACADE_PORT
 
-    FACADE_SERVER_ROUTE        = USER_PROCESSING_FACADE_SERVER_ROUTE
-    DEFAULT_SERVER_ROUTE       = DEFAULT_USER_PROCESSING_SERVER_ROUTE
+    FACADE_SERVER_ROUTE        = LOGIN_FACADE_SERVER_ROUTE
+    DEFAULT_SERVER_ROUTE       = DEFAULT_LOGIN_SERVER_ROUTE
 
-    SERVERS = (UserProcessingWebProtocolRemoteFacadeServer,)
+    SERVERS = (LoginWebProtocolRemoteFacadeServer,)
 
 
