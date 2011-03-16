@@ -15,16 +15,22 @@
 
 import weblab.facade.WebFacadeServer as WebFacadeServer
 
+USERNAME="username"
+PASSWORD="password"
+
 class LoginMethod(WebFacadeServer.Method):
     path = '/login/'
 
     def run(self):
-        return_value = "I have a direct reference to %s" % self.server
-        return_value += ", so I can call directly %s" % self.server.login
-        return_value += ", for instance: %s" % self.server.login('student1','password')
-        return_value += ", you called %s " % self.req.path
-        return_value += ", and a configuration manager (%s) " % self.cfg_manager
-        return_value += ", btw, your IP is: %s (unknown if not being forwarded by Apache)" % self.get_context().get_ip_address()
-        
-        return return_value
+        username = self.get_argument(USERNAME)
+        if username is None:
+            return "%s argument not provided!" % USERNAME
+        password = self.get_argument(PASSWORD)
+        if password is None: # Based on IP address
+            ip_address = self.get_context().get_ip_address()
+            session_id = self.server.login_based_on_client_address(username, ip_address)
+            return session_id.id
+        else:
+            session_id = self.server.login(username, password)
+            return session_id.id
 

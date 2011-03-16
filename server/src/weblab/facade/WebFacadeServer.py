@@ -42,11 +42,27 @@ class Method(object):
     def run(self):
         return "Hello world"
 
+    def get_argument(self, name):
+        for arg_name, value in self.get_arguments():
+            if arg_name == name:
+                return value
+        return None
+
+    def get_arguments(self):
+        if self.relative_path.find('?') < 0:
+            return []
+        query = self.relative_path[self.relative_path.find('?') + 1:]
+        return [ (arg[:arg.find('=')], arg[arg.find('=')+1:]) for arg in query.split('&') if arg.find('=') > 0]
+
     def raise_exc(self, status, message):
         raise MethodException(status, message)
 
     def get_context(self):
         return get_context()
+
+    @property
+    def relative_path(self):
+        return Method.get_relative_path(self.req.path)
 
     @staticmethod
     def get_relative_path(path):
