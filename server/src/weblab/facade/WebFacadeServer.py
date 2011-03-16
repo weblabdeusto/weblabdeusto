@@ -34,9 +34,10 @@ class Method(object):
 
     path = ""
 
-    def __init__(self, request_handler, cfg_manager):
-        self.request_handler = request_handler
-        self.cfg_manager     = cfg_manager
+    def __init__(self, request_handler, cfg_manager, server):
+        self.req         = request_handler
+        self.cfg_manager = cfg_manager
+        self.server      = server
 
     def run(self):
         return "Hello world"
@@ -47,28 +48,44 @@ class Method(object):
     def get_context(self):
         return get_context()
 
+    @staticmethod
+    def get_relative_path(path):
+        # If coming from /weblab001/web/login/?foo=bar will return
+        # /login/?foo=bar
+        # 
+        # If coming from /foo/?bar will erturn
+        # /foo/?bar
+        finder = '/web/'
+        if path.find(finder) >= 0:
+            return path[path.find(finder) + len(finder) - 1:]
+        return path
+
     @classmethod
-    def matches(klass, path):
-        return path == klass.path
+    def matches(klass, absolute_path):
+        relative_path = Method.get_relative_path(absolute_path)
+        return relative_path.startswith(klass.path)
 
 class NotFoundMethod(Method):
     def run(self):
-        self.raise_exc(404, "Path %s not found!" % urllib.quote(self.request_handler.path))
+        self.raise_exc(404, "Path %s not found!" % urllib.quote(self.req.path))
 
 class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
-    methods        = None
-    server_route   = None
-    cfg_manager    = None
+    methods         = None
+    server_route    = None
+    cfg_manager     = None
+    original_server = None
 
     def do_GET(self):
         create_context(self.server, self.headers)
         try:
             for method in self.methods:
                 if method.matches(self.path):
-                    m = method(self, self.cfg_manager)
+                    m = method(self, self.cfg_manager, self.original_server)
                     message = m.run()
                     self._write(200, message)
-            NotFoundMethod(self, self.cfg_manager).run()
+                    break
+            else:
+                NotFoundMethod(self, self.cfg_manager, self.original_server).run()
         except MethodException, e:
             log.log( self, log.LogLevel.Error, str(e))
             log.log_exc( self, log.LogLevel.Warning)
@@ -115,11 +132,12 @@ class WebHttpServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
     request_queue_size  = 50 #TODO: parameter!
     allow_reuse_address = True
 
-    def __init__(self, server_address, server_methods, route, configuration_manager):
+    def __init__(self, server_address, server_methods, route, configuration_manager, server):
         class NewWebHttpHandler(WebHttpHandler):
-            methods      = server_methods
-            server_route = route
-            cfg_manager  = configuration_manager
+            methods         = server_methods
+            server_route    = route
+            cfg_manager     = configuration_manager
+            original_server = server
         BaseHTTPServer.HTTPServer.__init__(self, server_address, NewWebHttpHandler)
 
     def get_request(self):
@@ -146,11 +164,12 @@ class WebProtocolRemoteFacadeServer(RFS.AbstractProtocolRemoteFacadeServer):
         listen, port = self._retrieve_configuration()
         the_server_route = self._configuration_manager.get_value( self._rfs.FACADE_SERVER_ROUTE, self._rfs.DEFAULT_SERVER_ROUTE )
         timeout = self.get_timeout()
-        self._server = WebHttpServer((listen, port), self.METHODS, the_server_route, self._configuration_manager)
+        server = self._rfm
+        self._server = WebHttpServer((listen, port), self.METHODS, the_server_route, self._configuration_manager, server)
         self._server.socket.settimeout(timeout)
 
 class WebRemoteFacadeServer(RFS.AbstractRemoteFacadeServer):
     SERVERS = ()
     def _create_web_remote_facade_manager(self, server, cfg_manager):
-        pass
+        return server
 

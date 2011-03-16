@@ -15,6 +15,8 @@
 
 import weblab.facade.WebFacadeServer as WebFacadeServer
 
+from weblab.login.facade.web.Login import LoginMethod
+
 from weblab.login.facade.LoginFacadeServer import LOGIN_FACADE_SERVER_ROUTE, DEFAULT_LOGIN_SERVER_ROUTE
 
 
@@ -24,7 +26,9 @@ DEFAULT_WEB_FACADE_LISTEN            = ''
 WEB_FACADE_PORT                      = 'login_web_facade_port'
 
 class LoginWebProtocolRemoteFacadeServer(WebFacadeServer.WebProtocolRemoteFacadeServer):
-    METHODS = [] # TODO
+    METHODS = [
+                LoginMethod
+            ]
 
 class LoginWebRemoteFacadeServer(WebFacadeServer.WebRemoteFacadeServer):
     FACADE_WEB_LISTEN          = WEB_FACADE_LISTEN    
