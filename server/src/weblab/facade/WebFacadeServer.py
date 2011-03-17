@@ -42,11 +42,11 @@ class Method(object):
     def run(self):
         return "Hello world"
 
-    def get_argument(self, name):
+    def get_argument(self, name, default_value = None):
         for arg_name, value in self.get_arguments():
             if arg_name == name:
                 return value
-        return None
+        return default_value
 
     def get_arguments(self):
         if self.relative_path.find('?') < 0:
@@ -115,6 +115,8 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             self._write(500, 'Error in server. Contact administrator')
         finally:
             delete_context()
+
+    do_POST = do_GET
 
     def _write(self, status, response):
         self.send_response(status)
