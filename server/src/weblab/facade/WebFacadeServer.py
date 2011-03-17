@@ -64,6 +64,14 @@ class Method(object):
     def relative_path(self):
         return Method.get_relative_path(self.req.path)
 
+    @property
+    def weblab_cookie(self):
+        return self.req.weblab_cookie
+
+    @property
+    def uri(self):
+        return self.req.path.split('?')[0]
+
     @staticmethod
     def get_relative_path(path):
         # If coming from /weblab001/web/login/?foo=bar will return
@@ -92,6 +100,12 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     original_server = None
 
     def do_GET(self):
+        if self.server_route is None:
+            route = self.server_route
+            self.weblab_cookie = "weblabsessionid=anythinglikeasessid.%s" % route
+        else:
+            self.weblab_cookie = ""
+
         create_context(self.server, self.headers)
         try:
             for method in self.methods:

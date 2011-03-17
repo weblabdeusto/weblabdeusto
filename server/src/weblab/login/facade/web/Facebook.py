@@ -17,6 +17,7 @@ import urllib2
 import base64
 
 import weblab.facade.WebFacadeServer as WebFacadeServer
+import weblab.exceptions.login.LoginExceptions as LoginExceptions
 
 # TODO: configuration
 # from facebook_config import _APP_ID, _CANVAS_URL, _CLIENT_ADDRESS, _FACEBOOK_APP
@@ -37,7 +38,7 @@ class FacebookMethod(WebFacadeServer.Method):
     path = '/facebook/'
 
     def get_local_relative_path(self):
-        return self.relative_path[len(path)+1:]
+        return self.relative_path[len(self.path)+1:]
 
     def run(self):
         signed_request = self.get_argument(REQUEST_FIELD)
@@ -57,9 +58,9 @@ class FacebookMethod(WebFacadeServer.Method):
         except LoginExceptions.InvalidCredentialsException:
             return self._handle_unauthenticated_clients(signed_request)
 
-        return self._show_weblab(session_id, weblab_client.weblabsessionid, signed_request)
+        return self._show_weblab(session_id, signed_request)
 
-    def _show_weblab(self, session_id, cookie_end, signed_request):
+    def _show_weblab(self, session_id, signed_request):
         payload = signed_request[signed_request.find('.') + 1:]
         payload = payload.replace('-','+').replace('_','/')
         payload = payload + "=="
@@ -99,7 +100,7 @@ class FacebookMethod(WebFacadeServer.Method):
 
                     </body>
                 </html>
-            """ % (_CLIENT_ADDRESS, '%s;%s' % (session_id['id'], cookie_end), locale, _APP_ID)
+            """ % (_CLIENT_ADDRESS, '%s;%s' % (session_id['id'], self.weblab_cookie), locale, _APP_ID)
 
     def _handle_linking_accounts(self, signed_request):
         # TODO: this is done through a POST call, and WebServer was asking for a GET only
@@ -110,7 +111,7 @@ class FacebookMethod(WebFacadeServer.Method):
         except LoginExceptions.InvalidCredentialsException:
             return "Invalid username or password!"
         else:
-            return self._show_weblab(session_id, weblab_client.weblabsessionid, signed_request)
+            return self._show_weblab(session_id, signed_request)
 
     def _handle_creating_accounts(self, signed_request):
         try:
@@ -118,7 +119,7 @@ class FacebookMethod(WebFacadeServer.Method):
         except LoginExceptions.InvalidCredentialsException:
             return "Invalid username or password!"
         else:
-            return self._show_weblab(session_id, weblab_client.weblabsessionid, signed_request)
+            return self._show_weblab(session_id, signed_request)
 
 
     def _handle_unauthenticated_clients(self, signed_request):
@@ -127,8 +128,8 @@ class FacebookMethod(WebFacadeServer.Method):
         if self.get_argument('op','').lower() == 'link':
             return self._handle_linking_accounts(signed_request)
 
-        link_uri = req.uri + '?op=link'
-        create_uri = req.uri + '?op=create'
+        link_uri = self.uri + '?op=link'
+        create_uri = self.uri + '?op=create'
 
         return """<html>
                 <head>
