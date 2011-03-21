@@ -21,6 +21,7 @@ import weblab.login.LoginAuth as LoginAuth
 import weblab.login.DelegatedLoginAuth as DelegatedLoginAuth
 import weblab.login.database.DatabaseManager as DatabaseManager
 import weblab.login.facade.LoginFacadeServer as LoginFacadeServer
+import weblab.login.facade.WebFacadeServer as WebFacadeServer
 import weblab.data.ServerType as ServerType
 import weblab.exceptions.login.LoginExceptions as LoginExceptions
 import weblab.exceptions.database.DatabaseExceptions as DbExceptions
@@ -34,6 +35,12 @@ CREATING_EXTERNAL_USERS = 'login_creating_external_users'
 LINKING_EXTERNAL_USERS  = 'login_linking_external_users'
 
 class LoginServer(object):
+
+    FACADE_SERVERS = (
+                LoginFacadeServer.LoginRemoteFacadeServer,
+                WebFacadeServer.LoginWebRemoteFacadeServer
+            )
+
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(LoginServer,self).__init__(*args, **kwargs)
         self._coord_address = coord_address
@@ -41,8 +48,12 @@ class LoginServer(object):
         self._locator       = locator
         self._cfg_manager   = cfg_manager
 
-        self._facade_server = LoginFacadeServer.LoginRemoteFacadeServer( self, cfg_manager ) 
-        self._facade_server.start()
+        self._facade_servers       = []
+        for ServerClass in self.FACADE_SERVERS:
+            self._facade_servers.append(ServerClass( self, cfg_manager ))
+
+        for server in self._facade_servers:
+            server.start()
 
         self._external_id_providers = {
                     "FACEBOOK" : DelegatedLoginAuth.Facebook(self._db_manager)
@@ -51,7 +62,8 @@ class LoginServer(object):
     def stop(self):
         if hasattr(super(LoginServer, self), 'stop'):
             super(LoginServer, self).stop()
-        self._facade_server.stop()
+        for server in self._facade_servers:
+            server.stop()
 
     @logged(LogLevel.Info, except_for='password')
     def login(self, username, password):

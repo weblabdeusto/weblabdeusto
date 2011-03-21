@@ -60,7 +60,7 @@ function xu_load_extension($xmlrpc_php_dir="") {
 
 /* generic function to call an http server with post method */
 function xu_query_http_post($request, $host, $uri, $port, $debug, 
-                            $timeout, $user, $pass, $secure=false) {
+                            $timeout, $user, $pass, $secure=false, $cookies) {
    $response_buf = "";
    if ($host && $uri && $port) {
       $content_len = strlen($request);
@@ -77,11 +77,21 @@ function xu_query_http_post($request, $host, $uri, $port, $debug,
             $auth = "Authorization: Basic " .
                     base64_encode($user . ":" . $pass) . "\r\n";
          }
+         
+         // Create "Cookie" HTTP headers for each of our cookies.
+         // We assume we get an array of cookie objects.
+         $cookies_raw = "";
+         if($cookies) {
+            foreach($cookies as $cookie) {
+                $cookies_raw .= "Cookie: " . $http_build_cookie($cookie) . "\r\n";
+            }
+         }
 
          $http_request = 
          "POST $uri HTTP/1.0\r\n" .
          "User-Agent: xmlrpc-epi-php/0.2 (PHP)\r\n" .
          "Host: $host:$port\r\n" .
+         $cookies_raw .
          $auth .
          "Content-Type: text/xml\r\n" .
          "Content-Length: $content_len\r\n" . 
@@ -193,7 +203,7 @@ function find_and_decode_xml($buf, $debug) {
  */
 function xu_rpc_http_concise($params) {
    $host = $uri = $port = $method = $args = $debug = null;
-   $timeout = $user = $pass = $secure = $debug = null;
+   $timeout = $user = $pass = $secure = $debug = $cookies = null;
 
 	extract($params);
 
@@ -212,7 +222,7 @@ function xu_rpc_http_concise($params) {
    if ($host && $uri && $port) {
       $request_xml = xmlrpc_encode_request($method, $args, $output);
       $response_buf = xu_query_http_post($request_xml, $host, $uri, $port, $debug,
-                                         $timeout, $user, $pass, $secure);
+                                         $timeout, $user, $pass, $secure, $cookies);
 
       $retval = find_and_decode_xml($response_buf, $debug);
    }

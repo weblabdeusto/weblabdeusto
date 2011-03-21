@@ -32,6 +32,7 @@ import weblab.user_processing.database.DatabaseManager as DatabaseManager
 import weblab.exceptions.user_processing.UserProcessingExceptions as UserProcessingExceptions
 import weblab.user_processing.facade.UserProcessingFacadeServer as UserProcessingFacadeServer
 import weblab.user_processing.facade.AdminFacadeServer as AdminFacadeServer
+import weblab.user_processing.facade.WebFacadeServer as WebFacadeServer
 
 from voodoo.gen.caller_checker import caller_check
 from voodoo.threaded import threaded
@@ -65,7 +66,8 @@ class UserProcessingServer(object):
 
     FACADE_SERVERS = (
                         UserProcessingFacadeServer.UserProcessingRemoteFacadeServer,
-                        AdminFacadeServer.AdminRemoteFacadeServer
+                        AdminFacadeServer.AdminRemoteFacadeServer,
+                        WebFacadeServer.UserProcessingWebRemoteFacadeServer
                     )
 
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):

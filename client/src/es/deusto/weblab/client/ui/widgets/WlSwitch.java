@@ -18,6 +18,8 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Image;
 
+import es.deusto.weblab.client.ui.audio.AudioManager;
+
 public class WlSwitch extends WlWidgetWithPressable{
 	
 	public static final String DEFAULT_SWITCHED_ON_IMAGE = GWT.getModuleBaseURL() + "img/switch_on.png";
@@ -40,6 +42,8 @@ public class WlSwitch extends WlWidgetWithPressable{
 			public void onClick(ClickEvent sender) {
 				WlSwitch.this.switchedOn = !WlSwitch.this.switchedOn;
 				WlSwitch.this.press();
+				System.out.println("Playing switch.");
+				AudioManager.getInstance().play("snd/switch.wav");
 				WlSwitch.this.fireActionListeners();
 			}
 		};

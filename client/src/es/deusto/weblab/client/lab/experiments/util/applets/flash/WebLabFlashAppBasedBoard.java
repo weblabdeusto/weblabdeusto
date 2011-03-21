@@ -156,6 +156,18 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 					this.height, this.width + 10, this.height + 10, this.flashvars);
 	}
 
+	/**
+	 * Called by the WebLab server to tell the experiment
+	 * how much time it has available. If running on deferred-mode,
+	 * the flash application is not necessarily available when this
+	 * method is called, so it might not be forwarded instantly to 
+	 * the application.
+	 * 
+	 * TODO: Consider if minor desync issues could arise if the flash
+	 * application took long enough to load.
+	 * 
+	 * @param time Time available, in seconds.
+	 */
 	@Override
 	public void setTime(int time) {
 		
@@ -173,10 +185,17 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 	@Override
 	public void start() {
 		
+		// If we are executing in deferred mode, we have not populated the iframe yet,
+		// so we do it now.
 		if(this.deferred)
 			WebLabFlashAppBasedBoard.populateIframe(this.swfFile, this.width, 
 				this.height, this.width+10, this.height+10, this.flashvars);
 		
+		
+		// Now we must guarantee that we can access the Flash application.
+		// Because they often take a long time to be available (they might take
+		// a while to download, to load, or simply to be available), we will
+		// retry to connect to it a sensible amount of times before giving up.
 		
 		final long whenStarted = (new Date()).getTime();
 		this.initializationTimer = new Timer() {
@@ -184,6 +203,8 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 			@Override
 			public void run() {
 				try{
+					// Find a reference to the flash app. Very likely to fail
+					// at first because of the app loading delay.
 					WebLabFlashAppBasedBoard.findFlashReference();
 				}catch(Exception e){
 					
@@ -200,16 +221,25 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 					return;
 				}
 				
+				// If we are here, we managed to find the flash reference and it
+				// seems to be working. We are ready to "talk" with the flash app.
+				
 				AbstractExternalAppBasedBoard.startInteractionImpl();
 				
-				// TODO: Consider doc'ing / refactoring these so that the difference between standard and
-				// deferred behaviour is more clear.
+				// If the application is running on deferred mode, the time has been stored but
+				// not sent to the flash app yet. If, however, we are running on non-deferred mode,
+				// the time will have been sent already, just as soon as it was received. Hence, we 
+				// should not set it again. In fact, we do not necessarily even store the value.
 				if(WebLabFlashAppBasedBoard.this.deferred)
 					AbstractExternalAppBasedBoard.setTimeImpl(WebLabFlashAppBasedBoard.this.timeSet);
 			}
 			
 		};
 		
+		// As explained above, we must give the flash app time to load. This is done through this
+		// callback, which will be internally re-scheduled if the first attempt fails.
+		// We use the same technique for the non-deferred mode, because the flash could take a long
+		// time to load just the same.
 		if(this.deferred)
 			this.initializationTimer.schedule(WebLabFlashAppBasedBoard.WAIT_AFTER_START);
 		else
@@ -274,6 +304,11 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 		doc.close();
 	}-*/;
 	
+	/**
+	 * Retrieve and store a reference to the flash app object and test the
+	 * connection to the flash app. Flash apps often take a significant
+	 * time to load, and during that time the test will fail. 
+	 */
 	private static native void findFlashReference()/*-{
 		
 		// Returns a reference to a flash object, whether it is an <object> or an <embed>. The <object> must have 'flash_obj' as id, 

@@ -32,9 +32,7 @@ class AdminRemoteFacadeServer(RFS.AbstractRemoteFacadeServer):
     FACADE_SERVER_ROUTE                          = USER_PROCESSING_FACADE_SERVER_ROUTE
     DEFAULT_SERVER_ROUTE                         = DEFAULT_USER_PROCESSING_SERVER_ROUTE
 
-    RemoteFacadeServerJSON   = AdminFacadeServerSmartGWT
-    RemoteFacadeServerXMLRPC = None
-    RemoteFacadeServerZSI    = None
+    SERVERS = (AdminFacadeServerSmartGWT,)
 
     def _create_smartgwt_remote_facade_manager(self, server, configuration_manager):
         return AFM.AdminRemoteFacadeManagerJSON( configuration_manager, server)

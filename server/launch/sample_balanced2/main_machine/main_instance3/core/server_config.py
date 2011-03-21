@@ -16,6 +16,8 @@ core_facade_json_port        = 38345
 
 admin_facade_json_port        = 38545
 
+core_web_facade_port        = 39745
+
 core_facade_server_route     = 'route3'
 
 

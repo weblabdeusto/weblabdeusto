@@ -83,8 +83,12 @@ class Coordinator(object):
 
         self.time_provider = self.CoordinatorTimeProvider()
 
-        resources_checker_frequency = cfg_manager.get_value(RESOURCES_CHECKER_FREQUENCY, DEFAULT_RESOURCES_CHECKER_FREQUENCY)
-        ResourcesCheckerThread.set_coordinator(self, resources_checker_frequency)
+        import weblab.user_processing.UserProcessingServer as UserProcessingServer
+        clean = cfg_manager.get_value(UserProcessingServer.WEBLAB_USER_PROCESSING_SERVER_CLEAN_COORDINATOR, True)
+
+        if clean:
+            resources_checker_frequency = cfg_manager.get_value(RESOURCES_CHECKER_FREQUENCY, DEFAULT_RESOURCES_CHECKER_FREQUENCY)
+            ResourcesCheckerThread.set_coordinator(self, resources_checker_frequency)
 
         # 
         # The system administrator must define what scheduling system is used by each resource type

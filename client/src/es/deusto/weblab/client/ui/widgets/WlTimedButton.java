@@ -18,6 +18,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import es.deusto.weblab.client.ui.audio.AudioManager;
 import es.deusto.weblab.client.ui.widgets.WlButton.IWlButtonUsed;
 import es.deusto.weblab.client.ui.widgets.exceptions.WlWidgetException;
 
@@ -58,6 +59,7 @@ public class WlTimedButton extends VerticalPanel implements IWlWidget{
 			@Override
 			public void onAction(IWlWidget widget) {
 				WlTimedButton.this.fireActionListeners();
+				AudioManager.getInstance().play("snd/switch.wav");
 			}
 		});
 		
@@ -67,6 +69,7 @@ public class WlTimedButton extends VerticalPanel implements IWlWidget{
 				final int intValue;
 				try {
 					intValue = WlTimedButton.this.textbox.getValue().intValue();
+					AudioManager.getInstance().play("snd/switch.wav");
 				} catch (final WlWidgetException e) {
 					return;
 				}

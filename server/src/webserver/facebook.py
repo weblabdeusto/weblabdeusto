@@ -51,18 +51,25 @@ class _CookiesTransport(xmlrpclib.Transport):
         return _CookiesTransport.__bases__[0]._parse_response(self, *args, **kwargs)
 
 
-def _create_weblab_client(url):
+def _create_weblab_client(url, req):
+    from mod_python.Cookie import get_cookie
+
     server = xmlrpclib.Server(url)
     transport = server._ServerProxy__transport
     transport.__class__  = _CookiesTransport
     transport._real_server = weakref.ref(server)
+
+    cookie = get_cookie(req, "loginweblabsessionid")
+    if cookie is not None:
+        server._ServerProxy__transport._sessid_cookie = "loginweblabsessionid=%s" % cookie.value
+
     return server
 
 def _handle_linking_accounts(req, kargs, signed_request):
     from mod_python import apache
     username = kargs['username']
     password = kargs['password']
-    weblab_client = _create_weblab_client(WEBLAB_WS_URL)
+    weblab_client = _create_weblab_client(WEBLAB_WS_URL, req)
     try:
         session_id = weblab_client.grant_external_credentials(username, password, 'FACEBOOK', signed_request)
     except xmlrpclib.Fault, f:
@@ -81,7 +88,7 @@ def _handle_linking_accounts(req, kargs, signed_request):
 
 def _handle_creating_accounts(req, kargs, signed_request):
     from mod_python import apache
-    weblab_client = _create_weblab_client(WEBLAB_WS_URL)
+    weblab_client = _create_weblab_client(WEBLAB_WS_URL, req)
     try:
         session_id = weblab_client.create_external_user('FACEBOOK', signed_request)
     except xmlrpclib.Fault, f:
@@ -170,23 +177,18 @@ def _show_weblab(session_id, cookie_end, signed_request):
                    </head>
                 <body>
                      <div id="fb-root">
-                        <iframe width="100%%" frameborder="0" height="100%%" id="weblab_iframe" scrolling="no" src="%s?session_id=%s&facebook=true%s">
-                        </iframe>
+                        <iframe width="100%%" frameborder="0" height="100%%" id="weblab_iframe" scrolling="no" src="%s?session_id=%s&facebook=true&mobile=no&%s">
+                        </ifame>
                      </div>
+                    <script src="http://connect.facebook.net/en_US/all.js"></script>
                     <script>
-                        window.fbAsyncInit = function() {
-                                FB.init({appId: '%s', status: true, cookie: true,
-                                xfbml: true});
-                                FB.Canvas.setAutoResize();
-                            };
-                        (function() {
-                            var e = document.createElement('script'); 
-                            e.async = true;
-                            e.src = document.location.protocol + '//connect.facebook.net/en_US/all.js';
-                            document.getElementById('fb-root').appendChild(e);
-                        }());
-                        setTimeout("recalculate_height();", 200);
+                        FB.init({
+                            appId  : "%s",
+                            channelUrl  : 'https://www.weblab.deusto.es/weblab/channel.html'  // custom channel
+                        });
+                            setTimeout("recalculate_height();", 200);
                     </script>
+
                 </body>
             </html>
         """ % (_CLIENT_ADDRESS, '%s;%s' % (session_id['id'], cookie_end), locale, _APP_ID)
@@ -207,7 +209,7 @@ def index(req, *args, **kargs):
 
     from mod_python import apache
 
-    weblab_client = _create_weblab_client(WEBLAB_WS_URL)
+    weblab_client = _create_weblab_client(WEBLAB_WS_URL, req)
     try:
         session_id = weblab_client.login_based_on_other_credentials('FACEBOOK', signed_request)
     except xmlrpclib.Fault, f:
