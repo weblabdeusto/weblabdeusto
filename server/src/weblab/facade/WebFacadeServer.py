@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import cgi
 import urllib
 import SocketServer
 import BaseHTTPServer
@@ -38,14 +39,18 @@ class Method(object):
         self.req         = request_handler
         self.cfg_manager = cfg_manager
         self.server      = server
+        self.post_read   = False
 
     def run(self):
-        return "Hello world"
+        return "Method %s does not implement run method!" % self.__class__.__name__
 
-    def get_argument(self, name, default_value = None):
+    def get_argument(self, name, default_value = None, avoid_post = False):
         for arg_name, value in self.get_arguments():
             if arg_name == name:
                 return value
+        if not avoid_post:
+            self.read_post_arguments()
+            return self.postvars.get(name, default_value)
         return default_value
 
     def get_arguments(self):
@@ -53,6 +58,7 @@ class Method(object):
             return []
         query = self.relative_path[self.relative_path.find('?') + 1:]
         return [ (arg[:arg.find('=')], arg[arg.find('=')+1:]) for arg in query.split('&') if arg.find('=') > 0]
+
 
     def raise_exc(self, status, message):
         raise MethodException(status, message)
@@ -71,6 +77,26 @@ class Method(object):
     @property
     def uri(self):
         return self.req.path.split('?')[0]
+
+    @property
+    def method(self):
+        return self.req.command
+
+    def read_post_arguments(self):
+        if self.post_read:
+            return # Already read
+        self.post_read = True
+        if self.method == 'POST':
+            ctype, pdict = cgi.parse_header(self.req.headers.getheader('content-type'))
+            if ctype == 'multipart/form-data':
+                self.postvars = cgi.parse_multipart(self.req.rfile, pdict)
+            elif ctype == 'application/x-www-form-urlencoded':
+                length = int(self.req.headers.getheader('content-length'))
+                self.postvars = cgi.parse_qs(self.req.rfile.read(length), keep_blank_values=1)
+            else:
+                self.postvars = {}
+        else:
+            self.postvars = {}
 
     @staticmethod
     def get_relative_path(path):

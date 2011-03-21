@@ -19,13 +19,13 @@ import base64
 import weblab.facade.WebFacadeServer as WebFacadeServer
 import weblab.exceptions.login.LoginExceptions as LoginExceptions
 
-# TODO: configuration
-# from facebook_config import _APP_ID, _CANVAS_URL, _CLIENT_ADDRESS, _FACEBOOK_APP
-_APP_ID = ""
-_CANVAS_URL = ""
-_AUTH_URL = "http://www.facebook.com/dialog/oauth?client_id=%s&redirect_uri=%s&scope=email" % (_APP_ID, urllib2.quote(_CANVAS_URL))
-
-REQUEST_FIELD = 'signed_request'
+REQUEST_FIELD           = 'signed_request'
+FACEBOOK_APP_PROPERTY   = "login_facebook_url"
+CLIENT_ADDRESS_PROPERTY = "login_facebook_client_address"
+AUTH_URL_PROPERTY       = "login_facebook_auth_url"
+DEFAULT_AUTH_URL        = "http://www.facebook.com/dialog/oauth?client_id=%s&redirect_uri=%s&scope=email"
+APP_ID_PROPERTY         = "login_facebook_app_id"
+CANVAS_URL_PROPERTY     = "login_facebook_canvas_url"
 
 try:
     import json as json_module # Python >= 2.6
@@ -43,7 +43,10 @@ class FacebookMethod(WebFacadeServer.Method):
     def run(self):
         signed_request = self.get_argument(REQUEST_FIELD)
         if signed_request is None:
-            return "<html><body><script>top.location.href='%s';</script></body></html>" % _FACEBOOK_APP
+            facebook_app = self.cfg_manager.get_value(FACEBOOK_APP_PROPERTY, None)
+            if facebook_app is None:
+                return "<html><body>%s not set. Contact administrator</body></html>" % FACEBOOK_APP_PROPERTY
+            return "<html><body><script>top.location.href='%s';</script></body></html>" % facebook_app
 
         payload = signed_request[signed_request.find('.') + 1:]
         payload = payload.replace('-','+').replace('_','/')
@@ -51,7 +54,13 @@ class FacebookMethod(WebFacadeServer.Method):
         json_content = base64.decodestring(payload)
         data = json.loads(json_content)
         if 'user_id' not in data:
-            return "<html><body><script>top.location.href='%s';</script></body></html>" % _AUTH_URL
+            base_auth_url = self.cfg_manager.get_value(AUTH_URL_PROPERTY, DEFAULT_AUTH_URL)
+            facebook_app_id = self.cfg_manager.get_value(APP_ID_PROPERTY)
+            canvas_url = self.cfg_manager.get_value(CANVAS_URL_PROPERTY)
+            
+            auth_url = base_auth_url % (facebook_app_id, urllib2.quote(canvas_url))
+
+            return "<html><body><script>top.location.href='%s';</script></body></html>" % auth_url
 
         try:
             session_id = self.server.extensible_login('FACEBOOK', signed_request)
@@ -70,6 +79,9 @@ class FacebookMethod(WebFacadeServer.Method):
         if 'user' in data:
             if 'locale' in data['user']:
                 locale = "&locale=%s" % data['user']['locale']
+
+        client_address = self.cfg_manager.get_value(CLIENT_ADDRESS_PROPERTY, "%s NOT SET" % CLIENT_ADDRESS_PROPERTY)
+        facebook_app_id = self.cfg_manager.get_value(APP_ID_PROPERTY)
 
         return """<html>
                        <head>
@@ -100,10 +112,9 @@ class FacebookMethod(WebFacadeServer.Method):
 
                     </body>
                 </html>
-            """ % (_CLIENT_ADDRESS, '%s;%s' % (session_id['id'], self.weblab_cookie), locale, _APP_ID)
+            """ % (client_address, '%s;%s' % (session_id['id'], self.weblab_cookie), locale, facebook_app_id)
 
     def _handle_linking_accounts(self, signed_request):
-        # TODO: this is done through a POST call, and WebServer was asking for a GET only
         username = self.get_argument('username')
         password = self.get_argument('password')
         try:
