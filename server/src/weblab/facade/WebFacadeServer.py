@@ -131,11 +131,11 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     original_server = None
 
     def do_GET(self):
-        if self.server_route is None:
+        if self.server_route is not None:
             route = self.server_route
             self.weblab_cookie = "weblabsessionid=anythinglikeasessid.%s" % route
         else:
-            self.weblab_cookie = ""
+            self.weblab_cookie = "weblabsessionid=sessid.not.found"
 
         create_context(self.server, self.headers)
         try:
