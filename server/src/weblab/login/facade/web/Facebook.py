@@ -112,7 +112,7 @@ class FacebookMethod(WebFacadeServer.Method):
 
                     </body>
                 </html>
-            """ % (client_address, '%s;%s' % (session_id['id'], self.weblab_cookie), locale, facebook_app_id)
+            """ % (client_address, '%s;%s' % (session_id.id, self.weblab_cookie), locale, facebook_app_id)
 
     def _handle_linking_accounts(self, signed_request):
         username = self.get_argument('username')
@@ -151,7 +151,7 @@ class FacebookMethod(WebFacadeServer.Method):
                     </style>
                 </head>
                 <body>
-                <center><img src="../logo.png"></center> 
+                <center><img src="../../../logo.png"></center> 
                 <p>It seems that your Facebook account has not been linked with a WebLab-Deusto account, or that you don't have a WebLab-Deusto account.</p>
                 <br>
                 <h2>Already have a WebLab-Deusto account?</h2>

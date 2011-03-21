@@ -50,7 +50,12 @@ class Method(object):
                 return value
         if not avoid_post:
             self.read_post_arguments()
-            return self.postvars.get(name, default_value)
+            postvar = self.postvars.get(name, None)
+            if postvar is None:
+                return default_value
+            if len(postvar) == 0:
+                return default_value
+            return postvar[0]
         return default_value
 
     def get_arguments(self):
