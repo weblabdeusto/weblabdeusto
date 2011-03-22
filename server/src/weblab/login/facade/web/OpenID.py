@@ -45,12 +45,19 @@ DEFAULT_DOMAINS_PROPERTY = {
     'UNED'   : 'http://yo.rediris.es/soy/%s@uned.es',
     'deusto' : 'http://yo.rediris.es/soy/%s@deusto.es'
 }
+HOST_PROPERTY            = 'login_openid_host'
+DEFAULT_HOST             = 'https://www.weblab.deusto.es'
+CLIENT_URL_PROPERTY      = 'login_openid_client_url'
+DEFAULT_CLIENT_URL       = '/weblab/client/'
+BASE_OPENID_URL          = 'login_openid_base_openid'
+DEFAULT_BASE_OPENID_URL  = '/weblab/login/web/openid/'
 
 class OpenIdMethod(WebFacadeServer.Method):
     path = '/openid/'
     SESSION_COOKIE_NAME = 'weblabopenid'
-    base_url = 'https://www.weblab.deusto.es/weblab/login/web/openid/'
-    base_openid_url = 'https://www.weblab.deusto.es/weblab/login/web/openid/'
+    host            = ''
+    client_url      = ''
+    base_openid_url = ''
     sessions = {}
 
     if OPENID_AVAILABLE:
@@ -59,6 +66,17 @@ class OpenIdMethod(WebFacadeServer.Method):
             OpenIdMethod.store    = memstore.MemoryStore()
             OpenIdMethod.domains  = cfg_manager.get_value(DOMAINS_PROPERTY, DEFAULT_DOMAINS_PROPERTY)
             OpenIdMethod.sessions = {}
+            OpenIdMethod.host     = cfg_manager.get_value(HOST_PROPERTY, DEFAULT_HOST)
+            client_url = cfg_manager.get_value(CLIENT_URL_PROPERTY, None)
+            if client_url is None:
+                OpenIdMethod.client_url = OpenIdMethod.host + DEFAULT_CLIENT_URL
+            else:
+                OpenIdMethod.client_url = client_url
+            base_openid_url = cfg_manager.get_value(BASE_OPENID_URL, None)
+            if base_openid_url is None:
+                OpenIdMethod.base_openid_url = OpenIdMethod.host + DEFAULT_BASE_OPENID_URL
+            else:
+                OpenIdMethod.base_openid_url = base_openid_url
 
         def get_local_relative_path(self):
             return self.relative_path[len(self.path):]
@@ -75,12 +93,13 @@ class OpenIdMethod(WebFacadeServer.Method):
                 return self.doVerify()
             elif local.startswith('process'):
                 return self.doProcess()
-            return """<html><body><form method="GET" action="verify">
-                    Username: <input type="text" name="username"><br>
-                    <input type="radio" name="domain" value="deusto">University of Deusto<br>
-                    <input type="radio" name="domain" value="UNED">UNED<br>
-                    <input type="submit" value="Log in">
+            return_value = """<html><body><form method="GET" action="verify">
+                    Username: <input type="text" name="username"><br>"""
+            for university in self.domains:
+                return_value += """<input type="radio" name="domain" value="%s">%s<br>""" % (university, university)
+            return_value += """<input type="submit" value="Log in">
                 </form></body></html>"""
+            return return_value
 
         def doVerify(self):
             domain = self.get_argument(DOMAIN)
@@ -111,14 +130,12 @@ class OpenIdMethod(WebFacadeServer.Method):
                 if request is None:
                     return "No OpenID services found. contact with administrator"
                 else:
-                    trust_root = self.base_url
+                    trust_root = self.host
                     return_to = self.buildURL('process')
                     if request.shouldSendRedirect():
                         redirect_url = request.redirectURL( trust_root, return_to, immediate = False)
                         self.req.send_response(302)
                         self.req.send_header('Location', redirect_url)
-                        # XXX
-                        # self.writeUserHeader()
                         self.req.end_headers()
                         raise WebFacadeServer.RequestManagedException()
                     else:
@@ -128,20 +145,17 @@ class OpenIdMethod(WebFacadeServer.Method):
         def doProcess(self):
             oidconsumer = self.getConsumer()
 
-            url = 'https://www.weblab.deusto.es' + self.req.path
+            url = self.host + self.req.path
             info = oidconsumer.complete(self.query, url)
 
             if info.status == consumer.SUCCESS:
                 self.getSession()['validated'] = info.identity_url
-                print "Validated: ", info.identity_url
-                import sys
-                sys.stdout.flush()
                 try:
                     session_id = self.server.extensible_login('OPENID','%s' % self.getSession()['id'])
                 except LoginExceptions.LoginException:
                     return "Successfully authenticated; however your account does not seem to be registered in WebLab-Deusto. Do please contact with administrators"
-                client_url = "https://www.weblab.deusto.es/weblab/client/?session_id=%s;%s" % (session_id.id, self.weblab_cookie)
-                return "<html><body><script>top.location.href='%s';</script></body></html>" % client_url
+                full_client_url = "%s?session_id=%s;%s" % (self.client_url, session_id.id, self.weblab_cookie)
+                return "<html><body><script>top.location.href='%s';</script><a href='%s'>Continue</a></body></html>" % (full_client_url, full_client_url)
             else:
                 return "failed to authenticate!"
 
@@ -156,8 +170,9 @@ class OpenIdMethod(WebFacadeServer.Method):
             return appendArgs(base, query)
 
         def autoSubmit(self, form, id):
-            return """<html><head><title>OpenID transaction in progress</title></head>
+            return """<html><head><title>Transaction in progress</title></head>
                 <body onload='document.getElementById("%s").submit()'>
+                Requesting credentials...<br/>
                 %s
                 </body></html>
                 """%(id, form)
