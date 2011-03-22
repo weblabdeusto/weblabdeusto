@@ -31,6 +31,9 @@ class MethodException(Exception):
         self.status = status
         self.msg    = msg
 
+class RequestManagedException(Exception):
+    pass
+
 class Method(object):
 
     path = ""
@@ -120,6 +123,10 @@ class Method(object):
         relative_path = Method.get_relative_path(absolute_path)
         return relative_path.startswith(klass.path)
 
+    @classmethod
+    def initialize(klass, cfg_manager, route):
+        pass # Not required
+
 class NotFoundMethod(Method):
     def run(self):
         self.raise_exc(404, "Path %s not found!" % urllib.quote(self.req.path))
@@ -147,6 +154,8 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                     break
             else:
                 NotFoundMethod(self, self.cfg_manager, self.original_server).run()
+        except RequestManagedException, e:
+            return
         except MethodException, e:
             log.log( self, log.LogLevel.Error, str(e))
             log.log_exc( self, log.LogLevel.Warning)
@@ -202,6 +211,8 @@ class WebHttpServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
             cfg_manager     = configuration_manager
             original_server = server
         BaseHTTPServer.HTTPServer.__init__(self, server_address, NewWebHttpHandler)
+        for method in server_methods:
+            method.initialize(configuration_manager, route)
 
     def get_request(self):
         sock, addr = BaseHTTPServer.HTTPServer.get_request(self)

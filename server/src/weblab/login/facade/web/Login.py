@@ -29,8 +29,8 @@ class LoginMethod(WebFacadeServer.Method):
         if password is None: # Based on IP address
             ip_address = self.get_context().get_ip_address()
             session_id = self.server.login_based_on_client_address(username, ip_address)
-            return session_id.id
+            return "%s;%s" % (session_id.id, self.weblab_cookie)
         else:
             session_id = self.server.login(username, password)
-            return session_id.id
+            return "%s;%s" % (session_id.id, self.weblab_cookie)
 

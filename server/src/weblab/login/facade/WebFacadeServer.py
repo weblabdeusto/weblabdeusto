@@ -17,6 +17,7 @@ import weblab.facade.WebFacadeServer as WebFacadeServer
 
 from weblab.login.facade.web.Login import LoginMethod
 from weblab.login.facade.web.Facebook import FacebookMethod
+from weblab.login.facade.web.OpenID import OpenIdMethod
 
 from weblab.login.facade.LoginFacadeServer import LOGIN_FACADE_SERVER_ROUTE, DEFAULT_LOGIN_SERVER_ROUTE
 
@@ -29,7 +30,8 @@ WEB_FACADE_PORT                      = 'login_web_facade_port'
 class LoginWebProtocolRemoteFacadeServer(WebFacadeServer.WebProtocolRemoteFacadeServer):
     METHODS = [
                 LoginMethod,
-                FacebookMethod
+                FacebookMethod,
+                OpenIdMethod
             ]
 
 class LoginWebRemoteFacadeServer(WebFacadeServer.WebRemoteFacadeServer):

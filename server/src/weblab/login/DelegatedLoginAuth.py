@@ -72,3 +72,16 @@ class Facebook(object):
         # login is "13122142321@facebook"
         return login.split('@')[0]
 
+class OpenID(object):
+    def __init__(self, db_manager):
+        self._db_manager = db_manager
+
+    @logged(LogLevel.Warning)
+    def get_user(self, credentials):
+        return None
+
+    def get_user_id(self, credentials):
+        import weblab.login.facade.web.OpenID as OpenIDMod
+        return OpenIDMod.OpenIdMethod.get_user_id(credentials)
+
+
