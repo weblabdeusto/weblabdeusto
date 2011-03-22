@@ -184,9 +184,7 @@ class LaboratoryServer(object):
         experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
         experiment_server_response = experiment_server.start_experiment(client_initial_data, server_initial_data)
 
-        # TODO: experiment_server_response
-
-        return lab_sess_id
+        return lab_sess_id, experiment_server_response
 
     @logged(LogLevel.Info)
     @caller_check(ServerType.UserProcessing)
