@@ -22,7 +22,7 @@ import weblab.exceptions.experiment.experiments.ud_pic_experiment.UdPicExperimen
 
 class UdPicBoardCommandTestCase(unittest.TestCase):
     def test_ud_pic_board(self):
-        cmd = UdPicBoardCommand.UdPicBoardCommand("PULSE=3 1000, SWITCH=0 ON, ADJUST=0 0.5")
+        UdPicBoardCommand.UdPicBoardCommand("PULSE=3 1000, SWITCH=0 ON, ADJUST=0 0.5")
 
         self.assertRaises(
                 UdPicExperimentExceptions.InvalidUdPicBoardCommandException,

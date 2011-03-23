@@ -189,7 +189,7 @@ class VisirTestExperiment(Experiment.Experiment):
         # and return its value.
         for c in cp.cookiejar:
             print "Cookie found: ", c
-            experiments_page = o.open("%s/electronics/experiment.php?cookie=%s" % (self.baseurl, c.value))
+            o.open("%s/electronics/experiment.php?cookie=%s" % (self.baseurl, c.value))
             #experiments_content = experiments_page.read()
             #"<a href=/electronics/experiment.php?[a-zA-Z0-9;&=]+\">(.*)"
             return c.value

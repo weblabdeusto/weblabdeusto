@@ -113,9 +113,6 @@ class MonitorMethodsTestCase(unittest.TestCase):
         self.assertEquals({reservation_id : status}, result)
 
     def test_list_all_users(self):
-        category   = "Dummy experiments"
-        experiment = "ud-dummy"
-
         first_time = time.time()
 
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
@@ -131,9 +128,6 @@ class MonitorMethodsTestCase(unittest.TestCase):
         self.assertEquals( 'student2', user_info.login )
 
     def test_list_all_users_invalid_user(self):
-        category   = "Dummy experiments"
-        experiment = "ud-dummy"
-
         first_time = time.time()
 
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
@@ -175,9 +169,6 @@ class MonitorMethodsTestCase(unittest.TestCase):
         self.assertEquals( "student2", login ) 
 
     def test_get_ups_session_ids_from_username(self):
-        category   = "Dummy experiments"
-        experiment = "ud-dummy"
-
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
         sess_id1, _ = self.ups.do_reserve_session(db_sess_id)
 
@@ -188,9 +179,6 @@ class MonitorMethodsTestCase(unittest.TestCase):
         self.assertEquals(set([sess_id1, sess_id2]), set(sessions))
 
     def test_get_reservation_id_no_one_using_it(self):
-        category   = "Dummy experiments"
-        experiment = "ud-dummy"
-
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
         sess_id1, _ = self.ups.do_reserve_session(db_sess_id)
 
@@ -226,9 +214,6 @@ class MonitorMethodsTestCase(unittest.TestCase):
         self.assertEquals( None, status )
 
     def test_kickout_from_ups(self):
-        category   = "Dummy experiments"
-        experiment = "ud-dummy"
-
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
 

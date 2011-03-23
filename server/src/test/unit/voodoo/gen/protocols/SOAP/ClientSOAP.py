@@ -106,7 +106,7 @@ class SOAPpyNotAvailableTestCase(OptionalModuleTestCase):
     def test_soappy_not_available(self):
         def func():
             ClientClass = ClientSOAP.generate(['method1'])
-            client_instance = ClientClass('', 10464)
+            ClientClass('', 10464)
 
         self._test_func_without_module(func)
 

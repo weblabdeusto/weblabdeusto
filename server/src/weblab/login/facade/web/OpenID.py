@@ -123,7 +123,7 @@ class OpenIdMethod(WebFacadeServer.Method):
             oidconsumer = self.getConsumer()
             try:
                 request = oidconsumer.begin(full_url)
-            except consumer.DiscoveryFailure, exc:
+            except consumer.DiscoveryFailure:
                 traceback.print_exc()
                 return 'Error in discovery, contact with administrator'
             else:

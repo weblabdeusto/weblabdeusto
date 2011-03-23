@@ -24,7 +24,6 @@ class ClientXMLRPCTestCase(unittest.TestCase):
     def test_method(self):
         msg1 = 'Hello '
         msg2 = 'world'
-        exc_msg = "Haw haw! -with Nelson's voice"
         methods = ('method1','method2','method3')
 
 

@@ -245,7 +245,7 @@ class UserProcessorTestCase(unittest.TestCase):
             )
 
         self.coordinator.confirmer._confirm_handler.join()
-        reservation_status = self.processor.get_reservation_status()
+        self.processor.get_reservation_status()
 
         self.assertFalse( self.processor.is_expired() )
 
@@ -263,7 +263,6 @@ class UserProcessorTestCase(unittest.TestCase):
         self._return_reserved()
 
         file_content = "SAMPLE CONTENT"
-        lab_response  = "LAB RESPONSE"
         file_info    = "program"
         self.lab_mock.send_file(SessionId.SessionId('my_lab_session_id'), file_content, file_info)
         self.mocker.throw( 
@@ -279,7 +278,7 @@ class UserProcessorTestCase(unittest.TestCase):
             )
         self.coordinator.confirmer._confirm_handler.join()
 
-        reservation_status = self.processor.get_reservation_status()
+        self.processor.get_reservation_status()
 
         self.assertFalse( self.processor.is_expired() )
 
@@ -296,7 +295,6 @@ class UserProcessorTestCase(unittest.TestCase):
         self._return_reserved()
 
         file_content = "SAMPLE CONTENT"
-        lab_response  = "LAB RESPONSE"
         file_info    = "program"
         self.lab_mock.send_file(SessionId.SessionId('my_lab_session_id'), file_content, file_info)
         self.mocker.throw( 
@@ -312,7 +310,7 @@ class UserProcessorTestCase(unittest.TestCase):
             )
         self.coordinator.confirmer._confirm_handler.join()
 
-        reservation_status = self.processor.get_reservation_status()
+        self.processor.get_reservation_status()
 
         self.assertFalse( self.processor.is_expired() )
 
@@ -343,7 +341,7 @@ class UserProcessorTestCase(unittest.TestCase):
             )
         self.coordinator.confirmer._confirm_handler.join()
 
-        reservation_status = self.processor.get_reservation_status()
+        self.processor.get_reservation_status()
 
         self.assertFalse( self.processor.is_expired() )
 
@@ -361,7 +359,6 @@ class UserProcessorTestCase(unittest.TestCase):
         self._return_reserved()
 
         command = Command.Command("Your command")
-        lab_response  = "LAB RESPONSE"
         self.lab_mock.send_command(SessionId.SessionId('my_lab_session_id'), command)
         self.mocker.throw( 
                 LaboratoryExceptions.SessionNotFoundInLaboratoryServerException("problem@laboratory") 
@@ -376,7 +373,7 @@ class UserProcessorTestCase(unittest.TestCase):
             )
         self.coordinator.confirmer._confirm_handler.join()
 
-        reservation_status = self.processor.get_reservation_status()
+        self.processor.get_reservation_status()
 
         self.assertFalse( self.processor.is_expired() )
 
@@ -392,7 +389,6 @@ class UserProcessorTestCase(unittest.TestCase):
         self._return_reserved()
 
         command = Command.Command("Your command")
-        lab_response  = "LAB RESPONSE"
         self.lab_mock.send_command(SessionId.SessionId('my_lab_session_id'), command)
         self.mocker.throw( 
                 LaboratoryExceptions.FailedToSendCommandException("problem@laboratory") 
@@ -407,7 +403,7 @@ class UserProcessorTestCase(unittest.TestCase):
             )
         self.coordinator.confirmer._confirm_handler.join()
 
-        reservation_status = self.processor.get_reservation_status()
+        self.processor.get_reservation_status()
 
         self.assertFalse( self.processor.is_expired() )
 

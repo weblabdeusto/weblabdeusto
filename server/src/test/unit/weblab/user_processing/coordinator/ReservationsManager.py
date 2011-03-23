@@ -60,7 +60,7 @@ class ReservationsManagerTestCase(unittest.TestCase):
         reservation1 = self.reservations_manager.create(exp_id1)
         reservation2 = self.reservations_manager.create(exp_id1)
 
-        reservation3 = self.reservations_manager.create(exp_id2)
+        self.reservations_manager.create(exp_id2)
         
         sessions = self.reservations_manager.list_sessions(exp_id1)
         self.assertEquals(2, len(sessions))

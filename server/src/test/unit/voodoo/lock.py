@@ -38,7 +38,6 @@ class RWLockTestCase(unittest.TestCase):
         rwlock = lock.RWLock()
 
         rlock  = rwlock.read_lock()
-        wlock  = rwlock.write_lock()
 
         evt    = threading.Event()
 
@@ -58,7 +57,6 @@ class RWLockTestCase(unittest.TestCase):
     def test_rw_lock_only_one_write(self):
         rwlock = lock.RWLock()
 
-        rlock  = rwlock.read_lock()
         wlock  = rwlock.write_lock()
 
         evt1   = threading.Event()
@@ -86,7 +84,6 @@ class RWLockTestCase(unittest.TestCase):
     def test_rw_lock_reentrant_one_write(self):
         rwlock = lock.RWLock()
 
-        rlock  = rwlock.read_lock()
         wlock  = rwlock.write_lock()
 
         evt1   = threading.Event()

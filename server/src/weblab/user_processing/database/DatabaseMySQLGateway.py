@@ -240,7 +240,6 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             
         session = self.Session()
         try:
-            user = self._get_user(session, user_login)
             experiments = session.query(Model.DbExperiment).all()
             experiments.sort(cmp=sort_by_category_and_exp_name)
             dto_experiments = [ experiment.to_dto() for experiment in experiments ]

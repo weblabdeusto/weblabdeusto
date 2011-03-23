@@ -101,7 +101,7 @@ class SocketWait(EventWait):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.bind(('localhost', self.port))
         self.s.listen(5)
-        data = self.s.accept()
+        self.s.accept()
         self.s.close()
 
 class EventNotifier(object):

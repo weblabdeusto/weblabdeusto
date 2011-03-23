@@ -35,9 +35,9 @@ class HttpQueryUserManager(UserManager):
                 response = urllib2.urlopen("%s/?sessionid=%s" % (self._url, sid))
                 print response.read()
                 break
-            except urllib2.HTTPError, ex:
+            except urllib2.HTTPError:
                 times_tried += 1
-            except urllib2.URLError, ex:
+            except urllib2.URLError:
                 # These are timeout errors which occur when the virtual OS takes too long to start, which is
                 # actually quite common.
                 # The above error has the following tuple as its args: (error(10060, 'Operation timed out'),)

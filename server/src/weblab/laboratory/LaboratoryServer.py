@@ -257,7 +257,7 @@ class LaboratoryServer(object):
         be called by teh coordinator whenever there is an available slot, so the experiment server can 
         perform a test knowing that it is not going to be interrupted."""
         experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
-        experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
+        self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
 
     # 
     # TODO

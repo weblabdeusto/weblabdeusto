@@ -34,11 +34,11 @@ class CoordinatorMapBuilderTestCase(unittest.TestCase):
         coordinatorMapBuilder = CoordinatorMapBuilder.CoordinatorMapBuilder()
         map = coordinatorMapBuilder.build(self.global_configuration)
 
-        machine1  = map['NAME_OF_MACHINE1']
-        instance1 = map['NAME_OF_MACHINE1']['NAME_OF_INSTANCE1']
+        map['NAME_OF_MACHINE1']
+        map['NAME_OF_MACHINE1']['NAME_OF_INSTANCE1']
         server1   = map['NAME_OF_MACHINE1']['NAME_OF_INSTANCE1']['NAME_OF_SERVER1']
-        server2   = map['NAME_OF_MACHINE1']['NAME_OF_INSTANCE1']['NAME_OF_SERVER2']
-        instance2 = map['NAME_OF_MACHINE1']['NAME_OF_INSTANCE2']
+        map['NAME_OF_MACHINE1']['NAME_OF_INSTANCE1']['NAME_OF_SERVER2']
+        map['NAME_OF_MACHINE1']['NAME_OF_INSTANCE2']
 
         self.assertEquals(
                 ServerType.Login,

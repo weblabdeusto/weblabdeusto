@@ -187,7 +187,7 @@ class LogicExperiment(Experiment.Experiment):
             length = len(msg)
             s.send(TEMPLATE % {'SIZE' : length, 'MSG' : msg})
             s.close()
-        except Exception, e:
+        except Exception:
             import traceback
             traceback.print_exc()
             pass

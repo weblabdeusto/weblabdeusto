@@ -173,7 +173,7 @@ class DirectAddressTestCase(unittest.TestCase):
             def do_say_hello(self,msg):
                 return msg + message2
 
-        direct_server_instance = DirectServerClass(
+        DirectServerClass(
                 Direct = (self.server_id,)
             )
 
@@ -210,7 +210,7 @@ class DirectAddressTestCase(unittest.TestCase):
             def do_say_hello(self,msg):
                 return msg + message2
 
-        direct_server_instance = DirectServerClass(
+        DirectServerClass(
                 Direct = (self.server_id,)
             )
 

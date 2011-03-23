@@ -75,7 +75,6 @@ class ServerLoader(object):
                     server_name
                 )
 
-            server = instance.servers[server_name]
             cfg_manager = self._create_config_manager(
                     global_configuration,
                     machine_name,

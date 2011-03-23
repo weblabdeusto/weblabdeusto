@@ -167,9 +167,6 @@ class AliveUsersCollection(object):
                     self._experiments_server_session_id
                 )
             try:
-
-                    latest_checked = self._time_module.time()
-
                     expired_session_ids = self._find_expired_session_ids(session_ids)
 
                     for expired_session_id in expired_session_ids:

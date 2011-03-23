@@ -43,7 +43,7 @@ def uses_module(module, verbose = None):
                 print "Test %s: retrieved resources: %s" % (func.__name__, resources)
                 print "Test %s: running test..." % func.__name__
             try:
-                _ = func(self,*args,**kargs)
+                func(self,*args,**kargs)
             finally:
                 if vvv:
                     print "Test %s: Test run..." % func.__name__

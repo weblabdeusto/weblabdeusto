@@ -37,7 +37,6 @@ class SchemaChecker(object):
             log.log( SchemaChecker, log.LogLevel.Warning, msg )
             return
 
-        result = 0
         xmlfile_content = self._read_xml_file(xmlfile_path)
         xsdfile_content = self._read_xsd_file(XSD_DIRNAME + xsdfile_path)
 

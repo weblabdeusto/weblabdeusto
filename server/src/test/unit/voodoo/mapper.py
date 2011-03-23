@@ -139,7 +139,7 @@ class MapperTestCase(unittest.TestCase):
 
         # What about JetAnotherClass?
         my_other_jac1 = mapper.dto_generator(jac1)
-        my_other_jac2 = my_other_jac1.otherReference
+        my_other_jac1.otherReference
 
         
         # Go ahead! Pickle me! ;-D
@@ -233,7 +233,7 @@ class MapperTestCase(unittest.TestCase):
         # DateTime throws exception when doing:
         #   dt == {}
         # for instance
-        dto = mapper.remove_unpickables({"foo" : dt})
+        mapper.remove_unpickables({"foo" : dt})
 
     def test_remove_unpickables_datetime(self):
         sc = SimpleClass()
@@ -258,7 +258,7 @@ class MapperTestCase(unittest.TestCase):
         
         mapper.remove_unpickables(my_class)
 
-        dumped = pickle.dumps(my_class) # No problem now
+        pickle.dumps(my_class) # No problem now
         self.assertEqual(None, my_class.parser)
 
     def test_remove_unpickables_general(self):
@@ -350,10 +350,10 @@ class MapperTestCase(unittest.TestCase):
         
         # Go ahead! Pickle me! ;-D
         pickled      = pickle.dumps(mc)
-        unpickledMC  = pickle.loads(pickled)
+        pickle.loads(pickled)
 
         pickled      = pickle.dumps(moc)
-        unpickledMOC = pickle.loads(pickled)
+        pickle.loads(pickled)
 
     def test_remove_unpickables_http_exception(self):
         try:
@@ -366,7 +366,7 @@ class MapperTestCase(unittest.TestCase):
 
         removed = mapper.remove_unpickables(e)
         pickled = pickle.dumps(removed)
-        unpickled = pickle.loads(pickled)
+        pickle.loads(pickled)
         
     def test_condition(self):
         c1 = threading.Condition()

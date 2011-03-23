@@ -198,7 +198,7 @@ class AbstractClassGeneratorTestCase(unittest.TestCase):
             h_handler_args = methods
 
         self.assertEquals(None, h_handler_args)
-        i = I()
+        I()
         self.assertEquals(['methodH'], h_handler_args)
 
     def test_abstract_handler(self):
@@ -212,7 +212,7 @@ class AbstractClassGeneratorTestCase(unittest.TestCase):
             _abstract_handler = J_handler
 
         self.assertFalse(J_handler_called)
-        j = J()
+        J()
         self.assertTrue(J_handler_called)
 
     def test_documenting(self):
@@ -263,7 +263,7 @@ class AbstractClassGeneratorTestCase(unittest.TestCase):
             pass
 
         self.assertRaises(TypeError, N)
-        o = O()
+        O()
         
 def suite():
     return unittest.makeSuite(AbstractClassGeneratorTestCase)

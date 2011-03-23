@@ -107,7 +107,7 @@ class StandardBotUser(BotUser):
 
     def run_user(self):
         self.bot.raise_exceptions = True
-        session_id = self.bot.do_login(self.username, self.password)
+        self.bot.do_login(self.username, self.password)
         self.bot.do_get_user_information()
         experiments = self.bot.do_list_experiments()
         if experiments is not None:

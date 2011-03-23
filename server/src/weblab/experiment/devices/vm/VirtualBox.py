@@ -57,7 +57,7 @@ class VirtualBox(VirtualMachineManager):
         the Virtual Machine is truly ready for usage.
         """
         self._print("Starting VM")
-        process = subprocess.Popen([self.vboxheadless,'-startvm',self.vm_name,'-vrde','on'])
+        subprocess.Popen([self.vboxheadless,'-startvm',self.vm_name,'-vrde','on'])
 #        result = process.wait()
         result = "(other thread)"
         self._print("Started %s" % result)
