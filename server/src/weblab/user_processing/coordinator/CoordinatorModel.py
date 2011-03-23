@@ -297,3 +297,29 @@ class CurrentReservation(Base):
     def __repr__(self):
         return "CurrentReservation(%r)" % self.reservation
 
+######################################################################################
+# 
+# Batch experiments are executed and once they finish, the information they returned
+# is stored in this table. Later the core server will check for this information and
+# it will periodically delete expired information, as well as it will gather 
+# information that the user asks for and will store it in the proper user tables at
+# core level.
+# 
+
+class PastReservation(Base):
+    __tablename__  = 'PastReservations'
+    __table_args__ = TABLE_KWARGS
+
+    id            = Column(String(RESERVATION_ID_SIZE), ForeignKey('Reservations.id'), primary_key = True)
+    date          = Column(DateTime)
+    # TODO: another field is required to know which instance was used
+    returned_data = Column(Text)
+
+    def __init__(self, id, date, returned_data):
+        self.id            = id
+        self.date          = date
+        self.returned_data = returned_data
+    
+    def __repr__(self):
+        return "PastReservation(%r)" % self.id
+

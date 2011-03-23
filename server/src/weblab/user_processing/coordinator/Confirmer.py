@@ -65,7 +65,7 @@ class ReservationConfirmer(object):
             log.log( ReservationConfirmer, log.LogLevel.Error, "Exception confirming experiment: %s" % e )
             log.log_exc( ReservationConfirmer, log.LogLevel.Warning )
         else:
-            if server_initialization_response is None or server_initialization_response == 'ok':
+            if server_initialization_response is None or server_initialization_response == 'ok' or server_initialization_response == '':
                 still_initializing = False
                 batch = False
                 initial_configuration = {}
