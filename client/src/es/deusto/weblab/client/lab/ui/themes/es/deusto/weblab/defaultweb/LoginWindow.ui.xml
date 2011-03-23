@@ -9,11 +9,14 @@
     	.bold-text { font-weight: bold;  }
     </ui:style>
         
-    <g:VerticalPanel ui:field="containerPanel">
-    	<g:HorizontalPanel>
-    		<g:HorizontalPanel styleName="web-login-logo">
-		   		<g:Image resource='{res.logo}' />
+    <g:VerticalPanel ui:field="containerPanel" horizontalAlignment="ALIGN_LEFT">
+    	<g:HorizontalPanel horizontalAlignment="ALIGN_LEFT" width="100%">
+    		<g:HorizontalPanel styleName="web-login-logo" horizontalAlignment="ALIGN_LEFT">
+    			<g:Image resource='{res.logo}' />
 		   		<g:Image ui:field="hostEntityLogo" />
+			</g:HorizontalPanel>
+			<g:HorizontalPanel width="100%" horizontalAlignment="ALIGN_RIGHT" >
+				<w:WlSoundSwitch ui:field="soundSwitch" imgWidth="50px" imgHeight="50px"></w:WlSoundSwitch>
 			</g:HorizontalPanel>
     	</g:HorizontalPanel>
     	
