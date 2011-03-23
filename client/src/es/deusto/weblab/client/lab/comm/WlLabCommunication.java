@@ -47,7 +47,7 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 	public static final String FILE_INFO_ATTR  = "file_info"; 
 	
 	public static final String WEBLAB_FILE_UPLOAD_POST_SERVICE_URL_PROPERTY = "weblab.service.fileupload.post.url";
-	public static final String DEFAULT_WEBLAB_FILE_UPLOAD_POST_SERVICE_URL = "/weblab/fileUpload.py"; 
+	public static final String DEFAULT_WEBLAB_FILE_UPLOAD_POST_SERVICE_URL = "/weblab/web/upload/"; 
 	
 	public WlLabCommunication(IConfigurationManager configurationManager){
 		super(configurationManager);
