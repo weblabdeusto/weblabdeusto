@@ -43,6 +43,7 @@ import com.google.gwt.user.client.ui.Widget;
 import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.i18n.IWebLabDeustoThemeMessages;
+import es.deusto.weblab.client.ui.widgets.WlSoundSwitch;
 import es.deusto.weblab.client.ui.widgets.WlUtil;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
@@ -77,6 +78,8 @@ class LoginWindow extends BaseWindow {
 	@UiField DecoratorPanel adminPanel;
 	@UiField Image hostEntityLogo;
 	@UiField HTML introText;
+	
+	@UiField WlSoundSwitch soundSwitch;
 	
 	// Callbacks
 	private final ILoginWindowCallback callback;

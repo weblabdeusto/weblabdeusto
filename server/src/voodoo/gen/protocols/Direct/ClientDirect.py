@@ -36,7 +36,6 @@ def _generate_stub(METHOD_NAME):
         if ServerDirect.DUPLICATE:
             parameters_instance = (parameters, kparameters)
             real_parameters = mapper.dto_generator(parameters_instance)
-            sth = pickle.dumps("whatever")
             dumped_real_parameters = pickle.dumps(real_parameters)
             return getattr(self._server._servers['Direct'],METHOD_NAME)(
                     dumped_real_parameters

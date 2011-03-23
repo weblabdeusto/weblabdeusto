@@ -22,7 +22,7 @@ def Override(classes):
     def wrapped(func):
         try:
             real_classes = tuple(( i for i in classes ))
-        except TypeError, te:
+        except TypeError:
             real_classes = ( classes, )
 
         found = False

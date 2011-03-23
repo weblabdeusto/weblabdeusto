@@ -86,8 +86,9 @@ body
 
 .web-login-logo
 {
+	align: left;
 	margin-right: auto;
-	margin-left: auto;	
+	margin-left: inherit;	
 }
 
 .web-login-languages

@@ -50,7 +50,7 @@ def _generate_skeleton(METHOD_NAME):
              Method name: METHOD_NAME. Documentation: DOCUMENTATION """
         try:
             return getattr(self._parent, "do_"+METHOD_NAME)(*parameters, **kparameters)
-        except Exception, e:
+        except Exception:
             # TODO: watch out, if server gets a Control + C, the exception is going to propagate
             log.log_exc(self, log.LogLevel.Info)
             raise

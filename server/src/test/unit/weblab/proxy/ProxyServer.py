@@ -252,7 +252,7 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
         )   
         
         # CAN retrieve results!
-        _ = proxy.do_retrieve_results(self.RESERVATION_ID)
+        proxy.do_retrieve_results(self.RESERVATION_ID)
 
     def test_failed_to_send_command(self):
         laboratory = self.mocker.mock()

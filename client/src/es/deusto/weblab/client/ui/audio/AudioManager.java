@@ -18,16 +18,58 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.AudioElement;
 import com.google.gwt.media.client.Audio;
 
+import es.deusto.weblab.client.configuration.ConfigurationRetriever;
+
+
 
 public class AudioManager {
+
+	private static final boolean SOUND_ENABLED_DEFAULT = false;
+	private static final String SOUND_ENABLED_NAME = "sound.enabled";
 	
-	private static final AudioManager instance = new AudioManager();
+	private static AudioManager instance = null;
 	
-	private boolean soundEnabled = false;
+	private ConfigurationRetriever configurationRetriever;
 	
 	/**
-	 * Retrieves the only instance of this class thay may exist.
-	 * @return The one instance of the AudioManager class.
+	 * Constructs the AudioManager instance.
+	 * @param retriever ConfigurationRetriever which will be stored internally and
+	 * which makes it possible to access and modify globally the sound_enabled setting.
+	 * 
+	 * @see initialize
+	 */
+	private AudioManager(ConfigurationRetriever retriever) {
+		this.configurationRetriever = retriever;
+	}
+	
+	/**
+	 * Constructs the only Audio Manager instance. Needs to be called before
+	 * being able to retrieve the AudioManager's instance.
+	 * It needs to be constructed explicitly because of the retriever
+	 * parameter the singleton requires.
+	 * 
+	 * @param retriever ConfigurationRetriever which will be stored internally
+	 * and which makes it possible to access and modify globally the sound_enabled
+	 * setting.
+	 * 
+	 * @throws RuntimeException If the singleton has already been initialized once
+	 * and hence an instance exists already.
+	 * 
+	 * @see getInstance
+	 */
+	public static void initialize(ConfigurationRetriever retriever) {
+		if(instance != null)
+			throw new RuntimeException("AudioManager singleton has already been initialized");
+		instance = new AudioManager(retriever);
+	}
+	
+	/**
+	 * Retrieves the only instance of this class that may exist.
+	 * 
+	 * @return The one instance of the AudioManager class. Null if the singleton
+	 * has not been initialized yet.
+	 * 
+	 * @see initialize
 	 */
 	public static AudioManager getInstance() { 
 		return AudioManager.instance;
@@ -39,15 +81,17 @@ public class AudioManager {
 	 * @return True if sounds are enabled. False otherwise.
 	 */
 	public boolean getSoundEnabled() {
-		return this.soundEnabled;
+		final boolean enabled = this.configurationRetriever.getBoolProperty(SOUND_ENABLED_NAME, 
+				SOUND_ENABLED_DEFAULT);
+		return enabled;
 	}
 	
 	/**
-	 * Enables or disables sound.
+	 * Enables or disables sound. 
 	 * @param enable True to enable, false to disable.
 	 */
 	public void setSoundEnabled(boolean enable) {
-		this.soundEnabled = enable;
+		this.configurationRetriever.setBoolProperty(SOUND_ENABLED_NAME, enable);
 	}
 	
 	

@@ -190,7 +190,7 @@ class DbAuth(Base):
 
 class DbUserAuth(Base):
     __tablename__  = 'UserAuth'
-    __table_args__ = (UniqueConstraint('user_id', 'auth_id'), TABLE_KWARGS)
+    __table_args__ = (TABLE_KWARGS)
     
     id            = Column(Integer, primary_key = True)
     user_id       = Column(Integer, ForeignKey('User.id'), nullable = False)

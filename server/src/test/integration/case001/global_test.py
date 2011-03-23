@@ -602,7 +602,7 @@ class Case001TestCase(object):
             )
 
         # reserve it
-        _ = self.real_ups.reserve_experiment(
+        self.real_ups.reserve_experiment(
                 user1_session_id,
                 fpga_experiments[0].to_experiment_id(),
                 "{}",
@@ -623,7 +623,7 @@ class Case001TestCase(object):
             )
 
         # reserve it
-        _ = self.real_ups.reserve_experiment(
+        self.real_ups.reserve_experiment(
                 user2_session_id,
                 pld_experiments[0].to_experiment_id(),
                 "{}",

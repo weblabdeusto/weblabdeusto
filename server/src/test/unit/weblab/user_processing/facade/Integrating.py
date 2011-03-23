@@ -140,7 +140,6 @@ class UserProcessingIntegratingRemoteFacadeManager(unittest.TestCase):
                 wds = UserProcessingWebLabDeustoSOAP("http://localhost:14125/weblab/soap/")
 
                 expected_sess_id = SessionId.SessionId("whatever")
-                MESSAGE  = 'my message'
 
                 expected_experiments = self._generate_experiments_allowed()
                 self.mock_server.return_values['list_experiments'] = expected_experiments
@@ -177,13 +176,12 @@ class UserProcessingIntegratingRemoteFacadeManager(unittest.TestCase):
                 wds = UserProcessingWebLabDeustoSOAP("http://localhost:14126/weblab/soap/")
 
                 expected_sess_id = SessionId.SessionId("whatever")
-                MESSAGE  = 'my message'
                 NUMBER   = 5
 
                 expected_confirmed_reservation = Reservation.ConfirmedReservation(NUMBER)
                 expected_experiment_id = self._generate_two_experiments()[0].to_experiment_id()
 
-                expected_experiments = self._generate_experiments_allowed()
+                self._generate_experiments_allowed()
                 self.mock_server.return_values['reserve_experiment'] = expected_confirmed_reservation
 
                 confirmed_reservation = wds.reserve_experiment(expected_sess_id, expected_experiment_id, "{}")
@@ -219,7 +217,6 @@ class UserProcessingIntegratingRemoteFacadeManager(unittest.TestCase):
                 wds = UserProcessingWebLabDeustoSOAP("http://localhost:14127/weblab/soap/")
 
                 expected_sess_id = SessionId.SessionId("whatever")
-                MESSAGE  = 'my message'
 
                 self.mock_server.return_values['finished_experiment'] = None
 
@@ -240,7 +237,6 @@ class UserProcessingIntegratingRemoteFacadeManager(unittest.TestCase):
                 wds = UserProcessingWebLabDeustoSOAP("http://localhost:14128/weblab/soap/")
 
                 expected_sess_id = SessionId.SessionId("whatever")
-                MESSAGE  = 'my message'
                 NUMBER   = 5
 
                 expected_confirmed_reservation = Reservation.ConfirmedReservation(NUMBER)
@@ -271,7 +267,6 @@ class UserProcessingIntegratingRemoteFacadeManager(unittest.TestCase):
                 wds = UserProcessingWebLabDeustoSOAP("http://localhost:14129/weblab/soap/")
 
                 expected_sess_id = SessionId.SessionId("whatever")
-                MESSAGE  = 'my message'
                 expected_content = 'my file'
                 expected_result  = 'hello there'
                 file_info        = 'program'
@@ -328,8 +323,6 @@ class UserProcessingIntegratingRemoteFacadeManager(unittest.TestCase):
                 wds = UserProcessingWebLabDeustoSOAP("http://localhost:14131/weblab/soap/")
 
                 expected_sess_id = SessionId.SessionId("whatever")
-                MESSAGE  = 'my message'
-                NUMBER   = 5
 
                 expected_user_information = User(
                         'porduna', 

@@ -109,7 +109,7 @@ def _generate_call(server_type, method):
         while True:
             try:
                 server = self._easy_locator.get_server(server_type)
-            except LocatorExceptions.NoServerFoundException, nsfe:
+            except LocatorExceptions.NoServerFoundException:
                 log.log( EasyLocator, log.LogLevel.Error, "Can't get a %s server! Error in get_server " % server_type.name)
                 raise LocatorExceptions.UnableToCompleteOperationException(
                         "Couldn't connect to %s" % server_type.name
@@ -142,7 +142,7 @@ def _generate_call_from_coordaddr(server_type, method):
     def _call_from_coordaddr(self, *args, **kwargs):
         try:
             servers = self._easy_locator._get_server_from_coordaddr(self._other_coord, server_type, self._how_many)
-        except LocatorExceptions.NoServerFoundException, nsfe:
+        except LocatorExceptions.NoServerFoundException:
             log.log( EasyLocator, log.LogLevel.Error, "Can't get %s servers! Error in get_server_from_coordaddr " % server_type.name)
             raise LocatorExceptions.UnableToCompleteOperationException(
                     "Couldn't connect to %s" % server_type.name
@@ -153,7 +153,7 @@ def _generate_call_from_coordaddr(server_type, method):
             tested += 1
             try:
                 return getattr(server, method)(*args, **kwargs)
-            except ProtocolExceptions.RemoteException, re:
+            except ProtocolExceptions.RemoteException:
                 log.log(
                     EasyLocator, 
                     log.LogLevel.Warning, 

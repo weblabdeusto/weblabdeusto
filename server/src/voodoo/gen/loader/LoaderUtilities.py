@@ -74,7 +74,7 @@ def obtain_module(name):
         try:
             if len(name) > 0:
                 the_module = __import__(name,globals(),locals())
-        except ImportError,ie:
+        except ImportError:
             pass
     return the_module
     

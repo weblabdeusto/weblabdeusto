@@ -133,7 +133,7 @@ class EasyLocatorTestCase(unittest.TestCase):
                 ServerTypeSample.Login
             )
 
-        results = returned_result.login('haha','hehe')
+        returned_result.login('haha','hehe')
 
         self.locator_mocker.verify()
 

@@ -190,10 +190,8 @@ public class WebLabClient implements EntryPoint {
 	
 	public void loadLabApp() {
 		
-		// Retrieve the configuration property which defines whether sound should be globally enabled
-		// or not.
-		final boolean sound = WebLabClient.this.configurationManager.getBoolProperty("sound.enabled", false);
-		AudioManager.getInstance().setSoundEnabled(sound);
+		// We need to initialize the AudioManager singleton
+		AudioManager.initialize(this.configurationManager);
 		
 		try{
 			ExperimentFactory.loadExperiments(WebLabClient.this.configurationManager);

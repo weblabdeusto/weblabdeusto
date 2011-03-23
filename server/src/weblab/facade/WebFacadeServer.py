@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import cgi
 import urllib
 import SocketServer
 import BaseHTTPServer
@@ -30,6 +31,9 @@ class MethodException(Exception):
         self.status = status
         self.msg    = msg
 
+class RequestManagedException(Exception):
+    pass
+
 class Method(object):
 
     path = ""
@@ -38,14 +42,23 @@ class Method(object):
         self.req         = request_handler
         self.cfg_manager = cfg_manager
         self.server      = server
+        self.post_read   = False
 
     def run(self):
-        return "Hello world"
+        return "Method %s does not implement run method!" % self.__class__.__name__
 
-    def get_argument(self, name, default_value = None):
+    def get_argument(self, name, default_value = None, avoid_post = False):
         for arg_name, value in self.get_arguments():
             if arg_name == name:
                 return value
+        if not avoid_post:
+            self.read_post_arguments()
+            postvar = self.postvars.get(name, None)
+            if postvar is None:
+                return default_value
+            if len(postvar) == 0:
+                return default_value
+            return postvar[0]
         return default_value
 
     def get_arguments(self):
@@ -53,6 +66,7 @@ class Method(object):
             return []
         query = self.relative_path[self.relative_path.find('?') + 1:]
         return [ (arg[:arg.find('=')], arg[arg.find('=')+1:]) for arg in query.split('&') if arg.find('=') > 0]
+
 
     def raise_exc(self, status, message):
         raise MethodException(status, message)
@@ -72,6 +86,26 @@ class Method(object):
     def uri(self):
         return self.req.path.split('?')[0]
 
+    @property
+    def method(self):
+        return self.req.command
+
+    def read_post_arguments(self):
+        if self.post_read:
+            return # Already read
+        self.post_read = True
+        if self.method == 'POST':
+            ctype, pdict = cgi.parse_header(self.req.headers.getheader('content-type'))
+            if ctype == 'multipart/form-data':
+                self.postvars = cgi.parse_multipart(self.req.rfile, pdict)
+            elif ctype == 'application/x-www-form-urlencoded':
+                length = int(self.req.headers.getheader('content-length'))
+                self.postvars = cgi.parse_qs(self.req.rfile.read(length), keep_blank_values=1)
+            else:
+                self.postvars = {}
+        else:
+            self.postvars = {}
+
     @staticmethod
     def get_relative_path(path):
         # If coming from /weblab001/web/login/?foo=bar will return
@@ -89,6 +123,10 @@ class Method(object):
         relative_path = Method.get_relative_path(absolute_path)
         return relative_path.startswith(klass.path)
 
+    @classmethod
+    def initialize(klass, cfg_manager, route):
+        pass # Not required
+
 class NotFoundMethod(Method):
     def run(self):
         self.raise_exc(404, "Path %s not found!" % urllib.quote(self.req.path))
@@ -100,11 +138,11 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     original_server = None
 
     def do_GET(self):
-        if self.server_route is None:
+        if self.server_route is not None:
             route = self.server_route
             self.weblab_cookie = "weblabsessionid=anythinglikeasessid.%s" % route
         else:
-            self.weblab_cookie = ""
+            self.weblab_cookie = "weblabsessionid=sessid.not.found"
 
         create_context(self.server, self.headers)
         try:
@@ -116,6 +154,8 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                     break
             else:
                 NotFoundMethod(self, self.cfg_manager, self.original_server).run()
+        except RequestManagedException, e:
+            return
         except MethodException, e:
             log.log( self, log.LogLevel.Error, str(e))
             log.log_exc( self, log.LogLevel.Warning)
@@ -171,6 +211,8 @@ class WebHttpServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
             cfg_manager     = configuration_manager
             original_server = server
         BaseHTTPServer.HTTPServer.__init__(self, server_address, NewWebHttpHandler)
+        for method in server_methods:
+            method.initialize(configuration_manager, route)
 
     def get_request(self):
         sock, addr = BaseHTTPServer.HTTPServer.get_request(self)

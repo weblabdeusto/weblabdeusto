@@ -329,7 +329,7 @@ class AdminRemoteFacadeServerTestCase(unittest.TestCase):
             experiment_use1 = ExperimentUse(dt1, dt2, exp, user1, "unknown", id=4)
             experiment_use2 = ExperimentUse(dt1, dt2, exp, user2, "unknown", id=5)
 
-            result = self.rfm_json.get_experiment_uses({ 'id' : REAL_ID}, from_date, to_date, 2, 9, 0, 50, ['start_date'])
+            self.rfm_json.get_experiment_uses({ 'id' : REAL_ID}, from_date, to_date, 2, 9, 0, 50, ['start_date'])
 
             self.mocker.result(([experiment_use1, experiment_use2], 2))
             self.mocker.replay()
@@ -387,7 +387,7 @@ class AdminRemoteFacadeServerTestCase(unittest.TestCase):
             experiment_use1 = ExperimentUse(dt1, dt2, exp, user1, "unknown", id=4)
             experiment_use2 = ExperimentUse(dt1, dt2, exp, user2, "unknown", id=5)
 
-            result = self.rfm_json.get_experiment_uses({ 'id' : REAL_ID}, None, None, None, None, 0, 50, [])
+            self.rfm_json.get_experiment_uses({ 'id' : REAL_ID}, None, None, None, None, 0, 50, [])
 
             self.mocker.result(([experiment_use1, experiment_use2], 2))
             self.mocker.replay()

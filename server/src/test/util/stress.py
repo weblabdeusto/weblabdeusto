@@ -175,7 +175,6 @@ class MainRunner(object):
         if number_of_times is None:
             number_of_times = self.DEFAULT_NUMBER_OF_TIMES
 
-        avg_results   = []
         total_results = []
         last_times    = []
 

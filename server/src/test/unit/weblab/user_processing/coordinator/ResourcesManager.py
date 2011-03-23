@@ -158,7 +158,7 @@ class ResourcesManagerTestCase(unittest.TestCase):
         exp_invalid_inst = ExperimentInstanceId.ExperimentInstanceId("exp.invalid","ud-pld", "PLD Experiments")
         self.assertRaises( CoordExc.ExperimentNotFoundException, 
                             self.resources_manager.get_resource_instance_by_experiment_instance_id,
-                            exp_invalid_type )
+                            exp_invalid_inst )
 
     def test_get_resource_types_by_experiment_id(self):
         session = self.session_maker()

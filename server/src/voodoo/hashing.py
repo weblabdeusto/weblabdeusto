@@ -20,7 +20,7 @@ class AlgorithmNotFoundException(Exception):
 def new(name):
     try:
         import hashlib
-    except ImportError, ie:
+    except ImportError:
         if name == 'md5':
             import md5
             return md5.new()
@@ -32,7 +32,7 @@ def new(name):
     else:
         try:
             return hashlib.new(name)
-        except ValueError, ve:
+        except ValueError:
             raise AlgorithmNotFoundException("Algorithm not found: %s" % name)
 
     

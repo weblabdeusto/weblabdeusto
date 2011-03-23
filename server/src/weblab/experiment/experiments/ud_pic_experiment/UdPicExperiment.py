@@ -131,7 +131,7 @@ class UdPicExperiment(Experiment.Experiment):
             reset_command = UdPicBoardCommand.UdPicBoardSimpleCommand.create("RESET")
             if DEBUG:
                 print "sending RESET command..."
-            reset_response = self._http_device.send_message(str(reset_command))
+            self._http_device.send_message(str(reset_command))
             if DEBUG:
                 print "response received"
             # TODO: Check reset_response (200)
@@ -169,7 +169,7 @@ class UdPicExperiment(Experiment.Experiment):
             
         cmds = UdPicBoardCommand.UdPicBoardCommand(command)
         for cmd in cmds.get_commands():
-            response = self._http_device.send_message(str(cmd))
+            self._http_device.send_message(str(cmd))
             # TODO: check the response code (200)
             #if response.lower() != "ok":
             #   raise UdPicExperimentExceptions.UdPicInvalidResponseException("the ") #TODO: message

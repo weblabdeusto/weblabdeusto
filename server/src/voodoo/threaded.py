@@ -61,6 +61,8 @@ class _ThreadedFunc(threading.Thread):
                             e
                         )
                 )
+                log.log_exc( _ThreadedFunc, log.LogLevel.Warning)
+
             sio = StringIO.StringIO()
             traceback.print_exc(file=sio)
             self.raised_exc_traceback = sio.getvalue()

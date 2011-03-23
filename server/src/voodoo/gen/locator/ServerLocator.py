@@ -102,7 +102,7 @@ class ServerLocator(object):
             while there_are_more_servers:
                 try:
                     address = self._get_server_from_coordinator(session_id)
-                except CoordinatorServerExceptions.NoServerFoundException,nsfe:
+                except CoordinatorServerExceptions.NoServerFoundException:
                     there_are_more_servers = False
                     continue
                 server = self._get_server_from_registry(address)
@@ -504,7 +504,7 @@ class ServerLocator(object):
     def _get_server_from_registry(self,address):
         try:
             return self._registry.get_server(address.address)
-        except RegistryExceptions.RegistryException,e:
+        except RegistryExceptions.RegistryException:
             # It was not found in the registry
             return None
 

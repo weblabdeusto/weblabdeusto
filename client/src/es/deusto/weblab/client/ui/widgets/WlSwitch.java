@@ -42,7 +42,6 @@ public class WlSwitch extends WlWidgetWithPressable{
 			public void onClick(ClickEvent sender) {
 				WlSwitch.this.switchedOn = !WlSwitch.this.switchedOn;
 				WlSwitch.this.press();
-				System.out.println("Playing switch.");
 				AudioManager.getInstance().play("snd/switch.wav");
 				WlSwitch.this.fireActionListeners();
 			}

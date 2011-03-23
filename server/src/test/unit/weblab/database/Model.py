@@ -79,13 +79,7 @@ class ModelTestCase(unittest.TestCase):
         
         ee = Model.DbExternalEntity("ee1", "Country of ee1", "Description of ee1", "weblab@other.es", "password")
         
-        user_auth = Model.DbUserAuth(user, auth, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474")
-        
         group = Model.DbGroup("5A")
-        
-        experiment_category = Model.DbExperimentCategory("Dummy experiments")
-        
-        experiment = Model.DbExperiment("ud-dummy", experiment_category, datetime.datetime.utcnow(), datetime.datetime.utcnow())
         
         user_permission = Model.DbUserPermission(
             user,

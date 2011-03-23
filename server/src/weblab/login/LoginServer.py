@@ -56,7 +56,8 @@ class LoginServer(object):
             server.start()
 
         self._external_id_providers = {
-                    "FACEBOOK" : DelegatedLoginAuth.Facebook(self._db_manager)
+                    "FACEBOOK" : DelegatedLoginAuth.Facebook(self._db_manager),
+                    "OPENID"   : DelegatedLoginAuth.OpenID(self._db_manager)
                 }
 
     def stop(self):
@@ -151,6 +152,8 @@ class LoginServer(object):
         if not self._cfg_manager.get_value(CREATING_EXTERNAL_USERS, True):
             raise LoginExceptions.LoginException("Creating external users not enabled!")
         external_user_id, external_user = self._validate_remote_user(system, credentials)
+        if external_user is None:
+            raise LoginExceptions.LoginException("Creation of external user not supported by delegated login system!")
         group_names = self._cfg_manager.get_value(DEFAULT_GROUPS, [])
         self._db_manager.create_external_user(external_user, external_user_id, system, group_names)
         return self.extensible_login(system, credentials)

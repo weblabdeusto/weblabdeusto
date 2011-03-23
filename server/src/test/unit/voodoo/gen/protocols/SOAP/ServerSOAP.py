@@ -78,7 +78,7 @@ class SOAPpyNotAvailableTestCase(OptionalModuleTestCase):
     def test_soappy_not_available(self):
         def func():
             ServerClass = ServerSOAP.generate(None, ['method1','method2'])
-            server_instance = ServerClass('', 10464)
+            ServerClass('', 10464)
 
         self._test_func_without_module(func)
 

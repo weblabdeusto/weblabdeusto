@@ -67,7 +67,7 @@ def fill_creation(protocol_configuration, coord_address):
 
     try:
         port_number = int(port_value)
-    except ValueError, ve:
+    except ValueError:
         raise LoaderExceptions.InvalidConfigurationException(
                 'Invalid port: %s' % port_value
             )

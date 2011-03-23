@@ -113,7 +113,7 @@ def real_test():
     cfg_manager.append_module(configuration_module)
 
     notifier = AdminNotifier.AdminNotifier(cfg_manager)
-    result = notifier.notify('message')
+    notifier.notify('message')
     
     print "Verify in your e-mail address :-D"
 

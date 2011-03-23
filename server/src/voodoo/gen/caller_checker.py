@@ -19,12 +19,12 @@ def caller_check(servers = ALL):
     def func_wrapper(func):
         def wrapped_func(*args, **kargs):
             # TODO
-            try:
-                a = servers[0]
-            except TypeError,e:
-                all_servers = (servers,)
-            else:
-                all_servers = servers
+#             try:
+#                 servers[0]
+#             except TypeError:
+#                 all_servers = (servers,)
+#             else:
+#                 all_servers = servers
             #TODO: work with all_servers
             return func(*args,**kargs)
         wrapped_func.__name__ = func.__name__
