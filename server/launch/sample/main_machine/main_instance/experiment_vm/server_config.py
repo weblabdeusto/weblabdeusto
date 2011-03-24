@@ -56,7 +56,12 @@ vm_user_manager_type = "HttpQueryUserManager"
 # hence, the URL on which the password changing services should 
 # listen. It is important to make sure that the specified port
 # here and the specified port in the password changing service
-# configuration do match.
+# configuration do match. 
+# When deploying an experiment for real use, it is important to configure
+# the firewall correctly. The password of the Virtual Machine can be changed
+# with a simple HTTP query to the right port. There is no authentication 
+# system. Hence, only the WebLab VM experiment server should be allowed
+# to contact the Virtual Machine through this port.
 http_query_user_manager_url = "http://192.168.51.51:18080"
 
 # Will save the image after every use if enabled. Generally, this is

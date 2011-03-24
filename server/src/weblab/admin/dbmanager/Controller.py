@@ -32,6 +32,7 @@ try:
     from configuration import DB_HOST, SMTP_HOST, SMTP_HELO
     from configuration import DEFAULT_DB_NAME, DEFAULT_DB_USER, DEFAULT_DB_PASS
     from configuration import DEFAULT_LDAP_USERS_FILE
+    from configuration import DEFAULT_OPENID_USERS_FILE
     from configuration import DEFAULT_NOTIFICATION_FROM, DEFAULT_NOTIFICATION_BCC, DEFAULT_NOTIFICATION_SUBJECT, DEFAULT_NOTIFICATION_TEXT_FILE
 except Exception, e:
     print "File configuration.py not found. See configuration.py.dist. Error:", str(e)
@@ -67,12 +68,14 @@ class Controller(object):
             elif option == 6:
                 self.add_users_with_ldap_authtype()
             elif option == 7:
-                self.grant_on_experiment_to_group()
+                self.add_users_with_openid_authtype()
             elif option == 8:
-                self.grant_on_experiment_to_user()
+                self.grant_on_experiment_to_group()
             elif option == 9:
-                self.list_users()
+                self.grant_on_experiment_to_user()
             elif option == 10:
+                self.list_users()
+            elif option == 11:
                 self.notify_users()
         self.ui.dialog_exit()
         sys.exit(0)
@@ -91,6 +94,7 @@ class Controller(object):
             self.ui.wait()
         except GoBackException:
             return
+        
 
     def add_experiment_category(self):
         try:
@@ -204,6 +208,49 @@ class Controller(object):
         except GoBackException:
             return
         
+    def add_users_with_openid_authtype(self):
+        # Retrieve every role from the database
+        roles = self.db.get_roles()
+        role_names = [ (role.id, role.name) for role in roles ]
+        
+        # Retrieve every OpenID auth
+        auths = self.db.get_auths("OPENID")
+        auth_names = [ (auth.id, auth.name) for auth in auths ]
+        
+        try:
+            
+            # Get the data (asking the user if needed) about the users to add and the
+            # role to assign them.
+            user_logins, role_id = self.ui.dialog_add_users_with_openid_authtype(
+                                                            role_names,
+                                                            auth_names,
+                                                            DEFAULT_OPENID_USERS_FILE
+                                                        )
+            
+            # Get the actual role object through the role id we obtained before.
+            role = [ role for role in roles if role.id == role_id ][0] if role_id is not None else None
+            
+            # Get the first OpenID auth. We will assume that there is one at most.
+            if len(auths) < 1:
+                self.ui.error("There is no auth available of the type OpenID")
+            auth = auths[0]
+      
+            for user_data in user_logins:
+                # create the user object using the login, full name, and email we have
+                # retrieved from the provided OpenID USERS file.
+                user = self.db.insert_user(user_data[0], user_data[1], user_data[2], None, role)
+                if user is not None:
+                    self.ui.notify("User created:\n%r" % user)
+                    user_auth = self.db.insert_user_auth(user, auth, user_data[3])
+                    assert user_auth is not None
+                    self.ui.notify("UserAuth created:\n%r" % user_auth)
+                else:
+                    self.ui.error("The User '%s' already exists." % str(user_data) )     
+            self.ui.wait()
+            
+        except GoBackException:
+            return
+
     def grant_on_experiment_to_group(self):
         groups = self.db.get_groups()
         group_names = [ (group.id, group.name) for group in groups ]

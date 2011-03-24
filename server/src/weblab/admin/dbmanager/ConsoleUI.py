@@ -189,7 +189,30 @@ class ConsoleUI(object):
     # 4th layer: Application-level fields
     #    
     
+    def _read_field_full_users_file(self, label, nullable=False, default=None):
+        """
+        Reads a users file which contains the full data for each user, in the following format:
+         username, fullname, email, openid-template
+         
+        Returns a list containing, for each user, a list with its data.
+        """
+        response = self._read_field_file(label, nullable, default)
+        lines = [ line for line in response if not line.startswith('#')]
+        users = []
+        for line in lines:
+            user = line.split(',')
+            user = [ elem.strip("\n\t ") for elem in user ]
+            if len(user) == 4:
+                users.append(user)
+            else:
+                self.notify("[Warning] Ignoring: %s" % str(user))
+        return users
+            
+    
     def _read_field_users_file(self, label, nullable=False, default=None):
+        """
+        Reads a simple users file, returning the user names stored within
+        """
         response = self._read_field_file(label, nullable, default)
         if response is not None:
             user_logins = [ login for login in
@@ -233,10 +256,11 @@ class ConsoleUI(object):
         self._print(" 4. Add Users to Group")
         self._print(" 5. Add User with DB AuthType")
         self._print(" 6. Add Users with LDAP AuthType")
-        self._print(" 7. Grant on Experiment to Group")
-        self._print(" 8. Grant on Experiment to User")
-        self._print(" 9. List Users")
-        self._print("10. Notify Users")
+        self._print(" 7. Add Users with OpenID AuthType")
+        self._print(" 8. Grant on Experiment to Group")
+        self._print(" 9. Grant on Experiment to User")
+        self._print(" 10. List Users")
+        self._print("11. Notify Users")
         self._print()
         self._print("0. Exit")
         self._print()
@@ -308,7 +332,29 @@ class ConsoleUI(object):
             self._print(" %s" % user_login)
         return user_logins, \
                self._read_field_choose("Role", roles, True), \
-               self._read_field_choose("Auth", auths)               
+               self._read_field_choose("Auth", auths)             
+               
+    def dialog_add_users_with_openid_authtype(self, roles, auths, default_users_file):
+        """
+        Provides the console interface to add users through OpenID.
+        Returns a tuple: (user_data, role)
+        user_data contains a list with the data of every user in the list.
+        role contains the role that will be applied to every new user within that list.
+        """
+        self._clean()
+        self._print("Add Users with OpenID AuthType")
+        self._print()
+        
+        # Retrieve a list of lists with the data container in the specified users file.
+        user_logins = self._read_field_full_users_file("Users file", default=default_users_file)
+        
+        # Display each user's data.
+        for user_login in user_logins:
+            self._print(" %s" % str(user_login))
+            
+        # Let the user choose a role to apply to every user 
+        role = self._read_field_choose("Role", roles, True)
+        return user_logins, role
                
     def dialog_grant_on_experiment_to_group(self, groups, experiments):
         self._clean()
