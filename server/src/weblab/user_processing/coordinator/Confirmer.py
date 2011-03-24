@@ -68,13 +68,13 @@ class ReservationConfirmer(object):
             if server_initialization_response is None or server_initialization_response == 'ok' or server_initialization_response == '':
                 still_initializing = False
                 batch = False
-                initial_configuration = {}
+                initial_configuration = "{}"
             else:
                 try:
                     response = json.loads(server_initialization_response)
                     still_initializing    = response.get('keep_initializing', False)
                     batch                 = response.get('batch', False)
-                    initial_configuration = response.get('initial_configuration', {})
+                    initial_configuration = response.get('initial_configuration', "{}")
                 except Exception, e:
                     self.coordinator.mark_experiment_as_broken(experiment_instance_id, [str(e)])
 

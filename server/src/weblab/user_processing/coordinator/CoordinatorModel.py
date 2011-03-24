@@ -288,8 +288,16 @@ class CurrentReservation(Base):
     __tablename__  = 'CurrentReservations'
     __table_args__ = TABLE_KWARGS
 
-    id = Column(String(RESERVATION_ID_SIZE), ForeignKey('Reservations.id'), primary_key = True)
-    reservation = relation(Reservation, backref=backref('current_reservations', order_by=id))
+    id                               = Column(String(RESERVATION_ID_SIZE), ForeignKey('Reservations.id'), primary_key = True)
+    reservation                      = relation(Reservation, backref=backref('current_reservations', order_by=id))
+    # 
+    # While initializing, the system will have to keep initializing every few time. This
+    # time is defined by the experiment server. For instance, it could say "don't ask me in
+    # 30 seconds".
+    # 
+    latest_initialization            = Column(DateTime)
+    next_initialization_milliseconds = Column(Integer)
+    initializer                      = Column(String(30)) # Something like "Thread-10@process1"
 
     def __init__(self, id):
         self.id = id
@@ -310,15 +318,18 @@ class PastReservation(Base):
     __tablename__  = 'PastReservations'
     __table_args__ = TABLE_KWARGS
 
-    id            = Column(String(RESERVATION_ID_SIZE), ForeignKey('Reservations.id'), primary_key = True)
-    date          = Column(DateTime)
-    # TODO: another field is required to know which instance was used
-    returned_data = Column(Text)
+    id                     = Column(Integer, primary_key=True)
 
-    def __init__(self, id, date, returned_data):
-        self.id            = id
-        self.date          = date
-        self.returned_data = returned_data
+    reservation_id         = Column(String(RESERVATION_ID_SIZE))
+    date                   = Column(DateTime)    # When did the experiment finish?
+    experiment_instance_id = Column(String(512)) # exp1:ud-pld@PLD experiments
+    returned_data          = Column(Text)        # A JSON structure with the information returned by the experiment server
+
+    def __init__(self, id, date, experiment_instance_id, returned_data):
+        self.id                     = id
+        self.date                   = date
+        self.experiment_instance_id = experiment_instance_id
+        self.returned_data          = returned_data
     
     def __repr__(self):
         return "PastReservation(%r)" % self.id
