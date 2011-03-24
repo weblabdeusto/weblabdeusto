@@ -260,13 +260,13 @@ class ConsoleUI(object):
         self._print(" 8. Grant on Experiment to Group")
         self._print(" 9. Grant on Experiment to User")
         self._print(" 10. List Users")
-        self._print("11. Notify Users")
+        self._print(" 11. Notify Users")
         self._print()
         self._print("0. Exit")
         self._print()
         while True:
             try:
-                option = self._read_field_int("Option", 0, 10)
+                option = self._read_field_int("Option", 0, 11)
                 break
             except GoBackException:
                 pass
