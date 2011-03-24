@@ -15,6 +15,7 @@
 #
 
 import telnetlib
+import traceback
 import cPickle as pickle
 
 def _raise_exception(e):
@@ -53,6 +54,7 @@ class monitor_method(object):
         try:
             result = self._func(*args, **kwargs)
         except Exception, e:
+            traceback.print_exc(file=open('errors.txt','w'))
             return "_raise_exception(%s)" % repr(pickle.dumps(e))
         else:
             return repr(pickle.dumps(result))
