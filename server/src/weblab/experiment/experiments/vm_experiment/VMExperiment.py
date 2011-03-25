@@ -35,6 +35,7 @@ CFG_URL = "vm_url"
 CFG_VM_TYPE = "vm_vm_type"
 CFG_USER_MANAGER_TYPE = "vm_user_manager_type"
 CFG_SHOULD_STORE_IMAGE = "vm_should_store_image"
+CFG_ESTIMATED_LOAD_TIME = "vm_estimated_load_time"
 
 # TODO: Consider adding this to the config
 PWD_LENGTH = 8
@@ -43,6 +44,7 @@ DEFAULT_URL = "rdp://localhost:6667"
 DEFAULT_VM_TYPE = "VirtualMachineDummy"
 DEFAULT_USER_MANAGER_TYPE = "DummyUserManager"
 DEFAULT_SHOULD_STORE_IMAGE = True
+DEFAULT_ESTIMATED_LOAD_TIME = 15
 
 
 class VMExperiment(Experiment.Experiment):
@@ -69,6 +71,7 @@ class VMExperiment(Experiment.Experiment):
         self.vm_type = self._cfg_manager.get_value(CFG_VM_TYPE, DEFAULT_VM_TYPE)
         self.user_manager_type = self._cfg_manager.get_value(CFG_USER_MANAGER_TYPE, DEFAULT_USER_MANAGER_TYPE)
         self.should_store_image = self._cfg_manager.get_value(CFG_SHOULD_STORE_IMAGE, DEFAULT_SHOULD_STORE_IMAGE)
+        self.estimated_load_time = self._cfg_manager.get_value(CFG_ESTIMATED_LOAD_TIME, DEFAULT_ESTIMATED_LOAD_TIME)
 
     @Override(Experiment.Experiment)
     def do_start_experiment(self):
@@ -96,11 +99,13 @@ class VMExperiment(Experiment.Experiment):
         if command == "get_configuration":
             return self.url + "     with password: " + self.session_id
             
-        # Returns 1 if the client should be able to connect to the VM already, if it isn't ready yet.
+        # Returns 1 if the client should be able to connect to the VM already, 
+        # 0;<estimated_load_time> if it isn't ready yet,
+        # 3;<error msg> if an error occurred
         elif command == "is_ready":
-            if self.is_ready: return "1"
-            if self.is_error: return "3;"+str(self.error)
-            return "0"
+            if self.is_ready: return "1"    # 1:Ready
+            if self.is_error: return "3;%s" % str(self.error)
+            return "0;%s" % self.estimated_load_time
         
         elif command == "is_alive":
             if not self.is_ready: return "0"

@@ -68,3 +68,8 @@ http_query_user_manager_url = "http://192.168.51.51:18080"
 # not advisable. In the future, support for snapshot saving might be
 # implemented.
 vm_should_store_image = False
+
+# Should specify the estimated load time of the Virtual Machine. This time
+# will be displayed to the users, so that they know the waiting time they
+# should expect.
+vm_estimated_load_time = 20

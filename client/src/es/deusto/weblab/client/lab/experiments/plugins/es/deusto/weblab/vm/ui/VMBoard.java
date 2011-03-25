@@ -104,13 +104,32 @@ public class VMBoard extends BoardBase {
 					}
 					@Override
 					public void onSuccess(ResponseCommand responseCommand) {
-						final String resp = responseCommand.getCommandString();
 						
-						if(resp.equals("0")) {
+						// Read the full message returned by the exp server and ensure it's not empty
+						final String resp = responseCommand.getCommandString();
+						if(resp.length() == 0) 
+							VMBoard.this.setMessage("The is_ready query returned an empty result");
+						
+						// It may come with an argument, in the format <code>;<arg>,
+						// so we split it to retrieve the <code> and the <arg>.
+						final String [] codeSplit = resp.split(";", 2);
+						final String codeStr;
+						if(codeSplit.length == 0)
+							codeStr = resp;
+						else
+							codeStr = codeSplit[0];
+						
+						final String argStr;
+						if(codeSplit.length >= 2)
+							argStr = codeSplit[1];
+						else
+							argStr = "";
+						
+						if(codeStr.equals("0")) {
 							// Not ready
-							VMBoard.this.setMessage("Your Virtual Machine is not yet ready. Please, wait.");
+							VMBoard.this.setMessage("Your Virtual Machine is not yet ready. Please, wait. It often takes around " + argStr + " seconds.");
 							VMBoard.this.readyTimer.schedule(IS_READY_QUERY_TIMER);
-						} else if(resp.equals("1")) {
+						} else if(codeStr.equals("1")) {
 							// Ready
 							VMBoard.this.setMessage("Your Virtual Machine is now ready!");
 						} else {
