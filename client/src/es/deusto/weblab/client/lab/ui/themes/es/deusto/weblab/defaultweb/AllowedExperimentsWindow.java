@@ -61,6 +61,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 	@UiField WlWaitingLabel waitingLabel;
 	@UiField Label generalErrorLabel;
 	@UiField Label separatorLabel;
+	@UiField Label separatorLabel2;
 
 	// Callbacks
 	private final IAllowedExperimentsWindowCallback callback;
@@ -136,6 +137,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 	    if(this.callback.startedLoggedIn()){
 	    	this.logoutLink.setVisible(false);
 	    	this.separatorLabel.setVisible(false);
+	    	this.separatorLabel2.setVisible(false);
 	    }
 	}
 	
