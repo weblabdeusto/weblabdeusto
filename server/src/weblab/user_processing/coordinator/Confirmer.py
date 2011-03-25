@@ -81,8 +81,18 @@ class ReservationConfirmer(object):
                     log.log( ReservationConfirmer, log.LogLevel.Error, "Could not parse experiment server response: %s; %s" % (e, server_initialization_response) )
                     log.log_exc( ReservationConfirmer, log.LogLevel.Warning )
                     return
-                   
-            self.coordinator.confirm_experiment(reservation_id, lab_session_id)
+            if still_initializing:
+                # TODO XXX 
+                raise NotImplementedError("Not yet implemented: still_initializing")
+
+            if batch:
+                # TODO: XXX
+                raise NotImplementedError("Not yet implemented: batch")
+
+            #
+            # Not batch and it has finished the initialization
+            # 
+            self.coordinator.confirm_experiment(reservation_id, lab_session_id, initial_configuration)
 
 
     def enqueue_free_experiment(self, lab_coordaddress_str, lab_session_id):

@@ -294,10 +294,10 @@ class Coordinator(object):
     # Called when it is confirmed by the Laboratory Server.
     #
     @logged()
-    def confirm_experiment(self, reservation_id, lab_session_id):
+    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
         schedulers = self._get_schedulers_per_reservation(reservation_id)
         for scheduler in schedulers:
-            scheduler.confirm_experiment(reservation_id, lab_session_id)
+            scheduler.confirm_experiment(reservation_id, lab_session_id, initial_configuration)
 
     ################################################################
     #

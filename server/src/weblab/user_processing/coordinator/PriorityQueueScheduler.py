@@ -218,7 +218,7 @@ class PriorityQueueScheduler(Scheduler):
     @exc_checker
     @logged()
     @Override(Scheduler)
-    def confirm_experiment(self, reservation_id, lab_session_id):
+    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
         self._remove_expired_reservations()
 
         session = self.session_maker()

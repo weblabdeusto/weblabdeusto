@@ -22,7 +22,7 @@ import weblab.exceptions.user_processing.CoordinatorExceptions as CoordExc
 
 from weblab.user_processing.coordinator.Resource import Resource
 
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, UniqueConstraint, Table, Text
+from sqlalchemy import Column, Boolean, Integer, String, DateTime, ForeignKey, UniqueConstraint, Table, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relation, backref
 import sqlalchemy
@@ -290,20 +290,66 @@ class CurrentReservation(Base):
 
     id                               = Column(String(RESERVATION_ID_SIZE), ForeignKey('Reservations.id'), primary_key = True)
     reservation                      = relation(Reservation, backref=backref('current_reservations', order_by=id))
+
     # 
-    # While initializing, the system will have to keep initializing every few time. This
-    # time is defined by the experiment server. For instance, it could say "don't ask me in
-    # 30 seconds".
+    # While initializing, the system will have to keep asking the experiment server if it has
+    # been initialized every few time. This time is defined by the experiment server. For 
+    # instance, it could say "don't ask me in 30 seconds", or "please ask me in 0.2 seconds".
+    # However, given that there are different servers asking for the state concurrently, the
+    # table must check that only one of them calls the is_initializing method.
     # 
+    # While this could be implemented as a set of commands, the purpose of the is_initializing
+    # method is to avoid being taken into account in the time restrictions of the experiment.
+    # For instance, in the University of Deusto we have experiments which use Xilinx devices,
+    # and the devices can be programmed with a serial port or with a JTAG Blazer, and they
+    # will take more or less time. If you establish that a user has 3 minutes, and depending on
+    # the device being used it will become 2 minutes, problems arise.
+    # 
+    # If all the fields below are set to NULL, it means that it has finish the initialization
+    #
+    # Therefore, once a server performs a call, it will store the result, establishing:
+    # 
+    # - When the latest initialization finished
+    # 
+
     latest_initialization            = Column(DateTime)
+
+    # 
+    # - How long in milliseconds the servers should wait
+    # 
     next_initialization_milliseconds = Column(Integer)
+
+    #
+    # - If an initialization process is being held at the moment. This is a call to the 
+    #   is_initializing() method, not the fact of being initialized.
+    #
+    currently_calling_initialization = Column(Boolean)
+
+    # 
+    # - Who is initializing the system. If two processes see that currently_calling_initialization 
+    #   is false and that it's time to query is_initializing, and both set currently_calling_initialization 
+    #   true,  both could query. In order to avoid this, they also have to sign that they're the 
+    #   one who will actually perform the task and later check that they're the one who do this.
+    # 
     initializer                      = Column(String(30)) # Something like "Thread-10@process1"
 
-    def __init__(self, id):
+
+    def __init__(self, id, latest_initialization = None, next_initialization_milliseconds = None):
         self.id = id
-    
+        self.latest_initialization            = latest_initialization
+        self.next_initialization_milliseconds = next_initialization_milliseconds
+        self.currently_calling_initialization = False
+        self.initializer                      = None
+
+    def next_initialization(self, now, millis):
+        self.latest_initialization            = now
+        self.next_initialization_milliseconds = millis
+
+    def is_initialized(self):
+        return self.latest_initialization is None or self.next_initialization_milliseconds is None 
+
     def __repr__(self):
-        return "CurrentReservation(%r)" % self.reservation
+        return "CurrentReservation(%r, %r, %r, %r, %r)" % (self.reservation, self.latest_initialization, self.next_initialization_milliseconds, self.currently_calling_initialization, self.initializer)
 
 ######################################################################################
 # 
@@ -314,8 +360,8 @@ class CurrentReservation(Base):
 # core level.
 # 
 
-class PastReservation(Base):
-    __tablename__  = 'PastReservations'
+class BatchRetrievedData(Base):
+    __tablename__  = 'BatchRetrievedData'
     __table_args__ = TABLE_KWARGS
 
     id                     = Column(Integer, primary_key=True)
@@ -325,12 +371,12 @@ class PastReservation(Base):
     experiment_instance_id = Column(String(512)) # exp1:ud-pld@PLD experiments
     returned_data          = Column(Text)        # A JSON structure with the information returned by the experiment server
 
-    def __init__(self, id, date, experiment_instance_id, returned_data):
-        self.id                     = id
+    def __init__(self, reservation_id, date, experiment_instance_id, returned_data):
+        self.reservation_id         = reservation_id
         self.date                   = date
         self.experiment_instance_id = experiment_instance_id
         self.returned_data          = returned_data
     
     def __repr__(self):
-        return "PastReservation(%r)" % self.id
+        return "BatchRetrievedData(%r, %r, %r, %r, %r)" % (self.id, self.reservation_id, self.date, self.experiment_instance_id, self.returned_data)
 
