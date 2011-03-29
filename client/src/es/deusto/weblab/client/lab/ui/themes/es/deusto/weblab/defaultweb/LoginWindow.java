@@ -124,6 +124,21 @@ class LoginWindow extends BaseWindow {
 	    this.callback = callback;
 
 	    this.loadWidgets();
+	    /*
+	    // Set the focus. Apparently we need to wait for a while before it
+	    // actually takes effect.
+	    final Timer timer = new Timer() {
+			@Override
+			public void run() {
+				try {
+					LoginWindow.this.usernameTextbox.setFocus(true);
+					System.out.println("Focus set");
+				} catch(Throwable th) {
+				}
+			}
+	    };
+	    timer.schedule(200);
+	    */
 	}
 	
 	@Override
@@ -243,6 +258,7 @@ class LoginWindow extends BaseWindow {
 		this.waitingLabel.setText("");
 		this.waitingLabel.setVisible(false);
 		this.loginButton.setEnabled(true);
+		this.usernameTextbox.setFocus(true);
 	}
 
 
@@ -254,6 +270,7 @@ class LoginWindow extends BaseWindow {
 		this.waitingLabel.setText("");
 		this.waitingLabel.setVisible(false);
 		this.loginButton.setEnabled(true);
+		this.usernameTextbox.setFocus(true);
 	}
 	
 	@UiHandler("loginButton")
@@ -324,5 +341,13 @@ class LoginWindow extends BaseWindow {
 			Cookies.setCookie(WebLabClient.LOCALE_COOKIE, this.languageCode);
 			WebLabClient.refresh(this.languageCode);
 		}
+	}
+
+	void setUsernameFocus() {
+		this.usernameTextbox.setFocus(true);
+	}
+
+	void setLoginFocus() {
+		this.loginButton.setFocus(true);
 	}	
 }

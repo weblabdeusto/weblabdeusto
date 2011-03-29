@@ -251,6 +251,7 @@ public class WebLabClient implements EntryPoint {
 				}
 
 				WebLabClient.this.putWidget(theme.getWidget());
+				theme.onLoaded();
 			}
 			
 			@Override
