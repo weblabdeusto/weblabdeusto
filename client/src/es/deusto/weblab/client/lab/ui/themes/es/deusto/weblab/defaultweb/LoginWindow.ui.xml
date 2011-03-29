@@ -15,9 +15,6 @@
     			<g:Image resource='{res.logo}' />
 		   		<g:Image ui:field="hostEntityLogo" />
 			</g:HorizontalPanel>
-			<g:HorizontalPanel width="100%" horizontalAlignment="ALIGN_RIGHT" >
-				<w:WlSoundSwitch ui:field="soundSwitch" imgWidth="50px" imgHeight="50px"></w:WlSoundSwitch>
-			</g:HorizontalPanel>
     	</g:HorizontalPanel>
     	
 	    <g:HorizontalPanel>
