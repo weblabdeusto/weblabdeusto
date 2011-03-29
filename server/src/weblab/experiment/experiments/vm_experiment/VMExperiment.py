@@ -16,6 +16,7 @@
 import weblab.experiment.Experiment as Experiment
 
 from voodoo.override import Override
+from voodoo.log import logged
 
 import uuid
 
@@ -73,22 +74,32 @@ class VMExperiment(Experiment.Experiment):
         self.should_store_image = self._cfg_manager.get_value(CFG_SHOULD_STORE_IMAGE, DEFAULT_SHOULD_STORE_IMAGE)
         self.estimated_load_time = self._cfg_manager.get_value(CFG_ESTIMATED_LOAD_TIME, DEFAULT_ESTIMATED_LOAD_TIME)
 
+
     @Override(Experiment.Experiment)
+    @logged("info")
     def do_start_experiment(self):
         """
         Callback run when the experiment is started. After the starting
         thread finishes successfully, it will set is_ready to True.
         """
+        initial = time.time()
+        while self.is_ready and (initial + 10) > time.time():
+            time.sleep(0.1)
+
         if self.is_ready:
             return "Already started and ready"
+
         if self.is_error:
             return "Can't start. Error state: ", str(self.error)
+
         if self._start_t != None and self._start_t.isAlive():
             return "Already starting"
+
         self._start_t = self.handle_start_exp_t()
         return "Starting"
 
     @Override(Experiment.Experiment)
+    @logged("info")
     def do_send_command_to_device(self, command):
         """
         Callback run when the client sends a command to the experiment
@@ -116,6 +127,7 @@ class VMExperiment(Experiment.Experiment):
 
 
     @Override(Experiment.Experiment)
+    @logged("info")
     def do_send_file_to_device(self, content, file_info):
         """ 
         Callback for when the client sends a file to the experiment
@@ -128,15 +140,12 @@ class VMExperiment(Experiment.Experiment):
 
 
     @Override(Experiment.Experiment)
+    @logged("info")
     def do_dispose(self):
         """
         Callback to perform cleaning after the experiment ends.
         """
-        self.is_ready = False
-        self.error = None
-        self.is_error = False
-        self._start_t = None
-        self._dispose_t = self.handle_dispose_t()
+        self.handle_dispose()
         return "Disposing"
     
 
@@ -187,14 +196,19 @@ class VMExperiment(Experiment.Experiment):
     #TODO: Consider whether this should indeed be threaded, and in that case, consider what would happen
     # if an experiment was started with this function still running, after dispose has returned.
     #@threaded()
-    def handle_dispose_t(self):
+    def handle_dispose(self):
         """
         Executed on a work thread, will handle clean-up.
         """
         self.vm.kill_vm()
         if( self.should_store_image ):
             self.vm.store_image()
-        
+
+	self.is_ready = False
+        self.error = None
+        self.is_error = False
+        self._start_t = None
+
         
     def setup(self):
         """ Configures the VM """

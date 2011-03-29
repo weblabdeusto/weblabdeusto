@@ -15,6 +15,7 @@
 
 from UserManager import UserManager
 import urllib2
+from voodoo.log import logged
 
 
 HTTP_QUERY_USER_MANAGER_URL = "http_query_user_manager_url"
@@ -28,6 +29,8 @@ class HttpQueryUserManager(UserManager):
         UserManager.__init__(self, cfg_manager)
         self._url = cfg_manager.get_value(HTTP_QUERY_USER_MANAGER_URL, DEFAULT_HTTP_QUERY_USER_MANAGER_URL) 
 
+
+    @logged("info")
     def configure(self, sid):
         times_tried = 0 # TODO: Tidy this up
         while(times_tried < 3):
