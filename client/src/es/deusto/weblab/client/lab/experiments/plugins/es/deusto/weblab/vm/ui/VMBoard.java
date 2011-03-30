@@ -37,6 +37,12 @@ import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 public class VMBoard extends BoardBase {
 	
+	private static final String DEFAULT_VNC_HEIGHT = "900";
+	private static final String DEFAULT_VNC_WIDTH  = "1152";
+
+	private static final String VNC_WIDTH  = "vnc.width";
+	private static final String VNC_HEIGHT = "vnc.height";
+
 	/******************
 	 * UIBINDER RELATED
 	 ******************/
@@ -53,7 +59,6 @@ public class VMBoard extends BoardBase {
 		public static final String CLOCK_ACTIVATION_PANEL  = "wl-clock_activation_panel"; 
 	}
 
-	@SuppressWarnings("unused")
 	private final IConfigurationRetriever configurationRetriever;
 	
 	// Root panel.
@@ -162,8 +167,8 @@ public class VMBoard extends BoardBase {
 		final String archive = GWT.getModuleBaseURL() + "vnc/tightvncviewer.jar";
 		final String code = "VncViewer.class";
 		
-		final String width  = "1024";
-		final String height = "1024";
+		final String width  = this.configurationRetriever.getProperty(VNC_WIDTH,  DEFAULT_VNC_WIDTH);
+		final String height = this.configurationRetriever.getProperty(VNC_HEIGHT, DEFAULT_VNC_HEIGHT);
 		
 		final String [] tokens = this.fullURLPassword.split(" ");
 		// "vnc://host:port/   with password:  asdf"
