@@ -28,6 +28,9 @@ VBOXMANAGE_COMMAND_DEFAULT_VALUE = 'VBoxManage' # Could be something like r'c:\P
 VBOXHEADLESS_COMMAND_NAME  = 'vboxheadless_command'
 VBOXHEADLESS_COMMAND_DEFAULT_VALUE = 'VBoxHeadless' # Could be something like r'c:\Program Files\VirtualBox\VBoxHeadless' or similar
 
+VBOXHEADLESS_START_OPTIONS = 'vboxheadless_start_options'
+VBOXHEADLESS_START_OPTIONS_DEFAULT_VALUE = []
+
 VBOX_VM_NAME = 'vbox_vm_name'
 VBOX_VM_DEFAULT_VALUE = 'weblab'
 VBOX_VM_BASE_SNAPSHOT = 'vbox_base_snapshot'
@@ -48,6 +51,7 @@ class VirtualBox(VirtualMachineManager):
         self.vboxheadless     = cfg_manager.get_value(VBOXHEADLESS_COMMAND_NAME, VBOXHEADLESS_COMMAND_DEFAULT_VALUE)
         self.vm_name          = cfg_manager.get_value(VBOX_VM_NAME, VBOX_VM_DEFAULT_VALUE)
         self.vm_base_snapshot = cfg_manager.get_value(VBOX_VM_BASE_SNAPSHOT, VBOX_VM_DEFAULT_BASE_SNAPSHOT)
+        self.vboxheadless_start_options = cfg_manager.get_value(VBOXHEADLESS_START_OPTIONS, VBOXHEADLESS_START_OPTIONS_DEFAULT_VALUE)
 
     @Override(VirtualMachineManager)
     def launch_vm(self):
@@ -57,7 +61,9 @@ class VirtualBox(VirtualMachineManager):
         the Virtual Machine is truly ready for usage.
         """
         self._print("Starting VM")
-        subprocess.Popen([self.vboxheadless,'-startvm',self.vm_name,'-vrde','on'])
+        options = [self.vboxheadless,'-startvm',self.vm_name]
+        options.extend(self.vboxheadless_start_options)
+        subprocess.Popen(options)
 #        result = process.wait()
         result = "(other thread)"
         self._print("Started %s" % result)

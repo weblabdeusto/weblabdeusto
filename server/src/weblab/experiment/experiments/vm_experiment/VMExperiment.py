@@ -231,9 +231,11 @@ class VMExperiment(Experiment.Experiment):
             except UserManager.PermanentConfigureError, ex:
                 self.is_error = True
                 self.error = ex
-                break
+                return
             except UserManager.TemporaryConfigureError, ex:
-                pass
+                self.is_error = True
+                self.error = ex
+                return
             except Exception, ex:
                 self.is_error = True
                 self.error = ex
