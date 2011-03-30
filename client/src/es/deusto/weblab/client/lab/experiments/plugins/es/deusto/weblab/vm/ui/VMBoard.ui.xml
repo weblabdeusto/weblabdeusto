@@ -12,7 +12,8 @@
 				<w:WlWaitingLabel ui:field="messages" horizontalAlignment="ALIGN_CENTER"/>
 				
 				<g:Label ui:field="url" horizontalAlignment="ALIGN_CENTER"></g:Label>
-
+				
+				<g:VerticalPanel ui:field="applets"></g:VerticalPanel>
 	</g:VerticalPanel>
 	
 

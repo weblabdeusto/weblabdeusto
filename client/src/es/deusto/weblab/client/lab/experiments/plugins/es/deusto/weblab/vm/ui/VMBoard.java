@@ -14,9 +14,13 @@
 package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.vm.ui;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -57,10 +61,13 @@ public class VMBoard extends BoardBase {
 	
 	@UiField WlWaitingLabel messages;
 	@UiField Label url;
+	@UiField VerticalPanel applets;
 	
 	@UiField(provided = true) WlTimer timer;
 	
 	private Timer readyTimer;
+	private String fullURLPassword = "";
+	private String protocol = "";
 	
 	
 	public VMBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
@@ -132,6 +139,8 @@ public class VMBoard extends BoardBase {
 						} else if(codeStr.equals("1")) {
 							// Ready
 							VMBoard.this.setMessage("Your Virtual Machine is now ready!");
+							if(VMBoard.this.protocol.equals("vnc"))
+								loadVNCApplet();
 						} else {
 							// Unexpected answer
 							VMBoard.this.setMessage("Received unexpected response to the is_ready query");
@@ -143,6 +152,50 @@ public class VMBoard extends BoardBase {
 		
 		// We do not do a Repeating schedule because we want to wait for a response before asking again
 		this.readyTimer.schedule(IS_READY_QUERY_TIMER);
+	}
+	
+	private void loadVNCApplet(){
+		this.applets.clear();
+		final Anchor anchor = new Anchor("Load Java applet VNC Client");
+		this.applets.add(anchor);
+		
+		final String archive = GWT.getModuleBaseURL() + "vnc/tightvncviewer.jar";
+		final String code = "VncViewer.class";
+		
+		final String width  = "1024";
+		final String height = "1024";
+		
+		final String [] tokens = this.fullURLPassword.split(" ");
+		// "vnc://host:port/   with password:  asdf"
+		final String hostPort = tokens[0].split("//")[1].split("/")[0];
+		final String host;
+		final String port;
+		if(hostPort.indexOf(":") >= 0){
+			host = hostPort.split(":")[0];
+			port = hostPort.split(":")[1];
+		}else{
+			host = hostPort;
+			port = "5900"; // standard default VNC port
+		}
+		final String password = tokens[tokens.length - 1];
+		
+		anchor.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				VMBoard.this.applets.clear();
+				final HTML appletHTML = new HTML();
+				appletHTML.setHTML("<applet archive='" + archive + "' " + 
+		        		"code='" + code + "' " + 
+		        		"width='" + width + "' " +  
+		        		"height='" + height + "' " +
+		        		"> " +
+		        		"<PARAM NAME=\"PORT\" VALUE=\"" + port + "\"> " +
+		        		"<PARAM NAME=\"HOST\" VALUE=\"" + host + "\"> " +
+		        		"<PARAM NAME=\"PASSWORD\" VALUE=\"" + password + "\"> " +	
+		        	"</applet>");
+				VMBoard.this.applets.add(appletHTML);
+			}
+		});
 	}
 	
 	/* Creates those widgets that are placed through UiBinder but
@@ -218,6 +271,8 @@ public class VMBoard extends BoardBase {
 				final String msg = "VM address:";
 				VMBoard.this.setMessage(msg);
 				VMBoard.this.url.setText(responseCommand.getCommandString());
+				VMBoard.this.protocol = responseCommand.getCommandString().split(":")[0].toLowerCase();
+				VMBoard.this.fullURLPassword = responseCommand.getCommandString();
 			}
 		});
 	}
