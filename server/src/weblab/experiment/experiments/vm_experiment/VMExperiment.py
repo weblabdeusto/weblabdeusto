@@ -56,7 +56,8 @@ class VMExperiment(Experiment.Experiment):
         self.read_base_config() # Read those vars which are NOT vm implementation specific.
         self.session_id = None
         self.vm = self.find_vm_manager(self.vm_type)(self._cfg_manager) # Instance the appropriate VM manager
-        self.user_manager = self.find_user_manager(self.user_manager_type)(self._cfg_manager) # Instance the appropiate user manager
+        self.user_manager_class = self.find_user_manager(self.user_manager_type) # Instance the appropiate user manager
+        self.user_manager = None
         self.is_ready = False # Indicate whether the machine is ready to be used
         self.is_error = False # Indicate whether we are in an error state
         self.error = None # The error
@@ -82,6 +83,12 @@ class VMExperiment(Experiment.Experiment):
         Callback run when the experiment is started. After the starting
         thread finishes successfully, it will set is_ready to True.
         """
+        # Using temporal variable "um" so if somebody does self.user_manager = None 
+        # between the "if self.user_manager is not None" and the action there is no error
+        um = self.user_manager
+        if um is not None:
+            um.cancel()
+
         initial = time.time()
         while self.is_ready and (initial + 10) > time.time():
             time.sleep(0.1)
@@ -200,18 +207,21 @@ class VMExperiment(Experiment.Experiment):
         """
         Executed on a work thread, will handle clean-up.
         """
+        self.user_manager.cancel()
         self.vm.kill_vm()
         if( self.should_store_image ):
             self.vm.store_image()
 
-	self.is_ready = False
+        self.is_ready = False
         self.error = None
         self.is_error = False
         self._start_t = None
+        self.user_manager = None
 
         
     def setup(self):
         """ Configures the VM """
+        self.user_manager = self.user_manager_class(self._cfg_manager)
         while True:
             try:
                 self.user_manager.configure(self.session_id)

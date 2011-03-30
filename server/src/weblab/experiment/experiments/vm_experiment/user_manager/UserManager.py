@@ -33,6 +33,8 @@ class UserManager(object):
         @param cfg_manager Config Manager which will be used to read configuration parameters
         """
         self.cfg = cfg_manager
+        self.cancelled = False
+
     
     def configure(self, sid):
         """
@@ -49,5 +51,6 @@ class UserManager(object):
         """
         pass
     
-        
+    def cancel(self):
+        self.cancelled = True
         
