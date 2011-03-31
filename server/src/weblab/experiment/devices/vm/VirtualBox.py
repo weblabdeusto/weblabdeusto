@@ -17,6 +17,9 @@
 import sys
 import subprocess
 
+from voodoo.log import logged
+import voodoo.log as log
+
 from VirtualMachineManager import VirtualMachineManager
 from voodoo.override import Override
 
@@ -54,6 +57,7 @@ class VirtualBox(VirtualMachineManager):
         self.vboxheadless_start_options = cfg_manager.get_value(VBOXHEADLESS_START_OPTIONS, VBOXHEADLESS_START_OPTIONS_DEFAULT_VALUE)
 
     @Override(VirtualMachineManager)
+    @logged('info')
     def launch_vm(self):
         """
         Launches the VirtualMachine. Does not wait until the virtual OS is ready. It is hence
@@ -69,6 +73,7 @@ class VirtualBox(VirtualMachineManager):
         self._print("Started %s" % result)
     
     @Override(VirtualMachineManager)
+    @logged('info')
     def kill_vm(self):
         self._print("Killing VM")
         process = subprocess.Popen([self.vboxmanage,'controlvm',self.vm_name,'poweroff'])
@@ -76,6 +81,7 @@ class VirtualBox(VirtualMachineManager):
         self._print("Killed %s" % result)
             
     @Override(VirtualMachineManager)
+    @logged('info')
     def is_alive_vm(self):
         self._print("listing vms")
         process = subprocess.Popen([self.vboxmanage,'-q','list','runningvms'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -91,6 +97,7 @@ class VirtualBox(VirtualMachineManager):
         return self.vm_name in running
 
     @Override(VirtualMachineManager)
+    @logged('info')
     def prepare_vm(self):
 
         self._print("RESTORING %s FOR %s" % (self.vm_base_snapshot, self.vm_name))
@@ -101,6 +108,7 @@ class VirtualBox(VirtualMachineManager):
         self._print("RESTORED, RETURNED %s " % result)
 
     def _print(self, msg):
+        log.log( VirtualBox, log.LogLevel.Info, msg)
         if DEBUG:
             print "WebLabVirtualBox::%s" % msg
             sys.stdout.flush()

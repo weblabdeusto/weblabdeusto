@@ -55,7 +55,9 @@ class HttpQueryUserManager(UserManager):
         code = 0
         while times_tried < TIMES_TO_RETRY and not self.cancelled:
             try:
-                response = urllib2.urlopen("%s/?sessionid=%s" % (self._url, sid), timeout=5)
+                url = "%s/?sessionid=%s" % (self._url, sid)
+                log.log( HttpQueryUserManager, log.LogLevel.Info, "Calling: %s" % url)
+                response = urllib2.urlopen(url, timeout=5)
                 code = response.read()
                 log.log( HttpQueryUserManager, log.LogLevel.Info, "Configuring sessionid on VM returned: %s" % code)
                 print code
@@ -81,5 +83,5 @@ class HttpQueryUserManager(UserManager):
         
         # We managed to send the query but the server reported some kind of error.
         # TODO: Send Permanent instead of Temporary depending on the error.
-        if code != 200:
-            raise TemporaryConfigureError()
+        if code != 'ok':
+            raise TemporaryConfigureError("Unexpected code returned: %s" %s)
