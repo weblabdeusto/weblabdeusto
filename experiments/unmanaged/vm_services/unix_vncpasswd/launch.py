@@ -50,34 +50,45 @@ def change_password(new_passwd):
 	
     time.sleep(0.1)
 	
-    #passwd.expect(" (y/n)?")
-    #passwd.sendline("n");
-    
-    #time.sleep(0.1)
+    passwd.expect("successfully")
+
+    time.sleep(0.1)
 
 class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_GET(self):
-        _, query_args = urllib.splitquery(self.path)
-        arguments = dict([ urllib.splitvalue(query_arg) for query_arg in query_args.split('&') ])
-        session_id = arguments.get('sessionid')
-
-        if session_id is None:
-            self.send_error(400)
-            self.end_headers()
-            self.wfile.write("fail: sessionid argument is required")
-        else:
-            try:
-                change_password(session_id)
-            except Exception, e:
-                traceback.print_exc()
-                self.send_error(500)
+        log = open("/tmp/log.txt","w")
+        log.write("Calling Handler %s\n" % self.path)
+        try:
+            _, query_args = urllib.splitquery(self.path)
+            arguments = dict([ urllib.splitvalue(query_arg) for query_arg in query_args.split('&') ])
+            session_id = arguments.get('sessionid')
+            log.write("Session id: %s\n" % session_id)
+    
+            if session_id is None:
+                self.send_error(400)
                 self.end_headers()
-                self.wfile.write("Internal error: %s" % str(e))
+                self.wfile.write("fail: sessionid argument is required")
             else:
-                self.send_response(200)
-                self.end_headers()
-                self.wfile.write("ok")
-        self.wfile.close()
+                try:
+                    log.write("Changing password...\n")
+                    change_password(session_id)
+                    log.write("Password changed\n")
+                except Exception, e:
+                    log.write("There was an error %s\n", e)
+                    traceback.print_exc(file=log)
+                    traceback.print_exc()
+                    self.send_error(500)
+                    self.end_headers()
+                    self.wfile.write("Internal error: %s" % str(e))
+                else:
+                    log.write("Sending 'ok'...\n")
+                    self.send_response(200)
+                    self.end_headers()
+                    self.wfile.write("ok")
+            self.wfile.close()
+        finally:
+            log.write("Finished\n")
+            log.close()
 
 server = BaseHTTPServer.HTTPServer(('',PORT), RequestHandlerClass = Handler)
 server.serve_forever()
