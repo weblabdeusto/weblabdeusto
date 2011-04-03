@@ -252,7 +252,8 @@ public class WlLabController implements IWlLabController {
 			}
 			@Override
 			public void onFailure(WlCommException e) {
-				WlLabController.this.uimanager.onErrorAndFinishReservation(e.getMessage());
+				WlLabController.this.cleanReservation();
+//				WlLabController.this.uimanager.onErrorAndFinishReservation(e.getMessage());
 			}
 		});
 	}

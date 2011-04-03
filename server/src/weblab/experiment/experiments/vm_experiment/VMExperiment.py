@@ -91,6 +91,7 @@ class VMExperiment(Experiment.Experiment):
 
         initial = time.time()
         while self.is_ready and (initial + 10) > time.time():
+            print self.is_ready
             time.sleep(0.1)
 
         if self.is_ready:
@@ -218,10 +219,12 @@ class VMExperiment(Experiment.Experiment):
         self._start_t = None
         self.user_manager = None
 
+    def load_user_manager(self):
+        self.user_manager = self.user_manager_class(self._cfg_manager)
         
     def setup(self):
         """ Configures the VM """
-        self.user_manager = self.user_manager_class(self._cfg_manager)
+        self.load_user_manager()
         while True:
             try:
                 self.user_manager.configure(self.session_id)
