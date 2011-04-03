@@ -25,7 +25,7 @@ HTTP_QUERY_USER_MANAGER_URL = "http_query_user_manager_url"
 DEFAULT_HTTP_QUERY_USER_MANAGER_URL = "http://localhost/"
 
 
-TIMES_TO_RETRY = 4
+TIMES_TO_RETRY = 3
 
 class HttpQueryUserManager(UserManager):
     
@@ -57,7 +57,7 @@ class HttpQueryUserManager(UserManager):
             try:
                 url = "%s/?sessionid=%s" % (self._url, sid)
                 log.log( HttpQueryUserManager, log.LogLevel.Info, "Calling: %s" % url)
-                response = urllib2.urlopen(url, timeout=10)
+                response = urllib2.urlopen(url, timeout=30)
                 code = response.read()
                 log.log( HttpQueryUserManager, log.LogLevel.Info, "Configuring sessionid on VM returned: %s" % code)
                 print code
