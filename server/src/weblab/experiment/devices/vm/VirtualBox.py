@@ -67,7 +67,7 @@ class VirtualBox(VirtualMachineManager):
         self._print("Starting VM")
         options = [self.vboxheadless,'-startvm',self.vm_name]
         options.extend(self.vboxheadless_start_options)
-        subprocess.Popen(options)
+        self.popen = subprocess.Popen(options)
 #        result = process.wait()
         result = "(other thread)"
         self._print("Started %s" % result)

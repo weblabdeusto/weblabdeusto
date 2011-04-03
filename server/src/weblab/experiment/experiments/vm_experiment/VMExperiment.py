@@ -102,6 +102,7 @@ class VMExperiment(Experiment.Experiment):
         if self._start_t != None and self._start_t.isAlive():
             return "Already starting"
 
+        self.session_id = self.generate_session_id()
         self._start_t = self.handle_start_exp_t()
         return "Starting"
 
@@ -165,7 +166,6 @@ class VMExperiment(Experiment.Experiment):
         if DEBUG:
             print "t_starting"
         self.ensure_vm_not_started()
-        self.session_id = self.generate_session_id()
         # Avoid preparing the VM, just for specific debugging purposes. Probably this condition should eventually be removed.
         if not DEBUG_NOT_PREPARE:
             self.vm.prepare_vm()

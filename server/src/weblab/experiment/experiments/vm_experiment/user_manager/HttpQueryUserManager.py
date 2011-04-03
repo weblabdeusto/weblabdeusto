@@ -25,7 +25,7 @@ HTTP_QUERY_USER_MANAGER_URL = "http_query_user_manager_url"
 DEFAULT_HTTP_QUERY_USER_MANAGER_URL = "http://localhost/"
 
 
-TIMES_TO_RETRY = 6
+TIMES_TO_RETRY = 4
 
 class HttpQueryUserManager(UserManager):
     
@@ -57,20 +57,23 @@ class HttpQueryUserManager(UserManager):
             try:
                 url = "%s/?sessionid=%s" % (self._url, sid)
                 log.log( HttpQueryUserManager, log.LogLevel.Info, "Calling: %s" % url)
-                response = urllib2.urlopen(url, timeout=5)
+                response = urllib2.urlopen(url, timeout=10)
                 code = response.read()
                 log.log( HttpQueryUserManager, log.LogLevel.Info, "Configuring sessionid on VM returned: %s" % code)
                 print code
                 query_carried_out = True
                 break
-            except urllib2.HTTPError:
+            except urllib2.HTTPError, e:
+                log.log( HttpQueryUserManager, log.LogLevel.Info, "Configuring sessionid on VM returned HTTPError: %s" % e)
                 times_tried += 1
-            except urllib2.URLError:
+            except urllib2.URLError, e:
+                log.log( HttpQueryUserManager, log.LogLevel.Info, "Configuring sessionid on VM returned URLError: %s" % e)
                 # These are timeout errors which occur when the virtual OS takes too long to start, which is
                 # actually quite common.
                 # The above error has the following tuple as its args: (error(10060, 'Operation timed out'),)
                 times_tried += 1
-            except Exception:
+            except Exception, e:
+                log.log( HttpQueryUserManager, log.LogLevel.Info, "Configuring sessionid on VM returned unexpected Exception: %s" % e)
                 # Unknown exception, we better consider it permanent straightaway.
                 raise PermanentConfigureError()
             
@@ -84,4 +87,4 @@ class HttpQueryUserManager(UserManager):
         # We managed to send the query but the server reported some kind of error.
         # TODO: Send Permanent instead of Temporary depending on the error.
         if code != 'ok':
-            raise TemporaryConfigureError("Unexpected code returned: %s" %s)
+            raise TemporaryConfigureError("Unexpected code returned: %s" % code)
