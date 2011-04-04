@@ -55,7 +55,7 @@
 		</g:VerticalPanel>
 		
 		<g:HorizontalPanel styleName="web-login-foot-message">
-			<g:Anchor text="&lt; Back to the Remote Lab" href=".?admin=false"></g:Anchor>
+			<g:Anchor text="&lt; Back to the Remote Lab" href="index.html"></g:Anchor>
 		</g:HorizontalPanel>		
 	
 	</g:VerticalPanel>
