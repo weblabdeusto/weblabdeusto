@@ -229,8 +229,12 @@ class Coordinator(object):
 
     def _notify_experiment_status(self, new_status, resource_instance, messages = []):
         experiment_instance_ids = self.resources_manager.list_experiment_instance_ids_by_resource(resource_instance)
-        body = """The resource %s has changed its status to: %s\n\nTherefore the following experiment instances will not work:\n\n""" % (
-                resource_instance, new_status)
+        if new_status == 'fixed':
+            what = 'work again'
+        else:
+            what = 'not work'
+        body = """The resource %s has changed its status to: %s\n\nTherefore the following experiment instances will %s:\n\n""" % (
+                resource_instance, new_status, what)
 
         for experiment_instance_id in experiment_instance_ids:
             body += ("\t%s\n" % experiment_instance_id.to_weblab_str())
