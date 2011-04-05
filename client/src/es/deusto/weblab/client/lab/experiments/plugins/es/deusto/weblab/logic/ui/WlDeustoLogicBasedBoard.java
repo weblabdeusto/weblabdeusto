@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.AudioElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.media.client.Audio;
@@ -399,6 +398,7 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 				this.solving = false;
 				
 				if(Audio.isSupported()) {
+					@SuppressWarnings("unused")
 					final Audio audio = Audio.createIfSupported();
 				
 				}

@@ -14,13 +14,10 @@
 
 package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.ui;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 
 interface Resources extends ClientBundle {
-	
-	final Resources INSTANCE = GWT.create(Resources.class);
 	
 	@Source("res/big_BLANK.png")
 	ImageResource bigBLANK();

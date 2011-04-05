@@ -16,6 +16,7 @@ package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.u
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
@@ -144,7 +145,7 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 	}
 	
 	private void fillMaps(){
-		final Resources res = Resources.INSTANCE;
+		final Resources res = GWT.create(Resources.class);
 		
 	    this.operation2url.put(Operation.AND,  res.smallAND());
 	    this.operation2url.put(Operation.NAND, res.smallNAND());
@@ -235,22 +236,23 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 		this.input4Label.setStyleName(Style.LOGIC_INPUT_VALUE_LABEL);
 		this.circuitGrid.setWidget(4, 0, this.input4Label);
 		
+		final Resources res = GWT.create(Resources.class);
 		// Gates (level A)
-		this.gateA1Image = new Image(Resources.INSTANCE.smallUNKNOWN());
+		this.gateA1Image = new Image(res.smallUNKNOWN());
 		this.circuitGrid.setWidget(0, 2, this.gateA1Image);
-		this.gateA2Image = new Image(Resources.INSTANCE.smallUNKNOWN());
+		this.gateA2Image = new Image(res.smallUNKNOWN());
 		this.circuitGrid.setWidget(2, 2, this.gateA2Image);
-		this.gateA3Image = new Image(Resources.INSTANCE.smallUNKNOWN());
+		this.gateA3Image = new Image(res.smallUNKNOWN());
 		this.circuitGrid.setWidget(4, 2, this.gateA3Image);
 
 		// Gates (level B)
-		this.gateB1Image = new Image(Resources.INSTANCE.smallUNKNOWN());
+		this.gateB1Image = new Image(res.smallUNKNOWN());
 		this.circuitGrid.setWidget(1, 4, this.gateB1Image);
-		this.gateB2Image = new Image(Resources.INSTANCE.smallUNKNOWN());
+		this.gateB2Image = new Image(res.smallUNKNOWN());
 		this.circuitGrid.setWidget(3, 4, this.gateB2Image);
 
 		// Gates (level C)
-		this.gateC1Image = new Image(Resources.INSTANCE.smallUNKNOWN());
+		this.gateC1Image = new Image(res.smallUNKNOWN());
 		this.circuitGrid.setWidget(2, 6, this.gateC1Image);
 		
 		// Connections
@@ -400,8 +402,9 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 	    this.input2Label.setHTML(this.getFormatedInputLabel(switch2.turned?this.oneString:this.zeroString, 2));
 	    this.input3Label.setHTML(this.getFormatedInputLabel(switch3.turned?this.oneString:this.zeroString, 3));
 	    this.input4Label.setHTML(this.getFormatedInputLabel(switch4.turned?this.oneString:this.zeroString, 4));
-
-	    this.setUnknownGate(Resources.INSTANCE.smallUNKNOWN());
+	    
+	    final Resources res = GWT.create(Resources.class);
+	    this.setUnknownGate(res.smallUNKNOWN());
 	}
 	
 	private String getFormatedInputLabel(String labelText, int inputNumber)

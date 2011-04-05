@@ -123,6 +123,7 @@
 	      <arg value="${lab.module.name}"/>
 		  <arg value="-style"/>
           <arg value="${gwt.style}"/>
+          <!--          <arg value="-compileReport"/> -->
        </java>
 	</target>	
 	

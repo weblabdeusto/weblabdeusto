@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ImageResource;
 
 class RowColumnPair {
@@ -47,7 +48,7 @@ class RowColumnPair {
 	}
 
 	public ImageResource getImageResourceWeb(){
-		final Resources res = Resources.INSTANCE;
+		final Resources res = GWT.create(Resources.class);
 		
 		if(RowColumnPair.BLANKS.contains(this))
 			return res.bigBLANK();
@@ -96,7 +97,7 @@ class RowColumnPair {
 	}
 
 	public ImageResource getImageResourceMobile(){
-		final Resources res = Resources.INSTANCE;
+		final Resources res = GWT.create(Resources.class);
 		
 		if(RowColumnPair.BLANKS.contains(this))
 			return res.smallBLANK();
