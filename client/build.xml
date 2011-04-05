@@ -99,7 +99,7 @@
 		</copy>
 	</target>
 
-    <target name="gwtc" depends="javac" description="GWT compile to JavaScript">
+    <target name="gwtc-admin" depends="javac">
 	  <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
 	      <classpath>
 	        <pathelement location="src"/>
@@ -112,6 +112,9 @@
 		  <arg value="-style"/>
           <arg value="${gwt.style}"/>
       </java>
+    </target>
+
+    <target name="gwtc-lab" depends="javac">
       <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
 	      <classpath>
 	        <pathelement location="src"/>
@@ -123,8 +126,11 @@
 	      <arg value="${lab.module.name}"/>
 		  <arg value="-style"/>
           <arg value="${gwt.style}"/>
-          <!--          <arg value="-compileReport"/> -->
+          <!-- <arg value="-compileReport"/>  -->
        </java>
+    </target>
+
+    <target name="gwtc" depends="gwtc-admin, gwtc-lab" description="GWT compile to JavaScript">
 	</target>	
 	
 	<target name="gwtc-fast" depends="javac" description="GWT compile to JavaScript">

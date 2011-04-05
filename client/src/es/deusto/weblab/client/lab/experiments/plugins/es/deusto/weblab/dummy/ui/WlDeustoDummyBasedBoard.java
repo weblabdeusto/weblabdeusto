@@ -19,7 +19,6 @@ import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.ui.WlDeustoXilinxBasedBoard;
 
 public class WlDeustoDummyBasedBoard extends WlDeustoXilinxBasedBoard {
 
@@ -29,18 +28,18 @@ public class WlDeustoDummyBasedBoard extends WlDeustoXilinxBasedBoard {
 	public static final String DUMMY_WEBCAM_REFRESH_TIME_PROPERTY = "es.deusto.weblab.pld.webcam.refresh.millis";
 	public static final int    DEFAULT_DUMMY_WEBCAM_REFRESH_TIME       = 400;
 	
-	private final Label messages;
+	private final Label dummyMessages;
 	
 	public WlDeustoDummyBasedBoard(IConfigurationRetriever configurationRetriever,
 			IBoardBaseController boardController) {
 		super(configurationRetriever, boardController);
-		this.messages = new Label("messages here");
+		this.dummyMessages = new Label("messages here");
 	}
 	
 	@Override
 	public void start(){
 	    super.start();
-	    this.verticalPanel.add(this.messages);
+	    this.verticalPanel.add(this.dummyMessages);
 	}
 
 	@Override
@@ -54,15 +53,15 @@ public class WlDeustoDummyBasedBoard extends WlDeustoXilinxBasedBoard {
 		
 			@Override
 			public void onFailure(WlCommException e) {
-				WlDeustoDummyBasedBoard.this.messages.setText("Error raised: " + e.getMessage());
+				WlDeustoDummyBasedBoard.this.dummyMessages.setText("Error raised: " + e.getMessage());
 			}
 	    };
 	}
 	
 	private void processCommandSent(ResponseCommand responseCommand) {
 		if(!responseCommand.isEmpty())
-			this.messages.setText("Response command: " + responseCommand.getCommandString());
+			this.dummyMessages.setText("Response command: " + responseCommand.getCommandString());
 		else
-			this.messages.setText("Response command: empty");
+			this.dummyMessages.setText("Response command: empty");
 	}
 }

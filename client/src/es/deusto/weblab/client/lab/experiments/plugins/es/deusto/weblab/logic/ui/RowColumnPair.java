@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ImageResource;
 
 class RowColumnPair {
@@ -47,9 +46,7 @@ class RowColumnPair {
 		this.column = column;
 	}
 
-	public ImageResource getImageResourceWeb(){
-		final Resources res = GWT.create(Resources.class);
-		
+	public ImageResource getImageResourceWeb(Resources res){
 		if(RowColumnPair.BLANKS.contains(this))
 			return res.bigBLANK();
 		
@@ -96,9 +93,7 @@ class RowColumnPair {
 		throw new RuntimeException("Invalid ColumnPair: row=" + this.row + "; column=" + this.column);
 	}
 
-	public ImageResource getImageResourceMobile(){
-		final Resources res = GWT.create(Resources.class);
-		
+	public ImageResource getImageResourceMobile(MobileResources res){
 		if(RowColumnPair.BLANKS.contains(this))
 			return res.smallBLANK();
 		

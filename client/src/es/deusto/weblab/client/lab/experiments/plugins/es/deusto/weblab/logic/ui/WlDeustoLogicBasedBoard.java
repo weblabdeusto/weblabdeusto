@@ -139,6 +139,7 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 	private Circuit circuit;
 	private boolean solving = true;
 	private int points = 0;
+	private final Resources resources = GWT.create(Resources.class);
 	
 	private final IResponseCommandCallback commandCallback = new IResponseCommandCallback(){
 
@@ -278,7 +279,7 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 		
 		// Connections
 		for(final RowColumnPair pair : RowColumnPair.getRowsColumnPairs()){
-		    final Image pairImage = new Image(pair.getImageResourceWeb());
+		    final Image pairImage = new Image(pair.getImageResourceWeb(this.resources));
 		    this.circuitGrid.setWidget(pair.getRow(), pair.getColumn() + 1, pairImage);
 		}
 		

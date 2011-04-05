@@ -103,6 +103,7 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 	private boolean solving = true;
 	private int points = 0;
 	private final ClickHandler unkownGateHandler;
+	private final MobileResources resources = GWT.create(MobileResources.class);
 	
 	private final IResponseCommandCallback commandCallback = new IResponseCommandCallback(){
 
@@ -145,13 +146,11 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 	}
 	
 	private void fillMaps(){
-		final Resources res = GWT.create(Resources.class);
-		
-	    this.operation2url.put(Operation.AND,  res.smallAND());
-	    this.operation2url.put(Operation.NAND, res.smallNAND());
-	    this.operation2url.put(Operation.OR,   res.smallOR());
-	    this.operation2url.put(Operation.NOR,  res.smallNOR());
-	    this.operation2url.put(Operation.XOR,  res.smallXOR());
+	    this.operation2url.put(Operation.AND,  this.resources.smallAND());
+	    this.operation2url.put(Operation.NAND, this.resources.smallNAND());
+	    this.operation2url.put(Operation.OR,   this.resources.smallOR());
+	    this.operation2url.put(Operation.NOR,  this.resources.smallNOR());
+	    this.operation2url.put(Operation.XOR,  this.resources.smallXOR());
 	}
 	
 	public ImageResource getURL(Operation operation){
@@ -236,28 +235,27 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 		this.input4Label.setStyleName(Style.LOGIC_INPUT_VALUE_LABEL);
 		this.circuitGrid.setWidget(4, 0, this.input4Label);
 		
-		final Resources res = GWT.create(Resources.class);
 		// Gates (level A)
-		this.gateA1Image = new Image(res.smallUNKNOWN());
+		this.gateA1Image = new Image(this.resources.smallUNKNOWN());
 		this.circuitGrid.setWidget(0, 2, this.gateA1Image);
-		this.gateA2Image = new Image(res.smallUNKNOWN());
+		this.gateA2Image = new Image(this.resources.smallUNKNOWN());
 		this.circuitGrid.setWidget(2, 2, this.gateA2Image);
-		this.gateA3Image = new Image(res.smallUNKNOWN());
+		this.gateA3Image = new Image(this.resources.smallUNKNOWN());
 		this.circuitGrid.setWidget(4, 2, this.gateA3Image);
 
 		// Gates (level B)
-		this.gateB1Image = new Image(res.smallUNKNOWN());
+		this.gateB1Image = new Image(this.resources.smallUNKNOWN());
 		this.circuitGrid.setWidget(1, 4, this.gateB1Image);
-		this.gateB2Image = new Image(res.smallUNKNOWN());
+		this.gateB2Image = new Image(this.resources.smallUNKNOWN());
 		this.circuitGrid.setWidget(3, 4, this.gateB2Image);
 
 		// Gates (level C)
-		this.gateC1Image = new Image(res.smallUNKNOWN());
+		this.gateC1Image = new Image(this.resources.smallUNKNOWN());
 		this.circuitGrid.setWidget(2, 6, this.gateC1Image);
 		
 		// Connections
 		for(final RowColumnPair pair : RowColumnPair.getRowsColumnPairs()){
-		    final Image pairImage = new Image(pair.getImageResourceMobile());
+		    final Image pairImage = new Image(pair.getImageResourceMobile(this.resources));
 		    this.circuitGrid.setWidget(pair.getRow(), pair.getColumn() + 1, pairImage);
 		}
 		
@@ -403,8 +401,7 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 	    this.input3Label.setHTML(this.getFormatedInputLabel(switch3.turned?this.oneString:this.zeroString, 3));
 	    this.input4Label.setHTML(this.getFormatedInputLabel(switch4.turned?this.oneString:this.zeroString, 4));
 	    
-	    final Resources res = GWT.create(Resources.class);
-	    this.setUnknownGate(res.smallUNKNOWN());
+	    this.setUnknownGate(this.resources.smallUNKNOWN());
 	}
 	
 	private String getFormatedInputLabel(String labelText, int inputNumber)
