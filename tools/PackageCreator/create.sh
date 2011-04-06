@@ -3,7 +3,7 @@
 #
 # Current version
 # 
-VERSION="3.9.0"
+VERSION="4.0M1.0"
 
 # 
 # Set up this revision number or we'll retrieve the last one from the SVN 
@@ -66,6 +66,13 @@ rm -rf weblab
 echo -n "Creating zip file with libs..."
 
 svn export $REVISION_ARG $SVN_PATH weblab > /dev/null
+
+# 
+# Compile the client
+# 
+cd weblab/client
+./gwtc.sh > /dev/null || exit 1
+cd ../..
 
 # 
 # Zip the with-libs version
