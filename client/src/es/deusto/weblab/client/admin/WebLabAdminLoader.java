@@ -12,8 +12,9 @@
 *
 */
 
-package es.deusto.weblab.client;
+package es.deusto.weblab.client.admin;
 
+import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.admin.comm.IWlAdminCommunication;
 import es.deusto.weblab.client.admin.comm.WlAdminCommunication;
 import es.deusto.weblab.client.admin.controller.IWlAdminController;

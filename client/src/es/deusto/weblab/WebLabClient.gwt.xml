@@ -18,5 +18,9 @@
 	<extend-property name="locale" values="es"/>
 	<extend-property name="locale" values="eu"/>
 	
+	<source path="client">
+		<exclude name="admin/**java"/>
+	</source>
+	
 	<public path="public"></public>
 </module>

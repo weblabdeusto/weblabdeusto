@@ -12,10 +12,12 @@
 *
 */
 
-package es.deusto.weblab.client;
+package es.deusto.weblab.client.admin;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
+
+import es.deusto.weblab.client.WebLabClient;
 
 public class WebLabClientAdmin extends WebLabClient {
 

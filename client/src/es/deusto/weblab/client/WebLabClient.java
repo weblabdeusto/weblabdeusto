@@ -42,8 +42,8 @@ public abstract class WebLabClient implements EntryPoint {
 	public static final String LOCALE_COOKIE = "weblabdeusto.locale";
 	public static final String MOBILE_COOKIE = "weblabdeusto.mobile";
 
-	static final String THEME_PROPERTY = "theme";
-	static final String DEFAULT_THEME = "deusto";
+	public static final String THEME_PROPERTY = "theme";
+	public static final String DEFAULT_THEME = "deusto";
 	private static final String GOOGLE_ANALYTICS_TRACKING_CODE = "google.analytics.tracking.code";
 	
 	// These are the minimum width and height to choose the standard version over the
@@ -56,13 +56,13 @@ public abstract class WebLabClient implements EntryPoint {
 	
 	public ConfigurationManager configurationManager;
 
-	void putWidget(Widget widget){
+	public void putWidget(Widget widget){
 		while(RootPanel.get(WebLabClient.MAIN_SLOT).getWidgetCount() > 0)
 			RootPanel.get(WebLabClient.MAIN_SLOT).remove(0);
 		RootPanel.get(WebLabClient.MAIN_SLOT).add(widget);
 	}
 	
-	void showError(String message){
+	public void showError(String message){
 		final Label errorMessage = new Label(message);
 		this.putWidget(errorMessage);
 	}
