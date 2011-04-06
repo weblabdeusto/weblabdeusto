@@ -164,7 +164,15 @@
 		<junit failureproperty="test.failure" printSummary="yes" fork="true" haltonerror="true" showoutput="true">
 			<jvmarg value="-Xmx512M" />
 			<sysproperty key="gwt.args" value="-logLevel WARN"/>
-			<sysproperty key="java.awt.headless" value="true"/>
+            <sysproperty key="java.awt.headless" value="true"/>
+
+            <!-- HTMLUnit, which uses Apache HTTP, is very verbose, so we disable the warnings it gives. If you're receiving errors that can be created by HTMLUnit, do comment these 4 lines -->
+            <sysproperty key="org.apache.commons.logging.simplelog.defaultlog" value="fatal"/>
+            <sysproperty key="org.apache.commons.logging.Log" value="org.apache.commons.logging.impl.NoOpLog"/>
+            <!-- <sysproperty key="org.apache.commons.logging.Log" value="org.apache.commons.logging.impl.SimpleLog"/>-->
+            <sysproperty key="org.apache.commons.logging.simplelog.log.org.apache.http" value="FATAL"/>
+            <sysproperty key="org.apache.commons.logging.simplelog.log.org.apache.http.wire" value="FATAL"/>
+
 			<classpath>
 				<pathelement path="src"/>
 				<pathelement path="test"/>
