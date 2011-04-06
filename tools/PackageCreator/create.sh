@@ -53,6 +53,8 @@ echo -n "Creating source only zip file..."
 # 
 svn export --ignore-externals $REVISION_ARG $SVN_PATH weblab > /dev/null
 
+rm -f weblab/client/external/gwt-user-fast.jar
+
 # 
 # Zip it
 zip -r weblabdeusto_$VERSION.zip weblab > /dev/null
@@ -66,6 +68,8 @@ rm -rf weblab
 echo -n "Creating zip file with libs..."
 
 svn export $REVISION_ARG $SVN_PATH weblab > /dev/null
+
+rm -f weblab/client/external/gwt-user-fast.jar
 
 # 
 # Compile the client
