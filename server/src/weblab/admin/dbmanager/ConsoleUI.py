@@ -16,6 +16,7 @@ import sys
 import os
 import getpass
 
+import weblab.data.dto.ExperimentAllowed as ExperimentAllowed
 from Exceptions import GoBackException
 
 GO_BACK_KEYWORD = "[back]"
@@ -316,7 +317,8 @@ class ConsoleUI(object):
         self._print()
         return self._read_field_choose("Group", groups), \
                self._read_field_choose("Experiment", experiments), \
-               self._read_field_int("Time allowed")               
+               self._read_field_int("Time allowed (in seconds)"), \
+               self._read_field_int("Priority (the lower value the higher priority)", default=ExperimentAllowed.DEFAULT_PRIORITY)
                
     def dialog_grant_on_experiment_to_user(self, users, experiments):
         self._clean()
@@ -324,7 +326,8 @@ class ConsoleUI(object):
         self._print()
         return self._read_field_choose("User", users), \
                self._read_field_choose("Experiment", experiments), \
-               self._read_field_int("Time allowed")         
+               self._read_field_int("Time allowed (in seconds)"), \
+               self._read_field_int("Priority (the lower value the higher priority)", default=ExperimentAllowed.DEFAULT_PRIORITY)
                
     def dialog_list_users_get_group(self, groups):
         self._clean()

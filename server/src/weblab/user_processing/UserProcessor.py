@@ -140,17 +140,12 @@ class UserProcessor(object):
             )
 
         user_information = self.get_user_information()
-        if user_information.login == 'demo':
-            priority = 10 # TODO: this should be part of experiment_allowed
-        else:
-            priority = 5 # TODO: this should be part of experiment_allowed
-
         experiment_allowed = experiments[0]
         try:
             status, reservation_id    = self._coordinator.reserve_experiment(
                     experiment_allowed.experiment.to_experiment_id(), 
                     experiment_allowed.time_allowed, 
-                    priority,
+                    experiment_allowed.priority,
                     client_initial_data
                 )
         except CoordExc.ExperimentNotFoundException:

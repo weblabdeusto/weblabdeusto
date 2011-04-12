@@ -976,11 +976,13 @@ def _generate_experiments_allowed():
     experimentA, experimentB = _generate_two_experiments()
     exp_allowedA = ExperimentAllowed.ExperimentAllowed(
             experimentA,
-            100
+            100,
+            5
         )
     exp_allowedB = ExperimentAllowed.ExperimentAllowed(
             experimentB,
-            100
+            100,
+            5
         )
     return exp_allowedA, exp_allowedB
 

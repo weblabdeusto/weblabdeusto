@@ -25,7 +25,7 @@ import weblab.database.Model as Model
 
 import weblab.database.DatabaseMySQLGateway as dbMySQLGateway
 
-from weblab.data.dto.ExperimentAllowed import ExperimentAllowed
+import weblab.data.dto.ExperimentAllowed as ExperimentAllowed
 
 import weblab.exceptions.database.DatabaseExceptions as DbExceptions
 
@@ -55,6 +55,7 @@ def admin_panel_operation(func):
             session.close()
     return proxy
 
+DEFAULT_VALUE = object()
 
 class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
 
@@ -100,9 +101,10 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                 p_permanent_id = self._get_parameter_from_permission(session, permission, 'experiment_permanent_id')
                 p_category_id = self._get_parameter_from_permission(session, permission, 'experiment_category_id')
                 p_time_allowed = self._get_float_parameter_from_permission(session, permission, 'time_allowed')
+                p_priority = self._get_int_parameter_from_permission(session, permission, 'priority', ExperimentAllowed.DEFAULT_PRIORITY)
                 
                 experiment = session.query(Model.DbExperiment).filter_by(name=p_permanent_id).filter(Model.DbExperimentCategory.name==p_category_id).one() 
-                experiment_allowed = ExperimentAllowed(experiment.to_business(), p_time_allowed)
+                experiment_allowed = ExperimentAllowed.ExperimentAllowed(experiment.to_business(), p_time_allowed, p_priority)
                 
                 experiment_unique_id = p_permanent_id+"@"+p_category_id
                 if grouped_experiments.has_key(experiment_unique_id):
@@ -395,17 +397,20 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
     def _get_permissions(self, session, user_or_role_or_group_or_ee, permission_type_name):
         return [ pi for pi in user_or_role_or_group_or_ee.permissions if pi.get_permission_type().name == permission_type_name ]
     
-    def _get_parameter_from_permission(self, session, permission, parameter_name):
+    def _get_parameter_from_permission(self, session, permission, parameter_name, default_value = DEFAULT_VALUE):
         try:
             param = [ p for p in permission.parameters if p.get_name() == parameter_name ][0]
         except IndexError:
-            raise DbExceptions.DbIllegalStatusException(
+            if default_value == DEFAULT_VALUE:
+                raise DbExceptions.DbIllegalStatusException(
                     permission.get_permission_type().name + " permission without " + parameter_name
                 )
+            else:
+                return default_value
         return param.value
     
-    def _get_float_parameter_from_permission(self, session, permission, parameter_name):
-        value = self._get_parameter_from_permission(session, permission, parameter_name)
+    def _get_float_parameter_from_permission(self, session, permission, parameter_name, default_value = DEFAULT_VALUE):
+        value = self._get_parameter_from_permission(session, permission, parameter_name, default_value)
         try:
             return float(value)
         except ValueError:
@@ -416,9 +421,22 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                     value
                 )
             )       
-    
-    def _get_bool_parameter_from_permission(self, session, permission, parameter_name):
-        return self._get_parameter_from_permission(session, permission, parameter_name) 
+
+    def _get_int_parameter_from_permission(self, session, permission, parameter_name, default_value = DEFAULT_VALUE):
+        value = self._get_parameter_from_permission(session, permission, parameter_name, default_value)
+        try:
+            return int(value)
+        except ValueError:
+            raise DbExceptions.InvalidPermissionParameterFormatException(
+                "Expected int as parameter '%s' of '%s', found: '%s'" % (
+                    parameter_name,
+                    permission.get_permission_type().name,
+                    value
+                )
+            )       
+   
+    def _get_bool_parameter_from_permission(self, session, permission, parameter_name, default_value = DEFAULT_VALUE):
+        return self._get_parameter_from_permission(session, permission, parameter_name, default_value) 
     
     def _delete_all_uses(self):
         """ IMPORTANT: SHOULD NEVER BE USED IN PRODUCTION, IT'S HERE ONLY FOR TESTS """

@@ -93,6 +93,8 @@ def _insert_required_initial_data(engine):
     session.add(experiment_allowed_p2)
     experiment_allowed_p3 = Model.DbPermissionTypeParameter(experiment_allowed, 'time_allowed', 'float', 'Time allowed (in seconds)')
     session.add(experiment_allowed_p3)
+    experiment_allowed_p4 = Model.DbPermissionTypeParameter(experiment_allowed, 'priority', 'int', 'Priority (the lower value the higher priority)')
+    session.add(experiment_allowed_p4)
     session.commit()    
     
     admin_panel_access = Model.DbPermissionType(

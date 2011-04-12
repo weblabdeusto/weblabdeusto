@@ -143,7 +143,7 @@ class DbGateway(object):
         except IntegrityError:
             return None, None
                 
-    def grant_on_experiment_to_group(self, group, permission_type, permanent_id, date, comments, experiment, time_allowed):
+    def grant_on_experiment_to_group(self, group, permission_type, permanent_id, date, comments, experiment, time_allowed, priority):
         try:
             group_permission = Model.DbGroupPermission(
                                     group,
@@ -171,12 +171,19 @@ class DbGateway(object):
                                         time_allowed
                                   )
             self.session.add(group_permission_p3)
+            group_permission_p4 = Model.DbGroupPermissionParameter(
+                                        group_permission,
+                                        permission_type.get_parameter("priority"),
+                                        priority
+                                  )
+            self.session.add(group_permission_p4)
+
             self.session.commit()
             return group_permission
         except IntegrityError:
             return None
                 
-    def grant_on_experiment_to_user(self, user, permission_type, permanent_id, date, comments, experiment, time_allowed):
+    def grant_on_experiment_to_user(self, user, permission_type, permanent_id, date, comments, experiment, time_allowed, priority):
         try:
             user_permission = Model.DbUserPermission(
                                     user,
@@ -204,6 +211,13 @@ class DbGateway(object):
                                         time_allowed
                                   )
             self.session.add(user_permission_p3)
+            user_permission_p4 = Model.DbUserPermissionParameter(
+                                        user_permission,
+                                        permission_type.get_parameter("priority"),
+                                        priority
+                                  )
+            self.session.add(user_permission_p4)
+
             self.session.commit()
             return user_permission
         except IntegrityError:

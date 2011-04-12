@@ -211,7 +211,7 @@ class Controller(object):
         experiment_names = [ (experiment.id, experiment.name) for experiment in experiments ]
         permission_type = self.db.get_permission_type("experiment_allowed")
         try:
-            group_id, experiment_id, time_allowed = self.ui.dialog_grant_on_experiment_to_group(group_names, experiment_names)
+            group_id, experiment_id, time_allowed, priority = self.ui.dialog_grant_on_experiment_to_group(group_names, experiment_names)
             group = [ group for group in groups if group.id == group_id ][0] if group_id is not None else None
             experiment = [ experiment for experiment in experiments if experiment.id == experiment_id ][0] if experiment_id is not None else None
             experiment_unique_id = "%s@%s" % (experiment.name, experiment.category.name)
@@ -223,7 +223,8 @@ class Controller(object):
                     datetime.datetime.utcnow(),
                     "Permission on %s to use %s" % (group.name, experiment_unique_id),
                     experiment,
-                    time_allowed
+                    time_allowed,
+                    priority
             )
             if group_permission is not None:
                 self.ui.notify("GroupPermission created:\n%r" % group_permission)
@@ -242,7 +243,7 @@ class Controller(object):
         experiment_names = [ (experiment.id, experiment.name) for experiment in experiments ]
         permission_type = self.db.get_permission_type("experiment_allowed")
         try:
-            user_id, experiment_id, time_allowed = self.ui.dialog_grant_on_experiment_to_user(user_names, experiment_names)
+            user_id, experiment_id, time_allowed, priority = self.ui.dialog_grant_on_experiment_to_user(user_names, experiment_names)
             user = [ user for user in users if user.id == user_id ][0] if user_id is not None else None
             experiment = [ experiment for experiment in experiments if experiment.id == experiment_id ][0] if experiment_id is not None else None
             experiment_unique_id = "%s@%s" % (experiment.name, experiment.category.name)
@@ -254,7 +255,8 @@ class Controller(object):
                     datetime.datetime.utcnow(),
                     "Permission on %s to use %s" % (user.login, experiment_unique_id),
                     experiment,
-                    time_allowed
+                    time_allowed,
+                    priority
             )
             if user_permission is not None:
                 self.ui.notify("UserPermission created:\n%r" % user_permission)
