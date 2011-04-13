@@ -18,7 +18,7 @@
 # But for testing we are going to fake it:
 
 xilinx_home = "."
-xilinx_impact_full_path = ["python","./tests/unit/weblab/experiment/devices/xilinx_impact/fake_impact.py" ]
+xilinx_impact_full_path = ["python","./test/unit/weblab/experiment/devices/xilinx_impact/fake_impact.py" ]
 
 xilinx_batch_content_FPGA = """setMode -bs
 setCable -port auto
