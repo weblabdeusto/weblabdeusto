@@ -80,6 +80,9 @@ class UdXilinxExperiment(Experiment.Experiment):
         cfg_webcam_url = "%s_webcam_url" % self._xilinx_device.name.lower()        
         return self._cfg_manager.get_value(cfg_webcam_url, "http://localhost")
     
+    def get_state(self):
+        return self._current_state
+    
     @logged("info")
     def _program_device(self, file_name):
         if self._use_jtag_blazer:

@@ -21,7 +21,7 @@ import unittest
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 import weblab.experiment.Util as ExperimentUtil
 import weblab.experiment.experiments.ud_xilinx_experiment.UdXilinxExperiment as UdXilinxExperiment
-
+import time
 
 class CreatingUdXilinxExperimentTestCase(unittest.TestCase):
     
@@ -53,6 +53,15 @@ class UsingUdXilinxExperimentTestCase(unittest.TestCase):
         
         UdXilinxCommandSenders._SerialPort = FakeSerialPort
         UdXilinxCommandSenders._HttpDevice = FakeHttpDevice
+        
+    def wait_for_programming_to_end(self):
+        """
+        Helper method which will simply wait until the board programming
+        process finishes (the state changes). 
+        No assumptions are made about its result.
+        """
+        while(self.uxm.get_state() in (UdXilinxExperiment.STATE_PROGRAMMING, UdXilinxExperiment.STATE_NOT_READY) ):
+            time.sleep(100)
     
     def test_xilinx_with_serial_port(self):        
         self.cfg_manager._set_value('xilinx_device_to_program', 'XilinxImpact')
@@ -66,6 +75,8 @@ class UsingUdXilinxExperimentTestCase(unittest.TestCase):
         
         # No problem
         self.uxm.do_send_file_to_device(ExperimentUtil.serialize("whatever " * 400), 'program')
+
+        self.wait_for_programming_to_end()
 
         initial_open  = 1
         initial_send  = 1
@@ -134,6 +145,8 @@ class UsingUdXilinxExperimentTestCase(unittest.TestCase):
         # No problem
         self.uxm.do_send_file_to_device(ExperimentUtil.serialize("whatever " * 400), 'program')
 
+        self.wait_for_programming_to_end()
+
         initial_send  = 1
 
         self.assertEquals(
@@ -165,6 +178,8 @@ class UsingUdXilinxExperimentTestCase(unittest.TestCase):
         
         # No problem
         self.uxm.do_send_file_to_device(ExperimentUtil.serialize("whatever " * 400), 'program')
+
+        self.wait_for_programming_to_end()
 
         initial_send  = 1
 
