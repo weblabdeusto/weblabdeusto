@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
+#         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
 from voodoo.gen.caller_checker import caller_check
@@ -30,6 +31,8 @@ import weblab.experiment.Util as ExperimentUtil
 import weblab.experiment.devices.xilinx_impact.XilinxDevices as XilinxDevices
 import weblab.experiment.devices.xilinx_impact.XilinxImpact as XilinxImpact
 import weblab.experiment.experiments.ud_xilinx_experiment.UdBoardCommand as UdBoardCommand
+
+from voodoo.threaded import threaded
 
 
 # Though it would be slightly more efficient to use single characters, it's a text protocol
@@ -54,6 +57,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         self._command_sender = self._load_command_sender()
         self.webcam_url = self._load_webcam_url()
         
+        self._programming_thread = None
         self._current_state = STATE_NOT_READY
         
     def _load_xilinx_device(self):
@@ -106,9 +110,27 @@ class UdXilinxExperiment(Experiment.Experiment):
     @caller_check(ServerType.Laboratory)
     @logged("info",except_for='file_content')
     def do_send_file_to_device(self, file_content, file_info):
-        self._current_state = STATE_PROGRAMMING
-        self._program_file(file_content)
-        self._current_state = STATE_READY
+        """
+        Will spawn a new thread which will program the xilinx board with the
+        provided file.
+        """
+        self._programming_thread = self._program_file_t(file_content)
+        
+    
+    @threaded()
+    def _program_file_t(self, file_content):
+        """
+        Running in its own thread, this method will program the board
+        while updating the state of the experiment appropriately.
+        """
+        try:
+            self._current_state = STATE_PROGRAMMING
+            result = self._program_file(file_content)
+            self._current_state = STATE_READY
+        except Exception, e:
+            # Note: Currently, running the fake xilinx will raise this exception when
+            # trying to do a CleanInputs, for which apparently serial is needed.
+            self._current_state = STATE_FAILED
 
     # This is used in the demo experiment
     def _program_file(self, file_content):
@@ -155,6 +177,17 @@ class UdXilinxExperiment(Experiment.Experiment):
                 "Error sending command to device: %s" % e
             )
             
+    
+    @Override(Experiment.Experiment)
+    @logged("info")
+    def do_dispose(self):
+        """
+        We make sure that the board programming thread has finished, just
+        in case the experiment finished early and its still on it.
+        """
+        if self._programming_thread is not None:
+            self._programming_thread.join()
+        
             
     @Override(Experiment.Experiment)
     @logged("info")
@@ -176,7 +209,11 @@ class UdXilinxExperiment(Experiment.Experiment):
             # hence ready to start receiving real commands.
             if command == 'STATE':
                 reply = "STATE="+ self._current_state
-            self._command_sender.send_command(command)
+                return reply
+            
+            # Otherwise we assume that the command is intended for the actual device handler
+            # If it isn't, it throw an exception itself.
+            self._command_sender.send_command(command);
         except Exception, e:
             raise ExperimentExceptions.SendingCommandFailureException(
                     "Error sending command to device: %s" % e

@@ -26,10 +26,12 @@ import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
+import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.vm.ui.VMBoard;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.commands.ExperimentFinishedCommand;
 import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
@@ -66,6 +68,12 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 	private static final String XILINX_WEBCAM_REFRESH_TIME_PROPERTY   = "webcam.refresh.millis";
 	private static final int    DEFAULT_XILINX_WEBCAM_REFRESH_TIME    = 400;
 	
+	private static final int IS_READY_QUERY_TIMER = 1000;
+	private static final String STATE_NOT_READY = "not_ready";
+	private static final String STATE_PROGRAMMING = "programming";
+	private static final String STATE_READY = "ready";
+	private static final String STATE_FAILED = "failed";
+	
 	public static class Style{
 		public static final String TIME_REMAINING         = "wl-time_remaining";
 		public static final String CLOCK_ACTIVATION_PANEL = "wl-clock_activation_panel"; 
@@ -99,6 +107,8 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 	
 	@UiField(provided = true)
 	WlTimer timer;
+	
+	private Timer readyTimer;
 
 	private final Vector<Widget> interactiveWidgets;
 	
@@ -247,15 +257,85 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 			
 			this.boardController.sendCommand(WlDeustoXilinxBasedBoard.experimentFinishedCommand, this.sendExperimentFinishedRequestCommand);
 		}
+		
+		
+		// Start polling to know when the board has been programmed and the server is ready
+		// to receive our requests.
+		setupReadyTimer();
 	}
+	
+	
+	/**
+	 * Will setup the timer that will poll the experiment server for its state, to
+	 * know when the board programming process ends and how.
+	 */
+	private void setupReadyTimer() {
+		
+		this.readyTimer = new Timer() {
+			@Override
+			public void run() {
+				
+				// Build the command to query the state.
+				final Command command = new Command() {
+					@Override
+					public String getCommandString() {
+						return "STATE";
+					}
+				}; //! new Command
+				
+				
+				// Send the command and react to the response
+				WlDeustoXilinxBasedBoard.this.boardController.sendCommand(command, new IResponseCommandCallback() {
+					@Override
+					public void onFailure(WlCommException e) {
+						WlDeustoXilinxBasedBoard.this.messages.setText("There was an error while trying to find out whether the experiment is ready");
+					}
+					@Override
+					public void onSuccess(ResponseCommand responseCommand) {
+						
+						// Read the full message returned by the exp server and ensure it's not empty
+						final String resp = responseCommand.getCommandString();
+						if(resp.length() == 0) 
+							WlDeustoXilinxBasedBoard.this.messages.setText("The STATE query returned an empty result");
+						
+						// The command follows the format STATE=ready
+						// Extract both parts
+						final String [] tokens = resp.split("=", 2);
+						if(tokens.length != 2 || !tokens[0].equals("STATE")) {
+							WlDeustoXilinxBasedBoard.this.messages.setText("Unexpected response ot the STATE query");
+							return;
+						}
+						
+						final String state = tokens[1];
+						
+						if(state.equals(STATE_NOT_READY)) {
+							WlDeustoXilinxBasedBoard.this.readyTimer.schedule(IS_READY_QUERY_TIMER);
+						} else if(state.equals(STATE_READY)) {
+							// Ready
+							WlDeustoXilinxBasedBoard.this.onDeviceReady();
+						} else if(state.equals(STATE_PROGRAMMING)) {
+							WlDeustoXilinxBasedBoard.this.readyTimer.schedule(IS_READY_QUERY_TIMER);
+						} else if(state.equals(STATE_FAILED)) {
+							WlDeustoXilinxBasedBoard.this.onDeviceProgrammingFailed();
+						} else {
+							WlDeustoXilinxBasedBoard.this.messages.setText("Received unexpected response to the STATE query");
+						}
+					} //! onSuccess
+				}); //! new IResponseCommandCallback for the STATE command.
+			} //! run() of the Timer
+		}; //! new Timer
+		
+		
+		this.readyTimer.schedule(1000);
+		
+	} //! setupReadyTimer
+	
 	
 	final IResponseCommandCallback sendFileCallback = new IResponseCommandCallback() {
 	    
 	    @Override
 	    public void onSuccess(ResponseCommand response) {
-			WlDeustoXilinxBasedBoard.this.enableInteractiveWidgets();
-			WlDeustoXilinxBasedBoard.this.messages.setText("Device ready");
-			WlDeustoXilinxBasedBoard.this.messages.stop();
+			WlDeustoXilinxBasedBoard.this.messages.setText("File uploaded. Programming device.");
 	    }
 
 	    @Override
@@ -299,6 +379,25 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 	    }
 	};
 	
+	
+	/**
+	 * Called when the STATE query tells us that the experiment is ready.
+	 */
+	private void onDeviceReady() {
+		WlDeustoXilinxBasedBoard.this.enableInteractiveWidgets();
+		WlDeustoXilinxBasedBoard.this.messages.setText("Device ready");
+		WlDeustoXilinxBasedBoard.this.messages.stop();
+	}
+	
+	
+	/**
+	 * Called when the STATE query tells us that the board programming failed.
+	 */
+	private void onDeviceProgrammingFailed() {
+		WlDeustoXilinxBasedBoard.this.messages.setText("Device programming failed");
+		WlDeustoXilinxBasedBoard.this.messages.stop();	
+	}
+	
 	private void loadWidgets() {
 		
 		this.webcam.setVisible(true);
@@ -306,7 +405,7 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 		
 		this.timer.start();
 		
-		this.messages.setText("Programming device");
+		this.messages.setText("Sending file");
 		this.messages.start();
 		
 		final ClockActivationListener clockActivationListener = new ClockActivationListener(this.boardController, this.getResponseCommandCallback());
@@ -391,6 +490,12 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 
 	@Override
 	public void end(){
+		
+		if(this.readyTimer != null) {
+			this.readyTimer.cancel();
+			this.readyTimer = null;
+		}
+		
 		if(this.webcam != null){
 			this.webcam.dispose();
 			this.webcam = null;
