@@ -52,6 +52,11 @@ import weblab.user_processing.UserProcessor       as UserProcessor
 import weblab.user_processing.coordinator.Coordinator as Coordinator
 
 
+
+# Wait that time at most for the board to finish programming before giving up.
+XILINX_TIMEOUT = 4
+
+
 ########################################################
 # Case 001: a single instance of everything on a       #
 # single instance of the WebLab, with two experiments #
