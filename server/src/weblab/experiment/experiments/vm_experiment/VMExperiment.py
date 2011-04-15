@@ -17,6 +17,7 @@ import weblab.experiment.Experiment as Experiment
 
 from voodoo.override import Override
 from voodoo.log import logged
+import voodoo.log as log
 
 import uuid
 
@@ -208,7 +209,8 @@ class VMExperiment(Experiment.Experiment):
         """
         Executed on a work thread, will handle clean-up.
         """
-        self.user_manager.cancel()
+        if self.user_manager is not None:
+            self.user_manager.cancel()
         self.vm.kill_vm()
         if( self.should_store_image ):
             self.vm.store_image()
@@ -225,24 +227,23 @@ class VMExperiment(Experiment.Experiment):
     def setup(self):
         """ Configures the VM """
         self.load_user_manager()
-        while True:
-            try:
-                self.user_manager.configure(self.session_id)
-                if DEBUG:
-                    print "t_configured"
-                break
-            except UserManager.PermanentConfigureError, ex:
-                self.is_error = True
-                self.error = ex
-                return
-            except UserManager.TemporaryConfigureError, ex:
-                self.is_error = True
-                self.error = ex
-                return
-            except Exception, ex:
-                self.is_error = True
-                self.error = ex
-                return
+        try:
+            self.user_manager.configure(self.session_id)
+            if DEBUG:
+                print "t_configured"
+        except Exception, ex:
+            self.is_error = True
+            self.error = ex
+
+            log.log(
+                VMExperiment,
+                log.LogLevel.Error,
+                "Error configuring user manager: %s" % ex.args[0]
+            )
+            log.log_exc(
+                VMExperiment,
+                log.LogLevel.Warning
+            )
                 
 
     
