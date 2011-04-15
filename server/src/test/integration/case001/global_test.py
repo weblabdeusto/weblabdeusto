@@ -527,6 +527,17 @@ class Case001TestCase(object):
         # send a program
         CONTENT = "content of the program FPGA"
         self.real_ups.send_file(session_id, ExperimentUtil.serialize(CONTENT), 'program')
+        
+        # We need to wait for the programming to finish.
+        response = "STATE=not_ready"
+        while response in ("STATE=not_ready", "STATE=programming"):
+            respcmd = self.real_ups.send_command(session_id, Command.Command("STATE"))
+            response = respcmd.get_command_string()
+            time.sleep(0.2)
+        
+        # Check that the current state is "Ready"
+        self.assertEquals("STATE=ready", response)
+        
         self.real_ups.send_command(session_id, Command.Command("ChangeSwitch on 0"))
         self.real_ups.send_command(session_id, Command.Command("ClockActivation on 250"))
 
@@ -660,11 +671,30 @@ class Case001TestCase(object):
         # send a program
         CONTENT1 = "content of the program FPGA"
         self.real_ups.send_file(user1_session_id, ExperimentUtil.serialize(CONTENT1), 'program')
+        
+        # We need to wait for the programming to finish.
+        response = "STATE=not_ready"
+        while response in ("STATE=not_ready", "STATE=programming"):
+            respcmd = self.real_ups.send_command(user1_session_id, Command.Command("STATE"))
+            response = respcmd.get_command_string()
+            time.sleep(0.2)
+        
+        # Check that the current state is "Ready"
+        self.assertEquals("STATE=ready", response)
+        
         self.real_ups.send_command(user1_session_id, Command.Command("ChangeSwitch off 1"))
         self.real_ups.send_command(user1_session_id, Command.Command("ClockActivation on 250"))
 
         CONTENT2 = "content of the program PLD"
         self.real_ups.send_file(user2_session_id, ExperimentUtil.serialize(CONTENT2), 'program')
+       
+        # We need to wait for the programming to finish.
+        response = "STATE=not_ready"
+        while response in ("STATE=not_ready", "STATE=programming"):
+            respcmd = self.real_ups.send_command(user1_session_id, Command.Command("STATE"))
+            response = respcmd.get_command_string()
+            time.sleep(0.2)
+        
         self.real_ups.send_command(user2_session_id, Command.Command("ChangeSwitch on 0"))
         self.real_ups.send_command(user2_session_id, Command.Command("ClockActivation on 250"))
 
