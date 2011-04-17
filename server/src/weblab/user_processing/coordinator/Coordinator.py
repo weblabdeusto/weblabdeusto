@@ -15,6 +15,13 @@
 import time
 import datetime
 
+try:
+    import json as json_mod
+    json = json_mod
+except ImportError:
+    import simplejson as json_module
+    json = json_module
+
 from voodoo.log import logged
 import voodoo.LogLevel as LogLevel
 import voodoo.log as log
@@ -294,7 +301,36 @@ class Coordinator(object):
     # Called when it is confirmed by the Laboratory Server.
     #
     @logged()
-    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
+    def confirm_experiment(self, experiment_instance_id, reservation_id, lab_session_id, server_initialization_response):
+
+        default_still_initialing      = False
+        default_batch                 = False
+        default_initial_configuration = "{}"
+        if server_initialization_response is None or server_initialization_response == 'ok' or server_initialization_response == '':
+            still_initializing = default_still_initialing
+            batch = default_batch
+            initial_configuration = default_initial_configuration
+        else:
+            try:
+                response = json.loads(server_initialization_response)
+                still_initializing    = response.get('keep_initializing', default_still_initialing)
+                batch                 = response.get('batch', default_batch)
+                initial_configuration = response.get('initial_configuration', default_initial_configuration)
+            except Exception, e:
+                self.mark_experiment_as_broken(experiment_instance_id, [str(e)])
+
+                log.log( Coordinator, log.LogLevel.Error, "Could not parse experiment server response: %s; %s" % (e, server_initialization_response) )
+                log.log_exc( Coordinator, log.LogLevel.Warning )
+                return
+
+        if still_initializing:
+            # TODO XXX 
+            raise NotImplementedError("Not yet implemented: still_initializing")
+
+        if batch: # It has already finished!
+            # TODO: XXX
+            raise NotImplementedError("Not yet implemented: batch")
+
         schedulers = self._get_schedulers_per_reservation(reservation_id)
         for scheduler in schedulers:
             scheduler.confirm_experiment(reservation_id, lab_session_id, initial_configuration)

@@ -13,13 +13,6 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-try:
-    import json as json_mod
-    json = json_mod
-except ImportError:
-    import simplejson as json_module
-    json = json_module
-
 from voodoo.threaded import threaded
 import voodoo.log as log
 
@@ -65,35 +58,7 @@ class ReservationConfirmer(object):
             log.log( ReservationConfirmer, log.LogLevel.Error, "Exception confirming experiment: %s" % e )
             log.log_exc( ReservationConfirmer, log.LogLevel.Warning )
         else:
-            if server_initialization_response is None or server_initialization_response == 'ok' or server_initialization_response == '':
-                still_initializing = False
-                batch = False
-                initial_configuration = "{}"
-            else:
-                try:
-                    response = json.loads(server_initialization_response)
-                    still_initializing    = response.get('keep_initializing', False)
-                    batch                 = response.get('batch', False)
-                    initial_configuration = response.get('initial_configuration', "{}")
-                except Exception, e:
-                    self.coordinator.mark_experiment_as_broken(experiment_instance_id, [str(e)])
-
-                    log.log( ReservationConfirmer, log.LogLevel.Error, "Could not parse experiment server response: %s; %s" % (e, server_initialization_response) )
-                    log.log_exc( ReservationConfirmer, log.LogLevel.Warning )
-                    return
-            if still_initializing:
-                # TODO XXX 
-                raise NotImplementedError("Not yet implemented: still_initializing")
-
-            if batch:
-                # TODO: XXX
-                raise NotImplementedError("Not yet implemented: batch")
-
-            #
-            # Not batch and it has finished the initialization
-            # 
-            self.coordinator.confirm_experiment(reservation_id, lab_session_id, initial_configuration)
-
+            self.coordinator.confirm_experiment(experiment_instance_id, reservation_id, lab_session_id, server_initialization_response)
 
     def enqueue_free_experiment(self, lab_coordaddress_str, lab_session_id):
         # We can stablish a politic such as using 
