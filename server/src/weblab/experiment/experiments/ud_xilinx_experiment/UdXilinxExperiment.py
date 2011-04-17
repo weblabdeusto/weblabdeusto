@@ -118,6 +118,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         provided file.
         """
         self._programming_thread = self._program_file_t(file_content)
+        return "STATE=" + STATE_PROGRAMMING
         
     
     @threaded()
@@ -128,12 +129,14 @@ class UdXilinxExperiment(Experiment.Experiment):
         """
         try:
             self._current_state = STATE_PROGRAMMING
-            result = self._program_file(file_content)
+            self._program_file(file_content)
             self._current_state = STATE_READY
         except Exception, e:
             # Note: Currently, running the fake xilinx will raise this exception when
             # trying to do a CleanInputs, for which apparently serial is needed.
             self._current_state = STATE_FAILED
+            log.log(UdXilinxExperiment, log.LogLevel.Warning, "Error programming file: " + str(e) )
+            log.log_exc(UdXilinxExperiment, log.LogLevel.Warning )
 
     # This is used in the demo experiment
     def _program_file(self, file_content):
@@ -154,8 +157,6 @@ class UdXilinxExperiment(Experiment.Experiment):
             finally:
                 os.remove(file_name)
         except Exception, e:
-            
-            self._current_state = STATE_FAILED
             
             #TODO: test me
             log.log(
@@ -190,6 +191,8 @@ class UdXilinxExperiment(Experiment.Experiment):
         """
         if self._programming_thread is not None:
             self._programming_thread.join()
+            # Cleaning references
+            self._programming_thread = None
         
             
     @Override(Experiment.Experiment)
@@ -216,7 +219,7 @@ class UdXilinxExperiment(Experiment.Experiment):
             
             # Otherwise we assume that the command is intended for the actual device handler
             # If it isn't, it throw an exception itself.
-            self._command_sender.send_command(command);
+            self._command_sender.send_command(command)
         except Exception, e:
             raise ExperimentExceptions.SendingCommandFailureException(
                     "Error sending command to device: %s" % e

@@ -302,7 +302,7 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 						// Extract both parts
 						final String [] tokens = resp.split("=", 2);
 						if(tokens.length != 2 || !tokens[0].equals("STATE")) {
-							WlDeustoXilinxBasedBoard.this.messages.setText("Unexpected response ot the STATE query");
+							WlDeustoXilinxBasedBoard.this.messages.setText("Unexpected response ot the STATE query: " + resp);
 							return;
 						}
 						
