@@ -36,12 +36,15 @@ import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.c
 import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
 import es.deusto.weblab.client.ui.widgets.WlClockActivator;
+import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar;
 import es.deusto.weblab.client.ui.widgets.WlSwitch;
 import es.deusto.weblab.client.ui.widgets.WlTimedButton;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
 import es.deusto.weblab.client.ui.widgets.WlButton.IWlButtonUsed;
+import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarListener;
+import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarTextUpdater;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 public class WlDeustoXilinxBasedBoard extends BoardBase{
@@ -99,6 +102,8 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 	@UiField HorizontalPanel switchesRow;
 	@UiField HorizontalPanel buttonsRow;
 	@UiField HorizontalPanel webcamPanel;
+	
+	@UiField WlPredictiveProgressBar progressBar;
 	
 	//@UiField(provided=true)
 	private UploadStructure uploadStructure;
@@ -249,6 +254,7 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 		this.loadWidgets();
 		this.disableInteractiveWidgets();
 		
+		
 		if(!isDemo()){
 			this.uploadStructure.getFormPanel().setVisible(false);
 		
@@ -335,7 +341,13 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 	    
 	    @Override
 	    public void onSuccess(ResponseCommand response) {
-			WlDeustoXilinxBasedBoard.this.messages.setText("File uploaded. Programming device.");
+	    	// Make the bar finish in a few seconds, it will make itself
+	    	// invisible once it is full.
+	    	WlDeustoXilinxBasedBoard.this.progressBar.finish(1500);
+	    	
+			WlDeustoXilinxBasedBoard.this.enableInteractiveWidgets();
+			WlDeustoXilinxBasedBoard.this.messages.setText("Device ready");
+			WlDeustoXilinxBasedBoard.this.messages.stop();
 	    }
 
 	    @Override
@@ -345,6 +357,13 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 		    	WlDeustoXilinxBasedBoard.this.enableInteractiveWidgets();
 		    
 	    	WlDeustoXilinxBasedBoard.this.messages.stop();
+	    	
+	    	WlDeustoXilinxBasedBoard.this.progressBar.stop();
+	    	WlDeustoXilinxBasedBoard.this.progressBar.setTextUpdater(new IProgressBarTextUpdater(){
+				@Override
+				public String generateText(double progress) {
+					return "Error. Could not complete.";
+				}});
 				
 			WlDeustoXilinxBasedBoard.this.messages.setText("Error sending file: " + e.getMessage());
 		    
@@ -407,6 +426,25 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 		
 		this.messages.setText("Sending file");
 		this.messages.start();
+		
+		this.progressBar.setTextUpdater(new IProgressBarTextUpdater(){
+			@Override
+			public String generateText(double progress) {
+				return "Programming device (" + (int)(progress*100) + "%)";
+			}});
+		
+		// Set up a listener to automatically remove the progress
+		// bar whenever it reaches a 100%.
+		this.progressBar.setListener(new IProgressBarListener() {
+			@Override
+			public void onFinished() {
+				WlDeustoXilinxBasedBoard.this.progressBar.setVisible(false);
+			}});
+		
+		this.progressBar.setWaitPoint(0.95);
+		this.progressBar.setVisible(true);
+		this.progressBar.setEstimatedTime(25000);
+		this.progressBar.start();
 		
 		final ClockActivationListener clockActivationListener = new ClockActivationListener(this.boardController, this.getResponseCommandCallback());
 		this.clockActivator.addClockActivationListener(clockActivationListener);

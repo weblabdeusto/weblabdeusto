@@ -9,7 +9,7 @@
 * listed below:
 *
 * Author: Pablo Orduña <pablo@ordunya.com>
-*         Luis Rodriguez <luis.rodriguez@opendeusto.es>
+* 		  Luis Rodriguez <luis.rodriguez@opendeusto.es>
 *
 */ 
 package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.vm.ui;
@@ -32,8 +32,11 @@ import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.ui.BoardBase;
+import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
+import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarListener;
+import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarTextUpdater;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 public class VMBoard extends BoardBase {
@@ -69,11 +72,15 @@ public class VMBoard extends BoardBase {
 	@UiField Label url;
 	@UiField VerticalPanel applets;
 	
+	@UiField WlPredictiveProgressBar progressBar;
+
 	@UiField(provided = true) WlTimer timer;
 	
 	private Timer readyTimer;
 	private String fullURLPassword = "";
 	private String protocol = "";
+	
+	private boolean progressBarRun = false;
 	
 	
 	public VMBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
@@ -99,6 +106,8 @@ public class VMBoard extends BoardBase {
 		});
 		this.timer.start();
 		
+		this.progressBar.setVisible(true);
+		
 		
 		this.readyTimer = new Timer() {
 			@Override
@@ -114,6 +123,14 @@ public class VMBoard extends BoardBase {
 					@Override
 					public void onFailure(WlCommException e) {
 						VMBoard.this.setMessage("There was an error while trying to find out whether the Virtual Machine is ready");
+						
+						VMBoard.this.progressBar.setTextUpdater(new IProgressBarTextUpdater() {
+							@Override
+							public String generateText(double progress) {
+								return "Error: Server not available";
+							}} );
+						VMBoard.this.progressBar.stop();
+						
 					}
 					@Override
 					public void onSuccess(ResponseCommand responseCommand) {
@@ -138,18 +155,74 @@ public class VMBoard extends BoardBase {
 						else
 							argStr = "";
 						
+						
 						if(codeStr.equals("0")) {
 							// Not ready
 							VMBoard.this.setMessage("Your Virtual Machine is not yet ready. Please, wait. It often takes around " + argStr + " seconds.");
 							VMBoard.this.readyTimer.schedule(IS_READY_QUERY_TIMER);
+							
+							if(!VMBoard.this.progressBar.isRunning() && !VMBoard.this.progressBarRun) {
+								
+								VMBoard.this.progressBarRun = true;
+								final double estimatedSeconds = Double.parseDouble(argStr);
+								VMBoard.this.progressBar.setEstimatedTime((int) (estimatedSeconds * 1000));
+								VMBoard.this.progressBar.setResolution(40);
+								VMBoard.this.progressBar.setWaitPoint(0.9);
+								
+								// The progress bar will automatically disappear as soon as it
+								// is full.
+								VMBoard.this.progressBar.setListener(new IProgressBarListener(){
+									@Override
+									public void onFinished() {
+										VMBoard.this.progressBar.setVisible(false);
+									}});
+								
+								VMBoard.this.progressBar.setTextUpdater(new IProgressBarTextUpdater() {
+									
+									@Override
+									public String generateText(double progress) {
+										
+										final long elapsed = VMBoard.this.progressBar.getElapsedTime();
+										
+										if(elapsed > 1000 * (estimatedSeconds + 1)) {
+											VMBoard.this.setMessage("Setting up the VM is taking longer than expected. There might be some problem.");
+											return "Taking longer than expected.";
+										} 
+										
+										if(progress == 1) {
+											return "Done. VM is ready";
+										}
+										
+										return "Loading, please wait (" + (int)(progress*100) + "%)";
+									}} );
+								
+								VMBoard.this.progressBar.start();
+								
+							}
+							
 						} else if(codeStr.equals("1")) {
+							
 							// Ready
 							VMBoard.this.setMessage("Your Virtual Machine is now ready!");
 							if(VMBoard.this.protocol.equals("vnc"))
 								loadVNCApplet();
+							
+							// Will automatically remove itself once it reaches 100%, when the
+							// finished callback gets called.
+							VMBoard.this.progressBar.finish(1500);
+							
 						} else {
+							
 							// Unexpected answer
 							VMBoard.this.setMessage("Received unexpected response to the is_ready query");
+							
+							VMBoard.this.progressBar.setTextUpdater(new IProgressBarTextUpdater() {
+								@Override
+								public String generateText(double progress) {
+									return "Error: Unexpected reply";
+								}} );
+								VMBoard.this.progressBar.stop();
+
 						}
 					}
 				});
@@ -235,6 +308,8 @@ public class VMBoard extends BoardBase {
 	    this.setMessage("Obtaining VM config...");
 	    
 	    this.sendGetConfigurationCommand();
+	    
+	    this.progressBarRun = false;
 	}	
 	
 	@Override

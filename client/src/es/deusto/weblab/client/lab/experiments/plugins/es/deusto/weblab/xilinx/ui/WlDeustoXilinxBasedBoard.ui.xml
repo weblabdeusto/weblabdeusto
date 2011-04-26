@@ -17,10 +17,15 @@
 			
 				<g:HorizontalPanel ui:field="webcamPanel" width="100%" horizontalAlignment="ALIGN_CENTER" />
 							
+				<g:HorizontalPanel horizontalAlignment='ALIGN_CENTER' width="100%" spacing="30">
+					<w:WlPredictiveProgressBar ui:field="progressBar" visible="false" width="75%" resolution="20"></w:WlPredictiveProgressBar>
+				</g:HorizontalPanel>
+							
 				<g:HorizontalPanel ui:field="timerMessagesPanel" borderWidth="0" width="100%" horizontalAlignment="ALIGN_CENTER">
 					<w:WlTimer ui:field="timer" width="30%" styleName="wl-time_remaining"></w:WlTimer>
 					
 					<w:WlWaitingLabel ui:field="messages" horizontalAlignment="ALIGN_CENTER"></w:WlWaitingLabel>
+					
 					
 					<w:WlClockActivator ui:field="clockActivator" width="70%" styleName="wl-clock_activation_panel" visible="false"></w:WlClockActivator>
 				</g:HorizontalPanel>

@@ -8,7 +8,7 @@
 * This software consists of contributions made by many individuals, 
 * listed below:
 *
-* Author: Luis Rodriguez Gil <zstars@gmail.com>
+* Author: Luis Rodriguez Gil <luis.rodriguez@opendeusto.es>
 *
 */
 
