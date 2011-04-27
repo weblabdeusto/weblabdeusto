@@ -340,7 +340,7 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 	    
 	    @Override
 	    public void onSuccess(ResponseCommand response) {
-	    	WlDeustoXilinxBasedBoard.this.messages.setText("File sent. Programming device...");
+	    	WlDeustoXilinxBasedBoard.this.messages.setText("File sent. Programming device");
 	    }
 
 	    @Override

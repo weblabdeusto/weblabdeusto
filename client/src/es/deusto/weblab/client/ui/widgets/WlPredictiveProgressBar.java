@@ -383,6 +383,8 @@ public class WlPredictiveProgressBar extends GlProgressBar implements IWlWidget 
 	 * @param ms Number of milliseconds that it will take the bar to reach the end
 	 */
 	public void progressTo(double point, int ms) {
+		if(this.currentTimer == null) // Already stopped
+			return;
 		
 		this.currentTimer.cancel();
 
