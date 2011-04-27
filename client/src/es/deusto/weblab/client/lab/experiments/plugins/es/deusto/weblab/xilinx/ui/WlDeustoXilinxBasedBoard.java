@@ -31,7 +31,6 @@ import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.vm.ui.VMBoard;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.commands.ExperimentFinishedCommand;
 import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
@@ -341,13 +340,7 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 	    
 	    @Override
 	    public void onSuccess(ResponseCommand response) {
-	    	// Make the bar finish in a few seconds, it will make itself
-	    	// invisible once it is full.
-	    	WlDeustoXilinxBasedBoard.this.progressBar.finish(1500);
-	    	
-			WlDeustoXilinxBasedBoard.this.enableInteractiveWidgets();
-			WlDeustoXilinxBasedBoard.this.messages.setText("Device ready");
-			WlDeustoXilinxBasedBoard.this.messages.stop();
+	    	WlDeustoXilinxBasedBoard.this.messages.setText("File sent. Programming device...");
 	    }
 
 	    @Override
@@ -403,6 +396,10 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 	 * Called when the STATE query tells us that the experiment is ready.
 	 */
 	private void onDeviceReady() {
+    	// Make the bar finish in a few seconds, it will make itself
+    	// invisible once it is full.
+    	WlDeustoXilinxBasedBoard.this.progressBar.finish(1000);
+
 		WlDeustoXilinxBasedBoard.this.enableInteractiveWidgets();
 		WlDeustoXilinxBasedBoard.this.messages.setText("Device ready");
 		WlDeustoXilinxBasedBoard.this.messages.stop();
@@ -413,6 +410,8 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 	 * Called when the STATE query tells us that the board programming failed.
 	 */
 	private void onDeviceProgrammingFailed() {
+    	WlDeustoXilinxBasedBoard.this.progressBar.finish(300);
+    	
 		WlDeustoXilinxBasedBoard.this.messages.setText("Device programming failed");
 		WlDeustoXilinxBasedBoard.this.messages.stop();	
 	}

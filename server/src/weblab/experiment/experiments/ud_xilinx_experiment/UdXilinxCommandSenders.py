@@ -50,10 +50,14 @@ class SerialPortCommandSender(UdXilinxCommandSender):
         super(SerialPortCommandSender, self).__init__(cfg_manager)
         self._serial_port = _SerialPort()
         self._port_number = self._cfg_manager.get_value('weblab_xilinx_experiment_port_number')
+        self._is_fake     = self._cfg_manager.get_value('xilinx_serial_port_is_fake', False)
         self._serial_port_lock = threading.Lock()
     
     @Override(UdXilinxCommandSender)
     def send_command(self, command):
+        if self._is_fake:
+            print "Sending command...", command
+            return
         cmd = UdBoardCommand.UdBoardCommand(command)
         codes = cmd.get_codes()
         self._serial_port_lock.acquire()

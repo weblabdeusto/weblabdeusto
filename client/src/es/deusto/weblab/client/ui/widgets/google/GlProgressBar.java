@@ -34,6 +34,7 @@ import com.google.gwt.user.client.ui.Widget;
  * text when progress is greater than 50 percent } </li>
  * </ul>
  */
+@SuppressWarnings("unqualified-field-access")
 public class GlProgressBar extends Widget implements GlResizableWidget {
 
   private static final String DEFAULT_TEXT_CLASS_NAME =
@@ -271,7 +272,8 @@ public class GlProgressBar extends Widget implements GlResizableWidget {
    * @param width the new client width of the element
    * @param height the new client height of the element
    */
-  public void onResize(int width, int height) {
+  @Override
+public void onResize(int width, int height) {
     if (textVisible) {
       int textWidth = DOM.getElementPropertyInt(textElement, "offsetWidth");
       int left = (width / 2) - (textWidth / 2);
@@ -323,7 +325,7 @@ public class GlProgressBar extends Widget implements GlResizableWidget {
    *
    * @param curProgress the current progress
    */
-  public void setProgress(double curProgress) {
+public void setProgress(double curProgress) {
     this.curProgress = Math.max(this.minProgress, Math.min(this.maxProgress, curProgress));
 
     // Calculate percent complete

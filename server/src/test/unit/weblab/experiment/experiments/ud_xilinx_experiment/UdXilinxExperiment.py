@@ -61,7 +61,7 @@ class UsingUdXilinxExperimentTestCase(unittest.TestCase):
         No assumptions are made about its result.
         """
         while(self.uxm.get_state() in (UdXilinxExperiment.STATE_PROGRAMMING, UdXilinxExperiment.STATE_NOT_READY) ):
-            time.sleep(100)
+            time.sleep(0.1)
     
     def test_xilinx_with_serial_port(self):        
         self.cfg_manager._set_value('xilinx_device_to_program', 'XilinxImpact')
