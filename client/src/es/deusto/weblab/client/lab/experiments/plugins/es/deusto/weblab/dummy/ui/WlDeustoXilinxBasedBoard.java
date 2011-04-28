@@ -18,7 +18,6 @@ import java.util.Vector;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -30,17 +29,16 @@ import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.commands.ExperimentFinishedCommand;
 import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
+import es.deusto.weblab.client.ui.widgets.WlButton.IWlButtonUsed;
 import es.deusto.weblab.client.ui.widgets.WlClockActivator;
 import es.deusto.weblab.client.ui.widgets.WlSwitch;
 import es.deusto.weblab.client.ui.widgets.WlTimedButton;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
+import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
-import es.deusto.weblab.client.ui.widgets.WlButton.IWlButtonUsed;
-import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 public class WlDeustoXilinxBasedBoard extends BoardBase{
 
@@ -72,8 +70,6 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 	}
 	
 	protected IConfigurationRetriever configurationRetriever;
-	private static final ExperimentFinishedCommand experimentFinishedCommand = new ExperimentFinishedCommand();
-	
 
 	private static final boolean DEBUG_ENABLED = false;
 	
@@ -243,9 +239,6 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 			this.uploadStructure.getFormPanel().setVisible(false);
 		
 			this.boardController.sendFile(this.uploadStructure, this.sendFileCallback);
-		}else{
-			
-			this.boardController.sendCommand(WlDeustoXilinxBasedBoard.experimentFinishedCommand, this.sendExperimentFinishedRequestCommand);
 		}
 	}
 	
@@ -270,34 +263,6 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 		    
 	    }
 	};	
-	
-	private final IResponseCommandCallback sendExperimentFinishedRequestCommand = new IResponseCommandCallback(){
-		
-	    @Override
-	    public void onSuccess(ResponseCommand response) {
-			if(response.getCommandString().equals("false")){
-				final Timer timer = new Timer(){
-					@Override
-					public void run(){
-						WlDeustoXilinxBasedBoard.this.boardController.sendCommand(WlDeustoXilinxBasedBoard.experimentFinishedCommand, WlDeustoXilinxBasedBoard.this.sendExperimentFinishedRequestCommand);
-					}
-				};
-				timer.schedule(400);
-			}else
-				WlDeustoXilinxBasedBoard.this.sendFileCallback.onSuccess(new ResponseCommand(""));
-	    }
-	    
-	    @Override
-	    public void onFailure(WlCommException e) {
-	    	
-		    if(WlDeustoXilinxBasedBoard.DEBUG_ENABLED)
-		    	WlDeustoXilinxBasedBoard.this.enableInteractiveWidgets();
-		    
-	    	WlDeustoXilinxBasedBoard.this.messages.stop();
-				
-			WlDeustoXilinxBasedBoard.this.messages.setText("Error sending command: " + e.getMessage());
-	    }
-	};
 	
 	private void loadWidgets() {
 		

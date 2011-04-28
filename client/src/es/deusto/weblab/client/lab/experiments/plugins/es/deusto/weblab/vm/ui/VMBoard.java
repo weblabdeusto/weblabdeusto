@@ -31,15 +31,14 @@ import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.ui.WlDeustoXilinxBasedBoard;
 import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar;
-import es.deusto.weblab.client.ui.widgets.WlTimer;
-import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarListener;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarTextUpdater;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.TextProgressBarTextUpdater;
+import es.deusto.weblab.client.ui.widgets.WlTimer;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
+import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
 public class VMBoard extends BoardBase {
 	
@@ -199,8 +198,7 @@ public class VMBoard extends BoardBase {
 										final long elapsed = VMBoard.this.progressBar.getElapsedTime();
 										
 										if(elapsed > 1000 * (estimatedSeconds + 1)) {
-											VMBoard.this.setMessage("Setting up the VM is taking longer than expected. There might be some problem.");
-											return "Taking longer than expected.";
+											return "Finishing...";
 										} 
 										
 										if(progress == 1) {
