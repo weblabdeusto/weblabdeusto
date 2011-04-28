@@ -92,7 +92,8 @@ class VMExperiment(Experiment.Experiment):
 
         initial = time.time()
         while self.is_ready and (initial + 10) > time.time():
-            print self.is_ready
+            if DEBUG:
+                print "is_ready:",self.is_ready
             time.sleep(0.1)
 
         if self.is_ready:

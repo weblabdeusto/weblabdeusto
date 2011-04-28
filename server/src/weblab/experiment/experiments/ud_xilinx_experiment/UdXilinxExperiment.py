@@ -198,7 +198,7 @@ class UdXilinxExperiment(Experiment.Experiment):
             
     @Override(Experiment.Experiment)
     @logged("info")
-    def do_start_experiment(self):
+    def do_start_experiment(self, *args, **kwargs):
         self._current_state = STATE_NOT_READY
 
     
