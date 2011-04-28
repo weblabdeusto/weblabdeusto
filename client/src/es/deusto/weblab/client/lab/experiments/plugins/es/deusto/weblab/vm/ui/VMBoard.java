@@ -31,12 +31,14 @@ import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.ui.WlDeustoXilinxBasedBoard;
 import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarListener;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarTextUpdater;
+import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.TextProgressBarTextUpdater;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 public class VMBoard extends BoardBase {
@@ -81,6 +83,7 @@ public class VMBoard extends BoardBase {
 	private String protocol = "";
 	
 	private boolean progressBarRun = false;
+	private boolean vmReady = false;
 	
 	
 	public VMBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
@@ -129,8 +132,14 @@ public class VMBoard extends BoardBase {
 							public String generateText(double progress) {
 								return "Error: Server not available";
 							}} );
-						VMBoard.this.progressBar.stop();
-						
+						if(VMBoard.this.progressBar.isWaiting()){
+							VMBoard.this.progressBar.stop();
+							VMBoard.this.progressBar.setVisible(false);
+						}else{
+							// Will automatically remove itself once it reaches 100%, when the
+							// finished callback gets called.
+							VMBoard.this.progressBar.finish(300);
+						}
 					}
 					@Override
 					public void onSuccess(ResponseCommand responseCommand) {
@@ -174,7 +183,12 @@ public class VMBoard extends BoardBase {
 								VMBoard.this.progressBar.setListener(new IProgressBarListener(){
 									@Override
 									public void onFinished() {
-										VMBoard.this.progressBar.setVisible(false);
+										if(VMBoard.this.vmReady){
+											VMBoard.this.progressBar.setVisible(false);
+										}else{
+											VMBoard.this.progressBar.keepWaiting();
+											VMBoard.this.progressBar.setTextUpdater(new TextProgressBarTextUpdater("Finishing..."));
+										}
 									}});
 								
 								VMBoard.this.progressBar.setTextUpdater(new IProgressBarTextUpdater() {
@@ -201,18 +215,23 @@ public class VMBoard extends BoardBase {
 							}
 							
 						} else if(codeStr.equals("1")) {
-							
+							VMBoard.this.vmReady = true;
 							// Ready
 							VMBoard.this.setMessage("Your Virtual Machine is now ready!");
 							if(VMBoard.this.protocol.equals("vnc"))
 								loadVNCApplet();
 							
-							// Will automatically remove itself once it reaches 100%, when the
-							// finished callback gets called.
-							VMBoard.this.progressBar.finish(1500);
+							if(VMBoard.this.progressBar.isWaiting()){
+								VMBoard.this.progressBar.stop();
+								VMBoard.this.progressBar.setVisible(false);
+							}else{
+								// Will automatically remove itself once it reaches 100%, when the
+								// finished callback gets called.
+								VMBoard.this.progressBar.finish(300);
+							}
 							
 						} else {
-							
+							VMBoard.this.vmReady = true;
 							// Unexpected answer
 							VMBoard.this.setMessage("Received unexpected response to the is_ready query");
 							
@@ -221,8 +240,14 @@ public class VMBoard extends BoardBase {
 								public String generateText(double progress) {
 									return "Error: Unexpected reply";
 								}} );
+							if(VMBoard.this.progressBar.isWaiting()){
 								VMBoard.this.progressBar.stop();
-
+								VMBoard.this.progressBar.setVisible(false);
+							}else{
+								// Will automatically remove itself once it reaches 100%, when the
+								// finished callback gets called.
+								VMBoard.this.progressBar.finish(300);
+							}
 						}
 					}
 				});
@@ -328,6 +353,8 @@ public class VMBoard extends BoardBase {
 			this.timer.dispose();
 			this.timer = null;
 		}			
+		if(this.progressBar != null)
+			this.progressBar.stop();
 	}
 	
 	public void setMessage(String msg) {
