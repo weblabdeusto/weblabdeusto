@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.AudioElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.media.client.Audio;
@@ -140,6 +139,7 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 	private Circuit circuit;
 	private boolean solving = true;
 	private int points = 0;
+	private final Resources resources = GWT.create(Resources.class);
 	
 	private final IResponseCommandCallback commandCallback = new IResponseCommandCallback(){
 
@@ -279,7 +279,7 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 		
 		// Connections
 		for(final RowColumnPair pair : RowColumnPair.getRowsColumnPairs()){
-		    final Image pairImage = new Image(pair.getImageResourceWeb());
+		    final Image pairImage = new Image(pair.getImageResourceWeb(this.resources));
 		    this.circuitGrid.setWidget(pair.getRow(), pair.getColumn() + 1, pairImage);
 		}
 		
@@ -399,6 +399,7 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 				this.solving = false;
 				
 				if(Audio.isSupported()) {
+					@SuppressWarnings("unused")
 					final Audio audio = Audio.createIfSupported();
 				
 				}

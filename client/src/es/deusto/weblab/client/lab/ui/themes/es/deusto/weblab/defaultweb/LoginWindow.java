@@ -43,7 +43,6 @@ import com.google.gwt.user.client.ui.Widget;
 import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.i18n.IWebLabDeustoThemeMessages;
-import es.deusto.weblab.client.ui.widgets.WlSoundSwitch;
 import es.deusto.weblab.client.ui.widgets.WlUtil;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
@@ -78,8 +77,6 @@ class LoginWindow extends BaseWindow {
 	@UiField DecoratorPanel adminPanel;
 	@UiField Image hostEntityLogo;
 	@UiField HTML introText;
-	
-	@UiField WlSoundSwitch soundSwitch;
 	
 	// Callbacks
 	private final ILoginWindowCallback callback;
@@ -243,6 +240,7 @@ class LoginWindow extends BaseWindow {
 		this.waitingLabel.setText("");
 		this.waitingLabel.setVisible(false);
 		this.loginButton.setEnabled(true);
+		this.usernameTextbox.setFocus(true);
 	}
 
 
@@ -254,6 +252,7 @@ class LoginWindow extends BaseWindow {
 		this.waitingLabel.setText("");
 		this.waitingLabel.setVisible(false);
 		this.loginButton.setEnabled(true);
+		this.usernameTextbox.setFocus(true);
 	}
 	
 	@UiHandler("loginButton")
@@ -324,5 +323,13 @@ class LoginWindow extends BaseWindow {
 			Cookies.setCookie(WebLabClient.LOCALE_COOKIE, this.languageCode);
 			WebLabClient.refresh(this.languageCode);
 		}
+	}
+
+	void setUsernameFocus() {
+		this.usernameTextbox.setFocus(true);
+	}
+
+	void setLoginFocus() {
+		this.loginButton.setFocus(true);
 	}	
 }

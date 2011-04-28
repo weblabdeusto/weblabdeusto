@@ -16,11 +16,23 @@
 
 if __name__ == '__main__':
     import sys
-    file = open(sys.argv[2]).read()
-    print file
-    if file.find("error.file") >= 0:
+    import time
+    f = open(sys.argv[2]).read()
+    print f
+    try:
+        if f.find("-file "):
+            filesent = f.split('-file')[1].strip().split('\n')[0].split(' ')[0].strip()
+            filecontent = open(filesent).read()
+            if filecontent.find("time=") >= 0:
+                print "Sleeping"
+                t = int(filecontent.split('time=')[1].strip().split(' ')[0].split('\n')[0].strip())
+                time.sleep(t)
+                print "Slept",t
+    except:
+        pass
+    if f.find("error.file") >= 0:
         print "ERROR: bla bla bla"
-    elif file.find("stderr.file") >= 0:
+    elif f.find("stderr.file") >= 0:
         sys.stderr.write("bla bla bla")
-    elif file.find("return-1.file") >= 0:
+    elif f.find("return-1.file") >= 0:
         sys.exit(-1)

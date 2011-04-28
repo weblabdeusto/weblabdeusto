@@ -20,4 +20,6 @@ public abstract class WlLabThemeBase implements IUIManager{
 	
 	public abstract Widget getWidget();
 	
+	public void onLoaded(){
+	}
 }

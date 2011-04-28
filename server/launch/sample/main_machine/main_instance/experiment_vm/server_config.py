@@ -30,7 +30,7 @@ vbox_base_snapshot = "Ready"
 # The URL of the Virtual Machine. This is the URL that will be provided 
 # to the users for them to connect to, through their remote desktop
 # software of choice. (Currently, either RDP or VNC).
-vm_url = "vnc://192.168.51.51:5901"
+vm_url = "vnc://192.168.51.82:5901"
 
 # The Virtual Machine software to use. Currently, only VirtualBox
 # is supported, though the sytem is designed to be easily extensible
@@ -56,10 +56,25 @@ vm_user_manager_type = "HttpQueryUserManager"
 # hence, the URL on which the password changing services should 
 # listen. It is important to make sure that the specified port
 # here and the specified port in the password changing service
-# configuration do match.
-http_query_user_manager_url = "http://192.168.51.51:18080"
+# configuration do match. 
+# When deploying an experiment for real use, it is important to configure
+# the firewall correctly. The password of the Virtual Machine can be changed
+# with a simple HTTP query to the right port. There is no authentication 
+# system. Hence, only the WebLab VM experiment server should be allowed
+# to contact the Virtual Machine through this port.
+http_query_user_manager_url = "http://192.168.51.82:18080"
 
 # Will save the image after every use if enabled. Generally, this is
 # not advisable. In the future, support for snapshot saving might be
 # implemented.
 vm_should_store_image = False
+
+# Should specify the estimated load time of the Virtual Machine. This time
+# will be displayed to the users, so that they know the waiting time they
+# should expect.
+vm_estimated_load_time = 20
+
+
+# It is possible to add certain optional arguments for starting up the Virtual Machines. 
+# These won't generally be needed, and hence the line below is commented out by default.
+# vbox_headless_start_options = ['-vrde', 'on']

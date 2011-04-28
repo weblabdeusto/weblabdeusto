@@ -21,10 +21,12 @@ weblab_xilinx_experiment_port_number   = 1
 # But for testing we are going to fake it:
 
 xilinx_home = "."
-xilinx_impact_full_path = ["python","./tests/unit/weblab/experiment/devices/xilinx_impact/fake_impact.py" ]
+xilinx_impact_full_path = ["python","../../src/test/unit/weblab/experiment/devices/xilinx_impact/fake_impact.py" ]
 
 xilinx_device_to_program = 'XilinxImpact' # 'JTagBlazer', 'DigilentAdept'
 xilinx_device_to_send_commands = 'SerialPort' # 'HttpDevice'
+
+xilinx_serial_port_is_fake = True
 
 xilinx_batch_content_FPGA = """setMode -bs
 setCable -port auto
@@ -33,11 +35,13 @@ Program -p 1
 exit
 """
 
-digilent_adept_full_path = ["python","./test/unit/weblab/experiment/devices/digilent_adept/fake_digilent_adept.py" ]
+digilent_adept_full_path = ["python","../../src/test/unit/weblab/experiment/devices/digilent_adept/fake_digilent_adept.py" ]
 digilent_adept_batch_content = """something with the variable $FILE"""
 
 xilinx_http_device_ip_FPGA        = "192.168.50.138"
 xilinx_http_device_port_FPGA      = 80
 xilinx_http_device_app_FPGA       = ""
+
+xilinx_programmer_time = 5 # seconds
 
 fpga_webcam_url          = '''https://www.weblab.deusto.es/webcam/fpga0/image.jpg'''

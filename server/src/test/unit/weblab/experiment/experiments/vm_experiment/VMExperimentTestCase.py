@@ -47,6 +47,11 @@ class TestUserManager(UserManager):
         if self.except_to_raise is not None:
             raise self.except_to_raise
         
+def create_wrapped_vmexp(user_manager):
+    class WrappedVMExperiment(VMExperiment.VMExperiment):
+        def load_user_manager(self):
+            self.user_manager = user_manager
+    return WrappedVMExperiment
 
 class TestVirtualMachine(VirtualMachineManager):
     
@@ -103,6 +108,7 @@ class VMExperimentTestCase(mocker.MockerTestCase):
         self.assertEqual(vmexp.user_manager_type, "DummyUserManager")
         
         vm = vmexp.vm
+        vmexp.load_user_manager()
         um = vmexp.user_manager
         self.assertIs(type(vm), VirtualMachineDummy.VirtualMachineDummy)
         self.assertIs(type(um), user_manager.DummyUserManager.DummyUserManager)
@@ -124,6 +130,7 @@ class VMExperimentTestCase(mocker.MockerTestCase):
         self.assertEqual(vmexp.user_manager_type, "TestUserManager")
         
         vm = vmexp.vm
+        vmexp.load_user_manager()
         um = vmexp.user_manager
         self.assertIs(type(vm), TestVirtualMachine)
         self.assertIs(type(um), TestUserManager)
@@ -151,11 +158,12 @@ class VMExperimentTestCase(mocker.MockerTestCase):
     def test_standard_process(self):
         cfg_manager = ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration_module)
-        
-        vmexp = VMExperiment.VMExperiment(None, None, cfg_manager) 
+       
+        um = TestUserManager(cfg_manager)
+        WrappedVMExperiment = create_wrapped_vmexp(um)
+        vmexp = WrappedVMExperiment(None, None, cfg_manager) 
         
         vm = vmexp.vm
-        um = vmexp.user_manager
     
         ret = vmexp.do_start_experiment("{}","{}")
         self.assertEqual("Starting", ret)
@@ -201,11 +209,13 @@ class VMExperimentTestCase(mocker.MockerTestCase):
     def test_config_permanent_raise(self):
         cfg_manager = ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration_module)
-        
-        vmexp = VMExperiment.VMExperiment(None, None, cfg_manager) 
+
+        um = TestUserManager(cfg_manager)
+
+        WrappedVMExperiment = create_wrapped_vmexp(um)
+        vmexp = WrappedVMExperiment(None, None, cfg_manager) 
         
         vm = vmexp.vm
-        um = vmexp.user_manager
         
         excep = TestPermanentConfigError()
         um.except_to_raise = excep

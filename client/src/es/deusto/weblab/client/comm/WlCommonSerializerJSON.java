@@ -258,9 +258,11 @@ public class WlCommonSerializerJSON implements IWlCommonSerializer {
 				try {
 				    value = JSONParser.parseStrict(response);
 				} catch (final IllegalArgumentException e) {
-				    throw new SerializationException("Invalid response: " + e.getMessage());
+					e.printStackTrace();
+				    throw new SerializationException("Invalid response: " + e.getMessage(), e);
 				} catch (final JSONException e){
-				    throw new SerializationException("Invalid response: " + e.getMessage());
+					e.printStackTrace();
+				    throw new SerializationException("Invalid response: " + e.getMessage(), e);
 				}
 				final JSONObject responseObject = value.isObject();
 				if(responseObject == null)

@@ -61,7 +61,7 @@ class AdminNotifier(object):
         [OPTIONAL]
         * mail_notification_subject
 
-        Examples for this values are:
+        Examples for these values are:
 
         server_hostaddress  = 'weblab.deusto.es'
         server_admin        = 'porduna@tecnologico.deusto.es'

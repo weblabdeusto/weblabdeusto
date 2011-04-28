@@ -79,6 +79,15 @@ public class DefaultTheme extends WlLabThemeBase {
 	public void onInit() {
 		this.loadLoginWindow();
 	}
+	
+	@Override
+	public void onLoaded(){
+		if(this.user == null){
+			if(this.loginWindow != null){
+				this.loginWindow.setUsernameFocus();
+			}
+		}
+	}
 
 	@Override
 	public void onLoggedIn(User user)
@@ -135,6 +144,7 @@ public class DefaultTheme extends WlLabThemeBase {
 	public void onLoggedOut() {
 		this.clearSession();
 		this.loadLoginWindow();
+		this.loginWindow.setLoginFocus();
 	}
 
 	/*

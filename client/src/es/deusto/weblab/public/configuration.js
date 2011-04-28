@@ -56,18 +56,23 @@
 	                       ],
 	                "vm"    : [
 	                           {
+	                        	   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
 	                        	   "experiment.name"     : "vm",
 	                        	   "experiment.category" : "Dummy experiments"
 	                           },
 	                           {
+	                        	   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
 	                        	   "experiment.name"     : "ud-linux-vm",
 	                        	   "experiment.category" : "VM experiments"
 	                           },
 	                           {
+	                        	   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
 	                        	   "experiment.name"     : "ud-win-vm",
 	                        	   "experiment.category" : "VM experiments"
 	                           },
-	                           {   "experiment.name"	 : "vm-win",
+	                           {   
+	                        	   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
+	                        	   "experiment.name"	 : "vm-win",
 	                               "experiment.category" : "Dummy experiments"
 	                           }
 	                       ],  

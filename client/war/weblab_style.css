@@ -560,3 +560,42 @@ body
 	font-weight: normal;
 }
 
+
+
+
+/**
+ * Applied to ProgressBar.
+ */
+.gwt-ProgressBar-shell {
+  border: 3px solid #faf9f7;
+  border-right: 2px solid #4442FF;
+  border-bottom: 2px solid #4442FF;
+  border-top: 1px solid #2423FF;
+  background-color: #E0FFE0;
+  height: 15pt;
+  width: 30%;
+}
+.gwt-ProgressBar-shell .gwt-ProgressBar-bar {
+  background-color: #C0C0F0;
+  position:relative;
+  float: left;// Important: otherwise it is not aligned to the left
+  left: 0%;
+}
+.gwt-ProgressBar-shell .gwt-ProgressBar-text {
+  padding: 0px;
+  margin: 0px;
+  color: black;
+  font-weight: bold;
+  align: left;
+}
+.gwt-ProgressBar-thin {
+  border: 2px solid #848280;
+  background-color: navy;
+  height: 7px;
+  overflow: hidden;
+}
+.gwt-ProgressBar-thin .gwt-ProgressBar-bar {
+  background-color: #67A7E3;
+}
+
+

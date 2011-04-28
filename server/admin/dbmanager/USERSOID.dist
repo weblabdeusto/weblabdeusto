@@ -1,0 +1,7 @@
+# This file can be used to import Users to WebLab-Deusto through OpenID
+# Each line should specify one user, though white lines are allowed.
+# For each user the login, full name, email and openid template should be specified.
+# The values should be separated with commas.
+
+oiduser1, User One, userone@users.com, users1.openid.com
+oiduser2, User Two, usertwo@users.com, users2.openid.com

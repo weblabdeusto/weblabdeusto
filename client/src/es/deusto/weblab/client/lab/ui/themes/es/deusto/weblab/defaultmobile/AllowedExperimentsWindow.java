@@ -108,16 +108,16 @@ class AllowedExperimentsWindow extends BaseWindow {
 	    	
 	    	
 	    	final Image img;
-	    	
+	    	final Resources res = GWT.create(Resources.class);
 	    	switch(mobileSupport){
 	    		case disabled:
-	    			img = new Image(Resources.INSTANCE.redBall());
+	    			img = new Image(res.redBall());
 	    			break;
 	    		case full:
-	    			img = new Image(Resources.INSTANCE.greenBall());
+	    			img = new Image(res.greenBall());
 	    			break;
 	    		default:
-	    			img = new Image(Resources.INSTANCE.yellowBall());
+	    			img = new Image(res.yellowBall());
 	    	}
 	    	
 	    	img.setWidth("100%");

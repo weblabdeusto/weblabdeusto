@@ -46,9 +46,7 @@ class RowColumnPair {
 		this.column = column;
 	}
 
-	public ImageResource getImageResourceWeb(){
-		final Resources res = Resources.INSTANCE;
-		
+	public ImageResource getImageResourceWeb(Resources res){
 		if(RowColumnPair.BLANKS.contains(this))
 			return res.bigBLANK();
 		
@@ -95,9 +93,7 @@ class RowColumnPair {
 		throw new RuntimeException("Invalid ColumnPair: row=" + this.row + "; column=" + this.column);
 	}
 
-	public ImageResource getImageResourceMobile(){
-		final Resources res = Resources.INSTANCE;
-		
+	public ImageResource getImageResourceMobile(MobileResources res){
 		if(RowColumnPair.BLANKS.contains(this))
 			return res.smallBLANK();
 		

@@ -52,6 +52,11 @@ import weblab.user_processing.UserProcessor       as UserProcessor
 import weblab.user_processing.coordinator.Coordinator as Coordinator
 
 
+
+# Wait that time at most for the board to finish programming before giving up.
+XILINX_TIMEOUT = 4
+
+
 ########################################################
 # Case 001: a single instance of everything on a       #
 # single instance of the WebLab, with two experiments #
@@ -609,6 +614,20 @@ class Case002TestCase(object):
         # send a program
         CONTENT = "content of the program FPGA"
         self.real_ups.send_file(session_id1, ExperimentUtil.serialize(CONTENT), 'program')
+        
+        
+        # We need to wait for the programming to finish.
+        start_time = time.time()
+        response = "STATE=not_ready"
+        while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
+            respcmd = self.real_ups.send_command(session_id1, Command.Command("STATE"))
+            response = respcmd.get_command_string()
+            time.sleep(0.2)
+        
+        # Check that the current state is "Ready"
+        self.assertEquals("STATE=ready", response)
+        
+        
         self.real_ups.send_command(session_id1, Command.Command("ChangeSwitch on 0"))
         self.real_ups.send_command(session_id1, Command.Command("ClockActivation on 250"))
 

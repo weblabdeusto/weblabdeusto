@@ -53,7 +53,7 @@ public class AdminPanelWindowHelperTest extends GWTTestCase {
 
 	@Override
 	public String getModuleName() {
-		return "es.deusto.weblab.WebLabClient";
+		return "es.deusto.weblab.WebLabClientAdmin";
 	}
 
 }

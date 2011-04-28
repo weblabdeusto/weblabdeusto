@@ -10,16 +10,17 @@
 	
 	<inherits name='com.google.gwt.user.theme.standard.Standard'/>
 	
-	<inherits name="com.smartgwt.SmartGwt" />
-	<inherits name="com.smartgwt.tools.SmartGwtTools" />
-		
 	<!-- Specify the app entry point class.                   -->
-	<entry-point class='es.deusto.weblab.client.WebLabClient'/>
+	<entry-point class='es.deusto.weblab.client.WebLabClientLab'/>
 	
 	<!-- Languages available -->
 	<extend-property name="locale" values="en"/>
 	<extend-property name="locale" values="es"/>
 	<extend-property name="locale" values="eu"/>
+	
+	<source path="client">
+		<exclude name="admin/**java"/>
+	</source>
 	
 	<public path="public"></public>
 </module>

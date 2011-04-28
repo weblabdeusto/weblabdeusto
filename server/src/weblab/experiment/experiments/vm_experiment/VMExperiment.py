@@ -16,6 +16,8 @@
 import weblab.experiment.Experiment as Experiment
 
 from voodoo.override import Override
+from voodoo.log import logged
+import voodoo.log as log
 
 import uuid
 
@@ -35,6 +37,7 @@ CFG_URL = "vm_url"
 CFG_VM_TYPE = "vm_vm_type"
 CFG_USER_MANAGER_TYPE = "vm_user_manager_type"
 CFG_SHOULD_STORE_IMAGE = "vm_should_store_image"
+CFG_ESTIMATED_LOAD_TIME = "vm_estimated_load_time"
 
 # TODO: Consider adding this to the config
 PWD_LENGTH = 8
@@ -43,6 +46,7 @@ DEFAULT_URL = "rdp://localhost:6667"
 DEFAULT_VM_TYPE = "VirtualMachineDummy"
 DEFAULT_USER_MANAGER_TYPE = "DummyUserManager"
 DEFAULT_SHOULD_STORE_IMAGE = True
+DEFAULT_ESTIMATED_LOAD_TIME = 15
 
 
 class VMExperiment(Experiment.Experiment):
@@ -53,7 +57,8 @@ class VMExperiment(Experiment.Experiment):
         self.read_base_config() # Read those vars which are NOT vm implementation specific.
         self.session_id = None
         self.vm = self.find_vm_manager(self.vm_type)(self._cfg_manager) # Instance the appropriate VM manager
-        self.user_manager = self.find_user_manager(self.user_manager_type)(self._cfg_manager) # Instance the appropiate user manager
+        self.user_manager_class = self.find_user_manager(self.user_manager_type) # Instance the appropiate user manager
+        self.user_manager = None
         self.is_ready = False # Indicate whether the machine is ready to be used
         self.is_error = False # Indicate whether we are in an error state
         self.error = None # The error
@@ -69,23 +74,42 @@ class VMExperiment(Experiment.Experiment):
         self.vm_type = self._cfg_manager.get_value(CFG_VM_TYPE, DEFAULT_VM_TYPE)
         self.user_manager_type = self._cfg_manager.get_value(CFG_USER_MANAGER_TYPE, DEFAULT_USER_MANAGER_TYPE)
         self.should_store_image = self._cfg_manager.get_value(CFG_SHOULD_STORE_IMAGE, DEFAULT_SHOULD_STORE_IMAGE)
+        self.estimated_load_time = self._cfg_manager.get_value(CFG_ESTIMATED_LOAD_TIME, DEFAULT_ESTIMATED_LOAD_TIME)
 
+
+    @logged("info")
     @Override(Experiment.Experiment)
     def do_start_experiment(self, *args, **kwargs):
         """
         Callback run when the experiment is started. After the starting
         thread finishes successfully, it will set is_ready to True.
         """
+        # Using temporal variable "um" so if somebody does self.user_manager = None 
+        # between the "if self.user_manager is not None" and the action there is no error
+        um = self.user_manager
+        if um is not None:
+            um.cancel()
+
+        initial = time.time()
+        while self.is_ready and (initial + 10) > time.time():
+            print self.is_ready
+            time.sleep(0.1)
+
         if self.is_ready:
             return "Already started and ready"
+
         if self.is_error:
             return "Can't start. Error state: ", str(self.error)
+
         if self._start_t != None and self._start_t.isAlive():
             return "Already starting"
+
+        self.session_id = self.generate_session_id()
         self._start_t = self.handle_start_exp_t()
         return "Starting"
 
     @Override(Experiment.Experiment)
+    @logged("info")
     def do_send_command_to_device(self, command):
         """
         Callback run when the client sends a command to the experiment
@@ -96,11 +120,13 @@ class VMExperiment(Experiment.Experiment):
         if command == "get_configuration":
             return self.url + "     with password: " + self.session_id
             
-        # Returns 1 if the client should be able to connect to the VM already, if it isn't ready yet.
+        # Returns 1 if the client should be able to connect to the VM already, 
+        # 0;<estimated_load_time> if it isn't ready yet,
+        # 3;<error msg> if an error occurred
         elif command == "is_ready":
-            if self.is_ready: return "1"
-            if self.is_error: return "3;"+str(self.error)
-            return "0"
+            if self.is_ready: return "1"    # 1:Ready
+            if self.is_error: return "3;%s" % str(self.error)
+            return "0;%s" % self.estimated_load_time
         
         elif command == "is_alive":
             if not self.is_ready: return "0"
@@ -111,6 +137,7 @@ class VMExperiment(Experiment.Experiment):
 
 
     @Override(Experiment.Experiment)
+    @logged("info")
     def do_send_file_to_device(self, content, file_info):
         """ 
         Callback for when the client sends a file to the experiment
@@ -123,15 +150,12 @@ class VMExperiment(Experiment.Experiment):
 
 
     @Override(Experiment.Experiment)
+    @logged("info")
     def do_dispose(self):
         """
         Callback to perform cleaning after the experiment ends.
         """
-        self.is_ready = False
-        self.error = None
-        self.is_error = False
-        self._start_t = None
-        self._dispose_t = self.handle_dispose_t()
+        self.handle_dispose()
         return "Disposing"
     
 
@@ -144,7 +168,6 @@ class VMExperiment(Experiment.Experiment):
         if DEBUG:
             print "t_starting"
         self.ensure_vm_not_started()
-        self.session_id = self.generate_session_id()
         # Avoid preparing the VM, just for specific debugging purposes. Probably this condition should eventually be removed.
         if not DEBUG_NOT_PREPARE:
             self.vm.prepare_vm()
@@ -182,33 +205,45 @@ class VMExperiment(Experiment.Experiment):
     #TODO: Consider whether this should indeed be threaded, and in that case, consider what would happen
     # if an experiment was started with this function still running, after dispose has returned.
     #@threaded()
-    def handle_dispose_t(self):
+    def handle_dispose(self):
         """
         Executed on a work thread, will handle clean-up.
         """
+        if self.user_manager is not None:
+            self.user_manager.cancel()
         self.vm.kill_vm()
         if( self.should_store_image ):
             self.vm.store_image()
-        
+
+        self.is_ready = False
+        self.error = None
+        self.is_error = False
+        self._start_t = None
+        self.user_manager = None
+
+    def load_user_manager(self):
+        self.user_manager = self.user_manager_class(self._cfg_manager)
         
     def setup(self):
         """ Configures the VM """
-        while True:
-            try:
-                self.user_manager.configure(self.session_id)
-                if DEBUG:
-                    print "t_configured"
-                break
-            except UserManager.PermanentConfigureError, ex:
-                self.is_error = True
-                self.error = ex
-                break
-            except UserManager.TemporaryConfigureError, ex:
-                pass
-            except Exception, ex:
-                self.is_error = True
-                self.error = ex
-                return
+        self.load_user_manager()
+        try:
+            self.user_manager.configure(self.session_id)
+            if DEBUG:
+                print "t_configured"
+        except Exception, ex:
+            self.is_error = True
+            self.error = ex
+
+            log.log(
+                VMExperiment,
+                log.LogLevel.Error,
+                "Error configuring user manager: %s" % ex.args[0]
+            )
+            log.log_exc(
+                VMExperiment,
+                log.LogLevel.Warning
+            )
                 
 
     

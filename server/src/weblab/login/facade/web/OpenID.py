@@ -42,8 +42,9 @@ DOMAIN   = "domain"
 USER_ID  = "user_id"
 DOMAINS_PROPERTY = "login_openid_domains"
 DEFAULT_DOMAINS_PROPERTY = {
-    'UNED'   : 'http://yo.rediris.es/soy/%s@uned.es',
-    'deusto' : 'http://yo.rediris.es/soy/%s@deusto.es'
+    'UNED'        : 'http://yo.rediris.es/soy/%s@uned.es',
+    'UNED-INNOVA' : 'http://yo.rediris.es/soy/%s@innova.uned.es',
+    'DEUSTO'      : 'http://yo.rediris.es/soy/%s@deusto.es'
 }
 HOST_PROPERTY            = 'login_openid_host'
 DEFAULT_HOST             = 'https://www.weblab.deusto.es'
@@ -104,12 +105,12 @@ class OpenIdMethod(WebFacadeServer.Method):
         def doVerify(self):
             domain = self.get_argument(DOMAIN)
             if domain is not None:
-                if not domain in self.domains:
+                if not domain.upper() in self.domains:
                     return "domain provided but not supported by configuration. Check %s in settings" % DOMAINS_PROPERTY
                 username = self.get_argument(USERNAME)
                 if username is None:
                     return "When domain provided, a username must also be provided"
-                domain_tpl = self.domains[domain]
+                domain_tpl = self.domains[domain.upper()]
                 try:
                     full_url = domain_tpl % username
                 except:

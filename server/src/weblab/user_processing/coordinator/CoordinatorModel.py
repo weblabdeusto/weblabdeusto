@@ -245,7 +245,8 @@ class Reservation(Base):
         self.server_initial_data = server_initial_data
 
     def update(self):
-        self.latest_access = Reservation._now()
+        if Reservation._now is not None:
+           self.latest_access = Reservation._now()
 
     @staticmethod
     def create(session_maker, experiment_id, client_initial_data, server_initial_data, now = None):

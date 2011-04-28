@@ -204,7 +204,7 @@ public class WlAdminControllerTest  extends GWTTestCase {
 	
 	@Override
 	public String getModuleName() {
-		return "es.deusto.weblab.WebLabClient";
+		return "es.deusto.weblab.WebLabClientAdmin";
 	}
 		
 	private class FakeWebLabController extends WlAdminController{

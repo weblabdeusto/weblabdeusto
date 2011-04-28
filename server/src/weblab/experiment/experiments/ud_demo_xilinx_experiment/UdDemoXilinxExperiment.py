@@ -38,32 +38,23 @@ class UdDemoXilinxExperiment(UdXilinxExperiment.UdXilinxExperiment):
     @caller_check(ServerType.Laboratory)
     @logged("info")
     def do_start_experiment(self, *args, **kwargs):
-        self._program_handler = self._t_program_file()
+        super(UdDemoXilinxExperiment, self).do_send_file_to_device(self.file_content, "program")
 
     @Override(UdXilinxExperiment.UdXilinxExperiment)
     @caller_check(ServerType.Laboratory)
     @logged("info")
     def do_dispose(self):
-        self._program_handler.join()
-
-    @threaded()
-    def _t_program_file(self):
-        self._program_file(self.file_content)
+        super(UdDemoXilinxExperiment, self).do_dispose()
 
     @Override(UdXilinxExperiment.UdXilinxExperiment)
     @caller_check(ServerType.Laboratory)
     @logged("info",except_for='file_content')
     def do_send_file_to_device(self, file_content, file_info):
-        pass
+        return "sending file not possible in demo"
 
     @logged("info")
     @Override(UdXilinxExperiment.UdXilinxExperiment)
     @caller_check(ServerType.Laboratory)
     def do_send_command_to_device(self, command):
-        if command == 'EXPERIMENT_FINISHED':
-            if self._program_handler.isAlive():
-                return "false"
-            else:
-                return "true"
         return super(UdDemoXilinxExperiment, self).do_send_command_to_device(command)
 

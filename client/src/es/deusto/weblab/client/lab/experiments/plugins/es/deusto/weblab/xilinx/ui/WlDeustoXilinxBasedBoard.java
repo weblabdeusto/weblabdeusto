@@ -26,21 +26,25 @@ import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
+import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.commands.ExperimentFinishedCommand;
 import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
+import es.deusto.weblab.client.ui.widgets.WlButton.IWlButtonUsed;
 import es.deusto.weblab.client.ui.widgets.WlClockActivator;
+import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar;
+import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarListener;
+import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarTextUpdater;
+import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.TextProgressBarTextUpdater;
 import es.deusto.weblab.client.ui.widgets.WlSwitch;
 import es.deusto.weblab.client.ui.widgets.WlTimedButton;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
+import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
-import es.deusto.weblab.client.ui.widgets.WlButton.IWlButtonUsed;
-import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 public class WlDeustoXilinxBasedBoard extends BoardBase{
 
@@ -66,13 +70,20 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 	private static final String XILINX_WEBCAM_REFRESH_TIME_PROPERTY   = "webcam.refresh.millis";
 	private static final int    DEFAULT_XILINX_WEBCAM_REFRESH_TIME    = 400;
 	
+	private final int DEFAULT_EXPECTED_PROGRAMMING_TIME = 25000;
+
+	private static final int IS_READY_QUERY_TIMER = 1000;
+	private static final String STATE_NOT_READY = "not_ready";
+	private static final String STATE_PROGRAMMING = "programming";
+	private static final String STATE_READY = "ready";
+	private static final String STATE_FAILED = "failed";
+	
 	public static class Style{
 		public static final String TIME_REMAINING         = "wl-time_remaining";
 		public static final String CLOCK_ACTIVATION_PANEL = "wl-clock_activation_panel"; 
 	}
 	
 	protected IConfigurationRetriever configurationRetriever;
-	private static final ExperimentFinishedCommand experimentFinishedCommand = new ExperimentFinishedCommand();
 	
 
 	private static final boolean DEBUG_ENABLED = false;
@@ -92,6 +103,8 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 	@UiField HorizontalPanel buttonsRow;
 	@UiField HorizontalPanel webcamPanel;
 	
+	@UiField WlPredictiveProgressBar progressBar;
+	
 	//@UiField(provided=true)
 	private UploadStructure uploadStructure;
 	
@@ -99,11 +112,17 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 	
 	@UiField(provided = true)
 	WlTimer timer;
+	
+	private Timer readyTimer;
+	private boolean deviceReady;
+	private int expectedProgrammingTime = this.DEFAULT_EXPECTED_PROGRAMMING_TIME;
 
 	private final Vector<Widget> interactiveWidgets;
 	
 	public WlDeustoXilinxBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController){
 		super(boardController);
+		
+		this.deviceReady = false;
 		
 		this.configurationRetriever = configurationRetriever;
 		
@@ -233,29 +252,119 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 		RequestWebcamCommand.createAndSend(this.boardController, this.webcam, 
 				this.messages);
 		
+		this.boardController.sendCommand("EXPECTED.PROGRAMMING.TIME",
+				new IResponseCommandCallback() {
+
+					@Override
+					public void onSuccess(ResponseCommand responseCommand) {
+						final int eqsign = responseCommand.getCommandString().indexOf("=");
+						if(eqsign != -1){
+							final String time = responseCommand.getCommandString().substring(eqsign+1);
+							try{
+								WlDeustoXilinxBasedBoard.this.expectedProgrammingTime = Integer.parseInt(time) * 1000;
+							}catch(Exception e){
+							}
+						}
+						loadProgressBar();
+					}
+
+					@Override
+					public void onFailure(WlCommException e) {
+						loadProgressBar();
+					}
+				}
+		);		
+		
 	    this.widget.setVisible(true);
 	    this.selectProgram.setVisible(false);
 	    
 		this.loadWidgets();
 		this.disableInteractiveWidgets();
 		
+		
 		if(!isDemo()){
 			this.uploadStructure.getFormPanel().setVisible(false);
 		
 			this.boardController.sendFile(this.uploadStructure, this.sendFileCallback);
-		}else{
-			
-			this.boardController.sendCommand(WlDeustoXilinxBasedBoard.experimentFinishedCommand, this.sendExperimentFinishedRequestCommand);
 		}
+		
+		// Start polling to know when the board has been programmed and the server is ready
+		// to receive our requests.
+		setupReadyTimer();
 	}
+	
+	
+	/**
+	 * Will setup the timer that will poll the experiment server for its state, to
+	 * know when the board programming process ends and how.
+	 */
+	private void setupReadyTimer() {
+		
+		this.readyTimer = new Timer() {
+			@Override
+			public void run() {
+				
+				// Build the command to query the state.
+				final Command command = new Command() {
+					@Override
+					public String getCommandString() {
+						return "STATE";
+					}
+				}; //! new Command
+				
+				
+				// Send the command and react to the response
+				WlDeustoXilinxBasedBoard.this.boardController.sendCommand(command, new IResponseCommandCallback() {
+					@Override
+					public void onFailure(WlCommException e) {
+						WlDeustoXilinxBasedBoard.this.messages.setText("There was an error while trying to find out whether the experiment is ready");
+					}
+					@Override
+					public void onSuccess(ResponseCommand responseCommand) {
+						
+						// Read the full message returned by the exp server and ensure it's not empty
+						final String resp = responseCommand.getCommandString();
+						if(resp.length() == 0) 
+							WlDeustoXilinxBasedBoard.this.messages.setText("The STATE query returned an empty result");
+						
+						// The command follows the format STATE=ready
+						// Extract both parts
+						final String [] tokens = resp.split("=", 2);
+						if(tokens.length != 2 || !tokens[0].equals("STATE")) {
+							WlDeustoXilinxBasedBoard.this.messages.setText("Unexpected response ot the STATE query: " + resp);
+							return;
+						}
+						
+						final String state = tokens[1];
+						
+						if(state.equals(STATE_NOT_READY)) {
+							WlDeustoXilinxBasedBoard.this.readyTimer.schedule(IS_READY_QUERY_TIMER);
+						} else if(state.equals(STATE_READY)) {
+							// Ready
+							WlDeustoXilinxBasedBoard.this.onDeviceReady();
+						} else if(state.equals(STATE_PROGRAMMING)) {
+							WlDeustoXilinxBasedBoard.this.readyTimer.schedule(IS_READY_QUERY_TIMER);
+						} else if(state.equals(STATE_FAILED)) {
+							WlDeustoXilinxBasedBoard.this.onDeviceProgrammingFailed();
+						} else {
+							WlDeustoXilinxBasedBoard.this.messages.setText("Received unexpected response to the STATE query");
+						}
+					} //! onSuccess
+				}); //! new IResponseCommandCallback for the STATE command.
+			} //! run() of the Timer
+		}; //! new Timer
+		
+		
+		this.readyTimer.schedule(1000);
+		
+	} //! setupReadyTimer
+	
 	
 	final IResponseCommandCallback sendFileCallback = new IResponseCommandCallback() {
 	    
 	    @Override
 	    public void onSuccess(ResponseCommand response) {
-			WlDeustoXilinxBasedBoard.this.enableInteractiveWidgets();
-			WlDeustoXilinxBasedBoard.this.messages.setText("Device ready");
-			WlDeustoXilinxBasedBoard.this.messages.stop();
+	    	WlDeustoXilinxBasedBoard.this.messages.setText("File sent. Programming device");
 	    }
 
 	    @Override
@@ -265,39 +374,56 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 		    	WlDeustoXilinxBasedBoard.this.enableInteractiveWidgets();
 		    
 	    	WlDeustoXilinxBasedBoard.this.messages.stop();
+	    	
+	    	WlDeustoXilinxBasedBoard.this.progressBar.stop();
+	    	WlDeustoXilinxBasedBoard.this.progressBar.setTextUpdater(new IProgressBarTextUpdater(){
+				@Override
+				public String generateText(double progress) {
+					return "Error. Could not complete.";
+				}});
 				
 			WlDeustoXilinxBasedBoard.this.messages.setText("Error sending file: " + e.getMessage());
 		    
 	    }
 	};	
 	
-	private final IResponseCommandCallback sendExperimentFinishedRequestCommand = new IResponseCommandCallback(){
+	/**
+	 * Called when the STATE query tells us that the experiment is ready.
+	 */
+	private void onDeviceReady() {
+		this.deviceReady = true;
 		
-	    @Override
-	    public void onSuccess(ResponseCommand response) {
-			if(response.getCommandString().equals("false")){
-				final Timer timer = new Timer(){
-					@Override
-					public void run(){
-						WlDeustoXilinxBasedBoard.this.boardController.sendCommand(WlDeustoXilinxBasedBoard.experimentFinishedCommand, WlDeustoXilinxBasedBoard.this.sendExperimentFinishedRequestCommand);
-					}
-				};
-				timer.schedule(400);
-			}else
-				WlDeustoXilinxBasedBoard.this.sendFileCallback.onSuccess(new ResponseCommand(""));
-	    }
-	    
-	    @Override
-	    public void onFailure(WlCommException e) {
-	    	
-		    if(WlDeustoXilinxBasedBoard.DEBUG_ENABLED)
-		    	WlDeustoXilinxBasedBoard.this.enableInteractiveWidgets();
-		    
-	    	WlDeustoXilinxBasedBoard.this.messages.stop();
-				
-			WlDeustoXilinxBasedBoard.this.messages.setText("Error sending command: " + e.getMessage());
-	    }
-	};
+		if(WlDeustoXilinxBasedBoard.this.progressBar.isWaiting()){
+			this.progressBar.stop();
+			this.progressBar.setVisible(false);
+		}else
+	    	// Make the bar finish in a few seconds, it will make itself
+	    	// invisible once it is full.
+			this.progressBar.finish(300);
+
+		this.enableInteractiveWidgets();
+		this.messages.setText("Device ready");
+		this.messages.stop();
+	}
+	
+	
+	/**
+	 * Called when the STATE query tells us that the board programming failed.
+	 */
+	private void onDeviceProgrammingFailed() {
+		this.deviceReady = true;
+		
+		if(WlDeustoXilinxBasedBoard.this.progressBar.isWaiting()){
+			this.progressBar.stop();
+			this.progressBar.setVisible(false);
+		}else
+	    	// Make the bar finish in a few seconds, it will make itself
+	    	// invisible once it is full.
+			this.progressBar.finish(300);
+    	
+		this.messages.setText("Device programming failed");
+		this.messages.stop();	
+	}
 	
 	private void loadWidgets() {
 		
@@ -306,7 +432,7 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 		
 		this.timer.start();
 		
-		this.messages.setText("Programming device");
+		this.messages.setText("Sending file");
 		this.messages.start();
 		
 		final ClockActivationListener clockActivationListener = new ClockActivationListener(this.boardController, this.getResponseCommandCallback());
@@ -319,6 +445,34 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 		this.prepareButtonsRow();
 		
 		this.innerVerticalPanel.setSpacing(20);
+	}
+
+	private void loadProgressBar() {
+		this.progressBar.setResolution(40);
+		this.progressBar.setTextUpdater(new IProgressBarTextUpdater(){
+			@Override
+			public String generateText(double progress) {
+				return "Programming device (" + (int)(progress*100) + "%)";
+			}});
+		
+		// Set up a listener to automatically remove the progress
+		// bar whenever it reaches a 100%.
+		this.progressBar.setListener(new IProgressBarListener() {
+			@Override
+			public void onFinished() {
+				if(WlDeustoXilinxBasedBoard.this.deviceReady){
+					WlDeustoXilinxBasedBoard.this.progressBar.setVisible(false);
+				}else{
+					// This order is important, since setTextUpdater would call onFinished again
+					WlDeustoXilinxBasedBoard.this.progressBar.keepWaiting();
+					WlDeustoXilinxBasedBoard.this.progressBar.setTextUpdater(new TextProgressBarTextUpdater("Finishing programming..."));
+				}
+			}});
+		
+		this.progressBar.setWaitPoint(0.98);
+		this.progressBar.setVisible(true);
+		this.progressBar.setEstimatedTime(this.expectedProgrammingTime);
+		this.progressBar.start();
 	}
 	
 	private void addInteractiveWidget(Widget widget){
@@ -391,6 +545,12 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 
 	@Override
 	public void end(){
+		
+		if(this.readyTimer != null) {
+			this.readyTimer.cancel();
+			this.readyTimer = null;
+		}
+		
 		if(this.webcam != null){
 			this.webcam.dispose();
 			this.webcam = null;
@@ -417,6 +577,9 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 			if(wid instanceof WlTimedButton)
 				((WlTimedButton)wid).dispose();
 		}
+		
+		if(this.progressBar != null)
+			this.progressBar.stop();
 		
 		this.messages.stop();
 	}
