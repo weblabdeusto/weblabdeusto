@@ -340,7 +340,7 @@ public class WlPredictiveProgressBar extends GlProgressBar implements IWlWidget 
 		this.running = true;
 		this.setMaxProgress(this.resolution);
 		this.setMinProgress(0);
-		this.updateTime = this.estimatedTime / this.resolution;
+		this.updateTime = (int)((double)this.estimatedTime / this.resolution);
 
 		
 		this.currentTimer = new Timer(){

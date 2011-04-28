@@ -175,7 +175,7 @@ public class VMBoard extends BoardBase {
 								final double estimatedSeconds = Double.parseDouble(argStr);
 								VMBoard.this.progressBar.setEstimatedTime((int) (estimatedSeconds * 1000));
 								VMBoard.this.progressBar.setResolution(40);
-								VMBoard.this.progressBar.setWaitPoint(0.9);
+								VMBoard.this.progressBar.setWaitPoint(0.98);
 								
 								// The progress bar will automatically disappear as soon as it
 								// is full.

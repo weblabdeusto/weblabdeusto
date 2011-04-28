@@ -448,6 +448,7 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 	}
 
 	private void loadProgressBar() {
+		this.progressBar.setResolution(40);
 		this.progressBar.setTextUpdater(new IProgressBarTextUpdater(){
 			@Override
 			public String generateText(double progress) {
@@ -468,7 +469,7 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 				}
 			}});
 		
-		this.progressBar.setWaitPoint(0.95);
+		this.progressBar.setWaitPoint(0.98);
 		this.progressBar.setVisible(true);
 		this.progressBar.setEstimatedTime(this.expectedProgrammingTime);
 		this.progressBar.start();
