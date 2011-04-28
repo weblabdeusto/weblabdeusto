@@ -78,6 +78,9 @@ public class WlPredictiveProgressBar extends GlProgressBar implements IWlWidget 
 	// Whether the bar is running.
 	private boolean running;
 	
+	// What is the original segment width when using setFixedLengthBarMode
+	private double originalSegmentWidth;
+	
 	private int counter;
 	private Timer currentTimer = null;
 	
@@ -357,6 +360,47 @@ public class WlPredictiveProgressBar extends GlProgressBar implements IWlWidget 
 		this.currentTimer.scheduleRepeating(this.updateTime);
 	}
 	
+	/**
+	 * Keeps waiting showing the progress bar moving
+	 */
+	public void keepWaiting(){
+		if(this.currentTimer != null)
+			this.currentTimer.cancel();
+		
+		this.counter = 0;
+		setFixedLengthBarMode(true);
+		this.originalSegmentWidth = getSegmentWidth();
+		
+		this.currentTimer = new Timer(){
+			@Override
+			public void run(){
+				processWaiting();
+			}
+		};
+		
+		this.currentTimer.scheduleRepeating(50);
+		processWaiting();
+	}
+	
+	private void processWaiting(){
+		this.counter++;
+		if(this.counter >= this.resolution){
+			final double total = (double) this.counter / this.resolution;
+			
+			final double segmentWidth = 1.0 - (total - this.originalSegmentWidth);
+			if(segmentWidth > 0){
+				setSegmentWidth(segmentWidth);
+				setProgress(0.99);
+			}else{
+				this.counter = 0;
+				setSegmentWidth(this.originalSegmentWidth);
+				setProgress(this.counter);
+			}
+		}else
+			setProgress(this.counter);
+	}
+	
+	
 	
 	/**
 	 * Will make the bar reach end in the specified number of ms. WaitPoint will be set to 1.
@@ -427,7 +471,7 @@ public class WlPredictiveProgressBar extends GlProgressBar implements IWlWidget 
 	public void setProgress(double progress) {
 		super.setProgress(progress);
 		
-		if(this.listener != null && this.getPercent() == 1.0)
+		if(this.listener != null && this.getPercent() >= 1.0)
 			this.listener.onFinished();
 	}
 

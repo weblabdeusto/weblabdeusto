@@ -560,6 +560,9 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 				((WlTimedButton)wid).dispose();
 		}
 		
+		if(this.progressBar != null)
+			this.progressBar.stop();
+		
 		this.messages.stop();
 	}
 	
