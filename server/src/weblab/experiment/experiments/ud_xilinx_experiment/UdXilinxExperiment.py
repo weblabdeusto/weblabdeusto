@@ -59,6 +59,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         
         self._programming_thread = None
         self._current_state = STATE_NOT_READY
+        self._programmer_time = self._cfg_manager.get_value('xilinx_programmer_time', "25") # Seconds
         
     def _load_xilinx_device(self):
         device_name = self._cfg_manager.get_value('weblab_xilinx_experiment_xilinx_device')
@@ -209,6 +210,10 @@ class UdXilinxExperiment(Experiment.Experiment):
             # Provide the URL address that the client will display.
             if command == 'WEBCAMURL':
                 reply = "WEBCAMURL=" + self.webcam_url
+                return reply
+            # Provide how long in seconds will the programmer take (approximately)
+            if command == 'EXPECTED.PROGRAMMING.TIME':
+                reply = "EXPECTED=%s" % self._programmer_time
                 return reply
             # Reply with the current state of the experiment. Particularly, the clients 
             # will need to know whether the programming has been done and whether we are 

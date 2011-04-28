@@ -81,6 +81,7 @@ public class WlPredictiveProgressBar extends GlProgressBar implements IWlWidget 
 	// What is the original segment width when using setFixedLengthBarMode
 	private double originalSegmentWidth;
 	
+	private boolean waiting = false;
 	private int counter;
 	private Timer currentTimer = null;
 	
@@ -90,7 +91,7 @@ public class WlPredictiveProgressBar extends GlProgressBar implements IWlWidget 
 	 * and which can be used to customize the text of the progress bar, and
 	 * for other purposes.
 	 */
-	public interface IProgressBarTextUpdater {
+	public static interface IProgressBarTextUpdater {
 		/**
 		 * Generates the text that will be displayed.
 		 * @param progress Progress, from 0 to 1
@@ -103,7 +104,7 @@ public class WlPredictiveProgressBar extends GlProgressBar implements IWlWidget 
 	 * This updater will simply display the progress, truncating it
 	 * to no decimals. This is the default updater.
 	 */
-	public class DefaultProgressBarTextUpdater implements IProgressBarTextUpdater {
+	public static class DefaultProgressBarTextUpdater implements IProgressBarTextUpdater {
 		@Override
 		public String generateText(double progress) {
 			return (int)Math.round(progress * 100) + "%";
@@ -113,7 +114,7 @@ public class WlPredictiveProgressBar extends GlProgressBar implements IWlWidget 
 	/**
 	 * This updater will simply display the specified sentence. This sentence may be changed.
 	 */
-	public class TextProgressBarTextUpdater implements IProgressBarTextUpdater {
+	public static class TextProgressBarTextUpdater implements IProgressBarTextUpdater {
 		
 		protected String str;
 		
@@ -367,6 +368,8 @@ public class WlPredictiveProgressBar extends GlProgressBar implements IWlWidget 
 		if(this.currentTimer != null)
 			this.currentTimer.cancel();
 		
+		this.running = true;
+		this.waiting = true;
 		this.counter = 0;
 		setFixedLengthBarMode(true);
 		this.originalSegmentWidth = getSegmentWidth();
@@ -382,22 +385,26 @@ public class WlPredictiveProgressBar extends GlProgressBar implements IWlWidget 
 		processWaiting();
 	}
 	
+	public boolean isWaiting(){
+		return this.waiting;
+	}
+	
 	private void processWaiting(){
 		this.counter++;
+		final double total = (double) this.counter / this.resolution;
+		
 		if(this.counter >= this.resolution){
-			final double total = (double) this.counter / this.resolution;
-			
-			final double segmentWidth = 1.0 - (total - this.originalSegmentWidth);
-			if(segmentWidth > 0){
-				setSegmentWidth(segmentWidth);
-				setProgress(0.99);
-			}else{
-				this.counter = 0;
-				setSegmentWidth(this.originalSegmentWidth);
-				setProgress(this.counter);
-			}
-		}else
+			this.counter = 0;
+			setSegmentWidth(0);
 			setProgress(this.counter);
+		}else{
+			if(total < this.originalSegmentWidth)
+				setSegmentWidth(total);
+			else
+				setSegmentWidth(this.originalSegmentWidth);
+			
+			setProgress(this.counter);
+		}
 	}
 	
 	

@@ -36,6 +36,7 @@ import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
 import es.deusto.weblab.client.ui.widgets.WlClockActivator;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar;
+import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.TextProgressBarTextUpdater;
 import es.deusto.weblab.client.ui.widgets.WlSwitch;
 import es.deusto.weblab.client.ui.widgets.WlTimedButton;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
@@ -70,6 +71,8 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 	private static final String XILINX_WEBCAM_REFRESH_TIME_PROPERTY   = "webcam.refresh.millis";
 	private static final int    DEFAULT_XILINX_WEBCAM_REFRESH_TIME    = 400;
 	
+	private final int DEFAULT_EXPECTED_PROGRAMMING_TIME = 25000;
+
 	private static final int IS_READY_QUERY_TIMER = 1000;
 	private static final String STATE_NOT_READY = "not_ready";
 	private static final String STATE_PROGRAMMING = "programming";
@@ -113,11 +116,15 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 	WlTimer timer;
 	
 	private Timer readyTimer;
+	private boolean deviceReady;
+	private int expectedProgrammingTime = this.DEFAULT_EXPECTED_PROGRAMMING_TIME;
 
 	private final Vector<Widget> interactiveWidgets;
 	
 	public WlDeustoXilinxBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController){
 		super(boardController);
+		
+		this.deviceReady = false;
 		
 		this.configurationRetriever = configurationRetriever;
 		
@@ -246,6 +253,29 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 		
 		RequestWebcamCommand.createAndSend(this.boardController, this.webcam, 
 				this.messages);
+		
+		this.boardController.sendCommand("EXPECTED.PROGRAMMING.TIME",
+				new IResponseCommandCallback() {
+
+					@Override
+					public void onSuccess(ResponseCommand responseCommand) {
+						final int eqsign = responseCommand.getCommandString().indexOf("=");
+						if(eqsign != -1){
+							final String time = responseCommand.getCommandString().substring(eqsign+1);
+							try{
+								WlDeustoXilinxBasedBoard.this.expectedProgrammingTime = Integer.parseInt(time) * 1000;
+							}catch(Exception e){
+							}
+						}
+						loadProgressBar();
+					}
+
+					@Override
+					public void onFailure(WlCommException e) {
+						loadProgressBar();
+					}
+				}
+		);		
 		
 	    this.widget.setVisible(true);
 	    this.selectProgram.setVisible(false);
@@ -396,13 +426,19 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 	 * Called when the STATE query tells us that the experiment is ready.
 	 */
 	private void onDeviceReady() {
-    	// Make the bar finish in a few seconds, it will make itself
-    	// invisible once it is full.
-    	WlDeustoXilinxBasedBoard.this.progressBar.finish(1000);
+		this.deviceReady = true;
+		
+		if(WlDeustoXilinxBasedBoard.this.progressBar.isWaiting()){
+			this.progressBar.stop();
+			this.progressBar.setVisible(false);
+		}else
+	    	// Make the bar finish in a few seconds, it will make itself
+	    	// invisible once it is full.
+			this.progressBar.finish(300);
 
-		WlDeustoXilinxBasedBoard.this.enableInteractiveWidgets();
-		WlDeustoXilinxBasedBoard.this.messages.setText("Device ready");
-		WlDeustoXilinxBasedBoard.this.messages.stop();
+		this.enableInteractiveWidgets();
+		this.messages.setText("Device ready");
+		this.messages.stop();
 	}
 	
 	
@@ -410,10 +446,18 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 	 * Called when the STATE query tells us that the board programming failed.
 	 */
 	private void onDeviceProgrammingFailed() {
-    	WlDeustoXilinxBasedBoard.this.progressBar.finish(300);
+		this.deviceReady = true;
+		
+		if(WlDeustoXilinxBasedBoard.this.progressBar.isWaiting()){
+			this.progressBar.stop();
+			this.progressBar.setVisible(false);
+		}else
+	    	// Make the bar finish in a few seconds, it will make itself
+	    	// invisible once it is full.
+			this.progressBar.finish(300);
     	
-		WlDeustoXilinxBasedBoard.this.messages.setText("Device programming failed");
-		WlDeustoXilinxBasedBoard.this.messages.stop();	
+		this.messages.setText("Device programming failed");
+		this.messages.stop();	
 	}
 	
 	private void loadWidgets() {
@@ -426,6 +470,19 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 		this.messages.setText("Sending file");
 		this.messages.start();
 		
+		final ClockActivationListener clockActivationListener = new ClockActivationListener(this.boardController, this.getResponseCommandCallback());
+		this.clockActivator.addClockActivationListener(clockActivationListener);
+		
+		this.addInteractiveWidget(this.timer.getWidget());
+		this.addInteractiveWidget(this.clockActivator);
+		
+		this.prepareSwitchesRow();
+		this.prepareButtonsRow();
+		
+		this.innerVerticalPanel.setSpacing(20);
+	}
+
+	private void loadProgressBar() {
 		this.progressBar.setTextUpdater(new IProgressBarTextUpdater(){
 			@Override
 			public String generateText(double progress) {
@@ -437,24 +494,19 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 		this.progressBar.setListener(new IProgressBarListener() {
 			@Override
 			public void onFinished() {
-				WlDeustoXilinxBasedBoard.this.progressBar.setVisible(false);
+				if(WlDeustoXilinxBasedBoard.this.deviceReady){
+					WlDeustoXilinxBasedBoard.this.progressBar.setVisible(false);
+				}else{
+					// This order is important, since setTextUpdater would call onFinished again
+					WlDeustoXilinxBasedBoard.this.progressBar.keepWaiting();
+					WlDeustoXilinxBasedBoard.this.progressBar.setTextUpdater(new TextProgressBarTextUpdater("Finishing programming..."));
+				}
 			}});
 		
 		this.progressBar.setWaitPoint(0.95);
 		this.progressBar.setVisible(true);
-		this.progressBar.setEstimatedTime(25000);
+		this.progressBar.setEstimatedTime(this.expectedProgrammingTime);
 		this.progressBar.start();
-		
-		final ClockActivationListener clockActivationListener = new ClockActivationListener(this.boardController, this.getResponseCommandCallback());
-		this.clockActivator.addClockActivationListener(clockActivationListener);
-		
-		this.addInteractiveWidget(this.timer.getWidget());
-		this.addInteractiveWidget(this.clockActivator);
-		
-		this.prepareSwitchesRow();
-		this.prepareButtonsRow();
-		
-		this.innerVerticalPanel.setSpacing(20);
 	}
 	
 	private void addInteractiveWidget(Widget widget){

@@ -42,4 +42,6 @@ xilinx_http_device_ip_FPGA        = "192.168.50.138"
 xilinx_http_device_port_FPGA      = 80
 xilinx_http_device_app_FPGA       = ""
 
+xilinx_programmer_time = 5 # seconds
+
 fpga_webcam_url          = '''https://www.weblab.deusto.es/webcam/fpga0/image.jpg'''
