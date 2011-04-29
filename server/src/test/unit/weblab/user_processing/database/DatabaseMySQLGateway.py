@@ -91,7 +91,7 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         initial_usage.append_file(file1)
         initial_usage.append_file(file2)
         
-        self.gateway.store_experiment_usage(student1.login, initial_usage)
+        self.gateway.store_experiment_usage(student1.login, {'facebook' : False}, initial_usage)
 
         usages = self.gateway.list_usages_per_user(student1.login)
         self.assertEquals(len(usages), 1)

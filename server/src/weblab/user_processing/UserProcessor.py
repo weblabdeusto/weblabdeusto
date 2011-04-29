@@ -23,6 +23,8 @@ from voodoo.cache import cache
 import voodoo.ResourceManager as ResourceManager
 import voodoo.log as log
 
+import weblab.facade.RemoteFacadeContext as RemoteFacadeContext
+
 import weblab.exceptions.user_processing.UserProcessingExceptions as UserProcessingExceptions
 import weblab.exceptions.user_processing.CoordinatorExceptions as CoordExc
 import weblab.user_processing.Reservation as Reservation
@@ -120,6 +122,13 @@ class UserProcessor(object):
     # 
 
     def reserve_experiment(self, experiment_id, serialized_client_initial_data, client_address):
+
+        context = RemoteFacadeContext.get_context()
+        reservation_info = self._session['reservation_information'] = {}
+        reservation_info['referer']  = context.get_referer()
+        reservation_info['mobile']   = context.is_mobile()
+        reservation_info['facebook'] = context.is_facebook()
+
         try:
             client_initial_data = json.loads(serialized_client_initial_data)
         except ValueError:
@@ -213,6 +222,7 @@ class UserProcessor(object):
 
                 self._db_manager.store_experiment_usage(
                         self._session['db_session_id'],
+                        self._session['reservation_information'],
                         experiment_usage
                     )
 

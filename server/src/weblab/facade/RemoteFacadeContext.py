@@ -44,9 +44,28 @@ class RemoteFacadeContext(object):
         except KeyError:
             return '<unknown client>'
 
-class NullRemoteFacadeContext(object):
-    route = None
-    def get_ip_address(self):
-        return '<unknown client>'
+    def get_user_agent(self):
+        try:
+            return self._headers.get('User-Agent') or '<unknown>'
+        except KeyError:
+            return '<unknown>'
 
+    def get_referer(self):
+        try:
+            return self._headers.get('Referer') or ''
+        except KeyError:
+            return ''
+
+    def is_mobile(self):
+        referer = self.get_referer()
+        return referer.find('mobile=true') >= 0 or referer.find('mobile=yes') >= 0
+
+    def is_facebook(self):
+        referer = self.get_referer()
+        return referer.find('facebook=true') >= 0 or referer.find('facebook=yes') >= 0
+
+
+class NullRemoteFacadeContext(RemoteFacadeContext):
+    def __init__(self):
+        super(NullRemoteFacadeContext, self).__init__('', {}, None)
 

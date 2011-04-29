@@ -426,6 +426,48 @@ class DbUserUsedExperiment(Base):
         )
         return use
 
+# 
+# These properties will be added. The names will be "facebook", "mobile", "openid", "user.agent", etc.
+# 
+class DbUserUsedExperimentProperty(Base):
+    __tablename__   = 'UserUsedExperimentProperty'
+    __table_args__  = (UniqueConstraint('name'), TABLE_KWARGS)
+
+    id   = Column(Integer, primary_key = True)
+    name = Column(String(255), nullable = False)
+
+    def __init__(self, name, id = None):
+        self.name = name
+        self.id   = id
+
+    def __repr__(self):
+        return "DbUserUsedExperimentProperty(id = %r, name = %r)" % (self.id, self.name)
+
+class DbUserUsedExperimentPropertyValue(Base):
+    __tablename__  = 'UserUsedExperimentPropertyValue'
+    __table_args__ = (UniqueConstraint('property_name_id', 'experiment_use_id'), TABLE_KWARGS)
+
+    id                = Column(Integer, primary_key = True)
+    property_name_id  = Column(Integer, ForeignKey("UserUsedExperimentProperty.id"), nullable = False)
+    experiment_use_id = Column(Integer, ForeignKey("UserUsedExperiment.id"), nullable = False)
+    value             = Column(String(255))
+
+    property_name  = relation("DbUserUsedExperimentProperty", backref=backref("values",     order_by=id, cascade='all,delete'))
+    experiment_use = relation("DbUserUsedExperiment",         backref=backref("properties", order_by=id, cascade='all,delete'))
+
+    def __init__(self, value, property_name, experiment_use, id = None):
+        self.id = id
+        self.value = value
+        self.property_name  = property_name
+        self.experiment_use = experiment_use
+
+    def __repr__(self):
+        return "DbUserUsedExperimentPropertyValue(id = %r, value = %r, property_name_id = %r, experiment_use_id = %r)" % (
+            self.id,
+            self.value,
+            self.property_name_id,
+            self.experiment_use_id
+        )
 
 class DbUserFile(Base):
     __tablename__  = 'UserFile'

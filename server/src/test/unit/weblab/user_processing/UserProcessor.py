@@ -456,7 +456,7 @@ class FakeDatabase(object):
         self.users = [ User.User("admin1", "Admin Test User", "admin1@deusto.es", Role.Role("administrator")) ]
         self.roles = [ Role.Role("student"), Role.Role("Professor"), Role.Role("Administrator") ]
 
-    def store_experiment_usage(self, db_session_id, experiment_usage):
+    def store_experiment_usage(self, db_session_id, reservation_info, experiment_usage):
         pass
 
     def get_available_experiments(self, db_session_id):

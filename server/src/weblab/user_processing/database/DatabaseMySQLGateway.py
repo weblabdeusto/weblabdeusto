@@ -127,7 +127,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             session.close()
 
     @logged()
-    def store_experiment_usage(self, user_login, experiment_usage):
+    def store_experiment_usage(self, user_login, reservation_info, experiment_usage):
         session = self.Session()
         try:
             use = Model.DbUserUsedExperiment(
@@ -157,6 +157,16 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                                 f.response.commandstring,
                                 f.timestamp_after
                             ))
+
+            for reservation_info_key in reservation_info:
+                db_key = session.query(Model.DbUserUsedExperimentProperty).filter_by(name = reservation_info_key).first()
+                if db_key is None:
+                    db_key = Model.DbUserUsedExperimentProperty(reservation_info_key)
+                    session.add(db_key)
+
+                value = reservation_info[reservation_info_key]
+                session.add(Model.DbUserUsedExperimentPropertyValue( str(value), db_key, use ))
+
             session.commit()
         finally:
             session.close()
