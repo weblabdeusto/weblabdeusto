@@ -334,23 +334,48 @@ class CurrentReservation(Base):
     # 
     initializer                      = Column(String(30)) # Something like "Thread-10@process1"
 
+    # 
+    # The same concepts can be applied to the resource disposal
+    # 
 
-    def __init__(self, id, latest_initialization = None, next_initialization_milliseconds = None):
+    latest_disposal                  = Column(DateTime)
+
+    next_disposal_milliseconds       = Column(Integer)
+
+    currently_calling_disposal       = Column(Boolean)
+
+    disposer                         = Column(String(30))
+
+    def __init__(self, id, latest_initialization = None, next_initialization_milliseconds = None, latest_disposal = None, next_disposal_milliseconds = None):
         self.id = id
+
         self.latest_initialization            = latest_initialization
         self.next_initialization_milliseconds = next_initialization_milliseconds
         self.currently_calling_initialization = False
         self.initializer                      = None
+
+        self.latest_disposal                  = latest_disposal
+        self.next_disposal_milliseconds       = next_disposal_milliseconds
+        self.currently_calling_disposal       = False
+        self.disposer                         = None
+
 
     def next_initialization(self, now, millis):
         self.latest_initialization            = now
         self.next_initialization_milliseconds = millis
 
     def is_initialized(self):
-        return self.latest_initialization is None or self.next_initialization_milliseconds is None 
+        return self.latest_initialization is None or self.next_initialization_milliseconds is None
+
+    def next_disposal(self, now, millis):
+        self.latest_disposal            = now
+        self.next_disposal_milliseconds = millis
+
+    def is_disposed(self):
+        return self.latest_disposal is None or self.next_disposal_milliseconds is None
 
     def __repr__(self):
-        return "CurrentReservation(%r, %r, %r, %r, %r)" % (self.reservation, self.latest_initialization, self.next_initialization_milliseconds, self.currently_calling_initialization, self.initializer)
+        return "CurrentReservation(%r, %r, %r, %r, %r, %r, %r, %r, %r)" % (self.reservation, self.latest_initialization, self.next_initialization_milliseconds, self.currently_calling_initialization, self.initializer, self.latest_disposal, self.next_disposal_milliseconds, self.currently_calling_disposal, self.disposer)
 
 ######################################################################################
 # 
