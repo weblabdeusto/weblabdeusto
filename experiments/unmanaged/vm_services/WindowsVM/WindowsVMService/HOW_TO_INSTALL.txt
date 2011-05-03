@@ -1,0 +1,17 @@
+
+WindowsVMService.exe is the software required to change the RDP or VNC password remotely. 
+
+Because it is a service and not an application, it must be explicitally installed as such before use. 
+
+This can be done automatically through the sc_install_service.bat or alternatively through the install_service.bat scripts.
+Two different scripts are provided in case a particular OS version / system has issues with one.
+
+Once installed, it will have been added to the service list and it can be managed through the standard windows Service Manager.
+Alternatively, we provide sc_start_service.bat and sc_stop_service.bat scripts for convenience. Note that those scripts will
+often only work as intended if the service was installed through the sc_install_service script.
+
+
+Before starting the service, please make sure that it has been configured properly through the WindowsVMService.exe.config file.
+Particularly, the account name specified in the .config file should match the name of the account whose passwords you want to
+be changed. This will generally be the same account under which you are installing the service, but not necessarily. You will
+also want to choose the method or methods whose passwords you wish the service to manage.
