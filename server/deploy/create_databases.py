@@ -312,6 +312,9 @@ session.add(cat_gpib)
 cat_pic = Model.DbExperimentCategory("PIC experiments")
 session.add(cat_pic)
 
+cat_robot = Model.DbExperimentCategory("Robot experiments")
+session.add(cat_robot)
+
 # Experiments
 start_date = datetime.datetime.utcnow()
 end_date = start_date.replace(year=start_date.year+10)
@@ -363,6 +366,15 @@ session.add(vm)
 
 vm_win = Model.DbExperiment("vm-win", cat_dummy, start_date, end_date)
 session.add(vm_win)
+
+rob_std = Model.DbExperiment("robot-standard", cat_robot, start_date, end_date)
+session.add(rob_std)
+
+rob_mov = Model.DbExperiment("robot-movement", cat_robot, start_date, end_date)
+session.add(rob_mov)
+
+rob_proglist = Model.DbExperiment("robot-proglist", cat_robot, start_date, end_date)
+session.add(rob_proglist)
 
 # Permissions
 gp_course0809_fpga_allowed = Model.DbGroupPermission(
@@ -518,6 +530,7 @@ up_any_vm_allowed_p3 = Model.DbUserPermissionParameter(up_any_vm_allowed, experi
 session.add(up_any_vm_allowed_p3)    
 
 
+
 up_any_vm_win_allowed = Model.DbUserPermission(
     any,
     experiment_allowed.group_applicable,
@@ -534,7 +547,58 @@ up_any_vm_win_allowed_p2 = Model.DbUserPermissionParameter(up_any_vm_win_allowed
 session.add(up_any_vm_win_allowed_p2)
 up_any_vm_win_allowed_p3 = Model.DbUserPermissionParameter(up_any_vm_win_allowed, experiment_allowed_p3, "200")
 
-            
+      
+      
+up_any_rob_std_allowed = Model.DbUserPermission(
+    any,
+    experiment_allowed.group_applicable,
+    "any::weblab-robot-standard",
+    datetime.datetime.utcnow(),
+    "Permission for any to use WebLab-robot-standard"
+)
+
+session.add(up_any_rob_std_allowed)
+up_any_rob_std_allowed_p1 = Model.DbUserPermissionParameter(up_any_rob_std_allowed, experiment_allowed_p1, "robot-standard")
+session.add(up_any_rob_std_allowed_p1)
+up_any_rob_std_allowed_p2 = Model.DbUserPermissionParameter(up_any_rob_std_allowed, experiment_allowed_p2, "Robot experiments")
+session.add(up_any_rob_std_allowed_p2)
+up_any_rob_std_allowed_p3 = Model.DbUserPermissionParameter(up_any_rob_std_allowed, experiment_allowed_p3, "200")
+
+      
+up_any_rob_mov_allowed = Model.DbUserPermission(
+    any,
+    experiment_allowed.group_applicable,
+    "any::weblab-robot-movement",
+    datetime.datetime.utcnow(),
+    "Permission for any to use WebLab-robot-movement"
+)
+
+session.add(up_any_rob_mov_allowed)
+up_any_rob_mov_allowed_p1 = Model.DbUserPermissionParameter(up_any_rob_mov_allowed, experiment_allowed_p1, "robot-movement")
+session.add(up_any_rob_mov_allowed_p1)
+up_any_rob_mov_allowed_p2 = Model.DbUserPermissionParameter(up_any_rob_mov_allowed, experiment_allowed_p2, "Robot experiments")
+session.add(up_any_rob_mov_allowed_p2)
+up_any_rob_mov_allowed_p3 = Model.DbUserPermissionParameter(up_any_rob_mov_allowed, experiment_allowed_p3, "200")
+   
+           
+up_any_rob_proglist_allowed = Model.DbUserPermission(
+    any,
+    experiment_allowed.group_applicable,
+    "any::weblab-robot-proglist",
+    datetime.datetime.utcnow(),
+    "Permission for any to use WebLab-robot-proglist"
+)
+
+session.add(up_any_rob_proglist_allowed)
+up_any_rob_proglist_allowed_p1 = Model.DbUserPermissionParameter(up_any_rob_proglist_allowed, experiment_allowed_p1, "robot-proglist")
+session.add(up_any_rob_proglist_allowed_p1)
+up_any_rob_proglist_allowed_p2 = Model.DbUserPermissionParameter(up_any_rob_proglist_allowed, experiment_allowed_p2, "Robot experiments")
+session.add(up_any_rob_proglist_allowed_p2)
+up_any_rob_proglist_allowed_p3 = Model.DbUserPermissionParameter(up_any_rob_proglist_allowed, experiment_allowed_p3, "200")
+   
+           
+      
+
 
 up_any_pld_demo_allowed = Model.DbUserPermission(
     any,
