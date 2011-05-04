@@ -53,10 +53,10 @@ class ReservationConfirmer(object):
             labserver = self.locator.get_server_from_coordaddr(lab_coordaddress, ServerType.Laboratory)
             lab_session_id, server_initialization_response = labserver.reserve_experiment(experiment_instance_id, client_initial_data, server_initial_data)
         except Exception, e:
-            self.coordinator.mark_experiment_as_broken(experiment_instance_id, [str(e)])
-
             log.log( ReservationConfirmer, log.LogLevel.Error, "Exception confirming experiment: %s" % e )
             log.log_exc( ReservationConfirmer, log.LogLevel.Warning )
+
+            self.coordinator.mark_experiment_as_broken(experiment_instance_id, [str(e)])
         else:
             self.coordinator.confirm_experiment(experiment_instance_id, reservation_id, lab_session_id, server_initialization_response)
 
@@ -71,9 +71,15 @@ class ReservationConfirmer(object):
 
     @threaded(_resource_manager)
     def _free_experiment(self, lab_coordaddress, lab_session_id):
+        # TODO: retrieve also a experiment_instance_id!!!
         try:
             labserver = self.locator.get_server_from_coordaddr(lab_coordaddress, ServerType.Laboratory)
             labserver.free_experiment(SessionId.SessionId(lab_session_id))
         except Exception, e:
             log.log( ReservationConfirmer, log.LogLevel.Error, "Exception freeing experiment: %s" % e )
             log.log_exc( ReservationConfirmer, log.LogLevel.Warning )
+
+            self.coordinator.mark_experiment_as_broken(experiment_instance_id, [str(e)])
+        # TODO: enter in a loop until the experiment is finished. Then call:
+        # self.coordinator.confirm_resource_disposal(experiment_instance_id)
+

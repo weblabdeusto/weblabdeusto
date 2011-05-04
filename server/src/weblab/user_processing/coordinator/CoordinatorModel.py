@@ -136,11 +136,37 @@ class SchedulingSchemaIndependentSlotReservation(Base):
     current_resource_slot_id = Column(Integer, ForeignKey("CurrentResourceSlots.id"))
     current_resource_slot    = relation(CurrentResourceSlot, backref=backref("slot_reservations", order_by=id))
 
+    # 
+    # When the time is finished and the experiment must be disposed, this class will manage it.
+    # In order to do so:
+    # 
+    #  1. The "disposing" column will be set to True.
+    # 
+    #  2. The "currently_calling_dispose" will be set to True when the "dispose" method is actually being called in the experiment server.
+    # 
+    #  3. After the method "dispose" is called:
+    #     3.1. The "currently_calling_dispose" will be set to False.
+    #     3.2. If the method finished, the SchedulingSchemaIndependentSlotReservation will be removed, so any scheduler can start using it.
+    #     3.3. If the method said that the dispose method must be called in 5 seconds, then:
+    #       3.3.1. The "latest_dispose" will be set to the moment when the method returned
+    #       3.3.2. The "next_dispose_milliseconds" will be set to 5000
+    # 
+    #  4. The thread which called dispose() for the first time will stay calling dispose() until the experiment server says that it has finished or the experiment is broken. This loop will be in step 3 until "3.2" is reached.
+    # 
+
+    disposing                        = Column(Boolean)
+    latest_dispose                   = Column(DateTime)
+    next_dispose_milliseconds        = Column(Integer)
+
     def __init__(self, current_resource_slot):
         self.current_resource_slot = current_resource_slot
+        self.disposing = False
+        self.latest_dispose = None
+        self.next_dispose_milliseconds = 0
 
     def __repr__(self):
-        return "SchedulingSchemaIndependentSlotReservation(%r)" % self.current_resource_slot
+        return "SchedulingSchemaIndependentSlotReservation(%r, %r, %r, %r)" % (self.current_resource_slot,
+                    self.disposing, self.latest_dispose, self.next_dispose_milliseconds)
 
 ######################################################################################
 # 
@@ -334,31 +360,13 @@ class CurrentReservation(Base):
     # 
     initializer                      = Column(String(30)) # Something like "Thread-10@process1"
 
-    # 
-    # The same concepts can be applied to the resource disposal
-    # 
-
-    latest_disposal                  = Column(DateTime)
-
-    next_disposal_milliseconds       = Column(Integer)
-
-    currently_calling_disposal       = Column(Boolean)
-
-    disposer                         = Column(String(30))
-
-    def __init__(self, id, latest_initialization = None, next_initialization_milliseconds = None, latest_disposal = None, next_disposal_milliseconds = None):
+    def __init__(self, id, latest_initialization = None, next_initialization_milliseconds = None):
         self.id = id
 
         self.latest_initialization            = latest_initialization
         self.next_initialization_milliseconds = next_initialization_milliseconds
         self.currently_calling_initialization = False
         self.initializer                      = None
-
-        self.latest_disposal                  = latest_disposal
-        self.next_disposal_milliseconds       = next_disposal_milliseconds
-        self.currently_calling_disposal       = False
-        self.disposer                         = None
-
 
     def next_initialization(self, now, millis):
         self.latest_initialization            = now
@@ -367,15 +375,8 @@ class CurrentReservation(Base):
     def is_initialized(self):
         return self.latest_initialization is None or self.next_initialization_milliseconds is None
 
-    def next_disposal(self, now, millis):
-        self.latest_disposal            = now
-        self.next_disposal_milliseconds = millis
-
-    def is_disposed(self):
-        return self.latest_disposal is None or self.next_disposal_milliseconds is None
-
     def __repr__(self):
-        return "CurrentReservation(%r, %r, %r, %r, %r, %r, %r, %r, %r)" % (self.reservation, self.latest_initialization, self.next_initialization_milliseconds, self.currently_calling_initialization, self.initializer, self.latest_disposal, self.next_disposal_milliseconds, self.currently_calling_disposal, self.disposer)
+        return "CurrentReservation(%r, %r, %r, %r, %r)" % (self.reservation, self.latest_initialization, self.next_initialization_milliseconds, self.currently_calling_initialization, self.initializer)
 
 ######################################################################################
 # 

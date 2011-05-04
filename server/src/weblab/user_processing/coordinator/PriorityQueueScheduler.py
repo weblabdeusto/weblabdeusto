@@ -56,6 +56,7 @@ def exc_checker(func):
                 try:
                     return func(*args, **kwargs)
                 except OperationalError, oe:
+                    # XXX MySQL dependent!!!
                     if oe.orig.args[0] == 1213:
                         log.log(
                             PriorityQueueScheduler, LogLevel.Error,
@@ -283,7 +284,6 @@ class PriorityQueueScheduler(Scheduler):
                     lab_coord_address  = experiment_instance.laboratory_coord_address
                     enqueue_free_experiment_args = (lab_coord_address, lab_session_id)
             self.reservations_manager.downgrade_confirmation(session, concrete_current_reservation.current_reservation_id)
-            self.resources_manager.release_resource(session, concrete_current_reservation.slot_reservation)
         return enqueue_free_experiment_args
 
     #############################################################
@@ -338,7 +338,8 @@ class PriorityQueueScheduler(Scheduler):
                 # 
                 # For the current resource_type, let's ask for 
                 # all the resource instances available (i.e. those
-                # who have no ConcreteCurrentReservation associated)
+                # who have no SchedulingSchemaIndependentSlotReservation
+                # associated)
                 # 
                 free_instances = session.query(CurrentResourceSlot)\
                         .select_from(join(CurrentResourceSlot, ResourceInstance))\

@@ -341,6 +341,21 @@ class Coordinator(object):
 
     ################################################################
     #
+    # Called when the Laboratory Server states that the experiment
+    # was cleaned
+    #
+    @logged()
+    def confirm_resource_disposal(self, resource):
+        # TODO: test me
+        session = self._session_maker()
+        try:
+            self.resources_manager.release_resource_instance(session, resource)
+            session.commit()
+        finally:
+            session.close()
+
+    ################################################################
+    #
     # Called when the user disconnects or finishes the experiment.
     #
     @logged()
