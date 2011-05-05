@@ -15,8 +15,7 @@
 				<w:WlTimer ui:field="timer" width="100%" styleName="wl-time_remaining"></w:WlTimer>
 			</g:HorizontalPanel>
 
-			<!-- Needs to be initially hidden so as not to take space on the reserve screen. -->
-			<g:HorizontalPanel borderWidth="0" ui:field="inputWidgetsPanel" visible="false" horizontalAlignment='ALIGN_CENTER'>
+			<g:HorizontalPanel borderWidth="0" ui:field="inputWidgetsPanel" visible="true" horizontalAlignment='ALIGN_CENTER'>
 			</g:HorizontalPanel>		
 			
 			<w:WlWaitingLabel ui:field="messages" horizontalAlignment="ALIGN_CENTER"/>

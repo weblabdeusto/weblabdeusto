@@ -13,32 +13,29 @@
 */ 
 package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.robot_proglist.ui;
 
+import java.util.List;
+import java.util.Vector;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.Anchor;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
-import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
+import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
 import es.deusto.weblab.client.lab.ui.BoardBase;
-import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar;
-import es.deusto.weblab.client.ui.widgets.WlWebcam;
-import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarListener;
-import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarTextUpdater;
-import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.TextProgressBarTextUpdater;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
+import es.deusto.weblab.client.ui.widgets.WlWebcam;
 
 public class RobotProglistBoard extends BoardBase {
 
@@ -57,7 +54,7 @@ public class RobotProglistBoard extends BoardBase {
 	}
 
 	private final IConfigurationRetriever configurationRetriever;
-	
+	private final List<Button> buttons = new Vector<Button>();
 	
 	@UiField(provided=true) WlTimer timer;
 	
@@ -67,6 +64,8 @@ public class RobotProglistBoard extends BoardBase {
 	@UiField VerticalPanel mainWidgetsPanel;
 	
 	@UiField WlWaitingLabel messages;
+	
+	@UiField HorizontalPanel inputWidgetsPanel;
 	
 	@UiField(provided=true) WlWebcam webcam;
 	
@@ -124,7 +123,6 @@ public class RobotProglistBoard extends BoardBase {
 	public void initialize(){
 	}	
 	
-	
 	/**
 	 * This function gets called just when the actual experiment starts, after
 	 * the reserve is done and the queue is over.
@@ -134,10 +132,65 @@ public class RobotProglistBoard extends BoardBase {
 	    this.widget.setVisible(true);
 	    
 	    this.setupWidgets();
+
+	    RequestWebcamCommand.createAndSend(this.boardController, this.webcam, this.messages);
+	    this.webcam.setVisible(true);
+	    this.webcam.start();
 	    
-	    this.setMessage("Starting robot_movement experiment...");
+	    this.boardController.sendCommand("programs", new IResponseCommandCallback() {
+			
+			@Override
+			public void onFailure(WlCommException e) {
+				e.printStackTrace();
+				RobotProglistBoard.this.setMessage("Could not request experiments:" + e.getMessage());
+				RobotProglistBoard.this.messages.stop();
+			}
+			
+			@Override
+			public void onSuccess(ResponseCommand responseCommand) {
+				RobotProglistBoard.this.messages.stop();
+				RobotProglistBoard.this.buttons.clear();
+				String response = responseCommand.getCommandString();
+				setMessage("Select what program should be sent to the device");
+				for(final String s : response.split(",")){
+					if(s.trim().equals(""))
+						continue;
+					final Button button = new Button(s.trim());
+					RobotProglistBoard.this.buttons.add(button);
+					button.addClickHandler(new ClickHandler() {
+						
+						@Override
+						public void onClick(ClickEvent event) {
+							for(Button b : RobotProglistBoard.this.buttons)
+								b.setVisible(false);
+							
+							setMessage("Programming " + s);
+							RobotProglistBoard.this.messages.start();
+							RobotProglistBoard.this.boardController.sendCommand("program:" + s.trim(), new IResponseCommandCallback() {
+								
+								@Override
+								public void onFailure(WlCommException e) {
+									setMessage("Program failed: " + e.getMessage());
+									RobotProglistBoard.this.messages.stop();
+								}
+								
+								@Override
+								public void onSuccess(ResponseCommand responseCommand) {
+									RobotProglistBoard.this.messages.stop();
+									if(responseCommand.getCommandString().startsWith("File sen")){
+										RobotProglistBoard.this.setMessage("Program sent!");
+									}
+								}
+							});
+						}
+					});
+					RobotProglistBoard.this.inputWidgetsPanel.add(button);
+				}
+			}
+		});
 	    
-	    this.sendGetConfigurationCommand();
+	    this.setMessage("Retrieving programs");
+	    this.messages.start();
 	}	
 	
 	@Override
@@ -155,30 +208,11 @@ public class RobotProglistBoard extends BoardBase {
 		if(this.timer != null){
 			this.timer.dispose();
 			this.timer = null;
-		}			
+		}
+		this.messages.stop();
 	}
 	
 	public void setMessage(String msg) {
 		this.messages.setText(msg);
 	}
-	
-	private void sendGetConfigurationCommand(){
-		final Command command = new Command() {
-			@Override
-			public String getCommandString() {
-				return "get_configuration";
-			}
-		};
-		
-		this.boardController.sendCommand(command, new IResponseCommandCallback() {
-			@Override
-			public void onFailure(WlCommException e) {
-				RobotProglistBoard.this.setMessage("It was not possible to obtain the configuration");
-			}
-			@Override
-			public void onSuccess(ResponseCommand responseCommand) {
-			}
-		});
-	}
-	
 }

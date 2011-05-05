@@ -60,7 +60,15 @@ class RobotProglist(Experiment.Experiment):
         """
         if(DEBUG):
             print "[Robot*] do_send_command_to_device called"
-        return "Ok"
+        if command == 'WEBCAMURL':
+            return "WEBCAMURL=https://www.weblab.deusto.es/webcam/proxied/pld1"
+        if command == 'programs':
+            return "Follow white line,Walk alone,Interactive Demo,turn left & turn right,"
+        if command.startswith('program:'):
+            print "Sending program:" + command[len('program:'):]
+            time.sleep(3)
+            return "File sended & running"
+        return "unknown command"
 
 
     @Override(Experiment.Experiment)
