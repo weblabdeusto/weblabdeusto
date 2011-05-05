@@ -27,4 +27,7 @@
 	<server>experiment_testvisir</server>
 	<server>experiment_vm</server>
 	<server>experiment_vm_win</server>
+	<server>experiment_robot_standard</server>
+	<server>experiment_robot_movement</server>
+	<server>experiment_robot_proglist</server>
 </servers>
