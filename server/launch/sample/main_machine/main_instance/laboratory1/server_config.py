@@ -82,5 +82,20 @@ laboratory_assigned_experiments = {
             {
                  'coord_address': 'experiment_vm_win:main_instance@main_machine',
                  'checkers': ()
-            }
+            },
+        'exp1:robot-standard@Robot experiments':
+            {
+                 'coord_address': 'experiment_robot_standard:main_instance@main_machine',
+                 'checkers': ()
+            },
+        'exp1:robot-movement@Robot experiments':
+            {
+                 'coord_address': 'experiment_robot_movement:main_instance@main_machine',
+                 'checkers': ()
+            },
+        'exp1:robot-proglist@Robot experiments':
+            {
+                 'coord_address': 'experiment_robot_proglist:main_instance@main_machine',
+                 'checkers': ()
+            },
     }

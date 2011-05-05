@@ -49,9 +49,9 @@ core_coordinator_laboratory_servers = {
             "exp1|visirtest|Dummy experiments"       : "visirtest@visirtest",
             "exp1|vm|Dummy experiments"              : "vm@vm",
             "exp1|vm-win|Dummy experiments"          : "vm-win@vm-win",
-            "exp1|robot-standard|Robot experiments"  : "robot-standard@robot-standard",
-            "exp1|robot-movement|Robot experiments"  : "robot-movement@robot-movement",
-            "exp1|robot-proglist|Robot experiments"     : "robot-proglist@robot-proglist"
+            "exp1|robot-standard|Robot experiments"  : "robot@robot",
+            "exp1|robot-movement|Robot experiments"  : "robot@robot",
+            "exp1|robot-proglist|Robot experiments"  : "robot@robot"
         }
 }
 
@@ -67,7 +67,7 @@ core_scheduling_systems = {
         "visirtest"  : ("PRIORITY_QUEUE", {}),
         "vm"         :("PRIORITY_QUEUE", {}),
         "vm-win"     : ("PRIORITY_QUEUE", {}),
-        "robot-standard"     : ("PRIORITY_QUEUE", {}),
-        "robot-movement"     : ("PRIORITY_QUEUE", {}),
-        "robot-proglist"     : ("PRIORITY_QUEUE", {}),
+        "robot"     : ("PRIORITY_QUEUE", {}),
+        "robot"     : ("PRIORITY_QUEUE", {}),
+        "robot"     : ("PRIORITY_QUEUE", {}),
     }
