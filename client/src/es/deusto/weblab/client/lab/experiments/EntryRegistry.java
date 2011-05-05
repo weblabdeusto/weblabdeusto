@@ -19,15 +19,18 @@ import java.util.Vector;
 
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.binary.WebLabBinaryCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.dummy.WebLabDummyCreatorFactory;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.WebLabXilinxCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.WebLabGpibCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib1.WebLabGpib1CreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib2.WebLabGpib2CreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.WebLabLogicCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic.WebLabPicCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic2.WebLabPic2CreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.robot_movement.RobotMovementCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.robot_proglist.RobotProglistCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.robot_standard.RobotStandardCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.visir.VisirCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.vm.VMCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.WebLabXilinxCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.util.applets.flash.FlashAppCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.util.applets.java.JavaAppletCreatorFactory;
 
@@ -50,7 +53,10 @@ class EntryRegistry {
 		new WebLabGpib1CreatorFactory(),
 		new WebLabGpib2CreatorFactory(),
 		new WebLabPicCreatorFactory(),
-		new WebLabPic2CreatorFactory()
+		new WebLabPic2CreatorFactory(),
+		new RobotStandardCreatorFactory(),
+		new RobotMovementCreatorFactory(),
+		new RobotProglistCreatorFactory()
 	};
 	
 	static final List<ExperimentEntry> entries = new Vector<ExperimentEntry>();

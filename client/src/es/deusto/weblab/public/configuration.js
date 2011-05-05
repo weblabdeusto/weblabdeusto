@@ -125,6 +125,25 @@
 	                        	   "experiment.category" : "Dummy experiments"
 	                           }
 	                       ],
+	                "robot-standard" : [
+	                			{  
+	                			   "experiment.name" : "robot-standard",
+	                			   "experiment.category" : "Robot experiments"
+	                			}
+	                		],
+	                			
+	                "robot-movement" : [
+	                			{
+	                				"experiment.name" : "robot-movement",
+	                				"experiment.category" : "Robot experiments"
+	                			}
+	                		],
+	                "robot-proglist" : [
+	                			{
+	                				"experiment.name" : "robot-proglist",
+	                				"experiment.category" : "Robot experiments"
+	                			}
+	                		],
 	                "visir" : [
 	                           {
 	                        	   "experiment.name"     : "visirtest",

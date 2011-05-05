@@ -108,7 +108,7 @@ public class ExperimentFactory {
 		for(ExperimentEntry entry : EntryRegistry.entries)
 			if(entry.getExperimentID().equals(experimentId))
 				return entry.getConfigurationRetriever();
-		
-		throw new IllegalArgumentException("Experiment ID not found in the configuration file! " + experimentId);
-	}
+
+		throw new IllegalArgumentException("Experiment ID is missing from the configuration file or the registry! " + experimentId);
+	} 
 }
