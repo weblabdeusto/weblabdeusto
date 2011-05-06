@@ -60,6 +60,18 @@ class RobotMovement(Experiment.Experiment):
         """
         if(DEBUG):
             print "[Robot*] do_send_command_to_device called"
+
+        if command == 'WEBCAMURL':
+            return "WEBCAMURL=https://www.weblab.deusto.es/webcam/proxied/robot1"
+        if command.startswith("program:"):
+            print "Programming example"
+            time.sleep(3)
+            return "ok"
+        if command.startswith('move:'):
+            where = command[len('move:'):]
+            print "Moving " + where
+            time.sleep(2)
+            return "Command..."
         return "Ok"
 
 

@@ -107,7 +107,7 @@ public class RobotProglistBoard extends BoardBase {
 	
 	private int getWebcamRefreshingTime() {
 		// TODO: Replace by the code below.
-		return 5;
+		return 400;
 //		return this.configurationRetriever.getIntProperty(
 //			WlDeustoPicBasedBoard.PIC_WEBCAM_REFRESH_TIME_PROPERTY, 
 //			WlDeustoPicBasedBoard.DEFAULT_PIC_WEBCAM_REFRESH_TIME

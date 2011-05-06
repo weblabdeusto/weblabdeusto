@@ -60,6 +60,8 @@ class RobotStandard(Experiment.Experiment):
         """
         if(DEBUG):
             print "[Robot*] do_send_command_to_device called"
+        if command == 'WEBCAMURL':
+            return "WEBCAMURL=https://www.weblab.deusto.es/webcam/proxied/robot1"
         return "Ok"
 
 
@@ -72,7 +74,8 @@ class RobotStandard(Experiment.Experiment):
         """
         if(DEBUG):
             print "[Robot*] do_send_file_to_device called"
-        return "Ok"
+        print "Received %s bytes" % len(content)
+        return "OK"
 
 
     @Override(Experiment.Experiment)

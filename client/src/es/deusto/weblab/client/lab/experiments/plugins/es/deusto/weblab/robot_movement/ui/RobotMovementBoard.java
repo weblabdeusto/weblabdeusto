@@ -13,35 +13,39 @@
 */ 
 package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.robot_movement.ui;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.Anchor;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
-import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic.ui.WlDeustoPicBasedBoard;
+import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
 import es.deusto.weblab.client.lab.ui.BoardBase;
-import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar;
-import es.deusto.weblab.client.ui.widgets.WlWebcam;
-import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarListener;
-import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarTextUpdater;
-import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.TextProgressBarTextUpdater;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
+import es.deusto.weblab.client.ui.widgets.WlWebcam;
 
 public class RobotMovementBoard extends BoardBase {
+
+	private static final String RIGHT = "RIGHT";
+
+	private static final String LEFT = "LEFT";
+
+	private static final String DOWN = "BACK";
+
+	private static final String UP = "FORWARD";
 
 	/******************
 	 * UIBINDER RELATED
@@ -57,6 +61,7 @@ public class RobotMovementBoard extends BoardBase {
 		public static final String CLOCK_ACTIVATION_PANEL  = "wl-clock_activation_panel"; 
 	}
 
+	@SuppressWarnings("unused")
 	private final IConfigurationRetriever configurationRetriever;
 	
 	@UiField(provided = true) WlTimer timer;
@@ -65,8 +70,16 @@ public class RobotMovementBoard extends BoardBase {
 	@UiField VerticalPanel widget;
 	
 	@UiField VerticalPanel mainWidgetsPanel;
+	@UiField HorizontalPanel inputWidgetsPanel;
 	
 	@UiField WlWaitingLabel messages;
+	@UiField Image upButton;
+	@UiField Image downButton;
+	@UiField Image rightButton;
+	@UiField Image leftButton;
+	
+	private final Map<String, Image> buttons;
+	private int moveNumber = 0;
 	
 	@UiField(provided = true) WlWebcam webcam;
 	
@@ -78,6 +91,12 @@ public class RobotMovementBoard extends BoardBase {
 		this.createProvidedWidgets();
 		
 		RobotMovementBoard.uiBinder.createAndBindUi(this);
+		
+		this.buttons = new HashMap<String, Image>();
+		this.buttons.put(UP, this.upButton);
+		this.buttons.put(DOWN, this.downButton);
+		this.buttons.put(LEFT, this.leftButton);
+		this.buttons.put(RIGHT, this.rightButton);
 	}
 	
 	/**
@@ -108,7 +127,7 @@ public class RobotMovementBoard extends BoardBase {
 	
 	private int getWebcamRefreshingTime() {
 		// TODO: Replace by the code below.
-		return 5;
+		return 400;
 //		return this.configurationRetriever.getIntProperty(
 //			WlDeustoPicBasedBoard.PIC_WEBCAM_REFRESH_TIME_PROPERTY, 
 //			WlDeustoPicBasedBoard.DEFAULT_PIC_WEBCAM_REFRESH_TIME
@@ -135,10 +154,94 @@ public class RobotMovementBoard extends BoardBase {
 	    
 	    this.setupWidgets();
 	    
-	    this.setMessage("Starting robot_movement experiment...");
+	    RequestWebcamCommand.createAndSend(this.boardController, this.webcam, this.messages);
+	    this.webcam.setVisible(true);
+	    this.webcam.start();
+
+	    this.boardController.sendCommand("program:Interactive Demo", new IResponseCommandCallback() {
+
+			@Override
+			public void onFailure(WlCommException e) {
+				e.printStackTrace();
+				RobotMovementBoard.this.messages.setText("Failed: " + e.getMessage());
+				RobotMovementBoard.this.messages.stop();
+			}
+
+			@Override
+			public void onSuccess(ResponseCommand responseCommand) {
+				RobotMovementBoard.this.inputWidgetsPanel.setVisible(true);
+				RobotMovementBoard.this.messages.setText("You can now control the bot");
+				RobotMovementBoard.this.messages.stop();
+			}
+	    });
 	    
-	    this.sendGetConfigurationCommand();
-	}	
+	    this.setMessage("Programming interactive demo");
+	    this.messages.start();
+	}
+	
+	@SuppressWarnings("unused")
+	@UiHandler("upButton")
+	public void onUpClick(ClickEvent event){
+		sendMove(UP);
+	}
+	
+	@SuppressWarnings("unused")
+	@UiHandler("downButton")
+	public void onDownClick(ClickEvent event){
+		sendMove(DOWN);
+	}
+	
+	@SuppressWarnings("unused")
+	@UiHandler("leftButton")
+	public void onLeftClick(ClickEvent event){
+		sendMove(LEFT);
+	}
+	
+	@SuppressWarnings("unused")
+	@UiHandler("rightButton")
+	public void onRightClick(ClickEvent event){
+		sendMove(RIGHT);
+	}
+	
+	private void enableButton(String button){
+		this.buttons.get(button).setStyleName("wl-img-button");
+	}
+	
+	private void disableButton(String button){
+		this.buttons.get(button).setStyleName("wl-disabled-img-button");
+	}
+	
+	private void enableButtons(){
+		for(Image img : this.buttons.values())
+			img.setStyleName("wl-img-button");
+	}
+	
+	private void disableButtons(){
+		for(Image img : this.buttons.values())
+			img.setStyleName("wl-disabled-img-button");
+	}
+
+	private void sendMove(final String s){
+		disableButtons();
+		enableButton(s);
+		final int currentMove = ++this.moveNumber;
+		
+		this.boardController.sendCommand("move:" + s, new IResponseCommandCallback() {
+			
+			@Override
+			public void onFailure(WlCommException e) {
+				
+			}
+			
+			@Override
+			public void onSuccess(ResponseCommand responseCommand) {
+				if(currentMove == RobotMovementBoard.this.moveNumber)
+					enableButtons();
+				else
+					disableButton(s);
+			}
+		});
+	}
 	
 	@Override
 	public void setTime(int time) {
@@ -155,30 +258,16 @@ public class RobotMovementBoard extends BoardBase {
 		if(this.timer != null){
 			this.timer.dispose();
 			this.timer = null;
-		}			
+		}
+		if(this.messages != null){
+			this.messages.stop();
+		}
+		if(this.webcam != null){
+			this.webcam.dispose();
+		}
 	}
 	
 	public void setMessage(String msg) {
 		this.messages.setText(msg);
-	}
-	
-	private void sendGetConfigurationCommand(){
-		final Command command = new Command() {
-			@Override
-			public String getCommandString() {
-				return "get_configuration";
-			}
-		};
-		
-		this.boardController.sendCommand(command, new IResponseCommandCallback() {
-			@Override
-			public void onFailure(WlCommException e) {
-				RobotMovementBoard.this.setMessage("It was not possible to obtain the configuration");
-			}
-			@Override
-			public void onSuccess(ResponseCommand responseCommand) {
-			}
-		});
-	}
-	
+	}	
 }

@@ -6,6 +6,16 @@
 	display: block;
 }
 
+.wl-img-button{
+	cursor: pointer;
+	cursor: hand;
+}
+
+.wl-disabled-img-button{
+	opacity: 0.4;
+	filter:  alpha(opacity=40);
+}
+
 .wl-clock_activation_panel
 {
 	display: block;

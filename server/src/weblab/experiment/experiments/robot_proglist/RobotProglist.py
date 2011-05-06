@@ -61,7 +61,7 @@ class RobotProglist(Experiment.Experiment):
         if(DEBUG):
             print "[Robot*] do_send_command_to_device called"
         if command == 'WEBCAMURL':
-            return "WEBCAMURL=https://www.weblab.deusto.es/webcam/proxied/pld1"
+            return "WEBCAMURL=https://www.weblab.deusto.es/webcam/proxied/robot1"
         if command == 'programs':
             return "Follow white line,Walk alone,Interactive Demo,turn left & turn right,"
         if command.startswith('program:'):

@@ -23,12 +23,14 @@ import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
+import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
 import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
+import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
-import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 public class RobotStandardBoard extends BoardBase {
 
@@ -46,6 +48,7 @@ public class RobotStandardBoard extends BoardBase {
 		public static final String CLOCK_ACTIVATION_PANEL  = "wl-clock_activation_panel"; 
 	}
 
+	@SuppressWarnings("unused")
 	private final IConfigurationRetriever configurationRetriever;
 	
 	@UiField(provided=true) WlTimer timer;
@@ -57,7 +60,11 @@ public class RobotStandardBoard extends BoardBase {
 	
 	@UiField WlWaitingLabel messages;
 	
+	@UiField VerticalPanel uploadStructurePanel;
+	
 	@UiField(provided=true) WlWebcam webcam;
+	
+	private UploadStructure uploadStructure;
 	
 	public RobotStandardBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
 		super(commandSender);
@@ -93,11 +100,14 @@ public class RobotStandardBoard extends BoardBase {
 		
 		// TODO: Add a default url to the webcam.
 		this.webcam = new WlWebcam(this.getWebcamRefreshingTime());
+		
+		this.uploadStructure = new UploadStructure();
+		this.uploadStructure.setFileInfo("program");
 	}
 	
 	private int getWebcamRefreshingTime() {
 		// TODO: Replace by the code below.
-		return 5;
+		return 400;
 //		return this.configurationRetriever.getIntProperty(
 //			WlDeustoPicBasedBoard.PIC_WEBCAM_REFRESH_TIME_PROPERTY, 
 //			WlDeustoPicBasedBoard.DEFAULT_PIC_WEBCAM_REFRESH_TIME
@@ -111,6 +121,7 @@ public class RobotStandardBoard extends BoardBase {
 	 */
 	@Override
 	public void initialize(){
+		this.uploadStructurePanel.add(this.uploadStructure.getFormPanel());
 	}	
 	
 	
@@ -124,7 +135,35 @@ public class RobotStandardBoard extends BoardBase {
 	    
 	    this.setupWidgets();
 	    
-	    this.setMessage("Starting robot_movement experiment...");
+	    RequestWebcamCommand.createAndSend(this.boardController, this.webcam, this.messages);
+	    this.webcam.setVisible(true);
+	    this.webcam.start();
+
+	    this.uploadStructure.getFormPanel().setVisible(false);
+		
+		this.boardController.sendFile(this.uploadStructure, new IResponseCommandCallback() {
+			
+			@Override
+			public void onFailure(WlCommException e) {
+				RobotStandardBoard.this.uploadStructurePanel.setVisible(false);
+				RobotStandardBoard.this.messages.stop();
+				setMessage("Failed: " + e.getMessage());
+			}
+			
+			@Override
+			public void onSuccess(ResponseCommand responseCommand) {
+				RobotStandardBoard.this.uploadStructurePanel.setVisible(false);
+				RobotStandardBoard.this.messages.stop();
+				if(responseCommand.getCommandString().toLowerCase().trim().equals("ok")){
+					setMessage("The program is being executed in the bot");
+				}else{
+					setMessage("There was an error: <" + responseCommand.getCommandString() + ">");
+				}
+			}
+		});
+	    
+	    this.setMessage("Sending program");
+	    this.messages.start();
 	    
 	    this.sendGetConfigurationCommand();
 	}	
