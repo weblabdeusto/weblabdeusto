@@ -47,13 +47,17 @@ public class RobotMovementBoard extends BoardBase {
 
 	private static final String UP = "FORWARD";
 
+
+	private static final String WEBCAM_REFRESH_TIME_PROPERTY   = "webcam.refresh.millis";
+	private static final int    DEFAULT_WEBCAM_REFRESH_TIME    = 200;
+	
 	/******************
 	 * UIBINDER RELATED
 	 ******************/
 	
 	interface RobotMovementBoardUiBinder extends UiBinder<Widget, RobotMovementBoard> {
 	}
-
+	
 	private static final RobotMovementBoardUiBinder uiBinder = GWT.create(RobotMovementBoardUiBinder.class);
 	
 	public static class Style   {
@@ -61,7 +65,6 @@ public class RobotMovementBoard extends BoardBase {
 		public static final String CLOCK_ACTIVATION_PANEL  = "wl-clock_activation_panel"; 
 	}
 
-	@SuppressWarnings("unused")
 	private final IConfigurationRetriever configurationRetriever;
 	
 	@UiField(provided = true) WlTimer timer;
@@ -126,12 +129,10 @@ public class RobotMovementBoard extends BoardBase {
 	}
 	
 	private int getWebcamRefreshingTime() {
-		// TODO: Replace by the code below.
-		return 400;
-//		return this.configurationRetriever.getIntProperty(
-//			WlDeustoPicBasedBoard.PIC_WEBCAM_REFRESH_TIME_PROPERTY, 
-//			WlDeustoPicBasedBoard.DEFAULT_PIC_WEBCAM_REFRESH_TIME
-//			);
+		return this.configurationRetriever.getIntProperty(
+			RobotMovementBoard.WEBCAM_REFRESH_TIME_PROPERTY, 
+			RobotMovementBoard.DEFAULT_WEBCAM_REFRESH_TIME
+		);
 	}	
 	
 

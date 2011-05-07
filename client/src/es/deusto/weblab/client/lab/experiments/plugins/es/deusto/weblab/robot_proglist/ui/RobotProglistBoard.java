@@ -39,6 +39,9 @@ import es.deusto.weblab.client.ui.widgets.WlWebcam;
 
 public class RobotProglistBoard extends BoardBase {
 
+	private static final String WEBCAM_REFRESH_TIME_PROPERTY   = "webcam.refresh.millis";
+	private static final int    DEFAULT_WEBCAM_REFRESH_TIME    = 200;
+	
 	/******************
 	 * UIBINDER RELATED
 	 ******************/
@@ -106,12 +109,10 @@ public class RobotProglistBoard extends BoardBase {
 	}
 	
 	private int getWebcamRefreshingTime() {
-		// TODO: Replace by the code below.
-		return 400;
-//		return this.configurationRetriever.getIntProperty(
-//			WlDeustoPicBasedBoard.PIC_WEBCAM_REFRESH_TIME_PROPERTY, 
-//			WlDeustoPicBasedBoard.DEFAULT_PIC_WEBCAM_REFRESH_TIME
-//			);
+		return this.configurationRetriever.getIntProperty(
+			RobotProglistBoard.WEBCAM_REFRESH_TIME_PROPERTY, 
+			RobotProglistBoard.DEFAULT_WEBCAM_REFRESH_TIME
+		);
 	}	
 	
 

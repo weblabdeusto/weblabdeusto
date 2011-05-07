@@ -28,11 +28,14 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
 import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
-import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
+import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 public class RobotStandardBoard extends BoardBase {
+	
+	private static final String WEBCAM_REFRESH_TIME_PROPERTY   = "webcam.refresh.millis";
+	private static final int    DEFAULT_WEBCAM_REFRESH_TIME    = 200;
 
 	/******************
 	 * UIBINDER RELATED
@@ -48,7 +51,6 @@ public class RobotStandardBoard extends BoardBase {
 		public static final String CLOCK_ACTIVATION_PANEL  = "wl-clock_activation_panel"; 
 	}
 
-	@SuppressWarnings("unused")
 	private final IConfigurationRetriever configurationRetriever;
 	
 	@UiField(provided=true) WlTimer timer;
@@ -106,12 +108,10 @@ public class RobotStandardBoard extends BoardBase {
 	}
 	
 	private int getWebcamRefreshingTime() {
-		// TODO: Replace by the code below.
-		return 400;
-//		return this.configurationRetriever.getIntProperty(
-//			WlDeustoPicBasedBoard.PIC_WEBCAM_REFRESH_TIME_PROPERTY, 
-//			WlDeustoPicBasedBoard.DEFAULT_PIC_WEBCAM_REFRESH_TIME
-//			);
+		return this.configurationRetriever.getIntProperty(
+			RobotStandardBoard.WEBCAM_REFRESH_TIME_PROPERTY, 
+			RobotStandardBoard.DEFAULT_WEBCAM_REFRESH_TIME
+		);
 	}	
 	
 
