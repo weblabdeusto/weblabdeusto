@@ -128,19 +128,22 @@
 	                "robot-standard" : [
 	                			{  
 	                			   "experiment.name" : "robot-standard",
-	                			   "experiment.category" : "Robot experiments"
+	                			   "experiment.category" : "Robot experiments",
+					        	   "experiment.picture"	 : "/img/experiments/robot.jpg"
 	                			}
 	                		],
 	                			
 	                "robot-movement" : [
 	                			{
 	                				"experiment.name" : "robot-movement",
+						        	"experiment.picture"	 : "/img/experiments/robot.jpg",
 	                				"experiment.category" : "Robot experiments"
 	                			}
 	                		],
 	                "robot-proglist" : [
 	                			{
 	                				"experiment.name" : "robot-proglist",
+						        	"experiment.picture"  : "/img/experiments/robot.jpg",
 	                				"experiment.category" : "Robot experiments"
 	                			}
 	                		],
