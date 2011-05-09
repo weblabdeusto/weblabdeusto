@@ -83,6 +83,7 @@ public class RobotMovementBoard extends BoardBase {
 	
 	private final Map<String, Image> buttons;
 	private int moveNumber = 0;
+	private boolean buttonsEnabled = true;
 	
 	@UiField(provided = true) WlWebcam webcam;
 	
@@ -223,8 +224,12 @@ public class RobotMovementBoard extends BoardBase {
 	}
 
 	private void sendMove(final String s){
+		if(!this.buttonsEnabled)
+			return;
+		
 		disableButtons();
 		enableButton(s);
+		this.buttonsEnabled = false;
 		final int currentMove = ++this.moveNumber;
 		
 		this.boardController.sendCommand("move:" + s, new IResponseCommandCallback() {
@@ -236,6 +241,7 @@ public class RobotMovementBoard extends BoardBase {
 			
 			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
+				RobotMovementBoard.this.buttonsEnabled = true;
 				if(currentMove == RobotMovementBoard.this.moveNumber)
 					enableButtons();
 				else
