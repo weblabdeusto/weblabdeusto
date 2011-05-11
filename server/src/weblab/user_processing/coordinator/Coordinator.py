@@ -345,11 +345,12 @@ class Coordinator(object):
     # was cleaned
     #
     @logged()
-    def confirm_resource_disposal(self, resource):
+    def confirm_resource_disposal(self, experiment_instance_id):
         # TODO: test me
         session = self._session_maker()
         try:
-            self.resources_manager.release_resource_instance(session, resource)
+            resource_instance = self.resources_manager.get_resource_instance_by_experiment_instance_id(experiment_instance_id)
+            self.resources_manager.release_resource_instance(session, resource_instance)
             session.commit()
         finally:
             session.close()

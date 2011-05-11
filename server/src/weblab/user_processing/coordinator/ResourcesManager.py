@@ -78,7 +78,7 @@ class ResourcesManager(object):
         if slot is not None:
             slot_reservation = slot.slot_reservation
             if slot_reservation is not None:
-                self.release_resource(slot_reservation)
+                self.release_resource(session, slot_reservation)
 
     def get_resource_types_by_experiment_id(self, experiment_id):
         session = self._session_maker()
