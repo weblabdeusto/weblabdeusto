@@ -76,6 +76,12 @@
 	                               "experiment.category" : "Dummy experiments"
 	                           }
 	                       ],  
+	                "labview": [
+	                            {
+	                            	"experiment.name"     : "testone",
+	                            	"experiment.category" : "LabVIEW experiments"
+	                            }
+	                       ],
 	                "xilinx" : [
 							  {
 								   "experiment.name"     : "ud-test-pld1",

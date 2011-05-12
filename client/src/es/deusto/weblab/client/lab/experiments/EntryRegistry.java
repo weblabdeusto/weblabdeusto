@@ -22,6 +22,7 @@ import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.dummy.We
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.WebLabGpibCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib1.WebLabGpib1CreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib2.WebLabGpib2CreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.labview.LabVIEWCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.WebLabLogicCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic.WebLabPicCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic2.WebLabPic2CreatorFactory;
@@ -47,6 +48,7 @@ class EntryRegistry {
 		new WebLabXilinxCreatorFactory(),
 		new WebLabDummyCreatorFactory(),
 		new VMCreatorFactory(),
+		new LabVIEWCreatorFactory(),
 		new WebLabLogicCreatorFactory(),
 		new WebLabBinaryCreatorFactory(),
 		new WebLabGpibCreatorFactory(),
