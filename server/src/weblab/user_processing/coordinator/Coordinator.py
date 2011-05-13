@@ -61,6 +61,10 @@ DEFAULT_RESOURCES_PARTICULAR_CHECKER_RECIPIENTS = {
 RESOURCES_CHECKER_NOTIFICATIONS_ENABLED = 'core_resources_checker_notifications_enabled'
 DEFAULT_RESOURCES_CHECKER_NOTIFICATIONS_ENABLED = False
 
+FINISH_FINISHED_MESSAGE = 'finished'
+FINISH_DATA_MESSAGE      = 'data'
+FINISH_ASK_AGAIN_MESSAGE = 'ask_again'
+
 class TimeProvider(object):
     def get_time(self):
         return time.time()
@@ -345,15 +349,38 @@ class Coordinator(object):
     # was cleaned
     #
     @logged()
-    def confirm_resource_disposal(self, experiment_instance_id):
-        # TODO: test me
-        session = self._session_maker()
-        try:
-            resource_instance = self.resources_manager.get_resource_instance_by_experiment_instance_id(experiment_instance_id)
-            self.resources_manager.release_resource_instance(session, resource_instance)
-            session.commit()
-        finally:
-            session.close()
+    def confirm_resource_disposal(self, lab_coordaddress, lab_session_id, experiment_instance_id, experiment_response):
+
+        experiment_finished  = True
+        information_to_store = None
+        time_remaining       = 0.5 # Every half a second by default
+
+        if experiment_response is None or experiment_response == 'ok' or experiment_response == '':
+            pass # Default value
+        else:
+            try:
+                response = json.loads(experiment_response)
+                experiment_finished   = response.get(FINISH_FINISHED_MESSAGE, experiment_finished)
+                time_remaining        = response.get(FINISH_ASK_AGAIN_MESSAGE, time_remaining)
+                information_to_store  = response.get(FINISH_DATA_MESSAGE, information_to_store)
+            except Exception, e:
+                log.log( Coordinator, log.LogLevel.Error, "Could not parse experiment server finishing response: %s; %s" % (e, experiment_response) )
+                log.log_exc( Coordinator, log.LogLevel.Warning )
+                
+        if not experiment_finished:
+            time.sleep(time_remaining)
+            # We just ignore the data retrieved, if any, and perform the query again
+            self.confirmer.enqueue_free_experiment(lab_coordaddress, lab_session_id, experiment_instance_id)
+        else:
+            # Otherwise we in fact remove the resource
+            # TODO: do something with "information_to_store"
+            session = self._session_maker()
+            try:
+                resource_instance = self.resources_manager.get_resource_instance_by_experiment_instance_id(experiment_instance_id)
+                self.resources_manager.release_resource_instance(session, resource_instance)
+                session.commit()
+            finally:
+                session.close()
 
     ################################################################
     #

@@ -65,21 +65,24 @@ class ReservationConfirmer(object):
         # thread pools or a queue of threads or something
         # like that... here
         lab_coordaddress = CoordAddress.CoordAddress.translate_address(lab_coordaddress_str)
-        self._free_handler = self._free_experiment(lab_coordaddress, lab_session_id, experiment_instance_id)
-        self._free_handler.join(self._enqueuing_timeout)
+        if lab_session_id is None: # If the user didn't manage to obtain a session_id, don't call the free_experiment method
+            experiment_response = None
+            self.coordinator.confirm_resource_disposal(lab_coordaddress_str, lab_session_id, experiment_instance_id, experiment_response)
+        else: # Otherwise...
+            self._free_handler = self._free_experiment(lab_coordaddress, lab_session_id, experiment_instance_id)
+            self._free_handler.join(self._enqueuing_timeout)
 
 
     @threaded(_resource_manager)
     def _free_experiment(self, lab_coordaddress, lab_session_id, experiment_instance_id):
         try:
             labserver = self.locator.get_server_from_coordaddr(lab_coordaddress, ServerType.Laboratory)
-            labserver.free_experiment(SessionId.SessionId(lab_session_id))
+            experiment_response = labserver.free_experiment(SessionId.SessionId(lab_session_id))
         except Exception, e:
             log.log( ReservationConfirmer, log.LogLevel.Error, "Exception freeing experiment: %s" % e )
             log.log_exc( ReservationConfirmer, log.LogLevel.Warning )
 
             self.coordinator.mark_experiment_as_broken(experiment_instance_id, [str(e)])
-        
-        # TODO: enter in a loop until the experiment is finished. Then call:
-        self.coordinator.confirm_resource_disposal(experiment_instance_id)
+        else: # Everything went fine
+            self.coordinator.confirm_resource_disposal(lab_coordaddress.address, lab_session_id, experiment_instance_id, experiment_response)
 

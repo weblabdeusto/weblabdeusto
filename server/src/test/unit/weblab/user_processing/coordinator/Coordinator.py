@@ -16,6 +16,13 @@
 import unittest
 import time as time_mod
 
+try:
+    import json as json_mod
+    json = json_mod
+except ImportError:
+    import simplejson as json_module
+    json = json_module
+
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.sessions.SessionId as SessionId
 
@@ -52,8 +59,33 @@ class ConfirmerMock(object):
     def enqueue_confirmation(self, lab_coordaddress, reservation_id, experiment_instance_id, client_initial_data, server_initial_data):
         self.uses_confirm.append((lab_coordaddress, reservation_id, experiment_instance_id, client_initial_data, server_initial_data))
     def enqueue_free_experiment(self, lab_coordaddress, lab_session_id, experiment_instance_id):
-        self.uses_free.append((lab_coordaddress, lab_session_id, experiment_instance_id))
-        self.coordinator.confirm_resource_disposal(experiment_instance_id)
+        if lab_session_id is not None:
+            self.uses_free.append((lab_coordaddress, lab_session_id, experiment_instance_id))
+        experiment_response = None
+        self.coordinator.confirm_resource_disposal(lab_coordaddress, lab_session_id, experiment_instance_id, experiment_response)
+
+SLOW_CONFIRMER_TIME = 0.05
+
+class SlowConfirmerMock(object):
+    def __init__(self, coordinator, locator):
+        self.uses_confirm = []
+        self.uses_free    = []
+        self.coordinator  = coordinator
+        self.times        = 3
+    def enqueue_confirmation(self, lab_coordaddress, reservation_id, experiment_instance_id, client_initial_data, server_initial_data):
+        self.uses_confirm.append((lab_coordaddress, reservation_id, experiment_instance_id, client_initial_data, server_initial_data))
+        self.times        = 3
+    def enqueue_free_experiment(self, lab_coordaddress, lab_session_id, experiment_instance_id):
+        self.times -= 1
+        if self.times == 0:
+            experiment_response = json.dumps({ Coordinator.FINISH_FINISHED_MESSAGE : True, Coordinator.FINISH_DATA_MESSAGE : "final response" })
+        else:
+            experiment_response = json.dumps({ Coordinator.FINISH_FINISHED_MESSAGE : False, Coordinator.FINISH_ASK_AGAIN_MESSAGE : SLOW_CONFIRMER_TIME })
+
+        if lab_session_id is not None:
+            self.uses_free.append((lab_coordaddress, lab_session_id, experiment_instance_id))
+        self.coordinator.confirm_resource_disposal(lab_coordaddress, lab_session_id, experiment_instance_id, experiment_response)
+
 
 def coord_addr(coord_addr_str):
     return CoordAddress.CoordAddress.translate_address( coord_addr_str )
@@ -522,15 +554,24 @@ class CoordinatorTestCase(unittest.TestCase):
 
         # Then we put other user in the queue:
 
+        next_waiting_status = WQS.WaitingQueueStatus(0)
+
         status, reservation2_id = self.coordinator.reserve_experiment(ExperimentId("exp1","cat1"), DEFAULT_TIME, DEFAULT_PRIORITY, DEFAULT_INITIAL_DATA)
-        expected_status = WQS.WaitingQueueStatus(0)
+        expected_status = next_waiting_status
         self.assertEquals( expected_status, status )
         # And we finish the first reservation
 
         self.coordinator.finish_reservation(reservation1_id)
-        # The second reservation should now be in WaitingConfirmation status
+        # The second reservation should soon be in WaitingConfirmation status
 
         status = self.coordinator.get_reservation_status(reservation2_id)
+        timeout = 1.0
+        wait_time = 0.01
+        counter = timeout / wait_time
+        while status == next_waiting_status and counter >= 0:
+            time_mod.sleep(wait_time)
+            status = self.coordinator.get_reservation_status(reservation2_id)
+            counter -= 1
         expected_status = WQS.WaitingConfirmationQueueStatus(coord_addr("lab1:inst@machine"), DEFAULT_TIME)
         self.assertEquals( expected_status, status )
 
@@ -739,6 +780,30 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         self.coordinator.finish_reservation(reservation8_id)
         self.coordinator.confirm_experiment(ExperimentInstanceId('???','ud-pld','PLD experiments'), reservation10_id, SessionId.SessionId("the.session"), "{}")
         self.coordinator.finish_reservation(reservation10_id)
+
+
+
+class CoordinatorWithSlowConfirmerTestCase(unittest.TestCase):
+    def setUp(self):
+        locator_mock = None
+
+        self.cfg_manager = ConfigurationManager.ConfigurationManager()
+        self.cfg_manager.append_module(configuration_module)
+
+        self.coordinator = WrappedCoordinator(locator_mock, self.cfg_manager, ConfirmerClass = SlowConfirmerMock)
+        self.coordinator._clean()
+
+        self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('inst1', 'exp1','cat1'), Resource("res_type", "res_inst1"))
+
+    def test_confirming_free_experiment(self):
+        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId("exp1","cat1"), DEFAULT_TIME, DEFAULT_PRIORITY, DEFAULT_INITIAL_DATA)
+        expected_status = WQS.WaitingConfirmationQueueStatus(coord_addr("lab1:inst@machine"), DEFAULT_TIME)
+        self.assertEquals( expected_status, status )
+        previous = time_mod.time()
+        self.coordinator.finish_reservation(reservation1_id)
+        next = time_mod.time()
+        self.assertTrue( next - previous > SLOW_CONFIRMER_TIME * 2)
+        self.assertEquals( 0, self.coordinator.confirmer.times)
 
 def suite():
     return unittest.TestSuite( (

@@ -261,7 +261,6 @@ class PriorityQueueScheduler(Scheduler):
                 session.delete(reservation_to_delete) 
 
             session.commit()
-
             if enqueue_free_experiment_args is not None:
                 self.confirmer.enqueue_free_experiment(*enqueue_free_experiment_args)
         finally:
@@ -280,7 +279,7 @@ class PriorityQueueScheduler(Scheduler):
                         experiment_instance = experiment_instance
                         break
 
-                if experiment_instance is not None and lab_session_id is not None: # If the experiment instance doesn't exist, there is no need to call the free_experiment method
+                if experiment_instance is not None: # If the experiment instance doesn't exist, there is no need to call the free_experiment method
                     lab_coord_address  = experiment_instance.laboratory_coord_address
                     enqueue_free_experiment_args = (lab_coord_address, lab_session_id, experiment_instance.to_experiment_instance_id())
             self.reservations_manager.downgrade_confirmation(session, concrete_current_reservation.current_reservation_id)
