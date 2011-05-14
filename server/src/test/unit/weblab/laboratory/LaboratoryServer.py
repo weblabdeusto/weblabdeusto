@@ -26,6 +26,7 @@ import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
 import test.unit.configuration as configuration_module
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
+import weblab.user_processing.coordinator.Coordinator as Coordinator
 import weblab.laboratory.LaboratoryServer as LaboratoryServer
 import weblab.laboratory.IsUpAndRunningHandler as IsUpAndRunningHandler
 
@@ -34,6 +35,12 @@ import weblab.exceptions.laboratory.LaboratoryExceptions as LaboratoryExceptions
 import weblab.methods as weblab_methods
 
 import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
+try:
+    import json as json_module
+    json = json_module
+except ImportError:
+    import simplejson as json_mod
+    json = json_mod
 
 import FakeUrllib2
 import FakeSocket
@@ -166,7 +173,41 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self.lab.do_free_experiment(lab_session_id)
         self.assertEquals(1, self.fake_client.started)
         self.assertEquals(1, self.fake_client.disposed)
+
+    def test_free_experiment_twice(self):
+        self.assertEquals(0, self.fake_client.started)
+        self.assertEquals(0, self.fake_client.disposed)
+
+        lab_session_id, experiment_server_result = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
+        self.assertEquals(1, self.fake_client.started)
+        self.assertEquals(0, self.fake_client.disposed)
+
+        self.lab.do_free_experiment(lab_session_id)
+        self.assertEquals(1, self.fake_client.started)
+        self.assertEquals(1, self.fake_client.disposed)
+
+        # Will not do anything, since the experiment was already disposed
+        # This feature is not too interesting, since it just add yet another
+        # redundant layer of code to maintain :-(
+        self.lab.do_free_experiment(lab_session_id)
+        self.assertEquals(1, self.fake_client.started)
+        self.assertEquals(1, self.fake_client.disposed)
+
+        # However, this is in fact interesting. If the experiment said
+        # that it has not finished, the dispose method is called
+        lab_session_id, experiment_server_result = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
+        self.assertEquals(2, self.fake_client.started)
+        self.assertEquals(1, self.fake_client.disposed)
+        self.fake_client.next_dispose = json.dumps({ Coordinator.FINISH_FINISHED_MESSAGE: False })
+        self.lab.do_free_experiment(lab_session_id)
+        self.assertEquals(2, self.fake_client.started)
+        self.assertEquals(2, self.fake_client.disposed)
+        self.lab.do_free_experiment(lab_session_id)
+        # Now, let's check it
+        self.assertEquals(3, self.fake_client.disposed)
         
+
+      
     def test_resolve_experiment_address(self):
         lab_session_id, experiment_server_result = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         exp_coord_address = self.lab.do_resolve_experiment_address(lab_session_id)
@@ -185,34 +226,20 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         lab_session_id2, experiment_server_result = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
 
         self.assertEquals(2, self.fake_client.started)
-        self.assertEquals(1, self.fake_client.disposed)
-
-        # The new reservation has overriden the old one, which doesn't
-        # exist anymore
-        self.assertRaises(
-                LaboratoryExceptions.SessionNotFoundInLaboratoryServerException,
-                self.lab.do_send_command,
-                lab_session_id1,
-                'foo'
-            )
+        self.assertEquals(0, self.fake_client.disposed)
 
         lab_session_id3, experiment_server_result = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
 
-        # Again
-        self.assertRaises(
-                LaboratoryExceptions.SessionNotFoundInLaboratoryServerException,
-                self.lab.do_send_command,
-                lab_session_id2,
-                'foo'
-            )
-
         self.assertEquals(3, self.fake_client.started)
-        self.assertEquals(2, self.fake_client.disposed)
+        self.assertEquals(0, self.fake_client.disposed)
 
         self.lab.do_free_experiment(lab_session_id3)
 
+        # Laboratory server DOES NOT manage the state of the experiments. The 
+        # user_processing.coordination package does that.
+
         self.assertEquals(3, self.fake_client.started)
-        self.assertEquals(3, self.fake_client.disposed)
+        self.assertEquals(1, self.fake_client.disposed)
         
     def _fake_is_up_and_running_handlers(self):
         FakeUrllib2.reset()
@@ -361,12 +388,14 @@ class FakeClient(object):
         self.fail = False
         self.started  = 0
         self.disposed = 0
+        self.next_dispose = None
 
     def start_experiment(self, client_initial_data, server_initial_data):
         self.started += 1
 
     def dispose(self):
         self.disposed += 1
+        return self.next_dispose
 
     def send_command_to_device(self, command):
         if self.fail:

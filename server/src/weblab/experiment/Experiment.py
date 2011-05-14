@@ -14,6 +14,14 @@
 # 
 import weblab.exceptions.experiment.ExperimentExceptions as ExperimentExceptions
 
+import weblab.user_processing.coordinator.Coordinator as Coordinator
+try:
+    import json as json_mod
+    json = json_mod
+except ImportError:
+    import simplejson as json_module
+    json = json_module
+
 class Experiment(object):
 
     def __init__(self, *args, **kwargs):
@@ -55,29 +63,9 @@ class Experiment(object):
 
     def do_dispose(self):
         # 
-        # Default implementation: no, I haven't finished cleaning resources
+        # Default implementation: yes, I have finished.
         # 
-        return False
-
-    def do_are_resources_clean(self):
-        # 
-        # If dispose() returned "True" (i.e. it's still cleaning resources),
-        # it will keep calling this method until the resources are cleaned.
-        # Until this happens, the system will consider that the experiment
-        # can't be assigned to other student.
-        # 
-        # It will be a numeric + string value where the numeric value is:
-        #  - result > 0: It has not finished, and this is a stimation of how
-        #                long will it take. For instance, it can return that
-        #                it will take 3 seconds if it does not know how long
-        #                it will take.
-        #  - result == 0: It has finished.
-        #  - result == -1: There was an error.
-        # 
-        # The string value is the (result, string)
-        # 
-        return (0, '')
-        
+        return json.dumps({ Coordinator.FINISH_FINISHED_MESSAGE : True, Coordinator.FINISH_DATA_MESSAGE : ""})
 
     def do_is_up_and_running(self):
         # 

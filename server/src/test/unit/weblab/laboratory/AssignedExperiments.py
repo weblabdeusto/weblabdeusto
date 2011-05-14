@@ -91,13 +91,6 @@ class AssignedExperimentsTestCase(unittest.TestCase):
             result = self._assigned_micro_servers.reserve_experiment( self.exp_inst_id, "my session id" )
 
             self.assertEquals( clients_coord_addresses, result )
-
-            self.assertRaises(
-                LaboratoryExceptions.BusyExperimentException,
-                self._assigned_micro_servers.reserve_experiment,
-                self.exp_inst_id,
-                "my session id"
-            )
         check_reserve()
         self._assigned_micro_servers.free_experiment(self.exp_inst_id)
         check_reserve()

@@ -52,7 +52,6 @@ Experiment = [
         'send_file_to_device',
         'send_command_to_device',
         'should_experiment_finish',
-        'are_resources_clean',
         'dispose',
         'is_up_and_running',
     ]

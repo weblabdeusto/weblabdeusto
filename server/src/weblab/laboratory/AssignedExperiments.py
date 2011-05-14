@@ -66,9 +66,8 @@ class AssignedExperiments(object):
 
     def reserve_experiment(self, experiment_instance_id, lab_sess_id):
         experiment_handler = self._retrieve_experiment_handler( experiment_instance_id )
-        if experiment_handler.reserve(lab_sess_id):
-            return experiment_handler.experiment_coord_address
-        raise LaboratoryExceptions.BusyExperimentException( "Experiment was already reserved" )
+        experiment_handler.reserve(lab_sess_id)
+        return experiment_handler.experiment_coord_address
 
 
     def free_experiment(self, experiment_instance_id):

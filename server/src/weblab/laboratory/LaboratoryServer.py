@@ -32,6 +32,8 @@ import weblab.data.ServerType as ServerType
 import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
 import weblab.data.Command as Command
 
+import weblab.user_processing.coordinator.Coordinator as Coordinator
+
 import weblab.laboratory.AssignedExperiments as AssignedExperiments
 import weblab.laboratory.IsUpAndRunningHandler as IsUpAndRunningHandler
 
@@ -189,28 +191,36 @@ class LaboratoryServer(object):
     @logged(LogLevel.Info)
     @caller_check(ServerType.UserProcessing)
     def do_free_experiment(self, lab_session_id):
-        self._free_experiment(lab_session_id)
+        return self._free_experiment(lab_session_id)
 
     def _free_experiment(self, lab_session_id):
         if not self._session_manager.has_session(lab_session_id):
             return
 
         session = self._session_manager.get_session_locking(lab_session_id)
+        finished = True
+        experiment_response = None
         try:
             experiment_instance_id = session['experiment_instance_id']
-            self._free_experiment_from_assigned_experiments(experiment_instance_id)
+            experiment_response = self._free_experiment_from_assigned_experiments(experiment_instance_id)
+            if experiment_response is not None and experiment_response != 'ok' and experiment_response != '':
+                try:
+                    response = json.loads(experiment_response)
+                    finished = response.get(Coordinator.FINISH_FINISHED_MESSAGE)
+                except:
+                    import traceback
+                    traceback.print_exc()
         finally:
-            self._session_manager.delete_session_unlocking(lab_session_id)
+            if finished:
+                self._session_manager.delete_session_unlocking(lab_session_id)
+            else:
+                self._session_manager.modify_session_unlocking(lab_session_id, session)
+            return experiment_response
 
     def _free_experiment_from_assigned_experiments(self, experiment_instance_id):
-        try:
-            self._assigned_experiments.free_experiment(experiment_instance_id)
-        except LaboratoryExceptions.AlreadyFreedExperimentException:
-            return # Not a problem
-
         experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
         experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
-        experiment_server.dispose()
+        return experiment_server.dispose()
 
     @logged(LogLevel.Info)
     @caller_check(ServerType.UserProcessing)
