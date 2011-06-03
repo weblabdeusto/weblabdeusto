@@ -98,7 +98,7 @@ class FacebookMethod(WebFacadeServer.Method):
                        </head>
                     <body>
                          <div id="fb-root">
-                            <iframe width="100%%" frameborder="0" height="100%%" id="weblab_iframe" scrolling="no" src="%s?session_id=%s&facebook=true&mobile=no&%s">
+                            <iframe width="100%%" frameborder="0" height="100%%" id="weblab_iframe" scrolling="yes" src="%s?session_id=%s&facebook=true&mobile=no&%s">
                             </ifame>
                          </div>
                         <script src="http://connect.facebook.net/en_US/all.js"></script>
