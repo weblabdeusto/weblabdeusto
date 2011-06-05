@@ -136,6 +136,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                         experiment_usage.start_date,
                         experiment_usage.from_ip,
                         experiment_usage.coord_address.address,
+                        experiment_usage.reservation_id,
                         experiment_usage.end_date
                 )
             session.add(use)
@@ -462,7 +463,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
-    def _insert_user_used_experiment(self, user_login, experiment_name, experiment_category_name, start_time, origin, coord_address, end_date):
+    def _insert_user_used_experiment(self, user_login, experiment_name, experiment_category_name, start_time, origin, coord_address, reservation_id, end_date):
         """ IMPORTANT: SHOULD NEVER BE USED IN PRODUCTION, IT'S HERE ONLY FOR TESTS """
         session = self.Session()
         try:
@@ -472,14 +473,14 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                                     filter_by(name=experiment_name). \
                                     filter_by(category=category).one()
             experiment_id = experiment.id
-            exp_use = Model.DbUserUsedExperiment(user, experiment, start_time, origin, coord_address, end_date)
+            exp_use = Model.DbUserUsedExperiment(user, experiment, start_time, origin, coord_address, reservation_id, end_date)
             session.add(exp_use)
             session.commit()
             return experiment_id
         finally:
             session.close()
             
-    def _insert_ee_used_experiment(self, ee_name, experiment_name, experiment_category_name, start_time, origin, coord_address, end_date):
+    def _insert_ee_used_experiment(self, ee_name, experiment_name, experiment_category_name, start_time, origin, coord_address, reservation_id, end_date):
         """ IMPORTANT: SHOULD NEVER BE USED IN PRODUCTION, IT'S HERE ONLY FOR TESTS """
         session = self.Session()
         try:
@@ -488,7 +489,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             experiment = session.query(Model.DbExperiment). \
                                     filter_by(name=experiment_name). \
                                     filter_by(category=category).one()
-            exp_use = Model.DbExternalEntityUsedExperiment(ee, experiment, start_time, origin, coord_address, end_date)
+            exp_use = Model.DbExternalEntityUsedExperiment(ee, experiment, start_time, origin, coord_address, reservation_id, end_date)
             session.add(exp_use)
             session.commit()
         finally:

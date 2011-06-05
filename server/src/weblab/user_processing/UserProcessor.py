@@ -169,8 +169,9 @@ class UserProcessor(object):
             
         self._initialize_polling()
         self._session['experiment_usage'] = Usage.ExperimentUsage()
-        self._session['experiment_usage'].experiment_id = experiment_id
-        self._session['experiment_usage'].from_ip       = client_address.client_address
+        self._session['experiment_usage'].experiment_id  = experiment_id
+        self._session['experiment_usage'].reservation_id = reservation_id
+        self._session['experiment_usage'].from_ip        = client_address.client_address
 
         if status.status == WebLabQueueStatus.WebLabQueueStatus.RESERVED:
             self._process_reserved_status(status)

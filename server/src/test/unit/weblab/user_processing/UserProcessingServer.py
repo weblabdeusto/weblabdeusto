@@ -261,8 +261,8 @@ class UserProcessingServerTestCase(unittest.TestCase):
         # Two users: student2, that started before "any" but finished after "any", and "any" then. Both use
         # the same experiment. 
         # 
-        experiment_id = self.ups._db_manager._gateway._insert_user_used_experiment("student2", "ud-fpga", "FPGA experiments", time.time() - 3600, "192.168.1.1", "fpga:process1@scabb", time.time() - 1000)
-        self.ups._db_manager._gateway._insert_user_used_experiment("any", "ud-fpga", "FPGA experiments", time.time() - 1800, "127.0.0.1", "fpga:process1@scabb", time.time() - 1700)
+        experiment_id = self.ups._db_manager._gateway._insert_user_used_experiment("student2", "ud-fpga", "FPGA experiments", time.time() - 3600, "192.168.1.1", "fpga:process1@scabb", '5', time.time() - 1000)
+        self.ups._db_manager._gateway._insert_user_used_experiment("any", "ud-fpga", "FPGA experiments", time.time() - 1800, "127.0.0.1", "fpga:process1@scabb", '6', time.time() - 1700)
         if not use_experiment_id:
             experiment_id = None
         elif use_experiment_id == 'other':
@@ -271,9 +271,9 @@ class UserProcessingServerTestCase(unittest.TestCase):
         # 
         # student4 uses a different experiment, after both student2 and any
         # 
-        self.ups._db_manager._gateway._insert_user_used_experiment("student4", "ud-dummy", "Dummy experiments", time.time() - 60, "unknown", "fpga:process1@scabb", time.time() - 60)
+        self.ups._db_manager._gateway._insert_user_used_experiment("student4", "ud-dummy", "Dummy experiments", time.time() - 60, "unknown", "fpga:process1@scabb", '7', time.time() - 60)
 
-        self.ups._db_manager._gateway._insert_ee_used_experiment("ee1", "ud-dummy", "Dummy experiments", time.time() - 60, "unknown", "dummy:process1@plunder", time.time() - 60)
+        self.ups._db_manager._gateway._insert_ee_used_experiment("ee1", "ud-dummy", "Dummy experiments", time.time() - 60, "unknown", "dummy:process1@plunder", '8', time.time() - 60)
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
         
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)

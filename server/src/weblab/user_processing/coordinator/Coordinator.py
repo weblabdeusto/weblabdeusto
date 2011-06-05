@@ -35,6 +35,7 @@ import weblab.user_processing.coordinator.ReservationsManager as ReservationsMan
 import weblab.user_processing.coordinator.Confirmer as Confirmer
 import weblab.user_processing.coordinator.Scheduler as Scheduler
 import weblab.user_processing.coordinator.MetaScheduler as MetaScheduler
+import weblab.user_processing.coordinator.TemporalInformationStore as TemporalInformationStore
 
 import weblab.user_processing.coordinator.PriorityQueueScheduler as PriorityQueueScheduler
 import weblab.user_processing.coordinator.ResourcesCheckerThread as ResourcesCheckerThread
@@ -91,6 +92,9 @@ class Coordinator(object):
         self.reservations_manager = ReservationsManager.ReservationsManager(self._session_maker)
         self.resources_manager    = ResourcesManager.ResourcesManager(self._session_maker)
         self.meta_scheduler       = MetaScheduler.MetaScheduler()
+
+        self.batch_store    = TemporalInformationStore.TemporalInformationStore()
+        self.finished_store = TemporalInformationStore.TemporalInformationStore()
 
         self.time_provider = self.CoordinatorTimeProvider()
 
@@ -373,7 +377,6 @@ class Coordinator(object):
             self.confirmer.enqueue_free_experiment(lab_coordaddress, lab_session_id, experiment_instance_id)
         else:
             # Otherwise we in fact remove the resource
-            # TODO: do something with "information_to_store"
             session = self._session_maker()
             try:
                 resource_instance = self.resources_manager.get_resource_instance_by_experiment_instance_id(experiment_instance_id)
@@ -381,6 +384,8 @@ class Coordinator(object):
                 session.commit()
             finally:
                 session.close()
+
+            # TODO: do something with "information_to_store"
 
     ################################################################
     #

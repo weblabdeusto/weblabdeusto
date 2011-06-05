@@ -62,6 +62,7 @@ class ExperimentUsage(object):
         self.end_date               = None # seconds.millis since 1970 in GMT
         self.from_ip                = u"unknown"
         self.experiment_id          = None # weblab.data.experiments.ExperimentId.ExperimentId
+        self.reservation_id         = None # string, the reservation identifier
         self.coord_address          = None # voodoo.gen.coordinator.CoordAddress.CoordAddress
         self.commands               = []   # [CommandSent]
         self.sent_files             = []   # [FileSent]

@@ -373,11 +373,12 @@ class DbUserUsedExperiment(Base):
     end_date_micro   = Column(Integer)
     origin           = Column(String(255), nullable = False)
     coord_address    = Column(String(255), nullable = False)
+    reservation_id   = Column(String(50))
     
     user       = relation("DbUser", backref=backref("experiment_uses", order_by=id))    
     experiment = relation("DbExperiment", backref=backref("user_uses", order_by=id))  
     
-    def __init__(self, user, experiment, start_date, origin, coord_address, end_date=None):
+    def __init__(self, user, experiment, start_date, origin, coord_address, reservation_id, end_date):
         super(DbUserUsedExperiment, self).__init__()
         link_relation(self, user, "user")
         link_relation(self, experiment, "experiment")
@@ -385,9 +386,10 @@ class DbUserUsedExperiment(Base):
         self.end_date, self.end_date_micro = _timestamp_to_splitted_utc_datetime(end_date)
         self.origin = origin
         self.coord_address = coord_address
+        self.reservation_id = reservation_id
 
     def __repr__(self):
-        return "DbUserUsedExperiment(id = %r, user = %r, experiment = %r, start_date = %r, start_date_micro = %i, end_date = %r, end_date_micro = %i, origin = '%s', coord_address = '%s')" % (
+        return "DbUserUsedExperiment(id = %r, user = %r, experiment = %r, start_date = %r, start_date_micro = %i, end_date = %r, end_date_micro = %i, origin = '%s', coord_address = '%s', reservation_id = %r)" % (
             self.id,
             self.user,
             self.experiment,
@@ -396,7 +398,8 @@ class DbUserUsedExperiment(Base):
             self.end_date,
             self.end_date_micro,
             self.origin,
-            self.coord_address
+            self.coord_address,
+            self.reservation_id
         )       
         
     def to_business_light(self):
@@ -405,6 +408,7 @@ class DbUserUsedExperiment(Base):
         usage.start_date        = _splitted_utc_datetime_to_timestamp(self.start_date, self.start_date_micro)
         usage.end_date          = _splitted_utc_datetime_to_timestamp(self.end_date, self.end_date_micro)
         usage.from_ip           = self.origin
+        usage.reservation_id    = self.reservation_id
         usage.experiment_id     = ExperimentId(self.experiment.name, self.experiment.category.name)
         usage.coord_address     = CoordAddress.CoordAddress.translate_address(self.coord_address)
         return usage    
@@ -578,21 +582,23 @@ class DbExternalEntityUsedExperiment(Base):
     end_date_micro   = Column(Integer)
     origin           = Column(String(255), nullable = False)
     coord_address    = Column(String(255), nullable = False)
+    reservation_id   = Column(String(50))
     
     ee         = relation("DbExternalEntity", backref=backref("experiment_uses", order_by=id))  
     experiment = relation("DbExperiment", backref=backref("ee_uses", order_by=id))
     
-    def __init__(self, ee, experiment, start_date, origin, coord_address, end_date=None):
+    def __init__(self, ee, experiment, start_date, origin, coord_address, reservation_id, end_date):
         super(DbExternalEntityUsedExperiment, self).__init__()
         link_relation(self, ee, "ee")
         link_relation(self, experiment, "experiment")
         self.start_date, self.start_date_micro = _timestamp_to_splitted_utc_datetime(start_date)
         self.end_date, self.end_date_micro = _timestamp_to_splitted_utc_datetime(end_date)
+        self.reservation_id = reservation_id
         self.origin = origin
         self.coord_address = coord_address
 
     def __repr__(self):
-        return "DbExternalEntityUsedExperiment(id = %r, ee = %r, experiment = %r, start_date = %r, start_date_micro = %i, end_date = %r, end_date_micro = %i, origin = '%s', coord_address = '%s')" % (
+        return "DbExternalEntityUsedExperiment(id = %r, ee = %r, experiment = %r, start_date = %r, start_date_micro = %i, end_date = %r, end_date_micro = %i, origin = '%s', coord_address = '%s', reservation_id = %r)" % (
             self.id,
             self.ee,
             self.experiment,
@@ -601,7 +607,8 @@ class DbExternalEntityUsedExperiment(Base):
             self.end_date,
             self.end_date_micro,
             self.origin,
-            self.coord_address
+            self.coord_address,
+            self.reservation_id
         )   
     
     def to_dto(self):
