@@ -18,7 +18,26 @@ class AddingPriorityToPermissionParameterPatch(Patch):
         parameter = Model.DbPermissionTypeParameter(permission_type = experiment_allowed, name = 'priority' , datatype = 'int', description = 'Priority (the lower value the higher priority)')
         session.add(parameter)
 
+class AddingReservationIdToUserUsedExperiment(Patch):
+
+    table_name = 'UserUsedExperiment'
+
+    def check(self, cursor):
+        return cursor.execute("DESC %s reservation_id" % self.table_name) == 0
+
+    def apply(self, cursor):
+        cursor.execute("ALTER TABLE %s ADD COLUMN reservation_id CHAR(50)" % self.table_name)
+
+class AddingReservationIdToEntityUsedExperiment(AddingReservationIdToUserUsedExperiment):
+    
+    table_name = 'ExternalEntityUsedExperiment'
+
+
 if __name__ == '__main__':
-    applier = PatchApplier("weblab", "weblab", "WebLabTests", [AddingPriorityToPermissionParameterPatch])
+    applier = PatchApplier("weblab", "weblab", "WebLabTests", [
+                                AddingPriorityToPermissionParameterPatch, 
+                                AddingReservationIdToUserUsedExperiment, 
+                                AddingReservationIdToEntityUsedExperiment
+                            ])
     applier.execute()
 
