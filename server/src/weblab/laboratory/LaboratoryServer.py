@@ -365,7 +365,7 @@ class LaboratoryServer(object):
         
         # Call the async method which will run on its own thread. Store the object 
         # it returns, so that we can know whether it has finished.
-        threadobj = self._send_async_file_t(self, session, file_content, file_info)
+        threadobj = self._send_async_file_t(session, file_content, file_info)
         
         # Create a new identifier for the new request
         # TODO: Consider refactoring this

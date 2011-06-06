@@ -370,6 +370,51 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
                 break  
         return 
 
+    def test_send_async_file_ok(self):
+        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id)
+        files_sent = [ ("foo", "file_info1"), ("bar", "file_info2") ]
+        
+        responses = ["result1", "result2" ]
+        request_ids = []
+        
+        self.fake_client.responses = responses[:]
+
+        # We will send the commands asynchronously.
+        for file in files_sent:
+            reqid = self.lab.do_send_async_file(lab_session_id, file[0], file[1])
+            request_ids.append(reqid)
+            
+        # Build a dictionary relating the ids to the expected responses
+        expected = dict(zip(request_ids, responses))
+        
+        is_first_time = True
+        
+        # We don't know how much time it will take so we have to keep checking
+        # until we are done, for a maximum of 3 seconds.
+        time_start = time.time()
+        while(len(expected) > 0):
+            
+            result = self.lab.do_check_async_command_status(lab_session_id, request_ids)
+            if is_first_time:
+                self.assertEquals(2, len(result))
+                is_first_time = False
+            
+            time_now = time.time()
+            if(time_now - time_start > 3000):
+                self.assertTrue(False, "Timeout while trying to run async send_file")
+                
+            # Check every remaining command
+            for id in expected.keys():
+                tup = result[id]
+                self.assertTrue( tup[0] in ("running", "ok", "error") )
+                if(tup[0] == "ok"):
+                    self.assertEquals(expected[id], tup[1])
+                    del expected[id]
+                elif(tup[0] == "error"):
+                    self.assertTrue(False, "Async send_file reported an error: " + tup[1] )
+                    del expected[id]
+
+        self.assertTrue( self.fake_client.verify_files(files_sent) )
 
     def test_send_file_ok(self):
         lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id)
@@ -383,7 +428,32 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
             self.assertEquals(cur_response, result.get_command_string())
 
         self.assertTrue( self.fake_client.verify_files(files_sent) )
- 
+    
+    def test_send_async_file_fail(self):
+        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id)
+        self.fake_client.fail = True
+        
+        reqid = self.lab.do_send_async_file(lab_session_id, "foo", "file_info")
+        
+        # We don't know how much time it will take so we have to keep checking
+        # until we are done, for a maximum of 3 seconds.
+        time_start = time.time()
+        while(True):
+            time_now = time.time()
+            if(time_now - time_start > 3000):
+                self.assertTrue(False, "Timeout while trying to run async commands")
+                
+            result = self.lab.do_check_async_command_status(lab_session_id, (reqid,))
+            tup = result[reqid]
+                
+            self.assertTrue( tup[0] in ("running", "ok", "error") )     
+            self.assertNotEquals("ok", tup[0], "Expected an error")
+            if(tup[0] != "running"):
+                self.assertTrue("error", tup[0])
+                self.assertTrue(tup[1] is not None)
+                break  
+        return 
+    
     def test_send_file_fail(self):
         lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id)
         self.fake_client.fail = True
