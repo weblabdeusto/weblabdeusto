@@ -58,11 +58,11 @@ class ConfirmerMock(object):
         self.coordinator  = coordinator
     def enqueue_confirmation(self, lab_coordaddress, reservation_id, experiment_instance_id, client_initial_data, server_initial_data):
         self.uses_confirm.append((lab_coordaddress, reservation_id, experiment_instance_id, client_initial_data, server_initial_data))
-    def enqueue_free_experiment(self, lab_coordaddress, lab_session_id, experiment_instance_id):
+    def enqueue_free_experiment(self, lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id):
         if lab_session_id is not None:
-            self.uses_free.append((lab_coordaddress, lab_session_id, experiment_instance_id))
+            self.uses_free.append((lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id))
         experiment_response = None
-        self.coordinator.confirm_resource_disposal(lab_coordaddress, lab_session_id, experiment_instance_id, experiment_response)
+        self.coordinator.confirm_resource_disposal(lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id, experiment_response)
 
 SLOW_CONFIRMER_TIME = 0.05
 
@@ -75,7 +75,7 @@ class SlowConfirmerMock(object):
     def enqueue_confirmation(self, lab_coordaddress, reservation_id, experiment_instance_id, client_initial_data, server_initial_data):
         self.uses_confirm.append((lab_coordaddress, reservation_id, experiment_instance_id, client_initial_data, server_initial_data))
         self.times        = 3
-    def enqueue_free_experiment(self, lab_coordaddress, lab_session_id, experiment_instance_id):
+    def enqueue_free_experiment(self, lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id):
         self.times -= 1
         if self.times == 0:
             experiment_response = json.dumps({ Coordinator.FINISH_FINISHED_MESSAGE : True, Coordinator.FINISH_DATA_MESSAGE : "final response" })
@@ -83,8 +83,8 @@ class SlowConfirmerMock(object):
             experiment_response = json.dumps({ Coordinator.FINISH_FINISHED_MESSAGE : False, Coordinator.FINISH_ASK_AGAIN_MESSAGE : SLOW_CONFIRMER_TIME })
 
         if lab_session_id is not None:
-            self.uses_free.append((lab_coordaddress, lab_session_id, experiment_instance_id))
-        self.coordinator.confirm_resource_disposal(lab_coordaddress, lab_session_id, experiment_instance_id, experiment_response)
+            self.uses_free.append((lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id))
+        self.coordinator.confirm_resource_disposal(lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id, experiment_response)
 
 
 def coord_addr(coord_addr_str):

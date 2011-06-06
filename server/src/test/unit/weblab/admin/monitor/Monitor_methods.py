@@ -49,7 +49,7 @@ class ConfirmerMock(object):
     def enqueue_confirmation(self, lab_coordaddress, reservation_id, experiment_instance_id, client_initial_data, server_initial_data):
         pass
 
-    def enqueue_free_experiment(self, lab_coordaddress, lab_session_id, experiment_instance_id):
+    def enqueue_free_experiment(self, lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id):
         pass
 
 class MonitorMethodsTestCase(unittest.TestCase):

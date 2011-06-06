@@ -85,7 +85,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.mocker.result((mock_laboratory,))
 
         self.mocker.replay()
-        self.confirmer.enqueue_free_experiment(self.lab_address, 'lab_session_id', ExperimentInstanceId('inst1','exp1','cat1'))
+        self.confirmer.enqueue_free_experiment(self.lab_address, '5', 'lab_session_id', ExperimentInstanceId('inst1','exp1','cat1'))
         self.confirmer._free_handler.join()
 
     def test_free_experiment_raises_exception(self):
@@ -99,7 +99,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.mocker.throw( Exception('foo') )
 
         self.mocker.replay()
-        self.confirmer.enqueue_free_experiment(self.lab_address, 'lab_session_id', ExperimentInstanceId('inst1','exp1','cat1'))
+        self.confirmer.enqueue_free_experiment(self.lab_address, '5', 'lab_session_id', ExperimentInstanceId('inst1','exp1','cat1'))
         self.confirmer._free_handler.join()
 
         self.assertEquals( None, self.confirmer._free_handler.raised_exc )

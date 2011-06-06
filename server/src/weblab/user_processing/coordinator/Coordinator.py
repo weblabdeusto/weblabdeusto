@@ -337,6 +337,7 @@ class Coordinator(object):
 
         if still_initializing:
             # TODO XXX 
+            # TODO XXX: maybe it does not make sense. Given that finish also can return a result
             raise NotImplementedError("Not yet implemented: still_initializing")
 
         if batch: # It has already finished!
@@ -353,7 +354,7 @@ class Coordinator(object):
     # was cleaned
     #
     @logged()
-    def confirm_resource_disposal(self, lab_coordaddress, lab_session_id, experiment_instance_id, experiment_response):
+    def confirm_resource_disposal(self, lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id, experiment_response):
 
         experiment_finished  = True
         information_to_store = None
@@ -374,7 +375,7 @@ class Coordinator(object):
         if not experiment_finished:
             time.sleep(time_remaining)
             # We just ignore the data retrieved, if any, and perform the query again
-            self.confirmer.enqueue_free_experiment(lab_coordaddress, lab_session_id, experiment_instance_id)
+            self.confirmer.enqueue_free_experiment(lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id)
         else:
             # Otherwise we in fact remove the resource
             session = self._session_maker()
