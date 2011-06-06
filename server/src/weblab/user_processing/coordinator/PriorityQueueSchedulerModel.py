@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint, Text
+from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint, Text, DateTime
 from sqlalchemy.orm import relation, backref
 
 from weblab.user_processing.coordinator.CoordinatorModel import Base, RESERVATION_ID_SIZE, ResourceType, Reservation, SchedulingSchemaIndependentSlotReservation
@@ -40,6 +40,8 @@ class ConcreteCurrentReservation(Base):
     priority                         = Column(Integer)
     lab_session_id                   = Column(String(255))
     initial_configuration            = Column(Text)
+    timestamp_before                 = Column(DateTime)
+    timestamp_after                  = Column(DateTime)
 
     def __init__(self, slot_reservation, current_reservation_id, time, start_time, priority):
         self.slot_reservation              = slot_reservation
@@ -49,16 +51,20 @@ class ConcreteCurrentReservation(Base):
         self.priority                      = priority
         self.lab_session_id                = None
         self.initial_configuration         = None
+        self.timestamp_before              = None
+        self.timestamp_after               = None
 
     def __repr__(self):
-        return SUFFIX + "ConcreteCurrentReservation(%s, %s, %s, %s, %s, %s, %s)" % (
+        return SUFFIX + "ConcreteCurrentReservation(%s, %s, %s, %s, %s, %s, %s, %s, %s)" % (
                             repr(self.slot_reservation),
                             repr(self.current_reservation_id),
                             repr(self.time),
                             repr(self.lab_session_id),
                             repr(self.start_time),
                             repr(self.priority),
-                            repr(self.initial_configuration)
+                            repr(self.initial_configuration),
+                            repr(self.timestamp_before),
+                            repr(self.timestamp_after),
                         )
 
 class WaitingReservation(Base):

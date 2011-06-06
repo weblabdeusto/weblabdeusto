@@ -13,6 +13,8 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+import time
+import datetime
 import unittest
 import time as time_mod
 
@@ -400,6 +402,7 @@ class CoordinatorTestCase(unittest.TestCase):
         "Reserve and confirm the reservation"
 
         status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId("exp1","cat1"), DEFAULT_TIME, DEFAULT_PRIORITY, DEFAULT_INITIAL_DATA)
+        now = datetime.datetime.fromtimestamp(int(time.time()))
         expected_status = WQS.WaitingConfirmationQueueStatus(coord_addr("lab1:inst@machine"), DEFAULT_TIME)
         self.assertEquals( expected_status, status )
 
@@ -409,7 +412,7 @@ class CoordinatorTestCase(unittest.TestCase):
 
         self.coordinator.confirm_experiment(ExperimentInstanceId('inst1', 'exp1', 'cat1'), reservation1_id, SessionId.SessionId("mysessionid"), "{}")
         status = self.coordinator.get_reservation_status(reservation1_id)
-        expected_status = WQS.ReservedQueueStatus(coord_addr("lab1:inst@machine"), SessionId.SessionId("mysessionid"), DEFAULT_TIME, "{}")
+        expected_status = WQS.ReservedQueueStatus(coord_addr("lab1:inst@machine"), SessionId.SessionId("mysessionid"), DEFAULT_TIME, "{}", now, now)
         self.assertEquals( expected_status, status )
 
 

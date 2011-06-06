@@ -342,7 +342,7 @@ class Coordinator(object):
 
         if batch: # It has already finished!
             # TODO: XXX
-            self.batch_store.put(reservation_id, information_to_store)
+            self.batch_store.put(reservation_id, initial_configuration)
             raise NotImplementedError("Not yet implemented: batch")
 
         schedulers = self._get_schedulers_per_reservation(reservation_id)

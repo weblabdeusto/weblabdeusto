@@ -170,10 +170,12 @@ class PriorityQueueScheduler(Scheduler):
                 obtained_time         = concrete_current_reservation.time
                 lab_session_id        = concrete_current_reservation.lab_session_id
                 initial_configuration = concrete_current_reservation.initial_configuration
+                timestamp_before      = concrete_current_reservation.timestamp_before
+                timestamp_after       = concrete_current_reservation.timestamp_after
                 if lab_session_id is None:
                     return WQS.WaitingConfirmationQueueStatus(lab_coord_address, obtained_time)
                 else:
-                    return WQS.ReservedQueueStatus(lab_coord_address, SessionId.SessionId(lab_session_id), obtained_time, initial_configuration)
+                    return WQS.ReservedQueueStatus(lab_coord_address, SessionId.SessionId(lab_session_id), obtained_time, initial_configuration, timestamp_before, timestamp_after)
 
             resource_type = session.query(ResourceType).filter_by(name = self.resource_type_name).one()
             waiting_reservation = session.query(WaitingReservation).filter_by(reservation_id = reservation_id, resource_type_id = resource_type.id).first()
@@ -236,6 +238,7 @@ class PriorityQueueScheduler(Scheduler):
 
             concrete_current_reservation.lab_session_id        = lab_session_id.id
             concrete_current_reservation.initial_configuration = initial_configuration
+            concrete_current_reservation.timestamp_after       = datetime.datetime.now()
 
             session.commit()
         finally:
@@ -372,6 +375,7 @@ class PriorityQueueScheduler(Scheduler):
                     slot_reservation = self.resources_manager.acquire_resource(session, free_instance)
                     concrete_current_reservation = ConcreteCurrentReservation(slot_reservation, first_waiting_reservation.reservation_id, 
                                                 first_waiting_reservation.time, self.time_provider.get_time(), first_waiting_reservation.priority)
+                    concrete_current_reservation.timestamp_before = datetime.datetime.now()
 
                     client_initial_data = first_waiting_reservation.reservation.client_initial_data
 

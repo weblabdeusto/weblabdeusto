@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+import datetime
 import unittest
 from weblab.user_processing.coordinator.MetaScheduler import MetaScheduler
 
@@ -43,8 +44,8 @@ class MetaSchedulerTestCase(unittest.TestCase):
         self.wc1     = WQS.WaitingConfirmationQueueStatus("coord_adress1", 50)
         self.wc2     = WQS.WaitingConfirmationQueueStatus("coord_adress2", 60)
 
-        self.res1    = WQS.ReservedQueueStatus("coord_address1", "lab_session_id1", 50, None)
-        self.res2    = WQS.ReservedQueueStatus("coord_address2", "lab_session_id2", 60, "foo")
+        self.res1    = WQS.ReservedQueueStatus("coord_address1", "lab_session_id1", 50, None, datetime.datetime.now(), datetime.datetime.now())
+        self.res2    = WQS.ReservedQueueStatus("coord_address2", "lab_session_id2", 60, "foo", datetime.datetime.now(), datetime.datetime.now())
 
 
     def test_select_best_reservation_status_zero(self):

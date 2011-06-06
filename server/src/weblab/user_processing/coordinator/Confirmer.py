@@ -61,7 +61,7 @@ class ReservationConfirmer(object):
             self.coordinator.confirm_experiment(experiment_instance_id, reservation_id, lab_session_id, server_initialization_response)
 
     def enqueue_free_experiment(self, lab_coordaddress_str, reservation_id, lab_session_id, experiment_instance_id):
-        # We can stablish a politic such as using 
+        # We can stablish a policy such as using 
         # thread pools or a queue of threads or something
         # like that... here
         lab_coordaddress = CoordAddress.CoordAddress.translate_address(lab_coordaddress_str)

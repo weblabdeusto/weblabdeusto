@@ -13,6 +13,8 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+import time
+import datetime
 import unittest
 import mocker
 
@@ -122,11 +124,12 @@ class ConfirmerTestCase(mocker.MockerTestCase):
 
         self.mocker.replay()
         status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5, 'sample initial data')
+        now = datetime.datetime.fromtimestamp(int(time.time())) # Remove milliseconds as MySQL do
         self.coordinator.confirmer._confirm_handler.join()
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
         
         status = self.coordinator.get_reservation_status(reservation1_id)
-        expected_status =  WQS.ReservedQueueStatus(CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, 30, '{}')
+        expected_status =  WQS.ReservedQueueStatus(CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, 30, '{}', now, now)
         self.assertEquals( expected_status, status )
 
     def test_reject_experiment_laboratory_raises_exception(self):

@@ -206,6 +206,17 @@ class UserProcessor(object):
             )
         self._session['experiment_usage'].start_date    = self._utc_timestamp()
 
+        if status.initial_configuration is not None:
+            timestamp_after  = self.time_module.mktime(status.timestamp_after.timetuple())
+            timestamp_before = self.time_module.mktime(status.timestamp_before.timetuple())
+
+            command_sent = Usage.CommandSent(Command.Command("@initial@"), timestamp_before)
+            command_sent.response        = Command.Command(status.initial_configuration)
+            command_sent.timestamp_after = timestamp_after
+
+            self._session['experiment_usage'].append_command(command_sent)
+
+
         lab_server        = self._locator.get_server_from_coordaddr(
                     status.coord_address,
                     ServerType.Laboratory
