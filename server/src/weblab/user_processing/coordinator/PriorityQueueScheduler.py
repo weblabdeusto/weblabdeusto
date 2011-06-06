@@ -373,8 +373,10 @@ class PriorityQueueScheduler(Scheduler):
 
                     self.reservations_manager.confirm(session, first_waiting_reservation.reservation_id)
                     slot_reservation = self.resources_manager.acquire_resource(session, free_instance)
+                    total_time = first_waiting_reservation.time
+                    start_time = self.time_provider.get_time()
                     concrete_current_reservation = ConcreteCurrentReservation(slot_reservation, first_waiting_reservation.reservation_id, 
-                                                first_waiting_reservation.time, self.time_provider.get_time(), first_waiting_reservation.priority)
+                                                        total_time, start_time, first_waiting_reservation.priority)
                     concrete_current_reservation.timestamp_before = datetime.datetime.now()
 
                     client_initial_data = first_waiting_reservation.reservation.client_initial_data
@@ -427,7 +429,12 @@ class PriorityQueueScheduler(Scheduler):
                         # so this method might take too long. That's why we enqueue these
                         # petitions and run them in other threads.
                         # 
-                        server_initial_data = "{}"
+                        deserialized_server_initial_data = {
+                                'priority.queue.slot.length' : '%s' % total_time,
+                                'priority.queue.slot.start'  : '%s' % datetime.datetime.fromtimestamp(start_time),
+                                'priority.queue.slot.end'    : '%s' % (datetime.datetime.fromtimestamp(start_time) + datetime.timedelta(seconds = total_time)),
+                            }
+                        server_initial_data = json.dumps(deserialized_server_initial_data)
                         # server_initial_data will contain information such as "what was the last experiment used?".
                         # If a single resource was used by a binary experiment, then the next time may not require reprogramming the device
                         self.confirmer.enqueue_confirmation(laboratory_coord_address, reservation_id, experiment_instance_id, client_initial_data, server_initial_data)
