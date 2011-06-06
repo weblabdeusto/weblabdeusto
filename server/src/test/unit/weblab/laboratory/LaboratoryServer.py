@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
+#         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
 import unittest
@@ -37,6 +38,7 @@ import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
 
 import FakeUrllib2
 import FakeSocket
+import time
 
 # 
 # In this file you'll find three test cases:
@@ -272,6 +274,53 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
                 cfg_manager
             )
 
+
+    def test_send_async_command_ok(self):
+        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id)
+        commands_sent = [ "foo", "bar" ]
+        
+        responses = ["result1", "result2" ]
+        request_ids = []
+        
+        self.fake_client.responses = responses[:]
+
+        # We will send the commands asynchronously.
+        for command in commands_sent:
+            reqid = self.lab.do_send_async_command(lab_session_id, Command.Command(command))
+            request_ids.append(reqid)
+            
+        # Build a dictionary relating the ids to the expected responses
+        expected = dict(zip(request_ids, responses))
+        
+        is_first_time = True
+        
+        # We don't know how much time it will take so we have to keep checking
+        # until we are done, for a maximum of 3 seconds.
+        time_start = time.time()
+        while(len(expected) > 0):
+            
+            result = self.lab.do_check_async_command_status(lab_session_id, request_ids)
+            if is_first_time:
+                self.assertEquals(2, len(result))
+                is_first_time = False
+            
+            time_now = time.time()
+            if(time_now - time_start > 3000):
+                self.assertTrue(False, "Timeout while trying to run async commands")
+                
+            # Check every remaining command
+            for id in expected.keys():
+                tup = result[id]
+                self.assertTrue( tup[0] in ("running", "ok", "error") )
+                if(tup[0] == "ok"):
+                    self.assertEquals(expected[id], tup[1])
+                    del expected[id]
+                elif(tup[0] == "error"):
+                    self.assertTrue(False, "Async command reported an error: " + tup[1] )
+                    del expected[id]
+
+        self.assertTrue( self.fake_client.verify_commands(commands_sent) )
+
     def test_send_command_ok(self):
         lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id)
         commands_sent = [ "foo", "bar" ]
@@ -295,6 +344,32 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
             lab_session_id, 
             Command.Command("foo")
         )
+        
+    def test_send_async_command_fail(self):
+        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id)
+        self.fake_client.fail = True
+        
+        reqid = self.lab.do_send_async_command(lab_session_id, Command.Command("foo"))
+        
+        # We don't know how much time it will take so we have to keep checking
+        # until we are done, for a maximum of 3 seconds.
+        time_start = time.time()
+        while(True):
+            time_now = time.time()
+            if(time_now - time_start > 3000):
+                self.assertTrue(False, "Timeout while trying to run async commands")
+                
+            result = self.lab.do_check_async_command_status(lab_session_id, (reqid,))
+            tup = result[reqid]
+                
+            self.assertTrue( tup[0] in ("running", "ok", "error") )     
+            self.assertNotEquals("ok", tup[0], "Expected an error")
+            if(tup[0] != "running"):
+                self.assertTrue("error", tup[0])
+                self.assertTrue(tup[1] is not None)  
+                break  
+        return 
+
 
     def test_send_file_ok(self):
         lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id)

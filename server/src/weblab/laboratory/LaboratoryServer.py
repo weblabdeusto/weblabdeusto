@@ -409,6 +409,9 @@ class LaboratoryServer(object):
         for req_id in request_identifiers:
             req = self._async_requests[experiment_instance_id][req_id]
             
+            status = None
+            contents = None
+            
             if(req.raised_exc is not None):
                 status = AsyncRequest.STATUS_ERROR
                 contents = str(req.raised_exc)
@@ -462,7 +465,7 @@ class LaboratoryServer(object):
         
         # Call the async method which will run on its own thread. Store the object 
         # it returns, so that we can know whether it has finished.
-        threadobj = self._send_async_command_t(self, session, command)
+        threadobj = self._send_async_command_t(session, command)
         
         # Create a new identifier for the new request
         # TODO: Consider refactoring this
