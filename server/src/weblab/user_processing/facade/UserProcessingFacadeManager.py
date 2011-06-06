@@ -106,6 +106,34 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
         sess_id = self._parse_session_id(session_id)
         response = self._server.send_file(sess_id, file_content, file_info)
         return response
+    
+    # TODO: Implement this asynchronously. For now it's just a copy
+    # of the standard send_file.
+    @logged(except_for=(('file_content',2),))
+    @RFM.check_exceptions(EXCEPTIONS)
+    @RFM.check_nullable
+    def send_async_file(self, session_id, file_content, file_info):
+        """ send_async_file(session_id, file_content, file_info)
+            raise SessionNotFoundException
+        """
+        sess_id = self._parse_session_id(session_id)
+        response = self._server.send_async_file(sess_id, file_content, file_info)
+        return response
+    
+    # TODO: Implement this asynchronously. For now it's just
+    # a copy of the standard send_command
+    @logged()
+    @RFM.check_exceptions(EXCEPTIONS)
+    @RFM.check_nullable
+    def send_async_command(self, session_id, command):
+        """ send_command(session_id, command)
+            raise SessionNotFoundException
+        """
+        sess_id = self._parse_session_id(session_id)
+        cmd     = self._parse_command(command)
+
+        response = self._server.send_async_command(sess_id, cmd)
+        return response
 
     @logged()
     @RFM.check_exceptions(EXCEPTIONS)

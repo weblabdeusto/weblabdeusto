@@ -244,8 +244,6 @@ class VMExperiment(Experiment.Experiment):
                 VMExperiment,
                 log.LogLevel.Warning
             )
-                
-
     
     def generate_session_id(self):
         """ Generates and returns a unique id """

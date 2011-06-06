@@ -63,6 +63,10 @@ WEBLAB_USER_PROCESSING_SERVER_SESSION_POOL_ID      = "core_session_pool_id"
 WEBLAB_USER_PROCESSING_SERVER_CLEAN_COORDINATOR    = "core_coordinator_clean"
 
 class UserProcessingServer(object):
+    """
+    The UserProcessingServer will receive client requests, which will be forwarded
+    to the appropriate UserProcessor for the specified session identifier.
+    """
 
     FACADE_SERVERS = (
                         UserProcessingFacadeServer.UserProcessingRemoteFacadeServer,
@@ -290,6 +294,58 @@ class UserProcessingServer(object):
         try:
             self._check_user_not_expired_and_poll( user_processor )
             return user_processor.send_command( command )
+        finally:
+            user_processor.update_latest_timestamp()
+            
+    # TODO: Finish implementing this
+    @logged(LogLevel.Info, except_for=(('file_content',2),))
+    @check_session(*check_session_params)
+    def send_async_file(self, session, file_content, file_info):
+        """ send_file(session_id, file_content, file_info)
+
+        Sends file to the experiment.
+        """
+        user_processor = self._load_user(session)
+        try:
+            self._check_user_not_expired_and_poll( user_processor )
+            return user_processor.send_async_file( file_content, file_info )
+        finally:
+            user_processor.update_latest_timestamp()
+
+    # TODO: This method should now be finished. Will need to be verified, though.
+    @logged(LogLevel.Info)
+    @check_session(*check_session_params)
+    def check_async_command_status(self, session, request_identifiers):
+        """ 
+        check_async_command_status(session_id, request_identifiers)
+        
+        Checks the status of several asynchronous commands. 
+        
+        @param session: Session id
+        @param request_identifiers: A list of the request identifiers of the
+        requests to check. 
+        @return: Dictionary by request-id of the tuples: (status, content)
+        """
+        user_processor = self._load_user(session)
+        try:
+            self._check_user_not_expired_and_poll( user_processor )
+            return user_processor.check_async_command_status( request_identifiers )
+        finally:
+            user_processor.update_latest_timestamp()
+
+    # TODO: Finish implementing this
+    @logged(LogLevel.Info)
+    @check_session(*check_session_params)
+    def send_async_command(self, session, command):
+        """ send_command(session_id, command)
+
+        send_command sends an abstract string <command> which will be unpacked by the
+        experiment.
+        """
+        user_processor = self._load_user(session)
+        try:
+            self._check_user_not_expired_and_poll( user_processor )
+            return user_processor.send_async_command( command )
         finally:
             user_processor.update_latest_timestamp()
 

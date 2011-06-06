@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
+#         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
 import re
@@ -23,6 +24,9 @@ from voodoo.sessions.SessionChecker import check_session
 import voodoo.sessions.SessionType as SessionType
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.gen.exceptions.exceptions as GeneratorExceptions
+
+from voodoo.threaded import threaded
+import weblab.laboratory.AsyncRequest as AsyncRequest
 
 import weblab.exceptions.laboratory.LaboratoryExceptions as LaboratoryExceptions
 
@@ -36,6 +40,7 @@ import weblab.laboratory.AssignedExperiments as AssignedExperiments
 import weblab.laboratory.IsUpAndRunningHandler as IsUpAndRunningHandler
 
 import voodoo.sessions.SessionManager as SessionManager
+from voodoo.sessions import SessionGenerator
 
 check_session_params = (
         LaboratoryExceptions.SessionNotFoundInLaboratoryServerException,
@@ -50,6 +55,7 @@ DEFAULT_WEBLAB_LABORATORY_SERVER_SESSION_POOL_ID = "LaboratoryServer"
 WEBLAB_LABORATORY_SERVER_ASSIGNED_EXPERIMENTS    = "laboratory_assigned_experiments"
 WEBLAB_LABORATORY_EXCLUDE_CHECKING               = "laboratory_exclude_checking"
 DEFAULT_WEBLAB_LABORATORY_EXCLUDE_CHECKING       = []
+
 
 ##########################################################
 #
@@ -79,8 +85,14 @@ class LaboratoryServer(object):
         self._coord_address         = coord_address
         self._locator               = locator
         self._cfg_manager           = cfg_manager
+        
+        # This dictionary will be used to store the ongoing and not-yet-queried 
+        # async requests. They will be stored by session.
+        # TODO: Consider refactoring this.
+        self._async_requests = {}
 
         self._load_assigned_experiments()
+        
 
 
     #######################################################
@@ -189,6 +201,13 @@ class LaboratoryServer(object):
 
         session = self._session_manager.get_session_locking(lab_session_id)
         try:
+            # Remove the async requests whose results we have not retrieved.
+            # It seems that they might still be running when free gets called.
+            # TODO: Consider possible issues.
+            experiment_instance_id = session['experiment_instance_id']
+            if( self._async_requests.has_key(experiment_instance_id) ):
+                del self._async_requests[experiment_instance_id]
+            
             experiment_instance_id = session['experiment_instance_id']
             self._free_experiment_from_assigned_experiments(experiment_instance_id)
         finally:
@@ -308,3 +327,152 @@ class LaboratoryServer(object):
             raise LaboratoryExceptions.FailedToSendCommandException("Couldn't send command: %s" % str(e))
 
         return Command.Command(str(response))
+    
+    
+    
+    @threaded()
+    def _send_async_file_t(self, session, file_content, file_info):
+        """
+        This method is used for asynchronously calling the experiment server's 
+        send_file_to_device, and for that purpose runs on its own thread.
+        This implies that its response will arrive asynchronously to the client.
+        """
+        experiment_coord_address = session['experiment_coord_address']
+        experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
+        
+        try:
+            response = experiment_server.send_file_to_device(file_content, file_info)
+        except Exception, e:
+            log.log( LaboratoryServer, log.LogLevel.Warning, "Exception sending file to experiment: %s" % e )
+            log.log_exc(LaboratoryServer, log.LogLevel.Info)
+            raise LaboratoryExceptions.FailedToSendFileException("Couldn't send file: %s" % str(e))
+
+        return Command.Command(str(response))
+    
+    # TODO: Finish implementing this. For now it's just a copy of the sync
+    # version.
+    @logged(LogLevel.Info,except_for=(('file_content',2),))
+    @check_session(*check_session_params)
+    @caller_check(ServerType.UserProcessing)
+    def do_send_async_file(self, session, file_content, file_info):
+        """
+        Runs the experiment server's send_file_to_device asynchronously, by running the
+        call on its own thread and storing the result, to be returned through the 
+        check_async_command_status request. 
+        """
+        
+        print "[do_send_async_command]"
+        
+        # Call the async method which will run on its own thread. Store the object 
+        # it returns, so that we can know whether it has finished.
+        threadobj = self._send_async_file_t(self, session, file_content, file_info)
+        
+        # Create a new identifier for the new request
+        # TODO: Consider refactoring this
+        gen = SessionGenerator.SessionGenerator()
+        request_id = gen.generate_id(16)
+        
+        # Store the new request in our dictionary
+        experiment_instance_id = session['experiment_instance_id']
+        if(experiment_instance_id not in self._async_requests):
+            self._async_requests[experiment_instance_id] = {}
+        self._async_requests[experiment_instance_id][request_id] = threadobj
+        
+        return request_id
+
+    # TODO: Test & Verify this.
+    @logged(LogLevel.Info)
+    @check_session(*check_session_params)
+    @caller_check(ServerType.UserProcessing)
+    def do_check_async_command_status(self, session, request_identifiers):
+        """
+        Checks the status of several asynchronous commands.
+        Note that at this respect there is no difference between a standard async command and an async send_file.
+        This method will work for either, and request_identifiers of both types can be mixed freely.
+        
+        @param session: Session
+        @param request_identifiers: List of request identifiers whose status to check.
+        @return A dictionary with each request identifier as key and a (status, contents) tuple as values.
+        The status can either be "ok", if the request is done, "error", if it failed, and "running", if it
+        has not finished yet. In the first two cases, contents will return the response. 
+        """
+        
+        print "[do_check_async_command_status]"
+        
+        experiment_instance_id = session['experiment_instance_id']
+        if(experiment_instance_id not in self._async_requests):
+            self._async_requests[experiment_instance_id] = {}
+        
+        # Build and return a dictionary with information about the status of every
+        # specified async command.
+        response = {}
+        for req_id in request_identifiers:
+            req = self._async_requests[experiment_instance_id][req_id]
+            
+            if(req.raised_exc is not None):
+                status = AsyncRequest.STATUS_ERROR
+                contents = str(req.raised_exc)
+                del self._async_requests[experiment_instance_id][req_id]
+            elif(req.finished_ok == True):
+                status = AsyncRequest.STATUS_OK
+                contents = req.result.get_command_string()
+                del self._async_requests[experiment_instance_id][req_id]
+            else:
+                status = AsyncRequest.STATUS_RUNNING
+            
+            response[req_id] = (status, contents)
+            
+        # Currently when a request is checked and has finished, it gets removed
+        # from the requests dictionary. This means they can only be checked once. Also, it means
+        # that if they are not checked they will remain there forever. TODO: Consider those things.
+            
+        return response
+    
+    @threaded()
+    def _send_async_command_t(self, session, command):
+        """
+        This method is used for asynchronously calling the experiment server's 
+        send_command_to_device, and for that purpose runs on its own thread.
+        This implies that its response will arrive asynchronously to the client.
+        """
+        experiment_coord_address = session['experiment_coord_address']
+        experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
+        
+        try:
+            response = experiment_server.send_command_to_device(command.get_command_string())
+        except Exception, e:
+            log.log( LaboratoryServer, log.LogLevel.Warning, "Exception sending command to experiment: %s" % e )
+            log.log_exc(LaboratoryServer, log.LogLevel.Info)
+            raise LaboratoryExceptions.FailedToSendCommandException("Couldn't send command: %s" % str(e))
+
+        return Command.Command(str(response))
+
+    # TODO: Finish implementing this, for now it's just a copy of the sync version.
+    @logged(LogLevel.Info)
+    @check_session(*check_session_params)
+    @caller_check(ServerType.UserProcessing)
+    def do_send_async_command(self, session, command):
+        """
+        Runs the experiment server's send_command_to_device asynchronously, by running the
+        call on its own thread and storing the result, to be returned through the 
+        check_async_command_status request.
+        """
+        
+        print "[do_send_async_command]"
+        
+        # Call the async method which will run on its own thread. Store the object 
+        # it returns, so that we can know whether it has finished.
+        threadobj = self._send_async_command_t(self, session, command)
+        
+        # Create a new identifier for the new request
+        # TODO: Consider refactoring this
+        gen = SessionGenerator.SessionGenerator()
+        request_id = gen.generate_id(16)
+        
+        # Store the new request in our dictionary
+        experiment_instance_id = session['experiment_instance_id']
+        if(experiment_instance_id not in self._async_requests):
+            self._async_requests[experiment_instance_id] = {}
+        self._async_requests[experiment_instance_id][request_id] = threadobj
+        
+        return request_id

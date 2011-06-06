@@ -81,6 +81,11 @@ def get_user_permissions(db_manager, db_session_id):
 
 
 class UserProcessor(object):
+    """
+    User processors are linked to specific sessions. Requests that arrive to the
+    UserProcessingManager will be told apart through their session_id and forwarded
+    to the appropriate UserProcessor.
+    """
 
     EXPIRATION_TIME_NOT_SET=-1234
 
@@ -294,6 +299,140 @@ class UserProcessor(object):
                     )
         else:
             pass # TODO
+        
+    # TODO: Implement this. For now it's just a copy of the sync version.
+    def send_async_file(self, file_content, file_info ):
+        if self._session.has_key('lab_session_id') and self._session.has_key('lab_coordaddr'):
+            laboratory_server = self._locator.get_server_from_coordaddr(
+                    self._session['lab_coordaddr'],
+                    ServerType.Laboratory
+                )
+
+            usage_file_sent = self._store_file(file_content, file_info)
+            try:
+                file_sent_id = self._session['experiment_usage'].append_file(usage_file_sent)
+                response = laboratory_server.send_file(
+                        self._session['lab_session_id'],
+                        file_content,
+                        file_info
+                    )
+
+                usage_file_sent.response        = response
+                usage_file_sent.timestamp_after = self._utc_timestamp()
+                self._session['experiment_usage'].update_file(file_sent_id, usage_file_sent)
+                return response
+            except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
+                try:
+                    self.finished_experiment()
+                except UserProcessingExceptions.FailedToFreeReservationException:
+                    pass
+                raise UserProcessingExceptions.NoCurrentReservationException(
+                    'Experiment reservation expired'
+                )
+            except LaboratoryExceptions.FailedToSendFileException, ftspe:
+                try:
+                    self.finished_experiment()
+                except UserProcessingExceptions.FailedToFreeReservationException:
+                    pass
+                raise UserProcessingExceptions.FailedToSendFileException(
+                        "Failed to send file: %s" % ftspe
+                    )
+        else:
+            pass # TODO
+        
+    # TODO: Implement / check this.
+    def check_async_command_status(self, request_identifiers):
+        """ 
+        Checks the status of several asynchronous requests. The request will be
+        internally forwarded to the lab server.
+        @param request_identifiers: request_identifiers List of the identifiers to check
+        @return: Dictionary by request-id of tuples: (status, content)
+        """
+        
+        # Try to locate the lab server
+        if self._session.has_key('lab_session_id') and self._session.has_key('lab_coordaddr'):
+            laboratory_server = self._locator.get_server_from_coordaddr(
+                    self._session['lab_coordaddr'],
+                    ServerType.Laboratory
+                )
+            
+            # TODO: Consider re-enabling / replacing the _update_command thing.
+            
+            # command_id_pack = self._append_command(command)
+            try:
+                response = laboratory_server.check_async_command_status(
+                        self._session['lab_session_id'],
+                        request_identifiers
+                    )
+
+                # self._update_command(command_id_pack, response)
+
+                return response
+            except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
+                # We did not find the specified session in the laboratory server.
+                # We'll finish the experiment.
+                #self._update_command(command_id_pack, Command.Command("ERROR: SessionNotFound: None"))
+                try:
+                    self.finished_experiment()
+                except UserProcessingExceptions.FailedToFreeReservationException:
+                    pass
+                raise UserProcessingExceptions.NoCurrentReservationException(
+                    'Experiment reservation expired'
+                )
+            except LaboratoryExceptions.FailedToSendCommandException, ftspe:
+                # There was an error while trying to send the command. 
+                # We'll finish the experiment.
+                #self._update_command(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
+                try:
+                    self.finished_experiment()
+                except UserProcessingExceptions.FailedToFreeReservationException:
+                    pass
+
+                raise UserProcessingExceptions.FailedToSendCommandException(
+                        "Failed to send command: %s" % ftspe
+                    )
+        else:
+            pass # TODO
+
+    # TODO: Implement this. For now it's just a copy of the sync version.
+    def send_async_command(self, command):
+        if self._session.has_key('lab_session_id') and self._session.has_key('lab_coordaddr'):
+            laboratory_server = self._locator.get_server_from_coordaddr(
+                    self._session['lab_coordaddr'],
+                    ServerType.Laboratory
+                )
+            command_id_pack = self._append_command(command)
+            try:
+                response = laboratory_server.send_async_command(
+                        self._session['lab_session_id'],
+                        command
+                    )
+
+                self._update_command(command_id_pack, response)
+
+                return response
+            except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
+                self._update_command(command_id_pack, Command.Command("ERROR: SessionNotFound: None"))
+                try:
+                    self.finished_experiment()
+                except UserProcessingExceptions.FailedToFreeReservationException:
+                    pass
+                raise UserProcessingExceptions.NoCurrentReservationException(
+                    'Experiment reservation expired'
+                )
+            except LaboratoryExceptions.FailedToSendCommandException, ftspe:
+                self._update_command(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
+                try:
+                    self.finished_experiment()
+                except UserProcessingExceptions.FailedToFreeReservationException:
+                    pass
+
+                raise UserProcessingExceptions.FailedToSendCommandException(
+                        "Failed to send command: %s" % ftspe
+                    )
+        else:
+            pass # TODO
+
 
     def update_latest_timestamp(self):
         self._session['latest_timestamp'] = self._utc_timestamp()

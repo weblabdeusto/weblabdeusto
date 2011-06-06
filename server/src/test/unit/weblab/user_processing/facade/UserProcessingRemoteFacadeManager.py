@@ -92,13 +92,27 @@ class MockUPS(object):
         if self.exceptions.has_key('send_file'):
             raise self.exceptions['send_file']
         return self.return_values['send_file']
+     
+    # TODO: Possibly, modify this.
+    def send_async_file(self, session_id, file_content, file_info):
+        self.arguments['send_async_file'] = (session_id, file_content, file_info)
+        if self.exceptions.has_key('send_async_file'):
+            raise self.exceptions['send_async_file']
+        return self.return_values['send_async_file']
 
     def send_command(self, session_id, command):
         self.arguments['send_command'] = (session_id, command)
         if self.exceptions.has_key('send_command'):
             raise self.exceptions['send_command']
         return self.return_values['send_command']
-
+    
+    # TODO: Possibly, modify this.
+    def send_async_command(self, session_id, command):
+        self.arguments['send_command'] = (session_id, command)
+        if self.exceptions.has_key('send_command'):
+            raise self.exceptions['send_command']
+        return self.return_values['send_command']
+    
     def poll(self, session_id):
         self.arguments['poll'] = (session_id, )
         if self.exceptions.has_key('poll'):

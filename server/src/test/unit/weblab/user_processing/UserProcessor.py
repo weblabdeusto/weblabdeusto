@@ -322,6 +322,47 @@ class UserProcessorTestCase(unittest.TestCase):
             )
 
         self.assertTrue( self.processor.is_expired() )
+        
+
+    def test_wot(self):
+        pass
+
+    # TODO: Add more async command tests.
+    def test_send_async_command_ok(self):
+        print ("[test_send_async_command_ok")
+        
+        self._return_reserved()
+
+        command = Command.Command("Your command")
+        lab_response  = "LAB RESPONSE"
+        self.lab_mock.send_async_command(SessionId.SessionId('my_lab_session_id'), command)
+        self.mocker.result(lab_response)
+
+        self.mocker.replay()
+
+        self.assertTrue( self.processor.is_expired() )
+
+        self.processor.reserve_experiment(
+                ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                ClientAddress.ClientAddress("127.0.0.1")
+            )
+        self.coordinator.confirmer._confirm_handler.join()
+
+        self.processor.get_reservation_status()
+
+        self.assertFalse( self.processor.is_expired() )
+
+        response = self.processor.send_async_command(command)
+
+        self.assertEquals(lab_response, response)
+
+        self.assertFalse( self.processor.is_expired() )
+
+        self.processor.finished_experiment()
+
+        self.assertTrue( self.processor.is_expired() )
+        
+        
 
     def test_send_command_ok(self):
         self._return_reserved()
