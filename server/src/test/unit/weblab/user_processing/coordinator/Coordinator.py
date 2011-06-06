@@ -409,7 +409,7 @@ class CoordinatorTestCase(unittest.TestCase):
 
         self.coordinator.confirm_experiment(ExperimentInstanceId('inst1', 'exp1', 'cat1'), reservation1_id, SessionId.SessionId("mysessionid"), "{}")
         status = self.coordinator.get_reservation_status(reservation1_id)
-        expected_status = WQS.ReservedQueueStatus(coord_addr("lab1:inst@machine"), SessionId.SessionId("mysessionid"), DEFAULT_TIME)
+        expected_status = WQS.ReservedQueueStatus(coord_addr("lab1:inst@machine"), SessionId.SessionId("mysessionid"), DEFAULT_TIME, "{}")
         self.assertEquals( expected_status, status )
 
 

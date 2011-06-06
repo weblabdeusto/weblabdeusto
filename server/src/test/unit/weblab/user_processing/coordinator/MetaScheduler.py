@@ -43,8 +43,8 @@ class MetaSchedulerTestCase(unittest.TestCase):
         self.wc1     = WQS.WaitingConfirmationQueueStatus("coord_adress1", 50)
         self.wc2     = WQS.WaitingConfirmationQueueStatus("coord_adress2", 60)
 
-        self.res1    = WQS.ReservedQueueStatus("coord_address1", "lab_session_id1", 50)
-        self.res2    = WQS.ReservedQueueStatus("coord_address2", "lab_session_id2", 60)
+        self.res1    = WQS.ReservedQueueStatus("coord_address1", "lab_session_id1", 50, None)
+        self.res2    = WQS.ReservedQueueStatus("coord_address2", "lab_session_id2", 60, "foo")
 
 
     def test_select_best_reservation_status_zero(self):

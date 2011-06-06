@@ -93,7 +93,7 @@ class Coordinator(object):
         self.resources_manager    = ResourcesManager.ResourcesManager(self._session_maker)
         self.meta_scheduler       = MetaScheduler.MetaScheduler()
 
-        self.batch_store    = TemporalInformationStore.TemporalInformationStore()
+        self.batch_store = TemporalInformationStore.TemporalInformationStore()
         self.finished_store = TemporalInformationStore.TemporalInformationStore()
 
         self.time_provider = self.CoordinatorTimeProvider()
@@ -342,6 +342,7 @@ class Coordinator(object):
 
         if batch: # It has already finished!
             # TODO: XXX
+            self.batch_store.put(reservation_id, information_to_store)
             raise NotImplementedError("Not yet implemented: batch")
 
         schedulers = self._get_schedulers_per_reservation(reservation_id)
@@ -385,8 +386,8 @@ class Coordinator(object):
                 session.commit()
             finally:
                 session.close()
+                self.finished_store.put(reservation_id, information_to_store)
 
-            # TODO: do something with "information_to_store"
 
     ################################################################
     #

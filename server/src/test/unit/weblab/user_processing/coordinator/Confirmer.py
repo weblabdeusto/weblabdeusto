@@ -126,7 +126,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
         
         status = self.coordinator.get_reservation_status(reservation1_id)
-        expected_status =  WQS.ReservedQueueStatus(CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, 30)
+        expected_status =  WQS.ReservedQueueStatus(CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, 30, '{}')
         self.assertEquals( expected_status, status )
 
     def test_reject_experiment_laboratory_raises_exception(self):

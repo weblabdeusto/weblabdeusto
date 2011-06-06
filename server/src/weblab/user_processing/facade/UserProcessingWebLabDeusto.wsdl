@@ -75,6 +75,7 @@
 					<xsd:element minOccurs="0" maxOccurs="1" name="status" type="xsd:string" />
 					<xsd:element minOccurs="0" maxOccurs="1" name="position" type="xsd:int" />
 					<xsd:element minOccurs="0" maxOccurs="1" name="time" type="xsd:int" />
+					<xsd:element minOccurs="0" maxOccurs="1" name="initial_configuration" type="xsd:string" />
 				</xsd:sequence>
 			</xsd:complexType>
 

@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint 
+from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint, Text
 from sqlalchemy.orm import relation, backref
 
 from weblab.user_processing.coordinator.CoordinatorModel import Base, RESERVATION_ID_SIZE, ResourceType, Reservation, SchedulingSchemaIndependentSlotReservation
@@ -39,23 +39,26 @@ class ConcreteCurrentReservation(Base):
     start_time                       = Column(Integer)
     priority                         = Column(Integer)
     lab_session_id                   = Column(String(255))
+    initial_configuration            = Column(Text)
 
     def __init__(self, slot_reservation, current_reservation_id, time, start_time, priority):
         self.slot_reservation              = slot_reservation
         self.current_reservation_id        = current_reservation_id
         self.time                          = time
-        self.lab_session_id                = None
         self.start_time                    = start_time
         self.priority                      = priority
+        self.lab_session_id                = None
+        self.initial_configuration         = None
 
     def __repr__(self):
-        return SUFFIX + "ConcreteCurrentReservation(%s, %s, %s, %s, %s, %s)" % (
+        return SUFFIX + "ConcreteCurrentReservation(%s, %s, %s, %s, %s, %s, %s)" % (
                             repr(self.slot_reservation),
                             repr(self.current_reservation_id),
                             repr(self.time),
                             repr(self.lab_session_id),
                             repr(self.start_time),
                             repr(self.priority),
+                            repr(self.initial_configuration)
                         )
 
 class WaitingReservation(Base):

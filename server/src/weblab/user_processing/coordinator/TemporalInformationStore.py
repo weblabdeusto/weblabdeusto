@@ -40,6 +40,6 @@ class TemporalInformationStore(object):
         except Queue.Empty:
             return None
 
-    def put(self, obj):
-        self.queue.put(obj, False)
+    def put(self, reservation_id, obj):
+        self.queue.put((reservation_id, obj), False)
 

@@ -41,7 +41,8 @@ class Reservation(object):
             reservation = WaitingConfirmationReservation()
         elif status.status == WebLabQueueStatus.WebLabQueueStatus.RESERVED:
             reservation = ConfirmedReservation(
-                    status.time
+                    status.time,
+                    status.initial_configuration
                 )
         elif status.status == WebLabQueueStatus.WebLabQueueStatus.WAITING_INSTANCES: #TODO: test me
             reservation = WaitingInstances(
@@ -60,7 +61,7 @@ class Reservation(object):
         return reservation
 
     @staticmethod
-    def translate_reservation_from_data(status_text, position=None, time=None):
+    def translate_reservation_from_data(status_text, position = None, time = None, initial_configuration = None):
         if status_text == Reservation.WAITING:
             reservation = WaitingReservation(position)
         elif status_text == Reservation.WAITING_CONFIRMATION:
@@ -68,7 +69,7 @@ class Reservation(object):
         elif status_text == Reservation.WAITING_INSTANCES:
             reservation = WaitingInstances(position)
         elif status_text == Reservation.CONFIRMED:
-            reservation = ConfirmedReservation(time)
+            reservation = ConfirmedReservation(time, initial_configuration)
         elif status_text == Reservation.CANCELLING:
             reservation = CancellingReservation()
         else:
@@ -83,11 +84,12 @@ class WaitingReservation(Reservation):
         return "<WaitingReservation position = %i>" % self.position
 
 class ConfirmedReservation(Reservation):
-    def __init__(self, time):
+    def __init__(self, time, initial_configuration):
         super(ConfirmedReservation,self).__init__(Reservation.CONFIRMED)
         self.time = time
+        self.initial_configuration = initial_configuration
     def __repr__(self):
-        return "<ConfirmedReservation time = %s>" % self.time
+        return "<ConfirmedReservation time = %s; initial_configuration = %s>" % (self.time, self.initial_configuration)
 
 class WaitingConfirmationReservation(Reservation):
     def __init__(self):

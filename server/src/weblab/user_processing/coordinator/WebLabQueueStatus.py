@@ -70,14 +70,15 @@ class WaitingConfirmationQueueStatus(WebLabQueueStatus):
         return -1
 
 class ReservedQueueStatus(WebLabQueueStatus):
-    def __init__(self, coord_address, lab_session_id, time):
+    def __init__(self, coord_address, lab_session_id, time, initial_configuration):
         super(ReservedQueueStatus,self).__init__(WebLabQueueStatus.RESERVED)
-        self.coord_address  = coord_address
-        self.lab_session_id  = lab_session_id
-        self.time           = time
+        self.coord_address         = coord_address
+        self.lab_session_id        = lab_session_id
+        self.time                  = time
+        self.initial_configuration = initial_configuration
     def __repr__(self):
         full_name = self.__class__.__module__ + '.' + self.__class__.__name__
-        return "<%s; coord_address: %s; lab_session_id: %s; time: %s>" % (full_name, self.coord_address, self.lab_session_id, self.time)
+        return "<%s; coord_address: %s; lab_session_id: %s; time: %s; initial_configuration: %s>" % (full_name, self.coord_address, self.lab_session_id, self.time, self.initial_configuration)
 
     def __cmp__(self, other):
         if isinstance(other, ReservedQueueStatus):
