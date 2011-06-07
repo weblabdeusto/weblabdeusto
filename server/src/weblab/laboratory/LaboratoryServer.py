@@ -204,9 +204,9 @@ class LaboratoryServer(object):
             # Remove the async requests whose results we have not retrieved.
             # It seems that they might still be running when free gets called.
             # TODO: Consider possible issues.
-            experiment_instance_id = session['experiment_instance_id']
-            if( self._async_requests.has_key(experiment_instance_id) ):
-                del self._async_requests[experiment_instance_id]
+            session_id = session['session_id']
+            if( self._async_requests.has_key(session_id) ):
+                del self._async_requests[session_id]
             
             experiment_instance_id = session['experiment_instance_id']
             self._free_experiment_from_assigned_experiments(experiment_instance_id)
@@ -376,10 +376,10 @@ class LaboratoryServer(object):
         request_id = gen.generate_id(16)
         
         # Store the new request in our dictionary
-        experiment_instance_id = session['experiment_instance_id']
-        if(experiment_instance_id not in self._async_requests):
-            self._async_requests[experiment_instance_id] = {}
-        self._async_requests[experiment_instance_id][request_id] = threadobj
+        session_id = session['session_id']
+        if(session_id not in self._async_requests):
+            self._async_requests[session_id] = {}
+        self._async_requests[session_id][request_id] = threadobj
         
         return request_id
 
@@ -401,15 +401,15 @@ class LaboratoryServer(object):
         has not finished yet. In the first two cases, contents will return the response. 
         """
         
-        experiment_instance_id = session['experiment_instance_id']
-        if(experiment_instance_id not in self._async_requests):
-            self._async_requests[experiment_instance_id] = {}
+        session_id = session['session_id']
+        if(session_id not in self._async_requests):
+            self._async_requests[session_id] = {}
         
         # Build and return a dictionary with information about the status of every
         # specified async command.
         response = {}
         for req_id in request_identifiers:
-            req = self._async_requests[experiment_instance_id][req_id]
+            req = self._async_requests[session_id][req_id]
             
             status = None
             contents = None
@@ -417,11 +417,11 @@ class LaboratoryServer(object):
             if(req.raised_exc is not None):
                 status = AsyncRequest.STATUS_ERROR
                 contents = str(req.raised_exc)
-                del self._async_requests[experiment_instance_id][req_id]
+                del self._async_requests[session_id][req_id]
             elif(req.finished_ok == True):
                 status = AsyncRequest.STATUS_OK
                 contents = req.result.get_command_string()
-                del self._async_requests[experiment_instance_id][req_id]
+                del self._async_requests[session_id][req_id]
             else:
                 status = AsyncRequest.STATUS_RUNNING
             
@@ -472,9 +472,9 @@ class LaboratoryServer(object):
         request_id = gen.generate_id(16)
         
         # Store the new request in our dictionary
-        experiment_instance_id = session['experiment_instance_id']
-        if(experiment_instance_id not in self._async_requests):
-            self._async_requests[experiment_instance_id] = {}
-        self._async_requests[experiment_instance_id][request_id] = threadobj
+        session_id = session['session_id']
+        if(session_id not in self._async_requests):
+            self._async_requests[session_id] = {}
+        self._async_requests[session_id][request_id] = threadobj
         
         return request_id
