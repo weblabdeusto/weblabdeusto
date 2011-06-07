@@ -231,7 +231,7 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 	 * the reserve is done and the queue is over.
 	 */
 	@Override
-	public void start() {
+	public void start(int time, String initialConfiguration) {
 		
 		// Ask the server for the webcam URL.
 		RequestWebcamCommand.createAndSend(this.boardController, this.webcam, 

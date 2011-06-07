@@ -185,7 +185,7 @@ public class MobileWlDeustoLogicBasedBoard extends BoardBase {
 	}	
 	
 	@Override
-	public void start() {
+	public void start(int time, String initialConfiguration) {
 	    	this.points = 0;
 	    	this.widget.setVisible(true);
 		

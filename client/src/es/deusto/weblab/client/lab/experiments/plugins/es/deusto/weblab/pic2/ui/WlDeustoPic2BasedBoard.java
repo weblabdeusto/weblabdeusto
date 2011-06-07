@@ -89,7 +89,7 @@ public class WlDeustoPic2BasedBoard extends BoardBase{
 	}
 	
 	@Override
-	public void start(){
+	public void start(int time, String initialConfiguration){
 		timer.start();
 		webcam.start();
 		

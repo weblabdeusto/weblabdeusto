@@ -54,7 +54,7 @@ public abstract class BoardBase implements IWlWidget{
 	 * the experiment (in the server side, the experiment is already reserved
 	 * for the user).
 	 */
-	public abstract void start();
+	public abstract void start(int time, String initialConfiguration);
 	
 	/*
 	 * WebLab will call this method as soon as the user session finishes. The

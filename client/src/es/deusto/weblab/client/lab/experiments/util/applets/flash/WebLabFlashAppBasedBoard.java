@@ -183,7 +183,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 	}
 	
 	@Override
-	public void start() {
+	public void start(int time, String initialConfiguration) {
 		
 		// If we are executing in deferred mode, we have not populated the iframe yet,
 		// so we do it now.

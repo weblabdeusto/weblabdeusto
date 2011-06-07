@@ -142,7 +142,7 @@ public class WlDeustoGpibBoard extends BoardBase {
 	}	
 	
 	@Override
-	public void start() {
+	public void start(int time, String initialConfiguration) {
 	    	this.widget.setVisible(true);
 		
 		while(this.removableWidgetsPanel.getWidgetCount() > 0)

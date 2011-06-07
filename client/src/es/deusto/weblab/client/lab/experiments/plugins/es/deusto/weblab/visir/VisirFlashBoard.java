@@ -61,7 +61,7 @@ public class VisirFlashBoard extends WebLabFlashAppBasedBoard {
 	}
 
 	@Override
-	public void start() {
+	public void start(final int time, final String initialConfiguration) {
 		
 		// Request the visir session "cookie" to the server.
 		final VisirSetupDataRequestCommand reqData = new VisirSetupDataRequestCommand();
@@ -82,7 +82,7 @@ public class VisirFlashBoard extends WebLabFlashAppBasedBoard {
 							VisirFlashBoard.this.updateFlashVars();
 							VisirFlashBoard.this.setSwfFile(VisirFlashBoard.this.url);
 							
-							VisirFlashBoard.super.start();
+							VisirFlashBoard.super.start(time, initialConfiguration);
 						} else {
 							System.out.println("Could not parse response: " + responseCommand.getCommandString());
 						}
@@ -91,7 +91,7 @@ public class VisirFlashBoard extends WebLabFlashAppBasedBoard {
 					@Override
 					public void onFailure(WlCommException e) {
 						System.out.println("Error: Could not retrieve data");
-						VisirFlashBoard.super.start();
+						VisirFlashBoard.super.start(time, initialConfiguration);
 					}
 				}
 		);

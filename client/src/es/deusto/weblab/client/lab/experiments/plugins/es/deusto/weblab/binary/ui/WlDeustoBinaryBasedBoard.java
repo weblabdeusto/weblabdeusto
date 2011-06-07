@@ -121,7 +121,7 @@ public class WlDeustoBinaryBasedBoard extends BoardBase {
 	}
 
     @Override
-    public void start() {
+    public void start(int time, String initialConfiguration) {
 	this.widget.setVisible(true);
 	this.loadWidgets();
 	this.disableInteractiveWidgets();

@@ -110,7 +110,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         lab_session_id = SessionId.SessionId("samplesession_id")
 
         mock_laboratory = self.mocker.mock()
-        mock_laboratory.reserve_experiment(ExperimentInstanceId('inst1','exp1','cat1'), '"sample initial data"', "{}")
+        mock_laboratory.reserve_experiment(ExperimentInstanceId('inst1','exp1','cat1'), '"sample initial data"', mocker.ANY)
         self.mocker.result((lab_session_id, None))
 
         self.mock_locator.real_mock = self.mocker.mock()
@@ -134,7 +134,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
 
     def test_reject_experiment_laboratory_raises_exception(self):
         mock_laboratory = self.mocker.mock()
-        mock_laboratory.reserve_experiment(ExperimentInstanceId('inst1','exp1','cat1'), '"sample initial data"', "{}")
+        mock_laboratory.reserve_experiment(ExperimentInstanceId('inst1','exp1','cat1'), '"sample initial data"', mocker.ANY)
         self.mocker.throw( Exception("Any unhandled exception") )
 
         self.mock_locator.real_mock = self.mocker.mock()

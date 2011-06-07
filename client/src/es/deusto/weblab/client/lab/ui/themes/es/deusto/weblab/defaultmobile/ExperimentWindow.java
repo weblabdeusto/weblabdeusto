@@ -133,7 +133,7 @@ class ExperimentWindow extends BaseWindow {
 		this.generalErrorLabel.setText(message);
 	}
 	
-	public void loadUsingExperimentPanels(int time) {
+	public void loadUsingExperimentPanels(int time, String initialConfiguration) {
 		
 		this.upperSide.setVisible(false);
 		this.reserveSide.setVisible(false);
@@ -141,7 +141,7 @@ class ExperimentWindow extends BaseWindow {
 	    
 		// This can't be before adding the widget to the DOM tree 
 		// If it's done, applets will not work 
-		this.experimentBase.getUI().start();
+		this.experimentBase.getUI().start(time, initialConfiguration);
 		this.experimentBase.getUI().setTime(time);
 	}
 	

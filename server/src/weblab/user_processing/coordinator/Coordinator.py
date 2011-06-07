@@ -329,11 +329,11 @@ class Coordinator(object):
                 batch                 = response.get('batch', default_batch)
                 initial_configuration = response.get('initial_configuration', default_initial_configuration)
             except Exception, e:
-                self.mark_experiment_as_broken(experiment_instance_id, [str(e)])
-
-                log.log( Coordinator, log.LogLevel.Error, "Could not parse experiment server response: %s; %s" % (e, server_initialization_response) )
+                log.log( Coordinator, log.LogLevel.Error, "Could not parse experiment server response: %s; %s; using default values" % (e, server_initialization_response) )
                 log.log_exc( Coordinator, log.LogLevel.Warning )
-                return
+                still_initializing    = default_still_initialing
+                batch                 = default_batch
+                initial_configuration = default_initial_configuration
 
         if still_initializing:
             # TODO XXX 
