@@ -329,7 +329,7 @@ class LaboratoryServer(object):
         return Command.Command(str(response))
     
     
-    
+    @logged(LogLevel.Info)
     @threaded()
     def _send_async_file_t(self, session, file_content, file_info):
         """
@@ -349,8 +349,7 @@ class LaboratoryServer(object):
 
         return Command.Command(str(response))
     
-    # TODO: Finish implementing this. For now it's just a copy of the sync
-    # version.
+
     @logged(LogLevel.Info,except_for=(('file_content',2),))
     @check_session(*check_session_params)
     @caller_check(ServerType.UserProcessing)
@@ -359,9 +358,13 @@ class LaboratoryServer(object):
         Runs the experiment server's send_file_to_device asynchronously, by running the
         call on its own thread and storing the result, to be returned through the 
         check_async_command_status request. 
-        """
         
-        print "[do_send_async_command]"
+        @param session: Session
+        @param request_identifiers: List of request identifiers whose status to check.
+        @return A dictionary with each request identifier as key and a (status, contents) tuple as values.
+        The status can either be "ok", if the request is done, "error", if it failed, and "running", if it
+        has not finished yet. In the first two cases, contents will return the response. 
+        """
         
         # Call the async method which will run on its own thread. Store the object 
         # it returns, so that we can know whether it has finished.
@@ -380,7 +383,7 @@ class LaboratoryServer(object):
         
         return request_id
 
-    # TODO: Test & Verify this.
+
     @logged(LogLevel.Info)
     @check_session(*check_session_params)
     @caller_check(ServerType.UserProcessing)
@@ -389,6 +392,7 @@ class LaboratoryServer(object):
         Checks the status of several asynchronous commands.
         Note that at this respect there is no difference between a standard async command and an async send_file.
         This method will work for either, and request_identifiers of both types can be mixed freely.
+        Requests reported as finished (either successfully or not) will be removed.
         
         @param session: Session
         @param request_identifiers: List of request identifiers whose status to check.
@@ -396,8 +400,6 @@ class LaboratoryServer(object):
         The status can either be "ok", if the request is done, "error", if it failed, and "running", if it
         has not finished yet. In the first two cases, contents will return the response. 
         """
-        
-        print "[do_check_async_command_status]"
         
         experiment_instance_id = session['experiment_instance_id']
         if(experiment_instance_id not in self._async_requests):
@@ -425,12 +427,9 @@ class LaboratoryServer(object):
             
             response[req_id] = (status, contents)
             
-        # Currently when a request is checked and has finished, it gets removed
-        # from the requests dictionary. This means they can only be checked once. Also, it means
-        # that if they are not checked they will remain there forever. TODO: Consider those things.
-            
         return response
     
+    @logged(LogLevel.Info)
     @threaded()
     def _send_async_command_t(self, session, command):
         """
@@ -450,7 +449,6 @@ class LaboratoryServer(object):
 
         return Command.Command(str(response))
 
-    # TODO: Finish implementing this, for now it's just a copy of the sync version.
     @logged(LogLevel.Info)
     @check_session(*check_session_params)
     @caller_check(ServerType.UserProcessing)
@@ -459,9 +457,10 @@ class LaboratoryServer(object):
         Runs the experiment server's send_command_to_device asynchronously, by running the
         call on its own thread and storing the result, to be returned through the 
         check_async_command_status request.
-        """
         
-        print "[do_send_async_command]"
+        @param session: Session 
+        @param command: Command to execute asynchronously
+        """
         
         # Call the async method which will run on its own thread. Store the object 
         # it returns, so that we can know whether it has finished.
