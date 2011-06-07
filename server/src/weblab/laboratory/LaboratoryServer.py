@@ -409,6 +409,14 @@ class LaboratoryServer(object):
         # specified async command.
         response = {}
         for req_id in request_identifiers:
+            
+            # If one of the specified request ids does not seem to exist, we
+            # will simply ignore it and return nothing about it. We will handle
+            # the remaining request ids normally.
+            # TODO: Consider whether doing this is appropriate.
+            if( req_id not in self._async_requests[session_id] ): 
+                continue
+            
             req = self._async_requests[session_id][req_id]
             
             status = None
