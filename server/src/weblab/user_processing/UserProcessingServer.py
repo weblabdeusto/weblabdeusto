@@ -301,9 +301,13 @@ class UserProcessingServer(object):
     @logged(LogLevel.Info, except_for=(('file_content',2),))
     @check_session(*check_session_params)
     def send_async_file(self, session, file_content, file_info):
-        """ send_file(session_id, file_content, file_info)
-
-        Sends file to the experiment.
+        """ 
+        send_file(session_id, file_content, file_info)
+        Sends a file asynchronously to the experiment.
+        
+        @param session Session
+        @param file_content Contents of the file.
+        @param file_info File information of the file.
         """
         user_processor = self._load_user(session)
         try:
@@ -318,7 +322,6 @@ class UserProcessingServer(object):
     def check_async_command_status(self, session, request_identifiers):
         """ 
         check_async_command_status(session_id, request_identifiers)
-        
         Checks the status of several asynchronous commands. 
         
         @param session: Session id
@@ -333,14 +336,15 @@ class UserProcessingServer(object):
         finally:
             user_processor.update_latest_timestamp()
 
-    # TODO: Finish implementing this
     @logged(LogLevel.Info)
     @check_session(*check_session_params)
     def send_async_command(self, session, command):
-        """ send_command(session_id, command)
+        """ 
+        send_async_command(session_id, command)
 
-        send_command sends an abstract string <command> which will be unpacked by the
-        experiment.
+        send_async_command sends an abstract string <command> which will be unpacked by the
+        experiment, and run asynchronously on its own thread. Its status may be checked through
+        check_async_command_status.
         """
         user_processor = self._load_user(session)
         try:

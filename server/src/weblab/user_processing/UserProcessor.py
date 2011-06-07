@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
 import time as time_module
@@ -300,8 +301,17 @@ class UserProcessor(object):
         else:
             pass # TODO
         
-    # TODO: Implement this. For now it's just a copy of the sync version.
+
     def send_async_file(self, file_content, file_info ):
+        """
+        Sends a file asynchronously. Status of the request may be checked through
+        check_async_command_status
+        
+        @param file_content: Content of the file being sent
+        @param file_info: File information of the file being sent
+        @see check_async_command_status
+        """
+        
         if self._session.has_key('lab_session_id') and self._session.has_key('lab_coordaddr'):
             laboratory_server = self._locator.get_server_from_coordaddr(
                     self._session['lab_coordaddr'],
@@ -311,7 +321,7 @@ class UserProcessor(object):
             usage_file_sent = self._store_file(file_content, file_info)
             try:
                 file_sent_id = self._session['experiment_usage'].append_file(usage_file_sent)
-                response = laboratory_server.send_file(
+                response = laboratory_server.send_async_file(
                         self._session['lab_session_id'],
                         file_content,
                         file_info
@@ -340,12 +350,16 @@ class UserProcessor(object):
         else:
             pass # TODO
         
-    # TODO: Implement / check this.
+
     def check_async_command_status(self, request_identifiers):
         """ 
-        Checks the status of several asynchronous requests. The request will be
-        internally forwarded to the lab server.
-        @param request_identifiers: request_identifiers List of the identifiers to check
+        Checks the status of several asynchronous commands. The request will be
+        internally forwarded to the lab server. Standard async commands
+        and file_send commands are treated in the same way. 
+        Cmmands reported as finished (either successfully or not) will be
+        removed, so check_async_command_status should not be called on them again.
+        
+        @param request_identifiers: List of the identifiers to check
         @return: Dictionary by request-id of tuples: (status, content)
         """
         
@@ -394,8 +408,15 @@ class UserProcessor(object):
         else:
             pass # TODO
 
-    # TODO: Implement this. For now it's just a copy of the sync version.
+
     def send_async_command(self, command):
+        """
+        Runs a command asynchronously. Status of the request may be checked
+        through the check_async_command_status method.
+        
+        @param command The command to run
+        @see check_async_command_status
+        """
         if self._session.has_key('lab_session_id') and self._session.has_key('lab_coordaddr'):
             laboratory_server = self._locator.get_server_from_coordaddr(
                     self._session['lab_coordaddr'],

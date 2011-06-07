@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
 
 import unittest
@@ -225,6 +226,39 @@ class UserProcessorTestCase(unittest.TestCase):
                 UserProcessingExceptions.FailedToFreeReservationException,
                 self.processor.finished_experiment
             )
+        
+    def test_send_async_file_ok(self):
+        file_content = "SAMPLE CONTENT"
+        lab_response  = "LAB RESPONSE"
+        file_info    = 'program'
+        self._return_reserved()
+
+        self.lab_mock.send_async_file(SessionId.SessionId('my_lab_session_id'), file_content, file_info)
+        self.mocker.result(lab_response)
+
+        self.mocker.replay()
+
+        self.assertTrue( self.processor.is_expired() )
+
+        self.processor.reserve_experiment(
+                ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                ClientAddress.ClientAddress("127.0.0.1")
+            )
+
+        self.coordinator.confirmer._confirm_handler.join()
+        self.processor.get_reservation_status()
+
+        self.assertFalse( self.processor.is_expired() )
+
+        response = self.processor.send_async_file(file_content, file_info)
+
+        self.assertEquals(lab_response, response)
+
+        self.assertFalse( self.processor.is_expired() )
+
+        self.processor.finished_experiment()
+
+        self.assertTrue( self.processor.is_expired() )
 
     def test_send_file_ok(self):
         file_content = "SAMPLE CONTENT"
@@ -290,6 +324,70 @@ class UserProcessorTestCase(unittest.TestCase):
             )
 
         self.assertTrue( self.processor.is_expired() )
+        
+    def test_send_async_file_session_not_found_in_lab(self):
+        self._return_reserved()
+
+        file_content = "SAMPLE CONTENT"
+        file_info    = "program"
+        self.lab_mock.send_async_file(SessionId.SessionId('my_lab_session_id'), file_content, file_info)
+        self.mocker.throw( 
+                LaboratoryExceptions.SessionNotFoundInLaboratoryServerException("problem@laboratory") 
+            )
+        self.mocker.replay()
+
+        self.assertTrue( self.processor.is_expired() )
+
+        self.processor.reserve_experiment(
+                ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                ClientAddress.ClientAddress("127.0.0.1")
+            )
+        self.coordinator.confirmer._confirm_handler.join()
+
+        self.processor.get_reservation_status()
+
+        self.assertFalse( self.processor.is_expired() )
+
+        self.assertRaises(
+                UserProcessingExceptions.NoCurrentReservationException,
+                self.processor.send_async_file,
+                file_content,
+                file_info
+            )
+
+        self.assertTrue( self.processor.is_expired() )
+
+    def test_send_async_file_failed_to_send(self):
+        self._return_reserved()
+
+        file_content = "SAMPLE CONTENT"
+        file_info    = "program"
+        self.lab_mock.send_async_file(SessionId.SessionId('my_lab_session_id'), file_content, file_info)
+        self.mocker.throw( 
+                LaboratoryExceptions.FailedToSendFileException("problem@laboratory") 
+            )
+        self.mocker.replay()
+
+        self.assertTrue( self.processor.is_expired() )
+
+        self.processor.reserve_experiment(
+                ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                ClientAddress.ClientAddress("127.0.0.1")
+            )
+        self.coordinator.confirmer._confirm_handler.join()
+
+        self.processor.get_reservation_status()
+
+        self.assertFalse( self.processor.is_expired() )
+
+        self.assertRaises(
+                UserProcessingExceptions.FailedToSendFileException,
+                self.processor.send_async_file,
+                file_content,
+                file_info
+            )
+
+        self.assertTrue( self.processor.is_expired() )
 
     def test_send_file_failed_to_send(self):
         self._return_reserved()
@@ -327,10 +425,8 @@ class UserProcessorTestCase(unittest.TestCase):
     def test_wot(self):
         pass
 
-    # TODO: Add more async command tests.
+
     def test_send_async_command_ok(self):
-        print ("[test_send_async_command_ok")
-        
         self._return_reserved()
 
         command = Command.Command("Your command")
@@ -396,6 +492,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.assertTrue( self.processor.is_expired() )
 
+
     def test_send_command_session_not_found_in_lab(self):
         self._return_reserved()
 
@@ -421,6 +518,67 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertRaises(
                 UserProcessingExceptions.NoCurrentReservationException,
                 self.processor.send_command,
+                command
+            )
+
+        self.assertTrue( self.processor.is_expired() )
+        
+        
+    def test_send_async_command_session_not_found_in_lab(self):
+        self._return_reserved()
+
+        command = Command.Command("Your command")
+        self.lab_mock.send_async_command(SessionId.SessionId('my_lab_session_id'), command)
+        self.mocker.throw( 
+                LaboratoryExceptions.SessionNotFoundInLaboratoryServerException("problem@laboratory") 
+            )
+        self.mocker.replay()
+
+        self.assertTrue( self.processor.is_expired() )
+
+        self.processor.reserve_experiment(
+                ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                ClientAddress.ClientAddress("127.0.0.1")
+            )
+        self.coordinator.confirmer._confirm_handler.join()
+
+        self.processor.get_reservation_status()
+
+        self.assertFalse( self.processor.is_expired() )
+
+        self.assertRaises(
+                UserProcessingExceptions.NoCurrentReservationException,
+                self.processor.send_async_command,
+                command
+            )
+
+        self.assertTrue( self.processor.is_expired() )
+
+    def test_send_async_command_failed_to_send(self):
+        self._return_reserved()
+
+        command = Command.Command("Your command")
+        self.lab_mock.send_async_command(SessionId.SessionId('my_lab_session_id'), command)
+        self.mocker.throw( 
+                LaboratoryExceptions.FailedToSendCommandException("problem@laboratory") 
+            )
+        self.mocker.replay()
+
+        self.assertTrue( self.processor.is_expired() )
+
+        self.processor.reserve_experiment(
+                ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                ClientAddress.ClientAddress("127.0.0.1")
+            )
+        self.coordinator.confirmer._confirm_handler.join()
+
+        self.processor.get_reservation_status()
+
+        self.assertFalse( self.processor.is_expired() )
+
+        self.assertRaises(
+                UserProcessingExceptions.FailedToSendCommandException,
+                self.processor.send_async_command,
                 command
             )
 
