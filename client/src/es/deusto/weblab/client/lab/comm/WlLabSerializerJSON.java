@@ -273,6 +273,17 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
 		params.put("command", commandjson);
 		return this.serializeRequest("send_command", params);
     }
+    
+    @Override
+    public String serializeSendAsyncCommandRequest(SessionID sessionId,
+    		Command command) throws SerializationException {
+    	final JSONObject params = new JSONObject();
+    	params.put("session_id", this.serializeSessionId(sessionId));
+    	final JSONObject commandjson = new JSONObject();
+    	commandjson.put("commandstring", new JSONString(command.getCommandString()));
+    	params.put("command", commandjson);
+    	return this.serializeRequest("send_async_command", params);
+    }
 
     // General
     

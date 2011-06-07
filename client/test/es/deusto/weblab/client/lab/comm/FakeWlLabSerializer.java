@@ -41,6 +41,7 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements IWlLa
 	public static final String SERIALIZE_POLL_REQUEST                   = "FakeWebLabSerializer::serializePollRequest";
 	public static final String SERIALIZE_RESERVE_EXPERIMENT_REQUEST     = "FakeWebLabSerializer::serializeReserveExperimentRequest";
 	public static final String SERIALIZE_SEND_COMMAND_REQUEST           = "FakeWebLabSerializer::serializeSendCommandRequest";
+	public static final String SERIALIZE_ASYNC_SEND_COMMAND_REQUEST     = "FakeWebLabSerializer::serializeAsyncSendCommandRequest";
 	public static final String SERIALIZE_FINISHED_EXPERIMENT_REQUEST    = "FakeWebLabSerializer::serializeFinishedExperimentRequest";
 
 	@Override
@@ -161,5 +162,15 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements IWlLa
 				command
 		});
 		return (String)this.retrieveReturn(FakeWlLabSerializer.SERIALIZE_SEND_COMMAND_REQUEST);
+	}
+
+	@Override
+	public String serializeSendAsyncCommandRequest(SessionID sessionId,
+			Command command) throws SerializationException {
+		this.append(FakeWlLabSerializer.SERIALIZE_ASYNC_SEND_COMMAND_REQUEST, new Object[]{
+			sessionId,
+			command
+		});
+		return null;
 	}
 }

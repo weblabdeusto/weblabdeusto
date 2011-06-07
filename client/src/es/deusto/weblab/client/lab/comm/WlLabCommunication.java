@@ -34,7 +34,6 @@ import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
-import es.deusto.weblab.client.lab.comm.callbacks.IAsyncRequestResponseCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
@@ -234,6 +233,7 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 				new ReserveExperimentRequestCallback(callback)
 			);
 	}
+	
 
 	private class SendCommandRequestCallback extends WlRequestCallback{
 		private final IResponseCommandCallback responseCommandCallback;
@@ -262,18 +262,149 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 		}
 	}
 	
+	
+	private class AsyncRequestsManager{
+	
+	}
+	
+	
+	/**
+	 * Internal callback which will be used for receiving and handling the response
+	 * of a send_async_command request.
+	 * TODO: Consider whether error checking is necessary here.
+	 */
+	private class SendAsyncCommandRequestCallback extends WlRequestCallback{
+		private final IResponseCommandCallback responseCommandCallback;
+		
+		public SendAsyncCommandRequestCallback(IResponseCommandCallback responseCommandCallback){
+			super(responseCommandCallback);
+			this.responseCommandCallback = responseCommandCallback;
+		}
+		
+		@Override
+		public void onSuccessResponseReceived(String response) {
+			ResponseCommand command;
+			try {
+				command = ((IWlLabSerializer)WlLabCommunication.this.serializer).parseSendCommandResponse(response);
+			} catch (final SerializationException e) {
+				this.responseCommandCallback.onFailure(e);
+				return;
+			} catch (final SessionNotFoundException e) {
+				this.responseCommandCallback.onFailure(e);
+				return;
+			} catch (final WlServerException e) {
+				this.responseCommandCallback.onFailure(e);
+				return;
+			}
+			this.responseCommandCallback.onSuccess(command);
+		}
+	}
+	
+	
+	/**
+	 * Sends a command to be executed asynchronously on the server-side. 
+	 * 
+	 * @param command The command
+	 * @param callback Callback which will be notified when the asynchronous execution
+	 * ends and the response of the server is retrieved. This response may take a 
+	 * particularly long time to arrive. 
+	 */
 	@Override
 	public void sendAsyncCommand(SessionID sessionId, Command command,
-			IAsyncRequestResponseCallback callback) {
-		// TODO Auto-generated method stub
+			IResponseCommandCallback callback) {
 		
+		// Serialize the request as an asynchronous send command request.
+		String requestSerialized;
+		try {
+			requestSerialized = ((IWlLabSerializer)this.serializer).serializeSendAsyncCommandRequest(sessionId, command);
+		} catch (final SerializationException e1) {
+			callback.onFailure(e1);
+			return;
+		}
+		
+		// Declare the callback that will be called once the initial response of the asynchronous request
+		// is received. Because the asynchronous request is precisely not executed synchronously, this response
+		// is simply a request id, through which we will later poll to check the actual status and result of
+		// the request.
+		final IResponseCommandCallback asyncCommandResponseCallback = new IResponseCommandCallback() {
+			@Override
+			public void onSuccess(ResponseCommand responseCommand) {
+				final String requestID = responseCommand.getCommandString();
+			}
+
+			@Override
+			public void onFailure(WlCommException e) {
+				// TODO: Implement this.
+			}
+		};
+		
+		this.performRequest(
+				requestSerialized, 
+				callback, 
+				new SendAsyncCommandRequestCallback(callback)
+			);
 	}
 
 	@Override
-	public void sendAsyncFile(SessionID sessionId, UploadStructure structure,
-			IAsyncRequestResponseCallback callback) {
-		// TODO Auto-generated method stub
-		
+	public void sendAsyncFile(SessionID sessionId, final UploadStructure uploadStructure,
+			IResponseCommandCallback callback) {
+		// "Serialize" sessionId
+    	
+//		final Hidden sessionIdElement = new Hidden();
+//		sessionIdElement.setName(WlLabCommunication.SESSION_ID_ATTR);
+//		sessionIdElement.setValue(sessionId.getRealId());
+//		
+//		final Hidden fileInfoElement = new Hidden();
+//		fileInfoElement.setName(WlLabCommunication.FILE_INFO_ATTR);
+//		fileInfoElement.setValue(uploadStructure.getFileInfo());
+//		
+//		// Set up uploadStructure
+//		uploadStructure.addInformation(sessionIdElement);
+//		uploadStructure.addInformation(fileInfoElement);
+//		uploadStructure.getFileUpload().setName(WlLabCommunication.FILE_SENT_ATTR);
+//		uploadStructure.getFormPanel().setAction(this.getFilePostUrl());
+//		uploadStructure.getFormPanel().setEncoding(FormPanel.ENCODING_MULTIPART);
+//		uploadStructure.getFormPanel().setMethod(FormPanel.METHOD_POST);
+//
+//		// Register handler
+//		uploadStructure.getFormPanel().addSubmitCompleteHandler(new SubmitCompleteHandler() {
+//
+//		    @Override
+//			public void onSubmitComplete(SubmitCompleteEvent event) {
+//			uploadStructure.removeInformation(sessionIdElement);
+//
+//			final String resultMessage = event.getResults();
+//			if(GWT.isScript() && resultMessage == null) {
+//			    this.reportFail(callback);
+//			} else {
+//			    this.processResultMessage(callback, resultMessage);
+//			}
+//		    }
+//
+//		    private void processResultMessage(IResponseCommandCallback callback, String resultMessage) {
+//			final ResponseCommand parsedResponseCommand;
+//			try {
+//			    parsedResponseCommand = ((IWlLabSerializer)WlLabCommunication.this.serializer).parseSendFileResponse(resultMessage);
+//			} catch (final SerializationException e) {
+//			    callback.onFailure(e);
+//			    return;
+//			} catch (final SessionNotFoundException e) {
+//			    callback.onFailure(e);
+//			    return;
+//			} catch (final WlServerException e) {
+//			    callback.onFailure(e);
+//			    return;
+//			}
+//			callback.onSuccess(parsedResponseCommand);
+//		    }
+//		    private void reportFail(final IResponseCommandCallback callback) {
+//			GWT.log("reportFail could not send the file", null);
+//			callback.onFailure(new WlCommException("Couldn't send the file"));
+//		    }			
+//		});
+//	    
+//		// Submit
+//		uploadStructure.getFormPanel().submit();
 	}
 
 	@Override

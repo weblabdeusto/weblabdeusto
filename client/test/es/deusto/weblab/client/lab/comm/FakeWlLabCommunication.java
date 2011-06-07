@@ -19,7 +19,6 @@ import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
-import es.deusto.weblab.client.lab.comm.callbacks.IAsyncRequestResponseCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
@@ -89,7 +88,7 @@ public class FakeWlLabCommunication extends FakeWlCommonCommunication implements
 	
 	@Override
 	public void sendAsyncCommand(SessionID sessionId, Command command,
-			IAsyncRequestResponseCallback callback) {
+			IResponseCommandCallback callback) {
 		this.append(FakeWlLabCommunication.SEND_ASYNC_COMMAND, new Object[]{
 				sessionId,
 				command,
@@ -99,7 +98,7 @@ public class FakeWlLabCommunication extends FakeWlCommonCommunication implements
 
 	@Override
 	public void sendAsyncFile(SessionID sessionId, UploadStructure uploadStructure,
-			IAsyncRequestResponseCallback callback) {
+			IResponseCommandCallback callback) {
 		this.append(FakeWlLabCommunication.SEND_ASYNC_FILE, new Object[]{
 			sessionId,
 			uploadStructure,

@@ -55,5 +55,7 @@ public interface IWlLabSerializer extends IWlCommonSerializer{
 	String serializePollRequest(SessionID sessionId) throws SerializationException;
 	String serializeReserveExperimentRequest(SessionID sessionId, ExperimentID experimentId) throws SerializationException;
 	String serializeSendCommandRequest(SessionID sessionId, Command command) throws SerializationException;
+	String serializeSendAsyncCommandRequest(SessionID sessionId, Command command) throws SerializationException;
 	String serializeFinishedExperimentRequest(SessionID sessionId) throws SerializationException;
+	
 }

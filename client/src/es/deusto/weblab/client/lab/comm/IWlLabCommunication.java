@@ -19,7 +19,6 @@ import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
-import es.deusto.weblab.client.lab.comm.callbacks.IAsyncRequestResponseCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
@@ -36,9 +35,9 @@ public interface IWlLabCommunication extends IWlCommonCommunication {
 
 	public void sendFile(SessionID sessionId, UploadStructure structure, IResponseCommandCallback callback);
 	
-	public void sendAsyncFile(SessionID sessionId, UploadStructure structure, IAsyncRequestResponseCallback callback);
+	public void sendAsyncFile(SessionID sessionId, UploadStructure structure, IResponseCommandCallback callback);
 	
-	public void sendAsyncCommand(SessionID sessionId, Command command, IAsyncRequestResponseCallback callback);
+	public void sendAsyncCommand(SessionID sessionId, Command command, IResponseCommandCallback callback);
 	
 	public void sendCommand(SessionID sessionId, Command command, IResponseCommandCallback callback);
 
