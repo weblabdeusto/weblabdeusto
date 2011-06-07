@@ -19,12 +19,15 @@ import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
+import es.deusto.weblab.client.lab.comm.callbacks.IAsyncRequestResponseCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 
 public class FakeWlLabCommunication extends FakeWlCommonCommunication implements IWlLabCommunication {
 
+	public static final String SEND_ASYNC_FILE 		  = "FakeWeblabCommunication::sendAsyncFile";
+	public static final String SEND_ASYNC_COMMAND     = "FakeWeblabCommunication::sendAsyncCommand";
 	public static final String SEND_FILE              = "FakeWebLabCommunication::sendFile";
 	public static final String SEND_COMMAND           = "FakeWebLabCommunication::sendCommand";
 	public static final String RESERVE_EXPERIMENT     = "FakeWebLabCommunication::reserveExperiment";
@@ -83,6 +86,26 @@ public class FakeWlLabCommunication extends FakeWlCommonCommunication implements
 				callback
 		});
 	}
+	
+	@Override
+	public void sendAsyncCommand(SessionID sessionId, Command command,
+			IAsyncRequestResponseCallback callback) {
+		this.append(FakeWlLabCommunication.SEND_ASYNC_COMMAND, new Object[]{
+				sessionId,
+				command,
+				callback
+		});
+	}
+
+	@Override
+	public void sendAsyncFile(SessionID sessionId, UploadStructure uploadStructure,
+			IAsyncRequestResponseCallback callback) {
+		this.append(FakeWlLabCommunication.SEND_ASYNC_FILE, new Object[]{
+			sessionId,
+			uploadStructure,
+			callback
+		});
+	}
 
 	@Override
 	public void finishedExperiment(SessionID sessionId, IVoidCallback callback) {
@@ -96,4 +119,6 @@ public class FakeWlLabCommunication extends FakeWlCommonCommunication implements
 	protected IWlCommonSerializer createSerializer() {
 		return new FakeWlLabSerializer();
 	}
+
+
 }

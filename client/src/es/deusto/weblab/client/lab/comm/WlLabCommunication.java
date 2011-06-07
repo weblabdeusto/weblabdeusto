@@ -34,6 +34,7 @@ import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
+import es.deusto.weblab.client.lab.comm.callbacks.IAsyncRequestResponseCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
@@ -260,6 +261,20 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 			this.responseCommandCallback.onSuccess(command);
 		}
 	}
+	
+	@Override
+	public void sendAsyncCommand(SessionID sessionId, Command command,
+			IAsyncRequestResponseCallback callback) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void sendAsyncFile(SessionID sessionId, UploadStructure structure,
+			IAsyncRequestResponseCallback callback) {
+		// TODO Auto-generated method stub
+		
+	}
 
 	@Override
 	public void sendCommand(SessionID sessionId, Command command, IResponseCommandCallback callback) {
@@ -385,4 +400,6 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 	protected IWlCommonSerializer createSerializer(){
 		return new WlLabSerializerJSON();
 	}
+
+
 }
