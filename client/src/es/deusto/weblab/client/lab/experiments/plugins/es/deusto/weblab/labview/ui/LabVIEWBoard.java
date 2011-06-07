@@ -39,7 +39,7 @@ public class LabVIEWBoard extends BoardBase {
 
 	@Override
 	public void start() {
-		this.panel.add(new HTML("<iframe src=\"http://www.weblab.deusto.es/testone/TestOne.html\">"));
+		this.panel.add(new HTML("<iframe src=\"http://www.weblab.deusto.es:5906/testone/BlinkLED.html\">"));
 	}
 
 	@Override

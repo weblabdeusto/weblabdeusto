@@ -315,6 +315,10 @@ session.add(cat_pic)
 cat_robot = Model.DbExperimentCategory("Robot experiments")
 session.add(cat_robot)
 
+cat_labview = Model.DbExperimentCategory("LabVIEW experiments")
+session.add(cat_labview)
+
+
 # Experiments
 start_date = datetime.datetime.utcnow()
 end_date = start_date.replace(year=start_date.year+10)
@@ -366,6 +370,9 @@ session.add(vm)
 
 vm_win = Model.DbExperiment("vm-win", cat_dummy, start_date, end_date)
 session.add(vm_win)
+
+blink_led = Model.DbExperiment("blink-led", cat_labview, start_date, end_date)
+session.add(blink_led)
 
 rob_std = Model.DbExperiment("robot-standard", cat_robot, start_date, end_date)
 session.add(rob_std)
@@ -546,6 +553,7 @@ session.add(up_any_vm_win_allowed_p1)
 up_any_vm_win_allowed_p2 = Model.DbUserPermissionParameter(up_any_vm_win_allowed, experiment_allowed_p2, "Dummy experiments")
 session.add(up_any_vm_win_allowed_p2)
 up_any_vm_win_allowed_p3 = Model.DbUserPermissionParameter(up_any_vm_win_allowed, experiment_allowed_p3, "200")
+session.add(up_any_vm_win_allowed_p3)
 
       
       
@@ -563,6 +571,7 @@ session.add(up_any_rob_std_allowed_p1)
 up_any_rob_std_allowed_p2 = Model.DbUserPermissionParameter(up_any_rob_std_allowed, experiment_allowed_p2, "Robot experiments")
 session.add(up_any_rob_std_allowed_p2)
 up_any_rob_std_allowed_p3 = Model.DbUserPermissionParameter(up_any_rob_std_allowed, experiment_allowed_p3, "200")
+session.add(up_any_rob_std_allowed_p3)
 
       
 up_any_rob_mov_allowed = Model.DbUserPermission(
@@ -579,7 +588,23 @@ session.add(up_any_rob_mov_allowed_p1)
 up_any_rob_mov_allowed_p2 = Model.DbUserPermissionParameter(up_any_rob_mov_allowed, experiment_allowed_p2, "Robot experiments")
 session.add(up_any_rob_mov_allowed_p2)
 up_any_rob_mov_allowed_p3 = Model.DbUserPermissionParameter(up_any_rob_mov_allowed, experiment_allowed_p3, "200")
+session.add(up_any_rob_mov_allowed_p3)
    
+up_any_blink_led_allowed = Model.DbUserPermission(
+    any,
+    experiment_allowed.group_applicable,
+    "any::weblab-blink-led",
+    datetime.datetime.utcnow(),
+    "Permission for any to use WebLab-blink-led"
+)
+
+session.add(up_any_blink_led_allowed)
+up_any_blink_led_allowed_p1 = Model.DbUserPermissionParameter(up_any_blink_led_allowed, experiment_allowed_p1, "blink-led")
+session.add(up_any_blink_led_allowed_p1)
+up_any_blink_led_allowed_p2 = Model.DbUserPermissionParameter(up_any_blink_led_allowed, experiment_allowed_p2, "LabVIEW experiments")
+session.add(up_any_blink_led_allowed_p2)
+up_any_blink_led_allowed_p3 = Model.DbUserPermissionParameter(up_any_blink_led_allowed, experiment_allowed_p3, "200")
+session.add(up_any_blink_led_allowed_p3)
            
 up_any_rob_proglist_allowed = Model.DbUserPermission(
     any,
@@ -595,6 +620,7 @@ session.add(up_any_rob_proglist_allowed_p1)
 up_any_rob_proglist_allowed_p2 = Model.DbUserPermissionParameter(up_any_rob_proglist_allowed, experiment_allowed_p2, "Robot experiments")
 session.add(up_any_rob_proglist_allowed_p2)
 up_any_rob_proglist_allowed_p3 = Model.DbUserPermissionParameter(up_any_rob_proglist_allowed, experiment_allowed_p3, "200")
+session.add(up_any_rob_proglist_allowed_p3)
    
            
       

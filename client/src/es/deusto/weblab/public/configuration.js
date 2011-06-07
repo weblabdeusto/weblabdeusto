@@ -78,7 +78,13 @@
 	                       ],  
 	                "labview": [
 	                            {
+		                        	"experiment.picture"  : "/img/experiments/labview.jpg",
 	                            	"experiment.name"     : "testone",
+	                            	"experiment.category" : "LabVIEW experiments"
+	                            },
+	                            {
+		                        	"experiment.picture"  : "/img/experiments/labview.jpg",
+	                            	"experiment.name"     : "blink-led",
 	                            	"experiment.category" : "LabVIEW experiments"
 	                            }
 	                       ],
