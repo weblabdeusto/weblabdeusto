@@ -18,11 +18,19 @@ import weblab.experiment.Experiment as Experiment
 from voodoo.override import Override
 from voodoo.log import logged
 
+
+DEFAULT_LABVIEW_WIDTH = "1000"
+DEFAULT_LABVIEW_HEIGHT = "800"
+DEFAULT_LABVIEW_URL_PROPERTY = "http://www.weblab.deusto.es:5906/testone/BlinkLED.html"
+
 class LabViewExperiment(Experiment.Experiment):
     
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(LabViewExperiment, self).__init__(*args, **kwargs)
         self._cfg_manager = cfg_manager
+        self.url    = self._cfg_manager.get_value("labview_url", DEFAULT_LABVIEW_URL_PROPERTY)
+        self.width  = self._cfg_manager.get_value("labview_width", DEFAULT_LABVIEW_WIDTH)
+        self.height = self._cfg_manager.get_value("labview_height", DEFAULT_LABVIEW_HEIGHT)
 
     @Override(Experiment.Experiment)
     @logged("info")
@@ -32,6 +40,8 @@ class LabViewExperiment(Experiment.Experiment):
     @Override(Experiment.Experiment)
     @logged("info")
     def do_send_command_to_device(self, command):
+        if command == 'get_url':
+            return '%s;%s;%s' % (self.height, self.width, self.url)
         return "cmd_not_supported"
 
 
