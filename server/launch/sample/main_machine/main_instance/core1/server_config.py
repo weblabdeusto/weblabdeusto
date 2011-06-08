@@ -51,7 +51,8 @@ core_coordinator_laboratory_servers = {
             "exp1|vm-win|Dummy experiments"          : "vm-win@vm-win",
             "exp1|robot-standard|Robot experiments"  : "robot@robot",
             "exp1|robot-movement|Robot experiments"  : "robot@robot",
-            "exp1|robot-proglist|Robot experiments"  : "robot@robot"
+            "exp1|robot-proglist|Robot experiments"  : "robot@robot",
+            "exp1|blink-led|LabVIEW experiments"     : "labview@labview"
         }
 }
 
@@ -68,6 +69,5 @@ core_scheduling_systems = {
         "vm"         :("PRIORITY_QUEUE", {}),
         "vm-win"     : ("PRIORITY_QUEUE", {}),
         "robot"     : ("PRIORITY_QUEUE", {}),
-        "robot"     : ("PRIORITY_QUEUE", {}),
-        "robot"     : ("PRIORITY_QUEUE", {}),
+        "labview"     : ("PRIORITY_QUEUE", {}),
     }

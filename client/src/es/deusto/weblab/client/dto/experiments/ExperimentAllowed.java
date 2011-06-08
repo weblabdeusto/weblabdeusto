@@ -39,4 +39,39 @@ public class ExperimentAllowed {
 	public void setTimeAllowed(int timeAllowed) {
 		this.timeAllowed = timeAllowed;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((this.experiment == null) ? 0 : this.experiment.hashCode());
+		result = prime * result + this.timeAllowed;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ExperimentAllowed other = (ExperimentAllowed) obj;
+		if (this.experiment == null) {
+			if (other.experiment != null)
+				return false;
+		} else if (!this.experiment.equals(other.experiment))
+			return false;
+		if (this.timeAllowed != other.timeAllowed)
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "ExperimentAllowed [experiment=" + this.experiment
+				+ ", timeAllowed=" + this.timeAllowed + "]";
+	}
 }

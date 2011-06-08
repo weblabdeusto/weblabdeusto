@@ -13,6 +13,9 @@
 */ 
 package es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb;
 
+import java.util.List;
+import java.util.Vector;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -69,6 +72,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 	// DTOs
 	private final User user;
 	private final ExperimentAllowed [] experimentsAllowed;
+	private final ExperimentAllowed [] failedExperiments;
 	
 	public AllowedExperimentsWindow(IConfigurationManager configurationManager, User user, ExperimentAllowed[] experimentsAllowed, IAllowedExperimentsWindowCallback callback) {
 	    super(configurationManager);
@@ -77,7 +81,11 @@ class AllowedExperimentsWindow extends BaseWindow {
 	    this.experimentsAllowed = experimentsAllowed;
 	    this.callback = callback;
 	    
-	    this.loadWidgets();
+	    this.failedExperiments = this.loadWidgets();
+	}
+	
+	public ExperimentAllowed [] getFailedLoadingExperiments(){
+		return this.failedExperiments;
 	}
 	
 	@Override
@@ -85,7 +93,8 @@ class AllowedExperimentsWindow extends BaseWindow {
 		return this.containerPanel;
 	}		
 	
-	protected void loadWidgets(){
+	protected ExperimentAllowed [] loadWidgets(){
+		final List<ExperimentAllowed> failedExperiments = new Vector<ExperimentAllowed>();
 	    AllowedExperimentsWindow.uiBinder.createAndBindUi(this);
 
 		this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
@@ -112,8 +121,14 @@ class AllowedExperimentsWindow extends BaseWindow {
 			final Anchor nameLink = new Anchor(experiment.getExperiment().getName());
 			nameLink.addClickHandler(new ExperimentClickListener(i));
 			
-			
-			IConfigurationRetriever retriever = ExperimentFactory.getExperimentConfigurationRetriever(experiment.getExperiment().getExperimentUniqueName());
+			IConfigurationRetriever retriever;
+			try{
+				retriever = ExperimentFactory.getExperimentConfigurationRetriever(experiment.getExperiment().getExperimentUniqueName());
+			}catch(IllegalArgumentException e){
+				failedExperiments.add(experiment);
+				e.printStackTrace();
+				continue;
+			}
 			String picture = retriever.getProperty("experiment.picture", "");
 			
 			if(picture.isEmpty())
@@ -139,6 +154,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 	    	this.separatorLabel.setVisible(false);
 	    	this.separatorLabel2.setVisible(false);
 	    }
+	    return failedExperiments.toArray(new ExperimentAllowed[]{});
 	}
 	
     @Override

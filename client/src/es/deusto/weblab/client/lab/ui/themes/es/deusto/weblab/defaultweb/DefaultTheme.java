@@ -228,7 +228,14 @@ public class DefaultTheme extends WlLabThemeBase {
 		);
 		this.activeWindow = this.allowedExperimentsWindow;
 
-		this.themePanel.add(this.allowedExperimentsWindow.getWidget());	    
+		this.themePanel.add(this.allowedExperimentsWindow.getWidget());
+		
+		final ExperimentAllowed [] failedExperiments = this.allowedExperimentsWindow.getFailedLoadingExperiments();
+		final StringBuilder builder = new StringBuilder("Could not load:");
+		for(ExperimentAllowed experiment : failedExperiments)
+			builder.append(" " + experiment + ",");
+		if(failedExperiments.length > 0)
+			showError(builder.toString());
 	}	
 
 	private void loadExperimentWindow()

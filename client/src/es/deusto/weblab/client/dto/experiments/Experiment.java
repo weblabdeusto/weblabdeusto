@@ -85,4 +85,14 @@ public class Experiment{
 		}
 		
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Experiment [id=" + this.id + ", name=" + this.name
+				+ ", category=" + this.category + ", startDate="
+				+ this.startDate + ", endDate=" + this.endDate + "]";
+	}
 }

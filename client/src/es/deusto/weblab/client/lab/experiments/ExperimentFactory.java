@@ -84,7 +84,6 @@ public class ExperimentFactory {
 					throw new InvalidConfigurationValueException("CreatorFactory codename: " + creatorFactory.getCodeName() + " already used before " + creatorFactory.getClass().getName());
 				
 				alreadyTriedCreatorFactories.add(creatorFactory.getCodeName());
-				
 				for(IConfigurationRetriever configurationRetriever : configurationManager.getExperimentsConfiguration(creatorFactory.getCodeName())){
 					final String experimentName     = configurationRetriever.getProperty("experiment.name");
 					final String experimentCategory = configurationRetriever.getProperty("experiment.category");
