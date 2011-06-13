@@ -27,6 +27,7 @@ import es.deusto.weblab.client.comm.exceptions.WlServerException;
 import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
 import es.deusto.weblab.client.comm.exceptions.core.UserProcessingException;
 import es.deusto.weblab.client.dto.SessionID;
+import es.deusto.weblab.client.dto.experiments.AsyncRequestStatus;
 import es.deusto.weblab.client.dto.experiments.Category;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.EmptyResponseCommand;
@@ -65,6 +66,15 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
 		final JSONObject result = this.parseResultObject(responseText);
 		return this.parseReservationStatus(result);
     }
+    
+    @Override
+	public AsyncRequestStatus [] parseCheckAsyncCommandStatus(String responseText) 
+		throws SerializationException {
+    	
+    	// TODO: Implement this.
+    	
+    	return null;
+	}
 
     private ReservationStatus parseReservationStatus(final JSONObject result)
 	    throws SerializationException {
@@ -215,6 +225,24 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
 		}else
 		    throw new SerializationException("Sending file failed: first element must be 'success' or 'error'");
     }
+    
+    /**
+     * TODO: This method will probably need some work.
+     */
+    @Override
+	public String serializeCheckAsyncCommandStatusRequest(SessionID sessionId, String [] requestIdentifiers) 
+		throws SerializationException {
+    	
+    	final JSONArray requestIds = new JSONArray();
+    	for(int i = 0; i < requestIdentifiers.length; ++i)
+    		requestIds.set(i, new JSONString(requestIdentifiers[i]));
+  
+		final JSONObject params = new JSONObject();
+		params.put("session_id", this.serializeSessionId(sessionId));
+		params.put("request_identifiers", requestIds);
+		
+		return this.serializeRequest("check_async_command_status", params);
+	}
 
     @Override
 	public String serializeFinishedExperimentRequest(SessionID sessionId)

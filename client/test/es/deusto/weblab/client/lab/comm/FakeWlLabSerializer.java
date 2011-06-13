@@ -20,6 +20,7 @@ import es.deusto.weblab.client.comm.exceptions.SerializationException;
 import es.deusto.weblab.client.comm.exceptions.WlServerException;
 import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
 import es.deusto.weblab.client.dto.SessionID;
+import es.deusto.weblab.client.dto.experiments.AsyncRequestStatus;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
@@ -28,21 +29,23 @@ import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 
 public class FakeWlLabSerializer extends FakeWlCommonSerializer implements IWlLabSerializer {
 	
-	public static final String PARSE_GET_RESERVATION_STATUS_RESPONSE    = "FakeWebLabSerializer::parseGetReservationStatus";
-	public static final String PARSE_LIST_EXPERIMENTS_RESPONSE          = "FakeWebLabSerializer::parseListExperimentsResponse";
-	public static final String PARSE_POLL_RESPONSE                      = "FakeWebLabSerializer::parsePollResponse";
-	public static final String PARSE_RESERVE_EXPERIMENT_RESPONSE        = "FakeWebLabSerializer::parseReserveExperimentResponse";
-	public static final String PARSE_SEND_COMMAND_RESPONSE              = "FakeWebLabSerializer::parseSendCommandResponse";
-	public static final String PARSE_FINISHED_EXPERIMENT_RESPONSE       = "FakeWebLabSerializer::parseFinishedExperimentResponse";
-	public static final String PARSE_SEND_FILE_RESPONSE                 = "FakeWebLabSerializer::parseSendFileResponse";
+	public static final String PARSE_GET_RESERVATION_STATUS_RESPONSE    	= "FakeWebLabSerializer::parseGetReservationStatus";
+	public static final String PARSE_LIST_EXPERIMENTS_RESPONSE          	= "FakeWebLabSerializer::parseListExperimentsResponse";
+	public static final String PARSE_POLL_RESPONSE                      	= "FakeWebLabSerializer::parsePollResponse";
+	public static final String PARSE_RESERVE_EXPERIMENT_RESPONSE        	= "FakeWebLabSerializer::parseReserveExperimentResponse";
+	public static final String PARSE_SEND_COMMAND_RESPONSE              	= "FakeWebLabSerializer::parseSendCommandResponse";
+	public static final String PARSE_CHECK_ASYNC_COMMAND_STATUS_RESPONSE 	= "FakeWebLabSerializer::parseCheckAsyncCommandStatusResponse";
+	public static final String PARSE_FINISHED_EXPERIMENT_RESPONSE       	= "FakeWebLabSerializer::parseFinishedExperimentResponse";
+	public static final String PARSE_SEND_FILE_RESPONSE                 	= "FakeWebLabSerializer::parseSendFileResponse";
 
-	public static final String SERIALIZE_GET_RESERVATION_STATUS_REQUEST = "FakeWebLabSerializer::serializeGetReservationStatusRequest";
-	public static final String SERIALIZE_LIST_EXPERIMENTS_REQUEST       = "FakeWebLabSerializer::serializeListExperimentsRequest";
-	public static final String SERIALIZE_POLL_REQUEST                   = "FakeWebLabSerializer::serializePollRequest";
-	public static final String SERIALIZE_RESERVE_EXPERIMENT_REQUEST     = "FakeWebLabSerializer::serializeReserveExperimentRequest";
-	public static final String SERIALIZE_SEND_COMMAND_REQUEST           = "FakeWebLabSerializer::serializeSendCommandRequest";
-	public static final String SERIALIZE_ASYNC_SEND_COMMAND_REQUEST     = "FakeWebLabSerializer::serializeAsyncSendCommandRequest";
-	public static final String SERIALIZE_FINISHED_EXPERIMENT_REQUEST    = "FakeWebLabSerializer::serializeFinishedExperimentRequest";
+	public static final String SERIALIZE_GET_RESERVATION_STATUS_REQUEST 	= "FakeWebLabSerializer::serializeGetReservationStatusRequest";
+	public static final String SERIALIZE_LIST_EXPERIMENTS_REQUEST       	= "FakeWebLabSerializer::serializeListExperimentsRequest";
+	public static final String SERIALIZE_POLL_REQUEST                   	= "FakeWebLabSerializer::serializePollRequest";
+	public static final String SERIALIZE_RESERVE_EXPERIMENT_REQUEST     	= "FakeWebLabSerializer::serializeReserveExperimentRequest";
+	public static final String SERIALIZE_SEND_COMMAND_REQUEST          		= "FakeWebLabSerializer::serializeSendCommandRequest";
+	public static final String SERIALIZE_ASYNC_SEND_COMMAND_REQUEST     	= "FakeWebLabSerializer::serializeAsyncSendCommandRequest";
+	public static final String SERIALIZE_CHECK_ASYNC_COMMAND_STATUS_REQUEST = "FakeWebLabSerializer::serializeCheckAsyncCommandStatus";
+	public static final String SERIALIZE_FINISHED_EXPERIMENT_REQUEST    	= "FakeWebLabSerializer::serializeFinishedExperimentRequest";
 
 	@Override
 	public ReservationStatus parseGetReservationStatusResponse(String responseText) {
@@ -51,6 +54,8 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements IWlLa
 		});
 		return (ReservationStatus)this.retrieveReturn(FakeWlLabSerializer.PARSE_GET_RESERVATION_STATUS_RESPONSE);
 	}
+	
+	
 
 	@Override
 	public ExperimentAllowed [] parseListExperimentsResponse(String responseText){
@@ -104,6 +109,16 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements IWlLa
 		});
 		return (ResponseCommand)this.retrieveReturn(FakeWlLabSerializer.PARSE_SEND_COMMAND_RESPONSE);
 	}
+	
+	@Override
+	public AsyncRequestStatus[] parseCheckAsyncCommandStatus(String responseText)
+			throws SerializationException {
+		this.append(FakeWlLabSerializer.PARSE_CHECK_ASYNC_COMMAND_STATUS_RESPONSE, new Object[]{
+				responseText
+		});
+		return null;
+	}
+
 	
 	@SuppressWarnings("unused")
 	protected ReservationStatus parseReservationStatus(final JSONObject result) throws SerializationException {
@@ -171,6 +186,14 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements IWlLa
 			sessionId,
 			command
 		});
+		return null;
+	}
+
+
+	@Override
+	public String serializeCheckAsyncCommandStatusRequest(SessionID sessionId,
+			String[] requestIdentifiers) throws SerializationException {
+		this.append(FakeWlLabSerializer.SERIALIZE_CHECK_ASYNC_COMMAND_STATUS_REQUEST);
 		return null;
 	}
 }

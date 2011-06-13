@@ -33,12 +33,38 @@ public interface IWlLabCommunication extends IWlCommonCommunication {
 	
 	public void getReservationStatus(SessionID sessionId, IReservationCallback callback);
 
+	/**
+	 * To send a file. The laboratory server will execute the request synchronously.
+	 * @param sessionId Session id
+	 * @param structure Structure for file uploading
+	 * @param callback Callback notified when the request finishes
+	 */
 	public void sendFile(SessionID sessionId, UploadStructure structure, IResponseCommandCallback callback);
 	
+	/**
+	 * To send a file. The laboraty server will execute the request asynchronously, on
+	 * its own thread.
+	 * @param sessionId Session id
+	 * @param structure Structure for file uploading
+	 * @param callback Callback notified when the request finishes
+	 */
 	public void sendAsyncFile(SessionID sessionId, UploadStructure structure, IResponseCommandCallback callback);
 	
+	/**
+	 * To send a command. The laboratory server will handle the command asynchronously,
+	 * on its own thread.
+	 * @param sessionId Session id
+	 * @param command Command to send
+	 * @param callback Callback notified when the request finishes
+	 */
 	public void sendAsyncCommand(SessionID sessionId, Command command, IResponseCommandCallback callback);
 	
+	/**
+	 * To send a command. The laboratory server will handle the command synchronously.
+	 * @param sessionId Session id
+	 * @param command Command to send
+	 * @param callback Callback notified when the request finishes
+	 */
 	public void sendCommand(SessionID sessionId, Command command, IResponseCommandCallback callback);
 
 	public void poll(SessionID sessionId, IVoidCallback callback);
