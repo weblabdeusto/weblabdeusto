@@ -28,13 +28,16 @@ class LabViewExperiment(Experiment.Experiment):
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(LabViewExperiment, self).__init__(*args, **kwargs)
         self._cfg_manager = cfg_manager
-        self.url    = self._cfg_manager.get_value("labview_url", DEFAULT_LABVIEW_URL_PROPERTY)
-        self.width  = self._cfg_manager.get_value("labview_width", DEFAULT_LABVIEW_WIDTH)
-        self.height = self._cfg_manager.get_value("labview_height", DEFAULT_LABVIEW_HEIGHT)
+        self.filename = self._cfg_manager.get_value("labview_filename")
+        self.url      = self._cfg_manager.get_value("labview_url", DEFAULT_LABVIEW_URL_PROPERTY)
+        self.width    = self._cfg_manager.get_value("labview_width", DEFAULT_LABVIEW_WIDTH)
+        self.height   = self._cfg_manager.get_value("labview_height", DEFAULT_LABVIEW_HEIGHT)
 
     @Override(Experiment.Experiment)
     @logged("info")
     def do_start_experiment(self):
+        print "Starting"
+        self.open_file(self.filename)
         return "Starting"
 
     @Override(Experiment.Experiment)
@@ -54,5 +57,17 @@ class LabViewExperiment(Experiment.Experiment):
     @Override(Experiment.Experiment)
     @logged("info")
     def do_dispose(self):
+        print "Disposing"
+        self.close_file(self.filename)
         return "Disposing"
+
+    def open_file(self, filename):
+        self.write_to_file(filename, 'Open')
+
+    def close_file(self, filename):
+        self.write_to_file(filename, 'Close')
+
+    def write_to_file(self, filename, content):
+        open(filename,'w').write(content)
+        
 
