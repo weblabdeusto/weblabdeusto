@@ -21,10 +21,26 @@ import es.deusto.weblab.client.comm.callbacks.IWlAsyncCallback;
 import es.deusto.weblab.client.comm.exceptions.CommunicationException;
 import es.deusto.weblab.client.comm.exceptions.ServerException;
 
+
+/**
+ * Callback to be invoked whenever a request finishes. Holds an internal
+ * IWlAsyncCallback, which will be invoked if an error occurs. 
+ * 
+ * Though this callback does apparently have methods to support both success and error 
+ * notification, receiving a response successfully does not necessarily mean that the
+ * request succeeded. Hence the need for the aforementioned callback within this
+ * callback.
+ */
 abstract public class WlRequestCallback implements RequestCallback{
 
 	private final IWlAsyncCallback callback;
 	
+	/**
+	 * Constructs the WlRequestCallback.
+	 * @param callback IWlAsyncCallback to be invoked by the WlRequestCallback if
+	 * an error occurs. For instance, if the server returns an error code, or if the
+	 * request fails.
+	 */
 	public WlRequestCallback(IWlAsyncCallback callback){
 		this.callback = callback;
 	}

@@ -111,7 +111,7 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements IWlLa
 	}
 	
 	@Override
-	public AsyncRequestStatus[] parseCheckAsyncCommandStatus(String responseText)
+	public AsyncRequestStatus[] parseCheckAsyncCommandStatusResponse(String responseText)
 			throws SerializationException {
 		this.append(FakeWlLabSerializer.PARSE_CHECK_ASYNC_COMMAND_STATUS_RESPONSE, new Object[]{
 				responseText

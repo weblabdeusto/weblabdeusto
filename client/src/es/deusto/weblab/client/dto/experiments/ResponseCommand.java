@@ -14,6 +14,11 @@
 
 package es.deusto.weblab.client.dto.experiments;
 
+
+/**
+ * Response of a command, such as a send_command or send_file response.
+ * Also used to contain the response of an asynchronously executed command.
+ */
 public class ResponseCommand extends Command {
 
 	private final String commandString;

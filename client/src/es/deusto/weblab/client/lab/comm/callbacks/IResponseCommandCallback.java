@@ -16,6 +16,14 @@ package es.deusto.weblab.client.lab.comm.callbacks;
 import es.deusto.weblab.client.comm.callbacks.IWlAsyncCallback;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 
+
+/**
+ *  Callback interface to be invoked when a command request finishes. 
+ *  Because the parent interface IWlAsyncCallback only supports failure notification, 
+ *  IResponseCommandCallback extends it to support success notification as well.
+ *  This callback is specifically intended to be used for the response to
+ *  send_file, send_command, and the like, not for all requests.
+ */
 public interface IResponseCommandCallback extends IWlAsyncCallback {
 	public void onSuccess(ResponseCommand responseCommand);
 	//throws WlCommException, SessionNotFoundException

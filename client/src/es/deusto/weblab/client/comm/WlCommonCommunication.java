@@ -64,6 +64,14 @@ public abstract class WlCommonCommunication implements IWlCommonCommunication {
 				);
 	}
 	
+	
+	/**
+	 * Performs a request. The request is sent to the server, and when finished,
+	 * its result is returned through a callback.
+	 * @param requestSerialized The request to be performed, already serialized. 
+	 * @param failureCallback Callback to invoke if the request fails.
+	 * @param rci Callback to invoke when the request finishes.
+	 */
 	protected void performRequest(String requestSerialized, IWlAsyncCallback failureCallback, RequestCallback rci){
 		final RequestBuilder rb = this.createRequestBuilder(RequestBuilder.POST, this.getServiceUrl());
 		try {
