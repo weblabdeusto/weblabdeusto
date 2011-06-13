@@ -32,7 +32,10 @@ Laboratory = [
         'reserve_experiment',
         'free_experiment',
         'send_file',
+        'send_async_file',
         'send_command',
+        'send_async_command',
+        'check_async_command_status',
         'resolve_experiment_address',
         'check_experiments_resources',
         'experiment_is_up_and_running'

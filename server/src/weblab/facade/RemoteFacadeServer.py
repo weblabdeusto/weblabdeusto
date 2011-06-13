@@ -64,6 +64,10 @@ def strdate(days=0,hours=0,minutes=0,seconds=0):
 ##################
 
 def simplify_response(response, limit = 10, counter = 0):
+    """
+    Recursively serializes the response into a JSON dictionary. Because the response object could actually
+    contain cyclic references, we limit the maximum depth. 
+    """
     if counter == limit:
         return None
     if isinstance(response, (basestring, int, long, float, bool)):
@@ -102,12 +106,16 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         _show_help(self, "JSON", methods, methods_help)
 
     def do_POST(self):
+        """
+        This do_POST callback handles an HTTP request containing a JSON-encoded RPC request. 
+        """
         create_context(self.server, self.headers)
         
         try:
             length = int(self.headers['content-length'])
             post_content = self.rfile.read(length)
 
+            # The contents of the POST contain a string with the JSON-encoded request. Decode that string.
             try:
                 decoded = json.loads(post_content)
             except ValueError:
@@ -115,30 +123,38 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 self.finish_error(response)
                 return
 
+            # Retrieve the name of the method being invoked.
             method_name = decoded.get('method')
             if method_name is None:
                 response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"Missing 'method' attr"}
                 self.finish_error(response)
                 return
 
+            # Retrieve the parameters of the method being invoked. 
             params = decoded.get('params')
             if params is None:
                 response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"Missing 'params' attr"}
                 self.finish_error(response)
                 return
 
+            # Ensure that we actually have a facade manager, as we should.
+            # (The method specified in the JSON request, which we are going to invoke, 
+            # is actually located in the facade manager).
             if self.facade_manager is None:
                 response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"Facade manager not set"}
                 self.finish_error(response)
                 return
 
+            # Ensure that the method that is remotely being called does exist. 
             if not hasattr(self.facade_manager, method_name):
                 response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"Method not recognized"}
                 self.finish_error(response)
                 return
 
+            # Retrieve a reference to the method.
             method = getattr(self.facade_manager,method_name)
 
+            # Build a standard dictionary with the parameters to call the actual method.
             newparams = {}
             try:
                 for param in params:
@@ -148,6 +164,8 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 self.finish_error(response)
                 return
 
+            # Call the method specified in the request, 
+            # with the parameters from the dictionary we just built.
             try:
                 return_value = method(**newparams)
             except RemoteFacadeManager.JSONException, jsone:
@@ -159,7 +177,10 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 self.finish_error(response)
                 return
 
+            # No exception was raised so the request was successful. We will now return the response to
+            # the remote caller. 
             try:
+                # Serialize the response to a JSON dictionary.
                 parsed_return_value = simplify_response(return_value)
                 response = json.dumps({"result":parsed_return_value, "is_exception" : False})
             except Exception, e:
@@ -175,9 +196,17 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             delete_context()
 
     def finish_error(self, error):
+        """
+        Finishes a JSON POST request when an error occurred, reporting the result to the caller.
+        @param error The error that occurred. It will be serialized to JSON.
+        """
         self.finish_post(json.dumps(error))
 
     def finish_post(self, response):
+        """
+        Finishes a JSON POST request that was successful, reporting the result to the caller.
+        @param response JSON-encoded response to the successfully executed JSON request.
+        """
         self.send_response(200)
         self.send_header("Content-type", "text/xml")
         self.send_header("Content-length", str(len(response)))

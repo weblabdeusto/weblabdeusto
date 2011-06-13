@@ -120,8 +120,6 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
         response = self._server.send_async_file(sess_id, file_content, file_info)
         return response
     
-    # TODO: Implement this asynchronously. For now it's just
-    # a copy of the standard send_command
     @logged()
     @RFM.check_exceptions(EXCEPTIONS)
     @RFM.check_nullable
@@ -146,6 +144,21 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
         cmd     = self._parse_command(command)
 
         response = self._server.send_command(sess_id, cmd)
+        return response
+    
+    @logged()
+    @RFM.check_exceptions(EXCEPTIONS)
+    @RFM.check_nullable
+    def check_async_command_status(self, session_id, request_identifiers):
+        """ check_async_command_status(session_id, command)
+            raise SessionNotFoundException
+        """
+        
+        # TODO: This will most likely require modifications.
+        sess_id = self._parse_session_id(session_id)
+        req_ids = self._parse_request_identifiers(request_identifiers)
+        
+        response = self._server.check_async_command_status(sess_id, req_ids)
         return response
    
     @logged()
@@ -255,6 +268,10 @@ class AbstractUserProcessingRemoteFacadeManagerObject(AbstractUserProcessingRemo
 
     def _parse_command(self, command):
         return Command.Command(command.commandstring)
+    
+    # TODO: This is yet to be implemented
+    def _parse_request_identifiers(self, request_identifiers):
+        return ""
 
 class AbstractUserProcessingRemoteFacadeManagerDict(AbstractUserProcessingRemoteFacadeManager):
     # When accessing structures, this class uses instance['attribute']
