@@ -408,7 +408,7 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
                 tup = result[id]
                 self.assertTrue( tup[0] in ("running", "ok", "error") )
                 if(tup[0] == "ok"):
-                    self.assertEquals(tup[1] in responses)
+                    self.assertTrue(tup[1] in responses)
                     del expected[id]
                 elif(tup[0] == "error"):
                     self.assertTrue(False, "Async send_file reported an error: " + tup[1] )
