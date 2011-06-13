@@ -9,11 +9,16 @@
 * listed below:
 *
 * Author: Pablo Orduña <pablo@ordunya.com>
+*         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 *
 */ 
 package es.deusto.weblab.client.lab.comm;
 
+import java.util.Map;
+
 import com.google.gwt.core.client.GWT;
+import java.util.HashMap;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
@@ -29,6 +34,7 @@ import es.deusto.weblab.client.comm.exceptions.WlServerException;
 import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
+import es.deusto.weblab.client.dto.experiments.AsyncRequestStatus;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
@@ -36,6 +42,7 @@ import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
+import es.deusto.weblab.client.lab.comm.callbacks.IResponseCheckAsyncCommandStatusCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.comm.exceptions.UnknownExperimentIdException;
 
@@ -235,9 +242,19 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 	}
 	
 
+	/**
+	 * Callback to be notified when a send_command request finishes, either
+	 * successfully or not.
+	 */
 	private class SendCommandRequestCallback extends WlRequestCallback{
 		private final IResponseCommandCallback responseCommandCallback;
 		
+		/**
+		 * Constructs the SendCommandRequestCallback.
+		 * @param responseCommandCallback Callback to be invoked whenever a request
+		 * fails or succeeds. IResponseCommandCallback extends IWlAsyncCallback, and
+		 * together they have two separate methods to handle both cases. 
+		 */
 		public SendCommandRequestCallback(IResponseCommandCallback responseCommandCallback){
 			super(responseCommandCallback);
 			this.responseCommandCallback = responseCommandCallback;
@@ -263,9 +280,143 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 	}
 	
 	
-	private class AsyncRequestsManager{
-	
+	/**
+	 * Callback to be notified when a check_async_command_status request finishes, 
+	 * either successfully or not. The response will be a JSON string containing
+	 * a map with the status of every single async command that we queried, so 
+	 * we will have to parse and handle it appropriately. 
+	 * 
+	 * This callback will receive the raw response to the check query. That response will 
+	 * then be deserialized into an array of AsyncRequestStatus objects, and forwarded
+	 * to the provided IResponseCheckAsyncCommandStatusCallback, which will be the one to
+	 * actually handle the response.
+	 */
+	private class CheckAsyncCommandStatusRequestCallback extends WlRequestCallback{
+		private final IResponseCheckAsyncCommandStatusCallback responseCheckAsyncCommandStatusCallback;
+		
+		/**
+		 * Constructs the CheckAsyncCommandStatusRequestCallback.
+		 * @param responseCommandCallback Callback to be invoked whenever a request
+		 * fails or succeeds. IResponseCommandCallback extends IWlAsyncCallback, and
+		 * together they have two separate methods to handle both cases. 
+		 */
+		public CheckAsyncCommandStatusRequestCallback(IResponseCheckAsyncCommandStatusCallback responseCheckAsyncCommandStatusCallback){
+			super(responseCheckAsyncCommandStatusCallback);
+			this.responseCheckAsyncCommandStatusCallback = responseCheckAsyncCommandStatusCallback;
+		}
+		
+		/**
+		 * Method that will be invoked when the check_async_command_status response
+		 * is available. 
+		 * @param string The response, a JSON-encoded map of every async command state.
+		 */
+		@Override
+		public void onSuccessResponseReceived(String response) {
+			
+			// The response is a string containing the status of the async requests
+			// we are interested in, encoded in JSON. We will first use the serializer
+			// to deserialize it into an array of AsyncRequestStatus, with each
+			// AsyncRequestStatus containing the status, and possibly the response,
+			// of one async command.
+			final AsyncRequestStatus [] asyncRequests;
+			
+			
+			// TODO: Enable the following lines when parseCheckAsyncCommandStatusResponse is implemented.
+			asyncRequests = null;
+			
+//			try {
+//				asyncRequests = ((IWlLabSerializer)WlLabCommunication.this.serializer).parseCheckAsyncCommandStatusResponse(response);
+//			} catch (final SerializationException e) {
+//				this.responseCheckAsyncCommandStatusCallback.onFailure(e);
+//				return;
+//			} catch (final SessionNotFoundException e) {
+//				this.responseCheckAsyncCommandStatusCallback.onFailure(e);
+//				return;
+//			} catch (final WlServerException e) {
+//				this.responseCheckAsyncCommandStatusCallback.onFailure(e);
+//				return;
+//			}
+			
+			this.responseCheckAsyncCommandStatusCallback.onSuccess(asyncRequests);
+		}
 	}
+	
+	/**
+	 * Manages the asynchronous requests of a specific session.
+	 * Does polling on pending requests periodically to check whether
+	 * they have finished. If they have, it notifies the awaiting
+	 * callbacks of the response.
+	 */
+	private class AsyncRequestsManager {
+		
+		// Map relating the request identifiers, to the callbacks to invoke
+		// when the associated requests finish. Async request are commands, 
+		// so IResponseCommandCallbacks are appropriate.
+		private Map<String, IResponseCommandCallback> requests = 
+			new HashMap<String, IResponseCommandCallback>();
+		
+		private Timer timer;
+		
+		private SessionID sessionId;
+		
+		public AsyncRequestsManager(SessionID sessionId) {
+			
+			this.sessionId = sessionId;
+			
+			this.timer = new Timer() {
+				@Override
+				public void run() {
+					
+					// Build a request to check the state of every ongoing
+					// command.
+					final String [] requestIds = new String[AsyncRequestsManager.this.requests.size()];
+					AsyncRequestsManager.this.requests.keySet().toArray(requestIds);
+					
+					String requestSerialized = null;
+					final IWlLabSerializer serializer = (IWlLabSerializer)WlLabCommunication.this.serializer;
+					try {
+						requestSerialized = serializer.serializeCheckAsyncCommandStatusRequest(AsyncRequestsManager.this.sessionId, 
+								requestIds);
+					} catch (SerializationException e) {
+						// TODO: Handle this exception properly.
+					}
+					
+					// Define the callback that will be invoked when the check 
+					// async command status request finishes. It is noteworthy that
+					// the check_async_command_status request returns a map describing the
+					// status of every single request whose identifier was specified.
+					
+					final IResponseCheckAsyncCommandStatusCallback checkStatusCallback = new IResponseCheckAsyncCommandStatusCallback() {
+						@Override
+						public void onFailure(WlCommException e) {
+							// TODO: Handle this error.
+						}
+
+						@Override
+						public void onSuccess(AsyncRequestStatus [] requests) {
+							
+						}
+					};
+
+//					// Send the request and prepare to be notified.
+//					performRequest(
+//							requestSerialized, 
+//							callback, 
+//							new SendCommandRequestCallback(callback)
+//						);
+						
+				} //! run
+			}; //! new Timer
+			
+			this.timer.scheduleRepeating(2000);
+		}
+		
+		public void registerAsyncRequest(String requestIdentifier, 
+				IResponseCommandCallback responseCommandCallback) {
+			this.requests.put(requestIdentifier, responseCommandCallback);
+		}
+		
+	} //! class AsyncRequestsManager
 	
 	
 	/**

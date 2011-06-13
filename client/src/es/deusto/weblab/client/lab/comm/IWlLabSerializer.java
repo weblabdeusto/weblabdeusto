@@ -51,7 +51,7 @@ public interface IWlLabSerializer extends IWlCommonSerializer{
 	ResponseCommand parseSendFileResponse(String responseText)
 		throws SerializationException, SessionNotFoundException, NoCurrentReservationException, UserProcessingException, WlServerException;
 	
-	AsyncRequestStatus [] parseCheckAsyncCommandStatus(String responseText) 
+	AsyncRequestStatus [] parseCheckAsyncCommandStatusResponse(String responseText) 
 		throws SerializationException;
 	
 	String serializeGetReservationStatusRequest(SessionID sessionId) throws SerializationException;

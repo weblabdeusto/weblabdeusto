@@ -68,7 +68,7 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
     }
     
     @Override
-	public AsyncRequestStatus [] parseCheckAsyncCommandStatus(String responseText) 
+	public AsyncRequestStatus [] parseCheckAsyncCommandStatusResponse(String responseText) 
 		throws SerializationException {
     	
     	// TODO: Implement this.
