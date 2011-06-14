@@ -428,6 +428,104 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		Assert.assertEquals(4, this.stepCounter);
 	}
 	
+	
+	// TODO: Implement this test.
+	public void testSendAsyncCommand() {
+//		this.stepCounter = 0;
+//		final FakeWlLabSerializer weblabSerializer = new FakeWlLabSerializer();
+//		final FakeRequestBuilder requestBuilder = new FakeRequestBuilder();
+//		final FakeConfiguration configurationManager = new FakeConfiguration(new HashMap<String, String>());
+//				
+//		final WrappedWlLabCommunication comms = new WrappedWlLabCommunication(
+//					weblabSerializer,
+//					requestBuilder,
+//					configurationManager
+//				);
+//		final SessionID sessionId = new SessionID("whatever the session id");
+//		final Command   command   = new SwitchCommand(5, true);
+//		
+//		final String SERIALIZED_MESSAGE = "serialized get reservation status request";
+//		final String ERROR_MESSAGE = "whatever the error message";
+//		
+//		weblabSerializer.appendReturn(
+//				FakeWlLabSerializer.SERIALIZE_SEND_ASYNC_COMMAND_REQUEST, 
+//				SERIALIZED_MESSAGE
+//			);
+//	
+//		weblabSerializer.appendReturn(
+//				FakeWlLabSerializer.PARSE_SEND_COMMAND_RESPONSE, 
+//				new ResponseCommand("whatever") // TODO 
+//			);
+//	
+//		IResponseCommandCallback eac = new IResponseCommandCallback(){
+//			@Override
+//			public void onSuccess(ResponseCommand responseCommand) {
+//				//TODO
+//				WlLabCommunicationTest.this.stepCounter++;
+//			}
+//
+//			@Override
+//			public void onFailure(WlCommException e) {
+//				Assert.fail("onFailure not expected");
+//			}
+//		};
+//		
+//		requestBuilder.setNextReceivedMessage(SERIALIZED_MESSAGE);		
+//		comms.sendAsyncCommand(sessionId, command, eac);
+//		Assert.assertEquals(1, this.stepCounter);
+//		
+//		requestBuilder.setNextToThrow(new RequestException(ERROR_MESSAGE));
+//		eac = new IResponseCommandCallback(){
+//			@Override
+//			public void onSuccess(ResponseCommand responseCommand){
+//				Assert.fail("onSuccess not expected");
+//			}
+//			
+//			@Override
+//			public void onFailure(WlCommException e){
+//				Assert.assertTrue(e instanceof CommunicationException);
+//				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
+//				WlLabCommunicationTest.this.stepCounter++;
+//			}
+//		};
+//		comms.sendCommand(sessionId, command, eac);
+//		Assert.assertEquals(2, this.stepCounter);
+//		
+//		requestBuilder.setNextToError(new Exception(ERROR_MESSAGE));
+//		eac = new IResponseCommandCallback(){
+//			@Override
+//			public void onSuccess(ResponseCommand responseCommand){
+//				Assert.fail("onSuccess not expected");
+//			}
+//			
+//			@Override
+//			public void onFailure(WlCommException e){
+//				Assert.assertTrue(e instanceof CommunicationException);
+//				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
+//				WlLabCommunicationTest.this.stepCounter++;
+//			}
+//		};
+//		comms.sendCommand(sessionId, command, eac);
+//		Assert.assertEquals(3, this.stepCounter);
+//
+//		requestBuilder.setNextReceivedMessage("");
+//		requestBuilder.setResponseToSend(this.generateBadResponse());
+//		eac = new IResponseCommandCallback(){
+//			@Override
+//			public void onSuccess(ResponseCommand responseCommand){
+//				Assert.fail("onSuccess not expected");
+//			}
+//			
+//			@Override
+//			public void onFailure(WlCommException e){
+//				Assert.assertTrue(e instanceof ServerException);
+//				WlLabCommunicationTest.this.stepCounter++;
+//			}
+//		};
+//		comms.sendCommand(sessionId, command, eac);
+//		Assert.assertEquals(4, this.stepCounter);
+	}
+	
 	public void testSendCommand(){
 		this.stepCounter = 0;
 		final FakeWlLabSerializer weblabSerializer = new FakeWlLabSerializer();

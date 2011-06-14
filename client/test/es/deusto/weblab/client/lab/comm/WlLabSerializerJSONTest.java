@@ -785,6 +785,25 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 			);
 	}
 	
+	
+	public void testSerializeAsyncCommandRequest() throws Exception {
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		
+		final String MESSAGE = "whatever the session id real id";
+		
+		final SessionID sessionId = new SessionID(MESSAGE);
+		final Command command = new PulseCommand(5, true);
+		
+		final String serializedMessage = weblabSerializer.serializeSendAsyncCommandRequest(
+				sessionId, command);
+		
+		Assert.assertEquals(
+				"{\"params\":{\"session_id\":{\"id\":\"" + MESSAGE + "\"}, \"command\":{\"commandstring\":\"" + command.getCommandString() + "\"}}, \"method\":\"send_async_command\"}",
+				serializedMessage
+			);
+	}
+	
+	
 	public void testSerializeCommandRequest() throws Exception{
 		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		

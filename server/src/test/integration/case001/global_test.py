@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
 from test.util.ModuleDisposer import uses_module, case_uses_module
@@ -550,10 +551,6 @@ class Case001TestCase(object):
         self.real_ups.send_command(session_id, Command.Command("ChangeSwitch on 0"))
         self.real_ups.send_command(session_id, Command.Command("ClockActivation on 250"))
 
-        # end session
-        if logout:
-            self.real_ups.logout(session_id)
-
         # Checking the commands sent
         self.assertEquals(
                 1,
@@ -602,6 +599,52 @@ class Case001TestCase(object):
                 (5 + initial_total,None),
                 self.fake_serial_port1.dict['close'][1 + initial_close]
             )
+        
+        
+        # TODO: There are some issues with the following code. Particularly, there seem to be issues
+        # related to logging.
+   
+        # Now set the clock asynchronously to 260
+        #reqid = self.real_ups.send_async_command(session_id, Command.Command("ClockActivation on 260"))
+            
+            
+#        return 
+#        
+#        while True:
+#            requests = self.real_ups.check_async_command_status((reqid,))
+#            self.assertEquals(1, len(requests))
+#            self.assertTrue(reqid in requests)
+#            req = requests[reqid]
+#            status = req[0]
+#            self.assertTrue(status in ("running", "finished", "error"))
+#            if status != "running":
+#                self.assertEquals("finished", status)
+#                break
+#            
+#        # ClockActivation on 260
+#        self.assertEquals(  
+#                (3 + initial_total,1),
+#                self.fake_serial_port1.dict['open'][1 + initial_open]
+#            )
+#        self.assertEquals(  
+#                (4 + initial_total,42),
+#                self.fake_serial_port1.dict['send'][1 + initial_send]
+#            )
+#    
+#        self.assertEquals(  
+#                (5 + initial_total,None),
+#                self.fake_serial_port1.dict['close'][1 + initial_close]
+#            )
+        
+#         end session
+#         Note: Before async commands were implemented, this was actually done before
+#         checking the commands sent. If it was that way for a reason, it might be
+#         necessary to change it in the future.
+        if logout:
+            self.real_ups.logout(session_id)
+        
+        
+        
 
     @uses_module(UserProcessingServer)
     @uses_module(UserProcessor)
