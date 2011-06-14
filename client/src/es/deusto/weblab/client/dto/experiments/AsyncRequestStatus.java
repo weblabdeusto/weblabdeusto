@@ -25,16 +25,18 @@ public class AsyncRequestStatus {
 	private boolean requestRunning;
 	private boolean requestFinishedSuccessfully;
 	private String response;
+	private String requestID;
 	
 	/**
 	 * Creates an object to describe the status of an asynchronous request.
+	 * @param requestID Unique identifier string for the request.
 	 * @param requestRunning True if the request has not finished yet. False otherwise.
 	 * @param requestFinishedSuccessfully True if the request finished without errors. 
 	 * False if it finished with an error, or if the request has not yet finished.
 	 * @param response The response, which can either be a success or error response. Will only be available
 	 * if the request has finished (is no longer running).
 	 */
-	public AsyncRequestStatus(boolean requestRunning, 
+	public AsyncRequestStatus(String requestID, boolean requestRunning, 
 			boolean requestFinishedSuccessfully, String response) {
 		this.requestRunning = requestRunning;
 		this.requestFinishedSuccessfully = requestFinishedSuccessfully;
@@ -42,6 +44,13 @@ public class AsyncRequestStatus {
 		// A request cannot be both running and successfully finished.
 		if(this.requestRunning && this.requestFinishedSuccessfully)
 			throw new RuntimeException("Trying to construct an AsyncRequestStatus object with an invalid state");
+	}
+	
+	/** 
+	 * @return Unique ID string of the request.
+	 */
+	public String getRequestID() {
+		return this.requestID;
 	}
 	
 	/**

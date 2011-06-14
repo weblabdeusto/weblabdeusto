@@ -30,6 +30,13 @@ import es.deusto.weblab.client.comm.exceptions.ServerException;
  * notification, receiving a response successfully does not necessarily mean that the
  * request succeeded. Hence the need for the aforementioned callback within this
  * callback.
+ * 
+ * Most often, a callback extending this WlRequestCallback will be used as the one 
+ * to receive and parse the raw result of a query (that is, for instance, the JSON-encoded 
+ * result). These extending classes will also rather often accept some kind of 
+ * IWlAsyncCallback, which will be the one to handle the higher level (already parsed, 
+ * not raw) result and logic. This extended IWlAsyncCallback will often include an 
+ * onSuccess method, with a signature specific to that higher level response.
  */
 abstract public class WlRequestCallback implements RequestCallback{
 

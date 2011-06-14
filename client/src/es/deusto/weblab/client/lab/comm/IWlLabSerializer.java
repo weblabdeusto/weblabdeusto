@@ -52,7 +52,7 @@ public interface IWlLabSerializer extends IWlCommonSerializer{
 		throws SerializationException, SessionNotFoundException, NoCurrentReservationException, UserProcessingException, WlServerException;
 	
 	AsyncRequestStatus [] parseCheckAsyncCommandStatusResponse(String responseText) 
-		throws SerializationException;
+		throws SerializationException, SessionNotFoundException, NoCurrentReservationException, UserProcessingException, WlServerException;
 	
 	String serializeGetReservationStatusRequest(SessionID sessionId) throws SerializationException;
 	String serializeListExperimentsRequest(SessionID sessionId) throws SerializationException;

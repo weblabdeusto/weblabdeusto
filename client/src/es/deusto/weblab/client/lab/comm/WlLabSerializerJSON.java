@@ -67,14 +67,6 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
 		return this.parseReservationStatus(result);
     }
     
-    @Override
-	public AsyncRequestStatus [] parseCheckAsyncCommandStatusResponse(String responseText) 
-		throws SerializationException {
-    	
-    	// TODO: Implement this.
-    	
-    	return null;
-	}
 
     private ReservationStatus parseReservationStatus(final JSONObject result)
 	    throws SerializationException {
@@ -188,6 +180,16 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
 		final String commandString = this.json2string(value);
 		return new ResponseCommand(commandString);
     }
+    
+    @Override
+	public AsyncRequestStatus [] parseCheckAsyncCommandStatusResponse(String responseText) 
+		throws SerializationException, SessionNotFoundException, NoCurrentReservationException, UserProcessingException, WlServerException {
+    	
+    	// TODO: Implement this.
+    	
+    	return null;
+	}
+
 
     @Override
 	public ResponseCommand parseSendFileResponse(String responseText)

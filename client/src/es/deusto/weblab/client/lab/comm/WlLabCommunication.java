@@ -56,6 +56,14 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 	public static final String WEBLAB_FILE_UPLOAD_POST_SERVICE_URL_PROPERTY = "weblab.service.fileupload.post.url";
 	public static final String DEFAULT_WEBLAB_FILE_UPLOAD_POST_SERVICE_URL = "/weblab/web/upload/"; 
 	
+	
+	// TODO: 
+	// The existence of multiple managers is probably not required
+	// As of now, I don't think there can be two different active sessions at the
+	// same time. 
+	private final Map<SessionID, AsyncRequestsManager> asyncRequestsManagers =
+		new HashMap<SessionID, AsyncRequestsManager>();
+	
 	public WlLabCommunication(IConfigurationManager configurationManager){
 		super(configurationManager);
 	}
@@ -320,22 +328,18 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 			// of one async command.
 			final AsyncRequestStatus [] asyncRequests;
 			
-			
-			// TODO: Enable the following lines when parseCheckAsyncCommandStatusResponse is implemented.
-			asyncRequests = null;
-			
-//			try {
-//				asyncRequests = ((IWlLabSerializer)WlLabCommunication.this.serializer).parseCheckAsyncCommandStatusResponse(response);
-//			} catch (final SerializationException e) {
-//				this.responseCheckAsyncCommandStatusCallback.onFailure(e);
-//				return;
-//			} catch (final SessionNotFoundException e) {
-//				this.responseCheckAsyncCommandStatusCallback.onFailure(e);
-//				return;
-//			} catch (final WlServerException e) {
-//				this.responseCheckAsyncCommandStatusCallback.onFailure(e);
-//				return;
-//			}
+			try {
+				asyncRequests = ((IWlLabSerializer)WlLabCommunication.this.serializer).parseCheckAsyncCommandStatusResponse(response);
+			} catch (final SerializationException e) {
+				this.responseCheckAsyncCommandStatusCallback.onFailure(e);
+				return;
+			} catch (final SessionNotFoundException e) {
+				this.responseCheckAsyncCommandStatusCallback.onFailure(e);
+				return;
+			} catch (final WlServerException e) {
+				this.responseCheckAsyncCommandStatusCallback.onFailure(e);
+				return;
+			}
 			
 			this.responseCheckAsyncCommandStatusCallback.onSuccess(asyncRequests);
 		}
@@ -359,6 +363,34 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 		
 		private SessionID sessionId;
 		
+		/**
+		 * Provides an update for an async request. It will check whether
+		 * the request finished. If so, it will remove it from its internal list
+		 * and invoke its callback.
+		 * @param request Status of a request
+		 */
+		public void updateStatus(AsyncRequestStatus request) {
+			if(!request.isRunning()) {
+				
+				final IResponseCommandCallback cmdCallback = this.requests.get(request.getRequestID());
+				this.requests.remove(request.getRequestID());
+				
+				final String response = request.getResponse();
+				
+				if(request.isSuccessfullyFinished())
+					cmdCallback.onSuccess(new ResponseCommand(response));
+				else
+					cmdCallback.onFailure(new WlCommException("Async cmd reported failure: " + response));
+			
+				// TODO: There might be some other exception type more appropriate 
+				// than the above.
+			}
+		}
+		
+		/**
+		 * Creates an AsyncRequestManager.
+		 * @param sessionId Session identifier whose asynchronous commands to handle
+		 */
 		public AsyncRequestsManager(SessionID sessionId) {
 			
 			this.sessionId = sessionId;
@@ -378,7 +410,9 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 						requestSerialized = serializer.serializeCheckAsyncCommandStatusRequest(AsyncRequestsManager.this.sessionId, 
 								requestIds);
 					} catch (SerializationException e) {
-						// TODO: Handle this exception properly.
+						// TODO: Handle this exception properly. The request is not linked
+						// to a particular command (but to several) so we cannot simply
+						// invoke its callback.
 					}
 					
 					// Define the callback that will be invoked when the check 
@@ -394,20 +428,34 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 
 						@Override
 						public void onSuccess(AsyncRequestStatus [] requests) {
-							
+							// Update the status of every request included in the
+							// response. If the status did not change it will be
+							// a NO-OP anyway.
+							for(AsyncRequestStatus r : requests)
+								AsyncRequestsManager.this.updateStatus(r);
 						}
 					};
+					
+					// Create the callback that will initially receive and parse the
+					// raw results, passing the higher-level callback (defined above) 
+					// to it, which will receive a high-level desearialized object with 
+					// the results.
+					final CheckAsyncCommandStatusRequestCallback rawRequestCallback = 
+						new CheckAsyncCommandStatusRequestCallback(checkStatusCallback); 
 
-//					// Send the request and prepare to be notified.
-//					performRequest(
-//							requestSerialized, 
-//							callback, 
-//							new SendCommandRequestCallback(callback)
-//						);
+					// Send the request and prepare to be notified.
+					performRequest(
+							requestSerialized, 
+							checkStatusCallback, 
+							rawRequestCallback
+						);
 						
 				} //! run
 			}; //! new Timer
+		
 			
+			// TODO: The timer should somehow only run when/if there are actually
+			// pending commands. For now, it will run forever.
 			this.timer.scheduleRepeating(2000);
 		}
 		
@@ -461,15 +509,15 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 	 * particularly long time to arrive. 
 	 */
 	@Override
-	public void sendAsyncCommand(SessionID sessionId, Command command,
-			IResponseCommandCallback callback) {
+	public void sendAsyncCommand(final SessionID sessionId, Command command,
+			final IResponseCommandCallback commandCallback) {
 		
 		// Serialize the request as an asynchronous send command request.
 		String requestSerialized;
 		try {
 			requestSerialized = ((IWlLabSerializer)this.serializer).serializeSendAsyncCommandRequest(sessionId, command);
 		} catch (final SerializationException e1) {
-			callback.onFailure(e1);
+			commandCallback.onFailure(e1);
 			return;
 		}
 		
@@ -481,18 +529,31 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
 				final String requestID = responseCommand.getCommandString();
+				
+				// We will now need to register the command in the local manager, so
+				// that it handles the polling.
+				AsyncRequestsManager asyncReqMngr = 
+					WlLabCommunication.this.asyncRequestsManagers.get(sessionId);
+
+				// TODO: Consider some better way of handling the managers.
+				if(asyncReqMngr == null)
+					asyncReqMngr = new AsyncRequestsManager(sessionId);
+				
+				asyncReqMngr.registerAsyncRequest(requestID, commandCallback);
 			}
 
 			@Override
 			public void onFailure(WlCommException e) {
-				// TODO: Implement this.
+				commandCallback.onFailure(e);
 			}
 		};
 		
+		// Execute the initial request which will return the identifier and
+		// register the command for polling.
 		this.performRequest(
 				requestSerialized, 
-				callback, 
-				new SendAsyncCommandRequestCallback(callback)
+				asyncCommandResponseCallback, 
+				new SendAsyncCommandRequestCallback(asyncCommandResponseCallback)
 			);
 	}
 
