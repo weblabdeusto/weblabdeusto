@@ -14,6 +14,8 @@
 
 package es.deusto.weblab.client.lab.comm;
 
+import java.util.Set;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.json.client.JSONArray;
@@ -182,16 +184,67 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
     }
     
     @Override
+    /**
+     * Deserialize the raw JSON-encoded response for the check_async_requests_status query
+     * into an array of AsyncRequestStatus objects.
+     */
 	public AsyncRequestStatus [] parseCheckAsyncCommandStatusResponse(String responseText) 
 		throws SerializationException, SessionNotFoundException, NoCurrentReservationException, UserProcessingException, WlServerException {
     	
-    	// TODO: Implement this.
+    	final JSONObject result = this.parseResultObject(responseText);
     	
-    	return null;
+    	final Set<String> requestIds = result.keySet();
+    	
+    	final AsyncRequestStatus [] requests = new AsyncRequestStatus[result.size()];
+    	
+    	int i = 0;
+    	for(String id : requestIds) {
+    		final JSONArray reqStatus = result.get(id).isArray();
+    		if(reqStatus == null) 
+    			throw new SerializationException("CheckASyncCommandStatusResponse: Expected object within results dict");
+    		final JSONString status = reqStatus.get(0).isString();
+    		final JSONString contents = reqStatus.get(1).isString();
+    		
+    		if(status == null)
+    			throw new SerializationException("CheckAsyncCommandStatusResponse: Null value received as the status of a request");
+    		
+    		final String statusStr = status.stringValue();
+    		
+    		boolean running = false;
+    		boolean finishedSuccessfully;
+    		
+    		if(statusStr.equals("running")) {
+    			running = true;
+    			finishedSuccessfully = false;
+    		} else if(statusStr.equals("finished")) {
+    			running = false;
+    			finishedSuccessfully = true;
+    		} else if(statusStr.equals("error")) {
+    			running = false;
+    			finishedSuccessfully = false; 
+    		} else {
+    			throw new SerializationException("CheckAsyncCommandStatusResponse: Unexpected value as a command status: (Not finished/running/error).");
+    		}
+    		
+    		final String contentsStr;
+    		if(!running) {
+    			if( contents == null )
+    				throw new SerializationException("CheckAsyncCommandStatusResponse: A finished command does not seem to contain a string describing its response");
+    			contentsStr = contents.stringValue();
+    		} else 
+    			contentsStr = "";
+    		
+    		final AsyncRequestStatus reqobj = new AsyncRequestStatus(id, running, finishedSuccessfully, contentsStr);
+    	
+    		requests[i++] = reqobj;
+    	}
+    	
+    	return requests;
 	}
 
 
-    @Override
+
+	@Override
 	public ResponseCommand parseSendFileResponse(String responseText)
 	    throws SerializationException, SessionNotFoundException, NoCurrentReservationException, UserProcessingException, WlServerException {
 		if(!GWT.isScript() && responseText == null)
