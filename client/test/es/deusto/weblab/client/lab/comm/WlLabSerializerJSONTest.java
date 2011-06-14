@@ -23,6 +23,7 @@ import es.deusto.weblab.client.comm.exceptions.WlServerException;
 import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
 import es.deusto.weblab.client.comm.exceptions.core.UserProcessingException;
 import es.deusto.weblab.client.dto.SessionID;
+import es.deusto.weblab.client.dto.experiments.AsyncRequestStatus;
 import es.deusto.weblab.client.dto.experiments.Category;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.EmptyResponseCommand;
@@ -185,6 +186,35 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 		}catch(final SerializationException se){
 			//Ok
 		}
+	}
+	
+	
+	public void testParseCheckAsyncCommandStatusResponse() throws Exception {
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final String json = "{ \"result\" : { \"AAAA\": [\"running\", \"\"], \"BBBB\" : [\"finished\", \"Success\"], \"CCCC\" : [\"error\", \"Error\"] }, \"is_exception\" : false }";
+		final AsyncRequestStatus [] requests = weblabSerializer.parseCheckAsyncCommandStatusResponse(json);
+	
+		Assert.assertEquals(3, requests.length);
+		
+		AsyncRequestStatus first = requests[0];
+		Assert.assertEquals("AAAA", first.getRequestID());
+		Assert.assertTrue(first.isRunning());
+		Assert.assertFalse(first.isSuccessfullyFinished());
+		Assert.assertFalse(first.isError());
+		
+		AsyncRequestStatus second = requests[1];
+		Assert.assertEquals("BBBB", second.getRequestID());
+		Assert.assertTrue(second.isSuccessfullyFinished());
+		Assert.assertFalse(second.isRunning());
+		Assert.assertFalse(second.isError());
+		Assert.assertEquals("Success", second.getResponse());
+		
+		AsyncRequestStatus third = requests[2];
+		Assert.assertEquals("CCCC", third.getRequestID());
+		Assert.assertFalse(third.isSuccessfullyFinished());
+		Assert.assertFalse(third.isRunning());
+		Assert.assertTrue(third.isError());
+		Assert.assertEquals("Error", third.getResponse());
 	}
 
 	public void testParseSendCommandResponse() throws Exception{

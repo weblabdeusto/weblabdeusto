@@ -9,6 +9,7 @@
 * listed below:
 *
 * Author: Pablo Orduña <pablo@ordunya.com>
+* 		  Luis Rodriguez <luis.rodriguez@opendeusto.es>
 *
 */
 
@@ -201,7 +202,7 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
     	for(String id : requestIds) {
     		final JSONArray reqStatus = result.get(id).isArray();
     		if(reqStatus == null) 
-    			throw new SerializationException("CheckASyncCommandStatusResponse: Expected object within results dict");
+    			throw new SerializationException("CheckAsyncCommandStatusResponse: Expected object within results dict");
     		final JSONString status = reqStatus.get(0).isString();
     		final JSONString contents = reqStatus.get(1).isString();
     		

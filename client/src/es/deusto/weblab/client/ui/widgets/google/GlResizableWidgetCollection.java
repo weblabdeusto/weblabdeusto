@@ -37,7 +37,7 @@ import java.util.Map;
  * Widgets do not need to be added to a {@link GlResizableWidgetCollection} as
  * they cannot be resized.
  */
-@SuppressWarnings("unqualified-field-access")
+@SuppressWarnings({"unqualified-field-access", "deprecation"})
 public class GlResizableWidgetCollection implements WindowResizeListener,
     Iterable<GlResizableWidget> {
   /**

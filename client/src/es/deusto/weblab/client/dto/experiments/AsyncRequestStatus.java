@@ -38,8 +38,10 @@ public class AsyncRequestStatus {
 	 */
 	public AsyncRequestStatus(String requestID, boolean requestRunning, 
 			boolean requestFinishedSuccessfully, String response) {
+		this.requestID = requestID;
 		this.requestRunning = requestRunning;
 		this.requestFinishedSuccessfully = requestFinishedSuccessfully;
+		this.response = response;
 		
 		// A request cannot be both running and successfully finished.
 		if(this.requestRunning && this.requestFinishedSuccessfully)
