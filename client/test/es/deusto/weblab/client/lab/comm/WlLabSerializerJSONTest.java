@@ -191,7 +191,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	
 	public void testParseCheckAsyncCommandStatusResponse() throws Exception {
 		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
-		final String json = "{ \"result\" : { \"AAAA\": [\"running\", \"\"], \"BBBB\" : [\"finished\", \"Success\"], \"CCCC\" : [\"error\", \"Error\"] }, \"is_exception\" : false }";
+		final String json = "{ \"result\" : { \"AAAA\": [\"running\", \"\"], \"BBBB\" : [\"ok\", \"Success\"], \"CCCC\" : [\"error\", \"Error\"] }, \"is_exception\" : false }";
 		final AsyncRequestStatus [] requests = weblabSerializer.parseCheckAsyncCommandStatusResponse(json);
 	
 		Assert.assertEquals(3, requests.length);

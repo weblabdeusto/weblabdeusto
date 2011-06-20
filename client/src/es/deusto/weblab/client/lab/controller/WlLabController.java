@@ -274,12 +274,47 @@ public class WlLabController implements IWlLabController {
 			}
 		});
 	}
+	
+	/**
+	 * Sends a command to be executed asynchronously on the server side. 
+	 * @param  command Command to execute
+	 * @param callback Callback through which to notify when the request has finished,
+	 * which might take a while.
+	 */
+	@Override
+	public void sendAsyncCommand(Command command, IResponseCommandCallback callback) {
+		this.communications.sendAsyncCommand(this.currentSession, command, callback);
+	}
+	
+	/**
+	 * Sends a file to be handled asynchronously on the server side.
+	 * @param uploadStructure Upload structure describing the file to send
+	 * @param callback Callback through which to notify when the request has finished,
+	 * which might take a while.
+	 */
+	@Override
+	public void sendAsyncFile(UploadStructure uploadStructure, IResponseCommandCallback callback) {
+		this.communications.sendAsyncFile(this.currentSession, uploadStructure, callback);
+	}
 
+	/**
+	 * Sends a command to be executed synchronously on the server side. Note that this call,
+	 * client-side, is still asynchronous.
+	 * @param command Command to execute
+	 * @param callback Callback through which to notify when the request has finished.
+	 */
 	@Override
 	public void sendCommand(Command command, IResponseCommandCallback callback) {
 		this.communications.sendCommand(this.currentSession, command, callback);
 	}
 
+
+	/**
+	 * Sends a file to be handled synchronously on the server side. Note that this call,
+	 * client-side, is still asynchronous.
+	 * @param uploadStructure Upload structure describing the file to send
+	 * @param callback Callback through which to notify when the request has finished.
+	 */
 	@Override
 	public void sendFile(UploadStructure uploadStructure, IResponseCommandCallback callback) {
 	    GWT.log("sendFile en communications", null);
@@ -368,6 +403,31 @@ public class WlLabController implements IWlLabController {
 			IResponseCommandCallback callback) {
 		    WlLabController.this.sendFile(uploadStructure, callback);
 		    
+		}
+
+		@Override
+		public void sendAsyncCommand(Command command) {
+			//WlLabController.this.send
+		}
+
+		@Override
+		public void sendAsyncCommand(Command command,
+				IResponseCommandCallback callback) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void sendAsyncCommand(String command) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void sendAsyncCommand(String command,
+				IResponseCommandCallback callback) {
+			// TODO Auto-generated method stub
+			
 		}
 	    };
 	    final ExperimentFactory factory = new ExperimentFactory(boardBaseController);

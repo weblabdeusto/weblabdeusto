@@ -36,6 +36,9 @@ public interface IWlLabController {
 	public void sendCommand(Command command, IResponseCommandCallback callback);
 	public void sendFile(UploadStructure uploadStructure, IResponseCommandCallback callback);
 	
+	public void sendAsyncCommand(Command command, IResponseCommandCallback callback);
+	public void sendAsyncFile(UploadStructure uploadStructure, IResponseCommandCallback callback);
+	
 	public void finishReservation();
 	public void finishReservationAndLogout();
 	public void cleanReservation();

@@ -77,6 +77,16 @@ public class MockController implements IWlLabController {
 		this.n = 3;
 		this.nextWaitingReservationStatus();
 	}
+	
+	@Override
+	public void sendAsyncCommand(Command command,
+			IResponseCommandCallback callback) {
+	}
+
+	@Override
+	public void sendAsyncFile(UploadStructure uploadStructure,
+			IResponseCommandCallback callback) {
+	}	
 
 	@Override
 	public void sendFile(UploadStructure uploadStructure,
@@ -155,5 +165,7 @@ public class MockController implements IWlLabController {
 			}
 		};
 		t.schedule(600);
-	}	
+	}
+
+
 }

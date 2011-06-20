@@ -88,6 +88,28 @@ public class ExperimentFactoryTest extends GWTTestCase {
 			public boolean isFacebook() {
 				return false;
 			}
+
+			@Override
+			public void sendAsyncCommand(Command command) {
+							
+			}
+
+			@Override
+			public void sendAsyncCommand(Command command,
+					IResponseCommandCallback callback) {
+							
+			}
+
+			@Override
+			public void sendAsyncCommand(String command) {
+							
+			}
+
+			@Override
+			public void sendAsyncCommand(String command,
+					IResponseCommandCallback callback) {
+							
+			}
 		});
 		
 		final ExperimentLoadedCallback callback = new ExperimentLoadedCallback();
@@ -129,6 +151,28 @@ public class ExperimentFactoryTest extends GWTTestCase {
 			@Override
 			public boolean isFacebook() {
 				return false;
+			}
+
+			@Override
+			public void sendAsyncCommand(Command command) {
+							
+			}
+
+			@Override
+			public void sendAsyncCommand(Command command,
+					IResponseCommandCallback callback) {
+							
+			}
+
+			@Override
+			public void sendAsyncCommand(String command) {
+							
+			}
+
+			@Override
+			public void sendAsyncCommand(String command,
+					IResponseCommandCallback callback) {
+							
 			}
 		});
 		
