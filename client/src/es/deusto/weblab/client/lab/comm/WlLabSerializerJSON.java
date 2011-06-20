@@ -217,7 +217,7 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
     		if(statusStr.equals("running")) {
     			running = true;
     			finishedSuccessfully = false;
-    		} else if(statusStr.equals("finished")) {
+    		} else if(statusStr.equals("ok")) {
     			running = false;
     			finishedSuccessfully = true;
     		} else if(statusStr.equals("error")) {
