@@ -9,6 +9,7 @@
 * listed below:
 *
 * Author: Pablo Orduña <pablo@ordunya.com>
+* 		  Luis Rodriguez <luis.rodriguez@opendeusto.es>
 *
 */ 
 package es.deusto.weblab.client.lab.controller;
@@ -407,27 +408,45 @@ public class WlLabController implements IWlLabController {
 
 		@Override
 		public void sendAsyncCommand(Command command) {
-			//WlLabController.this.send
+    	    WlLabController.this.sendAsyncCommand(command, new IResponseCommandCallback(){
+	    		@Override
+				public void onSuccess(
+	    			ResponseCommand responseCommand) {
+	    		    // nothing
+	    		}
+
+	    		@Override
+				public void onFailure(WlCommException e) {
+	    		    WlLabController.this.uimanager.onError("Error sending async command: " + e.getMessage());
+	    		}
+	    	    });
 		}
 
 		@Override
 		public void sendAsyncCommand(Command command,
 				IResponseCommandCallback callback) {
-			// TODO Auto-generated method stub
-			
+			WlLabController.this.sendAsyncCommand(command, callback);
 		}
 
 		@Override
-		public void sendAsyncCommand(String command) {
-			// TODO Auto-generated method stub
-			
+		public void sendAsyncCommand(final String command) {
+    		sendAsyncCommand(new Command() {
+				@Override
+				public String getCommandString() {
+					return command;
+				}
+			});
 		}
 
 		@Override
-		public void sendAsyncCommand(String command,
+		public void sendAsyncCommand(final String command,
 				IResponseCommandCallback callback) {
-			// TODO Auto-generated method stub
-			
+    		sendCommand(new Command() {
+				@Override
+				public String getCommandString() {
+					return command;
+				}
+			}, callback);
 		}
 	    };
 	    final ExperimentFactory factory = new ExperimentFactory(boardBaseController);
