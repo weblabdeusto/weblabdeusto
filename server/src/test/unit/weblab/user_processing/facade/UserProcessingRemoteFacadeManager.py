@@ -106,7 +106,6 @@ class MockUPS(object):
             raise self.exceptions['send_command']
         return self.return_values['send_command']
     
-    # TODO: Possibly, modify this.
     def send_async_command(self, session_id, command):
         self.arguments['send_command'] = (session_id, command)
         if self.exceptions.has_key('send_command'):
