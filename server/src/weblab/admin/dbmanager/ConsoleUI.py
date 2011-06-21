@@ -286,12 +286,13 @@ class ConsoleUI(object):
         self._print(" 10. List Users")
         self._print(" 11. Notify Users")
         self._print(" 12. Add Users (batch) with DB AuthType")
+        self._print(" 13. Notify users (With passwords)")
         self._print()
         self._print("0. Exit")
         self._print()
         while True:
             try:
-                option = self._read_field_int("Option", 0, 12)
+                option = self._read_field_int("Option", 0, 13)
                 break
             except GoBackException:
                 pass
@@ -402,6 +403,26 @@ class ConsoleUI(object):
         # Let the user choose a role to apply to every user 
         role = self._read_field_choose("Role", roles, True)
         return user_logins, role
+    
+    def dialog_read_db_users_file_for_notify(self, default_users_file):
+        """
+        Provides the console interface to read the list of users with the password
+        information, to be used for mail notifications.
+        Returns a list of tuples with the users' data.
+        """
+        self._clean()
+        self._print("Read user information file")
+        self._print()
+        
+        # Retrieve a list of lists with the data container in the specified users file.
+        user_logins = self._read_field_full_users_db_file("Users file", default=default_users_file)
+        
+        # Display each user's data.
+        for user_login in user_logins:
+            self._print(" %s" % str(user_login))
+            
+        return user_logins
+
                
     def dialog_grant_on_experiment_to_group(self, groups, experiments):
         self._clean()
@@ -428,6 +449,16 @@ class ConsoleUI(object):
     def dialog_notify_users(self, groups, default_from, default_bcc, default_subject, default_text_file):
         self._clean()
         self._print("Notify Users")
+        self._print()
+        return self._read_field_email("From", default=default_from), \
+               self._read_field_choose("To", groups), \
+               self._read_field_emails("BCC", default=default_bcc), \
+               self._read_field_str("Subject", default=default_subject), \
+               self._read_field_textarea("Text file", default=default_text_file)
+               
+    def dialog_notify_users_with_passwords(self, groups, default_from, default_bcc, default_subject, default_text_file):
+        self._clean()
+        self._print("Notify Users (With passwords)")
         self._print()
         return self._read_field_email("From", default=default_from), \
                self._read_field_choose("To", groups), \

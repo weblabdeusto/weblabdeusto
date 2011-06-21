@@ -36,6 +36,7 @@ try:
     from configuration import DEFAULT_OPENID_USERS_FILE
     from configuration import DEFAULT_DB_USERS_FILE
     from configuration import DEFAULT_NOTIFICATION_FROM, DEFAULT_NOTIFICATION_BCC, DEFAULT_NOTIFICATION_SUBJECT, DEFAULT_NOTIFICATION_TEXT_FILE
+    from configuration import DEFAULT_NOTIFICATION_WITH_PASSWORD_TEXT_FILE
 except Exception, e:
     print "File configuration.py not found. See configuration.py.dist. Error:", str(e)
     sys.exit(1)
@@ -81,6 +82,8 @@ class Controller(object):
                 self.notify_users()
             elif option == 12: 
                 self.add_users_batch_with_db_authtype() # TODO: Move this option to where it belongs.
+            elif option == 13:
+                self.notify_users_with_passwords()
         self.ui.dialog_exit()
         sys.exit(0)
 
@@ -392,6 +395,44 @@ class Controller(object):
                     self.ui.notify_end("done.")
             else:
                 self.ui.error("The selected Group has no Users to notify.")
+            self.ui.wait()
+        except GoBackException:
+            return
+        
+    def notify_users_with_passwords(self):
+        groups = self.db.get_groups()
+        group_names = [ (group.id, group.name) for group in groups ]
+        try:
+            fromm, group_id, bcc, subject, text = self.ui.dialog_notify_users(
+                                                            group_names,
+                                                            DEFAULT_NOTIFICATION_FROM,
+                                                            DEFAULT_NOTIFICATION_BCC,
+                                                            DEFAULT_NOTIFICATION_SUBJECT,
+                                                            DEFAULT_NOTIFICATION_WITH_PASSWORD_TEXT_FILE
+                                                     )
+            users = [ group.users for group in groups if group.id == group_id ][0] if group_id is not None else self.db.get_users()
+            
+            # The DB does not contain the passwords, so we will retrieve them from the DBUSERS file. 
+            users_from_file = self.ui.dialog_read_db_users_file_for_notify(DEFAULT_DB_USERS_FILE)
+            
+            # Store the passwords in a dictionary, associating them with the login names. 
+            user_pwds = {}
+            for entry in users_from_file:
+                user_pwds[entry[0]] = entry[3]
+                            
+            if len(users) > 0 and len(users_from_file) > 0:
+                
+                smtp = SmtpGateway(SMTP_HOST, SMTP_HELO)
+                for user in users:
+                    if( user.login in user_pwds ):
+                        pwd = user_pwds[user.login]
+                        self.ui.notify_begin("Sending email to %s..." % user.email)
+                        smtp.send(fromm, (user.email,) + bcc, subject, text % {'FULL_NAME': user.full_name, 'LOGIN': user.login, 'PASSWORD': pwd})
+                        self.ui.notify_end("done.")
+                    else:
+                        self.ui.notify("[Warning]: Did not notify %s. The password is not available in the specified users file", user.login)
+            else:
+                self.ui.error("The selected Group has no Users to notify, or the users file specified is empty.")
             self.ui.wait()
         except GoBackException:
             return
