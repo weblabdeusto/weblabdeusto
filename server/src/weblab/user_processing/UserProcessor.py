@@ -91,12 +91,18 @@ class UserProcessor(object):
     EXPIRATION_TIME_NOT_SET=-1234
 
     def __init__(self, locator, session, cfg_manager, coordinator, db_manager):
-        self._locator         = locator
-        self._session         = session
-        self._cfg_manager     = cfg_manager
-        self._coordinator     = coordinator
-        self._db_manager      = db_manager
-        self.time_module      = time_module
+        self._locator               = locator
+        self._session               = session
+        self._cfg_manager           = cfg_manager
+        self._coordinator           = coordinator
+        self._db_manager            = db_manager
+        self.time_module            = time_module
+        
+        # The response to asynchronous commands is not immediately available, so we need to 
+        # use this map to store the ids of the usage objects (commands sent), identified through 
+        # their request_ids (which are not the same). As their responses become available, we will
+        # use the request_ids to find the ids of the usage objects, and update them.
+        self.async_commands_ids = {}
 
     def list_experiments(self):
         db_session_id         = self._session['db_session_id']
@@ -203,8 +209,19 @@ class UserProcessor(object):
 
 
     def finished_experiment(self):
+        """
+        Called when the experiment ends, regardless of the way. (That is, it does not matter whether the user finished
+        it explicitly or not).
+        """
         error = self._finish_reservation()
         self._stop_polling()
+        
+        # Within the session object, we log the usage the user did. That is, the commands the user sent
+        # during his session. Now that the experiment has finished, we will store these records (which include
+        # the responses) within the database.
+        # TODO: Note: At the moment, there is no way to guarantee that when the experiment finishes every
+        # asynchronous command has also finished. Hence, besides some responses being potentially not available,
+        # it would not be unlikely for some unexpected behaviour to occur under certain circumstances.
         if self._session.has_key('experiment_usage') and self._session['experiment_usage'] != None:
             experiment_usage = self._session.pop('experiment_usage')
             if experiment_usage.start_date is not None:
@@ -271,14 +288,21 @@ class UserProcessor(object):
                 )
             command_id_pack = self._append_command(command)
             try:
+                
+                # We call the laboratory server's send_command, which will finally
+                # get the command to be handled by the experiment.
                 response = laboratory_server.send_command(
                         self._session['lab_session_id'],
                         command
                     )
 
+                # The previous call was executed synchronously and we have
+                # received the response. Before returning it, we will store it
+                # locally so that we can log it.
                 self._update_command(command_id_pack, response)
 
                 return response
+            
             except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
                 self._update_command(command_id_pack, Command.Command("ERROR: SessionNotFound: None"))
                 try:
@@ -356,8 +380,10 @@ class UserProcessor(object):
         Checks the status of several asynchronous commands. The request will be
         internally forwarded to the lab server. Standard async commands
         and file_send commands are treated in the same way. 
-        Cmmands reported as finished (either successfully or not) will be
+        Commands reported as finished (either successfully or not) will be
         removed, so check_async_command_status should not be called on them again.
+        Before removing the commands, it will also register their response for
+        logging purposes.
         
         @param request_identifiers: List of the identifiers to check
         @return: Dictionary by request-id of tuples: (status, content)
@@ -370,18 +396,23 @@ class UserProcessor(object):
                     ServerType.Laboratory
                 )
             
-            # TODO: Consider re-enabling / replacing the _update_command thing.
-            
-            # command_id_pack = self._append_command(command)
             try:
                 response = laboratory_server.check_async_command_status(
                         self._session['lab_session_id'],
                         request_identifiers
                     )
 
-                # self._update_command(command_id_pack, response)
+                # Within the response map, we might now have the real response to one
+                # (or more) async commands. We will update the usage object of the
+                # command with its response, so that once the experiment ends it appears
+                # in the log as expected.
+                for req_id, (cmd_status, cmd_response) in response.items(): #@UnusedVariable
+                    usage_obj_id = self.async_commands_ids[req_id]
+                    # TODO: Bug here. async_commands_ids is empty.
+                    self._update_command(usage_obj_id, cmd_response)
 
                 return response
+
             except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
                 # We did not find the specified session in the laboratory server.
                 # We'll finish the experiment.
@@ -423,15 +454,29 @@ class UserProcessor(object):
                     ServerType.Laboratory
                 )
             command_id_pack = self._append_command(command)
+            
             try:
-                response = laboratory_server.send_async_command(
+                
+                # We forward the request to the laboratory server, which
+                # will forward it to the actual experiment. Because this is 
+                # an asynchronous call, we will not receive the actual response
+                # to the command, but simply an ID identifying our request. This also 
+                # means that by the time this call returns, the real response to the
+                # command is most likely not available yet.
+                request_id = laboratory_server.send_async_command(
                         self._session['lab_session_id'],
                         command
                     )
+                
+                # If this was a standard, synchronous send_command, we would now store the response
+                # we received, so that later, when the experiment finishes, the log is properly
+                # written. However, the real response is not available yet, so we can't do that here.
+                # Instead, we will store a reference to our usage object, so that we can later update it
+                # when the response to the asynchronous command is ready.
+                self.async_commands_ids[request_id] = command_id_pack
 
-                self._update_command(command_id_pack, response)
-
-                return response
+                return request_id
+            
             except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
                 self._update_command(command_id_pack, Command.Command("ERROR: SessionNotFound: None"))
                 try:
@@ -458,12 +503,32 @@ class UserProcessor(object):
     def update_latest_timestamp(self):
         self._session['latest_timestamp'] = self._utc_timestamp()
 
-    def _append_command(self, command):
+    def _append_command(self, command): 
+        """
+        _append_command(command)
+        Appends a command to the internal list that registers every command that was sent 
+        during a session.
+        
+        @param command The command that was sent
+        @return A two-items tuple. First element is the index of the command in the internal list. 
+        Second element is the command (as a Usage.CommandSent object) that we stored. This tuple is 
+        needed to later update the register with the command's result.
+        @see _update_command
+        """
         timestamp_before = self._utc_timestamp()
         command_sent = Usage.CommandSent(command, timestamp_before)
         return self._session['experiment_usage'].append_command(command_sent), command_sent
 
     def _update_command(self, (command_id, command_sent), response):
+        """
+        _update_command((command_id, command_sent), response)
+        Updates the response of a registererd command once the response to it is
+        available.
+        
+        @param command_id First element of the tuple that identifies the command to update
+        @param command_sent Second element of the tuple that identifiers the command to update
+        @param response Response to register
+        """
         timestamp_after = self._utc_timestamp()
         command_sent.response        = response
         command_sent.timestamp_after = timestamp_after

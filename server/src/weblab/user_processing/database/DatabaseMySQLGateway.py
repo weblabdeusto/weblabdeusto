@@ -139,9 +139,12 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             session.add(use)
             # TODO: The c.response of an standard command is an object with
             # a commandstring, whereas the response to an async command is 
-            # a simple string to identify the request. Currently, the logger
-            # does not really handle async commands.
+            # a simple string to identify the request. The way in which the logger
+            # currently handles these cases is somewhat shady.
             for c in experiment_usage.commands:
+                # If we have a response, the c.response will be an object and not
+                # a string. Generally, we will, unless the command was asynchronous
+                # and it didn't finish executing.
                 if type(c.response) != type(""):
                     session.add(Model.DbUserCommand(
                                     use,
@@ -151,11 +154,15 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                                     c.timestamp_after
                                 ))
                 else:
+                    # In this other case, the response is a string, which means
+                    # that we have not updated it with the real response. Probably,
+                    # it was an asynchronous command which did not finish executing
+                    # by the time the experiment ended.
                     session.add(Model.DbUserCommand(
                                     use,
                                     c.command.commandstring,
                                     c.timestamp_before,
-                                    c.response,
+                                    "[RESPONSE NOT AVAILABLE]",
                                     c.timestamp_after
                                 ))
             for f in experiment_usage.sent_files:

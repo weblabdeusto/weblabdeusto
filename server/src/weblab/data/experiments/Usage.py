@@ -67,6 +67,16 @@ class ExperimentUsage(object):
         self.sent_files             = []   # [FileSent]
 
     def append_command(self, command_sent):
+        """
+        append_command(command_sent)
+        Appends the specified command to the local list of commands,
+        so that later the commands that were sent during the session
+        can be retrieved for logging or other purposes.
+        
+        @param command_sent The command that was just sent, which we will register
+        @return The index of the command we just added in the internal list. Mostly, 
+        for identification purposes.
+        """
         # isinstance(command_sent, CommandSent)
         self.commands.append(command_sent)
         return len(self.commands) - 1
