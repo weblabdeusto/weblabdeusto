@@ -288,184 +288,6 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 	}
 	
 	
-	/**
-	 * Callback to be notified when a check_async_command_status request finishes, 
-	 * either successfully or not. The response will be a JSON string containing
-	 * a map with the status of every single async command that we queried, so 
-	 * we will have to parse and handle it appropriately. 
-	 * 
-	 * This callback will receive the raw response to the check query. That response will 
-	 * then be deserialized into an array of AsyncRequestStatus objects, and forwarded
-	 * to the provided IResponseCheckAsyncCommandStatusCallback, which will be the one to
-	 * actually handle the response.
-	 */
-	private class CheckAsyncCommandStatusRequestCallback extends WlRequestCallback{
-		private final IResponseCheckAsyncCommandStatusCallback responseCheckAsyncCommandStatusCallback;
-		
-		/**
-		 * Constructs the CheckAsyncCommandStatusRequestCallback.
-		 * @param responseCommandCallback Callback to be invoked whenever a request
-		 * fails or succeeds. IResponseCommandCallback extends IWlAsyncCallback, and
-		 * together they have two separate methods to handle both cases. 
-		 */
-		public CheckAsyncCommandStatusRequestCallback(IResponseCheckAsyncCommandStatusCallback responseCheckAsyncCommandStatusCallback){
-			super(responseCheckAsyncCommandStatusCallback);
-			this.responseCheckAsyncCommandStatusCallback = responseCheckAsyncCommandStatusCallback;
-		}
-		
-		/**
-		 * Method that will be invoked when the check_async_command_status response
-		 * is available. 
-		 * @param string The response, a JSON-encoded map of every async command state.
-		 */
-		@Override
-		public void onSuccessResponseReceived(String response) {
-			
-			// The response is a string containing the status of the async requests
-			// we are interested in, encoded in JSON. We will first use the serializer
-			// to deserialize it into an array of AsyncRequestStatus, with each
-			// AsyncRequestStatus containing the status, and possibly the response,
-			// of one async command.
-			final AsyncRequestStatus [] asyncRequests;
-			
-			try {
-				asyncRequests = ((IWlLabSerializer)WlLabCommunication.this.serializer).parseCheckAsyncCommandStatusResponse(response);
-			} catch (final SerializationException e) {
-				this.responseCheckAsyncCommandStatusCallback.onFailure(e);
-				return;
-			} catch (final SessionNotFoundException e) {
-				this.responseCheckAsyncCommandStatusCallback.onFailure(e);
-				return;
-			} catch (final WlServerException e) {
-				this.responseCheckAsyncCommandStatusCallback.onFailure(e);
-				return;
-			}
-			
-			this.responseCheckAsyncCommandStatusCallback.onSuccess(asyncRequests);
-		}
-	}
-	
-	/**
-	 * Manages the asynchronous requests of a specific session.
-	 * Does polling on pending requests periodically to check whether
-	 * they have finished. If they have, it notifies the awaiting
-	 * callbacks of the response.
-	 */
-	private class AsyncRequestsManager {
-		
-		// Map relating the request identifiers, to the callbacks to invoke
-		// when the associated requests finish. Async request are commands, 
-		// so IResponseCommandCallbacks are appropriate.
-		private Map<String, IResponseCommandCallback> requests = 
-			new HashMap<String, IResponseCommandCallback>();
-		
-		private Timer timer;
-		
-		private SessionID sessionId;
-		
-		/**
-		 * Provides an update for an async request. It will check whether
-		 * the request finished. If so, it will remove it from its internal list
-		 * and invoke its callback.
-		 * @param request Status of a request
-		 */
-		public void updateStatus(AsyncRequestStatus request) {
-			if(!request.isRunning()) {
-				
-				final IResponseCommandCallback cmdCallback = this.requests.get(request.getRequestID());
-				this.requests.remove(request.getRequestID());
-				
-				final String response = request.getResponse();
-				
-				if(request.isSuccessfullyFinished())
-					cmdCallback.onSuccess(new ResponseCommand(response));
-				else
-					cmdCallback.onFailure(new WlCommException("Async cmd reported failure: " + response));
-			
-				// TODO: There might be some other exception type more appropriate 
-				// than the above.
-			}
-		}
-		
-		/**
-		 * Creates an AsyncRequestManager.
-		 * @param sessionId Session identifier whose asynchronous commands to handle
-		 */
-		public AsyncRequestsManager(SessionID sessionId) {
-			
-			this.sessionId = sessionId;
-			
-			this.timer = new Timer() {
-				@Override
-				public void run() {
-					
-					// Build a request to check the state of every ongoing
-					// command.
-					final String [] requestIds = new String[AsyncRequestsManager.this.requests.size()];
-					AsyncRequestsManager.this.requests.keySet().toArray(requestIds);
-					
-					String requestSerialized = null;
-					final IWlLabSerializer serializer = (IWlLabSerializer)WlLabCommunication.this.serializer;
-					try {
-						requestSerialized = serializer.serializeCheckAsyncCommandStatusRequest(AsyncRequestsManager.this.sessionId, 
-								requestIds);
-					} catch (SerializationException e) {
-						// TODO: Handle this exception properly. The request is not linked
-						// to a particular command (but to several) so we cannot simply
-						// invoke its callback.
-					}
-					
-					// Define the callback that will be invoked when the check 
-					// async command status request finishes. It is noteworthy that
-					// the check_async_command_status request returns a map describing the
-					// status of every single request whose identifier was specified.
-					
-					final IResponseCheckAsyncCommandStatusCallback checkStatusCallback = new IResponseCheckAsyncCommandStatusCallback() {
-						@Override
-						public void onFailure(WlCommException e) {
-							// TODO: Handle this error.
-						}
-
-						@Override
-						public void onSuccess(AsyncRequestStatus [] requests) {
-							// Update the status of every request included in the
-							// response. If the status did not change it will be
-							// a NO-OP anyway.
-							for(AsyncRequestStatus r : requests)
-								AsyncRequestsManager.this.updateStatus(r);
-						}
-					};
-					
-					// Create the callback that will initially receive and parse the
-					// raw results, passing the higher-level callback (defined above) 
-					// to it, which will receive a high-level desearialized object with 
-					// the results.
-					final CheckAsyncCommandStatusRequestCallback rawRequestCallback = 
-						new CheckAsyncCommandStatusRequestCallback(checkStatusCallback); 
-
-					// Send the request and prepare to be notified.
-					performRequest(
-							requestSerialized, 
-							checkStatusCallback, 
-							rawRequestCallback
-						);
-						
-				} //! run
-			}; //! new Timer
-		
-			
-			// TODO: The timer should somehow only run when/if there are actually
-			// pending commands. For now, it will run forever.
-			this.timer.scheduleRepeating(2000);
-		}
-		
-		public void registerAsyncRequest(String requestIdentifier, 
-				IResponseCommandCallback responseCommandCallback) {
-			this.requests.put(requestIdentifier, responseCommandCallback);
-		}
-		
-	} //! class AsyncRequestsManager
-	
 	
 	/**
 	 * Internal callback which will be used for receiving and handling the response
@@ -537,7 +359,7 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 
 				// TODO: Consider some better way of handling the managers.
 				if(asyncReqMngr == null)
-					asyncReqMngr = new AsyncRequestsManager(sessionId);
+					asyncReqMngr = new AsyncRequestsManager(WlLabCommunication.this, sessionId, (IWlLabSerializer) WlLabCommunication.this.serializer);
 				
 				asyncReqMngr.registerAsyncRequest(requestID, commandCallback);
 			}
@@ -550,7 +372,7 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 		
 		// Execute the initial request which will return the identifier and
 		// register the command for polling.
-		this.performRequest(
+		WlLabCommunication.this.performRequest(
 				requestSerialized, 
 				asyncCommandResponseCallback, 
 				new SendAsyncCommandRequestCallback(asyncCommandResponseCallback)
