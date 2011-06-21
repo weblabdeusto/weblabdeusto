@@ -9,6 +9,7 @@
 * listed below:
 *
 * Author: Pablo Orduña <pablo@ordunya.com>
+*         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 *
 */ 
 package es.deusto.weblab.client.lab.comm;
@@ -29,6 +30,9 @@ import es.deusto.weblab.client.lab.comm.exceptions.NoCurrentReservationException
 import es.deusto.weblab.client.lab.comm.exceptions.UnknownExperimentIdException;
 
 public interface IWlLabSerializer extends IWlCommonSerializer{
+	
+	ResponseCommand parseSendAsyncCommandResponse(String responseText)
+	throws SerializationException,  SessionNotFoundException, NoCurrentReservationException, UserProcessingException, WlServerException;
 
 	ExperimentAllowed [] parseListExperimentsResponse(String responseText) 
 		throws SerializationException, SessionNotFoundException, UserProcessingException, WlServerException;

@@ -19,6 +19,7 @@ import es.deusto.weblab.client.comm.FakeWlCommonSerializer;
 import es.deusto.weblab.client.comm.exceptions.SerializationException;
 import es.deusto.weblab.client.comm.exceptions.WlServerException;
 import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
+import es.deusto.weblab.client.comm.exceptions.core.UserProcessingException;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.AsyncRequestStatus;
 import es.deusto.weblab.client.dto.experiments.Command;
@@ -26,6 +27,7 @@ import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
+import es.deusto.weblab.client.lab.comm.exceptions.NoCurrentReservationException;
 
 public class FakeWlLabSerializer extends FakeWlCommonSerializer implements IWlLabSerializer {
 	
@@ -37,6 +39,7 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements IWlLa
 	public static final String PARSE_CHECK_ASYNC_COMMAND_STATUS_RESPONSE 	= "FakeWebLabSerializer::parseCheckAsyncCommandStatusResponse";
 	public static final String PARSE_FINISHED_EXPERIMENT_RESPONSE       	= "FakeWebLabSerializer::parseFinishedExperimentResponse";
 	public static final String PARSE_SEND_FILE_RESPONSE                 	= "FakeWebLabSerializer::parseSendFileResponse";
+	public static final String PARSE_SEND_ASYNC_COMMAND_RESPONSE			= "FakeWebLabSerializer::parseSendAsyncCommandResponse";
 
 	public static final String SERIALIZE_GET_RESERVATION_STATUS_REQUEST 	= "FakeWebLabSerializer::serializeGetReservationStatusRequest";
 	public static final String SERIALIZE_LIST_EXPERIMENTS_REQUEST       	= "FakeWebLabSerializer::serializeListExperimentsRequest";
@@ -108,6 +111,17 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements IWlLa
 				responseText
 		});
 		return (ResponseCommand)this.retrieveReturn(FakeWlLabSerializer.PARSE_SEND_COMMAND_RESPONSE);
+	}
+	
+	@Override
+	public ResponseCommand parseSendAsyncCommandResponse(String responseText)
+			throws SerializationException, SessionNotFoundException,
+			NoCurrentReservationException, UserProcessingException,
+			WlServerException {
+		this.append(FakeWlLabSerializer.PARSE_SEND_ASYNC_COMMAND_RESPONSE, new Object[]{
+				responseText
+		});
+		return (ResponseCommand)this.retrieveReturn(FakeWlLabSerializer.PARSE_SEND_ASYNC_COMMAND_RESPONSE);
 	}
 	
 	@Override
@@ -196,4 +210,6 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements IWlLa
 		this.append(FakeWlLabSerializer.SERIALIZE_CHECK_ASYNC_COMMAND_STATUS_REQUEST);
 		return null;
 	}
+
+
 }

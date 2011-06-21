@@ -233,6 +233,15 @@ public class WlCommonSerializerJSON implements IWlCommonSerializer {
 	    
 	    return experiment;
 	}
+	
+	protected JSONString parseResultString(String response) 
+		throws SerializationException, WlServerException {
+			final JSONValue result = this.parseResult(response);
+			final JSONString resultString = result.isString();
+			if(resultString == null)
+			    throw new SerializationException("Expecting an string as a result; found: " + result);
+			return resultString;
+	}
 
 	protected JSONObject parseResultObject(String response)
 			throws SerializationException, WlServerException {

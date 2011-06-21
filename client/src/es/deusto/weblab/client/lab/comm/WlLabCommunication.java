@@ -484,7 +484,7 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 		public void onSuccessResponseReceived(String response) {
 			ResponseCommand command;
 			try {
-				command = ((IWlLabSerializer)WlLabCommunication.this.serializer).parseSendCommandResponse(response);
+				command = ((IWlLabSerializer)WlLabCommunication.this.serializer).parseSendAsyncCommandResponse(response);
 			} catch (final SerializationException e) {
 				this.responseCommandCallback.onFailure(e);
 				return;

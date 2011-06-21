@@ -184,6 +184,27 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
 		return new ResponseCommand(commandString);
     }
     
+    
+
+    /**
+     * Parses the response to the sendCommand request.
+     * @param responseText JSON-serialized response
+     * @return ResponseCommand object containing the ID of the request
+     */
+	@Override
+	public ResponseCommand parseSendAsyncCommandResponse(String responseText)
+			throws SerializationException, SessionNotFoundException,
+			NoCurrentReservationException, UserProcessingException,
+			WlServerException {
+		final JSONString result = this.parseResultString(responseText);
+		if(result != null) {
+			final String val = result.stringValue();
+			return new ResponseCommand(val);
+		} else {
+			throw new SerializationException("Unexpected response to the send_async command");
+		}
+	}    
+    
     @Override
     /**
      * Deserialize the raw JSON-encoded response for the check_async_requests_status query
@@ -380,5 +401,6 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
 		} else {
 			return super.buildException(faultCode, faultString);
 		}
-	}    
+	}
+
 }
