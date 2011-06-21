@@ -269,9 +269,9 @@ class AbstractUserProcessingRemoteFacadeManagerObject(AbstractUserProcessingRemo
     def _parse_command(self, command):
         return Command.Command(command.commandstring)
     
-    # TODO: This is yet to be implemented
     def _parse_request_identifiers(self, request_identifiers):
-        return ""
+        print "[DBG] Request identifiers: " + str(request_identifiers)
+        return request_identifiers
 
 class AbstractUserProcessingRemoteFacadeManagerDict(AbstractUserProcessingRemoteFacadeManager):
     # When accessing structures, this class uses instance['attribute']
@@ -288,6 +288,14 @@ class AbstractUserProcessingRemoteFacadeManagerDict(AbstractUserProcessingRemote
 
     def _parse_command(self, command):
         return Command.Command(command['commandstring'])
+    
+    def _parse_request_identifiers(self, request_identifiers):
+        """ Like the other _parse methods, thise receives the parameter and
+            returns the appropriate object. In this case, it receives and 
+            returns a simple list, so nothing needs to be done
+        """
+        print "[DBG] Request identifiers dict: " + str(request_identifiers)
+        return request_identifiers
 
 class UserProcessingRemoteFacadeManagerZSI(RFM.AbstractZSI, AbstractUserProcessingRemoteFacadeManagerObject):
     pass
