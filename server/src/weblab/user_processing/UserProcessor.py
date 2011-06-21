@@ -407,9 +407,10 @@ class UserProcessor(object):
                 # command with its response, so that once the experiment ends it appears
                 # in the log as expected.
                 for req_id, (cmd_status, cmd_response) in response.items(): #@UnusedVariable
-                    usage_obj_id = self.async_commands_ids[req_id]
-                    # TODO: Bug here. async_commands_ids is empty.
-                    self._update_command(usage_obj_id, cmd_response)
+                    if(req_id in self.async_commands_ids):
+                        usage_obj_id = self.async_commands_ids[req_id]
+                        # TODO: Bug here. async_commands_ids is empty.
+                        self._update_command(usage_obj_id, cmd_response)
 
                 return response
 
