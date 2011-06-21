@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
+#         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 
 import sys
 import datetime
@@ -33,6 +34,7 @@ try:
     from configuration import DEFAULT_DB_NAME, DEFAULT_DB_USER, DEFAULT_DB_PASS
     from configuration import DEFAULT_LDAP_USERS_FILE
     from configuration import DEFAULT_OPENID_USERS_FILE
+    from configuration import DEFAULT_DB_USERS_FILE
     from configuration import DEFAULT_NOTIFICATION_FROM, DEFAULT_NOTIFICATION_BCC, DEFAULT_NOTIFICATION_SUBJECT, DEFAULT_NOTIFICATION_TEXT_FILE
 except Exception, e:
     print "File configuration.py not found. See configuration.py.dist. Error:", str(e)
@@ -77,6 +79,8 @@ class Controller(object):
                 self.list_users()
             elif option == 11:
                 self.notify_users()
+            elif option == 12: 
+                self.add_users_batch_with_db_authtype() # TODO: Move this option to where it belongs.
         self.ui.dialog_exit()
         sys.exit(0)
 
@@ -158,6 +162,7 @@ class Controller(object):
         auths = self.db.get_auths("DB")
         auth_names = [ (auth.id, auth.name) for auth in auths ]
         try:
+            # Note: The following user_auth_config is the password
             login, full_name, email, avatar, role_id, auth_id, user_auth_config = self.ui.dialog_add_user_with_db_authtype(role_names, auth_names)
             role = [ role for role in roles if role.id == role_id ][0] if role_id is not None else None
             auth = [ auth for auth in auths if auth.id == auth_id ][0]
@@ -170,6 +175,49 @@ class Controller(object):
             else:
                 self.ui.error("The User '%s' already exists." % login)     
             self.ui.wait()
+        except GoBackException:
+            return
+        
+    def add_users_batch_with_db_authtype(self):
+        # Retrieve every role from the database
+        roles = self.db.get_roles()
+        role_names = [ (role.id, role.name) for role in roles ]
+        
+        # Retrieve every DB auth
+        auths = self.db.get_auths("DB")
+        auth_names = [ (auth.id, auth.name) for auth in auths ]
+        
+        try:
+            
+            # Get the data (asking the user if needed) about the users to add and the
+            # role to assign them.
+            user_logins, role_id = self.ui.dialog_add_users_batch_with_db_authtype(
+                                                            role_names,
+                                                            auth_names,
+                                                            DEFAULT_DB_USERS_FILE
+                                                        )
+            
+            # Get the actual role object through the role id we obtained before.
+            role = [ role for role in roles if role.id == role_id ][0] if role_id is not None else None
+            
+            # Get the first DB auth. We will assume that there is one at most.
+            if len(auths) < 1:
+                self.ui.error("There is no auth available of the type DB")
+            auth = auths[0]
+      
+            for user_data in user_logins:
+                # create the user object using the login, full name, email and password we have
+                # retrieved from the provided DB USERS file.
+                user = self.db.insert_user(user_data[0], user_data[1], user_data[2], None, role)
+                if user is not None:
+                    self.ui.notify("User created:\n%r" % user)
+                    user_auth = self.db.insert_user_auth(user, auth, self._password2sha(user_data[3]))
+                    assert user_auth is not None
+                    self.ui.notify("UserAuth created:\n%r" % user_auth)
+                else:
+                    self.ui.error("The User '%s' already exists." % str(user_data) )     
+            self.ui.wait()
+            
         except GoBackException:
             return
         

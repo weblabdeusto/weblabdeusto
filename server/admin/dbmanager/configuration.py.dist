@@ -25,6 +25,7 @@ DEFAULT_DB_PASS                = "weblab"
 
 DEFAULT_LDAP_USERS_FILE        = "USERS"
 DEFAULT_OPENID_USERS_FILE      = "USERSOID"
+DEFAULT_DB_USERS_FILE	       = "USERSDB"
 
 DEFAULT_NOTIFICATION_FROM      = "WebLab-Deusto <weblab@deusto.es>"
 DEFAULT_NOTIFICATION_BCC       = "irurzun@deusto.es, pablo.orduna@deusto.es, luis.rodriguez@opendeusto.es"
