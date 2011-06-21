@@ -1,0 +1,7 @@
+# This file can be used to import a list of users to WebLab-Deusto's database.
+# Each line should specify one user, though white lines are allowed.
+# For each user the login, full name, email and password should be specified.
+# The values should be separated with commas.
+
+loginuserdb1, User One, userone@users.com, users1password
+loginuserdb2, User Two, usertwo@users.com, users2password
