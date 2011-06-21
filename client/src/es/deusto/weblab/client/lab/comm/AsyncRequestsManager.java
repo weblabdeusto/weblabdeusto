@@ -114,6 +114,7 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 		private final WlLabCommunication comm;
 		
 		private final Timer timer;
+		private boolean timerRunning = false;
 		
 		private final SessionID sessionId;
 		
@@ -172,6 +173,13 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 							// a NO-OP anyway.
 							for(AsyncRequestStatus r : requests)
 								AsyncRequestsManager.this.updateStatus(r);
+							
+							// If we have don't have anymore requests, we cancel the timer 
+							if(AsyncRequestsManager.this.requests.isEmpty()) {
+								AsyncRequestsManager.this.timer.cancel();
+								AsyncRequestsManager.this.timerRunning = false;
+								System.out.println("[AsyncRequestsManager] Timer disabled");
+							}
 						}
 					};
 					
@@ -192,10 +200,6 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 				} //! run
 			}; //! new Timer
 		
-			
-			// TODO: The timer should somehow only run when/if there are actually
-			// pending commands. For now, it will run forever.
-			this.timer.scheduleRepeating(2000);
 		}
 		
 		
@@ -226,7 +230,17 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 		
 		public void registerAsyncRequest(String requestIdentifier, 
 				IResponseCommandCallback responseCommandCallback) {
+			
 			this.requests.put(requestIdentifier, responseCommandCallback);
+			
+			// If the timer isn't running already, we start it, so that
+			// the request we have just added to the list gets handled.
+			if(!this.timerRunning) {
+				this.timer.scheduleRepeating(2000);
+				this.timerRunning = true;
+				System.out.println("[AsyncRequestsManager] Timer enabled");
+			}
+			
 		}
 		
 	} //! class AsyncRequestsManager
