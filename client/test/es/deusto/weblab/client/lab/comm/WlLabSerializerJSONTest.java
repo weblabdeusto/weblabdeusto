@@ -216,6 +216,14 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 		Assert.assertTrue(third.isError());
 		Assert.assertEquals("Error", third.getResponse());
 	}
+	
+	public void testParseSendAsyncCommandResponse() throws Exception{
+		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ResponseCommand command = weblabSerializer.parseSendAsyncCommandResponse(
+			"{\"result\": \"ABCDEFGH\", \"is_exception\": false}"
+		);
+		Assert.assertEquals("ABCDEFGH", command.getCommandString());
+	}
 
 	public void testParseSendCommandResponse() throws Exception{
 		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
