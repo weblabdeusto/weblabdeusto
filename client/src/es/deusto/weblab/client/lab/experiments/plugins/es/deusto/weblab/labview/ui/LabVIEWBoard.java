@@ -14,6 +14,7 @@
 
 package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.labview.ui;
 
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -44,6 +45,31 @@ public class LabVIEWBoard extends BoardBase {
 		this.timer.updateTime(time);
 	}
 
+	final IResponseCommandCallback callback = new IResponseCommandCallback() {
+		
+		@Override
+		public void onFailure(WlCommException e) {
+			e.printStackTrace();
+			LabVIEWBoard.this.html.setText("Error checking the state of the experiment: " + e.getMessage());
+		}
+		
+		@Override
+		public void onSuccess(ResponseCommand responseCommand) {
+			if(responseCommand.getCommandString().equals("yes")) {
+				displayExperiment();
+			} else {
+				final Timer timer = new Timer() {
+					
+					@Override
+					public void run() {
+						LabVIEWBoard.this.boardController.sendCommand("is_open", LabVIEWBoard.this.callback);
+					}
+				};
+				timer.schedule(500);
+			}
+		}
+	};
+	
 	@Override
 	public void start() {
 		this.panel.add(this.timer);
@@ -55,12 +81,17 @@ public class LabVIEWBoard extends BoardBase {
 			}
 		});
 		this.panel.add(this.html);
-		this.html.setText("Loading...");
+		this.html.setText("Waiting for experiment...");
+		this.boardController.sendCommand("is_open", this.callback);
+	}
+
+	private void displayExperiment() {
 		this.boardController.sendCommand("get_url", new IResponseCommandCallback() {
 			
 			@Override
 			public void onFailure(WlCommException e) {
-				LabVIEWBoard.this.html.setText("Error: " + e.getMessage());
+				e.printStackTrace();
+				LabVIEWBoard.this.html.setText("Error getting url to show LabVIEW panel: " + e.getMessage());
 			}
 			
 			@Override

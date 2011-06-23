@@ -13,6 +13,9 @@
 # Author: Pablo Orduña <pablo.orduna@deusto.es>
 # 
 
+import os
+import time
+
 import weblab.experiment.Experiment as Experiment
 
 from voodoo.override import Override
@@ -36,13 +39,28 @@ class LabViewExperiment(Experiment.Experiment):
     @Override(Experiment.Experiment)
     @logged("info")
     def do_start_experiment(self):
-        print "Starting"
+        MAX_TIME = 12 # seconds
+        STEP_TIME = 0.05
+        MAX_STEPS = MAX_TIME / STEP_TIME
+        counter = 0
+        print "Waiting for ready in file '%s'... " % self.filename
+        while os.path.exists(self.filename) and self.current_content() != 'closed' and counter < MAX_STEPS:
+            time.sleep(0.05)
+            counter += 1
+
+        if counter == MAX_STEPS:
+            raise Exception("LabView experiment: Time waiting for 'ready' content in file '%s' exceeded (max %s seconds)" % (self.filename, MAX_TIME))
+        print "Ready found or file did not exist. Starting..."
         self.open_file(self.filename)
-        return "Starting"
+        return ""
 
     @Override(Experiment.Experiment)
     @logged("info")
     def do_send_command_to_device(self, command):
+        if command == 'is_open':
+            if self.current_content() == 'opened':
+                return "yes"
+            return "no"
         if command == 'get_url':
             return '%s;%s;%s' % (self.height, self.width, self.url)
         return "cmd_not_supported"
@@ -60,6 +78,9 @@ class LabViewExperiment(Experiment.Experiment):
         print "Disposing"
         self.close_file(self.filename)
         return "Disposing"
+
+    def current_content(self):
+        return open(self.filename).read().strip().lower()
 
     def open_file(self, filename):
         self.write_to_file(filename, 'Open')
