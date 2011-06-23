@@ -18,11 +18,6 @@ import weblab.experiment.Experiment as Experiment
 from voodoo.override import Override
 from voodoo.log import logged
 
-
-import voodoo.log as log
-import time
-from voodoo.threaded import threaded
-
 DEBUG = False
 
 
