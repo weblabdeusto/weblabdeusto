@@ -33,6 +33,8 @@ import weblab.exceptions.laboratory.LaboratoryExceptions as LaboratoryExceptions
 import weblab.experiment.Util as ExperimentUtil
 import weblab.data.experiments.Usage as Usage
 
+import threading
+
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessor")
 
 #TODO: configuration
@@ -102,7 +104,13 @@ class UserProcessor(object):
         # use this map to store the ids of the usage objects (commands sent), identified through 
         # their request_ids (which are not the same). As their responses become available, we will
         # use the request_ids to find the ids of the usage objects, and update them.
-        self.async_commands_ids = {}
+        # 
+        # It seems that the UserProcessor is re-created rather often, so we cannot store
+        # usage-related information locally. We will store it in the session object instead.
+        # TODO: As of now, if the async_commands_ids is not in session we will initialize it.
+        # Probably that initialization should be moved to wherever session is initialized.
+        if(not self._session.has_key("async_commands_ids")):
+            self._session["async_commands_ids"] = {}
 
     def list_experiments(self):
         db_session_id         = self._session['db_session_id']
@@ -407,8 +415,8 @@ class UserProcessor(object):
                 # command with its response, so that once the experiment ends it appears
                 # in the log as expected.
                 for req_id, (cmd_status, cmd_response) in response.items(): #@UnusedVariable
-                    if(req_id in self.async_commands_ids):
-                        usage_obj_id = self.async_commands_ids[req_id]
+                    if(req_id in self._session["async_commands_ids"]):
+                        usage_obj_id = self._session["async_commands_ids"][req_id]
                         # TODO: Bug here. async_commands_ids is empty.
                         self._update_command(usage_obj_id, cmd_response)
 
@@ -474,7 +482,7 @@ class UserProcessor(object):
                 # written. However, the real response is not available yet, so we can't do that here.
                 # Instead, we will store a reference to our usage object, so that we can later update it
                 # when the response to the asynchronous command is ready.
-                self.async_commands_ids[request_id] = command_id_pack
+                self._session["async_commands_ids"][request_id] = command_id_pack
 
                 return request_id
             
