@@ -73,15 +73,15 @@ class Controller(object):
             elif option == 7:
                 self.add_users_with_openid_authtype()
             elif option == 8:
-                self.grant_on_experiment_to_group()
+                self.add_users_batch_with_db_authtype()
             elif option == 9:
-                self.grant_on_experiment_to_user()
+                self.grant_on_experiment_to_group()
             elif option == 10:
-                self.list_users()
+                self.grant_on_experiment_to_user()
             elif option == 11:
+                self.list_users()
+            elif option == 12:
                 self.notify_users()
-            elif option == 12: 
-                self.add_users_batch_with_db_authtype() # TODO: Move this option to where it belongs.
             elif option == 13:
                 self.notify_users_with_passwords()
         self.ui.dialog_exit()
