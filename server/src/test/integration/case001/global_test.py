@@ -605,9 +605,7 @@ class Case001TestCase(object):
         # related to logging.
    
         # Now set the clock asynchronously to 500
-        print "[DBG: global_test] Sending async command..."
         reqid = self.real_ups.send_async_command(session_id, Command.Command("ClockActivation on 500"))
-        print " Done."
             
                    
         while True:
