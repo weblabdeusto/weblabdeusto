@@ -400,10 +400,16 @@ class Controller(object):
             return
         
     def notify_users_with_passwords(self):
+        """
+        Will send a mail to every specified user with their welcome text. That welcome text
+        will include the password. Because passwords are not stored in the database (only 
+        their hashes are), a "dbusers" file will need to be specified to extract the passwords
+        from.
+        """
         groups = self.db.get_groups()
         group_names = [ (group.id, group.name) for group in groups ]
         try:
-            fromm, group_id, bcc, subject, text = self.ui.dialog_notify_users(
+            fromm, group_id, bcc, subject, text = self.ui.dialog_notify_users_with_passwords(
                                                             group_names,
                                                             DEFAULT_NOTIFICATION_FROM,
                                                             DEFAULT_NOTIFICATION_BCC,

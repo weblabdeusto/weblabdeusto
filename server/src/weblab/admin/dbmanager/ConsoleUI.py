@@ -285,7 +285,7 @@ class ConsoleUI(object):
         self._print(" 9. Grant on Experiment to Group")
         self._print(" 10. Grant on Experiment to User")
         self._print(" 11. List Users")
-        self._print(" 12. Notify Users")
+        self._print(" 12. Notify users")
         self._print(" 13. Notify users (With passwords)")
         self._print()
         self._print("0. Exit")
