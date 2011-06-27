@@ -14,11 +14,10 @@
 */ 
 package es.deusto.weblab.client.lab.comm;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
-import java.util.HashMap;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
@@ -34,7 +33,6 @@ import es.deusto.weblab.client.comm.exceptions.WlServerException;
 import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
-import es.deusto.weblab.client.dto.experiments.AsyncRequestStatus;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
@@ -42,7 +40,6 @@ import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
-import es.deusto.weblab.client.lab.comm.callbacks.IResponseCheckAsyncCommandStatusCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.comm.exceptions.UnknownExperimentIdException;
 
@@ -58,7 +55,7 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 	
 	
 	// TODO: 
-	// The existence of multiple managers is probably not required
+	// The existence of multiple managers is probably not required.
 	// As of now, I don't think there can be two different active sessions at the
 	// same time. 
 	private final Map<SessionID, AsyncRequestsManager> asyncRequestsManagers =

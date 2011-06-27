@@ -101,7 +101,9 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 	 * Manages the asynchronous requests of a specific session.
 	 * Does polling on pending requests periodically to check whether
 	 * they have finished. If they have, it notifies the awaiting
-	 * callbacks of the response.
+	 * callbacks of the response to their command. This is internally done
+	 * through a timer that runs periodically whenever there is work to be
+	 * done.
 	 */
 	public class AsyncRequestsManager {
 		
