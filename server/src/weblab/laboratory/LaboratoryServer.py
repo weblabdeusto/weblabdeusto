@@ -433,6 +433,7 @@ class LaboratoryServer(object):
             else:
                 status = AsyncRequest.STATUS_RUNNING
             
+            
             response[req_id] = (status, contents)
             
         return response

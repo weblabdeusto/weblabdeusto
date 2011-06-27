@@ -601,40 +601,40 @@ class Case001TestCase(object):
             )
         
         
-#        # TODO: There are some issues with the following code. Particularly, there seem to be issues
-#        # related to logging.
-#   
-#        # Now set the clock asynchronously to 500
-#        reqid = self.real_ups.send_async_command(session_id, Command.Command("ClockActivation on 500"))
-#            
-#                   
-#        while True:
-#            requests = self.real_ups.check_async_command_status(session_id, (reqid,))
-#            self.assertEquals(1, len(requests))
-#            self.assertTrue(reqid in requests)
-#            req = requests[reqid]
-#            status = req[0]
-#            self.assertTrue(status in ("running", "ok", "error"))
-#            if status != "running":
-#                self.assertEquals("ok", status, "Contents: " + req[1])
-#                break
-#            
-#        # ClockActivation on 500
-#        # TODO: I don't know what the following tuple is. Verify that
-#        # the numbers (33 etc) are right.
-#        self.assertEquals(  
-#                (6 + initial_total,1),
-#                self.fake_serial_port1.dict['open'][2 + initial_open]
-#            )
-#        self.assertEquals(  
-#                (7 + initial_total,33),
-#                self.fake_serial_port1.dict['send'][2 + initial_send]
-#            )
-#    
-#        self.assertEquals(  
-#                (8 + initial_total,None),
-#                self.fake_serial_port1.dict['close'][2 + initial_close]
-#            )
+        # TODO: There are some issues with the following code. Particularly, there seem to be issues
+        # related to logging.
+   
+        # Now set the clock asynchronously to 500
+        reqid = self.real_ups.send_async_command(session_id, Command.Command("ClockActivation on 500"))
+            
+                   
+        while True:
+            requests = self.real_ups.check_async_command_status(session_id, (reqid,))
+            self.assertEquals(1, len(requests))
+            self.assertTrue(reqid in requests)
+            req = requests[reqid]
+            status = req[0]
+            self.assertTrue(status in ("running", "ok", "error"))
+            if status != "running":
+                self.assertEquals("ok", status, "Contents: " + req[1])
+                break
+            
+        # ClockActivation on 500
+        # TODO: I don't know what the following tuple is. Verify that
+        # the numbers (33 etc) are right.
+        self.assertEquals(  
+                (6 + initial_total,1),
+                self.fake_serial_port1.dict['open'][2 + initial_open]
+            )
+        self.assertEquals(  
+                (7 + initial_total,33),
+                self.fake_serial_port1.dict['send'][2 + initial_send]
+            )
+    
+        self.assertEquals(  
+                (8 + initial_total,None),
+                self.fake_serial_port1.dict['close'][2 + initial_close]
+            )
         
 #         end session
 #         Note: Before async commands were implemented, this was actually done before
