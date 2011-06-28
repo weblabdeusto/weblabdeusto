@@ -471,8 +471,204 @@ class Case001TestCase(object):
             self._single_use()
         self._single_use()
         self._single_use()
+        
+    def _wait_async_done(self, session_id, reqids):
+        """
+        _wait_async_done(session_id, reqids)
+        Helper methods that waits for the specified asynchronous requests to be finished,
+        and which asserts that they were successful. Note that it doesn't actually return
+        their responses.
+        @param reqids Tuple containing the request ids for the commands to check.
+        @return Nothing
+        """
+        # Wait until send_async_file query is actually finished.
+        reqsl = list(reqids)
+        while len(reqsl) > 0:
+            requests = self.real_ups.check_async_command_status(session_id, tuple(reqsl))
+            self.assertEquals(len(reqsl), len(requests))
+            for rid, req in requests.iteritems():
+                status = req[0]
+                self.assertTrue(status in ("running", "ok", "error"))
+                if status != "running":
+                    self.assertEquals("ok", status, "Contents: " + req[1])
+                    reqsl.remove(rid)
+        
+        
+    def _get_async_response(self, session_id, reqid):
+        """
+        _get_async_response(reqids)
+        Helper method that synchronously gets the response for the specified async request, asserting that
+        it was successful.
+        @param reqid The request identifier for the async request whose response we want
+        @return Response to the request, if successful. None, otherwise.
+        """
+        # Wait until send_async_file query is actually finished.
+        while True:
+            requests = self.real_ups.check_async_command_status(session_id, (reqid,))
+            self.assertEquals(1, len(requests))
+            self.assertTrue(reqid in requests)
+            req = requests[reqid]
+            status = req[0]
+            self.assertTrue(status in ("running", "ok", "error"))
+            if status != "running":
+                self.assertEquals("ok", status, "Contents: " + req[1])
+                return Command.Command(req[1])
+        
+    def _single_async_use(self, logout = True):
+        self.fake_impact1.clear()
+        self.fake_impact2.clear()
+        self.fake_serial_port1.clear()
+        self.fake_serial_port2.clear()
 
+        session_id = self.real_login.login('student1','password')
+        
+        user_information = self.real_ups.get_user_information(session_id)
+        self.assertEquals(
+                'student1',
+                user_information.login
+            )
+
+        self.assertEquals(
+                'Name of student 1',
+                user_information.full_name
+            )
+        self.assertEquals(
+                'weblab@deusto.es',
+                user_information.email
+            )
+
+        experiments = self.real_ups.list_experiments(session_id)
+        self.assertEquals( 5, len(experiments))
+        
+        fpga_experiments = [ exp.experiment for exp in experiments if exp.experiment.name == 'ud-fpga' ]
+        self.assertEquals(
+                len(fpga_experiments),
+                1
+            )
+
+        # reserve it
+        _ = self.real_ups.reserve_experiment(
+                session_id,
+                fpga_experiments[0].to_experiment_id(),
+                ClientAddress.ClientAddress("127.0.0.1")
+            )
+
+        # wait until it is reserved
+        short_time = 0.1
+        times      = 9.0 / short_time
+
+        while times > 0:
+            time.sleep(short_time)
+            new_status = self.real_ups.get_reservation_status(session_id)
+            if not isinstance(new_status, Reservation.WaitingConfirmationReservation) and not isinstance(new_status, Reservation.WaitingReservation):
+                break
+            times -= 1
+        reservation = self.real_ups.get_reservation_status(
+                        session_id
+                    )
+        self.assertTrue(
+                isinstance(
+                    reservation, 
+                    Reservation.ConfirmedReservation 
+                ),
+                "Reservation %s is not Confirmed, as expected by this time" % reservation
+            )   
+        
+        
+        
+        # send the program again, but asynchronously. Though this should work, it is not really very customary
+        # to send_file more than once in the same session. In fact, it is a feature which might get removed in
+        # the future. When/if that happens, this will need to be modified.
+        CONTENT = "content of the program FPGA"
+        reqid = self.real_ups.send_async_file(session_id, ExperimentUtil.serialize(CONTENT), 'program')
+        
+        # Wait until send_async_file query is actually finished.
+        #self._get_async_response(session_id, reqid)
+        self._wait_async_done(session_id, (reqid,))
+        
+        # We need to wait for the programming to finish, while at the same
+        # time making sure that the tests don't dead-lock.
+        start_time = time.time()
+        response = "STATE=not_ready"
+        while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
+            reqid = self.real_ups.send_async_command(session_id, Command.Command("STATE"))
+            respcmd = self._get_async_response(session_id, reqid)
+            response = respcmd.get_command_string()
+            time.sleep(0.2)
+        
+        # Check that the current state is "Ready"
+        self.assertEquals("STATE=ready", response)
+        
+        
+        reqid = self.real_ups.send_async_command(session_id, Command.Command("ChangeSwitch on 0"))
+        self._wait_async_done(session_id, (reqid,))
+        
+        reqid = self.real_ups.send_async_command(session_id, Command.Command("ClockActivation on 250"))
+        self._wait_async_done(session_id, (reqid,))
+
+        # Checking the commands sent
+        # Note that the number of paths is 2 now that we send a file twice (sync and async).
+        self.assertEquals(
+                1,
+                len(self.fake_impact1._paths)
+            )
+        self.assertEquals(
+                0,
+                len(self.fake_impact2._paths)
+            )
+
+        self.assertEquals(
+                CONTENT,
+                self.fake_impact1._paths[0]
+            )
+
+        initial_open = 1
+        initial_send = 1
+        initial_close = 1
+        initial_total = initial_open + initial_send + initial_close
+
+        # ChangeSwitch on 0
+        self.assertEquals(
+                (0 + initial_total,1),
+                self.fake_serial_port1.dict['open'][0 + initial_open]
+            )
+        self.assertEquals(
+                (1 + initial_total,1),
+                self.fake_serial_port1.dict['send'][0 + initial_send]
+            )
+        self.assertEquals(
+                (2 + initial_total,None),
+                self.fake_serial_port1.dict['close'][0 + initial_close]
+            )
+
+        # ClockActivation on 250
+        self.assertEquals(  
+                (3 + initial_total,1),
+                self.fake_serial_port1.dict['open'][1 + initial_open]
+            )
+        self.assertEquals(  
+                (4 + initial_total,32),
+                self.fake_serial_port1.dict['send'][1 + initial_send]
+            )
+    
+        self.assertEquals(  
+                (5 + initial_total,None),
+                self.fake_serial_port1.dict['close'][1 + initial_close]
+            )
+        
+        if logout:
+            self.real_ups.logout(session_id)
+            
+   
     def _single_use(self, logout = True):
+        self._single_sync_use(logout)
+        self._single_async_use(logout)
+
+
+    def _single_sync_use(self, logout = True):
+        
+        self._single_async_use(logout)
+        
         self.fake_impact1.clear()
         self.fake_impact2.clear()
         self.fake_serial_port1.clear()
@@ -533,43 +729,9 @@ class Case001TestCase(object):
             )
 
 
-
-#        # send a program synchronously (the "traditional" way)
-#        CONTENT = "content of the program FPGA"
-#        self.real_ups.send_file(session_id, ExperimentUtil.serialize(CONTENT), 'program')
-#        
-#        # We need to wait for the programming to finish, while at the same
-#        # time making sure that the tests don't dead-lock.
-#        start_time = time.time()
-#        response = "STATE=not_ready"
-#        while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
-#            respcmd = self.real_ups.send_command(session_id, Command.Command("STATE"))
-#            response = respcmd.get_command_string()
-#            time.sleep(0.2)
-#        
-#        # Check that the current state is "Ready"
-#        self.assertEquals("STATE=ready", response)
-        
-        
-        
-        
-        # send the program again, but asynchronously. Though this should work, it is not really very customary
-        # to send_file more than once in the same session. In fact, it is a feature which might get removed in
-        # the future. When/if that happens, this will need to be modified.
+        # send a program synchronously (the "traditional" way)
         CONTENT = "content of the program FPGA"
-        reqid = self.real_ups.send_async_file(session_id, ExperimentUtil.serialize(CONTENT), 'program')
-        
-        # Wait until send_async_file query is actually finished.
-        while True:
-            requests = self.real_ups.check_async_command_status(session_id, (reqid,))
-            self.assertEquals(1, len(requests))
-            self.assertTrue(reqid in requests)
-            req = requests[reqid]
-            status = req[0]
-            self.assertTrue(status in ("running", "ok", "error"))
-            if status != "running":
-                self.assertEquals("ok", status, "Contents: " + req[1])
-                break
+        self.real_ups.send_file(session_id, ExperimentUtil.serialize(CONTENT), 'program')
         
         # We need to wait for the programming to finish, while at the same
         # time making sure that the tests don't dead-lock.
@@ -584,6 +746,17 @@ class Case001TestCase(object):
         self.assertEquals("STATE=ready", response)
         
         
+        # We need to wait for the programming to finish, while at the same
+        # time making sure that the tests don't dead-lock.
+        start_time = time.time()
+        response = "STATE=not_ready"
+        while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
+            respcmd = self.real_ups.send_command(session_id, Command.Command("STATE"))
+            response = respcmd.get_command_string()
+            time.sleep(0.2)
+        
+        # Check that the current state is "Ready"
+        self.assertEquals("STATE=ready", response)
         
         
         self.real_ups.send_command(session_id, Command.Command("ChangeSwitch on 0"))
@@ -639,35 +812,6 @@ class Case001TestCase(object):
                 self.fake_serial_port1.dict['close'][1 + initial_close]
             )
         
-        # Now set the clock asynchronously to 500
-        reqid = self.real_ups.send_async_command(session_id, Command.Command("ClockActivation on 500"))
-            
-                   
-        while True:
-            requests = self.real_ups.check_async_command_status(session_id, (reqid,))
-            self.assertEquals(1, len(requests))
-            self.assertTrue(reqid in requests)
-            req = requests[reqid]
-            status = req[0]
-            self.assertTrue(status in ("running", "ok", "error"))
-            if status != "running":
-                self.assertEquals("ok", status, "Contents: " + req[1])
-                break
-            
-        # ClockActivation on 500
-        self.assertEquals(  
-                (6 + initial_total,1),
-                self.fake_serial_port1.dict['open'][2 + initial_open]
-            )
-        self.assertEquals(  
-                (7 + initial_total,33),
-                self.fake_serial_port1.dict['send'][2 + initial_send]
-            )
-    
-        self.assertEquals(  
-                (8 + initial_total,None),
-                self.fake_serial_port1.dict['close'][2 + initial_close]
-            )
         
 #         end session
 #         Note: Before async commands were implemented, this was actually done before
