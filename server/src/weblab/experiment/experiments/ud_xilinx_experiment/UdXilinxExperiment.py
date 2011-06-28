@@ -96,6 +96,12 @@ class UdXilinxExperiment(Experiment.Experiment):
     
     @logged("info")
     def _send_command_to_device(self, command):
+        
+        if self._is_main_thread():
+            print "[DBG]: UdXilinxExperiment being executed from the main thread."
+        else:
+            print "[DBG]: UdXilinxExperiment being executed from a work thread."
+        
         if self._use_http:
             self._http_device.send_message(command)
         else:

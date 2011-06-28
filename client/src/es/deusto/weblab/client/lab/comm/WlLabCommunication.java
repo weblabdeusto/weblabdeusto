@@ -420,7 +420,8 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 			public void onSubmitComplete(SubmitCompleteEvent event) {
 		    	uploadStructure.removeInformation(sessionIdElement);
 
-				final String resultMessage = event.getResults();
+				final String resultMessage = event.getResults(); 
+				// resultMessage will be a string such as SUCCESS@34KJ2341KJ
 
 				if(GWT.isScript() && resultMessage == null) {
 			    this.reportFail(callback);
@@ -430,19 +431,25 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 		    }
 
 		    private void processResultMessage(IResponseCommandCallback commandCallback, String resultMessage) {
-			final ResponseCommand parsedRequestIdCommand;
-			try {
-			    parsedRequestIdCommand = ((IWlLabSerializer)WlLabCommunication.this.serializer).parseSendAsyncCommandResponse(resultMessage);
-			} catch (final SerializationException e) {
-			    commandCallback.onFailure(e);
-			    return;
-			} catch (final SessionNotFoundException e) {
-			    commandCallback.onFailure(e);
-			    return;
-			} catch (final WlServerException e) {
-			    commandCallback.onFailure(e);
-			    return;
-			}
+				final ResponseCommand parsedRequestIdCommand;
+				try {
+					// TODO: This should be improved.
+					if(!resultMessage.toLowerCase().startsWith("success@"))
+						throw new SerializationException("Async send file response does not start with success@");
+					final String reslt = resultMessage.substring("success@".length());
+					System.out.println("[DBG]: AsyncSendFile returned: " + reslt);
+					parsedRequestIdCommand = new ResponseCommand(reslt);
+				} catch (final SerializationException e) {
+				    commandCallback.onFailure(e);
+				    return; 
+				}
+//				} catch (final SessionNotFoundException e) {
+//				    commandCallback.onFailure(e);
+//				    return;
+//				} catch (final WlServerException e) {
+//				    commandCallback.onFailure(e);
+//				    return;
+//				}
 			
 				// We now have the request id of our asynchronous send_file request.
 				// We will need to register the request with the asynchronous manager

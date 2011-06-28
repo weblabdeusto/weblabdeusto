@@ -14,10 +14,26 @@
 # 
 import weblab.exceptions.experiment.ExperimentExceptions as ExperimentExceptions
 
+import threading
+
 class Experiment(object):
 
     def __init__(self, *args, **kwargs):
         super(Experiment, self).__init__(*args, **kwargs)
+        
+        # We save the main thread's identifier so that we can easily know
+        # from the experiments whether a command is being executed from it
+        # (and hence synchronously) or from a different thread (and hence
+        # asynchronously).
+        self._thread_ident = threading.current_thread().ident
+        
+    def _is_main_thread(self):
+        """
+        Checks whether the caller's thread is the main experiment thread.
+        If it isn't, we can assume that the particular request is being
+        executed asynchronously, from a different thread.
+        """
+        return self._thread_ident == threading.current_thread().ident
 
     def do_start_experiment(self):
         # Default implementation: empty

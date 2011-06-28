@@ -82,6 +82,8 @@ class FileUploadMethod(WebFacadeServer.Method):
             else:
                 resultstr = result
                 
+            print "[DBG] Returning result from file upload: " + resultstr
+                
             return SUCCESS_HTML_TEMPLATE % {
                             'RESULT' : resultstr
                     }
