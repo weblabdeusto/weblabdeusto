@@ -532,9 +532,44 @@ class Case001TestCase(object):
                 "Reservation %s is not Confirmed, as expected by this time" % reservation
             )
 
-        # send a program
+
+
+#        # send a program synchronously (the "traditional" way)
+#        CONTENT = "content of the program FPGA"
+#        self.real_ups.send_file(session_id, ExperimentUtil.serialize(CONTENT), 'program')
+#        
+#        # We need to wait for the programming to finish, while at the same
+#        # time making sure that the tests don't dead-lock.
+#        start_time = time.time()
+#        response = "STATE=not_ready"
+#        while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
+#            respcmd = self.real_ups.send_command(session_id, Command.Command("STATE"))
+#            response = respcmd.get_command_string()
+#            time.sleep(0.2)
+#        
+#        # Check that the current state is "Ready"
+#        self.assertEquals("STATE=ready", response)
+        
+        
+        
+        
+        # send the program again, but asynchronously. Though this should work, it is not really very customary
+        # to send_file more than once in the same session. In fact, it is a feature which might get removed in
+        # the future. When/if that happens, this will need to be modified.
         CONTENT = "content of the program FPGA"
-        self.real_ups.send_file(session_id, ExperimentUtil.serialize(CONTENT), 'program')
+        reqid = self.real_ups.send_async_file(session_id, ExperimentUtil.serialize(CONTENT), 'program')
+        
+        # Wait until send_async_file query is actually finished.
+        while True:
+            requests = self.real_ups.check_async_command_status(session_id, (reqid,))
+            self.assertEquals(1, len(requests))
+            self.assertTrue(reqid in requests)
+            req = requests[reqid]
+            status = req[0]
+            self.assertTrue(status in ("running", "ok", "error"))
+            if status != "running":
+                self.assertEquals("ok", status, "Contents: " + req[1])
+                break
         
         # We need to wait for the programming to finish, while at the same
         # time making sure that the tests don't dead-lock.
@@ -548,10 +583,14 @@ class Case001TestCase(object):
         # Check that the current state is "Ready"
         self.assertEquals("STATE=ready", response)
         
+        
+        
+        
         self.real_ups.send_command(session_id, Command.Command("ChangeSwitch on 0"))
         self.real_ups.send_command(session_id, Command.Command("ClockActivation on 250"))
 
         # Checking the commands sent
+        # Note that the number of paths is 2 now that we send a file twice (sync and async).
         self.assertEquals(
                 1,
                 len(self.fake_impact1._paths)
@@ -600,10 +639,6 @@ class Case001TestCase(object):
                 self.fake_serial_port1.dict['close'][1 + initial_close]
             )
         
-        
-        # TODO: There are some issues with the following code. Particularly, there seem to be issues
-        # related to logging.
-   
         # Now set the clock asynchronously to 500
         reqid = self.real_ups.send_async_command(session_id, Command.Command("ClockActivation on 500"))
             
@@ -620,8 +655,6 @@ class Case001TestCase(object):
                 break
             
         # ClockActivation on 500
-        # TODO: I don't know what the following tuple is. Verify that
-        # the numbers (33 etc) are right.
         self.assertEquals(  
                 (6 + initial_total,1),
                 self.fake_serial_port1.dict['open'][2 + initial_open]

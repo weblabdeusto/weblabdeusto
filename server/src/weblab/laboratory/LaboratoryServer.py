@@ -343,9 +343,9 @@ class LaboratoryServer(object):
         try:
             response = experiment_server.send_file_to_device(file_content, file_info)
         except Exception, e:
-            log.log( LaboratoryServer, log.LogLevel.Warning, "Exception sending file to experiment: %s" % e )
+            log.log( LaboratoryServer, log.LogLevel.Warning, "Exception sending async file to experiment: %s" % e )
             log.log_exc(LaboratoryServer, log.LogLevel.Info)
-            raise LaboratoryExceptions.FailedToSendFileException("Couldn't send file: %s" % str(e))
+            raise LaboratoryExceptions.FailedToSendFileException("Couldn't send async file: %s" % str(e))
 
         return Command.Command(str(response))
     
@@ -452,9 +452,9 @@ class LaboratoryServer(object):
         try:
             response = experiment_server.send_command_to_device(command.get_command_string())
         except Exception, e:
-            log.log( LaboratoryServer, log.LogLevel.Warning, "Exception sending command to experiment: %s" % e )
+            log.log( LaboratoryServer, log.LogLevel.Warning, "Exception sending async command to experiment: %s" % e )
             log.log_exc(LaboratoryServer, log.LogLevel.Info)
-            raise LaboratoryExceptions.FailedToSendCommandException("Couldn't send command: %s" % str(e))
+            raise LaboratoryExceptions.FailedToSendCommandException("Couldn't send async command: %s" % str(e))
 
         return Command.Command(str(response))
 

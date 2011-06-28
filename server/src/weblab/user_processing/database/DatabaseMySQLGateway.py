@@ -166,15 +166,28 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                                     c.timestamp_after
                                 ))
             for f in experiment_usage.sent_files:
-                session.add(Model.DbUserFile(
-                                use,
-                                f.file_sent,
-                                f.file_hash,
-                                f.timestamp_before,
-                                f.file_info,
-                                f.response.commandstring,
-                                f.timestamp_after
-                            ))
+                if type(c.response) != type(""):          
+                    session.add(Model.DbUserFile(
+                                    use,
+                                    f.file_sent,
+                                    f.file_hash,
+                                    f.timestamp_before,
+                                    f.file_info,
+                                    f.response.commandstring,
+                                    f.timestamp_after
+                                ))
+                else:         
+                    # f.response will currently just be the request_id in the case of a
+                    # send_async_file.
+                    session.add(Model.DbUserFile(
+                                    use,
+                                    f.file_sent,
+                                    f.file_hash,
+                                    f.timestamp_before,
+                                    f.file_info,
+                                    f.response,
+                                    f.timestamp_after
+                                ))
             session.commit()
         finally:
             session.close()

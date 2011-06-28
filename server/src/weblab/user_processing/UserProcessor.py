@@ -337,7 +337,7 @@ class UserProcessor(object):
     def send_async_file(self, file_content, file_info ):
         """
         Sends a file asynchronously. Status of the request may be checked through
-        check_async_command_status
+        check_async_command_status.
         
         @param file_content: Content of the file being sent
         @param file_info: File information of the file being sent

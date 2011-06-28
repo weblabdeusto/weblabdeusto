@@ -107,13 +107,13 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
         response = self._server.send_file(sess_id, file_content, file_info)
         return response
     
-    # TODO: Implement this asynchronously. For now it's just a copy
-    # of the standard send_file.
+
     @logged(except_for=(('file_content',2),))
     @RFM.check_exceptions(EXCEPTIONS)
     @RFM.check_nullable
     def send_async_file(self, session_id, file_content, file_info):
         """ send_async_file(session_id, file_content, file_info)
+            Sends a file. The request will be executed asynchronously.
             raise SessionNotFoundException
         """
         sess_id = self._parse_session_id(session_id)

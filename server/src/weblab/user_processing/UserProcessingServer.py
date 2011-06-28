@@ -65,7 +65,7 @@ WEBLAB_USER_PROCESSING_SERVER_CLEAN_COORDINATOR    = "core_coordinator_clean"
 class UserProcessingServer(object):
     """
     The UserProcessingServer will receive client requests, which will be forwarded
-    to the appropriate UserProcessor for the specified session identifier.
+    to an appropriate UserProcessor for the specified session identifier.
     """
 
     FACADE_SERVERS = (
@@ -297,17 +297,18 @@ class UserProcessingServer(object):
         finally:
             user_processor.update_latest_timestamp()
             
-    # TODO: Finish implementing this
     @logged(LogLevel.Info, except_for=(('file_content',2),))
     @check_session(*check_session_params)
     def send_async_file(self, session, file_content, file_info):
         """ 
-        send_file(session_id, file_content, file_info)
-        Sends a file asynchronously to the experiment.
-        
+        send_async_file(session_id, file_content, file_info)
+        Sends a file asynchronously to the experiment. The response
+        will not be the real one, but rather, a request_id identifying
+        the asynchronous query. 
         @param session Session
         @param file_content Contents of the file.
         @param file_info File information of the file.
+        @see check_async_command_status
         """
         user_processor = self._load_user(session)
         try:

@@ -93,7 +93,6 @@ class MockUPS(object):
             raise self.exceptions['send_file']
         return self.return_values['send_file']
      
-    # TODO: Possibly, modify this.
     def send_async_file(self, session_id, file_content, file_info):
         self.arguments['send_async_file'] = (session_id, file_content, file_info)
         if self.exceptions.has_key('send_async_file'):
