@@ -669,8 +669,6 @@ class Case001TestCase(object):
 
     def _single_sync_use(self, logout = True):
         
-        self._single_async_use(logout)
-        
         self.fake_impact1.clear()
         self.fake_impact2.clear()
         self.fake_serial_port1.clear()

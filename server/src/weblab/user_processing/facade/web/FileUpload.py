@@ -103,7 +103,7 @@ class FileUploadMethod(WebFacadeServer.Method):
         if is_async_str is None:
             is_async = False
         else:
-            is_async_str = is_async_str.tolower()
+            is_async_str = is_async_str.lower()
             if is_async_str in ("true", "yes", "1"):
                 is_async = True
             elif is_async_str in ("false", "no", "0"):
