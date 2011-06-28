@@ -49,6 +49,7 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 	public static final String FILE_SENT_ATTR  = "file_sent";
 	public static final String SESSION_ID_ATTR = "session_id";
 	public static final String FILE_INFO_ATTR  = "file_info"; 
+	public static final String FILE_IS_ASYNC_ATTR = "is_async";
 	
 	public static final String WEBLAB_FILE_UPLOAD_POST_SERVICE_URL_PROPERTY = "weblab.service.fileupload.post.url";
 	public static final String DEFAULT_WEBLAB_FILE_UPLOAD_POST_SERVICE_URL = "/weblab/web/upload/"; 
@@ -376,66 +377,95 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 			);
 	}
 
+	/**
+	 * Sends a file asynchronously. Upon doing the async request to the server, it will be internally stored
+	 * in the async requests manager, and polling will be done until the response is available. Then, the
+	 * specified callback will be notified with the result.
+	 */
 	@Override
-	public void sendAsyncFile(SessionID sessionId, final UploadStructure uploadStructure,
-			IResponseCommandCallback callback) {
+	public void sendAsyncFile(final SessionID sessionId, final UploadStructure uploadStructure,
+			final IResponseCommandCallback callback) {
 		// "Serialize" sessionId
     	
-//		final Hidden sessionIdElement = new Hidden();
-//		sessionIdElement.setName(WlLabCommunication.SESSION_ID_ATTR);
-//		sessionIdElement.setValue(sessionId.getRealId());
-//		
-//		final Hidden fileInfoElement = new Hidden();
-//		fileInfoElement.setName(WlLabCommunication.FILE_INFO_ATTR);
-//		fileInfoElement.setValue(uploadStructure.getFileInfo());
-//		
-//		// Set up uploadStructure
-//		uploadStructure.addInformation(sessionIdElement);
-//		uploadStructure.addInformation(fileInfoElement);
-//		uploadStructure.getFileUpload().setName(WlLabCommunication.FILE_SENT_ATTR);
-//		uploadStructure.getFormPanel().setAction(this.getFilePostUrl());
-//		uploadStructure.getFormPanel().setEncoding(FormPanel.ENCODING_MULTIPART);
-//		uploadStructure.getFormPanel().setMethod(FormPanel.METHOD_POST);
-//
-//		// Register handler
-//		uploadStructure.getFormPanel().addSubmitCompleteHandler(new SubmitCompleteHandler() {
-//
-//		    @Override
-//			public void onSubmitComplete(SubmitCompleteEvent event) {
-//			uploadStructure.removeInformation(sessionIdElement);
-//
-//			final String resultMessage = event.getResults();
-//			if(GWT.isScript() && resultMessage == null) {
-//			    this.reportFail(callback);
-//			} else {
-//			    this.processResultMessage(callback, resultMessage);
-//			}
-//		    }
-//
-//		    private void processResultMessage(IResponseCommandCallback callback, String resultMessage) {
-//			final ResponseCommand parsedResponseCommand;
-//			try {
-//			    parsedResponseCommand = ((IWlLabSerializer)WlLabCommunication.this.serializer).parseSendFileResponse(resultMessage);
-//			} catch (final SerializationException e) {
-//			    callback.onFailure(e);
-//			    return;
-//			} catch (final SessionNotFoundException e) {
-//			    callback.onFailure(e);
-//			    return;
-//			} catch (final WlServerException e) {
-//			    callback.onFailure(e);
-//			    return;
-//			}
-//			callback.onSuccess(parsedResponseCommand);
-//		    }
-//		    private void reportFail(final IResponseCommandCallback callback) {
-//			GWT.log("reportFail could not send the file", null);
-//			callback.onFailure(new WlCommException("Couldn't send the file"));
-//		    }			
-//		});
-//	    
-//		// Submit
-//		uploadStructure.getFormPanel().submit();
+		// We will now create the Hidden elements which we will use to pass
+		// the required POST parameters to the web script that will actually handle
+		// the file upload request.
+		
+		final Hidden sessionIdElement = new Hidden();
+		sessionIdElement.setName(WlLabCommunication.SESSION_ID_ATTR);
+		sessionIdElement.setValue(sessionId.getRealId());
+		
+		final Hidden fileInfoElement = new Hidden();
+		fileInfoElement.setName(WlLabCommunication.FILE_INFO_ATTR);
+		fileInfoElement.setValue("true");
+		
+		final Hidden isAsyncElement = new Hidden();
+		isAsyncElement.setName(WlLabCommunication.FILE_IS_ASYNC_ATTR);
+		isAsyncElement.setName(WlLabCommunication.FILE_SENT_ATTR);
+		
+		
+		// Set up uploadStructure
+		uploadStructure.addInformation(sessionIdElement);
+		uploadStructure.addInformation(fileInfoElement);
+		uploadStructure.getFileUpload().setName(WlLabCommunication.FILE_SENT_ATTR);
+		uploadStructure.getFormPanel().setAction(this.getFilePostUrl());
+		uploadStructure.getFormPanel().setEncoding(FormPanel.ENCODING_MULTIPART);
+		uploadStructure.getFormPanel().setMethod(FormPanel.METHOD_POST);
+
+		// Register handler
+		uploadStructure.getFormPanel().addSubmitCompleteHandler(new SubmitCompleteHandler() {
+
+		    @Override
+			public void onSubmitComplete(SubmitCompleteEvent event) {
+		    	uploadStructure.removeInformation(sessionIdElement);
+
+				final String resultMessage = event.getResults();
+
+				if(GWT.isScript() && resultMessage == null) {
+			    this.reportFail(callback);
+				} else {
+				    this.processResultMessage(callback, resultMessage);
+				}
+		    }
+
+		    private void processResultMessage(IResponseCommandCallback commandCallback, String resultMessage) {
+			final ResponseCommand parsedRequestIdCommand;
+			try {
+			    parsedRequestIdCommand = ((IWlLabSerializer)WlLabCommunication.this.serializer).parseSendAsyncCommandResponse(resultMessage);
+			} catch (final SerializationException e) {
+			    commandCallback.onFailure(e);
+			    return;
+			} catch (final SessionNotFoundException e) {
+			    commandCallback.onFailure(e);
+			    return;
+			} catch (final WlServerException e) {
+			    commandCallback.onFailure(e);
+			    return;
+			}
+			
+				// We now have the request id of our asynchronous send_file request.
+				// We will need to register the request with the asynchronous manager
+				// so that it automatically polls and notifies us when the request finishes.
+				final String requestID = parsedRequestIdCommand.getCommandString();
+				
+				AsyncRequestsManager asyncReqMngr = 
+					WlLabCommunication.this.asyncRequestsManagers.get(sessionId);
+
+				// TODO: Consider some better way of handling the managers.
+				if(asyncReqMngr == null)
+					asyncReqMngr = new AsyncRequestsManager(WlLabCommunication.this, sessionId, (IWlLabSerializer) WlLabCommunication.this.serializer);
+				
+				asyncReqMngr.registerAsyncRequest(requestID, commandCallback);
+		    }
+		    
+		    private void reportFail(final IResponseCommandCallback callback) {
+				GWT.log("reportFail could not async send the file", null);
+				callback.onFailure(new WlCommException("Couldn't async send the file"));
+		    }			
+		});
+	    
+		// Submit
+		uploadStructure.getFormPanel().submit();
 	}
 
 	@Override
@@ -496,17 +526,34 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 			);
 	}
 
+	/**
+	 * Sends the file specified through the upload structure to the server. This is done through an
+	 * HTTP post, which is received by a server-side web-script that actually does call the server-side
+	 * send_file method.
+	 */
 	@Override
 	public void sendFile(SessionID sessionId, final UploadStructure uploadStructure, final IResponseCommandCallback callback) {
 		// "Serialize" sessionId
 	    	
+		// We will now create the Hidden elements which we will use to pass
+		// the required POST parameters to the web script that will actually handle
+		// the file upload request.
+		
 		final Hidden sessionIdElement = new Hidden();
 		sessionIdElement.setName(WlLabCommunication.SESSION_ID_ATTR);
 		sessionIdElement.setValue(sessionId.getRealId());
 		
+
 		final Hidden fileInfoElement = new Hidden();
 		fileInfoElement.setName(WlLabCommunication.FILE_INFO_ATTR);
-		fileInfoElement.setValue(uploadStructure.getFileInfo());
+		fileInfoElement.setValue("false");
+		
+// 		TODO: This could be enabled. Left disabled for now just in case it has
+//		side effects. It isn't really required because the is_async attribute is
+//		optional and false by default.
+		final Hidden isAsyncElement = new Hidden();
+		isAsyncElement.setName(WlLabCommunication.FILE_IS_ASYNC_ATTR);
+		isAsyncElement.setName(WlLabCommunication.FILE_SENT_ATTR);
 		
 		// Set up uploadStructure
 		uploadStructure.addInformation(sessionIdElement);
