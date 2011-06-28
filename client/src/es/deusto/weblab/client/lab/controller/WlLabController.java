@@ -405,6 +405,12 @@ public class WlLabController implements IWlLabController {
 		    WlLabController.this.sendFile(uploadStructure, callback);
 		    
 		}
+		
+		@Override
+		public void sendAsyncFile(UploadStructure uploadStructure,
+				IResponseCommandCallback callback) {
+			WlLabController.this.sendAsyncFile(uploadStructure, callback);
+		}
 
 		@Override
 		public void sendAsyncCommand(Command command) {

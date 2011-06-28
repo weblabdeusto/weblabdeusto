@@ -397,16 +397,17 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 		
 		final Hidden fileInfoElement = new Hidden();
 		fileInfoElement.setName(WlLabCommunication.FILE_INFO_ATTR);
-		fileInfoElement.setValue("true");
+		fileInfoElement.setValue(uploadStructure.getFileInfo());
 		
 		final Hidden isAsyncElement = new Hidden();
 		isAsyncElement.setName(WlLabCommunication.FILE_IS_ASYNC_ATTR);
-		isAsyncElement.setName(WlLabCommunication.FILE_SENT_ATTR);
+		isAsyncElement.setValue("true");
 		
 		
 		// Set up uploadStructure
 		uploadStructure.addInformation(sessionIdElement);
 		uploadStructure.addInformation(fileInfoElement);
+		uploadStructure.addInformation(isAsyncElement);
 		uploadStructure.getFileUpload().setName(WlLabCommunication.FILE_SENT_ATTR);
 		uploadStructure.getFormPanel().setAction(this.getFilePostUrl());
 		uploadStructure.getFormPanel().setEncoding(FormPanel.ENCODING_MULTIPART);
@@ -546,18 +547,19 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 
 		final Hidden fileInfoElement = new Hidden();
 		fileInfoElement.setName(WlLabCommunication.FILE_INFO_ATTR);
-		fileInfoElement.setValue("false");
+		fileInfoElement.setValue(uploadStructure.getFileInfo());
 		
 // 		TODO: This could be enabled. Left disabled for now just in case it has
 //		side effects. It isn't really required because the is_async attribute is
 //		optional and false by default.
 		final Hidden isAsyncElement = new Hidden();
 		isAsyncElement.setName(WlLabCommunication.FILE_IS_ASYNC_ATTR);
-		isAsyncElement.setName(WlLabCommunication.FILE_SENT_ATTR);
+		isAsyncElement.setValue("false");
 		
 		// Set up uploadStructure
 		uploadStructure.addInformation(sessionIdElement);
 		uploadStructure.addInformation(fileInfoElement);
+		uploadStructure.addInformation(isAsyncElement);
 		uploadStructure.getFileUpload().setName(WlLabCommunication.FILE_SENT_ATTR);
 		uploadStructure.getFormPanel().setAction(this.getFilePostUrl());
 		uploadStructure.getFormPanel().setEncoding(FormPanel.ENCODING_MULTIPART);

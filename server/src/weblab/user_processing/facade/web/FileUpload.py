@@ -76,8 +76,14 @@ class FileUploadMethod(WebFacadeServer.Method):
                         'THE_FAULT_MESSAGE' : message
                     }
         else:
+            
+            if not is_async:
+                resultstr = result.commandstring
+            else:
+                resultstr = result
+                
             return SUCCESS_HTML_TEMPLATE % {
-                        'RESULT' : result.commandstring
+                            'RESULT' : resultstr
                     }
 
     def _check_arguments(self):

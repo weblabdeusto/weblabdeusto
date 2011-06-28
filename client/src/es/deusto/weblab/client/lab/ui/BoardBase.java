@@ -32,6 +32,7 @@ public abstract class BoardBase implements IWlWidget{
 		public void sendAsyncCommand(String command, IResponseCommandCallback callback);
 		
 		public void sendFile(UploadStructure uploadStructure, IResponseCommandCallback callback);
+		public void sendAsyncFile(UploadStructure uploadStructure, IResponseCommandCallback callback);
 		public void onClean();
 	}
 	

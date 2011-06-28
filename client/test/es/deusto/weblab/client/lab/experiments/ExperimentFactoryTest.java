@@ -72,7 +72,11 @@ public class ExperimentFactoryTest extends GWTTestCase {
 			@Override
 			public void sendFile(UploadStructure uploadStructure,
 				IResponseCommandCallback callback) {
-			    
+			}
+			
+			@Override
+			public void sendAsyncFile(UploadStructure uploadStructure,
+					IResponseCommandCallback callback) {
 			}
 
 			@Override
@@ -137,6 +141,11 @@ public class ExperimentFactoryTest extends GWTTestCase {
 			@Override
 			public void sendFile(UploadStructure uploadStructure,
 				IResponseCommandCallback callback) {
+			}
+			
+			@Override
+			public void sendAsyncFile(UploadStructure uploadStructure,
+					IResponseCommandCallback callback) {
 			}
 
 			@Override

@@ -456,9 +456,9 @@ class Case001TestCase(object):
         try:
             self.cfg_manager._set_value('core_experiment_poll_time',1.5)
             self.cfg_manager._set_value('core_time_between_checks',1.5)
-            self._single_use(logout = False)
+            self._single_use(logout = False, plus_async_use = False)
             time.sleep(self.cfg_manager.get_value('core_experiment_poll_time') + 0.3 + self.cfg_manager.get_value('core_time_between_checks'))
-            self._single_use(logout = False)
+            self._single_use(logout = False, plus_async_use = False)
         finally:
             self.cfg_manager._set_value('core_experiment_poll_time',backup_poll_time)
             self.cfg_manager._set_value('core_time_between_checks',backup_time_between_checks)
@@ -662,9 +662,16 @@ class Case001TestCase(object):
             self.real_ups.logout(session_id)
             
    
-    def _single_use(self, logout = True):
+    def _single_use(self, logout = True, plus_async_use = True):
+        """
+        Will use an experiment. 
+        @param logout If true, the user will be logged out after the use. Otherwise not.
+        @param plus_async_use If true, after using the experiment synchronously, it will use it
+        again using the asynchronous versions of the send_command and send_file requests.
+        """
         self._single_sync_use(logout)
-        self._single_async_use(logout)
+        if plus_async_use:
+            self._single_async_use(logout)
 
 
     def _single_sync_use(self, logout = True):
