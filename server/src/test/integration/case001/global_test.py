@@ -555,7 +555,9 @@ class Case001TestCase(object):
 
         # wait until it is reserved
         short_time = 0.1
-        times      = 9.0 / short_time
+        
+        # Time extended from 9.0 to 13.0 because at times the test failed, possibly for that reason.
+        times      = 13.0 / short_time
 
         while times > 0:
             time.sleep(short_time)
@@ -709,7 +711,7 @@ class Case001TestCase(object):
 
         # wait until it is reserved
         short_time = 0.1
-        times      = 9.0 / short_time
+        times      = 13.0 / short_time
 
         while times > 0:
             time.sleep(short_time)
