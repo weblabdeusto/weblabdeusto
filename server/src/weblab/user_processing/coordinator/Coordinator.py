@@ -377,6 +377,7 @@ class Coordinator(object):
             time.sleep(time_remaining)
             # We just ignore the data retrieved, if any, and perform the query again
             self.confirmer.enqueue_free_experiment(lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id)
+            return
         else:
             # Otherwise we in fact remove the resource
             session = self._session_maker()
