@@ -160,6 +160,8 @@ public abstract class WebLabClient implements EntryPoint {
 	
 	@Override
 	public void onModuleLoad() {
+		HistoryProperties.load();
+		
 		final WlWaitingLabel loadingLabel = new WlWaitingLabel("Loading WebLab-Deusto");
 		loadingLabel.start();
 		this.putWidget(loadingLabel.getWidget());

@@ -87,9 +87,12 @@ public class WebLabLabLoader {
 			public void onThemeLoaded(WlLabThemeBase theme) {
 				controller.setUIManager(theme);
 				try{
-					final String providedCredentials = Window.Location.getParameter(WebLabLabLoader.SESSION_ID_URL_PARAM);
+					String providedCredentials = Window.Location.getParameter(WebLabLabLoader.SESSION_ID_URL_PARAM);
 					if(providedCredentials == null)
-						theme.onInit();
+						providedCredentials = HistoryProperties.getValue(WebLabLabLoader.SESSION_ID_URL_PARAM);
+					
+					if(providedCredentials == null)
+						theme.onInit(); // If it's still null...
 					else{
 						final String sessionId;
 						final int position = providedCredentials.indexOf(';');
