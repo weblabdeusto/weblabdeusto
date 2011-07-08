@@ -67,4 +67,9 @@ public class HistoryProperties {
 	public static String [] getValues(String key){
 		return values.get(key);
 	}
+
+	public static boolean getBooleanValue(String key, boolean b) {
+		final String value = getValue(key, b?"true":"false");
+		return value.toLowerCase().equals("true") || value.toLowerCase().equals("yes"); 
+	}
 }

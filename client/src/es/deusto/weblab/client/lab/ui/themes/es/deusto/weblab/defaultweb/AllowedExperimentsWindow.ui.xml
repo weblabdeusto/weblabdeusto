@@ -7,7 +7,7 @@
     
 	<g:VerticalPanel ui:field="containerPanel" styleName="web-logged-container">
 
-		<g:HorizontalPanel styleName="web-logged-header">
+		<g:HorizontalPanel ui:field="headerPanel" styleName="web-logged-header">
 
 			<g:HorizontalPanel styleName="web-logged-header-logo">
 				

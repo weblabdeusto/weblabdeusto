@@ -26,11 +26,13 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import es.deusto.weblab.client.HistoryProperties;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
@@ -65,6 +67,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 	@UiField Label generalErrorLabel;
 	@UiField Label separatorLabel;
 	@UiField Label separatorLabel2;
+	@UiField HorizontalPanel headerPanel;
 
 	// Callbacks
 	private final IAllowedExperimentsWindowCallback callback;
@@ -96,6 +99,8 @@ class AllowedExperimentsWindow extends BaseWindow {
 	protected ExperimentAllowed [] loadWidgets(){
 		final List<ExperimentAllowed> failedExperiments = new Vector<ExperimentAllowed>();
 	    AllowedExperimentsWindow.uiBinder.createAndBindUi(this);
+	    
+	    this.headerPanel.setVisible(HistoryProperties.getBooleanValue("header.visible", true));
 
 		this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
 		
