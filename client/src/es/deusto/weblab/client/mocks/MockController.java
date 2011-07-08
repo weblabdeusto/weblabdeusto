@@ -167,5 +167,7 @@ public class MockController implements IWlLabController {
 		t.schedule(600);
 	}
 
-
+	@Override
+	public void loadUserHomeWindow() {
+	}
 }

@@ -100,7 +100,9 @@ class AllowedExperimentsWindow extends BaseWindow {
 		final List<ExperimentAllowed> failedExperiments = new Vector<ExperimentAllowed>();
 	    AllowedExperimentsWindow.uiBinder.createAndBindUi(this);
 	    
-	    this.headerPanel.setVisible(HistoryProperties.getBooleanValue("header.visible", true));
+	    final boolean visibleHeader = HistoryProperties.getBooleanValue(HistoryProperties.HEADER_VISIBLE, true);
+	    this.headerPanel.setVisible(visibleHeader);
+	    this.navigationPanel.setVisible(visibleHeader);
 
 		this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
 		

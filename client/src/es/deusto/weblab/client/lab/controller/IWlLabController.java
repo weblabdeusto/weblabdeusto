@@ -30,6 +30,7 @@ public interface IWlLabController {
 	public void setUIManager(IUIManager uimanager);
 	
 	public void retrieveAllowedExperiments();
+	public void loadUserHomeWindow();
 	public void chooseExperiment(ExperimentAllowed experiment);
 	public void reserveExperiment(ExperimentID experiment);
 	

@@ -22,10 +22,12 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import es.deusto.weblab.client.HistoryProperties;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.users.User;
@@ -71,6 +73,7 @@ class ExperimentWindow extends BaseWindow {
 	@UiField Label generalErrorLabel;
 	@UiField Label separatorLabel;
 	@UiField Label separatorLabel2;
+	@UiField HorizontalPanel headerPanel;
 
 	// Callbacks
 	private final IExperimentWindowCallback callback;
@@ -111,6 +114,10 @@ class ExperimentWindow extends BaseWindow {
 	public void loadWidgets(){		
 		ExperimentWindow.uiBinder.createAndBindUi(this);
 		
+		final boolean visibleHeader = HistoryProperties.getBooleanValue(HistoryProperties.HEADER_VISIBLE, true);
+	    this.headerPanel.setVisible(visibleHeader);
+	    this.navigationPanel.setVisible(visibleHeader);
+	    
 		this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
 		
 	    if(this.callback.startedLoggedIn()){

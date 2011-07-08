@@ -22,6 +22,10 @@ import com.google.gwt.user.client.History;
 
 public class HistoryProperties {
 	
+	public static final String HEADER_VISIBLE = "header.visible";
+	public static final String EXPERIMENT_NAME = "exp.name";
+	public static final String EXPERIMENT_CATEGORY = "exp.category";
+	
 	private static final Map<String, String []> values = new HashMap<String, String[]>(); 
 	
 	HistoryProperties(){
@@ -32,7 +36,7 @@ public class HistoryProperties {
 			if(!token.contains("="))
 				value = "";
 			else{
-				value = URL.decode(token.substring(token.indexOf('=')));
+				value = URL.decode(token.substring(token.indexOf('=') + 1));
 			}
 			
 			if(values.containsKey(key)){

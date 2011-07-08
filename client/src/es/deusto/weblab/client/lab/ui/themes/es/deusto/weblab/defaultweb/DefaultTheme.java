@@ -137,7 +137,7 @@ public class DefaultTheme extends WlLabThemeBase {
 	@Override
 	public void onReservationFinished() {
 		this.experimentBase.getUI().end(); // Critical: Everything (i.e: timers) must be disposed.
-		this.loadAllowedExperimentsWindow();	    
+		this.controller.loadUserHomeWindow();
 	}	
 
 	@Override

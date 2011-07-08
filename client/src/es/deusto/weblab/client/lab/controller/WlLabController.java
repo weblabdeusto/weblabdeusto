@@ -20,6 +20,7 @@ package es.deusto.weblab.client.lab.controller;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Timer;
 
+import es.deusto.weblab.client.HistoryProperties;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
@@ -70,11 +71,9 @@ public class WlLabController implements IWlLabController {
 	private SessionID currentSession;
 	private final IPollingHandler pollingHandler;
 	private boolean isUsingExperiment = false;
+	private ExperimentAllowed[] experimentsAllowed;
 	
 	private boolean loggedIn = false;
-	
-	// TODO: QUICK FIX TO INTEGRATE TINY VISIR
-	private ExperimentID lastExperiment;
 	
 	private class SessionVariables {
 		private ExperimentBase currentExperimentBase;
@@ -211,7 +210,8 @@ public class WlLabController implements IWlLabController {
 		WlLabController.this.communications.listExperiments(WlLabController.this.currentSession, new IExperimentsAllowedCallback(){
 			@Override
 			public void onSuccess(ExperimentAllowed[] experimentsAllowed) {
-				WlLabController.this.uimanager.onAllowedExperimentsRetrieved(experimentsAllowed);
+				WlLabController.this.experimentsAllowed = experimentsAllowed;
+				loadUserHomeWindow();
 			}
 			
 			@Override
@@ -219,6 +219,24 @@ public class WlLabController implements IWlLabController {
 				WlLabController.this.uimanager.onError(e.getMessage());
 			}
 		});	    
+	}
+	
+	@Override
+	public void loadUserHomeWindow(){
+		final String selectedExperimentName     = HistoryProperties.getValue(HistoryProperties.EXPERIMENT_NAME);
+		final String selectedExperimentCategory = HistoryProperties.getValue(HistoryProperties.EXPERIMENT_CATEGORY);
+		if(selectedExperimentName != null && selectedExperimentCategory != null){
+			for(ExperimentAllowed experimentAllowed : this.experimentsAllowed){
+				final String currentExperimentAllowedName     = experimentAllowed.getExperiment().getName();
+				final String currentExperimentAllowedCategory = experimentAllowed.getExperiment().getCategory().getCategory();
+				if(currentExperimentAllowedName.equals(selectedExperimentName) && currentExperimentAllowedCategory.equals(selectedExperimentCategory)){
+					chooseExperiment(experimentAllowed);
+					return;
+				}
+			}
+		}
+		
+		WlLabController.this.uimanager.onAllowedExperimentsRetrieved(this.experimentsAllowed);
 	}
 
 	@Override
@@ -237,8 +255,6 @@ public class WlLabController implements IWlLabController {
 		reservationStatusCallback.setController(this);
 		reservationStatusCallback.setExperimentBaseBeingReserved(this.sessionVariables.getCurrentExperimentBase());
 		
-		this.lastExperiment = experimentId;//TODO: remove this line TINY VISIR
-
 		this.communications.reserveExperiment(this.currentSession, experimentId, reservationStatusCallback);
 	}
 
@@ -333,9 +349,6 @@ public class WlLabController implements IWlLabController {
 					}
 					@Override
 					public void onFailure(WlCommException e) {
-						if(WlLabController.this.lastExperiment != null && WlLabController.this.lastExperiment.getExperimentName().equals("ud-visir"))
-							return;
-						
 						// TODO: 
 						WlLabController.this.uimanager.onErrorAndFinishReservation(e.getMessage());
 						WlLabController.this.finishReservation();
