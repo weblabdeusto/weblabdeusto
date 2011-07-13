@@ -25,7 +25,7 @@ class Experiment(object):
         # from the experiments whether a command is being executed from it
         # (and hence synchronously) or from a different thread (and hence
         # asynchronously).
-        self._thread_ident = threading.current_thread().ident
+        self._thread_ident = threading.currentThread().getName()
         
     def _is_main_thread(self):
         """
@@ -33,7 +33,7 @@ class Experiment(object):
         If it isn't, we can assume that the particular request is being
         executed asynchronously, from a different thread.
         """
-        return self._thread_ident == threading.current_thread().ident
+        return self._thread_ident == threading.currentThread().getName()
 
     def do_start_experiment(self):
         # Default implementation: empty
