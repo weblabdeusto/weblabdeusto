@@ -86,6 +86,26 @@
 		                        	"experiment.picture"  : "/img/experiments/labview.jpg",
 	                            	"experiment.name"     : "blink-led",
 	                            	"experiment.category" : "LabVIEW experiments"
+	                            },
+	                            {
+		                        	"experiment.picture"  : "/img/experiments/labview.jpg",
+	                            	"experiment.name"     : "prototyping-board-01",
+	                            	"experiment.category" : "LabVIEW experiments"
+	                            },
+	                            {
+		                        	"experiment.picture"  : "/img/experiments/labview.jpg",
+	                            	"experiment.name"     : "fpga-board-config",
+	                            	"experiment.category" : "LabVIEW experiments"
+	                            },
+	                            {
+		                        	"experiment.picture"  : "/img/experiments/labview.jpg",
+	                            	"experiment.name"     : "fpga-board-experiment",
+	                            	"experiment.category" : "LabVIEW experiments"
+	                            },
+	                            {
+		                        	"experiment.picture"  : "/img/experiments/labview.jpg",
+	                            	"experiment.name"     : "fpga-board-bit",
+	                            	"experiment.category" : "LabVIEW experiments"
 	                            }
 	                       ],
 	                "xilinx" : [
