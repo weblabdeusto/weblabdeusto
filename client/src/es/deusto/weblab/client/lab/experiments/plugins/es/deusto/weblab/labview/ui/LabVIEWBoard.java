@@ -97,10 +97,19 @@ public class LabVIEWBoard extends BoardBase {
 			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
 				final String [] commands = responseCommand.getCommandString().split(";");
-				final int height = Integer.parseInt(commands[0]);
-				final int width  = Integer.parseInt(commands[1]);
-				final String url = commands[2];
-				LabVIEWBoard.this.html.setHTML("<iframe src=\"" + url +  "\" height=\"" + height + "\" width=\"" + width + "\"/>");
+				if(commands.length < 5){
+					LabVIEWBoard.this.html.setHTML("Invalid response: not enough arguments: " + responseCommand.getCommandString());
+					return;
+				}
+				
+				final int height         = Integer.parseInt(commands[0]);
+				final int width          = Integer.parseInt(commands[1]);
+				final String viName      = commands[2];
+				final String server      = commands[3];
+				final String version     = commands[4];
+				
+				final String htmlCode = LabViewObjectGenerator.generate(height, width, viName, server, version);
+				LabVIEWBoard.this.html.setHTML(htmlCode);
 			}
 		});
 	}
