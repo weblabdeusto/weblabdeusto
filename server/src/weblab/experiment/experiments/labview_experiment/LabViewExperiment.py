@@ -22,20 +22,24 @@ from voodoo.override import Override
 from voodoo.log import logged
 
 
-DEFAULT_LABVIEW_WIDTH = "1000"
-DEFAULT_LABVIEW_HEIGHT = "800"
-DEFAULT_LABVIEW_URL_PROPERTY = "http://www.weblab.deusto.es:5906/testone/BlinkLED.html"
+DEFAULT_LABVIEW_WIDTH   = "1000"
+DEFAULT_LABVIEW_HEIGHT  = "800"
+DEFAULT_LABVIEW_VERSION = "2009"
+DEFAULT_LABVIEW_SERVER_PROPERTY = "http://www.weblab.deusto.es:5906/"
+DEFAULT_LABVIEW_VINAME_PROPERTY = "BlinkLED.vi"
 
 class LabViewExperiment(Experiment.Experiment):
     
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(LabViewExperiment, self).__init__(*args, **kwargs)
         self._cfg_manager = cfg_manager
-        self.filename = self._cfg_manager.get_value("labview_filename")
-        self.url      = self._cfg_manager.get_value("labview_url", DEFAULT_LABVIEW_URL_PROPERTY)
-        self.width    = self._cfg_manager.get_value("labview_width", DEFAULT_LABVIEW_WIDTH)
-        self.height   = self._cfg_manager.get_value("labview_height", DEFAULT_LABVIEW_HEIGHT)
-        self.must_wait = self._cfg_manager.get_value("labview_must_wait", True)
+        self.filename   = self._cfg_manager.get_value("labview_filename")
+        self.server_url = self._cfg_manager.get_value("labview_server",  DEFAULT_LABVIEW_SERVER_PROPERTY)
+        self.viname     = self._cfg_manager.get_value("labview_viname",  DEFAULT_LABVIEW_VINAME_PROPERTY)
+        self.version    = self._cfg_manager.get_value("labview_version", DEFAULT_LABVIEW_VERSION_PROPERTY)
+        self.width      = self._cfg_manager.get_value("labview_width",   DEFAULT_LABVIEW_WIDTH)
+        self.height     = self._cfg_manager.get_value("labview_height",  DEFAULT_LABVIEW_HEIGHT)
+        self.must_wait  = self._cfg_manager.get_value("labview_must_wait", True)
 
     @Override(Experiment.Experiment)
     @logged("info")
@@ -64,7 +68,7 @@ class LabViewExperiment(Experiment.Experiment):
                 return "yes"
             return "no"
         if command == 'get_url':
-            return '%s;%s;%s' % (self.height, self.width, self.url)
+            return '%s;%s;%s;%s;%s' % (self.height, self.width, self.viname, self.server_url, self.version)
         return "cmd_not_supported"
 
 
