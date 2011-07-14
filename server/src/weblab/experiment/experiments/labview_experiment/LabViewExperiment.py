@@ -35,21 +35,23 @@ class LabViewExperiment(Experiment.Experiment):
         self.url      = self._cfg_manager.get_value("labview_url", DEFAULT_LABVIEW_URL_PROPERTY)
         self.width    = self._cfg_manager.get_value("labview_width", DEFAULT_LABVIEW_WIDTH)
         self.height   = self._cfg_manager.get_value("labview_height", DEFAULT_LABVIEW_HEIGHT)
+        self.must_wait = self._cfg_manager.get_value("labview_must_wait", True)
 
     @Override(Experiment.Experiment)
     @logged("info")
     def do_start_experiment(self):
-        MAX_TIME = 12 # seconds
-        STEP_TIME = 0.05
-        MAX_STEPS = MAX_TIME / STEP_TIME
-        counter = 0
-        print "Waiting for ready in file '%s'... " % self.filename
-        while os.path.exists(self.filename) and self.current_content() != 'closed' and counter < MAX_STEPS:
-            time.sleep(0.05)
-            counter += 1
+        if self.must_wait:
+            MAX_TIME = 12 # seconds
+            STEP_TIME = 0.05
+            MAX_STEPS = MAX_TIME / STEP_TIME
+            counter = 0
+            print "Waiting for ready in file '%s'... " % self.filename
+            while os.path.exists(self.filename) and self.current_content() == 'close' and counter < MAX_STEPS:
+                time.sleep(0.05)
+                counter += 1
 
-        if counter == MAX_STEPS:
-            raise Exception("LabView experiment: Time waiting for 'ready' content in file '%s' exceeded (max %s seconds)" % (self.filename, MAX_TIME))
+            if counter == MAX_STEPS:
+                raise Exception("LabView experiment: Time waiting for 'ready' content in file '%s' exceeded (max %s seconds)" % (self.filename, MAX_TIME))
         print "Ready found or file did not exist. Starting..."
         self.open_file(self.filename)
         return ""
@@ -58,7 +60,7 @@ class LabViewExperiment(Experiment.Experiment):
     @logged("info")
     def do_send_command_to_device(self, command):
         if command == 'is_open':
-            if self.current_content() == 'opened':
+            if not self.must_wait or self.current_content() == 'opened':
                 return "yes"
             return "no"
         if command == 'get_url':
