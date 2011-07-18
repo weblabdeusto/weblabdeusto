@@ -44,7 +44,8 @@ class LabViewExperiment(Experiment.Experiment):
         self.height     = self._cfg_manager.get_value("labview_height",  DEFAULT_LABVIEW_HEIGHT)
         self.must_wait  = self._cfg_manager.get_value("labview_must_wait", True)
 
-        self.copyfile   = self._cfg_manager.get_value("labview_copyfile", True)
+        self.copyfile   = self._cfg_manager.get_value("labview_copyfile", False)
+        self.opened     = False
         if self.copyfile:
             self.cpfilename = self._cfg_manager.get_value("labview_copyfilename")
             if not self.viname.endswith(".vi"):
@@ -66,6 +67,7 @@ class LabViewExperiment(Experiment.Experiment):
             counter = 0
             print "Waiting for ready in file '%s'... " % self.filename
             while os.path.exists(self.filename) and self.current_content() == 'close' and counter < MAX_STEPS:
+                print "The file exists, and its content is close and therefore I wait"
                 time.sleep(0.05)
                 counter += 1
 
@@ -74,13 +76,20 @@ class LabViewExperiment(Experiment.Experiment):
         print "Ready found or file did not exist. Starting..."
 
         if self.copyfile:
+            print "Generating code..."
             code = str(random.randint(1000,1000000))
             self.new_path   = self.vi_path[:-3] + code + ".vi"
             self.new_viname = self.viname[:-3] + code + ".vi"
-            shutil.copy(self.path, self.new_path)
+            print "Copying file"
+            print "Copying %s to %s" % (self.vi_path, self.new_path)
+                
+            shutil.copy(self.vi_path, self.new_path)
+            print "Writing into %s this %s" % (self.cpfilename, self.new_path)
             open(self.cpfilename,'w').write(self.new_path)
 
+        print "Opening file..."
         self.open_file(self.filename)
+        self.opened = True
         return ""
 
     @Override(Experiment.Experiment)
@@ -109,9 +118,15 @@ class LabViewExperiment(Experiment.Experiment):
     @logged("info")
     def do_dispose(self):
         print "Disposing"
-        self.close_file(self.filename)
+        if self.opened:
+            self.close_file(self.filename)
+            self.opened = False
         if self.copyfile:
-            os.remove(self.new_path)
+            try:
+                os.remove(self.new_path)
+            except:
+                import traceback
+                traceback.print_exc()
         return "Disposing"
 
     def current_content(self):
