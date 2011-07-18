@@ -103,7 +103,7 @@ public class LabVIEWBoard extends BoardBase {
 			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
 				LabVIEWBoard.this.html.setText("");
-				
+				LabVIEWBoard.this.openPopupButton.setVisible(true);
 				LabVIEWBoard.this.openPopupButton.addClickHandler(new ClickHandler() {
 					@Override
 					public void onClick(ClickEvent event) {
