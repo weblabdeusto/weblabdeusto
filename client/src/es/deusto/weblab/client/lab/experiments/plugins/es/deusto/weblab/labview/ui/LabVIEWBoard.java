@@ -87,6 +87,7 @@ public class LabVIEWBoard extends BoardBase {
 			}
 		});
 		this.panel.add(this.html);
+		this.panel.add(this.openPopupButton);
 		this.html.setText("Waiting for experiment...");
 		this.boardController.sendCommand("is_open", this.callback);
 	}
