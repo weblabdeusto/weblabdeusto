@@ -31,6 +31,23 @@ DEFAULT_LABVIEW_SERVER_PROPERTY = "http://www.weblab.deusto.es:5906/"
 DEFAULT_LABVIEW_VINAME_PROPERTY = "BlinkLED.vi"
 DEFAULT_LABVIEW_VI_DIRECTORY_PROPERTY = r"."
 
+CLASSID     = "classid"
+CODEBASE    = "codebase"
+PLUGINSPAGE = "pluginspage"
+
+LV_VERSIONS = {
+    "2009" : {
+        CLASSID       : "CLSID:A40B0AD4-B50E-4E58-8A1D-8544233807B1",
+        CODEBASE      : "ftp://ftp.ni.com/support/labview/runtime/windows/9.0/LVRTE90min.exe",
+        PLUGINSPAGE   : "http://digital.ni.com/express.nsf/bycode/exck2m",
+    },
+    "2010" : {
+        CLASSID       : "CLSID:A40B0AD4-B50E-4E58-8A1D-8544233807B2",
+        CODEBASE      : "ftp://ftp.ni.com/support/labview/runtime/windows/2010/LVRTE2010min.exe",
+        PLUGINSPAGE   : "http://digital.ni.com/express.nsf/bycode/exck2m",
+    }
+}
+
 class LabViewExperiment(Experiment.Experiment):
     
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
@@ -44,7 +61,10 @@ class LabViewExperiment(Experiment.Experiment):
         self.height     = self._cfg_manager.get_value("labview_height",  DEFAULT_LABVIEW_HEIGHT)
         self.must_wait  = self._cfg_manager.get_value("labview_must_wait", True)
 
-        self.copyfile   = self._cfg_manager.get_value("labview_copyfile", False)
+        if not self.version in LV_VERSIONS:
+            raise Exception("Unsupported LabVIEW provided version: %s. Add the proper arguments to weblab/experiment/experiments/labview_experiment/LabViewExperiment.py" % self.version)
+
+        self.copyfile   = self._cfg_manager.get_value("labview_copyfile", True)
         self.opened     = False
         if self.copyfile:
             self.cpfilename = self._cfg_manager.get_value("labview_copyfilename")
@@ -105,6 +125,28 @@ class LabViewExperiment(Experiment.Experiment):
             else:
                 viname = self.viname
             return '%s;%s;%s;%s;%s' % (self.height, self.width, viname, self.server_url, self.version)
+        if command == 'get_html':
+            if self.copyfile:
+                viname = self.new_viname
+            else:
+                viname = self.viname
+
+            version = LV_VERSIONS[self.version]
+            classId     = version[CLASSID]
+            codeBase    = version[CODEBASE]
+            pluginsPage = version[PLUGINSPAGE]
+            control     = "true"
+            
+            html = ""
+            html += "<OBJECT ID=\"LabVIEWControl\" CLASSID=\"" + classId + "\" WIDTH=" + str(self.width) + " HEIGHT=" + str(self.width) + " CODEBASE=\"" + codeBase + "\">\n"
+            html += "<PARAM name=\"server\" value=\"" + self.server_url + "\">\n"
+            html += "<PARAM name=\"LVFPPVINAME\" value=\"" + viname + "\">\n"
+            html += "<PARAM name=\"REQCTRL\" value=" + control + ">\n"
+            html += "<EMBED SRC=\"" + self.server_url + viname + "\" LVFPPVINAME=\"" + viname + "\" REQCTRL=" + control + " TYPE=\"application/x-labviewrpvi90\" WIDTH=" + str(self.width) + " HEIGHT=" + str(self.height) + " PLUGINSPAGE=\"" + pluginsPage + "\">\n"
+            html += "</EMBED>\n"
+            html += "</OBJECT>\n"
+            return html
+
         return "cmd_not_supported"
 
 

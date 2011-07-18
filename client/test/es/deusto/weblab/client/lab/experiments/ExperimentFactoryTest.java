@@ -17,6 +17,7 @@ import junit.framework.Assert;
 
 import com.google.gwt.junit.client.GWTTestCase;
 
+import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Category;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
@@ -57,6 +58,11 @@ public class ExperimentFactoryTest extends GWTTestCase {
 		final ExperimentFactory factory = new ExperimentFactory(new IBoardBaseController(){
 			@Override
 			public void sendCommand(Command command) {
+			}
+			
+			@Override
+			public SessionID getSessionId(){
+				return new SessionID("");
 			}
 
 			@Override
@@ -130,6 +136,11 @@ public class ExperimentFactoryTest extends GWTTestCase {
 			public void sendCommand(Command command) {
 			}
 
+			@Override
+			public SessionID getSessionId(){
+				return new SessionID("");
+			}
+			
 			@Override
 			public void onClean() {
 			}

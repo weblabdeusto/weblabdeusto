@@ -14,7 +14,11 @@
 
 package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.labview.ui;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -32,12 +36,14 @@ public class LabVIEWBoard extends BoardBase {
 	private IConfigurationRetriever configurationRetriever;
 	private VerticalPanel panel = new VerticalPanel();
 	private HTML html = new HTML(); 
+	private Button openPopupButton = new Button("Click here to open the experiment");
 	private WlTimer timer = new WlTimer(false);
 
 	public LabVIEWBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController) {
 		super(boardController);
 		this.configurationRetriever = configurationRetriever;
 		this.timer.setStyleName("wl-time_remaining");
+		this.openPopupButton.setVisible(false);
 	}
 
 	@Override
@@ -96,6 +102,15 @@ public class LabVIEWBoard extends BoardBase {
 			
 			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
+				LabVIEWBoard.this.html.setText("");
+				
+				LabVIEWBoard.this.openPopupButton.addClickHandler(new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent event) {
+						Window.open("/weblab/web/upload/?session_id=" + LabVIEWBoard.this.boardController.getSessionId().getRealId(), "_blank", null);
+					}
+				});
+				/*
 				final String [] commands = responseCommand.getCommandString().split(";");
 				if(commands.length < 5){
 					LabVIEWBoard.this.html.setHTML("Invalid response: not enough arguments: " + responseCommand.getCommandString());
@@ -110,6 +125,7 @@ public class LabVIEWBoard extends BoardBase {
 				
 				final String htmlCode = LabViewObjectGenerator.generate(height, width, viName, server, version);
 				LabVIEWBoard.this.html.setHTML(htmlCode);
+				*/
 			}
 		});
 	}

@@ -13,6 +13,7 @@
 */ 
 package es.deusto.weblab.client.lab.ui;
 
+import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
@@ -20,7 +21,10 @@ import es.deusto.weblab.client.ui.widgets.IWlWidget;
 
 public abstract class BoardBase implements IWlWidget{
 	public interface IBoardBaseController{
+		
 		public boolean isFacebook();
+		public SessionID getSessionId();
+		
 	    public void sendCommand(Command command);
 		public void sendCommand(Command command, IResponseCommandCallback callback);
 	    public void sendCommand(String command);

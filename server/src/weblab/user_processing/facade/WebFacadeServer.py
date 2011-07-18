@@ -16,6 +16,7 @@
 import weblab.facade.WebFacadeServer as WebFacadeServer
 
 from weblab.user_processing.facade.web.FileUpload import FileUploadMethod
+from weblab.user_processing.facade.web.LabVIEW import LabViewMethod
 
 from weblab.user_processing.facade.UserProcessingFacadeServer import USER_PROCESSING_FACADE_SERVER_ROUTE, DEFAULT_USER_PROCESSING_SERVER_ROUTE
 
@@ -27,7 +28,8 @@ WEB_FACADE_PORT                      = 'core_web_facade_port'
 
 class UserProcessingWebProtocolRemoteFacadeServer(WebFacadeServer.WebProtocolRemoteFacadeServer):
     METHODS = [
-                FileUploadMethod
+                FileUploadMethod,
+                LabViewMethod
             ]
 
 class UserProcessingWebRemoteFacadeServer(WebFacadeServer.WebRemoteFacadeServer):

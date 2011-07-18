@@ -366,6 +366,11 @@ public class WlLabController implements IWlLabController {
 	    	}
 	    	
 	    	@Override
+	    	public SessionID getSessionId(){
+	    		return WlLabController.this.currentSession;
+	    	}
+	    	
+	    	@Override
 			public void onClean(){
 	    		WlLabController.this.finishReservation();
 	    	}
