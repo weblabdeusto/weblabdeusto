@@ -108,7 +108,7 @@ public class LabVIEWBoard extends BoardBase {
 				LabVIEWBoard.this.openPopupButton.addClickHandler(new ClickHandler() {
 					@Override
 					public void onClick(ClickEvent event) {
-						Window.open("/weblab/web/upload/?session_id=" + LabVIEWBoard.this.boardController.getSessionId().getRealId(), "_blank", null);
+						Window.open("/weblab/web/labview/?session_id=" + LabVIEWBoard.this.boardController.getSessionId().getRealId(), "_blank", "resizable=yes,scrollbars=yes,dependent=yes");
 					}
 				});
 				/*
