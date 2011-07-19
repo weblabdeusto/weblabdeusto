@@ -1,0 +1,7 @@
+port = 18080
+
+# Where is impact (bin\win\impact.exe?
+xilinx_impact_full_path = [r"./fake_impact.py"]
+
+# What is going to be sent to impact? (Use "$FILE")
+xilinx_batch_content_FPGA = """ foo """
