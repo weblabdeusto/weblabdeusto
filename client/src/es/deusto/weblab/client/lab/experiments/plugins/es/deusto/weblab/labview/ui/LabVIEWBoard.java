@@ -154,13 +154,16 @@ public class LabVIEWBoard extends BoardBase {
 	
 	@Override
 	public void initialize() {
-		this.panel.add(this.uploadStructurePanel);
-		this.uploadStructurePanel.add(new Label("Select the bit file"));
-		this.uploadStructurePanel.add(this.uploadStructure.getFormPanel());
+		if(this.sendFile){
+			this.panel.add(this.uploadStructurePanel);
+			this.uploadStructurePanel.add(new Label("Select the bit file"));
+			this.uploadStructurePanel.add(this.uploadStructure.getFormPanel());
+		}
 	}
 	
 	@Override
 	public void start() {
+		this.uploadStructure.getFormPanel().setVisible(false);
 		this.panel.add(this.timer);
 		this.timer.start();
 		this.timer.setTimerFinishedCallback(new WlTimer.IWlTimerFinishedCallback() {
