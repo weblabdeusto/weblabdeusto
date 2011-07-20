@@ -31,6 +31,11 @@ DEFAULT_LABVIEW_SERVER_PROPERTY = "http://www.weblab.deusto.es:5906/"
 DEFAULT_LABVIEW_VINAME_PROPERTY = "BlinkLED.vi"
 DEFAULT_LABVIEW_VI_DIRECTORY_PROPERTY = r"."
 
+MODE_HTML   = 'html'     # Generating the <object> etc.
+MODE_IFRAME = 'iframe' # Pointing to the labview html page
+
+DEFAULT_LABVIEW_MODE = MODE_HTML
+
 CLASSID     = "classid"
 CODEBASE    = "codebase"
 PLUGINSPAGE = "pluginspage"
@@ -60,20 +65,28 @@ class LabViewExperiment(Experiment.Experiment):
         self.width      = self._cfg_manager.get_value("labview_width",   DEFAULT_LABVIEW_WIDTH)
         self.height     = self._cfg_manager.get_value("labview_height",  DEFAULT_LABVIEW_HEIGHT)
         self.must_wait  = self._cfg_manager.get_value("labview_must_wait", True)
+        self.mode       = self._cfg_manager.get_value("labview_mode",    DEFAULT_LABVIEW_MODE)
+        
+        if self.mode == MODE_IFRAME:
+            self.vi_url = self._cfg_manager.get_value("labview_vi_url")
+        elif self.mode == MODE_HTML:
+            pass
+        else:
+            raise Exception("Mode not supported")
 
         if not self.version in LV_VERSIONS:
             raise Exception("Unsupported LabVIEW provided version: %s. Add the proper arguments to weblab/experiment/experiments/labview_experiment/LabViewExperiment.py" % self.version)
 
-        self.copyfile   = self._cfg_manager.get_value("labview_copyfile", True)
+        self.copyfile   = self._cfg_manager.get_value("labview_copyfile", False)
         self.opened     = False
+        self.cpfilename = self._cfg_manager.get_value("labview_copyfilename", None)
+        self.directory = self._cfg_manager.get_value("labview_vi_directory", DEFAULT_LABVIEW_VI_DIRECTORY_PROPERTY)
+        self.vi_path = self.directory + os.sep + self.viname
         if self.copyfile:
-            self.cpfilename = self._cfg_manager.get_value("labview_copyfilename")
             if not self.viname.endswith(".vi"):
                 raise Exception("The VI file does not end by .vi ('%s'), so the experiment code would be broken" % self.viname)
-            self.directory = self._cfg_manager.get_value("labview_vi_directory", DEFAULT_LABVIEW_VI_DIRECTORY_PROPERTY)
             if not os.path.exists(self.directory):
                 raise Exception("Provided directory where the experiment should be does not exist: %s" % self.directory)
-            self.vi_path = self.directory + os.sep + self.viname
             if not os.path.exists(self.vi_path):
                 raise Exception("Provided vi full path does not exist: %s" % self.vi_path)
 
@@ -81,7 +94,7 @@ class LabViewExperiment(Experiment.Experiment):
     @logged("info")
     def do_start_experiment(self):
         if self.must_wait:
-            MAX_TIME = 12 # seconds
+            MAX_TIME = 20 # seconds
             STEP_TIME = 0.05
             MAX_STEPS = MAX_TIME / STEP_TIME
             counter = 0
@@ -106,9 +119,14 @@ class LabViewExperiment(Experiment.Experiment):
             shutil.copy(self.vi_path, self.new_path)
             print "Writing into %s this %s" % (self.cpfilename, self.new_path)
             open(self.cpfilename,'w').write(self.new_path)
+        else:
+            if self.cpfilename is not None:
+                open(self.cpfilename,'w').write(self.vi_path)
+            
 
         print "Opening file..."
         self.open_file(self.filename)
+        print "Opened"
         self.opened = True
         return ""
 
@@ -126,6 +144,10 @@ class LabViewExperiment(Experiment.Experiment):
                 viname = self.viname
             return '%s;%s;%s;%s;%s' % (self.height, self.width, viname, self.server_url, self.version)
         if command == 'get_html':
+            if self.mode == MODE_IFRAME:
+                return """
+                <iframe src="%s" height="%s" width="%s" scroll="yes"/>
+                """ % (self.vi_url, self.height, self.width)
             if self.copyfile:
                 viname = self.new_viname
             else:
@@ -138,7 +160,7 @@ class LabViewExperiment(Experiment.Experiment):
             control     = "true"
             
             html = ""
-            html += "<OBJECT ID=\"LabVIEWControl\" CLASSID=\"" + classId + "\" WIDTH=" + str(self.width) + " HEIGHT=" + str(self.width) + " CODEBASE=\"" + codeBase + "\">\n"
+            html += "<OBJECT ID=\"LabVIEWControl\" CLASSID=\"" + classId + "\" WIDTH=" + str(self.width) + " HEIGHT=" + str(self.height) + " CODEBASE=\"" + codeBase + "\">\n"
             html += "<PARAM name=\"server\" value=\"" + self.server_url + "\">\n"
             html += "<PARAM name=\"LVFPPVINAME\" value=\"" + viname + "\">\n"
             html += "<PARAM name=\"REQCTRL\" value=" + control + ">\n"
@@ -161,14 +183,25 @@ class LabViewExperiment(Experiment.Experiment):
     def do_dispose(self):
         print "Disposing"
         if self.opened:
+            print "Closing file"
             self.close_file(self.filename)
             self.opened = False
+            print "Closed"
+            counter = 0
+            time_to_wait = 10 # seconds
+            time_step = 0.1
+            max_counter = time_to_wait / time_step
+            while self.current_content() == 'close' and counter < max_counter:
+                time.sleep(time_step)
         if self.copyfile:
+            time.sleep(2)
+            print "Removing %s" % self.new_path
             try:
                 os.remove(self.new_path)
             except:
                 import traceback
                 traceback.print_exc()
+            print "Removed"
         return "Disposing"
 
     def current_content(self):
