@@ -18,6 +18,7 @@ import time
 import shutil
 import random
 import xmlrpclib
+import traceback
 
 import weblab.experiment.Experiment as Experiment
 
@@ -55,6 +56,17 @@ LV_VERSIONS = {
     }
 }
 
+def debugged(func):
+    def wrapped(self, *args, **kwargs):
+        try:
+            return func(self, *args, **kwargs)
+        except:
+            traceback.print_exc()
+            raise
+    wrapped.__name__ = func.__name__
+    wrapped.__doc__  = func.__doc__
+    return wrapped
+
 class LabViewExperiment(Experiment.Experiment):
     
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
@@ -75,6 +87,8 @@ class LabViewExperiment(Experiment.Experiment):
 
         if self.send_file:
             self.fpga_url   = self._cfg_manager.get_value("labview_fpga_url")
+            self.fpga_fname = self._cfg_manager.get_value("labview_fpga_filename")
+            print self.fpga_fname
         
         if self.mode == MODE_IFRAME:
             self.vi_url = self._cfg_manager.get_value("labview_vi_url")
@@ -101,23 +115,22 @@ class LabViewExperiment(Experiment.Experiment):
 
     @Override(Experiment.Experiment)
     @logged("info")
+    @debugged
     def do_start_experiment(self):
+        self.is_programmed = False
         cur_initialize_t = self.initialize_t
         if cur_initialize_t is not None and cur_initialize_t.isAlive():
             cur_initialize_t.join()
 
-        cur_clean_initialize_t = slef.clean_initialize_t
+        cur_clean_initialize_t = self.clean_initialize_t
         if cur_clean_initialize_t is not None and cur_clean_initialize_t.isAlive():
             cur_clean_initialize_t.join()
 
-        if self.send_file:
-            self.initialize_t = self.initialize()
-            self.clean_initialize_t = None
-        else:
-            self.initialize_t = None
-            self.clean_initialize_t = self.clean_initialize()
+        self.initialize_t = self.initialize()
+        self.clean_initialize_t = None
 
-    @threaded
+    @threaded()
+    @debugged
     def initialize(self):
         if self.must_wait:
             self.wait_for(self.filename, 'close')
@@ -144,12 +157,18 @@ class LabViewExperiment(Experiment.Experiment):
         self.open_file(self.filename)
         print "Opened"
         self.opened = True
+
+        if self.send_file:
+            self.clean_initialize_t = self.clean_initialize()
+            
         return ""
 
-    @threaded
+    @threaded()
+    @debugged
     def clean_initialize(self):
         if self.must_wait:
-            self.wait_for(self.filename, 'close')
+            open(self.fpga_fname, 'w').write('put_bit')
+            self.wait_for(self.fpga_fname, 'put_bit')
 
     def wait_for(self, filename, message_to_avoid):
         MAX_TIME = 20 # seconds
@@ -167,7 +186,20 @@ class LabViewExperiment(Experiment.Experiment):
 
     @Override(Experiment.Experiment)
     @logged("info")
+    @debugged
     def do_send_command_to_device(self, command):
+        if command == 'is_ready_to_program':
+            if self.initialize_t.isAlive():
+                return "no"
+            if self.clean_initialize_t.isAlive():
+                return "no"
+            return "yes"
+            
+        if command == 'is_programmed':
+            if self.is_programmed:
+                return "yes"
+            return "no"
+            
         if command == 'is_open':
             # First wait for the thread to finish
             if self.initialize_t is None or self.initialize_t.isAlive():
@@ -215,6 +247,7 @@ class LabViewExperiment(Experiment.Experiment):
 
     @Override(Experiment.Experiment)
     @logged("info")
+    @debugged
     def do_send_file_to_device(self, content, file_info):
         if self.send_file:
             # If the cleaning process is still running, wait for it
@@ -224,16 +257,18 @@ class LabViewExperiment(Experiment.Experiment):
 
             # Then program the FPGA
             response = xmlrpclib.Server(self.fpga_url).program(content)
+            print "FPGA returned %s" % response
+            open(self.fpga_fname, 'w').write('put_bit_finished')
 
-            # Start initializing the system
-            self.initialize_t = self.initialize()
-
+            print "Programmed"
+            self.is_programmed = True
             return response
         return "NOP"
 
 
     @Override(Experiment.Experiment)
     @logged("info")
+    @debugged
     def do_dispose(self):
         print "Disposing"
 
