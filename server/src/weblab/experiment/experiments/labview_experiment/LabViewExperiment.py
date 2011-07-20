@@ -17,12 +17,13 @@ import os
 import time
 import shutil
 import random
+import xmlrpclib
 
 import weblab.experiment.Experiment as Experiment
 
 from voodoo.override import Override
 from voodoo.log import logged
-
+from voodoo.threaded import threaded
 
 DEFAULT_LABVIEW_WIDTH   = "1000"
 DEFAULT_LABVIEW_HEIGHT  = "800"
@@ -30,6 +31,7 @@ DEFAULT_LABVIEW_VERSION_PROPERTY = "2010"
 DEFAULT_LABVIEW_SERVER_PROPERTY = "http://www.weblab.deusto.es:5906/"
 DEFAULT_LABVIEW_VINAME_PROPERTY = "BlinkLED.vi"
 DEFAULT_LABVIEW_VI_DIRECTORY_PROPERTY = r"."
+DEFAULT_LABVIEW_SEND_FILE = False
 
 MODE_HTML   = 'html'     # Generating the <object> etc.
 MODE_IFRAME = 'iframe' # Pointing to the labview html page
@@ -58,6 +60,9 @@ class LabViewExperiment(Experiment.Experiment):
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(LabViewExperiment, self).__init__(*args, **kwargs)
         self._cfg_manager = cfg_manager
+        self.initialize_t = None
+        self.clean_initialize_t = None
+
         self.filename   = self._cfg_manager.get_value("labview_filename")
         self.server_url = self._cfg_manager.get_value("labview_server",  DEFAULT_LABVIEW_SERVER_PROPERTY)
         self.viname     = self._cfg_manager.get_value("labview_viname",  DEFAULT_LABVIEW_VINAME_PROPERTY)
@@ -66,6 +71,10 @@ class LabViewExperiment(Experiment.Experiment):
         self.height     = self._cfg_manager.get_value("labview_height",  DEFAULT_LABVIEW_HEIGHT)
         self.must_wait  = self._cfg_manager.get_value("labview_must_wait", True)
         self.mode       = self._cfg_manager.get_value("labview_mode",    DEFAULT_LABVIEW_MODE)
+        self.send_file  = self._cfg_manager.get_value("labview_send_file", DEFAULT_LABVIEW_SEND_FILE)
+
+        if self.send_file:
+            self.fpga_url   = self._cfg_manager.get_value("labview_fpga_url")
         
         if self.mode == MODE_IFRAME:
             self.vi_url = self._cfg_manager.get_value("labview_vi_url")
@@ -93,19 +102,26 @@ class LabViewExperiment(Experiment.Experiment):
     @Override(Experiment.Experiment)
     @logged("info")
     def do_start_experiment(self):
-        if self.must_wait:
-            MAX_TIME = 20 # seconds
-            STEP_TIME = 0.05
-            MAX_STEPS = MAX_TIME / STEP_TIME
-            counter = 0
-            print "Waiting for ready in file '%s'... " % self.filename
-            while os.path.exists(self.filename) and self.current_content() == 'close' and counter < MAX_STEPS:
-                print "The file exists, and its content is close and therefore I wait"
-                time.sleep(0.05)
-                counter += 1
+        cur_initialize_t = self.initialize_t
+        if cur_initialize_t is not None and cur_initialize_t.isAlive():
+            cur_initialize_t.join()
 
-            if counter == MAX_STEPS:
-                raise Exception("LabView experiment: Time waiting for 'ready' content in file '%s' exceeded (max %s seconds)" % (self.filename, MAX_TIME))
+        cur_clean_initialize_t = slef.clean_initialize_t
+        if cur_clean_initialize_t is not None and cur_clean_initialize_t.isAlive():
+            cur_clean_initialize_t.join()
+
+        if self.send_file:
+            self.initialize_t = self.initialize()
+            self.clean_initialize_t = None
+        else:
+            self.initialize_t = None
+            self.clean_initialize_t = self.clean_initialize()
+
+    @threaded
+    def initialize(self):
+        if self.must_wait:
+            self.wait_for(self.filename, 'close')
+
         print "Ready found or file did not exist. Starting..."
 
         if self.copyfile:
@@ -130,13 +146,38 @@ class LabViewExperiment(Experiment.Experiment):
         self.opened = True
         return ""
 
+    @threaded
+    def clean_initialize(self):
+        if self.must_wait:
+            self.wait_for(self.filename, 'close')
+
+    def wait_for(self, filename, message_to_avoid):
+        MAX_TIME = 20 # seconds
+        STEP_TIME = 0.05
+        MAX_STEPS = MAX_TIME / STEP_TIME
+        counter = 0
+        print "Waiting for ready in file '%s'... " % filename
+        while os.path.exists(filename) and self.current_content(filename) == message_to_avoid and counter < MAX_STEPS:
+            print "The file exists, and its content is %s and therefore I wait" % message_to_avoid
+            time.sleep(0.05)
+            counter += 1
+
+        if counter == MAX_STEPS:
+            raise Exception("LabView experiment: Time waiting for 'ready' content in file '%s' exceeded (max %s seconds)" % (filename, MAX_TIME))       
+
     @Override(Experiment.Experiment)
     @logged("info")
     def do_send_command_to_device(self, command):
         if command == 'is_open':
+            # First wait for the thread to finish
+            if self.initialize_t is None or self.initialize_t.isAlive():
+                return "no"
+
+            # Then check the result
             if not self.must_wait or self.current_content() == 'opened':
                 return "yes"
             return "no"
+
         if command == 'get_url':
             if self.copyfile:
                 viname = self.new_viname
@@ -175,6 +216,19 @@ class LabViewExperiment(Experiment.Experiment):
     @Override(Experiment.Experiment)
     @logged("info")
     def do_send_file_to_device(self, content, file_info):
+        if self.send_file:
+            # If the cleaning process is still running, wait for it
+            cur_clean_initialize_t = self.clean_initialize_t
+            if cur_clean_initialize_t is not None:
+                cur_clean_initialize_t.join()
+
+            # Then program the FPGA
+            response = xmlrpclib.Server(self.fpga_url).program(content)
+
+            # Start initializing the system
+            self.initialize_t = self.initialize()
+
+            return response
         return "NOP"
 
 
@@ -182,6 +236,13 @@ class LabViewExperiment(Experiment.Experiment):
     @logged("info")
     def do_dispose(self):
         print "Disposing"
+
+        cur_initialize_t = self.initialize_t
+        if cur_initialize_t is not None and cur_initialize_t.isAlive():
+            print "Waiting for the initialization to finish"
+            cur_initialize_t.join()
+
+        print "Real finishing"
         if self.opened:
             print "Closing file"
             self.close_file(self.filename)
@@ -204,8 +265,12 @@ class LabViewExperiment(Experiment.Experiment):
             print "Removed"
         return "Disposing"
 
-    def current_content(self):
-        return open(self.filename).read().strip().lower()
+    def current_content(self, filename = None):
+        if filename is None:
+            fname = self.filename
+        else:
+            fname = filename
+        return open(fname).read().strip().lower()
 
     def open_file(self, filename):
         self.write_to_file(filename, 'Open')

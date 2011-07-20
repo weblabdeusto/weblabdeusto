@@ -20,30 +20,39 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.smartgwt.client.widgets.Label;
 
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
 
 public class LabVIEWBoard extends BoardBase {
 
-	@SuppressWarnings("unused")
 	private IConfigurationRetriever configurationRetriever;
 	private VerticalPanel panel = new VerticalPanel();
 	private HTML html = new HTML(); 
 	private Button openPopupButton = new Button("Click here to open the experiment");
 	private WlTimer timer = new WlTimer(false);
+	private final boolean sendFile;
+	
+	private HorizontalPanel uploadStructurePanel = new HorizontalPanel();
+	private UploadStructure uploadStructure;
 
 	public LabVIEWBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController) {
 		super(boardController);
 		this.configurationRetriever = configurationRetriever;
 		this.timer.setStyleName("wl-time_remaining");
 		this.openPopupButton.setVisible(false);
+		this.sendFile = this.configurationRetriever.getBoolProperty("send.file", false);
+		this.uploadStructure = new UploadStructure();
+		this.uploadStructure.setFileInfo("program");
 	}
 
 	@Override
@@ -51,7 +60,7 @@ public class LabVIEWBoard extends BoardBase {
 		this.timer.updateTime(time);
 	}
 
-	final IResponseCommandCallback callback = new IResponseCommandCallback() {
+	private final IResponseCommandCallback isOpenCallback = new IResponseCommandCallback() {
 		
 		@Override
 		public void onFailure(WlCommException e) {
@@ -68,13 +77,34 @@ public class LabVIEWBoard extends BoardBase {
 					
 					@Override
 					public void run() {
-						LabVIEWBoard.this.boardController.sendCommand("is_open", LabVIEWBoard.this.callback);
+						LabVIEWBoard.this.boardController.sendCommand("is_open", LabVIEWBoard.this.isOpenCallback);
 					}
 				};
 				timer.schedule(500);
 			}
 		}
 	};
+	
+	private final IResponseCommandCallback sendFileCallback = new IResponseCommandCallback() {
+		
+		@Override
+		public void onFailure(WlCommException e) {
+			e.printStackTrace();
+			LabVIEWBoard.this.html.setText("Error sending file: " + e.getMessage());
+		}
+		
+		@Override
+		public void onSuccess(ResponseCommand responseCommand) {
+			LabVIEWBoard.this.boardController.sendCommand("is_open", LabVIEWBoard.this.isOpenCallback);
+		}
+	};
+	
+	@Override
+	public void initialize() {
+		this.panel.add(this.uploadStructurePanel);
+		this.uploadStructurePanel.add(new Label("Select the bit file"));
+		this.uploadStructurePanel.add(this.uploadStructure.getFormPanel());
+	}
 	
 	@Override
 	public void start() {
@@ -89,7 +119,14 @@ public class LabVIEWBoard extends BoardBase {
 		this.panel.add(this.html);
 		this.panel.add(this.openPopupButton);
 		this.html.setText("Waiting for experiment...");
-		this.boardController.sendCommand("is_open", this.callback);
+		
+		if(this.sendFile){
+			this.uploadStructure.getFormPanel().setVisible(false);
+			
+			this.boardController.sendFile(this.uploadStructure, this.sendFileCallback);
+		}else{
+			this.boardController.sendCommand("is_open", this.isOpenCallback);
+		}
 	}
 
 	private void displayExperiment() {
