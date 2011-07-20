@@ -85,6 +85,31 @@ public class LabVIEWBoard extends BoardBase {
 		}
 	};
 	
+	private final IResponseCommandCallback isProgrammedCallback = new IResponseCommandCallback() {
+		
+		@Override
+		public void onFailure(WlCommException e) {
+			e.printStackTrace();
+			LabVIEWBoard.this.html.setText("Error checking the state of the experiment: " + e.getMessage());
+		}
+		
+		@Override
+		public void onSuccess(ResponseCommand responseCommand) {
+			if(responseCommand.getCommandString().equals("yes")) {
+				displayExperiment();
+			} else {
+				final Timer timer = new Timer() {
+					
+					@Override
+					public void run() {
+						LabVIEWBoard.this.boardController.sendCommand("is_programmed", LabVIEWBoard.this.isProgrammedCallback);
+					}
+				};
+				timer.schedule(500);
+			}
+		}
+	};
+	
 	private final IResponseCommandCallback readyToProgramFileCallback = new IResponseCommandCallback() {
 
 		@Override
@@ -98,7 +123,14 @@ public class LabVIEWBoard extends BoardBase {
 				LabVIEWBoard.this.uploadStructure.getFormPanel().setVisible(false);
 				LabVIEWBoard.this.boardController.sendFile(LabVIEWBoard.this.uploadStructure, LabVIEWBoard.this.sendFileCallback);
 			}else if(responseCommand.getCommandString().equals("no")){
-				LabVIEWBoard.this.boardController.sendCommand("is_ready_to_program", LabVIEWBoard.this.readyToProgramFileCallback);
+				final Timer timer = new Timer() {
+					
+					@Override
+					public void run() {
+						LabVIEWBoard.this.boardController.sendCommand("is_ready_to_program", LabVIEWBoard.this.readyToProgramFileCallback);
+					}
+				};
+				timer.schedule(500);
 			}else{
 				LabVIEWBoard.this.html.setText("Error checking if it's ready to program a file: got " + responseCommand.getCommandString());
 			}
@@ -116,7 +148,7 @@ public class LabVIEWBoard extends BoardBase {
 		
 		@Override
 		public void onSuccess(ResponseCommand responseCommand) {
-			LabVIEWBoard.this.boardController.sendCommand("is_open", LabVIEWBoard.this.isOpenCallback);
+			LabVIEWBoard.this.boardController.sendCommand("is_programmed", LabVIEWBoard.this.isProgrammedCallback);
 		}
 	};
 	

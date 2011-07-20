@@ -101,7 +101,7 @@
 		                        	"experiment.picture"  : "/img/experiments/labview.jpg",
 	                            	"experiment.name"     : "fpga-board-experiment",
 	                            	"experiment.category" : "LabVIEW experiments",
-	                            	"send.file"           : true,
+	                            	"send.file"           : true
 	                            },
 	                            {
 		                        	"experiment.picture"  : "/img/experiments/labview.jpg",
