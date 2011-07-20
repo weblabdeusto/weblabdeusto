@@ -21,9 +21,9 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.smartgwt.client.widgets.Label;
 
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
@@ -85,6 +85,27 @@ public class LabVIEWBoard extends BoardBase {
 		}
 	};
 	
+	private final IResponseCommandCallback readyToProgramFileCallback = new IResponseCommandCallback() {
+
+		@Override
+		public void onFailure(WlCommException e) {
+			LabVIEWBoard.this.html.setText("Error checking if it's ready to program a file: " + e.getMessage());
+		}
+
+		@Override
+		public void onSuccess(ResponseCommand responseCommand) {
+			if(responseCommand.getCommandString().equals("yes")){
+				LabVIEWBoard.this.uploadStructure.getFormPanel().setVisible(false);
+				LabVIEWBoard.this.boardController.sendFile(LabVIEWBoard.this.uploadStructure, LabVIEWBoard.this.sendFileCallback);
+			}else if(responseCommand.getCommandString().equals("no")){
+				LabVIEWBoard.this.boardController.sendCommand("is_ready_to_program", LabVIEWBoard.this.readyToProgramFileCallback);
+			}else{
+				LabVIEWBoard.this.html.setText("Error checking if it's ready to program a file: got " + responseCommand.getCommandString());
+			}
+		}
+		
+	};
+	
 	private final IResponseCommandCallback sendFileCallback = new IResponseCommandCallback() {
 		
 		@Override
@@ -121,13 +142,13 @@ public class LabVIEWBoard extends BoardBase {
 		this.html.setText("Waiting for experiment...");
 		
 		if(this.sendFile){
-			this.uploadStructure.getFormPanel().setVisible(false);
-			
-			this.boardController.sendFile(this.uploadStructure, this.sendFileCallback);
+			this.boardController.sendCommand("is_ready_to_program", this.readyToProgramFileCallback);
 		}else{
 			this.boardController.sendCommand("is_open", this.isOpenCallback);
 		}
 	}
+	
+	
 
 	private void displayExperiment() {
 		this.boardController.sendCommand("get_url", new IResponseCommandCallback() {
