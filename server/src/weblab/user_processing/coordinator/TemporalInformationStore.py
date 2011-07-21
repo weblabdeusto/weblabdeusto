@@ -30,16 +30,20 @@ class TemporalInformationStore(object):
     def __init__(self):
         self.queue = Queue.Queue()
 
-    def get(self, timeout = 0.5):
+    def get(self, timeout = None):
         """Get the first introduced object, waiting timeout time.
 
         Given that the same thread calls more than one store, the timeout should be quite small.
         """
+        if timeout is None:
+            real_timeout = 0.5
+        else:
+            real_timeout = timeout
         try:
-            return self.queue.get(True, timeout)
+            return self.queue.get(True, real_timeout)
         except Queue.Empty:
             return None
 
     def put(self, reservation_id, obj):
-        self.queue.put((reservation_id, obj), False)
+        self.queue.put_nowait((reservation_id, obj))
 

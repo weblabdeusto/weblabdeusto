@@ -21,19 +21,34 @@ from voodoo.override import Override
 import weblab.user_processing.TemporalInformationRetriever as TemporalInformationRetriever
 import weblab.user_processing.coordinator.TemporalInformationStore as TemporalInformationStore
 
+RESERVATION1 = 'reservation_id1'
+RESERVATION2 = 'reservation_id2'
+RESERVATION3 = 'reservation_id3'
+
+DATA1 = {'data' : 1 }
+DATA2 = {'data' : 2 }
+DATA3 = {'data' : 3 }
+
 class TemporalInformationRetrieverTestCase(unittest.TestCase):
     def setUp(self):
+
         self.batch_store    = TemporalInformationStore.TemporalInformationStore()
         self.finished_store = TemporalInformationStore.TemporalInformationStore()
+
         self.retriever = TemporalInformationRetriever.TemporalInformationRetriever(self.batch_store, self.finished_store)
+        self.retriever.timeout = 0.01 # Be quicker instead of waiting for half a second
 
     def test_retriever(self):
         self.retriever.start()
         try:
+            self.batch_store.put(RESERVATION1, DATA1)
+            self.batch_store.put(RESERVATION2, DATA2)
+            self.batch_store.put(RESERVATION3, DATA3)
             pass
         finally:
             self.retriever.stop()
             self.retriever.join(1)
+            self.assertFalse(self.retriever.isAlive())
 
 
 class FakeTemporalInformationRetriever(TemporalInformationRetriever.TemporalInformationRetriever):
@@ -52,7 +67,7 @@ class IterationFailerTemporalInformationRetrieverTestCase(unittest.TestCase):
         fake = FakeTemporalInformationRetriever(batch_store, finished_store)
         fake.start()
         try:
-            time.sleep(0.1)
+            time.sleep(0.01)
             self.assertTrue( hasattr( fake, 'failures' ) )
             self.assertTrue( fake.failures > 1 )
         finally:

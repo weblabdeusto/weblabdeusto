@@ -25,12 +25,13 @@ class TemporalInformationRetriever(threading.Thread):
     def __init__(self, batch_store, finished_store):
         threading.Thread.__init__(self)
 
-        self.keep = True
+        self.keep_running = True
         self.batch_store    = batch_store
         self.finished_store = finished_store
+        self.timeout        = None
 
     def run(self):
-        while self.keep:
+        while self.keep_running:
             try:
                 self.iterate()
             except:
@@ -38,7 +39,17 @@ class TemporalInformationRetriever(threading.Thread):
                 log.log_exc( TemporalInformationRetriever, log.LogLevel.Critical )
 
     def stop(self):
-        self.keep = False
+        self.keep_running = False
 
     def iterate(self):
-        pass
+        self.iterate_over_store(self.batch_store)
+        if self.keep_running:
+            self.iterate_over_store(self.finished_store)
+
+    def iterate_over_store(self, store):
+        information = store.get(timeout=self.timeout)
+        if information is not None:
+            reservation_id, obj = information
+            print reservation_id, obj
+            
+
