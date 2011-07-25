@@ -89,6 +89,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
+
     @logged()
     def list_experiments(self, user_login):
         session = self.Session()
@@ -171,7 +172,26 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             session.commit()
         finally:
             session.close()
-    
+   
+    @logged()
+    def append_command(self, reservation_id, command ):
+        session = self.Session()
+        try:
+            user_used_experiment = session.query(Model.DbUserUsedExperiment).filter_by(reservation_id = reservation_id).first()
+            if user_used_experiment is None:
+                return False
+            session.add(Model.DbUserCommand(
+                            user_used_experiment,
+                            command.command.commandstring,
+                            command.timestamp_before,
+                            command.response.commandstring,
+                            command.timestamp_after
+                        ))
+            session.commit()
+            return True
+        finally:
+            session.close()
+
     @logged()
     def list_usages_per_user(self, user_login, first=0, limit=20):
         session = self.Session()

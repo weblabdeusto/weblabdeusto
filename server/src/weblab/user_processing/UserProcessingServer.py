@@ -23,6 +23,7 @@ import voodoo.counter as counter
 
 import weblab.data.ServerType as ServerType
 
+import weblab.user_processing.TemporalInformationRetriever as TemporalInformationRetriever
 import weblab.user_processing.UserProcessor as UserProcessor
 import weblab.user_processing.AliveUsersCollection as AliveUsersCollection
 import weblab.user_processing.coordinator.Coordinator as Coordinator
@@ -110,6 +111,10 @@ class UserProcessingServer(object):
 
         self._db_manager     = DatabaseManager.UserProcessingDatabaseManager(cfg_manager)
 
+
+        self._temporal_information_retriever = TemporalInformationRetriever.TemporalInformationRetriever(self._coordinator.initial_store, self._coordinator.finished_store, self._db_manager)
+        self._temporal_information_retriever.start()
+
         self._alive_users_collection = AliveUsersCollection.AliveUsersCollection(
                 self._locator, self._cfg_manager, real_session_type, self._session_manager, self._db_manager)
 
@@ -127,6 +132,8 @@ class UserProcessingServer(object):
 
 
     def stop(self):
+        self._temporal_information_retriever.stop()
+
         if hasattr(super(UserProcessingServer, self), 'stop'):
             super(UserProcessingServer, self).stop()
         for facade_server in self._facade_servers:

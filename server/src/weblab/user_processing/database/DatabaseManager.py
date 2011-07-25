@@ -30,6 +30,10 @@ class UserProcessingDatabaseManager(object):
     
     def store_experiment_usage(self, session_id, reservation_info, experiment_usage):
         return self._gateway.store_experiment_usage( session_id.username, reservation_info, experiment_usage )
+
+    def append_command(self, reservation_id, command):
+        """ Tries to append a command. Returns True if it was added successfully, false otherwise """
+        return self._gateway.append_command( reservation_id, command )
     
     def get_groups(self, session_id, parent_id=None):
         return self._gateway.get_groups(session_id.username, parent_id)

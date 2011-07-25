@@ -210,7 +210,7 @@ class UserProcessor(object):
             timestamp_after  = self.time_module.mktime(status.timestamp_after.timetuple())
             timestamp_before = self.time_module.mktime(status.timestamp_before.timetuple())
 
-            command_sent = Usage.CommandSent(Command.Command("@initial@"), timestamp_before)
+            command_sent = Usage.CommandSent(Command.Command("@@@initial@@@"), timestamp_before)
             command_sent.response        = Command.Command(status.initial_configuration)
             command_sent.timestamp_after = timestamp_after
 
