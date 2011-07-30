@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
 import urllib2
 import weblab.exceptions.experiment.devices.http_device.WlHttpDeviceExceptions as WlHttpDeviceExceptions
@@ -19,15 +19,12 @@ import weblab.exceptions.experiment.devices.http_device.WlHttpDeviceExceptions a
 DEBUG = False
 
 class HttpDevice(object):
-    
+
     def __init__(self, hostname, port, app=""):
         self.hostname = hostname
         self.port = port
         self.app = app
-        
-    def _urlmodule(self):
-        return urllib2
-                
+
     def send_message(self, text):
         try:
             full_url = "http://%(host)s:%(port)s/%(app)s" % {
@@ -37,7 +34,7 @@ class HttpDevice(object):
                     }
             if DEBUG:
                 print "HTTP request..."
-            url = self._urlmodule().urlopen( full_url, text )
+            url = urllib2.urlopen( full_url, text )
             if DEBUG:
                 print "Response received. Reading response..."
             return url.read()
@@ -47,5 +44,5 @@ class HttpDevice(object):
             raise WlHttpDeviceExceptions.WlHttpDeviceURLErrorException(e)
         except Exception, e:
             raise WlHttpDeviceExceptions.WlHttpDeviceException(e)
-    
-    
+
+

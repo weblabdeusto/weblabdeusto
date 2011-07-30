@@ -7,78 +7,65 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
+from mock import patch
 import unittest
 import urllib2
-import mocker
 
-from test.unit.weblab.experiment.devices.http_device.FakeHttpServer import FakeHttpServer
+from weblab.exceptions.experiment.devices.http_device.WlHttpDeviceExceptions import *
 from weblab.experiment.devices.http_device.HttpDevice import HttpDevice
-import weblab.exceptions.experiment.devices.http_device.WlHttpDeviceExceptions as WlHttpDeviceExceptions
+from test.util.fakeobjects import fakeaddinfourl
 
-class MockedHttpDevice(HttpDevice):
-    def __init__(self, urlmodule, *args, **kargs):
-        self.__urlmodule = urlmodule
-        super(MockedHttpDevice, self).__init__(*args, **kargs)
-        
-    def _urlmodule(self):
-        return self.__urlmodule
 
-class HttpDeviceTestCase(mocker.MockerTestCase):
-                
-    def setUp(self):
-        self.fake_http_server = FakeHttpServer(7779)
-        self.fake_http_server.start()
-        self.fake_http_server.wait_until_handling()
-        self.real_device = HttpDevice("localhost", 7779)
-        self.urllib_mocked = self.mocker.mock()
-        self.mocked_device = MockedHttpDevice(self.urllib_mocked, "localhost", 7779)
+class HttpDeviceTestCase(unittest.TestCase):
 
-    def tearDown(self):
-        self.fake_http_server.stop()
-        self.fake_http_server.join()
+    @patch('urllib2.urlopen')
+    def test_ok_response(self, urlopen):
+        urlopen.return_value = fakeaddinfourl('OK')
 
-    def test_ok_response(self):
-        self.fake_http_server.set_answer(200)
-        response = self.real_device.send_message("any command")
-        self.assertEquals(FakeHttpServer.DEFAULT_RESPONSE, response)
-        
-    def test_http_error_response(self):
-        self.fake_http_server.set_answer(401)
+        device = HttpDevice("localhost", 7779)
+        resp = device.send_message("command")
+        self.assertEquals('OK', resp)
+
+    @patch('urllib2.urlopen')
+    def test_http_error_response(self, urlopen):
+        urlopen.side_effect = urllib2.HTTPError('', 401, '', {}, None)
+
+        device = HttpDevice("localhost", 7779)
         self.assertRaises(
-                WlHttpDeviceExceptions.WlHttpDeviceHTTPErrorException, 
-                self.real_device.send_message, 
-                "any command"
-            )
-
-    def test_url_error_response(self):
-        self.urllib_mocked.urlopen(mocker.ARGS)
-        self.mocker.throw(urllib2.URLError("error message"))
-        
-        self.mocker.replay()
-        self.assertRaises(
-            WlHttpDeviceExceptions.WlHttpDeviceURLErrorException,
-            self.mocked_device.send_message,
-            "any command"
+            WlHttpDeviceHTTPErrorException,
+            device.send_message,
+            "command"
         )
-        
-    def test_general_error_response(self):
-        self.urllib_mocked.urlopen(mocker.ARGS)
-        self.mocker.throw(Exception("error message"))
-        
-        self.mocker.replay()
+
+    @patch('urllib2.urlopen')
+    def test_url_error_response(self, urlopen):
+        urlopen.side_effect = urllib2.URLError('error message')
+
+        device = HttpDevice("localhost", 7779)
         self.assertRaises(
-            WlHttpDeviceExceptions.WlHttpDeviceException,
-            self.mocked_device.send_message,
-            "any command"
+            WlHttpDeviceURLErrorException,
+            device.send_message,
+            "command"
         )
-        
-        
+
+    @patch('urllib2.urlopen')
+    def test_general_error_response(self, urlopen):
+        urlopen.side_effect = Exception('error message')
+
+        device = HttpDevice("localhost", 7779)
+        self.assertRaises(
+            WlHttpDeviceException,
+            device.send_message,
+            "command"
+        )
+
+
 def suite():
     return unittest.makeSuite(HttpDeviceTestCase)
 
