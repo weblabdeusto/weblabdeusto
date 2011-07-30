@@ -20,7 +20,7 @@ from voodoo.log import logged
 from voodoo.override import Override
 from voodoo.gen.caller_checker import caller_check
 import weblab.experiment.devices.tftp_device.TFtpDevice as TFtpDevice
-import weblab.experiment.devices.http_device.HttpDevice as HttpDevice
+import weblab.experiment.devices.http as HttpDevice
 import weblab.experiment.experiments.ud_pic_experiment.UdPicBoardCommand as UdPicBoardCommand
 import weblab.experiment.experiments.ud_pic_experiment.TFtpProgramSender as TFtpProgramSender
 import weblab.experiment.Util as ExperimentUtil

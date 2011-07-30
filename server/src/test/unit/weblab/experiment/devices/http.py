@@ -18,7 +18,7 @@ import unittest
 import urllib2
 
 from weblab.exceptions.experiment.devices.http_device.WlHttpDeviceExceptions import *
-from weblab.experiment.devices.http_device.HttpDevice import HttpDevice
+from weblab.experiment.devices.http import HttpDevice
 from test.util.fakeobjects import fakeaddinfourl
 
 
