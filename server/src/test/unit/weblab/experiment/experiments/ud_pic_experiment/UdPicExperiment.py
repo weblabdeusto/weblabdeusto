@@ -11,107 +11,46 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Jaime Irurzun <jaime.irurzun@gmail.com>
 #
 
 from mock import patch
 import unittest
-import StringIO
-import mocker
 
 from test.util.fakeobjects import fakeaddinfourl
 import test.unit.configuration as configuration_module
 
-import weblab.experiment.experiments.ud_pic_experiment.UdPicExperiment as UdPicExperiment
+from weblab.experiment.experiments.ud_pic_experiment.UdPicExperiment import UdPicExperiment
 import weblab.experiment.Util as ExperimentUtil
-from weblab.experiment.devices.http_device.HttpDevice import HttpDevice
-import weblab.experiment.devices.tftp_device.TFtpDevice as TFtpDevice
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
 import weblab.exceptions.experiment.ExperimentExceptions as ExperimentExceptions
 import weblab.exceptions.experiment.experiments.ud_pic_experiment.UdPicExperimentExceptions as UdPicExperimentExceptions
 
 
-HTTP_SERVER_HOSTNAME = "localhost"
-HTTP_SERVER_PORT     = 80
-HTTP_SERVER_APP      = "pic.cgi"
-TFTP_SERVER_HOSTNAME = "localhost"
-TFTP_SERVER_PORT     = 69
-TFTP_SERVER_FILENAME = "sample_filename"
-
-
-class WrappedUdPicExperiment(UdPicExperiment.UdPicExperiment):
-
-    def __init__(self, coord_address, locator, cfg_manager, tftp, http):
-        self.__tftp = tftp
-        self.__http = http
-        super(WrappedUdPicExperiment, self).__init__(coord_address, locator, cfg_manager)
-
-    def _create_tftp_device(self, hostname, port):
-        assert hostname == TFTP_SERVER_HOSTNAME
-        assert port     == TFTP_SERVER_PORT
-        return self.__tftp
-
-    def _create_http_device(self, hostname, port, app):
-        assert hostname == HTTP_SERVER_HOSTNAME
-        assert port     == HTTP_SERVER_PORT
-        assert app      == HTTP_SERVER_APP
-        return self.__http
-
-
-class WrappedTFtpDevice(TFtpDevice.TFtpDevice):
-
-    def __init__(self, popen, *args, **kargs):
-        super(WrappedTFtpDevice, self).__init__(*args, **kargs)
-        self.__popen = popen
-
-    def _create_popen(self, cmd_file):
-        assert cmd_file == ['tftp',TFTP_SERVER_HOSTNAME, str(TFTP_SERVER_PORT)]
-        return self.__popen
-
-
-class UdPicExperimentTestCase(mocker.MockerTestCase):
+class UdPicExperimentTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.popen_mock  = self.mocker.mock()
-
-        self.http = HttpDevice(
-                    HTTP_SERVER_HOSTNAME,
-                    HTTP_SERVER_PORT,
-                    HTTP_SERVER_APP
-                )
-        self.tftp = WrappedTFtpDevice(self.popen_mock,
-                    TFTP_SERVER_HOSTNAME,
-                    TFTP_SERVER_PORT
-                )
-
-        self.cfg_manager= ConfigurationManager.ConfigurationManager()
-        self.cfg_manager.append_module(configuration_module)
-
         UdPicExperiment.DEFAULT_SLEEP_TIME = 0.01
-
-        self.experiment = WrappedUdPicExperiment(
-                None,
-                None,
-                self.cfg_manager,
-                self.tftp,
-                self.http
-            )
+        cfg_manager = ConfigurationManager.ConfigurationManager()
+        cfg_manager.append_module(configuration_module)
+        self.experiment = UdPicExperiment(None, None, cfg_manager)
 
     @patch('urllib2.urlopen')
     def test_send_command(self, urlopen):
         urlopen.return_value = fakeaddinfourl()
-        self.experiment.do_send_command_to_device("PULSE=0 1000")
+        self.experiment.do_send_command_to_device('PULSE=0 1000')
 
     @patch('urllib2.urlopen')
     def test_send_commands_plural(self, urlopen):
         urlopen.return_value = fakeaddinfourl()
-        self.experiment.do_send_command_to_device("PULSE=0 1000, PULSE=0 500")
+        self.experiment.do_send_command_to_device('PULSE=0 1000, PULSE=0 500')
 
     def test_send_command_invalid_command(self):
         self.assertRaises(
             UdPicExperimentExceptions.InvalidUdPicBoardCommandException,
             self.experiment.do_send_command_to_device,
-            "PULSE.THAT.DOES.NOT.EXIST=0 1000"
+            'PULSE.THAT.DOES.NOT.EXIST=0 1000'
         )
 
 # TODO: The PIC actually returns an index.html web page, so this must be changed
@@ -168,86 +107,65 @@ class UdPicExperimentTestCase(mocker.MockerTestCase):
 #       self.popen_mock.stderr.verify()
 #       self.popen_mock.verify()
 
+    @patch('subprocess.Popen')
     @patch('urllib2.urlopen')
-    def test_send_file(self, urlopen):
+    def test_send_file(self, urlopen, Popen):
         urlopen.return_value = fakeaddinfourl()
-        FILE_CONTENT = ""
-        self.popen_mock.stdin.write(mocker.ANY)
-        self.popen_mock.stdin.close()
-        self.popen_mock.wait()
-        self.mocker.result(0)
-        self.popen_mock.stdout.read()
-        self.mocker.result("tftp> tftp> tftp>")
-        self.popen_mock.stderr.read()
-        self.mocker.result("")
+        popen = Popen.return_value
+        popen.wait.return_value = 0
+        popen.stdout.read.return_value = 'tftp> tftp> tftp>'
+        popen.stderr.read.return_value = ''
 
-        self.mocker.replay()
         self.experiment.do_send_file_to_device(
-                ExperimentUtil.serialize(FILE_CONTENT),
+                ExperimentUtil.serialize(''),
                 'program'
             )
 
+    @patch('subprocess.Popen')
     @patch('urllib2.urlopen')
-    def test_send_file_returns_nonzero(self, urlopen):
+    def test_send_file_returns_nonzero(self, urlopen, Popen):
         urlopen.return_value = fakeaddinfourl()
-        FILE_CONTENT = "whatever the file content is \xff\x00"
-        self.popen_mock.stdin.write(mocker.ANY)
-        self.popen_mock.stdin.close()
-        self.popen_mock.wait()
-        self.mocker.result(-1) # There was an error!
-        self.popen_mock.stdout.read()
-        self.mocker.result("tftp> tftp> Sent 17 bytes in 0.0 seconds")
-        self.popen_mock.stderr.read()
-        self.mocker.result("")
+        popen = Popen.return_value
+        popen.wait.return_value = -1
+        popen.stdout.read.return_value = 'tftp> tftp> Sent 17 bytes in 0.0 seconds'
+        popen.stderr.read.return_value = ''
 
-        self.mocker.replay()
         self.assertRaises(
                 ExperimentExceptions.SendingFileFailureException,
                 self.experiment.do_send_file_to_device,
-                ExperimentUtil.serialize(FILE_CONTENT),
+                ExperimentUtil.serialize('whatever the file content is \xff\x00'),
                 'program'
             )
 
+    @patch('subprocess.Popen')
     @patch('urllib2.urlopen')
-    def test_send_file_not_sent_message(self, urlopen):
+    def test_send_file_not_sent_message(self, urlopen, Popen):
         urlopen.return_value = fakeaddinfourl()
-        FILE_CONTENT = "whatever the file content is \xff\x00"
-        self.popen_mock.stdin.write(mocker.ANY)
-        self.popen_mock.stdin.close()
-        self.popen_mock.wait()
-        self.mocker.result(0)
-        self.popen_mock.stdout.read()
-        self.mocker.result("this is not a sent message") # Message not expected
-        self.popen_mock.stderr.read()
-        self.mocker.result("")
+        popen = Popen.return_value
+        popen.wait.return_value = 0
+        popen.stdout.read.return_value = 'this is not a sent message'
+        popen.stderr.read.return_value = ''
 
-        self.mocker.replay()
         self.assertRaises(
                 ExperimentExceptions.SendingFileFailureException,
-
                 self.experiment.do_send_file_to_device,
-                ExperimentUtil.serialize(FILE_CONTENT),
+                ExperimentUtil.serialize('whatever the file content is \xff\x00'),
                 'program'
             )
 
+    @patch('subprocess.Popen')
     @patch('urllib2.urlopen')
-    def test_send_file_stderr_used(self, urlopen):
+    def test_send_file_stderr_used(self, urlopen, Popen):
         urlopen.return_value = fakeaddinfourl()
-        FILE_CONTENT = "whatever the file content is \xff\x00"
-        self.popen_mock.stdin.write(mocker.ANY)
-        self.popen_mock.stdin.close()
-        self.popen_mock.wait()
-        self.mocker.result(0)
-        self.popen_mock.stdout.read()
-        self.mocker.result("tftp> tftp> Sent 17 bytes in 0.0 seconds")
-        self.popen_mock.stderr.read()
-        self.mocker.result("some message in stderr") # stderr used
+        popen = Popen.return_value
+        popen.wait.return_value = 0
+        popen.stdout.read.return_value = 'tftp> tftp> Sent 17 bytes in 0.0 seconds'
+        popen.stderr.read.return_value = 'some message in stderr'
 
-        self.mocker.replay()
         self.assertRaises(
                 ExperimentExceptions.SendingFileFailureException,
                 self.experiment.do_send_file_to_device,
-                ExperimentUtil.serialize(FILE_CONTENT),
+                ExperimentUtil.serialize('whatever the file content is \xff\x00'),
                 'program'
             )
 
@@ -257,4 +175,3 @@ def suite():
 
 if __name__ == '__main__':
     unittest.main()
-

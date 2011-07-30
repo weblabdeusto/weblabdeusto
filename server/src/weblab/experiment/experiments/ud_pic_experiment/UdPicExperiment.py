@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import time
 
@@ -39,16 +39,16 @@ HTTP_SERVER_PORT     = 'pic_http_server_port'
 HTTP_SERVER_APP      = 'pic_http_server_app'
 CFG_WEBCAM_URL       = 'pic_webcam_url'
 
-DEFAULT_SLEEP_TIME   = 5
-
 DEBUG = False
 
 class UdPicExperiment(Experiment.Experiment):
 
+    DEFAULT_SLEEP_TIME = 5
+
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(UdPicExperiment,self).__init__(*args, **kwargs)
         self._cfg_manager = cfg_manager
-        
+
         try:
             self.webcam_url = self._cfg_manager.get_value(CFG_WEBCAM_URL)
         except:
@@ -60,8 +60,8 @@ class UdPicExperiment(Experiment.Experiment):
         self._initialize_http()
         if DEBUG:
             print "HTTP initialized"
-            
-        
+
+
 
     def _initialize_tftp(self):
         tftp_server_hostname, tftp_server_port = self._parse_tftp_configuration()
@@ -101,7 +101,7 @@ class UdPicExperiment(Experiment.Experiment):
     def _create_tftp_device(self, hostname, port):
         # For testing purposes
         return TFtpDevice.TFtpDevice(hostname, port)
-        
+
     def _create_http_device(self, hostname, port, app):
         # For testing purposes
         return HttpDevice.HttpDevice(hostname, port, app)
@@ -114,7 +114,7 @@ class UdPicExperiment(Experiment.Experiment):
         if DEBUG:
             print "call received: do_start_experiment"
         return ""
- 
+
     @Override(Experiment.Experiment)
     @logged("info",except_for=(('file_content',1),))
     @caller_check(ServerType.Laboratory)
@@ -135,7 +135,7 @@ class UdPicExperiment(Experiment.Experiment):
             if DEBUG:
                 print "response received"
             # TODO: Check reset_response (200)
-            time.sleep(DEFAULT_SLEEP_TIME)
+            time.sleep(UdPicExperiment.DEFAULT_SLEEP_TIME)
             if DEBUG:
                 print "sending file..."
             self._tftp_program_sender.send_content(file_content_recovered)
@@ -161,12 +161,12 @@ class UdPicExperiment(Experiment.Experiment):
     def do_send_command_to_device(self, command):
         if DEBUG:
             print "call received: do_send_command_to_device"
-                   
+
         if command.startswith('WEBCAMURL'):
             if DEBUG:
                 print "WEBCAMURL command received."
             return "WEBCAMURL=" + self.webcam_url
-            
+
         cmds = UdPicBoardCommand.UdPicBoardCommand(command)
         for cmd in cmds.get_commands():
             self._http_device.send_message(str(cmd))
@@ -183,15 +183,15 @@ class UdPicExperiment(Experiment.Experiment):
         if DEBUG:
             print "called received: do_dispose"
         return ""
-    
+
 
 class UdPicDummyExperiment(Experiment.Experiment):
     """ Dummy Experiment class to debug this experiment in local. """
-    
+
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(UdPicDummyExperiment,self).__init__(*args, **kwargs)
         self._cfg_manager = cfg_manager
-        
+
         try:
             self.webcam_url = self._cfg_manager.get_value(CFG_WEBCAM_URL)
         except:
@@ -215,13 +215,13 @@ class UdPicDummyExperiment(Experiment.Experiment):
     @caller_check(ServerType.Laboratory)
     def do_send_command_to_device(self, command):
         print "do_send_command_to_device(%s)" % command
-        
+
         if command.startswith('WEBCAMURL'):
             print "WEBCAMURL command received."
             return "WEBCAMURL=" + self.webcam_url
-        
+
     @Override(Experiment.Experiment)
     @logged("info")
     @caller_check(ServerType.Laboratory)
     def do_dispose(self):
-        print "do_dispose()"        
+        print "do_dispose()"
