@@ -16,8 +16,6 @@
 import urllib2
 import weblab.exceptions.experiment.devices.http_device.WlHttpDeviceExceptions as WlHttpDeviceExceptions
 
-DEBUG = False
-
 class HttpDevice(object):
 
     def __init__(self, hostname, port, app=""):
@@ -32,11 +30,7 @@ class HttpDevice(object):
                         'port':self.port,
                         'app':self.app
                     }
-            if DEBUG:
-                print "HTTP request..."
             url = urllib2.urlopen( full_url, text )
-            if DEBUG:
-                print "Response received. Reading response..."
             return url.read()
         except urllib2.HTTPError, e:
             raise WlHttpDeviceExceptions.WlHttpDeviceHTTPErrorException(e)
