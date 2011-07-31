@@ -34,8 +34,6 @@ module_name = testfile[:-3].replace(os.sep,'.')
 
 print "Launching... %s" % module_name
 module =  __import__(module_name, globals(), locals(), [module_name])
-print module
-print module.__name__
 suite = module.suite
 if gui:
     import unittestgui
