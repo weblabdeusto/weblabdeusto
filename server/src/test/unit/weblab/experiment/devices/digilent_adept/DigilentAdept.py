@@ -7,66 +7,92 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
+
+from mock import patch
 import unittest
 
-
+from voodoo.configuration.ConfigurationManager import ConfigurationManager
+from weblab.experiment.devices.digilent_adept.DigilentAdept import DigilentAdept
 import test.unit.configuration as configuration_module
-
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
-
-import weblab.experiment.devices.digilent_adept.DigilentAdept as DigilentAdept
 import weblab.exceptions.experiment.devices.digilent_adept.DigilentAdeptExceptions as DigilentAdeptExceptions
 
+
 class DigilentAdeptTestCase(unittest.TestCase):
-    
+
     def setUp(self):
-        self.cfg_manager= ConfigurationManager.ConfigurationManager()
-        self.cfg_manager.append_module(configuration_module)
-        self._device = DigilentAdept.DigilentAdept(self.cfg_manager)
+        cfg_manager = ConfigurationManager()
+        cfg_manager.append_module(configuration_module)
+        self.device = DigilentAdept(cfg_manager)
 
-    def test_program_device(self):
-        self._device.program_device("ok.svf")
+    @patch('subprocess.Popen')
+    def test_program_device(self, Popen):
+        popen = Popen.return_value
+        popen.wait.return_value = 0
+        popen.stdout.read.return_value = ''
+        popen.stderr.read.return_value = ''
 
-    def test_program_device_errors(self):
+        self.device.program_device("file.svf")
+
+    @patch('subprocess.Popen')
+    def test_program_device_error_in_stdout(self, Popen):
+        popen = Popen.return_value
+        popen.wait.return_value = 0
+        popen.stdout.read.return_value = 'ERROR: bla bla bla'
+        popen.stderr.read.return_value = ''
+
         self.assertRaises(
             DigilentAdeptExceptions.ProgrammingGotErrors,
-            self._device.program_device,
-            "error.svf"
+            self.device.program_device,
+            "file.svf"
         )
+
+    @patch('subprocess.Popen')
+    def test_program_device_error_in_exit(self, Popen):
+        popen = Popen.return_value
+        popen.wait.return_value = -1
+        popen.stdout.read.return_value = ''
+        popen.stderr.read.return_value = ''
+
         self.assertRaises(
             DigilentAdeptExceptions.ProgrammingGotErrors,
-            self._device.program_device,
-            "return-1.svf"
+            self.device.program_device,
+            "file.svf"
         )
-                
-        self._device._busy = True
+
+    def test_program_device_already_programming(self):
+        self.device._busy = True
+
         self.assertRaises(
             DigilentAdeptExceptions.AlreadyProgrammingDeviceException,
-            self._device.program_device,
-            "ok.svf"
+            self.device.program_device,
+            "file.svf"
         )
-        self._device._busy = False
+        self.device._busy = False
 
-        self.cfg_manager._values['digilent_adept_full_path'] = ['p0wn3d']
+    @patch('subprocess.Popen')
+    def test_program_device_wrong_call(self, Popen):
+        Popen.side_effect = Exception("can't create Popen!")
 
         self.assertRaises(
             DigilentAdeptExceptions.ErrorProgrammingDeviceException,
-            self._device.program_device,
-            "ok.svf"
+            self.device.program_device,
+            "file.svf"
         )
-        self.cfg_manager._values.pop('digilent_adept_full_path')
-                
+
+    def test_program_device_wrong_config(self):
+        self.device._cfg_manager._values.pop('digilent_adept_full_path')
+
         self.assertRaises(
             DigilentAdeptExceptions.CantFindDigilentAdeptProperty,
-            self._device.program_device,
+            self.device.program_device,
             "ok.svf"
         )
-        self.cfg_manager.reload()
+
 
 def suite():
     return unittest.makeSuite(DigilentAdeptTestCase)

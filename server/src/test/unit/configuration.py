@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 # This is a configuration sample
 # This module will be loaded and reloaded by the ConfigurationManager
 
@@ -182,7 +182,7 @@ xilinx_jtag_blazer_device_ip = "192.168.50.137"
 
 # Only when using Digilent Adept to program the device
 
-digilent_adept_full_path = ["python","./test/unit/weblab/experiment/devices/digilent_adept/fake_digilent_adept.py" ]
+digilent_adept_full_path = []
 digilent_adept_batch_content = """something with the variable $FILE"""
 
 # Only when using Serial Port to send commands to the device:
@@ -209,19 +209,19 @@ fake_linker_path    = "./test/unit/weblab/experiment/devices/gpib/fake_linker.py
 
 gpib_compiler_command = [ 'python', fake_compiler_path, '$CPP_FILE']
 
-gpib_linker_command   = [ 
+gpib_linker_command   = [
         'python',
-        fake_linker_path, 
+        fake_linker_path,
         #"ilink32", # ilink32 is the compiler itself
-        "-Tpe", 
-        "-c", 
-        "$OBJ_FILE", 
-        "c0x32,", 
+        "-Tpe",
+        "-c",
+        "$OBJ_FILE",
+        "c0x32,",
         "$EXE_FILE,",
-        ",", 
-        "visa32", 
-        "import32", 
-        "cw32", 
+        ",",
+        "visa32",
+        "import32",
+        "cw32",
         "bidsf"
     ]
 
