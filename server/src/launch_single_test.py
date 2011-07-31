@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import libraries, sys, os, unittest
 
@@ -34,6 +34,8 @@ module_name = testfile[:-3].replace(os.sep,'.')
 
 print "Launching... %s" % module_name
 module =  __import__(module_name, globals(), locals(), [module_name])
+print module
+print module.__name__
 suite = module.suite
 if gui:
     import unittestgui

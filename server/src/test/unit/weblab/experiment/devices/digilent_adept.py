@@ -17,7 +17,7 @@ from mock import patch
 import unittest
 
 from voodoo.configuration.ConfigurationManager import ConfigurationManager
-from weblab.experiment.devices.digilent_adept.DigilentAdept import DigilentAdept
+from weblab.experiment.devices.digilent_adept import DigilentAdept
 import test.unit.configuration as configuration_module
 import weblab.exceptions.experiment.devices.digilent_adept.DigilentAdeptExceptions as DigilentAdeptExceptions
 
