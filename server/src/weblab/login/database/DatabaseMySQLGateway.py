@@ -23,7 +23,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 import weblab.database.Model as Model
 
-import voodoo.hashing as hashlib
+import hashlib
 from voodoo.log import logged
 import voodoo.log as log
 

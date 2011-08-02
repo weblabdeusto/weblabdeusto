@@ -13,7 +13,7 @@
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
-from voodoo import hashing
+import hashlib
 from weblab.data.experiments import Usage
 from weblab.exceptions.laboratory import LaboratoryExceptions
 from weblab.exceptions.proxy import ProxyExceptions
@@ -82,7 +82,7 @@ class ProxySessionHandler(object):
         deserialized_file_content = ExperimentUtil.deserialize(file_content_encoded)
         storage_path = self._cfg_manager.get_value('proxy_store_students_programs_path')
         relative_file_path = get_time_in_str() + '_' + user_login + '_' + session_id
-        sha_obj            = hashing.new('sha')
+        sha_obj            = hashlib.new('sha')
         sha_obj.update(deserialized_file_content)
         file_hash          = sha_obj.hexdigest()
         where = storage_path + '/' + relative_file_path

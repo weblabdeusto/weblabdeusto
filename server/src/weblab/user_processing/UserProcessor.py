@@ -15,7 +15,7 @@
 # 
 
 import time as time_module
-import voodoo.hashing as hashing
+import hashlib
 
 import weblab.data.ServerType as ServerType
 import weblab.data.Command as Command
@@ -569,7 +569,7 @@ class UserProcessor(object):
             storage_path = self._cfg_manager.get_value('core_store_students_programs_path')
             user_information = self.get_user_information()
             relative_file_path = get_time_in_str() + '_' + user_information.login + '_' + self._session['session_id'].id
-            sha_obj            = hashing.new('sha')
+            sha_obj            = hashlib.new('sha')
             sha_obj.update(deserialized_file_content)
             file_hash          = sha_obj.hexdigest()
 
