@@ -13,7 +13,7 @@
 		<exec executable="python" failonerror="true">
 			<arg value="launch_flakes.py"/>
 		</exec>
-		<exec executable="python2.5" failonerror="true">
+		<exec executable="python2.6" failonerror="true">
 			<arg value="launch_tests.py"/>
 			<arg value="xml"/>
 			<arg value="${test.xml.dir}" />
