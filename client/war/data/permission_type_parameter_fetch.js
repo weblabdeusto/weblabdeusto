@@ -21,7 +21,7 @@
 				"permission_type_id" : 1,
 				"name": "time_allowed",
 				"datatype": "float", 
-				"description": "Time allowed""
+				"description": "Time allowed"
 			},			{
 				"id": 4,
 				"permission_type_id" : 2,

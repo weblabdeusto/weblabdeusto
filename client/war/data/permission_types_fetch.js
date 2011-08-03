@@ -5,29 +5,25 @@
 		[
 			{
 				"id": 1,
-				"permission_type_id":1,
-				"name": "experiment_permanent_id",
+				"name": "exp_allowed",
 				"datatype": "string",
-				"description": "First perm type"
+				"description": "Permission to use a specified experiment"
 			},
 			{
 				"id": 2,
-				"permission_type_id":1,
-				"name": "experiment_category_id",
+				"name": "admin_panel_access",
 				"datatype": "string",
-				"description": "First perm type"
+				"description": "Permission to access the administration panel"
 			},
 						{
 				"id": 3,
-				"permission_type_id":1,
-				"name": "time_allowed",
+				"name": "whatever_allowed",
 				"datatype": "float",
 				"description": "First perm type"
 			},
 						{
 				"id": 4,
-				"permission_type_id":2,
-				"name": "full_privileges",
+				"name": "testing_allowed",
 				"datatype": "bool",
 				"description": "First perm type"
 			}

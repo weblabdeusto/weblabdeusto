@@ -22,9 +22,14 @@ import com.smartgwt.client.types.DSProtocol;
 
 import es.deusto.weblab.client.dto.SessionID;
 
-public class PermissionTypeDataSource extends WebLabRestDataSource {
+/**
+ * DataSource for UserPermissionParameter, the class which contains the actual parameter
+ * values. Each UserPermissionParameter is, in a way, an instance of a 
+ * PermissionTypeParameter.
+ */
+public class UserPermissionParameterDataSource extends WebLabRestDataSource {
 
-	public PermissionTypeDataSource(SessionID sessionId) {
+	public UserPermissionParameterDataSource(SessionID sessionId) {
 		super(sessionId);
 	}
 	
@@ -39,14 +44,11 @@ public class PermissionTypeDataSource extends WebLabRestDataSource {
         final DataSourceIntegerField idField = new DataSourceIntegerField("id", "ID");  
         idField.setPrimaryKey(true);
         idField.setCanEdit(false);  
-        final DataSourceTextField nameDSField = new DataSourceTextField("name", "Name");
-        final DataSourceTextField descDSField = new DataSourceTextField("description", "Description");    
-        final DataSourceIntegerField userAppId = new DataSourceIntegerField("user_applicable_id", "User Applicable ID");
-        final DataSourceIntegerField roleAppId = new DataSourceIntegerField("role_applicable_id", "Role Applicable ID");
-        final DataSourceIntegerField groupAppId = new DataSourceIntegerField("group_applicable_id", "Group Applicable ID");
-        final DataSourceIntegerField eeAppId = new DataSourceIntegerField("ee_applicable_id", "EE Applicable ID");
+        final DataSourceIntegerField permissionIdField = new DataSourceIntegerField("permission_id", "permission_id"); 
+        final DataSourceTextField permissionTypeParameterIdField = new DataSourceTextField("permission_type_parameter_id", "permission_type_parameter_id");
+        final DataSourceTextField valueField = new DataSourceTextField("value", "value");
         
-	    this.setFields(idField, nameDSField, descDSField, userAppId, roleAppId, groupAppId, eeAppId);  
-	    this.setFetchDataURL("data/permission_types_fetch.js");
+	    this.setFields(idField, permissionIdField, permissionTypeParameterIdField, valueField);  
+	    this.setFetchDataURL("data/user_permission_parameter_fetch.js");
 	}
 }

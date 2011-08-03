@@ -15,7 +15,9 @@
 
 package es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -29,6 +31,9 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.smartgwt.client.data.Criteria;
+import com.smartgwt.client.data.DSCallback;
+import com.smartgwt.client.data.DSRequest;
+import com.smartgwt.client.data.DSResponse;
 import com.smartgwt.client.data.Record;
 import com.smartgwt.client.data.SortSpecifier;
 import com.smartgwt.client.types.Alignment;
@@ -45,10 +50,13 @@ import com.smartgwt.client.widgets.form.DynamicForm;
 import com.smartgwt.client.widgets.form.FormItemValueFormatter;
 import com.smartgwt.client.widgets.form.events.ItemChangedEvent;
 import com.smartgwt.client.widgets.form.events.ItemChangedHandler;
+import com.smartgwt.client.widgets.form.fields.BooleanItem;
 import com.smartgwt.client.widgets.form.fields.ButtonItem;
 import com.smartgwt.client.widgets.form.fields.DateTimeItem;
+import com.smartgwt.client.widgets.form.fields.FloatItem;
 import com.smartgwt.client.widgets.form.fields.FormItem;
 import com.smartgwt.client.widgets.form.fields.IPickTreeItem;
+import com.smartgwt.client.widgets.form.fields.IntegerItem;
 import com.smartgwt.client.widgets.form.fields.SelectItem;
 import com.smartgwt.client.widgets.form.fields.TextItem;
 import com.smartgwt.client.widgets.form.fields.events.ChangeEvent;
@@ -73,10 +81,12 @@ import es.deusto.weblab.client.admin.comm.datasources.AuthsDataSource;
 import es.deusto.weblab.client.admin.comm.datasources.ExperimentUsesDataSource;
 import es.deusto.weblab.client.admin.comm.datasources.ExperimentsDataSource;
 import es.deusto.weblab.client.admin.comm.datasources.GroupsDataSource;
+import es.deusto.weblab.client.admin.comm.datasources.PermissionTypeDataSource;
+import es.deusto.weblab.client.admin.comm.datasources.PermissionTypeParameterDataSource;
 import es.deusto.weblab.client.admin.comm.datasources.RolesDataSource;
+import es.deusto.weblab.client.admin.comm.datasources.UserPermissionParameterDataSource;
 import es.deusto.weblab.client.admin.comm.datasources.UserPermissionsDataSource;
 import es.deusto.weblab.client.admin.comm.datasources.UsersDataSource;
-import es.deusto.weblab.client.admin.comm.datasources.PermissionTypeDataSource;
 import es.deusto.weblab.client.admin.comm.datasources.WebLabRestDataSource;
 import es.deusto.weblab.client.admin.dto.ExperimentRecord;
 import es.deusto.weblab.client.admin.dto.ExperimentUseRecord;
@@ -97,7 +107,7 @@ public class AdminPanelWindow extends BaseWindow {
 	}
 	
 	
-	private static boolean DEVELOPMENT = false;
+	private final boolean development;
 	
 	// DataSources
 	private WebLabRestDataSource experimentUsesDS;
@@ -106,10 +116,10 @@ public class AdminPanelWindow extends BaseWindow {
 	private WebLabRestDataSource rolesDS;
 	private WebLabRestDataSource usersDS;
 	private WebLabRestDataSource authsDS;
-	private WebLabRestDataSource userPermissionsDS;
+	private WebLabRestDataSource userPermissionDS;
 	private WebLabRestDataSource permissionTypeDS;
-	@SuppressWarnings("unused")
 	private WebLabRestDataSource permissionTypeParameterDS;
+	private WebLabRestDataSource userPermissionParameterDS;
 
 	// Widgets
 	@UiField VerticalPanel containerPanel;
@@ -143,6 +153,8 @@ public class AdminPanelWindow extends BaseWindow {
 	public AdminPanelWindow(IConfigurationManager configurationManager, User user, SessionID sessionId, IAdminPanelWindowCallback callback) {
 		super(configurationManager);
 
+		this.development = configurationManager.getBoolProperty("development", false);
+		
 		this.user = user;
 		this.callback = callback;
 
@@ -166,11 +178,17 @@ public class AdminPanelWindow extends BaseWindow {
 		this.authsDS = new AuthsDataSource(sessionId);
 		this.authsDS.initialize();
 		
-		this.userPermissionsDS = new UserPermissionsDataSource(sessionId);
-		this.userPermissionsDS.initialize();
+		this.userPermissionDS = new UserPermissionsDataSource(sessionId);
+		this.userPermissionDS.initialize();
 		
 		this.permissionTypeDS = new PermissionTypeDataSource(sessionId);
 		this.permissionTypeDS.initialize();
+		
+		this.permissionTypeParameterDS = new PermissionTypeParameterDataSource(sessionId);
+		this.permissionTypeParameterDS.initialize();
+		
+		this.userPermissionParameterDS = new UserPermissionParameterDataSource(sessionId);
+		this.userPermissionParameterDS.initialize();
 	
 		this.loadWidgets();
 	}
@@ -194,7 +212,7 @@ public class AdminPanelWindow extends BaseWindow {
 		this.tabSet.setHeight(600);
 		this.tabSet.setPadding(40);
 		
-		this.accessesTab = new Tab("Accesses");				
+		this.accessesTab = new Tab(this.i18nMessages.accesses());				
 		this.accessesLayout = new VLayout();
 		this.accessesLayout.setWidth100();
 		this.accessesLayout.setHeight100();		
@@ -205,7 +223,7 @@ public class AdminPanelWindow extends BaseWindow {
 		this.buildAccessesLayout();
 		
 		
-		if(DEVELOPMENT)
+		if(this.development)
 		{
 			/* Under development: uncommented to hide it in the production version */
 			this.usersTab = new Tab("Users");				
@@ -230,20 +248,20 @@ public class AdminPanelWindow extends BaseWindow {
 
 		this.accessesExperimentUsesFilterForm = new DynamicForm();
 		this.accessesExperimentUsesFilterForm.setIsGroup(true);
-		this.accessesExperimentUsesFilterForm.setGroupTitle("Filter"); // i18n
+		this.accessesExperimentUsesFilterForm.setGroupTitle(this.i18nMessages.filter()); // i18n
 		this.accessesExperimentUsesFilterForm.setNumCols(14);
 		this.accessesExperimentUsesFilterForm.setDataSource(this.experimentsDS);
 		this.accessesExperimentUsesFilterForm.setAutoFocus(false);
 		this.accessesExperimentUsesFilterForm.setPadding(15);
 		this.accessesExperimentUsesFilterForm.setWidth(950);
 
-		final DateTimeItem startDateItem = new DateTimeItem(ExperimentUseRecord.START_DATE, "From");
+		final DateTimeItem startDateItem = new DateTimeItem(ExperimentUseRecord.START_DATE, this.i18nMessages.from());
 		startDateItem.setCriteriaField(ExperimentUseRecord.START_DATE);
 		startDateItem.setOperator(OperatorId.GREATER_OR_EQUAL);
 		startDateItem.setRequired(false);
 		startDateItem.setDisplayFormat(DateDisplayFormat.TOEUROPEANSHORTDATE);
 
-		final DateTimeItem endDateItem = new DateTimeItem(ExperimentUseRecord.END_DATE, "To");
+		final DateTimeItem endDateItem = new DateTimeItem(ExperimentUseRecord.END_DATE, this.i18nMessages.to());
 		endDateItem.setCriteriaField(ExperimentUseRecord.START_DATE);
 		endDateItem.setOperator(OperatorId.LESS_OR_EQUAL);
 		endDateItem.setRequired(false);
@@ -259,7 +277,7 @@ public class AdminPanelWindow extends BaseWindow {
 			}
 		});
 
-		final IPickTreeItem groupItem = new IPickTreeItem(ExperimentUseRecord.GROUP_ID, "Group"); // i18n
+		final IPickTreeItem groupItem = new IPickTreeItem(ExperimentUseRecord.GROUP_ID, this.i18nMessages.group()); // i18n
 		groupItem.setOperator(OperatorId.EQUALS);
 		groupItem.setDataSource(this.groupsDS);
 		groupItem.setOptionDataSource(this.groupsDS);
@@ -267,7 +285,7 @@ public class AdminPanelWindow extends BaseWindow {
 		groupItem.setRequired(false);
 		groupItem.setWidth(140);
 
-		final SelectItem experimentItem = new SelectItem(ExperimentUseRecord.EXPERIMENT_ID, "Experiment");
+		final SelectItem experimentItem = new SelectItem(ExperimentUseRecord.EXPERIMENT_ID, this.i18nMessages.experiment());
 		experimentItem.setOperator(OperatorId.EQUALS);
 		experimentItem.setWidth(240);
 		experimentItem.setPickListWidth(240);
@@ -555,7 +573,7 @@ public class AdminPanelWindow extends BaseWindow {
         final HLayout profileTabHLayout = new HLayout();
         profileTabHLayout.setPadding(20);
         //profileTabHLayout.setBorder("2px solid silver");
-        final HLayout profileAvatarHLayout = new HLayout();
+        final VLayout profileAvatarVLayout = new VLayout();
         final HLayout profileFormHLayout = new HLayout();
         
         profileForm.setUseAllDataSourceFields(false);
@@ -579,7 +597,7 @@ public class AdminPanelWindow extends BaseWindow {
         // Create a validator to make sure that both passwords match and complain otherwise.
         final MatchesFieldValidator pwdMatchesValidator = new MatchesFieldValidator();  
         pwdMatchesValidator.setOtherField("password");  
-        pwdMatchesValidator.setErrorMessage("Passwords do not match");          
+        pwdMatchesValidator.setErrorMessage(this.i18nMessages.passwordsDoNotMatch());         
         passwordRepIt.setValidators(pwdMatchesValidator);  
         
         final RegExpValidator emailValidator = new RegExpValidator("\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}\\b");
@@ -606,13 +624,23 @@ public class AdminPanelWindow extends BaseWindow {
         avatarImg.setBackgroundColor("#F5F5F5");
         avatarImg.setBorder("2px solid black");
         
+        // Create the button to change the avatar image
+        // TODO: Finish this
+        final DynamicForm changeAvatarForm = new DynamicForm();
+        final ButtonItem changeAvaterButton = new ButtonItem("...");
+        changeAvatarForm.setFields(changeAvaterButton);
+        // Alignment does not seem to do anything.
+        changeAvatarForm.setAlign(Alignment.CENTER);
+        changeAvatarForm.setAlign(Alignment.CENTER);
+        
         // Link layouts and tab
-        profileAvatarHLayout.addMember(avatarImg);
-        profileAvatarHLayout.setSize("65%", "100%");
+        profileAvatarVLayout.addMember(avatarImg);
+        profileAvatarVLayout.addMember(changeAvatarForm);
+        profileAvatarVLayout.setSize("65%", "100%");
         profileFormHLayout.addMember(profileForm);
         profileFormHLayout.setSize("100%", "100%");
         profileTabHLayout.addMember(profileFormHLayout);
-        profileTabHLayout.addMember(profileAvatarHLayout);
+        profileTabHLayout.addMember(profileAvatarVLayout);
         //profileAvatarHLayout.setBorder("2px solid blue");
         //profileFormHLayout.setBorder("2px solid green");
         profileTab.setPane(profileTabHLayout);
@@ -643,14 +671,25 @@ public class AdminPanelWindow extends BaseWindow {
         final Button permissionAddButton = new Button("Add");
         final Button permissionRemoveButton = new Button("Remove");
         
+        
+        // Start creating the permission dynamic form itself.
+        // Creating this form is a rather complex task, because a UserPermission might be of any
+        // PermissionType, and a PermissionType can have several PermissionTypeParameter. Each Field in the
+        // form will correspond to one of these parameters. To complete the picture, it is noteworthy that
+        // the values for these parameters are UserPermissionParameters.
         final DynamicForm permissionForm = new DynamicForm();
-        final TextItem permIdIt = new TextItem("PermissionType", "Permission Type");
-        permissionForm.setFields(permIdIt);
+  
+        // The form will have a first combo box field to let us know and select the type of the permission.
+        // As previously explained, the fields following this combo box will depend upon this type.
+        // TODO: Filter the list of available permissions to user-available permissions only.
+        final SelectItem permissionTypeField = new SelectItem("PermissionType", "Permission Type"); 
+        permissionTypeField.setOptionDataSource(this.permissionTypeDS);
+        permissionForm.setFields(permissionTypeField);
         
 
         final ListGridField namePermissionsField = new ListGridField("permanent_id", "Permanent Id");
         permissionsListGrid.setFields(namePermissionsField);
-        permissionsListGrid.setDataSource(this.userPermissionsDS);
+        permissionsListGrid.setDataSource(this.userPermissionDS);
         //permissionsListGrid.fetchData();
         
         
@@ -761,7 +800,43 @@ public class AdminPanelWindow extends BaseWindow {
         // Add callbacks
         // 
         
-        // Switch the user we display whenever we select a different one on the users grid.
+        // Update the permissions whenever a new permission is selected for an user.
+       permissionsListGrid.addRecordClickHandler(new RecordClickHandler() {
+
+		@Override
+		public void onRecordClick(RecordClickEvent event) {
+            // Retrieve the selected permission's type
+            final ListGridRecord selectedUserPermissionRec = permissionsListGrid.getSelectedRecord();
+            if(selectedUserPermissionRec != null) {
+            	
+            	final String permissionId = selectedUserPermissionRec.getAttribute("id");
+            	
+            	// Retrieve the permission type which corresponds to the selected user permission.
+            	final String permissionTypeId = selectedUserPermissionRec.getAttribute("applicable_permission_type_id");
+            	final Criteria permissionTypeIdCriteria = new Criteria("id", permissionTypeId);
+            	AdminPanelWindow.this.permissionTypeDS.fetchData(permissionTypeIdCriteria, new DSCallback() {
+
+					@Override
+					public void execute(DSResponse response,
+							Object rawData, DSRequest request) {
+						final Record [] records = response.getData();
+						// We queried through a unique id so we should only get one result.
+						// Accept multiple results in development mode nonetheless, so that we can
+						// use hard coded js files with multiple entries.
+						if(records.length == 1 || (AdminPanelWindow.this.development && records.length > 1) ) {
+							final Record permissionTypeRecord = records[0];
+							final String permTypeName = permissionTypeRecord.getAttribute("name");
+							final String permTypeId = permissionTypeRecord.getAttribute("id");
+							
+							AdminPanelWindow.this.updatePermissionForm(permissionForm, 
+									permissionTypeRecord, selectedUserPermissionRec);
+						}
+					}} );
+            }
+		}});
+        
+        // Switch the user we display whenever we select a different one on the users grid,
+        // and update all related fields and data.
 		this.usersUsersGrid.addRecordClickHandler(new RecordClickHandler() {
 	        @Override
 			public void onRecordClick(RecordClickEvent event) {
@@ -792,16 +867,26 @@ public class AdminPanelWindow extends BaseWindow {
 	        	// Update user permissions
 	        	// TODO: Fix issue which causes the records in the grid to not be removed when a user is deleted.
 	        	if(userRec != null) {
+	        		// Retrieve selected user's id.
 		        	final String userId = userRec.getAttributeAsString("id");
-		            final Criteria crit = new Criteria("user_id", userId);
-		            permissionsListGrid.filterData(crit);
+		        	
+		        	// Create a criteria to be able to retrieve the user's permissions.
+		            final Criteria currentUserCriteria = new Criteria("user_id", userId); 
+		            
+		            // Retrieve and display the user's permissions.
+		            permissionsListGrid.filterData(currentUserCriteria);
+		                
+
+		            
+		            AdminPanelWindow.this.userPermissionDS.fetchData(currentUserCriteria);
 	        	} else {
 	        		permissionsListGrid.clear();
 	        	}
+	        	
 	        }
 		});
 		
-		// Handle User/Auths allowed and disallowed auths transfer
+		// Handle User/Auths allowed button
 		allowButton.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler()
 		{
 			@Override
@@ -819,6 +904,7 @@ public class AdminPanelWindow extends BaseWindow {
 			}
 		});
 		
+		// Handle the authenthication tab disallow button
 		disallowButton.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler()
 		{
 			@Override
@@ -869,6 +955,153 @@ public class AdminPanelWindow extends BaseWindow {
 					profileForm.saveData();
 			}
 			});
+	}
+
+	/**
+	 * Updates a dynamic permissions form.
+	 * It will set the permission type field, then dynamically add the appropriate
+	 * fields for the permission type's parameters.
+	 * @param permissionForm Form to update.
+	 * @param permissionTypeRec Record containing the Permission's PermissionType.
+	 * @param permissionRec Record containing the Permission itself.
+	 */
+	protected void updatePermissionForm(final DynamicForm permissionForm,
+			Record permissionTypeRec, Record permissionRec) {
+		
+        final List<FormItem> fields = new ArrayList<FormItem>();
+        
+        // Without clearing the values first, for some reason even after the setField, the
+        // field contents don't change.
+        permissionForm.clearValues();
+        
+
+        // Create and set the permission type field.
+        //
+        
+        final SelectItem permissionTypeField = new SelectItem("PermissionType", "Permission Type"); 
+        permissionTypeField.setOptionDataSource(this.permissionTypeDS);
+        
+        String permissionTypeName = permissionTypeRec.getAttribute("name");
+        if( permissionTypeName == null) 
+        	permissionTypeName = "<null>";
+        permissionTypeField.setValue(permissionTypeName);
+        
+        final String permissionTypeId = permissionTypeRec.getAttribute("id");
+        
+        
+        // We now need to retrieve the list of parameters for the type, so that we can 
+        // create specific fields for them, in the right number and of the right type.
+        //
+        
+        final Criteria permissionTypeIdCriteria = new Criteria("permission_type_id",
+        		permissionTypeId);
+        this.permissionTypeParameterDS.fetchData(permissionTypeIdCriteria, new DSCallback() {
+
+			@Override
+			public void execute(DSResponse response, Object rawData,
+					DSRequest request) {
+				
+				final Record [] records = response.getData();
+				
+		        fields.add(permissionTypeField);
+				
+				for ( final Record r : records) {
+					
+					final FormItem fi = createFieldForPermissionTypeParameter(r);
+					updatePermissionTypeParameterValue(fi);
+					
+					if(fi != null)
+						fields.add(fi);
+				}
+		        
+		        final FormItem[] fieldsArr = new FormItem[fields.size()];
+		        permissionForm.setFields(fields.toArray(fieldsArr));
+				
+			}} );
+        
+	}
+	
+	
+	/**
+	 * Updates the specified field, retrieving its value from
+	 * the server.
+	 * @param fi Form field to update.
+	 */
+	private void updatePermissionTypeParameterValue(final FormItem fi) {
+		String id = fi.getAttribute("id");
+		
+		// TODO: Consider an alternative design which can retrieve all the
+		// parameters at once, rather than query each one.
+		
+		final Criteria idCriteria = new Criteria("id", id);
+		this.userPermissionParameterDS.fetchData(idCriteria, new DSCallback() {
+
+			@Override
+			public void execute(DSResponse response, Object rawData,
+					DSRequest request) {
+				
+				final Record [] records = response.getData();
+				
+				// We only expect the query to return one result.
+				if(records.length == 1 || AdminPanelWindow.this.development) {
+					
+					final Record rec = records[0];
+					
+					final String value = rec.getAttribute("value");
+					
+					// TODO: Verify whether there are issues with some data type fields.
+					fi.setValue(value);
+				}
+			}});
+		
+	}
+	
+	/**
+	 * Creates a FieldItem of the right type for the specified
+	 * PermissionTypeParameter.
+	 * @param r Record containing a PermissionTypeParameter. If the record does
+	 * not contain a PermissionTypeParameter, the behaviour of this method is
+	 * undefined.  
+	 * @return FormItem of the appropriate type.
+	 */
+	private FormItem createFieldForPermissionTypeParameter(Record r) {
+		FormItem ret = null;
+		
+		final String id = r.getAttribute("id");
+		final String name = r.getAttribute("name");
+		final String datatype = r.getAttribute("datatype");
+		final String description = r.getAttribute("description");
+		
+		// Create a field that matches the parameter type
+		if( datatype.equals("string") ) {
+			System.out.println("Handling string parameter");
+			ret = new TextItem();
+		} else if( datatype.equals("int") ) {
+			System.out.println("Handling int parameter");
+			ret = new IntegerItem();
+		} else if( datatype.equals("float")) {
+			System.out.println("Handling float parameter");
+			ret = new FloatItem();
+		} else if(datatype.equals("bool")) {
+			System.out.println("Handling boolean parameter");
+			ret = new BooleanItem();
+		}
+		else {
+			System.out.println("Handling unrecognized type parameter: " + datatype);
+		}
+		
+		if(ret != null) {
+			
+			// Add description and name to the field
+			ret.setName(name);
+			ret.setTooltip(description);
+			
+			// Store the id of the parameter so that we can easily fill it later
+			ret.setAttribute("id", id);
+		}
+		
+		
+		return ret;
 	}
 
 	private void devT3est() {

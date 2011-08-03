@@ -42,4 +42,14 @@ public interface IWebLabDeustoThemeMessages extends Messages {
 	public String logOut();
 	public String accesses();
 	public String search();
+	
+	public String passwordsDoNotMatch();
+	public String users();
+	public String clearFilter();
+	public String chooseAValue();
+	public String group();
+	public String to();
+	public String from();
+	public String filter();
+	public String experiment();
 }

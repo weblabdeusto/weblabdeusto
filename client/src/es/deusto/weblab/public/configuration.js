@@ -15,6 +15,7 @@
 	// Would produce an error since there is a ',' and then a ']'.
 	// 
 	// "weblab.service.fileupload.post.url" : "/weblab/fileUpload.php", 
+	"development"                    : true, // To see the latest features, although they might not be working
 	"admin.email"                    : "weblab@deusto.es",
 	"demo.available"                 : true,
 	"google.analytics.tracking.code" : "UA-12576838-6",
