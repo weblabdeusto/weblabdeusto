@@ -14,7 +14,12 @@
  * the License.
  */
 package es.deusto.weblab.client.ui.widgets.google;
-
+/*
+ * 
+ * Originally retrieved from:
+ * 
+ * http://code.google.com/p/google-web-toolkit-incubator/source/browse/trunk/src/com/google/gwt/widgetideas/client/ResizableWidget.java?r=1195
+ */
 import com.google.gwt.user.client.Element;
 
 /**

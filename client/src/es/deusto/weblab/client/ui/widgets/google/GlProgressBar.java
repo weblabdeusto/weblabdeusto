@@ -15,6 +15,10 @@
  */
 package es.deusto.weblab.client.ui.widgets.google;
 
+/*
+ * Originally retrieved from:
+ * http://code.google.com/p/google-web-toolkit-incubator/source/browse/trunk/src/com/google/gwt/widgetideas/client/ProgressBar.java?r=1195
+ */
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Widget;

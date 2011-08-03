@@ -15,16 +15,21 @@
  */
 package es.deusto.weblab.client.ui.widgets.google;
 
+/*
+ * Code retrieved from:
+ * 
+ * http://code.google.com/p/google-web-toolkit-incubator/source/browse/trunk/src/com/google/gwt/widgetideas/client/ResizableWidgetCollection.java?r=1195
+ */
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.WindowResizeListener;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * A collection of {@link GlResizableWidget} that periodically checks the outer
@@ -37,8 +42,8 @@ import java.util.Map;
  * Widgets do not need to be added to a {@link GlResizableWidgetCollection} as
  * they cannot be resized.
  */
-@SuppressWarnings({"unqualified-field-access", "deprecation"})
-public class GlResizableWidgetCollection implements WindowResizeListener,
+@SuppressWarnings("unqualified-field-access")
+public class GlResizableWidgetCollection implements ResizeHandler,
     Iterable<GlResizableWidget> {
   /**
    * Information about a widgets size.
@@ -270,14 +275,12 @@ public Iterator<GlResizableWidget> iterator() {
   /**
    * Called when the browser window is resized.
    *
-   * @param width the width of the window's client area.
-   * @param height the height of the window's client area.
    */
-  @Deprecated
-  public void onWindowResized(int width, int height) {
-    checkWidgetSize();
+  @Override
+  public void onResize(ResizeEvent event) {
+	checkWidgetSize();	
   }
-
+  
   /**
    * Remove a {@link GlResizableWidget} from the collection.
    *
@@ -308,8 +311,9 @@ public Iterator<GlResizableWidget> iterator() {
       resizeCheckingEnabled = true;
       if (windowHandler == null) {
         windowHandler = Window.addResizeHandler(new ResizeHandler() {
+          @Override
           public void onResize(ResizeEvent event) {
-            onWindowResized(event.getWidth(), event.getHeight());
+            GlResizableWidgetCollection.this.onResize(event);
           }
         });
       }
@@ -341,5 +345,4 @@ public Iterator<GlResizableWidget> iterator() {
       info.updateSizes();
     }
   }
-
 }
