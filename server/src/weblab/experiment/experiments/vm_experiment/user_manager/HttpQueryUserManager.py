@@ -13,6 +13,7 @@
 # Author: Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
+import time
 from UserManager import UserManager
 import urllib2
 from voodoo.log import logged
@@ -26,6 +27,7 @@ DEFAULT_HTTP_QUERY_USER_MANAGER_URL = "http://localhost/"
 
 
 TIMES_TO_RETRY = 10
+SECONDS_FOR_RETRYING = 5
 
 class HttpQueryUserManager(UserManager):
     
@@ -54,6 +56,7 @@ class HttpQueryUserManager(UserManager):
         query_carried_out = False
         code = 0
         while times_tried < TIMES_TO_RETRY and not self.cancelled:
+            initial_time = time.time()
             try:
                 url = "%s/?sessionid=%s" % (self._url, sid)
                 log.log( HttpQueryUserManager, log.LogLevel.Info, "Calling: %s" % url)
@@ -76,6 +79,11 @@ class HttpQueryUserManager(UserManager):
                 log.log( HttpQueryUserManager, log.LogLevel.Info, "Configuring sessionid on VM returned unexpected Exception: %s" % e)
                 # Unknown exception, we better consider it permanent straightaway.
                 raise PermanentConfigureError()
+            final_time = time.time()
+            time_elapsed = final_time - initial_time
+            if SECONDS_FOR_RETRYING - time_elapsed > 0:
+                time.sleep(SECONDS_FOR_RETRYING - time_elapsed)
+                
             
         # We have either succeeded or retried for the maximum number of times. 
         # If we did not succeed, report through an exception.
