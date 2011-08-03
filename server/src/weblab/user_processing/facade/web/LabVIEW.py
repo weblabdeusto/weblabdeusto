@@ -15,7 +15,7 @@
 
 from voodoo.sessions.SessionId import SessionId
 import weblab.facade.WebFacadeServer as WebFacadeServer
-
+import weblab.data.Command as Command
 SESSION_ID = 'session_id'
 
 HTML_TEMPLATE="""<?xml version="1.0"?>
@@ -39,7 +39,7 @@ class LabViewMethod(WebFacadeServer.Method):
         try:
             session_id = self._check_arguments()
             sid = SessionId(session_id)
-            result = self.server.send_command(sid, "get_html")
+            result = self.server.send_command(sid, Command.Command("get_html"))
         except LabViewException, lve:
             message = lve.args[0]
             return HTML_TEMPLATE % {
@@ -54,7 +54,7 @@ class LabViewMethod(WebFacadeServer.Method):
             resultstr = result.commandstring
             print "[DBG] Returning result from labview: " + resultstr
             return HTML_TEMPLATE % {
-                            'RESULT' : resultstr
+                        'MESSAGE' : resultstr
                     }
 
     def _check_arguments(self):
