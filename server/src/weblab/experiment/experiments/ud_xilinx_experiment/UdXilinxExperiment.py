@@ -60,6 +60,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         self._programming_thread = None
         self._current_state = STATE_NOT_READY
         self._programmer_time = self._cfg_manager.get_value('xilinx_programmer_time', "25") # Seconds
+        self._switches_reversed = self._cfg_manager.get_value('switches_reversed', False) # Seconds
         
     def _load_xilinx_device(self):
         device_name = self._cfg_manager.get_value('weblab_xilinx_experiment_xilinx_device')
@@ -84,38 +85,6 @@ class UdXilinxExperiment(Experiment.Experiment):
     def get_state(self):
         return self._current_state
     
-    @logged("info")
-    def _program_device(self, file_name):
-        if self._use_jtag_blazer:
-            self._xilinx_impact.source2svf(file_name)
-            svf_file_name = file_name.replace("."+self._xilinx_impact.get_suffix(), ".svf")
-            device_ip = self._cfg_manager.get_value('xilinx_jtag_blazer_device_ip_' + self._xilinx_device.name)
-            self._jtag_blazer.program_device(svf_file_name, device_ip)
-        else:
-            self._xilinx_impact.program_device(file_name)
-    
-    @logged("info")
-    def _send_command_to_device(self, command):
-        
-        if self._is_main_thread():
-            print "[DBG]: UdXilinxExperiment being executed from the main thread."
-        else:
-            print "[DBG]: UdXilinxExperiment being executed from a work thread."
-        
-        if self._use_http:
-            self._http_device.send_message(command)
-        else:
-            cmd = UdBoardCommand.UdBoardCommand(command)
-            codes = cmd.get_codes()
-            self._serial_port_lock.acquire()
-            try:
-                self._serial_port.open_serial_port(self._port_number)
-                for i in codes:
-                    self._serial_port.send_code(i)
-                self._serial_port.close_serial_port()
-            finally:
-                self._serial_port_lock.release()
-
     @Override(Experiment.Experiment)
     @caller_check(ServerType.Laboratory)
     @logged("info",except_for='file_content')
@@ -230,6 +199,10 @@ class UdXilinxExperiment(Experiment.Experiment):
             
             # Otherwise we assume that the command is intended for the actual device handler
             # If it isn't, it throw an exception itself.
+
+            if self._switches_reversed:
+               if command.startswith("ChangeSwitch"):
+                   command = command.replace(command[-1], str(9 - int(command[-1])))
             self._command_sender.send_command(command)
         except Exception, e:
             raise ExperimentExceptions.SendingCommandFailureException(
