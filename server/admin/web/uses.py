@@ -72,7 +72,11 @@ def use(req, **kwargs):
                     after  = "<not provided>"
                 else:
                     after  = "%s:%s" % (timestamp_after.strftime("%d/%m/%y %H:%M:%S"), str(timestamp_after_micro).zfill(6))
-
+                
+                if command is None:
+                    command = "(None)"
+                if response is None:
+                    response = "(None)"
                 result += "\t<tr> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> </tr>\n" % ( cgi.escape(command), cgi.escape(response), before, after )
 
             result += """</table>\n"""
@@ -95,7 +99,13 @@ def use(req, **kwargs):
                     after  = "<not provided>"
                 else:
                     after  = "%s:%s" % (timestamp_after.strftime("%d/%m/%y %H:%M:%S"), str(timestamp_after_micro).zfill(6))
-
+                
+                if file_hash is None:
+                    file_hash = "(None)"
+                if file_info is None:
+                    file_info = "(None)"
+                if response is None:
+                    response = "(None)"
                 result += "\t<tr> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> <a href=\"file?file_id=%s\">link</a> </td> </tr>\n" % ( cgi.escape(file_hash), cgi.escape(file_info), cgi.escape(response), before, after, file_id )
 
         finally: 
