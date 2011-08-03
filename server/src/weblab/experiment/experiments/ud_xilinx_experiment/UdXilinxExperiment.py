@@ -30,7 +30,6 @@ import weblab.experiment.Experiment as Experiment
 import weblab.experiment.Util as ExperimentUtil
 import weblab.experiment.devices.xilinx_impact.XilinxDevices as XilinxDevices
 import weblab.experiment.devices.xilinx_impact.XilinxImpact as XilinxImpact
-import weblab.experiment.experiments.ud_xilinx_experiment.UdBoardCommand as UdBoardCommand
 
 from voodoo.threaded import threaded
 

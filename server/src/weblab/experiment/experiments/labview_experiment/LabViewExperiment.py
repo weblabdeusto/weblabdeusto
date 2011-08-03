@@ -295,7 +295,6 @@ class LabViewExperiment(Experiment.Experiment):
             try:
                 os.remove(self.new_path)
             except:
-                import traceback
                 traceback.print_exc()
             print "Removed"
         return "Disposing"

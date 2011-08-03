@@ -33,8 +33,6 @@ import weblab.exceptions.laboratory.LaboratoryExceptions as LaboratoryExceptions
 import weblab.experiment.Util as ExperimentUtil
 import weblab.data.experiments.Usage as Usage
 
-import threading
-
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessor")
 
 #TODO: configuration
