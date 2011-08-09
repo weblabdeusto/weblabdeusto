@@ -99,6 +99,9 @@ def runXml(folder):
         if hasattr(suite,'_test') and len(suite._test) > 0:
             for i in suite._test:
                 orderRecursively(i)
+        elif hasattr(suite, '_tests') and len(suite._tests) > 0:
+            for i in suite._tests:
+                orderRecursively(i)
         else:
             class_ = suite.__class__
             classname = class_.__module__ + "." + class_.__name__
@@ -110,14 +113,14 @@ def runXml(folder):
     import xmlrunner
     suites = get_suites(avoid_stress=True)
     
-    for i in suites:
-        orderRecursively(i)
+    for suite in suites:
+        orderRecursively(suite)
 
     wasSuccessful = True
 
-    for i in all_suites_ordered:
-        current_suite = unittest.TestSuite(all_suites_ordered[i])
-        file_name = folder + os.sep + 'TEST-%s.xml' % i
+    for classname in all_suites_ordered:
+        current_suite = unittest.TestSuite(all_suites_ordered[classname])
+        file_name = folder + os.sep + 'TEST-%s.xml' % classname
         wasSuccessful &= runSuite(current_suite, file_name)
 
     if not wasSuccessful:
