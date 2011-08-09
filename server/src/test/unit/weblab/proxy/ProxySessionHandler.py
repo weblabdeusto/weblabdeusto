@@ -41,7 +41,7 @@ class ProxySessionHandlerTestCase(mocker.MockerTestCase):
         if not os.path.isdir(path):
             raise RuntimeError("The provided proxy_store_students_programs_path is not a directory: %s" % path)
         for i in os.listdir(path):
-            if not os.path.isdir(os.sep.join([path, i])):
+            if not os.path.isdir(os.sep.join([path, i])) and not i.endswith('.hidden'):
                 os.remove(os.sep.join([path, i]))
         
     def _create_proxy_session_handler(self, session={}, laboratory=None, translator=None, time_mock=None):
