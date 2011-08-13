@@ -16,8 +16,20 @@
 from urllib import addinfourl
 from cStringIO import StringIO
 
+
 class fakeaddinfourl(addinfourl):
-  def __init__(self, response='', headers={}, url=''):
-    if isinstance(response, basestring):
-      response = StringIO(response)
-    addinfourl.__init__(self, response, headers, url)
+
+    def __init__(self, response='', headers={}, url=''):
+        if isinstance(response, basestring):
+            response = StringIO(response)
+        addinfourl.__init__(self, response, headers, url)
+
+
+class return_values(object):
+
+    def __init__(self, values):
+        self.values = values
+        self.values.reverse()
+
+    def __call__(self, *args, **kwargs):
+        return self.values.pop()

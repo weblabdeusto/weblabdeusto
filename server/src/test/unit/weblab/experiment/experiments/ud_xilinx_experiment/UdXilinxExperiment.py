@@ -17,6 +17,7 @@
 from mock import patch
 from weblab.exceptions.experiment.experiments.ud_xilinx_experiment import UdXilinxExperimentExceptions
 from weblab.experiment.experiments.ud_xilinx_experiment import UdXilinxCommandSenders
+from test.util.fakeobjects import return_values
 import test.unit.configuration as configuration_module
 import unittest
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
@@ -133,7 +134,8 @@ class UsingUdXilinxExperimentTestCase(unittest.TestCase):
                 self.uxm._command_sender._serial_port.codes[2 + initial_send]
             )
 
-    def test_jtag_blazer_with_http(self):
+    @patch('weblab.experiment.experiments.ud_xilinx_experiment.UdXilinxProgrammers.JTagBlazer')
+    def test_jtag_blazer_with_http(self, _):
         self.cfg_manager._set_value('xilinx_device_to_program', 'JTagBlazer')
         self.cfg_manager._set_value('xilinx_device_to_send_commands', 'HttpDevice')
 
@@ -241,20 +243,6 @@ class FakeSerialPort(object):
         self.codes.append(n)
     def close_serial_port(self):
         self._increment('close')
-
-class FakeJTagBlazer(object):
-    def __init__(self):
-        super(FakeJTagBlazer,self).__init__()
-    def program_device(self, svf_file_name, device_ip):
-        pass
-
-class FakeDigilentAdept(object):
-    def __init__(self):
-        super(FakeDigilentAdept,self).__init__()
-    def program_device(self, svf_file_name):
-        pass
-    def get_suffix(self):
-        return "whatever"
 
 class FakeHttpDevice(object):
     def __init__(self, *args, **kargs):

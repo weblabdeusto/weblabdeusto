@@ -7,112 +7,162 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
+
+from mock import patch
 import unittest
 
-
+from voodoo.configuration.ConfigurationManager import ConfigurationManager
+from weblab.experiment.devices.jtag_blazer.JTagBlazer import JTagBlazer
+from test.util.fakeobjects import return_values
 import test.unit.configuration as configuration_module
-
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
-
-import weblab.experiment.devices.jtag_blazer.JTagBlazer as JTagBlazer
 import weblab.exceptions.experiment.devices.jtag_blazer.JTagBlazerExceptions as JTagBlazerExceptions
 
-class JTagBlazerTestCase(unittest.TestCase):
-    
-    def setUp(self):
-        self.cfg_manager= ConfigurationManager.ConfigurationManager()
-        self.cfg_manager.append_module(configuration_module)
-        self._jtag_blazer = JTagBlazer.JTagBlazer(self.cfg_manager)
 
-    def test_program_device_ok(self):
-        self._jtag_blazer.program_device("everything_ok.svf", "0.0.0.0")
-        
-    def test_program_device_errors(self):
+class JTagBlazerTestCase(unittest.TestCase):
+
+    def setUp(self):
+        cfg_manager = ConfigurationManager()
+        cfg_manager.append_module(configuration_module)
+        self.jtag_blazer = JTagBlazer(cfg_manager)
+
+    @patch('subprocess.Popen')
+    def test_program_device_ok(self, Popen):
+        popen = Popen.return_value
+        popen.wait.return_value = 0
+        popen.stdout.read.return_value = ''
+        popen.stderr.read.return_value = ''
+        self.jtag_blazer.program_device("file.svf", "0.0.0.0")
+
+    def test_program_device_invalid_svf(self):
         self.assertRaises(
             JTagBlazerExceptions.InvalidSvfFileExtException,
-            self._jtag_blazer.program_device,
+            self.jtag_blazer.program_device,
             "file.svfxxx", "0.0.0.0"
         )
-        
+
+    @patch('subprocess.Popen')
+    def test_program_device_svf2jsvf_stdout_error(self, Popen):
+        popen = Popen.return_value
+        popen.wait.return_value = 0
+        popen.stdout.read.return_value = 'ERROR'
+        popen.stderr.read.return_value = ''
+
         self.assertRaises(
             JTagBlazerExceptions.JTagBlazerSvf2JsvfErrorException,
-            self._jtag_blazer.program_device,
-            "svf2jsvf_error.svf", "0.0.0.0"
+            self.jtag_blazer.program_device,
+            "file.svf", "0.0.0.0"
         )
-        
+
+    @patch('subprocess.Popen')
+    def test_program_device_svf2jsvf_stderr_error(self, Popen):
+        popen = Popen.return_value
+        popen.wait.return_value = 0
+        popen.stdout.read.return_value = ''
+        popen.stderr.read.return_value = 'ERROR'
+
         self.assertRaises(
             JTagBlazerExceptions.JTagBlazerSvf2JsvfErrorException,
-            self._jtag_blazer.program_device,
-            "svf2jsvf_stderr.svf", "0.0.0.0"
+            self.jtag_blazer.program_device,
+            "file.svf", "0.0.0.0"
         )
-        
+
+    @patch('subprocess.Popen')
+    def test_program_device_svf2jsvf_code_error(self, Popen):
+        popen = Popen.return_value
+        popen.wait.return_value = -1
+        popen.stdout.read.return_value = ''
+        popen.stderr.read.return_value = ''
+
         self.assertRaises(
             JTagBlazerExceptions.JTagBlazerSvf2JsvfErrorException,
-            self._jtag_blazer.program_device,
-            "svf2jsvf_return-1.svf", "0.0.0.0"
-        )    
-        
-        self.assertRaises(
-            JTagBlazerExceptions.JTagBlazerTargetErrorException,
-            self._jtag_blazer.program_device,
-            "target_error.svf", "0.0.0.0"
+            self.jtag_blazer.program_device,
+            "file.svf", "0.0.0.0"
         )
-        
+
+    @patch('subprocess.Popen')
+    def test_program_device_target_stdout_error(self, Popen):
+        popen = Popen.return_value
+        popen.wait.side_effect = return_values([0, 0])
+        popen.stdout.read.side_effect = return_values(['', 'ERROR'])
+        popen.stderr.read.side_effect = return_values(['', ''])
+
         self.assertRaises(
             JTagBlazerExceptions.JTagBlazerTargetErrorException,
-            self._jtag_blazer.program_device,
-            "target_stderr.svf", "0.0.0.0"
+            self.jtag_blazer.program_device,
+            "file.svf", "0.0.0.0"
         )
-        
+
+    @patch('subprocess.Popen')
+    def test_program_device_target_stderr_error(self, Popen):
+        popen = Popen.return_value
+        popen.wait.side_effect = return_values([0, 0])
+        popen.stdout.read.side_effect = return_values(['', ''])
+        popen.stderr.read.side_effect = return_values(['', 'ERROR'])
+
         self.assertRaises(
             JTagBlazerExceptions.JTagBlazerTargetErrorException,
-            self._jtag_blazer.program_device,
-            "target_return-1.svf", "0.0.0.0"
-        )    
-    
-        self._jtag_blazer._busy = True
+            self.jtag_blazer.program_device,
+            "file.svf", "0.0.0.0"
+        )
+
+    @patch('subprocess.Popen')
+    def test_program_device_target_code_error(self, Popen):
+        popen = Popen.return_value
+        popen.wait.side_effect = return_values([0, -1])
+        popen.stdout.read.side_effect = return_values(['', ''])
+        popen.stderr.read.side_effect = return_values(['', ''])
+
+        self.assertRaises(
+            JTagBlazerExceptions.JTagBlazerTargetErrorException,
+            self.jtag_blazer.program_device,
+            "file.svf", "0.0.0.0"
+        )
+
+    @patch('subprocess.Popen')
+    def test_program_device_already_programming(self, Popen):
+        popen = Popen.return_value
+        popen.wait.return_value = 0
+        popen.stdout.read.return_value = ''
+        popen.stderr.read.return_value = ''
+        self.jtag_blazer._busy = True
+
         self.assertRaises(
             JTagBlazerExceptions.AlreadyProgrammingDeviceException,
-            self._jtag_blazer.program_device,
+            self.jtag_blazer.program_device,
             "file.svf", "0.0.0.0"
         )
-        self._jtag_blazer._busy = False
+        self.jtag_blazer._busy = False
 
-        self.cfg_manager._values['xilinx_jtag_blazer_jbmanager_svf2jsvf_full_path'] = ['p0wn3d']
+    @patch('subprocess.Popen')
+    def test_program_device_wrong_call(self, Popen):
+        Popen.side_effect = Exception("can't create Popen!")
+
         self.assertRaises(
             JTagBlazerExceptions.ErrorProgrammingDeviceException,
-            self._jtag_blazer.program_device,
+            self.jtag_blazer.program_device,
             "file.svf", "0.0.0.0"
         )
-        
-        self.cfg_manager._values.pop('xilinx_jtag_blazer_jbmanager_svf2jsvf_full_path')
-        self.assertRaises(
-            JTagBlazerExceptions.CantFindJTagBlazerProperty,
-            self._jtag_blazer.program_device,
-            "file.svf", "0.0.0.0"
-        )
-        self.cfg_manager.reload()
 
-        self.cfg_manager._values['xilinx_jtag_blazer_jbmanager_target_full_path'] = ['p0wn3d']
-        self.assertRaises(
-            JTagBlazerExceptions.ErrorProgrammingDeviceException,
-            self._jtag_blazer.program_device,
-            "file.svf", "0.0.0.0"
-        )
-        
-        self.cfg_manager._values.pop('xilinx_jtag_blazer_jbmanager_target_full_path')
+    def test_program_device_wrong_config(self):
+        self.jtag_blazer._cfg_manager._values.pop('xilinx_jtag_blazer_jbmanager_svf2jsvf_full_path')
         self.assertRaises(
             JTagBlazerExceptions.CantFindJTagBlazerProperty,
-            self._jtag_blazer.program_device,
+            self.jtag_blazer.program_device,
             "file.svf", "0.0.0.0"
         )
-        self.cfg_manager.reload()
+
+        self.jtag_blazer._cfg_manager._values.pop('xilinx_jtag_blazer_jbmanager_target_full_path')
+        self.assertRaises(
+            JTagBlazerExceptions.CantFindJTagBlazerProperty,
+            self.jtag_blazer.program_device,
+            "file.svf", "0.0.0.0"
+        )
 
 
 def suite():

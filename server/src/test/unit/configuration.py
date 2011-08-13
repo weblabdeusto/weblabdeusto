@@ -176,8 +176,8 @@ exit
 
 # Only when using JTagBlazer to program the device:
 
-xilinx_jtag_blazer_jbmanager_svf2jsvf_full_path = ["python","./test/unit/weblab/experiment/devices/jtag_blazer/fake_jbmanager_svf2jsvf.py" ]
-xilinx_jtag_blazer_jbmanager_target_full_path   = ["python","./test/unit/weblab/experiment/devices/jtag_blazer/fake_jbmanager_target.py" ]
+xilinx_jtag_blazer_jbmanager_svf2jsvf_full_path = []
+xilinx_jtag_blazer_jbmanager_target_full_path   = []
 xilinx_jtag_blazer_device_ip = "192.168.50.137"
 
 # Only when using Digilent Adept to program the device
