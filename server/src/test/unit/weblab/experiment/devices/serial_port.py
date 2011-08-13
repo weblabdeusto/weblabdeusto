@@ -16,7 +16,7 @@
 import unittest
 
 import test.util.optional_modules as optional_modules
-import weblab.experiment.devices.serial_port.SerialPort as SerialPort
+from weblab.experiment.devices.serial_port import SerialPort
 
 class SerialPortTestCase(optional_modules.OptionalModuleTestCase):
     MODULE    = SerialPort
@@ -24,7 +24,7 @@ class SerialPortTestCase(optional_modules.OptionalModuleTestCase):
 
     def test_serial_not_available(self):
         def func():
-            serial = SerialPort.SerialPort()
+            serial = SerialPort()
             serial.open_serial_port(1)
             serial.send_code(65)
             serial.close_serial_port()
