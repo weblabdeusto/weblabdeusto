@@ -16,7 +16,7 @@
 from mock import patch
 import unittest
 
-from weblab.experiment.devices.tftp_device.TFtpDevice import TFtpDevice
+from weblab.experiment.devices.tftp import TFtpDevice
 import weblab.exceptions.experiment.devices.tftp_device.WlTFtpDeviceExceptions as WlTFtpDeviceExceptions
 
 

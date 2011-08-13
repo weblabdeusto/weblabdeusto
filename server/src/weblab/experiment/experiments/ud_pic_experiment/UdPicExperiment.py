@@ -19,7 +19,7 @@ import voodoo.log as log
 from voodoo.log import logged
 from voodoo.override import Override
 from voodoo.gen.caller_checker import caller_check
-import weblab.experiment.devices.tftp_device.TFtpDevice as TFtpDevice
+from weblab.experiment.devices.tftp import TFtpDevice
 import weblab.experiment.devices.http as HttpDevice
 import weblab.experiment.experiments.ud_pic_experiment.UdPicBoardCommand as UdPicBoardCommand
 import weblab.experiment.experiments.ud_pic_experiment.TFtpProgramSender as TFtpProgramSender
@@ -100,7 +100,7 @@ class UdPicExperiment(Experiment.Experiment):
 
     def _create_tftp_device(self, hostname, port):
         # For testing purposes
-        return TFtpDevice.TFtpDevice(hostname, port)
+        return TFtpDevice(hostname, port)
 
     def _create_http_device(self, hostname, port, app):
         # For testing purposes
