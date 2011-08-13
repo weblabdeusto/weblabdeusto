@@ -18,7 +18,7 @@ from mock import patch
 import unittest
 
 from voodoo.configuration.ConfigurationManager import ConfigurationManager
-from weblab.experiment.devices.jtag_blazer.JTagBlazer import JTagBlazer
+from weblab.experiment.devices.jtag_blazer import JTagBlazer
 from test.util.fakeobjects import return_values
 import test.unit.configuration as configuration_module
 import weblab.exceptions.experiment.devices.jtag_blazer.JTagBlazerExceptions as JTagBlazerExceptions
