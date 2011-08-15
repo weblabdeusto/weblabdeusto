@@ -128,6 +128,10 @@ class LoginWindow extends BaseWindow {
 		return this.containerPanel;
 	}
 	
+	private static native String getVersionName()/*-{
+		return $wnd.wlVersionMessage;
+	}-*/;
+	
 	protected void loadWidgets(){
 	    LoginWindow.uiBinder.createAndBindUi(this);
 		 
@@ -139,6 +143,8 @@ class LoginWindow extends BaseWindow {
 					LoginWindow.this.onLoginButtonClicked(null);   
 			}
 		};
+		
+		this.langsPanel.add(new HTML(getVersionName() + " | "));
 		
 		for(int i = 0; i < IWebLabDeustoThemeMessages.LANGUAGES.length; ++i){
 			final String curLanguage = IWebLabDeustoThemeMessages.LANGUAGES[i];

@@ -10,6 +10,7 @@ import java.util.Locale;
 public class VersionWriter {
 	
 	private static final String UNDEFINED = "undefined";
+	private static final boolean LINK_TO_VERSION = true;
 	
 	private static String global = UNDEFINED;
 	private static String local  = UNDEFINED;
@@ -36,7 +37,13 @@ public class VersionWriter {
     		System.exit(-3);
     	}
     	
-    	final String message = "var wlVersionMessage = \"WebLab-Deusto r<a href=\\\"http://code.google.com/p/weblabdeusto/source/detail?r=" + global + "\\\">" + local + "</a> | Last update: " + date + "\";";
+    	final String message;
+    	
+    	if(LINK_TO_VERSION)
+    		message = "var wlVersionMessage = \"WebLab-Deusto r<a href=\\\"http://code.google.com/p/weblabdeusto/source/detail?r=" + global + "\\\">" + local + "</a> | Last update: " + date + "\";";
+    	else
+    		message = "var wlVersionMessage = \"WebLab-Deusto r<a href=\\\"http://code.google.com/p/weblabdeusto/source/list\\\">" + local + "</a> | Last update: " + date + "\";";
+    	
     	PrintStream ps = new PrintStream(filename);
     	ps.print(message);
     	ps.flush();
