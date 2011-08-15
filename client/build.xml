@@ -116,6 +116,12 @@
     </target>
 
     <target name="gwtc-lab" depends="javac">
+       <java classname="es.deusto.weblab.server.VersionWriter">
+          <classpath>
+            <path refid="project.class.path"/>
+          </classpath>
+          <arg value="war/version.js"/>
+       </java>
       <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
 	      <classpath>
 	        <pathelement location="src"/>
