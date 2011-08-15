@@ -44,6 +44,6 @@ class TemporalInformationStore(object):
         except Queue.Empty:
             return None
 
-    def put(self, reservation_id, obj):
-        self.queue.put_nowait((reservation_id, obj))
+    def put(self, reservation_id, obj, initial_time, end_time):
+        self.queue.put_nowait((reservation_id, obj, initial_time, end_time))
 

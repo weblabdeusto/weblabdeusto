@@ -313,7 +313,7 @@ class Coordinator(object):
     # Called when it is confirmed by the Laboratory Server.
     #
     @logged()
-    def confirm_experiment(self, experiment_instance_id, reservation_id, lab_session_id, server_initialization_response):
+    def confirm_experiment(self, experiment_instance_id, reservation_id, lab_session_id, server_initialization_response, initial_time, end_time):
 
         default_still_initialing      = False
         default_batch                 = False
@@ -344,7 +344,7 @@ class Coordinator(object):
             # TODO: XXX
             raise NotImplementedError("Not yet implemented: batch")
 
-        self.initial_store.put(reservation_id, initial_configuration)
+        self.initial_store.put(reservation_id, initial_configuration, initial_time, end_time)
 
         schedulers = self._get_schedulers_per_reservation(reservation_id)
         for scheduler in schedulers:
@@ -356,7 +356,7 @@ class Coordinator(object):
     # was cleaned
     #
     @logged()
-    def confirm_resource_disposal(self, lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id, experiment_response):
+    def confirm_resource_disposal(self, lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id, experiment_response, initial_time, end_time):
 
         experiment_finished  = True
         information_to_store = None
@@ -388,7 +388,7 @@ class Coordinator(object):
                 session.commit()
             finally:
                 session.close()
-                self.finished_store.put(reservation_id, information_to_store)
+                self.finished_store.put(reservation_id, information_to_store, initial_time, end_time)
 
 
     ################################################################

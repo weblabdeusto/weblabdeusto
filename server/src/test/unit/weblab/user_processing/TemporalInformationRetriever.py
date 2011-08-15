@@ -16,6 +16,7 @@
 
 import unittest
 import time
+import datetime
 from voodoo.override import Override
 
 import weblab.user_processing.TemporalInformationRetriever as TemporalInformationRetriever
@@ -43,7 +44,7 @@ def wait_for(retriever, iterations = 5, max_wait = 10):
     while retriever.iterations - initial_iterations < iterations:
         time.sleep(0.01)
         if time.time() - initial_time >= max_wait:
-            raise AssertionException("Maximum time waiting reached")
+            raise AssertionError("Maximum time waiting reached")
 
 class TemporalInformationRetrieverTestCase(unittest.TestCase):
     def setUp(self):
@@ -60,13 +61,14 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
         self.retriever.timeout = 0.001 # Be quicker instead of waiting for half a second
         
     def test_retriever_before(self):
+        initial_time = end_time = datetime.datetime.now()
         self.retriever.start()
         try:
             # Make the system store the information
-            self.initial_store.put(RESERVATION1, DATA1)
-            self.initial_store.put(RESERVATION2, DATA2)
-            self.initial_store.put(RESERVATION3, DATA3)
-            self.finished_store.put(RESERVATION4, DATA4)
+            self.initial_store.put(RESERVATION1, DATA1, initial_time, end_time)
+            self.initial_store.put(RESERVATION2, DATA2, initial_time, end_time)
+            self.initial_store.put(RESERVATION3, DATA3, initial_time, end_time)
+            self.finished_store.put(RESERVATION4, DATA4, initial_time, end_time)
             
             # Wait and then populate the RESERVATION3 (the last one in the queue)
             wait_for(self.retriever)
@@ -112,6 +114,7 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
             self.assertFalse(self.retriever.isAlive())
 
     def test_retriever_after(self):
+        initial_time = end_time = datetime.datetime.now()
         self.retriever.start()
         try:
             # Create the structure in the database
@@ -127,9 +130,9 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
 
             # Start populating the initial information
 
-            self.initial_store.put(RESERVATION1, DATA1)
-            self.initial_store.put(RESERVATION2, DATA2)
-            self.initial_store.put(RESERVATION3, DATA3)
+            self.initial_store.put(RESERVATION1, DATA1, initial_time, end_time)
+            self.initial_store.put(RESERVATION2, DATA2, initial_time, end_time)
+            self.initial_store.put(RESERVATION3, DATA3, initial_time, end_time)
 
             wait_for(self.retriever)
 

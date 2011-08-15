@@ -64,7 +64,8 @@ class ConfirmerMock(object):
         if lab_session_id is not None:
             self.uses_free.append((lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id))
         experiment_response = None
-        self.coordinator.confirm_resource_disposal(lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id, experiment_response)
+        initial_time = end_time = datetime.datetime.now()
+        self.coordinator.confirm_resource_disposal(lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id, experiment_response, initial_time, end_time)
 
 SLOW_CONFIRMER_TIME = 0.05
 
@@ -86,7 +87,9 @@ class SlowConfirmerMock(object):
 
         if lab_session_id is not None:
             self.uses_free.append((lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id))
-        self.coordinator.confirm_resource_disposal(lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id, experiment_response)
+
+        initial_time = end_time = datetime.datetime.now()
+        self.coordinator.confirm_resource_disposal(lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id, experiment_response, initial_time, end_time)
 
 
 def coord_addr(coord_addr_str):
@@ -410,11 +413,14 @@ class CoordinatorTestCase(unittest.TestCase):
         self.assertEquals( u'lab1:inst@machine', self.coordinator.confirmer.uses_confirm[0][0] )
         self.assertEquals( ExperimentInstanceId('inst1','exp1','cat1'), self.coordinator.confirmer.uses_confirm[0][2] )
 
-        self.coordinator.confirm_experiment(ExperimentInstanceId('inst1', 'exp1', 'cat1'), reservation1_id, SessionId.SessionId("mysessionid"), "{}")
+        self.coordinator.confirm_experiment(ExperimentInstanceId('inst1', 'exp1', 'cat1'), reservation1_id, SessionId.SessionId("mysessionid"), "{}", now, now)
         status = self.coordinator.get_reservation_status(reservation1_id)
         expected_status = WQS.ReservedQueueStatus(coord_addr("lab1:inst@machine"), SessionId.SessionId("mysessionid"), DEFAULT_TIME, "{}", now, now)
-        self.assertEquals( expected_status, status )
-
+        try:
+            self.assertEquals( expected_status, status )
+        except AssertionError:
+            expected_status = WQS.ReservedQueueStatus(coord_addr("lab1:inst@machine"), SessionId.SessionId("mysessionid"), DEFAULT_TIME, "{}", now - datetime.timedelta(seconds=1), now)
+            self.assertEquals( expected_status, status )
 
 
     def test_reserve_experiment_rejected(self):
@@ -663,6 +669,8 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
     def test_reserve_full_scenario(self):
         self._deploy_cplds_and_fpgas_configuration()
 
+        now = datetime.datetime.now()
+
         #
         # Two users requesting a CPLD and a user requesting a FPGA get what they want
         #
@@ -734,7 +742,7 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         # However, if the instance of the resource of "pld boards" that doesn't support ud-pld@PLD experiments is released, this last user goes first, since
         # the other people waiting for "pld boards" are waiting for a resource instance of "pld boards" that supports "ud-binary@Binary experiments"
         # 
-        self.coordinator.confirm_experiment(ExperimentInstanceId('???','ud-pld','PLD experiments'), reservation2_id, SessionId.SessionId("the.session"), "{}")
+        self.coordinator.confirm_experiment(ExperimentInstanceId('???','ud-pld','PLD experiments'), reservation2_id, SessionId.SessionId("the.session"), "{}", now, now)
         self.coordinator.finish_reservation(reservation2_id)
 
         status = self.coordinator.get_reservation_status(reservation9_id)
@@ -744,7 +752,7 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         # 
         # If this user goes out, then that experiment is available, so next user requesting a ud-pld@PLD experiments will get it
         # 
-        self.coordinator.confirm_experiment(ExperimentInstanceId('???','ud-pld','PLD experiments'), reservation9_id, SessionId.SessionId("the.session"), "{}")
+        self.coordinator.confirm_experiment(ExperimentInstanceId('???','ud-pld','PLD experiments'), reservation9_id, SessionId.SessionId("the.session"), "{}", now, now)
         self.coordinator.finish_reservation(reservation9_id)
 
         status, reservation10_id = self.coordinator.reserve_experiment(ExperimentId("ud-pld","PLD experiments"), DEFAULT_TIME + 10, DEFAULT_PRIORITY, DEFAULT_INITIAL_DATA)
@@ -755,7 +763,7 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         # If the user who was using the FPGA leaves it, the first user waiting for a
         # binary experiment will get it.
         # 
-        self.coordinator.confirm_experiment(ExperimentInstanceId('???','ud-pld','PLD experiments'), reservation3_id, SessionId.SessionId("the.session"), "{}")
+        self.coordinator.confirm_experiment(ExperimentInstanceId('???','ud-pld','PLD experiments'), reservation3_id, SessionId.SessionId("the.session"), "{}", now, now)
         self.coordinator.finish_reservation(reservation3_id)
 
         status = self.coordinator.get_reservation_status(reservation4_id)
@@ -764,7 +772,7 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
 
         # If the user who was using the CPLD that supports binary leaves, the second user
         # waiting for a binary experiment will get it
-        self.coordinator.confirm_experiment(ExperimentInstanceId('???','ud-pld','PLD experiments'), reservation1_id, SessionId.SessionId("the.session"), "{}")
+        self.coordinator.confirm_experiment(ExperimentInstanceId('???','ud-pld','PLD experiments'), reservation1_id, SessionId.SessionId("the.session"), "{}", now, now)
         self.coordinator.finish_reservation(reservation1_id)
 
         status = self.coordinator.get_reservation_status(reservation8_id)
@@ -777,11 +785,11 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         self.coordinator.finish_reservation(reservation5_id)
 
         # And then the ones using the devices
-        self.coordinator.confirm_experiment(ExperimentInstanceId('???','ud-pld','PLD experiments'), reservation4_id, SessionId.SessionId("the.session"), "{}")
+        self.coordinator.confirm_experiment(ExperimentInstanceId('???','ud-pld','PLD experiments'), reservation4_id, SessionId.SessionId("the.session"), "{}", now, now)
         self.coordinator.finish_reservation(reservation4_id)
-        self.coordinator.confirm_experiment(ExperimentInstanceId('???','ud-pld','PLD experiments'), reservation8_id, SessionId.SessionId("the.session"), "{}")
+        self.coordinator.confirm_experiment(ExperimentInstanceId('???','ud-pld','PLD experiments'), reservation8_id, SessionId.SessionId("the.session"), "{}", now, now)
         self.coordinator.finish_reservation(reservation8_id)
-        self.coordinator.confirm_experiment(ExperimentInstanceId('???','ud-pld','PLD experiments'), reservation10_id, SessionId.SessionId("the.session"), "{}")
+        self.coordinator.confirm_experiment(ExperimentInstanceId('???','ud-pld','PLD experiments'), reservation10_id, SessionId.SessionId("the.session"), "{}", now, now)
         self.coordinator.finish_reservation(reservation10_id)
 
 

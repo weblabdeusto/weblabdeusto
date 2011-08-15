@@ -57,15 +57,18 @@ class TemporalInformationRetriever(threading.Thread):
     def iterate_over_store(self, store, message):
         information = store.get(timeout=self.timeout)
         if information is not None:
-            reservation_id, obj = information
+            reservation_id, obj, initial_time, end_time = information
+
+            initial_timestamp = time.mktime(initial_time.timetuple())
+            end_timestamp     = time.mktime(end_time.timetuple())
 
             command = Usage.CommandSent(
-                    Command.Command("@@@%s@@@" % message), time.time(),
-                    Command.Command(str(obj)), time.time()
+                    Command.Command("@@@%s@@@" % message), initial_timestamp,
+                    Command.Command(str(obj)), end_timestamp
             )
 
             if not self.keep_running or not self.db_manager.append_command(reservation_id, command):
                 # If it could not be added because the experiment id
                 # did not exist, put it again in the queue
-                store.put(reservation_id, obj)
+                store.put(reservation_id, obj, initial_time, end_time)
 
