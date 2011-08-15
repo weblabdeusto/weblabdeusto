@@ -17,7 +17,7 @@ import datetime
 import unittest
 from weblab.user_processing.coordinator.MetaScheduler import MetaScheduler
 
-import weblab.user_processing.coordinator.WebLabQueueStatus as WQS
+import weblab.user_processing.coordinator.WebLabSchedulingStatus as WSS
 
 class FakeScheduler(object):
     def __init__(self, reservation_status, expected_reservation_id):
@@ -35,20 +35,20 @@ class MetaSchedulerTestCase(unittest.TestCase):
         self.meta_scheduler = MetaScheduler()
         self.reservation_id = "foo"
 
-        self.wi_five = WQS.WaitingInstancesQueueStatus(5)
-        self.wi_four = WQS.WaitingInstancesQueueStatus(4)
+        self.wi_five = WSS.WaitingInstancesQueueStatus(5)
+        self.wi_four = WSS.WaitingInstancesQueueStatus(4)
 
-        self.w_five  = WQS.WaitingQueueStatus(5)
-        self.w_four  = WQS.WaitingQueueStatus(4)
+        self.w_five  = WSS.WaitingQueueStatus(5)
+        self.w_four  = WSS.WaitingQueueStatus(4)
 
-        self.wc1     = WQS.WaitingConfirmationQueueStatus("coord_adress1", 50)
-        self.wc2     = WQS.WaitingConfirmationQueueStatus("coord_adress2", 60)
+        self.wc1     = WSS.WaitingConfirmationQueueStatus("coord_adress1", 50)
+        self.wc2     = WSS.WaitingConfirmationQueueStatus("coord_adress2", 60)
 
-        self.res1    = WQS.ReservedQueueStatus("coord_address1", "lab_session_id1", 50, None, datetime.datetime.now(), datetime.datetime.now())
-        self.res2    = WQS.ReservedQueueStatus("coord_address2", "lab_session_id2", 60, "foo", datetime.datetime.now(), datetime.datetime.now())
+        self.res1    = WSS.ReservedStatus("coord_address1", "lab_session_id1", 50, None, datetime.datetime.now(), datetime.datetime.now())
+        self.res2    = WSS.ReservedStatus("coord_address2", "lab_session_id2", 60, "foo", datetime.datetime.now(), datetime.datetime.now())
 
-        self.post1   = WQS.PostReservationStatus("foo1", datetime.datetime.now())
-        self.post2   = WQS.PostReservationStatus("foo2", datetime.datetime.now())
+        self.post1   = WSS.PostReservationStatus("foo1", datetime.datetime.now())
+        self.post2   = WSS.PostReservationStatus("foo2", datetime.datetime.now())
 
 
     def test_select_best_reservation_status_zero(self):
@@ -77,12 +77,12 @@ class MetaSchedulerTestCase(unittest.TestCase):
         self._test_schedulers(self.wc2, (self.wc2, self.wc1))
 
     def test_query_best_reservation__reserved_equals(self):
-        "Among ReservedQueueStatus, they're all the same"
+        "Among ReservedStatus, they're all the same"
         self._test_schedulers(self.res1, (self.res1, self.res2))
         self._test_schedulers(self.res2, (self.res2, self.res1))
 
     def test_query_best_reservation__post_reservation_equals(self):
-        "Among ReservedQueueStatus, they're all the same"
+        "Among PostReservationStatus, they're all the same"
         self._test_schedulers(self.post1, (self.post1, self.post2))
         self._test_schedulers(self.post2, (self.post2, self.post1))
 

@@ -17,32 +17,32 @@ import datetime
 import unittest
 from weblab.user_processing.coordinator.MetaScheduler import MetaScheduler
 
-import weblab.user_processing.coordinator.WebLabQueueStatus as WQS
+import weblab.user_processing.coordinator.WebLabSchedulingStatus as WSS
 
-class WebLabStatusTest(unittest.TestCase):
+class WebLabSchedulingStatusTest(unittest.TestCase):
 
     def test_str_waiting_instances(self):
-        wi = WQS.WaitingInstancesQueueStatus(5)
+        wi = WSS.WaitingInstancesQueueStatus(5)
         str(wi)
 
     def test_str_waiting(self):
-        w = WQS.WaitingQueueStatus(4)
+        w = WSS.WaitingQueueStatus(4)
         str(w)
 
     def test_str_waiting_confirmation(self):
-        wc     = WQS.WaitingConfirmationQueueStatus("coord_adress1", 50)
+        wc     = WSS.WaitingConfirmationQueueStatus("coord_adress1", 50)
         str(wc)
 
     def test_str_reservation(self):
-        res    = WQS.ReservedQueueStatus("coord_address1", "lab_session_id1", 50, None, datetime.datetime.now(), datetime.datetime.now())
+        res    = WSS.ReservedStatus("coord_address1", "lab_session_id1", 50, None, datetime.datetime.now(), datetime.datetime.now())
         str(res)
 
     def test_str_post_reservation(self):
-        post   = WQS.PostReservationStatus("foo1", datetime.datetime.now())
+        post   = WSS.PostReservationStatus("foo1", datetime.datetime.now())
         str(post)
 
 def suite():
-    return unittest.makeSuite(WebLabStatusTest)
+    return unittest.makeSuite(WebLabSchedulingStatusTest)
 
 if __name__ == '__main__':
     unittest.main()

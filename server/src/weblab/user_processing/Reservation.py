@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-import weblab.user_processing.coordinator.WebLabQueueStatus as WebLabQueueStatus
+import weblab.user_processing.coordinator.WebLabSchedulingStatus as WSS
 import weblab.exceptions.user_processing.UserProcessingExceptions as UserProcessingExceptions
 
 class Reservation(object):
@@ -35,27 +35,27 @@ class Reservation(object):
 
     @staticmethod
     def translate_reservation(status):
-        if status.status == WebLabQueueStatus.WebLabQueueStatus.WAITING:
+        if status.status == WSS.WebLabSchedulingStatus.WAITING:
             reservation = WaitingReservation(status.position)
-        elif status.status == WebLabQueueStatus.WebLabQueueStatus.WAITING_CONFIRMATION:
+        elif status.status == WSS.WebLabSchedulingStatus.WAITING_CONFIRMATION:
             reservation = WaitingConfirmationReservation()
-        elif status.status == WebLabQueueStatus.WebLabQueueStatus.RESERVED:
+        elif status.status == WSS.WebLabSchedulingStatus.RESERVED:
             reservation = ConfirmedReservation(
                     status.time,
                     status.initial_configuration
                 )
-        elif status.status == WebLabQueueStatus.WebLabQueueStatus.WAITING_INSTANCES: #TODO: test me
+        elif status.status == WSS.WebLabSchedulingStatus.WAITING_INSTANCES: #TODO: test me
             reservation = WaitingInstances(
                     status.position
                 )
-        elif status.status == WebLabQueueStatus.WebLabQueueStatus.CANCELLING: #TODO: test me
+        elif status.status == WSS.WebLabSchedulingStatus.CANCELLING: #TODO: test me
             reservation = CancellingReservation()
         else:
             raise UserProcessingExceptions.InvalidReservationStatusException(
                 "Invalid reservation status.status: '%s'. Only '%s' and '%s' expected" % (
                     status.status, 
-                    WebLabQueueStatus.WebLabQueueStatus.WAITING, 
-                    WebLabQueueStatus.WebLabQueueStatus.RESERVED
+                    WSS.WebLabSchedulingStatus.WAITING, 
+                    WSS.WebLabSchedulingStatus.RESERVED
                 )
             )
         return reservation

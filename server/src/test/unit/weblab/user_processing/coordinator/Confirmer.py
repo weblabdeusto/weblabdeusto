@@ -33,7 +33,7 @@ from weblab.user_processing.coordinator.Resource import Resource
 
 import weblab.user_processing.coordinator.Coordinator as Coordinator
 
-import weblab.user_processing.coordinator.WebLabQueueStatus as WQS
+import weblab.user_processing.coordinator.WebLabSchedulingStatus as WSS
 
 class MockLocator(object):
     
@@ -129,12 +129,12 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
         
         status = self.coordinator.get_reservation_status(reservation1_id)
-        expected_status =  WQS.ReservedQueueStatus(CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, 30, '{}', now, now)
+        expected_status =  WSS.ReservedStatus(CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, 30, '{}', now, now)
         try:
             self.assertEquals( expected_status, status )
         except AssertionError:
             # Sometimes, the initial time is not now, but now - 1, because it started at 12:30:00,99 and finished at 12:30:01,01
-            expected_status =  WQS.ReservedQueueStatus(CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, 30, '{}', now - datetime.timedelta(seconds=1), now)
+            expected_status =  WSS.ReservedStatus(CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, 30, '{}', now - datetime.timedelta(seconds=1), now)
             self.assertEquals( expected_status, status )
 
     def test_reject_experiment_laboratory_raises_exception(self):
@@ -157,7 +157,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
         
         status = self.coordinator.get_reservation_status(reservation1_id)
-        expected_status =  WQS.WaitingInstancesQueueStatus(0)
+        expected_status =  WSS.WaitingInstancesQueueStatus(0)
         self.assertEquals( expected_status, status )
 
     def test_reject_experiment_voodoo_gen_raises_exception(self):
@@ -176,7 +176,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
         
         status = self.coordinator.get_reservation_status(reservation1_id)
-        expected_status =  WQS.WaitingInstancesQueueStatus(0)
+        expected_status =  WSS.WaitingInstancesQueueStatus(0)
         self.assertEquals( expected_status, status )
 
 

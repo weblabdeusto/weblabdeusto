@@ -28,7 +28,7 @@ import weblab.facade.RemoteFacadeContext as RemoteFacadeContext
 import weblab.exceptions.user_processing.UserProcessingExceptions as UserProcessingExceptions
 import weblab.exceptions.user_processing.CoordinatorExceptions as CoordExc
 import weblab.user_processing.Reservation as Reservation
-import weblab.user_processing.coordinator.WebLabQueueStatus as WebLabQueueStatus
+import weblab.user_processing.coordinator.WebLabSchedulingStatus as WebLabSchedulingStatus
 import weblab.exceptions.laboratory.LaboratoryExceptions as LaboratoryExceptions
 
 import weblab.experiment.Util as ExperimentUtil
@@ -173,7 +173,7 @@ class UserProcessor(object):
         self._session['experiment_usage'].reservation_id = reservation_id
         self._session['experiment_usage'].from_ip        = client_address.client_address
 
-        if status.status == WebLabQueueStatus.WebLabQueueStatus.RESERVED:
+        if status.status == WebLabSchedulingStatus.WebLabSchedulingStatus.RESERVED:
             self._process_reserved_status(status)
 
         return Reservation.Reservation.translate_reservation(
@@ -188,7 +188,7 @@ class UserProcessor(object):
             except CoordExc.ExpiredSessionException:
                 self._session.pop('reservation_id')
             else:
-                if status.status == WebLabQueueStatus.WebLabQueueStatus.RESERVED:
+                if status.status == WebLabSchedulingStatus.WebLabSchedulingStatus.RESERVED:
                     self._process_reserved_status(status)
 
                 return Reservation.Reservation.translate_reservation(

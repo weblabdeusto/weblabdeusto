@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-class WebLabQueueStatus(object):
+class WebLabSchedulingStatus(object):
     WAITING              = 'waiting'
     WAITING_CONFIRMATION = 'waiting_confirmation'
     WAITING_INSTANCES    = 'waiting_instances'
@@ -21,11 +21,11 @@ class WebLabQueueStatus(object):
     POST_RESERVATION     = 'post_reservation'
 
     def __init__(self, status):
-        super(WebLabQueueStatus,self).__init__()
+        super(WebLabSchedulingStatus,self).__init__()
         self.status = status
 
     def __eq__(self, other):
-        return isinstance(other, WebLabQueueStatus) and str(other) == str(self)
+        return isinstance(other, WebLabSchedulingStatus) and str(other) == str(self)
 
 ###########################################################
 # 
@@ -38,15 +38,15 @@ class WebLabQueueStatus(object):
 # will only move when users which are before cancel the
 # reservation.
 # 
-class WaitingInstancesQueueStatus(WebLabQueueStatus):
+class WaitingInstancesQueueStatus(WebLabSchedulingStatus):
     def __init__(self, position_in_queue):
-        super(WaitingInstancesQueueStatus,self).__init__(WebLabQueueStatus.WAITING_INSTANCES)
+        super(WaitingInstancesQueueStatus,self).__init__(WebLabSchedulingStatus.WAITING_INSTANCES)
         self.position = position_in_queue
     def __repr__(self):
         full_name = self.__class__.__module__ + '.' + self.__class__.__name__
         return "<%s; position_in_queue: %s>" % (full_name, self.position)
     def __cmp__(self, other):
-        if isinstance(other, (WaitingQueueStatus, WaitingConfirmationQueueStatus, ReservedQueueStatus, PostReservationStatus)):
+        if isinstance(other, (WaitingQueueStatus, WaitingConfirmationQueueStatus, ReservedStatus, PostReservationStatus)):
             return 1
         if isinstance(other, WaitingInstancesQueueStatus):
             return cmp(self.position, other.position)
@@ -57,15 +57,15 @@ class WaitingInstancesQueueStatus(WebLabQueueStatus):
 # This status represents users which are waiting for an
 # active experiment.
 # 
-class WaitingQueueStatus(WebLabQueueStatus):
+class WaitingQueueStatus(WebLabSchedulingStatus):
     def __init__(self, position_in_queue):
-        super(WaitingQueueStatus,self).__init__(WebLabQueueStatus.WAITING)
+        super(WaitingQueueStatus,self).__init__(WebLabSchedulingStatus.WAITING)
         self.position = position_in_queue
     def __repr__(self):
         full_name = self.__class__.__module__ + '.' + self.__class__.__name__
         return "<%s; position_in_queue: %s>" % (full_name, self.position)
     def __cmp__(self, other):
-        if isinstance(other, (WaitingConfirmationQueueStatus, ReservedQueueStatus, PostReservationStatus)):
+        if isinstance(other, (WaitingConfirmationQueueStatus, ReservedStatus, PostReservationStatus)):
             return 1
         if isinstance(other, WaitingQueueStatus):
             return cmp(self.position, other.position)
@@ -77,9 +77,9 @@ class WaitingQueueStatus(WebLabQueueStatus):
 # use an experiment but who are still waiting the experiment
 # server to reply that the experiment has been initialized.
 # 
-class WaitingConfirmationQueueStatus(WebLabQueueStatus):
+class WaitingConfirmationQueueStatus(WebLabSchedulingStatus):
     def __init__(self, coord_address, time):
-        super(WaitingConfirmationQueueStatus,self).__init__(WebLabQueueStatus.WAITING_CONFIRMATION)
+        super(WaitingConfirmationQueueStatus,self).__init__(WebLabSchedulingStatus.WAITING_CONFIRMATION)
         self.coord_address = coord_address
         self.time          = time
     def __repr__(self):
@@ -87,7 +87,7 @@ class WaitingConfirmationQueueStatus(WebLabQueueStatus):
         return "<%s; coord_address: %s; time: %s>" % (full_name, self.coord_address, self.time)
 
     def __cmp__(self, other):
-        if isinstance(other, (ReservedQueueStatus, PostReservationStatus)):
+        if isinstance(other, (ReservedStatus, PostReservationStatus)):
             return 1
         if isinstance(other, WaitingConfirmationQueueStatus):
             return 0
@@ -98,9 +98,9 @@ class WaitingConfirmationQueueStatus(WebLabQueueStatus):
 # This status represents users which are actively using  
 # the experiment.
 #
-class ReservedQueueStatus(WebLabQueueStatus):
+class ReservedStatus(WebLabSchedulingStatus):
     def __init__(self, coord_address, lab_session_id, time, initial_configuration, timestamp_before, timestamp_after):
-        super(ReservedQueueStatus,self).__init__(WebLabQueueStatus.RESERVED)
+        super(ReservedStatus,self).__init__(WebLabSchedulingStatus.RESERVED)
         self.coord_address         = coord_address
         self.lab_session_id        = lab_session_id
         self.time                  = time
@@ -115,7 +115,7 @@ class ReservedQueueStatus(WebLabQueueStatus):
     def __cmp__(self, other):
         if isinstance(other, PostReservationStatus):
             return 1
-        if isinstance(other, ReservedQueueStatus):
+        if isinstance(other, ReservedStatus):
             return 0
         return -1
 
@@ -124,9 +124,9 @@ class ReservedQueueStatus(WebLabQueueStatus):
 # This status represents users which are actively using  
 # the experiment.
 #
-class PostReservationStatus(WebLabQueueStatus):
+class PostReservationStatus(WebLabSchedulingStatus):
     def __init__(self, end_data, timestamp):
-        super(PostReservationStatus,self).__init__(WebLabQueueStatus.POST_RESERVATION)
+        super(PostReservationStatus,self).__init__(WebLabSchedulingStatus.POST_RESERVATION)
         self.end_data  = end_data
         self.timestamp = timestamp
 
