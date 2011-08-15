@@ -47,6 +47,9 @@ class MetaSchedulerTestCase(unittest.TestCase):
         self.res1    = WQS.ReservedQueueStatus("coord_address1", "lab_session_id1", 50, None, datetime.datetime.now(), datetime.datetime.now())
         self.res2    = WQS.ReservedQueueStatus("coord_address2", "lab_session_id2", 60, "foo", datetime.datetime.now(), datetime.datetime.now())
 
+        self.post1   = WQS.PostReservationStatus("foo1", datetime.datetime.now())
+        self.post2   = WQS.PostReservationStatus("foo2", datetime.datetime.now())
+
 
     def test_select_best_reservation_status_zero(self):
         self.assertRaises( ValueError,
@@ -78,6 +81,11 @@ class MetaSchedulerTestCase(unittest.TestCase):
         self._test_schedulers(self.res1, (self.res1, self.res2))
         self._test_schedulers(self.res2, (self.res2, self.res1))
 
+    def test_query_best_reservation__post_reservation_equals(self):
+        "Among ReservedQueueStatus, they're all the same"
+        self._test_schedulers(self.post1, (self.post1, self.post2))
+        self._test_schedulers(self.post2, (self.post2, self.post1))
+
     def test_query_best_reservation__waiting_wins(self):
         "Waiting wins to WaitingInstances"
         self._test_schedulers(self.w_four, (self.w_four,  self.wi_four, self.wi_four))
@@ -96,6 +104,14 @@ class MetaSchedulerTestCase(unittest.TestCase):
         self._test_schedulers(self.res1,   (self.wc1, self.res1, self.w_four, self.wi_four))
         self._test_schedulers(self.res1,   (self.wc1, self.w_four, self.res1, self.wi_four))
         self._test_schedulers(self.res1,   (self.wc1, self.w_four, self.wi_four, self.res1))
+
+    def test_query_best_reservation__post_reservation_wins(self):
+        "PostReservation wins them all"
+        self._test_schedulers(self.post1,   (self.post1, self.res1, self.wc1, self.w_four, self.wi_four))
+        self._test_schedulers(self.post1,   (self.wc1, self.post1, self.res1, self.w_four, self.wi_four))
+        self._test_schedulers(self.post1,   (self.wc1, self.w_four, self.post1, self.res1, self.wi_four))
+        self._test_schedulers(self.post1,   (self.wc1, self.w_four, self.wi_four, self.post1, self.res1))
+        self._test_schedulers(self.post1,   (self.wc1, self.w_four, self.wi_four, self.res1, self.post1))
 
     def _test_schedulers(self, best, all_status):
         schedulers = [ FakeScheduler(status, self.reservation_id)
