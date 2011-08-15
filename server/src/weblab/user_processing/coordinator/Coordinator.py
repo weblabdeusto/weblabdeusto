@@ -335,16 +335,16 @@ class Coordinator(object):
                 batch                 = default_batch
                 initial_configuration = default_initial_configuration
 
+        self.initial_store.put(reservation_id, initial_configuration, initial_time, end_time)
+
         if still_initializing:
             # TODO XXX 
             # TODO XXX: maybe it does not make sense. Given that finish also can return a result
             raise NotImplementedError("Not yet implemented: still_initializing")
 
-        if batch: # It has already finished!
-            # TODO: XXX
-            raise NotImplementedError("Not yet implemented: batch")
-
-        self.initial_store.put(reservation_id, initial_configuration, initial_time, end_time)
+        if batch: # It has already finished, so make this experiment available to others
+            self.finish_reservation(reservation_id)
+            return
 
         schedulers = self._get_schedulers_per_reservation(reservation_id)
         for scheduler in schedulers:

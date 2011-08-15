@@ -422,6 +422,29 @@ class CoordinatorTestCase(unittest.TestCase):
             expected_status = WQS.ReservedQueueStatus(coord_addr("lab1:inst@machine"), SessionId.SessionId("mysessionid"), DEFAULT_TIME, "{}", now - datetime.timedelta(seconds=1), now)
             self.assertEquals( expected_status, status )
 
+    def test_reserve_experiment_batch_reserved(self):
+
+        "Reserve and confirm a batch reservation"
+
+        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId("exp1","cat1"), DEFAULT_TIME, DEFAULT_PRIORITY, DEFAULT_INITIAL_DATA)
+        now = datetime.datetime.fromtimestamp(int(time.time()))
+        expected_status = WQS.WaitingConfirmationQueueStatus(coord_addr("lab1:inst@machine"), DEFAULT_TIME)
+        self.assertEquals( expected_status, status )
+
+        self.assertEquals( 1, len(self.coordinator.confirmer.uses_confirm) )
+        self.assertEquals( u'lab1:inst@machine', self.coordinator.confirmer.uses_confirm[0][0] )
+        self.assertEquals( ExperimentInstanceId('inst1','exp1','cat1'), self.coordinator.confirmer.uses_confirm[0][2] )
+
+        self.coordinator.confirm_experiment(ExperimentInstanceId('inst1', 'exp1', 'cat1'), reservation1_id, SessionId.SessionId("mysessionid"), '{ "batch" : true, "initial_configuration" : { "foo" : "bar" } }', now, now)
+
+        self.assertRaises( CoordExc.ExpiredSessionException, 
+                            self.coordinator.get_reservation_status, reservation1_id)
+
+        reservation_id, initial_configuration, initial_time, end_time = self.coordinator.initial_store.get()
+        self.assertFalse(reservation_id is None)
+        self.assertEquals({ "foo" : "bar" }, initial_configuration)
+        self.assertEquals(now, initial_time)
+        self.assertEquals(now, end_time)
 
     def test_reserve_experiment_rejected(self):
 
