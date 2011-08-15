@@ -124,7 +124,7 @@
 				</xsd:complexContent>
 			</xsd:complexType>
 
-			<xsd:complexType name="CancellingReservationType">
+			<xsd:complexType name="PostReservationReservationType">
 				<xsd:complexContent mixed="false">
 					<xsd:extension base="tns:ReservationType">
 						<xsd:sequence />

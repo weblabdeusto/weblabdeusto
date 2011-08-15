@@ -21,7 +21,7 @@ class Reservation(object):
     WAITING_CONFIRMATION = "Reservation::waiting_confirmation"
     WAITING_INSTANCES    = "Reservation::waiting_instances"
     CONFIRMED            = "Reservation::confirmed"
-    CANCELLING           = "Reservation::cancelling"
+    POST_RESERVATION     = "Reservation::post_reservation"
     def __init__(self, status):
         """ __init__(status)
 
@@ -48,8 +48,10 @@ class Reservation(object):
             reservation = WaitingInstances(
                     status.position
                 )
-        elif status.status == WSS.WebLabSchedulingStatus.CANCELLING: #TODO: test me
-            reservation = CancellingReservation()
+        elif status.status == WSS.WebLabSchedulingStatus.POST_RESERVATION: #TODO: test me
+            reservation = PostReservationReservation(
+                    status.end_data
+                )
         else:
             raise UserProcessingExceptions.InvalidReservationStatusException(
                 "Invalid reservation status.status: '%s'. Only '%s' and '%s' expected" % (
@@ -61,7 +63,7 @@ class Reservation(object):
         return reservation
 
     @staticmethod
-    def translate_reservation_from_data(status_text, position = None, time = None, initial_configuration = None):
+    def translate_reservation_from_data(status_text, position = None, time = None, initial_configuration = None, end_data = None):
         if status_text == Reservation.WAITING:
             reservation = WaitingReservation(position)
         elif status_text == Reservation.WAITING_CONFIRMATION:
@@ -70,8 +72,8 @@ class Reservation(object):
             reservation = WaitingInstances(position)
         elif status_text == Reservation.CONFIRMED:
             reservation = ConfirmedReservation(time, initial_configuration)
-        elif status_text == Reservation.CANCELLING:
-            reservation = CancellingReservation()
+        elif status_text == Reservation.POST_RESERVATION:
+            reservation = PostReservationReservation(end_data)
         else:
             raise UserProcessingExceptions.InvalidReservationStatusException("Invalid reservation status_text: '%s'." % ( status_text ) )
         return reservation
@@ -104,9 +106,10 @@ class WaitingInstances(Reservation):
     def __repr__(self):
         return "<WaitingInstances position = %i>" % self.position
 
-class CancellingReservation(Reservation):
-    def __init__(self):
-        super(CancellingReservation,self).__init__(Reservation.CANCELLING)
+class PostReservationReservation(Reservation):
+    def __init__(self, end_data):
+        super(PostReservationReservation,self).__init__(Reservation.POST_RESERVATION)
+        self.end_data = end_data
     def __repr__(self):
-        return "<CancellingReservation>"
+        return "<PostReservationReservation data = %r>" % self.data
 
