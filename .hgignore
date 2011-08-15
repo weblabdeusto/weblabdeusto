@@ -33,6 +33,7 @@ client/extras
 
 client/.settings/com.google.gdt.eclipse.core.prefs
 
+client/war/version.js
 client/war/weblabclient
 client/war/weblabclientadmin
 client/war/es.deusto.weblab.WebLabClient.JUnit
