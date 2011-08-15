@@ -130,7 +130,12 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         
         status = self.coordinator.get_reservation_status(reservation1_id)
         expected_status =  WQS.ReservedQueueStatus(CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, 30, '{}', now, now)
-        self.assertEquals( expected_status, status )
+        try:
+            self.assertEquals( expected_status, status )
+        except AssertionError:
+            # Sometimes, the initial time is not now, but now - 1, because it started at 12:30:00,99 and finished at 12:30:01,01
+            expected_status =  WQS.ReservedQueueStatus(CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, 30, '{}', now - 1, now)
+            self.assertEquals( expected_status, status )
 
     def test_reject_experiment_laboratory_raises_exception(self):
         mock_laboratory = self.mocker.mock()
