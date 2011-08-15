@@ -37,6 +37,8 @@ import weblab.user_processing.coordinator.Coordinator as Coordinator
 import weblab.laboratory.AssignedExperiments as AssignedExperiments
 import weblab.laboratory.IsUpAndRunningHandler as IsUpAndRunningHandler
 
+import weblab.experiment.ApiLevel as ExperimentApiLevel
+
 import voodoo.sessions.SessionManager as SessionManager
 
 try:
@@ -137,14 +139,22 @@ class LaboratoryServer(object):
                         checking_handlers.append(eval('IsUpAndRunningHandler.'+klazz)(*argss, **kargss))
                     else:
                         raise LaboratoryExceptions.InvalidLaboratoryConfigurationException("Invalid IsUpAndRunningHandler: %s" % klazz)
-                parsed_experiments.append( (experiment_instance_id, coord_address, checking_handlers) )
+
+                api = data.get('api', 'current')
+                if not ExperimentApiLevel.is_level(api):
+                    raise LaboratoryExceptions.InvalidLaboratoryConfigurationException("Invalid api: %s. See %s" % (api, ExperimentApiLevel.__file__))
+
+                if not ExperimentApiLevel.is_supported(api):
+                    raise LaboratoryExceptions.InvalidLaboratoryConfigurationException("Unsupported api: %s" % api)
+
+                parsed_experiments.append( (experiment_instance_id, coord_address, checking_handlers, ExperimentApiLevel.get_level(api)) )
         return parsed_experiments
 
     def _load_assigned_experiments(self):
         self._assigned_experiments = AssignedExperiments.AssignedExperiments()
         parsed_experiments         = self._parse_assigned_experiments()
-        for exp_inst_id, coord_address, checking_handlers in parsed_experiments:
-            self._assigned_experiments.add_server(exp_inst_id, coord_address, checking_handlers)
+        for exp_inst_id, coord_address, checking_handlers, api in parsed_experiments:
+            self._assigned_experiments.add_server(exp_inst_id, coord_address, checking_handlers, api)
 
 
     #####################################################
@@ -183,8 +193,15 @@ class LaboratoryServer(object):
                 'session_id' : lab_sess_id
             })
 
+        api = self._assigned_experiments.get_api(experiment_instance_id)
+
         experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
-        experiment_server_response = experiment_server.start_experiment(client_initial_data, server_initial_data)
+
+        if api == ExperimentApiLevel.level_1:
+            experiment_server.start_experiment()
+            experiment_server_response = "ok"
+        else:
+            experiment_server_response = experiment_server.start_experiment(client_initial_data, server_initial_data)
 
         return lab_sess_id, experiment_server_response
 
@@ -220,7 +237,13 @@ class LaboratoryServer(object):
     def _free_experiment_from_assigned_experiments(self, experiment_instance_id):
         experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
         experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
-        return experiment_server.dispose()
+        api = self._assigned_experiments.get_api(experiment_instance_id)
+        return_value = experiment_server.dispose()
+        if api == ExperimentApiLevel.level_1:
+            return "ok"
+        else:
+            return return_value
+
 
     @logged(LogLevel.Info)
     @caller_check(ServerType.UserProcessing)

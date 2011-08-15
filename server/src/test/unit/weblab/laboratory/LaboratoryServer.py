@@ -148,13 +148,19 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
                     self.fake_locator
                 )
 
-        self.experiment_instance_id = ExperimentInstanceId.ExperimentInstanceId("exp_inst","exp_name","exp_cat")
+        self.experiment_instance_id     = ExperimentInstanceId.ExperimentInstanceId("exp_inst","exp_name","exp_cat")
+        self.experiment_instance_id_old = ExperimentInstanceId.ExperimentInstanceId("exp_inst","exp_name","exp_cat2")
         self.experiment_coord_address = CoordAddress.CoordAddress.translate_address('myserver:myinstance@mymachine')
 
         cfg_manager._set_value('laboratory_assigned_experiments',
                             { 'exp_inst:exp_name@exp_cat': { 'coord_address': 'myserver:myinstance@mymachine',
                                                              'checkers': ( ('WebcamIsUpAndRunningHandler', ("https://...",)),
-                                                                           ('HostIsUpAndRunningHandler', ("hostname", 80), {}), )} })
+                                                                           ('HostIsUpAndRunningHandler', ("hostname", 80), {}), )},
+                              'exp_inst:exp_name@exp_cat2': { 'coord_address': 'myserver:myinstance@mymachine',
+                                                              'checkers': ( ('WebcamIsUpAndRunningHandler', ("https://...",)),
+                                                                           ('HostIsUpAndRunningHandler', ("hostname", 80), {}), ),
+                                                              'api' : '4_0M1'},
+                                                                           })
 
         self.lab = LaboratoryServer.LaboratoryServer(
                 None,
@@ -163,44 +169,68 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
             )
 
     def test_reserve_experiment_instance_id_simple(self):
-        self.assertEquals(0, self.fake_client.started)
+        self.assertEquals(0, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
         lab_session_id, experiment_server_result = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
-        self.assertEquals(1, self.fake_client.started)
+        self.assertEquals(1, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
-        self.lab.do_free_experiment(lab_session_id)
-        self.assertEquals(1, self.fake_client.started)
+        expected_return = '{"foo" : "bar"}'
+        self.fake_client.next_dispose = expected_return
+
+        return_value = self.lab.do_free_experiment(lab_session_id)
+        self.assertEquals(expected_return, return_value)
+        self.assertEquals(1, self.fake_client.started_new)
+        self.assertEquals(1, self.fake_client.disposed)
+
+    def test_reserve_experiment_instance_id_old(self):
+        self.assertEquals(0, self.fake_client.started_old)
+        self.assertEquals(0, self.fake_client.started_new)
+        self.assertEquals(0, self.fake_client.disposed)
+
+        lab_session_id, experiment_server_result = self.lab.do_reserve_experiment(self.experiment_instance_id_old, {}, {})
+        self.assertEquals(1, self.fake_client.started_old)
+        self.assertEquals(0, self.fake_client.started_new)
+        self.assertEquals(0, self.fake_client.disposed)
+
+        expected_return =  '{"foo" : "bar"}'
+        self.fake_client.next_dispose = expected_return
+
+        return_value = self.lab.do_free_experiment(lab_session_id)
+        self.assertEquals('ok', return_value) 
+        self.assertNotEquals(expected_return, return_value)
+        self.assertEquals(1, self.fake_client.started_old)
+        self.assertEquals(0, self.fake_client.started_new)
         self.assertEquals(1, self.fake_client.disposed)
 
     def test_free_experiment_twice(self):
-        self.assertEquals(0, self.fake_client.started)
+        self.assertEquals(0, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
         lab_session_id, experiment_server_result = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
-        self.assertEquals(1, self.fake_client.started)
+        self.assertEquals(1, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
         self.lab.do_free_experiment(lab_session_id)
-        self.assertEquals(1, self.fake_client.started)
+        self.assertEquals(1, self.fake_client.started_new)
         self.assertEquals(1, self.fake_client.disposed)
 
         # Will not do anything, since the experiment was already disposed
         # This feature is not too interesting, since it just add yet another
         # redundant layer of code to maintain :-(
         self.lab.do_free_experiment(lab_session_id)
-        self.assertEquals(1, self.fake_client.started)
+        self.assertEquals(1, self.fake_client.started_new)
         self.assertEquals(1, self.fake_client.disposed)
 
         # However, this is in fact interesting. If the experiment said
         # that it has not finished, the dispose method is called
         lab_session_id, experiment_server_result = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
-        self.assertEquals(2, self.fake_client.started)
+        self.assertEquals(2, self.fake_client.started_new)
         self.assertEquals(1, self.fake_client.disposed)
         self.fake_client.next_dispose = json.dumps({ Coordinator.FINISH_FINISHED_MESSAGE: False })
         self.lab.do_free_experiment(lab_session_id)
-        self.assertEquals(2, self.fake_client.started)
+        self.assertEquals(2, self.fake_client.started_new)
         self.assertEquals(2, self.fake_client.disposed)
         self.lab.do_free_experiment(lab_session_id)
         # Now, let's check it
@@ -215,22 +245,22 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
 
     def test_reserve_experiment_instance_id_already_used(self):
 
-        self.assertEquals(0, self.fake_client.started)
+        self.assertEquals(0, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
         lab_session_id1, experiment_server_result = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
 
-        self.assertEquals(1, self.fake_client.started)
+        self.assertEquals(1, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
         lab_session_id2, experiment_server_result = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
 
-        self.assertEquals(2, self.fake_client.started)
+        self.assertEquals(2, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
         lab_session_id3, experiment_server_result = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
 
-        self.assertEquals(3, self.fake_client.started)
+        self.assertEquals(3, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
         self.lab.do_free_experiment(lab_session_id3)
@@ -238,7 +268,7 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         # Laboratory server DOES NOT manage the state of the experiments. The 
         # user_processing.coordination package does that.
 
-        self.assertEquals(3, self.fake_client.started)
+        self.assertEquals(3, self.fake_client.started_new)
         self.assertEquals(1, self.fake_client.disposed)
         
     def _fake_is_up_and_running_handlers(self):
@@ -247,6 +277,9 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         exp_handler = self.lab._assigned_experiments._retrieve_experiment_handler(self.experiment_instance_id)
         exp_handler.is_up_and_running_handlers[0]._urllib2 = FakeUrllib2
         exp_handler.is_up_and_running_handlers[1]._socket = FakeSocket   
+        exp_handler2 = self.lab._assigned_experiments._retrieve_experiment_handler(self.experiment_instance_id_old)
+        exp_handler2.is_up_and_running_handlers[0]._urllib2 = FakeUrllib2
+        exp_handler2.is_up_and_running_handlers[1]._socket = FakeSocket   
         
     def test_check_experiments_resources(self):
         self._fake_is_up_and_running_handlers()
@@ -257,7 +290,7 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self._fake_is_up_and_running_handlers()
         FakeUrllib2.expected_action = FakeUrllib2.HTTP_BAD_CONTENT
         failing_experiment_instance_ids = self.lab.do_check_experiments_resources()
-        self.assertEquals(1, len(failing_experiment_instance_ids))
+        self.assertEquals(2, len(failing_experiment_instance_ids))
         self.assertTrue(self.experiment_instance_id in failing_experiment_instance_ids)
         fails = failing_experiment_instance_ids[self.experiment_instance_id]
         self.assertEquals(IsUpAndRunningHandler.WebcamIsUpAndRunningHandler.DEFAULT_TIMES - 1, fails.count('; '))
@@ -267,7 +300,7 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         message = "fail asking for a server"
         self.fake_locator.fail_on_server_request = message
         failing_experiment_instance_ids = self.lab.do_check_experiments_resources()
-        self.assertEquals(1, len(failing_experiment_instance_ids))
+        self.assertEquals(2, len(failing_experiment_instance_ids))
         self.assertTrue(self.experiment_instance_id in failing_experiment_instance_ids)
         fails = failing_experiment_instance_ids[self.experiment_instance_id]
         self.assertTrue(message in fails)
@@ -386,12 +419,16 @@ class FakeClient(object):
         self.commands  = []
         self.responses = []
         self.fail = False
-        self.started  = 0
+        self.started_new  = 0
+        self.started_old  = 0
         self.disposed = 0
         self.next_dispose = None
 
-    def start_experiment(self, client_initial_data, server_initial_data):
-        self.started += 1
+    def start_experiment(self, client_initial_data = None, server_initial_data = None):
+        if client_initial_data is None and server_initial_data is None:
+            self.started_old += 1
+        else:
+            self.started_new += 1
 
     def dispose(self):
         self.disposed += 1
