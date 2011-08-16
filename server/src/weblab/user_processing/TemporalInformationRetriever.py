@@ -71,4 +71,5 @@ class TemporalInformationRetriever(threading.Thread):
                 # If it could not be added because the experiment id
                 # did not exist, put it again in the queue
                 store.put(reservation_id, obj, initial_time, end_time)
+                time.sleep(0.01)
 
