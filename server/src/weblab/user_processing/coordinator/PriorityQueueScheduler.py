@@ -35,12 +35,7 @@ import weblab.user_processing.coordinator.WebLabSchedulingStatus as WSS
 
 from weblab.data.experiments.ExperimentInstanceId import ExperimentInstanceId
 
-try:
-    import json as json_mod
-    json = json_mod
-except ImportError:
-    import simplejson as json_module
-    json = json_module
+import json
 
 EXPIRATION_TIME  = 3600 # seconds
 

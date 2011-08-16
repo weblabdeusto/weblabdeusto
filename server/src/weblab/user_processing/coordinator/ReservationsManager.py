@@ -16,12 +16,7 @@
 from weblab.user_processing.coordinator.CoordinatorModel import Reservation, CurrentReservation, ExperimentType
 import weblab.exceptions.user_processing.CoordinatorExceptions as CoordExc
 
-try:
-    import json as json_mod
-    json = json_mod
-except ImportError:
-    import simplejson as json_module
-    json = json_module
+import json
 
 class ReservationsManager(object):
     def __init__(self, session_maker):

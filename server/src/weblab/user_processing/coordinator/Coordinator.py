@@ -15,12 +15,7 @@
 import time
 import datetime
 
-try:
-    import json as json_mod
-    json = json_mod
-except ImportError:
-    import simplejson as json_module
-    json = json_module
+import json
 
 from voodoo.log import logged
 import voodoo.LogLevel as LogLevel
