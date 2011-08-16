@@ -74,7 +74,7 @@ public class WlButton extends WlWidgetWithPressable{
 		this.press();
 		if(WlButton.this.buttonUsed != null) {
 			WlButton.this.buttonUsed.onPressed();
-			AudioManager.getInstance().play("snd/button.wav");
+			AudioManager.getInstance().playBest("snd/button");
 		}
 		
 		final UtilTimer timer = new UtilTimer(){
@@ -83,7 +83,7 @@ public class WlButton extends WlWidgetWithPressable{
 				WlButton.this.press();
 				if(WlButton.this.buttonUsed != null) {
 					WlButton.this.buttonUsed.onReleased();
-					AudioManager.getInstance().play("snd/button.wav");
+					AudioManager.getInstance().playBest("snd/button");
 				}
 			}
 		};

@@ -404,7 +404,7 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 				
 				}
 				
-				AudioManager.getInstance().play("snd/wrong.wav");
+				AudioManager.getInstance().playBest("snd/wrong");
 				
 				this.messages.setText("Wrong one! Game over. Total points: "
 						+ this.points);
@@ -414,7 +414,7 @@ public class WlDeustoLogicBasedBoard extends BoardBase {
 				this.messages
 						.setText("Well done! 1 point. Let's see the next one!");
 								
-				AudioManager.getInstance().play("snd/applause.wav");
+				AudioManager.getInstance().playBest("snd/applause");
 				
 				final Timer sleepTimer = new Timer() {
 

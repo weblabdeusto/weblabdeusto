@@ -59,7 +59,7 @@ public class WlTimedButton extends VerticalPanel implements IWlWidget{
 			@Override
 			public void onAction(IWlWidget widget) {
 				WlTimedButton.this.fireActionListeners();
-				AudioManager.getInstance().play("snd/switch.wav");
+				AudioManager.getInstance().playBest("snd/switch");
 			}
 		});
 		
@@ -69,7 +69,7 @@ public class WlTimedButton extends VerticalPanel implements IWlWidget{
 				final int intValue;
 				try {
 					intValue = WlTimedButton.this.textbox.getValue().intValue();
-					AudioManager.getInstance().play("snd/switch.wav");
+					AudioManager.getInstance().playBest("snd/switch");
 				} catch (final WlWidgetException e) {
 					return;
 				}
