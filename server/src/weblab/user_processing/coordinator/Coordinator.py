@@ -394,7 +394,7 @@ class Coordinator(object):
             return
         else:
             # Otherwise we mark it as finished
-            self.post_reservation_data_manager.finish(reservation_id, information_to_store)
+            self.post_reservation_data_manager.finish(reservation_id, json.dumps(information_to_store))
             # and we remove the resource
             session = self._session_maker()
             try:

@@ -433,7 +433,7 @@ class CoordinatorTestCase(unittest.TestCase):
         self.coordinator.confirm_experiment(ExperimentInstanceId('inst1', 'exp1', 'cat1'), reservation1_id, SessionId.SessionId("mysessionid"), '{ "batch" : true, "initial_configuration" : { "foo" : "bar" } }', now, now)
 
         status = self.coordinator.get_reservation_status(reservation1_id)
-        expected_status = WSS.PostReservationStatus(True, json.dumps({"foo":"bar"}), None)
+        expected_status = WSS.PostReservationStatus(True, json.dumps({"foo":"bar"}), 'null')
         self.assertEquals(expected_status, status)
 
         reservation_id, initial_configuration, initial_time, end_time = self.coordinator.initial_store.get()
