@@ -6,6 +6,7 @@ regex:
 .pyc$
 .pyo$
 .class$
+.swp$
 
 ^server/launch/.*/logs$
 ^server/launch/.*/.*\.pid$
