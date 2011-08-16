@@ -181,12 +181,12 @@ class UserProcessor(object):
                 )
 
     def get_reservation_status(self):
-        if self._session.has_key('reservation_id'):
-            reservation_id = self._session['reservation_id']
+        reservation_id = self._session.get('reservation_id') or self._session.get('last_reservation_id')
+        if reservation_id is not None:
             try:
                 status = self._coordinator.get_reservation_status(reservation_id)
             except CoordExc.ExpiredSessionException:
-                self._session.pop('reservation_id')
+                self._session.pop('reservation_id', None)
             else:
                 if status.status == WebLabSchedulingStatus.WebLabSchedulingStatus.RESERVED:
                     self._process_reserved_status(status)
@@ -217,7 +217,17 @@ class UserProcessor(object):
 
 
     def finished_experiment(self):
-        error = self._finish_reservation()
+        error = None
+        if self._session.has_key('reservation_id'):
+            try:
+                reservation_id = self._session.pop('reservation_id')
+                self._session['last_reservation_id'] = reservation_id
+                self._coordinator.finish_reservation(reservation_id)
+            except Exception, e:
+                log.log( UserProcessor, log.LogLevel.Error, "Exception finishing reservation: %s" % e )
+                log.log_exc( UserProcessor, log.LogLevel.Warning )
+                error = e
+
         self._stop_polling()
         self._session.pop('lab_session_id', None)
         if self._session.has_key('experiment_usage') and self._session['experiment_usage'] != None:
@@ -369,19 +379,6 @@ class UserProcessor(object):
             return Usage.FileSent(relative_file_path, "{sha}%s" % file_hash, timestamp_before, file_info = file_info)
         else:
             return Usage.FileSent("<file not stored>","<file not stored>", timestamp_before, file_info = file_info)
-
-    # 
-    # WLC
-    # 
-    def _finish_reservation(self):
-        if self._session.has_key('reservation_id'):
-            try:
-                reservation_id = self._session.pop('reservation_id')
-                self._coordinator.finish_reservation(reservation_id)
-            except Exception, e:
-                log.log( UserProcessor, log.LogLevel.Error, "Exception finishing reservation: %s" % e )
-                log.log_exc( UserProcessor, log.LogLevel.Warning )
-                return e
 
     #
     # Polling
