@@ -198,6 +198,9 @@ class UserProcessor(object):
             pass # TODO
 
     def _process_reserved_status(self, status):
+        if 'experiment_usage' in self._session:
+            return
+
         self._session['lab_session_id'] = status.lab_session_id
         self._session['lab_coordaddr']  = status.coord_address
         self._session['experiment_time_left'] = self.time_module.time() + status.time
@@ -216,6 +219,7 @@ class UserProcessor(object):
     def finished_experiment(self):
         error = self._finish_reservation()
         self._stop_polling()
+        self._session.pop('lab_session_id', None)
         if self._session.has_key('experiment_usage') and self._session['experiment_usage'] != None:
             experiment_usage = self._session.pop('experiment_usage')
             if experiment_usage.start_date is not None:
