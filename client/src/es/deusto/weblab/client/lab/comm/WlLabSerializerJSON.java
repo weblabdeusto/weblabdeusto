@@ -35,7 +35,7 @@ import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.dto.experiments.commands.InterchangedData;
-import es.deusto.weblab.client.dto.reservations.CancellingReservationStatus;
+import es.deusto.weblab.client.dto.reservations.PostReservationReservationStatus;
 import es.deusto.weblab.client.dto.reservations.ConfirmedReservationStatus;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingConfirmationReservationStatus;
@@ -79,8 +79,11 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
 		}else if(status.equals("Reservation::waiting")){
 		    final int position = this.json2int(result.get("position"));
 		    return new WaitingReservationStatus(position);
-		}else if(status.equals("Reservation::cancelling")){
-		    return new CancellingReservationStatus();
+		}else if(status.equals("Reservation::post_reservation")){
+			final boolean finished = this.json2boolean(result.get("finished"));
+			final String initialData = this.json2string(result.get("initial_data"), true);
+			final String endData = this.json2string(result.get("end_data"), true);
+		    return new PostReservationReservationStatus(finished, initialData, endData);
 		}else if(status.equals("Reservation::waiting_instances")){
 		    final int position = this.json2int(result.get("position"));
 		    return new WaitingInstancesReservationStatus(position);

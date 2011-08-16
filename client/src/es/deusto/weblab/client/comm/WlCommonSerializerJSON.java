@@ -280,12 +280,29 @@ public class WlCommonSerializerJSON implements IWlCommonSerializer {
 			}
 
 	protected String json2string(JSONValue value) throws SerializationException {
-		if(value == null)
-		    throw new SerializationException("String expected, found null");
+		return json2string(value, false);
+	}
+	
+	protected String json2string(JSONValue value, boolean supportNull) throws SerializationException {
+		if(value == null){
+			if(supportNull)
+				return null;
+			
+			throw new SerializationException("String expected, found null");
+		}
 		final JSONString jsonstring = value.isString();
 		if(jsonstring == null)
 		    throw new SerializationException("String expected, found: " + value);
 		return jsonstring.stringValue();
+	}
+
+	protected boolean json2boolean(JSONValue value) throws SerializationException {
+		if(value == null)
+		    throw new SerializationException("Boolean expected, found null");
+		final JSONBoolean jsonstring = value.isBoolean();
+		if(jsonstring == null)
+		    throw new SerializationException("Boolean expected, found: " + value);
+		return jsonstring.booleanValue();
 	}
 
 	protected double json2double(JSONValue value) throws SerializationException {

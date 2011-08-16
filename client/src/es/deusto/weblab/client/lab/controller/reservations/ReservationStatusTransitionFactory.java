@@ -14,7 +14,7 @@
 
 package es.deusto.weblab.client.lab.controller.reservations;
 
-import es.deusto.weblab.client.dto.reservations.CancellingReservationStatus;
+import es.deusto.weblab.client.dto.reservations.PostReservationReservationStatus;
 import es.deusto.weblab.client.dto.reservations.ConfirmedReservationStatus;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingConfirmationReservationStatus;
@@ -38,8 +38,8 @@ public class ReservationStatusTransitionFactory {
 	    return new WaitingInstancesReservationStatusTransition(reservationStatusCallback);
 	} else if (ReservationStatusTransitionFactory.isConfirmed(reservationStatus)) {
 	    return new ConfirmedReservationStatusTransition(reservationStatusCallback);
-	} else if (ReservationStatusTransitionFactory.isCancelling(reservationStatus)) {
-	    return new CancellingReservationStatusTransition(reservationStatusCallback);
+	} else if (ReservationStatusTransitionFactory.isPostReservation(reservationStatus)) {
+	    return new PostReservationStatusTransition(reservationStatusCallback);
 	} else {
 	    throw new WlUnknownReservationException(
 		    "Couldn't process the following reservation: "
@@ -55,8 +55,8 @@ public class ReservationStatusTransitionFactory {
 	return reservationStatus instanceof ConfirmedReservationStatus;
     }
 
-    private static boolean isCancelling(ReservationStatus reservationStatus) {
-	return reservationStatus instanceof CancellingReservationStatus;
+    private static boolean isPostReservation(ReservationStatus reservationStatus) {
+	return reservationStatus instanceof PostReservationReservationStatus;
     }
 
     private static boolean isWaitingConfirmation(ReservationStatus reservationStatus) {

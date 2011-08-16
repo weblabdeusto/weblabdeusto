@@ -16,14 +16,14 @@ package es.deusto.weblab.client.lab.controller.reservations;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.lab.controller.ReservationStatusCallback;
 
-public class CancellingReservationStatusTransition extends ReservationStatusTransition{
+public class PostReservationStatusTransition extends ReservationStatusTransition{
 
-	public CancellingReservationStatusTransition(ReservationStatusCallback reservationStatusCallback) {
+	public PostReservationStatusTransition(ReservationStatusCallback reservationStatusCallback) {
 		super(reservationStatusCallback);
 	}
 
 	@Override
 	public void perform(ReservationStatus reservationStatus) {
-		this.reservationStatusCallback.getUimanager().onErrorAndFinishReservation("Cancelling reservation received");
+		// TODO
 	}
 }

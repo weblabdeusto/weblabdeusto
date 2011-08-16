@@ -31,7 +31,7 @@ import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.dto.experiments.commands.ArrayOfInterchangedData;
 import es.deusto.weblab.client.dto.experiments.commands.InterchangedData;
-import es.deusto.weblab.client.dto.reservations.CancellingReservationStatus;
+import es.deusto.weblab.client.dto.reservations.PostReservationReservationStatus;
 import es.deusto.weblab.client.dto.reservations.ConfirmedReservationStatus;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingConfirmationReservationStatus;
@@ -69,21 +69,26 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 		Assert.assertEquals(5, ((WaitingInstancesReservationStatus)reservation).getPosition());
 	}
 
-	public void testParseGetReservationStatusResponse_Cancelling()  throws Exception{
+	public void testParseGetReservationStatusResponse_PostReservation()  throws Exception{
 		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseGetReservationStatusResponse(
-			"{\"result\": {\"status\": \"Reservation::cancelling\"}, \"is_exception\": false}"
+			"{\"result\": {\"status\": \"Reservation::post_reservation\", \"finished\" : true, \"initial_data\" : \"foo\", \"end_data\" : \"bar\"}, \"is_exception\": false}"
 		);
-		Assert.assertTrue(reservation instanceof CancellingReservationStatus);
+		Assert.assertTrue(reservation instanceof PostReservationReservationStatus);
+		PostReservationReservationStatus status = (PostReservationReservationStatus)reservation;
+		Assert.assertEquals(true, status.isFinished());
+		Assert.assertEquals("foo", status.getInitialData());
+		Assert.assertEquals("bar", status.getEndData());
 	}
 
 	public void testParseGetReservationStatusResponse_Confirmed() throws Exception{
 		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseGetReservationStatusResponse(
-			"{\"result\": {\"status\": \"Reservation::confirmed\", \"time\": 28.771512031555176}, \"is_exception\": false}"
+			"{\"result\": {\"status\": \"Reservation::confirmed\", \"time\": 28.771512031555176, \"initial_configuration\" : \"foo\"}, \"is_exception\": false}"
 		);
 		Assert.assertTrue(reservation instanceof ConfirmedReservationStatus);
 		Assert.assertEquals(28, ((ConfirmedReservationStatus)reservation).getTime());
+		Assert.assertEquals("foo", ((ConfirmedReservationStatus)reservation).getInitialConfiguration());
 	}
 	
 	public void testParseGetReservationStatusResponse_Exceptions() throws Exception{
@@ -533,21 +538,26 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 		Assert.assertEquals(5, ((WaitingInstancesReservationStatus)reservation).getPosition());
 	}
 
-	public void testParseReserveExperimentResponse_Cancelling()  throws Exception{
+	public void testParseReserveExperimentResponse_PostReservation()  throws Exception{
 		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseReserveExperimentResponse(
-			"{\"result\": {\"status\": \"Reservation::cancelling\"}, \"is_exception\": false}"
+			"{\"result\": {\"status\": \"Reservation::post_reservation\", \"finished\" : true, \"initial_data\" : \"foo\", \"end_data\" : \"bar\" }, \"is_exception\": false}"
 		);
-		Assert.assertTrue(reservation instanceof CancellingReservationStatus);
+		Assert.assertTrue(reservation instanceof PostReservationReservationStatus);
+		final PostReservationReservationStatus status = (PostReservationReservationStatus)reservation;
+		Assert.assertTrue(status.isFinished());
+		Assert.assertEquals("foo", status.getInitialData());
+		Assert.assertEquals("bar", status.getEndData());
 	}
 
 	public void testParseReserveExperimentResponse_Confirmed() throws Exception{
 		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseReserveExperimentResponse(
-			"{\"result\": {\"status\": \"Reservation::confirmed\", \"time\": 28.771512031555176}, \"is_exception\": false}"
+			"{\"result\": {\"status\": \"Reservation::confirmed\", \"time\": 28.771512031555176, \"initial_configuration\" : \"foo\"}, \"is_exception\": false}"
 		);
 		Assert.assertTrue(reservation instanceof ConfirmedReservationStatus);
 		Assert.assertEquals(28, ((ConfirmedReservationStatus)reservation).getTime());
+		Assert.assertEquals("foo", ((ConfirmedReservationStatus)reservation).getInitialConfiguration());
 	}
 	
 	public void testParseReserveExperimentResponse_Exceptions() throws Exception{
