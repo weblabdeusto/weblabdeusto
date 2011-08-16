@@ -27,6 +27,7 @@ import weblab.exceptions.user_processing.CoordinatorExceptions as CoordExc
 import weblab.user_processing.coordinator.CoordinationDatabaseManager as CoordinationDatabaseManager
 import weblab.user_processing.coordinator.ResourcesManager as ResourcesManager
 import weblab.user_processing.coordinator.ReservationsManager as ReservationsManager
+import weblab.user_processing.coordinator.PostReservationDataManager as PostReservationDataManager
 import weblab.user_processing.coordinator.Confirmer as Confirmer
 import weblab.user_processing.coordinator.Scheduler as Scheduler
 import weblab.user_processing.coordinator.MetaScheduler as MetaScheduler
@@ -84,14 +85,16 @@ class Coordinator(object):
         self.locator   = locator # Used by ResourcesChecker
         self.confirmer = ConfirmerClass(self, locator)
 
-        self.reservations_manager = ReservationsManager.ReservationsManager(self._session_maker)
-        self.resources_manager    = ResourcesManager.ResourcesManager(self._session_maker)
-        self.meta_scheduler       = MetaScheduler.MetaScheduler()
+        self.time_provider = self.CoordinatorTimeProvider()
+
+        self.reservations_manager          = ReservationsManager.ReservationsManager(self._session_maker)
+        self.resources_manager             = ResourcesManager.ResourcesManager(self._session_maker)
+        self.post_reservation_data_manager = PostReservationDataManager.PostReservationDataManager(self._session_maker, self.time_provider)
+        self.meta_scheduler                = MetaScheduler.MetaScheduler()
 
         self.initial_store  = TemporalInformationStore.TemporalInformationStore()
         self.finished_store = TemporalInformationStore.TemporalInformationStore()
 
-        self.time_provider = self.CoordinatorTimeProvider()
 
         import weblab.user_processing.UserProcessingServer as UserProcessingServer
         clean = cfg_manager.get_value(UserProcessingServer.WEBLAB_USER_PROCESSING_SERVER_CLEAN_COORDINATOR, True)
@@ -409,4 +412,5 @@ class Coordinator(object):
 
         self.reservations_manager._clean()
         self.resources_manager._clean()
+        self.post_reservation_data_manager._clean()
 
