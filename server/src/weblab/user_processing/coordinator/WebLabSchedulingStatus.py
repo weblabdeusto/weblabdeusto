@@ -45,6 +45,10 @@ class WaitingInstancesQueueStatus(WebLabSchedulingStatus):
     def __repr__(self):
         full_name = self.__class__.__module__ + '.' + self.__class__.__name__
         return "<%s; position_in_queue: %s>" % (full_name, self.position)
+
+    def __eq__(self, other):
+        return isinstance(other, WaitingInstancesQueueStatus) and self.position == other.position
+
     def __cmp__(self, other):
         if isinstance(other, (WaitingQueueStatus, WaitingConfirmationQueueStatus, ReservedStatus, PostReservationStatus)):
             return 1
@@ -64,6 +68,10 @@ class WaitingQueueStatus(WebLabSchedulingStatus):
     def __repr__(self):
         full_name = self.__class__.__module__ + '.' + self.__class__.__name__
         return "<%s; position_in_queue: %s>" % (full_name, self.position)
+
+    def __eq__(self, other):
+        return isinstance(other, WaitingQueueStatus) and self.position == other.position
+
     def __cmp__(self, other):
         if isinstance(other, (WaitingConfirmationQueueStatus, ReservedStatus, PostReservationStatus)):
             return 1
@@ -85,6 +93,9 @@ class WaitingConfirmationQueueStatus(WebLabSchedulingStatus):
     def __repr__(self):
         full_name = self.__class__.__module__ + '.' + self.__class__.__name__
         return "<%s; coord_address: %s; time: %s>" % (full_name, self.coord_address, self.time)
+
+    def __eq__(self, other):
+        return isinstance(other, WaitingConfirmationQueueStatus) and self.coord_address == other.coord_address and self.time == other.time
 
     def __cmp__(self, other):
         if isinstance(other, (ReservedStatus, PostReservationStatus)):
@@ -112,6 +123,14 @@ class ReservedStatus(WebLabSchedulingStatus):
         full_name = self.__class__.__module__ + '.' + self.__class__.__name__
         return "<%s; coord_address: %s; lab_session_id: %s; time: %s; initial_configuration: %s; timestamp_before: %s; timestamp_after: %s>" % (full_name, self.coord_address, self.lab_session_id, self.time, self.initial_configuration, self.timestamp_before, self.timestamp_after)
 
+    def __eq__(self, other):
+        if not isinstance(other, ReservedStatus):
+            return False
+
+        return self.coord_address == other.coord_address and self.lab_session_id == other.lab_session_id \
+                and self.time == other.time and self.initial_configuration == other.initial_configuration \
+                and self.timestamp_before == other.timestamp_before and self.timestamp_after == other.timestamp_after
+
     def __cmp__(self, other):
         if isinstance(other, PostReservationStatus):
             return 1
@@ -134,6 +153,11 @@ class PostReservationStatus(WebLabSchedulingStatus):
     def __repr__(self):
         full_name = self.__class__.__module__ + '.' + self.__class__.__name__
         return "<%r; finished: %r; initial_data: %r; end_data: %r>" % (full_name, self.finished, self.initial_data, self.end_data)
+
+    def __eq__(self, other):
+        if not isinstance(other, PostReservationStatus):
+            return False
+        return self.finished == other.finished and self.initial_data == other.initial_data and self.end_data == other.end_data
 
     def __cmp__(self, other):
         if isinstance(other, PostReservationStatus):

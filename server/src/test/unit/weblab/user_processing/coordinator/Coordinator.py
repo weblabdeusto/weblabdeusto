@@ -18,12 +18,7 @@ import datetime
 import unittest
 import time as time_mod
 
-try:
-    import json as json_mod
-    json = json_mod
-except ImportError:
-    import simplejson as json_module
-    json = json_module
+import json
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.sessions.SessionId as SessionId
@@ -437,8 +432,9 @@ class CoordinatorTestCase(unittest.TestCase):
 
         self.coordinator.confirm_experiment(ExperimentInstanceId('inst1', 'exp1', 'cat1'), reservation1_id, SessionId.SessionId("mysessionid"), '{ "batch" : true, "initial_configuration" : { "foo" : "bar" } }', now, now)
 
-        self.assertRaises( CoordExc.ExpiredSessionException, 
-                            self.coordinator.get_reservation_status, reservation1_id)
+        status = self.coordinator.get_reservation_status(reservation1_id)
+        expected_status = WSS.PostReservationStatus(True, json.dumps({"foo":"bar"}), None)
+        self.assertEquals(expected_status, status)
 
         reservation_id, initial_configuration, initial_time, end_time = self.coordinator.initial_store.get()
         self.assertFalse(reservation_id is None)

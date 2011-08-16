@@ -47,6 +47,9 @@ CORE_SCHEDULING_SYSTEMS = 'core_scheduling_systems'
 RESOURCES_CHECKER_FREQUENCY = 'core_resources_checker_frequency'
 DEFAULT_RESOURCES_CHECKER_FREQUENCY = 30 # seconds
 
+POST_RESERVATION_EXPIRATION_TIME = 'core_post_reservation_expiration_time'
+DEFAULT_POST_RESERVATION_EXPIRATION_TIME = 24 * 3600 # 1 day
+
 RESOURCES_CHECKER_GENERAL_RECIPIENTS = 'core_resources_checker_general_recipients'
 DEFAULT_RESOURCES_GENERAL_CHECKER_RECIPIENTS = ()
 
@@ -102,6 +105,10 @@ class Coordinator(object):
         if clean:
             resources_checker_frequency = cfg_manager.get_value(RESOURCES_CHECKER_FREQUENCY, DEFAULT_RESOURCES_CHECKER_FREQUENCY)
             ResourcesCheckerThread.set_coordinator(self, resources_checker_frequency)
+
+
+        post_reservation_expiration_time = cfg_manager.get_value(POST_RESERVATION_EXPIRATION_TIME, DEFAULT_POST_RESERVATION_EXPIRATION_TIME)
+        self.expiration_delta = datetime.timedelta(seconds=post_reservation_expiration_time)
 
         # 
         # The system administrator must define what scheduling system is used by each resource type
@@ -303,8 +310,14 @@ class Coordinator(object):
     # 
     @logged()
     def get_reservation_status(self, reservation_id):
-        schedulers = self._get_schedulers_per_reservation(reservation_id)
-        return self.meta_scheduler.query_best_reservation_status(schedulers, reservation_id)
+        try:
+            schedulers = self._get_schedulers_per_reservation(reservation_id)
+            return self.meta_scheduler.query_best_reservation_status(schedulers, reservation_id)
+        except CoordExc.ExpiredSessionException:
+            reservation_status = self.post_reservation_data_manager.find(reservation_id)
+            if reservation_status is not None:
+                return reservation_status
+            raise
 
     ################################################################
     #
@@ -334,6 +347,8 @@ class Coordinator(object):
                 initial_configuration = default_initial_configuration
 
         self.initial_store.put(reservation_id, initial_configuration, initial_time, end_time)
+        now = self.time_provider.get_datetime()
+        self.post_reservation_data_manager.create(reservation_id, now, now + self.expiration_delta, json.dumps(initial_configuration))
 
         if still_initializing:
             # TODO XXX 
@@ -378,7 +393,9 @@ class Coordinator(object):
             self.confirmer.enqueue_free_experiment(lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id)
             return
         else:
-            # Otherwise we in fact remove the resource
+            # Otherwise we mark it as finished
+            self.post_reservation_data_manager.finish(reservation_id, information_to_store)
+            # and we remove the resource
             session = self._session_maker()
             try:
                 resource_instance = self.resources_manager.get_resource_instance_by_experiment_instance_id(experiment_instance_id)
@@ -387,6 +404,9 @@ class Coordinator(object):
             finally:
                 session.close()
                 self.finished_store.put(reservation_id, information_to_store, initial_time, end_time)
+
+            # It's done here so it's called often enough
+            self.post_reservation_data_manager.clean_expired()
 
 
     ################################################################

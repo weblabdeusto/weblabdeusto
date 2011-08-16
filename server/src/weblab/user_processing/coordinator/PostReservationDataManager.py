@@ -35,8 +35,9 @@ class PostReservationDataManager(object):
     def finish(self, reservation_id, end_data):
         session = self._session_maker()
         try:
-            found = False
             reservation = session.query(PostReservationRetrievedData).filter(PostReservationRetrievedData.reservation_id == reservation_id).first()
+            if reservation is None:
+                return
             reservation.finished = True
             reservation.end_data = end_data
             session.update(reservation)
@@ -48,7 +49,6 @@ class PostReservationDataManager(object):
     def find(self, reservation_id):
         session = self._session_maker()
         try:
-            found = False
             reservation = session.query(PostReservationRetrievedData).filter(PostReservationRetrievedData.reservation_id == reservation_id).first()
             if reservation is None:
                 return None
