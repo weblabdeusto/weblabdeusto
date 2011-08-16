@@ -119,12 +119,18 @@
 	                        	  "experiment.picture"   : "/img/experiments/xilinx.jpg"
 	                          }
 	                       ],
-	                "dummy" : [
-	                           {
-	                        	   "experiment.name"     : "ud-dummy",
-	                        	   "experiment.category" : "Dummy experiments"
-	                           }
-	                       ],
+	   	            "dummy" : [
+		                           {
+		                        	   "experiment.name"     : "ud-dummy",
+		                        	   "experiment.category" : "Dummy experiments"
+		                           }
+		                   ],
+		   	        "dummybatch" : [
+			                           {
+			                        	   "experiment.name"     : "ud-dummy-batch",
+			                        	   "experiment.category" : "Dummy experiments"
+			                           }
+			                ],
 	                "visir" : [
 	                           {
 	                        	   "experiment.name"     : "visirtest",

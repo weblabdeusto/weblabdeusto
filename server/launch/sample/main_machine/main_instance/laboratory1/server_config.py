@@ -48,6 +48,11 @@ laboratory_assigned_experiments = {
                  'coord_address': 'experiment_dummy:main_instance@main_machine',
                  'checkers': ()
             },
+        'exp1:ud-dummy-batch@Dummy experiments':
+            {
+                 'coord_address': 'experiment_dummy_batch:main_instance@main_machine',
+                 'checkers': ()
+            },
         'exp2:ud-dummy@Dummy experiments':
             {
                  'coord_address': 'experiment_dummy:main_instance@main_machine',
