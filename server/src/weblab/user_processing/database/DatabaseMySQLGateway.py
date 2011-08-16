@@ -193,6 +193,27 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             session.close()
 
     @logged()
+    def append_file(self, reservation_id, file_sent ):
+        session = self.Session()
+        try:
+            user_used_experiment = session.query(Model.DbUserUsedExperiment).filter_by(reservation_id = reservation_id).first()
+            if user_used_experiment is None:
+                return False
+            session.add(Model.DbUserFile(
+                            user_used_experiment,
+                            file_sent.file_sent,
+                            file_sent.file_hash,
+                            file_sent.timestamp_before,
+                            file_sent.file_info,
+                            file_sent.response.commandstring,
+                            file_sent.timestamp_after
+                        ))
+            session.commit()
+            return True
+        finally:
+            session.close()
+
+    @logged()
     def list_usages_per_user(self, user_login, first=0, limit=20):
         session = self.Session()
         try:

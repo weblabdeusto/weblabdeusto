@@ -34,7 +34,12 @@ class UserProcessingDatabaseManager(object):
     def append_command(self, reservation_id, command):
         """ Tries to append a command. Returns True if it was added successfully, false otherwise """
         return self._gateway.append_command( reservation_id, command )
+
+    def append_file(self, reservation_id, file_sent):
+        """ Tries to append a file. Returns True if it was added successfully, false otherwise """
+        return self._gateway.append_file( reservation_id, file_sent )
     
+   
     def get_groups(self, session_id, parent_id=None):
         return self._gateway.get_groups(session_id.username, parent_id)
     
