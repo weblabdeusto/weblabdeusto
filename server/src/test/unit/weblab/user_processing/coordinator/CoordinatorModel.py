@@ -59,9 +59,9 @@ class CoordinatorModelTestCase(unittest.TestCase):
         current_reservation = CM.CurrentReservation("hi", datetime.datetime.now(), 1000)
         repr(current_reservation) # No exception is raised
 
-    def test_repr_batch_retrieved_data(self):
-        batch_retrieved_data = CM.BatchRetrievedData("foobar", datetime.datetime.now(), "exp1:inst@mach", "{}")
-        repr(batch_retrieved_data) # No exception is raised
+    def test_repr_post_reservation_retrieved_data(self):
+        post_reservation_retrieved_data = CM.PostReservationRetrievedData("foobar", True, datetime.datetime.now(), datetime.datetime.now(), "{}", "{}")
+        repr(post_reservation_retrieved_data) # No exception is raised
 
 def suite():
     return unittest.makeSuite(CoordinatorModelTestCase)

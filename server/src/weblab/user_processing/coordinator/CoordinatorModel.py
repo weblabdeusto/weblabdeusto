@@ -378,32 +378,36 @@ class CurrentReservation(Base):
     def __repr__(self):
         return "CurrentReservation(%r, %r, %r, %r, %r)" % (self.reservation, self.latest_initialization, self.next_initialization_milliseconds, self.currently_calling_initialization, self.initializer)
 
-######################################################################################
+##########################################################################################
 # 
-# Batch experiments are executed and once they finish, the information they returned
-# is stored in this table. Later the core server will check for this information and
-# it will periodically delete expired information, as well as it will gather 
-# information that the user asks for and will store it in the proper user tables at
-# core level.
+# Whenever a experiment finishes, it stores the information in the main database. However,
+# it is still possible to retrieve this information from the scheduling database, in a 
+# status of PostReservationRetrievedData. For instance, if a user performs a reservation
+# and the reservation is finished, it will enter in this status.
 # 
 
-class BatchRetrievedData(Base):
-    __tablename__  = 'BatchRetrievedData'
+class PostReservationRetrievedData(Base):
+    __tablename__  = 'PostReservationRetrievedData'
     __table_args__ = TABLE_KWARGS
 
     id                     = Column(Integer, primary_key=True)
 
     reservation_id         = Column(String(RESERVATION_ID_SIZE))
+    finished               = Column(Boolean)     # Has the experiment finished?
     date                   = Column(DateTime)    # When did the experiment finish?
-    experiment_instance_id = Column(String(512)) # exp1:ud-pld@PLD experiments
-    returned_data          = Column(Text)        # A JSON structure with the information returned by the experiment server
+    expiration_date        = Column(DateTime)    # When should this registry be removed?
+    initial_data           = Column(Text)        # A JSON structure with the information returned by the experiment server when initializing 
+                                                 # (useful for batch)
+    end_data               = Column(Text)        # A JSON structure with the information returned by the experiment server when disposing
 
-    def __init__(self, reservation_id, date, experiment_instance_id, returned_data):
+    def __init__(self, reservation_id, finished, date, expiration_date, initial_data, end_data):
         self.reservation_id         = reservation_id
         self.date                   = date
-        self.experiment_instance_id = experiment_instance_id
-        self.returned_data          = returned_data
+        self.expiration_date        = expiration_date
+        self.finished               = finished
+        self.initial_data           = initial_data
+        self.end_data               = end_data
     
     def __repr__(self):
-        return "BatchRetrievedData(%r, %r, %r, %r, %r)" % (self.id, self.reservation_id, self.date, self.experiment_instance_id, self.returned_data)
+        return "PostReservationRetrievedData(%r, %r, %r, %r, %r, %r, %r)" % (self.id, self.reservation_id, self.finished, self.date, self.expiration_date, self.initial_data, self.end_data)
 
