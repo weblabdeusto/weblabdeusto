@@ -50,6 +50,8 @@ class Reservation(object):
                 )
         elif status.status == WSS.WebLabSchedulingStatus.POST_RESERVATION: #TODO: test me
             reservation = PostReservationReservation(
+                    status.finished,
+                    status.initial_data,
                     status.end_data
                 )
         else:
