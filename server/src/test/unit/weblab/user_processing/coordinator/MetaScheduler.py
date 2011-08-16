@@ -47,8 +47,8 @@ class MetaSchedulerTestCase(unittest.TestCase):
         self.res1    = WSS.ReservedStatus("coord_address1", "lab_session_id1", 50, None, datetime.datetime.now(), datetime.datetime.now())
         self.res2    = WSS.ReservedStatus("coord_address2", "lab_session_id2", 60, "foo", datetime.datetime.now(), datetime.datetime.now())
 
-        self.post1   = WSS.PostReservationStatus("foo1", datetime.datetime.now())
-        self.post2   = WSS.PostReservationStatus("foo2", datetime.datetime.now())
+        self.post1   = WSS.PostReservationStatus(True, "foo1", "bar")
+        self.post2   = WSS.PostReservationStatus(True, "foo2", "bar")
 
 
     def test_select_best_reservation_status_zero(self):

@@ -83,7 +83,7 @@ class WaitingReservation(Reservation):
         super(WaitingReservation,self).__init__(Reservation.WAITING)
         self.position = position
     def __repr__(self):
-        return "<WaitingReservation position = %i>" % self.position
+        return "WaitingReservation(position = %r)" % self.position
 
 class ConfirmedReservation(Reservation):
     def __init__(self, time, initial_configuration):
@@ -91,25 +91,27 @@ class ConfirmedReservation(Reservation):
         self.time = time
         self.initial_configuration = initial_configuration
     def __repr__(self):
-        return "<ConfirmedReservation time = %s; initial_configuration = %s>" % (self.time, self.initial_configuration)
+        return "ConfirmedReservation(time = %r, initial_configuration = %r)" % (self.time, self.initial_configuration)
 
 class WaitingConfirmationReservation(Reservation):
     def __init__(self):
         super(WaitingConfirmationReservation,self).__init__(Reservation.WAITING_CONFIRMATION)
     def __repr__(self):
-        return "<WaitingConfirmationReservation>"
+        return "WaitingConfirmationReservation()"
 
 class WaitingInstances(Reservation):
     def __init__(self, position):
         super(WaitingInstances,self).__init__(Reservation.WAITING_INSTANCES)
         self.position = position
     def __repr__(self):
-        return "<WaitingInstances position = %i>" % self.position
+        return "WaitingInstances(position = %r)" % self.position
 
 class PostReservationReservation(Reservation):
-    def __init__(self, end_data):
+    def __init__(self, finished, initial_data, end_data):
         super(PostReservationReservation,self).__init__(Reservation.POST_RESERVATION)
-        self.end_data = end_data
+        self.finished     = finished
+        self.initial_data = initial_data
+        self.end_data     = end_data
     def __repr__(self):
-        return "<PostReservationReservation data = %r>" % self.data
+        return "PostReservationReservation(finished = %r, initial_data = %r, end_data = %r)" % (self.finished, self.initial_data, self.end_data)
 

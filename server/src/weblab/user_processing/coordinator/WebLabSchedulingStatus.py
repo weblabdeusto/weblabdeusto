@@ -125,14 +125,15 @@ class ReservedStatus(WebLabSchedulingStatus):
 # the experiment.
 #
 class PostReservationStatus(WebLabSchedulingStatus):
-    def __init__(self, end_data, timestamp):
+    def __init__(self, finished, initial_data, end_data):
         super(PostReservationStatus,self).__init__(WebLabSchedulingStatus.POST_RESERVATION)
-        self.end_data  = end_data
-        self.timestamp = timestamp
+        self.finished     = finished
+        self.initial_data = initial_data
+        self.end_data     = end_data
 
     def __repr__(self):
         full_name = self.__class__.__module__ + '.' + self.__class__.__name__
-        return "<%r; end_data: %r; timestamp: %r>" % (full_name, self.end_data, self.timestamp)
+        return "<%r; finished: %r; initial_data: %r; end_data: %r>" % (full_name, self.finished, self.initial_data, self.end_data)
 
     def __cmp__(self, other):
         if isinstance(other, PostReservationStatus):

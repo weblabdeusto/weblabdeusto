@@ -15,7 +15,6 @@
 
 import datetime
 import unittest
-from weblab.user_processing.coordinator.MetaScheduler import MetaScheduler
 
 import weblab.user_processing.coordinator.WebLabSchedulingStatus as WSS
 
@@ -38,7 +37,7 @@ class WebLabSchedulingStatusTest(unittest.TestCase):
         str(res)
 
     def test_str_post_reservation(self):
-        post   = WSS.PostReservationStatus("foo1", datetime.datetime.now())
+        post   = WSS.PostReservationStatus(True, "foo1", "bar")
         str(post)
 
 def suite():
