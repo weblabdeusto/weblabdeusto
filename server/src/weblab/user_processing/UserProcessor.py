@@ -198,7 +198,7 @@ class UserProcessor(object):
             pass # TODO
 
     def _process_reserved_status(self, status):
-        if 'experiment_usage' in self._session:
+        if 'lab_session_id' in self._session:
             return
 
         self._session['lab_session_id'] = status.lab_session_id
