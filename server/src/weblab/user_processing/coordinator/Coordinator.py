@@ -324,7 +324,7 @@ class Coordinator(object):
     # Called when it is confirmed by the Laboratory Server.
     #
     @logged()
-    def confirm_experiment(self, experiment_instance_id, reservation_id, lab_session_id, server_initialization_response, initial_time, end_time):
+    def confirm_experiment(self, experiment_coordaddress, experiment_instance_id, reservation_id, lab_session_id, server_initialization_response, initial_time, end_time):
 
         default_still_initialing      = False
         default_batch                 = False

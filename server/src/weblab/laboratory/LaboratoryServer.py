@@ -203,7 +203,7 @@ class LaboratoryServer(object):
         else:
             experiment_server_response = experiment_server.start_experiment(client_initial_data, server_initial_data)
 
-        return lab_sess_id, experiment_server_response
+        return lab_sess_id, experiment_server_response, experiment_coord_address.address
 
     @logged(LogLevel.Info)
     @caller_check(ServerType.UserProcessing)

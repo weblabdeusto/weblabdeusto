@@ -434,7 +434,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
     def _return_reserved(self):
         self.lab_mock.reserve_experiment(ExperimentInstanceId.ExperimentInstanceId('inst','ud-dummy','Dummy experiments'), "{}", mocker.ANY)
-        self.mocker.result((SessionId.SessionId('my_lab_session_id'), 'ok'))
+        self.mocker.result((SessionId.SessionId('my_lab_session_id'), 'ok', 'servexp:inst@mach'))
         self.lab_mock.resolve_experiment_address('my_lab_session_id')
         self.mocker.result(CoordAddress.CoordAddress("exp","inst","mach"))
         self.mocker.count(1,2)

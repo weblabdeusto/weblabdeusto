@@ -54,7 +54,7 @@ class ReservationConfirmer(object):
         initial_time = datetime.datetime.now()
         try:
             labserver = self.locator.get_server_from_coordaddr(lab_coordaddress, ServerType.Laboratory)
-            lab_session_id, server_initialization_response = labserver.reserve_experiment(experiment_instance_id, client_initial_data, server_initial_data)
+            lab_session_id, server_initialization_response, experiment_coordaddress_str = labserver.reserve_experiment(experiment_instance_id, client_initial_data, server_initial_data)
         except Exception, e:
             log.log( ReservationConfirmer, log.LogLevel.Error, "Exception confirming experiment: %s" % e )
             log.log_exc( ReservationConfirmer, log.LogLevel.Warning )
@@ -62,7 +62,8 @@ class ReservationConfirmer(object):
             self.coordinator.mark_experiment_as_broken(experiment_instance_id, [str(e)])
         else:
             end_time = datetime.datetime.now()
-            self.coordinator.confirm_experiment(experiment_instance_id, reservation_id, lab_session_id, server_initialization_response, initial_time, end_time)
+            experiment_coordaddress = CoordAddress.CoordAddress.translate_address(experiment_coordaddress_str)
+            self.coordinator.confirm_experiment(experiment_coordaddress, experiment_instance_id, reservation_id, lab_session_id, server_initialization_response, initial_time, end_time)
 
     def enqueue_free_experiment(self, lab_coordaddress_str, reservation_id, lab_session_id, experiment_instance_id):
         # We can stablish a policy such as using 
