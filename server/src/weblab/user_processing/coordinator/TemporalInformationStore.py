@@ -71,11 +71,13 @@ class FinishTemporalInformationStore(TemporalInformationStore):
         self.queue.put_nowait((reservation_id, obj, initial_time, end_time))
 
 class CommandOrFileInformationEntry(object):
-    def __init__(self, reservation_id, is_before, entry_pack_id, command_or_file):
+    def __init__(self, reservation_id, is_before, is_command, entry_id, payload, timestamp):
         self.reservation_id  = reservation_id
-        self.is_before       = is_before
-        self.entry_pack_id   = entry_pack_id
-        self.command_or_file = command_or_file
+        self.is_before       = is_before  # or after
+        self.is_command      = is_command # or file
+        self.entry_id        = entry_id # random number identifying the entry
+        self.payload         = payload 
+        self.timestamp       = timestamp
 
 class CommandsTemporalInformationStore(TemporalInformationStore):
     def put(self, command_information_entry):

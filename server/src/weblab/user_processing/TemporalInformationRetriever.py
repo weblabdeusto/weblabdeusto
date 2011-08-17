@@ -39,6 +39,8 @@ class TemporalInformationRetriever(threading.Thread):
         self.iterations     = 0
         self.db_manager     = db_manager
         self.timeout        = None
+        self.entry_id2command_id  = {}
+        self.entry_id2command_id_lock = threading.Lock()
         self.setDaemon(True)
 
     def run(self):
@@ -111,4 +113,53 @@ class TemporalInformationRetriever(threading.Thread):
                 time.sleep(0.01)
 
     def iterate_command(self):
+        information = self.commands_store.get(timeout=self.timeout)
+        if information is not None:
+            if information.is_command:
+                if information.is_before:
+                    result = self._process_pre_command(information)
+                else: 
+                    result = self._process_post_command(information)
+            else: # not is_command: is file
+                if information.is_before:
+                    result = self._process_pre_file(information)
+                else: # not is_before
+                    result = self._process_post_file(information)
+            if result is False:
+                self.commands_store.put(information)
+                    
+    def _process_pre_command(self, information):
+        command = Usage.CommandSent(
+                        Command.Command(information.payload),
+                        information.timestamp
+                    )
+        command_id = self.db_manager.append_command(information.reservation_id, command)
+        if command_id is False or command_id is None:
+            return False
+
+        with self.entry_id2command_id_lock:
+            self.entry_id2command_id[information.entry_id] = command_id
+
+        return True
+
+    def _process_post_command(self, information):
+
+        with self.entry_id2command_id_lock:
+            command_id = self.entry_id2command_id.pop(information.entry_id, None)
+
+        if command_id is None: # Command not yet stored
+            return False
+
+        response_command = Command.Command(information.payload)
+
+        self.db_manager.update_command(command_id, response_command, information.timestamp)
+
+        return True
+
+    def _process_pre_file(self, information):
         pass
+
+    def _process_post_file(self, information):
+        pass
+
+

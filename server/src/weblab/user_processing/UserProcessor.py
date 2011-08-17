@@ -15,6 +15,7 @@
 
 import time as time_module
 import json
+import random
 import voodoo.hashing as hashing
 
 import weblab.data.ServerType as ServerType
@@ -30,6 +31,7 @@ import weblab.exceptions.user_processing.UserProcessingExceptions as UserProcess
 import weblab.exceptions.user_processing.CoordinatorExceptions as CoordExc
 import weblab.user_processing.Reservation as Reservation
 import weblab.user_processing.coordinator.WebLabSchedulingStatus as WebLabSchedulingStatus
+import weblab.user_processing.coordinator.TemporalInformationStore as TemporalInformationStore
 import weblab.exceptions.laboratory.LaboratoryExceptions as LaboratoryExceptions
 
 import weblab.experiment.Util as ExperimentUtil
@@ -320,19 +322,19 @@ class UserProcessor(object):
         self._session['latest_timestamp'] = self._utc_timestamp()
 
     def _append_command(self, command):
-        # TODO XXX FIXME
-        return None, None
-        timestamp_before = self._utc_timestamp()
-        command_sent = Usage.CommandSent(command, timestamp_before)
-        return self._session['experiment_usage'].append_command(command_sent), command_sent
+        command_id = random.randint(0, 1000 * 1000 * 1000)
+        timestamp = self._utc_timestamp()
+        reservation_id = ''
+        command_entry = TemporalInformationStore.CommandOrFileInformationEntry(reservation_id, True, True, command_id, command, timestamp)
+        self._commands_store.put(command_entry)
+        return command_id
+       
 
-    def _update_command(self, (command_id, command_sent), response):
-        # TODO XXX FIXME
-        return
-        timestamp_after = self._utc_timestamp()
-        command_sent.response        = response
-        command_sent.timestamp_after = timestamp_after
-        self._session['experiment_usage'].update_command(command_id, command_sent)
+    def _update_command(self, command_id, response):
+        timestamp = self._utc_timestamp()
+        reservation_id = ''
+        command_entry = TemporalInformationStore.CommandOrFileInformationEntry(reservation_id, False, True, command_id, response, timestamp)
+        self._commands_store.put(command_entry)
 
     def _utc_timestamp(self):
         return self.time_module.time()

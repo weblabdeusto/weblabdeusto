@@ -232,6 +232,45 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         self.assertEquals("@@@finish@@@", full_usage2.commands[1].command.commandstring)
         self.assertEquals("finish",       full_usage2.commands[1].response.commandstring)
 
+    def test_update_command(self):
+        session = self.gateway.Session()
+        student1 = self.gateway._get_user(session, 'student1')
+
+        RESERVATION_ID1 = 'my_reservation_id1'
+        RESERVATION_ID2 = 'my_reservation_id2'
+
+        usage1 = Usage.ExperimentUsage()
+        usage1.start_date    = time.time()
+        usage1.end_date      = time.time()
+        usage1.from_ip       = "130.206.138.16"
+        usage1.experiment_id = ExperimentId.ExperimentId("ud-dummy","Dummy experiments")
+        usage1.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage1.reservation_id = RESERVATION_ID1
+
+        self.gateway.store_experiment_usage(student1.login, {'facebook' : False}, usage1)
+
+        usages = self.gateway.list_usages_per_user(student1.login)
+        self.assertEquals(1, len(usages))
+
+        full_usage = self.gateway.retrieve_usage(usages[0].experiment_use_id)
+
+        self.assertEquals(0, len(full_usage.commands))
+
+        command1 = Usage.CommandSent( Command.Command("your command"), time.time() )
+        command_id = self.gateway.append_command( RESERVATION_ID1, command1 )
+
+        full_usage = self.gateway.retrieve_usage(usages[0].experiment_use_id)
+
+        self.assertEquals("your command",        full_usage.commands[0].command.commandstring)
+        self.assertEquals(Command.NullCommand(), full_usage.commands[0].response)
+
+        self.gateway.update_command(command_id, "the response", time.time())
+
+        full_usage = self.gateway.retrieve_usage(usages[0].experiment_use_id)
+        self.assertEquals("your command",      full_usage.commands[0].command.commandstring)
+        self.assertEquals("the response",      full_usage.commands[0].response.commandstring)
+
+
     def test_finish_experiment_usage(self):
         session = self.gateway.Session()
         student1 = self.gateway._get_user(session, 'student1')
