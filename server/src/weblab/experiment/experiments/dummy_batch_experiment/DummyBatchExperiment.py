@@ -13,7 +13,6 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-import time
 import json
 
 import weblab.experiment.Experiment as Experiment

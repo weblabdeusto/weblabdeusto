@@ -18,11 +18,6 @@ import datetime
 import test.unit.configuration as configuration_module
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
-from weblab.data.experiments.ExperimentId import ExperimentId
-from weblab.data.experiments.ExperimentInstanceId import ExperimentInstanceId
-from weblab.user_processing.coordinator.Resource import Resource
-import weblab.exceptions.user_processing.CoordinatorExceptions as CoordExc
-
 from test.unit.weblab.user_processing.coordinator.Coordinator import WrappedCoordinator, ConfirmerMock
 
 class PostReservationDataManagerTestCase(unittest.TestCase):
@@ -65,7 +60,6 @@ class PostReservationDataManagerTestCase(unittest.TestCase):
         reservation_id = "my-id"
         now = self.time_provider.get_datetime()
         initial_data = '{ "initial" : "data" }'
-        end_data     = '{ "end"     : "data" }'
         expiration = now - datetime.timedelta(seconds=1)
 
         self.post_reservation_data_manager.create(reservation_id, now, expiration, initial_data)
