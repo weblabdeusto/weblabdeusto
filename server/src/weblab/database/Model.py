@@ -383,10 +383,13 @@ class DbUserUsedExperiment(Base):
         link_relation(self, user, "user")
         link_relation(self, experiment, "experiment")
         self.start_date, self.start_date_micro = _timestamp_to_splitted_utc_datetime(start_date)
-        self.end_date, self.end_date_micro = _timestamp_to_splitted_utc_datetime(end_date)
+        self.set_end_date(end_date)
         self.origin = origin
         self.coord_address = coord_address
         self.reservation_id = reservation_id
+
+    def set_end_date(self, end_date):
+        self.end_date, self.end_date_micro = _timestamp_to_splitted_utc_datetime(end_date)
 
     def __repr__(self):
         return "DbUserUsedExperiment(id = %r, user = %r, experiment = %r, start_date = %r, start_date_micro = %i, end_date = %r, end_date_micro = %i, origin = '%s', coord_address = '%s', reservation_id = %r)" % (

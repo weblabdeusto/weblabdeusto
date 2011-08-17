@@ -172,7 +172,29 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             session.commit()
         finally:
             session.close()
-   
+
+    @logged()
+    def finish_experiment_usage(self, reservation_id, end_date, last_command ):
+        session = self.Session()
+        try:
+            user_used_experiment = session.query(Model.DbUserUsedExperiment).filter_by(reservation_id = reservation_id).first()
+            if user_used_experiment is None:
+                return False
+
+            user_used_experiment.set_end_date(end_date)
+            session.update(user_used_experiment)
+            session.add(Model.DbUserCommand(
+                            user_used_experiment,
+                            last_command.command.commandstring,
+                            last_command.timestamp_before,
+                            last_command.response.commandstring,
+                            last_command.timestamp_after
+                        ))
+            session.commit()
+            return True
+        finally:
+            session.close()
+  
     @logged()
     def append_command(self, reservation_id, command ):
         session = self.Session()
