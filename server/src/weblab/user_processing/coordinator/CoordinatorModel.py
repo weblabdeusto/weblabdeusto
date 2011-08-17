@@ -257,10 +257,12 @@ class Reservation(Base):
     client_initial_data   = Column(Text)
     # The server initial data is provided by the server.
     server_initial_data   = Column(Text)
+    # Request information, serialized in JSON: is the user using facebook? mobile? what's the user agent? what's the ip address?
+    request_info          = Column(Text)
 
     _now = None
 
-    def __init__(self, id, client_initial_data, server_initial_data, now):
+    def __init__(self, id, client_initial_data, server_initial_data, request_info, now):
         self.id = id
         if now is not None:
             Reservation._now = now
@@ -269,13 +271,14 @@ class Reservation(Base):
         self.latest_access       = Reservation._now()
         self.client_initial_data = client_initial_data
         self.server_initial_data = server_initial_data
+        self.request_info        = request_info
 
     def update(self):
         if Reservation._now is not None:
            self.latest_access = Reservation._now()
 
     @staticmethod
-    def create(session_maker, experiment_id, client_initial_data, server_initial_data, now = None):
+    def create(session_maker, experiment_id, client_initial_data, server_initial_data, request_info, now = None):
         MAX_TRIES = 10
         counter = 0
         while True:
@@ -286,7 +289,7 @@ class Reservation(Base):
                 if experiment_type is None:
                     raise CoordExc.ExperimentNotFoundException("Couldn't find experiment_type %s when creating Reservation" % experiment_id)
 
-                reservation = Reservation(id, client_initial_data, server_initial_data, now)
+                reservation = Reservation(id, client_initial_data, server_initial_data, request_info, now)
                 reservation.experiment_type = experiment_type
                 session.add(reservation)
                 try:
@@ -300,7 +303,7 @@ class Reservation(Base):
                 session.close()
 
     def __repr__(self):
-        return "Reservation(%r, %r, %r)" % (self.id, self.client_initial_data, self.server_initial_data)
+        return "Reservation(%r, %r, %r, %r)" % (self.id, self.client_initial_data, self.server_initial_data, self.request_info)
 
 ######################################################################################
 # 

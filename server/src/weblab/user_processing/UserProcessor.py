@@ -125,9 +125,11 @@ class UserProcessor(object):
 
         context = RemoteFacadeContext.get_context()
         reservation_info = self._session['reservation_information'] = {}
+        reservation_info['user_agent']  = context.get_user_agent()
         reservation_info['referer']  = context.get_referer()
         reservation_info['mobile']   = context.is_mobile()
         reservation_info['facebook'] = context.is_facebook()
+        reservation_info['from_ip'] = client_address.client_address
 
         try:
             client_initial_data = json.loads(serialized_client_initial_data)
@@ -155,7 +157,8 @@ class UserProcessor(object):
                     experiment_allowed.experiment.to_experiment_id(), 
                     experiment_allowed.time_allowed, 
                     experiment_allowed.priority,
-                    client_initial_data
+                    client_initial_data,
+                    reservation_info
                 )
         except CoordExc.ExperimentNotFoundException:
             raise UserProcessingExceptions.NoAvailableExperimentFoundException(
@@ -164,6 +167,9 @@ class UserProcessor(object):
                         experiment_id.cat_name
                     )
             )
+
+
+        self._session['reservation_information'].pop('from_ip', None)
 
         self._session['reservation_id']   = reservation_id
             

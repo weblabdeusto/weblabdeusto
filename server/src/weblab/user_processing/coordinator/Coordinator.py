@@ -292,11 +292,11 @@ class Coordinator(object):
     # Perform a new reservation
     # 
     @logged()
-    def reserve_experiment(self, experiment_id, time, priority, client_initial_data):
+    def reserve_experiment(self, experiment_id, time, priority, client_initial_data, request_info):
         """
         priority: the less, the more priority
         """
-        reservation_id = self.reservations_manager.create(experiment_id, client_initial_data, self.time_provider.get_datetime)
+        reservation_id = self.reservations_manager.create(experiment_id, client_initial_data, json.dumps(request_info), self.time_provider.get_datetime)
         schedulers = self._get_schedulers_per_experiment_id(experiment_id)
         all_reservation_status = []
         for scheduler in schedulers:
@@ -346,7 +346,11 @@ class Coordinator(object):
                 batch                 = default_batch
                 initial_configuration = default_initial_configuration
 
+        request_info  = json.loads(self.reservations_manager.get_request_info(reservation_id))
+        from_ip       = request_info.pop('from_ip', '<unknown address>')
+        experiment_id = experiment_instance_id.to_experiment_id()
         self.initial_store.put(reservation_id, initial_configuration, initial_time, end_time)
+
         now = self.time_provider.get_datetime()
         self.post_reservation_data_manager.create(reservation_id, now, now + self.expiration_delta, json.dumps(initial_configuration))
 

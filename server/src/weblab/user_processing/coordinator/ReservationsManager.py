@@ -33,10 +33,10 @@ class ReservationsManager(object):
         finally:
             session.close()
 
-    def create(self, experiment_type, client_initial_data, now = None):
+    def create(self, experiment_type, client_initial_data, request_info, now = None):
         serialized_client_initial_data = json.dumps(client_initial_data)
         server_initial_data = "{}"
-        return Reservation.create(self._session_maker, experiment_type, serialized_client_initial_data, server_initial_data, now)
+        return Reservation.create(self._session_maker, experiment_type, serialized_client_initial_data, server_initial_data, request_info, now)
 
     def check(self, session, reservation_id):
         reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
@@ -49,6 +49,16 @@ class ReservationsManager(object):
             if reservation is None:
                 raise CoordExc.ExpiredSessionException("Expired reservation")
             return reservation.experiment_type.to_experiment_id()
+        finally:
+            session.close()
+
+    def get_request_info(self, reservation_id):
+        session = self._session_maker()
+        try:
+            reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
+            if reservation is None:
+                return "{}"
+            return reservation.request_info
         finally:
             session.close()
 

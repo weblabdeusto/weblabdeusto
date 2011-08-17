@@ -48,13 +48,13 @@ class CoordinatorModelTestCase(unittest.TestCase):
 
     def test_repr_reservation(self):
         experiment_type = CM.ExperimentType("exp", "cat")
-        reservation     = CM.Reservation("hi", "{}", "{}", None)
+        reservation     = CM.Reservation("hi", "{}", "{}", "{}", None)
         reservation.experiment_type = experiment_type
         repr(reservation) # No exception is raised
 
     def test_repr_current_reservation(self):
         experiment_type = CM.ExperimentType("exp", "cat")
-        reservation     = CM.Reservation("hi", "{}", "{}", None)
+        reservation     = CM.Reservation("hi", "{}", "{}", "{}", None)
         reservation.experiment_type = experiment_type
         current_reservation = CM.CurrentReservation("hi", datetime.datetime.now(), 1000)
         repr(current_reservation) # No exception is raised

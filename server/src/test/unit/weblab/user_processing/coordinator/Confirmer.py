@@ -52,6 +52,8 @@ class MockLocator(object):
 def coord_addr(coord_addr_str):
     return CoordAddress.CoordAddress.translate_address( coord_addr_str )
 
+DEFAULT_REQUEST_INFO = {'facebook' : False, 'mobile' : False}
+
 class ConfirmerTestCase(mocker.MockerTestCase):
     
     def setUp(self):
@@ -123,7 +125,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.mocker.result((mock_laboratory,))
 
         self.mocker.replay()
-        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5, 'sample initial data')
+        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5, 'sample initial data', DEFAULT_REQUEST_INFO)
         now = datetime.datetime.fromtimestamp(int(time.time())) # Remove milliseconds as MySQL do
         self.coordinator.confirmer._confirm_handler.join()
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
@@ -152,7 +154,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.mocker.result((mock_laboratory,))
 
         self.mocker.replay()
-        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5, 'sample initial data')
+        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5, 'sample initial data', DEFAULT_REQUEST_INFO)
         self.coordinator.confirmer._confirm_handler.join()
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
         
@@ -171,7 +173,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.mocker.throw( Exception("Unhandled exception") )
 
         self.mocker.replay()
-        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5, 'sample initial data')
+        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5, 'sample initial data', DEFAULT_REQUEST_INFO)
         self.coordinator.confirmer._confirm_handler.join()
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
         
