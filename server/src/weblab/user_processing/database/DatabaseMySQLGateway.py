@@ -202,13 +202,30 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             user_used_experiment = session.query(Model.DbUserUsedExperiment).filter_by(reservation_id = reservation_id).first()
             if user_used_experiment is None:
                 return False
-            session.add(Model.DbUserCommand(
+            db_command = Model.DbUserCommand(
                             user_used_experiment,
                             command.command.commandstring,
                             command.timestamp_before,
-                            command.response.commandstring,
+                            command.response.commandstring if command.response is not None else None,
                             command.timestamp_after
-                        ))
+                        )
+            session.add(db_command)
+            session.commit()
+            return db_command.id
+        finally:
+            session.close()
+
+    @logged()
+    def update_command(self, command_id, response, end_timestamp ):
+        session = self.Session()
+        try:
+            db_command = session.query(Model.DbUserCommand).filter_by(id = command_id).first()
+            if db_command is None:
+                return False
+
+            db_command.response = response
+            db_command.set_timestamp_after(end_timestamp)
+            session.update(db_command)
             session.commit()
             return True
         finally:

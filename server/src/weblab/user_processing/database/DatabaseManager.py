@@ -39,6 +39,10 @@ class UserProcessingDatabaseManager(object):
         """ Tries to append a command. Returns True if it was added successfully, false otherwise """
         return self._gateway.append_command( reservation_id, command )
 
+    def update_command(self, command_id, response, end_timestamp):
+        """ Tries to update a command. Returns True if it was added successfully, false otherwise """
+        return self._gateway.update_command( command_id, response, end_timestamp )
+
     def append_file(self, reservation_id, file_sent):
         """ Tries to append a file. Returns True if it was added successfully, false otherwise """
         return self._gateway.append_file( reservation_id, file_sent )

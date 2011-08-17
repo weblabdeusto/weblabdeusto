@@ -31,7 +31,7 @@ from weblab.data.experiments.ExperimentId import ExperimentId
 from weblab.data.experiments.Usage import ExperimentUsage  
 from weblab.data.experiments.Usage import FileSent  
 from weblab.data.experiments.Usage import CommandSent   
-from weblab.data.Command import Command
+from weblab.data.Command import Command, NullCommand
 from weblab.data.dto.User import User
 from weblab.data.dto.Role import Role
 from weblab.data.dto.Group import Group  
@@ -549,6 +549,9 @@ class DbUserCommand(Base):
         self.command = command
         self.response = response
         self.timestamp_before, self.timestamp_before_micro = _timestamp_to_splitted_utc_datetime(timestamp_before)
+        self.set_timestamp_after(timestamp_after)
+
+    def set_timestamp_after(self, timestamp_after):
         self.timestamp_after, self.timestamp_after_micro = _timestamp_to_splitted_utc_datetime(timestamp_after)
 
     def __repr__(self):
@@ -565,9 +568,9 @@ class DbUserCommand(Base):
 
     def to_business(self):
         return CommandSent(
-            Command(self.command),
+            Command(self.command) if self.command is not None else NullCommand(),
             _splitted_utc_datetime_to_timestamp(self.timestamp_before, self.timestamp_before_micro),
-            Command(self.response),
+            Command(self.response) if self.response is not None else NullCommand(),
             _splitted_utc_datetime_to_timestamp(self.timestamp_after, self.timestamp_after_micro)
             )                
 
