@@ -26,6 +26,7 @@ import voodoo.sessions.SessionType as SessionType
 import voodoo.sessions.SessionId   as SessionId
 
 import weblab.user_processing.UserProcessor as UserProcessor
+import weblab.user_processing.coordinator.TemporalInformationStore as TemporalInformationStore
 import weblab.user_processing.AliveUsersCollection as AliveUsersCollection
 
 class TimeModule(object):
@@ -43,6 +44,8 @@ class AliveUsersCollectionTestCase(unittest.TestCase):
         cfg_manager = ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration_module)
 
+        commands_store = TemporalInformationStore.CommandsTemporalInformationStore()
+
         locator          = UserProcessorTest.FakeLocator(None)
         self.session_mgr = SessionManager.SessionManager(
                     cfg_manager,
@@ -56,7 +59,8 @@ class AliveUsersCollectionTestCase(unittest.TestCase):
                     cfg_manager,
                     SessionType.Memory,
                     self.session_mgr,
-                    db_manager
+                    db_manager,
+                    commands_store
                 )
 
         self.tm      = TimeModule()

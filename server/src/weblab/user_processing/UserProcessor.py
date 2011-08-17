@@ -14,6 +14,7 @@
 # 
 
 import time as time_module
+import json
 import voodoo.hashing as hashing
 
 import weblab.data.ServerType as ServerType
@@ -33,13 +34,6 @@ import weblab.exceptions.laboratory.LaboratoryExceptions as LaboratoryExceptions
 
 import weblab.experiment.Util as ExperimentUtil
 import weblab.data.experiments.Usage as Usage
-
-try:
-    import json as json_mod
-    json = json_mod
-except ImportError:
-    import simplejson as json_module
-    json = json_module
 
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessor")
 
@@ -93,12 +87,13 @@ class UserProcessor(object):
 
     EXPIRATION_TIME_NOT_SET=-1234
 
-    def __init__(self, locator, session, cfg_manager, coordinator, db_manager):
+    def __init__(self, locator, session, cfg_manager, coordinator, db_manager, commands_store):
         self._locator         = locator
         self._session         = session
         self._cfg_manager     = cfg_manager
         self._coordinator     = coordinator
         self._db_manager      = db_manager
+        self._commands_store  = commands_store
         self.time_module      = time_module
 
     def list_experiments(self):
@@ -124,12 +119,19 @@ class UserProcessor(object):
     def reserve_experiment(self, experiment_id, serialized_client_initial_data, client_address):
 
         context = RemoteFacadeContext.get_context()
+
+        user_information = self.get_user_information()
+
+        self._session['experiment_id'] = experiment_id
+
         reservation_info = self._session['reservation_information'] = {}
-        reservation_info['user_agent']  = context.get_user_agent()
-        reservation_info['referer']  = context.get_referer()
-        reservation_info['mobile']   = context.is_mobile()
-        reservation_info['facebook'] = context.is_facebook()
-        reservation_info['from_ip'] = client_address.client_address
+        reservation_info['user_agent']    = context.get_user_agent()
+        reservation_info['referer']       = context.get_referer()
+        reservation_info['mobile']        = context.is_mobile()
+        reservation_info['facebook']      = context.is_facebook()
+        reservation_info['from_ip']       = client_address.client_address
+        reservation_info['username']      = self._session['db_session_id'].username
+        reservation_info['role']          = self._session['db_session_id'].role
 
         try:
             client_initial_data = json.loads(serialized_client_initial_data)
@@ -174,10 +176,6 @@ class UserProcessor(object):
         self._session['reservation_id']   = reservation_id
             
         self._initialize_polling()
-        self._session['experiment_usage'] = Usage.ExperimentUsage()
-        self._session['experiment_usage'].experiment_id  = experiment_id
-        self._session['experiment_usage'].reservation_id = reservation_id
-        self._session['experiment_usage'].from_ip        = client_address.client_address
 
         if status.status == WebLabSchedulingStatus.WebLabSchedulingStatus.RESERVED:
             self._process_reserved_status(status)
@@ -213,13 +211,6 @@ class UserProcessor(object):
         self._renew_expiration_time(
                 self.time_module.time() + status.time
             )
-        self._session['experiment_usage'].start_date    = self._utc_timestamp()
-
-        lab_server        = self._locator.get_server_from_coordaddr(
-                    status.coord_address,
-                    ServerType.Laboratory
-                )
-        self._session['experiment_usage'].coord_address = lab_server.resolve_experiment_address(status.lab_session_id)
 
 
     def finished_experiment(self):
@@ -236,16 +227,6 @@ class UserProcessor(object):
 
         self._stop_polling()
         self._session.pop('lab_session_id', None)
-        if self._session.has_key('experiment_usage') and self._session['experiment_usage'] != None:
-            experiment_usage = self._session.pop('experiment_usage')
-            if experiment_usage.start_date is not None:
-                experiment_usage.end_date = self._utc_timestamp()
-
-                self._db_manager.store_experiment_usage(
-                        self._session['db_session_id'],
-                        self._session['reservation_information'],
-                        experiment_usage
-                    )
 
         if error is not None:
             raise UserProcessingExceptions.FailedToFreeReservationException(
@@ -265,16 +246,18 @@ class UserProcessor(object):
 
             usage_file_sent = self._store_file(file_content, file_info)
             try:
-                file_sent_id = self._session['experiment_usage'].append_file(usage_file_sent)
+                # TODO XXX FIXME
+                # file_sent_id = self._session['experiment_usage'].append_file(usage_file_sent)
                 response = laboratory_server.send_file(
                         self._session['lab_session_id'],
                         file_content,
                         file_info
                     )
 
-                usage_file_sent.response        = response
-                usage_file_sent.timestamp_after = self._utc_timestamp()
-                self._session['experiment_usage'].update_file(file_sent_id, usage_file_sent)
+                # TODO XXX FIXME
+                # usage_file_sent.response        = response
+                # usage_file_sent.timestamp_after = self._utc_timestamp()
+                # self._session['experiment_usage'].update_file(file_sent_id, usage_file_sent)
                 return response
             except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
                 try:
@@ -337,11 +320,15 @@ class UserProcessor(object):
         self._session['latest_timestamp'] = self._utc_timestamp()
 
     def _append_command(self, command):
+        # TODO XXX FIXME
+        return None, None
         timestamp_before = self._utc_timestamp()
         command_sent = Usage.CommandSent(command, timestamp_before)
         return self._session['experiment_usage'].append_command(command_sent), command_sent
 
     def _update_command(self, (command_id, command_sent), response):
+        # TODO XXX FIXME
+        return
         timestamp_after = self._utc_timestamp()
         command_sent.response        = response
         command_sent.timestamp_after = timestamp_after

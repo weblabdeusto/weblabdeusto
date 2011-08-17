@@ -63,3 +63,6 @@ class UserProcessingDatabaseManager(object):
     
     def get_user_permissions(self, session_id):
         return self._gateway.get_user_permissions( session_id.username )
+
+    def _delete_all_uses(self):
+        return self._gateway._delete_all_uses()

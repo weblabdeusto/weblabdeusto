@@ -52,15 +52,32 @@ class TemporalInformationStore(object):
     def put(self, *args, **kwargs):
         pass
 
+class InitialInformationEntry(object):
+    def __init__(self, reservation_id, experiment_id, exp_coordaddr, initial_configuration, initial_time, end_time, request_info):
+        self.reservation_id        = reservation_id
+        self.experiment_id         = experiment_id
+        self.exp_coordaddr         = exp_coordaddr
+        self.initial_configuration = initial_configuration
+        self.initial_time          = initial_time
+        self.end_time              = end_time 
+        self.request_info          = request_info
+
 class InitialTemporalInformationStore(TemporalInformationStore):
-    def put(self, reservation_id, obj, initial_time, end_time):
-        self.queue.put_nowait((reservation_id, obj, initial_time, end_time))
+    def put(self, initial_information_entry):
+        self.queue.put_nowait(initial_information_entry)
 
 class FinishTemporalInformationStore(TemporalInformationStore):
     def put(self, reservation_id, obj, initial_time, end_time):
         self.queue.put_nowait((reservation_id, obj, initial_time, end_time))
 
+class CommandOrFileInformationEntry(object):
+    def __init__(self, reservation_id, is_before, entry_pack_id, command_or_file):
+        self.reservation_id  = reservation_id
+        self.is_before       = is_before
+        self.entry_pack_id   = entry_pack_id
+        self.command_or_file = command_or_file
+
 class CommandsTemporalInformationStore(TemporalInformationStore):
-    def put(self, reservation_id, obj, initial_time, end_time):
-        self.queue.put_nowait((reservation_id, obj, initial_time, end_time))
+    def put(self, command_information_entry):
+        self.queue.put_nowait(command_information_entry)
 

@@ -437,11 +437,15 @@ class CoordinatorTestCase(unittest.TestCase):
         expected_status = WSS.PostReservationStatus(True, json.dumps({"foo":"bar"}), 'null')
         self.assertEquals(expected_status, status)
 
-        reservation_id, initial_configuration, initial_time, end_time = self.coordinator.initial_store.get()
-        self.assertFalse(reservation_id is None)
-        self.assertEquals({ "foo" : "bar" }, initial_configuration)
-        self.assertEquals(now, initial_time)
-        self.assertEquals(now, end_time)
+        initial_information_entry = self.coordinator.initial_store.get()
+        self.assertFalse(initial_information_entry.reservation_id is None)
+
+        self.assertEquals({ "foo" : "bar" },              initial_information_entry.initial_configuration)
+        self.assertEquals(now,                            initial_information_entry.initial_time)
+        self.assertEquals(now,                            initial_information_entry.end_time)
+        self.assertEquals(coord_addr('expser:inst@mach'), initial_information_entry.exp_coordaddr)
+        self.assertEquals(DEFAULT_REQUEST_INFO,           initial_information_entry.request_info)
+        self.assertEquals(ExperimentId('exp1','cat1'),    initial_information_entry.experiment_id)
 
     def test_reserve_experiment_rejected(self):
 

@@ -18,6 +18,7 @@ import time
 
 import voodoo.log as log
 
+import weblab.database.DatabaseSession as DbSession
 import weblab.data.experiments.Usage as Usage
 import weblab.data.Command as Command
 
@@ -26,12 +27,15 @@ class TemporalInformationRetriever(threading.Thread):
     This class retrieves continuously the information of initial and finished experiments.
     """
 
-    def __init__(self, initial_store, finished_store, db_manager):
+    PRINT_ERRORS = True
+
+    def __init__(self, initial_store, finished_store, commands_store, db_manager):
         threading.Thread.__init__(self)
 
         self.keep_running = True
-        self.initial_store    = initial_store
+        self.initial_store  = initial_store
         self.finished_store = finished_store
+        self.commands_store = commands_store
         self.iterations     = 0
         self.db_manager     = db_manager
         self.timeout        = None
@@ -43,6 +47,9 @@ class TemporalInformationRetriever(threading.Thread):
                 self.iterations += 1
                 self.iterate()
             except:
+                if self.PRINT_ERRORS:
+                    import traceback
+                    traceback.print_exc()
                 log.log( TemporalInformationRetriever, log.LogLevel.Critical, "Exception iterating in TemporalInformationRetriever!!!")
                 log.log_exc( TemporalInformationRetriever, log.LogLevel.Critical )
 
@@ -50,12 +57,42 @@ class TemporalInformationRetriever(threading.Thread):
         self.keep_running = False
 
     def iterate(self):
-        self.iterate_over_store(self.initial_store, 'initial')
+        self.iterate_initial()
         if self.keep_running:
-            self.iterate_over_store(self.finished_store, 'finish')
+            self.iterate_finish()
+        if self.keep_running:
+            self.iterate_command()
 
-    def iterate_over_store(self, store, message):
-        information = store.get(timeout=self.timeout)
+    def iterate_initial(self):
+        initial_information = self.initial_store.get(timeout=self.timeout)
+        if initial_information is not None:
+
+            initial_timestamp = time.mktime(initial_information.initial_time.timetuple())
+            end_timestamp     = time.mktime(initial_information.end_time.timetuple())
+
+            request_info  = initial_information.request_info
+            from_ip       = request_info.pop('from_ip','<address not found>')
+            username      = request_info.pop('username')
+            role          = request_info.pop('role')
+
+            usage = Usage.ExperimentUsage()
+            usage.start_date     = initial_timestamp
+            usage.from_ip        = from_ip
+            usage.experiment_id  = initial_information.experiment_id
+            usage.reservation_id = initial_information.reservation_id
+            usage.coord_address  = initial_information.exp_coordaddr
+
+            command = Usage.CommandSent(
+                    Command.Command("@@@initial@@@"), initial_timestamp,
+                    Command.Command(str(initial_information.initial_configuration)), end_timestamp
+            )
+
+            usage.append_command(command)
+
+            self.db_manager.store_experiment_usage(DbSession.ValidDatabaseSessionId(username, role), initial_information.request_info, usage)
+
+    def iterate_finish(self):
+        information = self.finished_store.get(timeout=self.timeout)
         if information is not None:
             reservation_id, obj, initial_time, end_time = information
 
@@ -63,13 +100,15 @@ class TemporalInformationRetriever(threading.Thread):
             end_timestamp     = time.mktime(end_time.timetuple())
 
             command = Usage.CommandSent(
-                    Command.Command("@@@%s@@@" % message), initial_timestamp,
+                    Command.Command("@@@finish@@@"), initial_timestamp,
                     Command.Command(str(obj)), end_timestamp
             )
 
-            if not self.keep_running or not self.db_manager.append_command(reservation_id, command):
+            if not self.db_manager.finish_experiment_usage(reservation_id, initial_timestamp, command):
                 # If it could not be added because the experiment id
                 # did not exist, put it again in the queue
-                store.put(reservation_id, obj, initial_time, end_time)
+                self.finished_store.put(reservation_id, obj, initial_time, end_time)
                 time.sleep(0.01)
 
+    def iterate_command(self):
+        pass

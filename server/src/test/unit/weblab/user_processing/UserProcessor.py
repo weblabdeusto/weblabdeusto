@@ -27,6 +27,7 @@ import weblab.user_processing.UserProcessor as UserProcessor
 import weblab.user_processing.Reservation as Reservation
 import weblab.user_processing.coordinator.Coordinator as Coordinator 
 import weblab.user_processing.coordinator.Confirmer as Confirmer
+import weblab.user_processing.coordinator.TemporalInformationStore as TemporalInformationStore
 import weblab.data.ServerType as ServerType
 import weblab.data.ClientAddress as ClientAddress
 
@@ -40,6 +41,8 @@ import weblab.data.dto.ExperimentAllowed as ExperimentAllowed
 import weblab.data.dto.ExperimentUse as ExperimentUse
 import weblab.data.dto.User as User
 import weblab.data.dto.Role as Role
+
+import weblab.database.DatabaseSession as DbSession
 
 from weblab.user_processing.coordinator.Resource import Resource
 
@@ -66,6 +69,8 @@ class UserProcessorTestCase(unittest.TestCase):
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
 
+        self.commands_store = TemporalInformationStore.CommandsTemporalInformationStore()
+
         self.coordinator = Coordinator.Coordinator(self.locator, self.cfg_manager)
         self.coordinator._clean()
         self.coordinator.add_experiment_instance_id("server:laboratoryserver@labmachine", ExperimentInstanceId.ExperimentInstanceId('inst','ud-dummy','Dummy experiments'), Resource("res_type", "res_inst"))
@@ -73,11 +78,12 @@ class UserProcessorTestCase(unittest.TestCase):
         self.processor = UserProcessor.UserProcessor(
                     self.locator,
                     {
-                        'db_session_id' : 'my_db_session_id'
+                        'db_session_id' : DbSession.ValidDatabaseSessionId('my_db_session_id')
                     },
                     self.cfg_manager,
                     self.coordinator,
-                    self.db
+                    self.db,
+                    self.commands_store
                 )
 
     def test_reserve_unknown_experiment_name(self):

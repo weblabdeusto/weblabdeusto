@@ -28,6 +28,7 @@ import weblab.user_processing.UserProcessor as UserProcessor
 import weblab.user_processing.AliveUsersCollection as AliveUsersCollection
 import weblab.user_processing.coordinator.Coordinator as Coordinator
 import weblab.user_processing.coordinator.CoordinationConfigurationParser as CoordinationConfigurationParser
+import weblab.user_processing.coordinator.TemporalInformationStore as TemporalInformationStore
 import weblab.user_processing.database.DatabaseManager as DatabaseManager
 
 import weblab.exceptions.user_processing.UserProcessingExceptions as UserProcessingExceptions
@@ -112,11 +113,13 @@ class UserProcessingServer(object):
         self._db_manager     = DatabaseManager.UserProcessingDatabaseManager(cfg_manager)
 
 
-        self._temporal_information_retriever = TemporalInformationRetriever.TemporalInformationRetriever(self._coordinator.initial_store, self._coordinator.finished_store, self._db_manager)
+        self._commands_store = TemporalInformationStore.CommandsTemporalInformationStore()
+
+        self._temporal_information_retriever = TemporalInformationRetriever.TemporalInformationRetriever(self._coordinator.initial_store, self._coordinator.finished_store, self._commands_store, self._db_manager)
         self._temporal_information_retriever.start()
 
         self._alive_users_collection = AliveUsersCollection.AliveUsersCollection(
-                self._locator, self._cfg_manager, real_session_type, self._session_manager, self._db_manager)
+                self._locator, self._cfg_manager, real_session_type, self._session_manager, self._db_manager, self._commands_store)
 
         if clean:
             self._parse_coordination_configuration()
@@ -149,7 +152,7 @@ class UserProcessingServer(object):
                 self._coordinator.add_experiment_instance_id(laboratory_server_coord_address_str, experiment_instance_id, resource)
 
     def _load_user(self, session):
-        return UserProcessor.UserProcessor(self._locator, session, self._cfg_manager, self._coordinator, self._db_manager)
+        return UserProcessor.UserProcessor(self._locator, session, self._cfg_manager, self._coordinator, self._db_manager, self._commands_store)
 
     def _check_user_not_expired_and_poll(self, user_processor):
         if user_processor.is_expired():

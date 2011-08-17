@@ -347,9 +347,13 @@ class Coordinator(object):
                 initial_configuration = default_initial_configuration
 
         request_info  = json.loads(self.reservations_manager.get_request_info(reservation_id))
-        from_ip       = request_info.pop('from_ip', '<unknown address>')
         experiment_id = experiment_instance_id.to_experiment_id()
-        self.initial_store.put(reservation_id, initial_configuration, initial_time, end_time)
+
+        initial_information_entry = TemporalInformationStore.InitialInformationEntry(
+            reservation_id, experiment_id, experiment_coordaddress,
+            initial_configuration, initial_time, end_time, request_info )
+
+        self.initial_store.put(initial_information_entry)
 
         now = self.time_provider.get_datetime()
         self.post_reservation_data_manager.create(reservation_id, now, now + self.expiration_delta, json.dumps(initial_configuration))
