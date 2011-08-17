@@ -54,8 +54,8 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
         self.gateway = DatabaseGateway.create_gateway(cfg_manager)
         self.gateway._delete_all_uses()
 
-        self.initial_store    = TemporalInformationStore.TemporalInformationStore()
-        self.finished_store = TemporalInformationStore.TemporalInformationStore()
+        self.initial_store    = TemporalInformationStore.InitialTemporalInformationStore()
+        self.finished_store = TemporalInformationStore.FinishTemporalInformationStore()
 
         self.retriever = TemporalInformationRetriever.TemporalInformationRetriever(self.initial_store, self.finished_store, self.gateway)
         self.retriever.timeout = 0.001 # Be quicker instead of waiting for half a second
@@ -163,8 +163,8 @@ class FakeTemporalInformationRetriever(TemporalInformationRetriever.TemporalInfo
 
 class IterationFailerTemporalInformationRetrieverTestCase(unittest.TestCase):
     def test_fail(self):
-        initial_store    = TemporalInformationStore.TemporalInformationStore()
-        finished_store = TemporalInformationStore.TemporalInformationStore()
+        initial_store    = TemporalInformationStore.InitialTemporalInformationStore()
+        finished_store = TemporalInformationStore.FinishTemporalInformationStore()
         fake = FakeTemporalInformationRetriever(initial_store, finished_store, None)
         fake.start()
         try:

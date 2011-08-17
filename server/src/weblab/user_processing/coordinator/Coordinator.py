@@ -95,8 +95,8 @@ class Coordinator(object):
         self.post_reservation_data_manager = PostReservationDataManager.PostReservationDataManager(self._session_maker, self.time_provider)
         self.meta_scheduler                = MetaScheduler.MetaScheduler()
 
-        self.initial_store  = TemporalInformationStore.TemporalInformationStore()
-        self.finished_store = TemporalInformationStore.TemporalInformationStore()
+        self.initial_store  = TemporalInformationStore.InitialTemporalInformationStore()
+        self.finished_store = TemporalInformationStore.FinishTemporalInformationStore()
 
 
         import weblab.user_processing.UserProcessingServer as UserProcessingServer

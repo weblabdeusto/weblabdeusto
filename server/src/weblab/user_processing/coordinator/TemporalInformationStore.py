@@ -13,10 +13,11 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+from abc import ABCMeta, abstractmethod
 import Queue
 
 class TemporalInformationStore(object):
-    """ Temporal synchronized store for batch and finishing information.
+    """ Temporal synchronized store for initial and finishing information.
 
     The coordinator will be asking the experiment whether it has finished or not.
     Given that this process is not synchronized with the UserProcessingManager, not 
@@ -27,6 +28,9 @@ class TemporalInformationStore(object):
     the database. This class provides synchronized solution, so the UPS will be 
     able to get blocked until some information is available.
     """
+
+    __metaclass__ = ABCMeta
+
     def __init__(self):
         self.queue = Queue.Queue()
 
@@ -44,6 +48,19 @@ class TemporalInformationStore(object):
         except Queue.Empty:
             return None
 
+    @abstractmethod
+    def put(self, *args, **kwargs):
+        pass
+
+class InitialTemporalInformationStore(TemporalInformationStore):
+    def put(self, reservation_id, obj, initial_time, end_time):
+        self.queue.put_nowait((reservation_id, obj, initial_time, end_time))
+
+class FinishTemporalInformationStore(TemporalInformationStore):
+    def put(self, reservation_id, obj, initial_time, end_time):
+        self.queue.put_nowait((reservation_id, obj, initial_time, end_time))
+
+class CommandsTemporalInformationStore(TemporalInformationStore):
     def put(self, reservation_id, obj, initial_time, end_time):
         self.queue.put_nowait((reservation_id, obj, initial_time, end_time))
 
