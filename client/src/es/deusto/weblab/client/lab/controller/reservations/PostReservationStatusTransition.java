@@ -13,6 +13,7 @@
 */ 
 package es.deusto.weblab.client.lab.controller.reservations;
 
+import es.deusto.weblab.client.dto.reservations.PostReservationReservationStatus;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.lab.controller.ReservationStatusCallback;
 
@@ -25,5 +26,8 @@ public class PostReservationStatusTransition extends ReservationStatusTransition
 	@Override
 	public void perform(ReservationStatus reservationStatus) {
 		// TODO
+		System.out.println("POST RESERVATION STATUS TRANSITION");
+		System.out.println("Initial: " + ((PostReservationReservationStatus)reservationStatus).getInitialData());
+		System.out.println("End: " + ((PostReservationReservationStatus)reservationStatus).getEndData());
 	}
 }
