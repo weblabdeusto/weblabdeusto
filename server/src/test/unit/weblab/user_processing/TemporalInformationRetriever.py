@@ -42,6 +42,11 @@ DATA2 = "{'data' : 2 }"
 DATA3 = "{'data' : 3 }"
 DATA4 = "{'data' : 4 }"
 
+DATA_REQUEST1 = "{'foo' : 1}"
+DATA_REQUEST2 = "{'foo' : 1}"
+DATA_REQUEST3 = "{'foo' : 1}"
+DATA_REQUEST4 = "{'foo' : 1}"
+
 def wait_for(retriever, iterations = 5, max_wait = 10):
     initial_time = time.time()
     initial_iterations = retriever.iterations
@@ -80,13 +85,13 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
 
             entry1 = TemporalInformationStore.InitialInformationEntry(
                         RESERVATION1, exp_id, coord_addr('ser:inst@mach'),  
-                        DATA1, initial_time, end_time, request_info.copy())
+                        DATA1, initial_time, end_time, request_info.copy(), DATA_REQUEST1)
             entry2 = TemporalInformationStore.InitialInformationEntry(
                         RESERVATION2, exp_id, coord_addr('ser:inst@mach'),  
-                        DATA2, initial_time, end_time, request_info.copy())
+                        DATA2, initial_time, end_time, request_info.copy(), DATA_REQUEST2)
             entry3 = TemporalInformationStore.InitialInformationEntry(
                         RESERVATION3, exp_id, coord_addr('ser:inst@mach'),  
-                        DATA3, initial_time, end_time, request_info.copy())
+                        DATA3, initial_time, end_time, request_info.copy(), DATA_REQUEST3)
 
             self.initial_store.put(entry1)
             self.initial_store.put(entry2)
@@ -102,7 +107,10 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
 
             # Check that it has been stored
             full_usage1 = self.dbmanager._gateway.retrieve_usage(usages[0].experiment_use_id)
-            self.assertEquals("@@@initial@@@", full_usage1.commands[-1].command.commandstring)
+
+            self.assertEquals("@@@initial::request@@@", full_usage1.commands[-2].command.commandstring)
+            self.assertEquals(DATA_REQUEST1, full_usage1.commands[-2].response.commandstring)
+            self.assertEquals("@@@initial::response@@@", full_usage1.commands[-1].command.commandstring)
             self.assertEquals(DATA1, full_usage1.commands[-1].response.commandstring)
             self.assertEquals(None, full_usage1.end_date)
 
@@ -117,7 +125,7 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
 
             entry4 = TemporalInformationStore.InitialInformationEntry(
                         RESERVATION4, exp_id, coord_addr('ser:inst@mach'),  
-                        DATA4, initial_time, end_time, request_info.copy())
+                        DATA4, initial_time, end_time, request_info.copy(), DATA_REQUEST4)
 
             self.initial_store.put(entry4)
 

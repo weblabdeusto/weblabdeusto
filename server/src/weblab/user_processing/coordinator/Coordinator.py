@@ -346,12 +346,14 @@ class Coordinator(object):
                 batch                 = default_batch
                 initial_configuration = default_initial_configuration
 
-        request_info  = json.loads(self.reservations_manager.get_request_info(reservation_id))
+        serialized_request_info, serialized_client_initial_data = self.reservations_manager.get_request_info_and_client_initial_data(reservation_id)
+        request_info  = json.loads(serialized_request_info)
         experiment_id = experiment_instance_id.to_experiment_id()
 
         initial_information_entry = TemporalInformationStore.InitialInformationEntry(
             reservation_id, experiment_id, experiment_coordaddress,
-            initial_configuration, initial_time, end_time, request_info )
+            initial_configuration, initial_time, end_time, request_info, 
+            serialized_client_initial_data )
 
         self.initial_store.put(initial_information_entry)
 

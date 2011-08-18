@@ -84,12 +84,18 @@ class TemporalInformationRetriever(threading.Thread):
             usage.reservation_id = initial_information.reservation_id
             usage.coord_address  = initial_information.exp_coordaddr
 
-            command = Usage.CommandSent(
-                    Command.Command("@@@initial@@@"), initial_timestamp,
+            command_request = Usage.CommandSent(
+                    Command.Command("@@@initial::request@@@"), initial_timestamp,
+                    Command.Command(str(initial_information.client_initial_data)), end_timestamp
+            )
+
+            command_response = Usage.CommandSent(
+                    Command.Command("@@@initial::response@@@"), initial_timestamp,
                     Command.Command(str(initial_information.initial_configuration)), end_timestamp
             )
 
-            usage.append_command(command)
+            usage.append_command(command_request)
+            usage.append_command(command_response)
 
             self.db_manager.store_experiment_usage(DbSession.ValidDatabaseSessionId(username, role), initial_information.request_info, usage)
 

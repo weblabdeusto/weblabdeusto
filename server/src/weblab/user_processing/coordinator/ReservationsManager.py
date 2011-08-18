@@ -52,13 +52,13 @@ class ReservationsManager(object):
         finally:
             session.close()
 
-    def get_request_info(self, reservation_id):
+    def get_request_info_and_client_initial_data(self, reservation_id):
         session = self._session_maker()
         try:
             reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
             if reservation is None:
                 return "{}"
-            return reservation.request_info
+            return reservation.request_info, reservation.client_initial_data
         finally:
             session.close()
 

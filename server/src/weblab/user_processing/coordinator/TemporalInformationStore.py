@@ -53,7 +53,7 @@ class TemporalInformationStore(object):
         pass
 
 class InitialInformationEntry(object):
-    def __init__(self, reservation_id, experiment_id, exp_coordaddr, initial_configuration, initial_time, end_time, request_info):
+    def __init__(self, reservation_id, experiment_id, exp_coordaddr, initial_configuration, initial_time, end_time, request_info, serialized_client_initial_data):
         self.reservation_id        = reservation_id
         self.experiment_id         = experiment_id
         self.exp_coordaddr         = exp_coordaddr
@@ -61,6 +61,7 @@ class InitialInformationEntry(object):
         self.initial_time          = initial_time
         self.end_time              = end_time 
         self.request_info          = request_info
+        self.client_initial_data   = serialized_client_initial_data
 
 class InitialTemporalInformationStore(TemporalInformationStore):
     def put(self, initial_information_entry):
