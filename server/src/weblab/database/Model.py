@@ -501,6 +501,9 @@ class DbUserFile(Base):
         self.file_info = file_info
         self.response = response
         self.timestamp_before, self.timestamp_before_micro = _timestamp_to_splitted_utc_datetime(timestamp_before)
+        self.set_timestamp_after(timestamp_after)
+
+    def set_timestamp_after(self, timestamp_after):
         self.timestamp_after, self.timestamp_after_micro = _timestamp_to_splitted_utc_datetime(timestamp_after)
 
     def __repr__(self):

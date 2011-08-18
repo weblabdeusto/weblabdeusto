@@ -238,15 +238,32 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             user_used_experiment = session.query(Model.DbUserUsedExperiment).filter_by(reservation_id = reservation_id).first()
             if user_used_experiment is None:
                 return False
-            session.add(Model.DbUserFile(
+            db_file_sent = Model.DbUserFile(
                             user_used_experiment,
                             file_sent.file_sent,
                             file_sent.file_hash,
                             file_sent.timestamp_before,
                             file_sent.file_info,
-                            file_sent.response.commandstring,
+                            file_sent.response.commandstring if file_sent.response is not None else None,
                             file_sent.timestamp_after
-                        ))
+                        )
+            session.add(db_file_sent)
+            session.commit()
+            return db_file_sent.id
+        finally:
+            session.close()
+
+    @logged()
+    def update_file(self, file_id, response, end_timestamp ):
+        session = self.Session()
+        try:
+            db_file_sent = session.query(Model.DbUserFile).filter_by(id = file_id).first()
+            if db_file_sent is None:
+                return False
+
+            db_file_sent.response = response.commandstring
+            db_file_sent.set_timestamp_after(end_timestamp)
+            session.update(db_file_sent)
             session.commit()
             return True
         finally:

@@ -46,7 +46,10 @@ class UserProcessingDatabaseManager(object):
     def append_file(self, reservation_id, file_sent):
         """ Tries to append a file. Returns True if it was added successfully, false otherwise """
         return self._gateway.append_file( reservation_id, file_sent )
-    
+
+    def update_file(self, file_id, response, end_timestamp):
+        """ Tries to update a file. Returns True if it was added successfully, false otherwise """
+        return self._gateway.update_file( file_id, response, end_timestamp )
    
     def get_groups(self, session_id, parent_id=None):
         return self._gateway.get_groups(session_id.username, parent_id)

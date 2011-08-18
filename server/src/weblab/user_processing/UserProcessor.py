@@ -248,20 +248,18 @@ class UserProcessor(object):
 
             usage_file_sent = self._store_file(file_content, file_info)
             try:
-                # TODO XXX FIXME
-                # file_sent_id = self._session['experiment_usage'].append_file(usage_file_sent)
+                command_id_pack = self._append_file(usage_file_sent)
                 response = laboratory_server.send_file(
                         self._session['lab_session_id'],
                         file_content,
                         file_info
                     )
 
-                # TODO XXX FIXME
-                # usage_file_sent.response        = response
-                # usage_file_sent.timestamp_after = self._utc_timestamp()
-                # self._session['experiment_usage'].update_file(file_sent_id, usage_file_sent)
+                self._update_file(command_id_pack, response)
+
                 return response
             except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
+                self._update_file(command_id_pack, Command.Command("ERROR: SessionNotFound: None"))
                 try:
                     self.finished_experiment()
                 except UserProcessingExceptions.FailedToFreeReservationException:
@@ -270,6 +268,7 @@ class UserProcessor(object):
                     'Experiment reservation expired'
                 )
             except LaboratoryExceptions.FailedToSendFileException, ftspe:
+                self._update_file(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
                 try:
                     self.finished_experiment()
                 except UserProcessingExceptions.FailedToFreeReservationException:
@@ -322,19 +321,32 @@ class UserProcessor(object):
         self._session['latest_timestamp'] = self._utc_timestamp()
 
     def _append_command(self, command):
+        return self._append_command_or_file(command, True)
+
+    def _append_file(self, command):
+        return self._append_command_or_file(command, False)
+       
+    def _append_command_or_file(self, command, command_or_file):
         command_id = random.randint(0, 1000 * 1000 * 1000)
         timestamp = self._utc_timestamp()
-        reservation_id = ''
-        command_entry = TemporalInformationStore.CommandOrFileInformationEntry(reservation_id, True, True, command_id, command, timestamp)
+        reservation_id = self._session['reservation_id']
+        command_entry = TemporalInformationStore.CommandOrFileInformationEntry(reservation_id, True, command_or_file, command_id, command, timestamp)
         self._commands_store.put(command_entry)
         return command_id
        
 
     def _update_command(self, command_id, response):
+        self._update_command_or_file(command_id, response, True)
+
+    def _update_file(self, command_id, response):
+        self._update_command_or_file(command_id, response, False)
+
+    def _update_command_or_file(self, command_id, response, command_or_file):
         timestamp = self._utc_timestamp()
-        reservation_id = ''
-        command_entry = TemporalInformationStore.CommandOrFileInformationEntry(reservation_id, False, True, command_id, response, timestamp)
+        reservation_id = self._session['reservation_id']
+        command_entry = TemporalInformationStore.CommandOrFileInformationEntry(reservation_id, False, command_or_file, command_id, response, timestamp)
         self._commands_store.put(command_entry)
+
 
     def _utc_timestamp(self):
         return self.time_module.time()

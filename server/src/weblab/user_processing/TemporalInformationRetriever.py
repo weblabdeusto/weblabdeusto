@@ -164,9 +164,29 @@ class TemporalInformationRetriever(threading.Thread):
         return True
 
     def _process_pre_file(self, information):
-        pass
+        file_sent = information.payload 
+        command_id = self.db_manager.append_file(information.reservation_id, file_sent)
+
+        if command_id is False or command_id is None:
+            return False
+
+        with self.entry_id2command_id_lock:
+            self.entry_id2command_id[information.entry_id] = command_id
+
+        return True
 
     def _process_post_file(self, information):
-        pass
+
+        with self.entry_id2command_id_lock:
+            command_id = self.entry_id2command_id.pop(information.entry_id, None)
+
+        if command_id is None: # Command not yet stored
+            return False
+
+        response_command = Command.Command(information.payload)
+
+        self.db_manager.update_file(command_id, response_command, information.timestamp)
+
+        return True
 
 

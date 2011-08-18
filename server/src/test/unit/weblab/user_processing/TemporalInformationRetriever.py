@@ -28,7 +28,6 @@ import weblab.user_processing.coordinator.TemporalInformationStore as TemporalIn
 
 import weblab.user_processing.database.DatabaseManager as DatabaseManager
 import test.unit.configuration as configuration
-from test.unit.weblab.user_processing.database.DatabaseMySQLGateway import create_usage
 
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
