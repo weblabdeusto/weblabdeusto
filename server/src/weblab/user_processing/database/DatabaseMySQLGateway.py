@@ -223,7 +223,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             if db_command is None:
                 return False
 
-            db_command.response = response
+            db_command.response = response.commandstring
             db_command.set_timestamp_after(end_timestamp)
             session.update(db_command)
             session.commit()

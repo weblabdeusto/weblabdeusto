@@ -72,31 +72,37 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
 
         self.retriever = TemporalInformationRetriever.TemporalInformationRetriever(self.initial_store, self.finished_store, self.commands_store, self.dbmanager)
         self.retriever.timeout = 0.001 # Be quicker instead of waiting for half a second
-        
-    def test_retriever_before(self):
-        initial_time = end_time = datetime.datetime.now()
+
+        self.initial_time = self.end_time = datetime.datetime.now()
+        self.initial_timestamp = self.end_timestamp = time.time()
+
+        request_info = {'username':'student1','role':'student'}
+        exp_id = ExperimentId('ud-dummy','Dummy Experiments')
+
+        self.entry1 = TemporalInformationStore.InitialInformationEntry(
+                        RESERVATION1, exp_id, coord_addr('ser:inst@mach'),  
+                        DATA1, self.initial_time, self.end_time, request_info.copy(), DATA_REQUEST1)
+        self.entry2 = TemporalInformationStore.InitialInformationEntry(
+                        RESERVATION2, exp_id, coord_addr('ser:inst@mach'),  
+                        DATA2, self.initial_time, self.end_time, request_info.copy(), DATA_REQUEST2)
+        self.entry3 = TemporalInformationStore.InitialInformationEntry(
+                        RESERVATION3, exp_id, coord_addr('ser:inst@mach'),  
+                        DATA3, self.initial_time, self.end_time, request_info.copy(), DATA_REQUEST3)
+        self.entry4 = TemporalInformationStore.InitialInformationEntry(
+                        RESERVATION4, exp_id, coord_addr('ser:inst@mach'),  
+                        DATA4, self.initial_time, self.end_time, request_info.copy(), DATA_REQUEST3)
+
+
+    def test_initial_finish(self):
         self.retriever.start()
         try:
             usages = self.dbmanager._gateway.list_usages_per_user('student1')
             self.assertEquals(0, len(usages))
 
-            request_info = {'username':'student1','role':'student'}
-            exp_id = ExperimentId('ud-dummy','Dummy Experiments')
-
-            entry1 = TemporalInformationStore.InitialInformationEntry(
-                        RESERVATION1, exp_id, coord_addr('ser:inst@mach'),  
-                        DATA1, initial_time, end_time, request_info.copy(), DATA_REQUEST1)
-            entry2 = TemporalInformationStore.InitialInformationEntry(
-                        RESERVATION2, exp_id, coord_addr('ser:inst@mach'),  
-                        DATA2, initial_time, end_time, request_info.copy(), DATA_REQUEST2)
-            entry3 = TemporalInformationStore.InitialInformationEntry(
-                        RESERVATION3, exp_id, coord_addr('ser:inst@mach'),  
-                        DATA3, initial_time, end_time, request_info.copy(), DATA_REQUEST3)
-
-            self.initial_store.put(entry1)
-            self.initial_store.put(entry2)
-            self.initial_store.put(entry3)
-            self.finished_store.put(RESERVATION4, DATA4, initial_time, end_time)
+            self.initial_store.put(self.entry1)
+            self.initial_store.put(self.entry2)
+            self.initial_store.put(self.entry3)
+            self.finished_store.put(RESERVATION4, DATA4, self.initial_time, self.end_time)
             
             # Wait and then populate the RESERVATION3 (the last one in the queue)
             wait_for(self.retriever)
@@ -123,11 +129,7 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
 
             wait_for(self.retriever)
 
-            entry4 = TemporalInformationStore.InitialInformationEntry(
-                        RESERVATION4, exp_id, coord_addr('ser:inst@mach'),  
-                        DATA4, initial_time, end_time, request_info.copy(), DATA_REQUEST4)
-
-            self.initial_store.put(entry4)
+            self.initial_store.put(self.entry4)
 
             wait_for(self.retriever)
 
@@ -155,7 +157,7 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
             self.assertEquals(None, full_usage3.end_date)
 
             # But if we add to the finish store, and we wait:
-            self.finished_store.put(RESERVATION1, DATA1, initial_time, end_time)
+            self.finished_store.put(RESERVATION1, DATA1, self.initial_time, self.end_time)
 
             wait_for(self.retriever)
 
@@ -164,6 +166,102 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
             self.assertEquals(DATA1, full_usage1.commands[-1].response.commandstring)
             self.assertNotEqual(None, full_usage1.end_date)
 
+
+        finally:
+            self.retriever.stop()
+            self.retriever.join(1)
+            self.assertFalse(self.retriever.isAlive())
+
+    def test_commands(self):
+        self.retriever.start()
+        try:
+            usages = self.dbmanager._gateway.list_usages_per_user('student1')
+            self.assertEquals(0, len(usages))
+
+            self.initial_store.put(self.entry1)
+            
+            wait_for(self.retriever)
+
+            usages = self.dbmanager._gateway.list_usages_per_user('student1')
+
+            self.assertEquals(1, len(usages))
+
+            entry_id1 = 58131
+            entry_id2 = 14214
+            entry_id3 = 84123
+
+            pre_command1 = TemporalInformationStore.CommandOrFileInformationEntry(RESERVATION1, True, True, entry_id1, DATA_REQUEST1, self.initial_timestamp)
+            post_command1 = TemporalInformationStore.CommandOrFileInformationEntry(RESERVATION1, False, True, entry_id1, DATA1, self.initial_timestamp)
+
+            pre_command2 = TemporalInformationStore.CommandOrFileInformationEntry(RESERVATION2, True, True, entry_id2, DATA_REQUEST2, self.initial_timestamp)
+            post_command2 = TemporalInformationStore.CommandOrFileInformationEntry(RESERVATION2, False, True, entry_id2, DATA2, self.initial_timestamp)
+
+            pre_command3 = TemporalInformationStore.CommandOrFileInformationEntry(RESERVATION3, True, True, entry_id3, DATA_REQUEST3, self.initial_timestamp)
+            post_command3 = TemporalInformationStore.CommandOrFileInformationEntry(RESERVATION3, False, True, entry_id3, DATA3, self.initial_timestamp)
+
+            # The reservation is stored, therefore this command will
+            # also be stored
+            self.commands_store.put(pre_command1)
+
+            # This reservation has not been stored, therefore this command
+            # will not be stored yet
+            self.commands_store.put(pre_command2)
+
+            # Neither this reservation or the pre_command3 have been stored,
+            # therefore this command will not be stored
+            self.commands_store.put(post_command3)
+
+            wait_for(self.retriever)
+
+            usages = self.dbmanager._gateway.list_usages_per_user('student1')
+            self.assertEquals(1, len(usages))
+
+            full_usage1 = self.dbmanager._gateway.retrieve_usage(usages[0].experiment_use_id)
+            self.assertEquals(DATA_REQUEST1, full_usage1.commands[-1].command.commandstring)
+            self.assertEquals(None, full_usage1.commands[-1].response.commandstring)
+
+
+            # So we add the post_command1, to avoid the "None"
+            self.commands_store.put(post_command1)
+            # And the pre_command3, to see if it is correctly enqueued
+            self.commands_store.put(pre_command3)
+            # And the entry 2, to let pre_command2 enter
+            self.initial_store.put(self.entry2)
+
+            wait_for(self.retriever)
+
+            usages = self.dbmanager._gateway.list_usages_per_user('student1')
+            self.assertEquals(2, len(usages))
+
+            full_usage1 = self.dbmanager._gateway.retrieve_usage(usages[0].experiment_use_id)
+            self.assertEquals(DATA_REQUEST1, full_usage1.commands[-1].command.commandstring)
+            self.assertEquals(DATA1, full_usage1.commands[-1].response.commandstring)
+
+            full_usage2 = self.dbmanager._gateway.retrieve_usage(usages[1].experiment_use_id)
+            self.assertEquals(DATA_REQUEST2, full_usage2.commands[-1].command.commandstring)
+            self.assertEquals(None, full_usage2.commands[-1].response.commandstring)
+
+            # So now we add the rest
+
+            self.commands_store.put(post_command2)
+            self.initial_store.put(self.entry3)
+
+            wait_for(self.retriever)
+
+            usages = self.dbmanager._gateway.list_usages_per_user('student1')
+            self.assertEquals(3, len(usages))
+
+            full_usage1 = self.dbmanager._gateway.retrieve_usage(usages[0].experiment_use_id)
+            self.assertEquals(DATA_REQUEST1, full_usage1.commands[-1].command.commandstring)
+            self.assertEquals(DATA1, full_usage1.commands[-1].response.commandstring)
+
+            full_usage2 = self.dbmanager._gateway.retrieve_usage(usages[1].experiment_use_id)
+            self.assertEquals(DATA_REQUEST2, full_usage2.commands[-1].command.commandstring)
+            self.assertEquals(DATA2, full_usage2.commands[-1].response.commandstring)
+
+            full_usage3 = self.dbmanager._gateway.retrieve_usage(usages[2].experiment_use_id)
+            self.assertEquals(DATA_REQUEST3, full_usage3.commands[-1].command.commandstring)
+            self.assertEquals(DATA3, full_usage3.commands[-1].response.commandstring)
 
         finally:
             self.retriever.stop()

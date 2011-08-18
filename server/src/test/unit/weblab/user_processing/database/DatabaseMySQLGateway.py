@@ -264,7 +264,7 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         self.assertEquals("your command",        full_usage.commands[0].command.commandstring)
         self.assertEquals(Command.NullCommand(), full_usage.commands[0].response)
 
-        self.gateway.update_command(command_id, "the response", time.time())
+        self.gateway.update_command(command_id, Command.Command("the response"), time.time())
 
         full_usage = self.gateway.retrieve_usage(usages[0].experiment_use_id)
         self.assertEquals("your command",      full_usage.commands[0].command.commandstring)

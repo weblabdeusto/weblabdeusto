@@ -139,6 +139,7 @@ class TemporalInformationRetriever(threading.Thread):
                         Command.Command(information.payload),
                         information.timestamp
                     )
+
         command_id = self.db_manager.append_command(information.reservation_id, command)
         if command_id is False or command_id is None:
             return False
