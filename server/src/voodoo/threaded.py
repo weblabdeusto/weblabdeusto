@@ -50,7 +50,7 @@ class _ThreadedFunc(threading.Thread):
             finally:
                 if self._resource_manager != None:
                     self._resource_manager.remove_resource(self)
-        except Exception, e:
+        except Exception as e:
             self.raised_exc = e
             if self.logging:
                 log.log(

@@ -265,14 +265,14 @@ class AdminRemoteFacadeServerTestCase(unittest.TestCase):
             try:
                 groups = self.client.get_groups(REAL_ID, 'foo')
                 self.fail("HTTPError expected")
-            except urllib2.HTTPError, error:
+            except urllib2.HTTPError as error:
                 self.assertEquals(400, error.code)
                 self.assertTrue(error.read().find("int") >= 0)
 
             try:
                 groups = self.client.get_groups(REAL_ID)
                 self.fail("HTTPError expected")
-            except urllib2.HTTPError, error:
+            except urllib2.HTTPError as error:
                 self.assertEquals(400, error.code)
                 self.assertTrue(error.read().find("provided") >= 0)
 

@@ -122,7 +122,7 @@ class UserProcessingIntegratingRemoteFacadeManager(unittest.TestCase):
                 try:
                     wds.logout(expected_sess_id)
                     self.fail('exception expected')
-                except ZSI.FaultException, e:
+                except ZSI.FaultException as e:
                     self.assertEquals(
                         UserProcessingRFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE,
                         e.fault.code[1]

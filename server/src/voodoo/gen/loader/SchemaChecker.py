@@ -44,7 +44,7 @@ class SchemaChecker(object):
             sio_xsd = StringIO(xsdfile_content)
             xmlschema_doc = etree.parse(sio_xsd)
             xmlschema = etree.XMLSchema(xmlschema_doc)
-        except Exception,e:
+        except Exception as e:
             log.log( SchemaChecker, log.LogLevel.Warning, 'Invalid syntax file configuration: File %s: %s' % (xsdfile_path, e))
             log.log_exc( SchemaChecker, log.LogLevel.Info)
             raise LoaderExceptions.InvalidSyntaxFileConfigurationException( e, xsdfile_path )
@@ -53,10 +53,10 @@ class SchemaChecker(object):
             sio_xml = StringIO(xmlfile_content)
             xml_doc = etree.parse(sio_xml)
             xmlschema.assertValid(xml_doc)
-        except etree.DocumentInvalid, di:
+        except etree.DocumentInvalid as di:
             log.log( SchemaChecker, log.LogLevel.Warning, 'Not a valid configuration file. Check it with a XML Schema validator: File %s' % (xmlfile_path))
             raise LoaderExceptions.InvalidSyntaxFileConfigurationException( 'Not a valid configuration file. Check it with a XML Schema validator. %s' % di.args, xmlfile_path)
-        except Exception,e:
+        except Exception as e:
             log.log( SchemaChecker, log.LogLevel.Warning, 'Invalid syntax file configuration: File %s: %s' % (xmlfile_path, e))
             log.log_exc( SchemaChecker, log.LogLevel.Info)
             raise LoaderExceptions.InvalidSyntaxFileConfigurationException( e, xmlfile_path)

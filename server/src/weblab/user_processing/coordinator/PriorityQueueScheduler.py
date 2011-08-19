@@ -50,7 +50,7 @@ def exc_checker(func):
             for _ in xrange(10):
                 try:
                     return func(*args, **kwargs)
-                except OperationalError, oe:
+                except OperationalError as oe:
                     # XXX MySQL dependent!!!
                     if oe.orig.args[0] == 1213:
                         log.log(
@@ -400,7 +400,7 @@ class PriorityQueueScheduler(Scheduler):
                         session.delete(first_waiting_reservation)
                         session.add(concrete_current_reservation)
                         session.commit()
-                    except IntegrityError, ie:
+                    except IntegrityError as ie:
                         # Other scheduler confirmed the user or booked the reservation, rollback and try again
                         # But log just in case
                         log.log(
@@ -409,7 +409,7 @@ class PriorityQueueScheduler(Scheduler):
                         log.log_exc(PriorityQueueScheduler, LogLevel.Info)
                         session.rollback()
                         break
-                    except Exception, e:
+                    except Exception as e:
                         log.log(
                             PriorityQueueScheduler, LogLevel.Warning,
                             "Exception looping on update_queues: %s" % e )
@@ -438,7 +438,7 @@ class PriorityQueueScheduler(Scheduler):
                         # reservation
                         # 
                         break
-            except (ConcurrentModificationError, IntegrityError), ie:
+            except (ConcurrentModificationError, IntegrityError) as ie:
                 # Something happened somewhere else, such as the user being confirmed twice, the experiment being reserved twice or so on.
                 # Rollback and start again
                 log.log(
@@ -490,7 +490,7 @@ class PriorityQueueScheduler(Scheduler):
             if reservations_removed:
                 try:
                     session.commit()
-                except sqlalchemy.exceptions.ConcurrentModificationError, e:
+                except sqlalchemy.exceptions.ConcurrentModificationError as e:
                     log.log(
                         PriorityQueueScheduler, LogLevel.Warning,
                         "IntegrityError: %s" % e )

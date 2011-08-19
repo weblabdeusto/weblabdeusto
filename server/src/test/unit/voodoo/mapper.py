@@ -359,9 +359,9 @@ class MapperTestCase(unittest.TestCase):
         try:
             urllib2.urlopen("http://localhost/this.does.not.exist")
             self.fail("exception expected")
-        except urllib2.URLError, e:
+        except urllib2.URLError as e:
             pass
-        except urllib2.HTTPError, e:
+        except urllib2.HTTPError as e:
             pass
 
         removed = mapper.remove_unpickables(e)

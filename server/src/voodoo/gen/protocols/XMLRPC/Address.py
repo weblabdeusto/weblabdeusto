@@ -44,14 +44,14 @@ class Address(cAddress.IpBasedAddress):
     def create_client(self,methods):
         try:
             client_class = ClientXMLRPC.generate(methods)
-        except Exception,e:
+        except Exception as e:
             raise ProtocolExceptions.ClientClassCreationException(
                     ("Client class creation exception: %s" % e),
                     e
                 )
         try:
             return client_class(url = self.ip_address, port = self.port, uri = self.uri)
-        except Exception,e:
+        except Exception as e:
             raise ProtocolExceptions.ClientInstanciationException(("Unable to instanciate the XMLRPC client: %s" % e),e)
 
     def __repr__(self):

@@ -70,7 +70,7 @@ class DbLocker(object):
                 passwd  = self.password,
                 db      = self.database_name
             )
-        except self.dbi.DatabaseError,e:
+        except self.dbi.DatabaseError as e:
             raise SessionExceptions.SessionDatabaseConnectionException(
                     "Error connecting to the database %s" % e,
                     e

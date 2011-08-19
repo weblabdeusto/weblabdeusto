@@ -381,7 +381,7 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         try:
             getattr(self.rfm, method)(*args)
             self.fail('exception expected')
-        except ZSI.Fault, e:
+        except ZSI.Fault as e:
             self.assertEquals(expected_code, e.code)
             self.assertEquals(expected_exc_message, e.string)
     
@@ -922,7 +922,7 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
         try:
             getattr(self.rfm, method)(*args)
             self.fail('exception expected')
-        except ZSI.Fault, e:
+        except ZSI.Fault as e:
             self.assertEquals(expected_code, e.code)
             self.assertEquals(expected_exc_message, e.string)
     

@@ -36,12 +36,12 @@ def _generate_stub(METHOD_NAME):
              Method name: METHOD_NAME. Documentation: DOCUMENTATION """
         try:
             return getattr(self._server,'Util.%s' % METHOD_NAME)(*parameters,**kparameters)
-        except xmlrpclib.Fault,ft:
+        except xmlrpclib.Fault as ft:
             raise Exceptions.UnknownFaultType(
                     "Unknown fault type: " + str(ft.faultCode) + ": " + str(ft.faultString),
                     ft
                 )
-        except Exception,e:
+        except Exception as e:
             raise ProtocolExceptions.UnknownRemoteException(
                     "Unknown exception: " + str(e.__class__) + "; " + str(e),
                     e

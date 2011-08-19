@@ -57,7 +57,7 @@ class Facebook(object):
             email = user_data.get('email','<not provided>')
             user = User(login, full_name, email, StudentRole())
             return user
-        except Exception, e:
+        except Exception as e:
             log.log( Facebook, log.LogLevel.Warning, "Error: %s" % e )
             log.log_exc( Facebook, log.LogLevel.Info )
             return ""

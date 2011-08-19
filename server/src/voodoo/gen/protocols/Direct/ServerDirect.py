@@ -50,7 +50,7 @@ def generate(cfg_manager, methods):
             registry = ServerRegistry.get_instance()
             try:
                 registry.register_server(_SERVER_PREFIX + self._server_id, self._parent)
-            except RegistryExceptions.AddressAlreadyRegisteredException, aar:
+            except RegistryExceptions.AddressAlreadyRegisteredException as aar:
                 log.log(
                         ServerDirect,
                         log.LogLevel.Warning,

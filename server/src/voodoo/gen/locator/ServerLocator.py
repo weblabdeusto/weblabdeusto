@@ -117,7 +117,7 @@ class ServerLocator(object):
                     # Now add it to the cache and return it
                     try:
                         self._save_server_in_cache(server, server_type, restrictions)
-                    except LocatorExceptions.ServerFoundInCacheException, server_found_in_cache:
+                    except LocatorExceptions.ServerFoundInCacheException as server_found_in_cache:
                         # While we were calling the coordinator, some
                         # other thread retrieved the server. Use the
                         # server that was already in the cache
@@ -131,7 +131,7 @@ class ServerLocator(object):
                     )
                 try:
                     server = address.create_client(methods)
-                except ProtocolExceptions.ClientProtocolException,ccce:
+                except ProtocolExceptions.ClientProtocolException as ccce:
                     # TODO: not tested
                     # There was some error creating the client
                     log.log(
@@ -161,7 +161,7 @@ class ServerLocator(object):
                             restrictions,
                             address
                         )
-                except LocatorExceptions.ServerFoundInCacheException, e:
+                except LocatorExceptions.ServerFoundInCacheException as e:
                     return e.get_server()
                 else:
                     return server
@@ -231,7 +231,7 @@ class ServerLocator(object):
                 )
             try:
                 cur_server = address.create_client(methods)
-            except ProtocolExceptions.ClientClassCreationException,ccce:
+            except ProtocolExceptions.ClientClassCreationException as ccce:
                 # TODO: not unittested
                 # There was some error creating the client
                 log.log(
@@ -282,7 +282,7 @@ class ServerLocator(object):
                     )
                 )
                 return False
-        except Exception, e:
+        except Exception as e:
             #There was a exception: this is not a valid server, try another
             log.log(
                 ServerLocator,
@@ -301,7 +301,7 @@ class ServerLocator(object):
     def _retrieve_session_id_from_coordinator(self,original_server_address,server_type,restrictions):
         try:
             return self._coordinator.new_query(original_server_address,server_type,restrictions)
-        except ProtocolExceptions.ProtocolException, pe:
+        except ProtocolExceptions.ProtocolException as pe:
             log.log( ServerLocator, log.LogLevel.Error, "Problem while asking for new session id to the coordinator server. %s" % pe )
             log.log_exc( ServerLocator, log.LogLevel.Warning )
 
@@ -309,7 +309,7 @@ class ServerLocator(object):
                     "Couldn't retrieve new session id from coordinator server: " + str(pe),
                     pe
                 )
-        except Exception,e:
+        except Exception as e:
             log.log( ServerLocator, log.LogLevel.Error, "Unexpected exception while asking for new session id to the coordinator server. %s" % e )
             log.log_exc( ServerLocator, log.LogLevel.Warning )
 
@@ -321,14 +321,14 @@ class ServerLocator(object):
     def _logout_from_coordinator(self, session_id):
         try:
             self._coordinator.logout(session_id)
-        except Exception, e:
+        except Exception as e:
             log.log( ServerLocator, log.LogLevel.Warning, "Unexpected exception while logging out from Coordinator Server. %s " % e)
             log.log_exc( ServerLocator, log.LogLevel.Info )
 
     def _retrieve_all_servers_from_coordinator(self,original_server_address,server_type,restrictions):
         try:
             return self._coordinator.get_all_servers(original_server_address,server_type,restrictions)
-        except ProtocolExceptions.ProtocolException, pe:
+        except ProtocolExceptions.ProtocolException as pe:
             # TODO: not unittested
             log.log(
                     ServerLocator,
@@ -344,7 +344,7 @@ class ServerLocator(object):
                     "Couldn't retrieve all servers from coordinator server: " + str(pe),
                     pe
                 )
-        except Exception, e:
+        except Exception as e:
             # TODO: not unittested
             log.log(
                     ServerLocator,
@@ -364,7 +364,7 @@ class ServerLocator(object):
     def _retrieve_networks_from_coordinator(self,original_server_address,server_coord_address):
         try:
             return self._coordinator.get_networks(original_server_address,server_coord_address)
-        except ProtocolExceptions.ProtocolException, pe:
+        except ProtocolExceptions.ProtocolException as pe:
             # TODO: not unittested
             log.log(
                     ServerLocator,
@@ -380,7 +380,7 @@ class ServerLocator(object):
                     "Couldn't retrieve networks from coordinator server: " + str(pe),
                     pe
                 )
-        except Exception, e:
+        except Exception as e:
             # TODO: not unittested
             log.log(
                     ServerLocator,
@@ -403,9 +403,9 @@ class ServerLocator(object):
     def _get_server_from_coordinator(self, session_id):
         try:
             return self._coordinator.get_server(session_id)
-        except CoordinatorServerExceptions.NoServerFoundException,nsfe:
+        except CoordinatorServerExceptions.NoServerFoundException as nsfe:
             raise nsfe
-        except ProtocolExceptions.ProtocolException, pe:
+        except ProtocolExceptions.ProtocolException as pe:
             log.log(
                     ServerLocator,
                     log.LogLevel.Error,
@@ -419,7 +419,7 @@ class ServerLocator(object):
                     "Couldn't ask for other server to coordinator server: " + str(pe),
                     pe
                 )
-        except Exception,e:
+        except Exception as e:
             log.log(
                     ServerLocator,
                     log.LogLevel.Error,
@@ -460,7 +460,7 @@ class ServerLocator(object):
         try:
             try:
                 self._registry.register_server(address.address,server)
-            except RegistryExceptions.RegistryException,e:
+            except RegistryExceptions.RegistryException as e:
                 # TODO: not unittested
                 log.log(
                         ServerLocator,

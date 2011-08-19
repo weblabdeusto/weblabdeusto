@@ -139,14 +139,14 @@ class XilinxImpact(object):
                 stdout = subprocess.PIPE,
                 stderr = subprocess.PIPE
             )
-        except Exception, e:
+        except Exception as e:
             raise XilinxImpactExceptions.ErrorProgrammingDeviceException(
                 "There was an error while executing Xilinx Impact: %s" % e
             )
         # TODO: make use of popen.poll to make this asynchronous
         try:
             result = popen.wait()
-        except Exception, e:
+        except Exception as e:
             raise XilinxImpactExceptions.ErrorWaitingForProgrammingFinishedException(
                 "There was an error while waiting for Xilinx Impact to finish: %s" % e
             )
@@ -154,7 +154,7 @@ class XilinxImpact(object):
         try:
             stdout_result = popen.stdout.read()
             stderr_result = popen.stderr.read()
-        except Exception, e:
+        except Exception as e:
             raise XilinxImpactExceptions.ErrorRetrievingOutputFromProgrammingProgramException(
                 "There was an error while retrieving the output of Xilinx Impact: %s" % e
             )
@@ -164,7 +164,7 @@ class XilinxImpact(object):
         try:
             program_file_content = self._cfg_manager.get_value('xilinx_batch_content_' + device)
             xilinx_impact = self._cfg_manager.get_value('xilinx_impact_full_path')
-        except ConfigurationExceptions.KeyNotFoundException,knfe:
+        except ConfigurationExceptions.KeyNotFoundException as knfe:
             raise XilinxImpactExceptions.CantFindXilinxProperty(
                     "Can't find in configuration manager the property '%s'" % knfe.key
                 )
@@ -174,7 +174,7 @@ class XilinxImpact(object):
         try:
             svf2jsvf_file_content = self._cfg_manager.get_value('xilinx_source2svf_batch_content_' + device)
             xilinx_impact = self._cfg_manager.get_value('xilinx_impact_full_path')
-        except ConfigurationExceptions.KeyNotFoundException,knfe:
+        except ConfigurationExceptions.KeyNotFoundException as knfe:
             raise XilinxImpactExceptions.CantFindXilinxProperty(
                     "Can't find in configuration manager the property '%s'" % knfe.key
                 )

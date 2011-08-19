@@ -154,13 +154,13 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                     break
             else:
                 NotFoundMethod(self, self.cfg_manager, self.original_server).run()
-        except RequestManagedException, e:
+        except RequestManagedException as e:
             return
-        except MethodException, e:
+        except MethodException as e:
             log.log( self, log.LogLevel.Error, str(e))
             log.log_exc( self, log.LogLevel.Warning)
             self._write(e.status, e.msg)
-        except Exception, e:
+        except Exception as e:
             import traceback
             traceback.print_exc()
 

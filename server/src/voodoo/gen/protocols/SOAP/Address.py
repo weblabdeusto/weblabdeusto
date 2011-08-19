@@ -31,14 +31,14 @@ class Address(cAddress.IpBasedAddress):
     def create_client(self,methods):
         try:
             client_class = ClientSOAP.generate(methods)
-        except Exception,e:
+        except Exception as e:
             raise ProtocolExceptions.ClientClassCreationException(
                     ("Client class creation exception: %s" % e),
                     e
                 )
         try:
             return client_class(url = self.ip_address, port = self.port)
-        except Exception,e:
+        except Exception as e:
             raise ProtocolExceptions.ClientInstanciationException(("Unable to instanciate the SOAP client: %s" % e),e)
 
     def __repr__(self):

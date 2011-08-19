@@ -96,21 +96,21 @@ class Address(cAddress.Address):
             server = registry.get_server(
                 ServerDirect._SERVER_PREFIX +self._server_id
             )
-        except RegistryExceptions.RegistryException,rex:
+        except RegistryExceptions.RegistryException as rex:
             raise ProtocolExceptions.ClientCreationException(
                     ("Registry exception while retrieving server from registry: %s" % rex),
                     rex
             )
         try:
             client_class = ClientSkel.factory(Protocols.Direct,methods)
-        except Exception,e:
+        except Exception as e:
             raise ProtocolExceptions.ClientClassCreationException(
                     ("Client class creation exception: %s" % e),
                     e
                 )
         try:
             return client_class(server)
-        except Exception, e:
+        except Exception as e:
             raise ProtocolExceptions.ClientInstanciationException(
                     ("Exception instaciating the client: %s" % e),
                     e

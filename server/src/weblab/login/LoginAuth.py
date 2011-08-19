@@ -81,7 +81,7 @@ class LdapLoginAuth(LoginAuth):
             ldapobj = ldap_module.initialize(
                 self._user_auth.ldap_uri
             )
-        except Exception, e:
+        except Exception as e:
             raise LoginExceptions.LdapInitializingException(
                 "Exception initializing the LDAP module: %s" % e
             )
@@ -91,9 +91,9 @@ class LdapLoginAuth(LoginAuth):
 
         try:
             ldapobj.simple_bind_s(dn, pw)
-        except ldap.INVALID_CREDENTIALS, e:
+        except ldap.INVALID_CREDENTIALS as e:
             return False
-        except Exception, e:
+        except Exception as e:
             raise LoginExceptions.LdapBindingException(
                 "Exception binding to the server: %s" % e
             )

@@ -37,7 +37,7 @@ try:
     from configuration import DEFAULT_DB_USERS_FILE
     from configuration import DEFAULT_NOTIFICATION_FROM, DEFAULT_NOTIFICATION_BCC, DEFAULT_NOTIFICATION_SUBJECT, DEFAULT_NOTIFICATION_TEXT_FILE
     from configuration import DEFAULT_NOTIFICATION_WITH_PASSWORD_TEXT_FILE
-except Exception, e:
+except Exception as e:
     print "File configuration.py not found. See configuration.py.dist. Error:", str(e)
     sys.exit(1)
 

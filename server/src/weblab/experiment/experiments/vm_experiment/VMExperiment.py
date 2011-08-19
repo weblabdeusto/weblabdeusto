@@ -233,7 +233,7 @@ class VMExperiment(Experiment.Experiment):
             self.user_manager.configure(self.session_id)
             if DEBUG:
                 print "t_configured"
-        except Exception, ex:
+        except Exception as ex:
             self.is_error = True
             self.error = ex
 

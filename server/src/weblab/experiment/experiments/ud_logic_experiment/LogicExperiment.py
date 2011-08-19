@@ -163,7 +163,7 @@ class LogicExperiment(Experiment.Experiment):
 
         try:
             self.send("Welcome!;0")
-        except Exception, e:
+        except Exception as e:
             print "excepcion cuando tocaba LCD Welcome!", str(e)
         return ""
 

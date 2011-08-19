@@ -86,7 +86,7 @@ class BotLauncher(object):
                 print "Storing results...", time.asctime()
                 self._dump_results()
                 print "Results stored",time.asctime()
-            except Exception, e:
+            except Exception as e:
                 print "Error: Couldn't store results into %s: %r" % (self.pickle_file_name, e)
         
     def _launch_trial(self):

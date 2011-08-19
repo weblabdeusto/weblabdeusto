@@ -76,7 +76,7 @@ class ClientSOAPTestCase(unittest.TestCase):
             the_error = None
             try:
                 newfunctions[1](fake)
-            except TypeError,te:
+            except TypeError as te:
                 the_error = te
                 
             self.assertEquals( the_error.args[0], exc_msg )

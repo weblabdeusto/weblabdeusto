@@ -89,7 +89,7 @@ class LoginIntegratingRemoteFacadeManager(unittest.TestCase):
                 try:
                     wds.login(USERNAME, PASSWORD)
                     self.fail('exception expected')
-                except ZSI.FaultException, e:
+                except ZSI.FaultException as e:
                     self.assertEquals(
                         LoginRFCodes.CLIENT_INVALID_CREDENTIALS_EXCEPTION_CODE,
                         e.fault.code[1]
@@ -132,7 +132,7 @@ class LoginIntegratingRemoteFacadeManager(unittest.TestCase):
                 try:
                     wds.login_based_on_other_credentials(SYSTEM, CREDENTIALS)
                     self.fail('exception expected')
-                except ZSI.FaultException, e:
+                except ZSI.FaultException as e:
                     self.assertEquals(
                         LoginRFCodes.CLIENT_INVALID_CREDENTIALS_EXCEPTION_CODE,
                         e.fault.code[1]

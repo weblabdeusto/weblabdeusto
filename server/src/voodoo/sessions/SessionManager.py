@@ -52,7 +52,7 @@ class SessionManagerCleaner(threading.Thread):
                     else:
                         session_manager.delete_expired_sessions()
 
-            except Exception, e:
+            except Exception as e:
                 if DEBUGGING:
                     print "Error!",e
                     import traceback

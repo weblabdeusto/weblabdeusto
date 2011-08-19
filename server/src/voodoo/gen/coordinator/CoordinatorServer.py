@@ -86,7 +86,7 @@ class CoordinatorServer(object):
                     }
                 )
             )
-        except SessionExceptions.SessionException,se:
+        except SessionExceptions.SessionException as se:
             raise CoordinatorServerExceptions.CouldNotCreateSessionException(
                     "Couldn't create session: " + str(se),
                     se
@@ -108,7 +108,7 @@ class CoordinatorServer(object):
     def do_get_server(self, session_id):
         try:
             session = self._session_manager.get_session_locking(session_id)
-        except SessionExceptions.SessionInvalidSessionIdException,sisi:
+        except SessionExceptions.SessionInvalidSessionIdException as sisi:
             raise CoordinatorServerExceptions.SessionNotFoundException(*sisi.args)
         try:
             server_type                 = session['server_type']

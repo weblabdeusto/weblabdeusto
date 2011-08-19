@@ -33,7 +33,7 @@ def fill_coordinations(coordinations_configuration, address):
                 )
         try:
             address = Address.Address(parameter.value)
-        except Exception, e:
+        except Exception as e:
             raise LoaderExceptions.InvalidConfigurationException(
                     "Invalid address format for XMLRPC coordinations: %s" % e
                 )

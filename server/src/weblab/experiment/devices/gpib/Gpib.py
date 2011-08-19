@@ -48,7 +48,7 @@ class Launcher(object):
     def execute(self, file_path, background):
         try:
             self.popen = self._create_popen(file_path)
-        except Exception, e:
+        except Exception as e:
             raise GpibExceptions.ErrorProgrammingDeviceException(
                 "There was an error while compiling the device: %s" % e # TODO: "compiling"
             )
@@ -70,7 +70,7 @@ class Launcher(object):
             if result is None:
                 raise Exception("Program took too much time to run")
             return result
-        except Exception, e:
+        except Exception as e:
             raise GpibExceptions.ErrorWaitingForProgrammingFinishedException(
                 "There was an error while waiting for the compiler to finish: %s" % e
             )
@@ -79,7 +79,7 @@ class Launcher(object):
         try:
             self.result_stdout = self.popen.stdout.read()
             self.result_stderr = self.popen.stderr.read()
-        except Exception, e:
+        except Exception as e:
             raise GpibExceptions.ErrorRetrievingOutputFromProgrammingProgramException(
                 "There was an error while retrieving the output of the compiler: %s" % e
             )
@@ -87,7 +87,7 @@ class Launcher(object):
     def poll(self):
         try:
             self.result_code = self.popen.poll()
-        except Exception, e:
+        except Exception as e:
             raise GpibExceptions.ErrorWaitingForProgrammingFinishedException(
                 "There was an error while waiting for the compiler to finish: %s" % e
             )
@@ -175,7 +175,7 @@ class Compiler(Launcher):
         try:
             compiler_command = list(self._cfg_manager.get_value('gpib_compiler_command'))
             linker_command   = list(self._cfg_manager.get_value('gpib_linker_command'))
-        except ConfigurationExceptions.KeyNotFoundException,knfe:
+        except ConfigurationExceptions.KeyNotFoundException as knfe:
             raise GpibExceptions.CantFindGpibProperty(
                     "Can't find in configuration manager the property '%s'" % knfe.key
                 )

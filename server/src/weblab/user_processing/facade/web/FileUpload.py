@@ -63,13 +63,13 @@ class FileUploadMethod(WebFacadeServer.Method):
             else:
                 result = self.server.send_async_file(sid, file_content, file_info)
                 
-        except FileUploadException, fue:
+        except FileUploadException as fue:
             code, message = fue.args
             return FAULT_HTML_TEMPLATE % {
                         'THE_FAULT_CODE' : code,
                         'THE_FAULT_MESSAGE' : message
                     }
-        except Exception, e:
+        except Exception as e:
             message = e.args[0]
             return FAULT_HTML_TEMPLATE % {
                         'THE_FAULT_CODE' : PYTHON_GENERAL_EXCEPTION_CODE,

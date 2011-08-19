@@ -55,7 +55,7 @@ class ResourcesCheckerThread(threading.Thread):
                     continue # coordinator not configured yet
                 checker = self.Checker(coordinator)
                 checker.check()
-            except Exception, e:
+            except Exception as e:
                 log.log(ResourcesCheckerThread, LogLevel.Critical,
                     "Exception checking resources: %s" % e )
                 log.log_exc(ResourcesCheckerThread, LogLevel.Error)

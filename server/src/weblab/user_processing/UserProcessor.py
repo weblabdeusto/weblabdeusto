@@ -244,7 +244,7 @@ class UserProcessor(object):
                 reservation_id = self._session.pop('reservation_id')
                 self._session['last_reservation_id'] = reservation_id
                 self._coordinator.finish_reservation(reservation_id)
-            except Exception, e:
+            except Exception as e:
                 log.log( UserProcessor, log.LogLevel.Error, "Exception finishing reservation: %s" % e )
                 log.log_exc( UserProcessor, log.LogLevel.Warning )
                 error = e
@@ -289,7 +289,7 @@ class UserProcessor(object):
                 raise UserProcessingExceptions.NoCurrentReservationException(
                     'Experiment reservation expired'
                 )
-            except LaboratoryExceptions.FailedToSendFileException, ftspe:
+            except LaboratoryExceptions.FailedToSendFileException as ftspe:
                 self._update_file(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
                 try:
                     self.finished_experiment()
@@ -333,7 +333,7 @@ class UserProcessor(object):
                 raise UserProcessingExceptions.NoCurrentReservationException(
                     'Experiment reservation expired'
                 )
-            except LaboratoryExceptions.FailedToSendCommandException, ftspe:
+            except LaboratoryExceptions.FailedToSendCommandException as ftspe:
                 self._update_command(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
                 try:
                     self.finished_experiment()
@@ -383,7 +383,7 @@ class UserProcessor(object):
                 raise UserProcessingExceptions.NoCurrentReservationException(
                     'Experiment reservation expired'
                 )
-            except LaboratoryExceptions.FailedToSendFileException, ftspe:
+            except LaboratoryExceptions.FailedToSendFileException as ftspe:
                 self._update_file(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
                 try:
                     self.finished_experiment()
@@ -446,7 +446,7 @@ class UserProcessor(object):
                 raise UserProcessingExceptions.NoCurrentReservationException(
                     'Experiment reservation expired'
                 )
-            except LaboratoryExceptions.FailedToSendCommandException, ftspe:
+            except LaboratoryExceptions.FailedToSendCommandException as ftspe:
                 # There was an error while trying to send the command. 
                 # We'll finish the experiment.
                 #self._update_command(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
@@ -508,7 +508,7 @@ class UserProcessor(object):
                 raise UserProcessingExceptions.NoCurrentReservationException(
                     'Experiment reservation expired'
                 )
-            except LaboratoryExceptions.FailedToSendCommandException, ftspe:
+            except LaboratoryExceptions.FailedToSendCommandException as ftspe:
                 self._update_command(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
                 try:
                     self.finished_experiment()

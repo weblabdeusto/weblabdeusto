@@ -193,7 +193,7 @@ def instanciate(what):
     print "Instanciating %s...\t\t\t" % what.__name__ ,
     try:
         what()
-    except Exception, e:
+    except Exception as e:
         print e,'\t',e.__class__
     else:
         print "done"
@@ -254,7 +254,7 @@ print "done"
 print "Calling methodH of I instance...\t",
 try:
     i.methodH()
-except Exception, e:
+except Exception as e:
     print e,'\t\t\t\t\t\t',e.__class__
 instanciate(J)
 print '*'*CHAR_NUMBER
@@ -346,7 +346,7 @@ print o.methodNb.__doc__
 print 'Calling methodNb...\t\t\t',
 try:
     o.methodNb()
-except Exception, e:
+except Exception as e:
     print e,'\t\t\t\t\t\t',e.__class__
 print '*'*CHAR_NUMBER
 print

@@ -144,7 +144,7 @@ class WebLabProcess(object):
             try:
                 self.out = self.popen.stdout.read()
                 self.err = self.popen.stderr.read()
-            except Exception, e:
+            except Exception as e:
                 self.out = "Couldn't read process output: %s" % e
                 self.err = "Couldn't read process output: %s" % e
 

@@ -93,9 +93,9 @@ class Debugger(threading.Thread):
                     code.interact(banner=self.banner)
                 finally:
                     sys.stdout, sys.stdin, sys.stderr = realio
-            except Exception,e:
+            except Exception as e:
                 print e
-            except SystemExit, e:
+            except SystemExit as e:
                 print e
 
             try:
@@ -127,6 +127,6 @@ def stop_debugger():
     if _dbg is not None:
         try:
             _dbg.close()
-        except Exception, e:
+        except Exception as e:
             print e
 

@@ -29,7 +29,7 @@ class AbstractDatabaseGateway(object):
         try:
             self.host          = cfg_manager.get_value(DB_HOST, DEFAULT_DB_HOST)
             self.database_name = cfg_manager.get_value(DB_DATABASE, DEFAULT_DB_DATABASE)
-        except CfgExceptions.KeyNotFoundException, knfe:
+        except CfgExceptions.KeyNotFoundException as knfe:
             raise DbExceptions.DbMisconfiguredException(
                     "Configuration manager didn't provide values for at least one parameter: %s" % knfe,
                     knfe

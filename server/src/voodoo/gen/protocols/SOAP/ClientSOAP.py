@@ -73,7 +73,7 @@ def _generate_stub(METHOD_NAME):
                 return result
             else:
                 return getattr(self._server,METHOD_NAME)(*parameters,**kparameters)
-        except SOAPpy.faultType,ft:
+        except SOAPpy.faultType as ft:
             #TODO: if server receives a control + c, client gets it :-o
             class_type = _retrieve_class(ft.faultcode)
             if class_type is not None:
@@ -87,7 +87,7 @@ def _generate_stub(METHOD_NAME):
                     "Unknown fault type: " + str(ft.faultcode) + ": " + str(ft.faultstring) + "; " + str(ft.detail),
                     ft
                 )
-        except Exception,e:
+        except Exception as e:
             raise ProtocolExceptions.UnknownRemoteException(
                     "Unknown exception: " + str(e.__class__) + "; " + str(e),
                     e

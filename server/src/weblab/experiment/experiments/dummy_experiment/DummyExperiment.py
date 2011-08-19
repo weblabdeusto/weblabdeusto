@@ -27,7 +27,7 @@ class FakeImpact(object):
         print "FakeImpact::program_device: ", program_path
         try:
             self._paths.append(open(program_path).read())
-        except Exception, e:
+        except Exception as e:
             print "I tried to show the program but i couldn't: ", e
         nseconds = 2
         print "Waiting %s seconds (simulating 'programming device...')" % nseconds

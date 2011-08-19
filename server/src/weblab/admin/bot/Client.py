@@ -80,7 +80,7 @@ def logged(func):
             begin = time.time()
             try:
                 return_value = func(self, *args, **kargs)
-            except Exception, e:
+            except Exception as e:
                 return_value = None
                 exception_and_trace_raised = (e, traceback.format_exc()) 
                 if self.raise_exceptions:

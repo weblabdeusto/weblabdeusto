@@ -143,7 +143,7 @@ class ProxySessionHandler(object):
         except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
             self.disable_access()
             raise ProxyExceptions.NoCurrentReservationException('Experiment reservation expired')
-        except LaboratoryExceptions.FailedToSendCommandException, e:
+        except LaboratoryExceptions.FailedToSendCommandException as e:
             self.disable_access()
             raise ProxyExceptions.FailedToSendCommandException("Failed to send command: %s" % e)
 
@@ -165,6 +165,6 @@ class ProxySessionHandler(object):
         except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
             self.disable_access()
             raise ProxyExceptions.NoCurrentReservationException('Experiment reservation expired')
-        except LaboratoryExceptions.FailedToSendFileException, e:
+        except LaboratoryExceptions.FailedToSendFileException as e:
             self.disable_access()
             raise ProxyExceptions.FailedToSendFileException("Failed to send file: %s" % e)

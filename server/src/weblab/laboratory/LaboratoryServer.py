@@ -178,7 +178,7 @@ class LaboratoryServer(object):
             try:
                 old_lab_sess_id = self._assigned_experiments.get_lab_session_id(experiment_instance_id)
                 self._free_experiment(old_lab_sess_id)
-            except Exception, e:
+            except Exception as e:
                 # If there is an error freeing the experiment, we don't want to propagate it to the User Processing Server:
                 # our focus is to reserve the new session.
                 log.log( LaboratoryServer, log.LogLevel.Warning, "Exception freeing already reserved experiment: %s" % e )
@@ -290,7 +290,7 @@ class LaboratoryServer(object):
                 experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
                 try:
                     self._locator.check_server_at_coordaddr(experiment_coord_address, ServerType.Experiment)
-                except Exception, e:
+                except Exception as e:
                     failing_experiment_instance_ids[experiment_instance_id] = str(e)
                     self.log_error(experiment_instance_id, str(e))
 
@@ -339,7 +339,7 @@ class LaboratoryServer(object):
         
         try:
             response = experiment_server.send_file_to_device(file_content, file_info)
-        except Exception, e:
+        except Exception as e:
             log.log( LaboratoryServer, log.LogLevel.Warning, "Exception sending file to experiment: %s" % e )
             log.log_exc(LaboratoryServer, log.LogLevel.Info)
             raise LaboratoryExceptions.FailedToSendFileException("Couldn't send file: %s" % str(e))
@@ -355,7 +355,7 @@ class LaboratoryServer(object):
         
         try:
             response = experiment_server.send_command_to_device(command.get_command_string())
-        except Exception, e:
+        except Exception as e:
             log.log( LaboratoryServer, log.LogLevel.Warning, "Exception sending command to experiment: %s" % e )
             log.log_exc(LaboratoryServer, log.LogLevel.Info)
             raise LaboratoryExceptions.FailedToSendCommandException("Couldn't send command: %s" % str(e))
@@ -376,7 +376,7 @@ class LaboratoryServer(object):
         
         try:
             response = experiment_server.send_file_to_device(file_content, file_info)
-        except Exception, e:
+        except Exception as e:
             log.log( LaboratoryServer, log.LogLevel.Warning, "Exception sending async file to experiment: %s" % e )
             log.log_exc(LaboratoryServer, log.LogLevel.Info)
             raise LaboratoryExceptions.FailedToSendFileException("Couldn't send async file: %s" % str(e))
@@ -485,7 +485,7 @@ class LaboratoryServer(object):
         
         try:
             response = experiment_server.send_command_to_device(command.get_command_string())
-        except Exception, e:
+        except Exception as e:
             log.log( LaboratoryServer, log.LogLevel.Warning, "Exception sending async command to experiment: %s" % e )
             log.log_exc(LaboratoryServer, log.LogLevel.Info)
             raise LaboratoryExceptions.FailedToSendCommandException("Couldn't send async command: %s" % str(e))

@@ -117,7 +117,7 @@ def _generate_call(server_type, method):
         
             try:
                 return getattr(server, method)(*args, **kwargs)
-            except ProtocolExceptions.RemoteException, re:
+            except ProtocolExceptions.RemoteException as re:
                 log.log(
                     EasyLocator, 
                     log.LogLevel.Warning, 

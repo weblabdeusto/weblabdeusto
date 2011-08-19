@@ -61,7 +61,7 @@ class ServerSOAPTestCase(unittest.TestCase):
             the_fault = None
             try:
                 newfunctions[1](fake,msg1)
-            except SOAPpy.faultType, ft:
+            except SOAPpy.faultType as ft:
                 the_fault = ft
 
             self.assertEquals( the_fault.faultstring, exc_msg )

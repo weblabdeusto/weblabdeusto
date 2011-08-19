@@ -153,7 +153,7 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             try:
                 for param in params:
                     newparams[str(param)] = params[param]
-            except Exception, e:
+            except Exception as e:
                 response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"unicode not accepted in param names"}
                 self.finish_error(response)
                 return
@@ -162,11 +162,11 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             # with the parameters from the dictionary we just built.
             try:
                 return_value = method(**newparams)
-            except RemoteFacadeManager.JSONException, jsone:
+            except RemoteFacadeManager.JSONException as jsone:
                 response = jsone.args[0]
                 self.finish_error(response)
                 return
-            except Exception, e:
+            except Exception as e:
                 response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"Unexpected exception: %s" % e}
                 self.finish_error(response)
                 return
@@ -177,7 +177,7 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 # Serialize the response to a JSON dictionary.
                 parsed_return_value = simplify_response(return_value)
                 response = json.dumps({"result":parsed_return_value, "is_exception" : False})
-            except Exception, e:
+            except Exception as e:
                 response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"Error encoding return value"}
                 log.log( JsonHttpHandler, log.LogLevel.Error, "Request from %s: %s" % (get_context().get_ip_address(), "Error encoding return value: %s" % e))
                 log.log( JsonHttpHandler, log.LogLevel.Error, "Message was: %s" % return_value)
@@ -409,7 +409,7 @@ class AbstractProtocolRemoteFacadeServer(threading.Thread):
     def parse_configuration(self, *args, **kargs):
         try:
             return self._configuration_manager.get_values(*args, **kargs)
-        except ConfigurationExceptions.ConfigurationException, ce:
+        except ConfigurationExceptions.ConfigurationException as ce:
             raise FacadeExceptions.MisconfiguredException("Missing params: " + ce.args[0])
 
 class AbstractRemoteFacadeServerZSI(AbstractProtocolRemoteFacadeServer):

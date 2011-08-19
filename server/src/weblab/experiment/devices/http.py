@@ -32,11 +32,11 @@ class HttpDevice(object):
                     }
             url = urllib2.urlopen( full_url, text )
             return url.read()
-        except urllib2.HTTPError, e:
+        except urllib2.HTTPError as e:
             raise WlHttpDeviceExceptions.WlHttpDeviceHTTPErrorException(e)
-        except urllib2.URLError, e:
+        except urllib2.URLError as e:
             raise WlHttpDeviceExceptions.WlHttpDeviceURLErrorException(e)
-        except Exception, e:
+        except Exception as e:
             raise WlHttpDeviceExceptions.WlHttpDeviceException(e)
 
 

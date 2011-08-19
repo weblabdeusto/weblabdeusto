@@ -31,17 +31,17 @@ class TFtpDevice(object):
                 stdout = subprocess.PIPE,
                 stderr = subprocess.PIPE
             )
-        except Exception, e:
+        except Exception as e:
             raise WlTFtpDeviceExceptions.WlTFtpDeviceCallingProcessException(e)
         popen.stdin.write('binary\n' + command + '\n')
         popen.stdin.close()
         try:
             result = popen.wait()
-        except Exception, e:
+        except Exception as e:
             raise WlTFtpDeviceExceptions.WlTFtpDeviceWaitingCommandException(e)
         try:
             stdout_result = popen.stdout.read()
             stderr_result = popen.stderr.read()
-        except Exception, e:
+        except Exception as e:
             raise WlTFtpDeviceExceptions.WlTFtpDeviceRetrievingOutputFromCommandException(e)
         return result, stdout_result, stderr_result

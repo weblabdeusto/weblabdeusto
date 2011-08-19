@@ -106,7 +106,7 @@ class UdXilinxExperiment(Experiment.Experiment):
             self._current_state = STATE_PROGRAMMING
             self._program_file(file_content)
             self._current_state = STATE_READY
-        except Exception, e:
+        except Exception as e:
             # Note: Currently, running the fake xilinx will raise this exception when
             # trying to do a CleanInputs, for which apparently serial is needed.
             self._current_state = STATE_FAILED
@@ -131,7 +131,7 @@ class UdXilinxExperiment(Experiment.Experiment):
                 self._programmer.program(file_name)
             finally:
                 os.remove(file_name)
-        except Exception, e:
+        except Exception as e:
             
             #TODO: test me
             log.log(
@@ -151,7 +151,7 @@ class UdXilinxExperiment(Experiment.Experiment):
     def _clear(self):
         try:
             self._command_sender.send_command("CleanInputs")
-        except Exception, e:
+        except Exception as e:
             raise ExperimentExceptions.SendingCommandFailureException(
                 "Error sending command to device: %s" % e
             )
@@ -203,7 +203,7 @@ class UdXilinxExperiment(Experiment.Experiment):
                if command.startswith("ChangeSwitch"):
                    command = command.replace(command[-1], str(9 - int(command[-1])))
             self._command_sender.send_command(command)
-        except Exception, e:
+        except Exception as e:
             raise ExperimentExceptions.SendingCommandFailureException(
                     "Error sending command to device: %s" % e
                 )

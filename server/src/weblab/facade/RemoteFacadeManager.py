@@ -53,7 +53,7 @@ def check_exceptions(exceptions_to_check):
         def wrapped(self, *args, **kwargs):
             try:
                 return func(self, *args, **kwargs)
-            except Exception, e:
+            except Exception as e:
                 for exc, code, propagate in exceptions_to_check:
                     if issubclass(e.__class__, exc):
                         if propagate or self._cfg_manager.get_value(DEBUG_MODE, DEFAULT_DEBUG_MODE):

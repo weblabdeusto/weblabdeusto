@@ -29,7 +29,7 @@ def serialize(file_content):
 def deserialize(serialized_content):
     try:
         deserialized_content = base64.decodestring(serialized_content)
-    except Exception, e:
+    except Exception as e:
         raise UnableToDeserializeException("Couldn't deserialize base64 content: %s" % serialized_content, e)
     return deserialized_content
 

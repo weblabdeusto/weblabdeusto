@@ -43,7 +43,7 @@ class _ConfigurationPath(object):
         try:
             class Holder(object):
                 execfile(self._path)
-        except Exception, e:
+        except Exception as e:
             log.log( 
                     _ConfigurationPath, 
                     log.LogLevel.Warning, 

@@ -129,7 +129,7 @@ class _CacheCleaner(threading.Thread):
                     self.clean_fast_cache_obj(fast_cache_obj)
                     time_module.sleep(1)
                 time_module.sleep(1)
-            except Exception, e:
+            except Exception as e:
                 if DEBUGGING:
                     print "Error!",e
                     import traceback

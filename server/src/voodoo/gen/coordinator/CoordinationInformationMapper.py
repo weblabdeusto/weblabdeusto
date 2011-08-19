@@ -22,7 +22,7 @@ import voodoo.gen.exceptions.coordinator.CoordMappingExceptions as CoordMapExcep
 def dump_to_file(coordination_map,file):
     try:
         dto_object = mapper.dto_generator(coordination_map)
-    except Exception,e:
+    except Exception as e:
         raise CoordMapExceptions.CoordSerializingException(
                 "Exception <%s> caught serializing coordination_map <%s>" 
                 % (e,coordination_map),
@@ -30,7 +30,7 @@ def dump_to_file(coordination_map,file):
             )
     try:
         pickle.dump(dto_object,file)
-    except Exception,e:
+    except Exception as e:
         raise CoordMapExceptions.CoordDumpingException(
                 "Exception <%s> caught dumping coordination_map <%s> to file <%s>" 
                 % (e,coordination_map,file),
@@ -40,7 +40,7 @@ def dump_to_file(coordination_map,file):
 def load_from_file(file):
     try:
         dto_object = pickle.load(file)
-    except Exception,e:
+    except Exception as e:
         raise CoordMapExceptions.CoordLoadingException(
                 "Exception <%s> caught loading coordmap from file <%s>" 
                 % (e,file),
@@ -48,7 +48,7 @@ def load_from_file(file):
             )
     try:
         dto_object = mapper.load_from_dto(dto_object)
-    except Exception,e:
+    except Exception as e:
         raise CoordMapExceptions.CoordLoadingException(
                 "Exception <%s> caught deserializing dto_object <%s> received from file <%s>" 
                 % (e,dto_object,file),

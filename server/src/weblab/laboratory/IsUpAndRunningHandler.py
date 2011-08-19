@@ -49,7 +49,7 @@ class AbstractLightweightIsUpAndRunningHandler(object):
         for _ in xrange(self.times):
             try:
                 self.run()
-            except Exception, e:
+            except Exception as e:
                 messages.append("%s: %s" % (type(e).__name__,str(e)))
             else:
                 return []
@@ -76,7 +76,7 @@ class HostIsUpAndRunningHandler(AbstractLightweightIsUpAndRunningHandler):
         s = self._socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             s.connect((self.hostname, self.port))
-        except socket.error, e:
+        except socket.error as e:
             raise Laboratory.UnableToConnectHostnameInPortException(self.hostname, self.port, e)
         finally:
             s.close()
@@ -97,7 +97,7 @@ class WebcamIsUpAndRunningHandler(AbstractLightweightIsUpAndRunningHandler):
     def run(self):
         try:
             response = self._urllib2.urlopen(self.img_url)
-        except urllib2.URLError, e:
+        except urllib2.URLError as e:
             raise Laboratory.ImageURLDidNotRetrieveAResponseException(self.img_url, e)
         if response.headers['content-type'] not in VALID_IMAGE_FORMATS:
             raise Laboratory.InvalidContentTypeRetrievedFromImageURLException(self.img_url)

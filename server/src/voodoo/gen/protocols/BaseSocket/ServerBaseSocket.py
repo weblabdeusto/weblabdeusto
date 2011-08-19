@@ -82,7 +82,7 @@ class SocketHandler(SocketServer.BaseRequestHandler):
                     # 1. Called function is registered and works fine
                     result = self._functions["do_"+func.name](*func.args,**func.kargs)
                     function_result = Messages.FunctionResultOK(result)
-                except Exception, ex:
+                except Exception as ex:
                     # 2. Called function is registered but raises an exception
                     function_result = Messages.FunctionResultError(ex)
             else:

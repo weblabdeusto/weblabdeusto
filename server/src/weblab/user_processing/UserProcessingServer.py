@@ -188,7 +188,7 @@ class UserProcessingServer(object):
                         user.finished_experiment()
                 finally:
                     self._session_manager.modify_session_unlocking(expired_user, expired_session)
-            except Exception, e:
+            except Exception as e:
                 log.log(
                     UserProcessingServer,
                     LogLevel.Warning,

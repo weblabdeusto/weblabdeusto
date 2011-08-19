@@ -33,7 +33,7 @@ class AbstractParser(object):
         file_path = os.sep.join((directory,'configuration.xml'))
         try:
             return open(file_path), file_path
-        except Exception, e:
+        except Exception as e:
             raise LoaderExceptions.InvalidConfigurationException("Couldn't parse '%s': %s" % (file_path,e))
 
     def parse(self, directory, address = None):
@@ -47,7 +47,7 @@ class AbstractParser(object):
     def _parse_dom(self, stream, file_path):
         try:
             return minidom.parse(stream)
-        except Exception, e:
+        except Exception as e:
             raise LoaderExceptions.InvalidConfigurationException("Couldn't load xml file %s: %s" % (file_path, e))
 
     def _parse_configurations(self, directory, configuration_nodes):

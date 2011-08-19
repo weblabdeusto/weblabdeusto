@@ -103,7 +103,7 @@ class CancelAndJoinResourceManager(ResourceManager):
         try:
             if self._cancel:
                 resource.cancel()
-        except Exception, e:
+        except Exception as e:
             log.log( CancelAndJoinResourceManager, self._log_level,
                     "Exception joining resource at %s: %s" % (self._name, e)
                 )
@@ -114,7 +114,7 @@ class CancelAndJoinResourceManager(ResourceManager):
                 resource.join(self._timeout)
             else:
                 resource.join()
-        except Exception, e:
+        except Exception as e:
             log.log( CancelAndJoinResourceManager, self._log_level,
                     "Exception joining resource at %s: %s" % (self._name, e)
                 )

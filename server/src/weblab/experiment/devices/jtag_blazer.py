@@ -68,21 +68,21 @@ class JTagBlazer(object):
                     stdout = subprocess.PIPE,
                     stderr = subprocess.PIPE
                 )
-            except Exception, e:
+            except Exception as e:
                 raise JTagBlazerExceptions.ErrorProgrammingDeviceException(
                     "There was an error generating the JSVF file: %s" % e
                 )
             # TODO: make use of popen.poll to make this asynchronous
             try:
                 result = popen.wait()
-            except Exception, e:
+            except Exception as e:
                 raise JTagBlazerExceptions.ErrorWaitingForJTagBlazerSvf2JsvfFinishedException(
                     "There was an error while waiting for JBManager to generate the JSVF file: %s" % e
                 )    
             try:
                 stdout_result = popen.stdout.read()
                 stderr_result = popen.stderr.read()
-            except Exception, e:
+            except Exception as e:
                 raise JTagBlazerExceptions.ErrorRetrievingOutputFromJTagBlazerSvf2JsvfException(
                     "There was an error while retrieving the output of the JSVF file generator program: %s" % e
                 )
@@ -128,21 +128,21 @@ class JTagBlazer(object):
                         stdout = subprocess.PIPE,
                         stderr = subprocess.PIPE
                     )
-                except Exception, e:
+                except Exception as e:
                     raise JTagBlazerExceptions.ErrorProgrammingDeviceException(
                         "There was an error while programming the device: %s" % e
                     )
                 # TODO: make use of popen.poll to make this asynchronous
                 try:
                     result = popen.wait()
-                except Exception, e:
+                except Exception as e:
                     raise JTagBlazerExceptions.ErrorWaitingForJTagBlazerTargetFinishedException(
                         "There was an error while waiting for the programming program to finish: %s" % e
                     )    
                 try:
                     stdout_result = popen.stdout.read()
                     stderr_result = popen.stderr.read()
-                except Exception, e:
+                except Exception as e:
                     raise JTagBlazerExceptions.ErrorRetrievingOutputFromJTagBlazerTargetException(
                         "There was an error while retrieving the output of the programming program: %s" % e
                     )
@@ -184,7 +184,7 @@ class JTagBlazer(object):
     def _get_property(self, property):
         try:
             value = self._cfg_manager.get_value(property)
-        except ConfigurationExceptions.KeyNotFoundException,knfe:
+        except ConfigurationExceptions.KeyNotFoundException as knfe:
             raise JTagBlazerExceptions.CantFindJTagBlazerProperty(
                     "Can't find in configuration manager the property '%s'" % knfe.key
                 )

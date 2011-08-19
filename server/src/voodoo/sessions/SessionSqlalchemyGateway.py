@@ -216,7 +216,7 @@ class SessionSqlalchemyGateway(object):
 
         except SessionExceptions.SessionNotFoundException:
             raise
-        except Exception, e:
+        except Exception as e:
             raise SessionExceptions.SessionDatabaseExecutionException( "Database exception retrieving session: %s" % e, e )
 
     def delete_session_unlocking(self, sess_id):

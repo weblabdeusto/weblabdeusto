@@ -74,7 +74,7 @@ class UdGpibExperiment(Experiment.Experiment):
             self._execute(self.exec_basename, True)
             
 
-        except Exception, e:
+        except Exception as e:
             log.log(
                 UdGpibExperiment,
                 log.LogLevel.Info,

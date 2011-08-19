@@ -65,7 +65,7 @@ class GeneralSOAPTestCase(unittest.TestCase):
             my_error = None
             try:
                 client.method2()
-            except ArithmeticError, ae:
+            except ArithmeticError as ae:
                 my_error = ae
 
             self.assertEquals(

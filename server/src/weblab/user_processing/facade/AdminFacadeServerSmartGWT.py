@@ -51,7 +51,7 @@ class Criteria(object):
             field_name   = obj['fieldName']
             str_operator = obj["operator"]
             str_value    = obj['value']
-        except KeyError, ke:
+        except KeyError as ke:
             raise MethodException("Missing criteria field: %s" % ke)
 
         try:
@@ -61,7 +61,7 @@ class Criteria(object):
                 value = int(str_value)
             else:
                 raise MethodException("Unrecognized field name! %s" % urllib2.quote(field_name))
-        except ValueError, ve:
+        except ValueError as ve:
             raise MethodException("Couldn't parse value! %s" % ve)
 
         if str_operator == 'greaterOrEqual':
@@ -109,7 +109,7 @@ class AdvancedCriteria(object):
                     raise MethodException("Invalid advanced_criteria operator %s" % urllib2.quote(operators[0]))
             else:
                 op = None
-        except (ValueError, IndexError), e:
+        except (ValueError, IndexError) as e:
             raise MethodException("Invalid advanced criteria value: %s" % urllib2.quote(str(e)))
         
         return AdvancedCriteria(criterias, op, sort_by, start_row, end_row, text_match_styles[0])
@@ -257,7 +257,7 @@ class SmartGwtHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 method = getattr(Methods, 'get_%s' % method_name)
                 try:
                     response = method(self, session_id, parameters)
-                except MethodException, me:
+                except MethodException as me:
 #                    import traceback
 #                    traceback.print_exc()
                     log.log( self, log.LogLevel.Error, str(me))
@@ -270,7 +270,7 @@ class SmartGwtHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 return 
 
             self._write(200, json_response)
-        except Exception, e:
+        except Exception as e:
             import traceback
             traceback.print_exc()
 

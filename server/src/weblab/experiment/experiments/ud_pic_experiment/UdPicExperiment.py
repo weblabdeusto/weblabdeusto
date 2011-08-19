@@ -141,7 +141,7 @@ class UdPicExperiment(Experiment.Experiment):
             self._tftp_program_sender.send_content(file_content_recovered)
             if DEBUG:
                 print "file sent"
-        except Exception, e:
+        except Exception as e:
             log.log(
                 UdPicExperiment,
                 log.LogLevel.Info,

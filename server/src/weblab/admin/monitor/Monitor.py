@@ -53,7 +53,7 @@ class monitor_method(object):
         args, kwargs = pickle.loads(pickled_arg)
         try:
             result = self._func(*args, **kwargs)
-        except Exception, e:
+        except Exception as e:
             traceback.print_exc(file=open('errors.txt','w'))
             return "_raise_exception(%s)" % repr(pickle.dumps(e))
         else:
@@ -181,13 +181,13 @@ class WebLabMonitor(object):
     def kick_session(self, ups_session_id):
         try:
             reservation_id = self._shell.get_reservation_id(ups_session_id)
-        except Exception, e:
+        except Exception as e:
             print "Error retrieving wlc_session_id; skipping... %s" % e
             return
 
         try:
             self._shell.kickout_from_ups(ups_session_id)
-        except Exception, e:
+        except Exception as e:
             if not str(e).startswith("invalid syntax"):
                 print e
             # It's normal that the server generates some kind of 
@@ -196,7 +196,7 @@ class WebLabMonitor(object):
         if reservation_id != None:
             try:
                 self._shell.kickout_from_coordinator(reservation_id)
-            except Exception, e:
+            except Exception as e:
                 if not str(e).startswith("invalid syntax"):
                     print e
                 # It's normal that the server generates some kind of 
@@ -208,7 +208,7 @@ class WebLabMonitor(object):
         for ups_session_id in ups_session_ids:
             try:
                 self.kick_session(ups_session_id.id)
-            except Exception, e:
+            except Exception as e:
                 exceptions.append(e)
         if len(exceptions) > 0:
             raise Exception("The following exceptions took place: %s " % repr(exceptions))

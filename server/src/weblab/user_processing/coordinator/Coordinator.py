@@ -339,7 +339,7 @@ class Coordinator(object):
                 still_initializing    = response.get('keep_initializing', default_still_initialing)
                 batch                 = response.get('batch', default_batch)
                 initial_configuration = response.get('initial_configuration', default_initial_configuration)
-            except Exception, e:
+            except Exception as e:
                 log.log( Coordinator, log.LogLevel.Error, "Could not parse experiment server response: %s; %s; using default values" % (e, server_initialization_response) )
                 log.log_exc( Coordinator, log.LogLevel.Warning )
                 still_initializing    = default_still_initialing
@@ -393,7 +393,7 @@ class Coordinator(object):
                 experiment_finished   = response.get(FINISH_FINISHED_MESSAGE, experiment_finished)
                 time_remaining        = response.get(FINISH_ASK_AGAIN_MESSAGE, time_remaining)
                 information_to_store  = response.get(FINISH_DATA_MESSAGE, information_to_store)
-            except Exception, e:
+            except Exception as e:
                 log.log( Coordinator, log.LogLevel.Error, "Could not parse experiment server finishing response: %s; %s" % (e, experiment_response) )
                 log.log_exc( Coordinator, log.LogLevel.Warning )
                 

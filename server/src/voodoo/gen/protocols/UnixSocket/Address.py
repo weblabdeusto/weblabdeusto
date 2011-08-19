@@ -71,11 +71,11 @@ class Address(cAddress.Address):
     def create_client(self, methods):
         try:
             client_class = ClientSkel.factory(Protocols.UnixSocket,methods)
-        except Exception,e:
+        except Exception as e:
             raise ProtocolExceptions.ClientClassCreationException(("Client class creation exception: %s" % e),  e)
         try:
             return client_class(path=self._path_id)
-        except Exception, e:
+        except Exception as e:
             raise ProtocolExceptions.ClientInstanciationException(("Exception instaciating the client: %s" % e), e)
     
     @Override(cAddress.Address)

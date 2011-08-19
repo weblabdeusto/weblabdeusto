@@ -95,14 +95,14 @@ class DigilentAdept(object):
                 stdout = subprocess.PIPE,
                 stderr = subprocess.PIPE
             )
-        except Exception, e:
+        except Exception as e:
             raise DigilentAdeptExceptions.ErrorProgrammingDeviceException(
                 "There was an error while executing Digilent Adept: %s" % e
             )
         # TODO: make use of popen.poll to make this asynchronous
         try:
             result = popen.wait()
-        except Exception, e:
+        except Exception as e:
             raise DigilentAdeptExceptions.ErrorWaitingForProgrammingFinishedException(
                 "There was an error while waiting for Digilent Adept to finish: %s" % e
             )
@@ -110,7 +110,7 @@ class DigilentAdept(object):
         try:
             stdout_result = popen.stdout.read()
             stderr_result = popen.stderr.read()
-        except Exception, e:
+        except Exception as e:
             raise DigilentAdeptExceptions.ErrorRetrievingOutputFromProgrammingProgramException(
                 "There was an error while retrieving the output of Digilent Adept: %s" % e
             )
@@ -120,7 +120,7 @@ class DigilentAdept(object):
         try:
             program_file_content = self._cfg_manager.get_value('digilent_adept_batch_content')
             digilent_adept = self._cfg_manager.get_value('digilent_adept_full_path')
-        except ConfigurationExceptions.KeyNotFoundException,knfe:
+        except ConfigurationExceptions.KeyNotFoundException as knfe:
             raise DigilentAdeptExceptions.CantFindDigilentAdeptProperty(
                     "Can't find in configuration manager the property '%s'" % knfe.key
                 )
