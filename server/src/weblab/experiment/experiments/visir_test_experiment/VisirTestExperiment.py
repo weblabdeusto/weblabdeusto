@@ -20,12 +20,7 @@ import httplib
 import urllib2
 import urllib
 
-try:
-    import json as json_mod
-    json = json_mod
-except ImportError:
-    import simplejson as json_module
-    json = json_module
+import json
 
 from voodoo.override import Override
 

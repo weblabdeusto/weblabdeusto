@@ -22,12 +22,7 @@ from voodoo.threaded import threaded
 import weblab.experiment.Experiment as Experiment
 from voodoo.override import Override
 
-try:
-    import json as json_module # Python >= 2.6
-    json = json_module
-except ImportError:
-    import simplejson as json_mod
-    json = json_mod
+import json
 
 CFG_WEBCAM_URL = 'logic_webcam_url'
 

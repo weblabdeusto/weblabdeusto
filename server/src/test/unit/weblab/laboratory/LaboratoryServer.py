@@ -36,12 +36,7 @@ import weblab.exceptions.laboratory.LaboratoryExceptions as LaboratoryExceptions
 import weblab.methods as weblab_methods
 
 import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
-try:
-    import json as json_module
-    json = json_module
-except ImportError:
-    import simplejson as json_mod
-    json = json_mod
+import json
 
 import FakeUrllib2
 import FakeSocket

@@ -45,14 +45,7 @@ import weblab.experiment.ApiLevel as ExperimentApiLevel
 
 import voodoo.sessions.SessionManager as SessionManager
 from voodoo.sessions import SessionGenerator
-
-try:
-    import json as json_module
-    json = json_module
-except ImportError:
-    import simplejson as json_mod
-    json = json_mod
-
+import json
 
 check_session_params = (
         LaboratoryExceptions.SessionNotFoundInLaboratoryServerException,

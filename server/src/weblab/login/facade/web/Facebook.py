@@ -27,12 +27,7 @@ DEFAULT_AUTH_URL        = "http://www.facebook.com/dialog/oauth?client_id=%s&red
 APP_ID_PROPERTY         = "login_facebook_app_id"
 CANVAS_URL_PROPERTY     = "login_facebook_canvas_url"
 
-try:
-    import json as json_module # Python >= 2.6
-    json = json_module
-except ImportError:
-    import simplejson as json_mod
-    json = json_mod
+import json
 
 class FacebookMethod(WebFacadeServer.Method):
     path = '/facebook/'

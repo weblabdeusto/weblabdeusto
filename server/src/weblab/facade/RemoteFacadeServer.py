@@ -27,13 +27,7 @@ else:
 
 # JSON/HTTP
 import BaseHTTPServer
-
-try:
-    import json as json_module # Python >= 2.6
-    json = json_module
-except ImportError:
-    import simplejson as json_mod
-    json = json_mod
+import json
 
 import datetime
 import types
