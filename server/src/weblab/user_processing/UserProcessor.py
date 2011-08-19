@@ -201,7 +201,7 @@ class UserProcessor(object):
                         status
                     )
         else:
-            pass # TODO
+            raise UserProcessingExceptions.NoCurrentReservationException("get_reservation_status called but no current reservation")
 
     def _process_reserved_status(self, status):
         if 'lab_session_id' in self._session:
@@ -277,7 +277,7 @@ class UserProcessor(object):
                         "Failed to send file: %s" % ftspe
                     )
         else:
-            pass # TODO
+            raise UserProcessingExceptions.NoCurrentReservationException("send_file called but no current reservation")
 
     def send_command(self, command):
         if self._session.has_key('lab_session_id') and self._session.has_key('lab_coordaddr'):
@@ -315,7 +315,7 @@ class UserProcessor(object):
                         "Failed to send command: %s" % ftspe
                     )
         else:
-            pass # TODO
+            raise UserProcessingExceptions.NoCurrentReservationException("send_command called but no current reservation")
 
     def update_latest_timestamp(self):
         self._session['latest_timestamp'] = self._utc_timestamp()
@@ -404,6 +404,8 @@ class UserProcessor(object):
                     self.time_module.time(),
                     UserProcessor.EXPIRATION_TIME_NOT_SET
                 )
+        else:
+            raise UserProcessingExceptions.NoCurrentReservationException("poll called but no current reservation")
 
     def _stop_polling(self):
         if self.is_polling():
