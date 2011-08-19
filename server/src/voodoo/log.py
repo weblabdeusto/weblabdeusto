@@ -25,9 +25,7 @@ import new
 from voodoo.cache import fast_cache
 
 def log(instance_or_module_or_class, level, message):
-    if not LogLevel.isLogLevel(level):
-        raise TypeError('%s: not a LogLevel' % level)
-    logging_log_level = getattr(logging,level.name.upper())
+    logging_log_level = getattr(logging,level.upper())
     if isinstance(instance_or_module_or_class,str):
         logger_name = instance_or_module_or_class
     elif isinstance(instance_or_module_or_class, new.classobj) or isinstance(instance_or_module_or_class, type):
@@ -129,10 +127,7 @@ def logged(level='debug', except_for=None):
 
     Instead of these values, it will say "<hidden>".
     """
-    if LogLevel.isLogLevel(level):
-        levelname = level.name.lower()
-    else:
-        levelname = level.lower()
+    levelname = level.lower()
     if not hasattr(logging, levelname):
         raise RuntimeError("level %s does not exist")
 

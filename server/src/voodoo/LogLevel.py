@@ -12,15 +12,10 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
-values = [
-        'Critical',
-        'Error',
-        'Warning',
-        'Info',
-        'Debug'
-    ]
-name = 'LogLevel'
 
-import voodoo.abstraction.enumeration as enumeration
-import sys
-enumeration.gen(sys.modules[__name__],values,name,True)
+Critical = 'Critical'
+Error    = 'Error'
+Warning  = 'Warning'
+Info     = 'Info'
+Debug    = 'Debug'
+
