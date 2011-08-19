@@ -69,8 +69,8 @@ class MockUPS(object):
             raise self.exceptions['list_experiments']
         return self.return_values['list_experiments']
 
-    def reserve_experiment(self, session_id, experiment, client_address):
-        self.arguments['reserve_experiment'] = (session_id, experiment, client_address)
+    def reserve_experiment(self, session_id, experiment, client_initial_data, client_address):
+        self.arguments['reserve_experiment'] = (session_id, experiment, client_initial_data, client_address)
         if self.exceptions.has_key('reserve_experiment'):
             raise self.exceptions['reserve_experiment']
         return self.return_values['reserve_experiment']
@@ -210,7 +210,7 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
     def test_return_reserve_experiment(self):
         expected_sess_id = SessionId.SessionId("whatever")
         experimentA, _ = _generate_two_experiments()
-        expected_reservation = Reservation.ConfirmedReservation(100)
+        expected_reservation = Reservation.ConfirmedReservation(100, "{}")
     
         self.mock_ups.return_values['reserve_experiment'] = expected_reservation
 
@@ -218,7 +218,8 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
                 expected_reservation,
                 self.rfm.reserve_experiment(
                     expected_sess_id, 
-                    experimentA.to_experiment_id()
+                    experimentA.to_experiment_id(),
+                    "{}"
                 )
             )
         
@@ -233,6 +234,10 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         self.assertEquals(
                 experimentA.category.name,
                 self.mock_ups.arguments['reserve_experiment'][1].cat_name
+            )
+        self.assertEquals(
+                "{}",
+                self.mock_ups.arguments['reserve_experiment'][2]
             )
 
     def test_return_finished_experiment(self):
@@ -250,7 +255,7 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
     def test_return_get_reservation_status(self):
         expected_sess_id = SessionId.SessionId("whatever")
     
-        expected_reservation = Reservation.ConfirmedReservation(100)
+        expected_reservation = Reservation.ConfirmedReservation(100, "{}")
 
         self.mock_ups.return_values['get_reservation_status'] = expected_reservation
 
@@ -448,15 +453,15 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         expected_sess_id  = SessionId.SessionId("whatever")
         experimentA, _ = _generate_two_experiments()
         
-        self._test_exception('reserve_experiment', (expected_sess_id, experimentA.to_experiment_id()),  
+        self._test_exception('reserve_experiment', (expected_sess_id, experimentA.to_experiment_id(), "{}"),  
                         UserProcessingExceptions.SessionNotFoundException, MESSAGE, 
                         'ZSI:' + UserProcessingRFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE, MESSAGE)            
 
-        self._test_exception('reserve_experiment', (expected_sess_id, experimentA.to_experiment_id()),  
+        self._test_exception('reserve_experiment', (expected_sess_id, experimentA.to_experiment_id(), "{}"),  
                         UserProcessingExceptions.UnknownExperimentIdException, MESSAGE, 
                         'ZSI:' + UserProcessingRFCodes.CLIENT_UNKNOWN_EXPERIMENT_ID_EXCEPTION_CODE, MESSAGE)            
         
-        self._test_general_exceptions('reserve_experiment', expected_sess_id, experimentA.to_experiment_id())
+        self._test_general_exceptions('reserve_experiment', expected_sess_id, experimentA.to_experiment_id(), "{}")
             
     def test_exception_finished_experiment(self):
         MESSAGE = "The exception message"
@@ -632,7 +637,7 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
     def test_return_reserve_experiment(self):
         expected_sess_id = {'id': "whatever"}
         experimentA, _ = _generate_two_experiments()
-        expected_reservation = Reservation.ConfirmedReservation(100)
+        expected_reservation = Reservation.ConfirmedReservation(100, "{}")
     
         self.mock_ups.return_values['reserve_experiment'] = expected_reservation
 
@@ -640,7 +645,8 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
                 expected_reservation,
                 self.rfm.reserve_experiment(
                     expected_sess_id, 
-                    experimentA.to_experiment_id().to_dict()
+                    experimentA.to_experiment_id().to_dict(),
+                    "{}"
                 )
             )
         
@@ -672,7 +678,7 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
     def test_return_get_reservation_status(self):
         expected_sess_id = {'id': "whatever"}
     
-        expected_reservation = Reservation.ConfirmedReservation(100)
+        expected_reservation = Reservation.ConfirmedReservation(100, "{}")
 
         self.mock_ups.return_values['get_reservation_status'] = expected_reservation
 
@@ -982,11 +988,13 @@ def _generate_experiments_allowed():
     experimentA, experimentB = _generate_two_experiments()
     exp_allowedA = ExperimentAllowed.ExperimentAllowed(
             experimentA,
-            100
+            100,
+            5
         )
     exp_allowedB = ExperimentAllowed.ExperimentAllowed(
             experimentB,
-            100
+            100,
+            5
         )
     return exp_allowedA, exp_allowedB
 

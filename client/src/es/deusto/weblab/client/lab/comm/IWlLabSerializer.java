@@ -25,6 +25,7 @@ import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.dto.experiments.commands.InterchangedData;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.lab.comm.exceptions.NoCurrentReservationException;
 import es.deusto.weblab.client.lab.comm.exceptions.UnknownExperimentIdException;
@@ -61,7 +62,7 @@ public interface IWlLabSerializer extends IWlCommonSerializer{
 	String serializeGetReservationStatusRequest(SessionID sessionId) throws SerializationException;
 	String serializeListExperimentsRequest(SessionID sessionId) throws SerializationException;
 	String serializePollRequest(SessionID sessionId) throws SerializationException;
-	String serializeReserveExperimentRequest(SessionID sessionId, ExperimentID experimentId) throws SerializationException;
+	String serializeReserveExperimentRequest(SessionID sessionId, ExperimentID experimentId, InterchangedData clientInitialData) throws SerializationException;
 	String serializeSendCommandRequest(SessionID sessionId, Command command) throws SerializationException;
 	String serializeSendAsyncCommandRequest(SessionID sessionId, Command command) throws SerializationException;
 	String serializeFinishedExperimentRequest(SessionID sessionId) throws SerializationException;

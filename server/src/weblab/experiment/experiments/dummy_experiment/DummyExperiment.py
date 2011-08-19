@@ -73,9 +73,9 @@ class DummyExperiment(UdXilinxExperiment.UdXilinxExperiment):
         return ""
 
     @Override(UdXilinxExperiment.UdXilinxExperiment)
-    def do_start_experiment(self):
-        print "Experiment started"
-        return ""
+    def do_start_experiment(self, *args, **kwargs):
+        print "Experiment started", args, kwargs
+        return '{ "initial_configuration" : "hi, from dummy experiment" }'
 
     @Override(UdXilinxExperiment.UdXilinxExperiment)
     def do_send_command_to_device(self, command):

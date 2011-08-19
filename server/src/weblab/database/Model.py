@@ -31,7 +31,7 @@ from weblab.data.experiments.ExperimentId import ExperimentId
 from weblab.data.experiments.Usage import ExperimentUsage  
 from weblab.data.experiments.Usage import FileSent  
 from weblab.data.experiments.Usage import CommandSent   
-from weblab.data.Command import Command
+from weblab.data.Command import Command, NullCommand
 from weblab.data.dto.User import User
 from weblab.data.dto.Role import Role
 from weblab.data.dto.Group import Group  
@@ -373,21 +373,26 @@ class DbUserUsedExperiment(Base):
     end_date_micro   = Column(Integer)
     origin           = Column(String(255), nullable = False)
     coord_address    = Column(String(255), nullable = False)
+    reservation_id   = Column(String(50))
     
     user       = relation("DbUser", backref=backref("experiment_uses", order_by=id))    
     experiment = relation("DbExperiment", backref=backref("user_uses", order_by=id))  
     
-    def __init__(self, user, experiment, start_date, origin, coord_address, end_date=None):
+    def __init__(self, user, experiment, start_date, origin, coord_address, reservation_id, end_date):
         super(DbUserUsedExperiment, self).__init__()
         link_relation(self, user, "user")
         link_relation(self, experiment, "experiment")
         self.start_date, self.start_date_micro = _timestamp_to_splitted_utc_datetime(start_date)
-        self.end_date, self.end_date_micro = _timestamp_to_splitted_utc_datetime(end_date)
+        self.set_end_date(end_date)
         self.origin = origin
         self.coord_address = coord_address
+        self.reservation_id = reservation_id
+
+    def set_end_date(self, end_date):
+        self.end_date, self.end_date_micro = _timestamp_to_splitted_utc_datetime(end_date)
 
     def __repr__(self):
-        return "DbUserUsedExperiment(id = %r, user = %r, experiment = %r, start_date = %r, start_date_micro = %i, end_date = %r, end_date_micro = %i, origin = '%s', coord_address = '%s')" % (
+        return "DbUserUsedExperiment(id = %r, user = %r, experiment = %r, start_date = %r, start_date_micro = %i, end_date = %r, end_date_micro = %i, origin = '%s', coord_address = '%s', reservation_id = %r)" % (
             self.id,
             self.user,
             self.experiment,
@@ -396,7 +401,8 @@ class DbUserUsedExperiment(Base):
             self.end_date,
             self.end_date_micro,
             self.origin,
-            self.coord_address
+            self.coord_address,
+            self.reservation_id
         )       
         
     def to_business_light(self):
@@ -405,6 +411,7 @@ class DbUserUsedExperiment(Base):
         usage.start_date        = _splitted_utc_datetime_to_timestamp(self.start_date, self.start_date_micro)
         usage.end_date          = _splitted_utc_datetime_to_timestamp(self.end_date, self.end_date_micro)
         usage.from_ip           = self.origin
+        usage.reservation_id    = self.reservation_id
         usage.experiment_id     = ExperimentId(self.experiment.name, self.experiment.category.name)
         usage.coord_address     = CoordAddress.CoordAddress.translate_address(self.coord_address)
         return usage    
@@ -426,6 +433,48 @@ class DbUserUsedExperiment(Base):
         )
         return use
 
+# 
+# These properties will be added. The names will be "facebook", "mobile", "openid", "user.agent", etc.
+# 
+class DbUserUsedExperimentProperty(Base):
+    __tablename__   = 'UserUsedExperimentProperty'
+    __table_args__  = (UniqueConstraint('name'), TABLE_KWARGS)
+
+    id   = Column(Integer, primary_key = True)
+    name = Column(String(255), nullable = False)
+
+    def __init__(self, name, id = None):
+        self.name = name
+        self.id   = id
+
+    def __repr__(self):
+        return "DbUserUsedExperimentProperty(id = %r, name = %r)" % (self.id, self.name)
+
+class DbUserUsedExperimentPropertyValue(Base):
+    __tablename__  = 'UserUsedExperimentPropertyValue'
+    __table_args__ = (UniqueConstraint('property_name_id', 'experiment_use_id'), TABLE_KWARGS)
+
+    id                = Column(Integer, primary_key = True)
+    property_name_id  = Column(Integer, ForeignKey("UserUsedExperimentProperty.id"), nullable = False)
+    experiment_use_id = Column(Integer, ForeignKey("UserUsedExperiment.id"), nullable = False)
+    value             = Column(String(255))
+
+    property_name  = relation("DbUserUsedExperimentProperty", backref=backref("values",     order_by=id, cascade='all,delete'))
+    experiment_use = relation("DbUserUsedExperiment",         backref=backref("properties", order_by=id, cascade='all,delete'))
+
+    def __init__(self, value, property_name, experiment_use, id = None):
+        self.id = id
+        self.value = value
+        self.property_name  = property_name
+        self.experiment_use = experiment_use
+
+    def __repr__(self):
+        return "DbUserUsedExperimentPropertyValue(id = %r, value = %r, property_name_id = %r, experiment_use_id = %r)" % (
+            self.id,
+            self.value,
+            self.property_name_id,
+            self.experiment_use_id
+        )
 
 class DbUserFile(Base):
     __tablename__  = 'UserFile'
@@ -452,6 +501,9 @@ class DbUserFile(Base):
         self.file_info = file_info
         self.response = response
         self.timestamp_before, self.timestamp_before_micro = _timestamp_to_splitted_utc_datetime(timestamp_before)
+        self.set_timestamp_after(timestamp_after)
+
+    def set_timestamp_after(self, timestamp_after):
         self.timestamp_after, self.timestamp_after_micro = _timestamp_to_splitted_utc_datetime(timestamp_after)
 
     def __repr__(self):
@@ -500,6 +552,9 @@ class DbUserCommand(Base):
         self.command = command
         self.response = response
         self.timestamp_before, self.timestamp_before_micro = _timestamp_to_splitted_utc_datetime(timestamp_before)
+        self.set_timestamp_after(timestamp_after)
+
+    def set_timestamp_after(self, timestamp_after):
         self.timestamp_after, self.timestamp_after_micro = _timestamp_to_splitted_utc_datetime(timestamp_after)
 
     def __repr__(self):
@@ -516,9 +571,9 @@ class DbUserCommand(Base):
 
     def to_business(self):
         return CommandSent(
-            Command(self.command),
+            Command(self.command) if self.command is not None else NullCommand(),
             _splitted_utc_datetime_to_timestamp(self.timestamp_before, self.timestamp_before_micro),
-            Command(self.response),
+            Command(self.response) if self.response is not None else NullCommand(),
             _splitted_utc_datetime_to_timestamp(self.timestamp_after, self.timestamp_after_micro)
             )                
 
@@ -536,21 +591,23 @@ class DbExternalEntityUsedExperiment(Base):
     end_date_micro   = Column(Integer)
     origin           = Column(String(255), nullable = False)
     coord_address    = Column(String(255), nullable = False)
+    reservation_id   = Column(String(50))
     
     ee         = relation("DbExternalEntity", backref=backref("experiment_uses", order_by=id))  
     experiment = relation("DbExperiment", backref=backref("ee_uses", order_by=id))
     
-    def __init__(self, ee, experiment, start_date, origin, coord_address, end_date=None):
+    def __init__(self, ee, experiment, start_date, origin, coord_address, reservation_id, end_date):
         super(DbExternalEntityUsedExperiment, self).__init__()
         link_relation(self, ee, "ee")
         link_relation(self, experiment, "experiment")
         self.start_date, self.start_date_micro = _timestamp_to_splitted_utc_datetime(start_date)
         self.end_date, self.end_date_micro = _timestamp_to_splitted_utc_datetime(end_date)
+        self.reservation_id = reservation_id
         self.origin = origin
         self.coord_address = coord_address
 
     def __repr__(self):
-        return "DbExternalEntityUsedExperiment(id = %r, ee = %r, experiment = %r, start_date = %r, start_date_micro = %i, end_date = %r, end_date_micro = %i, origin = '%s', coord_address = '%s')" % (
+        return "DbExternalEntityUsedExperiment(id = %r, ee = %r, experiment = %r, start_date = %r, start_date_micro = %i, end_date = %r, end_date_micro = %i, origin = '%s', coord_address = '%s', reservation_id = %r)" % (
             self.id,
             self.ee,
             self.experiment,
@@ -559,7 +616,8 @@ class DbExternalEntityUsedExperiment(Base):
             self.end_date,
             self.end_date_micro,
             self.origin,
-            self.coord_address
+            self.coord_address,
+            self.reservation_id
         )   
     
     def to_dto(self):

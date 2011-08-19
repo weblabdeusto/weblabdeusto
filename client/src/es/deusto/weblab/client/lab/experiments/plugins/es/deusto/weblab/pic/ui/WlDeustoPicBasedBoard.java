@@ -169,7 +169,7 @@ public class WlDeustoPicBasedBoard extends BoardBase{
 	}
 	
 	@Override
-	public void start(){
+	public void start(int time, String initialConfiguration){
 		
 		this.setupWidgets();
 		this.disableInteractiveWidgets();

@@ -23,10 +23,12 @@ import voodoo.counter as counter
 
 import weblab.data.ServerType as ServerType
 
+import weblab.user_processing.TemporalInformationRetriever as TemporalInformationRetriever
 import weblab.user_processing.UserProcessor as UserProcessor
 import weblab.user_processing.AliveUsersCollection as AliveUsersCollection
 import weblab.user_processing.coordinator.Coordinator as Coordinator
 import weblab.user_processing.coordinator.CoordinationConfigurationParser as CoordinationConfigurationParser
+import weblab.user_processing.coordinator.TemporalInformationStore as TemporalInformationStore
 import weblab.user_processing.database.DatabaseManager as DatabaseManager
 
 import weblab.exceptions.user_processing.UserProcessingExceptions as UserProcessingExceptions
@@ -61,6 +63,17 @@ DEFAULT_WEBLAB_USER_PROCESSING_SERVER_SESSION_TYPE = SessionType.Memory.name
 WEBLAB_USER_PROCESSING_SERVER_SESSION_POOL_ID      = "core_session_pool_id"
 
 WEBLAB_USER_PROCESSING_SERVER_CLEAN_COORDINATOR    = "core_coordinator_clean"
+
+def load_user_processor(func):
+    def wrapped(self, session, *args, **kwargs):
+        user_processor = self._load_user(session)
+        try:
+            return func(self, user_processor, session, *args, **kwargs)
+        finally:
+            user_processor.update_latest_timestamp()
+    wrapped.__name__ = func.__name__
+    wrapped.__doc__  = func.__doc__
+    return wrapped
 
 class UserProcessingServer(object):
     """
@@ -103,8 +116,14 @@ class UserProcessingServer(object):
 
         self._db_manager     = DatabaseManager.UserProcessingDatabaseManager(cfg_manager)
 
+
+        self._commands_store = TemporalInformationStore.CommandsTemporalInformationStore()
+
+        self._temporal_information_retriever = TemporalInformationRetriever.TemporalInformationRetriever(self._coordinator.initial_store, self._coordinator.finished_store, self._commands_store, self._db_manager)
+        self._temporal_information_retriever.start()
+
         self._alive_users_collection = AliveUsersCollection.AliveUsersCollection(
-                self._locator, self._cfg_manager, real_session_type, self._session_manager, self._db_manager)
+                self._locator, self._cfg_manager, real_session_type, self._session_manager, self._db_manager, self._commands_store)
 
         if clean:
             self._parse_coordination_configuration()
@@ -120,6 +139,8 @@ class UserProcessingServer(object):
 
 
     def stop(self):
+        self._temporal_information_retriever.stop()
+
         if hasattr(super(UserProcessingServer, self), 'stop'):
             super(UserProcessingServer, self).stop()
         for facade_server in self._facade_servers:
@@ -135,7 +156,7 @@ class UserProcessingServer(object):
                 self._coordinator.add_experiment_instance_id(laboratory_server_coord_address_str, experiment_instance_id, resource)
 
     def _load_user(self, session):
-        return UserProcessor.UserProcessor(self._locator, session, self._cfg_manager, self._coordinator, self._db_manager)
+        return UserProcessor.UserProcessor(self._locator, session, self._cfg_manager, self._coordinator, self._db_manager, self._commands_store)
 
     def _check_user_not_expired_and_poll(self, user_processor):
         if user_processor.is_expired():
@@ -210,6 +231,7 @@ class UserProcessingServer(object):
         self._session_manager.modify_session(session_id,initial_session)
         return session_id, self._server_route
 
+
     @logged(LogLevel.Info)
     def logout(self, session_id):
         if self._session_manager.has_session(session_id):
@@ -226,23 +248,19 @@ class UserProcessingServer(object):
                 "User Processing Server session not found"
             )
 
-    @logged(LogLevel.Info)
-    @check_session(*check_session_params)
-    def list_experiments(self,session):
-        user_processor = self._load_user(session)
-        try:
-            return user_processor.list_experiments()
-        finally:
-            user_processor.update_latest_timestamp()
 
     @logged(LogLevel.Info)
     @check_session(*check_session_params)
-    def get_user_information(self, session):
-        user_processor = self._load_user(session)
-        try:
-            return user_processor.get_user_information()
-        finally:
-            user_processor.update_latest_timestamp()
+    @load_user_processor
+    def list_experiments(self, user_processor, session):
+        return user_processor.list_experiments()
+
+
+    @logged(LogLevel.Info)
+    @check_session(*check_session_params)
+    @load_user_processor
+    def get_user_information(self, user_processor, session):
+        return user_processor.get_user_information()
 
     # # # # # # # # # # # # # # # # #
     # Experiment related operations #
@@ -250,52 +268,43 @@ class UserProcessingServer(object):
 
     @logged(LogLevel.Info)
     @check_session(*check_session_params)
-    def reserve_experiment(self, session, experiment_id, client_address):
-        user_processor = self._load_user(session)
-        try:
-            self._alive_users_collection.add_user(session['session_id'])
-            return user_processor.reserve_experiment( experiment_id, client_address ) 
-        finally:
-            user_processor.update_latest_timestamp()
+    @load_user_processor
+    def reserve_experiment(self, user_processor, session, experiment_id, client_initial_data, client_address):
+        self._alive_users_collection.add_user(session['session_id'])
+        return user_processor.reserve_experiment( experiment_id, client_initial_data, client_address ) 
+
 
     @logged(LogLevel.Info)
     @check_session(*check_session_params)
-    def finished_experiment(self, session):
-        user_processor = self._load_user(session)
-        try:
-            self._alive_users_collection.remove_user(session['session_id'])
-            return user_processor.finished_experiment()
-        finally:
-            user_processor.update_latest_timestamp()
+    @load_user_processor
+    def finished_experiment(self, user_processor, session):
+        self._alive_users_collection.remove_user(session['session_id'])
+        return user_processor.finished_experiment()
+
 
     @logged(LogLevel.Info, except_for=(('file_content',2),))
     @check_session(*check_session_params)
-    def send_file(self, session, file_content, file_info):
+    @load_user_processor
+    def send_file(self, user_processor, session, file_content, file_info):
         """ send_file(session_id, file_content, file_info)
 
         Sends file to the experiment.
         """
-        user_processor = self._load_user(session)
-        try:
-            self._check_user_not_expired_and_poll( user_processor )
-            return user_processor.send_file( file_content, file_info )
-        finally:
-            user_processor.update_latest_timestamp()
+        self._check_user_not_expired_and_poll( user_processor )
+        return user_processor.send_file( file_content, file_info )
+
 
     @logged(LogLevel.Info)
     @check_session(*check_session_params)
-    def send_command(self, session, command):
+    @load_user_processor
+    def send_command(self, user_processor, session, command):
         """ send_command(session_id, command)
 
         send_command sends an abstract string <command> which will be unpacked by the
         experiment.
         """
-        user_processor = self._load_user(session)
-        try:
-            self._check_user_not_expired_and_poll( user_processor )
-            return user_processor.send_command( command )
-        finally:
-            user_processor.update_latest_timestamp()
+        self._check_user_not_expired_and_poll( user_processor )
+        return user_processor.send_command( command )
             
     @logged(LogLevel.Info, except_for=(('file_content',2),))
     @check_session(*check_session_params)
@@ -354,6 +363,7 @@ class UserProcessingServer(object):
         finally:
             user_processor.update_latest_timestamp()
 
+
     @logged(LogLevel.Info)
     @check_session(*check_session_params)
     def poll(self, session):
@@ -363,15 +373,14 @@ class UserProcessingServer(object):
         except UserProcessingExceptions.NoCurrentReservationException:
             pass
 
+
     @logged(LogLevel.Info)
     @check_session(*check_session_params)
-    def get_reservation_status(self, session):
-        user_processor = self._load_user(session)
-        try:
-            self._check_user_not_expired_and_poll( user_processor )
-            return user_processor.get_reservation_status()
-        finally:
-            user_processor.update_latest_timestamp()
+    @load_user_processor
+    def get_reservation_status(self, user_processor, session):
+        self._check_user_not_expired_and_poll( user_processor )
+        return user_processor.get_reservation_status()
+
 
     #
     # admin service
@@ -379,59 +388,46 @@ class UserProcessingServer(object):
 
     @logged(LogLevel.Info)
     @check_session(*check_session_params)
-    def get_groups(self, session, parent_id=None):
-        user_processor = self._load_user(session)
-        try:
-            return user_processor.get_groups(parent_id)
-        finally:
-            user_processor.update_latest_timestamp()
+    @load_user_processor
+    def get_groups(self, user_processor, session, parent_id=None):
+        return user_processor.get_groups(parent_id)
+
 
     @logged(LogLevel.Info)
     @check_session(*check_session_params)
-    def get_experiments(self, session):
-        user_processor = self._load_user(session)
-        try:
-            return user_processor.get_experiments()
-        finally:
-            user_processor.update_latest_timestamp()
+    @load_user_processor
+    def get_experiments(self, user_processor, session):
+        return user_processor.get_experiments()
+
 
     @logged(LogLevel.Info)
     @check_session(*check_session_params)
-    def get_experiment_uses(self, session, from_date=None, to_date=None, group_id=None, experiment_id=None, start_row=None, end_row=None, sort_by=None):
-        user_processor = self._load_user(session)
-        try:
-            return user_processor.get_experiment_uses(from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by)
-        finally:
-            user_processor.update_latest_timestamp()
-            
+    @load_user_processor
+    def get_experiment_uses(self, user_processor, session, from_date=None, to_date=None, group_id=None, experiment_id=None, start_row=None, end_row=None, sort_by=None):
+        return user_processor.get_experiment_uses(from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by)
+
+
     @logged(LogLevel.Info)
     @check_session(*check_session_params)
-    def get_roles(self, session):
-        user_processor = self._load_user(session)
-        try:
-            return user_processor.get_roles()
-        finally:
-            user_processor.update_latest_timestamp()
-            
+    @load_user_processor
+    def get_roles(self, user_processor, session):
+        return user_processor.get_roles()
+
+
     @logged(LogLevel.Info)
     @check_session(*check_session_params)
-    def get_users(self, session):
+    @load_user_processor
+    def get_users(self, user_processor, session):
         """
         Receives the get_users petition sent by the client and handles the request through
         a user processor for the calling session.
         """
-        user_processor = self._load_user(session)
-        try:
-            return user_processor.get_users()
-        finally:
-            user_processor.update_latest_timestamp()
+        return user_processor.get_users()
+
 
     @logged(LogLevel.Info)
     @check_session(*check_session_params)
-    def get_user_permissions(self, session):
-        user_processor = self._load_user(session)
-        try:
-            return user_processor.get_user_permissions()
-        finally:
-            user_processor.update_latest_timestamp()
+    @load_user_processor
+    def get_user_permissions(self, user_processor, session):
+        return user_processor.get_user_permissions()
 

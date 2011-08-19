@@ -32,25 +32,9 @@ import weblab.data.Command as Command
 
 import weblab.exceptions.database.DatabaseExceptions as DbExceptions
 
-class DatabaseMySQLGatewayTestCase(unittest.TestCase):
-    """Note: Methods tested from UserProcessingServer won't be tested again here."""
-
-    def setUp(self):
-        cfg_manager= ConfigurationManager.ConfigurationManager()
-        cfg_manager.append_module(configuration)
-        self.gateway = DatabaseGateway.create_gateway(cfg_manager)
-        self.gateway._delete_all_uses()
-    
-    def test_get_user_by_name(self):
-        self.assertRaises(
-            DbExceptions.DbProvidedUserNotFoundException,
-            self.gateway.get_user_by_name,
-            'studentXX'
-        )        
-
-    def test_store_experiment_usage(self):
-        session = self.gateway.Session()
-        student1 = self.gateway._get_user(session, 'student1')
+def create_usage(gateway, reservation_id = 'my_reservation_id'):
+        session = gateway.Session()
+        student1 = gateway._get_user(session, 'student1')
 
         initial_usage = Usage.ExperimentUsage()
         initial_usage.start_date    = time.time()
@@ -58,6 +42,7 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         initial_usage.from_ip       = "130.206.138.16"
         initial_usage.experiment_id = ExperimentId.ExperimentId("ud-dummy","Dummy experiments")
         initial_usage.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        initial_usage.reservation_id = reservation_id
 
         file1 = Usage.FileSent(
                     'path/to/file1',
@@ -91,7 +76,27 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         initial_usage.append_file(file1)
         initial_usage.append_file(file2)
         
-        self.gateway.store_experiment_usage(student1.login, initial_usage)
+        gateway.store_experiment_usage(student1.login, {'facebook' : False}, initial_usage)
+        return student1, initial_usage, command1, command2, file1, file2
+
+class DatabaseMySQLGatewayTestCase(unittest.TestCase):
+    """Note: Methods tested from UserProcessingServer won't be tested again here."""
+
+    def setUp(self):
+        cfg_manager= ConfigurationManager.ConfigurationManager()
+        cfg_manager.append_module(configuration)
+        self.gateway = DatabaseGateway.create_gateway(cfg_manager)
+        self.gateway._delete_all_uses()
+    
+    def test_get_user_by_name(self):
+        self.assertRaises(
+            DbExceptions.DbProvidedUserNotFoundException,
+            self.gateway.get_user_by_name,
+            'studentXX'
+        )        
+
+    def test_store_experiment_usage(self):
+        student1, initial_usage, command1, command2, file1, file2 = create_usage(self.gateway)
 
         usages = self.gateway.list_usages_per_user(student1.login)
         self.assertEquals(len(usages), 1)
@@ -143,7 +148,350 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         self.assertEquals( file2.response, full_usage.sent_files[1].response)
         if file2.timestamp_after is not None:
             self.assertEquals( file2.timestamp_after, full_usage.sent_files[1].timestamp_after)  
+       
+
+    def test_add_command(self):
+        session = self.gateway.Session()
+        student1 = self.gateway._get_user(session, 'student1')
+
+        RESERVATION_ID1 = 'my_reservation_id1'
+        RESERVATION_ID2 = 'my_reservation_id2'
+
+        usage1 = Usage.ExperimentUsage()
+        usage1.start_date    = time.time()
+        usage1.end_date      = time.time()
+        usage1.from_ip       = "130.206.138.16"
+        usage1.experiment_id = ExperimentId.ExperimentId("ud-dummy","Dummy experiments")
+        usage1.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage1.reservation_id = RESERVATION_ID1
         
+        command1 = Usage.CommandSent(
+                    Command.Command("your command1"),
+                    time.time(),
+                    Command.Command("your response1"),
+                    time.time()
+            )
+
+        usage1.append_command(command1)
+
+        usage2 = Usage.ExperimentUsage()
+        usage2.start_date    = time.time()
+        usage2.end_date      = time.time()
+        usage2.from_ip       = "130.206.138.17"
+        usage2.experiment_id = ExperimentId.ExperimentId("ud-dummy","Dummy experiments")
+        usage2.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage2.reservation_id = RESERVATION_ID2
+        
+        command2 = Usage.CommandSent(
+                    Command.Command("your command2"),
+                    time.time(),
+                    Command.Command("your response2"),
+                    time.time()
+            )
+
+        usage2.append_command(command2)
+       
+        self.gateway.store_experiment_usage(student1.login, {'facebook' : False}, usage1)
+        self.gateway.store_experiment_usage(student1.login, {'facebook' : False}, usage2)
+
+        batch_command = Usage.CommandSent(
+                    Command.Command("@@@batch@@@"),
+                    time.time(),
+                    Command.Command("batch"),
+                    time.time()
+            )
+
+        finishing_command = Usage.CommandSent(
+                    Command.Command("@@@finish@@@"),
+                    time.time(),
+                    Command.Command("finish"),
+                    time.time()
+            )
+
+        usages = self.gateway.list_usages_per_user(student1.login)
+        self.assertEquals(2, len(usages))
+
+        full_usage1 = self.gateway.retrieve_usage(usages[0].experiment_use_id)
+        full_usage2 = self.gateway.retrieve_usage(usages[1].experiment_use_id)
+
+        self.assertEquals(1, len(full_usage1.commands))
+        self.assertEquals(1, len(full_usage2.commands))
+
+        self.gateway.append_command(RESERVATION_ID1, batch_command)
+        self.gateway.append_command(RESERVATION_ID2, finishing_command)
+
+        full_usage1 = self.gateway.retrieve_usage(usages[0].experiment_use_id)
+        full_usage2 = self.gateway.retrieve_usage(usages[1].experiment_use_id)
+
+        self.assertEquals(2, len(full_usage1.commands))
+        self.assertEquals(2, len(full_usage2.commands))
+
+        self.assertEquals("@@@batch@@@", full_usage1.commands[1].command.commandstring)
+        self.assertEquals("batch",       full_usage1.commands[1].response.commandstring)
+
+        self.assertEquals("@@@finish@@@", full_usage2.commands[1].command.commandstring)
+        self.assertEquals("finish",       full_usage2.commands[1].response.commandstring)
+
+    def test_update_command(self):
+        session = self.gateway.Session()
+        student1 = self.gateway._get_user(session, 'student1')
+
+        RESERVATION_ID1 = 'my_reservation_id1'
+
+        usage1 = Usage.ExperimentUsage()
+        usage1.start_date    = time.time()
+        usage1.end_date      = time.time()
+        usage1.from_ip       = "130.206.138.16"
+        usage1.experiment_id = ExperimentId.ExperimentId("ud-dummy","Dummy experiments")
+        usage1.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage1.reservation_id = RESERVATION_ID1
+
+        self.gateway.store_experiment_usage(student1.login, {'facebook' : False}, usage1)
+
+        usages = self.gateway.list_usages_per_user(student1.login)
+        self.assertEquals(1, len(usages))
+
+        full_usage = self.gateway.retrieve_usage(usages[0].experiment_use_id)
+
+        self.assertEquals(0, len(full_usage.commands))
+
+        command1 = Usage.CommandSent( Command.Command("your command"), time.time() )
+        command_id = self.gateway.append_command( RESERVATION_ID1, command1 )
+
+        full_usage = self.gateway.retrieve_usage(usages[0].experiment_use_id)
+
+        self.assertEquals("your command",        full_usage.commands[0].command.commandstring)
+        self.assertEquals(Command.NullCommand(), full_usage.commands[0].response)
+
+        self.gateway.update_command(command_id, Command.Command("the response"), time.time())
+
+        full_usage = self.gateway.retrieve_usage(usages[0].experiment_use_id)
+        self.assertEquals("your command",      full_usage.commands[0].command.commandstring)
+        self.assertEquals("the response",      full_usage.commands[0].response.commandstring)
+
+
+    def test_finish_experiment_usage(self):
+        session = self.gateway.Session()
+        student1 = self.gateway._get_user(session, 'student1')
+
+        RESERVATION_ID1 = 'my_reservation_id1'
+        RESERVATION_ID2 = 'my_reservation_id2'
+
+        usage1 = Usage.ExperimentUsage()
+        usage1.start_date    = time.time()
+        usage1.from_ip       = "130.206.138.16"
+        usage1.experiment_id = ExperimentId.ExperimentId("ud-dummy","Dummy experiments")
+        usage1.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage1.reservation_id = RESERVATION_ID1
+        
+        command1 = Usage.CommandSent(
+                    Command.Command("your command1"),
+                    time.time(),
+                    Command.Command("your response1"),
+                    time.time()
+            )
+
+        usage1.append_command(command1)
+
+        usage2 = Usage.ExperimentUsage()
+        usage2.start_date    = time.time()
+        usage2.from_ip       = "130.206.138.17"
+        usage2.experiment_id = ExperimentId.ExperimentId("ud-dummy","Dummy experiments")
+        usage2.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage2.reservation_id = RESERVATION_ID2
+        
+        command2 = Usage.CommandSent(
+                    Command.Command("your command2"),
+                    time.time(),
+                    Command.Command("your response2"),
+                    time.time()
+            )
+
+        usage2.append_command(command2)
+       
+        self.gateway.store_experiment_usage(student1.login, {'facebook' : False}, usage1)
+        self.gateway.store_experiment_usage(student1.login, {'facebook' : False}, usage2)
+
+        finishing_command = Usage.CommandSent(
+                    Command.Command("@@@finish@@@"),
+                    time.time(),
+                    Command.Command("finish"),
+                    time.time()
+            )
+
+        usages = self.gateway.list_usages_per_user(student1.login)
+        self.assertEquals(2, len(usages))
+
+        full_usage1 = self.gateway.retrieve_usage(usages[0].experiment_use_id)
+        full_usage2 = self.gateway.retrieve_usage(usages[1].experiment_use_id)
+
+        self.assertEquals(None, full_usage1.end_date)
+        self.assertEquals(None, full_usage2.end_date)
+
+        self.assertEquals(1, len(full_usage1.commands))
+        self.assertEquals(1, len(full_usage2.commands))
+
+        result = self.gateway.finish_experiment_usage(RESERVATION_ID1, time.time(), finishing_command)
+
+        self.assertTrue(result)
+
+        full_usage1 = self.gateway.retrieve_usage(usages[0].experiment_use_id)
+        full_usage2 = self.gateway.retrieve_usage(usages[1].experiment_use_id)
+
+        self.assertNotEqual(None, full_usage1.end_date)
+        self.assertEquals(None, full_usage2.end_date)
+
+        self.assertEquals(2, len(full_usage1.commands))
+        self.assertEquals(1, len(full_usage2.commands))
+
+        self.assertEquals("@@@finish@@@", full_usage1.commands[1].command.commandstring)
+        self.assertEquals("finish",       full_usage1.commands[1].response.commandstring)
+
+
+    def test_add_file(self):
+        session = self.gateway.Session()
+        student1 = self.gateway._get_user(session, 'student1')
+
+        RESERVATION_ID1 = 'my_reservation_id1'
+        RESERVATION_ID2 = 'my_reservation_id2'
+
+        usage1 = Usage.ExperimentUsage()
+        usage1.start_date    = time.time()
+        usage1.end_date      = time.time()
+        usage1.from_ip       = "130.206.138.16"
+        usage1.experiment_id = ExperimentId.ExperimentId("ud-dummy","Dummy experiments")
+        usage1.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage1.reservation_id = RESERVATION_ID1
+        
+        command1 = Usage.CommandSent(
+                    Command.Command("your command1"),
+                    time.time(),
+                    Command.Command("your response1"),
+                    time.time()
+            )
+
+        usage1.append_command(command1)
+
+        usage2 = Usage.ExperimentUsage()
+        usage2.start_date    = time.time()
+        usage2.end_date      = time.time()
+        usage2.from_ip       = "130.206.138.17"
+        usage2.experiment_id = ExperimentId.ExperimentId("ud-dummy","Dummy experiments")
+        usage2.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage2.reservation_id = RESERVATION_ID2
+        
+        command2 = Usage.CommandSent(
+                    Command.Command("your command2"),
+                    time.time(),
+                    Command.Command("your response2"),
+                    time.time()
+            )
+
+        usage2.append_command(command2)
+       
+        self.gateway.store_experiment_usage(student1.login, {'facebook' : False}, usage1)
+        self.gateway.store_experiment_usage(student1.login, {'facebook' : False}, usage2)
+
+        file_sent1 = Usage.FileSent(
+                    'path/to/file2',
+                    '{sha}123456',
+                    time.time(),
+                    Command.Command('response'),
+                    time.time(),
+                    file_info = 'program'
+            )
+
+        usages = self.gateway.list_usages_per_user(student1.login)
+        self.assertEquals(2, len(usages))
+
+        full_usage1 = self.gateway.retrieve_usage(usages[0].experiment_use_id)
+        full_usage2 = self.gateway.retrieve_usage(usages[1].experiment_use_id)
+
+        self.assertEquals(1, len(full_usage1.commands))
+        self.assertEquals(1, len(full_usage2.commands))
+        self.assertEquals(0, len(full_usage1.sent_files))
+        self.assertEquals(0, len(full_usage2.sent_files))
+
+        self.gateway.append_file(RESERVATION_ID1, file_sent1)
+
+        full_usage1 = self.gateway.retrieve_usage(usages[0].experiment_use_id)
+        full_usage2 = self.gateway.retrieve_usage(usages[1].experiment_use_id)
+
+        self.assertEquals(1, len(full_usage1.commands))
+        self.assertEquals(1, len(full_usage2.commands))
+        self.assertEquals(1, len(full_usage1.sent_files))
+        self.assertEquals(0, len(full_usage2.sent_files))
+
+        self.assertEquals("response",       full_usage1.sent_files[0].response.commandstring)
+
+    def test_update_file(self):
+        session = self.gateway.Session()
+        student1 = self.gateway._get_user(session, 'student1')
+
+        RESERVATION_ID1 = 'my_reservation_id1'
+        RESERVATION_ID2 = 'my_reservation_id2'
+
+        usage1 = Usage.ExperimentUsage()
+        usage1.start_date    = time.time()
+        usage1.end_date      = time.time()
+        usage1.from_ip       = "130.206.138.16"
+        usage1.experiment_id = ExperimentId.ExperimentId("ud-dummy","Dummy experiments")
+        usage1.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage1.reservation_id = RESERVATION_ID1
+        
+        usage2 = Usage.ExperimentUsage()
+        usage2.start_date    = time.time()
+        usage2.end_date      = time.time()
+        usage2.from_ip       = "130.206.138.17"
+        usage2.experiment_id = ExperimentId.ExperimentId("ud-dummy","Dummy experiments")
+        usage2.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage2.reservation_id = RESERVATION_ID2
+        
+        self.gateway.store_experiment_usage(student1.login, {'facebook' : False}, usage1)
+        self.gateway.store_experiment_usage(student1.login, {'facebook' : False}, usage2)
+
+        file_sent1 = Usage.FileSent(
+                    'path/to/file2',
+                    '{sha}123456',
+                    time.time(),
+                    file_info = 'program'
+            )
+
+        usages = self.gateway.list_usages_per_user(student1.login)
+        self.assertEquals(2, len(usages))
+
+        full_usage1 = self.gateway.retrieve_usage(usages[0].experiment_use_id)
+        full_usage2 = self.gateway.retrieve_usage(usages[1].experiment_use_id)
+
+        self.assertEquals(0, len(full_usage1.commands))
+        self.assertEquals(0, len(full_usage2.commands))
+        self.assertEquals(0, len(full_usage1.sent_files))
+        self.assertEquals(0, len(full_usage2.sent_files))
+
+        file_sent_id = self.gateway.append_file(RESERVATION_ID1, file_sent1)
+
+        full_usage1 = self.gateway.retrieve_usage(usages[0].experiment_use_id)
+        full_usage2 = self.gateway.retrieve_usage(usages[1].experiment_use_id)
+
+        self.assertEquals(0, len(full_usage1.commands))
+        self.assertEquals(0, len(full_usage2.commands))
+        self.assertEquals(1, len(full_usage1.sent_files))
+        self.assertEquals(0, len(full_usage2.sent_files))
+
+        self.assertEquals(None,       full_usage1.sent_files[0].response.commandstring)
+
+        self.gateway.update_file(file_sent_id, Command.Command("response"), time.time())
+
+        full_usage1 = self.gateway.retrieve_usage(usages[0].experiment_use_id)
+        full_usage2 = self.gateway.retrieve_usage(usages[1].experiment_use_id)
+
+        self.assertEquals(0, len(full_usage1.commands))
+        self.assertEquals(0, len(full_usage2.commands))
+        self.assertEquals(1, len(full_usage1.sent_files))
+        self.assertEquals(0, len(full_usage2.sent_files))
+
+        self.assertEquals("response",       full_usage1.sent_files[0].response.commandstring)
+
     def test_gather_permissions(self):
         session = self.gateway.Session()
         student2 = self.gateway._get_user(session, "student2")
@@ -211,8 +559,8 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         group_id = 1
         experiment_id = 1
         
-        self.gateway._insert_user_used_experiment("student2", "ud-fpga", "FPGA experiments", time.time(), "unknown", "fpga:process1@scabb", time.time())
-        self.gateway._insert_ee_used_experiment("ee1", "ud-dummy", "Dummy experiments", time.time(), "unknown", "dummy:process1@plunder", time.time())
+        self.gateway._insert_user_used_experiment("student2", "ud-fpga", "FPGA experiments", time.time(), "unknown", "fpga:process1@scabb", '8', time.time())
+        self.gateway._insert_ee_used_experiment("ee1", "ud-dummy", "Dummy experiments", time.time(), "unknown", "dummy:process1@plunder", '9', time.time())
         
         experiment_uses = self.gateway.get_experiment_uses(student2.login, from_date, to_date, group_id, experiment_id)
         self.assertEquals(len(experiment_uses), 0)
@@ -224,8 +572,8 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         group_id = None
         experiment_id = None
         
-        self.gateway._insert_user_used_experiment("student2", "ud-fpga", "FPGA experiments", time.time(), "unknown", "fpga:process1@scabb", time.time())
-        self.gateway._insert_ee_used_experiment("ee1", "ud-dummy", "Dummy experiments", time.time(), "unknown", "dummy:process1@plunder", time.time())
+        self.gateway._insert_user_used_experiment("student2", "ud-fpga", "FPGA experiments", time.time(), "unknown", "fpga:process1@scabb", '5', time.time())
+        self.gateway._insert_ee_used_experiment("ee1", "ud-dummy", "Dummy experiments", time.time(), "unknown", "dummy:process1@plunder", '6', time.time())
         
         experiment_uses = self.gateway.get_experiment_uses(student2.login, from_date, to_date, group_id, experiment_id)
         self.assertEquals(len(experiment_uses), 0)

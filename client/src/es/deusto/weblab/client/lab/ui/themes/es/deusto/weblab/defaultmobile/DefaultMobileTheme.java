@@ -115,7 +115,7 @@ public class DefaultMobileTheme extends WlLabThemeBase {
 		this.experimentBase = experimentBase;
 
 		// Important note: the calling order MUST be this or FileUpload will cause problems
-		this.experimentWindow.loadUsingExperimentPanels(reservationStatus.getTime());
+		this.experimentWindow.loadUsingExperimentPanels(reservationStatus.getTime(), reservationStatus.getInitialConfiguration());
 		// end of Important note
 	}
 

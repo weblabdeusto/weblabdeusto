@@ -162,7 +162,7 @@ public class LabVIEWBoard extends BoardBase {
 	}
 	
 	@Override
-	public void start() {
+	public void start(int time, String initialConfiguration) {
 		this.uploadStructure.getFormPanel().setVisible(false);
 		this.panel.add(this.timer);
 		this.timer.start();

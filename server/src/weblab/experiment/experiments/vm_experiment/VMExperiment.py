@@ -48,6 +48,7 @@ DEFAULT_USER_MANAGER_TYPE = "DummyUserManager"
 DEFAULT_SHOULD_STORE_IMAGE = True
 DEFAULT_ESTIMATED_LOAD_TIME = 15
 
+TIME_WAITING_START = 10
 
 class VMExperiment(Experiment.Experiment):
     
@@ -77,9 +78,9 @@ class VMExperiment(Experiment.Experiment):
         self.estimated_load_time = self._cfg_manager.get_value(CFG_ESTIMATED_LOAD_TIME, DEFAULT_ESTIMATED_LOAD_TIME)
 
 
-    @Override(Experiment.Experiment)
     @logged("info")
-    def do_start_experiment(self):
+    @Override(Experiment.Experiment)
+    def do_start_experiment(self, *args, **kwargs):
         """
         Callback run when the experiment is started. After the starting
         thread finishes successfully, it will set is_ready to True.
@@ -91,8 +92,9 @@ class VMExperiment(Experiment.Experiment):
             um.cancel()
 
         initial = time.time()
-        while self.is_ready and (initial + 10) > time.time():
-            print self.is_ready
+        while self.is_ready and (initial + TIME_WAITING_START) > time.time():
+            if DEBUG:
+                print "is_ready:",self.is_ready
             time.sleep(0.1)
 
         if self.is_ready:
@@ -244,6 +246,8 @@ class VMExperiment(Experiment.Experiment):
                 VMExperiment,
                 log.LogLevel.Warning
             )
+                
+
     
     def generate_session_id(self):
         """ Generates and returns a unique id """

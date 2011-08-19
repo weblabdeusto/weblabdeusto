@@ -95,6 +95,8 @@ def _insert_required_initial_data(engine):
     session.add(experiment_allowed_p2)
     experiment_allowed_p3 = Model.DbPermissionTypeParameter(experiment_allowed, 'time_allowed', 'float', 'Time allowed (in seconds)')
     session.add(experiment_allowed_p3)
+    experiment_allowed_p4 = Model.DbPermissionTypeParameter(experiment_allowed, 'priority', 'int', 'Priority (the lower value the higher priority)')
+    session.add(experiment_allowed_p4)
     session.commit()    
     
     admin_panel_access = Model.DbPermissionType(
@@ -325,6 +327,9 @@ end_date = start_date.replace(year=start_date.year+10)
 
 dummy = Model.DbExperiment("ud-dummy", cat_dummy, start_date, end_date)
 session.add(dummy)
+
+dummy_batch = Model.DbExperiment("ud-dummy-batch", cat_dummy, start_date, end_date)
+session.add(dummy_batch)
 
 flashdummy = Model.DbExperiment("flashdummy", cat_dummy, start_date, end_date)
 session.add(flashdummy)
@@ -624,6 +629,22 @@ session.add(up_any_rob_proglist_allowed_p3)
    
            
       
+            
+up_any_dummy_batch_allowed = Model.DbUserPermission(
+    any,
+    experiment_allowed.group_applicable,
+    "any::weblab-dummy-batch",
+    datetime.datetime.utcnow(),
+    "Permission for any to use WebLab-dummy-batch"
+)
+
+
+session.add(up_any_dummy_batch_allowed)
+up_any_dummy_batch_allowed_p1 = Model.DbUserPermissionParameter(up_any_dummy_batch_allowed, experiment_allowed_p1, "ud-dummy-batch")
+session.add(up_any_dummy_batch_allowed_p1)
+up_any_dummy_batch_allowed_p2 = Model.DbUserPermissionParameter(up_any_dummy_batch_allowed, experiment_allowed_p2, "Dummy experiments")
+session.add(up_any_dummy_batch_allowed_p2)
+up_any_dummy_batch_allowed_p3 = Model.DbUserPermissionParameter(up_any_dummy_batch_allowed, experiment_allowed_p3, "200")
 
 
 up_any_pld_demo_allowed = Model.DbUserPermission(

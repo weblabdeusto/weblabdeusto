@@ -159,6 +159,12 @@
 	                        	   "experiment.category" : "Dummy experiments"
 	                           }
 	                       ],
+	   	        "dummybatch" : [
+		                           {
+		                        	   "experiment.name"     : "ud-dummy-batch",
+		                        	   "experiment.category" : "Dummy experiments"
+		                           }
+		                ],
 	                "robot-standard" : [
 	                			{  
 	                			   "experiment.name" : "robot-standard",

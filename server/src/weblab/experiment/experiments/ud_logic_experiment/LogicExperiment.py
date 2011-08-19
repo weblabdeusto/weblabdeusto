@@ -162,7 +162,7 @@ class LogicExperiment(Experiment.Experiment):
         return ""
 
     @Override(Experiment.Experiment)
-    def do_start_experiment(self):
+    def do_start_experiment(self, *args, **kwargs):
         self.tries = 0
         self.current_circuit = self.circuit_generator.generate()
 

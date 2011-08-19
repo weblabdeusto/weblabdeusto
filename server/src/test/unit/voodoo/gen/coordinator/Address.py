@@ -74,7 +74,7 @@ class AddressTestCase(unittest.TestCase):
             )
 
         self.assertRaises(
-                NotImplementedError,
+                TypeError,
                 Address.IpBasedAddress,
                 valid_addresses[0]
             )

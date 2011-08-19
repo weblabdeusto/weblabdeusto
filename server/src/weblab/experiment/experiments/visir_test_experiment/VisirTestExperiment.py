@@ -88,7 +88,7 @@ class VisirTestExperiment(Experiment.Experiment):
             self.login_password = self._cfg_manager.get_value(CFG_LOGIN_PASSWORD, DEFAULT_LOGIN_PASSWORD)
 
     @Override(Experiment.Experiment)
-    def do_start_experiment(self):
+    def do_start_experiment(self, *args, **kwargs):
         """
         Callback run when the experiment is started
         """

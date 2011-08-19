@@ -25,7 +25,7 @@ import weblab.database.Model as Model
 
 import weblab.database.DatabaseMySQLGateway as dbMySQLGateway
 
-from weblab.data.dto.ExperimentAllowed import ExperimentAllowed
+import weblab.data.dto.ExperimentAllowed as ExperimentAllowed
 
 import weblab.exceptions.database.DatabaseExceptions as DbExceptions
 
@@ -55,6 +55,7 @@ def admin_panel_operation(func):
             session.close()
     return proxy
 
+DEFAULT_VALUE = object()
 
 class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
 
@@ -88,6 +89,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
+
     @logged()
     def list_experiments(self, user_login):
         session = self.Session()
@@ -100,9 +102,10 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                 p_permanent_id = self._get_parameter_from_permission(session, permission, 'experiment_permanent_id')
                 p_category_id = self._get_parameter_from_permission(session, permission, 'experiment_category_id')
                 p_time_allowed = self._get_float_parameter_from_permission(session, permission, 'time_allowed')
+                p_priority = self._get_int_parameter_from_permission(session, permission, 'priority', ExperimentAllowed.DEFAULT_PRIORITY)
                 
                 experiment = session.query(Model.DbExperiment).filter_by(name=p_permanent_id).filter(Model.DbExperimentCategory.name==p_category_id).one() 
-                experiment_allowed = ExperimentAllowed(experiment.to_business(), p_time_allowed)
+                experiment_allowed = ExperimentAllowed.ExperimentAllowed(experiment.to_business(), p_time_allowed, p_priority)
                 
                 experiment_unique_id = p_permanent_id+"@"+p_category_id
                 if grouped_experiments.has_key(experiment_unique_id):
@@ -125,7 +128,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             session.close()
 
     @logged()
-    def store_experiment_usage(self, user_login, experiment_usage):
+    def store_experiment_usage(self, user_login, reservation_info, experiment_usage):
         session = self.Session()
         try:
             use = Model.DbUserUsedExperiment(
@@ -134,6 +137,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                         experiment_usage.start_date,
                         experiment_usage.from_ip,
                         experiment_usage.coord_address.address,
+                        experiment_usage.reservation_id,
                         experiment_usage.end_date
                 )
             session.add(use)
@@ -166,32 +170,125 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                                     c.timestamp_after
                                 ))
             for f in experiment_usage.sent_files:
-                if type(c.response) != type(""):          
-                    session.add(Model.DbUserFile(
-                                    use,
-                                    f.file_sent,
-                                    f.file_hash,
-                                    f.timestamp_before,
-                                    f.file_info,
-                                    f.response.commandstring,
-                                    f.timestamp_after
-                                ))
-                else:         
-                    # f.response will currently just be the request_id in the case of a
-                    # send_async_file.
-                    session.add(Model.DbUserFile(
-                                    use,
-                                    f.file_sent,
-                                    f.file_hash,
-                                    f.timestamp_before,
-                                    f.file_info,
-                                    f.response,
-                                    f.timestamp_after
-                                ))
+                session.add(Model.DbUserFile(
+                                use,
+                                f.file_sent,
+                                f.file_hash,
+                                f.timestamp_before,
+                                f.file_info,
+                                f.response.commandstring,
+                                f.timestamp_after
+                            ))
+
+            for reservation_info_key in reservation_info:
+                db_key = session.query(Model.DbUserUsedExperimentProperty).filter_by(name = reservation_info_key).first()
+                if db_key is None:
+                    db_key = Model.DbUserUsedExperimentProperty(reservation_info_key)
+                    session.add(db_key)
+
+                value = reservation_info[reservation_info_key]
+                session.add(Model.DbUserUsedExperimentPropertyValue( str(value), db_key, use ))
+
             session.commit()
         finally:
             session.close()
-    
+
+    @logged()
+    def finish_experiment_usage(self, reservation_id, end_date, last_command ):
+        session = self.Session()
+        try:
+            user_used_experiment = session.query(Model.DbUserUsedExperiment).filter_by(reservation_id = reservation_id).first()
+            if user_used_experiment is None:
+                return False
+
+            user_used_experiment.set_end_date(end_date)
+            session.update(user_used_experiment)
+            session.add(Model.DbUserCommand(
+                            user_used_experiment,
+                            last_command.command.commandstring,
+                            last_command.timestamp_before,
+                            last_command.response.commandstring,
+                            last_command.timestamp_after
+                        ))
+            session.commit()
+            return True
+        finally:
+            session.close()
+  
+    @logged()
+    def append_command(self, reservation_id, command ):
+        session = self.Session()
+        try:
+            user_used_experiment = session.query(Model.DbUserUsedExperiment).filter_by(reservation_id = reservation_id).first()
+            if user_used_experiment is None:
+                return False
+            db_command = Model.DbUserCommand(
+                            user_used_experiment,
+                            command.command.commandstring,
+                            command.timestamp_before,
+                            command.response.commandstring if command.response is not None else None,
+                            command.timestamp_after
+                        )
+            session.add(db_command)
+            session.commit()
+            return db_command.id
+        finally:
+            session.close()
+
+    @logged()
+    def update_command(self, command_id, response, end_timestamp ):
+        session = self.Session()
+        try:
+            db_command = session.query(Model.DbUserCommand).filter_by(id = command_id).first()
+            if db_command is None:
+                return False
+
+            db_command.response = response.commandstring
+            db_command.set_timestamp_after(end_timestamp)
+            session.update(db_command)
+            session.commit()
+            return True
+        finally:
+            session.close()
+
+    @logged()
+    def append_file(self, reservation_id, file_sent ):
+        session = self.Session()
+        try:
+            user_used_experiment = session.query(Model.DbUserUsedExperiment).filter_by(reservation_id = reservation_id).first()
+            if user_used_experiment is None:
+                return False
+            db_file_sent = Model.DbUserFile(
+                            user_used_experiment,
+                            file_sent.file_sent,
+                            file_sent.file_hash,
+                            file_sent.timestamp_before,
+                            file_sent.file_info,
+                            file_sent.response.commandstring if file_sent.response is not None else None,
+                            file_sent.timestamp_after
+                        )
+            session.add(db_file_sent)
+            session.commit()
+            return db_file_sent.id
+        finally:
+            session.close()
+
+    @logged()
+    def update_file(self, file_id, response, end_timestamp ):
+        session = self.Session()
+        try:
+            db_file_sent = session.query(Model.DbUserFile).filter_by(id = file_id).first()
+            if db_file_sent is None:
+                return False
+
+            db_file_sent.response = response.commandstring
+            db_file_sent.set_timestamp_after(end_timestamp)
+            session.update(db_file_sent)
+            session.commit()
+            return True
+        finally:
+            session.close()
+
     @logged()
     def list_usages_per_user(self, user_login, first=0, limit=20):
         session = self.Session()
@@ -428,17 +525,20 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
     def _get_permissions(self, session, user_or_role_or_group_or_ee, permission_type_name):
         return [ pi for pi in user_or_role_or_group_or_ee.permissions if pi.get_permission_type().name == permission_type_name ]
     
-    def _get_parameter_from_permission(self, session, permission, parameter_name):
+    def _get_parameter_from_permission(self, session, permission, parameter_name, default_value = DEFAULT_VALUE):
         try:
             param = [ p for p in permission.parameters if p.get_name() == parameter_name ][0]
         except IndexError:
-            raise DbExceptions.DbIllegalStatusException(
+            if default_value == DEFAULT_VALUE:
+                raise DbExceptions.DbIllegalStatusException(
                     permission.get_permission_type().name + " permission without " + parameter_name
                 )
+            else:
+                return default_value
         return param.value
     
-    def _get_float_parameter_from_permission(self, session, permission, parameter_name):
-        value = self._get_parameter_from_permission(session, permission, parameter_name)
+    def _get_float_parameter_from_permission(self, session, permission, parameter_name, default_value = DEFAULT_VALUE):
+        value = self._get_parameter_from_permission(session, permission, parameter_name, default_value)
         try:
             return float(value)
         except ValueError:
@@ -449,9 +549,22 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                     value
                 )
             )       
-    
-    def _get_bool_parameter_from_permission(self, session, permission, parameter_name):
-        return self._get_parameter_from_permission(session, permission, parameter_name) 
+
+    def _get_int_parameter_from_permission(self, session, permission, parameter_name, default_value = DEFAULT_VALUE):
+        value = self._get_parameter_from_permission(session, permission, parameter_name, default_value)
+        try:
+            return int(value)
+        except ValueError:
+            raise DbExceptions.InvalidPermissionParameterFormatException(
+                "Expected int as parameter '%s' of '%s', found: '%s'" % (
+                    parameter_name,
+                    permission.get_permission_type().name,
+                    value
+                )
+            )       
+   
+    def _get_bool_parameter_from_permission(self, session, permission, parameter_name, default_value = DEFAULT_VALUE):
+        return self._get_parameter_from_permission(session, permission, parameter_name, default_value) 
     
     def _delete_all_uses(self):
         """ IMPORTANT: SHOULD NEVER BE USED IN PRODUCTION, IT'S HERE ONLY FOR TESTS """
@@ -467,7 +580,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
-    def _insert_user_used_experiment(self, user_login, experiment_name, experiment_category_name, start_time, origin, coord_address, end_date):
+    def _insert_user_used_experiment(self, user_login, experiment_name, experiment_category_name, start_time, origin, coord_address, reservation_id, end_date):
         """ IMPORTANT: SHOULD NEVER BE USED IN PRODUCTION, IT'S HERE ONLY FOR TESTS """
         session = self.Session()
         try:
@@ -477,14 +590,14 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                                     filter_by(name=experiment_name). \
                                     filter_by(category=category).one()
             experiment_id = experiment.id
-            exp_use = Model.DbUserUsedExperiment(user, experiment, start_time, origin, coord_address, end_date)
+            exp_use = Model.DbUserUsedExperiment(user, experiment, start_time, origin, coord_address, reservation_id, end_date)
             session.add(exp_use)
             session.commit()
             return experiment_id
         finally:
             session.close()
             
-    def _insert_ee_used_experiment(self, ee_name, experiment_name, experiment_category_name, start_time, origin, coord_address, end_date):
+    def _insert_ee_used_experiment(self, ee_name, experiment_name, experiment_category_name, start_time, origin, coord_address, reservation_id, end_date):
         """ IMPORTANT: SHOULD NEVER BE USED IN PRODUCTION, IT'S HERE ONLY FOR TESTS """
         session = self.Session()
         try:
@@ -493,7 +606,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             experiment = session.query(Model.DbExperiment). \
                                     filter_by(name=experiment_name). \
                                     filter_by(category=category).one()
-            exp_use = Model.DbExternalEntityUsedExperiment(ee, experiment, start_time, origin, coord_address, end_date)
+            exp_use = Model.DbExternalEntityUsedExperiment(ee, experiment, start_time, origin, coord_address, reservation_id, end_date)
             session.add(exp_use)
             session.commit()
         finally:

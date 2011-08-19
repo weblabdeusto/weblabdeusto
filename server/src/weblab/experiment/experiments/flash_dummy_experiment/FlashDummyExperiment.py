@@ -22,7 +22,7 @@ class FlashDummyExperiment(Experiment.Experiment):
         super(FlashDummyExperiment, self).__init__(*args, **kwargs)
 
     @Override(Experiment.Experiment)
-    def do_start_experiment(self):
+    def do_start_experiment(self, *args, **kwargs):
         print "Experiment started"
 
     @Override(Experiment.Experiment)

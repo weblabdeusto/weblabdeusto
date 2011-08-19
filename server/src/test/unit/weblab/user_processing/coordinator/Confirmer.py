@@ -13,6 +13,8 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+import time
+import datetime
 import unittest
 import mocker
 
@@ -31,7 +33,7 @@ from weblab.user_processing.coordinator.Resource import Resource
 
 import weblab.user_processing.coordinator.Coordinator as Coordinator
 
-import weblab.user_processing.coordinator.WebLabQueueStatus as WQS
+import weblab.user_processing.coordinator.WebLabSchedulingStatus as WSS
 
 class MockLocator(object):
     
@@ -49,6 +51,8 @@ class MockLocator(object):
 
 def coord_addr(coord_addr_str):
     return CoordAddress.CoordAddress.translate_address( coord_addr_str )
+
+DEFAULT_REQUEST_INFO = {'facebook' : False, 'mobile' : False}
 
 class ConfirmerTestCase(mocker.MockerTestCase):
     
@@ -85,7 +89,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.mocker.result((mock_laboratory,))
 
         self.mocker.replay()
-        self.confirmer.enqueue_free_experiment(self.lab_address, 'lab_session_id')
+        self.confirmer.enqueue_free_experiment(self.lab_address, '5', 'lab_session_id', ExperimentInstanceId('inst1','exp1','cat1'))
         self.confirmer._free_handler.join()
 
     def test_free_experiment_raises_exception(self):
@@ -99,7 +103,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.mocker.throw( Exception('foo') )
 
         self.mocker.replay()
-        self.confirmer.enqueue_free_experiment(self.lab_address, 'lab_session_id')
+        self.confirmer.enqueue_free_experiment(self.lab_address, '5', 'lab_session_id', ExperimentInstanceId('inst1','exp1','cat1'))
         self.confirmer._free_handler.join()
 
         self.assertEquals( None, self.confirmer._free_handler.raised_exc )
@@ -108,8 +112,8 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         lab_session_id = SessionId.SessionId("samplesession_id")
 
         mock_laboratory = self.mocker.mock()
-        mock_laboratory.reserve_experiment(ExperimentInstanceId('inst1','exp1','cat1'))
-        self.mocker.result(lab_session_id)
+        mock_laboratory.reserve_experiment(ExperimentInstanceId('inst1','exp1','cat1'), '"sample initial data"', mocker.ANY)
+        self.mocker.result((lab_session_id, None, 'server:inst@mach'))
 
         self.mock_locator.real_mock = self.mocker.mock()
         self.mock_locator.real_mock.get_server_from_coordaddress(
@@ -121,17 +125,23 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.mocker.result((mock_laboratory,))
 
         self.mocker.replay()
-        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5, 'sample initial data')
+        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5, 'sample initial data', DEFAULT_REQUEST_INFO)
+        now = datetime.datetime.fromtimestamp(int(time.time())) # Remove milliseconds as MySQL do
         self.coordinator.confirmer._confirm_handler.join()
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
         
         status = self.coordinator.get_reservation_status(reservation1_id)
-        expected_status =  WQS.ReservedQueueStatus(CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, 30)
-        self.assertEquals( expected_status, status )
+        expected_status =  WSS.ReservedStatus(CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, 30, '{}', now, now)
+        try:
+            self.assertEquals( expected_status, status )
+        except AssertionError:
+            # Sometimes, the initial time is not now, but now - 1, because it started at 12:30:00,99 and finished at 12:30:01,01
+            expected_status =  WSS.ReservedStatus(CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, 30, '{}', now - datetime.timedelta(seconds=1), now)
+            self.assertEquals( expected_status, status )
 
     def test_reject_experiment_laboratory_raises_exception(self):
         mock_laboratory = self.mocker.mock()
-        mock_laboratory.reserve_experiment(ExperimentInstanceId('inst1','exp1','cat1'))
+        mock_laboratory.reserve_experiment(ExperimentInstanceId('inst1','exp1','cat1'), '"sample initial data"', mocker.ANY)
         self.mocker.throw( Exception("Any unhandled exception") )
 
         self.mock_locator.real_mock = self.mocker.mock()
@@ -144,12 +154,12 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.mocker.result((mock_laboratory,))
 
         self.mocker.replay()
-        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5, 'sample initial data')
+        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5, 'sample initial data', DEFAULT_REQUEST_INFO)
         self.coordinator.confirmer._confirm_handler.join()
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
         
         status = self.coordinator.get_reservation_status(reservation1_id)
-        expected_status =  WQS.WaitingInstancesQueueStatus(0)
+        expected_status =  WSS.WaitingInstancesQueueStatus(0)
         self.assertEquals( expected_status, status )
 
     def test_reject_experiment_voodoo_gen_raises_exception(self):
@@ -163,12 +173,12 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.mocker.throw( Exception("Unhandled exception") )
 
         self.mocker.replay()
-        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5, 'sample initial data')
+        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5, 'sample initial data', DEFAULT_REQUEST_INFO)
         self.coordinator.confirmer._confirm_handler.join()
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
         
         status = self.coordinator.get_reservation_status(reservation1_id)
-        expected_status =  WQS.WaitingInstancesQueueStatus(0)
+        expected_status =  WSS.WaitingInstancesQueueStatus(0)
         self.assertEquals( expected_status, status )
 
 

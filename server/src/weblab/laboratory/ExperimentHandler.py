@@ -15,12 +15,13 @@
 # 
 
 class ExperimentHandler(object):
-    def __init__(self, experiment_coord_address, is_up_and_running_handlers):
+    def __init__(self, experiment_coord_address, is_up_and_running_handlers, api):
         super(ExperimentHandler, self).__init__()
         self._experiment_coord_address   = experiment_coord_address
         self._is_up_and_running_handlers = is_up_and_running_handlers
         self._busy                       = False
         self._lab_session_id             = None
+        self._api                        = api
 
     def reserve(self, lab_session_id):
         if self._busy:
@@ -34,6 +35,10 @@ class ExperimentHandler(object):
             return False
         self._busy = False
         return True
+
+    @property
+    def api(self):
+        return self._api
 
     @property
     def busy(self):

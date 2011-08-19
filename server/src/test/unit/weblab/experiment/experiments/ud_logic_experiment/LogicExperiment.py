@@ -61,7 +61,7 @@ class WrappedLogicExperiment(LogicExperiment.LogicExperiment):
 class LogicExperimentTestCase(unittest.TestCase):
     def setUp(self):
         self.experiment = WrappedLogicExperiment(None, None, None)
-        self.experiment.do_start_experiment()
+        self.experiment.do_start_experiment("{}","{}")
 
     def test_get_circuit(self):
         circuit1a = self.experiment.do_send_command_to_device('GET_CIRCUIT')

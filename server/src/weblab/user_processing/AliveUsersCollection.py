@@ -60,7 +60,7 @@ class AliveUsersCollection(object):
     to "once in a certain amount of time" + when adding/removing an alive
     user.
     """
-    def __init__(self, locator, cfg_manager, session_type, session_manager, db_manager):
+    def __init__(self, locator, cfg_manager, session_type, session_manager, db_manager, commands_store):
         # This is an optimization. It shouldn't be stored in the SessionManager
         # since the value itself doesn't matter. The important thing is that
         # each UPS doesn't lock too often the global session in the 
@@ -72,6 +72,7 @@ class AliveUsersCollection(object):
         self._cfg_manager     = cfg_manager
         self._session_manager = session_manager
         self._db_manager      = db_manager
+        self._commands_store  = commands_store
 
         self._set_min_time_between_checks()
 
@@ -148,7 +149,7 @@ class AliveUsersCollection(object):
             # session without unlocking.
             session = self._session_manager.get_session(session_id)
             coordinator = None # It's not used in is_expired
-            user_processor = UserProcessor.UserProcessor( self._locator, session, self._cfg_manager, coordinator, self._db_manager)
+            user_processor = UserProcessor.UserProcessor( self._locator, session, self._cfg_manager, coordinator, self._db_manager, self._commands_store)
             if user_processor.is_expired():
                 expired_session_ids.append(session_id)
 

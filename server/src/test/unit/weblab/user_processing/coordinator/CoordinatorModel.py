@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import datetime
 import unittest
 import weblab.user_processing.coordinator.CoordinatorModel as CM
 
@@ -47,16 +48,20 @@ class CoordinatorModelTestCase(unittest.TestCase):
 
     def test_repr_reservation(self):
         experiment_type = CM.ExperimentType("exp", "cat")
-        reservation     = CM.Reservation("hola", None)
+        reservation     = CM.Reservation("hi", "{}", "{}", "{}", None)
         reservation.experiment_type = experiment_type
         repr(reservation) # No exception is raised
 
     def test_repr_current_reservation(self):
         experiment_type = CM.ExperimentType("exp", "cat")
-        reservation     = CM.Reservation("hola", None)
+        reservation     = CM.Reservation("hi", "{}", "{}", "{}", None)
         reservation.experiment_type = experiment_type
-        current_reservation = CM.CurrentReservation("hola")
+        current_reservation = CM.CurrentReservation("hi", datetime.datetime.now(), 1000)
         repr(current_reservation) # No exception is raised
+
+    def test_repr_post_reservation_retrieved_data(self):
+        post_reservation_retrieved_data = CM.PostReservationRetrievedData("foobar", True, datetime.datetime.now(), datetime.datetime.now(), "{}", "{}")
+        repr(post_reservation_retrieved_data) # No exception is raised
 
 def suite():
     return unittest.makeSuite(CoordinatorModelTestCase)

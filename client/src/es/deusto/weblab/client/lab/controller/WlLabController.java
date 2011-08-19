@@ -32,6 +32,8 @@ import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.dto.experiments.commands.ArrayOfInterchangedData;
+import es.deusto.weblab.client.dto.experiments.commands.InterchangedData;
 import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.lab.comm.IWlLabCommunication;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
@@ -255,7 +257,7 @@ public class WlLabController implements IWlLabController {
 		reservationStatusCallback.setController(this);
 		reservationStatusCallback.setExperimentBaseBeingReserved(this.sessionVariables.getCurrentExperimentBase());
 		
-		this.communications.reserveExperiment(this.currentSession, experimentId, reservationStatusCallback);
+		this.communications.reserveExperiment(this.currentSession, experimentId, new ArrayOfInterchangedData(new InterchangedData[]{}), reservationStatusCallback);
 	}
 
 	@Override
@@ -371,7 +373,7 @@ public class WlLabController implements IWlLabController {
 	    	}
 	    	
 	    	@Override
-			public void onClean(){
+		public void onClean(){
 	    		WlLabController.this.finishReservation();
 	    	}
 	    	

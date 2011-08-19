@@ -28,9 +28,29 @@ class UserProcessingDatabaseManager(object):
     def get_available_experiments(self, session_id):
         return self._gateway.list_experiments( session_id.username )
     
-    def store_experiment_usage(self, session_id, experiment_usage):
-        return self._gateway.store_experiment_usage( session_id.username, experiment_usage )
-    
+    def store_experiment_usage(self, session_id, reservation_info, experiment_usage):
+        return self._gateway.store_experiment_usage( session_id.username, reservation_info, experiment_usage )
+
+    def finish_experiment_usage(self, reservation_id, end_date, last_command):
+        """ Tries to finish the experiment usage (adding the end_date and appending the finish command). Returns True if it was added successfully, false otherwise """
+        return self._gateway.finish_experiment_usage( reservation_id, end_date, last_command )
+
+    def append_command(self, reservation_id, command):
+        """ Tries to append a command. Returns True if it was added successfully, false otherwise """
+        return self._gateway.append_command( reservation_id, command )
+
+    def update_command(self, command_id, response, end_timestamp):
+        """ Tries to update a command. Returns True if it was added successfully, false otherwise """
+        return self._gateway.update_command( command_id, response, end_timestamp )
+
+    def append_file(self, reservation_id, file_sent):
+        """ Tries to append a file. Returns True if it was added successfully, false otherwise """
+        return self._gateway.append_file( reservation_id, file_sent )
+
+    def update_file(self, file_id, response, end_timestamp):
+        """ Tries to update a file. Returns True if it was added successfully, false otherwise """
+        return self._gateway.update_file( file_id, response, end_timestamp )
+   
     def get_groups(self, session_id, parent_id=None):
         return self._gateway.get_groups(session_id.username, parent_id)
     
@@ -50,3 +70,6 @@ class UserProcessingDatabaseManager(object):
     
     def get_user_permissions(self, session_id):
         return self._gateway.get_user_permissions( session_id.username )
+
+    def _delete_all_uses(self):
+        return self._gateway._delete_all_uses()

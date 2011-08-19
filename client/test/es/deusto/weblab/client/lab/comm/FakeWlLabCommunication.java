@@ -19,6 +19,7 @@ import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
+import es.deusto.weblab.client.dto.experiments.commands.InterchangedData;
 import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
@@ -60,10 +61,11 @@ public class FakeWlLabCommunication extends FakeWlCommonCommunication implements
 	}
 
 	@Override
-	public void reserveExperiment(SessionID sessionId, ExperimentID experimentId, IReservationCallback callback) {
+	public void reserveExperiment(SessionID sessionId, ExperimentID experimentId, InterchangedData clientInitialData, IReservationCallback callback) {
 		this.append(FakeWlLabCommunication.RESERVE_EXPERIMENT, new Object[]{
 				sessionId,
 				experimentId,
+				clientInitialData,
 				callback
 		});
 	}

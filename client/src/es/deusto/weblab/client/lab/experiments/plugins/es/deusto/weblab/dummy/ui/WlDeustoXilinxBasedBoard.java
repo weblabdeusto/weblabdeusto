@@ -224,7 +224,7 @@ public class WlDeustoXilinxBasedBoard extends BoardBase{
 	}
 
 	@Override
-	public void start(){
+	public void start(int time, String initialConfiguration){
 		
 		RequestWebcamCommand.createAndSend(this.boardController, this.webcam, 
 				this.messages);

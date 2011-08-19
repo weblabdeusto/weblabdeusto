@@ -129,7 +129,7 @@ public class RobotProglistBoard extends BoardBase {
 	 * the reserve is done and the queue is over.
 	 */
 	@Override
-	public void start() {
+	public void start(int time, String initialConfiguration) {
 	    this.widget.setVisible(true);
 	    
 	    this.setupWidgets();

@@ -146,7 +146,7 @@ public class MockController implements IWlLabController {
 	}
 	
 	private void afterShowingWaitingConfirmation(){
-		final ConfirmedReservationStatus reservation = new ConfirmedReservationStatus(100);
+		final ConfirmedReservationStatus reservation = new ConfirmedReservationStatus(100, null);
 		final ExperimentID experimentID = new ExperimentID();
 		experimentID.setCategory(new Category("PLD experiments"));
 		experimentID.setExperimentName("pld-deusto");

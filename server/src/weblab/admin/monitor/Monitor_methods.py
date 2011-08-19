@@ -85,7 +85,7 @@ def get_experiment_ups_session_ids(category, experiment):
     return_value = []
     for session_id in global_sobj:
         session_obj = session_mgr.get_session(session_id)
-        current_exp = session_obj['experiment_usage'].experiment_id
+        current_exp = session_obj['experiment_id']
         if current_exp.exp_name == experiment and current_exp.cat_name == category:
             login  = session_obj['user_information'].login
             reservation_id = session_obj['reservation_id']

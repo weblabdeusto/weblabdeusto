@@ -15,9 +15,16 @@ package es.deusto.weblab.client.dto.reservations;
 
 public class ConfirmedReservationStatus extends ReservationStatus {
 	private int time;
+	private String initialConfiguration;
 	
 	public ConfirmedReservationStatus(int time){
 		this.time = time;
+		this.initialConfiguration = null;
+	}
+
+	public ConfirmedReservationStatus(int time, String initialConfiguration){
+		this.time = time;
+		this.initialConfiguration = initialConfiguration;
 	}
 
 	public int getTime() {
@@ -26,5 +33,13 @@ public class ConfirmedReservationStatus extends ReservationStatus {
 
 	public void setTime(int time) {
 		this.time = time;
+	}
+	
+	public String getInitialConfiguration(){
+		return this.initialConfiguration;
+	}
+	
+	public void setInitialConfiguration(String initialConfiguration){
+		this.initialConfiguration = initialConfiguration;
 	}
 }

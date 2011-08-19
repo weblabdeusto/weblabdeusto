@@ -17,7 +17,7 @@ import os
 import sys
 import threading
 from voodoo.lock import locked
-import voodoo.abstraction.abstract_class_generator as acg
+from abc import ABCMeta, abstractmethod
 import voodoo.log as log
 
 def is_testing():
@@ -32,11 +32,17 @@ def is_testing():
     testing = test_path == voodoo_path
     return testing
 
-class ResourceManager(acg.AbstractClass(['dispose_resource'])):
+class ResourceManager(object):
+
+    __metaclass__ = ABCMeta
+
     def __init__(self):
-        acg.call_abstract_constructors(ResourceManager,self)
         self._lock = threading.RLock()
         self._resources = []
+
+    @abstractmethod
+    def dispose_resource(self, resource):
+        pass
 
     # If the resource manager is not going to be used, we don't want
     # to have @locked methods, since they have a performance impact in

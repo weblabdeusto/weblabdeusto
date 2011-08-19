@@ -37,6 +37,7 @@ import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.dto.experiments.commands.InterchangedData;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
@@ -232,10 +233,10 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 	}
 
 	@Override
-	public void reserveExperiment(SessionID sessionId, ExperimentID experimentId, IReservationCallback callback) {
+	public void reserveExperiment(SessionID sessionId, ExperimentID experimentId, InterchangedData clientInitialData, IReservationCallback callback) {
 		String requestSerialized;
 		try {
-			requestSerialized = ((IWlLabSerializer)this.serializer).serializeReserveExperimentRequest(sessionId, experimentId);
+			requestSerialized = ((IWlLabSerializer)this.serializer).serializeReserveExperimentRequest(sessionId, experimentId, clientInitialData);
 		} catch (final SerializationException e1) {
 			callback.onFailure(e1);
 			return;

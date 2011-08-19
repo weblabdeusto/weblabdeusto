@@ -28,6 +28,7 @@ import weblab.user_processing.UserProcessor as UserProcessor
 import weblab.user_processing.Reservation as Reservation
 import weblab.user_processing.coordinator.Coordinator as Coordinator 
 import weblab.user_processing.coordinator.Confirmer as Confirmer
+import weblab.user_processing.coordinator.TemporalInformationStore as TemporalInformationStore
 import weblab.data.ServerType as ServerType
 import weblab.data.ClientAddress as ClientAddress
 
@@ -41,6 +42,8 @@ import weblab.data.dto.ExperimentAllowed as ExperimentAllowed
 import weblab.data.dto.ExperimentUse as ExperimentUse
 import weblab.data.dto.User as User
 import weblab.data.dto.Role as Role
+
+import weblab.database.DatabaseSession as DbSession
 
 from weblab.user_processing.coordinator.Resource import Resource
 
@@ -67,6 +70,8 @@ class UserProcessorTestCase(unittest.TestCase):
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
 
+        self.commands_store = TemporalInformationStore.CommandsTemporalInformationStore()
+
         self.coordinator = Coordinator.Coordinator(self.locator, self.cfg_manager)
         self.coordinator._clean()
         self.coordinator.add_experiment_instance_id("server:laboratoryserver@labmachine", ExperimentInstanceId.ExperimentInstanceId('inst','ud-dummy','Dummy experiments'), Resource("res_type", "res_inst"))
@@ -74,11 +79,12 @@ class UserProcessorTestCase(unittest.TestCase):
         self.processor = UserProcessor.UserProcessor(
                     self.locator,
                     {
-                        'db_session_id' : 'my_db_session_id'
+                        'db_session_id' : DbSession.ValidDatabaseSessionId('my_db_session_id')
                     },
                     self.cfg_manager,
                     self.coordinator,
-                    self.db
+                    self.db,
+                    self.commands_store
                 )
 
     def test_reserve_unknown_experiment_name(self):
@@ -86,6 +92,7 @@ class UserProcessorTestCase(unittest.TestCase):
             UserProcessingExceptions.UnknownExperimentIdException,
             self.processor.reserve_experiment,
             ExperimentId.ExperimentId('<invalid>', 'Dummy experiments'),
+            "{}",
             ClientAddress.ClientAddress("127.0.0.1")
         )
 
@@ -94,6 +101,7 @@ class UserProcessorTestCase(unittest.TestCase):
             UserProcessingExceptions.UnknownExperimentIdException,
             self.processor.reserve_experiment,
             ExperimentId.ExperimentId('ud-dummy','<invalid>'),
+            "{}",
             ClientAddress.ClientAddress("127.0.0.1")
         )
 
@@ -104,6 +112,7 @@ class UserProcessorTestCase(unittest.TestCase):
             UserProcessingExceptions.NoAvailableExperimentFoundException,
             self.processor.reserve_experiment,
             ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+            "{}",
             ClientAddress.ClientAddress("127.0.0.1")
         )
 
@@ -112,6 +121,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         reservation = self.processor.reserve_experiment(
                     ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                    "{}",
                     ClientAddress.ClientAddress("127.0.0.1")
                 )
 
@@ -122,6 +132,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.processor.reserve_experiment(
                 ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
         self.coordinator.confirmer._confirm_handler.join()
@@ -137,6 +148,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.processor.reserve_experiment(
                 ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
         self.coordinator.confirmer._confirm_handler.join()
@@ -161,6 +173,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.processor.reserve_experiment(
                 ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
         self.coordinator.confirmer._confirm_handler.join()
@@ -191,6 +204,7 @@ class UserProcessorTestCase(unittest.TestCase):
         # Reserve the experiment
         reservation_status = self.processor.reserve_experiment(
                 ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
    
@@ -207,6 +221,7 @@ class UserProcessorTestCase(unittest.TestCase):
     def test_finished_experiment_ok(self):
         self.processor.reserve_experiment(
                 ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
         self.coordinator.confirmer._confirm_handler.join()
@@ -215,6 +230,7 @@ class UserProcessorTestCase(unittest.TestCase):
     def test_finished_experiment_coordinator_error(self):
         self.processor.reserve_experiment(
                 ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
         self.coordinator.confirmer._confirm_handler.join()
@@ -242,6 +258,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.processor.reserve_experiment(
                 ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
 
@@ -275,6 +292,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.processor.reserve_experiment(
                 ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
 
@@ -308,6 +326,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.processor.reserve_experiment(
                 ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
         self.coordinator.confirmer._confirm_handler.join()
@@ -340,6 +359,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.processor.reserve_experiment(
                 ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
         self.coordinator.confirmer._confirm_handler.join()
@@ -372,6 +392,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.processor.reserve_experiment(
                 ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
         self.coordinator.confirmer._confirm_handler.join()
@@ -404,6 +425,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.processor.reserve_experiment(
                 ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
         self.coordinator.confirmer._confirm_handler.join()
@@ -440,6 +462,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.processor.reserve_experiment(
                 ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
         self.coordinator.confirmer._confirm_handler.join()
@@ -474,6 +497,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.processor.reserve_experiment(
                 ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
         self.coordinator.confirmer._confirm_handler.join()
@@ -507,6 +531,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.processor.reserve_experiment(
                 ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
         self.coordinator.confirmer._confirm_handler.join()
@@ -538,6 +563,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.processor.reserve_experiment(
                 ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
         self.coordinator.confirmer._confirm_handler.join()
@@ -568,6 +594,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.processor.reserve_experiment(
                 ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
         self.coordinator.confirmer._confirm_handler.join()
@@ -598,6 +625,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.processor.reserve_experiment(
                 ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
         self.coordinator.confirmer._confirm_handler.join()
@@ -616,8 +644,8 @@ class UserProcessorTestCase(unittest.TestCase):
 
 
     def _return_reserved(self):
-        self.lab_mock.reserve_experiment(ExperimentInstanceId.ExperimentInstanceId('inst','ud-dummy','Dummy experiments'))
-        self.mocker.result(SessionId.SessionId('my_lab_session_id'))
+        self.lab_mock.reserve_experiment(ExperimentInstanceId.ExperimentInstanceId('inst','ud-dummy','Dummy experiments'), "{}", mocker.ANY)
+        self.mocker.result((SessionId.SessionId('my_lab_session_id'), 'ok', 'servexp:inst@mach'))
         self.lab_mock.resolve_experiment_address('my_lab_session_id')
         self.mocker.result(CoordAddress.CoordAddress("exp","inst","mach"))
         self.mocker.count(1,2)
@@ -639,7 +667,7 @@ class FakeDatabase(object):
         self.users = [ User.User("admin1", "Admin Test User", "admin1@deusto.es", Role.Role("administrator")) ]
         self.roles = [ Role.Role("student"), Role.Role("Professor"), Role.Role("Administrator") ]
 
-    def store_experiment_usage(self, db_session_id, experiment_usage):
+    def store_experiment_usage(self, db_session_id, reservation_info, experiment_usage):
         pass
 
     def get_available_experiments(self, db_session_id):
@@ -695,7 +723,7 @@ def generate_experiment(exp_name,exp_cat_name):
 
 def generate_experiment_allowed(time_allowed, exp_name, exp_cat_name):
     exp = generate_experiment(exp_name, exp_cat_name)
-    return ExperimentAllowed.ExperimentAllowed(exp, time_allowed)
+    return ExperimentAllowed.ExperimentAllowed(exp, time_allowed, 5)
 
 def generate_experiment_use(user_login, exp):
     exp_use = ExperimentUse.ExperimentUse(

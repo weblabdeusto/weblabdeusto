@@ -36,7 +36,6 @@ import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.Experiment;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
-import es.deusto.weblab.client.dto.reservations.CancellingReservationStatus;
 import es.deusto.weblab.client.dto.reservations.ConfirmedReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingConfirmationReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingInstancesReservationStatus;
@@ -161,23 +160,6 @@ public class WlLabControllerTest  extends GWTTestCase{
 		final IReservationCallback callback = context.reservationCallback;
 		
 		callback.onFailure(new WlCommException("whatever"));
-		
-		v = this.fakeUIManager.getMethodByName(FakeUIManager.ON_ERROR_AND_FINISH_RESERVATION);
-		Assert.assertEquals(1, v.size());
-		
-		v = this.fakePollingHandler.getMethodByName(FakePollingHandler.START);
-		Assert.assertEquals(0, v.size());
-		
-		final List<CreateTimerParameters> l = context.controller.getCreateTimerCalled();
-		Assert.assertEquals(0, l.size());
-	}
-
-	public void testCancellingExperimentReservation() throws Exception{
-		List<Methods> v;
-		final ReservationContext context = this.createReservationContext();
-		final IReservationCallback callback = context.reservationCallback;
-		
-		callback.onSuccess(new CancellingReservationStatus());
 		
 		v = this.fakeUIManager.getMethodByName(FakeUIManager.ON_ERROR_AND_FINISH_RESERVATION);
 		Assert.assertEquals(1, v.size());
@@ -395,10 +377,10 @@ public class WlLabControllerTest  extends GWTTestCase{
 		v = this.fakeCommunications.getMethodByName(FakeWlLabCommunication.RESERVE_EXPERIMENT);
 		Assert.assertEquals(1, v.size());
 		m = v.get(0); 
-		Assert.assertEquals(3, m.getParameters().length);
+		Assert.assertEquals(4, m.getParameters().length);
 		Assert.assertEquals(sessionID, m.getParameters()[0]);
 		Assert.assertEquals(experiment.getExperimentUniqueName(), m.getParameters()[1]);
-		final IReservationCallback callback = (IReservationCallback)m.getParameters()[2];
+		final IReservationCallback callback = (IReservationCallback)m.getParameters()[3];
 		context.reservationCallback = callback;
 		return context;
 	}	

@@ -138,7 +138,7 @@ class ExperimentWindow extends BaseWindow {
 		// end of Important note
 	}
 
-	public void loadUsingExperimentPanels(int time) {
+	public void loadUsingExperimentPanels(int time, String initialConfiguration) {
 	    this.contentTitleLabel.setText(this.experimentAllowed.getExperiment().getName());
 	    this.detailsGrid.setVisible(false);
 	    this.waitingLabel.stop();
@@ -148,7 +148,7 @@ class ExperimentWindow extends BaseWindow {
 
 	    // Important note: This can't be before adding the widget to the DOM tree 
 		// If it's done, applets will not work 
-		this.experimentBase.getUI().start();
+		this.experimentBase.getUI().start(time, initialConfiguration);
 		this.experimentBase.getUI().setTime(time);
 		// end of Important note
 	}	

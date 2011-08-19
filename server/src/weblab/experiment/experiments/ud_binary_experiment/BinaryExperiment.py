@@ -32,7 +32,7 @@ class BinaryExperiment(UdXilinxExperiment.UdXilinxExperiment):
     @Override(Experiment.Experiment)
     @caller_check(ServerType.Laboratory)
     @logged("info")
-    def do_start_experiment(self):
+    def do_start_experiment(self, *args, **kwargs):
         self._clear()
 
     @Override(Experiment.Experiment)

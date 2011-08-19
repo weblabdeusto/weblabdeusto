@@ -14,6 +14,8 @@
 package es.deusto.weblab.client.lab.ui;
 
 import es.deusto.weblab.client.dto.SessionID;
+import com.google.gwt.json.client.JSONValue;
+
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
@@ -24,10 +26,9 @@ public abstract class BoardBase implements IWlWidget{
 		
 		public boolean isFacebook();
 		public SessionID getSessionId();
-		
-	    public void sendCommand(Command command);
+		public void sendCommand(Command command);
 		public void sendCommand(Command command, IResponseCommandCallback callback);
-	    public void sendCommand(String command);
+	        public void sendCommand(String command);
 		public void sendCommand(String command, IResponseCommandCallback callback);
 		
 		public void sendAsyncCommand(Command command);
@@ -46,40 +47,57 @@ public abstract class BoardBase implements IWlWidget{
 		this.boardController = boardController;
 	}
 	
-	/*
-	 * WebLab will call this method when the user selects this experiment.
-	 * The purpose of this method is to load the VM used (Adobe Flash, Java VM,
-	 * Silverlight/Moonlight, etc.), and to define what requirements the 
-	 * experiment needs (i.e. it will require 2 files, etc.). 
+	/**
+	 * User selected this experiment. It can start showing the UI. It can 
+	 * load the VM used (Adobe Flash, Java VM, Silverlight/Moonlight, etc.), 
+	 * or define requirements of the (i.e. require 2 files, etc.). 
 	 */
 	public void initialize(){}
 	
-	/*
-	 * WebLab wil call this method when the user is in a queue. The typical
-	 * behaviour will be to hidden. 
+	/**
+	 * Retrieves information sent to the experiment when reserving the 
+	 * experiment. It might have been collected in the UI of the initialize
+	 * method.
+	 */
+	public JSONValue getInitialData(){
+		return null;
+	}
+	
+	/**
+	 * User is in a queue. The typical behavior will be to hide the UI shown
+	 * in the {@link #initialize()} method. 
 	 */
 	public void queued(){}
 	
-	/*
-	 * WebLab will call this method as soon as the user grabs the control of
-	 * the experiment (in the server side, the experiment is already reserved
-	 * for the user).
+	/**
+	 * User grabs the control of the experiment (in the server side, the 
+	 * experiment is already reserved for the user).
 	 */
-	public abstract void start();
+	@SuppressWarnings("unused")
+	public void start(int time, String initialConfiguration){}
 	
-	/*
-	 * WebLab will call this method as soon as the user session finishes. The
-	 * experiment should clean its resources. 
+	/**
+	 * User experiment session finished. The experiment should clean 
+	 * its resources. 
 	 */
-	public abstract void end();
+	public void end(){}
 	
-	/*
-	 * WebLab will call this method to tell how much time does will the user have
-	 * the experiment.
+	/**
+	 * The experiment finishes cleaning the resources in the server side. 
+	 * This can be helpful when the experiment does anything in the end, 
+	 * such as storing a result.
+	 */
+	@SuppressWarnings("unused")
+	public void postEnd(String endData){}
+	
+	/**
+	 * How much time does will the user have the experiment.
 	 */
 	public abstract void setTime(int time);
 
-	// The method "end" should be called instead of dispose.
+	/**
+	 * The method {@link #end()} should be called instead of dispose.
+	 */
 	@Override
 	public final void dispose(){
 	    this.end();

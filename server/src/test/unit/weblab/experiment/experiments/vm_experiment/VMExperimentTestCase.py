@@ -156,6 +156,7 @@ class VMExperimentTestCase(mocker.MockerTestCase):
 
     
     def test_standard_process(self):
+        VMExperiment.TIME_WAITING_START = 0.2
         cfg_manager = ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration_module)
        
@@ -165,7 +166,7 @@ class VMExperimentTestCase(mocker.MockerTestCase):
         
         vm = vmexp.vm
     
-        ret = vmexp.do_start_experiment()   
+        ret = vmexp.do_start_experiment("{}","{}")
         self.assertEqual("Starting", ret)
         
         initial_time = time.time()
@@ -175,6 +176,11 @@ class VMExperimentTestCase(mocker.MockerTestCase):
             if now - initial_time > 2:
                 self.fail("Waiting too long for start thread to run")
     
+        # Check that if we try again, it doesn't handle it the same way, but rather
+        # tells us that it's already started or that it is still starting.    
+        ret = vmexp.do_start_experiment("{}","{}")
+        self.assertTrue( ret.__contains__("Already") )
+        
         initial_time = time.time()
         # Wait until it is ready
         while not vmexp.is_ready and not vmexp.is_error:
@@ -215,7 +221,7 @@ class VMExperimentTestCase(mocker.MockerTestCase):
         excep = TestPermanentConfigError()
         um.except_to_raise = excep
         
-        vmexp.do_start_experiment()   
+        vmexp.do_start_experiment("{}","{}")
     
         initial_time = time.time()
         # Wait until it is ready

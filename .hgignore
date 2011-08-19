@@ -6,10 +6,12 @@ regex:
 .pyc$
 .pyo$
 .class$
+.swp$
 
 ^server/launch/.*/logs$
 ^server/launch/.*/.*\.pid$
 ^server/launch/.*/_file_notifier.pid$
+^server/launch/.*/_file_notifier$
 ^server/launch/.*/gpib.txt$
 ^server/launch/.*/.*\.sock$
 ^server/launch/.*/files_stored$

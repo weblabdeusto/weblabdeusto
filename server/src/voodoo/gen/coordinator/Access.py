@@ -12,9 +12,10 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
-import voodoo.abstraction.abstract_class_generator as acg
-import voodoo.gen.exceptions.coordinator.AccessExceptions as AccessExceptions
 
+from abc import ABCMeta, abstractmethod
+
+import voodoo.gen.exceptions.coordinator.AccessExceptions as AccessExceptions
 import voodoo.gen.coordinator.Address as Address
 
 class Access(object):
@@ -43,13 +44,16 @@ class Access(object):
                 return_value.append(j)
         return return_value
 
-class Network(acg.AbstractClass(("check","get_protocol"))):
+class Network(object):
+
+    __metaclass__ = ABCMeta
+
     def __init__(self, address):
-        acg.call_abstract_constructors(Network,self)
         if not isinstance(address,Address.Address):
             raise AccessExceptions.AccessNotAnAddressException("Not an Address: %s" % address)
         self.address = address
 
+    @abstractmethod
     def check(self,other):
         """ check(self,other) -> [Network1,...]
         
@@ -57,6 +61,8 @@ class Network(acg.AbstractClass(("check","get_protocol"))):
         check will return a list of networks of "other" which are
         interoperable with this network
         """
+
+    @abstractmethod
     def get_protocol(self):
         """ get_protocol(self) -> protocol_module
 

@@ -16,6 +16,8 @@
 
 import time as time_module
 import hashlib
+import json
+import random
 
 import weblab.data.ServerType as ServerType
 import weblab.data.Command as Command
@@ -24,10 +26,13 @@ from voodoo.cache import cache
 import voodoo.ResourceManager as ResourceManager
 import voodoo.log as log
 
+import weblab.facade.RemoteFacadeContext as RemoteFacadeContext
+
 import weblab.exceptions.user_processing.UserProcessingExceptions as UserProcessingExceptions
 import weblab.exceptions.user_processing.CoordinatorExceptions as CoordExc
 import weblab.user_processing.Reservation as Reservation
-import weblab.user_processing.coordinator.WebLabQueueStatus as WebLabQueueStatus
+import weblab.user_processing.coordinator.WebLabSchedulingStatus as WebLabSchedulingStatus
+import weblab.user_processing.coordinator.TemporalInformationStore as TemporalInformationStore
 import weblab.exceptions.laboratory.LaboratoryExceptions as LaboratoryExceptions
 
 import weblab.experiment.Util as ExperimentUtil
@@ -90,14 +95,15 @@ class UserProcessor(object):
 
     EXPIRATION_TIME_NOT_SET=-1234
 
-    def __init__(self, locator, session, cfg_manager, coordinator, db_manager):
-        self._locator               = locator
-        self._session               = session
-        self._cfg_manager           = cfg_manager
-        self._coordinator           = coordinator
-        self._db_manager            = db_manager
-        self.time_module            = time_module
-        
+    def __init__(self, locator, session, cfg_manager, coordinator, db_manager, commands_store):
+        self._locator         = locator
+        self._session         = session
+        self._cfg_manager     = cfg_manager
+        self._coordinator     = coordinator
+        self._db_manager      = db_manager
+        self._commands_store  = commands_store
+        self.time_module      = time_module
+
         # The response to asynchronous commands is not immediately available, so we need to 
         # use this map to store the ids of the usage objects (commands sent), identified through 
         # their request_ids (which are not the same). As their responses become available, we will
@@ -130,7 +136,30 @@ class UserProcessor(object):
     # Experiments
     # 
 
-    def reserve_experiment(self, experiment_id, client_address):
+    def reserve_experiment(self, experiment_id, serialized_client_initial_data, client_address):
+
+        context = RemoteFacadeContext.get_context()
+
+        user_information = self.get_user_information()
+
+        self._session['experiment_id'] = experiment_id
+
+        reservation_info = self._session['reservation_information'] = {}
+        reservation_info['user_agent']    = context.get_user_agent()
+        reservation_info['referer']       = context.get_referer()
+        reservation_info['mobile']        = context.is_mobile()
+        reservation_info['facebook']      = context.is_facebook()
+        reservation_info['from_ip']       = client_address.client_address
+        reservation_info['username']      = self._session['db_session_id'].username
+        reservation_info['role']          = self._session['db_session_id'].role
+
+        try:
+            client_initial_data = json.loads(serialized_client_initial_data)
+        except ValueError:
+            # TODO: to be tested
+            raise UserProcessingExceptions.UserProcessingException(
+                    "Invalid client_initial_data provided: a json-serialized object expected"
+            )
 
         experiments = [ 
                 exp for exp in self.list_experiments()
@@ -144,20 +173,14 @@ class UserProcessor(object):
             )
 
         user_information = self.get_user_information()
-        if user_information.login == 'demo':
-            priority = 10 # TODO: this should be part of experiment_allowed
-        else:
-            priority = 5 # TODO: this should be part of experiment_allowed
-
-        client_initial_data = None # TODO: this must be passed by the client
         experiment_allowed = experiments[0]
-
         try:
             status, reservation_id    = self._coordinator.reserve_experiment(
                     experiment_allowed.experiment.to_experiment_id(), 
                     experiment_allowed.time_allowed, 
-                    priority,
-                    client_initial_data
+                    experiment_allowed.priority,
+                    client_initial_data,
+                    reservation_info
                 )
         except CoordExc.ExperimentNotFoundException:
             raise UserProcessingExceptions.NoAvailableExperimentFoundException(
@@ -167,14 +190,14 @@ class UserProcessor(object):
                     )
             )
 
+
+        self._session['reservation_information'].pop('from_ip', None)
+
         self._session['reservation_id']   = reservation_id
             
         self._initialize_polling()
-        self._session['experiment_usage'] = Usage.ExperimentUsage()
-        self._session['experiment_usage'].experiment_id = experiment_id
-        self._session['experiment_usage'].from_ip       = client_address.client_address
 
-        if status.status == WebLabQueueStatus.WebLabQueueStatus.RESERVED:
+        if status.status == WebLabSchedulingStatus.WebLabSchedulingStatus.RESERVED:
             self._process_reserved_status(status)
 
         return Reservation.Reservation.translate_reservation(
@@ -182,36 +205,32 @@ class UserProcessor(object):
                 )
 
     def get_reservation_status(self):
-        if self._session.has_key('reservation_id'):
-            reservation_id = self._session['reservation_id']
+        reservation_id = self._session.get('reservation_id') or self._session.get('last_reservation_id')
+        if reservation_id is not None:
             try:
                 status = self._coordinator.get_reservation_status(reservation_id)
             except CoordExc.ExpiredSessionException:
-                self._session.pop('reservation_id')
+                self._session.pop('reservation_id', None)
             else:
-                if status.status == WebLabQueueStatus.WebLabQueueStatus.RESERVED:
+                if status.status == WebLabSchedulingStatus.WebLabSchedulingStatus.RESERVED:
                     self._process_reserved_status(status)
 
                 return Reservation.Reservation.translate_reservation(
                         status
                     )
         else:
-            pass # TODO
+            raise UserProcessingExceptions.NoCurrentReservationException("get_reservation_status called but no current reservation")
 
     def _process_reserved_status(self, status):
+        if 'lab_session_id' in self._session:
+            return
+
         self._session['lab_session_id'] = status.lab_session_id
         self._session['lab_coordaddr']  = status.coord_address
         self._session['experiment_time_left'] = self.time_module.time() + status.time
         self._renew_expiration_time(
                 self.time_module.time() + status.time
             )
-        self._session['experiment_usage'].start_date    = self._utc_timestamp()
-
-        lab_server        = self._locator.get_server_from_coordaddr(
-                    status.coord_address,
-                    ServerType.Laboratory
-                )
-        self._session['experiment_usage'].coord_address = lab_server.resolve_experiment_address(status.lab_session_id)
 
 
     def finished_experiment(self):
@@ -219,24 +238,19 @@ class UserProcessor(object):
         Called when the experiment ends, regardless of the way. (That is, it does not matter whether the user finished
         it explicitly or not).
         """
-        error = self._finish_reservation()
-        self._stop_polling()
-        
-        # Within the session object, we log the usage the user did. That is, the commands the user sent
-        # during his session. Now that the experiment has finished, we will store these records (which include
-        # the responses) within the database.
-        # TODO: Note: At the moment, there is no way to guarantee that when the experiment finishes every
-        # asynchronous command has also finished. Hence, besides some responses being potentially not available,
-        # it would not be unlikely for some unexpected behaviour to occur under certain circumstances.
-        if self._session.has_key('experiment_usage') and self._session['experiment_usage'] != None:
-            experiment_usage = self._session.pop('experiment_usage')
-            if experiment_usage.start_date is not None:
-                experiment_usage.end_date = self._utc_timestamp()
+        error = None
+        if self._session.has_key('reservation_id'):
+            try:
+                reservation_id = self._session.pop('reservation_id')
+                self._session['last_reservation_id'] = reservation_id
+                self._coordinator.finish_reservation(reservation_id)
+            except Exception, e:
+                log.log( UserProcessor, log.LogLevel.Error, "Exception finishing reservation: %s" % e )
+                log.log_exc( UserProcessor, log.LogLevel.Warning )
+                error = e
 
-                self._db_manager.store_experiment_usage(
-                        self._session['db_session_id'],
-                        experiment_usage
-                    )
+        self._stop_polling()
+        self._session.pop('lab_session_id', None)
 
         if error is not None:
             raise UserProcessingExceptions.FailedToFreeReservationException(
@@ -256,18 +270,18 @@ class UserProcessor(object):
 
             usage_file_sent = self._store_file(file_content, file_info)
             try:
-                file_sent_id = self._session['experiment_usage'].append_file(usage_file_sent)
+                command_id_pack = self._append_file(usage_file_sent)
                 response = laboratory_server.send_file(
                         self._session['lab_session_id'],
                         file_content,
                         file_info
                     )
 
-                usage_file_sent.response        = response
-                usage_file_sent.timestamp_after = self._utc_timestamp()
-                self._session['experiment_usage'].update_file(file_sent_id, usage_file_sent)
+                self._update_file(command_id_pack, response)
+
                 return response
             except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
+                self._update_file(command_id_pack, Command.Command("ERROR: SessionNotFound: None"))
                 try:
                     self.finished_experiment()
                 except UserProcessingExceptions.FailedToFreeReservationException:
@@ -276,6 +290,7 @@ class UserProcessor(object):
                     'Experiment reservation expired'
                 )
             except LaboratoryExceptions.FailedToSendFileException, ftspe:
+                self._update_file(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
                 try:
                     self.finished_experiment()
                 except UserProcessingExceptions.FailedToFreeReservationException:
@@ -284,7 +299,7 @@ class UserProcessor(object):
                         "Failed to send file: %s" % ftspe
                     )
         else:
-            pass # TODO
+            raise UserProcessingExceptions.NoCurrentReservationException("send_file called but no current reservation")
 
     def send_command(self, command):
         if self._session.has_key('lab_session_id') and self._session.has_key('lab_coordaddr'):
@@ -329,7 +344,7 @@ class UserProcessor(object):
                         "Failed to send command: %s" % ftspe
                     )
         else:
-            pass # TODO
+            raise UserProcessingExceptions.NoCurrentReservationException("send_command called but no current reservation")
         
 
     def send_async_file(self, file_content, file_info ):
@@ -350,18 +365,17 @@ class UserProcessor(object):
 
             usage_file_sent = self._store_file(file_content, file_info)
             try:
-                file_sent_id = self._session['experiment_usage'].append_file(usage_file_sent)
+                command_id_pack = self._append_file(usage_file_sent)
                 response = laboratory_server.send_async_file(
                         self._session['lab_session_id'],
                         file_content,
                         file_info
                     )
 
-                usage_file_sent.response        = response
-                usage_file_sent.timestamp_after = self._utc_timestamp()
-                self._session['experiment_usage'].update_file(file_sent_id, usage_file_sent)
+                self._update_file(command_id_pack, response)
                 return response
             except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
+                self._update_file(command_id_pack, Command.Command("ERROR: SessionNotFound: None"))
                 try:
                     self.finished_experiment()
                 except UserProcessingExceptions.FailedToFreeReservationException:
@@ -370,6 +384,7 @@ class UserProcessor(object):
                     'Experiment reservation expired'
                 )
             except LaboratoryExceptions.FailedToSendFileException, ftspe:
+                self._update_file(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
                 try:
                     self.finished_experiment()
                 except UserProcessingExceptions.FailedToFreeReservationException:
@@ -378,7 +393,7 @@ class UserProcessor(object):
                         "Failed to send file: %s" % ftspe
                     )
         else:
-            pass # TODO
+            raise UserProcessingExceptions.NoCurrentReservationException("send_async_file called but no current reservation")
         
 
     def check_async_command_status(self, request_identifiers):
@@ -444,7 +459,7 @@ class UserProcessor(object):
                         "Failed to send command: %s" % ftspe
                     )
         else:
-            pass # TODO
+            raise UserProcessingExceptions.NoCurrentReservationException("check_async_command called but no current reservation")
 
 
     def send_async_command(self, command):
@@ -504,42 +519,38 @@ class UserProcessor(object):
                         "Failed to send command: %s" % ftspe
                     )
         else:
-            pass # TODO
+            raise UserProcessingExceptions.NoCurrentReservationException("send_async_command called but no current reservation")
 
 
     def update_latest_timestamp(self):
         self._session['latest_timestamp'] = self._utc_timestamp()
 
-    def _append_command(self, command): 
-        """
-        _append_command(command)
-        Appends a command to the internal list that registers every command that was sent 
-        during a session.
-        
-        @param command The command that was sent
-        @return A two-items tuple. First element is the index of the command in the internal list. 
-        Second element is the command (as a Usage.CommandSent object) that we stored. This tuple is 
-        needed to later update the register with the command's result.
-        @see _update_command
-        """
-        timestamp_before = self._utc_timestamp()
-        command_sent = Usage.CommandSent(command, timestamp_before)
-        return self._session['experiment_usage'].append_command(command_sent), command_sent
+    def _append_command(self, command):
+        return self._append_command_or_file(command, True)
 
-    def _update_command(self, (command_id, command_sent), response):
-        """
-        _update_command((command_id, command_sent), response)
-        Updates the response of a registererd command once the response to it is
-        available.
-        
-        @param command_id First element of the tuple that identifies the command to update
-        @param command_sent Second element of the tuple that identifiers the command to update
-        @param response Response to register
-        """
-        timestamp_after = self._utc_timestamp()
-        command_sent.response        = response
-        command_sent.timestamp_after = timestamp_after
-        self._session['experiment_usage'].update_command(command_id, command_sent)
+    def _append_file(self, command):
+        return self._append_command_or_file(command, False)
+       
+    def _append_command_or_file(self, command, command_or_file):
+        command_id = random.randint(0, 1000 * 1000 * 1000)
+        timestamp = self._utc_timestamp()
+        reservation_id = self._session['reservation_id']
+        command_entry = TemporalInformationStore.CommandOrFileInformationEntry(reservation_id, True, command_or_file, command_id, command, timestamp)
+        self._commands_store.put(command_entry)
+        return command_id
+       
+
+    def _update_command(self, command_id, response):
+        self._update_command_or_file(command_id, response, True)
+
+    def _update_file(self, command_id, response):
+        self._update_command_or_file(command_id, response, False)
+
+    def _update_command_or_file(self, command_id, response, command_or_file):
+        timestamp = self._utc_timestamp()
+        reservation_id = self._session['reservation_id']
+        command_entry = TemporalInformationStore.CommandOrFileInformationEntry(reservation_id, False, command_or_file, command_id, response, timestamp)
+        self._commands_store.put(command_entry)
 
     def _utc_timestamp(self):
         return self.time_module.time()
@@ -580,19 +591,6 @@ class UserProcessor(object):
         else:
             return Usage.FileSent("<file not stored>","<file not stored>", timestamp_before, file_info = file_info)
 
-    # 
-    # WLC
-    # 
-    def _finish_reservation(self):
-        if self._session.has_key('reservation_id'):
-            try:
-                reservation_id = self._session.pop('reservation_id')
-                self._coordinator.finish_reservation(reservation_id)
-            except Exception, e:
-                log.log( UserProcessor, log.LogLevel.Error, "Exception finishing reservation: %s" % e )
-                log.log_exc( UserProcessor, log.LogLevel.Warning )
-                return e
-
     #
     # Polling
     # 
@@ -610,6 +608,8 @@ class UserProcessor(object):
                     self.time_module.time(),
                     UserProcessor.EXPIRATION_TIME_NOT_SET
                 )
+        else:
+            raise UserProcessingExceptions.NoCurrentReservationException("poll called but no current reservation")
 
     def _stop_polling(self):
         if self.is_polling():

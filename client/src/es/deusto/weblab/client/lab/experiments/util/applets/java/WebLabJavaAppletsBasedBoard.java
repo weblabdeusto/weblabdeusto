@@ -59,7 +59,7 @@ public class WebLabJavaAppletsBasedBoard extends AbstractExternalAppBasedBoard{
     }
 
     @Override
-    public void start() {
+    public void start(int time, String initialConfiguration) {
     	AbstractExternalAppBasedBoard.startInteractionImpl();
     }
 

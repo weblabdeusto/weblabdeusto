@@ -550,6 +550,7 @@ class Case001TestCase(object):
         _ = self.real_ups.reserve_experiment(
                 session_id,
                 fpga_experiments[0].to_experiment_id(),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
 
@@ -711,19 +712,19 @@ class Case001TestCase(object):
         _ = self.real_ups.reserve_experiment(
                 session_id,
                 fpga_experiments[0].to_experiment_id(),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
-
         # wait until it is reserved
         short_time = 0.1
         times      = 13.0 / short_time
 
         while times > 0:
-            time.sleep(short_time)
             new_status = self.real_ups.get_reservation_status(session_id)
             if not isinstance(new_status, Reservation.WaitingConfirmationReservation) and not isinstance(new_status, Reservation.WaitingReservation):
                 break
             times -= 1
+            time.sleep(short_time)
         reservation = self.real_ups.get_reservation_status(
                         session_id
                     )
@@ -851,6 +852,7 @@ class Case001TestCase(object):
         self.real_ups.reserve_experiment(
                 user1_session_id,
                 fpga_experiments[0].to_experiment_id(),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
 
@@ -871,6 +873,7 @@ class Case001TestCase(object):
         self.real_ups.reserve_experiment(
                 user2_session_id,
                 pld_experiments[0].to_experiment_id(),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
 

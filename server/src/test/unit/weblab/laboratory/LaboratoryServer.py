@@ -27,6 +27,7 @@ import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
 import test.unit.configuration as configuration_module
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
+import weblab.user_processing.coordinator.Coordinator as Coordinator
 import weblab.laboratory.LaboratoryServer as LaboratoryServer
 import weblab.laboratory.IsUpAndRunningHandler as IsUpAndRunningHandler
 
@@ -35,6 +36,12 @@ import weblab.exceptions.laboratory.LaboratoryExceptions as LaboratoryExceptions
 import weblab.methods as weblab_methods
 
 import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
+try:
+    import json as json_module
+    json = json_module
+except ImportError:
+    import simplejson as json_mod
+    json = json_mod
 
 import FakeUrllib2
 import FakeSocket
@@ -143,13 +150,19 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
                     self.fake_locator
                 )
 
-        self.experiment_instance_id = ExperimentInstanceId.ExperimentInstanceId("exp_inst","exp_name","exp_cat")
+        self.experiment_instance_id     = ExperimentInstanceId.ExperimentInstanceId("exp_inst","exp_name","exp_cat")
+        self.experiment_instance_id_old = ExperimentInstanceId.ExperimentInstanceId("exp_inst","exp_name","exp_cat2")
         self.experiment_coord_address = CoordAddress.CoordAddress.translate_address('myserver:myinstance@mymachine')
 
         cfg_manager._set_value('laboratory_assigned_experiments',
                             { 'exp_inst:exp_name@exp_cat': { 'coord_address': 'myserver:myinstance@mymachine',
                                                              'checkers': ( ('WebcamIsUpAndRunningHandler', ("https://...",)),
-                                                                           ('HostIsUpAndRunningHandler', ("hostname", 80), {}), )} })
+                                                                           ('HostIsUpAndRunningHandler', ("hostname", 80), {}), )},
+                              'exp_inst:exp_name@exp_cat2': { 'coord_address': 'myserver:myinstance@mymachine',
+                                                              'checkers': ( ('WebcamIsUpAndRunningHandler', ("https://...",)),
+                                                                           ('HostIsUpAndRunningHandler', ("hostname", 80), {}), ),
+                                                              'api' : '4_0M1'},
+                                                                           })
 
         self.lab = LaboratoryServer.LaboratoryServer(
                 None,
@@ -158,63 +171,108 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
             )
 
     def test_reserve_experiment_instance_id_simple(self):
-        self.assertEquals(0, self.fake_client.started)
+        self.assertEquals(0, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
-        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id)
-        self.assertEquals(1, self.fake_client.started)
+        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
+        self.assertEquals(1, self.fake_client.started_new)
+        self.assertEquals(0, self.fake_client.disposed)
+        self.assertEquals('myserver:myinstance@mymachine', exp_coord_str)
+
+        expected_return = '{"foo" : "bar"}'
+        self.fake_client.next_dispose = expected_return
+
+        return_value = self.lab.do_free_experiment(lab_session_id)
+        self.assertEquals(expected_return, return_value)
+        self.assertEquals(1, self.fake_client.started_new)
+        self.assertEquals(1, self.fake_client.disposed)
+
+    def test_reserve_experiment_instance_id_old(self):
+        self.assertEquals(0, self.fake_client.started_old)
+        self.assertEquals(0, self.fake_client.started_new)
+        self.assertEquals(0, self.fake_client.disposed)
+
+        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id_old, {}, {})
+        self.assertEquals(1, self.fake_client.started_old)
+        self.assertEquals(0, self.fake_client.started_new)
+        self.assertEquals(0, self.fake_client.disposed)
+
+        expected_return =  '{"foo" : "bar"}'
+        self.fake_client.next_dispose = expected_return
+
+        return_value = self.lab.do_free_experiment(lab_session_id)
+        self.assertEquals('ok', return_value) 
+        self.assertNotEquals(expected_return, return_value)
+        self.assertEquals(1, self.fake_client.started_old)
+        self.assertEquals(0, self.fake_client.started_new)
+        self.assertEquals(1, self.fake_client.disposed)
+
+    def test_free_experiment_twice(self):
+        self.assertEquals(0, self.fake_client.started_new)
+        self.assertEquals(0, self.fake_client.disposed)
+
+        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
+        self.assertEquals(1, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
         self.lab.do_free_experiment(lab_session_id)
-        self.assertEquals(1, self.fake_client.started)
+        self.assertEquals(1, self.fake_client.started_new)
         self.assertEquals(1, self.fake_client.disposed)
+
+        # Will not do anything, since the experiment was already disposed
+        # This feature is not too interesting, since it just add yet another
+        # redundant layer of code to maintain :-(
+        self.lab.do_free_experiment(lab_session_id)
+        self.assertEquals(1, self.fake_client.started_new)
+        self.assertEquals(1, self.fake_client.disposed)
+
+        # However, this is in fact interesting. If the experiment said
+        # that it has not finished, the dispose method is called
+        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
+        self.assertEquals(2, self.fake_client.started_new)
+        self.assertEquals(1, self.fake_client.disposed)
+        self.fake_client.next_dispose = json.dumps({ Coordinator.FINISH_FINISHED_MESSAGE: False })
+        self.lab.do_free_experiment(lab_session_id)
+        self.assertEquals(2, self.fake_client.started_new)
+        self.assertEquals(2, self.fake_client.disposed)
+        self.lab.do_free_experiment(lab_session_id)
+        # Now, let's check it
+        self.assertEquals(3, self.fake_client.disposed)
         
+
+      
     def test_resolve_experiment_address(self):
-        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id)
+        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         exp_coord_address = self.lab.do_resolve_experiment_address(lab_session_id)
         self.assertEquals(self.experiment_coord_address, exp_coord_address)
 
     def test_reserve_experiment_instance_id_already_used(self):
 
-        self.assertEquals(0, self.fake_client.started)
+        self.assertEquals(0, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
-        lab_session_id1 = self.lab.do_reserve_experiment(self.experiment_instance_id)
+        lab_session_id1, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
 
-        self.assertEquals(1, self.fake_client.started)
+        self.assertEquals(1, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
-        lab_session_id2 = self.lab.do_reserve_experiment(self.experiment_instance_id)
+        lab_session_id2, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
 
-        self.assertEquals(2, self.fake_client.started)
-        self.assertEquals(1, self.fake_client.disposed)
+        self.assertEquals(2, self.fake_client.started_new)
+        self.assertEquals(0, self.fake_client.disposed)
 
-        # The new reservation has overriden the old one, which doesn't
-        # exist anymore
-        self.assertRaises(
-                LaboratoryExceptions.SessionNotFoundInLaboratoryServerException,
-                self.lab.do_send_command,
-                lab_session_id1,
-                'foo'
-            )
+        lab_session_id3, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
 
-        lab_session_id3 = self.lab.do_reserve_experiment(self.experiment_instance_id)
-
-        # Again
-        self.assertRaises(
-                LaboratoryExceptions.SessionNotFoundInLaboratoryServerException,
-                self.lab.do_send_command,
-                lab_session_id2,
-                'foo'
-            )
-
-        self.assertEquals(3, self.fake_client.started)
-        self.assertEquals(2, self.fake_client.disposed)
+        self.assertEquals(3, self.fake_client.started_new)
+        self.assertEquals(0, self.fake_client.disposed)
 
         self.lab.do_free_experiment(lab_session_id3)
 
-        self.assertEquals(3, self.fake_client.started)
-        self.assertEquals(3, self.fake_client.disposed)
+        # Laboratory server DOES NOT manage the state of the experiments. The 
+        # user_processing.coordination package does that.
+
+        self.assertEquals(3, self.fake_client.started_new)
+        self.assertEquals(1, self.fake_client.disposed)
         
     def _fake_is_up_and_running_handlers(self):
         FakeUrllib2.reset()
@@ -222,6 +280,9 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         exp_handler = self.lab._assigned_experiments._retrieve_experiment_handler(self.experiment_instance_id)
         exp_handler.is_up_and_running_handlers[0]._urllib2 = FakeUrllib2
         exp_handler.is_up_and_running_handlers[1]._socket = FakeSocket   
+        exp_handler2 = self.lab._assigned_experiments._retrieve_experiment_handler(self.experiment_instance_id_old)
+        exp_handler2.is_up_and_running_handlers[0]._urllib2 = FakeUrllib2
+        exp_handler2.is_up_and_running_handlers[1]._socket = FakeSocket   
         
     def test_check_experiments_resources(self):
         self._fake_is_up_and_running_handlers()
@@ -232,7 +293,7 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self._fake_is_up_and_running_handlers()
         FakeUrllib2.expected_action = FakeUrllib2.HTTP_BAD_CONTENT
         failing_experiment_instance_ids = self.lab.do_check_experiments_resources()
-        self.assertEquals(1, len(failing_experiment_instance_ids))
+        self.assertEquals(2, len(failing_experiment_instance_ids))
         self.assertTrue(self.experiment_instance_id in failing_experiment_instance_ids)
         fails = failing_experiment_instance_ids[self.experiment_instance_id]
         self.assertEquals(IsUpAndRunningHandler.WebcamIsUpAndRunningHandler.DEFAULT_TIMES - 1, fails.count('; '))
@@ -242,7 +303,7 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         message = "fail asking for a server"
         self.fake_locator.fail_on_server_request = message
         failing_experiment_instance_ids = self.lab.do_check_experiments_resources()
-        self.assertEquals(1, len(failing_experiment_instance_ids))
+        self.assertEquals(2, len(failing_experiment_instance_ids))
         self.assertTrue(self.experiment_instance_id in failing_experiment_instance_ids)
         fails = failing_experiment_instance_ids[self.experiment_instance_id]
         self.assertTrue(message in fails)
@@ -276,7 +337,7 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
 
 
     def test_send_async_command_ok(self):
-        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id)
+        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         commands_sent = [ "foo", "bar" ]
         
         responses = ["result1", "result2" ]
@@ -323,7 +384,7 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
         # self.assertTrue( self.fake_client.verify_commands(commands_sent) )
 
     def test_send_command_ok(self):
-        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id)
+        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         commands_sent = [ "foo", "bar" ]
         responses = ["result1", "result2" ]
         self.fake_client.responses = responses[:]
@@ -336,7 +397,7 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
         self.assertTrue( self.fake_client.verify_commands(commands_sent) )
  
     def test_send_command_fail(self):
-        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id)
+        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         self.fake_client.fail = True
 
         self.assertRaises(
@@ -347,7 +408,7 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
         )
         
     def test_send_async_command_fail(self):
-        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id)
+        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         self.fake_client.fail = True
         
         reqid = self.lab.do_send_async_command(lab_session_id, Command.Command("foo"))
@@ -372,7 +433,7 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
         return 
 
     def test_send_async_file_ok(self):
-        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id)
+        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         files_sent = [ ("foo", "file_info1"), ("bar", "file_info2") ]
         
         responses = ["result1", "result2" ]
@@ -419,7 +480,7 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
         # self.assertTrue( self.fake_client.verify_files(files_sent) )
 
     def test_send_file_ok(self):
-        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id)
+        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         files_sent = [ ("foo", "file_info1"), ("bar", "file_info2") ]
         responses = ["result1", "result2" ]
         self.fake_client.responses = responses[:]
@@ -433,7 +494,7 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
         # self.assertTrue( self.fake_client.verify_files(files_sent) )
     
     def test_send_async_file_fail(self):
-        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id)
+        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         self.fake_client.fail = True
         
         reqid = self.lab.do_send_async_file(lab_session_id, "foo", "file_info")
@@ -458,7 +519,7 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
         return 
     
     def test_send_file_fail(self):
-        lab_session_id = self.lab.do_reserve_experiment(self.experiment_instance_id)
+        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         self.fake_client.fail = True
 
         self.assertRaises(
@@ -507,14 +568,20 @@ class FakeClient(object):
         self.commands  = []
         self.responses = []
         self.fail = False
-        self.started  = 0
+        self.started_new  = 0
+        self.started_old  = 0
         self.disposed = 0
+        self.next_dispose = None
 
-    def start_experiment(self):
-        self.started += 1
+    def start_experiment(self, client_initial_data = None, server_initial_data = None):
+        if client_initial_data is None and server_initial_data is None:
+            self.started_old += 1
+        else:
+            self.started_new += 1
 
     def dispose(self):
         self.disposed += 1
+        return self.next_dispose
 
     def send_command_to_device(self, command):
         if self.fail:

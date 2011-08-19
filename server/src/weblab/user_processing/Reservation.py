@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-import weblab.user_processing.coordinator.WebLabQueueStatus as WebLabQueueStatus
+import weblab.user_processing.coordinator.WebLabSchedulingStatus as WSS
 import weblab.exceptions.user_processing.UserProcessingExceptions as UserProcessingExceptions
 
 class Reservation(object):
@@ -21,7 +21,7 @@ class Reservation(object):
     WAITING_CONFIRMATION = "Reservation::waiting_confirmation"
     WAITING_INSTANCES    = "Reservation::waiting_instances"
     CONFIRMED            = "Reservation::confirmed"
-    CANCELLING           = "Reservation::cancelling"
+    POST_RESERVATION     = "Reservation::post_reservation"
     def __init__(self, status):
         """ __init__(status)
 
@@ -35,32 +35,37 @@ class Reservation(object):
 
     @staticmethod
     def translate_reservation(status):
-        if status.status == WebLabQueueStatus.WebLabQueueStatus.WAITING:
+        if status.status == WSS.WebLabSchedulingStatus.WAITING:
             reservation = WaitingReservation(status.position)
-        elif status.status == WebLabQueueStatus.WebLabQueueStatus.WAITING_CONFIRMATION:
+        elif status.status == WSS.WebLabSchedulingStatus.WAITING_CONFIRMATION:
             reservation = WaitingConfirmationReservation()
-        elif status.status == WebLabQueueStatus.WebLabQueueStatus.RESERVED:
+        elif status.status == WSS.WebLabSchedulingStatus.RESERVED:
             reservation = ConfirmedReservation(
-                    status.time
+                    status.time,
+                    status.initial_configuration
                 )
-        elif status.status == WebLabQueueStatus.WebLabQueueStatus.WAITING_INSTANCES: #TODO: test me
+        elif status.status == WSS.WebLabSchedulingStatus.WAITING_INSTANCES: #TODO: test me
             reservation = WaitingInstances(
                     status.position
                 )
-        elif status.status == WebLabQueueStatus.WebLabQueueStatus.CANCELLING: #TODO: test me
-            reservation = CancellingReservation()
+        elif status.status == WSS.WebLabSchedulingStatus.POST_RESERVATION: #TODO: test me
+            reservation = PostReservationReservation(
+                    status.finished,
+                    status.initial_data,
+                    status.end_data
+                )
         else:
             raise UserProcessingExceptions.InvalidReservationStatusException(
                 "Invalid reservation status.status: '%s'. Only '%s' and '%s' expected" % (
                     status.status, 
-                    WebLabQueueStatus.WebLabQueueStatus.WAITING, 
-                    WebLabQueueStatus.WebLabQueueStatus.RESERVED
+                    WSS.WebLabSchedulingStatus.WAITING, 
+                    WSS.WebLabSchedulingStatus.RESERVED
                 )
             )
         return reservation
 
     @staticmethod
-    def translate_reservation_from_data(status_text, position=None, time=None):
+    def translate_reservation_from_data(status_text, position = None, time = None, initial_configuration = None, end_data = None):
         if status_text == Reservation.WAITING:
             reservation = WaitingReservation(position)
         elif status_text == Reservation.WAITING_CONFIRMATION:
@@ -68,9 +73,9 @@ class Reservation(object):
         elif status_text == Reservation.WAITING_INSTANCES:
             reservation = WaitingInstances(position)
         elif status_text == Reservation.CONFIRMED:
-            reservation = ConfirmedReservation(time)
-        elif status_text == Reservation.CANCELLING:
-            reservation = CancellingReservation()
+            reservation = ConfirmedReservation(time, initial_configuration)
+        elif status_text == Reservation.POST_RESERVATION:
+            reservation = PostReservationReservation(end_data)
         else:
             raise UserProcessingExceptions.InvalidReservationStatusException("Invalid reservation status_text: '%s'." % ( status_text ) )
         return reservation
@@ -80,31 +85,35 @@ class WaitingReservation(Reservation):
         super(WaitingReservation,self).__init__(Reservation.WAITING)
         self.position = position
     def __repr__(self):
-        return "<WaitingReservation position = %i>" % self.position
+        return "WaitingReservation(position = %r)" % self.position
 
 class ConfirmedReservation(Reservation):
-    def __init__(self, time):
+    def __init__(self, time, initial_configuration):
         super(ConfirmedReservation,self).__init__(Reservation.CONFIRMED)
         self.time = time
+        self.initial_configuration = initial_configuration
     def __repr__(self):
-        return "<ConfirmedReservation time = %s>" % self.time
+        return "ConfirmedReservation(time = %r, initial_configuration = %r)" % (self.time, self.initial_configuration)
 
 class WaitingConfirmationReservation(Reservation):
     def __init__(self):
         super(WaitingConfirmationReservation,self).__init__(Reservation.WAITING_CONFIRMATION)
     def __repr__(self):
-        return "<WaitingConfirmationReservation>"
+        return "WaitingConfirmationReservation()"
 
 class WaitingInstances(Reservation):
     def __init__(self, position):
         super(WaitingInstances,self).__init__(Reservation.WAITING_INSTANCES)
         self.position = position
     def __repr__(self):
-        return "<WaitingInstances position = %i>" % self.position
+        return "WaitingInstances(position = %r)" % self.position
 
-class CancellingReservation(Reservation):
-    def __init__(self):
-        super(CancellingReservation,self).__init__(Reservation.CANCELLING)
+class PostReservationReservation(Reservation):
+    def __init__(self, finished, initial_data, end_data):
+        super(PostReservationReservation,self).__init__(Reservation.POST_RESERVATION)
+        self.finished     = finished
+        self.initial_data = initial_data
+        self.end_data     = end_data
     def __repr__(self):
-        return "<CancellingReservation>"
+        return "PostReservationReservation(finished = %r, initial_data = %r, end_data = %r)" % (self.finished, self.initial_data, self.end_data)
 

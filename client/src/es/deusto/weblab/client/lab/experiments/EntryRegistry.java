@@ -19,6 +19,8 @@ import java.util.Vector;
 
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.binary.WebLabBinaryCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.dummy.WebLabDummyCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.dummybatch.WebLabDummyBatchCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.WebLabXilinxCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.WebLabGpibCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib1.WebLabGpib1CreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib2.WebLabGpib2CreatorFactory;
@@ -47,6 +49,7 @@ class EntryRegistry {
 		new JavaAppletCreatorFactory(),
 		new WebLabXilinxCreatorFactory(),
 		new WebLabDummyCreatorFactory(),
+		new WebLabDummyBatchCreatorFactory(),
 		new VMCreatorFactory(),
 		new LabVIEWCreatorFactory(),
 		new WebLabLogicCreatorFactory(),

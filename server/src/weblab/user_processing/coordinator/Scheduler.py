@@ -115,13 +115,13 @@ class Scheduler(object):
     # Kernel of the reservations
     # 
     # 
-    def reserve_experiment(self, reservation_id, experiment_id, time, priority, client_initial_data):
+    def reserve_experiment(self, reservation_id, experiment_id, time, priority):
         pass
 
     def get_reservation_status(self, reservation_id):
         pass
 
-    def confirm_experiment(self, reservation_id, lab_session_id):
+    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
         pass
 
     def finish_reservation(self, reservation_id):

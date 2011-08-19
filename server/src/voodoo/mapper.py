@@ -635,11 +635,17 @@ def load_from_dto(instance,exceptions = None,skip_recoverables=False):
             inst = builtin_type()
 
             for i, element in current_node.children:
-                setattr(inst,i,load_dto_value(element))
+                try:
+                    setattr(inst,i,load_dto_value(element))
+                except AttributeError, ae:
+                    pass
 
             dto_parsed_instances[current_node.element] = inst
-            del inst._old_module
-            del inst._old_name
+            try:
+                del inst._old_module
+                del inst._old_name
+            except AttributeError:
+                pass
             return inst
 
         elif current_node.data_type in (_Node.INSTANCE, _Node.OBJECT, _Node.EXCEPTION):

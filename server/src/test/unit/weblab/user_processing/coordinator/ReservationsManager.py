@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-
+import json
 import unittest
 import test.unit.configuration as configuration_module
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
@@ -24,6 +24,8 @@ from weblab.user_processing.coordinator.Resource import Resource
 import weblab.exceptions.user_processing.CoordinatorExceptions as CoordExc
 
 from test.unit.weblab.user_processing.coordinator.Coordinator import WrappedCoordinator, ConfirmerMock
+
+REQUEST_INFO = json.dumps({'facebook' : False, 'mobile' : False})
 
 class ReservationsManagerTestCase(unittest.TestCase):
     def setUp(self):
@@ -57,10 +59,10 @@ class ReservationsManagerTestCase(unittest.TestCase):
         sessions = self.reservations_manager.list_sessions(exp_id1)
         self.assertEquals(0, len(sessions))
 
-        reservation1 = self.reservations_manager.create(exp_id1)
-        reservation2 = self.reservations_manager.create(exp_id1)
+        reservation1 = self.reservations_manager.create(exp_id1, "{}", REQUEST_INFO)
+        reservation2 = self.reservations_manager.create(exp_id1, "{}", REQUEST_INFO)
 
-        self.reservations_manager.create(exp_id2)
+        self.reservations_manager.create(exp_id2, "{}", REQUEST_INFO)
         
         sessions = self.reservations_manager.list_sessions(exp_id1)
         self.assertEquals(2, len(sessions))

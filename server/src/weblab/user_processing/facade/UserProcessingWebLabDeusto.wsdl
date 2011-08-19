@@ -75,6 +75,7 @@
 					<xsd:element minOccurs="0" maxOccurs="1" name="status" type="xsd:string" />
 					<xsd:element minOccurs="0" maxOccurs="1" name="position" type="xsd:int" />
 					<xsd:element minOccurs="0" maxOccurs="1" name="time" type="xsd:int" />
+					<xsd:element minOccurs="0" maxOccurs="1" name="initial_configuration" type="xsd:string" />
 				</xsd:sequence>
 			</xsd:complexType>
 
@@ -123,7 +124,7 @@
 				</xsd:complexContent>
 			</xsd:complexType>
 
-			<xsd:complexType name="CancellingReservationType">
+			<xsd:complexType name="PostReservationReservationType">
 				<xsd:complexContent mixed="false">
 					<xsd:extension base="tns:ReservationType">
 						<xsd:sequence />
@@ -174,6 +175,7 @@
 					<xsd:sequence>
 						<xsd:element minOccurs="0" maxOccurs="1" name="session" type="tns:SessionIdType" />
 						<xsd:element minOccurs="0" maxOccurs="1" name="experiment_id" type="tns:ExperimentIdType" />
+						<xsd:element minOccurs="0" maxOccurs="1" name="client_initial_data" type="xsd:string" />
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>

@@ -37,8 +37,9 @@ public class WlDeustoDummyBasedBoard extends WlDeustoXilinxBasedBoard {
 	}
 	
 	@Override
-	public void start(){
-	    super.start();
+	public void start(int time, String initialConfiguration){
+	    super.start(time, initialConfiguration);
+	    System.out.println("initial configuration:" + initialConfiguration);
 	    this.verticalPanel.add(this.dummyMessages);
 	}
 

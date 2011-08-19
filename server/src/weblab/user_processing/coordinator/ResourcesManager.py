@@ -71,6 +71,15 @@ class ResourcesManager(object):
     def release_resource(self, session, slot_reservation):
         session.delete(slot_reservation)
 
+    def release_resource_instance(self, session, resource):
+        # TODO: test me
+        resource_instance = self._get_resource_instance(session, resource)
+        slot = resource_instance.slot
+        if slot is not None:
+            slot_reservation = slot.slot_reservation
+            if slot_reservation is not None:
+                self.release_resource(session, slot_reservation)
+
     def get_resource_types_by_experiment_id(self, experiment_id):
         session = self._session_maker()
         try:

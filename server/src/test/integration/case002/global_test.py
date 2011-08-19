@@ -487,18 +487,21 @@ class Case002TestCase(object):
         self.real_ups.reserve_experiment(
                 session_id1,
                 fpga_experiments1[0].to_experiment_id(),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
 
         self.real_ups.reserve_experiment(
                 session_id2,
                 fpga_experiments2[0].to_experiment_id(),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
 
         self.real_ups.reserve_experiment(
                 session_id3,
                 fpga_experiments3[0].to_experiment_id(),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
 
@@ -550,6 +553,7 @@ class Case002TestCase(object):
         self.real_ups.reserve_experiment(
                 session_id4,
                 fpga_experiments4[0].to_experiment_id(),
+                "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
 
