@@ -13,28 +13,29 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-import voodoo.gen.exceptions.coordinator.AccessExceptions as AccessExceptions
+from abc import ABCMeta, abstractmethod
 
-import voodoo.abstraction.abstract_class_generator as acg
+import voodoo.gen.exceptions.coordinator.AccessExceptions as AccessExceptions
 
 from voodoo.override import Override
 import re
 
-class Address(acg.AbstractClass(['_get_address','create_client','get_protocol','__cmp__','__eq__'])):
-    
-    def __init__(self):
-        acg.call_abstract_constructors(Address,self)
+class Address(object):
 
+    __metaclass__ = ABCMeta
+    
     @property
     def address(self):
         return self._get_address()
 
+    @abstractmethod
     def _get_address(self):
         """ _get_address(self) -> str
 
         It returns the serialized address.
         """
-    
+   
+    @abstractmethod
     def create_client(self, methods):
         """ create_client(self, methods) -> client
 
@@ -44,15 +45,18 @@ class Address(acg.AbstractClass(['_get_address','create_client','get_protocol','
         address executes the method.
         """
     
+    @abstractmethod
     def get_protocol(self):
         """ get_protocol(self) -> Protocols
 
         It will return the Protocols
         """
 
+    @abstractmethod
     def __cmp__(self):
         """"""  
 
+    @abstractmethod
     def __eq__(self):
         """"""
 

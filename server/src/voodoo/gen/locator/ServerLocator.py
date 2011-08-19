@@ -392,6 +392,9 @@ class ServerLocator(object):
                     log.LogLevel.Warning
                 )
 
+            import traceback
+            traceback.print_exc()
+
             raise LocatorExceptions.ProblemCommunicatingWithCoordinatorException(
                     "Unexpected exception while asking for networks from coordinator server: " + str(e),
                     e
