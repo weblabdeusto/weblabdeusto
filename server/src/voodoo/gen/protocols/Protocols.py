@@ -13,11 +13,14 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-#Strong-typed enumeration of 'SOAP', 'Direct', 'InternetSocket', 'UnixSocket'
+SOAP           = 'SOAP'
+Direct         = 'Direct'
+InternetSocket = 'InternetSocket'
+UnixSocket     = 'UnixSocket'
+XMLRPC         = 'XMLRPC'
 
-values=['SOAP','Direct','InternetSocket','UnixSocket','XMLRPC']
-name='Protocols'
+def getProtocolValues():
+    return SOAP, Direct, InternetSocket, UnixSocket, XMLRPC
 
-import voodoo.abstraction.enumeration as enumeration
-import sys
-enumeration.gen(sys.modules[__name__],values,name,True)
+def isProtocols(protocol):
+    return protocol in getProtocolValues()

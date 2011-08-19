@@ -115,11 +115,11 @@ def factory(cfg_manager, protocols, methods):
     def build_server(cfg_manager, protocol):
         #If protocols is a valid protocol (ie 'Direct') it will look for the following class:
         # mySystem.calls.Direct.ServerDirect
-        moduleName = 'Server' + protocol.name
+        moduleName = 'Server' + protocol
         
         #mySystem will be something like 'voodoo.gen.'
         mySystem = __name__[:__name__.find('generators')]
-        full_module_name = mySystem+'protocols.'+protocol.name+'.'+moduleName
+        full_module_name = mySystem+'protocols.'+protocol+'.'+moduleName
         mod = __import__(full_module_name, globals(), locals(), [ moduleName ])
         return mod.generate(cfg_manager, methods) 
 
@@ -130,11 +130,11 @@ def factory(cfg_manager, protocols, methods):
 
     # If it is only one protocol
     if _Protocols.isProtocols(protocols):
-        servers[protocols.name] = build_server(cfg_manager, protocols)
+        servers[protocols] = build_server(cfg_manager, protocols)
     # If there is a sequence of protocols
     else:
         for i in protocols:
-            servers[i.name] = build_server(cfg_manager, i)
+            servers[i] = build_server(cfg_manager, i)
 
     return _generate_server_skel(methods, servers)
 

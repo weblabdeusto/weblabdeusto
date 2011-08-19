@@ -12,15 +12,8 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
-#Strong-typed enumeration of AccessLevel values
 
-values=[
-    'instance',
-    'machine',
-    'network'
-]
-name='AccessLevel'
+instance = 'instance'
+machine  = 'machine'
+network  = 'network'
 
-import voodoo.abstraction.enumeration as enumeration
-import sys
-enumeration.gen(sys.modules[__name__],values,name,True)
