@@ -59,7 +59,7 @@ CHECKING_TIME_NAME    = 'core_checking_time'
 DEFAULT_CHECKING_TIME = 3 # seconds
 
 WEBLAB_USER_PROCESSING_SERVER_SESSION_TYPE         = "core_session_type"
-DEFAULT_WEBLAB_USER_PROCESSING_SERVER_SESSION_TYPE = SessionType.Memory.name
+DEFAULT_WEBLAB_USER_PROCESSING_SERVER_SESSION_TYPE = SessionType.Memory
 WEBLAB_USER_PROCESSING_SERVER_SESSION_POOL_ID      = "core_session_pool_id"
 
 WEBLAB_USER_PROCESSING_SERVER_CLEAN_COORDINATOR    = "core_coordinator_clean"
@@ -92,10 +92,9 @@ class UserProcessingServer(object):
 
         session_type    = cfg_manager.get_value(WEBLAB_USER_PROCESSING_SERVER_SESSION_TYPE, DEFAULT_WEBLAB_USER_PROCESSING_SERVER_SESSION_TYPE) 
         session_pool_id = cfg_manager.get_value(WEBLAB_USER_PROCESSING_SERVER_SESSION_POOL_ID, "UserProcessingServer")
-        if session_type in [ stype.name for stype in SessionType.getSessionTypeValues() ]:
-            real_session_type = getattr(SessionType, session_type)
+        if session_type in SessionType.getSessionTypeValues():
             self._session_manager = SessionManager.SessionManager(
-                    cfg_manager, real_session_type, session_pool_id
+                    cfg_manager, session_type, session_pool_id
                 )
         else:
             raise UserProcessingExceptions.NotASessionTypeException(
@@ -123,7 +122,7 @@ class UserProcessingServer(object):
         self._temporal_information_retriever.start()
 
         self._alive_users_collection = AliveUsersCollection.AliveUsersCollection(
-                self._locator, self._cfg_manager, real_session_type, self._session_manager, self._db_manager, self._commands_store)
+                self._locator, self._cfg_manager, session_type, self._session_manager, self._db_manager, self._commands_store)
 
         if clean:
             self._parse_coordination_configuration()

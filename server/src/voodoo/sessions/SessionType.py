@@ -12,12 +12,9 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
-#Strong-typed enumeration of 'Memory', 'sqlalchemy'
 
-values=['Memory','sqlalchemy']
-name='SessionType'
+Memory = 'Memory'
+sqlalchemy = 'sqlalchemy'
 
-import voodoo.abstraction.enumeration as enumeration
-import sys
-enumeration.gen(sys.modules[__name__],values,name,True)
-
+def getSessionTypeValues():
+    return (Memory, sqlalchemy)

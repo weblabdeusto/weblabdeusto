@@ -42,10 +42,10 @@ class CoordinatorServer(object):
         super(CoordinatorServer, self).__init__(*args, **kwargs)
         session_type = cfg_manager.get_value(COORDINATOR_SERVER_SESSION_TYPE, DEFAULT_COORDINATOR_SERVER_SESSION_TYPE)
         session_pool_id = cfg_manager.get_value(COORDINATOR_SERVER_SESSION_POOL_ID, DEFAULT_COORDINATOR_SERVER_SESSION_POOL_ID)
-        if session_type in [ stype.name for stype in SessionType.getSessionTypeValues() ]:
+        if session_type in SessionType.getSessionTypeValues():
             self._session_manager = SessionManager.SessionManager(
                     cfg_manager,
-                    getattr(SessionType, session_type),
+                    session_type,
                     session_pool_id
                 )
         else:

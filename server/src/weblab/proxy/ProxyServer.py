@@ -31,7 +31,7 @@ WEBLAB_PROXY_SERVER_SESSION_TYPE                    = "proxy_session_type"
 WEBLAB_PROXY_SERVER_SESSION_POOL_ID                 = "proxy_session_pool_id"
 WEBLAB_PROXY_SERVER_DEFAULT_TRANSLATOR_NAME         = "proxy_session_default_translator_name"
 
-DEFAULT_WEBLAB_PROXY_SERVER_SESSION_TYPE            = SessionType.Memory.name
+DEFAULT_WEBLAB_PROXY_SERVER_SESSION_TYPE            = SessionType.Memory
 DEFAULT_WEBLAB_PROXY_SERVER_SESSION_POOL_ID         = "ProxyServer"
 DEFAULT_WEBLAB_PROXY_SERVER_DEFAULT_TRANSLATOR_NAME = "StoresEverythingTranslator"
 
@@ -99,13 +99,12 @@ class ProxyServer(object):
         )
         
     def _create_session_manager(self):
-        session_type_name = self._cfg_manager.get_value(WEBLAB_PROXY_SERVER_SESSION_TYPE, DEFAULT_WEBLAB_PROXY_SERVER_SESSION_TYPE) 
+        session_type = self._cfg_manager.get_value(WEBLAB_PROXY_SERVER_SESSION_TYPE, DEFAULT_WEBLAB_PROXY_SERVER_SESSION_TYPE) 
         session_pool_id   = self._cfg_manager.get_value(WEBLAB_PROXY_SERVER_SESSION_POOL_ID, DEFAULT_WEBLAB_PROXY_SERVER_SESSION_POOL_ID)
-        if session_type_name in [ stype.name for stype in SessionType.getSessionTypeValues() ]:
-            session_type = getattr(SessionType, session_type_name)
+        if session_type in SessionType.getSessionTypeValues():
             return SessionManager.SessionManager(self._cfg_manager, session_type, session_pool_id)
         else:
-            raise ProxyExceptions.NotASessionTypeException('Not a session type: %s' % session_type_name)
+            raise ProxyExceptions.NotASessionTypeException('Not a session type: %s' % session_type)
         
     def _read_default_translator_klazz(self):
         klazz_name = self._cfg_manager.get_value(WEBLAB_PROXY_SERVER_DEFAULT_TRANSLATOR_NAME, DEFAULT_WEBLAB_PROXY_SERVER_DEFAULT_TRANSLATOR_NAME)

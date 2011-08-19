@@ -75,7 +75,7 @@ class SessionManager(object):
         * timeout: the timeout of this session_pool_id. It can be an int or a float (both refering to seconds), or None (to set no timeout)
         """
         object.__init__(self)
-        if not SessionType.isSessionType(session_type):
+        if not session_type in SessionType.getSessionTypeValues():
             raise SessionExceptions.SessionInvalidSessionTypeException(
                     "Not a session type: %s " % session_type
                 )
