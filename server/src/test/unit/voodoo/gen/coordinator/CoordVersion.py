@@ -26,7 +26,7 @@ class VersionTestCase(unittest.TestCase):
                 CoordVersionExceptions.CoordVersionNotAnActionException,
                 CoordVersion.CoordVersionChange,
                 address,
-                'NEW'
+                'NEW2'
             )
         self.assertRaises(
                 CoordVersionExceptions.CoordVersionNotAnAddressException,

@@ -12,11 +12,9 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
-#Strong-typed enumeration of 'PLD','FPGA'
 
-values=['PLD','FPGA']
-name='XilinxDevices'
+PLD  = 'PLD'
+FPGA = 'FPGA'
 
-import voodoo.abstraction.enumeration as enumeration
-import sys
-enumeration.gen(sys.modules[__name__],values,name,True)
+def getXilinxDeviceValues():
+    return (PLD, FPGA)

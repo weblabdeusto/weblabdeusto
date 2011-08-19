@@ -63,7 +63,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         
     def _load_xilinx_device(self):
         device_name = self._cfg_manager.get_value('weblab_xilinx_experiment_xilinx_device')
-        devices = [ i for i in XilinxDevices.getXilinxDevicesValues() if i.name == device_name ]
+        devices = [ i for i in XilinxDevices.getXilinxDeviceValues() if i == device_name ]
         if len(devices) == 1:
             return devices[0], XilinxImpact.create(devices[0], self._cfg_manager)
         else:
@@ -78,7 +78,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         return UdXilinxCommandSender.create(device_name, self._cfg_manager)
         
     def _load_webcam_url(self):
-        cfg_webcam_url = "%s_webcam_url" % self._xilinx_device.name.lower()        
+        cfg_webcam_url = "%s_webcam_url" % self._xilinx_device.lower()        
         return self._cfg_manager.get_value(cfg_webcam_url, "http://localhost")
     
     def get_state(self):

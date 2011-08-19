@@ -26,7 +26,7 @@ import weblab.experiment.devices.xilinx_impact.XilinxDevices as XilinxDevices
 
 
 def create(xilinx_device, cfg_manager):
-    if not XilinxDevices.isXilinxDevices(xilinx_device):
+    if not xilinx_device in XilinxDevices.getXilinxDeviceValues():
         raise XilinxImpactExceptions.NotAXilinxDeviceEnumException(
                 "Not a Xilinx Device Enumeration: %s" % xilinx_device
             )
@@ -36,7 +36,7 @@ def create(xilinx_device, cfg_manager):
         return _XilinxImpactPLD(cfg_manager)
     else:
         raise XilinxImpactExceptions.XilinxDeviceNotFoundException(
-                "Couldn't find xilinx device gateway: %s" % xilinx_device.name
+                "Couldn't find xilinx device gateway: %s" % xilinx_device
             )
 
 
@@ -162,7 +162,7 @@ class XilinxImpact(object):
 
     def _parse_configuration_to_program(self, device):
         try:
-            program_file_content = self._cfg_manager.get_value('xilinx_batch_content_' + device.name)
+            program_file_content = self._cfg_manager.get_value('xilinx_batch_content_' + device)
             xilinx_impact = self._cfg_manager.get_value('xilinx_impact_full_path')
         except ConfigurationExceptions.KeyNotFoundException,knfe:
             raise XilinxImpactExceptions.CantFindXilinxProperty(
@@ -172,7 +172,7 @@ class XilinxImpact(object):
 
     def _parse_configuration_to_source2svf(self, device):
         try:
-            svf2jsvf_file_content = self._cfg_manager.get_value('xilinx_source2svf_batch_content_' + device.name)
+            svf2jsvf_file_content = self._cfg_manager.get_value('xilinx_source2svf_batch_content_' + device)
             xilinx_impact = self._cfg_manager.get_value('xilinx_impact_full_path')
         except ConfigurationExceptions.KeyNotFoundException,knfe:
             raise XilinxImpactExceptions.CantFindXilinxProperty(

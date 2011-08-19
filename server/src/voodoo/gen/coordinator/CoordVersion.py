@@ -101,7 +101,6 @@ import threading
 # that can talk with a coordinator which can talk with the server.
 # 
 
-import voodoo.abstraction.enumeration as enumeration
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.gen.exceptions.coordinator.CoordVersionExceptions as CoordVersionExceptions
 
@@ -112,13 +111,15 @@ import voodoo.gen.exceptions.coordinator.CoordVersionExceptions as CoordVersionE
 ###############################################################################
 
 class ChangeActions(object):
-    pass
+    NEW        = 'NEW'
+    DELETE     = 'DELETE'
+    SWITCH_ON  = 'SWITCH_ON'
+    SWITCH_OFF = 'SWITCH_OFF'
 
-enumeration.gen(
-        ChangeActions,
-        ['NEW','DELETE','SWITCH_ON','SWITCH_OFF'],
-        'ChangeAction'
-    )
+    @staticmethod
+    def getChangeActionValues():
+        return ChangeActions.NEW, ChangeActions.DELETE, ChangeActions.SWITCH_ON, ChangeActions.SWITCH_OFF
+
 
 ###############################################################################
 #                                                                             #
@@ -131,7 +132,7 @@ class CoordVersionChange(object):
     def __init__(self, address, action):
         object.__init__(self)
 
-        if not ChangeActions().isChangeAction(action):
+        if not action in ChangeActions.getChangeActionValues():
             raise CoordVersionExceptions.CoordVersionNotAnActionException(
                         '%s: not a ChangeAction' % action
                     )
