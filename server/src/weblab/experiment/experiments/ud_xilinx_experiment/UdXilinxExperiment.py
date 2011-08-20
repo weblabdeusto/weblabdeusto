@@ -18,7 +18,7 @@
 from voodoo.gen.caller_checker import caller_check
 from voodoo.log import logged
 from voodoo.override import Override
-from weblab.exceptions.experiment.experiments.ud_xilinx_experiment import UdXilinxExperimentExceptions
+import weblab.experiment.experiments.ud_xilinx_experiment.exc as UdXilinxExperimentExceptions
 from weblab.experiment.experiments.ud_xilinx_experiment.UdXilinxCommandSenders import UdXilinxCommandSender
 from weblab.experiment.experiments.ud_xilinx_experiment.UdXilinxProgrammers import UdXilinxProgrammer
 import os

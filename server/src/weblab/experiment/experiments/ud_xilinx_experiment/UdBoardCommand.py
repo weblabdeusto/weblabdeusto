@@ -14,7 +14,7 @@
 # 
 import re
 
-import weblab.exceptions.experiment.experiments.ud_xilinx_experiment.UdXilinxExperimentExceptions as UdXilinxExperimentExceptions
+import weblab.experiment.experiments.ud_xilinx_experiment.exc as UdXilinxExperimentExceptions
 
 class UdBoardCommand(object):
 

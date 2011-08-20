@@ -15,7 +15,7 @@
 #
 
 from mock import patch
-from weblab.exceptions.experiment.experiments.ud_xilinx_experiment import UdXilinxExperimentExceptions
+import weblab.experiment.experiments.ud_xilinx_experiment.exc as UdXilinxExperimentExceptions
 from weblab.experiment.experiments.ud_xilinx_experiment import UdXilinxCommandSenders
 from test.util.fakeobjects import return_values
 import test.unit.configuration as configuration_module

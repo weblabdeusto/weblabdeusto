@@ -18,7 +18,7 @@ import unittest
 import weblab.experiment.experiments.ud_pic_experiment.UdPicBoardCommand as UdPicBoardCommand
 from weblab.experiment.experiments.ud_pic_experiment.UdPicBoardCommand import ChangeSwitchCommand, SetPulseCommand, AdjustCommand, WriteCommand
 
-import weblab.exceptions.experiment.experiments.ud_pic_experiment.UdPicExperimentExceptions as UdPicExperimentExceptions
+import weblab.experiment.experiments.ud_pic_experiment.exc as UdPicExperimentExceptions
 
 class UdPicBoardCommandTestCase(unittest.TestCase):
     def test_ud_pic_board(self):

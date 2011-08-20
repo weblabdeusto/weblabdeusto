@@ -23,7 +23,7 @@ import weblab.experiment.Util as ExperimentUtil
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
 import weblab.experiment.exc as ExperimentExceptions
-import weblab.exceptions.experiment.experiments.ud_gpib_experiment.UdGpibExperimentExceptions as GpibExceptions
+import weblab.experiment.experiments.ud_gpib_experiment.exc as GpibExceptions
 
 class FakeCompiler(object):
     def __init__(self):

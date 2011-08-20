@@ -14,7 +14,7 @@
 # 
 
 from voodoo.override import Override
-from weblab.exceptions.experiment.experiments.ud_xilinx_experiment.UdXilinxExperimentExceptions import InvalidDeviceToSendCommandsException
+from weblab.experiment.experiments.ud_xilinx_experiment.exc import InvalidDeviceToSendCommandsException
 from weblab.experiment.devices.http import HttpDevice
 from weblab.experiment.devices.serial_port import SerialPort
 from weblab.experiment.experiments.ud_xilinx_experiment import UdBoardCommand

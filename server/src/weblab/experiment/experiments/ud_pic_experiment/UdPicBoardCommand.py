@@ -14,7 +14,7 @@
 # 
 import re
 
-import weblab.exceptions.experiment.experiments.ud_pic_experiment.UdPicExperimentExceptions as UdPicExperimentExceptions
+import weblab.experiment.experiments.ud_pic_experiment.exc as UdPicExperimentExceptions
 
 class UdPicBoardCommand(object):
     _REGEX_FORMAT="^((%(complete-syntax)s, )*%(complete-syntax)s)$" 

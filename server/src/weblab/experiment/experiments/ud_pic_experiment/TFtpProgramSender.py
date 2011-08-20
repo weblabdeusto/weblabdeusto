@@ -16,7 +16,7 @@
 import tempfile
 import os
 
-import weblab.exceptions.experiment.experiments.ud_pic_experiment.UdPicExperimentExceptions as UdPicExperimentExceptions
+import weblab.experiment.experiments.ud_pic_experiment.exc as UdPicExperimentExceptions
 
 class TFtpProgramSender(object):
     

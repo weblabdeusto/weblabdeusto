@@ -25,7 +25,7 @@ import weblab.experiment.Util as ExperimentUtil
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
 import weblab.experiment.exc as ExperimentExceptions
-import weblab.exceptions.experiment.experiments.ud_pic_experiment.UdPicExperimentExceptions as UdPicExperimentExceptions
+import weblab.experiment.experiments.ud_pic_experiment.exc as UdPicExperimentExceptions
 
 
 class UdPicExperimentTestCase(unittest.TestCase):
