@@ -36,7 +36,7 @@ import weblab.data.ServerType as ServerType
 import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
 import weblab.data.Command as Command
 
-import weblab.user_processing.coordinator.Coordinator as Coordinator
+import weblab.core.coordinator.Coordinator as Coordinator
 
 import weblab.laboratory.AssignedExperiments as AssignedExperiments
 import weblab.laboratory.IsUpAndRunningHandler as IsUpAndRunningHandler

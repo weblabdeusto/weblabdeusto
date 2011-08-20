@@ -24,7 +24,7 @@
 from weblab.data.dto.User import User
 from weblab.data.dto.Role import Role
 from weblab.admin.monitor.Monitor import monitor_method
-from weblab.user_processing.UserProcessingServer import UserProcessingServer
+from weblab.core.UserProcessingServer import UserProcessingServer
 
 import weblab.data.experiments.ExperimentId as ExperimentId
 import voodoo.exceptions.sessions.SessionExceptions as SessionExceptions
@@ -67,7 +67,7 @@ def list_experiments():
 @monitor_method
 def get_experiment_status(category, experiment):
     # 
-    # Returns a dictionary of reservation_id: weblab.user_processing.coordinator.WebLabQueueSessions.* objects
+    # Returns a dictionary of reservation_id: weblab.core.coordinator.WebLabQueueSessions.* objects
     # 
     ups = _find_ups()
     return ups._coordinator.list_sessions(ExperimentId.ExperimentId(experiment, category))

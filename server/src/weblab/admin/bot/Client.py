@@ -28,7 +28,7 @@ import libraries
 libraries.load()
 
 import voodoo.sessions.SessionId as SessionId
-import weblab.user_processing.Reservation as Reservation
+import weblab.core.Reservation as Reservation
 import weblab.data.dto.Category as Category
 import weblab.data.dto.Experiment as Experiment
 import weblab.data.dto.User as User
@@ -37,7 +37,7 @@ import weblab.facade.RemoteFacadeServer as RemoteFacadeServer
 
 try:
     import weblab.login.facade.generated.WebLabDeusto_client as LoginWebLabDeusto_client
-    import weblab.user_processing.facade.generated.WebLabDeusto_client as UserProcessingWebLabDeusto_client
+    import weblab.core.facade.generated.WebLabDeusto_client as UserProcessingWebLabDeusto_client
 except ImportError:
     ZSI_AVAILABLE = False
 else:

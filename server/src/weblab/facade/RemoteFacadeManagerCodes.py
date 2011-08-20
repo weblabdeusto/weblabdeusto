@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-# These codes are common to weblab.login.facade and weblab.user_processing.facade
+# These codes are common to weblab.login.facade and weblab.core.facade
 WEBLAB_GENERAL_EXCEPTION_CODE = 'Server.WebLab'
 VOODOO_GENERAL_EXCEPTION_CODE = 'Server.Voodoo'
 PYTHON_GENERAL_EXCEPTION_CODE = 'Server.Python'

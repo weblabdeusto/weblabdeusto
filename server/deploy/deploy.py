@@ -260,8 +260,8 @@ def deploy_login_stubs(error_handler):
     return _deploy_stubs(error_handler, 'weblab/login/facade/generated/', 'LoginWebLabDeusto.wsdl')
 
 @deployer(30)
-def deploy_user_processing_stubs(error_handler):
-    return _deploy_stubs(error_handler, 'weblab/user_processing/facade/generated/', 'UserProcessingWebLabDeusto.wsdl')
+def deploy_core_stubs(error_handler):
+    return _deploy_stubs(error_handler, 'weblab/core/facade/generated/', 'UserProcessingWebLabDeusto.wsdl')
 
 @deployer(40)
 def build_webserver(error_handler):

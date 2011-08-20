@@ -15,7 +15,7 @@
 import weblab.exceptions.experiment.ExperimentExceptions as ExperimentExceptions
 
 import threading
-import weblab.user_processing.coordinator.Coordinator as Coordinator
+import weblab.core.coordinator.Coordinator as Coordinator
 import json
 
 class Experiment(object):

@@ -25,7 +25,7 @@ libraries.load()
 import voodoo.counter as counter
 
 import weblab.data.Command as Command
-import weblab.user_processing.Reservation as Reservation
+import weblab.core.Reservation as Reservation
 import weblab.experiment.Util as _Util
 
 import weblab.admin.bot.Client as Client

@@ -46,10 +46,10 @@ import weblab.experiment.experiments.ud_xilinx_experiment.UdXilinxExperiment as 
 import weblab.laboratory.LaboratoryServer as LaboratoryServer
 import weblab.login.LoginServer as LoginServer
 import weblab.methods as weblab_exported_methods
-import weblab.user_processing.Reservation as Reservation
-import weblab.user_processing.UserProcessingServer    as UserProcessingServer
-import weblab.user_processing.UserProcessor       as UserProcessor
-import weblab.user_processing.coordinator.Coordinator as Coordinator
+import weblab.core.Reservation as Reservation
+import weblab.core.UserProcessingServer    as UserProcessingServer
+import weblab.core.UserProcessor       as UserProcessor
+import weblab.core.coordinator.Coordinator as Coordinator
 
 
 
@@ -275,7 +275,7 @@ class Case002TestCase(object):
         login_client = locator.get_server(ServerType.Login, None)
         return login_client, real_login_server
 
-    def generate_user_processing_server(self, cfg_manager, protocols):
+    def generate_core_server(self, cfg_manager, protocols):
         ups_coord_address = CoordAddress.CoordAddress.translate_address("ups1:WL_SERVER1@WL_MACHINE1")
         locator = self.generate_locator()
 
@@ -299,17 +299,17 @@ class Case002TestCase(object):
         coordinator = Coordinator.Coordinator(locator, cfg_manager)
         coordinator._clean()
 
-        real_user_processing_server = RealUserProcessingServer(
+        real_core_server = RealUserProcessingServer(
                 ups_coord_address,
                 locator,
                 cfg_manager,
                 Direct = ('ups1',),
                 SOAP   = ('',10126)
             )
-        real_user_processing_server.start()
+        real_core_server.start()
 
-        user_processing_client = locator.get_server(ServerType.UserProcessing, None)
-        return user_processing_client, real_user_processing_server
+        core_client = locator.get_server(ServerType.UserProcessing, None)
+        return core_client, real_core_server
 
     def generate_fake_experiment(self, cfg_manager, fake_xilinx_impact, fake_serial_port, number, experiment_name, experiment_category_name, protocols):
         generated_experiment = ServerSkel.factory(
@@ -405,7 +405,7 @@ class Case002TestCase(object):
         self.real_login = reals
 
         self.real_servers.append(reals)
-        self.user_processing_server, reals    = self.generate_user_processing_server(
+        self.core_server, reals    = self.generate_core_server(
                                 self.cfg_manager,
                                 protocols
                             )

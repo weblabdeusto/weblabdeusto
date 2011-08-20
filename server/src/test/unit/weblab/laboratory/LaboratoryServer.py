@@ -27,7 +27,7 @@ import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
 import test.unit.configuration as configuration_module
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
-import weblab.user_processing.coordinator.Coordinator as Coordinator
+import weblab.core.coordinator.Coordinator as Coordinator
 import weblab.laboratory.LaboratoryServer as LaboratoryServer
 import weblab.laboratory.IsUpAndRunningHandler as IsUpAndRunningHandler
 
@@ -264,7 +264,7 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self.lab.do_free_experiment(lab_session_id3)
 
         # Laboratory server DOES NOT manage the state of the experiments. The 
-        # user_processing.coordination package does that.
+        # core.coordination package does that.
 
         self.assertEquals(3, self.fake_client.started_new)
         self.assertEquals(1, self.fake_client.disposed)

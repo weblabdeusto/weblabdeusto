@@ -22,10 +22,10 @@ import test.unit.configuration as configuration_module
 
 import weblab.admin.monitor.Monitor_methods           as methods
 import voodoo.configuration.ConfigurationManager      as ConfigurationManager
-import weblab.user_processing.UserProcessingServer    as UserProcessingServer
-import weblab.user_processing.coordinator.Coordinator as Coordinator 
-import weblab.user_processing.coordinator.Confirmer   as Confirmer
-import weblab.exceptions.user_processing.UserProcessingExceptions as UPSExc
+import weblab.core.UserProcessingServer    as UserProcessingServer
+import weblab.core.coordinator.Coordinator as Coordinator 
+import weblab.core.coordinator.Confirmer   as Confirmer
+import weblab.exceptions.core.UserProcessingExceptions as UPSExc
 
 import weblab.database.DatabaseSession                as DatabaseSession
 
@@ -38,7 +38,7 @@ import weblab.data.ServerType                         as ServerType
 import weblab.data.ClientAddress                      as ClientAddress
 from weblab.data.dto.User import User
 from weblab.data.dto.Role import Role
-from weblab.user_processing.coordinator.Resource import Resource
+from weblab.core.coordinator.Resource import Resource
 
 import voodoo.gen.coordinator.CoordAddress  as CoordAddress
 
