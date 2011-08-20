@@ -13,11 +13,11 @@
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
-import weblab.exceptions.WebLabExceptions as WebLabExceptions
+import weblab.exc as wlExc
 
-class ProxyException(WebLabExceptions.WebLabException):
+class ProxyException(wlExc.WebLabException):
     def __init__(self, *args, **kargs):
-        WebLabExceptions.WebLabException.__init__(self, *args, **kargs)
+        wlExc.WebLabException.__init__(self, *args, **kargs)
         
 #
 # from ProxyException

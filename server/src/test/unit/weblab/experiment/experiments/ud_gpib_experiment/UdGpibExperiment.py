@@ -22,7 +22,7 @@ import weblab.experiment.experiments.ud_gpib_experiment.UdGpibExperiment as UdGp
 import weblab.experiment.Util as ExperimentUtil
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
-import weblab.exceptions.experiment.ExperimentExceptions as ExperimentExceptions
+import weblab.experiment.exc as ExperimentExceptions
 import weblab.exceptions.experiment.experiments.ud_gpib_experiment.UdGpibExperimentExceptions as GpibExceptions
 
 class FakeCompiler(object):

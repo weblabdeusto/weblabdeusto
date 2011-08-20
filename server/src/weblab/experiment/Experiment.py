@@ -12,7 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
-import weblab.exceptions.experiment.ExperimentExceptions as ExperimentExceptions
+import weblab.experiment.exc as ExperimentExceptions
 
 import threading
 import weblab.core.coordinator.Coordinator as Coordinator

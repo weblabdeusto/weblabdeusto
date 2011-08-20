@@ -18,7 +18,7 @@ import unittest
 import test.unit.configuration as configuration_module
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
-import weblab.exceptions.core.UserProcessingExceptions as UserProcessingExceptions
+import weblab.core.exc as coreExc
 import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
 from weblab.core.coordinator.Resource import Resource
 import weblab.core.coordinator.CoordinationConfigurationParser as CoordinationConfigurationParser
@@ -58,7 +58,7 @@ class CoordinationConfigurationParserTestCase(unittest.TestCase):
                             },
                     })
         self.assertRaises(
-            UserProcessingExceptions.CoordinationConfigurationParsingException,
+            coreExc.CoordinationConfigurationParsingException,
             self.coordination_configuration_parser.parse_configuration
         )
        
@@ -69,7 +69,7 @@ class CoordinationConfigurationParserTestCase(unittest.TestCase):
                             },
                     })
         self.assertRaises(
-            UserProcessingExceptions.CoordinationConfigurationParsingException,
+            coreExc.CoordinationConfigurationParsingException,
             self.coordination_configuration_parser.parse_configuration
         )
        

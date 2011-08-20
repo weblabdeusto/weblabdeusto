@@ -31,7 +31,7 @@ import weblab.core.coordinator.CoordinationConfigurationParser as CoordinationCo
 import weblab.core.coordinator.TemporalInformationStore as TemporalInformationStore
 import weblab.core.database.DatabaseManager as DatabaseManager
 
-import weblab.exceptions.core.UserProcessingExceptions as UserProcessingExceptions
+import weblab.core.exc as coreExc
 import weblab.core.facade.UserProcessingFacadeServer as UserProcessingFacadeServer
 import weblab.core.facade.AdminFacadeServer as AdminFacadeServer
 import weblab.core.facade.WebFacadeServer as WebFacadeServer
@@ -46,7 +46,7 @@ import voodoo.sessions.SessionType as SessionType
 import voodoo.ResourceManager as ResourceManager
 
 check_session_params = (
-        UserProcessingExceptions.SessionNotFoundException,
+        coreExc.SessionNotFoundException,
         "User Processing Server"
     )
 
@@ -97,7 +97,7 @@ class UserProcessingServer(object):
                     cfg_manager, session_type, session_pool_id
                 )
         else:
-            raise UserProcessingExceptions.NotASessionTypeException(
+            raise coreExc.NotASessionTypeException(
                     'Not a session type: %s' % session_type 
                 )
 
@@ -160,7 +160,7 @@ class UserProcessingServer(object):
     def _check_user_not_expired_and_poll(self, user_processor):
         if user_processor.is_expired():
             user_processor.finished_experiment()
-            raise UserProcessingExceptions.NoCurrentReservationException(
+            raise coreExc.NoCurrentReservationException(
                 'Current user does not have any experiment assigned'
             )
         else:
@@ -243,7 +243,7 @@ class UserProcessingServer(object):
 
             self._session_manager.delete_session(session_id)
         else:
-            raise UserProcessingExceptions.SessionNotFoundException(
+            raise coreExc.SessionNotFoundException(
                 "User Processing Server session not found"
             )
 
@@ -369,7 +369,7 @@ class UserProcessingServer(object):
         user_processor = self._load_user(session)
         try:
             self._check_user_not_expired_and_poll( user_processor )
-        except UserProcessingExceptions.NoCurrentReservationException:
+        except coreExc.NoCurrentReservationException:
             pass
 
 

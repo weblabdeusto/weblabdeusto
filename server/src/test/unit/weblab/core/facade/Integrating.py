@@ -43,7 +43,7 @@ import weblab.core.facade.UserProcessingFacadeServer as UserProcessingFacadeServ
 
 import weblab.core.Reservation as Reservation
 
-import weblab.exceptions.core.UserProcessingExceptions as UserProcessingExceptions
+import weblab.core.exc as coreExc
 
 from UserProcessingRemoteFacadeManager import MockUPS
 
@@ -117,7 +117,7 @@ class UserProcessingIntegratingRemoteFacadeManager(unittest.TestCase):
                         self.mock_server.arguments['logout'][0]
                     )
 
-                self.mock_server.exceptions['logout'] = UserProcessingExceptions.SessionNotFoundException(MESSAGE)
+                self.mock_server.exceptions['logout'] = coreExc.SessionNotFoundException(MESSAGE)
 
                 try:
                     wds.logout(expected_sess_id)

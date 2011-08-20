@@ -14,7 +14,7 @@
 #
 
 from weblab.core.coordinator.CoordinatorModel import Reservation, CurrentReservation, ExperimentType
-import weblab.exceptions.core.CoordinatorExceptions as CoordExc
+import weblab.core.coordinator.exc as CoordExc
 
 import json
 

@@ -28,7 +28,7 @@ import voodoo.gen.exceptions.exceptions as GeneratorExceptions
 from voodoo.threaded import threaded
 import weblab.laboratory.AsyncRequest as AsyncRequest
 
-import weblab.exceptions.laboratory.LaboratoryExceptions as LaboratoryExceptions
+import weblab.laboratory.exc as LaboratoryExceptions
 
 from voodoo.gen.caller_checker import caller_check
 

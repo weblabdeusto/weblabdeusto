@@ -27,7 +27,7 @@ import weblab.database.DatabaseMySQLGateway as dbMySQLGateway
 
 import weblab.data.dto.ExperimentAllowed as ExperimentAllowed
 
-import weblab.exceptions.database.DatabaseExceptions as DbExceptions
+import weblab.database.exc as DbExceptions
 
 WEBLAB_DB_USERNAME_PROPERTY = 'weblab_db_username'
 DEFAULT_WEBLAB_DB_USERNAME  = 'weblab'

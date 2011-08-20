@@ -29,7 +29,7 @@ from weblab.data.experiments.ExperimentInstanceId import ExperimentInstanceId
 from weblab.core.coordinator.Resource import Resource
 
 import weblab.core.coordinator.WebLabSchedulingStatus as WSS
-import weblab.exceptions.core.CoordinatorExceptions as CoordExc
+import weblab.core.coordinator.exc as CoordExc
 
 import test.unit.configuration as configuration_module
 import voodoo.configuration.ConfigurationManager as ConfigurationManager

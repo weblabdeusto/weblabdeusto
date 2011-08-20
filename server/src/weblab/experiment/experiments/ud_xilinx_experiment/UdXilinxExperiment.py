@@ -25,7 +25,7 @@ import os
 import tempfile
 import voodoo.log as log
 import weblab.data.ServerType as ServerType
-import weblab.exceptions.experiment.ExperimentExceptions as ExperimentExceptions
+import weblab.experiment.exc as ExperimentExceptions
 import weblab.experiment.Experiment as Experiment
 import weblab.experiment.Util as ExperimentUtil
 import weblab.experiment.devices.xilinx_impact.XilinxDevices as XilinxDevices

@@ -35,7 +35,7 @@ import traceback
 from Cookie import SimpleCookie
 
 import weblab.facade.WebFacadeServer as WebFacadeServer
-import weblab.exceptions.login.LoginExceptions as LoginExceptions
+import weblab.login.exc as LoginExceptions
 
 USERNAME = "username"
 DOMAIN   = "domain"

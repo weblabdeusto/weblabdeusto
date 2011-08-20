@@ -13,11 +13,11 @@
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
-import weblab.exceptions.WebLabExceptions as WebLabExceptions
+import weblab.exc as wlExc
 
-class TranslatorException(WebLabExceptions.WebLabException):
+class TranslatorException(wlExc.WebLabException):
     def __init__(self, *args, **kargs):
-        WebLabExceptions.WebLabException.__init__(self, *args, **kargs)
+        wlExc.WebLabException.__init__(self, *args, **kargs)
         
 #
 # from TranslatorException

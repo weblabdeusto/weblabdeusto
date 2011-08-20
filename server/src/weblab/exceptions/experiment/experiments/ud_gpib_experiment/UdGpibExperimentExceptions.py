@@ -12,7 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
-import weblab.exceptions.experiment.ExperimentExceptions as ExperimentExceptions
+import weblab.experiment.exc as ExperimentExceptions
 
 class UdGpibExperimentException(ExperimentExceptions.ExperimentException):
     def __init__(self,*args,**kargs):

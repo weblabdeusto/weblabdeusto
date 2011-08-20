@@ -30,7 +30,7 @@ import weblab.data.experiments.Usage as Usage
 import weblab.data.experiments.ExperimentId as ExperimentId
 import weblab.data.Command as Command
 
-import weblab.exceptions.database.DatabaseExceptions as DbExceptions
+import weblab.database.exc as DbExceptions
 
 def create_usage(gateway, reservation_id = 'my_reservation_id'):
         session = gateway.Session()

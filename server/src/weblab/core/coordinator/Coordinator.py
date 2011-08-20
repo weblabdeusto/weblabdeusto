@@ -22,7 +22,7 @@ import voodoo.LogLevel as LogLevel
 import voodoo.log as log
 import voodoo.AdminNotifier as AdminNotifier
 
-import weblab.exceptions.core.CoordinatorExceptions as CoordExc
+import weblab.core.coordinator.exc as CoordExc
 
 import weblab.core.coordinator.CoordinationDatabaseManager as CoordinationDatabaseManager
 import weblab.core.coordinator.ResourcesManager as ResourcesManager

@@ -31,7 +31,7 @@ import weblab.core.coordinator.Coordinator as Coordinator
 import weblab.laboratory.LaboratoryServer as LaboratoryServer
 import weblab.laboratory.IsUpAndRunningHandler as IsUpAndRunningHandler
 
-import weblab.exceptions.laboratory.LaboratoryExceptions as LaboratoryExceptions
+import weblab.laboratory.exc as LaboratoryExceptions
 
 import weblab.methods as weblab_methods
 

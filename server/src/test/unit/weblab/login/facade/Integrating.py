@@ -32,7 +32,7 @@ import weblab.login.facade.LoginFacadeCodes as LoginRFCodes
 import weblab.facade.RemoteFacadeServer as RemoteFacadeServer
 import weblab.login.facade.LoginFacadeServer as LoginFacadeServer
 
-import weblab.exceptions.login.LoginExceptions as LoginExceptions
+import weblab.login.exc as LoginExceptions
 
 from RemoteFacadeManager import MockLogin
 

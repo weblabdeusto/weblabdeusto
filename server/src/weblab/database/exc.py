@@ -12,11 +12,11 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
-import weblab.exceptions.WebLabExceptions as WebLabExceptions
+import weblab.exc as wlExc
 
-class DatabaseException(WebLabExceptions.WebLabException):
+class DatabaseException(wlExc.WebLabException):
     def __init__(self,*args,**kargs):
-        WebLabExceptions.WebLabException.__init__(self,*args,**kargs)
+        wlExc.WebLabException.__init__(self,*args,**kargs)
 
 class DbInvalidUserOrPasswordException(DatabaseException):
     def __init__(self,*args,**kargs):

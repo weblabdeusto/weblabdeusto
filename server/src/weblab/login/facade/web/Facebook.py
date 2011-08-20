@@ -17,7 +17,7 @@ import urllib2
 import base64
 
 import weblab.facade.WebFacadeServer as WebFacadeServer
-import weblab.exceptions.login.LoginExceptions as LoginExceptions
+import weblab.login.exc as LoginExceptions
 
 REQUEST_FIELD           = 'signed_request'
 FACEBOOK_APP_PROPERTY   = "login_facebook_url"

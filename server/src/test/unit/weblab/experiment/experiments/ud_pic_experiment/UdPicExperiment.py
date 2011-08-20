@@ -24,7 +24,7 @@ from weblab.experiment.experiments.ud_pic_experiment.UdPicExperiment import UdPi
 import weblab.experiment.Util as ExperimentUtil
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
-import weblab.exceptions.experiment.ExperimentExceptions as ExperimentExceptions
+import weblab.experiment.exc as ExperimentExceptions
 import weblab.exceptions.experiment.experiments.ud_pic_experiment.UdPicExperimentExceptions as UdPicExperimentExceptions
 
 

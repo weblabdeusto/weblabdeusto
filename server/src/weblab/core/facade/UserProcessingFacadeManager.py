@@ -22,18 +22,18 @@ import weblab.data.Command as Command
 import weblab.data.ClientAddress as ClientAddress
 import weblab.data.experiments.ExperimentId as ExperimentId
 
-import weblab.exceptions.core.UserProcessingExceptions as UserProcessingExceptions
-import weblab.exceptions.WebLabExceptions as WebLabExceptions
+import weblab.core.exc as coreExc
+import weblab.exc as WebLabExceptions
 import voodoo.gen.exceptions.exceptions as VoodooExceptions
 
 import weblab.core.facade.UserProcessingFacadeCodes as UPFCodes
 
 EXCEPTIONS = (
         # EXCEPTION                                              CODE                                                   PROPAGATE TO CLIENT
-        (UserProcessingExceptions.SessionNotFoundException,      UPFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE,      True),
-        (UserProcessingExceptions.NoCurrentReservationException, UPFCodes.CLIENT_NO_CURRENT_RESERVATION_EXCEPTION_CODE, True),
-        (UserProcessingExceptions.UnknownExperimentIdException,  UPFCodes.CLIENT_UNKNOWN_EXPERIMENT_ID_EXCEPTION_CODE,  True),
-        (UserProcessingExceptions.UserProcessingException,       UPFCodes.UPS_GENERAL_EXCEPTION_CODE,                   False),
+        (coreExc.SessionNotFoundException,      UPFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE,      True),
+        (coreExc.NoCurrentReservationException, UPFCodes.CLIENT_NO_CURRENT_RESERVATION_EXCEPTION_CODE, True),
+        (coreExc.UnknownExperimentIdException,  UPFCodes.CLIENT_UNKNOWN_EXPERIMENT_ID_EXCEPTION_CODE,  True),
+        (coreExc.UserProcessingException,       UPFCodes.UPS_GENERAL_EXCEPTION_CODE,                   False),
         (WebLabExceptions.WebLabException,                       UPFCodes.WEBLAB_GENERAL_EXCEPTION_CODE,                False),
         (VoodooExceptions.GeneratorException,                    UPFCodes.VOODOO_GENERAL_EXCEPTION_CODE,                False),
         (Exception,                                              UPFCodes.PYTHON_GENERAL_EXCEPTION_CODE,                False)

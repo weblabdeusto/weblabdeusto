@@ -28,7 +28,7 @@ import weblab.data.ServerType as ServerType
 
 import weblab.experiment.Experiment as Experiment
 
-import weblab.exceptions.experiment.ExperimentExceptions as ExperimentExceptions
+import weblab.experiment.exc as ExperimentExceptions
 
 # TODO: this is wrong. It wouldn't work for multiple pic experiments
 TFTP_SERVER_HOSTNAME = 'pic_tftp_server_hostname'

@@ -28,7 +28,7 @@ import urllib2
 import socket
 
 from voodoo.override import Override
-from weblab.exceptions.laboratory import LaboratoryExceptions as Laboratory
+import weblab.laboratory.exc as labExc
 
 
 VALID_IMAGE_FORMATS = ('image/jpg','image/png','image/jpeg')
@@ -77,7 +77,7 @@ class HostIsUpAndRunningHandler(AbstractLightweightIsUpAndRunningHandler):
         try:
             s.connect((self.hostname, self.port))
         except socket.error as e:
-            raise Laboratory.UnableToConnectHostnameInPortException(self.hostname, self.port, e)
+            raise labExc.UnableToConnectHostnameInPortException(self.hostname, self.port, e)
         finally:
             s.close()
 
@@ -98,9 +98,9 @@ class WebcamIsUpAndRunningHandler(AbstractLightweightIsUpAndRunningHandler):
         try:
             response = self._urllib2.urlopen(self.img_url)
         except urllib2.URLError as e:
-            raise Laboratory.ImageURLDidNotRetrieveAResponseException(self.img_url, e)
+            raise labExc.ImageURLDidNotRetrieveAResponseException(self.img_url, e)
         if response.headers['content-type'] not in VALID_IMAGE_FORMATS:
-            raise Laboratory.InvalidContentTypeRetrievedFromImageURLException(self.img_url)
+            raise labExc.InvalidContentTypeRetrievedFromImageURLException(self.img_url)
 
 HANDLERS += (WebcamIsUpAndRunningHandler.__name__,)
 

@@ -27,7 +27,7 @@ import hashlib
 from voodoo.log import logged
 import voodoo.log as log
 
-import weblab.exceptions.database.DatabaseExceptions as DbExceptions
+import weblab.database.exc as DbExceptions
 import weblab.database.DatabaseMySQLGateway as dbMySQLGateway
 
 WEBLAB_DB_USERNAME_PROPERTY = 'weblab_db_username'

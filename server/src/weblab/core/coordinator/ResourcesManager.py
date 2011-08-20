@@ -14,7 +14,7 @@
 #
 
 from weblab.core.coordinator.CoordinatorModel import ResourceType, ResourceInstance, CurrentResourceSlot, SchedulingSchemaIndependentSlotReservation, ExperimentInstance, ExperimentType
-import weblab.exceptions.core.CoordinatorExceptions as CoordExc
+import weblab.core.coordinator.exc as CoordExc
 
 class ResourcesManager(object):
     def __init__(self, session_maker):

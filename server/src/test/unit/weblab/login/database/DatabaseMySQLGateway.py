@@ -23,7 +23,7 @@ import voodoo.configuration.ConfigurationManager as ConfigurationManager
 import weblab.login.database.DatabaseMySQLGateway as DatabaseMySQLGateway
 import weblab.login.database.dao.UserAuth as UserAuth
 
-import weblab.exceptions.database.DatabaseExceptions as DbExceptions
+import weblab.database.exc as DbExceptions
 
 
 class DatabaseMySQLGatewayTestCase(unittest.TestCase):

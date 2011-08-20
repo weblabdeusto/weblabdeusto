@@ -24,7 +24,7 @@ else:
 import voodoo.log as log
 import weblab.data.ClientAddress as ClientAddress
 import weblab.login.database.dao.UserAuth as UserAuth
-import weblab.exceptions.login.LoginExceptions as LoginExceptions
+import weblab.login.exc as LoginExceptions
 
 class LoginAuth(object):
 

@@ -16,7 +16,7 @@
 
 import unittest
 
-import weblab.exceptions.laboratory.LaboratoryExceptions as LaboratoryExceptions
+import weblab.laboratory.exc as LaboratoryExceptions
 
 import weblab.laboratory.AssignedExperiments as AssignedExperiments
 import voodoo.gen.coordinator.CoordAddress as CoordAddress

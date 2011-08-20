@@ -47,8 +47,8 @@ import weblab.database.DatabaseSession as DbSession
 
 from weblab.core.coordinator.Resource import Resource
 
-import weblab.exceptions.core.UserProcessingExceptions as UserProcessingExceptions
-import weblab.exceptions.laboratory.LaboratoryExceptions as LaboratoryExceptions
+import weblab.core.exc as coreExc
+import weblab.laboratory.exc as LaboratoryExceptions
 
 import test.unit.configuration as configuration_module
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
@@ -89,7 +89,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
     def test_reserve_unknown_experiment_name(self):
         self.assertRaises(
-            UserProcessingExceptions.UnknownExperimentIdException,
+            coreExc.UnknownExperimentIdException,
             self.processor.reserve_experiment,
             ExperimentId.ExperimentId('<invalid>', 'Dummy experiments'),
             "{}",
@@ -98,7 +98,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
     def test_reserve_unknown_experiment_category(self):
         self.assertRaises(
-            UserProcessingExceptions.UnknownExperimentIdException,
+            coreExc.UnknownExperimentIdException,
             self.processor.reserve_experiment,
             ExperimentId.ExperimentId('ud-dummy','<invalid>'),
             "{}",
@@ -109,7 +109,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.coordinator._clean()
 
         self.assertRaises(
-            UserProcessingExceptions.NoAvailableExperimentFoundException,
+            coreExc.NoAvailableExperimentFoundException,
             self.processor.reserve_experiment,
             ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
             "{}",
@@ -239,7 +239,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.coordinator.finish_reservation = lambda *args: 10 / 0
 
         self.assertRaises(
-                UserProcessingExceptions.FailedToFreeReservationException,
+                coreExc.FailedToFreeReservationException,
                 self.processor.finished_experiment
             )
         
@@ -336,7 +336,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertFalse( self.processor.is_expired() )
 
         self.assertRaises(
-                UserProcessingExceptions.NoCurrentReservationException,
+                coreExc.NoCurrentReservationException,
                 self.processor.send_file,
                 file_content,
                 file_info
@@ -369,7 +369,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertFalse( self.processor.is_expired() )
 
         self.assertRaises(
-                UserProcessingExceptions.NoCurrentReservationException,
+                coreExc.NoCurrentReservationException,
                 self.processor.send_async_file,
                 file_content,
                 file_info
@@ -402,7 +402,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertFalse( self.processor.is_expired() )
 
         self.assertRaises(
-                UserProcessingExceptions.FailedToSendFileException,
+                coreExc.FailedToSendFileException,
                 self.processor.send_async_file,
                 file_content,
                 file_info
@@ -435,7 +435,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertFalse( self.processor.is_expired() )
 
         self.assertRaises(
-                UserProcessingExceptions.FailedToSendFileException,
+                coreExc.FailedToSendFileException,
                 self.processor.send_file,
                 file_content,
                 file_info
@@ -541,7 +541,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertFalse( self.processor.is_expired() )
 
         self.assertRaises(
-                UserProcessingExceptions.NoCurrentReservationException,
+                coreExc.NoCurrentReservationException,
                 self.processor.send_command,
                 command
             )
@@ -573,7 +573,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertFalse( self.processor.is_expired() )
 
         self.assertRaises(
-                UserProcessingExceptions.NoCurrentReservationException,
+                coreExc.NoCurrentReservationException,
                 self.processor.send_async_command,
                 command
             )
@@ -604,7 +604,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertFalse( self.processor.is_expired() )
 
         self.assertRaises(
-                UserProcessingExceptions.FailedToSendCommandException,
+                coreExc.FailedToSendCommandException,
                 self.processor.send_async_command,
                 command
             )
@@ -635,7 +635,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertFalse( self.processor.is_expired() )
 
         self.assertRaises(
-                UserProcessingExceptions.FailedToSendCommandException,
+                coreExc.FailedToSendCommandException,
                 self.processor.send_command,
                 command
             )

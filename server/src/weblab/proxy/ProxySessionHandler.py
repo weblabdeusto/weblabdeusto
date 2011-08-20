@@ -15,8 +15,8 @@
 
 import hashlib
 from weblab.data.experiments import Usage
-from weblab.exceptions.laboratory import LaboratoryExceptions
-from weblab.exceptions.proxy import ProxyExceptions
+import weblab.laboratory.exc as LaboratoryExceptions
+import weblab.proxy.exc as ProxyExceptions
 import time
 import weblab.experiment.Util as ExperimentUtil
 

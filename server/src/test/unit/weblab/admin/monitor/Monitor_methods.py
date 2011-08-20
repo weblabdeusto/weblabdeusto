@@ -25,7 +25,7 @@ import voodoo.configuration.ConfigurationManager      as ConfigurationManager
 import weblab.core.UserProcessingServer    as UserProcessingServer
 import weblab.core.coordinator.Coordinator as Coordinator 
 import weblab.core.coordinator.Confirmer   as Confirmer
-import weblab.exceptions.core.UserProcessingExceptions as UPSExc
+import weblab.core.exc as UPSExc
 
 import weblab.database.DatabaseSession                as DatabaseSession
 

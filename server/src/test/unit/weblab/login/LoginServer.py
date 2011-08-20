@@ -39,7 +39,7 @@ import weblab.methods as weblab_methods
 
 import weblab.login.LoginServer as LoginServer
 import weblab.login.LoginAuth as LoginAuth
-import weblab.exceptions.login.LoginExceptions as LoginExceptions
+import weblab.login.exc as LoginExceptions
 
 import test.unit.configuration as configuration_module
 

@@ -15,7 +15,7 @@
 
 import weblab.login.database.DatabaseGateway as DbGateway
 import weblab.database.DatabaseSession as DbSession
-import weblab.exceptions.database.DatabaseExceptions as DbExceptions
+import weblab.database.exc as DbExceptions
 
 class LoginDatabaseManager(object):
     

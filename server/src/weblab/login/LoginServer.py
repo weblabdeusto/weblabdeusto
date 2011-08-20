@@ -23,8 +23,8 @@ import weblab.login.database.DatabaseManager as DatabaseManager
 import weblab.login.facade.LoginFacadeServer as LoginFacadeServer
 import weblab.login.facade.WebFacadeServer as WebFacadeServer
 import weblab.data.ServerType as ServerType
-import weblab.exceptions.login.LoginExceptions as LoginExceptions
-import weblab.exceptions.database.DatabaseExceptions as DbExceptions
+import weblab.login.exc as LoginExceptions
+import weblab.database.exc as DbExceptions
 import weblab.database.DatabaseSession as DbSession
 import weblab.facade.RemoteFacadeContext as RemoteFacadeContext
 

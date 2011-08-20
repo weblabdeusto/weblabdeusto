@@ -13,9 +13,9 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-import weblab.exceptions.core.UserProcessingExceptions as UPE
+import weblab.core.exc as coreExc
 
-class CoordinatorException(UPE.UserProcessingException):
+class CoordinatorException(coreExc.UserProcessingException):
     pass
 
 class ExperimentNotFoundException(CoordinatorException):

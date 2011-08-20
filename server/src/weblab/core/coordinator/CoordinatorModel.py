@@ -18,7 +18,7 @@ import datetime
 
 import weblab.data.experiments.ExperimentId as ExperimentId
 import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
-import weblab.exceptions.core.CoordinatorExceptions as CoordExc
+import weblab.core.coordinator.exc as CoordExc
 
 from weblab.core.coordinator.Resource import Resource
 

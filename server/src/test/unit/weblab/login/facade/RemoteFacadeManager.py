@@ -32,8 +32,8 @@ import weblab.facade.RemoteFacadeManagerCodes as RFCodes
 import weblab.facade.RemoteFacadeManager as RFM
 import weblab.login.facade.LoginFacadeCodes as LoginRFCodes
 
-import weblab.exceptions.login.LoginExceptions as LoginExceptions
-import weblab.exceptions.WebLabExceptions as WebLabExceptions
+import weblab.login.exc as LoginExceptions
+import weblab.exc as WebLabExceptions
 import voodoo.gen.exceptions.exceptions as VoodooExceptions
 
 class MockLogin(object):

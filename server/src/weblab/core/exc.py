@@ -12,15 +12,15 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
-import weblab.exceptions.WebLabExceptions as WebLabExceptions
+import weblab.exc as wlExc
 
 #
 # from WebLabException
 #
 
-class UserProcessingException(WebLabExceptions.WebLabException):
+class UserProcessingException(wlExc.WebLabException):
     def __init__(self,*args,**kargs):
-        WebLabExceptions.WebLabException.__init__(self,*args,**kargs)
+        wlExc.WebLabException.__init__(self,*args,**kargs)
 
 #
 # from UserProcessingException

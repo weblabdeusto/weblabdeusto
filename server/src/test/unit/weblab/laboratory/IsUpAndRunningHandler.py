@@ -16,7 +16,7 @@
 import unittest
 
 from weblab.laboratory.IsUpAndRunningHandler import WebcamIsUpAndRunningHandler, HostIsUpAndRunningHandler, AbstractLightweightIsUpAndRunningHandler
-import weblab.exceptions.laboratory.LaboratoryExceptions as LaboratoryExceptions
+import weblab.laboratory.exc as LaboratoryExceptions
 import FakeUrllib2
 import FakeSocket
 

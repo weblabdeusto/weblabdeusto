@@ -16,7 +16,7 @@
 
 from weblab.data.experiments.ExperimentInstanceId import ExperimentInstanceId
 import weblab.laboratory.ExperimentHandler as ExperimentHandler
-import weblab.exceptions.laboratory.LaboratoryExceptions as LaboratoryExceptions
+import weblab.laboratory.exc as LaboratoryExceptions
 
 class AssignedExperiments(object):
     def __init__(self):

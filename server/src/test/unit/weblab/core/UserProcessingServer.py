@@ -35,7 +35,7 @@ import weblab.data.ClientAddress                      as ClientAddress
 
 import weblab.core.coordinator.CoordinationConfigurationParser as CoordinationConfigurationParser
 
-import weblab.exceptions.core.UserProcessingExceptions as UserProcessingExceptions
+import weblab.core.exc as coreExc
 
 import weblab.data.experiments.ExperimentId as ExperimentId
 import weblab.data.dto.Category as Category
@@ -151,7 +151,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         exp_id = ExperimentId.ExperimentId('this does not experiment','this neither')
 
         self.assertRaises(
-            UserProcessingExceptions.UnknownExperimentIdException,
+            coreExc.UnknownExperimentIdException,
             self.ups.reserve_experiment,
             sess_id, exp_id, "{}", ClientAddress.ClientAddress("127.0.0.1")
         )

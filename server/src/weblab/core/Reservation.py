@@ -14,7 +14,7 @@
 # 
 
 import weblab.core.coordinator.WebLabSchedulingStatus as WSS
-import weblab.exceptions.core.UserProcessingExceptions as UserProcessingExceptions
+import weblab.core.exc as coreExc
 
 class Reservation(object):
     WAITING              = "Reservation::waiting"
@@ -55,7 +55,7 @@ class Reservation(object):
                     status.end_data
                 )
         else:
-            raise UserProcessingExceptions.InvalidReservationStatusException(
+            raise coreExc.InvalidReservationStatusException(
                 "Invalid reservation status.status: '%s'. Only '%s' and '%s' expected" % (
                     status.status, 
                     WSS.WebLabSchedulingStatus.WAITING, 
@@ -77,7 +77,7 @@ class Reservation(object):
         elif status_text == Reservation.POST_RESERVATION:
             reservation = PostReservationReservation(end_data)
         else:
-            raise UserProcessingExceptions.InvalidReservationStatusException("Invalid reservation status_text: '%s'." % ( status_text ) )
+            raise coreExc.InvalidReservationStatusException("Invalid reservation status_text: '%s'." % ( status_text ) )
         return reservation
 
 class WaitingReservation(Reservation):
