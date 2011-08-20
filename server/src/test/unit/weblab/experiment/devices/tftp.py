@@ -17,7 +17,7 @@ from mock import patch
 import unittest
 
 from weblab.experiment.devices.tftp import TFtpDevice
-import weblab.exceptions.experiment.devices.tftp_device.WlTFtpDeviceExceptions as WlTFtpDeviceExceptions
+from weblab.experiment.devices import tftp 
 
 
 class TFtpDeviceTestCase(unittest.TestCase):
@@ -33,7 +33,7 @@ class TFtpDeviceTestCase(unittest.TestCase):
     def test_put_create_popen_fail_value_error(self, Popen):
         Popen.side_effect = Exception('some error...')
         self.assertRaises(
-            WlTFtpDeviceExceptions.WlTFtpDeviceCallingProcessException,
+            tftp.WlTFtpDeviceCallingProcessException,
             self.device.put,
             "any command"
         )
@@ -43,7 +43,7 @@ class TFtpDeviceTestCase(unittest.TestCase):
         popen = Popen.return_value
         popen.wait.side_effect = Exception('some error...')
         self.assertRaises(
-            WlTFtpDeviceExceptions.WlTFtpDeviceWaitingCommandException,
+            tftp.WlTFtpDeviceWaitingCommandException,
             self.device.put,
             "any command"
         )
@@ -53,7 +53,7 @@ class TFtpDeviceTestCase(unittest.TestCase):
         popen = Popen.return_value
         popen.stdout.read.side_effect = Exception('some error...')
         self.assertRaises(
-            WlTFtpDeviceExceptions.WlTFtpDeviceRetrievingOutputFromCommandException,
+            tftp.WlTFtpDeviceRetrievingOutputFromCommandException,
             self.device.put,
             "any command"
         )
@@ -63,7 +63,7 @@ class TFtpDeviceTestCase(unittest.TestCase):
         popen = Popen.return_value
         popen.stderr.read.side_effect = Exception('some error...')
         self.assertRaises(
-            WlTFtpDeviceExceptions.WlTFtpDeviceRetrievingOutputFromCommandException,
+            tftp.WlTFtpDeviceRetrievingOutputFromCommandException,
             self.device.put,
             "any command"
         )

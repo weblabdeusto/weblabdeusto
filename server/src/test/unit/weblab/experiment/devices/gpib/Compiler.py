@@ -21,7 +21,7 @@ import test.unit.configuration as configuration_module
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
 import weblab.experiment.devices.gpib.Gpib as Gpib
-import weblab.exceptions.experiment.devices.gpib.GpibExceptions as GpibExceptions
+import weblab.experiment.devices.gpib.exc as GpibExceptions
 
 import test.unit.weblab.experiment.devices.gpib.fake_compiler_linker_nice as fake_compiler_linker_nice
 

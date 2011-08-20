@@ -637,7 +637,7 @@ def load_from_dto(instance,exceptions = None,skip_recoverables=False):
             for i, element in current_node.children:
                 try:
                     setattr(inst,i,load_dto_value(element))
-                except AttributeError as ae:
+                except AttributeError:
                     pass
 
             dto_parsed_instances[current_node.element] = inst

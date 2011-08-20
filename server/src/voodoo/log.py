@@ -19,7 +19,6 @@ import StringIO
 import math
 import random
 import logging
-import voodoo.LogLevel as LogLevel
 import threading
 import new
 from voodoo.cache import fast_cache

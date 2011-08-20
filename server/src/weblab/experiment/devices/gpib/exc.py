@@ -12,9 +12,13 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
-import weblab.exceptions.experiment.devices.DeviceExceptions as DeviceExceptions
+import weblab.experiment.devices.exc as DeviceExceptions
 
-class CantFindXilinxProperty(DeviceExceptions.MisconfiguredDeviceException):
+class InvalidGpibProperty(DeviceExceptions.MisconfiguredDeviceException):
+    def __init__(self, *args, **kargs):
+        DeviceExceptions.MisconfiguredDeviceException.__init__(self, *args, **kargs)
+
+class CantFindGpibProperty(DeviceExceptions.MisconfiguredDeviceException):
     def __init__(self, *args, **kargs):
         DeviceExceptions.MisconfiguredDeviceException.__init__(self, *args, **kargs)
 
@@ -37,15 +41,3 @@ class ErrorWaitingForProgrammingFinishedException(DeviceExceptions.ProgrammingDe
 class ProgrammingGotErrors(DeviceExceptions.ProgrammingDeviceException):
     def __init__(self,*args,**kargs):
         DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
-        
-class GeneratingSvfFileGotErrors(DeviceExceptions.ProgrammingDeviceException):
-    def __init__(self,*args,**kargs):
-        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
-
-class XilinxDeviceNotFoundException(DeviceExceptions.DeviceException):
-    def __init__(self, *args, **kargs):
-        DeviceExceptions.DeviceException.__init__(self, *args, **kargs)
-
-class NotAXilinxDeviceEnumException(DeviceExceptions.DeviceException):
-    def __init__(self, *args, **kargs):
-        DeviceExceptions.DeviceException.__init__(self, *args, **kargs)

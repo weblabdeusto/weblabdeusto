@@ -11,47 +11,41 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-#         Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
+import weblab.experiment.devices.exc as DeviceExceptions
 
-import weblab.exceptions.experiment.devices.DeviceExceptions as DeviceExceptions
-
-class CantFindJTagBlazerProperty(DeviceExceptions.MisconfiguredDeviceException):
+class CantFindXilinxProperty(DeviceExceptions.MisconfiguredDeviceException):
     def __init__(self, *args, **kargs):
         DeviceExceptions.MisconfiguredDeviceException.__init__(self, *args, **kargs)
 
 class AlreadyProgrammingDeviceException(DeviceExceptions.AlreadyProgrammingDeviceException):
     def __init__(self, *args, **kargs):
         DeviceExceptions.AlreadyProgrammingDeviceException.__init__(self, *args, **kargs)
-        
+
 class ErrorProgrammingDeviceException(DeviceExceptions.ProgrammingDeviceException):
     def __init__(self,*args,**kargs):
-        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)        
+        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
+
+class ErrorRetrievingOutputFromProgrammingProgramException(DeviceExceptions.ProgrammingDeviceException):
+    def __init__(self,*args,**kargs):
+        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
+
+class ErrorWaitingForProgrammingFinishedException(DeviceExceptions.ProgrammingDeviceException):
+    def __init__(self,*args,**kargs):
+        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
+
+class ProgrammingGotErrors(DeviceExceptions.ProgrammingDeviceException):
+    def __init__(self,*args,**kargs):
+        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
         
-class JTagBlazerSvf2JsvfErrorException(DeviceExceptions.ProgrammingDeviceException):
+class GeneratingSvfFileGotErrors(DeviceExceptions.ProgrammingDeviceException):
     def __init__(self,*args,**kargs):
         DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
 
-class ErrorRetrievingOutputFromJTagBlazerSvf2JsvfException(DeviceExceptions.ProgrammingDeviceException):
-    def __init__(self,*args,**kargs):
-        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
+class XilinxDeviceNotFoundException(DeviceExceptions.DeviceException):
+    def __init__(self, *args, **kargs):
+        DeviceExceptions.DeviceException.__init__(self, *args, **kargs)
 
-class ErrorWaitingForJTagBlazerSvf2JsvfFinishedException(DeviceExceptions.ProgrammingDeviceException):
-    def __init__(self,*args,**kargs):
-        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
-
-class JTagBlazerTargetErrorException(DeviceExceptions.ProgrammingDeviceException):
-    def __init__(self,*args,**kargs):
-        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
-
-class ErrorRetrievingOutputFromJTagBlazerTargetException(DeviceExceptions.ProgrammingDeviceException):
-    def __init__(self,*args,**kargs):
-        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
-
-class ErrorWaitingForJTagBlazerTargetFinishedException(DeviceExceptions.ProgrammingDeviceException):
-    def __init__(self,*args,**kargs):
-        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
-
-class InvalidSvfFileExtException(DeviceExceptions.DeviceException):
+class NotAXilinxDeviceEnumException(DeviceExceptions.DeviceException):
     def __init__(self, *args, **kargs):
         DeviceExceptions.DeviceException.__init__(self, *args, **kargs)

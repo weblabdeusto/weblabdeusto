@@ -16,31 +16,34 @@
 import os
 import sys
 
-def get_files(exceptions_folder, source_folders):
+def get_files():
 
-    def gather_files(excluded, folder, files):
+    def gather_exc_files(excluded, folder, files):
         python_files.extend( 
             ( os.path.join(folder, python_file) 
                 for python_file in files 
-                if python_file.endswith('.py') \
-                    and python_file != '__init__.py' 
-                    and (excluded is None or not folder.startswith(excluded)) 
+                if python_file == 'exc.py' 
             ) )
 
+    def gather_not_exc_files(excluded, folder, files):
+        python_files.extend( 
+            ( os.path.join(folder, python_file) 
+                for python_file in files 
+                if python_file.endswith('.py') and python_file != 'exc.py' 
+            ) )
 
     python_files = []
-    os.path.walk(exceptions_folder, gather_files, None)
+    os.path.walk('.', gather_exc_files, None)
     exception_python_files = python_files
 
     python_files = []
-    for source_folder in source_folders:
-        os.path.walk(source_folder, gather_files, exceptions_folder)
+    os.path.walk('.', gather_not_exc_files, None)
     source_python_files = python_files
 
     return exception_python_files, source_python_files
 
 def check_unused_exceptions(exceptions_folder, source_folders):
-    exception_files, source_files = get_files(exceptions_folder, source_folders)
+    exception_files, source_files = get_files()
 
     exceptions = {}
     for exc_file in exception_files:

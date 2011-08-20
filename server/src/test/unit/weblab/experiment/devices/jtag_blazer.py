@@ -18,10 +18,9 @@ from mock import patch
 import unittest
 
 from voodoo.configuration.ConfigurationManager import ConfigurationManager
-from weblab.experiment.devices.jtag_blazer import JTagBlazer
+from weblab.experiment.devices import jtag_blazer
 from test.util.fakeobjects import return_values
 import test.unit.configuration as configuration_module
-import weblab.exceptions.experiment.devices.jtag_blazer.JTagBlazerExceptions as JTagBlazerExceptions
 
 
 class JTagBlazerTestCase(unittest.TestCase):
@@ -29,7 +28,7 @@ class JTagBlazerTestCase(unittest.TestCase):
     def setUp(self):
         cfg_manager = ConfigurationManager()
         cfg_manager.append_module(configuration_module)
-        self.jtag_blazer = JTagBlazer(cfg_manager)
+        self.jtag_blazer = jtag_blazer.JTagBlazer(cfg_manager)
 
     @patch('subprocess.Popen')
     def test_program_device_ok(self, Popen):
@@ -41,7 +40,7 @@ class JTagBlazerTestCase(unittest.TestCase):
 
     def test_program_device_invalid_svf(self):
         self.assertRaises(
-            JTagBlazerExceptions.InvalidSvfFileExtException,
+            jtag_blazer.InvalidSvfFileExtException,
             self.jtag_blazer.program_device,
             "file.svfxxx", "0.0.0.0"
         )
@@ -54,7 +53,7 @@ class JTagBlazerTestCase(unittest.TestCase):
         popen.stderr.read.return_value = ''
 
         self.assertRaises(
-            JTagBlazerExceptions.JTagBlazerSvf2JsvfErrorException,
+            jtag_blazer.JTagBlazerSvf2JsvfErrorException,
             self.jtag_blazer.program_device,
             "file.svf", "0.0.0.0"
         )
@@ -67,7 +66,7 @@ class JTagBlazerTestCase(unittest.TestCase):
         popen.stderr.read.return_value = 'ERROR'
 
         self.assertRaises(
-            JTagBlazerExceptions.JTagBlazerSvf2JsvfErrorException,
+            jtag_blazer.JTagBlazerSvf2JsvfErrorException,
             self.jtag_blazer.program_device,
             "file.svf", "0.0.0.0"
         )
@@ -80,7 +79,7 @@ class JTagBlazerTestCase(unittest.TestCase):
         popen.stderr.read.return_value = ''
 
         self.assertRaises(
-            JTagBlazerExceptions.JTagBlazerSvf2JsvfErrorException,
+            jtag_blazer.JTagBlazerSvf2JsvfErrorException,
             self.jtag_blazer.program_device,
             "file.svf", "0.0.0.0"
         )
@@ -93,7 +92,7 @@ class JTagBlazerTestCase(unittest.TestCase):
         popen.stderr.read.side_effect = return_values(['', ''])
 
         self.assertRaises(
-            JTagBlazerExceptions.JTagBlazerTargetErrorException,
+            jtag_blazer.JTagBlazerTargetErrorException,
             self.jtag_blazer.program_device,
             "file.svf", "0.0.0.0"
         )
@@ -106,7 +105,7 @@ class JTagBlazerTestCase(unittest.TestCase):
         popen.stderr.read.side_effect = return_values(['', 'ERROR'])
 
         self.assertRaises(
-            JTagBlazerExceptions.JTagBlazerTargetErrorException,
+            jtag_blazer.JTagBlazerTargetErrorException,
             self.jtag_blazer.program_device,
             "file.svf", "0.0.0.0"
         )
@@ -119,7 +118,7 @@ class JTagBlazerTestCase(unittest.TestCase):
         popen.stderr.read.side_effect = return_values(['', ''])
 
         self.assertRaises(
-            JTagBlazerExceptions.JTagBlazerTargetErrorException,
+            jtag_blazer.JTagBlazerTargetErrorException,
             self.jtag_blazer.program_device,
             "file.svf", "0.0.0.0"
         )
@@ -133,7 +132,7 @@ class JTagBlazerTestCase(unittest.TestCase):
         self.jtag_blazer._busy = True
 
         self.assertRaises(
-            JTagBlazerExceptions.AlreadyProgrammingDeviceException,
+            jtag_blazer.AlreadyProgrammingDeviceException,
             self.jtag_blazer.program_device,
             "file.svf", "0.0.0.0"
         )
@@ -144,7 +143,7 @@ class JTagBlazerTestCase(unittest.TestCase):
         Popen.side_effect = Exception("can't create Popen!")
 
         self.assertRaises(
-            JTagBlazerExceptions.ErrorProgrammingDeviceException,
+            jtag_blazer.ErrorProgrammingDeviceException,
             self.jtag_blazer.program_device,
             "file.svf", "0.0.0.0"
         )
@@ -152,14 +151,14 @@ class JTagBlazerTestCase(unittest.TestCase):
     def test_program_device_wrong_config(self):
         self.jtag_blazer._cfg_manager._values.pop('xilinx_jtag_blazer_jbmanager_svf2jsvf_full_path')
         self.assertRaises(
-            JTagBlazerExceptions.CantFindJTagBlazerProperty,
+            jtag_blazer.CantFindJTagBlazerProperty,
             self.jtag_blazer.program_device,
             "file.svf", "0.0.0.0"
         )
 
         self.jtag_blazer._cfg_manager._values.pop('xilinx_jtag_blazer_jbmanager_target_full_path')
         self.assertRaises(
-            JTagBlazerExceptions.CantFindJTagBlazerProperty,
+            jtag_blazer.CantFindJTagBlazerProperty,
             self.jtag_blazer.program_device,
             "file.svf", "0.0.0.0"
         )

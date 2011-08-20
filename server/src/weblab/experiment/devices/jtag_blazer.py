@@ -22,7 +22,7 @@ import voodoo.log as log
 from voodoo.log import logged
 
 import voodoo.exceptions.configuration.ConfigurationExceptions as ConfigurationExceptions
-import weblab.exceptions.experiment.devices.jtag_blazer.JTagBlazerExceptions as JTagBlazerExceptions
+import weblab.experiment.devices.exc as DeviceExceptions
 
 
 class JTagBlazer(object):
@@ -42,7 +42,7 @@ class JTagBlazer(object):
                 # so that if the program is finished, it starts programming the next device
                 # Consider that this might happen with any device, so 
                 # XilinxImpact might be a subclass of Experiment or sth
-                raise JTagBlazerExceptions.AlreadyProgrammingDeviceException(
+                raise AlreadyProgrammingDeviceException(
                     "This experiment is already programming the device"
                 )
             self._busy = True
@@ -69,21 +69,21 @@ class JTagBlazer(object):
                     stderr = subprocess.PIPE
                 )
             except Exception as e:
-                raise JTagBlazerExceptions.ErrorProgrammingDeviceException(
+                raise ErrorProgrammingDeviceException(
                     "There was an error generating the JSVF file: %s" % e
                 )
             # TODO: make use of popen.poll to make this asynchronous
             try:
                 result = popen.wait()
             except Exception as e:
-                raise JTagBlazerExceptions.ErrorWaitingForJTagBlazerSvf2JsvfFinishedException(
+                raise ErrorWaitingForJTagBlazerSvf2JsvfFinishedException(
                     "There was an error while waiting for JBManager to generate the JSVF file: %s" % e
                 )    
             try:
                 stdout_result = popen.stdout.read()
                 stderr_result = popen.stderr.read()
             except Exception as e:
-                raise JTagBlazerExceptions.ErrorRetrievingOutputFromJTagBlazerSvf2JsvfException(
+                raise ErrorRetrievingOutputFromJTagBlazerSvf2JsvfException(
                     "There was an error while retrieving the output of the JSVF file generator program: %s" % e
                 )
         finally:
@@ -103,11 +103,11 @@ class JTagBlazer(object):
         if stdout_result.find("ERROR") >= 0 or len(stderr_result) > 0:
             error_messages = [ i for i in stdout_result.split('\n') if i.find('ERROR') >= 0 ] 
             error_messages += '; ' + stderr_result
-            raise JTagBlazerExceptions.JTagBlazerSvf2JsvfErrorException(
+            raise JTagBlazerSvf2JsvfErrorException(
                     "JTagBlazer svf2jsvf raised errors while generating the JSVF file: %s" % error_messages
                 )
         if result != 0:
-            raise JTagBlazerExceptions.JTagBlazerSvf2JsvfErrorException(
+            raise JTagBlazerSvf2JsvfErrorException(
                     "JTagBlazer svf2jsvf returned %i" % result
                 )         
         
@@ -129,21 +129,21 @@ class JTagBlazer(object):
                         stderr = subprocess.PIPE
                     )
                 except Exception as e:
-                    raise JTagBlazerExceptions.ErrorProgrammingDeviceException(
+                    raise ErrorProgrammingDeviceException(
                         "There was an error while programming the device: %s" % e
                     )
                 # TODO: make use of popen.poll to make this asynchronous
                 try:
                     result = popen.wait()
                 except Exception as e:
-                    raise JTagBlazerExceptions.ErrorWaitingForJTagBlazerTargetFinishedException(
+                    raise ErrorWaitingForJTagBlazerTargetFinishedException(
                         "There was an error while waiting for the programming program to finish: %s" % e
                     )    
                 try:
                     stdout_result = popen.stdout.read()
                     stderr_result = popen.stderr.read()
                 except Exception as e:
-                    raise JTagBlazerExceptions.ErrorRetrievingOutputFromJTagBlazerTargetException(
+                    raise ErrorRetrievingOutputFromJTagBlazerTargetException(
                         "There was an error while retrieving the output of the programming program: %s" % e
                     )
             finally:
@@ -165,18 +165,18 @@ class JTagBlazer(object):
         if stdout_result.find("ERROR") >= 0 or len(stderr_result) > 0:
             error_messages = [ i for i in stdout_result.split('\n') if i.find('ERROR') >= 0 ] 
             error_messages += '; ' + stderr_result
-            raise JTagBlazerExceptions.JTagBlazerTargetErrorException(
+            raise JTagBlazerTargetErrorException(
                     "JTagBlazer target raised errors while programming the device: %s" % error_messages
                 )
         if result != 0:
-            raise JTagBlazerExceptions.JTagBlazerTargetErrorException(
+            raise JTagBlazerTargetErrorException(
                     "JTagBlazer target returned %i" % result
                 ) 
         
     @logged()
     def program_device(self, svf_file_name, device_ip):
         if svf_file_name[-4:] != ".svf":
-            raise JTagBlazerExceptions.InvalidSvfFileExtException("Invalid file extension: %s" % svf_file_name)
+            raise InvalidSvfFileExtException("Invalid file extension: %s" % svf_file_name)
         
         jsvf_file_name = self._svf_to_jsvf(svf_file_name)
         self._program(device_ip, jsvf_file_name)
@@ -185,7 +185,48 @@ class JTagBlazer(object):
         try:
             value = self._cfg_manager.get_value(property)
         except ConfigurationExceptions.KeyNotFoundException as knfe:
-            raise JTagBlazerExceptions.CantFindJTagBlazerProperty(
+            raise CantFindJTagBlazerProperty(
                     "Can't find in configuration manager the property '%s'" % knfe.key
                 )
         return value
+
+
+class CantFindJTagBlazerProperty(DeviceExceptions.MisconfiguredDeviceException):
+    def __init__(self, *args, **kargs):
+        DeviceExceptions.MisconfiguredDeviceException.__init__(self, *args, **kargs)
+
+class AlreadyProgrammingDeviceException(DeviceExceptions.AlreadyProgrammingDeviceException):
+    def __init__(self, *args, **kargs):
+        DeviceExceptions.AlreadyProgrammingDeviceException.__init__(self, *args, **kargs)
+        
+class ErrorProgrammingDeviceException(DeviceExceptions.ProgrammingDeviceException):
+    def __init__(self,*args,**kargs):
+        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)        
+        
+class JTagBlazerSvf2JsvfErrorException(DeviceExceptions.ProgrammingDeviceException):
+    def __init__(self,*args,**kargs):
+        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
+
+class ErrorRetrievingOutputFromJTagBlazerSvf2JsvfException(DeviceExceptions.ProgrammingDeviceException):
+    def __init__(self,*args,**kargs):
+        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
+
+class ErrorWaitingForJTagBlazerSvf2JsvfFinishedException(DeviceExceptions.ProgrammingDeviceException):
+    def __init__(self,*args,**kargs):
+        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
+
+class JTagBlazerTargetErrorException(DeviceExceptions.ProgrammingDeviceException):
+    def __init__(self,*args,**kargs):
+        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
+
+class ErrorRetrievingOutputFromJTagBlazerTargetException(DeviceExceptions.ProgrammingDeviceException):
+    def __init__(self,*args,**kargs):
+        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
+
+class ErrorWaitingForJTagBlazerTargetFinishedException(DeviceExceptions.ProgrammingDeviceException):
+    def __init__(self,*args,**kargs):
+        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
+
+class InvalidSvfFileExtException(DeviceExceptions.DeviceException):
+    def __init__(self, *args, **kargs):
+        DeviceExceptions.DeviceException.__init__(self, *args, **kargs)

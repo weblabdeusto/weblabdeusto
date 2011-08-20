@@ -13,7 +13,7 @@
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 #
 
-import weblab.exceptions.experiment.devices.tftp_device.WlTFtpDeviceExceptions as WlTFtpDeviceExceptions
+import weblab.experiment.devices.exc as DeviceExceptions
 import subprocess
 
 class TFtpDevice(object):
@@ -32,16 +32,33 @@ class TFtpDevice(object):
                 stderr = subprocess.PIPE
             )
         except Exception as e:
-            raise WlTFtpDeviceExceptions.WlTFtpDeviceCallingProcessException(e)
+            raise WlTFtpDeviceCallingProcessException(e)
         popen.stdin.write('binary\n' + command + '\n')
         popen.stdin.close()
         try:
             result = popen.wait()
         except Exception as e:
-            raise WlTFtpDeviceExceptions.WlTFtpDeviceWaitingCommandException(e)
+            raise WlTFtpDeviceWaitingCommandException(e)
         try:
             stdout_result = popen.stdout.read()
             stderr_result = popen.stderr.read()
         except Exception as e:
-            raise WlTFtpDeviceExceptions.WlTFtpDeviceRetrievingOutputFromCommandException(e)
+            raise WlTFtpDeviceRetrievingOutputFromCommandException(e)
         return result, stdout_result, stderr_result
+
+class WlTFtpDeviceException(DeviceExceptions.DeviceException):
+    def __init__(self, msg):
+        DeviceExceptions.DeviceException.__init__(self, "Exception related to Weblab's TFtp device: %s" % msg)
+
+class WlTFtpDeviceCallingProcessException(WlTFtpDeviceException):
+    def __init__(self, e):
+        WlTFtpDeviceException.__init__(self, "Failed calling tftp process: %s" % str(e))
+
+class WlTFtpDeviceWaitingCommandException(WlTFtpDeviceException):
+    def __init__(self, e):
+        WlTFtpDeviceException.__init__(self, "An error ocurred while waiting for tftp command response: %s" % str(e) )
+
+class WlTFtpDeviceRetrievingOutputFromCommandException(WlTFtpDeviceException):
+    def __init__(self, msg):
+        WlTFtpDeviceException.__init__(self, msg)
+

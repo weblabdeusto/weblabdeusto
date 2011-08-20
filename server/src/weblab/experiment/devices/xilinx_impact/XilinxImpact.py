@@ -21,7 +21,7 @@ import tempfile
 import threading
 import voodoo.exceptions.configuration.ConfigurationExceptions as ConfigurationExceptions
 import voodoo.log as log
-import weblab.exceptions.experiment.devices.xilinx_impact.XilinxImpactExceptions as XilinxImpactExceptions
+import weblab.experiment.devices.xilinx_impact.exc as XilinxImpactExceptions
 import weblab.experiment.devices.xilinx_impact.XilinxDevices as XilinxDevices
 
 

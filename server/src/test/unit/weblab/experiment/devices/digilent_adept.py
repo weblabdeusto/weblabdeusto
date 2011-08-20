@@ -17,9 +17,8 @@ from mock import patch
 import unittest
 
 from voodoo.configuration.ConfigurationManager import ConfigurationManager
-from weblab.experiment.devices.digilent_adept import DigilentAdept
+from weblab.experiment.devices import digilent_adept
 import test.unit.configuration as configuration_module
-import weblab.exceptions.experiment.devices.digilent_adept.DigilentAdeptExceptions as DigilentAdeptExceptions
 
 
 class DigilentAdeptTestCase(unittest.TestCase):
@@ -27,7 +26,7 @@ class DigilentAdeptTestCase(unittest.TestCase):
     def setUp(self):
         cfg_manager = ConfigurationManager()
         cfg_manager.append_module(configuration_module)
-        self.device = DigilentAdept(cfg_manager)
+        self.device = digilent_adept.DigilentAdept(cfg_manager)
 
     @patch('subprocess.Popen')
     def test_program_device(self, Popen):
@@ -46,7 +45,7 @@ class DigilentAdeptTestCase(unittest.TestCase):
         popen.stderr.read.return_value = ''
 
         self.assertRaises(
-            DigilentAdeptExceptions.ProgrammingGotErrors,
+            digilent_adept.ProgrammingGotErrors,
             self.device.program_device,
             "file.svf"
         )
@@ -59,7 +58,7 @@ class DigilentAdeptTestCase(unittest.TestCase):
         popen.stderr.read.return_value = ''
 
         self.assertRaises(
-            DigilentAdeptExceptions.ProgrammingGotErrors,
+            digilent_adept.ProgrammingGotErrors,
             self.device.program_device,
             "file.svf"
         )
@@ -68,7 +67,7 @@ class DigilentAdeptTestCase(unittest.TestCase):
         self.device._busy = True
 
         self.assertRaises(
-            DigilentAdeptExceptions.AlreadyProgrammingDeviceException,
+            digilent_adept.AlreadyProgrammingDeviceException,
             self.device.program_device,
             "file.svf"
         )
@@ -79,7 +78,7 @@ class DigilentAdeptTestCase(unittest.TestCase):
         Popen.side_effect = Exception("can't create Popen!")
 
         self.assertRaises(
-            DigilentAdeptExceptions.ErrorProgrammingDeviceException,
+            digilent_adept.ErrorProgrammingDeviceException,
             self.device.program_device,
             "file.svf"
         )
@@ -88,7 +87,7 @@ class DigilentAdeptTestCase(unittest.TestCase):
         self.device._cfg_manager._values.pop('digilent_adept_full_path')
 
         self.assertRaises(
-            DigilentAdeptExceptions.CantFindDigilentAdeptProperty,
+            digilent_adept.CantFindDigilentAdeptProperty,
             self.device.program_device,
             "ok.svf"
         )

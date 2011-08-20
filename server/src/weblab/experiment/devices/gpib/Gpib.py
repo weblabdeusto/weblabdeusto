@@ -17,7 +17,7 @@ import voodoo.log as log
 from voodoo.log import logged
 
 import voodoo.exceptions.configuration.ConfigurationExceptions as ConfigurationExceptions
-import weblab.exceptions.experiment.devices.gpib.GpibExceptions as GpibExceptions
+import weblab.experiment.devices.gpib.exc as GpibExceptions
 
 import subprocess
 import os
