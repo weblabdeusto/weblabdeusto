@@ -32,9 +32,9 @@ import weblab.core.coordinator.TemporalInformationStore as TemporalInformationSt
 import weblab.core.db.DatabaseManager as DatabaseManager
 
 import weblab.core.exc as coreExc
-import weblab.core.facade.UserProcessingFacadeServer as UserProcessingFacadeServer
-import weblab.core.facade.AdminFacadeServer as AdminFacadeServer
-import weblab.core.facade.WebFacadeServer as WebFacadeServer
+import weblab.core.comm.UserProcessingFacadeServer as UserProcessingFacadeServer
+import weblab.core.comm.AdminFacadeServer as AdminFacadeServer
+import weblab.core.comm.WebFacadeServer as WebFacadeServer
 
 from voodoo.gen.caller_checker import caller_check
 from voodoo.threaded import threaded

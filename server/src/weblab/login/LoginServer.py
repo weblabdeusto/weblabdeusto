@@ -20,13 +20,13 @@ import time
 import weblab.login.LoginAuth as LoginAuth
 import weblab.login.DelegatedLoginAuth as DelegatedLoginAuth
 import weblab.login.db.DatabaseManager as DatabaseManager
-import weblab.login.facade.LoginFacadeServer as LoginFacadeServer
-import weblab.login.facade.WebFacadeServer as WebFacadeServer
+import weblab.login.comm.LoginFacadeServer as LoginFacadeServer
+import weblab.login.comm.WebFacadeServer as WebFacadeServer
 import weblab.data.ServerType as ServerType
 import weblab.login.exc as LoginExceptions
 import weblab.db.exc as DbExceptions
 import weblab.db.DatabaseSession as DbSession
-import weblab.facade.RemoteFacadeContext as RemoteFacadeContext
+import weblab.comm.RemoteFacadeContext as RemoteFacadeContext
 
 LOGIN_FAILED_DELAY = 5
 NOT_LINKABLE_USERS = 'login_not_linkable_users'

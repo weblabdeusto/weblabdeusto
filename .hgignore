@@ -58,8 +58,8 @@ server/src/gpib_salida.txt
 server/src/.coverage
 server/src/htmlcov
 
-server/src/weblab/login/facade/generated/
-server/src/weblab/core/facade/generated/
+server/src/weblab/login/comm/generated/
+server/src/weblab/core/comm/generated/
 
 server/src/weblab/experiment/experiments/labview_experiment/fpga_programmer/config.py
 

@@ -33,11 +33,11 @@ import weblab.data.dto.Category as Category
 import weblab.data.dto.Experiment as Experiment
 import weblab.data.dto.User as User
 import weblab.data.Command as Command
-import weblab.facade.RemoteFacadeServer as RemoteFacadeServer
+import weblab.comm.RemoteFacadeServer as RemoteFacadeServer
 
 try:
-    import weblab.login.facade.generated.WebLabDeusto_client as LoginWebLabDeusto_client
-    import weblab.core.facade.generated.WebLabDeusto_client as UserProcessingWebLabDeusto_client
+    import weblab.login.comm.generated.WebLabDeusto_client as LoginWebLabDeusto_client
+    import weblab.core.comm.generated.WebLabDeusto_client as UserProcessingWebLabDeusto_client
 except ImportError:
     ZSI_AVAILABLE = False
 else:
