@@ -28,10 +28,10 @@ import test.unit.configuration as configuration_module
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
 import weblab.core.coordinator.Coordinator as Coordinator
-import weblab.laboratory.LaboratoryServer as LaboratoryServer
-import weblab.laboratory.IsUpAndRunningHandler as IsUpAndRunningHandler
+import weblab.lab.LaboratoryServer as LaboratoryServer
+import weblab.lab.IsUpAndRunningHandler as IsUpAndRunningHandler
 
-import weblab.laboratory.exc as LaboratoryExceptions
+import weblab.lab.exc as LaboratoryExceptions
 
 import weblab.methods as weblab_methods
 

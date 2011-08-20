@@ -7,7 +7,7 @@
 # 
 # Call it like: 
 #   Generator( 
-#       {'weblab.core.coordinator': ('WARNING', False), 'weblab.login': ('INFO', True), 'weblab.login.database': ('WARNING', False), 'weblab.laboratory': ('INFO', True), 'weblab.facade': ('INFO', True), 'weblab.core.facade': ('WARNING', False), 'weblab': ('WARNING', True), 'weblab.core.database': ('WARNING', False), 'weblab.login.facade': ('WARNING', False), 'voodoo': ('WARNING', True), 'weblab.core': ('INFO', True)}, 
+#       {'weblab.core.coordinator': ('WARNING', False), 'weblab.login': ('INFO', True), 'weblab.login.database': ('WARNING', False), 'weblab.lab': ('INFO', True), 'weblab.facade': ('INFO', True), 'weblab.core.facade': ('WARNING', False), 'weblab': ('WARNING', True), 'weblab.core.database': ('WARNING', False), 'weblab.login.facade': ('WARNING', False), 'voodoo': ('WARNING', True), 'weblab.core': ('INFO', True)}, 
 #       logs/sample_, 
 #       logs.txt, 
 #       52428800, 
@@ -17,10 +17,10 @@
 # 
 
 [loggers]
-keys=root,weblab_core_coordinator,weblab_login,weblab_login_database,weblab_laboratory,weblab_facade,weblab_core_facade,weblab,weblab_core_database,weblab_login_facade,voodoo,weblab_core
+keys=root,weblab_core_coordinator,weblab_login,weblab_login_database,weblab.lab,weblab_facade,weblab_core_facade,weblab,weblab_core_database,weblab_login_facade,voodoo,weblab_core
 
 [handlers]
-keys=root_handler,weblab_login_handler,weblab_laboratory_handler,weblab_facade_handler,weblab_handler,voodoo_handler,weblab_core_handler
+keys=root_handler,weblab_login_handler,weblab.lab_handler,weblab_facade_handler,weblab_handler,voodoo_handler,weblab_core_handler
 
 [formatters]
 keys=simpleFormatter
@@ -56,13 +56,13 @@ propagate=0
 parent=weblab
 channel=weblab_facade
 
-[logger_weblab_laboratory]
+[logger_weblab.lab]
 level=INFO
-handlers=weblab_laboratory_handler
-qualname=weblab.laboratory
+handlers=weblab.lab_handler
+qualname=weblab.lab
 propagate=0
 parent=weblab
-channel=weblab_laboratory
+channel=weblab.lab
 
 [logger_weblab_core]
 level=INFO
@@ -130,10 +130,10 @@ class=handlers.RotatingFileHandler
 formatter=simpleFormatter
 args=('logs/sample__weblab_login_logs.server3.txt','a',52428800,20971)
 
-[handler_weblab_laboratory_handler]
+[handler_weblab.lab_handler]
 class=handlers.RotatingFileHandler
 formatter=simpleFormatter
-args=('logs/sample__weblab_laboratory_logs.server3.txt','a',52428800,20971)
+args=('logs/sample__weblab.lab_logs.server3.txt','a',52428800,20971)
 
 [handler_weblab_facade_handler]
 class=handlers.RotatingFileHandler

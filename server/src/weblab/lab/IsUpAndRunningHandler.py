@@ -28,7 +28,7 @@ import urllib2
 import socket
 
 from voodoo.override import Override
-import weblab.laboratory.exc as labExc
+import weblab.lab.exc as labExc
 
 
 VALID_IMAGE_FORMATS = ('image/jpg','image/png','image/jpeg')

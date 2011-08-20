@@ -26,9 +26,9 @@ import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.gen.exceptions.exceptions as GeneratorExceptions
 
 from voodoo.threaded import threaded
-import weblab.laboratory.AsyncRequest as AsyncRequest
+import weblab.lab.AsyncRequest as AsyncRequest
 
-import weblab.laboratory.exc as LaboratoryExceptions
+import weblab.lab.exc as LaboratoryExceptions
 
 from voodoo.gen.caller_checker import caller_check
 
@@ -38,8 +38,8 @@ import weblab.data.Command as Command
 
 import weblab.core.coordinator.Coordinator as Coordinator
 
-import weblab.laboratory.AssignedExperiments as AssignedExperiments
-import weblab.laboratory.IsUpAndRunningHandler as IsUpAndRunningHandler
+import weblab.lab.AssignedExperiments as AssignedExperiments
+import weblab.lab.IsUpAndRunningHandler as IsUpAndRunningHandler
 
 import weblab.experiment.ApiLevel as ExperimentApiLevel
 

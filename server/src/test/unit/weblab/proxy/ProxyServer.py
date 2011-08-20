@@ -20,7 +20,7 @@ from voodoo.gen.exceptions.locator import LocatorExceptions
 from voodoo.gen.locator import EasyLocator
 from voodoo.sessions import SessionId
 from weblab.data import ServerType
-import weblab.laboratory.exc as LaboratoryExceptions
+import weblab.lab.exc as LaboratoryExceptions
 import weblab.proxy.exc as ProxyExceptions
 from weblab.proxy import ProxyServer
 from weblab.translator import StoresNothingTranslator, StoresEverythingTranslator

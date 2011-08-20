@@ -33,7 +33,7 @@ import weblab.core.coordinator.exc as CoordExc
 import weblab.core.Reservation as Reservation
 import weblab.core.coordinator.WebLabSchedulingStatus as WebLabSchedulingStatus
 import weblab.core.coordinator.TemporalInformationStore as TemporalInformationStore
-import weblab.laboratory.exc as LaboratoryExceptions
+import weblab.lab.exc as LaboratoryExceptions
 
 import weblab.experiment.Util as ExperimentUtil
 import weblab.data.experiments.Usage as Usage

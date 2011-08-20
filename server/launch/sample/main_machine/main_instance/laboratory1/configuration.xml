@@ -10,7 +10,7 @@
 	<type>weblab.data.ServerType::Laboratory</type>
 	<methods>weblab.methods::Laboratory</methods>
 
-	<implementation>weblab.laboratory.LaboratoryServer.LaboratoryServer</implementation>
+	<implementation>weblab.lab.LaboratoryServer.LaboratoryServer</implementation>
 
 	<!-- <restriction>something else</restriction> -->
 

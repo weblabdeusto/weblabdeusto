@@ -48,7 +48,7 @@ import weblab.db.DatabaseSession as DbSession
 from weblab.core.coordinator.Resource import Resource
 
 import weblab.core.exc as coreExc
-import weblab.laboratory.exc as LaboratoryExceptions
+import weblab.lab.exc as LaboratoryExceptions
 
 import test.unit.configuration as configuration_module
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
