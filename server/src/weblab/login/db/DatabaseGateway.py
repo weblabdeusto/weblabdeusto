@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-def create_gateway(cfg_manager):
-    import weblab.core.database.DatabaseMySQLGateway as gateway_module
-    return gateway_module.DatabaseGateway(cfg_manager)
+def create_auth_gateway(cfg_manager):
+    import weblab.login.db.DatabaseMySQLGateway as gateway_module
+    return gateway_module.AuthDatabaseGateway(cfg_manager)
 

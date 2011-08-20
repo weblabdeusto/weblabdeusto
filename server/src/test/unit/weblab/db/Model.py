@@ -16,7 +16,7 @@
 import unittest
 import datetime
 
-import weblab.database.Model as Model
+import weblab.db.Model as Model
 
 
 class ModelTestCase(unittest.TestCase):

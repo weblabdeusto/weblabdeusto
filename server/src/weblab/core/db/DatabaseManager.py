@@ -14,7 +14,7 @@
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
-import weblab.core.database.DatabaseGateway as DbGateway
+import weblab.core.db.DatabaseGateway as DbGateway
 
 class UserProcessingDatabaseManager(object):
     

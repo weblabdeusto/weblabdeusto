@@ -20,10 +20,10 @@ import test.unit.configuration as configuration
 
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
-import weblab.login.database.DatabaseMySQLGateway as DatabaseMySQLGateway
-import weblab.login.database.dao.UserAuth as UserAuth
+import weblab.login.db.DatabaseMySQLGateway as DatabaseMySQLGateway
+import weblab.login.db.dao.UserAuth as UserAuth
 
-import weblab.database.exc as DbExceptions
+import weblab.db.exc as DbExceptions
 
 
 class DatabaseMySQLGatewayTestCase(unittest.TestCase):

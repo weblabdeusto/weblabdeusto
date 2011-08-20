@@ -24,13 +24,13 @@ import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 
-import weblab.core.database.DatabaseGateway as DatabaseGateway
+import weblab.core.db.DatabaseGateway as DatabaseGateway
 
 import weblab.data.experiments.Usage as Usage
 import weblab.data.experiments.ExperimentId as ExperimentId
 import weblab.data.Command as Command
 
-import weblab.database.exc as DbExceptions
+import weblab.db.exc as DbExceptions
 
 def create_usage(gateway, reservation_id = 'my_reservation_id'):
         session = gateway.Session()

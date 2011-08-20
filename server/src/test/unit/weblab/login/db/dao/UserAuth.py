@@ -15,8 +15,8 @@
 
 import unittest
 
-import weblab.login.database.dao.UserAuth as UserAuth
-import weblab.database.exc as DbExceptions
+import weblab.login.db.dao.UserAuth as UserAuth
+import weblab.db.exc as DbExceptions
 
 class DbUserAuthTestCase(unittest.TestCase):
     def test_create_user_failed(self):

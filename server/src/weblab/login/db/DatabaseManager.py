@@ -13,9 +13,9 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-import weblab.login.database.DatabaseGateway as DbGateway
-import weblab.database.DatabaseSession as DbSession
-import weblab.database.exc as DbExceptions
+import weblab.login.db.DatabaseGateway as DbGateway
+import weblab.db.DatabaseSession as DbSession
+import weblab.db.exc as DbExceptions
 
 class LoginDatabaseManager(object):
     

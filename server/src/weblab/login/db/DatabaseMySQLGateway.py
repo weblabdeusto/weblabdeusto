@@ -21,14 +21,14 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 
-import weblab.database.Model as Model
+import weblab.db.Model as Model
 
 import hashlib
 from voodoo.log import logged
 import voodoo.log as log
 
-import weblab.database.exc as DbExceptions
-import weblab.database.DatabaseMySQLGateway as dbMySQLGateway
+import weblab.db.exc as DbExceptions
+import weblab.db.DatabaseMySQLGateway as dbMySQLGateway
 
 WEBLAB_DB_USERNAME_PROPERTY = 'weblab_db_username'
 DEFAULT_WEBLAB_DB_USERNAME  = 'weblab'

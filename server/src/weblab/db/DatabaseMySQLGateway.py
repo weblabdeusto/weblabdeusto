@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-import weblab.database.exc as DbExceptions
+import weblab.db.exc as DbExceptions
 import voodoo.exceptions.configuration.ConfigurationExceptions as CfgExceptions
 
 DB_HOST = 'db_host'

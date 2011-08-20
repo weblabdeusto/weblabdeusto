@@ -15,7 +15,7 @@
 
 import re
 
-import weblab.database.exc as DbExceptions
+import weblab.db.exc as DbExceptions
 
 class UserAuth(object):
     @staticmethod

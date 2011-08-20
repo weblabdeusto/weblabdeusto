@@ -9,7 +9,7 @@ import time
 
 import libraries
 import MySQLdb
-import weblab.database.Model as Model
+import weblab.db.Model as Model
 import weblab.core.coordinator.CoordinatorModel as CoordinatorModel
 
 import voodoo.sessions.DbLockData as DbLockData

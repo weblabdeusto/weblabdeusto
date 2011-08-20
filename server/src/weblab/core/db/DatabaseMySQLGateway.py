@@ -21,13 +21,13 @@ from sqlalchemy.sql.expression import desc
 
 from voodoo.log import logged
 
-import weblab.database.Model as Model
+import weblab.db.Model as Model
 
-import weblab.database.DatabaseMySQLGateway as dbMySQLGateway
+import weblab.db.DatabaseMySQLGateway as dbMySQLGateway
 
 import weblab.data.dto.ExperimentAllowed as ExperimentAllowed
 
-import weblab.database.exc as DbExceptions
+import weblab.db.exc as DbExceptions
 
 WEBLAB_DB_USERNAME_PROPERTY = 'weblab_db_username'
 DEFAULT_WEBLAB_DB_USERNAME  = 'weblab'

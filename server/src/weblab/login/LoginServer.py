@@ -19,13 +19,13 @@ import time
 
 import weblab.login.LoginAuth as LoginAuth
 import weblab.login.DelegatedLoginAuth as DelegatedLoginAuth
-import weblab.login.database.DatabaseManager as DatabaseManager
+import weblab.login.db.DatabaseManager as DatabaseManager
 import weblab.login.facade.LoginFacadeServer as LoginFacadeServer
 import weblab.login.facade.WebFacadeServer as WebFacadeServer
 import weblab.data.ServerType as ServerType
 import weblab.login.exc as LoginExceptions
-import weblab.database.exc as DbExceptions
-import weblab.database.DatabaseSession as DbSession
+import weblab.db.exc as DbExceptions
+import weblab.db.DatabaseSession as DbSession
 import weblab.facade.RemoteFacadeContext as RemoteFacadeContext
 
 LOGIN_FAILED_DELAY = 5
