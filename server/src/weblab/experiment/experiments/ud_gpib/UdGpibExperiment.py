@@ -19,7 +19,7 @@ import weblab.experiment.devices.gpib.Gpib as Gpib
 from voodoo.gen.caller_checker import caller_check
 import weblab.experiment.Util as ExperimentUtil
 import weblab.experiment.exc as ExperimentExceptions
-import weblab.experiment.experiments.ud_gpib_experiment.exc as GpibExceptions
+import weblab.experiment.experiments.ud_gpib.exc as GpibExceptions
 import weblab.data.ServerType as ServerType
 
 from voodoo.override import Override

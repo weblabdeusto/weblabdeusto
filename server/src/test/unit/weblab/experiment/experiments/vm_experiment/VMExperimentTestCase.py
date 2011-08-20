@@ -20,12 +20,12 @@ import test.unit.configuration as configuration_module
 
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
-import weblab.experiment.experiments.vm_experiment.VMExperiment as VMExperiment
-import weblab.experiment.experiments.vm_experiment.user_manager as user_manager
+import weblab.experiment.experiments.vm.VMExperiment as VMExperiment
+import weblab.experiment.experiments.vm.user_manager as user_manager
 import weblab.experiment.devices.vm.VirtualMachineDummy as VirtualMachineDummy
 
 from weblab.experiment.devices.vm.VirtualMachineManager import VirtualMachineManager
-from weblab.experiment.experiments.vm_experiment.user_manager.UserManager import UserManager
+from weblab.experiment.experiments.vm.user_manager.UserManager import UserManager
 
 from voodoo.override import Override
 

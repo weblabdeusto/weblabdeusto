@@ -10,7 +10,7 @@
 	<type>weblab.data.ServerType::Experiment</type>
 	<methods>weblab.methods::Experiment</methods>
 
-	<implementation>weblab.experiment.experiments.labview_experiment.LabViewExperiment.LabViewExperiment</implementation>
+	<implementation>weblab.experiment.experiments.labview.LabViewExperiment.LabViewExperiment</implementation>
 
 	<restriction>blink-led@LabVIEW experiments</restriction>
 

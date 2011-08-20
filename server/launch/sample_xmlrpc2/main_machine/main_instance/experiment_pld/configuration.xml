@@ -10,7 +10,7 @@
 	<type>weblab.data.ServerType::Experiment</type>
 	<methods>weblab.methods::Experiment</methods>
 
-	<implementation>weblab.experiment.experiments.ud_xilinx_experiment.UdXilinxExperiment.UdXilinxExperiment</implementation>
+	<implementation>weblab.experiment.experiments.ud_xilinx.UdXilinxExperiment.UdXilinxExperiment</implementation>
 
 	<restriction>ud-fpga@FPGA experiments</restriction>
 

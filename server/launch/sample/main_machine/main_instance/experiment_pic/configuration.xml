@@ -10,7 +10,7 @@
 	<type>weblab.data.ServerType::Experiment</type>
 	<methods>weblab.methods::Experiment</methods>
 
-	<implementation>weblab.experiment.experiments.ud_pic_experiment.UdPicExperiment.UdPicDummyExperiment</implementation>
+	<implementation>weblab.experiment.experiments.ud_pic.UdPicExperiment.UdPicDummyExperiment</implementation>
 
 	<restriction>ud-pic@PIC experiments</restriction>
 

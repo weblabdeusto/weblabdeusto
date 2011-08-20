@@ -14,7 +14,7 @@
 # 
 import unittest
 
-import weblab.experiment.experiments.ud_logic_experiment.LogicExperiment as LogicExperiment
+import weblab.experiment.experiments.ud_logic.LogicExperiment as LogicExperiment
 
 class CircuitGeneratorTestCase(unittest.TestCase):
     def test_switch(self):

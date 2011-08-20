@@ -15,8 +15,8 @@
 # 
 
 from test.util.ModuleDisposer import uses_module, case_uses_module
-from weblab.experiment.experiments.ud_xilinx_experiment.UdXilinxCommandSenders import SerialPortCommandSender
-from weblab.experiment.experiments.ud_xilinx_experiment.UdXilinxProgrammers import XilinxImpactProgrammer
+from weblab.experiment.experiments.ud_xilinx.UdXilinxCommandSenders import SerialPortCommandSender
+from weblab.experiment.experiments.ud_xilinx.UdXilinxProgrammers import XilinxImpactProgrammer
 import sys
 import test.unit.configuration as configuration
 import time
@@ -44,7 +44,7 @@ import weblab.data.ClientAddress as ClientAddress
 import weblab.data.Command as Command
 import weblab.data.ServerType as ServerType
 import weblab.experiment.Util as ExperimentUtil
-import weblab.experiment.experiments.ud_xilinx_experiment.UdXilinxExperiment as UdXilinxExperiment
+import weblab.experiment.experiments.ud_xilinx.UdXilinxExperiment as UdXilinxExperiment
 import weblab.lab.LaboratoryServer as LaboratoryServer
 import weblab.login.LoginServer as LoginServer
 import weblab.methods as weblab_exported_methods

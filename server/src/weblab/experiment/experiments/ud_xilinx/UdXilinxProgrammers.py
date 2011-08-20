@@ -14,7 +14,7 @@
 # 
 
 from voodoo.override import Override
-from weblab.experiment.experiments.ud_xilinx_experiment.exc import InvalidDeviceToProgramException
+from weblab.experiment.experiments.ud_xilinx.exc import InvalidDeviceToProgramException
 from weblab.experiment.devices.digilent_adept import DigilentAdept
 from weblab.experiment.devices.jtag_blazer import JTagBlazer
         

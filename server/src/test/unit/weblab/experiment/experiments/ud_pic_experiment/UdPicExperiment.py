@@ -20,12 +20,12 @@ import unittest
 from test.util.fakeobjects import fakeaddinfourl
 import test.unit.configuration as configuration_module
 
-from weblab.experiment.experiments.ud_pic_experiment.UdPicExperiment import UdPicExperiment
+from weblab.experiment.experiments.ud_pic.UdPicExperiment import UdPicExperiment
 import weblab.experiment.Util as ExperimentUtil
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
 import weblab.experiment.exc as ExperimentExceptions
-import weblab.experiment.experiments.ud_pic_experiment.exc as UdPicExperimentExceptions
+import weblab.experiment.experiments.ud_pic.exc as UdPicExperimentExceptions
 
 
 class UdPicExperimentTestCase(unittest.TestCase):

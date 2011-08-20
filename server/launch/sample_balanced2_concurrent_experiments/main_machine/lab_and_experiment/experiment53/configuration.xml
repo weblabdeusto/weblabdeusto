@@ -10,7 +10,7 @@
 	<type>weblab.data.ServerType::Experiment</type>
 	<methods>weblab.methods::Experiment</methods>
 
-	<implementation>weblab.experiment.experiments.dummy_experiment.DummyExperiment.DummyExperiment</implementation>
+	<implementation>weblab.experiment.experiments.dummy.DummyExperiment.DummyExperiment</implementation>
 
 	<restriction>ud-dummy@Dummy experiments</restriction>
 

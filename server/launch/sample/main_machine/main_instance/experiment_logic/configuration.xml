@@ -10,7 +10,7 @@
 	<type>weblab.data.ServerType::Experiment</type>
 	<methods>weblab.methods::Experiment</methods>
 
-	<implementation>weblab.experiment.experiments.ud_logic_experiment.LogicExperiment.LogicExperiment</implementation>
+	<implementation>weblab.experiment.experiments.ud_logic.LogicExperiment.LogicExperiment</implementation>
 
 	<restriction>ud-logic@PIC experiments</restriction>
 

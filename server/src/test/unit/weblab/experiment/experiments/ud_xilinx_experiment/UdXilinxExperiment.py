@@ -15,14 +15,14 @@
 #
 
 from mock import patch
-import weblab.experiment.experiments.ud_xilinx_experiment.exc as UdXilinxExperimentExceptions
-from weblab.experiment.experiments.ud_xilinx_experiment import UdXilinxCommandSenders
+import weblab.experiment.experiments.ud_xilinx.exc as UdXilinxExperimentExceptions
+from weblab.experiment.experiments.ud_xilinx import UdXilinxCommandSenders
 from test.util.fakeobjects import return_values
 import test.unit.configuration as configuration_module
 import unittest
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 import weblab.experiment.Util as ExperimentUtil
-import weblab.experiment.experiments.ud_xilinx_experiment.UdXilinxExperiment as UdXilinxExperiment
+import weblab.experiment.experiments.ud_xilinx.UdXilinxExperiment as UdXilinxExperiment
 import time
 
 class CreatingUdXilinxExperimentTestCase(unittest.TestCase):
@@ -134,7 +134,7 @@ class UsingUdXilinxExperimentTestCase(unittest.TestCase):
                 self.uxm._command_sender._serial_port.codes[2 + initial_send]
             )
 
-    @patch('weblab.experiment.experiments.ud_xilinx_experiment.UdXilinxProgrammers.JTagBlazer')
+    @patch('weblab.experiment.experiments.ud_xilinx.UdXilinxProgrammers.JTagBlazer')
     def test_jtag_blazer_with_http(self, _):
         self.cfg_manager._set_value('xilinx_device_to_program', 'JTagBlazer')
         self.cfg_manager._set_value('xilinx_device_to_send_commands', 'HttpDevice')

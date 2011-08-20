@@ -14,11 +14,11 @@
 # 
 import unittest
 
-import weblab.experiment.experiments.ud_xilinx_experiment.UdBoardCommand as UdBoardCommand
-from weblab.experiment.experiments.ud_xilinx_experiment.UdBoardCommand import UdBoardSimpleCommand
-from weblab.experiment.experiments.ud_xilinx_experiment.UdBoardCommand import ChangeSwitchCommand, SetPulseCommand, ClockActivationCommand, ClockDeactivationCommand
+import weblab.experiment.experiments.ud_xilinx.UdBoardCommand as UdBoardCommand
+from weblab.experiment.experiments.ud_xilinx.UdBoardCommand import UdBoardSimpleCommand
+from weblab.experiment.experiments.ud_xilinx.UdBoardCommand import ChangeSwitchCommand, SetPulseCommand, ClockActivationCommand, ClockDeactivationCommand
 
-import weblab.experiment.experiments.ud_xilinx_experiment.exc as UdXilinxExperimentExceptions
+import weblab.experiment.experiments.ud_xilinx.exc as UdXilinxExperimentExceptions
 
 class UdBoardCommandTestCase(unittest.TestCase):
     def test_udboard(self):

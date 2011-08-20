@@ -98,7 +98,7 @@ class LabViewExperiment(Experiment.Experiment):
             raise Exception("Mode not supported")
 
         if not self.version in LV_VERSIONS:
-            raise Exception("Unsupported LabVIEW provided version: %s. Add the proper arguments to weblab/experiment/experiments/labview_experiment/LabViewExperiment.py" % self.version)
+            raise Exception("Unsupported LabVIEW provided version: %s. Add the proper arguments to weblab/experiment/experiments.labview/LabViewExperiment.py" % self.version)
 
         self.copyfile   = self._cfg_manager.get_value("labview_copyfile", False)
         self.opened     = False

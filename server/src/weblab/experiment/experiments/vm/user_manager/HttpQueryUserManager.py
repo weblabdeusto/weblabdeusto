@@ -18,7 +18,7 @@ from UserManager import UserManager
 import urllib2
 from voodoo.log import logged
 import voodoo.log as log
-from weblab.experiment.experiments.vm_experiment.user_manager.UserManager import PermanentConfigureError,\
+from weblab.experiment.experiments.vm.user_manager.UserManager import PermanentConfigureError,\
     TemporaryConfigureError
 
 
