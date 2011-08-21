@@ -43,7 +43,7 @@ import weblab.data.Command as Command
 import weblab.data.ServerType as ServerType
 import weblab.experiment.Util as ExperimentUtil
 import weblab.experiment.experiments.ud_xilinx.UdXilinxExperiment as UdXilinxExperiment
-import weblab.lab.LaboratoryServer as LaboratoryServer
+import weblab.lab.server as LaboratoryServer
 import weblab.login.LoginServer as LoginServer
 import weblab.methods as weblab_exported_methods
 import weblab.core.Reservation as Reservation
