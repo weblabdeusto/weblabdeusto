@@ -10,7 +10,7 @@
 	<type>weblab.data.ServerType::Login</type>
 	<methods>weblab.methods::Login</methods>
 
-	<implementation>weblab.login.LoginServer.LoginServer</implementation>
+	<implementation>weblab.login.server.LoginServer</implementation>
 
 	<protocols>
 		<protocol name="Direct">

@@ -37,7 +37,7 @@ import voodoo.configuration.ConfigurationManager      as ConfigurationManager
 
 import weblab.methods as weblab_methods
 
-import weblab.login.LoginServer as LoginServer
+import weblab.login.server as LoginServer
 import weblab.login.LoginAuth as LoginAuth
 import weblab.login.exc as LoginExceptions
 
