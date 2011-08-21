@@ -10,7 +10,7 @@
 	<type>weblab.data.ServerType::UserProcessing</type>
 	<methods>weblab.methods::UserProcessing</methods>
 
-	<implementation>weblab.core.UserProcessingServer.UserProcessingServer</implementation>
+	<implementation>weblab.core.server.UserProcessingServer</implementation>
 
 	<!-- <restriction>something else</restriction> -->
 

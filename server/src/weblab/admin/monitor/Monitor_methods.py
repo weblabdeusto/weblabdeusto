@@ -24,7 +24,7 @@
 from weblab.data.dto.User import User
 from weblab.data.dto.Role import Role
 from weblab.admin.monitor.Monitor import monitor_method
-from weblab.core.UserProcessingServer import UserProcessingServer
+from weblab.core.server import UserProcessingServer
 
 import weblab.data.experiments.ExperimentId as ExperimentId
 import voodoo.exceptions.sessions.SessionExceptions as SessionExceptions

@@ -99,7 +99,7 @@ class Coordinator(object):
         self.finished_store = TemporalInformationStore.FinishTemporalInformationStore()
 
 
-        import weblab.core.UserProcessingServer as UserProcessingServer
+        import weblab.core.server as UserProcessingServer
         clean = cfg_manager.get_value(UserProcessingServer.WEBLAB_USER_PROCESSING_SERVER_CLEAN_COORDINATOR, True)
 
         if clean:

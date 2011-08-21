@@ -50,7 +50,7 @@ import weblab.login.LoginServer as LoginServer
 import weblab.methods as weblab_exported_methods
 import weblab.core.AliveUsersCollection    as AliveUsersCollection
 import weblab.core.Reservation             as Reservation
-import weblab.core.UserProcessingServer    as UserProcessingServer
+import weblab.core.server    as UserProcessingServer
 import weblab.core.UserProcessor           as UserProcessor
 import weblab.core.coordinator.Coordinator as Coordinator
 
