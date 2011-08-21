@@ -51,6 +51,8 @@ class CoordinationDatabaseManager(object):
 
         sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine, username, password, host, dbname)
 
+        CoordinationDatabaseManager.pool.dispose()
+        CoordinationDatabaseManager.pool = CoordinationDatabaseManager.pool.recreate()
         engine = sqlalchemy.create_engine(sqlalchemy_engine_str, convert_unicode=True, echo=False, pool = self.pool)
 
         self.session_maker = sessionmaker(bind=engine, autoflush = True, autocommit = False)

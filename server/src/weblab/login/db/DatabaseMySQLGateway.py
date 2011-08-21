@@ -64,6 +64,9 @@ class AuthDatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                               "PASSWORD": self.password,
                               "HOST":     self.host,
                               "DATABASE": self.dbname }
+
+        AuthDatabaseGateway.pool.dispose()
+        AuthDatabaseGateway.pool = AuthDatabaseGateway.pool.recreate()
         self.Session = sessionmaker(bind=create_engine(connection_url, echo=False, convert_unicode=True, pool = self.pool))
 
     ###########################################################################

@@ -40,7 +40,7 @@ class PostReservationDataManager(object):
                 return
             reservation.finished = True
             reservation.end_data = end_data
-            session.update(reservation)
+            session.add(reservation)
             session.commit()
         finally:
             session.close()

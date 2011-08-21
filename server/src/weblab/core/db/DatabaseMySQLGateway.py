@@ -79,6 +79,8 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                               "PASSWORD": self.password,
                               "HOST":     self.host,
                               "DATABASE": self.dbname  }
+        DatabaseGateway.pool.dispose()
+        DatabaseGateway.pool = DatabaseGateway.pool.recreate()
         self.Session = sessionmaker(bind=create_engine(connection_url, echo=False, convert_unicode=True, pool = self.pool))
 
     @logged()
@@ -202,7 +204,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                 return False
 
             user_used_experiment.set_end_date(end_date)
-            session.update(user_used_experiment)
+            session.add(user_used_experiment)
             session.add(Model.DbUserCommand(
                             user_used_experiment,
                             last_command.command.commandstring,
@@ -245,7 +247,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
 
             db_command.response = response.commandstring
             db_command.set_timestamp_after(end_timestamp)
-            session.update(db_command)
+            session.add(db_command)
             session.commit()
             return True
         finally:
@@ -283,7 +285,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
 
             db_file_sent.response = response.commandstring
             db_file_sent.set_timestamp_after(end_timestamp)
-            session.update(db_file_sent)
+            session.add(db_file_sent)
             session.commit()
             return True
         finally:

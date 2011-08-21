@@ -71,6 +71,9 @@ class SessionSqlalchemyGateway(object):
         SessionSqlalchemyGateway.host     = host
         SessionSqlalchemyGateway.dbname = dbname
 
+        SessionSqlalchemyGateway.pool.dispose()
+        SessionSqlalchemyGateway.pool = SessionSqlalchemyGateway.pool.recreate()
+
         self._generator  = SessionGenerator.SessionGenerator()
         self._serializer = SessionSerializer.SessionSerializer()
 

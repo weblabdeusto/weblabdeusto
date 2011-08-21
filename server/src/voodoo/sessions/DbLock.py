@@ -65,6 +65,10 @@ class DbLock(object):
         DbLock.dbname   = dbname
 
         sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine_name, username, password, host, dbname)
+
+        DbLock.pool.dispose()
+        DbLock.pool = DbLock.pool.recreate()
+
         engine = sqlalchemy.create_engine(sqlalchemy_engine_str, convert_unicode=True, echo=False, pool = self.pool)
 
         self._session_maker = sessionmaker(bind=engine, autoflush = True, autocommit = False)
