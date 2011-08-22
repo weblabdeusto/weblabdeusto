@@ -23,7 +23,7 @@ import mocker
 from   test.util.ModuleDisposer import case_uses_module
 import test.unit.configuration as configuration_module
 
-import weblab.core.UserProcessingServer    as UserProcessingServer
+import weblab.core.server    as UserProcessingServer
 import weblab.core.UserProcessor           as UserProcessor
 import weblab.core.Reservation             as Reservation
 import weblab.core.coordinator.Confirmer   as Confirmer
