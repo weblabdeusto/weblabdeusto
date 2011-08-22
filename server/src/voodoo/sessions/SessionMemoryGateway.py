@@ -61,23 +61,23 @@ class SessionMemoryGateway(object):
         self._serializer    = SessionSerializer.SessionSerializer()
 
         self._sessions      = {
-                    # First two chars : (dict_lock, { session_id : session})
+                    # First char : (dict_lock, { session_id : session})
                 }
         self._session_locks = {
-                    # First two chars : { session_id : session_lock }
+                    # First char : { session_id : session_lock }
                 }
 
         self._timeout         = timeout
 
-        for first_chars in ( c1 + c2 for c1 in self._generator.alphabet for c2 in self._generator.alphabet):
-            self._sessions[first_chars] = (threading.RLock(), {})
-            self._session_locks[first_chars] = {}
+        for first_char in self._generator.alphabet:
+            self._sessions[first_char] = (threading.RLock(), {})
+            self._session_locks[first_char] = {}
 
     def _get_lock_and_sessions(self, session_id):
-        return self._sessions[session_id[:2]]
+        return self._sessions[session_id[:1]]
 
     def _get_session_lock(self, session_id):
-        return self._session_locks[session_id[:2]]
+        return self._session_locks[session_id[:1]]
 
     def delete_expired_sessions(self):
         if self._timeout is None:
@@ -139,7 +139,7 @@ class SessionMemoryGateway(object):
         # the original session, therefore removing the changes performed
         # in "something". That's really dangerous, so we use here a
         # threading.Lock so the thread is locked and this can't happen.
-        self._session_locks[session_id[:2]][session_id] = threading.Lock()
+        self._session_locks[session_id[:1]][session_id] = threading.Lock()
         lock.release()
         return session_id
 
