@@ -49,7 +49,8 @@ def getconn():
 
 class SessionSqlalchemyGateway(object):
 
-    pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20)
+    pool   = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20)
+    engine = None
 
     def __init__(self, cfg_manager, session_pool_id, timeout):
         super(SessionSqlalchemyGateway, self).__init__()
@@ -71,18 +72,16 @@ class SessionSqlalchemyGateway(object):
         SessionSqlalchemyGateway.host     = host
         SessionSqlalchemyGateway.dbname = dbname
 
-        SessionSqlalchemyGateway.pool.dispose()
-        SessionSqlalchemyGateway.pool = SessionSqlalchemyGateway.pool.recreate()
-
         self._generator  = SessionGenerator.SessionGenerator()
         self._serializer = SessionSerializer.SessionSerializer()
 
         self._lock       = DbLock.DbLock(cfg_manager, session_pool_id)
 
         sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine_name, username, password, host, dbname)
-        engine = sqlalchemy.create_engine(sqlalchemy_engine_str, convert_unicode=True, echo=False, pool = self.pool)
+        if SessionSqlalchemyGateway.engine is None:
+            SessionSqlalchemyGateway.engine = sqlalchemy.create_engine(sqlalchemy_engine_str, convert_unicode=True, echo=False, pool = self.pool)
 
-        self._session_maker = sessionmaker(bind=engine, autoflush = True, autocommit = False)
+        self._session_maker = sessionmaker(bind=self.engine, autoflush = True, autocommit = False)
 
 
     def _parse_config(self):

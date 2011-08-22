@@ -50,6 +50,7 @@ class AuthDatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
     dbname   = None
 
     pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20)
+    engine = None
 
     def __init__(self, cfg_manager):
         super(AuthDatabaseGateway, self).__init__(cfg_manager)
@@ -65,9 +66,10 @@ class AuthDatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                               "HOST":     self.host,
                               "DATABASE": self.dbname }
 
-        AuthDatabaseGateway.pool.dispose()
-        AuthDatabaseGateway.pool = AuthDatabaseGateway.pool.recreate()
-        self.Session = sessionmaker(bind=create_engine(connection_url, echo=False, convert_unicode=True, pool = self.pool))
+        if AuthDatabaseGateway.engine is None:
+            AuthDatabaseGateway.engine = create_engine(connection_url, echo=False, convert_unicode=True, pool = self.pool)
+
+        self.Session = sessionmaker(bind=self.engine)
 
     ###########################################################################
     ##################   check_external_credentials   #########################

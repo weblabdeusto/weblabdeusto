@@ -65,6 +65,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
     dbname   = None
 
     pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20)
+    engine = None
 
     def __init__(self, cfg_manager):
         super(DatabaseGateway, self).__init__(cfg_manager)
@@ -79,9 +80,11 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                               "PASSWORD": self.password,
                               "HOST":     self.host,
                               "DATABASE": self.dbname  }
-        DatabaseGateway.pool.dispose()
-        DatabaseGateway.pool = DatabaseGateway.pool.recreate()
-        self.Session = sessionmaker(bind=create_engine(connection_url, echo=False, convert_unicode=True, pool = self.pool))
+
+        if DatabaseGateway.engine is None:
+            DatabaseGateway.engine = create_engine(connection_url, echo=False, convert_unicode=True, pool = self.pool)
+
+        self.Session = sessionmaker(bind=self.engine)
 
     @logged()
     def get_user_by_name(self, user_login):

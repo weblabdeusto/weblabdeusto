@@ -40,6 +40,7 @@ class CoordinationDatabaseManager(object):
     db       = None
 
     pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20)
+    engine = None
 
 
     def __init__(self, cfg_manager):
@@ -51,10 +52,9 @@ class CoordinationDatabaseManager(object):
 
         sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine, username, password, host, dbname)
 
-        CoordinationDatabaseManager.pool.dispose()
-        CoordinationDatabaseManager.pool = CoordinationDatabaseManager.pool.recreate()
-        engine = sqlalchemy.create_engine(sqlalchemy_engine_str, convert_unicode=True, echo=False, pool = self.pool)
+        if CoordinationDatabaseManager.engine is None:
+            CoordinationDatabaseManager.engine = sqlalchemy.create_engine(sqlalchemy_engine_str, convert_unicode=True, echo=False, pool = self.pool)
 
-        self.session_maker = sessionmaker(bind=engine, autoflush = True, autocommit = False)
+        self.session_maker = sessionmaker(bind=self.engine, autoflush = True, autocommit = False)
 
 

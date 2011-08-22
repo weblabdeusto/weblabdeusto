@@ -46,6 +46,7 @@ class DbLock(object):
 
     MAX_TIME_TRYING_TO_LOCK = MAX_TIME_TRYING_TO_LOCK
     pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20)
+    engine = None
 
     def __init__(self, cfg_manager, session_pool_id):
         super(DbLock, self).__init__()
@@ -66,12 +67,10 @@ class DbLock(object):
 
         sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine_name, username, password, host, dbname)
 
-        DbLock.pool.dispose()
-        DbLock.pool = DbLock.pool.recreate()
+        if DbLock.engine is None:
+            DbLock.engine = sqlalchemy.create_engine(sqlalchemy_engine_str, convert_unicode=True, echo=False, pool = self.pool)
 
-        engine = sqlalchemy.create_engine(sqlalchemy_engine_str, convert_unicode=True, echo=False, pool = self.pool)
-
-        self._session_maker = sessionmaker(bind=engine, autoflush = True, autocommit = False)
+        self._session_maker = sessionmaker(bind=self.engine, autoflush = True, autocommit = False)
 
     def _parse_config(self):
         engine_name = self.cfg_manager.get_value(SESSION_LOCK_SQLALCHEMY_ENGINE, DEFAULT_SESSION_LOCK_SQLALCHEMY_ENGINE)
