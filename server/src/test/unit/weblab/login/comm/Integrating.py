@@ -28,7 +28,7 @@ import test.unit.configuration as configuration
 
 from test.util.ModuleDisposer import uses_module
 
-import weblab.login.comm.LoginFacadeCodes as LoginRFCodes
+import weblab.login.comm.codes as LoginRFCodes
 import weblab.comm.RemoteFacadeServer as RemoteFacadeServer
 import weblab.login.comm.LoginFacadeServer as LoginFacadeServer
 

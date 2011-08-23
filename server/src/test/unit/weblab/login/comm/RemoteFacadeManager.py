@@ -30,7 +30,7 @@ import voodoo.configuration.ConfigurationManager as ConfigurationManager
 import weblab.login.comm.manager as LoginFacadeManager
 import weblab.comm.RemoteFacadeManagerCodes as RFCodes
 import weblab.comm.RemoteFacadeManager as RFM
-import weblab.login.comm.LoginFacadeCodes as LoginRFCodes
+import weblab.login.comm.codes as LoginRFCodes
 
 import weblab.login.exc as LoginExceptions
 import weblab.exc as WebLabExceptions

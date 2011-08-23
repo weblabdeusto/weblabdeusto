@@ -21,7 +21,7 @@ import weblab.login.exc as LoginExceptions
 import weblab.exc as WebLabExceptions
 import voodoo.gen.exceptions.exceptions as VoodooExceptions
 
-import weblab.login.comm.LoginFacadeCodes as LFCodes
+import weblab.login.comm.codes as LFCodes
 
 EXCEPTIONS = (
         #
