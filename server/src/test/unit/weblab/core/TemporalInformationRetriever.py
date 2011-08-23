@@ -26,7 +26,7 @@ from weblab.data.experiments.ExperimentId import ExperimentId
 import weblab.core.TemporalInformationRetriever as TemporalInformationRetriever
 import weblab.core.coordinator.store as TemporalInformationStore
 
-import weblab.core.db.DatabaseManager as DatabaseManager
+import weblab.core.db.manager as DatabaseManager
 import test.unit.configuration as configuration
 
 import voodoo.configuration.ConfigurationManager as ConfigurationManager

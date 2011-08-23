@@ -18,7 +18,7 @@ import unittest
 import test.unit.configuration as configuration
 
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
-import weblab.core.db.DatabaseManager as DatabaseManager
+import weblab.core.db.manager as DatabaseManager
 
 class DatabaseServerTestCase(unittest.TestCase):
     """Note: Methods tested from UserProcessingServer won't be tested again here."""
