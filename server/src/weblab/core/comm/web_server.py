@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import weblab.comm.WebFacadeServer as WebFacadeServer
+import weblab.comm.web_server as WebFacadeServer
 
 from weblab.core.comm.web.upload import FileUploadMethod
 from weblab.core.comm.web.labview import LabViewMethod

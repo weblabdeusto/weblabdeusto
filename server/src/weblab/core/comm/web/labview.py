@@ -14,7 +14,7 @@
 # 
 
 from voodoo.sessions.SessionId import SessionId
-import weblab.comm.WebFacadeServer as WebFacadeServer
+import weblab.comm.web_server as WebFacadeServer
 import weblab.data.Command as Command
 SESSION_ID = 'session_id'
 

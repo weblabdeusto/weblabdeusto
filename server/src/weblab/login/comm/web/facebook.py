@@ -16,7 +16,7 @@
 import urllib2
 import base64
 
-import weblab.comm.WebFacadeServer as WebFacadeServer
+import weblab.comm.web_server as WebFacadeServer
 import weblab.login.exc as LoginExceptions
 
 REQUEST_FIELD           = 'signed_request'

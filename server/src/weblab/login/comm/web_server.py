@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import weblab.comm.WebFacadeServer as WebFacadeServer
+import weblab.comm.web_server as WebFacadeServer
 
 from weblab.login.comm.web.login import LoginMethod
 from weblab.login.comm.web.facebook import FacebookMethod

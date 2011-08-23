@@ -34,7 +34,7 @@ import urlparse
 import traceback
 from Cookie import SimpleCookie
 
-import weblab.comm.WebFacadeServer as WebFacadeServer
+import weblab.comm.web_server as WebFacadeServer
 import weblab.login.exc as LoginExceptions
 
 USERNAME = "username"
