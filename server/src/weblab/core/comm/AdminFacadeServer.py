@@ -15,7 +15,7 @@
 
 import weblab.comm.RemoteFacadeServer as RFS
 import weblab.core.comm.AdminFacadeManager as AFM
-from weblab.core.comm.AdminFacadeServerSmartGWT import AdminFacadeServerSmartGWT
+from weblab.core.comm.admin_smartgwt import AdminFacadeServerSmartGWT
 
 from weblab.core.comm.user_server import USER_PROCESSING_FACADE_SERVER_ROUTE, DEFAULT_USER_PROCESSING_SERVER_ROUTE
 
