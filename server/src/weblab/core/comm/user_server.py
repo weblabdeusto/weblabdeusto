@@ -14,7 +14,7 @@
 #
 
 import weblab.comm.RemoteFacadeServer as RFS
-import weblab.core.comm.UserProcessingFacadeManager as UPFM
+import weblab.core.comm.user_manager as UPFM
 
 try:
     import weblab.core.comm.generated.WebLabDeusto_interface as WebLabDeusto_interface
