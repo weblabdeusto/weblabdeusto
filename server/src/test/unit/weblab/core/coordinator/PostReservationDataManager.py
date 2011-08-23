@@ -18,7 +18,8 @@ import datetime
 import test.unit.configuration as configuration_module
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
-from test.unit.weblab.core.coordinator.Coordinator import WrappedCoordinator, ConfirmerMock
+# TODO: this refers to the test code. Replace properly in future
+from Coordinator import WrappedCoordinator, ConfirmerMock
 
 class PostReservationDataManagerTestCase(unittest.TestCase):
     def setUp(self):
