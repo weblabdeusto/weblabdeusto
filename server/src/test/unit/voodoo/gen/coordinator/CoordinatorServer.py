@@ -22,7 +22,7 @@ import test.unit.voodoo.gen.coordinator.SampleServerType as SampleServerType
 
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
-import voodoo.sessions.SessionMemoryGateway as SessionMemoryGateway
+import voodoo.sessions.memory as SessionMemoryGateway
 
 import voodoo.gen.coordinator.CoordinationInformation as CoordInfo
 import voodoo.gen.coordinator.Access as Access
