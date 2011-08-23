@@ -21,7 +21,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 
-import weblab.db.Model as Model
+import weblab.db.model as Model
 
 import hashlib
 from voodoo.log import logged

@@ -1,6 +1,6 @@
 from migrationlib import Patch, PatchApplier
 
-import weblab.db.Model as Model
+import weblab.db.model as Model
 
 class AddingPriorityToPermissionParameterPatch(Patch):
 

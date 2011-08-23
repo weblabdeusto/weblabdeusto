@@ -21,7 +21,7 @@ from sqlalchemy.sql.expression import desc
 
 from voodoo.log import logged
 
-import weblab.db.Model as Model
+import weblab.db.model as Model
 
 import weblab.db.DatabaseMySQLGateway as dbMySQLGateway
 

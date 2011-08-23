@@ -71,16 +71,23 @@ def runGui(avoid_integration, argv):
     sys.argv = argv
     unittestgui.main(__name__ + '.suite')
 
+EXIT_VALUE = 0
+
 def runConsole(avoid_integration, argv):
     if os.name == 'posix':
         os.system("clear")
 
-    sys.exit = lambda *args : 0
+    old_sys_exit = sys.exit
+    def _exit(status = 0):
+        global EXIT_VALUE
+        EXIT_VALUE = status
+    sys.exit = _exit
     global AVOID_INTEGRATION
     AVOID_INTEGRATION = avoid_integration
     sys.argv = argv
     unittest.main(defaultTest = 'suite')
     debugThreads()
+    old_sys_exit(EXIT_VALUE)
 
 def runXml(folder):
     def runSuite(suite, file_name):

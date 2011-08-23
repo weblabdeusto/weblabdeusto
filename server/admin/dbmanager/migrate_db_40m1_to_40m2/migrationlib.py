@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 import traceback
 import MySQLdb as dbi
 
-import weblab.db.Model as Model
+import weblab.db.model as Model
 
 ########################################################
 # 
