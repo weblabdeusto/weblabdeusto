@@ -16,7 +16,7 @@
 from voodoo.gen.caller_checker import caller_check
 from voodoo.log import logged
 from voodoo.override import Override
-import weblab.experiment.experiments.ud_xilinx.UdXilinxExperiment as UdXilinxExperiment
+import weblab.experiment.experiments.ud_xilinx.server as UdXilinxExperiment
 import os
 import weblab.data.ServerType as ServerType
 import weblab.experiment.util as ExperimentUtil

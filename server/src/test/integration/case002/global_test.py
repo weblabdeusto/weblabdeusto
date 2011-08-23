@@ -42,7 +42,7 @@ import weblab.data.ClientAddress as ClientAddress
 import weblab.data.Command as Command
 import weblab.data.ServerType as ServerType
 import weblab.experiment.util as ExperimentUtil
-import weblab.experiment.experiments.ud_xilinx.UdXilinxExperiment as UdXilinxExperiment
+import weblab.experiment.experiments.ud_xilinx.server as UdXilinxExperiment
 import weblab.lab.server as LaboratoryServer
 import weblab.login.server as LoginServer
 import weblab.methods as weblab_exported_methods

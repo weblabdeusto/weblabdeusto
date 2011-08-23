@@ -15,7 +15,7 @@
 
 import time
 
-import weblab.experiment.experiments.ud_xilinx.UdXilinxExperiment as UdXilinxExperiment
+import weblab.experiment.experiments.ud_xilinx.server as UdXilinxExperiment
 
 from voodoo.override import Override
 

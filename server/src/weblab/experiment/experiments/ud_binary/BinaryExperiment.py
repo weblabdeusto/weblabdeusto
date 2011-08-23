@@ -14,7 +14,7 @@
 # 
 
 import os
-import weblab.experiment.experiments.ud_xilinx.UdXilinxExperiment as UdXilinxExperiment
+import weblab.experiment.experiments.ud_xilinx.server as UdXilinxExperiment
 import weblab.experiment.experiment as Experiment
 import weblab.experiment.util as ExperimentUtil
 

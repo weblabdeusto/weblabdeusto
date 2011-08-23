@@ -22,7 +22,7 @@ import test.unit.configuration as configuration_module
 import unittest
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 import weblab.experiment.util as ExperimentUtil
-import weblab.experiment.experiments.ud_xilinx.UdXilinxExperiment as UdXilinxExperiment
+import weblab.experiment.experiments.ud_xilinx.server as UdXilinxExperiment
 import time
 
 class CreatingUdXilinxExperimentTestCase(unittest.TestCase):
