@@ -39,7 +39,7 @@ import weblab.data.Command as Command
 import weblab.core.coordinator.coordinator as Coordinator
 
 import weblab.lab.assigned_experiments as AssignedExperiments
-import weblab.lab.IsUpAndRunningHandler as IsUpAndRunningHandler
+import weblab.lab.status_handler as IsUpAndRunningHandler
 
 import weblab.experiment.level as ExperimentApiLevel
 

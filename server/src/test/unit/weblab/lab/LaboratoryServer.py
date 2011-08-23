@@ -29,7 +29,7 @@ import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
 import weblab.core.coordinator.coordinator as Coordinator
 import weblab.lab.server as LaboratoryServer
-import weblab.lab.IsUpAndRunningHandler as IsUpAndRunningHandler
+import weblab.lab.status_handler as IsUpAndRunningHandler
 
 import weblab.lab.exc as LaboratoryExceptions
 
