@@ -24,7 +24,7 @@ import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.sessions.SessionId as SessionId
 from   test.util.ModuleDisposer import case_uses_module
 
-import weblab.core.UserProcessor as UserProcessor
+import weblab.core.processor as UserProcessor
 import weblab.core.reservations as Reservation
 import weblab.core.coordinator.coordinator as Coordinator 
 import weblab.core.coordinator.confirmer as Confirmer

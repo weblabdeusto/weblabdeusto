@@ -48,7 +48,7 @@ import weblab.login.server as LoginServer
 import weblab.methods as weblab_exported_methods
 import weblab.core.reservations as Reservation
 import weblab.core.server    as UserProcessingServer
-import weblab.core.UserProcessor       as UserProcessor
+import weblab.core.processor       as UserProcessor
 import weblab.core.coordinator.coordinator as Coordinator
 
 

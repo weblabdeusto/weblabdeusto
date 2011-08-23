@@ -19,7 +19,7 @@ import time
 import threading
 
 import voodoo.sessions.SessionManager as SessionManager
-import weblab.core.UserProcessor as UserProcessor
+import weblab.core.processor as UserProcessor
 
 USER_PROCESSING_TIME_BETWEEN_CHECKS = 'core_time_between_checks'
 DEFAULT_TIME_BETWEEN_CHECKS         = 2 # seconds

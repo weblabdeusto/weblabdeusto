@@ -26,7 +26,7 @@ import voodoo.sessions.SessionManager as SessionManager
 import voodoo.sessions.SessionType as SessionType
 import voodoo.sessions.SessionId   as SessionId
 
-import weblab.core.UserProcessor as UserProcessor
+import weblab.core.processor as UserProcessor
 import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.core.alive_users as AliveUsersCollection
 
