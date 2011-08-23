@@ -26,7 +26,7 @@ import weblab.experiment.experiments.ud_pic.TFtpProgramSender as TFtpProgramSend
 import weblab.experiment.Util as ExperimentUtil
 import weblab.data.ServerType as ServerType
 
-import weblab.experiment.Experiment as Experiment
+import weblab.experiment.experiment as Experiment
 
 import weblab.experiment.exc as ExperimentExceptions
 

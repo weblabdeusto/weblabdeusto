@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-import weblab.experiment.Experiment as Experiment
+import weblab.experiment.experiment as Experiment
 import weblab.experiment.devices.gpib.Gpib as Gpib
 
 from voodoo.gen.caller_checker import caller_check

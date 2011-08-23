@@ -19,7 +19,7 @@ import operator
 from socket import AF_INET, SOCK_STREAM, socket
 
 from voodoo.threaded import threaded
-import weblab.experiment.Experiment as Experiment
+import weblab.experiment.experiment as Experiment
 from voodoo.override import Override
 
 import json

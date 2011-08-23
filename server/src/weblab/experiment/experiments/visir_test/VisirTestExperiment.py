@@ -14,7 +14,7 @@
 #         Pablo Orduña <pablo@ordunya.com>
 # 
 
-import weblab.experiment.Experiment as Experiment
+import weblab.experiment.experiment as Experiment
 
 import httplib
 import urllib2

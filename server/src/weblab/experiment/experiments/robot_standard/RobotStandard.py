@@ -13,7 +13,7 @@
 # Author: Luis Rodríguez <luis.rodriguez@opendeusto.es>
 # 
 
-import weblab.experiment.Experiment as Experiment
+import weblab.experiment.experiment as Experiment
 
 from voodoo.override import Override
 from voodoo.log import logged

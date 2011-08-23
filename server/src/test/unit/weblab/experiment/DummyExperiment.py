@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-import weblab.experiment.Experiment as Experiment
+import weblab.experiment.experiment as Experiment
 
 class DummyExperiment(Experiment.Experiment):
     def __init__(self, *args, **kwargs):

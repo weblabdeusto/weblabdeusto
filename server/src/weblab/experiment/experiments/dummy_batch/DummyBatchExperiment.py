@@ -15,7 +15,7 @@
 
 import json
 
-import weblab.experiment.Experiment as Experiment
+import weblab.experiment.experiment as Experiment
 
 from voodoo.override import Override
 
