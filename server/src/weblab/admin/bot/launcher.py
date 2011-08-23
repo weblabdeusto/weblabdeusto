@@ -21,7 +21,7 @@ import cPickle as pickle
 import logging.config
 
 import weblab.admin.bot.WebLabProcess as WebLabProcess
-import weblab.admin.bot.Data as Data
+import weblab.admin.bot.data as Data
 
 import voodoo.mapper as mapper
 

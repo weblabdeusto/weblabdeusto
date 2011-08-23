@@ -15,7 +15,7 @@
 
 import unittest
 
-import weblab.admin.bot.Data   as Data
+import weblab.admin.bot.data   as Data
 import weblab.admin.bot.User   as User
 
 class DataTestCase(unittest.TestCase):
