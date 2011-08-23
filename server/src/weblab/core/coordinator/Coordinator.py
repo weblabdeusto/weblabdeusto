@@ -25,7 +25,7 @@ import voodoo.AdminNotifier as AdminNotifier
 import weblab.core.coordinator.exc as CoordExc
 
 import weblab.core.coordinator.db as CoordinationDatabaseManager
-import weblab.core.coordinator.ResourcesManager as ResourcesManager
+import weblab.core.coordinator.resource_manager as ResourcesManager
 import weblab.core.coordinator.ReservationsManager as ReservationsManager
 import weblab.core.coordinator.PostReservationDataManager as PostReservationDataManager
 import weblab.core.coordinator.confirmer as Confirmer
