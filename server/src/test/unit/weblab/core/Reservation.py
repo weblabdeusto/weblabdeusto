@@ -16,7 +16,7 @@
 import datetime
 import unittest
 
-from weblab.core.Reservation import WaitingReservation, ConfirmedReservation, WaitingConfirmationReservation, WaitingInstances, PostReservationReservation
+from weblab.core.reservations import WaitingReservation, ConfirmedReservation, WaitingConfirmationReservation, WaitingInstances, PostReservationReservation
 
 class ReservationTest(unittest.TestCase):
 

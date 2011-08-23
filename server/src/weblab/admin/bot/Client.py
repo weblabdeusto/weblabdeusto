@@ -28,7 +28,7 @@ import libraries
 libraries.load()
 
 import voodoo.sessions.SessionId as SessionId
-import weblab.core.Reservation as Reservation
+import weblab.core.reservations as Reservation
 import weblab.data.dto.Category as Category
 import weblab.data.dto.Experiment as Experiment
 import weblab.data.dto.User as User

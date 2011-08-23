@@ -32,7 +32,7 @@ import weblab.core.comm.UserProcessingFacadeManager as UserProcessingFacadeManag
 import weblab.comm.RemoteFacadeManagerCodes as RFCodes
 import weblab.comm.RemoteFacadeManager as RFM
 import weblab.core.comm.UserProcessingFacadeCodes as UserProcessingRFCodes
-import weblab.core.Reservation as Reservation
+import weblab.core.reservations as Reservation
 
 import weblab.data.dto.ExperimentAllowed as ExperimentAllowed
 import weblab.data.dto.Experiment as Experiment

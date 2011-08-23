@@ -41,7 +41,7 @@ import weblab.core.comm.UserProcessingFacadeCodes as UserProcessingRFCodes
 import weblab.comm.RemoteFacadeServer as RemoteFacadeServer
 import weblab.core.comm.UserProcessingFacadeServer as UserProcessingFacadeServer
 
-import weblab.core.Reservation as Reservation
+import weblab.core.reservations as Reservation
 
 import weblab.core.exc as coreExc
 
