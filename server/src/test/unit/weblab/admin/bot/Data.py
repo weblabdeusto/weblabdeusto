@@ -16,7 +16,7 @@
 import unittest
 
 import weblab.admin.bot.data   as Data
-import weblab.admin.bot.User   as User
+import weblab.admin.bot.user   as User
 
 class DataTestCase(unittest.TestCase):
     def test_botexception(self):
