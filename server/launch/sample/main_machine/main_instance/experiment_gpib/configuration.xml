@@ -10,7 +10,7 @@
 	<type>weblab.data.ServerType::Experiment</type>
 	<methods>weblab.methods::Experiment</methods>
 
-	<implementation>weblab.experiment.experiments.ud_gpib.UdGpibExperiment.UdGpibExperiment</implementation>
+	<implementation>weblab.experiment.experiments.ud_gpib.server.UdGpibExperiment</implementation>
 
 	<restriction>ud-gpib@GPIB experiments</restriction>
 

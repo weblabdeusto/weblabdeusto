@@ -18,7 +18,7 @@ import os
 
 import test.unit.configuration as configuration_module
 
-import weblab.experiment.experiments.ud_gpib.UdGpibExperiment as UdGpibExperiment
+import weblab.experiment.experiments.ud_gpib.server as UdGpibExperiment
 import weblab.experiment.util as ExperimentUtil
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
