@@ -20,7 +20,7 @@ import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.gen.protocols as protocols_package
 import voodoo.gen.exceptions.loader.LoaderExceptions as LoaderExceptions
 import voodoo.gen.loader.ConfigurationData as ConfigurationData
-import voodoo.gen.loader.SchemaChecker as SchemaChecker
+import voodoo.gen.loader.schema_checker as SchemaChecker
 import voodoo.gen.loader.LoaderUtilities as LoaderUtilities
 
 SERVER_XSD_FILE_PATH   = 'server_configuration.xsd'
