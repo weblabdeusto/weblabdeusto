@@ -22,7 +22,7 @@ from voodoo.sessions import SessionId
 from weblab.data import ServerType
 import weblab.lab.exc as LaboratoryExceptions
 import weblab.proxy.exc as ProxyExceptions
-from weblab.proxy import ProxyServer
+from weblab.proxy import server as ProxyServer
 from weblab.translator import StoresNothingTranslator, StoresEverythingTranslator
 import mocker
 import test.unit.configuration as configuration_module

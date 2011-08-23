@@ -24,7 +24,7 @@ import voodoo.gen.coordinator.CoordAddress as CoordAddress
 from weblab.data.experiments.ExperimentId import ExperimentId
 
 import weblab.core.TemporalInformationRetriever as TemporalInformationRetriever
-import weblab.core.coordinator.TemporalInformationStore as TemporalInformationStore
+import weblab.core.coordinator.store as TemporalInformationStore
 
 import weblab.core.db.DatabaseManager as DatabaseManager
 import test.unit.configuration as configuration

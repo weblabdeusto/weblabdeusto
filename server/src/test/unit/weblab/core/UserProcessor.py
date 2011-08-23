@@ -28,7 +28,7 @@ import weblab.core.UserProcessor as UserProcessor
 import weblab.core.Reservation as Reservation
 import weblab.core.coordinator.Coordinator as Coordinator 
 import weblab.core.coordinator.Confirmer as Confirmer
-import weblab.core.coordinator.TemporalInformationStore as TemporalInformationStore
+import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.data.ServerType as ServerType
 import weblab.data.ClientAddress as ClientAddress
 

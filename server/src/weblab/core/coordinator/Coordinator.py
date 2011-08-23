@@ -31,7 +31,7 @@ import weblab.core.coordinator.PostReservationDataManager as PostReservationData
 import weblab.core.coordinator.Confirmer as Confirmer
 import weblab.core.coordinator.Scheduler as Scheduler
 import weblab.core.coordinator.meta_scheduler as MetaScheduler
-import weblab.core.coordinator.TemporalInformationStore as TemporalInformationStore
+import weblab.core.coordinator.store as TemporalInformationStore
 
 import weblab.core.coordinator.PriorityQueueScheduler as PriorityQueueScheduler
 import weblab.core.coordinator.ResourcesCheckerThread as ResourcesCheckerThread

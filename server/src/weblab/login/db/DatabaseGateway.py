@@ -14,6 +14,6 @@
 # 
 
 def create_auth_gateway(cfg_manager):
-    import weblab.login.db.DatabaseMySQLGateway as gateway_module
+    import weblab.login.db.mysql as gateway_module
     return gateway_module.AuthDatabaseGateway(cfg_manager)
 

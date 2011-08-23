@@ -28,7 +28,7 @@ import weblab.core.UserProcessor as UserProcessor
 import weblab.core.AliveUsersCollection as AliveUsersCollection
 import weblab.core.coordinator.Coordinator as Coordinator
 import weblab.core.coordinator.CoordinationConfigurationParser as CoordinationConfigurationParser
-import weblab.core.coordinator.TemporalInformationStore as TemporalInformationStore
+import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.core.db.DatabaseManager as DatabaseManager
 
 import weblab.core.exc as coreExc

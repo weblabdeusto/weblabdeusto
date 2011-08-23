@@ -26,7 +26,7 @@ import voodoo.sessions.SessionType as SessionType
 import voodoo.sessions.SessionId   as SessionId
 
 import weblab.core.UserProcessor as UserProcessor
-import weblab.core.coordinator.TemporalInformationStore as TemporalInformationStore
+import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.core.AliveUsersCollection as AliveUsersCollection
 
 class TimeModule(object):
