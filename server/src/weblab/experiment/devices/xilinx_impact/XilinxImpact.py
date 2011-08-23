@@ -22,7 +22,7 @@ import threading
 import voodoo.exceptions.configuration.ConfigurationExceptions as ConfigurationExceptions
 import voodoo.log as log
 import weblab.experiment.devices.xilinx_impact.exc as XilinxImpactExceptions
-import weblab.experiment.devices.xilinx_impact.XilinxDevices as XilinxDevices
+import weblab.experiment.devices.xilinx_impact.devices as XilinxDevices
 
 
 def create(xilinx_device, cfg_manager):

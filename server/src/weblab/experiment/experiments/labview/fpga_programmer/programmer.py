@@ -25,7 +25,7 @@ import libraries
 libraries.load()
 
 import voodoo.configuration.ConfigurationManager as CM
-import weblab.experiment.devices.xilinx_impact.XilinxDevices as XilinxDevices
+import weblab.experiment.devices.xilinx_impact.devices as XilinxDevices
 import weblab.experiment.devices.xilinx_impact.XilinxImpact  as XilinxImpact
 
 class FpgaProgrammer(object):
