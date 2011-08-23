@@ -15,7 +15,7 @@
 
 import datetime
 import unittest
-from weblab.core.coordinator.MetaScheduler import MetaScheduler
+from weblab.core.coordinator.meta_scheduler import MetaScheduler
 
 import weblab.core.coordinator.status as WSS
 
