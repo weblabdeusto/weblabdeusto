@@ -10,7 +10,7 @@
 	<type>weblab.data.ServerType::Proxy</type>
 	<methods>weblab.methods::Proxy</methods>
 
-	<implementation>weblab.proxy.ProxyServer.ProxyServer</implementation>
+	<implementation>weblab.proxy.server.ProxyServer</implementation>
 
 	<!-- <restriction>something else</restriction> -->
 
