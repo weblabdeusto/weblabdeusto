@@ -21,7 +21,7 @@ import weblab.login.auth as LoginAuth
 import weblab.login.DelegatedLoginAuth as DelegatedLoginAuth
 import weblab.login.db.manager as DatabaseManager
 import weblab.login.comm.LoginFacadeServer as LoginFacadeServer
-import weblab.login.comm.WebFacadeServer as WebFacadeServer
+import weblab.login.comm.web_server as WebFacadeServer
 import weblab.data.ServerType as ServerType
 import weblab.login.exc as LoginExceptions
 import weblab.db.exc as DbExceptions
