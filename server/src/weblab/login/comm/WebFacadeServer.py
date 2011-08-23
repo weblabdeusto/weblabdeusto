@@ -15,7 +15,7 @@
 
 import weblab.comm.WebFacadeServer as WebFacadeServer
 
-from weblab.login.comm.web.Login import LoginMethod
+from weblab.login.comm.web.login import LoginMethod
 from weblab.login.comm.web.Facebook import FacebookMethod
 from weblab.login.comm.web.OpenID import OpenIdMethod
 
