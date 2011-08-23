@@ -41,7 +41,7 @@ import weblab.core.coordinator.Coordinator as Coordinator
 import weblab.lab.assigned_experiments as AssignedExperiments
 import weblab.lab.IsUpAndRunningHandler as IsUpAndRunningHandler
 
-import weblab.experiment.ApiLevel as ExperimentApiLevel
+import weblab.experiment.level as ExperimentApiLevel
 
 import voodoo.sessions.SessionManager as SessionManager
 from voodoo.sessions import SessionGenerator
