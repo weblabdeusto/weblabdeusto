@@ -10,7 +10,7 @@
 	<type>weblab.data.ServerType::Experiment</type>
 	<methods>weblab.methods::Experiment</methods>
 
-	<implementation>weblab.experiment.experiments.java_dummy.JavaDummyExperiment.JavaDummyExperiment</implementation>
+	<implementation>weblab.experiment.experiments.java_dummy.server.JavaDummyExperiment</implementation>
 
 	<restriction>javadummy@Dummy experiments</restriction>
 
