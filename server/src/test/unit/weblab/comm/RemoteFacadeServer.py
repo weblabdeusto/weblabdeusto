@@ -16,7 +16,7 @@ import unittest
 
 import datetime
 
-import weblab.comm.RemoteFacadeServer as RemoteFacadeServer
+import weblab.comm.server as RemoteFacadeServer
 
 class SimplifyResponseTestCase(unittest.TestCase):
 

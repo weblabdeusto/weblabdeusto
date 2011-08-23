@@ -21,7 +21,7 @@ import urllib2
 import json
 import BaseHTTPServer
 
-from weblab.comm.RemoteFacadeServer import RemoteFacadeServerJSON
+from weblab.comm.server import RemoteFacadeServerJSON
 from weblab.comm.RemoteFacadeContext import get_context, create_context, delete_context
 
 import voodoo.log as log

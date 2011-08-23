@@ -29,7 +29,7 @@ import test.unit.configuration as configuration
 from test.util.ModuleDisposer import uses_module
 
 import weblab.login.comm.codes as LoginRFCodes
-import weblab.comm.RemoteFacadeServer as RemoteFacadeServer
+import weblab.comm.server as RemoteFacadeServer
 import weblab.login.comm.server as LoginFacadeServer
 
 import weblab.login.exc as LoginExceptions

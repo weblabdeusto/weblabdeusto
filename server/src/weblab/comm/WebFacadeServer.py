@@ -18,8 +18,8 @@ import urllib
 import SocketServer
 import BaseHTTPServer
 
-import weblab.comm.RemoteFacadeServer as RFS
-from weblab.comm.RemoteFacadeServer import strdate
+import weblab.comm.server as RFS
+from weblab.comm.server import strdate
 
 from weblab.comm.RemoteFacadeContext import get_context, create_context, delete_context
 

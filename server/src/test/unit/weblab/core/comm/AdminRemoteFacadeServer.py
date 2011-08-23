@@ -26,7 +26,7 @@ from weblab.data.dto.Group         import Group
 from weblab.data.dto.User          import User
 from weblab.data.dto.Role          import Role
 
-import weblab.comm.RemoteFacadeServer as RemoteFacadeServer
+import weblab.comm.server as RemoteFacadeServer
 import weblab.core.comm.AdminFacadeServer as AdminFacadeServer
 
 import voodoo.configuration.ConfigurationManager as ConfigurationManager

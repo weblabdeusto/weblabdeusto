@@ -20,7 +20,7 @@ import time
 
 import weblab.admin.bot.client as Client
 
-import weblab.comm.RemoteFacadeServer as RemoteFacadeServer
+import weblab.comm.server as RemoteFacadeServer
 import weblab.core.comm.user_server as UserProcessingFacadeServer
 import weblab.data.Command as Command
 

@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import weblab.comm.RemoteFacadeServer as RFS
+import weblab.comm.server as RFS
 import weblab.core.comm.user_manager as UPFM
 
 try:

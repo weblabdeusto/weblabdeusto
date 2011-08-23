@@ -38,7 +38,7 @@ import test.unit.configuration as configuration
 from test.util.ModuleDisposer import uses_module
 
 import weblab.core.comm.codes as UserProcessingRFCodes
-import weblab.comm.RemoteFacadeServer as RemoteFacadeServer
+import weblab.comm.server as RemoteFacadeServer
 import weblab.core.comm.user_server as UserProcessingFacadeServer
 
 import weblab.core.reservations as Reservation

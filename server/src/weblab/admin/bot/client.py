@@ -33,7 +33,7 @@ import weblab.data.dto.Category as Category
 import weblab.data.dto.Experiment as Experiment
 import weblab.data.dto.User as User
 import weblab.data.Command as Command
-import weblab.comm.RemoteFacadeServer as RemoteFacadeServer
+import weblab.comm.server as RemoteFacadeServer
 
 try:
     import weblab.login.comm.generated.WebLabDeusto_client as LoginWebLabDeusto_client

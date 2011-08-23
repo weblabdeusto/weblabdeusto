@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import weblab.comm.RemoteFacadeServer as RFS
+import weblab.comm.server as RFS
 import weblab.core.comm.AdminFacadeManager as AFM
 from weblab.core.comm.admin_smartgwt import AdminFacadeServerSmartGWT
 

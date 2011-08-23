@@ -22,7 +22,7 @@ import time
 
 import weblab.admin.bot.client as Client
 
-import weblab.comm.RemoteFacadeServer as RemoteFacadeServer
+import weblab.comm.server as RemoteFacadeServer
 import weblab.login.comm.server as LoginFacadeServer
 
 import voodoo.configuration.ConfigurationManager as ConfigurationManager

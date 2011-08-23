@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-import weblab.comm.RemoteFacadeServer as RFS
+import weblab.comm.server as RFS
 import weblab.login.comm.manager as LFM
 try:
     import weblab.login.comm.generated.WebLabDeusto_interface as WebLabDeusto_interface
