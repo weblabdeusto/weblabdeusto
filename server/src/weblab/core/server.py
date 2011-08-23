@@ -34,7 +34,7 @@ import weblab.core.db.manager as DatabaseManager
 import weblab.core.exc as coreExc
 import weblab.core.comm.UserProcessingFacadeServer as UserProcessingFacadeServer
 import weblab.core.comm.AdminFacadeServer as AdminFacadeServer
-import weblab.core.comm.WebFacadeServer as WebFacadeServer
+import weblab.core.comm.web_server as WebFacadeServer
 
 from voodoo.gen.caller_checker import caller_check
 from voodoo.threaded import threaded
