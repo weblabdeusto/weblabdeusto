@@ -15,7 +15,7 @@
 
 import unittest
 
-from weblab.admin.dbmanager.ConsoleUI import ConsoleUI, GO_BACK_KEYWORD
+from weblab.admin.dbmanager.console_ui import ConsoleUI, GO_BACK_KEYWORD
 from weblab.admin.dbmanager.Exceptions import GoBackException
 
 class ConsoleUITestCase(unittest.TestCase):
