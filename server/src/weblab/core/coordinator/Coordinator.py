@@ -33,7 +33,7 @@ import weblab.core.coordinator.scheduler as Scheduler
 import weblab.core.coordinator.meta_scheduler as MetaScheduler
 import weblab.core.coordinator.store as TemporalInformationStore
 
-import weblab.core.coordinator.PriorityQueueScheduler as PriorityQueueScheduler
+import weblab.core.coordinator.priority_queue_scheduler as PriorityQueueScheduler
 import weblab.core.coordinator.checker_threaded as ResourcesCheckerThread
 
 PRIORITY_QUEUE = 'PRIORITY_QUEUE'
