@@ -45,7 +45,7 @@ def generate(cfg_manager, methods):
         def register_parent(self,parent):
             self._parent = parent           
             # We should also register the server in the ServerRegistry
-            import voodoo.gen.registry.ServerRegistry as ServerRegistry 
+            import voodoo.gen.registry.server_registry as ServerRegistry 
             import voodoo.gen.exceptions.registry.RegistryExceptions as RegistryExceptions
             registry = ServerRegistry.get_instance()
             try:

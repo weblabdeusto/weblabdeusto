@@ -21,7 +21,7 @@ import voodoo.gen.generators.ClientSkel as ClientSkel
 
 import voodoo.gen.protocols.Direct.ServerDirect as ServerDirect
 
-import voodoo.gen.registry.ServerRegistry as ServerRegistry
+import voodoo.gen.registry.server_registry as ServerRegistry
 
 import voodoo.gen.exceptions.registry.RegistryExceptions as RegistryExceptions
 import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions

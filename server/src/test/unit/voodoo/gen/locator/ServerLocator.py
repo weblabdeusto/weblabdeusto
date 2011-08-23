@@ -42,7 +42,7 @@ import voodoo.gen.protocols.SOAP.Address    as SOAPAddress
 import voodoo.gen.protocols.SOAP.Network    as SOAPNetwork
 import voodoo.gen.protocols.SOAP.ServerSOAP as ServerSOAP
 
-import voodoo.gen.registry.ServerRegistry as ServerRegistry
+import voodoo.gen.registry.server_registry as ServerRegistry
 import voodoo.methods as voodoo_methods
 
 import test.unit.voodoo.gen.locator.ServerTypeSample as ServerTypeSample

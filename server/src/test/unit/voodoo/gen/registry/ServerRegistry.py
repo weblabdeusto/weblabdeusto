@@ -15,7 +15,7 @@
 
 import unittest
 
-import voodoo.gen.registry.ServerRegistry as ServerRegistry
+import voodoo.gen.registry.server_registry as ServerRegistry
 import voodoo.gen.exceptions.registry.RegistryExceptions as RegistryExceptions
 
 

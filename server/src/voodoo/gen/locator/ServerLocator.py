@@ -18,7 +18,7 @@ import time
 
 import voodoo.log as log
 
-import voodoo.gen.registry.ServerRegistry as ServerRegistry
+import voodoo.gen.registry.server_registry as ServerRegistry
 
 import voodoo.gen.exceptions.registry.RegistryExceptions as RegistryExceptions
 import voodoo.gen.exceptions.locator.LocatorExceptions as LocatorExceptions

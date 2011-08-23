@@ -30,7 +30,7 @@ import weblab.data.experiments.ExperimentId as ExperimentId
 import voodoo.exceptions.sessions.SessionExceptions as SessionExceptions
 
 from voodoo.sessions.SessionId import SessionId
-import voodoo.gen.registry.ServerRegistry as ServerRegistry
+import voodoo.gen.registry.server_registry as ServerRegistry
 import sys
 
 # 
