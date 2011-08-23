@@ -17,7 +17,7 @@ from voodoo import LogLevel
 from voodoo.gen.caller_checker import caller_check
 from voodoo.log import logged
 from voodoo.override import Override
-from voodoo.sessions.SessionChecker import check_session
+from voodoo.sessions.checker import check_session
 from weblab.data import ServerType
 import weblab.translator.exc as TranslatorExceptions
 import weblab.translator.Translator as Translator

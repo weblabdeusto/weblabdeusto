@@ -20,7 +20,7 @@ import re
 import voodoo.log as log
 import voodoo.LogLevel as LogLevel
 from voodoo.log import logged
-from voodoo.sessions.SessionChecker import check_session
+from voodoo.sessions.checker import check_session
 import voodoo.sessions.SessionType as SessionType
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.gen.exceptions.exceptions as GeneratorExceptions

@@ -39,7 +39,7 @@ import weblab.core.comm.web_server as WebFacadeServer
 from voodoo.gen.caller_checker import caller_check
 from voodoo.threaded import threaded
 
-from voodoo.sessions.SessionChecker import check_session
+from voodoo.sessions.checker import check_session
 import voodoo.sessions.SessionManager as SessionManager
 import voodoo.sessions.SessionType as SessionType
 
