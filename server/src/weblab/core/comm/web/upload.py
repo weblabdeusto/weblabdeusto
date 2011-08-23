@@ -17,7 +17,7 @@
 from weblab.comm.codes import WEBLAB_GENERAL_EXCEPTION_CODE, PYTHON_GENERAL_EXCEPTION_CODE
 from voodoo.sessions.SessionId import SessionId
 import weblab.comm.WebFacadeServer as WebFacadeServer
-import weblab.experiment.Util as Util
+import weblab.experiment.util as Util
 
 FILE_SENT = 'file_sent'
 FILE_INFO = 'file_info'

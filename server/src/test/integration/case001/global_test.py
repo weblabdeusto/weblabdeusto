@@ -43,7 +43,7 @@ import voodoo.sessions.SessionType as SessionType
 import weblab.data.ClientAddress as ClientAddress
 import weblab.data.Command as Command
 import weblab.data.ServerType as ServerType
-import weblab.experiment.Util as ExperimentUtil
+import weblab.experiment.util as ExperimentUtil
 import weblab.experiment.experiments.ud_xilinx.UdXilinxExperiment as UdXilinxExperiment
 import weblab.lab.server as LaboratoryServer
 import weblab.login.server as LoginServer

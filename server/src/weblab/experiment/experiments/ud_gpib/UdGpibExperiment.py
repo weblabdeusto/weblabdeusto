@@ -17,7 +17,7 @@ import weblab.experiment.experiment as Experiment
 import weblab.experiment.devices.gpib.Gpib as Gpib
 
 from voodoo.gen.caller_checker import caller_check
-import weblab.experiment.Util as ExperimentUtil
+import weblab.experiment.util as ExperimentUtil
 import weblab.experiment.exc as ExperimentExceptions
 import weblab.experiment.experiments.ud_gpib.exc as GpibExceptions
 import weblab.data.ServerType as ServerType

@@ -26,7 +26,7 @@ import voodoo.counter as counter
 
 import weblab.data.Command as Command
 import weblab.core.reservations as Reservation
-import weblab.experiment.Util as _Util
+import weblab.experiment.util as _Util
 
 import weblab.admin.bot.client as Client
 import weblab.admin.bot.Exceptions as Exceptions

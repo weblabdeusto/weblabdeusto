@@ -19,7 +19,7 @@ from voodoo.override import Override
 import weblab.experiment.experiments.ud_xilinx.UdXilinxExperiment as UdXilinxExperiment
 import os
 import weblab.data.ServerType as ServerType
-import weblab.experiment.Util as ExperimentUtil
+import weblab.experiment.util as ExperimentUtil
 
 class UdDemoXilinxExperiment(UdXilinxExperiment.UdXilinxExperiment):
 

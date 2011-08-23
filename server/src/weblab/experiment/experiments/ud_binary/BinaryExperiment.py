@@ -16,7 +16,7 @@
 import os
 import weblab.experiment.experiments.ud_xilinx.UdXilinxExperiment as UdXilinxExperiment
 import weblab.experiment.experiment as Experiment
-import weblab.experiment.Util as ExperimentUtil
+import weblab.experiment.util as ExperimentUtil
 
 import weblab.data.ServerType as ServerType
 

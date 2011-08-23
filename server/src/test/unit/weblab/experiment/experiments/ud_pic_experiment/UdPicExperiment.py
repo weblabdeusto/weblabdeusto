@@ -21,7 +21,7 @@ from test.util.fakeobjects import fakeaddinfourl
 import test.unit.configuration as configuration_module
 
 from weblab.experiment.experiments.ud_pic.UdPicExperiment import UdPicExperiment
-import weblab.experiment.Util as ExperimentUtil
+import weblab.experiment.util as ExperimentUtil
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
 import weblab.experiment.exc as ExperimentExceptions

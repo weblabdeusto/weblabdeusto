@@ -28,7 +28,7 @@ import mocker
 import test.unit.configuration as configuration_module
 import unittest
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
-import weblab.experiment.Util as ExperimentUtil
+import weblab.experiment.util as ExperimentUtil
 import weblab.methods as weblab_methods
 
 

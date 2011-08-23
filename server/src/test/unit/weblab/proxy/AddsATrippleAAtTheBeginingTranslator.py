@@ -21,7 +21,7 @@ from voodoo.sessions.SessionChecker import check_session
 from weblab.data import ServerType
 import weblab.translator.exc as TranslatorExceptions
 import weblab.translator.Translator as Translator
-import weblab.experiment.Util as ExperimentUtil
+import weblab.experiment.util as ExperimentUtil
 
 
 check_session_params = (

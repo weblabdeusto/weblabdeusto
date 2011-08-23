@@ -35,7 +35,7 @@ import weblab.core.coordinator.status as WebLabSchedulingStatus
 import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.lab.exc as LaboratoryExceptions
 
-import weblab.experiment.Util as ExperimentUtil
+import weblab.experiment.util as ExperimentUtil
 import weblab.data.experiments.Usage as Usage
 
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessor")

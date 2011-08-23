@@ -18,7 +18,7 @@ from weblab.data.experiments import Usage
 import weblab.lab.exc as LaboratoryExceptions
 import weblab.proxy.exc as ProxyExceptions
 import time
-import weblab.experiment.Util as ExperimentUtil
+import weblab.experiment.util as ExperimentUtil
 
 
 EXPERIMENT_POLL_TIME = 'proxy_experiment_poll_time'

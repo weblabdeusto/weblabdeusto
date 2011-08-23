@@ -21,7 +21,7 @@ from test.util.fakeobjects import return_values
 import test.unit.configuration as configuration_module
 import unittest
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
-import weblab.experiment.Util as ExperimentUtil
+import weblab.experiment.util as ExperimentUtil
 import weblab.experiment.experiments.ud_xilinx.UdXilinxExperiment as UdXilinxExperiment
 import time
 

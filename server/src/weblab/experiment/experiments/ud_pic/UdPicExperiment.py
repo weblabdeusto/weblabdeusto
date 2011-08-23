@@ -23,7 +23,7 @@ from weblab.experiment.devices.tftp import TFtpDevice
 import weblab.experiment.devices.http as HttpDevice
 import weblab.experiment.experiments.ud_pic.UdPicBoardCommand as UdPicBoardCommand
 import weblab.experiment.experiments.ud_pic.TFtpProgramSender as TFtpProgramSender
-import weblab.experiment.Util as ExperimentUtil
+import weblab.experiment.util as ExperimentUtil
 import weblab.data.ServerType as ServerType
 
 import weblab.experiment.experiment as Experiment
