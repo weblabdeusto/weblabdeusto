@@ -76,7 +76,7 @@ class OpenID(object):
         return None
 
     def get_user_id(self, credentials):
-        import weblab.login.comm.web.OpenID as OpenIDMod
+        import weblab.login.comm.web.openid as OpenIDMod
         return OpenIDMod.OpenIdMethod.get_user_id(credentials)
 
 
