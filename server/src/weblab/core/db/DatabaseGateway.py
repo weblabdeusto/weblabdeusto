@@ -14,6 +14,6 @@
 # 
 
 def create_gateway(cfg_manager):
-    import weblab.core.db.DatabaseMySQLGateway as gateway_module
+    import weblab.core.db.mysql as gateway_module
     return gateway_module.DatabaseGateway(cfg_manager)
 
