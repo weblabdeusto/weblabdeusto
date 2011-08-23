@@ -45,7 +45,7 @@ import weblab.data.dto.Role as Role
 
 import weblab.db.session as DbSession
 
-from weblab.core.coordinator.Resource import Resource
+from weblab.core.coordinator.resource import Resource
 
 import weblab.core.exc as coreExc
 import weblab.lab.exc as LaboratoryExceptions

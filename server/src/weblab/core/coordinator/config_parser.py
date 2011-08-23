@@ -15,7 +15,7 @@
 
 import re
 
-from weblab.core.coordinator.Resource import Resource
+from weblab.core.coordinator.resource import Resource
 import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
 import weblab.core.exc as coreExc
 

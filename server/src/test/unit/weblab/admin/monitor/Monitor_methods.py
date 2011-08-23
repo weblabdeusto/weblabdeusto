@@ -38,7 +38,7 @@ import weblab.data.ServerType                         as ServerType
 import weblab.data.ClientAddress                      as ClientAddress
 from weblab.data.dto.User import User
 from weblab.data.dto.Role import Role
-from weblab.core.coordinator.Resource import Resource
+from weblab.core.coordinator.resource import Resource
 
 import voodoo.gen.coordinator.CoordAddress  as CoordAddress
 

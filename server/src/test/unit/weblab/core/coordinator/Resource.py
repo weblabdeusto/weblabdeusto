@@ -16,7 +16,7 @@
 
 import unittest
 
-from weblab.core.coordinator.Resource import Resource
+from weblab.core.coordinator.resource import Resource
 
 class ResourceTest(unittest.TestCase):
 

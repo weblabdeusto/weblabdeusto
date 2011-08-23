@@ -20,7 +20,7 @@ import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
 from weblab.data.experiments.ExperimentId import ExperimentId
 from weblab.data.experiments.ExperimentInstanceId import ExperimentInstanceId
-from weblab.core.coordinator.Resource import Resource
+from weblab.core.coordinator.resource import Resource
 import weblab.core.coordinator.exc as CoordExc
 
 from test.unit.weblab.core.coordinator.Coordinator import WrappedCoordinator, ConfirmerMock

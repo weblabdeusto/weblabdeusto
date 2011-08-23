@@ -26,7 +26,7 @@ import voodoo.sessions.SessionId as SessionId
 import weblab.core.coordinator.Coordinator as Coordinator
 from weblab.data.experiments.ExperimentId import ExperimentId
 from weblab.data.experiments.ExperimentInstanceId import ExperimentInstanceId
-from weblab.core.coordinator.Resource import Resource
+from weblab.core.coordinator.resource import Resource
 
 import weblab.core.coordinator.status as WSS
 import weblab.core.coordinator.exc as CoordExc

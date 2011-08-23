@@ -20,7 +20,7 @@ import weblab.data.experiments.ExperimentId as ExperimentId
 import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
 import weblab.core.coordinator.exc as CoordExc
 
-from weblab.core.coordinator.Resource import Resource
+from weblab.core.coordinator.resource import Resource
 
 from sqlalchemy import Column, Boolean, Integer, String, DateTime, ForeignKey, UniqueConstraint, Table, Text
 from sqlalchemy.ext.declarative import declarative_base
