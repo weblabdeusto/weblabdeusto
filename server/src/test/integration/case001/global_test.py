@@ -48,7 +48,7 @@ import weblab.experiment.experiments.ud_xilinx.UdXilinxExperiment as UdXilinxExp
 import weblab.lab.server as LaboratoryServer
 import weblab.login.server as LoginServer
 import weblab.methods as weblab_exported_methods
-import weblab.core.AliveUsersCollection    as AliveUsersCollection
+import weblab.core.alive_users    as AliveUsersCollection
 import weblab.core.reservations             as Reservation
 import weblab.core.server    as UserProcessingServer
 import weblab.core.UserProcessor           as UserProcessor
