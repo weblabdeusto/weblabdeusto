@@ -20,7 +20,7 @@ import json
 from voodoo.log import logged
 import voodoo.LogLevel as LogLevel
 import voodoo.log as log
-import voodoo.AdminNotifier as AdminNotifier
+import voodoo.admin_notifier as AdminNotifier
 
 import weblab.core.coordinator.exc as CoordExc
 
