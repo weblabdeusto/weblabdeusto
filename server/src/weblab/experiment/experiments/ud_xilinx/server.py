@@ -20,7 +20,7 @@ from voodoo.log import logged
 from voodoo.override import Override
 import weblab.experiment.experiments.ud_xilinx.exc as UdXilinxExperimentExceptions
 from weblab.experiment.experiments.ud_xilinx.UdXilinxCommandSenders import UdXilinxCommandSender
-from weblab.experiment.experiments.ud_xilinx.UdXilinxProgrammers import UdXilinxProgrammer
+from weblab.experiment.experiments.ud_xilinx.programmers import UdXilinxProgrammer
 import os
 import tempfile
 import voodoo.log as log

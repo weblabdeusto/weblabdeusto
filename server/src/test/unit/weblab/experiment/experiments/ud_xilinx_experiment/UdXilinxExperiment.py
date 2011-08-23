@@ -134,7 +134,7 @@ class UsingUdXilinxExperimentTestCase(unittest.TestCase):
                 self.uxm._command_sender._serial_port.codes[2 + initial_send]
             )
 
-    @patch('weblab.experiment.experiments.ud_xilinx.UdXilinxProgrammers.JTagBlazer')
+    @patch('weblab.experiment.experiments.ud_xilinx.programmers.JTagBlazer')
     def test_jtag_blazer_with_http(self, _):
         self.cfg_manager._set_value('xilinx_device_to_program', 'JTagBlazer')
         self.cfg_manager._set_value('xilinx_device_to_send_commands', 'HttpDevice')
