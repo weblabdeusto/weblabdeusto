@@ -23,7 +23,7 @@ import weblab.data.ServerType as ServerType
 import weblab.data.Command as Command
 
 from voodoo.cache import cache
-import voodoo.ResourceManager as ResourceManager
+import voodoo.resources_manager as ResourceManager
 import voodoo.log as log
 
 import weblab.comm.context as RemoteFacadeContext

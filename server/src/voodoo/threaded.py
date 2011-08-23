@@ -86,7 +86,7 @@ def threaded(resource_manager = None, logging = True):
     else:
         print "Exception raised: %s" % handler.raised_exc
 
-    threaded has an optional argument which is a voodoo.ResourceManager.ResourceManager
+    threaded has an optional argument which is a voodoo.resources_manager.ResourceManager
 
     It seems to be quite similar to Join Java asynchronous methods:
     http://en.wikipedia.org/wiki/Join_Java#Asynchronous_methods

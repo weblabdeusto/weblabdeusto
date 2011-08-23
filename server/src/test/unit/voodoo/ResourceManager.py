@@ -14,7 +14,7 @@
 # 
 
 import unittest
-import voodoo.ResourceManager as RM
+import voodoo.resources_manager as RM
 
 class ResourceManagerTest(unittest.TestCase):
     def test_is_testing(self):

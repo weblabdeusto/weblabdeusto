@@ -37,7 +37,7 @@ import SimpleXMLRPCServer
 
 import voodoo.log as log
 import voodoo.counter as counter
-import voodoo.ResourceManager as ResourceManager
+import voodoo.resources_manager as ResourceManager
 
 import weblab.comm.manager as RemoteFacadeManager
 from weblab.comm.context import get_context, create_context, delete_context

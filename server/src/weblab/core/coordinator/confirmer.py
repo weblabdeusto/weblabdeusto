@@ -18,7 +18,7 @@ import datetime
 from voodoo.threaded import threaded
 import voodoo.log as log
 
-import voodoo.ResourceManager as ResourceManager
+import voodoo.resources_manager as ResourceManager
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.sessions.SessionId as SessionId
 

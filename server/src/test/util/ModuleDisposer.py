@@ -23,7 +23,7 @@ def uses_module(module, verbose = None):
         # Something related with the UserProcessingServer
 
     uses_module will use the '_resource_manager' variable in that module
-    (which is an instance of voodoo.ResourceManager), will check how many
+    (which is an instance of voodoo.resources_manager), will check how many
     resources are used before calling to the test and how many after 
     calling the test, and it will try to clean the new ones. The main
     drawback of this code is that it misses the resources created in the

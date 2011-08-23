@@ -32,7 +32,7 @@ import voodoo.log as log
 import voodoo.mapper as mapper
 import voodoo.counter as counter
 
-import voodoo.ResourceManager as ResourceManager
+import voodoo.resources_manager as ResourceManager
 
 #TODO: configuration
 MAX_TIMEOUT = 0.5

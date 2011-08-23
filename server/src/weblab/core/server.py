@@ -43,7 +43,7 @@ from voodoo.sessions.checker import check_session
 import voodoo.sessions.SessionManager as SessionManager
 import voodoo.sessions.SessionType as SessionType
 
-import voodoo.ResourceManager as ResourceManager
+import voodoo.resources_manager as ResourceManager
 
 check_session_params = (
         coreExc.SessionNotFoundException,

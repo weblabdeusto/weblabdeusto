@@ -18,7 +18,7 @@ import socket
 if hasattr(socket,'AF_UNIX'):
     import voodoo.gen.protocols.BaseSocket.ServerBaseSocket as ServerBaseSocket
     import voodoo.gen.protocols.BaseSocket.SocketManager as SocketManager
-    import voodoo.ResourceManager as ResourceManager
+    import voodoo.resources_manager as ResourceManager
 
     import SocketServer
 
