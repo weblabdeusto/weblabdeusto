@@ -20,7 +20,7 @@ import mocker
 
 import time
 
-import weblab.admin.bot.Client as Client
+import weblab.admin.bot.client as Client
 
 import weblab.comm.RemoteFacadeServer as RemoteFacadeServer
 import weblab.login.comm.LoginFacadeServer as LoginFacadeServer

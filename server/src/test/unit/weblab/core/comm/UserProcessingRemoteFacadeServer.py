@@ -18,7 +18,7 @@ import mocker
 import sys
 import time
 
-import weblab.admin.bot.Client as Client
+import weblab.admin.bot.client as Client
 
 import weblab.comm.RemoteFacadeServer as RemoteFacadeServer
 import weblab.core.comm.user_server as UserProcessingFacadeServer
