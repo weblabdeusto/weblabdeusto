@@ -25,7 +25,7 @@ import weblab.login.comm.WebFacadeServer as WebFacadeServer
 import weblab.data.ServerType as ServerType
 import weblab.login.exc as LoginExceptions
 import weblab.db.exc as DbExceptions
-import weblab.db.DatabaseSession as DbSession
+import weblab.db.session as DbSession
 import weblab.comm.RemoteFacadeContext as RemoteFacadeContext
 
 LOGIN_FAILED_DELAY = 5

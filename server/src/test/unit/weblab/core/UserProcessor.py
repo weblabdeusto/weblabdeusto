@@ -43,7 +43,7 @@ import weblab.data.dto.ExperimentUse as ExperimentUse
 import weblab.data.dto.User as User
 import weblab.data.dto.Role as Role
 
-import weblab.db.DatabaseSession as DbSession
+import weblab.db.session as DbSession
 
 from weblab.core.coordinator.Resource import Resource
 

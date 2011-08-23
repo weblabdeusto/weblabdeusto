@@ -19,7 +19,7 @@ import test.unit.configuration as configuration
 
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 import weblab.login.db.DatabaseManager as DatabaseManager
-import weblab.db.DatabaseSession as DatabaseSession
+import weblab.db.session as DatabaseSession
 
 class DatabaseServerTestCase(unittest.TestCase):
     def setUp(self):

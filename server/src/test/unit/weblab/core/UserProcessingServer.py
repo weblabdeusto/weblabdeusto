@@ -29,7 +29,7 @@ import weblab.core.Reservation             as Reservation
 import weblab.core.coordinator.Confirmer   as Confirmer
 import weblab.core.coordinator.Coordinator as Coordinator
 import voodoo.configuration.ConfigurationManager      as ConfigurationManager
-import weblab.db.DatabaseSession                as DatabaseSession
+import weblab.db.session                as DatabaseSession
 import weblab.data.ServerType                         as ServerType
 import weblab.data.ClientAddress                      as ClientAddress
 

@@ -18,7 +18,7 @@ import time
 
 import voodoo.log as log
 
-import weblab.db.DatabaseSession as DbSession
+import weblab.db.session as DbSession
 import weblab.data.experiments.Usage as Usage
 import weblab.data.Command as Command
 

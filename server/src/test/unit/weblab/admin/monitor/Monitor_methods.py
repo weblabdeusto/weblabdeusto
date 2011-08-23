@@ -27,7 +27,7 @@ import weblab.core.coordinator.Coordinator as Coordinator
 import weblab.core.coordinator.Confirmer   as Confirmer
 import weblab.core.exc as UPSExc
 
-import weblab.db.DatabaseSession                as DatabaseSession
+import weblab.db.session                as DatabaseSession
 
 import weblab.data.dto.Category as Category
 import weblab.data.dto.Experiment as Experiment
