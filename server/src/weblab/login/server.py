@@ -19,7 +19,7 @@ import time
 
 import weblab.login.LoginAuth as LoginAuth
 import weblab.login.DelegatedLoginAuth as DelegatedLoginAuth
-import weblab.login.db.DatabaseManager as DatabaseManager
+import weblab.login.db.manager as DatabaseManager
 import weblab.login.comm.LoginFacadeServer as LoginFacadeServer
 import weblab.login.comm.WebFacadeServer as WebFacadeServer
 import weblab.data.ServerType as ServerType
