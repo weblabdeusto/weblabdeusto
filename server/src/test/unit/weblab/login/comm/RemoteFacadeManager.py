@@ -27,7 +27,7 @@ import voodoo.sessions.SessionId as SessionId
 import test.unit.configuration as configuration
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
-import weblab.login.comm.LoginFacadeManager as LoginFacadeManager
+import weblab.login.comm.manager as LoginFacadeManager
 import weblab.comm.RemoteFacadeManagerCodes as RFCodes
 import weblab.comm.RemoteFacadeManager as RFM
 import weblab.login.comm.LoginFacadeCodes as LoginRFCodes

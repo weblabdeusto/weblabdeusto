@@ -14,7 +14,7 @@
 # 
 
 import weblab.comm.RemoteFacadeServer as RFS
-import weblab.login.comm.LoginFacadeManager as LFM
+import weblab.login.comm.manager as LFM
 try:
     import weblab.login.comm.generated.WebLabDeusto_interface as WebLabDeusto_interface
 except ImportError:
