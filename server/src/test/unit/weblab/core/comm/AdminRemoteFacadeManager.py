@@ -21,7 +21,7 @@ import voodoo.configuration.ConfigurationManager as ConfigurationManager
 import weblab.core.comm.AdminFacadeManager as AdminFacadeManager
 import weblab.comm.RemoteFacadeManagerCodes as RFCodes
 import weblab.comm.RemoteFacadeManager as RFM
-import weblab.core.comm.UserProcessingFacadeCodes as UserProcessingRFCodes
+import weblab.core.comm.codes as UserProcessingRFCodes
 
 import weblab.data.dto.Experiment as Experiment
 import weblab.data.dto.Category as Category

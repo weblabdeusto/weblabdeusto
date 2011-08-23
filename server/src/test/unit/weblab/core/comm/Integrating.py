@@ -37,7 +37,7 @@ import test.unit.configuration as configuration
 
 from test.util.ModuleDisposer import uses_module
 
-import weblab.core.comm.UserProcessingFacadeCodes as UserProcessingRFCodes
+import weblab.core.comm.codes as UserProcessingRFCodes
 import weblab.comm.RemoteFacadeServer as RemoteFacadeServer
 import weblab.core.comm.UserProcessingFacadeServer as UserProcessingFacadeServer
 

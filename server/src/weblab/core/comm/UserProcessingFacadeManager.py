@@ -26,7 +26,7 @@ import weblab.core.exc as coreExc
 import weblab.exc as WebLabExceptions
 import voodoo.gen.exceptions.exceptions as VoodooExceptions
 
-import weblab.core.comm.UserProcessingFacadeCodes as UPFCodes
+import weblab.core.comm.codes as UPFCodes
 
 EXCEPTIONS = (
         # EXCEPTION                                              CODE                                                   PROPAGATE TO CLIENT

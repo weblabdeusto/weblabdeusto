@@ -31,7 +31,7 @@ import voodoo.configuration.ConfigurationManager as ConfigurationManager
 import weblab.core.comm.UserProcessingFacadeManager as UserProcessingFacadeManager
 import weblab.comm.RemoteFacadeManagerCodes as RFCodes
 import weblab.comm.RemoteFacadeManager as RFM
-import weblab.core.comm.UserProcessingFacadeCodes as UserProcessingRFCodes
+import weblab.core.comm.codes as UserProcessingRFCodes
 import weblab.core.reservations as Reservation
 
 import weblab.data.dto.ExperimentAllowed as ExperimentAllowed
