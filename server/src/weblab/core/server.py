@@ -33,7 +33,7 @@ import weblab.core.db.manager as DatabaseManager
 
 import weblab.core.exc as coreExc
 import weblab.core.comm.user_server as UserProcessingFacadeServer
-import weblab.core.comm.AdminFacadeServer as AdminFacadeServer
+import weblab.core.comm.admin_server as AdminFacadeServer
 import weblab.core.comm.web_server as WebFacadeServer
 
 from voodoo.gen.caller_checker import caller_check
