@@ -16,7 +16,7 @@ import sys
 import threading
 
 import voodoo.abstraction.abstract_class_generator as acg
-import voodoo.gen.protocols.Protocols as _Protocols
+import voodoo.gen.protocols.protocols as _Protocols
 
 #TODO: gestion de hilos (en begin deberian lanzarse en otros hilos)
 

@@ -20,8 +20,8 @@ class ServerTypeHandler(object):
     def __init__(self,server_type_type, methods):
         """ server_type_type is a Enumeration-created type.
 
-        For example: voodoo.gen.protocols.Protocols.Protocols
-        (not voodoo.gen.protocols.Protocols, that's only a module).
+        For example: voodoo.gen.protocols.protocols.Protocols
+        (not voodoo.gen.protocols.protocols, that's only a module).
 
         The second parameter, "methods", must be a dictionary like:
         {

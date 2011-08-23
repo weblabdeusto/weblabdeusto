@@ -16,7 +16,7 @@
 import unittest
 import StringIO
 
-import voodoo.gen.protocols.Protocols as Protocols
+import voodoo.gen.protocols.protocols as Protocols
 import voodoo.gen.coordinator.CoordinationInformation as CoordInfo
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.gen.coordinator.Access as Access

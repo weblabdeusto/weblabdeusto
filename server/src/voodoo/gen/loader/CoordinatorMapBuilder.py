@@ -14,7 +14,7 @@
 # 
 
 import voodoo.gen.coordinator.Access  as Access
-import voodoo.gen.protocols.Protocols as Protocols
+import voodoo.gen.protocols.protocols as Protocols
 import voodoo.gen.coordinator.CoordinationInformation as CoordInfo
 import voodoo.gen.protocols as protocol_pkg
 

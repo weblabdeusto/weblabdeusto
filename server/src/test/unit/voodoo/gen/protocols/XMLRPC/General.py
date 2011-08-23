@@ -19,7 +19,7 @@ from test.util.ModuleDisposer import uses_module
 import voodoo.gen.protocols.XMLRPC.ServerXMLRPC as ServerXMLRPC
 import voodoo.gen.protocols.XMLRPC.Exceptions as Exceptions
 
-import voodoo.gen.protocols.Protocols as Protocols
+import voodoo.gen.protocols.protocols as Protocols
 import voodoo.gen.generators as gens
 
 import test.unit.configuration as configuration_module

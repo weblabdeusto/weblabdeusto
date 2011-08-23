@@ -19,7 +19,7 @@ import voodoo.gen.coordinator.AccessLevel  as AccessLevel
 import voodoo.gen.loader.ConfigurationParser as ConfigurationParser
 import voodoo.gen.loader.CoordinatorMapBuilder as CoordinatorMapBuilder
 
-import voodoo.gen.protocols.Protocols as Protocols
+import voodoo.gen.protocols.protocols as Protocols
 
 import test.unit.voodoo.gen.loader.ServerType as ServerType
 

@@ -15,7 +15,7 @@
 
 import unittest
 
-import voodoo.gen.protocols.Protocols as Protocols
+import voodoo.gen.protocols.protocols as Protocols
 import voodoo.gen.coordinator.Access as Access
 import voodoo.gen.coordinator.AccessLevel as AccessLevel
 import voodoo.gen.coordinator.CoordAddress as CoordAddress

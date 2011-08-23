@@ -35,7 +35,7 @@ import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
 
 import voodoo.gen.generators.ServerSkel as ServerSkel
 
-import voodoo.gen.protocols.Protocols as Protocols
+import voodoo.gen.protocols.protocols as Protocols
 import voodoo.gen.protocols.Direct.Address as DirectAddress
 import voodoo.gen.protocols.Direct.Network as DirectNetwork
 import voodoo.gen.protocols.SOAP.Address    as SOAPAddress

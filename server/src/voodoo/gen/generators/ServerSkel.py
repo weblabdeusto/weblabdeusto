@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 import voodoo.gen.generators.Args as Args
-import voodoo.gen.protocols.Protocols as _Protocols
+import voodoo.gen.protocols.protocols as _Protocols
 import voodoo.abstraction.abstract_class_generator as acg
 
 def _generate_server_skel(methods,servers):

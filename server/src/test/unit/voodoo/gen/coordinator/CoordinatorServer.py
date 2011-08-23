@@ -31,7 +31,7 @@ import voodoo.gen.coordinator.CoordinatorServer as CoordinatorServer
 
 import voodoo.gen.exceptions.coordinator.CoordinatorServerExceptions as CoordinatorServerExceptions
 
-import voodoo.gen.protocols.Protocols as Protocols
+import voodoo.gen.protocols.protocols as Protocols
 import voodoo.gen.protocols.Direct.Network as DirectNetwork
 import voodoo.gen.protocols.Direct.Address as DirectAddress
 import voodoo.gen.protocols.SOAP.Network as SOAPNetwork

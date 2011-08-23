@@ -21,7 +21,7 @@ import voodoo.gen.protocols.SOAP.Address as SOAPAddress
 import voodoo.gen.protocols.SOAP.ServerSOAP as ServerSOAP
 
 import voodoo.gen.generators.ServerSkel as ServerSkel
-import voodoo.gen.protocols.Protocols as Protocols
+import voodoo.gen.protocols.protocols as Protocols
 
 import test.unit.configuration as configuration_module
 import voodoo.configuration.ConfigurationManager as ConfigurationManager

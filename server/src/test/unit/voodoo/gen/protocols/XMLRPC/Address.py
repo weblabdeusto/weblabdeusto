@@ -20,7 +20,7 @@ import voodoo.gen.protocols.XMLRPC.Address as XMLRPCAddress
 import voodoo.gen.protocols.XMLRPC.ServerXMLRPC as ServerXMLRPC
 
 import voodoo.gen.generators.ServerSkel as ServerSkel
-import voodoo.gen.protocols.Protocols as Protocols
+import voodoo.gen.protocols.protocols as Protocols
 
 import test.unit.configuration as configuration_module
 import voodoo.configuration.ConfigurationManager as ConfigurationManager

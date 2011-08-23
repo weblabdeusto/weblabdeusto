@@ -20,7 +20,7 @@ import voodoo.configuration.ConfigurationManager as ConfigurationManager
 import voodoo.gen.loader.ConfigurationParser as ConfigurationParser
 import voodoo.gen.loader.CoordinatorMapBuilder as CoordinatorMapBuilder
 
-import voodoo.gen.protocols.Protocols as Protocols
+import voodoo.gen.protocols.protocols as Protocols
 import voodoo.gen.protocols.Direct.Network as DirectNetwork
 import voodoo.gen.protocols.Direct.Address as DirectAddress
 
