@@ -108,7 +108,7 @@ class WebLabShell(object):
         try:
             self.telnet = self._create_telnet()
             self._receive()
-            self.send("from weblab.admin.monitor.Monitor_methods import *")
+            self.send("from weblab.admin.monitor.monitor_methods import *")
         except Exception:
             raise
 

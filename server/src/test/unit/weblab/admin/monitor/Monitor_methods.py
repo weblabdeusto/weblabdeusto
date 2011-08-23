@@ -20,7 +20,7 @@ import time
 from   test.util.ModuleDisposer import case_uses_module
 import test.unit.configuration as configuration_module
 
-import weblab.admin.monitor.Monitor_methods           as methods
+import weblab.admin.monitor.monitor_methods           as methods
 import voodoo.configuration.ConfigurationManager      as ConfigurationManager
 import weblab.core.server    as UserProcessingServer
 import weblab.core.coordinator.Coordinator as Coordinator 
