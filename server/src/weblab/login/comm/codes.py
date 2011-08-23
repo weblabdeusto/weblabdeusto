@@ -18,7 +18,7 @@ LOGIN_SERVER_EXCEPTION_CODE               = 'Server.Login'
 
 # Imported this way instead of from RFMC import *
 # to avoid warnings from pyflakes
-import weblab.comm.RemoteFacadeManagerCodes as CommonCodes
+import weblab.comm.codes as CommonCodes
 
 WEBLAB_GENERAL_EXCEPTION_CODE = CommonCodes.WEBLAB_GENERAL_EXCEPTION_CODE
 VOODOO_GENERAL_EXCEPTION_CODE = CommonCodes.VOODOO_GENERAL_EXCEPTION_CODE

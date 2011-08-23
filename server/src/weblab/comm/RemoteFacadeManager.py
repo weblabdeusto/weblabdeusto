@@ -30,7 +30,7 @@ import datetime
 import traceback
 
 import weblab.comm.RemoteFacadeContext as RemoteFacadeContext
-import weblab.comm.RemoteFacadeManagerCodes as RemoteFacadeManagerCodes
+import weblab.comm.codes as RemoteFacadeManagerCodes
 
 PROPAGATE_STACK_TRACES_TO_CLIENT                = 'propagate_stack_traces_to_client'
 DEFAULT_PROPAGATE_STACK_TRACES_TO_CLIENT        = False

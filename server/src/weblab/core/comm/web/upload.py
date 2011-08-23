@@ -14,7 +14,7 @@
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
-from weblab.comm.RemoteFacadeManagerCodes import WEBLAB_GENERAL_EXCEPTION_CODE, PYTHON_GENERAL_EXCEPTION_CODE
+from weblab.comm.codes import WEBLAB_GENERAL_EXCEPTION_CODE, PYTHON_GENERAL_EXCEPTION_CODE
 from voodoo.sessions.SessionId import SessionId
 import weblab.comm.WebFacadeServer as WebFacadeServer
 import weblab.experiment.Util as Util
