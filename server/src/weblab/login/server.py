@@ -17,7 +17,7 @@ from voodoo.log import logged
 import voodoo.LogLevel as LogLevel
 import time
 
-import weblab.login.LoginAuth as LoginAuth
+import weblab.login.auth as LoginAuth
 import weblab.login.DelegatedLoginAuth as DelegatedLoginAuth
 import weblab.login.db.manager as DatabaseManager
 import weblab.login.comm.LoginFacadeServer as LoginFacadeServer
