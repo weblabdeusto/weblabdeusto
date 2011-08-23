@@ -14,7 +14,7 @@
 #
 
 import unittest
-import weblab.core.coordinator.PriorityQueueSchedulerModel as PQSM
+import weblab.core.coordinator.priority_queue_scheduler_model as PQSM
 import weblab.core.coordinator.model as CM
 
 class PriorityQueueSchedulerModelTestCase(unittest.TestCase):

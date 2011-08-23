@@ -33,7 +33,7 @@ def load():
     # 
     # Place here all the dependences in order to populate Base
     # 
-    import weblab.core.coordinator.PriorityQueueSchedulerModel as PriorityQueueSchedulerModel
+    import weblab.core.coordinator.priority_queue_scheduler_model as PriorityQueueSchedulerModel
     assert PriorityQueueSchedulerModel.Base == Base # Just to avoid pyflakes warnings
 
 TABLE_KWARGS = {'mysql_engine' : 'InnoDB'}
