@@ -27,7 +27,7 @@ import weblab.core.coordinator.exc as CoordExc
 import weblab.core.coordinator.db as CoordinationDatabaseManager
 import weblab.core.coordinator.resource_manager as ResourcesManager
 import weblab.core.coordinator.ReservationsManager as ReservationsManager
-import weblab.core.coordinator.PostReservationDataManager as PostReservationDataManager
+import weblab.core.coordinator.post_reservation as PostReservationDataManager
 import weblab.core.coordinator.confirmer as Confirmer
 import weblab.core.coordinator.scheduler as Scheduler
 import weblab.core.coordinator.meta_scheduler as MetaScheduler
