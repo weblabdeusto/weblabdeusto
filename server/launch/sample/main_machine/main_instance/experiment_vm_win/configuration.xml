@@ -10,7 +10,7 @@
 	<type>weblab.data.ServerType::Experiment</type>
 	<methods>weblab.methods::Experiment</methods>
 
-	<implementation>weblab.experiment.experiments.vm.VMExperiment.VMExperiment</implementation>
+	<implementation>weblab.experiment.experiments.vm.server.VMExperiment</implementation>
 
 	<restriction>vm-win@Dummy experiments</restriction>
 
