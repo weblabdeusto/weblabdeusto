@@ -29,7 +29,7 @@ import weblab.experiment.exc as ExperimentExceptions
 import weblab.experiment.experiment as Experiment
 import weblab.experiment.util as ExperimentUtil
 import weblab.experiment.devices.xilinx_impact.devices as XilinxDevices
-import weblab.experiment.devices.xilinx_impact.XilinxImpact as XilinxImpact
+import weblab.experiment.devices.xilinx_impact.impact as XilinxImpact
 
 from voodoo.threaded import threaded
 
