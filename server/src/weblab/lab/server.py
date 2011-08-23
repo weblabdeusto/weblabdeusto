@@ -26,7 +26,7 @@ import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.gen.exceptions.exceptions as GeneratorExceptions
 
 from voodoo.threaded import threaded
-import weblab.lab.AsyncRequest as AsyncRequest
+import weblab.lab.async_request as AsyncRequest
 
 import weblab.lab.exc as LaboratoryExceptions
 
