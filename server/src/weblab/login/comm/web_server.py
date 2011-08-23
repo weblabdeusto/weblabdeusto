@@ -19,7 +19,7 @@ from weblab.login.comm.web.login import LoginMethod
 from weblab.login.comm.web.facebook import FacebookMethod
 from weblab.login.comm.web.OpenID import OpenIdMethod
 
-from weblab.login.comm.LoginFacadeServer import LOGIN_FACADE_SERVER_ROUTE, DEFAULT_LOGIN_SERVER_ROUTE
+from weblab.login.comm.server import LOGIN_FACADE_SERVER_ROUTE, DEFAULT_LOGIN_SERVER_ROUTE
 
 
 WEB_FACADE_LISTEN                    = 'login_web_facade_bind'
