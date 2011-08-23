@@ -16,7 +16,7 @@
 import weblab.comm.WebFacadeServer as WebFacadeServer
 
 from weblab.core.comm.web.upload import FileUploadMethod
-from weblab.core.comm.web.LabVIEW import LabViewMethod
+from weblab.core.comm.web.labview import LabViewMethod
 
 from weblab.core.comm.user_server import USER_PROCESSING_FACADE_SERVER_ROUTE, DEFAULT_USER_PROCESSING_SERVER_ROUTE
 
