@@ -31,7 +31,7 @@ from voodoo.override import Override
 from weblab.core.coordinator.Scheduler import Scheduler
 from weblab.core.coordinator.CoordinatorModel import ResourceType, ResourceInstance, CurrentResourceSlot
 from weblab.core.coordinator.PriorityQueueSchedulerModel import ConcreteCurrentReservation, WaitingReservation
-import weblab.core.coordinator.WebLabSchedulingStatus as WSS
+import weblab.core.coordinator.status as WSS
 
 from weblab.data.experiments.ExperimentInstanceId import ExperimentInstanceId
 

@@ -33,7 +33,7 @@ from weblab.core.coordinator.Resource import Resource
 
 import weblab.core.coordinator.Coordinator as Coordinator
 
-import weblab.core.coordinator.WebLabSchedulingStatus as WSS
+import weblab.core.coordinator.status as WSS
 
 class MockLocator(object):
     

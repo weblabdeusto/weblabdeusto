@@ -28,7 +28,7 @@ from weblab.data.experiments.ExperimentId import ExperimentId
 from weblab.data.experiments.ExperimentInstanceId import ExperimentInstanceId
 from weblab.core.coordinator.Resource import Resource
 
-import weblab.core.coordinator.WebLabSchedulingStatus as WSS
+import weblab.core.coordinator.status as WSS
 import weblab.core.coordinator.exc as CoordExc
 
 import test.unit.configuration as configuration_module

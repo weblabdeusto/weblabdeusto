@@ -31,7 +31,7 @@ import weblab.comm.RemoteFacadeContext as RemoteFacadeContext
 import weblab.core.exc as coreExc
 import weblab.core.coordinator.exc as CoordExc
 import weblab.core.Reservation as Reservation
-import weblab.core.coordinator.WebLabSchedulingStatus as WebLabSchedulingStatus
+import weblab.core.coordinator.status as WebLabSchedulingStatus
 import weblab.core.coordinator.TemporalInformationStore as TemporalInformationStore
 import weblab.lab.exc as LaboratoryExceptions
 

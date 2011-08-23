@@ -17,7 +17,7 @@ import datetime
 import unittest
 from weblab.core.coordinator.MetaScheduler import MetaScheduler
 
-import weblab.core.coordinator.WebLabSchedulingStatus as WSS
+import weblab.core.coordinator.status as WSS
 
 class FakeScheduler(object):
     def __init__(self, reservation_status, expected_reservation_id):

@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-import weblab.core.coordinator.WebLabSchedulingStatus as WSS
+import weblab.core.coordinator.status as WSS
 import weblab.core.exc as coreExc
 
 class Reservation(object):

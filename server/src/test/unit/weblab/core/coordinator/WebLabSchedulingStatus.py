@@ -16,7 +16,7 @@
 import datetime
 import unittest
 
-import weblab.core.coordinator.WebLabSchedulingStatus as WSS
+import weblab.core.coordinator.status as WSS
 
 class WebLabSchedulingStatusTest(unittest.TestCase):
 
