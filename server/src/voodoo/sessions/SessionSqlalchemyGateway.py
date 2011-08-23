@@ -19,7 +19,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import and_
 
-import voodoo.sessions.SessionSqlalchemyData as DbData
+import voodoo.sessions.sqlalchemy_data as DbData
 
 import voodoo.sessions.SessionGenerator  as SessionGenerator
 import voodoo.sessions.SessionSerializer as SessionSerializer

@@ -13,7 +13,7 @@ import weblab.db.model as Model
 import weblab.core.coordinator.model as CoordinatorModel
 
 import voodoo.sessions.DbLockData as DbLockData
-import voodoo.sessions.SessionSqlalchemyData as SessionSqlalchemyData
+import voodoo.sessions.sqlalchemy_data as SessionSqlalchemyData
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
