@@ -39,7 +39,7 @@ from test.util.ModuleDisposer import uses_module
 
 import weblab.core.comm.codes as UserProcessingRFCodes
 import weblab.comm.RemoteFacadeServer as RemoteFacadeServer
-import weblab.core.comm.UserProcessingFacadeServer as UserProcessingFacadeServer
+import weblab.core.comm.user_server as UserProcessingFacadeServer
 
 import weblab.core.reservations as Reservation
 

@@ -21,7 +21,7 @@ import time
 import weblab.admin.bot.Client as Client
 
 import weblab.comm.RemoteFacadeServer as RemoteFacadeServer
-import weblab.core.comm.UserProcessingFacadeServer as UserProcessingFacadeServer
+import weblab.core.comm.user_server as UserProcessingFacadeServer
 import weblab.data.Command as Command
 
 import voodoo.configuration.ConfigurationManager as ConfigurationManager

@@ -17,7 +17,7 @@ import weblab.comm.RemoteFacadeServer as RFS
 import weblab.core.comm.AdminFacadeManager as AFM
 from weblab.core.comm.AdminFacadeServerSmartGWT import AdminFacadeServerSmartGWT
 
-from weblab.core.comm.UserProcessingFacadeServer import USER_PROCESSING_FACADE_SERVER_ROUTE, DEFAULT_USER_PROCESSING_SERVER_ROUTE
+from weblab.core.comm.user_server import USER_PROCESSING_FACADE_SERVER_ROUTE, DEFAULT_USER_PROCESSING_SERVER_ROUTE
 
 ADMIN_FACADE_JSON_LISTEN                    = 'admin_facade_json_bind'
 DEFAULT_ADMIN_FACADE_JSON_LISTEN            = ''

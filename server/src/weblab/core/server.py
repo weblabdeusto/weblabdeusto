@@ -32,7 +32,7 @@ import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.core.db.manager as DatabaseManager
 
 import weblab.core.exc as coreExc
-import weblab.core.comm.UserProcessingFacadeServer as UserProcessingFacadeServer
+import weblab.core.comm.user_server as UserProcessingFacadeServer
 import weblab.core.comm.AdminFacadeServer as AdminFacadeServer
 import weblab.core.comm.web_server as WebFacadeServer
 
