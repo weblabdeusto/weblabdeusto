@@ -21,7 +21,7 @@ import BaseHTTPServer
 import weblab.comm.server as RFS
 from weblab.comm.server import strdate
 
-from weblab.comm.RemoteFacadeContext import get_context, create_context, delete_context
+from weblab.comm.context import get_context, create_context, delete_context
 
 import voodoo.log as log
 

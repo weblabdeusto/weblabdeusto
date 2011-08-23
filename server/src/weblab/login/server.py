@@ -26,7 +26,7 @@ import weblab.data.ServerType as ServerType
 import weblab.login.exc as LoginExceptions
 import weblab.db.exc as DbExceptions
 import weblab.db.session as DbSession
-import weblab.comm.RemoteFacadeContext as RemoteFacadeContext
+import weblab.comm.context as RemoteFacadeContext
 
 LOGIN_FAILED_DELAY = 5
 NOT_LINKABLE_USERS = 'login_not_linkable_users'

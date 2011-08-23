@@ -26,7 +26,7 @@ from voodoo.cache import cache
 import voodoo.ResourceManager as ResourceManager
 import voodoo.log as log
 
-import weblab.comm.RemoteFacadeContext as RemoteFacadeContext
+import weblab.comm.context as RemoteFacadeContext
 
 import weblab.core.exc as coreExc
 import weblab.core.coordinator.exc as CoordExc

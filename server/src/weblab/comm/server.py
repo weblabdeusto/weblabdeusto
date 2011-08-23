@@ -40,7 +40,7 @@ import voodoo.counter as counter
 import voodoo.ResourceManager as ResourceManager
 
 import weblab.comm.RemoteFacadeManager as RemoteFacadeManager
-from weblab.comm.RemoteFacadeContext import get_context, create_context, delete_context
+from weblab.comm.context import get_context, create_context, delete_context
 from weblab.comm.codes import WEBLAB_GENERAL_EXCEPTION_CODE
 import weblab.comm.exc as FacadeExceptions
 import voodoo.exceptions.configuration.ConfigurationExceptions as ConfigurationExceptions

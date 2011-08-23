@@ -29,7 +29,7 @@ import SimpleXMLRPCServer
 import datetime
 import traceback
 
-import weblab.comm.RemoteFacadeContext as RemoteFacadeContext
+import weblab.comm.context as RemoteFacadeContext
 import weblab.comm.codes as RemoteFacadeManagerCodes
 
 PROPAGATE_STACK_TRACES_TO_CLIENT                = 'propagate_stack_traces_to_client'
