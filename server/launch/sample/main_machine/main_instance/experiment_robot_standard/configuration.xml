@@ -10,7 +10,7 @@
 	<type>weblab.data.ServerType::Experiment</type>
 	<methods>weblab.methods::Experiment</methods>
 
-	<implementation>weblab.experiment.experiments.robot_standard.RobotStandard.RobotStandard</implementation>
+	<implementation>weblab.experiment.experiments.robot_standard.server.RobotStandard</implementation>
 
 	<restriction>robot_standard@Robot experiments</restriction>
 
