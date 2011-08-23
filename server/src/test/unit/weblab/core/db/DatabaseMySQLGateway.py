@@ -24,7 +24,7 @@ import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 
-import weblab.core.db.DatabaseGateway as DatabaseGateway
+import weblab.core.db.gateway as DatabaseGateway
 
 import weblab.data.experiments.Usage as Usage
 import weblab.data.experiments.ExperimentId as ExperimentId
