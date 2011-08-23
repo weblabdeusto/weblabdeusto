@@ -21,7 +21,7 @@ import test.unit.configuration as configuration
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
 import weblab.login.db.mysql as DatabaseMySQLGateway
-import weblab.login.db.dao.UserAuth as UserAuth
+import weblab.login.db.dao.user as UserAuth
 
 import weblab.db.exc as DbExceptions
 

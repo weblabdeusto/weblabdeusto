@@ -15,7 +15,7 @@
 
 import unittest
 
-import weblab.login.db.dao.UserAuth as UserAuth
+import weblab.login.db.dao.user as UserAuth
 import weblab.db.exc as DbExceptions
 
 class DbUserAuthTestCase(unittest.TestCase):
