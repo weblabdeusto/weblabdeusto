@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-import weblab.login.db.DatabaseGateway as DbGateway
+import weblab.login.db.gateway as DbGateway
 import weblab.db.session as DbSession
 import weblab.db.exc as DbExceptions
 
