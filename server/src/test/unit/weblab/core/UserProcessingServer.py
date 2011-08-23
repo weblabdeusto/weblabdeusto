@@ -33,7 +33,7 @@ import weblab.db.session                as DatabaseSession
 import weblab.data.ServerType                         as ServerType
 import weblab.data.ClientAddress                      as ClientAddress
 
-import weblab.core.coordinator.CoordinationConfigurationParser as CoordinationConfigurationParser
+import weblab.core.coordinator.config_parser as CoordinationConfigurationParser
 
 import weblab.core.exc as coreExc
 

@@ -21,7 +21,7 @@ import voodoo.configuration.ConfigurationManager as ConfigurationManager
 import weblab.core.exc as coreExc
 import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
 from weblab.core.coordinator.Resource import Resource
-import weblab.core.coordinator.CoordinationConfigurationParser as CoordinationConfigurationParser
+import weblab.core.coordinator.config_parser as CoordinationConfigurationParser
 
 class CoordinationConfigurationParserTestCase(unittest.TestCase):
     def setUp(self):

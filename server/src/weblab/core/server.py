@@ -27,7 +27,7 @@ import weblab.core.data_retriever as TemporalInformationRetriever
 import weblab.core.UserProcessor as UserProcessor
 import weblab.core.AliveUsersCollection as AliveUsersCollection
 import weblab.core.coordinator.Coordinator as Coordinator
-import weblab.core.coordinator.CoordinationConfigurationParser as CoordinationConfigurationParser
+import weblab.core.coordinator.config_parser as CoordinationConfigurationParser
 import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.core.db.manager as DatabaseManager
 
