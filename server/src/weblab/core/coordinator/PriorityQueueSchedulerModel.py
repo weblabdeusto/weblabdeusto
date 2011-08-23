@@ -16,8 +16,8 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint, Text, DateTime
 from sqlalchemy.orm import relation, backref
 
-from weblab.core.coordinator.CoordinatorModel import Base, RESERVATION_ID_SIZE, ResourceType, Reservation, SchedulingSchemaIndependentSlotReservation
-from weblab.core.coordinator.CoordinatorModel import CurrentReservation as GlobalCurrentReservation
+from weblab.core.coordinator.model import Base, RESERVATION_ID_SIZE, ResourceType, Reservation, SchedulingSchemaIndependentSlotReservation
+from weblab.core.coordinator.model import CurrentReservation as GlobalCurrentReservation
 
 TABLE_KWARGS = {'mysql_engine' : 'InnoDB'}
 

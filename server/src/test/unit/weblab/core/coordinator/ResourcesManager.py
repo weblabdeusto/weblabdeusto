@@ -26,7 +26,7 @@ from weblab.core.coordinator.Resource import Resource
 from weblab.core.coordinator.Coordinator import Coordinator
 import weblab.core.coordinator.ResourcesManager as ResourcesManager
 import weblab.core.coordinator.db as CoordinationDatabaseManager
-import weblab.core.coordinator.CoordinatorModel as CoordinatorModel
+import weblab.core.coordinator.model as CoordinatorModel
 import weblab.core.coordinator.exc as CoordExc
 
 class ResourcesManagerTestCase(unittest.TestCase):

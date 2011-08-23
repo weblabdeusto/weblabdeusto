@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-from weblab.core.coordinator.CoordinatorModel import Reservation, CurrentReservation, ExperimentType
+from weblab.core.coordinator.model import Reservation, CurrentReservation, ExperimentType
 import weblab.core.coordinator.exc as CoordExc
 
 import json

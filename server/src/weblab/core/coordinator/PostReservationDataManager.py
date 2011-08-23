@@ -15,7 +15,7 @@
 
 import traceback
 from sqlalchemy.exc import IntegrityError, ConcurrentModificationError
-from weblab.core.coordinator.CoordinatorModel import PostReservationRetrievedData
+from weblab.core.coordinator.model import PostReservationRetrievedData
 import weblab.core.coordinator.status as WSS
 
 class PostReservationDataManager(object):
