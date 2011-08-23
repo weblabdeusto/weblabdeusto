@@ -23,7 +23,7 @@
 
 from weblab.data.dto.User import User
 from weblab.data.dto.Role import Role
-from weblab.admin.monitor.Monitor import monitor_method
+from weblab.admin.monitor.monitor import monitor_method
 from weblab.core.server import UserProcessingServer
 
 import weblab.data.experiments.ExperimentId as ExperimentId

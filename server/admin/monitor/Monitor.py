@@ -24,7 +24,7 @@ sys.path.append(os.sep.join(('..','..','src')))
 
 import libraries
 
-from weblab.admin.monitor.Monitor import WebLabMonitor
+from weblab.admin.monitor.monitor import WebLabMonitor
 import weblab.core.coordinator.WebLabQueueStatus as WebLabQueueStatus
 
 try:
