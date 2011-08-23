@@ -28,7 +28,7 @@ from voodoo.log import logged
 import voodoo.log as log
 
 import weblab.db.exc as DbExceptions
-import weblab.db.DatabaseMySQLGateway as dbMySQLGateway
+import weblab.db.mysql as dbMySQLGateway
 
 WEBLAB_DB_USERNAME_PROPERTY = 'weblab_db_username'
 DEFAULT_WEBLAB_DB_USERNAME  = 'weblab'

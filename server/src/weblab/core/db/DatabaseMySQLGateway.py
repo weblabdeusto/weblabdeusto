@@ -23,7 +23,7 @@ from voodoo.log import logged
 
 import weblab.db.model as Model
 
-import weblab.db.DatabaseMySQLGateway as dbMySQLGateway
+import weblab.db.mysql as dbMySQLGateway
 
 import weblab.data.dto.ExperimentAllowed as ExperimentAllowed
 
