@@ -24,7 +24,7 @@ import weblab.admin.monitor.Monitor_methods           as methods
 import voodoo.configuration.ConfigurationManager      as ConfigurationManager
 import weblab.core.server    as UserProcessingServer
 import weblab.core.coordinator.Coordinator as Coordinator 
-import weblab.core.coordinator.Confirmer   as Confirmer
+import weblab.core.coordinator.confirmer   as Confirmer
 import weblab.core.exc as UPSExc
 
 import weblab.db.session                as DatabaseSession

@@ -26,7 +26,7 @@ import test.unit.configuration as configuration_module
 import weblab.core.server    as UserProcessingServer
 import weblab.core.UserProcessor           as UserProcessor
 import weblab.core.Reservation             as Reservation
-import weblab.core.coordinator.Confirmer   as Confirmer
+import weblab.core.coordinator.confirmer   as Confirmer
 import weblab.core.coordinator.Coordinator as Coordinator
 import voodoo.configuration.ConfigurationManager      as ConfigurationManager
 import weblab.db.session                as DatabaseSession
