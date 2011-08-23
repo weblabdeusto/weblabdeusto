@@ -16,7 +16,7 @@
 from voodoo.log import logged
 import voodoo.sessions.SessionId as SessionId
 
-import weblab.comm.RemoteFacadeManager as RFM
+import weblab.comm.manager as RFM
 
 import weblab.data.Command as Command
 import weblab.data.ClientAddress as ClientAddress

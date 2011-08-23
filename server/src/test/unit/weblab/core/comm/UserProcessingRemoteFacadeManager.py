@@ -30,7 +30,7 @@ import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
 import weblab.core.comm.user_manager as UserProcessingFacadeManager
 import weblab.comm.codes as RFCodes
-import weblab.comm.RemoteFacadeManager as RFM
+import weblab.comm.manager as RFM
 import weblab.core.comm.codes as UserProcessingRFCodes
 import weblab.core.reservations as Reservation
 

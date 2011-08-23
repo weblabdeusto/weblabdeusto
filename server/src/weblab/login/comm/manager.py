@@ -14,7 +14,7 @@
 # 
 
 from voodoo.log import logged
-import weblab.comm.RemoteFacadeManager as RFM
+import weblab.comm.manager as RFM
 import weblab.data.ClientAddress as ClientAddress
 
 import weblab.login.exc as LoginExceptions

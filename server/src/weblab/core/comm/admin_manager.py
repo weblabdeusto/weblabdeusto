@@ -17,7 +17,7 @@ from voodoo.log import logged
 import voodoo.sessions.SessionId as SessionId
 import weblab.data.experiments.ExperimentId as ExperimentId
 
-import weblab.comm.RemoteFacadeManager as RFM
+import weblab.comm.manager as RFM
 from weblab.core.comm.user_manager import EXCEPTIONS
 
 class AbstractAdminRemoteFacadeManager(RFM.AbstractRemoteFacadeManager):
