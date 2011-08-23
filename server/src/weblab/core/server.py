@@ -23,7 +23,7 @@ import voodoo.counter as counter
 
 import weblab.data.ServerType as ServerType
 
-import weblab.core.TemporalInformationRetriever as TemporalInformationRetriever
+import weblab.core.data_retriever as TemporalInformationRetriever
 import weblab.core.UserProcessor as UserProcessor
 import weblab.core.AliveUsersCollection as AliveUsersCollection
 import weblab.core.coordinator.Coordinator as Coordinator
