@@ -28,7 +28,7 @@ import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.sessions.SessionId as SessionId
 from voodoo.override import Override
 
-from weblab.core.coordinator.Scheduler import Scheduler
+from weblab.core.coordinator.scheduler import Scheduler
 from weblab.core.coordinator.CoordinatorModel import ResourceType, ResourceInstance, CurrentResourceSlot
 from weblab.core.coordinator.PriorityQueueSchedulerModel import ConcreteCurrentReservation, WaitingReservation
 import weblab.core.coordinator.status as WSS

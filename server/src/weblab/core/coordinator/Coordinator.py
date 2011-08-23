@@ -29,7 +29,7 @@ import weblab.core.coordinator.ResourcesManager as ResourcesManager
 import weblab.core.coordinator.ReservationsManager as ReservationsManager
 import weblab.core.coordinator.PostReservationDataManager as PostReservationDataManager
 import weblab.core.coordinator.confirmer as Confirmer
-import weblab.core.coordinator.Scheduler as Scheduler
+import weblab.core.coordinator.scheduler as Scheduler
 import weblab.core.coordinator.meta_scheduler as MetaScheduler
 import weblab.core.coordinator.store as TemporalInformationStore
 
