@@ -14,7 +14,7 @@
 #
 
 import weblab.comm.server as RFS
-import weblab.core.comm.AdminFacadeManager as AFM
+import weblab.core.comm.admin_manager as AFM
 from weblab.core.comm.admin_smartgwt import AdminFacadeServerSmartGWT
 
 from weblab.core.comm.user_server import USER_PROCESSING_FACADE_SERVER_ROUTE, DEFAULT_USER_PROCESSING_SERVER_ROUTE
