@@ -23,7 +23,7 @@ import json
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.sessions.SessionId as SessionId
 
-import weblab.core.coordinator.Coordinator as Coordinator
+import weblab.core.coordinator.coordinator as Coordinator
 from weblab.data.experiments.ExperimentId import ExperimentId
 from weblab.data.experiments.ExperimentInstanceId import ExperimentInstanceId
 from weblab.core.coordinator.resource import Resource

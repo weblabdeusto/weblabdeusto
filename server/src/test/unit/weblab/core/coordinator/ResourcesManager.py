@@ -23,7 +23,7 @@ import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
 
 from weblab.data.experiments.ExperimentId import ExperimentId
 from weblab.core.coordinator.resource import Resource
-from weblab.core.coordinator.Coordinator import Coordinator
+from weblab.core.coordinator.coordinator import Coordinator
 import weblab.core.coordinator.resource_manager as ResourcesManager
 import weblab.core.coordinator.db as CoordinationDatabaseManager
 import weblab.core.coordinator.model as CoordinatorModel

@@ -27,7 +27,7 @@ import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
 import test.unit.configuration as configuration_module
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
-import weblab.core.coordinator.Coordinator as Coordinator
+import weblab.core.coordinator.coordinator as Coordinator
 import weblab.lab.server as LaboratoryServer
 import weblab.lab.IsUpAndRunningHandler as IsUpAndRunningHandler
 

@@ -31,7 +31,7 @@ from weblab.data.experiments.ExperimentInstanceId import ExperimentInstanceId
 from weblab.data.experiments.ExperimentId import ExperimentId
 from weblab.core.coordinator.resource import Resource
 
-import weblab.core.coordinator.Coordinator as Coordinator
+import weblab.core.coordinator.coordinator as Coordinator
 
 import weblab.core.coordinator.status as WSS
 

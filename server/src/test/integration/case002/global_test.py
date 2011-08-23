@@ -49,7 +49,7 @@ import weblab.methods as weblab_exported_methods
 import weblab.core.reservations as Reservation
 import weblab.core.server    as UserProcessingServer
 import weblab.core.UserProcessor       as UserProcessor
-import weblab.core.coordinator.Coordinator as Coordinator
+import weblab.core.coordinator.coordinator as Coordinator
 
 
 

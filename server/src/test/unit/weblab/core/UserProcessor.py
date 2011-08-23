@@ -26,7 +26,7 @@ from   test.util.ModuleDisposer import case_uses_module
 
 import weblab.core.UserProcessor as UserProcessor
 import weblab.core.reservations as Reservation
-import weblab.core.coordinator.Coordinator as Coordinator 
+import weblab.core.coordinator.coordinator as Coordinator 
 import weblab.core.coordinator.confirmer as Confirmer
 import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.data.ServerType as ServerType
