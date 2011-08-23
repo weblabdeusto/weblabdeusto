@@ -20,7 +20,7 @@ import voodoo.LogLevel as LogLevel
 import voodoo.log as log
 from voodoo.ResourceManager import is_testing
 
-from weblab.core.coordinator.ResourcesChecker import ResourcesChecker
+from weblab.core.coordinator.checker import ResourcesChecker
 
 def sleep(t): # For testing purposes
     time.sleep(t)

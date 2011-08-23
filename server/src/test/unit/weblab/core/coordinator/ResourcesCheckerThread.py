@@ -17,7 +17,7 @@ import unittest
 import time
 
 import weblab.core.coordinator.checker_threadd as RCT
-import weblab.core.coordinator.ResourcesChecker as ResourcesChecker
+import weblab.core.coordinator.checker as ResourcesChecker
 
 class Coordinator(object):
     locator = ""
