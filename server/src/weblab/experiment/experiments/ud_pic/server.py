@@ -22,7 +22,7 @@ from voodoo.gen.caller_checker import caller_check
 from weblab.experiment.devices.tftp import TFtpDevice
 import weblab.experiment.devices.http as HttpDevice
 import weblab.experiment.experiments.ud_pic.commands as UdPicBoardCommand
-import weblab.experiment.experiments.ud_pic.TFtpProgramSender as TFtpProgramSender
+import weblab.experiment.experiments.ud_pic.tftp_sender as TFtpProgramSender
 import weblab.experiment.util as ExperimentUtil
 import weblab.data.ServerType as ServerType
 
