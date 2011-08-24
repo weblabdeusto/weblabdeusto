@@ -15,7 +15,7 @@
 
 import VirtualMachineManager
 import dummy as VirtualMachineDummy
-import VirtualBox
+import virtualbox as VirtualBox
 
 def _():
     print VirtualMachineManager, VirtualMachineDummy, VirtualBox
