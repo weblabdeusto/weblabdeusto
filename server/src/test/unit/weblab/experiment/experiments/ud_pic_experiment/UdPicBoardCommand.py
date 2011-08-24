@@ -15,8 +15,8 @@
 import unittest
 
 
-import weblab.experiment.experiments.ud_pic.server as UdPicBoardCommand
-from weblab.experiment.experiments.ud_pic.server import ChangeSwitchCommand, SetPulseCommand, AdjustCommand, WriteCommand
+import weblab.experiment.experiments.ud_pic.UdPicBoardCommand as UdPicBoardCommand
+from weblab.experiment.experiments.ud_pic.UdPicBoardCommand import ChangeSwitchCommand, SetPulseCommand, AdjustCommand, WriteCommand
 
 import weblab.experiment.experiments.ud_pic.exc as UdPicExperimentExceptions
 
