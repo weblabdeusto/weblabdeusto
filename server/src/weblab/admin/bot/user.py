@@ -29,7 +29,7 @@ import weblab.core.reservations as Reservation
 import weblab.experiment.util as _Util
 
 import weblab.admin.bot.client as Client
-import weblab.admin.bot.Exceptions as Exceptions
+import weblab.admin.bot.exc as Exceptions
 
 class BotUser(threading.Thread):
     """ Abstract class, do not instance directly. """

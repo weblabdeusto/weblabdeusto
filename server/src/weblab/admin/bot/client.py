@@ -43,8 +43,8 @@ except ImportError:
 else:
     ZSI_AVAILABLE = True
 
-from Exceptions import InvalidUserOrPasswordException
-from Exceptions import ListOfExperimentsIsEmptyException
+from exc import InvalidUserOrPasswordException
+from exc import ListOfExperimentsIsEmptyException
 
 class Call(object):
 
