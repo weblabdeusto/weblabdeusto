@@ -21,7 +21,7 @@ import voodoo.gen.protocols as protocols_package
 import voodoo.gen.exceptions.loader.LoaderExceptions as LoaderExceptions
 import voodoo.gen.loader.ConfigurationData as ConfigurationData
 import voodoo.gen.loader.schema_checker as SchemaChecker
-import voodoo.gen.loader.LoaderUtilities as LoaderUtilities
+import voodoo.gen.loader.util as LoaderUtilities
 
 SERVER_XSD_FILE_PATH   = 'server_configuration.xsd'
 INSTANCE_XSD_FILE_PATH = 'instance_configuration.xsd'

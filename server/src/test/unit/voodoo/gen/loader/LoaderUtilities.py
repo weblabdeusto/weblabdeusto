@@ -17,7 +17,7 @@ import unittest
 
 import xml.dom.minidom as minidom
 import StringIO
-import voodoo.gen.loader.LoaderUtilities as LoaderUtilities
+import voodoo.gen.loader.util as LoaderUtilities
 import voodoo.gen.exceptions.loader.LoaderExceptions as LoaderExceptions
 
 class LoaderUtilitiesTestCase(unittest.TestCase):
