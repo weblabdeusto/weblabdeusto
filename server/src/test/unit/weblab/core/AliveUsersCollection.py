@@ -22,7 +22,7 @@ import test.unit.configuration as configuration_module
 import UserProcessor as UserProcessorTest
 
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
-import voodoo.sessions.SessionManager as SessionManager
+import voodoo.sessions.manager as SessionManager
 import voodoo.sessions.SessionType as SessionType
 import voodoo.sessions.SessionId   as SessionId
 

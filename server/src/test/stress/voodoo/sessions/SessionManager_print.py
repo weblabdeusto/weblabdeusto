@@ -20,7 +20,7 @@ import test.util.stress as stress_util
 import test.unit.configuration as configuration_module
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
-import voodoo.sessions.SessionManager as SessionManager
+import voodoo.sessions.manager as SessionManager
 import voodoo.sessions.SessionType    as SessionType
 
 class SessionManagerTestCase(unittest.TestCase):

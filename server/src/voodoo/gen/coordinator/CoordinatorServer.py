@@ -12,7 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
-import voodoo.sessions.SessionManager as SessionManager
+import voodoo.sessions.manager as SessionManager
 import voodoo.sessions.SessionType    as SessionType
 
 import voodoo.gen.exceptions.coordinator.CoordinatorServerExceptions as CoordinatorServerExceptions

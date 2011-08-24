@@ -17,7 +17,7 @@ from voodoo import LogLevel
 from voodoo.gen.caller_checker import caller_check
 from voodoo.gen.exceptions.locator import LocatorExceptions
 from voodoo.log import logged
-from voodoo.sessions import SessionType, SessionManager, SessionId
+from voodoo.sessions import SessionType, manager as SessionManager, SessionId
 from voodoo.sessions.checker import check_session
 from weblab.data import ServerType
 import weblab.proxy.exc as ProxyExceptions

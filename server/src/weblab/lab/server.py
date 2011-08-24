@@ -43,7 +43,7 @@ import weblab.lab.status_handler as IsUpAndRunningHandler
 
 import weblab.experiment.level as ExperimentApiLevel
 
-import voodoo.sessions.SessionManager as SessionManager
+import voodoo.sessions.manager as SessionManager
 from voodoo.sessions import SessionGenerator
 import json
 

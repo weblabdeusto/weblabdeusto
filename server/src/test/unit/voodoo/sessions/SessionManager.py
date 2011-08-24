@@ -17,7 +17,7 @@ import unittest
 
 import threading
 
-import voodoo.sessions.SessionManager       as SessionManager
+import voodoo.sessions.manager       as SessionManager
 import voodoo.sessions.memory as SessionMemoryGateway
 import voodoo.sessions.SessionType          as SessionType
 import voodoo.sessions.SessionId            as SessionId

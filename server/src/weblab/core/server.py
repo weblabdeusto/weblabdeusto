@@ -40,7 +40,7 @@ from voodoo.gen.caller_checker import caller_check
 from voodoo.threaded import threaded
 
 from voodoo.sessions.checker import check_session
-import voodoo.sessions.SessionManager as SessionManager
+import voodoo.sessions.manager as SessionManager
 import voodoo.sessions.SessionType as SessionType
 
 import voodoo.resources_manager as ResourceManager
