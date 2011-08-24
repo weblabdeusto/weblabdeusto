@@ -14,9 +14,9 @@
 # 
 import unittest
 
-import weblab.experiment.experiments.ud_xilinx.UdBoardCommand as UdBoardCommand
-from weblab.experiment.experiments.ud_xilinx.UdBoardCommand import UdBoardSimpleCommand
-from weblab.experiment.experiments.ud_xilinx.UdBoardCommand import ChangeSwitchCommand, SetPulseCommand, ClockActivationCommand, ClockDeactivationCommand
+import weblab.experiment.experiments.ud_xilinx.command as UdBoardCommand
+from weblab.experiment.experiments.ud_xilinx.command import UdBoardSimpleCommand
+from weblab.experiment.experiments.ud_xilinx.command import ChangeSwitchCommand, SetPulseCommand, ClockActivationCommand, ClockDeactivationCommand
 
 import weblab.experiment.experiments.ud_xilinx.exc as UdXilinxExperimentExceptions
 
