@@ -17,7 +17,7 @@ import sys
 import os
 import getpass
 
-from Exceptions import GoBackException
+from exc import GoBackException
 
 GO_BACK_KEYWORD = "[back]"
 

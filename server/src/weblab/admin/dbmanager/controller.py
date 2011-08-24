@@ -19,7 +19,7 @@ import random
 import sha
 
 from ConsoleUI import ConsoleUI
-from Exceptions import GoBackException
+from exc import GoBackException
 
 from DbGateway import DbGateway
 from SmtpGateway import SmtpGateway
