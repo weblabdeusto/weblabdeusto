@@ -20,7 +20,7 @@ import unittest
 from test.util.fakeobjects import fakeaddinfourl
 import test.unit.configuration as configuration_module
 
-from weblab.experiment.experiments.ud_pic.UdPicExperiment import UdPicExperiment
+from weblab.experiment.experiments.ud_pic.server import UdPicExperiment
 import weblab.experiment.util as ExperimentUtil
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
