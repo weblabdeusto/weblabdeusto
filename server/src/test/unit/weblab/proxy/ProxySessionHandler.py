@@ -15,7 +15,7 @@
 
 from test.unit.weblab.proxy import fake_time
 from voodoo.gen.coordinator import CoordAddress
-import weblab.proxy.ProxySessionHandler as ProxySessionHandler
+import weblab.proxy.session_handler as ProxySessionHandler
 import mocker
 import os
 import test.unit.configuration as configuration_module
