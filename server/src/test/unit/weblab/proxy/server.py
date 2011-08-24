@@ -13,7 +13,7 @@
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
-from test.unit.weblab.proxy import AddsATrippleAAtTheBeginingTranslator, fake_time
+from test.unit.weblab.proxy import adds_triple_translator, fake_time
 from voodoo.exceptions.sessions import SessionExceptions
 from voodoo.gen.coordinator import CoordAddress
 from voodoo.gen.exceptions.locator import LocatorExceptions
@@ -154,7 +154,7 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
         
     def test_happy_path_using_a_translator_that_stores(self):
         # Since this is not a really default Translator, we have to make it available for the test
-        ProxyServer.DEFAULT_TRANSLATORS['AddsATrippleAAtTheBeginingTranslator'] = AddsATrippleAAtTheBeginingTranslator.AddsATrippleAAtTheBeginingTranslator
+        ProxyServer.DEFAULT_TRANSLATORS['AddsATrippleAAtTheBeginingTranslator'] = adds_triple_translator.AddsATrippleAAtTheBeginingTranslator
 
         commands, files = self._test_happy_path("AddsATrippleAAtTheBeginingTranslator")        
         

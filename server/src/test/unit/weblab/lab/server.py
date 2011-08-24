@@ -38,8 +38,8 @@ import weblab.methods as weblab_methods
 import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
 import json
 
-import FakeUrllib2
-import FakeSocket
+import fake_urllib2 as FakeUrllib2
+import fake_socket as FakeSocket
 import time
 
 # 
