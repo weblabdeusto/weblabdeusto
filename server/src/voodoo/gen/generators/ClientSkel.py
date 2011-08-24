@@ -15,7 +15,6 @@
 import sys
 import threading
 
-import voodoo.abstraction.abstract_class_generator as acg
 import voodoo.gen.protocols.protocols as _Protocols
 
 #TODO: gestion de hilos (en begin deberian lanzarse en otros hilos)
@@ -29,6 +28,7 @@ import voodoo.gen.protocols.protocols as _Protocols
 def generate(methods):
     try:
         if isinstance(methods, dict):
+            original_methods = methods.copy()
             temporal_methods = methods.copy()
             temporal_methods['test_me'] = 'test doc'
             for i in methods:
@@ -37,6 +37,7 @@ def generate(methods):
                 temporal_methods['call_get_result_'+i] = 'Dynamically generated method'
             methods = temporal_methods
         else:
+            original_methods = methods[:]
             new_methods = list(methods[:])
             new_methods.append('test_me')
             for i in methods:
@@ -47,12 +48,6 @@ def generate(methods):
     except TypeError:
         raise TypeError('methods "%s" must be a dict or a list-able structure' % methods)
         
-    #As the ClientSkel is dynamically generated
-    #we can't call the call_abstract_constructors
-    #function, so we have to call the AbstractClass
-    #instance manually :-(
-    abstractClass = acg.AbstractClass(methods)
-
     #
     # The ClientSkel will have (being MN the name of the method):
     #
@@ -72,9 +67,8 @@ def generate(methods):
     # to the key assigned from the server. It might even be of a
     # different data type.
     #
-    class ClientSkel(abstractClass):
+    class ClientSkel(object):
         def __init__(self,server):
-            abstractClass.__init__(self)
             self._server = server
             self._general_lock = threading.Lock()
 

@@ -12,9 +12,24 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
+from abc import ABCMeta, abstractmethod
+
 import voodoo.gen.generators.Args as Args
 import voodoo.gen.protocols.protocols as _Protocols
-import voodoo.abstraction.abstract_class_generator as acg
+
+def _generate_abstract_class(methods):
+    methods_code = ""
+    for method in methods:
+        methods_code += """    
+    @abstractmethod
+    def %s(self):
+        pass
+    """ % method
+
+    exec("""class AbstractServerClass(object):
+    __metaclass__ = ABCMeta
+    """ + methods_code)
+    return AbstractServerClass
 
 def _generate_server_skel(methods,servers):
     """ _generate_server_skel(methods, servers) -> class
@@ -37,10 +52,10 @@ def _generate_server_skel(methods,servers):
         raise TypeError('methods "%s" should be a list, tuple or a dict' % methods)
     methods = temporal_methods
     
-    abstractClass = acg.AbstractClass(methods)
-    class ServerSkel(abstractClass):
+    AbstractServerClass = _generate_abstract_class(methods)
+    class ServerSkel(AbstractServerClass):
         def __init__(self,**kargs):
-            abstractClass.__init__(self)
+            super(ServerSkel, self).__init__()
             self._servers = {}
             
             for i in servers:

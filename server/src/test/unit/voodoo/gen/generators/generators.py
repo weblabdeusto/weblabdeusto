@@ -19,7 +19,8 @@ import random
 from test.util.ModuleDisposer import uses_module
 import voodoo.gen.protocols.SOAP.ServerSOAP as ServerSOAP
 
-import voodoo.gen.generators as gens
+import voodoo.gen.generators.ServerSkel as ServerSkel
+import voodoo.gen.generators.ClientSkel as ClientSkel
 import voodoo.gen.protocols.protocols as Protocols
 
 import test.unit.configuration as configuration_module
@@ -39,16 +40,21 @@ def get_server(protocol,methods,sentence):
     cfg_manager= ConfigurationManager.ConfigurationManager()
     cfg_manager.append_module(configuration_module)
 
-    def do_method(self,whatever):
-        return sentence + whatever
-    class Server(gens.ServerSkel.factory(cfg_manager, protocol,methods)):
-        pass
-    for i in methods:
-        setattr(Server,'do_'+i,do_method)
+    if methods == methods1:
+        class Server(ServerSkel.factory(cfg_manager, protocol,methods)):
+            def do_method1(self,whatever):
+                return sentence + whatever
+    elif methods == methods2:
+        class Server(ServerSkel.factory(cfg_manager, protocol,methods)):
+            def do_method2(self,whatever):
+                return sentence + whatever
+    else:
+        raise Exception("Not supported: " + methods)
+
     return Server
 
 def get_client(protocol,methods):
-    return gens.ClientSkel.factory(protocol,methods)
+    return ClientSkel.factory(protocol,methods)
 
 server_name = 'sample_server_name'
 
