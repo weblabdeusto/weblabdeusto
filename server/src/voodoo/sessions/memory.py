@@ -17,7 +17,7 @@ import time
 import sys
 
 import voodoo.sessions.generator as SessionGenerator
-import voodoo.sessions.SessionSerializer as SessionSerializer
+import voodoo.sessions.serializer as SessionSerializer
 import voodoo.log as log
 
 import voodoo.exceptions.sessions.SessionExceptions as SessionExceptions
