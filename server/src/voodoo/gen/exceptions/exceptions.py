@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-import voodoo.exceptions.exceptions as VoodooExceptions
+import voodoo.exc as VoodooExceptions
 
 class GeneratorException(VoodooExceptions.VoodooException):
     def __init__(self,*args,**kargs):

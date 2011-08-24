@@ -43,7 +43,7 @@ import weblab.comm.manager as RemoteFacadeManager
 from weblab.comm.context import get_context, create_context, delete_context
 from weblab.comm.codes import WEBLAB_GENERAL_EXCEPTION_CODE
 import weblab.comm.exc as FacadeExceptions
-import voodoo.exceptions.configuration.ConfigurationExceptions as ConfigurationExceptions
+import voodoo.configuration.ConfigurationManager as ConfigurationExceptions
 
 RFS_TIMEOUT_NAME                      = 'facade_timeout'
 DEFAULT_TIMEOUT                       = 0.5

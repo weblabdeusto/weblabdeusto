@@ -16,7 +16,7 @@ import voodoo.sessions.manager as SessionManager
 import voodoo.sessions.SessionType    as SessionType
 
 import voodoo.gen.exceptions.coordinator.CoordinatorServerExceptions as CoordinatorServerExceptions
-import voodoo.exceptions.sessions.SessionExceptions as SessionExceptions
+import voodoo.sessions.exc as SessionExceptions
 
 import voodoo.gen.coordinator.CoordinationInformation as CoordinationInformation
 import voodoo.gen.coordinator.CoordAddress as CoordAddress

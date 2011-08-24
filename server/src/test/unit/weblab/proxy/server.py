@@ -14,7 +14,7 @@
 # 
 
 from test.unit.weblab.proxy import adds_triple_translator, fake_time
-from voodoo.exceptions.sessions import SessionExceptions
+from voodoo.sessions import exc as SessionExceptions
 from voodoo.gen.coordinator import CoordAddress
 from voodoo.gen.exceptions.locator import LocatorExceptions
 from voodoo.gen.locator import EasyLocator

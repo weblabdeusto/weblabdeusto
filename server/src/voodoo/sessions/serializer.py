@@ -14,7 +14,7 @@
 # 
 import cPickle as pickle
 
-import voodoo.exceptions.sessions.SessionExceptions as SessionExceptions
+import voodoo.sessions.exc as SessionExceptions
 
 class SessionSerializer(object):
     def serialize(self,sess_obj):

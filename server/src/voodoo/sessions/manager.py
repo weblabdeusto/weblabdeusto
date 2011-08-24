@@ -21,7 +21,7 @@ import voodoo.sessions.SessionType as SessionType
 import voodoo.sessions.gateway as SessionGateway
 import voodoo.sessions.session_id as SessionId
 
-import voodoo.exceptions.sessions.SessionExceptions as SessionExceptions
+import voodoo.sessions.exc as SessionExceptions
 
 DEBUGGING = True
 

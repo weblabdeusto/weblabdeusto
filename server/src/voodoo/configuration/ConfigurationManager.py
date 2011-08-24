@@ -17,12 +17,13 @@ import threading
 import voodoo.log as log
 from voodoo.lock import RWLock
 
-import voodoo.exceptions.configuration.ConfigurationExceptions as ConfigurationExceptions
+import voodoo.exc as VoodooExceptions
+
 
 class _ConfigurationModule(object):
     def __init__(self, module):
         if not isinstance(module,types.ModuleType):
-            raise ConfigurationExceptions.NotAModuleException(
+            raise NotAModuleException(
                     "parameter %s expected to be a module" % module
                 )
         self.holder = module
@@ -164,7 +165,7 @@ class ConfigurationManager(object):
                 return default_value
         finally:
             self._values_readlock.release()
-        raise ConfigurationExceptions.KeyNotFoundException(
+        raise KeyNotFoundException(
                 "Key: %s not found" % key,
                 key
             )
@@ -186,13 +187,31 @@ class ConfigurationManager(object):
         for key in args:
             try:
                 values[key] = self.get_value(key)
-            except ConfigurationExceptions.KeyNotFoundException:
+            except KeyNotFoundException:
                 missing_configurations.append(key)
         if len(missing_configurations) > 0:
-            raise ConfigurationExceptions.KeysNotFoundException("Missing configuration parameters: %s " % missing_configurations)
+            raise KeysNotFoundException("Missing configuration parameters: %s " % missing_configurations)
 
         # Keys with a provided default value
         for key in kargs:
             values[key] = self.get_value(key, kargs[key])
 
         return Values(values)
+
+class ConfigurationException(VoodooExceptions.VoodooException):
+    def __init__(self,*args,**kargs):
+        VoodooExceptions.VoodooException.__init__(self,*args,**kargs)
+
+class KeyNotFoundException(ConfigurationException):
+    def __init__(self, msg, key, *args, **kargs):
+        ConfigurationException.__init__(self, msg, key, *args, **kargs)
+        self.msg = msg
+        self.key = key
+
+class KeysNotFoundException(ConfigurationException):
+    def __init__(self, *args, **kargs):
+        ConfigurationException.__init__(self, *args, **kargs)
+
+class NotAModuleException(ConfigurationException):
+    def __init__(self, *args, **kargs):
+        ConfigurationException.__init__(self, *args, **kargs)

@@ -20,7 +20,7 @@ import unittest
 
 
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
-import voodoo.exceptions.configuration.ConfigurationExceptions as ConfigurationExceptions
+import voodoo.configuration.ConfigurationManager as ConfigurationExceptions
 
 module1_code = """
 mynumber = 5

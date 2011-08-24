@@ -20,7 +20,7 @@ from sqlalchemy.exc import IntegrityError
 
 import voodoo.sessions.DbLockData as DbData
 
-import voodoo.exceptions.sessions.SessionExceptions as SessionExceptions
+import voodoo.sessions.exc as SessionExceptions
 
 SESSION_LOCK_SQLALCHEMY_ENGINE = 'session_lock_sqlalchemy_engine'
 DEFAULT_SESSION_LOCK_SQLALCHEMY_ENGINE = 'mysql' 

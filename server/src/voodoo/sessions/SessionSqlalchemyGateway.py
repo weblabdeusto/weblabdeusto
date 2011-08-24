@@ -25,7 +25,7 @@ import voodoo.sessions.generator  as SessionGenerator
 import voodoo.sessions.serializer as SessionSerializer
 import voodoo.sessions.DbLock            as DbLock
 
-import voodoo.exceptions.sessions.SessionExceptions as SessionExceptions
+import voodoo.sessions.exc as SessionExceptions
 
 
 MAX_TIME_TRYING_TO_LOCK  = 300 # seconds

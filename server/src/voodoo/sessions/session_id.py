@@ -22,7 +22,7 @@ class SessionId(object):
         else:
             # This object will be used by the webserver module
             # and this part will not work, but will neither be ever used
-            import voodoo.exceptions.sessions.SessionExceptions as SessionExceptions
+            import voodoo.sessions.exc as SessionExceptions
             raise SessionExceptions.SessionInvalidSessionIdException(
                 "Not a string: %s" % real_id
             )

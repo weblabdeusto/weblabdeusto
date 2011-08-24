@@ -13,11 +13,11 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-import voodoo.gen.exceptions.exceptions as genExceptions
+import voodoo.exc as VoodooExceptions
 
-class SessionException(genExceptions.GeneratorException):
+class SessionException(VoodooExceptions.VoodooException):
     def __init__(self,*args,**kargs):
-        genExceptions.GeneratorException.__init__(self,*args,**kargs)
+        VoodooExceptions.VoodooException.__init__(self,*args,**kargs)
 
 class SessionNotFoundException(SessionException):
     def __init__(self,*args,**kargs):

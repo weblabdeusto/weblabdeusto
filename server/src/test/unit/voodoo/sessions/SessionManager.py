@@ -22,7 +22,7 @@ import voodoo.sessions.memory as SessionMemoryGateway
 import voodoo.sessions.SessionType          as SessionType
 import voodoo.sessions.session_id            as SessionId
 
-import voodoo.exceptions.sessions.SessionExceptions as SessionExceptions
+import voodoo.sessions.exc as SessionExceptions
 
 import test.unit.configuration as configuration_module
 import voodoo.configuration.ConfigurationManager as ConfigurationManager

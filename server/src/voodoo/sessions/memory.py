@@ -20,7 +20,7 @@ import voodoo.sessions.generator as SessionGenerator
 import voodoo.sessions.serializer as SessionSerializer
 import voodoo.log as log
 
-import voodoo.exceptions.sessions.SessionExceptions as SessionExceptions
+import voodoo.sessions.exc as SessionExceptions
 
 SERIALIZE_MEMORY_GATEWAY_SESSIONS  = 'session_memory_gateway_serialize'
 

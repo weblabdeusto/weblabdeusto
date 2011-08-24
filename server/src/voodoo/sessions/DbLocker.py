@@ -15,7 +15,7 @@
 
 import time
 
-import voodoo.exceptions.sessions.SessionExceptions as SessionExceptions
+import voodoo.sessions.exc as SessionExceptions
 
 SESSION_LOCKER_MYSQL_HOST = 'session_locker_mysql_host'
 DEFAULT_SESSION_LOCKER_MYSQL_HOST = 'localhost' 
