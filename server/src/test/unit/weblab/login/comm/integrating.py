@@ -34,7 +34,7 @@ import weblab.login.comm.server as LoginFacadeServer
 
 import weblab.login.exc as LoginExceptions
 
-from RemoteFacadeManager import MockLogin
+from test.unit.weblab.login.comm.manager import MockLogin
 
 class LoginIntegratingRemoteFacadeManager(unittest.TestCase):
     if LoginFacadeServer.ZSI_AVAILABLE:
