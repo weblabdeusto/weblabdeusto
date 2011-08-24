@@ -15,7 +15,7 @@
 # 
 
 from test.util.ModuleDisposer import uses_module, case_uses_module
-from weblab.experiment.experiments.ud_xilinx.UdXilinxCommandSenders import SerialPortCommandSender
+from weblab.experiment.experiments.ud_xilinx.command_senders import SerialPortCommandSender
 from weblab.experiment.experiments.ud_xilinx.programmers import XilinxImpactProgrammer
 import sys
 import test.unit.configuration as configuration
