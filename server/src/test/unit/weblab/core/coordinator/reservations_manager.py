@@ -23,8 +23,7 @@ from weblab.data.experiments.ExperimentInstanceId import ExperimentInstanceId
 from weblab.core.coordinator.resource import Resource
 import weblab.core.coordinator.exc as CoordExc
 
-# TODO: This referes to the test code. Replace properly to make this clearer
-from Coordinator import WrappedCoordinator, ConfirmerMock
+from test.unit.weblab.core.coordinator.coordinator import WrappedCoordinator, ConfirmerMock
 
 REQUEST_INFO = json.dumps({'facebook' : False, 'mobile' : False})
 

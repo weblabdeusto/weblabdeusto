@@ -18,8 +18,7 @@ import time
 
 import test.unit.configuration as configuration_module
 
-# TODO: this referes to the test code; replace this
-import UserProcessor as UserProcessorTest
+import test.unit.weblab.core.processor as UserProcessorTest
 
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 import voodoo.sessions.manager as SessionManager
