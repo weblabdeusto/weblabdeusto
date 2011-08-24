@@ -21,7 +21,7 @@ from sqlalchemy import and_
 
 import voodoo.sessions.sqlalchemy_data as DbData
 
-import voodoo.sessions.SessionGenerator  as SessionGenerator
+import voodoo.sessions.generator  as SessionGenerator
 import voodoo.sessions.SessionSerializer as SessionSerializer
 import voodoo.sessions.DbLock            as DbLock
 

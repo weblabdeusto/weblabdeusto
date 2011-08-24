@@ -16,7 +16,7 @@ import threading
 import time
 import sys
 
-import voodoo.sessions.SessionGenerator as SessionGenerator
+import voodoo.sessions.generator as SessionGenerator
 import voodoo.sessions.SessionSerializer as SessionSerializer
 import voodoo.log as log
 
