@@ -21,7 +21,7 @@ try:
 except ImportError:
     pass
 
-import voodoo.sessions.SessionId as SessionId
+import voodoo.sessions.session_id as SessionId
 
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 import test.unit.configuration as configuration

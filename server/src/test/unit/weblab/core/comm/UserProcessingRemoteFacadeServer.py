@@ -27,7 +27,7 @@ import weblab.data.Command as Command
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 import test.unit.configuration as configuration
 
-import voodoo.sessions.SessionId as SessionId
+import voodoo.sessions.session_id as SessionId
 from test.util.ModuleDisposer import uses_module
 
 USERNAME         ='myusername'

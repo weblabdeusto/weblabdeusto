@@ -42,7 +42,7 @@ import weblab.data.dto.Category as Category
 import weblab.data.dto.Experiment as Experiment
 import weblab.data.dto.ExperimentAllowed as ExperimentAllowed
 
-import voodoo.sessions.SessionId as SessionId
+import voodoo.sessions.session_id as SessionId
 import voodoo.gen.coordinator.CoordAddress  as CoordAddress
 
 laboratory_coordaddr = CoordAddress.CoordAddress.translate_address(

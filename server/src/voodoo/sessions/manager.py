@@ -19,7 +19,7 @@ import weakref
 
 import voodoo.sessions.SessionType as SessionType
 import voodoo.sessions.gateway as SessionGateway
-import voodoo.sessions.SessionId as SessionId
+import voodoo.sessions.session_id as SessionId
 
 import voodoo.exceptions.sessions.SessionExceptions as SessionExceptions
 

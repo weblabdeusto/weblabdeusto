@@ -29,7 +29,7 @@ from weblab.core.server import UserProcessingServer
 import weblab.data.experiments.ExperimentId as ExperimentId
 import voodoo.exceptions.sessions.SessionExceptions as SessionExceptions
 
-from voodoo.sessions.SessionId import SessionId
+from voodoo.sessions.session_id import SessionId
 import voodoo.gen.registry.server_registry as ServerRegistry
 import sys
 

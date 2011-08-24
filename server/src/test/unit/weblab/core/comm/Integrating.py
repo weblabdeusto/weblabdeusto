@@ -23,7 +23,7 @@ except ImportError:
 
 import datetime
 
-import voodoo.sessions.SessionId as SessionId
+import voodoo.sessions.session_id as SessionId
 import weblab.data.dto.ExperimentAllowed as ExperimentAllowed
 import weblab.data.dto.Experiment as Experiment
 import weblab.data.dto.Category as Category

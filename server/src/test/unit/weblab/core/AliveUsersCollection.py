@@ -24,7 +24,7 @@ import UserProcessor as UserProcessorTest
 import voodoo.configuration.ConfigurationManager as ConfigurationManager
 import voodoo.sessions.manager as SessionManager
 import voodoo.sessions.SessionType as SessionType
-import voodoo.sessions.SessionId   as SessionId
+import voodoo.sessions.session_id   as SessionId
 
 import weblab.core.processor as UserProcessor
 import weblab.core.coordinator.store as TemporalInformationStore

@@ -27,7 +27,7 @@ import xmlrpclib
 import libraries
 libraries.load()
 
-import voodoo.sessions.SessionId as SessionId
+import voodoo.sessions.session_id as SessionId
 import weblab.core.reservations as Reservation
 import weblab.data.dto.Category as Category
 import weblab.data.dto.Experiment as Experiment

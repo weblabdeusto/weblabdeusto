@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-from voodoo.sessions import SessionId
+from voodoo.sessions import session_id as SessionId
 import cPickle as pickle
 import voodoo.exceptions.sessions.SessionExceptions as SessionExceptions
 

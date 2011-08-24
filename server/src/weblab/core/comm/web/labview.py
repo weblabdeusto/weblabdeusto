@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-from voodoo.sessions.SessionId import SessionId
+from voodoo.sessions.session_id import SessionId
 import weblab.comm.web_server as WebFacadeServer
 import weblab.data.Command as Command
 SESSION_ID = 'session_id'

@@ -20,7 +20,7 @@ import mocker
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.gen.locator.EasyLocator      as EasyLocator
-import voodoo.sessions.SessionId           as SessionId
+import voodoo.sessions.session_id           as SessionId
 
 import test.unit.configuration as configuration_module
 import voodoo.configuration.ConfigurationManager as ConfigurationManager

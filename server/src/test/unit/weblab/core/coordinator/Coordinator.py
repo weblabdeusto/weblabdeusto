@@ -21,7 +21,7 @@ import time as time_mod
 import json
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
-import voodoo.sessions.SessionId as SessionId
+import voodoo.sessions.session_id as SessionId
 
 import weblab.core.coordinator.coordinator as Coordinator
 from weblab.data.experiments.ExperimentId import ExperimentId

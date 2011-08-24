@@ -20,7 +20,7 @@ import voodoo.log as log
 
 import voodoo.resources_manager as ResourceManager
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
-import voodoo.sessions.SessionId as SessionId
+import voodoo.sessions.session_id as SessionId
 
 import weblab.data.ServerType as ServerType
 

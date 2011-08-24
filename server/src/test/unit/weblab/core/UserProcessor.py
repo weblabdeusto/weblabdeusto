@@ -21,7 +21,7 @@ import datetime
 import mocker
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
-import voodoo.sessions.SessionId as SessionId
+import voodoo.sessions.session_id as SessionId
 from   test.util.ModuleDisposer import case_uses_module
 
 import weblab.core.processor as UserProcessor

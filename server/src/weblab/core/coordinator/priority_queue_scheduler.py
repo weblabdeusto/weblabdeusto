@@ -25,7 +25,7 @@ from sqlalchemy.orm import join
 from sqlalchemy.exc import IntegrityError, OperationalError, ConcurrentModificationError
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
-import voodoo.sessions.SessionId as SessionId
+import voodoo.sessions.session_id as SessionId
 from voodoo.override import Override
 
 from weblab.core.coordinator.scheduler import Scheduler

@@ -14,7 +14,7 @@
 # 
 
 from voodoo.log import logged
-import voodoo.sessions.SessionId as SessionId
+import voodoo.sessions.session_id as SessionId
 
 import weblab.comm.manager as RFM
 
