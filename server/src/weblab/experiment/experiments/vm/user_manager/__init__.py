@@ -1,6 +1,6 @@
 
 import UserManager
-import DummyUserManager
+import dummy as DummyUserManager
 import HttpQueryUserManager
 
 def _():
