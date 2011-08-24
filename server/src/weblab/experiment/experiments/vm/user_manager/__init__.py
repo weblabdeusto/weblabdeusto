@@ -1,7 +1,7 @@
 
 import UserManager
 import dummy as DummyUserManager
-import HttpQueryUserManager
+import http as HttpQueryUserManager
 
 def _():
     print UserManager, DummyUserManager, HttpQueryUserManager # Avoid unused warnings
