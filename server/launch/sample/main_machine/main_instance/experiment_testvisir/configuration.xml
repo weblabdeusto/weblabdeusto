@@ -10,7 +10,7 @@
 	<type>weblab.data.ServerType::Experiment</type>
 	<methods>weblab.methods::Experiment</methods>
 
-	<implementation>weblab.experiment.experiments.visir_test.server.VisirTestExperiment</implementation>
+	<implementation>weblab.experiment.experiments.visir.server.VisirTestExperiment</implementation>
 
 	<restriction>visirtest@Dummy experiments</restriction>
 
