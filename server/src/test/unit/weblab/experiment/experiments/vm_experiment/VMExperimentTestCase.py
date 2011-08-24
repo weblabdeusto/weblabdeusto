@@ -22,7 +22,7 @@ import voodoo.configuration.ConfigurationManager as ConfigurationManager
 
 import weblab.experiment.experiments.vm.server as VMExperiment
 import weblab.experiment.experiments.vm.user_manager as user_manager
-import weblab.experiment.devices.vm.VirtualMachineDummy as VirtualMachineDummy
+import weblab.experiment.devices.vm.dummy as VirtualMachineDummy
 
 from weblab.experiment.devices.vm.VirtualMachineManager import VirtualMachineManager
 from weblab.experiment.experiments.vm.user_manager.UserManager import UserManager
