@@ -22,7 +22,7 @@ import voodoo.gen.protocols.protocols as Protocols
 import voodoo.gen.generators as gens
 
 import test.unit.configuration as configuration_module
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 PORT = 12346
 

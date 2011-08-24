@@ -32,7 +32,7 @@ from weblab.data.dto.User import User
 from weblab.data.dto.Role import Role
 import weblab.data.Command as Command
 
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 import test.unit.configuration as configuration
 
 from test.util.ModuleDisposer import uses_module

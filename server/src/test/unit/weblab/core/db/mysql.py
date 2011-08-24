@@ -20,7 +20,7 @@ import datetime
 
 import test.unit.configuration as configuration
 
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 

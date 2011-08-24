@@ -17,7 +17,7 @@
 from mock import patch
 import unittest
 
-from voodoo.configuration.ConfigurationManager import ConfigurationManager
+from voodoo.configuration import ConfigurationManager
 from weblab.experiment.devices import jtag_blazer
 from test.util.fakeobjects import return_values
 import test.unit.configuration as configuration_module

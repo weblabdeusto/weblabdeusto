@@ -16,7 +16,7 @@
 from weblab.translator.StoresEverythingTranslator import StoresEverythingTranslator
 import test.unit.configuration as configuration_module
 import unittest
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 
 class StoresEverythingTranslatorTestCase(unittest.TestCase):

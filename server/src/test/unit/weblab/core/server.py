@@ -28,7 +28,7 @@ import weblab.core.processor           as UserProcessor
 import weblab.core.reservations             as Reservation
 import weblab.core.coordinator.confirmer   as Confirmer
 import weblab.core.coordinator.coordinator as Coordinator
-import voodoo.configuration.ConfigurationManager      as ConfigurationManager
+import voodoo.configuration      as ConfigurationManager
 import weblab.db.session                as DatabaseSession
 import weblab.data.ServerType                         as ServerType
 import weblab.data.ClientAddress                      as ClientAddress

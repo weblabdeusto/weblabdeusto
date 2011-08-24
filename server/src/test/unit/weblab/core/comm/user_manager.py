@@ -26,7 +26,7 @@ else:
 import voodoo.sessions.session_id as SessionId
 
 import test.unit.configuration as configuration
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 import weblab.core.comm.user_manager as UserProcessingFacadeManager
 import weblab.comm.codes as RFCodes

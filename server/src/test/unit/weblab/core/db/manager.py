@@ -17,7 +17,7 @@ import unittest
 
 import test.unit.configuration as configuration
 
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 import weblab.core.db.manager as DatabaseManager
 
 class DatabaseServerTestCase(unittest.TestCase):

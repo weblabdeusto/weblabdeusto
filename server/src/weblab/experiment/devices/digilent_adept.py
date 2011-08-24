@@ -21,7 +21,7 @@ import threading
 import voodoo.log as log
 from voodoo.log import logged
 
-import voodoo.configuration.ConfigurationManager as ConfigurationExceptions
+import voodoo.configuration as ConfigurationExceptions
 import weblab.experiment.devices.exc as DeviceExceptions
 
 # Quick help for debugging:

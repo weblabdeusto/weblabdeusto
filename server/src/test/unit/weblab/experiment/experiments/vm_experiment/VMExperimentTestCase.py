@@ -18,7 +18,7 @@ import unittest
 import mocker
 import test.unit.configuration as configuration_module
 
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 import weblab.experiment.experiments.vm.server as VMExperiment
 import weblab.experiment.experiments.vm.user_manager as user_manager

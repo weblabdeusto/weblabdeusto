@@ -16,7 +16,7 @@
 
 import unittest
 import test.unit.configuration as configuration_module
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 import weblab.core.exc as coreExc
 import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId

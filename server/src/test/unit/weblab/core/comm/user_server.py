@@ -24,7 +24,7 @@ import weblab.comm.server as RemoteFacadeServer
 import weblab.core.comm.user_server as UserProcessingFacadeServer
 import weblab.data.Command as Command
 
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 import test.unit.configuration as configuration
 
 import voodoo.sessions.session_id as SessionId

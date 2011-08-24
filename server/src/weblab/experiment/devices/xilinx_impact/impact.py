@@ -19,7 +19,7 @@ import os
 import subprocess
 import tempfile
 import threading
-import voodoo.configuration.ConfigurationManager as ConfigurationExceptions
+import voodoo.configuration as ConfigurationExceptions
 import voodoo.log as log
 import weblab.experiment.devices.xilinx_impact.exc as XilinxImpactExceptions
 import weblab.experiment.devices.xilinx_impact.devices as XilinxDevices

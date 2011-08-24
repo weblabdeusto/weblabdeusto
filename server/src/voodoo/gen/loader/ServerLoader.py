@@ -15,7 +15,7 @@
 
 import voodoo.methods as voodoo_exported_methods
 
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 import voodoo.gen.loader.ConfigurationParser as ConfigurationParser
 import voodoo.gen.loader.CoordinatorMapBuilder as CoordinatorMapBuilder

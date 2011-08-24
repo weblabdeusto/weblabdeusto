@@ -20,7 +20,7 @@ import voodoo.gen.protocols.InternetSocket.ServerInternetSocket as ServerInterne
 import voodoo.gen.protocols.InternetSocket.ClientInternetSocket as ClientInternetSocket
 
 import test.unit.configuration as configuration_module
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 import time
 

@@ -20,8 +20,8 @@ import mocker
 import test.unit.configuration as configuration_module
 
 import voodoo.admin_notifier as AdminNotifier
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
-import voodoo.configuration.ConfigurationManager as ConfigurationExceptions
+import voodoo.configuration as ConfigurationManager
+import voodoo.configuration as ConfigurationExceptions
 
 class AdminNotifierFake(AdminNotifier.AdminNotifier):
     

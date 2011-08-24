@@ -25,7 +25,7 @@ import weblab.admin.bot.client as Client
 import weblab.comm.server as RemoteFacadeServer
 import weblab.login.comm.server as LoginFacadeServer
 
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 import test.unit.configuration as configuration
 
 import voodoo.sessions.session_id as SessionId

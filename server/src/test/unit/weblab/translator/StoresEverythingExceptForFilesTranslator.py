@@ -16,7 +16,7 @@
 from weblab.translator.StoresEverythingExceptForFilesTranslator import StoresEverythingExceptForFilesTranslator
 import test.unit.configuration as configuration_module
 import unittest
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 
 class StoresEverythingExceptForFilesTranslatorTestCase(unittest.TestCase):

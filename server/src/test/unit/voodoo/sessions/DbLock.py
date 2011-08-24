@@ -23,7 +23,7 @@ import voodoo.sessions.DbLock as DbLock
 import voodoo.sessions.exc as SessionExceptions
 
 import test.unit.configuration as configuration_module
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 def _remove_sessions(cfg_manager):
     engine_name = cfg_manager.get_value(DbLock.SESSION_LOCK_SQLALCHEMY_ENGINE, DbLock.DEFAULT_SESSION_LOCK_SQLALCHEMY_ENGINE)

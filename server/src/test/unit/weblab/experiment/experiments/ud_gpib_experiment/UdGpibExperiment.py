@@ -20,7 +20,7 @@ import test.unit.configuration as configuration_module
 
 import weblab.experiment.experiments.ud_gpib.server as UdGpibExperiment
 import weblab.experiment.util as ExperimentUtil
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 import weblab.experiment.exc as ExperimentExceptions
 import weblab.experiment.experiments.ud_gpib.exc as GpibExceptions

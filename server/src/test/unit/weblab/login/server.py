@@ -33,7 +33,7 @@ import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
 import voodoo.gen.exceptions.locator.LocatorExceptions as LocatorExceptions
 import voodoo.gen.locator.EasyLocator as EasyLocator
-import voodoo.configuration.ConfigurationManager      as ConfigurationManager
+import voodoo.configuration      as ConfigurationManager
 
 import weblab.methods as weblab_methods
 

@@ -18,7 +18,7 @@ import unittest
 import test.util.stress as stress_util
 
 import test.unit.configuration as configuration_module
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 class ConfigurationManagerPrintTestCase(unittest.TestCase):
     def setUp(self):

@@ -23,7 +23,7 @@ import voodoo.gen.locator.EasyLocator      as EasyLocator
 import voodoo.sessions.session_id           as SessionId
 
 import test.unit.configuration as configuration_module
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 import weblab.data.ServerType as ServerType
 import weblab.methods as weblab_methods

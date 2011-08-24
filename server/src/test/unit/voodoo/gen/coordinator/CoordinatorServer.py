@@ -20,7 +20,7 @@ import test.unit.configuration as configuration_module
 
 import test.unit.voodoo.gen.coordinator.SampleServerType as SampleServerType
 
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 import voodoo.sessions.memory as SessionMemoryGateway
 

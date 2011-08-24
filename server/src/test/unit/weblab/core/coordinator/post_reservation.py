@@ -16,7 +16,7 @@
 import unittest
 import datetime
 import test.unit.configuration as configuration_module
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 from test.unit.weblab.core.coordinator.coordinator import WrappedCoordinator, ConfirmerMock
 

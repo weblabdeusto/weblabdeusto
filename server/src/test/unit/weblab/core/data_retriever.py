@@ -29,7 +29,7 @@ import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.core.db.manager as DatabaseManager
 import test.unit.configuration as configuration
 
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 RESERVATION1 = 'reservation_id1'
 RESERVATION2 = 'reservation_id2'

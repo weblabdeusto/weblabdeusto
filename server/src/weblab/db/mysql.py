@@ -14,7 +14,7 @@
 # 
 
 import weblab.db.exc as DbExceptions
-import voodoo.configuration.ConfigurationManager as CfgExceptions
+import voodoo.configuration as CfgExceptions
 
 DB_HOST = 'db_host'
 DEFAULT_DB_HOST = 'localhost'

@@ -18,7 +18,7 @@ import unittest
 import test.util.stress as stress_util
 
 import test.unit.configuration as configuration_module
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 import voodoo.sessions.manager as SessionManager
 import voodoo.sessions.SessionType    as SessionType

@@ -25,7 +25,7 @@ import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
 import voodoo.gen.protocols.protocols as Protocols
 
 import test.unit.configuration as configuration_module
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 class DirectAddressTestCase(unittest.TestCase):
     def setUp(self):

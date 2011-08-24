@@ -20,7 +20,7 @@ import test.unit.configuration as configuration_module
 
 import test.unit.weblab.core.processor as UserProcessorTest
 
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 import voodoo.sessions.manager as SessionManager
 import voodoo.sessions.SessionType as SessionType
 import voodoo.sessions.session_id   as SessionId

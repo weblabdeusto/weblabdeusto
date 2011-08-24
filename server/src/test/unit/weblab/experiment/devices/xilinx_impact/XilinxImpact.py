@@ -18,7 +18,7 @@ import unittest
 
 import test.unit.configuration as configuration_module
 
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 import weblab.experiment.devices.xilinx_impact.impact as XilinxImpact
 import weblab.experiment.devices.xilinx_impact.exc as XilinxImpactExceptions

@@ -32,7 +32,7 @@ import weblab.core.coordinator.status as WSS
 import weblab.core.coordinator.exc as CoordExc
 
 import test.unit.configuration as configuration_module
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 DEFAULT_PRIORITY = 5
 DEFAULT_TIME = 30

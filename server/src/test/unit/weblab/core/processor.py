@@ -51,7 +51,7 @@ import weblab.core.exc as coreExc
 import weblab.lab.exc as LaboratoryExceptions
 
 import test.unit.configuration as configuration_module
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 laboratory_coordaddr = CoordAddress.CoordAddress.translate_address(
         "server:laboratoryserver@labmachine"

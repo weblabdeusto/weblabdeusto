@@ -16,7 +16,7 @@ import unittest
 import datetime
 
 import test.unit.configuration as configuration
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 import weblab.core.comm.admin_manager as AdminFacadeManager
 import weblab.comm.codes as RFCodes

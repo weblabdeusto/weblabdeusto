@@ -18,7 +18,7 @@ import mocker
 
 import test.unit.configuration as configuration_module
 
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 import weblab.experiment.devices.gpib.gpib as Gpib
 import weblab.experiment.devices.gpib.exc as GpibExceptions

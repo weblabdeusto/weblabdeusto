@@ -19,8 +19,8 @@ import tempfile
 import unittest
 
 
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
-import voodoo.configuration.ConfigurationManager as ConfigurationExceptions
+import voodoo.configuration as ConfigurationManager
+import voodoo.configuration as ConfigurationExceptions
 
 module1_code = """
 mynumber = 5

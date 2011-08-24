@@ -23,7 +23,7 @@ except ImportError:
 
 import voodoo.sessions.session_id as SessionId
 
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 import test.unit.configuration as configuration
 
 from test.util.ModuleDisposer import uses_module

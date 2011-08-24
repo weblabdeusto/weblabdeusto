@@ -24,7 +24,7 @@ import voodoo.gen.coordinator.Access as Access
 import voodoo.gen.coordinator.AccessLevel as AccessLevel
 
 import test.unit.configuration as configuration_module
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 import voodoo.gen.locator.ServerLocator as ServerLocator
 import voodoo.gen.locator.ServerTypeHandler as ServerTypeHandler

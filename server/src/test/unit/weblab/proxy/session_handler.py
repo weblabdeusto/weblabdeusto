@@ -21,7 +21,7 @@ import os
 import test.unit.configuration as configuration_module
 import time
 import unittest
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 import weblab.experiment.util as ExperimentUtil
 from weblab.translator.StoresEverythingTranslator import StoresEverythingTranslator
 

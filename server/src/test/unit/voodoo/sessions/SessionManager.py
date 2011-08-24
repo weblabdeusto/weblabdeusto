@@ -25,7 +25,7 @@ import voodoo.sessions.session_id            as SessionId
 import voodoo.sessions.exc as SessionExceptions
 
 import test.unit.configuration as configuration_module
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 
 class SessionManagerTestCase(unittest.TestCase):

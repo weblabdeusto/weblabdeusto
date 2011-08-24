@@ -20,7 +20,7 @@ from weblab.experiment.experiments.ud_xilinx import command_senders as UdXilinxC
 from test.util.fakeobjects import return_values
 import test.unit.configuration as configuration_module
 import unittest
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 import weblab.experiment.util as ExperimentUtil
 import weblab.experiment.experiments.ud_xilinx.server as UdXilinxExperiment
 import time

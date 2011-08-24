@@ -17,7 +17,7 @@ import unittest
 
 import test.unit.configuration as configuration
 
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 import weblab.login.db.manager as DatabaseManager
 import weblab.db.session as DatabaseSession
 

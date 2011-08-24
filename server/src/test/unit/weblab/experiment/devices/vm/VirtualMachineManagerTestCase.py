@@ -17,7 +17,7 @@ import unittest
 import mocker
 import weblab.experiment.devices.vm.VirtualMachineManager as VirtualMachineManager
 
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 import test.unit.configuration as configuration_module
 
 class VirtualMachineManagerTestCase(mocker.MockerTestCase):

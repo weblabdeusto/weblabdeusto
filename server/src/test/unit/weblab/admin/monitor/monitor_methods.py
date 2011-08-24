@@ -21,7 +21,7 @@ from   test.util.ModuleDisposer import case_uses_module
 import test.unit.configuration as configuration_module
 
 import weblab.admin.monitor.monitor_methods           as methods
-import voodoo.configuration.ConfigurationManager      as ConfigurationManager
+import voodoo.configuration      as ConfigurationManager
 import weblab.core.server    as UserProcessingServer
 import weblab.core.coordinator.coordinator as Coordinator 
 import weblab.core.coordinator.confirmer   as Confirmer

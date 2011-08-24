@@ -21,7 +21,7 @@ import sys
 import test.unit.configuration as configuration
 import time
 import unittest
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 import voodoo.gen.coordinator.Access as Access
 import voodoo.gen.coordinator.AccessLevel as AccessLevel
 import voodoo.gen.coordinator.CoordAddress as CoordAddress

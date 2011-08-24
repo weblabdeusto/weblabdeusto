@@ -24,7 +24,7 @@ import voodoo.gen.generators.ClientSkel as ClientSkel
 import voodoo.gen.protocols.protocols as Protocols
 
 import test.unit.configuration as configuration_module
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 methods1 = {'method1':'this method returns something like "method1"'}
 methods2 = {'method2':'this method returns something like "method2"'}

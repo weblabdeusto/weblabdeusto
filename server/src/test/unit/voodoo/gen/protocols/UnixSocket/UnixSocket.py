@@ -23,7 +23,7 @@ if hasattr(socket, 'AF_UNIX'):
     import voodoo.gen.protocols.UnixSocket.ClientUnixSocket as ClientUnixSocket
 
     import test.unit.configuration as configuration_module
-    import voodoo.configuration.ConfigurationManager as ConfigurationManager
+    import voodoo.configuration as ConfigurationManager
 
     import time
     import os

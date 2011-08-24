@@ -18,7 +18,7 @@ import unittest
 
 import test.unit.configuration as configuration
 
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 import weblab.login.db.mysql as DatabaseMySQLGateway
 import weblab.login.db.dao.user as UserAuth

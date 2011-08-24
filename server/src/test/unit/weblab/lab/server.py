@@ -25,7 +25,7 @@ import voodoo.gen.locator.EasyLocator as EasyLocator
 import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
 
 import test.unit.configuration as configuration_module
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 
 import weblab.core.coordinator.coordinator as Coordinator
 import weblab.lab.server as LaboratoryServer

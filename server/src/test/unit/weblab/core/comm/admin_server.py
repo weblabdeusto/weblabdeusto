@@ -29,7 +29,7 @@ from weblab.data.dto.Role          import Role
 import weblab.comm.server as RemoteFacadeServer
 import weblab.core.comm.admin_server as AdminFacadeServer
 
-import voodoo.configuration.ConfigurationManager as ConfigurationManager
+import voodoo.configuration as ConfigurationManager
 import test.unit.configuration as configuration
 
 from test.util.ModuleDisposer import uses_module
