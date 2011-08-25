@@ -18,7 +18,6 @@ import new as _new
 import types as _types
 import sys as _sys
 import datetime as _datetime
-import voodoo.abstraction.enumeration as _enumeration
 import voodoo.log as _log
 import urllib2 as _urllib2
 import __builtin__
@@ -237,8 +236,6 @@ class _InstanceDictionary(object):
                 try:
                     if i == key:
                         return True
-                except _enumeration.EnumerationException:
-                    return False
                 except TypeError:
                     return False
                 except:
@@ -662,8 +659,6 @@ def load_from_dto(instance,exceptions = None,skip_recoverables=False):
                 setattr(dto_object,i,load_dto_value(element))
 
             old_module = dto_object._old_module
-            if old_module == _enumeration.__name__:
-                old_module = dto_object._module_name
             old_name = dto_object._old_name
             __import__(old_module,globals(),locals(),[])
             the_class = getattr(_sys.modules[old_module],old_name)
