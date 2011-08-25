@@ -132,8 +132,12 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         
         status = self.coordinator.get_reservation_status(reservation1_id)
         expected_status =  WSS.ReservedStatus(CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, 30, '{}', now, now)
-        self.assertTrue(status.timestamp_before >= now and status.timestamp_before <= now + datetime.timedelta(seconds=10))
-        self.assertTrue(status.timestamp_after  >= now and status.timestamp_after  <= now + datetime.timedelta(seconds=10))
+
+        self.assertTrue("Unexpected status due to timestamp_before: %s; expected something like %s" % (status, expected_status), 
+                            status.timestamp_before >= now and status.timestamp_before <= now + datetime.timedelta(seconds=10))
+        self.assertTrue("Unexpected status due to timestamp_after: %s; expected something like %s" % (status, expected_status),
+                            status.timestamp_after  >= now and status.timestamp_after  <= now + datetime.timedelta(seconds=10))
+
         status.timestamp_before = now
         status.timestamp_after = now
         self.assertEquals( expected_status, status )
