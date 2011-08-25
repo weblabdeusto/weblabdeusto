@@ -7,7 +7,7 @@
 
 	<configuration file="server_config.py" />
 
-	<type>weblab.data.ServerType::Translator</type>
+	<type>weblab.data.server_type::Translator</type>
 	<methods>weblab.methods::Translator</methods>
 
 	<implementation>weblab.translator.StoresEverythingTranslator.StoresEverythingTranslator</implementation>

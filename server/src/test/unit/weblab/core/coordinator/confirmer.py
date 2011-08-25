@@ -25,7 +25,7 @@ import voodoo.sessions.session_id           as SessionId
 import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
 
-import weblab.data.ServerType as ServerType
+import weblab.data.server_type as ServerType
 import weblab.methods as weblab_methods
 from weblab.data.experiments import ExperimentInstanceId
 from weblab.data.experiments import ExperimentId

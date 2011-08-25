@@ -27,7 +27,7 @@ except ImportError:
 else:
     LDAP_AVAILABLE = True
     
-import weblab.data.ServerType as ServerType
+import weblab.data.server_type as ServerType
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions

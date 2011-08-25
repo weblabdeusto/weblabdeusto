@@ -7,7 +7,7 @@
 
 	<configuration file="server_config.py" />
 
-	<type>weblab.data.ServerType::Experiment</type>
+	<type>weblab.data.server_type::Experiment</type>
 	<methods>weblab.methods::Experiment</methods>
 
 	<implementation>weblab.experiment.experiments.robot_movement.server.RobotMovement</implementation>

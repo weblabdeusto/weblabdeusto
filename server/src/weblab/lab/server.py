@@ -32,7 +32,7 @@ import weblab.lab.exc as LaboratoryExceptions
 
 from voodoo.gen.caller_checker import caller_check
 
-import weblab.data.ServerType as ServerType
+import weblab.data.server_type as ServerType
 from weblab.data.experiments import ExperimentInstanceId
 import weblab.data.command as Command
 

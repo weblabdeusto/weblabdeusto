@@ -24,7 +24,7 @@ import weblab.experiment.devices.http as HttpDevice
 import weblab.experiment.experiments.ud_pic.commands as UdPicBoardCommand
 import weblab.experiment.experiments.ud_pic.tftp_sender as TFtpProgramSender
 import weblab.experiment.util as ExperimentUtil
-import weblab.data.ServerType as ServerType
+import weblab.data.server_type as ServerType
 
 import weblab.experiment.experiment as Experiment
 

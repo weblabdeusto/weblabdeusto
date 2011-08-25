@@ -21,7 +21,7 @@ import voodoo.LogLevel as LogLevel
 import voodoo.log as log
 import voodoo.counter as counter
 
-import weblab.data.ServerType as ServerType
+import weblab.data.server_type as ServerType
 
 import weblab.core.data_retriever as TemporalInformationRetriever
 import weblab.core.processor as UserProcessor

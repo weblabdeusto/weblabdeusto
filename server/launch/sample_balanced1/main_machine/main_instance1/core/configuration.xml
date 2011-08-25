@@ -7,7 +7,7 @@
 
 	<configuration file="server_config.py" />
 
-	<type>weblab.data.ServerType::UserProcessing</type>
+	<type>weblab.data.server_type::UserProcessing</type>
 	<methods>weblab.methods::UserProcessing</methods>
 
 	<implementation>weblab.core.server.UserProcessingServer</implementation>

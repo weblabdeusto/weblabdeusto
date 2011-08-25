@@ -17,7 +17,7 @@ from voodoo import LogLevel
 from voodoo.gen.caller_checker import caller_check
 from voodoo.log import logged
 from voodoo.override import Override
-from weblab.data import ServerType
+from weblab.data import server_type as ServerType
 import weblab.translator.StoresEverythingTranslator as StoresEverythingTranslator
 
 

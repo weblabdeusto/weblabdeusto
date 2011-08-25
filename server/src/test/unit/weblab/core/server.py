@@ -30,7 +30,7 @@ import weblab.core.coordinator.confirmer   as Confirmer
 import weblab.core.coordinator.coordinator as Coordinator
 import voodoo.configuration      as ConfigurationManager
 import weblab.db.session                as DatabaseSession
-import weblab.data.ServerType                         as ServerType
+import weblab.data.server_type                         as ServerType
 import weblab.data.client_address                      as ClientAddress
 
 import weblab.core.coordinator.config_parser as CoordinationConfigurationParser

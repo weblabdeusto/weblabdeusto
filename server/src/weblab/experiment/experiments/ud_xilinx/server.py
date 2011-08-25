@@ -24,7 +24,7 @@ from weblab.experiment.experiments.ud_xilinx.programmers import UdXilinxProgramm
 import os
 import tempfile
 import voodoo.log as log
-import weblab.data.ServerType as ServerType
+import weblab.data.server_type as ServerType
 import weblab.experiment.exc as ExperimentExceptions
 import weblab.experiment.experiment as Experiment
 import weblab.experiment.util as ExperimentUtil

@@ -7,7 +7,7 @@
 
 	<configuration file="server_config.py" />
 
-	<type>weblab.data.ServerType::Proxy</type>
+	<type>weblab.data.server_type::Proxy</type>
 	<methods>weblab.methods::Proxy</methods>
 
 	<implementation>weblab.proxy.server.ProxyServer</implementation>

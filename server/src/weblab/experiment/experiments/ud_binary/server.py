@@ -18,7 +18,7 @@ import weblab.experiment.experiments.ud_xilinx.server as UdXilinxExperiment
 import weblab.experiment.experiment as Experiment
 import weblab.experiment.util as ExperimentUtil
 
-import weblab.data.ServerType as ServerType
+import weblab.data.server_type as ServerType
 
 from voodoo.override import Override
 from voodoo.gen.caller_checker import caller_check

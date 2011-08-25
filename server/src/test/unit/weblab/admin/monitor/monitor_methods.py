@@ -34,7 +34,7 @@ import weblab.data.dto.experiments as Experiment
 import weblab.data.dto.experiments as ExperimentAllowed
 from weblab.data.experiments import ExperimentId
 from weblab.data.experiments import ExperimentInstanceId
-import weblab.data.ServerType                         as ServerType
+import weblab.data.server_type                         as ServerType
 import weblab.data.client_address                      as ClientAddress
 from weblab.data.dto.users import User
 from weblab.data.dto.users import Role

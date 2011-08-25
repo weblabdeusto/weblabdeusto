@@ -22,7 +22,7 @@ import voodoo.resources_manager as ResourceManager
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.sessions.session_id as SessionId
 
-import weblab.data.ServerType as ServerType
+import weblab.data.server_type as ServerType
 
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("Coordinator")
 

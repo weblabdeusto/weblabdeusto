@@ -19,7 +19,7 @@ from voodoo.gen.exceptions.locator import LocatorExceptions
 from voodoo.log import logged
 from voodoo.sessions import session_type as SessionType, manager as SessionManager, session_id as SessionId
 from voodoo.sessions.checker import check_session
-from weblab.data import ServerType
+from weblab.data import server_type as ServerType
 import weblab.proxy.exc as ProxyExceptions
 from weblab.proxy import session_handler as ProxySessionHandler
 from weblab.translator.StoresEverythingTranslator import StoresEverythingTranslator

@@ -19,7 +19,7 @@ from voodoo.gen.coordinator import CoordAddress
 from voodoo.gen.exceptions.locator import LocatorExceptions
 from voodoo.gen.locator import EasyLocator
 from voodoo.sessions import session_id as SessionId
-from weblab.data import ServerType
+from weblab.data import server_type as ServerType
 import weblab.lab.exc as LaboratoryExceptions
 import weblab.proxy.exc as ProxyExceptions
 from weblab.proxy import server as ProxyServer

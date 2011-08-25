@@ -7,7 +7,7 @@
 
 	<configuration file="server_config.py" />
 
-	<type>weblab.data.ServerType::Laboratory</type>
+	<type>weblab.data.server_type::Laboratory</type>
 	<methods>weblab.methods::Laboratory</methods>
 
 	<implementation>weblab.lab.server.LaboratoryServer</implementation>

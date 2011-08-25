@@ -19,7 +19,7 @@ import hashlib
 import json
 import random
 
-import weblab.data.ServerType as ServerType
+import weblab.data.server_type as ServerType
 import weblab.data.command as Command
 
 from voodoo.cache import cache

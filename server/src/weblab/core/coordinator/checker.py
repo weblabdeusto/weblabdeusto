@@ -19,7 +19,7 @@ import voodoo.LogLevel as LogLevel
 import voodoo.log as log
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 
-import weblab.data.ServerType as ServerType
+import weblab.data.server_type as ServerType
 
 class ResourcesChecker(object):
     def __init__(self, coordinator):
