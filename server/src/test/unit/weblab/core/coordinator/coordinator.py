@@ -412,11 +412,16 @@ class CoordinatorTestCase(unittest.TestCase):
         self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentInstanceId('inst1', 'exp1', 'cat1'), reservation1_id, SessionId.SessionId("mysessionid"), "{}", now, now)
         status = self.coordinator.get_reservation_status(reservation1_id)
         expected_status = WSS.ReservedStatus(coord_addr("lab1:inst@machine"), SessionId.SessionId("mysessionid"), DEFAULT_TIME, "{}", now, now)
-        try:
-            self.assertEquals( expected_status, status )
-        except AssertionError:
-            expected_status = WSS.ReservedStatus(coord_addr("lab1:inst@machine"), SessionId.SessionId("mysessionid"), DEFAULT_TIME, "{}", now - datetime.timedelta(seconds=1), now)
-            self.assertEquals( expected_status, status )
+        
+        
+        self.assertTrue("Unexpected status due to timestamp_before: %s; expected something like %s" % (status, expected_status), 
+                            status.timestamp_before >= now and status.timestamp_before <= now + datetime.timedelta(seconds=10))
+        self.assertTrue("Unexpected status due to timestamp_after: %s; expected something like %s" % (status, expected_status),
+                            status.timestamp_after  >= now and status.timestamp_after  <= now + datetime.timedelta(seconds=10))
+
+        status.timestamp_before = now
+        status.timestamp_after  = now
+        self.assertEquals( expected_status, status )
 
     def test_reserve_experiment_batch_reserved(self):
 
