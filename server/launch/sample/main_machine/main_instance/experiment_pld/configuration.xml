@@ -10,7 +10,7 @@
 	<type>weblab.data.server_type::Experiment</type>
 	<methods>weblab.methods::Experiment</methods>
 
-	<implementation>weblab.experiment.experiments.ud_xilinx.server.UdXilinxExperiment</implementation>
+	<implementation>experiments.ud_xilinx.server.UdXilinxExperiment</implementation>
 
 	<restriction>ud-pld@PLD experiments</restriction>
 
