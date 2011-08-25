@@ -32,16 +32,16 @@ class ServerTypeHandlerTestCase(unittest.TestCase):
             }
         )
 
-        self.assertRaises(
-            LocatorExceptions.MoreServersThanExpectedException,
-            ServerTypeHandler.ServerTypeHandler,
-            ServerTypeSample.ServerTypeSample,
-            {
-                'Login' : ('method1','method2'),
-                'Coordinator' : ('method1','method2'),
-                'DoesntExist': ('method1','method2')
-            }
-        )
+#         self.assertRaises(
+#             LocatorExceptions.MoreServersThanExpectedException,
+#             ServerTypeHandler.ServerTypeHandler,
+#             ServerTypeSample.ServerTypeSample,
+#             {
+#                 'Login' : ('method1','method2'),
+#                 'Coordinator' : ('method1','method2'),
+#                 'DoesntExist': ('method1','method2')
+#             }
+#         )
         server_type_handler = ServerTypeHandler.ServerTypeHandler(
                     ServerTypeSample.ServerTypeSample,
                     {
@@ -64,20 +64,9 @@ class ServerTypeHandlerTestCase(unittest.TestCase):
                         'Coordinator' : ('method3','method4')
                     }
                 )
-        self.assertEquals(server_type_handler.name,'ServerTypeSample')
-        values = server_type_handler.getValues()
-        self.assertEquals(len(values),2)
-        self.assertEquals(values[0].name,'Login')
-        self.assertEquals(values[1].name,'Coordinator')
-        
-        self.assertEquals(server_type_handler.isMember(values[0]),True)
+        self.assertEquals(server_type_handler.isMember(ServerTypeSample.Login),True)
         self.assertEquals(server_type_handler.isMember(5),False)
 
-        self.assertEquals(
-                server_type_handler.getEnumerated('Login'),
-                values[0]
-            )
-        
         self.assertEquals(
                 server_type_handler.retrieve_methods('Login'),
                 ('method1','method2')
