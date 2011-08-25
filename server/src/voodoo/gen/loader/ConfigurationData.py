@@ -47,15 +47,16 @@ class ProtocolConfiguration(object):
         self.filled_creation    = None
 
 class ServerConfiguration(object):
-    def __init__(self, address, configurations, server_type, methods, implementation, restrictions, protocols):
+    def __init__(self, address, configurations, server_type, server_type_module, methods, implementation, restrictions, protocols):
         super(ServerConfiguration, self).__init__()
-        self.address         = address
-        self._configurations = configurations
-        self.server_type     = server_type
-        self.methods         = methods
-        self.implementation  = implementation
-        self.restrictions    = restrictions
-        self._protocols      = protocols
+        self.address            = address
+        self._configurations    = configurations
+        self.server_type        = server_type
+        self.server_type_module = server_type_module
+        self.methods            = methods
+        self.implementation     = implementation
+        self.restrictions       = restrictions
+        self._protocols         = protocols
 
     @property
     def protocols(self):

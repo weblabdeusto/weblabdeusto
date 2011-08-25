@@ -120,8 +120,8 @@ class ServerLoader(object):
                 )
 
         any_server = global_config.machines[machine_name].instances[instance_name].servers.values()[0]
-
-        server_type = getattr(any_server.server_type._module,'Coordinator')
+        
+        server_type = getattr(any_server.server_type_module,'Coordinator')
 
         map.add_new_server( 
                 machine_name,
@@ -215,15 +215,14 @@ class ServerLoader(object):
             for instance in machine.instances.values():
                 for server in instance.servers.values():
                     if current_server_type is None:
-                        current_server_type = server.server_type._module
-                    if current_server_type != server.server_type._module:
+                        current_server_type = server.server_type_module
+                    if current_server_type != server.server_type_module:
                         raise Exception("Too many server types found!")
-                    map[server.server_type.name] = server.methods
+                    map[server.server_type] = server.methods
         
         if current_server_type is None:
             raise Exception("No server type found!")
-        map[current_server_type.Coordinator.name] = voodoo_exported_methods.coordinator
-        current_server_type = getattr(current_server_type, current_server_type._enumeration_name)
+        map[current_server_type.Coordinator] = voodoo_exported_methods.coordinator
         return current_server_type, map
 
     def _generate_coordinator_server_name(self, machine_name, instance_name):

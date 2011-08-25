@@ -80,18 +80,20 @@ class ServerParser(AbstractParser):
         protocols_nodes     = LoaderUtilities.find_node(file_path, server_node, 'protocols')
 
         # Parse nodes
-        configurations = self._parse_configurations(directory, configuration_nodes)
-        server_type    = self._parse_server_type(server_type_node)
-        methods        = self._parse_methods(methods_node)
-        implementation = self._parse_implementation(implementation_node)
-        restrictions   = self._parse_restrictions(directory, restrictions_nodes)
-        protocols      = self._parse_protocols(file_path, protocols_nodes, address)
+        configurations     = self._parse_configurations(directory, configuration_nodes)
+        server_type        = self._parse_server_type(server_type_node)
+        server_type_module = self._parse_server_type_module(server_type_node)
+        methods            = self._parse_methods(methods_node)
+        implementation     = self._parse_implementation(implementation_node)
+        restrictions       = self._parse_restrictions(directory, restrictions_nodes)
+        protocols          = self._parse_protocols(file_path, protocols_nodes, address)
         
         # Return structure
         server_configuration = ConfigurationData.ServerConfiguration(
                     None,
                     configurations, 
                     server_type, 
+                    server_type_module,
                     methods, 
                     implementation,
                     restrictions,
@@ -101,6 +103,17 @@ class ServerParser(AbstractParser):
 
     def _parse_server_type(self, server_type_node):
         return self._retrieve_variable(server_type_node)
+
+    def _parse_server_type_module(self, server_type_node):
+        text_value = LoaderUtilities.obtain_text_safe(server_type_node)
+        if text_value.count('::') != 1:
+            raise LoaderExceptions.InvalidConfigurationException(
+                        'Unknown format: %s. module::variable expected' % text_value
+                    )
+
+        module_name, _ = text_value.split('::')
+        module_inst = LoaderUtilities.obtain_from_python_path(module_name)
+        return module_inst
 
     def _parse_methods(self, methods_node):
         return self._retrieve_variable(methods_node)

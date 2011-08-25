@@ -67,7 +67,7 @@ class ServerLocatorTestCase(unittest.TestCase):
         cfg_manager.append_module(configuration_module)
 
         self.server_type_handler = ServerTypeHandler.ServerTypeHandler(
-                ServerTypeSample.ServerTypeSample,
+                ServerTypeSample,
                 {
                     'Login' : login_methods,
                     'Coordinator' : coordinator_methods
@@ -307,7 +307,7 @@ class ServerLocatorTestCase(unittest.TestCase):
             s2.start()
         
             server_type_handler = ServerTypeHandler.ServerTypeHandler(
-                    SampleServerType.SampleServerType,
+                    SampleServerType,
                     {
                         'Login' : login_methods,
                         'Coordinator' : coordinator_methods,
@@ -482,7 +482,7 @@ class ServerLocatorTestCase(unittest.TestCase):
             s2.start()
         
             server_type_handler = ServerTypeHandler.ServerTypeHandler(
-                    SampleServerType.SampleServerType,
+                    SampleServerType,
                     {
                         'Login' : login_methods,
                         'Coordinator' : coordinator_methods,
@@ -715,7 +715,7 @@ class ServerLocatorTestCase(unittest.TestCase):
 
         tmp_coordinator = self.coordinator_server_address.create_client(
                 self.server_type_handler.retrieve_methods(
-                    self.server_type_handler.module.Coordinator.name
+                    self.server_type_handler.module.Coordinator
                 )
             )
 
@@ -821,7 +821,7 @@ class ServerLocatorTestCase(unittest.TestCase):
 
         tmp_coordinator = self.coordinator_server_address.create_client(
                 self.server_type_handler.retrieve_methods(
-                    self.server_type_handler.module.Coordinator.name
+                    self.server_type_handler.module.Coordinator
                 )
             )
 

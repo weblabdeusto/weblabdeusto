@@ -12,12 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
-values = [
-    'Login',
-    'Coordinator'
-]
-name='ServerTypeSample'
 
-import voodoo.abstraction.enumeration as enumeration
-import sys
-enumeration.gen(sys.modules[__name__],values,name,True)
+Login = 'Login'
+Coordinator = 'Coordinator'
+

@@ -221,15 +221,15 @@ class Case002TestCase(object):
                 'coordinator1'
             )
         server_type_handler = ServerTypeHandler.ServerTypeHandler(
-            ServerType.ServerType,
+            ServerType,
             {
-                ServerType.Coordinator.name :       voodoo_exported_methods.coordinator,
-                ServerType.Login.name :             weblab_exported_methods.Login,
-                ServerType.UserProcessing.name :    weblab_exported_methods.UserProcessing,
-                ServerType.Proxy.name :             weblab_exported_methods.Proxy,
-                ServerType.Laboratory.name :        weblab_exported_methods.Laboratory,
-                ServerType.Translator.name :        weblab_exported_methods.Translator,
-                ServerType.Experiment.name :        weblab_exported_methods.Experiment
+                ServerType.Coordinator :       voodoo_exported_methods.coordinator,
+                ServerType.Login :             weblab_exported_methods.Login,
+                ServerType.UserProcessing :    weblab_exported_methods.UserProcessing,
+                ServerType.Proxy :             weblab_exported_methods.Proxy,
+                ServerType.Laboratory :        weblab_exported_methods.Laboratory,
+                ServerType.Translator :        weblab_exported_methods.Translator,
+                ServerType.Experiment :        weblab_exported_methods.Experiment
             }
         )
 

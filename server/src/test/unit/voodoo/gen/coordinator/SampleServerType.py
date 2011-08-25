@@ -12,16 +12,8 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
-#Strong-typed enumeration of server types. Just a sample
 
-values = [
-    'Login',
-    'Coordinator',
-    'YetAnother'
-]
-name='SampleServerType'
+Login       = 'Login'
+Coordinator = 'Coordinator'
+YetAnother  = 'YetAnother'
 
-import voodoo.abstraction.enumeration as enumeration
-import sys
-
-enumeration.gen(sys.modules[__name__],values,name,True)

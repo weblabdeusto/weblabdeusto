@@ -143,7 +143,7 @@ class CoordinatorServer(object):
                 #At this point, the "server" (and "network" are chosen), we just need to save the cache and return them
                 return network.address
             raise CoordinatorServerExceptions.NoServerFoundException(
-                    "No server found for server_type: " + server_type.name + " and restrictions: " + str(restrictions) 
+                    "No server found for server_type: " + server_type + " and restrictions: " + str(restrictions) 
                 )
         finally:
             self._session_manager.modify_session_unlocking(

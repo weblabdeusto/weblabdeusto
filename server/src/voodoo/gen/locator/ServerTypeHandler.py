@@ -13,12 +13,10 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 import sys
-import voodoo.abstraction.enumeration as enumeration
-
 import voodoo.gen.exceptions.locator.LocatorExceptions as LocatorExceptions
 
 class ServerTypeHandler(object):
-    def __init__(self,server_type_type, methods):
+    def __init__(self,server_type_module, methods):
         """ server_type_type is a Enumeration-created type.
 
         For example: voodoo.gen.protocols.protocols.Protocols
@@ -40,8 +38,7 @@ class ServerTypeHandler(object):
 #            if not hasattr(server_type_type, klass):
 #                raise LocatorExceptions.MoreServersThanExpectedException("Unexpected class %s for module %s" % (klass, server_type_type))
 
-        _inspected_type = enumeration.inspectEnumeration(server_type_type)
-        self._module = _inspected_type['module']
+        self._module = server_type_module
 
         self._methods = methods
         
@@ -58,7 +55,9 @@ class ServerTypeHandler(object):
         return self._module
 
     def isMember(self, obj):
-        if not hasattr(obj, 'name'):
-            return False
-        return hasattr(self._module, obj.name)
+        if isinstance(obj, basestring):
+            return hasattr(self._module, obj)
+
+        # TODO: remove the line below and put "return False"
+        return hasattr(obj, 'name') and hasattr(self._module, obj.name)
 

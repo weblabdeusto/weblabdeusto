@@ -110,9 +110,9 @@ def _generate_call(server_type, method):
             try:
                 server = self._easy_locator.get_server(server_type)
             except LocatorExceptions.NoServerFoundException:
-                log.log( EasyLocator, log.LogLevel.Error, "Can't get a %s server! Error in get_server " % server_type.name)
+                log.log( EasyLocator, log.LogLevel.Error, "Can't get a %s server! Error in get_server " % server_type)
                 raise LocatorExceptions.UnableToCompleteOperationException(
-                        "Couldn't connect to %s" % server_type.name
+                        "Couldn't connect to %s" % server_type
                     )
         
             try:
@@ -121,7 +121,7 @@ def _generate_call(server_type, method):
                 log.log(
                     EasyLocator, 
                     log.LogLevel.Warning, 
-                    "%s failed in reserve_session" % server_type.name
+                    "%s failed in reserve_session" % server_type
                 )
                 if not server in wrong_servers:
                     wrong_servers.append(server)
@@ -131,7 +131,7 @@ def _generate_call(server_type, method):
                             ()
                         )
                 else:
-                    log.log( EasyLocator, log.LogLevel.Error, "Locator provides twice the same server that fails in reserve_session! Can't use %s" % server_type.name )
+                    log.log( EasyLocator, log.LogLevel.Error, "Locator provides twice the same server that fails in reserve_session! Can't use %s" % server_type )
                     raise LocatorExceptions.UnableToCompleteOperationException(
                             "Error retrieving reserve_session answer",
                             re
@@ -143,9 +143,9 @@ def _generate_call_from_coordaddr(server_type, method):
         try:
             servers = self._easy_locator._get_server_from_coordaddr(self._other_coord, server_type, self._how_many)
         except LocatorExceptions.NoServerFoundException:
-            log.log( EasyLocator, log.LogLevel.Error, "Can't get %s servers! Error in get_server_from_coordaddr " % server_type.name)
+            log.log( EasyLocator, log.LogLevel.Error, "Can't get %s servers! Error in get_server_from_coordaddr " % server_type)
             raise LocatorExceptions.UnableToCompleteOperationException(
-                    "Couldn't connect to %s" % server_type.name
+                    "Couldn't connect to %s" % server_type
                 )
 
         tested = 0
@@ -157,7 +157,7 @@ def _generate_call_from_coordaddr(server_type, method):
                 log.log(
                     EasyLocator, 
                     log.LogLevel.Warning, 
-                    "%s failed in reserve_session" % server_type.name
+                    "%s failed in reserve_session" % server_type
                 )
                 log.log_exc( EasyLocator, log.LogLevel.Warning )
                 self._easy_locator.inform_server_not_working(
@@ -166,8 +166,8 @@ def _generate_call_from_coordaddr(server_type, method):
                         ()
                     )
         
-        log.log( EasyLocator, log.LogLevel.Error, "Can't get a %s server! Error in get_server after testing %s servers " % (server_type.name, tested))
+        log.log( EasyLocator, log.LogLevel.Error, "Can't get a %s server! Error in get_server after testing %s servers " % (server_type, tested))
         raise LocatorExceptions.UnableToCompleteOperationException(
-                "Couldn't connect to any %s" % server_type.name
+                "Couldn't connect to any %s" % server_type
             )
     return _call_from_coordaddr

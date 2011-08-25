@@ -53,18 +53,18 @@ class ServerLocator(object):
     def _retrieve_coordinator(self,coordinator_server_address,server_type_handler):
         server_type = server_type_handler.module.Coordinator
         methods = self._server_type_handler.retrieve_methods(
-                server_type.name
+                server_type
             )
 
         return coordinator_server_address.create_client(methods)
 
     def retrieve_methods(self, server_type):
-        return self._server_type_handler.retrieve_methods(server_type.name)
+        return self._server_type_handler.retrieve_methods(server_type)
 
     def inform_server_not_working(self,server_not_working,server_type,restrictions_of_server):
         self._cache_lock.acquire()
         try:
-            servers = self._cache.get(server_type.name)
+            servers = self._cache.get(server_type)
             if servers == None:
                 #TODO: not tested
                 return
@@ -127,7 +127,7 @@ class ServerLocator(object):
                 
                 # Server was not in the ServerRegistry neither in the cache
                 methods = self._server_type_handler.retrieve_methods(
-                        server_type.name
+                        server_type
                     )
                 try:
                     server = address.create_client(methods)
@@ -168,7 +168,7 @@ class ServerLocator(object):
             else:
                 raise LocatorExceptions.NoServerFoundException(
                     "No server found of type %s and restrictions %s" %
-                    (server_type.name, restrictions)
+                    (server_type, restrictions)
                 )
 
         finally:
@@ -180,7 +180,7 @@ class ServerLocator(object):
             raise LocatorExceptions.NotAServerTypeException('%s not a member of %s' %
                     (
                         server_type,
-                        self._server_type_handler.name
+                        self._server_type_handler
                     )
                 )
 
@@ -227,7 +227,7 @@ class ServerLocator(object):
             
             # Server was not in the ServerRegistry
             methods = self._server_type_handler.retrieve_methods(
-                    server_type.name
+                    server_type
                 )
             try:
                 cur_server = address.create_client(methods)
@@ -441,9 +441,9 @@ class ServerLocator(object):
         """
         self._cache_lock.acquire()
         try:
-            if not self._cache.has_key(server_type.name):
+            if not self._cache.has_key(server_type):
                 return None
-            server_type_cache = self._cache[server_type.name]
+            server_type_cache = self._cache[server_type]
             if not server_type_cache.has_key(restrictions):
                 return None
             server, creation_time = server_type_cache[restrictions]
@@ -482,9 +482,9 @@ class ServerLocator(object):
     def _save_server_in_cache(self, server, server_type, restrictions):
         self._cache_lock.acquire()
         try:
-            if not self._cache.has_key(server_type.name):
-                self._cache[server_type.name] = {}
-            server_type_cache = self._cache[server_type.name]
+            if not self._cache.has_key(server_type):
+                self._cache[server_type] = {}
+            server_type_cache = self._cache[server_type]
 
             if not server_type_cache.has_key(restrictions):
                 server_type_cache[restrictions] = (server, self._time())

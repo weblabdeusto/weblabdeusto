@@ -484,7 +484,7 @@ class CoordinationInformationTestCase(unittest.TestCase):
         machine   = c2._map['machine']
         instance  = machine['instance']
         server    = instance['server1']
-        server_type_name = server.server_type.name
+        server_type_name = server.server_type
         self.assertEquals(
                 server_type_name,
                 'Login'

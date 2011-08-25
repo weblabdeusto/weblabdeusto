@@ -12,14 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
-#Strong-typed enumeration of server types
 
-values = [
-    'Login',
-    'Coordinator',
-]
-name='ServerType'
+Login       = 'Login'
+Coordinator = 'Coordinator'
 
-import voodoo.abstraction.enumeration as enumeration
-import sys
-enumeration.gen(sys.modules[__name__],values,name,True)

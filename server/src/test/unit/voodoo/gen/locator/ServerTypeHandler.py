@@ -24,7 +24,7 @@ class ServerTypeHandlerTestCase(unittest.TestCase):
         self.assertRaises(
             LocatorExceptions.InvalidListOfMethodsException,
             ServerTypeHandler.ServerTypeHandler,
-            ServerTypeSample.ServerTypeSample,
+            ServerTypeSample,
             {
                 #:-) and :-( are not a list of methods
                 'Login' : ':-)',
@@ -35,7 +35,7 @@ class ServerTypeHandlerTestCase(unittest.TestCase):
 #         self.assertRaises(
 #             LocatorExceptions.MoreServersThanExpectedException,
 #             ServerTypeHandler.ServerTypeHandler,
-#             ServerTypeSample.ServerTypeSample,
+#             ServerTypeSample,
 #             {
 #                 'Login' : ('method1','method2'),
 #                 'Coordinator' : ('method1','method2'),
@@ -43,7 +43,7 @@ class ServerTypeHandlerTestCase(unittest.TestCase):
 #             }
 #         )
         server_type_handler = ServerTypeHandler.ServerTypeHandler(
-                    ServerTypeSample.ServerTypeSample,
+                    ServerTypeSample,
                     {
                         'Login' : ('method1','method2'),
                         'Coordinator' : ('method3','method4')
@@ -58,7 +58,7 @@ class ServerTypeHandlerTestCase(unittest.TestCase):
 
     def test_variables(self):
         server_type_handler = ServerTypeHandler.ServerTypeHandler(
-                    ServerTypeSample.ServerTypeSample,
+                    ServerTypeSample,
                     {
                         'Login' : ('method1','method2'),
                         'Coordinator' : ('method3','method4')

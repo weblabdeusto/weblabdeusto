@@ -44,7 +44,7 @@ class MockLocator(object):
         # attribute as needed
 
     def retrieve_methods(self, server_type):
-        return getattr(weblab_methods, server_type.name)
+        return getattr(weblab_methods, server_type)
 
     def get_server_from_coord_address(self, *args):
         return self.real_mock.get_server_from_coordaddress( *args )
