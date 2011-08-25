@@ -15,7 +15,7 @@
 import sys
 import voodoo.log as log
 
-import weblab.data.dto.Experiment as Experiment
+import weblab.data.dto.experiments as Experiment
 from weblab.data.experiments import ExperimentId
 
 try:

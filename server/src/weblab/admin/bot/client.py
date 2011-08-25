@@ -29,11 +29,10 @@ libraries.load()
 
 import voodoo.sessions.session_id as SessionId
 import weblab.core.reservations as Reservation
-import weblab.data.dto.Category as Category
-import weblab.data.dto.Experiment as Experiment
-import weblab.data.dto.User as User
 import weblab.data.Command as Command
 import weblab.comm.server as RemoteFacadeServer
+from weblab.data.dto.experiments import Experiment, ExperimentCategory
+from weblab.data.dto.users import User
 
 try:
     import weblab.login.comm.generated.WebLabDeusto_client as LoginWebLabDeusto_client
@@ -259,8 +258,8 @@ if ZSI_AVAILABLE:
         def _parse_experiment_list_holders(self, experiment_list_holders):
             experiments = []
             for experiment in [ holder.experiment for holder in experiment_list_holders]:
-                category = Category.ExperimentCategory(experiment.category.name)
-                exp = Experiment.Experiment(experiment.name, category, experiment.start_date, experiment.end_date)
+                category = ExperimentCategory(experiment.category.name)
+                exp = Experiment(experiment.name, category, experiment.start_date, experiment.end_date)
                 experiments.append(exp)
             return experiments
 
@@ -268,7 +267,7 @@ if ZSI_AVAILABLE:
             return Reservation.Reservation.translate_reservation_from_data(reservation_holder.status, reservation_holder.position, reservation_holder.time, reservation_holder.initial_configuration, reservation_holder.end_data)
 
         def _parse_user(self, holder):
-            return User.User(holder.login, holder.full_name, holder.email, holder.role)
+            return User(holder.login, holder.full_name, holder.email, holder.role)
 
         def _parse_command(self, command_holder):
             command = Command.Command(command_holder.commandstring)
@@ -290,8 +289,8 @@ class AbstractBotDict(AbstractBot):
     def _parse_experiment_list_holders(self, experiment_list_holders):
         experiments = []
         for experiment in [ holder['experiment'] for holder in experiment_list_holders]:
-            category = Category.ExperimentCategory(experiment['category']['name'])
-            exp = Experiment.Experiment(experiment['name'], category, experiment['start_date'], experiment['end_date'])
+            category = ExperimentCategory(experiment['category']['name'])
+            exp = Experiment(experiment['name'], category, experiment['start_date'], experiment['end_date'])
             experiments.append(exp)
         return experiments
 
@@ -301,7 +300,7 @@ class AbstractBotDict(AbstractBot):
 
     @possibleKeyError
     def _parse_user(self, holder):
-        return User.User(holder['login'], holder['full_name'], holder['email'], holder['role'])
+        return User(holder['login'], holder['full_name'], holder['email'], holder['role'])
 
     @possibleKeyError
     def _parse_command(self, command_holder):

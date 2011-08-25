@@ -27,8 +27,8 @@ import json
 import voodoo.log as log
 from voodoo.log import logged
 import voodoo.LogLevel as LogLevel
-from weblab.data.dto.User import User
-from weblab.data.dto.Role import StudentRole
+from weblab.data.dto.users import User
+from weblab.data.dto.users import StudentRole
 
 FACEBOOK_TOKEN_VALIDATOR = "https://graph.facebook.com/me?access_token=%s"
 

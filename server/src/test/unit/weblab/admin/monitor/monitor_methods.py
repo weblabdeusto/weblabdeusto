@@ -29,15 +29,15 @@ import weblab.core.exc as UPSExc
 
 import weblab.db.session                as DatabaseSession
 
-import weblab.data.dto.Category as Category
-import weblab.data.dto.Experiment as Experiment
-import weblab.data.dto.ExperimentAllowed as ExperimentAllowed
+import weblab.data.dto.experiments as Category
+import weblab.data.dto.experiments as Experiment
+import weblab.data.dto.experiments as ExperimentAllowed
 from weblab.data.experiments import ExperimentId
 from weblab.data.experiments import ExperimentInstanceId
 import weblab.data.ServerType                         as ServerType
 import weblab.data.ClientAddress                      as ClientAddress
-from weblab.data.dto.User import User
-from weblab.data.dto.Role import Role
+from weblab.data.dto.users import User
+from weblab.data.dto.users import Role
 from weblab.core.coordinator.resource import Resource
 
 import voodoo.gen.coordinator.CoordAddress  as CoordAddress

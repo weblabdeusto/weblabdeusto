@@ -19,12 +19,12 @@ import time
 import urllib2
 import datetime
 
-from weblab.data.dto.ExperimentUse import ExperimentUse
-from weblab.data.dto.Experiment    import Experiment
-from weblab.data.dto.Category      import ExperimentCategory
-from weblab.data.dto.Group         import Group
-from weblab.data.dto.User          import User
-from weblab.data.dto.Role          import Role
+from weblab.data.dto.experiments import ExperimentUse
+from weblab.data.dto.experiments    import Experiment
+from weblab.data.dto.experiments      import ExperimentCategory
+from weblab.data.dto.users         import Group
+from weblab.data.dto.users          import User
+from weblab.data.dto.users          import Role
 
 import weblab.comm.server as RemoteFacadeServer
 import weblab.core.comm.admin_server as AdminFacadeServer

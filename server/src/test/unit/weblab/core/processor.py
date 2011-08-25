@@ -33,15 +33,15 @@ import weblab.data.ServerType as ServerType
 import weblab.data.ClientAddress as ClientAddress
 
 import weblab.data.Command as Command
-import weblab.data.dto.Group as Group
+import weblab.data.dto.users as Group
 from weblab.data.experiments import ExperimentInstanceId
 from weblab.data.experiments import ExperimentId
-import weblab.data.dto.Category as Category
-import weblab.data.dto.Experiment as Experiment
-import weblab.data.dto.ExperimentAllowed as ExperimentAllowed
-import weblab.data.dto.ExperimentUse as ExperimentUse
-import weblab.data.dto.User as User
-import weblab.data.dto.Role as Role
+import weblab.data.dto.experiments as Category
+import weblab.data.dto.experiments as Experiment
+import weblab.data.dto.experiments as ExperimentAllowed
+import weblab.data.dto.experiments as ExperimentUse
+import weblab.data.dto.users as User
+import weblab.data.dto.users as Role
 
 import weblab.db.session as DbSession
 

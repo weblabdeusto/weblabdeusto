@@ -34,16 +34,16 @@ import weblab.comm.manager as RFM
 import weblab.core.comm.codes as UserProcessingRFCodes
 import weblab.core.reservations as Reservation
 
-import weblab.data.dto.ExperimentAllowed as ExperimentAllowed
-import weblab.data.dto.Experiment as Experiment
-import weblab.data.dto.Category as Category
+import weblab.data.dto.experiments as ExperimentAllowed
+import weblab.data.dto.experiments as Experiment
+import weblab.data.dto.experiments as Category
 import weblab.data.Command as Command
-import weblab.data.dto.Group as Group
+import weblab.data.dto.users as Group
 
-from weblab.data.dto.User import User
-from weblab.data.dto.Role import Role
-from weblab.data.dto.ExperimentUse import ExperimentUse
-from weblab.data.dto.Permission import Permission, PermissionParameter
+from weblab.data.dto.users import User
+from weblab.data.dto.users import Role
+from weblab.data.dto.experiments import ExperimentUse
+from weblab.data.dto.permissions import Permission, PermissionParameter
 
 import weblab.core.exc as coreExc
 import weblab.exc as WebLabExceptions

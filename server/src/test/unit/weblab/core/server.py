@@ -38,9 +38,9 @@ import weblab.core.coordinator.config_parser as CoordinationConfigurationParser
 import weblab.core.exc as coreExc
 
 from weblab.data.experiments import ExperimentId
-import weblab.data.dto.Category as Category
-import weblab.data.dto.Experiment as Experiment
-import weblab.data.dto.ExperimentAllowed as ExperimentAllowed
+import weblab.data.dto.experiments as Category
+import weblab.data.dto.experiments as Experiment
+import weblab.data.dto.experiments as ExperimentAllowed
 
 import voodoo.sessions.session_id as SessionId
 import voodoo.gen.coordinator.CoordAddress  as CoordAddress

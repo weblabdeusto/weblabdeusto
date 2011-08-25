@@ -21,8 +21,8 @@
 # don't need to parse Python code, etc.
 #
 
-from weblab.data.dto.User import User
-from weblab.data.dto.Role import Role
+from weblab.data.dto.users import User
+from weblab.data.dto.users import Role
 from weblab.admin.monitor.monitor import monitor_method
 from weblab.core.server import UserProcessingServer
 

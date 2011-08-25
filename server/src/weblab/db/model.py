@@ -24,16 +24,16 @@ import voodoo.gen.coordinator.CoordAddress as CoordAddress
 
 import weblab.login.db.dao.user as UserAuth
 
-from weblab.data.dto.Experiment import Experiment  
-from weblab.data.dto.Category import ExperimentCategory  
-from weblab.data.dto.Permission import Permission, PermissionParameter
+from weblab.data.dto.experiments import Experiment  
+from weblab.data.dto.experiments import ExperimentCategory  
+from weblab.data.dto.permissions import Permission, PermissionParameter
 from weblab.data.experiments import ExperimentId, ExperimentUsage, FileSent, CommandSent
 from weblab.data.Command import Command, NullCommand
-from weblab.data.dto.User import User
-from weblab.data.dto.Role import Role
-from weblab.data.dto.Group import Group  
-from weblab.data.dto.ExternalEntity import ExternalEntity
-from weblab.data.dto.ExperimentUse import ExperimentUse
+from weblab.data.dto.users import User
+from weblab.data.dto.users import Role
+from weblab.data.dto.users import Group  
+from weblab.data.dto.users import ExternalEntity
+from weblab.data.dto.experiments import ExperimentUse
 
 
 Base = declarative_base()

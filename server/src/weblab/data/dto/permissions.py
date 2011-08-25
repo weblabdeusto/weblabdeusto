@@ -10,7 +10,8 @@
 # This software consists of contributions made by many individuals, 
 # listed below:
 #
-# Author: Jaime Irurzun <jaime.irurzun@gmail.com>
+# Author: Pablo Orduña <pablo@ordunya.com>
+#         Jaime Irurzun <jaime.irurzun@gmail.com>
 #
 
 class Permission(object):
@@ -44,3 +45,4 @@ class PermissionParameter(object):
                 self.datatype,
                 self.value
             )
+
