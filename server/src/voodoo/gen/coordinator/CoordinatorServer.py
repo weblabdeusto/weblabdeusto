@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 import voodoo.sessions.manager as SessionManager
-import voodoo.sessions.SessionType    as SessionType
+import voodoo.sessions.session_type    as SessionType
 
 import voodoo.gen.exceptions.coordinator.CoordinatorServerExceptions as CoordinatorServerExceptions
 import voodoo.sessions.exc as SessionExceptions
@@ -30,7 +30,7 @@ DEFAULT_COORDINATOR_SERVER_SESSION_POOL_ID = "CoordinatorServer"
 class CoordinatorServer(object):
     def __init__(self, cfg_manager, map = None, map_file = None, *args, **kwargs):
         """ 
-        session_type: member of voodoo.sessions.SessionType 
+        session_type: member of voodoo.sessions.session_type 
         map: voodoo.gen.coordinator.CoordinationInformation.CoordinationMap
         map_file: file object
 

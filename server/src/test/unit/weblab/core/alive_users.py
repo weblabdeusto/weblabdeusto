@@ -22,7 +22,7 @@ import test.unit.weblab.core.processor as UserProcessorTest
 
 import voodoo.configuration as ConfigurationManager
 import voodoo.sessions.manager as SessionManager
-import voodoo.sessions.SessionType as SessionType
+import voodoo.sessions.session_type as SessionType
 import voodoo.sessions.session_id   as SessionId
 
 import weblab.core.processor as UserProcessor

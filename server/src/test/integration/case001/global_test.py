@@ -39,7 +39,7 @@ import voodoo.gen.protocols.SOAP.Network as SOAPNetwork
 import voodoo.gen.protocols.SOAP.ServerSOAP as ServerSOAP
 import voodoo.gen.registry.server_registry as ServerRegistry
 import voodoo.methods as voodoo_exported_methods
-import voodoo.sessions.SessionType as SessionType
+import voodoo.sessions.session_type as SessionType
 import weblab.data.client_address as ClientAddress
 import weblab.data.command as Command
 import weblab.data.ServerType as ServerType

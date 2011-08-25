@@ -17,7 +17,7 @@ import time
 import threading
 import weakref
 
-import voodoo.sessions.SessionType as SessionType
+import voodoo.sessions.session_type as SessionType
 import voodoo.sessions.gateway as SessionGateway
 import voodoo.sessions.session_id as SessionId
 

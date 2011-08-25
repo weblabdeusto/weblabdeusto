@@ -21,7 +21,7 @@ import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
 
 import voodoo.sessions.manager as SessionManager
-import voodoo.sessions.SessionType    as SessionType
+import voodoo.sessions.session_type    as SessionType
 
 class SessionManagerTestCase(unittest.TestCase):
     def setUp(self):

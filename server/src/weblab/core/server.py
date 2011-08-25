@@ -41,7 +41,7 @@ from voodoo.threaded import threaded
 
 from voodoo.sessions.checker import check_session
 import voodoo.sessions.manager as SessionManager
-import voodoo.sessions.SessionType as SessionType
+import voodoo.sessions.session_type as SessionType
 
 import voodoo.resources_manager as ResourceManager
 

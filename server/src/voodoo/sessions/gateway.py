@@ -12,7 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
-import voodoo.sessions.SessionType as SessionType
+import voodoo.sessions.session_type as SessionType
 import voodoo.sessions.exc as SessionExceptions
 
 def get_gateway_class(session_type):
