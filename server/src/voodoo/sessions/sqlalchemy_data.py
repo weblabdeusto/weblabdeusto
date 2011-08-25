@@ -12,7 +12,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-from sqlalchemy import Column, String, DateTime, Binary
+from sqlalchemy import Column, String, DateTime, LargeBinary
 from sqlalchemy.ext.declarative import declarative_base
 
 SessionBase = declarative_base()
@@ -25,7 +25,7 @@ class Session(SessionBase):
     start_date      = Column(DateTime(),  nullable = False)
     latest_access   = Column(DateTime())
     latest_change   = Column(DateTime())
-    session_obj     = Column(Binary(), nullable = False)
+    session_obj     = Column(LargeBinary(), nullable = False)
 
     def __init__(self, sess_id, session_pool_id, start_date, session_obj):
         self.sess_id         = sess_id
