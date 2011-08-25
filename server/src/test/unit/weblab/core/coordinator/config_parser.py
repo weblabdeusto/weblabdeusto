@@ -19,7 +19,7 @@ import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
 
 import weblab.core.exc as coreExc
-import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
+from weblab.data.experiments import ExperimentInstanceId
 from weblab.core.coordinator.resource import Resource
 import weblab.core.coordinator.config_parser as CoordinationConfigurationParser
 
@@ -42,8 +42,8 @@ class CoordinationConfigurationParserTestCase(unittest.TestCase):
         self.assertEquals(1, len(configuration))
         lab_config = configuration['laboratory1:WL_SERVER1@WL_MACHINE1']
         self.assertEquals(2, len(lab_config))
-        exp_fpga = ExperimentInstanceId.ExperimentInstanceId("exp1","ud-fpga","FPGA experiments")
-        exp_pld  = ExperimentInstanceId.ExperimentInstanceId("exp1","ud-pld","PLD experiments")
+        exp_fpga = ExperimentInstanceId("exp1","ud-fpga","FPGA experiments")
+        exp_pld  = ExperimentInstanceId("exp1","ud-pld","PLD experiments")
 
         fpga_resource = lab_config[exp_fpga]
         self.assertEquals(Resource("fpga boards", "fpga1"), fpga_resource)

@@ -20,7 +20,7 @@ import weblab.comm.manager as RFM
 
 import weblab.data.Command as Command
 import weblab.data.ClientAddress as ClientAddress
-import weblab.data.experiments.ExperimentId as ExperimentId
+from weblab.data.experiments import ExperimentId
 
 import weblab.core.exc as coreExc
 import weblab.exc as WebLabExceptions
@@ -261,7 +261,7 @@ class AbstractUserProcessingRemoteFacadeManagerObject(AbstractUserProcessingRemo
         return SessionId.SessionId(session_id.id)
 
     def _parse_experiment_id(self, exp_id):
-        return ExperimentId.ExperimentId(
+        return ExperimentId(
                 exp_id.exp_name,
                 exp_id.cat_name
             )
@@ -281,7 +281,7 @@ class AbstractUserProcessingRemoteFacadeManagerDict(AbstractUserProcessingRemote
         return SessionId.SessionId(session_id['id'])
 
     def _parse_experiment_id(self, exp_id):
-        return ExperimentId.ExperimentId(
+        return ExperimentId(
             exp_id['exp_name'],
             exp_id['cat_name']
         )

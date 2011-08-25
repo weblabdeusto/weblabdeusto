@@ -19,9 +19,9 @@ import unittest
 import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
 
-import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
+from weblab.data.experiments import ExperimentInstanceId
 
-from weblab.data.experiments.ExperimentId import ExperimentId
+from weblab.data.experiments import ExperimentId
 from weblab.core.coordinator.resource import Resource
 from weblab.core.coordinator.coordinator import Coordinator
 import weblab.core.coordinator.resource_manager as ResourcesManager
@@ -88,7 +88,7 @@ class ResourcesManagerTestCase(unittest.TestCase):
             resource_types = session.query(CoordinatorModel.ResourceType).all()
             self.assertEquals(0, len(resource_types), "No resource expected in the beginning of the test")
     
-            exp_id = ExperimentInstanceId.ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
+            exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
             self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
             self._check_resource_added(session)
             self._check_experiment_instance_id_added(session)
@@ -102,7 +102,7 @@ class ResourcesManagerTestCase(unittest.TestCase):
             resource_types = session.query(CoordinatorModel.ResourceType).all()
             self.assertEquals(0, len(resource_types), "No resource expected in the beginning of the test")
     
-            exp_id = ExperimentInstanceId.ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
+            exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
             self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
 
             # No problem in adding twice the same
@@ -130,7 +130,7 @@ class ResourcesManagerTestCase(unittest.TestCase):
     def test_get_resource_instance_by_experiment_instance_id(self):
         session = self.session_maker()
         try:
-            exp_id = ExperimentInstanceId.ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
+            exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
             self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
             session.commit()
         finally:
@@ -143,19 +143,19 @@ class ResourcesManagerTestCase(unittest.TestCase):
     def test_get_resource_instance_by_experiment_instance_id_failing(self):
         session = self.session_maker()
         try:
-            exp_id = ExperimentInstanceId.ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
+            exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
             self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
             session.commit()
         finally:
             session.close()
 
-        exp_invalid_type = ExperimentInstanceId.ExperimentInstanceId("exp1","ud-pld.invalid", "PLD Experiments")
+        exp_invalid_type = ExperimentInstanceId("exp1","ud-pld.invalid", "PLD Experiments")
 
         self.assertRaises( CoordExc.ExperimentNotFoundException, 
                             self.resources_manager.get_resource_instance_by_experiment_instance_id,
                             exp_invalid_type )
 
-        exp_invalid_inst = ExperimentInstanceId.ExperimentInstanceId("exp.invalid","ud-pld", "PLD Experiments")
+        exp_invalid_inst = ExperimentInstanceId("exp.invalid","ud-pld", "PLD Experiments")
         self.assertRaises( CoordExc.ExperimentNotFoundException, 
                             self.resources_manager.get_resource_instance_by_experiment_instance_id,
                             exp_invalid_inst )
@@ -163,7 +163,7 @@ class ResourcesManagerTestCase(unittest.TestCase):
     def test_get_resource_types_by_experiment_id(self):
         session = self.session_maker()
         try:
-            exp_id = ExperimentInstanceId.ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
+            exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
             self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
             session.commit()
         finally:
@@ -177,7 +177,7 @@ class ResourcesManagerTestCase(unittest.TestCase):
     def test_get_resource_types_by_experiment_id_error(self):
         session = self.session_maker()
         try:
-            exp_id = ExperimentInstanceId.ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
+            exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
             self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
             session.commit()
         finally:
@@ -214,7 +214,7 @@ class ResourcesManagerTestCase(unittest.TestCase):
     def test_remove_resource_instance_id(self):
         session = self.session_maker()
         try:
-            exp_id = ExperimentInstanceId.ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
+            exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
             self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
 
             experiment_instances = session.query(CoordinatorModel.ExperimentInstance).all()
@@ -232,7 +232,7 @@ class ResourcesManagerTestCase(unittest.TestCase):
     def test_remove_resource_instance(self):
         session = self.session_maker()
         try:
-            exp_id = ExperimentInstanceId.ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
+            exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
             resource_instance = Resource("type", "instance")
             self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, resource_instance)
 
@@ -258,11 +258,11 @@ class ResourcesManagerTestCase(unittest.TestCase):
     def test_list_resources(self):
         session = self.session_maker()
         try:
-            exp_id1 = ExperimentInstanceId.ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
+            exp_id1 = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
             resource_instance1 = Resource("type1", "instance1")
             self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id1, resource_instance1)
 
-            exp_id2 = ExperimentInstanceId.ExperimentInstanceId("exp2","ud-pld","PLD Experiments")
+            exp_id2 = ExperimentInstanceId("exp2","ud-pld","PLD Experiments")
             resource_instance2 = Resource("type2", "instance1")
             self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id2, resource_instance2)
             session.commit()
@@ -277,11 +277,11 @@ class ResourcesManagerTestCase(unittest.TestCase):
     def test_list_experiments(self):
         session = self.session_maker()
         try:
-            exp_id1 = ExperimentInstanceId.ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
+            exp_id1 = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
             resource_instance1 = Resource("type1", "instance1")
             self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id1, resource_instance1)
 
-            exp_id2 = ExperimentInstanceId.ExperimentInstanceId("exp2","ud-pld","PLD Experiments")
+            exp_id2 = ExperimentInstanceId("exp2","ud-pld","PLD Experiments")
             resource_instance2 = Resource("type2", "instance1")
             self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id2, resource_instance2)
             session.commit()
@@ -295,14 +295,14 @@ class ResourcesManagerTestCase(unittest.TestCase):
     def test_list_experiment_instance_ids_by_resource(self):
         session = self.session_maker()
         try:
-            exp_id1 = ExperimentInstanceId.ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
+            exp_id1 = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
             resource_instance1 = Resource("type1", "instance1")
             self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id1, resource_instance1)
 
-            exp_id2 = ExperimentInstanceId.ExperimentInstanceId("exp2","ud-pld","PLD Experiments")
+            exp_id2 = ExperimentInstanceId("exp2","ud-pld","PLD Experiments")
             self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id2, resource_instance1)
 
-            exp_id3 = ExperimentInstanceId.ExperimentInstanceId("exp3","ud-pld","PLD Experiments")
+            exp_id3 = ExperimentInstanceId("exp3","ud-pld","PLD Experiments")
             resource_instance2 = Resource("type1", "instance2")
             self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id3, resource_instance2)
 
@@ -312,23 +312,23 @@ class ResourcesManagerTestCase(unittest.TestCase):
 
         experiment_instance_ids = self.resources_manager.list_experiment_instance_ids_by_resource(resource_instance1)
         self.assertEquals(2, len(experiment_instance_ids))
-        self.assertTrue(ExperimentInstanceId.ExperimentInstanceId('exp1','ud-pld', 'PLD Experiments') in experiment_instance_ids)
-        self.assertTrue(ExperimentInstanceId.ExperimentInstanceId('exp2','ud-pld', 'PLD Experiments') in experiment_instance_ids)
+        self.assertTrue(ExperimentInstanceId('exp1','ud-pld', 'PLD Experiments') in experiment_instance_ids)
+        self.assertTrue(ExperimentInstanceId('exp2','ud-pld', 'PLD Experiments') in experiment_instance_ids)
 
 
     def test_list_laboratories_addresses(self):
         session = self.session_maker()
         try:
-            exp_id1 = ExperimentInstanceId.ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
+            exp_id1 = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
             resource_instance1 = Resource("type1", "instance1")
             self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id1, resource_instance1)
 
             # Repeating laboratory1, but a set is returned so no problem
-            exp_id2 = ExperimentInstanceId.ExperimentInstanceId("exp2","ud-pld","PLD Experiments")
+            exp_id2 = ExperimentInstanceId("exp2","ud-pld","PLD Experiments")
             resource_instance2 = Resource("type2", "instance1")
             self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id2, resource_instance2)
 
-            exp_id3 = ExperimentInstanceId.ExperimentInstanceId("exp3","ud-pld","PLD Experiments")
+            exp_id3 = ExperimentInstanceId("exp3","ud-pld","PLD Experiments")
             resource_instance3 = Resource("type2", "instance2")
             self.resources_manager.add_experiment_instance_id(session, "laboratory2:WL_SERVER1@WL_MACHINE1", exp_id3, resource_instance3)
 

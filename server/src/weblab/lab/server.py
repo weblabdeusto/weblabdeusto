@@ -33,7 +33,7 @@ import weblab.lab.exc as LaboratoryExceptions
 from voodoo.gen.caller_checker import caller_check
 
 import weblab.data.ServerType as ServerType
-import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
+from weblab.data.experiments import ExperimentInstanceId
 import weblab.data.Command as Command
 
 import weblab.core.coordinator.coordinator as Coordinator
@@ -122,7 +122,7 @@ class LaboratoryServer(object):
                     exp_name,
                     exp_cat_name
                 ) = groups
-                experiment_instance_id = ExperimentInstanceId.ExperimentInstanceId(exp_inst_name, exp_name, exp_cat_name)
+                experiment_instance_id = ExperimentInstanceId(exp_inst_name, exp_name, exp_cat_name)
 
                 # CoordAddress
                 try:

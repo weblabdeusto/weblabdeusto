@@ -33,7 +33,7 @@ from weblab.core.coordinator.model import ResourceType, ResourceInstance, Curren
 from weblab.core.coordinator.priority_queue_scheduler_model import ConcreteCurrentReservation, WaitingReservation
 import weblab.core.coordinator.status as WSS
 
-from weblab.data.experiments.ExperimentInstanceId import ExperimentInstanceId
+from weblab.data.experiments import ExperimentInstanceId
 
 import json
 

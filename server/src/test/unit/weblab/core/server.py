@@ -37,7 +37,7 @@ import weblab.core.coordinator.config_parser as CoordinationConfigurationParser
 
 import weblab.core.exc as coreExc
 
-import weblab.data.experiments.ExperimentId as ExperimentId
+from weblab.data.experiments import ExperimentId
 import weblab.data.dto.Category as Category
 import weblab.data.dto.Experiment as Experiment
 import weblab.data.dto.ExperimentAllowed as ExperimentAllowed
@@ -148,7 +148,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
 
-        exp_id = ExperimentId.ExperimentId('this does not experiment','this neither')
+        exp_id = ExperimentId('this does not experiment','this neither')
 
         self.assertRaises(
             coreExc.UnknownExperimentIdException,
@@ -156,7 +156,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
             sess_id, exp_id, "{}", ClientAddress.ClientAddress("127.0.0.1")
         )
 
-        exp_id = ExperimentId.ExperimentId('ud-dummy','Dummy experiments')
+        exp_id = ExperimentId('ud-dummy','Dummy experiments')
        
         lab_sess_id = SessionId.SessionId("lab_session_id")
         self.lab_mock.reserve_experiment(exp_id, "{}")

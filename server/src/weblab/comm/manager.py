@@ -16,7 +16,7 @@ import sys
 import voodoo.log as log
 
 import weblab.data.dto.Experiment as Experiment
-import weblab.data.experiments.ExperimentId as ExperimentId
+from weblab.data.experiments import ExperimentId
 
 try:
     import ZSI
@@ -127,7 +127,7 @@ class AbstractXMLRPC(object):
         raise SimpleXMLRPCServer.Fault('XMLRPC:' + code, msg)
 
     def _parse_experiment_id(self, exp_id):
-        return ExperimentId.ExperimentId(
+        return ExperimentId(
                 exp_id['exp_name'],
                 exp_id['cat_name']
             )

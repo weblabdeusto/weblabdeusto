@@ -19,7 +19,7 @@ import time
 import voodoo.log as log
 
 import weblab.db.session as DbSession
-import weblab.data.experiments.Usage as Usage
+from weblab.data.experiments import CommandSent, ExperimentUsage
 import weblab.data.Command as Command
 
 class TemporalInformationRetriever(threading.Thread):
@@ -77,19 +77,19 @@ class TemporalInformationRetriever(threading.Thread):
             username      = request_info.pop('username')
             role          = request_info.pop('role')
 
-            usage = Usage.ExperimentUsage()
+            usage = ExperimentUsage()
             usage.start_date     = initial_timestamp
             usage.from_ip        = from_ip
             usage.experiment_id  = initial_information.experiment_id
             usage.reservation_id = initial_information.reservation_id
             usage.coord_address  = initial_information.exp_coordaddr
 
-            command_request = Usage.CommandSent(
+            command_request = CommandSent(
                     Command.Command("@@@initial::request@@@"), initial_timestamp,
                     Command.Command(str(initial_information.client_initial_data)), end_timestamp
             )
 
-            command_response = Usage.CommandSent(
+            command_response = CommandSent(
                     Command.Command("@@@initial::response@@@"), initial_timestamp,
                     Command.Command(str(initial_information.initial_configuration)), end_timestamp
             )
@@ -107,7 +107,7 @@ class TemporalInformationRetriever(threading.Thread):
             initial_timestamp = time.mktime(initial_time.timetuple())
             end_timestamp     = time.mktime(end_time.timetuple())
 
-            command = Usage.CommandSent(
+            command = CommandSent(
                     Command.Command("@@@finish@@@"), initial_timestamp,
                     Command.Command(str(obj)), end_timestamp
             )
@@ -135,7 +135,7 @@ class TemporalInformationRetriever(threading.Thread):
                 self.commands_store.put(information)
                     
     def _process_pre_command(self, information):
-        command = Usage.CommandSent(
+        command = CommandSent(
                         Command.Command(information.payload),
                         information.timestamp
                     )

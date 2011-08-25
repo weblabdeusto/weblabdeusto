@@ -23,12 +23,12 @@ import voodoo.gen.coordinator.CoordAddress as CoordAddress
 
 import weblab.experiment.level as ExperimentApiLevel
 
-import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
+from weblab.data.experiments import ExperimentInstanceId
 
 class AssignedExperimentsTestCase(unittest.TestCase):
     def setUp(self):
         self._assigned_micro_servers = AssignedExperiments.AssignedExperiments()
-        self.exp_inst_id = ExperimentInstanceId.ExperimentInstanceId("exp_inst","exp_name","exp_cat")
+        self.exp_inst_id = ExperimentInstanceId("exp_inst","exp_name","exp_cat")
         
     
     def test_add_server(self):

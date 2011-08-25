@@ -16,7 +16,7 @@
 import re
 
 from weblab.core.coordinator.resource import Resource
-import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
+from weblab.data.experiments import ExperimentInstanceId
 import weblab.core.exc as coreExc
 
 COORDINATOR_LABORATORY_SERVERS="core_coordinator_laboratory_servers"
@@ -62,7 +62,7 @@ class CoordinationConfigurationParser(object):
                     exp_cat_name
                 ) = mo_experiment_instance.groups()
 
-                experiment_instance_id = ExperimentInstanceId.ExperimentInstanceId( inst_name, exp_name, exp_cat_name )
+                experiment_instance_id = ExperimentInstanceId( inst_name, exp_name, exp_cat_name )
 
                 (
                     resource_instance,

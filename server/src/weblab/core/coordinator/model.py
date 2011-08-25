@@ -16,8 +16,8 @@
 import uuid
 import datetime
 
-import weblab.data.experiments.ExperimentId as ExperimentId
-import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
+from weblab.data.experiments import ExperimentId
+from weblab.data.experiments import ExperimentInstanceId
 import weblab.core.coordinator.exc as CoordExc
 
 from weblab.core.coordinator.resource import Resource
@@ -206,7 +206,7 @@ class ExperimentType(Base):
         self.cat_name = cat_name
 
     def to_experiment_id(self):
-        return ExperimentId.ExperimentId(self.exp_name, self.cat_name)
+        return ExperimentId(self.exp_name, self.cat_name)
 
     def __repr__(self):
         return "ExperimentType(%r,%r)" % (self.exp_name, self.cat_name)
@@ -234,7 +234,7 @@ class ExperimentInstance(Base):
 
     def to_experiment_instance_id(self):
         exp_id = self.experiment_type.to_experiment_id()
-        return ExperimentInstanceId.ExperimentInstanceId(self.experiment_instance_id, exp_id.exp_name, exp_id.cat_name)
+        return ExperimentInstanceId(self.experiment_instance_id, exp_id.exp_name, exp_id.cat_name)
 
     def __repr__(self):
         return "ExperimentInstance(%r,%r,%r)" % (self.experiment_type, self.laboratory_coord_address, self.experiment_instance_id)

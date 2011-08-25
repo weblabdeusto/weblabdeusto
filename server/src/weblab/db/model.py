@@ -27,10 +27,7 @@ import weblab.login.db.dao.user as UserAuth
 from weblab.data.dto.Experiment import Experiment  
 from weblab.data.dto.Category import ExperimentCategory  
 from weblab.data.dto.Permission import Permission, PermissionParameter
-from weblab.data.experiments.ExperimentId import ExperimentId  
-from weblab.data.experiments.Usage import ExperimentUsage  
-from weblab.data.experiments.Usage import FileSent  
-from weblab.data.experiments.Usage import CommandSent   
+from weblab.data.experiments import ExperimentId, ExperimentUsage, FileSent, CommandSent
 from weblab.data.Command import Command, NullCommand
 from weblab.data.dto.User import User
 from weblab.data.dto.Role import Role

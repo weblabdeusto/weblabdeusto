@@ -32,8 +32,8 @@ import weblab.db.session                as DatabaseSession
 import weblab.data.dto.Category as Category
 import weblab.data.dto.Experiment as Experiment
 import weblab.data.dto.ExperimentAllowed as ExperimentAllowed
-import weblab.data.experiments.ExperimentId as ExperimentId
-import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
+from weblab.data.experiments import ExperimentId
+from weblab.data.experiments import ExperimentInstanceId
 import weblab.data.ServerType                         as ServerType
 import weblab.data.ClientAddress                      as ClientAddress
 from weblab.data.dto.User import User
@@ -79,7 +79,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
             )
         
         self.ups._coordinator = self.coordinator
-        self.coordinator.add_experiment_instance_id("server:laboratoryserver@labmachine", ExperimentInstanceId.ExperimentInstanceId('inst','ud-dummy','Dummy experiments'), Resource("res_type", "res_inst"))
+        self.coordinator.add_experiment_instance_id("server:laboratoryserver@labmachine", ExperimentInstanceId('inst','ud-dummy','Dummy experiments'), Resource("res_type", "res_inst"))
 
 
     def tearDown(self):
@@ -87,7 +87,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         self.ups.stop()
 
     def test_list_experiments(self):
-        self.coordinator.add_experiment_instance_id("server:laboratoryserver@labmachine", ExperimentInstanceId.ExperimentInstanceId('inst','ud-dummy2','Dummy experiments'), Resource("res_type", "res_inst"))
+        self.coordinator.add_experiment_instance_id("server:laboratoryserver@labmachine", ExperimentInstanceId('inst','ud-dummy2','Dummy experiments'), Resource("res_type", "res_inst"))
 
         expected = "ud-dummy@Dummy experiments\n"
         expected +=  "ud-dummy2@Dummy experiments\n"
@@ -107,7 +107,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         category   = "Dummy experiments"
         experiment = "ud-dummy"
 
-        status, reservation_id = self.coordinator.reserve_experiment(ExperimentId.ExperimentId(experiment, category), 30, 5, '{}', {})
+        status, reservation_id = self.coordinator.reserve_experiment(ExperimentId(experiment, category), 30, 5, '{}', {})
 
         result   = methods.get_experiment_status.call(category, experiment)
         self.assertEquals({reservation_id : status}, result)
@@ -160,7 +160,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         result = methods.get_experiment_ups_session_ids.call(category, experiment)
         self.assertEquals( [], result ) 
 
-        self.ups.reserve_experiment( sess_id, ExperimentId.ExperimentId( experiment, category ), "{}", ClientAddress.ClientAddress( "127.0.0.1" ))
+        self.ups.reserve_experiment( sess_id, ExperimentId( experiment, category ), "{}", ClientAddress.ClientAddress( "127.0.0.1" ))
 
         result = methods.get_experiment_ups_session_ids.call(category, experiment)
         self.assertEquals( 1, len(result) )
@@ -191,7 +191,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
 
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
-        self.ups.reserve_experiment(sess_id, ExperimentId.ExperimentId( experiment, category ), "{}", ClientAddress.ClientAddress( "127.0.0.1" ))
+        self.ups.reserve_experiment(sess_id, ExperimentId( experiment, category ), "{}", ClientAddress.ClientAddress( "127.0.0.1" ))
 
         reservation_id = methods.get_reservation_id.call(sess_id.id)
         self.assertNotEquals(None, reservation_id)
@@ -202,7 +202,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
 
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
-        self.ups.reserve_experiment(sess_id, ExperimentId.ExperimentId( experiment, category ), "{}", ClientAddress.ClientAddress( "127.0.0.1" ))
+        self.ups.reserve_experiment(sess_id, ExperimentId( experiment, category ), "{}", ClientAddress.ClientAddress( "127.0.0.1" ))
 
         status = self.ups.get_reservation_status(sess_id)
         self.assertNotEquals( None, status )

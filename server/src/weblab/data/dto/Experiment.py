@@ -13,8 +13,8 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
-import weblab.data.experiments.ExperimentId as ExperimentId
+from weblab.data.experiments import ExperimentInstanceId
+from weblab.data.experiments import ExperimentId
 
 class Experiment(object):
     
@@ -35,10 +35,10 @@ class Experiment(object):
             )
 
     def get_experiment_instance_id(self):
-        return ExperimentInstanceId.ExperimentInstanceId(None, self.name, self.category.name)
+        return ExperimentInstanceId(None, self.name, self.category.name)
 
     def to_experiment_id(self):
-        return ExperimentId.ExperimentId(self.name, self.category.name)
+        return ExperimentId(self.name, self.category.name)
 
     def get_unique_name(self):
         return self.name + "@" + self.category.name

@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-#-*-*- encoding: utf-8 -*-*-
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 #
 # Copyright (C) 2005-2009 University of Deusto
 # All rights reserved.
@@ -14,6 +14,99 @@
 # 
 
 import weblab.data.Command as Command
+
+class ExperimentId(object):
+    def __init__(self, exp_name, cat_name):
+        self.exp_name  = exp_name
+        self.cat_name  = cat_name
+
+    def __eq__(self, other):
+        return ( isinstance(other, ExperimentId) 
+                and self.exp_name  == other.exp_name
+                and self.cat_name  == other.cat_name
+            )
+    
+    def __cmp__(self, other):
+        if isinstance(other, ExperimentId):
+            return -1
+        elif self.exp_name != other.exp_name:
+            return cmp(self.exp_name, other.exp_name)
+        else:
+            return cmp(self.cat_name, other.cat_name)
+
+    def __repr__(self):
+        return "<ExperimentId exp_name=%s; cat_name=%s />" % (
+                    self.exp_name,
+                    self.cat_name
+                )
+    
+    def to_dict(self):
+        return {'exp_name': self.exp_name, 'cat_name': self.cat_name}
+
+    def to_weblab_str(self):
+        return '%s@%s' % (self.exp_name, self.cat_name)
+
+    @staticmethod
+    def parse(weblab_str):
+        pos = weblab_str.find("@")
+        experiment_name = weblab_str[:pos]
+        category_name   = weblab_str[pos + 1 :]
+        return ExperimentId(experiment_name, category_name)
+
+class ExperimentInstanceId(object):
+    def __init__(self, inst_name, exp_name, cat_name):
+        self.inst_name = inst_name
+        self.exp_name  = exp_name
+        self.cat_name  = cat_name
+
+    def to_experiment_id(self):
+        return ExperimentId(self.exp_name, self.cat_name)
+
+    def to_weblab_str(self):
+        return "%s:%s@%s" % (self.inst_name, self.exp_name, self.cat_name)
+
+    def __eq__(self, other):
+        return ( isinstance(other, ExperimentInstanceId) 
+                and self.inst_name == other.inst_name
+                and self.exp_name  == other.exp_name
+                and self.cat_name  == other.cat_name
+            )
+
+    def __cmp__(self, other):
+        return cmp(str(self), str(other))
+
+    def __hash__(self):
+        return hash(self.inst_name) * 31 ** 3 + hash(self.exp_name) * 31 ** 2 + hash(self.cat_name) * 31 + hash("ExperimentInstanceId")
+
+    def __repr__(self):
+        return "<ExperimentInstanceId inst_name=%s; exp_name=%s; cat_name=%s />" % (
+                    self.inst_name,
+                    self.exp_name,
+                    self.cat_name
+                )
+
+
+class ExperimentInstance(object):
+    def __init__(self, name, experiment, laboratory, start_date, end_date):
+        super(ExperimentInstance,self).__init__()
+        self.name       = name
+        self.experiment = experiment
+        self.laboratory = laboratory
+        self.start_date = start_date
+        self.end_date   = end_date
+    def __repr__(self):
+        return "<ExperimentInstance: name: %s; experiment: %s; laboratory: %s; start_date: %s; end_date: %s>" % (
+                self.name,
+                self.experiment,
+                self.laboratory,
+                self.start_date,
+                self.end_date
+            )
+
+    def get_experiment_instance_id(self):
+        return ExperimentInstanceId(
+                self.name, self.experiment.name, self.experiment.category.name
+            )
 
 class CommandSent(object):
     def __init__(self, command, timestamp_before, response = None, timestamp_after = None):
@@ -61,7 +154,7 @@ class ExperimentUsage(object):
         self.start_date             = None # seconds.millis since 1970 in GMT
         self.end_date               = None # seconds.millis since 1970 in GMT
         self.from_ip                = u"unknown"
-        self.experiment_id          = None # weblab.data.experiments.ExperimentId.ExperimentId
+        self.experiment_id          = None # weblab.data.experiments.ExperimentId
         self.reservation_id         = None # string, the reservation identifier
         self.coord_address          = None # voodoo.gen.coordinator.CoordAddress.CoordAddress
         self.commands               = []   # [CommandSent]

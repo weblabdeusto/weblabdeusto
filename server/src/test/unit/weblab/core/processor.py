@@ -34,8 +34,8 @@ import weblab.data.ClientAddress as ClientAddress
 
 import weblab.data.Command as Command
 import weblab.data.dto.Group as Group
-import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
-import weblab.data.experiments.ExperimentId as ExperimentId
+from weblab.data.experiments import ExperimentInstanceId
+from weblab.data.experiments import ExperimentId
 import weblab.data.dto.Category as Category
 import weblab.data.dto.Experiment as Experiment
 import weblab.data.dto.ExperimentAllowed as ExperimentAllowed
@@ -74,7 +74,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.coordinator = Coordinator.Coordinator(self.locator, self.cfg_manager)
         self.coordinator._clean()
-        self.coordinator.add_experiment_instance_id("server:laboratoryserver@labmachine", ExperimentInstanceId.ExperimentInstanceId('inst','ud-dummy','Dummy experiments'), Resource("res_type", "res_inst"))
+        self.coordinator.add_experiment_instance_id("server:laboratoryserver@labmachine", ExperimentInstanceId('inst','ud-dummy','Dummy experiments'), Resource("res_type", "res_inst"))
 
         self.processor = UserProcessor.UserProcessor(
                     self.locator,
@@ -91,7 +91,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertRaises(
             coreExc.UnknownExperimentIdException,
             self.processor.reserve_experiment,
-            ExperimentId.ExperimentId('<invalid>', 'Dummy experiments'),
+            ExperimentId('<invalid>', 'Dummy experiments'),
             "{}",
             ClientAddress.ClientAddress("127.0.0.1")
         )
@@ -100,7 +100,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertRaises(
             coreExc.UnknownExperimentIdException,
             self.processor.reserve_experiment,
-            ExperimentId.ExperimentId('ud-dummy','<invalid>'),
+            ExperimentId('ud-dummy','<invalid>'),
             "{}",
             ClientAddress.ClientAddress("127.0.0.1")
         )
@@ -111,7 +111,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertRaises(
             coreExc.NoAvailableExperimentFoundException,
             self.processor.reserve_experiment,
-            ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+            ExperimentId('ud-dummy', 'Dummy experiments'),
             "{}",
             ClientAddress.ClientAddress("127.0.0.1")
         )
@@ -120,7 +120,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.coordinator.confirmer = FakeConfirmer()
 
         reservation = self.processor.reserve_experiment(
-                    ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                    ExperimentId('ud-dummy', 'Dummy experiments'),
                     "{}",
                     ClientAddress.ClientAddress("127.0.0.1")
                 )
@@ -131,7 +131,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertFalse( self.processor.is_polling() )
 
         self.processor.reserve_experiment(
-                ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                ExperimentId('ud-dummy', 'Dummy experiments'),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
@@ -147,7 +147,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertTrue( self.processor.is_expired() )
 
         self.processor.reserve_experiment(
-                ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                ExperimentId('ud-dummy', 'Dummy experiments'),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
@@ -172,7 +172,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertTrue( self.processor.is_expired() )
 
         self.processor.reserve_experiment(
-                ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                ExperimentId('ud-dummy', 'Dummy experiments'),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
@@ -203,7 +203,7 @@ class UserProcessorTestCase(unittest.TestCase):
         #
         # Reserve the experiment
         reservation_status = self.processor.reserve_experiment(
-                ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                ExperimentId('ud-dummy', 'Dummy experiments'),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
@@ -220,7 +220,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
     def test_finished_experiment_ok(self):
         self.processor.reserve_experiment(
-                ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                ExperimentId('ud-dummy', 'Dummy experiments'),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
@@ -229,7 +229,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
     def test_finished_experiment_coordinator_error(self):
         self.processor.reserve_experiment(
-                ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                ExperimentId('ud-dummy', 'Dummy experiments'),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
@@ -257,7 +257,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertTrue( self.processor.is_expired() )
 
         self.processor.reserve_experiment(
-                ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                ExperimentId('ud-dummy', 'Dummy experiments'),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
@@ -291,7 +291,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertTrue( self.processor.is_expired() )
 
         self.processor.reserve_experiment(
-                ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                ExperimentId('ud-dummy', 'Dummy experiments'),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
@@ -325,7 +325,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertTrue( self.processor.is_expired() )
 
         self.processor.reserve_experiment(
-                ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                ExperimentId('ud-dummy', 'Dummy experiments'),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
@@ -358,7 +358,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertTrue( self.processor.is_expired() )
 
         self.processor.reserve_experiment(
-                ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                ExperimentId('ud-dummy', 'Dummy experiments'),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
@@ -391,7 +391,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertTrue( self.processor.is_expired() )
 
         self.processor.reserve_experiment(
-                ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                ExperimentId('ud-dummy', 'Dummy experiments'),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
@@ -424,7 +424,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertTrue( self.processor.is_expired() )
 
         self.processor.reserve_experiment(
-                ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                ExperimentId('ud-dummy', 'Dummy experiments'),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
@@ -461,7 +461,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertTrue( self.processor.is_expired() )
 
         self.processor.reserve_experiment(
-                ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                ExperimentId('ud-dummy', 'Dummy experiments'),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
@@ -496,7 +496,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertTrue( self.processor.is_expired() )
 
         self.processor.reserve_experiment(
-                ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                ExperimentId('ud-dummy', 'Dummy experiments'),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
@@ -530,7 +530,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertTrue( self.processor.is_expired() )
 
         self.processor.reserve_experiment(
-                ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                ExperimentId('ud-dummy', 'Dummy experiments'),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
@@ -562,7 +562,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertTrue( self.processor.is_expired() )
 
         self.processor.reserve_experiment(
-                ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                ExperimentId('ud-dummy', 'Dummy experiments'),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
@@ -593,7 +593,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertTrue( self.processor.is_expired() )
 
         self.processor.reserve_experiment(
-                ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                ExperimentId('ud-dummy', 'Dummy experiments'),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
@@ -624,7 +624,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertTrue( self.processor.is_expired() )
 
         self.processor.reserve_experiment(
-                ExperimentId.ExperimentId('ud-dummy', 'Dummy experiments'),
+                ExperimentId('ud-dummy', 'Dummy experiments'),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
@@ -644,7 +644,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
 
     def _return_reserved(self):
-        self.lab_mock.reserve_experiment(ExperimentInstanceId.ExperimentInstanceId('inst','ud-dummy','Dummy experiments'), "{}", mocker.ANY)
+        self.lab_mock.reserve_experiment(ExperimentInstanceId('inst','ud-dummy','Dummy experiments'), "{}", mocker.ANY)
         self.mocker.result((SessionId.SessionId('my_lab_session_id'), 'ok', 'servexp:inst@mach'))
         self.lab_mock.resolve_experiment_address('my_lab_session_id')
         self.mocker.result(CoordAddress.CoordAddress("exp","inst","mach"))

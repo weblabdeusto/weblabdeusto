@@ -21,7 +21,7 @@ from voodoo.override import Override
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 
-from weblab.data.experiments.ExperimentId import ExperimentId
+from weblab.data.experiments import ExperimentId
 
 import weblab.core.data_retriever as TemporalInformationRetriever
 import weblab.core.coordinator.store as TemporalInformationStore

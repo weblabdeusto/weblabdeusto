@@ -18,8 +18,8 @@ import unittest
 import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
 
-from weblab.data.experiments.ExperimentId import ExperimentId
-from weblab.data.experiments.ExperimentInstanceId import ExperimentInstanceId
+from weblab.data.experiments import ExperimentId
+from weblab.data.experiments import ExperimentInstanceId
 from weblab.core.coordinator.resource import Resource
 import weblab.core.coordinator.exc as CoordExc
 

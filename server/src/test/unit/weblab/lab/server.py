@@ -35,7 +35,7 @@ import weblab.lab.exc as LaboratoryExceptions
 
 import weblab.methods as weblab_methods
 
-import weblab.data.experiments.ExperimentInstanceId as ExperimentInstanceId
+from weblab.data.experiments import ExperimentInstanceId
 import json
 
 import fake_urllib2 as FakeUrllib2
@@ -81,7 +81,7 @@ class LaboratoryServerLoadingTestCase(unittest.TestCase):
                     FakeLocator((FakeClient(),))
                 )
 
-        self.experiment_instance_id = ExperimentInstanceId.ExperimentInstanceId("exp_inst","exp_name","exp_cat")
+        self.experiment_instance_id = ExperimentInstanceId("exp_inst","exp_name","exp_cat")
 
     def test_correct_single_instance(self):
         self.cfg_manager._set_value(LaboratoryServer.WEBLAB_LABORATORY_SERVER_ASSIGNED_EXPERIMENTS,
@@ -145,8 +145,8 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
                     self.fake_locator
                 )
 
-        self.experiment_instance_id     = ExperimentInstanceId.ExperimentInstanceId("exp_inst","exp_name","exp_cat")
-        self.experiment_instance_id_old = ExperimentInstanceId.ExperimentInstanceId("exp_inst","exp_name","exp_cat2")
+        self.experiment_instance_id     = ExperimentInstanceId("exp_inst","exp_name","exp_cat")
+        self.experiment_instance_id_old = ExperimentInstanceId("exp_inst","exp_name","exp_cat2")
         self.experiment_coord_address = CoordAddress.CoordAddress.translate_address('myserver:myinstance@mymachine')
 
         cfg_manager._set_value('laboratory_assigned_experiments',
@@ -316,7 +316,7 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
                     self.fake_locator
                   )
 
-        self.experiment_instance_id = ExperimentInstanceId.ExperimentInstanceId("exp_inst","exp_name","exp_cat")
+        self.experiment_instance_id = ExperimentInstanceId("exp_inst","exp_name","exp_cat")
         self.experiment_coord_address = CoordAddress.CoordAddress.translate_address('myserver:myinstance@mymachine')
 
         cfg_manager._set_value('laboratory_assigned_experiments',

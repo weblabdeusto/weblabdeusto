@@ -14,7 +14,7 @@
 # 
 
 import hashlib
-from weblab.data.experiments import Usage
+from weblab.data.experiments import CommandSent, FileSent
 import weblab.lab.exc as LaboratoryExceptions
 import weblab.proxy.exc as ProxyExceptions
 import time
@@ -48,11 +48,11 @@ class ProxySessionHandler(object):
         self._session['latest_timestamp'] = self._utc_timestamp()
 
     def _append_command(self, command, timestamp_before, response, timestamp_after):
-        command_sent = Usage.CommandSent(command, timestamp_before, response, timestamp_after)
+        command_sent = CommandSent(command, timestamp_before, response, timestamp_after)
         self._session['commands'].append(command_sent)
 
     def _append_file(self, file_path, file_hash, timestamp_before, response, timestamp_after, file_info):
-        file_sent = Usage.FileSent(file_path, file_hash, timestamp_before, response, timestamp_after, file_info)
+        file_sent = FileSent(file_path, file_hash, timestamp_before, response, timestamp_after, file_info)
         self._session['files'].append(file_sent)
 
     def _is_polling(self):

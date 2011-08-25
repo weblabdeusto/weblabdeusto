@@ -14,7 +14,7 @@
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
-from weblab.data.experiments.ExperimentInstanceId import ExperimentInstanceId
+from weblab.data.experiments import ExperimentInstanceId
 import weblab.lab.experiment_handler as ExperimentHandler
 import weblab.lab.exc as LaboratoryExceptions
 

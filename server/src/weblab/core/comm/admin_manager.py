@@ -15,7 +15,7 @@
 
 from voodoo.log import logged
 import voodoo.sessions.session_id as SessionId
-import weblab.data.experiments.ExperimentId as ExperimentId
+from weblab.data.experiments import ExperimentId
 
 import weblab.comm.manager as RFM
 from weblab.core.comm.user_manager import EXCEPTIONS
@@ -71,7 +71,7 @@ class AdminRemoteFacadeManagerJSON(RFM.AbstractJSON, AbstractAdminRemoteFacadeMa
         return SessionId.SessionId(session_id['id'])
 
     def _parse_experiment_id(self, exp_id):
-        return ExperimentId.ExperimentId(
+        return ExperimentId(
             exp_id['exp_name'],
             exp_id['cat_name']
         )

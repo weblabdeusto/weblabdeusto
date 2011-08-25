@@ -36,7 +36,7 @@ import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.lab.exc as LaboratoryExceptions
 
 import weblab.experiment.util as ExperimentUtil
-import weblab.data.experiments.Usage as Usage
+from weblab.data.experiments import FileSent
 
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessor")
 
@@ -587,9 +587,9 @@ class UserProcessor(object):
             f.write(deserialized_file_content)
             f.close()
 
-            return Usage.FileSent(relative_file_path, "{sha}%s" % file_hash, timestamp_before, file_info = file_info)
+            return FileSent(relative_file_path, "{sha}%s" % file_hash, timestamp_before, file_info = file_info)
         else:
-            return Usage.FileSent("<file not stored>","<file not stored>", timestamp_before, file_info = file_info)
+            return FileSent("<file not stored>","<file not stored>", timestamp_before, file_info = file_info)
 
     #
     # Polling

@@ -26,8 +26,8 @@ import voodoo.gen.coordinator.CoordAddress as CoordAddress
 
 import weblab.core.db.gateway as DatabaseGateway
 
-import weblab.data.experiments.Usage as Usage
-import weblab.data.experiments.ExperimentId as ExperimentId
+from weblab.data.experiments import ExperimentUsage, CommandSent, FileSent
+from weblab.data.experiments import ExperimentId
 import weblab.data.Command as Command
 
 import weblab.db.exc as DbExceptions
@@ -36,21 +36,21 @@ def create_usage(gateway, reservation_id = 'my_reservation_id'):
         session = gateway.Session()
         student1 = gateway._get_user(session, 'student1')
 
-        initial_usage = Usage.ExperimentUsage()
+        initial_usage = ExperimentUsage()
         initial_usage.start_date    = time.time()
         initial_usage.end_date      = time.time()
         initial_usage.from_ip       = "130.206.138.16"
-        initial_usage.experiment_id = ExperimentId.ExperimentId("ud-dummy","Dummy experiments")
+        initial_usage.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
         initial_usage.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
         initial_usage.reservation_id = reservation_id
 
-        file1 = Usage.FileSent(
+        file1 = FileSent(
                     'path/to/file1',
                     '{sha}12345',
                     time.time()
             )
         
-        file2 = Usage.FileSent(
+        file2 = FileSent(
                     'path/to/file2',
                     '{sha}123456',
                     time.time(),
@@ -59,12 +59,12 @@ def create_usage(gateway, reservation_id = 'my_reservation_id'):
                     file_info = 'program'
             )
 
-        command1 = Usage.CommandSent(
+        command1 = CommandSent(
                     Command.Command("your command1"),
                     time.time()
             )
         
-        command2 = Usage.CommandSent(
+        command2 = CommandSent(
                     Command.Command("your command2"),
                     time.time(),
                     Command.Command("your response2"),
@@ -157,15 +157,15 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         RESERVATION_ID1 = 'my_reservation_id1'
         RESERVATION_ID2 = 'my_reservation_id2'
 
-        usage1 = Usage.ExperimentUsage()
+        usage1 = ExperimentUsage()
         usage1.start_date    = time.time()
         usage1.end_date      = time.time()
         usage1.from_ip       = "130.206.138.16"
-        usage1.experiment_id = ExperimentId.ExperimentId("ud-dummy","Dummy experiments")
+        usage1.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
         usage1.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
         usage1.reservation_id = RESERVATION_ID1
         
-        command1 = Usage.CommandSent(
+        command1 = CommandSent(
                     Command.Command("your command1"),
                     time.time(),
                     Command.Command("your response1"),
@@ -174,15 +174,15 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
 
         usage1.append_command(command1)
 
-        usage2 = Usage.ExperimentUsage()
+        usage2 = ExperimentUsage()
         usage2.start_date    = time.time()
         usage2.end_date      = time.time()
         usage2.from_ip       = "130.206.138.17"
-        usage2.experiment_id = ExperimentId.ExperimentId("ud-dummy","Dummy experiments")
+        usage2.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
         usage2.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
         usage2.reservation_id = RESERVATION_ID2
         
-        command2 = Usage.CommandSent(
+        command2 = CommandSent(
                     Command.Command("your command2"),
                     time.time(),
                     Command.Command("your response2"),
@@ -194,14 +194,14 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         self.gateway.store_experiment_usage(student1.login, {'facebook' : False}, usage1)
         self.gateway.store_experiment_usage(student1.login, {'facebook' : False}, usage2)
 
-        batch_command = Usage.CommandSent(
+        batch_command = CommandSent(
                     Command.Command("@@@batch@@@"),
                     time.time(),
                     Command.Command("batch"),
                     time.time()
             )
 
-        finishing_command = Usage.CommandSent(
+        finishing_command = CommandSent(
                     Command.Command("@@@finish@@@"),
                     time.time(),
                     Command.Command("finish"),
@@ -238,11 +238,11 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
 
         RESERVATION_ID1 = 'my_reservation_id1'
 
-        usage1 = Usage.ExperimentUsage()
+        usage1 = ExperimentUsage()
         usage1.start_date    = time.time()
         usage1.end_date      = time.time()
         usage1.from_ip       = "130.206.138.16"
-        usage1.experiment_id = ExperimentId.ExperimentId("ud-dummy","Dummy experiments")
+        usage1.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
         usage1.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
         usage1.reservation_id = RESERVATION_ID1
 
@@ -255,7 +255,7 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
 
         self.assertEquals(0, len(full_usage.commands))
 
-        command1 = Usage.CommandSent( Command.Command("your command"), time.time() )
+        command1 = CommandSent( Command.Command("your command"), time.time() )
         command_id = self.gateway.append_command( RESERVATION_ID1, command1 )
 
         full_usage = self.gateway.retrieve_usage(usages[0].experiment_use_id)
@@ -277,14 +277,14 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         RESERVATION_ID1 = 'my_reservation_id1'
         RESERVATION_ID2 = 'my_reservation_id2'
 
-        usage1 = Usage.ExperimentUsage()
+        usage1 = ExperimentUsage()
         usage1.start_date    = time.time()
         usage1.from_ip       = "130.206.138.16"
-        usage1.experiment_id = ExperimentId.ExperimentId("ud-dummy","Dummy experiments")
+        usage1.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
         usage1.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
         usage1.reservation_id = RESERVATION_ID1
         
-        command1 = Usage.CommandSent(
+        command1 = CommandSent(
                     Command.Command("your command1"),
                     time.time(),
                     Command.Command("your response1"),
@@ -293,14 +293,14 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
 
         usage1.append_command(command1)
 
-        usage2 = Usage.ExperimentUsage()
+        usage2 = ExperimentUsage()
         usage2.start_date    = time.time()
         usage2.from_ip       = "130.206.138.17"
-        usage2.experiment_id = ExperimentId.ExperimentId("ud-dummy","Dummy experiments")
+        usage2.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
         usage2.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
         usage2.reservation_id = RESERVATION_ID2
         
-        command2 = Usage.CommandSent(
+        command2 = CommandSent(
                     Command.Command("your command2"),
                     time.time(),
                     Command.Command("your response2"),
@@ -312,7 +312,7 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         self.gateway.store_experiment_usage(student1.login, {'facebook' : False}, usage1)
         self.gateway.store_experiment_usage(student1.login, {'facebook' : False}, usage2)
 
-        finishing_command = Usage.CommandSent(
+        finishing_command = CommandSent(
                     Command.Command("@@@finish@@@"),
                     time.time(),
                     Command.Command("finish"),
@@ -355,15 +355,15 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         RESERVATION_ID1 = 'my_reservation_id1'
         RESERVATION_ID2 = 'my_reservation_id2'
 
-        usage1 = Usage.ExperimentUsage()
+        usage1 = ExperimentUsage()
         usage1.start_date    = time.time()
         usage1.end_date      = time.time()
         usage1.from_ip       = "130.206.138.16"
-        usage1.experiment_id = ExperimentId.ExperimentId("ud-dummy","Dummy experiments")
+        usage1.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
         usage1.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
         usage1.reservation_id = RESERVATION_ID1
         
-        command1 = Usage.CommandSent(
+        command1 = CommandSent(
                     Command.Command("your command1"),
                     time.time(),
                     Command.Command("your response1"),
@@ -372,15 +372,15 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
 
         usage1.append_command(command1)
 
-        usage2 = Usage.ExperimentUsage()
+        usage2 = ExperimentUsage()
         usage2.start_date    = time.time()
         usage2.end_date      = time.time()
         usage2.from_ip       = "130.206.138.17"
-        usage2.experiment_id = ExperimentId.ExperimentId("ud-dummy","Dummy experiments")
+        usage2.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
         usage2.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
         usage2.reservation_id = RESERVATION_ID2
         
-        command2 = Usage.CommandSent(
+        command2 = CommandSent(
                     Command.Command("your command2"),
                     time.time(),
                     Command.Command("your response2"),
@@ -392,7 +392,7 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         self.gateway.store_experiment_usage(student1.login, {'facebook' : False}, usage1)
         self.gateway.store_experiment_usage(student1.login, {'facebook' : False}, usage2)
 
-        file_sent1 = Usage.FileSent(
+        file_sent1 = FileSent(
                     'path/to/file2',
                     '{sha}123456',
                     time.time(),
@@ -431,26 +431,26 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         RESERVATION_ID1 = 'my_reservation_id1'
         RESERVATION_ID2 = 'my_reservation_id2'
 
-        usage1 = Usage.ExperimentUsage()
+        usage1 = ExperimentUsage()
         usage1.start_date    = time.time()
         usage1.end_date      = time.time()
         usage1.from_ip       = "130.206.138.16"
-        usage1.experiment_id = ExperimentId.ExperimentId("ud-dummy","Dummy experiments")
+        usage1.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
         usage1.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
         usage1.reservation_id = RESERVATION_ID1
         
-        usage2 = Usage.ExperimentUsage()
+        usage2 = ExperimentUsage()
         usage2.start_date    = time.time()
         usage2.end_date      = time.time()
         usage2.from_ip       = "130.206.138.17"
-        usage2.experiment_id = ExperimentId.ExperimentId("ud-dummy","Dummy experiments")
+        usage2.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
         usage2.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
         usage2.reservation_id = RESERVATION_ID2
         
         self.gateway.store_experiment_usage(student1.login, {'facebook' : False}, usage1)
         self.gateway.store_experiment_usage(student1.login, {'facebook' : False}, usage2)
 
-        file_sent1 = Usage.FileSent(
+        file_sent1 = FileSent(
                     'path/to/file2',
                     '{sha}123456',
                     time.time(),
