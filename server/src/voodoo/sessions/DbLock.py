@@ -18,7 +18,7 @@ import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 
-import voodoo.sessions.DbLockData as DbData
+import voodoo.sessions.db_lock_data as DbData
 
 import voodoo.sessions.exc as SessionExceptions
 

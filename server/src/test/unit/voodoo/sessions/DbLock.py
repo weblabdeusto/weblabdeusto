@@ -17,7 +17,7 @@ import unittest
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 
-import voodoo.sessions.DbLockData as DbData
+import voodoo.sessions.db_lock_data as DbData
 
 import voodoo.sessions.DbLock as DbLock
 import voodoo.sessions.exc as SessionExceptions

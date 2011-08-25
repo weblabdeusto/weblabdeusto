@@ -12,7 +12,7 @@ import MySQLdb
 import weblab.db.model as Model
 import weblab.core.coordinator.model as CoordinatorModel
 
-import voodoo.sessions.DbLockData as DbLockData
+import voodoo.sessions.db_lock_data as DbLockData
 import voodoo.sessions.sqlalchemy_data as SessionSqlalchemyData
 
 from sqlalchemy import create_engine
