@@ -82,7 +82,7 @@ class ServerLocator(object):
             raise LocatorExceptions.NotAServerTypeException('%s not a member of %s' %
                     (
                         server_type,
-                        self._server_type_handler.name
+                        self._server_type_handler.module
                     )
                 )
 
