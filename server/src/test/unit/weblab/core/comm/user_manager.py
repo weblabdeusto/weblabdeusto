@@ -37,7 +37,7 @@ import weblab.core.reservations as Reservation
 import weblab.data.dto.experiments as ExperimentAllowed
 import weblab.data.dto.experiments as Experiment
 import weblab.data.dto.experiments as Category
-import weblab.data.Command as Command
+import weblab.data.command as Command
 import weblab.data.dto.users as Group
 
 from weblab.data.dto.users import User

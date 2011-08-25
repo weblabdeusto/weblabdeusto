@@ -28,7 +28,7 @@ from weblab.data.dto.experiments import Experiment
 from weblab.data.dto.experiments import ExperimentCategory  
 from weblab.data.dto.permissions import Permission, PermissionParameter
 from weblab.data.experiments import ExperimentId, ExperimentUsage, FileSent, CommandSent
-from weblab.data.Command import Command, NullCommand
+from weblab.data.command import Command, NullCommand
 from weblab.data.dto.users import User
 from weblab.data.dto.users import Role
 from weblab.data.dto.users import Group  

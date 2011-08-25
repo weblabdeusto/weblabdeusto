@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-import weblab.data.Command as Command
+import weblab.data.command as Command
 
 class ExperimentId(object):
     def __init__(self, exp_name, cat_name):

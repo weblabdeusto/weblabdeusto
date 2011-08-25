@@ -30,7 +30,7 @@ import weblab.data.dto.experiments as Category
 
 from weblab.data.dto.users import User
 from weblab.data.dto.users import Role
-import weblab.data.Command as Command
+import weblab.data.command as Command
 
 import voodoo.configuration as ConfigurationManager
 import test.unit.configuration as configuration

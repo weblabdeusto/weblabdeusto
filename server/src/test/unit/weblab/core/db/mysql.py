@@ -28,7 +28,7 @@ import weblab.core.db.gateway as DatabaseGateway
 
 from weblab.data.experiments import ExperimentUsage, CommandSent, FileSent
 from weblab.data.experiments import ExperimentId
-import weblab.data.Command as Command
+import weblab.data.command as Command
 
 import weblab.db.exc as DbExceptions
 

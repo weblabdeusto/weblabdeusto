@@ -29,7 +29,7 @@ libraries.load()
 
 import voodoo.sessions.session_id as SessionId
 import weblab.core.reservations as Reservation
-import weblab.data.Command as Command
+import weblab.data.command as Command
 import weblab.comm.server as RemoteFacadeServer
 from weblab.data.dto.experiments import Experiment, ExperimentCategory
 from weblab.data.dto.users import User

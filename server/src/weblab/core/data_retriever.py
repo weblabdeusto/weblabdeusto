@@ -20,7 +20,7 @@ import voodoo.log as log
 
 import weblab.db.session as DbSession
 from weblab.data.experiments import CommandSent, ExperimentUsage
-import weblab.data.Command as Command
+import weblab.data.command as Command
 
 class TemporalInformationRetriever(threading.Thread):
     """

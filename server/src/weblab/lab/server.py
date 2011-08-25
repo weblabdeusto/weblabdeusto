@@ -34,7 +34,7 @@ from voodoo.gen.caller_checker import caller_check
 
 import weblab.data.ServerType as ServerType
 from weblab.data.experiments import ExperimentInstanceId
-import weblab.data.Command as Command
+import weblab.data.command as Command
 
 import weblab.core.coordinator.coordinator as Coordinator
 

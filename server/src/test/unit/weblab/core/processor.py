@@ -32,7 +32,7 @@ import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.data.ServerType as ServerType
 import weblab.data.client_address as ClientAddress
 
-import weblab.data.Command as Command
+import weblab.data.command as Command
 import weblab.data.dto.users as Group
 from weblab.data.experiments import ExperimentInstanceId
 from weblab.data.experiments import ExperimentId

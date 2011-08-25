@@ -17,7 +17,7 @@
 
 import unittest
 
-import weblab.data.Command as Command
+import weblab.data.command as Command
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.gen.locator.EasyLocator as EasyLocator

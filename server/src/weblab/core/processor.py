@@ -20,7 +20,7 @@ import json
 import random
 
 import weblab.data.ServerType as ServerType
-import weblab.data.Command as Command
+import weblab.data.command as Command
 
 from voodoo.cache import cache
 import voodoo.resources_manager as ResourceManager
