@@ -26,10 +26,13 @@ def _generate_abstract_class(methods):
         pass
     """ % method
 
-    exec("""class AbstractServerClass(object):
+    class_name = 'AbstractServerClass'
+    # Passing local variables to avoid pylint warnings
+    current_locals = {'ABCMeta' : ABCMeta, 'abstractmethod' : abstractmethod}
+    exec(("""class %s(object):
     __metaclass__ = ABCMeta
-    """ + methods_code)
-    return AbstractServerClass
+    """ % class_name) + methods_code, globals(), current_locals)
+    return current_locals[class_name]
 
 def _generate_server_skel(methods,servers):
     """ _generate_server_skel(methods, servers) -> class

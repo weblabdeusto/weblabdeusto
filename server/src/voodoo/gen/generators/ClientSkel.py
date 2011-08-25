@@ -28,7 +28,6 @@ import voodoo.gen.protocols.protocols as _Protocols
 def generate(methods):
     try:
         if isinstance(methods, dict):
-            original_methods = methods.copy()
             temporal_methods = methods.copy()
             temporal_methods['test_me'] = 'test doc'
             for i in methods:
@@ -37,7 +36,6 @@ def generate(methods):
                 temporal_methods['call_get_result_'+i] = 'Dynamically generated method'
             methods = temporal_methods
         else:
-            original_methods = methods[:]
             new_methods = list(methods[:])
             new_methods.append('test_me')
             for i in methods:
