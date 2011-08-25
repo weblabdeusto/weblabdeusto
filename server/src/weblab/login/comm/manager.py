@@ -15,7 +15,7 @@
 
 from voodoo.log import logged
 import weblab.comm.manager as RFM
-import weblab.data.ClientAddress as ClientAddress
+import weblab.data.client_address as ClientAddress
 
 import weblab.login.exc as LoginExceptions
 import weblab.exc as WebLabExceptions

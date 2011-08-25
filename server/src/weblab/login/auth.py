@@ -22,7 +22,7 @@ else:
     LDAP_AVAILABLE = True
 
 import voodoo.log as log
-import weblab.data.ClientAddress as ClientAddress
+import weblab.data.client_address as ClientAddress
 import weblab.login.db.dao.user as UserAuth
 import weblab.login.exc as LoginExceptions
 

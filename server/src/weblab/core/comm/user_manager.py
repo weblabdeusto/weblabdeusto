@@ -19,7 +19,7 @@ import voodoo.sessions.session_id as SessionId
 import weblab.comm.manager as RFM
 
 import weblab.data.Command as Command
-import weblab.data.ClientAddress as ClientAddress
+import weblab.data.client_address as ClientAddress
 from weblab.data.experiments import ExperimentId
 
 import weblab.core.exc as coreExc

@@ -30,7 +30,7 @@ import weblab.core.coordinator.coordinator as Coordinator
 import weblab.core.coordinator.confirmer as Confirmer
 import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.data.ServerType as ServerType
-import weblab.data.ClientAddress as ClientAddress
+import weblab.data.client_address as ClientAddress
 
 import weblab.data.Command as Command
 import weblab.data.dto.users as Group
