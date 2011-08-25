@@ -23,7 +23,7 @@ import voodoo.sessions.sqlalchemy_data as DbData
 
 import voodoo.sessions.generator  as SessionGenerator
 import voodoo.sessions.serializer as SessionSerializer
-import voodoo.sessions.DbLock            as DbLock
+import voodoo.sessions.db_lock            as DbLock
 
 import voodoo.sessions.exc as SessionExceptions
 

@@ -19,7 +19,7 @@ from sqlalchemy.orm import sessionmaker
 
 import voodoo.sessions.db_lock_data as DbData
 
-import voodoo.sessions.DbLock as DbLock
+import voodoo.sessions.db_lock as DbLock
 import voodoo.sessions.exc as SessionExceptions
 
 import test.unit.configuration as configuration_module
