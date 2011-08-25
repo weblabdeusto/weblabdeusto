@@ -245,8 +245,8 @@ class UserProcessor(object):
                 self._session['last_reservation_id'] = reservation_id
                 self._coordinator.finish_reservation(reservation_id)
             except Exception as e:
-                log.log( UserProcessor, log.LogLevel.Error, "Exception finishing reservation: %s" % e )
-                log.log_exc( UserProcessor, log.LogLevel.Warning )
+                log.log( UserProcessor, log.level.Error, "Exception finishing reservation: %s" % e )
+                log.log_exc( UserProcessor, log.level.Warning )
                 error = e
 
         self._stop_polling()

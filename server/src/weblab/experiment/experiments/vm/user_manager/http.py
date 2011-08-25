@@ -59,24 +59,24 @@ class HttpQueryUserManager(UserManager):
             initial_time = time.time()
             try:
                 url = "%s/?sessionid=%s" % (self._url, sid)
-                log.log( HttpQueryUserManager, log.LogLevel.Info, "Calling: %s" % url)
+                log.log( HttpQueryUserManager, log.level.Info, "Calling: %s" % url)
                 response = urllib2.urlopen(url, timeout=50)
                 code = response.read()
-                log.log( HttpQueryUserManager, log.LogLevel.Info, "Configuring sessionid on VM returned: %s" % code)
+                log.log( HttpQueryUserManager, log.level.Info, "Configuring sessionid on VM returned: %s" % code)
                 print code
                 query_carried_out = True
                 break
             except urllib2.HTTPError as e:
-                log.log( HttpQueryUserManager, log.LogLevel.Info, "Configuring sessionid on VM returned HTTPError: %s" % e)
+                log.log( HttpQueryUserManager, log.level.Info, "Configuring sessionid on VM returned HTTPError: %s" % e)
                 times_tried += 1
             except urllib2.URLError as e:
-                log.log( HttpQueryUserManager, log.LogLevel.Info, "Configuring sessionid on VM returned URLError: %s" % e)
+                log.log( HttpQueryUserManager, log.level.Info, "Configuring sessionid on VM returned URLError: %s" % e)
                 # These are timeout errors which occur when the virtual OS takes too long to start, which is
                 # actually quite common.
                 # The above error has the following tuple as its args: (error(10060, 'Operation timed out'),)
                 times_tried += 1
             except Exception as e:
-                log.log( HttpQueryUserManager, log.LogLevel.Info, "Configuring sessionid on VM returned unexpected Exception: %s" % e)
+                log.log( HttpQueryUserManager, log.level.Info, "Configuring sessionid on VM returned unexpected Exception: %s" % e)
                 # Unknown exception, we better consider it permanent straightaway.
                 raise PermanentConfigureError()
             final_time = time.time()

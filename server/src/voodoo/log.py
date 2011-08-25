@@ -21,8 +21,14 @@ import random
 import logging
 import threading
 import new
-import voodoo.LogLevel as LogLevel
 from voodoo.cache import fast_cache
+
+class level(object):
+    Critical = 'Critical'
+    Error    = 'Error'
+    Warning  = 'Warning'
+    Info     = 'Info'
+    Debug    = 'Debug'
 
 def log(instance_or_module_or_class, level, message):
     logging_log_level = getattr(logging,level.upper())

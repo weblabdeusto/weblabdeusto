@@ -13,7 +13,7 @@
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
-from voodoo import LogLevel
+from voodoo import log
 from voodoo.gen.caller_checker import caller_check
 from voodoo.log import logged
 from voodoo.override import Override
@@ -24,13 +24,13 @@ import weblab.translator.StoresEverythingTranslator as StoresEverythingTranslato
 class StoresEverythingExceptForFilesTranslator(StoresEverythingTranslator.StoresEverythingTranslator):
         
     @Override(StoresEverythingTranslator.StoresEverythingTranslator)
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @caller_check(ServerType.Proxy)
     def do_before_send_file(self, session_id, file):
         return None
     
     @Override(StoresEverythingTranslator.StoresEverythingTranslator)
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @caller_check(ServerType.Proxy)
     def do_after_send_file(self, session_id, response):
         return None

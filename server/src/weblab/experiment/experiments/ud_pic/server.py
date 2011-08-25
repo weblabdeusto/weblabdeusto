@@ -144,12 +144,12 @@ class UdPicExperiment(Experiment.Experiment):
         except Exception as e:
             log.log(
                 UdPicExperiment,
-                log.LogLevel.Info,
+                log.level.Info,
                 "Exception joining sending program to device: %s" % e.args[0]
             )
             log.log_exc(
                 UdPicExperiment,
-                log.LogLevel.Warning,
+                log.level.Warning,
             )
             raise ExperimentExceptions.SendingFileFailureException(
                     "Error sending file to device: %s" % e.args[0]

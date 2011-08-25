@@ -108,7 +108,7 @@ class VirtualBox(VirtualMachineManager):
         self._print("RESTORED, RETURNED %s " % result)
 
     def _print(self, msg):
-        log.log( VirtualBox, log.LogLevel.Info, msg)
+        log.log( VirtualBox, log.level.Info, msg)
         if DEBUG:
             print "WebLabVirtualBox::%s" % msg
             sys.stdout.flush()

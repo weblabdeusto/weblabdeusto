@@ -13,7 +13,7 @@
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
-from voodoo import LogLevel
+from voodoo import log
 from voodoo.gen.caller_checker import caller_check
 from voodoo.gen.exceptions.locator import LocatorExceptions
 from voodoo.log import logged
@@ -126,7 +126,7 @@ class ProxyServer(object):
     #===========================================================================
         
     @caller_check(ServerType.UserProcessing)
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     def do_enable_access(self, reservation_id, experiment_unique_id, user_login, lab_coord_addr, lab_sess_id):
         translator, is_a_default_translator = self._find_translator(experiment_unique_id)
         # The Translator's session_id must be different because every session_id is protected with a threading.Lock
@@ -150,7 +150,7 @@ class ProxyServer(object):
             proxy_session_handler.update_latest_timestamp()
         
     @caller_check(ServerType.UserProcessing)
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     def do_are_expired(self, session_ids):
         expirations = []
         for session_id in session_ids:
@@ -168,7 +168,7 @@ class ProxyServer(object):
         return expirations
         
     @caller_check(ServerType.UserProcessing)
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @check_session(*check_session_params)
     @access_enabled_required
     def do_disable_access(self, session):
@@ -179,7 +179,7 @@ class ProxyServer(object):
             proxy_session_handler.update_latest_timestamp()
 
     @caller_check(ServerType.UserProcessing)
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     def do_retrieve_results(self, session_id):
         sess_id = SessionId.SessionId(session_id)
         session = self._session_manager.get_session_locking(sess_id)
@@ -196,7 +196,7 @@ class ProxyServer(object):
     # API to Client
     #===========================================================================
     
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @check_session(*check_session_params)
     @access_enabled_required
     def poll(self, session):
@@ -206,7 +206,7 @@ class ProxyServer(object):
         finally:
             proxy_session_handler.update_latest_timestamp()
     
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @check_session(*check_session_params)
     @access_enabled_required
     def send_command(self, session, command):
@@ -216,7 +216,7 @@ class ProxyServer(object):
         finally:
             proxy_session_handler.update_latest_timestamp()
         
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @check_session(*check_session_params)
     @access_enabled_required
     def send_file(self, session, file_content, file_info):

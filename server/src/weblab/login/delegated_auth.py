@@ -26,7 +26,6 @@ import json
 
 import voodoo.log as log
 from voodoo.log import logged
-import voodoo.LogLevel as LogLevel
 from weblab.data.dto.users import User
 from weblab.data.dto.users import StudentRole
 
@@ -37,7 +36,7 @@ class Facebook(object):
     def __init__(self, db_manager):
         self._db_manager = db_manager
 
-    @logged(LogLevel.Warning)
+    @logged(log.level.Warning)
     def get_user(self, credentials):
         payload = credentials[credentials.find('.') + 1:]
         payload = payload.replace('-','+').replace('_','/')
@@ -58,8 +57,8 @@ class Facebook(object):
             user = User(login, full_name, email, StudentRole())
             return user
         except Exception as e:
-            log.log( Facebook, log.LogLevel.Warning, "Error: %s" % e )
-            log.log_exc( Facebook, log.LogLevel.Info )
+            log.log( Facebook, log.level.Warning, "Error: %s" % e )
+            log.log_exc( Facebook, log.level.Info )
             return ""
 
     def get_user_id(self, credentials):
@@ -71,7 +70,7 @@ class OpenID(object):
     def __init__(self, db_manager):
         self._db_manager = db_manager
 
-    @logged(LogLevel.Warning)
+    @logged(log.level.Warning)
     def get_user(self, credentials):
         return None
 

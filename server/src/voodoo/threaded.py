@@ -55,13 +55,13 @@ class _ThreadedFunc(threading.Thread):
             if self.logging:
                 log.log(
                     _ThreadedFunc,
-                    log.LogLevel.Warning,
+                    log.level.Warning,
                     "threaded: exception caught while running %s: %s" % (
                             self._func.__name__,
                             e
                         )
                 )
-                log.log_exc( _ThreadedFunc, log.LogLevel.Warning)
+                log.log_exc( _ThreadedFunc, log.level.Warning)
 
             sio = StringIO.StringIO()
             traceback.print_exc(file=sio)

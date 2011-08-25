@@ -52,8 +52,8 @@ class TemporalInformationRetriever(threading.Thread):
                 if self.PRINT_ERRORS:
                     import traceback
                     traceback.print_exc()
-                log.log( TemporalInformationRetriever, log.LogLevel.Critical, "Exception iterating in TemporalInformationRetriever!!!")
-                log.log_exc( TemporalInformationRetriever, log.LogLevel.Critical )
+                log.log( TemporalInformationRetriever, log.level.Critical, "Exception iterating in TemporalInformationRetriever!!!")
+                log.log_exc( TemporalInformationRetriever, log.level.Critical )
 
     def stop(self):
         self.keep_running = False

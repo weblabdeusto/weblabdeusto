@@ -16,7 +16,6 @@
 import datetime
 
 from voodoo.log import logged
-import voodoo.LogLevel as LogLevel
 import voodoo.log as log
 
 import sqlalchemy
@@ -54,17 +53,17 @@ def exc_checker(func):
                     # XXX MySQL dependent!!!
                     if oe.orig.args[0] == 1213:
                         log.log(
-                            PriorityQueueScheduler, LogLevel.Error,
+                            PriorityQueueScheduler, log.level.Error,
                             "Deadlock found, restarting...%s" % func.__name__ )
-                        log.log_exc(PriorityQueueScheduler, LogLevel.Warning)
+                        log.log_exc(PriorityQueueScheduler, log.level.Warning)
                         continue
                     else:
                         raise
         except:
             log.log(
-                PriorityQueueScheduler, LogLevel.Error,
+                PriorityQueueScheduler, log.level.Error,
                 "Unexpected exception while running %s" % func.__name__ )
-            log.log_exc(PriorityQueueScheduler, LogLevel.Warning)
+            log.log_exc(PriorityQueueScheduler, log.level.Warning)
             raise
 	wrapper.__name__ = func.__name__
 	wrapper.__doc__ = func.__doc__
@@ -404,16 +403,16 @@ class PriorityQueueScheduler(Scheduler):
                         # Other scheduler confirmed the user or booked the reservation, rollback and try again
                         # But log just in case
                         log.log(
-                            PriorityQueueScheduler, LogLevel.Warning,
+                            PriorityQueueScheduler, log.level.Warning,
                             "IntegrityError looping on update_queues: %s" % ie )
-                        log.log_exc(PriorityQueueScheduler, LogLevel.Info)
+                        log.log_exc(PriorityQueueScheduler, log.level.Info)
                         session.rollback()
                         break
                     except Exception as e:
                         log.log(
-                            PriorityQueueScheduler, LogLevel.Warning,
+                            PriorityQueueScheduler, log.level.Warning,
                             "Exception looping on update_queues: %s" % e )
-                        log.log_exc(PriorityQueueScheduler, LogLevel.Info)
+                        log.log_exc(PriorityQueueScheduler, log.level.Info)
                         session.rollback()
                         break
                     else:
@@ -442,9 +441,9 @@ class PriorityQueueScheduler(Scheduler):
                 # Something happened somewhere else, such as the user being confirmed twice, the experiment being reserved twice or so on.
                 # Rollback and start again
                 log.log(
-                    PriorityQueueScheduler, LogLevel.Warning,
+                    PriorityQueueScheduler, log.level.Warning,
                     "Exception while updating queues, reverting and trying again: %s" % ie )
-                log.log_exc(PriorityQueueScheduler, LogLevel.Info)
+                log.log_exc(PriorityQueueScheduler, log.level.Info)
                 session.rollback()
             finally:
                 session.close()
@@ -492,9 +491,9 @@ class PriorityQueueScheduler(Scheduler):
                     session.commit()
                 except sqlalchemy.exceptions.ConcurrentModificationError as e:
                     log.log(
-                        PriorityQueueScheduler, LogLevel.Warning,
+                        PriorityQueueScheduler, log.level.Warning,
                         "IntegrityError: %s" % e )
-                    log.log_exc(PriorityQueueScheduler, LogLevel.Info)
+                    log.log_exc(PriorityQueueScheduler, log.level.Info)
                     pass # Someone else removed these users before us.
                 else:
                     for enqueue_free_experiment_args in enqueue_free_experiment_args_retrieved:

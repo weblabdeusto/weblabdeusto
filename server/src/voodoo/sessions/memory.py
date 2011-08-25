@@ -94,8 +94,8 @@ class SessionMemoryGateway(object):
                 continue
             except:
                 exc, inst, _ = sys.exc_info()
-                log.log( self, log.LogLevel.Error, "Unexpected exception (%s, %s) while trying to remove session_id %s" % (exc, inst, session_id))
-                log.log_exc( self, log.LogLevel.Warning )
+                log.log( self, log.level.Error, "Unexpected exception (%s, %s) while trying to remove session_id %s" % (exc, inst, session_id))
+                log.log_exc( self, log.level.Warning )
                 continue
 
     def create_session(self, desired_sess_id=None):

@@ -59,19 +59,19 @@ def check_exceptions(exceptions_to_check):
                         if propagate or self._cfg_manager.get_value(DEBUG_MODE, DEFAULT_DEBUG_MODE):
                             log.log(
                                     self.__class__,
-                                    log.LogLevel.Info,
+                                    log.level.Info,
                                     "%s raised on %s: %s: %s" % ( exc.__name__, func.__name__, e, e.args)
                             )
-                            log.log_exc(self.__class__, log.LogLevel.Debug)
+                            log.log_exc(self.__class__, log.level.Debug)
                             return self._raise_exception(code, e.args[0])
                         else:
                             # WebLabInternalServerError
                             log.log(
                                     self.__class__,
-                                    log.LogLevel.Warning,
+                                    log.level.Warning,
                                     "Unexpected %s raised on %s: %s: %s" % ( exc.__name__, func.__name__, e, e.args)
                             )
-                            log.log_exc(self.__class__, log.LogLevel.Info)
+                            log.log_exc(self.__class__, log.level.Info)
                             return self._raise_exception(RemoteFacadeManagerCodes.WEBLAB_GENERAL_EXCEPTION_CODE, UNEXPECTED_ERROR_MESSAGE_TEMPLATE % self._cfg_manager.get_value(SERVER_ADMIN_EMAIL, DEFAULT_SERVER_ADMIN_EMAIL) )
 
         wrapped.__name__ = func.__name__
@@ -110,7 +110,7 @@ class AbstractZSI(object):
             raise ZSI.Fault( 'ZSI:' + code, msg )
         else:
             msg = "Optional library 'ZSI' is not available, so SOAP clients will not be supported. However, AbstractZSI is being used, so problems will arise"
-            log.log( self, log.LogLevel.Error, msg )
+            log.log( self, log.level.Error, msg )
             print >> sys.stderr, msg
 
 class JSONException(Exception):

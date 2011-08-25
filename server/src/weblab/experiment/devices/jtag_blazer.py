@@ -92,7 +92,7 @@ class JTagBlazer(object):
             except OSError:
                 pass
             
-        log.log(JTagBlazer, log.LogLevel.Info, "JSVF file generated. Result code: %i\n<output>\n%s\n</output><stderr>\n%s\n</stderr>" % (
+        log.log(JTagBlazer, log.level.Info, "JSVF file generated. Result code: %i\n<output>\n%s\n</output><stderr>\n%s\n</stderr>" % (
                 result,
                 stdout_result,
                 stderr_result
@@ -154,7 +154,7 @@ class JTagBlazer(object):
             except OSError:
                 pass
 
-        log.log(JTagBlazer, log.LogLevel.Info, "Device programming was finished. Result code: %i\n<output>\n%s\n</output><stderr>\n%s\n</stderr>" % (
+        log.log(JTagBlazer, log.level.Info, "Device programming was finished. Result code: %i\n<output>\n%s\n</output><stderr>\n%s\n</stderr>" % (
                 result,
                 stdout_result,
                 stderr_result

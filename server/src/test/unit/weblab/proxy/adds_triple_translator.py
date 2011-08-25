@@ -13,7 +13,7 @@
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
-from voodoo import LogLevel
+from voodoo import log
 from voodoo.gen.caller_checker import caller_check
 from voodoo.log import logged
 from voodoo.override import Override
@@ -37,14 +37,14 @@ class AddsATrippleAAtTheBeginingTranslator(Translator.Translator):
     Since this Translators uses the SessionManager provided by ProxyServer, it can not be instanced as a stand-alone WebLab server."""  
             
     @Override(Translator.Translator)
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @caller_check(ServerType.Proxy)
     @check_session(*check_session_params)
     def do_on_start(self, session):
         session['log'] = "on_start "
     
     @Override(Translator.Translator)
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @caller_check(ServerType.Proxy)
     @check_session(*check_session_params)
     def do_before_send_command(self, session, command):
@@ -52,7 +52,7 @@ class AddsATrippleAAtTheBeginingTranslator(Translator.Translator):
         return "AAA%s" % command
     
     @Override(Translator.Translator)
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @caller_check(ServerType.Proxy)
     @check_session(*check_session_params)
     def do_after_send_command(self, session, response):
@@ -60,7 +60,7 @@ class AddsATrippleAAtTheBeginingTranslator(Translator.Translator):
         return "AAA%s" % response
     
     @Override(Translator.Translator)
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @caller_check(ServerType.Proxy)
     @check_session(*check_session_params)
     def do_before_send_file(self, session, file):
@@ -69,7 +69,7 @@ class AddsATrippleAAtTheBeginingTranslator(Translator.Translator):
         return ExperimentUtil.serialize("AAA%s" % file_content)
     
     @Override(Translator.Translator)
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @caller_check(ServerType.Proxy)
     @check_session(*check_session_params)
     def do_after_send_file(self, session, response):
@@ -77,7 +77,7 @@ class AddsATrippleAAtTheBeginingTranslator(Translator.Translator):
         return "AAA%s" % response
     
     @Override(Translator.Translator)
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @caller_check(ServerType.Proxy)
     @check_session(*check_session_params)
     def do_on_finish(self, session):

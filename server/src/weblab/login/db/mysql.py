@@ -158,8 +158,8 @@ class AuthDatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                 session.add(user_auth)
                 session.commit()
             except Exception as e:
-                log.log( AuthDatabaseGateway, log.LogLevel.Warning, "Couldn't create user: %s" % e)
-                log.log_exc(AuthDatabaseGateway, log.LogLevel.Info)
+                log.log( AuthDatabaseGateway, log.level.Warning, "Couldn't create user: %s" % e)
+                log.log_exc(AuthDatabaseGateway, log.level.Info)
                 raise DbExceptions.DatabaseException("Couldn't create user! Contact administrator")
         finally:
             session.close()

@@ -35,7 +35,7 @@ class UtilRequestHandlerClass(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
     def log_message(self, format, *args):
         log.log(
                 UtilRequestHandlerClass,
-                log.LogLevel.Info,
+                log.level.Info,
                 "Request: %s" % (format % args)
             )
 
@@ -66,7 +66,7 @@ def _generate_skeleton(METHOD_NAME):
                 class_name = str(e.__class__)
             else:
                 class_name = type(e).__module__ + '.' + type(e).__name__
-            log.log(self,log.LogLevel.Info,"Exception : " + class_name + "; " + e.args[0] + "; " + tb)
+            log.log(self,log.level.Info,"Exception : " + class_name + "; " + e.args[0] + "; " + tb)
             raise
     return _skeleton
 
@@ -108,7 +108,7 @@ def generate(cfg_manager, methods):
 
                 for i in all_methods:
                     if i in _xmlrpc_server_functions:
-                        log.log(ServerXMLRPC,log.LogLevel.Warning,'Method "%s" already served by server "%s"' % (i,self))
+                        log.log(ServerXMLRPC,log.level.Warning,'Method "%s" already served by server "%s"' % (i,self))
                     #Register every function from "all_methods"
                     self.server.register_function(new.instancemethod(getattr(self.__class__,i),self,self.__class__), 'Util.%s' % i)
                     _xmlrpc_server_functions.append(i)

@@ -137,7 +137,7 @@ def generate(methods):
                 proxy = None
                 msg = "The optional library 'SOAPpy' is not available. The communications between different servers will not work through SOAP. Since the client is being instanciated, there will probably be uncommon errors."
                 print >> sys.stderr, msg
-                log.log(self, log.LogLevel.Error, msg)
+                log.log(self, log.level.Error, msg)
 
             clientSkel.__init__(self, proxy)
 

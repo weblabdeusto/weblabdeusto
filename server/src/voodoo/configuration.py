@@ -47,7 +47,7 @@ class _ConfigurationPath(object):
         except Exception as e:
             log.log( 
                     _ConfigurationPath, 
-                    log.LogLevel.Warning, 
+                    log.level.Warning, 
                     "Couldn't reload path %s: %s. Skipping..." % (self.name, e)
             )
         self.holder = Holder
@@ -95,7 +95,7 @@ class ConfigurationManager(object):
             if self._values.has_key(key):
                 log.log( 
                         ConfigurationManager, 
-                        log.LogLevel.Info, 
+                        log.level.Info, 
                         "Substituting existing configuration key (%s), from value %s to %s" % (key, self._values[key], value) 
                 )
             self._values[key] = value
@@ -149,7 +149,7 @@ class ConfigurationManager(object):
                 except ImportError:
                     log.log( 
                             ConfigurationManager, 
-                            log.LogLevel.Warning, 
+                            log.level.Warning, 
                             "Couldn't reload module %s. Skipping..." % name 
                     )
         finally:

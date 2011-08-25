@@ -179,9 +179,9 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 response = json.dumps({"result":parsed_return_value, "is_exception" : False})
             except Exception as e:
                 response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"Error encoding return value"}
-                log.log( JsonHttpHandler, log.LogLevel.Error, "Request from %s: %s" % (get_context().get_ip_address(), "Error encoding return value: %s" % e))
-                log.log( JsonHttpHandler, log.LogLevel.Error, "Message was: %s" % return_value)
-                log.log_exc( JsonHttpHandler, log.LogLevel.Warning )
+                log.log( JsonHttpHandler, log.level.Error, "Request from %s: %s" % (get_context().get_ip_address(), "Error encoding return value: %s" % e))
+                log.log( JsonHttpHandler, log.level.Error, "Message was: %s" % return_value)
+                log.log_exc( JsonHttpHandler, log.level.Warning )
                 self.finish_error(response)
                 return
                 
@@ -222,7 +222,7 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         #args: ('POST /weblab/json/ HTTP/1.1', '200', '-')
         log.log(
             JsonHttpHandler,
-            log.LogLevel.Info,
+            log.level.Info,
             "Request from %s: %s" % (get_context().get_ip_address(), format % args)
         )
 
@@ -281,7 +281,7 @@ class XmlRpcRequestHandler(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
         #args: ('POST /weblab/xmlrpc/ HTTP/1.1', '200', '-')
         log.log(
             XmlRpcRequestHandler,
-            log.LogLevel.Info,
+            log.level.Info,
             "Request from %s: %s" % (get_context().get_ip_address(), format % args)
         )
 
@@ -330,7 +330,7 @@ if ZSI_AVAILABLE:
             #args: ('POST /weblab/soap/ HTTP/1.1', '200', '-')
             log.log(
                 WebLabRequestHandlerClass,
-                log.LogLevel.Info,
+                log.level.Info,
                 "Request from %s: %s" % (get_context().get_ip_address(), format % args)
             )
 
@@ -442,7 +442,7 @@ class AbstractRemoteFacadeServerZSI(AbstractProtocolRemoteFacadeServer):
         if not ZSI_AVAILABLE:
             msg = "The optional library 'ZSI' is not available, so the server will not support SOAP clients. However, it's being used so problems will arise." 
             print >> sys.stderr, msg
-            log.log( self, log.LogLevel.Error, msg)
+            log.log( self, log.level.Error, msg)
 
         listen, port, service_name = self._retrieve_configuration()
         self._interface = self.WebLabDeusto(impl = self._rfm)

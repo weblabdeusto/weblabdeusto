@@ -56,8 +56,8 @@ class ReservationConfirmer(object):
             labserver = self.locator.get_server_from_coordaddr(lab_coordaddress, ServerType.Laboratory)
             lab_session_id, server_initialization_response, experiment_coordaddress_str = labserver.reserve_experiment(experiment_instance_id, client_initial_data, server_initial_data)
         except Exception as e:
-            log.log( ReservationConfirmer, log.LogLevel.Error, "Exception confirming experiment: %s" % e )
-            log.log_exc( ReservationConfirmer, log.LogLevel.Warning )
+            log.log( ReservationConfirmer, log.level.Error, "Exception confirming experiment: %s" % e )
+            log.log_exc( ReservationConfirmer, log.level.Warning )
 
             self.coordinator.mark_experiment_as_broken(experiment_instance_id, [str(e)])
         else:
@@ -86,8 +86,8 @@ class ReservationConfirmer(object):
             labserver = self.locator.get_server_from_coordaddr(lab_coordaddress, ServerType.Laboratory)
             experiment_response = labserver.free_experiment(SessionId.SessionId(lab_session_id))
         except Exception as e:
-            log.log( ReservationConfirmer, log.LogLevel.Error, "Exception freeing experiment: %s" % e )
-            log.log_exc( ReservationConfirmer, log.LogLevel.Warning )
+            log.log( ReservationConfirmer, log.level.Error, "Exception freeing experiment: %s" % e )
+            log.log_exc( ReservationConfirmer, log.level.Warning )
 
             self.coordinator.mark_experiment_as_broken(experiment_instance_id, [str(e)])
         else: # Everything went fine

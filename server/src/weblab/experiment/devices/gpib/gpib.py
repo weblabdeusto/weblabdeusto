@@ -163,7 +163,7 @@ class Compiler(Launcher):
                 )
 
     def _log(self, action, result_code, output, stderr):
-        log.log(Compiler,log.LogLevel.Info,"%s was finished. Result code: %i\n<output>\n%s\n</output><stderr>\n%s\n</stderr>" % (
+        log.log(Compiler,log.level.Info,"%s was finished. Result code: %i\n<output>\n%s\n</output><stderr>\n%s\n</stderr>" % (
                 action,
                 result_code,
                 output,

@@ -72,7 +72,7 @@ class LdapLoginAuth(LoginAuth):
         if not LDAP_AVAILABLE:
             msg = "The optional library 'ldap' is not available. The users trying to be authenticated with LDAP will not be able to do so. %s tried to do it. " % login
             print >> sys.stderr, msg
-            log.log(self, log.LogLevel.Error, msg)
+            log.log(self, log.level.Error, msg)
             return False
 
         password = str(password)

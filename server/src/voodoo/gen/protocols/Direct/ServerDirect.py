@@ -53,7 +53,7 @@ def generate(cfg_manager, methods):
             except RegistryExceptions.AddressAlreadyRegisteredException as aar:
                 log.log(
                         ServerDirect,
-                        log.LogLevel.Warning,
+                        log.level.Warning,
                         "Exception registering parent server: AddressAlreadyRegistered: %s" % aar
                     )
                 registry.reregister_server(self._server_id,self._parent)

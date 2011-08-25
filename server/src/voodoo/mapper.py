@@ -167,7 +167,7 @@ class _Node(object):
         elif hasattr(self.element,'__reduce__') or hasattr(self.element,'__reduce_ex__'):
             return _Node.OBJECT
         else:
-            _log.log(_Node, _log.LogLevel.Warning, 'Unrecognized type: %s, %r, %r. Configure it at voodoo.mapper.py' % (type(self.element), self.name, self.parent))
+            _log.log(_Node, _log.level.Warning, 'Unrecognized type: %s, %r, %r. Configure it at voodoo.mapper.py' % (type(self.element), self.name, self.parent))
             return _Node.IGNORABLE
            
     def _repr(self, n):

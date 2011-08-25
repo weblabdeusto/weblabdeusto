@@ -260,8 +260,8 @@ class SmartGwtHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 except MethodException as me:
 #                    import traceback
 #                    traceback.print_exc()
-                    log.log( self, log.LogLevel.Error, str(me))
-                    log.log_exc( self, log.LogLevel.Warning)
+                    log.log( self, log.level.Error, str(me))
+                    log.log_exc( self, log.level.Warning)
                     self._write(400, "Error: %s" % me)
                     return
                 json_response = json.dumps(response)
@@ -274,8 +274,8 @@ class SmartGwtHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             import traceback
             traceback.print_exc()
 
-            log.log( self, log.LogLevel.Error, str(e))
-            log.log_exc( self, log.LogLevel.Warning)
+            log.log( self, log.level.Error, str(e))
+            log.log_exc( self, log.level.Warning)
             self._write(500, 'Error in server. Contact administrator')
         finally:
             delete_context()
@@ -299,7 +299,7 @@ class SmartGwtHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         #args: ('POST /foo/bar/ HTTP/1.1', '200', '-')
         log.log(
             SmartGwtHttpHandler,
-            log.LogLevel.Info,
+            log.level.Info,
             "Request from %s: %s" % (get_context().get_ip_address(), format % args)
         )
 

@@ -91,7 +91,7 @@ def _generate_skeleton(METHOD_NAME):
                 class_name = str(e.__class__)
             else:
                 class_name = type(e).__module__ + '.' + type(e).__name__
-            log.log(self,log.LogLevel.Info,"Exception : " + class_name + "; " + e.args[0] + "; " + tb)
+            log.log(self,log.level.Info,"Exception : " + class_name + "; " + e.args[0] + "; " + tb)
             raise SOAPpy.faultType(
                     faultcode=class_name,
                     faultstring=e.args[0],
@@ -143,7 +143,7 @@ def generate(cfg_manager, methods):
 
                     for method_name in all_methods:
                         if method_name in _soap_server_functions[port]:
-                            log.log(ServerSOAP,log.LogLevel.Warning,'Method "%s" already served by server "%s" on port %s' % (method_name,self, port))
+                            log.log(ServerSOAP,log.level.Warning,'Method "%s" already served by server "%s" on port %s' % (method_name,self, port))
                         #Register every function from "all_methods"
                         self.server.registerFunction(new.instancemethod(getattr(self.__class__, method_name),self,self.__class__))
                         _soap_server_functions[port].append(method_name)
@@ -153,7 +153,7 @@ def generate(cfg_manager, methods):
             else:
                 msg = "The optional library 'SOAPpy' is not available. The communications between different servers will not work through SOAP."
                 print >> sys.stderr, msg
-                log.log(self, log.LogLevel.Error, msg)
+                log.log(self, log.level.Error, msg)
                 class FakeServer(object):
                     def handle_request(self):
                         time.sleep(MAX_TIMEOUT)

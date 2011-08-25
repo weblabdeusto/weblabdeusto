@@ -18,7 +18,6 @@
 import re
 
 import voodoo.log as log
-import voodoo.LogLevel as LogLevel
 from voodoo.log import logged
 from voodoo.sessions.checker import check_session
 import voodoo.sessions.session_type as SessionType
@@ -167,7 +166,7 @@ class LaboratoryServer(object):
     # Experiments management
     # 
 
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @caller_check(ServerType.UserProcessing)
     def do_reserve_experiment(self, experiment_instance_id, client_initial_data, server_initial_data):
         lab_sess_id = self._session_manager.create_session()
@@ -181,8 +180,8 @@ class LaboratoryServer(object):
             except Exception as e:
                 # If there is an error freeing the experiment, we don't want to propagate it to the User Processing Server:
                 # our focus is to reserve the new session.
-                log.log( LaboratoryServer, log.LogLevel.Warning, "Exception freeing already reserved experiment: %s" % e )
-                log.log_exc(LaboratoryServer, log.LogLevel.Info)
+                log.log( LaboratoryServer, log.level.Warning, "Exception freeing already reserved experiment: %s" % e )
+                log.log_exc(LaboratoryServer, log.level.Info)
 
             try:
                 experiment_coord_address = self._assigned_experiments.reserve_experiment(experiment_instance_id, lab_sess_id)
@@ -210,7 +209,7 @@ class LaboratoryServer(object):
 
         return lab_sess_id, experiment_server_response, experiment_coord_address.address
 
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @caller_check(ServerType.UserProcessing)
     def do_free_experiment(self, lab_session_id):
         return self._free_experiment(lab_session_id)
@@ -257,7 +256,7 @@ class LaboratoryServer(object):
             return return_value
 
 
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @caller_check(ServerType.UserProcessing)
     def do_check_experiments_resources(self):
         """Are the resources that the assigned experiment servers use working? It does not matter if this 
@@ -299,11 +298,11 @@ class LaboratoryServer(object):
     def log_error(self, experiment_instance_id, error_message):
         log.log(
             LaboratoryServer,
-            LogLevel.Warning,
+            log.level.Warning,
             "Exception testing experiment %s: %s" % (experiment_instance_id, error_message)
         )
 
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @caller_check(ServerType.UserProcessing)
     def do_experiment_is_up_and_running(self, experiment_instance_id):
         """Does the experiment server consider that the experiment is up and running? This method will only
@@ -318,7 +317,7 @@ class LaboratoryServer(object):
     # we'll have a coord_address with multiple uses,
     # so this method might not actually be not be useful
     # 
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @check_session(*check_session_params)
     @caller_check(ServerType.UserProcessing)
     def do_resolve_experiment_address(self, session):
@@ -330,7 +329,7 @@ class LaboratoryServer(object):
     # Experiments interaction
     # 
 
-    @logged(LogLevel.Info,except_for=(('file_content',2),))
+    @logged(log.level.Info,except_for=(('file_content',2),))
     @check_session(*check_session_params)
     @caller_check(ServerType.UserProcessing)
     def do_send_file(self, session, file_content, file_info):
@@ -340,13 +339,13 @@ class LaboratoryServer(object):
         try:
             response = experiment_server.send_file_to_device(file_content, file_info)
         except Exception as e:
-            log.log( LaboratoryServer, log.LogLevel.Warning, "Exception sending file to experiment: %s" % e )
-            log.log_exc(LaboratoryServer, log.LogLevel.Info)
+            log.log( LaboratoryServer, log.level.Warning, "Exception sending file to experiment: %s" % e )
+            log.log_exc(LaboratoryServer, log.level.Info)
             raise LaboratoryExceptions.FailedToSendFileException("Couldn't send file: %s" % str(e))
 
         return Command.Command(str(response))
 
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @check_session(*check_session_params)
     @caller_check(ServerType.UserProcessing)
     def do_send_command(self, session, command):
@@ -356,14 +355,14 @@ class LaboratoryServer(object):
         try:
             response = experiment_server.send_command_to_device(command.get_command_string())
         except Exception as e:
-            log.log( LaboratoryServer, log.LogLevel.Warning, "Exception sending command to experiment: %s" % e )
-            log.log_exc(LaboratoryServer, log.LogLevel.Info)
+            log.log( LaboratoryServer, log.level.Warning, "Exception sending command to experiment: %s" % e )
+            log.log_exc(LaboratoryServer, log.level.Info)
             raise LaboratoryExceptions.FailedToSendCommandException("Couldn't send command: %s" % str(e))
 
         return Command.Command(str(response))
     
     
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @threaded()
     def _send_async_file_t(self, session, file_content, file_info):
         """
@@ -377,14 +376,14 @@ class LaboratoryServer(object):
         try:
             response = experiment_server.send_file_to_device(file_content, file_info)
         except Exception as e:
-            log.log( LaboratoryServer, log.LogLevel.Warning, "Exception sending async file to experiment: %s" % e )
-            log.log_exc(LaboratoryServer, log.LogLevel.Info)
+            log.log( LaboratoryServer, log.level.Warning, "Exception sending async file to experiment: %s" % e )
+            log.log_exc(LaboratoryServer, log.level.Info)
             raise LaboratoryExceptions.FailedToSendFileException("Couldn't send async file: %s" % str(e))
 
         return Command.Command(str(response))
     
 
-    @logged(LogLevel.Info,except_for=(('file_content',2),))
+    @logged(log.level.Info,except_for=(('file_content',2),))
     @check_session(*check_session_params)
     @caller_check(ServerType.UserProcessing)
     def do_send_async_file(self, session, file_content, file_info):
@@ -418,7 +417,7 @@ class LaboratoryServer(object):
         return request_id
 
 
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @check_session(*check_session_params)
     @caller_check(ServerType.UserProcessing)
     def do_check_async_command_status(self, session, request_identifiers):
@@ -472,7 +471,7 @@ class LaboratoryServer(object):
             
         return response
     
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @threaded()
     def _send_async_command_t(self, session, command):
         """
@@ -486,13 +485,13 @@ class LaboratoryServer(object):
         try:
             response = experiment_server.send_command_to_device(command.get_command_string())
         except Exception as e:
-            log.log( LaboratoryServer, log.LogLevel.Warning, "Exception sending async command to experiment: %s" % e )
-            log.log_exc(LaboratoryServer, log.LogLevel.Info)
+            log.log( LaboratoryServer, log.level.Warning, "Exception sending async command to experiment: %s" % e )
+            log.log_exc(LaboratoryServer, log.level.Info)
             raise LaboratoryExceptions.FailedToSendCommandException("Couldn't send async command: %s" % str(e))
 
         return Command.Command(str(response))
 
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @check_session(*check_session_params)
     @caller_check(ServerType.UserProcessing)
     def do_send_async_command(self, session, command):

@@ -91,7 +91,7 @@ class ResourceManager(object):
             self.remove_resource(i)
 
 class CancelAndJoinResourceManager(ResourceManager):
-    def __init__(self, name, cancel = True, log_level = log.LogLevel.Info, log_exc_level = log.LogLevel.Debug, timeout = None):
+    def __init__(self, name, cancel = True, log_level = log.level.Info, log_exc_level = log.level.Debug, timeout = None):
         ResourceManager.__init__(self)
         self._name          = name
         self._cancel        = True

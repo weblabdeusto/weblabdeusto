@@ -18,7 +18,6 @@ import datetime
 import json
 
 from voodoo.log import logged
-import voodoo.LogLevel as LogLevel
 import voodoo.log as log
 import voodoo.admin_notifier as AdminNotifier
 
@@ -224,7 +223,7 @@ class Coordinator(object):
             session.close()
 
         if anything_changed:
-            log.log( Coordinator, LogLevel.Warning,
+            log.log( Coordinator, log.level.Warning,
                     "Resource %s marked as broken: %r" % (resource_instance, messages) )
 
             if self.notifications_enabled:
@@ -241,7 +240,7 @@ class Coordinator(object):
             session.close()
 
         if anything_changed:
-            log.log( Coordinator, LogLevel.Warning,
+            log.log( Coordinator, log.level.Warning,
                     "Resource %s marked as fixed" % resource_instance )
 
             if self.notifications_enabled:
@@ -340,8 +339,8 @@ class Coordinator(object):
                 batch                 = response.get('batch', default_batch)
                 initial_configuration = response.get('initial_configuration', default_initial_configuration)
             except Exception as e:
-                log.log( Coordinator, log.LogLevel.Error, "Could not parse experiment server response: %s; %s; using default values" % (e, server_initialization_response) )
-                log.log_exc( Coordinator, log.LogLevel.Warning )
+                log.log( Coordinator, log.level.Error, "Could not parse experiment server response: %s; %s; using default values" % (e, server_initialization_response) )
+                log.log_exc( Coordinator, log.level.Warning )
                 still_initializing    = default_still_initialing
                 batch                 = default_batch
                 initial_configuration = default_initial_configuration
@@ -394,8 +393,8 @@ class Coordinator(object):
                 time_remaining        = response.get(FINISH_ASK_AGAIN_MESSAGE, time_remaining)
                 information_to_store  = response.get(FINISH_DATA_MESSAGE, information_to_store)
             except Exception as e:
-                log.log( Coordinator, log.LogLevel.Error, "Could not parse experiment server finishing response: %s; %s" % (e, experiment_response) )
-                log.log_exc( Coordinator, log.LogLevel.Warning )
+                log.log( Coordinator, log.level.Error, "Could not parse experiment server finishing response: %s; %s" % (e, experiment_response) )
+                log.log_exc( Coordinator, log.level.Warning )
                 
         if not experiment_finished:
             time.sleep(time_remaining)

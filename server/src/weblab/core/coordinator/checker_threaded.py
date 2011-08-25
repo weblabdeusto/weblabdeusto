@@ -16,7 +16,6 @@
 import threading
 import time
 import weakref
-import voodoo.LogLevel as LogLevel
 import voodoo.log as log
 from voodoo.resources_manager import is_testing
 
@@ -56,9 +55,9 @@ class ResourcesCheckerThread(threading.Thread):
                 checker = self.Checker(coordinator)
                 checker.check()
             except Exception as e:
-                log.log(ResourcesCheckerThread, LogLevel.Critical,
+                log.log(ResourcesCheckerThread, log.level.Critical,
                     "Exception checking resources: %s" % e )
-                log.log_exc(ResourcesCheckerThread, LogLevel.Error)
+                log.log_exc(ResourcesCheckerThread, log.level.Error)
 
 checker_thread = None
 

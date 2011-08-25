@@ -157,15 +157,15 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         except RequestManagedException as e:
             return
         except MethodException as e:
-            log.log( self, log.LogLevel.Error, str(e))
-            log.log_exc( self, log.LogLevel.Warning)
+            log.log( self, log.level.Error, str(e))
+            log.log_exc( self, log.level.Warning)
             self._write(e.status, e.msg)
         except Exception as e:
             import traceback
             traceback.print_exc()
 
-            log.log( self, log.LogLevel.Error, str(e))
-            log.log_exc( self, log.LogLevel.Warning)
+            log.log( self, log.level.Error, str(e))
+            log.log_exc( self, log.level.Warning)
             self._write(500, 'Error in server. Contact administrator')
         finally:
             delete_context()
@@ -195,7 +195,7 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         #args: ('POST /foo/bar/ HTTP/1.1', '200', '-')
         log.log(
             WebHttpHandler,
-            log.LogLevel.Info,
+            log.level.Info,
             "Request from %s: %s" % (get_context().get_ip_address(), format % args)
         )
 

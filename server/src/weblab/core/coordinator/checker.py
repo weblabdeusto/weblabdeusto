@@ -15,7 +15,6 @@
 
 import traceback
 
-import voodoo.LogLevel as LogLevel
 import voodoo.log as log
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 
@@ -39,7 +38,7 @@ class ResourcesChecker(object):
             failing_experiments = server.check_experiments_resources()
             for failing_experiment in failing_experiments:
                 if not failing_experiment in experiments:
-                    log.log( ResourcesChecker, LogLevel.Error,
+                    log.log( ResourcesChecker, log.level.Error,
                             "Laboratory server %s reported that experiment %s was failing; however this laboratory does NOT manage this experiment. Attack?" % (address_str, failing_experiment))
                     continue
 
@@ -57,7 +56,7 @@ class ResourcesChecker(object):
             
         except:
             traceback.print_exc()
-            log.log( ResourcesChecker, LogLevel.Critical,
+            log.log( ResourcesChecker, log.level.Critical,
                     "Error checking resources of laboratory %s " % address_str)
-            log.log_exc(ResourcesChecker, LogLevel.Critical)
+            log.log_exc(ResourcesChecker, log.level.Critical)
 

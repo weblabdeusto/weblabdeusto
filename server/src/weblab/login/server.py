@@ -14,7 +14,6 @@
 # 
 import voodoo.log as log
 from voodoo.log import logged
-import voodoo.LogLevel as LogLevel
 import time
 
 import weblab.login.auth as LoginAuth
@@ -66,7 +65,7 @@ class LoginServer(object):
         for server in self._facade_servers:
             server.stop()
 
-    @logged(LogLevel.Info, except_for='password')
+    @logged(log.level.Info, except_for='password')
     def login(self, username, password):
         """ do_login(username, password) -> SessionId 
 
@@ -82,7 +81,7 @@ class LoginServer(object):
         db_session_id = self._db_manager.check_credentials(username, str(password))
 
         if isinstance(db_session_id, DbSession.InvalidDatabaseSessionId):
-            log.log( LoginServer, log.LogLevel.Warning, "Invalid username: %s" % username )
+            log.log( LoginServer, log.level.Warning, "Invalid username: %s" % username )
             time.sleep(LOGIN_FAILED_DELAY)
             raise LoginExceptions.InvalidCredentialsException(
                         "Invalid username or password!"
@@ -91,9 +90,9 @@ class LoginServer(object):
             for user_auth in db_session_id.user_auths:
                 login_auth = LoginAuth.LoginAuth.create(user_auth)
                 if login_auth.authenticate(username, password):
-                    log.log( LoginServer, log.LogLevel.Debug, "Username: %s with user_auth %s: SUCCESS" % (username, user_auth) )
+                    log.log( LoginServer, log.level.Debug, "Username: %s with user_auth %s: SUCCESS" % (username, user_auth) )
                     break
-                log.log( LoginServer, log.LogLevel.Warning, "Username: %s with user_auth %s: FAIL" % (username, user_auth) )
+                log.log( LoginServer, log.level.Warning, "Username: %s with user_auth %s: FAIL" % (username, user_auth) )
             else :
                 raise LoginExceptions.InvalidCredentialsException(
                     "Invalid username or password!"
@@ -107,7 +106,7 @@ class LoginServer(object):
         context.route = server_route
         return session_id
 
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     def extensible_login(self, system, credentials):
         external_user_id, _ = self._validate_remote_user(system, credentials)
         # It's a valid external user, book it if there is a user linked
@@ -132,7 +131,7 @@ class LoginServer(object):
         return external_user_id, external_user
 
 
-    @logged(LogLevel.Info, except_for="password")
+    @logged(log.level.Info, except_for="password")
     def grant_external_credentials(self, username, password, system, credentials):
         if not self._cfg_manager.get_value(LINKING_EXTERNAL_USERS, True):
             raise LoginExceptions.LoginException("Linking external users not enabled!")
@@ -147,7 +146,7 @@ class LoginServer(object):
         self._db_manager.grant_external_credentials(username, external_user_id, system)
         return self._reserve_session(local_db_session_id)
 
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     def create_external_user(self, system, credentials):
         if not self._cfg_manager.get_value(CREATING_EXTERNAL_USERS, True):
             raise LoginExceptions.LoginException("Creating external users not enabled!")

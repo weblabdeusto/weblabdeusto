@@ -34,7 +34,7 @@ class SchemaChecker(object):
         if not LXML_AVAILABLE:
             msg = "The optional library 'lxml' is not available. The syntax of the configuration files will not be checked."
             print >> sys.stderr, msg
-            log.log( SchemaChecker, log.LogLevel.Warning, msg )
+            log.log( SchemaChecker, log.level.Warning, msg )
             return
 
         xmlfile_content = self._read_xml_file(xmlfile_path)
@@ -45,8 +45,8 @@ class SchemaChecker(object):
             xmlschema_doc = etree.parse(sio_xsd)
             xmlschema = etree.XMLSchema(xmlschema_doc)
         except Exception as e:
-            log.log( SchemaChecker, log.LogLevel.Warning, 'Invalid syntax file configuration: File %s: %s' % (xsdfile_path, e))
-            log.log_exc( SchemaChecker, log.LogLevel.Info)
+            log.log( SchemaChecker, log.level.Warning, 'Invalid syntax file configuration: File %s: %s' % (xsdfile_path, e))
+            log.log_exc( SchemaChecker, log.level.Info)
             raise LoaderExceptions.InvalidSyntaxFileConfigurationException( e, xsdfile_path )
 
         try:
@@ -54,11 +54,11 @@ class SchemaChecker(object):
             xml_doc = etree.parse(sio_xml)
             xmlschema.assertValid(xml_doc)
         except etree.DocumentInvalid as di:
-            log.log( SchemaChecker, log.LogLevel.Warning, 'Not a valid configuration file. Check it with a XML Schema validator: File %s' % (xmlfile_path))
+            log.log( SchemaChecker, log.level.Warning, 'Not a valid configuration file. Check it with a XML Schema validator: File %s' % (xmlfile_path))
             raise LoaderExceptions.InvalidSyntaxFileConfigurationException( 'Not a valid configuration file. Check it with a XML Schema validator. %s' % di.args, xmlfile_path)
         except Exception as e:
-            log.log( SchemaChecker, log.LogLevel.Warning, 'Invalid syntax file configuration: File %s: %s' % (xmlfile_path, e))
-            log.log_exc( SchemaChecker, log.LogLevel.Info)
+            log.log( SchemaChecker, log.level.Warning, 'Invalid syntax file configuration: File %s: %s' % (xmlfile_path, e))
+            log.log_exc( SchemaChecker, log.level.Info)
             raise LoaderExceptions.InvalidSyntaxFileConfigurationException( e, xmlfile_path)
 
     # For testing purposes

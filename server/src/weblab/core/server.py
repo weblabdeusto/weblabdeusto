@@ -17,7 +17,6 @@
 import threading
 
 from voodoo.log import logged
-import voodoo.LogLevel as LogLevel
 import voodoo.log as log
 import voodoo.counter as counter
 
@@ -191,12 +190,12 @@ class UserProcessingServer(object):
             except Exception as e:
                 log.log(
                     UserProcessingServer,
-                    LogLevel.Warning,
+                    log.level.Warning,
                     "Exception freeing experiment of %s: %s" % (expired_user, e)
                 )
                 log.log_exc(
                     UserProcessingServer,
-                    LogLevel.Info
+                    log.level.Info
                 )
 
     def _initialize_checker_timer(self):
@@ -216,7 +215,7 @@ class UserProcessingServer(object):
     # # # # # # # # # # # #
 
     @caller_check(ServerType.Login)
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     def do_reserve_session(self, db_session_id):
         session_id = self._session_manager.create_session()
         initial_session = {
@@ -231,7 +230,7 @@ class UserProcessingServer(object):
         return session_id, self._server_route
 
 
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     def logout(self, session_id):
         if self._session_manager.has_session(session_id):
             session        = self._session_manager.get_session(session_id)
@@ -248,14 +247,14 @@ class UserProcessingServer(object):
             )
 
 
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @check_session(*check_session_params)
     @load_user_processor
     def list_experiments(self, user_processor, session):
         return user_processor.list_experiments()
 
 
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @check_session(*check_session_params)
     @load_user_processor
     def get_user_information(self, user_processor, session):
@@ -265,7 +264,7 @@ class UserProcessingServer(object):
     # Experiment related operations #
     # # # # # # # # # # # # # # # # #
 
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @check_session(*check_session_params)
     @load_user_processor
     def reserve_experiment(self, user_processor, session, experiment_id, client_initial_data, client_address):
@@ -273,7 +272,7 @@ class UserProcessingServer(object):
         return user_processor.reserve_experiment( experiment_id, client_initial_data, client_address ) 
 
 
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @check_session(*check_session_params)
     @load_user_processor
     def finished_experiment(self, user_processor, session):
@@ -281,7 +280,7 @@ class UserProcessingServer(object):
         return user_processor.finished_experiment()
 
 
-    @logged(LogLevel.Info, except_for=(('file_content',2),))
+    @logged(log.level.Info, except_for=(('file_content',2),))
     @check_session(*check_session_params)
     @load_user_processor
     def send_file(self, user_processor, session, file_content, file_info):
@@ -293,7 +292,7 @@ class UserProcessingServer(object):
         return user_processor.send_file( file_content, file_info )
 
 
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @check_session(*check_session_params)
     @load_user_processor
     def send_command(self, user_processor, session, command):
@@ -305,7 +304,7 @@ class UserProcessingServer(object):
         self._check_user_not_expired_and_poll( user_processor )
         return user_processor.send_command( command )
             
-    @logged(LogLevel.Info, except_for=(('file_content',2),))
+    @logged(log.level.Info, except_for=(('file_content',2),))
     @check_session(*check_session_params)
     def send_async_file(self, session, file_content, file_info):
         """ 
@@ -326,7 +325,7 @@ class UserProcessingServer(object):
             user_processor.update_latest_timestamp()
 
     # TODO: This method should now be finished. Will need to be verified, though.
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @check_session(*check_session_params)
     def check_async_command_status(self, session, request_identifiers):
         """ 
@@ -345,7 +344,7 @@ class UserProcessingServer(object):
         finally:
             user_processor.update_latest_timestamp()
 
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @check_session(*check_session_params)
     def send_async_command(self, session, command):
         """ 
@@ -363,7 +362,7 @@ class UserProcessingServer(object):
             user_processor.update_latest_timestamp()
 
 
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @check_session(*check_session_params)
     def poll(self, session):
         user_processor = self._load_user(session)
@@ -373,7 +372,7 @@ class UserProcessingServer(object):
             pass
 
 
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @check_session(*check_session_params)
     @load_user_processor
     def get_reservation_status(self, user_processor, session):
@@ -385,35 +384,35 @@ class UserProcessingServer(object):
     # admin service
     #
 
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @check_session(*check_session_params)
     @load_user_processor
     def get_groups(self, user_processor, session, parent_id=None):
         return user_processor.get_groups(parent_id)
 
 
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @check_session(*check_session_params)
     @load_user_processor
     def get_experiments(self, user_processor, session):
         return user_processor.get_experiments()
 
 
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @check_session(*check_session_params)
     @load_user_processor
     def get_experiment_uses(self, user_processor, session, from_date=None, to_date=None, group_id=None, experiment_id=None, start_row=None, end_row=None, sort_by=None):
         return user_processor.get_experiment_uses(from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by)
 
 
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @check_session(*check_session_params)
     @load_user_processor
     def get_roles(self, user_processor, session):
         return user_processor.get_roles()
 
 
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @check_session(*check_session_params)
     @load_user_processor
     def get_users(self, user_processor, session):
@@ -424,7 +423,7 @@ class UserProcessingServer(object):
         return user_processor.get_users()
 
 
-    @logged(LogLevel.Info)
+    @logged(log.level.Info)
     @check_session(*check_session_params)
     @load_user_processor
     def get_user_permissions(self, user_processor, session):

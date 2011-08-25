@@ -136,7 +136,7 @@ class ServerLocator(object):
                     # There was some error creating the client
                     log.log(
                         ServerLocator,
-                        log.LogLevel.Info,
+                        log.level.Info,
                         "Generating client for server with %s raised exception %s. Trying another server..." % (
                             address.address,
                             ccce
@@ -144,7 +144,7 @@ class ServerLocator(object):
                     )
                     log.log_exc(
                         ServerLocator,
-                        log.LogLevel.Debug
+                        log.level.Debug
                     )
                     continue
 
@@ -236,7 +236,7 @@ class ServerLocator(object):
                 # There was some error creating the client
                 log.log(
                     ServerLocator,
-                    log.LogLevel.Info,
+                    log.level.Info,
                     "Generating client for server with %s raised exception %s. Trying another server..." % (
                         address.address,
                         ccce
@@ -244,7 +244,7 @@ class ServerLocator(object):
                 )
                 log.log_exc(
                     ServerLocator,
-                    log.LogLevel.Debug
+                    log.level.Debug
                 )
                 continue
 
@@ -274,7 +274,7 @@ class ServerLocator(object):
                 # This was not a valid server, try another
                 log.log(
                     ServerLocator,
-                    log.LogLevel.Info,
+                    log.level.Info,
                     "Test message received from server %s different from the message sent (%s vs %s). Trying another server" %(
                         address.address,
                         random_msg,
@@ -286,13 +286,13 @@ class ServerLocator(object):
             #There was a exception: this is not a valid server, try another
             log.log(
                 ServerLocator,
-                log.LogLevel.Info,
+                log.level.Info,
                 "Testing server %s raised exception %s. Trying another server" % (
                     address.address,
                     e
                 )
             )
-            log.log_exc(ServerLocator, log.LogLevel.Info)
+            log.log_exc(ServerLocator, log.level.Info)
             return False
         else:
             return True
@@ -302,16 +302,16 @@ class ServerLocator(object):
         try:
             return self._coordinator.new_query(original_server_address,server_type,restrictions)
         except ProtocolExceptions.ProtocolException as pe:
-            log.log( ServerLocator, log.LogLevel.Error, "Problem while asking for new session id to the coordinator server. %s" % pe )
-            log.log_exc( ServerLocator, log.LogLevel.Warning )
+            log.log( ServerLocator, log.level.Error, "Problem while asking for new session id to the coordinator server. %s" % pe )
+            log.log_exc( ServerLocator, log.level.Warning )
 
             raise LocatorExceptions.ProblemCommunicatingWithCoordinatorException(
                     "Couldn't retrieve new session id from coordinator server: " + str(pe),
                     pe
                 )
         except Exception as e:
-            log.log( ServerLocator, log.LogLevel.Error, "Unexpected exception while asking for new session id to the coordinator server. %s" % e )
-            log.log_exc( ServerLocator, log.LogLevel.Warning )
+            log.log( ServerLocator, log.level.Error, "Unexpected exception while asking for new session id to the coordinator server. %s" % e )
+            log.log_exc( ServerLocator, log.level.Warning )
 
             raise LocatorExceptions.ProblemCommunicatingWithCoordinatorException(
                     "Unexpected exception while asking new session id from coordinator server: " + str(e),
@@ -322,8 +322,8 @@ class ServerLocator(object):
         try:
             self._coordinator.logout(session_id)
         except Exception as e:
-            log.log( ServerLocator, log.LogLevel.Warning, "Unexpected exception while logging out from Coordinator Server. %s " % e)
-            log.log_exc( ServerLocator, log.LogLevel.Info )
+            log.log( ServerLocator, log.level.Warning, "Unexpected exception while logging out from Coordinator Server. %s " % e)
+            log.log_exc( ServerLocator, log.level.Info )
 
     def _retrieve_all_servers_from_coordinator(self,original_server_address,server_type,restrictions):
         try:
@@ -332,12 +332,12 @@ class ServerLocator(object):
             # TODO: not unittested
             log.log(
                     ServerLocator,
-                    log.LogLevel.Error,
+                    log.level.Error,
                     "Problem while asking for all servers to the coordinator server. %s" % pe
                 )
             log.log_exc(
                     ServerLocator,
-                    log.LogLevel.Warning
+                    log.level.Warning
                 )
 
             raise LocatorExceptions.ProblemCommunicatingWithCoordinatorException(
@@ -348,12 +348,12 @@ class ServerLocator(object):
             # TODO: not unittested
             log.log(
                     ServerLocator,
-                    log.LogLevel.Error,
+                    log.level.Error,
                     "Unexpected exception while asking for all servers to the coordinator server. %s" % e
                 )
             log.log_exc(
                     ServerLocator,
-                    log.LogLevel.Warning
+                    log.level.Warning
                 )
 
             raise LocatorExceptions.ProblemCommunicatingWithCoordinatorException(
@@ -368,12 +368,12 @@ class ServerLocator(object):
             # TODO: not unittested
             log.log(
                     ServerLocator,
-                    log.LogLevel.Error,
+                    log.level.Error,
                     "Problem while asking for networks to the coordinator server. %s" % pe
                 )
             log.log_exc(
                     ServerLocator,
-                    log.LogLevel.Warning
+                    log.level.Warning
                 )
 
             raise LocatorExceptions.ProblemCommunicatingWithCoordinatorException(
@@ -384,12 +384,12 @@ class ServerLocator(object):
             # TODO: not unittested
             log.log(
                     ServerLocator,
-                    log.LogLevel.Error,
+                    log.level.Error,
                     "Unexpected exception while asking for networks to the coordinator server. %s" % e
                 )
             log.log_exc(
                     ServerLocator,
-                    log.LogLevel.Warning
+                    log.level.Warning
                 )
 
             import traceback
@@ -408,12 +408,12 @@ class ServerLocator(object):
         except ProtocolExceptions.ProtocolException as pe:
             log.log(
                     ServerLocator,
-                    log.LogLevel.Error,
+                    log.level.Error,
                     "Problem while asking for other server to the coordinator server. %s" % pe
                 )
             log.log_exc(
                     ServerLocator,
-                    log.LogLevel.Warning
+                    log.level.Warning
                 )
             raise LocatorExceptions.ProblemCommunicatingWithCoordinatorException(
                     "Couldn't ask for other server to coordinator server: " + str(pe),
@@ -422,12 +422,12 @@ class ServerLocator(object):
         except Exception as e:
             log.log(
                     ServerLocator,
-                    log.LogLevel.Error,
+                    log.level.Error,
                     "Unexpected exception while asking for other server to the coordinator server. %s" % e
                 )
             log.log_exc(
                     ServerLocator,
-                    log.LogLevel.Warning
+                    log.level.Warning
                 )
             raise LocatorExceptions.ProblemCommunicatingWithCoordinatorException(
                     "Unexpected exception while asking for other server to the coordinator server: " + str(e),
@@ -464,12 +464,12 @@ class ServerLocator(object):
                 # TODO: not unittested
                 log.log(
                         ServerLocator,
-                        log.LogLevel.Info,
+                        log.level.Info,
                         "RegistryException found registring server %s with address %s in registry: %s" % (server,address.address,e)
                     )
                 log.log_exc(
                         ServerLocator,
-                        log.LogLevel.Debug
+                        log.level.Debug
                     )
                 import traceback
                 traceback.print_stack()

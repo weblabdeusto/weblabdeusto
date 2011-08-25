@@ -193,7 +193,7 @@ class XilinxImpact(object):
         return file_name    
 
     def _log(self, result_code, output, stderr):
-        log.log(XilinxImpact,log.LogLevel.Info,"Device programming was finished. Result code: %i\n<output>\n%s\n</output><stderr>\n%s\n</stderr>" % (
+        log.log(XilinxImpact,log.level.Info,"Device programming was finished. Result code: %i\n<output>\n%s\n</output><stderr>\n%s\n</stderr>" % (
                 result_code,
                 output,
                 stderr

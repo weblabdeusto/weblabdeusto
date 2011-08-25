@@ -93,7 +93,7 @@ class AdminNotifier(object):
             except ConfigurationManager.KeyNotFoundException as knfe:
                 log.log(
                     AdminNotifier, 
-                    log.LogLevel.Critical, 
+                    log.level.Critical, 
                     "Couldn't find property %s. Couldn't notify administrator about critical problem with message <%s>..." % (knfe.key, message)
                 )
                 return -1
@@ -144,7 +144,7 @@ class AdminNotifier(object):
             except Exception as e:
                 log.log(
                     AdminNotifier, 
-                    log.LogLevel.Critical, 
+                    log.level.Critical, 
                     "Unexpected error while notifying administrator with message %s: %s" % (message, e)
                 )
                 return -2

@@ -58,7 +58,7 @@ class UdGpibExperiment(Experiment.Experiment):
 
             log.log(
                 UdGpibExperiment,
-                log.LogLevel.Info,
+                log.level.Info,
                 "Compiling file"
             )
             exe_file_name = self._compile(src_basename)
@@ -66,7 +66,7 @@ class UdGpibExperiment(Experiment.Experiment):
 
             log.log(
                 UdGpibExperiment,
-                log.LogLevel.Info,
+                log.level.Info,
                 "Executing file"
             )
             if self._cfg_manager.get_value('gpib_just_testing', False):
@@ -77,12 +77,12 @@ class UdGpibExperiment(Experiment.Experiment):
         except Exception as e:
             log.log(
                 UdGpibExperiment,
-                log.LogLevel.Info,
+                log.level.Info,
                 "Exception joining sending program to device: %s" % e.args[0]
             )
             log.log_exc(
                 UdGpibExperiment,
-                log.LogLevel.Info
+                log.level.Info
             )
             raise ExperimentExceptions.SendingFileFailureException(
                     "Error sending file to device: %s" % str(e.args)
@@ -175,7 +175,7 @@ class UdGpibExperiment(Experiment.Experiment):
             if self._gpib_launcher.poll():
                 log.log(
                     UdGpibExperiment,
-                    log.LogLevel.Info,
+                    log.level.Info,
                     "Executed, saving results"
                 )
                 self._remove_file()
