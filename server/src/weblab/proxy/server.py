@@ -22,9 +22,7 @@ from voodoo.sessions.checker import check_session
 from weblab.data import server_type as ServerType
 import weblab.proxy.exc as ProxyExceptions
 from weblab.proxy import session_handler as ProxySessionHandler
-from weblab.translator.StoresEverythingTranslator import StoresEverythingTranslator
-from weblab.translator.StoresNothingTranslator import StoresNothingTranslator
-from weblab.translator.StoresEverythingExceptForFilesTranslator import StoresEverythingExceptForFilesTranslator
+from weblab.translator.translators import StoresEverythingTranslator, StoresNothingTranslator, StoresEverythingExceptForFilesTranslator
 
 
 WEBLAB_PROXY_SERVER_SESSION_TYPE                    = "proxy_session_type"

@@ -23,7 +23,7 @@ from weblab.data import server_type as ServerType
 import weblab.lab.exc as LaboratoryExceptions
 import weblab.proxy.exc as ProxyExceptions
 from weblab.proxy import server as ProxyServer
-from weblab.translator import StoresNothingTranslator, StoresEverythingTranslator
+from weblab.translator.translators import StoresNothingTranslator, StoresEverythingTranslator
 import mocker
 import test.unit.configuration as configuration_module
 import unittest
@@ -83,7 +83,7 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
     #===========================================================================
     
     def test_find_translator_being_a_suitable_translator_available(self):
-        translator = self._create_custom_translator(StoresNothingTranslator.StoresNothingTranslator)
+        translator = self._create_custom_translator(StoresNothingTranslator)
         proxy = self._create_proxy(translators=(translator,))
 
         found_translator, is_default = proxy._find_translator("whichever experiment_id, because FakeLocator will find it ;-)")
@@ -95,14 +95,14 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
         proxy = self._create_proxy()
 
         found_translator, is_default = proxy._find_translator("whichever experiment_id, because FakeLocator won't find it...")
-        self.assertEquals(StoresNothingTranslator.StoresNothingTranslator, found_translator.__class__)
+        self.assertEquals(StoresNothingTranslator, found_translator.__class__)
         self.assertTrue(is_default)
 
     def test_find_translator_not_being_any_suitable_translator_available_so_using_the_implicit_default_one(self):
         proxy = self._create_proxy()
 
         found_translator, is_default = proxy._find_translator("whichever experiment_id, because FakeLocator won't find it...")
-        self.assertEquals(StoresEverythingTranslator.StoresEverythingTranslator, found_translator.__class__)
+        self.assertEquals(StoresEverythingTranslator, found_translator.__class__)
         self.assertTrue(is_default)
     
     #===========================================================================

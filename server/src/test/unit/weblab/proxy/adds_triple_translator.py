@@ -20,7 +20,7 @@ from voodoo.override import Override
 from voodoo.sessions.checker import check_session
 from weblab.data import server_type as ServerType
 import weblab.translator.exc as TranslatorExceptions
-import weblab.translator.Translator as Translator
+import weblab.translator.translator as Translator
 import weblab.experiment.util as ExperimentUtil
 
 

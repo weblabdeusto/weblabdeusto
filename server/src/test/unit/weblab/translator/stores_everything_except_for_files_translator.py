@@ -13,18 +13,18 @@
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
-from weblab.translator.StoresEverythingTranslator import StoresEverythingTranslator
+from weblab.translator.translators import StoresEverythingExceptForFilesTranslator
 import test.unit.configuration as configuration_module
 import unittest
 import voodoo.configuration as ConfigurationManager
 
 
-class StoresEverythingTranslatorTestCase(unittest.TestCase):
+class StoresEverythingExceptForFilesTranslatorTestCase(unittest.TestCase):
     
     def setUp(self):
         self._cfg_manager = ConfigurationManager.ConfigurationManager()
         self._cfg_manager.append_module(configuration_module)
-        self.translator = StoresEverythingTranslator(None, None, self._cfg_manager)
+        self.translator = StoresEverythingExceptForFilesTranslator(None, None, self._cfg_manager)
         
     def test(self):
         self.assertEquals(
@@ -43,12 +43,12 @@ class StoresEverythingTranslatorTestCase(unittest.TestCase):
         )
 
         self.assertEquals(
-            'file',
+            None,
             self.translator.do_before_send_file('session_id', 'file')
         )
 
         self.assertEquals(
-            'response',
+            None,
             self.translator.do_after_send_file('session_id', 'response')
         )
 
@@ -59,7 +59,7 @@ class StoresEverythingTranslatorTestCase(unittest.TestCase):
                           
 
 def suite():
-    return unittest.makeSuite(StoresEverythingTranslatorTestCase)
+    return unittest.makeSuite(StoresEverythingExceptForFilesTranslatorTestCase)
 
 if __name__ == '__main__':
     unittest.main()

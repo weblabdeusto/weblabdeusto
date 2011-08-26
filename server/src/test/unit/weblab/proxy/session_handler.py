@@ -23,7 +23,7 @@ import time
 import unittest
 import voodoo.configuration as ConfigurationManager
 import weblab.experiment.util as ExperimentUtil
-from weblab.translator.StoresEverythingTranslator import StoresEverythingTranslator
+from weblab.translator.translators import StoresEverythingTranslator
 
 
 class ProxySessionHandlerTestCase(mocker.MockerTestCase):
