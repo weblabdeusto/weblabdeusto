@@ -17,7 +17,7 @@ import weblab.comm.server as RFS
 import weblab.core.comm.user_manager as UPFM
 
 try:
-    import weblab.core.comm.generated.WebLabDeusto_interface as WebLabDeusto_interface
+    import weblab.core.comm.generated.weblabdeusto_interface as weblabdeusto_interface
 except ImportError:
     ZSI_AVAILABLE = False
 else:
@@ -53,7 +53,7 @@ class UserProcessingRemoteFacadeServer(RFS.AbstractRemoteFacadeServer):
 
     if ZSI_AVAILABLE:
         class RemoteFacadeServerZSI(RFS.AbstractRemoteFacadeServerZSI):
-            WebLabDeusto = WebLabDeusto_interface.WebLabDeusto
+            WebLabDeusto = weblabdeusto_interface.weblabdeusto
         SERVERS = RFS.AbstractRemoteFacadeServer.SERVERS + (RemoteFacadeServerZSI,)
 
     FACADE_ZSI_LISTEN                            = USER_PROCESSING_FACADE_ZSI_LISTEN   

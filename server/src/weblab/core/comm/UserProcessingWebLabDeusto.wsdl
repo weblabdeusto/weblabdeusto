@@ -340,7 +340,7 @@
 		<part name="parameters" element="tns:GetUserInformationResponse"/>
 	</message>
 
-	<portType name="WebLabDeusto">
+	<portType name="weblabdeusto">
 		<operation name="logout">
 			<input message="tns:LogoutRequest"/>
 			<output message="tns:LogoutResponse"/>
@@ -379,7 +379,7 @@
 		</operation>
 	</portType>
 
-	<binding name="WebLabDeusto" type="tns:WebLabDeusto">
+	<binding name="weblabdeusto" type="tns:weblabdeusto">
 		<soap:binding style="document" 
 			transport="http://schemas.xmlsoap.org/soap/http"/>
 
@@ -466,8 +466,8 @@
 		</operation>
 	</binding>
 
-  <service name="WebLabDeusto">
-    <port name="WebLabDeusto" binding="tns:WebLabDeusto">
+  <service name="weblabdeusto">
+    <port name="weblabdeusto" binding="tns:weblabdeusto">
 	<soap:address location="https://www.weblab.deusto.es/weblab/soap/"/>
     </port>
   </service>

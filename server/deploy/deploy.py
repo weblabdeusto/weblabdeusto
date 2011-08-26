@@ -198,7 +198,7 @@ def _deploy_stubs(error_handler, folder, wsdl_file):
     wsdl2py       = '"%s"' % os.sep.join((bin_path,'wsdl2py.py'))
     wsdl2dispatch = '"%s"' % os.sep.join((bin_path,'wsdl2dispatch.py'))
 
-    for i in glob.glob("%s/WebLabDeusto_*.py" % folder):
+    for i in glob.glob("%s/weblabdeusto_*.py" % folder):
         os.remove(i)
     cwd = os.getcwd()
     os.chdir(folder)
@@ -224,14 +224,14 @@ def _deploy_stubs(error_handler, folder, wsdl_file):
                 error_handler.write_warning('stderr::%s' % i)
 
     # Little bug in the stubs generation :-)
-    client_file = open('WebLabDeusto_client.py','a')
-    client_file.write('\n\nfrom WebLabDeusto_messages import *\n\n')
+    client_file = open('weblabdeusto_client.py','a')
+    client_file.write('\n\nfrom weblabdeusto_messages import *\n\n')
     client_file.close()
 
     # By default, ZSI strips the strings in the SOAP request. We don't want this, so we change this behaviour
-    services_types_content = open('WebLabDeusto_services_types.py').read()
+    services_types_content = open('weblabdeusto_services_types.py').read()
     services_types_content = services_types_content.replace("ZSI.TC.String(","ZSI.TC.String(strip=False,")
-    open('WebLabDeusto_services_types.py','w').write(services_types_content)
+    open('weblabdeusto_services_types.py','w').write(services_types_content)
 
     pr = subprocess.Popen(sys.executable + " " + wsdl2dispatch + " -e -f ../%s --simple-naming" % wsdl_file, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     result = pr.wait()

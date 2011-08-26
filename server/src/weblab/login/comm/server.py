@@ -16,7 +16,7 @@
 import weblab.comm.server as RFS
 import weblab.login.comm.manager as LFM
 try:
-    import weblab.login.comm.generated.WebLabDeusto_interface as WebLabDeusto_interface
+    import weblab.login.comm.generated.weblabdeusto_interface as weblabdeusto_interface
 except ImportError:
     ZSI_AVAILABLE = False
 else:
@@ -24,7 +24,7 @@ else:
 
 if ZSI_AVAILABLE:
     class LoginRemoteFacadeServerZSI(RFS.AbstractRemoteFacadeServerZSI):
-        WebLabDeusto = WebLabDeusto_interface.WebLabDeusto
+        WebLabDeusto = weblabdeusto_interface.weblabdeusto
 
 LOGIN_FACADE_ZSI_LISTEN                     = 'login_facade_soap_bind'
 DEFAULT_LOGIN_FACADE_ZSI_LISTEN             = ''
