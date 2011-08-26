@@ -14,12 +14,11 @@
 # 
 
 import time
-from UserManager import UserManager
 import urllib2
 from voodoo.log import logged
 import voodoo.log as log
-from experiments.vm.user_manager.UserManager import PermanentConfigureError,\
-    TemporaryConfigureError
+from experiments.vm.user_manager.manager import PermanentConfigureError,\
+    TemporaryConfigureError, UserManager
 
 
 HTTP_QUERY_USER_MANAGER_URL = "http_query_user_manager_url"

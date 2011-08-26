@@ -25,7 +25,7 @@ import experiments.vm.user_manager as user_manager
 import weblab.experiment.devices.vm.dummy as VirtualMachineDummy
 
 from weblab.experiment.devices.vm.manager import VirtualMachineManager
-from experiments.vm.user_manager.UserManager import UserManager
+from experiments.vm.user_manager.manager import UserManager
 
 from voodoo.override import Override
 

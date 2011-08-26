@@ -1,5 +1,5 @@
 
-import UserManager
+import manager as UserManager
 import dummy as DummyUserManager
 import http as HttpQueryUserManager
 

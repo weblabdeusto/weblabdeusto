@@ -13,7 +13,7 @@
 # Author: Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
-from UserManager import UserManager
+from experiments.vm.user_manager.manager import UserManager
 
 class DummyUserManager(UserManager):
     
