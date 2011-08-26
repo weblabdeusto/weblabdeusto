@@ -32,7 +32,7 @@ import weblab.core.comm.admin_server as AdminFacadeServer
 import voodoo.configuration as ConfigurationManager
 import test.unit.configuration as configuration
 
-from test.util.ModuleDisposer import uses_module
+from test.util.module_disposer import uses_module
 
 import mocker
 

@@ -15,7 +15,7 @@
 
 import unittest
 
-from test.util.ModuleDisposer import uses_module
+from test.util.module_disposer import uses_module
 import voodoo.gen.protocols.InternetSocket.ServerInternetSocket as ServerInternetSocket
 import voodoo.gen.protocols.InternetSocket.ClientInternetSocket as ClientInternetSocket
 

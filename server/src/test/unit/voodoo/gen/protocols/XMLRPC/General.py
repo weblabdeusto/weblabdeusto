@@ -14,7 +14,7 @@
 # 
 import unittest
 
-from test.util.ModuleDisposer import uses_module
+from test.util.module_disposer import uses_module
 
 import voodoo.gen.protocols.XMLRPC.ServerXMLRPC as ServerXMLRPC
 import voodoo.gen.protocols.XMLRPC.Exceptions as Exceptions

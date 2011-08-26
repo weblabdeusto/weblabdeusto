@@ -20,7 +20,7 @@ import time
 
 import mocker
 
-from   test.util.ModuleDisposer import case_uses_module
+from   test.util.module_disposer import case_uses_module
 import test.unit.configuration as configuration_module
 
 import weblab.core.server    as UserProcessingServer

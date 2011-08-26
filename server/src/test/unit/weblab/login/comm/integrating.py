@@ -26,7 +26,7 @@ import voodoo.sessions.session_id as SessionId
 import voodoo.configuration as ConfigurationManager
 import test.unit.configuration as configuration
 
-from test.util.ModuleDisposer import uses_module
+from test.util.module_disposer import uses_module
 
 import weblab.login.comm.codes as LoginRFCodes
 import weblab.comm.server as RemoteFacadeServer

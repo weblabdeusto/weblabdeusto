@@ -16,7 +16,7 @@ import sys
 import unittest
 import random
 
-from test.util.ModuleDisposer import uses_module
+from test.util.module_disposer import uses_module
 
 import voodoo.gen.coordinator.CoordinatorServer as CoordinatorServer
 import voodoo.gen.coordinator.CoordinationInformation as CoordInfo

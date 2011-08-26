@@ -22,7 +22,7 @@ import mocker
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.sessions.session_id as SessionId
-from   test.util.ModuleDisposer import case_uses_module
+from   test.util.module_disposer import case_uses_module
 
 import weblab.core.processor as UserProcessor
 import weblab.core.reservations as Reservation

@@ -15,7 +15,7 @@
 import sys
 import unittest
 
-from test.util.ModuleDisposer import uses_module
+from test.util.module_disposer import uses_module
 from test.util.optional_modules import OptionalModuleTestCase
 import voodoo.gen.protocols.SOAP.ServerSOAP as ServerSOAP
 

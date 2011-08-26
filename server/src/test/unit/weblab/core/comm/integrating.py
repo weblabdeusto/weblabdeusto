@@ -35,7 +35,7 @@ import weblab.data.command as Command
 import voodoo.configuration as ConfigurationManager
 import test.unit.configuration as configuration
 
-from test.util.ModuleDisposer import uses_module
+from test.util.module_disposer import uses_module
 
 import weblab.core.comm.codes as UserProcessingRFCodes
 import weblab.comm.server as RemoteFacadeServer

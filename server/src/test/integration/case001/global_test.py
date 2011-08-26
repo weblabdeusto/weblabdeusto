@@ -14,7 +14,7 @@
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
-from test.util.ModuleDisposer import uses_module, case_uses_module
+from test.util.module_disposer import uses_module, case_uses_module
 from experiments.ud_xilinx.command_senders import SerialPortCommandSender
 from experiments.ud_xilinx.programmers import XilinxImpactProgrammer
 import sys

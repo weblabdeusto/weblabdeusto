@@ -29,7 +29,7 @@ import voodoo.configuration as ConfigurationManager
 import test.unit.configuration as configuration
 
 import voodoo.sessions.session_id as SessionId
-from test.util.ModuleDisposer import uses_module
+from test.util.module_disposer import uses_module
 
 USERNAME         ='myusername'
 PASSWORD         ='mypassword'
