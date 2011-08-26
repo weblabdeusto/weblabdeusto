@@ -13,7 +13,7 @@
 # Author: Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
-from VirtualMachineManager import VirtualMachineManager
+from weblab.experiment.devices.vm.manager import VirtualMachineManager
 from voodoo.override import Override
 
 class VirtualMachineDummy(VirtualMachineManager):

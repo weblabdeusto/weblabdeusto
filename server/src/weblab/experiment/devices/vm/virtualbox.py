@@ -20,7 +20,7 @@ import subprocess
 from voodoo.log import logged
 import voodoo.log as log
 
-from VirtualMachineManager import VirtualMachineManager
+from weblab.experiment.devices.vm.manager import VirtualMachineManager
 from voodoo.override import Override
 
 DEBUG = True

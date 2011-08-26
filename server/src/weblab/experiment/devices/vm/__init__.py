@@ -13,7 +13,7 @@
 # Author: Luis Rodr�guez <luis.rodriguez@opendeusto.es>
 # 
 
-import VirtualMachineManager
+import manager as VirtualMachineManager
 import dummy as VirtualMachineDummy
 import virtualbox as VirtualBox
 
