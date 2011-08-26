@@ -31,10 +31,6 @@ class ExperimentDoesNotExistException(BotException):
     def __init__(self, *args, **kargs):
         BotException.__init__(self, *args, **kargs)
 
-class UnknownBotUserNameException(BotException):
-    def __init__(self, *args, **kargs):
-        BotException.__init__(self, *args, **kargs)
-
 class UserAssertionException(BotException):
     def __init__(self, *args, **kargs):
         BotException.__init__(self, *args, **kargs)
