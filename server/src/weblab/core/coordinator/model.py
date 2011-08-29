@@ -136,37 +136,11 @@ class SchedulingSchemaIndependentSlotReservation(Base):
     current_resource_slot_id = Column(Integer, ForeignKey("CurrentResourceSlots.id"))
     current_resource_slot    = relation(CurrentResourceSlot, backref=backref("slot_reservations", order_by=id))
 
-    # 
-    # When the time is finished and the experiment must be disposed, this class will manage it.
-    # In order to do so:
-    # 
-    #  1. The "disposing" column will be set to True.
-    # 
-    #  2. The "currently_calling_dispose" will be set to True when the "dispose" method is actually being called in the experiment server.
-    # 
-    #  3. After the method "dispose" is called:
-    #     3.1. The "currently_calling_dispose" will be set to False.
-    #     3.2. If the method finished, the SchedulingSchemaIndependentSlotReservation will be removed, so any scheduler can start using it.
-    #     3.3. If the method said that the dispose method must be called in 5 seconds, then:
-    #       3.3.1. The "latest_dispose" will be set to the moment when the method returned
-    #       3.3.2. The "next_dispose_milliseconds" will be set to 5000
-    # 
-    #  4. The thread which called dispose() for the first time will stay calling dispose() until the experiment server says that it has finished or the experiment is broken. This loop will be in step 3 until "3.2" is reached.
-    # 
-
-    disposing                        = Column(Boolean)
-    latest_dispose                   = Column(DateTime)
-    next_dispose_milliseconds        = Column(Integer)
-
     def __init__(self, current_resource_slot):
         self.current_resource_slot = current_resource_slot
-        self.disposing = False
-        self.latest_dispose = None
-        self.next_dispose_milliseconds = 0
 
     def __repr__(self):
-        return "SchedulingSchemaIndependentSlotReservation(%r, %r, %r, %r)" % (self.current_resource_slot,
-                    self.disposing, self.latest_dispose, self.next_dispose_milliseconds)
+        return "SchedulingSchemaIndependentSlotReservation(id=%r, current_resource_slot=%r)" % (id, self.current_resource_slot)
 
 ######################################################################################
 # 
@@ -321,65 +295,11 @@ class CurrentReservation(Base):
     id                               = Column(String(RESERVATION_ID_SIZE), ForeignKey('Reservations.id'), primary_key = True)
     reservation                      = relation(Reservation, backref=backref('current_reservations', order_by=id))
 
-    # 
-    # While initializing, the system will have to keep asking the experiment server if it has
-    # been initialized every few time. This time is defined by the experiment server. For 
-    # instance, it could say "don't ask me in 30 seconds", or "please ask me in 0.2 seconds".
-    # However, given that there are different servers asking for the state concurrently, the
-    # table must check that only one of them calls the is_initializing method.
-    # 
-    # While this could be implemented as a set of commands, the purpose of the is_initializing
-    # method is to avoid being taken into account in the time restrictions of the experiment.
-    # For instance, in the University of Deusto we have experiments which use Xilinx devices,
-    # and the devices can be programmed with a serial port or with a JTAG Blazer, and they
-    # will take more or less time. If you establish that a user has 3 minutes, and depending on
-    # the device being used it will become 2 minutes, problems arise.
-    # 
-    # If all the fields below are set to NULL, it means that it has finish the initialization
-    #
-    # Therefore, once a server performs a call, it will store the result, establishing:
-    # 
-    # - When the latest initialization finished
-    # 
-
-    latest_initialization            = Column(DateTime)
-
-    # 
-    # - How long in milliseconds the servers should wait
-    # 
-    next_initialization_milliseconds = Column(Integer)
-
-    #
-    # - If an initialization process is being held at the moment. This is a call to the 
-    #   is_initializing() method, not the fact of being initialized.
-    #
-    currently_calling_initialization = Column(Boolean)
-
-    # 
-    # - Who is initializing the system. If two processes see that currently_calling_initialization 
-    #   is false and that it's time to query is_initializing, and both set currently_calling_initialization 
-    #   true,  both could query. In order to avoid this, they also have to sign that they're the 
-    #   one who will actually perform the task and later check that they're the one who do this.
-    # 
-    initializer                      = Column(String(30)) # Something like "Thread-10@process1"
-
-    def __init__(self, id, latest_initialization = None, next_initialization_milliseconds = None):
+    def __init__(self, id):
         self.id = id
 
-        self.latest_initialization            = latest_initialization
-        self.next_initialization_milliseconds = next_initialization_milliseconds
-        self.currently_calling_initialization = False
-        self.initializer                      = None
-
-    def next_initialization(self, now, millis):
-        self.latest_initialization            = now
-        self.next_initialization_milliseconds = millis
-
-    def is_initialized(self):
-        return self.latest_initialization is None or self.next_initialization_milliseconds is None
-
     def __repr__(self):
-        return "CurrentReservation(%r, %r, %r, %r, %r)" % (self.reservation, self.latest_initialization, self.next_initialization_milliseconds, self.currently_calling_initialization, self.initializer)
+        return "CurrentReservation(id=%r, reservation=%r)" % (self.id, self.reservation)
 
 ##########################################################################################
 # 
