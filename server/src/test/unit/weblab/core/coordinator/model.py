@@ -59,6 +59,10 @@ class CoordinatorModelTestCase(unittest.TestCase):
         current_reservation = CM.CurrentReservation("hi")
         repr(current_reservation) # No exception is raised
 
+    def test_repr_pending_to_finish_reservation(self):
+        pending_reservation = CM.PendingToFinishReservation("hi")
+        repr(pending_reservation) # No exception is raised
+
     def test_repr_post_reservation_retrieved_data(self):
         post_reservation_retrieved_data = CM.PostReservationRetrievedData("foobar", True, datetime.datetime.now(), datetime.datetime.now(), "{}", "{}")
         repr(post_reservation_retrieved_data) # No exception is raised

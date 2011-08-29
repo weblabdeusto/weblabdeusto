@@ -301,6 +301,28 @@ class CurrentReservation(Base):
     def __repr__(self):
         return "CurrentReservation(id=%r, reservation=%r)" % (self.id, self.reservation)
 
+######################################################################################
+# 
+# Different threads and servers might try to finish a reservation for different 
+# reasons: user request to cancel a reservation, experiment notifying that the session
+# should end, a timeout, etc. In order to coordinate them and avoid two concurrent
+# calls to finish(), we use this temporal table. Every server trying to dispose a 
+# reservation will add the reservation_id. If they don't fail, they do the process. 
+# But if they fail because someone else added it first, they skip it.
+# 
+
+class PendingToFinishReservation(Base):
+    __tablename__  = 'PendingToFinishReservations'
+    __table_args__ = TABLE_KWARGS
+
+    id                               = Column(String(RESERVATION_ID_SIZE), primary_key = True)
+
+    def __init__(self, id):
+        self.id = id
+
+    def __repr__(self):
+        return "PendingToFinishReservation(id=%r)" % self.id
+
 ##########################################################################################
 # 
 # Whenever a experiment finishes, it stores the information in the main database. However,

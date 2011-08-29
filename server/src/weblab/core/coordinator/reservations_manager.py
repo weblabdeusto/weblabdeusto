@@ -13,8 +13,10 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-from weblab.core.coordinator.model import Reservation, CurrentReservation, ExperimentType
+from weblab.core.coordinator.model import Reservation, CurrentReservation, ExperimentType, PendingToFinishReservation
 import weblab.core.coordinator.exc as CoordExc
+
+from sqlalchemy.exc import IntegrityError, OperationalError, ConcurrentModificationError
 
 import json
 
@@ -104,6 +106,20 @@ class ReservationsManager(object):
 
         return reservation_ids
 
+    def initialize_deletion(self, reservation_id):
+        session = self._session_maker()
+        try:
+            pending = PendingToFinishReservation(reservation_id)
+            session.add(pending)
+            try:
+                session.commit()
+                return True
+            except (IntegrityError, OperationalError, ConcurrentModificationError):
+                # Somebody else is deleting it
+                return False
+        finally:
+            session.close()
+
     def delete(self, session, reservation_id):
         reservation = session.query(Reservation).filter_by(id=reservation_id).first()
         if reservation is not None:
@@ -111,4 +127,8 @@ class ReservationsManager(object):
             if current_reservation is not None:
                 session.delete(current_reservation)
             session.delete(reservation)
+
+        pending_to_finish = session.query(PendingToFinishReservation).filter_by(id=reservation_id).first()
+        if pending_to_finish is not None:
+            session.delete(pending_to_finish)
 
