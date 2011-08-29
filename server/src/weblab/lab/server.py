@@ -306,10 +306,27 @@ class LaboratoryServer(object):
     @caller_check(ServerType.UserProcessing)
     def do_experiment_is_up_and_running(self, experiment_instance_id):
         """Does the experiment server consider that the experiment is up and running? This method will only
-        be called by teh coordinator whenever there is an available slot, so the experiment server can 
+        be called by the coordinator whenever there is an available slot, so the experiment server can 
         perform a test knowing that it is not going to be interrupted."""
-        experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
-        self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
+        api = self._assigned_experiments.get_api(experiment_instance_id)
+        if api == ExperimentApiLevel.level_1:
+            return (0, '') # No way to know this information; don't ask again
+        else:
+            experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
+            experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
+            return experiment_server.is_up_and_running()
+
+    @logged(log.level.Info)
+    @caller_check(ServerType.UserProcessing)
+    def do_should_experiment_finish(self, experiment_instance_id):
+        """Does the experiment server consider that it should finish current session?"""
+        api = self._assigned_experiments.get_api(experiment_instance_id)
+        if api == ExperimentApiLevel.level_1:
+            return 0 # No way to know this information: don't ask again
+        else:
+            experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
+            experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
+            return experiment_server.should_finish()
 
     # 
     # TODO

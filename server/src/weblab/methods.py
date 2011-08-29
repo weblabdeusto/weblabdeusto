@@ -38,7 +38,8 @@ Laboratory = [
         'check_async_command_status',
         'resolve_experiment_address',
         'check_experiments_resources',
-        'experiment_is_up_and_running'
+        'experiment_is_up_and_running',
+        'should_experiment_finish',
     ]
 
 Translator = [
@@ -54,7 +55,7 @@ Experiment = [
         'start_experiment',
         'send_file_to_device',
         'send_command_to_device',
-        'should_experiment_finish',
+        'should_finish',
         'dispose',
         'is_up_and_running',
     ]

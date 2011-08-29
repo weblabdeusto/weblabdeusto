@@ -27,7 +27,7 @@ class Experiment(object):
         # from the experiments whether a command is being executed from it
         # (and hence synchronously) or from a different thread (and hence
         # asynchronously).
-        self._thread_ident = threading.currentThread().getName()
+        self._thread_ident = threading.current_thread().ident
         
     def _is_main_thread(self):
         """
@@ -35,7 +35,7 @@ class Experiment(object):
         If it isn't, we can assume that the particular request is being
         executed asynchronously, from a different thread.
         """
-        return self._thread_ident == threading.currentThread().getName()
+        return self._thread_ident == threading.current_thread().ident
 
     def do_start_experiment(self, client_initial_data, server_initial_data):
         # Default implementation: empty
@@ -57,42 +57,42 @@ class Experiment(object):
                 "send_command_to_device has not been implemented in this experiment"
             )
 
-    def do_should_experiment_finish(self):
-        # 
-        # Should the experiment finish? If the experiment server should be able to
-        # say "I've finished", it will be asked every few time; if the experiment
-        # is completely interactive (so it's up to the user and the permissions of
-        # the user to say when the session should finish), it will never be asked.
-        # 
-        # Therefore, this method will return a numeric result, being:
-        #   - result > 0: it hasn't finished but ask within result seconds.
-        #   - result == 0: completely interactive, don't ask again
-        #   - result == -1: it has finished.
-        # 
+    def do_should_finish(self):
+        """ 
+        Should the experiment finish? If the experiment server should be able to
+        say "I've finished", it will be asked every few time; if the experiment
+        is completely interactive (so it's up to the user and the permissions of
+        the user to say when the session should finish), it will never be asked.
+         
+        Therefore, this method will return a numeric result, being:
+          - result > 0: it hasn't finished but ask within result seconds.
+          - result == 0: completely interactive, don't ask again
+          - result == -1: it has finished.
+        """
         return 0
 
     def do_dispose(self):
-        # 
-        # Default implementation: yes, I have finished.
-        # 
+        """
+        Experiment should clean the resources now, and optionally return data. Default implementation: yes, I have finished.
+        """ 
         return json.dumps({ Coordinator.FINISH_FINISHED_MESSAGE : True, Coordinator.FINISH_DATA_MESSAGE : ""})
 
     def do_is_up_and_running(self):
-        # 
-        # Is the experiment up and running?
-        # 
-        # The scheduling system will ensure that the experiment will not be
-        # assigned to other student while this method is called. The result
-        # is an array of integer + String, where the first argument is:
-        # 
-        #   - result >= 0: "the experiment is OK; please check again 
-        #                  within $result seconds"
-        #   - result == 0: the experiment is OK and I can't perform a proper
-        #                  estimation
-        #   - result == -1: "the experiment is broken"
-        # 
-        # And the second (String) argument is the message detailing while 
-        # it failed
-        # 
+        """
+        Is the experiment up and running?
+        
+        The scheduling system will ensure that the experiment will not be
+        assigned to other student while this method is called. The result
+        is an array of integer + String, where the first argument is:
+        
+          - result >= 0: "the experiment is OK; please check again 
+                         within $result seconds"
+          - result == 0: the experiment is OK and I can't perform a proper
+                         estimation
+          - result == -1: "the experiment is broken"
+        
+        And the second (String) argument is the message detailing while 
+        it failed
+        """
         return (600, '') # Default value: check every 10 minutes
 
