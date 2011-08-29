@@ -146,23 +146,18 @@ class SessionMemoryGateway(object):
 
     def has_session(self, session_id):
         lock, sessions = self._get_lock_and_sessions(session_id)
-        lock.acquire()
-        try:
+        with lock:
             return sessions.has_key(session_id)
-        finally:
-            lock.release()
 
     def get_session_obj(self, session_id):
         lock, sessions = self._get_lock_and_sessions(session_id)
-        lock.acquire()
-        try:
+        with lock:
             if not sessions.has_key(session_id):
                 raise SessionExceptions.SessionNotFoundException(
                             "Session not found: " + session_id
                         )
             session = sessions[session_id]
-        finally:
-            lock.release()
+
         return session
 
     def get_session(self,session_id):
@@ -177,27 +172,21 @@ class SessionMemoryGateway(object):
         if self._serialize:
             sess_obj = self._serializer.serialize(sess_obj)
         lock, sessions = self._get_lock_and_sessions(sess_id)
-        lock.acquire()
-        try:
+        with lock:
             if not sessions.has_key(sess_id):
                 raise SessionExceptions.SessionNotFoundException(
                             "Session not found: " + sess_id
                         )
             sessions[sess_id] = SessionObj(sess_obj)
-        finally:
-            lock.release()
 
     def get_session_locking(self, session_id):
         lock, sessions = self._get_lock_and_sessions(session_id)
         session_locks  = self._get_session_lock(session_id)
-        lock.acquire()
-
-        try:
+        
+        with lock:
             session  = self.get_session(session_id)
             lck      = session_locks[session_id]
             acquired = lck.acquire(False)
-        finally:
-            lock.release()
         
         if not acquired:
             lck.acquire()
@@ -209,8 +198,7 @@ class SessionMemoryGateway(object):
         lock, sessions = self._get_lock_and_sessions(session_id)
         session_locks  = self._get_session_lock(session_id)
 
-        lock.acquire()
-        try:
+        with lock:
             try:
                 self.modify_session(session_id, sess_obj)
             finally:
@@ -219,19 +207,27 @@ class SessionMemoryGateway(object):
                 except KeyError:
                     # It has been deleted while modifying. Do nothing.
                     pass
-        finally:
-            lock.release()
+
+    def unlock_without_modifying(self, session_id):
+        lock, sessions = self._get_lock_and_sessions(session_id)
+        session_locks  = self._get_session_lock(session_id)
+
+        with lock:
+            try:
+                session_locks[session_id].release()
+            except KeyError:
+                # It has been deleted while modifying. Do nothing.
+                pass
+
 
     def list_sessions(self):
         total_session_ids = []
         for first_chars in self._sessions:
             lock, sessions = self._sessions[first_chars]
-            lock.acquire()
-            try:
+            with lock:
                 for session_id in sessions:
                     total_session_ids.append(session_id)
-            finally:
-                lock.release()
+
         return total_session_ids
 
     def clear(self):
@@ -240,19 +236,15 @@ class SessionMemoryGateway(object):
         for first_chars in self._sessions:
             lock, sessions = self._sessions[first_chars]
             session_locks  = self._session_locks[first_chars]
-            lock.acquire()
-            try:
+            with lock:
                 sessions.clear()
                 session_locks.clear()
-            finally:
-                lock.release()
 
     def delete_session(self,session_id):
         lock, sessions = self._get_lock_and_sessions(session_id)
         session_locks  = self._get_session_lock(session_id)
 
-        lock.acquire()
-        try:
+        with lock:
             if sessions.has_key(session_id):
                 sessions.pop(session_id)
                 session_locks.pop(session_id)
@@ -260,15 +252,12 @@ class SessionMemoryGateway(object):
                 raise SessionExceptions.SessionNotFoundException(
                             "Session not found: " + session_id
                         )
-        finally:
-            lock.release()
 
     def delete_session_unlocking(self,session_id):
         lock, sessions = self._get_lock_and_sessions(session_id)
         session_locks  = self._get_session_lock(session_id)
 
-        lock.acquire()
-        try:
+        with lock:
             if sessions.has_key(session_id):
                 sessions.pop(session_id)
                 session_lock = session_locks.pop(session_id)
@@ -277,6 +266,4 @@ class SessionMemoryGateway(object):
                 raise SessionExceptions.SessionNotFoundException(
                             "Session not found: " + session_id
                         )
-        finally:
-            lock.release()
 

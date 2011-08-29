@@ -28,7 +28,7 @@ except ImportError:
 import libraries
 import Configuration as Cfg
 
-from weblab.admin.bot.Launcher import BotLauncher
+from weblab.admin.bot.launcher import BotLauncher
 
 if __name__ == "__main__":
 

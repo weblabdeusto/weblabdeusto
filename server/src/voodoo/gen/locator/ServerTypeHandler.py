@@ -12,7 +12,6 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
-import sys
 import voodoo.gen.exceptions.locator.LocatorExceptions as LocatorExceptions
 
 class ServerTypeHandler(object):

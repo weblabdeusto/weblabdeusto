@@ -81,11 +81,11 @@ def check_session(
                             modified = True
                     else:
                         modified = True
-
-                    session_manager.modify_session_unlocking(
-                        session_id,
-                        session
-                    )
+                    
+                    if modified:
+                        session_manager.modify_session_unlocking( session_id, session )
+                    else:
+                        session_manager.unlock_without_modifying( session_id )                       
                 return return_value
             else:
                 raise exception_to_raise(
