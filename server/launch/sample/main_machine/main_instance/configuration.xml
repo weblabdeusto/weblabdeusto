@@ -10,7 +10,6 @@
 	<server>login1</server>
 	<server>core1</server>
 	<server>proxy1</server>
-	<server>translator1</server>
 	<server>laboratory1</server>
 	<server>experiment_pld</server>
 	<server>experiment_demo_pld</server>
