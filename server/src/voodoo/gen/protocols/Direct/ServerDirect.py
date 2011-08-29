@@ -18,7 +18,7 @@ import voodoo.log as log
 import pickle
 
 _SERVER_PREFIX = '__server__'
-DUPLICATE=True
+DUPLICATE=False
 
 def _generate_skeleton(METHOD_NAME):
     # Skeleton of method to dynamically generate

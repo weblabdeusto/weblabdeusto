@@ -121,6 +121,9 @@ class UserProcessor(object):
         return list_experiments(self._db_manager, db_session_id)
 
     def get_user_information(self):
+        if 'user_information' in self._session:
+            return self._session['user_information']
+
         db_session_id               = self._session['db_session_id']
         user_information            = get_user_information(self._db_manager, db_session_id)
         self._session['user_information'] = user_information
@@ -140,7 +143,8 @@ class UserProcessor(object):
 
         context = RemoteFacadeContext.get_context()
 
-        user_information = self.get_user_information()
+        # Put user information in the session
+        self.get_user_information()
 
         self._session['experiment_id'] = experiment_id
 
@@ -172,7 +176,6 @@ class UserProcessor(object):
                     "User can't access that experiment (or that experiment type does not exist)"
             )
 
-        user_information = self.get_user_information()
         experiment_allowed = experiments[0]
         try:
             status, reservation_id    = self._coordinator.reserve_experiment(

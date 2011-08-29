@@ -171,6 +171,8 @@ class SessionSqlalchemyGateway(object):
         finally:
             self._lock.release(sess_id)
 
+    def unlock_without_modifying(self, sess_id):
+        self._lock.release(sess_id)
 
     def list_sessions(self):
         session = self._session_maker()

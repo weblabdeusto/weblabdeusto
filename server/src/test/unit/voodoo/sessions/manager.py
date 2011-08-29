@@ -152,13 +152,28 @@ class SessionManagerTestCase(unittest.TestCase):
     def session_tester_locking(self,server):
         sess_id = server.create_session()
         information = { 'test':'mytest' }
-        invalid_information = {'test':threading.Lock()}
 
         server.modify_session(sess_id,information)
 
         session = server.get_session_locking(sess_id)
         session['test2'] = 'mytest2'
         server.modify_session_unlocking(sess_id, session)
+
+        self.assertEquals(
+                'mytest2',
+                server.get_session(sess_id)['test2']
+            )
+
+    def session_tester_locking_2steps(self,server):
+        sess_id = server.create_session()
+        information = { 'test':'mytest' }
+
+        server.modify_session(sess_id,information)
+
+        session = server.get_session_locking(sess_id)
+        session['test2'] = 'mytest2'
+        server.modify_session(sess_id, session)
+        server.unlock_without_modifying(sess_id)
 
         self.assertEquals(
                 'mytest2',
@@ -207,6 +222,9 @@ class SessionManagerTestCase(unittest.TestCase):
     def test_memory_session_locking(self):
         self.session_tester_locking(self.memory_server1)
 
+    def test_memory_session_locking_2steps(self):
+        self.session_tester_locking_2steps(self.memory_server1)
+
     def test_memory_session_list_sessions(self):
         self.session_tester_list_sessions(self.memory_server1)
 
@@ -222,6 +240,9 @@ class SessionManagerTestCase(unittest.TestCase):
     def test_sqlalchemy_session_locking(self):
         self.session_tester_locking(self.sqlalchemy_server1)
         
+    def test_sqlalchemy_session_locking_2steps(self):
+        self.session_tester_locking_2steps(self.sqlalchemy_server1)
+
     def test_sqlalchemy_session_list_sessions(self):
         self.session_tester_list_sessions(self.sqlalchemy_server1)
 

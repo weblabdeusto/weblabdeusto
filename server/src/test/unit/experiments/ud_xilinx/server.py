@@ -17,7 +17,6 @@
 from mock import patch
 import experiments.ud_xilinx.exc as UdXilinxExperimentExceptions
 from experiments.ud_xilinx import command_senders as UdXilinxCommandSenders
-from test.util.fakeobjects import return_values
 import test.unit.configuration as configuration_module
 import unittest
 import voodoo.configuration as ConfigurationManager

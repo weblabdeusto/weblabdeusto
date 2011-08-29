@@ -133,6 +133,14 @@ class SessionManager(object):
                 "Not a SessionId: %s " % sess_id
             )
 
+    def unlock_without_modifying(self,sess_id):
+        if isinstance(sess_id,SessionId.SessionId):
+            return self.gateway.unlock_without_modifying(sess_id.id)
+        else:
+            raise SessionExceptions.SessionInvalidSessionIdException(
+                "Not a SessionId: %s " % sess_id
+            )
+
     def list_sessions(self):
         return [ SessionId.SessionId(sid) for sid in self.gateway.list_sessions() ]
 
