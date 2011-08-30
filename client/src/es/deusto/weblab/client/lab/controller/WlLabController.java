@@ -39,6 +39,7 @@ import es.deusto.weblab.client.lab.comm.IWlLabCommunication;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
+import es.deusto.weblab.client.lab.comm.exceptions.NoCurrentReservationException;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
@@ -351,9 +352,12 @@ public class WlLabController implements IWlLabController {
 					}
 					@Override
 					public void onFailure(WlCommException e) {
-						// TODO: 
-						WlLabController.this.uimanager.onErrorAndFinishReservation(e.getMessage());
-						WlLabController.this.finishReservation();
+						if(e instanceof NoCurrentReservationException){
+							// XXX: tell experiment that it has finished
+						}else{
+							WlLabController.this.uimanager.onErrorAndFinishReservation(e.getMessage());
+							WlLabController.this.finishReservation();
+						}
 					}
 				}
 			);

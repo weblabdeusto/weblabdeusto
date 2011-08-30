@@ -22,22 +22,30 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.ui.widgets.IWlWidget;
 
 public abstract class BoardBase implements IWlWidget{
+	
 	public interface IBoardBaseController{
 		
+		// Retrieving general information
 		public boolean isFacebook();
 		public SessionID getSessionId();
+		
+		// Sending commands
 		public void sendCommand(Command command);
 		public void sendCommand(Command command, IResponseCommandCallback callback);
-	        public void sendCommand(String command);
+	    public void sendCommand(String command);
 		public void sendCommand(String command, IResponseCommandCallback callback);
 		
+		// Sending async commands
 		public void sendAsyncCommand(Command command);
 		public void sendAsyncCommand(Command command, IResponseCommandCallback callback);
 		public void sendAsyncCommand(String command);
 		public void sendAsyncCommand(String command, IResponseCommandCallback callback);
 		
+		// Sending files
 		public void sendFile(UploadStructure uploadStructure, IResponseCommandCallback callback);
 		public void sendAsyncFile(UploadStructure uploadStructure, IResponseCommandCallback callback);
+		
+		// Cleaning
 		public void onClean();
 	}
 	
@@ -78,7 +86,7 @@ public abstract class BoardBase implements IWlWidget{
 	
 	/**
 	 * User experiment session finished. The experiment should clean 
-	 * its resources. 
+	 * its resources, or notify the user that it has finished.
 	 */
 	public void end(){}
 	
