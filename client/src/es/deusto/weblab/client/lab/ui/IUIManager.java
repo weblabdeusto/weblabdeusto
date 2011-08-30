@@ -20,7 +20,6 @@ import es.deusto.weblab.client.dto.reservations.WaitingConfirmationReservationSt
 import es.deusto.weblab.client.dto.reservations.WaitingInstancesReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingReservationStatus;
 import es.deusto.weblab.client.dto.users.User;
-import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.exceptions.WlExperimentException;
 
 public interface IUIManager {
@@ -31,10 +30,10 @@ public interface IUIManager {
 	public void onInit();
     public void onLoggedIn(User user);
     public void onAllowedExperimentsRetrieved(ExperimentAllowed[] experimentsAllowed);
-    public void onExperimentChosen(ExperimentAllowed experimentAllowed, ExperimentBase experimentBase);
+    public void onExperimentChosen(ExperimentAllowed experimentAllowed, BoardBase experimentBase);
     public void onWaitingReservation(WaitingReservationStatus reservationStatus);
     public void onWaitingReservationConfirmation(WaitingConfirmationReservationStatus reservationStatus);
-    public void onExperimentReserved(ConfirmedReservationStatus reservationStatus, ExperimentID experimentID, ExperimentBase experimentBase) throws WlExperimentException;
+    public void onExperimentReserved(ConfirmedReservationStatus reservationStatus, ExperimentID experimentID, BoardBase experimentBase) throws WlExperimentException;
 	public void onReservationFinished();
 	public void onLoggedOut();
 	

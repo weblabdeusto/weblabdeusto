@@ -28,7 +28,6 @@ import com.google.gwt.user.client.ui.Widget;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.users.User;
-import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.LoggedPanel.ILoggedPanelCallback;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
@@ -67,8 +66,7 @@ class ExperimentWindow extends BaseWindow {
 	
 	// DTOs
 	private final ExperimentAllowed experimentAllowed;
-	private final ExperimentBase experimentBase;
-	private final BoardBase boardBase;
+	private final BoardBase experimentBase;
 	private final User user;	
 	
 	// Callback
@@ -76,13 +74,12 @@ class ExperimentWindow extends BaseWindow {
 	
 	public ExperimentWindow(IConfigurationManager configurationManager,
 			User user, ExperimentAllowed experimentAllowed,
-			ExperimentBase experimentBase,
+			BoardBase experimentBase,
 			IExperimentWindowCallback callback) {
 		super(configurationManager);
 
 		this.experimentAllowed = experimentAllowed;
 		this.experimentBase    = experimentBase;
-		this.boardBase         = experimentBase.getUI();
 		this.callback          = callback;
 		this.user              = user;
 		
@@ -104,8 +101,8 @@ class ExperimentWindow extends BaseWindow {
 		
 		// Important note: this order is important. Otherwise the FileUpload will cause problems
 		this.experimentArea.clear();
-		this.experimentArea.add(this.boardBase.getWidget());	
-		this.boardBase.initialize();
+		this.experimentArea.add(this.experimentBase.getWidget());	
+		this.experimentBase.initialize();
 		// end of Important note
 	}
 	
@@ -141,8 +138,8 @@ class ExperimentWindow extends BaseWindow {
 	    
 		// This can't be before adding the widget to the DOM tree 
 		// If it's done, applets will not work 
-		this.experimentBase.getUI().start(time, initialConfiguration);
-		this.experimentBase.getUI().setTime(time);
+		this.experimentBase.start(time, initialConfiguration);
+		this.experimentBase.setTime(time);
 	}
 	
 	@UiHandler("finishButton")

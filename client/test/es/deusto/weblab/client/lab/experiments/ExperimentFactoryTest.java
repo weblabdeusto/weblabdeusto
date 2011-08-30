@@ -25,10 +25,11 @@ import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentNotFoundException;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.WebLabXilinxExperiment;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.WebLabGpibExperiment;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib1.WebLabGpib1Experiment;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib2.WebLabGpib2Experiment;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.ui.WlDeustoGpibBoard;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib1.ui.WlDeustoGpib1Board;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib2.ui.WlDeustoGpib2Board;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.ui.WlDeustoXilinxBasedBoard;
+import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
 
 public class ExperimentFactoryTest extends GWTTestCase {
@@ -36,10 +37,10 @@ public class ExperimentFactoryTest extends GWTTestCase {
 	private static class ExperimentLoadedCallback implements IExperimentLoadedCallback{
 
 		Throwable lastThrowable;
-		ExperimentBase lastExperiment;
+		BoardBase lastExperiment;
 		
 		@Override
-		public void onExperimentLoaded(ExperimentBase experiment) {
+		public void onExperimentLoaded(BoardBase experiment) {
 			this.lastExperiment = experiment;
 		}
 
@@ -199,19 +200,19 @@ public class ExperimentFactoryTest extends GWTTestCase {
 		final ExperimentLoadedCallback callback = new ExperimentLoadedCallback();
 		
 		factory.experimentFactory(new ExperimentID(new Category("PLD experiments"), "ud-pld"), callback, false);
-		Assert.assertTrue(callback.lastExperiment instanceof WebLabXilinxExperiment);
+		Assert.assertTrue(callback.lastExperiment instanceof WlDeustoXilinxBasedBoard);
 		
 		factory.experimentFactory(new ExperimentID(new Category("FPGA experiments"), "ud-fpga"), callback, false);
-		Assert.assertTrue(callback.lastExperiment instanceof WebLabXilinxExperiment);
+		Assert.assertTrue(callback.lastExperiment instanceof WlDeustoXilinxBasedBoard);
 		
 		factory.experimentFactory(new ExperimentID(new Category("GPIB experiments"), "ud-gpib"), callback, false);
-		Assert.assertTrue(callback.lastExperiment instanceof WebLabGpibExperiment);
+		Assert.assertTrue(callback.lastExperiment instanceof WlDeustoGpibBoard);
 		
 		factory.experimentFactory(new ExperimentID(new Category("GPIB experiments"), "ud-gpib1"), callback, false);
-		Assert.assertTrue(callback.lastExperiment instanceof WebLabGpib1Experiment);
+		Assert.assertTrue(callback.lastExperiment instanceof WlDeustoGpib1Board);
 	
 		factory.experimentFactory(new ExperimentID(new Category("GPIB experiments"), "ud-gpib2"), callback, false);
-		Assert.assertTrue(callback.lastExperiment instanceof WebLabGpib2Experiment);
+		Assert.assertTrue(callback.lastExperiment instanceof WlDeustoGpib2Board);
 	}
 
 	@Override

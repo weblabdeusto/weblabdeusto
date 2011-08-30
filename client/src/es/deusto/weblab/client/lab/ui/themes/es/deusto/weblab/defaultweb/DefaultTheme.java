@@ -27,7 +27,7 @@ import es.deusto.weblab.client.dto.reservations.WaitingInstancesReservationStatu
 import es.deusto.weblab.client.dto.reservations.WaitingReservationStatus;
 import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.lab.controller.IWlLabController;
-import es.deusto.weblab.client.lab.experiments.ExperimentBase;
+import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.lab.ui.WlLabThemeBase;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.AllowedExperimentsWindow.IAllowedExperimentsWindowCallback;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.ExperimentWindow.IExperimentWindowCallback;
@@ -55,7 +55,7 @@ public class DefaultTheme extends WlLabThemeBase {
 	private User user;
 	private ExperimentAllowed[] experimentsAllowed;
 	private ExperimentAllowed experimentAllowed;
-	private ExperimentBase experimentBase;
+	private BoardBase experimentBase;
 
 	public DefaultTheme(final IConfigurationManager configurationManager, final IWlLabController controller){
 		this.configurationManager = configurationManager;
@@ -104,7 +104,7 @@ public class DefaultTheme extends WlLabThemeBase {
 	}
 
 	@Override
-	public void onExperimentChosen(final ExperimentAllowed experimentAllowed, ExperimentBase experimentBase) {
+	public void onExperimentChosen(final ExperimentAllowed experimentAllowed, BoardBase experimentBase) {
 		this.experimentAllowed = experimentAllowed;
 		this.experimentBase = experimentBase;
 
@@ -126,7 +126,7 @@ public class DefaultTheme extends WlLabThemeBase {
 	}	
 
 	@Override
-	public void onExperimentReserved(ConfirmedReservationStatus reservationStatus, ExperimentID experimentID, ExperimentBase experimentBase){
+	public void onExperimentReserved(ConfirmedReservationStatus reservationStatus, ExperimentID experimentID, BoardBase experimentBase){
 		this.experimentBase = experimentBase;
 
 		// Important note: the calling order MUST be this or FileUpload will cause problems
@@ -136,7 +136,7 @@ public class DefaultTheme extends WlLabThemeBase {
 
 	@Override
 	public void onReservationFinished() {
-		this.experimentBase.getUI().end(); // Critical: Everything (i.e: timers) must be disposed.
+		this.experimentBase.end(); // Critical: Everything (i.e: timers) must be disposed.
 		this.controller.loadUserHomeWindow();
 	}	
 

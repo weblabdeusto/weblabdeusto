@@ -18,11 +18,11 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
-import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
-import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
+import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.ui.WlDeustoXilinxBasedBoard;
 import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
 
 public class WebLabXilinxCreatorFactory implements IExperimentCreatorFactory {
@@ -40,8 +40,10 @@ public class WebLabXilinxCreatorFactory implements IExperimentCreatorFactory {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						final ExperimentBase experiment = new WebLabXilinxExperiment(configurationRetriever, boardController);
-						callback.onExperimentLoaded(experiment);
+						callback.onExperimentLoaded(new WlDeustoXilinxBasedBoard(
+								configurationRetriever,
+								boardController
+							));
 					}
 					
 					@Override

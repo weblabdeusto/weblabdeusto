@@ -22,6 +22,7 @@ import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
 import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic2.ui.WlDeustoPic2BasedBoard;
 import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
 
 public class WebLabPic2CreatorFactory implements IExperimentCreatorFactory {
@@ -39,7 +40,10 @@ public class WebLabPic2CreatorFactory implements IExperimentCreatorFactory {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new WebLabPic2Experiment(configurationRetriever, boardController));
+						callback.onExperimentLoaded(new WlDeustoPic2BasedBoard(
+								configurationRetriever,
+								boardController
+							));
 					}
 					
 					@Override

@@ -22,6 +22,8 @@ import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
 import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.ui.MobileWlDeustoLogicBasedBoard;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.ui.WlDeustoLogicBasedBoard;
 import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
 
 public class WebLabLogicCreatorFactory implements IExperimentCreatorFactory {
@@ -39,7 +41,10 @@ public class WebLabLogicCreatorFactory implements IExperimentCreatorFactory {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new WebLabLogicExperiment(configurationRetriever, boardController));
+						callback.onExperimentLoaded(new WlDeustoLogicBasedBoard(
+								configurationRetriever,
+								boardController
+							));
 					}
 					
 					@Override
@@ -54,7 +59,10 @@ public class WebLabLogicCreatorFactory implements IExperimentCreatorFactory {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new MobileWebLabLogicExperiment(configurationRetriever, boardController));
+						callback.onExperimentLoaded(new MobileWlDeustoLogicBasedBoard(
+								configurationRetriever,
+								boardController
+							));
 					}
 					
 					@Override

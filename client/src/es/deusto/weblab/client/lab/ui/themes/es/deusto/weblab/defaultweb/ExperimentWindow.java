@@ -31,7 +31,6 @@ import es.deusto.weblab.client.HistoryProperties;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.users.User;
-import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.ui.widgets.WlUtil;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
@@ -85,10 +84,9 @@ class ExperimentWindow extends BaseWindow {
 	// DTOs
 	private final User user;
 	private final ExperimentAllowed experimentAllowed;
-	private final ExperimentBase experimentBase;
-	private final BoardBase boardBase;
+	private final BoardBase experimentBase;
     
-	public ExperimentWindow(IConfigurationManager configurationManager, User user, ExperimentAllowed experimentAllowed, ExperimentBase experimentBase, IExperimentWindowCallback callback){
+	public ExperimentWindow(IConfigurationManager configurationManager, User user, ExperimentAllowed experimentAllowed, BoardBase experimentBase, IExperimentWindowCallback callback){
 	    super(configurationManager);
 	
 	    this.user = user;
@@ -96,8 +94,6 @@ class ExperimentWindow extends BaseWindow {
 	    this.experimentBase = experimentBase;	
 	    this.callback = callback;
 	    
-	    this.boardBase = this.experimentBase.getUI();
-		
 	    this.loadWidgets();
 	}
 
@@ -133,8 +129,8 @@ class ExperimentWindow extends BaseWindow {
 		this.timeAllowedLabel.setText(this.experimentAllowed.getTimeAllowed()+"");
 
 		// Important note: this MUST be done here or FileUpload will cause problems
-		this.experimentAreaPanel.add(this.boardBase.getWidget());	
-		this.boardBase.initialize();
+		this.experimentAreaPanel.add(this.experimentBase.getWidget());	
+		this.experimentBase.initialize();
 		// end of Important note
 	}
 
@@ -148,8 +144,8 @@ class ExperimentWindow extends BaseWindow {
 
 	    // Important note: This can't be before adding the widget to the DOM tree 
 		// If it's done, applets will not work 
-		this.experimentBase.getUI().start(time, initialConfiguration);
-		this.experimentBase.getUI().setTime(time);
+		this.experimentBase.start(time, initialConfiguration);
+		this.experimentBase.setTime(time);
 		// end of Important note
 	}	
 
