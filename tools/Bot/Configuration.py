@@ -14,7 +14,7 @@
 #         Pablo Orduña <pablo@ordunya.com>
 #
 
-import sys, os, socket
+import sys, os, socket, subprocess
 sys.path.append(os.sep.join(('..','..','server','src')))
 
 import libraries
@@ -30,7 +30,7 @@ EXPERIMENT_NAME     = "ud-dummy"                        # Experiment name to int
 CATEGORY_NAME       = "Dummy experiments"               # Experiment category name to interact with
 PROGRAM_FILE        = "this is the content of the file" # Program file to send
 
-ITERATIONS          = 8                                # Times to repeat each launch
+ITERATIONS          = 3                                # Times to repeat each launch
 
 URL_MAPS            = {
                         "SOAP" : ("http://%s/weblab/soap/" % HOST, "http://%s/weblab/login/soap/" % HOST),
@@ -41,8 +41,16 @@ URL_MAPS            = {
 GENERATE_GRAPHICS   = True
 MATPLOTLIB_BACKEND  = 'cairo.pdf'
 STEP_DELAY          = 0.05
-REVISION            = 1372
-REVISION            = 1530
+
+try:
+    p=subprocess.Popen("hg identify -ni",shell=True,stdout=subprocess.PIPE)
+    p.wait()
+    REVISION=':'.join(p.stdout.read().strip().split())
+except Exception, e:
+    print "Could not gather revision:",e
+    import traceback
+    traceback.print_exc()
+    REVISION = "(unknown)"
 
 SYSTEMS = {
             "blood"         : "Intel(R) Core(TM)2 Duo CPU T7250@2.00GHz reduced to 1.60 GHz; 3.5 GB RAM (32 bit); Ubuntu 9.04 Desktop. Python 2.6.2. Linux 2.6.28-14-generic",
@@ -165,6 +173,7 @@ for protocol in URL_MAPS.keys():
                     number
                 )
             )
+    
     for number in range(5, 101, 5):
         SCENARIOS.append(
                 Scenario(
@@ -221,5 +230,5 @@ PORTS = {
         "sample_balanced2_concurrent_experiments/launch_sample_balanced2_concurrent_experiments_machine.py" : _three_facades_ports,
     }
 
-RUNNING_CONFIGURATION = "r%s. %s iterations; step_delay: %s seconds; %s" % (REVISION, ITERATIONS, STEP_DELAY, CONFIGURATIONS)
+RUNNING_CONFIGURATION = "revision %s. %s iterations; step_delay: %s seconds; %s" % (REVISION, ITERATIONS, STEP_DELAY, CONFIGURATIONS)
 
