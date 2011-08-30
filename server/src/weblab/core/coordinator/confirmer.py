@@ -63,7 +63,7 @@ class ReservationConfirmer(object):
         else:
             end_time = datetime.datetime.now()
             experiment_coordaddress = CoordAddress.CoordAddress.translate_address(experiment_coordaddress_str)
-            self.coordinator.confirm_experiment(experiment_coordaddress, experiment_instance_id, reservation_id, lab_session_id, server_initialization_response, initial_time, end_time)
+            self.coordinator.confirm_experiment(experiment_coordaddress, experiment_instance_id, reservation_id, lab_coordaddress.address, lab_session_id, server_initialization_response, initial_time, end_time)
 
     def enqueue_free_experiment(self, lab_coordaddress_str, reservation_id, lab_session_id, experiment_instance_id):
         # We can stablish a policy such as using 
@@ -93,4 +93,21 @@ class ReservationConfirmer(object):
         else: # Everything went fine
             end_time = datetime.datetime.now()
             self.coordinator.confirm_resource_disposal(lab_coordaddress.address, reservation_id, lab_session_id, experiment_instance_id, experiment_response, initial_time, end_time)
+
+    def enqueue_should_finish(self, lab_coordaddress_str, lab_session_id, reservation_id):
+        lab_coordaddress = CoordAddress.CoordAddress.translate_address(lab_coordaddress_str)
+        self._should_finish(lab_coordaddress, lab_session_id, reservation_id)
+
+    @threaded(_resource_manager)
+    def _should_finish(self, lab_coordaddress, lab_session_id, reservation_id):
+        try:
+            labserver = self.locator.get_server_from_coordaddr(lab_coordaddress, ServerType.Laboratory)
+            received_experiment_response = labserver.should_experiment_finish(SessionId.SessionId(lab_session_id))
+            experiment_response = int(received_experiment_response)
+        except Exception as e:
+            log.log( ReservationConfirmer, log.level.Error, "Exception freeing experiment: %s" % e )
+            log.log_exc( ReservationConfirmer, log.level.Warning )
+            self.coordinator.confirm_should_finish(reservation_id, 0) # Don't try again with this reservation
+        else:
+            self.coordinator.confirm_should_finish(reservation_id, experiment_response)
 

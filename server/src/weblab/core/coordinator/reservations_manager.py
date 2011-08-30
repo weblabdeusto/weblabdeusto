@@ -109,11 +109,6 @@ class ReservationsManager(object):
     def initialize_deletion(self, reservation_id):
         session = self._session_maker()
         try:
-            current_reservation = session.query(CurrentReservation).filter_by(id=reservation_id).first()
-            if current_reservation is None:
-                # There is no current reservation for that experiment; don't try to finish it
-                return False
-
             pending = PendingToFinishReservation(reservation_id)
             session.add(pending)
             try:

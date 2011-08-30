@@ -323,7 +323,7 @@ class Coordinator(object):
     # Called when it is confirmed by the Laboratory Server.
     #
     @logged()
-    def confirm_experiment(self, experiment_coordaddress, experiment_instance_id, reservation_id, lab_session_id, server_initialization_response, initial_time, end_time):
+    def confirm_experiment(self, experiment_coordaddress, experiment_instance_id, reservation_id, lab_coord_address_str, lab_session_id, server_initialization_response, initial_time, end_time):
 
         default_still_initialing      = False
         default_batch                 = False
@@ -349,6 +349,7 @@ class Coordinator(object):
         request_info  = json.loads(serialized_request_info)
         experiment_id = experiment_instance_id.to_experiment_id()
 
+        # Put the entry into a queue that is continuosly storing information into the db
         initial_information_entry = TemporalInformationStore.InitialInformationEntry(
             reservation_id, experiment_id, experiment_coordaddress,
             initial_configuration, initial_time, end_time, request_info, 
@@ -361,7 +362,6 @@ class Coordinator(object):
 
         if still_initializing:
             # TODO XXX 
-            # TODO XXX: maybe it does not make sense. Given that finish also can return a result
             raise NotImplementedError("Not yet implemented: still_initializing")
 
         if batch: # It has already finished, so make this experiment available to others
@@ -371,6 +371,18 @@ class Coordinator(object):
         schedulers = self._get_schedulers_per_reservation(reservation_id)
         for scheduler in schedulers:
             scheduler.confirm_experiment(reservation_id, lab_session_id, initial_configuration)
+
+        # TODO
+        # self.confirmer.enqueue_should_finish(lab_coordaddress_str, lab_session_id, reservation_id)
+
+    ################################################################
+    #
+    # Called when the experiment returns information about if the 
+    # session should end or not.
+    #
+    @logged()
+    def confirm_should_finish(self, reservation_id, experiment_response):
+        pass
 
     ################################################################
     #
