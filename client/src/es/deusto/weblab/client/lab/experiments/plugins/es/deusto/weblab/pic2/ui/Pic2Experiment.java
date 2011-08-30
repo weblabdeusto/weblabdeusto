@@ -33,7 +33,7 @@ import es.deusto.weblab.client.ui.widgets.WlWebcam;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 @SuppressWarnings("unqualified-field-access")
-public class Pic2BasedBoard extends ExperimentBase{
+public class Pic2Experiment extends ExperimentBase{
 	
 	protected static final boolean DEBUG_ENABLED = true;
 	
@@ -53,7 +53,7 @@ public class Pic2BasedBoard extends ExperimentBase{
 	private UploadStructure uploadStructure;
 	
 	
-	public Pic2BasedBoard(IConfigurationRetriever configurationRetriever, final IBoardBaseController boardController){
+	public Pic2Experiment(IConfigurationRetriever configurationRetriever, final IBoardBaseController boardController){
 		super(boardController);
 		
 		this.configurationRetriever = configurationRetriever;
