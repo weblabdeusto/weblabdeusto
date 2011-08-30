@@ -31,6 +31,7 @@ import weblab.core.coordinator.confirmer as Confirmer
 import weblab.core.coordinator.scheduler as Scheduler
 import weblab.core.coordinator.meta_scheduler as MetaScheduler
 import weblab.core.coordinator.store as TemporalInformationStore
+import weblab.core.coordinator.status as coord_status
 
 import weblab.core.coordinator.priority_queue_scheduler as PriorityQueueScheduler
 import weblab.core.coordinator.checker_threaded as ResourcesCheckerThread
@@ -323,7 +324,7 @@ class Coordinator(object):
     # Called when it is confirmed by the Laboratory Server.
     #
     @logged()
-    def confirm_experiment(self, experiment_coordaddress, experiment_instance_id, reservation_id, lab_coord_address_str, lab_session_id, server_initialization_response, initial_time, end_time):
+    def confirm_experiment(self, experiment_coordaddress, experiment_instance_id, reservation_id, lab_coordaddress_str, lab_session_id, server_initialization_response, initial_time, end_time):
 
         default_still_initialing      = False
         default_batch                 = False
@@ -372,8 +373,7 @@ class Coordinator(object):
         for scheduler in schedulers:
             scheduler.confirm_experiment(reservation_id, lab_session_id, initial_configuration)
 
-        # TODO
-        # self.confirmer.enqueue_should_finish(lab_coordaddress_str, lab_session_id, reservation_id)
+        self.confirmer.enqueue_should_finish(lab_coordaddress_str, lab_session_id, reservation_id)
 
     ################################################################
     #
@@ -381,8 +381,29 @@ class Coordinator(object):
     # session should end or not.
     #
     @logged()
-    def confirm_should_finish(self, reservation_id, experiment_response):
-        pass
+    def confirm_should_finish(self, lab_coord_address_str, lab_session_id, reservation_id, experiment_response):
+        # If not reserved, don't try again 
+        try:
+            current_status = self.get_reservation_status(reservation_id)
+            if not isinstance(current_status, coord_status.ReservedStatus):
+                return
+        except CoordExc.CoordinatorException:
+            return
+
+        # 0: don't ask again
+        if experiment_response == 0:
+            return
+
+        # -1: experiment finished
+        if experiment_response < 0:
+            self.finish_reservation(reservation_id) 
+            return
+
+        # > 0: wait this time and ask again
+        time.sleep(experiment_response)
+
+        self.confirmer.enqueue_should_finish(lab_coordaddress_str, lab_session_id, reservation_id)
+
 
     ################################################################
     #

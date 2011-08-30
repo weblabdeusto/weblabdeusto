@@ -107,7 +107,7 @@ class ReservationConfirmer(object):
         except Exception as e:
             log.log( ReservationConfirmer, log.level.Error, "Exception freeing experiment: %s" % e )
             log.log_exc( ReservationConfirmer, log.level.Warning )
-            self.coordinator.confirm_should_finish(reservation_id, 0) # Don't try again with this reservation
+            self.coordinator.confirm_should_finish(lab_coordaddress.address, lab_session_id, reservation_id, 0) # Don't try again with this reservation
         else:
-            self.coordinator.confirm_should_finish(reservation_id, experiment_response)
+            self.coordinator.confirm_should_finish(lab_coordaddress.address, lab_session_id, reservation_id, experiment_response)
 
