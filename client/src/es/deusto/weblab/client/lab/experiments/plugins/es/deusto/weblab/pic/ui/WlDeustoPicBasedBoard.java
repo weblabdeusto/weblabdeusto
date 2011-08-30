@@ -29,8 +29,8 @@ import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
+import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
-import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
 import es.deusto.weblab.client.ui.widgets.WlPotentiometer;
 import es.deusto.weblab.client.ui.widgets.WlSwitch;
@@ -41,7 +41,7 @@ import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
-public class WlDeustoPicBasedBoard extends BoardBase{
+public class WlDeustoPicBasedBoard extends ExperimentBase{
 	
 	
 	 /******************

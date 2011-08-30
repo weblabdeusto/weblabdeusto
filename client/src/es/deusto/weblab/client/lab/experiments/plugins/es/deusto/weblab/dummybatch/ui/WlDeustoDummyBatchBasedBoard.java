@@ -18,9 +18,9 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
-import es.deusto.weblab.client.lab.ui.BoardBase;
+import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 
-public class WlDeustoDummyBatchBasedBoard extends BoardBase {
+public class WlDeustoDummyBatchBasedBoard extends ExperimentBase {
 
 	public static final String DUMMY_WEBCAM_IMAGE_URL_PROPERTY = "es.deusto.weblab.dummy.webcam.image.url";
 	public static final String DEFAULT_DUMMY_WEBCAM_IMAGE_URL       = "http://fpga.weblab.deusto.es/webcam/fpga0/image.jpg";

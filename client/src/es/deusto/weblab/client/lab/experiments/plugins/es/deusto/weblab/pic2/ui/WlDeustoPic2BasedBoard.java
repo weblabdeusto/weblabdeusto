@@ -22,8 +22,8 @@ import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
+import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
-import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
 import es.deusto.weblab.client.ui.widgets.IWlWidget;
 import es.deusto.weblab.client.ui.widgets.WlPotentiometer;
@@ -33,7 +33,7 @@ import es.deusto.weblab.client.ui.widgets.WlWebcam;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 @SuppressWarnings("unqualified-field-access")
-public class WlDeustoPic2BasedBoard extends BoardBase{
+public class WlDeustoPic2BasedBoard extends ExperimentBase{
 	
 	protected static final boolean DEBUG_ENABLED = true;
 	

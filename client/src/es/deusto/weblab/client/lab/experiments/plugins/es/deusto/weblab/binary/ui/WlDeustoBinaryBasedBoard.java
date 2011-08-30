@@ -31,10 +31,10 @@ import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
+import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.commands.ClockActivationCommand;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.commands.PulseCommand;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.ui.WlDeustoXilinxBasedBoard;
-import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
 import es.deusto.weblab.client.ui.widgets.WlSwitch;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
@@ -42,7 +42,7 @@ import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
-public class WlDeustoBinaryBasedBoard extends BoardBase {
+public class WlDeustoBinaryBasedBoard extends ExperimentBase {
 
 	public static final String BINARY_WEBCAM_IMAGE_URL_PROPERTY = "es.deusto.weblab.binary.webcam.image.url";
 	public static final String DEFAULT_BINARY_WEBCAM_IMAGE_URL = "https://www.weblab.deusto.es/webcam/pld0/image.jpg";

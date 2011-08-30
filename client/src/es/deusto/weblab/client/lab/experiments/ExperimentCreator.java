@@ -14,10 +14,10 @@
 
 package es.deusto.weblab.client.lab.experiments;
 
+import es.deusto.weblab.client.lab.experiments.ExperimentBase.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
 import es.deusto.weblab.client.lab.experiments.exceptions.WlExperimentException;
-import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
 
 public abstract class ExperimentCreator {
 

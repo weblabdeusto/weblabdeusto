@@ -28,10 +28,10 @@ import es.deusto.weblab.client.configuration.exceptions.InvalidConfigurationValu
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
-import es.deusto.weblab.client.lab.ui.BoardBase;
+import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
 
-public abstract class AbstractExternalAppBasedBoard extends BoardBase {
+public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 
 	private static final int MAX_FACEBOOK_WIDTH = 710; // differs from WebClient.MAX_FACEBOOK_WIDTH taking into account the size of the whole page
 	private static IConfigurationRetriever configurationRetriever;

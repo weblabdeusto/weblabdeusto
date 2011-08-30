@@ -21,11 +21,10 @@ import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.configuration.exceptions.ConfigurationKeyNotFoundException;
 import es.deusto.weblab.client.configuration.exceptions.InvalidConfigurationValueException;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
+import es.deusto.weblab.client.lab.experiments.ExperimentBase.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentCreatorInstanciationException;
 import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentInstanciationException;
 import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentNotFoundException;
-import es.deusto.weblab.client.lab.ui.BoardBase;
-import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
 
 public class ExperimentFactory {
 
@@ -36,7 +35,7 @@ public class ExperimentFactory {
 	}
 	
 	public interface IExperimentLoadedCallback{
-		public void onExperimentLoaded(BoardBase experiment);
+		public void onExperimentLoaded(ExperimentBase experiment);
 		public void onFailure(Throwable e);
 	}
 	

@@ -28,7 +28,7 @@ import com.google.gwt.user.client.ui.Widget;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.users.User;
-import es.deusto.weblab.client.lab.ui.BoardBase;
+import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.LoggedPanel.ILoggedPanelCallback;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
@@ -66,7 +66,7 @@ class ExperimentWindow extends BaseWindow {
 	
 	// DTOs
 	private final ExperimentAllowed experimentAllowed;
-	private final BoardBase experimentBase;
+	private final ExperimentBase experimentBase;
 	private final User user;	
 	
 	// Callback
@@ -74,7 +74,7 @@ class ExperimentWindow extends BaseWindow {
 	
 	public ExperimentWindow(IConfigurationManager configurationManager,
 			User user, ExperimentAllowed experimentAllowed,
-			BoardBase experimentBase,
+			ExperimentBase experimentBase,
 			IExperimentWindowCallback callback) {
 		super(configurationManager);
 

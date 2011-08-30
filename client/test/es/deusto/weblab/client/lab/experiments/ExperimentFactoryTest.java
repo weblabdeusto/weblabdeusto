@@ -23,24 +23,23 @@ import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
+import es.deusto.weblab.client.lab.experiments.ExperimentBase.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentNotFoundException;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.ui.WlDeustoGpibBoard;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib1.ui.WlDeustoGpib1Board;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib2.ui.WlDeustoGpib2Board;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.ui.WlDeustoXilinxBasedBoard;
-import es.deusto.weblab.client.lab.ui.BoardBase;
-import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
 
 public class ExperimentFactoryTest extends GWTTestCase {
 
 	private static class ExperimentLoadedCallback implements IExperimentLoadedCallback{
 
 		Throwable lastThrowable;
-		BoardBase lastExperiment;
+		ExperimentBase lastExperiment;
 		
 		@Override
-		public void onExperimentLoaded(BoardBase experiment) {
+		public void onExperimentLoaded(ExperimentBase experiment) {
 			this.lastExperiment = experiment;
 		}
 

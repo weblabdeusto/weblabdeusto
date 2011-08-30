@@ -40,6 +40,7 @@ import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
+import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.circuit.Circuit;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.circuit.CircuitParser;
@@ -49,7 +50,6 @@ import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.ci
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.circuit.Switch;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.commands.GetCircuitCommand;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.commands.SolveCircuitCommand;
-import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.ui.audio.AudioManager;
 import es.deusto.weblab.client.ui.widgets.EasyGrid;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
@@ -57,7 +57,7 @@ import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
-public class WlDeustoLogicBasedBoard extends BoardBase {
+public class WlDeustoLogicBasedBoard extends ExperimentBase {
 	
 	
 	/******************

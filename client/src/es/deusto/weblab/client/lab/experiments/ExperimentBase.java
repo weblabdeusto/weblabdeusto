@@ -11,7 +11,7 @@
 * Author: Pablo Orduña <pablo@ordunya.com>
 *
 */ 
-package es.deusto.weblab.client.lab.ui;
+package es.deusto.weblab.client.lab.experiments;
 
 import es.deusto.weblab.client.dto.SessionID;
 import com.google.gwt.json.client.JSONValue;
@@ -21,7 +21,7 @@ import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.ui.widgets.IWlWidget;
 
-public abstract class BoardBase implements IWlWidget{
+public abstract class ExperimentBase implements IWlWidget{
 	
 	public interface IBoardBaseController{
 		
@@ -51,7 +51,7 @@ public abstract class BoardBase implements IWlWidget{
 	
 	protected IBoardBaseController boardController;
 	
-	public BoardBase(IBoardBaseController boardController){
+	public ExperimentBase(IBoardBaseController boardController){
 		this.boardController = boardController;
 	}
 	

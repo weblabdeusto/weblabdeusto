@@ -20,6 +20,7 @@ import es.deusto.weblab.client.dto.reservations.WaitingConfirmationReservationSt
 import es.deusto.weblab.client.dto.reservations.WaitingInstancesReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingReservationStatus;
 import es.deusto.weblab.client.dto.users.User;
+import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.exceptions.WlExperimentException;
 import es.deusto.weblab.client.testing.util.WlFake;
 
@@ -64,7 +65,7 @@ public class FakeUIManager extends WlFake implements IUIManager {
     
     @Override
     public void onExperimentChosen(ExperimentAllowed experimentAllowed,
-	    BoardBase experimentBase) {
+	    ExperimentBase experimentBase) {
 	experimentBase.initialize();
 	this.append(FakeUIManager.ON_EXPERIMENT_CHOOSEN, new Object[] {experimentAllowed, experimentBase});
     }
@@ -83,7 +84,7 @@ public class FakeUIManager extends WlFake implements IUIManager {
     @Override
     public void onExperimentReserved(
 	    ConfirmedReservationStatus reservationStatus,
-	    ExperimentID experimentID, BoardBase experimentBase)
+	    ExperimentID experimentID, ExperimentBase experimentBase)
 	    throws WlExperimentException {
 	this.append(FakeUIManager.ON_EXPERIMENT_RESERVED, new Object[] {reservationStatus, experimentBase});
     }    

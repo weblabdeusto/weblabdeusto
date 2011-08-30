@@ -30,10 +30,10 @@ import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
-import es.deusto.weblab.client.lab.ui.BoardBase;
+import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
 
-public class LabVIEWBoard extends BoardBase {
+public class LabVIEWBoard extends ExperimentBase {
 
 	private IConfigurationRetriever configurationRetriever;
 	private VerticalPanel panel = new VerticalPanel();

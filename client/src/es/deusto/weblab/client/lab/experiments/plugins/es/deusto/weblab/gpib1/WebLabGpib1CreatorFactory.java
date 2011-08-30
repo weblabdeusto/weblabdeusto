@@ -20,10 +20,10 @@ import com.google.gwt.core.client.RunAsyncCallback;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
 import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.ExperimentBase.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib1.ui.WlDeustoGpib1Board;
-import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
 
 public class WebLabGpib1CreatorFactory implements IExperimentCreatorFactory {
 

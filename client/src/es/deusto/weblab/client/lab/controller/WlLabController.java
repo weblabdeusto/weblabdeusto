@@ -40,10 +40,10 @@ import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.comm.exceptions.NoCurrentReservationException;
+import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory;
+import es.deusto.weblab.client.lab.experiments.ExperimentBase.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
-import es.deusto.weblab.client.lab.ui.BoardBase;
-import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
 import es.deusto.weblab.client.lab.ui.IUIManager;
 
 public class WlLabController implements IWlLabController {
@@ -79,12 +79,12 @@ public class WlLabController implements IWlLabController {
 	private boolean loggedIn = false;
 	
 	private class SessionVariables {
-		private BoardBase currentExperimentBase;
+		private ExperimentBase currentExperimentBase;
 		
-		public void setCurrentExperimentBase(BoardBase currentExperimentBase) {
+		public void setCurrentExperimentBase(ExperimentBase currentExperimentBase) {
 		    this.currentExperimentBase = currentExperimentBase;
 		}
-		public BoardBase getCurrentExperimentBase() {
+		public ExperimentBase getCurrentExperimentBase() {
 		    return this.currentExperimentBase;
 		}
 	}
@@ -489,7 +489,7 @@ public class WlLabController implements IWlLabController {
 			}
 			
 			@Override
-			public void onExperimentLoaded(BoardBase experimentBase) {
+			public void onExperimentLoaded(ExperimentBase experimentBase) {
 				WlLabController.this.sessionVariables.setCurrentExperimentBase(experimentBase);
 				WlLabController.this.uimanager.onExperimentChosen(experimentAllowed, experimentBase);
 			}

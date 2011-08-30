@@ -31,7 +31,7 @@ import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
-import es.deusto.weblab.client.lab.ui.BoardBase;
+import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarListener;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarTextUpdater;
@@ -40,7 +40,7 @@ import es.deusto.weblab.client.ui.widgets.WlTimer;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
-public class VMBoard extends BoardBase {
+public class VMBoard extends ExperimentBase {
 	
 	private static final String DEFAULT_VNC_HEIGHT = "900";
 	private static final String DEFAULT_VNC_WIDTH  = "1152";

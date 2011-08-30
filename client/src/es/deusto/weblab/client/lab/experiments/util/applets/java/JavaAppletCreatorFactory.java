@@ -21,10 +21,10 @@ import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.configuration.exceptions.WlConfigurationException;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
 import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.ExperimentBase.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
 import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentCreatorInstanciationException;
-import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
 
 public class JavaAppletCreatorFactory implements IExperimentCreatorFactory{
 

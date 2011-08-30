@@ -34,19 +34,19 @@ import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
+import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.commands.PollCommand;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.commands.ResultCodeCommand;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.commands.ResultFileCommand;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.commands.ResultStderrCommand;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.commands.ResultStdoutCommand;
-import es.deusto.weblab.client.lab.ui.BoardBase;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 
-public class WlDeustoGpibBoard extends BoardBase {
+public class WlDeustoGpibBoard extends ExperimentBase {
 	
 	
 	/******************

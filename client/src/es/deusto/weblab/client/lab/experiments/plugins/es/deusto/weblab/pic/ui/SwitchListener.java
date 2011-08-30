@@ -14,8 +14,8 @@
 package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic.ui;
 
 import es.deusto.weblab.client.dto.experiments.Command;
+import es.deusto.weblab.client.lab.experiments.ExperimentBase.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic.commands.SwitchCommand;
-import es.deusto.weblab.client.lab.ui.BoardBase.IBoardBaseController;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
 import es.deusto.weblab.client.ui.widgets.IWlWidget;
 import es.deusto.weblab.client.ui.widgets.WlSwitch;
