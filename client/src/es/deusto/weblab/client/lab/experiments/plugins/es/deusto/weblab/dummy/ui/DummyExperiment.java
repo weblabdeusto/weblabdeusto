@@ -20,7 +20,7 @@ import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 
-public class WlDeustoDummyBasedBoard extends WlDeustoXilinxBasedBoard {
+public class DummyExperiment extends XilinxExperiment {
 
 	public static final String DUMMY_WEBCAM_IMAGE_URL_PROPERTY = "es.deusto.weblab.dummy.webcam.image.url";
 	public static final String DEFAULT_DUMMY_WEBCAM_IMAGE_URL       = "http://fpga.weblab.deusto.es/webcam/fpga0/image.jpg";
@@ -30,7 +30,7 @@ public class WlDeustoDummyBasedBoard extends WlDeustoXilinxBasedBoard {
 	
 	private final Label dummyMessages;
 	
-	public WlDeustoDummyBasedBoard(IConfigurationRetriever configurationRetriever,
+	public DummyExperiment(IConfigurationRetriever configurationRetriever,
 			IBoardBaseController boardController) {
 		super(configurationRetriever, boardController);
 		this.dummyMessages = new Label("messages here");
@@ -49,12 +49,12 @@ public class WlDeustoDummyBasedBoard extends WlDeustoXilinxBasedBoard {
 
 			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
-			    WlDeustoDummyBasedBoard.this.processCommandSent(responseCommand);
+			    DummyExperiment.this.processCommandSent(responseCommand);
 			}
 		
 			@Override
 			public void onFailure(WlCommException e) {
-				WlDeustoDummyBasedBoard.this.dummyMessages.setText("Error raised: " + e.getMessage());
+				DummyExperiment.this.dummyMessages.setText("Error raised: " + e.getMessage());
 			}
 	    };
 	}

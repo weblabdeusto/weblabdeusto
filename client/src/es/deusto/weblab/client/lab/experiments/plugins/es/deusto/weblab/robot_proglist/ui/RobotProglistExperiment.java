@@ -11,40 +11,45 @@
 * Author: Luis Rodriguez <luis.rodriguez@opendeusto.es>
 * 		  
 */ 
-package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.robot_standard.ui;
+package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.robot_proglist.ui;
+
+import java.util.List;
+import java.util.Vector;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.comm.exceptions.WlCommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
-import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
-import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
+import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
-import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
-public class RobotStandardBoard extends ExperimentBase {
-	
+public class RobotProglistExperiment extends ExperimentBase {
+
 	private static final String WEBCAM_REFRESH_TIME_PROPERTY   = "webcam.refresh.millis";
 	private static final int    DEFAULT_WEBCAM_REFRESH_TIME    = 200;
-
+	
 	/******************
 	 * UIBINDER RELATED
 	 ******************/
 	
-	interface RobotStandardBoardUiBinder extends UiBinder<Widget, RobotStandardBoard> {
+	interface RobotProglistBoardUiBinder extends UiBinder<Widget, RobotProglistExperiment> {
 	}
 
-	private static final RobotStandardBoardUiBinder uiBinder = GWT.create(RobotStandardBoardUiBinder.class);
+	private static final RobotProglistBoardUiBinder uiBinder = GWT.create(RobotProglistBoardUiBinder.class);
 	
 	public static class Style   {
 		public static final String TIME_REMAINING          = "wl-time_remaining";
@@ -52,6 +57,7 @@ public class RobotStandardBoard extends ExperimentBase {
 	}
 
 	private final IConfigurationRetriever configurationRetriever;
+	private final List<Button> buttons = new Vector<Button>();
 	
 	@UiField(provided=true) WlTimer timer;
 	
@@ -62,20 +68,18 @@ public class RobotStandardBoard extends ExperimentBase {
 	
 	@UiField WlWaitingLabel messages;
 	
-	@UiField VerticalPanel uploadStructurePanel;
+	@UiField HorizontalPanel inputWidgetsPanel;
 	
 	@UiField(provided=true) WlWebcam webcam;
 	
-	private UploadStructure uploadStructure;
-	
-	public RobotStandardBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
+	public RobotProglistExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
 		super(commandSender);
 		
 		this.configurationRetriever = configurationRetriever;
 		
 		this.createProvidedWidgets();
 		
-		RobotStandardBoard.uiBinder.createAndBindUi(this);
+		RobotProglistExperiment.uiBinder.createAndBindUi(this);
 	}
 	
 	/**
@@ -86,7 +90,7 @@ public class RobotStandardBoard extends ExperimentBase {
 		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
 			@Override
 			public void onFinished() {
-			    RobotStandardBoard.this.boardController.onClean();
+			    RobotProglistExperiment.this.boardController.onClean();
 			}
 		});
 		this.timer.start();
@@ -102,15 +106,12 @@ public class RobotStandardBoard extends ExperimentBase {
 		
 		// TODO: Add a default url to the webcam.
 		this.webcam = new WlWebcam(this.getWebcamRefreshingTime());
-		
-		this.uploadStructure = new UploadStructure();
-		this.uploadStructure.setFileInfo("program");
 	}
 	
 	private int getWebcamRefreshingTime() {
 		return this.configurationRetriever.getIntProperty(
-			RobotStandardBoard.WEBCAM_REFRESH_TIME_PROPERTY, 
-			RobotStandardBoard.DEFAULT_WEBCAM_REFRESH_TIME
+			RobotProglistExperiment.WEBCAM_REFRESH_TIME_PROPERTY, 
+			RobotProglistExperiment.DEFAULT_WEBCAM_REFRESH_TIME
 		);
 	}	
 	
@@ -121,9 +122,7 @@ public class RobotStandardBoard extends ExperimentBase {
 	 */
 	@Override
 	public void initialize(){
-		this.uploadStructurePanel.add(this.uploadStructure.getFormPanel());
 	}	
-	
 	
 	/**
 	 * This function gets called just when the actual experiment starts, after
@@ -134,38 +133,65 @@ public class RobotStandardBoard extends ExperimentBase {
 	    this.widget.setVisible(true);
 	    
 	    this.setupWidgets();
-	    
+
 	    RequestWebcamCommand.createAndSend(this.boardController, this.webcam, this.messages);
 	    this.webcam.setVisible(true);
 	    this.webcam.start();
-
-	    this.uploadStructure.getFormPanel().setVisible(false);
-		
-		this.boardController.sendFile(this.uploadStructure, new IResponseCommandCallback() {
+	    
+	    this.boardController.sendCommand("programs", new IResponseCommandCallback() {
 			
 			@Override
 			public void onFailure(WlCommException e) {
-				RobotStandardBoard.this.uploadStructurePanel.setVisible(false);
-				RobotStandardBoard.this.messages.stop();
-				setMessage("Failed: " + e.getMessage());
+				e.printStackTrace();
+				RobotProglistExperiment.this.setMessage("Could not request experiments:" + e.getMessage());
+				RobotProglistExperiment.this.messages.stop();
 			}
 			
 			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
-				RobotStandardBoard.this.uploadStructurePanel.setVisible(false);
-				RobotStandardBoard.this.messages.stop();
-				if(responseCommand.getCommandString().toLowerCase().trim().equals("ok")){
-					setMessage("The program is being executed in the bot");
-				}else{
-					setMessage("There was an error: <" + responseCommand.getCommandString() + ">");
+				RobotProglistExperiment.this.messages.stop();
+				RobotProglistExperiment.this.buttons.clear();
+				String response = responseCommand.getCommandString();
+				setMessage("Select what program should be sent to the device");
+				for(final String s : response.split(",")){
+					if(s.trim().equals(""))
+						continue;
+					final Button button = new Button(s.trim());
+					RobotProglistExperiment.this.buttons.add(button);
+					button.addClickHandler(new ClickHandler() {
+						
+						@Override
+						public void onClick(ClickEvent event) {
+							for(Button b : RobotProglistExperiment.this.buttons)
+								b.setVisible(false);
+							
+							setMessage("Programming " + s);
+							RobotProglistExperiment.this.messages.start();
+							RobotProglistExperiment.this.boardController.sendCommand("program:" + s.trim(), new IResponseCommandCallback() {
+								
+								@Override
+								public void onFailure(WlCommException e) {
+									setMessage("Program failed: " + e.getMessage());
+									RobotProglistExperiment.this.messages.stop();
+								}
+								
+								@Override
+								public void onSuccess(ResponseCommand responseCommand) {
+									RobotProglistExperiment.this.messages.stop();
+									if(responseCommand.getCommandString().startsWith("File sen")){
+										RobotProglistExperiment.this.setMessage("Program sent!");
+									}
+								}
+							});
+						}
+					});
+					RobotProglistExperiment.this.inputWidgetsPanel.add(button);
 				}
 			}
 		});
 	    
-	    this.setMessage("Sending program");
+	    this.setMessage("Retrieving programs");
 	    this.messages.start();
-	    
-	    this.sendGetConfigurationCommand();
 	}	
 	
 	@Override
@@ -183,30 +209,11 @@ public class RobotStandardBoard extends ExperimentBase {
 		if(this.timer != null){
 			this.timer.dispose();
 			this.timer = null;
-		}			
+		}
+		this.messages.stop();
 	}
 	
 	public void setMessage(String msg) {
 		this.messages.setText(msg);
 	}
-	
-	private void sendGetConfigurationCommand(){
-		final Command command = new Command() {
-			@Override
-			public String getCommandString() {
-				return "get_configuration";
-			}
-		};
-		
-		this.boardController.sendCommand(command, new IResponseCommandCallback() {
-			@Override
-			public void onFailure(WlCommException e) {
-				RobotStandardBoard.this.setMessage("It was not possible to obtain the configuration");
-			}
-			@Override
-			public void onSuccess(ResponseCommand responseCommand) {
-			}
-		});
-	}
-	
 }

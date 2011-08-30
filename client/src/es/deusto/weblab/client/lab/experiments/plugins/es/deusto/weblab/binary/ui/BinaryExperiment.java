@@ -34,7 +34,7 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.commands.ClockActivationCommand;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.commands.PulseCommand;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.ui.WlDeustoXilinxBasedBoard;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.ui.XilinxExperiment;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
 import es.deusto.weblab.client.ui.widgets.WlSwitch;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
@@ -42,7 +42,7 @@ import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
-public class WlDeustoBinaryBasedBoard extends ExperimentBase {
+public class BinaryExperiment extends ExperimentBase {
 
 	public static final String BINARY_WEBCAM_IMAGE_URL_PROPERTY = "es.deusto.weblab.binary.webcam.image.url";
 	public static final String DEFAULT_BINARY_WEBCAM_IMAGE_URL = "https://www.weblab.deusto.es/webcam/pld0/image.jpg";
@@ -74,7 +74,7 @@ public class WlDeustoBinaryBasedBoard extends ExperimentBase {
 	private Button nextNumberButton;
 	private Button checkNumberButton;
 	
-	public WlDeustoBinaryBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController){
+	public BinaryExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController){
 		super(boardController);
 		
 		this.configurationRetriever = configurationRetriever;
@@ -93,15 +93,15 @@ public class WlDeustoBinaryBasedBoard extends ExperimentBase {
 	
 	protected String getWebcamImageUrl() {
 		return this.configurationRetriever.getProperty(
-				WlDeustoBinaryBasedBoard.BINARY_WEBCAM_IMAGE_URL_PROPERTY, 
-				WlDeustoBinaryBasedBoard.DEFAULT_BINARY_WEBCAM_IMAGE_URL
+				BinaryExperiment.BINARY_WEBCAM_IMAGE_URL_PROPERTY, 
+				BinaryExperiment.DEFAULT_BINARY_WEBCAM_IMAGE_URL
 			);
 	}
 
 	protected int getWebcamRefreshingTime() {
 		return this.configurationRetriever.getIntProperty(
-				WlDeustoBinaryBasedBoard.BINARY_WEBCAM_REFRESH_TIME_PROPERTY, 
-				WlDeustoBinaryBasedBoard.DEFAULT_BINARY_WEBCAM_REFRESH_TIME
+				BinaryExperiment.BINARY_WEBCAM_REFRESH_TIME_PROPERTY, 
+				BinaryExperiment.DEFAULT_BINARY_WEBCAM_REFRESH_TIME
 			);
 	}	
 	
@@ -131,55 +131,55 @@ public class WlDeustoBinaryBasedBoard extends ExperimentBase {
 
 	//	    @Override
 	//	    public void onSuccess(ResponseCommand response) {
-			WlDeustoBinaryBasedBoard.this.messages.stop();
-			WlDeustoBinaryBasedBoard.this.messages.setText("Activating clock");
-			WlDeustoBinaryBasedBoard.this.messages.start();
+			BinaryExperiment.this.messages.stop();
+			BinaryExperiment.this.messages.setText("Activating clock");
+			BinaryExperiment.this.messages.start();
 
 			// 2. Activate clock
-			WlDeustoBinaryBasedBoard.this.boardController.sendCommand( new ClockActivationCommand(WlDeustoBinaryBasedBoard.CLOCK_ACTIVATOR_VALUE), new IResponseCommandCallback() {
+			BinaryExperiment.this.boardController.sendCommand( new ClockActivationCommand(BinaryExperiment.CLOCK_ACTIVATOR_VALUE), new IResponseCommandCallback() {
 
 					    @Override
 					    public void onSuccess(ResponseCommand responseCommand) {
-						WlDeustoBinaryBasedBoard.this.messages.stop();
-						WlDeustoBinaryBasedBoard.this.messages.setText("Initializing game");
-						WlDeustoBinaryBasedBoard.this.messages.start();
+						BinaryExperiment.this.messages.stop();
+						BinaryExperiment.this.messages.setText("Initializing game");
+						BinaryExperiment.this.messages.start();
 
 						// 3. Initialize the game (Press button 0)
-						WlDeustoBinaryBasedBoard.this.boardController.sendCommand(new PulseCommand(WlDeustoBinaryBasedBoard.BUTTON_NUMBER_TO_RESET, true), new IResponseCommandCallback() {
+						BinaryExperiment.this.boardController.sendCommand(new PulseCommand(BinaryExperiment.BUTTON_NUMBER_TO_RESET, true), new IResponseCommandCallback() {
 
 								    @Override
 								    public void onSuccess(ResponseCommand responseCommand) {
-									WlDeustoBinaryBasedBoard.this.boardController.sendCommand(new PulseCommand(WlDeustoBinaryBasedBoard.BUTTON_NUMBER_TO_RESET, false), new IResponseCommandCallback() {
+									BinaryExperiment.this.boardController.sendCommand(new PulseCommand(BinaryExperiment.BUTTON_NUMBER_TO_RESET, false), new IResponseCommandCallback() {
 
 											    @Override
 											    public void onSuccess(ResponseCommand responseCommand) {
-												WlDeustoBinaryBasedBoard.this.messages.stop();
-												WlDeustoBinaryBasedBoard.this.messages.setText("Game ready. Let's start!");
-												WlDeustoBinaryBasedBoard.this.enableInteractiveWidgets();
-												WlDeustoBinaryBasedBoard.this.nextNumberButton.setEnabled(true);
-												WlDeustoBinaryBasedBoard.this.checkNumberButton.setEnabled(false);
+												BinaryExperiment.this.messages.stop();
+												BinaryExperiment.this.messages.setText("Game ready. Let's start!");
+												BinaryExperiment.this.enableInteractiveWidgets();
+												BinaryExperiment.this.nextNumberButton.setEnabled(true);
+												BinaryExperiment.this.checkNumberButton.setEnabled(false);
 											    }
 
 											    @Override
 											    public void onFailure(WlCommException e) {
-												WlDeustoBinaryBasedBoard.this.messages.stop();
-												WlDeustoBinaryBasedBoard.this.messages.setText("Error initializing (deactivating) the game: " + e.getMessage() + ". Please contact the WebLab-Deusto administrators at weblab@deusto.es");
+												BinaryExperiment.this.messages.stop();
+												BinaryExperiment.this.messages.setText("Error initializing (deactivating) the game: " + e.getMessage() + ". Please contact the WebLab-Deusto administrators at weblab@deusto.es");
 											    }
 											});
 								    }
 
 								    @Override
 								    public void onFailure(WlCommException e) {
-									WlDeustoBinaryBasedBoard.this.messages.stop();
-									WlDeustoBinaryBasedBoard.this.messages.setText("Error initializing (activating) the game: " + e.getMessage() + ". Please contact the WebLab-Deusto administrators at weblab@deusto.es");
+									BinaryExperiment.this.messages.stop();
+									BinaryExperiment.this.messages.setText("Error initializing (activating) the game: " + e.getMessage() + ". Please contact the WebLab-Deusto administrators at weblab@deusto.es");
 								    }
 								});
 					    }
 
 					    @Override
 					    public void onFailure(WlCommException e) {
-						WlDeustoBinaryBasedBoard.this.messages.stop();
-						WlDeustoBinaryBasedBoard.this.messages.setText("Error activating the clock: " + e.getMessage() + ". Please contact the WebLab-Deusto administrators at weblab@deusto.es");
+						BinaryExperiment.this.messages.stop();
+						BinaryExperiment.this.messages.setText("Error activating the clock: " + e.getMessage() + ". Please contact the WebLab-Deusto administrators at weblab@deusto.es");
 					    }
 					});
 	//	    }
@@ -211,11 +211,11 @@ public class WlDeustoBinaryBasedBoard extends ExperimentBase {
 
 		// Timer
 		this.timer = new WlTimer();
-		this.timer.setStyleName(WlDeustoXilinxBasedBoard.Style.TIME_REMAINING);
+		this.timer.setStyleName(XilinxExperiment.Style.TIME_REMAINING);
 		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
 			@Override
 			public void onFinished() {
-			    WlDeustoBinaryBasedBoard.this.boardController.onClean();
+			    BinaryExperiment.this.boardController.onClean();
 			}
 		});
 		otherVerticalPanel.add(this.timer.getWidget());
@@ -232,38 +232,38 @@ public class WlDeustoBinaryBasedBoard extends ExperimentBase {
 
 		    @Override
 		    public void onClick(ClickEvent event) {
-			WlDeustoBinaryBasedBoard.this.boardController.sendCommand(new PulseCommand(WlDeustoBinaryBasedBoard.BUTTON_NUMBER_TO_ASK_FOR_THE_NEXT_NUMBER, true), new IResponseCommandCallback() {
+			BinaryExperiment.this.boardController.sendCommand(new PulseCommand(BinaryExperiment.BUTTON_NUMBER_TO_ASK_FOR_THE_NEXT_NUMBER, true), new IResponseCommandCallback() {
 
 			    @Override
 			    public void onSuccess(ResponseCommand responseCommand) {
-				WlDeustoBinaryBasedBoard.this.boardController.sendCommand(new PulseCommand(WlDeustoBinaryBasedBoard.BUTTON_NUMBER_TO_ASK_FOR_THE_NEXT_NUMBER, false), new IResponseCommandCallback() {
+				BinaryExperiment.this.boardController.sendCommand(new PulseCommand(BinaryExperiment.BUTTON_NUMBER_TO_ASK_FOR_THE_NEXT_NUMBER, false), new IResponseCommandCallback() {
 
 				    @Override
 				    public void onSuccess(ResponseCommand responseCommand) {
-					WlDeustoBinaryBasedBoard.this.messages.setText("Now you have to guess how to write that number in binary, turning on and off the different switches");
-					WlDeustoBinaryBasedBoard.this.checkNumberButton.setEnabled(true);
-					WlDeustoBinaryBasedBoard.this.nextNumberButton.setEnabled(false);					
+					BinaryExperiment.this.messages.setText("Now you have to guess how to write that number in binary, turning on and off the different switches");
+					BinaryExperiment.this.checkNumberButton.setEnabled(true);
+					BinaryExperiment.this.nextNumberButton.setEnabled(false);					
 				    }
 
 				    @Override
 				    public void onFailure(WlCommException e) {
-					WlDeustoBinaryBasedBoard.this.messages.stop();
-					WlDeustoBinaryBasedBoard.this.messages.setText("Error asking for another number (off): " + e.getMessage() + ". Please contact the WebLab-Deusto administrators at weblab@deusto.es");
+					BinaryExperiment.this.messages.stop();
+					BinaryExperiment.this.messages.setText("Error asking for another number (off): " + e.getMessage() + ". Please contact the WebLab-Deusto administrators at weblab@deusto.es");
 				    }});
 			    }
 
 			    @Override
 			    public void onFailure(WlCommException e) {
-				WlDeustoBinaryBasedBoard.this.messages.stop();
-				WlDeustoBinaryBasedBoard.this.messages.setText("Error asking for another number (on): " + e.getMessage() + ". Please contact the WebLab-Deusto administrators at weblab@deusto.es");
+				BinaryExperiment.this.messages.stop();
+				BinaryExperiment.this.messages.setText("Error asking for another number (on): " + e.getMessage() + ". Please contact the WebLab-Deusto administrators at weblab@deusto.es");
 			    }});
 		    }});
 		this.addInteractiveWidget(this.nextNumberButton);
 		otherVerticalPanel.add(this.nextNumberButton);
 		
 		// Switches
-		this.switches = new WlSwitch[WlDeustoBinaryBasedBoard.NUMBER_OF_SWITCHES];
-		for(int i = 0; i < WlDeustoBinaryBasedBoard.NUMBER_OF_SWITCHES; ++i){
+		this.switches = new WlSwitch[BinaryExperiment.NUMBER_OF_SWITCHES];
+		for(int i = 0; i < BinaryExperiment.NUMBER_OF_SWITCHES; ++i){
 			this.switches[i] = new WlSwitch();
 			final IWlActionListener actionListener = new SwitchListener(6 + i, this.boardController, this.getResponseCommandCallback());
 			this.switches[i].addActionListener(actionListener);
@@ -272,11 +272,11 @@ public class WlDeustoBinaryBasedBoard extends ExperimentBase {
 		switchesPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		switchesPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 		switchesPanel.setSpacing(25);
-		for(int i = 0; i < WlDeustoBinaryBasedBoard.NUMBER_OF_SWITCHES; ++i){
+		for(int i = 0; i < BinaryExperiment.NUMBER_OF_SWITCHES; ++i){
 			this.switches[i].getWidget().setWidth("100%");			
 			final VerticalPanel vp = new VerticalPanel();
 			vp.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-			vp.add(new Label("" + (WlDeustoBinaryBasedBoard.NUMBER_OF_SWITCHES - i - 1)));
+			vp.add(new Label("" + (BinaryExperiment.NUMBER_OF_SWITCHES - i - 1)));
 			vp.add(this.switches[i].getWidget());
 			switchesPanel.add(vp);
 			this.addInteractiveWidget(vp);
@@ -289,30 +289,30 @@ public class WlDeustoBinaryBasedBoard extends ExperimentBase {
 
 		    @Override
 		    public void onClick(ClickEvent event) {
-			WlDeustoBinaryBasedBoard.this.boardController.sendCommand(new PulseCommand(WlDeustoBinaryBasedBoard.BUTTON_NUMBER_CHECK_YOUR_NUMBER, true), new IResponseCommandCallback() {
+			BinaryExperiment.this.boardController.sendCommand(new PulseCommand(BinaryExperiment.BUTTON_NUMBER_CHECK_YOUR_NUMBER, true), new IResponseCommandCallback() {
 
 			    @Override
 			    public void onSuccess(ResponseCommand responseCommand) {
-				WlDeustoBinaryBasedBoard.this.boardController.sendCommand(new PulseCommand(WlDeustoBinaryBasedBoard.BUTTON_NUMBER_CHECK_YOUR_NUMBER, false), new IResponseCommandCallback() {
+				BinaryExperiment.this.boardController.sendCommand(new PulseCommand(BinaryExperiment.BUTTON_NUMBER_CHECK_YOUR_NUMBER, false), new IResponseCommandCallback() {
 
 				    @Override
 				    public void onSuccess(ResponseCommand responseCommand) {
-					WlDeustoBinaryBasedBoard.this.messages.setText("Press on 'Ask a number' to play again!");					
-					WlDeustoBinaryBasedBoard.this.checkNumberButton.setEnabled(false);
-					WlDeustoBinaryBasedBoard.this.nextNumberButton.setEnabled(true);					
+					BinaryExperiment.this.messages.setText("Press on 'Ask a number' to play again!");					
+					BinaryExperiment.this.checkNumberButton.setEnabled(false);
+					BinaryExperiment.this.nextNumberButton.setEnabled(true);					
 				    }
 
 				    @Override
 				    public void onFailure(WlCommException e) {
-					WlDeustoBinaryBasedBoard.this.messages.stop();
-					WlDeustoBinaryBasedBoard.this.messages.setText("Error checking your number (off): " + e.getMessage() + ". Please contact the WebLab-Deusto administrators at weblab@deusto.es");
+					BinaryExperiment.this.messages.stop();
+					BinaryExperiment.this.messages.setText("Error checking your number (off): " + e.getMessage() + ". Please contact the WebLab-Deusto administrators at weblab@deusto.es");
 				    }});
 			    }
 
 			    @Override
 			    public void onFailure(WlCommException e) {
-				WlDeustoBinaryBasedBoard.this.messages.stop();
-				WlDeustoBinaryBasedBoard.this.messages.setText("Error checking your number (on): " + e.getMessage() + ". Please contact the WebLab-Deusto administrators at weblab@deusto.es");
+				BinaryExperiment.this.messages.stop();
+				BinaryExperiment.this.messages.setText("Error checking your number (on): " + e.getMessage() + ". Please contact the WebLab-Deusto administrators at weblab@deusto.es");
 			    }});
 		    }});
 		this.addInteractiveWidget(this.checkNumberButton);

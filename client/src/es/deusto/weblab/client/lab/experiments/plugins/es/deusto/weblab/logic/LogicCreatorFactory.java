@@ -12,7 +12,7 @@
 *
 */
 
-package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.binary;
+package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
@@ -23,24 +23,43 @@ import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.binary.ui.WlDeustoBinaryBasedBoard;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.ui.MobileLogicExperiment;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.ui.LogicExperiment;
 
-public class WebLabBinaryCreatorFactory implements IExperimentCreatorFactory {
+public class LogicCreatorFactory implements IExperimentCreatorFactory {
 
 	@Override
 	public String getCodeName() {
-		return "binary";
+		return "logic";
 	}
 
 	@Override
 	public ExperimentCreator createExperimentCreator(final IConfigurationRetriever configurationRetriever) {
-		return new ExperimentCreator(MobileSupport.limited, getCodeName()){
+		return new ExperimentCreator(MobileSupport.full, getCodeName()){
 			@Override
 			public void createWeb(final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new WlDeustoBinaryBasedBoard(
+						callback.onExperimentLoaded(new LogicExperiment(
+								configurationRetriever,
+								boardController
+							));
+					}
+					
+					@Override
+					public void onFailure(Throwable e){
+						callback.onFailure(e);
+					}
+				});
+			}
+			
+			@Override
+			public void createMobile(final IBoardBaseController boardController, final IExperimentLoadedCallback callback){
+				GWT.runAsync(new RunAsyncCallback() {
+					@Override
+					public void onSuccess() {
+						callback.onExperimentLoaded(new MobileLogicExperiment(
 								configurationRetriever,
 								boardController
 							));

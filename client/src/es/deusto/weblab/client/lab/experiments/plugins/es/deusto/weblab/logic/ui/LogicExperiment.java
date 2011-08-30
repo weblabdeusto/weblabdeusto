@@ -57,14 +57,14 @@ import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
-public class WlDeustoLogicBasedBoard extends ExperimentBase {
+public class LogicExperiment extends ExperimentBase {
 	
 	
 	/******************
 	 * UIBINDER RELATED
 	 ******************/
 	
-	interface WlDeustoLogicBasedBoardUiBinder extends UiBinder<Widget, WlDeustoLogicBasedBoard> {
+	interface WlDeustoLogicBasedBoardUiBinder extends UiBinder<Widget, LogicExperiment> {
 	}
 
 	private static final WlDeustoLogicBasedBoardUiBinder uiBinder = GWT.create(WlDeustoLogicBasedBoardUiBinder.class);
@@ -145,17 +145,17 @@ public class WlDeustoLogicBasedBoard extends ExperimentBase {
 
 	    @Override
 		public void onSuccess(ResponseCommand responseCommand) {
-		WlDeustoLogicBasedBoard.this.processCommandSent(responseCommand);		    
+		LogicExperiment.this.processCommandSent(responseCommand);		    
 	    }
 
 	    @Override
 		public void onFailure(WlCommException e) {
-		WlDeustoLogicBasedBoard.this.messages.setText("Error: " + e.getMessage() + ". Please, notify the WebLab-Deusto administrators at weblab@deusto.es about this error.");
+		LogicExperiment.this.messages.setText("Error: " + e.getMessage() + ". Please, notify the WebLab-Deusto administrators at weblab@deusto.es about this error.");
 	    }
 	    
 	};
 	
-	public WlDeustoLogicBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
+	public LogicExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
 		super(commandSender);
 		
 		this.fillMaps();
@@ -164,7 +164,7 @@ public class WlDeustoLogicBasedBoard extends ExperimentBase {
 		
 		this.createProvidedWidgets();
 		
-		WlDeustoLogicBasedBoard.uiBinder.createAndBindUi(this);
+		LogicExperiment.uiBinder.createAndBindUi(this);
 	}
 	
 	/* Creates those widgets that are placed through UiBinder but
@@ -180,7 +180,7 @@ public class WlDeustoLogicBasedBoard extends ExperimentBase {
 		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
 			@Override
 			public void onFinished() {
-			    WlDeustoLogicBasedBoard.this.boardController.onClean();
+			    LogicExperiment.this.boardController.onClean();
 			}
 		});	
 		
@@ -291,9 +291,9 @@ public class WlDeustoLogicBasedBoard extends ExperimentBase {
 			
 		    @Override
 		    public void onClick(ClickEvent event) {
-		    	if(WlDeustoLogicBasedBoard.this.solving)
+		    	if(LogicExperiment.this.solving)
 		    		//WlDeustoLogicBasedBoard.this.changeUnknownGateDialogBox.show();
-		    		WlDeustoLogicBasedBoard.this.changeUnknownGateDialogBox.showRelativeTo(WlDeustoLogicBasedBoard.this.referenceToShowBoxesLabel);
+		    		LogicExperiment.this.changeUnknownGateDialogBox.showRelativeTo(LogicExperiment.this.referenceToShowBoxesLabel);
 		    }
 		    
 		});
@@ -321,10 +321,10 @@ public class WlDeustoLogicBasedBoard extends ExperimentBase {
 	 */
 	@UiHandler("sendSolutionButton")
 	public void onSendSolutionClicked(ClickEvent event) {
-		WlDeustoLogicBasedBoard.this.messages.setVisible(true);
-		WlDeustoLogicBasedBoard.this.sendCommand(new SolveCircuitCommand(WlDeustoLogicBasedBoard.this.circuit));
-		WlDeustoLogicBasedBoard.this.messages.setText("Sending solution");
-		WlDeustoLogicBasedBoard.this.messages.start();
+		LogicExperiment.this.messages.setVisible(true);
+		LogicExperiment.this.sendCommand(new SolveCircuitCommand(LogicExperiment.this.circuit));
+		LogicExperiment.this.messages.setText("Sending solution");
+		LogicExperiment.this.messages.start();
 	}
 	
 	
@@ -356,19 +356,19 @@ public class WlDeustoLogicBasedBoard extends ExperimentBase {
 	
 	private String getWebcamImageUrl() {
 		return this.configurationRetriever.getProperty(
-			WlDeustoLogicBasedBoard.LOGIC_WEBCAM_IMAGE_URL_PROPERTY, 
+			LogicExperiment.LOGIC_WEBCAM_IMAGE_URL_PROPERTY, 
 				this.getDefaultWebcamImageUrl()
 			);
 	}
 	
 	protected String getDefaultWebcamImageUrl(){
-		return WlDeustoLogicBasedBoard.DEFAULT_LOGIC_WEBCAM_IMAGE_URL;
+		return LogicExperiment.DEFAULT_LOGIC_WEBCAM_IMAGE_URL;
 	}
 
 	private int getWebcamRefreshingTime() {
 		return this.configurationRetriever.getIntProperty(
-			WlDeustoLogicBasedBoard.LOGIC_WEBCAM_REFRESH_TIME_PROPERTY, 
-			WlDeustoLogicBasedBoard.DEFAULT_LOGIC_WEBCAM_REFRESH_TIME
+			LogicExperiment.LOGIC_WEBCAM_REFRESH_TIME_PROPERTY, 
+			LogicExperiment.DEFAULT_LOGIC_WEBCAM_REFRESH_TIME
 			);
 	}
 
@@ -420,7 +420,7 @@ public class WlDeustoLogicBasedBoard extends ExperimentBase {
 
 					@Override
 					public void run() {
-						WlDeustoLogicBasedBoard.this
+						LogicExperiment.this
 								.sendCommand(new GetCircuitCommand());
 					}
 					

@@ -17,22 +17,22 @@ package es.deusto.weblab.client.lab.experiments;
 import java.util.List;
 import java.util.Vector;
 
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.binary.WebLabBinaryCreatorFactory;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.dummy.WebLabDummyCreatorFactory;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.dummybatch.WebLabDummyBatchCreatorFactory;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.WebLabGpibCreatorFactory;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib1.WebLabGpib1CreatorFactory;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib2.WebLabGpib2CreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.binary.BinaryCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.dummy.DummyCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.dummybatch.DummyBatchCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.GpibCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib1.Gpib1CreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib2.Gpib2CreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.labview.LabVIEWCreatorFactory;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.WebLabLogicCreatorFactory;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic.WebLabPicCreatorFactory;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic2.WebLabPic2CreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.LogicCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic.PicCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic2.Pic2CreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.robot_movement.RobotMovementCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.robot_proglist.RobotProglistCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.robot_standard.RobotStandardCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.visir.VisirCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.vm.VMCreatorFactory;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.WebLabXilinxCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.XilinxCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.util.applets.flash.FlashAppCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.util.applets.java.JavaAppletCreatorFactory;
 
@@ -46,18 +46,18 @@ class EntryRegistry {
 		new VisirCreatorFactory(),
 		new FlashAppCreatorFactory(),
 		new JavaAppletCreatorFactory(),
-		new WebLabXilinxCreatorFactory(),
-		new WebLabDummyCreatorFactory(),
-		new WebLabDummyBatchCreatorFactory(),
+		new XilinxCreatorFactory(),
+		new DummyCreatorFactory(),
+		new DummyBatchCreatorFactory(),
 		new VMCreatorFactory(),
 		new LabVIEWCreatorFactory(),
-		new WebLabLogicCreatorFactory(),
-		new WebLabBinaryCreatorFactory(),
-		new WebLabGpibCreatorFactory(),
-		new WebLabGpib1CreatorFactory(),
-		new WebLabGpib2CreatorFactory(),
-		new WebLabPicCreatorFactory(),
-		new WebLabPic2CreatorFactory(),
+		new LogicCreatorFactory(),
+		new BinaryCreatorFactory(),
+		new GpibCreatorFactory(),
+		new Gpib1CreatorFactory(),
+		new Gpib2CreatorFactory(),
+		new PicCreatorFactory(),
+		new Pic2CreatorFactory(),
 		new RobotStandardCreatorFactory(),
 		new RobotMovementCreatorFactory(),
 		new RobotProglistCreatorFactory()

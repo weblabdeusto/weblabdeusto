@@ -37,7 +37,7 @@ import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
 
-public class RobotMovementBoard extends ExperimentBase {
+public class RobotMovementExperiment extends ExperimentBase {
 
 	private static final String RIGHT = "RIGHT";
 
@@ -55,7 +55,7 @@ public class RobotMovementBoard extends ExperimentBase {
 	 * UIBINDER RELATED
 	 ******************/
 	
-	interface RobotMovementBoardUiBinder extends UiBinder<Widget, RobotMovementBoard> {
+	interface RobotMovementBoardUiBinder extends UiBinder<Widget, RobotMovementExperiment> {
 	}
 	
 	private static final RobotMovementBoardUiBinder uiBinder = GWT.create(RobotMovementBoardUiBinder.class);
@@ -87,14 +87,14 @@ public class RobotMovementBoard extends ExperimentBase {
 	
 	@UiField(provided = true) WlWebcam webcam;
 	
-	public RobotMovementBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
+	public RobotMovementExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
 		super(commandSender);
 		
 		this.configurationRetriever = configurationRetriever;
 		
 		this.createProvidedWidgets();
 		
-		RobotMovementBoard.uiBinder.createAndBindUi(this);
+		RobotMovementExperiment.uiBinder.createAndBindUi(this);
 		
 		this.buttons = new HashMap<String, Image>();
 		this.buttons.put(UP, this.upButton);
@@ -111,7 +111,7 @@ public class RobotMovementBoard extends ExperimentBase {
 		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
 			@Override
 			public void onFinished() {
-			    RobotMovementBoard.this.boardController.onClean();
+			    RobotMovementExperiment.this.boardController.onClean();
 			}
 		});
 		this.timer.start();
@@ -131,8 +131,8 @@ public class RobotMovementBoard extends ExperimentBase {
 	
 	private int getWebcamRefreshingTime() {
 		return this.configurationRetriever.getIntProperty(
-			RobotMovementBoard.WEBCAM_REFRESH_TIME_PROPERTY, 
-			RobotMovementBoard.DEFAULT_WEBCAM_REFRESH_TIME
+			RobotMovementExperiment.WEBCAM_REFRESH_TIME_PROPERTY, 
+			RobotMovementExperiment.DEFAULT_WEBCAM_REFRESH_TIME
 		);
 	}	
 	
@@ -165,15 +165,15 @@ public class RobotMovementBoard extends ExperimentBase {
 			@Override
 			public void onFailure(WlCommException e) {
 				e.printStackTrace();
-				RobotMovementBoard.this.messages.setText("Failed: " + e.getMessage());
-				RobotMovementBoard.this.messages.stop();
+				RobotMovementExperiment.this.messages.setText("Failed: " + e.getMessage());
+				RobotMovementExperiment.this.messages.stop();
 			}
 
 			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
-				RobotMovementBoard.this.inputWidgetsPanel.setVisible(true);
-				RobotMovementBoard.this.messages.setText("You can now control the bot");
-				RobotMovementBoard.this.messages.stop();
+				RobotMovementExperiment.this.inputWidgetsPanel.setVisible(true);
+				RobotMovementExperiment.this.messages.setText("You can now control the bot");
+				RobotMovementExperiment.this.messages.stop();
 			}
 	    });
 	    
@@ -241,8 +241,8 @@ public class RobotMovementBoard extends ExperimentBase {
 			
 			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
-				RobotMovementBoard.this.buttonsEnabled = true;
-				if(currentMove == RobotMovementBoard.this.moveNumber)
+				RobotMovementExperiment.this.buttonsEnabled = true;
+				if(currentMove == RobotMovementExperiment.this.moveNumber)
 					enableButtons();
 				else
 					disableButton(s);

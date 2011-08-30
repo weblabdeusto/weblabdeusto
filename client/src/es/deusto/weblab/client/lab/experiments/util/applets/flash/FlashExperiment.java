@@ -26,7 +26,7 @@ import com.google.gwt.user.client.Window;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard;
 
-public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
+public class FlashExperiment extends AbstractExternalAppBasedBoard{
 
 	public static final int WAIT_AFTER_START = 500;
 	
@@ -52,7 +52,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 	private int timeSet;
 	
 	/**
-	 * Constructs a WeblabFlashAppBasedBoard. The flash applet is placed on the
+	 * Constructs a FlashExperiment. The flash applet is placed on the
 	 * website immediately.
 	 * 
 	 * @param configurationRetriever Reference to the configuration manager.
@@ -64,7 +64,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 	 * flashvars parameters.
 	 * @param message Message to display.
 	 */
-	public WebLabFlashAppBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController,
+	public FlashExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController,
 			String swfFile,
 			int width,
 			int height, 
@@ -76,7 +76,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 	
 	
 	/**
-	 * Constructs a WeblabFlashAppBasedBoard. If deferFlashApp is set to true,
+	 * Constructs a FlashExperiment. If deferFlashApp is set to true,
 	 * the flash applet is not placed on the website until the experiment is
 	 * started and hence the start() method is called.
 	 * 
@@ -92,7 +92,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 	 * @param deferFlashApp If true, the flash applet won't be placed until
 	 * the experiment starts.
 	 */
-	public WebLabFlashAppBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController,
+	public FlashExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController,
 			String swfFile,
 			int width,
 			int height, 
@@ -110,7 +110,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 
 		this.flashTimeout = configurationRetriever.getIntProperty("flash.timeout", 10);
 		
-		WebLabFlashAppBasedBoard.createJavaScriptCode(this.html.getElement(), this.width+10, 0);
+		FlashExperiment.createJavaScriptCode(this.html.getElement(), this.width+10, 0);
 	}
 	
 	
@@ -152,7 +152,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 	@Override
 	public void initialize(){
 		if(!this.deferred)
-			WebLabFlashAppBasedBoard.populateIframe(this.swfFile, this.width, 
+			FlashExperiment.populateIframe(this.swfFile, this.width, 
 					this.height, this.width + 10, this.height + 10, this.flashvars);
 	}
 
@@ -175,7 +175,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 		super.setTime(time);
 		
 		if(!this.deferred) {
-			WebLabFlashAppBasedBoard.findFlashReference();
+			FlashExperiment.findFlashReference();
 			AbstractExternalAppBasedBoard.setTimeImpl(time);
 		} else {
 			this.timeSet = time;
@@ -188,7 +188,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 		// If we are executing in deferred mode, we have not populated the iframe yet,
 		// so we do it now.
 		if(this.deferred)
-			WebLabFlashAppBasedBoard.populateIframe(this.swfFile, this.width, 
+			FlashExperiment.populateIframe(this.swfFile, this.width, 
 				this.height, this.width+10, this.height+10, this.flashvars);
 		
 		
@@ -205,19 +205,19 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 				try{
 					// Find a reference to the flash app. Very likely to fail
 					// at first because of the app loading delay.
-					WebLabFlashAppBasedBoard.findFlashReference();
+					FlashExperiment.findFlashReference();
 				}catch(Exception e){
 					
 					final long ended = (new Date()).getTime();
 					final long elapsed = ended - whenStarted;
 					
 					// Make sure we have not spent too much time waiting for flash to start
-					if(elapsed > WebLabFlashAppBasedBoard.this.flashTimeout*1000){	
-						WebLabFlashAppBasedBoard.this.startTimedOut = true;
+					if(elapsed > FlashExperiment.this.flashTimeout*1000){	
+						FlashExperiment.this.startTimedOut = true;
 						Window.alert("Flash does not seem to be reachable by your web browser. Contact the administrator saying what web browser you are using and this line: " + e.getMessage());
 						e.printStackTrace();
 					}else
-						WebLabFlashAppBasedBoard.this.initializationTimer.schedule(WebLabFlashAppBasedBoard.WAIT_AFTER_START);
+						FlashExperiment.this.initializationTimer.schedule(FlashExperiment.WAIT_AFTER_START);
 					return;
 				}
 				
@@ -230,8 +230,8 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 				// not sent to the flash app yet. If, however, we are running on non-deferred mode,
 				// the time will have been sent already, just as soon as it was received. Hence, we 
 				// should not set it again. In fact, we do not necessarily even store the value.
-				if(WebLabFlashAppBasedBoard.this.deferred)
-					AbstractExternalAppBasedBoard.setTimeImpl(WebLabFlashAppBasedBoard.this.timeSet);
+				if(FlashExperiment.this.deferred)
+					AbstractExternalAppBasedBoard.setTimeImpl(FlashExperiment.this.timeSet);
 			}
 			
 		};
@@ -241,7 +241,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 		// We use the same technique for the non-deferred mode, because the flash could take a long
 		// time to load just the same.
 		if(this.deferred)
-			this.initializationTimer.schedule(WebLabFlashAppBasedBoard.WAIT_AFTER_START);
+			this.initializationTimer.schedule(FlashExperiment.WAIT_AFTER_START);
 		else
 			this.initializationTimer.schedule(1);
 	}
@@ -251,7 +251,7 @@ public class WebLabFlashAppBasedBoard extends AbstractExternalAppBasedBoard{
 		// Check that we were in fact able to access flash. Otherwise, it is pointless to
 		// try to call the end function on it.
 		if(!this.startTimedOut)  {
-			WebLabFlashAppBasedBoard.findFlashReference();
+			FlashExperiment.findFlashReference();
 			AbstractExternalAppBasedBoard.endImpl();
 		}
 	}

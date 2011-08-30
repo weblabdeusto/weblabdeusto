@@ -40,7 +40,7 @@ import es.deusto.weblab.client.ui.widgets.WlTimer;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
-public class VMBoard extends ExperimentBase {
+public class VMExperiment extends ExperimentBase {
 	
 	private static final String DEFAULT_VNC_HEIGHT = "900";
 	private static final String DEFAULT_VNC_WIDTH  = "1152";
@@ -52,7 +52,7 @@ public class VMBoard extends ExperimentBase {
 	 * UIBINDER RELATED
 	 ******************/
 	
-	interface VMBoardUiBinder extends UiBinder<Widget, VMBoard> {
+	interface VMBoardUiBinder extends UiBinder<Widget, VMExperiment> {
 	}
 
 	private static final VMBoardUiBinder uiBinder = GWT.create(VMBoardUiBinder.class);
@@ -85,14 +85,14 @@ public class VMBoard extends ExperimentBase {
 	private boolean vmReady = false;
 	
 	
-	public VMBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
+	public VMExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
 		super(commandSender);
 		
 		this.configurationRetriever = configurationRetriever;
 		
 		this.createProvidedWidgets();
 		
-		VMBoard.uiBinder.createAndBindUi(this);
+		VMExperiment.uiBinder.createAndBindUi(this);
 	}
 	
 	/**
@@ -103,7 +103,7 @@ public class VMBoard extends ExperimentBase {
 		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
 			@Override
 			public void onFinished() {
-			    VMBoard.this.boardController.onClean();
+			    VMExperiment.this.boardController.onClean();
 			}
 		});
 		this.timer.start();
@@ -121,23 +121,23 @@ public class VMBoard extends ExperimentBase {
 					}
 				};
 				
-				VMBoard.this.boardController.sendCommand(command, new IResponseCommandCallback() {
+				VMExperiment.this.boardController.sendCommand(command, new IResponseCommandCallback() {
 					@Override
 					public void onFailure(WlCommException e) {
-						VMBoard.this.setMessage("There was an error while trying to find out whether the Virtual Machine is ready");
+						VMExperiment.this.setMessage("There was an error while trying to find out whether the Virtual Machine is ready");
 						
-						VMBoard.this.progressBar.setTextUpdater(new IProgressBarTextUpdater() {
+						VMExperiment.this.progressBar.setTextUpdater(new IProgressBarTextUpdater() {
 							@Override
 							public String generateText(double progress) {
 								return "Error: Server not available";
 							}} );
-						if(VMBoard.this.progressBar.isWaiting()){
-							VMBoard.this.progressBar.stop();
-							VMBoard.this.progressBar.setVisible(false);
+						if(VMExperiment.this.progressBar.isWaiting()){
+							VMExperiment.this.progressBar.stop();
+							VMExperiment.this.progressBar.setVisible(false);
 						}else{
 							// Will automatically remove itself once it reaches 100%, when the
 							// finished callback gets called.
-							VMBoard.this.progressBar.finish(300);
+							VMExperiment.this.progressBar.finish(300);
 						}
 					}
 					@Override
@@ -146,7 +146,7 @@ public class VMBoard extends ExperimentBase {
 						// Read the full message returned by the exp server and ensure it's not empty
 						final String resp = responseCommand.getCommandString();
 						if(resp.length() == 0) 
-							VMBoard.this.setMessage("The is_ready query returned an empty result");
+							VMExperiment.this.setMessage("The is_ready query returned an empty result");
 						
 						// It may come with an argument, in the format <code>;<arg>,
 						// so we split it to retrieve the <code> and the <arg>.
@@ -166,36 +166,36 @@ public class VMBoard extends ExperimentBase {
 						
 						if(codeStr.equals("0")) {
 							// Not ready
-							VMBoard.this.setMessage("Your Virtual Machine is not yet ready. Please, wait. It often takes around " + argStr + " seconds.");
-							VMBoard.this.readyTimer.schedule(IS_READY_QUERY_TIMER);
+							VMExperiment.this.setMessage("Your Virtual Machine is not yet ready. Please, wait. It often takes around " + argStr + " seconds.");
+							VMExperiment.this.readyTimer.schedule(IS_READY_QUERY_TIMER);
 							
-							if(!VMBoard.this.progressBar.isRunning() && !VMBoard.this.progressBarRun) {
+							if(!VMExperiment.this.progressBar.isRunning() && !VMExperiment.this.progressBarRun) {
 								
-								VMBoard.this.progressBarRun = true;
+								VMExperiment.this.progressBarRun = true;
 								final double estimatedSeconds = Double.parseDouble(argStr);
-								VMBoard.this.progressBar.setEstimatedTime((int) (estimatedSeconds * 1000));
-								VMBoard.this.progressBar.setResolution(40);
-								VMBoard.this.progressBar.setWaitPoint(0.98);
+								VMExperiment.this.progressBar.setEstimatedTime((int) (estimatedSeconds * 1000));
+								VMExperiment.this.progressBar.setResolution(40);
+								VMExperiment.this.progressBar.setWaitPoint(0.98);
 								
 								// The progress bar will automatically disappear as soon as it
 								// is full.
-								VMBoard.this.progressBar.setListener(new IProgressBarListener(){
+								VMExperiment.this.progressBar.setListener(new IProgressBarListener(){
 									@Override
 									public void onFinished() {
-										if(VMBoard.this.vmReady){
-											VMBoard.this.progressBar.setVisible(false);
+										if(VMExperiment.this.vmReady){
+											VMExperiment.this.progressBar.setVisible(false);
 										}else{
-											VMBoard.this.progressBar.keepWaiting();
-											VMBoard.this.progressBar.setTextUpdater(new TextProgressBarTextUpdater("Finishing..."));
+											VMExperiment.this.progressBar.keepWaiting();
+											VMExperiment.this.progressBar.setTextUpdater(new TextProgressBarTextUpdater("Finishing..."));
 										}
 									}});
 								
-								VMBoard.this.progressBar.setTextUpdater(new IProgressBarTextUpdater() {
+								VMExperiment.this.progressBar.setTextUpdater(new IProgressBarTextUpdater() {
 									
 									@Override
 									public String generateText(double progress) {
 										
-										final long elapsed = VMBoard.this.progressBar.getElapsedTime();
+										final long elapsed = VMExperiment.this.progressBar.getElapsedTime();
 										
 										if(elapsed > 1000 * (estimatedSeconds + 1)) {
 											return "Finishing...";
@@ -208,43 +208,43 @@ public class VMBoard extends ExperimentBase {
 										return "Loading, please wait (" + (int)(progress*100) + "%)";
 									}} );
 								
-								VMBoard.this.progressBar.start();
+								VMExperiment.this.progressBar.start();
 								
 							}
 							
 						} else if(codeStr.equals("1")) {
-							VMBoard.this.vmReady = true;
+							VMExperiment.this.vmReady = true;
 							// Ready
-							VMBoard.this.setMessage("Your Virtual Machine is now ready!");
-							if(VMBoard.this.protocol.equals("vnc"))
+							VMExperiment.this.setMessage("Your Virtual Machine is now ready!");
+							if(VMExperiment.this.protocol.equals("vnc"))
 								loadVNCApplet();
 							
-							if(VMBoard.this.progressBar.isWaiting()){
-								VMBoard.this.progressBar.stop();
-								VMBoard.this.progressBar.setVisible(false);
+							if(VMExperiment.this.progressBar.isWaiting()){
+								VMExperiment.this.progressBar.stop();
+								VMExperiment.this.progressBar.setVisible(false);
 							}else{
 								// Will automatically remove itself once it reaches 100%, when the
 								// finished callback gets called.
-								VMBoard.this.progressBar.finish(300);
+								VMExperiment.this.progressBar.finish(300);
 							}
 							
 						} else {
-							VMBoard.this.vmReady = true;
+							VMExperiment.this.vmReady = true;
 							// Unexpected answer
-							VMBoard.this.setMessage("Received unexpected response to the is_ready query");
+							VMExperiment.this.setMessage("Received unexpected response to the is_ready query");
 							
-							VMBoard.this.progressBar.setTextUpdater(new IProgressBarTextUpdater() {
+							VMExperiment.this.progressBar.setTextUpdater(new IProgressBarTextUpdater() {
 								@Override
 								public String generateText(double progress) {
 									return "Error: Unexpected reply";
 								}} );
-							if(VMBoard.this.progressBar.isWaiting()){
-								VMBoard.this.progressBar.stop();
-								VMBoard.this.progressBar.setVisible(false);
+							if(VMExperiment.this.progressBar.isWaiting()){
+								VMExperiment.this.progressBar.stop();
+								VMExperiment.this.progressBar.setVisible(false);
 							}else{
 								// Will automatically remove itself once it reaches 100%, when the
 								// finished callback gets called.
-								VMBoard.this.progressBar.finish(300);
+								VMExperiment.this.progressBar.finish(300);
 							}
 						}
 					}
@@ -284,7 +284,7 @@ public class VMBoard extends ExperimentBase {
 		anchor.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				VMBoard.this.applets.clear();
+				VMExperiment.this.applets.clear();
 				final HTML appletHTML = new HTML();
 				appletHTML.setHTML("<applet archive='" + archive + "' " + 
 		        		"code='" + code + "' " + 
@@ -295,7 +295,7 @@ public class VMBoard extends ExperimentBase {
 		        		"<PARAM NAME=\"HOST\" VALUE=\"" + host + "\"> " +
 		        		"<PARAM NAME=\"PASSWORD\" VALUE=\"" + password + "\"> " +	
 		        	"</applet>");
-				VMBoard.this.applets.add(appletHTML);
+				VMExperiment.this.applets.add(appletHTML);
 			}
 		});
 	}
@@ -370,15 +370,15 @@ public class VMBoard extends ExperimentBase {
 		this.boardController.sendCommand(command, new IResponseCommandCallback() {
 			@Override
 			public void onFailure(WlCommException e) {
-				VMBoard.this.setMessage("It was not possible to obtain the VM configuration");
+				VMExperiment.this.setMessage("It was not possible to obtain the VM configuration");
 			}
 			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
 				final String msg = "VM address:";
-				VMBoard.this.setMessage(msg);
-				VMBoard.this.url.setText(responseCommand.getCommandString());
-				VMBoard.this.protocol = responseCommand.getCommandString().split(":")[0].toLowerCase();
-				VMBoard.this.fullURLPassword = responseCommand.getCommandString();
+				VMExperiment.this.setMessage(msg);
+				VMExperiment.this.url.setText(responseCommand.getCommandString());
+				VMExperiment.this.protocol = responseCommand.getCommandString().split(":")[0].toLowerCase();
+				VMExperiment.this.fullURLPassword = responseCommand.getCommandString();
 			}
 		});
 	}

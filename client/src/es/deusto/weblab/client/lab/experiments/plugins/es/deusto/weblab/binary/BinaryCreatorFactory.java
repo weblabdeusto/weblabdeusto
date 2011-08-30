@@ -12,7 +12,7 @@
 *
 */
 
-package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic;
+package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.binary;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
@@ -23,13 +23,13 @@ import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic.ui.WlDeustoPicBasedBoard;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.binary.ui.BinaryExperiment;
 
-public class WebLabPicCreatorFactory implements IExperimentCreatorFactory {
+public class BinaryCreatorFactory implements IExperimentCreatorFactory {
 
 	@Override
 	public String getCodeName() {
-		return "pic";
+		return "binary";
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class WebLabPicCreatorFactory implements IExperimentCreatorFactory {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new WlDeustoPicBasedBoard(
+						callback.onExperimentLoaded(new BinaryExperiment(
 								configurationRetriever,
 								boardController
 							));
@@ -54,4 +54,5 @@ public class WebLabPicCreatorFactory implements IExperimentCreatorFactory {
 			}
 		};
 	}
+
 }

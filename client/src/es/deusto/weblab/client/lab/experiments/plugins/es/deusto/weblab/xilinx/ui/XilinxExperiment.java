@@ -46,14 +46,14 @@ import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
 
-public class WlDeustoXilinxBasedBoard extends ExperimentBase{
+public class XilinxExperiment extends ExperimentBase{
 
 	
 	 /******************
 	 * UIBINDER RELATED
 	 ******************/
 	
-	interface WlDeustoXilinxBasedBoardUiBinder extends UiBinder<Widget, WlDeustoXilinxBasedBoard> {
+	interface WlDeustoXilinxBasedBoardUiBinder extends UiBinder<Widget, XilinxExperiment> {
 	}
 
 	private static final WlDeustoXilinxBasedBoardUiBinder uiBinder = GWT.create(WlDeustoXilinxBasedBoardUiBinder.class);
@@ -119,7 +119,7 @@ public class WlDeustoXilinxBasedBoard extends ExperimentBase{
 
 	private final Vector<Widget> interactiveWidgets;
 	
-	public WlDeustoXilinxBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController){
+	public XilinxExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController){
 		super(boardController);
 		
 		this.deviceReady = false;
@@ -130,7 +130,7 @@ public class WlDeustoXilinxBasedBoard extends ExperimentBase{
 		
 		this.createProvidedWidgets();
 		
-		WlDeustoXilinxBasedBoard.uiBinder.createAndBindUi(this);
+		XilinxExperiment.uiBinder.createAndBindUi(this);
 		
 		this.webcamPanel.add(this.webcam.getWidget());
 		
@@ -149,29 +149,29 @@ public class WlDeustoXilinxBasedBoard extends ExperimentBase{
 	
 	private boolean isDemo(){
 		return this.configurationRetriever.getBoolProperty(
-				WlDeustoXilinxBasedBoard.XILINX_DEMO_PROPERTY, 
-				WlDeustoXilinxBasedBoard.DEFAULT_XILINX_DEMO
+				XilinxExperiment.XILINX_DEMO_PROPERTY, 
+				XilinxExperiment.DEFAULT_XILINX_DEMO
 			);
 	}
 	
 	private boolean isMultiresourceDemo(){
 		return this.configurationRetriever.getBoolProperty(
-				WlDeustoXilinxBasedBoard.XILINX_MULTIRESOURCE_DEMO_PROPERTY, 
-				WlDeustoXilinxBasedBoard.DEFAULT_MULTIRESOURCE_XILINX_DEMO
+				XilinxExperiment.XILINX_MULTIRESOURCE_DEMO_PROPERTY, 
+				XilinxExperiment.DEFAULT_MULTIRESOURCE_XILINX_DEMO
 			);
 	}
 	
 	private String getWebcamImageUrl() {
 		return this.configurationRetriever.getProperty(
-				WlDeustoXilinxBasedBoard.XILINX_WEBCAM_IMAGE_URL_PROPERTY, 
-				WlDeustoXilinxBasedBoard.DEFAULT_XILINX_WEBCAM_IMAGE_URL
+				XilinxExperiment.XILINX_WEBCAM_IMAGE_URL_PROPERTY, 
+				XilinxExperiment.DEFAULT_XILINX_WEBCAM_IMAGE_URL
 			);
 	}
 
 	private int getWebcamRefreshingTime() {
 		return this.configurationRetriever.getIntProperty(
-				WlDeustoXilinxBasedBoard.XILINX_WEBCAM_REFRESH_TIME_PROPERTY, 
-				WlDeustoXilinxBasedBoard.DEFAULT_XILINX_WEBCAM_REFRESH_TIME
+				XilinxExperiment.XILINX_WEBCAM_REFRESH_TIME_PROPERTY, 
+				XilinxExperiment.DEFAULT_XILINX_WEBCAM_REFRESH_TIME
 			);
 	}	
 	
@@ -219,7 +219,7 @@ public class WlDeustoXilinxBasedBoard extends ExperimentBase{
 		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
 			@Override
 			public void onFinished() {
-				WlDeustoXilinxBasedBoard.this.boardController.onClean();
+				XilinxExperiment.this.boardController.onClean();
 			}
 		});
 		
@@ -261,7 +261,7 @@ public class WlDeustoXilinxBasedBoard extends ExperimentBase{
 						if(eqsign != -1){
 							final String time = responseCommand.getCommandString().substring(eqsign+1);
 							try{
-								WlDeustoXilinxBasedBoard.this.expectedProgrammingTime = Integer.parseInt(time) * 1000;
+								XilinxExperiment.this.expectedProgrammingTime = Integer.parseInt(time) * 1000;
 							}catch(Exception e){
 							}
 						}
@@ -314,10 +314,10 @@ public class WlDeustoXilinxBasedBoard extends ExperimentBase{
 				
 				
 				// Send the command and react to the response
-				WlDeustoXilinxBasedBoard.this.boardController.sendCommand(command, new IResponseCommandCallback() {
+				XilinxExperiment.this.boardController.sendCommand(command, new IResponseCommandCallback() {
 					@Override
 					public void onFailure(WlCommException e) {
-						WlDeustoXilinxBasedBoard.this.messages.setText("There was an error while trying to find out whether the experiment is ready");
+						XilinxExperiment.this.messages.setText("There was an error while trying to find out whether the experiment is ready");
 					}
 					@Override
 					public void onSuccess(ResponseCommand responseCommand) {
@@ -325,29 +325,29 @@ public class WlDeustoXilinxBasedBoard extends ExperimentBase{
 						// Read the full message returned by the exp server and ensure it's not empty
 						final String resp = responseCommand.getCommandString();
 						if(resp.length() == 0) 
-							WlDeustoXilinxBasedBoard.this.messages.setText("The STATE query returned an empty result");
+							XilinxExperiment.this.messages.setText("The STATE query returned an empty result");
 						
 						// The command follows the format STATE=ready
 						// Extract both parts
 						final String [] tokens = resp.split("=", 2);
 						if(tokens.length != 2 || !tokens[0].equals("STATE")) {
-							WlDeustoXilinxBasedBoard.this.messages.setText("Unexpected response ot the STATE query: " + resp);
+							XilinxExperiment.this.messages.setText("Unexpected response ot the STATE query: " + resp);
 							return;
 						}
 						
 						final String state = tokens[1];
 						
 						if(state.equals(STATE_NOT_READY)) {
-							WlDeustoXilinxBasedBoard.this.readyTimer.schedule(IS_READY_QUERY_TIMER);
+							XilinxExperiment.this.readyTimer.schedule(IS_READY_QUERY_TIMER);
 						} else if(state.equals(STATE_READY)) {
 							// Ready
-							WlDeustoXilinxBasedBoard.this.onDeviceReady();
+							XilinxExperiment.this.onDeviceReady();
 						} else if(state.equals(STATE_PROGRAMMING)) {
-							WlDeustoXilinxBasedBoard.this.readyTimer.schedule(IS_READY_QUERY_TIMER);
+							XilinxExperiment.this.readyTimer.schedule(IS_READY_QUERY_TIMER);
 						} else if(state.equals(STATE_FAILED)) {
-							WlDeustoXilinxBasedBoard.this.onDeviceProgrammingFailed();
+							XilinxExperiment.this.onDeviceProgrammingFailed();
 						} else {
-							WlDeustoXilinxBasedBoard.this.messages.setText("Received unexpected response to the STATE query");
+							XilinxExperiment.this.messages.setText("Received unexpected response to the STATE query");
 						}
 					} //! onSuccess
 				}); //! new IResponseCommandCallback for the STATE command.
@@ -364,25 +364,25 @@ public class WlDeustoXilinxBasedBoard extends ExperimentBase{
 	    
 	    @Override
 	    public void onSuccess(ResponseCommand response) {
-	    	WlDeustoXilinxBasedBoard.this.messages.setText("File sent. Programming device");
+	    	XilinxExperiment.this.messages.setText("File sent. Programming device");
 	    }
 
 	    @Override
 	    public void onFailure(WlCommException e) {
 	    	
-		    if(WlDeustoXilinxBasedBoard.DEBUG_ENABLED)
-		    	WlDeustoXilinxBasedBoard.this.enableInteractiveWidgets();
+		    if(XilinxExperiment.DEBUG_ENABLED)
+		    	XilinxExperiment.this.enableInteractiveWidgets();
 		    
-	    	WlDeustoXilinxBasedBoard.this.messages.stop();
+	    	XilinxExperiment.this.messages.stop();
 	    	
-	    	WlDeustoXilinxBasedBoard.this.progressBar.stop();
-	    	WlDeustoXilinxBasedBoard.this.progressBar.setTextUpdater(new IProgressBarTextUpdater(){
+	    	XilinxExperiment.this.progressBar.stop();
+	    	XilinxExperiment.this.progressBar.setTextUpdater(new IProgressBarTextUpdater(){
 				@Override
 				public String generateText(double progress) {
 					return "Error. Could not complete.";
 				}});
 				
-			WlDeustoXilinxBasedBoard.this.messages.setText("Error sending file: " + e.getMessage());
+			XilinxExperiment.this.messages.setText("Error sending file: " + e.getMessage());
 		    
 	    }
 	};	
@@ -393,7 +393,7 @@ public class WlDeustoXilinxBasedBoard extends ExperimentBase{
 	private void onDeviceReady() {
 		this.deviceReady = true;
 		
-		if(WlDeustoXilinxBasedBoard.this.progressBar.isWaiting()){
+		if(XilinxExperiment.this.progressBar.isWaiting()){
 			this.progressBar.stop();
 			this.progressBar.setVisible(false);
 		}else
@@ -413,7 +413,7 @@ public class WlDeustoXilinxBasedBoard extends ExperimentBase{
 	private void onDeviceProgrammingFailed() {
 		this.deviceReady = true;
 		
-		if(WlDeustoXilinxBasedBoard.this.progressBar.isWaiting()){
+		if(XilinxExperiment.this.progressBar.isWaiting()){
 			this.progressBar.stop();
 			this.progressBar.setVisible(false);
 		}else
@@ -460,12 +460,12 @@ public class WlDeustoXilinxBasedBoard extends ExperimentBase{
 		this.progressBar.setListener(new IProgressBarListener() {
 			@Override
 			public void onFinished() {
-				if(WlDeustoXilinxBasedBoard.this.deviceReady){
-					WlDeustoXilinxBasedBoard.this.progressBar.setVisible(false);
+				if(XilinxExperiment.this.deviceReady){
+					XilinxExperiment.this.progressBar.setVisible(false);
 				}else{
 					// This order is important, since setTextUpdater would call onFinished again
-					WlDeustoXilinxBasedBoard.this.progressBar.keepWaiting();
-					WlDeustoXilinxBasedBoard.this.progressBar.setTextUpdater(new TextProgressBarTextUpdater("Finishing programming..."));
+					XilinxExperiment.this.progressBar.keepWaiting();
+					XilinxExperiment.this.progressBar.setTextUpdater(new TextProgressBarTextUpdater("Finishing programming..."));
 				}
 			}});
 		
@@ -604,8 +604,8 @@ public class WlDeustoXilinxBasedBoard extends ExperimentBase{
 		    @Override
 			public void onFailure(WlCommException e) {
     			GWT.log("responseCommand: failure", null);
-    			WlDeustoXilinxBasedBoard.this.messages.stop();
-    			WlDeustoXilinxBasedBoard.this.messages.setText("Error sending command: " + e.getMessage());
+    			XilinxExperiment.this.messages.stop();
+    			XilinxExperiment.this.messages.setText("Error sending command: " + e.getMessage());
 		    }
 		};	    
 	}

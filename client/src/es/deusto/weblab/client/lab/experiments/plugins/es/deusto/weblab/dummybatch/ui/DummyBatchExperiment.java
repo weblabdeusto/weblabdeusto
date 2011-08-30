@@ -20,7 +20,7 @@ import com.google.gwt.user.client.ui.Widget;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 
-public class WlDeustoDummyBatchBasedBoard extends ExperimentBase {
+public class DummyBatchExperiment extends ExperimentBase {
 
 	public static final String DUMMY_WEBCAM_IMAGE_URL_PROPERTY = "es.deusto.weblab.dummy.webcam.image.url";
 	public static final String DEFAULT_DUMMY_WEBCAM_IMAGE_URL       = "http://fpga.weblab.deusto.es/webcam/fpga0/image.jpg";
@@ -33,7 +33,7 @@ public class WlDeustoDummyBatchBasedBoard extends ExperimentBase {
 	
 	private VerticalPanel verticalPanel = new VerticalPanel();
 	
-	public WlDeustoDummyBatchBasedBoard(IConfigurationRetriever configurationRetriever,
+	public DummyBatchExperiment(IConfigurationRetriever configurationRetriever,
 			IBoardBaseController boardController) {
 		super(boardController);
 		this.configurationRetriever = configurationRetriever;

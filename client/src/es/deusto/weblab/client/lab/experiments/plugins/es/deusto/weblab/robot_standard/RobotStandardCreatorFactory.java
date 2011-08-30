@@ -23,7 +23,7 @@ import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.robot_standard.ui.RobotStandardBoard;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.robot_standard.ui.RobotStandardExperiment;
 
 public class RobotStandardCreatorFactory implements IExperimentCreatorFactory {
 
@@ -40,7 +40,7 @@ public class RobotStandardCreatorFactory implements IExperimentCreatorFactory {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new RobotStandardBoard(
+						callback.onExperimentLoaded(new RobotStandardExperiment(
 								configurationRetriever,
 								boardController
 							));

@@ -57,7 +57,7 @@ public class JavaAppletCreatorFactory implements IExperimentCreatorFactory{
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new WebLabJavaAppletsBasedBoard(
+						callback.onExperimentLoaded(new JavaAppletsExperiment(
 								configurationRetriever,
 								boardController,
 								archive, code,

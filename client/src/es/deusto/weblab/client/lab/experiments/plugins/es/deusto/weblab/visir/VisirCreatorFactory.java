@@ -41,7 +41,7 @@ public class VisirCreatorFactory implements IExperimentCreatorFactory {
 					@Override
 					public void onSuccess() {
 						callback.onExperimentLoaded(
-								new VisirFlashBoard(configurationRetriever, boardController));
+								new VisirExperiment(configurationRetriever, boardController));
 					}
 					
 					@Override

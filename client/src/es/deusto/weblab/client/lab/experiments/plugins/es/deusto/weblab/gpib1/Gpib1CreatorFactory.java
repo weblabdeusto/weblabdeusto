@@ -25,7 +25,7 @@ import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoad
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib1.ui.WlDeustoGpib1Board;
 
-public class WebLabGpib1CreatorFactory implements IExperimentCreatorFactory {
+public class Gpib1CreatorFactory implements IExperimentCreatorFactory {
 
 	@Override
 	public String getCodeName() {

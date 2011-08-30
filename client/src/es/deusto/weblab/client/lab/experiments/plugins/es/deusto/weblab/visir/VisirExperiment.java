@@ -21,9 +21,9 @@ import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard;
-import es.deusto.weblab.client.lab.experiments.util.applets.flash.WebLabFlashAppBasedBoard;
+import es.deusto.weblab.client.lab.experiments.util.applets.flash.FlashExperiment;
 
-public class VisirFlashBoard extends WebLabFlashAppBasedBoard {
+public class VisirExperiment extends FlashExperiment {
 	
 	
 	private String cookie = null;
@@ -38,7 +38,7 @@ public class VisirFlashBoard extends WebLabFlashAppBasedBoard {
 	 * @param configurationRetriever
 	 * @param boardController
 	 */
-	public VisirFlashBoard(IConfigurationRetriever configurationRetriever,
+	public VisirExperiment(IConfigurationRetriever configurationRetriever,
 			IBoardBaseController boardController) {
 		super(configurationRetriever, boardController, "", 800, 500,
 				 "",
@@ -75,14 +75,14 @@ public class VisirFlashBoard extends WebLabFlashAppBasedBoard {
 						boolean success = reqData.parseResponse(responseCommand.getCommandString());
 						
 						if(success) {
-							VisirFlashBoard.this.cookie = reqData.getCookie();
-							VisirFlashBoard.this.savedata = reqData.getSaveData();
-							VisirFlashBoard.this.url = reqData.getURL();
+							VisirExperiment.this.cookie = reqData.getCookie();
+							VisirExperiment.this.savedata = reqData.getSaveData();
+							VisirExperiment.this.url = reqData.getURL();
 						
-							VisirFlashBoard.this.updateFlashVars();
-							VisirFlashBoard.this.setSwfFile(VisirFlashBoard.this.url);
+							VisirExperiment.this.updateFlashVars();
+							VisirExperiment.this.setSwfFile(VisirExperiment.this.url);
 							
-							VisirFlashBoard.super.start(time, initialConfiguration);
+							VisirExperiment.super.start(time, initialConfiguration);
 						} else {
 							System.out.println("Could not parse response: " + responseCommand.getCommandString());
 						}
@@ -91,7 +91,7 @@ public class VisirFlashBoard extends WebLabFlashAppBasedBoard {
 					@Override
 					public void onFailure(WlCommException e) {
 						System.out.println("Error: Could not retrieve data");
-						VisirFlashBoard.super.start(time, initialConfiguration);
+						VisirExperiment.super.start(time, initialConfiguration);
 					}
 				}
 		);

@@ -41,14 +41,14 @@ import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
-public class WlDeustoPicBasedBoard extends ExperimentBase{
+public class PicExperiment extends ExperimentBase{
 	
 	
 	 /******************
 	 * UIBINDER RELATED
 	 ******************/
 	
-	interface PicBasedBoardUiBinder extends UiBinder<Widget, WlDeustoPicBasedBoard> {
+	interface PicBasedBoardUiBinder extends UiBinder<Widget, PicExperiment> {
 	}
 
 	private static final PicBasedBoardUiBinder uiBinder = GWT.create(PicBasedBoardUiBinder.class);
@@ -97,13 +97,13 @@ public class WlDeustoPicBasedBoard extends ExperimentBase{
 	private UploadStructure uploadStructure;
 	
 	
-	public WlDeustoPicBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController){
+	public PicExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController){
 		super(boardController);
 		
 		this.configurationRetriever = configurationRetriever;
 		
 		this.createProvidedWidgets();
-		WlDeustoPicBasedBoard.uiBinder.createAndBindUi(this);
+		PicExperiment.uiBinder.createAndBindUi(this);
 		
 		this.findInteractiveWidgets();
 		this.disableInteractiveWidgets();
@@ -151,7 +151,7 @@ public class WlDeustoPicBasedBoard extends ExperimentBase{
 	
 	public void createProvidedWidgets() {
 		
-		this.webcam = new WlWebcam(this.getWebcamRefreshingTime(), WlDeustoPicBasedBoard.DEFAULT_PIC_WEBCAM_IMAGE_URL);
+		this.webcam = new WlWebcam(this.getWebcamRefreshingTime(), PicExperiment.DEFAULT_PIC_WEBCAM_IMAGE_URL);
 		
 		this.timer = new WlTimer(false);	
 	}
@@ -181,19 +181,19 @@ public class WlDeustoPicBasedBoard extends ExperimentBase{
 		    
 		    @Override
 		    public void onSuccess(ResponseCommand response) {
-		    	WlDeustoPicBasedBoard.this.enableInteractiveWidgets();
-		    	WlDeustoPicBasedBoard.this.messages.setText("Device ready");
-		    	WlDeustoPicBasedBoard.this.messages.stop();
+		    	PicExperiment.this.enableInteractiveWidgets();
+		    	PicExperiment.this.messages.setText("Device ready");
+		    	PicExperiment.this.messages.stop();
 		    }
 
 		    @Override
 		    public void onFailure(WlCommException e) {
-		    	WlDeustoPicBasedBoard.this.messages.setText("Error sending file: " + e.getMessage());
+		    	PicExperiment.this.messages.setText("Error sending file: " + e.getMessage());
 		    
-		    	if(WlDeustoPicBasedBoard.DEBUG_ENABLED) {
-			    	WlDeustoPicBasedBoard.this.enableInteractiveWidgets();
-			    	WlDeustoPicBasedBoard.this.messages.setText("Device not ready but debugging enabled");
-			    	WlDeustoPicBasedBoard.this.messages.stop();
+		    	if(PicExperiment.DEBUG_ENABLED) {
+			    	PicExperiment.this.enableInteractiveWidgets();
+			    	PicExperiment.this.messages.setText("Device not ready but debugging enabled");
+			    	PicExperiment.this.messages.stop();
 		    	}
 		    
 		    }
@@ -269,7 +269,7 @@ public class WlDeustoPicBasedBoard extends ExperimentBase{
 		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
 			@Override
 			public void onFinished() {
-			    WlDeustoPicBasedBoard.this.boardController.onClean();
+			    PicExperiment.this.boardController.onClean();
 			}
 		});
 		this.timer.start();
@@ -386,8 +386,8 @@ public class WlDeustoPicBasedBoard extends ExperimentBase{
 
 	private int getWebcamRefreshingTime() {
 		return this.configurationRetriever.getIntProperty(
-			WlDeustoPicBasedBoard.PIC_WEBCAM_REFRESH_TIME_PROPERTY, 
-			WlDeustoPicBasedBoard.DEFAULT_PIC_WEBCAM_REFRESH_TIME
+			PicExperiment.PIC_WEBCAM_REFRESH_TIME_PROPERTY, 
+			PicExperiment.DEFAULT_PIC_WEBCAM_REFRESH_TIME
 			);
 	}	
 }

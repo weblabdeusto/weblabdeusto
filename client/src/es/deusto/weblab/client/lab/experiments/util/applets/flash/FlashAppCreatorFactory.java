@@ -55,7 +55,7 @@ public class FlashAppCreatorFactory implements IExperimentCreatorFactory {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new WebLabFlashAppBasedBoard(
+						callback.onExperimentLoaded(new FlashExperiment(
 								configurationRetriever,
 								boardController, swfFile,
 								width, height, "", message

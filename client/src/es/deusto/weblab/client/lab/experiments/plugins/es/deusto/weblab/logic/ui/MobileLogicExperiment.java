@@ -39,7 +39,7 @@ import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.ui.WlDeustoGpibBoard;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.ui.GpibExperiment;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.circuit.Circuit;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.circuit.CircuitParser;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.circuit.Gate;
@@ -53,7 +53,7 @@ import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
-public class MobileWlDeustoLogicBasedBoard extends ExperimentBase {
+public class MobileLogicExperiment extends ExperimentBase {
 
 	public static final String LOGIC_WEBCAM_IMAGE_URL_PROPERTY = "es.deusto.weblab.logic.webcam.image.url";
 	public static final String DEFAULT_LOGIC_WEBCAM_IMAGE_URL = "https://www.weblab.deusto.es/webcam/logic0/image.jpg?size=1";
@@ -109,16 +109,16 @@ public class MobileWlDeustoLogicBasedBoard extends ExperimentBase {
 
 	    @Override
 		public void onSuccess(ResponseCommand responseCommand) {
-		MobileWlDeustoLogicBasedBoard.this.processCommandSent(responseCommand);		    
+		MobileLogicExperiment.this.processCommandSent(responseCommand);		    
 	    }
 
 	    @Override
 		public void onFailure(WlCommException e) {
-		MobileWlDeustoLogicBasedBoard.this.messages.setText("Error: " + e.getMessage() + ". Please, notify the WebLab-Deusto administrators at weblab@deusto.es about this error.");
+		MobileLogicExperiment.this.messages.setText("Error: " + e.getMessage() + ". Please, notify the WebLab-Deusto administrators at weblab@deusto.es about this error.");
 	    }
 	};
 	
-	public MobileWlDeustoLogicBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
+	public MobileLogicExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
 		super(commandSender);
 		
 		this.fillMaps();
@@ -137,9 +137,9 @@ public class MobileWlDeustoLogicBasedBoard extends ExperimentBase {
 		this.unkownGateHandler = new ClickHandler(){
 		    @Override
 		    public void onClick(ClickEvent event) {
-			if(MobileWlDeustoLogicBasedBoard.this.solving)
-			    MobileWlDeustoLogicBasedBoard.this.changeUnknownGateDialogBox.show();
-			    MobileWlDeustoLogicBasedBoard.this.changeUnknownGateDialogBox.showRelativeTo(MobileWlDeustoLogicBasedBoard.this.referenceToShowBoxesLabel);
+			if(MobileLogicExperiment.this.solving)
+			    MobileLogicExperiment.this.changeUnknownGateDialogBox.show();
+			    MobileLogicExperiment.this.changeUnknownGateDialogBox.showRelativeTo(MobileLogicExperiment.this.referenceToShowBoxesLabel);
 			
 		    }
 		};
@@ -194,12 +194,12 @@ public class MobileWlDeustoLogicBasedBoard extends ExperimentBase {
 
 		// Timer
 		this.timer = new WlTimer();
-		this.timer.setStyleName(WlDeustoGpibBoard.Style.TIME_REMAINING);
+		this.timer.setStyleName(GpibExperiment.Style.TIME_REMAINING);
 		this.timer.getWidget().setWidth("30%");
 		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
 			@Override
 			public void onFinished() {
-			    MobileWlDeustoLogicBasedBoard.this.boardController.onClean();
+			    MobileLogicExperiment.this.boardController.onClean();
 			}
 		});
 		this.removableWidgetsPanel.add(this.timer.getWidget());		
@@ -281,9 +281,9 @@ public class MobileWlDeustoLogicBasedBoard extends ExperimentBase {
 
 		    @Override
 		    public void onClick(ClickEvent event) {
-			MobileWlDeustoLogicBasedBoard.this.sendCommand(new SolveCircuitCommand(MobileWlDeustoLogicBasedBoard.this.circuit));
-			MobileWlDeustoLogicBasedBoard.this.messages.setText("Sending solution");
-			MobileWlDeustoLogicBasedBoard.this.messages.start();
+			MobileLogicExperiment.this.sendCommand(new SolveCircuitCommand(MobileLogicExperiment.this.circuit));
+			MobileLogicExperiment.this.messages.setText("Sending solution");
+			MobileLogicExperiment.this.messages.start();
 		    }
 		});
 		this.removableWidgetsPanel.add(this.sendSolutionButton);
@@ -319,19 +319,19 @@ public class MobileWlDeustoLogicBasedBoard extends ExperimentBase {
 	
 	private String getWebcamImageUrl() {
 		return this.configurationRetriever.getProperty(
-			MobileWlDeustoLogicBasedBoard.LOGIC_WEBCAM_IMAGE_URL_PROPERTY, 
+			MobileLogicExperiment.LOGIC_WEBCAM_IMAGE_URL_PROPERTY, 
 				this.getDefaultWebcamImageUrl()
 			);
 	}
 	
 	protected String getDefaultWebcamImageUrl(){
-		return MobileWlDeustoLogicBasedBoard.DEFAULT_LOGIC_WEBCAM_IMAGE_URL;
+		return MobileLogicExperiment.DEFAULT_LOGIC_WEBCAM_IMAGE_URL;
 	}
 
 	private int getWebcamRefreshingTime() {
 		return this.configurationRetriever.getIntProperty(
-			MobileWlDeustoLogicBasedBoard.LOGIC_WEBCAM_REFRESH_TIME_PROPERTY, 
-			MobileWlDeustoLogicBasedBoard.DEFAULT_LOGIC_WEBCAM_REFRESH_TIME
+			MobileLogicExperiment.LOGIC_WEBCAM_REFRESH_TIME_PROPERTY, 
+			MobileLogicExperiment.DEFAULT_LOGIC_WEBCAM_REFRESH_TIME
 			);
 	}
 
@@ -367,7 +367,7 @@ public class MobileWlDeustoLogicBasedBoard extends ExperimentBase {
 
 			    @Override
 			    public void run() {
-				MobileWlDeustoLogicBasedBoard.this.sendCommand(new GetCircuitCommand());
+				MobileLogicExperiment.this.sendCommand(new GetCircuitCommand());
 			    }};
 	    		sleepTimer.schedule(2000);
 	    	    }

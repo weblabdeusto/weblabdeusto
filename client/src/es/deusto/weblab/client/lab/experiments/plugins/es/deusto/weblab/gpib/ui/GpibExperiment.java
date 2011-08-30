@@ -46,14 +46,14 @@ import es.deusto.weblab.client.ui.widgets.WlWebcam;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 
-public class WlDeustoGpibBoard extends ExperimentBase {
+public class GpibExperiment extends ExperimentBase {
 	
 	
 	/******************
 	 * UIBINDER RELATED
 	 ******************/
 
-	interface WlDeustoGpibBoardUiBinder extends UiBinder<Widget, WlDeustoGpibBoard> {
+	interface WlDeustoGpibBoardUiBinder extends UiBinder<Widget, GpibExperiment> {
 	}
 
 	static final WlDeustoGpibBoardUiBinder uiBinder = GWT.create(WlDeustoGpibBoardUiBinder.class);
@@ -99,16 +99,16 @@ public class WlDeustoGpibBoard extends ExperimentBase {
 
 	    @Override
 		public void onSuccess(ResponseCommand responseCommand) {
-		WlDeustoGpibBoard.this.processCommandSent(responseCommand);		    
+		GpibExperiment.this.processCommandSent(responseCommand);		    
 	    }
 
 	    @Override
 		public void onFailure(WlCommException e) {
-		WlDeustoGpibBoard.this.messages.setText("Error: " + e.getMessage() + ". Please, notify the WebLab-Deusto administrators at weblab@deusto.es about this error.");
+		GpibExperiment.this.messages.setText("Error: " + e.getMessage() + ". Please, notify the WebLab-Deusto administrators at weblab@deusto.es about this error.");
 	    }
 	};
 	
-	public WlDeustoGpibBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
+	public GpibExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
 		super(commandSender);
 		
 		this.configurationRetriever = configurationRetriever;
@@ -125,7 +125,7 @@ public class WlDeustoGpibBoard extends ExperimentBase {
 		
 	@Override
 	public void initialize(){
-	    	this.removableWidgetsPanel.add(new HTML("<a href='" + WlDeustoGpibBoard.DEFAULT_GPIB_USER_GUIDE_LINK + "' alt='GPIB User Guide'>User Guide</a>"));
+	    	this.removableWidgetsPanel.add(new HTML("<a href='" + GpibExperiment.DEFAULT_GPIB_USER_GUIDE_LINK + "' alt='GPIB User Guide'>User Guide</a>"));
 	    
 		this.removableWidgetsPanel.add(new Label("Select the program to send:"));
 		
@@ -155,12 +155,12 @@ public class WlDeustoGpibBoard extends ExperimentBase {
 		
 		// Timer
 		this.timer = new WlTimer();
-		this.timer.setStyleName(WlDeustoGpibBoard.Style.TIME_REMAINING);
+		this.timer.setStyleName(GpibExperiment.Style.TIME_REMAINING);
 		this.timer.getWidget().setWidth("30%");
 		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
 			@Override
 			public void onFinished() {
-				WlDeustoGpibBoard.this.boardController.onClean();
+				GpibExperiment.this.boardController.onClean();
 			}
 		});
 		this.removableWidgetsPanel.add(this.timer.getWidget());
@@ -176,14 +176,14 @@ public class WlDeustoGpibBoard extends ExperimentBase {
 		    
 		    @Override
 		    public void onSuccess(ResponseCommand response) {
-			WlDeustoGpibBoard.this.messages.setText("File compiled, executing file...");
-			WlDeustoGpibBoard.this.messages.stop();			
-			WlDeustoGpibBoard.this.sendCommand(new PollCommand());			
+			GpibExperiment.this.messages.setText("File compiled, executing file...");
+			GpibExperiment.this.messages.stop();			
+			GpibExperiment.this.sendCommand(new PollCommand());			
 		    }
 
 		    @Override
 		    public void onFailure(WlCommException e) {
-			WlDeustoGpibBoard.this.messages.setText("Error sending file: " + e.getMessage());
+			GpibExperiment.this.messages.setText("Error sending file: " + e.getMessage());
 		    }
 		});  
 	}	
@@ -218,19 +218,19 @@ public class WlDeustoGpibBoard extends ExperimentBase {
 	
 	private String getWebcamImageUrl() {
 		return this.configurationRetriever.getProperty(
-				WlDeustoGpibBoard.GPIB_WEBCAM_IMAGE_URL_PROPERTY, 
+				GpibExperiment.GPIB_WEBCAM_IMAGE_URL_PROPERTY, 
 				this.getDefaultWebcamImageUrl()
 			);
 	}
 	
 	protected String getDefaultWebcamImageUrl(){
-		return WlDeustoGpibBoard.DEFAULT_GPIB_WEBCAM_IMAGE_URL;
+		return GpibExperiment.DEFAULT_GPIB_WEBCAM_IMAGE_URL;
 	}
 
 	private int getWebcamRefreshingTime() {
 		return this.configurationRetriever.getIntProperty(
-				WlDeustoGpibBoard.GPIB_WEBCAM_REFRESH_TIME_PROPERTY, 
-				WlDeustoGpibBoard.DEFAULT_GPIB_WEBCAM_REFRESH_TIME
+				GpibExperiment.GPIB_WEBCAM_REFRESH_TIME_PROPERTY, 
+				GpibExperiment.DEFAULT_GPIB_WEBCAM_REFRESH_TIME
 			);
 	}
 
@@ -251,8 +251,8 @@ public class WlDeustoGpibBoard extends ExperimentBase {
 				this.pollingTimer = new Timer(){
 					@Override
 					public void run(){
-						WlDeustoGpibBoard.this.sendCommand(new PollCommand());
-						WlDeustoGpibBoard.this.pollingTimer = null;
+						GpibExperiment.this.sendCommand(new PollCommand());
+						GpibExperiment.this.pollingTimer = null;
 					}
 				};
 				this.pollingTimer.schedule(500);

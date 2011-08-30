@@ -26,10 +26,10 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentNotFoundException;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.ui.WlDeustoGpibBoard;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.ui.GpibExperiment;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib1.ui.WlDeustoGpib1Board;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib2.ui.WlDeustoGpib2Board;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.ui.WlDeustoXilinxBasedBoard;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.ui.XilinxExperiment;
 
 public class ExperimentFactoryTest extends GWTTestCase {
 
@@ -199,13 +199,13 @@ public class ExperimentFactoryTest extends GWTTestCase {
 		final ExperimentLoadedCallback callback = new ExperimentLoadedCallback();
 		
 		factory.experimentFactory(new ExperimentID(new Category("PLD experiments"), "ud-pld"), callback, false);
-		Assert.assertTrue(callback.lastExperiment instanceof WlDeustoXilinxBasedBoard);
+		Assert.assertTrue(callback.lastExperiment instanceof XilinxExperiment);
 		
 		factory.experimentFactory(new ExperimentID(new Category("FPGA experiments"), "ud-fpga"), callback, false);
-		Assert.assertTrue(callback.lastExperiment instanceof WlDeustoXilinxBasedBoard);
+		Assert.assertTrue(callback.lastExperiment instanceof XilinxExperiment);
 		
 		factory.experimentFactory(new ExperimentID(new Category("GPIB experiments"), "ud-gpib"), callback, false);
-		Assert.assertTrue(callback.lastExperiment instanceof WlDeustoGpibBoard);
+		Assert.assertTrue(callback.lastExperiment instanceof GpibExperiment);
 		
 		factory.experimentFactory(new ExperimentID(new Category("GPIB experiments"), "ud-gpib1"), callback, false);
 		Assert.assertTrue(callback.lastExperiment instanceof WlDeustoGpib1Board);

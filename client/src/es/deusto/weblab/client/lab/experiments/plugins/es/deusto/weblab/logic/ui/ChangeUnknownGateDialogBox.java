@@ -27,7 +27,7 @@ import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.ci
 
 class ChangeUnknownGateDialogBox extends DialogBox {
         
-    public ChangeUnknownGateDialogBox(final WlDeustoLogicBasedBoard board) {
+    public ChangeUnknownGateDialogBox(final LogicExperiment board) {
       this.setText("Choose the correct gate:");
 
       final ClickHandler imageHandler = new ClickHandler() {
@@ -48,7 +48,7 @@ class ChangeUnknownGateDialogBox extends DialogBox {
       for(final Operation operation : Operation.getOperations()){
 	  final Image image = new Image(board.getURL(operation));
 	  image.addClickHandler(imageHandler);
-	  image.addStyleName(WlDeustoLogicBasedBoard.Style.LOGIC_MOUSE_POINTER_HAND);
+	  image.addStyleName(LogicExperiment.Style.LOGIC_MOUSE_POINTER_HAND);
 	  figures.add(image);
       }
       

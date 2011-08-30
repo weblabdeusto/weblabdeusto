@@ -12,7 +12,7 @@
 *
 */
 
-package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic;
+package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
@@ -23,43 +23,24 @@ import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.ui.MobileWlDeustoLogicBasedBoard;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.ui.WlDeustoLogicBasedBoard;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic.ui.PicExperiment;
 
-public class WebLabLogicCreatorFactory implements IExperimentCreatorFactory {
+public class PicCreatorFactory implements IExperimentCreatorFactory {
 
 	@Override
 	public String getCodeName() {
-		return "logic";
+		return "pic";
 	}
 
 	@Override
 	public ExperimentCreator createExperimentCreator(final IConfigurationRetriever configurationRetriever) {
-		return new ExperimentCreator(MobileSupport.full, getCodeName()){
+		return new ExperimentCreator(MobileSupport.limited, getCodeName()){
 			@Override
 			public void createWeb(final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new WlDeustoLogicBasedBoard(
-								configurationRetriever,
-								boardController
-							));
-					}
-					
-					@Override
-					public void onFailure(Throwable e){
-						callback.onFailure(e);
-					}
-				});
-			}
-			
-			@Override
-			public void createMobile(final IBoardBaseController boardController, final IExperimentLoadedCallback callback){
-				GWT.runAsync(new RunAsyncCallback() {
-					@Override
-					public void onSuccess() {
-						callback.onExperimentLoaded(new MobileWlDeustoLogicBasedBoard(
+						callback.onExperimentLoaded(new PicExperiment(
 								configurationRetriever,
 								boardController
 							));
@@ -73,5 +54,4 @@ public class WebLabLogicCreatorFactory implements IExperimentCreatorFactory {
 			}
 		};
 	}
-
 }

@@ -20,9 +20,9 @@ import com.google.gwt.user.client.Element;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard;
 
-public class WebLabJavaAppletsBasedBoard extends AbstractExternalAppBasedBoard{
+public class JavaAppletsExperiment extends AbstractExternalAppBasedBoard{
 
-    public WebLabJavaAppletsBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController,
+    public JavaAppletsExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController,
     		String archive,
     		String code,
     		int width,
@@ -33,7 +33,7 @@ public class WebLabJavaAppletsBasedBoard extends AbstractExternalAppBasedBoard{
     	
     	this.message.setText(message);
 
-    	WebLabJavaAppletsBasedBoard.createJavaScriptCode(this.html.getElement(), GWT.getModuleBaseURL() + archive, code, this.width, this.height);
+    	JavaAppletsExperiment.createJavaScriptCode(this.html.getElement(), GWT.getModuleBaseURL() + archive, code, this.width, this.height);
     }
 
     private static native void createJavaScriptCode(Element element, String archive, String code, int width, int height) /*-{

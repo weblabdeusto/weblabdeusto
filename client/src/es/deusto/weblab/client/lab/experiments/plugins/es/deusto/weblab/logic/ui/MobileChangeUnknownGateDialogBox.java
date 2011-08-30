@@ -32,7 +32,7 @@ class MobileChangeUnknownGateDialogBox extends DialogBox {
     
 	private final Map<Image, Operation> images2operations = new HashMap<Image, Operation>();
 	
-    public MobileChangeUnknownGateDialogBox(final MobileWlDeustoLogicBasedBoard board) {
+    public MobileChangeUnknownGateDialogBox(final MobileLogicExperiment board) {
       this.setText("Choose the correct gate:");
 
       final ClickHandler imageHandler = new ClickHandler() {
@@ -51,7 +51,7 @@ class MobileChangeUnknownGateDialogBox extends DialogBox {
 		  final Image image = new Image(board.getURL(operation));
 		  this.images2operations.put(image, operation);
 		  image.addClickHandler(imageHandler);
-		  image.addStyleName(WlDeustoLogicBasedBoard.Style.LOGIC_MOUSE_POINTER_HAND);
+		  image.addStyleName(LogicExperiment.Style.LOGIC_MOUSE_POINTER_HAND);
 		  figures.add(image);
       }
       

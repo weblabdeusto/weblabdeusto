@@ -33,7 +33,7 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
 
-public class LabVIEWBoard extends ExperimentBase {
+public class LabViewExperiment extends ExperimentBase {
 
 	private IConfigurationRetriever configurationRetriever;
 	private VerticalPanel panel = new VerticalPanel();
@@ -45,7 +45,7 @@ public class LabVIEWBoard extends ExperimentBase {
 	private HorizontalPanel uploadStructurePanel = new HorizontalPanel();
 	private UploadStructure uploadStructure;
 
-	public LabVIEWBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController) {
+	public LabViewExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController) {
 		super(boardController);
 		this.configurationRetriever = configurationRetriever;
 		this.timer.setStyleName("wl-time_remaining");
@@ -65,7 +65,7 @@ public class LabVIEWBoard extends ExperimentBase {
 		@Override
 		public void onFailure(WlCommException e) {
 			e.printStackTrace();
-			LabVIEWBoard.this.html.setText("Error checking the state of the experiment: " + e.getMessage());
+			LabViewExperiment.this.html.setText("Error checking the state of the experiment: " + e.getMessage());
 		}
 		
 		@Override
@@ -77,7 +77,7 @@ public class LabVIEWBoard extends ExperimentBase {
 					
 					@Override
 					public void run() {
-						LabVIEWBoard.this.boardController.sendCommand("is_open", LabVIEWBoard.this.isOpenCallback);
+						LabViewExperiment.this.boardController.sendCommand("is_open", LabViewExperiment.this.isOpenCallback);
 					}
 				};
 				timer.schedule(500);
@@ -90,7 +90,7 @@ public class LabVIEWBoard extends ExperimentBase {
 		@Override
 		public void onFailure(WlCommException e) {
 			e.printStackTrace();
-			LabVIEWBoard.this.html.setText("Error checking the state of the experiment: " + e.getMessage());
+			LabViewExperiment.this.html.setText("Error checking the state of the experiment: " + e.getMessage());
 		}
 		
 		@Override
@@ -102,7 +102,7 @@ public class LabVIEWBoard extends ExperimentBase {
 					
 					@Override
 					public void run() {
-						LabVIEWBoard.this.boardController.sendCommand("is_programmed", LabVIEWBoard.this.isProgrammedCallback);
+						LabViewExperiment.this.boardController.sendCommand("is_programmed", LabViewExperiment.this.isProgrammedCallback);
 					}
 				};
 				timer.schedule(500);
@@ -114,25 +114,25 @@ public class LabVIEWBoard extends ExperimentBase {
 
 		@Override
 		public void onFailure(WlCommException e) {
-			LabVIEWBoard.this.html.setText("Error checking if it's ready to program a file: " + e.getMessage());
+			LabViewExperiment.this.html.setText("Error checking if it's ready to program a file: " + e.getMessage());
 		}
 
 		@Override
 		public void onSuccess(ResponseCommand responseCommand) {
 			if(responseCommand.getCommandString().equals("yes")){
-				LabVIEWBoard.this.uploadStructure.getFormPanel().setVisible(false);
-				LabVIEWBoard.this.boardController.sendFile(LabVIEWBoard.this.uploadStructure, LabVIEWBoard.this.sendFileCallback);
+				LabViewExperiment.this.uploadStructure.getFormPanel().setVisible(false);
+				LabViewExperiment.this.boardController.sendFile(LabViewExperiment.this.uploadStructure, LabViewExperiment.this.sendFileCallback);
 			}else if(responseCommand.getCommandString().equals("no")){
 				final Timer timer = new Timer() {
 					
 					@Override
 					public void run() {
-						LabVIEWBoard.this.boardController.sendCommand("is_ready_to_program", LabVIEWBoard.this.readyToProgramFileCallback);
+						LabViewExperiment.this.boardController.sendCommand("is_ready_to_program", LabViewExperiment.this.readyToProgramFileCallback);
 					}
 				};
 				timer.schedule(500);
 			}else{
-				LabVIEWBoard.this.html.setText("Error checking if it's ready to program a file: got " + responseCommand.getCommandString());
+				LabViewExperiment.this.html.setText("Error checking if it's ready to program a file: got " + responseCommand.getCommandString());
 			}
 		}
 		
@@ -143,12 +143,12 @@ public class LabVIEWBoard extends ExperimentBase {
 		@Override
 		public void onFailure(WlCommException e) {
 			e.printStackTrace();
-			LabVIEWBoard.this.html.setText("Error sending file: " + e.getMessage());
+			LabViewExperiment.this.html.setText("Error sending file: " + e.getMessage());
 		}
 		
 		@Override
 		public void onSuccess(ResponseCommand responseCommand) {
-			LabVIEWBoard.this.boardController.sendCommand("is_programmed", LabVIEWBoard.this.isProgrammedCallback);
+			LabViewExperiment.this.boardController.sendCommand("is_programmed", LabViewExperiment.this.isProgrammedCallback);
 		}
 	};
 	
@@ -169,7 +169,7 @@ public class LabVIEWBoard extends ExperimentBase {
 		this.timer.setTimerFinishedCallback(new WlTimer.IWlTimerFinishedCallback() {
 			@Override
 			public void onFinished() {
-				LabVIEWBoard.this.boardController.onClean();
+				LabViewExperiment.this.boardController.onClean();
 			}
 		});
 		this.panel.add(this.html);
@@ -191,17 +191,17 @@ public class LabVIEWBoard extends ExperimentBase {
 			@Override
 			public void onFailure(WlCommException e) {
 				e.printStackTrace();
-				LabVIEWBoard.this.html.setText("Error getting url to show LabVIEW panel: " + e.getMessage());
+				LabViewExperiment.this.html.setText("Error getting url to show LabVIEW panel: " + e.getMessage());
 			}
 			
 			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
-				LabVIEWBoard.this.html.setText("");
-				LabVIEWBoard.this.openPopupButton.setVisible(true);
-				LabVIEWBoard.this.openPopupButton.addClickHandler(new ClickHandler() {
+				LabViewExperiment.this.html.setText("");
+				LabViewExperiment.this.openPopupButton.setVisible(true);
+				LabViewExperiment.this.openPopupButton.addClickHandler(new ClickHandler() {
 					@Override
 					public void onClick(ClickEvent event) {
-						Window.open("/weblab/web/labview/?session_id=" + LabVIEWBoard.this.boardController.getSessionId().getRealId(), "_blank", "resizable=yes,scrollbars=yes,dependent=yes,width=1000,height=800,top=0");
+						Window.open("/weblab/web/labview/?session_id=" + LabViewExperiment.this.boardController.getSessionId().getRealId(), "_blank", "resizable=yes,scrollbars=yes,dependent=yes,width=1000,height=800,top=0");
 					}
 				});
 				/*

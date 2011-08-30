@@ -23,7 +23,7 @@ import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.robot_proglist.ui.RobotProglistBoard;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.robot_proglist.ui.RobotProglistExperiment;
 
 public class RobotProglistCreatorFactory implements IExperimentCreatorFactory {
 
@@ -40,7 +40,7 @@ public class RobotProglistCreatorFactory implements IExperimentCreatorFactory {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new RobotProglistBoard(
+						callback.onExperimentLoaded(new RobotProglistExperiment(
 								configurationRetriever,
 								boardController
 							));

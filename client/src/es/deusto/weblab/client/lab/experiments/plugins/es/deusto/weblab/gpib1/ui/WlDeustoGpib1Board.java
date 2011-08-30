@@ -14,9 +14,9 @@
 package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib1.ui;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.ui.WlDeustoGpibBoard;
+import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.ui.GpibExperiment;
 
-public class WlDeustoGpib1Board extends WlDeustoGpibBoard {
+public class WlDeustoGpib1Board extends GpibExperiment {
 	
 	public static final String DEFAULT_GPIB1_WEBCAM_IMAGE_URL       = "https://www.weblab.deusto.es/webcam/gpib1/image.jpg";
 	
