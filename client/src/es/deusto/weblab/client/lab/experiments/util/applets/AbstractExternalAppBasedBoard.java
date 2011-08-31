@@ -35,8 +35,8 @@ import es.deusto.weblab.client.ui.widgets.WlTimer;
 public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 
 	private static final int MAX_FACEBOOK_WIDTH = 710; // differs from WebClient.MAX_FACEBOOK_WIDTH taking into account the size of the whole page
-	private static IConfigurationRetriever configurationRetriever;
-	protected static IBoardBaseController boardController;
+	private static IConfigurationRetriever staticConfigurationRetriever;
+	protected static IBoardBaseController staticBoardController;
 	private final VerticalPanel panel;
 	protected Label message;
 	protected final HTML html;
@@ -70,8 +70,8 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 			this.height = height;
 		}
 		
-		AbstractExternalAppBasedBoard.boardController      = boardController;
-		AbstractExternalAppBasedBoard.configurationRetriever = configurationRetriever;
+		AbstractExternalAppBasedBoard.staticBoardController      = boardController;
+		AbstractExternalAppBasedBoard.staticConfigurationRetriever = configurationRetriever;
 		AbstractExternalAppBasedBoard.exportStaticMethods();
 		
 		// If the following display flag is disabled, we will simply never show the panel with the timer.
@@ -125,23 +125,23 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 	}
 	
 	static int getIntProperty(String key) throws ConfigurationKeyNotFoundException, InvalidConfigurationValueException{
-		return AbstractExternalAppBasedBoard.configurationRetriever.getIntProperty(key);
+		return AbstractExternalAppBasedBoard.staticConfigurationRetriever.getIntProperty(key);
 	}
 
 	static int getIntProperty(String key, int def) {
-		return AbstractExternalAppBasedBoard.configurationRetriever.getIntProperty(key, def);
+		return AbstractExternalAppBasedBoard.staticConfigurationRetriever.getIntProperty(key, def);
 	}
 
 	static String getProperty(String key) throws ConfigurationKeyNotFoundException, InvalidConfigurationValueException{
-		return AbstractExternalAppBasedBoard.configurationRetriever.getProperty(key);
+		return AbstractExternalAppBasedBoard.staticConfigurationRetriever.getProperty(key);
 	}
 
 	static String getProperty(String key, String def){
-		return AbstractExternalAppBasedBoard.configurationRetriever.getProperty(key, def);
+		return AbstractExternalAppBasedBoard.staticConfigurationRetriever.getProperty(key, def);
 	}
 
 	static void sendCommand(final String command, final int commandId){
-		AbstractExternalAppBasedBoard.boardController.sendCommand(new Command(){
+		AbstractExternalAppBasedBoard.staticBoardController.sendCommand(new Command(){
 			@Override
 			public String getCommandString() {
 				return command;
@@ -169,7 +169,7 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 	}-*/;	
 
 	static void onClean(){
-		AbstractExternalAppBasedBoard.boardController.clean();
+		AbstractExternalAppBasedBoard.staticBoardController.clean();
 	}
 	
 	protected static native void handleCommandResponse(String msg, int commandId) /*-{

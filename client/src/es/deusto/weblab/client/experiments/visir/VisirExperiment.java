@@ -66,7 +66,7 @@ public class VisirExperiment extends FlashExperiment {
 		
 		// Request the visir session "cookie" to the server.
 		final VisirSetupDataRequestCommand reqData = new VisirSetupDataRequestCommand();
-		AbstractExternalAppBasedBoard.boardController.sendCommand(reqData, 
+		AbstractExternalAppBasedBoard.staticBoardController.sendCommand(reqData, 
 				new IResponseCommandCallback() {
 
 					@Override
