@@ -25,7 +25,7 @@ import voodoo.configuration      as ConfigurationManager
 import weblab.core.server    as UserProcessingServer
 import weblab.core.coordinator.coordinator as Coordinator 
 import weblab.core.coordinator.confirmer   as Confirmer
-import weblab.core.exc as UPSExc
+import weblab.core.exc as core_exc
 
 import weblab.db.session                as DatabaseSession
 
@@ -210,8 +210,11 @@ class MonitorMethodsTestCase(unittest.TestCase):
         reservation_id = methods.get_reservation_id.call(sess_id.id)
         methods.kickout_from_coordinator.call(reservation_id)
 
-        status = self.ups.get_reservation_status(sess_id)
-        self.assertEquals( None, status )
+        self.assertRaises(
+            core_exc.NoCurrentReservationException,
+            self.ups.get_reservation_status,
+            sess_id
+        )
 
     def test_kickout_from_ups(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
@@ -219,7 +222,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
 
         methods.kickout_from_ups.call(sess_id.id)
 
-        self.assertRaises( UPSExc.SessionNotFoundException,
+        self.assertRaises( core_exc.SessionNotFoundException,
                 self.ups.get_reservation_status, sess_id)
 
 class FakeLocator(object):

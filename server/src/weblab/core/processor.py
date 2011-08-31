@@ -28,8 +28,8 @@ import voodoo.log as log
 
 import weblab.comm.context as RemoteFacadeContext
 
-import weblab.core.exc as coreExc
-import weblab.core.coordinator.exc as CoordExc
+import weblab.core.exc as core_exc
+import weblab.core.coordinator.exc as coord_exc
 import weblab.core.reservations as Reservation
 import weblab.core.coordinator.status as WebLabSchedulingStatus
 import weblab.core.coordinator.store as TemporalInformationStore
@@ -161,7 +161,7 @@ class UserProcessor(object):
             client_initial_data = json.loads(serialized_client_initial_data)
         except ValueError:
             # TODO: to be tested
-            raise coreExc.UserProcessingException(
+            raise core_exc.UserProcessingException(
                     "Invalid client_initial_data provided: a json-serialized object expected"
             )
 
@@ -172,7 +172,7 @@ class UserProcessor(object):
             ]
 
         if len(experiments) == 0:
-            raise coreExc.UnknownExperimentIdException(
+            raise core_exc.UnknownExperimentIdException(
                     "User can't access that experiment (or that experiment type does not exist)"
             )
 
@@ -185,8 +185,8 @@ class UserProcessor(object):
                     client_initial_data,
                     reservation_info
                 )
-        except CoordExc.ExperimentNotFoundException:
-            raise coreExc.NoAvailableExperimentFoundException(
+        except coord_exc.ExperimentNotFoundException:
+            raise core_exc.NoAvailableExperimentFoundException(
                 "No experiment of type <%s,%s> is currently deployed" % (
                         experiment_id.exp_name, 
                         experiment_id.cat_name
@@ -212,8 +212,9 @@ class UserProcessor(object):
         if reservation_id is not None:
             try:
                 status = self._coordinator.get_reservation_status(reservation_id)
-            except CoordExc.ExpiredSessionException:
-                self._session.pop('reservation_id', None)
+            except coord_exc.ExpiredSessionException:
+                # self._session.pop('reservation_id', None)
+                raise core_exc.NoCurrentReservationException("get_reservation_status called but coordinator rejected reservation id")
             else:
                 if status.status == WebLabSchedulingStatus.WebLabSchedulingStatus.RESERVED:
                     self._process_reserved_status(status)
@@ -222,7 +223,7 @@ class UserProcessor(object):
                         status
                     )
         else:
-            raise coreExc.NoCurrentReservationException("get_reservation_status called but no current reservation")
+            raise core_exc.NoCurrentReservationException("get_reservation_status called but no current reservation")
 
     def _process_reserved_status(self, status):
         if 'lab_session_id' in self._session:
@@ -256,7 +257,7 @@ class UserProcessor(object):
         self._session.pop('lab_session_id', None)
 
         if error is not None:
-            raise coreExc.FailedToFreeReservationException(
+            raise core_exc.FailedToFreeReservationException(
                     "There was an error freeing reservation: %s" % error
                 )
 
@@ -287,22 +288,22 @@ class UserProcessor(object):
                 self._update_file(command_id_pack, Command.Command("ERROR: SessionNotFound: None"))
                 try:
                     self.finished_experiment()
-                except coreExc.FailedToFreeReservationException:
+                except core_exc.FailedToFreeReservationException:
                     pass
-                raise coreExc.NoCurrentReservationException(
+                raise core_exc.NoCurrentReservationException(
                     'Experiment reservation expired'
                 )
             except LaboratoryExceptions.FailedToSendFileException as ftspe:
                 self._update_file(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
                 try:
                     self.finished_experiment()
-                except coreExc.FailedToFreeReservationException:
+                except core_exc.FailedToFreeReservationException:
                     pass
-                raise coreExc.FailedToSendFileException(
+                raise core_exc.FailedToSendFileException(
                         "Failed to send file: %s" % ftspe
                     )
         else:
-            raise coreExc.NoCurrentReservationException("send_file called but no current reservation")
+            raise core_exc.NoCurrentReservationException("send_file called but no current reservation")
 
     def send_command(self, command):
         if self._session.has_key('lab_session_id') and self._session.has_key('lab_coordaddr'):
@@ -331,23 +332,23 @@ class UserProcessor(object):
                 self._update_command(command_id_pack, Command.Command("ERROR: SessionNotFound: None"))
                 try:
                     self.finished_experiment()
-                except coreExc.FailedToFreeReservationException:
+                except core_exc.FailedToFreeReservationException:
                     pass
-                raise coreExc.NoCurrentReservationException(
+                raise core_exc.NoCurrentReservationException(
                     'Experiment reservation expired'
                 )
             except LaboratoryExceptions.FailedToSendCommandException as ftspe:
                 self._update_command(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
                 try:
                     self.finished_experiment()
-                except coreExc.FailedToFreeReservationException:
+                except core_exc.FailedToFreeReservationException:
                     pass
 
-                raise coreExc.FailedToSendCommandException(
+                raise core_exc.FailedToSendCommandException(
                         "Failed to send command: %s" % ftspe
                     )
         else:
-            raise coreExc.NoCurrentReservationException("send_command called but no current reservation")
+            raise core_exc.NoCurrentReservationException("send_command called but no current reservation")
         
 
     def send_async_file(self, file_content, file_info ):
@@ -381,22 +382,22 @@ class UserProcessor(object):
                 self._update_file(command_id_pack, Command.Command("ERROR: SessionNotFound: None"))
                 try:
                     self.finished_experiment()
-                except coreExc.FailedToFreeReservationException:
+                except core_exc.FailedToFreeReservationException:
                     pass
-                raise coreExc.NoCurrentReservationException(
+                raise core_exc.NoCurrentReservationException(
                     'Experiment reservation expired'
                 )
             except LaboratoryExceptions.FailedToSendFileException as ftspe:
                 self._update_file(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
                 try:
                     self.finished_experiment()
-                except coreExc.FailedToFreeReservationException:
+                except core_exc.FailedToFreeReservationException:
                     pass
-                raise coreExc.FailedToSendFileException(
+                raise core_exc.FailedToSendFileException(
                         "Failed to send file: %s" % ftspe
                     )
         else:
-            raise coreExc.NoCurrentReservationException("send_async_file called but no current reservation")
+            raise core_exc.NoCurrentReservationException("send_async_file called but no current reservation")
         
 
     def check_async_command_status(self, request_identifiers):
@@ -444,9 +445,9 @@ class UserProcessor(object):
                 #self._update_command(command_id_pack, Command.Command("ERROR: SessionNotFound: None"))
                 try:
                     self.finished_experiment()
-                except coreExc.FailedToFreeReservationException:
+                except core_exc.FailedToFreeReservationException:
                     pass
-                raise coreExc.NoCurrentReservationException(
+                raise core_exc.NoCurrentReservationException(
                     'Experiment reservation expired'
                 )
             except LaboratoryExceptions.FailedToSendCommandException as ftspe:
@@ -455,14 +456,14 @@ class UserProcessor(object):
                 #self._update_command(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
                 try:
                     self.finished_experiment()
-                except coreExc.FailedToFreeReservationException:
+                except core_exc.FailedToFreeReservationException:
                     pass
 
-                raise coreExc.FailedToSendCommandException(
+                raise core_exc.FailedToSendCommandException(
                         "Failed to send command: %s" % ftspe
                     )
         else:
-            raise coreExc.NoCurrentReservationException("check_async_command called but no current reservation")
+            raise core_exc.NoCurrentReservationException("check_async_command called but no current reservation")
 
 
     def send_async_command(self, command):
@@ -506,23 +507,23 @@ class UserProcessor(object):
                 self._update_command(command_id_pack, Command.Command("ERROR: SessionNotFound: None"))
                 try:
                     self.finished_experiment()
-                except coreExc.FailedToFreeReservationException:
+                except core_exc.FailedToFreeReservationException:
                     pass
-                raise coreExc.NoCurrentReservationException(
+                raise core_exc.NoCurrentReservationException(
                     'Experiment reservation expired'
                 )
             except LaboratoryExceptions.FailedToSendCommandException as ftspe:
                 self._update_command(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
                 try:
                     self.finished_experiment()
-                except coreExc.FailedToFreeReservationException:
+                except core_exc.FailedToFreeReservationException:
                     pass
 
-                raise coreExc.FailedToSendCommandException(
+                raise core_exc.FailedToSendCommandException(
                         "Failed to send command: %s" % ftspe
                     )
         else:
-            raise coreExc.NoCurrentReservationException("send_async_command called but no current reservation")
+            raise core_exc.NoCurrentReservationException("send_async_command called but no current reservation")
 
 
     def update_latest_timestamp(self):
@@ -604,12 +605,12 @@ class UserProcessor(object):
                 UserProcessor.EXPIRATION_TIME_NOT_SET
             )
 
-    def _is_post_reservation(self):
-        return self.get_reservation_status().status == Reservation.Reservation.POST_RESERVATION
-
     def poll(self):
         if self.is_polling():
             status = self.get_reservation_status()
+            if status is None:
+                return
+
             if status.status in Reservation.Reservation.POLLING_STATUS:
                 latest_poll, expiration_time = self._session['session_polling']
                 self._session['session_polling'] = (
@@ -619,11 +620,11 @@ class UserProcessor(object):
             else:
                 try:
                     self.finished_experiment()
-                except coreExc.FailedToFreeReservationException:
+                except core_exc.FailedToFreeReservationException:
                     pass
-                raise coreExc.NoCurrentReservationException("poll called but not polling status: %s" % status.status)
+                raise core_exc.NoCurrentReservationException("poll called but not polling status: %s" % status.status)
         else:
-            raise coreExc.NoCurrentReservationException("poll called but no current reservation")
+            raise core_exc.NoCurrentReservationException("poll called but no current reservation")
 
     def _stop_polling(self):
         if self.is_polling():
@@ -635,6 +636,10 @@ class UserProcessor(object):
                     self.time_module.time(),
                     expiration_time
                 )
+
+    def _is_post_reservation(self):
+        #return self.get_reservation_status().status == Reservation.Reservation.POST_RESERVATION
+        return False
 
     def is_expired(self):
         

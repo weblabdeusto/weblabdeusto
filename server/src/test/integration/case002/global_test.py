@@ -49,6 +49,7 @@ import weblab.methods as weblab_exported_methods
 import weblab.core.reservations as Reservation
 import weblab.core.server    as UserProcessingServer
 import weblab.core.processor       as UserProcessor
+import weblab.core.exc             as core_exc
 import weblab.core.coordinator.coordinator as Coordinator
 
 
@@ -605,11 +606,12 @@ class Case002TestCase(object):
         self.real_ups.finished_experiment(session_id2)
 
         # Whenever he tries to do poll or send_command, he receives an exception
-        #TODO: this should raise an exception
-        self.real_ups.poll(session_id2)
-        self.real_ups.poll(session_id2)
-        self.real_ups.poll(session_id2)
-        #TODO
+        try:
+            self.real_ups.poll(session_id2)
+            self.real_ups.poll(session_id2)
+            self.real_ups.poll(session_id2)
+        except core_exc.NoCurrentReservationException:
+            pass # All right :-)
 
         # send a program
         CONTENT = "content of the program FPGA"

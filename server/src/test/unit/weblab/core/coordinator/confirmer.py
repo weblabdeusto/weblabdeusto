@@ -123,6 +123,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
                 'all'
         )
         self.mocker.result((mock_laboratory,))
+        self.mocker.count(min=1,max=None)
 
         self.mocker.replay()
         status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5, 'sample initial data', DEFAULT_REQUEST_INFO)

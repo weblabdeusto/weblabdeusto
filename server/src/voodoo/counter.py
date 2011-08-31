@@ -19,19 +19,8 @@ _counters = {}
 _counter_lock = threading.Lock()
 
 def next_counter(name):
-    global _counter_lock
-    global _counters
-
-    _counter_lock.acquire()
-    try:
-        if name in _counters:
-            _counters[name] = _counters[name] + 1
-            cur = _counters[name]
-        else:
-            _counters[name] = 1
-            cur = 1
-    finally:
-        _counter_lock.release()
+    with _counter_lock:
+        cur = _counters[name] = _counters.get(name, 0) + 1
     return cur
 
 def next_name(name):
