@@ -638,7 +638,12 @@ class UserProcessor(object):
                 )
 
     def _is_post_reservation(self):
-        #return self.get_reservation_status().status == Reservation.Reservation.POST_RESERVATION
+        reservation_id = self._session.get('reservation_id') or self._session.get('last_reservation_id')
+        if reservation_id is None:
+            return False
+
+        # XXX this should be a return
+        self._coordinator.is_post_reservation(reservation_id)
         return False
 
     def is_expired(self):

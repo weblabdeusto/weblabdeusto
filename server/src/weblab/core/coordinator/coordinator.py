@@ -319,6 +319,10 @@ class Coordinator(object):
                 return reservation_status
             raise
 
+
+    def is_post_reservation(self, reservation_id):
+        return self.post_reservation_data_manager.find(reservation_id) is not None
+
     ################################################################
     #
     # Called when it is confirmed by the Laboratory Server.
