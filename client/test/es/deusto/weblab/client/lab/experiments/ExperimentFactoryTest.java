@@ -21,14 +21,14 @@ import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Category;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
+import es.deusto.weblab.client.experiments.gpib.ui.GpibExperiment;
+import es.deusto.weblab.client.experiments.gpib1.ui.WlDeustoGpib1Board;
+import es.deusto.weblab.client.experiments.gpib2.ui.WlDeustoGpib2Board;
+import es.deusto.weblab.client.experiments.xilinx.ui.XilinxExperiment;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentNotFoundException;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.ui.GpibExperiment;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib1.ui.WlDeustoGpib1Board;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib2.ui.WlDeustoGpib2Board;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.ui.XilinxExperiment;
 
 public class ExperimentFactoryTest extends GWTTestCase {
 

@@ -37,9 +37,9 @@ import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingConfirmationReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingInstancesReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingReservationStatus;
+import es.deusto.weblab.client.experiments.xilinx.commands.PulseCommand;
 import es.deusto.weblab.client.lab.comm.exceptions.NoCurrentReservationException;
 import es.deusto.weblab.client.lab.comm.exceptions.UnknownExperimentIdException;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.commands.PulseCommand;
 
 public class WlLabSerializerJSONTest extends GWTTestCase{
     

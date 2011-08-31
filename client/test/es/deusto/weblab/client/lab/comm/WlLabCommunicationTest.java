@@ -40,10 +40,10 @@ import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.dto.reservations.ConfirmedReservationStatus;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
+import es.deusto.weblab.client.experiments.xilinx.commands.SwitchCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
-import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.commands.SwitchCommand;
 
 public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 	
