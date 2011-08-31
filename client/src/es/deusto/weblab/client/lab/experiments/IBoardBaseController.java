@@ -21,26 +21,106 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 
 public interface IBoardBaseController{
 	
-	// Retrieving general information
+	////////////////////////////////////
+	// 
+	// General information
+	//
+	
+	/**
+	 * Is the user accessing through facebook?
+	 */
 	public boolean isFacebook();
+	
+	/**
+	 * What is the session id of the user? It is useful when using other type of communications, such
+	 * as iframes in the LabVIEW experiment.
+	 */
 	public SessionID getSessionId();
 	
+	////////////////////////////////////
+	// 
 	// Sending commands
+	//
+
+	/**
+	 * Send a command, don't care about the result
+	 */
 	public void sendCommand(Command command);
+	
+	/**
+	 * Send a command, notify me with the result
+	 */
 	public void sendCommand(Command command, IResponseCommandCallback callback);
+	
+	/**
+	 * Send a string command, don't care about the result
+	 */
     public void sendCommand(String command);
+    
+	/**
+	 * Send a string command, notify me with the result
+	 */
 	public void sendCommand(String command, IResponseCommandCallback callback);
 	
+	////////////////////////////////////
+	// 
 	// Sending async commands
+	// 
+	
+	/**
+	 * Send a command asynchronously (the system will perform several requests 
+	 * until the command is finish; this is intended for long running commands), 
+	 * don't care the result.
+	 */
 	public void sendAsyncCommand(Command command);
+	
+	/**
+	 * Send a command asynchronously (the system will perform several requests 
+	 * until the command is finish; this is intended for long running commands), 
+	 * notify me with the result
+	 */
 	public void sendAsyncCommand(Command command, IResponseCommandCallback callback);
+	
+	/**
+	 * Send a string command asynchronously (the system will perform several requests 
+	 * until the command is finish; this is intended for long running commands), 
+	 * don't care about the result
+	 */
 	public void sendAsyncCommand(String command);
+	
+	/**
+	 * Send a string command asynchronously (the system will perform several requests 
+	 * until the command is finish; this is intended for long running commands), 
+	 * notify me with the result
+	 */
 	public void sendAsyncCommand(String command, IResponseCommandCallback callback);
 	
+	////////////////////////////////////
+	// 
 	// Sending files
+	//
+	
+	/**
+	 * Send a file, notify me with the result
+	 */
 	public void sendFile(UploadStructure uploadStructure, IResponseCommandCallback callback);
+	/**
+	 * Send a file asynchronously, notify me with the result
+	 */
 	public void sendAsyncFile(UploadStructure uploadStructure, IResponseCommandCallback callback);
 	
+	////////////////////////////////////
+	// 
 	// Cleaning
+	// 
+	
+	/**
+	 * Clean the experiment widgets and move to the lits of experiments
+	 */
 	public void clean();
+	
+	/**
+	 * Finish the experiment.
+	 */
+	public void finish();
 }

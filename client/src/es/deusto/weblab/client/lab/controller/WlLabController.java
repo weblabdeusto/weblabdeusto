@@ -31,7 +31,6 @@ import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
-import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.dto.experiments.commands.ArrayOfInterchangedData;
 import es.deusto.weblab.client.dto.experiments.commands.InterchangedData;
 import es.deusto.weblab.client.dto.users.User;
@@ -126,6 +125,18 @@ public class WlLabController implements IWlLabController {
 	
 	public interface IControllerRunnable{
 		public void run();
+	}
+	
+	SessionID getCurrentSession(){
+		return this.currentSession;
+	}
+	
+	boolean isFacebook(){
+		return this.isFacebook;
+	}
+	
+	IUIManager getUIManager(){
+		return this.uimanager;
 	}
 	
 	@Override
@@ -365,120 +376,7 @@ public class WlLabController implements IWlLabController {
 
 	@Override
 	public void chooseExperiment(final ExperimentAllowed experimentAllowed) {
-	    final IBoardBaseController boardBaseController = new IBoardBaseController(){
-	    	@Override
-	    	public boolean isFacebook(){
-	    		return WlLabController.this.isFacebook;
-	    	}
-	    	
-	    	@Override
-	    	public SessionID getSessionId(){
-	    		return WlLabController.this.currentSession;
-	    	}
-	    	
-	    	@Override
-		public void clean(){
-	    		WlLabController.this.finishReservation();
-	    	}
-	    	
-	    	// Ignore the callback
-	    	@Override
-			public void sendCommand(Command command){
-	    	    WlLabController.this.sendCommand(command, new IResponseCommandCallback(){
-	    		@Override
-				public void onSuccess(
-	    			ResponseCommand responseCommand) {
-	    		    // nothing
-	    		}
-
-	    		@Override
-				public void onFailure(WlCommException e) {
-	    		    WlLabController.this.uimanager.onError("Error sending command: " + e.getMessage());
-	    		}
-	    	    });
-	    	}
-	    	
-	    	@Override
-	    	public void sendCommand(final String command){
-	    		sendCommand(new Command() {
-					@Override
-					public String getCommandString() {
-						return command;
-					}
-				});
-	    	}
-
-	    	@Override
-	    	public void sendCommand(final String command, IResponseCommandCallback callback){
-	    		sendCommand(new Command() {
-					@Override
-					public String getCommandString() {
-						return command;
-					}
-				}, callback);
-	    	}
-
-	    	@Override
-			public void sendCommand(Command command, IResponseCommandCallback callback) {
-	    	    WlLabController.this.sendCommand(command, callback);
-	    	}
-
-		@Override
-		public void sendFile(UploadStructure uploadStructure,
-			IResponseCommandCallback callback) {
-		    WlLabController.this.sendFile(uploadStructure, callback);
-		    
-		}
-		
-		@Override
-		public void sendAsyncFile(UploadStructure uploadStructure,
-				IResponseCommandCallback callback) {
-			WlLabController.this.sendAsyncFile(uploadStructure, callback);
-		}
-
-		@Override
-		public void sendAsyncCommand(Command command) {
-    	    WlLabController.this.sendAsyncCommand(command, new IResponseCommandCallback(){
-	    		@Override
-				public void onSuccess(
-	    			ResponseCommand responseCommand) {
-	    		    // nothing
-	    		}
-
-	    		@Override
-				public void onFailure(WlCommException e) {
-	    		    WlLabController.this.uimanager.onError("Error sending async command: " + e.getMessage());
-	    		}
-	    	    });
-		}
-
-		@Override
-		public void sendAsyncCommand(Command command,
-				IResponseCommandCallback callback) {
-			WlLabController.this.sendAsyncCommand(command, callback);
-		}
-
-		@Override
-		public void sendAsyncCommand(final String command) {
-    		sendAsyncCommand(new Command() {
-				@Override
-				public String getCommandString() {
-					return command;
-				}
-			});
-		}
-
-		@Override
-		public void sendAsyncCommand(final String command,
-				IResponseCommandCallback callback) {
-    		sendCommand(new Command() {
-				@Override
-				public String getCommandString() {
-					return command;
-				}
-			}, callback);
-		}
-	    };
+	    final IBoardBaseController boardBaseController = new BoardBaseController(this);
 	    final ExperimentFactory factory = new ExperimentFactory(boardBaseController);
 	    final IExperimentLoadedCallback experimentLoadedCallback = new IExperimentLoadedCallback() {
 			

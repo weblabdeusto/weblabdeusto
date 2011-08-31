@@ -70,6 +70,11 @@ public class ExperimentFactoryTest extends GWTTestCase {
 			}
 
 			@Override
+			public void finish() {
+				
+			}
+
+			@Override
 			public void sendCommand(Command command, IResponseCommandCallback callback) {
 			    
 			}
@@ -142,6 +147,10 @@ public class ExperimentFactoryTest extends GWTTestCase {
 			
 			@Override
 			public void clean() {
+			}
+
+			@Override
+			public void finish() {
 			}
 
 			@Override
