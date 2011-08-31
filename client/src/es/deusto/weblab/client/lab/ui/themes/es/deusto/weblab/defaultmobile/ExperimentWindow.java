@@ -129,7 +129,7 @@ class ExperimentWindow extends BaseWindow {
 		this.generalErrorLabel.setText(message);
 	}
 	
-	public void loadUsingExperimentPanels(int time, String initialConfiguration) {
+	public void loadUsingExperimentPanels() {
 		
 		this.upperSide.setVisible(false);
 		this.reserveSide.setVisible(false);

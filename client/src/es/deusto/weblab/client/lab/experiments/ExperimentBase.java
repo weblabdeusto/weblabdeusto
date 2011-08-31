@@ -85,6 +85,22 @@ public abstract class ExperimentBase implements IWlWidget{
 	public void end(){}
 	
 	/**
+	 * Returns if this experiment is expecting a {@link #postEnd(String)}
+	 * or not. Between {@link #end()} and {@link #postEnd(String)}, there 
+	 * must be some polling to the server, especially if the experiment 
+	 * server takes some time to end. However, users most of the times 
+ 	 * don't wait for a result, so they can start a queue somewhere else.
+ 	 * Other times, it is interesting to receive something at the end of 
+ 	 * the experiment. Those times, it is required to implement this method
+ 	 * returning true.  
+	 * 
+	 * @return if the experiment expects a {@link #postEnd(String)}
+	 */
+	public boolean expectsPostEnd(){
+		return false;
+	}
+	
+	/**
 	 * The experiment finishes cleaning the resources in the server side. 
 	 * This can be helpful when the experiment does anything in the end, 
 	 * such as storing a result.

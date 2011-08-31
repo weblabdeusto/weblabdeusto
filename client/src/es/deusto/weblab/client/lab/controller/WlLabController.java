@@ -33,10 +33,14 @@ import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.commands.ArrayOfInterchangedData;
 import es.deusto.weblab.client.dto.experiments.commands.InterchangedData;
+import es.deusto.weblab.client.dto.reservations.ConfirmedReservationStatus;
+import es.deusto.weblab.client.dto.reservations.PostReservationReservationStatus;
+import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.lab.comm.IWlLabCommunication;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
+import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.comm.exceptions.NoCurrentReservationException;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
@@ -79,6 +83,19 @@ public class WlLabController implements IWlLabController {
 	
 	private class SessionVariables {
 		private ExperimentBase currentExperimentBase;
+		private boolean experimentVisible = false;
+		
+		public void showExperiment(){
+			this.experimentVisible = true;
+		}
+		
+		public void hideExperiment(){
+			this.experimentVisible = true;
+		}
+		
+		public boolean isExperimentVisible(){
+			return this.experimentVisible;
+		}
 		
 		public void setCurrentExperimentBase(ExperimentBase currentExperimentBase) {
 		    this.currentExperimentBase = currentExperimentBase;
@@ -214,6 +231,7 @@ public class WlLabController implements IWlLabController {
 			
 			@Override
 			public void onFailure(WlCommException e) {
+				WlLabController.this.sessionVariables.hideExperiment();
 				WlLabController.this.uimanager.onErrorAndFinishSession(e.getMessage());
 			}
 		});
@@ -271,6 +289,57 @@ public class WlLabController implements IWlLabController {
 		
 		this.communications.reserveExperiment(this.currentSession, experimentId, new ArrayOfInterchangedData(new InterchangedData[]{}), reservationStatusCallback);
 	}
+	
+	final IReservationCallback postReservationDataCallback = new IReservationCallback() {
+
+		private void onError(String message){
+			WlLabController.this.sessionVariables.hideExperiment();
+			WlLabController.this.uimanager.onCleanReservation();
+			WlLabController.this.uimanager.onError(message);
+		}
+		
+		@Override
+		public void onFailure(WlCommException e) {
+			onError(e.getMessage());
+			e.printStackTrace();
+		}
+		
+		@Override
+		public void onSuccess(ReservationStatus reservation) {
+			if(!WlLabController.this.sessionVariables.isExperimentVisible())
+				return;
+			
+			if(reservation instanceof PostReservationReservationStatus){
+				final PostReservationReservationStatus status = (PostReservationReservationStatus)reservation;
+				if(status.isFinished()){
+					WlLabController.this.sessionVariables.getCurrentExperimentBase().postEnd(status.getEndData());
+				}else{
+					final Timer t = new Timer() {
+						
+						@Override
+						public void run() {
+							pollForPostReservationData();
+						}
+					};
+					t.schedule(200);
+				}
+			}else if(reservation instanceof ConfirmedReservationStatus){
+				final Timer t = new Timer() {
+					
+					@Override
+					public void run() {
+						pollForPostReservationData();
+					}
+				};
+				t.schedule(200);
+			}else
+				this.onError("Unexpected reservation status obtained while waiting for " + PostReservationReservationStatus.class.getName() + ": " + reservation.getClass().getName() + ": " + reservation);
+		}
+	};
+	
+	private void pollForPostReservationData(){
+		this.communications.getReservationStatus(this.currentSession, this.postReservationDataCallback);
+	}
 
 	@Override
 	public void finishReservation() {
@@ -278,13 +347,26 @@ public class WlLabController implements IWlLabController {
 		this.sessionVariables.getCurrentExperimentBase().end();
 		
 		this.communications.finishedExperiment(this.currentSession, new IVoidCallback(){
+			
 			@Override
 			public void onSuccess(){
-				
+				if(WlLabController.this.sessionVariables.getCurrentExperimentBase().expectsPostEnd()
+						&& WlLabController.this.sessionVariables.isExperimentVisible()){
+					
+					pollForPostReservationData();
+					
+				}else{
+					WlLabController.this.sessionVariables.hideExperiment();
+					WlLabController.this.uimanager.onCleanReservation();
+				}
 			}
+			
 			@Override
 			public void onFailure(WlCommException e) {
-				WlLabController.this.uimanager.onCleanReservation(); // TODO
+				WlLabController.this.sessionVariables.hideExperiment();
+				WlLabController.this.uimanager.onCleanReservation();
+				WlLabController.this.uimanager.onError(e.getMessage());
+				e.printStackTrace();
 			}
 		});
 	}
@@ -297,10 +379,12 @@ public class WlLabController implements IWlLabController {
 		this.communications.finishedExperiment(this.currentSession, new IVoidCallback(){
 			@Override
 			public void onSuccess(){
+				WlLabController.this.sessionVariables.hideExperiment();
 				WlLabController.this.uimanager.onCleanReservation();
 			}
 			@Override
 			public void onFailure(WlCommException e) {
+				WlLabController.this.sessionVariables.hideExperiment();
 				WlLabController.this.uimanager.onCleanReservation();
 			}
 		});
@@ -315,13 +399,13 @@ public class WlLabController implements IWlLabController {
 		this.communications.finishedExperiment(this.currentSession, new IVoidCallback(){
 			@Override
 			public void onSuccess(){
+				WlLabController.this.sessionVariables.hideExperiment();
 				WlLabController.this.uimanager.onCleanReservation();
-				// TODO: Cancelling State, it should "poll" somehow
-				// TODO: If the user is in any queue and clicks "finish", he'll be in this state 
 				WlLabController.this.logout();
 			}
 			@Override
 			public void onFailure(WlCommException e) {
+				WlLabController.this.sessionVariables.hideExperiment();
 				WlLabController.this.uimanager.onErrorAndFinishReservation(e.getMessage());
 			}
 		});
@@ -382,11 +466,13 @@ public class WlLabController implements IWlLabController {
 					public void onSuccess() {
 						// Nothing to do
 					}
+					
 					@Override
 					public void onFailure(WlCommException e) {
 						if(e instanceof NoCurrentReservationException){
 							// XXX: tell experiment that it has finished
 						}else{
+							WlLabController.this.sessionVariables.hideExperiment();
 							WlLabController.this.uimanager.onErrorAndFinishReservation(e.getMessage());
 							WlLabController.this.cleanExperiment();
 						}
@@ -412,6 +498,7 @@ public class WlLabController implements IWlLabController {
 				WlLabController.this.sessionVariables.setCurrentExperimentBase(experimentBase);
 				WlLabController.this.uimanager.onExperimentChosen(experimentAllowed, experimentBase);
 				experimentBase.initialize();
+				WlLabController.this.sessionVariables.showExperiment();
 			}
 		};
 	    factory.experimentFactory(experimentAllowed.getExperiment().getExperimentUniqueName(), experimentLoadedCallback, this.isMobile);

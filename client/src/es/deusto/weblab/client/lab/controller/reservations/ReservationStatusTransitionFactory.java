@@ -41,29 +41,27 @@ public class ReservationStatusTransitionFactory {
 	} else if (ReservationStatusTransitionFactory.isPostReservation(reservationStatus)) {
 	    return new PostReservationStatusTransition(reservationStatusCallback);
 	} else {
-	    throw new WlUnknownReservationException(
-		    "Couldn't process the following reservation: "
-			    + reservationStatus);
+	    throw new WlUnknownReservationException("Couldn't process the following reservation: "+ reservationStatus);
 	}
     }
 
     private static boolean isWaiting(ReservationStatus reservationStatus) {
-	return reservationStatus instanceof WaitingReservationStatus;
+    	return reservationStatus instanceof WaitingReservationStatus;
     }
 
     private static boolean isConfirmed(ReservationStatus reservationStatus) {
-	return reservationStatus instanceof ConfirmedReservationStatus;
+    	return reservationStatus instanceof ConfirmedReservationStatus;
     }
 
     private static boolean isPostReservation(ReservationStatus reservationStatus) {
-	return reservationStatus instanceof PostReservationReservationStatus;
+    	return reservationStatus instanceof PostReservationReservationStatus;
     }
 
     private static boolean isWaitingConfirmation(ReservationStatus reservationStatus) {
-	return reservationStatus instanceof WaitingConfirmationReservationStatus;
+    	return reservationStatus instanceof WaitingConfirmationReservationStatus;
     }
 
     private static boolean isWaitingInstances(ReservationStatus reservationStatus) {
-	return reservationStatus instanceof WaitingInstancesReservationStatus;
+    	return reservationStatus instanceof WaitingInstancesReservationStatus;
     }
 }

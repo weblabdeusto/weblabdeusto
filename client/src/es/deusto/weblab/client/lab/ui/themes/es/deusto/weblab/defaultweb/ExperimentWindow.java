@@ -133,7 +133,7 @@ class ExperimentWindow extends BaseWindow {
 		// end of Important note
 	}
 
-	public void loadUsingExperimentPanels(int time, String initialConfiguration) {
+	public void loadUsingExperimentPanels() {
 	    this.contentTitleLabel.setText(this.experimentAllowed.getExperiment().getName());
 	    this.detailsGrid.setVisible(false);
 	    this.waitingLabel.stop();

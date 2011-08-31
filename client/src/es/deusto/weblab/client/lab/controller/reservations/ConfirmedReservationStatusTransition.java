@@ -26,18 +26,18 @@ public class ConfirmedReservationStatusTransition extends ReservationStatusTrans
 
 	@Override
 	public void perform(final ReservationStatus reservationStatus) {
-		ConfirmedReservationStatusTransition.this.reservationStatusCallback.getPollingHandler().start();
+		this.reservationStatusCallback.getPollingHandler().start();
 		
-		final ExperimentID experimentID = ConfirmedReservationStatusTransition.this.reservationStatusCallback.getExperimentBeingReserved();
+		final ExperimentID experimentID = this.reservationStatusCallback.getExperimentBeingReserved();
 		try {
-			ConfirmedReservationStatus confirmedReservationStatus = (ConfirmedReservationStatus)reservationStatus;
-			ConfirmedReservationStatusTransition.this.reservationStatusCallback.getUimanager().onExperimentReserved(
-					confirmedReservationStatus,
+			ConfirmedReservationStatus confirmedStatus = (ConfirmedReservationStatus)reservationStatus;
+			this.reservationStatusCallback.getUimanager().onExperimentReserved(
+					confirmedStatus,
 					experimentID,
-					ConfirmedReservationStatusTransition.this.reservationStatusCallback.getExperimentBaseBeingReserved()
+					this.reservationStatusCallback.getExperimentBaseBeingReserved()
 				);
-			this.reservationStatusCallback.getExperimentBaseBeingReserved().start(confirmedReservationStatus.getTime(), confirmedReservationStatus.getInitialConfiguration());
-			this.reservationStatusCallback.getExperimentBaseBeingReserved().setTime(confirmedReservationStatus.getTime());
+			this.reservationStatusCallback.getExperimentBaseBeingReserved().start(confirmedStatus.getTime(), confirmedStatus.getInitialConfiguration());
+			this.reservationStatusCallback.getExperimentBaseBeingReserved().setTime(confirmedStatus.getTime());
 		} catch (final WlExperimentException e) {
 			ConfirmedReservationStatusTransition.this.reservationStatusCallback.getUimanager().onError(e.getMessage());
 			return;

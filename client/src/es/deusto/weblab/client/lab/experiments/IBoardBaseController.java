@@ -115,7 +115,7 @@ public interface IBoardBaseController{
 	// 
 	
 	/**
-	 * Clean the experiment widgets and move to the lits of experiments
+	 * Clean the experiment widgets and move to the list of experiments
 	 */
 	public void clean();
 	

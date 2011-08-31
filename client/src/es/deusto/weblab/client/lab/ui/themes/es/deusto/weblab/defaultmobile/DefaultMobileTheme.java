@@ -113,10 +113,7 @@ public class DefaultMobileTheme extends WlLabThemeBase {
 	@Override
 	public void onExperimentReserved(ConfirmedReservationStatus reservationStatus, ExperimentID experimentID, ExperimentBase experimentBase){
 		this.experimentBase = experimentBase;
-
-		// Important note: the calling order MUST be this or FileUpload will cause problems
-		this.experimentWindow.loadUsingExperimentPanels(reservationStatus.getTime(), reservationStatus.getInitialConfiguration());
-		// end of Important note
+		this.experimentWindow.loadUsingExperimentPanels();
 	}
 
 	@Override
