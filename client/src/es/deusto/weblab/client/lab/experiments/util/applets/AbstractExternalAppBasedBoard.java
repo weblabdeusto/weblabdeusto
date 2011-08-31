@@ -29,6 +29,7 @@ import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
+import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
 
 public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
@@ -53,7 +54,7 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 	private final WlTimer standardTimer;
 	
 	public AbstractExternalAppBasedBoard(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController, int width, int height) {
-		super(boardController);
+		super(configurationRetriever, boardController);
 		
 		if(boardController.isFacebook()){
 			if(width > MAX_FACEBOOK_WIDTH){
@@ -168,7 +169,7 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 	}-*/;	
 
 	static void onClean(){
-		AbstractExternalAppBasedBoard.boardController.onClean();
+		AbstractExternalAppBasedBoard.boardController.clean();
 	}
 	
 	protected static native void handleCommandResponse(String msg, int commandId) /*-{

@@ -31,6 +31,7 @@ import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
+import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
@@ -65,8 +66,6 @@ public class RobotMovementExperiment extends ExperimentBase {
 		public static final String CLOCK_ACTIVATION_PANEL  = "wl-clock_activation_panel"; 
 	}
 
-	private final IConfigurationRetriever configurationRetriever;
-	
 	@UiField(provided = true) WlTimer timer;
 	
 	// Root panel.
@@ -88,9 +87,7 @@ public class RobotMovementExperiment extends ExperimentBase {
 	@UiField(provided = true) WlWebcam webcam;
 	
 	public RobotMovementExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
-		super(commandSender);
-		
-		this.configurationRetriever = configurationRetriever;
+		super(configurationRetriever, commandSender);
 		
 		this.createProvidedWidgets();
 		
@@ -111,7 +108,7 @@ public class RobotMovementExperiment extends ExperimentBase {
 		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
 			@Override
 			public void onFinished() {
-			    RobotMovementExperiment.this.boardController.onClean();
+			    RobotMovementExperiment.this.boardController.clean();
 			}
 		});
 		this.timer.start();

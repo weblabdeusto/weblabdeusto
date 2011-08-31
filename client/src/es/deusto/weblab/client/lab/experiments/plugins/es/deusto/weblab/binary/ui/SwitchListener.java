@@ -15,7 +15,7 @@ package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.binary.
 
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
-import es.deusto.weblab.client.lab.experiments.ExperimentBase.IBoardBaseController;
+import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.commands.SwitchCommand;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
 import es.deusto.weblab.client.ui.widgets.IWlWidget;

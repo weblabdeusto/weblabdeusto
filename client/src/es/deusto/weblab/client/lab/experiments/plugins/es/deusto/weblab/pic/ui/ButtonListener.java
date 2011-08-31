@@ -14,7 +14,7 @@
 package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic.ui;
 
 import es.deusto.weblab.client.dto.experiments.Command;
-import es.deusto.weblab.client.lab.experiments.ExperimentBase.IBoardBaseController;
+import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.pic.commands.PulseCommand;
 import es.deusto.weblab.client.ui.widgets.WlTimedButton;
 import es.deusto.weblab.client.ui.widgets.WlButton.IWlButtonUsed;

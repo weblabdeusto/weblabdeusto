@@ -30,6 +30,7 @@ import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
+import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
 import es.deusto.weblab.client.ui.widgets.WlPotentiometer;
@@ -65,9 +66,6 @@ public class PicExperiment extends ExperimentBase{
 	public static final String PIC_WEBCAM_REFRESH_TIME_PROPERTY = "es.deusto.weblab.pic.webcam.refresh.millis";
 	public static final int DEFAULT_PIC_WEBCAM_REFRESH_TIME = 400;
 	
-
-	protected IConfigurationRetriever configurationRetriever;
-
 	@UiField VerticalPanel widget;
 	@UiField VerticalPanel mainWidgetsPanel;
 	private final List<Widget> interactiveWidgets = new Vector<Widget>();
@@ -98,9 +96,7 @@ public class PicExperiment extends ExperimentBase{
 	
 	
 	public PicExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController){
-		super(boardController);
-		
-		this.configurationRetriever = configurationRetriever;
+		super(configurationRetriever, boardController);
 		
 		this.createProvidedWidgets();
 		PicExperiment.uiBinder.createAndBindUi(this);
@@ -269,7 +265,7 @@ public class PicExperiment extends ExperimentBase{
 		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
 			@Override
 			public void onFinished() {
-			    PicExperiment.this.boardController.onClean();
+			    PicExperiment.this.boardController.clean();
 			}
 		});
 		this.timer.start();

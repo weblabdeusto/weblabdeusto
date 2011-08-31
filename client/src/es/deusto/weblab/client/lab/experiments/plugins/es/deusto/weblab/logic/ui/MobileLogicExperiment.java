@@ -39,6 +39,7 @@ import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
+import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.ui.GpibExperiment;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.circuit.Circuit;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.circuit.CircuitParser;
@@ -68,7 +69,6 @@ public class MobileLogicExperiment extends ExperimentBase {
 		public static final String LOGIC_MOUSE_POINTER_HAND = "logic-mouse-pointer-hand";
 	}
 
-	private final IConfigurationRetriever configurationRetriever;
 	private final Map<Operation, ImageResource> operation2url = new HashMap<Operation, ImageResource>();
 	
 	private final String zeroString = "0";
@@ -119,11 +119,9 @@ public class MobileLogicExperiment extends ExperimentBase {
 	};
 	
 	public MobileLogicExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
-		super(commandSender);
+		super(configurationRetriever, commandSender);
 		
 		this.fillMaps();
-		
-		this.configurationRetriever = configurationRetriever;
 		
 		this.widget = new VerticalPanel();
 		this.widget.setWidth("100%");
@@ -199,7 +197,7 @@ public class MobileLogicExperiment extends ExperimentBase {
 		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
 			@Override
 			public void onFinished() {
-			    MobileLogicExperiment.this.boardController.onClean();
+			    MobileLogicExperiment.this.boardController.clean();
 			}
 		});
 		this.removableWidgetsPanel.add(this.timer.getWidget());		

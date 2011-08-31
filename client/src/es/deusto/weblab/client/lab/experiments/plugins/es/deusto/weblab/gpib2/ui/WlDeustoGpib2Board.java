@@ -14,6 +14,7 @@
 package es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib2.ui;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
+import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.ui.GpibExperiment;
 
 public class WlDeustoGpib2Board extends GpibExperiment {

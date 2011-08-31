@@ -41,6 +41,7 @@ import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
+import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.circuit.Circuit;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.logic.circuit.CircuitParser;
@@ -83,7 +84,6 @@ public class LogicExperiment extends ExperimentBase {
 		public static final String LOGIC_MOUSE_POINTER_HAND = "logic-mouse-pointer-hand";
 	}
 
-	private final IConfigurationRetriever configurationRetriever;
 	private final Map<Operation, String> operation2url = new HashMap<Operation, String>();
 	private final Map<String, Operation> url2operation = new HashMap<String, Operation>();
 	private final String unknownOperationUrl = GWT.getModuleBaseURL() + "img/logic/UNKNOWN.png";
@@ -156,11 +156,9 @@ public class LogicExperiment extends ExperimentBase {
 	};
 	
 	public LogicExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
-		super(commandSender);
+		super(configurationRetriever, commandSender);
 		
 		this.fillMaps();
-		
-		this.configurationRetriever = configurationRetriever;
 		
 		this.createProvidedWidgets();
 		
@@ -180,7 +178,7 @@ public class LogicExperiment extends ExperimentBase {
 		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
 			@Override
 			public void onFinished() {
-			    LogicExperiment.this.boardController.onClean();
+			    LogicExperiment.this.boardController.clean();
 			}
 		});	
 		

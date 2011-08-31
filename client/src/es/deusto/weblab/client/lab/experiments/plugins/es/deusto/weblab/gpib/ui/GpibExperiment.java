@@ -35,6 +35,7 @@ import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
+import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.commands.PollCommand;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.commands.ResultCodeCommand;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.commands.ResultFileCommand;
@@ -76,10 +77,6 @@ public class GpibExperiment extends ExperimentBase {
 	}
 	
 	
-	
-
-	private final IConfigurationRetriever configurationRetriever;
-	
 	// Widgets
 	private final VerticalPanel widget;
 	private final VerticalPanel removableWidgetsPanel;
@@ -109,9 +106,7 @@ public class GpibExperiment extends ExperimentBase {
 	};
 	
 	public GpibExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
-		super(commandSender);
-		
-		this.configurationRetriever = configurationRetriever;
+		super(configurationRetriever, commandSender);
 		
 		this.widget = new VerticalPanel();
 		this.widget.setWidth("100%");
@@ -160,7 +155,7 @@ public class GpibExperiment extends ExperimentBase {
 		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
 			@Override
 			public void onFinished() {
-				GpibExperiment.this.boardController.onClean();
+				GpibExperiment.this.boardController.clean();
 			}
 		});
 		this.removableWidgetsPanel.add(this.timer.getWidget());
@@ -275,7 +270,7 @@ public class GpibExperiment extends ExperimentBase {
 				this.resultFileContent = "Error: Your program did not generate the required file.";
 			}
 
-			this.boardController.onClean();
+			this.boardController.clean();
 			this.showResults();
 		}else{
 			// TODO: Unknown command!

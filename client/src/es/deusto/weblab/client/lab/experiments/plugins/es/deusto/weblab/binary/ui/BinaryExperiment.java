@@ -32,6 +32,7 @@ import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
+import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.commands.ClockActivationCommand;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.commands.PulseCommand;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.xilinx.ui.XilinxExperiment;
@@ -61,8 +62,6 @@ public class BinaryExperiment extends ExperimentBase {
 		public static final String CLOCK_ACTIVATION_PANEL = "wl-clock_activation_panel"; 
 	}
 	
-	private final IConfigurationRetriever configurationRetriever;
-		
 	// Widgets
 	private final VerticalPanel verticalPanel;
 	private final VerticalPanel widget;
@@ -75,9 +74,7 @@ public class BinaryExperiment extends ExperimentBase {
 	private Button checkNumberButton;
 	
 	public BinaryExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController){
-		super(boardController);
-		
-		this.configurationRetriever = configurationRetriever;
+		super(configurationRetriever, boardController);
 		
 		this.interactiveWidgets = new Vector<Widget>();
 		
@@ -215,7 +212,7 @@ public class BinaryExperiment extends ExperimentBase {
 		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
 			@Override
 			public void onFinished() {
-			    BinaryExperiment.this.boardController.onClean();
+			    BinaryExperiment.this.boardController.clean();
 			}
 		});
 		otherVerticalPanel.add(this.timer.getWidget());

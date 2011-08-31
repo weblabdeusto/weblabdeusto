@@ -31,11 +31,11 @@ import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
+import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
 
 public class LabViewExperiment extends ExperimentBase {
 
-	private IConfigurationRetriever configurationRetriever;
 	private VerticalPanel panel = new VerticalPanel();
 	private HTML html = new HTML(); 
 	private Button openPopupButton = new Button("Click here to open the experiment");
@@ -46,8 +46,7 @@ public class LabViewExperiment extends ExperimentBase {
 	private UploadStructure uploadStructure;
 
 	public LabViewExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController) {
-		super(boardController);
-		this.configurationRetriever = configurationRetriever;
+		super(configurationRetriever, boardController);
 		this.timer.setStyleName("wl-time_remaining");
 		this.openPopupButton.setVisible(false);
 		this.sendFile = this.configurationRetriever.getBoolProperty("send.file", false);
@@ -169,7 +168,7 @@ public class LabViewExperiment extends ExperimentBase {
 		this.timer.setTimerFinishedCallback(new WlTimer.IWlTimerFinishedCallback() {
 			@Override
 			public void onFinished() {
-				LabViewExperiment.this.boardController.onClean();
+				LabViewExperiment.this.boardController.clean();
 			}
 		});
 		this.panel.add(this.html);

@@ -13,59 +13,47 @@
 */ 
 package es.deusto.weblab.client.lab.experiments;
 
-import es.deusto.weblab.client.dto.SessionID;
 import com.google.gwt.json.client.JSONValue;
 
-import es.deusto.weblab.client.dto.experiments.Command;
-import es.deusto.weblab.client.lab.comm.UploadStructure;
-import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.ui.widgets.IWlWidget;
 
+/**
+ * An ExperimentBase is the abstract class from which all experiments inherit. It is 
+ * basically a class with a set of methods that will be called by the controller to
+ * interact. Thanks to it, the experiment dependent code does not need to handle 
+ * scheduling schemas, the configuration of the experiment or the communications. 
+ */
 public abstract class ExperimentBase implements IWlWidget{
 	
-	public interface IBoardBaseController{
-		
-		// Retrieving general information
-		public boolean isFacebook();
-		public SessionID getSessionId();
-		
-		// Sending commands
-		public void sendCommand(Command command);
-		public void sendCommand(Command command, IResponseCommandCallback callback);
-	    public void sendCommand(String command);
-		public void sendCommand(String command, IResponseCommandCallback callback);
-		
-		// Sending async commands
-		public void sendAsyncCommand(Command command);
-		public void sendAsyncCommand(Command command, IResponseCommandCallback callback);
-		public void sendAsyncCommand(String command);
-		public void sendAsyncCommand(String command, IResponseCommandCallback callback);
-		
-		// Sending files
-		public void sendFile(UploadStructure uploadStructure, IResponseCommandCallback callback);
-		public void sendAsyncFile(UploadStructure uploadStructure, IResponseCommandCallback callback);
-		
-		// Cleaning
-		public void onClean();
-	}
+	protected final IBoardBaseController boardController;
+	protected final IConfigurationRetriever configurationRetriever;
 	
-	protected IBoardBaseController boardController;
-	
-	public ExperimentBase(IBoardBaseController boardController){
+	/**
+	 * Initializes the ExperimentBase, providing the controller and the configuration retriever.
+	 * 
+	 * @param configurationRetriever Obtains the experiment configuration
+	 * @param boardController Manages the controller, gathering information or sending commands etc.
+	 */
+	public ExperimentBase(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController){
+		this.configurationRetriever = configurationRetriever;
 		this.boardController = boardController;
 	}
 	
 	/**
 	 * User selected this experiment. It can start showing the UI. It can 
 	 * load the VM used (Adobe Flash, Java VM, Silverlight/Moonlight, etc.), 
-	 * or define requirements of the (i.e. require 2 files, etc.). 
+	 * or define requirements of the (i.e. require 2 files, etc.). It should
+	 * also show options to gather information that will be sent to the 
+	 * initialization method of the experiment server, that later will be 
+	 * retrieved through the {@link #getInitialData()} method. 
 	 */
 	public void initialize(){}
 	
 	/**
 	 * Retrieves information sent to the experiment when reserving the 
-	 * experiment. It might have been collected in the UI of the initialize
-	 * method.
+	 * experiment. It might have been collected in the UI of the 
+	 * {@link #initialize()} method.
 	 */
 	public JSONValue getInitialData(){
 		return null;
@@ -80,13 +68,19 @@ public abstract class ExperimentBase implements IWlWidget{
 	/**
 	 * User grabs the control of the experiment (in the server side, the 
 	 * experiment is already reserved for the user).
+	 * 
+	 * @param time Seconds remaining. This time is the maximum permission time.
+	 * @param initialConfiguration Data sent by the experiment server in the 
+	 * initialization method.
 	 */
-	@SuppressWarnings("unused")
 	public void start(int time, String initialConfiguration){}
 	
 	/**
 	 * User experiment session finished. The experiment should clean 
-	 * its resources, or notify the user that it has finished.
+	 * its resources, or notify the user that it has finished. It may still
+	 * wait for the {@link #postEnd(String)} method to be called so as to
+	 * receive the information sent by the experiment when disposing 
+	 * resources.
 	 */
 	public void end(){}
 	
@@ -94,14 +88,18 @@ public abstract class ExperimentBase implements IWlWidget{
 	 * The experiment finishes cleaning the resources in the server side. 
 	 * This can be helpful when the experiment does anything in the end, 
 	 * such as storing a result.
+	 * 
+	 * @param endData Information sent by the server when finished cleaning
+	 * resources
 	 */
-	@SuppressWarnings("unused")
 	public void postEnd(String endData){}
 	
 	/**
 	 * How much time does will the user have the experiment.
+	 * 
+	 * @param time Time in seconds remaining
 	 */
-	public abstract void setTime(int time);
+	public void setTime(int time){}
 
 	/**
 	 * The method {@link #end()} should be called instead of dispose.

@@ -23,6 +23,7 @@ import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
+import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
 import es.deusto.weblab.client.ui.widgets.IWlWidget;
@@ -40,9 +41,6 @@ public class Pic2Experiment extends ExperimentBase{
 	public static final String PIC_WEBCAM_REFRESH_TIME_PROPERTY = "webcam.refresh.millis";
 	public static final int DEFAULT_PIC_WEBCAM_REFRESH_TIME = 400;
 	
-
-	protected IConfigurationRetriever configurationRetriever;
-
 	private VerticalPanel widget;
 	
 	private WlWebcam webcam;
@@ -54,9 +52,7 @@ public class Pic2Experiment extends ExperimentBase{
 	
 	
 	public Pic2Experiment(IConfigurationRetriever configurationRetriever, final IBoardBaseController boardController){
-		super(boardController);
-		
-		this.configurationRetriever = configurationRetriever;
+		super(configurationRetriever, boardController);
 		
 		widget = new VerticalPanel();
 		widget.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
@@ -68,7 +64,7 @@ public class Pic2Experiment extends ExperimentBase{
 		timer.setTimerFinishedCallback(new IWlTimerFinishedCallback() {
 			@Override
 			public void onFinished() {
-				boardController.onClean();
+				boardController.clean();
 			}
 		});
 		messages = new WlWaitingLabel();

@@ -24,6 +24,7 @@ import com.google.gwt.user.client.Window;
 
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
+import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard;
 
 public class FlashExperiment extends AbstractExternalAppBasedBoard{

@@ -31,6 +31,7 @@ import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
+import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
 import es.deusto.weblab.client.ui.widgets.WlButton.IWlButtonUsed;
@@ -83,9 +84,6 @@ public class XilinxExperiment extends ExperimentBase{
 		public static final String CLOCK_ACTIVATION_PANEL = "wl-clock_activation_panel"; 
 	}
 	
-	protected IConfigurationRetriever configurationRetriever;
-	
-
 	private static final boolean DEBUG_ENABLED = false;
 	
 	@UiField public VerticalPanel verticalPanel;
@@ -120,11 +118,9 @@ public class XilinxExperiment extends ExperimentBase{
 	private final Vector<Widget> interactiveWidgets;
 	
 	public XilinxExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController){
-		super(boardController);
+		super(configurationRetriever, boardController);
 		
 		this.deviceReady = false;
-		
-		this.configurationRetriever = configurationRetriever;
 		
 		this.interactiveWidgets = new Vector<Widget>();
 		
@@ -219,7 +215,7 @@ public class XilinxExperiment extends ExperimentBase{
 		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
 			@Override
 			public void onFinished() {
-				XilinxExperiment.this.boardController.onClean();
+				XilinxExperiment.this.boardController.clean();
 			}
 		});
 		

@@ -42,8 +42,8 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.comm.exceptions.NoCurrentReservationException;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory;
-import es.deusto.weblab.client.lab.experiments.ExperimentBase.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
+import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.ui.IUIManager;
 
 public class WlLabController implements IWlLabController {
@@ -377,7 +377,7 @@ public class WlLabController implements IWlLabController {
 	    	}
 	    	
 	    	@Override
-		public void onClean(){
+		public void clean(){
 	    		WlLabController.this.finishReservation();
 	    	}
 	    	

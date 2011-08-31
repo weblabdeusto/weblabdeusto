@@ -19,6 +19,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
+import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 
 public class DummyBatchExperiment extends ExperimentBase {
 
@@ -28,15 +29,11 @@ public class DummyBatchExperiment extends ExperimentBase {
 	public static final String DUMMY_WEBCAM_REFRESH_TIME_PROPERTY = "es.deusto.weblab.pld.webcam.refresh.millis";
 	public static final int    DEFAULT_DUMMY_WEBCAM_REFRESH_TIME       = 400;
 	
-	@SuppressWarnings("unused")
-	private final IConfigurationRetriever configurationRetriever;
-	
 	private VerticalPanel verticalPanel = new VerticalPanel();
 	
 	public DummyBatchExperiment(IConfigurationRetriever configurationRetriever,
 			IBoardBaseController boardController) {
-		super(boardController);
-		this.configurationRetriever = configurationRetriever;
+		super(configurationRetriever, boardController);
 	    print("Instance created");
 	}
 	

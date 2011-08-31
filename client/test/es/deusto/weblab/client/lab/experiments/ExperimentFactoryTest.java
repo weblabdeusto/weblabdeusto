@@ -23,7 +23,6 @@ import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
-import es.deusto.weblab.client.lab.experiments.ExperimentBase.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentNotFoundException;
 import es.deusto.weblab.client.lab.experiments.plugins.es.deusto.weblab.gpib.ui.GpibExperiment;
@@ -66,7 +65,7 @@ public class ExperimentFactoryTest extends GWTTestCase {
 			}
 
 			@Override
-			public void onClean() {
+			public void clean() {
 				
 			}
 
@@ -142,7 +141,7 @@ public class ExperimentFactoryTest extends GWTTestCase {
 			}
 			
 			@Override
-			public void onClean() {
+			public void clean() {
 			}
 
 			@Override
