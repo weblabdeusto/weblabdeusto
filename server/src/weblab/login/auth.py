@@ -14,6 +14,7 @@
 # 
 
 import sys
+from abc import ABCMeta, abstractmethod
 try:
     import ldap
 except ImportError:
@@ -28,6 +29,8 @@ import weblab.login.exc as LoginExceptions
 
 class LoginAuth(object):
 
+    __metaclass__ = ABCMeta
+
     HANDLERS = ()
 
     @staticmethod
@@ -41,8 +44,9 @@ class LoginAuth(object):
                 )
             )
     
+    @abstractmethod
     def authenticate(self, login, password):
-        raise NotImplementedError("This method should be implemented by the subclass")
+        pass
 
     def __repr__(self):
         return "<LoginAuth class='%s'><UserAuth>%s</UserAuth></LoginAuth>" % (self.__class__, (getattr(self,'_user_auth') or 'Not available'))

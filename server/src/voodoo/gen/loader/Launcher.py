@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+from abc import ABCMeta, abstractmethod
 import os
 import sys
 
@@ -47,8 +48,12 @@ import voodoo.rt_debugger as rt_debugger
 ##########################################################
 
 class EventWait(object):
+
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
     def wait(self):
-        raise NotImplementedError("wait not implemented")
+        pass
 
 class _WaitingSignal(object):
     def __init__(self, signal_wait):
@@ -105,8 +110,11 @@ class SocketWait(EventWait):
         self.s.close()
 
 class EventNotifier(object):
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
     def notify(self):
-        raise NotImplementedError("notify not implemented")
+        pass
     
 class FileNotifier(EventNotifier):
     def __init__(self, filepath, message):

@@ -26,6 +26,7 @@ be requested at any moment, even if there is a user using the experiment.
 
 import urllib2
 import socket
+from abc import ABCMeta, abstractmethod
 
 from voodoo.override import Override
 import weblab.lab.exc as labExc
@@ -37,6 +38,8 @@ VALID_IMAGE_FORMATS = ('image/jpg','image/png','image/jpeg')
 class AbstractLightweightIsUpAndRunningHandler(object):
 
     DEFAULT_TIMES = 1
+
+    __metaclass__ = ABCMeta
 
     def __init__(self, times = None):
         if times is not None:
@@ -55,8 +58,9 @@ class AbstractLightweightIsUpAndRunningHandler(object):
                 return []
         return messages
     
+    @abstractmethod
     def run(self):
-        raise NotImplementedError()
+        pass
 
 HANDLERS = ()
 

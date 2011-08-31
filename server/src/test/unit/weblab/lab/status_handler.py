@@ -24,10 +24,9 @@ import fake_socket as FakeSocket
 class AbstractLightweightIsUpAndRunningHandlerTestCase(unittest.TestCase):
     
     def test_not_implemented(self):
-        h = AbstractLightweightIsUpAndRunningHandler()
         self.assertRaises(
-            NotImplementedError,
-            h.run
+            TypeError,
+            AbstractLightweightIsUpAndRunningHandler
         )
 
 

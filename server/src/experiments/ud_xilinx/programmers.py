@@ -13,6 +13,7 @@
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
+from abc import ABCMeta, abstractmethod
 from voodoo.override import Override
 from experiments.ud_xilinx.exc import InvalidDeviceToProgramException
 from weblab.experiment.devices.digilent_adept import DigilentAdept
@@ -20,6 +21,8 @@ from weblab.experiment.devices.jtag_blazer import JTagBlazer
         
 
 class UdXilinxProgrammer(object):
+
+    __metaclass__ = ABCMeta
     
     def __init__(self, cfg_manager, xilinx_impact_device):
         super(UdXilinxProgrammer, self).__init__()
@@ -37,8 +40,9 @@ class UdXilinxProgrammer(object):
         else:
             raise InvalidDeviceToProgramException(device_name)   
     
+    @abstractmethod
     def program(self, file_name):
-        raise NotImplementedError("This method must be overriden in a subclass.")
+        pass
 
 
 class XilinxImpactProgrammer(UdXilinxProgrammer):

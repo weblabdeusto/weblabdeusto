@@ -381,7 +381,7 @@ class Coordinator(object):
     # session should end or not.
     #
     @logged()
-    def confirm_should_finish(self, lab_coord_address_str, lab_session_id, reservation_id, experiment_response):
+    def confirm_should_finish(self, lab_coordaddress_str, lab_session_id, reservation_id, experiment_response):
         # If not reserved, don't try again 
         try:
             current_status = self.get_reservation_status(reservation_id)
