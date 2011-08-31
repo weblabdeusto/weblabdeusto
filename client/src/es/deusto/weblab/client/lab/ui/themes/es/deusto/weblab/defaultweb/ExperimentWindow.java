@@ -130,7 +130,6 @@ class ExperimentWindow extends BaseWindow {
 
 		// Important note: this MUST be done here or FileUpload will cause problems
 		this.experimentAreaPanel.add(this.experimentBase.getWidget());	
-		this.experimentBase.initialize();
 		// end of Important note
 	}
 
@@ -141,12 +140,6 @@ class ExperimentWindow extends BaseWindow {
 	    this.waitingLabel.setText("");
 	    this.reserveButton.setVisible(false);
 		this.finishButton.setVisible(true);
-
-	    // Important note: This can't be before adding the widget to the DOM tree 
-		// If it's done, applets will not work 
-		this.experimentBase.start(time, initialConfiguration);
-		this.experimentBase.setTime(time);
-		// end of Important note
 	}	
 
 	@UiHandler("backLink")

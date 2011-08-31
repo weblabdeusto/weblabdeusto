@@ -34,6 +34,7 @@ public class FakeUIManager extends WlFake implements IUIManager {
     public static final String ON_WAITING_RESERVATION_CONFIRMATION  = "FakeUIManager::onWaitingReservationConfirmation";
     public static final String ON_EXPERIMENT_RESERVED 		        = "FakeUIManager::onExperimentReserved";
     public static final String ON_RESERVATION_FINISHED 	            = "FakeUIManager::onReservationFinished";
+    public static final String ON_CLEAN_RESERVATION 	            = "FakeUIManager::onCleanReservation";
     public static final String ON_LOGGED_OUT 			            = "FakeUIManager::onLoggedOut";
     
     public static final String ON_WRONG_LOGIN_OR_PASSWORD_GIVEN     = "FakeUIManager::onWrongLoginOrPasswordGiven";
@@ -60,14 +61,14 @@ public class FakeUIManager extends WlFake implements IUIManager {
     @Override
     public void onAllowedExperimentsRetrieved(
 	    ExperimentAllowed[] experimentsAllowed) {
-	this.append(FakeUIManager.ON_ALLOWED_EXPERIMENTS_RETRIEVED, new Object[]{experimentsAllowed});
+    	this.append(FakeUIManager.ON_ALLOWED_EXPERIMENTS_RETRIEVED, new Object[]{experimentsAllowed});
     }    
     
     @Override
     public void onExperimentChosen(ExperimentAllowed experimentAllowed,
 	    ExperimentBase experimentBase) {
-	experimentBase.initialize();
-	this.append(FakeUIManager.ON_EXPERIMENT_CHOOSEN, new Object[] {experimentAllowed, experimentBase});
+    	experimentBase.initialize();
+    	this.append(FakeUIManager.ON_EXPERIMENT_CHOOSEN, new Object[] {experimentAllowed, experimentBase});
     }
     
     @Override
@@ -90,8 +91,8 @@ public class FakeUIManager extends WlFake implements IUIManager {
     }    
     
     @Override
-    public void onReservationFinished() {
-	this.append(FakeUIManager.ON_RESERVATION_FINISHED);
+    public void onCleanReservation() {
+    	this.append(FakeUIManager.ON_CLEAN_RESERVATION);
     }    
 
     @Override

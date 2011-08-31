@@ -102,7 +102,6 @@ class ExperimentWindow extends BaseWindow {
 		// Important note: this order is important. Otherwise the FileUpload will cause problems
 		this.experimentArea.clear();
 		this.experimentArea.add(this.experimentBase.getWidget());	
-		this.experimentBase.initialize();
 		// end of Important note
 	}
 	
@@ -136,10 +135,6 @@ class ExperimentWindow extends BaseWindow {
 		this.reserveSide.setVisible(false);
 		this.finishSide.setVisible(true);
 	    
-		// This can't be before adding the widget to the DOM tree 
-		// If it's done, applets will not work 
-		this.experimentBase.start(time, initialConfiguration);
-		this.experimentBase.setTime(time);
 	}
 	
 	@UiHandler("finishButton")

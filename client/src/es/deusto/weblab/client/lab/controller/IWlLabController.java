@@ -42,7 +42,6 @@ public interface IWlLabController {
 	
 	public void finishReservation();
 	public void finishReservationAndLogout();
-	public void cleanReservation();
 	
 	public void poll();
 }

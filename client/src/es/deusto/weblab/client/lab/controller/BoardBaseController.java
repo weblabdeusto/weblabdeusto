@@ -42,7 +42,7 @@ final class BoardBaseController implements IBoardBaseController {
 	
 	@Override
 	public void clean(){
-		this.controller.finishReservation();
+		this.controller.cleanExperiment();
 	}
 	
 	@Override

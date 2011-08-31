@@ -35,7 +35,7 @@ public interface IUIManager {
     public void onWaitingReservation(WaitingReservationStatus reservationStatus);
     public void onWaitingReservationConfirmation(WaitingConfirmationReservationStatus reservationStatus);
     public void onExperimentReserved(ConfirmedReservationStatus reservationStatus, ExperimentID experimentID, ExperimentBase experimentBase) throws WlExperimentException;
-	public void onReservationFinished();
+	public void onCleanReservation();
 	public void onLoggedOut();
 	
 	

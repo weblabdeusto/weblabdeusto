@@ -92,7 +92,9 @@ public abstract class ExperimentBase implements IWlWidget{
 	 * @param endData Information sent by the server when finished cleaning
 	 * resources
 	 */
-	public void postEnd(String endData){}
+	public void postEnd(String endData){
+		this.boardController.clean();
+	}
 	
 	/**
 	 * How much time does will the user have the experiment.

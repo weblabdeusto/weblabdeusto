@@ -30,11 +30,14 @@ public class ConfirmedReservationStatusTransition extends ReservationStatusTrans
 		
 		final ExperimentID experimentID = ConfirmedReservationStatusTransition.this.reservationStatusCallback.getExperimentBeingReserved();
 		try {
+			ConfirmedReservationStatus confirmedReservationStatus = (ConfirmedReservationStatus)reservationStatus;
 			ConfirmedReservationStatusTransition.this.reservationStatusCallback.getUimanager().onExperimentReserved(
-					(ConfirmedReservationStatus)reservationStatus,
+					confirmedReservationStatus,
 					experimentID,
 					ConfirmedReservationStatusTransition.this.reservationStatusCallback.getExperimentBaseBeingReserved()
 				);
+			this.reservationStatusCallback.getExperimentBaseBeingReserved().start(confirmedReservationStatus.getTime(), confirmedReservationStatus.getInitialConfiguration());
+			this.reservationStatusCallback.getExperimentBaseBeingReserved().setTime(confirmedReservationStatus.getTime());
 		} catch (final WlExperimentException e) {
 			ConfirmedReservationStatusTransition.this.reservationStatusCallback.getUimanager().onError(e.getMessage());
 			return;

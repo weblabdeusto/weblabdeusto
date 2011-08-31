@@ -120,10 +120,9 @@ public class DefaultMobileTheme extends WlLabThemeBase {
 	}
 
 	@Override
-	public void onReservationFinished() {
-		this.experimentBase.end(); // Critical: Everything (i.e: timers) must be disposed.
-		this.loadAllowedExperimentsWindow();	    
-	}
+	public void onCleanReservation() {
+		this.controller.loadUserHomeWindow();
+	}	
 
 	@Override
 	public void onLoggedOut() {

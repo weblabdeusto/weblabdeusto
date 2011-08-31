@@ -116,10 +116,6 @@ public class MockController implements IWlLabController {
 		this.uimanager.onInit();
 	}
 
-	@Override
-	public void cleanReservation() {
-	}
-	
 	private void nextWaitingReservationStatus(){
 		final WaitingReservationStatus waitingReservation = new WaitingReservationStatus();
 		waitingReservation.setPosition(this.n);
