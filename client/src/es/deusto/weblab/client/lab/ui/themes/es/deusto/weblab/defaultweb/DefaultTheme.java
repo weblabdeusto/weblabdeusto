@@ -126,7 +126,7 @@ public class DefaultTheme extends WlLabThemeBase {
 	}	
 
 	@Override
-	public void onExperimentReserved(ConfirmedReservationStatus reservationStatus, ExperimentID experimentID, ExperimentBase experimentBase){
+	public void onExperimentReserved(ExperimentID experimentID, ExperimentBase experimentBase){
 		this.experimentBase = experimentBase;
 
 		this.experimentWindow.loadUsingExperimentPanels();

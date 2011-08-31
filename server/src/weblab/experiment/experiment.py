@@ -52,7 +52,7 @@ class Experiment(object):
         Therefore, this method will return a numeric result, being:
           - result > 0: it hasn't finished but ask within result seconds.
           - result == 0: completely interactive, don't ask again
-          - result == -1: it has finished.
+          - result < 0: it has finished.
         """
         return 0
 

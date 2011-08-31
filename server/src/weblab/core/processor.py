@@ -604,13 +604,24 @@ class UserProcessor(object):
                 UserProcessor.EXPIRATION_TIME_NOT_SET
             )
 
+    def _is_post_reservation(self):
+        return self.get_reservation_status().status == Reservation.Reservation.POST_RESERVATION
+
     def poll(self):
         if self.is_polling():
-            latest_poll, expiration_time = self._session['session_polling']
-            self._session['session_polling'] = (
-                    self.time_module.time(),
-                    UserProcessor.EXPIRATION_TIME_NOT_SET
-                )
+            status = self.get_reservation_status()
+            if status.status in Reservation.Reservation.POLLING_STATUS:
+                latest_poll, expiration_time = self._session['session_polling']
+                self._session['session_polling'] = (
+                        self.time_module.time(),
+                        UserProcessor.EXPIRATION_TIME_NOT_SET
+                    )
+            else:
+                try:
+                    self.finished_experiment()
+                except coreExc.FailedToFreeReservationException:
+                    pass
+                raise coreExc.NoCurrentReservationException("poll called but not polling status: %s" % status.status)
         else:
             raise coreExc.NoCurrentReservationException("poll called but no current reservation")
 
@@ -626,15 +637,16 @@ class UserProcessor(object):
                 )
 
     def is_expired(self):
+        
         if not self.is_polling():
-            return True
+            return not self._is_post_reservation()
 
         current_time = self.time_module.time()
         latest_poll, expiration_time = self._session['session_polling']
         if current_time - latest_poll > self._cfg_manager.get_value(EXPERIMENT_POLL_TIME, DEFAULT_EXPERIMENT_POLL_TIME):
-            return True
+            return not self._is_post_reservation()
         elif expiration_time != UserProcessor.EXPIRATION_TIME_NOT_SET and current_time > expiration_time:
-            return True
+            return not self._is_post_reservation()
         return False
 
     def is_polling(self):

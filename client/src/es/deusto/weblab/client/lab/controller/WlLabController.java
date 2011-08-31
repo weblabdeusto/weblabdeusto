@@ -18,6 +18,7 @@ package es.deusto.weblab.client.lab.controller;
 //TODO: translations
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Timer;
 
 import es.deusto.weblab.client.HistoryProperties;
@@ -31,8 +32,6 @@ import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
-import es.deusto.weblab.client.dto.experiments.commands.ArrayOfInterchangedData;
-import es.deusto.weblab.client.dto.experiments.commands.InterchangedData;
 import es.deusto.weblab.client.dto.reservations.ConfirmedReservationStatus;
 import es.deusto.weblab.client.dto.reservations.PostReservationReservationStatus;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
@@ -286,8 +285,9 @@ public class WlLabController implements IWlLabController {
 		reservationStatusCallback.setCommunications(this.communications);
 		reservationStatusCallback.setController(this);
 		reservationStatusCallback.setExperimentBaseBeingReserved(this.sessionVariables.getCurrentExperimentBase());
-		
-		this.communications.reserveExperiment(this.currentSession, experimentId, new ArrayOfInterchangedData(new InterchangedData[]{}), reservationStatusCallback);
+
+		final JSONValue initialData = this.sessionVariables.getCurrentExperimentBase().getInitialData();
+		this.communications.reserveExperiment(this.currentSession, experimentId, initialData, reservationStatusCallback);
 	}
 	
 	final IReservationCallback postReservationDataCallback = new IReservationCallback() {
@@ -312,7 +312,7 @@ public class WlLabController implements IWlLabController {
 			if(reservation instanceof PostReservationReservationStatus){
 				final PostReservationReservationStatus status = (PostReservationReservationStatus)reservation;
 				if(status.isFinished()){
-					WlLabController.this.sessionVariables.getCurrentExperimentBase().postEnd(status.getEndData());
+					WlLabController.this.sessionVariables.getCurrentExperimentBase().postEnd(status.getInitialData(), status.getEndData());
 				}else{
 					final Timer t = new Timer() {
 						
@@ -356,6 +356,8 @@ public class WlLabController implements IWlLabController {
 					pollForPostReservationData();
 					
 				}else{
+					System.out.println("expects post end?" + WlLabController.this.sessionVariables.getCurrentExperimentBase().expectsPostEnd());
+					System.out.println("is experiment visible?" + WlLabController.this.sessionVariables.isExperimentVisible());
 					WlLabController.this.sessionVariables.hideExperiment();
 					WlLabController.this.uimanager.onCleanReservation();
 				}
@@ -470,7 +472,7 @@ public class WlLabController implements IWlLabController {
 					@Override
 					public void onFailure(WlCommException e) {
 						if(e instanceof NoCurrentReservationException){
-							// XXX: tell experiment that it has finished
+							WlLabController.this.finishReservation();
 						}else{
 							WlLabController.this.sessionVariables.hideExperiment();
 							WlLabController.this.uimanager.onErrorAndFinishReservation(e.getMessage());

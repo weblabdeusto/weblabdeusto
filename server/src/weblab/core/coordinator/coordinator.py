@@ -458,16 +458,21 @@ class Coordinator(object):
     @logged()
     def finish_reservation(self, reservation_id):
         if self.reservations_manager.initialize_deletion(reservation_id):
-            schedulers = self._get_schedulers_per_reservation(reservation_id)
-            for scheduler in schedulers:
-                scheduler.finish_reservation(reservation_id)
-            # The reservations_manager must remove the session once (not once per scheduler)
-            session = self._session_maker()
             try:
-                self.reservations_manager.delete(session, reservation_id)
-                session.commit()
+                schedulers = self._get_schedulers_per_reservation(reservation_id)
+                for scheduler in schedulers:
+                    scheduler.finish_reservation(reservation_id)
+                # The reservations_manager must remove the session once (not once per scheduler)
+                session = self._session_maker()
+                try:
+                    self.reservations_manager.delete(session, reservation_id)
+                    session.commit()
+                finally:
+                    session.close()
+            except CoordExc.ExpiredSessionException:
+                pass
             finally:
-                session.close()
+                self.reservations_manager.clean_deletion(reservation_id)
 
     def _clean(self):
         for scheduler in self.schedulers.values():

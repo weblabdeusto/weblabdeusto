@@ -20,6 +20,8 @@ class WebLabSchedulingStatus(object):
     RESERVED             = 'reserved'
     POST_RESERVATION     = 'post_reservation'
 
+    POLLING_STATUS = (WAITING, WAITING_CONFIRMATION, WAITING_INSTANCES, RESERVED)
+
     def __init__(self, status):
         super(WebLabSchedulingStatus,self).__init__()
         self.status = status

@@ -37,13 +37,9 @@ public class WlTimer extends Widget implements IWlWidget{
 	private Timer timer;
 	private IWlTimerFinishedCallback timerFinishedCallback = null;
 	
-	private Audio timeRunningOutAudio = null;
 	private int timeRunningOutAudioLimit = 6;
 
 	public void start() {
-		
-		this.timeRunningOutAudio = Audio.createIfSupported();
-		
 		this.label.setText(Integer.toString(this.time));
 		this.timer = new Timer(){
 			@Override
@@ -152,14 +148,15 @@ public class WlTimer extends Widget implements IWlWidget{
 		}
 		
 		if(AudioManager.getInstance().getSoundEnabled()) {
-			if(this.time == this.timeRunningOutAudioLimit && this.timeRunningOutAudio != null) {
+			Audio timeRunningOutAudio = Audio.createIfSupported();
+			if(this.time == this.timeRunningOutAudioLimit && AudioManager.getInstance() != null) {
 				System.out.println(this.getParent());
-				final AudioElement effect = this.timeRunningOutAudio.getAudioElement();
+				final AudioElement effect = timeRunningOutAudio.getAudioElement();
 				effect.setSrc(GWT.getModuleBaseURL() + "snd/clock.wav");
 				effect.setLoop(true);
 				effect.play();
 			} else if( this.time == 0 ) {
-				final AudioElement effect = this.timeRunningOutAudio.getAudioElement();
+				final AudioElement effect = timeRunningOutAudio.getAudioElement();
 				effect.setLoop(false);
 				effect.pause();
 	

@@ -317,14 +317,16 @@ class LaboratoryServer(object):
             return experiment_server.is_up_and_running()
 
     @logged(log.level.Info)
+    @check_session(*check_session_params)
     @caller_check(ServerType.UserProcessing)
-    def do_should_experiment_finish(self, experiment_instance_id):
+    def do_should_experiment_finish(self, session):
         """Does the experiment server consider that it should finish current session?"""
+        experiment_instance_id   = session['experiment_instance_id']
         api = self._assigned_experiments.get_api(experiment_instance_id)
         if api == ExperimentApiLevel.level_1:
             return 0 # No way to know this information: don't ask again
         else:
-            experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
+            experiment_coord_address = session['experiment_coord_address']
             experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
             return experiment_server.should_finish()
 

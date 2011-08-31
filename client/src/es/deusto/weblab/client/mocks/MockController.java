@@ -21,7 +21,6 @@ import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.Experiment;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
-import es.deusto.weblab.client.dto.reservations.ConfirmedReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingConfirmationReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingReservationStatus;
 import es.deusto.weblab.client.dto.users.Role;
@@ -142,13 +141,12 @@ public class MockController implements IWlLabController {
 	}
 	
 	private void afterShowingWaitingConfirmation(){
-		final ConfirmedReservationStatus reservation = new ConfirmedReservationStatus(100, null);
 		final ExperimentID experimentID = new ExperimentID();
 		experimentID.setCategory(new Category("PLD experiments"));
 		experimentID.setExperimentName("pld-deusto");
 		
 		try {
-			this.uimanager.onExperimentReserved(reservation, experimentID, null);
+			this.uimanager.onExperimentReserved(experimentID, null);
 		} catch (final WlExperimentException e) {
 			e.printStackTrace();
 			return;

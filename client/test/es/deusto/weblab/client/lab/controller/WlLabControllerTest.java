@@ -275,9 +275,10 @@ public class WlLabControllerTest  extends GWTTestCase{
 		context.controller.sendCommand(myCommand, commandCallback);
 		
 		v = this.fakeCommunications.getMethodByName(FakeWlLabCommunication.SEND_COMMAND);
-		Assert.assertEquals(1, v.size());
+		// 2: webcam and this one
+		Assert.assertEquals(2, v.size());
 		
-		m = v.get(0);
+		m = v.get(1);
 		Assert.assertEquals(3, m.getParameters().length);
 		Assert.assertEquals(context.sessionID, m.getParameters()[0]);
 		Assert.assertEquals(myCommand, m.getParameters()[1]);

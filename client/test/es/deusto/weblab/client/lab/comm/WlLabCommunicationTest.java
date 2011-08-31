@@ -19,6 +19,7 @@ import java.util.HashMap;
 import junit.framework.Assert;
 
 import com.google.gwt.http.client.RequestException;
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
@@ -37,8 +38,6 @@ import es.deusto.weblab.client.dto.experiments.Experiment;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
-import es.deusto.weblab.client.dto.experiments.commands.ArrayOfInterchangedData;
-import es.deusto.weblab.client.dto.experiments.commands.InterchangedData;
 import es.deusto.weblab.client.dto.reservations.ConfirmedReservationStatus;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
@@ -375,7 +374,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		};
 		
 		requestBuilder.setNextReceivedMessage(SERIALIZED_MESSAGE);		
-		comms.reserveExperiment(sessionId, experimentId, new ArrayOfInterchangedData(new InterchangedData[]{}), eac);
+		comms.reserveExperiment(sessionId, experimentId, new JSONObject(), eac);
 		Assert.assertEquals(1, this.stepCounter);
 		
 		requestBuilder.setNextToThrow(new RequestException(ERROR_MESSAGE));
@@ -392,7 +391,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 				WlLabCommunicationTest.this.stepCounter++;
 			}
 		};
-		comms.reserveExperiment(sessionId, experimentId, new ArrayOfInterchangedData(new InterchangedData[]{}), eac);
+		comms.reserveExperiment(sessionId, experimentId, new JSONObject(), eac);
 		Assert.assertEquals(2, this.stepCounter);
 		
 		requestBuilder.setNextToError(new Exception(ERROR_MESSAGE));
@@ -409,7 +408,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 				WlLabCommunicationTest.this.stepCounter++;
 			}
 		};
-		comms.reserveExperiment(sessionId, experimentId, new ArrayOfInterchangedData(new InterchangedData[]{}), eac);
+		comms.reserveExperiment(sessionId, experimentId, new JSONObject(), eac);
 		Assert.assertEquals(3, this.stepCounter);
 		
 		requestBuilder.setNextReceivedMessage("");
@@ -426,7 +425,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 				WlLabCommunicationTest.this.stepCounter++;
 			}
 		};
-		comms.reserveExperiment(sessionId, experimentId, new ArrayOfInterchangedData(new InterchangedData[]{}), eac);
+		comms.reserveExperiment(sessionId, experimentId, new JSONObject(), eac);
 		Assert.assertEquals(4, this.stepCounter);
 	}
 	

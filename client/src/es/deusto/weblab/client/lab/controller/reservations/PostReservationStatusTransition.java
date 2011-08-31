@@ -13,9 +13,11 @@
 */ 
 package es.deusto.weblab.client.lab.controller.reservations;
 
+import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.reservations.PostReservationReservationStatus;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.lab.controller.ReservationStatusCallback;
+import es.deusto.weblab.client.lab.experiments.exceptions.WlExperimentException;
 
 public class PostReservationStatusTransition extends ReservationStatusTransition{
 
@@ -25,9 +27,19 @@ public class PostReservationStatusTransition extends ReservationStatusTransition
 
 	@Override
 	public void perform(ReservationStatus reservationStatus) {
-		// TODO
-		System.out.println("POST RESERVATION STATUS TRANSITION");
-		System.out.println("Initial: " + ((PostReservationReservationStatus)reservationStatus).getInitialData());
-		System.out.println("End: " + ((PostReservationReservationStatus)reservationStatus).getEndData());
+		final ExperimentID experimentID = this.reservationStatusCallback.getExperimentBeingReserved();
+		try {
+			this.reservationStatusCallback.getUimanager().onExperimentReserved(
+					experimentID,
+					this.reservationStatusCallback.getExperimentBaseBeingReserved()
+				);
+		} catch (WlExperimentException e) {
+			this.reservationStatusCallback.getUimanager().onError(e.getMessage());
+			return;
+		}
+		
+		final String initialData = ((PostReservationReservationStatus)reservationStatus).getInitialData();
+		final String endData = ((PostReservationReservationStatus)reservationStatus).getEndData();
+		this.reservationStatusCallback.getExperimentBaseBeingReserved().postEnd(initialData, endData);
 	}
 }

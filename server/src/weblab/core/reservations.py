@@ -22,6 +22,9 @@ class Reservation(object):
     WAITING_INSTANCES    = "Reservation::waiting_instances"
     CONFIRMED            = "Reservation::confirmed"
     POST_RESERVATION     = "Reservation::post_reservation"
+
+    POLLING_STATUS = (WAITING, WAITING_CONFIRMATION, WAITING_INSTANCES, CONFIRMED)
+
     def __init__(self, status):
         """ __init__(status)
 

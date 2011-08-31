@@ -105,12 +105,19 @@ public abstract class ExperimentBase implements IWlWidget{
 	 * This can be helpful when the experiment does anything in the end, 
 	 * such as storing a result.
 	 * 
+	 * @param initialData Information sent by the server when finished the
+	 * initialization of the experiment. It is the same information obtained
+	 * in the {@link #start(int, String)} method, but this method will not
+	 * always be called if the experiment life is too short (such as in the
+	 * batch experiments).
+	 * 
 	 * @param endData Information sent by the server when finished cleaning
 	 * resources
 	 */
-	public void postEnd(String endData){
+	public void postEnd(String initialData, String endData){
 		this.boardController.clean();
-	}
+	}	
+	
 	
 	/**
 	 * How much time does will the user have the experiment.

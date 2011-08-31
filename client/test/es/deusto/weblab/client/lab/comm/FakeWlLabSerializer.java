@@ -14,6 +14,7 @@
 package es.deusto.weblab.client.lab.comm;
 
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONValue;
 
 import es.deusto.weblab.client.comm.FakeWlCommonSerializer;
 import es.deusto.weblab.client.comm.exceptions.SerializationException;
@@ -26,7 +27,6 @@ import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
-import es.deusto.weblab.client.dto.experiments.commands.InterchangedData;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.lab.comm.exceptions.NoCurrentReservationException;
 
@@ -175,7 +175,7 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements IWlLa
 	}
 
 	@Override
-	public String serializeReserveExperimentRequest(SessionID sessionId, ExperimentID experimentId, InterchangedData clientInitialData) throws SerializationException {
+	public String serializeReserveExperimentRequest(SessionID sessionId, ExperimentID experimentId, JSONValue clientInitialData) throws SerializationException {
 		this.append(FakeWlLabSerializer.SERIALIZE_RESERVE_EXPERIMENT_REQUEST, new Object[]{
 				sessionId,
 				experimentId,

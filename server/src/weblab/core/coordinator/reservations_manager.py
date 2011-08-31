@@ -120,6 +120,15 @@ class ReservationsManager(object):
         finally:
             session.close()
 
+    def clean_deletion(self, reservation_id):
+        session = self._session_maker()
+        try:
+            pending_to_finish = session.query(PendingToFinishReservation).filter_by(id=reservation_id).first()
+            if pending_to_finish is not None:
+                session.delete(pending_to_finish)
+        finally:
+            session.close()
+
     def delete(self, session, reservation_id):
         reservation = session.query(Reservation).filter_by(id=reservation_id).first()
         if reservation is not None:
@@ -127,8 +136,3 @@ class ReservationsManager(object):
             if current_reservation is not None:
                 session.delete(current_reservation)
             session.delete(reservation)
-
-        pending_to_finish = session.query(PendingToFinishReservation).filter_by(id=reservation_id).first()
-        if pending_to_finish is not None:
-            session.delete(pending_to_finish)
-

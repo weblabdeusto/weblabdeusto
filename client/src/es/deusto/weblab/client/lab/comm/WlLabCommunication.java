@@ -18,10 +18,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.ui.FormPanel;
-import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
+import com.google.gwt.user.client.ui.Hidden;
 
 import es.deusto.weblab.client.comm.IWlCommonSerializer;
 import es.deusto.weblab.client.comm.WlCommonCommunication;
@@ -37,7 +38,6 @@ import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
-import es.deusto.weblab.client.dto.experiments.commands.InterchangedData;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
@@ -233,7 +233,7 @@ public class WlLabCommunication extends WlCommonCommunication implements IWlLabC
 	}
 
 	@Override
-	public void reserveExperiment(SessionID sessionId, ExperimentID experimentId, InterchangedData clientInitialData, IReservationCallback callback) {
+	public void reserveExperiment(SessionID sessionId, ExperimentID experimentId, JSONValue clientInitialData, IReservationCallback callback) {
 		String requestSerialized;
 		try {
 			requestSerialized = ((IWlLabSerializer)this.serializer).serializeReserveExperimentRequest(sessionId, experimentId, clientInitialData);

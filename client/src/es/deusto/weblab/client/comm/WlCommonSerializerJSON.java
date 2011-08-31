@@ -291,7 +291,7 @@ public class WlCommonSerializerJSON implements IWlCommonSerializer {
 	}
 	
 	protected String json2string(JSONValue value, boolean supportNull) throws SerializationException {
-		if(value == null){
+		if(value == null || value.toString().trim().equals("{}")){
 			if(supportNull)
 				return null;
 			

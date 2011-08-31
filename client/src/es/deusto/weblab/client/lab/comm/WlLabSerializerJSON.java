@@ -38,9 +38,8 @@ import es.deusto.weblab.client.dto.experiments.Experiment;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
-import es.deusto.weblab.client.dto.experiments.commands.InterchangedData;
-import es.deusto.weblab.client.dto.reservations.PostReservationReservationStatus;
 import es.deusto.weblab.client.dto.reservations.ConfirmedReservationStatus;
+import es.deusto.weblab.client.dto.reservations.PostReservationReservationStatus;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingConfirmationReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingInstancesReservationStatus;
@@ -359,7 +358,7 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
     }
 
     @Override
-	public String serializeReserveExperimentRequest(SessionID sessionId, ExperimentID experimentId, InterchangedData clientInitialData) throws SerializationException {
+	public String serializeReserveExperimentRequest(SessionID sessionId, ExperimentID experimentId, JSONValue clientInitialData) throws SerializationException {
 		//{"params": {"session_id": {"id": "svAsc-rCIKLP1qeU"}, 
 		//  "experiment_id": {"exp_name": "ud-dummy", "cat_name": "Dummy experiments"}}, 
 		// "method": "reserve_experiment"}
@@ -369,7 +368,10 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
 		jsonExperimentId.put("exp_name", new JSONString(experimentId.getExperimentName()));
 		jsonExperimentId.put("cat_name", new JSONString(experimentId.getCategory().getCategory()));
 		params.put("experiment_id", jsonExperimentId);
-		params.put("client_initial_data", new JSONString(clientInitialData.toJSON().toString()));
+		if(clientInitialData == null)
+			params.put("client_initial_data", new JSONString("{}"));
+		else
+			params.put("client_initial_data", new JSONString(clientInitialData.toString()));
 		return this.serializeRequest("reserve_experiment", params);
     }
 
