@@ -14,6 +14,7 @@
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
+import time
 import threading
 
 from voodoo.log import logged
@@ -89,6 +90,8 @@ class UserProcessingServer(object):
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(UserProcessingServer,self).__init__(*args, **kwargs)
 
+        self._stopping = False 
+
         session_type    = cfg_manager.get_value(WEBLAB_USER_PROCESSING_SERVER_SESSION_TYPE, DEFAULT_WEBLAB_USER_PROCESSING_SERVER_SESSION_TYPE) 
         session_pool_id = cfg_manager.get_value(WEBLAB_USER_PROCESSING_SERVER_SESSION_POOL_ID, "UserProcessingServer")
         if session_type in SessionType.getSessionTypeValues():
@@ -137,6 +140,8 @@ class UserProcessingServer(object):
 
 
     def stop(self):
+        self._stopping = True
+
         self._temporal_information_retriever.stop()
 
         if hasattr(super(UserProcessingServer, self), 'stop'):
@@ -183,6 +188,8 @@ class UserProcessingServer(object):
     @threaded(_resource_manager)
     def _expire_users(self, expired_users):
         for expired_user in expired_users:
+            if self._stopping:
+                return
             try:
                 expired_session = self._session_manager.get_session_locking(expired_user)
                 try:
@@ -211,8 +218,10 @@ class UserProcessingServer(object):
         _resource_manager.add_resource(timer)
 
     def _renew_checker_timer(self):
-        self._check_other_sessions_finished()
-        self._initialize_checker_timer()
+        checking_time = self._cfg_manager.get_value(CHECKING_TIME_NAME, DEFAULT_CHECKING_TIME)
+        while not self._stopping:
+            self._check_other_sessions_finished()
+            time.sleep(checking_time)
 
     # # # # # # # # # # # #
     # Session operations  #
