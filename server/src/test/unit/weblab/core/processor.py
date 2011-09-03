@@ -275,7 +275,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.processor.finished_experiment()
 
-        self.assertTrue( self.processor.is_expired() )
+        self.assertEquals( self.processor.get_reservation_status().status, Reservation.Reservation.POST_RESERVATION )
 
     def test_send_file_ok(self):
         file_content = "SAMPLE CONTENT"
@@ -309,7 +309,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.processor.finished_experiment()
 
-        self.assertTrue( self.processor.is_expired() )
+        self.assertEquals( self.processor.get_reservation_status().status, Reservation.Reservation.POST_RESERVATION )
 
     def test_send_file_session_not_found_in_lab(self):
         self._return_reserved()
@@ -342,7 +342,7 @@ class UserProcessorTestCase(unittest.TestCase):
                 file_info
             )
 
-        self.assertTrue( self.processor.is_expired() )
+        self.assertEquals( self.processor.get_reservation_status().status, Reservation.Reservation.POST_RESERVATION )
         
     def test_send_async_file_session_not_found_in_lab(self):
         self._return_reserved()
@@ -375,7 +375,7 @@ class UserProcessorTestCase(unittest.TestCase):
                 file_info
             )
 
-        self.assertTrue( self.processor.is_expired() )
+        self.assertEquals( self.processor.get_reservation_status().status, Reservation.Reservation.POST_RESERVATION )
 
     def test_send_async_file_failed_to_send(self):
         self._return_reserved()
@@ -408,7 +408,7 @@ class UserProcessorTestCase(unittest.TestCase):
                 file_info
             )
 
-        self.assertTrue( self.processor.is_expired() )
+        self.assertEquals( self.processor.get_reservation_status().status, Reservation.Reservation.POST_RESERVATION )
 
     def test_send_file_failed_to_send(self):
         self._return_reserved()
@@ -441,7 +441,7 @@ class UserProcessorTestCase(unittest.TestCase):
                 file_info
             )
 
-        self.assertTrue( self.processor.is_expired() )
+        self.assertEquals( self.processor.get_reservation_status().status, Reservation.Reservation.POST_RESERVATION )
         
 
     def test_wot(self):
@@ -479,7 +479,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.processor.finished_experiment()
 
-        self.assertTrue( self.processor.is_expired() )
+        self.assertEquals( self.processor.get_reservation_status().status, Reservation.Reservation.POST_RESERVATION )
         
         
 
@@ -514,7 +514,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.processor.finished_experiment()
 
-        self.assertTrue( self.processor.is_expired() )
+        self.assertEquals( self.processor.get_reservation_status().status, Reservation.Reservation.POST_RESERVATION )
 
 
     def test_send_command_session_not_found_in_lab(self):
@@ -546,7 +546,7 @@ class UserProcessorTestCase(unittest.TestCase):
                 command
             )
 
-        self.assertTrue( self.processor.is_expired() )
+        self.assertEquals( self.processor.get_reservation_status().status, Reservation.Reservation.POST_RESERVATION )
         
         
     def test_send_async_command_session_not_found_in_lab(self):
@@ -578,7 +578,7 @@ class UserProcessorTestCase(unittest.TestCase):
                 command
             )
 
-        self.assertTrue( self.processor.is_expired() )
+        self.assertEquals( self.processor.get_reservation_status().status, Reservation.Reservation.POST_RESERVATION )
 
     def test_send_async_command_failed_to_send(self):
         self._return_reserved()
@@ -609,7 +609,7 @@ class UserProcessorTestCase(unittest.TestCase):
                 command
             )
 
-        self.assertTrue( self.processor.is_expired() )
+        self.assertEquals( self.processor.get_reservation_status().status, Reservation.Reservation.POST_RESERVATION )
 
     def test_send_command_failed_to_send(self):
         self._return_reserved()
@@ -640,7 +640,7 @@ class UserProcessorTestCase(unittest.TestCase):
                 command
             )
 
-        self.assertTrue( self.processor.is_expired() )
+        self.assertEquals( self.processor.get_reservation_status().status, Reservation.Reservation.POST_RESERVATION )
 
 
     def _return_reserved(self):

@@ -642,21 +642,22 @@ class UserProcessor(object):
         if reservation_id is None:
             return False
 
-        # XXX TODO This should be a return
-        self._coordinator.is_post_reservation(reservation_id)
-        return
+        return self._coordinator.is_post_reservation(reservation_id)
 
     def is_expired(self):
-        
+        # If it is not polling, just take into account if it is 
+        # in post reservation status
         if not self.is_polling():
             return not self._is_post_reservation()
 
+        # But if it polling and it took too long
+        # call finished_experiment
         current_time = self.time_module.time()
         latest_poll, expiration_time = self._session['session_polling']
         if current_time - latest_poll > self._cfg_manager.get_value(EXPERIMENT_POLL_TIME, DEFAULT_EXPERIMENT_POLL_TIME):
-            return not self._is_post_reservation()
+            return True
         elif expiration_time != UserProcessor.EXPIRATION_TIME_NOT_SET and current_time > expiration_time:
-            return not self._is_post_reservation()
+            return True
         return False
 
     def is_polling(self):
