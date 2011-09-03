@@ -39,6 +39,10 @@ class TimeModule(object):
     def time(self):
         return self._next_value
 
+class DummyCoordinator(object):
+    def is_post_reservation(self, reservation_id):
+        return False
+
 class AliveUsersCollectionTestCase(unittest.TestCase):
     def setUp(self):
         cfg_manager = ConfigurationManager.ConfigurationManager()
@@ -54,12 +58,15 @@ class AliveUsersCollectionTestCase(unittest.TestCase):
                 )
         db_manager       = None
 
+        coordinator = DummyCoordinator()
+
         self.auc     = AliveUsersCollection.AliveUsersCollection(
                     locator,
                     cfg_manager,
                     SessionType.Memory,
                     self.session_mgr,
                     db_manager,
+                    coordinator,
                     commands_store
                 )
 

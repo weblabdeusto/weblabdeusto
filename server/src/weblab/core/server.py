@@ -124,7 +124,7 @@ class UserProcessingServer(object):
         self._temporal_information_retriever.start()
 
         self._alive_users_collection = AliveUsersCollection.AliveUsersCollection(
-                self._locator, self._cfg_manager, session_type, self._session_manager, self._db_manager, self._commands_store)
+                self._locator, self._cfg_manager, session_type, self._session_manager, self._db_manager, self._coordinator, self._commands_store)
 
         if clean:
             self._parse_coordination_configuration()

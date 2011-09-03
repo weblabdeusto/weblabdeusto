@@ -642,9 +642,9 @@ class UserProcessor(object):
         if reservation_id is None:
             return False
 
-        # XXX this should be a return
+        # XXX TODO This should be a return
         self._coordinator.is_post_reservation(reservation_id)
-        return False
+        return
 
     def is_expired(self):
         
