@@ -161,8 +161,8 @@ class UserProcessingServer(object):
     def _load_user(self, session):
         return UserProcessor.UserProcessor(self._locator, session, self._cfg_manager, self._coordinator, self._db_manager, self._commands_store)
 
-    def _check_user_not_expired_and_poll(self, user_processor, raise_poll_exc = True):
-        if user_processor.is_expired():
+    def _check_user_not_expired_and_poll(self, user_processor, check_expired = True):
+        if check_expired and user_processor.is_expired():
             user_processor.finished_experiment()
             raise coreExc.NoCurrentReservationException(
                 'Current user does not have any experiment assigned'
@@ -171,7 +171,7 @@ class UserProcessingServer(object):
             try:
                 user_processor.poll()
             except coreExc.NoCurrentReservationException:
-                if raise_poll_exc:
+                if check_expired:
                     raise
             user_processor.update_latest_timestamp()
             # It's already locked, we just update that this user is still among us
@@ -183,10 +183,10 @@ class UserProcessingServer(object):
     def _check_other_sessions_finished(self):
         expired_users = self._alive_users_collection.check_expired_users()
         if len(expired_users) > 0:
-            self._expire_users(expired_users)
+            self._purge_users(expired_users)
 
     @threaded(_resource_manager)
-    def _expire_users(self, expired_users):
+    def _purge_users(self, expired_users):
         for expired_user in expired_users:
             if self._stopping:
                 return

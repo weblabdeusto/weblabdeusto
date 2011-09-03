@@ -262,8 +262,7 @@ class UserProcessor(object):
                 )
 
     def logout(self):
-        if self._session.has_key('lab_session_id'): # TODO: improve this
-            self.finished_experiment()
+        self.finished_experiment()
 
     def send_file(self, file_content, file_info ):
         if self._session.has_key('lab_session_id') and self._session.has_key('lab_coordaddr'):
@@ -637,7 +636,7 @@ class UserProcessor(object):
                     expiration_time
                 )
 
-    def _is_post_reservation(self):
+    def is_post_reservation(self):
         reservation_id = self._session.get('reservation_id') or self._session.get('last_reservation_id')
         if reservation_id is None:
             return False
@@ -645,10 +644,9 @@ class UserProcessor(object):
         return self._coordinator.is_post_reservation(reservation_id)
 
     def is_expired(self):
-        # If it is not polling, just take into account if it is 
-        # in post reservation status
+        # If it is not polling, it was expired in the past
         if not self.is_polling():
-            return not self._is_post_reservation()
+           return True
 
         # But if it polling and it took too long
         # call finished_experiment
