@@ -15,7 +15,7 @@ package es.deusto.weblab.client.lab.comm;
 
 import com.google.gwt.json.client.JSONValue;
 
-import es.deusto.weblab.client.comm.FakeWlCommonCommunication;
+import es.deusto.weblab.client.comm.FakeCommonCommunication;
 import es.deusto.weblab.client.comm.ICommonSerializer;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.dto.SessionID;
@@ -25,7 +25,7 @@ import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 
-public class FakeWlLabCommunication extends FakeWlCommonCommunication implements ILabCommunication {
+public class FakeLabCommunication extends FakeCommonCommunication implements ILabCommunication {
 
 	public static final String SEND_ASYNC_FILE 		  = "FakeWeblabCommunication::sendAsyncFile";
 	public static final String SEND_ASYNC_COMMAND     = "FakeWeblabCommunication::sendAsyncCommand";
@@ -39,7 +39,7 @@ public class FakeWlLabCommunication extends FakeWlCommonCommunication implements
 	
 	@Override
 	public void getReservationStatus(SessionID sessionId, IReservationCallback callback) {
-		this.append(FakeWlLabCommunication.GET_RESERVATION_STATUS, new Object[]{
+		this.append(FakeLabCommunication.GET_RESERVATION_STATUS, new Object[]{
 				sessionId,
 				callback
 		});
@@ -47,7 +47,7 @@ public class FakeWlLabCommunication extends FakeWlCommonCommunication implements
 
 	@Override
 	public void listExperiments(SessionID sessionId, IExperimentsAllowedCallback callback) {
-		this.append(FakeWlLabCommunication.LIST_EXPERIMENTS, new Object[]{
+		this.append(FakeLabCommunication.LIST_EXPERIMENTS, new Object[]{
 				sessionId,
 				callback
 		});
@@ -55,7 +55,7 @@ public class FakeWlLabCommunication extends FakeWlCommonCommunication implements
 
 	@Override
 	public void poll(SessionID sessionId, IVoidCallback callback) {
-		this.append(FakeWlLabCommunication.POLL, new Object[]{
+		this.append(FakeLabCommunication.POLL, new Object[]{
 				sessionId,
 				callback
 		});
@@ -63,7 +63,7 @@ public class FakeWlLabCommunication extends FakeWlCommonCommunication implements
 
 	@Override
 	public void reserveExperiment(SessionID sessionId, ExperimentID experimentId, JSONValue clientInitialData, IReservationCallback callback) {
-		this.append(FakeWlLabCommunication.RESERVE_EXPERIMENT, new Object[]{
+		this.append(FakeLabCommunication.RESERVE_EXPERIMENT, new Object[]{
 				sessionId,
 				experimentId,
 				clientInitialData,
@@ -73,7 +73,7 @@ public class FakeWlLabCommunication extends FakeWlCommonCommunication implements
 
 	@Override
 	public void sendCommand(SessionID sessionId, Command command, IResponseCommandCallback callback) {
-		this.append(FakeWlLabCommunication.SEND_COMMAND, new Object[]{
+		this.append(FakeLabCommunication.SEND_COMMAND, new Object[]{
 				sessionId,
 				command,
 				callback
@@ -82,7 +82,7 @@ public class FakeWlLabCommunication extends FakeWlCommonCommunication implements
 
 	@Override
 	public void sendFile(SessionID sessionId, UploadStructure uploadStructure, IResponseCommandCallback callback) {
-		this.append(FakeWlLabCommunication.SEND_FILE, new Object[]{
+		this.append(FakeLabCommunication.SEND_FILE, new Object[]{
 				sessionId,
 				uploadStructure,
 				callback
@@ -92,7 +92,7 @@ public class FakeWlLabCommunication extends FakeWlCommonCommunication implements
 	@Override
 	public void sendAsyncCommand(SessionID sessionId, Command command,
 			IResponseCommandCallback callback) {
-		this.append(FakeWlLabCommunication.SEND_ASYNC_COMMAND, new Object[]{
+		this.append(FakeLabCommunication.SEND_ASYNC_COMMAND, new Object[]{
 				sessionId,
 				command,
 				callback
@@ -102,7 +102,7 @@ public class FakeWlLabCommunication extends FakeWlCommonCommunication implements
 	@Override
 	public void sendAsyncFile(SessionID sessionId, UploadStructure uploadStructure,
 			IResponseCommandCallback callback) {
-		this.append(FakeWlLabCommunication.SEND_ASYNC_FILE, new Object[]{
+		this.append(FakeLabCommunication.SEND_ASYNC_FILE, new Object[]{
 			sessionId,
 			uploadStructure,
 			callback
@@ -111,7 +111,7 @@ public class FakeWlLabCommunication extends FakeWlCommonCommunication implements
 
 	@Override
 	public void finishedExperiment(SessionID sessionId, IVoidCallback callback) {
-		this.append(FakeWlLabCommunication.FINISHED_EXPERIMENT, new Object[]{ 
+		this.append(FakeLabCommunication.FINISHED_EXPERIMENT, new Object[]{ 
 				sessionId,
 				callback
 		});
@@ -119,7 +119,7 @@ public class FakeWlLabCommunication extends FakeWlCommonCommunication implements
 
 	@Override
 	protected ICommonSerializer createSerializer() {
-		return new FakeWlLabSerializer();
+		return new FakeLabSerializer();
 	}
 
 

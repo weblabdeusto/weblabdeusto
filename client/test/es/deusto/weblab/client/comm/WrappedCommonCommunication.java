@@ -13,19 +13,18 @@
 *
 */
 
-package es.deusto.weblab.client.admin.comm;
+package es.deusto.weblab.client.comm;
 
 import com.google.gwt.http.client.RequestBuilder;
 
-import es.deusto.weblab.client.comm.ICommonSerializer;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 
-public class WrappedWlAdminCommunication extends AdminCommunication {
+public class WrappedCommonCommunication extends CommonCommunication {
 	
-	private final IAdminSerializer wrappedSerializer;
+	private final ICommonSerializer wrappedSerializer;
 	private final RequestBuilder wrappedRequestBuilder;
 	
-	public WrappedWlAdminCommunication(IAdminSerializer wrappedSerializer, RequestBuilder wrappedRequestBuilder, IConfigurationManager configurationManager){
+	public WrappedCommonCommunication(ICommonSerializer wrappedSerializer, RequestBuilder wrappedRequestBuilder, IConfigurationManager configurationManager){
 		super(configurationManager);
 		this.wrappedSerializer = wrappedSerializer;
 		this.wrappedRequestBuilder = wrappedRequestBuilder;

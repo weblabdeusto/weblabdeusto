@@ -20,9 +20,9 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 
-public class FakeRequestBuilder extends RequestBuilder{
+public class FakeWebLabRequestBuilder extends RequestBuilder{
 
-	public FakeRequestBuilder() {
+	public FakeWebLabRequestBuilder() {
 		super(RequestBuilder.POST, "/weblab");
 	}
 	
@@ -94,7 +94,7 @@ public class FakeRequestBuilder extends RequestBuilder{
 		}
 		@Override
 		public String getText() {
-			return FakeRequestBuilder.this.message;
+			return FakeWebLabRequestBuilder.this.message;
 		}
 	};
 

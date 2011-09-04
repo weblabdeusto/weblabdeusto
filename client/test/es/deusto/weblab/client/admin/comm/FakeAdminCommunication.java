@@ -16,22 +16,22 @@
 package es.deusto.weblab.client.admin.comm;
 
 import es.deusto.weblab.client.admin.comm.callbacks.IPermissionsCallback;
-import es.deusto.weblab.client.comm.FakeWlCommonCommunication;
+import es.deusto.weblab.client.comm.FakeCommonCommunication;
 import es.deusto.weblab.client.comm.ICommonSerializer;
 import es.deusto.weblab.client.dto.SessionID;
 
-public class FakeWlAdminCommunication extends FakeWlCommonCommunication implements IAdminCommunication {
+public class FakeAdminCommunication extends FakeCommonCommunication implements IAdminCommunication {
 	
 	public static final String GET_USER_PERMISSIONS = "FakeWebAdminCommunication::getUserPermissions";
 	
 	@Override
 	protected ICommonSerializer createSerializer() {
-		return new FakeWlAdminSerializer();
+		return new FakeAdminSerializer();
 	}
 
 	@Override
 	public void getUserPermissions(SessionID sessionId, IPermissionsCallback callback) {
-		this.append(FakeWlAdminCommunication.GET_USER_PERMISSIONS, new Object[]{
+		this.append(FakeAdminCommunication.GET_USER_PERMISSIONS, new Object[]{
 				sessionId,
 				callback
 		});

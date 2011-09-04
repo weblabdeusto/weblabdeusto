@@ -35,7 +35,7 @@ import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.users.Role;
 import es.deusto.weblab.client.dto.users.User;
 
-public class WlCommonCommunicationTest extends GWTTestCase {
+public class CommonCommunicationTest extends GWTTestCase {
 	
 	protected int stepCounter;
 	
@@ -75,11 +75,11 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 
 	public void testLogin(){
 		this.stepCounter = 0;
-		final FakeWlCommonSerializer weblabSerializer = new FakeWlCommonSerializer();
-		final FakeRequestBuilder requestBuilder = new FakeRequestBuilder();
+		final FakeCommonSerializer weblabSerializer = new FakeCommonSerializer();
+		final FakeWebLabRequestBuilder requestBuilder = new FakeWebLabRequestBuilder();
 		final FakeConfiguration configurationManager = new FakeConfiguration(new HashMap<String,String>());
 				
-		final WrappedWlCommonCommunication comms = new WrappedWlCommonCommunication(
+		final WrappedCommonCommunication comms = new WrappedCommonCommunication(
 					weblabSerializer,
 					requestBuilder,
 					configurationManager
@@ -92,11 +92,11 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 		final String PASSWORD = "passwor";
 		
 		weblabSerializer.appendReturn(
-					FakeWlCommonSerializer.PARSE_LOGIN_RESPONSE, 
+					FakeCommonSerializer.PARSE_LOGIN_RESPONSE, 
 					expectedSessionId
 				);
 		weblabSerializer.appendReturn(
-				FakeWlCommonSerializer.SERIALIZE_LOGIN_REQUEST, 
+				FakeCommonSerializer.SERIALIZE_LOGIN_REQUEST, 
 					SERIALIZED_MESSAGE
 				);
 		
@@ -104,7 +104,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 			@Override
 			public void onSuccess(SessionID sessionId) {
 				Assert.assertEquals(expectedSessionId, sessionId);
-				WlCommonCommunicationTest.this.stepCounter++;
+				CommonCommunicationTest.this.stepCounter++;
 			}
 
 			@Override
@@ -128,7 +128,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
-				WlCommonCommunicationTest.this.stepCounter++;
+				CommonCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.login(USERNAME, PASSWORD, eac);
@@ -145,7 +145,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
-				WlCommonCommunicationTest.this.stepCounter++;
+				CommonCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.login(USERNAME, PASSWORD, eac);
@@ -162,7 +162,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 			@Override
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof ServerException);
-				WlCommonCommunicationTest.this.stepCounter++;
+				CommonCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.login(USERNAME, PASSWORD, eac);
@@ -171,11 +171,11 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 		
 	public void testLogout(){
 		this.stepCounter = 0;
-		final FakeWlCommonSerializer weblabSerializer = new FakeWlCommonSerializer();
-		final FakeRequestBuilder requestBuilder = new FakeRequestBuilder();
+		final FakeCommonSerializer weblabSerializer = new FakeCommonSerializer();
+		final FakeWebLabRequestBuilder requestBuilder = new FakeWebLabRequestBuilder();
 		final FakeConfiguration configurationManager = new FakeConfiguration(new HashMap<String, String>());
 				
-		final WrappedWlCommonCommunication comms = new WrappedWlCommonCommunication(
+		final WrappedCommonCommunication comms = new WrappedCommonCommunication(
 					weblabSerializer,
 					requestBuilder,
 					configurationManager
@@ -186,14 +186,14 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 		final String ERROR_MESSAGE = "whatever the error message";
 		
 		weblabSerializer.appendReturn(
-					FakeWlCommonSerializer.SERIALIZE_LOGOUT_REQUEST, 
+					FakeCommonSerializer.SERIALIZE_LOGOUT_REQUEST, 
 					SERIALIZED_MESSAGE
 				);
 		
 		IVoidCallback eac = new IVoidCallback(){
 			@Override
 			public void onSuccess() {
-				WlCommonCommunicationTest.this.stepCounter++;
+				CommonCommunicationTest.this.stepCounter++;
 			}
 
 			@Override
@@ -217,7 +217,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
-				WlCommonCommunicationTest.this.stepCounter++;
+				CommonCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.logout(sessionId, eac);
@@ -234,7 +234,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
-				WlCommonCommunicationTest.this.stepCounter++;
+				CommonCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.logout(sessionId, eac);
@@ -251,7 +251,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 			@Override
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof ServerException);
-				WlCommonCommunicationTest.this.stepCounter++;
+				CommonCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.logout(sessionId, eac);
@@ -265,11 +265,11 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 
 	public void testGetUserInformation(){
 		this.stepCounter = 0;
-		final FakeWlCommonSerializer weblabSerializer = new FakeWlCommonSerializer();
-		final FakeRequestBuilder requestBuilder = new FakeRequestBuilder();
+		final FakeCommonSerializer weblabSerializer = new FakeCommonSerializer();
+		final FakeWebLabRequestBuilder requestBuilder = new FakeWebLabRequestBuilder();
 		final FakeConfiguration configurationManager = new FakeConfiguration(new HashMap<String,String>());
 				
-		final WrappedWlCommonCommunication comms = new WrappedWlCommonCommunication(
+		final WrappedCommonCommunication comms = new WrappedCommonCommunication(
 					weblabSerializer,
 					requestBuilder,
 					configurationManager
@@ -281,11 +281,11 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 		final User user = new User("porduna", "Pablo Orduña", "porduna@tecnologico.deusto.es", new Role("student"));
 		
 		weblabSerializer.appendReturn(
-					FakeWlCommonSerializer.PARSE_GET_USER_INFORMATION_RESPONSE, 
+					FakeCommonSerializer.PARSE_GET_USER_INFORMATION_RESPONSE, 
 					user
 				);
 		weblabSerializer.appendReturn(
-				FakeWlCommonSerializer.SERIALIZE_GET_USER_INFORMATION_REQUEST, 
+				FakeCommonSerializer.SERIALIZE_GET_USER_INFORMATION_REQUEST, 
 					SERIALIZED_MESSAGE
 				);
 		
@@ -295,7 +295,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 				Assert.assertEquals(user.getEmail(),    userInformation.getEmail());
 				Assert.assertEquals(user.getFullName(), userInformation.getFullName());
 				Assert.assertEquals(user.getLogin(),    userInformation.getLogin());
-				WlCommonCommunicationTest.this.stepCounter++;
+				CommonCommunicationTest.this.stepCounter++;
 			}
 
 			@Override
@@ -319,7 +319,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
-				WlCommonCommunicationTest.this.stepCounter++;
+				CommonCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.getUserInformation(sessionId, uic);
@@ -336,7 +336,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
-				WlCommonCommunicationTest.this.stepCounter++;
+				CommonCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.getUserInformation(sessionId, uic);
@@ -353,7 +353,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 			@Override
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof ServerException);
-				WlCommonCommunicationTest.this.stepCounter++;
+				CommonCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.getUserInformation(sessionId, uic);

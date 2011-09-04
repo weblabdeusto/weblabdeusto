@@ -16,7 +16,7 @@ package es.deusto.weblab.client.lab.comm;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONValue;
 
-import es.deusto.weblab.client.comm.FakeWlCommonSerializer;
+import es.deusto.weblab.client.comm.FakeCommonSerializer;
 import es.deusto.weblab.client.comm.exceptions.SerializationException;
 import es.deusto.weblab.client.comm.exceptions.WebLabServerException;
 import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
@@ -30,7 +30,7 @@ import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.lab.comm.exceptions.NoCurrentReservationException;
 
-public class FakeWlLabSerializer extends FakeWlCommonSerializer implements ILabSerializer {
+public class FakeLabSerializer extends FakeCommonSerializer implements ILabSerializer {
 	
 	public static final String PARSE_GET_RESERVATION_STATUS_RESPONSE    	= "FakeWebLabSerializer::parseGetReservationStatus";
 	public static final String PARSE_LIST_EXPERIMENTS_RESPONSE          	= "FakeWebLabSerializer::parseListExperimentsResponse";
@@ -53,26 +53,26 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements ILabS
 
 	@Override
 	public ReservationStatus parseGetReservationStatusResponse(String responseText) {
-		this.append(FakeWlLabSerializer.PARSE_GET_RESERVATION_STATUS_RESPONSE, new Object[]{
+		this.append(FakeLabSerializer.PARSE_GET_RESERVATION_STATUS_RESPONSE, new Object[]{
 				responseText
 		});
-		return (ReservationStatus)this.retrieveReturn(FakeWlLabSerializer.PARSE_GET_RESERVATION_STATUS_RESPONSE);
+		return (ReservationStatus)this.retrieveReturn(FakeLabSerializer.PARSE_GET_RESERVATION_STATUS_RESPONSE);
 	}
 	
 	
 
 	@Override
 	public ExperimentAllowed [] parseListExperimentsResponse(String responseText){
-		this.append(FakeWlLabSerializer.PARSE_LIST_EXPERIMENTS_RESPONSE, new Object[]{
+		this.append(FakeLabSerializer.PARSE_LIST_EXPERIMENTS_RESPONSE, new Object[]{
 				responseText
 		});
-		return (ExperimentAllowed [])this.retrieveReturn(FakeWlLabSerializer.PARSE_LIST_EXPERIMENTS_RESPONSE);
+		return (ExperimentAllowed [])this.retrieveReturn(FakeLabSerializer.PARSE_LIST_EXPERIMENTS_RESPONSE);
 	}
 
 	@Override
 	public void parseFinishedExperimentResponse(String responseText)
 		throws SerializationException {
-			this.append(FakeWlLabSerializer.PARSE_FINISHED_EXPERIMENT_RESPONSE, new Object[]{
+			this.append(FakeLabSerializer.PARSE_FINISHED_EXPERIMENT_RESPONSE, new Object[]{
 					responseText
 			});
 	}
@@ -80,7 +80,7 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements ILabS
 	@Override
 	public void parsePollResponse(String responseText)
 		throws SerializationException {
-		this.append(FakeWlLabSerializer.PARSE_POLL_RESPONSE, new Object[]{
+		this.append(FakeLabSerializer.PARSE_POLL_RESPONSE, new Object[]{
 				responseText
 		});
 	}
@@ -90,28 +90,28 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements ILabS
 		throws SerializationException, SessionNotFoundException,
 			WebLabServerException 
 	{
-		this.append(FakeWlLabSerializer.PARSE_SEND_FILE_RESPONSE, new Object[]{
+		this.append(FakeLabSerializer.PARSE_SEND_FILE_RESPONSE, new Object[]{
 				responseText
 		});
-		return (ResponseCommand)this.retrieveReturn(FakeWlLabSerializer.PARSE_SEND_FILE_RESPONSE);
+		return (ResponseCommand)this.retrieveReturn(FakeLabSerializer.PARSE_SEND_FILE_RESPONSE);
 	}
 	
 	@Override
 	public ReservationStatus parseReserveExperimentResponse(String responseText)
 		throws SerializationException {
-		this.append(FakeWlLabSerializer.PARSE_RESERVE_EXPERIMENT_RESPONSE, new Object[]{
+		this.append(FakeLabSerializer.PARSE_RESERVE_EXPERIMENT_RESPONSE, new Object[]{
 				responseText
 		});
-		return (ReservationStatus)this.retrieveReturn(FakeWlLabSerializer.PARSE_RESERVE_EXPERIMENT_RESPONSE);
+		return (ReservationStatus)this.retrieveReturn(FakeLabSerializer.PARSE_RESERVE_EXPERIMENT_RESPONSE);
 	}
 	
 	@Override
 	public ResponseCommand parseSendCommandResponse(String responseText)
 		throws SerializationException {
-		this.append(FakeWlLabSerializer.PARSE_SEND_COMMAND_RESPONSE, new Object[]{
+		this.append(FakeLabSerializer.PARSE_SEND_COMMAND_RESPONSE, new Object[]{
 				responseText
 		});
-		return (ResponseCommand)this.retrieveReturn(FakeWlLabSerializer.PARSE_SEND_COMMAND_RESPONSE);
+		return (ResponseCommand)this.retrieveReturn(FakeLabSerializer.PARSE_SEND_COMMAND_RESPONSE);
 	}
 	
 	@Override
@@ -119,16 +119,16 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements ILabS
 			throws SerializationException, SessionNotFoundException,
 			NoCurrentReservationException, UserProcessingException,
 			WebLabServerException {
-		this.append(FakeWlLabSerializer.PARSE_SEND_ASYNC_COMMAND_RESPONSE, new Object[]{
+		this.append(FakeLabSerializer.PARSE_SEND_ASYNC_COMMAND_RESPONSE, new Object[]{
 				responseText
 		});
-		return (ResponseCommand)this.retrieveReturn(FakeWlLabSerializer.PARSE_SEND_ASYNC_COMMAND_RESPONSE);
+		return (ResponseCommand)this.retrieveReturn(FakeLabSerializer.PARSE_SEND_ASYNC_COMMAND_RESPONSE);
 	}
 	
 	@Override
 	public AsyncRequestStatus[] parseCheckAsyncCommandStatusResponse(String responseText)
 			throws SerializationException {
-		this.append(FakeWlLabSerializer.PARSE_CHECK_ASYNC_COMMAND_STATUS_RESPONSE, new Object[]{
+		this.append(FakeLabSerializer.PARSE_CHECK_ASYNC_COMMAND_STATUS_RESPONSE, new Object[]{
 				responseText
 		});
 		return null;
@@ -142,62 +142,62 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements ILabS
 	
 	@Override
 	public String serializeGetReservationStatusRequest(SessionID sessionId) {
-		this.append(FakeWlLabSerializer.SERIALIZE_GET_RESERVATION_STATUS_REQUEST, new Object[]{
+		this.append(FakeLabSerializer.SERIALIZE_GET_RESERVATION_STATUS_REQUEST, new Object[]{
 				sessionId
 		});
-		return (String)this.retrieveReturn(FakeWlLabSerializer.SERIALIZE_GET_RESERVATION_STATUS_REQUEST);
+		return (String)this.retrieveReturn(FakeLabSerializer.SERIALIZE_GET_RESERVATION_STATUS_REQUEST);
 	}
 
 	@Override
 	public String serializeListExperimentsRequest(SessionID sessionId){
-		this.append(FakeWlLabSerializer.SERIALIZE_LIST_EXPERIMENTS_REQUEST, new Object[]{
+		this.append(FakeLabSerializer.SERIALIZE_LIST_EXPERIMENTS_REQUEST, new Object[]{
 				sessionId
 		});
-		return (String)this.retrieveReturn(FakeWlLabSerializer.SERIALIZE_LIST_EXPERIMENTS_REQUEST);
+		return (String)this.retrieveReturn(FakeLabSerializer.SERIALIZE_LIST_EXPERIMENTS_REQUEST);
 	}
 
 	@Override
 	public String serializeFinishedExperimentRequest(SessionID sessionId)
 			throws SerializationException {
-		this.append(FakeWlLabSerializer.SERIALIZE_FINISHED_EXPERIMENT_REQUEST, new Object[]{
+		this.append(FakeLabSerializer.SERIALIZE_FINISHED_EXPERIMENT_REQUEST, new Object[]{
 				sessionId
 		});
-		return (String)this.retrieveReturn(FakeWlLabSerializer.SERIALIZE_FINISHED_EXPERIMENT_REQUEST);
+		return (String)this.retrieveReturn(FakeLabSerializer.SERIALIZE_FINISHED_EXPERIMENT_REQUEST);
 	}
 
 	@Override
 	public String serializePollRequest(SessionID sessionId)
 			throws SerializationException {
-		this.append(FakeWlLabSerializer.SERIALIZE_POLL_REQUEST, new Object[]{
+		this.append(FakeLabSerializer.SERIALIZE_POLL_REQUEST, new Object[]{
 				sessionId
 		});
-		return (String)this.retrieveReturn(FakeWlLabSerializer.SERIALIZE_POLL_REQUEST);
+		return (String)this.retrieveReturn(FakeLabSerializer.SERIALIZE_POLL_REQUEST);
 	}
 
 	@Override
 	public String serializeReserveExperimentRequest(SessionID sessionId, ExperimentID experimentId, JSONValue clientInitialData) throws SerializationException {
-		this.append(FakeWlLabSerializer.SERIALIZE_RESERVE_EXPERIMENT_REQUEST, new Object[]{
+		this.append(FakeLabSerializer.SERIALIZE_RESERVE_EXPERIMENT_REQUEST, new Object[]{
 				sessionId,
 				experimentId,
 				clientInitialData
 		});
-		return (String)this.retrieveReturn(FakeWlLabSerializer.SERIALIZE_RESERVE_EXPERIMENT_REQUEST);
+		return (String)this.retrieveReturn(FakeLabSerializer.SERIALIZE_RESERVE_EXPERIMENT_REQUEST);
 	}
 
 	@Override
 	public String serializeSendCommandRequest(SessionID sessionId,
 			Command command) throws SerializationException {
-		this.append(FakeWlLabSerializer.SERIALIZE_SEND_COMMAND_REQUEST, new Object[]{
+		this.append(FakeLabSerializer.SERIALIZE_SEND_COMMAND_REQUEST, new Object[]{
 				sessionId,
 				command
 		});
-		return (String)this.retrieveReturn(FakeWlLabSerializer.SERIALIZE_SEND_COMMAND_REQUEST);
+		return (String)this.retrieveReturn(FakeLabSerializer.SERIALIZE_SEND_COMMAND_REQUEST);
 	}
 
 	@Override
 	public String serializeSendAsyncCommandRequest(SessionID sessionId,
 			Command command) throws SerializationException {
-		this.append(FakeWlLabSerializer.SERIALIZE_SEND_ASYNC_COMMAND_REQUEST, new Object[]{
+		this.append(FakeLabSerializer.SERIALIZE_SEND_ASYNC_COMMAND_REQUEST, new Object[]{
 			sessionId,
 			command
 		});
@@ -208,7 +208,7 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements ILabS
 	@Override
 	public String serializeCheckAsyncCommandStatusRequest(SessionID sessionId,
 			String[] requestIdentifiers) throws SerializationException {
-		this.append(FakeWlLabSerializer.SERIALIZE_CHECK_ASYNC_COMMAND_STATUS_REQUEST);
+		this.append(FakeLabSerializer.SERIALIZE_CHECK_ASYNC_COMMAND_STATUS_REQUEST);
 		return null;
 	}
 

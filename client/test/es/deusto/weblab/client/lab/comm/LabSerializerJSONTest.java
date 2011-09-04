@@ -16,6 +16,7 @@ package es.deusto.weblab.client.lab.comm;
 
 import junit.framework.Assert;
 
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.junit.client.GWTTestCase;
 
@@ -41,7 +42,7 @@ import es.deusto.weblab.client.experiments.xilinx.commands.PulseCommand;
 import es.deusto.weblab.client.lab.comm.exceptions.NoCurrentReservationException;
 import es.deusto.weblab.client.lab.comm.exceptions.UnknownExperimentIdException;
 
-public class WlLabSerializerJSONTest extends GWTTestCase{
+public class LabSerializerJSONTest extends GWTTestCase{
     
 	public void testParseGetReservationStatusResponse_Waiting() throws Exception{
 		final ILabSerializer weblabSerializer = new LabSerializerJSON();
@@ -72,7 +73,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	public void testParseGetReservationStatusResponse_PostReservation()  throws Exception{
 		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseGetReservationStatusResponse(
-			"{\"result\": {\"status\": \"Reservation::post_reservation\", \"finished\" : true, \"initial_data\" : \"foo\", \"end_data\" : \"bar\"}, \"is_exception\": false}"
+			"{\"result\": {\"status\": \"Reservation::post_reservation\", \"finished\" : true, \"initial_data\" : \"\\\"foo\\\"\", \"end_data\" : \"\\\"bar\\\"\"}, \"is_exception\": false}"
 		);
 		Assert.assertTrue(reservation instanceof PostReservationReservationStatus);
 		PostReservationReservationStatus status = (PostReservationReservationStatus)reservation;
@@ -578,7 +579,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	public void testParseReserveExperimentResponse_PostReservation()  throws Exception{
 		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseReserveExperimentResponse(
-			"{\"result\": {\"status\": \"Reservation::post_reservation\", \"finished\" : true, \"initial_data\" : \"foo\", \"end_data\" : \"bar\" }, \"is_exception\": false}"
+			"{\"result\": {\"status\": \"Reservation::post_reservation\", \"finished\" : true, \"initial_data\" : \"\\\"foo\\\"\", \"end_data\" : \"\\\"bar\\\"\" }, \"is_exception\": false}"
 		);
 		Assert.assertTrue(reservation instanceof PostReservationReservationStatus);
 		final PostReservationReservationStatus status = (PostReservationReservationStatus)reservation;
@@ -634,10 +635,13 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 		Assert.assertEquals("ud-dummy",                      experiments[0].getExperiment().getName());
 		Assert.assertEquals("Dummy experiments",             experiments[0].getExperiment().getCategory().getCategory());
 		
+		final long timezoneOffset = DateTimeFormat.getFormat("yyyy-MM-dd").parse("1970-01-01").getTime();
+		
+		
 		// 2007-01-01 00:00:00
-		Assert.assertEquals(1167606000000l,                  experiments[0].getExperiment().getStartDate().getTime());
+		Assert.assertEquals(1167609600000L + timezoneOffset, experiments[0].getExperiment().getStartDate().getTime());
 		// 2008-01-01 00:00:00
-		Assert.assertEquals(1199142000000l,                  experiments[0].getExperiment().getEndDate().getTime());
+		Assert.assertEquals(1199145600000L + timezoneOffset, experiments[0].getExperiment().getEndDate().getTime());
 		
 		// 1
 		Assert.assertEquals(30,                              experiments[1].getTimeAllowed());
@@ -645,9 +649,9 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 		Assert.assertEquals("FPGA experiments",              experiments[1].getExperiment().getCategory().getCategory());
 		
 		// 2005-01-01 00:00:00
-		Assert.assertEquals(1104534000000l,                  experiments[1].getExperiment().getStartDate().getTime());
+		Assert.assertEquals(1104537600000L + timezoneOffset, experiments[1].getExperiment().getStartDate().getTime());
 		// 2006-01-01 00:00:00
-		Assert.assertEquals(1136070000000l,                  experiments[1].getExperiment().getEndDate().getTime());		
+		Assert.assertEquals(1136073600000L + timezoneOffset, experiments[1].getExperiment().getEndDate().getTime());		
 	}
 
 	public void testParseListExperimentsResponseWithOtherDateFormat() throws Exception{
@@ -668,10 +672,12 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 		Assert.assertEquals("ud-dummy",                      experiments[0].getExperiment().getName());
 		Assert.assertEquals("Dummy experiments",             experiments[0].getExperiment().getCategory().getCategory());
 		
+		final long timezoneOffset = DateTimeFormat.getFormat("yyyy-MM-dd").parse("1970-01-01").getTime();
+		
 		// 2007-01-01 00:00:00
-		Assert.assertEquals(1167606000000l,                  experiments[0].getExperiment().getStartDate().getTime());
+		Assert.assertEquals(1167609600000L + timezoneOffset, experiments[0].getExperiment().getStartDate().getTime());
 		// 2008-01-01 00:00:00
-		Assert.assertEquals(1199142000000l,                  experiments[0].getExperiment().getEndDate().getTime());
+		Assert.assertEquals(1199145600000L + timezoneOffset, experiments[0].getExperiment().getEndDate().getTime());
 		
 		// 1
 		Assert.assertEquals(30,                              experiments[1].getTimeAllowed());
@@ -679,9 +685,9 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 		Assert.assertEquals("FPGA experiments",              experiments[1].getExperiment().getCategory().getCategory());
 		
 		// 2005-01-01 00:00:00
-		Assert.assertEquals(1104534000000l,                  experiments[1].getExperiment().getStartDate().getTime());
+		Assert.assertEquals(1104537600000L + timezoneOffset, experiments[1].getExperiment().getStartDate().getTime());
 		// 2006-01-01 00:00:00
-		Assert.assertEquals(1136070000000l,                  experiments[1].getExperiment().getEndDate().getTime());		
+		Assert.assertEquals(1136073600000L + timezoneOffset, experiments[1].getExperiment().getEndDate().getTime());		
 	}
 
 	public void testParseListExperimentsResponse_Faults() throws Exception{

@@ -21,7 +21,7 @@ import com.google.gwt.junit.client.GWTTestCase;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.users.Permission;
 
-public class WlAdminSerializerJSONTest extends GWTTestCase {
+public class AdminSerializerJSONTest extends GWTTestCase {
 	
 	public void testParseGetUserPermissionsResponse() throws Exception{
 		final IAdminSerializer weblabSerializer = new AdminSerializerJSON();

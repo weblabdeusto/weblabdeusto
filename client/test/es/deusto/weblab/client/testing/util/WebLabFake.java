@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-public class WlFake {
+public class WebLabFake {
 	
 	private final Map<String, Object> nextReturn = new HashMap<String, Object>();
 	private final Map<String, List<Methods>> methodsCalled = new HashMap<String, List<Methods>>();

@@ -14,9 +14,9 @@
 package es.deusto.weblab.client.lab.controller;
 
 import es.deusto.weblab.client.lab.controller.IPollingHandler;
-import es.deusto.weblab.client.testing.util.WlFake;
+import es.deusto.weblab.client.testing.util.WebLabFake;
 
-public class FakePollingHandler extends WlFake implements IPollingHandler {
+public class FakePollingHandler extends WebLabFake implements IPollingHandler {
 
 	public static final String START = "start";
 	public static final String STOP  = "stop";

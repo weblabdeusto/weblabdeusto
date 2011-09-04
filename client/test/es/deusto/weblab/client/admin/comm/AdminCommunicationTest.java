@@ -21,8 +21,8 @@ import junit.framework.Assert;
 import com.google.gwt.http.client.RequestException;
 
 import es.deusto.weblab.client.admin.comm.callbacks.IPermissionsCallback;
-import es.deusto.weblab.client.comm.FakeRequestBuilder;
-import es.deusto.weblab.client.comm.WlCommonCommunicationTest;
+import es.deusto.weblab.client.comm.FakeWebLabRequestBuilder;
+import es.deusto.weblab.client.comm.CommonCommunicationTest;
 import es.deusto.weblab.client.comm.exceptions.CommunicationException;
 import es.deusto.weblab.client.comm.exceptions.ServerException;
 import es.deusto.weblab.client.comm.exceptions.CommException;
@@ -31,15 +31,15 @@ import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.users.Permission;
 import es.deusto.weblab.client.dto.users.PermissionParameter;
 
-public class WlAdminCommunicationTest extends WlCommonCommunicationTest {
+public class AdminCommunicationTest extends CommonCommunicationTest {
 	   
 	public void testGetUserPermissions(){
 		this.stepCounter = 0;
-		final FakeWlAdminSerializer weblabSerializer = new FakeWlAdminSerializer();
-		final FakeRequestBuilder requestBuilder = new FakeRequestBuilder();
+		final FakeAdminSerializer weblabSerializer = new FakeAdminSerializer();
+		final FakeWebLabRequestBuilder requestBuilder = new FakeWebLabRequestBuilder();
 		final FakeConfiguration configurationManager = new FakeConfiguration(new HashMap<String,String>());
 				
-		final WrappedWlAdminCommunication comms = new WrappedWlAdminCommunication(
+		final WrappedAdminCommunication comms = new WrappedAdminCommunication(
 					weblabSerializer,
 					requestBuilder,
 					configurationManager
@@ -54,11 +54,11 @@ public class WlAdminCommunicationTest extends WlCommonCommunicationTest {
 		expected_permissions[0] = new Permission("admin_panel_access", expected_parameters);
 		
 		weblabSerializer.appendReturn(
-					FakeWlAdminSerializer.PARSE_GET_USER_PERMISSIONS_RESPONSE, 
+					FakeAdminSerializer.PARSE_GET_USER_PERMISSIONS_RESPONSE, 
 					expected_permissions
 				);
 		weblabSerializer.appendReturn(
-				FakeWlAdminSerializer.SERIALIZE_GET_USER_PERMISSIONS_REQUEST, 
+				FakeAdminSerializer.SERIALIZE_GET_USER_PERMISSIONS_REQUEST, 
 					SERIALIZED_MESSAGE
 				);
 		
@@ -67,7 +67,7 @@ public class WlAdminCommunicationTest extends WlCommonCommunicationTest {
 			public void onSuccess(Permission [] permissions) {
 				Assert.assertEquals(expected_permissions.length, permissions.length);
 				Assert.assertEquals(expected_permissions[0], permissions[0]);
-				WlAdminCommunicationTest.this.stepCounter++;
+				AdminCommunicationTest.this.stepCounter++;
 			}
 
 			@Override
@@ -91,7 +91,7 @@ public class WlAdminCommunicationTest extends WlCommonCommunicationTest {
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
-				WlAdminCommunicationTest.this.stepCounter++;
+				AdminCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.getUserPermissions(sessionId, pc);
@@ -108,7 +108,7 @@ public class WlAdminCommunicationTest extends WlCommonCommunicationTest {
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
-				WlAdminCommunicationTest.this.stepCounter++;
+				AdminCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.getUserPermissions(sessionId, pc);
@@ -125,7 +125,7 @@ public class WlAdminCommunicationTest extends WlCommonCommunicationTest {
 			@Override
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof ServerException);
-				WlAdminCommunicationTest.this.stepCounter++;
+				AdminCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.getUserPermissions(sessionId, pc);

@@ -15,7 +15,7 @@
 
 package es.deusto.weblab.client.admin.comm;
 
-import es.deusto.weblab.client.comm.FakeWlCommonSerializer;
+import es.deusto.weblab.client.comm.FakeCommonSerializer;
 import es.deusto.weblab.client.comm.exceptions.SerializationException;
 import es.deusto.weblab.client.comm.exceptions.WebLabServerException;
 import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
@@ -24,7 +24,7 @@ import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.users.Permission;
 
 
-public class FakeWlAdminSerializer extends FakeWlCommonSerializer implements IAdminSerializer {
+public class FakeAdminSerializer extends FakeCommonSerializer implements IAdminSerializer {
 
 	public static final String PARSE_GET_USER_PERMISSIONS_RESPONSE    = "FakeWebLabSerializer::parseGetUserPermissions";
 
@@ -33,17 +33,17 @@ public class FakeWlAdminSerializer extends FakeWlCommonSerializer implements IAd
 	@Override
 	public Permission[] parseGetUserPermissionsResponse(String responseText)
 			throws SerializationException, SessionNotFoundException, UserProcessingException, WebLabServerException {
-		this.append(FakeWlAdminSerializer.PARSE_GET_USER_PERMISSIONS_RESPONSE, new Object[]{
+		this.append(FakeAdminSerializer.PARSE_GET_USER_PERMISSIONS_RESPONSE, new Object[]{
 				responseText
 		});
-		return (Permission [])this.retrieveReturn(FakeWlAdminSerializer.PARSE_GET_USER_PERMISSIONS_RESPONSE);
+		return (Permission [])this.retrieveReturn(FakeAdminSerializer.PARSE_GET_USER_PERMISSIONS_RESPONSE);
 	}
 
 	@Override
 	public String serializeGetUserPermissionsRequest(SessionID sessionId) throws SerializationException {
-		this.append(FakeWlAdminSerializer.SERIALIZE_GET_USER_PERMISSIONS_REQUEST, new Object[]{
+		this.append(FakeAdminSerializer.SERIALIZE_GET_USER_PERMISSIONS_REQUEST, new Object[]{
 				sessionId
 		});
-		return (String)this.retrieveReturn(FakeWlAdminSerializer.SERIALIZE_GET_USER_PERMISSIONS_REQUEST);
+		return (String)this.retrieveReturn(FakeAdminSerializer.SERIALIZE_GET_USER_PERMISSIONS_REQUEST);
 	}
 }

@@ -28,7 +28,7 @@ import es.deusto.weblab.client.comm.exceptions.login.LoginException;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.users.User;
 
-public class WlCommonSerializerJSONTest extends GWTTestCase {
+public class CommonSerializerJSONTest extends GWTTestCase {
 	
 	public void testParseGetUserInformationResponse() throws Exception{
 		final ICommonSerializer weblabSerializer = new CommonSerializerJSON();

@@ -21,9 +21,9 @@ import es.deusto.weblab.client.dto.reservations.WaitingReservationStatus;
 import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentException;
-import es.deusto.weblab.client.testing.util.WlFake;
+import es.deusto.weblab.client.testing.util.WebLabFake;
 
-public class FakeUIManager extends WlFake implements IUIManager {
+public class FakeUIManager extends WebLabFake implements IUIManager {
 
     public static final String ON_INIT 			                    = "FakeUIManager::onInit";
     public static final String ON_LOGGED_IN 			            = "FakeUIManager::onLoggedIn";

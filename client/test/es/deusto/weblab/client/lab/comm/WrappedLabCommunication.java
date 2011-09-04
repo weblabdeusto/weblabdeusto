@@ -18,12 +18,12 @@ import com.google.gwt.http.client.RequestBuilder;
 import es.deusto.weblab.client.comm.ICommonSerializer;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 
-public class WrappedWlLabCommunication extends LabCommunication {
+public class WrappedLabCommunication extends LabCommunication {
 	
 	private final ILabSerializer wrappedSerializer;
 	private final RequestBuilder wrappedRequestBuilder;
 	
-	public WrappedWlLabCommunication(ILabSerializer wrappedSerializer, RequestBuilder wrappedRequestBuilder, IConfigurationManager configurationManager){
+	public WrappedLabCommunication(ILabSerializer wrappedSerializer, RequestBuilder wrappedRequestBuilder, IConfigurationManager configurationManager){
 		super(configurationManager);
 		this.wrappedSerializer = wrappedSerializer;
 		this.wrappedRequestBuilder = wrappedRequestBuilder;

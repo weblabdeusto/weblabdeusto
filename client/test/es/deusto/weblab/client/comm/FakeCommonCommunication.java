@@ -19,9 +19,9 @@ import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.dto.SessionID;
-import es.deusto.weblab.client.testing.util.WlFake;
+import es.deusto.weblab.client.testing.util.WebLabFake;
 
-public abstract class FakeWlCommonCommunication extends WlFake implements ICommonCommunication {
+public abstract class FakeCommonCommunication extends WebLabFake implements ICommonCommunication {
 	
 	public static final String LOGIN                  = "FakeWebLabCommunication::login";
 	public static final String LOGOUT                 = "FakeWebLabCommunication::logout";
@@ -29,7 +29,7 @@ public abstract class FakeWlCommonCommunication extends WlFake implements ICommo
 	
 	@Override
 	public void login(String username, String password, ISessionIdCallback callback) {
-		this.append(FakeWlCommonCommunication.LOGIN, new Object[]{
+		this.append(FakeCommonCommunication.LOGIN, new Object[]{
 				username,
 				password,
 				callback
@@ -38,7 +38,7 @@ public abstract class FakeWlCommonCommunication extends WlFake implements ICommo
 
 	@Override
 	public void logout(SessionID sessionId, IVoidCallback callback) {
-		this.append(FakeWlCommonCommunication.LOGOUT, new Object[]{
+		this.append(FakeCommonCommunication.LOGOUT, new Object[]{
 				sessionId,
 				callback
 		});
@@ -46,7 +46,7 @@ public abstract class FakeWlCommonCommunication extends WlFake implements ICommo
 
 	@Override
 	public void getUserInformation(SessionID sessionId, IUserInformationCallback callback) {
-		this.append(FakeWlCommonCommunication.GET_USER_INFORMATION, new Object[]{
+		this.append(FakeCommonCommunication.GET_USER_INFORMATION, new Object[]{
 				sessionId,
 				callback
 		});

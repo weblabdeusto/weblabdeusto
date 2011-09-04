@@ -23,10 +23,10 @@ import junit.framework.Assert;
 
 import com.google.gwt.junit.client.GWTTestCase;
 
-import es.deusto.weblab.client.admin.comm.FakeWlAdminCommunication;
+import es.deusto.weblab.client.admin.comm.FakeAdminCommunication;
 import es.deusto.weblab.client.admin.comm.callbacks.IPermissionsCallback;
 import es.deusto.weblab.client.admin.ui.FakeUIManager;
-import es.deusto.weblab.client.comm.FakeWlCommonCommunication;
+import es.deusto.weblab.client.comm.FakeCommonCommunication;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
@@ -39,19 +39,19 @@ import es.deusto.weblab.client.dto.users.Permission;
 import es.deusto.weblab.client.dto.users.PermissionParameter;
 import es.deusto.weblab.client.dto.users.Role;
 import es.deusto.weblab.client.dto.users.User;
-import es.deusto.weblab.client.testing.util.WlFake.Methods;
+import es.deusto.weblab.client.testing.util.WebLabFake.Methods;
 
-public class WlAdminControllerTest  extends GWTTestCase {
+public class AdminControllerTest  extends GWTTestCase {
 	
 	private IConfigurationManager configurationManager;
-	private FakeWlAdminCommunication fakeCommunications;
+	private FakeAdminCommunication fakeCommunications;
 	private FakeUIManager fakeUIManager;
 	
 	public void testLoginFailure() throws Exception{
 		final AdminController controller = this.createController();
 		controller.login("whatever", "whatever");
 		
-		List<Methods> v = this.fakeCommunications.getMethodByName(FakeWlCommonCommunication.LOGIN);
+		List<Methods> v = this.fakeCommunications.getMethodByName(FakeCommonCommunication.LOGIN);
 		Assert.assertEquals(1, v.size());
 		final Methods m = v.get(0);
 		final Object [] parametersReceived = m.getParameters();
@@ -78,7 +78,7 @@ public class WlAdminControllerTest  extends GWTTestCase {
 		
 		// login
 		controller.login("whatever", "whatever");
-		List<Methods> v = this.fakeCommunications.getMethodByName(FakeWlCommonCommunication.LOGIN);
+		List<Methods> v = this.fakeCommunications.getMethodByName(FakeCommonCommunication.LOGIN);
 		Assert.assertEquals(1, v.size());
 		Methods m = v.get(0);
 		final Object [] parametersReceived = m.getParameters();
@@ -87,7 +87,7 @@ public class WlAdminControllerTest  extends GWTTestCase {
 		final SessionID sessionID = new SessionID("your session!");
 
 		sessionIdCallback.onSuccess(sessionID);
-		v = this.fakeCommunications.getMethodByName(FakeWlAdminCommunication.GET_USER_PERMISSIONS);
+		v = this.fakeCommunications.getMethodByName(FakeAdminCommunication.GET_USER_PERMISSIONS);
 		Assert.assertEquals(1, v.size());		
 		m = v.get(0);
 		Assert.assertEquals(2, m.getParameters().length);
@@ -95,7 +95,7 @@ public class WlAdminControllerTest  extends GWTTestCase {
 		final IPermissionsCallback permissionsCallback = (IPermissionsCallback)m.getParameters()[1];
 
 		permissionsCallback.onSuccess(permissions);
-		v = this.fakeCommunications.getMethodByName(FakeWlCommonCommunication.GET_USER_INFORMATION);
+		v = this.fakeCommunications.getMethodByName(FakeCommonCommunication.GET_USER_INFORMATION);
 		Assert.assertEquals(1, v.size());		
 		m = v.get(0);
 		Assert.assertEquals(2, m.getParameters().length);
@@ -108,7 +108,7 @@ public class WlAdminControllerTest  extends GWTTestCase {
 		
 		// logout
 		controller.logout();		
-		v = this.fakeCommunications.getMethodByName(FakeWlCommonCommunication.LOGOUT);
+		v = this.fakeCommunications.getMethodByName(FakeCommonCommunication.LOGOUT);
 		Assert.assertEquals(1,v.size());
 		m = v.get(0);
 		Assert.assertEquals(2,m.getParameters().length);
@@ -137,7 +137,7 @@ public class WlAdminControllerTest  extends GWTTestCase {
 		
 		// login
 		controller.login("whatever", "whatever");
-		List<Methods> v = this.fakeCommunications.getMethodByName(FakeWlCommonCommunication.LOGIN);
+		List<Methods> v = this.fakeCommunications.getMethodByName(FakeCommonCommunication.LOGIN);
 		Assert.assertEquals(1, v.size());
 		Methods m = v.get(0);
 		final Object [] parametersReceived = m.getParameters();
@@ -146,7 +146,7 @@ public class WlAdminControllerTest  extends GWTTestCase {
 		final SessionID sessionID = new SessionID("your session!");
 
 		sessionIdCallback.onSuccess(sessionID);
-		v = this.fakeCommunications.getMethodByName(FakeWlAdminCommunication.GET_USER_PERMISSIONS);
+		v = this.fakeCommunications.getMethodByName(FakeAdminCommunication.GET_USER_PERMISSIONS);
 		Assert.assertEquals(1, v.size());		
 		m = v.get(0);
 		Assert.assertEquals(2, m.getParameters().length);
@@ -159,7 +159,7 @@ public class WlAdminControllerTest  extends GWTTestCase {
 		
 		// logout
 		controller.logout();		
-		v = this.fakeCommunications.getMethodByName(FakeWlCommonCommunication.LOGOUT);
+		v = this.fakeCommunications.getMethodByName(FakeCommonCommunication.LOGOUT);
 		Assert.assertEquals(1,v.size());
 		m = v.get(0);
 		Assert.assertEquals(2,m.getParameters().length);
@@ -187,7 +187,7 @@ public class WlAdminControllerTest  extends GWTTestCase {
 	
 	private FakeWebLabController createController() {
 		this.configurationManager = new FakeConfiguration(this.createConfiguration());
-		this.fakeCommunications = new FakeWlAdminCommunication();
+		this.fakeCommunications = new FakeAdminCommunication();
 		this.fakeUIManager = new FakeUIManager();
 			
 		final FakeWebLabController controller = new FakeWebLabController(
@@ -209,7 +209,7 @@ public class WlAdminControllerTest  extends GWTTestCase {
 		
 	private class FakeWebLabController extends AdminController{
 		
-	    public FakeWebLabController( IConfigurationManager configurationManager, FakeWlAdminCommunication fakeCommunications, FakeUIManager fakeUIManager) {
+	    public FakeWebLabController( IConfigurationManager configurationManager, FakeAdminCommunication fakeCommunications, FakeUIManager fakeUIManager) {
 			super(configurationManager, fakeCommunications);
 			this.setUIManager(fakeUIManager);
 		}

@@ -133,22 +133,27 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
 		final JSONArray result = this.parseResultArray(responseText);
 		final ExperimentAllowed [] experiments = new ExperimentAllowed[result.size()];
 		for(int i = 0; i < result.size(); ++i){
+			
 		    final JSONValue value = result.get(i);
 		    final JSONObject jsonExperimentAllowed = value.isObject();
 		    if(jsonExperimentAllowed == null)
-			throw new SerializationException("Expected JSON Object as ExperimentAllowed, found: " + value);
+		    	throw new SerializationException("Expected JSON Object as ExperimentAllowed, found: " + value);
+		    
 		    final JSONValue jsonExperimentValue = jsonExperimentAllowed.get("experiment");
 		    if(jsonExperimentValue == null)
-			throw new SerializationException("Expected experiment field in ExperimentAllowed");
+		    	throw new SerializationException("Expected experiment field in ExperimentAllowed");
+		    
 		    final JSONObject jsonExperiment = jsonExperimentValue.isObject();
 		    if(jsonExperiment == null)
-			throw new SerializationException("Expected JSON Object as Experiment, found: " + jsonExperimentValue);
+		    	throw new SerializationException("Expected JSON Object as Experiment, found: " + jsonExperimentValue);
+		    
 		    final JSONValue jsonCategoryValue = jsonExperiment.get("category");
 		    if(jsonCategoryValue == null)
-			throw new SerializationException("Expected category field in Experiment");
+		    	throw new SerializationException("Expected category field in Experiment");
+		    
 		    final JSONObject jsonCategory = jsonCategoryValue.isObject();
 		    if(jsonCategory == null)
-			throw new SerializationException("Expected JSON Object as Category, found: " + jsonCategoryValue);
+		    	throw new SerializationException("Expected JSON Object as Category, found: " + jsonCategoryValue);
 		    
 		    final Category category = new Category(this.json2string(jsonCategory.get("name")));
 		    
@@ -164,8 +169,8 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
 		    final DateTimeFormat formatter3 = DateTimeFormat.getFormat("yyyy-MM-ddTHH:mm:ss");
 		    
 		    try{
-			experiment.setStartDate(formatter1.parse(startDateString));
-			experiment.setEndDate(formatter1.parse(endDateString));
+				experiment.setStartDate(formatter1.parse(startDateString));
+				experiment.setEndDate(formatter1.parse(endDateString));
 		    }catch(final IllegalArgumentException iae){
 				try{
 				    experiment.setStartDate(formatter2.parse(startDateString));

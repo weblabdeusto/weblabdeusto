@@ -22,9 +22,9 @@ import es.deusto.weblab.client.comm.exceptions.SerializationException;
 import es.deusto.weblab.client.comm.exceptions.WebLabServerException;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.users.User;
-import es.deusto.weblab.client.testing.util.WlFake;
+import es.deusto.weblab.client.testing.util.WebLabFake;
 
-public class FakeWlCommonSerializer extends WlFake implements ICommonSerializer {
+public class FakeCommonSerializer extends WebLabFake implements ICommonSerializer {
 
 	public static final String PARSE_LOGIN_RESPONSE                     = "FakeWebLabSerializer::parseLoginResponse";
 	public static final String SERIALIZE_LOGIN_REQUEST                  = "FakeWebLabSerializer::serializeLoginRequest";
@@ -36,20 +36,20 @@ public class FakeWlCommonSerializer extends WlFake implements ICommonSerializer 
 	
 	@Override
 	public SessionID parseLoginResponse(String responseText) throws SerializationException {
-		this.append(FakeWlCommonSerializer.PARSE_LOGIN_RESPONSE, new Object[]{responseText});
-		return (SessionID)this.retrieveReturn(FakeWlCommonSerializer.PARSE_LOGIN_RESPONSE);
+		this.append(FakeCommonSerializer.PARSE_LOGIN_RESPONSE, new Object[]{responseText});
+		return (SessionID)this.retrieveReturn(FakeCommonSerializer.PARSE_LOGIN_RESPONSE);
 	}
 
 	@Override
 	public String serializeLoginRequest(String username, String password) throws SerializationException {
-		this.append(FakeWlCommonSerializer.SERIALIZE_LOGIN_REQUEST, new Object[]{	username, password});
-		return (String)this.retrieveReturn(FakeWlCommonSerializer.SERIALIZE_LOGIN_REQUEST);
+		this.append(FakeCommonSerializer.SERIALIZE_LOGIN_REQUEST, new Object[]{	username, password});
+		return (String)this.retrieveReturn(FakeCommonSerializer.SERIALIZE_LOGIN_REQUEST);
 	}
 	
 	@Override
 	public void parseLogoutResponse(String responseText)
 		throws SerializationException {
-		this.append(FakeWlCommonSerializer.PARSE_LOGOUT_RESPONSE, new Object[]{
+		this.append(FakeCommonSerializer.PARSE_LOGOUT_RESPONSE, new Object[]{
 				responseText
 		});
 	}
@@ -57,26 +57,26 @@ public class FakeWlCommonSerializer extends WlFake implements ICommonSerializer 
 	@Override
 	public String serializeLogoutRequest(SessionID sessionId)
 			throws SerializationException {
-		this.append(FakeWlCommonSerializer.SERIALIZE_LOGOUT_REQUEST, new Object[]{
+		this.append(FakeCommonSerializer.SERIALIZE_LOGOUT_REQUEST, new Object[]{
 				sessionId
 		});
-		return (String)this.retrieveReturn(FakeWlCommonSerializer.SERIALIZE_LOGOUT_REQUEST);
+		return (String)this.retrieveReturn(FakeCommonSerializer.SERIALIZE_LOGOUT_REQUEST);
 	}
 	
 	@Override
 	public User parseGetUserInformationResponse(String responseText) {
-		this.append(FakeWlCommonSerializer.PARSE_GET_USER_INFORMATION_RESPONSE, new Object[]{
+		this.append(FakeCommonSerializer.PARSE_GET_USER_INFORMATION_RESPONSE, new Object[]{
 				responseText
 		});
-		return (User)this.retrieveReturn(FakeWlCommonSerializer.PARSE_GET_USER_INFORMATION_RESPONSE);
+		return (User)this.retrieveReturn(FakeCommonSerializer.PARSE_GET_USER_INFORMATION_RESPONSE);
 	}
 
 	@Override
 	public String serializeGetUserInformationRequest(SessionID sessionId) {
-		this.append(FakeWlCommonSerializer.SERIALIZE_GET_USER_INFORMATION_REQUEST, new Object[]{
+		this.append(FakeCommonSerializer.SERIALIZE_GET_USER_INFORMATION_REQUEST, new Object[]{
 				sessionId
 		});
-		return (String)this.retrieveReturn(FakeWlCommonSerializer.SERIALIZE_GET_USER_INFORMATION_REQUEST);
+		return (String)this.retrieveReturn(FakeCommonSerializer.SERIALIZE_GET_USER_INFORMATION_REQUEST);
 	}
 
 	@SuppressWarnings("unused")

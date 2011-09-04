@@ -24,8 +24,8 @@ import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 
-import es.deusto.weblab.client.comm.FakeRequestBuilder;
-import es.deusto.weblab.client.comm.WlCommonCommunicationTest;
+import es.deusto.weblab.client.comm.FakeWebLabRequestBuilder;
+import es.deusto.weblab.client.comm.CommonCommunicationTest;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.comm.exceptions.CommunicationException;
 import es.deusto.weblab.client.comm.exceptions.ServerException;
@@ -45,16 +45,16 @@ import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 
-public class WlLabCommunicationTest extends WlCommonCommunicationTest {
+public class LabCommunicationTest extends CommonCommunicationTest {
 	
 	public void testGetReservationStatus(){
 		this.stepCounter = 0;
 		
-		final FakeWlLabSerializer weblabSerializer = new FakeWlLabSerializer();
-		final FakeRequestBuilder requestBuilder = new FakeRequestBuilder();
+		final FakeLabSerializer weblabSerializer = new FakeLabSerializer();
+		final FakeWebLabRequestBuilder requestBuilder = new FakeWebLabRequestBuilder();
 		final FakeConfiguration configurationManager = new FakeConfiguration(new HashMap<String, String>());
 		
-		final WrappedWlLabCommunication comms = new WrappedWlLabCommunication(
+		final WrappedLabCommunication comms = new WrappedLabCommunication(
 					weblabSerializer,
 					requestBuilder,
 					configurationManager
@@ -66,11 +66,11 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		final String ERROR_MESSAGE = "whatever the error message";
 		
 		weblabSerializer.appendReturn(
-					FakeWlLabSerializer.PARSE_GET_RESERVATION_STATUS_RESPONSE, 
+					FakeLabSerializer.PARSE_GET_RESERVATION_STATUS_RESPONSE, 
 					new ConfirmedReservationStatus(TIME)
 				);
 		weblabSerializer.appendReturn(
-					FakeWlLabSerializer.SERIALIZE_GET_RESERVATION_STATUS_REQUEST, 
+					FakeLabSerializer.SERIALIZE_GET_RESERVATION_STATUS_REQUEST, 
 					SERIALIZED_MESSAGE
 				);
 		
@@ -79,7 +79,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			public void onSuccess(ReservationStatus reservation) {
 				Assert.assertTrue(reservation instanceof ConfirmedReservationStatus);
 				Assert.assertEquals(TIME, ((ConfirmedReservationStatus)reservation).getTime());
-				WlLabCommunicationTest.this.stepCounter++;
+				LabCommunicationTest.this.stepCounter++;
 			}
 
 			@Override
@@ -103,7 +103,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
-				WlLabCommunicationTest.this.stepCounter++;
+				LabCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.getReservationStatus(sessionId, rc);
@@ -120,7 +120,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
-				WlLabCommunicationTest.this.stepCounter++;
+				LabCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.getReservationStatus(sessionId, rc);
@@ -137,7 +137,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			@Override
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof ServerException);
-				WlLabCommunicationTest.this.stepCounter++;
+				LabCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.getReservationStatus(sessionId, rc);
@@ -146,11 +146,11 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 	
 	public void testListExperiments(){
 		this.stepCounter = 0;
-		final FakeWlLabSerializer weblabSerializer = new FakeWlLabSerializer();
-		final FakeRequestBuilder requestBuilder = new FakeRequestBuilder();
+		final FakeLabSerializer weblabSerializer = new FakeLabSerializer();
+		final FakeWebLabRequestBuilder requestBuilder = new FakeWebLabRequestBuilder();
 		final FakeConfiguration configurationManager = new FakeConfiguration(new HashMap<String,String>());
 				
-		final WrappedWlLabCommunication comms = new WrappedWlLabCommunication(
+		final WrappedLabCommunication comms = new WrappedLabCommunication(
 					weblabSerializer,
 					requestBuilder,
 					configurationManager
@@ -166,11 +166,11 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			);
 		
 		weblabSerializer.appendReturn(
-					FakeWlLabSerializer.PARSE_LIST_EXPERIMENTS_RESPONSE, 
+					FakeLabSerializer.PARSE_LIST_EXPERIMENTS_RESPONSE, 
 					experiments
 				);
 		weblabSerializer.appendReturn(
-					FakeWlLabSerializer.SERIALIZE_LIST_EXPERIMENTS_REQUEST, 
+					FakeLabSerializer.SERIALIZE_LIST_EXPERIMENTS_REQUEST, 
 					SERIALIZED_MESSAGE
 				);
 		
@@ -179,7 +179,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			public void onSuccess(ExperimentAllowed [] experimentsAllowed) {
 				Assert.assertEquals(experiments.length, experimentsAllowed.length);
 				Assert.assertEquals(experiments[0], experimentsAllowed[0]);
-				WlLabCommunicationTest.this.stepCounter++;
+				LabCommunicationTest.this.stepCounter++;
 			}
 
 			@Override
@@ -203,7 +203,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
-				WlLabCommunicationTest.this.stepCounter++;
+				LabCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.listExperiments(sessionId, eac);
@@ -220,7 +220,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
-				WlLabCommunicationTest.this.stepCounter++;
+				LabCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.listExperiments(sessionId, eac);
@@ -237,7 +237,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			@Override
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof ServerException);
-				WlLabCommunicationTest.this.stepCounter++;
+				LabCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.listExperiments(sessionId, eac);
@@ -246,11 +246,11 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 	
 	public void testPoll(){
 		this.stepCounter = 0;
-		final FakeWlLabSerializer weblabSerializer = new FakeWlLabSerializer();
-		final FakeRequestBuilder requestBuilder = new FakeRequestBuilder();
+		final FakeLabSerializer weblabSerializer = new FakeLabSerializer();
+		final FakeWebLabRequestBuilder requestBuilder = new FakeWebLabRequestBuilder();
 		final FakeConfiguration configurationManager = new FakeConfiguration(new HashMap<String, String>());
 				
-		final WrappedWlLabCommunication comms = new WrappedWlLabCommunication(
+		final WrappedLabCommunication comms = new WrappedLabCommunication(
 					weblabSerializer,
 					requestBuilder,
 					configurationManager
@@ -261,14 +261,14 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		final String ERROR_MESSAGE = "whatever the error message";
 		
 		weblabSerializer.appendReturn(
-					FakeWlLabSerializer.SERIALIZE_POLL_REQUEST, 
+					FakeLabSerializer.SERIALIZE_POLL_REQUEST, 
 					SERIALIZED_MESSAGE
 				);
 		
 		IVoidCallback eac = new IVoidCallback(){
 			@Override
 			public void onSuccess() {
-				WlLabCommunicationTest.this.stepCounter++;
+				LabCommunicationTest.this.stepCounter++;
 			}
 
 			@Override
@@ -292,7 +292,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
-				WlLabCommunicationTest.this.stepCounter++;
+				LabCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.poll(sessionId, eac);
@@ -309,7 +309,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
-				WlLabCommunicationTest.this.stepCounter++;
+				LabCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.poll(sessionId, eac);
@@ -326,7 +326,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			@Override
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof ServerException);
-				WlLabCommunicationTest.this.stepCounter++;
+				LabCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.poll(sessionId, eac);
@@ -335,11 +335,11 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 
 	public void testReserveExperiment(){
 		this.stepCounter = 0;
-		final FakeWlLabSerializer weblabSerializer = new FakeWlLabSerializer();
-		final FakeRequestBuilder requestBuilder = new FakeRequestBuilder();
+		final FakeLabSerializer weblabSerializer = new FakeLabSerializer();
+		final FakeWebLabRequestBuilder requestBuilder = new FakeWebLabRequestBuilder();
 		final FakeConfiguration configurationManager = new FakeConfiguration(new HashMap<String, String>());
 				
-		final WrappedWlLabCommunication comms = new WrappedWlLabCommunication(
+		final WrappedLabCommunication comms = new WrappedLabCommunication(
 					weblabSerializer,
 					requestBuilder,
 					configurationManager
@@ -352,11 +352,11 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		final ReservationStatus expectedReservation = new ConfirmedReservationStatus(100);
 		
 		weblabSerializer.appendReturn(
-					FakeWlLabSerializer.PARSE_RESERVE_EXPERIMENT_RESPONSE, 
+					FakeLabSerializer.PARSE_RESERVE_EXPERIMENT_RESPONSE, 
 					expectedReservation
 				);
 		weblabSerializer.appendReturn(
-					FakeWlLabSerializer.SERIALIZE_RESERVE_EXPERIMENT_REQUEST, 
+					FakeLabSerializer.SERIALIZE_RESERVE_EXPERIMENT_REQUEST, 
 					SERIALIZED_MESSAGE
 				);
 		
@@ -364,7 +364,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			@Override
 			public void onSuccess(ReservationStatus reservation) {
 				Assert.assertEquals(expectedReservation, reservation);
-				WlLabCommunicationTest.this.stepCounter++;
+				LabCommunicationTest.this.stepCounter++;
 			}
 
 			@Override
@@ -388,7 +388,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
-				WlLabCommunicationTest.this.stepCounter++;
+				LabCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.reserveExperiment(sessionId, experimentId, new JSONObject(), eac);
@@ -405,7 +405,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
-				WlLabCommunicationTest.this.stepCounter++;
+				LabCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.reserveExperiment(sessionId, experimentId, new JSONObject(), eac);
@@ -422,7 +422,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			@Override
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof ServerException);
-				WlLabCommunicationTest.this.stepCounter++;
+				LabCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.reserveExperiment(sessionId, experimentId, new JSONObject(), eac);
@@ -529,11 +529,11 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 	
 	public void testSendCommand(){
 		this.stepCounter = 0;
-		final FakeWlLabSerializer weblabSerializer = new FakeWlLabSerializer();
-		final FakeRequestBuilder requestBuilder = new FakeRequestBuilder();
+		final FakeLabSerializer weblabSerializer = new FakeLabSerializer();
+		final FakeWebLabRequestBuilder requestBuilder = new FakeWebLabRequestBuilder();
 		final FakeConfiguration configurationManager = new FakeConfiguration(new HashMap<String, String>());
 				
-		final WrappedWlLabCommunication comms = new WrappedWlLabCommunication(
+		final WrappedLabCommunication comms = new WrappedLabCommunication(
 					weblabSerializer,
 					requestBuilder,
 					configurationManager
@@ -545,12 +545,12 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		final String ERROR_MESSAGE = "whatever the error message";
 		
 		weblabSerializer.appendReturn(
-				FakeWlLabSerializer.SERIALIZE_SEND_COMMAND_REQUEST, 
+				FakeLabSerializer.SERIALIZE_SEND_COMMAND_REQUEST, 
 				SERIALIZED_MESSAGE
 			);
 	
 		weblabSerializer.appendReturn(
-				FakeWlLabSerializer.PARSE_SEND_COMMAND_RESPONSE, 
+				FakeLabSerializer.PARSE_SEND_COMMAND_RESPONSE, 
 				new ResponseCommand("whatever") // TODO 
 			);
 	
@@ -558,7 +558,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
 				//TODO
-				WlLabCommunicationTest.this.stepCounter++;
+				LabCommunicationTest.this.stepCounter++;
 			}
 
 			@Override
@@ -582,7 +582,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
-				WlLabCommunicationTest.this.stepCounter++;
+				LabCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.sendCommand(sessionId, command, eac);
@@ -599,7 +599,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
-				WlLabCommunicationTest.this.stepCounter++;
+				LabCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.sendCommand(sessionId, command, eac);
@@ -616,7 +616,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			@Override
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof ServerException);
-				WlLabCommunicationTest.this.stepCounter++;
+				LabCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.sendCommand(sessionId, command, eac);
@@ -625,11 +625,11 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 
 	public void testFinishedExperiment(){
 		this.stepCounter = 0;
-		final FakeWlLabSerializer weblabSerializer = new FakeWlLabSerializer();
-		final FakeRequestBuilder requestBuilder = new FakeRequestBuilder();
+		final FakeLabSerializer weblabSerializer = new FakeLabSerializer();
+		final FakeWebLabRequestBuilder requestBuilder = new FakeWebLabRequestBuilder();
 		final FakeConfiguration configurationManager = new FakeConfiguration(new HashMap<String, String>());
 				
-		final WrappedWlLabCommunication comms = new WrappedWlLabCommunication(
+		final WrappedLabCommunication comms = new WrappedLabCommunication(
 					weblabSerializer,
 					requestBuilder,
 					configurationManager
@@ -640,14 +640,14 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		final String ERROR_MESSAGE = "whatever the error message";
 		
 		weblabSerializer.appendReturn(
-					FakeWlLabSerializer.SERIALIZE_FINISHED_EXPERIMENT_REQUEST, 
+					FakeLabSerializer.SERIALIZE_FINISHED_EXPERIMENT_REQUEST, 
 					SERIALIZED_MESSAGE
 				);
 		
 		IVoidCallback eac = new IVoidCallback(){
 			@Override
 			public void onSuccess() {
-				WlLabCommunicationTest.this.stepCounter++;
+				LabCommunicationTest.this.stepCounter++;
 			}
 
 			@Override
@@ -671,7 +671,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
-				WlLabCommunicationTest.this.stepCounter++;
+				LabCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.finishedExperiment(sessionId, eac);
@@ -688,7 +688,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
-				WlLabCommunicationTest.this.stepCounter++;
+				LabCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.finishedExperiment(sessionId, eac);
@@ -705,7 +705,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			@Override
 			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof ServerException);
-				WlLabCommunicationTest.this.stepCounter++;
+				LabCommunicationTest.this.stepCounter++;
 			}
 		};
 		comms.finishedExperiment(sessionId, eac);
@@ -788,11 +788,11 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 	
 	public void testSendFile(){
 		this.stepCounter = 0;
-		final FakeWlLabSerializer weblabSerializer = new FakeWlLabSerializer();
-		final FakeRequestBuilder requestBuilder = new FakeRequestBuilder();
+		final FakeLabSerializer weblabSerializer = new FakeLabSerializer();
+		final FakeWebLabRequestBuilder requestBuilder = new FakeWebLabRequestBuilder();
 		final FakeConfiguration configurationManager = new FakeConfiguration(new HashMap<String, String>());
 				
-		final WrappedWlLabCommunication comms = new WrappedWlLabCommunication(
+		final WrappedLabCommunication comms = new WrappedLabCommunication(
 					weblabSerializer,
 					requestBuilder,
 					configurationManager
@@ -816,8 +816,8 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		final IResponseCommandCallback callback = new IResponseCommandCallback(){
 			@Override
 			public void onSuccess(ResponseCommand command){
-				WlLabCommunicationTest.this.stepCounter++;
-				WlLabCommunicationTest.this.sentFileResponse = command;
+				LabCommunicationTest.this.stepCounter++;
+				LabCommunicationTest.this.sentFileResponse = command;
 			}
 
 			@Override
@@ -839,7 +839,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		final String sentMessage = "SUCCESS@" + messageItself;
 		final String bundledMessage = "<body>" + sentMessage + "</body>"; 
 		final SubmitCompleteEvent sce = new FakeSubmitCompleteEvent(bundledMessage);
-		weblabSerializer.appendReturn(FakeWlLabSerializer.PARSE_SEND_FILE_RESPONSE, new ResponseCommand(messageItself));
+		weblabSerializer.appendReturn(FakeLabSerializer.PARSE_SEND_FILE_RESPONSE, new ResponseCommand(messageItself));
 		fakeFormPanel.fireEvent(sce);
 		
 		Assert.assertEquals(1, this.stepCounter);
