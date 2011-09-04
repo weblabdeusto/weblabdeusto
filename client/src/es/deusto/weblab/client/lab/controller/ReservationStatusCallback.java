@@ -13,15 +13,15 @@
 */ 
 package es.deusto.weblab.client.lab.controller;
 
-import es.deusto.weblab.client.comm.exceptions.WlCommException;
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
-import es.deusto.weblab.client.lab.comm.IWlLabCommunication;
+import es.deusto.weblab.client.lab.comm.ILabCommunication;
 import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
-import es.deusto.weblab.client.lab.controller.WlLabController.TimerCreator;
-import es.deusto.weblab.client.lab.controller.exceptions.WlUnknownReservationException;
+import es.deusto.weblab.client.lab.controller.LabController.TimerCreator;
+import es.deusto.weblab.client.lab.controller.exceptions.UnknownReservationException;
 import es.deusto.weblab.client.lab.controller.reservations.ReservationStatusTransition;
 import es.deusto.weblab.client.lab.controller.reservations.ReservationStatusTransitionFactory;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
@@ -32,11 +32,11 @@ public class ReservationStatusCallback implements IReservationCallback{
 	private IConfigurationManager configurationManager;
 	private IPollingHandler       pollingHandler;
 	private TimerCreator          timerCreator;
-	private IWlLabCommunication  communications;
+	private ILabCommunication  communications;
 	private SessionID             sessionID;
 	private ExperimentID          experimentBeingReserved;
 	private ExperimentBase        experimentBaseBeingReserved;
-	private IWlLabController     controller;
+	private ILabController     controller;
 	
 	ReservationStatusCallback(){}
 	
@@ -48,14 +48,14 @@ public class ReservationStatusCallback implements IReservationCallback{
 							this
 						);
 			reservationStatusTransition.perform(reservationStatus);
-		} catch (final WlUnknownReservationException e) {
+		} catch (final UnknownReservationException e) {
 			this.uimanager.onErrorAndFinishReservation("Error trying to process the reservation: " + e.getMessage());
 			//TODO: how to tell the controller that this has finished?
 		}
 	}
 
 	@Override
-	public void onFailure(WlCommException e) {
+	public void onFailure(CommException e) {
 		this.uimanager.onErrorAndFinishReservation(e.getMessage());
 		//TODO: how to tell the controller that this has finished?
 	}
@@ -77,7 +77,7 @@ public class ReservationStatusCallback implements IReservationCallback{
 		return this.timerCreator;
 	}
 
-	public IWlLabCommunication getCommunications() {
+	public ILabCommunication getCommunications() {
 		return this.communications;
 	}
 
@@ -89,7 +89,7 @@ public class ReservationStatusCallback implements IReservationCallback{
 		return this.experimentBeingReserved;
 	}
 	
-	public IWlLabController getController(){
+	public ILabController getController(){
 		return this.controller;
 	}
 	
@@ -113,7 +113,7 @@ public class ReservationStatusCallback implements IReservationCallback{
 		this.timerCreator = timerCreator;
 	}
 
-	void setCommunications(IWlLabCommunication communications) {
+	void setCommunications(ILabCommunication communications) {
 		this.communications = communications;
 	}
 
@@ -125,7 +125,7 @@ public class ReservationStatusCallback implements IReservationCallback{
 		this.experimentBeingReserved = experimentId;
 	}
 	
-	void setController(IWlLabController controller){
+	void setController(ILabController controller){
 		this.controller = controller;
 	}
 	

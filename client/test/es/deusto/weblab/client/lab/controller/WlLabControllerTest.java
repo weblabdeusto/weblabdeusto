@@ -26,7 +26,7 @@ import es.deusto.weblab.client.comm.FakeWlCommonCommunication;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
-import es.deusto.weblab.client.comm.exceptions.WlCommException;
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.comm.exceptions.login.LoginException;
 import es.deusto.weblab.client.configuration.FakeConfiguration;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
@@ -69,7 +69,7 @@ public class WlLabControllerTest  extends GWTTestCase{
 	}
 	
 	public void testLoginFailure() throws Exception{
-		final WlLabController controller = this.createController();
+		final LabController controller = this.createController();
 		controller.login("whatever", "whatever");
 		
 		List<Methods> v = this.fakeCommunications.getMethodByName(FakeWlCommonCommunication.LOGIN);
@@ -83,7 +83,7 @@ public class WlLabControllerTest  extends GWTTestCase{
 		v = this.fakeUIManager.getMethodByName(FakeUIManager.ON_WRONG_LOGIN_OR_PASSWORD_GIVEN);
 		Assert.assertEquals(1, v.size());
 		
-		callback.onFailure(new WlCommException("other error"));
+		callback.onFailure(new CommException("other error"));
 		v = this.fakeUIManager.getMethodByName(FakeUIManager.ON_ERROR_AND_FINISH_SESSION);
 		Assert.assertEquals(1, v.size());
 	}
@@ -91,7 +91,7 @@ public class WlLabControllerTest  extends GWTTestCase{
 	public void testLoginSucceeded() throws Exception{
 		final User user = new User("porduna", "Pablo Orduña Fernández", "porduna@tecnologico.deusto.es", new Role("student"));
 
-		final WlLabController controller = this.createController();
+		final LabController controller = this.createController();
 		
 		// login
 		controller.login("whatever", "whatever");
@@ -125,7 +125,7 @@ public class WlLabControllerTest  extends GWTTestCase{
 		final IExperimentsAllowedCallback experimentsAllowedCallback = (IExperimentsAllowedCallback)(m.getParameters()[1]);
 		
 			// failure
-        		experimentsAllowedCallback.onFailure(new WlCommException("error retrieving experiments allowed"));
+        		experimentsAllowedCallback.onFailure(new CommException("error retrieving experiments allowed"));
         		Assert.assertEquals(1,this.fakeUIManager.getMethodByName(FakeUIManager.ON_ERROR).size());
         		
         		// success
@@ -145,7 +145,7 @@ public class WlLabControllerTest  extends GWTTestCase{
 		final IVoidCallback voidCallback = (IVoidCallback)m.getParameters()[1];
 		
         		// failure
-        		voidCallback.onFailure(new WlCommException("haw haw"));
+        		voidCallback.onFailure(new CommException("haw haw"));
         		// Was called in the previous "test failure"
         		Assert.assertEquals(1,this.fakeUIManager.getMethodByName(FakeUIManager.ON_ERROR_AND_FINISH_SESSION).size());
         		
@@ -159,7 +159,7 @@ public class WlLabControllerTest  extends GWTTestCase{
 		final ReservationContext context = this.createReservationContext();
 		final IReservationCallback callback = context.reservationCallback;
 		
-		callback.onFailure(new WlCommException("whatever"));
+		callback.onFailure(new CommException("whatever"));
 		
 		v = this.fakeUIManager.getMethodByName(FakeUIManager.ON_ERROR_AND_FINISH_RESERVATION);
 		Assert.assertEquals(1, v.size());
@@ -268,7 +268,7 @@ public class WlLabControllerTest  extends GWTTestCase{
 		    }
 
 		    @Override
-			public void onFailure(WlCommException e) {
+			public void onFailure(CommException e) {
 		    }
 		}; 
 		
@@ -295,11 +295,11 @@ public class WlLabControllerTest  extends GWTTestCase{
 	
 	private Map<String, String> createConfiguration(){
 		final Map<String, String> map = new HashMap<String, String>();
-		map.put(WlLabController.WAITING_INSTANCES_MIN_POLLING_TIME_PROPERTY, ""+WlLabControllerTest.WAITING_INSTANCES_MIN_POLL_TIME);
-		map.put(WlLabController.WAITING_INSTANCES_MAX_POLLING_TIME_PROPERTY, ""+WlLabControllerTest.WAITING_INSTANCES_MAX_POLL_TIME);
-		map.put(WlLabController.WAITING_MIN_POLLING_TIME_PROPERTY, ""+WlLabControllerTest.WAITING_MIN_POLL_TIME);
-		map.put(WlLabController.WAITING_MAX_POLLING_TIME_PROPERTY, ""+WlLabControllerTest.WAITING_MAX_POLL_TIME);
-		map.put(WlLabController.WAITING_CONFIRMATION_POLLING_TIME_PROPERTY, ""+WlLabControllerTest.WAITING_CONFIRMATION_POLL_TIME);
+		map.put(LabController.WAITING_INSTANCES_MIN_POLLING_TIME_PROPERTY, ""+WlLabControllerTest.WAITING_INSTANCES_MIN_POLL_TIME);
+		map.put(LabController.WAITING_INSTANCES_MAX_POLLING_TIME_PROPERTY, ""+WlLabControllerTest.WAITING_INSTANCES_MAX_POLL_TIME);
+		map.put(LabController.WAITING_MIN_POLLING_TIME_PROPERTY, ""+WlLabControllerTest.WAITING_MIN_POLL_TIME);
+		map.put(LabController.WAITING_MAX_POLLING_TIME_PROPERTY, ""+WlLabControllerTest.WAITING_MAX_POLL_TIME);
+		map.put(LabController.WAITING_CONFIRMATION_POLLING_TIME_PROPERTY, ""+WlLabControllerTest.WAITING_CONFIRMATION_POLL_TIME);
 		return map;
 	}
 	
@@ -409,7 +409,7 @@ public class WlLabControllerTest  extends GWTTestCase{
 		}
 	}
 	
-	private class FakeWebLabController extends WlLabController{
+	private class FakeWebLabController extends LabController{
 	    	private final FakeUIManager uimanager;
 	    	
 		public FakeWebLabController(

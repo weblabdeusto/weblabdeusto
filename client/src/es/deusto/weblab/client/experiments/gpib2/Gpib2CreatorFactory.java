@@ -18,7 +18,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
-import es.deusto.weblab.client.experiments.gpib2.ui.WlDeustoGpib2Board;
+import es.deusto.weblab.client.experiments.gpib2.ui.Gpib2Board;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
@@ -40,7 +40,7 @@ public class Gpib2CreatorFactory implements IExperimentCreatorFactory {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new WlDeustoGpib2Board(configurationRetriever, boardController));
+						callback.onExperimentLoaded(new Gpib2Board(configurationRetriever, boardController));
 					}
 					
 					@Override

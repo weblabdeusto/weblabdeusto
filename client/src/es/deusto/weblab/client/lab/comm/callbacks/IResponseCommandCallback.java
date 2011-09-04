@@ -13,7 +13,7 @@
 */ 
 package es.deusto.weblab.client.lab.comm.callbacks;
 
-import es.deusto.weblab.client.comm.callbacks.IWlAsyncCallback;
+import es.deusto.weblab.client.comm.callbacks.IWebLabAsyncCallback;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 
 
@@ -24,7 +24,7 @@ import es.deusto.weblab.client.dto.experiments.ResponseCommand;
  *  This callback is specifically intended to be used for the response to
  *  send_file, send_command, and the like, not for all requests.
  */
-public interface IResponseCommandCallback extends IWlAsyncCallback {
+public interface IResponseCommandCallback extends IWebLabAsyncCallback {
 	public void onSuccess(ResponseCommand responseCommand);
 	//throws WlCommException, SessionNotFoundException
 }

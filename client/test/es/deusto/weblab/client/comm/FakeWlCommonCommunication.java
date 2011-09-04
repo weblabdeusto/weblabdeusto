@@ -21,7 +21,7 @@ import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.testing.util.WlFake;
 
-public abstract class FakeWlCommonCommunication extends WlFake implements IWlCommonCommunication {
+public abstract class FakeWlCommonCommunication extends WlFake implements ICommonCommunication {
 	
 	public static final String LOGIN                  = "FakeWebLabCommunication::login";
 	public static final String LOGOUT                 = "FakeWebLabCommunication::logout";
@@ -52,5 +52,5 @@ public abstract class FakeWlCommonCommunication extends WlFake implements IWlCom
 		});
 	}
 	
-	protected abstract IWlCommonSerializer createSerializer();
+	protected abstract ICommonSerializer createSerializer();
 }

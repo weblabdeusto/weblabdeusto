@@ -23,7 +23,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-import es.deusto.weblab.client.comm.exceptions.WlCommException;
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
@@ -249,7 +249,7 @@ public class XilinxExperiment extends ExperimentBase{
 	    }
 
 	    @Override
-	    public void onFailure(WlCommException e) {
+	    public void onFailure(CommException e) {
 	    	
 		    if(XilinxExperiment.DEBUG_ENABLED)
 		    	XilinxExperiment.this.enableInteractiveWidgets();
@@ -401,7 +401,7 @@ public class XilinxExperiment extends ExperimentBase{
 		    }
 
 		    @Override
-			public void onFailure(WlCommException e) {
+			public void onFailure(CommException e) {
     			GWT.log("responseCommand: failure", null);
     			XilinxExperiment.this.messages.stop();
     			XilinxExperiment.this.messages.setText("Error sending command: " + e.getMessage());

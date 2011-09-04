@@ -13,7 +13,7 @@
 */ 
 package es.deusto.weblab.client.lab.controller.exceptions.status;
 
-public class IllegalStateFoundException extends WlControllerStateException {
+public class IllegalStateFoundException extends ControllerStateException {
 	private static final long serialVersionUID = 1L;
 
 	public IllegalStateFoundException() {

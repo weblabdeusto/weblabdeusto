@@ -13,9 +13,9 @@
 */ 
 package es.deusto.weblab.client.ui.widgets.exceptions;
 
-import es.deusto.weblab.client.WlClientException;
+import es.deusto.weblab.client.WebLabException;
 
-public class WlWidgetException extends WlClientException {
+public class WlWidgetException extends WebLabException {
 	private static final long serialVersionUID = 7797395269457146776L;
 
 	public WlWidgetException() {

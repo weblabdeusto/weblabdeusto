@@ -13,9 +13,9 @@
 */ 
 package es.deusto.weblab.client.comm.exceptions.core;
 
-import es.deusto.weblab.client.comm.exceptions.WlServerException;
+import es.deusto.weblab.client.comm.exceptions.WebLabServerException;
 
-public class SessionNotFoundException extends WlServerException {
+public class SessionNotFoundException extends WebLabServerException {
 	private static final long serialVersionUID = -6226878120339049068L;
 
 	public SessionNotFoundException() {}

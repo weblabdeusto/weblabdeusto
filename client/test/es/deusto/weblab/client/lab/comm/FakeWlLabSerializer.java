@@ -18,7 +18,7 @@ import com.google.gwt.json.client.JSONValue;
 
 import es.deusto.weblab.client.comm.FakeWlCommonSerializer;
 import es.deusto.weblab.client.comm.exceptions.SerializationException;
-import es.deusto.weblab.client.comm.exceptions.WlServerException;
+import es.deusto.weblab.client.comm.exceptions.WebLabServerException;
 import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
 import es.deusto.weblab.client.comm.exceptions.core.UserProcessingException;
 import es.deusto.weblab.client.dto.SessionID;
@@ -30,7 +30,7 @@ import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.lab.comm.exceptions.NoCurrentReservationException;
 
-public class FakeWlLabSerializer extends FakeWlCommonSerializer implements IWlLabSerializer {
+public class FakeWlLabSerializer extends FakeWlCommonSerializer implements ILabSerializer {
 	
 	public static final String PARSE_GET_RESERVATION_STATUS_RESPONSE    	= "FakeWebLabSerializer::parseGetReservationStatus";
 	public static final String PARSE_LIST_EXPERIMENTS_RESPONSE          	= "FakeWebLabSerializer::parseListExperimentsResponse";
@@ -88,7 +88,7 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements IWlLa
 	@Override
 	public ResponseCommand parseSendFileResponse(String responseText)
 		throws SerializationException, SessionNotFoundException,
-			WlServerException 
+			WebLabServerException 
 	{
 		this.append(FakeWlLabSerializer.PARSE_SEND_FILE_RESPONSE, new Object[]{
 				responseText
@@ -118,7 +118,7 @@ public class FakeWlLabSerializer extends FakeWlCommonSerializer implements IWlLa
 	public ResponseCommand parseSendAsyncCommandResponse(String responseText)
 			throws SerializationException, SessionNotFoundException,
 			NoCurrentReservationException, UserProcessingException,
-			WlServerException {
+			WebLabServerException {
 		this.append(FakeWlLabSerializer.PARSE_SEND_ASYNC_COMMAND_RESPONSE, new Object[]{
 				responseText
 		});

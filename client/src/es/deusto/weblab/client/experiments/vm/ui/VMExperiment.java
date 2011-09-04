@@ -26,7 +26,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-import es.deusto.weblab.client.comm.exceptions.WlCommException;
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
@@ -120,7 +120,7 @@ public class VMExperiment extends ExperimentBase {
 				
 				VMExperiment.this.boardController.sendCommand(command, new IResponseCommandCallback() {
 					@Override
-					public void onFailure(WlCommException e) {
+					public void onFailure(CommException e) {
 						VMExperiment.this.setMessage("There was an error while trying to find out whether the Virtual Machine is ready");
 						
 						VMExperiment.this.progressBar.setTextUpdater(new IProgressBarTextUpdater() {
@@ -366,7 +366,7 @@ public class VMExperiment extends ExperimentBase {
 		
 		this.boardController.sendCommand(command, new IResponseCommandCallback() {
 			@Override
-			public void onFailure(WlCommException e) {
+			public void onFailure(CommException e) {
 				VMExperiment.this.setMessage("It was not possible to obtain the VM configuration");
 			}
 			@Override

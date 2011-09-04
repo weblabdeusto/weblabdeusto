@@ -17,7 +17,7 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-import es.deusto.weblab.client.comm.exceptions.WlCommException;
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
@@ -101,7 +101,7 @@ public class Pic2Experiment extends ExperimentBase{
 			public void onAction(IWlWidget widget) {
 				boardController.sendCommand("POTENTIOMETER: " + potentiometer.getPower(), new IResponseCommandCallback() {
 					@Override
-					public void onFailure(WlCommException e) {
+					public void onFailure(CommException e) {
 						messages.setText("Error sending command POTENTIOMETER");
 					}
 					
@@ -126,7 +126,7 @@ public class Pic2Experiment extends ExperimentBase{
 		    }
 
 		    @Override
-		    public void onFailure(WlCommException e) {
+		    public void onFailure(CommException e) {
 		    	messages.setText("Error sending file: " + e.getMessage());
 			    messages.stop();
 		    }

@@ -26,7 +26,7 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-import es.deusto.weblab.client.comm.exceptions.WlCommException;
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
@@ -160,7 +160,7 @@ public class RobotMovementExperiment extends ExperimentBase {
 	    this.boardController.sendCommand("program:Interactive Demo", new IResponseCommandCallback() {
 
 			@Override
-			public void onFailure(WlCommException e) {
+			public void onFailure(CommException e) {
 				e.printStackTrace();
 				RobotMovementExperiment.this.messages.setText("Failed: " + e.getMessage());
 				RobotMovementExperiment.this.messages.stop();
@@ -232,7 +232,7 @@ public class RobotMovementExperiment extends ExperimentBase {
 		this.boardController.sendCommand("move:" + s, new IResponseCommandCallback() {
 			
 			@Override
-			public void onFailure(WlCommException e) {
+			public void onFailure(CommException e) {
 				
 			}
 			

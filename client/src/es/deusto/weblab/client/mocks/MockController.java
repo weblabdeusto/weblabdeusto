@@ -27,11 +27,11 @@ import es.deusto.weblab.client.dto.users.Role;
 import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
-import es.deusto.weblab.client.lab.controller.IWlLabController;
-import es.deusto.weblab.client.lab.experiments.exceptions.WlExperimentException;
+import es.deusto.weblab.client.lab.controller.ILabController;
+import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentException;
 import es.deusto.weblab.client.lab.ui.IUIManager;
 
-public class MockController implements IWlLabController {
+public class MockController implements ILabController {
 
 	private IUIManager uimanager;
 	private int n;
@@ -147,7 +147,7 @@ public class MockController implements IWlLabController {
 		
 		try {
 			this.uimanager.onExperimentReserved(experimentID, null);
-		} catch (final WlExperimentException e) {
+		} catch (final ExperimentException e) {
 			e.printStackTrace();
 			return;
 		}

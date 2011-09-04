@@ -13,9 +13,9 @@
 */ 
 package es.deusto.weblab.client.comm.exceptions.core;
 
-import es.deusto.weblab.client.comm.exceptions.WlServerException;
+import es.deusto.weblab.client.comm.exceptions.WebLabServerException;
 
-public class UserProcessingException extends WlServerException {
+public class UserProcessingException extends WebLabServerException {
 	private static final long serialVersionUID = -4212971860702824876L;
 
 	public UserProcessingException() {

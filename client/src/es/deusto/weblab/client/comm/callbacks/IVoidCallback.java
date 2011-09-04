@@ -13,7 +13,7 @@
 */ 
 package es.deusto.weblab.client.comm.callbacks;
 
-public interface IVoidCallback extends IWlAsyncCallback {
+public interface IVoidCallback extends IWebLabAsyncCallback {
 	public void onSuccess();
 	//throws WlCommException, SessionNotFoundException
 }

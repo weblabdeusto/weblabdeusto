@@ -25,7 +25,7 @@ import es.deusto.weblab.client.comm.FakeRequestBuilder;
 import es.deusto.weblab.client.comm.WlCommonCommunicationTest;
 import es.deusto.weblab.client.comm.exceptions.CommunicationException;
 import es.deusto.weblab.client.comm.exceptions.ServerException;
-import es.deusto.weblab.client.comm.exceptions.WlCommException;
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.FakeConfiguration;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.users.Permission;
@@ -71,7 +71,7 @@ public class WlAdminCommunicationTest extends WlCommonCommunicationTest {
 			}
 
 			@Override
-			public void onFailure(WlCommException e) {
+			public void onFailure(CommException e) {
 				Assert.fail("onFailure not expected");
 			}
 		};
@@ -88,7 +88,7 @@ public class WlAdminCommunicationTest extends WlCommonCommunicationTest {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
 				WlAdminCommunicationTest.this.stepCounter++;
@@ -105,7 +105,7 @@ public class WlAdminCommunicationTest extends WlCommonCommunicationTest {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
 				WlAdminCommunicationTest.this.stepCounter++;
@@ -123,7 +123,7 @@ public class WlAdminCommunicationTest extends WlCommonCommunicationTest {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof ServerException);
 				WlAdminCommunicationTest.this.stepCounter++;
 			}

@@ -13,11 +13,11 @@
 */ 
 package es.deusto.weblab.client.lab.comm.callbacks;
 
-import es.deusto.weblab.client.comm.callbacks.IWlAsyncCallback;
+import es.deusto.weblab.client.comm.callbacks.IWebLabAsyncCallback;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 
 
-public interface IExperimentsAllowedCallback extends IWlAsyncCallback {
+public interface IExperimentsAllowedCallback extends IWebLabAsyncCallback {
 	public void onSuccess(ExperimentAllowed [] experiments);
 	
 	//throws WlCommException, SessionNotFoundException

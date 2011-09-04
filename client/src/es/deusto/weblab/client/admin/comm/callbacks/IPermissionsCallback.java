@@ -14,10 +14,10 @@
 
 package es.deusto.weblab.client.admin.comm.callbacks;
 
-import es.deusto.weblab.client.comm.callbacks.IWlAsyncCallback;
+import es.deusto.weblab.client.comm.callbacks.IWebLabAsyncCallback;
 import es.deusto.weblab.client.dto.users.Permission;
 
-public interface IPermissionsCallback extends IWlAsyncCallback  {
+public interface IPermissionsCallback extends IWebLabAsyncCallback  {
 
 	public void onSuccess(Permission [] permissions);
 }

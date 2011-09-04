@@ -15,7 +15,7 @@ package es.deusto.weblab.client.comm.callbacks;
 
 import es.deusto.weblab.client.dto.users.User;
 
-public interface IUserInformationCallback extends IWlAsyncCallback {
+public interface IUserInformationCallback extends IWebLabAsyncCallback {
 	public void onSuccess(User userInformation);
 	//throws WlCommException, SessionNotFoundException
 }

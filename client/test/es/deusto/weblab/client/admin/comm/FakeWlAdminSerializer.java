@@ -17,14 +17,14 @@ package es.deusto.weblab.client.admin.comm;
 
 import es.deusto.weblab.client.comm.FakeWlCommonSerializer;
 import es.deusto.weblab.client.comm.exceptions.SerializationException;
-import es.deusto.weblab.client.comm.exceptions.WlServerException;
+import es.deusto.weblab.client.comm.exceptions.WebLabServerException;
 import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
 import es.deusto.weblab.client.comm.exceptions.core.UserProcessingException;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.users.Permission;
 
 
-public class FakeWlAdminSerializer extends FakeWlCommonSerializer implements IWlAdminSerializer {
+public class FakeWlAdminSerializer extends FakeWlCommonSerializer implements IAdminSerializer {
 
 	public static final String PARSE_GET_USER_PERMISSIONS_RESPONSE    = "FakeWebLabSerializer::parseGetUserPermissions";
 
@@ -32,7 +32,7 @@ public class FakeWlAdminSerializer extends FakeWlCommonSerializer implements IWl
 	
 	@Override
 	public Permission[] parseGetUserPermissionsResponse(String responseText)
-			throws SerializationException, SessionNotFoundException, UserProcessingException, WlServerException {
+			throws SerializationException, SessionNotFoundException, UserProcessingException, WebLabServerException {
 		this.append(FakeWlAdminSerializer.PARSE_GET_USER_PERMISSIONS_RESPONSE, new Object[]{
 				responseText
 		});

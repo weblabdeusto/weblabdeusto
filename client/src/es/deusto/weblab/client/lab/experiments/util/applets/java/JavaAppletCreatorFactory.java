@@ -18,7 +18,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
-import es.deusto.weblab.client.configuration.exceptions.WlConfigurationException;
+import es.deusto.weblab.client.configuration.exceptions.ConfigurationException;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
@@ -47,7 +47,7 @@ public class JavaAppletCreatorFactory implements IExperimentCreatorFactory{
 			archive = configurationRetriever.getProperty("jar.file");
 			code    = configurationRetriever.getProperty("code");
 			message = configurationRetriever.getProperty("message");
-		}catch(WlConfigurationException exc){
+		}catch(ConfigurationException exc){
 			throw new ExperimentCreatorInstanciationException("Misconfigured experiment " + getCodeName() + ": " + exc.getMessage(), exc);
 		}
 		

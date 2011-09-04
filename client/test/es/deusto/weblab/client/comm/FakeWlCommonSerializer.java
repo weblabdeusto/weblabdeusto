@@ -19,12 +19,12 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONValue;
 
 import es.deusto.weblab.client.comm.exceptions.SerializationException;
-import es.deusto.weblab.client.comm.exceptions.WlServerException;
+import es.deusto.weblab.client.comm.exceptions.WebLabServerException;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.testing.util.WlFake;
 
-public class FakeWlCommonSerializer extends WlFake implements IWlCommonSerializer {
+public class FakeWlCommonSerializer extends WlFake implements ICommonSerializer {
 
 	public static final String PARSE_LOGIN_RESPONSE                     = "FakeWebLabSerializer::parseLoginResponse";
 	public static final String SERIALIZE_LOGIN_REQUEST                  = "FakeWebLabSerializer::serializeLoginRequest";
@@ -80,11 +80,11 @@ public class FakeWlCommonSerializer extends WlFake implements IWlCommonSerialize
 	}
 
 	@SuppressWarnings("unused")
-	protected void throwException(JSONObject responseObject) throws WlServerException {
+	protected void throwException(JSONObject responseObject) throws WebLabServerException {
 	}
 
 	@SuppressWarnings("unused")
-	protected WlServerException buildException(final String faultCode, final String faultString) {
+	protected WebLabServerException buildException(final String faultCode, final String faultString) {
 		return null;
 	}
 

@@ -19,7 +19,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-import es.deusto.weblab.client.comm.exceptions.WlCommException;
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
@@ -141,7 +141,7 @@ public class RobotStandardExperiment extends ExperimentBase {
 		this.boardController.sendFile(this.uploadStructure, new IResponseCommandCallback() {
 			
 			@Override
-			public void onFailure(WlCommException e) {
+			public void onFailure(CommException e) {
 				RobotStandardExperiment.this.uploadStructurePanel.setVisible(false);
 				RobotStandardExperiment.this.messages.stop();
 				setMessage("Failed: " + e.getMessage());
@@ -197,7 +197,7 @@ public class RobotStandardExperiment extends ExperimentBase {
 		
 		this.boardController.sendCommand(command, new IResponseCommandCallback() {
 			@Override
-			public void onFailure(WlCommException e) {
+			public void onFailure(CommException e) {
 				RobotStandardExperiment.this.setMessage("It was not possible to obtain the configuration");
 			}
 			@Override

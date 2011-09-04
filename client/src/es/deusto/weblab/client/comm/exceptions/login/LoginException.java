@@ -13,9 +13,9 @@
 */ 
 package es.deusto.weblab.client.comm.exceptions.login;
 
-import es.deusto.weblab.client.comm.exceptions.WlServerException;
+import es.deusto.weblab.client.comm.exceptions.WebLabServerException;
 
-public class LoginException extends WlServerException {
+public class LoginException extends WebLabServerException {
 	private static final long serialVersionUID = 6192080708862297588L;
 
 	public LoginException() {}

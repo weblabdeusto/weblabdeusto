@@ -13,7 +13,7 @@
 */ 
 package es.deusto.weblab.client.lab.controller.exceptions.status;
 
-public class StateNotMatchedException extends WlControllerStateException {
+public class StateNotMatchedException extends ControllerStateException {
 
 	private static final long serialVersionUID = -111249345870497769L;
 

@@ -15,15 +15,15 @@ package es.deusto.weblab.client.lab.comm;
 
 import com.google.gwt.http.client.RequestBuilder;
 
-import es.deusto.weblab.client.comm.IWlCommonSerializer;
+import es.deusto.weblab.client.comm.ICommonSerializer;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 
-public class WrappedWlLabCommunication extends WlLabCommunication {
+public class WrappedWlLabCommunication extends LabCommunication {
 	
-	private final IWlLabSerializer wrappedSerializer;
+	private final ILabSerializer wrappedSerializer;
 	private final RequestBuilder wrappedRequestBuilder;
 	
-	public WrappedWlLabCommunication(IWlLabSerializer wrappedSerializer, RequestBuilder wrappedRequestBuilder, IConfigurationManager configurationManager){
+	public WrappedWlLabCommunication(ILabSerializer wrappedSerializer, RequestBuilder wrappedRequestBuilder, IConfigurationManager configurationManager){
 		super(configurationManager);
 		this.wrappedSerializer = wrappedSerializer;
 		this.wrappedRequestBuilder = wrappedRequestBuilder;
@@ -31,7 +31,7 @@ public class WrappedWlLabCommunication extends WlLabCommunication {
 	}
 	
 	@Override
-	protected IWlCommonSerializer createSerializer(){
+	protected ICommonSerializer createSerializer(){
 		return null;
 	}
 	

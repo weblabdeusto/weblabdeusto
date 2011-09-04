@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-import es.deusto.weblab.client.comm.exceptions.WlCommException;
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
@@ -62,7 +62,7 @@ public class LabViewExperiment extends ExperimentBase {
 	private final IResponseCommandCallback isOpenCallback = new IResponseCommandCallback() {
 		
 		@Override
-		public void onFailure(WlCommException e) {
+		public void onFailure(CommException e) {
 			e.printStackTrace();
 			LabViewExperiment.this.html.setText("Error checking the state of the experiment: " + e.getMessage());
 		}
@@ -87,7 +87,7 @@ public class LabViewExperiment extends ExperimentBase {
 	private final IResponseCommandCallback isProgrammedCallback = new IResponseCommandCallback() {
 		
 		@Override
-		public void onFailure(WlCommException e) {
+		public void onFailure(CommException e) {
 			e.printStackTrace();
 			LabViewExperiment.this.html.setText("Error checking the state of the experiment: " + e.getMessage());
 		}
@@ -112,7 +112,7 @@ public class LabViewExperiment extends ExperimentBase {
 	private final IResponseCommandCallback readyToProgramFileCallback = new IResponseCommandCallback() {
 
 		@Override
-		public void onFailure(WlCommException e) {
+		public void onFailure(CommException e) {
 			LabViewExperiment.this.html.setText("Error checking if it's ready to program a file: " + e.getMessage());
 		}
 
@@ -140,7 +140,7 @@ public class LabViewExperiment extends ExperimentBase {
 	private final IResponseCommandCallback sendFileCallback = new IResponseCommandCallback() {
 		
 		@Override
-		public void onFailure(WlCommException e) {
+		public void onFailure(CommException e) {
 			e.printStackTrace();
 			LabViewExperiment.this.html.setText("Error sending file: " + e.getMessage());
 		}
@@ -188,7 +188,7 @@ public class LabViewExperiment extends ExperimentBase {
 		this.boardController.sendCommand("get_url", new IResponseCommandCallback() {
 			
 			@Override
-			public void onFailure(WlCommException e) {
+			public void onFailure(CommException e) {
 				e.printStackTrace();
 				LabViewExperiment.this.html.setText("Error getting url to show LabVIEW panel: " + e.getMessage());
 			}

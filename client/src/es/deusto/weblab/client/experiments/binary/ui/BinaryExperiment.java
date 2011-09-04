@@ -27,7 +27,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-import es.deusto.weblab.client.comm.exceptions.WlCommException;
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.experiments.xilinx.commands.ClockActivationCommand;
@@ -158,7 +158,7 @@ public class BinaryExperiment extends ExperimentBase {
 											    }
 
 											    @Override
-											    public void onFailure(WlCommException e) {
+											    public void onFailure(CommException e) {
 												BinaryExperiment.this.messages.stop();
 												BinaryExperiment.this.messages.setText("Error initializing (deactivating) the game: " + e.getMessage() + ". Please contact the WebLab-Deusto administrators at weblab@deusto.es");
 											    }
@@ -166,7 +166,7 @@ public class BinaryExperiment extends ExperimentBase {
 								    }
 
 								    @Override
-								    public void onFailure(WlCommException e) {
+								    public void onFailure(CommException e) {
 									BinaryExperiment.this.messages.stop();
 									BinaryExperiment.this.messages.setText("Error initializing (activating) the game: " + e.getMessage() + ". Please contact the WebLab-Deusto administrators at weblab@deusto.es");
 								    }
@@ -174,7 +174,7 @@ public class BinaryExperiment extends ExperimentBase {
 					    }
 
 					    @Override
-					    public void onFailure(WlCommException e) {
+					    public void onFailure(CommException e) {
 						BinaryExperiment.this.messages.stop();
 						BinaryExperiment.this.messages.setText("Error activating the clock: " + e.getMessage() + ". Please contact the WebLab-Deusto administrators at weblab@deusto.es");
 					    }
@@ -243,14 +243,14 @@ public class BinaryExperiment extends ExperimentBase {
 				    }
 
 				    @Override
-				    public void onFailure(WlCommException e) {
+				    public void onFailure(CommException e) {
 					BinaryExperiment.this.messages.stop();
 					BinaryExperiment.this.messages.setText("Error asking for another number (off): " + e.getMessage() + ". Please contact the WebLab-Deusto administrators at weblab@deusto.es");
 				    }});
 			    }
 
 			    @Override
-			    public void onFailure(WlCommException e) {
+			    public void onFailure(CommException e) {
 				BinaryExperiment.this.messages.stop();
 				BinaryExperiment.this.messages.setText("Error asking for another number (on): " + e.getMessage() + ". Please contact the WebLab-Deusto administrators at weblab@deusto.es");
 			    }});
@@ -300,14 +300,14 @@ public class BinaryExperiment extends ExperimentBase {
 				    }
 
 				    @Override
-				    public void onFailure(WlCommException e) {
+				    public void onFailure(CommException e) {
 					BinaryExperiment.this.messages.stop();
 					BinaryExperiment.this.messages.setText("Error checking your number (off): " + e.getMessage() + ". Please contact the WebLab-Deusto administrators at weblab@deusto.es");
 				    }});
 			    }
 
 			    @Override
-			    public void onFailure(WlCommException e) {
+			    public void onFailure(CommException e) {
 				BinaryExperiment.this.messages.stop();
 				BinaryExperiment.this.messages.setText("Error checking your number (on): " + e.getMessage() + ". Please contact the WebLab-Deusto administrators at weblab@deusto.es");
 			    }});
@@ -370,7 +370,7 @@ public class BinaryExperiment extends ExperimentBase {
 		    }
 
 		    @Override
-			public void onFailure(WlCommException e) {
+			public void onFailure(CommException e) {
 			GWT.log("responseCommand: failure", null);
 		    }
 		};	    

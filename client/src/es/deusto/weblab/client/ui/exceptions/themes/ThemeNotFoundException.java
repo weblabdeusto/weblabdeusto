@@ -13,7 +13,7 @@
 */ 
 package es.deusto.weblab.client.ui.exceptions.themes;
 
-public class ThemeNotFoundException extends WlThemeException {
+public class ThemeNotFoundException extends ThemeException {
 	private static final long serialVersionUID = -7575207146232442585L;
 
 	public ThemeNotFoundException() {

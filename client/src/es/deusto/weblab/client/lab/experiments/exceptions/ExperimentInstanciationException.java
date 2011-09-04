@@ -13,7 +13,7 @@
 */ 
 package es.deusto.weblab.client.lab.experiments.exceptions;
 
-public class ExperimentInstanciationException extends WlExperimentException {
+public class ExperimentInstanciationException extends ExperimentException {
 	private static final long serialVersionUID = 1L;
 
 	public ExperimentInstanciationException() {

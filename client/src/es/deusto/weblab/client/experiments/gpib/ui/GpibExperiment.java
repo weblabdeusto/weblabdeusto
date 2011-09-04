@@ -28,7 +28,7 @@ import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-import es.deusto.weblab.client.comm.exceptions.WlCommException;
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
@@ -100,7 +100,7 @@ public class GpibExperiment extends ExperimentBase {
 	    }
 
 	    @Override
-		public void onFailure(WlCommException e) {
+		public void onFailure(CommException e) {
 		GpibExperiment.this.messages.setText("Error: " + e.getMessage() + ". Please, notify the WebLab-Deusto administrators at weblab@deusto.es about this error.");
 	    }
 	};
@@ -177,7 +177,7 @@ public class GpibExperiment extends ExperimentBase {
 		    }
 
 		    @Override
-		    public void onFailure(WlCommException e) {
+		    public void onFailure(CommException e) {
 			GpibExperiment.this.messages.setText("Error sending file: " + e.getMessage());
 		    }
 		});  

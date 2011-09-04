@@ -16,7 +16,7 @@ package es.deusto.weblab.client.lab.experiments;
 
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
-import es.deusto.weblab.client.lab.experiments.exceptions.WlExperimentException;
+import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentException;
 
 public abstract class ExperimentCreator {
 
@@ -40,7 +40,7 @@ public abstract class ExperimentCreator {
 
 	public void createMobile(IBoardBaseController boardController, IExperimentLoadedCallback callback) {
 		if(this.mobileSupport == MobileSupport.disabled)
-			callback.onFailure(new WlExperimentException("Couldn't create mobile version of experiment " + this.codeName + ": not supported"));
+			callback.onFailure(new ExperimentException("Couldn't create mobile version of experiment " + this.codeName + ": not supported"));
 		else
 			this.createWeb(boardController, callback);
 	}

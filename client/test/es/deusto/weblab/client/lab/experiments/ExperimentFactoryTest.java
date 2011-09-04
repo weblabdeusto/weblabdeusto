@@ -22,8 +22,8 @@ import es.deusto.weblab.client.dto.experiments.Category;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.experiments.gpib.ui.GpibExperiment;
-import es.deusto.weblab.client.experiments.gpib1.ui.WlDeustoGpib1Board;
-import es.deusto.weblab.client.experiments.gpib2.ui.WlDeustoGpib2Board;
+import es.deusto.weblab.client.experiments.gpib1.ui.Gpib1Board;
+import es.deusto.weblab.client.experiments.gpib2.ui.Gpib2Board;
 import es.deusto.weblab.client.experiments.xilinx.ui.XilinxExperiment;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
@@ -216,10 +216,10 @@ public class ExperimentFactoryTest extends GWTTestCase {
 		Assert.assertTrue(callback.lastExperiment instanceof GpibExperiment);
 		
 		factory.experimentFactory(new ExperimentID(new Category("GPIB experiments"), "ud-gpib1"), callback, false);
-		Assert.assertTrue(callback.lastExperiment instanceof WlDeustoGpib1Board);
+		Assert.assertTrue(callback.lastExperiment instanceof Gpib1Board);
 	
 		factory.experimentFactory(new ExperimentID(new Category("GPIB experiments"), "ud-gpib2"), callback, false);
-		Assert.assertTrue(callback.lastExperiment instanceof WlDeustoGpib2Board);
+		Assert.assertTrue(callback.lastExperiment instanceof Gpib2Board);
 	}
 
 	@Override

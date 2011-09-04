@@ -21,7 +21,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-import es.deusto.weblab.client.comm.exceptions.WlCommException;
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.configuration.exceptions.ConfigurationKeyNotFoundException;
 import es.deusto.weblab.client.configuration.exceptions.InvalidConfigurationValueException;
@@ -152,7 +152,7 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 				AbstractExternalAppBasedBoard.handleCommandResponse(responseCommand.getCommandString(), commandId);
 			}
 			@Override
-			public void onFailure(WlCommException e) {
+			public void onFailure(CommException e) {
 				AbstractExternalAppBasedBoard.handleCommandError(e.getMessage(), commandId);
 			}
 		});

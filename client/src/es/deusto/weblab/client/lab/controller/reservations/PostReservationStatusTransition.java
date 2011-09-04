@@ -17,7 +17,7 @@ import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.reservations.PostReservationReservationStatus;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.lab.controller.ReservationStatusCallback;
-import es.deusto.weblab.client.lab.experiments.exceptions.WlExperimentException;
+import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentException;
 
 public class PostReservationStatusTransition extends ReservationStatusTransition{
 
@@ -33,7 +33,7 @@ public class PostReservationStatusTransition extends ReservationStatusTransition
 					experimentID,
 					this.reservationStatusCallback.getExperimentBaseBeingReserved()
 				);
-		} catch (WlExperimentException e) {
+		} catch (ExperimentException e) {
 			this.reservationStatusCallback.getUimanager().onError(e.getMessage());
 			return;
 		}

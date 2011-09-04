@@ -13,7 +13,7 @@
 */ 
 package es.deusto.weblab.client.lab.comm.callbacks;
 
-import es.deusto.weblab.client.comm.callbacks.IWlAsyncCallback;
+import es.deusto.weblab.client.comm.callbacks.IWebLabAsyncCallback;
 import es.deusto.weblab.client.dto.experiments.AsyncRequestStatus;
 
 
@@ -26,7 +26,7 @@ import es.deusto.weblab.client.dto.experiments.AsyncRequestStatus;
  *  of the requests already deserialized, so it is the one that will actually handle
  *  the response. (As opposed to CheckAsyncCommandStatusRequestCallback).
  */
-public interface IResponseCheckAsyncCommandStatusCallback extends IWlAsyncCallback {
+public interface IResponseCheckAsyncCommandStatusCallback extends IWebLabAsyncCallback {
 	public void onSuccess(AsyncRequestStatus [] requests);
 	//throws WlCommException, SessionNotFoundException
 }

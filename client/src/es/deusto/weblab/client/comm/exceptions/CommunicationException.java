@@ -14,7 +14,7 @@
 package es.deusto.weblab.client.comm.exceptions;
 
 
-public class CommunicationException extends WlCommException {
+public class CommunicationException extends CommException {
 	private static final long serialVersionUID = 2058091140049588794L;
 
 	public CommunicationException() {}

@@ -17,15 +17,15 @@ package es.deusto.weblab.client.admin.comm;
 
 import es.deusto.weblab.client.admin.comm.callbacks.IPermissionsCallback;
 import es.deusto.weblab.client.comm.FakeWlCommonCommunication;
-import es.deusto.weblab.client.comm.IWlCommonSerializer;
+import es.deusto.weblab.client.comm.ICommonSerializer;
 import es.deusto.weblab.client.dto.SessionID;
 
-public class FakeWlAdminCommunication extends FakeWlCommonCommunication implements IWlAdminCommunication {
+public class FakeWlAdminCommunication extends FakeWlCommonCommunication implements IAdminCommunication {
 	
 	public static final String GET_USER_PERMISSIONS = "FakeWebAdminCommunication::getUserPermissions";
 	
 	@Override
-	protected IWlCommonSerializer createSerializer() {
+	protected ICommonSerializer createSerializer() {
 		return new FakeWlAdminSerializer();
 	}
 

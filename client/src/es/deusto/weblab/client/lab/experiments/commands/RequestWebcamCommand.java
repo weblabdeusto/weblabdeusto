@@ -15,7 +15,7 @@ package es.deusto.weblab.client.lab.experiments.commands;
 
 import com.google.gwt.user.client.ui.Label;
 
-import es.deusto.weblab.client.comm.exceptions.WlCommException;
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
@@ -75,7 +75,7 @@ public class RequestWebcamCommand extends Command{
 					}
 
 					@Override
-					public void onFailure(WlCommException e) {
+					public void onFailure(CommException e) {
 						if(messages != null)
 							messages.setText("Failed to obtain the webcam URL");
 					}

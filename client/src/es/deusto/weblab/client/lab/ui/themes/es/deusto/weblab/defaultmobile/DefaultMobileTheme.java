@@ -26,19 +26,19 @@ import es.deusto.weblab.client.dto.reservations.WaitingConfirmationReservationSt
 import es.deusto.weblab.client.dto.reservations.WaitingInstancesReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingReservationStatus;
 import es.deusto.weblab.client.dto.users.User;
-import es.deusto.weblab.client.lab.controller.IWlLabController;
+import es.deusto.weblab.client.lab.controller.ILabController;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
-import es.deusto.weblab.client.lab.ui.WlLabThemeBase;
+import es.deusto.weblab.client.lab.ui.LabThemeBase;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.AllowedExperimentsWindow.IAllowedExperimentsWindowCallback;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.ExperimentWindow.IExperimentWindowCallback;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.LoginWindow.ILoginWindowCallback;
 
 
-public class DefaultMobileTheme extends WlLabThemeBase {
+public class DefaultMobileTheme extends LabThemeBase {
 
 	private final VerticalPanel themePanel;	
 	private final IConfigurationManager configurationManager;
-	private final IWlLabController controller;
+	private final ILabController controller;
 	
 	private BaseWindow activeWindow = null; // Pointer to the window being used
 	
@@ -51,7 +51,7 @@ public class DefaultMobileTheme extends WlLabThemeBase {
 	private ExperimentAllowed experimentAllowed;
 	private ExperimentBase experimentBase;
 	
-	public DefaultMobileTheme(IConfigurationManager configurationManager, IWlLabController controller){
+	public DefaultMobileTheme(IConfigurationManager configurationManager, ILabController controller){
 		this.configurationManager = configurationManager;
 		this.controller           = controller;
 		

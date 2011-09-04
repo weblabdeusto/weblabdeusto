@@ -20,7 +20,7 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.junit.client.GWTTestCase;
 
 import es.deusto.weblab.client.comm.exceptions.SerializationException;
-import es.deusto.weblab.client.comm.exceptions.WlServerException;
+import es.deusto.weblab.client.comm.exceptions.WebLabServerException;
 import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
 import es.deusto.weblab.client.comm.exceptions.core.UserProcessingException;
 import es.deusto.weblab.client.dto.SessionID;
@@ -44,7 +44,7 @@ import es.deusto.weblab.client.lab.comm.exceptions.UnknownExperimentIdException;
 public class WlLabSerializerJSONTest extends GWTTestCase{
     
 	public void testParseGetReservationStatusResponse_Waiting() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseGetReservationStatusResponse(
 			"{\"result\": {\"status\": \"Reservation::waiting\", \"position\": 5}, \"is_exception\": false}"
 		);
@@ -53,7 +53,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseGetReservationStatusResponse_WaitingConfirmation()  throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseGetReservationStatusResponse(
 			"{\"result\": {\"status\": \"Reservation::waiting_confirmation\"}, \"is_exception\": false}"
 		);
@@ -61,7 +61,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseGetReservationStatusResponse_WaitingInstances()  throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseGetReservationStatusResponse(
 			"{\"result\": {\"status\": \"Reservation::waiting_instances\", \"position\" : 5}, \"is_exception\": false}"
 		);
@@ -70,7 +70,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseGetReservationStatusResponse_PostReservation()  throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseGetReservationStatusResponse(
 			"{\"result\": {\"status\": \"Reservation::post_reservation\", \"finished\" : true, \"initial_data\" : \"foo\", \"end_data\" : \"bar\"}, \"is_exception\": false}"
 		);
@@ -82,7 +82,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseGetReservationStatusResponse_Confirmed() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseGetReservationStatusResponse(
 			"{\"result\": {\"status\": \"Reservation::confirmed\", \"time\": 28.771512031555176, \"initial_configuration\" : \"foo\"}, \"is_exception\": false}"
 		);
@@ -92,7 +92,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	}
 	
 	public void testParseGetReservationStatusResponse_Exceptions() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		try{
 			weblabSerializer.parseGetReservationStatusResponse(
 				"");
@@ -111,14 +111,14 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	}
 	
 	public void testParsePollResponse() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		weblabSerializer.parsePollResponse(
 				"{\"result\": {}, \"is_exception\": false}"
 			);
 	}
 
 	public void testParsePollResponse_Faults() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		
 		final String MESSAGE = "my message";
 		final String whole_message = "{\"message\": \"" + MESSAGE + "\", \"code\": \"THE_FAULT_CODE\", \"is_exception\": true}";
@@ -152,7 +152,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.WebLab")
 			);
 			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
+		} catch (final WebLabServerException e) {
 			Assert.assertEquals(MESSAGE, e.getMessage());
 		}
 		try {
@@ -160,7 +160,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.Voodoo")
 			);
 			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
+		} catch (final WebLabServerException e) {
 			Assert.assertEquals(MESSAGE, e.getMessage());
 		}
 		try {
@@ -168,13 +168,13 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.Python")
 			);
 			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
+		} catch (final WebLabServerException e) {
 			Assert.assertEquals(MESSAGE, e.getMessage());
 		}
 	}
 
 	public void testParsePollResponse_Exceptions() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		try{
 			weblabSerializer.parsePollResponse(
 					""
@@ -196,7 +196,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	
 	
 	public void testParseCheckAsyncCommandStatusResponse() throws Exception {
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final String json = "{ \"result\" : { \"AAAA\": [\"running\", \"\"], \"BBBB\" : [\"ok\", \"Success\"], \"CCCC\" : [\"error\", \"Error\"] }, \"is_exception\" : false }";
 		final AsyncRequestStatus [] requests = weblabSerializer.parseCheckAsyncCommandStatusResponse(json);
 	
@@ -224,7 +224,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	}
 	
 	public void testParseSendAsyncCommandResponse() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ResponseCommand command = weblabSerializer.parseSendAsyncCommandResponse(
 			"{\"result\": \"ABCDEFGH\", \"is_exception\": false}"
 		);
@@ -232,7 +232,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseSendCommandResponse() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ResponseCommand command = weblabSerializer.parseSendCommandResponse(
 			"{\"result\": {\"commandstring\": null}, \"is_exception\": false}"
 		);
@@ -246,7 +246,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseSendCommandResponse_Faults() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		
 		final String MESSAGE = "my message";
 		final String whole_message = "{\"message\": \"" + MESSAGE + "\", \"code\": \"THE_FAULT_CODE\", \"is_exception\": true}";
@@ -280,7 +280,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.WebLab")
 			);
 			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
+		} catch (final WebLabServerException e) {
 			Assert.assertEquals(MESSAGE, e.getMessage());
 		}
 		try {
@@ -288,7 +288,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.Voodoo")
 			);
 			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
+		} catch (final WebLabServerException e) {
 			Assert.assertEquals(MESSAGE, e.getMessage());
 		}
 		try {
@@ -296,13 +296,13 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.Python")
 			);
 			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
+		} catch (final WebLabServerException e) {
 			Assert.assertEquals(MESSAGE, e.getMessage());
 		}
 	}
 
 	public void testParseSendCommandResponse_Exceptions() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		try{
 			weblabSerializer.parseSendCommandResponse(
 					""
@@ -323,7 +323,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseSendFileResponse() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final String realResponse = "the_real_response";
 		final ResponseCommand command2 = weblabSerializer.parseSendFileResponse(
 			"<body>SUCCESS@" + realResponse + "</body>"
@@ -332,7 +332,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseSendFileResponse_Faults() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		
 		final String MESSAGE = "my message";
 		final String whole_message = "<body>ERROR@THE_FAULT_CODE@" + MESSAGE + "</body>";
@@ -366,7 +366,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 				whole_message.replaceFirst("THE_FAULT_CODE", "XMLRPC:Server.WebLab")
 			);
 			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
+		} catch (final WebLabServerException e) {
 			Assert.assertEquals(MESSAGE, e.getMessage());
 		}
 		try {
@@ -374,7 +374,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 				whole_message.replaceFirst("THE_FAULT_CODE", "XMLRPC:Server.Voodoo")
 			);
 			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
+		} catch (final WebLabServerException e) {
 			Assert.assertEquals(MESSAGE, e.getMessage());
 		}
 		try {
@@ -382,13 +382,13 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 				whole_message.replaceFirst("THE_FAULT_CODE", "XMLRPC:Server.Python")
 			);
 			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
+		} catch (final WebLabServerException e) {
 			Assert.assertEquals(MESSAGE, e.getMessage());
 		}
 	}
 
 	public void testParseSendFileResponse_Exceptions() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		try{
 			weblabSerializer.parseSendFileResponse(
 					""
@@ -410,14 +410,14 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	
 	
 	public void testParseFinishedExperimentResponse() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		weblabSerializer.parseFinishedExperimentResponse(
 			"{\"result\": {}, \"is_exception\": false}"
 		);
 	}
 
 	public void testParseFinishedExperimentResponse_Faults() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		
 		final String MESSAGE = "my message";
 		final String whole_message = "{\"message\": \"" + MESSAGE + "\", \"code\": \"THE_FAULT_CODE\", \"is_exception\": true}";
@@ -451,7 +451,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.WebLab")
 			);
 			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
+		} catch (final WebLabServerException e) {
 			Assert.assertEquals(MESSAGE, e.getMessage());
 		}
 		try {
@@ -459,7 +459,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.Voodoo")
 			);
 			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
+		} catch (final WebLabServerException e) {
 			Assert.assertEquals(MESSAGE, e.getMessage());
 		}
 		try {
@@ -467,13 +467,13 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.Python")
 			);
 			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
+		} catch (final WebLabServerException e) {
 			Assert.assertEquals(MESSAGE, e.getMessage());
 		}
 	}
 
 	public void testParseFinishedExperimentResponse_Exceptions() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		try{
 			weblabSerializer.parseFinishedExperimentResponse(
 					""
@@ -494,7 +494,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseReserveExperimentResponse_Waiting() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseReserveExperimentResponse(
 			"{\"result\": {\"status\": \"Reservation::waiting\", \"position\": 5}, \"is_exception\": false}"
 		);
@@ -503,7 +503,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseReserveExperimentResponse_Faults() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		
 		final String MESSAGE = "my message";
 		final String whole_message = "{\"message\": \"" + MESSAGE + "\", \"code\": \"THE_FAULT_CODE\", \"is_exception\": true}";
@@ -537,7 +537,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.WebLab")
 			);
 			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
+		} catch (final WebLabServerException e) {
 			Assert.assertEquals(MESSAGE, e.getMessage());
 		}
 		try {
@@ -545,7 +545,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.Voodoo")
 			);
 			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
+		} catch (final WebLabServerException e) {
 			Assert.assertEquals(MESSAGE, e.getMessage());
 		}
 		try {
@@ -553,13 +553,13 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.Python")
 			);
 			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
+		} catch (final WebLabServerException e) {
 			Assert.assertEquals(MESSAGE, e.getMessage());
 		}
 	}
 
 	public void testParseReserveExperimentResponse_WaitingConfirmation()  throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseReserveExperimentResponse(
 			"{\"result\": {\"status\": \"Reservation::waiting_confirmation\"}, \"is_exception\": false}"
 		);
@@ -567,7 +567,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseReserveExperimentResponse_WaitingInstances()  throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseReserveExperimentResponse(
 			"{\"result\": {\"status\": \"Reservation::waiting_instances\", \"position\": 5}, \"is_exception\": false}"
 		);
@@ -576,7 +576,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseReserveExperimentResponse_PostReservation()  throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseReserveExperimentResponse(
 			"{\"result\": {\"status\": \"Reservation::post_reservation\", \"finished\" : true, \"initial_data\" : \"foo\", \"end_data\" : \"bar\" }, \"is_exception\": false}"
 		);
@@ -588,7 +588,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseReserveExperimentResponse_Confirmed() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseReserveExperimentResponse(
 			"{\"result\": {\"status\": \"Reservation::confirmed\", \"time\": 28.771512031555176, \"initial_configuration\" : \"foo\"}, \"is_exception\": false}"
 		);
@@ -598,7 +598,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	}
 	
 	public void testParseReserveExperimentResponse_Exceptions() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		try{
 			weblabSerializer.parseReserveExperimentResponse(
 				"");
@@ -617,7 +617,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseListExperimentsResponse() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ExperimentAllowed [] experiments = weblabSerializer.parseListExperimentsResponse(
 			"{\"result\": [" +
 				"{\"experiment\": {\"category\": {\"name\": \"Dummy experiments\"}, \"owner\": \"porduna@tecnologico.deusto.es\", " +
@@ -651,7 +651,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseListExperimentsResponseWithOtherDateFormat() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ExperimentAllowed [] experiments = weblabSerializer.parseListExperimentsResponse(
 			"{\"result\": [" +
 				"{\"experiment\": {\"category\": {\"name\": \"Dummy experiments\"}, \"owner\": \"porduna@tecnologico.deusto.es\", " +
@@ -685,7 +685,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseListExperimentsResponse_Faults() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		
 		final String MESSAGE = "my message";
 		final String whole_message = "{\"message\": \"" + MESSAGE + "\", \"code\": \"THE_FAULT_CODE\", \"is_exception\": true}";
@@ -711,7 +711,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.WebLab")
 			);
 			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
+		} catch (final WebLabServerException e) {
 			Assert.assertEquals(MESSAGE, e.getMessage());
 		}
 		try {
@@ -719,7 +719,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.Voodoo")
 			);
 			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
+		} catch (final WebLabServerException e) {
 			Assert.assertEquals(MESSAGE, e.getMessage());
 		}
 		try {
@@ -727,13 +727,13 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.Python")
 			);
 			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
+		} catch (final WebLabServerException e) {
 			Assert.assertEquals(MESSAGE, e.getMessage());
 		}
 	}
 
 	public void testSerializeGetReservationStatusRequest() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final String MESSAGE = "whatever the session id real id";
 		
 		final SessionID sessionId = new SessionID(MESSAGE);
@@ -746,7 +746,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	}
 	
 	public void testSerializeListExperimentsRequest() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final String MESSAGE = "whatever the session id real id";
 		
 		final SessionID sessionId = new SessionID(MESSAGE);
@@ -759,7 +759,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	}
 	
 	public void testSerializePollRequest() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final String MESSAGE = "whatever the session id real id";
 		
 		final SessionID sessionId = new SessionID(MESSAGE);
@@ -772,7 +772,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	}
 	
 	public void testSerializeFinishedExperimentRequest() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final String MESSAGE = "whatever the session id real id";
 		
 		final SessionID sessionId = new SessionID(MESSAGE);
@@ -785,7 +785,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	}
 	
 	public void testSerializeReserveExperimentRequest() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		
 		final String MESSAGE = "whatever the session id real id";
 		
@@ -806,7 +806,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	
 	
 	public void testSerializeAsyncCommandRequest() throws Exception {
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		
 		final String MESSAGE = "whatever the session id real id";
 		
@@ -824,7 +824,7 @@ public class WlLabSerializerJSONTest extends GWTTestCase{
 	
 	
 	public void testSerializeCommandRequest() throws Exception{
-		final IWlLabSerializer weblabSerializer = new WlLabSerializerJSON();
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		
 		final String MESSAGE = "whatever the session id real id";
 		

@@ -24,7 +24,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-import es.deusto.weblab.client.comm.exceptions.WlCommException;
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
@@ -183,7 +183,7 @@ public class PicExperiment extends ExperimentBase{
 		    }
 
 		    @Override
-		    public void onFailure(WlCommException e) {
+		    public void onFailure(CommException e) {
 		    	PicExperiment.this.messages.setText("Error sending file: " + e.getMessage());
 		    
 		    	if(PicExperiment.DEBUG_ENABLED) {

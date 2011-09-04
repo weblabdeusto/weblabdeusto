@@ -16,7 +16,7 @@ package es.deusto.weblab.client.lab.controller.reservations;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingReservationStatus;
 import es.deusto.weblab.client.lab.controller.ReservationStatusCallback;
-import es.deusto.weblab.client.lab.controller.WlLabController;
+import es.deusto.weblab.client.lab.controller.LabController;
 
 public class WaitingReservationStatusTransition extends WaitingInQueueReservationStatusTransition {
 
@@ -27,16 +27,16 @@ public class WaitingReservationStatusTransition extends WaitingInQueueReservatio
 	@Override
 	protected int getMinPollTime() {
 		return this.reservationStatusCallback.getConfigurationManager().getIntProperty(
-				WlLabController.WAITING_MIN_POLLING_TIME_PROPERTY, 
-				WlLabController.DEFAULT_WAITING_MIN_POLLING_TIME
+				LabController.WAITING_MIN_POLLING_TIME_PROPERTY, 
+				LabController.DEFAULT_WAITING_MIN_POLLING_TIME
 			);
 	}
 
 	@Override
 	protected int getMaxPollTime() {
 		return this.reservationStatusCallback.getConfigurationManager().getIntProperty(
-				WlLabController.WAITING_MAX_POLLING_TIME_PROPERTY, 
-				WlLabController.DEFAULT_WAITING_MAX_POLLING_TIME
+				LabController.WAITING_MAX_POLLING_TIME_PROPERTY, 
+				LabController.DEFAULT_WAITING_MAX_POLLING_TIME
 			);
 	}
 

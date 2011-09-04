@@ -13,10 +13,10 @@
 */ 
 package es.deusto.weblab.client.lab.comm.callbacks;
 
-import es.deusto.weblab.client.comm.callbacks.IWlAsyncCallback;
+import es.deusto.weblab.client.comm.callbacks.IWebLabAsyncCallback;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 
-public interface IReservationCallback extends IWlAsyncCallback{
+public interface IReservationCallback extends IWebLabAsyncCallback{
 	public void onSuccess(ReservationStatus reservation);
 	//throws WlCommException, SessionNotFoundException, NoAvailableExperimentFoundException
 }

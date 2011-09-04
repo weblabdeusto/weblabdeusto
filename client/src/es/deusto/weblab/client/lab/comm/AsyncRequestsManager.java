@@ -5,10 +5,10 @@ import java.util.Map;
 
 import com.google.gwt.user.client.Timer;
 
-import es.deusto.weblab.client.comm.WlRequestCallback;
+import es.deusto.weblab.client.comm.WebLabRequestCallback;
 import es.deusto.weblab.client.comm.exceptions.SerializationException;
-import es.deusto.weblab.client.comm.exceptions.WlCommException;
-import es.deusto.weblab.client.comm.exceptions.WlServerException;
+import es.deusto.weblab.client.comm.exceptions.CommException;
+import es.deusto.weblab.client.comm.exceptions.WebLabServerException;
 import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.AsyncRequestStatus;
@@ -42,11 +42,11 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 	 * to the provided IResponseCheckAsyncCommandStatusCallback, which will be the one to
 	 * actually handle the response.
 	 */
-	class CheckAsyncCommandStatusRequestCallback extends WlRequestCallback {
+	class CheckAsyncCommandStatusRequestCallback extends WebLabRequestCallback {
 		
 		private final IResponseCheckAsyncCommandStatusCallback responseCheckAsyncCommandStatusCallback;
 		
-		private final IWlLabSerializer serializer;
+		private final ILabSerializer serializer;
 		
 		/**
 		 * Constructs the CheckAsyncCommandStatusRequestCallback.
@@ -56,7 +56,7 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 		 * @param serializer Serializer which will be used to encode the requests.
 		 */
 		public CheckAsyncCommandStatusRequestCallback(IResponseCheckAsyncCommandStatusCallback responseCheckAsyncCommandStatusCallback,
-				IWlLabSerializer serializer) {
+				ILabSerializer serializer) {
 			super(responseCheckAsyncCommandStatusCallback);
 			this.responseCheckAsyncCommandStatusCallback = responseCheckAsyncCommandStatusCallback;
 			this.serializer = serializer;
@@ -82,7 +82,7 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 			} catch (final SessionNotFoundException e) {
 				this.responseCheckAsyncCommandStatusCallback.onFailure(e);
 				return;
-			} catch (final WlServerException e) {
+			} catch (final WebLabServerException e) {
 				this.responseCheckAsyncCommandStatusCallback.onFailure(e);
 				return;
 			} catch (SerializationException e) {
@@ -113,14 +113,14 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 		private final Map<String, IResponseCommandCallback> requests = 
 			new HashMap<String, IResponseCommandCallback>();
 		
-		private final WlLabCommunication comm;
+		private final LabCommunication comm;
 		
 		private final Timer timer;
 		private boolean timerRunning = false;
 		
 		private final SessionID sessionId;
 		
-		private final IWlLabSerializer serializer;
+		private final ILabSerializer serializer;
 
 		
 		/**
@@ -130,7 +130,7 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 		 * @param serializer Serializer which we will use to encode and decode
 		 * the requests and responses
 		 */
-		public AsyncRequestsManager(final WlLabCommunication comm, SessionID sessionId, final IWlLabSerializer serializer) {
+		public AsyncRequestsManager(final LabCommunication comm, SessionID sessionId, final ILabSerializer serializer) {
 			
 			this.comm = comm;
 			
@@ -164,7 +164,7 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 					
 					final IResponseCheckAsyncCommandStatusCallback checkStatusCallback = new IResponseCheckAsyncCommandStatusCallback() {
 						@Override
-						public void onFailure(WlCommException e) {
+						public void onFailure(CommException e) {
 							// TODO: Handle this error.
 						}
 
@@ -223,7 +223,7 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 				if(request.isSuccessfullyFinished())
 					cmdCallback.onSuccess(new ResponseCommand(response));
 				else
-					cmdCallback.onFailure(new WlCommException("Async cmd reported failure: " + response));
+					cmdCallback.onFailure(new CommException("Async cmd reported failure: " + response));
 			
 				// TODO: There might be some other exception type more appropriate 
 				// than the above.

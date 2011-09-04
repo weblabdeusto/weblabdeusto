@@ -19,15 +19,15 @@ import com.google.gwt.user.client.Window;
 
 import es.deusto.weblab.client.configuration.ConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
-import es.deusto.weblab.client.lab.comm.IWlLabCommunication;
-import es.deusto.weblab.client.lab.comm.WlLabCommunication;
-import es.deusto.weblab.client.lab.controller.IWlLabController;
+import es.deusto.weblab.client.lab.comm.ILabCommunication;
+import es.deusto.weblab.client.lab.comm.LabCommunication;
+import es.deusto.weblab.client.lab.controller.ILabController;
 import es.deusto.weblab.client.lab.controller.PollingHandler;
-import es.deusto.weblab.client.lab.controller.WlLabController;
+import es.deusto.weblab.client.lab.controller.LabController;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory;
-import es.deusto.weblab.client.lab.ui.WlLabThemeBase;
-import es.deusto.weblab.client.lab.ui.WlLabThemeFactory;
-import es.deusto.weblab.client.lab.ui.WlLabThemeFactory.IWlLabThemeLoadedCallback;
+import es.deusto.weblab.client.lab.ui.LabThemeBase;
+import es.deusto.weblab.client.lab.ui.LabThemeFactory;
+import es.deusto.weblab.client.lab.ui.LabThemeFactory.IWlLabThemeLoadedCallback;
 import es.deusto.weblab.client.ui.audio.AudioManager;
 
 
@@ -58,7 +58,7 @@ public class WebLabLabLoader {
 			return;
 		}
 		
-		final IWlLabCommunication communications = new WlLabCommunication(
+		final ILabCommunication communications = new LabCommunication(
 				this.configurationManager
 		);
 		
@@ -68,7 +68,7 @@ public class WebLabLabLoader {
 		
 		final boolean isUsingMobile = this.weblabClient.isMobile();
 		
-		final IWlLabController controller = new WlLabController(
+		final ILabController controller = new LabController(
 				this.configurationManager,
 				communications,
 				pollingHandler,
@@ -84,7 +84,7 @@ public class WebLabLabLoader {
 		final IWlLabThemeLoadedCallback themeLoadedCallback = new IWlLabThemeLoadedCallback() {
 			
 			@Override
-			public void onThemeLoaded(WlLabThemeBase theme) {
+			public void onThemeLoaded(LabThemeBase theme) {
 				controller.setUIManager(theme);
 				try{
 					String providedCredentials = Window.Location.getParameter(WebLabLabLoader.SESSION_ID_URL_PARAM);
@@ -122,7 +122,7 @@ public class WebLabLabLoader {
 		};
 		
 		try {
-			WlLabThemeFactory.themeFactory(
+			LabThemeFactory.themeFactory(
 					this.configurationManager,
 					controller, 
 					this.configurationManager.getProperty(

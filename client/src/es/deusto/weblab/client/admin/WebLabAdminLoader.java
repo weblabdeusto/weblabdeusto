@@ -15,12 +15,12 @@
 package es.deusto.weblab.client.admin;
 
 import es.deusto.weblab.client.WebLabClient;
-import es.deusto.weblab.client.admin.comm.IWlAdminCommunication;
-import es.deusto.weblab.client.admin.comm.WlAdminCommunication;
-import es.deusto.weblab.client.admin.controller.IWlAdminController;
-import es.deusto.weblab.client.admin.controller.WlAdminController;
-import es.deusto.weblab.client.admin.ui.WlAdminThemeFactory;
-import es.deusto.weblab.client.admin.ui.WlAdminThemeFactory.IWlAdminThemeLoadedCallback;
+import es.deusto.weblab.client.admin.comm.IAdminCommunication;
+import es.deusto.weblab.client.admin.comm.AdminCommunication;
+import es.deusto.weblab.client.admin.controller.IAdminController;
+import es.deusto.weblab.client.admin.controller.AdminController;
+import es.deusto.weblab.client.admin.ui.AdminThemeFactory;
+import es.deusto.weblab.client.admin.ui.AdminThemeFactory.IWlAdminThemeLoadedCallback;
 import es.deusto.weblab.client.configuration.ConfigurationManager;
 
 public class WebLabAdminLoader {
@@ -36,11 +36,11 @@ public class WebLabAdminLoader {
 
 	public void loadAdminApp() {
 
-		final IWlAdminCommunication communications = new WlAdminCommunication(
+		final IAdminCommunication communications = new AdminCommunication(
 				this.configurationManager
 		);
 		
-		final IWlAdminController controller = new WlAdminController(
+		final IAdminController controller = new AdminController(
 				this.configurationManager,
 				communications
 		);
@@ -48,7 +48,7 @@ public class WebLabAdminLoader {
 		final IWlAdminThemeLoadedCallback themeLoadedCallback = new IWlAdminThemeLoadedCallback() {
 			
 			@Override
-			public void onThemeLoaded(es.deusto.weblab.client.admin.ui.WlAdminThemeBase theme) {
+			public void onThemeLoaded(es.deusto.weblab.client.admin.ui.AdminThemeBase theme) {
 				controller.setUIManager(theme);
 				try{
 					theme.onInit();
@@ -69,7 +69,7 @@ public class WebLabAdminLoader {
 		};
 		
 		try {
-			WlAdminThemeFactory.themeFactory(
+			AdminThemeFactory.themeFactory(
 					this.configurationManager,
 					controller, 
 					this.configurationManager.getProperty(

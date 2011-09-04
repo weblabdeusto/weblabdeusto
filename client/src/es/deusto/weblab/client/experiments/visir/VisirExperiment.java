@@ -16,7 +16,7 @@ package es.deusto.weblab.client.experiments.visir;
 
 import com.google.gwt.http.client.URL;
 
-import es.deusto.weblab.client.comm.exceptions.WlCommException;
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
@@ -90,7 +90,7 @@ public class VisirExperiment extends FlashExperiment {
 					}
 
 					@Override
-					public void onFailure(WlCommException e) {
+					public void onFailure(CommException e) {
 						System.out.println("Error: Could not retrieve data");
 						VisirExperiment.super.start(time, initialConfiguration);
 					}

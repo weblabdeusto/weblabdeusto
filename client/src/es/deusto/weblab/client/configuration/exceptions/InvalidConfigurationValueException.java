@@ -14,7 +14,7 @@
 package es.deusto.weblab.client.configuration.exceptions;
 
 public class InvalidConfigurationValueException extends
-		WlConfigurationException {
+		ConfigurationException {
 	private static final long serialVersionUID = -6988193670495700702L;
 
 	public InvalidConfigurationValueException() {

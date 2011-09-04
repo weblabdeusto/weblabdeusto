@@ -17,15 +17,15 @@ package es.deusto.weblab.client.admin.comm;
 
 import com.google.gwt.http.client.RequestBuilder;
 
-import es.deusto.weblab.client.comm.IWlCommonSerializer;
+import es.deusto.weblab.client.comm.ICommonSerializer;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 
-public class WrappedWlAdminCommunication extends WlAdminCommunication {
+public class WrappedWlAdminCommunication extends AdminCommunication {
 	
-	private final IWlAdminSerializer wrappedSerializer;
+	private final IAdminSerializer wrappedSerializer;
 	private final RequestBuilder wrappedRequestBuilder;
 	
-	public WrappedWlAdminCommunication(IWlAdminSerializer wrappedSerializer, RequestBuilder wrappedRequestBuilder, IConfigurationManager configurationManager){
+	public WrappedWlAdminCommunication(IAdminSerializer wrappedSerializer, RequestBuilder wrappedRequestBuilder, IConfigurationManager configurationManager){
 		super(configurationManager);
 		this.wrappedSerializer = wrappedSerializer;
 		this.wrappedRequestBuilder = wrappedRequestBuilder;
@@ -33,7 +33,7 @@ public class WrappedWlAdminCommunication extends WlAdminCommunication {
 	}
 	
 	@Override
-	protected IWlCommonSerializer createSerializer(){
+	protected ICommonSerializer createSerializer(){
 		return null;
 	}
 	

@@ -29,7 +29,7 @@ import es.deusto.weblab.client.comm.WlCommonCommunicationTest;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.comm.exceptions.CommunicationException;
 import es.deusto.weblab.client.comm.exceptions.ServerException;
-import es.deusto.weblab.client.comm.exceptions.WlCommException;
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.FakeConfiguration;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Category;
@@ -83,7 +83,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			}
 
 			@Override
-			public void onFailure(WlCommException e) {
+			public void onFailure(CommException e) {
 				Assert.fail("onFailure not expected");
 			}
 		};
@@ -100,7 +100,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
 				WlLabCommunicationTest.this.stepCounter++;
@@ -117,7 +117,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
 				WlLabCommunicationTest.this.stepCounter++;
@@ -135,7 +135,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof ServerException);
 				WlLabCommunicationTest.this.stepCounter++;
 			}
@@ -183,7 +183,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			}
 
 			@Override
-			public void onFailure(WlCommException e) {
+			public void onFailure(CommException e) {
 				Assert.fail("onFailure not expected");
 			}
 		};
@@ -200,7 +200,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
 				WlLabCommunicationTest.this.stepCounter++;
@@ -217,7 +217,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
 				WlLabCommunicationTest.this.stepCounter++;
@@ -235,7 +235,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof ServerException);
 				WlLabCommunicationTest.this.stepCounter++;
 			}
@@ -272,7 +272,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			}
 
 			@Override
-			public void onFailure(WlCommException e) {
+			public void onFailure(CommException e) {
 				Assert.fail("onFailure not expected");
 			}
 		};
@@ -289,7 +289,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
 				WlLabCommunicationTest.this.stepCounter++;
@@ -306,7 +306,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
 				WlLabCommunicationTest.this.stepCounter++;
@@ -324,7 +324,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof ServerException);
 				WlLabCommunicationTest.this.stepCounter++;
 			}
@@ -368,7 +368,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			}
 
 			@Override
-			public void onFailure(WlCommException e) {
+			public void onFailure(CommException e) {
 				Assert.fail("onFailure not expected");
 			}
 		};
@@ -385,7 +385,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
 				WlLabCommunicationTest.this.stepCounter++;
@@ -402,7 +402,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
 				WlLabCommunicationTest.this.stepCounter++;
@@ -420,7 +420,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof ServerException);
 				WlLabCommunicationTest.this.stepCounter++;
 			}
@@ -562,7 +562,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			}
 
 			@Override
-			public void onFailure(WlCommException e) {
+			public void onFailure(CommException e) {
 				Assert.fail("onFailure not expected");
 			}
 		};
@@ -579,7 +579,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
 				WlLabCommunicationTest.this.stepCounter++;
@@ -596,7 +596,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
 				WlLabCommunicationTest.this.stepCounter++;
@@ -614,7 +614,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof ServerException);
 				WlLabCommunicationTest.this.stepCounter++;
 			}
@@ -651,7 +651,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			}
 
 			@Override
-			public void onFailure(WlCommException e) {
+			public void onFailure(CommException e) {
 				Assert.fail("onFailure not expected");
 			}
 		};
@@ -668,7 +668,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
 				WlLabCommunicationTest.this.stepCounter++;
@@ -685,7 +685,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
 				WlLabCommunicationTest.this.stepCounter++;
@@ -703,7 +703,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof ServerException);
 				WlLabCommunicationTest.this.stepCounter++;
 			}
@@ -821,7 +821,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 			}
 
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 			}
 		};
 		
@@ -831,7 +831,7 @@ public class WlLabCommunicationTest extends WlCommonCommunicationTest {
 		Assert.assertNotNull(fakeFormPanel.getAction());
 		Assert.assertEquals(FormPanel.ENCODING_MULTIPART, fakeFormPanel.getEncoding());
 		Assert.assertEquals(FormPanel.METHOD_POST,        fakeFormPanel.getMethod());
-		Assert.assertEquals(WlLabCommunication.FILE_SENT_ATTR, fakeFileUpload.getName());
+		Assert.assertEquals(LabCommunication.FILE_SENT_ATTR, fakeFileUpload.getName());
 		
 		Assert.assertEquals(0, this.stepCounter);
 		

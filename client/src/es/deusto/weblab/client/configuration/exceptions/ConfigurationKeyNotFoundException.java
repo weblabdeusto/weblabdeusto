@@ -13,7 +13,7 @@
 */ 
 package es.deusto.weblab.client.configuration.exceptions;
 
-public class ConfigurationKeyNotFoundException extends WlConfigurationException {
+public class ConfigurationKeyNotFoundException extends ConfigurationException {
 	private static final long serialVersionUID = 352430998968365619L;
 
 	public ConfigurationKeyNotFoundException() {

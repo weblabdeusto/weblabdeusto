@@ -20,7 +20,7 @@ import junit.framework.Assert;
 import com.google.gwt.junit.client.GWTTestCase;
 
 import es.deusto.weblab.client.comm.exceptions.SerializationException;
-import es.deusto.weblab.client.comm.exceptions.WlServerException;
+import es.deusto.weblab.client.comm.exceptions.WebLabServerException;
 import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
 import es.deusto.weblab.client.comm.exceptions.core.UserProcessingException;
 import es.deusto.weblab.client.comm.exceptions.login.InvalidCredentialsException;
@@ -31,7 +31,7 @@ import es.deusto.weblab.client.dto.users.User;
 public class WlCommonSerializerJSONTest extends GWTTestCase {
 	
 	public void testParseGetUserInformationResponse() throws Exception{
-		final IWlCommonSerializer weblabSerializer = new WlCommonSerializerJSON();
+		final ICommonSerializer weblabSerializer = new CommonSerializerJSON();
 		final User user = weblabSerializer.parseGetUserInformationResponse(
 				"{\"result\": {\"login\": \"porduna\", \"email\": \"porduna@tecnologico.deusto.es\", \"full_name\": \"Pablo Orduna\", \"role\": {\"name\": \"student\"}}, \"is_exception\": false}"
 		);
@@ -42,7 +42,7 @@ public class WlCommonSerializerJSONTest extends GWTTestCase {
 	}
 
 	public void testParseGetUserInformationResponse_Exceptions() throws Exception{
-		final IWlCommonSerializer weblabSerializer = new WlCommonSerializerJSON();
+		final ICommonSerializer weblabSerializer = new CommonSerializerJSON();
 		try{
 			weblabSerializer.parseGetUserInformationResponse(
 					""
@@ -62,7 +62,7 @@ public class WlCommonSerializerJSONTest extends GWTTestCase {
 	}
 	
 	public void testParseLoginResponse() throws Exception{
-		final IWlCommonSerializer weblabSerializer = new WlCommonSerializerJSON();
+		final ICommonSerializer weblabSerializer = new CommonSerializerJSON();
 		final SessionID sessionId = weblabSerializer.parseLoginResponse(
 				"{\"result\": {\"id\": \"whatever\"}, \"is_exception\":false}"
 			);
@@ -70,7 +70,7 @@ public class WlCommonSerializerJSONTest extends GWTTestCase {
 	}
 
 	public void testParseLoginResponse_Faults() throws Exception{
-		final IWlCommonSerializer weblabSerializer = new WlCommonSerializerJSON();
+		final ICommonSerializer weblabSerializer = new CommonSerializerJSON();
 		
 		final String MESSAGE = "my message";
 		final String whole_message = "{\"message\": \"" + MESSAGE + "\", \"code\": \"THE_FAULT_CODE\", \"is_exception\": true}";
@@ -96,7 +96,7 @@ public class WlCommonSerializerJSONTest extends GWTTestCase {
 				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.WebLab")
 			);
 			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
+		} catch (final WebLabServerException e) {
 			Assert.assertEquals(MESSAGE, e.getMessage());
 		}
 		try {
@@ -104,7 +104,7 @@ public class WlCommonSerializerJSONTest extends GWTTestCase {
 				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.Voodoo")
 			);
 			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
+		} catch (final WebLabServerException e) {
 			Assert.assertEquals(MESSAGE, e.getMessage());
 		}
 		try {
@@ -112,13 +112,13 @@ public class WlCommonSerializerJSONTest extends GWTTestCase {
 				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.Python")
 			);
 			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
+		} catch (final WebLabServerException e) {
 			Assert.assertEquals(MESSAGE, e.getMessage());
 		}
 	}
 
 	public void testParseLoginResponse_Exceptions() throws Exception{
-		final IWlCommonSerializer weblabSerializer = new WlCommonSerializerJSON();
+		final ICommonSerializer weblabSerializer = new CommonSerializerJSON();
 		try{
 			weblabSerializer.parseLoginResponse(
 				""
@@ -139,14 +139,14 @@ public class WlCommonSerializerJSONTest extends GWTTestCase {
 	}
 	
 	public void testParseLogoutResponse() throws Exception{
-		final IWlCommonSerializer weblabSerializer = new WlCommonSerializerJSON();
+		final ICommonSerializer weblabSerializer = new CommonSerializerJSON();
 		weblabSerializer.parseLogoutResponse(
 				"{\"result\": {}, \"is_exception\": false}"
 			);
 	}
 
 	public void testParseLogoutResponse_Faults() throws Exception{
-		final IWlCommonSerializer weblabSerializer = new WlCommonSerializerJSON();
+		final ICommonSerializer weblabSerializer = new CommonSerializerJSON();
 		
 		final String MESSAGE = "my message";
 		final String whole_message = "{\"message\": \"" + MESSAGE + "\", \"code\": \"THE_FAULT_CODE\", \"is_exception\": true}";
@@ -172,7 +172,7 @@ public class WlCommonSerializerJSONTest extends GWTTestCase {
 				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.WebLab")
 			);
 			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
+		} catch (final WebLabServerException e) {
 			Assert.assertEquals(MESSAGE, e.getMessage());
 		}
 		try {
@@ -180,7 +180,7 @@ public class WlCommonSerializerJSONTest extends GWTTestCase {
 				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.Voodoo")
 			);
 			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
+		} catch (final WebLabServerException e) {
 			Assert.assertEquals(MESSAGE, e.getMessage());
 		}
 		try {
@@ -188,13 +188,13 @@ public class WlCommonSerializerJSONTest extends GWTTestCase {
 				whole_message.replaceFirst("THE_FAULT_CODE", "JSON:Server.Python")
 			);
 			Assert.fail("Exception expected");
-		} catch (final WlServerException e) {
+		} catch (final WebLabServerException e) {
 			Assert.assertEquals(MESSAGE, e.getMessage());
 		}
 	}
 
 	public void testParseLogoutResponse_Exceptions() throws Exception{
-		final IWlCommonSerializer weblabSerializer = new WlCommonSerializerJSON();
+		final ICommonSerializer weblabSerializer = new CommonSerializerJSON();
 		try{
 			weblabSerializer.parseLogoutResponse(
 					""
@@ -215,7 +215,7 @@ public class WlCommonSerializerJSONTest extends GWTTestCase {
 	}	
 	
 	public void testSerializeGetUserInformationRequest() throws Exception{
-		final IWlCommonSerializer weblabSerializer = new WlCommonSerializerJSON();
+		final ICommonSerializer weblabSerializer = new CommonSerializerJSON();
 		final String MESSAGE = "whatever the session id real id";
 		
 		final SessionID sessionId = new SessionID(MESSAGE);
@@ -228,7 +228,7 @@ public class WlCommonSerializerJSONTest extends GWTTestCase {
 	}
 	
 	public void testSerializeLoginRequest() throws Exception{
-		final IWlCommonSerializer weblabSerializer = new WlCommonSerializerJSON();
+		final ICommonSerializer weblabSerializer = new CommonSerializerJSON();
 		
 		final String USERNAME = "my username";
 		final String PASSWORD = "my password";
@@ -242,7 +242,7 @@ public class WlCommonSerializerJSONTest extends GWTTestCase {
 	}
 	
 	public void testSerializeLogoutRequest() throws Exception{
-		final IWlCommonSerializer weblabSerializer = new WlCommonSerializerJSON();
+		final ICommonSerializer weblabSerializer = new CommonSerializerJSON();
 		final String MESSAGE = "whatever the session id real id";
 		
 		final SessionID sessionId = new SessionID(MESSAGE);

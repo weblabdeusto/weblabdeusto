@@ -16,7 +16,7 @@ package es.deusto.weblab.client.lab.controller.reservations;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingConfirmationReservationStatus;
 import es.deusto.weblab.client.lab.controller.ReservationStatusCallback;
-import es.deusto.weblab.client.lab.controller.WlLabController;
+import es.deusto.weblab.client.lab.controller.LabController;
 
 public class WaitingConfirmationReservationStatusTransition extends GeneralWaitingReservationStatusTransition {
 
@@ -27,8 +27,8 @@ public class WaitingConfirmationReservationStatusTransition extends GeneralWaiti
 	@Override
 	protected int getPollTime(ReservationStatus reservationStatus) {
 		return this.reservationStatusCallback.getConfigurationManager().getIntProperty(
-				WlLabController.WAITING_CONFIRMATION_POLLING_TIME_PROPERTY, 
-				WlLabController.DEFAULT_WAITING_CONFIRMATION_POLLING_TIME
+				LabController.WAITING_CONFIRMATION_POLLING_TIME_PROPERTY, 
+				LabController.DEFAULT_WAITING_CONFIRMATION_POLLING_TIME
 			);
 	}
 

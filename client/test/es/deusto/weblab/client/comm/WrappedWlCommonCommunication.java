@@ -19,12 +19,12 @@ import com.google.gwt.http.client.RequestBuilder;
 
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 
-public class WrappedWlCommonCommunication extends WlCommonCommunication {
+public class WrappedWlCommonCommunication extends CommonCommunication {
 	
-	private final IWlCommonSerializer wrappedSerializer;
+	private final ICommonSerializer wrappedSerializer;
 	private final RequestBuilder wrappedRequestBuilder;
 	
-	public WrappedWlCommonCommunication(IWlCommonSerializer wrappedSerializer, RequestBuilder wrappedRequestBuilder, IConfigurationManager configurationManager){
+	public WrappedWlCommonCommunication(ICommonSerializer wrappedSerializer, RequestBuilder wrappedRequestBuilder, IConfigurationManager configurationManager){
 		super(configurationManager);
 		this.wrappedSerializer = wrappedSerializer;
 		this.wrappedRequestBuilder = wrappedRequestBuilder;
@@ -32,7 +32,7 @@ public class WrappedWlCommonCommunication extends WlCommonCommunication {
 	}
 	
 	@Override
-	protected IWlCommonSerializer createSerializer(){
+	protected ICommonSerializer createSerializer(){
 		return null;
 	}
 	

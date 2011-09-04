@@ -15,7 +15,7 @@ package es.deusto.weblab.client.lab.controller.reservations;
 
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.lab.controller.ReservationStatusCallback;
-import es.deusto.weblab.client.lab.controller.WlLabController.IControllerRunnable;
+import es.deusto.weblab.client.lab.controller.LabController.IControllerRunnable;
 
 public abstract class GeneralWaitingReservationStatusTransition extends ReservationStatusTransition {
 

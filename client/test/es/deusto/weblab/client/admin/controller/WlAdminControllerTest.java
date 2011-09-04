@@ -30,7 +30,7 @@ import es.deusto.weblab.client.comm.FakeWlCommonCommunication;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
-import es.deusto.weblab.client.comm.exceptions.WlCommException;
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.comm.exceptions.login.LoginException;
 import es.deusto.weblab.client.configuration.FakeConfiguration;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
@@ -48,7 +48,7 @@ public class WlAdminControllerTest  extends GWTTestCase {
 	private FakeUIManager fakeUIManager;
 	
 	public void testLoginFailure() throws Exception{
-		final WlAdminController controller = this.createController();
+		final AdminController controller = this.createController();
 		controller.login("whatever", "whatever");
 		
 		List<Methods> v = this.fakeCommunications.getMethodByName(FakeWlCommonCommunication.LOGIN);
@@ -62,7 +62,7 @@ public class WlAdminControllerTest  extends GWTTestCase {
 		v = this.fakeUIManager.getMethodByName(FakeUIManager.ON_WRONG_LOGIN_OR_PASSWORD_GIVEN);
 		Assert.assertEquals(1, v.size());
 		
-		callback.onFailure(new WlCommException("other error"));
+		callback.onFailure(new CommException("other error"));
 		v = this.fakeUIManager.getMethodByName(FakeUIManager.ON_ERROR_AND_FINISH_SESSION);
 		Assert.assertEquals(1, v.size());
 	}
@@ -74,7 +74,7 @@ public class WlAdminControllerTest  extends GWTTestCase {
 		parameters[0] = new PermissionParameter("full_privileges", "bool", "1");
 		permissions[0] = new Permission("admin_panel_access", parameters);
 		
-		final WlAdminController controller = this.createController();
+		final AdminController controller = this.createController();
 		
 		// login
 		controller.login("whatever", "whatever");
@@ -116,7 +116,7 @@ public class WlAdminControllerTest  extends GWTTestCase {
 		final IVoidCallback voidCallback = (IVoidCallback)m.getParameters()[1];
 		
     		// failure
-    		voidCallback.onFailure(new WlCommException("haw haw"));
+    		voidCallback.onFailure(new CommException("haw haw"));
     		// Was called in the previous "test failure"
     		Assert.assertEquals(1,this.fakeUIManager.getMethodByName(FakeUIManager.ON_ERROR_AND_FINISH_SESSION).size());
     		
@@ -133,7 +133,7 @@ public class WlAdminControllerTest  extends GWTTestCase {
 		parameters[2] = new PermissionParameter("time_allowed", "float", "300");
 		permissions[0] = new Permission("experiment_allowed", parameters);
 		
-		final WlAdminController controller = this.createController();
+		final AdminController controller = this.createController();
 		
 		// login
 		controller.login("whatever", "whatever");
@@ -167,7 +167,7 @@ public class WlAdminControllerTest  extends GWTTestCase {
 		final IVoidCallback voidCallback = (IVoidCallback)m.getParameters()[1];
 		
     		// failure
-    		voidCallback.onFailure(new WlCommException("haw haw"));
+    		voidCallback.onFailure(new CommException("haw haw"));
     		// Was called in the previous "test failure"
     		Assert.assertEquals(1,this.fakeUIManager.getMethodByName(FakeUIManager.ON_ERROR_AND_FINISH_SESSION).size());
     		
@@ -207,7 +207,7 @@ public class WlAdminControllerTest  extends GWTTestCase {
 		return "es.deusto.weblab.WebLabClientAdmin";
 	}
 		
-	private class FakeWebLabController extends WlAdminController{
+	private class FakeWebLabController extends AdminController{
 		
 	    public FakeWebLabController( IConfigurationManager configurationManager, FakeWlAdminCommunication fakeCommunications, FakeUIManager fakeUIManager) {
 			super(configurationManager, fakeCommunications);

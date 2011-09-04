@@ -13,7 +13,7 @@
 */ 
 package es.deusto.weblab.client.lab.experiments.exceptions;
 
-public class ExperimentNotFoundException extends WlExperimentException {
+public class ExperimentNotFoundException extends ExperimentException {
 	private static final long serialVersionUID = -6412130643820438015L;
 
 	public ExperimentNotFoundException() {

@@ -16,7 +16,7 @@ package es.deusto.weblab.client.lab.comm;
 import com.google.gwt.json.client.JSONValue;
 
 import es.deusto.weblab.client.comm.FakeWlCommonCommunication;
-import es.deusto.weblab.client.comm.IWlCommonSerializer;
+import es.deusto.weblab.client.comm.ICommonSerializer;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Command;
@@ -25,7 +25,7 @@ import es.deusto.weblab.client.lab.comm.callbacks.IExperimentsAllowedCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IReservationCallback;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 
-public class FakeWlLabCommunication extends FakeWlCommonCommunication implements IWlLabCommunication {
+public class FakeWlLabCommunication extends FakeWlCommonCommunication implements ILabCommunication {
 
 	public static final String SEND_ASYNC_FILE 		  = "FakeWeblabCommunication::sendAsyncFile";
 	public static final String SEND_ASYNC_COMMAND     = "FakeWeblabCommunication::sendAsyncCommand";
@@ -118,7 +118,7 @@ public class FakeWlLabCommunication extends FakeWlCommonCommunication implements
 	}
 
 	@Override
-	protected IWlCommonSerializer createSerializer() {
+	protected ICommonSerializer createSerializer() {
 		return new FakeWlLabSerializer();
 	}
 

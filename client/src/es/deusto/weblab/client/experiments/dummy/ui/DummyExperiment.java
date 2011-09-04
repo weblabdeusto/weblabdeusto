@@ -15,7 +15,7 @@ package es.deusto.weblab.client.experiments.dummy.ui;
 
 import com.google.gwt.user.client.ui.Label;
 
-import es.deusto.weblab.client.comm.exceptions.WlCommException;
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
@@ -54,7 +54,7 @@ public class DummyExperiment extends XilinxExperiment {
 			}
 		
 			@Override
-			public void onFailure(WlCommException e) {
+			public void onFailure(CommException e) {
 				DummyExperiment.this.dummyMessages.setText("Error raised: " + e.getMessage());
 			}
 	    };

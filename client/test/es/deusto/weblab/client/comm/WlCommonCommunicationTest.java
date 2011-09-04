@@ -29,7 +29,7 @@ import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.comm.exceptions.CommunicationException;
 import es.deusto.weblab.client.comm.exceptions.ServerException;
-import es.deusto.weblab.client.comm.exceptions.WlCommException;
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.FakeConfiguration;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.users.Role;
@@ -108,7 +108,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 			}
 
 			@Override
-			public void onFailure(WlCommException e) {
+			public void onFailure(CommException e) {
 				Assert.fail("onFailure not expected");
 			}
 		};
@@ -125,7 +125,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
 				WlCommonCommunicationTest.this.stepCounter++;
@@ -142,7 +142,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
 				WlCommonCommunicationTest.this.stepCounter++;
@@ -160,7 +160,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof ServerException);
 				WlCommonCommunicationTest.this.stepCounter++;
 			}
@@ -197,7 +197,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 			}
 
 			@Override
-			public void onFailure(WlCommException e) {
+			public void onFailure(CommException e) {
 				Assert.fail("onFailure not expected");
 			}
 		};
@@ -214,7 +214,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
 				WlCommonCommunicationTest.this.stepCounter++;
@@ -231,7 +231,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
 				WlCommonCommunicationTest.this.stepCounter++;
@@ -249,7 +249,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof ServerException);
 				WlCommonCommunicationTest.this.stepCounter++;
 			}
@@ -299,7 +299,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 			}
 
 			@Override
-			public void onFailure(WlCommException e) {
+			public void onFailure(CommException e) {
 				Assert.fail("onFailure not expected");
 			}
 		};
@@ -316,7 +316,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
 				WlCommonCommunicationTest.this.stepCounter++;
@@ -333,7 +333,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof CommunicationException);
 				Assert.assertEquals(ERROR_MESSAGE, e.getMessage());
 				WlCommonCommunicationTest.this.stepCounter++;
@@ -351,7 +351,7 @@ public class WlCommonCommunicationTest extends GWTTestCase {
 			}
 			
 			@Override
-			public void onFailure(WlCommException e){
+			public void onFailure(CommException e){
 				Assert.assertTrue(e instanceof ServerException);
 				WlCommonCommunicationTest.this.stepCounter++;
 			}

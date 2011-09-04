@@ -19,18 +19,18 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-import es.deusto.weblab.client.admin.controller.IWlAdminController;
-import es.deusto.weblab.client.admin.ui.WlAdminThemeBase;
+import es.deusto.weblab.client.admin.controller.IAdminController;
+import es.deusto.weblab.client.admin.ui.AdminThemeBase;
 import es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb.AdminPanelWindow.IAdminPanelWindowCallback;
 import es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb.LoginWindow.ILoginWindowCallback;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.users.User;
 
-public class DefaultTheme extends WlAdminThemeBase {
+public class DefaultTheme extends AdminThemeBase {
 	
 	private final IConfigurationManager configurationManager;
-	private final IWlAdminController controller;
+	private final IAdminController controller;
 
 	// DTOs
 	private User user;
@@ -42,7 +42,7 @@ public class DefaultTheme extends WlAdminThemeBase {
 	private LoginWindow loginWindow;
 	private AdminPanelWindow adminPanelWindow;
 	
-	public DefaultTheme(IConfigurationManager configurationManager, IWlAdminController controller) {
+	public DefaultTheme(IConfigurationManager configurationManager, IAdminController controller) {
 		this.configurationManager = configurationManager;
 		this.controller = controller;
 		

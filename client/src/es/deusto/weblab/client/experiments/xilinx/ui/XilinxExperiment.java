@@ -24,7 +24,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-import es.deusto.weblab.client.comm.exceptions.WlCommException;
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
@@ -265,7 +265,7 @@ public class XilinxExperiment extends ExperimentBase{
 					}
 
 					@Override
-					public void onFailure(WlCommException e) {
+					public void onFailure(CommException e) {
 						loadProgressBar();
 					}
 				}
@@ -312,7 +312,7 @@ public class XilinxExperiment extends ExperimentBase{
 				// Send the command and react to the response
 				XilinxExperiment.this.boardController.sendCommand(command, new IResponseCommandCallback() {
 					@Override
-					public void onFailure(WlCommException e) {
+					public void onFailure(CommException e) {
 						XilinxExperiment.this.messages.setText("There was an error while trying to find out whether the experiment is ready");
 					}
 					@Override
@@ -364,7 +364,7 @@ public class XilinxExperiment extends ExperimentBase{
 	    }
 
 	    @Override
-	    public void onFailure(WlCommException e) {
+	    public void onFailure(CommException e) {
 	    	
 		    if(XilinxExperiment.DEBUG_ENABLED)
 		    	XilinxExperiment.this.enableInteractiveWidgets();
@@ -598,7 +598,7 @@ public class XilinxExperiment extends ExperimentBase{
 		    }
 
 		    @Override
-			public void onFailure(WlCommException e) {
+			public void onFailure(CommException e) {
     			GWT.log("responseCommand: failure", null);
     			XilinxExperiment.this.messages.stop();
     			XilinxExperiment.this.messages.setText("Error sending command: " + e.getMessage());

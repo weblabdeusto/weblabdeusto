@@ -15,7 +15,7 @@ package es.deusto.weblab.client.comm.callbacks;
 
 import es.deusto.weblab.client.dto.SessionID;
 
-public interface ISessionIdCallback extends IWlAsyncCallback{	
+public interface ISessionIdCallback extends IWebLabAsyncCallback{	
 	public void onSuccess(SessionID sessionId);
 	//throws WlCommException, LoginException, InvalidUserOrPasswordException
 }

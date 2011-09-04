@@ -14,7 +14,7 @@
 
 package es.deusto.weblab.client.lab.controller;
 
-import es.deusto.weblab.client.comm.exceptions.WlCommException;
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
@@ -24,9 +24,9 @@ import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 
 final class BoardBaseController implements IBoardBaseController {
 	
-	private final WlLabController controller;
+	private final LabController controller;
 	
-	BoardBaseController(WlLabController controller) {
+	BoardBaseController(LabController controller) {
 		this.controller = controller;
 	}
 	
@@ -61,7 +61,7 @@ final class BoardBaseController implements IBoardBaseController {
 		}
 
 		@Override
-		public void onFailure(WlCommException e) {
+		public void onFailure(CommException e) {
 		    BoardBaseController.this.controller.getUIManager().onError("Error sending command: " + e.getMessage());
 		}
 	    });
@@ -115,7 +115,7 @@ final class BoardBaseController implements IBoardBaseController {
     		}
 
     		@Override
-			public void onFailure(WlCommException e) {
+			public void onFailure(CommException e) {
     		    BoardBaseController.this.controller.getUIManager().onError("Error sending async command: " + e.getMessage());
     		}
 	    });

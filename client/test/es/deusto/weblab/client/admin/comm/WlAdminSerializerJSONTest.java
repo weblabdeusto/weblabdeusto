@@ -24,7 +24,7 @@ import es.deusto.weblab.client.dto.users.Permission;
 public class WlAdminSerializerJSONTest extends GWTTestCase {
 	
 	public void testParseGetUserPermissionsResponse() throws Exception{
-		final IWlAdminSerializer weblabSerializer = new WlAdminSerializerJSON();
+		final IAdminSerializer weblabSerializer = new AdminSerializerJSON();
 		final Permission [] permissions = weblabSerializer.parseGetUserPermissionsResponse(
 			"{ \"result\":" +
 				"[" +
@@ -81,7 +81,7 @@ public class WlAdminSerializerJSONTest extends GWTTestCase {
 	}		
 	
 	public void testGetUserPermissionsRequest() throws Exception{
-		final IWlAdminSerializer weblabSerializer = new WlAdminSerializerJSON();
+		final IAdminSerializer weblabSerializer = new AdminSerializerJSON();
 		final String MESSAGE = "whatever the session id real id";
 		
 		final SessionID sessionId = new SessionID(MESSAGE);

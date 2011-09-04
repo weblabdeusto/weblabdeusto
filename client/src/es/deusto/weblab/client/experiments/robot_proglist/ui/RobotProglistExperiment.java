@@ -26,7 +26,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-import es.deusto.weblab.client.comm.exceptions.WlCommException;
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
@@ -139,7 +139,7 @@ public class RobotProglistExperiment extends ExperimentBase {
 	    this.boardController.sendCommand("programs", new IResponseCommandCallback() {
 			
 			@Override
-			public void onFailure(WlCommException e) {
+			public void onFailure(CommException e) {
 				e.printStackTrace();
 				RobotProglistExperiment.this.setMessage("Could not request experiments:" + e.getMessage());
 				RobotProglistExperiment.this.messages.stop();
@@ -168,7 +168,7 @@ public class RobotProglistExperiment extends ExperimentBase {
 							RobotProglistExperiment.this.boardController.sendCommand("program:" + s.trim(), new IResponseCommandCallback() {
 								
 								@Override
-								public void onFailure(WlCommException e) {
+								public void onFailure(CommException e) {
 									setMessage("Program failed: " + e.getMessage());
 									RobotProglistExperiment.this.messages.stop();
 								}

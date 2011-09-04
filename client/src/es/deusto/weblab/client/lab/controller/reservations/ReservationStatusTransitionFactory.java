@@ -21,14 +21,14 @@ import es.deusto.weblab.client.dto.reservations.WaitingConfirmationReservationSt
 import es.deusto.weblab.client.dto.reservations.WaitingInstancesReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingReservationStatus;
 import es.deusto.weblab.client.lab.controller.ReservationStatusCallback;
-import es.deusto.weblab.client.lab.controller.exceptions.WlUnknownReservationException;
+import es.deusto.weblab.client.lab.controller.exceptions.UnknownReservationException;
 
 public class ReservationStatusTransitionFactory {
 
     public static ReservationStatusTransition create(
 	    ReservationStatus reservationStatus,
 	    ReservationStatusCallback reservationStatusCallback)
-	    throws WlUnknownReservationException {
+	    throws UnknownReservationException {
 
 	if (ReservationStatusTransitionFactory.isWaiting(reservationStatus)) {
 	    return new WaitingReservationStatusTransition(reservationStatusCallback);
@@ -41,7 +41,7 @@ public class ReservationStatusTransitionFactory {
 	} else if (ReservationStatusTransitionFactory.isPostReservation(reservationStatus)) {
 	    return new PostReservationStatusTransition(reservationStatusCallback);
 	} else {
-	    throw new WlUnknownReservationException("Couldn't process the following reservation: "+ reservationStatus);
+	    throw new UnknownReservationException("Couldn't process the following reservation: "+ reservationStatus);
 	}
     }
 

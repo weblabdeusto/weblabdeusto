@@ -27,7 +27,7 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 
 import es.deusto.weblab.client.configuration.exceptions.InvalidConfigurationValueException;
-import es.deusto.weblab.client.configuration.exceptions.WlConfigurationException;
+import es.deusto.weblab.client.configuration.exceptions.ConfigurationException;
 
 public class ConfigurationManager extends ConfigurationRetriever implements IConfigurationManager {
 
@@ -55,20 +55,20 @@ public class ConfigurationManager extends ConfigurationRetriever implements ICon
 						try{
 							value = JSONParser.parseLenient(response.getText());
 						}catch(final Exception e){
-							ConfigurationManager.this.callback.onFailure(new WlConfigurationException("Error parsing configuration: " + e.getMessage(), e));
+							ConfigurationManager.this.callback.onFailure(new ConfigurationException("Error parsing configuration: " + e.getMessage(), e));
 							return;
 						}
 						
 						final JSONObject objValue = value.isObject();
 						if(objValue == null){
-							ConfigurationManager.this.callback.onFailure(new WlConfigurationException("Error parsing configuration: object expected"));
+							ConfigurationManager.this.callback.onFailure(new ConfigurationException("Error parsing configuration: object expected"));
 							return;
 						}
 						
 						for(final String key : objValue.keySet()){
 							final JSONValue currentValue = objValue.get(key);
 							if(currentValue == null){
-								ConfigurationManager.this.callback.onFailure(new WlConfigurationException("Error parsing configuration: empty value for key: " + key));
+								ConfigurationManager.this.callback.onFailure(new ConfigurationException("Error parsing configuration: empty value for key: " + key));
 								return;
 							}
 							ConfigurationManager.this.configurationMap.put(key, currentValue);
@@ -76,12 +76,12 @@ public class ConfigurationManager extends ConfigurationRetriever implements ICon
 						
 						ConfigurationManager.this.callback.onLoaded();
 					}else{
-						ConfigurationManager.this.callback.onFailure(new WlConfigurationException("Invalid status code: " + response.getStatusCode() + "; " + response.getStatusText()));
+						ConfigurationManager.this.callback.onFailure(new ConfigurationException("Invalid status code: " + response.getStatusCode() + "; " + response.getStatusText()));
 					}
 				}
 			});
 		} catch (final RequestException e1) {
-			ConfigurationManager.this.callback.onFailure(new WlConfigurationException("Exception thrown creating request: " + e1.getMessage()));
+			ConfigurationManager.this.callback.onFailure(new ConfigurationException("Exception thrown creating request: " + e1.getMessage()));
 		}
 	}
 
