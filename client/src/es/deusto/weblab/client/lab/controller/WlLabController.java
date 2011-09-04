@@ -312,7 +312,7 @@ public class WlLabController implements IWlLabController {
 			if(reservation instanceof PostReservationReservationStatus){
 				final PostReservationReservationStatus status = (PostReservationReservationStatus)reservation;
 				if(status.isFinished()){
-					WlLabController.this.sessionVariables.getCurrentExperimentBase().postEnd(status.getInitialData(), status.getEndData());
+					WlLabController.this.sessionVariables.getCurrentExperimentBase().postEndWrapper(status.getInitialData(), status.getEndData());
 				}else{
 					final Timer t = new Timer() {
 						
@@ -344,7 +344,7 @@ public class WlLabController implements IWlLabController {
 	@Override
 	public void finishReservation() {
 		this.pollingHandler.stop();
-		this.sessionVariables.getCurrentExperimentBase().end();
+		this.sessionVariables.getCurrentExperimentBase().endWrapper();
 		
 		this.communications.finishedExperiment(this.currentSession, new IVoidCallback(){
 			
@@ -376,7 +376,7 @@ public class WlLabController implements IWlLabController {
 	public void cleanExperiment() {
 		
 		this.pollingHandler.stop();
-		this.sessionVariables.getCurrentExperimentBase().end();
+		this.sessionVariables.getCurrentExperimentBase().endWrapper();
 		
 		this.communications.finishedExperiment(this.currentSession, new IVoidCallback(){
 			@Override
@@ -396,7 +396,7 @@ public class WlLabController implements IWlLabController {
 	public void finishReservationAndLogout(){
 		
 		this.pollingHandler.stop();
-		this.sessionVariables.getCurrentExperimentBase().end();
+		this.sessionVariables.getCurrentExperimentBase().endWrapper();
 		
 		this.communications.finishedExperiment(this.currentSession, new IVoidCallback(){
 			@Override

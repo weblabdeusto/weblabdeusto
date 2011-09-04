@@ -369,13 +369,13 @@ class Coordinator(object):
             # TODO XXX 
             raise NotImplementedError("Not yet implemented: still_initializing")
 
-        if batch: # It has already finished, so make this experiment available to others
-            self.finish_reservation(reservation_id)
-            return
-
         schedulers = self._get_schedulers_per_reservation(reservation_id)
         for scheduler in schedulers:
             scheduler.confirm_experiment(reservation_id, lab_session_id, initial_configuration)
+
+        if batch: # It has already finished, so make this experiment available to others
+            self.finish_reservation(reservation_id)
+            return
 
         self.confirmer.enqueue_should_finish(lab_coordaddress_str, lab_session_id, reservation_id)
 

@@ -20,7 +20,10 @@ import java.util.Set;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONException;
+import com.google.gwt.json.client.JSONNull;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 
@@ -70,6 +73,25 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
 		return this.parseReservationStatus(result);
     }
     
+    private String extractString(String data, String fieldName) throws SerializationException{
+    	try {
+    		if(data == null)
+    			return null;
+		    final JSONValue value = JSONParser.parseStrict(data);
+		    if(value == JSONNull.getInstance()){
+		    	return null;
+		    }
+		    final JSONString stringValue = value.isString();
+		    if(stringValue == null)
+		    	throw new SerializationException("Invalid " + fieldName + ": expected a string and found a " + value.getClass().getName());
+		    
+		    return stringValue.stringValue();
+		} catch (final IllegalArgumentException e) {
+		    throw new SerializationException("Invalid " + fieldName + ": " + e.getMessage(), e);
+		} catch (final JSONException e){
+		    throw new SerializationException("Invalid " + fieldName + ": " + e.getMessage(), e);
+		}
+    }
 
     private ReservationStatus parseReservationStatus(final JSONObject result)
 	    throws SerializationException {
@@ -85,8 +107,12 @@ public class WlLabSerializerJSON extends WlCommonSerializerJSON implements IWlLa
 		    return new WaitingReservationStatus(position);
 		}else if(status.equals("Reservation::post_reservation")){
 			final boolean finished = this.json2boolean(result.get("finished"));
-			final String initialData = this.json2string(result.get("initial_data"), true);
-			final String endData = this.json2string(result.get("end_data"), true);
+			final String jsonInitialData = this.json2string(result.get("initial_data"), true);
+			final String jsonEndData = this.json2string(result.get("end_data"), true);
+			
+			final String initialData = extractString(jsonInitialData, "initial_data");
+			final String endData = extractString(jsonEndData, "end_data");
+			
 		    return new PostReservationReservationStatus(finished, initialData, endData);
 		}else if(status.equals("Reservation::waiting_instances")){
 		    final int position = this.json2int(result.get("position"));

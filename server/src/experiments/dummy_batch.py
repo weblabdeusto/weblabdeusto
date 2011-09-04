@@ -53,8 +53,9 @@ class DummyBatchExperiment(Experiment.Experiment):
         if self.take_time_finishing:
             print "Disposing experiment..."
             time.sleep(10)
-        print "Experiment disposed"
-        return json.dumps({ Coordinator.FINISH_FINISHED_MESSAGE : True, Coordinator.FINISH_DATA_MESSAGE : "This is the final data"})
+        return_value = json.dumps({ Coordinator.FINISH_FINISHED_MESSAGE : True, Coordinator.FINISH_DATA_MESSAGE : "This is the final data"})
+        print "Experiment disposed. Returning", return_value
+        return return_value
 
     @Override(Experiment.Experiment)
     def do_should_finish(self):

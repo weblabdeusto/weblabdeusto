@@ -60,7 +60,7 @@ public abstract class ExperimentBase implements IWlWidget{
 	}
 	
 	/**
-	 * User is in a queue. The typical behavior will be to hide the UI shown
+	 * User is in a queue. Thetype filter text typical behavior will be to hide the UI shown
 	 * in the {@link #initialize()} method. 
 	 */
 	public void queued(){}
@@ -83,6 +83,15 @@ public abstract class ExperimentBase implements IWlWidget{
 	 * resources.
 	 */
 	public void end(){}
+	
+	private boolean endCalled = false;
+	
+	public final void endWrapper(){
+		if(!this.endCalled){
+			this.endCalled = true;
+			this.end();
+		}
+	}
 	
 	/**
 	 * Returns if this experiment is expecting a {@link #postEnd(String)}
@@ -116,7 +125,19 @@ public abstract class ExperimentBase implements IWlWidget{
 	 */
 	public void postEnd(String initialData, String endData){
 		this.boardController.clean();
-	}	
+	}
+	
+	private boolean postEndCalled = false;
+	
+	public final void postEndWrapper(String initialData, String endData){
+		if(this.postEndCalled)
+			this.boardController.clean();
+		else{
+			if(endData != null)
+				this.postEndCalled = true;
+			postEnd(initialData, endData);
+		}
+	}
 	
 	
 	/**
@@ -131,6 +152,6 @@ public abstract class ExperimentBase implements IWlWidget{
 	 */
 	@Override
 	public final void dispose(){
-	    this.end();
+	    this.endWrapper();
 	}	
 }

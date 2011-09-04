@@ -40,6 +40,6 @@ public class PostReservationStatusTransition extends ReservationStatusTransition
 		
 		final String initialData = ((PostReservationReservationStatus)reservationStatus).getInitialData();
 		final String endData = ((PostReservationReservationStatus)reservationStatus).getEndData();
-		this.reservationStatusCallback.getExperimentBaseBeingReserved().postEnd(initialData, endData);
+		this.reservationStatusCallback.getExperimentBaseBeingReserved().postEndWrapper(initialData, endData);
 	}
 }

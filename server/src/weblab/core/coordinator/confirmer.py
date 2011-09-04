@@ -17,6 +17,7 @@ import datetime
 
 from voodoo.threaded import threaded
 import voodoo.log as log
+from voodoo.log import logged
 
 import voodoo.resources_manager as ResourceManager
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
@@ -41,6 +42,7 @@ class ReservationConfirmer(object):
 
     enqueuing_timeout = property(_get_enqueuing_timeout, _set_enqueuing_timeout)
 
+    @logged()
     def enqueue_confirmation(self, lab_coordaddress_str, reservation_id, experiment_instance_id, client_initial_data, server_initial_data):
         # We can stablish a politic such as using 
         # thread pools or a queue of threads or something
@@ -50,6 +52,7 @@ class ReservationConfirmer(object):
         self._confirm_handler.join(self._enqueuing_timeout)
 
     @threaded(_resource_manager)
+    @logged()
     def _confirm_experiment(self, lab_coordaddress, reservation_id, experiment_instance_id, client_initial_data, server_initial_data):
         initial_time = datetime.datetime.now()
         try:
@@ -65,21 +68,23 @@ class ReservationConfirmer(object):
             experiment_coordaddress = CoordAddress.CoordAddress.translate_address(experiment_coordaddress_str)
             self.coordinator.confirm_experiment(experiment_coordaddress, experiment_instance_id, reservation_id, lab_coordaddress.address, lab_session_id, server_initialization_response, initial_time, end_time)
 
+    @logged()
     def enqueue_free_experiment(self, lab_coordaddress_str, reservation_id, lab_session_id, experiment_instance_id):
         # We can stablish a policy such as using 
         # thread pools or a queue of threads or something
         # like that... here
-        lab_coordaddress = CoordAddress.CoordAddress.translate_address(lab_coordaddress_str)
         if lab_session_id is None: # If the user didn't manage to obtain a session_id, don't call the free_experiment method
             experiment_response = None
             initial_time = end_time = datetime.datetime.now()
             self.coordinator.confirm_resource_disposal(lab_coordaddress_str, reservation_id, lab_session_id, experiment_instance_id, experiment_response, initial_time, end_time)
         else: # Otherwise...
+            lab_coordaddress = CoordAddress.CoordAddress.translate_address(lab_coordaddress_str)
             self._free_handler = self._free_experiment(lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id)
             self._free_handler.join(self._enqueuing_timeout)
 
 
     @threaded(_resource_manager)
+    @logged()
     def _free_experiment(self, lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id):
         initial_time = datetime.datetime.now()
         try:
@@ -99,6 +104,7 @@ class ReservationConfirmer(object):
         self._should_finish(lab_coordaddress, lab_session_id, reservation_id)
 
     @threaded(_resource_manager)
+    @logged()
     def _should_finish(self, lab_coordaddress, lab_session_id, reservation_id):
         try:
             labserver = self.locator.get_server_from_coordaddr(lab_coordaddress, ServerType.Laboratory)

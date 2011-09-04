@@ -439,16 +439,21 @@ class CoordinatorTestCase(unittest.TestCase):
         self.assertEquals( u'lab1:inst@machine', self.coordinator.confirmer.uses_confirm[0][0] )
         self.assertEquals( ExperimentInstanceId('inst1','exp1','cat1'), self.coordinator.confirmer.uses_confirm[0][2] )
 
-        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentInstanceId('inst1', 'exp1', 'cat1'), reservation1_id, "lab:server@mach", SessionId.SessionId("mysessionid"), '{ "batch" : true, "initial_configuration" : { "foo" : "bar" } }', now, now)
+        response = {
+            'batch' : True,
+            'initial_configuration' : 'foobar'
+        }
+
+        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentInstanceId('inst1', 'exp1', 'cat1'), reservation1_id, "lab:server@mach", SessionId.SessionId("mysessionid"), json.dumps(response), now, now)
 
         status = self.coordinator.get_reservation_status(reservation1_id)
-        expected_status = WSS.PostReservationStatus(True, json.dumps({"foo":"bar"}), 'null')
+        expected_status = WSS.PostReservationStatus(True, '"foobar"', 'null')
         self.assertEquals(expected_status, status)
 
         initial_information_entry = self.coordinator.initial_store.get()
         self.assertFalse(initial_information_entry.reservation_id is None)
 
-        self.assertEquals({ "foo" : "bar" },              initial_information_entry.initial_configuration)
+        self.assertEquals("foobar",                       initial_information_entry.initial_configuration)
         self.assertEquals(now,                            initial_information_entry.initial_time)
         self.assertEquals(now,                            initial_information_entry.end_time)
         self.assertEquals(coord_addr('expser:inst@mach'), initial_information_entry.exp_coordaddr)
