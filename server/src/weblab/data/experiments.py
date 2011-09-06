@@ -86,28 +86,6 @@ class ExperimentInstanceId(object):
                 )
 
 
-class ExperimentInstance(object):
-    def __init__(self, name, experiment, laboratory, start_date, end_date):
-        super(ExperimentInstance,self).__init__()
-        self.name       = name
-        self.experiment = experiment
-        self.laboratory = laboratory
-        self.start_date = start_date
-        self.end_date   = end_date
-    def __repr__(self):
-        return "<ExperimentInstance: name: %s; experiment: %s; laboratory: %s; start_date: %s; end_date: %s>" % (
-                self.name,
-                self.experiment,
-                self.laboratory,
-                self.start_date,
-                self.end_date
-            )
-
-    def get_experiment_instance_id(self):
-        return ExperimentInstanceId(
-                self.name, self.experiment.name, self.experiment.category.name
-            )
-
 class CommandSent(object):
     def __init__(self, command, timestamp_before, response = None, timestamp_after = None):
         self.command          = command          # Command
