@@ -75,6 +75,9 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.lab_address = u"lab1:inst@machine"
         self.coordinator.add_experiment_instance_id(self.lab_address, ExperimentInstanceId('inst1', 'exp1','cat1'), Resource("res_type", "res_inst"))
 
+    def tearDown(self):
+        self.coordinator.stop()
+
     def test_free_experiment_success(self):
         mock_laboratory = self.mocker.mock()
         mock_laboratory.free_experiment('lab_session_id')

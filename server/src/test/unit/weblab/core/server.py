@@ -69,6 +69,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         # Clean the database
         coordinator = Coordinator.Coordinator(self.locator, self.cfg_manager)
         coordinator._clean()
+        coordinator.stop()
 
         # External server generation
         self.ups = WrappedUPS(

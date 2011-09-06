@@ -34,13 +34,15 @@ class ResourcesManagerTestCase(unittest.TestCase):
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
 
-        coordinator = Coordinator(None, self.cfg_manager)
-        coordinator._clean()
+        self.coordinator = Coordinator(None, self.cfg_manager)
+        self.coordinator._clean()
+        self.coordinator.stop()
 
         coordination_database = CoordinationDatabaseManager.CoordinationDatabaseManager(self.cfg_manager)
         self.session_maker = coordination_database.session_maker
         self.resources_manager = ResourcesManager.ResourcesManager(self.session_maker)
         self.resources_manager._clean()
+
 
     def test_add_resource(self):
         session = self.session_maker()

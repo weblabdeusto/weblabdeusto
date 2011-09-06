@@ -43,6 +43,9 @@ class ReservationsManagerTestCase(unittest.TestCase):
 
         self.reservations_manager = self.coordinator.reservations_manager
 
+    def tearDown(self):
+        self.coordinator.stop()
+
     def test_list_sessions_not_existing(self):
         exp_id = ExperimentId("exp.that.doesnt.exist","cat1")
         

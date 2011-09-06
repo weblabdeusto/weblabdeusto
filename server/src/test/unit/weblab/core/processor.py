@@ -87,6 +87,9 @@ class UserProcessorTestCase(unittest.TestCase):
                     self.commands_store
                 )
 
+    def tearDown(self):
+        self.coordinator.stop()
+
     def test_reserve_unknown_experiment_name(self):
         self.assertRaises(
             coreExc.UnknownExperimentIdException,

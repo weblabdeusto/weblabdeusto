@@ -143,6 +143,7 @@ class UserProcessingServer(object):
         self._stopping = True
 
         self._temporal_information_retriever.stop()
+        self._coordinator.stop()
 
         if hasattr(super(UserProcessingServer, self), 'stop'):
             super(UserProcessingServer, self).stop()
@@ -161,7 +162,7 @@ class UserProcessingServer(object):
     def _load_user(self, session):
         return UserProcessor.UserProcessor(self._locator, session, self._cfg_manager, self._coordinator, self._db_manager, self._commands_store)
 
-    def _check_user_not_expired_and_poll(self, user_processor, check_expired = True):
+    def _check_user_not_expired_and_poll(self, user_processor, check_expired = True, fast = False):
         if check_expired and user_processor.is_expired():
             user_processor.finished_experiment()
             raise coreExc.NoCurrentReservationException(
@@ -169,7 +170,10 @@ class UserProcessingServer(object):
             )
         else:
             try:
-                user_processor.poll()
+                if fast:
+                    user_processor.fast_poll()
+                else:
+                    user_processor.poll()
             except coreExc.NoCurrentReservationException:
                 if check_expired:
                     raise
@@ -301,7 +305,7 @@ class UserProcessingServer(object):
 
         Sends file to the experiment.
         """
-        self._check_user_not_expired_and_poll( user_processor )
+        self._check_user_not_expired_and_poll( user_processor, fast = True )
         return user_processor.send_file( file_content, file_info )
 
 
@@ -314,12 +318,13 @@ class UserProcessingServer(object):
         send_command sends an abstract string <command> which will be unpacked by the
         experiment.
         """
-        self._check_user_not_expired_and_poll( user_processor )
+        self._check_user_not_expired_and_poll( user_processor, fast = True )
         return user_processor.send_command( command )
             
     @logged(log.level.Info, except_for=(('file_content',2),))
     @check_session(*check_session_params)
-    def send_async_file(self, session, file_content, file_info):
+    @load_user_processor
+    def send_async_file(self, user_processor, session, file_content, file_info):
         """ 
         send_async_file(session_id, file_content, file_info)
         Sends a file asynchronously to the experiment. The response
@@ -330,17 +335,14 @@ class UserProcessingServer(object):
         @param file_info File information of the file.
         @see check_async_command_status
         """
-        user_processor = self._load_user(session)
-        try:
-            self._check_user_not_expired_and_poll( user_processor )
-            return user_processor.send_async_file( file_content, file_info )
-        finally:
-            user_processor.update_latest_timestamp()
+        self._check_user_not_expired_and_poll( user_processor, fast = True )
+        return user_processor.send_async_file( file_content, file_info )
 
     # TODO: This method should now be finished. Will need to be verified, though.
     @logged(log.level.Info)
     @check_session(*check_session_params)
-    def check_async_command_status(self, session, request_identifiers):
+    @load_user_processor
+    def check_async_command_status(self, user_processor, session, request_identifiers):
         """ 
         check_async_command_status(session_id, request_identifiers)
         Checks the status of several asynchronous commands. 
@@ -350,16 +352,13 @@ class UserProcessingServer(object):
         requests to check. 
         @return: Dictionary by request-id of the tuples: (status, content)
         """
-        user_processor = self._load_user(session)
-        try:
-            self._check_user_not_expired_and_poll( user_processor )
-            return user_processor.check_async_command_status( request_identifiers )
-        finally:
-            user_processor.update_latest_timestamp()
+        self._check_user_not_expired_and_poll( user_processor, fast = True )
+        return user_processor.check_async_command_status( request_identifiers )
 
     @logged(log.level.Info)
     @check_session(*check_session_params)
-    def send_async_command(self, session, command):
+    @load_user_processor
+    def send_async_command(self, user_processor, session, command):
         """ 
         send_async_command(session_id, command)
 
@@ -367,12 +366,8 @@ class UserProcessingServer(object):
         experiment, and run asynchronously on its own thread. Its status may be checked through
         check_async_command_status.
         """
-        user_processor = self._load_user(session)
-        try:
-            self._check_user_not_expired_and_poll( user_processor )
-            return user_processor.send_async_command( command )
-        finally:
-            user_processor.update_latest_timestamp()
+        self._check_user_not_expired_and_poll( user_processor, fast = True )
+        return user_processor.send_async_command( command )
 
 
     @logged(log.level.Info)

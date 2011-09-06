@@ -34,6 +34,9 @@ class PostReservationDataManagerTestCase(unittest.TestCase):
         self.post_reservation_data_manager = self.coordinator.post_reservation_data_manager
         self.time_provider = self.coordinator.time_provider
 
+    def tearDown(self):
+        self.coordinator.stop()
+
     def test_create_find(self):
         reservation_id = "my-id"
         now = self.time_provider.get_datetime()

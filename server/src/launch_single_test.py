@@ -32,6 +32,15 @@ if not testfile.endswith('.py'):
 
 module_name = testfile[:-3].replace(os.sep,'.')
 
+def debugThreads():
+    import threading
+    print "%i threads running:" % threading.activeCount()
+    for i in threading.enumerate():
+        print i,i.__module__
+    print
+    import voodoo.gen.protocols.SOAP.ServerSOAP as SSOAP
+    print "ServerSoap:",SSOAP._resource_manager.get_current_resources()
+
 print "Launching... %s" % module_name
 module =  __import__(module_name, globals(), locals(), [module_name])
 suite = module.suite
@@ -39,4 +48,7 @@ if gui:
     import unittestgui
     unittestgui.main(__name__ + '.suite')
 else:
-    unittest.main(module = module, defaultTest = 'suite', argv = [sys.argv[0]] + sys.argv[2:])
+    try:
+        unittest.main(module = module, defaultTest = 'suite', argv = [sys.argv[0]] + sys.argv[2:])
+    finally:
+        debugThreads()
