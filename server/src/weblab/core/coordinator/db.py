@@ -39,7 +39,7 @@ class CoordinationDatabaseManager(object):
     host     = None
     db       = None
 
-    pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20)
+    pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
     engine = None
 
 

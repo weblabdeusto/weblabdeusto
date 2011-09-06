@@ -45,7 +45,7 @@ def getconn():
 class DbLock(object):
 
     MAX_TIME_TRYING_TO_LOCK = MAX_TIME_TRYING_TO_LOCK
-    pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20)
+    pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
     engine = None
 
     def __init__(self, cfg_manager, session_pool_id):
