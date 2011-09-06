@@ -14,7 +14,7 @@
 # 
 import unittest
 
-import experiments.logic as LogicExperiment
+import experiments.logic.server as LogicExperiment
 
 class CircuitGeneratorTestCase(unittest.TestCase):
     def test_switch(self):
