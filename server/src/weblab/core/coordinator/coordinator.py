@@ -478,6 +478,11 @@ class Coordinator(object):
             finally:
                 self.reservations_manager.clean_deletion(reservation_id)
 
+    @logged()
+    def stop(self):
+        for scheduler in self.schedulers.values():
+            scheduler.stop()
+
     def _clean(self):
         for scheduler in self.schedulers.values():
             scheduler._clean()

@@ -77,7 +77,8 @@ class MonitorMethodsTestCase(unittest.TestCase):
                 self.locator,
                 self.cfg_manager
             )
-        
+
+        self.ups._coordinator.stop()
         self.ups._coordinator = self.coordinator
         self.coordinator.add_experiment_instance_id("server:laboratoryserver@labmachine", ExperimentInstanceId('inst','ud-dummy','Dummy experiments'), Resource("res_type", "res_inst"))
 

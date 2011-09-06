@@ -27,6 +27,7 @@ import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.sessions.session_id as SessionId
 from voodoo.override import Override
 
+from weblab.core.coordinator.scheduler_transactions_synchronizer import SchedulerTransactionsSynchronizer
 from weblab.core.coordinator.scheduler import Scheduler
 from weblab.core.coordinator.model import ResourceType, ResourceInstance, CurrentResourceSlot
 from weblab.core.coordinator.priority_queue_scheduler_model import ConcreteCurrentReservation, WaitingReservation
@@ -74,6 +75,11 @@ class PriorityQueueScheduler(Scheduler):
 
     def __init__(self, generic_scheduler_arguments, **kwargs):
         super(PriorityQueueScheduler, self).__init__(generic_scheduler_arguments, **kwargs)
+        self._synchronizer = SchedulerTransactionsSynchronizer(self)
+        self._synchronizer.start()
+
+    def stop(self):
+        self._synchronizer.stop()
 
     @exc_checker
     @logged()
@@ -137,7 +143,7 @@ class PriorityQueueScheduler(Scheduler):
         finally:
             session.close()
 
-        self._update_queues()
+        self._synchronizer.request_and_wait()
 
         return_current_status = False
         session = self.session_maker()
@@ -284,6 +290,9 @@ class PriorityQueueScheduler(Scheduler):
                     enqueue_free_experiment_args = (lab_coord_address, reservation_id, lab_session_id, experiment_instance.to_experiment_instance_id())
             self.reservations_manager.downgrade_confirmation(session, concrete_current_reservation.current_reservation_id)
         return enqueue_free_experiment_args
+
+    def update(self):
+        self._update_queues()
 
     #############################################################
     # 

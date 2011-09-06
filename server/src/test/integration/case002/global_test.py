@@ -299,6 +299,7 @@ class Case002TestCase(object):
 
         coordinator = Coordinator.Coordinator(locator, cfg_manager)
         coordinator._clean()
+        coordinator.stop()
 
         real_core_server = RealUserProcessingServer(
                 ups_coord_address,

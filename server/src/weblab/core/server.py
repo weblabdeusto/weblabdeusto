@@ -143,6 +143,7 @@ class UserProcessingServer(object):
         self._stopping = True
 
         self._temporal_information_retriever.stop()
+        self._coordinator.stop()
 
         if hasattr(super(UserProcessingServer, self), 'stop'):
             super(UserProcessingServer, self).stop()

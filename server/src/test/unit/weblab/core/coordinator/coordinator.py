@@ -107,6 +107,9 @@ class CoordinatorTestCase(unittest.TestCase):
         self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('inst1', 'exp1','cat1'), Resource("res_type", "res_inst1"))
         self.coordinator.add_experiment_instance_id("lab2:inst@machine", ExperimentInstanceId('inst2', 'exp1','cat1'), Resource("res_type", "res_inst2"))
 
+    def tearDown(self):
+        self.coordinator.stop()
+
     def test_reserve_experiment(self):
 
         "Reserve an experiment "
@@ -630,6 +633,9 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
 
         self.coordinator = WrappedCoordinator(locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
         self.coordinator._clean()
+
+    def tearDown(self):
+        self.coordinator.stop()
 
     def _deploy_cplds_and_fpgas_configuration(self):
         # 
