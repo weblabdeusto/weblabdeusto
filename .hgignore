@@ -15,6 +15,7 @@ regex:
 ^server/launch/.*/gpib.txt$
 ^server/launch/.*/.*\.sock$
 ^server/launch/.*/files_stored$
+^server/launch/deusto
 
 #
 # Glob style
