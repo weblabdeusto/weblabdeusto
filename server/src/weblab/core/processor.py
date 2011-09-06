@@ -604,6 +604,16 @@ class UserProcessor(object):
                 UserProcessor.EXPIRATION_TIME_NOT_SET
             )
 
+    def fast_poll(self):
+        if self.is_polling():
+            latest_poll, expiration_time = self._session['session_polling']
+            self._session['session_polling'] = (
+                    self.time_module.time(),
+                    UserProcessor.EXPIRATION_TIME_NOT_SET
+                )
+        else:
+            raise core_exc.NoCurrentReservationException("poll called but no current reservation")
+
     def poll(self):
         if self.is_polling():
             status = self.get_reservation_status()
