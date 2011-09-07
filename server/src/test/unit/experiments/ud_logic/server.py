@@ -69,11 +69,14 @@ class LogicExperimentTestCase(unittest.TestCase):
         self.assertEquals(circuit1a, circuit1b)
 
         any_ok = False
-        for operation in LogicExperiment.Gate.operations:
-            result = self.experiment.do_send_command_to_device('SOLVE %s' % operation)
-            if result.startswith('OK'):
-                self.assertEquals(result, 'OK: 1')
-                any_ok = True
+        for _ in xrange(10):
+            for operation in LogicExperiment.Gate.operations:
+                result = self.experiment.do_send_command_to_device('SOLVE %s' % operation)
+                if result.startswith('OK'):
+                    self.assertEquals(result, 'OK: 1')
+                    any_ok = True
+                    break
+            if any_ok:
                 break
 
         self.assertTrue(any_ok)

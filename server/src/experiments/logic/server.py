@@ -162,6 +162,7 @@ class LogicExperiment(Experiment.Experiment):
     @Override(Experiment.Experiment)
     def do_start_experiment(self, *args, **kwargs):
         self.tries = 0
+        self.best_tries = 0
         self.current_circuit = self.circuit_generator.generate()
         self.active = True
         self.threads = []
@@ -185,18 +186,21 @@ class LogicExperiment(Experiment.Experiment):
             pass
         for thread in self.threads:
             thread.join()
-        return json.dumps({ Coordinator.FINISH_FINISHED_MESSAGE : True, Coordinator.FINISH_DATA_MESSAGE : "%s" % self.tries})
+        if self.tries > self.best_tries:
+            self.best_tries = self.tries
+        return json.dumps({ Coordinator.FINISH_FINISHED_MESSAGE : True, Coordinator.FINISH_DATA_MESSAGE : "%s" % self.best_tries})
 
     @threaded()
     def wait_and_turn_off(self):
-        time.sleep(7)
+        if is_testing():
+            pass
+        else:
+            time.sleep(7)
         self.interfaces.turn_off()
 
 
     @Override(Experiment.Experiment)
     def do_send_command_to_device(self, command):
-        if not self.active:
-            return "not active"
         if command.startswith('SOLVE '):
             try: # "SOLVE XOR"
                 operation = command[len('SOLVE '):].strip().lower()
@@ -212,6 +216,9 @@ class LogicExperiment(Experiment.Experiment):
                     self.threads.append(self.wait_and_turn_off())
                     return "OK: %s" % self.tries
                 else:
+                    if self.tries > self.best_tries:
+                        self.best_tries = self.tries
+                    self.tries = 0
                     self.active = False
                     self.interfaces.send_message("Fail :-(")
                     self.interfaces.turn_off()
