@@ -16,10 +16,11 @@
 import time
 import random
 import operator
-from socket import AF_INET, SOCK_STREAM, socket
 
 from voodoo.threaded import threaded
+from experiments.logic.hardware import HardwareInterfaceCollector, PicInterface, ConsoleInterface
 import weblab.experiment.experiment as Experiment
+import weblab.core.coordinator.coordinator as Coordinator
 from voodoo.override import Override
 
 import json
@@ -137,6 +138,8 @@ class CircuitGenerator(object):
             if circuit.is_correct_sample():
                 return circuit
 
+
+
 class LogicExperiment(Experiment.Experiment):
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(LogicExperiment,self).__init__(*args, **kwargs)
@@ -147,48 +150,50 @@ class LogicExperiment(Experiment.Experiment):
         except:
             self.webcam_url = ''
 
-    @Override(Experiment.Experiment)
-    def do_dispose(self):
-        try:
-            socket(AF_INET, SOCK_STREAM)
-            self.send(";0")
-        except:
-            pass
-        return ""
+        interfaces = [
+            PicInterface("192.168.0.50"),
+            ConsoleInterface()
+        ]
+        self.interfaces = HardwareInterfaceCollector(interfaces)
 
     @Override(Experiment.Experiment)
     def do_start_experiment(self, *args, **kwargs):
         self.tries = 0
         self.current_circuit = self.circuit_generator.generate()
-
+        self.active = True
+        self.threads = []
         try:
-            self.send("Welcome!;0")
+            self.interfaces.send_message("Welcome!")
         except Exception as e:
             print "excepcion cuando tocaba LCD Welcome!", str(e)
-        return ""
+        return json.dumps({ "initial_configuration" : "welcome", "batch" : False })
 
-    @threaded()
-    def turn_off(self):
-        time.sleep(7)
-        self.send(";0")
+    @Override(Experiment.Experiment)
+    def do_should_finish(self):
+        if self.active:
+            return 5 # Ask again in 5 seconds
+        return -1 # Not active. Finish this session
 
-    @threaded()
-    def send(self, message):
-        TEMPLATE = "POST / HTTP/1.1\r\nConnection: close\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: %(SIZE)s\r\n\r\n%(MSG)s"
+    @Override(Experiment.Experiment)
+    def do_dispose(self):
         try:
-            s = socket(AF_INET, SOCK_STREAM)
-            s.connect(('192.168.0.50', 80))
-            msg = "lcd=%s" % message
-            length = len(msg)
-            s.send(TEMPLATE % {'SIZE' : length, 'MSG' : msg})
-            s.close()
-        except Exception:
-            import traceback
-            traceback.print_exc()
+            self.interfaces.clear()
+        except:
             pass
+        for thread in self.threads:
+            thread.join()
+        return json.dumps({ Coordinator.FINISH_FINISHED_MESSAGE : True, Coordinator.FINISH_DATA_MESSAGE : "%s" % self.tries})
+
+    @threaded()
+    def wait_and_turn_off(self):
+        time.sleep(7)
+        self.interfaces.turn_off()
+
 
     @Override(Experiment.Experiment)
     def do_send_command_to_device(self, command):
+        if not self.active:
+            return "not active"
         if command.startswith('SOLVE '):
             try: # "SOLVE XOR"
                 operation = command[len('SOLVE '):].strip().lower()
@@ -199,12 +204,14 @@ class LogicExperiment(Experiment.Experiment):
                 if self.current_circuit.turned:
                     self.tries += 1
                     self.current_circuit = self.circuit_generator.generate()
-                    self.send("OK! %s;1" % self.tries)
-                    self.turn_off()
+                    self.interfaces.send_message("OK! %s" % self.tries)
+                    self.interfaces.turn_on()
+                    self.threads.append(self.wait_and_turn_off())
                     return "OK: %s" % self.tries
                 else:
-                    self.tries = 0
-                    self.send("Fail :-(;0")
+                    self.active = False
+                    self.interfaces.send_message("Fail :-(")
+                    self.interfaces.turn_off()
                     return "FAIL"
         elif command == 'GET_CIRCUIT':
             return json.dumps(self.current_circuit.to_dict())
