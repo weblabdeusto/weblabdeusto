@@ -17,6 +17,7 @@ import time
 import random
 import operator
 
+from voodoo.resources_manager import is_testing
 from voodoo.threaded import threaded
 from experiments.logic.hardware import HardwareInterfaceCollector, PicInterface, ConsoleInterface
 import weblab.experiment.experiment as Experiment
@@ -149,8 +150,10 @@ class LogicExperiment(Experiment.Experiment):
             self.webcam_url = self._cfg_manager.get_value(CFG_WEBCAM_URL)
         except:
             self.webcam_url = ''
-
-        interfaces = [
+        if is_testing():
+            interfaces = []
+        else:
+            interfaces = [
             PicInterface("192.168.0.50"),
             ConsoleInterface()
         ]

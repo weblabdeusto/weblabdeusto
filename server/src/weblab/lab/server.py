@@ -230,7 +230,13 @@ class LaboratoryServer(object):
                 del self._async_requests[session_id]
             
             experiment_instance_id = session['experiment_instance_id']
-            experiment_response = self._free_experiment_from_assigned_experiments(experiment_instance_id)
+            try:
+                experiment_response = self._free_experiment_from_assigned_experiments(experiment_instance_id)
+            except Exception, e:
+                log.log( LaboratoryServer, log.level.Error, "Exception freeing experiment" % e )
+                log.log_exc(LaboratoryServer, log.level.Error)
+                experiment_response = ''
+
             if experiment_response is not None and experiment_response != 'ok' and experiment_response != '':
                 try:
                     response = json.loads(experiment_response)
