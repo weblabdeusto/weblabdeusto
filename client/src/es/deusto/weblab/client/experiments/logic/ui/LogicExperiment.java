@@ -313,6 +313,15 @@ public class LogicExperiment extends ExperimentBase {
     	this.sendSolutionButton.setVisible(true);
 	}	
 	
+	@Override
+	public boolean expectsPostEnd(){
+		return true;
+	}
+	
+	@Override
+	public void postEnd(String initialData, String endData){
+		System.out.println(endData);
+	}
 	
 	/**
 	 * @param event Click event that is passed to the handler. 
