@@ -25,7 +25,7 @@ sys.path.append(os.sep.join(('..','..','src')))
 import libraries
 
 from weblab.admin.monitor.monitor import WebLabMonitor
-import weblab.core.coordinator.WebLabQueueStatus as WebLabQueueStatus
+import weblab.core.coordinator.status as WebLabQueueStatus
 
 try:
     from configuration import SERVERS

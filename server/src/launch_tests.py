@@ -154,7 +154,7 @@ def check_flakes():
 
     stdout = sys.stdout
     sys.stdout = StringIO.StringIO() 
-    number_of_lines = main_pyflakes(("weblab", "test", "voodoo"))
+    number_of_lines = main_pyflakes(("weblab", "test", "voodoo", "experiments"))
     results = sys.stdout
     sys.stdout = stdout
     lines = [ line for line in results.getvalue().split('\n') if line.find('generated') < 0 ]

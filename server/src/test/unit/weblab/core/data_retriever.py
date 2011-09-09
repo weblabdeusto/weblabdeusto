@@ -22,6 +22,7 @@ from voodoo.override import Override
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 
 from weblab.data.experiments import ExperimentId
+from weblab.data.command import Command
 
 import weblab.core.data_retriever as TemporalInformationRetriever
 import weblab.core.coordinator.store as TemporalInformationStore
@@ -189,14 +190,14 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
             entry_id2 = 14214
             entry_id3 = 84123
 
-            pre_command1 = TemporalInformationStore.CommandOrFileInformationEntry(RESERVATION1, True, True, entry_id1, DATA_REQUEST1, self.initial_timestamp)
-            post_command1 = TemporalInformationStore.CommandOrFileInformationEntry(RESERVATION1, False, True, entry_id1, DATA1, self.initial_timestamp)
+            pre_command1 = TemporalInformationStore.CommandOrFileInformationEntry(RESERVATION1, True, True, entry_id1, Command(DATA_REQUEST1), self.initial_timestamp)
+            post_command1 = TemporalInformationStore.CommandOrFileInformationEntry(RESERVATION1, False, True, entry_id1, Command(DATA1), self.initial_timestamp)
 
-            pre_command2 = TemporalInformationStore.CommandOrFileInformationEntry(RESERVATION2, True, True, entry_id2, DATA_REQUEST2, self.initial_timestamp)
-            post_command2 = TemporalInformationStore.CommandOrFileInformationEntry(RESERVATION2, False, True, entry_id2, DATA2, self.initial_timestamp)
+            pre_command2 = TemporalInformationStore.CommandOrFileInformationEntry(RESERVATION2, True, True, entry_id2, Command(DATA_REQUEST2), self.initial_timestamp)
+            post_command2 = TemporalInformationStore.CommandOrFileInformationEntry(RESERVATION2, False, True, entry_id2, Command(DATA2), self.initial_timestamp)
 
-            pre_command3 = TemporalInformationStore.CommandOrFileInformationEntry(RESERVATION3, True, True, entry_id3, DATA_REQUEST3, self.initial_timestamp)
-            post_command3 = TemporalInformationStore.CommandOrFileInformationEntry(RESERVATION3, False, True, entry_id3, DATA3, self.initial_timestamp)
+            pre_command3 = TemporalInformationStore.CommandOrFileInformationEntry(RESERVATION3, True, True, entry_id3, Command(DATA_REQUEST3), self.initial_timestamp)
+            post_command3 = TemporalInformationStore.CommandOrFileInformationEntry(RESERVATION3, False, True, entry_id3, Command(DATA3), self.initial_timestamp)
 
             # The reservation is stored, therefore this command will
             # also be stored

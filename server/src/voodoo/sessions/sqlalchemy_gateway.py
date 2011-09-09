@@ -49,7 +49,7 @@ def getconn():
 
 class SessionSqlalchemyGateway(object):
 
-    pool   = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20)
+    pool   = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
     engine = None
 
     def __init__(self, cfg_manager, session_pool_id, timeout):

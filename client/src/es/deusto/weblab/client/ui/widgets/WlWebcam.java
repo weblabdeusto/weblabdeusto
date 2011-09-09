@@ -91,13 +91,15 @@ public class WlWebcam extends HorizontalPanel implements IWlWidget{
 			    
 			    @Override
 			    public void onError(ErrorEvent event) {
-				WlWebcam.this.timer.schedule(WlWebcam.this.time);
+			    	if(WlWebcam.this.timer != null)
+			    		WlWebcam.this.timer.schedule(WlWebcam.this.time);
 			    }
 			});
 			this.image.addLoadHandler(new LoadHandler(){
 					@Override
 					public void onLoad(LoadEvent event) {
-						WlWebcam.this.timer.schedule(WlWebcam.this.time);
+						if(WlWebcam.this.timer != null)
+							WlWebcam.this.timer.schedule(WlWebcam.this.time);
 					}
 				}
 			);

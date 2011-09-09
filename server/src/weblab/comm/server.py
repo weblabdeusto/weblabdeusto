@@ -208,7 +208,7 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             route = get_context().route
             if route is None:
                 route = self.server_route
-            self.send_header("Set-Cookie", "weblabsessionid=anythinglikeasessid.%s; path=/" % route)
+            self.send_header("Set-Cookie", "weblabsessionid=anythinglikeasessid.%s; path=/; Expires=%s" % (route, strdate(days=100)))
             self.send_header("Set-Cookie", "loginweblabsessionid=anythinglikeasessid.%s; path=/; Expires=%s" % (route, strdate(hours=1)))
         self.end_headers()
         self.wfile.write(response)

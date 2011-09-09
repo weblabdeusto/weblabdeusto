@@ -19,6 +19,8 @@ import java.util.Map;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.media.client.Audio;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -50,13 +52,12 @@ import es.deusto.weblab.client.experiments.logic.commands.SolveCircuitCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
-import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
 import es.deusto.weblab.client.ui.audio.AudioManager;
 import es.deusto.weblab.client.ui.widgets.EasyGrid;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
+import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
-import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 public class LogicExperiment extends ExperimentBase {
 	
@@ -230,12 +231,12 @@ public class LogicExperiment extends ExperimentBase {
 	 */
 	@Override
 	public void start(int time, String initialConfiguration) {
-		
-		// Ask the server for the webcam URL.
-		RequestWebcamCommand.createAndSend(this.boardController, this.webcam, 
-				this.messages);
+		final JSONValue parsedInitialConfiguration = JSONParser.parseStrict(initialConfiguration);
+		final String webcamUrl = parsedInitialConfiguration.isObject().get("webcam").isString().stringValue();
 		
 		this.textIntroPanel.setVisible(false);
+		
+		this.webcam.setUrl(webcamUrl);
 		this.webcam.setVisible(true);
 		
 	    this.points = 0;
@@ -313,6 +314,20 @@ public class LogicExperiment extends ExperimentBase {
     	this.sendSolutionButton.setVisible(true);
 	}	
 	
+	@Override
+	public boolean expectsPostEnd(){
+		return true;
+	}
+	
+	@Override
+	public void postEnd(String initialData, String endData){
+		if(endData == null){
+			this.messages.setText("Finished. Waiting for your punctuation...");
+		}else{
+			this.messages.setText("Finished. Your punctuation: " + endData);
+			this.widget.add(new HTML("Check the ranking <a href=\"/weblab/admin/winners.py\">here</a>"));
+		}
+	}
 	
 	/**
 	 * @param event Click event that is passed to the handler. 
@@ -339,17 +354,19 @@ public class LogicExperiment extends ExperimentBase {
 	@Override
 	public void end() {
 		if(this.webcam != null){
+			this.webcam.setVisible(false);
 			this.webcam.dispose();
 			this.webcam = null;
 		}	
 		if(this.timer != null){
+			this.timer.setVisible(false);
 			this.timer.dispose();
 			this.timer = null;
 		}
 		if(this.messages != null){
 			this.messages.dispose();
-			this.messages = null;
 		}
+		this.sendSolutionButton.setVisible(false);
 	}
 	
 	private String getWebcamImageUrl() {

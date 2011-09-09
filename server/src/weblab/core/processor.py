@@ -374,8 +374,7 @@ class UserProcessor(object):
                         file_content,
                         file_info
                     )
-
-                self._update_file(command_id_pack, response)
+                # TODO: how do we store async files? whenever somebody ask for the status? what if they don't ask for it?
                 return response
             except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
                 self._update_file(command_id_pack, Command.Command("ERROR: SessionNotFound: None"))
@@ -499,6 +498,8 @@ class UserProcessor(object):
                 # Instead, we will store a reference to our usage object, so that we can later update it
                 # when the response to the asynchronous command is ready.
                 self._session["async_commands_ids"][request_id] = command_id_pack
+
+                # TODO: when do we store async commands? whenever user asks for status? what if they don't ever ask?
 
                 return request_id
             

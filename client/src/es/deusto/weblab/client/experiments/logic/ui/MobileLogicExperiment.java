@@ -19,6 +19,8 @@ import java.util.Map;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Button;
@@ -184,8 +186,11 @@ public class MobileLogicExperiment extends ExperimentBase {
 	
 	@Override
 	public void start(int time, String initialConfiguration) {
-	    	this.points = 0;
-	    	this.widget.setVisible(true);
+		final JSONValue parsedInitialConfiguration = JSONParser.parseStrict(initialConfiguration);
+		final String webcamUrl = parsedInitialConfiguration.isObject().get("webcam").isString().stringValue();
+
+		this.points = 0;
+	    this.widget.setVisible(true);
 		
 		while(this.removableWidgetsPanel.getWidgetCount() > 0)
 		    this.removableWidgetsPanel.remove(0);
@@ -203,7 +208,7 @@ public class MobileLogicExperiment extends ExperimentBase {
 		this.removableWidgetsPanel.add(this.timer.getWidget());		
 
 		// Webcam
-    	this.webcam = new WlWebcam(this.getWebcamRefreshingTime(), this.getWebcamImageUrl());
+    	this.webcam = new WlWebcam(this.getWebcamRefreshingTime(), webcamUrl);
     	this.webcam.start();
     	this.removableWidgetsPanel.add(this.webcam.getWidget());
     	
@@ -302,6 +307,7 @@ public class MobileLogicExperiment extends ExperimentBase {
 	@Override
 	public void end() {
 		if(this.webcam != null){
+			this.webcam.setVisible(false);
 			this.webcam.dispose();
 			this.webcam = null;
 		}	
@@ -311,21 +317,26 @@ public class MobileLogicExperiment extends ExperimentBase {
 		}
 		if(this.messages != null){
 			this.messages.dispose();
-			this.messages = null;
+		}
+		
+		this.sendSolutionButton.setVisible(false);
+	}
+
+	@Override
+	public boolean expectsPostEnd(){
+		return true;
+	}
+
+	@Override
+	public void postEnd(String initialData, String endData){
+		if(endData == null){
+			this.messages.setText("Finished. Waiting for your punctuation...");
+		}else{
+			this.messages.setText("Finished. Your punctuation: " + endData);
+			this.widget.add(new HTML("Check the ranking <a href=\"/weblab/admin/winners.py\">here</a>"));
 		}
 	}
 	
-	private String getWebcamImageUrl() {
-		return this.configurationRetriever.getProperty(
-			MobileLogicExperiment.LOGIC_WEBCAM_IMAGE_URL_PROPERTY, 
-				this.getDefaultWebcamImageUrl()
-			);
-	}
-	
-	protected String getDefaultWebcamImageUrl(){
-		return MobileLogicExperiment.DEFAULT_LOGIC_WEBCAM_IMAGE_URL;
-	}
-
 	private int getWebcamRefreshingTime() {
 		return this.configurationRetriever.getIntProperty(
 			MobileLogicExperiment.LOGIC_WEBCAM_REFRESH_TIME_PROPERTY, 
