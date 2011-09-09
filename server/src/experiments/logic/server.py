@@ -170,7 +170,7 @@ class LogicExperiment(Experiment.Experiment):
             self.interfaces.send_message("Welcome!")
         except Exception as e:
             print "excepcion cuando tocaba LCD Welcome!", str(e)
-        return json.dumps({ "initial_configuration" : "welcome", "batch" : False })
+        return json.dumps({ "initial_configuration" : "{ \"webcam\" : \"%s\" }" % self.webcam_url, "batch" : False })
 
     @Override(Experiment.Experiment)
     def do_should_finish(self):
@@ -225,8 +225,6 @@ class LogicExperiment(Experiment.Experiment):
                     return "FAIL"
         elif command == 'GET_CIRCUIT':
             return json.dumps(self.current_circuit.to_dict())
-        elif command.startswith('WEBCAMURL'):
-            return "WEBCAMURL=" + self.webcam_url
         else:
             return 'Error: Invalid command: %s' % command
 
