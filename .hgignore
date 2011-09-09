@@ -16,6 +16,7 @@ regex:
 ^server/launch/.*/.*\.sock$
 ^server/launch/.*/files_stored$
 ^server/launch/deusto
+^client/gwt-unitCache
 
 #
 # Glob style
