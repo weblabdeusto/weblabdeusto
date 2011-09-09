@@ -136,7 +136,7 @@ class TemporalInformationRetriever(threading.Thread):
                     
     def _process_pre_command(self, information):
         command = CommandSent(
-                        Command.Command(information.payload),
+                        information.payload,
                         information.timestamp
                     )
 
@@ -157,7 +157,7 @@ class TemporalInformationRetriever(threading.Thread):
         if command_id is None: # Command not yet stored
             return False
 
-        response_command = Command.Command(information.payload)
+        response_command = information.payload
 
         self.db_manager.update_command(command_id, response_command, information.timestamp)
 
@@ -183,7 +183,7 @@ class TemporalInformationRetriever(threading.Thread):
         if command_id is None: # Command not yet stored
             return False
 
-        response_command = Command.Command(information.payload)
+        response_command = information.payload
 
         self.db_manager.update_file(command_id, response_command, information.timestamp)
 
