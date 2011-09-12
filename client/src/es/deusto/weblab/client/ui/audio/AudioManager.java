@@ -147,18 +147,18 @@ public class AudioManager {
 				final AudioElement elem = audio.getAudioElement();
 				
 				// First try probably
-				if(audio.canPlayType(OGG_TYPE).equals(MediaElement.CAN_PLAY_PROBABLY))
+				if(elem.canPlayType(OGG_TYPE).equals(MediaElement.CAN_PLAY_PROBABLY))
 					elem.setSrc(GWT.getModuleBaseURL() + file + ".ogg");
-				else if(audio.canPlayType(MP3_TYPE).equals(MediaElement.CAN_PLAY_PROBABLY))
+				else if(elem.canPlayType(MP3_TYPE).equals(MediaElement.CAN_PLAY_PROBABLY))
 					elem.setSrc(GWT.getModuleBaseURL() + file + ".mp3");
-				else if(audio.canPlayType(WAV_TYPE).equals(MediaElement.CAN_PLAY_PROBABLY))
+				else if(elem.canPlayType(WAV_TYPE).equals(MediaElement.CAN_PLAY_PROBABLY))
 					elem.setSrc(GWT.getModuleBaseURL() + file + ".wav");
 				// Then maybe
-				else if(audio.canPlayType(OGG_TYPE).equals(MediaElement.CAN_PLAY_MAYBE))
+				else if(elem.canPlayType(OGG_TYPE).equals(MediaElement.CAN_PLAY_MAYBE))
 					elem.setSrc(GWT.getModuleBaseURL() + file + ".ogg");
-				else if(audio.canPlayType(MP3_TYPE).equals(MediaElement.CAN_PLAY_MAYBE))
+				else if(elem.canPlayType(MP3_TYPE).equals(MediaElement.CAN_PLAY_MAYBE))
 					elem.setSrc(GWT.getModuleBaseURL() + file + ".mp3");
-				else if(audio.canPlayType(WAV_TYPE).equals(MediaElement.CAN_PLAY_MAYBE))
+				else if(elem.canPlayType(WAV_TYPE).equals(MediaElement.CAN_PLAY_MAYBE))
 					elem.setSrc(GWT.getModuleBaseURL() + file + ".wav");
 				// Then fail
 				else
