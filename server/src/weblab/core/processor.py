@@ -292,13 +292,13 @@ class UserProcessor(object):
                 raise core_exc.NoCurrentReservationException(
                     'Experiment reservation expired'
                 )
-            except LaboratoryExceptions.FailedToSendFileException as ftspe:
+            except LaboratoryExceptions.FailedToInteractException as ftspe:
                 self._update_file(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
                 try:
                     self.finished_experiment()
                 except core_exc.FailedToFreeReservationException:
                     pass
-                raise core_exc.FailedToSendFileException(
+                raise core_exc.FailedToInteractException(
                         "Failed to send file: %s" % ftspe
                     )
         else:
@@ -336,14 +336,14 @@ class UserProcessor(object):
                 raise core_exc.NoCurrentReservationException(
                     'Experiment reservation expired'
                 )
-            except LaboratoryExceptions.FailedToSendCommandException as ftspe:
+            except LaboratoryExceptions.FailedToInteractException as ftspe:
                 self._update_command(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
                 try:
                     self.finished_experiment()
                 except core_exc.FailedToFreeReservationException:
                     pass
 
-                raise core_exc.FailedToSendCommandException(
+                raise core_exc.FailedToInteractException(
                         "Failed to send command: %s" % ftspe
                     )
         else:
@@ -385,13 +385,13 @@ class UserProcessor(object):
                 raise core_exc.NoCurrentReservationException(
                     'Experiment reservation expired'
                 )
-            except LaboratoryExceptions.FailedToSendFileException as ftspe:
+            except LaboratoryExceptions.FailedToInteractException as ftspe:
                 self._update_file(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
                 try:
                     self.finished_experiment()
                 except core_exc.FailedToFreeReservationException:
                     pass
-                raise core_exc.FailedToSendFileException(
+                raise core_exc.FailedToInteractException(
                         "Failed to send file: %s" % ftspe
                     )
         else:
@@ -448,7 +448,7 @@ class UserProcessor(object):
                 raise core_exc.NoCurrentReservationException(
                     'Experiment reservation expired'
                 )
-            except LaboratoryExceptions.FailedToSendCommandException as ftspe:
+            except LaboratoryExceptions.FailedToInteractException as ftspe:
                 # There was an error while trying to send the command. 
                 # We'll finish the experiment.
                 #self._update_command(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
@@ -457,7 +457,7 @@ class UserProcessor(object):
                 except core_exc.FailedToFreeReservationException:
                     pass
 
-                raise core_exc.FailedToSendCommandException(
+                raise core_exc.FailedToInteractException(
                         "Failed to send command: %s" % ftspe
                     )
         else:
@@ -512,14 +512,14 @@ class UserProcessor(object):
                 raise core_exc.NoCurrentReservationException(
                     'Experiment reservation expired'
                 )
-            except LaboratoryExceptions.FailedToSendCommandException as ftspe:
+            except LaboratoryExceptions.FailedToInteractException as ftspe:
                 self._update_command(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
                 try:
                     self.finished_experiment()
                 except core_exc.FailedToFreeReservationException:
                     pass
 
-                raise core_exc.FailedToSendCommandException(
+                raise core_exc.FailedToInteractException(
                         "Failed to send command: %s" % ftspe
                     )
         else:

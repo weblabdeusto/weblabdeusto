@@ -15,62 +15,50 @@
 import weblab.exc as wlExc
 
 class LaboratoryException(wlExc.WebLabException):
-    def __init__(self,*args,**kargs):
-        wlExc.WebLabException.__init__(self,*args,**kargs)
+    pass
 
 class ExperimentNotFoundException(LaboratoryException):
-    def __init__(self, *args, **kargs):
-        LaboratoryException.__init__(self,*args,**kargs)
+    pass
 
 class ExperimentAlreadyFoundException(LaboratoryException):
-    def __init__(self, *args, **kargs):
-        LaboratoryException.__init__(self,*args,**kargs)
+    pass
 
 class BusyExperimentException(LaboratoryException):
-    def __init__(self, *args, **kargs):
-        LaboratoryException.__init__(self,*args,**kargs)
+    pass
 
 class AlreadyFreedExperimentException(LaboratoryException):
-    def __init__(self, *args, **kargs):
-        LaboratoryException.__init__(self,*args,**kargs)
+    pass
 
-class FailedToSendFileException(LaboratoryException):
-    def __init__(self, *args, **kargs):
-        LaboratoryException.__init__(self,*args,**kargs)
+class FailedToInteractException(LaboratoryException):
+    pass
 
-class FailedToSendCommandException(LaboratoryException):
-    def __init__(self, *args, **kargs):
-        LaboratoryException.__init__(self,*args,**kargs)
+class FailedToSendFileException(FailedToInteractException):
+    pass
+
+class FailedToSendCommandException(FailedToInteractException):
+    pass
 
 class SessionNotFoundInLaboratoryServerException(LaboratoryException):
-    def __init__(self, *args, **kargs):
-        LaboratoryException.__init__(self,*args,**kargs)
+    pass
 
 class NotASessionTypeException(LaboratoryException):
-    def __init__(self, *args, **kargs):
-        LaboratoryException.__init__(self,*args,**kargs)
+    pass
 
 class InvalidLaboratoryConfigurationException(LaboratoryException):
-    def __init__(self, *args, **kargs):
-        LaboratoryException.__init__(self,*args,**kargs)
+    pass
 
 class CheckingHandlerException(LaboratoryException):
-    def __init__(self, *args, **kargs):
-        LaboratoryException.__init__(self,*args,**kargs)
+    pass
 
 class WebcamIsReturningAnImageHandlerException(CheckingHandlerException):
-    def __init__(self, *args, **kargs):
-        LaboratoryException.__init__(self,*args,**kargs)
+    pass
 
 class ImageURLDidNotRetrieveAResponseException(WebcamIsReturningAnImageHandlerException):
-    def __init__(self, *args, **kargs):
-        LaboratoryException.__init__(self,*args,**kargs)
+    pass
 
 class InvalidContentTypeRetrievedFromImageURLException(WebcamIsReturningAnImageHandlerException):
-    def __init__(self, *args, **kargs):
-        LaboratoryException.__init__(self,*args,**kargs)
+    pass
 
 class UnableToConnectHostnameInPortException(CheckingHandlerException):
-    def __init__(self, *args, **kargs):
-        LaboratoryException.__init__(self,*args,**kargs)
+    pass
         

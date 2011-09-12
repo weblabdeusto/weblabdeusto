@@ -387,7 +387,7 @@ class UserProcessorTestCase(unittest.TestCase):
         file_info    = "program"
         self.lab_mock.send_async_file(SessionId.SessionId('my_lab_session_id'), file_content, file_info)
         self.mocker.throw( 
-                LaboratoryExceptions.FailedToSendFileException("problem@laboratory") 
+                LaboratoryExceptions.FailedToInteractException("problem@laboratory") 
             )
         self.mocker.replay()
 
@@ -405,7 +405,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertFalse( self.processor.is_expired() )
 
         self.assertRaises(
-                coreExc.FailedToSendFileException,
+                coreExc.FailedToInteractException,
                 self.processor.send_async_file,
                 file_content,
                 file_info
@@ -420,7 +420,7 @@ class UserProcessorTestCase(unittest.TestCase):
         file_info    = "program"
         self.lab_mock.send_file(SessionId.SessionId('my_lab_session_id'), file_content, file_info)
         self.mocker.throw( 
-                LaboratoryExceptions.FailedToSendFileException("problem@laboratory") 
+                LaboratoryExceptions.FailedToInteractException("problem@laboratory") 
             )
         self.mocker.replay()
 
@@ -438,7 +438,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertFalse( self.processor.is_expired() )
 
         self.assertRaises(
-                coreExc.FailedToSendFileException,
+                coreExc.FailedToInteractException,
                 self.processor.send_file,
                 file_content,
                 file_info
@@ -589,7 +589,7 @@ class UserProcessorTestCase(unittest.TestCase):
         command = Command.Command("Your command")
         self.lab_mock.send_async_command(SessionId.SessionId('my_lab_session_id'), command)
         self.mocker.throw( 
-                LaboratoryExceptions.FailedToSendCommandException("problem@laboratory") 
+                LaboratoryExceptions.FailedToInteractException("problem@laboratory") 
             )
         self.mocker.replay()
 
@@ -607,7 +607,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertFalse( self.processor.is_expired() )
 
         self.assertRaises(
-                coreExc.FailedToSendCommandException,
+                coreExc.FailedToInteractException,
                 self.processor.send_async_command,
                 command
             )
@@ -620,7 +620,7 @@ class UserProcessorTestCase(unittest.TestCase):
         command = Command.Command("Your command")
         self.lab_mock.send_command(SessionId.SessionId('my_lab_session_id'), command)
         self.mocker.throw( 
-                LaboratoryExceptions.FailedToSendCommandException("problem@laboratory") 
+                LaboratoryExceptions.FailedToInteractException("problem@laboratory") 
             )
         self.mocker.replay()
 
@@ -638,7 +638,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertFalse( self.processor.is_expired() )
 
         self.assertRaises(
-                coreExc.FailedToSendCommandException,
+                coreExc.FailedToInteractException,
                 self.processor.send_command,
                 command
             )
