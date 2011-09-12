@@ -248,7 +248,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             if db_command is None:
                 return False
 
-            db_command.response = response.commandstring
+            db_command.response = response.commandstring if response is not None else None
             db_command.set_timestamp_after(end_timestamp)
             session.add(db_command)
             session.commit()
@@ -286,7 +286,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             if db_file_sent is None:
                 return False
 
-            db_file_sent.response = response.commandstring
+            db_file_sent.response = response.commandstring if response is not None else None
             db_file_sent.set_timestamp_after(end_timestamp)
             session.add(db_file_sent)
             session.commit()
