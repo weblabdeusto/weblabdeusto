@@ -100,7 +100,7 @@ class Coordinator(object):
 
 
         import weblab.core.server as UserProcessingServer
-        clean = cfg_manager.get_value(UserProcessingServer.WEBLAB_USER_PROCESSING_SERVER_CLEAN_COORDINATOR, True)
+        clean = cfg_manager.get_value(UserProcessingServer.WEBLAB_CORE_SERVER_CLEAN_COORDINATOR, True)
 
         if clean:
             resources_checker_frequency = cfg_manager.get_value(RESOURCES_CHECKER_FREQUENCY, DEFAULT_RESOURCES_CHECKER_FREQUENCY)

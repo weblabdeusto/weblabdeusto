@@ -58,11 +58,12 @@ GET_USER_INFORMATION_CACHE_TIME = 15 #seconds
 CHECKING_TIME_NAME    = 'core_checking_time'
 DEFAULT_CHECKING_TIME = 3 # seconds
 
-WEBLAB_USER_PROCESSING_SERVER_SESSION_TYPE         = "core_session_type"
-DEFAULT_WEBLAB_USER_PROCESSING_SERVER_SESSION_TYPE = SessionType.Memory
-WEBLAB_USER_PROCESSING_SERVER_SESSION_POOL_ID      = "core_session_pool_id"
+WEBLAB_CORE_SERVER_SESSION_TYPE                 = "core_session_type"
+DEFAULT_WEBLAB_CORE_SERVER_SESSION_TYPE         = SessionType.Memory
+WEBLAB_CORE_SERVER_SESSION_POOL_ID              = "core_session_pool_id"
+WEBLAB_CORE_SERVER_RESERVATIONS_SESSION_POOL_ID = "core_session_pool_id"
 
-WEBLAB_USER_PROCESSING_SERVER_CLEAN_COORDINATOR    = "core_coordinator_clean"
+WEBLAB_CORE_SERVER_CLEAN_COORDINATOR            = "core_coordinator_clean"
 
 def load_user_processor(func):
     def wrapped(self, session, *args, **kwargs):
@@ -91,43 +92,59 @@ class UserProcessingServer(object):
         super(UserProcessingServer,self).__init__(*args, **kwargs)
 
         self._stopping = False 
-
-        session_type    = cfg_manager.get_value(WEBLAB_USER_PROCESSING_SERVER_SESSION_TYPE, DEFAULT_WEBLAB_USER_PROCESSING_SERVER_SESSION_TYPE) 
-        session_pool_id = cfg_manager.get_value(WEBLAB_USER_PROCESSING_SERVER_SESSION_POOL_ID, "UserProcessingServer")
-        if session_type in SessionType.getSessionTypeValues():
-            self._session_manager = SessionManager.SessionManager(
-                    cfg_manager, session_type, session_pool_id
-                )
-        else:
-            raise coreExc.NotASessionTypeException(
-                    'Not a session type: %s' % session_type 
-                )
-
         self._cfg_manager    = cfg_manager  
         self._locator        = locator
 
+        # 
+        # Create session managers
+        # 
+
+        session_type    = cfg_manager.get_value(WEBLAB_CORE_SERVER_SESSION_TYPE, DEFAULT_WEBLAB_CORE_SERVER_SESSION_TYPE) 
+        if not session_type in SessionType.getSessionTypeValues():
+            raise coreExc.NotASessionTypeException( 'Not a session type: %s' % session_type )
+
+        session_pool_id = cfg_manager.get_value(WEBLAB_CORE_SERVER_SESSION_POOL_ID, "UserProcessingServer")
+        self._session_manager              = SessionManager.SessionManager( cfg_manager, session_type, session_pool_id )
+
+        reservations_session_pool_id = cfg_manager.get_value(WEBLAB_CORE_SERVER_RESERVATIONS_SESSION_POOL_ID, "CoreServerReservations")
+        self._reservations_session_manager = SessionManager.SessionManager( cfg_manager, session_type, reservations_session_pool_id )
+
+        # 
+        # Coordination
+        # 
+
         self._coordinator    = Coordinator.Coordinator(self._locator, cfg_manager) 
 
-        self._server_route   = cfg_manager.get_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_SERVER_ROUTE, 
-                                            UserProcessingFacadeServer.DEFAULT_USER_PROCESSING_SERVER_ROUTE)
-
-        clean = cfg_manager.get_value(WEBLAB_USER_PROCESSING_SERVER_CLEAN_COORDINATOR, True)
+        clean = cfg_manager.get_value(WEBLAB_CORE_SERVER_CLEAN_COORDINATOR, True)
         if clean:
             self._coordinator._clean()
+            self._parse_coordination_configuration()
+
+        
+        # 
+        # Database and information storage managers
+        # 
 
         self._db_manager     = DatabaseManager.UserProcessingDatabaseManager(cfg_manager)
-
 
         self._commands_store = TemporalInformationStore.CommandsTemporalInformationStore()
 
         self._temporal_information_retriever = TemporalInformationRetriever.TemporalInformationRetriever(self._coordinator.initial_store, self._coordinator.finished_store, self._commands_store, self._db_manager)
         self._temporal_information_retriever.start()
 
+        #
+        # Alive users
+        # 
+
         self._alive_users_collection = AliveUsersCollection.AliveUsersCollection(
                 self._locator, self._cfg_manager, session_type, self._session_manager, self._db_manager, self._coordinator, self._commands_store)
 
-        if clean:
-            self._parse_coordination_configuration()
+        
+        # 
+        # Initialize facade (comm) servers
+        # 
+
+        self._server_route   = cfg_manager.get_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_SERVER_ROUTE, UserProcessingFacadeServer.DEFAULT_USER_PROCESSING_SERVER_ROUTE)
 
         self._facade_servers = []
         for FacadeClass in self.FACADE_SERVERS:
@@ -135,11 +152,15 @@ class UserProcessingServer(object):
             self._facade_servers.append(facade_server)
             facade_server.start()
 
+        #
+        # Start checking times
+        # 
         self._initialize_checker_timer()
 
 
 
     def stop(self):
+        """ Stops all the servers and threads """
         self._stopping = True
 
         self._temporal_information_retriever.stop()
@@ -187,10 +208,10 @@ class UserProcessingServer(object):
     def _check_other_sessions_finished(self):
         expired_users = self._alive_users_collection.check_expired_users()
         if len(expired_users) > 0:
-            self._purge_users(expired_users)
+            self._purge_expired_users(expired_users)
 
     @threaded(_resource_manager)
-    def _purge_users(self, expired_users):
+    def _purge_expired_users(self, expired_users):
         for expired_user in expired_users:
             if self._stopping:
                 return
@@ -384,10 +405,11 @@ class UserProcessingServer(object):
         self._check_user_not_expired_and_poll( user_processor, False )
         return user_processor.get_reservation_status()
 
-
+    ######################################
     #
-    # admin service
+    #  Admin services
     #
+    # 
 
     @logged(log.level.Info)
     @check_session(*check_session_params)
