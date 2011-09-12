@@ -53,7 +53,7 @@ class PostReservationDataManager(object):
             if reservation is None:
                 return None
 
-            return WSS.PostReservationStatus(reservation.finished, reservation.initial_data, reservation.end_data)
+            return WSS.PostReservationStatus(reservation_id, reservation.finished, reservation.initial_data, reservation.end_data)
         finally:
             session.close()
        

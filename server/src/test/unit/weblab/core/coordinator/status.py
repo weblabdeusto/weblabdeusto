@@ -21,23 +21,23 @@ import weblab.core.coordinator.status as WSS
 class WebLabSchedulingStatusTest(unittest.TestCase):
 
     def test_str_waiting_instances(self):
-        wi = WSS.WaitingInstancesQueueStatus(5)
+        wi = WSS.WaitingInstancesQueueStatus("reservation_id", 5)
         str(wi)
 
     def test_str_waiting(self):
-        w = WSS.WaitingQueueStatus(4)
+        w = WSS.WaitingQueueStatus("reservation_id", 4)
         str(w)
 
     def test_str_waiting_confirmation(self):
-        wc     = WSS.WaitingConfirmationQueueStatus("coord_adress1", 50)
+        wc     = WSS.WaitingConfirmationQueueStatus("reservation_id", "coord_adress1", 50)
         str(wc)
 
     def test_str_reservation(self):
-        res    = WSS.ReservedStatus("coord_address1", "lab_session_id1", 50, None, datetime.datetime.now(), datetime.datetime.now())
+        res    = WSS.ReservedStatus("reservation_id", "coord_address1", "lab_session_id1", 50, None, datetime.datetime.now(), datetime.datetime.now())
         str(res)
 
     def test_str_post_reservation(self):
-        post   = WSS.PostReservationStatus(True, "foo1", "bar")
+        post   = WSS.PostReservationStatus("reservation_id", True, "foo1", "bar")
         str(post)
 
 def suite():

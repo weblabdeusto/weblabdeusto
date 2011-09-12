@@ -173,9 +173,9 @@ class PriorityQueueScheduler(Scheduler):
                 timestamp_before      = concrete_current_reservation.timestamp_before
                 timestamp_after       = concrete_current_reservation.timestamp_after
                 if lab_session_id is None:
-                    return WSS.WaitingConfirmationQueueStatus(lab_coord_address, obtained_time)
+                    return WSS.WaitingConfirmationQueueStatus(reservation_id, lab_coord_address, obtained_time)
                 else:
-                    return WSS.ReservedStatus(lab_coord_address, SessionId.SessionId(lab_session_id), obtained_time, initial_configuration, timestamp_before, timestamp_after)
+                    return WSS.ReservedStatus(reservation_id, lab_coord_address, SessionId.SessionId(lab_session_id), obtained_time, initial_configuration, timestamp_before, timestamp_after)
 
             resource_type = session.query(ResourceType).filter_by(name = self.resource_type_name).one()
             waiting_reservation = session.query(WaitingReservation).filter_by(reservation_id = reservation_id, resource_type_id = resource_type.id).first()
@@ -210,9 +210,9 @@ class PriorityQueueScheduler(Scheduler):
             return self.get_reservation_status(reservation_id)
 
         if remaining_working_instances:
-            return WSS.WaitingQueueStatus(position)
+            return WSS.WaitingQueueStatus(reservation_id, position)
         else:
-            return WSS.WaitingInstancesQueueStatus(position)
+            return WSS.WaitingInstancesQueueStatus(reservation_id, position)
 
 
     ################################################################

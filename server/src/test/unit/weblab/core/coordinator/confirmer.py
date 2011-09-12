@@ -135,7 +135,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
         
         status = self.coordinator.get_reservation_status(reservation1_id)
-        expected_status =  WSS.ReservedStatus(CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, 30, '{}', now, now)
+        expected_status =  WSS.ReservedStatus(reservation1_id, CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, 30, '{}', now, now)
 
         self.assertTrue("Unexpected status due to timestamp_before: %s; expected something like %s" % (status, expected_status), 
                             status.timestamp_before >= now and status.timestamp_before <= now + datetime.timedelta(seconds=10))
@@ -166,7 +166,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
         
         status = self.coordinator.get_reservation_status(reservation1_id)
-        expected_status =  WSS.WaitingInstancesQueueStatus(0)
+        expected_status =  WSS.WaitingInstancesQueueStatus(reservation1_id, 0)
         self.assertEquals( expected_status, status )
 
     def test_reject_experiment_voodoo_gen_raises_exception(self):
@@ -185,7 +185,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
         
         status = self.coordinator.get_reservation_status(reservation1_id)
-        expected_status =  WSS.WaitingInstancesQueueStatus(0)
+        expected_status =  WSS.WaitingInstancesQueueStatus(reservation1_id, 0)
         self.assertEquals( expected_status, status )
 
 
