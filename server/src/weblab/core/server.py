@@ -16,6 +16,7 @@
 
 import time
 import threading
+from functools import wraps
 
 from voodoo.log import logged
 import voodoo.log as log
@@ -66,15 +67,25 @@ WEBLAB_CORE_SERVER_RESERVATIONS_SESSION_POOL_ID = "core_session_pool_id"
 WEBLAB_CORE_SERVER_CLEAN_COORDINATOR            = "core_coordinator_clean"
 
 def load_user_processor(func):
-    def wrapped(self, session, *args, **kwargs):
+    @wraps(func)
+    def wrapper(self, session, *args, **kwargs):
         user_processor = self._load_user(session)
         try:
             return func(self, user_processor, session, *args, **kwargs)
         finally:
             user_processor.update_latest_timestamp()
-    wrapped.__name__ = func.__name__
-    wrapped.__doc__  = func.__doc__
-    return wrapped
+
+    return wrapper
+
+def load_reservation_processor(func):
+    @wraps(func)
+    def wrapper(self, session, *args, **kwargs):
+        reservation_processor = self._load_reservation_processor(session)
+        try:
+            return func(self, resservation_processor, session, *args, **kwargs)
+        finally:
+            reservation_processor.update_latest_timestamp()
+    return wrapper
 
 class UserProcessingServer(object):
     """

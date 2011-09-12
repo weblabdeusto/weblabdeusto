@@ -17,7 +17,7 @@
 import time
 import traceback
 import urllib2
-
+from functools import wraps
 import json
 
 import cookielib
@@ -73,8 +73,8 @@ class Call(object):
 
 
 def logged(func):
-
-    def wrapped(self, *args, **kargs):
+    @wraps(func)
+    def wrapper(self, *args, **kargs):
         try:
             begin = time.time()
             try:
@@ -91,20 +91,17 @@ def logged(func):
             end = time.time()
             self._add_call(begin, end, func.__name__.lstrip("do_"), args, kargs, return_value, exception_and_trace_raised)
 
-    wrapped.__name__ = func.__name__
-    wrapped.__doc__  = func.__doc__
-    return wrapped
+    return wrapper
 
 def possibleKeyError(func):
-    def wrapped(self, *args, **kargs):
+    @wraps(func)
+    def wrapper(self, *args, **kargs):
         try:
             return func(self, *args, **kargs)
         except KeyError:
             raise Exception("Unexpected response in method %s with args %s and kargs %s" % (func.__name__, str(args), str(kargs)) )
 
-    wrapped.__name__ = func.__name__
-    wrapped.__doc__  = func.__doc__
-    return wrapped
+    return wrapper
 
 class AbstractBot(object):
     def __init__(self, url, url_login):
