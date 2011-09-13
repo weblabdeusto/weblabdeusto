@@ -16,6 +16,7 @@
 
 import time
 import threading
+
 from functools import wraps
 
 from voodoo.log import logged
@@ -156,7 +157,7 @@ class UserProcessingServer(object):
         # 
 
         self._alive_users_collection = AliveUsersCollection.AliveUsersCollection(
-                self._locator, self._cfg_manager, session_type, self._reservations_session_manager, self._db_manager, self._coordinator, self._commands_store)
+                self._locator, self._cfg_manager, session_type, self._reservations_session_manager, self._coordinator, self._commands_store, self._coordinator.finished_reservations_store)
 
         
         # 

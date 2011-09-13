@@ -14,6 +14,7 @@
 # 
 import time
 import datetime
+import Queue
 
 import json
 
@@ -97,6 +98,7 @@ class Coordinator(object):
 
         self.initial_store  = TemporalInformationStore.InitialTemporalInformationStore()
         self.finished_store = TemporalInformationStore.FinishTemporalInformationStore()
+        self.finished_reservations_store = Queue.Queue()
 
 
         import weblab.core.server as UserProcessingServer
@@ -462,6 +464,7 @@ class Coordinator(object):
     @logged()
     def finish_reservation(self, reservation_id):
         if self.reservations_manager.initialize_deletion(reservation_id):
+            self.finished_reservations_store.put(reservation_id)
             try:
                 schedulers = self._get_schedulers_per_reservation(reservation_id)
                 for scheduler in schedulers:

@@ -15,6 +15,7 @@
 
 import unittest
 import time
+import Queue
 
 import test.unit.configuration as configuration_module
 
@@ -60,14 +61,16 @@ class AliveUsersCollectionTestCase(unittest.TestCase):
 
         coordinator = DummyCoordinator()
 
+        self.finished_reservations_store = Queue.Queue()
+
         self.auc     = AliveUsersCollection.AliveUsersCollection(
                     locator,
                     cfg_manager,
                     SessionType.Memory,
                     self.session_mgr,
-                    db_manager,
                     coordinator,
-                    commands_store
+                    commands_store,
+                    self.finished_reservations_store
                 )
 
         self.tm      = TimeModule()
@@ -87,24 +90,58 @@ class AliveUsersCollectionTestCase(unittest.TestCase):
         self.auc.remove_user(session_id)
         self.auc.remove_user(session_id) # No exception
 
-    def test_three_sessions_one_expired(self):
-        def create_session(timestamp):
-            session_id = self.session_mgr.create_session()
-            self.session_mgr.modify_session(
-                    session_id,
-                    {
-                        'db_session_id'   : 'whatever',
-                        'session_polling' : (
-                            timestamp,
-                            UserProcessor.UserProcessor.EXPIRATION_TIME_NOT_SET
-                        )
-                    }
-                )
-            return session_id
+    def create_session(self, timestamp):
+        session_id = self.session_mgr.create_session()
+        self.session_mgr.modify_session(
+                session_id,
+                {
+                    'db_session_id'   : 'whatever',
+                    'session_polling' : (
+                        timestamp,
+                        UserProcessor.UserProcessor.EXPIRATION_TIME_NOT_SET
+                    )
+                }
+            )
+        return session_id
 
-        session_id1 = create_session(self.tm.time())
-        session_id2 = create_session(self.tm.time() - 3600) # expired
-        session_id3 = create_session(self.tm.time())
+    def test_finished_sessions(self):
+        session_id1 = self.create_session(self.tm.time())
+        session_id2 = self.create_session(self.tm.time())
+
+        self.auc.add_user(session_id1)
+        self.auc.add_user(session_id2)
+
+        expired_users = self.auc.check_expired_users()
+        self.assertEquals(0, len(expired_users))
+
+        self.finished_reservations_store.put(session_id1)
+
+        expired_users = self.auc.check_expired_users()
+        self.assertEquals(1, len(expired_users))
+        self.assertEquals(session_id1, expired_users[0])
+
+    def test_finished_sessions2(self):
+        session_id1 = self.create_session(self.tm.time() - 3600) # expired
+        session_id2 = self.create_session(self.tm.time()) # expired
+
+        self.auc.add_user(session_id1)
+        self.auc.add_user(session_id2)
+
+        self.finished_reservations_store.put(session_id2)
+
+        expired_users = self.auc.check_expired_users()
+
+        self.assertEquals(2, len(expired_users))
+        self.assertEquals(session_id2, expired_users[0])
+        self.assertEquals(session_id1, expired_users[1])
+
+        expired_users = self.auc.check_expired_users()
+        self.assertEquals(0, len(expired_users))
+
+    def test_three_sessions_one_expired(self):
+        session_id1 = self.create_session(self.tm.time())
+        session_id2 = self.create_session(self.tm.time() - 3600) # expired
+        session_id3 = self.create_session(self.tm.time())
 
         self.auc.add_user(session_id1)
         self.auc.add_user(session_id2)
@@ -124,23 +161,9 @@ class AliveUsersCollectionTestCase(unittest.TestCase):
         self.assertEquals(0, len(expired_users))
 
     def test_three_sessions_one_expired_and_then_another_before_time_passes(self):
-        def create_session(timestamp):
-            session_id = self.session_mgr.create_session()
-            self.session_mgr.modify_session(
-                    session_id,
-                    {
-                        'db_session_id'   : 'whatever',
-                        'session_polling' : (
-                            timestamp,
-                            UserProcessor.UserProcessor.EXPIRATION_TIME_NOT_SET
-                        )
-                    }
-                )
-            return session_id
-
-        session_id1 = create_session(self.tm.time())
-        session_id2 = create_session(self.tm.time() - 3600) # expired
-        session_id3 = create_session(self.tm.time())
+        session_id1 = self.create_session(self.tm.time())
+        session_id2 = self.create_session(self.tm.time() - 3600) # expired
+        session_id3 = self.create_session(self.tm.time())
 
         self.auc.add_user(session_id1)
         self.auc.add_user(session_id2)
