@@ -59,7 +59,7 @@ public class LabCommunicationTest extends CommonCommunicationTest {
 					requestBuilder,
 					configurationManager
 				);
-		final SessionID sessionId = new SessionID();
+		final SessionID sessionId = new SessionID("my_session_id");
 		
 		final int TIME = 100;
 		final String SERIALIZED_MESSAGE = "serialized get reservation status request";
@@ -155,7 +155,7 @@ public class LabCommunicationTest extends CommonCommunicationTest {
 					requestBuilder,
 					configurationManager
 				);
-		final SessionID sessionId = new SessionID();
+		final SessionID sessionId = new SessionID("my_session_id");
 		
 		final String SERIALIZED_MESSAGE = "serialized get reservation status request";
 		final String ERROR_MESSAGE = "whatever the error message";
@@ -344,7 +344,7 @@ public class LabCommunicationTest extends CommonCommunicationTest {
 					requestBuilder,
 					configurationManager
 				);
-		final SessionID sessionId = new SessionID();
+		final SessionID sessionId = new SessionID("my_session_id");
 		
 		final String SERIALIZED_MESSAGE = "serialized get reservation status request";
 		final String ERROR_MESSAGE = "whatever the error message";

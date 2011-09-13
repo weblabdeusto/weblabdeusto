@@ -56,7 +56,7 @@ public class LabControllerTest  extends GWTTestCase{
 	private FakeLabCommunication fakeCommunications;
 	private FakeUIManager fakeUIManager;
 	private FakePollingHandler fakePollingHandler;
-	
+	private final String reservationId = "my_reservation_id";
 	private static final int WAITING_INSTANCES_MIN_POLL_TIME = 12345;
 	private static final int WAITING_INSTANCES_MAX_POLL_TIME = 123450;
 	private static final int WAITING_MIN_POLL_TIME           = 12346;
@@ -280,7 +280,7 @@ public class LabControllerTest  extends GWTTestCase{
 		
 		m = v.get(1);
 		Assert.assertEquals(3, m.getParameters().length);
-		Assert.assertEquals(context.sessionID, m.getParameters()[0]);
+		Assert.assertEquals(new SessionID(this.reservationId), m.getParameters()[0]);
 		Assert.assertEquals(myCommand, m.getParameters()[1]);
 		
 		Assert.assertTrue(m.getParameters()[2] instanceof IResponseCommandCallback);
@@ -331,7 +331,6 @@ public class LabControllerTest  extends GWTTestCase{
 	private class ReservationContext{
 		public IReservationCallback reservationCallback;
 		public FakeWebLabController controller;
-		public SessionID sessionID;
 	}
 	
 	private ReservationContext createReservationContext() throws Exception{
@@ -344,7 +343,6 @@ public class LabControllerTest  extends GWTTestCase{
 		
 		// Data creation
 		final SessionID sessionID = new SessionID("something");
-		context.sessionID = sessionID;
 		
 		final Experiment experiment = this.createExperiment();
 		
@@ -389,7 +387,7 @@ public class LabControllerTest  extends GWTTestCase{
 	private ReservationContext createConfirmedReservationContext() throws Exception{
 		final ReservationContext context = this.createReservationContext();
 		final IReservationCallback callback = context.reservationCallback;
-		callback.onSuccess(new ConfirmedReservationStatus("reservation_id", 100));
+		callback.onSuccess(new ConfirmedReservationStatus(this.reservationId, 100));
 		return context;
 	}
 		

@@ -44,4 +44,7 @@ public interface ILabController {
 	public void finishReservationAndLogout();
 	
 	public void poll();
+	
+	public void setReservationId(String reservationId);
+	public SessionID getReservationId();
 }

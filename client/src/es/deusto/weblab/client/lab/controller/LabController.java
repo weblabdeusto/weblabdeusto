@@ -83,6 +83,7 @@ public class LabController implements ILabController {
 	private class SessionVariables {
 		private ExperimentBase currentExperimentBase;
 		private boolean experimentVisible = false;
+		private SessionID reservationId;
 		
 		public void showExperiment(){
 			this.experimentVisible = true;
@@ -99,8 +100,17 @@ public class LabController implements ILabController {
 		public void setCurrentExperimentBase(ExperimentBase currentExperimentBase) {
 		    this.currentExperimentBase = currentExperimentBase;
 		}
+		
 		public ExperimentBase getCurrentExperimentBase() {
 		    return this.currentExperimentBase;
+		}
+		
+		public void setReservationId(String reservationId) {
+			this.reservationId = new SessionID(reservationId);
+		}
+		
+		public SessionID getReservationId(){
+			return this.reservationId;
 		}
 	}
 	
@@ -172,6 +182,16 @@ public class LabController implements ILabController {
 		public void createTimer(int millis, IControllerRunnable runnable){
 			LabController.this.createTimer(millis, runnable);
 		}
+	}
+	
+	@Override
+	public void setReservationId(String reservationId){
+		this.sessionVariables.setReservationId(reservationId);
+	}
+	
+	@Override
+	public SessionID getReservationId(){
+		return this.sessionVariables.getReservationId();
 	}
 	
 	private void startSession(SessionID sessionID){
@@ -280,7 +300,6 @@ public class LabController implements ILabController {
 		reservationStatusCallback.setUimanager(this.uimanager);
 		reservationStatusCallback.setConfigurationManager(this.configurationManager);
 		reservationStatusCallback.setPollingHandler(this.pollingHandler);
-		reservationStatusCallback.setSessionID(this.currentSession);
 		reservationStatusCallback.setExperimentBeingReserved(experimentId);
 		reservationStatusCallback.setCommunications(this.communications);
 		reservationStatusCallback.setController(this);
@@ -338,7 +357,7 @@ public class LabController implements ILabController {
 	};
 	
 	private void pollForPostReservationData(){
-		this.communications.getReservationStatus(this.currentSession, this.postReservationDataCallback);
+		this.communications.getReservationStatus(this.sessionVariables.getReservationId(), this.postReservationDataCallback);
 	}
 
 	@Override
@@ -346,7 +365,7 @@ public class LabController implements ILabController {
 		this.pollingHandler.stop();
 		this.sessionVariables.getCurrentExperimentBase().endWrapper();
 		
-		this.communications.finishedExperiment(this.currentSession, new IVoidCallback(){
+		this.communications.finishedExperiment(this.sessionVariables.getReservationId(), new IVoidCallback(){
 			
 			@Override
 			public void onSuccess(){
@@ -378,7 +397,7 @@ public class LabController implements ILabController {
 		this.pollingHandler.stop();
 		this.sessionVariables.getCurrentExperimentBase().endWrapper();
 		
-		this.communications.finishedExperiment(this.currentSession, new IVoidCallback(){
+		this.communications.finishedExperiment(this.sessionVariables.getReservationId(), new IVoidCallback(){
 			@Override
 			public void onSuccess(){
 				LabController.this.sessionVariables.hideExperiment();
@@ -398,7 +417,7 @@ public class LabController implements ILabController {
 		this.pollingHandler.stop();
 		this.sessionVariables.getCurrentExperimentBase().endWrapper();
 		
-		this.communications.finishedExperiment(this.currentSession, new IVoidCallback(){
+		this.communications.finishedExperiment(this.sessionVariables.getReservationId(), new IVoidCallback(){
 			@Override
 			public void onSuccess(){
 				LabController.this.sessionVariables.hideExperiment();
@@ -421,7 +440,7 @@ public class LabController implements ILabController {
 	 */
 	@Override
 	public void sendAsyncCommand(Command command, IResponseCommandCallback callback) {
-		this.communications.sendAsyncCommand(this.currentSession, command, callback);
+		this.communications.sendAsyncCommand(this.sessionVariables.getReservationId(), command, callback);
 	}
 	
 	/**
@@ -432,7 +451,7 @@ public class LabController implements ILabController {
 	 */
 	@Override
 	public void sendAsyncFile(UploadStructure uploadStructure, IResponseCommandCallback callback) {
-		this.communications.sendAsyncFile(this.currentSession, uploadStructure, callback);
+		this.communications.sendAsyncFile(this.sessionVariables.getReservationId(), uploadStructure, callback);
 	}
 
 	/**
@@ -443,7 +462,7 @@ public class LabController implements ILabController {
 	 */
 	@Override
 	public void sendCommand(Command command, IResponseCommandCallback callback) {
-		this.communications.sendCommand(this.currentSession, command, callback);
+		this.communications.sendCommand(this.sessionVariables.getReservationId(), command, callback);
 	}
 
 
@@ -456,13 +475,13 @@ public class LabController implements ILabController {
 	@Override
 	public void sendFile(UploadStructure uploadStructure, IResponseCommandCallback callback) {
 	    GWT.log("sendFile en communications", null);
-		this.communications.sendFile(this.currentSession, uploadStructure, callback);
+		this.communications.sendFile(this.sessionVariables.getReservationId(), uploadStructure, callback);
 	}
 
 	@Override
 	public void poll(){
 		this.communications.poll(
-				this.currentSession, 
+				this.sessionVariables.getReservationId(), 
 				new IVoidCallback(){
 					@Override
 					public void onSuccess() {

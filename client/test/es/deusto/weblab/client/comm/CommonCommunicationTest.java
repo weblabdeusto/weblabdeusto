@@ -274,7 +274,7 @@ public class CommonCommunicationTest extends GWTTestCase {
 					requestBuilder,
 					configurationManager
 				);
-		final SessionID sessionId = new SessionID();
+		final SessionID sessionId = new SessionID("my_session_id");
 		
 		final String SERIALIZED_MESSAGE = "serialized get reservation status request";
 		final String ERROR_MESSAGE = "whatever the error message";

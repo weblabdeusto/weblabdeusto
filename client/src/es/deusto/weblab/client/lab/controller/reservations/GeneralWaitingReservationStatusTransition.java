@@ -14,8 +14,8 @@
 package es.deusto.weblab.client.lab.controller.reservations;
 
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
-import es.deusto.weblab.client.lab.controller.ReservationStatusCallback;
 import es.deusto.weblab.client.lab.controller.LabController.IControllerRunnable;
+import es.deusto.weblab.client.lab.controller.ReservationStatusCallback;
 
 public abstract class GeneralWaitingReservationStatusTransition extends ReservationStatusTransition {
 
@@ -28,13 +28,15 @@ public abstract class GeneralWaitingReservationStatusTransition extends Reservat
 	
 	@Override
 	public void perform(ReservationStatus reservationStatus) {
+		this.reservationStatusCallback.getController().setReservationId(reservationStatus.getReservationId());
+		
 		this.showReservation(reservationStatus);
 		final int pollTime = this.getPollTime(reservationStatus);
 		this.reservationStatusCallback.getTimerCreator().createTimer(pollTime, new IControllerRunnable(){
 			@Override
 			public void run() {
 				GeneralWaitingReservationStatusTransition.this.reservationStatusCallback.getCommunications().getReservationStatus(
-						GeneralWaitingReservationStatusTransition.this.reservationStatusCallback.getSessionID(), 
+						GeneralWaitingReservationStatusTransition.this.reservationStatusCallback.getController().getReservationId(), 
 						GeneralWaitingReservationStatusTransition.this.reservationStatusCallback
 					);
 			}
