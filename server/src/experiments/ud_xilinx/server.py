@@ -31,6 +31,8 @@ import weblab.experiment.util as ExperimentUtil
 import weblab.experiment.devices.xilinx_impact.devices as XilinxDevices
 import weblab.experiment.devices.xilinx_impact.impact as XilinxImpact
 
+import json
+
 from voodoo.threaded import threaded
 
 
@@ -171,10 +173,9 @@ class UdXilinxExperiment(Experiment.Experiment):
         
             
     @Override(Experiment.Experiment)
-    @logged("info")
     def do_start_experiment(self, *args, **kwargs):
         self._current_state = STATE_NOT_READY
-
+        return json.dumps({ "initial_configuration" : "{ \"webcam\" : \"%s\" }" % self.webcam_url, "batch" : False })
     
     @logged("info")
     @Override(Experiment.Experiment)

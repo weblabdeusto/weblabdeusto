@@ -7,7 +7,7 @@ laboratory_assigned_experiments = {
             {
                  'coord_address': 'experiment_fpga:main_instance@main_machine',
                  'checkers': (),
-                 'api' : '1',
+                 'api' : '2',
             },
         'exp1:ud-demo-fpga@FPGA experiments':
             {
