@@ -206,7 +206,7 @@ class UserProcessingServer(object):
         reservation_id = session['reservation_id']
         return ReservationProcessor(self._cfg_manager, reservation_id, session, self._coordinator, self._locator, self._commands_store)
 
-    def _check_user_not_expired_and_poll(self, reservation_processor, check_expired = True, fast = False):
+    def _check_user_not_expired_and_poll(self, reservation_processor, check_expired = True):
         if check_expired and reservation_processor.is_expired():
             reservation_processor.finish()
             raise coreExc.NoCurrentReservationException( 'Current user does not have any experiment assigned' )
@@ -358,7 +358,7 @@ class UserProcessingServer(object):
 
         Sends file to the experiment.
         """
-        self._check_user_not_expired_and_poll( reservation_processor, fast = True )
+        self._check_user_not_expired_and_poll( reservation_processor )
         return reservation_processor.send_file( file_content, file_info )
 
 
@@ -371,7 +371,7 @@ class UserProcessingServer(object):
         send_command sends an abstract string <command> which will be unpacked by the
         experiment.
         """
-        self._check_user_not_expired_and_poll( reservation_processor, fast = True )
+        self._check_user_not_expired_and_poll( reservation_processor )
         return reservation_processor.send_command( command )
             
     @logged(log.level.Info, except_for=(('file_content',2),))
@@ -388,7 +388,7 @@ class UserProcessingServer(object):
         @param file_info File information of the file.
         @see check_async_command_status
         """
-        self._check_user_not_expired_and_poll( reservation_processor, fast = True )
+        self._check_user_not_expired_and_poll( reservation_processor )
         return reservation_processor.send_async_file( file_content, file_info )
 
     # TODO: This method should now be finished. Will need to be verified, though.
@@ -405,7 +405,7 @@ class UserProcessingServer(object):
         requests to check. 
         @return: Dictionary by request-id of the tuples: (status, content)
         """
-        self._check_user_not_expired_and_poll( reservation_processor, fast = True )
+        self._check_user_not_expired_and_poll( reservation_processor )
         return reservation_processor.check_async_command_status( request_identifiers )
 
     @logged(log.level.Info)
@@ -419,7 +419,7 @@ class UserProcessingServer(object):
         experiment, and run asynchronously on its own thread. Its status may be checked through
         check_async_command_status.
         """
-        self._check_user_not_expired_and_poll( reservation_processor, fast = True )
+        self._check_user_not_expired_and_poll( reservation_processor )
         return reservation_processor.send_async_command( command )
 
 
