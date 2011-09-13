@@ -271,7 +271,7 @@ class UserProcessingServer(object):
         initial_session = {
             'db_session_id'       : db_session_id,
             'session_id'          : session_id,
-            'latest_timestamp'      : 0 # epoch
+            'latest_timestamp'    : 0 # epoch
         }
         user_processor = self._load_user(initial_session)
         user_processor.get_user_information()
@@ -329,9 +329,11 @@ class UserProcessingServer(object):
         session_id = self._reservations_session_manager.create_session(status.reservation_id.id)
 
         initial_session = {
-                        'session_polling'  : (time.time(), ReservationProcessor.EXPIRATION_TIME_NOT_SET),
-                        'latest_timestamp' : 0,
-                        'reservation_id'   : status.reservation_id,
+                        'session_polling'    : (time.time(), ReservationProcessor.EXPIRATION_TIME_NOT_SET),
+                        'latest_timestamp'   : 0,
+                        'experiment_id'      : experiment_id,
+                        'creator_session_id' : session['session_id'], # Useful for monitor; should not be used
+                        'reservation_id'     : status.reservation_id,
                     }
         reservation_processor = self._load_reservation(initial_session)
         reservation_processor.update_latest_timestamp()
