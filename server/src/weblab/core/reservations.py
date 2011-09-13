@@ -13,6 +13,8 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+from voodoo.sessions.session_id import SessionId
+
 import weblab.core.coordinator.status as WSS
 import weblab.core.exc as coreExc
 
@@ -33,7 +35,7 @@ class Reservation(object):
         """
         super(Reservation,self).__init__()
         self.status         = status
-        self.reservation_id = reservation_id
+        self.reservation_id = SessionId(reservation_id)
 
     def __repr__(self):
         return self.status
@@ -75,7 +77,7 @@ class WaitingReservation(Reservation):
         super(WaitingReservation,self).__init__(Reservation.WAITING, reservation_id)
         self.position = position
     def __repr__(self):
-        return "WaitingReservation(reservation_id = %r, position = %r)" % (self.reservation_id, self.position)
+        return "WaitingReservation(reservation_id = %r, position = %r)" % (self.reservation_id.id, self.position)
 
 class ConfirmedReservation(Reservation):
     def __init__(self, reservation_id, time, initial_configuration):
@@ -83,20 +85,20 @@ class ConfirmedReservation(Reservation):
         self.time = time
         self.initial_configuration = initial_configuration
     def __repr__(self):
-        return "ConfirmedReservation(reservation_id = %r, time = %r, initial_configuration = %r)" % (self.reservation_id, self.time, self.initial_configuration)
+        return "ConfirmedReservation(reservation_id = %r, time = %r, initial_configuration = %r)" % (self.reservation_id.id, self.time, self.initial_configuration)
 
 class WaitingConfirmationReservation(Reservation):
     def __init__(self, reservation_id):
         super(WaitingConfirmationReservation,self).__init__(Reservation.WAITING_CONFIRMATION, reservation_id)
     def __repr__(self):
-        return "WaitingConfirmationReservation(reservation_id = %r)" % self.reservation_id
+        return "WaitingConfirmationReservation(reservation_id = %r)" % self.reservation_id.id
 
 class WaitingInstances(Reservation):
     def __init__(self, reservation_id, position):
         super(WaitingInstances,self).__init__(Reservation.WAITING_INSTANCES, reservation_id)
         self.position = position
     def __repr__(self):
-        return "WaitingInstances(reservation_id = %r, position = %r)" % (self.reservation_id, self.position)
+        return "WaitingInstances(reservation_id = %r, position = %r)" % (self.reservation_id.id, self.position)
 
 class PostReservationReservation(Reservation):
     def __init__(self, reservation_id, finished, initial_data, end_data):
@@ -105,5 +107,5 @@ class PostReservationReservation(Reservation):
         self.initial_data = initial_data
         self.end_data     = end_data
     def __repr__(self):
-        return "PostReservationReservation(reservation_id = %r, finished = %r, initial_data = %r, end_data = %r)" % (self.reservation_id, self.finished, self.initial_data, self.end_data)
+        return "PostReservationReservation(reservation_id = %r, finished = %r, initial_data = %r, end_data = %r)" % (self.reservation_id.id, self.finished, self.initial_data, self.end_data)
 

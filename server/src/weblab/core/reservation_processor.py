@@ -55,13 +55,32 @@ class ReservationProcessor(object):
     EXPIRATION_TIME_NOT_SET=-1234
 
     def __init__(self, cfg_manager, reservation_id, reservation_session, coordinator, locator, commands_store):
-        self._cfg_manager         = cfg_manager
-        self._reservation_id      = reservation_id
-        self._reservation_session = reservation_session
-        self._coordinator         = coordinator
-        self._locator             = locator
-        self._commands_store      = commands_store
-        self.time_module          = time_module
+        self._cfg_manager            = cfg_manager
+        self._reservation_session_id = reservation_id
+        self._reservation_id         = reservation_id.id
+        self._reservation_session    = reservation_session
+        self._coordinator            = coordinator
+        self._locator                = locator
+        self._commands_store         = commands_store
+        self.time_module             = time_module
+
+        # The response to asynchronous commands is not immediately available, so we need to 
+        # use this map to store the ids of the usage objects (commands sent), identified through 
+        # their request_ids (which are not the same). As their responses become available, we will
+        # use the request_ids to find the ids of the usage objects, and update them.
+        # 
+        # It seems that the UserProcessor is re-created rather often, so we cannot store
+        # usage-related information locally. We will store it in the session object instead.
+        # TODO: As of now, if the async_commands_ids is not in session we will initialize it.
+        # Probably that initialization should be moved to wherever session is initialized.
+        if(not self._reservation_session.has_key("async_commands_ids")):
+            self._reservation_session["async_commands_ids"] = {}
+
+    def get_session(self):
+        return self._reservation_session
+
+    def get_reservation_session_id(self):
+        return self._reservation_session_id
 
     ##############################################################################
     # 
@@ -206,8 +225,8 @@ class ReservationProcessor(object):
         # 
         # Check that the reservation is enabled
         # 
-        lab_session_id = self._reservation.get('lab_session_id')
-        lab_coordaddr  = self._reservation.get('lab_coordaddr')
+        lab_session_id = self._reservation_session.get('lab_session_id')
+        lab_coordaddr  = self._reservation_session.get('lab_coordaddr')
         if lab_session_id is None or lab_coordaddr is None:
             raise core_exc.NoCurrentReservationException("send_file called but the reservation was not enabled")
 
@@ -369,7 +388,7 @@ class ReservationProcessor(object):
                 if(req_id in self._reservation_session["async_commands_ids"]):
                     usage_obj_id = self._reservation_session["async_commands_ids"][req_id]
                     # TODO: Bug here. async_commands_ids is empty.
-                    self._update_command(usage_obj_id, cmd_response)
+                    self._update_command_or_file(usage_obj_id, cmd_response)
 
             return response
 

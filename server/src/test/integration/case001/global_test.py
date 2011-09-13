@@ -548,12 +548,14 @@ class Case001TestCase(object):
             )
 
         # reserve it
-        self.real_ups.reserve_experiment(
+        status = self.real_ups.reserve_experiment(
                 session_id,
                 fpga_experiments[0].to_experiment_id(),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
+
+        reservation_id = status.reservation_id
 
         # wait until it is reserved
         short_time = 0.1
@@ -563,12 +565,12 @@ class Case001TestCase(object):
 
         while times > 0:
             time.sleep(short_time)
-            new_status = self.real_ups.get_reservation_status(session_id)
+            new_status = self.real_ups.get_reservation_status(reservation_id)
             if not isinstance(new_status, Reservation.WaitingConfirmationReservation) and not isinstance(new_status, Reservation.WaitingReservation):
                 break
             times -= 1
         reservation = self.real_ups.get_reservation_status(
-                        session_id
+                        reservation_id
                     )
         self.assertTrue(
                 isinstance(
@@ -584,19 +586,19 @@ class Case001TestCase(object):
         # to send_file more than once in the same session. In fact, it is a feature which might get removed in
         # the future. When/if that happens, this will need to be modified.
         CONTENT = "content of the program FPGA"
-        reqid = self.real_ups.send_async_file(session_id, ExperimentUtil.serialize(CONTENT), 'program')
+        reqid = self.real_ups.send_async_file(reservation_id, ExperimentUtil.serialize(CONTENT), 'program')
         
         # Wait until send_async_file query is actually finished.
         #self._get_async_response(session_id, reqid)
-        self._wait_async_done(session_id, (reqid,))
+        self._wait_async_done(reservation_id, (reqid,))
         
         # We need to wait for the programming to finish, while at the same
         # time making sure that the tests don't dead-lock.
         start_time = time.time()
         response = "STATE=not_ready"
         while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
-            reqid = self.real_ups.send_async_command(session_id, Command.Command("STATE"))
-            respcmd = self._get_async_response(session_id, reqid)
+            reqid = self.real_ups.send_async_command(reservation_id, Command.Command("STATE"))
+            respcmd = self._get_async_response(reservation_id, reqid)
             response = respcmd.get_command_string()
             time.sleep(0.2)
         
@@ -604,11 +606,11 @@ class Case001TestCase(object):
         self.assertEquals("STATE=ready", response)
         
         
-        reqid = self.real_ups.send_async_command(session_id, Command.Command("ChangeSwitch on 0"))
-        self._wait_async_done(session_id, (reqid,))
+        reqid = self.real_ups.send_async_command(reservation_id, Command.Command("ChangeSwitch on 0"))
+        self._wait_async_done(reservation_id, (reqid,))
         
-        reqid = self.real_ups.send_async_command(session_id, Command.Command("ClockActivation on 250"))
-        self._wait_async_done(session_id, (reqid,))
+        reqid = self.real_ups.send_async_command(reservation_id, Command.Command("ClockActivation on 250"))
+        self._wait_async_done(reservation_id, (reqid,))
 
         # Checking the commands sent
         # Note that the number of paths is 2 now that we send a file twice (sync and async).
@@ -710,24 +712,27 @@ class Case001TestCase(object):
             )
 
         # reserve it
-        self.real_ups.reserve_experiment(
+        status = self.real_ups.reserve_experiment(
                 session_id,
                 fpga_experiments[0].to_experiment_id(),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
+
+        reservation_id = status.reservation_id
+
         # wait until it is reserved
         short_time = 0.1
         times      = 13.0 / short_time
 
         while times > 0:
-            new_status = self.real_ups.get_reservation_status(session_id)
+            new_status = self.real_ups.get_reservation_status(reservation_id)
             if not isinstance(new_status, Reservation.WaitingConfirmationReservation) and not isinstance(new_status, Reservation.WaitingReservation):
                 break
             times -= 1
             time.sleep(short_time)
         reservation = self.real_ups.get_reservation_status(
-                        session_id
+                        reservation_id
                     )
         self.assertTrue(
                 isinstance(
@@ -740,14 +745,14 @@ class Case001TestCase(object):
 
         # send a program synchronously (the "traditional" way)
         CONTENT = "content of the program FPGA"
-        self.real_ups.send_file(session_id, ExperimentUtil.serialize(CONTENT), 'program')
+        self.real_ups.send_file(reservation_id, ExperimentUtil.serialize(CONTENT), 'program')
         
         # We need to wait for the programming to finish, while at the same
         # time making sure that the tests don't dead-lock.
         start_time = time.time()
         response = "STATE=not_ready"
         while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
-            respcmd = self.real_ups.send_command(session_id, Command.Command("STATE"))
+            respcmd = self.real_ups.send_command(reservation_id, Command.Command("STATE"))
             response = respcmd.get_command_string()
             time.sleep(0.2)
         
@@ -760,7 +765,7 @@ class Case001TestCase(object):
         start_time = time.time()
         response = "STATE=not_ready"
         while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
-            respcmd = self.real_ups.send_command(session_id, Command.Command("STATE"))
+            respcmd = self.real_ups.send_command(reservation_id, Command.Command("STATE"))
             response = respcmd.get_command_string()
             time.sleep(0.2)
         
@@ -768,8 +773,8 @@ class Case001TestCase(object):
         self.assertEquals("STATE=ready", response)
         
         
-        self.real_ups.send_command(session_id, Command.Command("ChangeSwitch on 0"))
-        self.real_ups.send_command(session_id, Command.Command("ClockActivation on 250"))
+        self.real_ups.send_command(reservation_id, Command.Command("ChangeSwitch on 0"))
+        self.real_ups.send_command(reservation_id, Command.Command("ClockActivation on 250"))
 
         # Checking the commands sent
         # Note that the number of paths is 2 now that we send a file twice (sync and async).
@@ -850,12 +855,14 @@ class Case001TestCase(object):
             )
 
         # reserve it
-        self.real_ups.reserve_experiment(
+        status = self.real_ups.reserve_experiment(
                 user1_session_id,
                 fpga_experiments[0].to_experiment_id(),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
+
+        user1_reservation_id = status.reservation_id
 
         user2_session_id = self.real_login.login('student2','password')
         user2_experiments = self.real_ups.list_experiments(user2_session_id)
@@ -871,20 +878,22 @@ class Case001TestCase(object):
             )
 
         # reserve it
-        self.real_ups.reserve_experiment(
+        status = self.real_ups.reserve_experiment(
                 user2_session_id,
                 pld_experiments[0].to_experiment_id(),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
 
+        user2_reservation_id = status.reservation_id
+
         short_time = 0.1
         times      = 3.0 / short_time
 
         while times > 0:
             time.sleep(short_time)
-            new_status1 = self.real_ups.get_reservation_status(user1_session_id)
-            new_status2 = self.real_ups.get_reservation_status(user2_session_id)
+            new_status1 = self.real_ups.get_reservation_status(user1_reservation_id)
+            new_status2 = self.real_ups.get_reservation_status(user2_reservation_id)
             if not isinstance(new_status1, Reservation.WaitingConfirmationReservation):
                 if not isinstance(new_status2, Reservation.WaitingConfirmationReservation):
                     break
@@ -893,7 +902,7 @@ class Case001TestCase(object):
         self.assertTrue(
                 isinstance(
                     self.real_ups.get_reservation_status(
-                        user1_session_id
+                        user1_reservation_id
                     ), 
                     Reservation.ConfirmedReservation
                 )
@@ -902,7 +911,7 @@ class Case001TestCase(object):
         self.assertTrue(
                 isinstance(
                     self.real_ups.get_reservation_status(
-                        user2_session_id
+                        user2_reservation_id
                     ), 
                     Reservation.ConfirmedReservation
                 )
@@ -910,38 +919,38 @@ class Case001TestCase(object):
 
         # send a program
         CONTENT1 = "content of the program FPGA"
-        self.real_ups.send_file(user1_session_id, ExperimentUtil.serialize(CONTENT1), 'program')
+        self.real_ups.send_file(user1_reservation_id, ExperimentUtil.serialize(CONTENT1), 'program')
         
         # We need to wait for the programming to finish.
         start_time = time.time()
         response = "STATE=not_ready"
         while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
-            respcmd = self.real_ups.send_command(user1_session_id, Command.Command("STATE"))
+            respcmd = self.real_ups.send_command(user1_reservation_id, Command.Command("STATE"))
             response = respcmd.get_command_string()
             time.sleep(0.2)
         
         # Check that the current state is "Ready"
         self.assertEquals("STATE=ready", response)
         
-        self.real_ups.send_command(user1_session_id, Command.Command("ChangeSwitch off 1"))
-        self.real_ups.send_command(user1_session_id, Command.Command("ClockActivation on 250"))
+        self.real_ups.send_command(user1_reservation_id, Command.Command("ChangeSwitch off 1"))
+        self.real_ups.send_command(user1_reservation_id, Command.Command("ClockActivation on 250"))
 
         CONTENT2 = "content of the program PLD"
-        self.real_ups.send_file(user2_session_id, ExperimentUtil.serialize(CONTENT2), 'program')
+        self.real_ups.send_file(user2_reservation_id, ExperimentUtil.serialize(CONTENT2), 'program')
        
         # We need to wait for the programming to finish.
         start_time = time.time()
         response = "STATE=not_ready"
         while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
-            respcmd = self.real_ups.send_command(user1_session_id, Command.Command("STATE"))
+            respcmd = self.real_ups.send_command(user1_reservation_id, Command.Command("STATE"))
             response = respcmd.get_command_string()
             time.sleep(0.2)
             
         # Check that the current state is "Ready"
         self.assertEquals("STATE=ready", response)
         
-        self.real_ups.send_command(user2_session_id, Command.Command("ChangeSwitch on 0"))
-        self.real_ups.send_command(user2_session_id, Command.Command("ClockActivation on 250"))
+        self.real_ups.send_command(user2_reservation_id, Command.Command("ChangeSwitch on 0"))
+        self.real_ups.send_command(user2_reservation_id, Command.Command("ClockActivation on 250"))
 
         # end session
         self.real_ups.logout(user1_session_id)
