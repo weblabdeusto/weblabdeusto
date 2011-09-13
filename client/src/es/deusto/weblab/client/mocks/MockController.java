@@ -116,7 +116,7 @@ public class MockController implements ILabController {
 	}
 
 	private void nextWaitingReservationStatus(){
-		final WaitingReservationStatus waitingReservation = new WaitingReservationStatus();
+		final WaitingReservationStatus waitingReservation = new WaitingReservationStatus("foo");
 		waitingReservation.setPosition(this.n);
 		this.uimanager.onWaitingReservation(waitingReservation);
 		if(--this.n >= 0){
@@ -128,7 +128,7 @@ public class MockController implements ILabController {
 			};
 			t.schedule(500);
 		}else{
-			final WaitingConfirmationReservationStatus confirmationReservation = new WaitingConfirmationReservationStatus();
+			final WaitingConfirmationReservationStatus confirmationReservation = new WaitingConfirmationReservationStatus("foo");
 			this.uimanager.onWaitingReservationConfirmation(confirmationReservation);
 			final Timer t = new Timer(){
 				@Override

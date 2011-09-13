@@ -176,7 +176,7 @@ public class LabControllerTest  extends GWTTestCase{
 		final ReservationContext context = this.createReservationContext();
 		final IReservationCallback callback = context.reservationCallback;
 		
-		callback.onSuccess(new WaitingInstancesReservationStatus());
+		callback.onSuccess(new WaitingInstancesReservationStatus("reservation_id"));
 		
 		v = this.fakeUIManager.getMethodByName(FakeUIManager.ON_WAITING_INSTANCES);
 		Assert.assertEquals(1, v.size());
@@ -195,7 +195,7 @@ public class LabControllerTest  extends GWTTestCase{
 		final ReservationContext context = this.createReservationContext();
 		final IReservationCallback callback = context.reservationCallback;
 		
-		callback.onSuccess(new WaitingReservationStatus());
+		callback.onSuccess(new WaitingReservationStatus("reservation_id"));
 		
 		v = this.fakeUIManager.getMethodByName(FakeUIManager.ON_WAITING_RESERVATION);
 		Assert.assertEquals(1, v.size());
@@ -214,7 +214,7 @@ public class LabControllerTest  extends GWTTestCase{
 		final ReservationContext context = this.createReservationContext();
 		final IReservationCallback callback = context.reservationCallback;
 		
-		callback.onSuccess(new WaitingConfirmationReservationStatus());
+		callback.onSuccess(new WaitingConfirmationReservationStatus("reservation_id"));
 		
 		v = this.fakeUIManager.getMethodByName(FakeUIManager.ON_WAITING_RESERVATION_CONFIRMATION);
 		Assert.assertEquals(1, v.size());
@@ -233,7 +233,7 @@ public class LabControllerTest  extends GWTTestCase{
 		final ReservationContext context = this.createReservationContext();
 		final IReservationCallback callback = context.reservationCallback;
 		
-		callback.onSuccess(new ConfirmedReservationStatus(100));
+		callback.onSuccess(new ConfirmedReservationStatus("reservation_id", 100));
 		
 		// v = this.fakeCommunications.getMethodByName(FakeWebLabCommunication.SEND_FILE);
 		// Assert.assertEquals(1, v.size());
@@ -389,7 +389,7 @@ public class LabControllerTest  extends GWTTestCase{
 	private ReservationContext createConfirmedReservationContext() throws Exception{
 		final ReservationContext context = this.createReservationContext();
 		final IReservationCallback callback = context.reservationCallback;
-		callback.onSuccess(new ConfirmedReservationStatus(100));
+		callback.onSuccess(new ConfirmedReservationStatus("reservation_id", 100));
 		return context;
 	}
 		

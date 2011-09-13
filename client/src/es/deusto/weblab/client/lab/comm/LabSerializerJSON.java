@@ -96,15 +96,18 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
     private ReservationStatus parseReservationStatus(final JSONObject result)
 	    throws SerializationException {
 		final String status = this.json2string(result.get("status"));
+		final JSONObject reservationIdObj = json2object(result.get("reservation_id"));
+		final String reservationId = json2string(reservationIdObj.get("id"));
+		
 		if(status.equals("Reservation::waiting_confirmation")){
-		    return new WaitingConfirmationReservationStatus();
+		    return new WaitingConfirmationReservationStatus(reservationId);
 		}else if(status.equals("Reservation::confirmed")){
 		    final double time = this.json2double(result.get("time"));
 		    final String initial_configuration = this.json2string(result.get("initial_configuration"));
-		    return new ConfirmedReservationStatus((int)time, initial_configuration);
+		    return new ConfirmedReservationStatus(reservationId, (int)time, initial_configuration);
 		}else if(status.equals("Reservation::waiting")){
 		    final int position = this.json2int(result.get("position"));
-		    return new WaitingReservationStatus(position);
+		    return new WaitingReservationStatus(reservationId, position);
 		}else if(status.equals("Reservation::post_reservation")){
 			final boolean finished = this.json2boolean(result.get("finished"));
 			final String jsonInitialData = this.json2string(result.get("initial_data"), true);
@@ -113,10 +116,10 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
 			final String initialData = extractString(jsonInitialData, "initial_data");
 			final String endData = extractString(jsonEndData, "end_data");
 			
-		    return new PostReservationReservationStatus(finished, initialData, endData);
+		    return new PostReservationReservationStatus(reservationId, finished, initialData, endData);
 		}else if(status.equals("Reservation::waiting_instances")){
 		    final int position = this.json2int(result.get("position"));
-		    return new WaitingInstancesReservationStatus(position);
+		    return new WaitingInstancesReservationStatus(reservationId, position);
 		}else
 		    throw new SerializationException("Unknown status: " + status);
     }

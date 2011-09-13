@@ -13,4 +13,14 @@
 */ 
 package es.deusto.weblab.client.dto.reservations;
 
-public abstract class ReservationStatus {}
+public abstract class ReservationStatus {
+	private final String reservationId;
+	
+	public ReservationStatus(String reservationId){
+		this.reservationId = reservationId;
+	}
+	
+	public String getReservationId(){
+		return this.reservationId;
+	}
+}
