@@ -35,7 +35,7 @@ from weblab.data.dto.experiments import Experiment, ExperimentCategory
 from weblab.data.dto.users import User
 
 try:
-    import weblab.login.comm.generated.weblabdeusto_client as LoginWebLabDeusto_client
+    import weblab.login.comm.generated.loginweblabdeusto_client as LoginWebLabDeusto_client
     import weblab.core.comm.generated.weblabdeusto_client as UserProcessingWebLabDeusto_client
 except ImportError:
     ZSI_AVAILABLE = False
@@ -225,7 +225,7 @@ if ZSI_AVAILABLE:
 
         def __init__(self, url, url_login):
             super(BotZSI, self).__init__(url, url_login)
-            self.login_ws = LoginWebLabDeusto_client.weblabdeustoLocator().getweblabdeusto(url=url_login)
+            self.login_ws = LoginWebLabDeusto_client.loginweblabdeustoLocator().getloginweblabdeusto(url=url_login)
             self.ups_ws   = UserProcessingWebLabDeusto_client.weblabdeustoLocator().getweblabdeusto(url=url)
             self.weblabsessionid = "<unknown>"
 
