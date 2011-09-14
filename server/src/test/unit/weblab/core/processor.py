@@ -15,13 +15,11 @@
 #
 
 import unittest
-import time
 import datetime
 
 import mocker
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
-import voodoo.sessions.session_id as SessionId
 from   test.util.module_disposer import case_uses_module
 
 import weblab.core.processor as UserProcessor
@@ -32,7 +30,6 @@ import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.data.server_type as ServerType
 import weblab.data.client_address as ClientAddress
 
-import weblab.data.command as Command
 import weblab.data.dto.users as Group
 from weblab.data.experiments import ExperimentInstanceId
 from weblab.data.experiments import ExperimentId
@@ -48,7 +45,6 @@ import weblab.db.session as DbSession
 from weblab.core.coordinator.resource import Resource
 
 import weblab.core.exc as coreExc
-import weblab.lab.exc as LaboratoryExceptions
 
 import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
