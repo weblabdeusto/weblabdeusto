@@ -43,6 +43,7 @@ public interface IUIManager {
 	 */
 	public void onWrongLoginOrPasswordGiven();
     public void onWaitingInstances(WaitingInstancesReservationStatus reservationStatus);
+    public void onExperimentInteractionFinished();
 	
 	public void onError(String message);
 	public void onErrorAndFinishReservation(String message);

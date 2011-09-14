@@ -81,7 +81,8 @@ public class LabController implements ILabController {
 	private boolean isUsingExperiment = false;
 	private ExperimentAllowed[] experimentsAllowed;
 	
-	private boolean loggedIn = false;
+	private boolean externallyLoggedIn = false;
+	private boolean externallyReserved = false;
 	
 	private class SessionVariables {
 		private ExperimentBase currentExperimentBase;
@@ -234,13 +235,14 @@ public class LabController implements ILabController {
 
 	@Override
 	public void startLoggedIn(SessionID sessionId){
-		this.loggedIn = true;
-		LabController.this.startSession(sessionId);
+		this.externallyLoggedIn = true;
+		this.startSession(sessionId);
 	}
 	
 	@Override
 	public void startReserved(final SessionID reservationId, final ExperimentID experimentId){
-		this.loggedIn = true;
+		this.externallyLoggedIn = true;
+		this.externallyReserved = true;
 		
 		this.currentSession = null;
 		this.sessionVariables.setReservationId(reservationId.getRealId());
@@ -274,7 +276,12 @@ public class LabController implements ILabController {
 	
 	@Override
 	public boolean startedLoggedIn(){
-		return this.loggedIn;
+		return this.externallyLoggedIn;
+	}
+
+	@Override
+	public boolean startedReserved(){
+		return this.externallyReserved;
 	}
 
 	@Override
@@ -324,7 +331,16 @@ public class LabController implements ILabController {
 			}
 		}
 		
-		LabController.this.uimanager.onAllowedExperimentsRetrieved(this.experimentsAllowed);
+		this.uimanager.onAllowedExperimentsRetrieved(this.experimentsAllowed);
+	}
+	
+	@Override
+	public void cleanExperimentPanel(){
+		if(!this.externallyLoggedIn){
+			loadUserHomeWindow();
+		}else{
+			this.uimanager.onExperimentInteractionFinished();
+		}
 	}
 
 	@Override

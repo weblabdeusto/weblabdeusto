@@ -26,12 +26,14 @@ public interface ILabController {
 	public void startLoggedIn(SessionID sessionId);
 	public void startReserved(SessionID sessionId, ExperimentID experimentId);
 	public boolean startedLoggedIn();
+	public boolean startedReserved();
 	public void logout();
 	
 	public void setUIManager(IUIManager uimanager);
 	
 	public void retrieveAllowedExperiments();
 	public void loadUserHomeWindow();
+	public void cleanExperimentPanel();
 	public void chooseExperiment(ExperimentAllowed experiment);
 	public void reserveExperiment(ExperimentID experiment);
 	

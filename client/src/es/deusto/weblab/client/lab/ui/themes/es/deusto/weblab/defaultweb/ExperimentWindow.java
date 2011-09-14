@@ -48,6 +48,7 @@ class ExperimentWindow extends BaseWindow {
 
 	public interface IExperimentWindowCallback {
 		public boolean startedLoggedIn();
+		public boolean startedReserved();
 		public void onLogoutButtonClicked();
 		public void onBackButtonClicked();
 		public void onReserveButtonClicked();
@@ -141,8 +142,8 @@ class ExperimentWindow extends BaseWindow {
 	    this.waitingLabel.setText("");
 	    this.reserveButton.setVisible(false);
 		this.finishButton.setVisible(true);
-	}	
-
+	}
+	
 	@UiHandler("backLink")
 	void onBackLinkClicked(@SuppressWarnings("unused") ClickEvent ev) {
 		this.callback.onBackButtonClicked();	
@@ -185,10 +186,15 @@ class ExperimentWindow extends BaseWindow {
     }
 
 	public void showWaitingReservation(int position) {
-	    	this.waitingLabel.setText(this.i18nMessages.waitingInQueuePosition(position));
+	    this.waitingLabel.setText(this.i18nMessages.waitingInQueuePosition(position));
 	}
 
 	public void showWaitingReservationConfirmation() {
-	    	this.waitingLabel.setText(this.i18nMessages.waitingForConfirmation());
+	    this.waitingLabel.setText(this.i18nMessages.waitingForConfirmation());
+	}
+
+	public void onExperimentInteractionFinished() {
+		this.containerPanel.clear();
+		this.containerPanel.add(new ExperimentFinishedWindow());
 	}
 }

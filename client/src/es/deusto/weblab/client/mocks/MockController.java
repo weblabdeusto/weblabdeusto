@@ -60,6 +60,11 @@ public class MockController implements ILabController {
 	}
 
 	@Override
+	public boolean startedReserved(){
+		return false;
+	}
+
+	@Override
 	public void retrieveAllowedExperiments() {
 	    final Category category = new Category("PLD experiments");
 		final Experiment experiment = new Experiment(-1, "pld-deusto", category, null, null);
@@ -178,5 +183,10 @@ public class MockController implements ILabController {
 
 	@Override
 	public void startReserved(SessionID sessionId, ExperimentID experimentId) {
+	}
+
+	@Override
+	public void cleanExperimentPanel() {
+		loadUserHomeWindow();
 	}
 }

@@ -161,4 +161,9 @@ class ExperimentWindow extends BaseWindow {
 	void showWaitingReservationConfirmation() {
 		this.waitingLabel.setText(this.i18nMessages.waitingForConfirmation());
 	}
+
+	public void onExperimentInteractionFinished() {
+		this.mainPanel.clear();
+		this.mainPanel.add(new ExperimentFinishedWindow());
+	}
 }
