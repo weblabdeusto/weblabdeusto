@@ -422,8 +422,14 @@ class UserProcessingServer(object):
     @load_user_processor
     def get_users(self, user_processor, session):
         """
+        get_users(user_processor, session)
+        
         Receives the get_users petition sent by the client and handles the request through
         a user processor for the calling session.
+        
+        @param user_processor UserProcessor object through which to handle the request
+        @param session Session string
+        @return List of users and their data
         """
         return user_processor.get_users()
 

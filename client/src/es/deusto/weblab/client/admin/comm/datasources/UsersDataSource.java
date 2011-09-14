@@ -62,7 +62,8 @@ public class UsersDataSource extends WebLabRestDataSource {
 	    
 	    this.setFields(idField, loginDSField, fullNameDSField, emailDSField, avatarDSField, roleIdDSField);
 	    
-	    this.setFetchDataURL("data/users_fetch.js");
+	    this.setFetchDataURL("/weblab/administration/json/users");
+	    //this.setFetchDataURL("data/users_fetch.js");
 	    this.setRemoveDataURL("data/user_remove.js");
 	    this.setAddDataURL("data/user_add.js");
 	    this.setUpdateDataURL("data/user_update.js");

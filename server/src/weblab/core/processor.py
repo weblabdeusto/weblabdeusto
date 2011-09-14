@@ -677,6 +677,9 @@ class UserProcessor(object):
     #
     
     def get_users(self):
+        """
+        Retrieves the users from the database itself.
+        """
         db_session_id        = self._session['db_session_id']
         return get_users(self._db_manager, db_session_id)
 

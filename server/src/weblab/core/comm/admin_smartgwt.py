@@ -27,6 +27,11 @@ from weblab.comm.context import get_context, create_context, delete_context
 import voodoo.log as log
 
 class Criteria(object):
+    """
+    Describes a basic server-side Criteria which can be used with
+    the client-side SmartGWT Criteria that is used for filtering
+    within queries
+    """
 
     DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
     DATETIME_FIELDS = ('start_date', 'end_date')
@@ -40,6 +45,11 @@ class Criteria(object):
 
     @staticmethod
     def parse(request):
+        """
+        parse(request)
+        Deserializes a Criteria. Criterias used by SmartGWT are serialized
+        to a specific JSON code, which this method is able to parse.
+        """
         # It's actually JSON
         # criteria={"fieldName":"start_date","operator":"greaterOrEqual","value":"2010-06-08T22:00:00"}
         # criteria={"fieldName":"end_date","operator":"lessOrEqual","value":"2010-09-24T21:59:59"}
@@ -79,6 +89,11 @@ class Criteria(object):
         return "<Criteria field_name='%s' operator='%s' value='%s' />" % (self.field_name, self.operator, self.value)
 
 class AdvancedCriteria(object):
+    """
+    Describes an advanced server-side Criteria which can be used with
+    the client-side SmartGWT AdvancedCriteria that is used for filtering
+    within queries
+    """
 
     def __init__(self, criterias, operator, sort_by, start_row, end_row, text_match_style):
         self.criterias        = criterias
@@ -90,6 +105,11 @@ class AdvancedCriteria(object):
 
     @staticmethod
     def parse(parameters):
+        """
+        parse(request)
+        Deserializes an AdvancedCriteria. AdvancedCriterias used by SmartGWT are serialized
+        to a specific JSON code, which this method is able to parse.
+        """
         filter_parameter = lambda name : [ param[param.find('=') + 1:] for param in parameters if param.startswith(name + '=') ]
         parsed_criterias = map(lambda x: Criteria.parse(x), filter_parameter('criteria')) # [ crit1, crit2, crit3...]
         criterias  = dict([ (criteria.field_name, criteria) for criteria in parsed_criterias ]) # { criteria_name : Criteria object }
@@ -125,6 +145,14 @@ class MethodException(Exception):
     pass
 
 class Methods(object):
+    """
+    Methods is a class which simply encompasses the static server-side 
+    methods that are required to handle queries from the SmartGWT admin
+    panel data sources. These queries are encoded in a SmartGWT specific
+    JSON, so they must be parsed and an appropriate JSON response
+    generated. 
+    """
+    
     @staticmethod
     def get_experiments(handler, session_id, parameters):
         request_args = { 'id' : session_id }
@@ -138,6 +166,25 @@ class Methods(object):
                                 'category' : exp.category.name 
                             } 
                             for exp in experiments 
+                        ] 
+                    }
+                }
+
+    @staticmethod 
+    def get_users(handler, session_id, parameters):
+        request_args = { 'id' : session_id }
+        users = handler.facade_manager.get_users(request_args)
+        return { 'response' : 
+                    { 'data' : 
+                        [ 
+                            { 
+                                'login' : user.login, 
+                                'full_name' : user.full_name,
+                                'email' : user.email,
+                                'avatar' : "null",
+                                'role' : user.role.name
+                            } 
+                            for user in users 
                         ] 
                     }
                 }
