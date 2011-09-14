@@ -207,7 +207,7 @@ class UserProcessingServer(object):
         reservation_id = session['reservation_id']
         return ReservationProcessor(self._cfg_manager, reservation_id, session, self._coordinator, self._locator, self._commands_store)
 
-    def _check_user_not_expired_and_poll(self, reservation_processor, check_expired = True):
+    def _check_reservation_not_expired_and_poll(self, reservation_processor, check_expired = True):
         if check_expired and reservation_processor.is_expired():
             reservation_processor.finish()
             raise coreExc.NoCurrentReservationException( 'Current user does not have any experiment assigned' )
@@ -231,20 +231,19 @@ class UserProcessingServer(object):
 
     @threaded(_resource_manager)
     def _purge_expired_users(self, expired_users):
-        for expired_user in expired_users:
+        for expired_reservation in expired_users:
             if self._stopping:
                 return
             try:
-                expired_session = self._reservations_session_manager.get_session_locking(expired_user)
+                expired_session = self._reservations_session_manager.get_session_locking(expired_reservation)
                 try:
-                    user            = self._load_reservation(expired_session)
-                    if user.is_expired():
-                        user.finish()
+                    reservation = self._load_reservation(expired_session)
+                    reservation.finish()
                 finally:
-                    self._reservations_session_manager.modify_session_unlocking(expired_user, expired_session)
+                    self._reservations_session_manager.modify_session_unlocking(expired_reservation, expired_session)
             except Exception as e:
                 log.log( UserProcessingServer, log.level.Error,
-                    "Exception freeing experiment of %s: %s" % (expired_user, e))
+                    "Exception freeing experiment of %s: %s" % (expired_reservation, e))
                 log.log_exc( UserProcessingServer, log.level.Warning)
 
     def _initialize_checker_timer(self):
@@ -359,7 +358,7 @@ class UserProcessingServer(object):
 
         Sends file to the experiment.
         """
-        self._check_user_not_expired_and_poll( reservation_processor )
+        self._check_reservation_not_expired_and_poll( reservation_processor )
         return reservation_processor.send_file( file_content, file_info )
 
 
@@ -372,7 +371,7 @@ class UserProcessingServer(object):
         send_command sends an abstract string <command> which will be unpacked by the
         experiment.
         """
-        self._check_user_not_expired_and_poll( reservation_processor )
+        self._check_reservation_not_expired_and_poll( reservation_processor )
         return reservation_processor.send_command( command )
             
     @logged(log.level.Info, except_for=(('file_content',2),))
@@ -389,7 +388,7 @@ class UserProcessingServer(object):
         @param file_info File information of the file.
         @see check_async_command_status
         """
-        self._check_user_not_expired_and_poll( reservation_processor )
+        self._check_reservation_not_expired_and_poll( reservation_processor )
         return reservation_processor.send_async_file( file_content, file_info )
 
     # TODO: This method should now be finished. Will need to be verified, though.
@@ -406,7 +405,7 @@ class UserProcessingServer(object):
         requests to check. 
         @return: Dictionary by request-id of the tuples: (status, content)
         """
-        self._check_user_not_expired_and_poll( reservation_processor )
+        self._check_reservation_not_expired_and_poll( reservation_processor )
         return reservation_processor.check_async_command_status( request_identifiers )
 
     @logged(log.level.Info)
@@ -420,7 +419,7 @@ class UserProcessingServer(object):
         experiment, and run asynchronously on its own thread. Its status may be checked through
         check_async_command_status.
         """
-        self._check_user_not_expired_and_poll( reservation_processor )
+        self._check_reservation_not_expired_and_poll( reservation_processor )
         return reservation_processor.send_async_command( command )
 
 
@@ -428,14 +427,14 @@ class UserProcessingServer(object):
     @check_session(*check_reservation_session_params)
     def poll(self, session):
         reservation_processor = self._load_reservation(session)
-        self._check_user_not_expired_and_poll( reservation_processor )
+        self._check_reservation_not_expired_and_poll( reservation_processor )
 
 
     @logged(log.level.Info)
     @check_session(*check_reservation_session_params)
     @load_reservation_processor
     def get_reservation_status(self, reservation_processor, session):
-        self._check_user_not_expired_and_poll( reservation_processor, False )
+        self._check_reservation_not_expired_and_poll( reservation_processor, False )
         return reservation_processor.get_status()
 
     ######################################

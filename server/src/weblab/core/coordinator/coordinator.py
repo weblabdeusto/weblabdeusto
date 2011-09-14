@@ -21,6 +21,7 @@ import json
 from voodoo.log import logged
 import voodoo.log as log
 import voodoo.admin_notifier as AdminNotifier
+from voodoo.sessions.session_id import SessionId
 
 import weblab.core.coordinator.exc as CoordExc
 
@@ -464,7 +465,7 @@ class Coordinator(object):
     @logged()
     def finish_reservation(self, reservation_id):
         if self.reservations_manager.initialize_deletion(reservation_id):
-            self.finished_reservations_store.put(reservation_id)
+            self.finished_reservations_store.put(SessionId(reservation_id))
             try:
                 schedulers = self._get_schedulers_per_reservation(reservation_id)
                 for scheduler in schedulers:

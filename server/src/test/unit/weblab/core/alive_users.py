@@ -57,8 +57,6 @@ class AliveUsersCollectionTestCase(unittest.TestCase):
                     SessionType.Memory,
                     "foo"
                 )
-        db_manager       = None
-
         coordinator = DummyCoordinator()
 
         self.finished_reservations_store = Queue.Queue()

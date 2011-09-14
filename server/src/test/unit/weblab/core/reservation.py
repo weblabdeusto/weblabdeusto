@@ -15,7 +15,6 @@
 
 import datetime
 import unittest
-from voodoo.sessions.session_id import SessionId
 
 from weblab.core.reservations import WaitingReservation, ConfirmedReservation, WaitingConfirmationReservation, WaitingInstances, PostReservationReservation
 
