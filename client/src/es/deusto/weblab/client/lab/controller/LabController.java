@@ -17,6 +17,8 @@ package es.deusto.weblab.client.lab.controller;
 //TODO: current reportMessages are not good at all :-(
 //TODO: translations
 
+import java.util.Date;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Timer;
@@ -30,6 +32,7 @@ import es.deusto.weblab.client.comm.exceptions.login.LoginException;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Command;
+import es.deusto.weblab.client.dto.experiments.Experiment;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.reservations.ConfirmedReservationStatus;
@@ -236,6 +239,40 @@ public class LabController implements ILabController {
 	}
 	
 	@Override
+	public void startReserved(final SessionID reservationId, final ExperimentID experimentId){
+		this.loggedIn = true;
+		
+		this.currentSession = null;
+		this.sessionVariables.setReservationId(reservationId.getRealId());
+		
+		final IBoardBaseController boardBaseController = new BoardBaseController(this);
+	    final ExperimentFactory factory = new ExperimentFactory(boardBaseController);
+	    final IExperimentLoadedCallback experimentLoadedCallback = new IExperimentLoadedCallback() {
+			
+			@Override
+			public void onFailure(Throwable e) {
+				LabController.this.uimanager.onError("Couldn't instantiate experiment: " + e.getMessage());
+				e.printStackTrace();
+			}
+			
+			@Override
+			public void onExperimentLoaded(ExperimentBase experimentBase) {
+				// Show the experiment
+				LabController.this.sessionVariables.setCurrentExperimentBase(experimentBase);
+				final ExperimentAllowed defaultExperimentAllowed = new ExperimentAllowed(new Experiment(0, experimentId.getExperimentName(), experimentId.getCategory(), new Date(), new Date()), 100);
+				LabController.this.uimanager.onExperimentChosen(defaultExperimentAllowed, experimentBase);
+				experimentBase.initializeReserved();
+				LabController.this.sessionVariables.showExperiment();
+				
+				// And start in the queue
+				final ReservationStatusCallback reservationStatusCallback = createReservationStatusCallback(experimentId);
+				LabController.this.communications.getReservationStatus(reservationId, reservationStatusCallback);
+			}
+		};
+	    factory.experimentFactory(experimentId, experimentLoadedCallback, this.isMobile);
+	}
+	
+	@Override
 	public boolean startedLoggedIn(){
 		return this.loggedIn;
 	}
@@ -292,6 +329,14 @@ public class LabController implements ILabController {
 
 	@Override
 	public void reserveExperiment(ExperimentID experimentId){
+		final ReservationStatusCallback reservationStatusCallback = createReservationStatusCallback(experimentId);
+
+		final JSONValue initialData = this.sessionVariables.getCurrentExperimentBase().getInitialData();
+		this.communications.reserveExperiment(this.currentSession, experimentId, initialData, reservationStatusCallback);
+	}
+
+	private ReservationStatusCallback createReservationStatusCallback(
+			ExperimentID experimentId) {
 		// We delegate the reservation on the ReservationHandler class 
 		final ReservationStatusCallback reservationStatusCallback = new ReservationStatusCallback();
 		
@@ -304,9 +349,7 @@ public class LabController implements ILabController {
 		reservationStatusCallback.setCommunications(this.communications);
 		reservationStatusCallback.setController(this);
 		reservationStatusCallback.setExperimentBaseBeingReserved(this.sessionVariables.getCurrentExperimentBase());
-
-		final JSONValue initialData = this.sessionVariables.getCurrentExperimentBase().getInitialData();
-		this.communications.reserveExperiment(this.currentSession, experimentId, initialData, reservationStatusCallback);
+		return reservationStatusCallback;
 	}
 	
 	final IReservationCallback postReservationDataCallback = new IReservationCallback() {

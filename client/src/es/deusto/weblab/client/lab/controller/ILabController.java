@@ -24,6 +24,7 @@ import es.deusto.weblab.client.lab.ui.IUIManager;
 public interface ILabController {
 	public void login(String username, String password);
 	public void startLoggedIn(SessionID sessionId);
+	public void startReserved(SessionID sessionId, ExperimentID experimentId);
 	public boolean startedLoggedIn();
 	public void logout();
 	

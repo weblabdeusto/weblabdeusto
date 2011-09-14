@@ -114,7 +114,8 @@ class ExperimentWindow extends BaseWindow {
 	    this.headerPanel.setVisible(visibleHeader);
 	    this.navigationPanel.setVisible(visibleHeader);
 	    
-		this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
+	    if(this.user != null)
+	    	this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
 		
 	    if(this.callback.startedLoggedIn()){
 	    	this.logoutLink.setVisible(false);

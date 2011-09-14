@@ -104,7 +104,8 @@ class AllowedExperimentsWindow extends BaseWindow {
 	    this.headerPanel.setVisible(visibleHeader);
 	    this.navigationPanel.setVisible(visibleHeader);
 
-		this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
+	    if(this.user != null)
+	    	this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
 		
 		this.experimentsTable.resize(this.experimentsAllowed.length+1, 3);
 

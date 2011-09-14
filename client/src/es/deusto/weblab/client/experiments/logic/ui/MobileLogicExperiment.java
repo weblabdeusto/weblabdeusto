@@ -177,7 +177,12 @@ public class MobileLogicExperiment extends ExperimentBase {
 		this.removableWidgetsPanel.add(new HTML("You can check your score at <a href='/weblab/admin/winners.py'>the winners page</a>"));
 		
 		this.widget.add(this.removableWidgetsPanel);
-	}	
+	}
+	
+	@Override
+	public void initializeReserved(){
+		
+	}
 	
 	@Override
 	public void queued(){

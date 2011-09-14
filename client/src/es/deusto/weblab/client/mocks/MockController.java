@@ -175,4 +175,8 @@ public class MockController implements ILabController {
 	public SessionID getReservationId() {
 		return new SessionID(this.reservationId);
 	}
+
+	@Override
+	public void startReserved(SessionID sessionId, ExperimentID experimentId) {
+	}
 }
