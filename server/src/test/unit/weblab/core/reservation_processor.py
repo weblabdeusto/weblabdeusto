@@ -580,17 +580,12 @@ class FakeConfirmer(object):
 
 def generate_experiment(exp_name,exp_cat_name):
     cat = Category.ExperimentCategory(exp_cat_name)
-    exp = Experiment.Experiment(
-        exp_name,
-        cat,
-        '01/01/2007',
-        '31/12/2007'
-    )
+    exp = Experiment.Experiment( exp_name, cat, '01/01/2007', '31/12/2007')
     return exp
 
 def generate_experiment_allowed(time_allowed, exp_name, exp_cat_name):
     exp = generate_experiment(exp_name, exp_cat_name)
-    return ExperimentAllowed.ExperimentAllowed(exp, time_allowed, 5)
+    return ExperimentAllowed.ExperimentAllowed(exp, time_allowed, 5, True)
 
 def generate_experiment_use(user_login, exp):
     exp_use = ExperimentUse.ExperimentUse(

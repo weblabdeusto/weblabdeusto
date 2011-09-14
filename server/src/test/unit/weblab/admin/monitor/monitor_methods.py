@@ -260,7 +260,7 @@ def generate_experiment(exp_name,exp_cat_name):
 
 def generate_experiment_allowed(time_allowed, exp_name, exp_cat_name):
     exp = generate_experiment(exp_name, exp_cat_name)
-    return ExperimentAllowed.ExperimentAllowed(exp, time_allowed, 5)
+    return ExperimentAllowed.ExperimentAllowed(exp, time_allowed, 5, True)
 
 def suite():
     return unittest.makeSuite(MonitorMethodsTestCase)

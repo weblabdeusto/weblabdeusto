@@ -104,13 +104,14 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             
             grouped_experiments = {}
             for permission in permissions:
-                p_permanent_id = self._get_parameter_from_permission(session, permission, 'experiment_permanent_id')
-                p_category_id = self._get_parameter_from_permission(session, permission, 'experiment_category_id')
-                p_time_allowed = self._get_float_parameter_from_permission(session, permission, 'time_allowed')
-                p_priority = self._get_int_parameter_from_permission(session, permission, 'priority', ExperimentAllowed.DEFAULT_PRIORITY)
+                p_permanent_id                 = self._get_parameter_from_permission(session, permission, 'experiment_permanent_id')
+                p_category_id                  = self._get_parameter_from_permission(session, permission, 'experiment_category_id')
+                p_time_allowed                 = self._get_float_parameter_from_permission(session, permission, 'time_allowed')
+                p_priority                     = self._get_int_parameter_from_permission(session, permission, 'priority', ExperimentAllowed.DEFAULT_PRIORITY)
+                p_initialization_in_accounting = self._get_bool_parameter_from_permission(session, permission, 'initialization_in_accounting', ExperimentAllowed.DEFAULT_INITIALIZATION_IN_ACCOUNTING)
                 
                 experiment = session.query(Model.DbExperiment).filter_by(name=p_permanent_id).filter(Model.DbExperimentCategory.name==p_category_id).one() 
-                experiment_allowed = ExperimentAllowed.ExperimentAllowed(experiment.to_business(), p_time_allowed, p_priority)
+                experiment_allowed = ExperimentAllowed.ExperimentAllowed(experiment.to_business(), p_time_allowed, p_priority, p_initialization_in_accounting)
                 
                 experiment_unique_id = p_permanent_id+"@"+p_category_id
                 if grouped_experiments.has_key(experiment_unique_id):
