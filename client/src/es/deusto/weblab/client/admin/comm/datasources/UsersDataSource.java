@@ -51,16 +51,15 @@ public class UsersDataSource extends WebLabRestDataSource {
 	    this.setOperationBindings(fetch, update, remove, add);
 	    
 	    // TODO: Get rid of hard-coded strings.
-	    final DataSourceIntegerField idField = new DataSourceIntegerField("id", "ID");  
-	    idField.setPrimaryKey(true);
-	    idField.setCanEdit(false);  
 	    final DataSourceTextField loginDSField = new DataSourceTextField("login", "Login");
+	    loginDSField.setPrimaryKey(true);
+	    loginDSField.setCanEdit(false);
 	    final DataSourceTextField fullNameDSField = new DataSourceTextField("full_name", "Full Name");
 	    final DataSourceTextField emailDSField = new DataSourceTextField("email", "E-Mail");
 	    final DataSourceTextField avatarDSField = new DataSourceTextField("avatar", "Avatar");
 	    final DataSourceTextField roleIdDSField = new DataSourceTextField("role", "Role");
 	    
-	    this.setFields(idField, loginDSField, fullNameDSField, emailDSField, avatarDSField, roleIdDSField);
+	    this.setFields(loginDSField, fullNameDSField, emailDSField, avatarDSField, roleIdDSField);
 	    
 	    this.setFetchDataURL("/weblab/administration/json/users");
 	    //this.setFetchDataURL("data/users_fetch.js");
