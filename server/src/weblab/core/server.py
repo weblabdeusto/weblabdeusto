@@ -34,6 +34,7 @@ import weblab.core.coordinator.coordinator as Coordinator
 import weblab.core.coordinator.config_parser as CoordinationConfigurationParser
 import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.core.db.manager as DatabaseManager
+import weblab.core.coordinator.status as WebLabSchedulingStatus
 
 import weblab.core.exc as coreExc
 import weblab.core.comm.user_server as UserProcessingFacadeServer
@@ -337,6 +338,10 @@ class UserProcessingServer(object):
                     }
         reservation_processor = self._load_reservation(initial_session)
         reservation_processor.update_latest_timestamp()
+
+        if status.status == WebLabSchedulingStatus.WebLabSchedulingStatus.RESERVED:
+            reservation_processor.process_reserved_status(status)
+
         self._reservations_session_manager.modify_session(session_id, initial_session)
         return status
 

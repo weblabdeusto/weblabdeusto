@@ -101,11 +101,11 @@ class ReservationProcessor(object):
             raise core_exc.NoCurrentReservationException("get_reservation_status called but coordinator rejected reservation id")
         else:
             if status.status == scheduling_status.WebLabSchedulingStatus.RESERVED:
-                self._process_reserved_status(status)
+                self.process_reserved_status(status)
 
             return Reservation.Reservation.translate_reservation( status )
 
-    def _process_reserved_status(self, status):
+    def process_reserved_status(self, status):
         if 'lab_session_id' in self._reservation_session:
             return # Already called in the past
 
@@ -245,7 +245,7 @@ class ReservationProcessor(object):
         except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
             self._update_command_or_file(command_id_pack, Command.Command("ERROR: SessionNotFound"))
             try:
-                self.finished_experiment()
+                self.finish()
             except core_exc.FailedToFreeReservationException:
                 pass
             raise core_exc.NoCurrentReservationException(
@@ -254,7 +254,7 @@ class ReservationProcessor(object):
         except LaboratoryExceptions.FailedToInteractException as ftie:
             self._update_command_or_file(command_id_pack, Command.Command("ERROR: " + str(ftie)))
             try:
-                self.finished_experiment()
+                self.finish()
             except core_exc.FailedToFreeReservationException:
                 pass
             raise core_exc.FailedToInteractException(
@@ -290,7 +290,7 @@ class ReservationProcessor(object):
         except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
             self._update_command_or_file(command_id_pack, Command.Command("ERROR: SessionNotFound: None"))
             try:
-                self.finished_experiment()
+                self.finish()
             except core_exc.FailedToFreeReservationException:
                 pass
             raise core_exc.NoCurrentReservationException(
@@ -299,7 +299,7 @@ class ReservationProcessor(object):
         except LaboratoryExceptions.FailedToInteractException as ftspe:
             self._update_command_or_file(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
             try:
-                self.finished_experiment()
+                self.finish()
             except core_exc.FailedToFreeReservationException:
                 pass
 
@@ -338,7 +338,7 @@ class ReservationProcessor(object):
         except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
             self._update_command_or_file(command_id_pack, Command.Command("ERROR: SessionNotFound: None"))
             try:
-                self.finished_experiment()
+                self.finish()
             except core_exc.FailedToFreeReservationException:
                 pass
             raise core_exc.NoCurrentReservationException(
@@ -347,7 +347,7 @@ class ReservationProcessor(object):
         except LaboratoryExceptions.FailedToInteractException as ftspe:
             self._update_command_or_file(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
             try:
-                self.finished_experiment()
+                self.finish()
             except core_exc.FailedToFreeReservationException:
                 pass
             raise core_exc.FailedToInteractException(
@@ -397,7 +397,7 @@ class ReservationProcessor(object):
             # We'll finish the experiment.
             #self._update_command(command_id_pack, Command.Command("ERROR: SessionNotFound: None"))
             try:
-                self.finished_experiment()
+                self.finish()
             except core_exc.FailedToFreeReservationException:
                 pass
             raise core_exc.NoCurrentReservationException(
@@ -408,7 +408,7 @@ class ReservationProcessor(object):
             # We'll finish the experiment.
             #self._update_command(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
             try:
-                self.finished_experiment()
+                self.finish()
             except core_exc.FailedToFreeReservationException:
                 pass
 
@@ -459,7 +459,7 @@ class ReservationProcessor(object):
         except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
             self._update_command_or_file(command_id_pack, Command.Command("ERROR: SessionNotFound: None"))
             try:
-                self.finished_experiment()
+                self.finish()
             except core_exc.FailedToFreeReservationException:
                 pass
             raise core_exc.NoCurrentReservationException(
@@ -468,7 +468,7 @@ class ReservationProcessor(object):
         except LaboratoryExceptions.FailedToInteractException as ftspe:
             self._update_command_or_file(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
             try:
-                self.finished_experiment()
+                self.finish()
             except core_exc.FailedToFreeReservationException:
                 pass
 
