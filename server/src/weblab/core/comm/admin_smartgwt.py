@@ -172,6 +172,12 @@ class Methods(object):
 
     @staticmethod 
     def get_users(handler, session_id, parameters):
+        """
+        get_users(handler, session_id, parameters)
+        
+        Retrieves users, returning them in a JSON-encoded string which will be
+        understood by the client-side SmartGWT data source.
+        """
         request_args = { 'id' : session_id }
         users = handler.facade_manager.get_users(request_args)
         return { 'response' : 
@@ -181,7 +187,7 @@ class Methods(object):
                                 'login' : user.login, 
                                 'full_name' : user.full_name,
                                 'email' : user.email,
-                                'avatar' : "null",
+                                'avatar' : "",
                                 'role' : user.role.name
                             } 
                             for user in users 

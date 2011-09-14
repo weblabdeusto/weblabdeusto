@@ -857,6 +857,8 @@ public class AdminPanelWindow extends BaseWindow {
 	        	// Modify the avatar
 	        	if(userRec != null) {
 	        		String url = userRec.getAttributeAsString("avatar");
+	        		if(url.equals(""))
+	        			url = "../weblabclientadmin/img/smiley.png";
 	        		avatarImg.setSrc(url);
 	        		avatarImg.redraw();
 	        	} else {

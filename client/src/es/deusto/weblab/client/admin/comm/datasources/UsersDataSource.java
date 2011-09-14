@@ -15,7 +15,6 @@
 package es.deusto.weblab.client.admin.comm.datasources;
 
 import com.smartgwt.client.data.OperationBinding;
-import com.smartgwt.client.data.fields.DataSourceIntegerField;
 import com.smartgwt.client.data.fields.DataSourceTextField;
 import com.smartgwt.client.types.DSOperationType;
 import com.smartgwt.client.types.DSProtocol;
