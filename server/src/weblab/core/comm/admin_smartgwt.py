@@ -169,6 +169,27 @@ class Methods(object):
                         ] 
                     }
                 }
+        
+    @staticmethod
+    def get_roles(handler, session_id, parameters):
+        """
+        get_roles(handler, session_id, parameters)
+        
+        Retrieves roles, returning them in a JSON-encoded string which will be
+        understood by the client-side SmartGWT data source.
+        """
+        request_args = { 'id' : session_id }
+        roles = handler.facade_manager.get_roles(request_args)
+        return { 'response' : 
+                    { 'data' : 
+                        [ 
+                            { 
+                                'name' : role.name
+                            } 
+                            for role in roles 
+                        ] 
+                    }
+                }
 
     @staticmethod 
     def get_users(handler, session_id, parameters):

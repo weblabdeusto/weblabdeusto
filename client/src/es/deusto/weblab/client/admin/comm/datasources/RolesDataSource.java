@@ -15,7 +15,6 @@
 package es.deusto.weblab.client.admin.comm.datasources;
 
 import com.smartgwt.client.data.OperationBinding;
-import com.smartgwt.client.data.fields.DataSourceIntegerField;
 import com.smartgwt.client.data.fields.DataSourceTextField;
 import com.smartgwt.client.types.DSOperationType;
 import com.smartgwt.client.types.DSProtocol;
@@ -40,14 +39,14 @@ public class RolesDataSource extends WebLabRestDataSource {
 	    this.setOperationBindings(fetch);
 	    
 	    // TODO: Get rid of hard-coded strings.
-	    final DataSourceIntegerField idField = new DataSourceIntegerField("id", "ID");  
-	    idField.setPrimaryKey(true);
-	    idField.setCanEdit(false);  
 	    final DataSourceTextField nameDSField = new DataSourceTextField("name", "Name");
+	    nameDSField.setPrimaryKey(true);
+	    nameDSField.setCanEdit(false);
 	    
-	    this.setFields(idField, nameDSField);
+	    this.setFields(nameDSField);
 	    
-	    this.setFetchDataURL("data/roles_fetch.js");
+	    this.setFetchDataURL("/weblab/administration/json/roles");
+	    //this.setFetchDataURL("data/roles_fetch.js");
 	}
 	
 }
