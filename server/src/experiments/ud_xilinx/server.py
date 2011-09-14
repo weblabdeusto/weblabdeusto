@@ -170,9 +170,11 @@ class UdXilinxExperiment(Experiment.Experiment):
             self._programming_thread.join()
             # Cleaning references
             self._programming_thread = None
+        return "ok"
         
             
     @Override(Experiment.Experiment)
+    @logged("info")
     def do_start_experiment(self, *args, **kwargs):
         self._current_state = STATE_NOT_READY
         return json.dumps({ "initial_configuration" : "{ \"webcam\" : \"%s\" }" % self.webcam_url, "batch" : False })

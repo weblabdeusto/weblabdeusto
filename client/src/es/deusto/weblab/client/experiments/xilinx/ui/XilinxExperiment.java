@@ -248,8 +248,15 @@ public class XilinxExperiment extends ExperimentBase{
 	public void start(int time, String initialConfiguration){
 		
 		final JSONValue parsedInitialConfiguration = JSONParser.parseStrict(initialConfiguration);
-		final String webcamUrl = parsedInitialConfiguration.isObject().get("webcam").isString().stringValue();
-		this.webcam.setUrl(webcamUrl);
+		
+		
+		try
+		{
+			final String webcamUrl = parsedInitialConfiguration.isObject().get("webcam").isString().stringValue();
+			this.webcam.setUrl(webcamUrl);
+		} catch(Exception e) {
+			System.out.println("[DBG/XILINX]: Did not receive the webcam parameter. Experiment might be using the deprecated API.");		
+		}
 		
 		this.boardController.sendCommand("EXPECTED.PROGRAMMING.TIME",
 				new IResponseCommandCallback() {
