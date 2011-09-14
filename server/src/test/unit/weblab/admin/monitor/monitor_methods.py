@@ -52,6 +52,8 @@ class ConfirmerMock(object):
     def enqueue_free_experiment(self, lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id):
         pass
 
+@case_uses_module(Confirmer)
+@case_uses_module(UserProcessingServer)
 class MonitorMethodsTestCase(unittest.TestCase):
     def setUp(self):
 
@@ -259,9 +261,6 @@ def generate_experiment(exp_name,exp_cat_name):
 def generate_experiment_allowed(time_allowed, exp_name, exp_cat_name):
     exp = generate_experiment(exp_name, exp_cat_name)
     return ExperimentAllowed.ExperimentAllowed(exp, time_allowed, 5)
-
-MonitorMethodsTestCase = case_uses_module(Confirmer)(MonitorMethodsTestCase)
-MonitorMethodsTestCase = case_uses_module(UserProcessingServer)(MonitorMethodsTestCase)
 
 def suite():
     return unittest.makeSuite(MonitorMethodsTestCase)

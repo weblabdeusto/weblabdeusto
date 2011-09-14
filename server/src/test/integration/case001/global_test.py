@@ -1042,30 +1042,30 @@ class Case001TestCase(object):
         for i in self.real_servers:
             i.stop()
 
+@case_uses_module(UserProcessingServer)
 class Case001_Direct_Memory_TestCase(Case001TestCase, unittest.TestCase):
     def get_protocols(self):
         return (Protocols.Direct, )
     def get_session_type(self):
         return SessionType.Memory
 
-Case001_Direct_Memory_TestCase = case_uses_module(UserProcessingServer)(Case001_Direct_Memory_TestCase)
 
 if ServerSOAP.SOAPPY_AVAILABLE:
+    @case_uses_module(UserProcessingServer)
     class Case001_SOAP_MySQL_TestCase(Case001TestCase, unittest.TestCase):
         def get_protocols(self):
             return (Protocols.SOAP, )
         def get_session_type(self):
             return SessionType.sqlalchemy
 
-    Case001_SOAP_MySQL_TestCase = case_uses_module(UserProcessingServer)(Case001_SOAP_MySQL_TestCase)
 
+    @case_uses_module(UserProcessingServer)
     class Case001_SOAP_Memory_TestCase(Case001TestCase, unittest.TestCase):
         def get_protocols(self):
             return (Protocols.SOAP, )
         def get_session_type(self):
             return SessionType.Memory
 
-    Case001_SOAP_Memory_TestCase = case_uses_module(UserProcessingServer)(Case001_SOAP_Memory_TestCase)
 else:
     print >> sys.stderr, "Case001_SOAP_MySQL_TestCase and Case001_SOAP_Memory_TestCase skipped; SOAPpy not installed"
 

@@ -49,6 +49,9 @@ laboratory_coordaddr = CoordAddress.CoordAddress.translate_address(
         "server:laboratoryserver@labmachine"
     )
 
+@case_uses_module(UserProcessingServer)
+@case_uses_module(UserProcessor)
+@case_uses_module(Confirmer)
 class UserProcessingServerTestCase(unittest.TestCase):
     """Note: We will test the underlying layers from this level to make the testing task less repetitive."""
     
@@ -626,9 +629,6 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.assertEquals('bool',            permissions[6].parameters[0].datatype)
         self.assertEquals('1',               permissions[6].parameters[0].value)
         
-UserProcessingServerTestCase = case_uses_module(UserProcessingServer)(UserProcessingServerTestCase)
-UserProcessingServerTestCase = case_uses_module(UserProcessor)(UserProcessingServerTestCase)
-UserProcessingServerTestCase = case_uses_module(Confirmer)(UserProcessingServerTestCase)
 
 class FakeLocator(object):
     def __init__(self, lab):

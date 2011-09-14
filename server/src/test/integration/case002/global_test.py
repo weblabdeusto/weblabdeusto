@@ -687,21 +687,22 @@ class Case002TestCase(object):
         for i in self.real_servers:
             i.stop()
 
+
+@case_uses_module(UserProcessingServer)
 class Case002_Direct_Memory_TestCase(Case002TestCase, unittest.TestCase):
     def get_protocols(self):
         return (Protocols.Direct, )
     def get_session_type(self):
         return SessionType.Memory
 
-Case002_Direct_Memory_TestCase = case_uses_module(UserProcessingServer)(Case002_Direct_Memory_TestCase)
 
+@case_uses_module(UserProcessingServer)
 class Case002_Direct_MySQL_TestCase(Case002TestCase, unittest.TestCase):
     def get_protocols(self):
         return (Protocols.Direct, )
     def get_session_type(self):
         return SessionType.sqlalchemy
 
-Case002_Direct_MySQL_TestCase = case_uses_module(UserProcessingServer)(Case002_Direct_MySQL_TestCase)
 
 def suite():
     return unittest.TestSuite(
