@@ -22,7 +22,7 @@ import mocker
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 from   test.util.module_disposer import case_uses_module
 
-import weblab.core.processor as UserProcessor
+import weblab.core.user_processor as UserProcessor
 import weblab.core.reservations as Reservation
 import weblab.core.coordinator.coordinator as Coordinator 
 import weblab.core.coordinator.confirmer as Confirmer

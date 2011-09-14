@@ -51,7 +51,7 @@ import weblab.methods as weblab_exported_methods
 import weblab.core.alive_users    as AliveUsersCollection
 import weblab.core.reservations             as Reservation
 import weblab.core.server    as UserProcessingServer
-import weblab.core.processor           as UserProcessor
+import weblab.core.user_processor           as UserProcessor
 import weblab.core.coordinator.coordinator as Coordinator
 
 

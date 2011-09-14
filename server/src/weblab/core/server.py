@@ -27,7 +27,7 @@ from voodoo.sessions.session_id import SessionId
 import weblab.data.server_type as ServerType
 
 import weblab.core.data_retriever as TemporalInformationRetriever
-import weblab.core.processor as UserProcessor
+import weblab.core.user_processor as UserProcessor
 from weblab.core.reservation_processor import ReservationProcessor
 import weblab.core.alive_users as AliveUsersCollection
 import weblab.core.coordinator.coordinator as Coordinator
