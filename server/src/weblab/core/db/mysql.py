@@ -487,6 +487,23 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             return tuple(dto_experiment_uses), total_number
         finally:
             session.close()
+            
+    @admin_panel_operation
+    @logged()
+    def get_permission_types(self, user_login):
+        """
+        get_permission_types(user_login)
+        
+        Retrieves every permission type from the database
+        """
+        session = self.Session()
+        try:
+            ptypes = session.query(Model.DbPermissionType).all()
+            dto_ptypes = [ ptype.to_dto() for ptype in ptypes ]
+            return tuple(dto_ptypes)
+        finally:
+            session.close()
+    
 
     @logged()
     def get_user_permissions(self, user_login):

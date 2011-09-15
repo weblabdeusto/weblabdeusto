@@ -70,6 +70,10 @@ class UserProcessingDatabaseManager(object):
     
     def get_user_permissions(self, session_id):
         return self._gateway.get_user_permissions( session_id.username )
+    
+    def get_permission_types(self, session_id):
+        """ Retrieves the permission types (through the database gateway) """
+        return self._gateway.get_permission_types( session_id.username )
 
     def _delete_all_uses(self):
         return self._gateway._delete_all_uses()
