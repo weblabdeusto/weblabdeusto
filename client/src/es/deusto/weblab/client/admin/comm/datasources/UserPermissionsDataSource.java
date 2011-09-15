@@ -49,7 +49,8 @@ public class UserPermissionsDataSource extends WebLabRestDataSource {
 	    this.setFields(idField, idAuthTypeField, permissionTypeField, permanentIdField, dateField, commentsField);
 	    
 	    
-	    this.setFetchDataURL("data/permissions_fetch.js");
+	    //this.setFetchDataURL("data/permissions_fetch.js");
+	    this.setFetchDataURL("/weblab/administration/json/user_permissions");
 	}
 }
 

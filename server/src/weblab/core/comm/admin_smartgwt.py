@@ -216,6 +216,36 @@ class Methods(object):
                         ] 
                     }
                 }
+        
+    @staticmethod
+    def get_user_permissions(handler, session_id, parameters):
+        """
+        get_user_permissions(handler, session_id, parameters)
+        
+        Retrieves user permissions, returning them in a JSON-encoded string 
+        which will be understood by the client-side SmartGWT data source.
+        """
+        request_args = { 'id' : session_id }
+        user_permissions = handler.facade_manager.get_users(request_args)
+        return { 'response' : 
+                    { 'data' : 
+                        [ 
+                            { 
+                                # TODO: Consider what to to with this id. The DTO currently does not store
+                                # the id. This follows the trend set by most DTOs. As of now, the client
+                                # uses it though, but it might be possible to replace it with the permanent
+                                # id.
+                                'id' : up.permanent_id,
+                                'user_id' : up.user_id,
+                                'applicable_permission_type_id' : up.email,
+                                'permanent_id' : up.permanent_id,
+                                'date' : up.date,
+                                'comments' : up.comments
+                            } 
+                            for up in user_permissions 
+                        ] 
+                    }
+                }
 
     @staticmethod 
     def get_users(handler, session_id, parameters):

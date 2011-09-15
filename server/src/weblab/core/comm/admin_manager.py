@@ -56,6 +56,20 @@ class AbstractAdminRemoteFacadeManager(RFM.AbstractRemoteFacadeManager):
     @logged()
     @RFM.check_exceptions(EXCEPTIONS)
     @RFM.check_nullable
+    def get_user_permissions(self, session_id):
+        """
+        get_user_permissions(session_id)
+        
+        @param session_id A possibly-encoded session ID
+        @return User permissions
+        """
+        sess_id = self._parse_session_id(session_id)
+        response = self._server.get_user_permissions(sess_id)
+        return response
+    
+    @logged()
+    @RFM.check_exceptions(EXCEPTIONS)
+    @RFM.check_nullable
     def get_permission_types(self, session_id):
         sess_id = self._parse_session_id(session_id)
         response = self._server.get_permission_types(sess_id)
