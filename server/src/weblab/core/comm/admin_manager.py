@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
 from voodoo.log import logged
@@ -51,6 +52,15 @@ class AbstractAdminRemoteFacadeManager(RFM.AbstractRemoteFacadeManager):
         sess_id = self._parse_session_id(session_id)
         response = self._server.get_users(sess_id)
         return response
+    
+    @logged()
+    @RFM.check_exceptions(EXCEPTIONS)
+    @RFM.check_nullable
+    def get_permission_types(self, session_id):
+        sess_id = self._parse_session_id(session_id)
+        response = self._server.get_permission_types(sess_id)
+        return response
+        
 
     @logged()
     @RFM.check_exceptions(EXCEPTIONS)

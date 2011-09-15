@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
 
 import datetime
@@ -169,6 +170,31 @@ class Methods(object):
                         ] 
                     }
                 }
+    
+    @staticmethod
+    def get_permission_types(handler, session_id, parameters):
+        """
+        get_permission_types(handler, session_id, parameters)
+        
+        Retrieves permission types, returning them in a JSON-encoded string
+        which will be understood by the client-side SmartGWT data source.
+        """
+        request_args = { 'id' : session_id }
+        permission_types = handler.facade_manager.get_permission_types(request_args)
+        return { 'response' : 
+            { 'data' : 
+                [ 
+                    { 
+                        'name'  : ptype.name,
+                        'description' : ptype.description,
+                        'user_applicable_id' : ptype.user_applicable_id,
+                        'group_applicable_id' : ptype.group_applicable_id,
+                        'ee_applicable_id' : ptype.ee_applicable_id
+                    } 
+                    for ptype in permission_types 
+                ] 
+            }
+        }
         
     @staticmethod
     def get_roles(handler, session_id, parameters):
