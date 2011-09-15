@@ -16,6 +16,9 @@
 #
 
 class Permission(object):
+    """
+    DTO for a Permission object
+    """
     
     def __init__(self, name):
         super(Permission, self).__init__()
@@ -33,6 +36,9 @@ class Permission(object):
         
         
 class PermissionType(object):
+    """
+    DTO for a PermissionType object
+    """
     
     def __init__(self, name, description, user_applicable, role_applicable, ee_applicable):
         super(PermissionType, self).__init__()
@@ -53,6 +59,9 @@ class PermissionType(object):
         
         
 class PermissionParameter(object):
+    """
+    DTO for a PermissionParameter object
+    """
     
     def __init__(self, name, datatype, value):
         super(PermissionParameter, self).__init__()

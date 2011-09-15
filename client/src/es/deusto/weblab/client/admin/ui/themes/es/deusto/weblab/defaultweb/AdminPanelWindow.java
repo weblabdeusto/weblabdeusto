@@ -877,7 +877,6 @@ public class AdminPanelWindow extends BaseWindow {
 		            
 		            // Retrieve and display the user's permissions.
 		            permissionsListGrid.filterData(currentUserCriteria);
-		                
 
 		            
 		            AdminPanelWindow.this.userPermissionDS.fetchData(currentUserCriteria);

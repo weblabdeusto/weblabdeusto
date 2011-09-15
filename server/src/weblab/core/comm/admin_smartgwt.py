@@ -151,7 +151,7 @@ class Methods(object):
     methods that are required to handle queries from the SmartGWT admin
     panel data sources. These queries are encoded in a SmartGWT specific
     JSON, so they must be parsed and an appropriate JSON response
-    generated. 
+    generated. They are the first server-side layer to receive them.
     """
     
     @staticmethod
@@ -226,7 +226,7 @@ class Methods(object):
         which will be understood by the client-side SmartGWT data source.
         """
         request_args = { 'id' : session_id }
-        user_permissions = handler.facade_manager.get_users(request_args)
+        user_permissions = handler.facade_manager.get_user_permissions(request_args)
         return { 'response' : 
                     { 'data' : 
                         [ 
