@@ -194,7 +194,7 @@
 			<xsd:element name="FinishedExperimentRequest">
 				<xsd:complexType>	
 					<xsd:sequence>
-						<xsd:element minOccurs="0" maxOccurs="1" name="session" type="tns:SessionIdType"/>
+						<xsd:element minOccurs="0" maxOccurs="1" name="reservation_id" type="tns:SessionIdType"/>
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
@@ -208,7 +208,7 @@
 			<xsd:element name="GetReservationStatusRequest">
 				<xsd:complexType>
 					<xsd:sequence>
-						<xsd:element minOccurs="0" maxOccurs="1" name="session" type="tns:SessionIdType" />
+						<xsd:element minOccurs="0" maxOccurs="1" name="reservation_id" type="tns:SessionIdType" />
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
@@ -224,7 +224,7 @@
 			<xsd:element name="SendFileRequest">
 				<xsd:complexType>
 					<xsd:sequence>
-						<xsd:element minOccurs="0" maxOccurs="1" name="session" type="tns:SessionIdType"/>
+						<xsd:element minOccurs="0" maxOccurs="1" name="reservation_id" type="tns:SessionIdType"/>
 						<xsd:element minOccurs="0" maxOccurs="1" name="content" type="xsd:string"/>
 						<xsd:element minOccurs="0" maxOccurs="1" name="file_info" type="xsd:string"/>
 					</xsd:sequence>
@@ -242,7 +242,7 @@
 			<xsd:element name="SendCommandRequest">
 				<xsd:complexType>
 					<xsd:sequence>
-						<xsd:element minOccurs="0" maxOccurs="1" name="session" type="tns:SessionIdType"/>
+						<xsd:element minOccurs="0" maxOccurs="1" name="reservation_id" type="tns:SessionIdType"/>
 						<xsd:element minOccurs="0" maxOccurs="1" name="command" type="tns:CommandType"/>
 					</xsd:sequence>
 				</xsd:complexType>
@@ -259,7 +259,7 @@
 			<xsd:element name="PollRequest">
 				<xsd:complexType>
 					<xsd:sequence>
-						<xsd:element minOccurs="0" maxOccurs="1" name="session" type="tns:SessionIdType" />
+						<xsd:element minOccurs="0" maxOccurs="1" name="reservation_id" type="tns:SessionIdType" />
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>

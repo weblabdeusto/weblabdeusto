@@ -756,7 +756,7 @@ public class LabSerializerJSONTest extends GWTTestCase{
 		final String serializedMessage = weblabSerializer.serializeGetReservationStatusRequest(sessionId);
 		
 		Assert.assertEquals(
-				"{\"params\":{\"session_id\":{\"id\":\"" + MESSAGE + "\"}}, \"method\":\"get_reservation_status\"}",
+				"{\"params\":{\"reservation_id\":{\"id\":\"" + MESSAGE + "\"}}, \"method\":\"get_reservation_status\"}",
 				serializedMessage
 			);
 	}
@@ -782,7 +782,7 @@ public class LabSerializerJSONTest extends GWTTestCase{
 		final String serializedMessage = weblabSerializer.serializePollRequest(sessionId);
 		
 		Assert.assertEquals(
-				"{\"params\":{\"session_id\":{\"id\":\"" + MESSAGE + "\"}}, \"method\":\"poll\"}",
+				"{\"params\":{\"reservation_id\":{\"id\":\"" + MESSAGE + "\"}}, \"method\":\"poll\"}",
 				serializedMessage
 			);
 	}
@@ -795,7 +795,7 @@ public class LabSerializerJSONTest extends GWTTestCase{
 		final String serializedMessage = weblabSerializer.serializeFinishedExperimentRequest(sessionId);
 		
 		Assert.assertEquals(
-				"{\"params\":{\"session_id\":{\"id\":\"" + MESSAGE + "\"}}, \"method\":\"finished_experiment\"}",
+				"{\"params\":{\"reservation_id\":{\"id\":\"" + MESSAGE + "\"}}, \"method\":\"finished_experiment\"}",
 				serializedMessage
 			);
 	}
@@ -833,7 +833,7 @@ public class LabSerializerJSONTest extends GWTTestCase{
 				sessionId, command);
 		
 		Assert.assertEquals(
-				"{\"params\":{\"session_id\":{\"id\":\"" + MESSAGE + "\"}, \"command\":{\"commandstring\":\"" + command.getCommandString() + "\"}}, \"method\":\"send_async_command\"}",
+				"{\"params\":{\"reservation_id\":{\"id\":\"" + MESSAGE + "\"}, \"command\":{\"commandstring\":\"" + command.getCommandString() + "\"}}, \"method\":\"send_async_command\"}",
 				serializedMessage
 			);
 	}
@@ -850,7 +850,7 @@ public class LabSerializerJSONTest extends GWTTestCase{
 		final String serializedMessage = weblabSerializer.serializeSendCommandRequest(sessionId, command);
 		
 		Assert.assertEquals(
-				"{\"params\":{\"session_id\":{\"id\":\"" + MESSAGE + "\"}, \"command\":{\"commandstring\":\"" + command.getCommandString() + "\"}}, \"method\":\"send_command\"}",
+				"{\"params\":{\"reservation_id\":{\"id\":\"" + MESSAGE + "\"}, \"command\":{\"commandstring\":\"" + command.getCommandString() + "\"}}, \"method\":\"send_command\"}",
 				serializedMessage
 			);
 	}    	

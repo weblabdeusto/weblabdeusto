@@ -345,7 +345,7 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
      * TODO: This method will probably need some work.
      */
     @Override
-	public String serializeCheckAsyncCommandStatusRequest(SessionID sessionId, String [] requestIdentifiers) 
+	public String serializeCheckAsyncCommandStatusRequest(SessionID reservationId, String [] requestIdentifiers) 
 		throws SerializationException {
     	
     	final JSONArray requestIds = new JSONArray();
@@ -353,25 +353,25 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
     		requestIds.set(i, new JSONString(requestIdentifiers[i]));
   
 		final JSONObject params = new JSONObject();
-		params.put("session_id", this.serializeSessionId(sessionId));
+		params.put("reservation_id", this.serializeSessionId(reservationId));
 		params.put("request_identifiers", requestIds);
 		
 		return this.serializeRequest("check_async_command_status", params);
 	}
 
     @Override
-	public String serializeFinishedExperimentRequest(SessionID sessionId)
+	public String serializeFinishedExperimentRequest(SessionID reservationId)
 	    throws SerializationException {
-		// "{\"params\":{\"session_id\":{\"id\":\"" + MESSAGE + "\"}}, \"method\":\"finished_experiment\"}",
+		// "{\"params\":{\"reservation_id\":{\"id\":\"" + MESSAGE + "\"}}, \"method\":\"finished_experiment\"}",
 		final JSONObject params = new JSONObject();
-		params.put("session_id", this.serializeSessionId(sessionId));
+		params.put("reservation_id", this.serializeSessionId(reservationId));
 		return this.serializeRequest("finished_experiment", params);
     }
 
     @Override
-	public String serializeGetReservationStatusRequest(SessionID sessionId) throws SerializationException {
+	public String serializeGetReservationStatusRequest(SessionID reservationId) throws SerializationException {
 		final JSONObject params = new JSONObject();
-		params.put("session_id", this.serializeSessionId(sessionId));
+		params.put("reservation_id", this.serializeSessionId(reservationId));
 		return this.serializeRequest("get_reservation_status", params);
     }
 
@@ -384,10 +384,10 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
     }
 
     @Override
-	public String serializePollRequest(SessionID sessionId)
+	public String serializePollRequest(SessionID reservationId)
 	    throws SerializationException {
 		final JSONObject params = new JSONObject();
-		params.put("session_id", this.serializeSessionId(sessionId));
+		params.put("reservation_id", this.serializeSessionId(reservationId));
 		return this.serializeRequest("poll", params);
     }
 
@@ -410,10 +410,9 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
     }
 
     @Override
-	public String serializeSendCommandRequest(SessionID sessionId,
-	    Command command) throws SerializationException {
+	public String serializeSendCommandRequest(SessionID reservationId, Command command) throws SerializationException {
 		final JSONObject params = new JSONObject();
-		params.put("session_id", this.serializeSessionId(sessionId));
+		params.put("reservation_id", this.serializeSessionId(reservationId));
 		final JSONObject commandjson = new JSONObject();
 		commandjson.put("commandstring", new JSONString(command.getCommandString()));
 		params.put("command", commandjson);
@@ -421,10 +420,9 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
     }
     
     @Override
-    public String serializeSendAsyncCommandRequest(SessionID sessionId,
-    		Command command) throws SerializationException {
+    public String serializeSendAsyncCommandRequest(SessionID reservationId, Command command) throws SerializationException {
     	final JSONObject params = new JSONObject();
-    	params.put("session_id", this.serializeSessionId(sessionId));
+    	params.put("reservation_id", this.serializeSessionId(reservationId));
     	final JSONObject commandjson = new JSONObject();
     	commandjson.put("commandstring", new JSONString(command.getCommandString()));
     	params.put("command", commandjson);
