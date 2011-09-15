@@ -137,9 +137,7 @@ class UserProcessor(object):
             client_initial_data = json.loads(serialized_client_initial_data)
         except ValueError:
             # TODO: to be tested
-            raise core_exc.UserProcessingException(
-                    "Invalid client_initial_data provided: a json-serialized object expected"
-            )
+            raise core_exc.UserProcessingException( "Invalid client_initial_data provided: a json-serialized object expected" )
 
         experiments = [ 
                 exp for exp in self.list_experiments()
@@ -148,9 +146,7 @@ class UserProcessor(object):
             ]
 
         if len(experiments) == 0:
-            raise core_exc.UnknownExperimentIdException(
-                    "User can't access that experiment (or that experiment type does not exist)"
-            )
+            raise core_exc.UnknownExperimentIdException( "User can't access that experiment (or that experiment type does not exist)" )
 
         experiment_allowed = experiments[0]
         try:
@@ -158,6 +154,7 @@ class UserProcessor(object):
                     experiment_allowed.experiment.to_experiment_id(), 
                     experiment_allowed.time_allowed, 
                     experiment_allowed.priority,
+                    experiment_allowed.initialization_in_accounting,
                     client_initial_data,
                     reservation_info
                 )
@@ -171,12 +168,9 @@ class UserProcessor(object):
 
 
         self._session['reservation_information'].pop('from_ip', None)
-
         self._session['reservation_id']   = reservation_id
             
-        return Reservation.Reservation.translate_reservation(
-                    status
-                )
+        return Reservation.Reservation.translate_reservation( status )
 
     def logout(self):
         # self.finished_experiment()

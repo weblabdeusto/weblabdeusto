@@ -295,7 +295,7 @@ class Coordinator(object):
     # Perform a new reservation
     # 
     @logged()
-    def reserve_experiment(self, experiment_id, time, priority, client_initial_data, request_info):
+    def reserve_experiment(self, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info):
         """
         priority: the less, the more priority
         """
@@ -303,7 +303,7 @@ class Coordinator(object):
         schedulers = self._get_schedulers_per_experiment_id(experiment_id)
         all_reservation_status = []
         for scheduler in schedulers:
-            reservation_status = scheduler.reserve_experiment(reservation_id, experiment_id, time, priority)
+            reservation_status = scheduler.reserve_experiment(reservation_id, experiment_id, time, priority, initialization_in_accounting)
             all_reservation_status.append(reservation_status)
         return self.meta_scheduler.select_best_reservation_status(all_reservation_status)
 

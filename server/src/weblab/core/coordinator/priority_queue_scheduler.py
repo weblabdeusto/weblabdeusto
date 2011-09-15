@@ -96,8 +96,7 @@ class PriorityQueueScheduler(Scheduler):
                 concrete_current_reservations = current_resource_slot.slot_reservation.pq_current_reservations
                 if len(concrete_current_reservations) > 0:
                     concrete_current_reservation = concrete_current_reservations[0]
-                    waiting_reservation = WaitingReservation(resource_instance.resource_type, concrete_current_reservation.current_reservation_id, concrete_current_reservation.time,
-                            -1) # -1 : Highest priority
+                    waiting_reservation = WaitingReservation(resource_instance.resource_type, concrete_current_reservation.current_reservation_id, concrete_current_reservation.time, -1, concrete_current_reservation.initialization_in_accounting) # -1 : Highest priority
                     self.reservations_manager.downgrade_confirmation(session, concrete_current_reservation.current_reservation_id)
                     self.resources_manager.release_resource(session, current_resource_slot.slot_reservation)
                     session.add(waiting_reservation)
@@ -108,14 +107,14 @@ class PriorityQueueScheduler(Scheduler):
     @exc_checker
     @logged()
     @Override(Scheduler)
-    def reserve_experiment(self, reservation_id, experiment_id, time, priority):
+    def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting):
         """
         priority: the less, the more priority
         """
         session = self.session_maker()
         try:
             resource_type = session.query(ResourceType).filter_by(name = self.resource_type_name).one()
-            waiting_reservation = WaitingReservation(resource_type, reservation_id, time, priority)
+            waiting_reservation = WaitingReservation(resource_type, reservation_id, time, priority, initialization_in_accounting)
             session.add(waiting_reservation)
 
             session.commit()
@@ -379,7 +378,7 @@ class PriorityQueueScheduler(Scheduler):
                     total_time = first_waiting_reservation.time
                     start_time = self.time_provider.get_time()
                     concrete_current_reservation = ConcreteCurrentReservation(slot_reservation, first_waiting_reservation.reservation_id, 
-                                                        total_time, start_time, first_waiting_reservation.priority)
+                                                        total_time, start_time, first_waiting_reservation.priority, first_waiting_reservation.initialization_in_accounting)
                     concrete_current_reservation.timestamp_before = datetime.datetime.now()
 
                     client_initial_data = first_waiting_reservation.reservation.client_initial_data

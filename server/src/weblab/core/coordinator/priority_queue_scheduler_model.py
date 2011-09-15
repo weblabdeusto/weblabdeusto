@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint, Text, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, UniqueConstraint, Text, DateTime
 from sqlalchemy.orm import relation, backref
 
 from weblab.core.coordinator.model import Base, RESERVATION_ID_SIZE, ResourceType, Reservation, SchedulingSchemaIndependentSlotReservation
@@ -38,33 +38,36 @@ class ConcreteCurrentReservation(Base):
     time                             = Column(Integer)
     start_time                       = Column(Integer)
     priority                         = Column(Integer)
+    initialization_in_accounting     = Column(Boolean)
     lab_session_id                   = Column(String(255))
     initial_configuration            = Column(Text)
     timestamp_before                 = Column(DateTime)
     timestamp_after                  = Column(DateTime)
 
-    def __init__(self, slot_reservation, current_reservation_id, time, start_time, priority):
+    def __init__(self, slot_reservation, current_reservation_id, time, start_time, priority, initialization_in_accounting):
         self.slot_reservation              = slot_reservation
         self.current_reservation_id        = current_reservation_id
         self.time                          = time
         self.start_time                    = start_time
         self.priority                      = priority
+        self.initialization_in_accounting  = initialization_in_accounting
         self.lab_session_id                = None
         self.initial_configuration         = None
         self.timestamp_before              = None
         self.timestamp_after               = None
 
     def __repr__(self):
-        return SUFFIX + "ConcreteCurrentReservation(%s, %s, %s, %s, %s, %s, %s, %s, %s)" % (
-                            repr(self.slot_reservation),
-                            repr(self.current_reservation_id),
-                            repr(self.time),
-                            repr(self.lab_session_id),
-                            repr(self.start_time),
-                            repr(self.priority),
-                            repr(self.initial_configuration),
-                            repr(self.timestamp_before),
-                            repr(self.timestamp_after),
+        return SUFFIX + "ConcreteCurrentReservation(%r, %r, %r, %r, %r, %r, %r, %r, %r, %r)" % (
+                            self.slot_reservation,
+                            self.current_reservation_id,
+                            self.time,
+                            self.lab_session_id,
+                            self.start_time,
+                            self.priority,
+                            self.initial_configuration,
+                            self.timestamp_before,
+                            self.timestamp_after,
+                            self.initialization_in_accounting
                         )
 
 class WaitingReservation(Base):
@@ -73,24 +76,28 @@ class WaitingReservation(Base):
 
     id = Column(Integer, primary_key=True)
 
-    resource_type_id    = Column(Integer, ForeignKey('ResourceTypes.id'))
-    reservation_id      = Column(String(RESERVATION_ID_SIZE), ForeignKey('Reservations.id'))
-    reservation         = relation(Reservation, backref=backref('pq_waiting_reservations', order_by=id))
-    time                = Column(Integer)
-    priority            = Column(Integer)
+    resource_type_id             = Column(Integer, ForeignKey('ResourceTypes.id'))
+    reservation_id               = Column(String(RESERVATION_ID_SIZE), ForeignKey('Reservations.id'))
+    reservation                  = relation(Reservation, backref=backref('pq_waiting_reservations', order_by=id))
+    time                         = Column(Integer)
+    priority                     = Column(Integer)
+    initialization_in_accounting = Column(Boolean)
 
     resource_type       = relation(ResourceType, backref=backref('pq_waiting_reservations', order_by=id))
 
-    def __init__(self, resource_type, reservation_id, time, priority):
-        self.resource_type   = resource_type
-        self.reservation_id  = reservation_id
-        self.time            = time
-        self.priority        = priority
+    def __init__(self, resource_type, reservation_id, time, priority, initialization_in_accounting):
+        self.resource_type                = resource_type
+        self.reservation_id               = reservation_id
+        self.time                         = time
+        self.priority                     = priority
+        self.initialization_in_accounting = initialization_in_accounting
 
     def __repr__(self):
-        return SUFFIX + "WaitingReservation(%s, %s, %s, %s)" % (
-                    repr(self.resource_type),
-                    repr(self.reservation_id),
-                    repr(self.time),
-                    repr(self.priority),
+        return SUFFIX + "WaitingReservation(%r, %r, %r, %r, %r)" % (
+                    self.resource_type,
+                    self.reservation_id,
+                    self.time,
+                    self.priority,
+                    self.initialization_in_accounting
                 )
+
