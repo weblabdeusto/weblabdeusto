@@ -160,10 +160,6 @@ class LaboratoryServer(object):
         for exp_inst_id, coord_address, checking_handlers, api in parsed_experiments:
             self._assigned_experiments.add_server(exp_inst_id, coord_address, checking_handlers, None)
             
-            # TODO / TOFIX: Right now, an experiment which does not override the get_api method returns None,
-            # exactly in the same way that do_get_api returns None when it fails. This would lead to 
-            # unnecessary do_get_api calls, so it should be fixed.
-            
             # Upon loading, we will also try to find out which API each experiment should use, by asking
             # the experiment server itself. Sometimes, however, the experiment server will not really be
             # available at this stage. Should this happen, we will try to contact the server again when
