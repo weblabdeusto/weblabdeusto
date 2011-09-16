@@ -11,6 +11,8 @@
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
+#         Pablo Orduña <pablo.orduna@deusto.es>
+# 
 
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
@@ -143,7 +145,7 @@ class DbGateway(object):
         except IntegrityError:
             return None, None
                 
-    def grant_on_experiment_to_group(self, group, permission_type, permanent_id, date, comments, experiment, time_allowed, priority):
+    def grant_on_experiment_to_group(self, group, permission_type, permanent_id, date, comments, experiment, time_allowed, priority, initialization_in_accounting):
         try:
             group_permission = Model.DbGroupPermission(
                                     group,
@@ -177,13 +179,19 @@ class DbGateway(object):
                                         priority
                                   )
             self.session.add(group_permission_p4)
+            group_permission_p5 = Model.DbGroupPermissionParameter(
+                                        group_permission,
+                                        permission_type.get_parameter("initialization_in_accounting"),
+                                        initialization_in_accounting
+                                  )
+            self.session.add(group_permission_p5)
 
             self.session.commit()
             return group_permission
         except IntegrityError:
             return None
                 
-    def grant_on_experiment_to_user(self, user, permission_type, permanent_id, date, comments, experiment, time_allowed, priority):
+    def grant_on_experiment_to_user(self, user, permission_type, permanent_id, date, comments, experiment, time_allowed, priority, initialization_in_accounting):
         try:
             user_permission = Model.DbUserPermission(
                                     user,
@@ -217,8 +225,87 @@ class DbGateway(object):
                                         priority
                                   )
             self.session.add(user_permission_p4)
+            user_permission_p5 = Model.DbUserPermissionParameter(
+                                        user_permission,
+                                        permission_type.get_parameter("initialization_in_accounting"),
+                                        initialization_in_accounting
+                                  )
+            self.session.add(user_permission_p5)
 
             self.session.commit()
             return user_permission
         except IntegrityError:
             return None
+
+    def grant_on_admin_panel_to_group(self, group, permission_type, permanent_id, date, comments):
+        try:
+            group_permission = Model.DbGroupPermission(
+                                    group,
+                                    permission_type.group_applicable,
+                                    permanent_id,
+                                    date,
+                                    comments
+                                )
+            self.session.add(group_permission)
+            group_permission_p1 = Model.DbGroupPermissionParameter(
+                                        group_permission,
+                                        permission_type.get_parameter("full_privileges"),
+                                        True
+                                  )
+            self.session.add(group_permission_p1)
+            self.session.commit()
+            return group_permission
+        except IntegrityError:
+            return None
+                
+    def grant_on_admin_panel_to_user(self, user, permission_type, permanent_id, date, comments):
+        try:
+            user_permission = Model.DbUserPermission(
+                                    user,
+                                    permission_type.user_applicable,
+                                    permanent_id,
+                                    date,
+                                    comments
+                                )
+            self.session.add(user_permission)
+            user_permission_p1 = Model.DbUserPermissionParameter(
+                                        user_permission,
+                                        permission_type.get_parameter("full_privileges"),
+                                        True
+                                  )
+            self.session.add(user_permission_p1)
+            self.session.commit()
+            return user_permission
+        except IntegrityError:
+            return None
+
+    def grant_on_access_forward_to_group(self, group, permission_type, permanent_id, date, comments):
+        try:
+            group_permission = Model.DbGroupPermission(
+                                    group,
+                                    permission_type.group_applicable,
+                                    permanent_id,
+                                    date,
+                                    comments
+                                )
+            self.session.add(group_permission)
+            self.session.commit()
+            return group_permission
+        except IntegrityError:
+            return None
+                
+    def grant_on_access_forward_to_user(self, user, permission_type, permanent_id, date, comments):
+        try:
+            user_permission = Model.DbUserPermission(
+                                    user,
+                                    permission_type.user_applicable,
+                                    permanent_id,
+                                    date,
+                                    comments
+                                )
+            self.session.add(user_permission)
+            self.session.commit()
+            return user_permission
+        except IntegrityError:
+            return None
+

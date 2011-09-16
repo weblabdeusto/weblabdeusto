@@ -79,10 +79,18 @@ class Controller(object):
             elif option == 10:
                 self.grant_on_experiment_to_user()
             elif option == 11:
-                self.list_users()
+                self.grant_on_admin_panel_to_group()
             elif option == 12:
-                self.notify_users()
+                self.grant_on_admin_panel_to_user()
             elif option == 13:
+                self.grant_on_access_forward_to_group()
+            elif option == 14:
+                self.grant_on_access_forward_to_user()
+            elif option == 15:
+                self.list_users()
+            elif option == 16:
+                self.notify_users()
+            elif option == 17:
                 self.notify_users_with_passwords()
         self.ui.dialog_exit()
         sys.exit(0)
@@ -309,7 +317,7 @@ class Controller(object):
         experiment_names = [ (experiment.id, experiment.name) for experiment in experiments ]
         permission_type = self.db.get_permission_type("experiment_allowed")
         try:
-            group_id, experiment_id, time_allowed = self.ui.dialog_grant_on_experiment_to_group(group_names, experiment_names)
+            group_id, experiment_id, time_allowed, priority, initialization_in_accounting = self.ui.dialog_grant_on_experiment_to_group(group_names, experiment_names)
             group = [ group for group in groups if group.id == group_id ][0] if group_id is not None else None
             experiment = [ experiment for experiment in experiments if experiment.id == experiment_id ][0] if experiment_id is not None else None
             experiment_unique_id = "%s@%s" % (experiment.name, experiment.category.name)
@@ -321,7 +329,9 @@ class Controller(object):
                     datetime.datetime.utcnow(),
                     "Permission on %s to use %s" % (group.name, experiment_unique_id),
                     experiment,
-                    time_allowed
+                    time_allowed,
+                    priority,
+                    initialization_in_accounting
             )
             if group_permission is not None:
                 self.ui.notify("GroupPermission created:\n%r" % group_permission)
@@ -340,7 +350,7 @@ class Controller(object):
         experiment_names = [ (experiment.id, experiment.name) for experiment in experiments ]
         permission_type = self.db.get_permission_type("experiment_allowed")
         try:
-            user_id, experiment_id, time_allowed = self.ui.dialog_grant_on_experiment_to_user(user_names, experiment_names)
+            user_id, experiment_id, time_allowed, priority, initialization_in_accounting = self.ui.dialog_grant_on_experiment_to_user(user_names, experiment_names)
             user = [ user for user in users if user.id == user_id ][0] if user_id is not None else None
             experiment = [ experiment for experiment in experiments if experiment.id == experiment_id ][0] if experiment_id is not None else None
             experiment_unique_id = "%s@%s" % (experiment.name, experiment.category.name)
@@ -352,7 +362,9 @@ class Controller(object):
                     datetime.datetime.utcnow(),
                     "Permission on %s to use %s" % (user.login, experiment_unique_id),
                     experiment,
-                    time_allowed
+                    time_allowed,
+                    priority,
+                    initialization_in_accounting
             )
             if user_permission is not None:
                 self.ui.notify("UserPermission created:\n%r" % user_permission)
@@ -363,7 +375,91 @@ class Controller(object):
             self.ui.wait()
         except GoBackException:
             return   
+
+    def grant_on_admin_panel_to_group(self):
+        groups = self.db.get_groups()
+        group_names = [ (group.id, group.name) for group in groups ]
+        permission_type = self.db.get_permission_type("admin_panel_access")
+        try:
+            group_id = self.ui.dialog_grant_on_admin_panel_to_group(group_names)
+            group = [ group for group in groups if group.id == group_id ][0] if group_id is not None else None
+            group_permission_permanent_id = "%s::admin_panel_access" % group.name
+            group_permission = self.db.grant_on_admin_panel_to_group( group, permission_type,
+                    group_permission_permanent_id, datetime.datetime.utcnow(),
+                    "Permission on %s to use %s" % (group.name, group_permission_permanent_id))
+            if group_permission is not None:
+                self.ui.notify("GroupPermission created:\n%r" % group_permission)
+                for parameter in group_permission.parameters:
+                    self.ui.notify("GroupPermissionParameter created:\n%r" % parameter)
+            else:
+                self.ui.error("The GroupPermission '%s' already exists." % group_permission_permanent_id)
+            self.ui.wait()
+        except GoBackException:
+            return
         
+    def grant_on_admin_panel_to_user(self):
+        users = self.db.get_users()
+        user_names = [ (user.id, user.login) for user in users ]
+        permission_type = self.db.get_permission_type("admin_panel_access")
+        try:
+            user_id = self.ui.dialog_grant_on_admin_panel_to_user(user_names)
+            user = [ user for user in users if user.id == user_id ][0] if user_id is not None else None
+            user_permission_permanent_id = "%s::admin_panel_access" % user.login
+            user_permission = self.db.grant_on_admin_panel_to_user( user, permission_type,
+                    user_permission_permanent_id, datetime.datetime.utcnow(),
+                    "Permission on %s to use %s" % (user.login, user_permission_permanent_id))
+            if user_permission is not None:
+                self.ui.notify("UserPermission created:\n%r" % user_permission)
+                for parameter in user_permission.parameters:
+                    self.ui.notify("UserPermissionParameter created:\n%r" % parameter)
+            else:
+                self.ui.error("The UserPermission '%s' already exists." % user_permission_permanent_id)     
+            self.ui.wait()
+        except GoBackException:
+            return   
+
+    def grant_on_access_forward_to_group(self):
+        groups = self.db.get_groups()
+        group_names = [ (group.id, group.name) for group in groups ]
+        permission_type = self.db.get_permission_type("access_forward")
+        try:
+            group_id = self.ui.dialog_grant_on_access_forward_to_group(group_names)
+            group = [ group for group in groups if group.id == group_id ][0] if group_id is not None else None
+            group_permission_permanent_id = "%s::access_forward" % group.name
+            group_permission = self.db.grant_on_access_forward_to_group( group, permission_type,
+                    group_permission_permanent_id, datetime.datetime.utcnow(),
+                    "Permission on %s to use %s" % (group.name, group_permission_permanent_id))
+            if group_permission is not None:
+                self.ui.notify("GroupPermission created:\n%r" % group_permission)
+                for parameter in group_permission.parameters:
+                    self.ui.notify("GroupPermissionParameter created:\n%r" % parameter)
+            else:
+                self.ui.error("The GroupPermission '%s' already exists." % group_permission_permanent_id)
+            self.ui.wait()
+        except GoBackException:
+            return
+        
+    def grant_on_access_forward_to_user(self):
+        users = self.db.get_users()
+        user_names = [ (user.id, user.login) for user in users ]
+        permission_type = self.db.get_permission_type("access_forward")
+        try:
+            user_id = self.ui.dialog_grant_on_access_forward_to_user(user_names)
+            user = [ user for user in users if user.id == user_id ][0] if user_id is not None else None
+            user_permission_permanent_id = "%s::access_forward" % user.login
+            user_permission = self.db.grant_on_access_forward_to_user( user, permission_type,
+                    user_permission_permanent_id, datetime.datetime.utcnow(),
+                    "Permission on %s to use %s" % (user.login, user_permission_permanent_id))
+            if user_permission is not None:
+                self.ui.notify("UserPermission created:\n%r" % user_permission)
+                for parameter in user_permission.parameters:
+                    self.ui.notify("UserPermissionParameter created:\n%r" % parameter)
+            else:
+                self.ui.error("The UserPermission '%s' already exists." % user_permission_permanent_id)     
+            self.ui.wait()
+        except GoBackException:
+            return   
+ 
     def list_users(self):
         groups = self.db.get_groups()
         group_names = [ (group.id, group.name) for group in groups ]

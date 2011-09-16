@@ -97,6 +97,8 @@ def _insert_required_initial_data(engine):
     session.add(experiment_allowed_p3)
     experiment_allowed_p4 = Model.DbPermissionTypeParameter(experiment_allowed, 'priority', 'int', 'Priority (the lower value the higher priority)')
     session.add(experiment_allowed_p4)
+    experiment_allowed_p5 = Model.DbPermissionTypeParameter(experiment_allowed, 'initialization_in_accounting', 'bool', 'time_allowed, should count with the initialization time or not?')
+    session.add(experiment_allowed_p5)
     session.commit()    
     
     admin_panel_access = Model.DbPermissionType(
@@ -109,6 +111,15 @@ def _insert_required_initial_data(engine):
     session.add(admin_panel_access)
     admin_panel_access_p1 = Model.DbPermissionTypeParameter(admin_panel_access, 'full_privileges', 'bool', 'full privileges (True) or not (False)')
     session.add(admin_panel_access_p1)
+
+    access_forward = Model.DbPermissionType(
+            'access_forward',
+            'Users with this permission will be allowed to forward reservations to other external users.',
+            user_applicable = True,
+            group_applicable = True,
+            ee_applicable = True
+    )
+    session.add(access_forward)
     session.commit()
 
 #####################################################################
