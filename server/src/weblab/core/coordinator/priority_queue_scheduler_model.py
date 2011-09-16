@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, UniqueConstraint, Text, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, UniqueConstraint, Text
 from sqlalchemy.orm import relation, backref
 
 from weblab.core.coordinator.model import Base, RESERVATION_ID_SIZE, ResourceType, Reservation, SchedulingSchemaIndependentSlotReservation
@@ -35,14 +35,21 @@ class ConcreteCurrentReservation(Base):
     current_reservation_id           = Column(String(RESERVATION_ID_SIZE), ForeignKey('CurrentReservations.id'))
     current_reservation              = relation(GlobalCurrentReservation, backref=backref('pq_current_reservations'))
 
+    # For how many seconds the user has access
     time                             = Column(Integer)
+
+    # When did it started
     start_time                       = Column(Integer)
-    priority                         = Column(Integer)
+
+    # Are you counting with the initialization time in "time"?
     initialization_in_accounting     = Column(Boolean)
+
+    timestamp_before                 = Column(Integer)
+    timestamp_after                  = Column(Integer)
+
+    priority                         = Column(Integer)
     lab_session_id                   = Column(String(255))
     initial_configuration            = Column(Text)
-    timestamp_before                 = Column(DateTime)
-    timestamp_after                  = Column(DateTime)
 
     def __init__(self, slot_reservation, current_reservation_id, time, start_time, priority, initialization_in_accounting):
         self.slot_reservation              = slot_reservation

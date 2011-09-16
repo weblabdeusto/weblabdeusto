@@ -44,8 +44,8 @@ class MetaSchedulerTestCase(unittest.TestCase):
         self.wc1     = WSS.WaitingConfirmationQueueStatus("reservation_id", "coord_adress1", 50)
         self.wc2     = WSS.WaitingConfirmationQueueStatus("reservation_id", "coord_adress2", 60)
 
-        self.res1    = WSS.ReservedStatus("reservation_id", "coord_address1", "lab_session_id1", 50, None, datetime.datetime.now(), datetime.datetime.now())
-        self.res2    = WSS.ReservedStatus("reservation_id", "coord_address2", "lab_session_id2", 60, "foo", datetime.datetime.now(), datetime.datetime.now())
+        self.res1    = WSS.ReservedStatus("reservation_id", "coord_address1", "lab_session_id1", 50, None, datetime.datetime.now(), datetime.datetime.now(), True, 50)
+        self.res2    = WSS.ReservedStatus("reservation_id", "coord_address2", "lab_session_id2", 60, "foo", datetime.datetime.now(), datetime.datetime.now(), True, 50)
 
         self.post1   = WSS.PostReservationStatus("reservation_id", True, "foo1", "bar")
         self.post2   = WSS.PostReservationStatus("reservation_id", True, "foo2", "bar")

@@ -47,7 +47,7 @@ class Reservation(object):
         elif status.status == WSS.WebLabSchedulingStatus.WAITING_CONFIRMATION:
             reservation = WaitingConfirmationReservation(status.reservation_id)
         elif status.status == WSS.WebLabSchedulingStatus.RESERVED:
-            reservation = ConfirmedReservation(status.reservation_id, status.time, status.initial_configuration)
+            reservation = ConfirmedReservation(status.reservation_id, status.remaining_time, status.initial_configuration)
         elif status.status == WSS.WebLabSchedulingStatus.WAITING_INSTANCES: #TODO: test me
             reservation = WaitingInstances(status.reservation_id, status.position)
         elif status.status == WSS.WebLabSchedulingStatus.POST_RESERVATION: #TODO: test me

@@ -58,9 +58,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
     
     def setUp(self):
 
-        self.coord_address = CoordAddress.CoordAddress.translate_address(
-                "server0:instance0@machine0"
-            )
+        self.coord_address = CoordAddress.CoordAddress.translate_address( "server0:instance0@machine0")
 
         self.mock_locator  = MockLocator()
         self.locator       = EasyLocator.EasyLocator( self.coord_address, self.mock_locator )
@@ -135,7 +133,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
         
         status = self.coordinator.get_reservation_status(reservation1_id)
-        expected_status =  WSS.ReservedStatus(reservation1_id, CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, 30, '{}', now, now)
+        expected_status =  WSS.ReservedStatus(reservation1_id, CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, 30, '{}', now, now, True, 30)
 
         self.assertTrue("Unexpected status due to timestamp_before: %s; expected something like %s" % (status, expected_status), 
                             status.timestamp_before >= now and status.timestamp_before <= now + datetime.timedelta(seconds=10))

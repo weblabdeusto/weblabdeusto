@@ -33,7 +33,7 @@ class WebLabSchedulingStatusTest(unittest.TestCase):
         str(wc)
 
     def test_str_reservation(self):
-        res    = WSS.ReservedStatus("reservation_id", "coord_address1", "lab_session_id1", 50, None, datetime.datetime.now(), datetime.datetime.now())
+        res    = WSS.ReservedStatus("reservation_id", "coord_address1", "lab_session_id1", 50, None, datetime.datetime.now(), datetime.datetime.now(), True, 45)
         str(res)
 
     def test_str_post_reservation(self):

@@ -164,17 +164,37 @@ class PriorityQueueScheduler(Scheduler):
                 if requested_experiment_instance is None:
                     raise Exception("Invalid state: there is an resource_instance of the resource_type the user was waiting for which doesn't have any experiment_instance of the experiment_type the user was waiting for")
 
-                str_lab_coord_address = requested_experiment_instance.laboratory_coord_address
-                lab_coord_address     = CoordAddress.CoordAddress.translate_address(str_lab_coord_address)
-                obtained_time         = concrete_current_reservation.time
-                lab_session_id        = concrete_current_reservation.lab_session_id
-                initial_configuration = concrete_current_reservation.initial_configuration
-                timestamp_before      = concrete_current_reservation.timestamp_before
-                timestamp_after       = concrete_current_reservation.timestamp_after
+                str_lab_coord_address        = requested_experiment_instance.laboratory_coord_address
+                lab_coord_address            = CoordAddress.CoordAddress.translate_address(str_lab_coord_address)
+                obtained_time                = concrete_current_reservation.time
+                lab_session_id               = concrete_current_reservation.lab_session_id
+                initial_configuration        = concrete_current_reservation.initial_configuration
+                initialization_in_accounting = concrete_current_reservation.initialization_in_accounting
+
+                if concrete_current_reservation.timestamp_before is None:
+                    timestamp_before  = None
+                else:
+                    timestamp_before  = datetime.datetime.fromtimestamp(concrete_current_reservation.timestamp_before)
+
+                if concrete_current_reservation.timestamp_after is None:
+                    timestamp_after   = None
+                else:
+                    timestamp_after   = datetime.datetime.fromtimestamp(concrete_current_reservation.timestamp_after)
+
                 if lab_session_id is None:
                     return WSS.WaitingConfirmationQueueStatus(reservation_id, lab_coord_address, obtained_time)
                 else:
-                    return WSS.ReservedStatus(reservation_id, lab_coord_address, SessionId.SessionId(lab_session_id), obtained_time, initial_configuration, timestamp_before, timestamp_after)
+                    if initialization_in_accounting:
+                        before = concrete_current_reservation.timestamp_before
+                    else:
+                        before = concrete_current_reservation.timestamp_after
+
+                    if before is not None:
+                        remaining = (before + obtained_time) - self.time_provider.get_time()
+                    else:
+                        remaining = obtained_time
+
+                    return WSS.ReservedStatus(reservation_id, lab_coord_address, SessionId.SessionId(lab_session_id), obtained_time, initial_configuration, timestamp_before, timestamp_after, initialization_in_accounting, remaining)
 
             resource_type = session.query(ResourceType).filter_by(name = self.resource_type_name).one()
             waiting_reservation = session.query(WaitingReservation).filter_by(reservation_id = reservation_id, resource_type_id = resource_type.id).first()
@@ -237,7 +257,7 @@ class PriorityQueueScheduler(Scheduler):
 
             concrete_current_reservation.lab_session_id        = lab_session_id.id
             concrete_current_reservation.initial_configuration = initial_configuration
-            concrete_current_reservation.timestamp_after       = datetime.datetime.now()
+            concrete_current_reservation.timestamp_after       = self.time_provider.get_time()
 
             session.commit()
         finally:
@@ -376,10 +396,11 @@ class PriorityQueueScheduler(Scheduler):
                     self.reservations_manager.confirm(session, first_waiting_reservation.reservation_id)
                     slot_reservation = self.resources_manager.acquire_resource(session, free_instance)
                     total_time = first_waiting_reservation.time
+                    initialization_in_accounting = first_waiting_reservation.initialization_in_accounting
                     start_time = self.time_provider.get_time()
                     concrete_current_reservation = ConcreteCurrentReservation(slot_reservation, first_waiting_reservation.reservation_id, 
                                                         total_time, start_time, first_waiting_reservation.priority, first_waiting_reservation.initialization_in_accounting)
-                    concrete_current_reservation.timestamp_before = datetime.datetime.now()
+                    concrete_current_reservation.timestamp_before = self.time_provider.get_time()
 
                     client_initial_data = first_waiting_reservation.reservation.client_initial_data
 
@@ -432,9 +453,9 @@ class PriorityQueueScheduler(Scheduler):
                         # petitions and run them in other threads.
                         # 
                         deserialized_server_initial_data = {
-                                'priority.queue.slot.length' : '%s' % total_time,
-                                'priority.queue.slot.start'  : '%s' % datetime.datetime.fromtimestamp(start_time),
-                                'priority.queue.slot.end'    : '%s' % (datetime.datetime.fromtimestamp(start_time) + datetime.timedelta(seconds = total_time)),
+                                'priority.queue.slot.length'                       : '%s' % total_time,
+                                'priority.queue.slot.start'                        : '%s' % datetime.datetime.fromtimestamp(start_time),
+                                'priority.queue.slot.initialization_in_accounting' : initialization_in_accounting 
                             }
                         server_initial_data = json.dumps(deserialized_server_initial_data)
                         # server_initial_data will contain information such as "what was the last experiment used?".
@@ -471,7 +492,10 @@ class PriorityQueueScheduler(Scheduler):
 
             reservations_removed = False
             enqueue_free_experiment_args_retrieved = []
-            for expired_concrete_current_reservation in session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.start_time.op('+')(ConcreteCurrentReservation.time) < self.time_provider.get_time()).all():
+            with_initialization = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.initialization_in_accounting == True).filter(ConcreteCurrentReservation.timestamp_before.op('+')(ConcreteCurrentReservation.time) < self.time_provider.get_time())
+            without_initialization = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.initialization_in_accounting == False).filter(ConcreteCurrentReservation.timestamp_after.op('+')(ConcreteCurrentReservation.time) < self.time_provider.get_time())
+
+            for expired_concrete_current_reservation in with_initialization.union(without_initialization).all():
                 expired_reservation = expired_concrete_current_reservation.current_reservation_id
                 if expired_reservation is None:
                     continue # Maybe it's not an expired_reservation anymore
