@@ -37,7 +37,7 @@ _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessing
 # it.
 # 
 class SchedulerTransactionsSynchronizer(threading.Thread):
-    def __init__(self, scheduler, min_time_between_updates = 0.1, max_time_between_updates = 0.3):
+    def __init__(self, scheduler, min_time_between_updates = 0.0, max_time_between_updates = 0.0):
         super(SchedulerTransactionsSynchronizer, self).__init__()
         self.setName(counter.next_name("SchedulerTransactionsSynchronizer"))
         self.setDaemon(True)
