@@ -16,6 +16,7 @@
 
 import telnetlib
 import traceback
+from functools import wraps
 import cPickle as pickle
 
 def _raise_exception(e):
@@ -64,15 +65,14 @@ def handle_response(response):
 
 def connected_method(func):
     """ connects before the method and disconnects after it """
-    def wrapped(self, *args, **kwargs):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
         self.connect()
         try:
             return func(self, *args, **kwargs)
         finally:
             self.disconnect()
-    wrapped.__doc__  = func.__doc__
-    wrapped.__name__ = func.__name__
-    return wrapped
+    return wrapper
 
 class WebLabShell(object):
     

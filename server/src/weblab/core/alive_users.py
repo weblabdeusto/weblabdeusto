@@ -13,13 +13,12 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-
-
 import time
 import threading
+import Queue
 
 import voodoo.sessions.manager as SessionManager
-import weblab.core.processor as UserProcessor
+from weblab.core.reservation_processor import ReservationProcessor
 
 USER_PROCESSING_TIME_BETWEEN_CHECKS = 'core_time_between_checks'
 DEFAULT_TIME_BETWEEN_CHECKS         = 2 # seconds
@@ -60,7 +59,7 @@ class AliveUsersCollection(object):
     to "once in a certain amount of time" + when adding/removing an alive
     user.
     """
-    def __init__(self, locator, cfg_manager, session_type, session_manager, db_manager, coordinator, commands_store):
+    def __init__(self, locator, cfg_manager, session_type, session_manager, coordinator, commands_store, finished_reservations_store):
         # This is an optimization. It shouldn't be stored in the SessionManager
         # since the value itself doesn't matter. The important thing is that
         # each UPS doesn't lock too often the global session in the 
@@ -68,11 +67,11 @@ class AliveUsersCollection(object):
         self._latest_check      = 0
         self._latest_check_lock = threading.RLock()
 
-        self._locator         = locator
-        self._cfg_manager     = cfg_manager
-        self._session_manager = session_manager
-        self._db_manager      = db_manager
-        self._commands_store  = commands_store
+        self._locator                     = locator
+        self._cfg_manager                 = cfg_manager
+        self._session_manager             = session_manager
+        self._commands_store              = commands_store
+        self._finished_reservations_store = finished_reservations_store
 
         self._coordinator     = coordinator
 
@@ -113,48 +112,56 @@ class AliveUsersCollection(object):
         else:
             return False
 
-    def add_user(self, session_id):
-        session_ids = self._users_session_manager.get_session_locking(
-                self._experiments_server_session_id
-            )
+    def add_user(self, reservation_session_id):
+        reservation_session_ids = self._users_session_manager.get_session_locking( self._experiments_server_session_id )
         try:
-            if session_ids.count(session_id) == 0:
-                session_ids.append(session_id)
+            if reservation_session_ids.count(reservation_session_id) == 0:
+                reservation_session_ids.append(reservation_session_id)
         finally:
-            self._users_session_manager.modify_session_unlocking(
-                    self._experiments_server_session_id,
-                    session_ids
-                )
+            self._users_session_manager.modify_session_unlocking( self._experiments_server_session_id, reservation_session_ids )
 
-    def remove_user(self, session_id):
-        session_ids = self._users_session_manager.get_session_locking(
-                self._experiments_server_session_id
-            )
+    def remove_user(self, reservation_session_id):
+        reservation_session_ids = self._users_session_manager.get_session_locking( self._experiments_server_session_id )
         try:
-            if session_ids.count(session_id) > 0:
-                session_ids.remove(session_id)
+            if reservation_session_ids.count(reservation_session_id) > 0:
+                reservation_session_ids.remove(reservation_session_id)
         finally:
-            self._users_session_manager.modify_session_unlocking(
-                    self._experiments_server_session_id,
-                    session_ids
-                )
+            self._users_session_manager.modify_session_unlocking( self._experiments_server_session_id, reservation_session_ids )
 
-    def _find_expired_session_ids(self, session_ids):
-        expired_session_ids = []
+    def _check_expired(self, reservation_session_id):
+        # Do not lock. If the user is doing something, the method
+        # would get locked here. And if the user is doing something,
+        # the information is stored in a transactional way, so it 
+        # shouldn't be a problem. Anyway, it would be nice that
+        # after the "poll" method the UPS modified the (updated) 
+        # session without unlocking.
+        reservation_session = self._session_manager.get_session(reservation_session_id)
+        user_processor = ReservationProcessor( self._cfg_manager, reservation_session_id, reservation_session, self._coordinator, self._locator, self._commands_store)
+        return user_processor.is_expired()
 
-        for session_id in session_ids:
-            # Do not lock. If the user is doing something, the method
-            # would get locked here. And if the user is doing something,
-            # the information is stored in a transactional way, so it 
-            # shouldn't be a problem. Anyway, it would be nice that
-            # after the "poll" method the UPS modified the (updated) 
-            # session without unlocking.
-            session = self._session_manager.get_session(session_id)
-            user_processor = UserProcessor.UserProcessor( self._locator, session, self._cfg_manager, self._coordinator, self._db_manager, self._commands_store)
-            if user_processor.is_expired():
-                expired_session_ids.append(session_id)
 
-        return expired_session_ids
+    def _find_expired_session_ids(self, reservation_session_ids):
+        expired_reservation_session_ids = []
+
+        for reservation_session_id in reservation_session_ids:
+            if self._check_expired(reservation_session_id):
+                expired_reservation_session_ids.append(reservation_session_id)
+
+        return expired_reservation_session_ids
+
+    def _find_finished_session_ids(self):
+        finished_session_ids = []
+        while True:
+            try:
+                reservation_id = self._finished_reservations_store.get_nowait()
+                if reservation_id is not None:
+                    finished_session_ids.append(reservation_id)
+                else:
+                    break
+            except Queue.Empty:
+                # No more element recently added to the finished_reservations queue
+                break
+        return finished_session_ids
 
     def check_expired_users(self):
         """ 
@@ -164,20 +171,31 @@ class AliveUsersCollection(object):
         since this process is only executed once in a customized time (so if 
         this method is called many times it almost doesn't get locked).
         """
-        if self._time_between_checkes_finished():
-            session_ids = self._users_session_manager.get_session_locking(
-                    self._experiments_server_session_id
-                )
-            try:
-                    expired_session_ids = self._find_expired_session_ids(session_ids)
+        expired_reservation_session_ids = []
 
-                    for expired_session_id in expired_session_ids:
-                        session_ids.remove(expired_session_id)
+        finished_session_ids = self._find_finished_session_ids()
+        if len(finished_session_ids) > 0:
+            reservation_session_ids = self._users_session_manager.get_session_locking( self._experiments_server_session_id )
+            try:
+
+                for finished_session_id in finished_session_ids:
+                    if finished_session_id in reservation_session_ids:
+                        reservation_session_ids.remove(finished_session_id)
+                    expired_reservation_session_ids.append(finished_session_id)
+
             finally:
-                self._users_session_manager.modify_session_unlocking(
-                        self._experiments_server_session_id,
-                        session_ids
-                    )
-            return expired_session_ids
-        return []
+                self._users_session_manager.modify_session_unlocking( self._experiments_server_session_id, reservation_session_ids )
+
+        if self._time_between_checkes_finished():
+            reservation_session_ids = self._users_session_manager.get_session_locking( self._experiments_server_session_id )
+            try:
+                    found_expired_reservation_session_ids = self._find_expired_session_ids(reservation_session_ids)
+
+                    for expired_reservation_session_id in found_expired_reservation_session_ids:
+                        reservation_session_ids.remove(expired_reservation_session_id)
+            finally:
+                self._users_session_manager.modify_session_unlocking( self._experiments_server_session_id, reservation_session_ids )
+            expired_reservation_session_ids.extend(found_expired_reservation_session_ids)
+
+        return expired_reservation_session_ids
 

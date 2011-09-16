@@ -24,23 +24,23 @@ class ReservationTest(unittest.TestCase):
         self.assertEquals(str(reservation), str(eval(str(reservation))))
 
     def test_str_waiting_reservation(self):
-        reservation = WaitingReservation(5)
+        reservation = WaitingReservation("reservation_id", 5)
         self.assertCorrectReservation(reservation)
 
     def test_str_waiting_instances_reservation(self):
-        reservation = WaitingInstances(5)
+        reservation = WaitingInstances("reservation_id", 5)
         self.assertCorrectReservation(reservation)
         
     def test_str_confirmed_reservation(self):
-        reservation = ConfirmedReservation(datetime.datetime.now(), "{}")
+        reservation = ConfirmedReservation("reservation_id", datetime.datetime.now(), "{}")
         self.assertCorrectReservation(reservation)
 
     def test_str_waiting_confirmation_reservation(self):
-        reservation = WaitingConfirmationReservation()
+        reservation = WaitingConfirmationReservation("reservation_id", )
         self.assertCorrectReservation(reservation)
 
     def test_str_post_reservation_reservation(self):
-        reservation = PostReservationReservation(True, "{}", '{"foo"="bar"}')
+        reservation = PostReservationReservation("reservation_id", True, "{}", '{"foo"="bar"}')
         self.assertCorrectReservation(reservation)
 
 def suite():

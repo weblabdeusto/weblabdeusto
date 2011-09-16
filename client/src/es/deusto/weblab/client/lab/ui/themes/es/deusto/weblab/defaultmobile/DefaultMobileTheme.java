@@ -117,7 +117,7 @@ public class DefaultMobileTheme extends LabThemeBase {
 
 	@Override
 	public void onCleanReservation() {
-		this.controller.loadUserHomeWindow();
+		this.controller.cleanExperimentPanel();
 	}	
 
 	@Override
@@ -256,6 +256,11 @@ public class DefaultMobileTheme extends LabThemeBase {
 			 this.activeWindow.showError(message);
 		 else
 			 Window.alert(message);
-	 }	
+	 }
+
+	@Override
+	public void onExperimentInteractionFinished() {
+		this.experimentWindow.onExperimentInteractionFinished();
+	}	
 
 }

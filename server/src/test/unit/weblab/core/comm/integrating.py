@@ -86,16 +86,8 @@ class UserProcessingIntegratingRemoteFacadeManager(unittest.TestCase):
 
         def _generate_experiments_allowed(self):
             experimentA, experimentB = self._generate_two_experiments()
-            exp_allowedA = ExperimentAllowed.ExperimentAllowed(
-                    experimentA,
-                    100,
-                    5
-                )
-            exp_allowedB = ExperimentAllowed.ExperimentAllowed(
-                    experimentB,
-                    100,
-                    5
-                )
+            exp_allowedA = ExperimentAllowed.ExperimentAllowed( experimentA, 100, 5, True)
+            exp_allowedB = ExperimentAllowed.ExperimentAllowed( experimentB, 100, 5, True)
             return exp_allowedA, exp_allowedB
 
         @uses_module(RemoteFacadeServer)
@@ -180,7 +172,7 @@ class UserProcessingIntegratingRemoteFacadeManager(unittest.TestCase):
                 expected_sess_id = SessionId.SessionId("whatever")
                 NUMBER   = 5
 
-                expected_confirmed_reservation = Reservation.ConfirmedReservation(NUMBER, "{}")
+                expected_confirmed_reservation = Reservation.ConfirmedReservation("reservation_id", NUMBER, "{}")
                 expected_experiment_id = self._generate_two_experiments()[0].to_experiment_id()
 
                 self._generate_experiments_allowed()
@@ -241,7 +233,7 @@ class UserProcessingIntegratingRemoteFacadeManager(unittest.TestCase):
                 expected_sess_id = SessionId.SessionId("whatever")
                 NUMBER   = 5
 
-                expected_confirmed_reservation = Reservation.ConfirmedReservation(NUMBER, "{}")
+                expected_confirmed_reservation = Reservation.ConfirmedReservation("reservation_id", NUMBER, "{}")
                 self.mock_server.return_values['get_reservation_status'] = expected_confirmed_reservation
 
                 confirmed_reservation = wds.get_reservation_status(expected_sess_id)

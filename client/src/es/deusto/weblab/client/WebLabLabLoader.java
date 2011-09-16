@@ -19,6 +19,8 @@ import com.google.gwt.user.client.Window;
 
 import es.deusto.weblab.client.configuration.ConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
+import es.deusto.weblab.client.dto.experiments.Category;
+import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.lab.comm.ILabCommunication;
 import es.deusto.weblab.client.lab.comm.LabCommunication;
 import es.deusto.weblab.client.lab.controller.ILabController;
@@ -33,7 +35,8 @@ import es.deusto.weblab.client.ui.audio.AudioManager;
 
 public class WebLabLabLoader {
 
-	private static final String SESSION_ID_URL_PARAM = "session_id";
+	private static final String SESSION_ID_URL_PARAM     = "session_id";
+	private static final String RESERVATION_ID_URL_PARAM = "reservation_id";
 	private static final String WEBLAB_SESSION_ID_COOKIE = "weblabsessionid";
 	private static final String FACEBOOK_URL_PARAM = "facebook";
 	
@@ -87,23 +90,47 @@ public class WebLabLabLoader {
 			public void onThemeLoaded(LabThemeBase theme) {
 				controller.setUIManager(theme);
 				try{
-					String providedCredentials = Window.Location.getParameter(WebLabLabLoader.SESSION_ID_URL_PARAM);
-					if(providedCredentials == null)
-						providedCredentials = HistoryProperties.getValue(WebLabLabLoader.SESSION_ID_URL_PARAM);
+					String providedSessionId = Window.Location.getParameter(WebLabLabLoader.SESSION_ID_URL_PARAM);
+					if(providedSessionId == null)
+						providedSessionId = HistoryProperties.getValue(WebLabLabLoader.SESSION_ID_URL_PARAM);
 					
-					if(providedCredentials == null)
-						theme.onInit(); // If it's still null...
-					else{
-						final String sessionId;
-						final int position = providedCredentials.indexOf(';');
+					String providedReservationId = Window.Location.getParameter(WebLabLabLoader.RESERVATION_ID_URL_PARAM);
+					if(providedReservationId == null)
+						providedReservationId = HistoryProperties.getValue(WebLabLabLoader.RESERVATION_ID_URL_PARAM);
+					
+					ExperimentID experimentId = null;
+					if(providedReservationId != null){
+						final String selectedExperimentName     = HistoryProperties.getValue(HistoryProperties.EXPERIMENT_NAME);
+						final String selectedExperimentCategory = HistoryProperties.getValue(HistoryProperties.EXPERIMENT_CATEGORY);
+						
+						experimentId = new ExperimentID(new Category(selectedExperimentCategory), selectedExperimentName);
+					}
+					
+					if(providedReservationId != null && experimentId != null){
+						final String reservationId;
+						final int position = providedReservationId.indexOf(';');
 						if(position >= 0){
-							sessionId = providedCredentials.substring(0, position);
-							final String cookie = providedCredentials.substring(position + 1);
+							reservationId = providedReservationId.substring(0, position);
+							final String cookie = providedReservationId.substring(position + 1);
 							Cookies.setCookie(WebLabLabLoader.WEBLAB_SESSION_ID_COOKIE, cookie, null, null, "/", false);
 						}else
-							sessionId = providedCredentials;
+							reservationId = providedReservationId;
+						controller.startReserved(new SessionID(reservationId), experimentId);
+						
+					}else if(providedSessionId != null){
+						final String sessionId;
+						final int position = providedSessionId.indexOf(';');
+						if(position >= 0){
+							sessionId = providedSessionId.substring(0, position);
+							final String cookie = providedSessionId.substring(position + 1);
+							Cookies.setCookie(WebLabLabLoader.WEBLAB_SESSION_ID_COOKIE, cookie, null, null, "/", false);
+						}else
+							sessionId = providedSessionId;
 						controller.startLoggedIn(new SessionID(sessionId));
+					}else{
+						theme.onInit(); // If it's still null...
 					}
+				
 				}catch(final Exception e){
 					WebLabLabLoader.this.weblabClient.showError("Error initializing theme: " + e.getMessage());
 					e.printStackTrace();

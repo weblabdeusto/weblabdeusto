@@ -131,7 +131,7 @@ class Scenario(object):
         if identifier is None:
             self.identifier = self.next_id(category)
         elif identifier in self.categories[category]:
-            raise RuntimeException("Category %s already has an identifier %s" % (category, identifier))
+            raise RuntimeError("Category %s already has an identifier %s" % (category, identifier))
         else:
             self.identifier = identifier
         self.categories[category].append(self.identifier)

@@ -210,7 +210,7 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
     def test_return_reserve_experiment(self):
         expected_sess_id = SessionId.SessionId("whatever")
         experimentA, _ = _generate_two_experiments()
-        expected_reservation = Reservation.ConfirmedReservation(100, "{}")
+        expected_reservation = Reservation.ConfirmedReservation("reservation_id", 100, "{}")
     
         self.mock_ups.return_values['reserve_experiment'] = expected_reservation
 
@@ -255,7 +255,7 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
     def test_return_get_reservation_status(self):
         expected_sess_id = SessionId.SessionId("whatever")
     
-        expected_reservation = Reservation.ConfirmedReservation(100, "{}")
+        expected_reservation = Reservation.ConfirmedReservation("reservation_id", 100, "{}")
 
         self.mock_ups.return_values['get_reservation_status'] = expected_reservation
 
@@ -637,7 +637,7 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
     def test_return_reserve_experiment(self):
         expected_sess_id = {'id': "whatever"}
         experimentA, _ = _generate_two_experiments()
-        expected_reservation = Reservation.ConfirmedReservation(100, "{}")
+        expected_reservation = Reservation.ConfirmedReservation("reservation_id", 100, "{}")
     
         self.mock_ups.return_values['reserve_experiment'] = expected_reservation
 
@@ -678,7 +678,7 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
     def test_return_get_reservation_status(self):
         expected_sess_id = {'id': "whatever"}
     
-        expected_reservation = Reservation.ConfirmedReservation(100, "{}")
+        expected_reservation = Reservation.ConfirmedReservation("reservation_id", 100, "{}")
 
         self.mock_ups.return_values['get_reservation_status'] = expected_reservation
 
@@ -986,16 +986,8 @@ def _generate_two_experiments():
 
 def _generate_experiments_allowed():
     experimentA, experimentB = _generate_two_experiments()
-    exp_allowedA = ExperimentAllowed.ExperimentAllowed(
-            experimentA,
-            100,
-            5
-        )
-    exp_allowedB = ExperimentAllowed.ExperimentAllowed(
-            experimentB,
-            100,
-            5
-        )
+    exp_allowedA = ExperimentAllowed.ExperimentAllowed( experimentA, 100, 5, True)
+    exp_allowedB = ExperimentAllowed.ExperimentAllowed( experimentB, 100, 5, True)
     return exp_allowedA, exp_allowedB
 
 

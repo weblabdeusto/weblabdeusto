@@ -218,7 +218,12 @@ public class LogicExperiment extends ExperimentBase {
 	 */
 	@Override
 	public void initialize(){
-	}	
+	}
+	
+	@Override
+	public void initializeReserved(){
+		this.textIntroPanel.setVisible(false);
+	}
 	
 	@Override
 	public void queued(){
