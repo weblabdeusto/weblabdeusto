@@ -158,7 +158,7 @@ class LaboratoryServer(object):
         self._assigned_experiments = AssignedExperiments.AssignedExperiments()
         parsed_experiments         = self._parse_assigned_experiments()
         for exp_inst_id, coord_address, checking_handlers, api in parsed_experiments:
-            self._assigned_experiments.add_server(exp_inst_id, coord_address, checking_handlers, api)
+            self._assigned_experiments.add_server(exp_inst_id, coord_address, checking_handlers, None)
 
 
     #####################################################
@@ -196,10 +196,27 @@ class LaboratoryServer(object):
                 'experiment_coord_address' : experiment_coord_address,
                 'session_id' : lab_sess_id
             })
-
+        
+        # Check whether we know the API version already.
         api = self._assigned_experiments.get_api(experiment_instance_id)
+        
+        # If we don't know the API version yet, we will have to ask the experiment server itself
+        if api is None:
+            reported_api = self.do_get_api(experiment_instance_id)
+            if reported_api is None:
+                log.log( LaboratoryServer, log.level.Warning, "It was not possible to find out the api version of %r. Using current version as default." 
+                         % experiment_coord_address)
+                print "[DBG] Was not possible to find out the api version of %r" % experiment_coord_address
+            else:
+                # Remember the api version that we retrieved
+                self._assigned_experiments.set_api(experiment_instance_id, reported_api)
+
 
         experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
+
+        # If we don't know the api, we will use the current version as default.
+        if api is None:
+            api = ExperimentApiLevel.current
 
         if api == ExperimentApiLevel.level_1:
             experiment_server.start_experiment()
@@ -208,6 +225,7 @@ class LaboratoryServer(object):
             experiment_server_response = experiment_server.start_experiment(client_initial_data, server_initial_data)
 
         return lab_sess_id, experiment_server_response, experiment_coord_address.address
+
 
     @logged(log.level.Info)
     @caller_check(ServerType.UserProcessing)
@@ -260,6 +278,27 @@ class LaboratoryServer(object):
             return "ok"
         else:
             return return_value
+        
+    @logged(log.level.Info)
+    def do_get_api(self, experiment_instance_id):
+        """
+        do_get_api(experiment_instance_id) -> api
+        
+        Retrieves the API version of the specified experiment instance (which will generally be the same
+        for every experiment of the same kind).
+        
+        @param experiment_instance_id The id of the experiment instance whose API to retrieve
+        @return The API version, or None if an error occurred or it wasn't possible to retrieve the version.
+        """
+        experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
+        experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
+        
+        try:
+            reported_api = experiment_server.get_api()
+        except:
+            reported_api = None
+        
+        return reported_api
 
 
     @logged(log.level.Info)

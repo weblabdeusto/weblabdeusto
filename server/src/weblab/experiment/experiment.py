@@ -25,6 +25,9 @@ class Experiment(object):
     def do_start_experiment(self, client_initial_data, server_initial_data):
         # Default implementation: empty
         return "{}"
+    
+    def do_get_api(self):
+        return None
 
     def do_send_file_to_device(self, file_content, file_info):
         """do_send_file_to_device(file_content, file_info)

@@ -84,7 +84,16 @@ class AssignedExperiments(object):
         return exp_handler.lab_session_id
 
     def get_api(self, experiment_instance_id):
-        return self._retrieve_experiment_handler( experiment_instance_id).api
+        """
+        Gets the API version that the specified experiment instance is currently using.
+        """ 
+        return self._retrieve_experiment_handler( experiment_instance_id ).api
+    
+    def set_api(self, experiment_instance_id, api):
+        """
+        
+        """
+        self._retrieve_experiment_handler( experiment_instance_id ).api = api
 
     def _retrieve_experiment_handler(self, experiment_instance_id):
         inst_name = experiment_instance_id.inst_name
