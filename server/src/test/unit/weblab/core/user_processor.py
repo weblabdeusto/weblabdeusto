@@ -93,7 +93,7 @@ class UserProcessorTestCase(unittest.TestCase):
             coreExc.UnknownExperimentIdException,
             self.processor.reserve_experiment,
             ExperimentId('<invalid>', 'Dummy experiments'),
-            "{}",
+            "{}", "{}",
             ClientAddress.ClientAddress("127.0.0.1")
         )
 
@@ -102,7 +102,7 @@ class UserProcessorTestCase(unittest.TestCase):
             coreExc.UnknownExperimentIdException,
             self.processor.reserve_experiment,
             ExperimentId('ud-dummy','<invalid>'),
-            "{}",
+            "{}", "{}",
             ClientAddress.ClientAddress("127.0.0.1")
         )
 
@@ -113,7 +113,7 @@ class UserProcessorTestCase(unittest.TestCase):
             coreExc.NoAvailableExperimentFoundException,
             self.processor.reserve_experiment,
             ExperimentId('ud-dummy', 'Dummy experiments'),
-            "{}",
+            "{}", "{}",
             ClientAddress.ClientAddress("127.0.0.1")
         )
 
@@ -122,7 +122,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         status = self.processor.reserve_experiment(
                     ExperimentId('ud-dummy', 'Dummy experiments'),
-                    "{}",
+                    "{}", "{}",
                     ClientAddress.ClientAddress("127.0.0.1")
                 )
 

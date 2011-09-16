@@ -87,7 +87,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
                 )
 
     def create_reservation_processor(self):
-        status = self.user_processor.reserve_experiment( ExperimentId('ud-dummy', 'Dummy experiments'), "{}", ClientAddress.ClientAddress("127.0.0.1"))
+        status = self.user_processor.reserve_experiment( ExperimentId('ud-dummy', 'Dummy experiments'), "{}", "{}", ClientAddress.ClientAddress("127.0.0.1"))
         self.reservation_processor = ReservationProcessor(
                     self.cfg_manager,
                     SessionId.SessionId(status.reservation_id),

@@ -114,7 +114,7 @@ class UserProcessor(object):
     # Experiments
     # 
 
-    def reserve_experiment(self, experiment_id, serialized_client_initial_data, client_address):
+    def reserve_experiment(self, experiment_id, serialized_client_initial_data, serialized_consumer_data, client_address):
 
         context = RemoteFacadeContext.get_context()
 
@@ -137,6 +137,12 @@ class UserProcessor(object):
         except ValueError:
             # TODO: to be tested
             raise core_exc.UserProcessingException( "Invalid client_initial_data provided: a json-serialized object expected" )
+
+        try:
+            consumer_data = json.loads(serialized_consumer_data)
+        except ValueError:
+            raise core_exc.UserProcessingException( "Invalid serialized_consumer_data provided: a json-serialized object expected" )
+            
 
         experiments = [ 
                 exp for exp in self.list_experiments()

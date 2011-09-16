@@ -64,7 +64,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
 
     @logged()
     @RFM.check_exceptions(EXCEPTIONS)
-    def reserve_experiment(self, session_id, experiment_id, client_initial_data):
+    def reserve_experiment(self, session_id, experiment_id, client_initial_data, consumer_data):
         """ reserve_experiment(session_id, experiment_id, client_initial_data) -> Reservation
             raises SessionNotFoundException, NoAvailableExperimentFoundException
         """
@@ -72,7 +72,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
         sess_id = self._parse_session_id(session_id)
         exp_id  = self._parse_experiment_id(experiment_id)
 
-        reservation_status = self._server.reserve_experiment(sess_id, exp_id, client_initial_data, current_client_address)
+        reservation_status = self._server.reserve_experiment(sess_id, exp_id, client_initial_data, consumer_data, current_client_address)
         return reservation_status
     
     @logged()

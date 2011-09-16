@@ -69,8 +69,8 @@ class MockUPS(object):
             raise self.exceptions['list_experiments']
         return self.return_values['list_experiments']
 
-    def reserve_experiment(self, session_id, experiment, client_initial_data, client_address):
-        self.arguments['reserve_experiment'] = (session_id, experiment, client_initial_data, client_address)
+    def reserve_experiment(self, session_id, experiment, client_initial_data, consumer_data, client_address):
+        self.arguments['reserve_experiment'] = (session_id, experiment, client_initial_data, consumer_data, client_address)
         if self.exceptions.has_key('reserve_experiment'):
             raise self.exceptions['reserve_experiment']
         return self.return_values['reserve_experiment']
@@ -219,7 +219,7 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
                 self.rfm.reserve_experiment(
                     expected_sess_id, 
                     experimentA.to_experiment_id(),
-                    "{}"
+                    "{}", "{}"
                 )
             )
         
@@ -453,15 +453,15 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         expected_sess_id  = SessionId.SessionId("whatever")
         experimentA, _ = _generate_two_experiments()
         
-        self._test_exception('reserve_experiment', (expected_sess_id, experimentA.to_experiment_id(), "{}"),  
+        self._test_exception('reserve_experiment', (expected_sess_id, experimentA.to_experiment_id(), "{}", "{}"),  
                         coreExc.SessionNotFoundException, MESSAGE, 
                         'ZSI:' + UserProcessingRFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE, MESSAGE)            
 
-        self._test_exception('reserve_experiment', (expected_sess_id, experimentA.to_experiment_id(), "{}"),  
+        self._test_exception('reserve_experiment', (expected_sess_id, experimentA.to_experiment_id(), "{}", "{}"),  
                         coreExc.UnknownExperimentIdException, MESSAGE, 
                         'ZSI:' + UserProcessingRFCodes.CLIENT_UNKNOWN_EXPERIMENT_ID_EXCEPTION_CODE, MESSAGE)            
         
-        self._test_general_exceptions('reserve_experiment', expected_sess_id, experimentA.to_experiment_id(), "{}")
+        self._test_general_exceptions('reserve_experiment', expected_sess_id, experimentA.to_experiment_id(), "{}", "{}")
             
     def test_exception_finished_experiment(self):
         MESSAGE = "The exception message"
@@ -646,9 +646,7 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
                 self.rfm.reserve_experiment(
                     expected_sess_id, 
                     experimentA.to_experiment_id().to_dict(),
-                    "{}"
-                )
-            )
+                    "{}", "{}"))
         
         self.assertEquals(
                 expected_sess_id['id'],

@@ -323,8 +323,8 @@ class UserProcessingServer(object):
     @logged(log.level.Info)
     @check_session(*check_session_params)
     @load_user_processor
-    def reserve_experiment(self, user_processor, session, experiment_id, client_initial_data, client_address):
-        status = user_processor.reserve_experiment( experiment_id, client_initial_data, client_address )
+    def reserve_experiment(self, user_processor, session, experiment_id, client_initial_data, consumer_data, client_address):
+        status = user_processor.reserve_experiment( experiment_id, client_initial_data, consumer_data, client_address )
 
         reservation_id         = status.reservation_id
         reservation_session_id = SessionId(status.reservation_id)
