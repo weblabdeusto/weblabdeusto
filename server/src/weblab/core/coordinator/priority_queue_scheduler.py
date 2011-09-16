@@ -317,6 +317,7 @@ class PriorityQueueScheduler(Scheduler):
     # 
     # Take the queue of a given Resource Type and update it
     # 
+    @exc_checker
     def _update_queues(self):
         ###########################################################
         # There are reasons why a waiting reservation may not be 
