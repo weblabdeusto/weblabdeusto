@@ -14,6 +14,9 @@
 # 
 import weblab.experiment.exc as ExperimentExceptions
 
+import weblab.experiment.level as ExperimentApiLevel
+
+
 import weblab.core.coordinator.coordinator as Coordinator
 import json
 
@@ -27,7 +30,18 @@ class Experiment(object):
         return "{}"
     
     def do_get_api(self):
-        return None
+        """
+        do_get_api() -> api_version
+        
+        Reports the api version that the experiment uses. The default api level is the
+        current one. Experiments may override this method to return a different one.
+        
+        TODO: Providing such a default might lead to errors, because if a new api was released
+        old experiments which didn't override get_api would without warning be using a wrong api. 
+        It might be safer to enforce get_api() overriding, or to at least issue some kind of
+        warning if an experiment doesn't.
+        """
+        return ExperimentApiLevel.current
 
     def do_send_file_to_device(self, file_content, file_info):
         """do_send_file_to_device(file_content, file_info)
