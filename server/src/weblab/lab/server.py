@@ -159,6 +159,25 @@ class LaboratoryServer(object):
         parsed_experiments         = self._parse_assigned_experiments()
         for exp_inst_id, coord_address, checking_handlers, api in parsed_experiments:
             self._assigned_experiments.add_server(exp_inst_id, coord_address, checking_handlers, None)
+            
+            # TODO / TOFIX: Right now, an experiment which does not override the get_api method returns None,
+            # exactly in the same way that do_get_api returns None when it fails. This would lead to 
+            # unnecessary do_get_api calls, so it should be fixed.
+            
+            # Upon loading, we will also try to find out which API each experiment should use, by asking
+            # the experiment server itself. Sometimes, however, the experiment server will not really be
+            # available at this stage. Should this happen, we will try to contact the server again when
+            # the first reserve() is carried out. Though we could wait for the first reserve straightaway,
+            # it would add some delay to that first reserve. Trying to do it here will generally fix that
+            # issue.
+            reported_api = self.do_get_api(exp_inst_id)
+            if reported_api is None:
+                log.log( LaboratoryServer, log.level.Warning, "It was not possible to find out on load-time the api version of %r. We will retry on first reserve." 
+                         % coord_address)
+                print "[DBG][LOAD] Was not possible to find out the api version of %r" % coord_address
+            else:
+                # Remember the api version that we retrieved
+                self._assigned_experiments.set_api(exp_inst_id, reported_api)
 
 
     #####################################################

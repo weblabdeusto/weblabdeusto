@@ -39,6 +39,11 @@ class ExperimentHandler(object):
     @property
     def api(self):
         return self._api
+    
+    # TODO: Consider making this an internal method
+    @api.setter
+    def api(self, value): 
+        self._x = value
 
     @property
     def busy(self):
