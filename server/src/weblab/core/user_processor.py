@@ -24,7 +24,6 @@ import weblab.comm.context as RemoteFacadeContext
 
 import weblab.core.exc as core_exc
 import weblab.core.coordinator.exc as coord_exc
-import weblab.core.reservations as Reservation
 
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessor")
 
@@ -170,7 +169,7 @@ class UserProcessor(object):
         self._session['reservation_information'].pop('from_ip', None)
         self._session['reservation_id']   = reservation_id
             
-        return Reservation.Reservation.translate_reservation( status )
+        return status
 
     def logout(self):
         # self.finished_experiment()

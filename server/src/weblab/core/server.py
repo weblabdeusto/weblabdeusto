@@ -26,6 +26,7 @@ from voodoo.sessions.session_id import SessionId
 
 import weblab.data.server_type as ServerType
 
+import weblab.core.reservations as Reservation
 import weblab.core.data_retriever as TemporalInformationRetriever
 import weblab.core.user_processor as UserProcessor
 from weblab.core.reservation_processor import ReservationProcessor
@@ -327,14 +328,14 @@ class UserProcessingServer(object):
 
         self._alive_users_collection.add_user(status.reservation_id)
 
-        session_id = self._reservations_session_manager.create_session(status.reservation_id.id)
+        session_id = self._reservations_session_manager.create_session(status.reservation_id)
 
         initial_session = {
                         'session_polling'    : (time.time(), ReservationProcessor.EXPIRATION_TIME_NOT_SET),
                         'latest_timestamp'   : 0,
                         'experiment_id'      : experiment_id,
                         'creator_session_id' : session['session_id'], # Useful for monitor; should not be used
-                        'reservation_id'     : status.reservation_id,
+                        'reservation_id'     : SessionId(status.reservation_id),
                     }
         reservation_processor = self._load_reservation(initial_session)
         reservation_processor.update_latest_timestamp()
@@ -343,7 +344,7 @@ class UserProcessingServer(object):
             reservation_processor.process_reserved_status(status)
 
         self._reservations_session_manager.modify_session(session_id, initial_session)
-        return status
+        return Reservation.Reservation.translate_reservation( status )
 
 
     @logged(log.level.Info)
