@@ -17,7 +17,7 @@ sys.path.append(os.sep.join(('..','..','src')))
 
 import libraries
 
-from weblab.admin.dbmanager.controller import Controller
+from weblab.admin.cli.controller import Controller
 
 if __name__ == "__main__":
     controller = Controller()

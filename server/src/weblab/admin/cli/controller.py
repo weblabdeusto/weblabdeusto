@@ -18,13 +18,13 @@ import datetime
 import random
 import sha
 
-from ConsoleUI import ConsoleUI
+from console_ui import ConsoleUI
 from exc import GoBackException
 
-from DbGateway import DbGateway
-from SmtpGateway import SmtpGateway
+from db import DbGateway
+from smtp import SmtpGateway
 try:
-    from LdapGateway import LdapGateway
+    from ldap import LdapGateway
     LdapGatewayClass = LdapGateway
 except ImportError:
     LdapGatewayClass = None
