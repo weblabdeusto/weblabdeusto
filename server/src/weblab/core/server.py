@@ -326,16 +326,19 @@ class UserProcessingServer(object):
     def reserve_experiment(self, user_processor, session, experiment_id, client_initial_data, client_address):
         status = user_processor.reserve_experiment( experiment_id, client_initial_data, client_address )
 
-        self._alive_users_collection.add_user(status.reservation_id)
+        reservation_id         = status.reservation_id
+        reservation_session_id = SessionId(status.reservation_id)
 
-        session_id = self._reservations_session_manager.create_session(status.reservation_id)
+        self._alive_users_collection.add_user(reservation_session_id)
+
+        session_id = self._reservations_session_manager.create_session(reservation_id)
 
         initial_session = {
                         'session_polling'    : (time.time(), ReservationProcessor.EXPIRATION_TIME_NOT_SET),
                         'latest_timestamp'   : 0,
                         'experiment_id'      : experiment_id,
                         'creator_session_id' : session['session_id'], # Useful for monitor; should not be used
-                        'reservation_id'     : SessionId(status.reservation_id),
+                        'reservation_id'     : reservation_session_id,
                     }
         reservation_processor = self._load_reservation(initial_session)
         reservation_processor.update_latest_timestamp()

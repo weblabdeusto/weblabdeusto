@@ -27,6 +27,7 @@ import weblab.core.reservations as Reservation
 import weblab.core.coordinator.coordinator as Coordinator 
 import weblab.core.coordinator.confirmer as Confirmer
 import weblab.core.coordinator.store as TemporalInformationStore
+import weblab.core.coordinator.status as WebLabSchedulingStatus
 import weblab.data.server_type as ServerType
 import weblab.data.client_address as ClientAddress
 
@@ -119,13 +120,13 @@ class UserProcessorTestCase(unittest.TestCase):
     def test_reserve_experiment_waiting_confirmation(self):
         self.coordinator.confirmer = FakeConfirmer()
 
-        reservation = self.processor.reserve_experiment(
+        status = self.processor.reserve_experiment(
                     ExperimentId('ud-dummy', 'Dummy experiments'),
                     "{}",
                     ClientAddress.ClientAddress("127.0.0.1")
                 )
 
-        self.assertTrue( isinstance( reservation, Reservation.WaitingConfirmationReservation) )
+        self.assertTrue( isinstance( status, WebLabSchedulingStatus.WaitingConfirmationQueueStatus) )
 
 class FakeDatabase(object):
     def __init__(self):
