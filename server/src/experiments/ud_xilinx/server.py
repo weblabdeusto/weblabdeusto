@@ -50,7 +50,7 @@ class UdXilinxExperiment(Experiment.Experiment):
     @caller_check(ServerType.Laboratory)
     @logged("info")
     def do_get_api(self):
-        return "2"
+        return "1"
     
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(UdXilinxExperiment,self).__init__(*args, **kwargs)
