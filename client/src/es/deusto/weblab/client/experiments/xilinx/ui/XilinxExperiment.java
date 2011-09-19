@@ -9,6 +9,7 @@
 * listed below:
 *
 * Author: Pablo Orduña <pablo@ordunya.com>
+*         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 *
 */ 
 package es.deusto.weblab.client.experiments.xilinx.ui;
@@ -34,20 +35,19 @@ import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
-import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
-import es.deusto.weblab.client.ui.widgets.WlButton.IWlButtonUsed;
 import es.deusto.weblab.client.ui.widgets.WlClockActivator;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar;
-import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarListener;
-import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarTextUpdater;
-import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.TextProgressBarTextUpdater;
 import es.deusto.weblab.client.ui.widgets.WlSwitch;
 import es.deusto.weblab.client.ui.widgets.WlTimedButton;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
-import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
+import es.deusto.weblab.client.ui.widgets.WlButton.IWlButtonUsed;
+import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarListener;
+import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarTextUpdater;
+import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.TextProgressBarTextUpdater;
+import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 public class XilinxExperiment extends ExperimentBase{
 
@@ -67,7 +67,6 @@ public class XilinxExperiment extends ExperimentBase{
 	private static final String XILINX_MULTIRESOURCE_DEMO_PROPERTY   = "is.multiresource.demo";
 	private static final boolean DEFAULT_MULTIRESOURCE_XILINX_DEMO   = false;
 	
-	private static final String XILINX_WEBCAM_IMAGE_URL_PROPERTY      = "webcam.image.url";
 	private static final String DEFAULT_XILINX_WEBCAM_IMAGE_URL       = GWT.getModuleBaseURL() + "/waiting_url_image.jpg";
 	
 	private static final String XILINX_WEBCAM_REFRESH_TIME_PROPERTY   = "webcam.refresh.millis";
@@ -158,13 +157,6 @@ public class XilinxExperiment extends ExperimentBase{
 				XilinxExperiment.DEFAULT_MULTIRESOURCE_XILINX_DEMO
 			);
 	}
-	
-	private String getWebcamImageUrl() {
-		return this.configurationRetriever.getProperty(
-				XilinxExperiment.XILINX_WEBCAM_IMAGE_URL_PROPERTY, 
-				XilinxExperiment.DEFAULT_XILINX_WEBCAM_IMAGE_URL
-			);
-	}
 
 	private int getWebcamRefreshingTime() {
 		return this.configurationRetriever.getIntProperty(
@@ -209,7 +201,7 @@ public class XilinxExperiment extends ExperimentBase{
 	private void createProvidedWidgets() {
 		this.webcam = new WlWebcam(
 				this.getWebcamRefreshingTime(),
-				this.getWebcamImageUrl()
+				XilinxExperiment.DEFAULT_XILINX_WEBCAM_IMAGE_URL
 			);
 		
 		this.timer = new WlTimer(false);
@@ -244,49 +236,42 @@ public class XilinxExperiment extends ExperimentBase{
 	    this.selectProgram.setVisible(false);
 	}
 
+	/**
+	 * Called when the experiment starts. 
+	 * @param time Time available for the experiment
+	 * @param initialConfiguration JSON-encoded server-provided configuration parameters. 
+	 * This feature is part of the API version 2. Parameters expected by this experiment
+	 * are "webcam" and "expected_programming_time".
+	 */
 	@Override
 	public void start(int time, String initialConfiguration){
 		
 		final JSONValue parsedInitialConfiguration = JSONParser.parseStrict(initialConfiguration);
-		
 		
 		try
 		{
 			final String webcamUrl = parsedInitialConfiguration.isObject().get("webcam").isString().stringValue();
 			this.webcam.setUrl(webcamUrl);
 		} catch(Exception e) {
-			System.out.println("[DBG/XILINX]: Did not receive the webcam parameter. Experiment might be using the deprecated API.");		
+    		GWT.log("[Xilinx] Did not receive the webcam parameter.", null);
 		}
 		
-		this.boardController.sendCommand("EXPECTED.PROGRAMMING.TIME",
-				new IResponseCommandCallback() {
-
-					@Override
-					public void onSuccess(ResponseCommand responseCommand) {
-						final int eqsign = responseCommand.getCommandString().indexOf("=");
-						if(eqsign != -1){
-							final String time = responseCommand.getCommandString().substring(eqsign+1);
-							try{
-								XilinxExperiment.this.expectedProgrammingTime = Integer.parseInt(time) * 1000;
-							}catch(Exception e){
-							}
-						}
-						loadProgressBar();
-					}
-
-					@Override
-					public void onFailure(CommException e) {
-						loadProgressBar();
-					}
-				}
-		);		
+		try
+		{
+			final String expectedProgrammingTime = parsedInitialConfiguration.isObject().get("expected_programming_time").isString().stringValue();
+			XilinxExperiment.this.expectedProgrammingTime = Integer.parseInt(expectedProgrammingTime) * 1000;
+		} catch(Exception e) {	
+    		GWT.log("[Xilinx] Did not receive the expected_programming_time parameter.", null);
+		}
+		
+		this.loadProgressBar();
 		
 	    this.widget.setVisible(true);
 	    this.selectProgram.setVisible(false);
 	    
 		this.loadWidgets();
 		this.disableInteractiveWidgets();
-		
+	
 		
 		if(!isDemo()){
 			this.uploadStructure.getFormPanel().setVisible(false);
