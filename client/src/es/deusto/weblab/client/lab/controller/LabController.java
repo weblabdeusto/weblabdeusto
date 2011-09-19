@@ -17,6 +17,8 @@ package es.deusto.weblab.client.lab.controller;
 //TODO: current reportMessages are not good at all :-(
 //TODO: translations
 
+import java.util.Date;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Timer;
@@ -30,6 +32,7 @@ import es.deusto.weblab.client.comm.exceptions.login.LoginException;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Command;
+import es.deusto.weblab.client.dto.experiments.Experiment;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.reservations.ConfirmedReservationStatus;
@@ -78,11 +81,13 @@ public class LabController implements ILabController {
 	private boolean isUsingExperiment = false;
 	private ExperimentAllowed[] experimentsAllowed;
 	
-	private boolean loggedIn = false;
+	private boolean externallyLoggedIn = false;
+	private boolean externallyReserved = false;
 	
 	private class SessionVariables {
 		private ExperimentBase currentExperimentBase;
 		private boolean experimentVisible = false;
+		private SessionID reservationId;
 		
 		public void showExperiment(){
 			this.experimentVisible = true;
@@ -99,8 +104,17 @@ public class LabController implements ILabController {
 		public void setCurrentExperimentBase(ExperimentBase currentExperimentBase) {
 		    this.currentExperimentBase = currentExperimentBase;
 		}
+		
 		public ExperimentBase getCurrentExperimentBase() {
 		    return this.currentExperimentBase;
+		}
+		
+		public void setReservationId(String reservationId) {
+			this.reservationId = new SessionID(reservationId);
+		}
+		
+		public SessionID getReservationId(){
+			return this.reservationId;
 		}
 	}
 	
@@ -174,6 +188,16 @@ public class LabController implements ILabController {
 		}
 	}
 	
+	@Override
+	public void setReservationId(String reservationId){
+		this.sessionVariables.setReservationId(reservationId);
+	}
+	
+	@Override
+	public SessionID getReservationId(){
+		return this.sessionVariables.getReservationId();
+	}
+	
 	private void startSession(SessionID sessionID){
 		this.currentSession = sessionID;
 		
@@ -211,13 +235,53 @@ public class LabController implements ILabController {
 
 	@Override
 	public void startLoggedIn(SessionID sessionId){
-		this.loggedIn = true;
-		LabController.this.startSession(sessionId);
+		this.externallyLoggedIn = true;
+		this.startSession(sessionId);
+	}
+	
+	@Override
+	public void startReserved(final SessionID reservationId, final ExperimentID experimentId){
+		this.externallyLoggedIn = true;
+		this.externallyReserved = true;
+		
+		this.currentSession = null;
+		this.sessionVariables.setReservationId(reservationId.getRealId());
+		
+		final IBoardBaseController boardBaseController = new BoardBaseController(this);
+	    final ExperimentFactory factory = new ExperimentFactory(boardBaseController);
+	    final IExperimentLoadedCallback experimentLoadedCallback = new IExperimentLoadedCallback() {
+			
+			@Override
+			public void onFailure(Throwable e) {
+				LabController.this.uimanager.onError("Couldn't instantiate experiment: " + e.getMessage());
+				e.printStackTrace();
+			}
+			
+			@Override
+			public void onExperimentLoaded(ExperimentBase experimentBase) {
+				// Show the experiment
+				LabController.this.sessionVariables.setCurrentExperimentBase(experimentBase);
+				final ExperimentAllowed defaultExperimentAllowed = new ExperimentAllowed(new Experiment(0, experimentId.getExperimentName(), experimentId.getCategory(), new Date(), new Date()), 100);
+				LabController.this.uimanager.onExperimentChosen(defaultExperimentAllowed, experimentBase);
+				experimentBase.initializeReserved();
+				LabController.this.sessionVariables.showExperiment();
+				
+				// And start in the queue
+				final ReservationStatusCallback reservationStatusCallback = createReservationStatusCallback(experimentId);
+				LabController.this.communications.getReservationStatus(reservationId, reservationStatusCallback);
+			}
+		};
+	    factory.experimentFactory(experimentId, experimentLoadedCallback, this.isMobile);
 	}
 	
 	@Override
 	public boolean startedLoggedIn(){
-		return this.loggedIn;
+		return this.externallyLoggedIn;
+	}
+
+	@Override
+	public boolean startedReserved(){
+		return this.externallyReserved;
 	}
 
 	@Override
@@ -267,11 +331,28 @@ public class LabController implements ILabController {
 			}
 		}
 		
-		LabController.this.uimanager.onAllowedExperimentsRetrieved(this.experimentsAllowed);
+		this.uimanager.onAllowedExperimentsRetrieved(this.experimentsAllowed);
+	}
+	
+	@Override
+	public void cleanExperimentPanel(){
+		if(!this.externallyLoggedIn){
+			loadUserHomeWindow();
+		}else{
+			this.uimanager.onExperimentInteractionFinished();
+		}
 	}
 
 	@Override
 	public void reserveExperiment(ExperimentID experimentId){
+		final ReservationStatusCallback reservationStatusCallback = createReservationStatusCallback(experimentId);
+
+		final JSONValue initialData = this.sessionVariables.getCurrentExperimentBase().getInitialData();
+		this.communications.reserveExperiment(this.currentSession, experimentId, initialData, reservationStatusCallback);
+	}
+
+	private ReservationStatusCallback createReservationStatusCallback(
+			ExperimentID experimentId) {
 		// We delegate the reservation on the ReservationHandler class 
 		final ReservationStatusCallback reservationStatusCallback = new ReservationStatusCallback();
 		
@@ -280,14 +361,11 @@ public class LabController implements ILabController {
 		reservationStatusCallback.setUimanager(this.uimanager);
 		reservationStatusCallback.setConfigurationManager(this.configurationManager);
 		reservationStatusCallback.setPollingHandler(this.pollingHandler);
-		reservationStatusCallback.setSessionID(this.currentSession);
 		reservationStatusCallback.setExperimentBeingReserved(experimentId);
 		reservationStatusCallback.setCommunications(this.communications);
 		reservationStatusCallback.setController(this);
 		reservationStatusCallback.setExperimentBaseBeingReserved(this.sessionVariables.getCurrentExperimentBase());
-
-		final JSONValue initialData = this.sessionVariables.getCurrentExperimentBase().getInitialData();
-		this.communications.reserveExperiment(this.currentSession, experimentId, initialData, reservationStatusCallback);
+		return reservationStatusCallback;
 	}
 	
 	final IReservationCallback postReservationDataCallback = new IReservationCallback() {
@@ -338,7 +416,7 @@ public class LabController implements ILabController {
 	};
 	
 	private void pollForPostReservationData(){
-		this.communications.getReservationStatus(this.currentSession, this.postReservationDataCallback);
+		this.communications.getReservationStatus(this.sessionVariables.getReservationId(), this.postReservationDataCallback);
 	}
 
 	@Override
@@ -346,7 +424,7 @@ public class LabController implements ILabController {
 		this.pollingHandler.stop();
 		this.sessionVariables.getCurrentExperimentBase().endWrapper();
 		
-		this.communications.finishedExperiment(this.currentSession, new IVoidCallback(){
+		this.communications.finishedExperiment(this.sessionVariables.getReservationId(), new IVoidCallback(){
 			
 			@Override
 			public void onSuccess(){
@@ -378,7 +456,7 @@ public class LabController implements ILabController {
 		this.pollingHandler.stop();
 		this.sessionVariables.getCurrentExperimentBase().endWrapper();
 		
-		this.communications.finishedExperiment(this.currentSession, new IVoidCallback(){
+		this.communications.finishedExperiment(this.sessionVariables.getReservationId(), new IVoidCallback(){
 			@Override
 			public void onSuccess(){
 				LabController.this.sessionVariables.hideExperiment();
@@ -398,7 +476,7 @@ public class LabController implements ILabController {
 		this.pollingHandler.stop();
 		this.sessionVariables.getCurrentExperimentBase().endWrapper();
 		
-		this.communications.finishedExperiment(this.currentSession, new IVoidCallback(){
+		this.communications.finishedExperiment(this.sessionVariables.getReservationId(), new IVoidCallback(){
 			@Override
 			public void onSuccess(){
 				LabController.this.sessionVariables.hideExperiment();
@@ -421,7 +499,7 @@ public class LabController implements ILabController {
 	 */
 	@Override
 	public void sendAsyncCommand(Command command, IResponseCommandCallback callback) {
-		this.communications.sendAsyncCommand(this.currentSession, command, callback);
+		this.communications.sendAsyncCommand(this.sessionVariables.getReservationId(), command, callback);
 	}
 	
 	/**
@@ -432,7 +510,7 @@ public class LabController implements ILabController {
 	 */
 	@Override
 	public void sendAsyncFile(UploadStructure uploadStructure, IResponseCommandCallback callback) {
-		this.communications.sendAsyncFile(this.currentSession, uploadStructure, callback);
+		this.communications.sendAsyncFile(this.sessionVariables.getReservationId(), uploadStructure, callback);
 	}
 
 	/**
@@ -443,7 +521,7 @@ public class LabController implements ILabController {
 	 */
 	@Override
 	public void sendCommand(Command command, IResponseCommandCallback callback) {
-		this.communications.sendCommand(this.currentSession, command, callback);
+		this.communications.sendCommand(this.sessionVariables.getReservationId(), command, callback);
 	}
 
 
@@ -456,13 +534,13 @@ public class LabController implements ILabController {
 	@Override
 	public void sendFile(UploadStructure uploadStructure, IResponseCommandCallback callback) {
 	    GWT.log("sendFile en communications", null);
-		this.communications.sendFile(this.currentSession, uploadStructure, callback);
+		this.communications.sendFile(this.sessionVariables.getReservationId(), uploadStructure, callback);
 	}
 
 	@Override
 	public void poll(){
 		this.communications.poll(
-				this.currentSession, 
+				this.sessionVariables.getReservationId(), 
 				new IVoidCallback(){
 					@Override
 					public void onSuccess() {

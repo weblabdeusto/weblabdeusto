@@ -19,57 +19,49 @@ import weblab.exc as wlExc
 #
 
 class UserProcessingException(wlExc.WebLabException):
-    def __init__(self,*args,**kargs):
-        wlExc.WebLabException.__init__(self,*args,**kargs)
+    pass
 
 #
 # from UserProcessingException
 #
 
 class SessionNotFoundException(UserProcessingException):
-    def __init__(self,*args,**kargs):
-        UserProcessingException.__init__(self,*args,**kargs)
+    pass
 
 class NoCurrentReservationException(UserProcessingException):
-    def __init__(self, *args, **kargs):
-        UserProcessingException.__init__(self, *args, **kargs)
+    pass
 
-class FailedToSendFileException(UserProcessingException):
-    def __init__(self, *args, **kargs):
-        UserProcessingException.__init__(self, *args, **kargs)
+class FailedToInteractException(UserProcessingException):
+    pass
 
-class FailedToSendCommandException(UserProcessingException):
-    def __init__(self, *args, **kargs):
-        UserProcessingException.__init__(self, *args, **kargs)
+class FailedToSendFileException(FailedToInteractException):
+    pass
+
+class FailedToSendCommandException(FailedToInteractException):
+    pass
 
 class FailedToFreeReservationException(UserProcessingException):
-    def __init__(self, *args, **kargs):
-        UserProcessingException.__init__(self, *args, **kargs)
+    pass
 
 class CoordinationConfigurationParsingException(UserProcessingException):
-    def __init__(self,*args,**kargs):
-        UserProcessingException.__init__(self,*args,**kargs)
+    pass
 
 class ReservationFailedException(UserProcessingException):
-    def __init__(self,*args,**kargs):
-        UserProcessingException.__init__(self,*args,**kargs)
+    pass
 
 #
 # from ReservationFailedException
 #
 
 class UnknownExperimentIdException(ReservationFailedException):
-    def __init__(self,*args,**kargs):
-        ReservationFailedException.__init__(self,*args,**kargs)
+    pass
 
 class NoAvailableExperimentFoundException(ReservationFailedException):
-    def __init__(self,*args,**kargs):
-        ReservationFailedException.__init__(self,*args,**kargs)
+    pass
 
 class InvalidReservationStatusException(ReservationFailedException):
-    def __init__(self,*args,**kargs):
-        ReservationFailedException.__init__(self,*args,**kargs)
+    pass
 
 class NotASessionTypeException(ReservationFailedException):
-    def __init__(self,*args,**kargs):
-        ReservationFailedException.__init__(self,*args,**kargs)
+    pass
+

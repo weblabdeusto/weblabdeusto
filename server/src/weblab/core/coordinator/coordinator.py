@@ -14,12 +14,14 @@
 # 
 import time
 import datetime
+import Queue
 
 import json
 
 from voodoo.log import logged
 import voodoo.log as log
 import voodoo.admin_notifier as AdminNotifier
+from voodoo.sessions.session_id import SessionId
 
 import weblab.core.coordinator.exc as CoordExc
 
@@ -97,10 +99,11 @@ class Coordinator(object):
 
         self.initial_store  = TemporalInformationStore.InitialTemporalInformationStore()
         self.finished_store = TemporalInformationStore.FinishTemporalInformationStore()
+        self.finished_reservations_store = Queue.Queue()
 
 
         import weblab.core.server as UserProcessingServer
-        clean = cfg_manager.get_value(UserProcessingServer.WEBLAB_USER_PROCESSING_SERVER_CLEAN_COORDINATOR, True)
+        clean = cfg_manager.get_value(UserProcessingServer.WEBLAB_CORE_SERVER_CLEAN_COORDINATOR, True)
 
         if clean:
             resources_checker_frequency = cfg_manager.get_value(RESOURCES_CHECKER_FREQUENCY, DEFAULT_RESOURCES_CHECKER_FREQUENCY)
@@ -292,7 +295,7 @@ class Coordinator(object):
     # Perform a new reservation
     # 
     @logged()
-    def reserve_experiment(self, experiment_id, time, priority, client_initial_data, request_info):
+    def reserve_experiment(self, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info):
         """
         priority: the less, the more priority
         """
@@ -300,7 +303,7 @@ class Coordinator(object):
         schedulers = self._get_schedulers_per_experiment_id(experiment_id)
         all_reservation_status = []
         for scheduler in schedulers:
-            reservation_status = scheduler.reserve_experiment(reservation_id, experiment_id, time, priority)
+            reservation_status = scheduler.reserve_experiment(reservation_id, experiment_id, time, priority, initialization_in_accounting)
             all_reservation_status.append(reservation_status)
         return self.meta_scheduler.select_best_reservation_status(all_reservation_status)
 
@@ -462,6 +465,7 @@ class Coordinator(object):
     @logged()
     def finish_reservation(self, reservation_id):
         if self.reservations_manager.initialize_deletion(reservation_id):
+            self.finished_reservations_store.put(SessionId(reservation_id))
             try:
                 schedulers = self._get_schedulers_per_reservation(reservation_id)
                 for scheduler in schedulers:

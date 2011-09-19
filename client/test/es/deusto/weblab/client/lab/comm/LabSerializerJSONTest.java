@@ -47,8 +47,9 @@ public class LabSerializerJSONTest extends GWTTestCase{
 	public void testParseGetReservationStatusResponse_Waiting() throws Exception{
 		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseGetReservationStatusResponse(
-			"{\"result\": {\"status\": \"Reservation::waiting\", \"position\": 5}, \"is_exception\": false}"
+			"{\"result\": {\"reservation_id\" : {\"id\" : \"my_reservation_id\"}, \"status\": \"Reservation::waiting\", \"position\": 5}, \"is_exception\": false}"
 		);
+		Assert.assertEquals("my_reservation_id", reservation.getReservationId());
 		Assert.assertTrue(reservation instanceof WaitingReservationStatus);
 		Assert.assertEquals(5, ((WaitingReservationStatus)reservation).getPosition());
 	}
@@ -56,16 +57,18 @@ public class LabSerializerJSONTest extends GWTTestCase{
 	public void testParseGetReservationStatusResponse_WaitingConfirmation()  throws Exception{
 		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseGetReservationStatusResponse(
-			"{\"result\": {\"status\": \"Reservation::waiting_confirmation\"}, \"is_exception\": false}"
+			"{\"result\": {\"reservation_id\" : {\"id\" : \"my_reservation_id\"}, \"status\": \"Reservation::waiting_confirmation\"}, \"is_exception\": false}"
 		);
+		Assert.assertEquals("my_reservation_id", reservation.getReservationId());
 		Assert.assertTrue(reservation instanceof WaitingConfirmationReservationStatus);
 	}
 
 	public void testParseGetReservationStatusResponse_WaitingInstances()  throws Exception{
 		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseGetReservationStatusResponse(
-			"{\"result\": {\"status\": \"Reservation::waiting_instances\", \"position\" : 5}, \"is_exception\": false}"
+			"{\"result\": {\"reservation_id\" : {\"id\" : \"my_reservation_id\"}, \"status\": \"Reservation::waiting_instances\", \"position\" : 5}, \"is_exception\": false}"
 		);
+		Assert.assertEquals("my_reservation_id", reservation.getReservationId());
 		Assert.assertTrue(reservation instanceof WaitingInstancesReservationStatus);
 		Assert.assertEquals(5, ((WaitingInstancesReservationStatus)reservation).getPosition());
 	}
@@ -73,8 +76,9 @@ public class LabSerializerJSONTest extends GWTTestCase{
 	public void testParseGetReservationStatusResponse_PostReservation()  throws Exception{
 		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseGetReservationStatusResponse(
-			"{\"result\": {\"status\": \"Reservation::post_reservation\", \"finished\" : true, \"initial_data\" : \"\\\"foo\\\"\", \"end_data\" : \"\\\"bar\\\"\"}, \"is_exception\": false}"
+			"{\"result\": {\"reservation_id\" : {\"id\" : \"my_reservation_id\"}, \"status\": \"Reservation::post_reservation\", \"finished\" : true, \"initial_data\" : \"\\\"foo\\\"\", \"end_data\" : \"\\\"bar\\\"\"}, \"is_exception\": false}"
 		);
+		Assert.assertEquals("my_reservation_id", reservation.getReservationId());
 		Assert.assertTrue(reservation instanceof PostReservationReservationStatus);
 		PostReservationReservationStatus status = (PostReservationReservationStatus)reservation;
 		Assert.assertEquals(true, status.isFinished());
@@ -85,8 +89,9 @@ public class LabSerializerJSONTest extends GWTTestCase{
 	public void testParseGetReservationStatusResponse_Confirmed() throws Exception{
 		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseGetReservationStatusResponse(
-			"{\"result\": {\"status\": \"Reservation::confirmed\", \"time\": 28.771512031555176, \"initial_configuration\" : \"foo\"}, \"is_exception\": false}"
+			"{\"result\": {\"reservation_id\" : {\"id\" : \"my_reservation_id\"}, \"status\": \"Reservation::confirmed\", \"time\": 28.771512031555176, \"initial_configuration\" : \"foo\"}, \"is_exception\": false}"
 		);
+		Assert.assertEquals("my_reservation_id", reservation.getReservationId());
 		Assert.assertTrue(reservation instanceof ConfirmedReservationStatus);
 		Assert.assertEquals(28, ((ConfirmedReservationStatus)reservation).getTime());
 		Assert.assertEquals("foo", ((ConfirmedReservationStatus)reservation).getInitialConfiguration());
@@ -497,8 +502,9 @@ public class LabSerializerJSONTest extends GWTTestCase{
 	public void testParseReserveExperimentResponse_Waiting() throws Exception{
 		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseReserveExperimentResponse(
-			"{\"result\": {\"status\": \"Reservation::waiting\", \"position\": 5}, \"is_exception\": false}"
+			"{\"result\": {\"reservation_id\" : {\"id\" : \"my_reservation_id\"}, \"status\": \"Reservation::waiting\", \"position\": 5}, \"is_exception\": false}"
 		);
+		Assert.assertEquals("my_reservation_id", reservation.getReservationId());
 		Assert.assertTrue(reservation instanceof WaitingReservationStatus);
 		Assert.assertEquals(5, ((WaitingReservationStatus)reservation).getPosition());
 	}
@@ -562,16 +568,18 @@ public class LabSerializerJSONTest extends GWTTestCase{
 	public void testParseReserveExperimentResponse_WaitingConfirmation()  throws Exception{
 		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseReserveExperimentResponse(
-			"{\"result\": {\"status\": \"Reservation::waiting_confirmation\"}, \"is_exception\": false}"
+			"{\"result\": {\"reservation_id\" : {\"id\" : \"my_reservation_id\"}, \"status\": \"Reservation::waiting_confirmation\"}, \"is_exception\": false}"
 		);
+		Assert.assertEquals("my_reservation_id", reservation.getReservationId());
 		Assert.assertTrue(reservation instanceof WaitingConfirmationReservationStatus);
 	}
 
 	public void testParseReserveExperimentResponse_WaitingInstances()  throws Exception{
 		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseReserveExperimentResponse(
-			"{\"result\": {\"status\": \"Reservation::waiting_instances\", \"position\": 5}, \"is_exception\": false}"
+			"{\"result\": {\"reservation_id\" : {\"id\" : \"my_reservation_id\"}, \"status\": \"Reservation::waiting_instances\", \"position\": 5}, \"is_exception\": false}"
 		);
+		Assert.assertEquals("my_reservation_id", reservation.getReservationId());
 		Assert.assertTrue(reservation instanceof WaitingInstancesReservationStatus);
 		Assert.assertEquals(5, ((WaitingInstancesReservationStatus)reservation).getPosition());
 	}
@@ -579,8 +587,9 @@ public class LabSerializerJSONTest extends GWTTestCase{
 	public void testParseReserveExperimentResponse_PostReservation()  throws Exception{
 		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseReserveExperimentResponse(
-			"{\"result\": {\"status\": \"Reservation::post_reservation\", \"finished\" : true, \"initial_data\" : \"\\\"foo\\\"\", \"end_data\" : \"\\\"bar\\\"\" }, \"is_exception\": false}"
+			"{\"result\": {\"reservation_id\" : {\"id\" : \"my_reservation_id\"}, \"status\": \"Reservation::post_reservation\", \"finished\" : true, \"initial_data\" : \"\\\"foo\\\"\", \"end_data\" : \"\\\"bar\\\"\" }, \"is_exception\": false}"
 		);
+		Assert.assertEquals("my_reservation_id", reservation.getReservationId());
 		Assert.assertTrue(reservation instanceof PostReservationReservationStatus);
 		final PostReservationReservationStatus status = (PostReservationReservationStatus)reservation;
 		Assert.assertTrue(status.isFinished());
@@ -591,8 +600,9 @@ public class LabSerializerJSONTest extends GWTTestCase{
 	public void testParseReserveExperimentResponse_Confirmed() throws Exception{
 		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseReserveExperimentResponse(
-			"{\"result\": {\"status\": \"Reservation::confirmed\", \"time\": 28.771512031555176, \"initial_configuration\" : \"foo\"}, \"is_exception\": false}"
+			"{\"result\": {\"reservation_id\" : {\"id\" : \"my_reservation_id\"}, \"status\": \"Reservation::confirmed\", \"time\": 28.771512031555176, \"initial_configuration\" : \"foo\"}, \"is_exception\": false}"
 		);
+		Assert.assertEquals("my_reservation_id", reservation.getReservationId());
 		Assert.assertTrue(reservation instanceof ConfirmedReservationStatus);
 		Assert.assertEquals(28, ((ConfirmedReservationStatus)reservation).getTime());
 		Assert.assertEquals("foo", ((ConfirmedReservationStatus)reservation).getInitialConfiguration());
@@ -746,7 +756,7 @@ public class LabSerializerJSONTest extends GWTTestCase{
 		final String serializedMessage = weblabSerializer.serializeGetReservationStatusRequest(sessionId);
 		
 		Assert.assertEquals(
-				"{\"params\":{\"session_id\":{\"id\":\"" + MESSAGE + "\"}}, \"method\":\"get_reservation_status\"}",
+				"{\"params\":{\"reservation_id\":{\"id\":\"" + MESSAGE + "\"}}, \"method\":\"get_reservation_status\"}",
 				serializedMessage
 			);
 	}
@@ -772,7 +782,7 @@ public class LabSerializerJSONTest extends GWTTestCase{
 		final String serializedMessage = weblabSerializer.serializePollRequest(sessionId);
 		
 		Assert.assertEquals(
-				"{\"params\":{\"session_id\":{\"id\":\"" + MESSAGE + "\"}}, \"method\":\"poll\"}",
+				"{\"params\":{\"reservation_id\":{\"id\":\"" + MESSAGE + "\"}}, \"method\":\"poll\"}",
 				serializedMessage
 			);
 	}
@@ -785,7 +795,7 @@ public class LabSerializerJSONTest extends GWTTestCase{
 		final String serializedMessage = weblabSerializer.serializeFinishedExperimentRequest(sessionId);
 		
 		Assert.assertEquals(
-				"{\"params\":{\"session_id\":{\"id\":\"" + MESSAGE + "\"}}, \"method\":\"finished_experiment\"}",
+				"{\"params\":{\"reservation_id\":{\"id\":\"" + MESSAGE + "\"}}, \"method\":\"finished_experiment\"}",
 				serializedMessage
 			);
 	}
@@ -823,7 +833,7 @@ public class LabSerializerJSONTest extends GWTTestCase{
 				sessionId, command);
 		
 		Assert.assertEquals(
-				"{\"params\":{\"session_id\":{\"id\":\"" + MESSAGE + "\"}, \"command\":{\"commandstring\":\"" + command.getCommandString() + "\"}}, \"method\":\"send_async_command\"}",
+				"{\"params\":{\"reservation_id\":{\"id\":\"" + MESSAGE + "\"}, \"command\":{\"commandstring\":\"" + command.getCommandString() + "\"}}, \"method\":\"send_async_command\"}",
 				serializedMessage
 			);
 	}
@@ -840,7 +850,7 @@ public class LabSerializerJSONTest extends GWTTestCase{
 		final String serializedMessage = weblabSerializer.serializeSendCommandRequest(sessionId, command);
 		
 		Assert.assertEquals(
-				"{\"params\":{\"session_id\":{\"id\":\"" + MESSAGE + "\"}, \"command\":{\"commandstring\":\"" + command.getCommandString() + "\"}}, \"method\":\"send_command\"}",
+				"{\"params\":{\"reservation_id\":{\"id\":\"" + MESSAGE + "\"}, \"command\":{\"commandstring\":\"" + command.getCommandString() + "\"}}, \"method\":\"send_command\"}",
 				serializedMessage
 			);
 	}    	

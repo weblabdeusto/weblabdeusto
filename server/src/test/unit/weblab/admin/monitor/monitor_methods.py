@@ -52,6 +52,8 @@ class ConfirmerMock(object):
     def enqueue_free_experiment(self, lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id):
         pass
 
+@case_uses_module(Confirmer)
+@case_uses_module(UserProcessingServer)
 class MonitorMethodsTestCase(unittest.TestCase):
     def setUp(self):
 
@@ -108,7 +110,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         category   = "Dummy experiments"
         experiment = "ud-dummy"
 
-        status, reservation_id = self.coordinator.reserve_experiment(ExperimentId(experiment, category), 30, 5, '{}', {})
+        status, reservation_id = self.coordinator.reserve_experiment(ExperimentId(experiment, category), 30, 5, True, '{}', {})
 
         result   = methods.get_experiment_status.call(category, experiment)
         self.assertEquals({reservation_id : status}, result)
@@ -161,12 +163,12 @@ class MonitorMethodsTestCase(unittest.TestCase):
         result = methods.get_experiment_ups_session_ids.call(category, experiment)
         self.assertEquals( [], result ) 
 
-        self.ups.reserve_experiment( sess_id, ExperimentId( experiment, category ), "{}", ClientAddress.ClientAddress( "127.0.0.1" ))
+        status = self.ups.reserve_experiment( sess_id, ExperimentId( experiment, category ), "{}", ClientAddress.ClientAddress( "127.0.0.1" ))
 
         result = methods.get_experiment_ups_session_ids.call(category, experiment)
         self.assertEquals( 1, len(result) )
         session_id, login, reservation_id = result[0]
-        self.assertEquals( sess_id.id, session_id ) 
+        self.assertEquals( status.reservation_id.id, session_id ) 
         self.assertEquals( "student2", login ) 
 
     def test_get_ups_session_ids_from_username(self):
@@ -203,19 +205,17 @@ class MonitorMethodsTestCase(unittest.TestCase):
 
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
-        self.ups.reserve_experiment(sess_id, ExperimentId( experiment, category ), "{}", ClientAddress.ClientAddress( "127.0.0.1" ))
+        status = self.ups.reserve_experiment(sess_id, ExperimentId( experiment, category ), "{}", ClientAddress.ClientAddress( "127.0.0.1" ))
 
-        status = self.ups.get_reservation_status(sess_id)
+        reservation_session_id = status.reservation_id
+
+        status = self.ups.get_reservation_status(reservation_session_id)
         self.assertNotEquals( None, status )
 
         reservation_id = methods.get_reservation_id.call(sess_id.id)
         methods.kickout_from_coordinator.call(reservation_id)
 
-        self.assertRaises(
-            core_exc.NoCurrentReservationException,
-            self.ups.get_reservation_status,
-            sess_id
-        )
+        self.assertRaises( core_exc.NoCurrentReservationException, self.ups.get_reservation_status, reservation_session_id )
 
     def test_kickout_from_ups(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
@@ -260,10 +260,7 @@ def generate_experiment(exp_name,exp_cat_name):
 
 def generate_experiment_allowed(time_allowed, exp_name, exp_cat_name):
     exp = generate_experiment(exp_name, exp_cat_name)
-    return ExperimentAllowed.ExperimentAllowed(exp, time_allowed, 5)
-
-MonitorMethodsTestCase = case_uses_module(Confirmer)(MonitorMethodsTestCase)
-MonitorMethodsTestCase = case_uses_module(UserProcessingServer)(MonitorMethodsTestCase)
+    return ExperimentAllowed.ExperimentAllowed(exp, time_allowed, 5, True)
 
 def suite():
     return unittest.makeSuite(MonitorMethodsTestCase)

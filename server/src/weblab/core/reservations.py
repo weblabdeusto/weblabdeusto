@@ -13,6 +13,8 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+from voodoo.sessions.session_id import SessionId
+
 import weblab.core.coordinator.status as WSS
 import weblab.core.exc as coreExc
 
@@ -25,13 +27,15 @@ class Reservation(object):
 
     POLLING_STATUS = (WAITING, WAITING_CONFIRMATION, WAITING_INSTANCES, CONFIRMED)
 
-    def __init__(self, status):
-        """ __init__(status)
+    def __init__(self, status, reservation_id):
+        """ __init__(status, reservation_id)
 
         status is Reservation.WAITING, Reservation.CONFIRMED, etc.
+        reservation_id is the reservation identifier, used to interact with the experiment
         """
         super(Reservation,self).__init__()
-        self.status = status
+        self.status         = status
+        self.reservation_id = SessionId(reservation_id)
 
     def __repr__(self):
         return self.status
@@ -39,84 +43,69 @@ class Reservation(object):
     @staticmethod
     def translate_reservation(status):
         if status.status == WSS.WebLabSchedulingStatus.WAITING:
-            reservation = WaitingReservation(status.position)
+            reservation = WaitingReservation(status.reservation_id, status.position)
         elif status.status == WSS.WebLabSchedulingStatus.WAITING_CONFIRMATION:
-            reservation = WaitingConfirmationReservation()
+            reservation = WaitingConfirmationReservation(status.reservation_id)
         elif status.status == WSS.WebLabSchedulingStatus.RESERVED:
-            reservation = ConfirmedReservation(
-                    status.time,
-                    status.initial_configuration
-                )
+            reservation = ConfirmedReservation(status.reservation_id, status.remaining_time, status.initial_configuration)
         elif status.status == WSS.WebLabSchedulingStatus.WAITING_INSTANCES: #TODO: test me
-            reservation = WaitingInstances(
-                    status.position
-                )
+            reservation = WaitingInstances(status.reservation_id, status.position)
         elif status.status == WSS.WebLabSchedulingStatus.POST_RESERVATION: #TODO: test me
-            reservation = PostReservationReservation(
-                    status.finished,
-                    status.initial_data,
-                    status.end_data
-                )
+            reservation = PostReservationReservation(status.reservation_id, status.finished, status.initial_data, status.end_data)
         else:
-            raise coreExc.InvalidReservationStatusException(
-                "Invalid reservation status.status: '%s'. Only '%s' and '%s' expected" % (
-                    status.status, 
-                    WSS.WebLabSchedulingStatus.WAITING, 
-                    WSS.WebLabSchedulingStatus.RESERVED
-                )
-            )
+            raise coreExc.InvalidReservationStatusException( "Invalid reservation status.status: '%s'" % status.status)
         return reservation
 
     @staticmethod
-    def translate_reservation_from_data(status_text, position = None, time = None, initial_configuration = None, end_data = None):
+    def translate_reservation_from_data(status_text, reservation_id, position = None, time = None, initial_configuration = None, end_data = None):
         if status_text == Reservation.WAITING:
-            reservation = WaitingReservation(position)
+            reservation = WaitingReservation(reservation_id, position)
         elif status_text == Reservation.WAITING_CONFIRMATION:
-            reservation = WaitingConfirmationReservation()
+            reservation = WaitingConfirmationReservation(reservation_id)
         elif status_text == Reservation.WAITING_INSTANCES:
-            reservation = WaitingInstances(position)
+            reservation = WaitingInstances(reservation_id, position)
         elif status_text == Reservation.CONFIRMED:
-            reservation = ConfirmedReservation(time, initial_configuration)
+            reservation = ConfirmedReservation(reservation_id, time, initial_configuration)
         elif status_text == Reservation.POST_RESERVATION:
-            reservation = PostReservationReservation(end_data)
+            reservation = PostReservationReservation(reservation_id, end_data)
         else:
             raise coreExc.InvalidReservationStatusException("Invalid reservation status_text: '%s'." % ( status_text ) )
         return reservation
 
 class WaitingReservation(Reservation):
-    def __init__(self, position):
-        super(WaitingReservation,self).__init__(Reservation.WAITING)
+    def __init__(self, reservation_id, position):
+        super(WaitingReservation,self).__init__(Reservation.WAITING, reservation_id)
         self.position = position
     def __repr__(self):
-        return "WaitingReservation(position = %r)" % self.position
+        return "WaitingReservation(reservation_id = %r, position = %r)" % (self.reservation_id.id, self.position)
 
 class ConfirmedReservation(Reservation):
-    def __init__(self, time, initial_configuration):
-        super(ConfirmedReservation,self).__init__(Reservation.CONFIRMED)
+    def __init__(self, reservation_id, time, initial_configuration):
+        super(ConfirmedReservation,self).__init__(Reservation.CONFIRMED, reservation_id)
         self.time = time
         self.initial_configuration = initial_configuration
     def __repr__(self):
-        return "ConfirmedReservation(time = %r, initial_configuration = %r)" % (self.time, self.initial_configuration)
+        return "ConfirmedReservation(reservation_id = %r, time = %r, initial_configuration = %r)" % (self.reservation_id.id, self.time, self.initial_configuration)
 
 class WaitingConfirmationReservation(Reservation):
-    def __init__(self):
-        super(WaitingConfirmationReservation,self).__init__(Reservation.WAITING_CONFIRMATION)
+    def __init__(self, reservation_id):
+        super(WaitingConfirmationReservation,self).__init__(Reservation.WAITING_CONFIRMATION, reservation_id)
     def __repr__(self):
-        return "WaitingConfirmationReservation()"
+        return "WaitingConfirmationReservation(reservation_id = %r)" % self.reservation_id.id
 
 class WaitingInstances(Reservation):
-    def __init__(self, position):
-        super(WaitingInstances,self).__init__(Reservation.WAITING_INSTANCES)
+    def __init__(self, reservation_id, position):
+        super(WaitingInstances,self).__init__(Reservation.WAITING_INSTANCES, reservation_id)
         self.position = position
     def __repr__(self):
-        return "WaitingInstances(position = %r)" % self.position
+        return "WaitingInstances(reservation_id = %r, position = %r)" % (self.reservation_id.id, self.position)
 
 class PostReservationReservation(Reservation):
-    def __init__(self, finished, initial_data, end_data):
-        super(PostReservationReservation,self).__init__(Reservation.POST_RESERVATION)
+    def __init__(self, reservation_id, finished, initial_data, end_data):
+        super(PostReservationReservation,self).__init__(Reservation.POST_RESERVATION, reservation_id)
         self.finished     = finished
         self.initial_data = initial_data
         self.end_data     = end_data
     def __repr__(self):
-        return "PostReservationReservation(finished = %r, initial_data = %r, end_data = %r)" % (self.finished, self.initial_data, self.end_data)
+        return "PostReservationReservation(reservation_id = %r, finished = %r, initial_data = %r, end_data = %r)" % (self.reservation_id.id, self.finished, self.initial_data, self.end_data)
 

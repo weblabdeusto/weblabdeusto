@@ -17,7 +17,7 @@ import unittest
 
 try:
     import ZSI
-    from weblab.login.comm.generated.weblabdeusto_client import weblabdeustoSOAP as LoginWebLabDeustoSOAP
+    from weblab.login.comm.generated.loginweblabdeusto_client import loginweblabdeustoSOAP as LoginWebLabDeustoSOAP
 except ImportError:
     pass
 

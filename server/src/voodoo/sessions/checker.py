@@ -16,10 +16,11 @@
 from voodoo.sessions import session_id as SessionId
 import cPickle as pickle
 import voodoo.sessions.exc as SessionExceptions
-
+from functools import wraps
 
 def check_session_parameters(parameters):
     def real_check_session_parameters(func):
+        @wraps(func)
         def session_parameters_wrapper(self, session, *args, **kargs):
             #TODO: test me
             for i in parameters:
@@ -58,6 +59,7 @@ def check_session(
     raised, with a message involving (value of what_session).
     """
     def real_check_session(func):
+        @wraps(func)
         def session_checked_wrapper(self, session_id, *args, **kargs):
             # Make it compatible for both SessionId and SessionId.id datatypes
             if isinstance(session_id, str):
@@ -92,8 +94,6 @@ def check_session(
                     what_session + " session not found"
                 )
 
-        session_checked_wrapper.__doc__  = func.__doc__
-        session_checked_wrapper.__name__ = func.__name__
         return session_checked_wrapper
     return real_check_session
 

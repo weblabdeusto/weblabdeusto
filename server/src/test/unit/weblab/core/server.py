@@ -24,7 +24,7 @@ from   test.util.module_disposer import case_uses_module
 import test.unit.configuration as configuration_module
 
 import weblab.core.server    as UserProcessingServer
-import weblab.core.processor           as UserProcessor
+import weblab.core.user_processor           as UserProcessor
 import weblab.core.reservations             as Reservation
 import weblab.core.coordinator.confirmer   as Confirmer
 import weblab.core.coordinator.coordinator as Coordinator
@@ -49,6 +49,9 @@ laboratory_coordaddr = CoordAddress.CoordAddress.translate_address(
         "server:laboratoryserver@labmachine"
     )
 
+@case_uses_module(UserProcessingServer)
+@case_uses_module(UserProcessor)
+@case_uses_module(Confirmer)
 class UserProcessingServerTestCase(unittest.TestCase):
     """Note: We will test the underlying layers from this level to make the testing task less repetitive."""
     
@@ -626,9 +629,6 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.assertEquals('bool',            permissions[6].parameters[0].datatype)
         self.assertEquals('1',               permissions[6].parameters[0].value)
         
-UserProcessingServerTestCase = case_uses_module(UserProcessingServer)(UserProcessingServerTestCase)
-UserProcessingServerTestCase = case_uses_module(UserProcessor)(UserProcessingServerTestCase)
-UserProcessingServerTestCase = case_uses_module(Confirmer)(UserProcessingServerTestCase)
 
 class FakeLocator(object):
     def __init__(self, lab):
@@ -662,7 +662,7 @@ def generate_experiment(exp_name,exp_cat_name):
 
 def generate_experiment_allowed(time_allowed, exp_name, exp_cat_name):
     exp = generate_experiment(exp_name, exp_cat_name)
-    return ExperimentAllowed.ExperimentAllowed(exp, time_allowed, 5)
+    return ExperimentAllowed.ExperimentAllowed(exp, time_allowed, 5, True)
 
 
 

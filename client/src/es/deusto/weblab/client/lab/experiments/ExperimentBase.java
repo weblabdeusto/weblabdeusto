@@ -51,6 +51,18 @@ public abstract class ExperimentBase implements IWlWidget{
 	public void initialize(){}
 	
 	/**
+	 * A user, who performed the reservation outside the regular client (in
+	 * a LMS or a federated environment) is going to start using this 
+	 * experiment. Basically it is like the {@link #initialize()} method, 
+	 * except for that it should be very fast, and take into account that no
+	 * configuration can be provided (since the reservation has already been 
+	 * done). 
+	 */
+	public void initializeReserved(){
+		initialize();
+	}
+	
+	/**
 	 * Retrieves information sent to the experiment when reserving the 
 	 * experiment. It might have been collected in the UI of the 
 	 * {@link #initialize()} method.

@@ -24,7 +24,8 @@ import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.sessions.session_id as SessionId
 from   test.util.module_disposer import case_uses_module
 
-import weblab.core.processor as UserProcessor
+import weblab.core.user_processor as UserProcessor
+from weblab.core.reservation_processor import ReservationProcessor
 import weblab.core.reservations as Reservation
 import weblab.core.coordinator.coordinator as Coordinator 
 import weblab.core.coordinator.confirmer as Confirmer
@@ -34,8 +35,7 @@ import weblab.data.client_address as ClientAddress
 
 import weblab.data.command as Command
 import weblab.data.dto.users as Group
-from weblab.data.experiments import ExperimentInstanceId
-from weblab.data.experiments import ExperimentId
+from weblab.data.experiments import ExperimentInstanceId, ExperimentId
 import weblab.data.dto.experiments as Category
 import weblab.data.dto.experiments as Experiment
 import weblab.data.dto.experiments as ExperimentAllowed
@@ -57,14 +57,13 @@ laboratory_coordaddr = CoordAddress.CoordAddress.translate_address(
         "server:laboratoryserver@labmachine"
     )
 
-class UserProcessorTestCase(unittest.TestCase):
+@case_uses_module(Confirmer)
+class ReservationProcessorTestCase(unittest.TestCase):
     def setUp(self):
         self.mocker  = mocker.Mocker()
         self.lab_mock = self.mocker.mock()
 
-        self.locator = FakeLocator(
-                lab = self.lab_mock
-            )
+        self.locator = FakeLocator( lab = self.lab_mock )
         self.db      = FakeDatabase()
 
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
@@ -76,7 +75,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.coordinator._clean()
         self.coordinator.add_experiment_instance_id("server:laboratoryserver@labmachine", ExperimentInstanceId('inst','ud-dummy','Dummy experiments'), Resource("res_type", "res_inst"))
 
-        self.processor = UserProcessor.UserProcessor(
+        self.user_processor = UserProcessor.UserProcessor(
                     self.locator,
                     {
                         'db_session_id' : DbSession.ValidDatabaseSessionId('my_db_session_id')
@@ -87,80 +86,46 @@ class UserProcessorTestCase(unittest.TestCase):
                     self.commands_store
                 )
 
+    def create_reservation_processor(self):
+        status = self.user_processor.reserve_experiment( ExperimentId('ud-dummy', 'Dummy experiments'), "{}", ClientAddress.ClientAddress("127.0.0.1"))
+        self.reservation_processor = ReservationProcessor(
+                    self.cfg_manager,
+                    SessionId.SessionId(status.reservation_id),
+                    {
+'session_polling'    : (time.time(), ReservationProcessor.EXPIRATION_TIME_NOT_SET),
+                        'latest_timestamp'   : 0,
+                        'experiment_id'      : ExperimentId('ud-dummy', 'Dummy experiments'),
+                        'creator_session_id' : '',
+                        'reservation_id'     : SessionId.SessionId(status.reservation_id),
+                    },
+                    self.coordinator,
+                    self.locator,
+                    self.commands_store
+                )
+
     def tearDown(self):
         self.coordinator.stop()
 
-    def test_reserve_unknown_experiment_name(self):
-        self.assertRaises(
-            coreExc.UnknownExperimentIdException,
-            self.processor.reserve_experiment,
-            ExperimentId('<invalid>', 'Dummy experiments'),
-            "{}",
-            ClientAddress.ClientAddress("127.0.0.1")
-        )
-
-    def test_reserve_unknown_experiment_category(self):
-        self.assertRaises(
-            coreExc.UnknownExperimentIdException,
-            self.processor.reserve_experiment,
-            ExperimentId('ud-dummy','<invalid>'),
-            "{}",
-            ClientAddress.ClientAddress("127.0.0.1")
-        )
-
-    def test_reserve_experiment_not_found(self):
-        self.coordinator._clean()
-
-        self.assertRaises(
-            coreExc.NoAvailableExperimentFoundException,
-            self.processor.reserve_experiment,
-            ExperimentId('ud-dummy', 'Dummy experiments'),
-            "{}",
-            ClientAddress.ClientAddress("127.0.0.1")
-        )
-
-    def test_reserve_experiment_waiting_confirmation(self):
-        self.coordinator.confirmer = FakeConfirmer()
-
-        reservation = self.processor.reserve_experiment(
-                    ExperimentId('ud-dummy', 'Dummy experiments'),
-                    "{}",
-                    ClientAddress.ClientAddress("127.0.0.1")
-                )
-
-        self.assertTrue( isinstance( reservation, Reservation.WaitingConfirmationReservation) )
-
     def test_is_polling(self):
-        self.assertFalse( self.processor.is_polling() )
+        self.create_reservation_processor()
 
-        self.processor.reserve_experiment(
-                ExperimentId('ud-dummy', 'Dummy experiments'),
-                "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
-            )
         self.coordinator.confirmer._confirm_handler.join()
 
-        self.assertTrue( self.processor.is_polling() )
+        self.assertTrue( self.reservation_processor.is_polling() )
 
-        self.processor.finished_experiment()
+        self.reservation_processor.finish()
 
-        self.assertFalse( self.processor.is_polling() )
+        self.assertFalse( self.reservation_processor.is_polling() )
 
     def test_is_expired_didnt_expire(self):
-        self.assertTrue( self.processor.is_expired() )
-
-        self.processor.reserve_experiment(
-                ExperimentId('ud-dummy', 'Dummy experiments'),
-                "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
-            )
+        self.create_reservation_processor()
         self.coordinator.confirmer._confirm_handler.join()
 
-        self.assertFalse( self.processor.is_expired() )
+        self.assertFalse( self.reservation_processor.is_expired() )
 
-        self.processor.finished_experiment()
+        self.reservation_processor.finish()
 
-        self.assertTrue( self.processor.is_expired() )
+        self.assertTrue( self.reservation_processor.is_expired() )
     
     def test_is_expired_expired_without_expiration_time_set(self):
         time_mock = self.mocker.mock()
@@ -172,18 +137,12 @@ class UserProcessorTestCase(unittest.TestCase):
         self.mocker.result(time.time() + added)
         self.mocker.replay()
 
-        self.assertTrue( self.processor.is_expired() )
-
-        self.processor.reserve_experiment(
-                ExperimentId('ud-dummy', 'Dummy experiments'),
-                "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
-            )
+        self.create_reservation_processor()
         self.coordinator.confirmer._confirm_handler.join()
 
-        self.processor.time_module = time_mock
+        self.reservation_processor.time_module = time_mock
 
-        self.assertTrue( self.processor.is_expired() )
+        self.assertTrue( self.reservation_processor.is_expired() )
 
     def test_is_expired_expired_due_to_expiration_time(self):
         self._return_reserved()
@@ -199,43 +158,27 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.mocker.replay()
 
-        # 
-        # Not polling, so yes, expired
-        self.assertTrue( self.processor.is_expired() )
-
         #
         # Reserve the experiment
-        reservation_status = self.processor.reserve_experiment(
-                ExperimentId('ud-dummy', 'Dummy experiments'),
-                "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
-            )
+        self.create_reservation_processor()
    
         self.coordinator.confirmer._confirm_handler.join()
 
-        reservation_status = self.processor.get_reservation_status()
+        reservation_status = self.reservation_processor.get_status()
 
         self.assertTrue( isinstance(reservation_status, Reservation.ConfirmedReservation) )
 
-        self.processor.time_module = time_mock
+        self.reservation_processor.time_module = time_mock
 
-        self.assertTrue( self.processor.is_expired() )
+        self.assertTrue( self.reservation_processor.is_expired() )
 
     def test_finished_experiment_ok(self):
-        self.processor.reserve_experiment(
-                ExperimentId('ud-dummy', 'Dummy experiments'),
-                "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
-            )
+        self.create_reservation_processor()
         self.coordinator.confirmer._confirm_handler.join()
-        self.processor.finished_experiment()
+        self.reservation_processor.finish()
 
     def test_finished_experiment_coordinator_error(self):
-        self.processor.reserve_experiment(
-                ExperimentId('ud-dummy', 'Dummy experiments'),
-                "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
-            )
+        self.create_reservation_processor()
         self.coordinator.confirmer._confirm_handler.join()
 
         # Force the coordinator to fail when invoking finish_reservation
@@ -243,7 +186,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.assertRaises(
                 coreExc.FailedToFreeReservationException,
-                self.processor.finished_experiment
+                self.reservation_processor.finish
             )
         
     def test_send_async_file_ok(self):
@@ -257,28 +200,22 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.mocker.replay()
 
-        self.assertTrue( self.processor.is_expired() )
-
-        self.processor.reserve_experiment(
-                ExperimentId('ud-dummy', 'Dummy experiments'),
-                "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
-            )
+        self.create_reservation_processor()
 
         self.coordinator.confirmer._confirm_handler.join()
-        self.processor.get_reservation_status()
+        self.reservation_processor.get_status()
 
-        self.assertFalse( self.processor.is_expired() )
+        self.assertFalse( self.reservation_processor.is_expired() )
 
-        response = self.processor.send_async_file(file_content, file_info)
+        response = self.reservation_processor.send_async_file(file_content, file_info)
 
         self.assertEquals(lab_response, response)
 
-        self.assertFalse( self.processor.is_expired() )
+        self.assertFalse( self.reservation_processor.is_expired() )
 
-        self.processor.finished_experiment()
+        self.reservation_processor.finish()
 
-        self.assertEquals( self.processor.get_reservation_status().status, Reservation.Reservation.POST_RESERVATION )
+        self.assertEquals( self.reservation_processor.get_status().status, Reservation.Reservation.POST_RESERVATION )
 
     def test_send_file_ok(self):
         file_content = "SAMPLE CONTENT"
@@ -291,28 +228,22 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.mocker.replay()
 
-        self.assertTrue( self.processor.is_expired() )
-
-        self.processor.reserve_experiment(
-                ExperimentId('ud-dummy', 'Dummy experiments'),
-                "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
-            )
+        self.create_reservation_processor()
 
         self.coordinator.confirmer._confirm_handler.join()
-        self.processor.get_reservation_status()
+        self.reservation_processor.get_status()
 
-        self.assertFalse( self.processor.is_expired() )
+        self.assertFalse( self.reservation_processor.is_expired() )
 
-        response = self.processor.send_file(file_content, file_info)
+        response = self.reservation_processor.send_file(file_content, file_info)
 
         self.assertEquals(lab_response, response)
 
-        self.assertFalse( self.processor.is_expired() )
+        self.assertFalse( self.reservation_processor.is_expired() )
 
-        self.processor.finished_experiment()
+        self.reservation_processor.finish()
 
-        self.assertEquals( self.processor.get_reservation_status().status, Reservation.Reservation.POST_RESERVATION )
+        self.assertEquals( self.reservation_processor.get_status().status, Reservation.Reservation.POST_RESERVATION )
 
     def test_send_file_session_not_found_in_lab(self):
         self._return_reserved()
@@ -325,27 +256,21 @@ class UserProcessorTestCase(unittest.TestCase):
             )
         self.mocker.replay()
 
-        self.assertTrue( self.processor.is_expired() )
-
-        self.processor.reserve_experiment(
-                ExperimentId('ud-dummy', 'Dummy experiments'),
-                "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
-            )
+        self.create_reservation_processor()
         self.coordinator.confirmer._confirm_handler.join()
 
-        self.processor.get_reservation_status()
+        self.reservation_processor.get_status()
 
-        self.assertFalse( self.processor.is_expired() )
+        self.assertFalse( self.reservation_processor.is_expired() )
 
         self.assertRaises(
                 coreExc.NoCurrentReservationException,
-                self.processor.send_file,
+                self.reservation_processor.send_file,
                 file_content,
                 file_info
             )
 
-        self.assertEquals( self.processor.get_reservation_status().status, Reservation.Reservation.POST_RESERVATION )
+        self.assertEquals( self.reservation_processor.get_status().status, Reservation.Reservation.POST_RESERVATION )
         
     def test_send_async_file_session_not_found_in_lab(self):
         self._return_reserved()
@@ -358,27 +283,21 @@ class UserProcessorTestCase(unittest.TestCase):
             )
         self.mocker.replay()
 
-        self.assertTrue( self.processor.is_expired() )
-
-        self.processor.reserve_experiment(
-                ExperimentId('ud-dummy', 'Dummy experiments'),
-                "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
-            )
+        self.create_reservation_processor()
         self.coordinator.confirmer._confirm_handler.join()
 
-        self.processor.get_reservation_status()
+        self.reservation_processor.get_status()
 
-        self.assertFalse( self.processor.is_expired() )
+        self.assertFalse( self.reservation_processor.is_expired() )
 
         self.assertRaises(
                 coreExc.NoCurrentReservationException,
-                self.processor.send_async_file,
+                self.reservation_processor.send_async_file,
                 file_content,
                 file_info
             )
 
-        self.assertEquals( self.processor.get_reservation_status().status, Reservation.Reservation.POST_RESERVATION )
+        self.assertEquals( self.reservation_processor.get_status().status, Reservation.Reservation.POST_RESERVATION )
 
     def test_send_async_file_failed_to_send(self):
         self._return_reserved()
@@ -387,31 +306,25 @@ class UserProcessorTestCase(unittest.TestCase):
         file_info    = "program"
         self.lab_mock.send_async_file(SessionId.SessionId('my_lab_session_id'), file_content, file_info)
         self.mocker.throw( 
-                LaboratoryExceptions.FailedToSendFileException("problem@laboratory") 
+                LaboratoryExceptions.FailedToInteractException("problem@laboratory") 
             )
         self.mocker.replay()
 
-        self.assertTrue( self.processor.is_expired() )
-
-        self.processor.reserve_experiment(
-                ExperimentId('ud-dummy', 'Dummy experiments'),
-                "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
-            )
+        self.create_reservation_processor()
         self.coordinator.confirmer._confirm_handler.join()
 
-        self.processor.get_reservation_status()
+        self.reservation_processor.get_status()
 
-        self.assertFalse( self.processor.is_expired() )
+        self.assertFalse( self.reservation_processor.is_expired() )
 
         self.assertRaises(
-                coreExc.FailedToSendFileException,
-                self.processor.send_async_file,
+                coreExc.FailedToInteractException,
+                self.reservation_processor.send_async_file,
                 file_content,
                 file_info
             )
 
-        self.assertEquals( self.processor.get_reservation_status().status, Reservation.Reservation.POST_RESERVATION )
+        self.assertEquals( self.reservation_processor.get_status().status, Reservation.Reservation.POST_RESERVATION )
 
     def test_send_file_failed_to_send(self):
         self._return_reserved()
@@ -420,37 +333,26 @@ class UserProcessorTestCase(unittest.TestCase):
         file_info    = "program"
         self.lab_mock.send_file(SessionId.SessionId('my_lab_session_id'), file_content, file_info)
         self.mocker.throw( 
-                LaboratoryExceptions.FailedToSendFileException("problem@laboratory") 
+                LaboratoryExceptions.FailedToInteractException("problem@laboratory") 
             )
         self.mocker.replay()
 
-        self.assertTrue( self.processor.is_expired() )
-
-        self.processor.reserve_experiment(
-                ExperimentId('ud-dummy', 'Dummy experiments'),
-                "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
-            )
+        self.create_reservation_processor()
         self.coordinator.confirmer._confirm_handler.join()
 
-        self.processor.get_reservation_status()
+        self.reservation_processor.get_status()
 
-        self.assertFalse( self.processor.is_expired() )
+        self.assertFalse( self.reservation_processor.is_expired() )
 
         self.assertRaises(
-                coreExc.FailedToSendFileException,
-                self.processor.send_file,
+                coreExc.FailedToInteractException,
+                self.reservation_processor.send_file,
                 file_content,
                 file_info
             )
 
-        self.assertEquals( self.processor.get_reservation_status().status, Reservation.Reservation.POST_RESERVATION )
+        self.assertEquals( self.reservation_processor.get_status().status, Reservation.Reservation.POST_RESERVATION )
         
-
-    def test_wot(self):
-        pass
-
-
     def test_send_async_command_ok(self):
         self._return_reserved()
 
@@ -461,28 +363,22 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.mocker.replay()
 
-        self.assertTrue( self.processor.is_expired() )
-
-        self.processor.reserve_experiment(
-                ExperimentId('ud-dummy', 'Dummy experiments'),
-                "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
-            )
+        self.create_reservation_processor()
         self.coordinator.confirmer._confirm_handler.join()
 
-        self.processor.get_reservation_status()
+        self.reservation_processor.get_status()
 
-        self.assertFalse( self.processor.is_expired() )
+        self.assertFalse( self.reservation_processor.is_expired() )
 
-        response = self.processor.send_async_command(command)
+        response = self.reservation_processor.send_async_command(command)
 
         self.assertEquals(lab_response, response)
 
-        self.assertFalse( self.processor.is_expired() )
+        self.assertFalse( self.reservation_processor.is_expired() )
 
-        self.processor.finished_experiment()
+        self.reservation_processor.finish()
 
-        self.assertEquals( self.processor.get_reservation_status().status, Reservation.Reservation.POST_RESERVATION )
+        self.assertEquals( self.reservation_processor.get_status().status, Reservation.Reservation.POST_RESERVATION )
         
         
 
@@ -496,28 +392,22 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.mocker.replay()
 
-        self.assertTrue( self.processor.is_expired() )
-
-        self.processor.reserve_experiment(
-                ExperimentId('ud-dummy', 'Dummy experiments'),
-                "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
-            )
+        self.create_reservation_processor()
         self.coordinator.confirmer._confirm_handler.join()
 
-        self.processor.get_reservation_status()
+        self.reservation_processor.get_status()
 
-        self.assertFalse( self.processor.is_expired() )
+        self.assertFalse( self.reservation_processor.is_expired() )
 
-        response = self.processor.send_command(command)
+        response = self.reservation_processor.send_command(command)
 
         self.assertEquals(lab_response, response)
 
-        self.assertFalse( self.processor.is_expired() )
+        self.assertFalse( self.reservation_processor.is_expired() )
 
-        self.processor.finished_experiment()
+        self.reservation_processor.finish()
 
-        self.assertEquals( self.processor.get_reservation_status().status, Reservation.Reservation.POST_RESERVATION )
+        self.assertEquals( self.reservation_processor.get_status().status, Reservation.Reservation.POST_RESERVATION )
 
 
     def test_send_command_session_not_found_in_lab(self):
@@ -530,26 +420,20 @@ class UserProcessorTestCase(unittest.TestCase):
             )
         self.mocker.replay()
 
-        self.assertTrue( self.processor.is_expired() )
-
-        self.processor.reserve_experiment(
-                ExperimentId('ud-dummy', 'Dummy experiments'),
-                "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
-            )
+        self.create_reservation_processor()
         self.coordinator.confirmer._confirm_handler.join()
 
-        self.processor.get_reservation_status()
+        self.reservation_processor.get_status()
 
-        self.assertFalse( self.processor.is_expired() )
+        self.assertFalse( self.reservation_processor.is_expired() )
 
         self.assertRaises(
                 coreExc.NoCurrentReservationException,
-                self.processor.send_command,
+                self.reservation_processor.send_command,
                 command
             )
 
-        self.assertEquals( self.processor.get_reservation_status().status, Reservation.Reservation.POST_RESERVATION )
+        self.assertEquals( self.reservation_processor.get_status().status, Reservation.Reservation.POST_RESERVATION )
         
         
     def test_send_async_command_session_not_found_in_lab(self):
@@ -562,26 +446,20 @@ class UserProcessorTestCase(unittest.TestCase):
             )
         self.mocker.replay()
 
-        self.assertTrue( self.processor.is_expired() )
-
-        self.processor.reserve_experiment(
-                ExperimentId('ud-dummy', 'Dummy experiments'),
-                "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
-            )
+        self.create_reservation_processor()
         self.coordinator.confirmer._confirm_handler.join()
 
-        self.processor.get_reservation_status()
+        self.reservation_processor.get_status()
 
-        self.assertFalse( self.processor.is_expired() )
+        self.assertFalse( self.reservation_processor.is_expired() )
 
         self.assertRaises(
                 coreExc.NoCurrentReservationException,
-                self.processor.send_async_command,
+                self.reservation_processor.send_async_command,
                 command
             )
 
-        self.assertEquals( self.processor.get_reservation_status().status, Reservation.Reservation.POST_RESERVATION )
+        self.assertEquals( self.reservation_processor.get_status().status, Reservation.Reservation.POST_RESERVATION )
 
     def test_send_async_command_failed_to_send(self):
         self._return_reserved()
@@ -589,30 +467,24 @@ class UserProcessorTestCase(unittest.TestCase):
         command = Command.Command("Your command")
         self.lab_mock.send_async_command(SessionId.SessionId('my_lab_session_id'), command)
         self.mocker.throw( 
-                LaboratoryExceptions.FailedToSendCommandException("problem@laboratory") 
+                LaboratoryExceptions.FailedToInteractException("problem@laboratory") 
             )
         self.mocker.replay()
 
-        self.assertTrue( self.processor.is_expired() )
-
-        self.processor.reserve_experiment(
-                ExperimentId('ud-dummy', 'Dummy experiments'),
-                "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
-            )
+        self.create_reservation_processor()
         self.coordinator.confirmer._confirm_handler.join()
 
-        self.processor.get_reservation_status()
+        self.reservation_processor.get_status()
 
-        self.assertFalse( self.processor.is_expired() )
+        self.assertFalse( self.reservation_processor.is_expired() )
 
         self.assertRaises(
-                coreExc.FailedToSendCommandException,
-                self.processor.send_async_command,
+                coreExc.FailedToInteractException,
+                self.reservation_processor.send_async_command,
                 command
             )
 
-        self.assertEquals( self.processor.get_reservation_status().status, Reservation.Reservation.POST_RESERVATION )
+        self.assertEquals( self.reservation_processor.get_status().status, Reservation.Reservation.POST_RESERVATION )
 
     def test_send_command_failed_to_send(self):
         self._return_reserved()
@@ -620,30 +492,24 @@ class UserProcessorTestCase(unittest.TestCase):
         command = Command.Command("Your command")
         self.lab_mock.send_command(SessionId.SessionId('my_lab_session_id'), command)
         self.mocker.throw( 
-                LaboratoryExceptions.FailedToSendCommandException("problem@laboratory") 
+                LaboratoryExceptions.FailedToInteractException("problem@laboratory") 
             )
         self.mocker.replay()
 
-        self.assertTrue( self.processor.is_expired() )
-
-        self.processor.reserve_experiment(
-                ExperimentId('ud-dummy', 'Dummy experiments'),
-                "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
-            )
+        self.create_reservation_processor()
         self.coordinator.confirmer._confirm_handler.join()
 
-        self.processor.get_reservation_status()
+        self.reservation_processor.get_status()
 
-        self.assertFalse( self.processor.is_expired() )
+        self.assertFalse( self.reservation_processor.is_expired() )
 
         self.assertRaises(
-                coreExc.FailedToSendCommandException,
-                self.processor.send_command,
+                coreExc.FailedToInteractException,
+                self.reservation_processor.send_command,
                 command
             )
 
-        self.assertEquals( self.processor.get_reservation_status().status, Reservation.Reservation.POST_RESERVATION )
+        self.assertEquals( self.reservation_processor.get_status().status, Reservation.Reservation.POST_RESERVATION )
 
 
     def _return_reserved(self):
@@ -652,8 +518,6 @@ class UserProcessorTestCase(unittest.TestCase):
         self.lab_mock.resolve_experiment_address('my_lab_session_id')
         self.mocker.result(CoordAddress.CoordAddress("exp","inst","mach"))
         self.mocker.count(1,2)
-
-UserProcessorTestCase = case_uses_module(Confirmer)(UserProcessorTestCase)
 
 class FakeDatabase(object):
     def __init__(self):
@@ -716,17 +580,12 @@ class FakeConfirmer(object):
 
 def generate_experiment(exp_name,exp_cat_name):
     cat = Category.ExperimentCategory(exp_cat_name)
-    exp = Experiment.Experiment(
-        exp_name,
-        cat,
-        '01/01/2007',
-        '31/12/2007'
-    )
+    exp = Experiment.Experiment( exp_name, cat, '01/01/2007', '31/12/2007')
     return exp
 
 def generate_experiment_allowed(time_allowed, exp_name, exp_cat_name):
     exp = generate_experiment(exp_name, exp_cat_name)
-    return ExperimentAllowed.ExperimentAllowed(exp, time_allowed, 5)
+    return ExperimentAllowed.ExperimentAllowed(exp, time_allowed, 5, True)
 
 def generate_experiment_use(user_login, exp):
     exp_use = ExperimentUse.ExperimentUse(
@@ -742,7 +601,7 @@ def generate_experiment_use(user_login, exp):
     return exp_use
 
 def suite():
-    return unittest.makeSuite(UserProcessorTestCase)
+    return unittest.makeSuite(ReservationProcessorTestCase)
 
 if __name__ == '__main__':
     unittest.main()

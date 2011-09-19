@@ -30,7 +30,7 @@ class PriorityQueueSchedulerModelTestCase(unittest.TestCase):
         reservation.experiment_type = experiment_type
         current_reservation = CM.CurrentReservation("hola")
 
-        concrete_current_reservation = PQSM.ConcreteCurrentReservation(slot_reservation, current_reservation.id, 50, 100, 1)
+        concrete_current_reservation = PQSM.ConcreteCurrentReservation(slot_reservation, current_reservation.id, 50, 100, 1, True)
 
         repr(concrete_current_reservation) # No exception is raised
 
@@ -40,7 +40,7 @@ class PriorityQueueSchedulerModelTestCase(unittest.TestCase):
         reservation     = CM.Reservation("hola", "{}", "{}", "{}", None)
         reservation.experiment_type = experiment_type
 
-        pq_waiting_reservation = PQSM.WaitingReservation(resource_type, reservation.id, 50, 1)
+        pq_waiting_reservation = PQSM.WaitingReservation(resource_type, reservation.id, 50, 1, True)
 
         repr(pq_waiting_reservation) # No exception is raised
 

@@ -33,6 +33,7 @@ import es.deusto.weblab.client.lab.ui.IUIManager;
 
 public class MockController implements ILabController {
 
+	private String reservationId;
 	private IUIManager uimanager;
 	private int n;
 	
@@ -55,6 +56,11 @@ public class MockController implements ILabController {
 	
 	@Override
 	public boolean startedLoggedIn(){
+		return false;
+	}
+
+	@Override
+	public boolean startedReserved(){
 		return false;
 	}
 
@@ -116,7 +122,7 @@ public class MockController implements ILabController {
 	}
 
 	private void nextWaitingReservationStatus(){
-		final WaitingReservationStatus waitingReservation = new WaitingReservationStatus();
+		final WaitingReservationStatus waitingReservation = new WaitingReservationStatus("foo");
 		waitingReservation.setPosition(this.n);
 		this.uimanager.onWaitingReservation(waitingReservation);
 		if(--this.n >= 0){
@@ -128,7 +134,7 @@ public class MockController implements ILabController {
 			};
 			t.schedule(500);
 		}else{
-			final WaitingConfirmationReservationStatus confirmationReservation = new WaitingConfirmationReservationStatus();
+			final WaitingConfirmationReservationStatus confirmationReservation = new WaitingConfirmationReservationStatus("foo");
 			this.uimanager.onWaitingReservationConfirmation(confirmationReservation);
 			final Timer t = new Timer(){
 				@Override
@@ -163,5 +169,24 @@ public class MockController implements ILabController {
 
 	@Override
 	public void loadUserHomeWindow() {
+	}
+
+	@Override
+	public void setReservationId(String reservationId) {
+		this.reservationId = reservationId;
+	}
+
+	@Override
+	public SessionID getReservationId() {
+		return new SessionID(this.reservationId);
+	}
+
+	@Override
+	public void startReserved(SessionID sessionId, ExperimentID experimentId) {
+	}
+
+	@Override
+	public void cleanExperimentPanel() {
+		loadUserHomeWindow();
 	}
 }

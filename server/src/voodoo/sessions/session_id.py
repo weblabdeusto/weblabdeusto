@@ -13,19 +13,14 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+import voodoo.sessions.exc as SessionExceptions
+
 class SessionId(object):
     def __init__(self, real_id):
-        object.__init__(self)
+        if not isinstance(real_id,basestring):
+            raise SessionExceptions.SessionInvalidSessionIdException( "Not a string: %s" % real_id )
 
-        if isinstance(real_id,basestring):
-            self.id = real_id
-        else:
-            # This object will be used by the webserver module
-            # and this part will not work, but will neither be ever used
-            import voodoo.sessions.exc as SessionExceptions
-            raise SessionExceptions.SessionInvalidSessionIdException(
-                "Not a string: %s" % real_id
-            )
+        self.id = real_id
     
     def __cmp__(self, other):
         if isinstance(other,SessionId):
@@ -43,7 +38,7 @@ class SessionId(object):
         return hash(self.id)
 
     def __repr__(self):
-        return "<Session ID: '%s'>" % self.id
+        return "SessionId(%r)" % self.id
 
     def __str__(self):
         return "Session ID: '%s'" % self.id

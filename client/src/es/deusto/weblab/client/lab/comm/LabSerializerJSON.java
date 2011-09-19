@@ -96,15 +96,18 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
     private ReservationStatus parseReservationStatus(final JSONObject result)
 	    throws SerializationException {
 		final String status = this.json2string(result.get("status"));
+		final JSONObject reservationIdObj = json2object(result.get("reservation_id"));
+		final String reservationId = json2string(reservationIdObj.get("id"));
+		
 		if(status.equals("Reservation::waiting_confirmation")){
-		    return new WaitingConfirmationReservationStatus();
+		    return new WaitingConfirmationReservationStatus(reservationId);
 		}else if(status.equals("Reservation::confirmed")){
 		    final double time = this.json2double(result.get("time"));
 		    final String initial_configuration = this.json2string(result.get("initial_configuration"));
-		    return new ConfirmedReservationStatus((int)time, initial_configuration);
+		    return new ConfirmedReservationStatus(reservationId, (int)time, initial_configuration);
 		}else if(status.equals("Reservation::waiting")){
 		    final int position = this.json2int(result.get("position"));
-		    return new WaitingReservationStatus(position);
+		    return new WaitingReservationStatus(reservationId, position);
 		}else if(status.equals("Reservation::post_reservation")){
 			final boolean finished = this.json2boolean(result.get("finished"));
 			final String jsonInitialData = this.json2string(result.get("initial_data"), true);
@@ -113,10 +116,10 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
 			final String initialData = extractString(jsonInitialData, "initial_data");
 			final String endData = extractString(jsonEndData, "end_data");
 			
-		    return new PostReservationReservationStatus(finished, initialData, endData);
+		    return new PostReservationReservationStatus(reservationId, finished, initialData, endData);
 		}else if(status.equals("Reservation::waiting_instances")){
 		    final int position = this.json2int(result.get("position"));
-		    return new WaitingInstancesReservationStatus(position);
+		    return new WaitingInstancesReservationStatus(reservationId, position);
 		}else
 		    throw new SerializationException("Unknown status: " + status);
     }
@@ -342,7 +345,7 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
      * TODO: This method will probably need some work.
      */
     @Override
-	public String serializeCheckAsyncCommandStatusRequest(SessionID sessionId, String [] requestIdentifiers) 
+	public String serializeCheckAsyncCommandStatusRequest(SessionID reservationId, String [] requestIdentifiers) 
 		throws SerializationException {
     	
     	final JSONArray requestIds = new JSONArray();
@@ -350,25 +353,25 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
     		requestIds.set(i, new JSONString(requestIdentifiers[i]));
   
 		final JSONObject params = new JSONObject();
-		params.put("session_id", this.serializeSessionId(sessionId));
+		params.put("reservation_id", this.serializeSessionId(reservationId));
 		params.put("request_identifiers", requestIds);
 		
 		return this.serializeRequest("check_async_command_status", params);
 	}
 
     @Override
-	public String serializeFinishedExperimentRequest(SessionID sessionId)
+	public String serializeFinishedExperimentRequest(SessionID reservationId)
 	    throws SerializationException {
-		// "{\"params\":{\"session_id\":{\"id\":\"" + MESSAGE + "\"}}, \"method\":\"finished_experiment\"}",
+		// "{\"params\":{\"reservation_id\":{\"id\":\"" + MESSAGE + "\"}}, \"method\":\"finished_experiment\"}",
 		final JSONObject params = new JSONObject();
-		params.put("session_id", this.serializeSessionId(sessionId));
+		params.put("reservation_id", this.serializeSessionId(reservationId));
 		return this.serializeRequest("finished_experiment", params);
     }
 
     @Override
-	public String serializeGetReservationStatusRequest(SessionID sessionId) throws SerializationException {
+	public String serializeGetReservationStatusRequest(SessionID reservationId) throws SerializationException {
 		final JSONObject params = new JSONObject();
-		params.put("session_id", this.serializeSessionId(sessionId));
+		params.put("reservation_id", this.serializeSessionId(reservationId));
 		return this.serializeRequest("get_reservation_status", params);
     }
 
@@ -381,10 +384,10 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
     }
 
     @Override
-	public String serializePollRequest(SessionID sessionId)
+	public String serializePollRequest(SessionID reservationId)
 	    throws SerializationException {
 		final JSONObject params = new JSONObject();
-		params.put("session_id", this.serializeSessionId(sessionId));
+		params.put("reservation_id", this.serializeSessionId(reservationId));
 		return this.serializeRequest("poll", params);
     }
 
@@ -407,10 +410,9 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
     }
 
     @Override
-	public String serializeSendCommandRequest(SessionID sessionId,
-	    Command command) throws SerializationException {
+	public String serializeSendCommandRequest(SessionID reservationId, Command command) throws SerializationException {
 		final JSONObject params = new JSONObject();
-		params.put("session_id", this.serializeSessionId(sessionId));
+		params.put("reservation_id", this.serializeSessionId(reservationId));
 		final JSONObject commandjson = new JSONObject();
 		commandjson.put("commandstring", new JSONString(command.getCommandString()));
 		params.put("command", commandjson);
@@ -418,10 +420,9 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
     }
     
     @Override
-    public String serializeSendAsyncCommandRequest(SessionID sessionId,
-    		Command command) throws SerializationException {
+    public String serializeSendAsyncCommandRequest(SessionID reservationId, Command command) throws SerializationException {
     	final JSONObject params = new JSONObject();
-    	params.put("session_id", this.serializeSessionId(sessionId));
+    	params.put("reservation_id", this.serializeSessionId(reservationId));
     	final JSONObject commandjson = new JSONObject();
     	commandjson.put("commandstring", new JSONString(command.getCommandString()));
     	params.put("command", commandjson);

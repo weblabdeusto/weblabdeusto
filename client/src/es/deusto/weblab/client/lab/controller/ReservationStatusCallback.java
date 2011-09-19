@@ -15,7 +15,6 @@ package es.deusto.weblab.client.lab.controller;
 
 import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
-import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
 import es.deusto.weblab.client.lab.comm.ILabCommunication;
@@ -33,7 +32,6 @@ public class ReservationStatusCallback implements IReservationCallback{
 	private IPollingHandler       pollingHandler;
 	private TimerCreator          timerCreator;
 	private ILabCommunication  communications;
-	private SessionID             sessionID;
 	private ExperimentID          experimentBeingReserved;
 	private ExperimentBase        experimentBaseBeingReserved;
 	private ILabController     controller;
@@ -81,10 +79,6 @@ public class ReservationStatusCallback implements IReservationCallback{
 		return this.communications;
 	}
 
-	public SessionID getSessionID() {
-		return this.sessionID;
-	}
-	
 	public ExperimentID getExperimentBeingReserved(){
 		return this.experimentBeingReserved;
 	}
@@ -117,10 +111,6 @@ public class ReservationStatusCallback implements IReservationCallback{
 		this.communications = communications;
 	}
 
-	void setSessionID(SessionID sessionID) {
-		this.sessionID = sessionID;
-	}
-	
 	void setExperimentBeingReserved(ExperimentID experimentId){
 		this.experimentBeingReserved = experimentId;
 	}
