@@ -303,6 +303,17 @@ public class CommonSerializerJSON implements ICommonSerializer {
 		return jsonstring.stringValue();
 	}
 
+	protected JSONObject json2object(JSONValue value) throws SerializationException {
+		return json2object(value, false);
+	}
+	
+	protected JSONObject json2object(JSONValue value, boolean supportNull) throws SerializationException {
+		final JSONObject jsonobj = value.isObject();
+		if(jsonobj == null && !supportNull)
+		    throw new SerializationException("Object expected, found: " + value);
+		return jsonobj;
+	}
+
 	protected boolean json2boolean(JSONValue value) throws SerializationException {
 		if(value == null)
 		    throw new SerializationException("Boolean expected, found null");

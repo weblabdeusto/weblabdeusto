@@ -59,7 +59,7 @@ public class LabCommunicationTest extends CommonCommunicationTest {
 					requestBuilder,
 					configurationManager
 				);
-		final SessionID sessionId = new SessionID();
+		final SessionID sessionId = new SessionID("my_session_id");
 		
 		final int TIME = 100;
 		final String SERIALIZED_MESSAGE = "serialized get reservation status request";
@@ -67,7 +67,7 @@ public class LabCommunicationTest extends CommonCommunicationTest {
 		
 		weblabSerializer.appendReturn(
 					FakeLabSerializer.PARSE_GET_RESERVATION_STATUS_RESPONSE, 
-					new ConfirmedReservationStatus(TIME)
+					new ConfirmedReservationStatus("foo", TIME)
 				);
 		weblabSerializer.appendReturn(
 					FakeLabSerializer.SERIALIZE_GET_RESERVATION_STATUS_REQUEST, 
@@ -155,7 +155,7 @@ public class LabCommunicationTest extends CommonCommunicationTest {
 					requestBuilder,
 					configurationManager
 				);
-		final SessionID sessionId = new SessionID();
+		final SessionID sessionId = new SessionID("my_session_id");
 		
 		final String SERIALIZED_MESSAGE = "serialized get reservation status request";
 		final String ERROR_MESSAGE = "whatever the error message";
@@ -344,12 +344,12 @@ public class LabCommunicationTest extends CommonCommunicationTest {
 					requestBuilder,
 					configurationManager
 				);
-		final SessionID sessionId = new SessionID();
+		final SessionID sessionId = new SessionID("my_session_id");
 		
 		final String SERIALIZED_MESSAGE = "serialized get reservation status request";
 		final String ERROR_MESSAGE = "whatever the error message";
 		final ExperimentID experimentId = new ExperimentID(new Category("Category name"), "Experiment name");
-		final ReservationStatus expectedReservation = new ConfirmedReservationStatus(100);
+		final ReservationStatus expectedReservation = new ConfirmedReservationStatus("reservation_id", 100);
 		
 		weblabSerializer.appendReturn(
 					FakeLabSerializer.PARSE_RESERVE_EXPERIMENT_RESPONSE, 

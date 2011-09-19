@@ -184,7 +184,7 @@ def create_databases(error_handler):
     return result
 
 
-def _deploy_stubs(error_handler, folder, wsdl_file):
+def _deploy_stubs(error_handler, folder, wsdl_file, filename):
     try:
         import ZSI
     except ImportError:
@@ -198,7 +198,7 @@ def _deploy_stubs(error_handler, folder, wsdl_file):
     wsdl2py       = '"%s"' % os.sep.join((bin_path,'wsdl2py.py'))
     wsdl2dispatch = '"%s"' % os.sep.join((bin_path,'wsdl2dispatch.py'))
 
-    for i in glob.glob("%s/weblabdeusto_*.py" % folder):
+    for i in glob.glob("%s/%s_*.py" % (folder, filename)):
         os.remove(i)
     cwd = os.getcwd()
     os.chdir(folder)
@@ -224,14 +224,14 @@ def _deploy_stubs(error_handler, folder, wsdl_file):
                 error_handler.write_warning('stderr::%s' % i)
 
     # Little bug in the stubs generation :-)
-    client_file = open('weblabdeusto_client.py','a')
-    client_file.write('\n\nfrom weblabdeusto_messages import *\n\n')
+    client_file = open('%s_client.py' % filename,'a')
+    client_file.write('\n\nfrom %s_messages import *\n\n' % filename)
     client_file.close()
 
     # By default, ZSI strips the strings in the SOAP request. We don't want this, so we change this behaviour
-    services_types_content = open('weblabdeusto_services_types.py').read()
+    services_types_content = open('%s_services_types.py' % filename).read()
     services_types_content = services_types_content.replace("ZSI.TC.String(","ZSI.TC.String(strip=False,")
-    open('weblabdeusto_services_types.py','w').write(services_types_content)
+    open('%s_services_types.py' % filename,'w').write(services_types_content)
 
     pr = subprocess.Popen(sys.executable + " " + wsdl2dispatch + " -e -f ../%s --simple-naming" % wsdl_file, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     result = pr.wait()
@@ -257,11 +257,11 @@ def _deploy_stubs(error_handler, folder, wsdl_file):
 
 @deployer(30)
 def deploy_login_stubs(error_handler):
-    return _deploy_stubs(error_handler, 'weblab/login/comm/generated/', 'LoginWebLabDeusto.wsdl')
+    return _deploy_stubs(error_handler, 'weblab/login/comm/generated/', 'LoginWebLabDeusto.wsdl', 'loginweblabdeusto')
 
 @deployer(30)
 def deploy_core_stubs(error_handler):
-    return _deploy_stubs(error_handler, 'weblab/core/comm/generated/', 'UserProcessingWebLabDeusto.wsdl')
+    return _deploy_stubs(error_handler, 'weblab/core/comm/generated/', 'UserProcessingWebLabDeusto.wsdl', 'weblabdeusto')
 
 @deployer(40)
 def build_webserver(error_handler):

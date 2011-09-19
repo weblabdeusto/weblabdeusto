@@ -14,6 +14,7 @@
 # 
 import sys
 import voodoo.log as log
+from functools import wraps
 
 import weblab.data.dto.experiments as Experiment
 from weblab.data.experiments import ExperimentId
@@ -50,7 +51,8 @@ def check_exceptions(exceptions_to_check):
                 raise AssertionError("In Facade Exceptions the order is important. There can't be any exception that is a subclass of a previous exception. In this case %s is before %s" % (exc, exc2))
 
     def real_check_exceptions(func):
-        def wrapped(self, *args, **kwargs):
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
             try:
                 return func(self, *args, **kwargs)
             except Exception as e:
@@ -74,18 +76,15 @@ def check_exceptions(exceptions_to_check):
                             log.log_exc(self.__class__, log.level.Info)
                             return self._raise_exception(RemoteFacadeManagerCodes.WEBLAB_GENERAL_EXCEPTION_CODE, UNEXPECTED_ERROR_MESSAGE_TEMPLATE % self._cfg_manager.get_value(SERVER_ADMIN_EMAIL, DEFAULT_SERVER_ADMIN_EMAIL) )
 
-        wrapped.__name__ = func.__name__
-        wrapped.__doc__  = func.__doc__
-        return wrapped
+        return wrapper
     return real_check_exceptions
 
 def check_nullable(func):
-    def wrapped(self, *args, **kwargs):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
         response = func(self, *args, **kwargs)
         return self._check_nullable_response(response)
-    wrapped.__name__ = func.__name__
-    wrapped.__doc__  = func.__doc__
-    return wrapped
+    return wrapper
 
 class AbstractRemoteFacadeManager(object):
     def __init__(self, cfg_manager, server):

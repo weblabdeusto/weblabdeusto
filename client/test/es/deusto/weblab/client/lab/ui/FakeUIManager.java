@@ -132,4 +132,8 @@ public class FakeUIManager extends WebLabFake implements IUIManager {
     public void onMessage(String message) {
 	this.append(FakeUIManager.ON_MESSAGE, new Object[] {message});
     }
+
+	@Override
+	public void onExperimentInteractionFinished() {
+	}
 }

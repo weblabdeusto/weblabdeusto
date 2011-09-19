@@ -14,9 +14,7 @@
 package es.deusto.weblab.client.dto;
 
 public class SessionID {
-	private String realId;
-	
-	public SessionID(){}
+	private final String realId;
 	
 	public SessionID(String realId){
 		this.realId = realId;
@@ -26,7 +24,35 @@ public class SessionID {
 		return this.realId;
 	}
 
-	public void setRealId(String realId) {
-		this.realId = realId;
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((this.realId == null) ? 0 : this.realId.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SessionID other = (SessionID) obj;
+		if (this.realId == null) {
+			if (other.realId != null)
+				return false;
+		} else if (!this.realId.equals(other.realId))
+			return false;
+		return true;
 	}
 }

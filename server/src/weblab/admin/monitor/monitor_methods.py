@@ -76,6 +76,7 @@ def get_experiment_status(category, experiment):
 def get_experiment_ups_session_ids(category, experiment):
     ups = _find_ups()
     
+    user_session_mgr   = ups._session_manager
     session_mgr        = ups._alive_users_collection._session_manager
     users_session_mgr  = ups._alive_users_collection._users_session_manager
     global_sid         = ups._alive_users_collection._experiments_server_session_id
@@ -87,7 +88,9 @@ def get_experiment_ups_session_ids(category, experiment):
         session_obj = session_mgr.get_session(session_id)
         current_exp = session_obj['experiment_id']
         if current_exp.exp_name == experiment and current_exp.cat_name == category:
-            login  = session_obj['user_information'].login
+            creator_session_id = session_obj['creator_session_id']
+            user_session_obj = user_session_mgr.get_session(creator_session_id)
+            login  = user_session_obj['user_information'].login
             reservation_id = session_obj['reservation_id']
             return_value.append((session_id.id, login, reservation_id))
     return return_value
