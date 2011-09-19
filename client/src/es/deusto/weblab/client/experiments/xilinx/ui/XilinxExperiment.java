@@ -258,8 +258,8 @@ public class XilinxExperiment extends ExperimentBase{
 		
 		try
 		{
-			final String expectedProgrammingTime = parsedInitialConfiguration.isObject().get("expected_programming_time").isString().stringValue();
-			XilinxExperiment.this.expectedProgrammingTime = Integer.parseInt(expectedProgrammingTime) * 1000;
+			double expectedProgrammingTime = parsedInitialConfiguration.isObject().get("expected_programming_time").isNumber().doubleValue();
+			XilinxExperiment.this.expectedProgrammingTime = (int)(expectedProgrammingTime * 1000);
 		} catch(Exception e) {	
     		GWT.log("[Xilinx] Did not receive the expected_programming_time parameter.", null);
 		}
