@@ -184,10 +184,6 @@ class UdXilinxExperiment(Experiment.Experiment):
     @caller_check(ServerType.Laboratory)
     def do_send_command_to_device(self, command):
         try:
-            # Provide how long in seconds will the programmer take (approximately)
-            if command == 'EXPECTED.PROGRAMMING.TIME':
-                reply = "EXPECTED=%s" % self._programmer_time
-                return reply
             # Reply with the current state of the experiment. Particularly, the clients 
             # will need to know whether the programming has been done and whether we are 
             # hence ready to start receiving real commands.
@@ -199,8 +195,8 @@ class UdXilinxExperiment(Experiment.Experiment):
             # If it isn't, it throw an exception itself.
 
             if self._switches_reversed:
-               if command.startswith("ChangeSwitch"):
-                   command = command.replace(command[-1], str(9 - int(command[-1])))
+                if command.startswith("ChangeSwitch"):
+                    command = command.replace(command[-1], str(9 - int(command[-1])))
             self._command_sender.send_command(command)
         except Exception as e:
             raise ExperimentExceptions.SendingCommandFailureException(
