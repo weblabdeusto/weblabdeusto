@@ -31,6 +31,8 @@ import weblab.experiment.util as ExperimentUtil
 import weblab.experiment.devices.xilinx_impact.devices as XilinxDevices
 import weblab.experiment.devices.xilinx_impact.impact as XilinxImpact
 
+import json
+
 from voodoo.threaded import threaded
 
 
@@ -168,27 +170,20 @@ class UdXilinxExperiment(Experiment.Experiment):
             self._programming_thread.join()
             # Cleaning references
             self._programming_thread = None
+        return "ok"
         
             
     @Override(Experiment.Experiment)
     @logged("info")
     def do_start_experiment(self, *args, **kwargs):
         self._current_state = STATE_NOT_READY
-
+        return json.dumps({ "initial_configuration" : """{ "webcam" : "%s", "expected_programming_time" : %s }""" % (self.webcam_url, self._programmer_time), "batch" : False })
     
     @logged("info")
     @Override(Experiment.Experiment)
     @caller_check(ServerType.Laboratory)
     def do_send_command_to_device(self, command):
         try:
-            # Provide the URL address that the client will display.
-            if command == 'WEBCAMURL':
-                reply = "WEBCAMURL=" + self.webcam_url
-                return reply
-            # Provide how long in seconds will the programmer take (approximately)
-            if command == 'EXPECTED.PROGRAMMING.TIME':
-                reply = "EXPECTED=%s" % self._programmer_time
-                return reply
             # Reply with the current state of the experiment. Particularly, the clients 
             # will need to know whether the programming has been done and whether we are 
             # hence ready to start receiving real commands.
@@ -200,8 +195,8 @@ class UdXilinxExperiment(Experiment.Experiment):
             # If it isn't, it throw an exception itself.
 
             if self._switches_reversed:
-               if command.startswith("ChangeSwitch"):
-                   command = command.replace(command[-1], str(9 - int(command[-1])))
+                if command.startswith("ChangeSwitch"):
+                    command = command.replace(command[-1], str(9 - int(command[-1])))
             self._command_sender.send_command(command)
         except Exception as e:
             raise ExperimentExceptions.SendingCommandFailureException(

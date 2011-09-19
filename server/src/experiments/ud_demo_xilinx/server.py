@@ -21,6 +21,8 @@ import os
 import weblab.data.server_type as ServerType
 import weblab.experiment.util as ExperimentUtil
 
+import json
+
 class UdDemoXilinxExperiment(UdXilinxExperiment.UdXilinxExperiment):
 
     FILES = {
@@ -36,14 +38,20 @@ class UdDemoXilinxExperiment(UdXilinxExperiment.UdXilinxExperiment):
     @Override(UdXilinxExperiment.UdXilinxExperiment)
     @caller_check(ServerType.Laboratory)
     @logged("info")
-    def do_start_experiment(self):
+    def do_start_experiment(self, *args, **kwargs):
+        """
+        Handles experiment startup, returning certain initial configuration parameters.
+        (Thus makes use of the API version 2).
+        """
         super(UdDemoXilinxExperiment, self).do_send_file_to_device(self.file_content, "program")
+        return json.dumps({ "initial_configuration" : """{ "webcam" : "%s", "expected_programming_time" : %s }""" % (self.webcam_url, self._programmer_time), "batch" : False })
 
     @Override(UdXilinxExperiment.UdXilinxExperiment)
     @caller_check(ServerType.Laboratory)
     @logged("info")
     def do_dispose(self):
         super(UdDemoXilinxExperiment, self).do_dispose()
+        return "ok"
 
     @Override(UdXilinxExperiment.UdXilinxExperiment)
     @caller_check(ServerType.Laboratory)
