@@ -18,8 +18,9 @@ public class PostReservationReservationStatus extends ReservationStatus {
 	private String initialData;
 	private String endData;
 	
-	public PostReservationReservationStatus(boolean finished,
-			String initialData, String endData) {
+	public PostReservationReservationStatus(String reservationId, boolean finished, String initialData, String endData) {
+		super(reservationId);
+		
 		this.finished = finished;
 		this.initialData = initialData;
 		this.endData = endData;

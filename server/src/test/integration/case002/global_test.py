@@ -48,7 +48,7 @@ import weblab.login.server as LoginServer
 import weblab.methods as weblab_exported_methods
 import weblab.core.reservations as Reservation
 import weblab.core.server    as UserProcessingServer
-import weblab.core.processor       as UserProcessor
+import weblab.core.user_processor       as UserProcessor
 import weblab.core.exc             as core_exc
 import weblab.core.coordinator.coordinator as Coordinator
 
@@ -486,26 +486,32 @@ class Case002TestCase(object):
 
 
         # 3 users try to reserve the experiment
-        self.real_ups.reserve_experiment(
+        status1 = self.real_ups.reserve_experiment(
                 session_id1,
                 fpga_experiments1[0].to_experiment_id(),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
 
-        self.real_ups.reserve_experiment(
+        reservation_id1 = status1.reservation_id
+
+        status2 = self.real_ups.reserve_experiment(
                 session_id2,
                 fpga_experiments2[0].to_experiment_id(),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
 
-        self.real_ups.reserve_experiment(
+        reservation_id2 = status2.reservation_id
+
+        status3 = self.real_ups.reserve_experiment(
                 session_id3,
                 fpga_experiments3[0].to_experiment_id(),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
+
+        reservation_id3 = status3.reservation_id
 
         # wait until it is reserved
         short_time = 0.1
@@ -513,15 +519,13 @@ class Case002TestCase(object):
 
         while times > 0:
             time.sleep(short_time)
-            new_status = self.real_ups.get_reservation_status(session_id1)
+            new_status = self.real_ups.get_reservation_status(reservation_id1)
             if not isinstance(new_status, Reservation.WaitingConfirmationReservation):
                 break
             times -= 1
 
         # first user got the device. The other two are in WaitingReservation
-        reservation1 = self.real_ups.get_reservation_status(
-                        session_id1
-                    )
+        reservation1 = self.real_ups.get_reservation_status( reservation_id1 )
         self.assertTrue(
                 isinstance(
                     reservation1, 
@@ -529,9 +533,7 @@ class Case002TestCase(object):
                 )
             )
 
-        reservation2 = self.real_ups.get_reservation_status(
-                        session_id2
-                    )
+        reservation2 = self.real_ups.get_reservation_status( reservation_id2 )
         self.assertTrue(
                 isinstance(
                     reservation2,
@@ -540,9 +542,7 @@ class Case002TestCase(object):
             )
         self.assertEquals( 0, reservation2.position)
 
-        reservation3 = self.real_ups.get_reservation_status(
-                        session_id3
-                    )
+        reservation3 = self.real_ups.get_reservation_status( reservation_id3 )
         self.assertTrue(
                 isinstance(
                     reservation3,
@@ -552,16 +552,16 @@ class Case002TestCase(object):
         self.assertEquals( 1, reservation3.position)
 
         # Another user tries to reserve the experiment. He goes to the WaitingReservation, position 2
-        self.real_ups.reserve_experiment(
+        status4 = self.real_ups.reserve_experiment(
                 session_id4,
                 fpga_experiments4[0].to_experiment_id(),
                 "{}",
                 ClientAddress.ClientAddress("127.0.0.1")
             )
 
-        reservation4 = self.real_ups.get_reservation_status(
-                        session_id4
-                    )
+        reservation_id4 = status4.reservation_id
+
+        reservation4 = self.real_ups.get_reservation_status( reservation_id4 )
         self.assertTrue(
                 isinstance(
                     reservation4,
@@ -571,9 +571,7 @@ class Case002TestCase(object):
         self.assertEquals( 2, reservation4.position)
 
         # The state of other users does not change
-        reservation1 = self.real_ups.get_reservation_status(
-                        session_id1
-                    )
+        reservation1 = self.real_ups.get_reservation_status( reservation_id1 )
         self.assertTrue(
                 isinstance(
                     reservation1, 
@@ -581,9 +579,7 @@ class Case002TestCase(object):
                 )
             )
 
-        reservation2 = self.real_ups.get_reservation_status(
-                        session_id2
-                    )
+        reservation2 = self.real_ups.get_reservation_status( reservation_id2 )
         self.assertTrue(
                 isinstance(
                     reservation2,
@@ -592,9 +588,7 @@ class Case002TestCase(object):
             )
         self.assertEquals( 0, reservation2.position)
 
-        reservation3 = self.real_ups.get_reservation_status(
-                        session_id3
-                    )
+        reservation3 = self.real_ups.get_reservation_status( reservation_id3 )
         self.assertTrue(
                 isinstance(
                     reservation3,
@@ -604,26 +598,26 @@ class Case002TestCase(object):
         self.assertEquals( 1, reservation3.position )
 
         # The user number 2 frees the experiment
-        self.real_ups.finished_experiment(session_id2)
+        self.real_ups.finished_experiment(reservation_id2)
 
         # Whenever he tries to do poll or send_command, he receives an exception
         try:
-            self.real_ups.poll(session_id2)
-            self.real_ups.poll(session_id2)
-            self.real_ups.poll(session_id2)
+            self.real_ups.poll(reservation_id2)
+            self.real_ups.poll(reservation_id2)
+            self.real_ups.poll(reservation_id2)
         except core_exc.NoCurrentReservationException:
             pass # All right :-)
 
         # send a program
         CONTENT = "content of the program FPGA"
-        self.real_ups.send_file(session_id1, ExperimentUtil.serialize(CONTENT), 'program')
+        self.real_ups.send_file(reservation_id1, ExperimentUtil.serialize(CONTENT), 'program')
         
         
         # We need to wait for the programming to finish.
         start_time = time.time()
         response = "STATE=not_ready"
         while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
-            respcmd = self.real_ups.send_command(session_id1, Command.Command("STATE"))
+            respcmd = self.real_ups.send_command(reservation_id1, Command.Command("STATE"))
             response = respcmd.get_command_string()
             time.sleep(0.2)
         
@@ -631,8 +625,8 @@ class Case002TestCase(object):
         self.assertEquals("STATE=ready", response)
         
         
-        self.real_ups.send_command(session_id1, Command.Command("ChangeSwitch on 0"))
-        self.real_ups.send_command(session_id1, Command.Command("ClockActivation on 250"))
+        self.real_ups.send_command(reservation_id1, Command.Command("ChangeSwitch on 0"))
+        self.real_ups.send_command(reservation_id1, Command.Command("ClockActivation on 250"))
 
         # end session
         self.real_ups.logout(session_id1)
@@ -693,21 +687,22 @@ class Case002TestCase(object):
         for i in self.real_servers:
             i.stop()
 
+
+@case_uses_module(UserProcessingServer)
 class Case002_Direct_Memory_TestCase(Case002TestCase, unittest.TestCase):
     def get_protocols(self):
         return (Protocols.Direct, )
     def get_session_type(self):
         return SessionType.Memory
 
-Case002_Direct_Memory_TestCase = case_uses_module(UserProcessingServer)(Case002_Direct_Memory_TestCase)
 
+@case_uses_module(UserProcessingServer)
 class Case002_Direct_MySQL_TestCase(Case002TestCase, unittest.TestCase):
     def get_protocols(self):
         return (Protocols.Direct, )
     def get_session_type(self):
         return SessionType.sqlalchemy
 
-Case002_Direct_MySQL_TestCase = case_uses_module(UserProcessingServer)(Case002_Direct_MySQL_TestCase)
 
 def suite():
     return unittest.TestSuite(

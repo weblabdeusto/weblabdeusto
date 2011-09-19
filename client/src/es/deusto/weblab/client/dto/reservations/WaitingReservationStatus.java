@@ -16,9 +16,12 @@ package es.deusto.weblab.client.dto.reservations;
 public class WaitingReservationStatus extends ReservationStatus {
 	private int position;
 	
-	public WaitingReservationStatus(){}
+	public WaitingReservationStatus(String reservationId){
+		super(reservationId);
+	}
 	
-	public WaitingReservationStatus(int position){
+	public WaitingReservationStatus(String reservationId, int position){
+		super(reservationId);
 		this.position = position;
 	}
 

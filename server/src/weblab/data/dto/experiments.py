@@ -22,7 +22,7 @@ class ExperimentCategory(object):
         super(ExperimentCategory,self).__init__()
         self.name = name
     def __repr__(self):
-        return '<ExperimentCategory: name="%s">' % self.name
+        return 'ExperimentCategory(name=%r)' % self.name
 
 class Experiment(object):
     
@@ -35,7 +35,7 @@ class Experiment(object):
         self.end_date   = end_date
 
     def __repr__(self):
-        return '<Experiment name="%s" category="%s" start_date="%s" end_date="%s">' % (
+        return 'Experiment(name=%r, category=%r, start_date=%r, end_date=%r)' % (
                 self.name,
                 self.category,
                 self.start_date,
@@ -62,24 +62,26 @@ class ExperimentUse(object):
         self.origin     = origin
 
     def __repr__(self):
-        return u"ExperimentUse(id = %s, start_date = '%s', end_date = '%s', experiment = %r, agent = %r, origin = '%s')" % (
-                self.id,
+        return u"ExperimentUse(start_date = %r, end_date = %r, experiment = %r, agent = %r, origin = %r, id = %r)" % (
                 self.start_date,
                 self.end_date,
                 self.experiment,
                 self.agent,
-                self.origin
+                self.origin,
+                self.id
             )
 
 DEFAULT_PRIORITY = 5
+DEFAULT_INITIALIZATION_IN_ACCOUNTING = True
 
 class ExperimentAllowed(object):
-    def __init__(self, experiment, time_allowed, priority):
+    def __init__(self, experiment, time_allowed, priority, initialization_in_accounting):
         super(ExperimentAllowed,self).__init__()
-        self.experiment   = experiment
-        self.time_allowed = time_allowed
-        self.priority     = priority
+        self.experiment                   = experiment
+        self.time_allowed                 = time_allowed
+        self.priority                     = priority
+        self.initialization_in_accounting = initialization_in_accounting
 
     def __repr__(self):
-        return "<ExperimentAllowed: experiment = %s; time_allowed = %s; priority = %s>" % (self.experiment, self.time_allowed, self.priority)
+        return "ExperimentAllowed(experiment = %r, time_allowed = %r, priority = %r, initialization_in_accounting = %r)" % (self.experiment, self.time_allowed, self.priority, self.initialization_in_accounting)
 

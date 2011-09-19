@@ -27,6 +27,8 @@ public class PostReservationStatusTransition extends ReservationStatusTransition
 
 	@Override
 	public void perform(ReservationStatus reservationStatus) {
+		this.reservationStatusCallback.getController().setReservationId(reservationStatus.getReservationId());
+
 		final ExperimentID experimentID = this.reservationStatusCallback.getExperimentBeingReserved();
 		try {
 			this.reservationStatusCallback.getUimanager().onExperimentReserved(

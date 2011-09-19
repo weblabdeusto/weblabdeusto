@@ -17,12 +17,14 @@ public class ConfirmedReservationStatus extends ReservationStatus {
 	private int time;
 	private String initialConfiguration;
 	
-	public ConfirmedReservationStatus(int time){
+	public ConfirmedReservationStatus(String reservationId, int time){
+		super(reservationId);
 		this.time = time;
 		this.initialConfiguration = null;
 	}
 
-	public ConfirmedReservationStatus(int time, String initialConfiguration){
+	public ConfirmedReservationStatus(String reservationId, int time, String initialConfiguration){
+		super(reservationId);
 		this.time = time;
 		this.initialConfiguration = initialConfiguration;
 	}

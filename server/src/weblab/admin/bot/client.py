@@ -17,7 +17,7 @@
 import time
 import traceback
 import urllib2
-
+from functools import wraps
 import json
 
 import cookielib
@@ -35,7 +35,7 @@ from weblab.data.dto.experiments import Experiment, ExperimentCategory
 from weblab.data.dto.users import User
 
 try:
-    import weblab.login.comm.generated.weblabdeusto_client as LoginWebLabDeusto_client
+    import weblab.login.comm.generated.loginweblabdeusto_client as LoginWebLabDeusto_client
     import weblab.core.comm.generated.weblabdeusto_client as UserProcessingWebLabDeusto_client
 except ImportError:
     ZSI_AVAILABLE = False
@@ -73,8 +73,8 @@ class Call(object):
 
 
 def logged(func):
-
-    def wrapped(self, *args, **kargs):
+    @wraps(func)
+    def wrapper(self, *args, **kargs):
         try:
             begin = time.time()
             try:
@@ -91,20 +91,17 @@ def logged(func):
             end = time.time()
             self._add_call(begin, end, func.__name__.lstrip("do_"), args, kargs, return_value, exception_and_trace_raised)
 
-    wrapped.__name__ = func.__name__
-    wrapped.__doc__  = func.__doc__
-    return wrapped
+    return wrapper
 
 def possibleKeyError(func):
-    def wrapped(self, *args, **kargs):
+    @wraps(func)
+    def wrapper(self, *args, **kargs):
         try:
             return func(self, *args, **kargs)
         except KeyError:
             raise Exception("Unexpected response in method %s with args %s and kargs %s" % (func.__name__, str(args), str(kargs)) )
 
-    wrapped.__name__ = func.__name__
-    wrapped.__doc__  = func.__doc__
-    return wrapped
+    return wrapper
 
 class AbstractBot(object):
     def __init__(self, url, url_login):
@@ -180,11 +177,12 @@ class AbstractBot(object):
     def do_reserve_experiment(self, experiment_id, client_initial_data):
         reservation_holder = self._call('reserve_experiment',session_id=self.session_id, experiment_id=experiment_id, client_initial_data=client_initial_data)
         reservation = self._parse_reservation_holder(reservation_holder)
+        self.reservation_id = reservation.reservation_id
         return reservation
 
     @logged
     def do_get_reservation_status(self):
-        reservation_holder = self._call('get_reservation_status',session_id=self.session_id)
+        reservation_holder = self._call('get_reservation_status',reservation_id=self.reservation_id)
         reservation = self._parse_reservation_holder(reservation_holder)
         return reservation
 
@@ -194,23 +192,23 @@ class AbstractBot(object):
 
     @logged
     def do_finished_experiment(self):
-        return self._call('finished_experiment',session_id=self.session_id)
+        return self._call('finished_experiment',reservation_id=self.reservation_id)
 
     @logged
     def do_send_file(self, structure, file_info):
-        command_holder = self._call('send_file',session_id=self.session_id, file_content=structure, file_info=file_info)
+        command_holder = self._call('send_file',reservation_id=self.reservation_id, file_content=structure, file_info=file_info)
         command = self._parse_command(command_holder)
         return command
 
     @logged
     def do_send_command(self, command):
-        command_holder = self._call('send_command',session_id=self.session_id, command=command)
+        command_holder = self._call('send_command',reservation_id=self.reservation_id, command=command)
         command = self._parse_command(command_holder)
         return command
 
     @logged
     def do_poll(self):
-        return self._call('poll',session_id=self.session_id)
+        return self._call('poll',reservation_id=self.reservation_id)
 
     @logged
     def do_get_user_information(self):
@@ -228,7 +226,7 @@ if ZSI_AVAILABLE:
 
         def __init__(self, url, url_login):
             super(BotZSI, self).__init__(url, url_login)
-            self.login_ws = LoginWebLabDeusto_client.weblabdeustoLocator().getweblabdeusto(url=url_login)
+            self.login_ws = LoginWebLabDeusto_client.loginweblabdeustoLocator().getloginweblabdeusto(url=url_login)
             self.ups_ws   = UserProcessingWebLabDeusto_client.weblabdeustoLocator().getweblabdeusto(url=url)
             self.weblabsessionid = "<unknown>"
 
@@ -264,7 +262,7 @@ if ZSI_AVAILABLE:
             return experiments
 
         def _parse_reservation_holder(self, reservation_holder):
-            return Reservation.Reservation.translate_reservation_from_data(reservation_holder.status, reservation_holder.position, reservation_holder.time, reservation_holder.initial_configuration, reservation_holder.end_data)
+            return Reservation.Reservation.translate_reservation_from_data(reservation_holder.status, reservation_holder.reservation_id.id, reservation_holder.position, reservation_holder.time, reservation_holder.initial_configuration, reservation_holder.end_data)
 
         def _parse_user(self, holder):
             return User(holder.login, holder.full_name, holder.email, holder.role)
@@ -296,7 +294,7 @@ class AbstractBotDict(AbstractBot):
 
     @possibleKeyError
     def _parse_reservation_holder(self, reservation_holder):
-        return Reservation.Reservation.translate_reservation_from_data(reservation_holder['status'], reservation_holder.get('position'), reservation_holder.get('time'), reservation_holder.get('initial_configuration'), reservation_holder.get('end_data'))
+        return Reservation.Reservation.translate_reservation_from_data(reservation_holder['status'], reservation_holder['reservation_id']['id'], reservation_holder.get('position'), reservation_holder.get('time'), reservation_holder.get('initial_configuration'), reservation_holder.get('end_data'))
 
     @possibleKeyError
     def _parse_user(self, holder):
@@ -342,7 +340,7 @@ class BotJSON(AbstractBotDict):
 
 class _CookiesTransport(xmlrpclib.Transport):
     def send_user_agent(self, connection):
-        _CookiesTransport.__bases__[0].send_user_agent(self, connection)
+        xmlrpclib.Transport.send_user_agent(self, connection)
         if hasattr(self, '_sessid_cookie'):
             connection.putheader("Cookie",self._sessid_cookie)
         self.__connection = connection
@@ -353,7 +351,15 @@ class _CookiesTransport(xmlrpclib.Transport):
                 real_value = value.split(';')[0]
                 self._sessid_cookie = real_value
                 self._bot.weblabsessionid = real_value
-        return _CookiesTransport.__bases__[0]._parse_response(self, *args, **kwargs)
+        return xmlrpclib.Transport._parse_response(self, *args, **kwargs)
+
+    def parse_response(self, response, *args, **kwargs):
+        real_value = response.getheader("Set-Cookie").split(';')[0]
+        self._sessid_cookie       = real_value
+        self._bot.weblabsessionid = real_value
+
+        return xmlrpclib.Transport.parse_response(self, response, *args, **kwargs)
+
 
 class BotXMLRPC(AbstractBotDict):
     def __init__(self, url, url_login):
@@ -367,6 +373,7 @@ class BotXMLRPC(AbstractBotDict):
         self.transport_login = self.server_login._ServerProxy__transport
         self.transport_login.__class__  = _CookiesTransport
         self.transport_login._bot = self
+        self.weblabsessionid = "<unknown>"
 
     def _call(self, method, **kwargs):
         if method == 'login':
@@ -375,14 +382,16 @@ class BotXMLRPC(AbstractBotDict):
             if hasattr(self.transport_login, '_sessid_cookie'):
                 self.transport._sessid_cookie = self.transport_login._sessid_cookie
             return result
-        elif method in ('list_experiments','get_reservation_status','logout','finished_experiment','poll','get_user_information'):
+        elif method in ('list_experiments','logout','get_user_information'):
             args = (kwargs['session_id'],)
+        elif method in ('get_reservation_status',"finished_experiment", "poll"):
+            args = (kwargs['reservation_id'],)
         elif method == 'reserve_experiment':
             args = (kwargs['session_id'],kwargs['experiment_id'],kwargs['client_initial_data'])
         elif method == 'send_file':
-            args = (kwargs['session_id'],kwargs['file_content'],kwargs['file_info'])
+            args = (kwargs['reservation_id'],kwargs['file_content'],kwargs['file_info'])
         elif method == 'send_command':
-            args = (kwargs['session_id'],kwargs['command'])
+            args = (kwargs['reservation_id'],kwargs['command'])
         else:
             raise RuntimeError("Unknown method: %s; Couldn't unpack the parameters" % method)
         return getattr(self.server, method)(*args)

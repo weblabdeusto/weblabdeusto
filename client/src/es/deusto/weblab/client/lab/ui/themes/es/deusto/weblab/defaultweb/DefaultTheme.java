@@ -113,6 +113,11 @@ public class DefaultTheme extends LabThemeBase {
 		this.experimentWindow.loadExperimentReservationPanels();
 		// end of Important note
 	}
+	
+	@Override
+	public void onExperimentInteractionFinished(){
+		this.experimentWindow.onExperimentInteractionFinished();
+	}
 
 	@Override
 	public void onWaitingReservation(WaitingReservationStatus reservationStatus) {
@@ -133,7 +138,7 @@ public class DefaultTheme extends LabThemeBase {
 
 	@Override
 	public void onCleanReservation() {
-		this.controller.loadUserHomeWindow();
+		this.controller.cleanExperimentPanel();
 	}	
 
 	@Override
@@ -219,7 +224,7 @@ public class DefaultTheme extends LabThemeBase {
 			@Override
 			public boolean startedLoggedIn(){
 				return DefaultTheme.this.controller.startedLoggedIn();
-			}
+			}			
 		}
 		);
 		this.activeWindow = this.allowedExperimentsWindow;
@@ -242,6 +247,11 @@ public class DefaultTheme extends LabThemeBase {
 			@Override
 			public boolean startedLoggedIn(){
 				return DefaultTheme.this.controller.startedLoggedIn();
+			}
+			
+			@Override
+			public boolean startedReserved(){
+				return DefaultTheme.this.controller.startedReserved();
 			}
 			
 			@Override

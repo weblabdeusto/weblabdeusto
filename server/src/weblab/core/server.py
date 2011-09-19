@@ -17,19 +17,25 @@
 import time
 import threading
 
+from functools import wraps
+
 from voodoo.log import logged
 import voodoo.log as log
 import voodoo.counter as counter
+from voodoo.sessions.session_id import SessionId
 
 import weblab.data.server_type as ServerType
 
+import weblab.core.reservations as Reservation
 import weblab.core.data_retriever as TemporalInformationRetriever
-import weblab.core.processor as UserProcessor
+import weblab.core.user_processor as UserProcessor
+from weblab.core.reservation_processor import ReservationProcessor
 import weblab.core.alive_users as AliveUsersCollection
 import weblab.core.coordinator.coordinator as Coordinator
 import weblab.core.coordinator.config_parser as CoordinationConfigurationParser
 import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.core.db.manager as DatabaseManager
+import weblab.core.coordinator.status as WebLabSchedulingStatus
 
 import weblab.core.exc as coreExc
 import weblab.core.comm.user_server as UserProcessingFacadeServer
@@ -50,6 +56,12 @@ check_session_params = (
         "User Processing Server"
     )
 
+check_reservation_session_params = (
+        coreExc.SessionNotFoundException,
+        "User Processing Server",
+        "_reservations_session_manager"
+    )
+
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessingServer")
 
 LIST_EXPERIMENTS_CACHE_TIME     = 15 #seconds
@@ -58,22 +70,33 @@ GET_USER_INFORMATION_CACHE_TIME = 15 #seconds
 CHECKING_TIME_NAME    = 'core_checking_time'
 DEFAULT_CHECKING_TIME = 3 # seconds
 
-WEBLAB_USER_PROCESSING_SERVER_SESSION_TYPE         = "core_session_type"
-DEFAULT_WEBLAB_USER_PROCESSING_SERVER_SESSION_TYPE = SessionType.Memory
-WEBLAB_USER_PROCESSING_SERVER_SESSION_POOL_ID      = "core_session_pool_id"
+WEBLAB_CORE_SERVER_SESSION_TYPE                 = "core_session_type"
+DEFAULT_WEBLAB_CORE_SERVER_SESSION_TYPE         = SessionType.Memory
+WEBLAB_CORE_SERVER_SESSION_POOL_ID              = "core_session_pool_id"
+WEBLAB_CORE_SERVER_RESERVATIONS_SESSION_POOL_ID = "core_session_pool_id"
 
-WEBLAB_USER_PROCESSING_SERVER_CLEAN_COORDINATOR    = "core_coordinator_clean"
+WEBLAB_CORE_SERVER_CLEAN_COORDINATOR            = "core_coordinator_clean"
 
 def load_user_processor(func):
-    def wrapped(self, session, *args, **kwargs):
+    @wraps(func)
+    def wrapper(self, session, *args, **kwargs):
         user_processor = self._load_user(session)
         try:
             return func(self, user_processor, session, *args, **kwargs)
         finally:
             user_processor.update_latest_timestamp()
-    wrapped.__name__ = func.__name__
-    wrapped.__doc__  = func.__doc__
-    return wrapped
+
+    return wrapper
+
+def load_reservation_processor(func):
+    @wraps(func)
+    def wrapper(self, session, *args, **kwargs):
+        reservation_processor = self._load_reservation(session)
+        try:
+            return func(self, reservation_processor, session, *args, **kwargs)
+        finally:
+            reservation_processor.update_latest_timestamp()
+    return wrapper
 
 class UserProcessingServer(object):
     """
@@ -91,43 +114,59 @@ class UserProcessingServer(object):
         super(UserProcessingServer,self).__init__(*args, **kwargs)
 
         self._stopping = False 
-
-        session_type    = cfg_manager.get_value(WEBLAB_USER_PROCESSING_SERVER_SESSION_TYPE, DEFAULT_WEBLAB_USER_PROCESSING_SERVER_SESSION_TYPE) 
-        session_pool_id = cfg_manager.get_value(WEBLAB_USER_PROCESSING_SERVER_SESSION_POOL_ID, "UserProcessingServer")
-        if session_type in SessionType.getSessionTypeValues():
-            self._session_manager = SessionManager.SessionManager(
-                    cfg_manager, session_type, session_pool_id
-                )
-        else:
-            raise coreExc.NotASessionTypeException(
-                    'Not a session type: %s' % session_type 
-                )
-
         self._cfg_manager    = cfg_manager  
         self._locator        = locator
 
+        # 
+        # Create session managers
+        # 
+
+        session_type    = cfg_manager.get_value(WEBLAB_CORE_SERVER_SESSION_TYPE, DEFAULT_WEBLAB_CORE_SERVER_SESSION_TYPE) 
+        if not session_type in SessionType.getSessionTypeValues():
+            raise coreExc.NotASessionTypeException( 'Not a session type: %s' % session_type )
+
+        session_pool_id = cfg_manager.get_value(WEBLAB_CORE_SERVER_SESSION_POOL_ID, "UserProcessingServer")
+        self._session_manager              = SessionManager.SessionManager( cfg_manager, session_type, session_pool_id )
+
+        reservations_session_pool_id = cfg_manager.get_value(WEBLAB_CORE_SERVER_RESERVATIONS_SESSION_POOL_ID, "CoreServerReservations")
+        self._reservations_session_manager = SessionManager.SessionManager( cfg_manager, session_type, reservations_session_pool_id )
+
+        # 
+        # Coordination
+        # 
+
         self._coordinator    = Coordinator.Coordinator(self._locator, cfg_manager) 
 
-        self._server_route   = cfg_manager.get_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_SERVER_ROUTE, 
-                                            UserProcessingFacadeServer.DEFAULT_USER_PROCESSING_SERVER_ROUTE)
-
-        clean = cfg_manager.get_value(WEBLAB_USER_PROCESSING_SERVER_CLEAN_COORDINATOR, True)
+        clean = cfg_manager.get_value(WEBLAB_CORE_SERVER_CLEAN_COORDINATOR, True)
         if clean:
             self._coordinator._clean()
+            self._parse_coordination_configuration()
+
+        
+        # 
+        # Database and information storage managers
+        # 
 
         self._db_manager     = DatabaseManager.UserProcessingDatabaseManager(cfg_manager)
-
 
         self._commands_store = TemporalInformationStore.CommandsTemporalInformationStore()
 
         self._temporal_information_retriever = TemporalInformationRetriever.TemporalInformationRetriever(self._coordinator.initial_store, self._coordinator.finished_store, self._commands_store, self._db_manager)
         self._temporal_information_retriever.start()
 
-        self._alive_users_collection = AliveUsersCollection.AliveUsersCollection(
-                self._locator, self._cfg_manager, session_type, self._session_manager, self._db_manager, self._coordinator, self._commands_store)
+        #
+        # Alive users
+        # 
 
-        if clean:
-            self._parse_coordination_configuration()
+        self._alive_users_collection = AliveUsersCollection.AliveUsersCollection(
+                self._locator, self._cfg_manager, session_type, self._reservations_session_manager, self._coordinator, self._commands_store, self._coordinator.finished_reservations_store)
+
+        
+        # 
+        # Initialize facade (comm) servers
+        # 
+
+        self._server_route   = cfg_manager.get_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_SERVER_ROUTE, UserProcessingFacadeServer.DEFAULT_USER_PROCESSING_SERVER_ROUTE)
 
         self._facade_servers = []
         for FacadeClass in self.FACADE_SERVERS:
@@ -135,11 +174,15 @@ class UserProcessingServer(object):
             self._facade_servers.append(facade_server)
             facade_server.start()
 
+        #
+        # Start checking times
+        # 
         self._initialize_checker_timer()
 
 
 
     def stop(self):
+        """ Stops all the servers and threads """
         self._stopping = True
 
         self._temporal_information_retriever.stop()
@@ -162,56 +205,48 @@ class UserProcessingServer(object):
     def _load_user(self, session):
         return UserProcessor.UserProcessor(self._locator, session, self._cfg_manager, self._coordinator, self._db_manager, self._commands_store)
 
-    def _check_user_not_expired_and_poll(self, user_processor, check_expired = True, fast = False):
-        if check_expired and user_processor.is_expired():
-            user_processor.finished_experiment()
-            raise coreExc.NoCurrentReservationException(
-                'Current user does not have any experiment assigned'
+    def _load_reservation(self, session):
+        reservation_id = session['reservation_id']
+        return ReservationProcessor(self._cfg_manager, reservation_id, session, self._coordinator, self._locator, self._commands_store)
+
+    def _check_reservation_not_expired_and_poll(self, reservation_processor, check_expired = True):
+        if check_expired and reservation_processor.is_expired():
+            reservation_processor.finish()
+            raise coreExc.NoCurrentReservationException( 'Current user does not have any experiment assigned' )
+
+        try:
+            reservation_processor.poll()
+        except coreExc.NoCurrentReservationException:
+            if check_expired:
+                raise
+        reservation_processor.update_latest_timestamp()
+        # It's already locked, we just update that this user is still among us
+        self._reservations_session_manager.modify_session(
+                reservation_processor.get_reservation_session_id(),
+                reservation_processor.get_session()
             )
-        else:
-            try:
-                if fast:
-                    user_processor.fast_poll()
-                else:
-                    user_processor.poll()
-            except coreExc.NoCurrentReservationException:
-                if check_expired:
-                    raise
-            user_processor.update_latest_timestamp()
-            # It's already locked, we just update that this user is still among us
-            self._session_manager.modify_session(
-                    user_processor.get_session_id(),
-                    user_processor.get_session()
-                )
     
     def _check_other_sessions_finished(self):
         expired_users = self._alive_users_collection.check_expired_users()
         if len(expired_users) > 0:
-            self._purge_users(expired_users)
+            self._purge_expired_users(expired_users)
 
     @threaded(_resource_manager)
-    def _purge_users(self, expired_users):
-        for expired_user in expired_users:
+    def _purge_expired_users(self, expired_users):
+        for expired_reservation in expired_users:
             if self._stopping:
                 return
             try:
-                expired_session = self._session_manager.get_session_locking(expired_user)
+                expired_session = self._reservations_session_manager.get_session_locking(expired_reservation)
                 try:
-                    user            = self._load_user(expired_session)
-                    if user.is_expired():
-                        user.finished_experiment()
+                    reservation = self._load_reservation(expired_session)
+                    reservation.finish()
                 finally:
-                    self._session_manager.modify_session_unlocking(expired_user, expired_session)
+                    self._reservations_session_manager.modify_session_unlocking(expired_reservation, expired_session)
             except Exception as e:
-                log.log(
-                    UserProcessingServer,
-                    log.level.Warning,
-                    "Exception freeing experiment of %s: %s" % (expired_user, e)
-                )
-                log.log_exc(
-                    UserProcessingServer,
-                    log.level.Info
-                )
+                log.log( UserProcessingServer, log.level.Error,
+                    "Exception freeing experiment of %s: %s" % (expired_reservation, e))
+                log.log_exc( UserProcessingServer, log.level.Warning)
 
     def _initialize_checker_timer(self):
         checking_time = self._cfg_manager.get_value(CHECKING_TIME_NAME, DEFAULT_CHECKING_TIME)
@@ -238,7 +273,7 @@ class UserProcessingServer(object):
         initial_session = {
             'db_session_id'       : db_session_id,
             'session_id'          : session_id,
-            'latest_timestamp'      : 0 # epoch
+            'latest_timestamp'    : 0 # epoch
         }
         user_processor = self._load_user(initial_session)
         user_processor.get_user_information()
@@ -252,16 +287,20 @@ class UserProcessingServer(object):
         if self._session_manager.has_session(session_id):
             session        = self._session_manager.get_session(session_id)
 
-            self._alive_users_collection.remove_user(session_id)
+            reservation_id = session.get('reservation_id')
+            if reservation_id is not None:
+                reservation_session = self._reservations_session_manager.get_session(SessionId(reservation_id))
+                reservation_processor = self._load_reservation(reservation_session)
+                reservation_processor.finish()
+                self._alive_users_collection.remove_user(reservation_id)
+
             user_processor = self._load_user(session)
             user_processor.logout()
             user_processor.update_latest_timestamp()
 
             self._session_manager.delete_session(session_id)
         else:
-            raise coreExc.SessionNotFoundException(
-                "User Processing Server session not found"
-            )
+            raise coreExc.SessionNotFoundException( "User Processing Server session not found")
 
 
     @logged(log.level.Info)
@@ -285,46 +324,69 @@ class UserProcessingServer(object):
     @check_session(*check_session_params)
     @load_user_processor
     def reserve_experiment(self, user_processor, session, experiment_id, client_initial_data, client_address):
-        self._alive_users_collection.add_user(session['session_id'])
-        return user_processor.reserve_experiment( experiment_id, client_initial_data, client_address ) 
+        status = user_processor.reserve_experiment( experiment_id, client_initial_data, client_address )
+
+        reservation_id         = status.reservation_id
+        reservation_session_id = SessionId(status.reservation_id)
+
+        self._alive_users_collection.add_user(reservation_session_id)
+
+        session_id = self._reservations_session_manager.create_session(reservation_id)
+
+        initial_session = {
+                        'session_polling'    : (time.time(), ReservationProcessor.EXPIRATION_TIME_NOT_SET),
+                        'latest_timestamp'   : 0,
+                        'experiment_id'      : experiment_id,
+                        'creator_session_id' : session['session_id'], # Useful for monitor; should not be used
+                        'reservation_id'     : reservation_session_id,
+                    }
+        reservation_processor = self._load_reservation(initial_session)
+        reservation_processor.update_latest_timestamp()
+
+        if status.status == WebLabSchedulingStatus.WebLabSchedulingStatus.RESERVED:
+            reservation_processor.process_reserved_status(status)
+
+        self._reservations_session_manager.modify_session(session_id, initial_session)
+        return Reservation.Reservation.translate_reservation( status )
 
 
     @logged(log.level.Info)
-    @check_session(*check_session_params)
-    @load_user_processor
-    def finished_experiment(self, user_processor, session):
-        self._alive_users_collection.remove_user(session['session_id'])
-        return user_processor.finished_experiment()
+    @check_session(*check_reservation_session_params)
+    @load_reservation_processor
+    def finished_experiment(self, reservation_processor, session):
+        reservation_session_id = reservation_processor.get_reservation_session_id()
+        self._alive_users_collection.remove_user(reservation_session_id)
+        return reservation_processor.finish()
 
 
     @logged(log.level.Info, except_for=(('file_content',2),))
-    @check_session(*check_session_params)
-    @load_user_processor
-    def send_file(self, user_processor, session, file_content, file_info):
+    @check_session(*check_reservation_session_params)
+    @load_reservation_processor
+    def send_file(self, reservation_processor, session, file_content, file_info):
         """ send_file(session_id, file_content, file_info)
 
         Sends file to the experiment.
         """
-        self._check_user_not_expired_and_poll( user_processor, fast = True )
-        return user_processor.send_file( file_content, file_info )
+        self._check_reservation_not_expired_and_poll( reservation_processor )
+        return reservation_processor.send_file( file_content, file_info )
 
 
     @logged(log.level.Info)
-    @check_session(*check_session_params)
-    @load_user_processor
-    def send_command(self, user_processor, session, command):
+    @check_session(*check_reservation_session_params)
+    @load_reservation_processor
+    def send_command(self, reservation_processor, session, command):
         """ send_command(session_id, command)
 
         send_command sends an abstract string <command> which will be unpacked by the
         experiment.
         """
-        self._check_user_not_expired_and_poll( user_processor, fast = True )
-        return user_processor.send_command( command )
+        self._check_reservation_not_expired_and_poll( reservation_processor )
+        return reservation_processor.send_command( command )
             
     @logged(log.level.Info, except_for=(('file_content',2),))
-    @check_session(*check_session_params)
-    @load_user_processor
-    def send_async_file(self, user_processor, session, file_content, file_info):
+    @check_session(*check_reservation_session_params)
+    @load_reservation_processor
+    def send_async_file(self, reservation_processor, session, file_content, file_info):
         """ 
         send_async_file(session_id, file_content, file_info)
         Sends a file asynchronously to the experiment. The response
@@ -335,14 +397,14 @@ class UserProcessingServer(object):
         @param file_info File information of the file.
         @see check_async_command_status
         """
-        self._check_user_not_expired_and_poll( user_processor, fast = True )
-        return user_processor.send_async_file( file_content, file_info )
+        self._check_reservation_not_expired_and_poll( reservation_processor )
+        return reservation_processor.send_async_file( file_content, file_info )
 
     # TODO: This method should now be finished. Will need to be verified, though.
     @logged(log.level.Info)
-    @check_session(*check_session_params)
-    @load_user_processor
-    def check_async_command_status(self, user_processor, session, request_identifiers):
+    @check_session(*check_reservation_session_params)
+    @load_reservation_processor
+    def check_async_command_status(self, reservation_processor, session, request_identifiers):
         """ 
         check_async_command_status(session_id, request_identifiers)
         Checks the status of several asynchronous commands. 
@@ -352,13 +414,13 @@ class UserProcessingServer(object):
         requests to check. 
         @return: Dictionary by request-id of the tuples: (status, content)
         """
-        self._check_user_not_expired_and_poll( user_processor, fast = True )
-        return user_processor.check_async_command_status( request_identifiers )
+        self._check_reservation_not_expired_and_poll( reservation_processor )
+        return reservation_processor.check_async_command_status( request_identifiers )
 
     @logged(log.level.Info)
-    @check_session(*check_session_params)
-    @load_user_processor
-    def send_async_command(self, user_processor, session, command):
+    @check_session(*check_reservation_session_params)
+    @load_reservation_processor
+    def send_async_command(self, reservation_processor, session, command):
         """ 
         send_async_command(session_id, command)
 
@@ -366,28 +428,29 @@ class UserProcessingServer(object):
         experiment, and run asynchronously on its own thread. Its status may be checked through
         check_async_command_status.
         """
-        self._check_user_not_expired_and_poll( user_processor, fast = True )
-        return user_processor.send_async_command( command )
+        self._check_reservation_not_expired_and_poll( reservation_processor )
+        return reservation_processor.send_async_command( command )
 
 
     @logged(log.level.Info)
-    @check_session(*check_session_params)
+    @check_session(*check_reservation_session_params)
     def poll(self, session):
-        user_processor = self._load_user(session)
-        self._check_user_not_expired_and_poll( user_processor )
+        reservation_processor = self._load_reservation(session)
+        self._check_reservation_not_expired_and_poll( reservation_processor )
 
 
     @logged(log.level.Info)
-    @check_session(*check_session_params)
-    @load_user_processor
-    def get_reservation_status(self, user_processor, session):
-        self._check_user_not_expired_and_poll( user_processor, False )
-        return user_processor.get_reservation_status()
+    @check_session(*check_reservation_session_params)
+    @load_reservation_processor
+    def get_reservation_status(self, reservation_processor, session):
+        self._check_reservation_not_expired_and_poll( reservation_processor, False )
+        return reservation_processor.get_status()
 
-
+    ######################################
     #
-    # admin service
+    #  Admin services
     #
+    # 
 
     @logged(log.level.Info)
     @check_session(*check_session_params)

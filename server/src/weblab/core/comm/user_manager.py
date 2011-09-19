@@ -65,7 +65,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     @logged()
     @RFM.check_exceptions(EXCEPTIONS)
     def reserve_experiment(self, session_id, experiment_id, client_initial_data):
-        """ reserve_experiment(session_id, experiment_id) -> Reservation
+        """ reserve_experiment(session_id, experiment_id, client_initial_data) -> Reservation
             raises SessionNotFoundException, NoAvailableExperimentFoundException
         """
         current_client_address = ClientAddress.ClientAddress(self._get_client_address())
@@ -78,32 +78,32 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     @logged()
     @RFM.check_exceptions(EXCEPTIONS)
     @RFM.check_nullable
-    def finished_experiment(self, session_id):
-        """ finished_experiment(session_id)
+    def finished_experiment(self, reservation_id):
+        """ finished_experiment(reservation_id)
             raise SessionNotFoundException
         """
-        sess_id = self._parse_session_id(session_id)
+        sess_id = self._parse_session_id(reservation_id)
         response = self._server.finished_experiment(sess_id)
         return response
     
     @logged()
     @RFM.check_exceptions(EXCEPTIONS)
-    def get_reservation_status(self, session_id):
-        """ get_reservation_status(session_id) -> Reservation
+    def get_reservation_status(self, reservation_id):
+        """ get_reservation_status(reservation_id) -> Reservation
             raise SessionNotFoundException
         """
-        sess_id = self._parse_session_id(session_id)
+        sess_id = self._parse_session_id(reservation_id)
         return self._server.get_reservation_status(sess_id)
     
     # TODO: does ZSI support Attachments (yes in theory)? And in the rest of libraries used?
     @logged(except_for=(('file_content',2),))
     @RFM.check_exceptions(EXCEPTIONS)
     @RFM.check_nullable
-    def send_file(self, session_id, file_content, file_info):
-        """ send_file(session_id, file_content, file_info)
+    def send_file(self, reservation_id, file_content, file_info):
+        """ send_file(reservation_id, file_content, file_info)
             raise SessionNotFoundException
         """
-        sess_id = self._parse_session_id(session_id)
+        sess_id = self._parse_session_id(reservation_id)
         response = self._server.send_file(sess_id, file_content, file_info)
         return response
     
@@ -111,23 +111,23 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     @logged(except_for=(('file_content',2),))
     @RFM.check_exceptions(EXCEPTIONS)
     @RFM.check_nullable
-    def send_async_file(self, session_id, file_content, file_info):
-        """ send_async_file(session_id, file_content, file_info)
+    def send_async_file(self, reservation_id, file_content, file_info):
+        """ send_async_file(reservation_id, file_content, file_info)
             Sends a file. The request will be executed asynchronously.
             raise SessionNotFoundException
         """
-        sess_id = self._parse_session_id(session_id)
+        sess_id = self._parse_session_id(reservation_id)
         response = self._server.send_async_file(sess_id, file_content, file_info)
         return response
     
     @logged()
     @RFM.check_exceptions(EXCEPTIONS)
     @RFM.check_nullable
-    def send_async_command(self, session_id, command):
-        """ send_command(session_id, command)
+    def send_async_command(self, reservation_id, command):
+        """ send_command(reservation_id, command)
             raise SessionNotFoundException
         """
-        sess_id = self._parse_session_id(session_id)
+        sess_id = self._parse_session_id(reservation_id)
         cmd     = self._parse_command(command)
 
         response = self._server.send_async_command(sess_id, cmd)
@@ -136,11 +136,11 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     @logged()
     @RFM.check_exceptions(EXCEPTIONS)
     @RFM.check_nullable
-    def send_command(self, session_id, command):
-        """ send_command(session_id, command)
+    def send_command(self, reservation_id, command):
+        """ send_command(reservation_id, command)
             raise SessionNotFoundException
         """
-        sess_id = self._parse_session_id(session_id)
+        sess_id = self._parse_session_id(reservation_id)
         cmd     = self._parse_command(command)
 
         response = self._server.send_command(sess_id, cmd)
@@ -149,13 +149,13 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     @logged()
     @RFM.check_exceptions(EXCEPTIONS)
     @RFM.check_nullable
-    def check_async_command_status(self, session_id, request_identifiers):
-        """ check_async_command_status(session_id, command)
+    def check_async_command_status(self, reservation_id, request_identifiers):
+        """ check_async_command_status(reservation_id, command)
             raise SessionNotFoundException
         """
         
         # TODO: This will most likely require modifications.
-        sess_id = self._parse_session_id(session_id)
+        sess_id = self._parse_session_id(reservation_id)
         req_ids = self._parse_request_identifiers(request_identifiers)
         
         response = self._server.check_async_command_status(sess_id, req_ids)
@@ -164,11 +164,11 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     @logged()
     @RFM.check_exceptions(EXCEPTIONS)
     @RFM.check_nullable
-    def poll(self, session_id):
+    def poll(self, reservation_id):
         """ poll(session_id)
             raise SessionNotFoundException
         """        
-        sess_id = self._parse_session_id(session_id)
+        sess_id = self._parse_session_id(reservation_id)
         return self._server.poll(sess_id)
 
     @logged()

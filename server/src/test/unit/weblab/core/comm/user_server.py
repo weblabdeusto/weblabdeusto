@@ -82,7 +82,7 @@ class UserProcessingRemoteFacadeServerTestCase(mocker.MockerTestCase):
             self.rfs.start()
             try:
                 zsi_client = Client.BotZSI("http://localhost:10223/weblab/soap/", "http://localhost:10223/weblab/login/soap/")
-                zsi_client.session_id = SessionId.SessionId(REAL_ID)
+                zsi_client.reservation_id = SessionId.SessionId(REAL_ID)
                 response_command = zsi_client.do_send_command(Command.Command(COMMAND))
                 self.assertEquals(response_command.commandstring, RESPONSE_COMMAND)
             finally:
@@ -96,7 +96,7 @@ class UserProcessingRemoteFacadeServerTestCase(mocker.MockerTestCase):
         command = {'commandstring' : COMMAND }
         response_command = {'commandstring' : RESPONSE_COMMAND }
         rfm_json = self.mocker.mock()
-        rfm_json.send_command( session_id = session, command = command)
+        rfm_json.send_command( reservation_id = session, command = command)
         self.mocker.result(response_command)
         WrappedRemoteFacadeServer.rfm_mock = rfm_json
         self.rfs = WrappedRemoteFacadeServer(None, self.configurationManager)
@@ -105,7 +105,7 @@ class UserProcessingRemoteFacadeServerTestCase(mocker.MockerTestCase):
         self.rfs.start()
         try:
             json_client = Client.BotJSON("http://localhost:10224/weblab/json/", "http://localhost:10224/weblab/login/json/")
-            json_client.session_id = SessionId.SessionId(REAL_ID)
+            json_client.reservation_id = SessionId.SessionId(REAL_ID)
             response_command = json_client.do_send_command(Command.Command(COMMAND))
             self.assertEquals(response_command.commandstring, RESPONSE_COMMAND)
         finally:
@@ -126,7 +126,7 @@ class UserProcessingRemoteFacadeServerTestCase(mocker.MockerTestCase):
         self.rfs.start()
         try:
             xmlrpc_client = Client.BotXMLRPC("http://localhost:10225/weblab/xmlrpc/", "http://localhost:10225/weblab/login/xmlrpc")
-            xmlrpc_client.session_id = SessionId.SessionId(REAL_ID)
+            xmlrpc_client.reservation_id = SessionId.SessionId(REAL_ID)
             response_command = xmlrpc_client.do_send_command(Command.Command(COMMAND))
             self.assertEquals(response_command.commandstring, RESPONSE_COMMAND)
         finally:
