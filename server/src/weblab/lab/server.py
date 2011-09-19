@@ -157,6 +157,10 @@ class LaboratoryServer(object):
     def _load_assigned_experiments(self):
         self._assigned_experiments = AssignedExperiments.AssignedExperiments()
         parsed_experiments         = self._parse_assigned_experiments()
+        
+        num_success = 0
+        num_fail = 0
+        
         for exp_inst_id, coord_address, checking_handlers, api in parsed_experiments:
             self._assigned_experiments.add_server(exp_inst_id, coord_address, checking_handlers, None)
             
@@ -171,9 +175,16 @@ class LaboratoryServer(object):
                 log.log( LaboratoryServer, log.level.Warning, "It was not possible to find out on load-time the api version of %r. We will retry on first reserve." 
                          % coord_address)
                 print "[DBG][LOAD] Was not possible to find out the api version of %r" % coord_address
+                num_fail += 1
             else:
                 # Remember the api version that we retrieved
                 self._assigned_experiments.set_api(exp_inst_id, reported_api)
+                log.log( LaboratoryServer, log.level.Info, "Experiment %r will use api %s" % (coord_address, reported_api) )
+                print LaboratoryServer, log.level.Info, "Experiment %r will use api %s" % (coord_address, reported_api)
+                num_success += 1
+                
+            print "We found the API of %d out of %d experiments." % (num_success, int(num_success)+int(num_fail))
+            log.log(LaboratoryServer, log.level.Info, "We found the API of %d out of %d experiments." % (num_success, int(num_success)+int(num_fail)) )
 
 
     #####################################################
