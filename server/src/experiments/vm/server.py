@@ -76,6 +76,11 @@ class VMExperiment(Experiment.Experiment):
         self.user_manager_type = self._cfg_manager.get_value(CFG_USER_MANAGER_TYPE, DEFAULT_USER_MANAGER_TYPE)
         self.should_store_image = self._cfg_manager.get_value(CFG_SHOULD_STORE_IMAGE, DEFAULT_SHOULD_STORE_IMAGE)
         self.estimated_load_time = self._cfg_manager.get_value(CFG_ESTIMATED_LOAD_TIME, DEFAULT_ESTIMATED_LOAD_TIME)
+        
+    @Override(Experiment.Experiment)
+    @logged("info")
+    def do_get_api(self):
+        return "1"
 
 
     @logged("info")

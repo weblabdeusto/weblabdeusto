@@ -20,6 +20,10 @@ from voodoo.override import Override
 class DummyExperiment(Experiment.Experiment):
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(DummyExperiment, self).__init__(*args, **kwargs)
+        
+    @Override(Experiment.Experiment)
+    def do_get_api(self):
+        return "1"
 
     @Override(Experiment.Experiment)
     def do_start_experiment(self, *args, **kwargs):

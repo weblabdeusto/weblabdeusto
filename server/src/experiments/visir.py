@@ -55,6 +55,10 @@ class VisirTestExperiment(Experiment.Experiment):
         self._cfg_manager = cfg_manager
         self.read_config()
         
+    @Override(Experiment.Experiment)
+    def do_get_api(self):
+        return "1"
+        
     def read_config(self):
         """
         Reads the config parameters from the config file (such as the
