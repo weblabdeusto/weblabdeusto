@@ -534,6 +534,9 @@ class FakeDatabase(object):
         self.users = [ User.User("admin1", "Admin Test User", "admin1@deusto.es", Role.Role("administrator")) ]
         self.roles = [ Role.Role("student"), Role.Role("Professor"), Role.Role("Administrator") ]
 
+    def is_access_forward(self, db_session_id):
+        return True
+
     def store_experiment_usage(self, db_session_id, reservation_info, experiment_usage):
         pass
 

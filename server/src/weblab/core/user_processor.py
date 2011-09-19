@@ -138,10 +138,16 @@ class UserProcessor(object):
             # TODO: to be tested
             raise core_exc.UserProcessingException( "Invalid client_initial_data provided: a json-serialized object expected" )
 
-        try:
-            consumer_data = json.loads(serialized_consumer_data)
-        except ValueError:
-            raise core_exc.UserProcessingException( "Invalid serialized_consumer_data provided: a json-serialized object expected" )
+        db_session_id               = self._session['db_session_id']
+        if self._db_manager.is_access_forward(db_session_id):
+            try:
+                consumer_data = json.loads(serialized_consumer_data)
+                if 'external_user' in consumer_data:
+                    reservation_info['external_user'] = consumer_data['external_user']
+            except ValueError:
+                raise core_exc.UserProcessingException( "Invalid serialized_consumer_data provided: a json-serialized object expected" )
+        else:
+            consumer_data = {}
             
 
         experiments = [ 
@@ -155,11 +161,23 @@ class UserProcessor(object):
 
         experiment_allowed = experiments[0]
         try:
+            # Retrieve the most restrictive values between what was requested and what was permitted:
+            # 
+            # The smallest time allowed
+            time_allowed                 = min(experiment_allowed.time_allowed,                consumer_data.get('time_allowed', experiment_allowed.time_allowed))
+            # 
+            # The lowest priority (lower number is higher)
+            priority                     = max(experiment_allowed.priority,                    consumer_data.get('priority', experiment_allowed.priority))
+
+            # 
+            # Don't take into account initialization unless both agree
+            initialization_in_accounting = experiment_allowed.initialization_in_accounting and consumer_data.get('initialization_in_accounting', experiment_allowed.initialization_in_accounting)
+                
             status, reservation_id    = self._coordinator.reserve_experiment(
                     experiment_allowed.experiment.to_experiment_id(), 
-                    experiment_allowed.time_allowed, 
-                    experiment_allowed.priority,
-                    experiment_allowed.initialization_in_accounting,
+                    time_allowed, 
+                    priority,
+                    initialization_in_accounting,
                     client_initial_data,
                     reservation_info
                 )

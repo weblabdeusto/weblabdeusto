@@ -23,7 +23,6 @@ import voodoo.gen.coordinator.CoordAddress as CoordAddress
 from   test.util.module_disposer import case_uses_module
 
 import weblab.core.user_processor as UserProcessor
-import weblab.core.reservations as Reservation
 import weblab.core.coordinator.coordinator as Coordinator 
 import weblab.core.coordinator.confirmer as Confirmer
 import weblab.core.coordinator.store as TemporalInformationStore
@@ -142,6 +141,9 @@ class FakeDatabase(object):
         self.experiment_uses = [ generate_experiment_use("student2", self.experiments[0]) ], 1
         self.users = [ User.User("admin1", "Admin Test User", "admin1@deusto.es", Role.Role("administrator")) ]
         self.roles = [ Role.Role("student"), Role.Role("Professor"), Role.Role("Administrator") ]
+
+    def is_access_forward(self, db_session_id):
+        return True
 
     def store_experiment_usage(self, db_session_id, reservation_info, experiment_usage):
         pass

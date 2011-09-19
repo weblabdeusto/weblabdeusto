@@ -169,6 +169,8 @@ experiment_allowed_p3 = [ p for p in experiment_allowed.parameters if p.name == 
 admin_panel_access = session.query(Model.DbPermissionType).filter_by(name="admin_panel_access").one()
 admin_panel_access_p1 = [ p for p in admin_panel_access.parameters if p.name == "full_privileges" ][0]
 
+access_forward = session.query(Model.DbPermissionType).filter_by(name="access_forward").one()
+
 # Auths
 weblab_db = Model.DbAuth(db, "WebLab DB", 1)
 session.add(weblab_db)
@@ -765,7 +767,16 @@ session.add(up_student1_admin_panel_access)
 up_student1_admin_panel_access_p1 = Model.DbUserPermissionParameter(up_student1_admin_panel_access, admin_panel_access_p1, True)
 session.add(up_student1_admin_panel_access_p1)
 
-            
+up_any_access_forward = Model.DbUserPermission(
+    any,
+    access_forward.user_applicable,
+    "any::access_forward",
+    datetime.datetime.utcnow(),
+    "Access to forward external accesses"
+)
+
+session.add(up_any_access_forward)
+           
 session.commit()
 
 print "[done]"

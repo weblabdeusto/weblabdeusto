@@ -139,6 +139,16 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             session.close()
 
     @logged()
+    def is_access_forward(self, user_login):
+        session = self.Session()
+        try:
+            user = self._get_user(session, user_login)
+            permissions = self._gather_permissions(session, user, 'access_forward')
+            return len(permissions) > 0
+        finally:
+            session.close()
+
+    @logged()
     def store_experiment_usage(self, user_login, reservation_info, experiment_usage):
         session = self.Session()
         try:
