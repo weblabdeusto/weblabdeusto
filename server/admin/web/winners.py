@@ -2,7 +2,7 @@ import MySQLdb as dbi
 import time
 import calendar
 
-from configuration import DB_NAME, _USERNAME, _PASSWORD, LOGIC_EXP_ID
+from configuration import DB_NAME, _USERNAME, _PASSWORD
 
 def utc2local_str(utc_datetime, format="%Y-%m-%d %H:%M:%S"):
     return time.strftime(format, time.localtime(calendar.timegm(utc_datetime.timetuple())))
@@ -13,8 +13,8 @@ def index(req):
         cursor = connection.cursor()
         try:
             SENTENCE = "SELECT u.login, u.full_name, uc.response, uue.end_date, uue.id " + \
-                        "FROM UserUsedExperiment as uue, User as u, UserCommand as uc " + \
-                        "WHERE u.id = uue.user_id AND uue.experiment_id = " + LOGIC_EXP_ID + " AND uc.experiment_use_id = uue.id AND SUBSTRING(uc.response, 1, 2) = 'OK' " + \
+                        "FROM UserUsedExperiment as uue, User as u, UserCommand as uc, Experiment as e, ExperimentCategory as ec " + \
+                        "WHERE u.id = uue.user_id AND uue.experiment_id = e.id AND e.name = 'ud-logic' AND e.category_id = ec.id AND ec.name = 'PIC experiments' AND uc.experiment_use_id = uue.id AND SUBSTRING(uc.response, 1, 2) = 'OK' " + \
                         "ORDER BY uue.experiment_id "
             cursor.execute(SENTENCE)
             elements = cursor.fetchall()
