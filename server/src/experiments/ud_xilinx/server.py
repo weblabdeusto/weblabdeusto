@@ -177,17 +177,13 @@ class UdXilinxExperiment(Experiment.Experiment):
     @logged("info")
     def do_start_experiment(self, *args, **kwargs):
         self._current_state = STATE_NOT_READY
-        return json.dumps({ "initial_configuration" : "{ \"webcam\" : \"%s\" }" % self.webcam_url, "batch" : False })
+        return json.dumps({ "initial_configuration" : """{ "webcam" : "%s", "expected_programming_time" : %s }""" % (self.webcam_url, self._programmer_time), "batch" : False })
     
     @logged("info")
     @Override(Experiment.Experiment)
     @caller_check(ServerType.Laboratory)
     def do_send_command_to_device(self, command):
         try:
-            # Provide the URL address that the client will display.
-            if command == 'WEBCAMURL':
-                reply = "WEBCAMURL=" + self.webcam_url
-                return reply
             # Provide how long in seconds will the programmer take (approximately)
             if command == 'EXPECTED.PROGRAMMING.TIME':
                 reply = "EXPECTED=%s" % self._programmer_time
