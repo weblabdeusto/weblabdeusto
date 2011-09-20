@@ -110,7 +110,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         category   = "Dummy experiments"
         experiment = "ud-dummy"
 
-        status, reservation_id = self.coordinator.reserve_experiment(ExperimentId(experiment, category), 30, 5, True, '{}', {})
+        status, reservation_id = self.coordinator.reserve_experiment(ExperimentId(experiment, category), 30, 5, True, '{}', {}, {})
 
         result   = methods.get_experiment_status.call(category, experiment)
         self.assertEquals({reservation_id : status}, result)

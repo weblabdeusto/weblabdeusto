@@ -182,7 +182,8 @@ class UserProcessor(object):
                     priority,
                     initialization_in_accounting,
                     client_initial_data,
-                    reservation_info
+                    reservation_info,
+                    consumer_data
                 )
         except coord_exc.ExperimentNotFoundException:
             raise core_exc.NoAvailableExperimentFoundException(

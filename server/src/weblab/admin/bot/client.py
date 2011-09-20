@@ -174,8 +174,8 @@ class AbstractBot(object):
             raise ListOfExperimentsIsEmptyException("Received list of experiments is empty")
 
     @logged
-    def do_reserve_experiment(self, experiment_id, client_initial_data):
-        reservation_holder = self._call('reserve_experiment',session_id=self.session_id, experiment_id=experiment_id, client_initial_data=client_initial_data)
+    def do_reserve_experiment(self, experiment_id, client_initial_data, consumer_data):
+        reservation_holder = self._call('reserve_experiment',session_id=self.session_id, experiment_id=experiment_id, client_initial_data=client_initial_data, consumer_data=consumer_data)
         reservation = self._parse_reservation_holder(reservation_holder)
         self.reservation_id = reservation.reservation_id
         return reservation
@@ -387,7 +387,7 @@ class BotXMLRPC(AbstractBotDict):
         elif method in ('get_reservation_status',"finished_experiment", "poll"):
             args = (kwargs['reservation_id'],)
         elif method == 'reserve_experiment':
-            args = (kwargs['session_id'],kwargs['experiment_id'],kwargs['client_initial_data'])
+            args = (kwargs['session_id'],kwargs['experiment_id'],kwargs['client_initial_data'], kwargs['consumer_data'])
         elif method == 'send_file':
             args = (kwargs['reservation_id'],kwargs['file_content'],kwargs['file_info'])
         elif method == 'send_command':
