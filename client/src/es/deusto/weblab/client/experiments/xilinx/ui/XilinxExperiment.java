@@ -137,7 +137,7 @@ public class XilinxExperiment extends ExperimentBase{
 		
 		if(isDemo()){
 			if(isMultiresourceDemo()){
-				this.selectProgram.setText("This demo demonstrate the multiresource queues of WebLab-Deusto. You will use a CPLD or a FPGA depending on which one is available. You can test to log in ud-demo-pld and ud-demo-fpga and then log in this experiment to check that it will go to the one you free. If this wasn't a demo, you would select here the program that would be sent to the device. Since it could be harmful, in the demo we always send the same demonstration file.");
+				this.selectProgram.setText("This demo demonstrates the multiresource queues of WebLab-Deusto. You will use a CPLD or a FPGA depending on which one is available. You can test to log in ud-demo-pld and ud-demo-fpga and then log in this experiment to check that it will go to the one you free. If this wasn't a demo, you would select here the program that would be sent to the device. Since it could be harmful, in the demo we always send the same demonstration file.");
 			}else{
 				this.selectProgram.setText("If this wasn't a demo, you would select here the program that would be sent to the device. Since it could be harmful, in the demo we always send the same demonstration file.");
 			}
@@ -263,7 +263,38 @@ public class XilinxExperiment extends ExperimentBase{
 		} catch(Exception e) {	
     		GWT.log("[Xilinx] Did not receive the expected_programming_time parameter.", null);
 		}
+	
 		
+		if(isDemo()){
+			
+		}
+		
+		// If it's not a demo, the user will have been prompted a file uploading form.
+		// He might have indeed chosen a file to upload, or he might not.
+		if(!isDemo()) {
+			
+			final boolean didChooseFile = !this.uploadStructure.getFileUpload().getFilename().isEmpty();
+			
+			if(didChooseFile) {
+				this.uploadStructure.getFormPanel().setVisible(false);
+				this.boardController.sendFile(this.uploadStructure, this.sendFileCallback);
+				this.loadStartControls();
+			} else {
+				GWT.log("The user did not really choose a file");
+			}
+		}
+		
+		// Start polling to know when the board has been programmed and the server is ready
+		// to receive our requests.
+		setupReadyTimer();
+	}
+	
+	
+	/**
+	 * Loads those controls that are meant to be displayed
+	 * when the experiment starts.
+	 */
+	private void loadStartControls() {
 		this.loadProgressBar();
 		
 	    this.widget.setVisible(true);
@@ -271,18 +302,8 @@ public class XilinxExperiment extends ExperimentBase{
 	    
 		this.loadWidgets();
 		this.disableInteractiveWidgets();
-	
-		
-		if(!isDemo()){
-			this.uploadStructure.getFormPanel().setVisible(false);
-		
-			this.boardController.sendFile(this.uploadStructure, this.sendFileCallback);
-		}
-		
-		// Start polling to know when the board has been programmed and the server is ready
-		// to receive our requests.
-		setupReadyTimer();
 	}
+	
 	
 	
 	/**
@@ -360,6 +381,8 @@ public class XilinxExperiment extends ExperimentBase{
 
 	    @Override
 	    public void onFailure(CommException e) {
+	    	
+	    	GWT.log("It was not possible to send the file");
 	    	
 		    if(XilinxExperiment.DEBUG_ENABLED)
 		    	XilinxExperiment.this.enableInteractiveWidgets();
