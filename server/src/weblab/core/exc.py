@@ -18,20 +18,20 @@ import weblab.exc as wlExc
 # from WebLabException
 #
 
-class UserProcessingException(wlExc.WebLabException):
+class WebLabCoreException(wlExc.WebLabException):
     pass
 
 #
-# from UserProcessingException
+# from WebLabCoreException
 #
 
-class SessionNotFoundException(UserProcessingException):
+class SessionNotFoundException(WebLabCoreException):
     pass
 
-class NoCurrentReservationException(UserProcessingException):
+class NoCurrentReservationException(WebLabCoreException):
     pass
 
-class FailedToInteractException(UserProcessingException):
+class FailedToInteractException(WebLabCoreException):
     pass
 
 class FailedToSendFileException(FailedToInteractException):
@@ -40,13 +40,13 @@ class FailedToSendFileException(FailedToInteractException):
 class FailedToSendCommandException(FailedToInteractException):
     pass
 
-class FailedToFreeReservationException(UserProcessingException):
+class FailedToFreeReservationException(WebLabCoreException):
     pass
 
-class CoordinationConfigurationParsingException(UserProcessingException):
+class CoordinationConfigurationParsingException(WebLabCoreException):
     pass
 
-class ReservationFailedException(UserProcessingException):
+class ReservationFailedException(WebLabCoreException):
     pass
 
 #

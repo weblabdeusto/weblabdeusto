@@ -33,7 +33,7 @@ EXCEPTIONS = (
         (coreExc.SessionNotFoundException,      UPFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE,      True),
         (coreExc.NoCurrentReservationException, UPFCodes.CLIENT_NO_CURRENT_RESERVATION_EXCEPTION_CODE, True),
         (coreExc.UnknownExperimentIdException,  UPFCodes.CLIENT_UNKNOWN_EXPERIMENT_ID_EXCEPTION_CODE,  True),
-        (coreExc.UserProcessingException,       UPFCodes.UPS_GENERAL_EXCEPTION_CODE,                   False),
+        (coreExc.WebLabCoreException,       UPFCodes.UPS_GENERAL_EXCEPTION_CODE,                   False),
         (WebLabExceptions.WebLabException,                       UPFCodes.WEBLAB_GENERAL_EXCEPTION_CODE,                False),
         (VoodooExceptions.GeneratorException,                    UPFCodes.VOODOO_GENERAL_EXCEPTION_CODE,                False),
         (Exception,                                              UPFCodes.PYTHON_GENERAL_EXCEPTION_CODE,                False)

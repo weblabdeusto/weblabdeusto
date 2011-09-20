@@ -14,6 +14,8 @@
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
+import sys
+import uuid
 import time
 import threading
 
@@ -77,6 +79,11 @@ WEBLAB_CORE_SERVER_RESERVATIONS_SESSION_POOL_ID = "core_session_pool_id"
 
 WEBLAB_CORE_SERVER_CLEAN_COORDINATOR            = "core_coordinator_clean"
 
+WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER               = "core_universal_identifier"
+DEFAULT_WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER       = "00000000-0000-0000-0000-000000000000"
+WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN         = "core_universal_identifier_human"
+DEFAULT_WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN = "WARNING; MISCONFIGURED SERVER. ADD %s AND %s PROPERTIES" % (WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER, WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN)
+
 def load_user_processor(func):
     @wraps(func)
     def wrapper(self, session, *args, **kwargs):
@@ -116,6 +123,17 @@ class UserProcessingServer(object):
         self._stopping = False 
         self._cfg_manager    = cfg_manager  
         self._locator        = locator
+
+        if cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER, 'default') == 'default' or cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN, 'default') == 'default':
+            generated = uuid.uuid1()
+            msg = "Property %(property)s or %(property_human)s not configured. Please establish: %(property)s = '%(uuid)s' and %(property_human)s = 'server at university X'. Otherwise, when federating the experiment it could enter in an endless loop." % {
+                'property'       : WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER,
+                'property_human' : WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN,
+                'uuid'           : generated
+            }
+            print msg
+            print >> sys.stderr, msg
+            log.log( UserProcessingServer, log.level.Error, msg)
 
         # 
         # Create session managers

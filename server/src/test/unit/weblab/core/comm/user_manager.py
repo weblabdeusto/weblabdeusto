@@ -392,7 +392,7 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         self.cfg_manager._set_value(RFM.DEBUG_MODE, False)
 
         self._test_exception(method, args,  
-                        coreExc.UserProcessingException, MESSAGE, 
+                        coreExc.WebLabCoreException, MESSAGE, 
                         'ZSI:' + UserProcessingRFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)
 
         self._test_exception(method, args,  
@@ -411,7 +411,7 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         self.cfg_manager._set_value(RFM.DEBUG_MODE, True)
 
         self._test_exception(method, args,  
-                        coreExc.UserProcessingException, MESSAGE, 
+                        coreExc.WebLabCoreException, MESSAGE, 
                         'ZSI:' + UserProcessingRFCodes.UPS_GENERAL_EXCEPTION_CODE, MESSAGE)
 
         self._test_exception(method, args,  
@@ -931,7 +931,7 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
         self.cfg_manager._set_value(RFM.DEBUG_MODE, False)
 
         self._test_exception(method, args,  
-                        coreExc.UserProcessingException, MESSAGE, 
+                        coreExc.WebLabCoreException, MESSAGE, 
                         'JSON:' + UserProcessingRFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)
 
         self._test_exception(method, args,  
@@ -950,7 +950,7 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
         self.cfg_manager._set_value(RFM.DEBUG_MODE, True)
 
         self._test_exception(method, args,  
-                        coreExc.UserProcessingException, MESSAGE, 
+                        coreExc.WebLabCoreException, MESSAGE, 
                         'JSON:' + UserProcessingRFCodes.UPS_GENERAL_EXCEPTION_CODE, MESSAGE)
 
         self._test_exception(method, args,  

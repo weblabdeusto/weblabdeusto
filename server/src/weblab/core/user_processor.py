@@ -136,7 +136,7 @@ class UserProcessor(object):
             client_initial_data = json.loads(serialized_client_initial_data)
         except ValueError:
             # TODO: to be tested
-            raise core_exc.UserProcessingException( "Invalid client_initial_data provided: a json-serialized object expected" )
+            raise core_exc.WebLabCoreException( "Invalid client_initial_data provided: a json-serialized object expected" )
 
         db_session_id               = self._session['db_session_id']
         if self._db_manager.is_access_forward(db_session_id):
@@ -145,7 +145,7 @@ class UserProcessor(object):
                 if 'external_user' in consumer_data:
                     reservation_info['external_user'] = consumer_data['external_user']
             except ValueError:
-                raise core_exc.UserProcessingException( "Invalid serialized_consumer_data provided: a json-serialized object expected" )
+                raise core_exc.WebLabCoreException( "Invalid serialized_consumer_data provided: a json-serialized object expected" )
         else:
             consumer_data = {}
             
