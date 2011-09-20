@@ -167,6 +167,9 @@ class UserProcessor(object):
             time_allowed                 = min(experiment_allowed.time_allowed,                consumer_data.get('time_allowed', experiment_allowed.time_allowed))
             # 
             # The lowest priority (lower number is higher)
+            # TODO: whenever possible, there should be an argument in the permission as 
+            # a parameter to the access_forward, such as: 
+            # "how much you want to decrement the requested priority to this user"
             priority                     = max(experiment_allowed.priority,                    consumer_data.get('priority', experiment_allowed.priority))
 
             # 
