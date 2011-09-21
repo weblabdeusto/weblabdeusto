@@ -11,7 +11,10 @@
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
+#         Pablo Orduña <pablo@ordunya.com>
 # 
+
+from functools import wraps
 
 import sqlalchemy
 from sqlalchemy import create_engine
@@ -41,7 +44,9 @@ def getconn():
 
 def admin_panel_operation(func):
     """It checks if the requesting user has the admin_panel_access permission with full_privileges (temporal policy)."""
-    def proxy(self, user_login, *args, **kargs):
+
+    @wraps(func)
+    def wrapper(self, user_login, *args, **kargs):
         session = self.Session()
         try:
             user = self._get_user(session, user_login)
@@ -53,7 +58,7 @@ def admin_panel_operation(func):
             return ()
         finally:
             session.close()
-    return proxy
+    return wrapper
 
 DEFAULT_VALUE = object()
 
@@ -130,6 +135,16 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
 
             experiments.sort(lambda x,y: cmp(x.experiment.category.name, y.experiment.category.name))
             return tuple(experiments)
+        finally:
+            session.close()
+
+    @logged()
+    def is_access_forward(self, user_login):
+        session = self.Session()
+        try:
+            user = self._get_user(session, user_login)
+            permissions = self._gather_permissions(session, user, 'access_forward')
+            return len(permissions) > 0
         finally:
             session.close()
 

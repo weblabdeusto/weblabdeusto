@@ -69,11 +69,11 @@ server/src/test/unit/weblab/proxy/files_stored/*
 
 server/deploy/weblab_administrator_credentials.py
 
-server/admin/dbmanager/USERS
-server/admin/dbmanager/OIDUSERS
-server/admin/dbmanager/NOTIFICATION
-
-server/admin/dbmanager/configuration.py
+server/admin/cli/USERS
+server/admin/cli/OIDUSERS
+server/admin/cli/NOTIFICATION
+server/admin/cli/NOTIFICATION_WITH_PASSWORD
+server/admin/cli/configuration.py
 server/admin/web/configuration.py
 server/admin/monitor/configuration.py
 server/admin/logging/generate_logging_config_file/configuration.py

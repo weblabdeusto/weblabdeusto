@@ -814,7 +814,7 @@ public class LabSerializerJSONTest extends GWTTestCase{
 		final String serializedMessage = weblabSerializer.serializeReserveExperimentRequest(sessionId, experiment, new JSONObject());
 		Assert.assertEquals(
 				"{\"params\":{\"session_id\":{\"id\":\"" + MESSAGE + "\"}," +
-						" \"experiment_id\":{\"exp_name\":\"weblab-pld\", \"cat_name\":\"WebLab-PLD experiments\"}, \"client_initial_data\":\"{}\"}, " +
+						" \"experiment_id\":{\"exp_name\":\"weblab-pld\", \"cat_name\":\"WebLab-PLD experiments\"}, \"client_initial_data\":\"{}\", \"consumer_data\":\"{}\"}, " +
 						"\"method\":\"reserve_experiment\"}",
 				serializedMessage
 			);

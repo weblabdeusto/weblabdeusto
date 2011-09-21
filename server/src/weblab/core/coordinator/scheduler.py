@@ -13,6 +13,8 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+from abc import ABCMeta, abstractmethod
+
 class GenericSchedulerArguments(object):
     def __init__(self, cfg_manager, resource_type_name, reservations_manager, resources_manager, confirmer, session_maker, time_provider, **kwargs):
         self.cfg_manager          = cfg_manager
@@ -43,6 +45,9 @@ class GenericSchedulerArguments(object):
 # XXX The interface below has been extracted from PriorityQueueScheduler, the original WebLab-Deusto scheduler. It will change to support other schemas.
 # 
 class Scheduler(object):
+
+    __metaclass__ = ABCMeta
+
     def __init__(self, generic_scheduler_arguments):
         #
         # cfg_manager is the Configuration Manager. It provides general configuration,
@@ -93,12 +98,6 @@ class Scheduler(object):
         # 
         self.resource_type_name   = generic_scheduler_arguments.resource_type_name
 
-    #
-    # TODO: 
-    #  1. Batch experiments (add to "reserve" an additional argument)
-    #  2. Broken experiments management ("fixed_experiment" method, "how are the experiments doing", "check every minute the broken experiments", etc. even through monitor.py)
-    #  3. Añadir información más genérica tipo "este experimento está esperando a ser usado", del cual puedan heredar "está en cola" o "está planificado", etc. etc.
-    # 
 
     ####################################################################################
     # 
@@ -115,15 +114,19 @@ class Scheduler(object):
     # Kernel of the reservations
     # 
     # 
+    @abstractmethod
     def reserve_experiment(self, reservation_id, experiment_id, time, priority):
         pass
 
+    @abstractmethod
     def get_reservation_status(self, reservation_id):
         pass
 
+    @abstractmethod
     def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
         pass
 
+    @abstractmethod
     def finish_reservation(self, reservation_id):
         pass
 

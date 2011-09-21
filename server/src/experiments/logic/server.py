@@ -147,7 +147,7 @@ class LogicExperiment(Experiment.Experiment):
         self.circuit_generator = CircuitGenerator()
         self._cfg_manager = cfg_manager
         try:
-            self.webcam_url = self._cfg_manager.get_value(CFG_WEBCAM_URL)
+            self.webcam_url = self._cfg_manager.get_value(CFG_WEBCAM_URL, "")
         except:
             self.webcam_url = ''
         if is_testing():

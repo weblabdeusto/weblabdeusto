@@ -64,7 +64,22 @@ class ConsoleUI(object):
     #
     # 1st layer: Input-level (responsible for the 'default' parameter)
     #
-    
+    def _read_bool(self, label, default):
+        while True:
+            try:
+                input = self._raw_input(label)
+                if input == GO_BACK_KEYWORD:
+                    raise GoBackException()
+                if len(input) == 0:
+                    input = default
+                if input.lower() not in ('y','yes','n','no'):
+                    continue
+                result = input.lower() in ('y','yes')
+                break
+            except ValueError:
+                pass 
+        return result           
+   
     def _read_int(self, label, default):
         while True:
             try:
@@ -110,6 +125,13 @@ class ConsoleUI(object):
     #
     # 2nd layer: Low-level Fields (responsible for the 'nullable' parameter)
     #
+
+    def _read_field_bool(self, label, nullable=False, default=None):
+        label = self._format_label(label, nullable, default)
+        response = self._read_bool(label, default)
+        while ( not nullable and response is None ):
+            response = self._read_bool(label, default)
+        return response
 
     def _read_field_int(self, label, min_value=-sys.maxint, max_value=sys.maxint-1, nullable=False, default=None):
         label = self._format_label(label, nullable, default)
@@ -284,15 +306,19 @@ class ConsoleUI(object):
         self._print(" 8. Add Users (batch) with DB AuthType")
         self._print(" 9. Grant on Experiment to Group")
         self._print(" 10. Grant on Experiment to User")
-        self._print(" 11. List Users")
-        self._print(" 12. Notify users")
-        self._print(" 13. Notify users (With passwords)")
+        self._print(" 11. Grant on Admin Panel to Group")
+        self._print(" 12. Grant on Admin Panel to User")
+        self._print(" 13. Grant on Access Forward to Group")
+        self._print(" 14. Grant on Access Forward to User")
+        self._print(" 15. List Users")
+        self._print(" 16. Notify users")
+        self._print(" 17. Notify users (With passwords)")
         self._print()
         self._print("0. Exit")
         self._print()
         while True:
             try:
-                option = self._read_field_int("Option", 0, 13)
+                option = self._read_field_int("Option", 0, 17)
                 break
             except GoBackException:
                 pass
@@ -430,7 +456,9 @@ class ConsoleUI(object):
         self._print()
         return self._read_field_choose("Group", groups), \
                self._read_field_choose("Experiment", experiments), \
-               self._read_field_int("Time allowed")               
+               self._read_field_int("Time allowed"), \
+               self._read_field_int("Priority (0-10, lower is more priority)", min_value = 0, max_value=10, default=5), \
+               self._read_field_choose("For the time allowed, you are counting with initialization?", [ (1,'yes'),(2,'no')]) == 1
                
     def dialog_grant_on_experiment_to_user(self, users, experiments):
         self._clean()
@@ -438,8 +466,34 @@ class ConsoleUI(object):
         self._print()
         return self._read_field_choose("User", users), \
                self._read_field_choose("Experiment", experiments), \
-               self._read_field_int("Time allowed")         
-               
+               self._read_field_int("Time allowed"), \
+               self._read_field_int("Priority (0-10, lower is more priority)", min_value = 0, max_value=10, default=5), \
+               self._read_field_choose("For the time allowed, you are counting with initialization?", [ (1,'yes'),(2,'no')]) == 1
+
+    def dialog_grant_on_admin_panel_to_group(self, groups):
+        self._clean()
+        self._print("Grant on Admin Panel to Group")
+        self._print()
+        return self._read_field_choose("Group", groups)
+
+    def dialog_grant_on_admin_panel_to_user(self, users):
+        self._clean()
+        self._print("Grant on Admin Panel to User")
+        self._print()
+        return self._read_field_choose("User", users)
+
+    def dialog_grant_on_access_forward_to_group(self, groups):
+        self._clean()
+        self._print("Grant on Access Forward to Group")
+        self._print()
+        return self._read_field_choose("Group", groups)
+
+    def dialog_grant_on_access_forward_to_user(self, users):
+        self._clean()
+        self._print("Grant on Access Forward to User")
+        self._print()
+        return self._read_field_choose("User", users)
+            
     def dialog_list_users_get_group(self, groups):
         self._clean()
         self._print("List Users")

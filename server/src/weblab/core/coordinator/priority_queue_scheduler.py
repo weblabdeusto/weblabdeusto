@@ -483,8 +483,6 @@ class PriorityQueueScheduler(Scheduler):
     #
     # Remove all reservations whose session has expired
     #
-    # TODO: Move this code to the reservations manager. Here it doesn't make much
-    # sense.
     def _remove_expired_reservations(self):
         session = self.session_maker()
         try:

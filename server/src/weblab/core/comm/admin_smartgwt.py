@@ -209,8 +209,8 @@ class Methods(object):
                     'data' : [
                         {
                             'id'                  : experiment_use.id,
-                            'start_date'          : experiment_use.start_date.strftime(Criteria.DATETIME_FORMAT),
-                            'end_date'            : experiment_use.end_date.strftime(Criteria.DATETIME_FORMAT),
+                            'start_date'          : experiment_use.start_date.strftime(Criteria.DATETIME_FORMAT) if experiment_use.start_date is not None else None,
+                            'end_date'            : experiment_use.end_date.strftime(Criteria.DATETIME_FORMAT) if experiment_use.end_date is not None else None,
                             'agent_login'         : experiment_use.agent.login,
                             'agent_name'          : experiment_use.agent.full_name,
                             'agent_email'         : experiment_use.agent.email,

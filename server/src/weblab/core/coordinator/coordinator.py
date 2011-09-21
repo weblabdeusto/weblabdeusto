@@ -295,7 +295,7 @@ class Coordinator(object):
     # Perform a new reservation
     # 
     @logged()
-    def reserve_experiment(self, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info):
+    def reserve_experiment(self, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info, consumer_data):
         """
         priority: the less, the more priority
         """
