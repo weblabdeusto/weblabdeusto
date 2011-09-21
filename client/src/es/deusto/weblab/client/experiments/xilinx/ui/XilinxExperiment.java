@@ -22,6 +22,7 @@ import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -92,7 +93,9 @@ public class XilinxExperiment extends ExperimentBase{
 	@UiField VerticalPanel innerVerticalPanel;
 	@UiField HorizontalPanel uploadStructurePanel;
 	
+	@UiField Button uploadButton;
 	@UiField Label selectProgram;
+	
 	
 	@UiField HorizontalPanel timerMessagesPanel;
 	@UiField WlWaitingLabel messages;
@@ -281,6 +284,7 @@ public class XilinxExperiment extends ExperimentBase{
 				this.loadStartControls();
 			} else {
 				GWT.log("The user did not really choose a file");
+				this.uploadButton.setVisible(true);
 			}
 		}
 		

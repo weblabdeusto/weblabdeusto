@@ -59,6 +59,7 @@
 		<!-- The upload form will be inserted into this panel. -->
 		<g:HorizontalPanel ui:field="uploadStructurePanel" horizontalAlignment="ALIGN_CENTER" width="100%">
 			<g:Hidden></g:Hidden>
+			<g:Button ui:field="uploadButton" visible="false">Upload</g:Button>
 		</g:HorizontalPanel>
 	</g:VerticalPanel>
 	
