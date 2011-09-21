@@ -45,9 +45,9 @@ class Reservation(object):
         if status.status == WSS.WebLabSchedulingStatus.WAITING:
             reservation = WaitingReservation(status.reservation_id, status.position)
         elif status.status == WSS.WebLabSchedulingStatus.WAITING_CONFIRMATION:
-            reservation = WaitingConfirmationReservation(status.reservation_id)
+            reservation = WaitingConfirmationReservation(status.reservation_id, status.url)
         elif status.status == WSS.WebLabSchedulingStatus.RESERVED:
-            reservation = ConfirmedReservation(status.reservation_id, status.remaining_time, status.initial_configuration)
+            reservation = ConfirmedReservation(status.reservation_id, status.remaining_time, status.initial_configuration, status.url)
         elif status.status == WSS.WebLabSchedulingStatus.WAITING_INSTANCES: #TODO: test me
             reservation = WaitingInstances(status.reservation_id, status.position)
         elif status.status == WSS.WebLabSchedulingStatus.POST_RESERVATION: #TODO: test me
@@ -57,15 +57,15 @@ class Reservation(object):
         return reservation
 
     @staticmethod
-    def translate_reservation_from_data(status_text, reservation_id, position = None, time = None, initial_configuration = None, end_data = None):
+    def translate_reservation_from_data(status_text, reservation_id, position = None, time = None, initial_configuration = None, end_data = None, url = None):
         if status_text == Reservation.WAITING:
             reservation = WaitingReservation(reservation_id, position)
         elif status_text == Reservation.WAITING_CONFIRMATION:
-            reservation = WaitingConfirmationReservation(reservation_id)
+            reservation = WaitingConfirmationReservation(reservation_id, url)
         elif status_text == Reservation.WAITING_INSTANCES:
             reservation = WaitingInstances(reservation_id, position)
         elif status_text == Reservation.CONFIRMED:
-            reservation = ConfirmedReservation(reservation_id, time, initial_configuration)
+            reservation = ConfirmedReservation(reservation_id, time, initial_configuration, url)
         elif status_text == Reservation.POST_RESERVATION:
             reservation = PostReservationReservation(reservation_id, end_data)
         else:
@@ -80,18 +80,20 @@ class WaitingReservation(Reservation):
         return "WaitingReservation(reservation_id = %r, position = %r)" % (self.reservation_id.id, self.position)
 
 class ConfirmedReservation(Reservation):
-    def __init__(self, reservation_id, time, initial_configuration):
+    def __init__(self, reservation_id, time, initial_configuration, url):
         super(ConfirmedReservation,self).__init__(Reservation.CONFIRMED, reservation_id)
-        self.time = time
+        self.time                  = time
         self.initial_configuration = initial_configuration
+        self.url                   = url
     def __repr__(self):
-        return "ConfirmedReservation(reservation_id = %r, time = %r, initial_configuration = %r)" % (self.reservation_id.id, self.time, self.initial_configuration)
+        return "ConfirmedReservation(reservation_id = %r, time = %r, initial_configuration = %r, url = %r)" % (self.reservation_id.id, self.time, self.initial_configuration, self.url)
 
 class WaitingConfirmationReservation(Reservation):
-    def __init__(self, reservation_id):
+    def __init__(self, reservation_id, url):
         super(WaitingConfirmationReservation,self).__init__(Reservation.WAITING_CONFIRMATION, reservation_id)
+        self.url = url
     def __repr__(self):
-        return "WaitingConfirmationReservation(reservation_id = %r)" % self.reservation_id.id
+        return "WaitingConfirmationReservation(reservation_id = %r, url = %r)" % (self.reservation_id.id, self.url)
 
 class WaitingInstances(Reservation):
     def __init__(self, reservation_id, position):
