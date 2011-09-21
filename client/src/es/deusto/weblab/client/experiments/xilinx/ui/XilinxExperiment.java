@@ -253,18 +253,32 @@ public class XilinxExperiment extends ExperimentBase{
 	void handleClick(ClickEvent e) {
 		GWT.log("Doing explicit file upload");
 		
-		this.uploadButton.setVisible(false);
+		boolean success = this.tryUpload();
 		
+		if(success)
+			this.uploadButton.setVisible(false);
+	}
+	
+	/**
+	 * Helper method to try to upload a file. Currently, we only consider that an upload
+	 * failed if the filename the user chose is empty.
+	 * If the upload succeeds we load the standard experiment controls through loadStartControls and
+	 * hide the upload panel, which is no longer needed.
+	 * 
+	 * @return True if the upload succeeds, false otherwise.
+	 */
+	private boolean tryUpload() {
 		final boolean didChooseFile = !this.uploadStructure.getFileUpload().getFilename().isEmpty();
 		
 		if(didChooseFile) {
 			this.uploadStructure.getFormPanel().setVisible(false);
 			this.boardController.sendFile(this.uploadStructure, this.sendFileCallback);
-			this.uploadButton.setVisible(false);
 			this.loadStartControls();
 		} else {
 			GWT.log("The user did not really choose a file");
 		}
+		
+		return didChooseFile;
 	}
 	
 
@@ -305,17 +319,17 @@ public class XilinxExperiment extends ExperimentBase{
 		// He might have indeed chosen a file to upload, or he might not.
 		if(!isDemo()) {
 			
-			final boolean didChooseFile = !this.uploadStructure.getFileUpload().getFilename().isEmpty();
+			boolean success = this.tryUpload();
 			
-			if(didChooseFile) {
-				this.uploadStructure.getFormPanel().setVisible(false);
-				this.boardController.sendFile(this.uploadStructure, this.sendFileCallback);
-				this.loadStartControls();
-			} else {
-				GWT.log("The user did not really choose a file");
+			// If the file upload attempt on the reserve stage failed, then we will have to display 
+			// a button during the experiment itself so that the user can request the file he chose
+			// be uploaded to the server.
+			if(!success)
 				this.uploadButton.setVisible(true);
-			}
 		}
+		
+		// The experiment started, so we should start the timer.
+		this.timer.start();
 		
 		// Start polling to know when the board has been programmed and the server is ready
 		// to receive our requests.
@@ -476,8 +490,6 @@ public class XilinxExperiment extends ExperimentBase{
 		
 		this.webcam.setVisible(true);
 		this.webcam.start();
-		
-		this.timer.start();
 		
 		this.messages.setText("Sending file");
 		this.messages.start();
