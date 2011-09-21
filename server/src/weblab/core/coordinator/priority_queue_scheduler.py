@@ -182,7 +182,7 @@ class PriorityQueueScheduler(Scheduler):
                     timestamp_after   = datetime.datetime.fromtimestamp(concrete_current_reservation.timestamp_after)
 
                 if lab_session_id is None:
-                    return WSS.WaitingConfirmationQueueStatus(reservation_id, lab_coord_address, obtained_time)
+                    return WSS.WaitingConfirmationQueueStatus(reservation_id, lab_coord_address, obtained_time, 'http://www.weblab.deusto.es/weblab/client/...')
                 else:
                     if initialization_in_accounting:
                         before = concrete_current_reservation.timestamp_before
@@ -194,7 +194,7 @@ class PriorityQueueScheduler(Scheduler):
                     else:
                         remaining = obtained_time
 
-                    return WSS.ReservedStatus(reservation_id, lab_coord_address, SessionId.SessionId(lab_session_id), obtained_time, initial_configuration, timestamp_before, timestamp_after, initialization_in_accounting, remaining)
+                    return WSS.ReservedStatus(reservation_id, lab_coord_address, SessionId.SessionId(lab_session_id), obtained_time, initial_configuration, timestamp_before, timestamp_after, initialization_in_accounting, remaining, 'http://www.weblab.deusto.es/weblab/client/...')
 
             resource_type = session.query(ResourceType).filter_by(name = self.resource_type_name).one()
             waiting_reservation = session.query(WaitingReservation).filter_by(reservation_id = reservation_id, resource_type_id = resource_type.id).first()

@@ -89,13 +89,14 @@ class WaitingQueueStatus(WebLabSchedulingStatus):
 # server to reply that the experiment has been initialized.
 # 
 class WaitingConfirmationQueueStatus(WebLabSchedulingStatus):
-    def __init__(self, reservation_id, coord_address, time):
+    def __init__(self, reservation_id, coord_address, time, url):
         super(WaitingConfirmationQueueStatus,self).__init__(WebLabSchedulingStatus.WAITING_CONFIRMATION, reservation_id)
         self.coord_address = coord_address
         self.time          = time
+        self.url           = url
     def __repr__(self):
         full_name = self.__class__.__module__ + '.' + self.__class__.__name__
-        return "%s( reservation_id = %r, coord_address = %r, time = %r)" % (full_name, self.reservation_id, self.coord_address, self.time)
+        return "%s( reservation_id = %r, coord_address = %r, time = %r, url = %r)" % (full_name, self.reservation_id, self.coord_address, self.time, self.url)
 
     def __eq__(self, other):
         return isinstance(other, WaitingConfirmationQueueStatus) and self.coord_address == other.coord_address and self.time == other.time
@@ -113,7 +114,7 @@ class WaitingConfirmationQueueStatus(WebLabSchedulingStatus):
 # the experiment.
 #
 class ReservedStatus(WebLabSchedulingStatus):
-    def __init__(self, reservation_id, coord_address, lab_session_id, time, initial_configuration, timestamp_before, timestamp_after, initialization_in_accounting, remaining_time):
+    def __init__(self, reservation_id, coord_address, lab_session_id, time, initial_configuration, timestamp_before, timestamp_after, initialization_in_accounting, remaining_time, url):
         super(ReservedStatus,self).__init__(WebLabSchedulingStatus.RESERVED, reservation_id)
         self.coord_address                = coord_address
         self.lab_session_id               = lab_session_id
@@ -123,10 +124,11 @@ class ReservedStatus(WebLabSchedulingStatus):
         self.timestamp_after              = timestamp_after
         self.initialization_in_accounting = initialization_in_accounting
         self.remaining_time               = remaining_time
+        self.url                          = url
 
     def __repr__(self):
         full_name = self.__class__.__module__ + '.' + self.__class__.__name__
-        return "%s( reservation_id = %r, coord_address = %r, lab_session_id = %r, time = %r, initial_configuration = %r, timestamp_before = %r, timestamp_after = %r, initialization_in_accounting = %r, remaining_time = %r)" % (full_name, self.reservation_id, self.coord_address, self.lab_session_id, self.time, self.initial_configuration, self.timestamp_before, self.timestamp_after, self.initialization_in_accounting, self.remaining_time)
+        return "%s( reservation_id = %r, coord_address = %r, lab_session_id = %r, time = %r, initial_configuration = %r, timestamp_before = %r, timestamp_after = %r, initialization_in_accounting = %r, remaining_time = %r, url = %r)" % (full_name, self.reservation_id, self.coord_address, self.lab_session_id, self.time, self.initial_configuration, self.timestamp_before, self.timestamp_after, self.initialization_in_accounting, self.remaining_time, self.url)
 
     def __eq__(self, other):
         if not isinstance(other, ReservedStatus):
@@ -135,7 +137,7 @@ class ReservedStatus(WebLabSchedulingStatus):
         return self.coord_address == other.coord_address and self.lab_session_id == other.lab_session_id \
                 and self.time == other.time and self.initial_configuration == other.initial_configuration \
                 and self.timestamp_before == other.timestamp_before and self.timestamp_after == other.timestamp_after \
-                and self.initialization_in_accounting == other.initialization_in_accounting 
+                and self.initialization_in_accounting == other.initialization_in_accounting  
 
     def __cmp__(self, other):
         if isinstance(other, PostReservationStatus):
