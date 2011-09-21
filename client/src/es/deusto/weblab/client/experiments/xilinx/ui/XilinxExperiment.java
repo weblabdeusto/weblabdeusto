@@ -17,10 +17,12 @@ package es.deusto.weblab.client.experiments.xilinx.ui;
 import java.util.Vector;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -238,6 +240,33 @@ public class XilinxExperiment extends ExperimentBase{
 	    this.widget.setVisible(false);
 	    this.selectProgram.setVisible(false);
 	}
+	
+	
+	/**
+	 * Event handler which gets called whenever the upload button is pressed.
+	 * The upload button is currently only visible when the file could not be
+	 * uploaded on the reservation stage, generally due to wrong user input.
+	 * 
+	 * @param e
+	 */
+	@UiHandler("uploadButton")
+	void handleClick(ClickEvent e) {
+		GWT.log("Doing explicit file upload");
+		
+		this.uploadButton.setVisible(false);
+		
+		final boolean didChooseFile = !this.uploadStructure.getFileUpload().getFilename().isEmpty();
+		
+		if(didChooseFile) {
+			this.uploadStructure.getFormPanel().setVisible(false);
+			this.boardController.sendFile(this.uploadStructure, this.sendFileCallback);
+			this.uploadButton.setVisible(false);
+			this.loadStartControls();
+		} else {
+			GWT.log("The user did not really choose a file");
+		}
+	}
+	
 
 	/**
 	 * Called when the experiment starts. 
