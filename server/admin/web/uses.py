@@ -49,7 +49,8 @@ def use(req, **kwargs):
                 <h2>General</h2>
                 <b>Use id:</b> %(use_id)s<br/>
                 <b>Mobile:</b> %(mobile)s<br/>
-                <b>Facebook:</b> %(mobile)s<br/>
+                <b>Facebook:</b> %(facebook)s<br/>
+                <b>Referer:</b> %(referer)s<br/>
                 <b>User agent:</b> %(user_agent)s<br/>
                 <h2>Commands</h2>
                 (<a href="#files">files below</a>)
@@ -73,6 +74,7 @@ def use(req, **kwargs):
                         'use_id'     : use_id,
                         'mobile'     : cgi.escape(properties.get('mobile', "Don't know")),
                         'facebook'   : cgi.escape(properties.get('facebook', "Don't know")),
+                        'referer'    : cgi.escape(properties.get('referer', "Don't know")),
                         'user_agent' : cgi.escape(properties.get('user_agent', "Don't know")),
                     }
 
