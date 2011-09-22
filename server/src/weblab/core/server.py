@@ -449,6 +449,12 @@ class UserProcessingServer(object):
         self._check_reservation_not_expired_and_poll( reservation_processor )
         return reservation_processor.send_async_command( command )
 
+    @logged(log.level.Info)
+    @check_session(*check_reservation_session_params)
+    @load_reservation_processor
+    def get_reservation_info(self, reservation_processor, session):
+        return reservation_processor.get_info()
+
 
     @logged(log.level.Info)
     @check_session(*check_reservation_session_params)

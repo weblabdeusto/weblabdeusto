@@ -106,6 +106,15 @@ class ReservationProcessorTestCase(unittest.TestCase):
     def tearDown(self):
         self.coordinator.stop()
 
+    def test_get_info(self):
+        self.create_reservation_processor()
+
+        self.coordinator.confirmer._confirm_handler.join()
+
+        reservation_info = self.reservation_processor.get_info()
+        self.assertEquals('ud-dummy',          reservation_info.exp_name)
+        self.assertEquals('Dummy experiments', reservation_info.cat_name)
+
     def test_is_polling(self):
         self.create_reservation_processor()
 
