@@ -1,1 +1,19 @@
-See http://code.google.com/p/weblabdeusto/wiki/InstallGuide
+See http://code.google.com/p/weblabdeusto/wiki/Latest_InstallGuide in order to install the system.
+
+The credentials are "student1", "student2"... and "any" the password is "password".
+
+Please, do keep in mind that although the list of experiments that appears is long, that's because 
+in the database it is registered that way. In these configuration files few experiments are deployed,
+typically only 'ud-dummy'.
+
+In this directory you'll find several examples of configurations:
+ * sample: it's the simplest one. Everything in the same process. Communication with the expermient through "Direct".
+ * sample_balanced1: 2 core and login servers, 1 laboratory and experiment server. 
+ * sample_balanced2: 3 core and login servers, 1 laboratory and experiment server. 
+ * sample_balanced2_concurrent_experiments: 3 core and login servers, 3 laboratory servers, 100 experiment servers (80 active, 20 not used)
+ * sample_xmlrpc: communication with experiment through XML-RPC
+ * sample_internetsocket: communication with experiment through a TCP Socket
+ * sample_unixsocket: communication with the experiment through a UNIX Socket
+
+You can test them manually, or you can measure them using the Bot [ http://code.google.com/p/weblabdeusto/wiki/Latest_WebLabBot ].
+

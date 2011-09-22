@@ -173,29 +173,29 @@ class AliveUsersCollection(object):
         """
         expired_reservation_session_ids = []
 
+        finished_session_ids = self._find_finished_session_ids()
+        if len(finished_session_ids) > 0:
+            reservation_session_ids = self._users_session_manager.get_session_locking( self._experiments_server_session_id )
+            try:
+
+                for finished_session_id in finished_session_ids:
+                    if finished_session_id in reservation_session_ids:
+                        reservation_session_ids.remove(finished_session_id)
+                    expired_reservation_session_ids.append(finished_session_id)
+
+            finally:
+                self._users_session_manager.modify_session_unlocking( self._experiments_server_session_id, reservation_session_ids )
+
         if self._time_between_checkes_finished():
-            finished_session_ids = self._find_finished_session_ids()
-            if len(finished_session_ids) > 0:
-                reservation_session_ids = self._users_session_manager.get_session_locking( self._experiments_server_session_id )
-                try:
+            reservation_session_ids = self._users_session_manager.get_session_locking( self._experiments_server_session_id )
+            try:
+                    found_expired_reservation_session_ids = self._find_expired_session_ids(reservation_session_ids)
 
-                    for finished_session_id in finished_session_ids:
-                        if finished_session_id in reservation_session_ids:
-                            reservation_session_ids.remove(finished_session_id)
-                        expired_reservation_session_ids.append(finished_session_id)
-
-                finally:
-                    self._users_session_manager.modify_session_unlocking( self._experiments_server_session_id, reservation_session_ids )
-
-                reservation_session_ids = self._users_session_manager.get_session_locking( self._experiments_server_session_id )
-                try:
-                        found_expired_reservation_session_ids = self._find_expired_session_ids(reservation_session_ids)
-
-                        for expired_reservation_session_id in found_expired_reservation_session_ids:
-                            reservation_session_ids.remove(expired_reservation_session_id)
-                finally:
-                    self._users_session_manager.modify_session_unlocking( self._experiments_server_session_id, reservation_session_ids )
-                expired_reservation_session_ids.extend(found_expired_reservation_session_ids)
+                    for expired_reservation_session_id in found_expired_reservation_session_ids:
+                        reservation_session_ids.remove(expired_reservation_session_id)
+            finally:
+                self._users_session_manager.modify_session_unlocking( self._experiments_server_session_id, reservation_session_ids )
+            expired_reservation_session_ids.extend(found_expired_reservation_session_ids)
 
         return expired_reservation_session_ids
 

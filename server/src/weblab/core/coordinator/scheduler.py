@@ -16,7 +16,7 @@
 from abc import ABCMeta, abstractmethod
 
 class GenericSchedulerArguments(object):
-    def __init__(self, cfg_manager, resource_type_name, reservations_manager, resources_manager, confirmer, session_maker, time_provider, **kwargs):
+    def __init__(self, cfg_manager, resource_type_name, reservations_manager, resources_manager, confirmer, session_maker, time_provider, core_server_url, **kwargs):
         self.cfg_manager          = cfg_manager
         self.resource_type_name   = resource_type_name
         self.reservations_manager = reservations_manager
@@ -24,6 +24,8 @@ class GenericSchedulerArguments(object):
         self.confirmer            = confirmer
         self.session_maker        = session_maker
         self.time_provider        = time_provider
+        self.core_server_url      = core_server_url
+
         if 'enqueuing_timeout' in kwargs:
             self.confirmer.enqueuing_timeout = kwargs.pop('enqueuing_timeout')
         if len(kwargs) > 0:
@@ -97,6 +99,12 @@ class Scheduler(object):
         # The Resource Type of the experiment being managed by this scheduler.
         # 
         self.resource_type_name   = generic_scheduler_arguments.resource_type_name
+
+        #
+        # The address of the core server, such as 'https://www.weblab.deusto.es/weblab/', 
+        # so as to point out where is the server
+        # 
+        self.core_server_url      = generic_scheduler_arguments.core_server_url
 
 
     ####################################################################################
