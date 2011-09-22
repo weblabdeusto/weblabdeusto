@@ -174,7 +174,7 @@ class LaboratoryServer(object):
             if reported_api is None:
                 log.log( LaboratoryServer, log.level.Warning, "It was not possible to find out on load-time the api version of %r. We will retry on first reserve." 
                          % coord_address)
-                print "[DBG][LOAD] Was not possible to find out the api version of %r" % coord_address
+                # print "[DBG][LOAD] Was not possible to find out the api version of %r" % coord_address
                 num_fail += 1
             else:
                 # Remember the api version that we retrieved
@@ -183,7 +183,7 @@ class LaboratoryServer(object):
                 print LaboratoryServer, log.level.Info, "Experiment %r will use api %s" % (coord_address, reported_api)
                 num_success += 1
                 
-            print "We found the API of %d out of %d experiments." % (num_success, int(num_success)+int(num_fail))
+            # print "We found the API of %d out of %d experiments." % (num_success, int(num_success)+int(num_fail))
             log.log(LaboratoryServer, log.level.Info, "We found the API of %d out of %d experiments." % (num_success, int(num_success)+int(num_fail)) )
 
 
