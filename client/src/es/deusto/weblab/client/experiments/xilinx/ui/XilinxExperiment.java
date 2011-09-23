@@ -251,8 +251,6 @@ public class XilinxExperiment extends ExperimentBase{
 	 */
 	@UiHandler("uploadButton")
 	void handleClick(ClickEvent e) {
-		GWT.log("Doing explicit file upload");
-		
 		boolean success = this.tryUpload();
 		
 		if(success)
