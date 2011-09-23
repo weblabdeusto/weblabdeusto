@@ -53,15 +53,17 @@ import voodoo.sessions.session_type as SessionType
 
 import voodoo.resources_manager as ResourceManager
 
-check_session_params = (
-        coreExc.SessionNotFoundException,
-        "User Processing Server"
+check_session_params = dict(
+        exception_to_raise = coreExc.SessionNotFoundException,
+        what_session       = "User Processing Server",
+        cut_session_id     = ';'
     )
 
-check_reservation_session_params = (
-        coreExc.SessionNotFoundException,
-        "User Processing Server",
-        "_reservations_session_manager"
+check_reservation_session_params = dict(
+        exception_to_raise         = coreExc.SessionNotFoundException,
+        what_session               = "User Processing Server",
+        session_manager_field_name = "_reservations_session_manager",
+        cut_session_id             = ';'
     )
 
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessingServer")
@@ -322,14 +324,14 @@ class UserProcessingServer(object):
 
 
     @logged(log.level.Info)
-    @check_session(*check_session_params)
+    @check_session(**check_session_params)
     @load_user_processor
     def list_experiments(self, user_processor, session):
         return user_processor.list_experiments()
 
 
     @logged(log.level.Info)
-    @check_session(*check_session_params)
+    @check_session(**check_session_params)
     @load_user_processor
     def get_user_information(self, user_processor, session):
         return user_processor.get_user_information()
@@ -339,7 +341,7 @@ class UserProcessingServer(object):
     # # # # # # # # # # # # # # # # #
 
     @logged(log.level.Info)
-    @check_session(*check_session_params)
+    @check_session(**check_session_params)
     @load_user_processor
     def reserve_experiment(self, user_processor, session, experiment_id, client_initial_data, consumer_data, client_address):
         status = user_processor.reserve_experiment( experiment_id, client_initial_data, consumer_data, client_address )
@@ -369,7 +371,7 @@ class UserProcessingServer(object):
 
 
     @logged(log.level.Info)
-    @check_session(*check_reservation_session_params)
+    @check_session(**check_reservation_session_params)
     @load_reservation_processor
     def finished_experiment(self, reservation_processor, session):
         reservation_session_id = reservation_processor.get_reservation_session_id()
@@ -378,7 +380,7 @@ class UserProcessingServer(object):
 
 
     @logged(log.level.Info, except_for=(('file_content',2),))
-    @check_session(*check_reservation_session_params)
+    @check_session(**check_reservation_session_params)
     @load_reservation_processor
     def send_file(self, reservation_processor, session, file_content, file_info):
         """ send_file(session_id, file_content, file_info)
@@ -390,7 +392,7 @@ class UserProcessingServer(object):
 
 
     @logged(log.level.Info)
-    @check_session(*check_reservation_session_params)
+    @check_session(**check_reservation_session_params)
     @load_reservation_processor
     def send_command(self, reservation_processor, session, command):
         """ send_command(session_id, command)
@@ -402,7 +404,7 @@ class UserProcessingServer(object):
         return reservation_processor.send_command( command )
             
     @logged(log.level.Info, except_for=(('file_content',2),))
-    @check_session(*check_reservation_session_params)
+    @check_session(**check_reservation_session_params)
     @load_reservation_processor
     def send_async_file(self, reservation_processor, session, file_content, file_info):
         """ 
@@ -420,7 +422,7 @@ class UserProcessingServer(object):
 
     # TODO: This method should now be finished. Will need to be verified, though.
     @logged(log.level.Info)
-    @check_session(*check_reservation_session_params)
+    @check_session(**check_reservation_session_params)
     @load_reservation_processor
     def check_async_command_status(self, reservation_processor, session, request_identifiers):
         """ 
@@ -436,7 +438,7 @@ class UserProcessingServer(object):
         return reservation_processor.check_async_command_status( request_identifiers )
 
     @logged(log.level.Info)
-    @check_session(*check_reservation_session_params)
+    @check_session(**check_reservation_session_params)
     @load_reservation_processor
     def send_async_command(self, reservation_processor, session, command):
         """ 
@@ -450,21 +452,21 @@ class UserProcessingServer(object):
         return reservation_processor.send_async_command( command )
 
     @logged(log.level.Info)
-    @check_session(*check_reservation_session_params)
+    @check_session(**check_reservation_session_params)
     @load_reservation_processor
     def get_reservation_info(self, reservation_processor, session):
         return reservation_processor.get_info()
 
 
     @logged(log.level.Info)
-    @check_session(*check_reservation_session_params)
+    @check_session(**check_reservation_session_params)
     def poll(self, session):
         reservation_processor = self._load_reservation(session)
         self._check_reservation_not_expired_and_poll( reservation_processor )
 
 
     @logged(log.level.Info)
-    @check_session(*check_reservation_session_params)
+    @check_session(**check_reservation_session_params)
     @load_reservation_processor
     def get_reservation_status(self, reservation_processor, session):
         self._check_reservation_not_expired_and_poll( reservation_processor, False )
@@ -477,35 +479,35 @@ class UserProcessingServer(object):
     # 
 
     @logged(log.level.Info)
-    @check_session(*check_session_params)
+    @check_session(**check_session_params)
     @load_user_processor
     def get_groups(self, user_processor, session, parent_id=None):
         return user_processor.get_groups(parent_id)
 
 
     @logged(log.level.Info)
-    @check_session(*check_session_params)
+    @check_session(**check_session_params)
     @load_user_processor
     def get_experiments(self, user_processor, session):
         return user_processor.get_experiments()
 
 
     @logged(log.level.Info)
-    @check_session(*check_session_params)
+    @check_session(**check_session_params)
     @load_user_processor
     def get_experiment_uses(self, user_processor, session, from_date=None, to_date=None, group_id=None, experiment_id=None, start_row=None, end_row=None, sort_by=None):
         return user_processor.get_experiment_uses(from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by)
 
 
     @logged(log.level.Info)
-    @check_session(*check_session_params)
+    @check_session(**check_session_params)
     @load_user_processor
     def get_roles(self, user_processor, session):
         return user_processor.get_roles()
 
 
     @logged(log.level.Info)
-    @check_session(*check_session_params)
+    @check_session(**check_session_params)
     @load_user_processor
     def get_users(self, user_processor, session):
         """
@@ -516,7 +518,7 @@ class UserProcessingServer(object):
 
 
     @logged(log.level.Info)
-    @check_session(*check_session_params)
+    @check_session(**check_session_params)
     @load_user_processor
     def get_user_permissions(self, user_processor, session):
         return user_processor.get_user_permissions()
