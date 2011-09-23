@@ -97,6 +97,8 @@ def _insert_required_initial_data(engine):
     session.add(experiment_allowed_p3)
     experiment_allowed_p4 = Model.DbPermissionTypeParameter(experiment_allowed, 'priority', 'int', 'Priority (the lower value the higher priority)')
     session.add(experiment_allowed_p4)
+    experiment_allowed_p5 = Model.DbPermissionTypeParameter(experiment_allowed, 'initialization_in_accounting', 'bool', 'time_allowed, should count with the initialization time or not?')
+    session.add(experiment_allowed_p5)
     session.commit()    
     
     admin_panel_access = Model.DbPermissionType(
@@ -109,6 +111,15 @@ def _insert_required_initial_data(engine):
     session.add(admin_panel_access)
     admin_panel_access_p1 = Model.DbPermissionTypeParameter(admin_panel_access, 'full_privileges', 'bool', 'full privileges (True) or not (False)')
     session.add(admin_panel_access_p1)
+
+    access_forward = Model.DbPermissionType(
+            'access_forward',
+            'Users with this permission will be allowed to forward reservations to other external users.',
+            user_applicable = True,
+            group_applicable = True,
+            ee_applicable = True
+    )
+    session.add(access_forward)
     session.commit()
 
 #####################################################################
@@ -157,6 +168,8 @@ experiment_allowed_p3 = [ p for p in experiment_allowed.parameters if p.name == 
 
 admin_panel_access = session.query(Model.DbPermissionType).filter_by(name="admin_panel_access").one()
 admin_panel_access_p1 = [ p for p in admin_panel_access.parameters if p.name == "full_privileges" ][0]
+
+access_forward = session.query(Model.DbPermissionType).filter_by(name="access_forward").one()
 
 # Auths
 weblab_db = Model.DbAuth(db, "WebLab DB", 1)
@@ -754,7 +767,16 @@ session.add(up_student1_admin_panel_access)
 up_student1_admin_panel_access_p1 = Model.DbUserPermissionParameter(up_student1_admin_panel_access, admin_panel_access_p1, True)
 session.add(up_student1_admin_panel_access_p1)
 
-            
+up_any_access_forward = Model.DbUserPermission(
+    any,
+    access_forward.user_applicable,
+    "any::access_forward",
+    datetime.datetime.utcnow(),
+    "Access to forward external accesses"
+)
+
+session.add(up_any_access_forward)
+           
 session.commit()
 
 print "[done]"

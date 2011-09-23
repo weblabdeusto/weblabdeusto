@@ -127,13 +127,13 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.mocker.count(min=1,max=None)
 
         self.mocker.replay()
-        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5, True, 'sample initial data', DEFAULT_REQUEST_INFO)
+        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5, True, 'sample initial data', DEFAULT_REQUEST_INFO, {})
         now = datetime.datetime.fromtimestamp(int(time.time())) # Remove milliseconds as MySQL do
         self.coordinator.confirmer._confirm_handler.join()
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
         
         status = self.coordinator.get_reservation_status(reservation1_id)
-        expected_status =  WSS.ReservedStatus(reservation1_id, CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, 30, '{}', now, now, True, 30)
+        expected_status =  WSS.ReservedStatus(reservation1_id, CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, 30, '{}', now, now, True, 30, 'http://www.weblab.deusto.es/weblab/client/adfas')
 
         self.assertTrue("Unexpected status due to timestamp_before: %s; expected something like %s" % (status, expected_status), 
                             status.timestamp_before >= now and status.timestamp_before <= now + datetime.timedelta(seconds=10))
@@ -159,7 +159,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.mocker.result((mock_laboratory,))
 
         self.mocker.replay()
-        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5, True, 'sample initial data', DEFAULT_REQUEST_INFO)
+        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5, True, 'sample initial data', DEFAULT_REQUEST_INFO, {})
         self.coordinator.confirmer._confirm_handler.join()
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
         
@@ -178,7 +178,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.mocker.throw( Exception("Unhandled exception") )
 
         self.mocker.replay()
-        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5, True, 'sample initial data', DEFAULT_REQUEST_INFO)
+        status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5, True, 'sample initial data', DEFAULT_REQUEST_INFO, {})
         self.coordinator.confirmer._confirm_handler.join()
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
         

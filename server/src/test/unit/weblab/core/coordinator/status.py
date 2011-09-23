@@ -29,11 +29,11 @@ class WebLabSchedulingStatusTest(unittest.TestCase):
         str(w)
 
     def test_str_waiting_confirmation(self):
-        wc     = WSS.WaitingConfirmationQueueStatus("reservation_id", "coord_adress1", 50)
+        wc     = WSS.WaitingConfirmationQueueStatus("reservation_id", "coord_adress1", 50, 'http://www.weblab.deusto.es/weblab/client/...')
         str(wc)
 
     def test_str_reservation(self):
-        res    = WSS.ReservedStatus("reservation_id", "coord_address1", "lab_session_id1", 50, None, datetime.datetime.now(), datetime.datetime.now(), True, 45)
+        res    = WSS.ReservedStatus("reservation_id", "coord_address1", "lab_session_id1", 50, None, datetime.datetime.now(), datetime.datetime.now(), True, 45, 'http://www.weblab.deusto.es/weblab/client/#reservation-id=foo&...')
         str(res)
 
     def test_str_post_reservation(self):

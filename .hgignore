@@ -8,6 +8,7 @@ regex:
 .class$
 .swp$
 
+^server/consumers/php/cookiefile
 ^server/launch/.*/logs$
 ^server/launch/.*/.*\.pid$
 ^server/launch/.*/_file_notifier.pid$
@@ -69,11 +70,11 @@ server/src/test/unit/weblab/proxy/files_stored/*
 
 server/deploy/weblab_administrator_credentials.py
 
-server/admin/dbmanager/USERS
-server/admin/dbmanager/OIDUSERS
-server/admin/dbmanager/NOTIFICATION
-
-server/admin/dbmanager/configuration.py
+server/admin/cli/USERS
+server/admin/cli/OIDUSERS
+server/admin/cli/NOTIFICATION
+server/admin/cli/NOTIFICATION_WITH_PASSWORD
+server/admin/cli/configuration.py
 server/admin/web/configuration.py
 server/admin/monitor/configuration.py
 server/admin/logging/generate_logging_config_file/configuration.py
@@ -84,10 +85,10 @@ server/admin/logging/generate_logging_config_file/configuration.py
 
 tools/ExperimentServerTester/src/persistence.dat
 tools/PackageCreator/packages
-tools/Bot/logs.txt*
-tools/Bot/*_log.txt
-tools/Bot/raw_information*dump
-tools/Bot/botclient*html
+tools/Bot/logs.txt.*
+tools/Bot/.*.html
+tools/Bot/.*.dump
+tools/Bot/.*_log.txt
 
 tools/Bot/figures/*
 tools/Bot/logs/*

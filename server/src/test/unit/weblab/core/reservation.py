@@ -32,11 +32,11 @@ class ReservationTest(unittest.TestCase):
         self.assertCorrectReservation(reservation)
         
     def test_str_confirmed_reservation(self):
-        reservation = ConfirmedReservation("reservation_id", datetime.datetime.now(), "{}")
+        reservation = ConfirmedReservation("reservation_id", datetime.datetime.now(), "{}", 'http://www.weblab.deusto.es/...')
         self.assertCorrectReservation(reservation)
 
     def test_str_waiting_confirmation_reservation(self):
-        reservation = WaitingConfirmationReservation("reservation_id", )
+        reservation = WaitingConfirmationReservation("reservation_id", 'http://www.weblab.deusto.es/...')
         self.assertCorrectReservation(reservation)
 
     def test_str_post_reservation_reservation(self):

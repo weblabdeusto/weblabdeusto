@@ -172,13 +172,13 @@ class UserProcessingIntegratingRemoteFacadeManager(unittest.TestCase):
                 expected_sess_id = SessionId.SessionId("whatever")
                 NUMBER   = 5
 
-                expected_confirmed_reservation = Reservation.ConfirmedReservation("reservation_id", NUMBER, "{}")
+                expected_confirmed_reservation = Reservation.ConfirmedReservation("reservation_id", NUMBER, "{}", 'http://www.weblab.deusto.es/...')
                 expected_experiment_id = self._generate_two_experiments()[0].to_experiment_id()
 
                 self._generate_experiments_allowed()
                 self.mock_server.return_values['reserve_experiment'] = expected_confirmed_reservation
 
-                confirmed_reservation = wds.reserve_experiment(expected_sess_id, expected_experiment_id, "{}")
+                confirmed_reservation = wds.reserve_experiment(expected_sess_id, expected_experiment_id, "{}", "{}")
 
                 self.assertEquals(
                         expected_sess_id.id,
@@ -233,7 +233,7 @@ class UserProcessingIntegratingRemoteFacadeManager(unittest.TestCase):
                 expected_sess_id = SessionId.SessionId("whatever")
                 NUMBER   = 5
 
-                expected_confirmed_reservation = Reservation.ConfirmedReservation("reservation_id", NUMBER, "{}")
+                expected_confirmed_reservation = Reservation.ConfirmedReservation("reservation_id", NUMBER, "{}", 'http://www.weblab.deusto.es/...')
                 self.mock_server.return_values['get_reservation_status'] = expected_confirmed_reservation
 
                 confirmed_reservation = wds.get_reservation_status(expected_sess_id)

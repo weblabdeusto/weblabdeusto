@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-
+import time
 import random
 import Queue
 import threading
@@ -37,7 +37,7 @@ _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessing
 # it.
 # 
 class SchedulerTransactionsSynchronizer(threading.Thread):
-    def __init__(self, scheduler):
+    def __init__(self, scheduler, min_time_between_updates = 0.0, max_time_between_updates = 0.0):
         super(SchedulerTransactionsSynchronizer, self).__init__()
         self.setName(counter.next_name("SchedulerTransactionsSynchronizer"))
         self.setDaemon(True)
@@ -47,6 +47,16 @@ class SchedulerTransactionsSynchronizer(threading.Thread):
 
         self.pending_elements = []
         self.pending_elements_condition = threading.Condition()
+
+        self._latest_update = 0 # epoch
+        self.period_lock = threading.Lock()
+        self.min_time_between_updates = int(min_time_between_updates * 1000)
+        self.max_time_between_updates = int(max_time_between_updates * 1000)
+        self.next_period_between_updates = 0
+
+
+    def _update_period_between_updates(self):
+        self.next_period_between_updates = random.randint(self.min_time_between_updates, self.max_time_between_updates) / 1000.0
 
     def start(self):
         super(SchedulerTransactionsSynchronizer, self).start()
@@ -81,12 +91,20 @@ class SchedulerTransactionsSynchronizer(threading.Thread):
                 break
 
         if not self.stopped:
-
-            try:
-                self.scheduler.update()
-            except:
-                log.log(SchedulerTransactionsSynchronizer, log.level.Critical, "Exception updating scheduler")
-                log.log_exc(SchedulerTransactionsSynchronizer, log.level.Critical)
+            execute = True
+            with self.period_lock:
+                if time.time() - self._latest_update <= self.next_period_between_updates:
+                    execute = False
+                else:
+                    self._latest_update = time.time()
+                    self._update_period_between_updates()
+                    
+            if execute:
+                try:
+                    self.scheduler.update()
+                except:
+                    log.log(SchedulerTransactionsSynchronizer, log.level.Critical, "Exception updating scheduler")
+                    log.log_exc(SchedulerTransactionsSynchronizer, log.level.Critical)
 
 
         self._notify_elements(elements)

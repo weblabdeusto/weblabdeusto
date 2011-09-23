@@ -394,7 +394,9 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
     @Override
 	public String serializeReserveExperimentRequest(SessionID sessionId, ExperimentID experimentId, JSONValue clientInitialData) throws SerializationException {
 		//{"params": {"session_id": {"id": "svAsc-rCIKLP1qeU"}, 
-		//  "experiment_id": {"exp_name": "ud-dummy", "cat_name": "Dummy experiments"}}, 
+		//  "experiment_id": {"exp_name": "ud-dummy", "cat_name": "Dummy experiments"},
+    	//  "client_initial_data" : "{}",
+    	//  "consumer_data" : "{}"}, 
 		// "method": "reserve_experiment"}
 		final JSONObject params = new JSONObject();
 		params.put("session_id", this.serializeSessionId(sessionId));
@@ -406,6 +408,9 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
 			params.put("client_initial_data", new JSONString("{}"));
 		else
 			params.put("client_initial_data", new JSONString(clientInitialData.toString()));
+		// Client will never implement the consumer_data, since this argument is intended to be used with an external
+		// entity such as a LMS or an external WebLab-Deusto, and will include things such as "user_identifier", etc.
+		params.put("consumer_data", new JSONString("{}"));
 		return this.serializeRequest("reserve_experiment", params);
     }
 

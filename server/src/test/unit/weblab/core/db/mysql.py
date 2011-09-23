@@ -93,7 +93,11 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
             DbExceptions.DbProvidedUserNotFoundException,
             self.gateway.get_user_by_name,
             'studentXX'
-        )        
+        )
+
+    def test_is_access_forward(self):
+        self.assertFalse( self.gateway.is_access_forward('student1') )
+        self.assertTrue( self.gateway.is_access_forward('any') )
 
     def test_store_experiment_usage(self):
         student1, initial_usage, command1, command2, file1, file2 = create_usage(self.gateway)

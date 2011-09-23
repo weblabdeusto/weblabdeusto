@@ -47,7 +47,7 @@ DEFAULT_USER_PROCESSING_FACADE_XMLRPC_LISTEN          = ''
 USER_PROCESSING_FACADE_XMLRPC_PORT                    = 'core_facade_xmlrpc_port'
 
 USER_PROCESSING_FACADE_SERVER_ROUTE                   = 'core_facade_server_route'
-DEFAULT_USER_PROCESSING_SERVER_ROUTE                  = '<route-to-server>'
+DEFAULT_USER_PROCESSING_SERVER_ROUTE                  = 'default-route-to-server'
 
 class UserProcessingRemoteFacadeServer(RFS.AbstractRemoteFacadeServer):
 

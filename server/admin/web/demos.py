@@ -103,18 +103,18 @@ def index(req):
     try:
         cursor = connection.cursor()
         try:
-            SENTENCE = "SELECT u.full_name, e.name, c.name, uue.start_date, uue.origin " + \
+            SENTENCE = "SELECT uue.id, u.full_name, e.name, c.name, uue.start_date, uue.origin " + \
                         "FROM UserUsedExperiment as uue, User as u, Experiment as e, ExperimentCategory as c, `Group` as g, UserIsMemberOf as uimo " + \
                         "WHERE g.name = 'Demos' AND g.id = uimo.group_id AND u.id = uimo.user_id AND u.id = uue.user_id AND e.id = uue.experiment_id AND e.category_id = c.id " + \
                         "ORDER BY uue.start_date DESC LIMIT %s" % LIMIT
             cursor.execute(SENTENCE)
             elements = cursor.fetchall()
             result = """<html><head><title>Latest uses of demo</title></head><body><table cellspacing="20">
-                        <tr> <td><b>Name</b></td><td><b>Experiment</b></td> <td><b>Date</b></td> <td><b>From </b> </td> <td><b>From (resolved) </b></td></tr>
+                        <tr> <td><b>Name</b></td><td><b>Experiment</b></td> <td><b>Date</b></td> <td><b>From </b> </td> <td><b>From (resolved) </b></td> <td></td></tr>
                         """
-            for name, experiment_name, category_name, start_date, uue_from in elements:
+            for id, name, experiment_name, category_name, start_date, uue_from in elements:
                 resolved = _resolver.resolve(uue_from)
-                result += "\t<tr> <td> %s </td><td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> </tr>\n" % ( name, experiment_name + '@' + category_name, utc2local_str(start_date), uue_from, resolved )
+                result += '\t<tr> <td> %s </td><td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> <td>[<a href="/weblab/admin/uses.py/use?use_id=%s">more</a>] </tr>\n' % ( name, experiment_name + '@' + category_name, utc2local_str(start_date), uue_from, resolved, id )
         finally: 
             cursor.close()
     finally:

@@ -15,7 +15,7 @@
 
 import weblab.core.exc as coreExc
 
-class CoordinatorException(coreExc.UserProcessingException):
+class CoordinatorException(coreExc.WebLabCoreException):
     pass
 
 class ExperimentNotFoundException(CoordinatorException):
