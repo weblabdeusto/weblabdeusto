@@ -180,7 +180,7 @@ class LaboratoryServer(object):
                 # Remember the api version that we retrieved
                 self._assigned_experiments.set_api(exp_inst_id, reported_api)
                 log.log( LaboratoryServer, log.level.Info, "Experiment %r will use api %s" % (coord_address, reported_api) )
-                print LaboratoryServer, log.level.Info, "Experiment %r will use api %s" % (coord_address, reported_api)
+                # print LaboratoryServer, log.level.Info, "Experiment %r will use api %s" % (coord_address, reported_api)
                 num_success += 1
                 
             # print "We found the API of %d out of %d experiments." % (num_success, int(num_success)+int(num_fail))
