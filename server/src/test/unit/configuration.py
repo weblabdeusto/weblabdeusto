@@ -307,6 +307,8 @@ core_scheduling_systems = {
         "res_type"     : ("PRIORITY_QUEUE", {}),
     }
 
+core_server_url = 'http://localhost/weblab/'
+
 core_coordinator_db_username = 'weblab'
 core_coordinator_db_password = 'weblab'
 

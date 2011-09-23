@@ -45,6 +45,7 @@ SCHEDULING_SYSTEMS = {
     }
 
 CORE_SCHEDULING_SYSTEMS = 'core_scheduling_systems'
+CORE_SERVER_URL         = 'core_server_url'
 
 RESOURCES_CHECKER_FREQUENCY = 'core_resources_checker_frequency'
 DEFAULT_RESOURCES_CHECKER_FREQUENCY = 30 # seconds
@@ -80,6 +81,8 @@ class Coordinator(object):
 
     def __init__(self, locator, cfg_manager, ConfirmerClass = Confirmer.ReservationConfirmer):
         self.cfg_manager = cfg_manager
+
+        core_server_url = self.cfg_manager.get_value(CORE_SERVER_URL)
 
         self.notifier = AdminNotifier.AdminNotifier(self.cfg_manager)
         self.notifications_enabled = self.cfg_manager.get_value(RESOURCES_CHECKER_NOTIFICATIONS_ENABLED, DEFAULT_RESOURCES_CHECKER_NOTIFICATIONS_ENABLED)
@@ -132,7 +135,16 @@ class Coordinator(object):
                 raise CoordExc.UnregisteredSchedulingSystemException("Unregistered scheduling system: %s" % scheduling_system)
             SchedulingSystemClass = SCHEDULING_SYSTEMS[scheduling_system]
             
-            generic_scheduler_arguments = Scheduler.GenericSchedulerArguments(self.cfg_manager, resource_type_name, self.reservations_manager, self.resources_manager, self.confirmer, self._session_maker, self.time_provider)
+            generic_scheduler_arguments = Scheduler.GenericSchedulerArguments(
+                                                cfg_manager          = self.cfg_manager, 
+                                                resource_type_name   = resource_type_name, 
+                                                reservations_manager = self.reservations_manager, 
+                                                resources_manager    = self.resources_manager, 
+                                                confirmer            = self.confirmer, 
+                                                session_maker        = self._session_maker, 
+                                                time_provider        = self.time_provider,
+                                                core_server_url      = core_server_url
+                                        )
 
             self.schedulers[resource_type_name] = SchedulingSystemClass(generic_scheduler_arguments, **arguments)
 

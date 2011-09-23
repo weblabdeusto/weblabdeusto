@@ -61,6 +61,22 @@ class Method(object):
             return postvar[0]
         return default_value
 
+    def get_status(self):
+        return 200
+
+    def get_GET_argument(self, name, default_value = None):
+        for arg_name, value in self.get_arguments():
+            if arg_name == name:
+                return value
+        return default_value
+
+    def get_POST_argument(self, name, default_value = None):
+        self.read_post_arguments()
+        postvar = self.postvars.get(name, None)
+        if postvar is None or len(postvar) == 0:
+            return default_value
+        return postvar[0]
+
     def get_arguments(self):
         if self.relative_path.find('?') < 0:
             return []
@@ -150,7 +166,7 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 if method.matches(self.path):
                     m = method(self, self.cfg_manager, self.original_server)
                     message = m.run()
-                    self._write(200, message)
+                    self._write(m.get_status(), message)
                     break
             else:
                 NotFoundMethod(self, self.cfg_manager, self.original_server).run()

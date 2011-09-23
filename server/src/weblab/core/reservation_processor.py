@@ -82,6 +82,9 @@ class ReservationProcessor(object):
     def get_reservation_session_id(self):
         return self._reservation_session_id
 
+    def get_info(self):
+        return self._reservation_session['experiment_id']
+
     ##############################################################################
     # 
     # 
