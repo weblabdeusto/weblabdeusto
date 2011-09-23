@@ -163,7 +163,7 @@ class LaboratoryServer(object):
             # the first reserve() is carried out. Though we could wait for the first reserve straightaway,
             # it would add some delay to that first reserve. Trying to do it here will generally fix that
             # issue.
-            reported_api = self.do_get_api(exp_inst_id)
+            reported_api = self._get_experiment_api(exp_inst_id)
             if reported_api is None:
                 log.log( LaboratoryServer, log.level.Warning, "It was not possible to find out on load-time the api version of %r. We will retry on first reserve." 
                          % coord_address)
@@ -224,7 +224,7 @@ class LaboratoryServer(object):
         
         # If we don't know the API version yet, we will have to ask the experiment server itself
         if api is None:
-            reported_api = self.do_get_api(experiment_instance_id)
+            reported_api = self._get_experiment_api(experiment_instance_id)
             if reported_api is None:
                 log.log( LaboratoryServer, log.level.Warning, "It was not possible to find out the api version of %r. Using current version as default." 
                          % experiment_coord_address)
@@ -303,9 +303,9 @@ class LaboratoryServer(object):
             return return_value
         
     @logged(log.level.Info)
-    def do_get_api(self, experiment_instance_id):
+    def _get_experiment_api(self, experiment_instance_id):
         """
-        do_get_api(experiment_instance_id) -> api
+        _get_experiment_api(experiment_instance_id) -> api
         
         Retrieves the API version of the specified experiment instance (which will generally be the same
         for every experiment of the same kind).
