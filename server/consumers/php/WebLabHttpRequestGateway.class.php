@@ -13,13 +13,16 @@
  Author: Pablo Orduña <pablo@ordunya.com>
 */
 
-abstract class WlHttpRequestGateway
+abstract class WebLabHttpRequestGateway
 {
+    public static $CURL       = 'WEBLABDEUSTO_GATEWAY_CURL';
+    public static $HTTPCLIENT = 'WEBLABDEUSTO_GATEWAY_HTTPCLIENT';
+
     abstract public function login_call($serialized_request);
     abstract public function core_call($serialized_request);
 }
 
-class CurlHttpRequestGateway extends WlHttpRequestGateway
+class CurlHttpRequestGateway extends WebLabHttpRequestGateway
 {
     public function __construct($baseurl, $cookiefile)
     {
@@ -40,8 +43,7 @@ class CurlHttpRequestGateway extends WlHttpRequestGateway
         curl_setopt($ch, CURLOPT_POSTFIELDS, $serialized_request);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
-        $serialized_response = curl_exec($ch);
-        return $serialized_response;
+        return curl_exec($ch);
     }
 
     public function core_call($serialized_request)
@@ -57,16 +59,16 @@ class CurlHttpRequestGateway extends WlHttpRequestGateway
         curl_setopt($ch, CURLOPT_POSTFIELDS, $serialized_request);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
-        $serialized_response = curl_exec($ch);
-        return $serialized_response;
+        return curl_exec($ch);
     }
 }
 
-class HttpClientHttpRequestGateway extends WlHttpRequestGateway
+class HttpClientHttpRequestGateway extends WebLabHttpRequestGateway
 {
+
     public function __construct($baseurl)
     {
-        require("lib/HttpClient.class.php");
+        require_once("lib/HttpClient.class.php");
 
         $url_tokens = explode("/", $baseurl);
         $this->domain   = $url_tokens[2];
@@ -78,15 +80,11 @@ class HttpClientHttpRequestGateway extends WlHttpRequestGateway
     public function login_call($serialized_request)
     {
         $client = new HttpClient($this->domain);
+        $client->cookie_host = $this->domain;
         $client->post($this->location . "login/json/", $serialized_request);
 
-        $content = $client->getContent();
-
         $this->cookies = $client->getCookies();
-
-        var_dump($this->cookies);
-
-        return $content;
+        return $client->getContent();
     }
 
     public function core_call($serialized_request)

@@ -8,7 +8,22 @@ require("weblabdeusto.class.php");
 // We log in:
 // 
 
+// Default (HTTPCLIENT)
 $weblab = new WebLabDeusto("http://localhost/weblab/");
+
+// Using HttpClient: instance-level cookies; no support for HTTPS
+// $weblab = new WebLabDeusto("http://localhost/weblab/", WebLabHttpRequestGateway::$HTTPCLIENT);
+// 
+// Using CURL: support for HTTPS; cookies stored in file: common to 
+// all requests. If the login cookie expires while another request 
+// is in process, this request fails
+// $weblab = new WebLabDeusto("http://localhost/weblab/", WebLabHttpRequestGateway::$CURL); // additional optional argument: cookiefile
+
+// Using CURL with different cookie file
+// $weblab = new WebLabDeusto("http://localhost/weblab/", WebLabHttpRequestGateway::$CURL, "cookiefile");
+
+echo "Using http gateway: " . $weblab->getGatewayName() . "<br/>\n";
+
 $sess_id = $weblab->login("student1","password");
 
 //////////////////////////////////////////////

@@ -19,11 +19,27 @@ require("WebLabData.class.php");
 class WebLabDeusto
 {
 
-    public function __construct($baseurl, $cookiefile = "cookiefile")
+    public function __construct($baseurl, $gateway_name = "", $cookiefile = "cookiefile")
     {
         $this->baseurl = $baseurl;
-        // $this->gateway  = new CurlHttpRequestGateway($baseurl, $cookiefile);
-        $this->gateway  = new HttpClientHttpRequestGateway($baseurl, $cookiefile);
+
+        // Set the default gateway
+        if($gateway_name == "")
+            $gateway_name = WebLabHttpRequestGateway::$HTTPCLIENT;
+
+        $this->gateway_name = $gateway_name;
+
+        if($gateway_name == WebLabHttpRequestGateway::$CURL)
+            $this->gateway  = new CurlHttpRequestGateway($baseurl, $cookiefile);
+        else if($gateway_name == WebLabHttpRequestGateway::$HTTPCLIENT)
+            $this->gateway  = new HttpClientHttpRequestGateway($baseurl, $cookiefile);
+        else
+            die('Unsupported weblab http gateway: ' . $gateway_name);
+    }
+
+    public function getGatewayName()
+    {
+        return $this->gateway_name;
     }
 
     private function serialize_request($method, $params)
