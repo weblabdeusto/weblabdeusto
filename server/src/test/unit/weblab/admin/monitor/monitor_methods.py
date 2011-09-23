@@ -168,7 +168,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         result = methods.get_experiment_ups_session_ids.call(category, experiment)
         self.assertEquals( 1, len(result) )
         session_id, login, reservation_id = result[0]
-        self.assertEquals( status.reservation_id.id, session_id ) 
+        self.assertEquals( status.reservation_id.id.split(';')[0], session_id ) 
         self.assertEquals( "student2", login ) 
 
     def test_get_ups_session_ids_from_username(self):

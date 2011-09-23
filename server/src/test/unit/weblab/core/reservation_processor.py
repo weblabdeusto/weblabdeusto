@@ -90,13 +90,13 @@ class ReservationProcessorTestCase(unittest.TestCase):
         status = self.user_processor.reserve_experiment( ExperimentId('ud-dummy', 'Dummy experiments'), "{}", "{}", ClientAddress.ClientAddress("127.0.0.1"))
         self.reservation_processor = ReservationProcessor(
                     self.cfg_manager,
-                    SessionId.SessionId(status.reservation_id),
+                    SessionId.SessionId(status.reservation_id.split(';')[0]),
                     {
 'session_polling'    : (time.time(), ReservationProcessor.EXPIRATION_TIME_NOT_SET),
                         'latest_timestamp'   : 0,
                         'experiment_id'      : ExperimentId('ud-dummy', 'Dummy experiments'),
                         'creator_session_id' : '',
-                        'reservation_id'     : SessionId.SessionId(status.reservation_id),
+                        'reservation_id'     : SessionId.SessionId(status.reservation_id.split(';')[0]),
                     },
                     self.coordinator,
                     self.locator,

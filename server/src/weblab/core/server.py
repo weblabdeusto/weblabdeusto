@@ -346,8 +346,8 @@ class UserProcessingServer(object):
     def reserve_experiment(self, user_processor, session, experiment_id, client_initial_data, consumer_data, client_address):
         status = user_processor.reserve_experiment( experiment_id, client_initial_data, consumer_data, client_address )
 
-        reservation_id         = status.reservation_id
-        reservation_session_id = SessionId(status.reservation_id)
+        reservation_id         = status.reservation_id.split(';')[0]
+        reservation_session_id = SessionId(reservation_id)
 
         self._alive_users_collection.add_user(reservation_session_id)
 

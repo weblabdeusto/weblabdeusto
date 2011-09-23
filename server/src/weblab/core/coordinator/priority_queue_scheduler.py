@@ -145,6 +145,8 @@ class PriorityQueueScheduler(Scheduler):
 
         self._synchronizer.request_and_wait()
 
+        reservation_id_with_route = '%s;%s.%s' % (reservation_id, reservation_id, self.core_server_route)
+
         return_current_status = False
         session = self.session_maker()
         try:
@@ -183,7 +185,7 @@ class PriorityQueueScheduler(Scheduler):
                     timestamp_after   = datetime.datetime.fromtimestamp(concrete_current_reservation.timestamp_after)
 
                 if lab_session_id is None:
-                    return WSS.WaitingConfirmationQueueStatus(reservation_id, lab_coord_address, obtained_time, self.core_server_url)
+                    return WSS.WaitingConfirmationQueueStatus(reservation_id_with_route, lab_coord_address, obtained_time, self.core_server_url)
                 else:
                     if initialization_in_accounting:
                         before = concrete_current_reservation.timestamp_before
@@ -195,7 +197,7 @@ class PriorityQueueScheduler(Scheduler):
                     else:
                         remaining = obtained_time
 
-                    return WSS.ReservedStatus(reservation_id, lab_coord_address, SessionId.SessionId(lab_session_id), obtained_time, initial_configuration, timestamp_before, timestamp_after, initialization_in_accounting, remaining, self.core_server_url)
+                    return WSS.ReservedStatus(reservation_id_with_route, lab_coord_address, SessionId.SessionId(lab_session_id), obtained_time, initial_configuration, timestamp_before, timestamp_after, initialization_in_accounting, remaining, self.core_server_url)
 
             resource_type = session.query(ResourceType).filter_by(name = self.resource_type_name).one()
             waiting_reservation = session.query(WaitingReservation).filter_by(reservation_id = reservation_id, resource_type_id = resource_type.id).first()
@@ -230,9 +232,9 @@ class PriorityQueueScheduler(Scheduler):
             return self.get_reservation_status(reservation_id)
 
         if remaining_working_instances:
-            return WSS.WaitingQueueStatus(reservation_id, position)
+            return WSS.WaitingQueueStatus(reservation_id_with_route, position)
         else:
-            return WSS.WaitingInstancesQueueStatus(reservation_id, position)
+            return WSS.WaitingInstancesQueueStatus(reservation_id_with_route, position)
 
 
     ################################################################

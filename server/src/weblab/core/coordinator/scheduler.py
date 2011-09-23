@@ -15,6 +15,8 @@
 
 from abc import ABCMeta, abstractmethod
 
+import weblab.core.comm.user_server as comm_user_server
+
 class GenericSchedulerArguments(object):
     def __init__(self, cfg_manager, resource_type_name, reservations_manager, resources_manager, confirmer, session_maker, time_provider, core_server_url, **kwargs):
         self.cfg_manager          = cfg_manager
@@ -106,6 +108,7 @@ class Scheduler(object):
         # 
         self.core_server_url      = generic_scheduler_arguments.core_server_url
 
+        self.core_server_route = self.cfg_manager.get_value(comm_user_server.USER_PROCESSING_FACADE_SERVER_ROUTE, comm_user_server.DEFAULT_USER_PROCESSING_SERVER_ROUTE)
 
     ####################################################################################
     # 
