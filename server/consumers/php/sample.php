@@ -52,7 +52,7 @@ var_dump($reservation_status);
 $reservation_status = $weblab->get_reservation_status($reservation_status->reservation_id);
 var_dump($reservation_status);
 
-$client_url = $weblab->create_client($reservation_status, $exp_name, $cat_name);
+$client_url = $weblab->create_client($reservation_status);
 
 echo  "URL: " . $client_url . "\n";
 

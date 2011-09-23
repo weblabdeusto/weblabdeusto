@@ -149,7 +149,7 @@ class WebLabDeusto
         }
     }
 
-    public function create_client($reservation_status, $exp_name, $cat_name)
+    public function create_client($reservation_status)
     {
         return $this->baseurl . "client/federated.html#reservation_id=" . $reservation_status->reservation_id;
     }
