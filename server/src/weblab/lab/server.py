@@ -60,6 +60,7 @@ WEBLAB_LABORATORY_SERVER_ASSIGNED_EXPERIMENTS    = "laboratory_assigned_experime
 WEBLAB_LABORATORY_EXCLUDE_CHECKING               = "laboratory_exclude_checking"
 DEFAULT_WEBLAB_LABORATORY_EXCLUDE_CHECKING       = []
 
+DEBUG = False
 
 ##########################################################
 #
@@ -143,15 +144,7 @@ class LaboratoryServer(object):
                         checking_handlers.append(eval('IsUpAndRunningHandler.'+klazz)(*argss, **kargss))
                     else:
                         raise LaboratoryExceptions.InvalidLaboratoryConfigurationException("Invalid IsUpAndRunningHandler: %s" % klazz)
-
-                api = data.get('api', 'current')
-                if not ExperimentApiLevel.is_level(api):
-                    raise LaboratoryExceptions.InvalidLaboratoryConfigurationException("Invalid api: %s. See %s" % (api, ExperimentApiLevel.__file__))
-
-                if not ExperimentApiLevel.is_supported(api):
-                    raise LaboratoryExceptions.InvalidLaboratoryConfigurationException("Unsupported api: %s" % api)
-
-                parsed_experiments.append( (experiment_instance_id, coord_address, checking_handlers, ExperimentApiLevel.get_level(api)) )
+                parsed_experiments.append( (experiment_instance_id, coord_address, checking_handlers ) )
         return parsed_experiments
 
     def _load_assigned_experiments(self):
@@ -161,8 +154,8 @@ class LaboratoryServer(object):
         num_success = 0
         num_fail = 0
         
-        for exp_inst_id, coord_address, checking_handlers, api in parsed_experiments:
-            self._assigned_experiments.add_server(exp_inst_id, coord_address, checking_handlers, None)
+        for exp_inst_id, coord_address, checking_handlers in parsed_experiments:
+            self._assigned_experiments.add_server(exp_inst_id, coord_address, checking_handlers)
             
             # Upon loading, we will also try to find out which API each experiment should use, by asking
             # the experiment server itself. Sometimes, however, the experiment server will not really be
@@ -174,16 +167,19 @@ class LaboratoryServer(object):
             if reported_api is None:
                 log.log( LaboratoryServer, log.level.Warning, "It was not possible to find out on load-time the api version of %r. We will retry on first reserve." 
                          % coord_address)
-                # print "[DBG][LOAD] Was not possible to find out the api version of %r" % coord_address
+                if DEBUG:
+                    print "[DBG][LOAD] Was not possible to find out the api version of %r" % coord_address
                 num_fail += 1
             else:
                 # Remember the api version that we retrieved
                 self._assigned_experiments.set_api(exp_inst_id, reported_api)
                 log.log( LaboratoryServer, log.level.Info, "Experiment %r will use api %s" % (coord_address, reported_api) )
-                print LaboratoryServer, log.level.Info, "Experiment %r will use api %s" % (coord_address, reported_api)
+                if DEBUG:
+                    print LaboratoryServer, log.level.Info, "Experiment %r will use api %s" % (coord_address, reported_api)
                 num_success += 1
                 
-            # print "We found the API of %d out of %d experiments." % (num_success, int(num_success)+int(num_fail))
+            if DEBUG:
+                print "We found the API of %d out of %d experiments." % (num_success, int(num_success)+int(num_fail))
             log.log(LaboratoryServer, log.level.Info, "We found the API of %d out of %d experiments." % (num_success, int(num_success)+int(num_fail)) )
 
 
@@ -232,7 +228,8 @@ class LaboratoryServer(object):
             if reported_api is None:
                 log.log( LaboratoryServer, log.level.Warning, "It was not possible to find out the api version of %r. Using current version as default." 
                          % experiment_coord_address)
-                print "[DBG] Was not possible to find out the api version of %r" % experiment_coord_address
+                if DEBUG:
+                    print "[DBG] Was not possible to find out the api version of %r" % experiment_coord_address
             else:
                 # Remember the api version that we retrieved
                 self._assigned_experiments.set_api(experiment_instance_id, reported_api)

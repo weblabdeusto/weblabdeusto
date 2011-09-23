@@ -33,7 +33,7 @@ class AssignedExperiments(object):
                 #}
             }
 
-    def add_server(self, exp_inst_id, experiment_coord_address, checking_handlers, api):
+    def add_server(self, exp_inst_id, experiment_coord_address, checking_handlers):
         by_category = self._experiments.get( exp_inst_id.cat_name )
         if by_category == None:
             by_category = {}
@@ -50,7 +50,7 @@ class AssignedExperiments(object):
                 "Experiment instance already found in server"
             )
 
-        by_experiment[exp_inst_id.inst_name] = ExperimentHandler.ExperimentHandler( experiment_coord_address, checking_handlers, api )
+        by_experiment[exp_inst_id.inst_name] = ExperimentHandler.ExperimentHandler( experiment_coord_address, checking_handlers)
 
     def list_experiment_instance_ids(self):
         experiment_instance_ids = []

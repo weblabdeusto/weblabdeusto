@@ -35,22 +35,21 @@ class AssignedExperimentsTestCase(unittest.TestCase):
         clients_coord_addresses = CoordAddress.CoordAddress.translate_address("myserver:myinstance@mymachine")
         checking_handlers = ('WebcamIsUpAndRunningHandler',)
 
-        self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, checking_handlers, ExperimentApiLevel.current )
+        self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, checking_handlers )
 
         self.assertRaises(
             LaboratoryExceptions.ExperimentAlreadyFoundException,
             self._assigned_micro_servers.add_server,
             self.exp_inst_id,
             clients_coord_addresses,
-            checking_handlers,
-            ExperimentApiLevel.current
+            checking_handlers
         )
 
     def test_list_experiment_instance_ids(self):
         clients_coord_addresses = CoordAddress.CoordAddress.translate_address("myserver:myinstance@mymachine")
         checking_handlers = ('WebcamIsUpAndRunningHandler',)
 
-        self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, checking_handlers, ExperimentApiLevel.current )
+        self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, checking_handlers )
 
         result = self._assigned_micro_servers.list_experiment_instance_ids()
         self.assertEquals([self.exp_inst_id], result)
@@ -59,7 +58,7 @@ class AssignedExperimentsTestCase(unittest.TestCase):
         clients_coord_addresses = CoordAddress.CoordAddress.translate_address("myserver:myinstance@mymachine")
         checking_handlers = ('WebcamIsUpAndRunningHandler',)
 
-        self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, checking_handlers, ExperimentApiLevel.current )
+        self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, checking_handlers )
 
         coord_address = self._assigned_micro_servers.get_coord_address(self.exp_inst_id)
         self.assertEquals(clients_coord_addresses, coord_address)
@@ -68,7 +67,7 @@ class AssignedExperimentsTestCase(unittest.TestCase):
         clients_coord_addresses = CoordAddress.CoordAddress.translate_address("myserver:myinstance@mymachine")
         checking_handlers = ('WebcamIsUpAndRunningHandler',)
 
-        self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, checking_handlers, ExperimentApiLevel.current )
+        self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, checking_handlers )
 
         self._assigned_micro_servers.reserve_experiment(self.exp_inst_id, "foo")
         lab_session_id = self._assigned_micro_servers.get_lab_session_id(self.exp_inst_id)
@@ -78,7 +77,7 @@ class AssignedExperimentsTestCase(unittest.TestCase):
         clients_coord_addresses = CoordAddress.CoordAddress.translate_address("myserver:myinstance@mymachine")
         checking_handlers = ('WebcamIsUpAndRunningHandler',)
 
-        self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, checking_handlers, ExperimentApiLevel.current )
+        self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, checking_handlers )
 
         retrieved_is_up_and_running_handlers = self._assigned_micro_servers.get_is_up_and_running_handlers(self.exp_inst_id)
         self.assertEquals(checking_handlers, retrieved_is_up_and_running_handlers)
@@ -88,7 +87,7 @@ class AssignedExperimentsTestCase(unittest.TestCase):
         clients_coord_addresses = CoordAddress.CoordAddress.translate_address("myserver:myinstance@mymachine")
         checking_handlers = ('WebcamIsUpAndRunningHandler',)
 
-        self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, checking_handlers, ExperimentApiLevel.current )
+        self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, checking_handlers )
 
         def check_reserve():
             result = self._assigned_micro_servers.reserve_experiment( self.exp_inst_id, "my session id" )
