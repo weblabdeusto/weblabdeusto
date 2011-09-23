@@ -233,6 +233,7 @@ class LaboratoryServer(object):
             else:
                 # Remember the api version that we retrieved
                 self._assigned_experiments.set_api(experiment_instance_id, reported_api)
+                api = reported_api
 
 
         experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)

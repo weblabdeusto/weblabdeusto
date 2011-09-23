@@ -158,14 +158,30 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
                                                                            ('HostIsUpAndRunningHandler', ("hostname", 80), {}), ),
                                                              },
                                                                            })
-
+        
+        
+        # We will use this first laboratory, the default, for those tests which use
+        # the new API (at the moment of writing this, API 2).
+        self.fake_client._set_fake_api("2")
         self.lab = LaboratoryServer.LaboratoryServer(
                 None,
                 locator,
                 cfg_manager
             )
+        
+        # We will use this other laboratory for the old API tests.
+        # The API is obtained during laboratory load-time from the experiments,
+        # in this case, from the fake_client. Hence the need for this.
+        self.fake_client._set_fake_api("1")
+        self.old_lab = LaboratoryServer.LaboratoryServer(
+                None,
+                locator,
+                cfg_manager
+                )
+        
 
     def test_reserve_experiment_instance_id_simple(self):
+        
         self.assertEquals(0, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
@@ -182,26 +198,37 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self.assertEquals(1, self.fake_client.started_new)
         self.assertEquals(1, self.fake_client.disposed)
 
-    # TODO/TOFIX: Temporarily disabled the old api test.
-    def tofix_test_reserve_experiment_instance_id_old(self):
+
+    def test_reserve_experiment_instance_id_old(self):
+        """
+        Unlike most other tests, this one uses the old API. Hence,
+        we use the second laboratory we have set up for testing.
+        When this second laboratory is initialised, the fake experiments
+        report API 1.
+        """
         self.assertEquals(0, self.fake_client.started_old)
         self.assertEquals(0, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
-        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id_old, {}, {})
+        lab_session_id, experiment_server_result, exp_coord_str = self.old_lab.do_reserve_experiment(self.experiment_instance_id_old, {}, {})
+        
+        # Now we will make sure that on reserve, the old API version of do_start was called, and not the new one.
         self.assertEquals(1, self.fake_client.started_old)
         self.assertEquals(0, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
-        expected_return =  '{"foo" : "bar"}'
-        self.fake_client.next_dispose = expected_return
+        # If we used the new API then the dispose would indeed return the following text. However,
+        # the old API should always return "ok". 
+        not_expected_return =  '{"foo" : "bar"}'
+        self.fake_client.next_dispose = not_expected_return
 
-        return_value = self.lab.do_free_experiment(lab_session_id)
+        return_value = self.old_lab.do_free_experiment(lab_session_id)
         self.assertEquals('ok', return_value) 
-        self.assertNotEquals(expected_return, return_value)
+        self.assertNotEquals(not_expected_return, return_value)
         self.assertEquals(1, self.fake_client.started_old)
         self.assertEquals(0, self.fake_client.started_new)
         self.assertEquals(1, self.fake_client.disposed)
+        
 
     def test_free_experiment_twice(self):
         self.assertEquals(0, self.fake_client.started_new)
@@ -568,6 +595,20 @@ class FakeClient(object):
         self.started_old  = 0
         self.disposed = 0
         self.next_dispose = None
+        self._fake_api = None
+
+
+    def _set_fake_api(self, api):
+        """
+        Sets the fake api version that we want this fake client to return when
+        get_api gets called. 
+        @param api The string describing the version
+        @see get_api
+        """
+        self._fake_api = api
+
+    def get_api(self):
+        return self._fake_api
 
 
     def start_experiment(self, client_initial_data = None, server_initial_data = None):

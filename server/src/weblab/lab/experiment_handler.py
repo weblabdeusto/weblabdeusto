@@ -43,7 +43,7 @@ class ExperimentHandler(object):
     # TODO: Consider making this an internal method
     @api.setter
     def api(self, value): 
-        self._x = value
+        self._api = value
 
     @property
     def busy(self):
