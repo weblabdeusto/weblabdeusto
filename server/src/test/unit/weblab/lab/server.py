@@ -158,7 +158,8 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
                                                                            ('HostIsUpAndRunningHandler', ("hostname", 80), {}), ),
                                                              },
                                                                            })
-
+        self.fake_client._set_fake_api("1")
+        
         self.lab = LaboratoryServer.LaboratoryServer(
                 None,
                 locator,
@@ -183,7 +184,7 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self.assertEquals(1, self.fake_client.disposed)
 
     # TODO/TOFIX: Temporarily disabled the old api test.
-    def tofix_test_reserve_experiment_instance_id_old(self):
+    def test_reserve_experiment_instance_id_old(self):
         self.assertEquals(0, self.fake_client.started_old)
         self.assertEquals(0, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
@@ -568,6 +569,20 @@ class FakeClient(object):
         self.started_old  = 0
         self.disposed = 0
         self.next_dispose = None
+        self._fake_api = None
+
+
+    def _set_fake_api(self, api):
+        """
+        Sets the fake api version that we want this fake client to return when
+        get_api gets called. 
+        @param api The string describing the version
+        @see get_api
+        """
+        self._fake_api = api
+
+    def get_api(self):
+        return self._fake_api
 
 
     def start_experiment(self, client_initial_data = None, server_initial_data = None):
