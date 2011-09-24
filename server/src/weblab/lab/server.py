@@ -274,7 +274,7 @@ class LaboratoryServer(object):
             experiment_instance_id = session['experiment_instance_id']
             try:
                 experiment_response = self._free_experiment_from_assigned_experiments(experiment_instance_id)
-            except Exception, e:
+            except Exception as e:
                 log.log( LaboratoryServer, log.level.Error, "Exception freeing experiment" % e )
                 log.log_exc(LaboratoryServer, log.level.Error)
                 experiment_response = ''
@@ -320,7 +320,21 @@ class LaboratoryServer(object):
         try:
             reported_api = experiment_server.get_api()
         except:
-            reported_api = None
+            # get_api failed, test if the server is online
+            try:
+                experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
+                self._locator.check_server_at_coordaddr(experiment_coord_address, ServerType.Experiment)
+                # it is online! check the get_api
+                try:
+                    reported_api = experiment_server.get_api()
+                except:
+                    # Failed again to get_api, but test had previously worked? 
+                    # Then it is probably using the version 1, 
+                    # where the get_api method was not supported
+                    reported_api = ExperimentApiLevel.level_1
+            except Exception as e:
+                # It's not online. No get_api.
+                reported_api = None
         
         return reported_api
 

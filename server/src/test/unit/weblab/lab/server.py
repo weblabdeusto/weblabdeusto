@@ -135,12 +135,12 @@ class LaboratoryServerLoadingTestCase(unittest.TestCase):
 class LaboratoryServerManagementTestCase(unittest.TestCase):
 
     def setUp(self):
-        cfg_manager= ConfigurationManager.ConfigurationManager()
-        cfg_manager.append_module(configuration_module)
+        self.cfg_manager= ConfigurationManager.ConfigurationManager()
+        self.cfg_manager.append_module(configuration_module)
 
         self.fake_client  = FakeClient()
         self.fake_locator = FakeLocator((self.fake_client, ))
-        locator        = EasyLocator.EasyLocator(
+        self.locator        = EasyLocator.EasyLocator(
                     CoordAddress.CoordAddress('mach','inst','serv'),
                     self.fake_locator
                 )
@@ -149,7 +149,7 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self.experiment_instance_id_old = ExperimentInstanceId("exp_inst","exp_name","exp_cat2")
         self.experiment_coord_address = CoordAddress.CoordAddress.translate_address('myserver:myinstance@mymachine')
 
-        cfg_manager._set_value('laboratory_assigned_experiments',
+        self.cfg_manager._set_value('laboratory_assigned_experiments',
                             { 'exp_inst:exp_name@exp_cat': { 'coord_address': 'myserver:myinstance@mymachine',
                                                              'checkers': ( ('WebcamIsUpAndRunningHandler', ("https://...",)),
                                                                            ('HostIsUpAndRunningHandler', ("hostname", 80), {}), )},
@@ -165,8 +165,8 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self.fake_client._set_fake_api("2")
         self.lab = LaboratoryServer.LaboratoryServer(
                 None,
-                locator,
-                cfg_manager
+                self.locator,
+                self.cfg_manager
             )
         
         # We will use this other laboratory for the old API tests.
@@ -175,8 +175,8 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self.fake_client._set_fake_api("1")
         self.old_lab = LaboratoryServer.LaboratoryServer(
                 None,
-                locator,
-                cfg_manager
+                self.locator,
+                self.cfg_manager
                 )
         
 
@@ -229,6 +229,30 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self.assertEquals(0, self.fake_client.started_new)
         self.assertEquals(1, self.fake_client.disposed)
         
+    def test_reserve_experiment_instance_id_old_non_python(self):
+        """
+        Unlike most other tests, this one uses the old API. Hence,
+        we use the second laboratory we have set up for testing.
+        When this second laboratory is initialised, the fake experiments
+        report API 1.
+        """
+        self.fake_client.fake_api_exc = Exception("Not such method")
+        self.old_lab = LaboratoryServer.LaboratoryServer(
+                None,
+                self.locator,
+                self.cfg_manager
+                )
+
+        self.assertEquals(0, self.fake_client.started_old)
+        self.assertEquals(0, self.fake_client.started_new)
+        self.assertEquals(0, self.fake_client.disposed)
+
+        lab_session_id, experiment_server_result, exp_coord_str = self.old_lab.do_reserve_experiment(self.experiment_instance_id_old, {}, {})
+        
+        # Now we will make sure that on reserve, the old API version of do_start was called, and not the new one.
+        self.assertEquals(1, self.fake_client.started_old)
+        self.assertEquals(0, self.fake_client.started_new)
+        self.assertEquals(0, self.fake_client.disposed)
 
     def test_free_experiment_twice(self):
         self.assertEquals(0, self.fake_client.started_new)
@@ -596,6 +620,7 @@ class FakeClient(object):
         self.disposed = 0
         self.next_dispose = None
         self._fake_api = None
+        self.fake_api_exc = None
 
 
     def _set_fake_api(self, api):
@@ -608,6 +633,8 @@ class FakeClient(object):
         self._fake_api = api
 
     def get_api(self):
+        if self.fake_api_exc is not None:
+            raise self.fake_api_exc
         return self._fake_api
 
 
