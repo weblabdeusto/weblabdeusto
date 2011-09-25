@@ -158,27 +158,12 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
                                                                            ('HostIsUpAndRunningHandler', ("hostname", 80), {}), ),
                                                              },
                                                                            })
+        self._create_lab()
         
-        
-        # We will use this first laboratory, the default, for those tests which use
-        # the new API (at the moment of writing this, API 2).
-        self.fake_client._set_fake_api("2")
-        self.lab = LaboratoryServer.LaboratoryServer(
-                None,
-                self.locator,
-                self.cfg_manager
-            )
-        
-        # We will use this other laboratory for the old API tests.
-        # The API is obtained during laboratory load-time from the experiments,
-        # in this case, from the fake_client. Hence the need for this.
-        self.fake_client._set_fake_api("1")
-        self.old_lab = LaboratoryServer.LaboratoryServer(
-                None,
-                self.locator,
-                self.cfg_manager
-                )
-        
+       
+    def _create_lab(self):
+         self.lab = LaboratoryServer.LaboratoryServer( None, self.locator, self.cfg_manager)
+       
 
     def test_reserve_experiment_instance_id_simple(self):
         
@@ -206,11 +191,14 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         When this second laboratory is initialised, the fake experiments
         report API 1.
         """
+        self.fake_client._set_fake_api("1")
+        self._create_lab()
+
         self.assertEquals(0, self.fake_client.started_old)
         self.assertEquals(0, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
-        lab_session_id, experiment_server_result, exp_coord_str = self.old_lab.do_reserve_experiment(self.experiment_instance_id_old, {}, {})
+        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id_old, {}, {})
         
         # Now we will make sure that on reserve, the old API version of do_start was called, and not the new one.
         self.assertEquals(1, self.fake_client.started_old)
@@ -222,7 +210,7 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         not_expected_return =  '{"foo" : "bar"}'
         self.fake_client.next_dispose = not_expected_return
 
-        return_value = self.old_lab.do_free_experiment(lab_session_id)
+        return_value = self.lab.do_free_experiment(lab_session_id)
         self.assertEquals('ok', return_value) 
         self.assertNotEquals(not_expected_return, return_value)
         self.assertEquals(1, self.fake_client.started_old)
@@ -237,17 +225,13 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         report API 1.
         """
         self.fake_client.fake_api_exc = Exception("Not such method")
-        self.old_lab = LaboratoryServer.LaboratoryServer(
-                None,
-                self.locator,
-                self.cfg_manager
-                )
+        self._create_lab()
 
         self.assertEquals(0, self.fake_client.started_old)
         self.assertEquals(0, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
-        lab_session_id, experiment_server_result, exp_coord_str = self.old_lab.do_reserve_experiment(self.experiment_instance_id_old, {}, {})
+        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id_old, {}, {})
         
         # Now we will make sure that on reserve, the old API version of do_start was called, and not the new one.
         self.assertEquals(1, self.fake_client.started_old)
@@ -601,6 +585,9 @@ class FakeLocator(object):
         raise Exception(self.fail_on_server_request)
 
     def inform_server_not_working(self, server_not_working, server_type, restrictions_of_server):
+        pass
+
+    def check_server_at_coordaddr(self):
         pass
 
 ###############################################
