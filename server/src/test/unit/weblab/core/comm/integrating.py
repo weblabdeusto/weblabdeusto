@@ -23,6 +23,7 @@ except ImportError:
 
 import datetime
 
+from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 import voodoo.sessions.session_id as SessionId
 import weblab.data.dto.experiments as ExperimentAllowed
 import weblab.data.dto.experiments as Experiment
@@ -47,7 +48,7 @@ import weblab.core.exc as coreExc
 
 from test.unit.weblab.core.comm.user_manager import MockUPS
 
-class UserProcessingIntegratingRemoteFacadeManager(unittest.TestCase):
+class UserProcessingIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
     if UserProcessingFacadeServer.ZSI_AVAILABLE:
         def setUp(self):
             self.configurationManager = ConfigurationManager.ConfigurationManager()
@@ -353,8 +354,148 @@ class UserProcessingIntegratingRemoteFacadeManager(unittest.TestCase):
     else:
         print >> sys.stderr, "Optional library 'ZSI' not available. Tests in weblab.core.comm.Integrating skipped"
 
+class UserProcessingIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
+    def setUp(self):
+        self.configurationManager = ConfigurationManager.ConfigurationManager()
+        self.configurationManager.append_module(configuration)
+
+        self.configurationManager._set_value(RemoteFacadeServer.RFS_TIMEOUT_NAME, 0.001)
+
+        self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_ZSI_PORT, 10223)
+        self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_ZSI_SERVICE_NAME, '/weblab/soap/')
+        self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_ZSI_LISTEN, '')
+
+        self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_JSON_PORT, 10224)
+        self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_JSON_LISTEN, '')
+
+        self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_XMLRPC_PORT, 10225)
+        self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_XMLRPC_LISTEN, '')
+
+
+        self.mock_server      = MockUPS()
+        self.rfs = UserProcessingFacadeServer.UserProcessingRemoteFacadeServer(self.mock_server, self.configurationManager)
+
+    def _generate_two_experiments(self):
+        experimentA = Experiment.Experiment(
+                'weblab-pld',
+                Category.ExperimentCategory('WebLab-PLD experiments'),
+                datetime.datetime(2007,1,1),
+                datetime.datetime(2008,1,1)
+            )
+        experimentB = Experiment.Experiment(
+                'weblab-fpga',
+                Category.ExperimentCategory('WebLab-FPGA experiments'),
+                datetime.datetime(2005,1,1),
+                datetime.datetime(2006,1,1)
+            )
+        return experimentA, experimentB
+
+    def _generate_experiments_allowed(self):
+        experimentA, experimentB = self._generate_two_experiments()
+        exp_allowedA = ExperimentAllowed.ExperimentAllowed( experimentA, 100, 5, True)
+        exp_allowedB = ExperimentAllowed.ExperimentAllowed( experimentB, 100, 5, True)
+        return exp_allowedA, exp_allowedB
+
+    @uses_module(RemoteFacadeServer)
+    def test_reserve_experiment(self):
+        port = 15126
+        self.configurationManager._set_value(self.rfs.FACADE_JSON_PORT, port)
+        self.rfs.start()
+        try:
+            client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % port)
+
+            expected_sess_id = SessionId.SessionId("whatever")
+            NUMBER   = 5
+
+            expected_confirmed_reservation = Reservation.ConfirmedReservation("reservation_id", NUMBER, "{}", 'http://www.weblab.deusto.es/...')
+            expected_experiment_id = self._generate_two_experiments()[0].to_experiment_id()
+
+            self._generate_experiments_allowed()
+            self.mock_server.return_values['reserve_experiment'] = expected_confirmed_reservation
+
+            confirmed_reservation = client.reserve_experiment(expected_sess_id, expected_experiment_id, "{}", "{}")
+
+            self.assertEquals(
+                    expected_sess_id.id,
+                    self.mock_server.arguments['reserve_experiment'][0]
+                )
+            self.assertEquals(
+                    expected_experiment_id.exp_name,
+                    self.mock_server.arguments['reserve_experiment'][1].exp_name
+                )
+            self.assertEquals(
+                    expected_experiment_id.cat_name,
+                    self.mock_server.arguments['reserve_experiment'][1].cat_name
+                )
+            self.assertEquals(
+                    expected_confirmed_reservation.time,    
+                    confirmed_reservation.time
+                )
+            self.assertEquals(
+                    expected_confirmed_reservation.status,
+                    confirmed_reservation.status
+                )
+        finally:
+            self.rfs.stop()
+
+    @uses_module(RemoteFacadeServer)
+    def test_get_reservation_status(self):
+        port = 15128
+        self.configurationManager._set_value(self.rfs.FACADE_JSON_PORT, port)
+        self.rfs.start()
+        try:
+            client = WebLabDeustoClient("http://localhost:%s/weblab/" % port)
+
+            expected_sess_id = SessionId.SessionId("whatever")
+            NUMBER   = 5
+
+            expected_confirmed_reservation = Reservation.ConfirmedReservation("reservation_id", NUMBER, "{}", 'http://www.weblab.deusto.es/...')
+            self.mock_server.return_values['get_reservation_status'] = expected_confirmed_reservation
+
+            confirmed_reservation = client.get_reservation_status(expected_sess_id)
+
+            self.assertEquals(
+                    expected_sess_id.id,
+                    self.mock_server.arguments['get_reservation_status'][0]
+                )
+            self.assertEquals(
+                    expected_confirmed_reservation.time,    
+                    confirmed_reservation.time
+                )
+            self.assertEquals(
+                    expected_confirmed_reservation.status,
+                    confirmed_reservation.status
+                )
+        finally:
+            self.rfs.stop()
+
+    @uses_module(RemoteFacadeServer)
+    def test_finished_experiment(self):
+        port = 15127
+        self.configurationManager._set_value(self.rfs.FACADE_JSON_PORT, port)
+        self.rfs.start()
+        try:
+            client = WebLabDeustoClient("http://localhost:%s/weblab/" % port)
+
+            expected_sess_id = SessionId.SessionId("whatever")
+
+            self.mock_server.return_values['finished_experiment'] = None
+
+            client.finished_experiment(expected_sess_id)
+
+            self.assertEquals(
+                    expected_sess_id.id,
+                    self.mock_server.arguments['finished_experiment'][0]
+                )
+        finally:
+            self.rfs.stop()
+
+
 def suite():
-    return unittest.makeSuite(UserProcessingIntegratingRemoteFacadeManager)
+    return unittest.TestSuite((
+            unittest.makeSuite(UserProcessingIntegratingRemoteFacadeManagerJSON),
+            unittest.makeSuite(UserProcessingIntegratingRemoteFacadeManagerZSI)
+        ))
 
 if __name__ == '__main__':
     unittest.main()
