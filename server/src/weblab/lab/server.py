@@ -156,32 +156,6 @@ class LaboratoryServer(object):
         
         for exp_inst_id, coord_address, checking_handlers in parsed_experiments:
             self._assigned_experiments.add_server(exp_inst_id, coord_address, checking_handlers)
-            
-            # Upon loading, we will also try to find out which API each experiment should use, by asking
-            # the experiment server itself. Sometimes, however, the experiment server will not really be
-            # available at this stage. Should this happen, we will try to contact the server again when
-            # the first reserve() is carried out. Though we could wait for the first reserve straightaway,
-            # it would add some delay to that first reserve. Trying to do it here will generally fix that
-            # issue.
-            reported_api = self._get_experiment_api(exp_inst_id)
-            if reported_api is None:
-                log.log( LaboratoryServer, log.level.Warning, "It was not possible to find out on load-time the api version of %r. We will retry on first reserve." 
-                         % coord_address)
-                if DEBUG:
-                    print "[DBG][LOAD] Was not possible to find out the api version of %r" % coord_address
-                num_fail += 1
-            else:
-                # Remember the api version that we retrieved
-                self._assigned_experiments.set_api(exp_inst_id, reported_api)
-                log.log( LaboratoryServer, log.level.Info, "Experiment %r will use api %s" % (coord_address, reported_api) )
-                if DEBUG:
-                    print LaboratoryServer, log.level.Info, "Experiment %r will use api %s" % (coord_address, reported_api)
-                num_success += 1
-                
-            if DEBUG:
-                print "We found the API of %d out of %d experiments." % (num_success, int(num_success)+int(num_fail))
-            log.log(LaboratoryServer, log.level.Info, "We found the API of %d out of %d experiments." % (num_success, int(num_success)+int(num_fail)) )
-
 
     #####################################################
     # 
@@ -313,11 +287,11 @@ class LaboratoryServer(object):
         
         @param experiment_instance_id The id of the experiment instance whose API to retrieve
         @return The API version, or None if an error occurred or it wasn't possible to retrieve the version.
-        """
-        experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
-        experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
-        
+        """        
         try:
+            experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
+            experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
+
             reported_api = experiment_server.get_api()
         except:
             # get_api failed, test if the server is online
