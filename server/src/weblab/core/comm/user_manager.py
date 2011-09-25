@@ -243,6 +243,15 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
         sess_id = self._parse_session_id(session_id)
         permissions = self._server.get_user_permissions(sess_id)
         return permissions
+    
+    @logged()
+    @RFM.check_exceptions(EXCEPTIONS)
+    def get_permission_types(self, session_id):
+        """ get_permission_types(session_id) -> array of PermissionType
+        """
+        sess_id = self._parse_session_id(session_id)
+        permission_types = self._server.get_permission_types(sess_id)
+        return permission_types
 
     def _fix_dates_in_experiments(self, experiments_allowed):
         # This is the default behaviour. Overrided by XML-RPC

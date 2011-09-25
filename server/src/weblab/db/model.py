@@ -761,6 +761,17 @@ class DbPermissionType(Base):
 
     def get_parameter(self, parameter_name):          
         return [ param for param in self.parameters if param.name == parameter_name ][0]
+    
+    def to_dto(self):
+        ptype = PermissionType(
+            self.name,
+            self.description,
+            self.user_applicable,
+            self.role_applicable,
+            self.group_applicable,
+            self.ee_applicable)
+        return ptype
+        
                 
 
 class DbPermissionTypeParameter(Base):
