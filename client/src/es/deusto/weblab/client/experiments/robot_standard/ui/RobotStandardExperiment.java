@@ -14,6 +14,8 @@
 package es.deusto.weblab.client.experiments.robot_standard.ui;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -27,7 +29,6 @@ import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
-import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
@@ -132,7 +133,10 @@ public class RobotStandardExperiment extends ExperimentBase {
 	    
 	    this.setupWidgets();
 	    
-	    RequestWebcamCommand.createAndSend(this.boardController, this.webcam, this.messages);
+		final JSONValue parsedInitialConfiguration = JSONParser.parseStrict(initialConfiguration);
+		final String webcamUrl = parsedInitialConfiguration.isObject().get("webcam").isString().stringValue();
+		
+		this.webcam.setUrl(webcamUrl);
 	    this.webcam.setVisible(true);
 	    this.webcam.start();
 

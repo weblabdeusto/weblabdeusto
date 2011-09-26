@@ -19,6 +19,8 @@ import java.util.Vector;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Button;
@@ -131,8 +133,11 @@ public class RobotProglistExperiment extends ExperimentBase {
 	    this.widget.setVisible(true);
 	    
 	    this.setupWidgets();
-
-	    RequestWebcamCommand.createAndSend(this.boardController, this.webcam, this.messages);
+	    
+		final JSONValue parsedInitialConfiguration = JSONParser.parseStrict(initialConfiguration);
+		final String webcamUrl = parsedInitialConfiguration.isObject().get("webcam").isString().stringValue();
+		
+		this.webcam.setUrl(webcamUrl);
 	    this.webcam.setVisible(true);
 	    this.webcam.start();
 	    
