@@ -19,6 +19,7 @@ from voodoo.override import Override
 from voodoo.log import logged
 
 
+import json
 import time
 
 DEBUG = False
@@ -42,7 +43,7 @@ class RobotProglist(Experiment.Experiment):
     @Override(Experiment.Experiment)
     @logged("info")
     def do_get_api(self):
-        return "1"
+        return "2"
 
     @Override(Experiment.Experiment)
     @logged("info")
@@ -52,7 +53,7 @@ class RobotProglist(Experiment.Experiment):
         """
         if(DEBUG):
             print "[Robot*] do_start_experiment called"
-        return "Ok"
+        return json.dumps({ "initial_configuration" : "{ \"webcam\" : \"%s\" }" % "WEBCAMURL=https://www.weblab.deusto.es/webcam/proxied/robot1", "batch" : False })
 
     @Override(Experiment.Experiment)
     @logged("info")
@@ -63,11 +64,10 @@ class RobotProglist(Experiment.Experiment):
         """
         if(DEBUG):
             print "[Robot*] do_send_command_to_device called"
-        if command == 'WEBCAMURL':
-            return "WEBCAMURL=https://www.weblab.deusto.es/webcam/proxied/robot1"
+            
         if command == 'programs':
             return "Follow white line,Walk alone,Interactive Demo,turn left & turn right,"
-        if command.startswith('program:'):
+        elif command.startswith('program:'):
             print "Sending program:" + command[len('program:'):]
             time.sleep(3)
             return "File sended & running"

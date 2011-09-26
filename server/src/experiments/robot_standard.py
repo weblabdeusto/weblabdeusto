@@ -15,6 +15,8 @@
 
 import weblab.experiment.experiment as Experiment
 
+import json
+
 from voodoo.override import Override
 from voodoo.log import logged
 
@@ -40,7 +42,7 @@ class RobotStandard(Experiment.Experiment):
     @Override(Experiment.Experiment)
     @logged("info")
     def do_get_api(self):
-        return "1"
+        return "2"
 
 
     @Override(Experiment.Experiment)
@@ -51,7 +53,7 @@ class RobotStandard(Experiment.Experiment):
         """
         if(DEBUG):
             print "[Robot*] do_start_experiment called"
-        return "Ok"
+        return json.dumps({ "initial_configuration" : "{ \"webcam\" : \"%s\" }" % "WEBCAMURL=https://www.weblab.deusto.es/webcam/proxied/robot1", "batch" : False })
 
     @Override(Experiment.Experiment)
     @logged("info")
@@ -62,8 +64,6 @@ class RobotStandard(Experiment.Experiment):
         """
         if(DEBUG):
             print "[Robot*] do_send_command_to_device called"
-        if command == 'WEBCAMURL':
-            return "WEBCAMURL=https://www.weblab.deusto.es/webcam/proxied/robot1"
         return "Ok"
 
 
