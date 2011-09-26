@@ -52,6 +52,16 @@ class WebLabDeustoClient(object):
     def _core_call(self, method, **kwargs):
         return self._call(self.baseurl + self.CORE_SUFFIX, method, **kwargs)
 
+    def get_cookies(self):
+        return [ cookie for cookie in self.cj if cookie.name in ['weblabsessionid', 'loginweblabsessionid'] ]
+        
+    def set_cookies(self, cookies):
+        for cookie in cookies:
+            self.cj.set_cookie(cookie)
+
+    def set_cookie(self, cookie):
+        self.cj.set_cookie(cookie)
+
     def login(self, username, password):
         session_holder = self._login_call('login', username=username, password=password)
         return SessionId(session_holder['id'])

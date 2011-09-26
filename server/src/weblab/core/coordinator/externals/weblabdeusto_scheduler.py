@@ -49,7 +49,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     @Override(Scheduler)
     def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data):
 
-        # TODO: map reservation_id with external reservation_id
+        # TODO: map reservation_id with external reservation_id AND cookie!!!
         consumer_data = {
             'time_allowed'                 : time,
             'priority'                     : priority,

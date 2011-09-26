@@ -36,6 +36,9 @@ def load():
     import weblab.core.coordinator.priority_queue_scheduler_model as PriorityQueueSchedulerModel
     assert PriorityQueueSchedulerModel.Base == Base # Just to avoid pyflakes warnings
 
+    import weblab.core.coordinator.externals.weblabdeusto_scheduler_model as weblabdeusto_scheduler_model
+    assert weblabdeusto_scheduler_model.Base == Base
+
 TABLE_KWARGS = {'mysql_engine' : 'InnoDB'}
 
 ######################################################################################
