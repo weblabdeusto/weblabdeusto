@@ -307,14 +307,22 @@ class UserProcessingServer(object):
         if self._session_manager.has_session(session_id):
             session        = self._session_manager.get_session(session_id)
 
+            user_processor = self._load_user(session)
+
             reservation_id = session.get('reservation_id')
-            if reservation_id is not None:
+            if reservation_id is not None and not user_processor.is_access_forward_enabled():
+                # 
+                # If "is_access_forward_enabled", the user (or more commonly, entity) can log out without
+                # finishing his current reservation
+                # 
+                # Furthermore, whenever booking is supported, this whole idea should be taken out. Even
+                # with queues it might not make sense, depending on the particular type of experiment.
+                # 
                 reservation_session = self._reservations_session_manager.get_session(SessionId(reservation_id))
                 reservation_processor = self._load_reservation(reservation_session)
                 reservation_processor.finish()
                 self._alive_users_collection.remove_user(reservation_id)
 
-            user_processor = self._load_user(session)
             user_processor.logout()
             user_processor.update_latest_timestamp()
 

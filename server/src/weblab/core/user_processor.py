@@ -119,6 +119,10 @@ class UserProcessor(object):
     def get_session_id(self):
         return self._session['session_id']
 
+    def is_access_forward_enabled(self):
+        db_session_id               = self._session['db_session_id']
+        return self._db_manager.is_access_forward(db_session_id)
+
     # 
     # Experiments
     # 
@@ -147,8 +151,7 @@ class UserProcessor(object):
             # TODO: to be tested
             raise core_exc.WebLabCoreException( "Invalid client_initial_data provided: a json-serialized object expected" )
 
-        db_session_id               = self._session['db_session_id']
-        if self._db_manager.is_access_forward(db_session_id):
+        if self.is_access_forward_enabled():
             try:
                 consumer_data = json.loads(serialized_consumer_data)
                 if 'external_user' in consumer_data:
