@@ -21,6 +21,8 @@ import voodoo.log as log
 
 import uuid
 
+import json
+
 import time
 
 from voodoo.threaded import threaded
@@ -113,7 +115,10 @@ class VMExperiment(Experiment.Experiment):
 
         self.session_id = self.generate_session_id()
         self._start_t = self.handle_start_exp_t()
-        return "Starting"
+        
+        # We report the URL through which to access the VM. The VM itself is not necessarily ready for access yet, however.
+        return json.dumps({ "initial_configuration" : """{ "config" : "%s" }""" % (self.url + "     with password: " + self.session_id), "batch" : False })
+    
 
     @Override(Experiment.Experiment)
     @logged("info")
@@ -122,15 +127,11 @@ class VMExperiment(Experiment.Experiment):
         Callback run when the client sends a command to the experiment
         @param command Command sent by the client, as a string.
         """
-        
-        # Returns the URL to access the VM. The VM itself is not necessarily ready for access yet.
-        if command == "get_configuration":
-            return self.url + "     with password: " + self.session_id
             
         # Returns 1 if the client should be able to connect to the VM already, 
         # 0;<estimated_load_time> if it isn't ready yet,
         # 3;<error msg> if an error occurred
-        elif command == "is_ready":
+        if command == "is_ready":
             if self.is_ready: return "1"    # 1:Ready
             if self.is_error: return "3;%s" % str(self.error)
             return "0;%s" % self.estimated_load_time
