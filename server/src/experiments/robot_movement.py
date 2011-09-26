@@ -47,7 +47,7 @@ class RobotMovement(Experiment.Experiment):
 
     @Override(Experiment.Experiment)
     @logged("info")
-    def do_start_experiment(self):
+    def do_start_experiment(self, *args, **kwargs):
         """
         Callback run when the experiment is started.
         """
@@ -98,6 +98,6 @@ class RobotMovement(Experiment.Experiment):
         """
         if(DEBUG):
             print "[Robot*] do_dispose called"
-        return "Ok"
+        return "ok"
     
 

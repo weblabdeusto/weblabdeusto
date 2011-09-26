@@ -242,6 +242,7 @@ public class LogicExperiment extends ExperimentBase {
 		this.textIntroPanel.setVisible(false);
 		
 		this.webcam.setUrl(webcamUrl);
+		
 		this.webcam.setVisible(true);
 		
 	    this.points = 0;

@@ -47,13 +47,13 @@ class RobotProglist(Experiment.Experiment):
 
     @Override(Experiment.Experiment)
     @logged("info")
-    def do_start_experiment(self):
+    def do_start_experiment(self, *args, **kwargs):
         """
         Callback run when the experiment is started.
         """
         if(DEBUG):
             print "[Robot*] do_start_experiment called"
-        return json.dumps({ "initial_configuration" : "{ \"webcam\" : \"%s\" }" % "WEBCAMURL=https://www.weblab.deusto.es/webcam/proxied/robot1", "batch" : False })
+        return json.dumps({ "initial_configuration" : "{ \"webcam\" : \"%s\" }" % "https://www.weblab.deusto.es/webcam/proxied/robot1", "batch" : False })
 
     @Override(Experiment.Experiment)
     @logged("info")
@@ -83,7 +83,7 @@ class RobotProglist(Experiment.Experiment):
         """
         if(DEBUG):
             print "[Robot*] do_send_file_to_device called"
-        return "Ok"
+        return "ok"
 
 
     @Override(Experiment.Experiment)
