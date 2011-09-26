@@ -315,7 +315,7 @@ class Coordinator(object):
         schedulers = self._get_schedulers_per_experiment_id(experiment_id)
         all_reservation_status = []
         for scheduler in schedulers:
-            reservation_status = scheduler.reserve_experiment(reservation_id, experiment_id, time, priority, initialization_in_accounting)
+            reservation_status = scheduler.reserve_experiment(reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data)
             all_reservation_status.append(reservation_status)
         return self.meta_scheduler.select_best_reservation_status(all_reservation_status)
 
