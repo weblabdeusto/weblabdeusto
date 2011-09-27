@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+import cPickle as pickle
 from voodoo.override import Override
 from weblab.core.coordinator.scheduler import Scheduler
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
@@ -59,7 +60,16 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         client, session_id = self._create_client()
         reservation_status = client.reserve_experiment(session_id, experiment_id, client_initial_data, consumer_data)
 
-        # TODO: establish a relationship
+        cookies = client.get_cookies()
+        serialized_cookies = pickle.dumps(cookies)
+
+        session = self.sessionmaker()
+        try:
+            reservation = ExternalWebLabDeustoReservation(reservation_id, reservation_status.reservation_id, serialized_cookies, time.time())
+            session.add(reservation)
+            session.commit()
+        finally:
+            session.close()
 
         return 
 

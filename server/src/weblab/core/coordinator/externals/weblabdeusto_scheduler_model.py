@@ -30,19 +30,25 @@ class ExternalWebLabDeustoReservation(Base):
 
     local_reservation_id             = Column(String(RESERVATION_ID_SIZE))
 
-    remote_reservation_id            = Column(String(RESERVATION_ID_SIZE * 3)) # It should include the cookie
+    # It might come with the cookie value
+    remote_reservation_id            = Column(String(RESERVATION_ID_SIZE * 3)) 
+    
+    # In tests, it took up to 726 characters. Just in case, we store more than twice more
+    cookies                          = Column(String(1536))
 
     start_time                       = Column(Integer)
 
     def __init__(self, local_reservation_id, remote_reservation_id, start_time):
         self.local_reservation_id  = local_reservation_id
         self.remote_reservation_id = remote_reservation_id
+        self.cookies               = cookies
         self.start_time            = start_time
 
     def __repr__(self):
-        return SUFFIX + "ExternalWebLabDeustoReservation(%r, %r, %r)" % (
+        return SUFFIX + "ExternalWebLabDeustoReservation(%r, %r, %r, %r)" % (
                             self.local_reservation_id,
                             self.remote_reservation_id,
+                            self.cookies,
                             self.start_time
                         )
 
