@@ -38,7 +38,7 @@ class ExternalWebLabDeustoReservation(Base):
 
     start_time                       = Column(Integer)
 
-    def __init__(self, local_reservation_id, remote_reservation_id, start_time):
+    def __init__(self, local_reservation_id, remote_reservation_id, cookies, start_time):
         self.local_reservation_id  = local_reservation_id
         self.remote_reservation_id = remote_reservation_id
         self.cookies               = cookies

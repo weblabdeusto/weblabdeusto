@@ -17,6 +17,7 @@ import cPickle as pickle
 from voodoo.override import Override
 from weblab.core.coordinator.scheduler import Scheduler
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
+from weblab.core.coordinator.externals.weblabdeusto_scheduler_model import ExternalWebLabDeustoReservation
 from voodoo.log import logged
 
 class ExternalWebLabDeustoScheduler(Scheduler):
@@ -34,13 +35,15 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     @logged()
     @Override(Scheduler)
     def removing_current_resource_slot(self, session, resource_instance_id):
+        # Will in fact never be called
         return False
 
     # TODO: pooling
-    def _create_client(self):
+    def _create_client(self, cookies = None):
         client = WebLabDeustoClient(self.baseurl)
-        session_id  = self.client.login(self.username,self.password)
-        return client, session_id
+        if cookies is not None:
+            client.setcookies(cookies)
+        return client
 
     #######################################################################
     # 
@@ -50,14 +53,14 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     @Override(Scheduler)
     def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data):
 
-        # TODO: map reservation_id with external reservation_id AND cookie!!!
         consumer_data = {
             'time_allowed'                 : time,
             'priority'                     : priority,
             'initialization_in_accounting' : initialization_in_accounting
         }
 
-        client, session_id = self._create_client()
+        client = self._create_client()
+        session_id = self.client.login(self.username,self.password)
         reservation_status = client.reserve_experiment(session_id, experiment_id, client_initial_data, consumer_data)
 
         cookies = client.get_cookies()
@@ -71,7 +74,9 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         finally:
             session.close()
 
-        return 
+        reservation_status.reservation_id = reservation_id
+
+        return reservation_status 
 
     #######################################################################
     # 
@@ -80,8 +85,27 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     @logged()
     @Override(Scheduler)
     def get_reservation_status(self, reservation_id):
-        # TODO
-        raise NotImplementedError("")
+        
+        session = self.sessionmaker()
+        try:
+            reservation = session.query(ExternalWebLabDeustoReservation).filter_by(local_reservation_id = reservation_id).first()
+            if reservation is None:
+                # TODO
+                raise Exception("reservation not stored in local database")
+
+            remote_reservation_id = reservation.remote_reservation_id
+            serialized_cookies    = reservation.cookies
+        finally:
+            session.close()
+        
+        cookies = pickle.loads(serialized_cookies)
+        client = self._create_client(cookies)
+
+        reservation_status = client.get_reservation_status(remote_reservation_id)
+
+        reservation_status.reservation_id = reservation_id
+
+        return reservation_status
 
 
     ################################################################
@@ -91,6 +115,9 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     @logged()
     @Override(Scheduler)
     def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
+        # At some point, we must call the upper level to say that we want to confirm
+        # at this point, it's normal that they call us back, even if there is nothing 
+        # to do
         pass
 
     ################################################################
@@ -100,7 +127,22 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     @logged()
     @Override(Scheduler)
     def finish_reservation(self, reservation_id):
-        pass
+        session = self.session_maker()
+        try:
+            reservation = session.query(ExternalWebLabDeustoReservation).filter_by(local_reservation_id = reservation_id).first()
+            if reservation is not None:
+                remote_reservation_id = reservation.remote_reservation_id
+                serialized_cookies = reservation.cookies
+                session.delete(reservation)
+                session.commit()
+            else:
+                return
+        finally:
+            session.close()
+
+        cookies = pickle.loads(serialized_cookies)
+        client = self._create_client(cookies)
+        client.finished_experiment(remote_reservation_id)
 
     ##############################################################
     # 
@@ -108,5 +150,13 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     # 
     @Override(Scheduler)
     def _clean(self):
-        pass
+        session = self.session_maker()
+
+        try:
+            for reservation in session.query(ExternalWebLabDeustoReservation).all():
+                session.delete(reservation)
+            session.commit()
+        finally:
+            session.close()
+
 
