@@ -32,7 +32,6 @@ import weblab.core.coordinator.reservations_manager as ReservationsManager
 import weblab.core.coordinator.post_reservation as PostReservationDataManager
 import weblab.core.coordinator.confirmer as Confirmer
 import weblab.core.coordinator.scheduler as Scheduler
-import weblab.core.coordinator.meta_scheduler as MetaScheduler
 import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.core.coordinator.status as coord_status
 
@@ -101,7 +100,6 @@ class Coordinator(object):
         self.reservations_manager          = ReservationsManager.ReservationsManager(self._session_maker)
         self.resources_manager             = ResourcesManager.ResourcesManager(self._session_maker)
         self.post_reservation_data_manager = PostReservationDataManager.PostReservationDataManager(self._session_maker, self.time_provider)
-        self.meta_scheduler                = MetaScheduler.MetaScheduler()
 
         self.initial_store  = TemporalInformationStore.InitialTemporalInformationStore()
         self.finished_store = TemporalInformationStore.FinishTemporalInformationStore()
