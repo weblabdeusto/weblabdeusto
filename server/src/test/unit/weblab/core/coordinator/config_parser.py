@@ -51,6 +51,28 @@ class CoordinationConfigurationParserTestCase(unittest.TestCase):
         pld_resource = lab_config[exp_pld]
         self.assertEquals(Resource("pld boards", "pld1"), pld_resource)
 
+    def test_coordination_parse_resources_for_experiment_ids(self):
+        self.cfg_manager._set_value(CoordinationConfigurationParser.COORDINATOR_LABORATORY_SERVERS, {
+                        'laboratory1:WL_SERVER1@WL_MACHINE1' : {
+                                'exp1|ud-fpga|FPGA experiments' : 'fpga1@fpga boards',
+                                'exp1|ud-pld|PLD experiments'   : 'pld1@pld boards',
+                                'exp1|ud-logic|PIC experiments' : 'pld1@pld boards'
+                            },
+                        'laboratory2:WL_SERVER1@WL_MACHINE1' : {
+                                'exp2|ud-fpga|FPGA experiments' : 'fpga1@fpga boards',
+                                'exp2|ud-pld|PLD experiments' : 'pld1@pld boards',
+                                'exp2|ud-logic|PIC experiments' : 'fpga1@fpga boards'
+                            },
+                    })
+
+        configuration = self.coordination_configuration_parser.parse_resources_for_experiment_ids()
+        self.assertTrue('ud-pld@PLD experiments'   in configuration)
+        self.assertTrue('ud-fpga@FPGA experiments' in configuration)
+        self.assertTrue('ud-logic@PIC experiments' in configuration)
+        self.assertEquals(set(('pld boards',)),  configuration['ud-pld@PLD experiments'])
+        self.assertEquals(set(('fpga boards',)), configuration['ud-fpga@FPGA experiments'])
+        self.assertEquals(set(('pld boards', 'fpga boards')), configuration['ud-logic@PIC experiments'])
+
     def test_coordination_configuration_parser_fail1(self):
         self.cfg_manager._set_value(CoordinationConfigurationParser.COORDINATOR_LABORATORY_SERVERS, {
                         'laboratory1:WL_SERVER1@WL_MACHINE1' : {

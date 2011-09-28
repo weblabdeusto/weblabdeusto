@@ -29,6 +29,26 @@ class CoordinationConfigurationParser(object):
     def __init__(self, cfg_manager):
         self._cfg_manager = cfg_manager
 
+    def parse_resources_for_experiment_ids(self):
+        raw_configuration = self.parse_configuration()
+        
+        # 
+        # {
+        #    'experiment_id_str' : set('resource_type_name1', 'resource_type_name2')
+        # }
+        # 
+        configuration = {}
+        for laboratory in raw_configuration:
+            laboratory_config = raw_configuration[laboratory]
+            for experiment_instance_id in laboratory_config:
+                resource_type_name = laboratory_config[experiment_instance_id].resource_type
+                experiment_id_str = experiment_instance_id.to_experiment_id().to_weblab_str()
+                if not experiment_id_str in configuration:
+                    configuration[experiment_id_str] = set()
+                configuration[experiment_id_str].add(resource_type_name)
+
+        return configuration
+
     def parse_configuration(self):
         # 
         # configuration = {
