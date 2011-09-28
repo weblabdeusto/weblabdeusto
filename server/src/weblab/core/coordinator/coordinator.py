@@ -194,28 +194,8 @@ class Coordinator(object):
     # 
     #   Methods to retrieve the proper schedulers
     # 
-    # TODO: XXX is this method used?
-    def _get_schedulers_per_reservation(self, reservation_id):
-        experiment_id = self.reservations_manager.get_experiment_id(reservation_id)
-        resource_type_names = self.resources_manager.get_resource_types_by_experiment_id(experiment_id)
-        return [    self.schedulers[resource_type_name]
-                    for resource_type_name in resource_type_names ]
-
-    # TODO: XXX is this method used?
-    def _get_schedulers_per_experiment_instance_id(self, experiment_instance_id):
-        return self._get_schedulers_per_experiment_id(experiment_instance_id.to_experiment_id())
-
     def _get_scheduler_per_resource(self, resource):
         return self.schedulers[resource.resource_type]
-
-    # TODO: XXX is this method used?
-    def _get_schedulers_per_experiment_id(self, experiment_id):
-        schedulers = []
-        for resource_type_name in self.resources_manager.get_resource_types_by_experiment_id(experiment_id):
-            if resource_type_name not in self.schedulers:
-                raise CoordExc.ExperimentNotFoundException("Unregistered resource type name: %s. Check the %s property." % (resource_type_name, CORE_SCHEDULING_SYSTEMS))
-            schedulers.append(self.schedulers[resource_type_name])
-        return schedulers
 
     def _get_scheduler_aggregator_per_reservation(self, reservation_id):
         experiment_id = self.reservations_manager.get_experiment_id(reservation_id)
@@ -265,9 +245,6 @@ class Coordinator(object):
             try:
                 aggregator = self._get_scheduler_aggregator_per_reservation(reservation_id)
                 best_reservation_status = aggregator.get_reservation_status(reservation_id)
-# TODO XXX FIXME
-#                schedulers = self._get_schedulers_per_reservation(reservation_id)
-#                best_reservation_status = self.meta_scheduler.query_best_reservation_status(schedulers, reservation_id)
             except CoordExc.CoordinatorException:
                 # The reservation_id may expire since we called list_sessions,
                 # so if there is a coordinator exception we just skip this 
@@ -374,13 +351,6 @@ class Coordinator(object):
         reservation_id = self.reservations_manager.create(experiment_id, client_initial_data, json.dumps(request_info), self.time_provider.get_datetime)
         aggregator = self._get_scheduler_aggregator(experiment_id)
         return aggregator.reserve_experiment(reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data)
-# TODO: XXX REMOVE ME 
-#         schedulers = self._get_schedulers_per_experiment_id(experiment_id)
-#         all_reservation_status = []
-#         for scheduler in schedulers:
-#             reservation_status = scheduler.reserve_experiment(reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data)
-#             all_reservation_status.append(reservation_status)
-#         return self.meta_scheduler.select_best_reservation_status(all_reservation_status)
 
     #######################################################################
     # 
@@ -392,9 +362,6 @@ class Coordinator(object):
             aggregator = self._get_scheduler_aggregator_per_reservation(reservation_id)
             return aggregator.get_reservation_status(reservation_id)
 
-# TODO: XXX REMOVE ME
-#            schedulers = self._get_schedulers_per_reservation(reservation_id)
-#            return self.meta_scheduler.query_best_reservation_status(schedulers, reservation_id)
         except CoordExc.ExpiredSessionException:
             reservation_status = self.post_reservation_data_manager.find(reservation_id)
             if reservation_status is not None:
@@ -453,11 +420,6 @@ class Coordinator(object):
 
         aggregator = self._get_scheduler_aggregator_per_reservation(reservation_id)
         aggregator.confirm_experiment(reservation_id, lab_session_id, initial_configuration)
-
-# TODO XXX REMOVE ME
-#        schedulers = self._get_schedulers_per_reservation(reservation_id)
-#        for scheduler in schedulers:
-#            scheduler.confirm_experiment(reservation_id, lab_session_id, initial_configuration)
 
         if batch: # It has already finished, so make this experiment available to others
             self.finish_reservation(reservation_id)
@@ -552,10 +514,6 @@ class Coordinator(object):
             try:
                 aggregator = self._get_scheduler_aggregator_per_reservation(reservation_id)
                 aggregator.finish_reservation(reservation_id)
-# TODO XXX REMOVE ME 
-#                schedulers = self._get_schedulers_per_reservation(reservation_id)
-#                for scheduler in schedulers:
-#                    scheduler.finish_reservation(reservation_id)
                 # The reservations_manager must remove the session once (not once per scheduler)
                 session = self._session_maker()
                 try:
