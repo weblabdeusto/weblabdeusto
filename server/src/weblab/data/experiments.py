@@ -76,7 +76,7 @@ class ExperimentInstanceId(object):
         return hash(self.inst_name) * 31 ** 3 + hash(self.exp_name) * 31 ** 2 + hash(self.cat_name) * 31 + hash("ExperimentInstanceId")
 
     def __repr__(self):
-        return "ExperimentInstanceId(inst_name=%r, exp_name=%r, cat_name=%r )" % ( self.inst_name, self.exp_name, self.cat_name )
+        return "ExperimentInstanceId(inst_name=%r, exp_name=%r, cat_name=%r )" % ( str(self.inst_name), str(self.exp_name), str(self.cat_name) )
 
 
 class CommandSent(object):
