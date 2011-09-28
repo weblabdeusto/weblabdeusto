@@ -160,7 +160,7 @@ class UserProcessingServer(object):
         clean = cfg_manager.get_value(WEBLAB_CORE_SERVER_CLEAN_COORDINATOR, True)
         if clean:
             self._coordinator._clean()
-            self._parse_coordination_configuration()
+            self._load_coordinator_db()
 
         
         # 
@@ -213,7 +213,7 @@ class UserProcessingServer(object):
         for facade_server in self._facade_servers:
             facade_server.stop()
 
-    def _parse_coordination_configuration(self):
+    def _load_coordinator_db(self):
         coordination_configuration_parser = CoordinationConfigurationParser.CoordinationConfigurationParser(self._cfg_manager)
         configuration = coordination_configuration_parser.parse_configuration()
         for laboratory_server_coord_address_str in configuration:
