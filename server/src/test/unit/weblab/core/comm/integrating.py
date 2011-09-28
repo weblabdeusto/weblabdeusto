@@ -439,6 +439,37 @@ class UserProcessingIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
             self.rfs.stop()
 
     @uses_module(RemoteFacadeServer)
+    def test_send_command(self):
+        port = 15130
+        self.configurationManager._set_value(self.rfs.FACADE_JSON_PORT, port)
+        self.rfs.start()
+        try:
+            client = WebLabDeustoClient("http://localhost:%s/weblab/" % port)
+
+            expected_sess_id = SessionId.SessionId("whatever")
+            expected_request_command  = Command.Command('my request command')
+            expected_response_command = Command.Command('my response command')
+
+            self.mock_server.return_values['send_command'] = expected_response_command
+
+            obtained_response_command = client.send_command(expected_sess_id, expected_request_command)
+
+            self.assertEquals(
+                    expected_sess_id.id,
+                    self.mock_server.arguments['send_command'][0]
+                )
+            self.assertEquals(
+                    expected_request_command.get_command_string(),
+                    self.mock_server.arguments['send_command'][1].get_command_string()
+                )
+            self.assertEquals(
+                    expected_response_command.get_command_string(),
+                    obtained_response_command.get_command_string()
+                )
+        finally:
+            self.rfs.stop()
+
+    @uses_module(RemoteFacadeServer)
     def test_get_reservation_status(self):
         port = 15128
         self.configurationManager._set_value(self.rfs.FACADE_JSON_PORT, port)

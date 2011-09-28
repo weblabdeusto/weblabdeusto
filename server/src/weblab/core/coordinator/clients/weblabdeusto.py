@@ -19,6 +19,7 @@ import cookielib
 
 from voodoo.sessions.session_id import SessionId
 from weblab.core.reservations import Reservation
+from weblab.data.command import Command
 
 class WebLabDeustoClient(object):
     
@@ -79,6 +80,12 @@ class WebLabDeustoClient(object):
                         consumer_data=consumer_data)
         reservation = self._parse_reservation_holder(reservation_holder)
         return reservation
+
+    def send_command(self, reservation_id, command):
+        serialized_reservation_id = {'id' : reservation_id.id}
+        serialized_command = { 'commandstring' : command.commandstring }
+        response_command = self._core_call('send_command', reservation_id = serialized_reservation_id, command = serialized_command)
+        return Command(response_command['commandstring'])
 
     def get_reservation_status(self, reservation_id):
         serialized_reservation_id = {'id' : reservation_id.id}
