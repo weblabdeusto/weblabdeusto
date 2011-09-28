@@ -35,10 +35,7 @@ class ExperimentId(object):
             return cmp(self.cat_name, other.cat_name)
 
     def __repr__(self):
-        return "<ExperimentId exp_name=%s; cat_name=%s />" % (
-                    self.exp_name,
-                    self.cat_name
-                )
+        return "ExperimentId( exp_name=%r, cat_name=%r )" % ( self.exp_name, self.cat_name )
     
     def to_dict(self):
         return {'exp_name': self.exp_name, 'cat_name': self.cat_name}
@@ -79,11 +76,7 @@ class ExperimentInstanceId(object):
         return hash(self.inst_name) * 31 ** 3 + hash(self.exp_name) * 31 ** 2 + hash(self.cat_name) * 31 + hash("ExperimentInstanceId")
 
     def __repr__(self):
-        return "<ExperimentInstanceId inst_name=%s; exp_name=%s; cat_name=%s />" % (
-                    self.inst_name,
-                    self.exp_name,
-                    self.cat_name
-                )
+        return "ExperimentInstanceId(inst_name=%r, exp_name=%r, cat_name=%r )" % ( self.inst_name, self.exp_name, self.cat_name )
 
 
 class CommandSent(object):

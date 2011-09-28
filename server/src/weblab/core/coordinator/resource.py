@@ -24,5 +24,5 @@ class Resource(object):
         return self.resource_type == other.resource_type and self.resource_instance == other.resource_instance
 
     def __repr__(self):
-        return "Resource(%s, %s)" % (repr(self.resource_type), repr(self.resource_instance))
+        return "Resource(resource_type = %r, resource_instance = %r)" % (self.resource_type, self.resource_instance)
 
