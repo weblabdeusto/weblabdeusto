@@ -217,7 +217,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
     def test_get_groups_all(self):
         groups = self._test_get_groups_with_permission(parent_id=None)
 
-        self.assertEquals(2, len(groups) )
+        self.assertEquals(3, len(groups) )
         
         self.assertEquals('Course 2008/09', groups[0].name)
         self.assertEquals(2, len(groups[0].children) )
@@ -567,7 +567,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
         # Make sure that the number of users it returns matches the number of users
         # that we currently have in the test database.
-        self.assertEquals(len(users), 19)
+        self.assertEquals(len(users), 25)
         
         user_logins = list( ( user.login for user in users ) )
         

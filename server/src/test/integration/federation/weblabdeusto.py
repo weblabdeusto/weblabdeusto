@@ -48,7 +48,8 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self.provider2_handler.stop()
 
     def test_local_experiment(self):
-        session_id = self.consumer_login_client.login('student1', 'password')
+        session_id = self.consumer_login_client.login('fedstudent1', 'password')
+
 
     def test_remote_experiment(self):
         pass

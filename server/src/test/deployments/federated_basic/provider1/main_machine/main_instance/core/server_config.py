@@ -21,13 +21,13 @@ core_coordinator_db_password = 'weblab'
 core_coordinator_laboratory_servers = {
     "laboratory:main_instance@main_machine" : {
             "exp1|dummy1|Dummy experiments"        : "dummy1@dummy1",
-            "exp1|dummy2|Dummy experiments"        : "dummy1@dummy2",
+            "exp1|dummy3|Dummy experiments"        : "dummy3@dummy3",
         }
 }
 
 core_scheduling_systems = {
         "dummy1"      : ("PRIORITY_QUEUE", {}),
-        "dummy2"      : ("PRIORITY_QUEUE", {}),
+        "dummy3"      : ("PRIORITY_QUEUE", {}),
     }
 
 core_universal_identifier       = 'c7ab5d9e-ea14-11e0-bd1d-00216a5807c8'

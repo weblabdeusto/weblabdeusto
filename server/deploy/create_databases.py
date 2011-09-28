@@ -269,6 +269,24 @@ def populate_weblab_tests(engine):
     studentLDAPwithoutUserAuth = Model.DbUser("studentLDAPwithoutUserAuth", "Name of student LDAPwithoutUserAuth", "weblab@deusto.es", None, student)
     session.add(studentLDAPwithoutUserAuth)
 
+    fed_student1 = Model.DbUser("fedstudent1", "Name of federated student 1", "weblab@deusto.es", None, student)
+    session.add(fed_student1)
+
+    fed_student2 = Model.DbUser("fedstudent2", "Name of federated student 2", "weblab@deusto.es", None, student)
+    session.add(fed_student2)
+
+    fed_student3 = Model.DbUser("fedstudent3", "Name of federated student 3", "weblab@deusto.es", None, student)
+    session.add(fed_student3)
+
+    fed_student4 = Model.DbUser("fedstudent4", "Name of federated student 4", "weblab@deusto.es", None, student)
+    session.add(fed_student4)
+
+    consumer_university1 = Model.DbUser("consumer1", "Consumer University 1", "weblab@deusto.es", None, student)
+    session.add(consumer_university1)
+
+    provider_university1 = Model.DbUser("provider1", "Provider University 1", "weblab@deusto.es", None, student)
+    session.add(provider_university1)
+
     # External Entities
     ee1 = Model.DbExternalEntity("ee1", "Country of ee1", "Description of ee1", "weblab@other.es", "password")
     session.add(ee1)
@@ -289,12 +307,27 @@ def populate_weblab_tests(engine):
     session.add(Model.DbUserAuth(student6, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
     session.add(Model.DbUserAuth(student7, weblab_db, "aaaa{thishashdoesnotexist}a776159c8c7ff8b73e43aa54d081979e72511474"))
     session.add(Model.DbUserAuth(student8, weblab_db, "this.format.is.not.valid.for.the.password"))
+    session.add(Model.DbUserAuth(fed_student1, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
+    session.add(Model.DbUserAuth(fed_student2, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
+    session.add(Model.DbUserAuth(fed_student3, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
+    session.add(Model.DbUserAuth(fed_student4, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
+    session.add(Model.DbUserAuth(consumer_university1, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
+    session.add(Model.DbUserAuth(provider_university1, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
     session.add(Model.DbUserAuth(any,      auth_facebook, "1168497114"))
     session.add(Model.DbUserAuth(studentLDAP1, cdk_ldap))
     session.add(Model.DbUserAuth(studentLDAP2, cdk_ldap))
     session.add(Model.DbUserAuth(studentLDAP3, deusto_ldap))
 
     # Groups
+    group_federated = Model.DbGroup("Federated users")
+    group_federated.users.append(fed_student1)
+    group_federated.users.append(fed_student2)
+    group_federated.users.append(fed_student3)
+    group_federated.users.append(fed_student4)
+    group_federated.users.append(consumer_university1)
+    group_federated.users.append(provider_university1)
+    session.add(group_federated)
+
     groupCourse0809 = Model.DbGroup("Course 2008/09")
     groupCourse0809.users.append(student1)
     groupCourse0809.users.append(student2)
@@ -354,6 +387,18 @@ def populate_weblab_tests(engine):
 
     dummy_batch = Model.DbExperiment("ud-dummy-batch", cat_dummy, start_date, end_date)
     session.add(dummy_batch)
+
+    dummy1 = Model.DbExperiment("dummy1", cat_dummy, start_date, end_date)
+    session.add(dummy1)
+
+    dummy2 = Model.DbExperiment("dummy2", cat_dummy, start_date, end_date)
+    session.add(dummy2)
+
+    dummy3 = Model.DbExperiment("dummy3", cat_dummy, start_date, end_date)
+    session.add(dummy3)
+
+    dummy4 = Model.DbExperiment("dummy4", cat_dummy, start_date, end_date)
+    session.add(dummy4)
 
     flashdummy = Model.DbExperiment("flashdummy", cat_dummy, start_date, end_date)
     session.add(flashdummy)
@@ -427,6 +472,67 @@ def populate_weblab_tests(engine):
     session.add(gp_course0809_fpga_allowed_p2)
     gp_course0809_fpga_allowed_p3 = Model.DbGroupPermissionParameter(gp_course0809_fpga_allowed, experiment_allowed_p3, "300")
     session.add(gp_course0809_fpga_allowed_p3)
+
+    gp_federated_dummy1_allowed = Model.DbGroupPermission(
+        group_federated,
+        experiment_allowed.group_applicable,
+        "Federated users::dummy1",
+        datetime.datetime.utcnow(),
+        "Permission for group Federated users to use dummy1"
+    )
+    session.add(gp_federated_dummy1_allowed)
+    gp_federated_dummy1_allowed_p1 = Model.DbGroupPermissionParameter(gp_federated_dummy1_allowed, experiment_allowed_p1, "dummy1")
+    session.add(gp_federated_dummy1_allowed_p1)
+    gp_federated_dummy1_allowed_p2 = Model.DbGroupPermissionParameter(gp_federated_dummy1_allowed, experiment_allowed_p2, "Dummy experiments")
+    session.add(gp_federated_dummy1_allowed_p2)
+    gp_federated_dummy1_allowed_p3 = Model.DbGroupPermissionParameter(gp_federated_dummy1_allowed, experiment_allowed_p3, "300")
+    session.add(gp_federated_dummy1_allowed_p3)
+
+    gp_federated_dummy2_allowed = Model.DbGroupPermission(
+        group_federated,
+        experiment_allowed.group_applicable,
+        "Federated users::dummy2",
+        datetime.datetime.utcnow(),
+        "Permission for group Federated users to use dummy2"
+    )
+    session.add(gp_federated_dummy2_allowed)
+    gp_federated_dummy2_allowed_p1 = Model.DbGroupPermissionParameter(gp_federated_dummy2_allowed, experiment_allowed_p1, "dummy2")
+    session.add(gp_federated_dummy2_allowed_p1)
+    gp_federated_dummy2_allowed_p2 = Model.DbGroupPermissionParameter(gp_federated_dummy2_allowed, experiment_allowed_p2, "Dummy experiments")
+    session.add(gp_federated_dummy2_allowed_p2)
+    gp_federated_dummy2_allowed_p3 = Model.DbGroupPermissionParameter(gp_federated_dummy2_allowed, experiment_allowed_p3, "300")
+    session.add(gp_federated_dummy2_allowed_p3)
+
+    gp_federated_dummy3_allowed = Model.DbGroupPermission(
+        group_federated,
+        experiment_allowed.group_applicable,
+        "Federated users::dummy3",
+        datetime.datetime.utcnow(),
+        "Permission for group Federated users to use dummy3"
+    )
+    session.add(gp_federated_dummy3_allowed)
+    gp_federated_dummy3_allowed_p1 = Model.DbGroupPermissionParameter(gp_federated_dummy3_allowed, experiment_allowed_p1, "dummy3")
+    session.add(gp_federated_dummy3_allowed_p1)
+    gp_federated_dummy3_allowed_p2 = Model.DbGroupPermissionParameter(gp_federated_dummy3_allowed, experiment_allowed_p2, "Dummy experiments")
+    session.add(gp_federated_dummy3_allowed_p2)
+    gp_federated_dummy3_allowed_p3 = Model.DbGroupPermissionParameter(gp_federated_dummy3_allowed, experiment_allowed_p3, "300")
+    session.add(gp_federated_dummy3_allowed_p3)
+
+    gp_federated_dummy4_allowed = Model.DbGroupPermission(
+        group_federated,
+        experiment_allowed.group_applicable,
+        "Federated users::dummy4",
+        datetime.datetime.utcnow(),
+        "Permission for group Federated users to use dummy4"
+    )
+    session.add(gp_federated_dummy4_allowed)
+    gp_federated_dummy4_allowed_p1 = Model.DbGroupPermissionParameter(gp_federated_dummy4_allowed, experiment_allowed_p1, "dummy4")
+    session.add(gp_federated_dummy4_allowed_p1)
+    gp_federated_dummy4_allowed_p2 = Model.DbGroupPermissionParameter(gp_federated_dummy4_allowed, experiment_allowed_p2, "Dummy experiments")
+    session.add(gp_federated_dummy4_allowed_p2)
+    gp_federated_dummy4_allowed_p3 = Model.DbGroupPermissionParameter(gp_federated_dummy4_allowed, experiment_allowed_p3, "300")
+    session.add(gp_federated_dummy4_allowed_p3)
+
 
     gp_course0809_flashdummy_allowed = Model.DbGroupPermission(
         groupCourse0809,
