@@ -176,7 +176,7 @@ class Coordinator(object):
                                                 confirmer            = self.confirmer, 
                                                 session_maker        = self._session_maker, 
                                                 time_provider        = self.time_provider,
-                                                core_server_url      = self.core_server_url
+                                                core_server_url      = core_server_url
                                         )
 
 

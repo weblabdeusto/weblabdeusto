@@ -53,6 +53,10 @@ class MetaScheduler(object):
 # scheduler (such as another WebLab-Deusto). Therefore 
 # policies can become complex here.
 # 
+# In summary, IndependentSchedulerAggregator is an 'OR' 
+# aggregator, since it reserves in all the aggregated
+# schedulers and then it it responds with the best option.
+# 
 # Therefore, while it is compliant with the Scheduler 
 # API, it can not be configured as such in the core config
 # files: it will be created by the coordinator in the 
@@ -96,9 +100,63 @@ class IndependentSchedulerAggregator(Scheduler):
     def _clean(self):
         pass
 
-
+###########################################################
+# 
+# The SharedSchedulerAggregator is a scheduler aggregator
+# for resources being shared through more than one 
+# scheduler. We could say that it is an 'AND' scheduler:
+# it reserves only in one scheduler.
+# 
+# An interesting use case for this class is if an 
+# experiment can be shared through queues and booking. 
+# Depending on the reservation, it will only call one of
+# the schedulers (the most appropriate). But whenever we
+# want to know free slots or position in a queue, we 
+# have to ask all the aggregated systems.
+# 
+# Another possible use case for this class would be 
+# sharing a single experiment through different mechanisms,
+# such as weblabdeusto and an external one (VISIR, iLabs,
+# Sahara). One of the schedulers would check in the 
+# internal database and define whether it is possible to
+# serve the experiment or not
+# 
 
 class SharedSchedulerAggregator(object):
-    pass
 
+    def __init__(self, generic_scheduler_arguments, schedulers, particular_configuration):
+        super(SharedSchedulerAggregator, self).__init__(generic_scheduler_arguments)
+        self.particular_configuration = particular_configuration
+
+    def stop(self):
+        pass
+
+    @logged()
+    @Override(Scheduler)
+    def removing_current_resource_slot(self, session, resource_instance):
+        pass
+
+    @logged()
+    @Override(Scheduler)
+    def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data):
+        pass
+
+    @logged()
+    @Override(Scheduler)
+    def get_reservation_status(self, reservation_id):
+        pass
+
+    @logged()
+    @Override(Scheduler)
+    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
+        pass
+
+    @logged()
+    @Override(Scheduler)
+    def finish_reservation(self, reservation_id):
+        pass
+
+    @Override(Scheduler)
+    def _clean(self):
+        pass
 
