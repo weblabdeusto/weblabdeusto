@@ -26,6 +26,7 @@ from voodoo.sessions.session_id import SessionId
 import weblab.core.coordinator.exc as CoordExc
 
 import weblab.core.coordinator.db as CoordinationDatabaseManager
+import weblab.core.coordinator.config_parser as CoordinationConfigurationParser
 import weblab.core.coordinator.resource_manager as ResourcesManager
 import weblab.core.coordinator.reservations_manager as ReservationsManager
 import weblab.core.coordinator.post_reservation as PostReservationDataManager
@@ -35,6 +36,7 @@ import weblab.core.coordinator.meta_scheduler as MetaScheduler
 import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.core.coordinator.status as coord_status
 
+from weblab.core.coordinator.meta_scheduler import IndependentSchedulerAggregator
 import weblab.core.coordinator.priority_queue_scheduler as PriorityQueueScheduler
 import weblab.core.coordinator.checker_threaded as ResourcesCheckerThread
 
@@ -44,8 +46,9 @@ SCHEDULING_SYSTEMS = {
         PRIORITY_QUEUE : PriorityQueueScheduler.PriorityQueueScheduler
     }
 
-CORE_SCHEDULING_SYSTEMS = 'core_scheduling_systems'
-CORE_SERVER_URL         = 'core_server_url'
+CORE_SCHEDULING_SYSTEMS    = 'core_scheduling_systems'
+CORE_SCHEDULER_AGGREGATORS = 'core_scheduler_aggregators'
+CORE_SERVER_URL            = 'core_server_url'
 
 RESOURCES_CHECKER_FREQUENCY = 'core_resources_checker_frequency'
 DEFAULT_RESOURCES_CHECKER_FREQUENCY = 30 # seconds
@@ -147,6 +150,45 @@ class Coordinator(object):
                                         )
 
             self.schedulers[resource_type_name] = SchedulingSystemClass(generic_scheduler_arguments, **arguments)
+
+        self.aggregators = {
+            # experiment_id_str : IndependentSchedulerAggregator( schedulers ) 
+        }
+
+        coordination_configuration_parser = CoordinationConfigurationParser.CoordinationConfigurationParser(cfg_manager)
+        resource_types_per_experiment_id = coordination_configuration_parser.parse_resources_for_experiment_ids()
+        # 
+        # This configuration argument has a dictionary such as:
+        # {
+        #     'experiment_id_str' : {'foo' : 'bar'}
+        # }
+        # 
+        # The argument itself is not mandatory.
+        # 
+        aggregators_configuration = self.cfg_manager.get_value(CORE_SCHEDULER_AGGREGATORS, {})
+
+        for experiment_id_str in resource_types_per_experiment_id:
+            generic_scheduler_arguments = Scheduler.GenericSchedulerArguments(
+                                                cfg_manager          = self.cfg_manager, 
+                                                resource_type_name   = None, 
+                                                reservations_manager = self.reservations_manager, 
+                                                resources_manager    = self.resources_manager, 
+                                                confirmer            = self.confirmer, 
+                                                session_maker        = self._session_maker, 
+                                                time_provider        = self.time_provider,
+                                                core_server_url      = self.core_server_url
+                                        )
+
+
+            resource_type_names = resource_types_per_experiment_id[experiment_id_str]
+            schedulers = [  self.schedulers[resource_type_name]
+                            for resource_type_name in resource_type_names ]
+
+            particular_configuration = aggregators_configuration.get(experiment_id_str)
+
+            aggregator = IndependentSchedulerAggregator(generic_scheduler_arguments, schedulers, particular_configuration)
+
+            self.aggregators[experiment_id_str] = aggregator
 
     ##########################################################################
     # 
