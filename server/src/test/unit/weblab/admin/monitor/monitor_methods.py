@@ -26,6 +26,7 @@ import weblab.core.server    as UserProcessingServer
 import weblab.core.coordinator.coordinator as Coordinator 
 import weblab.core.coordinator.confirmer   as Confirmer
 import weblab.core.exc as core_exc
+from weblab.core.coordinator.config_parser import COORDINATOR_LABORATORY_SERVERS
 
 import weblab.db.session                as DatabaseSession
 
@@ -66,7 +67,11 @@ class MonitorMethodsTestCase(unittest.TestCase):
         self.locator = FakeLocator()
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
-        self.cfg_manager._set_value("core_coordinator_laboratory_servers", {})
+        self.cfg_manager._set_value(COORDINATOR_LABORATORY_SERVERS, {
+            'server:laboratoryserver@labmachine' : {
+                'inst|ud-dummy|Dummy experiments' : 'res_inst@res_type'
+            }        
+        })
 
         # With this one we clean everything before creating the UPS
         self.coordinator = Coordinator.Coordinator(self.locator, self.cfg_manager, ConfirmerClass = ConfirmerMock)

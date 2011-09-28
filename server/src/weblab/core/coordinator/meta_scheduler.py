@@ -66,6 +66,7 @@ class IndependentSchedulerAggregator(Scheduler):
 
     def __init__(self, generic_scheduler_arguments, schedulers, particular_configuration):
         super(IndependentSchedulerAggregator, self).__init__(generic_scheduler_arguments)
+        self.schedulers               = schedulers
         self.particular_configuration = particular_configuration
 
     def stop(self):
@@ -79,22 +80,39 @@ class IndependentSchedulerAggregator(Scheduler):
     @logged()
     @Override(Scheduler)
     def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data):
-        pass
+        all_reservation_status = []
+        for scheduler in self.schedulers:
+            reservation_status = scheduler.reserve_experiment(reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data)
+            all_reservation_status.append(reservation_status)
+        return self.select_best_reservation_status(all_reservation_status)
+
+    def select_best_reservation_status(self, all_reservation_status):
+        if len(all_reservation_status) == 0:
+            raise ValueError("There must be at least one reservation status, zero provided!")
+
+        all_reservation_status.sort()
+        return all_reservation_status[0]
 
     @logged()
     @Override(Scheduler)
     def get_reservation_status(self, reservation_id):
-        pass
+        all_reservation_status = []
+        for scheduler in self.schedulers:
+            reservation_status = scheduler.get_reservation_status(reservation_id)
+            all_reservation_status.append(reservation_status)
+        return self.select_best_reservation_status(all_reservation_status)
 
     @logged()
     @Override(Scheduler)
     def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
-        pass
+        for scheduler in self.schedulers:
+            scheduler.confirm_experiment(reservation_id, lab_session_id, initial_configuration)
 
     @logged()
     @Override(Scheduler)
     def finish_reservation(self, reservation_id):
-        pass
+        for scheduler in self.schedulers:
+            scheduler.finish_reservation(reservation_id)
 
     @Override(Scheduler)
     def _clean(self):

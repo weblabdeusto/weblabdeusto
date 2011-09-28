@@ -30,6 +30,7 @@ import weblab.methods as weblab_methods
 from weblab.data.experiments import ExperimentInstanceId
 from weblab.data.experiments import ExperimentId
 from weblab.core.coordinator.resource import Resource
+from weblab.core.coordinator.config_parser import COORDINATOR_LABORATORY_SERVERS
 
 import weblab.core.coordinator.coordinator as Coordinator
 
@@ -65,6 +66,11 @@ class ConfirmerTestCase(mocker.MockerTestCase):
 
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
+        self.cfg_manager._set_value(COORDINATOR_LABORATORY_SERVERS, {
+            u'lab1:inst@machine' : {
+                'inst1|exp1|cat1' : 'res_inst@res_type'
+            },
+        })
 
         self.coordinator = Coordinator.Coordinator(self.locator, self.cfg_manager)
         self.coordinator._clean()

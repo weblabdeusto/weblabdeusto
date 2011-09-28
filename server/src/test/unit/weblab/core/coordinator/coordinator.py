@@ -27,6 +27,7 @@ import weblab.core.coordinator.coordinator as Coordinator
 from weblab.data.experiments import ExperimentId
 from weblab.data.experiments import ExperimentInstanceId
 from weblab.core.coordinator.resource import Resource
+from weblab.core.coordinator.config_parser import COORDINATOR_LABORATORY_SERVERS
 
 import weblab.core.coordinator.status as WSS
 import weblab.core.coordinator.exc as CoordExc
@@ -102,6 +103,14 @@ class CoordinatorTestCase(unittest.TestCase):
 
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
+        self.cfg_manager._set_value(COORDINATOR_LABORATORY_SERVERS, {
+            'lab1:inst@machine' : {
+                'inst1|exp1|cat1' : 'res_inst1@res_type'
+            },
+            'lab2:inst@machine' : {
+                'inst2|exp1|cat1' : 'res_inst2@res_type'
+            }
+        })
 
         self.coordinator = WrappedCoordinator(locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
         self.coordinator._clean()
@@ -627,13 +636,10 @@ class CoordinatorTestCase(unittest.TestCase):
 
 class CoordinatorMultiResourceTestCase(unittest.TestCase):
     def setUp(self):
-        locator_mock = None
+        self.locator_mock = None
 
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
-
-        self.coordinator = WrappedCoordinator(locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
-        self.coordinator._clean()
 
     def tearDown(self):
         self.coordinator.stop()
@@ -657,6 +663,21 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         # - exp2:ud-pld@PLD experiments (using pld2@pld boards)
         # - exp1:ud-fpga@FPGA experiments (using fpga1:fpga boards)
         #
+        self.cfg_manager._set_value(COORDINATOR_LABORATORY_SERVERS, {
+            'lab1:inst@machine' : {
+                'exp1|ud-binary|Binary experiments' : 'pld1@pld boards',
+                'exp1|ud-pld|PLD experiments' : 'pld1@pld boards',
+            },
+            'lab2:inst@machine' : {
+                'exp2|ud-pld|PLD experiments' : 'pld2@pld boards'
+            },
+            'lab3:inst@machine' : {
+                'exp1|ud-fpga|FPGA experiments' : 'fpga1@fpga boards',
+                'exp2|ud-binary|Binary experiments' : 'fpga1@fpga boards',
+            },
+        })
+        self.coordinator = WrappedCoordinator(self.locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
+        self.coordinator._clean()
 
         self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('exp1', 'ud-binary','Binary experiments'), Resource("pld boards",  "pld1"  ))
         self.coordinator.add_experiment_instance_id("lab3:inst@machine", ExperimentInstanceId('exp2', 'ud-binary','Binary experiments'), Resource("fpga boards", "fpga1" ))
@@ -665,6 +686,7 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         self.coordinator.add_experiment_instance_id("lab3:inst@machine", ExperimentInstanceId('exp1', 'ud-fpga',  'FPGA experiments'),   Resource("fpga boards", "fpga1" ))
 
     def _deploy_cplds_only_configuration(self):
+        # TODO: not used?
         # 
         # There are 2 physical devices:
         # - pld1  (pld boards), in lab1:inst@machine
@@ -685,6 +707,17 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         self.coordinator.add_experiment_instance_id("lab2:inst@machine", ExperimentInstanceId('exp2', 'ud-pld',   'PLD experiments'),    Resource("pld boards",  "pld2"  ))
 
     def test_reserve_resource_does_not_support_expected_experiment(self):
+        self.cfg_manager._set_value(COORDINATOR_LABORATORY_SERVERS, {
+            'lab1:inst@machine' : {
+                'exp1|ud-binary|Binary experiments' : 'pld1@pld boards',
+            },
+            'lab2:inst@machine' : {
+                'exp2|ud-pld|PLD experiments' : 'pld2@pld boards'
+            }
+        })
+        self.coordinator = WrappedCoordinator(self.locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
+        self.coordinator._clean()
+
         self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('exp1', 'ud-binary','Binary experiments'), Resource("pld boards",  "pld1"  ))
         self.coordinator.add_experiment_instance_id("lab2:inst@machine", ExperimentInstanceId('exp2', 'ud-pld',   'PLD experiments'),    Resource("pld boards",  "pld2"  ))
 
@@ -693,6 +726,17 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         self.assertEquals( expected_status, status )
 
     def test_reserve_resource_does_not_support_expected_experiment_and_there_are_waiting(self):
+        self.cfg_manager._set_value(COORDINATOR_LABORATORY_SERVERS, {
+            'lab1:inst@machine' : {
+                'exp1|ud-binary|Binary experiments' : 'pld1@pld boards',
+            },
+            'lab2:inst@machine' : {
+                'exp2|ud-pld|PLD experiments' : 'pld2@pld boards'
+            }
+        })
+        self.coordinator = WrappedCoordinator(self.locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
+        self.coordinator._clean()
+
         self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('exp1', 'ud-binary','Binary experiments'), Resource("pld boards",  "pld1"  ))
         self.coordinator.add_experiment_instance_id("lab2:inst@machine", ExperimentInstanceId('exp2', 'ud-pld',   'PLD experiments'),    Resource("pld boards",  "pld2"  ))
 

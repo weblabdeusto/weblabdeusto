@@ -27,6 +27,7 @@ import weblab.core.coordinator.coordinator as Coordinator
 import weblab.core.coordinator.confirmer as Confirmer
 import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.core.coordinator.status as WebLabSchedulingStatus
+from weblab.core.coordinator.config_parser import COORDINATOR_LABORATORY_SERVERS
 import weblab.data.server_type as ServerType
 import weblab.data.client_address as ClientAddress
 
@@ -66,6 +67,11 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
+        self.cfg_manager._set_value(COORDINATOR_LABORATORY_SERVERS, {
+            'server:laboratoryserver@labmachine' : {
+                'inst1|ud-dummy|Dummy experiments' : 'res_inst@res_type'
+            }        
+        })
 
         self.commands_store = TemporalInformationStore.CommandsTemporalInformationStore()
 

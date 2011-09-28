@@ -46,6 +46,7 @@ import weblab.data.dto.users as Role
 import weblab.db.session as DbSession
 
 from weblab.core.coordinator.resource import Resource
+from weblab.core.coordinator.config_parser import COORDINATOR_LABORATORY_SERVERS
 
 import weblab.core.exc as coreExc
 import weblab.lab.exc as LaboratoryExceptions
@@ -68,6 +69,11 @@ class ReservationProcessorTestCase(unittest.TestCase):
 
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
+        self.cfg_manager._set_value(COORDINATOR_LABORATORY_SERVERS, {
+            'server:laboratoryserver@labmachine' : {
+                'inst|ud-dummy|Dummy experiments' : 'res_inst@res_type'
+            }
+        })
 
         self.commands_store = TemporalInformationStore.CommandsTemporalInformationStore()
 
