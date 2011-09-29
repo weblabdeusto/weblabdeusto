@@ -157,7 +157,23 @@
 	                           {
 	                        	   "experiment.name"     : "ud-dummy",
 	                        	   "experiment.category" : "Dummy experiments"
-	                           }
+	                           },
+				            {
+	                        	   "experiment.name"     : "dummy1",
+	                        	   "experiment.category" : "Dummy experiments"
+	                           },
+	                           {
+	                        	   "experiment.name"     : "dummy2",
+	                        	   "experiment.category" : "Dummy experiments"
+	                           },
+	                           {
+	                        	   "experiment.name"     : "dummy3",
+	                        	   "experiment.category" : "Dummy experiments"
+	                           },
+	                           {
+	                        	   "experiment.name"     : "dummy4",
+	                        	   "experiment.category" : "Dummy experiments"
+	                           },
 	                       ],
 	   	        "dummybatch" : [
 		                           {
