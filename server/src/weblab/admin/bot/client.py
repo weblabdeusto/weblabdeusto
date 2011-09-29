@@ -262,7 +262,7 @@ if ZSI_AVAILABLE:
             return experiments
 
         def _parse_reservation_holder(self, reservation_holder):
-            return Reservation.Reservation.translate_reservation_from_data(reservation_holder.status, reservation_holder.reservation_id.id, reservation_holder.position, reservation_holder.time, reservation_holder.initial_configuration, reservation_holder.end_data)
+            return Reservation.Reservation.translate_reservation_from_data(reservation_holder.status, reservation_holder.reservation_id.id, reservation_holder.position, reservation_holder.time, reservation_holder.initial_configuration, reservation_holder.end_data, reservation_holder.url, reservation_holder.finished, reservation_holder.initial_data)
 
         def _parse_user(self, holder):
             return User(holder.login, holder.full_name, holder.email, holder.role)
@@ -294,7 +294,7 @@ class AbstractBotDict(AbstractBot):
 
     @possibleKeyError
     def _parse_reservation_holder(self, reservation_holder):
-        return Reservation.Reservation.translate_reservation_from_data(reservation_holder['status'], reservation_holder['reservation_id']['id'], reservation_holder.get('position'), reservation_holder.get('time'), reservation_holder.get('initial_configuration'), reservation_holder.get('end_data'))
+        return Reservation.translate_reservation_from_data(reservation_holder['status'], reservation_holder['reservation_id']['id'], reservation_holder.get('position'), reservation_holder.get('time'), reservation_holder.get('initial_configuration'), reservation_holder.get('end_data'), reservation_holder.get('url'), reservation_holder.get('finished'), initial_data.get('initial_data'))
 
     @possibleKeyError
     def _parse_user(self, holder):

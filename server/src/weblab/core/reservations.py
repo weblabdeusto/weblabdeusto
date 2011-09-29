@@ -48,16 +48,16 @@ class Reservation(object):
             reservation = WaitingConfirmationReservation(status.reservation_id, status.url)
         elif status.status == WSS.WebLabSchedulingStatus.RESERVED:
             reservation = ConfirmedReservation(status.reservation_id, status.remaining_time, status.initial_configuration, status.url)
-        elif status.status == WSS.WebLabSchedulingStatus.WAITING_INSTANCES: #TODO: test me
+        elif status.status == WSS.WebLabSchedulingStatus.WAITING_INSTANCES:
             reservation = WaitingInstances(status.reservation_id, status.position)
-        elif status.status == WSS.WebLabSchedulingStatus.POST_RESERVATION: #TODO: test me
+        elif status.status == WSS.WebLabSchedulingStatus.POST_RESERVATION:
             reservation = PostReservationReservation(status.reservation_id, status.finished, status.initial_data, status.end_data)
         else:
             raise coreExc.InvalidReservationStatusException( "Invalid reservation status.status: '%s'" % status.status)
         return reservation
 
     @staticmethod
-    def translate_reservation_from_data(status_text, reservation_id, position = None, time = None, initial_configuration = None, end_data = None, url = None):
+    def translate_reservation_from_data(status_text, reservation_id, position, time, initial_configuration, end_data, url, finished, initial_data):
         if status_text == Reservation.WAITING:
             reservation = WaitingReservation(reservation_id, position)
         elif status_text == Reservation.WAITING_CONFIRMATION:
@@ -67,7 +67,7 @@ class Reservation(object):
         elif status_text == Reservation.CONFIRMED:
             reservation = ConfirmedReservation(reservation_id, time, initial_configuration, url)
         elif status_text == Reservation.POST_RESERVATION:
-            reservation = PostReservationReservation(reservation_id, end_data)
+            reservation = PostReservationReservation(reservation_id, finished, initial_data, end_data)
         else:
             raise coreExc.InvalidReservationStatusException("Invalid reservation status_text: '%s'." % ( status_text ) )
         return reservation
