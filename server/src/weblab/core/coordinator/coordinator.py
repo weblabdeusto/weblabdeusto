@@ -105,18 +105,6 @@ class Coordinator(object):
         self.finished_store = TemporalInformationStore.FinishTemporalInformationStore()
         self.finished_reservations_store = Queue.Queue()
 
-
-        import weblab.core.server as UserProcessingServer
-        clean = cfg_manager.get_value(UserProcessingServer.WEBLAB_CORE_SERVER_CLEAN_COORDINATOR, True)
-
-        if clean:
-            resources_checker_frequency = cfg_manager.get_value(RESOURCES_CHECKER_FREQUENCY, DEFAULT_RESOURCES_CHECKER_FREQUENCY)
-            ResourcesCheckerThread.set_coordinator(self, resources_checker_frequency)
-
-
-        post_reservation_expiration_time = cfg_manager.get_value(POST_RESERVATION_EXPIRATION_TIME, DEFAULT_POST_RESERVATION_EXPIRATION_TIME)
-        self.expiration_delta = datetime.timedelta(seconds=post_reservation_expiration_time)
-
         # 
         # The system administrator must define what scheduling system is used by each resource type
         # For instance:
@@ -187,6 +175,28 @@ class Coordinator(object):
             aggregator = IndependentSchedulerAggregator(generic_scheduler_arguments, schedulers, particular_configuration)
 
             self.aggregators[experiment_id_str] = aggregator
+
+
+
+        import weblab.core.server as UserProcessingServer
+        clean = cfg_manager.get_value(UserProcessingServer.WEBLAB_CORE_SERVER_CLEAN_COORDINATOR, True)
+
+        if clean:
+            resources_checker_frequency = cfg_manager.get_value(RESOURCES_CHECKER_FREQUENCY, DEFAULT_RESOURCES_CHECKER_FREQUENCY)
+            ResourcesCheckerThread.set_coordinator(self, resources_checker_frequency)
+
+            self._clean()
+            coordination_configuration_parser = CoordinationConfigurationParser.CoordinationConfigurationParser(self.cfg_manager)
+            configuration = coordination_configuration_parser.parse_configuration()
+            for laboratory_server_coord_address_str in configuration:
+                experiment_instance_config = configuration[laboratory_server_coord_address_str]
+                for experiment_instance_id in experiment_instance_config:
+                    resource = experiment_instance_config[experiment_instance_id]
+                    self.add_experiment_instance_id(laboratory_server_coord_address_str, experiment_instance_id, resource)
+            post_reservation_expiration_time = cfg_manager.get_value(POST_RESERVATION_EXPIRATION_TIME, DEFAULT_POST_RESERVATION_EXPIRATION_TIME)
+            self.expiration_delta = datetime.timedelta(seconds=post_reservation_expiration_time)
+
+
 
     ##########################################################################
     # 

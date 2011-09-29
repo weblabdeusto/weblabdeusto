@@ -34,7 +34,6 @@ import weblab.core.user_processor as UserProcessor
 from weblab.core.reservation_processor import ReservationProcessor
 import weblab.core.alive_users as AliveUsersCollection
 import weblab.core.coordinator.coordinator as Coordinator
-import weblab.core.coordinator.config_parser as CoordinationConfigurationParser
 import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.core.db.manager as DatabaseManager
 import weblab.core.coordinator.status as WebLabSchedulingStatus
@@ -157,12 +156,6 @@ class UserProcessingServer(object):
 
         self._coordinator    = Coordinator.Coordinator(self._locator, cfg_manager) 
 
-        clean = cfg_manager.get_value(WEBLAB_CORE_SERVER_CLEAN_COORDINATOR, True)
-        if clean:
-            self._coordinator._clean()
-            self._load_coordinator_db()
-
-        
         # 
         # Database and information storage managers
         # 
@@ -212,15 +205,6 @@ class UserProcessingServer(object):
             super(UserProcessingServer, self).stop()
         for facade_server in self._facade_servers:
             facade_server.stop()
-
-    def _load_coordinator_db(self):
-        coordination_configuration_parser = CoordinationConfigurationParser.CoordinationConfigurationParser(self._cfg_manager)
-        configuration = coordination_configuration_parser.parse_configuration()
-        for laboratory_server_coord_address_str in configuration:
-            experiment_instance_config = configuration[laboratory_server_coord_address_str]
-            for experiment_instance_id in experiment_instance_config:
-                resource = experiment_instance_config[experiment_instance_id]
-                self._coordinator.add_experiment_instance_id(laboratory_server_coord_address_str, experiment_instance_id, resource)
 
     def _load_user(self, session):
         return UserProcessor.UserProcessor(self._locator, session, self._cfg_manager, self._coordinator, self._db_manager, self._commands_store)
