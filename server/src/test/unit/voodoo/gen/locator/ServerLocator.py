@@ -278,8 +278,6 @@ class ServerLocatorTestCase(unittest.TestCase):
                 'machine1','instance0','server0',( access_soap4, )
             )
 
-            server_id = "server0"
-
             direct_coordinator = ServerSkel.factory(
                     cfg_manager,
                     (Protocols.Direct, Protocols.SOAP), coordinator_methods
@@ -442,9 +440,7 @@ class ServerLocatorTestCase(unittest.TestCase):
                 'machine0','instance0','server1',( access_soap2, )
             )
 
-            # Generating rel servers
-            coordinator_server_id = "server0"
-
+            # Generating real servers
             # Coordinator must implement Protocols.Direct too
             # in order to be used by the local locator
             generated_coordinator = ServerSkel.factory(
