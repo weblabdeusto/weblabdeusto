@@ -56,13 +56,6 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self.provider2_handler.stop()
 
     def test_local_experiment(self):
-
-        import voodoo.gen.registry.server_registry as sr
-        print "*" * 20
-        for k in sr._registry._servers:
-            print k
-        print "*" * 20
-
         session_id = self.consumer_login_client.login('fedstudent1', 'password')
 
         reservation_status = self.consumer_core_client.reserve_experiment(session_id, self.dummy1, "{}", "{}")
@@ -71,6 +64,8 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         while reservation_status.status in (Reservation.WAITING, Reservation.WAITING_CONFIRMATION):
             time.sleep(0.1)
             reservation_status = self.consumer_core_client.get_reservation_status(reservation_id)
+        
+        self.assertEquals(Reservation.CONFIRMED, reservation_status.status)
         
 
     def test_remote_experiment(self):

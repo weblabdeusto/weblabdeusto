@@ -32,15 +32,7 @@ import weblab.data.dto.experiments as ExperimentAllowed
 
 import weblab.db.exc as DbExceptions
 
-WEBLAB_DB_USERNAME_PROPERTY = 'weblab_db_username'
-DEFAULT_WEBLAB_DB_USERNAME  = 'weblab'
-
-WEBLAB_DB_PASSWORD_PROPERTY = 'weblab_db_password'
-
-def getconn():
-    import MySQLdb as dbi
-    return dbi.connect(user = DatabaseGateway.user, passwd = DatabaseGateway.password,
-            host = DatabaseGateway.host, db = DatabaseGateway.dbname, client_flag = 2)
+from weblab.db.properties import WEBLAB_DB_USERNAME_PROPERTY, DEFAULT_WEBLAB_DB_USERNAME, WEBLAB_DB_PASSWORD_PROPERTY, WEBLAB_DB_FORCE_ENGINE_RECREATION, DEFAULT_WEBLAB_DB_FORCE_ENGINE_RECREATION
 
 def admin_panel_operation(func):
     """It checks if the requesting user has the admin_panel_access permission with full_privileges (temporal policy)."""
@@ -64,30 +56,29 @@ DEFAULT_VALUE = object()
 
 class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
 
-    user     = None
-    password = None
-    host     = None
-    dbname   = None
-
-    pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
     engine = None
 
     def __init__(self, cfg_manager):
         super(DatabaseGateway, self).__init__(cfg_manager)
        
-        DatabaseGateway.user     = cfg_manager.get_value(WEBLAB_DB_USERNAME_PROPERTY, DEFAULT_WEBLAB_DB_USERNAME)
-        DatabaseGateway.password = cfg_manager.get_value(WEBLAB_DB_PASSWORD_PROPERTY)
-        DatabaseGateway.host     = self.host
-        DatabaseGateway.dbname   = self.database_name
+        user     = cfg_manager.get_value(WEBLAB_DB_USERNAME_PROPERTY, DEFAULT_WEBLAB_DB_USERNAME)
+        password = cfg_manager.get_value(WEBLAB_DB_PASSWORD_PROPERTY)
+        host     = self.host
+        dbname   = self.database_name
 
         connection_url = "mysql://%(USER)s:%(PASSWORD)s@%(HOST)s/%(DATABASE)s" % \
-                            { "USER":     self.user,
-                              "PASSWORD": self.password,
-                              "HOST":     self.host,
-                              "DATABASE": self.dbname  }
+                            { "USER":     user,
+                              "PASSWORD": password,
+                              "HOST":     host,
+                              "DATABASE": dbname  }
 
-        if DatabaseGateway.engine is None:
-            DatabaseGateway.engine = create_engine(connection_url, echo=False, convert_unicode=True, pool = self.pool)
+        if DatabaseGateway.engine is None or cfg_manager.get_value(WEBLAB_DB_FORCE_ENGINE_RECREATION, DEFAULT_WEBLAB_DB_FORCE_ENGINE_RECREATION):
+            def getconn():
+                import MySQLdb as dbi
+                return dbi.connect(user = user, passwd = password, host = host, db = dbname, client_flag = 2)
+            pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
+
+            DatabaseGateway.engine = create_engine(connection_url, echo=False, convert_unicode=True, pool = pool)
 
         self.Session = sessionmaker(bind=self.engine)
 

@@ -1,3 +1,4 @@
+weblab_db_force_engine_creation = True
 db_database = "WebLabTests3"
 weblab_db_username = 'weblab'
 weblab_db_password = 'weblab'
