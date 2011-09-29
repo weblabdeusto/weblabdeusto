@@ -18,6 +18,7 @@ import unittest
 
 import voodoo.gen.loader.ServerLoader as ServerLoader
 
+from weblab.data.command import Command
 from weblab.data.experiments import ExperimentId
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 from weblab.core.reservations import Reservation
@@ -56,20 +57,54 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self.provider2_handler.stop()
 
     def test_local_experiment(self):
+        #######################################################
+        # 
+        #   Local testing  (to check that everything is right)
+        # 
+        #   We enter as a student of Consumer, and we ask for an
+        #   experiment that only the Consumer university has.
+        # 
         session_id = self.consumer_login_client.login('fedstudent1', 'password')
 
-        reservation_status = self.consumer_core_client.reserve_experiment(session_id, self.dummy1, "{}", "{}")
+        self._test_reservation(session_id, self.dummy2, 'Consumer', True, True)
+        
+        #######################################################
+        # 
+        #   Simple federation
+        # 
+        #   Now we ask for an experiment that only Provider 1
+        #   has. There is no load balance, neither 
+        #   subcontracting
+        # 
+        #self._test_reservation(session_id, self.dummy3, 'Provider 1', True, True)
+
+    def _test_reservation(self, session_id, experiment_id, expected_server_info, wait, finish):
+        reservation_status = self.consumer_core_client.reserve_experiment(session_id, experiment_id, "{}", "{}")
         
         reservation_id = reservation_status.reservation_id
+
+        if not wait:
+            if finish:
+                self.consumer_core_client.finished_experiment(reservation_id)
+            return reservation_id
+
+        max_timeout = 10
+        initial_time = time.time()
+
         while reservation_status.status in (Reservation.WAITING, Reservation.WAITING_CONFIRMATION):
+            if time.time() - initial_time > max_timeout:
+                self.fail("Waiting too long in the queue for %s in %s" % (experiment_id, expected_server_info))
             time.sleep(0.1)
             reservation_status = self.consumer_core_client.get_reservation_status(reservation_id)
         
         self.assertEquals(Reservation.CONFIRMED, reservation_status.status)
-        
+        response = self.consumer_core_client.send_command(reservation_id, Command("server_info"))
+        self.assertEquals(expected_server_info, response.get_command_string())
 
-    def test_remote_experiment(self):
-        pass
+        if finish:
+            self.consumer_core_client.finished_experiment(reservation_id)
+
+        return reservation_id
 
 
 def suite():

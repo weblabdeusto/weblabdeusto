@@ -1,3 +1,7 @@
+core_universal_identifier       = 'b9bbe9e2-ea14-11e0-bd1d-00216a5807c8'
+core_universal_identifier_human = "Provider 2"
+
+
 weblab_db_force_engine_creation = True
 db_database = "WebLabTests3"
 weblab_db_username = 'weblab'

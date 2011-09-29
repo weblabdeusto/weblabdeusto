@@ -1,4 +1,9 @@
 weblab_db_force_engine_creation = True
+
+# It must be here to retrieve this information from the dummy
+core_universal_identifier       = 'd9d94986-ea14-11e0-bd1d-00216a5807c8'
+core_universal_identifier_human = 'Consumer'
+
 db_database = "WebLabTests"
 weblab_db_username = 'weblab'
 weblab_db_password = 'weblab'

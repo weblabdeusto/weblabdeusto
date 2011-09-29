@@ -30,7 +30,4 @@ core_scheduling_systems = {
         "dummy3"      : ("PRIORITY_QUEUE", {}),
     }
 
-core_universal_identifier       = 'c7ab5d9e-ea14-11e0-bd1d-00216a5807c8'
-core_universal_identifier_human = 'Provider 1'
-
 core_server_url = 'http://localhost/weblab/'
