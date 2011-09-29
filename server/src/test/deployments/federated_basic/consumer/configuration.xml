@@ -4,6 +4,6 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="global_configuration.xsd"
 >
-	<machine>main_machine</machine>
+	<machine>consumer_machine</machine>
 </machines>
 

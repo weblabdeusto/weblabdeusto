@@ -18,7 +18,7 @@ core_coordinator_db_username = 'weblab'
 core_coordinator_db_password = 'weblab'
 
 core_coordinator_laboratory_servers = {
-    "laboratory:main_instance@main_machine" : {
+    "laboratory:main_instance@consumer_machine" : {
             "exp1|dummy1|Dummy experiments"        : "dummy1@dummy1",
             "exp1|dummy2|Dummy experiments"        : "dummy1@dummy2",
         }
