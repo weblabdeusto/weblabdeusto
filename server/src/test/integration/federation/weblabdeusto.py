@@ -32,9 +32,9 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
     def setUp(self):
         self.server_loader     = ServerLoader.ServerLoader()
 
-        self.consumer_handler  = self.server_loader.load_instance( CONSUMER_CONFIG_PATH,   'main_machine', 'main_instance' )
-        self.provider1_handler = self.server_loader.load_instance( PROVIDER1_CONFIG_PATH,  'main_machine', 'main_instance' )
-        self.provider2_handler = self.server_loader.load_instance( PROVIDER2_CONFIG_PATH,  'main_machine', 'main_instance' )
+        self.consumer_handler  = self.server_loader.load_instance( CONSUMER_CONFIG_PATH,   'consumer_machine', 'main_instance' )
+        self.provider1_handler = self.server_loader.load_instance( PROVIDER1_CONFIG_PATH,  'provider1_machine', 'main_instance' )
+        self.provider2_handler = self.server_loader.load_instance( PROVIDER2_CONFIG_PATH,  'provider2_machine', 'main_instance' )
 
         self.consumer_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 18645 )
         self.consumer_core_client  = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 18345 )
@@ -56,6 +56,13 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self.provider2_handler.stop()
 
     def test_local_experiment(self):
+
+        import voodoo.gen.registry.server_registry as sr
+        print "*" * 20
+        for k in sr._registry._servers:
+            print k
+        print "*" * 20
+
         session_id = self.consumer_login_client.login('fedstudent1', 'password')
 
         reservation_status = self.consumer_core_client.reserve_experiment(session_id, self.dummy1, "{}", "{}")
