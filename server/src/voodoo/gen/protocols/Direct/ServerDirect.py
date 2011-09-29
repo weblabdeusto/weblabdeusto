@@ -39,8 +39,8 @@ def generate(cfg_manager, methods):
     
     class ServerDirect(object):
         
-        def __init__(self, server_id):
-            self._server_id = server_id
+        def __init__(self, full_address):
+            self._full_address = full_address
 
         def register_parent(self,parent):
             self._parent = parent           
@@ -49,14 +49,14 @@ def generate(cfg_manager, methods):
             import voodoo.gen.exceptions.registry.RegistryExceptions as RegistryExceptions
             registry = ServerRegistry.get_instance()
             try:
-                registry.register_server(_SERVER_PREFIX + self._server_id, self._parent)
+                registry.register_server(_SERVER_PREFIX + self._full_address, self._parent)
             except RegistryExceptions.AddressAlreadyRegisteredException as aar:
                 log.log(
                         ServerDirect,
                         log.level.Warning,
                         "Exception registering parent server: AddressAlreadyRegistered: %s" % aar
                     )
-                registry.reregister_server(self._server_id,self._parent)
+                registry.reregister_server(_SERVER_PREFIX + self._full_address,self._parent)
 
         def start(self, daemon = True):
             pass #No need

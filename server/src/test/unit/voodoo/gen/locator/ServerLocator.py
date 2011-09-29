@@ -94,16 +94,17 @@ class ServerLocatorTestCase(unittest.TestCase):
 
         self._coordinatorImplementor = CoordinatorImplementor
 
-        self._coordinator_server = CoordinatorImplementor(
-                    Direct = (
-                        self._server_id,
-                    )
-                )
         self.coordinator_server_address = DirectAddress.Address(
                 self._machine_id,
                 self._instance_id,
                 self._server_id
             )
+
+        self._coordinator_server = CoordinatorImplementor(
+                    Direct = (
+                        self.coordinator_server_address.address,
+                    )
+                )
 
         direct_login = ServerSkel.factory(
                 cfg_manager,
@@ -117,18 +118,6 @@ class ServerLocatorTestCase(unittest.TestCase):
 
         self._loginImplementor = LoginImplementor
 
-        self._login_server1 = LoginImplementor(
-                    Direct = (
-                        self._login_server1_id,
-                    )
-                )
-
-        self._login_server2 = LoginImplementor(
-                    Direct = (
-                        self._login_server2_id,
-                    )
-                )
-
         self.login_server1_address = DirectAddress.Address(
                 self._machine_id,
                 self._instance_id,
@@ -140,6 +129,18 @@ class ServerLocatorTestCase(unittest.TestCase):
                 self._instance_id,
                 self._login_server2_id
             )
+
+        self._login_server1 = LoginImplementor(
+                    Direct = (
+                        self.login_server1_address.address,
+                    )
+                )
+
+        self._login_server2 = LoginImplementor(
+                    Direct = (
+                        self.login_server2_address.address,
+                    )
+                )
 
     def tearDown(self):
         ServerRegistry.get_instance().clear()
@@ -292,18 +293,19 @@ class ServerLocatorTestCase(unittest.TestCase):
                     cfg_manager,
                     (Protocols.Direct, Protocols.SOAP), login_methods
                 )
-            s1= YetAnother(cfg_manager, map,Direct = (server_id,), SOAP = ('',12345))
-            s1.start()
             coordinator_server_address = DirectAddress.Address(
                         "machine0",
                         "instance0",
                         "server0"
                     )
 
+            s1= YetAnother(cfg_manager, map,Direct = (coordinator_server_address.address,), SOAP = ('',12345))
+            s1.start()
+
             class YetAnother2(direct_login):
                 def do_method1(self,arg):
                     return arg * 3
-            s2 = YetAnother2( Direct = ('server1',), SOAP = ('',12346))
+            s2 = YetAnother2( Direct = (address2.address,), SOAP = ('',12346))
             s2.start()
         
             server_type_handler = ServerTypeHandler.ServerTypeHandler(
@@ -454,18 +456,20 @@ class ServerLocatorTestCase(unittest.TestCase):
                 def __init__(self,cfg_manager, map,*args,**kargs):
                     CoordinatorServer.CoordinatorServer.__init__(self,cfg_manager, map, *args, **kargs)
 
-            s1= RealCoordinatorServer(
-                    cfg_manager,
-                    map,
-                    Direct = (coordinator_server_id,), 
-                    SOAP = ('',12349)
-                )
-            s1.start()
             coordinator_server_address = DirectAddress.Address(
                         "machine0",
                         "instance0",
                         "server0"
                     )
+
+            s1= RealCoordinatorServer(
+                    cfg_manager,
+                    map,
+                    Direct = (coordinator_server_address.address,), 
+                    SOAP = ('',12349)
+                )
+            s1.start()
+
 
             generated_login = ServerSkel.factory(
                     cfg_manager,

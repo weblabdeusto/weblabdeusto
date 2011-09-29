@@ -41,6 +41,6 @@ def fill_creation(protocol_configuration, address):
                 "Unexpected number of parameters for Direct creation, expected 0 and received %s" % len(creation_configuration.parameters)
             )
 
-    protocol_configuration.filled_creation = ('Direct',(address.server_id,), {})
+    protocol_configuration.filled_creation = ('Direct',(address.address,), {})
 
 

@@ -212,7 +212,7 @@ class Case001TestCase(object):
         real_coordinator_server = RealCoordinatorServer(
                 cfg_manager,
                 map,
-                Direct = ('coordinator1',),
+                Direct = (map['WL_MACHINE1']['WL_SERVER1']['coordinator1'].address.address,),
                 SOAP   = ('',10027)
             )
         real_coordinator_server.start()
@@ -273,7 +273,7 @@ class Case001TestCase(object):
                 login_coord_address,
                 locator,
                 cfg_manager,
-                Direct = ('login1',),
+                Direct = (login_coord_address.address,),
                 SOAP   = ('',10025)
             )
         real_login_server.start()
@@ -310,7 +310,7 @@ class Case001TestCase(object):
                 ups_coord_address,
                 locator,
                 cfg_manager,
-                Direct = ('ups1',),
+                Direct = (ups_coord_address.address,),
                 SOAP   = ('',10026)
             )
         real_core_server.start()
@@ -345,7 +345,7 @@ class Case001TestCase(object):
                 cfg_manager,
                 fake_xilinx_impact,
                 fake_serial_port,
-                Direct = ('experiment' + number,),
+                Direct = ( self.map['WL_MACHINE1']['WL_SERVER1']['experiment' + number].address.address,),
                 SOAP   = ('',10031 + (int(number)-1))
             )
         real_experiment.start()
@@ -381,7 +381,7 @@ class Case001TestCase(object):
                 self.map['WL_MACHINE1']['WL_SERVER1']['laboratory1'].address,
                 locator,
                 cfg_manager,
-                Direct = ('laboratory1',),
+                Direct = (self.map['WL_MACHINE1']['WL_SERVER1']['laboratory1'].address.address,),
                 SOAP   = ('',10029)
             )
         real_laboratory_server.start()
