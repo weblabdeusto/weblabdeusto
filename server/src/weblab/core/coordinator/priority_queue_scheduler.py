@@ -185,7 +185,7 @@ class PriorityQueueScheduler(Scheduler):
                     timestamp_after   = datetime.datetime.fromtimestamp(concrete_current_reservation.timestamp_after)
 
                 if lab_session_id is None:
-                    return WSS.WaitingConfirmationQueueStatus(reservation_id_with_route, lab_coord_address, obtained_time, self.core_server_url)
+                    return WSS.WaitingConfirmationQueueStatus(reservation_id_with_route, self.core_server_url)
                 else:
                     if initialization_in_accounting:
                         before = concrete_current_reservation.timestamp_before

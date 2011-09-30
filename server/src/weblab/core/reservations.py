@@ -72,6 +72,7 @@ class Reservation(object):
             raise coreExc.InvalidReservationStatusException("Invalid reservation status_text: '%s'." % ( status_text ) )
         return reservation
 
+
 class WaitingReservation(Reservation):
     def __init__(self, reservation_id, position):
         super(WaitingReservation,self).__init__(Reservation.WAITING, reservation_id)

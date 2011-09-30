@@ -91,17 +91,16 @@ class WaitingQueueStatus(WebLabSchedulingStatus):
 # server to reply that the experiment has been initialized.
 # 
 class WaitingConfirmationQueueStatus(WebLabSchedulingStatus):
-    def __init__(self, reservation_id, coord_address, time, url):
+    def __init__(self, reservation_id, url):
         super(WaitingConfirmationQueueStatus,self).__init__(WebLabSchedulingStatus.WAITING_CONFIRMATION, reservation_id)
-        self.coord_address = coord_address
-        self.time          = time
         self.url           = url
+
     def __repr__(self):
         full_name = self.__class__.__module__ + '.' + self.__class__.__name__
-        return "%s( reservation_id = %r, coord_address = %r, time = %r, url = %r)" % (full_name, self.reservation_id, self.coord_address, self.time, self.url)
+        return "%s( reservation_id = %r, url = %r)" % (full_name, self.reservation_id, self.url)
 
     def __eq__(self, other):
-        return isinstance(other, WaitingConfirmationQueueStatus) and self.coord_address == other.coord_address and self.time == other.time
+        return isinstance(other, WaitingConfirmationQueueStatus) 
 
     def __cmp__(self, other):
         if isinstance(other, (LocalReservedStatus, RemoteReservedStatus, PostReservationStatus)):

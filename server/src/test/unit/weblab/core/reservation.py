@@ -61,7 +61,7 @@ class ReservationTest(unittest.TestCase):
         self.assertEquals(5, reservation.position)
 
     def test_translate_reservation_waiting_confirmation(self):
-        status = WSS.WaitingConfirmationQueueStatus('foo', 'i:s@m', 100, 'http://...')
+        status = WSS.WaitingConfirmationQueueStatus('foo', 'http://...')
         reservation = Reservation.translate_reservation(status)
         self.assertEquals(Reservation.WAITING_CONFIRMATION, reservation.status)
         self.assertEquals('foo', reservation.reservation_id.id)

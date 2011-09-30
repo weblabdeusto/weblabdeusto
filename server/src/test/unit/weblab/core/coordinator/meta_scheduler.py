@@ -58,8 +58,8 @@ class MetaSchedulerTestCase(unittest.TestCase):
         self.w_five  = WSS.WaitingQueueStatus("reservation_id", 5)
         self.w_four  = WSS.WaitingQueueStatus("reservation_id", 4)
 
-        self.wc1     = WSS.WaitingConfirmationQueueStatus("reservation_id", "coord_adress1", 50, 'http://www.weblab.deusto.es/weblab/client/...')
-        self.wc2     = WSS.WaitingConfirmationQueueStatus("reservation_id", "coord_adress2", 60, 'http://www.weblab.deusto.es/weblab/client/...')
+        self.wc1     = WSS.WaitingConfirmationQueueStatus("reservation_id", 'http://www.weblab.deusto.es/weblab/client/...')
+        self.wc2     = WSS.WaitingConfirmationQueueStatus("reservation_id", 'http://www.weblab.deusto.es/weblab/client/...')
 
         self.res1    = WSS.LocalReservedStatus("reservation_id", "coord_address1", "lab_session_id1", 50, None, datetime.datetime.now(), datetime.datetime.now(), True, 50, 'http://www.weblab.deusto.es/weblab/client/foo')
         self.res2    = WSS.LocalReservedStatus("reservation_id", "coord_address2", "lab_session_id2", 60, "foo", datetime.datetime.now(), datetime.datetime.now(), True, 50, 'http://www.weblab.deusto.es/weblab/client/foo')
