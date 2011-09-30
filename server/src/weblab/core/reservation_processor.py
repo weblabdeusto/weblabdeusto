@@ -103,7 +103,7 @@ class ReservationProcessor(object):
         except coord_exc.ExpiredSessionException:
             raise core_exc.NoCurrentReservationException("get_reservation_status called but coordinator rejected reservation id")
         else:
-            if status.status == scheduling_status.WebLabSchedulingStatus.RESERVED:
+            if status.status == scheduling_status.WebLabSchedulingStatus.RESERVED_LOCAL:
                 self.process_reserved_status(status)
 
             return Reservation.Reservation.translate_reservation( status )

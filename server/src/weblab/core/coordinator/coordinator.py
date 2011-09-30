@@ -467,7 +467,7 @@ class Coordinator(object):
         # If not reserved, don't try again 
         try:
             current_status = self.get_reservation_status(reservation_id)
-            if not isinstance(current_status, coord_status.ReservedStatus):
+            if not isinstance(current_status, (coord_status.LocalReservedStatus, coord_status.RemoteReservedStatus)):
                 return
         except CoordExc.CoordinatorException:
             return

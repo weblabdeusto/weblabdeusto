@@ -67,13 +67,22 @@ class ReservationTest(unittest.TestCase):
         self.assertEquals('foo', reservation.reservation_id.id)
         self.assertEquals('http://...', reservation.url)
 
-    def test_translate_reservation_reserved(self):
-        status = WSS.ReservedStatus('foo', 'i:s@m', 'lab_session', 100, "{}", time.time(), time.time(), True, 80, 'http://...')
+    def test_translate_local_reservation_reserved(self):
+        status = WSS.LocalReservedStatus('foo', 'i:s@m', 'lab_session', 100, "{}", time.time(), time.time(), True, 80, 'http://...')
         reservation = Reservation.translate_reservation(status)
         self.assertEquals(Reservation.CONFIRMED, reservation.status)
         self.assertEquals('foo', reservation.reservation_id.id)
         self.assertEquals('http://...', reservation.url)
         self.assertEquals('{}', reservation.initial_configuration)
+
+    def test_translate_remote_reservation_reserved(self):
+        status = WSS.RemoteReservedStatus('foo', 100, "{}",'http://...')
+        reservation = Reservation.translate_reservation(status)
+        self.assertEquals(Reservation.CONFIRMED, reservation.status)
+        self.assertEquals('foo', reservation.reservation_id.id)
+        self.assertEquals('http://...', reservation.url)
+        self.assertEquals('{}', reservation.initial_configuration)
+
 
     def test_translate_reservation_post_reservation(self):
         status = WSS.PostReservationStatus('foo', True, "{ }", "{}")

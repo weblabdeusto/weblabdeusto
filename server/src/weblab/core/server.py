@@ -355,7 +355,7 @@ class UserProcessingServer(object):
         reservation_processor = self._load_reservation(initial_session)
         reservation_processor.update_latest_timestamp()
 
-        if status.status == WebLabSchedulingStatus.WebLabSchedulingStatus.RESERVED:
+        if status.status == WebLabSchedulingStatus.WebLabSchedulingStatus.RESERVED_LOCAL:
             reservation_processor.process_reserved_status(status)
 
         self._reservations_session_manager.modify_session(session_id, initial_session)
