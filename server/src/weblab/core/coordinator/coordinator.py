@@ -23,6 +23,8 @@ import voodoo.log as log
 import voodoo.admin_notifier as AdminNotifier
 from voodoo.sessions.session_id import SessionId
 
+from weblab.data.experiments import ExperimentId
+
 import weblab.core.coordinator.exc as CoordExc
 
 import weblab.core.coordinator.db as CoordinationDatabaseManager
@@ -36,13 +38,16 @@ import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.core.coordinator.status as coord_status
 
 from weblab.core.coordinator.meta_scheduler import IndependentSchedulerAggregator
-import weblab.core.coordinator.priority_queue_scheduler as PriorityQueueScheduler
+from weblab.core.coordinator.priority_queue_scheduler import PriorityQueueScheduler
+from weblab.core.coordinator.externals.weblabdeusto_scheduler import ExternalWebLabDeustoScheduler
 import weblab.core.coordinator.checker_threaded as ResourcesCheckerThread
 
-PRIORITY_QUEUE = 'PRIORITY_QUEUE'
+PRIORITY_QUEUE         = 'PRIORITY_QUEUE'
+EXTERNAL_WEBLAB_DEUSTO = 'EXTERNAL_WEBLAB_DEUSTO'
 
 SCHEDULING_SYSTEMS = {
-        PRIORITY_QUEUE : PriorityQueueScheduler.PriorityQueueScheduler
+        PRIORITY_QUEUE : PriorityQueueScheduler,
+        EXTERNAL_WEBLAB_DEUSTO : ExternalWebLabDeustoScheduler,
     }
 
 CORE_SCHEDULING_SYSTEMS    = 'core_scheduling_systems'
@@ -121,7 +126,7 @@ class Coordinator(object):
         for resource_type_name in scheduling_systems:
             scheduling_system, arguments = scheduling_systems[resource_type_name]
             if not scheduling_system in SCHEDULING_SYSTEMS:
-                raise CoordExc.UnregisteredSchedulingSystemException("Unregistered scheduling system: %s" % scheduling_system)
+                raise CoordExc.UnregisteredSchedulingSystemException("Unregistered scheduling system: %r" % scheduling_system)
             SchedulingSystemClass = SCHEDULING_SYSTEMS[scheduling_system]
             
             generic_scheduler_arguments = Scheduler.GenericSchedulerArguments(
@@ -143,6 +148,7 @@ class Coordinator(object):
 
         coordination_configuration_parser = CoordinationConfigurationParser.CoordinationConfigurationParser(cfg_manager)
         resource_types_per_experiment_id = coordination_configuration_parser.parse_resources_for_experiment_ids()
+
         # 
         # This configuration argument has a dictionary such as:
         # {
@@ -167,8 +173,11 @@ class Coordinator(object):
 
 
             resource_type_names = resource_types_per_experiment_id[experiment_id_str]
-            schedulers = [  self.schedulers[resource_type_name]
+            try:
+                schedulers = [  self.schedulers[resource_type_name]
                             for resource_type_name in resource_type_names ]
+            except KeyError, ke:
+                raise Exception("Scheduler not found with resource type name %s. Check %s config property." % (ke, CORE_SCHEDULING_SYSTEMS))
 
             particular_configuration = aggregators_configuration.get(experiment_id_str)
 
@@ -186,7 +195,9 @@ class Coordinator(object):
             ResourcesCheckerThread.set_coordinator(self, resources_checker_frequency)
 
             self._clean()
+
             coordination_configuration_parser = CoordinationConfigurationParser.CoordinationConfigurationParser(self.cfg_manager)
+
             configuration = coordination_configuration_parser.parse_configuration()
             for laboratory_server_coord_address_str in configuration:
                 experiment_instance_config = configuration[laboratory_server_coord_address_str]
@@ -195,6 +206,17 @@ class Coordinator(object):
                     self.add_experiment_instance_id(laboratory_server_coord_address_str, experiment_instance_id, resource)
             post_reservation_expiration_time = cfg_manager.get_value(POST_RESERVATION_EXPIRATION_TIME, DEFAULT_POST_RESERVATION_EXPIRATION_TIME)
             self.expiration_delta = datetime.timedelta(seconds=post_reservation_expiration_time)
+
+            session = self._session_maker()
+            try:
+                external_servers_config = coordination_configuration_parser.parse_external_servers()
+                for external_server_str in external_servers_config:
+                    for resource_type_name in external_servers_config[external_server_str]:
+                        self.resources_manager.add_experiment_id(session, ExperimentId.parse(external_server_str), resource_type_name)
+
+                session.commit()
+            finally:
+                session.close()
 
 
 

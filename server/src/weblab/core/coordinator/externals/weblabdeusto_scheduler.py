@@ -13,7 +13,9 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+import time as time_mod
 import cPickle as pickle
+import json
 from voodoo.override import Override
 from weblab.core.coordinator.scheduler import Scheduler
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
@@ -22,12 +24,13 @@ from voodoo.log import logged
 
 class ExternalWebLabDeustoScheduler(Scheduler):
 
-    def __init__(self, generic_scheduler_arguments, baseurl, username, password, **kwargs):
+    def __init__(self, generic_scheduler_arguments, baseurl, username, password, login_baseurl = None, **kwargs):
         super(ExternalWebLabDeustoScheduler, self).__init__(generic_scheduler_arguments, **kwargs)
 
-        self.baseurl  = baseurl
-        self.username = username
-        self.password = password
+        self.baseurl       = baseurl
+        self.login_baseurl = login_baseurl
+        self.username      = username
+        self.password      = password
 
     def stop(self):
         pass
@@ -42,7 +45,13 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     def _create_client(self, cookies = None):
         client = WebLabDeustoClient(self.baseurl)
         if cookies is not None:
-            client.setcookies(cookies)
+            client.set_cookies(cookies)
+        return client
+
+    def _create_login_client(self, cookies = None):
+        client = WebLabDeustoClient(self.login_baseurl or self.baseurl)
+        if cookies is not None:
+            client.set_cookies(cookies)
         return client
 
     #######################################################################
@@ -59,24 +68,29 @@ class ExternalWebLabDeustoScheduler(Scheduler):
             'initialization_in_accounting' : initialization_in_accounting
         }
 
-        client = self._create_client()
-        session_id = self.client.login(self.username,self.password)
-        reservation_status = client.reserve_experiment(session_id, experiment_id, client_initial_data, consumer_data)
+        login_client = self._create_login_client()
+        session_id = login_client.login(self.username, self.password)
+
+        client = self._create_client(login_client.get_cookies())
+        
+        serialized_client_initial_data = json.dumps(client_initial_data)
+        serialized_consumer_data       = json.dumps(consumer_data)
+        reservation_status = client.reserve_experiment(session_id, experiment_id, serialized_client_initial_data, serialized_consumer_data)
 
         cookies = client.get_cookies()
         serialized_cookies = pickle.dumps(cookies)
 
-        session = self.sessionmaker()
+        session = self.session_maker()
         try:
-            reservation = ExternalWebLabDeustoReservation(reservation_id, reservation_status.reservation_id, serialized_cookies, time.time())
+            reservation = ExternalWebLabDeustoReservation(reservation_id, reservation_status.reservation_id, serialized_cookies, time_mod.time())
             session.add(reservation)
             session.commit()
         finally:
             session.close()
 
         reservation_status.reservation_id = reservation_id
-
-        return reservation_status 
+        
+        return reservation_status, reservation_id 
 
     #######################################################################
     # 
@@ -86,7 +100,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     @Override(Scheduler)
     def get_reservation_status(self, reservation_id):
         
-        session = self.sessionmaker()
+        session = self.session_maker()
         try:
             reservation = session.query(ExternalWebLabDeustoReservation).filter_by(local_reservation_id = reservation_id).first()
             if reservation is None:

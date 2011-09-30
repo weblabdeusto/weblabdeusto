@@ -64,12 +64,17 @@ class CoordinationConfigurationParserTestCase(unittest.TestCase):
                                 'exp2|ud-logic|PIC experiments' : 'fpga1@fpga boards'
                             },
                     })
+        self.cfg_manager._set_value(CoordinationConfigurationParser.COORDINATOR_EXTERNAL_SERVERS, {
+                        'ud-pld@PLD experiments' : ['weblab_university1', 'weblab_university2'],
+                        'visir@VISIR experiments' : ['weblab_university3']
+                    })
 
         configuration = self.coordination_configuration_parser.parse_resources_for_experiment_ids()
         self.assertTrue('ud-pld@PLD experiments'   in configuration)
         self.assertTrue('ud-fpga@FPGA experiments' in configuration)
         self.assertTrue('ud-logic@PIC experiments' in configuration)
-        self.assertEquals(set(('pld boards',)),  configuration['ud-pld@PLD experiments'])
+        self.assertEquals(set(('pld boards','weblab_university1','weblab_university2')),  configuration['ud-pld@PLD experiments'])
+        self.assertEquals(set(('weblab_university3',)),  configuration['visir@VISIR experiments'])
         self.assertEquals(set(('fpga boards',)), configuration['ud-fpga@FPGA experiments'])
         self.assertEquals(set(('pld boards', 'fpga boards')), configuration['ud-logic@PIC experiments'])
 
