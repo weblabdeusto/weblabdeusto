@@ -12,6 +12,8 @@ admin_facade_json_port   = 38545
 
 core_web_facade_port   = 39745
 
+core_server_url = 'http://127.0.0.1:%s/weblab/' % core_facade_json_port
+
 # Scheduling
 
 core_coordinator_db_name     = 'WebLabCoordination3'
@@ -30,4 +32,3 @@ core_scheduling_systems = {
         "dummy4"      : ("PRIORITY_QUEUE", {}),
     }
 
-core_server_url = 'http://localhost/weblab/'

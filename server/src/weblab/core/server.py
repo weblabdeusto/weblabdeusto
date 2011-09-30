@@ -54,13 +54,13 @@ import voodoo.resources_manager as ResourceManager
 
 check_session_params = dict(
         exception_to_raise = coreExc.SessionNotFoundException,
-        what_session       = "User Processing Server",
+        what_session       = "Core Users ",
         cut_session_id     = ';'
     )
 
 check_reservation_session_params = dict(
         exception_to_raise         = coreExc.SessionNotFoundException,
-        what_session               = "User Processing Server",
+        what_session               = "Core Reservations ",
         session_manager_field_name = "_reservations_session_manager",
         cut_session_id             = ';'
     )

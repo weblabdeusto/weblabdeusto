@@ -12,6 +12,9 @@ admin_facade_json_port   = 18545
 
 core_web_facade_port   = 19745
 
+# Will only work in JSON in this config file :-(
+core_server_url = 'http://127.0.0.1:%s/weblab/' % core_facade_json_port
+
 # Scheduling
 
 core_coordinator_db_username = 'weblab'
@@ -39,4 +42,3 @@ core_scheduling_systems = {
                             }),
     }
 
-core_server_url = 'http://localhost/weblab/'

@@ -16,7 +16,10 @@
 import time as time_mod
 import cPickle as pickle
 import json
+
 from voodoo.override import Override
+from voodoo.sessions.session_id import SessionId
+
 from weblab.core.coordinator.scheduler import Scheduler
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 from weblab.core.coordinator.externals.weblabdeusto_scheduler_model import ExternalWebLabDeustoReservation
@@ -75,22 +78,22 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         
         serialized_client_initial_data = json.dumps(client_initial_data)
         serialized_consumer_data       = json.dumps(consumer_data)
-        reservation_status = client.reserve_experiment(session_id, experiment_id, serialized_client_initial_data, serialized_consumer_data)
+        external_reservation = client.reserve_experiment(session_id, experiment_id, serialized_client_initial_data, serialized_consumer_data)
 
         cookies = client.get_cookies()
         serialized_cookies = pickle.dumps(cookies)
 
         session = self.session_maker()
         try:
-            reservation = ExternalWebLabDeustoReservation(reservation_id, reservation_status.reservation_id, serialized_cookies, time_mod.time())
+            reservation = ExternalWebLabDeustoReservation(reservation_id, external_reservation.reservation_id.id, serialized_cookies, time_mod.time())
             session.add(reservation)
             session.commit()
         finally:
             session.close()
 
-        reservation_status.reservation_id = reservation_id
-        
-        return reservation_status, reservation_id 
+        reservation_status = external_reservation.to_status()
+        reservation_status.set_reservation_id(reservation_id)
+        return reservation_status, reservation_id
 
     #######################################################################
     # 
@@ -99,7 +102,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     @logged()
     @Override(Scheduler)
     def get_reservation_status(self, reservation_id):
-        
+
         session = self.session_maker()
         try:
             reservation = session.query(ExternalWebLabDeustoReservation).filter_by(local_reservation_id = reservation_id).first()
@@ -112,13 +115,13 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         finally:
             session.close()
         
-        cookies = pickle.loads(serialized_cookies)
+        cookies = pickle.loads(str(serialized_cookies))
         client = self._create_client(cookies)
 
-        reservation_status = client.get_reservation_status(remote_reservation_id)
+        reservation = client.get_reservation_status(SessionId(remote_reservation_id))
 
-        reservation_status.reservation_id = reservation_id
-
+        reservation_status = reservation.to_status()
+        reservation_status.set_reservation_id(reservation_id)
         return reservation_status
 
 
@@ -154,7 +157,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         finally:
             session.close()
 
-        cookies = pickle.loads(serialized_cookies)
+        cookies = pickle.loads(str(serialized_cookies))
         client = self._create_client(cookies)
         client.finished_experiment(remote_reservation_id)
 

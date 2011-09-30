@@ -29,6 +29,9 @@ class WebLabSchedulingStatus(object):
         self.status         = status
         self.reservation_id = reservation_id
 
+    def set_reservation_id(self, reservation_id):
+        self.reservation_id = reservation_id
+
     def __eq__(self, other):
         return isinstance(other, WebLabSchedulingStatus) and str(other) == str(self)
 

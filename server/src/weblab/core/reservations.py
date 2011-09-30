@@ -21,6 +21,9 @@ import weblab.core.coordinator.status as WSS
 import weblab.core.exc as coreExc
 
 class Reservation(object):
+    
+    __metaclass__ = ABCMeta
+
     WAITING              = "Reservation::waiting"
     WAITING_CONFIRMATION = "Reservation::waiting_confirmation"
     WAITING_INSTANCES    = "Reservation::waiting_instances"
