@@ -26,6 +26,9 @@ class ReservationTest(unittest.TestCase):
     def assertCorrectReservation(self, reservation):
         self.assertEquals(str(reservation), str(eval(str(reservation))))
 
+    # 
+    # __str__
+    # 
     def test_str_waiting_reservation(self):
         reservation = WaitingReservation("reservation_id", 5)
         self.assertCorrectReservation(reservation)
@@ -46,12 +49,16 @@ class ReservationTest(unittest.TestCase):
         reservation = PostReservationReservation("reservation_id", True, "{}", '{"foo"="bar"}')
         self.assertCorrectReservation(reservation)
 
+    # 
+    # translate_reservation
+    # 
     def test_translate_reservation_waiting_instances(self):
         status = WSS.WaitingInstancesQueueStatus('foo', 5)
         reservation = Reservation.translate_reservation(status)
         self.assertEquals(Reservation.WAITING_INSTANCES, reservation.status)
         self.assertEquals('foo', reservation.reservation_id.id)
         self.assertEquals(5, reservation.position)
+        self.assertEquals(status, reservation.to_status())
 
     def test_translate_reservation_waiting(self):
         status = WSS.WaitingQueueStatus('foo', 5)
@@ -59,6 +66,7 @@ class ReservationTest(unittest.TestCase):
         self.assertEquals(Reservation.WAITING, reservation.status)
         self.assertEquals('foo', reservation.reservation_id.id)
         self.assertEquals(5, reservation.position)
+        self.assertEquals(status, reservation.to_status())
 
     def test_translate_reservation_waiting_confirmation(self):
         status = WSS.WaitingConfirmationQueueStatus('foo', 'http://...')
@@ -66,6 +74,7 @@ class ReservationTest(unittest.TestCase):
         self.assertEquals(Reservation.WAITING_CONFIRMATION, reservation.status)
         self.assertEquals('foo', reservation.reservation_id.id)
         self.assertEquals('http://...', reservation.url)
+        self.assertEquals(status, reservation.to_status())
 
     def test_translate_local_reservation_reserved(self):
         status = WSS.LocalReservedStatus('foo', 'i:s@m', 'lab_session', 100, "{}", time.time(), time.time(), True, 80, 'http://...')
@@ -75,6 +84,9 @@ class ReservationTest(unittest.TestCase):
         self.assertEquals('http://...', reservation.url)
         self.assertEquals('{}', reservation.initial_configuration)
 
+        status = WSS.RemoteReservedStatus('foo', 80, '{}', 'http://...')
+        self.assertEquals(status, reservation.to_status())
+
     def test_translate_remote_reservation_reserved(self):
         status = WSS.RemoteReservedStatus('foo', 100, "{}",'http://...')
         reservation = Reservation.translate_reservation(status)
@@ -82,6 +94,7 @@ class ReservationTest(unittest.TestCase):
         self.assertEquals('foo', reservation.reservation_id.id)
         self.assertEquals('http://...', reservation.url)
         self.assertEquals('{}', reservation.initial_configuration)
+        self.assertEquals(status, reservation.to_status())
 
 
     def test_translate_reservation_post_reservation(self):
@@ -92,7 +105,11 @@ class ReservationTest(unittest.TestCase):
         self.assertEquals('{ }', reservation.initial_data)
         self.assertEquals('{}', reservation.end_data)
         self.assertTrue(reservation.finished)
+        self.assertEquals(status, reservation.to_status())
 
+    # 
+    # translate_reservation_from_data
+    # 
     def test_translate_reservation_from_data_waiting(self):
         reservation = Reservation.translate_reservation_from_data(Reservation.WAITING, 'foo', 5, None, None, None, None, None, None)
         self.assertEquals(Reservation.WAITING, reservation.status)
