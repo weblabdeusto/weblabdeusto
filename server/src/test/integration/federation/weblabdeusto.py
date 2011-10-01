@@ -78,6 +78,16 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         #
         self._test_reservation(session_id, self.dummy3, 'Provider 1', True, True)
 
+        #######################################################
+        # 
+        #   Subcontracted federation
+        # 
+        #   Now we ask for an experiment that only Provider 2
+        #   has. There is no load balance, but Consumer will 
+        #   contact Provider 1, which will contact Provider 2
+        #
+        self._test_reservation(session_id, self.dummy4, 'Provider 2', True, True)
+
     def _test_reservation(self, session_id, experiment_id, expected_server_info, wait, finish):
         reservation_status = self.consumer_core_client.reserve_experiment(session_id, experiment_id, "{}", "{}")
         

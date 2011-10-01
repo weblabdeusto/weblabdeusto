@@ -12,6 +12,7 @@ admin_facade_json_port   = 28545
 
 core_web_facade_port   = 29745
 
+# Will only work in JSON in this config file :-(
 core_server_url = 'http://127.0.0.1:%s/weblab/' % core_facade_json_port
 
 # Scheduling
@@ -27,8 +28,18 @@ core_coordinator_laboratory_servers = {
         }
 }
 
+core_coordinator_external_servers = {
+    'dummy4@Dummy experiments'  : [ 'dummy4' ]
+}
+
 core_scheduling_systems = {
         "dummy1"      : ("PRIORITY_QUEUE", {}),
         "dummy3"      : ("PRIORITY_QUEUE", {}),
+        "dummy4"      : ("EXTERNAL_WEBLAB_DEUSTO", { 
+                                    'baseurl' : 'http://127.0.0.1:38345/weblab/', 
+                                    'login_baseurl' : 'http://127.0.0.1:38645/weblab/',
+                                    'username' : 'provider1', 
+                                    'password' : 'password',
+                            }),
     }
 

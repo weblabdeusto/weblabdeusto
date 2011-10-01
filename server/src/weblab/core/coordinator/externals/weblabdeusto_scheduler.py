@@ -81,19 +81,20 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         serialized_consumer_data       = json.dumps(consumer_data)
         external_reservation = client.reserve_experiment(session_id, experiment_id, serialized_client_initial_data, serialized_consumer_data)
 
+        remote_reservation_id = external_reservation.reservation_id.id
+
         cookies = client.get_cookies()
         serialized_cookies = pickle.dumps(cookies)
 
         session = self.session_maker()
         try:
-            reservation = ExternalWebLabDeustoReservation(reservation_id, external_reservation.reservation_id.id, serialized_cookies, time_mod.time())
+            reservation = ExternalWebLabDeustoReservation(reservation_id, remote_reservation_id, serialized_cookies, time_mod.time())
             session.add(reservation)
             session.commit()
         finally:
             session.close()
 
-        reservation_status = external_reservation.to_status()
-        reservation_status.set_reservation_id(reservation_id)
+        reservation_status = self._convert_reservation_to_status(external_reservation, reservation_id, remote_reservation_id)
         return reservation_status, reservation_id
 
     #######################################################################
@@ -121,12 +122,16 @@ class ExternalWebLabDeustoScheduler(Scheduler):
 
         reservation = client.get_reservation_status(SessionId(remote_reservation_id))
 
+        return self._convert_reservation_to_status(reservation, reservation_id, remote_reservation_id)
+
+    def _convert_reservation_to_status(self, reservation, local_reservation_id, remote_reservation_id):
         reservation_status = reservation.to_status()
-        reservation_status.set_reservation_id(reservation_id)
-        if reservation_status.status == WSS.WebLabSchedulingStatus.RESERVED_REMOTE:
+        reservation_status.set_reservation_id(local_reservation_id)
+        if reservation_status.status == WSS.WebLabSchedulingStatus.RESERVED_REMOTE and reservation_status.remote_reservation_id == '':
             reservation_status.set_remote_reservation_id(remote_reservation_id)
 
         return reservation_status
+       
 
 
     ################################################################
