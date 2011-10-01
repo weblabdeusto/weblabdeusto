@@ -76,7 +76,7 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         #   has. There is no load balance, neither 
         #   subcontracting
         #
-        #self._test_reservation(session_id, self.dummy3, 'Provider 1', True, True)
+        self._test_reservation(session_id, self.dummy3, 'Provider 1', True, True)
 
     def _test_reservation(self, session_id, experiment_id, expected_server_info, wait, finish):
         reservation_status = self.consumer_core_client.reserve_experiment(session_id, experiment_id, "{}", "{}")

@@ -165,6 +165,9 @@ class RemoteReservedStatus(WebLabSchedulingStatus):
         self.url                          = url
         self.remote_reservation_id        = remote_reservation_id
 
+    def set_remote_reservation_id(self, remote_reservation_id):
+        self.remote_reservation_id = remote_reservation_id
+
     def __repr__(self):
         full_name = self.__class__.__module__ + '.' + self.__class__.__name__
         return "%s( reservation_id = %r, remaining_time = %r, initial_configuration = %r, url = %r, remote_reservation_id = %r)" % (full_name, self.reservation_id, self.remaining_time, self.initial_configuration, self.url, self.remote_reservation_id)

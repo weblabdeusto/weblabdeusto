@@ -20,6 +20,7 @@ import json
 from voodoo.override import Override
 from voodoo.sessions.session_id import SessionId
 
+import weblab.core.coordinator.status as WSS
 from weblab.core.coordinator.scheduler import Scheduler
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 from weblab.core.coordinator.externals.weblabdeusto_scheduler_model import ExternalWebLabDeustoReservation
@@ -122,6 +123,9 @@ class ExternalWebLabDeustoScheduler(Scheduler):
 
         reservation_status = reservation.to_status()
         reservation_status.set_reservation_id(reservation_id)
+        if reservation_status.status == WSS.WebLabSchedulingStatus.RESERVED_REMOTE:
+            reservation_status.set_remote_reservation_id(remote_reservation_id)
+
         return reservation_status
 
 
@@ -159,7 +163,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
 
         cookies = pickle.loads(str(serialized_cookies))
         client = self._create_client(cookies)
-        client.finished_experiment(remote_reservation_id)
+        client.finished_experiment(SessionId(remote_reservation_id))
 
     ##############################################################
     # 
