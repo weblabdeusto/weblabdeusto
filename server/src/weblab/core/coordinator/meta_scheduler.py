@@ -18,6 +18,9 @@ from voodoo.log import logged
 from weblab.core.coordinator.scheduler import Scheduler
 from voodoo.override import Override
 
+import weblab.core.coordinator.status as WSS
+
+DEBUG = False
 
 #############################################################
 # 
@@ -65,37 +68,64 @@ class IndependentSchedulerAggregator(Scheduler):
     @Override(Scheduler)
     def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data):
         all_reservation_status = []
-        for scheduler in self.schedulers:
-            reservation_status = scheduler.reserve_experiment(reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data)
-            all_reservation_status.append(reservation_status)
+        for scheduler in self.schedulers.values():
+            reservation_status, reservation_id = scheduler.reserve_experiment(reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data)
+            all_reservation_status.append((reservation_status, reservation_id))
+            if not reservation_status.status in WSS.WebLabSchedulingStatus.NOT_USED_YET_EXPERIMENT_STATUS:
+                # break
+                pass
+
         return self.select_best_reservation_status(all_reservation_status)
 
     def select_best_reservation_status(self, all_reservation_status):
         if len(all_reservation_status) == 0:
             raise ValueError("There must be at least one reservation status, zero provided!")
 
-        all_reservation_status.sort()
+        all_reservation_status.sort(lambda x, y : cmp(x,y))
         return all_reservation_status[0]
 
     @logged()
     @Override(Scheduler)
     def get_reservation_status(self, reservation_id):
         all_reservation_status = []
-        for scheduler in self.schedulers:
+
+        if DEBUG:
+            print 
+            session = self.session_maker()
+            url = str(session.get_bind().url)
+            session.close()
+
+            if url.endswith('3'):
+                tabs = '\t\t'
+            elif url.endswith('2'):
+                tabs = '\t'
+            else:
+                tabs = ''
+
+            print tabs, "<", url, self.schedulers.values(), ">"
+
+        for scheduler in self.schedulers.values():
             reservation_status = scheduler.get_reservation_status(reservation_id)
-            all_reservation_status.append(reservation_status)
-        return self.select_best_reservation_status(all_reservation_status)
+            if DEBUG:
+                print tabs, scheduler, reservation_status
+            all_reservation_status.append((reservation_status, None))
+        best_reservation = self.select_best_reservation_status(all_reservation_status)
+        
+        if DEBUG:
+            print tabs, "</", url, best_reservation, "/>"
+            print 
+        return best_reservation[0]
 
     @logged()
     @Override(Scheduler)
     def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
-        for scheduler in self.schedulers:
+        for scheduler in self.schedulers.values():
             scheduler.confirm_experiment(reservation_id, lab_session_id, initial_configuration)
 
     @logged()
     @Override(Scheduler)
     def finish_reservation(self, reservation_id):
-        for scheduler in self.schedulers:
+        for scheduler in self.schedulers.values():
             scheduler.finish_reservation(reservation_id)
 
     @Override(Scheduler)

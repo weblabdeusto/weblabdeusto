@@ -174,14 +174,16 @@ class Coordinator(object):
 
             resource_type_names = resource_types_per_experiment_id[experiment_id_str]
             try:
-                schedulers = [  self.schedulers[resource_type_name]
-                            for resource_type_name in resource_type_names ]
+                aggregated_schedulers = {}
+                for resource_type_name in resource_type_names:
+                    aggregated_schedulers[resource_type_name] = self.schedulers[resource_type_name]
+
             except KeyError, ke:
                 raise Exception("Scheduler not found with resource type name %s. Check %s config property." % (ke, CORE_SCHEDULING_SYSTEMS))
 
             particular_configuration = aggregators_configuration.get(experiment_id_str)
 
-            aggregator = IndependentSchedulerAggregator(generic_scheduler_arguments, schedulers, particular_configuration)
+            aggregator = IndependentSchedulerAggregator(generic_scheduler_arguments, aggregated_schedulers, particular_configuration)
 
             self.aggregators[experiment_id_str] = aggregator
 
