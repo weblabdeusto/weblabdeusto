@@ -38,7 +38,7 @@ class ReservationTest(unittest.TestCase):
         self.assertCorrectReservation(reservation)
         
     def test_str_confirmed_reservation(self):
-        reservation = ConfirmedReservation("reservation_id", datetime.datetime.now(), "{}", 'http://www.weblab.deusto.es/...')
+        reservation = ConfirmedReservation("reservation_id", datetime.datetime.now(), "{}", 'http://www.weblab.deusto.es/...', "remote_reservation_id")
         self.assertCorrectReservation(reservation)
 
     def test_str_waiting_confirmation_reservation(self):
@@ -84,16 +84,17 @@ class ReservationTest(unittest.TestCase):
         self.assertEquals('http://...', reservation.url)
         self.assertEquals('{}', reservation.initial_configuration)
 
-        status = WSS.RemoteReservedStatus('foo', 80, '{}', 'http://...')
+        status = WSS.RemoteReservedStatus('foo', 80, '{}', 'http://...','')
         self.assertEquals(status, reservation.to_status())
 
     def test_translate_remote_reservation_reserved(self):
-        status = WSS.RemoteReservedStatus('foo', 100, "{}",'http://...')
+        status = WSS.RemoteReservedStatus('foo', 100, "{}",'http://...', "bar")
         reservation = Reservation.translate_reservation(status)
         self.assertEquals(Reservation.CONFIRMED, reservation.status)
         self.assertEquals('foo', reservation.reservation_id.id)
         self.assertEquals('http://...', reservation.url)
         self.assertEquals('{}', reservation.initial_configuration)
+        self.assertEquals('bar', reservation.remote_reservation_id.id)
         self.assertEquals(status, reservation.to_status())
 
 
@@ -111,32 +112,40 @@ class ReservationTest(unittest.TestCase):
     # translate_reservation_from_data
     # 
     def test_translate_reservation_from_data_waiting(self):
-        reservation = Reservation.translate_reservation_from_data(Reservation.WAITING, 'foo', 5, None, None, None, None, None, None)
+        reservation = Reservation.translate_reservation_from_data(Reservation.WAITING, 'foo', 5, None, None, None, None, None, None, None)
         self.assertEquals(Reservation.WAITING, reservation.status)
         self.assertEquals('foo', reservation.reservation_id.id)
         self.assertEquals(5, reservation.position)
 
     def test_translate_reservation_from_data_waiting_confirmation(self):
-        reservation = Reservation.translate_reservation_from_data(Reservation.WAITING_CONFIRMATION, 'foo', None, None, None, None, 'http://...', None, None)
+        reservation = Reservation.translate_reservation_from_data(Reservation.WAITING_CONFIRMATION, 'foo', None, None, None, None, 'http://...', None, None, None)
         self.assertEquals(Reservation.WAITING_CONFIRMATION, reservation.status)
         self.assertEquals('foo', reservation.reservation_id.id)
         self.assertEquals('http://...', reservation.url)
 
     def test_translate_reservation_from_data_waiting_instances(self):
-        reservation = Reservation.translate_reservation_from_data(Reservation.WAITING_INSTANCES, 'foo', 5, None, None, None, None, None, None)
+        reservation = Reservation.translate_reservation_from_data(Reservation.WAITING_INSTANCES, 'foo', 5, None, None, None, None, None, None, None)
         self.assertEquals(Reservation.WAITING_INSTANCES, reservation.status)
         self.assertEquals('foo', reservation.reservation_id.id)
         self.assertEquals(5, reservation.position)
 
     def test_translate_reservation_from_data_confirmed(self):
-        reservation = Reservation.translate_reservation_from_data(Reservation.CONFIRMED, 'foo', None, 80, "{}", None, 'http://...', None, None)
+        reservation = Reservation.translate_reservation_from_data(Reservation.CONFIRMED, 'foo', None, 80, "{}", None, 'http://...', None, None, '')
         self.assertEquals(Reservation.CONFIRMED, reservation.status)
         self.assertEquals('foo', reservation.reservation_id.id)
         self.assertEquals('http://...', reservation.url)
         self.assertEquals('{}', reservation.initial_configuration)
 
+    def test_translate_reservation_from_data_confirmed_remote(self):
+        reservation = Reservation.translate_reservation_from_data(Reservation.CONFIRMED, 'foo', None, 80, "{}", None, 'http://...', None, None, 'bar')
+        self.assertEquals(Reservation.CONFIRMED, reservation.status)
+        self.assertEquals('foo', reservation.reservation_id.id)
+        self.assertEquals('http://...', reservation.url)
+        self.assertEquals('{}', reservation.initial_configuration)
+        self.assertEquals('bar', reservation.remote_reservation_id.id)
+
     def test_translate_reservation_from_data_post_reservation(self):
-        reservation = Reservation.translate_reservation_from_data(Reservation.POST_RESERVATION, 'foo', None, None, None, "{}", None, True, "{ }")
+        reservation = Reservation.translate_reservation_from_data(Reservation.POST_RESERVATION, 'foo', None, None, None, "{}", None, True, "{ }", None)
         self.assertEquals(Reservation.POST_RESERVATION, reservation.status)
         self.assertEquals('foo', reservation.reservation_id.id)
         self.assertEquals('{ }', reservation.initial_data)

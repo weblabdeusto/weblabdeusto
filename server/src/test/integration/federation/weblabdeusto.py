@@ -76,7 +76,7 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         #   has. There is no load balance, neither 
         #   subcontracting
         #
-        # self._test_reservation(session_id, self.dummy3, 'Provider 1', True, True)
+        #self._test_reservation(session_id, self.dummy3, 'Provider 1', True, True)
 
     def _test_reservation(self, session_id, experiment_id, expected_server_info, wait, finish):
         reservation_status = self.consumer_core_client.reserve_experiment(session_id, experiment_id, "{}", "{}")
@@ -99,9 +99,13 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         
         self.assertEquals(Reservation.CONFIRMED, reservation_status.status)
 
+        experiment_reservation_id = reservation_status.remote_reservation_id
+        if experiment_reservation_id.id == '':
+            experiment_reservation_id = reservation_id
+            
         client = WebLabDeustoClient( reservation_status.url )
 
-        response = client.send_command(reservation_id, Command("server_info"))
+        response = client.send_command(experiment_reservation_id, Command("server_info"))
         self.assertEquals(expected_server_info, response.get_command_string())
 
         if finish:

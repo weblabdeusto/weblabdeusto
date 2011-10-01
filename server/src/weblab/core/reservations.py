@@ -51,8 +51,10 @@ class Reservation(object):
             reservation = WaitingReservation(status.reservation_id, status.position)
         elif status.status == WSS.WebLabSchedulingStatus.WAITING_CONFIRMATION:
             reservation = WaitingConfirmationReservation(status.reservation_id, status.url)
-        elif status.status == WSS.WebLabSchedulingStatus.RESERVED_LOCAL or status.status == WSS.WebLabSchedulingStatus.RESERVED_REMOTE:
-            reservation = ConfirmedReservation(status.reservation_id, status.remaining_time, status.initial_configuration, status.url)
+        elif status.status == WSS.WebLabSchedulingStatus.RESERVED_REMOTE:
+            reservation = ConfirmedReservation(status.reservation_id, status.remaining_time, status.initial_configuration, status.url, status.remote_reservation_id)
+        elif status.status == WSS.WebLabSchedulingStatus.RESERVED_LOCAL:
+            reservation = ConfirmedReservation(status.reservation_id, status.remaining_time, status.initial_configuration, status.url, "")
         elif status.status == WSS.WebLabSchedulingStatus.WAITING_INSTANCES:
             reservation = WaitingInstances(status.reservation_id, status.position)
         elif status.status == WSS.WebLabSchedulingStatus.POST_RESERVATION:
@@ -62,7 +64,7 @@ class Reservation(object):
         return reservation
 
     @staticmethod
-    def translate_reservation_from_data(status_text, reservation_id, position, time, initial_configuration, end_data, url, finished, initial_data):
+    def translate_reservation_from_data(status_text, reservation_id, position, time, initial_configuration, end_data, url, finished, initial_data, remote_reservation_id):
         if status_text == Reservation.WAITING:
             reservation = WaitingReservation(reservation_id, position)
         elif status_text == Reservation.WAITING_CONFIRMATION:
@@ -70,7 +72,7 @@ class Reservation(object):
         elif status_text == Reservation.WAITING_INSTANCES:
             reservation = WaitingInstances(reservation_id, position)
         elif status_text == Reservation.CONFIRMED:
-            reservation = ConfirmedReservation(reservation_id, time, initial_configuration, url)
+            reservation = ConfirmedReservation(reservation_id, time, initial_configuration, url, remote_reservation_id)
         elif status_text == Reservation.POST_RESERVATION:
             reservation = PostReservationReservation(reservation_id, finished, initial_data, end_data)
         else:
@@ -93,17 +95,18 @@ class WaitingReservation(Reservation):
         return WSS.WaitingQueueStatus(self.reservation_id, self.position)
 
 class ConfirmedReservation(Reservation):
-    def __init__(self, reservation_id, time, initial_configuration, url):
+    def __init__(self, reservation_id, time, initial_configuration, url, remote_reservation_id):
         super(ConfirmedReservation,self).__init__(Reservation.CONFIRMED, reservation_id)
         self.time                  = time
         self.initial_configuration = initial_configuration
         self.url                   = url
+        self.remote_reservation_id = SessionId(remote_reservation_id)
 
     def __repr__(self):
-        return "ConfirmedReservation(reservation_id = %r, time = %r, initial_configuration = %r, url = %r)" % (self.reservation_id.id, self.time, self.initial_configuration, self.url)
+        return "ConfirmedReservation(reservation_id = %r, time = %r, initial_configuration = %r, url = %r, remote_reservation_id = %r)" % (self.reservation_id.id, self.time, self.initial_configuration, self.url, self.remote_reservation_id.id)
 
     def to_status(self):
-        return WSS.RemoteReservedStatus(self.reservation_id, self.time, self.initial_configuration, self.url)
+        return WSS.RemoteReservedStatus(self.reservation_id, self.time, self.initial_configuration, self.url, self.remote_reservation_id.id)
 
 class WaitingConfirmationReservation(Reservation):
     def __init__(self, reservation_id, url):

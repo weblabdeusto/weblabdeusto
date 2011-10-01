@@ -158,21 +158,22 @@ class LocalReservedStatus(WebLabSchedulingStatus):
 # the experiment in other campus.
 #
 class RemoteReservedStatus(WebLabSchedulingStatus):
-    def __init__(self, reservation_id, remaining_time, initial_configuration, url):
+    def __init__(self, reservation_id, remaining_time, initial_configuration, url, remote_reservation_id):
         super(RemoteReservedStatus,self).__init__(WebLabSchedulingStatus.RESERVED_REMOTE, reservation_id)
         self.remaining_time               = remaining_time
         self.initial_configuration        = initial_configuration
         self.url                          = url
+        self.remote_reservation_id        = remote_reservation_id
 
     def __repr__(self):
         full_name = self.__class__.__module__ + '.' + self.__class__.__name__
-        return "%s( reservation_id = %r, remaining_time = %r, initial_configuration = %r, url = %r)" % (full_name, self.reservation_id, self.remaining_time, self.initial_configuration, self.url)
+        return "%s( reservation_id = %r, remaining_time = %r, initial_configuration = %r, url = %r, remote_reservation_id = %r)" % (full_name, self.reservation_id, self.remaining_time, self.initial_configuration, self.url, self.remote_reservation_id)
 
     def __eq__(self, other):
         if not isinstance(other, RemoteReservedStatus):
             return False
 
-        return self.remaining_time == other.remaining_time and self.initial_configuration == other.initial_configuration
+        return self.remaining_time == other.remaining_time and self.initial_configuration == other.initial_configuration and self.remote_reservation_id == other.remote_reservation_id
 
     def __cmp__(self, other):
         if isinstance(other, PostReservationStatus):

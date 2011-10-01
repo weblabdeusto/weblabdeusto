@@ -37,7 +37,7 @@ class WebLabSchedulingStatusTest(unittest.TestCase):
         str(res)
 
     def test_str_remote_reservation(self):
-        res    = WSS.RemoteReservedStatus("reservation_id", 50, '{}', 'http://www.weblab.deusto.es/weblab/client/#reservation-id=foo&...')
+        res    = WSS.RemoteReservedStatus("reservation_id", 50, '{}', 'http://www.weblab.deusto.es/weblab/client/#reservation-id=foo&...', 'remote_reservation_id')
         str(res)
 
     def test_str_post_reservation(self):
