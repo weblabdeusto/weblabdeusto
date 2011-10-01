@@ -22,12 +22,13 @@ core_coordinator_db_password = 'weblab'
 
 core_coordinator_laboratory_servers = {
     "laboratory:main_instance@consumer_machine" : {
-            "exp1|dummy1|Dummy experiments"        : "dummy1@dummy1",
+            "exp1|dummy1|Dummy experiments"        : "dummy1@dummy1_local",
             "exp1|dummy2|Dummy experiments"        : "dummy1@dummy2",
         }
 }
 
 core_coordinator_external_servers = {
+    'dummy1@Dummy experiments'  : [ 'dummy1_external' ],
     'dummy3@Dummy experiments'  : [ 'dummy3' ],
     'dummy4@Dummy experiments'  : [ 'dummy4' ],
 }
@@ -40,9 +41,10 @@ _provider1_scheduling_config = ("EXTERNAL_WEBLAB_DEUSTO", {
                             })
 
 core_scheduling_systems = {
-        "dummy1"      : ("PRIORITY_QUEUE", {}),
-        "dummy2"      : ("PRIORITY_QUEUE", {}),
-        "dummy3"      : _provider1_scheduling_config,
-        "dummy4"      : _provider1_scheduling_config,
+        "dummy1_local"    : ("PRIORITY_QUEUE", {}),
+        "dummy2"          : ("PRIORITY_QUEUE", {}),
+        "dummy3"          : _provider1_scheduling_config,
+        "dummy4"          : _provider1_scheduling_config,
+        "dummy1_external" : _provider1_scheduling_config,
     }
 

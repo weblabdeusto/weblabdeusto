@@ -62,7 +62,8 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         #   Local testing  (to check that everything is right)
         # 
         #   We enter as a student of Consumer, and we ask for an
-        #   experiment that only the Consumer university has.
+        #   experiment that only the Consumer university has 
+        #   (dummy2).
         # 
         session_id = self.consumer_login_client.login('fedstudent1', 'password')
 
@@ -87,6 +88,27 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         #   contact Provider 1, which will contact Provider 2
         #
         self._test_reservation(session_id, self.dummy4, 'Provider 2', True, True)
+
+        #######################################################
+        # 
+        #   Cross-domain load balancing
+        # 
+        #   Now we ask for an experiment that Consumer has, 
+        #   but also Provider 1 and Provider 2.
+        #
+        
+        return
+        # XXX TODO FIXME it is using first the remote experiments instead of the local ones
+        reservation_id1 = self._test_reservation(session_id, self.dummy1, 'Provider 2', True, False)
+
+        reservation_id2 = self._test_reservation(session_id, self.dummy1, 'Provider 1', True, False)
+
+        reservation_id3 = self._test_reservation(session_id, self.dummy1, 'Consumer', True, False)
+
+        self.consumer_core_client.finished_experiment(reservation_id1)
+        self.consumer_core_client.finished_experiment(reservation_id2)
+        self.consumer_core_client.finished_experiment(reservation_id3)
+
 
     def _test_reservation(self, session_id, experiment_id, expected_server_info, wait, finish):
         reservation_status = self.consumer_core_client.reserve_experiment(session_id, experiment_id, "{}", "{}")
