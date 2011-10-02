@@ -8,7 +8,8 @@
         
 		<g:VerticalPanel ui:field="upperSide" width='100%' spacing="10" horizontalAlignment='ALIGN_CENTER'>
 			<g:Anchor text="&lt; {i18n.backToMyExperiments}" ui:field="back" horizontalAlignment="ALIGN_LEFT"></g:Anchor>
-			<g:Label text="{i18n.reserveThisExperiment}" styleName="title-label" />
+			<g:Label ui:field="reserveExperimentLabel" text="{i18n.reserveThisExperiment}" styleName="title-label" />
+			<g:Label ui:field="selectedExperimentLabel" text="{i18n.selectedExperiment}" styleName="title-label" />
 			<g:Grid ui:field="grid" cellSpacing='1'>
 				<g:row>
 					<g:customCell>

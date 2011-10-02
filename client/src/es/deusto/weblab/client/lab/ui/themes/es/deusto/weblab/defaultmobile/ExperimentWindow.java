@@ -54,6 +54,9 @@ class ExperimentWindow extends BaseWindow {
 	@UiField Button reserveButton;
 	@UiField Label generalErrorLabel;
 	
+	@UiField Label reserveExperimentLabel;
+	@UiField Label selectedExperimentLabel;
+	
 	@UiField Label experimentName;
 	@UiField Label experimentCategory;
 	@UiField Label timeAllowed;
@@ -86,7 +89,16 @@ class ExperimentWindow extends BaseWindow {
 		this.loadWidgets();
 	}
 
-	void loadExperimentReservationPanels() {	    
+	void loadExperimentReservationPanels(boolean reserved) {	    
+		if(reserved){
+			this.reserveButton.setVisible(false);
+			this.waitingLabel.start();
+			this.selectedExperimentLabel.setVisible(true);
+			this.reserveExperimentLabel.setVisible(false);
+		}else{
+			this.selectedExperimentLabel.setVisible(false);
+			this.reserveExperimentLabel.setVisible(true);
+		}
 		
 		this.loggedPanel = new LoggedPanel(this.user, this.callback);
 		this.mainPanel.add(this.loggedPanel);

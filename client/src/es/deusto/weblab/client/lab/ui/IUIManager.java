@@ -30,7 +30,7 @@ public interface IUIManager {
 	public void onInit();
     public void onLoggedIn(User user);
     public void onAllowedExperimentsRetrieved(ExperimentAllowed[] experimentsAllowed);
-    public void onExperimentChosen(ExperimentAllowed experimentAllowed, ExperimentBase experimentBase);
+    public void onExperimentChosen(ExperimentAllowed experimentAllowed, ExperimentBase experimentBase, boolean reserved);
     public void onWaitingReservation(WaitingReservationStatus reservationStatus);
     public void onWaitingReservationConfirmation(WaitingConfirmationReservationStatus reservationStatus);
     public void onExperimentReserved(ExperimentID experimentID, ExperimentBase experimentBase) throws ExperimentException;

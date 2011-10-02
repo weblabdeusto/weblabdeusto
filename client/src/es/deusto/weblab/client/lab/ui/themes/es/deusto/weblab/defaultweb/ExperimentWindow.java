@@ -63,6 +63,7 @@ class ExperimentWindow extends BaseWindow {
 	@UiField Anchor backLink;
 	@UiField VerticalPanel experimentAreaPanel;
 	@UiField Label contentTitleLabel;
+	@UiField Label contentTitleLabelSelected;
 	@UiField Grid detailsGrid;
 	@UiField Label experimentNameLabel;
 	@UiField Label experimentCategoryLabel;
@@ -125,7 +126,16 @@ class ExperimentWindow extends BaseWindow {
 	    }
 	}
 	
-	public void loadExperimentReservationPanels() {	    
+	public void loadExperimentReservationPanels(boolean reserved) {	    
+		if(reserved){
+			this.reserveButton.setVisible(false);
+			this.waitingLabel.start();
+			this.contentTitleLabelSelected.setVisible(true);
+			this.contentTitleLabel.setVisible(false);
+		}else{
+			this.contentTitleLabelSelected.setVisible(false);
+			this.contentTitleLabel.setVisible(true);
+		}
 		this.experimentNameLabel.setText(this.experimentAllowed.getExperiment().getName());
 		this.experimentCategoryLabel.setText(this.experimentAllowed.getExperiment().getCategory().getCategory());
 		this.timeAllowedLabel.setText(this.experimentAllowed.getTimeAllowed()+"");
@@ -137,6 +147,7 @@ class ExperimentWindow extends BaseWindow {
 
 	public void loadUsingExperimentPanels() {
 	    this.contentTitleLabel.setText(this.experimentAllowed.getExperiment().getName());
+	    this.contentTitleLabelSelected.setText(this.experimentAllowed.getExperiment().getName());
 	    this.detailsGrid.setVisible(false);
 	    this.waitingLabel.stop();
 	    this.waitingLabel.setText("");

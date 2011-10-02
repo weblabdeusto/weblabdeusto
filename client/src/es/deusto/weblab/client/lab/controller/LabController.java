@@ -262,7 +262,7 @@ public class LabController implements ILabController {
 				// Show the experiment
 				LabController.this.sessionVariables.setCurrentExperimentBase(experimentBase);
 				final ExperimentAllowed defaultExperimentAllowed = new ExperimentAllowed(new Experiment(0, experimentId.getExperimentName(), experimentId.getCategory(), new Date(), new Date()), 100);
-				LabController.this.uimanager.onExperimentChosen(defaultExperimentAllowed, experimentBase);
+				LabController.this.uimanager.onExperimentChosen(defaultExperimentAllowed, experimentBase, true);
 				experimentBase.initializeReserved();
 				LabController.this.sessionVariables.showExperiment();
 				
@@ -576,7 +576,7 @@ public class LabController implements ILabController {
 			@Override
 			public void onExperimentLoaded(ExperimentBase experimentBase) {
 				LabController.this.sessionVariables.setCurrentExperimentBase(experimentBase);
-				LabController.this.uimanager.onExperimentChosen(experimentAllowed, experimentBase);
+				LabController.this.uimanager.onExperimentChosen(experimentAllowed, experimentBase, false);
 				experimentBase.initialize();
 				LabController.this.sessionVariables.showExperiment();
 			}
