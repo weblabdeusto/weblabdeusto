@@ -300,20 +300,20 @@ class ActiveReservationSchedulerAssociation(Base):
 
     id               = Column(Integer, primary_key = True)
 
-    reservation_id   = Column(String(RESERVATION_ID_SIZE))
+    reservation_id   = Column(String(RESERVATION_ID_SIZE), nullable = False)
 
     # 
     # Each Independent Aggregator is represented by an experiment type:
     # A "ud-dummy@Dummy experiments" might rely on different schedulers, 
     # each identified by a resource type
     # 
-    experiment_type_id       = Column(Integer, ForeignKey('ExperimentTypes.id'))
+    experiment_type_id       = Column(Integer, ForeignKey('ExperimentTypes.id'), nullable = False)
     experiment_type          = relation(ExperimentType, backref=backref('reservation_scheduler_associations', order_by=id))
 
     # 
     # Each Scheduler is represented by a resource_type
     # 
-    resource_type_id = Column(Integer, ForeignKey("ResourceTypes.id"))
+    resource_type_id = Column(Integer, ForeignKey("ResourceTypes.id"), nullable = False)
     resource_type    = relation(ResourceType, backref=backref("reservation_scheduler_associations", order_by=id))
 
     def __init__(self, reservation_id, experiment_type, resource_type):

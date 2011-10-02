@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-from weblab.core.coordinator.model import ResourceType, ResourceInstance, CurrentResourceSlot, SchedulingSchemaIndependentSlotReservation, ExperimentInstance, ExperimentType
+from weblab.core.coordinator.model import ResourceType, ResourceInstance, CurrentResourceSlot, SchedulingSchemaIndependentSlotReservation, ExperimentInstance, ExperimentType, ActiveReservationSchedulerAssociation
 import weblab.core.coordinator.exc as CoordExc
 
 class ResourcesManager(object):
@@ -226,9 +226,66 @@ class ResourcesManager(object):
         
         return laboratories_addresses
 
+    def associate_scheduler_to_reservation(self, reservation_id, experiment_id, resource_type_name):
+        session = self._session_maker()
+        try:
+            db_resource_type = session.query(ResourceType).filter_by(name = resource_type_name).first()
+            db_experiment_type = session.query(ExperimentType).filter_by(cat_name = experiment_id.cat_name, exp_name = experiment_id.exp_name).first()
+
+            association = ActiveReservationSchedulerAssociation(reservation_id, db_experiment_type, db_resource_type)
+            session.add(association)
+            session.commit()
+        finally:
+            session.close()
+
+    def dissociate_scheduler_from_reservation(self, reservation_id, experiment_id, resource_type_name):
+        session = self._session_maker()
+        try:
+            db_resource_type = session.query(ResourceType).filter_by(name = resource_type_name).first()
+            db_experiment_type = session.query(ExperimentType).filter_by(cat_name = experiment_id.cat_name, exp_name = experiment_id.exp_name).first()
+
+            association = session.query(ActiveReservationSchedulerAssociation).filter_by(reservation_id = reservation_id, experiment_type = db_experiment_type, resource_type = db_resource_type).first()
+            if association is not None:
+                session.delete(association)
+                session.commit()
+        finally:
+            session.close()
+
+    def clean_associations_for_reservation(self, reservation_id, experiment_id):
+        session = self._session_maker()
+        try:
+            db_experiment_type = session.query(ExperimentType).filter_by(cat_name = experiment_id.cat_name, exp_name = experiment_id.exp_name).first()
+
+            associations = session.query(ActiveReservationSchedulerAssociation).filter_by(reservation_id = reservation_id, experiment_type = db_experiment_type).all()
+            found = False
+            for association in associations:
+                session.delete(association)
+                found = True
+
+            if found:
+                session.commit()
+        finally:
+            session.close()
+
+    def retrieve_schedulers_per_reservation(self, reservation_id, experiment_id):
+        session = self._session_maker()
+        try:
+            db_experiment_type = session.query(ExperimentType).filter_by(cat_name = experiment_id.cat_name, exp_name = experiment_id.exp_name).first()
+
+            associations = session.query(ActiveReservationSchedulerAssociation).filter_by(reservation_id = reservation_id, experiment_type = db_experiment_type).all()
+            resource_type_names = []
+            for association in associations:
+                resource_type_names.append(association.resource_type.name)
+
+            return resource_type_names
+        finally:
+            session.close()       
+
     def _clean(self):
         session = self._session_maker()
         try:
+            for association in session.query(ActiveReservationSchedulerAssociation).all():
+                session.delete(association)
             for slot_reservation in session.query(SchedulingSchemaIndependentSlotReservation).all():
                 session.delete(slot_reservation)
             for resource_slot in session.query(CurrentResourceSlot).all():

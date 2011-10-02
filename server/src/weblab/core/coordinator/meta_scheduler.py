@@ -52,6 +52,20 @@ class IndependentSchedulerAggregator(Scheduler):
             # This case should never happen given that if the experiment_id
             # exists, then there should be at least one scheduler for that
             raise ValueError("No scheduler provider at IndependentSchedulerAggregator")
+
+        remote_schedulers = []
+        local_schedulers  = []
+        for resource_type_name in schedulers:
+            scheduler = schedulers[resource_type_name]
+            if scheduler.is_remote():
+                remote_schedulers.append(resource_type_name)
+            else:
+                local_schedulers.append(resource_type_name)
+
+        #  
+        # Local schedulers go first
+        # 
+        self.ordered_schedulers = local_schedulers + remote_schedulers
         
         self.experiment_id            = experiment_id
         self.schedulers               = schedulers
@@ -74,11 +88,19 @@ class IndependentSchedulerAggregator(Scheduler):
     @Override(Scheduler)
     def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data):
         all_reservation_status = []
-        for resource_type_name in self.schedulers:
+
+        used_schedulers = []
+        for resource_type_name in self.ordered_schedulers:
+
+            # TODO: catch possible exceptions and "continue"
+
             scheduler = self.schedulers[resource_type_name]
 
             reservation_status = scheduler.reserve_experiment(reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data)
             all_reservation_status.append(reservation_status)
+
+            
+
             if not reservation_status.status in WSS.WebLabSchedulingStatus.NOT_USED_YET_EXPERIMENT_STATUS:
                 # break
                 pass
