@@ -183,7 +183,7 @@ class Coordinator(object):
 
             particular_configuration = aggregators_configuration.get(experiment_id_str)
 
-            aggregator = IndependentSchedulerAggregator(generic_scheduler_arguments, aggregated_schedulers, particular_configuration)
+            aggregator = IndependentSchedulerAggregator(generic_scheduler_arguments, ExperimentId.parse(experiment_id_str), aggregated_schedulers, particular_configuration)
 
             self.aggregators[experiment_id_str] = aggregator
 
@@ -382,7 +382,7 @@ class Coordinator(object):
         """
         reservation_id = self.reservations_manager.create(experiment_id, client_initial_data, json.dumps(request_info), self.time_provider.get_datetime)
         aggregator = self._get_scheduler_aggregator(experiment_id)
-        return aggregator.reserve_experiment(reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data)
+        return aggregator.reserve_experiment(reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data), reservation_id
 
     #######################################################################
     # 

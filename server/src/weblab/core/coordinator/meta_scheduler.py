@@ -46,13 +46,14 @@ DEBUG = False
 # 
 class IndependentSchedulerAggregator(Scheduler):
 
-    def __init__(self, generic_scheduler_arguments, schedulers, particular_configuration):
+    def __init__(self, generic_scheduler_arguments, experiment_id, schedulers, particular_configuration):
         super(IndependentSchedulerAggregator, self).__init__(generic_scheduler_arguments)
         if len(schedulers) == 0:
             # This case should never happen given that if the experiment_id
             # exists, then there should be at least one scheduler for that
             raise ValueError("No scheduler provider at IndependentSchedulerAggregator")
-
+        
+        self.experiment_id            = experiment_id
         self.schedulers               = schedulers
         self.particular_configuration = particular_configuration
 
@@ -73,9 +74,11 @@ class IndependentSchedulerAggregator(Scheduler):
     @Override(Scheduler)
     def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data):
         all_reservation_status = []
-        for scheduler in self.schedulers.values():
-            reservation_status, reservation_id = scheduler.reserve_experiment(reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data)
-            all_reservation_status.append((reservation_status, reservation_id))
+        for resource_type_name in self.schedulers:
+            scheduler = self.schedulers[resource_type_name]
+
+            reservation_status = scheduler.reserve_experiment(reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data)
+            all_reservation_status.append(reservation_status)
             if not reservation_status.status in WSS.WebLabSchedulingStatus.NOT_USED_YET_EXPERIMENT_STATUS:
                 # break
                 pass
@@ -86,7 +89,7 @@ class IndependentSchedulerAggregator(Scheduler):
         if len(all_reservation_status) == 0:
             raise ValueError("There must be at least one reservation status, zero provided!")
 
-        all_reservation_status.sort(lambda x, y : cmp(x,y))
+        all_reservation_status.sort()
         return all_reservation_status[0]
 
     @logged()
@@ -113,13 +116,13 @@ class IndependentSchedulerAggregator(Scheduler):
             reservation_status = scheduler.get_reservation_status(reservation_id)
             if DEBUG:
                 print tabs, scheduler, reservation_status
-            all_reservation_status.append((reservation_status, None))
+            all_reservation_status.append(reservation_status)
         best_reservation = self.select_best_reservation_status(all_reservation_status)
         
         if DEBUG:
             print tabs, "</", url, best_reservation, "/>"
             print 
-        return best_reservation[0]
+        return best_reservation
 
     @logged()
     @Override(Scheduler)

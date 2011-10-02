@@ -126,7 +126,7 @@ class PriorityQueueScheduler(Scheduler):
         finally:
             session.close()
 
-        return self.get_reservation_status(reservation_id), reservation_id
+        return self.get_reservation_status(reservation_id)
 
 
 

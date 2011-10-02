@@ -99,7 +99,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
             session.close()
 
         reservation_status = self._convert_reservation_to_status(external_reservation, reservation_id, remote_reservation_id)
-        return reservation_status, reservation_id
+        return reservation_status
 
     #######################################################################
     # 
