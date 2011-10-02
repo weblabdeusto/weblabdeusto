@@ -188,7 +188,6 @@ class ExperimentType(Base):
     def __repr__(self):
         return "ExperimentType(%r,%r)" % (self.exp_name, self.cat_name)
 
-
 class ExperimentInstance(Base):
     __tablename__  = 'ExperimentInstances'
     __table_args__ = (UniqueConstraint('experiment_type_id','experiment_instance_id'), TABLE_KWARGS)
@@ -281,6 +280,49 @@ class Reservation(Base):
 
     def __repr__(self):
         return "Reservation(%r, %r, %r, %r)" % (self.id, self.client_initial_data, self.server_initial_data, self.request_info)
+
+###############################################################################
+# 
+# One single reservation may fit in many independent schedulers. For instance,
+# there could be a remote scheduler that wraps another WebLab-Deusto, and, at
+# the same time, the same reservation is in a local queue. During a certain
+# amount of time, where it is in different queues, it will be in both 
+# schedulers. However, as one of them finally decides that it is in 
+# WaitingConfirmation, Reserved or PostReservation status, the aggregator must
+# know that the reservation should end in the rest of the schedulers. 
+# Subsequent calls to the aggregator should retrieve what active schedulers are
+# there for that reservation id. In order to know which ones are active, this
+# information is stored as records in this table.
+# 
+class ActiveReservationSchedulerAssociation(Base):
+    __tablename__  = 'ActiveReservationSchedulerAssociation'
+    __table_args__ = TABLE_KWARGS
+
+    id               = Column(Integer, primary_key = True)
+
+    reservation_id   = Column(String(RESERVATION_ID_SIZE))
+
+    # 
+    # Each Independent Aggregator is represented by an experiment type:
+    # A "ud-dummy@Dummy experiments" might rely on different schedulers, 
+    # each identified by a resource type
+    # 
+    experiment_type_id       = Column(Integer, ForeignKey('ExperimentTypes.id'))
+    experiment_type          = relation(ExperimentType, backref=backref('reservation_scheduler_associations', order_by=id))
+
+    # 
+    # Each Scheduler is represented by a resource_type
+    # 
+    resource_type_id = Column(Integer, ForeignKey("ResourceTypes.id"))
+    resource_type    = relation(ResourceType, backref=backref("reservation_scheduler_associations", order_by=id))
+
+    def __init__(self, reservation_id, experiment_type, resource_type):
+        self.reservation_id  = reservation_id
+        self.experiment_type = experiment_type
+        self.resource_type   = resource_type
+
+    def __repr__(self):
+        return "ActiveReservationSchedulerAssociation(reservation_id=%r, experiment_type=%r, resource_type=%r)" % (self.reservation_id, self.experiment_type, self.resource_type)
 
 ######################################################################################
 # 
