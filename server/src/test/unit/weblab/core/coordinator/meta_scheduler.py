@@ -19,6 +19,7 @@ import unittest
 import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
 
+from weblab.data.experiments import ExperimentId
 from weblab.core.coordinator.scheduler import GenericSchedulerArguments
 from weblab.core.coordinator.meta_scheduler import IndependentSchedulerAggregator
 
@@ -40,6 +41,7 @@ class MetaSchedulerTestCase(unittest.TestCase):
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
 
+        self.experiment_id = ExperimentId('ud-dummy','Dummy experiments')
         self.reservation_id = "foo"
         self.arguments = GenericSchedulerArguments(
                                                 cfg_manager          = self.cfg_manager, 
@@ -71,7 +73,7 @@ class MetaSchedulerTestCase(unittest.TestCase):
     def test_select_best_reservation_status_zero(self):
         self.assertRaises( ValueError,
                 IndependentSchedulerAggregator,
-                self.arguments, [], {})
+                self.arguments, self.experiment_id, {}, {})
 
     def test_query_best_reservation__waiting_instances_equals(self):
         "Among Waiting for instances, the lower number the better"
@@ -85,18 +87,18 @@ class MetaSchedulerTestCase(unittest.TestCase):
 
     def test_query_best_reservation__waiting_confirmation_equals(self):
         "Among WaitingConfirmation, they're all the same"
-        self._test_schedulers(self.wc1, (self.wc1, self.wc2))
-        self._test_schedulers(self.wc2, (self.wc2, self.wc1))
+        self._test_schedulers((self.wc1, self.wc2), (self.wc1, self.wc2))
+        self._test_schedulers((self.wc1, self.wc2), (self.wc2, self.wc1))
 
     def test_query_best_reservation__reserved_equals(self):
         "Among LocalReservedStatus, they're all the same"
-        self._test_schedulers(self.res1, (self.res1, self.res2))
-        self._test_schedulers(self.res2, (self.res2, self.res1))
+        self._test_schedulers((self.res1, self.res2), (self.res1, self.res2))
+        self._test_schedulers((self.res1, self.res2), (self.res2, self.res1))
 
     def test_query_best_reservation__post_reservation_equals(self):
         "Among PostReservationStatus, they're all the same"
-        self._test_schedulers(self.post1, (self.post1, self.post2))
-        self._test_schedulers(self.post2, (self.post2, self.post1))
+        self._test_schedulers((self.post1, self.post2), (self.post1, self.post2))
+        self._test_schedulers((self.post1, self.post2), (self.post2, self.post1))
 
     def test_query_best_reservation__waiting_wins(self):
         "Waiting wins to WaitingInstances"
@@ -126,13 +128,21 @@ class MetaSchedulerTestCase(unittest.TestCase):
         self._test_schedulers(self.post1,   (self.wc1, self.w_four, self.wi_four, self.res1, self.post1))
 
     def _test_schedulers(self, best, all_status):
-        schedulers = [ FakeScheduler(status, self.reservation_id)
-                for status in all_status ]
+        schedulers = {}
+        
+        for status in all_status:
+            schedulers[hash(status)] = FakeScheduler(status, self.reservation_id)
 
-        aggregator = IndependentSchedulerAggregator( self.arguments, schedulers, {})
+        aggregator = IndependentSchedulerAggregator( self.arguments, self.experiment_id, schedulers, {})
 
         best_reservation_status = aggregator.get_reservation_status(self.reservation_id)
-        self.assertEquals(best, best_reservation_status)
+    
+        try:
+            best[0]
+        except TypeError:            
+            self.assertEquals(best, best_reservation_status)
+        else:
+            self.assertTrue(best_reservation_status in best)
 
 def suite():
     return unittest.makeSuite(MetaSchedulerTestCase)
