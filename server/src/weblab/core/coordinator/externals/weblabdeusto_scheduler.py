@@ -20,6 +20,7 @@ import json
 from voodoo.override import Override
 from voodoo.sessions.session_id import SessionId
 
+from weblab.core.user_processor import FORWARDED_KEYS
 import weblab.core.coordinator.status as WSS
 from weblab.core.coordinator.scheduler import Scheduler
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
@@ -68,14 +69,19 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     # 
     @logged()
     @Override(Scheduler)
-    def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data):
-
+    def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info):
         consumer_data = {
             'time_allowed'                 : time,
             'priority'                     : priority,
-            'initialization_in_accounting' : initialization_in_accounting
+            'initialization_in_accounting' : initialization_in_accounting,
+            'external_user'                : request_info.get('username', '')
         }
 
+        for forwarded_key in FORWARDED_KEYS:
+            if forwarded_key in request_info:
+                consumer_data[forwarded_key] = request_info[forwarded_key]
+        
+        # TODO: identifier of the server
         login_client = self._create_login_client()
         session_id = login_client.login(self.username, self.password)
 

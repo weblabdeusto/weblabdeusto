@@ -328,6 +328,24 @@ def populate_weblab_tests(engine):
     group_federated.users.append(provider_university1)
     session.add(group_federated)
 
+    up_consumer1_access_forward = Model.DbUserPermission(
+        consumer_university1,
+        access_forward.user_applicable,
+        "consumer_university1::access_forward",
+        datetime.datetime.utcnow(),
+        "Access to forward external accesses to consumer_university1"
+    )
+    session.add(up_consumer1_access_forward)
+
+    up_provider1_access_forward = Model.DbUserPermission(
+        provider_university1,
+        access_forward.user_applicable,
+        "provider_university1::access_forward",
+        datetime.datetime.utcnow(),
+        "Access to forward external accesses to provider_university1"
+    )
+    session.add(up_provider1_access_forward)
+
     groupCourse0809 = Model.DbGroup("Course 2008/09")
     groupCourse0809.users.append(student1)
     groupCourse0809.users.append(student2)

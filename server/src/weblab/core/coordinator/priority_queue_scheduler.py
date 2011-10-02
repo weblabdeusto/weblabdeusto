@@ -112,7 +112,7 @@ class PriorityQueueScheduler(Scheduler):
     @exc_checker
     @logged()
     @Override(Scheduler)
-    def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data):
+    def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info):
         """
         priority: the less, the more priority
         """

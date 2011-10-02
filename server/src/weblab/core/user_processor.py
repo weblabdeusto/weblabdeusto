@@ -40,6 +40,7 @@ GET_PERMISSION_TYPES_CACHE_TIME = 200 # seconds
 DEFAULT_EXPERIMENT_POLL_TIME    = 300  # seconds
 EXPERIMENT_POLL_TIME            = 'core_experiment_poll_time'
 
+FORWARDED_KEYS= 'external_user','user_agent','referer','mobile','facebook','from_ip'
 
 # The following methods will be used from within the Processor itself.
 #
@@ -154,8 +155,9 @@ class UserProcessor(object):
         if self.is_access_forward_enabled():
             try:
                 consumer_data = json.loads(serialized_consumer_data)
-                if 'external_user' in consumer_data:
-                    reservation_info['external_user'] = consumer_data['external_user']
+                for forwarded_key in FORWARDED_KEYS:
+                    if forwarded_key in consumer_data:
+                        reservation_info[forwarded_key] = consumer_data[forwarded_key]
             except ValueError:
                 raise core_exc.WebLabCoreException( "Invalid serialized_consumer_data provided: a json-serialized object expected" )
         else:

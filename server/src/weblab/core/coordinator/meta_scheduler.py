@@ -86,7 +86,7 @@ class IndependentSchedulerAggregator(Scheduler):
 
     @logged()
     @Override(Scheduler)
-    def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data):
+    def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info):
         all_reservation_status = {}
 
         used_schedulers = []
@@ -97,7 +97,7 @@ class IndependentSchedulerAggregator(Scheduler):
 
             scheduler = self.schedulers[resource_type_name]
 
-            reservation_status = scheduler.reserve_experiment(reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data)
+            reservation_status = scheduler.reserve_experiment(reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info)
             all_reservation_status[resource_type_name] = reservation_status
 
             self.resources_manager.associate_scheduler_to_reservation(reservation_id, self.experiment_id, resource_type_name)
@@ -238,7 +238,7 @@ class SharedSchedulerAggregator(object):
 
     @logged()
     @Override(Scheduler)
-    def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data):
+    def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info):
         pass
 
     @logged()

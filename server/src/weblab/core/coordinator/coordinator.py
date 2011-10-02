@@ -382,7 +382,7 @@ class Coordinator(object):
         """
         reservation_id = self.reservations_manager.create(experiment_id, client_initial_data, json.dumps(request_info), self.time_provider.get_datetime)
         aggregator = self._get_scheduler_aggregator(experiment_id)
-        return aggregator.reserve_experiment(reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data), reservation_id
+        return aggregator.reserve_experiment(reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info), reservation_id
 
     #######################################################################
     # 

@@ -130,7 +130,7 @@ class Scheduler(object):
     # 
     # 
     @abstractmethod
-    def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data):
+    def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info):
         pass
 
     @abstractmethod
