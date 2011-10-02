@@ -16,19 +16,15 @@
 import datetime
 import unittest
 
-import test.unit.configuration as configuration_module
-import voodoo.configuration as ConfigurationManager
-
-from weblab.data.experiments import ExperimentId
-from weblab.core.coordinator.scheduler import GenericSchedulerArguments
-from weblab.core.coordinator.meta_scheduler import IndependentSchedulerAggregator
-
 import weblab.core.coordinator.status as WSS
 
 class FakeScheduler(object):
     def __init__(self, reservation_status, expected_reservation_id):
         self.reservation_status      = reservation_status
         self.expected_reservation_id = expected_reservation_id
+
+    def is_remote(self):
+        return False
 
     def get_reservation_status(self, reservation_id):
         if reservation_id != self.expected_reservation_id:
@@ -38,22 +34,6 @@ class FakeScheduler(object):
 
 class MetaSchedulerTestCase(unittest.TestCase):
     def setUp(self):
-        self.cfg_manager = ConfigurationManager.ConfigurationManager()
-        self.cfg_manager.append_module(configuration_module)
-
-        self.experiment_id = ExperimentId('ud-dummy','Dummy experiments')
-        self.reservation_id = "foo"
-        self.arguments = GenericSchedulerArguments(
-                                                cfg_manager          = self.cfg_manager, 
-                                                resource_type_name   = None, 
-                                                reservations_manager = None, 
-                                                resources_manager    = None, 
-                                                confirmer            = None, 
-                                                session_maker        = None, 
-                                                time_provider        = None,
-                                                core_server_url      = None
-                                        )
-
         self.wi_five = WSS.WaitingInstancesQueueStatus("reservation_id", 5)
         self.wi_four = WSS.WaitingInstancesQueueStatus("reservation_id", 4)
 
@@ -68,12 +48,6 @@ class MetaSchedulerTestCase(unittest.TestCase):
 
         self.post1   = WSS.PostReservationStatus("reservation_id", True, "foo1", "bar")
         self.post2   = WSS.PostReservationStatus("reservation_id", True, "foo2", "bar")
-
-
-    def test_select_best_reservation_status_zero(self):
-        self.assertRaises( ValueError,
-                IndependentSchedulerAggregator,
-                self.arguments, self.experiment_id, {}, {})
 
     def test_query_best_reservation__waiting_instances_equals(self):
         "Among Waiting for instances, the lower number the better"
@@ -128,15 +102,10 @@ class MetaSchedulerTestCase(unittest.TestCase):
         self._test_schedulers(self.post1,   (self.wc1, self.w_four, self.wi_four, self.res1, self.post1))
 
     def _test_schedulers(self, best, all_status):
-        schedulers = {}
-        
-        for status in all_status:
-            schedulers[hash(status)] = FakeScheduler(status, self.reservation_id)
+        list_all_status = list(all_status)
+        list_all_status.sort()
+        best_reservation_status = list_all_status[0]
 
-        aggregator = IndependentSchedulerAggregator( self.arguments, self.experiment_id, schedulers, {})
-
-        best_reservation_status = aggregator.get_reservation_status(self.reservation_id)
-    
         try:
             best[0]
         except TypeError:            

@@ -56,7 +56,11 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self.provider1_handler.stop()
         self.provider2_handler.stop()
 
-    def test_local_experiment(self):
+    # 
+    # This test may take even 20-30 seconds; therefore it is not splitted 
+    # into subtests (the setup and teardown are long)
+    # 
+    def test_federated_experiment(self):
         #######################################################
         # 
         #   Local testing  (to check that everything is right)
@@ -97,18 +101,44 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         #   but also Provider 1 and Provider 2.
         #
         
-        return
-        # XXX TODO FIXME it is using first the remote experiments instead of the local ones
-        reservation_id1 = self._test_reservation(session_id, self.dummy1, 'Provider 2', True, False)
-
+        reservation_id1 = self._test_reservation(session_id, self.dummy1, 'Consumer', True, False)
         reservation_id2 = self._test_reservation(session_id, self.dummy1, 'Provider 1', True, False)
+        reservation_id3 = self._test_reservation(session_id, self.dummy1, 'Provider 2', True, False)
 
-        reservation_id3 = self._test_reservation(session_id, self.dummy1, 'Consumer', True, False)
+        # 
+        # What if one of them goes out and another comes? Is the load of experiments balanced correctly?
+        # 
+        self.consumer_core_client.finished_experiment(reservation_id2)
+        reservation_id2b = self._test_reservation(session_id, self.dummy1, 'Provider 1', True, False)
 
         self.consumer_core_client.finished_experiment(reservation_id1)
-        self.consumer_core_client.finished_experiment(reservation_id2)
-        self.consumer_core_client.finished_experiment(reservation_id3)
+        reservation_id1b = self._test_reservation(session_id, self.dummy1, 'Consumer', True, False)
 
+        self.consumer_core_client.finished_experiment(reservation_id3)
+        reservation_id3b = self._test_reservation(session_id, self.dummy1, 'Provider 2', True, False)
+
+        # 
+        # What if another 2 come in? What is the position of their queues?
+        #
+
+        reservation_4 = self._test_reservation(session_id, self.dummy1, '', False, False)
+        reservation_status = self.consumer_core_client.get_reservation_status(reservation_4)
+        self.assertEquals(Reservation.WAITING, reservation_status.status)
+        self.assertEquals(0, reservation_status.position)
+
+        reservation_5 = self._test_reservation(session_id, self.dummy1, '', False, False)
+        reservation_status = self.consumer_core_client.get_reservation_status(reservation_5)
+        self.assertEquals(Reservation.WAITING, reservation_status.status)
+        self.assertEquals(1, reservation_status.position)
+
+        # 
+        # Once again, freeing a session affects them?
+        # 
+        self.consumer_core_client.finished_experiment(reservation_id2b)
+        self._wait_reservation(reservation_4, 'Provider 1', True)
+
+        self.consumer_core_client.finished_experiment(reservation_4)
+        self._wait_reservation(reservation_5, 'Provider 1', True)
 
     def _test_reservation(self, session_id, experiment_id, expected_server_info, wait, finish):
         reservation_status = self.consumer_core_client.reserve_experiment(session_id, experiment_id, "{}", "{}")
@@ -119,13 +149,17 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
             if finish:
                 self.consumer_core_client.finished_experiment(reservation_id)
             return reservation_id
+        
+        return self._wait_reservation(reservation_id, expected_server_info, finish)
 
+    def _wait_reservation(self, reservation_id, expected_server_info, finish):
         max_timeout = 10
         initial_time = time.time()
 
+        reservation_status = self.consumer_core_client.get_reservation_status(reservation_id)
         while reservation_status.status in (Reservation.WAITING, Reservation.WAITING_CONFIRMATION):
             if time.time() - initial_time > max_timeout:
-                self.fail("Waiting too long in the queue for %s in %s" % (experiment_id, expected_server_info))
+                self.fail("Waiting too long in the queue for %s" % expected_server_info)
             time.sleep(0.1)
             reservation_status = self.consumer_core_client.get_reservation_status(reservation_id)
         
@@ -144,7 +178,6 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
             self.consumer_core_client.finished_experiment(reservation_id)
 
         return reservation_id
-
 
 def suite():
     suites = (unittest.makeSuite(FederatedWebLabDeustoTestCase), )

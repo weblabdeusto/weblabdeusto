@@ -87,9 +87,10 @@ class IndependentSchedulerAggregator(Scheduler):
     @logged()
     @Override(Scheduler)
     def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data):
-        all_reservation_status = []
+        all_reservation_status = {}
 
         used_schedulers = []
+        any_assigned = False
         for resource_type_name in self.ordered_schedulers:
 
             # TODO: catch possible exceptions and "continue"
@@ -97,27 +98,29 @@ class IndependentSchedulerAggregator(Scheduler):
             scheduler = self.schedulers[resource_type_name]
 
             reservation_status = scheduler.reserve_experiment(reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data)
-            all_reservation_status.append(reservation_status)
+            all_reservation_status[resource_type_name] = reservation_status
 
-            
+            self.resources_manager.associate_scheduler_to_reservation(reservation_id, self.experiment_id, resource_type_name)
 
             if not reservation_status.status in WSS.WebLabSchedulingStatus.NOT_USED_YET_EXPERIMENT_STATUS:
-                # break
-                pass
+                any_assigned = True
+                break
+            else:
+                used_schedulers.append(resource_type_name)
 
-        return self.select_best_reservation_status(all_reservation_status)
+        if any_assigned:
+            for resource_type_name in used_schedulers:
+                used_scheduler = self.schedulers[resource_type_name] 
+                used_scheduler.finish_reservation(reservation_id)
+                all_reservation_status.pop(resource_type_name)
+                self.resources_manager.dissociate_scheduler_from_reservation(reservation_id, self.experiment_id, resource_type_name)
 
-    def select_best_reservation_status(self, all_reservation_status):
-        if len(all_reservation_status) == 0:
-            raise ValueError("There must be at least one reservation status, zero provided!")
-
-        all_reservation_status.sort()
-        return all_reservation_status[0]
+        return self.select_best_reservation_status(all_reservation_status.values())
 
     @logged()
     @Override(Scheduler)
     def get_reservation_status(self, reservation_id):
-        all_reservation_status = []
+        all_reservation_status = {}
 
         if DEBUG:
             print 
@@ -134,29 +137,59 @@ class IndependentSchedulerAggregator(Scheduler):
 
             print tabs, "<", url, self.schedulers.values(), ">"
 
-        for scheduler in self.schedulers.values():
+        assigned_resource_type_name = None
+
+        reservation_schedulers = self.resources_manager.retrieve_schedulers_per_reservation(reservation_id, self.experiment_id)
+
+        for resource_type_name in reservation_schedulers:
+            scheduler = self.schedulers[resource_type_name]
             reservation_status = scheduler.get_reservation_status(reservation_id)
             if DEBUG:
                 print tabs, scheduler, reservation_status
-            all_reservation_status.append(reservation_status)
-        best_reservation = self.select_best_reservation_status(all_reservation_status)
+            all_reservation_status[resource_type_name] = reservation_status
+
+            if not reservation_status.status in WSS.WebLabSchedulingStatus.NOT_USED_YET_EXPERIMENT_STATUS:
+                assigned_resource_type_name = resource_type_name
+                break
+
+        if assigned_resource_type_name is not None:
+            for resource_type_name in reservation_schedulers:
+                if resource_type_name != assigned_resource_type_name:
+                    used_scheduler = self.schedulers[resource_type_name] 
+                    used_scheduler.finish_reservation(reservation_id)
+                    all_reservation_status.pop(resource_type_name, None)
+                    self.resources_manager.dissociate_scheduler_from_reservation(reservation_id, self.experiment_id, resource_type_name)
+
+        best_reservation = self.select_best_reservation_status(all_reservation_status.values())
         
         if DEBUG:
             print tabs, "</", url, best_reservation, "/>"
             print 
         return best_reservation
 
+
+    def select_best_reservation_status(self, all_reservation_status):
+        if len(all_reservation_status) == 0:
+            raise ValueError("There must be at least one reservation status, zero provided!")
+
+        all_reservation_status.sort()
+        return all_reservation_status[0]
+
     @logged()
     @Override(Scheduler)
     def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
-        for scheduler in self.schedulers.values():
+        for resource_type_name in self.resources_manager.retrieve_schedulers_per_reservation(reservation_id, self.experiment_id):
+            scheduler = self.schedulers[resource_type_name]
             scheduler.confirm_experiment(reservation_id, lab_session_id, initial_configuration)
 
     @logged()
     @Override(Scheduler)
     def finish_reservation(self, reservation_id):
-        for scheduler in self.schedulers.values():
+        for resource_type_name in self.resources_manager.retrieve_schedulers_per_reservation(reservation_id, self.experiment_id):
+            scheduler = self.schedulers[resource_type_name]
             scheduler.finish_reservation(reservation_id)
+
+        self.resources_manager.clean_associations_for_reservation(reservation_id, self.experiment_id)
 
     @Override(Scheduler)
     def _clean(self):
