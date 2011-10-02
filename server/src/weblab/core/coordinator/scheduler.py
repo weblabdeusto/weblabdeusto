@@ -110,6 +110,10 @@ class Scheduler(object):
 
         self.core_server_route = self.cfg_manager.get_value(comm_user_server.USER_PROCESSING_FACADE_SERVER_ROUTE, comm_user_server.DEFAULT_USER_PROCESSING_SERVER_ROUTE)
 
+    @abstractmethod
+    def is_remote(self):
+        pass
+
     ####################################################################################
     # 
     # Experiment resources management. They should be implemented if the experiment 

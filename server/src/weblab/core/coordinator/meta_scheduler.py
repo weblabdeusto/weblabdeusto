@@ -61,6 +61,11 @@ class IndependentSchedulerAggregator(Scheduler):
 
     @logged()
     @Override(Scheduler)
+    def is_remote(self):
+        return True
+
+    @logged()
+    @Override(Scheduler)
     def removing_current_resource_slot(self, session, resource_instance):
         pass
 
@@ -162,6 +167,11 @@ class SharedSchedulerAggregator(object):
 
     def stop(self):
         pass
+
+    @logged()
+    @Override(Scheduler)
+    def is_remote(self):
+        return False
 
     @logged()
     @Override(Scheduler)

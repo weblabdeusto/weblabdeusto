@@ -38,6 +38,10 @@ class ExternalWebLabDeustoScheduler(Scheduler):
 
     def stop(self):
         pass
+    
+    @Override(Scheduler)
+    def is_remote(self):
+        return True
 
     @logged()
     @Override(Scheduler)

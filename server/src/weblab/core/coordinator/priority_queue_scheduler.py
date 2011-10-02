@@ -82,6 +82,10 @@ class PriorityQueueScheduler(Scheduler):
     def stop(self):
         self._synchronizer.stop()
 
+    @Override(Scheduler)
+    def is_remote(self):
+        return False
+
     @exc_checker
     @logged()
     @Override(Scheduler)
