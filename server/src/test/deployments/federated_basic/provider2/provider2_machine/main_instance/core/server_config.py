@@ -27,8 +27,20 @@ core_coordinator_laboratory_servers = {
         }
 }
 
+core_coordinator_external_servers = {
+    'dummy1@Dummy experiments'  : [ 'dummy1_external' ],
+}
+
+_provider1_scheduling_config = ("EXTERNAL_WEBLAB_DEUSTO", { 
+                                    'baseurl' : 'http://127.0.0.1:28345/weblab/', 
+                                    'login_baseurl' : 'http://127.0.0.1:28645/weblab/',
+                                    'username' : 'provider2', 
+                                    'password' : 'password',
+                            })
+
 core_scheduling_systems = {
-        "dummy1"      : ("PRIORITY_QUEUE", {}),
-        "dummy4"      : ("PRIORITY_QUEUE", {}),
+        "dummy1"          : ("PRIORITY_QUEUE", {}),
+        "dummy4"          : ("PRIORITY_QUEUE", {}),
+        "dummy1_external" : _provider1_scheduling_config,
     }
 

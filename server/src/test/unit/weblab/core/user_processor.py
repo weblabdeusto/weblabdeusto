@@ -22,6 +22,7 @@ import mocker
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 from   test.util.module_disposer import case_uses_module
 
+from weblab.core.server import WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER
 import weblab.core.user_processor as UserProcessor
 import weblab.core.coordinator.coordinator as Coordinator 
 import weblab.core.coordinator.confirmer as Confirmer
@@ -99,7 +100,8 @@ class UserProcessorTestCase(unittest.TestCase):
             self.processor.reserve_experiment,
             ExperimentId('<invalid>', 'Dummy experiments'),
             "{}", "{}",
-            ClientAddress.ClientAddress("127.0.0.1")
+            ClientAddress.ClientAddress("127.0.0.1"),
+            'uuid'
         )
 
     def test_reserve_unknown_experiment_category(self):
@@ -108,7 +110,8 @@ class UserProcessorTestCase(unittest.TestCase):
             self.processor.reserve_experiment,
             ExperimentId('ud-dummy','<invalid>'),
             "{}", "{}",
-            ClientAddress.ClientAddress("127.0.0.1")
+            ClientAddress.ClientAddress("127.0.0.1"),
+            'uuid'
         )
 
     def test_reserve_experiment_not_found(self):
@@ -119,7 +122,8 @@ class UserProcessorTestCase(unittest.TestCase):
             self.processor.reserve_experiment,
             ExperimentId('ud-dummy', 'Dummy experiments'),
             "{}", "{}",
-            ClientAddress.ClientAddress("127.0.0.1")
+            ClientAddress.ClientAddress("127.0.0.1"),
+            'uuid'
         )
 
     def test_reserve_experiment_waiting_confirmation(self):
@@ -128,10 +132,24 @@ class UserProcessorTestCase(unittest.TestCase):
         status = self.processor.reserve_experiment(
                     ExperimentId('ud-dummy', 'Dummy experiments'),
                     "{}", "{}",
-                    ClientAddress.ClientAddress("127.0.0.1")
+                    ClientAddress.ClientAddress("127.0.0.1"), 'uuid'
                 )
 
         self.assertTrue( isinstance( status, WebLabSchedulingStatus.WaitingConfirmationQueueStatus) )
+
+    def test_reserve_experiment_repeated_uuid(self):
+        self.coordinator.confirmer = FakeConfirmer()
+
+        uuid = self.cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER)
+
+        status = self.processor.reserve_experiment(
+                    ExperimentId('ud-dummy', 'Dummy experiments'),
+                    "{}", '{ "%s" : [["%s","server x"]]}' % (UserProcessor.SERVER_UUIDS, uuid),
+                    ClientAddress.ClientAddress("127.0.0.1"), uuid
+                )
+
+        self.assertTrue( 'replicated' )
+
 
 class FakeDatabase(object):
     def __init__(self):

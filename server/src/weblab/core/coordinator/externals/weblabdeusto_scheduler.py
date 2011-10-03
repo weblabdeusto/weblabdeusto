@@ -20,7 +20,7 @@ import json
 from voodoo.override import Override
 from voodoo.sessions.session_id import SessionId
 
-from weblab.core.user_processor import FORWARDED_KEYS
+from weblab.core.user_processor import FORWARDED_KEYS, SERVER_UUIDS
 import weblab.core.coordinator.status as WSS
 from weblab.core.coordinator.scheduler import Scheduler
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
@@ -70,11 +70,16 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     @logged()
     @Override(Scheduler)
     def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info):
+
+        server_uuids = list(request_info.get(SERVER_UUIDS, []))
+        server_uuids.append((self.core_server_uuid, self.core_server_uuid_human))
+
         consumer_data = {
             'time_allowed'                 : time,
             'priority'                     : priority,
             'initialization_in_accounting' : initialization_in_accounting,
-            'external_user'                : request_info.get('username', '')
+            'external_user'                : request_info.get('username', ''),
+            SERVER_UUIDS                   : server_uuids,
         }
 
         for forwarded_key in FORWARDED_KEYS:
@@ -90,6 +95,9 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         serialized_client_initial_data = json.dumps(client_initial_data)
         serialized_consumer_data       = json.dumps(consumer_data)
         external_reservation = client.reserve_experiment(session_id, experiment_id, serialized_client_initial_data, serialized_consumer_data)
+
+        if external_reservation.is_null():
+            return None
 
         remote_reservation_id = external_reservation.reservation_id.id
 

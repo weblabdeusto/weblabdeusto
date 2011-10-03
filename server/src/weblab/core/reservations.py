@@ -20,6 +20,8 @@ from voodoo.sessions.session_id import SessionId
 import weblab.core.coordinator.status as WSS
 import weblab.core.exc as coreExc
 
+NULL_POSITION = 100000
+
 class Reservation(object):
     
     __metaclass__ = ABCMeta
@@ -79,6 +81,10 @@ class Reservation(object):
             raise coreExc.InvalidReservationStatusException("Invalid reservation status_text: '%s'." % ( status_text ) )
         return reservation
 
+    # XXX TODO: a new state would be required, but I don't have to deal with that
+    def is_null(self):
+        return isinstance(self, WaitingInstances) and self.position == NULL_POSITION
+    
     @abstractmethod
     def to_status(self):
         """ Create a scheduling status """
@@ -129,6 +135,10 @@ class WaitingInstances(Reservation):
 
     def to_status(self):
         return WSS.WaitingInstancesQueueStatus(self.reservation_id, self.position)
+
+class NullReservation(WaitingInstances):
+    def __init__(self):
+        super(NullReservation, self).__init__('null reservation', NULL_POSITION)
 
 class PostReservationReservation(Reservation):
     def __init__(self, reservation_id, finished, initial_data, end_data):

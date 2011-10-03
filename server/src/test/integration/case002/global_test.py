@@ -515,7 +515,7 @@ class Case002TestCase(object):
 
         # wait until it is reserved
         short_time = 0.1
-        times      = 3.0 / short_time
+        times      = 10.0 / short_time
 
         while times > 0:
             time.sleep(short_time)

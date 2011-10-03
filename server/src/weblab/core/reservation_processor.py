@@ -389,9 +389,10 @@ class ReservationProcessor(object):
             # in the log as expected.
             for req_id, (cmd_status, cmd_response) in response.items(): #@UnusedVariable
                 if(req_id in self._reservation_session["async_commands_ids"]):
-                    usage_obj_id = self._reservation_session["async_commands_ids"][req_id]
+                    #usage_obj_id = self._reservation_session["async_commands_ids"][req_id]
                     # TODO: Bug here. async_commands_ids is empty.
-                    self._update_command_or_file(usage_obj_id, cmd_response)
+                    # self._update_command_or_file(usage_obj_id, cmd_response)
+                    pass
 
             return response
 

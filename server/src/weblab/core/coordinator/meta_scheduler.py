@@ -98,6 +98,9 @@ class IndependentSchedulerAggregator(Scheduler):
             scheduler = self.schedulers[resource_type_name]
 
             reservation_status = scheduler.reserve_experiment(reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info)
+            if reservation_status is None:
+                continue
+
             all_reservation_status[resource_type_name] = reservation_status
 
             self.resources_manager.associate_scheduler_to_reservation(reservation_id, self.experiment_id, resource_type_name)

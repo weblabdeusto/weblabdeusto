@@ -287,6 +287,9 @@ def populate_weblab_tests(engine):
     provider_university1 = Model.DbUser("provider1", "Provider University 1", "weblab@deusto.es", None, student)
     session.add(provider_university1)
 
+    provider_university2 = Model.DbUser("provider2", "Provider University 2", "weblab@deusto.es", None, student)
+    session.add(provider_university2)
+
     # External Entities
     ee1 = Model.DbExternalEntity("ee1", "Country of ee1", "Description of ee1", "weblab@other.es", "password")
     session.add(ee1)
@@ -313,6 +316,7 @@ def populate_weblab_tests(engine):
     session.add(Model.DbUserAuth(fed_student4, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
     session.add(Model.DbUserAuth(consumer_university1, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
     session.add(Model.DbUserAuth(provider_university1, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
+    session.add(Model.DbUserAuth(provider_university2, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
     session.add(Model.DbUserAuth(any,      auth_facebook, "1168497114"))
     session.add(Model.DbUserAuth(studentLDAP1, cdk_ldap))
     session.add(Model.DbUserAuth(studentLDAP2, cdk_ldap))
@@ -326,6 +330,7 @@ def populate_weblab_tests(engine):
     group_federated.users.append(fed_student4)
     group_federated.users.append(consumer_university1)
     group_federated.users.append(provider_university1)
+    group_federated.users.append(provider_university2)
     session.add(group_federated)
 
     up_consumer1_access_forward = Model.DbUserPermission(
@@ -345,6 +350,16 @@ def populate_weblab_tests(engine):
         "Access to forward external accesses to provider_university1"
     )
     session.add(up_provider1_access_forward)
+
+    up_provider2_access_forward = Model.DbUserPermission(
+        provider_university2,
+        access_forward.user_applicable,
+        "provider_university2::access_forward",
+        datetime.datetime.utcnow(),
+        "Access to forward external accesses to provider_university2"
+    )
+    session.add(up_provider2_access_forward)
+
 
     groupCourse0809 = Model.DbGroup("Course 2008/09")
     groupCourse0809.users.append(student1)

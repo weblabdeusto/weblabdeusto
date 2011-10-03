@@ -40,7 +40,8 @@ GET_PERMISSION_TYPES_CACHE_TIME = 200 # seconds
 DEFAULT_EXPERIMENT_POLL_TIME    = 300  # seconds
 EXPERIMENT_POLL_TIME            = 'core_experiment_poll_time'
 
-FORWARDED_KEYS= 'external_user','user_agent','referer','mobile','facebook','from_ip'
+FORWARDED_KEYS = 'external_user','user_agent','referer','mobile','facebook','from_ip'
+SERVER_UUIDS   = 'server_uuid'
 
 # The following methods will be used from within the Processor itself.
 #
@@ -128,7 +129,7 @@ class UserProcessor(object):
     # Experiments
     # 
 
-    def reserve_experiment(self, experiment_id, serialized_client_initial_data, serialized_consumer_data, client_address):
+    def reserve_experiment(self, experiment_id, serialized_client_initial_data, serialized_consumer_data, client_address, core_server_universal_id ):
 
         context = RemoteFacadeContext.get_context()
 
@@ -158,6 +159,12 @@ class UserProcessor(object):
                 for forwarded_key in FORWARDED_KEYS:
                     if forwarded_key in consumer_data:
                         reservation_info[forwarded_key] = consumer_data[forwarded_key]
+
+                server_uuids = consumer_data.get(SERVER_UUIDS, [])
+                for server_uuid, server_uuid_human in server_uuids:
+                    if server_uuid == core_server_universal_id:
+                        return 'replicated'
+                reservation_info[SERVER_UUIDS] = server_uuids
             except ValueError:
                 raise core_exc.WebLabCoreException( "Invalid serialized_consumer_data provided: a json-serialized object expected" )
         else:

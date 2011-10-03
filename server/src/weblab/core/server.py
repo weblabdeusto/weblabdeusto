@@ -136,6 +136,9 @@ class UserProcessingServer(object):
             print >> sys.stderr, msg
             log.log( UserProcessingServer, log.level.Error, msg)
 
+        self.core_server_universal_id       = cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER, DEFAULT_WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER)
+        self.core_server_universal_id_human = cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN, DEFAULT_WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN)
+
         # 
         # Create session managers
         # 
@@ -336,7 +339,11 @@ class UserProcessingServer(object):
     @check_session(**check_session_params)
     @load_user_processor
     def reserve_experiment(self, user_processor, session, experiment_id, client_initial_data, consumer_data, client_address):
-        status = user_processor.reserve_experiment( experiment_id, client_initial_data, consumer_data, client_address )
+        status = user_processor.reserve_experiment( experiment_id, client_initial_data, consumer_data, client_address, 
+                                        self.core_server_universal_id)
+
+        if status == 'replicated':
+            return Reservation.NullReservation()
 
         reservation_id         = status.reservation_id.split(';')[0]
         reservation_session_id = SessionId(reservation_id)
