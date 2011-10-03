@@ -24,7 +24,7 @@ from exc import GoBackException
 from db import DbGateway
 from smtp import SmtpGateway
 try:
-    from ldap import LdapGateway
+    from ldap_gateway import LdapGateway
     LdapGatewayClass = LdapGateway
 except ImportError:
     LdapGatewayClass = None
