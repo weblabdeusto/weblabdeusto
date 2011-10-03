@@ -89,7 +89,7 @@ public class LabSerializerJSONTest extends GWTTestCase{
 	public void testParseGetReservationStatusResponse_Confirmed() throws Exception{
 		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseGetReservationStatusResponse(
-			"{\"result\": {\"reservation_id\" : {\"id\" : \"my_reservation_id\"}, \"status\": \"Reservation::confirmed\", \"time\": 28.771512031555176, \"initial_configuration\" : \"foo\", \"url\" : \"http://...\", \"remote_reservation_id\" : \"\"}, \"is_exception\": false}"
+			"{\"result\": {\"reservation_id\" : {\"id\" : \"my_reservation_id\"}, \"status\": \"Reservation::confirmed\", \"time\": 28.771512031555176, \"initial_configuration\" : \"foo\", \"url\" : \"http://...\", \"remote_reservation_id\" : { \"id\": \"\"} }, \"is_exception\": false}"
 		);
 		Assert.assertEquals("my_reservation_id", reservation.getReservationId());
 		Assert.assertTrue(reservation instanceof ConfirmedReservationStatus);
@@ -603,7 +603,7 @@ public class LabSerializerJSONTest extends GWTTestCase{
 	public void testParseReserveExperimentResponse_Confirmed() throws Exception{
 		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseReserveExperimentResponse(
-			"{\"result\": {\"reservation_id\" : {\"id\" : \"my_reservation_id\"}, \"status\": \"Reservation::confirmed\", \"time\": 28.771512031555176, \"initial_configuration\" : \"foo\", \"url\" : \"http://...\", \"remote_reservation_id\" : \"\"}, \"is_exception\": false}"
+			"{\"result\": {\"reservation_id\" : {\"id\" : \"my_reservation_id\"}, \"status\": \"Reservation::confirmed\", \"time\": 28.771512031555176, \"initial_configuration\" : \"foo\", \"url\" : \"http://...\", \"remote_reservation_id\" : { \"id\" : \"\" } }, \"is_exception\": false}"
 		);
 		Assert.assertEquals("my_reservation_id", reservation.getReservationId());
 		Assert.assertTrue(reservation instanceof ConfirmedReservationStatus);
@@ -617,7 +617,7 @@ public class LabSerializerJSONTest extends GWTTestCase{
 	public void testParseReserveExperimentResponse_ConfirmedRemote() throws Exception{
 		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseReserveExperimentResponse(
-			"{\"result\": {\"reservation_id\" : {\"id\" : \"my_reservation_id\"}, \"status\": \"Reservation::confirmed\", \"time\": 28.771512031555176, \"initial_configuration\" : \"foo\", \"url\" : \"http://...\", \"remote_reservation_id\" : \"foobar\"}, \"is_exception\": false}"
+			"{\"result\": {\"reservation_id\" : {\"id\" : \"my_reservation_id\"}, \"status\": \"Reservation::confirmed\", \"time\": 28.771512031555176, \"initial_configuration\" : \"foo\", \"url\" : \"http://...\", \"remote_reservation_id\" : { \"id\" : \"foobar\" }}, \"is_exception\": false}"
 		);
 		Assert.assertEquals("my_reservation_id", reservation.getReservationId());
 		Assert.assertTrue(reservation instanceof ConfirmedReservationStatus);

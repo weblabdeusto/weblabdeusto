@@ -135,6 +135,11 @@ public class DefaultTheme extends LabThemeBase {
 
 		this.experimentWindow.loadUsingExperimentPanels();
 	}
+	
+	@Override
+	public void onRemoteExperimentReserved(String url, String reservationId) {
+		this.experimentWindow.loadRemoteExperimentPanel(url, reservationId);
+	}
 
 	@Override
 	public void onCleanReservation() {

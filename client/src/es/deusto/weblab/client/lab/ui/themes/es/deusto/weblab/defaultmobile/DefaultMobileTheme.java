@@ -114,6 +114,11 @@ public class DefaultMobileTheme extends LabThemeBase {
 		this.experimentBase = experimentBase;
 		this.experimentWindow.loadUsingExperimentPanels();
 	}
+	
+	@Override
+	public void onRemoteExperimentReserved(String url, String remoteReservationId){
+		this.experimentWindow.loadRemoteExperimentPanel(url, remoteReservationId);
+	}
 
 	@Override
 	public void onCleanReservation() {

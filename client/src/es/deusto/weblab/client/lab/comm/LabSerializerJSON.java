@@ -105,7 +105,8 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
 		    final double time = this.json2double(result.get("time"));
 		    final String initialConfiguration = this.json2string(result.get("initial_configuration"));
 		    final String url = this.json2string(result.get("url"));
-		    final String remoteReservationId = this.json2string(result.get("remote_reservation_id"));
+		    final JSONObject remoteReservationIdObj = json2object(result.get("remote_reservation_id"));
+		    final String remoteReservationId = this.json2string(remoteReservationIdObj.get("id"));
 		    return new ConfirmedReservationStatus(reservationId, (int)time, initialConfiguration, url, remoteReservationId );
 		}else if(status.equals("Reservation::waiting")){
 		    final int position = this.json2int(result.get("position"));

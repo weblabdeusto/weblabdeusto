@@ -70,4 +70,8 @@ public class ConfirmedReservationStatus extends ReservationStatus {
 	public boolean isRemote(){
 		return this.remoteReservationId != null && this.remoteReservationId.length() != 0;
 	}
+	
+	public boolean isLocal(){
+		return !isRemote();
+	}
 }

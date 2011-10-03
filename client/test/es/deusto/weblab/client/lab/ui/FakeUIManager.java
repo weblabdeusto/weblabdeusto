@@ -135,4 +135,11 @@ public class FakeUIManager extends WebLabFake implements IUIManager {
 	@Override
 	public void onExperimentInteractionFinished() {
 	}
+
+	@Override
+	public void onRemoteExperimentReserved(String url,
+			String remoteReservationId) {
+		// TODO Auto-generated method stub
+		
+	}
 }

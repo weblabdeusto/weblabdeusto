@@ -34,6 +34,7 @@ public interface IUIManager {
     public void onWaitingReservation(WaitingReservationStatus reservationStatus);
     public void onWaitingReservationConfirmation(WaitingConfirmationReservationStatus reservationStatus);
     public void onExperimentReserved(ExperimentID experimentID, ExperimentBase experimentBase) throws ExperimentException;
+    public void onRemoteExperimentReserved(String url, String remoteReservationId);
 	public void onCleanReservation();
 	public void onLoggedOut();
 	

@@ -16,11 +16,14 @@ package es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -147,6 +150,24 @@ class ExperimentWindow extends BaseWindow {
 		this.reserveSide.setVisible(false);
 		this.finishSide.setVisible(true);
 	    
+	}
+	
+	public void loadRemoteExperimentPanel(final String url, final String remoteReservationId) {
+		loadUsingExperimentPanels();
+		
+		this.experimentArea.clear();
+		final VerticalPanel vp = new VerticalPanel();
+		vp.setWidth("100%");
+		vp.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		final Button b = new Button(this.i18nMessages.clickHereToOpenExperiment());
+		b.addClickHandler(new ClickHandler(){
+			@Override
+			public void onClick(ClickEvent event) {
+				Window.open( url + "client/federated.html#reservation_id=" + remoteReservationId, "_blank", "resizable=yes,scrollbars=yes,dependent=yes,width=1000,height=800,top=0");
+			}
+		});
+		vp.add(b);
+		this.experimentArea.add(vp);
 	}
 	
 	@UiHandler("finishButton")
