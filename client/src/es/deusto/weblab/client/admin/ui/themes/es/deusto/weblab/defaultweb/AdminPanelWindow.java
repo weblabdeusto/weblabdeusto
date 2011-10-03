@@ -373,6 +373,9 @@ public class AdminPanelWindow extends BaseWindow {
 			public String format(Object value, ListGridRecord record, int row, int column) {
 				Date startDate = record.getAttributeAsDate(ExperimentUseRecord.START_DATE);
 				Date endDate = record.getAttributeAsDate(ExperimentUseRecord.END_DATE);
+				
+				if(endDate == null || startDate == null)
+					return "Not available";
 				return "" + (endDate.getTime() - startDate.getTime()) / 1000 + " sec."; // i18n
 			}
 		});
@@ -517,10 +520,10 @@ public class AdminPanelWindow extends BaseWindow {
         tabSet.setHeight(400);  
         
         // Create each tab
-        final Tab profileTab = new Tab("Profile", "pieces/16/pawn_blue.png");  
-        final Tab groupsTab = new Tab("Groups", "pieces/16/pawn_green.png");  
-        final Tab permissionsTab = new Tab("Permissions", "...");
-        final Tab authTab = new Tab("Authentication", "...");
+        final Tab profileTab = new Tab("Profile", "../weblabclientadmin/img/icons/icon_user.png");  
+        final Tab groupsTab = new Tab("Groups", "../weblabclientadmin/img/icons/icon_group.png");  
+        final Tab permissionsTab = new Tab("Permissions", "../weblabclientadmin/img/icons/icon_key.png");
+        final Tab authTab = new Tab("Authentication", "../weblabclientadmin/img/icons/icon_shield_yes.png");
         
 
         // Add every tab to the tabset
