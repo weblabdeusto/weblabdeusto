@@ -16,17 +16,23 @@ package es.deusto.weblab.client.dto.reservations;
 public class ConfirmedReservationStatus extends ReservationStatus {
 	private int time;
 	private String initialConfiguration;
+	private String url;
+	private String remoteReservationId;
 	
 	public ConfirmedReservationStatus(String reservationId, int time){
 		super(reservationId);
 		this.time = time;
 		this.initialConfiguration = null;
+		this.url = "";
+		this.remoteReservationId = "";
 	}
 
-	public ConfirmedReservationStatus(String reservationId, int time, String initialConfiguration){
+	public ConfirmedReservationStatus(String reservationId, int time, String initialConfiguration, String url, String remoteReservationId){
 		super(reservationId);
 		this.time = time;
 		this.initialConfiguration = initialConfiguration;
+		this.url = url;
+		this.remoteReservationId = remoteReservationId;
 	}
 
 	public int getTime() {
@@ -43,5 +49,25 @@ public class ConfirmedReservationStatus extends ReservationStatus {
 	
 	public void setInitialConfiguration(String initialConfiguration){
 		this.initialConfiguration = initialConfiguration;
+	}
+	
+	public String getUrl(){
+		return this.url;
+	}
+	
+	public void setUrl(String url){
+		this.url = url;
+	}
+	
+	public String getRemoteReservationId(){
+		return this.remoteReservationId;
+	}
+	
+	public void setRemoteReservationId(String remoteReservationId){
+		this.remoteReservationId = remoteReservationId;
+	}
+	
+	public boolean isRemote(){
+		return this.remoteReservationId != null && this.remoteReservationId.length() != 0;
 	}
 }
