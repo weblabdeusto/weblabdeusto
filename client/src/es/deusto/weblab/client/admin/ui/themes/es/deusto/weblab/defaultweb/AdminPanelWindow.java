@@ -525,6 +525,15 @@ public class AdminPanelWindow extends BaseWindow {
         final Tab permissionsTab = new Tab("Permissions", "../weblabclientadmin/img/icons/icon_key.png");
         final Tab authTab = new Tab("Authentication", "../weblabclientadmin/img/icons/icon_shield_yes.png");
         
+        // We set the icons to the right size through the following code. Setting the height is enough, the
+        // width seems to be scaled appropriately. Apparently in newer versions of SmartGWT there are explicit
+        // setIconHeight methods. Older versions seem to support it only through setAttribute though.
+        final int standardIconHeight = 20;
+        profileTab.setAttribute("iconHeight", standardIconHeight);
+        groupsTab.setAttribute("iconHeight", standardIconHeight);
+        permissionsTab.setAttribute("iconHeight", standardIconHeight);
+        authTab.setAttribute("iconHeight", standardIconHeight);
+        
 
         // Add every tab to the tabset
         tabSet.addTab(profileTab);  
