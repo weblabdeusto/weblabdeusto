@@ -12,9 +12,6 @@
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 
-# If we don't do this, the following ldap import will import this module itself, rather than the absolute
-# ldap library, which is the one we want.
-from __future__ import absolute_import
 
 import sys
 
