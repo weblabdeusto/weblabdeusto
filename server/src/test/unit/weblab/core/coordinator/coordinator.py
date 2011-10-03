@@ -772,7 +772,7 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         now = datetime.datetime.now()
 
         #
-        # Two users requesting a CPLD and a user requesting a FPGA get what they want.
+        # Two users requesting a CPLD and one user requesting a FPGA get what they want.
         # 
         # Queues:
         # 
@@ -964,11 +964,33 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentInstanceId('???','ud-pld','PLD experiments'), reservation3_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now)
         self.coordinator.finish_reservation(reservation3_id)
 
+        print "MIRANDO reservation4"
         status = self.coordinator.get_reservation_status(reservation4_id)
         expected_status = WSS.WaitingConfirmationQueueStatus(reservation4_id, DEFAULT_URL)
         self.assertEquals( expected_status, status )
+    
+        print
+        print "CONFIRMING RESERVATION"
+        print
+        print "Comprobando", reservation4_id
+        REMOVE_ME_status = self.coordinator.get_reservation_status(reservation4_id)
+        print "reservation4", REMOVE_ME_status
+        print
+        REMOVE_ME_status = self.coordinator.get_reservation_status(reservation1_id)
+        print "reservation1", REMOVE_ME_status
+        print
+        REMOVE_ME_status = self.coordinator.get_reservation_status(reservation10_id)
+        print "reservation10", REMOVE_ME_status
+        print
+        print "NOT CONFIRMING"
+        print
+        REMOVE_ME_status = self.coordinator.get_reservation_status(reservation8_id)
+        print "reservation8", REMOVE_ME_status
+        print
 
         status = self.coordinator.get_reservation_status(reservation5_id)
+        print "RESERVATION 5", status
+        print
         expected_status = WSS.WaitingQueueStatus(reservation5_id, 0)
         self.assertEquals( expected_status, status )
 
