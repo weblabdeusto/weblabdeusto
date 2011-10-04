@@ -774,6 +774,8 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Two users requesting a CPLD and one user requesting a FPGA get what they want.
         # 
+        # New: res1(pld); res2(pld); res3(fpga)
+        # 
         # Queues:
         # 
         #    TYPE (pld)      : <empty>
@@ -800,6 +802,8 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         # 
         # Then, somebody comes and requests a Binary experiment. He is in queue, position 0, waiting for both pld1 and fpga1
         # 
+        # New: res4(binary)
+        # 
         # Queues:
         # 
         #    TYPE (pld)      : <empty>
@@ -816,6 +820,8 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
 
         # 
         # Users requesting a FPGA or a CPLD will be in the next position, since whatever is freed will be used by res4
+        # 
+        # New: res5(fpga); res6(pld)
         # 
         # Queues:
         # 
@@ -837,7 +843,9 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
 
         # 
         # If another user comes requesting a CPLD, he will be in the second position
-        # 
+        #
+        # New: res7(pld) 
+        #
         # Queues:
         # 
         #    TYPE (pld)      : res6 (1), res7 (2)
@@ -855,6 +863,8 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         # 
         # If a user comes requesting a Binary, he will be in position 2 rather than 3, since in the FPGA queues there are only two users before him
         #
+        # New: res8(binary)
+        # 
         # Queues:
         # 
         #    TYPE (pld)      : res6 (1), res7 (2)
@@ -871,6 +881,8 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
 
         # 
         # However, it's not that this reservation is only waiting for an FPGA. If the two guys waiting for a CPLD get out, this guy will be promoted
+        # 
+        # Old: res6[queue(pld)], res7[queue(pld)]
         # 
         # Queues:
         # 
@@ -892,6 +904,8 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         # 
         # If a new user requests a CPLD, then he'll be 3rd (position = 2), since he has both users requesting a ud-binary before him:
         # 
+        # New: res9(pld)
+        # 
         # Queues:
         # 
         #    TYPE (pld)      : res9 (2)
@@ -909,6 +923,8 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         # 
         # However, if the instance of the resource of "pld boards" that doesn't support ud-pld@PLD experiments is released, this last user goes first, since
         # the other people waiting for "pld boards" are waiting for a resource instance of "pld boards" that supports "ud-binary@Binary experiments"
+        # 
+        # Old: res2[assigned(pld2)]
         # 
         # Queues:
         # 
@@ -929,6 +945,9 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
      
         # 
         # If this user goes out, then that experiment is available, so next user requesting a ud-pld@PLD experiments will get it
+        # 
+        # Old: res9[assigned(pld2)]
+        # New: res10(pld)
         # 
         # Queues:
         # 
@@ -951,11 +970,13 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         # If the user who was using the FPGA leaves it, the first user waiting for a
         # binary experiment will get it.
         # 
+        # Old: res3[assigned(fpga1)]
+        # 
         # Queues:
         # 
         #    TYPE (pld)      : <empty>
         #    TYPE (fpga)     : res5 (0)
-        #    TYPE (binary)   : res8 (1)
+        #    TYPE (binary)   : res8 (0)
         # 
         #    RES.INST (pld1) : res1
         #    RES.INST (pld2) : res10
@@ -964,43 +985,23 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentInstanceId('???','ud-pld','PLD experiments'), reservation3_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now)
         self.coordinator.finish_reservation(reservation3_id)
 
-        print "MIRANDO reservation4"
         status = self.coordinator.get_reservation_status(reservation4_id)
         expected_status = WSS.WaitingConfirmationQueueStatus(reservation4_id, DEFAULT_URL)
         self.assertEquals( expected_status, status )
     
-        print
-        print "CONFIRMING RESERVATION"
-        print
-        print "Comprobando", reservation4_id
-        REMOVE_ME_status = self.coordinator.get_reservation_status(reservation4_id)
-        print "reservation4", REMOVE_ME_status
-        print
-        REMOVE_ME_status = self.coordinator.get_reservation_status(reservation1_id)
-        print "reservation1", REMOVE_ME_status
-        print
-        REMOVE_ME_status = self.coordinator.get_reservation_status(reservation10_id)
-        print "reservation10", REMOVE_ME_status
-        print
-        print "NOT CONFIRMING"
-        print
-        REMOVE_ME_status = self.coordinator.get_reservation_status(reservation8_id)
-        print "reservation8", REMOVE_ME_status
-        print
-
         status = self.coordinator.get_reservation_status(reservation5_id)
-        print "RESERVATION 5", status
-        print
         expected_status = WSS.WaitingQueueStatus(reservation5_id, 0)
         self.assertEquals( expected_status, status )
 
 
         status = self.coordinator.get_reservation_status(reservation8_id)
-        expected_status = WSS.WaitingQueueStatus(reservation8_id, 1)
+        expected_status = WSS.WaitingQueueStatus(reservation8_id, 0)
         self.assertEquals( expected_status, status )
 
         # If the user who was using the CPLD that supports binary leaves, the second user
         # waiting for a binary experiment will get it
+        #
+        # Old: res1[assigned(pld1)]
         # 
         # Queues:
         # 
@@ -1022,6 +1023,8 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         # 
         # We remove the rest of the queues
         # 
+        # Old: res5[queue(fpga)]
+        # 
         # Queues:
         # 
         #    TYPE (pld)      : <empty>
@@ -1035,6 +1038,8 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         self.coordinator.finish_reservation(reservation5_id)
 
         # And then the ones using the devices
+        # 
+        # Old: res4[assigned(fpga1)], res8[assigned(pld1)], res10[assigned(pld2)]
         # 
         # Queues:
         # 
