@@ -10,9 +10,19 @@ namespace Sample
         {
             WebLabDeustoClient weblab = new WebLabDeustoClient("http://localhost/weblab/");
 
-            string sessionId = weblab.Login("any", "password");
+            SessionId sessionId = weblab.Login("any", "password");
 
-            Console.WriteLine(sessionId);
+            Reservation reservation = weblab.ReserveExperiment(sessionId, "ud-logic", "PIC experiments", "{}");
+
+            Console.WriteLine(reservation);
+
+            // Optional:
+            ReservationId reservationId = reservation.ReservationId;
+            reservation = weblab.GetReservationStatus(reservationId);
+
+            Console.WriteLine(reservation);
+
+            Console.WriteLine(weblab.CreateClient(reservation));
         }
     }
 }

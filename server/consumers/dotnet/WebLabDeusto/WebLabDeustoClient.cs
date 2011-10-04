@@ -31,7 +31,7 @@ namespace WebLabDeusto
             }
         }
 
-        public string Login(string username, string password)
+        public SessionId Login(string username, string password)
         {
             JsonData parameters = new JsonData();
             parameters["username"] = username;
@@ -39,7 +39,68 @@ namespace WebLabDeusto
 
             JsonData response = PerformRequest(LoginUrl, "login", parameters);
 
-            return (string)response["id"];
+            return new SessionId((string)response["id"]);
+        }
+
+        public Reservation ReserveExperiment(SessionId sessid, string experimentName, string categoryName, string initialData)
+        {
+            JsonData parameters = new JsonData();
+            parameters["session_id"] = new JsonData();
+            parameters["session_id"]["id"] = sessid.Id;
+            parameters["experiment_id"] = new JsonData();
+            parameters["experiment_id"]["exp_name"] = experimentName;
+            parameters["experiment_id"]["cat_name"] = categoryName;
+            parameters["client_initial_data"] = initialData;
+            parameters["consumer_data"] = "{}"; // TODO
+
+            JsonData response = PerformCoreRequest("reserve_experiment", parameters);
+
+            return parseReservation(response);
+        }
+
+        public Reservation GetReservationStatus(ReservationId reservationId)
+        {
+            JsonData parameters = new JsonData();
+            parameters["reservation_id"] = new JsonData();
+            parameters["reservation_id"]["id"] = reservationId.Id;
+
+            JsonData response = PerformCoreRequest("get_reservation_status", parameters);
+
+            return parseReservation(response);
+        }
+
+        public string CreateClient(Reservation reservation)
+        {
+            return this.url + "client/federated.html#reservation_id=" + reservation.ReservationId.Id;
+        }
+
+        private Reservation parseReservation(JsonData jsonReservation)
+        {
+            string reservationId = (string)jsonReservation["reservation_id"]["id"];
+            string status = (string)jsonReservation["status"];
+            switch(status)
+            {
+                case "Reservation::waiting_confirmation": 
+                    return new WaitingConfirmationReservation(reservationId);
+
+                case "Reservation::waiting":
+                    return new WaitingReservation(reservationId, (int)jsonReservation["position"]);
+
+                case "Reservation::waiting_instances":
+                    return new WaitingInstancesReservation(reservationId, (int)jsonReservation["position"]);
+
+                case "Reservation::confirmed":
+                    return new ConfirmedReservation(reservationId, (double)jsonReservation["time"], (string)jsonReservation["initial_configuration"], (string)jsonReservation["url"], (string)jsonReservation["remote_reservation_id"]["id"]);
+
+                case "Reservation::post_reservation":
+                    return new PostReservationReservation(reservationId, (bool)jsonReservation["finished"], (string)jsonReservation["initial_data"], (string)jsonReservation["end_data"]);
+            }
+            throw new WebLabException("Could not parse reservation", ".NET WebLabDeusto");
+        }
+
+        private JsonData PerformCoreRequest(string method, JsonData parameters)
+        {
+            return PerformRequest(CoreUrl, method, parameters);
         }
 
         private JsonData PerformRequest(string url, string method, JsonData parameters)
