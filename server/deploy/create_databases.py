@@ -688,6 +688,22 @@ def populate_weblab_tests(engine):
     up_any_visirtest_allowed_p3 = Model.DbUserPermissionParameter(up_any_visirtest_allowed, experiment_allowed_p3, "200")
     session.add(up_any_visirtest_allowed_p3)    
 
+    up_any_logic_allowed = Model.DbUserPermission(
+        any,
+        experiment_allowed.group_applicable,
+        "any::weblab-logic",
+        datetime.datetime.utcnow(),
+        "Permission for any to use WebLab-Logic"
+    )
+
+    session.add(up_any_logic_allowed)
+    up_any_logic_allowed_p1 = Model.DbUserPermissionParameter(up_any_logic_allowed, experiment_allowed_p1, "ud-logic")
+    session.add(up_any_logic_allowed_p1)
+    up_any_logic_allowed_p2 = Model.DbUserPermissionParameter(up_any_logic_allowed, experiment_allowed_p2, "PIC experiments")
+    session.add(up_any_logic_allowed_p2)
+    up_any_logic_allowed_p3 = Model.DbUserPermissionParameter(up_any_logic_allowed, experiment_allowed_p3, "200")
+    session.add(up_any_logic_allowed_p3)    
+
     up_any_vm_allowed = Model.DbUserPermission(
         any,
         experiment_allowed.group_applicable,
