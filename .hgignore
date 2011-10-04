@@ -102,3 +102,10 @@ experiments/managed/libs/client/java/bin/*
 experiments/managed/libs/server/cpp/dummy_experiment_server
 experiments/managed/libs/server/c/dummy_experiment_server
 experiments/managed/libs/server/java/WebLabJavaXmlRpcServer/bin
+
+
+
+server/consumers/dotnet/LitJson.dll
+server/consumers/dotnet/WebLabDeusto.dll
+server/consumers/dotnet/sample.exe
+
