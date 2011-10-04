@@ -192,6 +192,9 @@ class Coordinator(object):
         import weblab.core.server as UserProcessingServer
         clean = cfg_manager.get_value(UserProcessingServer.WEBLAB_CORE_SERVER_CLEAN_COORDINATOR, True)
 
+        post_reservation_expiration_time = cfg_manager.get_value(POST_RESERVATION_EXPIRATION_TIME, DEFAULT_POST_RESERVATION_EXPIRATION_TIME)
+        self.expiration_delta = datetime.timedelta(seconds=post_reservation_expiration_time)
+
         if clean:
             resources_checker_frequency = cfg_manager.get_value(RESOURCES_CHECKER_FREQUENCY, DEFAULT_RESOURCES_CHECKER_FREQUENCY)
             ResourcesCheckerThread.set_coordinator(self, resources_checker_frequency)
@@ -206,8 +209,6 @@ class Coordinator(object):
                 for experiment_instance_id in experiment_instance_config:
                     resource = experiment_instance_config[experiment_instance_id]
                     self.add_experiment_instance_id(laboratory_server_coord_address_str, experiment_instance_id, resource)
-            post_reservation_expiration_time = cfg_manager.get_value(POST_RESERVATION_EXPIRATION_TIME, DEFAULT_POST_RESERVATION_EXPIRATION_TIME)
-            self.expiration_delta = datetime.timedelta(seconds=post_reservation_expiration_time)
 
             session = self._session_maker()
             try:
