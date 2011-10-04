@@ -30,3 +30,6 @@ class InvalidExperimentConfigException(CoordinatorException):
 class UnregisteredSchedulingSystemException(CoordinatorException):
     pass
 
+class NoSchedulerFoundException(CoordinatorException):
+    pass
+

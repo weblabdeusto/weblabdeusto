@@ -13,8 +13,10 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+import voodoo.log as log
 
 from voodoo.log import logged
+from weblab.core.coordinator.exc import NoSchedulerFoundException
 from weblab.core.coordinator.scheduler import Scheduler
 from voodoo.override import Override
 
@@ -51,7 +53,7 @@ class IndependentSchedulerAggregator(Scheduler):
         if len(schedulers) == 0:
             # This case should never happen given that if the experiment_id
             # exists, then there should be at least one scheduler for that
-            raise ValueError("No scheduler provider at IndependentSchedulerAggregator")
+            raise NoSchedulerFoundException("No scheduler provider at IndependentSchedulerAggregator")
 
         remote_schedulers = []
         local_schedulers  = []
@@ -97,13 +99,15 @@ class IndependentSchedulerAggregator(Scheduler):
 
             scheduler = self.schedulers[resource_type_name]
 
+            self.resources_manager.associate_scheduler_to_reservation(reservation_id, self.experiment_id, resource_type_name)
+
+
             reservation_status = scheduler.reserve_experiment(reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info)
             if reservation_status is None:
+                self.resources_manager.dissociate_scheduler_from_reservation(reservation_id, self.experiment_id, resource_type_name)
                 continue
 
             all_reservation_status[resource_type_name] = reservation_status
-
-            self.resources_manager.associate_scheduler_to_reservation(reservation_id, self.experiment_id, resource_type_name)
 
             if not reservation_status.status in WSS.WebLabSchedulingStatus.NOT_USED_YET_EXPERIMENT_STATUS:
                 any_assigned = True
@@ -173,7 +177,7 @@ class IndependentSchedulerAggregator(Scheduler):
 
     def select_best_reservation_status(self, all_reservation_status):
         if len(all_reservation_status) == 0:
-            raise ValueError("There must be at least one reservation status, zero provided!")
+            raise NoSchedulerFoundException("There must be at least one reservation status, zero provided!")
 
         all_reservation_status.sort()
         return all_reservation_status[0]
@@ -181,7 +185,8 @@ class IndependentSchedulerAggregator(Scheduler):
     @logged()
     @Override(Scheduler)
     def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
-        for resource_type_name in self.resources_manager.retrieve_schedulers_per_reservation(reservation_id, self.experiment_id):
+        resource_type_names = self.resources_manager.retrieve_schedulers_per_reservation(reservation_id, self.experiment_id)
+        for resource_type_name in resource_type_names:
             scheduler = self.schedulers[resource_type_name]
             scheduler.confirm_experiment(reservation_id, lab_session_id, initial_configuration)
 

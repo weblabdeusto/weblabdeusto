@@ -254,12 +254,22 @@ class PriorityQueueScheduler(Scheduler):
         session = self.session_maker()
         try:    
             if not self.reservations_manager.check(session, reservation_id):
-                session.close()
                 return
 
-            concrete_current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == reservation_id).first()
+            possible_concrete_current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == reservation_id).first()
+            concrete_current_reservation = None
+            if possible_concrete_current_reservation is not None:
+                slot = possible_concrete_current_reservation.slot_reservation 
+                if slot is not None:
+                    current_resource_slot = slot.current_resource_slot
+                    if current_resource_slot is not None:
+                        resource_instance = current_resource_slot.resource_instance
+                        if resource_instance is not None:
+                            resource_type = resource_instance.resource_type
+                            if resource_type is not None and resource_type.name == self.resource_type_name:
+                                concrete_current_reservation = possible_concrete_current_reservation
+
             if concrete_current_reservation is None:
-                session.close()
                 return
 
             concrete_current_reservation.lab_session_id        = lab_session_id.id
