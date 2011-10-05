@@ -82,7 +82,7 @@ class WebLabDeusto
         }
     }
 
-    public function reserve( $session_id, $exp_name, $exp_category, $initial_data )
+    public function reserve( $session_id, $exp_name, $exp_category, $initial_data = "{}", $consumer_data = array() )
     {
         $response_data = $this->core_call("reserve_experiment", array(
                         "session_id" => array(
@@ -93,7 +93,7 @@ class WebLabDeusto
                             "cat_name" => $exp_category
                         ),
                         "client_initial_data" => $initial_data,
-                        "consumer_data" => "{}"
+                        "consumer_data" => json_encode($consumer_data)
                     ));
 
         if(!$response_data['is_exception'])
