@@ -46,6 +46,12 @@ class CoordinatorModelTestCase(unittest.TestCase):
         experiment_instance = CM.ExperimentInstance(experiment_type, "lab:inst@mach", "exp1")
         repr(experiment_instance) # No exception is raised
 
+    def test_repr_active_reservation_scheduler(self):
+        resource_type = CM.ResourceType("foo")
+        experiment_type     = CM.ExperimentType("exp", "cat")
+        assoc = CM.ActiveReservationSchedulerAssociation('foo', experiment_type, resource_type)
+        repr(assoc) # No exception
+
     def test_repr_reservation(self):
         experiment_type = CM.ExperimentType("exp", "cat")
         reservation     = CM.Reservation("hi", "{}", "{}", "{}", None)

@@ -40,6 +40,8 @@ GET_PERMISSION_TYPES_CACHE_TIME = 200 # seconds
 DEFAULT_EXPERIMENT_POLL_TIME    = 300  # seconds
 EXPERIMENT_POLL_TIME            = 'core_experiment_poll_time'
 
+FORWARDED_KEYS = 'external_user','user_agent','referer','mobile','facebook','from_ip'
+SERVER_UUIDS   = 'server_uuid'
 
 # The following methods will be used from within the Processor itself.
 #
@@ -119,11 +121,15 @@ class UserProcessor(object):
     def get_session_id(self):
         return self._session['session_id']
 
+    def is_access_forward_enabled(self):
+        db_session_id               = self._session['db_session_id']
+        return self._db_manager.is_access_forward(db_session_id)
+
     # 
     # Experiments
     # 
 
-    def reserve_experiment(self, experiment_id, serialized_client_initial_data, serialized_consumer_data, client_address):
+    def reserve_experiment(self, experiment_id, serialized_client_initial_data, serialized_consumer_data, client_address, core_server_universal_id ):
 
         context = RemoteFacadeContext.get_context()
 
@@ -147,12 +153,18 @@ class UserProcessor(object):
             # TODO: to be tested
             raise core_exc.WebLabCoreException( "Invalid client_initial_data provided: a json-serialized object expected" )
 
-        db_session_id               = self._session['db_session_id']
-        if self._db_manager.is_access_forward(db_session_id):
+        if self.is_access_forward_enabled():
             try:
                 consumer_data = json.loads(serialized_consumer_data)
-                if 'external_user' in consumer_data:
-                    reservation_info['external_user'] = consumer_data['external_user']
+                for forwarded_key in FORWARDED_KEYS:
+                    if forwarded_key in consumer_data:
+                        reservation_info[forwarded_key] = consumer_data[forwarded_key]
+
+                server_uuids = consumer_data.get(SERVER_UUIDS, [])
+                for server_uuid, server_uuid_human in server_uuids:
+                    if server_uuid == core_server_universal_id:
+                        return 'replicated'
+                reservation_info[SERVER_UUIDS] = server_uuids
             except ValueError:
                 raise core_exc.WebLabCoreException( "Invalid serialized_consumer_data provided: a json-serialized object expected" )
         else:

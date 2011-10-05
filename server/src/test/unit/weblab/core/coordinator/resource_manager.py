@@ -352,6 +352,49 @@ class ResourcesManagerTestCase(unittest.TestCase):
         self.assertEquals(resource_instance2, addresses["laboratory1:WL_SERVER1@WL_MACHINE1"][exp_id2])
         self.assertEquals(resource_instance3, addresses["laboratory2:WL_SERVER1@WL_MACHINE1"][exp_id3])
 
+    def test_scheduler_reservation_associations(self):
+        exp_inst_id1  = ExperimentInstanceId("exp1","ud-pld",  "PLD experiments")
+        exp_inst_id1b = ExperimentInstanceId("exp2","ud-pld",  "PLD experiments")
+        exp_inst_id2  = ExperimentInstanceId("exp1","ud-fpga", "FPGA experiments")
+
+        exp_id1 = exp_inst_id1.to_experiment_id()
+        exp_id2 = exp_inst_id2.to_experiment_id()
+
+        session = self.session_maker()
+        try:
+            self.resources_manager.add_resource(session, Resource("pld_local", "instance"))
+            self.resources_manager.add_resource(session, Resource("pld_remote", "instance"))
+            self.resources_manager.add_resource(session, Resource("fpga_remote", "instance"))
+
+            self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_inst_id1, Resource("pld_local",  "instance"))
+            self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_inst_id1b, Resource("pld_remote", "instance"))
+            self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_inst_id2, Resource("fpga_remote", "instance"))
+            session.commit()
+        finally:
+            session.close()
+
+        reservation1 = 'reservation1'
+        reservation2 = 'reservation2'
+
+        self.resources_manager.associate_scheduler_to_reservation(reservation1, exp_id1, 'pld_local')
+        self.resources_manager.associate_scheduler_to_reservation(reservation1, exp_id1, 'pld_remote')
+        self.resources_manager.associate_scheduler_to_reservation(reservation2, exp_id2, 'fpga_remote')
+
+        resource_type_names = self.resources_manager.retrieve_schedulers_per_reservation(reservation1, exp_id1)
+        self.assertEquals(set(('pld_local','pld_remote')), set(resource_type_names))
+        resource_type_names = self.resources_manager.retrieve_schedulers_per_reservation(reservation2, exp_id2)
+        self.assertEquals(['fpga_remote'], list(resource_type_names))
+
+        self.resources_manager.dissociate_scheduler_from_reservation(reservation1, exp_id1, 'pld_remote')
+        resource_type_names = self.resources_manager.retrieve_schedulers_per_reservation(reservation1, exp_id1)
+        self.assertEquals(['pld_local'], list(resource_type_names))
+
+        self.resources_manager.clean_associations_for_reservation(reservation1, exp_id1)
+
+        resource_type_names = self.resources_manager.retrieve_schedulers_per_reservation(reservation1, exp_id1)
+        self.assertEquals(0, len(resource_type_names))
+
+
 def suite():
     return unittest.makeSuite(ResourcesManagerTestCase)
 

@@ -46,6 +46,7 @@ import weblab.data.dto.users as Role
 import weblab.db.session as DbSession
 
 from weblab.core.coordinator.resource import Resource
+from weblab.core.coordinator.config_parser import COORDINATOR_LABORATORY_SERVERS
 
 import weblab.core.exc as coreExc
 import weblab.lab.exc as LaboratoryExceptions
@@ -68,6 +69,11 @@ class ReservationProcessorTestCase(unittest.TestCase):
 
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
+        self.cfg_manager._set_value(COORDINATOR_LABORATORY_SERVERS, {
+            'server:laboratoryserver@labmachine' : {
+                'inst|ud-dummy|Dummy experiments' : 'res_inst@res_type'
+            }
+        })
 
         self.commands_store = TemporalInformationStore.CommandsTemporalInformationStore()
 
@@ -87,7 +93,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
                 )
 
     def create_reservation_processor(self):
-        status = self.user_processor.reserve_experiment( ExperimentId('ud-dummy', 'Dummy experiments'), "{}", "{}", ClientAddress.ClientAddress("127.0.0.1"))
+        status = self.user_processor.reserve_experiment( ExperimentId('ud-dummy', 'Dummy experiments'), "{}", "{}", ClientAddress.ClientAddress("127.0.0.1"), 'uuid')
         self.reservation_processor = ReservationProcessor(
                     self.cfg_manager,
                     SessionId.SessionId(status.reservation_id.split(';')[0]),
@@ -200,7 +206,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
         
     def test_send_async_file_ok(self):
         file_content = "SAMPLE CONTENT"
-        lab_response  = "LAB RESPONSE"
+        lab_response  = Command.Command("LAB RESPONSE")
         file_info    = 'program'
         self._return_reserved()
 
@@ -228,7 +234,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
 
     def test_send_file_ok(self):
         file_content = "SAMPLE CONTENT"
-        lab_response  = "LAB RESPONSE"
+        lab_response  = Command.Command("LAB RESPONSE")
         file_info    = 'program'
         self._return_reserved()
 
@@ -366,7 +372,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self._return_reserved()
 
         command = Command.Command("Your command")
-        lab_response  = "LAB RESPONSE"
+        lab_response  = Command.Command("LAB RESPONSE")
         self.lab_mock.send_async_command(SessionId.SessionId('my_lab_session_id'), command)
         self.mocker.result(lab_response)
 
@@ -395,7 +401,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self._return_reserved()
 
         command = Command.Command("Your command")
-        lab_response  = "LAB RESPONSE"
+        lab_response  = Command.Command("LAB RESPONSE")
         self.lab_mock.send_command(SessionId.SessionId('my_lab_session_id'), command)
         self.mocker.result(lab_response)
 

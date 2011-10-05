@@ -82,6 +82,10 @@ class PriorityQueueScheduler(Scheduler):
     def stop(self):
         self._synchronizer.stop()
 
+    @Override(Scheduler)
+    def is_remote(self):
+        return False
+
     @exc_checker
     @logged()
     @Override(Scheduler)
@@ -108,7 +112,7 @@ class PriorityQueueScheduler(Scheduler):
     @exc_checker
     @logged()
     @Override(Scheduler)
-    def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting):
+    def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info):
         """
         priority: the less, the more priority
         """
@@ -122,7 +126,7 @@ class PriorityQueueScheduler(Scheduler):
         finally:
             session.close()
 
-        return self.get_reservation_status(reservation_id), reservation_id
+        return self.get_reservation_status(reservation_id)
 
 
 
@@ -185,7 +189,7 @@ class PriorityQueueScheduler(Scheduler):
                     timestamp_after   = datetime.datetime.fromtimestamp(concrete_current_reservation.timestamp_after)
 
                 if lab_session_id is None:
-                    return WSS.WaitingConfirmationQueueStatus(reservation_id_with_route, lab_coord_address, obtained_time, self.core_server_url)
+                    return WSS.WaitingConfirmationQueueStatus(reservation_id_with_route, self.core_server_url)
                 else:
                     if initialization_in_accounting:
                         before = concrete_current_reservation.timestamp_before
@@ -197,7 +201,7 @@ class PriorityQueueScheduler(Scheduler):
                     else:
                         remaining = obtained_time
 
-                    return WSS.ReservedStatus(reservation_id_with_route, lab_coord_address, SessionId.SessionId(lab_session_id), obtained_time, initial_configuration, timestamp_before, timestamp_after, initialization_in_accounting, remaining, self.core_server_url)
+                    return WSS.LocalReservedStatus(reservation_id_with_route, lab_coord_address, SessionId.SessionId(lab_session_id), obtained_time, initial_configuration, timestamp_before, timestamp_after, initialization_in_accounting, remaining, self.core_server_url)
 
             resource_type = session.query(ResourceType).filter_by(name = self.resource_type_name).one()
             waiting_reservation = session.query(WaitingReservation).filter_by(reservation_id = reservation_id, resource_type_id = resource_type.id).first()
@@ -250,12 +254,22 @@ class PriorityQueueScheduler(Scheduler):
         session = self.session_maker()
         try:    
             if not self.reservations_manager.check(session, reservation_id):
-                session.close()
                 return
 
-            concrete_current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == reservation_id).first()
+            possible_concrete_current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == reservation_id).first()
+            concrete_current_reservation = None
+            if possible_concrete_current_reservation is not None:
+                slot = possible_concrete_current_reservation.slot_reservation 
+                if slot is not None:
+                    current_resource_slot = slot.current_resource_slot
+                    if current_resource_slot is not None:
+                        resource_instance = current_resource_slot.resource_instance
+                        if resource_instance is not None:
+                            resource_type = resource_instance.resource_type
+                            if resource_type is not None and resource_type.name == self.resource_type_name:
+                                concrete_current_reservation = possible_concrete_current_reservation
+
             if concrete_current_reservation is None:
-                session.close()
                 return
 
             concrete_current_reservation.lab_session_id        = lab_session_id.id
@@ -279,11 +293,25 @@ class PriorityQueueScheduler(Scheduler):
 
         session = self.session_maker()
         try: 
-            concrete_current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == reservation_id).first()
-
-            enqueue_free_experiment_args = self._clean_current_reservation(session, concrete_current_reservation)
+            possible_current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == reservation_id).first()
+           
+            # Clean current reservation... if the current reservation is assigned to this scheduler
+            concrete_current_reservation = None
+            enqueue_free_experiment_args = None
+            if possible_current_reservation is not None:
+                slot = possible_current_reservation.slot_reservation 
+                if slot is not None:
+                    current_resource_slot = slot.current_resource_slot
+                    if current_resource_slot is not None:
+                        resource_instance = current_resource_slot.resource_instance
+                        if resource_instance is not None:
+                            resource_type = resource_instance.resource_type
+                            if resource_type is not None and resource_type.name == self.resource_type_name:
+                                concrete_current_reservation = possible_current_reservation
+                                enqueue_free_experiment_args = self._clean_current_reservation(session, concrete_current_reservation)
                 
-            reservation_to_delete = concrete_current_reservation or session.query(WaitingReservation).filter(WaitingReservation.reservation_id == reservation_id).first()
+            db_resource_type = session.query(ResourceType).filter_by(name = self.resource_type_name).first()
+            reservation_to_delete = concrete_current_reservation or session.query(WaitingReservation).filter_by(reservation_id = reservation_id, resource_type = db_resource_type).first()
             if reservation_to_delete is not None:
                 session.delete(reservation_to_delete) 
 

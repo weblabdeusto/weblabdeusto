@@ -59,7 +59,7 @@ class ReservationsManager(object):
         try:
             reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
             if reservation is None:
-                return "{}"
+                return "{}", "{}"
             return reservation.request_info, reservation.client_initial_data
         finally:
             session.close()

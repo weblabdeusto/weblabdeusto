@@ -30,6 +30,7 @@ import weblab.methods as weblab_methods
 from weblab.data.experiments import ExperimentInstanceId
 from weblab.data.experiments import ExperimentId
 from weblab.core.coordinator.resource import Resource
+from weblab.core.coordinator.config_parser import COORDINATOR_LABORATORY_SERVERS
 
 import weblab.core.coordinator.coordinator as Coordinator
 
@@ -65,6 +66,11 @@ class ConfirmerTestCase(mocker.MockerTestCase):
 
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
+        self.cfg_manager._set_value(COORDINATOR_LABORATORY_SERVERS, {
+            u'lab1:inst@machine' : {
+                'inst1|exp1|cat1' : 'res_inst@res_type'
+            },
+        })
 
         self.coordinator = Coordinator.Coordinator(self.locator, self.cfg_manager)
         self.coordinator._clean()
@@ -133,7 +139,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
         
         status = self.coordinator.get_reservation_status(reservation1_id)
-        expected_status =  WSS.ReservedStatus(reservation1_id, CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, 30, '{}', now, now, True, 30, 'http://www.weblab.deusto.es/weblab/client/adfas')
+        expected_status =  WSS.LocalReservedStatus(reservation1_id, CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, 30, '{}', now, now, True, 30, 'http://www.weblab.deusto.es/weblab/client/adfas')
 
         self.assertTrue("Unexpected status due to timestamp_before: %s; expected something like %s" % (status, expected_status), 
                             status.timestamp_before >= now and status.timestamp_before <= now + datetime.timedelta(seconds=10))

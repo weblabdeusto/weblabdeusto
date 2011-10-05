@@ -172,16 +172,15 @@ class DirectAddressTestCase(unittest.TestCase):
         class DirectServerClass(direct_server_class):
             def do_say_hello(self,msg):
                 return msg + message2
-
-        DirectServerClass(
-                Direct = (self.server_id,)
-            )
-
         direct_addr = DirectAddress.Address(
                     self.machine_id,
                     self.instance_id,
                     self.server_id
                 )
+        DirectServerClass(
+                Direct = (direct_addr.address,)
+            )
+
         direct_client = direct_addr.create_client(self.methods)
         self.assertEquals(
             direct_client.say_hello(self.message1),
@@ -210,14 +209,13 @@ class DirectAddressTestCase(unittest.TestCase):
             def do_say_hello(self,msg):
                 return msg + message2
 
-        DirectServerClass(
-                Direct = (self.server_id,)
-            )
-
         direct_addr = DirectAddress.Address(
                 self.machine_id,
                 self.instance_id,
                 self.server_id
+            )
+        DirectServerClass(
+                Direct = (direct_addr.address,)
             )
 
         self.assertRaises(

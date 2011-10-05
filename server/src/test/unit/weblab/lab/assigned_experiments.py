@@ -21,8 +21,6 @@ import weblab.lab.exc as LaboratoryExceptions
 import weblab.lab.assigned_experiments as AssignedExperiments
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 
-import weblab.experiment.level as ExperimentApiLevel
-
 from weblab.data.experiments import ExperimentInstanceId
 
 class AssignedExperimentsTestCase(unittest.TestCase):

@@ -34,7 +34,6 @@ import weblab.core.user_processor as UserProcessor
 from weblab.core.reservation_processor import ReservationProcessor
 import weblab.core.alive_users as AliveUsersCollection
 import weblab.core.coordinator.coordinator as Coordinator
-import weblab.core.coordinator.config_parser as CoordinationConfigurationParser
 import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.core.db.manager as DatabaseManager
 import weblab.core.coordinator.status as WebLabSchedulingStatus
@@ -55,13 +54,13 @@ import voodoo.resources_manager as ResourceManager
 
 check_session_params = dict(
         exception_to_raise = coreExc.SessionNotFoundException,
-        what_session       = "User Processing Server",
+        what_session       = "Core Users ",
         cut_session_id     = ';'
     )
 
 check_reservation_session_params = dict(
         exception_to_raise         = coreExc.SessionNotFoundException,
-        what_session               = "User Processing Server",
+        what_session               = "Core Reservations ",
         session_manager_field_name = "_reservations_session_manager",
         cut_session_id             = ';'
     )
@@ -137,6 +136,9 @@ class UserProcessingServer(object):
             print >> sys.stderr, msg
             log.log( UserProcessingServer, log.level.Error, msg)
 
+        self.core_server_universal_id       = cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER, DEFAULT_WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER)
+        self.core_server_universal_id_human = cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN, DEFAULT_WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN)
+
         # 
         # Create session managers
         # 
@@ -157,12 +159,6 @@ class UserProcessingServer(object):
 
         self._coordinator    = Coordinator.Coordinator(self._locator, cfg_manager) 
 
-        clean = cfg_manager.get_value(WEBLAB_CORE_SERVER_CLEAN_COORDINATOR, True)
-        if clean:
-            self._coordinator._clean()
-            self._parse_coordination_configuration()
-
-        
         # 
         # Database and information storage managers
         # 
@@ -212,15 +208,6 @@ class UserProcessingServer(object):
             super(UserProcessingServer, self).stop()
         for facade_server in self._facade_servers:
             facade_server.stop()
-
-    def _parse_coordination_configuration(self):
-        coordination_configuration_parser = CoordinationConfigurationParser.CoordinationConfigurationParser(self._cfg_manager)
-        configuration = coordination_configuration_parser.parse_configuration()
-        for laboratory_server_coord_address_str in configuration:
-            experiment_instance_config = configuration[laboratory_server_coord_address_str]
-            for experiment_instance_id in experiment_instance_config:
-                resource = experiment_instance_config[experiment_instance_id]
-                self._coordinator.add_experiment_instance_id(laboratory_server_coord_address_str, experiment_instance_id, resource)
 
     def _load_user(self, session):
         return UserProcessor.UserProcessor(self._locator, session, self._cfg_manager, self._coordinator, self._db_manager, self._commands_store)
@@ -307,14 +294,22 @@ class UserProcessingServer(object):
         if self._session_manager.has_session(session_id):
             session        = self._session_manager.get_session(session_id)
 
+            user_processor = self._load_user(session)
+
             reservation_id = session.get('reservation_id')
-            if reservation_id is not None:
+            if reservation_id is not None and not user_processor.is_access_forward_enabled():
+                # 
+                # If "is_access_forward_enabled", the user (or more commonly, entity) can log out without
+                # finishing his current reservation
+                # 
+                # Furthermore, whenever booking is supported, this whole idea should be taken out. Even
+                # with queues it might not make sense, depending on the particular type of experiment.
+                # 
                 reservation_session = self._reservations_session_manager.get_session(SessionId(reservation_id))
                 reservation_processor = self._load_reservation(reservation_session)
                 reservation_processor.finish()
                 self._alive_users_collection.remove_user(reservation_id)
 
-            user_processor = self._load_user(session)
             user_processor.logout()
             user_processor.update_latest_timestamp()
 
@@ -344,7 +339,11 @@ class UserProcessingServer(object):
     @check_session(**check_session_params)
     @load_user_processor
     def reserve_experiment(self, user_processor, session, experiment_id, client_initial_data, consumer_data, client_address):
-        status = user_processor.reserve_experiment( experiment_id, client_initial_data, consumer_data, client_address )
+        status = user_processor.reserve_experiment( experiment_id, client_initial_data, consumer_data, client_address, 
+                                        self.core_server_universal_id)
+
+        if status == 'replicated':
+            return Reservation.NullReservation()
 
         reservation_id         = status.reservation_id.split(';')[0]
         reservation_session_id = SessionId(reservation_id)
@@ -363,7 +362,7 @@ class UserProcessingServer(object):
         reservation_processor = self._load_reservation(initial_session)
         reservation_processor.update_latest_timestamp()
 
-        if status.status == WebLabSchedulingStatus.WebLabSchedulingStatus.RESERVED:
+        if status.status == WebLabSchedulingStatus.WebLabSchedulingStatus.RESERVED_LOCAL:
             reservation_processor.process_reserved_status(status)
 
         self._reservations_session_manager.modify_session(session_id, initial_session)

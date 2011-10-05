@@ -5,9 +5,25 @@ CHANGES
 4.5
 ===
 
+Date: (pending)
+
 - server
   - scheduling
     - support for batch experiments
+
+  - federation
+    - support for federated experiments (sharing experiments among different 
+      universities)
+
+    - support for subcontracting experiments (university A provides experiment
+      X to University B: then University B can provide experiment X to School
+      C)
+
+    - support for load balance among different universities (if university A 
+      and B have experiment X, then users will see it as a single queue)
+
+  - big module and package naming changes
+    - modules are now lowercase and have more straightforward names
 
   (...)
 
@@ -22,6 +38,8 @@ CHANGES
 
 4.0M1 
 =====
+
+Date: April 7th, 2011
 
 - server
   - scheduling
@@ -81,4 +99,31 @@ CHANGES
 3.9
 ===
 
+Date: January 25th, 2010
+
+ - First Open Source release!
 (...)
+
+3.5
+===
+
+
+
+3.0
+===
+
+Date: November, 2007
+
+2.0
+===
+
+Date: November, 2005
+
+
+1.0
+===
+Date: February, 2005
+
+
+
+

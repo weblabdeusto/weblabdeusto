@@ -74,11 +74,14 @@
 				<xsd:sequence>
 					<xsd:element minOccurs="0" maxOccurs="1" name="status"                type="xsd:string" />
 					<xsd:element minOccurs="0" maxOccurs="1" name="reservation_id"        type="tns:SessionIdType" />
+					<xsd:element minOccurs="0" maxOccurs="1" name="remote_reservation_id" type="tns:SessionIdType" />
 					<xsd:element minOccurs="0" maxOccurs="1" name="position"              type="xsd:int" />
 					<xsd:element minOccurs="0" maxOccurs="1" name="time"                  type="xsd:int" />
 					<xsd:element minOccurs="0" maxOccurs="1" name="initial_configuration" type="xsd:string" />
+					<xsd:element minOccurs="0" maxOccurs="1" name="initial_data"          type="xsd:string" />
 					<xsd:element minOccurs="0" maxOccurs="1" name="end_data"              type="xsd:string" />
 					<xsd:element minOccurs="0" maxOccurs="1" name="url"                   type="xsd:string" />
+					<xsd:element minOccurs="0" maxOccurs="1" name="finished"              type="xsd:boolean" />
 				</xsd:sequence>
 			</xsd:complexType>
 

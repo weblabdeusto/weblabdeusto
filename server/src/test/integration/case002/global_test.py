@@ -208,7 +208,7 @@ class Case002TestCase(object):
         real_coordinator_server = RealCoordinatorServer(
                 cfg_manager,
                 map,
-                Direct = ('coordinator1',),
+                Direct = (map['WL_MACHINE1']['WL_SERVER1']['coordinator1'].address.address,),
                 SOAP   = ('',10127)
             )
         real_coordinator_server.start()
@@ -268,7 +268,7 @@ class Case002TestCase(object):
                 login_coord_address,
                 locator,
                 cfg_manager,
-                Direct = ('login1',),
+                Direct = (login_coord_address.address,),
                 SOAP   = ('',10125)
             )
         real_login_server.start()
@@ -305,7 +305,7 @@ class Case002TestCase(object):
                 ups_coord_address,
                 locator,
                 cfg_manager,
-                Direct = ('ups1',),
+                Direct = (ups_coord_address.address,),
                 SOAP   = ('',10126)
             )
         real_core_server.start()
@@ -340,7 +340,7 @@ class Case002TestCase(object):
                 cfg_manager,
                 fake_xilinx_impact,
                 fake_serial_port,
-                Direct = ('experiment' + number,),
+                Direct = ( self.map['WL_MACHINE1']['WL_SERVER1']['experiment' + number].address.address,),
                 SOAP   = ('',10131 + (int(number)-1))
             )
         real_experiment.start()
@@ -376,7 +376,7 @@ class Case002TestCase(object):
                 self.map['WL_MACHINE1']['WL_SERVER1']['laboratory1'].address,
                 locator,
                 cfg_manager,
-                Direct = ('laboratory1',),
+                Direct = (self.map['WL_MACHINE1']['WL_SERVER1']['laboratory1'].address.address,),
                 SOAP   = ('',10129)
             )
         real_laboratory_server.start()
@@ -515,7 +515,7 @@ class Case002TestCase(object):
 
         # wait until it is reserved
         short_time = 0.1
-        times      = 3.0 / short_time
+        times      = 10.0 / short_time
 
         while times > 0:
             time.sleep(short_time)

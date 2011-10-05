@@ -151,9 +151,6 @@ class LaboratoryServer(object):
         self._assigned_experiments = AssignedExperiments.AssignedExperiments()
         parsed_experiments         = self._parse_assigned_experiments()
         
-        num_success = 0
-        num_fail = 0
-        
         for exp_inst_id, coord_address, checking_handlers in parsed_experiments:
             self._assigned_experiments.add_server(exp_inst_id, coord_address, checking_handlers)
 
@@ -306,7 +303,7 @@ class LaboratoryServer(object):
                     # Then it is probably using the version 1, 
                     # where the get_api method was not supported
                     reported_api = ExperimentApiLevel.level_1
-            except Exception as e:
+            except:
                 # It's not online. No get_api.
                 reported_api = None
         

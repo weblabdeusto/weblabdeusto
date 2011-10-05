@@ -44,6 +44,7 @@
 		<g:VerticalPanel styleName="web-logged-content">
 		        
 			<g:Label ui:field="contentTitleLabel" text="{i18n.reserveThisExperiment}" styleName="web-logged-content-title"></g:Label>
+			<g:Label ui:field="contentTitleLabelSelected" text="{i18n.selectedExperiment}" styleName="web-logged-content-title"></g:Label>
 			
 			<g:Grid ui:field="detailsGrid" styleName="web-experiment-details">
                 <g:row>
