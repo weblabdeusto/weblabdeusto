@@ -42,7 +42,22 @@ namespace WebLabDeusto
             return new SessionId((string)response["id"]);
         }
 
-        public Reservation ReserveExperiment(SessionId sessid, string experimentName, string categoryName, string initialData)
+        public Reservation ReserveExperiment(SessionId sessid, string experimentName, string categoryName, string initialData) 
+        {
+            return ReserveExperiment(sessid, experimentName, categoryName, initialData, new Dictionary<string, object>());
+        }
+
+        public Reservation ReserveExperiment(SessionId sessid, string experimentName, string categoryName, Dictionary<string, object> consumerData) 
+        {
+            return ReserveExperiment(sessid, experimentName, categoryName, "{}", consumerData);
+        }
+
+        public Reservation ReserveExperiment(SessionId sessid, string experimentName, string categoryName) 
+        {
+            return ReserveExperiment(sessid, experimentName, categoryName, "{}", new Dictionary<string, object>());
+        }
+
+        public Reservation ReserveExperiment(SessionId sessid, string experimentName, string categoryName, string initialData, Dictionary<string, object> consumerData)
         {
             JsonData parameters = new JsonData();
             parameters["session_id"] = new JsonData();
@@ -51,7 +66,25 @@ namespace WebLabDeusto
             parameters["experiment_id"]["exp_name"] = experimentName;
             parameters["experiment_id"]["cat_name"] = categoryName;
             parameters["client_initial_data"] = initialData;
-            parameters["consumer_data"] = "{}"; // TODO
+
+            JsonData jsonConsumerData = new JsonData();
+            foreach(string key in consumerData.Keys){
+                object v = consumerData[key];
+                if(v is string)
+                    jsonConsumerData[key] = (string)v;
+                else if(v is int)
+                    jsonConsumerData[key] = (int)v;
+                else if(v is double)
+                    jsonConsumerData[key] = (double)v;
+                else if(v is bool)
+                    jsonConsumerData[key] = (bool)v;
+                else if(v is long)
+                    jsonConsumerData[key] = (long)v;
+                else
+                    throw new ArgumentException("Type of key " + key + " not supported");
+            }
+
+            parameters["consumer_data"] = jsonConsumerData.ToJson();
 
             JsonData response = PerformCoreRequest("reserve_experiment", parameters);
 
