@@ -12,7 +12,9 @@
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 
+
 import sys
+
 import ldap
 
 
