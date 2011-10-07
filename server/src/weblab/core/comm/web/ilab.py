@@ -43,7 +43,7 @@ class ILabMethod(WebFacadeServer.Method):
         self.reservation_id = None
         for cur_cookie in (cookies or '').split('; '):
             if cur_cookie.startswith("weblabsessionid="):
-                self.sess_id = SessionId(cur_cookie[len('weblabsessionid='):].split('.')[0])
+                self.sess_id = SessionId('.'.join(cur_cookie[len('weblabsessionid='):].split('.')[:-1]))
             if cur_cookie.startswith('weblab_reservation_id='):
                 self.reservation_id = SessionId(cur_cookie[len('weblab_reservation_id='):].split('.')[0])
 
