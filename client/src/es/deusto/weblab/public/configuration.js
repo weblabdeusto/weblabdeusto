@@ -173,7 +173,7 @@
 	                           {
 	                        	   "experiment.name"     : "dummy4",
 	                        	   "experiment.category" : "Dummy experiments"
-	                           },
+	                           }
 	                       ],
 	                "dummybatch" : [
 		                           {
@@ -277,7 +277,8 @@
 		                        	  "experiment.category"  : "iLab experiments", 
 		                        	  "archive"              : "http://weblab2.mit.edu/client/v7.0b5/signed_Weblab-client.jar", 
 		                        	  "code"                 : "weblab.client.graphicalUI.GraphicalApplet", 
-		                        	  "lab_server_id"        : "microelectronics"
+		                        	  "lab_server_id"        : "microelectronics",
+		                        	  "service_broker"       : "http://www.weblab.deusto.es/weblab/ilab/"
 	                           }
 	                        ]
 		}
