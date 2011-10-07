@@ -214,7 +214,8 @@
 	                           {
 	                        	   "experiment.name"     : "ud-logic",
 	                        	   "experiment.category" : "PIC experiments",
-	                        	  "experiment.picture"   : "/img/experiments/logic.jpg"
+	                        	   "experiment.picture"   : "/img/experiments/logic.jpg",
+	                        	   "experiment.infolink" : "http://code.google.com/p/weblabdeusto/wiki/4_5_FAQ"
 	                           }
 	                       ],
 	                "binary" : [

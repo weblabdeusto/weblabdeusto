@@ -70,6 +70,14 @@
                         <g:Label ui:field="timeAllowedLabel" styleName="web-experiment-detail"></g:Label>
                     </g:customCell>
                 </g:row>
+                <g:row>
+                	<g:customCell>
+                		<g:Label text="{i18n.information}:"></g:Label>
+                	</g:customCell>
+                	<g:customCell>
+                        <g:Hyperlink ui:field="informationLink" styleName="web-experiment-detail"></g:Hyperlink>
+                    </g:customCell>
+                </g:row>
 			</g:Grid>
 			
 			<g:VerticalPanel width="100%" styleName="web-experiment-upload-form">

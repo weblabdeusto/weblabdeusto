@@ -9,6 +9,7 @@
 * listed below:
 *
 * Author: Pablo Orduña <pablo@ordunya.com>
+*         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 *
 */ 
 package es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb;
@@ -23,15 +24,18 @@ import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.HistoryProperties;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
+import es.deusto.weblab.client.lab.experiments.ExperimentFactory;
 import es.deusto.weblab.client.ui.widgets.WlUtil;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
@@ -67,6 +71,7 @@ class ExperimentWindow extends BaseWindow {
 	@UiField Label experimentNameLabel;
 	@UiField Label experimentCategoryLabel;
 	@UiField Label timeAllowedLabel;
+	@UiField Hyperlink informationLink;
 	@UiField Button reserveButton;
 	@UiField Button finishButton;
 	@UiField WlWaitingLabel waitingLabel;
@@ -81,6 +86,10 @@ class ExperimentWindow extends BaseWindow {
 	// Properties
 	private static final String ADMIN_EMAIL_PROPERTY = "admin.email";
 	private static final String DEFAULT_ADMIN_EMAIL = "<admin.email not set>";
+	
+	private static final String EXPERIMENT_INFOLINK_PROPERTY = "experiment.infolink";
+	private static final String DEFAULT_EXPERIMENT_INFOLINK = "<not available>";
+	
     
 	// DTOs
 	private final User user;
@@ -125,10 +134,39 @@ class ExperimentWindow extends BaseWindow {
 	    }
 	}
 	
+	
+	/**
+	 * Instances a configuration retriever and uses it to obtain the infolink and
+	 * to display it through the appropriate field in the GUI.
+	 */
+	private void updateInfolinkField() {
+		
+		IConfigurationRetriever retriever = null;
+		try {
+			
+			retriever = ExperimentFactory.getExperimentConfigurationRetriever(this.experimentAllowed.getExperiment().getExperimentUniqueName());
+			
+			final String infolink = retriever.getProperty(ExperimentWindow.EXPERIMENT_INFOLINK_PROPERTY, 
+					ExperimentWindow.DEFAULT_EXPERIMENT_INFOLINK
+			);
+			
+			this.informationLink.setText(infolink);
+			
+		} catch(IllegalArgumentException e){
+			e.printStackTrace();
+			
+			this.informationLink.setText("<not available>");	
+		}
+		
+	}
+	
+	
 	public void loadExperimentReservationPanels() {	    
 		this.experimentNameLabel.setText(this.experimentAllowed.getExperiment().getName());
 		this.experimentCategoryLabel.setText(this.experimentAllowed.getExperiment().getCategory().getCategory());
 		this.timeAllowedLabel.setText(this.experimentAllowed.getTimeAllowed()+"");
+		
+		this.updateInfolinkField();
 
 		// Important note: this MUST be done here or FileUpload will cause problems
 		this.experimentAreaPanel.add(this.experimentBase.getWidget());	
