@@ -40,12 +40,13 @@ class PermissionType(object):
     DTO for a PermissionType object
     """
     
-    def __init__(self, name, description, user_applicable, role_applicable, ee_applicable):
+    def __init__(self, name, description, user_applicable, role_applicable, group_applicable, ee_applicable):
         super(PermissionType, self).__init__()
         self.name = name
         self.description = description
         self.user_applicable = user_applicable
         self.role_applicable = role_applicable
+        self.group_applicable = group_applicable
         self.ee_applicable = ee_applicable
         
     def __repr__(self):
