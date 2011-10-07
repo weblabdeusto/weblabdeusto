@@ -28,6 +28,8 @@ from voodoo.sessions.session_id import SessionId
 
 import weblab.data.server_type as ServerType
 
+from weblab.comm.context import get_context
+
 import weblab.core.reservations as Reservation
 import weblab.core.data_retriever as TemporalInformationRetriever
 import weblab.core.user_processor as UserProcessor
@@ -104,6 +106,15 @@ def load_reservation_processor(func):
             return func(self, reservation_processor, session, *args, **kwargs)
         finally:
             reservation_processor.update_latest_timestamp()
+    return wrapper
+
+def update_session_id(func):
+    @wraps(func)
+    def wrapper(self, session_id, *args, **kwargs):
+        ctx = get_context()
+        if ctx is not None and hasattr(session_id, 'id'):
+            ctx.session_id = session_id.id
+        return func(self, session_id, *args, **kwargs)
     return wrapper
 
 class UserProcessingServer(object):
@@ -319,6 +330,7 @@ class UserProcessingServer(object):
 
 
     @logged(log.level.Info)
+    @update_session_id
     @check_session(**check_session_params)
     @load_user_processor
     def list_experiments(self, user_processor, session):
@@ -326,6 +338,7 @@ class UserProcessingServer(object):
 
 
     @logged(log.level.Info)
+    @update_session_id
     @check_session(**check_session_params)
     @load_user_processor
     def get_user_information(self, user_processor, session):
@@ -336,6 +349,7 @@ class UserProcessingServer(object):
     # # # # # # # # # # # # # # # # #
 
     @logged(log.level.Info)
+    @update_session_id
     @check_session(**check_session_params)
     @load_user_processor
     def reserve_experiment(self, user_processor, session, experiment_id, client_initial_data, consumer_data, client_address):

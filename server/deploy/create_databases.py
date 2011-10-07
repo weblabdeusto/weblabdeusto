@@ -257,6 +257,9 @@ def populate_weblab_tests(engine):
     student8 = Model.DbUser("student8", "Name of student 8", "weblab@deusto.es", None, student)
     session.add(student8)
 
+    studentILAB = Model.DbUser("studentILAB", "Name of student ILAB", "weblab@deusto.es", None, student)
+    session.add(studentILAB)
+
     studentLDAP1 = Model.DbUser("studentLDAP1", "Name of student LDAP1", "weblab@deusto.es", None, student)
     session.add(studentLDAP1)
 
@@ -310,6 +313,7 @@ def populate_weblab_tests(engine):
     session.add(Model.DbUserAuth(student6, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
     session.add(Model.DbUserAuth(student7, weblab_db, "aaaa{thishashdoesnotexist}a776159c8c7ff8b73e43aa54d081979e72511474"))
     session.add(Model.DbUserAuth(student8, weblab_db, "this.format.is.not.valid.for.the.password"))
+    session.add(Model.DbUserAuth(studentILAB, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
     session.add(Model.DbUserAuth(fed_student1, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
     session.add(Model.DbUserAuth(fed_student2, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
     session.add(Model.DbUserAuth(fed_student3, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
@@ -410,6 +414,8 @@ def populate_weblab_tests(engine):
     cat_labview = Model.DbExperimentCategory("LabVIEW experiments")
     session.add(cat_labview)
 
+    cat_ilab = Model.DbExperimentCategory("iLab experiments")
+    session.add(cat_ilab)
 
     # Experiments
     start_date = datetime.datetime.utcnow()
@@ -489,6 +495,9 @@ def populate_weblab_tests(engine):
 
     rob_proglist = Model.DbExperiment("robot-proglist", cat_robot, start_date, end_date)
     session.add(rob_proglist)
+
+    microelectronics = Model.DbExperiment("microelectronics", cat_ilab, start_date, end_date)
+    session.add(microelectronics)
 
     # Permissions
     gp_course0809_fpga_allowed = Model.DbGroupPermission(
@@ -790,7 +799,24 @@ def populate_weblab_tests(engine):
     session.add(up_any_rob_mov_allowed_p2)
     up_any_rob_mov_allowed_p3 = Model.DbUserPermissionParameter(up_any_rob_mov_allowed, experiment_allowed_p3, "200")
     session.add(up_any_rob_mov_allowed_p3)
+
+    up_studentILAB_microelectronics_allowed = Model.DbUserPermission(
+        studentILAB,
+        experiment_allowed.group_applicable,
+        "studentILAB::weblab-microelectronics",
+        datetime.datetime.utcnow(),
+        "Permission for studentILAB to use WebLab-microelectronics"
+    )
+
+    session.add(up_studentILAB_microelectronics_allowed)
+    up_studentILAB_microelectronics_allowed_p1 = Model.DbUserPermissionParameter(up_studentILAB_microelectronics_allowed, experiment_allowed_p1, "microelectronics")
+    session.add(up_studentILAB_microelectronics_allowed_p1)
+    up_studentILAB_microelectronics_allowed_p2 = Model.DbUserPermissionParameter(up_studentILAB_microelectronics_allowed, experiment_allowed_p2, "iLab experiments")
+    session.add(up_studentILAB_microelectronics_allowed_p2)
+    up_studentILAB_microelectronics_allowed_p3 = Model.DbUserPermissionParameter(up_studentILAB_microelectronics_allowed, experiment_allowed_p3, "200")
+    session.add(up_studentILAB_microelectronics_allowed_p3)
        
+      
     up_any_blink_led_allowed = Model.DbUserPermission(
         any,
         experiment_allowed.group_applicable,

@@ -83,7 +83,6 @@ def get_user_permissions(db_manager, db_session_id):
 def get_permission_types(db_manager, db_session_id):
     return db_manager.get_permission_types(db_session_id)
 
-
 class UserProcessor(object):
     """
     User processors are linked to specific sessions. Requests that arrive to the

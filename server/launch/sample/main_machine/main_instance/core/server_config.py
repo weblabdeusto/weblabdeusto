@@ -57,7 +57,18 @@ core_coordinator_laboratory_servers = {
         }
 }
 
+core_coordinator_external_servers = {
+    'microelectronics@iLab experiments'  : [ 'microelectronics_external' ],
+}
+
+ilab_microelectronics = ("ILAB_BATCH_QUEUE", {
+    'lab_server_url' : 'http://weblab2.mit.edu/services/WebLabService.asmx',
+    'identifier'     : '',
+    'passkey'        : '',
+})
+
 core_scheduling_systems = {
+        "microelectronics_external" : ilab_microelectronics,
         "fpga"        : ("PRIORITY_QUEUE", {}),
         "pld"         : ("PRIORITY_QUEUE", {}),
         "gpib"        : ("PRIORITY_QUEUE", {}),
@@ -78,3 +89,4 @@ core_universal_identifier       = 'da2579d6-e3b2-11e0-a66a-00216a5807c8'
 core_universal_identifier_human = 'server at university X'
 
 core_server_url = 'http://localhost/weblab/'
+

@@ -39,6 +39,9 @@ def load():
     import weblab.core.coordinator.externals.weblabdeusto_scheduler_model as weblabdeusto_scheduler_model
     assert weblabdeusto_scheduler_model.Base == Base
 
+    import weblab.core.coordinator.externals.ilab_batch_scheduler_model as ilab_batch_scheduler_model
+    assert ilab_batch_scheduler_model.Base == Base
+
 TABLE_KWARGS = {'mysql_engine' : 'InnoDB'}
 
 ######################################################################################
