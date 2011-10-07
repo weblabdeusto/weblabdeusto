@@ -293,10 +293,14 @@ class RequestSerializer(object):
         result = tree.find("./*/{http://ilab.mit.edu}GetExperimentStatusResponse/{http://ilab.mit.edu}GetExperimentStatusResult")
         code = int(result.find("./{http://ilab.mit.edu}statusReport/{http://ilab.mit.edu}statusCode").text)
         length = int(result.find("./{http://ilab.mit.edu}statusReport/{http://ilab.mit.edu}wait/{http://ilab.mit.edu}effectiveQueueLength").text)
-        estWait = float(result.find("./{http://ilab.mit.edu}statusReport/{http://ilab.mit.edu}wait/{http://ilab.mit.edu}estWait").text)
-        estRt = float(result.find("./{http://ilab.mit.edu}statusReport/{http://ilab.mit.edu}estRuntime").text)
-        estRemRt = float(result.find("./{http://ilab.mit.edu}statusReport/{http://ilab.mit.edu}estRemainingRuntime").text)
-        minToLive = float(result.find("./{http://ilab.mit.edu}minTimetoLive").text)
+        #estWait = float(result.find("./{http://ilab.mit.edu}statusReport/{http://ilab.mit.edu}wait/{http://ilab.mit.edu}estWait").text)
+        estWait = None
+        #estRt = float(result.find("./{http://ilab.mit.edu}statusReport/{http://ilab.mit.edu}estRuntime").text)
+        estRt = None
+        #estRemRt = float(result.find("./{http://ilab.mit.edu}statusReport/{http://ilab.mit.edu}estRemainingRuntime").text)
+        estRemRt = None
+        #minToLive = float(result.find("./{http://ilab.mit.edu}minTimetoLive").text)
+        minToLive = None
         return code, length, estWait, estRt, estRemRt, minToLive
 
     def parse_get_lab_configuration_response(self, payload):
@@ -319,25 +323,33 @@ class RequestSerializer(object):
         code     = int(result.find("./{http://ilab.mit.edu}statusCode").text)
         results  = result.find("./{http://ilab.mit.edu}experimentResults").text
         xmlResultExtension = result.find("./{http://ilab.mit.edu}xmlResultExtension").text
-        xmlBlobExtension   = result.find("./{http://ilab.mit.edu}xmlBlobExtension").text
+        #xmlBlobExtension   = result.find("./{http://ilab.mit.edu}xmlBlobExtension").text
+        xmlBlobExtension   = None
         # warnings           = result.find("./{http://ilab.mit.edu}warningMessages")
         warnings           = None
-        error              = result.find("./{http://ilab.mit.edu}errorMessage").text
+        # error              = result.find("./{http://ilab.mit.edu}errorMessage").text
+        error              = None
         return code, results, xmlResultExtension, xmlBlobExtension, warnings, error
 
     def parse_submit_response(self, payload):
         tree = self._load(payload)
         result     = tree.find("./*/{http://ilab.mit.edu}SubmitResponse/{http://ilab.mit.edu}SubmitResult")
-        accepted   = result.find("./{http://ilab.mit.edu}vReport/{http://ilab.mit.edu}accepted").text == 'true'
+        #accepted   = result.find("./{http://ilab.mit.edu}vReport/{http://ilab.mit.edu}accepted").text == 'true'
+        accepted   = None
         warnings   = None
-        error      = result.find("./{http://ilab.mit.edu}vReport/{http://ilab.mit.edu}errorMessage").text
-        estRuntime = float(result.find("./{http://ilab.mit.edu}vReport/{http://ilab.mit.edu}estRuntime").text)
+        #error      = result.find("./{http://ilab.mit.edu}vReport/{http://ilab.mit.edu}errorMessage").text
+        error      = None
+        #estRuntime = float(result.find("./{http://ilab.mit.edu}vReport/{http://ilab.mit.edu}estRuntime").text)
+        estRuntime  = None
 
-        labExpId      = int(result.find("./{http://ilab.mit.edu}labExperimentID").text)
-        minTimetoLive = float(result.find("./{http://ilab.mit.edu}minTimetoLive").text)
+        #labExpId      = int(result.find("./{http://ilab.mit.edu}labExperimentID").text)
+        labExpId      = None
+        #minTimetoLive = float(result.find("./{http://ilab.mit.edu}minTimetoLive").text)
+        minTimetoLive = None
 
         queue_length = int(result.find("./{http://ilab.mit.edu}wait/{http://ilab.mit.edu}effectiveQueueLength").text)
-        wait         = float(result.find("./{http://ilab.mit.edu}wait/{http://ilab.mit.edu}estWait").text)
+        #wait         = float(result.find("./{http://ilab.mit.edu}wait/{http://ilab.mit.edu}estWait").text)
+        wait         = None
 
         return accepted, warnings, error, estRuntime, labExpId, minTimetoLive, queue_length, wait
 
@@ -381,15 +393,36 @@ class iLabBatchLabServerProxy(object):
         self.passkey    = passkey
         self.serializer = RequestSerializer()
 
+    def _call(self, request_data, soapaction):
+        request = urllib2.Request(self.url, request_data, {'SOAPAction' : soapaction, 'Content-Type' : 'text/xml' })
+        return urllib2.urlopen(request).read()
+
     def get_lab_configuration(self):
         request_data = self.serializer.generate_get_lab_configuration(self.identifier, self.passkey)
         soapaction   = '"http://ilab.mit.edu/GetLabConfiguration"'
-        request = urllib2.Request(self.url, request_data, {'SOAPAction' : soapaction, 'Content-Type' : 'text/xml' })
-        response = urllib2.urlopen(request).read()
+        response = self._call(request_data, soapaction)
         return self.serializer.parse_get_lab_configuration_response(response)
 
     def submit(self, experiment_id, experiment_specification, user_group, priority_hint):
-        pass
+        request_data =self.serializer.generate_submit(self.identifier, self.passkey, experiment_id, experiment_specification, user_group, priority_hint)
+        soapaction   = '"http://ilab.mit.edu/Submit"'
+        response    = self._call(request_data, soapaction)
+        return self.serializer.parse_submit_response(response)
+
+    def get_experiment_status(self, experiment_id):
+        request_data = self.serializer.generate_get_experiment_status(self.identifier, self.passkey, experiment_id)
+        soapaction   = '"http://ilab.mit.edu/GetExperimentStatus"'
+        response     = self._call(request_data, soapaction)
+        return self.serializer.parse_get_experiment_status_response(response)
+
+    def retrieve_result(self, experiment_id):
+        request_data = self.serializer.generate_retrieve_result(self.identifier, self.passkey, experiment_id)
+        soapaction   = '"http://ilab.mit.edu/RetrieveResult"'
+        response     = self._call(request_data, soapaction)
+        return self.serializer.parse_retrieve_results_response(response)
 
     def cancel(self, experiment_id):
-        pass
+        request_data = self.serializer.generate_cancel(self.identifier, self.passkey, experiment_id)
+        soapaction   = '"http://ilab.mit.edu/Cancel"'
+        self._call(request_data, soapaction)
+

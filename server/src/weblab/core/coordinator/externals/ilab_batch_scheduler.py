@@ -13,14 +13,11 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-import time as time_mod
-import cPickle as pickle
+import random
 import json
 
 from voodoo.override import Override
-from voodoo.sessions.session_id import SessionId
 
-from weblab.core.user_processor import FORWARDED_KEYS, SERVER_UUIDS
 import weblab.core.coordinator.status as WSS
 from weblab.core.coordinator.scheduler import Scheduler
 from weblab.core.coordinator.clients.ilab_batch import iLabBatchLabServerProxy
@@ -59,13 +56,31 @@ class ILabBatchScheduler(Scheduler):
     @logged()
     @Override(Scheduler)
     def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info):
-    
+        if not 'operation' in client_initial_data:
+            raise Exception("Invalid client_initial_data. If you are using iLab, you should reserve it through /weblab/web/ilab/, or use the same scheme")
+
+        client = self._create_client()
         if client_initial_data['operation'] == 'get_lab_configuration':
-           client = self._create_client()
-           config = client.get_lab_configuration()
-           return WSS.PostReservationStatus(reservation_id, True, config, '')
-           
-        raise Exception("SHOULD NOT ACHIEVE THIS POINT")
+            config = client.get_lab_configuration()
+            return WSS.PostReservationStatus(reservation_id, True, config, '')
+        elif client_initial_data['operation'] == 'submit':
+            # TODO!!! 
+            remote_experiment_id  = random.randint(1000000, 200000000)
+            session = self.session_maker()
+            try:
+                reservation = ILabBatchReservation(reservation_id, self.lab_server_url, remote_experiment_id)
+                session.add(reservation)
+                session.commit()
+            finally:
+                session.close()
+
+            # submit(self, experiment_id, experiment_specification, user_group, priority_hint)
+            experiment_specification = client_initial_data['payload']
+            accepted, warnings, error, est_runtime, lab_exp_id, min_time_to_live, queue_length, wait = client.submit( remote_experiment_id , experiment_specification, "weblab-deusto", 0)
+            # TODO: do something with the arguments :-)
+            return WSS.WaitingQueueStatus(reservation_id, queue_length)
+        else:
+            raise Exception("Invalid operation in client_initial_data")
 
     #######################################################################
     # 
@@ -74,34 +89,43 @@ class ILabBatchScheduler(Scheduler):
     @logged()
     @Override(Scheduler)
     def get_reservation_status(self, reservation_id):
-        raise Exception("SHOULD NOT ACHIEVE THIS POINT (2)")
-
         session = self.session_maker()
         try:
-            reservation = session.query(ILabBatchReservation).filter_by(local_reservation_id = reservation_id, lab_server_url = self.lab_sever_url).first()
+            reservation = session.query(ILabBatchReservation).filter_by(local_reservation_id = reservation_id, lab_server_url = self.lab_server_url).first()
             if reservation is None:
                 # TODO
                 raise Exception("reservation not stored in local database")
 
-            remote_reservation_id = reservation.remote_reservation_id
-            serialized_cookies    = reservation.cookies
+            remote_experiment_id = reservation.remote_experiment_id
         finally:
             session.close()
         
-        cookies = pickle.loads(str(serialized_cookies))
-        client = self._create_client(cookies)
+        #     public class StorageStatus
+        # public const int BATCH_QUEUED = 1; // if waiting in the execution queue
+        # public const int BATCH_RUNNING = 2; //if currently running
+        # public const int BATCH_TERMINATED = 3; // if terminated normally
+        # public const int BATCH_TERMINATED_ERROR = 4; // if terminated with errors (this includes cancellation by user in mid-execution)
+        # public const int BATCH_CANCELLED = 5; // if cancelled by user before execution had begun
+        # public const int BATCH_UNKNOWN = 6; // if unknown labExperimentID. 
+        # public const int BATCH_NOT_VALID = 7; // Assigned by Service Broker if experiment is not valid (done in submit call)
 
-        reservation = client.get_reservation_status(SessionId(remote_reservation_id))
-
-        return self._convert_reservation_to_status(reservation, reservation_id, remote_reservation_id)
-
-    def _convert_reservation_to_status(self, reservation, local_reservation_id, remote_reservation_id):
-        reservation_status = reservation.to_status()
-        reservation_status.set_reservation_id(local_reservation_id)
-        if reservation_status.status == WSS.WebLabSchedulingStatus.RESERVED_REMOTE and reservation_status.remote_reservation_id == '':
-            reservation_status.set_remote_reservation_id(remote_reservation_id)
-
-        return reservation_status
+        client = self._create_client()
+        code, queue_length, est_wait, est_rt, est_rem_rt, min_to_live = client.get_experiment_status(remote_experiment_id)
+        # TODO do something with the rest of the variables
+        if code == 1:
+            return WSS.WaitingQueueStatus(reservation_id, queue_length)
+        elif code == 2:
+            return WSS.WaitingConfirmationQueueStatus(reservation_id, self.core_server_url)
+        elif code == 3:
+             code, results, xmlResultExtension, xmlBlobExtension, warnings, error = client.retrieve_result(remote_experiment_id)
+             response = json.dumps({
+                'code'    : code,
+                'results' : results,
+                'xmlResults' : xmlResultExtension,
+             })
+             return WSS.PostReservationStatus(reservation_id, True, response, '')
+        else:
+            return WSS.PostReservationStatus(reservation_id, True, "ERROR: WebLab-Deusto can't handle status code %s at this point" % code, '')
        
 
 
