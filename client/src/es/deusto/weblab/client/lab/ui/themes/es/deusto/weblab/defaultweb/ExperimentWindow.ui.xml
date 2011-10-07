@@ -75,7 +75,7 @@
                 		<g:Label text="{i18n.information}:"></g:Label>
                 	</g:customCell>
                 	<g:customCell>
-                        <g:Anchor ui:field="informationLink" styleName="web-experiment-detail"></g:Hyperlink>
+                        <g:Anchor ui:field="informationLink" styleName="web-experiment-detail"></g:Anchor>
                     </g:customCell>
                 </g:row>
 			</g:Grid>
