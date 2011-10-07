@@ -71,7 +71,7 @@ class ExperimentWindow extends BaseWindow {
 	@UiField Label experimentNameLabel;
 	@UiField Label experimentCategoryLabel;
 	@UiField Label timeAllowedLabel;
-	@UiField Hyperlink informationLink;
+	@UiField Anchor informationLink;
 	@UiField Button reserveButton;
 	@UiField Button finishButton;
 	@UiField WlWaitingLabel waitingLabel;
@@ -87,8 +87,11 @@ class ExperimentWindow extends BaseWindow {
 	private static final String ADMIN_EMAIL_PROPERTY = "admin.email";
 	private static final String DEFAULT_ADMIN_EMAIL = "<admin.email not set>";
 	
-	private static final String EXPERIMENT_INFOLINK_PROPERTY = "experiment.infolink";
+	private static final String EXPERIMENT_INFOLINK_PROPERTY = "experiment.info.link";
 	private static final String DEFAULT_EXPERIMENT_INFOLINK = "<not available>";
+	
+	private static final String EXPERIMENT_INFODESCRIPTION_PROPERTY = "experiment.info.description";
+	private static final String DEFAULT_EXPERIMENT_INFODESCRIPTION = "<wiki link>";
 	
     
 	// DTOs
@@ -146,18 +149,27 @@ class ExperimentWindow extends BaseWindow {
 			
 			retriever = ExperimentFactory.getExperimentConfigurationRetriever(this.experimentAllowed.getExperiment().getExperimentUniqueName());
 			
+			// Retrieve the address of the experiment info page
 			final String infolink = retriever.getProperty(ExperimentWindow.EXPERIMENT_INFOLINK_PROPERTY, 
 					ExperimentWindow.DEFAULT_EXPERIMENT_INFOLINK
 			);
 			
-			this.informationLink.setText(infolink);
+			// Retrieve the short description of the experiment info page
+			final String infodesc = retriever.getProperty(ExperimentWindow.EXPERIMENT_INFODESCRIPTION_PROPERTY,
+					ExperimentWindow.DEFAULT_EXPERIMENT_INFODESCRIPTION
+					);
+			
+			this.informationLink.setHref(infolink);
+			this.informationLink.setName(infodesc);
 			
 		} catch(IllegalArgumentException e){
 			e.printStackTrace();
 			
-			this.informationLink.setText("<not available>");	
+			this.informationLink.setText("<not available>");
 		}
 		
+		// Open the info page in a new window.
+		this.informationLink.setTarget("_blank");
 	}
 	
 	
