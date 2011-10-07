@@ -175,7 +175,7 @@
 	                        	   "experiment.category" : "Dummy experiments"
 	                           },
 	                       ],
-	   	        "dummybatch" : [
+	                "dummybatch" : [
 		                           {
 		                        	   "experiment.name"     : "ud-dummy-batch",
 		                        	   "experiment.category" : "Dummy experiments"
@@ -269,6 +269,15 @@
 	                        	   "experiment.name"     : "ud-pic2",
 	                        	   "experiment.category" : "PIC experiments",
 	                        	   "experiment.picture"  : "/img/experiments/microchip.jpg"
+	                           }
+	                        ],
+	                "ilab-batch" : [
+	                           {
+		                        	  "experiment.name"      : "microelectronics", 
+		                        	  "experiment.category"  : "iLab experiments", 
+		                        	  "archive"              : "http://weblab2.mit.edu/client/v7.0b5/signed_Weblab-client.jar", 
+		                        	  "code"                 : "weblab.client.graphicalUI.GraphicalApplet", 
+		                        	  "lab_server_id"        : "microelectronics"
 	                           }
 	                        ]
 		}
