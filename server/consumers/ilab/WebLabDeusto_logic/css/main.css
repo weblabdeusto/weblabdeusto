@@ -1,0 +1,1053 @@
+/* CSS Document */
+/* This is the main style sheet for all of the iLab pages, 
+ * both regular user and superuser. */
+/* See css/popup.css for iLab pop-up page specific styles. */
+
+/*********** Color  & default fonts *********************/
+
+/* NOTE: input buttons and dotted section edge markers use grey colors
+ * specified within the ID specifications */
+
+/* General default Colors */
+
+body 
+{
+	color: #000;
+	background: #ae9b8a;
+}
+
+/* simple classes */
+
+input.button, input.buttongray,
+input.buttonright  
+{
+	background-color: #FC6;
+	color: #000;
+}
+
+input.buttongray
+{
+	background-color: Gray;
+	color:Silver;
+}
+
+input.noneditable, 
+textarea.noneditable 
+{
+	color: #000;
+	background-color: #888;
+}
+
+.i18n
+{
+	font-family:   Arial Unicode MS, Helvetica, sans-serif;
+}
+
+.simpleform legend
+{
+	color: #000;
+}
+
+/* IDs and support class Colors */
+#outerwrapper,
+#navbar #nav2 ul.navlist2 li#active a 
+{
+	background: #f3efe5;
+}
+/* Header Colors */
+
+#navbar,
+#topbanner {
+	background: #0a6f7d;
+}
+
+#header h1,
+#header #user ul.userinfo li,
+#header #user ul.userinfo,
+#topbanner,
+#topbanner .info
+{
+	color: #FFF;
+}
+
+/* navBar Colors */
+
+/* 'User' or first row colors */
+#navbar #nav,
+#navbar #nav ul.navlist li a,
+#navbar #nav2,
+#navbar #nav2 ul.navlist2 li a
+{
+	background: #f5ba80;
+}
+
+/* second row or administrative menu colors */
+#navbar #nav ul.navlist li a.topactive,
+#navbar #nav ul.navlist li#topactive a,
+#navbar #nav ul.navlist li a:hover,
+#navbar #nav2 ul.navlist2 li a:hover,
+#navbar #nav3,
+#navbar #nav3 ul.navlist3 li a,
+#navbar #nav3 ul.navlist3 li a:hover
+{
+	background: #f5d7b4;
+}
+
+#navbar #nav ul.navlist li a.topactive,
+#navbar #nav ul.navlist li#topactive a
+{
+	border-bottom: 1px solid #f5d7b4; 
+	color: #000;
+}
+
+ 
+#navbar #nav ul.navlist li#active a,
+#navbar #nav3 ul.navlist3 li#active a,
+#navbar #nav3 ul.navlist3 li a.nav3active
+{
+	background: #f3efe5; /* see outerwrapper background */
+	border-bottom: 1px solid #f3efe5;
+}
+ 
+#navbar #nav ul.navlist li#active a,
+#navbar #nav ul.navlist li a.topactive,
+#navbar #nav ul.navlist li#topactive a,
+#navbar #nav2 ul.navlist2 li#active a,
+#navbar #nav3 ul.navlist3 li#active a,
+#navbar #nav3 ul.navlist3 li a.nav3active
+{
+	color: #000;
+}
+ 
+#navbar #nav ul.navlist li a,
+#navbar #nav ul.navlist li a:hover,
+#navbar #nav2 ul.navlist2 li a,
+#navbar #nav2 ul.navlist2 li a:hover,
+#navbar #nav3 ul.navlist3 li a,
+#navbar #nav3 ul.navlist3 li a:hover
+{
+	color: #900;
+}
+
+ 	
+#navbar #nav ul.navlist li a,
+#navbar #nav2 ul.navlist2 li a,
+#navbar #nav2 ul.navlist2 li#active a,
+#navbar #nav3 ul.navlist3 li a
+{
+	border-left: 1px solid #0a6f7d; /* see header background */
+}
+ 
+#navbar #nav ul.navlist li a.only, 
+#navbar #nav ul.navlist li a.last,
+#navbar #nav2 ul.navlist2 li a.last,
+#navbar #nav3 ul.navlist3 li a.only,
+#navbar #nav3 ul.navlist3 li a.last
+{
+	border-right: 1px solid #0a6f7d; /* see header background */
+}
+
+/******* banner **************/
+
+#topbanner .banner,
+#topbanner .banner h1,
+#topbanner .banner .info
+{
+	color: #FFF;
+}
+#topbanner .banner
+{
+	font-size: 48px;
+}
+
+/**********************************/
+/* Footer Colors */
+
+#footer {
+	background: #72726b; /* dark grey */
+}
+
+#footer p,
+#footer p a,
+#footer .info ul
+{
+	color: #000;
+}
+
+#footer .info a {
+	color: #FFF;
+}
+
+#faq .qa,
+#itemdisplay h4,#actionbox,
+#actionbox-right,.singlelab-left
+{
+	background: #DAE7E9;
+}
+#itemdisplay .message,
+#messagebox,
+#messagebox-right {
+	background: #E5D7C4;
+}
+#messagebox-right p.date,
+#messagebox p.date
+{
+	color: #333;
+}
+/******** End Color ***********/
+
+/******* Fonts ***************/
+
+body {
+	font-family:   Arial Unicode MS, Helvetica, sans-serif;
+}
+
+/*********** Layout ***********/
+
+body {
+	margin: 5px;
+	padding: 5px;
+}
+
+#outerwrapper {
+	width: 100%;
+	margin: 0 0 0 0;
+	padding: 0 0 0 0;
+}
+
+#navbar {
+	padding: 0 0 0 0;
+	margin: 0 0 0 0;
+}
+
+#innerwrapper {
+	padding: 0 0 0 0;
+	margin: 0 100px 30px 30px;
+	}
+	
+#footer {
+	padding: 10px 0 10px 10px;
+}
+
+
+
+/* End Layout ////////////////////////////////////////////////////////*/
+/*********** Banner Class Styles ***********/	
+.banner {
+	vertical-align: bottom;
+	font-size: 24px;
+	padding: 10px 0 10px 10px;
+}
+
+.banner img {
+	margin: 0 20px 0 0;
+}
+
+.banner img a {
+	border: none;
+}
+.banner b
+{
+	font-size: 36px;
+}
+.banner h1 {
+	margin: 0 0 0 0;
+	font-weight: bold;
+	font-size: 20px;
+	padding: 0 0 5px 10px;
+	}
+
+.banner p {
+	text-align: left;
+	font-size: 11px;
+	margin: 3px 0 0 0;
+	}
+	
+.banner p a {
+	text-decoration: underline;
+}
+
+
+/* info & links displayed in banner */
+.banner .info {
+	margin: 0;
+	padding: 0;
+}
+.banner .info ul {
+	float: right;
+	font-size:  12px;
+	padding: 0 10px 0 0;
+	margin: -20px 0 0 0;
+	list-style-type: none;
+	}
+	
+.banner .info ul li {
+	display: inline;
+	padding-right: 10px;
+	}
+
+
+/* End Banner Info styles ////////////////////////////////////////////////////*/
+
+ /* End Banner Styles ////////////////////////////////////////////////////////*/
+	
+ 
+/*********** Header Styles **********/
+
+#header img {
+	left: 10px;
+	top: 10px;
+	position: absolute;
+}
+
+#header img a {
+	border: none;
+}
+
+#header h1 {
+	margin: 0 0 0 0;
+	font-weight: bold;
+	font-size: 20px;
+	padding: 0 0 5px 10px;
+	}
+	
+/* user and group display for logged in users */
+	
+#header #user {
+	margin: 0;
+	padding: 0;	
+	}
+	
+#header #user ul.userinfo {
+	float: right;
+	font-size:  12px;
+	padding: 0 10px 0 0;
+	margin: -20px 0 0 0;
+	list-style-type: none;
+	}
+	
+#header #user ul.userinfo li {
+	display: inline;
+	padding-left: 10px;
+	}
+
+/* End user and group display for logged in users */
+	
+/* End Header Styles ////////////////////////////////////////////////////////*/
+
+	
+/*********** Footer Styles ***********/	
+#footer {
+	vertical-align: bottom;
+	font-size: 24px;
+	padding: 10px 0 10px 10px;
+}
+
+#footer img {
+	margin: 0 20px 0 0;
+}
+
+#footer img a {
+	border: none;
+}
+
+#footer h1 {
+	margin: 0 0 0 0;
+	font-weight: bold;
+	font-size: 20px;
+	padding: 0 0 5px 10px;
+	}
+
+#footer p {
+	text-align: left;
+	font-size: 11px;
+	margin: 3px 0 0 0;
+	}
+	
+#footer p a {
+	text-decoration: underline;
+}
+
+
+/* info & links displayed in footer */
+#footer #info {
+	margin: 0;
+	padding: 0;
+}
+#footer #info ul.footerinfo {
+	float: right;
+	font-size:  12px;
+	padding: 0 10px 0 0;
+	margin: -20px 0 0 0;
+	list-style-type: none;
+	}
+	
+#footer #info ul.footerinfo li {
+	display: inline;
+	padding-right: 10px;
+	}
+
+
+/* End Footer Info styles ////////////////////////////////////////////////////*/
+
+ /* End Footer Styles ////////////////////////////////////////////////////////*/
+ 
+/*********** Navigation Styles ***********/
+
+/* Styles for main navigation in orange bar */
+#navbar #nav
+ {
+	padding: 0 0 0 0;
+	margin: 0 0 0 0;
+	width: 100%;
+	height: 22px;
+}
+
+ #navbar #nav ul.navlist
+ {
+ border: none;
+ margin: 0;
+ padding: 0;
+ list-style-type: none;
+ text-align: center;
+ }
+
+#navbar #nav ul.navlist li
+ {
+ float: left;
+ text-align: center;
+ padding: 0;
+ margin: 0;
+ }
+
+ #navbar #nav ul.navlist li a
+ {
+	border-right: none;
+	padding: 4px 8px 3px 8px;
+	margin: 0 0 0 0;
+	text-decoration: none;
+	display: block;
+	font-weight: bold;
+	font-size:  12px;
+ }
+ 
+#navbar #nav ul.navlist li a.only,
+#navbar #nav ul.navlist li a.first 
+{
+	border-left: none;
+}
+/* see if I can deconstruct this */
+ #navbar #nav ul.navlist li#active a
+ {
+ background: #f3efe5;
+ border-bottom: 1px solid #f3efe5;
+ color: #000;
+ }
+ 
+ 
+ /* End styles for main navigation in navBar */
+ 
+ 
+ /* Styles for Log Out button on right side of navBar */
+#navbar #nav2
+ {
+	padding: 0 0 0 0;
+	margin: 0 0 0 0;
+}
+
+#navbar #nav2 ul.navlist2
+ {
+ float: right;	
+ padding: 0 0 0 0;
+ margin: -22px 0 0 0;
+ border: none;
+ list-style-type: none;
+ text-align: center;
+ }
+
+#navbar #nav2 ul.navlist2 li
+ {
+ float: left;
+ text-align: center;
+ padding: 0;
+ margin: 0;
+ }
+
+#navbar #nav2 ul.navlist2 li a
+ {
+ border-right: none;
+ padding: 4px 8px 3px 8px;
+ margin: 0 0 0 0;
+ text-decoration: none;
+ display: block;
+ text-align: center;
+ font-weight: bold;
+ font-size: 12px
+ }
+ 
+ #navbar #nav2 ul.navlist2 li a.first {
+ 	border-left: none;
+	}
+	
+ /* End styles for Log Out button */
+ 
+ /* Styles for Super User sub-menu */
+#navbar #nav3
+ {
+	padding: 0 0 0 0;
+	margin: 0 0 0 0;
+	float: left;
+	width: 100%;
+}
+
+#navbar #nav3 ul.navlist3
+ {
+ border: none;
+ margin: 0;
+ padding: 0;
+ list-style-type: none;
+ text-align: center;
+ }
+
+ #navbar #nav3 ul.navlist3 li
+ {
+ display: block;
+ float: left;
+ text-align: center;
+ padding: 0;
+ margin: 0;
+ }
+
+ #navbar #nav3 ul.navlist3 li a
+ { 
+ border-right: none;
+ padding: 4px 8px 3px 8px;
+ margin: 0 0 0 0;
+ text-decoration: none;
+ display: block;
+ text-align: center;
+ font-weight: bold;
+ font-size: 12px;
+ }
+ 
+#navbar #nav3 ul.navlist3 li a.only {
+	border-left: none;
+	}
+ 
+#navbar #nav3 ul.navlist3 li a.first {
+ 	border-left: none;
+	}
+
+
+ 
+ /* End styles for Super User sub-menu */
+ 
+ /* End Navigation Styles ////////////////////////////////////////////////////////*/
+ 
+
+/*********** Page Intro Styles ***********/
+
+#pageintro {
+	border-bottom: dotted 1px #999;
+	padding: 0 0 10px 0;
+	margin: 20px 0 10px 0;
+	}
+	
+#pageintro h1 {
+	font-size: 20px;
+	font-weight: bold;
+	margin: 0 0 10px 0;
+	padding: 0 0 0 0;
+	}
+
+#pageintro h2 {
+	font-size: 17px;
+	font-weight: bold;
+	margin: -8px 0 0 0;
+	padding: 0 0 10px 0;
+	}
+	
+#pageintro p {
+	font-size: 12px;
+	margin: 0;
+	padding: 3px 0 5px 0;
+	}
+	
+#pageintro img {
+	float: right;
+	margin: 0 0 5px 8px;
+	border: 1px solid #666;
+	}
+
+/* Message Styles */
+
+DIV.infomessage,
+DIV.warningmessage,
+DIV.errormessage 
+{
+	border: 1px solid #000;
+	padding: 0px 5px 0px 40px;
+	margin: 0 100px 0px 0;
+	}
+	
+DIV.infomessage p,
+DIV.warningmessage p,
+DIV.errormessage p
+ {
+	font-weight: bold;
+	font-size: 12px;
+	color: #000;
+	margin: 0 0 10px 0;
+	padding: 0 0 0 0;
+	}
+/* Info Message Styles */	
+DIV.infomessage {
+	background: #6FC url(../img/tick-icon-sm.gif) no-repeat;
+	}
+	
+
+/* End Info Message Styles */
+/* Warning Message Styles */	
+DIV.warningmessage {
+	background: #FE6 url(../img/alert-icon-sm.gif) no-repeat;
+	}
+
+/* End warning Message Styles */	
+/* Error Message Styles */	
+DIV.errormessage {
+	background: #F86 url(../img/error-icon-.gif) no-repeat;
+}
+
+/* Info Message Styles */	
+#pageintro .infomessage, #pagecontent .infomessage {
+	background: #6FC url(../img/tick-icon-sm.gif) no-repeat;
+	}
+	
+/* End Info Message Styles */
+/* Warning Message Styles */	
+#pageintro .warningmessage, #pagecontent .warningmessage {
+	background: #FF6 url(../img/alert-icon-sm.gif) no-repeat;
+	}
+
+/* End warning Message Styles */	
+/* Error Message Styles */	
+#pageintro .errormessage, #pagecontent .errormessage {
+	background: #FF9191 url(../img/error-icon.gif) no-repeat;
+}
+
+/* End Error Message Styles */
+/* End Message Styles */	
+/* End Page Intro Styles ////////////////////////////////////////////////////////*/
+
+
+
+/*********** Page Content Styles ***********/
+
+
+#pagecontent h2 {
+	font-size: 17px;
+	font-weight: bold;
+	margin: 0;
+	padding: 5px 0 10px 0;
+	}
+	
+#pagecontent h3 {
+	font-size: 15px;
+	font-weight: bold;
+	padding: 0 0 10px 0;
+	margin: 0;
+	}
+	
+#pagecontent h4 {
+	font-size: 13px;
+	font-weight: bold;
+	padding: 0 0 0 0;
+	margin: 0 0 0 0;
+	}
+	
+#pagecontent p {
+	font-size: 12px;
+	margin: 0;
+	padding: 5px 0 5px 0;
+	}
+	
+#pagecontent .group {
+	border-bottom: dotted 1px #999;
+	padding: 0 0 0 0;
+	margin: 0 290px 15px 15px;
+	}
+	
+#pagecontent .group p {
+	margin-left: 5px;
+	}
+	
+#pagecontent .group  ul {
+	margin-bottom: 10px;
+	margin-top: 0;
+	}
+	
+#pagecontent .group label {
+	font-size: 12px;
+	font-weight: bold;
+	}
+
+#pagecontent .group input.checkbox {
+	margin-left: -15px;
+	}
+
+#pagecontent .group-left {
+	border-bottom: dotted 1px #999;
+	padding: 0 0 0 0;
+	margin: 0 300px 15px 15px;
+	}
+	
+#pagecontent p.lab {
+	margin: 0 0 5px 20px;
+	}
+	
+.singlelab-left {
+	padding: 5px;
+	margin: 0 300px 15px 0;
+	}
+	
+
+/* For boxes that display news, announcements, and messages */
+#messagebox {
+	padding: 5px;
+	margin-bottom: 10px;
+	margin-right: 350px;
+	}
+
+#messagebox p.message {
+	margin-left: 20px;
+	margin-bottom: 0;
+	padding: 0 0 0 0;
+	}
+
+#messagebox p.date {
+	margin-left: 20px;
+	font-style: italic;
+	margin-top: 0;
+	margin-bottom: 10px;
+	padding: 0 0 0 0;
+	}
+	
+#messagebox-right {
+	padding: 5px;
+	margin: 0 0 15px 0;
+	width: 275px;
+	float: right;	
+	}
+
+#messagebox-right p.message {
+	margin-left: 20px;
+	margin-bottom: 0;
+	padding: 0 0 0 0;
+	}
+
+#messagebox-right p.date {
+	margin-left: 20px;
+	font-style: italic;
+	margin-top: 0;
+	margin-bottom: 10px;
+	padding: 0 0 0 0;
+	}
+/* End boxes that display news, announcements, and messages */
+
+/* For boxes that display actions */	
+#actionbox {
+	padding: 5px;
+	margin: 0 0 15px 0;
+	width: 75%;
+	}
+	
+#actionbox ol {
+	padding: 0 0 0 0;
+	margin: 0 0 0 20px;
+	}
+	
+#actionbox ol li {
+	margin: 0 5px 8px 0;
+	padding: 0 0 5px 0;
+	border-bottom: 1px dotted #ccc;
+	}
+
+#actionbox p.message {
+	margin-left: 20px;
+	margin-bottom: 10px;
+	padding: 0 0 0 0;
+	}
+
+#actionbox-right {
+	padding: 5px;
+	margin: 0 0 15px 0;
+	width: 275px;
+	float: right;	
+	}
+	
+#actionbox-right ol {
+	padding: 0 0 0 0;
+	margin: 0 0 0 20px;
+	}
+	
+#actionbox-right ol li {
+	margin: 0 5px 8px 0;
+	padding: 0 0 5px 0;
+	border-bottom: 1px dotted #ccc;
+	}
+
+#actionbox-right p.message {
+	margin-left: 20px;
+	margin-bottom: 10px;
+	padding: 0 0 0 0;
+	}
+/* End boxes that display actions */
+
+
+/* Tree view classes */
+/* For boxes that are placeholders for treeviews */
+.treeView
+{
+	background:white;
+	border:1px solid #999;
+	overflow:scroll;
+	font-family:Arial, Verdana, helvetica;
+	font-size:xx-small;
+	width:300px;
+	height:340px;
+}
+
+.treeView #userTreeView
+{
+	width:245px;
+	height:264px;
+}
+
+.treeView #qualifierTreeView
+{
+	width:250px;
+	height:260px;
+}
+
+
+/*Other styles */
+ ul.inline {
+	list-style-type: none;
+	margin: 5px 0 5px 0;
+	padding: 0;
+	}
+
+ ul.inline li {
+	display: inline;
+	margin-right: 5px;
+	}
+	
+.alignright {
+	float: right;
+	}
+
+/* Item Display used to display Selected Messages, Experiments, and Users */
+#itemdisplay {
+	padding: 0;
+	margin: 0 0 15px 0;
+	width: 50%;
+	float: right;	
+	border-left: 1px dotted #999;
+	}
+	
+#itemdisplay h4 {
+	padding: 5px;
+	}
+
+#itemdisplay .message {
+	padding: 5px;
+	}
+/* End Item Display used to display Selected Messages, Experiments, and Users */
+
+.unit {
+	margin-bottom: 10px;
+	}
+	
+.unit form {
+	padding: 0;
+	margin: 0;
+	}
+
+.unit table {
+	border-bottom: 1px solid #ccc;
+	border-left: 1px solid #ccc;
+	margin: 0;
+	}
+	
+ .unit table th {
+	font-size: 12px;
+	text-align: right;
+	font-weight: bold;
+	padding: 3px;
+	border-top: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+	}
+
+ .unit table td {
+	font-size: 12px;
+	padding: 3px;
+	border-top: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+	}
+
+
+	
+	
+	
+/* Help Page Styles */
+#faq {
+	border-bottom: dotted 1px #999;
+	padding: 0 0 0 0;
+	margin: 0 150px 15px 15px;
+	}
+
+#faq .qa {
+	margin: 10px 0 10px 0;
+	padding: 5px;
+	}
+
+#faq .qa p.question {
+	font-weight: bold;
+	}
+
+#faq .qa p.answer {
+	margin-left: 20px;
+	}
+	
+#requesthelp {
+	border-bottom: dotted 1px #999;
+	padding: 0 0 0 0;
+	margin: 0 150px 15px 15px;
+	}
+	
+#reportbug {
+	border-bottom: dotted 1px #999;
+	padding: 0 0 0 0;
+	margin: 0 150px 15px 15px;
+	}
+/* End Help Page Styles */
+
+/* Miscellaneous Styles */	
+	
+a {
+	color: #C00;
+	text-decoration: underline;
+}
+
+a:visited {
+	color: #666;
+	text-decoration: underline;
+	}
+	
+ol {
+	margin: 0 0 5px 10px;
+	}
+
+ul
+{	
+	list-style: disc;
+	margin-top: 10px;
+	margin-bottom: 5px;
+}
+
+li
+{
+	margin: 0 0 5px 0;
+	font-size: 12px;
+}
+
+/* End Page Content Styles ////////////////////////////////////////////////////////*/
+	
+/*********** Form Styles ***********/
+
+
+.simpleform label {
+	font-size: 12px;
+	}
+
+.simpleform form {
+	margin-left: 15px;
+	}
+	
+.simpleform form table {	
+	margin: 5px 0 0 0;
+	padding: 0 0 0 0;
+	}
+	
+.simpleform form table td.buttonstyle {
+	text-align: center;
+	vertical-align: middle;
+	}
+	
+.simpleform th {
+	text-align: right;
+	font-weight: normal;
+	}
+
+.simpleform th.colspan {
+	font-size: 13px;
+	font-weight: bold;
+	text-align: left;
+	padding-top: 10px;
+	}
+
+.simpleform th.top {
+	text-align: left;
+	font-weight: bold;
+	font-size: 12px;
+	padding: 3px;
+	}
+	
+.simpleform form table td {
+	padding: 3px;
+	vertical-align: top;
+	font-weight: normal;
+	}
+
+.simpleform fieldset {
+	border: none;
+	margin-left: -12px;
+	margin-bottom: 5px;
+	}
+	
+.simpleform legend {
+	font-size: 12px;
+	}
+	
+select.itemlist {
+	width: 250px;
+}
+input.buttoncenter {
+	float: none;
+}
+input.buttonleft {
+	float: left;
+}	
+input.buttonright {
+	float: right;
+}
+	
+input.button, input.buttoncenter, input.buttonleft, input.buttonright, input.buttongray{
+	border-bottom: 1px solid #666;
+	border-right: 1px solid #666;
+	border-top: 1px solid #ccc;
+	border-left: 1px solid #ccc;
+	font-weight: bold;
+	font-size: 12px;
+	margin: 3px 0 3px 3px;
+	} 
+	
+/* Add, Remove, Up & Down button styles */	
+img.buttonstyle {
+	margin-bottom: 5px;
+	}
+
+
+/* End Add, Remove, Up & Down button styles */
+	
+/* End Form Styles ////////////////////////////////////////////////////////*/
