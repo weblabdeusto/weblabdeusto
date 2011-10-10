@@ -72,6 +72,7 @@ class ExperimentWindow extends BaseWindow {
 	@UiField Label experimentCategoryLabel;
 	@UiField Label timeAllowedLabel;
 	@UiField Anchor informationLink;
+	@UiField Label informationLinkLabel;
 	@UiField Button reserveButton;
 	@UiField Button finishButton;
 	@UiField WlWaitingLabel waitingLabel;
@@ -91,7 +92,7 @@ class ExperimentWindow extends BaseWindow {
 	private static final String DEFAULT_EXPERIMENT_INFOLINK = "<not available>";
 	
 	private static final String EXPERIMENT_INFODESCRIPTION_PROPERTY = "experiment.info.description";
-	private static final String DEFAULT_EXPERIMENT_INFODESCRIPTION = "<wiki link>";
+	private static final String DEFAULT_EXPERIMENT_INFODESCRIPTION = "";
 	
     
 	// DTOs
@@ -160,7 +161,7 @@ class ExperimentWindow extends BaseWindow {
 					);
 			
 			this.informationLink.setHref(infolink);
-			this.informationLink.setName(infodesc);
+			this.informationLink.setText(infodesc);
 			
 		} catch(IllegalArgumentException e){
 			e.printStackTrace();
@@ -170,6 +171,11 @@ class ExperimentWindow extends BaseWindow {
 		
 		// Open the info page in a new window.
 		this.informationLink.setTarget("_blank");
+		
+		
+		// If there is actually no information available, we will just hide the label
+		if(this.informationLink.getHref().isEmpty())
+			this.informationLinkLabel.setVisible(false);
 	}
 	
 	

@@ -72,7 +72,7 @@
                 </g:row>
                 <g:row>
                 	<g:customCell>
-                		<g:Label text="{i18n.information}:"></g:Label>
+                		<g:Label ui:field="informationLinkLabel" text="{i18n.information}:"></g:Label>
                 	</g:customCell>
                 	<g:customCell>
                         <g:Anchor ui:field="informationLink" styleName="web-experiment-detail"></g:Anchor>
