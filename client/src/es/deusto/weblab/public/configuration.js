@@ -171,22 +171,28 @@
 	                			{  
 	                			   "experiment.name" : "robot-standard",
 	                			   "experiment.category" : "Robot experiments",
-					        	   "experiment.picture"	 : "/img/experiments/robot.jpg"
+					        	   "experiment.picture"	 : "/img/experiments/robot.jpg",
+					        	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Robot_Standard",
+	                        	   "experiment.info.description" : "wiki"
 	                			}
 	                		],
 	                			
 	                "robot-movement" : [
 	                			{
 	                				"experiment.name" : "robot-movement",
-						        	"experiment.picture"	 : "/img/experiments/robot.jpg",
-	                				"experiment.category" : "Robot experiments"
+						        	"experiment.picture" : "/img/experiments/robot.jpg",
+	                				"experiment.category" : "Robot experiments",
+	                				"experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Robot_Movement",
+	                        	    "experiment.info.description" : "wiki"
 	                			}
 	                		],
 	                "robot-proglist" : [
 	                			{
 	                				"experiment.name" : "robot-proglist",
 						        	"experiment.picture"  : "/img/experiments/robot.jpg",
-	                				"experiment.category" : "Robot experiments"
+	                				"experiment.category" : "Robot experiments",
+	                				"experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Robot_Proglist",
+	                        	    "experiment.info.description" : "wiki"
 	                			}
 	                		],
 	                "visir" : [
