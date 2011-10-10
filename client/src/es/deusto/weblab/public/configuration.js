@@ -145,7 +145,9 @@
 							  {
 								   "experiment.name"     : "ud-fpga",
 								   "experiment.category" : "FPGA experiments",
-	                        	   "experiment.picture"   : "/img/experiments/xilinx.jpg"
+	                        	   "experiment.picture"   : "/img/experiments/xilinx.jpg",
+	                        	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Fpga",
+	                        	   "experiment.info.description" : "wiki"
 							  },
 	                          {
 	                        	  "experiment.name"      : "ud-pld",
@@ -215,7 +217,7 @@
 	                        	   "experiment.name"     : "ud-logic",
 	                        	   "experiment.category" : "PIC experiments",
 	                        	   "experiment.picture"   : "/img/experiments/logic.jpg",
-	                        	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/4_5_FAQ",
+	                        	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Logic",
 	                        	   "experiment.info.description" : "wiki"
 	                           }
 	                       ],
