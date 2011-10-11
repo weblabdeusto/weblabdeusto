@@ -89,7 +89,7 @@ class ExperimentWindow extends BaseWindow {
 	private static final String DEFAULT_ADMIN_EMAIL = "<admin.email not set>";
 	
 	private static final String EXPERIMENT_INFOLINK_PROPERTY = "experiment.info.link";
-	private static final String DEFAULT_EXPERIMENT_INFOLINK = "<not available>";
+	private static final String DEFAULT_EXPERIMENT_INFOLINK = "";
 	
 	private static final String EXPERIMENT_INFODESCRIPTION_PROPERTY = "experiment.info.description";
 	private static final String DEFAULT_EXPERIMENT_INFODESCRIPTION = "";
@@ -171,6 +171,8 @@ class ExperimentWindow extends BaseWindow {
 		
 		// Open the info page in a new window.
 		this.informationLink.setTarget("_blank");
+		
+		String href = this.informationLink.getHref();
 		
 		
 		// If there is actually no information available, we will just hide the label
