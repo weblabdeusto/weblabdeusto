@@ -478,19 +478,33 @@ public class AdminPanelWindow extends BaseWindow {
         // and a dynamic form with add and remove buttons.
         // *********
 		
-		// Create users grid fields
-		final ListGridField loginField = new ListGridField("login", "Login");
-		final ListGridField fullNameField = new ListGridField("full_name", "Full Name");
-				
-		// Create users list grid, and add the fields to it.
-		this.usersUsersGrid = new ListGrid();
-		this.usersUsersGrid.setWidth(300);
-		this.usersUsersGrid.setHeight(400);
-		this.usersUsersGrid.setAutoFetchData(true);
-		this.usersUsersGrid.setDataSource(this.usersDS);
-		this.usersUsersGrid.setDataPageSize(50);
-		this.usersUsersGrid.setFields(loginField, fullNameField);
-		this.usersUsersGrid.setSortField(1);
+        //
+        // Create the Groups tab
+        //
+        final TreeGrid groupsTree = new TreeGrid();
+        groupsTree.setAutoFetchData(true);
+        groupsTree.setDataSource(this.groupsDS);
+        groupsTree.setWidth(300);
+        groupsTree.setHeight(400);
+        final VLayout groupsLayout = new VLayout();
+        groupsLayout.addMember(groupsTree);
+        
+        
+        
+//		// Create users grid fields
+//		final ListGridField loginField = new ListGridField("login", "Login");
+//		final ListGridField fullNameField = new ListGridField("full_name", "Full Name");
+//				
+//		// Create users list grid, and add the fields to it.
+//		this.usersUsersGrid = new ListGrid();
+//		this.usersUsersGrid.setWidth(300);
+//		this.usersUsersGrid.setHeight(400);
+//		this.usersUsersGrid.setAutoFetchData(true);
+//		this.usersUsersGrid.setDataSource(this.usersDS);
+//		this.usersUsersGrid.setDataPageSize(50);
+//		this.usersUsersGrid.setFields(loginField, fullNameField);
+//		this.usersUsersGrid.setSortField(1);
+		
 		
 		
 		// Create forms for the add and for the remove buttons.
@@ -518,7 +532,7 @@ public class AdminPanelWindow extends BaseWindow {
 		addRemoveLayout.setLayoutMargin(10);
 		
 		// Link everything
-		gridAndButtonsVLayout.addMember(this.usersUsersGrid);
+		gridAndButtonsVLayout.addMember(groupsLayout);
 		gridAndButtonsVLayout.addMember(addRemoveLayout);
 
 		
