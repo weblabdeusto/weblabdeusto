@@ -38,7 +38,9 @@
 					        	   "width"               : 500,
 					        	   "height"              : 350,
 					        	   "swf.file"            : "WeblabFlashSample.swf",
-					        	   "message"             : "Note: This is not a real experiment, it's just a demo so as to show that WebLab-Deusto can integrate different web technologies (such as Adobe Flash in this experiment). This demostrates that developing experiments in WebLab-Deusto is really flexible."
+					        	   "message"             : "Note: This is not a real experiment, it's just a demo so as to show that WebLab-Deusto can integrate different web technologies (such as Adobe Flash in this experiment). This demostrates that developing experiments in WebLab-Deusto is really flexible.",
+	                       		   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Flash_Dummy",
+	                        	   "experiment.info.description" : "wiki"
 	                       		}
 	                       		// Other flash experiments could be added here
 	                       ],
@@ -51,7 +53,9 @@
 	                        	  "height"               : 350,
 	                        	  "jar.file"             : "WeblabJavaSample.jar",
 	                        	  "code"                 : "es.deusto.weblab.client.experiment.plugins.es.deusto.weblab.javadummy.JavaDummyApplet",
-	                        	  "message"             : "Note: This is not a real experiment, it's just a demo so as to show that WebLab-Deusto can integrate different web technologies (such as Java Applets in this experiment). This demostrates that developing experiments in WebLab-Deusto is really flexible."
+	                        	  "message"             : "Note: This is not a real experiment, it's just a demo so as to show that WebLab-Deusto can integrate different web technologies (such as Java Applets in this experiment). This demostrates that developing experiments in WebLab-Deusto is really flexible.",
+	                          	  "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Java_Dummy",
+	                        	  "experiment.info.description" : "wiki"
 	                          }
 	                          // Other java experiments could be added here
 	                       ],
@@ -64,7 +68,9 @@
 	                           {
 	                        	   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
 	                        	   "experiment.name"     : "ud-linux-vm",
-	                        	   "experiment.category" : "VM experiments"
+	                        	   "experiment.category" : "VM experiments",
+	                        	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Linux_VM",
+	                        	   "experiment.info.description" : "wiki"
 	                           },
 	                           {
 	                        	   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
@@ -127,25 +133,33 @@
 								   "experiment.name"     : "ud-demo-pld",
 								   "experiment.category" : "PLD experiments",
 	                        	   "experiment.picture"   : "/img/experiments/xilinx.jpg",
-								   "is.demo"             : true
+								   "is.demo"             : true,
+								   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Demo_Pld",
+	                        	   "experiment.info.description" : "wiki"
 							  },
 							  {
 								   "experiment.name"     : "ud-demo-fpga",
 								   "experiment.category" : "FPGA experiments",
 	                        	   "experiment.picture"   : "/img/experiments/xilinx.jpg",
-								   "is.demo"             : true
+								   "is.demo"             : true,
+								   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Demo_Fpga",
+	                        	   "experiment.info.description" : "wiki"
 						      },
 						      {
 							       "experiment.name"     : "ud-demo-xilinx",
 							       "experiment.category" : "Xilinx experiments",
 	                        	   "experiment.picture"   : "/img/experiments/xilinx.jpg",
 							       "is.demo"             : true,
-							       "is.multiresource.demo" : true
+							       "is.multiresource.demo" : true,
+							       "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Demo_Xilinx",
+	                        	   "experiment.info.description" : "wiki"
 						      },
 							  {
 								   "experiment.name"     : "ud-fpga",
 								   "experiment.category" : "FPGA experiments",
-	                        	   "experiment.picture"   : "/img/experiments/xilinx.jpg"
+	                        	   "experiment.picture"   : "/img/experiments/xilinx.jpg",
+	                        	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Fpga",
+	                        	   "experiment.info.description" : "wiki"
 							  },
 	                          {
 	                        	  "experiment.name"      : "ud-pld",
@@ -175,7 +189,7 @@
 	                        	   "experiment.category" : "Dummy experiments"
 	                           }
 	                       ],
-	                "dummybatch" : [
+	   	        "dummybatch" : [
 		                           {
 		                        	   "experiment.name"     : "ud-dummy-batch",
 		                        	   "experiment.category" : "Dummy experiments"
@@ -185,22 +199,28 @@
 	                			{  
 	                			   "experiment.name" : "robot-standard",
 	                			   "experiment.category" : "Robot experiments",
-					        	   "experiment.picture"	 : "/img/experiments/robot.jpg"
+					        	   "experiment.picture"	 : "/img/experiments/robot.jpg",
+					        	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Robot_Standard",
+	                        	   "experiment.info.description" : "wiki"
 	                			}
 	                		],
 	                			
-	                "robot-movement" : [
+	       	                "dummybatch" : [
 	                			{
 	                				"experiment.name" : "robot-movement",
-						        	"experiment.picture"	 : "/img/experiments/robot.jpg",
-	                				"experiment.category" : "Robot experiments"
+						        	"experiment.picture" : "/img/experiments/robot.jpg",
+	                				"experiment.category" : "Robot experiments",
+	                				"experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Robot_Movement",
+	                        	    "experiment.info.description" : "wiki"
 	                			}
 	                		],
 	                "robot-proglist" : [
 	                			{
 	                				"experiment.name" : "robot-proglist",
 						        	"experiment.picture"  : "/img/experiments/robot.jpg",
-	                				"experiment.category" : "Robot experiments"
+	                				"experiment.category" : "Robot experiments",
+	                				"experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Robot_Proglist",
+	                        	    "experiment.info.description" : "wiki"
 	                			}
 	                		],
 	                "visir" : [
@@ -209,28 +229,36 @@
 	                        	   "experiment.category" : "Dummy experiments",
 	                        	   "experiment.picture"  : "/img/experiments/visir.jpg",
 	                        	   "page.timer"          : true,
-	                        	   "page.footer"         : "Powered by the wonderful <a href='http://openlabs.bth.se/index.php?page=ElectroLab'>VISIR</a> <a href='http://svn.openlabs.bth.se/'>Open Source</a> project developed at the <a href='http://www.bth.se/'>BTH</a>"
+	                        	   "page.footer"         : "Powered by the wonderful <a href='http://openlabs.bth.se/index.php?page=ElectroLab'>VISIR</a> <a href='http://svn.openlabs.bth.se/'>Open Source</a> project developed at the <a href='http://www.bth.se/'>BTH</a>",
+	                           	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Visir",
+	                        	   "experiment.info.description" : "wiki"
 	                           },
 	                           {
 	                        	   "experiment.name"     : "lxi_visir",
 	                        	   "experiment.category" : "Visir experiments",
 	                        	   "experiment.picture"  : "/img/experiments/visir.jpg",
 	                        	   "page.timer"          : true,
-	                        	   "page.footer"         : "Powered by the wonderful <a href='http://openlabs.bth.se/index.php?page=ElectroLab'>VISIR</a> <a href='http://svn.openlabs.bth.se/'>Open Source</a> project developed at the <a href='http://www.bth.se/'>BTH</a>"
+	                        	   "page.footer"         : "Powered by the wonderful <a href='http://openlabs.bth.se/index.php?page=ElectroLab'>VISIR</a> <a href='http://svn.openlabs.bth.se/'>Open Source</a> project developed at the <a href='http://www.bth.se/'>BTH</a>",
+	                           	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Visir",
+	                        	   "experiment.info.description" : "wiki"
 	                           },
                                    {
 	                        	   "experiment.name"     : "visir",
 	                        	   "experiment.category" : "Visir experiments",
 	                        	   "experiment.picture"  : "/img/experiments/visir.jpg",
 	                        	   "page.timer"          : true,
-	                        	   "page.footer"         : "Powered by the wonderful <a href='http://openlabs.bth.se/index.php?page=ElectroLab'>VISIR</a> <a href='http://svn.openlabs.bth.se/'>Open Source</a> project developed at the <a href='http://www.bth.se/'>BTH</a>"
+	                        	   "page.footer"         : "Powered by the wonderful <a href='http://openlabs.bth.se/index.php?page=ElectroLab'>VISIR</a> <a href='http://svn.openlabs.bth.se/'>Open Source</a> project developed at the <a href='http://www.bth.se/'>BTH</a>",
+	                           	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Visir",
+	                        	   "experiment.info.description" : "wiki"
 	                           }
 	                       ],
 	                "logic" : [
 	                           {
 	                        	   "experiment.name"     : "ud-logic",
 	                        	   "experiment.category" : "PIC experiments",
-	                        	  "experiment.picture"   : "/img/experiments/logic.jpg"
+	                        	   "experiment.picture"   : "/img/experiments/logic.jpg",
+	                        	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Logic",
+	                        	   "experiment.info.description" : "wiki"
 	                           }
 	                       ],
 	                "binary" : [
@@ -269,16 +297,6 @@
 	                        	   "experiment.name"     : "ud-pic2",
 	                        	   "experiment.category" : "PIC experiments",
 	                        	   "experiment.picture"  : "/img/experiments/microchip.jpg"
-	                           }
-	                        ],
-	                "ilab-batch" : [
-	                           {
-		                        	  "experiment.name"      : "microelectronics", 
-		                        	  "experiment.category"  : "iLab experiments", 
-		                        	  "archive"              : "http://weblab2.mit.edu/client/v7.0b5/signed_Weblab-client.jar", 
-		                        	  "code"                 : "weblab.client.graphicalUI.GraphicalApplet", 
-		                        	  "lab_server_id"        : "microelectronics",
-		                        	  "service_broker"       : "http://www.weblab.deusto.es/weblab/web/ilab/"
 	                           }
 	                        ]
 		}
