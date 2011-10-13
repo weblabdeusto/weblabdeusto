@@ -140,6 +140,8 @@ public class AdminPanelWindow extends BaseWindow {
 	private ListGrid usersUsersGrid;
 	private VLayout usersRolesLayout;
 	private ListGrid usersRolesGrid;
+	
+	private VLayout usersGroupsLayout;
 
 	// Callbacks
 	private final IAdminPanelWindowCallback callback;
@@ -149,6 +151,7 @@ public class AdminPanelWindow extends BaseWindow {
 	private TabSet usersTabSet;
 	private Tab usersUsersTab;
 	private Tab usersRolesTab;
+	private Tab usersGroupsTab;
 
 	public AdminPanelWindow(IConfigurationManager configurationManager, User user, SessionID sessionId, IAdminPanelWindowCallback callback) {
 		super(configurationManager);
@@ -392,7 +395,12 @@ public class AdminPanelWindow extends BaseWindow {
 		this.accessesLayout.addMember(this.accessesExperimentUsesGrid);		
 	}
 	
-	private void buildUsersLayout() {			
+	
+	/**
+	 * Create the users tab set. This tab set is the second-level one, which appears
+	 * when the user clicks on the "Users" tab (which is in the same level as the "accesses" one).
+	 */
+	private void createUsersTabSet() {
 		
 		this.usersTabSet = new TabSet();
 		this.usersTabSet.setTabBarPosition(Side.TOP);
@@ -420,7 +428,27 @@ public class AdminPanelWindow extends BaseWindow {
 		this.usersRolesLayout.setMembersMargin(15);		
 		this.usersRolesTab.setPane(this.usersRolesLayout);
 		this.usersTabSet.addTab(this.usersRolesTab);
-		this.buildUsersRolesPanel();		
+		this.buildUsersRolesPanel();	
+		
+		this.usersGroupsTab = new Tab("Groups");
+		this.usersGroupsLayout = new VLayout();
+		this.usersGroupsLayout.setWidth100();
+		this.usersGroupsLayout.setHeight100();		
+		this.usersGroupsLayout.setPadding(10);
+		this.usersGroupsLayout.setMembersMargin(15);		
+		this.usersGroupsTab.setPane(this.usersGroupsLayout);
+		this.usersTabSet.addTab(this.usersGroupsTab);
+		
+	}
+	
+	private void buildUsersLayout() {			
+		this.createUsersTabSet();
+		this.buildUsersRolesPanel();
+		this.buildUsersGroupsPanel();
+	}
+	
+	private void buildUsersGroupsPanel() {
+		
 	}
 
 	/**
