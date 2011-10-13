@@ -418,7 +418,7 @@ public class AdminPanelWindow extends BaseWindow {
 		this.usersUsersLayout.setMembersMargin(15);		
 		this.usersUsersTab.setPane(this.usersUsersLayout);
 		this.usersTabSet.addTab(this.usersUsersTab);
-		this.buildUsersUsersPanel();
+
 		
 		this.usersRolesTab = new Tab("Roles");				
 		this.usersRolesLayout = new VLayout();
@@ -428,7 +428,7 @@ public class AdminPanelWindow extends BaseWindow {
 		this.usersRolesLayout.setMembersMargin(15);		
 		this.usersRolesTab.setPane(this.usersRolesLayout);
 		this.usersTabSet.addTab(this.usersRolesTab);
-		this.buildUsersRolesPanel();	
+
 		
 		this.usersGroupsTab = new Tab("Groups");
 		this.usersGroupsLayout = new VLayout();
@@ -438,12 +438,15 @@ public class AdminPanelWindow extends BaseWindow {
 		this.usersGroupsLayout.setMembersMargin(15);		
 		this.usersGroupsTab.setPane(this.usersGroupsLayout);
 		this.usersTabSet.addTab(this.usersGroupsTab);
+
 		
 	}
 	
 	private void buildUsersLayout() {			
 		this.createUsersTabSet();
-		this.buildUsersRolesPanel();
+		
+		this.buildUsersUsersPanel();
+		this.buildUsersRolesPanel();	
 		this.buildUsersGroupsPanel();
 	}
 	
