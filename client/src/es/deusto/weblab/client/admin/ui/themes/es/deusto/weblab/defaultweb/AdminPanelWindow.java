@@ -474,13 +474,10 @@ public class AdminPanelWindow extends BaseWindow {
         
         
         // *********
-        // Create users grid part, which is made of a grid to display and select the users 
-        // and a dynamic form with add and remove buttons.
+        // Create the Groups TreeGrid. This tree is on the left-hand side of the screen
+        // and displays every group, which the user may select.
         // *********
 		
-        //
-        // Create the Groups tab
-        //
         final TreeGrid groupsTree = new TreeGrid();
         groupsTree.setAutoFetchData(true);
         groupsTree.setDataSource(this.groupsDS);
@@ -489,22 +486,9 @@ public class AdminPanelWindow extends BaseWindow {
         final VLayout groupsLayout = new VLayout();
         groupsLayout.addMember(groupsTree);
         
+		// Link the layout that contains the groups tree
+		gridAndButtonsVLayout.addMember(groupsLayout);
         
-        
-//		// Create users grid fields
-//		final ListGridField loginField = new ListGridField("login", "Login");
-//		final ListGridField fullNameField = new ListGridField("full_name", "Full Name");
-//				
-//		// Create users list grid, and add the fields to it.
-//		this.usersUsersGrid = new ListGrid();
-//		this.usersUsersGrid.setWidth(300);
-//		this.usersUsersGrid.setHeight(400);
-//		this.usersUsersGrid.setAutoFetchData(true);
-//		this.usersUsersGrid.setDataSource(this.usersDS);
-//		this.usersUsersGrid.setDataPageSize(50);
-//		this.usersUsersGrid.setFields(loginField, fullNameField);
-//		this.usersUsersGrid.setSortField(1);
-		
 		
 		
 		// Create forms for the add and for the remove buttons.
@@ -531,45 +515,34 @@ public class AdminPanelWindow extends BaseWindow {
 		addRemoveLayout.setAlign(Alignment.RIGHT);
 		addRemoveLayout.setLayoutMargin(10);
 		
-		// Link everything
-		gridAndButtonsVLayout.addMember(groupsLayout);
+		// Link this last add-remove layout.
 		gridAndButtonsVLayout.addMember(addRemoveLayout);
 
 		
 		
         // *********
-        // Create the tabset part, which is made of a tabset with several
-		// different user-related tabs, and a "save changes" button.
+        // Create the right-side group section.
         // *********
 		
-		//
-		// Create the tabset (along with its tabs), and link it to the
-		// layout. The actual controls within each tab will be created
-		// later.
-		//
 		
-		// Create the tabset itself
-		final TabSet tabSet = new TabSet();
-        tabSet.setTabBarPosition(Side.TOP);  
-        tabSet.setWidth(500);  
-        tabSet.setHeight(400);  
-        
-        // Create each tab
-        final Tab profileTab = new Tab("Profile", "pieces/16/pawn_blue.png");  
-        final Tab groupsTab = new Tab("Groups", "pieces/16/pawn_green.png");  
-        final Tab permissionsTab = new Tab("Permissions", "...");
-        final Tab authTab = new Tab("Authentication", "...");
-        
-
-        // Add every tab to the tabset
-        tabSet.addTab(profileTab);  
-        tabSet.addTab(groupsTab);  
-        tabSet.addTab(permissionsTab);
-        tabSet.addTab(authTab);
+		// Add the container layout.
+		final VLayout groupLayout = new VLayout();
+		groupLayout.setBorder("1px solid gray");
+		groupLayout.setHeight(400);
         
         // Link it
-        tabsetAndButtonsVLayout.addMember(tabSet);
+        tabsetAndButtonsVLayout.addMember(groupLayout);
         
+        
+        // Add the dynamic form with the name of the group
+        final DynamicForm nameForm = new DynamicForm();
+		nameForm.setAlign(Alignment.RIGHT);
+		nameForm.setMargin(20);
+		final TextItem nameIt = new TextItem("name", "Name");
+		nameIt.setWidth(300);
+		nameForm.setFields(nameIt);
+		nameForm.setWidth(300);
+		groupLayout.addChild(nameForm);
         
         
         // 
