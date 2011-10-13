@@ -133,14 +133,16 @@
 								   "experiment.name"     : "ud-demo-pld",
 								   "experiment.category" : "PLD experiments",
 	                        	   "experiment.picture"   : "/img/experiments/xilinx.jpg",
-								   "is.demo"             : true
+								   "is.demo"             : true,
+								   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Demo_Pld",
+	                        	   "experiment.info.description" : "wiki"
 							  },
 							  {
 								   "experiment.name"     : "ud-demo-fpga",
 								   "experiment.category" : "FPGA experiments",
 	                        	   "experiment.picture"   : "/img/experiments/xilinx.jpg",
 								   "is.demo"             : true,
-								   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Fpga",
+								   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Demo_Fpga",
 	                        	   "experiment.info.description" : "wiki"
 						      },
 						      {
