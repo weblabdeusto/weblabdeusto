@@ -452,6 +452,134 @@ public class AdminPanelWindow extends BaseWindow {
 	
 	private void buildUsersGroupsPanel() {
 		
+		// *********
+		// Create and link the layouts that we will use to arrange the many controls
+		// *********
+		
+		// Create horizontal panel to hold the user grid and the tab set
+		final HLayout mainLayout = new HLayout();
+		mainLayout.setMembersMargin(20);
+		
+		// Create a vertical layout for the users grid and the add/remove buttons.
+		final VLayout gridAndButtonsVLayout = new VLayout();
+		
+		// Create a vertical layout for the tabset and the save changes button.
+        final VLayout tabsetAndButtonsVLayout = new VLayout();
+		
+        // Link them
+		this.usersGroupsLayout.addMember(mainLayout);        
+        mainLayout.addMember(gridAndButtonsVLayout);
+        mainLayout.addMember(tabsetAndButtonsVLayout);
+		
+        
+        
+        // *********
+        // Create users grid part, which is made of a grid to display and select the users 
+        // and a dynamic form with add and remove buttons.
+        // *********
+		
+		// Create users grid fields
+		final ListGridField loginField = new ListGridField("login", "Login");
+		final ListGridField fullNameField = new ListGridField("full_name", "Full Name");
+				
+		// Create users list grid, and add the fields to it.
+		this.usersUsersGrid = new ListGrid();
+		this.usersUsersGrid.setWidth(300);
+		this.usersUsersGrid.setHeight(400);
+		this.usersUsersGrid.setAutoFetchData(true);
+		this.usersUsersGrid.setDataSource(this.usersDS);
+		this.usersUsersGrid.setDataPageSize(50);
+		this.usersUsersGrid.setFields(loginField, fullNameField);
+		this.usersUsersGrid.setSortField(1);
+		
+		
+		// Create forms for the add and for the remove buttons.
+		// Note: I'd normally place both buttons on a single form. However,
+		// I have not been able to get it to work properly, as the buttons
+		// overlap each other. 
+		final DynamicForm addForm = new DynamicForm();
+		final ButtonItem addIt = new ButtonItem("add", "Add");
+		addIt.setWidth(70);
+		addForm.setFields(addIt);
+		addForm.setWidth(80);
+		
+		final DynamicForm remForm = new DynamicForm();
+		remForm.setAlign(Alignment.RIGHT);
+		final ButtonItem remIt = new ButtonItem("remove", "Remove");
+		remIt.setWidth(70);
+		remForm.setFields(remIt);
+		remForm.setWidth(80);
+		
+		final HLayout addRemoveLayout = new HLayout();
+		addRemoveLayout.addMember(addForm);
+		addRemoveLayout.addMember(remForm);
+		addRemoveLayout.setWidth(170);
+		addRemoveLayout.setAlign(Alignment.RIGHT);
+		addRemoveLayout.setLayoutMargin(10);
+		
+		// Link everything
+		gridAndButtonsVLayout.addMember(this.usersUsersGrid);
+		gridAndButtonsVLayout.addMember(addRemoveLayout);
+
+		
+		
+        // *********
+        // Create the tabset part, which is made of a tabset with several
+		// different user-related tabs, and a "save changes" button.
+        // *********
+		
+		//
+		// Create the tabset (along with its tabs), and link it to the
+		// layout. The actual controls within each tab will be created
+		// later.
+		//
+		
+		// Create the tabset itself
+		final TabSet tabSet = new TabSet();
+        tabSet.setTabBarPosition(Side.TOP);  
+        tabSet.setWidth(500);  
+        tabSet.setHeight(400);  
+        
+        // Create each tab
+        final Tab profileTab = new Tab("Profile", "pieces/16/pawn_blue.png");  
+        final Tab groupsTab = new Tab("Groups", "pieces/16/pawn_green.png");  
+        final Tab permissionsTab = new Tab("Permissions", "...");
+        final Tab authTab = new Tab("Authentication", "...");
+        
+
+        // Add every tab to the tabset
+        tabSet.addTab(profileTab);  
+        tabSet.addTab(groupsTab);  
+        tabSet.addTab(permissionsTab);
+        tabSet.addTab(authTab);
+        
+        // Link it
+        tabsetAndButtonsVLayout.addMember(tabSet);
+        
+        
+        
+        // 
+        // Create the Save Changes form and link it to the layout.
+        //
+        final HLayout saveChangesLayout = new HLayout();
+        saveChangesLayout.setLayoutMargin(10);
+        saveChangesLayout.setLayoutAlign(Alignment.RIGHT);
+        final DynamicForm saveChangesForm = new DynamicForm();
+        saveChangesForm.setLayoutAlign(Alignment.RIGHT);
+        saveChangesForm.setNumCols(1);
+        final ButtonItem saveChangesIt = new ButtonItem("saveChanges", "Save Changes");
+        saveChangesIt.setAlign(Alignment.RIGHT);
+        saveChangesIt.setAutoFit(false);
+        
+        // If we don't set the value for the width, for some reason the button
+        // appers in half, displaced to the left.
+        saveChangesIt.setWidth(100);
+        
+        saveChangesForm.setFields(saveChangesIt);
+        
+        saveChangesLayout.addMember(saveChangesForm);
+        tabsetAndButtonsVLayout.addMember(saveChangesLayout);
+        
 	}
 
 	/**
