@@ -93,7 +93,7 @@ class ILabMethod(WebFacadeServer.Method):
             'payload'   : experiment_specification
         }
         reservation_status = self.server.reserve_experiment(self.sess_id, ExperimentId(lab_server_id, 'iLab experiments'), json.dumps(request), '{}', ClientAddress.ClientAddress(''))
-        self.other_cookies = ['weblab_reservation_id=%s; path=/;' % reservation_status.reservation_id.id]
+        self.other_cookies = ['weblab_reservation_id=%s; path=/' % reservation_status.reservation_id.id]
 
         return """<?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
@@ -117,6 +117,8 @@ class ILabMethod(WebFacadeServer.Method):
 </soap:Envelope>""" % reservation_status.position
 
     def process_GetExperimentStatus(self):
+        if self.reservation_id is None:
+            return "Reservation id not found in cookie"
         reservation_status = self.server.get_reservation_status(self.reservation_id)
         if reservation_status.status == "Reservation::waiting":
             length = reservation_status.position
