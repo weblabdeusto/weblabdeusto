@@ -21,7 +21,7 @@ class SessionGenerator(object):
         self.alphabet = [ str(i) for i in range(10) ]
         self.alphabet += [ chr(i + ord('a')) for i in range(26) ]
         self.alphabet += [ chr(i + ord('A')) for i in range(26) ]
-        self.alphabet += '.-' # So as to get an alphabet of 64 (6 bits)
+        self.alphabet += ',-' # So as to get an alphabet of 64 (6 bits)
         
     def generate_id(self, number_of_chars = 16):
         # Generates IDs of 16 chars of an alphabet of 64 possible chars
