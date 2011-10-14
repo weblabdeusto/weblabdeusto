@@ -47,5 +47,6 @@ public class GroupsDataSource extends WebLabRestDataSource {
         
 	    this.setFields(idField, nameDSField, parentIdDSField);  
 	    this.setFetchDataURL("/weblab/administration/json/groups");
+	    this.setUpdateDataURL("/weblab/administration/json/groups");
 	}
 }

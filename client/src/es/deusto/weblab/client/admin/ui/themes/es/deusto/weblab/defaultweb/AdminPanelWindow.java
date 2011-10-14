@@ -549,7 +549,6 @@ public class AdminPanelWindow extends BaseWindow {
 		groupLayout.addChild(nameForm);
 		
 		
-		
 	    // Set up the callback that will be invoked whenever a group is selected from
 		// the tree.
         this.usersGroupsTree.addRecordClickHandler(new RecordClickHandler() {
@@ -564,8 +563,6 @@ public class AdminPanelWindow extends BaseWindow {
     	   
        });
 
-
-        
         
         // 
         // Create the Save Changes form and link it to the layout.
