@@ -556,31 +556,10 @@ public class AdminPanelWindow extends BaseWindow {
     	   
     	   @Override
     	   public void onRecordClick(RecordClickEvent event) {
-    		   System.out.println("Event record: " + event.getRecordNum());
-    		   final Record rec = event.getRecord();
-    		   System.out.println(rec.getAttributeAsString("name"));
-    		   System.out.println(rec.getAttributeAsInt("id"));
-    		   System.out.println("Whatever.");
-    		   
-    		   
     		   // Modify the group that is currently displayed (to match
     		   // the one that the user selected in the tree)
     		   nameForm.clearErrors(true);
     		   nameForm.editRecord(event.getRecord());
-    		   
-//	        	// Modify the user displayed on Profile
-//	        	profileForm.clearErrors(true);
-//	        	profileForm.editRecord(event.getRecord());
-//	        	//saveButton.enable();
-	        	
-//	        	// Modify the groups
-//	        	final Record userRec = AdminPanelWindow.this.usersUsersGrid.getSelectedRecord();
-//	        	if(userRec != null) {
-//		        	final String userId = userRec.getAttributeAsString("id");
-//		            final Criteria crit = new Criteria("user_id", userId);
-//		            groupsTree.filterData(crit);
-//	        	} 
-    		   
     	   }
     	   
        });
