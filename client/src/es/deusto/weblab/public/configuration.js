@@ -298,6 +298,16 @@
 	                        	   "experiment.category" : "PIC experiments",
 	                        	   "experiment.picture"  : "/img/experiments/microchip.jpg"
 	                           }
-	                        ]
+	                        ],
+                    "ilab-batch" : [
+                                {
+                                    "experiment.name"    : "microelectronics",
+                                    "experiment.category" : "iLab experiments",
+                                    "archive" : "http://weblab2.mit.edu/client/v7.0b5/signed_Weblab-client.jar",
+                                    "code" : "weblab.client.graphicalUI.GraphicalApplet",
+                                    "lab_server_id" : "microelectronics",
+                                    "service_broker" : "http://www.weblab.deusto.es/weblab/web/ilab/"
+                                }
+                            ]
 		}
 }
