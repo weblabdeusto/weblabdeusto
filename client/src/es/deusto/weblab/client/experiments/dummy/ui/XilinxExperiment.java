@@ -114,9 +114,9 @@ public class XilinxExperiment extends ExperimentBase{
 		
 		if(isDemo()){
 			if(isMultiresourceDemo()){
-				this.selectProgram.setText("This demo demonstrate the multiresource queues of WebLab-Deusto. You will use a CPLD or a FPGA depending on which one is available. You can test to log in ud-demo-pld and ud-demo-fpga and then log in this experiment to check that it will go to the one you free. If this wasn't a demo, you would select here the program that would be sent to the device. Since it could be harmful, in the demo we always send the same demonstration file.");
+				this.selectProgram.setText("This demo demonstrates the multiresource queues of WebLab-Deusto. You will use a CPLD or a FPGA depending on which one is available. You can test to log in ud-demo-pld and ud-demo-fpga and then log in this experiment to check that it will go to the one you free. If this wasn't a demo, you would select here the program that would be sent to the device. Since it could be harmful, in the demo we always send the same demonstration file.");
 			}else{
-				this.selectProgram.setText("If this wasn't a demo, you would select here the program that would be sent to the device. Since it could be harmful, in the demo we always send the same demonstration file.");
+				this.selectProgram.setText("If this wasn't a demo, you would select here the program to send to the device. Since it could be harmful, in the demo we always send the same demonstration file.");
 			}
 		}
 	}
