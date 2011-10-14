@@ -205,7 +205,7 @@
 	                			}
 	                		],
 	                			
-	       	                "dummybatch" : [
+	       	        "robot-movement" : [
 	                			{
 	                				"experiment.name" : "robot-movement",
 						        	"experiment.picture" : "/img/experiments/robot.jpg",
