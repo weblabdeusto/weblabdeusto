@@ -137,6 +137,7 @@ public class AdminPanelWindow extends BaseWindow {
 	private ListGrid accessesExperimentUsesGrid;
 	private VLayout usersLayout;
 	private VLayout usersUsersLayout;
+	private TreeGrid usersGroupsTree;
 	private ListGrid usersUsersGrid;
 	private VLayout usersRolesLayout;
 	private ListGrid usersRolesGrid;
@@ -478,13 +479,13 @@ public class AdminPanelWindow extends BaseWindow {
         // and displays every group, which the user may select.
         // *********
 		
-        final TreeGrid groupsTree = new TreeGrid();
-        groupsTree.setAutoFetchData(true);
-        groupsTree.setDataSource(this.groupsDS);
-        groupsTree.setWidth(300);
-        groupsTree.setHeight(400);
+        this.usersGroupsTree = new TreeGrid();
+        this.usersGroupsTree.setAutoFetchData(true);
+        this.usersGroupsTree.setDataSource(this.groupsDS);
+        this.usersGroupsTree.setWidth(300);
+        this.usersGroupsTree.setHeight(400);
         final VLayout groupsLayout = new VLayout();
-        groupsLayout.addMember(groupsTree);
+        groupsLayout.addMember(this.usersGroupsTree);
         
 		// Link the layout that contains the groups tree
 		gridAndButtonsVLayout.addMember(groupsLayout);
@@ -536,13 +537,32 @@ public class AdminPanelWindow extends BaseWindow {
         
         // Add the dynamic form with the name of the group
         final DynamicForm nameForm = new DynamicForm();
+		nameForm.setUseAllDataSourceFields(false);
+		nameForm.setAutoFetchData(false);
 		nameForm.setAlign(Alignment.RIGHT);
 		nameForm.setMargin(20);
 		final TextItem nameIt = new TextItem("name", "Name");
 		nameIt.setWidth(300);
 		nameForm.setFields(nameIt);
 		nameForm.setWidth(300);
+		nameForm.setDataSource(this.groupsDS);
 		groupLayout.addChild(nameForm);
+		
+		
+       this.usersGroupsTree.addRecordClickHandler(new RecordClickHandler() {
+    	   
+    	   @Override
+    	   public void onRecordClick(RecordClickEvent event) {
+    		   System.out.println("Event record: " + event.getRecordNum());
+    		   final Record rec = event.getRecord();
+    		   System.out.println(rec.getAttributeAsString("name"));
+    		   System.out.println(rec.getAttributeAsInt("id"));
+    		   System.out.println("Whatever.");
+    	   }
+    	   
+       });
+
+
         
         
         // 
@@ -980,6 +1000,7 @@ public class AdminPanelWindow extends BaseWindow {
 					}} );
             }
 		}});
+       
         
         // Switch the user we display whenever we select a different one on the users grid,
         // and update all related fields and data.
