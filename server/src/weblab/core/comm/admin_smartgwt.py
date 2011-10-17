@@ -368,22 +368,41 @@ class SmartGwtHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 path = self.path
                 options = ""
 
+            # Store the parameters split into a list.
             parameters = [ field for field in options.split("&") if field.find("=") >= 0 ]
 
+            # Find the session_id parameter and extract its value
             session_id_param = [ field[field.find("=") + 1:] for field in parameters if field.startswith("sessionid") ]
             if len(session_id_param) == 0:
                 self._write(400, "sessionid not provided")
                 return
 
             session_id = session_id_param[0]
+            
+            
+            # Find the operationType parameter and extract its value
+            operation_type_param = [ field[field.find("=") + 1:] for field in parameters if field.startswith("_operationType") ]
+            if len(operation_type_param) == 0:
+                self._write(400, "_operationType not provided")
+                return
 
+            operation_type = operation_type_param[0]
+            
+            
             last_slash = path.rfind("/")
             if last_slash >= 0:
                 method_name = path[last_slash + 1:]
             else:
                 method_name = path
+                
+            if operation_type == "fetch":
+                method_prefix = "get"
+            elif operation_type == "update":
+                method_prefix = "update"
+            else:
+                self._write(400, "Unrecognized _operationType")
 
-            if 'get_%s' % method_name in dir(Methods):
+            if '%s_%s' % (method_prefix, method_name) in dir(Methods):
                 method = getattr(Methods, 'get_%s' % method_name)
                 try:
                     response = method(self, session_id, parameters)
