@@ -586,6 +586,18 @@ public class AdminPanelWindow extends BaseWindow {
         saveChangesLayout.addMember(saveChangesForm);
         tabsetAndButtonsVLayout.addMember(saveChangesLayout);
         
+        
+        // Create the callback that will be invoked whenever the save button
+        // is clicked.
+        saveChangesIt.addClickHandler( new ClickHandler() {
+				@Override
+				public void onClick(
+						com.smartgwt.client.widgets.form.fields.events.ClickEvent event) {
+					System.out.println("Updating data");
+					AdminPanelWindow.this.groupsDS.updateData(nameForm.getValuesAsRecord());
+				}
+    		});
+        
 	}
 
 	/**
