@@ -156,7 +156,14 @@ class Methods(object):
 
     @staticmethod
     def update_groups(handler, session_id, parameters):
-        print "[@ADMIN_SMARTGWT] update_groups"
+        """
+        update_groups(handler, session_id, parameters)
+        
+        Updates a group. The parameters of a group that may be updated
+        are the name and the parent_id. The id is used to identify the group
+        and it should never change. It is noteworthy that despite the name
+        of the function, it can update a single group (not several).
+        """
         
         # Split the parameters into a dictionary for easier handling.
         params = dict([par.split('=') for par in parameters])

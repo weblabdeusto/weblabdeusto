@@ -252,7 +252,10 @@ class UserProcessor(object):
         return get_groups(self._db_manager, db_session_id, parent_id)
     
     def update_groups(self, id, name, parent_id):
-        print "[@USERPROCESSOR] update_groups"
+        """
+        Updates a group.
+        Returns true if success, false otherwise.
+        """
         db_session_id = self._session['db_session_id']
         return update_groups(self._db_manager, db_session_id, id, name, parent_id)
     

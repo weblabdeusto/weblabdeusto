@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
 from voodoo.log import logged
@@ -189,12 +190,13 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     def update_groups(self, session_id, id, name, parent_id):
         """
             update_groups(session_id, id, name, parent_id)
+            Updates a single group (despite the name). Returns true on success,
+            false on failure.
             raises SessionNotFoundException
         """
-        print "[@USERMANAGER] Updating groups"
         sess_id = self._parse_session_id(session_id)
-        group = self._server.update_groups(sess_id, id, name, parent_id)
-        return group
+        success = self._server.update_groups(sess_id, id, name, parent_id)
+        return success
     
     @logged()
     @RFM.check_exceptions(EXCEPTIONS)
