@@ -12,6 +12,7 @@
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 #         Pablo Orduña <pablo@ordunya.com>
+#         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
 from functools import wraps
@@ -323,27 +324,28 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
     @admin_panel_operation
     @logged()
     def update_groups(self, user_login, id, name, parent_id):
-        """ The user's permissions are not checked at the moment """
-        print "[@MYSQLGATEWAY] update_groups"
+        """ 
+        The user's permissions are not checked at the moment
         
-        print "Parent id is: ", parent_id
-        print type(parent_id)
-        
+        Updates the specified group. Returns True if the update succeeds,
+        false otherwise.
+        """
         session = self.Session()
         try:
             db_group = session.query(Model.DbGroup).filter_by(id = id).first()
             if db_group is None:
-                print "Returning False"
                 return False
 
             db_group.name = name
             
+            # When the group has no parent the parent_id is received as the "null"
+            # string. However, to be recognized by sqlalchemy the parent_id has to be
+            # set to None.
             if parent_id == "null":
                 parent_id = None
             
             session.add(db_group)
             session.commit()
-            print "Returning True"
             return True
         finally:
             session.close()
