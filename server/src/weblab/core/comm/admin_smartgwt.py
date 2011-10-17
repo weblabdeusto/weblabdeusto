@@ -154,6 +154,11 @@ class Methods(object):
     generated. They are the first server-side layer to receive them.
     """
     
+    
+    @staticmethod
+    def update_groups(handler, session_id, parameters):
+        print "[UPDATING GROUPS]"
+    
     @staticmethod
     def get_experiments(handler, session_id, parameters):
         request_args = { 'id' : session_id }
@@ -403,7 +408,7 @@ class SmartGwtHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 self._write(400, "Unrecognized _operationType")
 
             if '%s_%s' % (method_prefix, method_name) in dir(Methods):
-                method = getattr(Methods, 'get_%s' % method_name)
+                method = getattr(Methods, '%s_%s' % (method_prefix, method_name) )
                 try:
                     response = method(self, session_id, parameters)
                 except MethodException as me:
@@ -415,7 +420,7 @@ class SmartGwtHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                     return
                 json_response = json.dumps(response)
             else:
-                self._write(400, "method %s not implemented" % urllib2.quote(method_name))
+                self._write(400, "method %s is not implemented" % urllib2.quote( "%s_%s" % (method_prefix, method_name) ))
                 return 
 
             self._write(200, json_response)
