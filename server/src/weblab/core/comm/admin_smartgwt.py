@@ -166,18 +166,26 @@ class Methods(object):
         # TODO: Find out why the sessionid is passed like this in most of these methods.
         # (But apparently not in all)
         
-        group = handler.facade_manager.update_groups(request_args, params['id'], params['name'], params['parent_id'])
+        # Currently the update_groups method returns a boolean indicating success
+        # or failure. However, SGWT seems to expect the updated record. 
+        # For now, we will build that record here.
+        success = handler.facade_manager.update_groups(request_args, params['id'], params['name'], params['parent_id'])
     
-        return { 'response' : 
-                    { 'data' : 
-                        [ 
-                            { 
-                                'id' : '1', 
-                                'name' : 'YES'
-                            } 
-                        ] 
-                    }
-               }
+        if success:
+            return { 'response' : 
+                        { 'data' : 
+                            [ 
+                                { 
+                                    'id' : params['id'], 
+                                    'name' : params['name'],
+                                    'parent_id' : params['parent_id']
+                                } 
+                            ] 
+                        }
+                   }
+        else:
+            # TODO: Handle this error better.
+            return 'Error. Failed to update group.'
 
     
     @staticmethod

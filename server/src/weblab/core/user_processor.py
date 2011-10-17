@@ -55,6 +55,10 @@ def get_user_information(db_manager, db_session_id):
     return db_manager.retrieve_user_information(db_session_id)
 
 def update_groups(db_manager, db_session_id, id, name, parent_id):
+    """
+    Updates the specified group. 
+    Returns True if the update succeeded, False otherwise.
+    """
     return db_manager.update_groups(db_session_id, id, name, parent_id)
 
 @cache(GET_GROUPS_CACHE_TIME, _resource_manager)
