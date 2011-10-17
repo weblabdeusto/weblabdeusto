@@ -38,16 +38,19 @@ import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.core.coordinator.status as coord_status
 
 from weblab.core.coordinator.meta_scheduler import IndependentSchedulerAggregator
+from weblab.core.coordinator.no_scheduler import NoScheduler
 from weblab.core.coordinator.priority_queue_scheduler import PriorityQueueScheduler
 from weblab.core.coordinator.externals.weblabdeusto_scheduler import ExternalWebLabDeustoScheduler
 from weblab.core.coordinator.externals.ilab_batch_scheduler import ILabBatchScheduler
 import weblab.core.coordinator.checker_threaded as ResourcesCheckerThread
 
+NO_SCHEDULER           = 'NO_SCHEDULER'
 PRIORITY_QUEUE         = 'PRIORITY_QUEUE'
 EXTERNAL_WEBLAB_DEUSTO = 'EXTERNAL_WEBLAB_DEUSTO'
 ILAB_BATCH_QUEUE       = 'ILAB_BATCH_QUEUE'
 
 SCHEDULING_SYSTEMS = {
+        NO_SCHEDULER           : NoScheduler,
         PRIORITY_QUEUE         : PriorityQueueScheduler,
         EXTERNAL_WEBLAB_DEUSTO : ExternalWebLabDeustoScheduler,
         ILAB_BATCH_QUEUE       : ILabBatchScheduler,
