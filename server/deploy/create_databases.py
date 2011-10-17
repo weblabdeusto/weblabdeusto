@@ -493,6 +493,9 @@ def populate_weblab_tests(engine):
     rob_mov = Model.DbExperiment("robot-movement", cat_robot, start_date, end_date)
     session.add(rob_mov)
 
+    ext_rob_mov = Model.DbExperiment("external-robot-movement", cat_robot, start_date, end_date)
+    session.add(ext_rob_mov)
+
     rob_proglist = Model.DbExperiment("robot-proglist", cat_robot, start_date, end_date)
     session.add(rob_proglist)
 
@@ -799,6 +802,22 @@ def populate_weblab_tests(engine):
     session.add(up_any_rob_mov_allowed_p2)
     up_any_rob_mov_allowed_p3 = Model.DbUserPermissionParameter(up_any_rob_mov_allowed, experiment_allowed_p3, "200")
     session.add(up_any_rob_mov_allowed_p3)
+
+    up_any_ext_rob_mov_allowed = Model.DbUserPermission(
+        any,
+        experiment_allowed.group_applicable,
+        "any::weblab-external-robot-movement",
+        datetime.datetime.utcnow(),
+        "Permission for any to use WebLab-external-robot-movement"
+    )
+
+    session.add(up_any_ext_rob_mov_allowed)
+    up_any_ext_rob_mov_allowed_p1 = Model.DbUserPermissionParameter(up_any_ext_rob_mov_allowed, experiment_allowed_p1, "external-robot-movement")
+    session.add(up_any_ext_rob_mov_allowed_p1)
+    up_any_ext_rob_mov_allowed_p2 = Model.DbUserPermissionParameter(up_any_ext_rob_mov_allowed, experiment_allowed_p2, "Robot experiments")
+    session.add(up_any_ext_rob_mov_allowed_p2)
+    up_any_ext_rob_mov_allowed_p3 = Model.DbUserPermissionParameter(up_any_ext_rob_mov_allowed, experiment_allowed_p3, "200")
+    session.add(up_any_ext_rob_mov_allowed_p3)
 
     up_studentILAB_microelectronics_allowed = Model.DbUserPermission(
         studentILAB,

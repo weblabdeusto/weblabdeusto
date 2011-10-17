@@ -189,7 +189,7 @@
 	                        	   "experiment.category" : "Dummy experiments"
 	                           }
 	                       ],
-	   	        "dummybatch" : [
+	                "dummybatch" : [
 		                           {
 		                        	   "experiment.name"     : "ud-dummy-batch",
 		                        	   "experiment.category" : "Dummy experiments"
@@ -223,6 +223,14 @@
 	                        	    "experiment.info.description" : "wiki"
 	                			}
 	                		],
+	                "blank" : [
+	                           {
+	                        	   "experiment.name"     : "external-robot-movement",
+	                        	   "experiment.category" : "Robot experiments",
+	                        	   "experiment.picture"  : "/img/experiments/robot.jpg",
+	                        	   "html"                : "This is an experiment which we know that it is only in external systems. Therefore, unless we want to use the initialization API, we don't need to have the client installed in the consumer system. We can just use a blank client and whenever the experiment is reserved, we'll use the remote client."
+	                           }
+	                        ],
 	                "visir" : [
 	                           {
 	                        	   "experiment.name"     : "visirtest",
