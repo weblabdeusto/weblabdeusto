@@ -11,7 +11,14 @@ vt_login_password = "guest"
 
 vt_client_url = "visir/loader.swf"
 
-vt_not_savedata = """
+# 
+# Uncomment these two lines to enable the student mode with a given configuration
+# 
+# If you want to add other examples, try clicking on "save" circuit in VISIR, and place the .cir content here.
+# 
+# vt_teacher = False
+# vt_not_savedata = \
+"""
 <save>
 	<instruments+list="breadboard/breadboard.swf|multimeter/multimeter.swf|functiongenerator/functiongenerator.swf|oscilloscope/oscilloscope.swf|tripledc/tripledc.swf"+/>
 	<multimeter+/>
@@ -28,4 +35,4 @@ vt_not_savedata = """
 		</circuit>
 </save>
 """
-	
+

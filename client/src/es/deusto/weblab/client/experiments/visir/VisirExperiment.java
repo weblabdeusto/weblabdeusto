@@ -26,7 +26,7 @@ import es.deusto.weblab.client.lab.experiments.util.applets.flash.FlashExperimen
 
 public class VisirExperiment extends FlashExperiment {
 	
-	
+	private boolean teacher = false;
 	private String cookie = null;
 	private String url = null;
 	private String savedata = null;
@@ -76,9 +76,10 @@ public class VisirExperiment extends FlashExperiment {
 						boolean success = reqData.parseResponse(responseCommand.getCommandString());
 						
 						if(success) {
-							VisirExperiment.this.cookie = reqData.getCookie();
+							VisirExperiment.this.cookie   = reqData.getCookie();
 							VisirExperiment.this.savedata = reqData.getSaveData();
-							VisirExperiment.this.url = reqData.getURL();
+							VisirExperiment.this.url      = reqData.getURL();
+							VisirExperiment.this.teacher  = reqData.isTeacher(); 
 						
 							VisirExperiment.this.updateFlashVars();
 							VisirExperiment.this.setSwfFile(VisirExperiment.this.url);
@@ -114,7 +115,7 @@ public class VisirExperiment extends FlashExperiment {
 		// encoding issues that seem to be occurring. We enable teacher mode so that the
 		// plus sign that gives us access to the full component palette is available.
 		final String decodedSaveData = URL.decodeQueryString(this.savedata);
-		String flashvars = "teacher=1";
+		String flashvars = "teacher=" + (this.teacher?"1":"0");
 		if(this.cookie != "")
 			flashvars += "&cookie="+this.cookie;
 		if(this.savedata != "")
