@@ -36,6 +36,43 @@ class NoScheduler(Scheduler):
         # Will in fact never be called
         return False
 
+    def _reserved(self):
+        reservation_id_with_route = '%s;%s.%s' % (reservation_id, reservation_id, self.core_server_route)
+        
+        # 
+        # TODO: will always be the same, even if there are plenty of them. 
+        # With no_scheduler, there is no load balance: all the users go
+        # to the same experiment server.
+        # 
+        lab_coord_address = ""
+
+        # 
+        # TODO: we must support at laboratory server level that several
+        # sessions have access to the same experiment. Basically, always
+        # trust the coordinator instead of checking it twice.
+        # 
+        lab_session_id = 'TODO'
+
+        # 
+        # TODO: we still have to retrieve these values, calling the
+        # confirmator. But we can't even test this until the point
+        # above is implemented!
+        #
+        obtained_time = 100
+        remaining     = 100
+        initial_configuration = ""
+        timestamp_before = None
+        timestamp_after  = None
+
+        # 
+        # TODO: this must be retrieved from a no-scheduler specific
+        # database
+        # 
+        initialization_in_accounting = True
+        
+        return WSS.LocalReservedStatus(reservation_id_with_route, lab_coord_address, SessionId.SessionId(lab_session_id), obtained_time, initial_configuration, timestamp_before, timestamp_after, initialization_in_accounting, remaining, self.core_server_url)
+
+
     #######################################################################
     # 
     # Given a reservation_id, it returns in which state the reservation is
@@ -43,8 +80,7 @@ class NoScheduler(Scheduler):
     @logged()
     @Override(Scheduler)
     def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info):
-        # TODO
-        pass
+        return self._reserved()
 
     #######################################################################
     # 
@@ -53,8 +89,7 @@ class NoScheduler(Scheduler):
     @logged()
     @Override(Scheduler)
     def get_reservation_status(self, reservation_id):
-        # TODO
-        pass
+        return self._reserved()
 
     ################################################################
     #
