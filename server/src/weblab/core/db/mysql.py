@@ -325,7 +325,24 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
     def update_groups(self, user_login, id, name, parent_id):
         """ The user's permissions are not checked at the moment """
         print "[@MYSQLGATEWAY] update_groups"
-        return ""
+        
+        print "Parent id is: ", parent_id
+        
+        session = self.Session()
+        try:
+            db_group = session.query(Model.DbGroup).filter_by(id = id).first()
+            if db_group is None:
+                print "Returning False"
+                return False
+
+            db_group.name = name
+            db_group.parent_id = parent_id
+            session.add(db_group)
+            session.commit()
+            print "Returning True"
+            return True
+        finally:
+            session.close()
         
     @admin_panel_operation
     @logged()
