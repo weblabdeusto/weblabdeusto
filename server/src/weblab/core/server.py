@@ -490,6 +490,12 @@ class UserProcessingServer(object):
     #  Admin services
     #
     # 
+    
+    @logged(log.level.Info)
+    @check_session(**check_session_params)
+    @load_user_processor
+    def update_groups(self, user_processor, session, id, name, parent_id):
+        return user_processor.update_groups(id, name, parent_id)
 
     @logged(log.level.Info)
     @check_session(**check_session_params)

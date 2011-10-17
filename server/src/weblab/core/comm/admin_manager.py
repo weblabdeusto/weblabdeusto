@@ -23,6 +23,16 @@ from weblab.core.comm.user_manager import EXCEPTIONS
 
 class AbstractAdminRemoteFacadeManager(RFM.AbstractRemoteFacadeManager):
     
+    
+    @logged()
+    @RFM.check_exceptions(EXCEPTIONS)
+    @RFM.check_nullable
+    def update_groups(self, session_id, id, name, parent_id):
+        sess_id = self._parse_session_id(session_id)
+        response = self._server.update_groups(sess_id, id, name, parent_id )
+        return response
+    
+    
     @logged()
     @RFM.check_exceptions(EXCEPTIONS)
     @RFM.check_nullable

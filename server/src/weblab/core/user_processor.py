@@ -54,6 +54,9 @@ def list_experiments(db_manager, db_session_id):
 def get_user_information(db_manager, db_session_id):
     return db_manager.retrieve_user_information(db_session_id)
 
+def update_groups(db_manager, db_session_id, id, name, parent_id):
+    return db_manager.update_groups(db_session_id, id, name, parent_id)
+
 @cache(GET_GROUPS_CACHE_TIME, _resource_manager)
 def get_groups(db_manager, db_session_id, parent_id):
     return db_manager.get_groups(db_session_id, parent_id)
@@ -243,6 +246,11 @@ class UserProcessor(object):
     def get_groups(self, parent_id=None):
         db_session_id         = self._session['db_session_id']
         return get_groups(self._db_manager, db_session_id, parent_id)
+    
+    def update_groups(self, id, name, parent_id):
+        print "[@USERPROCESSOR] update_groups"
+        db_session_id = self._session['db_session_id']
+        return update_groups(self._db_manager, db_session_id, id, name, parent_id)
     
     def get_roles(self):
         db_session_id         = self._session['db_session_id']

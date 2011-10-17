@@ -54,6 +54,9 @@ class UserProcessingDatabaseManager(object):
         """ Tries to update a file. Returns True if it was added successfully, false otherwise """
         return self._gateway.update_file( file_id, response, end_timestamp )
    
+    def update_groups(self, session_id, id, name, parent_id):
+        return self._gateway.update_groups(id, name, parent_id)
+   
     def get_groups(self, session_id, parent_id=None):
         return self._gateway.get_groups(session_id.username, parent_id)
     

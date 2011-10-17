@@ -153,11 +153,32 @@ class Methods(object):
     JSON, so they must be parsed and an appropriate JSON response
     generated. They are the first server-side layer to receive them.
     """
-    
-    
+
     @staticmethod
     def update_groups(handler, session_id, parameters):
-        print "[UPDATING GROUPS]"
+        print "[@ADMIN_SMARTGWT] update_groups"
+        
+        # Split the parameters into a dictionary for easier handling.
+        params = dict([par.split('=') for par in parameters])
+        
+        request_args = { 'id' : session_id }
+        
+        # TODO: Find out why the sessionid is passed like this in most of these methods.
+        # (But apparently not in all)
+        
+        group = handler.facade_manager.update_groups(request_args, params['id'], params['name'], params['parent_id'])
+    
+        return { 'response' : 
+                    { 'data' : 
+                        [ 
+                            { 
+                                'id' : '1', 
+                                'name' : 'YES'
+                            } 
+                        ] 
+                    }
+               }
+
     
     @staticmethod
     def get_experiments(handler, session_id, parameters):

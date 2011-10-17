@@ -322,6 +322,13 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             
     @admin_panel_operation
     @logged()
+    def update_groups(self, id, name, parent_id):
+        """ The user's permissions are not checked at the moment """
+        print "[@MYSQLGATEWAY] update_groups"
+        return ""
+        
+    @admin_panel_operation
+    @logged()
     def get_groups(self, user_login, parent_id=None):
         """ The user's permissions are not checked at the moment """
         

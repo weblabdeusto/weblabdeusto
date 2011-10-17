@@ -186,6 +186,18 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     
     @logged()
     @RFM.check_exceptions(EXCEPTIONS)
+    def update_groups(self, session_id, id, name, parent_id):
+        """
+            update_groups(session_id, id, name, parent_id)
+            raises SessionNotFoundException
+        """
+        print "[@USERMANAGER] Updating groups"
+        sess_id = self._parse_session_id(session_id)
+        group = self._server.update_groups(sess_id, id, name, parent_id)
+        return group
+    
+    @logged()
+    @RFM.check_exceptions(EXCEPTIONS)
     def get_groups(self, session_id):
         """ get_groups(session_id) -> array of Group
             raises SessionNotFoundException
