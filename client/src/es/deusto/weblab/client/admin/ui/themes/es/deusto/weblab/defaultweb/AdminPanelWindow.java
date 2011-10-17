@@ -17,6 +17,7 @@ package es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
@@ -71,11 +72,16 @@ import com.smartgwt.client.widgets.grid.ListGridRecord;
 import com.smartgwt.client.widgets.grid.SummaryFunction;
 import com.smartgwt.client.widgets.grid.events.RecordClickEvent;
 import com.smartgwt.client.widgets.grid.events.RecordClickHandler;
+import com.smartgwt.client.widgets.grid.events.RecordDropEvent;
+import com.smartgwt.client.widgets.grid.events.RecordDropHandler;
 import com.smartgwt.client.widgets.layout.HLayout;
 import com.smartgwt.client.widgets.layout.VLayout;
 import com.smartgwt.client.widgets.tab.Tab;
 import com.smartgwt.client.widgets.tab.TabSet;
 import com.smartgwt.client.widgets.tree.TreeGrid;
+import com.smartgwt.client.widgets.tree.TreeNode;
+import com.smartgwt.client.widgets.tree.events.FolderDropEvent;
+import com.smartgwt.client.widgets.tree.events.FolderDropHandler;
 
 import es.deusto.weblab.client.admin.comm.datasources.AuthsDataSource;
 import es.deusto.weblab.client.admin.comm.datasources.ExperimentUsesDataSource;
@@ -484,8 +490,10 @@ public class AdminPanelWindow extends BaseWindow {
         this.usersGroupsTree.setDataSource(this.groupsDS);
         this.usersGroupsTree.setWidth(300);
         this.usersGroupsTree.setHeight(400);
+        this.usersGroupsTree.setCanReparentNodes(true);
         final VLayout groupsLayout = new VLayout();
         groupsLayout.addMember(this.usersGroupsTree);
+        
         
 		// Link the layout that contains the groups tree
 		gridAndButtonsVLayout.addMember(groupsLayout);
@@ -562,6 +570,13 @@ public class AdminPanelWindow extends BaseWindow {
     	   }
     	   
        });
+        
+        this.usersGroupsTree.addFolderDropHandler(new FolderDropHandler(){
+			@Override
+			public void onFolderDrop(FolderDropEvent event) {
+				final TreeNode[] nodes = event.getNodes();
+				final TreeNode parent = event.getFolder();
+			}});
 
         
         // 
