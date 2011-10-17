@@ -322,7 +322,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             
     @admin_panel_operation
     @logged()
-    def update_groups(self, id, name, parent_id):
+    def update_groups(self, user_login, id, name, parent_id):
         """ The user's permissions are not checked at the moment """
         print "[@MYSQLGATEWAY] update_groups"
         return ""

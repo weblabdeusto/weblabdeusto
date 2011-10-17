@@ -55,7 +55,7 @@ class UserProcessingDatabaseManager(object):
         return self._gateway.update_file( file_id, response, end_timestamp )
    
     def update_groups(self, session_id, id, name, parent_id):
-        return self._gateway.update_groups(id, name, parent_id)
+        return self._gateway.update_groups(session_id.username, id, name, parent_id)
    
     def get_groups(self, session_id, parent_id=None):
         return self._gateway.get_groups(session_id.username, parent_id)
