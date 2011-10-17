@@ -327,6 +327,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         print "[@MYSQLGATEWAY] update_groups"
         
         print "Parent id is: ", parent_id
+        print type(parent_id)
         
         session = self.Session()
         try:
@@ -336,7 +337,10 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                 return False
 
             db_group.name = name
-            db_group.parent_id = parent_id
+            
+            if( parent_id != "null" ):
+                db_group.parent_id = parent_id
+            
             session.add(db_group)
             session.commit()
             print "Returning True"
