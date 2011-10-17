@@ -338,8 +338,8 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
 
             db_group.name = name
             
-            if( parent_id != "null" ):
-                db_group.parent_id = parent_id
+            if parent_id == "null":
+                parent_id = None
             
             session.add(db_group)
             session.commit()
