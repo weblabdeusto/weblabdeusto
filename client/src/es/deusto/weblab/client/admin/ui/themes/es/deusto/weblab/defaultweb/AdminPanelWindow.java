@@ -578,21 +578,34 @@ public class AdminPanelWindow extends BaseWindow {
 				final TreeNode[] nodes = event.getNodes();
 				final TreeNode parent = event.getFolder();
 				
+				final String parentid = parent.getAttribute("parent_id");
+				
 				for(TreeNode n : nodes) {
-					final int id = n.getAttributeAsInt("id");
-					System.out.println("The identifier is: " + id);
+
+					final String nodeid = n.getAttribute("id");
 					
 					ListGridRecord[] gridRecords = usersGroupsTree.getRecords();
 					for(ListGridRecord rec : gridRecords) {
+
 						
-						final int rid = rec.getAttributeAsInt("id");
-						System.out.println("Rid is: " + rid);
+						// TODO: The parent_id is supposed to be an integer but that seems to lead to trouble handling null.
+						// Maybe a solution would be to use a string field instead.
 						
-						if(id == rid) {
-							System.out.println("Now updating: " + id);
+						final String rid = rec.getAttribute("id");
+						
+						if( nodeid.equals(rid) ) {
+							if(rec.getAttribute("parent_id") == null)
+								System.out.println("REAL NULL DETECTED");
+							else if(rec.getAttribute("parent_id").equals("null"))
+								System.out.println("FAKE NULL DETECTED");
+							else
+								System.out.println("The parent is: " + rec.getAttribute("parent_id"));
+							//if(rec.getAttribute("parent_id") == null || rec.getAttributeAsBoolean("parent_id").equals("null"))
+								//rec.setAttribute("parent_id", "");
 							usersGroupsTree.updateData(rec);
 						}
 					}
+					
 				}
 				
 			}});
