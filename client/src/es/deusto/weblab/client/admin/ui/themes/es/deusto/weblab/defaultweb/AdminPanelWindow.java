@@ -36,6 +36,7 @@ import com.smartgwt.client.data.DSCallback;
 import com.smartgwt.client.data.DSRequest;
 import com.smartgwt.client.data.DSResponse;
 import com.smartgwt.client.data.Record;
+import com.smartgwt.client.data.RecordList;
 import com.smartgwt.client.data.SortSpecifier;
 import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.types.DateDisplayFormat;
@@ -576,6 +577,24 @@ public class AdminPanelWindow extends BaseWindow {
 			public void onFolderDrop(FolderDropEvent event) {
 				final TreeNode[] nodes = event.getNodes();
 				final TreeNode parent = event.getFolder();
+				
+				for(TreeNode n : nodes) {
+					final int id = n.getAttributeAsInt("id");
+					System.out.println("The identifier is: " + id);
+					
+					ListGridRecord[] gridRecords = usersGroupsTree.getRecords();
+					for(ListGridRecord rec : gridRecords) {
+						
+						final int rid = rec.getAttributeAsInt("id");
+						System.out.println("Rid is: " + rid);
+						
+						if(id == rid) {
+							System.out.println("Now updating: " + id);
+							usersGroupsTree.updateData(rec);
+						}
+					}
+				}
+				
 			}});
 
         
