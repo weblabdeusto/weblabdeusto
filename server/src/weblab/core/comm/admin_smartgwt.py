@@ -323,24 +323,25 @@ class Methods(object):
 
         parent_id_str = parent_ids[0][len('parent_id') + 1:]
         try:
-            parent_id     = None if parent_id_str == 'null' else int(parent_id_str)
+            parent_id = None if parent_id_str == 'null' or parent_id_str == '0' else int(parent_id_str)
         except ValueError:
             raise MethodException("parent_id must be an int or 'null'")
 
         groups = handler.facade_manager.get_groups(session_id, parent_id)
-        return { 'response' :
+        resp = { 'response' :
                     { 'data' :
                         [ 
                             { 
                                 'id' : group.id, 
                                 'name' : group.name, 
-                                'parent_id' : None if group._parent is None else group._parent.id,
+                                'parent_id' : 0 if group._parent is None or group._parent.id is None else group._parent.id,
                                 'isFolder'  : len(group.children) > 0
                             }
                             for group in groups
                         ] 
                     }
                 }
+        return resp;
 
     @staticmethod
     def get_experiment_uses(handler, session_id, parameters):

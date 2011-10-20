@@ -578,7 +578,13 @@ public class AdminPanelWindow extends BaseWindow {
 				final TreeNode[] nodes = event.getNodes();
 				final TreeNode parent = event.getFolder();
 				
-				final String parentid = parent.getAttribute("parent_id");
+				final String sparentid = parent.getAttribute("parent_id");
+				
+				final int parentid;
+				if(sparentid != null)
+					parentid = parent.getAttributeAsInt("parent_id");
+				else
+					parentid = 0;
 				
 				for(TreeNode n : nodes) {
 
@@ -589,21 +595,27 @@ public class AdminPanelWindow extends BaseWindow {
 
 						
 						// TODO: The parent_id is supposed to be an integer but that seems to lead to trouble handling null.
-						// Maybe a solution would be to use a string field instead.
+						// Maybe a solution would be to use a string field instead. Or an id = 0 to indicate null.
 						
-						final String rid = rec.getAttribute("id");
-						
-						if( nodeid.equals(rid) ) {
-							if(rec.getAttribute("parent_id") == null)
-								System.out.println("REAL NULL DETECTED");
-							else if(rec.getAttribute("parent_id").equals("null"))
-								System.out.println("FAKE NULL DETECTED");
-							else
-								System.out.println("The parent is: " + rec.getAttribute("parent_id"));
-							//if(rec.getAttribute("parent_id") == null || rec.getAttributeAsBoolean("parent_id").equals("null"))
-								//rec.setAttribute("parent_id", "");
+//						final String rid = rec.getAttribute("id");
+//						
+//						if( nodeid.equals(rid) ) {
+//							if(rec.getAttributeAsInt("parent_id") == null)
+//								System.out.println("REAL NULL DETECTED");
+//							else if(rec.getAttributeAsInt("parent_id") == 0)
+//								System.out.println("FAKE NULL DETECTED");
+//							else
+//								System.out.println("The parent is: " + rec.getAttributeAsInt("parent_id"));
+//							//if(rec.getAttribute("parent_id") == null || rec.getAttributeAsBoolean("parent_id").equals("null"))
+//								//rec.setAttribute("parent_id", "");
+//							
+//							if(rec.getAttribute("parent_id") == null ||
+//									(rec.getAttribute("parent_id") != null &&
+//											rec.getAttributeAsInt("parent_id") == 0))
+//									rec.setAttribute("parent_id", (Integer)0);
+							
 							usersGroupsTree.updateData(rec);
-						}
+//						}
 					}
 					
 				}
