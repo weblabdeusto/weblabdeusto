@@ -165,6 +165,8 @@ class Methods(object):
         of the function, it can update a single group (not several).
         """
         
+        print "[update_groups]"
+        
         # Split the parameters into a dictionary for easier handling.
         params = dict([par.split('=') for par in parameters])
         
@@ -315,6 +317,7 @@ class Methods(object):
 
     @staticmethod
     def get_groups(handler, session_id, parameters):
+        
         session_id = { 'id' : session_id }
         parent_ids = [ param for param in parameters if param.startswith('parent_id=') ]
         
@@ -322,6 +325,7 @@ class Methods(object):
             raise MethodException("No parent_id provided")
 
         parent_id_str = parent_ids[0][len('parent_id') + 1:]
+        
         try:
             parent_id = None if parent_id_str == 'null' or parent_id_str == '0' else int(parent_id_str)
         except ValueError:
@@ -334,13 +338,14 @@ class Methods(object):
                             { 
                                 'id' : group.id, 
                                 'name' : group.name, 
-                                'parent_id' : 0 if group._parent is None or group._parent.id is None else group._parent.id,
+                                'parent_id' : None if group._parent is None or group._parent.id is None else group._parent.id,
                                 'isFolder'  : len(group.children) > 0
                             }
                             for group in groups
                         ] 
                     }
                 }
+        
         return resp;
 
     @staticmethod

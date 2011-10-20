@@ -42,7 +42,7 @@ public class GroupsDataSource extends WebLabRestDataSource {
         idField.setPrimaryKey(true);
         idField.setCanEdit(false);  
         final DataSourceTextField nameDSField = new DataSourceTextField(GroupRecord.NAME, "Name");
-        final DataSourceIntegerField parentIdDSField = new DataSourceIntegerField(GroupRecord.PARENT_ID, null);
+        final DataSourceTextField parentIdDSField = new DataSourceTextField(GroupRecord.PARENT_ID, null);
         parentIdDSField.setForeignKey(GroupRecord.ID);     
         
 	    this.setFields(idField, nameDSField, parentIdDSField);  
