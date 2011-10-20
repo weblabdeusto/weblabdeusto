@@ -580,15 +580,11 @@ public class AdminPanelWindow extends BaseWindow {
 			@Override
 			public void onFolderDrop(FolderDropEvent event) {
 				final TreeNode[] nodes = event.getNodes();
-				final TreeNode parent = event.getFolder();
 				
-				String sparentid;
-				try {
-					sparentid = parent.getAttribute("parent_id");
-				} catch(Throwable e) {
-					System.out.println("Exception which should not be there, caught");
-					sparentid = null;
-				}
+				final TreeNode target = event.getFolder();
+				
+				// NOTE: Current issue: When there is no target, getFolder seems to return something invalid.
+				final String target_id = target.getAttribute("id");
 				
 				for(TreeNode n : nodes) {
 
@@ -604,19 +600,8 @@ public class AdminPanelWindow extends BaseWindow {
 						final String rid = rec.getAttribute("id");
 						
 						if( nodeid.equals(rid) ) {
-//							if(rec.getAttributeAsInt("parent_id") == null)
-//								System.out.println("REAL NULL DETECTED");
-//							else if(rec.getAttributeAsInt("parent_id") == 0)
-//								System.out.println("FAKE NULL DETECTED");
-//							else
-//								System.out.println("The parent is: " + rec.getAttribute("parent_id"));
-							//if(rec.getAttribute("parent_id") == null || rec.getAttributeAsBoolean("parent_id").equals("null"))
-								//rec.setAttribute("parent_id", "");
-
-							String nparentid = rec.getAttribute("parent_id");
-							System.out.println("Node parent id: " + nparentid);
-							System.out.println("Setting parent_id to " + nparentid);
-							rec.setAttribute("parent_id", nparentid);
+							System.out.println("Setting parent_id to " + target_id);
+							rec.setAttribute("parent_id", target_id);
 							usersGroupsTree.updateData(rec);
 						}
 					}
