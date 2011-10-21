@@ -583,8 +583,13 @@ public class AdminPanelWindow extends BaseWindow {
 				
 				final TreeNode target = event.getFolder();
 				
-				// NOTE: Current issue: When there is no target, getFolder seems to return something invalid.
-				final String target_id = target.getAttribute("id");
+				// NOTE: Current issue: When there is no target, getFolder seems to return something invali
+				final String target_id;
+				if(target != null && target.getJsObj() != null) {
+					target_id = target.getAttribute("id");
+				} else {
+					target_id = null;
+				}
 				
 				for(TreeNode n : nodes) {
 
