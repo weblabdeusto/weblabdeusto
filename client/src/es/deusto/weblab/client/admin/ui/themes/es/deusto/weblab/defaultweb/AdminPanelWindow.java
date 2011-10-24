@@ -495,7 +495,7 @@ public class AdminPanelWindow extends BaseWindow {
         this.usersGroupsTree.setDataSource(this.groupsDS);
         this.usersGroupsTree.setWidth(300);
         this.usersGroupsTree.setHeight(400);
-        this.usersGroupsTree.setCanReparentNodes(true);
+        //this.usersGroupsTree.setCanReparentNodes(true);
         final VLayout groupsLayout = new VLayout();
         groupsLayout.addMember(this.usersGroupsTree);
         
@@ -560,6 +560,38 @@ public class AdminPanelWindow extends BaseWindow {
 		nameForm.setWidth(300);
 		nameForm.setDataSource(this.groupsDS);
 		groupLayout.addChild(nameForm);
+		
+		
+		// Create the tabset within the groups tab.
+		final TabSet groupsTabSet = new TabSet();
+		groupsTabSet.setTabBarPosition(Side.TOP);  
+		groupsTabSet.setWidth(500);  
+		groupsTabSet.setHeight(400);  
+        
+        // Create each tab
+        final Tab hierarchyTab = new Tab("Hierarchy", "../weblabclientadmin/img/icons/icon_user.png");  
+        final Tab usersTab = new Tab("Users", "../weblabclientadmin/img/icons/icon_group.png");  
+        final Tab externalEntitiesTab = new Tab("External entities", "../weblabclientadmin/img/icons/icon_key.png");
+        final Tab permissionsTab = new Tab("Permissions", "../weblabclientadmin/img/icons/icon_key.png");
+        
+        // We set the icons to the right size through the following code. Setting the height is enough, the
+        // width seems to be scaled appropriately. Apparently in newer versions of SmartGWT there are explicit
+        // setIconHeight methods. Older versions seem to support it only through setAttribute though.
+        final int standardIconHeight = 20;
+        hierarchyTab.setAttribute("iconHeight", standardIconHeight);
+        usersTab.setAttribute("iconHeight", standardIconHeight);
+        externalEntitiesTab.setAttribute("iconHeight", standardIconHeight);
+        permissionsTab.setAttribute("iconHeight", standardIconHeight);
+        
+
+        // Add every tab to the tabset
+        groupsTabSet.addTab(hierarchyTab);  
+        groupsTabSet.addTab(usersTab);  
+        groupsTabSet.addTab(externalEntitiesTab);
+        groupsTabSet.addTab(permissionsTab);
+        
+        // Add the tabset tot he groups layout.
+        groupLayout.addChild(groupsTabSet);
 		
 		
 	    // Set up the callback that will be invoked whenever a group is selected from
