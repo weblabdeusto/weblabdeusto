@@ -545,10 +545,11 @@ public class AdminPanelWindow extends BaseWindow {
         groupLayout.setOverflow(Overflow.VISIBLE);
 		groupLayout.setBorder("1px solid gray");
 		groupLayout.setHeight(400);
+		
         
         
         // Add the dynamic form with the name of the group
-        final VLayout nameFormWrapperLayout = new VLayout();
+        final HLayout nameFormWrapperLayout = new HLayout();
         final DynamicForm nameForm = new DynamicForm();
 		nameForm.setUseAllDataSourceFields(false);
 		nameForm.setAutoFetchData(false);
@@ -561,7 +562,9 @@ public class AdminPanelWindow extends BaseWindow {
 		nameForm.setHeight(100);
 		nameForm.setDataSource(this.groupsDS);
 		nameFormWrapperLayout.addChild(nameForm);
-		groupLayout.addChild(nameForm);
+		groupLayout.addChild(nameFormWrapperLayout);
+		
+		nameFormWrapperLayout.setBorder("1px solid red");
 		
 		
 		// Create the tabset within the groups tab.
@@ -597,6 +600,8 @@ public class AdminPanelWindow extends BaseWindow {
         
         // Link the group layout
         tabsetAndButtonsVLayout.addMember(groupLayout);
+        
+        groupLayout.setBorder("1px solid orange");
         
         
 		
