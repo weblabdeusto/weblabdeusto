@@ -42,6 +42,7 @@ import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.types.DateDisplayFormat;
 import com.smartgwt.client.types.DragDataAction;
 import com.smartgwt.client.types.OperatorId;
+import com.smartgwt.client.types.Overflow;
 import com.smartgwt.client.types.Side;
 import com.smartgwt.client.types.SortDirection;
 import com.smartgwt.client.types.VerticalAlignment;
@@ -541,14 +542,13 @@ public class AdminPanelWindow extends BaseWindow {
 		
 		// Add the container layout.
 		final VLayout groupLayout = new VLayout();
+        groupLayout.setOverflow(Overflow.VISIBLE);
 		groupLayout.setBorder("1px solid gray");
 		groupLayout.setHeight(400);
         
-        // Link it
-        tabsetAndButtonsVLayout.addMember(groupLayout);
-        
         
         // Add the dynamic form with the name of the group
+        final VLayout nameFormWrapperLayout = new VLayout();
         final DynamicForm nameForm = new DynamicForm();
 		nameForm.setUseAllDataSourceFields(false);
 		nameForm.setAutoFetchData(false);
@@ -558,7 +558,9 @@ public class AdminPanelWindow extends BaseWindow {
 		nameIt.setWidth(300);
 		nameForm.setFields(nameIt);
 		nameForm.setWidth(300);
+		nameForm.setHeight(100);
 		nameForm.setDataSource(this.groupsDS);
+		nameFormWrapperLayout.addChild(nameForm);
 		groupLayout.addChild(nameForm);
 		
 		
@@ -566,12 +568,12 @@ public class AdminPanelWindow extends BaseWindow {
 		final TabSet groupsTabSet = new TabSet();
 		groupsTabSet.setTabBarPosition(Side.TOP);  
 		groupsTabSet.setWidth(500);  
-		groupsTabSet.setHeight(400);  
+		//groupsTabSet.setHeight(400);  
         
         // Create each tab
-        final Tab hierarchyTab = new Tab("Hierarchy", "../weblabclientadmin/img/icons/icon_user.png");  
+        final Tab hierarchyTab = new Tab("Hierarchy", "../weblabclientadmin/img/icons/icon_o_tree.png");  
         final Tab usersTab = new Tab("Users", "../weblabclientadmin/img/icons/icon_group.png");  
-        final Tab externalEntitiesTab = new Tab("External entities", "../weblabclientadmin/img/icons/icon_key.png");
+        final Tab externalEntitiesTab = new Tab("External Entities", "../weblabclientadmin/img/icons/icon_o_entity.png");
         final Tab permissionsTab = new Tab("Permissions", "../weblabclientadmin/img/icons/icon_key.png");
         
         // We set the icons to the right size through the following code. Setting the height is enough, the
@@ -590,9 +592,13 @@ public class AdminPanelWindow extends BaseWindow {
         groupsTabSet.addTab(externalEntitiesTab);
         groupsTabSet.addTab(permissionsTab);
         
-        // Add the tabset tot he groups layout.
+        // Add the tabset to the groups layout.
         groupLayout.addChild(groupsTabSet);
-		
+        
+        // Link the group layout
+        tabsetAndButtonsVLayout.addMember(groupLayout);
+        
+        
 		
 	    // Set up the callback that will be invoked whenever a group is selected from
 		// the tree.
