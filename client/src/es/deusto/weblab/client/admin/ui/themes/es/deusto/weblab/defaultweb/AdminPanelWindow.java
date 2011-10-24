@@ -576,44 +576,59 @@ public class AdminPanelWindow extends BaseWindow {
     	   
        });
         
-        this.usersGroupsTree.addFolderDropHandler(new FolderDropHandler(){
-			@Override
-			public void onFolderDrop(FolderDropEvent event) {
-				final TreeNode[] nodes = event.getNodes();
-				
-				final TreeNode target = event.getFolder();
-				
-				// NOTE: Current issue: When there is no target, getFolder seems to return something invali
-				final String target_id;
-				if(target != null && target.getJsObj() != null) {
-					target_id = target.getAttribute("id");
-				} else {
-					target_id = null;
-				}
-				
-				for(TreeNode n : nodes) {
-
-					final String nodeid = n.getAttribute("id");
-					
-					ListGridRecord[] gridRecords = usersGroupsTree.getRecords();
-					for(ListGridRecord rec : gridRecords) {
-
-						
-						// TODO: The parent_id is supposed to be an integer but that seems to lead to trouble handling null.
-						// Maybe a solution would be to use a string field instead. Or an id = 0 to indicate null.
-						
-						final String rid = rec.getAttribute("id");
-						
-						if( nodeid.equals(rid) ) {
-							System.out.println("Setting parent_id to " + target_id);
-							rec.setAttribute("parent_id", target_id);
-							usersGroupsTree.updateData(rec);
-						}
-					}
-					
-				}
-				
-			}});
+        
+// NOTE: The following commented out method did never fully work as intended. 
+// I am trying a completely different approach. I'll leave this here for now
+// just in case.
+// 
+//        this.usersGroupsTree.addFolderDropHandler(new FolderDropHandler(){
+//			@Override
+//			public void onFolderDrop(FolderDropEvent event) {
+//				final TreeNode[] nodes = event.getNodes();
+//				
+//				final TreeNode target = event.getFolder();
+//				
+//				// NOTE: Current issue: When there is no target, getFolder seems to return something invali
+//				final String target_id;
+//				if(target != null && target.getJsObj() != null) {
+//					target_id = target.getAttribute("id");
+//				} else {
+//					target_id = null;
+//				}
+//				
+//				for(TreeNode n : nodes) {
+//
+//					final String nodeid = n.getAttribute("id");
+//					
+//					ListGridRecord[] gridRecords = usersGroupsTree.getRecords();
+//					for(ListGridRecord rec : gridRecords) {
+//
+//						
+//						// TODO: The parent_id is supposed to be an integer but that seems to lead to trouble handling null.
+//						// Maybe a solution would be to use a string field instead. Or an id = 0 to indicate null.
+//						
+//						final String rid = rec.getAttribute("id");
+//						
+//						if( nodeid.equals(rid) ) {
+//							final String cur = rec.getAttribute("parent_id");
+//							System.out.println("Current parent_id is " + rec.getAttribute("parent_id") + (cur == null ? "[REAL NULL]" : "") );
+//							System.out.println("Setting parent_id to " + target_id + (target_id == null ? "[REAL NULL]" : ""));
+//							
+////							if(target_id != null)
+////								rec.setAttribute("parent_id", target_id);
+////							else
+////								rec.setAttribute("parent_id", (Object)null);
+//							
+//							rec.setAttribute("parent_id", 2);
+//							usersGroupsTree.refreshFields();
+//							
+//							usersGroupsTree.updateData(rec);
+//						}
+//					}
+//					
+//				}
+//				
+//			}});
 
         
         // 
