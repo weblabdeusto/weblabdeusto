@@ -415,6 +415,8 @@ public class AdminPanelWindow extends BaseWindow {
 	 */
 	private void createUsersTabSet() {
 		
+		
+		
 		this.usersTabSet = new TabSet();
 		this.usersTabSet.setTabBarPosition(Side.TOP);
 		this.usersTabSet.setTabBarAlign(Side.RIGHT);
@@ -422,6 +424,15 @@ public class AdminPanelWindow extends BaseWindow {
 		this.usersTabSet.setHeight100();
 		this.usersTabSet.setPadding(40);
 		this.usersLayout.addMember(this.usersTabSet);
+		
+		this.usersGroupsTab = new Tab("Groups");
+		this.usersGroupsLayout = new VLayout();
+		this.usersGroupsLayout.setWidth100();
+		this.usersGroupsLayout.setHeight100();		
+		this.usersGroupsLayout.setPadding(10);
+		this.usersGroupsLayout.setMembersMargin(15);		
+		this.usersGroupsTab.setPane(this.usersGroupsLayout);
+		this.usersTabSet.addTab(this.usersGroupsTab);
 		
 		this.usersUsersTab = new Tab("Users");				
 		this.usersUsersLayout = new VLayout();
@@ -443,24 +454,15 @@ public class AdminPanelWindow extends BaseWindow {
 		this.usersTabSet.addTab(this.usersRolesTab);
 
 		
-		this.usersGroupsTab = new Tab("Groups");
-		this.usersGroupsLayout = new VLayout();
-		this.usersGroupsLayout.setWidth100();
-		this.usersGroupsLayout.setHeight100();		
-		this.usersGroupsLayout.setPadding(10);
-		this.usersGroupsLayout.setMembersMargin(15);		
-		this.usersGroupsTab.setPane(this.usersGroupsLayout);
-		this.usersTabSet.addTab(this.usersGroupsTab);
-
-		
 	}
 	
 	private void buildUsersLayout() {			
 		this.createUsersTabSet();
 		
+		this.buildUsersGroupsPanel();
 		this.buildUsersUsersPanel();
 		this.buildUsersRolesPanel();	
-		this.buildUsersGroupsPanel();
+
 	}
 	
 	private void buildUsersGroupsPanel() {
@@ -471,6 +473,9 @@ public class AdminPanelWindow extends BaseWindow {
 		
 		// Create horizontal panel to hold the user grid and the tab set
 		final HLayout mainLayout = new HLayout();
+		mainLayout.setShowEdges(true);
+		mainLayout.setBorder("4px solid black");
+		mainLayout.setSize("100%", "100%");
 		mainLayout.setMembersMargin(20);
 		
 		// Create a vertical layout for the users grid and the add/remove buttons.
@@ -478,12 +483,35 @@ public class AdminPanelWindow extends BaseWindow {
 		
 		// Create a vertical layout for the tabset and the save changes button.
         final VLayout tabsetAndButtonsVLayout = new VLayout();
+		 
 		
-        // Link them
-		this.usersGroupsLayout.addMember(mainLayout);        
+        
+        // Link the layouts
         mainLayout.addMember(gridAndButtonsVLayout);
         mainLayout.addMember(tabsetAndButtonsVLayout);
+  
+
 		
+		VLayout fakeTabset = new VLayout();
+		VLayout fakeButtons = new VLayout();
+	
+	
+		fakeButtons.setShowEdges(true);
+		fakeButtons.setBorder("3px solid blue");
+		fakeButtons.setSize("50%", "50%");
+		fakeTabset.setShowEdges(true);
+		fakeTabset.setSize("60%", "60%");
+		fakeTabset.setBorder("3px solid green");
+		
+		tabsetAndButtonsVLayout.addChild(fakeTabset);
+		tabsetAndButtonsVLayout.addChild(fakeButtons);
+		
+		this.usersGroupsLayout.addMember(mainLayout); 
+		
+		
+		int n = 5;
+		if(n == 5)
+			return;
         
         
         // *********
@@ -499,6 +527,9 @@ public class AdminPanelWindow extends BaseWindow {
         //this.usersGroupsTree.setCanReparentNodes(true);
         final VLayout groupsLayout = new VLayout();
         groupsLayout.addMember(this.usersGroupsTree);
+        
+        groupsLayout.setAlign(VerticalAlignment.CENTER);
+        gridAndButtonsVLayout.setAlign(VerticalAlignment.CENTER);
         
         
 		// Link the layout that contains the groups tree
@@ -542,17 +573,18 @@ public class AdminPanelWindow extends BaseWindow {
 		
 		// Add the container layout.
 		final VLayout groupLayout = new VLayout();
-        groupLayout.setMemberOverlap(0);
-        groupLayout.setOverflow(Overflow.SCROLL);
 		groupLayout.setBorder("3px solid blue");
 		groupLayout.setSize("100%", "100%");
-		
 
         
         
         // Add the dynamic form with the name of the group
-        final HLayout nameFormWrapperLayout = new HLayout();
-        nameFormWrapperLayout.setSize("100%", "30%");
+        final VLayout nameFormWrapperLayout = new VLayout();
+        nameFormWrapperLayout.setAlign(Alignment.CENTER);
+        nameFormWrapperLayout.setAlign(VerticalAlignment.CENTER);
+        nameFormWrapperLayout.setShowEdges(true);
+        nameFormWrapperLayout.setPosition("300, 300");
+        nameFormWrapperLayout.setSize("50%", "30%");
         final DynamicForm nameForm = new DynamicForm();
 //		nameForm.setUseAllDataSourceFields(false);
 //		nameForm.setAutoFetchData(false);
@@ -571,7 +603,7 @@ public class AdminPanelWindow extends BaseWindow {
 		
 //		// Create the tabset within the groups tab.
 		HLayout groupsTabSetWrapper = new HLayout();
-		groupsTabSetWrapper.setSize("50%", "50%");
+		groupsTabSetWrapper.setSize("100%", "50%");
 		groupsTabSetWrapper.setBorder("2px solid purple");
 //		
 //		final TabSet groupsTabSet = new TabSet();
@@ -610,8 +642,6 @@ public class AdminPanelWindow extends BaseWindow {
 //
         // Link the group layout
         tabsetAndButtonsVLayout.addMember(groupLayout);
-        
-        tabsetAndButtonsVLayout.draw();
         
         
         
@@ -699,7 +729,7 @@ public class AdminPanelWindow extends BaseWindow {
         saveChangesIt.setAutoFit(false);
         
         // If we don't set the value for the width, for some reason the button
-        // appers in half, displaced to the left.
+        // appears in half, displaced to the left.
         saveChangesIt.setWidth(100);
         
         saveChangesForm.setFields(saveChangesIt);
@@ -718,6 +748,8 @@ public class AdminPanelWindow extends BaseWindow {
 					AdminPanelWindow.this.groupsDS.updateData(nameForm.getValuesAsRecord());
 				}
     		});
+        
+
         
 	}
 
