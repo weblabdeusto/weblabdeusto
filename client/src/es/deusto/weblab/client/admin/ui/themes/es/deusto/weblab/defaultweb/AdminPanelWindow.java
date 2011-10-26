@@ -551,9 +551,9 @@ public class AdminPanelWindow extends BaseWindow {
         
         
         // Add the dynamic form with the name of the group
-//        final HLayout nameFormWrapperLayout = new HLayout();
-//        nameFormWrapperLayout.setSize("60%", "60%");
-//        final DynamicForm nameForm = new DynamicForm();
+        final HLayout nameFormWrapperLayout = new HLayout();
+        nameFormWrapperLayout.setSize("100%", "30%");
+        final DynamicForm nameForm = new DynamicForm();
 //		nameForm.setUseAllDataSourceFields(false);
 //		nameForm.setAutoFetchData(false);
 //		nameForm.setAlign(Alignment.RIGHT);
@@ -564,15 +564,15 @@ public class AdminPanelWindow extends BaseWindow {
 //		nameForm.setSize("90%", "90%");
 //		nameForm.setDataSource(this.groupsDS);
 //		nameFormWrapperLayout.addChild(nameForm);
-//		groupLayout.addChild(nameFormWrapperLayout);
+		groupLayout.addChild(nameFormWrapperLayout);
 //		
-//		nameFormWrapperLayout.setBorder("1px solid red");
+		nameFormWrapperLayout.setBorder("1px solid red");
 		
 		
 //		// Create the tabset within the groups tab.
-//		HLayout groupsTabSetWrapper = new HLayout();
-//		groupsTabSetWrapper.setSize("50%", "50%");
-//		groupsTabSetWrapper.setBorder("2px solid purple");
+		HLayout groupsTabSetWrapper = new HLayout();
+		groupsTabSetWrapper.setSize("50%", "50%");
+		groupsTabSetWrapper.setBorder("2px solid purple");
 //		
 //		final TabSet groupsTabSet = new TabSet();
 //		groupsTabSet.setTabBarPosition(Side.TOP);  
@@ -603,12 +603,12 @@ public class AdminPanelWindow extends BaseWindow {
 //        
 //        // Add the tabset to the groups layout.
 //        groupsTabSetWrapper.addChild(groupsTabSet);
-//        groupLayout.addChild(groupsTabSetWrapper);
+        groupLayout.addChild(groupsTabSetWrapper);
 //        
 //        groupLayout.draw();
 //        
 //
-//        // Link the group layout
+        // Link the group layout
         tabsetAndButtonsVLayout.addMember(groupLayout);
         
         tabsetAndButtonsVLayout.draw();
