@@ -489,29 +489,9 @@ public class AdminPanelWindow extends BaseWindow {
         // Link the layouts
         mainLayout.addMember(gridAndButtonsVLayout);
         mainLayout.addMember(tabsetAndButtonsVLayout);
-  
-
-		
-		VLayout fakeTabset = new VLayout();
-		VLayout fakeButtons = new VLayout();
-	
-	
-		fakeButtons.setShowEdges(true);
-		fakeButtons.setBorder("3px solid blue");
-		fakeButtons.setSize("50%", "50%");
-		fakeTabset.setShowEdges(true);
-		fakeTabset.setSize("60%", "60%");
-		fakeTabset.setBorder("3px solid green");
-		
-		tabsetAndButtonsVLayout.addChild(fakeTabset);
-		tabsetAndButtonsVLayout.addChild(fakeButtons);
-		
 		this.usersGroupsLayout.addMember(mainLayout); 
 		
 		
-		int n = 5;
-		if(n == 5)
-			return;
         
         
         // *********
@@ -596,7 +576,7 @@ public class AdminPanelWindow extends BaseWindow {
 //		nameForm.setSize("90%", "90%");
 //		nameForm.setDataSource(this.groupsDS);
 //		nameFormWrapperLayout.addChild(nameForm);
-		groupLayout.addChild(nameFormWrapperLayout);
+		groupLayout.addMember(nameFormWrapperLayout);
 //		
 		nameFormWrapperLayout.setBorder("1px solid red");
 		
@@ -635,7 +615,7 @@ public class AdminPanelWindow extends BaseWindow {
 //        
 //        // Add the tabset to the groups layout.
 //        groupsTabSetWrapper.addChild(groupsTabSet);
-        groupLayout.addChild(groupsTabSetWrapper);
+        groupLayout.addMember(groupsTabSetWrapper);
 //        
 //        groupLayout.draw();
 //        
