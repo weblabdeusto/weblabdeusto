@@ -566,7 +566,6 @@ public class AdminPanelWindow extends BaseWindow {
 		nameForm.setMargin(20);
 		final TextItem nameIt = new TextItem("name", "Name");
 		nameIt.setAlign(Alignment.LEFT);
-		nameIt.setWidth("80%");
 		
 		// The nameIt would probably look better if its label was aligned to the right,
 		// but I've found no obvious way to achieve this effect.
