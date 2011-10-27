@@ -610,7 +610,6 @@ public class AdminPanelWindow extends BaseWindow {
         groupsTabSetWrapper.addChild(groupsTabSet);
         groupLayout.addMember(groupsTabSetWrapper);
         
-        groupLayout.draw();
         
         // Link the group layout
         tabsetAndButtonsVLayout.addMember(groupLayout);
@@ -769,8 +768,6 @@ public class AdminPanelWindow extends BaseWindow {
 					AdminPanelWindow.this.groupsDS.updateData(nameForm.getValuesAsRecord());
 				}
     		});
-        
-
         
 	}
 
