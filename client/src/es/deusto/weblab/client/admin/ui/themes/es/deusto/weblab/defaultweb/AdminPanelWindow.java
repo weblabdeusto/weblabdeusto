@@ -633,6 +633,7 @@ public class AdminPanelWindow extends BaseWindow {
 		parentForm.setMargin(20);
 		final TextItem parentNameIt = new TextItem("Name", "Parent name");
 		parentNameIt.setAlign(Alignment.LEFT);
+		parentNameIt.setDisabled(true);
 		parentForm.setFields(parentNameIt);
 		parentForm.setSize("100%", "20%");
         hierarchyLayout.addMember(parentForm);
@@ -653,6 +654,17 @@ public class AdminPanelWindow extends BaseWindow {
         hierarchyTab.setPane(hierarchyLayout);
         hierarchyLayout.addMember(parentGroupSelectionTree);
         parentGroupSelectionTree.fetchData();
+        
+        
+        parentGroupSelectionTree.addRecordClickHandler(new RecordClickHandler() {
+
+			@Override
+			public void onRecordClick(RecordClickEvent event) {
+				// TODO Auto-generated method stub
+				
+			}
+        	
+        });
         
 		
 	    // Set up the callback that will be invoked whenever a group is selected from
