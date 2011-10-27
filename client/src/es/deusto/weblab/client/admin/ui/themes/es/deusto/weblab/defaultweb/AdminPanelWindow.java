@@ -425,15 +425,6 @@ public class AdminPanelWindow extends BaseWindow {
 		this.usersTabSet.setPadding(40);
 		this.usersLayout.addMember(this.usersTabSet);
 		
-		this.usersGroupsTab = new Tab("Groups");
-		this.usersGroupsLayout = new VLayout();
-		this.usersGroupsLayout.setWidth100();
-		this.usersGroupsLayout.setHeight100();		
-		this.usersGroupsLayout.setPadding(10);
-		this.usersGroupsLayout.setMembersMargin(15);		
-		this.usersGroupsTab.setPane(this.usersGroupsLayout);
-		this.usersTabSet.addTab(this.usersGroupsTab);
-		
 		this.usersUsersTab = new Tab("Users");				
 		this.usersUsersLayout = new VLayout();
 		this.usersUsersLayout.setWidth100();
@@ -442,7 +433,15 @@ public class AdminPanelWindow extends BaseWindow {
 		this.usersUsersLayout.setMembersMargin(15);		
 		this.usersUsersTab.setPane(this.usersUsersLayout);
 		this.usersTabSet.addTab(this.usersUsersTab);
-
+		
+		this.usersGroupsTab = new Tab("Groups");
+		this.usersGroupsLayout = new VLayout();
+		this.usersGroupsLayout.setWidth100();
+		this.usersGroupsLayout.setHeight100();		
+		this.usersGroupsLayout.setPadding(10);
+		this.usersGroupsLayout.setMembersMargin(15);		
+		this.usersGroupsTab.setPane(this.usersGroupsLayout);
+		this.usersTabSet.addTab(this.usersGroupsTab);
 		
 		this.usersRolesTab = new Tab("Roles");				
 		this.usersRolesLayout = new VLayout();
@@ -615,11 +614,53 @@ public class AdminPanelWindow extends BaseWindow {
         
         groupLayout.draw();
         
-
         // Link the group layout
         tabsetAndButtonsVLayout.addMember(groupLayout);
         
+ 
+        // Create the Groups Hierarchy tab
+        final VLayout hierarchyLayout = new VLayout();
+        hierarchyLayout.setSize("100%", "100%");
+  
         
+        //
+        // Create the Parent dynamic form
+        //
+        
+        // Add the dynamic form with the name of the group
+        final DynamicForm parentForm = new DynamicForm();
+        parentForm.setUseAllDataSourceFields(false);
+        parentForm.setAutoFetchData(false);
+		parentForm.setAlign(Alignment.LEFT);
+		parentForm.setMargin(20);
+		final TextItem parentNameIt = new TextItem("name", "Parent name");
+		parentNameIt.setAlign(Alignment.LEFT);
+		
+		// The nameIt would probably look better if its label was aligned to the right,
+		// but I've found no obvious way to achieve this effect.
+		
+		//nameIt.setWidth(300);
+		nameForm.setFields(nameIt);
+		nameForm.setSize("100%", "100%");
+		nameForm.setDataSource(this.groupsDS);
+		nameFormWrapperLayout.addChild(nameForm);
+		groupLayout.addMember(nameFormWrapperLayout);
+        
+        
+        // *********
+        // Create the Groups TreeGrid. This tree is on the left-hand side of the screen
+        // and displays every group, which the user may select.
+        // *********
+		
+        final TreeGrid parentGroupSelectionTree = new TreeGrid();
+        parentGroupSelectionTree.setTitleField("Parent");
+        parentGroupSelectionTree.setAutoFetchData(true);
+        parentGroupSelectionTree.setDataSource(this.groupsDS);
+        parentGroupSelectionTree.setSize("90%", "70%");
+        //this.usersGroupsTree.setCanReparentNodes(true);
+        hierarchyTab.setPane(hierarchyLayout);
+        hierarchyLayout.addMember(parentGroupSelectionTree);
+        parentGroupSelectionTree.fetchData();
         
 		
 	    // Set up the callback that will be invoked whenever a group is selected from
