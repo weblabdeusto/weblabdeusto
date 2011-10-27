@@ -458,9 +458,9 @@ public class AdminPanelWindow extends BaseWindow {
 	
 	private void buildUsersLayout() {			
 		this.createUsersTabSet();
-		
-		this.buildUsersGroupsPanel();
+
 		this.buildUsersUsersPanel();
+		this.buildUsersGroupsPanel();
 		this.buildUsersRolesPanel();	
 
 	}
@@ -473,8 +473,6 @@ public class AdminPanelWindow extends BaseWindow {
 		
 		// Create horizontal panel to hold the user grid and the tab set
 		final HLayout mainLayout = new HLayout();
-		mainLayout.setShowEdges(true);
-		mainLayout.setBorder("4px solid black");
 		mainLayout.setSize("100%", "100%");
 		mainLayout.setMembersMargin(20);
 		
@@ -553,73 +551,72 @@ public class AdminPanelWindow extends BaseWindow {
 		
 		// Add the container layout.
 		final VLayout groupLayout = new VLayout();
-		groupLayout.setBorder("3px solid blue");
 		groupLayout.setSize("100%", "100%");
 
         
         
         // Add the dynamic form with the name of the group
         final VLayout nameFormWrapperLayout = new VLayout();
-        nameFormWrapperLayout.setAlign(Alignment.CENTER);
-        nameFormWrapperLayout.setAlign(VerticalAlignment.CENTER);
-        nameFormWrapperLayout.setShowEdges(true);
-        nameFormWrapperLayout.setPosition("300, 300");
-        nameFormWrapperLayout.setSize("50%", "30%");
+        nameFormWrapperLayout.setAlign(Alignment.LEFT);
+        nameFormWrapperLayout.setSize("100%", "15%");
         final DynamicForm nameForm = new DynamicForm();
-//		nameForm.setUseAllDataSourceFields(false);
-//		nameForm.setAutoFetchData(false);
-//		nameForm.setAlign(Alignment.RIGHT);
-//		nameForm.setMargin(20);
-//		final TextItem nameIt = new TextItem("name", "Name");
-//		//nameIt.setWidth(300);
-//		nameForm.setFields(nameIt);
-//		nameForm.setSize("90%", "90%");
-//		nameForm.setDataSource(this.groupsDS);
-//		nameFormWrapperLayout.addChild(nameForm);
+		nameForm.setUseAllDataSourceFields(false);
+		nameForm.setAutoFetchData(false);
+		nameForm.setAlign(Alignment.LEFT);
+		nameForm.setMargin(20);
+		final TextItem nameIt = new TextItem("name", "Name");
+		nameIt.setAlign(Alignment.LEFT);
+		nameIt.setWidth("80%");
+		
+		// The nameIt would probably look better if its label was aligned to the right,
+		// but I've found no obvious way to achieve this effect.
+		
+		//nameIt.setWidth(300);
+		nameForm.setFields(nameIt);
+		nameForm.setSize("100%", "100%");
+		nameForm.setDataSource(this.groupsDS);
+		nameFormWrapperLayout.addChild(nameForm);
 		groupLayout.addMember(nameFormWrapperLayout);
-//		
-		nameFormWrapperLayout.setBorder("1px solid red");
+
 		
-		
-//		// Create the tabset within the groups tab.
+		// Create the tabset within the groups tab.
 		HLayout groupsTabSetWrapper = new HLayout();
-		groupsTabSetWrapper.setSize("100%", "50%");
-		groupsTabSetWrapper.setBorder("2px solid purple");
-//		
-//		final TabSet groupsTabSet = new TabSet();
-//		groupsTabSet.setTabBarPosition(Side.TOP);  
-//		groupsTabSet.setSize("55%", "55%");
-//		//groupsTabSet.setHeight(400);  
-//        
-//        // Create each tab
-//        final Tab hierarchyTab = new Tab("Hierarchy", "../weblabclientadmin/img/icons/icon_o_tree.png");  
-//        final Tab usersTab = new Tab("Users", "../weblabclientadmin/img/icons/icon_group.png");  
-//        final Tab externalEntitiesTab = new Tab("External Entities", "../weblabclientadmin/img/icons/icon_o_entity.png");
-//        final Tab permissionsTab = new Tab("Permissions", "../weblabclientadmin/img/icons/icon_key.png");
-//        
-//        // We set the icons to the right size through the following code. Setting the height is enough, the
-//        // width seems to be scaled appropriately. Apparently in newer versions of SmartGWT there are explicit
-//        // setIconHeight methods. Older versions seem to support it only through setAttribute though.
-//        final int standardIconHeight = 20;
-//        hierarchyTab.setAttribute("iconHeight", standardIconHeight);
-//        usersTab.setAttribute("iconHeight", standardIconHeight);
-//        externalEntitiesTab.setAttribute("iconHeight", standardIconHeight);
-//        permissionsTab.setAttribute("iconHeight", standardIconHeight);
-//        
-//
-//        // Add every tab to the tabset
-//        groupsTabSet.addTab(hierarchyTab);  
-//        groupsTabSet.addTab(usersTab);  
-//        groupsTabSet.addTab(externalEntitiesTab);
-//        groupsTabSet.addTab(permissionsTab);
-//        
-//        // Add the tabset to the groups layout.
-//        groupsTabSetWrapper.addChild(groupsTabSet);
+		groupsTabSetWrapper.setSize("100%", "70%");
+		
+		final TabSet groupsTabSet = new TabSet();
+		groupsTabSet.setTabBarPosition(Side.TOP);  
+		groupsTabSet.setSize("100%", "100%");
+		//groupsTabSet.setHeight(400);  
+        
+        // Create each tab
+        final Tab hierarchyTab = new Tab("Hierarchy", "../weblabclientadmin/img/icons/icon_o_tree.png");  
+        final Tab usersTab = new Tab("Users", "../weblabclientadmin/img/icons/icon_group.png");  
+        final Tab externalEntitiesTab = new Tab("External Entities", "../weblabclientadmin/img/icons/icon_o_entity.png");
+        final Tab permissionsTab = new Tab("Permissions", "../weblabclientadmin/img/icons/icon_key.png");
+        
+        // We set the icons to the right size through the following code. Setting the height is enough, the
+        // width seems to be scaled appropriately. Apparently in newer versions of SmartGWT there are explicit
+        // setIconHeight methods. Older versions seem to support it only through setAttribute though.
+        final int standardIconHeight = 20;
+        hierarchyTab.setAttribute("iconHeight", standardIconHeight);
+        usersTab.setAttribute("iconHeight", standardIconHeight);
+        externalEntitiesTab.setAttribute("iconHeight", standardIconHeight);
+        permissionsTab.setAttribute("iconHeight", standardIconHeight);
+        
+
+        // Add every tab to the tabset
+        groupsTabSet.addTab(hierarchyTab);  
+        groupsTabSet.addTab(usersTab);  
+        groupsTabSet.addTab(externalEntitiesTab);
+        groupsTabSet.addTab(permissionsTab);
+        
+        // Add the tabset to the groups layout.
+        groupsTabSetWrapper.addChild(groupsTabSet);
         groupLayout.addMember(groupsTabSetWrapper);
-//        
-//        groupLayout.draw();
-//        
-//
+        
+        groupLayout.draw();
+        
+
         // Link the group layout
         tabsetAndButtonsVLayout.addMember(groupLayout);
         
