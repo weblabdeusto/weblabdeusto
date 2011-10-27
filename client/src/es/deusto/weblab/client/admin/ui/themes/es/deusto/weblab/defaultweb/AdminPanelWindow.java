@@ -415,8 +415,6 @@ public class AdminPanelWindow extends BaseWindow {
 	 */
 	private void createUsersTabSet() {
 		
-		
-		
 		this.usersTabSet = new TabSet();
 		this.usersTabSet.setTabBarPosition(Side.TOP);
 		this.usersTabSet.setTabBarAlign(Side.RIGHT);
@@ -633,19 +631,12 @@ public class AdminPanelWindow extends BaseWindow {
         parentForm.setAutoFetchData(false);
 		parentForm.setAlign(Alignment.LEFT);
 		parentForm.setMargin(20);
-		final TextItem parentNameIt = new TextItem("name", "Parent name");
+		final TextItem parentNameIt = new TextItem("Name", "Parent name");
 		parentNameIt.setAlign(Alignment.LEFT);
+		parentForm.setFields(parentNameIt);
+		parentForm.setSize("100%", "20%");
+        hierarchyLayout.addMember(parentForm);
 		
-		// The nameIt would probably look better if its label was aligned to the right,
-		// but I've found no obvious way to achieve this effect.
-		
-		//nameIt.setWidth(300);
-		nameForm.setFields(nameIt);
-		nameForm.setSize("100%", "100%");
-		nameForm.setDataSource(this.groupsDS);
-		nameFormWrapperLayout.addChild(nameForm);
-		groupLayout.addMember(nameFormWrapperLayout);
-        
         
         // *********
         // Create the Groups TreeGrid. This tree is on the left-hand side of the screen
@@ -653,10 +644,11 @@ public class AdminPanelWindow extends BaseWindow {
         // *********
 		
         final TreeGrid parentGroupSelectionTree = new TreeGrid();
+        parentGroupSelectionTree.setTitle("Parent");
         parentGroupSelectionTree.setTitleField("Parent");
         parentGroupSelectionTree.setAutoFetchData(true);
         parentGroupSelectionTree.setDataSource(this.groupsDS);
-        parentGroupSelectionTree.setSize("90%", "70%");
+        parentGroupSelectionTree.setSize("100%", "80%");
         //this.usersGroupsTree.setCanReparentNodes(true);
         hierarchyTab.setPane(hierarchyLayout);
         hierarchyLayout.addMember(parentGroupSelectionTree);
