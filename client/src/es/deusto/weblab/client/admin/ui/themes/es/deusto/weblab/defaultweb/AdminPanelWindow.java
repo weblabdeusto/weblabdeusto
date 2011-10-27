@@ -629,9 +629,13 @@ public class AdminPanelWindow extends BaseWindow {
         parentForm.setUseAllDataSourceFields(false);
         parentForm.setAutoFetchData(false);
 		parentForm.setAlign(Alignment.LEFT);
+		parentForm.setDataSource(this.groupsDS);
 		parentForm.setMargin(20);
-		final TextItem parentNameIt = new TextItem("Name", "Parent name");
+		final TextItem parentNameIt = new TextItem("name", "Parent name");
 		parentNameIt.setAlign(Alignment.LEFT);
+		// TODO: It might be a good idea to find a different way to prevent writing. Maybe
+		// using a different item, such as a label, would be a good solution. The disabled
+		// control looks rather bad.
 		parentNameIt.setDisabled(true);
 		parentForm.setFields(parentNameIt);
 		parentForm.setSize("100%", "20%");
@@ -655,12 +659,17 @@ public class AdminPanelWindow extends BaseWindow {
         parentGroupSelectionTree.fetchData();
         
         
+        
+        // Register the handler that will be invoked when the user clicks on a group
+        // to be the parent of the currently selected group. 
         parentGroupSelectionTree.addRecordClickHandler(new RecordClickHandler() {
 
 			@Override
 			public void onRecordClick(RecordClickEvent event) {
-				// TODO Auto-generated method stub
-				
+				// TODO: Complete this. For now the record is the one of the main
+				// selected group, not the children.
+    		    parentForm.clearErrors(true);
+    		    parentForm.editRecord(event.getRecord());
 			}
         	
         });
