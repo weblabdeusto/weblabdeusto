@@ -710,10 +710,13 @@ public class AdminPanelWindow extends BaseWindow {
 				
 				selectedListGridRecord.setAttribute("parent_id", parentId);
 				
+
+				System.out.println("Calling update on the datasource, using the following record:");
+				System.out.println("ID: " + selectedListGridRecord.getAttribute("id"));
+				System.out.println("Name: " + selectedListGridRecord.getAttribute("name"));
+				System.out.println("ParentId: " + selectedListGridRecord.getAttribute("parent_id"));
 				
-//				groupsDS.updateData(selectedParentListGridRecord);
-//				
-//				usersGroupsTree.fetchData();
+				AdminPanelWindow.this.groupsDS.updateData(selectedParentListGridRecord);
 			}});
         
 		
