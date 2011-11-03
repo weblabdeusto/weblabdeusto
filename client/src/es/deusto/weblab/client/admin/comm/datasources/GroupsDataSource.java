@@ -35,7 +35,11 @@ public class GroupsDataSource extends WebLabRestDataSource {
 	    fetch.setOperationType(DSOperationType.FETCH);  
 	    fetch.setDataProtocol(DSProtocol.GETPARAMS);
 	    
-	    this.setOperationBindings(fetch);
+	    final OperationBinding update = new OperationBinding();
+	    update.setOperationType(DSOperationType.UPDATE);
+	    update.setDataProtocol(DSProtocol.GETPARAMS);
+	    
+	    this.setOperationBindings(fetch, update);
 	    
 	    // i18n
         final DataSourceIntegerField idField = new DataSourceIntegerField(GroupRecord.ID, "ID");  

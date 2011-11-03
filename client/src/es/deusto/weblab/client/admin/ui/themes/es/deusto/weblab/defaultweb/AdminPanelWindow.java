@@ -708,10 +708,12 @@ public class AdminPanelWindow extends BaseWindow {
 				
 				//selectedListGridRecord.setAttribute("parent_id", parentId);
 				
-				selectedListGridRecord.setAttribute("parent_id", "1");
+				selectedListGridRecord.setAttribute("parent_id", parentId);
 				
-				usersGroupsTree.updateData(selectedListGridRecord);
-				parentGroupSelectionTree.updateData(selectedParentListGridRecord);
+				
+//				groupsDS.updateData(selectedParentListGridRecord);
+//				
+//				usersGroupsTree.fetchData();
 			}});
         
 		
