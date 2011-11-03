@@ -631,13 +631,18 @@ public class AdminPanelWindow extends BaseWindow {
 		parentForm.setAlign(Alignment.LEFT);
 		parentForm.setDataSource(this.groupsDS);
 		parentForm.setMargin(20);
+		
+		final ButtonItem applyParentIt = new ButtonItem("apply", "Apply");
+		applyParentIt.setAlign(Alignment.CENTER);
+		// TODO: Improve the appearance of this button
+		
 		final TextItem parentNameIt = new TextItem("name", "Parent name");
 		parentNameIt.setAlign(Alignment.LEFT);
 		// TODO: It might be a good idea to find a different way to prevent writing. Maybe
 		// using a different item, such as a label, would be a good solution. The disabled
 		// control looks rather bad.
 		parentNameIt.setDisabled(true);
-		parentForm.setFields(parentNameIt);
+		parentForm.setFields(parentNameIt, applyParentIt);
 		parentForm.setSize("100%", "20%");
         hierarchyLayout.addMember(parentForm);
 		
@@ -673,6 +678,41 @@ public class AdminPanelWindow extends BaseWindow {
 			}
         	
         });
+        
+        // Register the handler that will be invoked when the user clicks on apply, to
+        // apply changes to the parent group of the selected group.
+        applyParentIt.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(
+					com.smartgwt.client.widgets.form.fields.events.ClickEvent event) {
+				
+				// Retrieve the currently selected group (on the main left tree)
+				ListGridRecord selectedListGridRecord = AdminPanelWindow.this.usersGroupsTree.getSelectedRecord();
+				
+				// Retrieve the currently selected parent group (on the parent selection tree)
+				ListGridRecord selectedParentListGridRecord = parentGroupSelectionTree.getSelectedRecord();
+				
+				// Check that we do have a selected main group
+				if(selectedListGridRecord == null)
+					return;
+				
+				// Check that we do have a selected parent group
+				if(selectedParentListGridRecord == null)
+					return;
+				
+				// Update the parent appropriately
+				String parentId = selectedParentListGridRecord.getAttribute("id");
+				System.out.println("The selected parent is: " + parentId);
+				System.out.println("The parent of the selected main record is: " + selectedListGridRecord.getAttribute("parent_id"));
+				
+				//selectedListGridRecord.setAttribute("parent_id", parentId);
+				
+				selectedListGridRecord.setAttribute("parent_id", "1");
+				
+				usersGroupsTree.updateData(selectedListGridRecord);
+				parentGroupSelectionTree.updateData(selectedParentListGridRecord);
+			}});
         
 		
 	    // Set up the callback that will be invoked whenever a group is selected from
