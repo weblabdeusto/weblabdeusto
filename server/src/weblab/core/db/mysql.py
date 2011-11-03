@@ -335,6 +335,12 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             db_group = session.query(Model.DbGroup).filter_by(id = id).first()
             if db_group is None:
                 return False
+            
+            # We will verify that we are not trying to point a group to itself as parent
+            # There might be some way to add db-side constraints for this, but for now 
+            # this should do.
+            if id == parent_id:
+                return False
 
             # Update the name
             db_group.name = name
