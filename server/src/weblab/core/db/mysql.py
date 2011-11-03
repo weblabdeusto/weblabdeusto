@@ -336,6 +336,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             if db_group is None:
                 return False
 
+            # Update the name
             db_group.name = name
             
             # When the group has no parent the parent_id is received as the "null"
@@ -343,6 +344,9 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             # set to None.
             if parent_id == "null":
                 parent_id = None
+                
+            # If the parent_id is not null, we update the parent of the group
+            db_group.parent_id = parent_id
             
             session.add(db_group)
             session.commit()
