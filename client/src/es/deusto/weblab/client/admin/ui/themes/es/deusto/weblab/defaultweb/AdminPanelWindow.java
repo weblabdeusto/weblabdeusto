@@ -17,7 +17,6 @@ package es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
@@ -36,13 +35,11 @@ import com.smartgwt.client.data.DSCallback;
 import com.smartgwt.client.data.DSRequest;
 import com.smartgwt.client.data.DSResponse;
 import com.smartgwt.client.data.Record;
-import com.smartgwt.client.data.RecordList;
 import com.smartgwt.client.data.SortSpecifier;
 import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.types.DateDisplayFormat;
 import com.smartgwt.client.types.DragDataAction;
 import com.smartgwt.client.types.OperatorId;
-import com.smartgwt.client.types.Overflow;
 import com.smartgwt.client.types.Side;
 import com.smartgwt.client.types.SortDirection;
 import com.smartgwt.client.types.VerticalAlignment;
@@ -74,16 +71,11 @@ import com.smartgwt.client.widgets.grid.ListGridRecord;
 import com.smartgwt.client.widgets.grid.SummaryFunction;
 import com.smartgwt.client.widgets.grid.events.RecordClickEvent;
 import com.smartgwt.client.widgets.grid.events.RecordClickHandler;
-import com.smartgwt.client.widgets.grid.events.RecordDropEvent;
-import com.smartgwt.client.widgets.grid.events.RecordDropHandler;
 import com.smartgwt.client.widgets.layout.HLayout;
 import com.smartgwt.client.widgets.layout.VLayout;
 import com.smartgwt.client.widgets.tab.Tab;
 import com.smartgwt.client.widgets.tab.TabSet;
 import com.smartgwt.client.widgets.tree.TreeGrid;
-import com.smartgwt.client.widgets.tree.TreeNode;
-import com.smartgwt.client.widgets.tree.events.FolderDropEvent;
-import com.smartgwt.client.widgets.tree.events.FolderDropHandler;
 
 import es.deusto.weblab.client.admin.comm.datasources.AuthsDataSource;
 import es.deusto.weblab.client.admin.comm.datasources.ExperimentUsesDataSource;
@@ -495,8 +487,8 @@ public class AdminPanelWindow extends BaseWindow {
         // *********
 		
         this.usersGroupsTree = new TreeGrid();
-        this.usersGroupsTree.setAutoFetchData(true);
         this.usersGroupsTree.setDataSource(this.groupsDS);
+        this.usersGroupsTree.setAutoFetchData(true);
         this.usersGroupsTree.setWidth(300);
         this.usersGroupsTree.setHeight(400);
         //this.usersGroupsTree.setCanReparentNodes(true);
@@ -627,14 +619,17 @@ public class AdminPanelWindow extends BaseWindow {
         // Add the dynamic form with the name of the group
         final DynamicForm parentForm = new DynamicForm();
         parentForm.setUseAllDataSourceFields(false);
-        parentForm.setAutoFetchData(false);
+        parentForm.setAutoFetchData(true);
 		parentForm.setAlign(Alignment.LEFT);
 		parentForm.setDataSource(this.groupsDS);
 		parentForm.setMargin(20);
 		
 		final ButtonItem applyParentIt = new ButtonItem("apply", "Apply");
 		applyParentIt.setAlign(Alignment.CENTER);
-		// TODO: Improve the appearance of this button
+		
+		final ButtonItem rootParentIt = new ButtonItem("root", "Set root");
+		rootParentIt.setAlign(Alignment.CENTER);
+		// TODO: Improve the appearance of these buttons
 		
 		final TextItem parentNameIt = new TextItem("name", "Parent name");
 		parentNameIt.setAlign(Alignment.LEFT);
@@ -642,7 +637,7 @@ public class AdminPanelWindow extends BaseWindow {
 		// using a different item, such as a label, would be a good solution. The disabled
 		// control looks rather bad.
 		parentNameIt.setDisabled(true);
-		parentForm.setFields(parentNameIt, applyParentIt);
+		parentForm.setFields(parentNameIt, rootParentIt, applyParentIt);
 		parentForm.setSize("100%", "20%");
         hierarchyLayout.addMember(parentForm);
 		
@@ -664,6 +659,17 @@ public class AdminPanelWindow extends BaseWindow {
         parentGroupSelectionTree.fetchData();
         
         
+        // Register the handler that will be invoked when the user clicks "set root",
+        // which will clear any selected parent so that the parent of the current
+        // record may be set to null.
+        rootParentIt.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(
+					com.smartgwt.client.widgets.form.fields.events.ClickEvent event) {
+				parentGroupSelectionTree.deselectAllRecords();
+				parentNameIt.clearValue();
+			}});
         
         // Register the handler that will be invoked when the user clicks on a group
         // to be the parent of the currently selected group. 
@@ -688,27 +694,30 @@ public class AdminPanelWindow extends BaseWindow {
 					com.smartgwt.client.widgets.form.fields.events.ClickEvent event) {
 				
 				// Retrieve the currently selected group (on the main left tree)
-				ListGridRecord selectedListGridRecord = AdminPanelWindow.this.usersGroupsTree.getSelectedRecord();
+				final ListGridRecord selectedListGridRecord = AdminPanelWindow.this.usersGroupsTree.getSelectedRecord();
 				
 				// Retrieve the currently selected parent group (on the parent selection tree)
-				ListGridRecord selectedParentListGridRecord = parentGroupSelectionTree.getSelectedRecord();
+				final ListGridRecord selectedParentListGridRecord = parentGroupSelectionTree.getSelectedRecord();
 				
 				// Check that we do have a selected main group
 				if(selectedListGridRecord == null)
 					return;
 				
-				// Check that we do have a selected parent group
-				if(selectedParentListGridRecord == null)
-					return;
+				// Check that we do have a selected parent group. If we haven't, set the
+				// parent to null.
+				final String idOfSelectedParent;
+				if(selectedParentListGridRecord == null) {
+					idOfSelectedParent = null;
+				} else {
+					idOfSelectedParent = selectedParentListGridRecord.getAttribute("id");
+				}
 				
-				// Update the parent appropriately
-				String parentId = selectedParentListGridRecord.getAttribute("id");
-				System.out.println("The selected parent is: " + parentId);
+				
+				System.out.println("The selected parent is: " + idOfSelectedParent);
 				System.out.println("The parent of the selected main record is: " + selectedListGridRecord.getAttribute("parent_id"));
 				
-				//selectedListGridRecord.setAttribute("parent_id", parentId);
 				
-				selectedListGridRecord.setAttribute("parent_id", parentId);
+				selectedListGridRecord.setAttribute("parent_id", idOfSelectedParent);
 				
 
 				System.out.println("Calling update on the datasource, using the following record:");
@@ -716,7 +725,17 @@ public class AdminPanelWindow extends BaseWindow {
 				System.out.println("Name: " + selectedListGridRecord.getAttribute("name"));
 				System.out.println("ParentId: " + selectedListGridRecord.getAttribute("parent_id"));
 				
-				AdminPanelWindow.this.groupsDS.updateData(selectedParentListGridRecord);
+				final ListGridRecord rec = new ListGridRecord();
+				rec.setAttribute("id", selectedListGridRecord.getAttribute("id"));
+				rec.setAttribute("name", selectedListGridRecord.getAttribute("name"));
+				rec.setAttribute("parent_id", selectedListGridRecord.getAttribute("parent_id"));
+				AdminPanelWindow.this.groupsDS.updateData(rec);
+				
+				
+				AdminPanelWindow.this.groupsDS.fetchData();
+				
+				AdminPanelWindow.this.usersGroupsTree.fetchData();
+				parentGroupSelectionTree.fetchData();
 			}});
         
 		
