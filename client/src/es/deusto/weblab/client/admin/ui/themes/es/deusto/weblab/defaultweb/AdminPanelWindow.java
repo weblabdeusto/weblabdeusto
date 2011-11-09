@@ -318,7 +318,7 @@ public class AdminPanelWindow extends BaseWindow {
 		this.accessesExperimentUsesFilterForm.addItemChangedHandler(new ItemChangedHandler() {
 					@Override
 					public void onItemChanged(ItemChangedEvent event) {
-						// Use to temporally force SmartGWT to make requests to the server for every fetch:
+						// Use to temporally force SmartGWT to make requests to the server for every :
 						AdminPanelWindow.this.accessesExperimentUsesGrid.invalidateCache();
 						AdminPanelWindow.this.accessesExperimentUsesGrid.fetchData(AdminPanelWindow.this.accessesExperimentUsesFilterForm.getValuesAsCriteria());
 					}
@@ -663,8 +663,8 @@ public class AdminPanelWindow extends BaseWindow {
         //this.usersGroupsTree.setCanReparentNodes(true);
         hierarchyTab.setPane(hierarchyLayout);
         hierarchyLayout.addMember(parentGroupSelectionTree);
-        // TODO: Replace this
-        //parentGroupSelectionTree.fetchData();
+
+        parentGroupSelectionTree.fetchData(null, null);
         
         
         // Register the handler that will be invoked when the user clicks "set root",
@@ -740,10 +740,10 @@ public class AdminPanelWindow extends BaseWindow {
 				AdminPanelWindow.this.groupsDS.updateData(rec);
 				
 				
-				AdminPanelWindow.this.groupsDS.fetchData();
+				AdminPanelWindow.this.groupsDS.fetchData(null, null);
 				
-				AdminPanelWindow.this.usersGroupsTree.fetchData();
-				parentGroupSelectionTree.fetchData();
+				AdminPanelWindow.this.usersGroupsTree.fetchData(null, null);
+				parentGroupSelectionTree.fetchData(null, null);
 			}});
         
 		
@@ -1142,7 +1142,7 @@ public class AdminPanelWindow extends BaseWindow {
         final ListGridField namePermissionsField = new ListGridField("permanent_id", "Permanent Id");
         permissionsListGrid.setFields(namePermissionsField);
         permissionsListGrid.setDataSource(this.userPermissionDS);
-        //permissionsListGrid.fetchData();
+        permissionsListGrid.fetchData(null, null);
         
         
         
@@ -1207,7 +1207,7 @@ public class AdminPanelWindow extends BaseWindow {
         allowedList.setShowEmptyMessage(false);
         allowedList.setFields(allowedField);
         allowedList.setDataSource(this.authsDS);
-        allowedList.fetchData();
+        allowedList.fetchData(null, null);
         
         System.out.println(allowedList.getDataAsRecordList().getLength());
         
@@ -1221,7 +1221,7 @@ public class AdminPanelWindow extends BaseWindow {
         notAllowedList.setShowEmptyMessage(false);
         notAllowedList.setFields(notAllowedField);
         notAllowedList.setDataSource(this.authsDS);
-        notAllowedList.fetchData();
+        notAllowedList.fetchData(null, null);
         
         //final Button allowButton = new Button("->");
         final TransferImgButton allowButton = new TransferImgButton(TransferImgButton.RIGHT);
@@ -1332,8 +1332,7 @@ public class AdminPanelWindow extends BaseWindow {
 		            permissionsListGrid.filterData(currentUserCriteria);
 
 		            
-		            // TODO: Replace this
-		            //AdminPanelWindow.this.userPermissionDS.fetchData(currentUserCriteria);
+		            AdminPanelWindow.this.userPermissionDS.fetchData(currentUserCriteria, null);
 	        	} else {
 	        		permissionsListGrid.clear();
 	        	}
@@ -1451,9 +1450,8 @@ public class AdminPanelWindow extends BaseWindow {
         final Criteria permissionTypeIdCriteria = new Criteria("permission_type_id",
         		permissionTypeId);
         
-        // TODO: Replace this.
-        //this.permissionTypeParameterDS.fetchData(permissionTypeIdCriteria, new DSCallback() {
-        DSCallback call = (new DSCallback() {
+       
+        this.permissionTypeParameterDS.fetchData(permissionTypeIdCriteria, new DSCallback() {
         
 			@Override
 			public void execute(DSResponse response, Object rawData,
@@ -1492,10 +1490,9 @@ public class AdminPanelWindow extends BaseWindow {
 		// parameters at once, rather than query each one.
 		
 		final Criteria idCriteria = new Criteria("id", id);
-		// TODO: Replace this too
-		//this.userPermissionParameterDS.fetchData(idCriteria, new DSCallback() {
-		final DSCallback temp = (new DSCallback() {
 		
+		this.userPermissionParameterDS.fetchData(idCriteria, new DSCallback() {
+				
 			@Override
 			public void execute(DSResponse response, Object rawData,
 					DSRequest request) {
