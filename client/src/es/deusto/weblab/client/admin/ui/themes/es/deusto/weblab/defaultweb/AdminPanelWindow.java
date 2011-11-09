@@ -358,7 +358,13 @@ public class AdminPanelWindow extends BaseWindow {
 			@SuppressWarnings("deprecation")
 			@Override
 			public String format(Object value, ListGridRecord record, int row, int column) {
+				// TODO: The following code (to retrieve the startDate) used to work at all times. However, seems to
+				// be failing nowadays. We should check why and fix it.
 				Date startDate = record.getAttributeAsDate(ExperimentUseRecord.START_DATE);
+				
+				if(startDate == null)
+					return "00:00"; // TODO: Change this. 
+				
                 String minutes = Integer.valueOf(startDate.getMinutes()).toString();
                 if(minutes.length() < 2)
                     minutes = "0" + minutes;
