@@ -454,6 +454,13 @@ public class AdminPanelWindow extends BaseWindow {
 
 	}
 	
+	
+	private void printRecord(Record rec) {
+		final String [] attributes = rec.getAttributes();
+		for(final String attr : attributes)
+			System.out.println(attr + " = " + rec.getAttributeAsString(attr));
+	}
+	
 	private void buildUsersGroupsPanel() {
 		
 		// *********
@@ -838,7 +845,21 @@ public class AdminPanelWindow extends BaseWindow {
 				public void onClick(
 						com.smartgwt.client.widgets.form.fields.events.ClickEvent event) {
 					System.out.println("Updating data");
-					AdminPanelWindow.this.groupsDS.updateData(nameForm.getValuesAsRecord());
+					
+					final Record rec = new ListGridRecord();
+					rec.setAttribute("name", nameForm.getValue("name"));
+					rec.setAttribute("id", nameForm.getValue("id"));
+					rec.setAttribute("parent_id", nameForm.getValue("parent_id"));
+					rec.setAttribute("__ref", nameForm.getValue("__ref"));
+					rec.setAttribute("__obj", nameForm.getValue("__obj"));
+					
+					final Record realRecord = nameForm.getValuesAsRecord();
+					
+					printRecord(rec);
+					System.out.println("---");
+					printRecord(realRecord);
+					
+					AdminPanelWindow.this.groupsDS.updateData(rec);
 				}
     		});
         

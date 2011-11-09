@@ -44,11 +44,15 @@ public class ExperimentUsesDataSource extends WebLabRestDataSource {
 	    idField.setPrimaryKey(true);
 	    idField.setCanEdit(false);  
 	    
+	    // TODO: setDisplayFormat has been replaced by setDateFormatter on smartgwt last
+	    // versions. Remove the old version, which is currently commented out.
 	    final DataSourceDateTimeField startDateDSField = new DataSourceDateTimeField(ExperimentUseRecord.START_DATE, "Start Date");
-	    startDateDSField.setDisplayFormat(DateDisplayFormat.TOEUROPEANSHORTDATE);
+	    //startDateDSField.setDisplayFormat(DateDisplayFormat.TOEUROPEANSHORTDATE);
+	    startDateDSField.setDateFormatter(DateDisplayFormat.TOEUROPEANSHORTDATE);
 	    
 	    final DataSourceDateTimeField endDateDSField = new DataSourceDateTimeField(ExperimentUseRecord.END_DATE, "End Date");
-	    endDateDSField.setDisplayFormat(DateDisplayFormat.TOEUROPEANSHORTDATE);
+	    //endDateDSField.setDisplayFormat(DateDisplayFormat.TOEUROPEANSHORTDATE);
+	    startDateDSField.setDateFormatter(DateDisplayFormat.TOEUROPEANSHORTDATE);
 	    
 	    final DataSourceTextField agentLoginDSField = new DataSourceTextField(ExperimentUseRecord.AGENT_LOGIN, "Login");
 	    final DataSourceTextField agentNameDSField = new DataSourceTextField(ExperimentUseRecord.AGENT_NAME, "Name");
