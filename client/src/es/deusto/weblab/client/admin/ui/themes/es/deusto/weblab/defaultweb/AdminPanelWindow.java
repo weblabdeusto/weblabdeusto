@@ -663,7 +663,8 @@ public class AdminPanelWindow extends BaseWindow {
         //this.usersGroupsTree.setCanReparentNodes(true);
         hierarchyTab.setPane(hierarchyLayout);
         hierarchyLayout.addMember(parentGroupSelectionTree);
-        parentGroupSelectionTree.fetchData();
+        // TODO: Replace this
+        //parentGroupSelectionTree.fetchData();
         
         
         // Register the handler that will be invoked when the user clicks "set root",
@@ -1331,7 +1332,8 @@ public class AdminPanelWindow extends BaseWindow {
 		            permissionsListGrid.filterData(currentUserCriteria);
 
 		            
-		            AdminPanelWindow.this.userPermissionDS.fetchData(currentUserCriteria);
+		            // TODO: Replace this
+		            //AdminPanelWindow.this.userPermissionDS.fetchData(currentUserCriteria);
 	        	} else {
 	        		permissionsListGrid.clear();
 	        	}
@@ -1448,8 +1450,11 @@ public class AdminPanelWindow extends BaseWindow {
         
         final Criteria permissionTypeIdCriteria = new Criteria("permission_type_id",
         		permissionTypeId);
-        this.permissionTypeParameterDS.fetchData(permissionTypeIdCriteria, new DSCallback() {
-
+        
+        // TODO: Replace this.
+        //this.permissionTypeParameterDS.fetchData(permissionTypeIdCriteria, new DSCallback() {
+        DSCallback call = (new DSCallback() {
+        
 			@Override
 			public void execute(DSResponse response, Object rawData,
 					DSRequest request) {
@@ -1487,8 +1492,10 @@ public class AdminPanelWindow extends BaseWindow {
 		// parameters at once, rather than query each one.
 		
 		final Criteria idCriteria = new Criteria("id", id);
-		this.userPermissionParameterDS.fetchData(idCriteria, new DSCallback() {
-
+		// TODO: Replace this too
+		//this.userPermissionParameterDS.fetchData(idCriteria, new DSCallback() {
+		final DSCallback temp = (new DSCallback() {
+		
 			@Override
 			public void execute(DSResponse response, Object rawData,
 					DSRequest request) {
