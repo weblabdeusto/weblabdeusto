@@ -278,12 +278,15 @@ class Methods(object):
                                 # the id. This follows the trend set by most DTOs. As of now, the client
                                 # uses it though, but it might be possible to replace it with the permanent
                                 # id.
-                                'id' : up.permanent_id,
-                                'user_id' : up.user_id,
-                                'applicable_permission_type_id' : up.email,
-                                'permanent_id' : up.permanent_id,
-                                'date' : up.date,
-                                'comments' : up.comments
+                                #'id' : up.permanent_id,
+                                'id' : "oooo",
+                                #'user_id' : up.user_id,
+                                'user_id' : 4,
+                                'applicable_permission_type_id' : 'ooo',
+                                'permanent_id' : 5,
+                                #'permanent_id' : up.permanent_id,
+                                'date' : 'iiii',
+                                'comments' : 'co'
                             } 
                             for up in user_permissions 
                         ] 
