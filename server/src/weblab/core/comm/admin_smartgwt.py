@@ -279,10 +279,10 @@ class Methods(object):
                                 # uses it though, but it might be possible to replace it with the permanent
                                 # id.
                                 #'id' : up.permanent_id,
-                                'id' : "oooo",
+                                'id' : 3,
                                 #'user_id' : up.user_id,
                                 'user_id' : 4,
-                                'applicable_permission_type_id' : 'ooo',
+                                'applicable_permission_type_id' : 10,
                                 'permanent_id' : 5,
                                 #'permanent_id' : up.permanent_id,
                                 'date' : 'iiii',
