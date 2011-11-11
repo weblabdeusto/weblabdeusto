@@ -155,6 +155,19 @@ class Methods(object):
     """
 
     @staticmethod
+    def _parse_parameters(parameters):
+        """
+        _parse_parameters(parameters)
+        
+        Parses a typical GET-style parameters string, returning a
+        map containing the values indexed by their names.
+        
+        TODO: Maybe this method should be moved somewhere else.
+        """
+        params = dict([par.split('=') for par in parameters])
+        return params
+
+    @staticmethod
     def update_groups(handler, session_id, parameters):
         """
         update_groups(handler, session_id, parameters)
@@ -333,17 +346,24 @@ class Methods(object):
             
             session_id = { 'id' : session_id }
             
-            parent_ids = [ param for param in parameters if param.startswith('parent_id=') ]
-            
-            if( len(parent_ids) != 0 ):
-                parent_id_str = parent_ids[0][len('parent_id') + 1:]
-            else: 
-                parent_id_str = None
-            
+            # Split the parameters into a map so that we can cleanly retrieve them as needed
+            params = dict([par.split('=') for par in parameters])
+
+            # Convert the parent_id parameter to an id that we can use, making sure that it is
+            # None if no parent_id was specified, or if the parent_id that was specified is either
+            # null or 0. 
             try:
-                parent_id = None if parent_id_str is None or parent_id_str == 'null' or parent_id_str == '0' else int(parent_id_str)
-            except ValueError:
-                raise MethodException("There was some issue while trying to set the parent_id");
+                if 'parent_id' in params:
+                    parent_id_str = params['parent_id']
+                    if parent_id_str == 'null' or parent_id_str == '0':
+                        parent_id = None
+                    else:
+                        parent_id = int(parent_id_str)
+                else:
+                    parent_id = None
+            except ValueError, e:
+                print '[get_groups]:Value Error:' + e
+            
     
             groups = handler.facade_manager.get_groups(session_id, parent_id)
             resp = { 'response' :
