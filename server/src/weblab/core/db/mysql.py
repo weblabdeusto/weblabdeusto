@@ -363,7 +363,14 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
     @admin_panel_operation
     @logged()
     def get_groups(self, user_login, parent_id=None):
-        """ The user's permissions are not checked at the moment """
+        """
+        Will retrieve groups from the database, filtering by the specified
+        parameters. 
+        The user's permissions are not checked at the moment 
+        
+        @param user_login Login of the user. Currently not used. 
+        @param parent_id Filter by parent_id. Might be None.
+        """
         
         def get_dto_children_recursively(groups):
             dto_groups = []

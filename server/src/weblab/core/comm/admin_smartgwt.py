@@ -320,26 +320,30 @@ class Methods(object):
 
     @staticmethod
     def get_groups(handler, session_id, parameters):
+        """
+        get_groups(handler, session_id, parameters9
+        
+        Retrieves groups from the database, optionally applying certain filters.
+        
+        Filters supported:
+        parent_id: Filter by the id of the parent group
+        """
         
         try:
             
             session_id = { 'id' : session_id }
+            
             parent_ids = [ param for param in parameters if param.startswith('parent_id=') ]
             
-            # TODO: The following code is just to prevent the following exception from ever raising.
-            # Check why we need the parent_id here, and fix the code accordingly.
-            if len(parent_ids) == 0:
-                # fake id to avoid throwing
-                parent_ids = [ '1' ]
-                #raise MethodException("No parent_id provided")
-    
-            parent_id_str = parent_ids[0][len('parent_id') + 1:]
+            if( len(parent_ids) != 0 ):
+                parent_id_str = parent_ids[0][len('parent_id') + 1:]
+            else: 
+                parent_id_str = None
             
             try:
-                parent_id = None if parent_id_str == 'null' or parent_id_str == '0' else int(parent_id_str)
+                parent_id = None if parent_id_str is None or parent_id_str == 'null' or parent_id_str == '0' else int(parent_id_str)
             except ValueError:
-                parent_id = 1
-                #raise MethodException("parent_id must be an int or 'null'")
+                raise MethodException("There was some issue while trying to set the parent_id");
     
             groups = handler.facade_manager.get_groups(session_id, parent_id)
             resp = { 'response' :
