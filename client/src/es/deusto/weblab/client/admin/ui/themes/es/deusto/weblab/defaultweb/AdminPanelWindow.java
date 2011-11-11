@@ -642,6 +642,7 @@ public class AdminPanelWindow extends BaseWindow {
 		
 		final ButtonItem rootParentIt = new ButtonItem("root", "Set root");
 		rootParentIt.setAlign(Alignment.CENTER);
+		rootParentIt.setEndRow(false);
 		// TODO: Improve the appearance of these buttons
 		
 		final TextItem parentNameIt = new TextItem("name", "Parent name");
