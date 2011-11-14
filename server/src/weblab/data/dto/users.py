@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
+#         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
 class User(object):
@@ -51,11 +52,16 @@ class ExternalEntity(object):
 
 class Group(object):
     
-    def __init__(self, name, id=None):
+    def __init__(self, name, id=None, parent_id=None):
         super(Group, self).__init__()
         self.id = id
         self.name = name
+        
+        # There seems to be currently no way for this to be different than None. 
+        # For now I've added only parent_id.
         self._parent = None
+        
+        self._parent_id = parent_id
         self.children = []
         
     def add_child(self, child):
@@ -65,6 +71,9 @@ class Group(object):
     def set_children(self, children):
         for child in children:
             self.add_child(child) 
+            
+    def get_parent_id(self):
+        return self._parent_id
         
     def get_full_name(self):
         if self._parent is None:
@@ -73,9 +82,10 @@ class Group(object):
             return self._parent.get_full_name() + " > " + self.name
 
     def __repr__(self):
-        return "Group(id = %i, full_name = '%s')" % (
+        return "Group(id = %i, full_name = '%s', parent_id = '%s')" % (
                 self.id,
-                self.get_full_name()
+                self.get_full_name(),
+                self.get_parent_id()
             )
 
 class Role(object):

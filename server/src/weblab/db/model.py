@@ -282,7 +282,7 @@ class DbGroup(Base):
         )        
         
     def to_business_light(self):
-        return Group(self.name, self.id) 
+        return Group(self.name, self.id, self.parent_id) 
         
     def to_dto(self):
         return self.to_business_light() # Temporal
@@ -847,7 +847,6 @@ class DbUserPermission(Base):
             self.applicable_permission_type,
             self.permanent_id,
             self.date,
-            self.comments
         )
         
     def get_permission_type(self):

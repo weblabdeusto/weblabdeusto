@@ -342,6 +342,7 @@ class Methods(object):
         parent_id: Filter by the id of the parent group
         """
         
+        print "[get_groups]"
         try:
             
             session_id = { 'id' : session_id }
@@ -363,22 +364,29 @@ class Methods(object):
                     parent_id = 0
             except ValueError, e:
                 print '[get_groups]:Value Error:' + e
-            
     
+            # The client currently uses 0 to represent the root element, but the server uses
+            # None for this. Hence, we convert here 0 parent_ids to None. Otherwise this method
+            # will never return anything.
+            if(parent_id == 0):
+                parent_id = None
+                
             groups = handler.facade_manager.get_groups(session_id, parent_id)
             resp = { 'response' :
                         { 'data' :
                             [ 
                                 { 
-                                    'id' : group.id, 
+                                    'id' : int(group.id), 
                                     'name' : group.name, 
-                                    'parent_id' : 0 if group._parent is None or group._parent.id is None else group._parent.id,
+                                    'parent_id' : 0 if group.get_parent_id() is None else int(group.get_parent_id()),
                                     'isFolder'  : len(group.children) > 0
                                 }
                                 for group in groups
                             ] 
                         }
                     }
+            
+            print resp.__repr__()
             
             return resp;
         

@@ -385,6 +385,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         try:
             groups = session.query(Model.DbGroup).filter_by(parent_id=parent_id).order_by(Model.DbGroup.name).all()
             dto_groups = get_dto_children_recursively(groups)
+            print dto_groups
             return tuple(dto_groups)
         finally:
             session.close()

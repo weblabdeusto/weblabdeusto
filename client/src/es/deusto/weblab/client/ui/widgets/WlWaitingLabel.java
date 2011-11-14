@@ -90,7 +90,16 @@ public class WlWaitingLabel extends Label implements IWlWidget{
 					WlWaitingLabel.this.processDots();
 			}
 		};
-		this.currentTimer.schedule(WlWaitingLabel.MOVING_TIME);
+		
+		
+		try
+		{
+			// TODO: Sometimes this call is provoking an exception within schedule.
+			this.currentTimer.schedule(WlWaitingLabel.MOVING_TIME);
+		} catch(Throwable thw) {
+			System.out.println("[DBG/ERROR] A runtime exception was thrown from queueProcessingDots at WlWaitingLavel.java which should never occur.");
+			thw.printStackTrace();
+		}
 	}
 	
 	public void stop(){
