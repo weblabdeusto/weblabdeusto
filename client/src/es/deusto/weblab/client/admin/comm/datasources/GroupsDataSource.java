@@ -46,8 +46,9 @@ public class GroupsDataSource extends WebLabRestDataSource {
         idField.setPrimaryKey(true);
         idField.setCanEdit(false);  
         final DataSourceTextField nameDSField = new DataSourceTextField(GroupRecord.NAME, "Name");
-        final DataSourceTextField parentIdDSField = new DataSourceTextField(GroupRecord.PARENT_ID, null);
+        final DataSourceIntegerField parentIdDSField = new DataSourceIntegerField(GroupRecord.PARENT_ID, "ParentID");
         parentIdDSField.setForeignKey(GroupRecord.ID);     
+        parentIdDSField.setRootValue(0);
         
 	    this.setFields(idField, nameDSField, parentIdDSField);  
 	    this.setFetchDataURL("/weblab/administration/json/groups");

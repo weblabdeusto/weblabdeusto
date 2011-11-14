@@ -356,11 +356,11 @@ class Methods(object):
                 if 'parent_id' in params:
                     parent_id_str = params['parent_id']
                     if parent_id_str == 'null' or parent_id_str == '0':
-                        parent_id = None
+                        parent_id = 0
                     else:
                         parent_id = int(parent_id_str)
                 else:
-                    parent_id = None
+                    parent_id = 0
             except ValueError, e:
                 print '[get_groups]:Value Error:' + e
             
@@ -372,7 +372,7 @@ class Methods(object):
                                 { 
                                     'id' : group.id, 
                                     'name' : group.name, 
-                                    'parent_id' : None if group._parent is None or group._parent.id is None else group._parent.id,
+                                    'parent_id' : 0 if group._parent is None or group._parent.id is None else group._parent.id,
                                     'isFolder'  : len(group.children) > 0
                                 }
                                 for group in groups

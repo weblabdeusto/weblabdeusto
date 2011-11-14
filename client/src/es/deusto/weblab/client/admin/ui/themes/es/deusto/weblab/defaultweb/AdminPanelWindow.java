@@ -751,10 +751,9 @@ public class AdminPanelWindow extends BaseWindow {
 				AdminPanelWindow.this.groupsDS.updateData(rec);
 				
 				
-				AdminPanelWindow.this.groupsDS.fetchData(null, null);
-				
-				AdminPanelWindow.this.usersGroupsTree.fetchData(null, null);
-				parentGroupSelectionTree.fetchData(null, null);
+				//AdminPanelWindow.this.groupsDS.fetchData(null, null);
+				//AdminPanelWindow.this.usersGroupsTree.fetchData(null, null);
+				//parentGroupSelectionTree.fetchData(null, null);
 			}});
         
 		
