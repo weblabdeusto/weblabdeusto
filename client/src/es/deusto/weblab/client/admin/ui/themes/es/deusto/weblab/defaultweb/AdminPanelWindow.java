@@ -636,13 +636,17 @@ public class AdminPanelWindow extends BaseWindow {
 		parentForm.setAlign(Alignment.LEFT);
 		parentForm.setDataSource(this.groupsDS);
 		parentForm.setMargin(20);
+		parentForm.setNumCols(20);
 		
 		final ButtonItem applyParentIt = new ButtonItem("apply", "Apply");
-		applyParentIt.setAlign(Alignment.CENTER);
+		applyParentIt.setAlign(Alignment.RIGHT);
+		applyParentIt.setEndRow(false);
+		applyParentIt.setStartRow(false);
 		
 		final ButtonItem rootParentIt = new ButtonItem("root", "Set root");
-		rootParentIt.setAlign(Alignment.CENTER);
+		rootParentIt.setAlign(Alignment.LEFT);
 		rootParentIt.setEndRow(false);
+		rootParentIt.setStartRow(false);
 		// TODO: Improve the appearance of these buttons
 		
 		final TextItem parentNameIt = new TextItem("name", "Parent name");
