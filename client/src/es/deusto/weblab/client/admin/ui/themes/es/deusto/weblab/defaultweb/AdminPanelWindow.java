@@ -499,6 +499,7 @@ public class AdminPanelWindow extends BaseWindow {
         // and displays every group, which the user may select.
         // *********
 		
+		System.out.println("[Building UsersGroupsTree]");
         this.usersGroupsTree = new TreeGrid();
         this.usersGroupsTree.setDataSource(this.groupsDS);
         this.usersGroupsTree.setAutoFetchData(true);
@@ -665,6 +666,7 @@ public class AdminPanelWindow extends BaseWindow {
         // and displays every group, which the user may select.
         // *********
 		
+        System.out.println("[Building parent selection tree]");
         final TreeGrid parentGroupSelectionTree = new TreeGrid();
         parentGroupSelectionTree.setTitle("Parent");
         parentGroupSelectionTree.setTitleField("Parent");
@@ -745,10 +747,15 @@ public class AdminPanelWindow extends BaseWindow {
 				System.out.println("ParentId: " + selectedListGridRecord.getAttribute("parent_id"));
 				
 				final ListGridRecord rec = new ListGridRecord();
-				rec.setAttribute("id", selectedListGridRecord.getAttribute("id"));
-				rec.setAttribute("name", selectedListGridRecord.getAttribute("name"));
-				rec.setAttribute("parent_id", selectedListGridRecord.getAttribute("parent_id"));
+				rec.setAttribute("id", selectedListGridRecord.getAttributeAsInt("id"));
+				rec.setAttribute("name", selectedListGridRecord.getAttributeAsString("name"));
+				rec.setAttribute("parent_id", selectedListGridRecord.getAttributeAsInt("parent_id"));
+				
+				AdminPanelWindow.this.usersGroupsTree.invalidateCache();
+				AdminPanelWindow.this.usersGroupsTree.invalidateRecordComponents();
 				AdminPanelWindow.this.groupsDS.updateData(rec);
+				AdminPanelWindow.this.usersGroupsTree.invalidateCache();
+				AdminPanelWindow.this.usersGroupsTree.invalidateRecordComponents();
 				
 				
 				//AdminPanelWindow.this.groupsDS.fetchData(null, null);
