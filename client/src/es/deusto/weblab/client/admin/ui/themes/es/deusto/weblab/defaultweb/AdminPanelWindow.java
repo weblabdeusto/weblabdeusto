@@ -639,7 +639,7 @@ public class AdminPanelWindow extends BaseWindow {
 		parentForm.setMargin(20);
 		parentForm.setNumCols(20);
 		
-		final ButtonItem applyParentIt = new ButtonItem("apply", "Apply");
+		final ButtonItem applyParentIt = new ButtonItem("_apply", "Apply");
 		applyParentIt.setAlign(Alignment.RIGHT);
 		applyParentIt.setEndRow(false);
 		applyParentIt.setStartRow(false);
@@ -673,7 +673,10 @@ public class AdminPanelWindow extends BaseWindow {
         parentGroupSelectionTree.setAutoFetchData(true);
         parentGroupSelectionTree.setDataSource(this.groupsDS);
         parentGroupSelectionTree.setSize("100%", "80%");
-        //this.usersGroupsTree.setCanReparentNodes(true);
+        
+        // TODO: Changed this to true just in case it helps. Change it back otherwise.
+        this.usersGroupsTree.setCanReparentNodes(true);
+        
         hierarchyTab.setPane(hierarchyLayout);
         hierarchyLayout.addMember(parentGroupSelectionTree);
 
@@ -758,9 +761,9 @@ public class AdminPanelWindow extends BaseWindow {
 				AdminPanelWindow.this.usersGroupsTree.invalidateRecordComponents();
 				
 				
-				//AdminPanelWindow.this.groupsDS.fetchData(null, null);
-				//AdminPanelWindow.this.usersGroupsTree.fetchData(null, null);
-				//parentGroupSelectionTree.fetchData(null, null);
+				AdminPanelWindow.this.groupsDS.fetchData(null, null);
+				AdminPanelWindow.this.usersGroupsTree.fetchData(null, null);
+				parentGroupSelectionTree.fetchData(null, null);
 			}});
         
 		
