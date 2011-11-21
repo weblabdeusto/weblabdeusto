@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 import unittest
 import datetime
@@ -54,6 +55,12 @@ class MockUPS(object):
         if self.exceptions.has_key('get_groups'):
             raise self.exceptions['get_groups']
         return self.return_values['get_groups']
+    
+    def update_groups(self, session_id, id, name, parent_id):
+        self.arguments['update_groups'] = (session_id, id, name, parent_id,)
+        if self.exceptions.has_key('update_groups'):
+            raise self.exceptions['update_groups']
+        return self.return_values['update_groups']
     
     def get_users(self, session_id):
         self.arguments['get_users'] = (session_id, )
@@ -140,6 +147,24 @@ class AdminFacadeManagerJSONTestCase(unittest.TestCase):
         self.assertEquals(
                 expected_sess_id['id'],
                 self.mock_ups.arguments['get_groups'][0].id
+            )
+        
+    
+    # TODO: This test does not really test much. Consider some way of extending it.
+    def test_return_update_groups(self):
+        expected_sess_id = {'id' : 'whatever'}
+        g1, g2 = self._generate_groups() #@UnusedVariable
+        
+        self.mock_ups.return_values['update_groups'] = g1
+        
+        self.assertEquals(
+                g1,
+                self.rfm.update_groups(expected_sess_id, 1, 'changedName', 2)
+            )
+        
+        self.assertEquals(
+                expected_sess_id['id'],
+                self.mock_ups.arguments['update_groups'][0].id
             )
         
     def test_return_get_users(self):
