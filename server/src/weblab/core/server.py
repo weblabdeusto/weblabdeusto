@@ -547,4 +547,10 @@ class UserProcessingServer(object):
     @load_user_processor
     def get_user_permissions(self, user_processor, session):
         return user_processor.get_user_permissions()
+    
+    @logged(log.level.Info)
+    @check_session(**check_session_params)
+    @load_user_processor
+    def get_permission_types(self, user_processor, session):
+        return user_processor.get_permission_types()
 
