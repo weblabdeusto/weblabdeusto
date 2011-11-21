@@ -252,6 +252,11 @@ class Methods(object):
 #            }
 #        }
 
+        # TODO: The DTOs for the permission types do not actually carry
+        # the fields that follow. That is, the fields that exist in the
+        # database or in the original object. For now, we return fake
+        # values. This should be somehow fixed eventually.
+
         return { 'response' : 
             { 'data' : 
                 [ 
@@ -262,7 +267,7 @@ class Methods(object):
                         'group_applicable_id' : 25,
                         'ee_applicable_id' : 22
                     } 
-                    for ptype in permission_types 
+                    for ptype in permission_types #@UnusedVariable
                 ] 
             }
         }
@@ -299,6 +304,11 @@ class Methods(object):
         """
         request_args = { 'id' : session_id }
         user_permissions = handler.facade_manager.get_user_permissions(request_args)
+        
+        # TODO: We return fake values because the DTO does not actually contain the 
+        # referenced fields. Should be somehow fixed eventually. For now the method is
+        # not used, so this will do. 
+        
         return { 'response' : 
                     { 'data' : 
                         [ 
@@ -317,7 +327,7 @@ class Methods(object):
                                 'date' : 'iiii',
                                 'comments' : 'co'
                             } 
-                            for up in user_permissions 
+                            for up in user_permissions #@UnusedVariable
                         ] 
                     }
                 }
