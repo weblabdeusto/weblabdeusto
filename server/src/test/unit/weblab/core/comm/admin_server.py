@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 import unittest
 import json
@@ -58,6 +59,21 @@ class SmartGwtClient(object):
         urlobj  = self._open("/data/groups", options)
         content = urlobj.read()
         return json.loads(content)['response']['data']
+    
+#    def update_groups(self, session_id, id, name, parent_id):
+#        # 
+#        # Input:
+#        #   GET /data/groups_update.js?id=1&name=newName&parent_id=null&sessionid=2xKszwgw-MRSCRfO HTTP/1.1
+#        # 
+#        # Output:
+#        #   [ { "id": 1, "name": "newName", "parent_id": null, "isFolder": true}, ... ]
+#        # 
+#        options = { 'parent_id' : str(parent_id) if parent_id is not None else "null", 'sessionid' : session_id}
+#        if parent_id == 'not_provided':
+#            options.pop('parent_id')
+#        urlobj  = self._open("/data/groups", options)
+#        content = urlobj.read()
+#        return json.loads(content)['response']['data']
 
     def get_experiments(self, session_id):
         # 

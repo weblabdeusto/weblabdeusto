@@ -847,6 +847,7 @@ class DbUserPermission(Base):
             self.applicable_permission_type,
             self.permanent_id,
             self.date,
+            self.comments
         )
         
     def get_permission_type(self):
