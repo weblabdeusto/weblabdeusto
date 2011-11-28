@@ -656,6 +656,21 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             session.commit()               
         finally:
             session.close()
+            
+            
+    def _insert_group(self, name, parent_id):
+        """ IMPORTANT: SHOULD NEVER BE USED IN PRODUCTION, IT'S HERE ONLY FOR TESTS """
+        session = self.Session()
+        try:
+            parent_group = None
+            if parent_id != None:
+                parent_group = session.query(Model.DbGroup).filter_by(id=parent_id).one()
+            group = Model.DbGroup(name, parent_group)
+            session.add(group)
+            session.commit()
+        finally:
+            session.close()
+        
 
     def _insert_user_used_experiment(self, user_login, experiment_name, experiment_category_name, start_time, origin, coord_address, reservation_id, end_date):
         """ IMPORTANT: SHOULD NEVER BE USED IN PRODUCTION, IT'S HERE ONLY FOR TESTS """

@@ -555,6 +555,9 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
             
         experiments = self.gateway.get_experiments(student2.login)
         self.assertEquals(len(experiments), 0)
+        
+    def test_get_groups(self):
+        pass
 
     def test_get_experiment_uses(self):
         student2 = self.gateway.get_user_by_name('student2')

@@ -564,6 +564,9 @@ class FakeDatabase(object):
     def get_groups(self, db_session_id):
         return self.groups
     
+    def update_groups(self, db_session_id, id, name, parent_id):
+        return True
+    
     def get_roles(self, db_session_id):
         return self.roles
     
