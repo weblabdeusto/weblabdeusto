@@ -129,6 +129,12 @@ class MockUPS(object):
             raise self.exceptions['get_roles']
         return self.return_values['get_roles']
     
+    def update_groups(self, session_id, id, name, parent_id):
+        self.arguments['update_groups'] = (session_id, )
+        if self.exceptions.has_key('update_groups'):
+            raise self.exceptions['update_groups']
+        return self.return_values['update_groups']
+    
     def get_groups(self, session_id):
         self.arguments['get_groups'] = (session_id, )
         if self.exceptions.has_key('get_groups'):
@@ -791,6 +797,24 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
                 expected_user_information.role.name,
                 user_information.role.name
             )
+        
+    
+    def test_return_update_groups(self):
+        expected_sess_id = {'id' : 'whatever'}
+        g1, g2 = self._generate_groups() #@UnusedVariable
+        
+        self.mock_ups.return_values['update_groups'] = g1
+        
+        self.assertEquals(
+                g1,
+                self.rfm.update_groups(expected_sess_id, 1, 'changedName', 2)
+            )
+        
+        self.assertEquals(
+                expected_sess_id['id'],
+                self.mock_ups.arguments['update_groups'][0].id
+            )
+    
     
     def test_return_get_groups(self):
         expected_sess_id = {'id' : 'whatever'}
