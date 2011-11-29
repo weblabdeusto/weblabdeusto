@@ -564,6 +564,12 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         groups = self.gateway.get_groups('student1', None)
         self.assertTrue(len(groups) > 1)
         
+    def test_internal_get_group(self):
+        """ Tests that _get_group does retrieve groups. """
+        self.gateway._insert_group("TestGroup", None)
+        session = self.gateway.Session()
+        self.gateway._get_group(session, 'TestGroup')
+        
     def test_get_groups_filtering_by_parent(self):
         """ Tests that get_groups is able to filter by parent, returning all
         children but no extra groups. 'student1' is the login of a user with
@@ -572,6 +578,7 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         g1 = self.gateway._insert_group("ChildOfTestGroup1", testgroup)
         g2 = self.gateway._insert_group("ChildOfTestGroup2", testgroup)
         g3 = self.gateway._insert_group("NotChildOfTestGroup", None)
+        
         
         groups = self.gateway.get_groups('student1', testgroup)
         for g in groups:
