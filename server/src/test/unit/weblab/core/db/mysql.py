@@ -566,10 +566,13 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         testgroup = self.gateway._insert_group("TestGroup", None)
         g1 = self.gateway._insert_group("ChildOfTestGroup1", testgroup)
         g2 = self.gateway._insert_group("ChildOfTestGroup2", testgroup)
+        g3 = self.gateway._insert_group("NotChildOfTestGroup", None)
         
         groups = self.gateway.get_groups('student1', testgroup)
         for g in groups:
             self.assertTrue(g in (g1, g2,))
+        self.assertTrue(g3 not in groups)
+        self.assertTrue(testgroup not in groups)
         
 
     def test_get_experiment_uses(self):
