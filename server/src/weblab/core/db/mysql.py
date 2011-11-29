@@ -580,6 +580,13 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         except NoResultFound:
             raise DbExceptions.DbProvidedUserNotFoundException("Unable to find a User with the provided login: '%s'" % user_login)
     
+    def _get_group(self, session, group_name):
+        """ Retrieves a group by its group_name. Throws a DbExceptions.DbProvidedGroupNotFoundException if not found. """
+        try:
+            return session.query(Model.DbGroup).filter_by(name=group_name).one()
+        except NoResultFound:
+            raise DbExceptions.DbProvidedGroupNotFoundException("Unable to find a Group with the provided name: '%s'" % group_name)
+    
     def _get_experiment(self, session, exp_name, cat_name):
         try:
             return session.query(Model.DbExperiment) \

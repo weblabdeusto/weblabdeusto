@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 import weblab.exc as wlExc
 
@@ -27,6 +28,10 @@ class DbUserNotFoundException(DbInvalidUserOrPasswordException):
         DbInvalidUserOrPasswordException.__init__(self,*args,**kargs)
 
 class DbProvidedUserNotFoundException(DatabaseException):
+    def __init__(self,*args,**kargs):
+        DatabaseException.__init__(self,*args,**kargs)
+        
+class DbProvidedGroupNotFoundException(DatabaseException):
     def __init__(self,*args,**kargs):
         DatabaseException.__init__(self,*args,**kargs)
 
