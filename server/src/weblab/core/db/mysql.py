@@ -668,6 +668,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             group = Model.DbGroup(name, parent_group)
             session.add(group)
             session.commit()
+            return group
         finally:
             session.close()
         

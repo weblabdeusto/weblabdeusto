@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
+#         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
 
 import unittest
@@ -557,7 +558,19 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         self.assertEquals(len(experiments), 0)
         
     def test_get_groups(self):
-        pass
+        self.gateway._insert_group("TestGroup", None)
+        groups = self.gateway.get_groups('student1', None)
+        self.assertTrue(len(groups) > 1)
+        
+    def test_get_groups_filtering_by_parent(self):
+        testgroup = self.gateway._insert_group("TestGroup", None)
+        g1 = self.gateway._insert_group("ChildOfTestGroup1", testgroup)
+        g2 = self.gateway._insert_group("ChildOfTestGroup2", testgroup)
+        
+        groups = self.gateway.get_groups('student1', testgroup)
+        for g in groups:
+            self.assertTrue(g in (g1, g2,))
+        
 
     def test_get_experiment_uses(self):
         student2 = self.gateway.get_user_by_name('student2')
