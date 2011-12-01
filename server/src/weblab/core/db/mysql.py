@@ -389,6 +389,20 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
+    def get_my_experiment_use_full(self, user_login, reservation_id):
+        session = self.Session()
+        try:
+            user = session.query(Model.DbUser).filter_by(login = user_login).first()
+            if user is None:
+                return
+            experiment_use = session.query(Model.DbUserUsedExperiment).filter_by(reservation_id == reservation_id.id, user = user).first()
+            if experiment_use is None:
+                return
+
+            return experiment_use.to_full_dto()
+        finally:
+            session.close()
+
     @admin_panel_operation
     @logged()
     def get_experiment_uses(self, user_login, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by):
