@@ -164,7 +164,8 @@ class ExperimentWindow extends BaseWindow {
 					ExperimentWindow.DEFAULT_EXPERIMENT_INFODESCRIPTION
 					);
 			
-			this.informationLink.setHref(infolink);
+			if(!infolink.isEmpty())
+				this.informationLink.setHref(infolink);
 			this.informationLink.setText(infodesc);
 			
 		} catch(IllegalArgumentException e){

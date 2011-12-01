@@ -14,6 +14,7 @@
 
 package es.deusto.weblab.client.experiments.visir;
 
+import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
@@ -32,10 +33,23 @@ public class VisirSetupDataRequestCommand extends Command {
 	private String cookie;
 	private String saveData;
 	private String url;
+	private boolean teacher;
 	
-	public String getCookie() { return this.cookie;  }
-	public String getSaveData() { return this.saveData; }
-	public String getURL() { return this.url; }
+	public String getCookie() { 
+		return this.cookie;  
+	}
+	
+	public String getSaveData() { 
+		return this.saveData; 
+	}
+	
+	public String getURL() { 
+		return this.url; 
+	}
+	
+	public boolean isTeacher() {
+		return this.teacher;
+	}
 
 	/**
 	 * Parses the response, storing the received parameters for them
@@ -52,9 +66,10 @@ public class VisirSetupDataRequestCommand extends Command {
 			if(obj == null)
 				return false;
 			
-			final JSONValue cookieval = obj.get("cookie");
+			final JSONValue cookieval   = obj.get("cookie");
 			final JSONValue savedataval = obj.get("savedata");
-			final JSONValue urlval = obj.get("url");
+			final JSONValue urlval      = obj.get("url");
+			final JSONValue teacherval  = obj.get("teacher"); 
 			
 			if( cookieval == null || savedataval == null || urlval == null)
 				return false;
@@ -69,6 +84,12 @@ public class VisirSetupDataRequestCommand extends Command {
 			this.cookie = cookiestr.stringValue();
 			this.saveData = savedatastr.stringValue();
 			this.url = urlstr.stringValue();
+			
+			if(teacherval != null){
+				JSONBoolean teacherbool = teacherval.isBoolean();
+				this.teacher = teacherbool != null && teacherbool.booleanValue();
+			}else
+				this.teacher = false;
 			
 		} catch(Throwable e) {
 			return false;
