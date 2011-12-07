@@ -88,6 +88,9 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         cfg_manager.append_module(configuration)
         self.gateway = DatabaseGateway.create_gateway(cfg_manager)
         self.gateway._delete_all_uses()
+        groups_to_delete = ('TestGroup', 'ChildOfTestGroup1', 'ChildOfTestGroup2', 'NotChildOfTestGroup', 'UpdateTestGroup', 'UpdateTestGroupRenamed')
+        for g in groups_to_delete:
+            self.gateway._delete_group(g)
     
     def test_get_user_by_name(self):
         self.assertRaises(
@@ -575,12 +578,11 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         children but no extra groups. 'student1' is the login of a user with
         admin panel access rights """
         testgroup = self.gateway._insert_group("TestGroup", None)
-        g1 = self.gateway._insert_group("ChildOfTestGroup1", testgroup)
-        g2 = self.gateway._insert_group("ChildOfTestGroup2", testgroup)
+        g1 = self.gateway._insert_group("ChildOfTestGroup1", testgroup.id)
+        g2 = self.gateway._insert_group("ChildOfTestGroup2", testgroup.id)
         g3 = self.gateway._insert_group("NotChildOfTestGroup", None)
         
-        
-        groups = self.gateway.get_groups('student1', testgroup)
+        groups = self.gateway.get_groups('student1', testgroup.id)
         for g in groups:
             self.assertTrue(g in (g1, g2,))
         self.assertTrue(g3 not in groups)

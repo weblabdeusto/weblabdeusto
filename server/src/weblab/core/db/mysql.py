@@ -672,7 +672,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         """
         session = self.Session()
         try:
-            uu = session.query(Model.DbGroup).filter_by(name=groupname).one()
+            uu = session.query(Model.DbGroup).filter_by(name=groupname).all()
             for i in uu:
                 session.delete(i)
             session.commit()               
