@@ -664,6 +664,20 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         finally:
             session.close()
             
+    def _delete_group(self, groupname):
+        """ 
+        IMPORTANT: SHOULD NEVER BE USED IN PRODUCTION, IT'S HERE ONLY FOR TESTS 
+        _delete_group(groupname)
+        Deletes the specified group from the database.
+        """
+        session = self.Session()
+        try:
+            uu = session.query(Model.DbGroup).filter_by(name=groupname).one()
+            for i in uu:
+                session.delete(i)
+            session.commit()               
+        finally:
+            session.close()
             
     def _insert_group(self, name, parent_id):
         """ IMPORTANT: SHOULD NEVER BE USED IN PRODUCTION, IT'S HERE ONLY FOR TESTS """
