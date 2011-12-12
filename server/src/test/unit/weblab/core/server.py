@@ -82,6 +82,11 @@ class UserProcessingServerTestCase(unittest.TestCase):
             )
         
         self.ups._db_manager._gateway._delete_all_uses()
+        
+        # Delete some groups that tests create so that they don't interfere.
+        groups_to_del = ("TestGroup", "UpdateTestGroup")
+        for g in groups_to_del:
+            self.ups._db_manager._gateway._delete_group(g)
 
     def tearDown(self):
         self.ups.stop()

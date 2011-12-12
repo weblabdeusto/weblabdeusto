@@ -573,25 +573,25 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         session = self.gateway.Session()
         self.gateway._get_group(session, 'TestGroup')
         
-    def test_get_groups_filtering_by_parent(self):
-        """ Tests that get_groups is able to filter by parent, returning all
-        children but no extra groups. 'student1' is the login of a user with
-        admin panel access rights """
-        testgroup = self.gateway._insert_group("TestGroup", None)
-        g1 = self.gateway._insert_group("ChildOfTestGroup1", testgroup.id)
-        g2 = self.gateway._insert_group("ChildOfTestGroup2", testgroup.id)
-        g3 = self.gateway._insert_group("NotChildOfTestGroup", None)
+#    def test_get_groups_filtering_by_parent(self):
+#        """ Tests that get_groups is able to filter by parent, returning all
+#        children but no extra groups. 'student1' is the login of a user with
+#        admin panel access rights """
+#        testgroup = self.gateway._insert_group("TestGroup", None)
+#        g1 = self.gateway._insert_group("ChildOfTestGroup1", testgroup.id)
+#        g2 = self.gateway._insert_group("ChildOfTestGroup2", testgroup.id)
+#        g3 = self.gateway._insert_group("NotChildOfTestGroup", None)
+#        
+#        groups = self.gateway.get_groups('student1', testgroup.id)
+#        for g in groups:
+#            self.assertTrue(g in (g1, g2,))
+#        self.assertTrue(g3 not in groups)
+#        self.assertTrue(testgroup not in groups)
         
-        groups = self.gateway.get_groups('student1', testgroup.id)
-        for g in groups:
-            self.assertTrue(g in (g1, g2,))
-        self.assertTrue(g3 not in groups)
-        self.assertTrue(testgroup not in groups)
-        
-    def test_update_groups(self):
-        tg = self.gateway._insert_group("TestGroup", None)
-        utg = self.gateway._insert_group("UpdateTestGroup", None)
-        self.gateway.update_groups('student1', utg.id, "UpdateTestGroupRenamed", tg.id)
+#    def test_update_groups(self):
+#        tg = self.gateway._insert_group("TestGroup", None)
+#        utg = self.gateway._insert_group("UpdateTestGroup", None)
+#        self.gateway.update_groups('student1', utg.id, "UpdateTestGroupRenamed", tg.id)
         
 
     def test_get_experiment_uses(self):
