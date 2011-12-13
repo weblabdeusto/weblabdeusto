@@ -36,7 +36,7 @@ class Criteria(object):
 
     DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
     DATETIME_FIELDS = ('start_date', 'end_date')
-    INT_FIELDS      = ('group','experiment_id')
+    INT_FIELDS      = ('group','experiment_id', '__gwt_ObjectId')
     FIELDS          = DATETIME_FIELDS + INT_FIELDS
 
     def __init__(self, field_name, operator, value):
