@@ -7,7 +7,7 @@
 	<configuration file="instance_config.py"/>
 	<user>weblab</user>
 
-	<server>login1</server>
-	<server>ups1</server>
-	<server>laboratory1</server>
+	<server>login</server>
+	<server>core</server>
+	<server>laboratory</server>
 </servers>

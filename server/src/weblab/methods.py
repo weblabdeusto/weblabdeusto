@@ -58,5 +58,6 @@ Experiment = [
         'should_finish',
         'dispose',
         'is_up_and_running',
+        'get_api'
     ]
 

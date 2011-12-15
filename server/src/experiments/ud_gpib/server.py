@@ -46,6 +46,12 @@ class UdGpibExperiment(Experiment.Experiment):
     def _create_gpib_launcher(self, cfg_manager):
         # For testing purposes
         return Gpib.Launcher(cfg_manager)
+    
+    @Override(Experiment.Experiment)
+    @caller_check(ServerType.Laboratory)
+    @logged("info")
+    def do_get_api(self):
+        return "1"
 
     @Override(Experiment.Experiment)
     @caller_check(ServerType.Laboratory)

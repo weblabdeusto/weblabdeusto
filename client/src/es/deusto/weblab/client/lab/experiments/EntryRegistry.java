@@ -18,11 +18,15 @@ import java.util.List;
 import java.util.Vector;
 
 import es.deusto.weblab.client.experiments.binary.BinaryCreatorFactory;
+import es.deusto.weblab.client.experiments.blank.BlankCreatorFactory;
+import es.deusto.weblab.client.experiments.blank.BlankLimitedMobileCreatorFactory;
+import es.deusto.weblab.client.experiments.blank.BlankNoMobileCreatorFactory;
 import es.deusto.weblab.client.experiments.dummy.DummyCreatorFactory;
 import es.deusto.weblab.client.experiments.dummybatch.DummyBatchCreatorFactory;
 import es.deusto.weblab.client.experiments.gpib.GpibCreatorFactory;
 import es.deusto.weblab.client.experiments.gpib1.Gpib1CreatorFactory;
 import es.deusto.weblab.client.experiments.gpib2.Gpib2CreatorFactory;
+import es.deusto.weblab.client.experiments.ilab_batch.ILabBatchCreatorFactory;
 import es.deusto.weblab.client.experiments.labview.LabVIEWCreatorFactory;
 import es.deusto.weblab.client.experiments.logic.LogicCreatorFactory;
 import es.deusto.weblab.client.experiments.pic.PicCreatorFactory;
@@ -43,6 +47,9 @@ import es.deusto.weblab.client.lab.experiments.util.applets.java.JavaAppletCreat
 class EntryRegistry {
 	
 	static final IExperimentCreatorFactory [] creatorFactories = new IExperimentCreatorFactory[]{
+		new BlankCreatorFactory(),
+		new BlankLimitedMobileCreatorFactory(),
+		new BlankNoMobileCreatorFactory(),
 		new VisirCreatorFactory(),
 		new FlashAppCreatorFactory(),
 		new JavaAppletCreatorFactory(),
@@ -60,7 +67,8 @@ class EntryRegistry {
 		new Pic2CreatorFactory(),
 		new RobotStandardCreatorFactory(),
 		new RobotMovementCreatorFactory(),
-		new RobotProglistCreatorFactory()
+		new RobotProglistCreatorFactory(),
+		new ILabBatchCreatorFactory()
 	};
 	
 	static final List<ExperimentEntry> entries = new Vector<ExperimentEntry>();

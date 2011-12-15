@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<!-- 
+    Note: As an alternative to hand editing this file you can use the 
+    web admin tool to configure settings for your application. Use
+    the Website->Asp.Net Configuration option in Visual Studio.
+    A full list of settings and comments can be found in 
+    machine.config.comments usually located in 
+    \Windows\Microsoft.Net\Framework\v2.x\Config 
+-->
+<configuration>
+  <appSettings>
+     <!--
+     Interactive TimeOfDay Web.Config -->
+
+    <!-- 
+    ProcessAgent required Keys -->
+    <!-- THE FOLLOWING MUST BE SET FOR ALL SERVICES, used to define the service -->
+    <!-- The following  keys specify the WebService required Values -->
+    <!-- They are used by the SelfRegistration page to generate the ProcessAgent's
+         Bootstrap ProcessAgent Record, which must be created before installing domain credientials -->
+    
+    <!-- the database connection information 
+    NOTE: You Must set the database catalog to the database name that you created as part of the instalation process -->
+    <add key="sqlConnection" value="data source=(local);initial catalog=iLab_WLD_logic;Integrated Security=SSPI"/>
+    <add key="DatabaseProvider" value="System.Data.SqlClient" />
+
+    <!-- NOTE Default Recaptcha: Global keys assigned to ilab.mit.edu 
+	You should generate Keys for your Institution or site specific keys
+	see documentation at http://www.google.com/recaptcha
+    -->
+    <add key="RecaptchaPublicKey" value="6LcLF8ISAAAAAMhwOM1ipf9N1Kh_obO1VG0PwCQB"/>
+    <add key="RecaptchaPrivateKey" value="6LcLF8ISAAAAALHhc_wOQibhl3jIc5gf9MUKvOw_"/>
+
+    <add key="serviceType" value="LAB SERVER"/>
+    <!-- The name of the Service displayed for the user, please change -->
+    <add key="serviceName" value="WebLab-Deusto: logic experiment"/>
+    <!-- This Service's GUID You must supply a vaild GUID, see createGUID.exe, may be any string, 50 characters or less. -->
+    <add key="serviceGUID" value="CC1E0FA3-31B2-40B3-B9CA-420F53A067"/>
+    <add key="codebaseURL" value="http://ilab.weblab.deusto.es/WebLabDeusto_logic"/>
+    <add key="serviceURL" value="http://ilab.weblab.deusto.es/WebLabDeusto_logic/WebLabDeustoWebService.asmx"/>
+    <add key="defaultPasskey" value="FILLME"/>
+    <add key="bugReportMailAddress" value="ilab-bug@mit.edu" />
+    <add key="supportMailAddress" value="weblab@deusto.es"/>
+
+    <!-- Optional path and filename for application log. The directory must exisit & be writeable to the IIS worker process -->
+    <add key="logPath" value=""/>
+
+      <!-- WebLabDeusto specific Keys"/ !-->
+	  <add key="weblabdeusto_debug" value="true"/>
+	  <add key="weblabdeusto_url" value="https://www.weblab.deusto.es/weblab/"/>
+	  
+	  <add key="weblabdeusto_username" value="FILLME"/>
+	  <add key="weblabdeusto_password" value="FILLME"/>
+<!--
+	  <add key="weblabdeusto_priority" value="5"/>
+	  <add key="weblabdeusto_time_allowed" value="100"/>
+	-->
+
+	  <add key="weblabdeusto_exp_name" value="visir"/>
+	  <add key="weblabdeusto_exp_category" value="Visir experiments"/>
+<!--
+	  <add key="weblabdeusto_exp_name" value="visir"/>
+	  <add key="weblabdeusto_exp_category" value="Visir experiments"/>
+
+	  <add key="weblabdeusto_exp_name" value="ud-linux-vm"/>
+	  <add key="weblabdeusto_exp_category" value="VM experiments"/>
+-->
+  </appSettings>
+  <system.diagnostics>
+    <switches>
+      <add name="defaultTrace" value="Off" />
+    </switches>
+  </system.diagnostics>
+  <connectionStrings/>
+  <system.web>
+    <!-- 
+            Set compilation debug="true" to insert debugging 
+            symbols into the compiled page. Because this 
+            affects performance, set this value to true only 
+            during development.
+        -->
+    <compilation debug="true">
+      <assemblies>
+      </assemblies>
+    </compilation>
+    <!--
+            The <authentication> section enables configuration 
+            of the security authentication mode used by 
+            ASP.NET to identify an incoming user. 
+        -->
+    <authentication mode="Windows"/>
+    <!--
+            The <customErrors> section enables configuration 
+            of what to do if/when an unhandled error occurs 
+            during the execution of a request. Specifically, 
+            it enables developers to configure html error pages 
+            to be displayed in place of a error stack trace.
+
+        <customErrors mode="RemoteOnly" defaultRedirect="GenericErrorPage.htm">
+            <error statusCode="403" redirect="NoAccess.htm" />
+            <error statusCode="404" redirect="FileNotFound.htm" />
+        </customErrors>
+        -->
+      <customErrors mode="Off"/>
+  </system.web>
+</configuration>

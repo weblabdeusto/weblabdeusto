@@ -104,6 +104,10 @@ class LoginServer(object):
         session_id, server_route = ups_server.reserve_session(db_session_id)
         context = RemoteFacadeContext.get_context()
         context.route = server_route
+        if hasattr(session_id, 'id'):
+            context.session_id = session_id.id
+        else:
+            context.session_id = session_id
         return session_id
 
     @logged(log.level.Info)

@@ -50,7 +50,7 @@ DEFAULT_LOGIN_FACADE_XMLRPC_LISTEN          = ''
 LOGIN_FACADE_XMLRPC_PORT                    = 'login_facade_xmlrpc_port'
 
 LOGIN_FACADE_SERVER_ROUTE                   = 'login_facade_server_route'
-DEFAULT_LOGIN_SERVER_ROUTE                  = '<route-to-server>'
+DEFAULT_LOGIN_SERVER_ROUTE                  = 'default-route-to-server'
 
 
 class LoginRemoteFacadeServer(RFS.AbstractRemoteFacadeServer):

@@ -13,8 +13,12 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+from abc import ABCMeta, abstractmethod
+
+import weblab.core.comm.user_server as comm_user_server
+
 class GenericSchedulerArguments(object):
-    def __init__(self, cfg_manager, resource_type_name, reservations_manager, resources_manager, confirmer, session_maker, time_provider, **kwargs):
+    def __init__(self, cfg_manager, resource_type_name, reservations_manager, resources_manager, confirmer, session_maker, time_provider, core_server_url, **kwargs):
         self.cfg_manager          = cfg_manager
         self.resource_type_name   = resource_type_name
         self.reservations_manager = reservations_manager
@@ -22,6 +26,8 @@ class GenericSchedulerArguments(object):
         self.confirmer            = confirmer
         self.session_maker        = session_maker
         self.time_provider        = time_provider
+        self.core_server_url      = core_server_url
+
         if 'enqueuing_timeout' in kwargs:
             self.confirmer.enqueuing_timeout = kwargs.pop('enqueuing_timeout')
         if len(kwargs) > 0:
@@ -43,6 +49,9 @@ class GenericSchedulerArguments(object):
 # XXX The interface below has been extracted from PriorityQueueScheduler, the original WebLab-Deusto scheduler. It will change to support other schemas.
 # 
 class Scheduler(object):
+
+    __metaclass__ = ABCMeta
+
     def __init__(self, generic_scheduler_arguments):
         #
         # cfg_manager is the Configuration Manager. It provides general configuration,
@@ -93,12 +102,22 @@ class Scheduler(object):
         # 
         self.resource_type_name   = generic_scheduler_arguments.resource_type_name
 
-    #
-    # TODO: 
-    #  1. Batch experiments (add to "reserve" an additional argument)
-    #  2. Broken experiments management ("fixed_experiment" method, "how are the experiments doing", "check every minute the broken experiments", etc. even through monitor.py)
-    #  3. Añadir información más genérica tipo "este experimento está esperando a ser usado", del cual puedan heredar "está en cola" o "está planificado", etc. etc.
-    # 
+        #
+        # The address of the core server, such as 'https://www.weblab.deusto.es/weblab/', 
+        # so as to point out where is the server
+        # 
+        self.core_server_url      = generic_scheduler_arguments.core_server_url
+
+        self.core_server_route = self.cfg_manager.get_value(comm_user_server.USER_PROCESSING_FACADE_SERVER_ROUTE, comm_user_server.DEFAULT_USER_PROCESSING_SERVER_ROUTE)
+
+        import weblab.core.server as core_server
+        self.core_server_uuid       = self.cfg_manager.get_value(core_server.WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER, core_server.DEFAULT_WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER)
+
+        self.core_server_uuid_human = self.cfg_manager.get_value(core_server.WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN, core_server.DEFAULT_WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN)
+
+    @abstractmethod
+    def is_remote(self):
+        pass
 
     ####################################################################################
     # 
@@ -115,15 +134,19 @@ class Scheduler(object):
     # Kernel of the reservations
     # 
     # 
-    def reserve_experiment(self, reservation_id, experiment_id, time, priority):
+    @abstractmethod
+    def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info):
         pass
 
+    @abstractmethod
     def get_reservation_status(self, reservation_id):
         pass
 
+    @abstractmethod
     def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
         pass
 
+    @abstractmethod
     def finish_reservation(self, reservation_id):
         pass
 

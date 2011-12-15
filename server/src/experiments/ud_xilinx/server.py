@@ -47,6 +47,13 @@ STATE_FAILED = "failed"
 #TODO: which exceptions should the user see and which ones should not?
 class UdXilinxExperiment(Experiment.Experiment):
     
+    
+    @Override(Experiment.Experiment)
+    @caller_check(ServerType.Laboratory)
+    @logged("info")
+    def do_get_api(self):
+        return "2"
+    
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(UdXilinxExperiment,self).__init__(*args, **kwargs)
         self._coord_address = coord_address

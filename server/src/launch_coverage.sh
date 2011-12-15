@@ -10,6 +10,6 @@ else
    OUTPUT="report"
 fi
    
-coverage run --branch launch_tests.py
+python-coverage run --branch launch_tests.py
 
-coverage $OUTPUT --omit=test,$PWD/../lib,/usr,patcher,libraries,launch_tests,conf
+python-coverage $OUTPUT --omit=test,$PWD/../lib,/usr,patcher,libraries,launch_tests,conf

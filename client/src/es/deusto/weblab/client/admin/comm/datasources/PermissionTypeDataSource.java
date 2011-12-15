@@ -36,17 +36,16 @@ public class PermissionTypeDataSource extends WebLabRestDataSource {
 	    
 	    this.setOperationBindings(fetch);
 
-        final DataSourceIntegerField idField = new DataSourceIntegerField("id", "ID");  
-        idField.setPrimaryKey(true);
-        idField.setCanEdit(false);  
         final DataSourceTextField nameDSField = new DataSourceTextField("name", "Name");
+        nameDSField.setPrimaryKey(true);
+        nameDSField.setCanEdit(false);
         final DataSourceTextField descDSField = new DataSourceTextField("description", "Description");    
         final DataSourceIntegerField userAppId = new DataSourceIntegerField("user_applicable_id", "User Applicable ID");
         final DataSourceIntegerField roleAppId = new DataSourceIntegerField("role_applicable_id", "Role Applicable ID");
         final DataSourceIntegerField groupAppId = new DataSourceIntegerField("group_applicable_id", "Group Applicable ID");
         final DataSourceIntegerField eeAppId = new DataSourceIntegerField("ee_applicable_id", "EE Applicable ID");
         
-	    this.setFields(idField, nameDSField, descDSField, userAppId, roleAppId, groupAppId, eeAppId);  
-	    this.setFetchDataURL("data/permission_types_fetch.js");
+	    this.setFields(nameDSField, descDSField, userAppId, roleAppId, groupAppId, eeAppId);  
+	    this.setFetchDataURL("weblab/administration/json/permission_types");
 	}
 }

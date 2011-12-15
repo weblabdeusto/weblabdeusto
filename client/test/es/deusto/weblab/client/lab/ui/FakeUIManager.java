@@ -64,8 +64,7 @@ public class FakeUIManager extends WebLabFake implements IUIManager {
     }    
     
     @Override
-    public void onExperimentChosen(ExperimentAllowed experimentAllowed,
-	    ExperimentBase experimentBase) {
+    public void onExperimentChosen(ExperimentAllowed experimentAllowed, ExperimentBase experimentBase, boolean reserved) {
     	experimentBase.initialize();
     	this.append(FakeUIManager.ON_EXPERIMENT_CHOOSEN, new Object[] {experimentAllowed, experimentBase});
     }
@@ -135,5 +134,12 @@ public class FakeUIManager extends WebLabFake implements IUIManager {
 
 	@Override
 	public void onExperimentInteractionFinished() {
+	}
+
+	@Override
+	public void onRemoteExperimentReserved(String url,
+			String remoteReservationId) {
+		// TODO Auto-generated method stub
+		
 	}
 }

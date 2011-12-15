@@ -15,7 +15,6 @@
 package es.deusto.weblab.client.admin.comm.datasources;
 
 import com.smartgwt.client.data.OperationBinding;
-import com.smartgwt.client.data.fields.DataSourceIntegerField;
 import com.smartgwt.client.data.fields.DataSourceTextField;
 import com.smartgwt.client.types.DSOperationType;
 import com.smartgwt.client.types.DSProtocol;
@@ -51,18 +50,18 @@ public class UsersDataSource extends WebLabRestDataSource {
 	    this.setOperationBindings(fetch, update, remove, add);
 	    
 	    // TODO: Get rid of hard-coded strings.
-	    final DataSourceIntegerField idField = new DataSourceIntegerField("id", "ID");  
-	    idField.setPrimaryKey(true);
-	    idField.setCanEdit(false);  
 	    final DataSourceTextField loginDSField = new DataSourceTextField("login", "Login");
+	    loginDSField.setPrimaryKey(true);
+	    loginDSField.setCanEdit(false);
 	    final DataSourceTextField fullNameDSField = new DataSourceTextField("full_name", "Full Name");
 	    final DataSourceTextField emailDSField = new DataSourceTextField("email", "E-Mail");
 	    final DataSourceTextField avatarDSField = new DataSourceTextField("avatar", "Avatar");
 	    final DataSourceTextField roleIdDSField = new DataSourceTextField("role", "Role");
 	    
-	    this.setFields(idField, loginDSField, fullNameDSField, emailDSField, avatarDSField, roleIdDSField);
+	    this.setFields(loginDSField, fullNameDSField, emailDSField, avatarDSField, roleIdDSField);
 	    
-	    this.setFetchDataURL("data/users_fetch.js");
+	    this.setFetchDataURL("/weblab/administration/json/users");
+	    //this.setFetchDataURL("data/users_fetch.js");
 	    this.setRemoveDataURL("data/user_remove.js");
 	    this.setAddDataURL("data/user_add.js");
 	    this.setUpdateDataURL("data/user_update.js");

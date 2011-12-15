@@ -169,7 +169,7 @@ class ServerLoader(object):
         real_coordinator_server = RealCoordinatorServer(
                 cfg_manager,
                 map,
-                Direct = (coordinator_server_name,),
+                Direct = (coordinator_coord_address.address,),
             )
         real_coordinator_server.start()
         return real_coordinator_server

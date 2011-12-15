@@ -205,11 +205,14 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.send_header("Content-type", "text/xml")
         self.send_header("Content-length", str(len(response)))
         if self.server_route is not None:
-            route = get_context().route
+            ctx = get_context()
+            route = ctx.route
             if route is None:
                 route = self.server_route
-            self.send_header("Set-Cookie", "weblabsessionid=anythinglikeasessid.%s; path=/; Expires=%s" % (route, strdate(days=100)))
-            self.send_header("Set-Cookie", "loginweblabsessionid=anythinglikeasessid.%s; path=/; Expires=%s" % (route, strdate(hours=1)))
+            session_id = ctx.session_id or 'anythinglikeasessid'
+            self.send_header("Set-Cookie", "weblabsessionid=%s.%s; path=/; Expires=%s" % (session_id, route, strdate(days=100)))
+            self.send_header("Set-Cookie", "loginweblabsessionid=%s.%s; path=/; Expires=%s" % (session_id, route, strdate(hours=1)))
+
         self.end_headers()
         self.wfile.write(response)
         self.wfile.flush()

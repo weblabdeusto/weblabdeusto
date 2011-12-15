@@ -94,7 +94,8 @@ class Address(cAddress.Address):
         registry = ServerRegistry.get_instance()
         try:
             server = registry.get_server(
-                ServerDirect._SERVER_PREFIX +self._server_id
+                ServerDirect._SERVER_PREFIX + self.address
+                #ServerDirect._SERVER_PREFIX + self._machine_id + "__" + self._instance_id + "__" + self._server_id
             )
         except RegistryExceptions.RegistryException as rex:
             raise ProtocolExceptions.ClientCreationException(

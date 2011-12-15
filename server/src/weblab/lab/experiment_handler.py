@@ -15,13 +15,13 @@
 # 
 
 class ExperimentHandler(object):
-    def __init__(self, experiment_coord_address, is_up_and_running_handlers, api):
+    def __init__(self, experiment_coord_address, is_up_and_running_handlers):
         super(ExperimentHandler, self).__init__()
         self._experiment_coord_address   = experiment_coord_address
         self._is_up_and_running_handlers = is_up_and_running_handlers
         self._busy                       = False
         self._lab_session_id             = None
-        self._api                        = api
+        self._api                        = None
 
     def reserve(self, lab_session_id):
         if self._busy:
@@ -39,6 +39,11 @@ class ExperimentHandler(object):
     @property
     def api(self):
         return self._api
+    
+    # TODO: Consider making this an internal method
+    @api.setter
+    def api(self, value): 
+        self._api = value
 
     @property
     def busy(self):

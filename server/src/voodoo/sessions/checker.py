@@ -36,7 +36,8 @@ def check_session(
         exception_to_raise, 
         what_session, 
         session_manager_field_name = '_session_manager',
-        serializable = True
+        serializable = True,
+        cut_session_id = None
     ):
     """ check_session(exception_to_raise,what_session,session_manager_field_name) -> decorator 
     
@@ -64,7 +65,12 @@ def check_session(
             # Make it compatible for both SessionId and SessionId.id datatypes
             if isinstance(session_id, str):
                 session_id = SessionId.SessionId(session_id)
-            session_manager = getattr(self,session_manager_field_name)
+
+            session_id_str = session_id.id
+            if cut_session_id is not None:
+                session_id = SessionId.SessionId(session_id_str.split(cut_session_id)[0])
+            
+            session_manager = getattr(self, session_manager_field_name)
             if session_manager.has_session(session_id):
                 session = session_manager.get_session_locking(session_id)
                 if serializable:

@@ -11,7 +11,10 @@
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
+#         Pablo Orduña <pablo@ordunya.com>
 # 
+
+from functools import wraps
 
 import sqlalchemy
 from sqlalchemy import create_engine
@@ -29,19 +32,13 @@ import weblab.data.dto.experiments as ExperimentAllowed
 
 import weblab.db.exc as DbExceptions
 
-WEBLAB_DB_USERNAME_PROPERTY = 'weblab_db_username'
-DEFAULT_WEBLAB_DB_USERNAME  = 'weblab'
-
-WEBLAB_DB_PASSWORD_PROPERTY = 'weblab_db_password'
-
-def getconn():
-    import MySQLdb as dbi
-    return dbi.connect(user = DatabaseGateway.user, passwd = DatabaseGateway.password,
-            host = DatabaseGateway.host, db = DatabaseGateway.dbname, client_flag = 2)
+from weblab.db.properties import WEBLAB_DB_USERNAME_PROPERTY, DEFAULT_WEBLAB_DB_USERNAME, WEBLAB_DB_PASSWORD_PROPERTY, WEBLAB_DB_FORCE_ENGINE_RECREATION, DEFAULT_WEBLAB_DB_FORCE_ENGINE_RECREATION
 
 def admin_panel_operation(func):
     """It checks if the requesting user has the admin_panel_access permission with full_privileges (temporal policy)."""
-    def proxy(self, user_login, *args, **kargs):
+
+    @wraps(func)
+    def wrapper(self, user_login, *args, **kargs):
         session = self.Session()
         try:
             user = self._get_user(session, user_login)
@@ -53,36 +50,35 @@ def admin_panel_operation(func):
             return ()
         finally:
             session.close()
-    return proxy
+    return wrapper
 
 DEFAULT_VALUE = object()
 
 class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
 
-    user     = None
-    password = None
-    host     = None
-    dbname   = None
-
-    pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
     engine = None
 
     def __init__(self, cfg_manager):
         super(DatabaseGateway, self).__init__(cfg_manager)
        
-        DatabaseGateway.user     = cfg_manager.get_value(WEBLAB_DB_USERNAME_PROPERTY, DEFAULT_WEBLAB_DB_USERNAME)
-        DatabaseGateway.password = cfg_manager.get_value(WEBLAB_DB_PASSWORD_PROPERTY)
-        DatabaseGateway.host     = self.host
-        DatabaseGateway.dbname   = self.database_name
+        user     = cfg_manager.get_value(WEBLAB_DB_USERNAME_PROPERTY, DEFAULT_WEBLAB_DB_USERNAME)
+        password = cfg_manager.get_value(WEBLAB_DB_PASSWORD_PROPERTY)
+        host     = self.host
+        dbname   = self.database_name
 
         connection_url = "mysql://%(USER)s:%(PASSWORD)s@%(HOST)s/%(DATABASE)s" % \
-                            { "USER":     self.user,
-                              "PASSWORD": self.password,
-                              "HOST":     self.host,
-                              "DATABASE": self.dbname  }
+                            { "USER":     user,
+                              "PASSWORD": password,
+                              "HOST":     host,
+                              "DATABASE": dbname  }
 
-        if DatabaseGateway.engine is None:
-            DatabaseGateway.engine = create_engine(connection_url, echo=False, convert_unicode=True, pool = self.pool)
+        if DatabaseGateway.engine is None or cfg_manager.get_value(WEBLAB_DB_FORCE_ENGINE_RECREATION, DEFAULT_WEBLAB_DB_FORCE_ENGINE_RECREATION):
+            def getconn():
+                import MySQLdb as dbi
+                return dbi.connect(user = user, passwd = password, host = host, db = dbname, client_flag = 2)
+            pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
+
+            DatabaseGateway.engine = create_engine(connection_url, echo=False, convert_unicode=True, pool = pool)
 
         self.Session = sessionmaker(bind=self.engine)
 
@@ -130,6 +126,16 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
 
             experiments.sort(lambda x,y: cmp(x.experiment.category.name, y.experiment.category.name))
             return tuple(experiments)
+        finally:
+            session.close()
+
+    @logged()
+    def is_access_forward(self, user_login):
+        session = self.Session()
+        try:
+            user = self._get_user(session, user_login)
+            permissions = self._gather_permissions(session, user, 'access_forward')
+            return len(permissions) > 0
         finally:
             session.close()
 
@@ -488,6 +494,23 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             return tuple(dto_experiment_uses), total_number
         finally:
             session.close()
+            
+    @admin_panel_operation
+    @logged()
+    def get_permission_types(self, user_login):
+        """
+        get_permission_types(user_login)
+        
+        Retrieves every permission type from the database
+        """
+        session = self.Session()
+        try:
+            ptypes = session.query(Model.DbPermissionType).all()
+            dto_ptypes = [ ptype.to_dto() for ptype in ptypes ]
+            return tuple(dto_ptypes)
+        finally:
+            session.close()
+    
 
     @logged()
     def get_user_permissions(self, user_login):

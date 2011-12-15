@@ -147,7 +147,7 @@ class LogicExperiment(Experiment.Experiment):
         self.circuit_generator = CircuitGenerator()
         self._cfg_manager = cfg_manager
         try:
-            self.webcam_url = self._cfg_manager.get_value(CFG_WEBCAM_URL)
+            self.webcam_url = self._cfg_manager.get_value(CFG_WEBCAM_URL, "")
         except:
             self.webcam_url = ''
         if is_testing():
@@ -158,6 +158,12 @@ class LogicExperiment(Experiment.Experiment):
             ConsoleInterface()
         ]
         self.interfaces = HardwareInterfaceCollector(interfaces)
+        
+        
+    @Override(Experiment.Experiment)
+    def do_get_api(self):
+        return "2"
+    
 
     @Override(Experiment.Experiment)
     def do_start_experiment(self, *args, **kwargs):

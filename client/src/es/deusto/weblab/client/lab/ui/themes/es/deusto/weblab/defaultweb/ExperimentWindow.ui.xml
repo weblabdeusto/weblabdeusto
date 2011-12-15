@@ -44,6 +44,7 @@
 		<g:VerticalPanel styleName="web-logged-content">
 		        
 			<g:Label ui:field="contentTitleLabel" text="{i18n.reserveThisExperiment}" styleName="web-logged-content-title"></g:Label>
+			<g:Label ui:field="contentTitleLabelSelected" text="{i18n.selectedExperiment}" styleName="web-logged-content-title"></g:Label>
 			
 			<g:Grid ui:field="detailsGrid" styleName="web-experiment-details">
                 <g:row>
@@ -68,6 +69,14 @@
                     </g:customCell>
                     <g:customCell>
                         <g:Label ui:field="timeAllowedLabel" styleName="web-experiment-detail"></g:Label>
+                    </g:customCell>
+                </g:row>
+                <g:row>
+                	<g:customCell>
+                		<g:Label ui:field="informationLinkLabel" text="{i18n.information}:"></g:Label>
+                	</g:customCell>
+                	<g:customCell>
+                        <g:Anchor ui:field="informationLink" styleName="web-experiment-detail"></g:Anchor>
                     </g:customCell>
                 </g:row>
 			</g:Grid>
