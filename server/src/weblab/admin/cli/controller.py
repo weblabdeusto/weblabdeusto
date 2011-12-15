@@ -270,7 +270,7 @@ class Controller(object):
                         self.ui.error("The User '%s' already exists." % user_data["login"])
                         self.db.session.rollback()     
                 except Exception, ex:
-                    self.ui.error("The User '%s' could not be created. Ignoring him/her. Reason: %r" % (user_data["login"], ex))                     
+                    self.ui.error("The User '%s' could not be created. Ignoring him/her. Reason: " % (user_data["login"], ex.__repr__))                     
             self.ui.notify("Created %d users out of %d." % (users_created_successfully, num_users))
             self.ui.wait()
         except GoBackException:

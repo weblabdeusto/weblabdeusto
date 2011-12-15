@@ -263,7 +263,7 @@ class ConsoleUI(object):
         if response is not None:
             user_logins = [ login for login in
                                     (''.join(char for char in line if not char.isspace()) for line in response) 
-                                  if not login.startswith('#')
+                                  if not login.startswith('#') and not len(login) == 0
                           ]
             return user_logins
         else:

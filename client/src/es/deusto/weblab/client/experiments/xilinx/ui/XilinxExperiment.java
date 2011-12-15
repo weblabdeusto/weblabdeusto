@@ -16,6 +16,8 @@ package es.deusto.weblab.client.experiments.xilinx.ui;
 import java.util.Vector;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.Timer;
@@ -32,7 +34,6 @@ import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
-import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
 import es.deusto.weblab.client.ui.widgets.WlButton.IWlButtonUsed;
 import es.deusto.weblab.client.ui.widgets.WlClockActivator;
@@ -245,8 +246,16 @@ public class XilinxExperiment extends ExperimentBase{
 	@Override
 	public void start(int time, String initialConfiguration){
 		
-		RequestWebcamCommand.createAndSend(this.boardController, this.webcam, 
-				this.messages);
+		final JSONValue parsedInitialConfiguration = JSONParser.parseStrict(initialConfiguration);
+		
+		try
+		{
+			final String webcamUrl = parsedInitialConfiguration.isObject().get("webcam").isString().stringValue();
+			this.webcam.setUrl(webcamUrl);
+		} catch(Exception e) {
+			this.messages.setText("Error: experiment server did not provide a webcam URL");
+			System.out.println("[DBG/XILINX]: Did not receive the webcam parameter. Experiment might be using the deprecated API.");		
+		}
 		
 		this.boardController.sendCommand("EXPECTED.PROGRAMMING.TIME",
 				new IResponseCommandCallback() {
