@@ -44,7 +44,7 @@ class UdDemoXilinxExperiment(UdXilinxExperiment.UdXilinxExperiment):
         Returns the API version. Unlike the Xilinx base it inherits from, this has not yet
         been ported to version 2.
         """
-        return "1"
+        return "2"
     
         
     @Override(UdXilinxExperiment.UdXilinxExperiment)
