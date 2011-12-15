@@ -9,6 +9,7 @@
 * listed below:
 *
 * Author: Pablo Orduña <pablo@ordunya.com>
+*         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 *
 */ 
 package es.deusto.weblab.client.experiments.xilinx.ui;
@@ -16,9 +17,14 @@ package es.deusto.weblab.client.experiments.xilinx.ui;
 import java.util.Vector;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -32,20 +38,19 @@ import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
-import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
-import es.deusto.weblab.client.ui.widgets.WlButton.IWlButtonUsed;
 import es.deusto.weblab.client.ui.widgets.WlClockActivator;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar;
-import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarListener;
-import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarTextUpdater;
-import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.TextProgressBarTextUpdater;
 import es.deusto.weblab.client.ui.widgets.WlSwitch;
 import es.deusto.weblab.client.ui.widgets.WlTimedButton;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
-import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
+import es.deusto.weblab.client.ui.widgets.WlButton.IWlButtonUsed;
+import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarListener;
+import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarTextUpdater;
+import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.TextProgressBarTextUpdater;
+import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 public class XilinxExperiment extends ExperimentBase{
 
@@ -65,7 +70,6 @@ public class XilinxExperiment extends ExperimentBase{
 	private static final String XILINX_MULTIRESOURCE_DEMO_PROPERTY   = "is.multiresource.demo";
 	private static final boolean DEFAULT_MULTIRESOURCE_XILINX_DEMO   = false;
 	
-	private static final String XILINX_WEBCAM_IMAGE_URL_PROPERTY      = "webcam.image.url";
 	private static final String DEFAULT_XILINX_WEBCAM_IMAGE_URL       = GWT.getModuleBaseURL() + "/waiting_url_image.jpg";
 	
 	private static final String XILINX_WEBCAM_REFRESH_TIME_PROPERTY   = "webcam.refresh.millis";
@@ -91,6 +95,7 @@ public class XilinxExperiment extends ExperimentBase{
 	@UiField VerticalPanel innerVerticalPanel;
 	@UiField HorizontalPanel uploadStructurePanel;
 	
+	@UiField Button uploadButton;
 	@UiField Label selectProgram;
 	
 	@UiField HorizontalPanel timerMessagesPanel;
@@ -136,7 +141,7 @@ public class XilinxExperiment extends ExperimentBase{
 		
 		if(isDemo()){
 			if(isMultiresourceDemo()){
-				this.selectProgram.setText("This demo demonstrate the multiresource queues of WebLab-Deusto. You will use a CPLD or a FPGA depending on which one is available. You can test to log in ud-demo-pld and ud-demo-fpga and then log in this experiment to check that it will go to the one you free. If this wasn't a demo, you would select here the program that would be sent to the device. Since it could be harmful, in the demo we always send the same demonstration file.");
+				this.selectProgram.setText("This demo demonstrates the multiresource queues of WebLab-Deusto. You will use a CPLD or a FPGA depending on which one is available. You can test to log in ud-demo-pld and ud-demo-fpga and then log in this experiment to check that it will go to the one you free. If this wasn't a demo, you would select here the program that would be sent to the device. Since it could be harmful, in the demo we always send the same demonstration file.");
 			}else{
 				this.selectProgram.setText("If this wasn't a demo, you would select here the program that would be sent to the device. Since it could be harmful, in the demo we always send the same demonstration file.");
 			}
@@ -154,13 +159,6 @@ public class XilinxExperiment extends ExperimentBase{
 		return this.configurationRetriever.getBoolProperty(
 				XilinxExperiment.XILINX_MULTIRESOURCE_DEMO_PROPERTY, 
 				XilinxExperiment.DEFAULT_MULTIRESOURCE_XILINX_DEMO
-			);
-	}
-	
-	private String getWebcamImageUrl() {
-		return this.configurationRetriever.getProperty(
-				XilinxExperiment.XILINX_WEBCAM_IMAGE_URL_PROPERTY, 
-				XilinxExperiment.DEFAULT_XILINX_WEBCAM_IMAGE_URL
 			);
 	}
 
@@ -207,7 +205,7 @@ public class XilinxExperiment extends ExperimentBase{
 	private void createProvidedWidgets() {
 		this.webcam = new WlWebcam(
 				this.getWebcamRefreshingTime(),
-				this.getWebcamImageUrl()
+				XilinxExperiment.DEFAULT_XILINX_WEBCAM_IMAGE_URL
 			);
 		
 		this.timer = new WlTimer(false);
@@ -241,53 +239,115 @@ public class XilinxExperiment extends ExperimentBase{
 	    this.widget.setVisible(false);
 	    this.selectProgram.setVisible(false);
 	}
+	
+	
+	/**
+	 * Event handler which gets called whenever the upload button is pressed.
+	 * The upload button is currently only visible when the file could not be
+	 * uploaded on the reservation stage, generally due to wrong user input.
+	 * 
+	 * @param e
+	 */
+	@UiHandler("uploadButton")
+	void handleClick(ClickEvent e) {
+		boolean success = this.tryUpload();
+		
+		if(success)
+			this.uploadButton.setVisible(false);
+	}
+	
+	/**
+	 * Helper method to try to upload a file. Currently, we only consider that an upload
+	 * failed if the filename the user chose is empty.
+	 * If the upload succeeds we load the standard experiment controls through loadStartControls and
+	 * hide the upload panel, which is no longer needed.
+	 * 
+	 * @return True if the upload succeeds, false otherwise.
+	 */
+	private boolean tryUpload() {
+		final boolean didChooseFile = !this.uploadStructure.getFileUpload().getFilename().isEmpty();
+		
+		if(didChooseFile) {
+			this.uploadStructure.getFormPanel().setVisible(false);
+			this.boardController.sendFile(this.uploadStructure, this.sendFileCallback);
+			this.loadStartControls();
+		} else {
+			GWT.log("The user did not really choose a file");
+		}
+		
+		return didChooseFile;
+	}
+	
 
+	/**
+	 * Called when the experiment starts. 
+	 * @param time Time available for the experiment
+	 * @param initialConfiguration JSON-encoded server-provided configuration parameters. 
+	 * This feature is part of the API version 2. Parameters expected by this experiment
+	 * are "webcam" and "expected_programming_time".
+	 */
 	@Override
 	public void start(int time, String initialConfiguration){
 		
-		RequestWebcamCommand.createAndSend(this.boardController, this.webcam, 
-				this.messages);
+		final JSONValue parsedInitialConfiguration = JSONParser.parseStrict(initialConfiguration);
 		
-		this.boardController.sendCommand("EXPECTED.PROGRAMMING.TIME",
-				new IResponseCommandCallback() {
-
-					@Override
-					public void onSuccess(ResponseCommand responseCommand) {
-						final int eqsign = responseCommand.getCommandString().indexOf("=");
-						if(eqsign != -1){
-							final String time = responseCommand.getCommandString().substring(eqsign+1);
-							try{
-								XilinxExperiment.this.expectedProgrammingTime = Integer.parseInt(time) * 1000;
-							}catch(Exception e){
-							}
-						}
-						loadProgressBar();
-					}
-
-					@Override
-					public void onFailure(CommException e) {
-						loadProgressBar();
-					}
-				}
-		);		
+		try {
+			final String webcamUrl = parsedInitialConfiguration.isObject().get("webcam").isString().stringValue();
+			this.webcam.setUrl(webcamUrl);
+		} catch(Exception e) {
+			this.messages.setText("[Xilinx] Did not receive the webcam parameter.");
+    		GWT.log("[Xilinx] Did not receive the webcam parameter.", null);
+    		return;
+		}
+		
+		try {
+			double expectedProgrammingTime = parsedInitialConfiguration.isObject().get("expected_programming_time").isNumber().doubleValue();
+			XilinxExperiment.this.expectedProgrammingTime = (int)(expectedProgrammingTime * 1000);
+		} catch(Exception e) {	
+			this.messages.setText("[Xilinx] Did not receive the expected_programming_time parameter.");
+    		GWT.log("[Xilinx] Did not receive the expected_programming_time parameter.", null);
+    		return;
+		}
+	
+		// If it's not a demo, the user will have been prompted a file uploading form.
+		// He might have indeed chosen a file to upload, or he might not.
+		if(!isDemo()) {
+			
+			boolean success = this.tryUpload();
+			
+			// If the file upload attempt on the reserve stage failed, then we will have to display 
+			// a button during the experiment itself so that the user can request the file he chose
+			// be uploaded to the server.
+			if(!success)
+				this.uploadButton.setVisible(true);
+			
+		} else {
+			this.loadStartControls();
+		}
+		
+		// The experiment started, so we should start the timer.
+		this.timer.start();
+		
+		// Start polling to know when the board has been programmed and the server is ready
+		// to receive our requests.
+		setupReadyTimer();
+	}
+	
+	
+	/**
+	 * Loads those controls that are meant to be displayed
+	 * when the experiment starts.
+	 */
+	private void loadStartControls() {
+		this.loadProgressBar();
 		
 	    this.widget.setVisible(true);
 	    this.selectProgram.setVisible(false);
 	    
 		this.loadWidgets();
 		this.disableInteractiveWidgets();
-		
-		
-		if(!isDemo()){
-			this.uploadStructure.getFormPanel().setVisible(false);
-		
-			this.boardController.sendFile(this.uploadStructure, this.sendFileCallback);
-		}
-		
-		// Start polling to know when the board has been programmed and the server is ready
-		// to receive our requests.
-		setupReadyTimer();
 	}
+	
 	
 	
 	/**
@@ -366,6 +426,8 @@ public class XilinxExperiment extends ExperimentBase{
 	    @Override
 	    public void onFailure(CommException e) {
 	    	
+	    	GWT.log("It was not possible to send the file");
+	    	
 		    if(XilinxExperiment.DEBUG_ENABLED)
 		    	XilinxExperiment.this.enableInteractiveWidgets();
 		    
@@ -426,8 +488,7 @@ public class XilinxExperiment extends ExperimentBase{
 		this.webcam.setVisible(true);
 		this.webcam.start();
 		
-		this.timer.start();
-		
+	
 		this.messages.setText("Sending file");
 		this.messages.start();
 		

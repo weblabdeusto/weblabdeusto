@@ -21,6 +21,11 @@ import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+/**
+ * Encapsulates the form used for selecting and uploading a file,
+ * and is able to handle the uploading itself through a GWT
+ * FileUpload object.
+ */
 public class UploadStructure extends Widget implements HasAlignment{
 	
 	private VerticalPanel panel;
