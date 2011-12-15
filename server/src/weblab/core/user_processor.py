@@ -36,8 +36,15 @@ GET_EXPERIMENTS_CACHE_TIME      = 15  # seconds
 GET_EXPERIMENT_USES_CACHE_TIME  = 15  # seconds
 GET_USER_INFORMATION_CACHE_TIME = 200 # seconds
 GET_USER_PERMISSIONS_CACHE_TIME = 200 # seconds
+GET_PERMISSION_TYPES_CACHE_TIME = 200 # seconds
 DEFAULT_EXPERIMENT_POLL_TIME    = 300  # seconds
 EXPERIMENT_POLL_TIME            = 'core_experiment_poll_time'
+
+FORWARDED_KEYS = 'external_user','user_agent','referer','mobile','facebook','from_ip'
+SERVER_UUIDS   = 'server_uuid'
+
+# The following methods will be used from within the Processor itself.
+#
 
 @cache(LIST_EXPERIMENTS_CACHE_TIME, _resource_manager)
 def list_experiments(db_manager, db_session_id):
@@ -72,6 +79,9 @@ def get_experiment_uses(db_manager, db_session_id, from_date, to_date, group_id,
 def get_user_permissions(db_manager, db_session_id):
     return db_manager.get_user_permissions(db_session_id)
 
+@cache(GET_PERMISSION_TYPES_CACHE_TIME, _resource_manager)
+def get_permission_types(db_manager, db_session_id):
+    return db_manager.get_permission_types(db_session_id)
 
 class UserProcessor(object):
     """
@@ -110,11 +120,15 @@ class UserProcessor(object):
     def get_session_id(self):
         return self._session['session_id']
 
+    def is_access_forward_enabled(self):
+        db_session_id               = self._session['db_session_id']
+        return self._db_manager.is_access_forward(db_session_id)
+
     # 
     # Experiments
     # 
 
-    def reserve_experiment(self, experiment_id, serialized_client_initial_data, client_address):
+    def reserve_experiment(self, experiment_id, serialized_client_initial_data, serialized_consumer_data, client_address, core_server_universal_id ):
 
         context = RemoteFacadeContext.get_context()
 
@@ -136,7 +150,25 @@ class UserProcessor(object):
             client_initial_data = json.loads(serialized_client_initial_data)
         except ValueError:
             # TODO: to be tested
-            raise core_exc.UserProcessingException( "Invalid client_initial_data provided: a json-serialized object expected" )
+            raise core_exc.WebLabCoreException( "Invalid client_initial_data provided: a json-serialized object expected" )
+
+        if self.is_access_forward_enabled():
+            try:
+                consumer_data = json.loads(serialized_consumer_data)
+                for forwarded_key in FORWARDED_KEYS:
+                    if forwarded_key in consumer_data:
+                        reservation_info[forwarded_key] = consumer_data[forwarded_key]
+
+                server_uuids = consumer_data.get(SERVER_UUIDS, [])
+                for server_uuid, server_uuid_human in server_uuids:
+                    if server_uuid == core_server_universal_id:
+                        return 'replicated'
+                reservation_info[SERVER_UUIDS] = server_uuids
+            except ValueError:
+                raise core_exc.WebLabCoreException( "Invalid serialized_consumer_data provided: a json-serialized object expected" )
+        else:
+            consumer_data = {}
+            
 
         experiments = [ 
                 exp for exp in self.list_experiments()
@@ -149,13 +181,29 @@ class UserProcessor(object):
 
         experiment_allowed = experiments[0]
         try:
+            # Retrieve the most restrictive values between what was requested and what was permitted:
+            # 
+            # The smallest time allowed
+            time_allowed                 = min(experiment_allowed.time_allowed,                consumer_data.get('time_allowed', experiment_allowed.time_allowed))
+            # 
+            # The lowest priority (lower number is higher)
+            # TODO: whenever possible, there should be an argument in the permission as 
+            # a parameter to the access_forward, such as: 
+            # "how much you want to decrement the requested priority to this user"
+            priority                     = max(experiment_allowed.priority,                    consumer_data.get('priority', experiment_allowed.priority))
+
+            # 
+            # Don't take into account initialization unless both agree
+            initialization_in_accounting = experiment_allowed.initialization_in_accounting and consumer_data.get('initialization_in_accounting', experiment_allowed.initialization_in_accounting)
+                
             status, reservation_id    = self._coordinator.reserve_experiment(
                     experiment_allowed.experiment.to_experiment_id(), 
-                    experiment_allowed.time_allowed, 
-                    experiment_allowed.priority,
-                    experiment_allowed.initialization_in_accounting,
+                    time_allowed, 
+                    priority,
+                    initialization_in_accounting,
                     client_initial_data,
-                    reservation_info
+                    reservation_info,
+                    consumer_data
                 )
         except coord_exc.ExperimentNotFoundException:
             raise core_exc.NoAvailableExperimentFoundException(
@@ -186,6 +234,9 @@ class UserProcessor(object):
     #
     
     def get_users(self):
+        """
+        Retrieves the users from the database itself.
+        """
         db_session_id        = self._session['db_session_id']
         return get_users(self._db_manager, db_session_id)
 
@@ -208,4 +259,8 @@ class UserProcessor(object):
     def get_user_permissions(self):
         db_session_id         = self._session['db_session_id']
         return get_user_permissions(self._db_manager, db_session_id)
+    
+    def get_permission_types(self):
+        db_session_id         = self._session['db_session_id']
+        return get_permission_types(self._db_manager, db_session_id)
 

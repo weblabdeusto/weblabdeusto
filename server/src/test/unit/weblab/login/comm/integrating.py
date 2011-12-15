@@ -21,6 +21,7 @@ try:
 except ImportError:
     pass
 
+from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 import voodoo.sessions.session_id as SessionId
 
 import voodoo.configuration as ConfigurationManager
@@ -36,7 +37,7 @@ import weblab.login.exc as LoginExceptions
 
 from test.unit.weblab.login.comm.manager import MockLogin
 
-class LoginIntegratingRemoteFacadeManager(unittest.TestCase):
+class LoginIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
     if LoginFacadeServer.ZSI_AVAILABLE:
         def setUp(self):
             self.configurationManager = ConfigurationManager.ConfigurationManager()
@@ -147,8 +148,53 @@ class LoginIntegratingRemoteFacadeManager(unittest.TestCase):
     else:
         print >> sys.stderr, "Optional module 'ZSI' not available (or maybe didn't run deploy.py?). Tests in weblab.login.comm.Integrating skipped"
 
+class LoginIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
+    def setUp(self):
+        self.configurationManager = ConfigurationManager.ConfigurationManager()
+        self.configurationManager.append_module(configuration)
+
+        self.configurationManager._set_value(RemoteFacadeServer.RFS_TIMEOUT_NAME, 0.001)
+
+        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_ZSI_PORT, 10223)
+        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_ZSI_SERVICE_NAME, '/weblab/soap/')
+        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_ZSI_LISTEN, '')
+
+        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_JSON_PORT, 10224)
+        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_JSON_LISTEN, '')
+
+        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_XMLRPC_PORT, 10225)
+        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_XMLRPC_LISTEN, '')
+
+
+        self.mock_server      = MockLogin()
+        self.rfs = LoginFacadeServer.LoginRemoteFacadeServer(self.mock_server, self.configurationManager)
+
+    @uses_module(RemoteFacadeServer)
+    def test_login(self):
+        port = 15123
+        self.configurationManager._set_value(self.rfs.FACADE_JSON_PORT, port)
+        self.rfs.start()
+        try:
+            client = WebLabDeustoClient('http://127.0.0.1:%s/weblab/' % port)
+
+            expected_sess_id = SessionId.SessionId("whatever")
+            USERNAME = 'the username'
+            PASSWORD = 'the password'
+            self.mock_server.return_values['login'] = expected_sess_id
+
+            session = client.login(USERNAME, PASSWORD)
+            self.assertEquals(expected_sess_id.id, session.id)
+
+            self.assertEquals( USERNAME, self.mock_server.arguments['login'][0])
+            self.assertEquals( PASSWORD, self.mock_server.arguments['login'][1])
+        finally:
+            self.rfs.stop()
+
 def suite():
-    return unittest.makeSuite(LoginIntegratingRemoteFacadeManager)
+    return unittest.TestSuite((
+                unittest.makeSuite(LoginIntegratingRemoteFacadeManagerZSI),
+                unittest.makeSuite(LoginIntegratingRemoteFacadeManagerJSON)
+            ))
 
 if __name__ == '__main__':
     unittest.main()

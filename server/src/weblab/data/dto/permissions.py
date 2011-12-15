@@ -12,9 +12,13 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
+#         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
 
 class Permission(object):
+    """
+    DTO for a Permission object
+    """
     
     def __init__(self, name):
         super(Permission, self).__init__()
@@ -30,8 +34,34 @@ class Permission(object):
                 self.parameters
             )
         
-
+        
+class PermissionType(object):
+    """
+    DTO for a PermissionType object
+    """
+    
+    def __init__(self, name, description, user_applicable, role_applicable, ee_applicable):
+        super(PermissionType, self).__init__()
+        self.name = name
+        self.description = description
+        self.user_applicable = user_applicable
+        self.role_applicable = role_applicable
+        self.ee_applicable = ee_applicable
+        
+    def __repr__(self):
+        return "PermissionType(name = '%s', description = '%s', user_applicable = '%r', role_applicable = '%r', ee_applicable = '%r')" % (
+                self.name,
+                self.description,
+                self.user_applicable,
+                self.role_applicable,
+                self.ee_applicable
+            )    
+        
+        
 class PermissionParameter(object):
+    """
+    DTO for a PermissionParameter object
+    """
     
     def __init__(self, name, datatype, value):
         super(PermissionParameter, self).__init__()

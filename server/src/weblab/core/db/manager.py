@@ -31,6 +31,9 @@ class UserProcessingDatabaseManager(object):
     def store_experiment_usage(self, session_id, reservation_info, experiment_usage):
         return self._gateway.store_experiment_usage( session_id.username, reservation_info, experiment_usage )
 
+    def is_access_forward(self, session_id):
+        return self._gateway.is_access_forward( session_id.username)
+
     def finish_experiment_usage(self, reservation_id, end_date, last_command):
         """ Tries to finish the experiment usage (adding the end_date and appending the finish command). Returns True if it was added successfully, false otherwise """
         return self._gateway.finish_experiment_usage( reservation_id, end_date, last_command )
@@ -70,6 +73,10 @@ class UserProcessingDatabaseManager(object):
     
     def get_user_permissions(self, session_id):
         return self._gateway.get_user_permissions( session_id.username )
+    
+    def get_permission_types(self, session_id):
+        """ Retrieves the permission types (through the database gateway) """
+        return self._gateway.get_permission_types( session_id.username )
 
     def _delete_all_uses(self):
         return self._gateway._delete_all_uses()

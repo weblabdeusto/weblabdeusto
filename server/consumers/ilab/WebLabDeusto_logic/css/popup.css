@@ -1,0 +1,218 @@
+/* CSS Document */
+/* This is the  styel sheet for all of the superuser pop-up pages. 
+/* See css/main.css for styles in all other pages, both iin user and superuser section.
+
+
+/*********** Layout ***********/
+
+body {
+  background-color: #f3efe5;
+	margin: 0;
+	padding: 0;
+}
+
+#wrapper {
+	margin: 10px;
+	padding: 10px
+	}
+	
+#footer {
+	padding: 10px 0 10px 10px;
+}
+
+
+/* End Layout ////////////////////////////////////////////////////////*/
+
+/*********** Page Intro Styles **********/
+
+
+#pageintro {
+	margin: 0 0 10px 0;
+	}
+	
+/* End Page Intro Styles ////////////////////////////////////////////////////////*/
+
+
+
+/*********** Page Content Styles ***********/
+
+#pagecontent h4 {
+	margin: 10px 0 0 0;
+	}
+
+	
+#messagebox {
+	background: #E5D7C4;
+	padding: 5px;
+	margin: 0 150px 15px 0;
+	}
+
+#messagebox p.message {
+	margin-left: 20px;
+	margin-bottom: 0;
+	padding: 0 0 0 0;
+	}
+
+#messagebox p.date {
+	margin-left: 20px;
+	font-style: italic;
+	color: #333;
+	margin-top: 0;
+	margin-bottom: 10px;
+	padding: 0 0 0 0;
+	}
+	
+#sidedisplay {
+	padding: 0;
+	margin: 0 0 15px 0;
+	width: 45%;
+	float: right;	
+	border-left: 1px dotted #999;
+	}
+	
+#sidedisplay h4 {
+	background: #DAE7E9;
+	padding: 5px;
+	}
+	
+.i18n
+{
+	font-family: Arial Unicode MS, Helvetica, sans-serif;
+}
+	
+.unit {
+	margin-bottom: 10px;
+	}
+	
+.unit form {
+	padding: 0;
+	margin: 0;
+	}
+
+.unit table {
+	border-bottom: 1px solid #ccc;
+	border-left: 1px solid #ccc;
+	margin: 0;
+	}
+	
+ .unit table th {
+	font-size: 12px;
+	text-align: right;
+	font-weight: bold;
+	padding: 3px;
+	border-top: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+	}
+
+ .unit table td {
+	font-size: 12px;
+	padding: 3px;
+	border-top: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+	}
+	
+/* End Page Content Styles ////////////////////////////////////////////////////////*/
+
+
+
+/*********** Form Styles ***********/
+
+
+
+.simpleform label {
+	font-size: 12px;
+	}
+
+.simpleform form {
+	margin-left: 15px;
+	}
+	
+.simpleform form table {	
+	margin: 5px 0 0 0;
+	padding: 0 0 0 0;
+	}
+
+.simpleform form table td {
+	padding: 3px;
+	}
+
+.simpleform th {
+	text-align: right;
+	font-weight: normal;
+	padding: 3px;
+	}
+
+.simpleform th.colspan {
+	font-size: 13px;
+	font-weight: bold;
+	text-align: left;
+	padding-top: 10px;
+	padding: 3px;
+	}
+
+.simpleform th.top {
+	text-align: left;
+	font-weight: bold;
+	font-size: 12px;
+	padding: 3px;
+	}
+
+
+td .checkset {
+	margin: 0 0 5px 24px;
+	padding: 0;
+	font-size: 12px;
+	}
+
+td .checkset input.check {
+	margin-left: 8px;
+	margin-right: 0;
+	}
+
+
+input.buttonright {
+	float: right;
+	border-bottom: 1px solid #666;
+	border-right: 1px solid #666;
+	border-top: 1px solid #ccc;
+	border-left: 1px solid #ccc;
+	background-color: #FC6;
+	font: bold 12px Arial, Helvetica, sans-serif;
+	color: #000;
+	margin: 3px 0 3px 3px;
+	}
+	
+	
+input.button {
+	border-bottom: 1px solid #666;
+	border-right: 1px solid #666;
+	border-top: 1px solid #ccc;
+	border-left: 1px solid #ccc;
+	background-color: #FC6;
+	font: bold 12px Arial, Helvetica, sans-serif;
+	color: #000;
+	margin: 3px 0 3px 3px;
+	} 
+
+/* Add, Remove, Up & Down button styles */		
+img.buttonstyle {
+	margin-bottom: 5px;
+	}
+
+td.buttonstyle {
+	text-align: center;
+	}
+/* End Add, Remove, Up & Down button styles */
+
+select.experimentlist {
+	width: 250px;
+	}
+	
+input.noneditable {
+	background-color: #eee;
+	}
+	
+textarea.noneditable {
+	background-color: #eee;
+	}
+	

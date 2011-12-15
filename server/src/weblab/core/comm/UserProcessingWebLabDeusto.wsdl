@@ -72,12 +72,16 @@
 
 			<xsd:complexType name="ReservationType">
 				<xsd:sequence>
-					<xsd:element minOccurs="0" maxOccurs="1" name="status" type="xsd:string" />
-					<xsd:element minOccurs="0" maxOccurs="1" name="reservation_id" type="tns:SessionIdType" />
-					<xsd:element minOccurs="0" maxOccurs="1" name="position" type="xsd:int" />
-					<xsd:element minOccurs="0" maxOccurs="1" name="time" type="xsd:int" />
+					<xsd:element minOccurs="0" maxOccurs="1" name="status"                type="xsd:string" />
+					<xsd:element minOccurs="0" maxOccurs="1" name="reservation_id"        type="tns:SessionIdType" />
+					<xsd:element minOccurs="0" maxOccurs="1" name="remote_reservation_id" type="tns:SessionIdType" />
+					<xsd:element minOccurs="0" maxOccurs="1" name="position"              type="xsd:int" />
+					<xsd:element minOccurs="0" maxOccurs="1" name="time"                  type="xsd:int" />
 					<xsd:element minOccurs="0" maxOccurs="1" name="initial_configuration" type="xsd:string" />
-					<xsd:element minOccurs="0" maxOccurs="1" name="end_data" type="xsd:string" />
+					<xsd:element minOccurs="0" maxOccurs="1" name="initial_data"          type="xsd:string" />
+					<xsd:element minOccurs="0" maxOccurs="1" name="end_data"              type="xsd:string" />
+					<xsd:element minOccurs="0" maxOccurs="1" name="url"                   type="xsd:string" />
+					<xsd:element minOccurs="0" maxOccurs="1" name="finished"              type="xsd:boolean" />
 				</xsd:sequence>
 			</xsd:complexType>
 
@@ -176,9 +180,10 @@
 			<xsd:element name="ReserveExperimentRequest">
 				<xsd:complexType>
 					<xsd:sequence>
-						<xsd:element minOccurs="0" maxOccurs="1" name="session" type="tns:SessionIdType" />
-						<xsd:element minOccurs="0" maxOccurs="1" name="experiment_id" type="tns:ExperimentIdType" />
+						<xsd:element minOccurs="0" maxOccurs="1" name="session"             type="tns:SessionIdType" />
+						<xsd:element minOccurs="0" maxOccurs="1" name="experiment_id"       type="tns:ExperimentIdType" />
 						<xsd:element minOccurs="0" maxOccurs="1" name="client_initial_data" type="xsd:string" />
+						<xsd:element minOccurs="0" maxOccurs="1" name="consumer_data"       type="xsd:string" />
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>

@@ -33,7 +33,7 @@ EXCEPTIONS = (
         (coreExc.SessionNotFoundException,      UPFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE,      True),
         (coreExc.NoCurrentReservationException, UPFCodes.CLIENT_NO_CURRENT_RESERVATION_EXCEPTION_CODE, True),
         (coreExc.UnknownExperimentIdException,  UPFCodes.CLIENT_UNKNOWN_EXPERIMENT_ID_EXCEPTION_CODE,  True),
-        (coreExc.UserProcessingException,       UPFCodes.UPS_GENERAL_EXCEPTION_CODE,                   False),
+        (coreExc.WebLabCoreException,       UPFCodes.UPS_GENERAL_EXCEPTION_CODE,                   False),
         (WebLabExceptions.WebLabException,                       UPFCodes.WEBLAB_GENERAL_EXCEPTION_CODE,                False),
         (VoodooExceptions.GeneratorException,                    UPFCodes.VOODOO_GENERAL_EXCEPTION_CODE,                False),
         (Exception,                                              UPFCodes.PYTHON_GENERAL_EXCEPTION_CODE,                False)
@@ -64,7 +64,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
 
     @logged()
     @RFM.check_exceptions(EXCEPTIONS)
-    def reserve_experiment(self, session_id, experiment_id, client_initial_data):
+    def reserve_experiment(self, session_id, experiment_id, client_initial_data, consumer_data):
         """ reserve_experiment(session_id, experiment_id, client_initial_data) -> Reservation
             raises SessionNotFoundException, NoAvailableExperimentFoundException
         """
@@ -72,7 +72,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
         sess_id = self._parse_session_id(session_id)
         exp_id  = self._parse_experiment_id(experiment_id)
 
-        reservation_status = self._server.reserve_experiment(sess_id, exp_id, client_initial_data, current_client_address)
+        reservation_status = self._server.reserve_experiment(sess_id, exp_id, client_initial_data, consumer_data, current_client_address)
         return reservation_status
     
     @logged()
@@ -243,6 +243,15 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
         sess_id = self._parse_session_id(session_id)
         permissions = self._server.get_user_permissions(sess_id)
         return permissions
+    
+    @logged()
+    @RFM.check_exceptions(EXCEPTIONS)
+    def get_permission_types(self, session_id):
+        """ get_permission_types(session_id) -> array of PermissionType
+        """
+        sess_id = self._parse_session_id(session_id)
+        permission_types = self._server.get_permission_types(sess_id)
+        return permission_types
 
     def _fix_dates_in_experiments(self, experiments_allowed):
         # This is the default behaviour. Overrided by XML-RPC

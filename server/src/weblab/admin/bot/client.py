@@ -174,8 +174,8 @@ class AbstractBot(object):
             raise ListOfExperimentsIsEmptyException("Received list of experiments is empty")
 
     @logged
-    def do_reserve_experiment(self, experiment_id, client_initial_data):
-        reservation_holder = self._call('reserve_experiment',session_id=self.session_id, experiment_id=experiment_id, client_initial_data=client_initial_data)
+    def do_reserve_experiment(self, experiment_id, client_initial_data, consumer_data):
+        reservation_holder = self._call('reserve_experiment',session_id=self.session_id, experiment_id=experiment_id, client_initial_data=client_initial_data, consumer_data=consumer_data)
         reservation = self._parse_reservation_holder(reservation_holder)
         self.reservation_id = reservation.reservation_id
         return reservation
@@ -262,7 +262,7 @@ if ZSI_AVAILABLE:
             return experiments
 
         def _parse_reservation_holder(self, reservation_holder):
-            return Reservation.Reservation.translate_reservation_from_data(reservation_holder.status, reservation_holder.reservation_id.id, reservation_holder.position, reservation_holder.time, reservation_holder.initial_configuration, reservation_holder.end_data)
+            return Reservation.Reservation.translate_reservation_from_data(reservation_holder.status, reservation_holder.reservation_id.id, reservation_holder.position, reservation_holder.time, reservation_holder.initial_configuration, reservation_holder.end_data, reservation_holder.url, reservation_holder.finished, reservation_holder.initial_data, None if reservation_holder.remote_reservation_id is None else reservation_holder.remote_reservation_id.id )
 
         def _parse_user(self, holder):
             return User(holder.login, holder.full_name, holder.email, holder.role)
@@ -294,7 +294,11 @@ class AbstractBotDict(AbstractBot):
 
     @possibleKeyError
     def _parse_reservation_holder(self, reservation_holder):
-        return Reservation.Reservation.translate_reservation_from_data(reservation_holder['status'], reservation_holder['reservation_id']['id'], reservation_holder.get('position'), reservation_holder.get('time'), reservation_holder.get('initial_configuration'), reservation_holder.get('end_data'))
+        if reservation_holder.get('remote_reservation_id') is None:
+            remote_reservation_id = None
+        else:
+            remote_reservation_id = reservation_holder.get('remote_reservation_id').get('id')
+        return Reservation.Reservation.translate_reservation_from_data(reservation_holder['status'], reservation_holder['reservation_id']['id'], reservation_holder.get('position'), reservation_holder.get('time'), reservation_holder.get('initial_configuration'), reservation_holder.get('end_data'), reservation_holder.get('url'), reservation_holder.get('finished'), reservation_holder.get('initial_data'), remote_reservation_id)
 
     @possibleKeyError
     def _parse_user(self, holder):
@@ -387,7 +391,7 @@ class BotXMLRPC(AbstractBotDict):
         elif method in ('get_reservation_status',"finished_experiment", "poll"):
             args = (kwargs['reservation_id'],)
         elif method == 'reserve_experiment':
-            args = (kwargs['session_id'],kwargs['experiment_id'],kwargs['client_initial_data'])
+            args = (kwargs['session_id'],kwargs['experiment_id'],kwargs['client_initial_data'], kwargs['consumer_data'])
         elif method == 'send_file':
             args = (kwargs['reservation_id'],kwargs['file_content'],kwargs['file_info'])
         elif method == 'send_command':

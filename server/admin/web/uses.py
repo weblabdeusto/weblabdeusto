@@ -46,6 +46,13 @@ def use(req, **kwargs):
         return "You need to provide use_id, being an ID of a use"
 
     result = """<html><head><title>Use</title></head><body>
+                <h2>General</h2>
+                <b>Use id:</b> %(use_id)s<br/>
+                <b>Mobile:</b> %(mobile)s<br/>
+                <b>Facebook:</b> %(facebook)s<br/>
+                <b>Referer:</b> %(referer)s<br/>
+                <b>User agent:</b> %(user_agent)s<br/>
+                <b>In the name of:</b> %(external_user)s<br/>
                 <h2>Commands</h2>
                 (<a href="#files">files below</a>)
                 <table cellspacing="20">
@@ -56,6 +63,23 @@ def use(req, **kwargs):
     try:
         cursor = connection.cursor()
         try:
+            # Property values
+            SENTENCE = "SELECT ep.name, epv.value " + \
+                        "FROM UserUsedExperimentProperty as ep, UserUsedExperimentPropertyValue as epv " + \
+                        "WHERE epv.experiment_use_id = %s AND epv.property_name_id = ep.id "
+            cursor.execute(SENTENCE, (use_id,))
+            elements = cursor.fetchall()
+            properties = dict(elements)
+
+            result = result % {
+                        'use_id'        : use_id,
+                        'mobile'        : cgi.escape(properties.get('mobile', "Don't know")),
+                        'facebook'      : cgi.escape(properties.get('facebook', "Don't know")),
+                        'referer'       : cgi.escape(properties.get('referer', "Don't know")),
+                        'user_agent'    : cgi.escape(properties.get('user_agent', "Don't know")),
+                        'external_user' : cgi.escape(properties.get('external_user', "Himself")),
+                    }
+
             # Commands
             SENTENCE = "SELECT uc.command, uc.response, uc.timestamp_before, uc.timestamp_before_micro, uc.timestamp_after, uc.timestamp_after_micro " + \
                         "FROM UserCommand as uc " + \

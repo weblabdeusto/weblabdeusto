@@ -26,6 +26,7 @@ import weblab.core.server    as UserProcessingServer
 import weblab.core.coordinator.coordinator as Coordinator 
 import weblab.core.coordinator.confirmer   as Confirmer
 import weblab.core.exc as core_exc
+from weblab.core.coordinator.config_parser import COORDINATOR_LABORATORY_SERVERS
 
 import weblab.db.session                as DatabaseSession
 
@@ -66,7 +67,11 @@ class MonitorMethodsTestCase(unittest.TestCase):
         self.locator = FakeLocator()
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
-        self.cfg_manager._set_value("core_coordinator_laboratory_servers", {})
+        self.cfg_manager._set_value(COORDINATOR_LABORATORY_SERVERS, {
+            'server:laboratoryserver@labmachine' : {
+                'inst|ud-dummy|Dummy experiments' : 'res_inst@res_type'
+            }        
+        })
 
         # With this one we clean everything before creating the UPS
         self.coordinator = Coordinator.Coordinator(self.locator, self.cfg_manager, ConfirmerClass = ConfirmerMock)
@@ -110,7 +115,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         category   = "Dummy experiments"
         experiment = "ud-dummy"
 
-        status, reservation_id = self.coordinator.reserve_experiment(ExperimentId(experiment, category), 30, 5, True, '{}', {})
+        status, reservation_id = self.coordinator.reserve_experiment(ExperimentId(experiment, category), 30, 5, True, '{}', {}, {})
 
         result   = methods.get_experiment_status.call(category, experiment)
         self.assertEquals({reservation_id : status}, result)
@@ -163,12 +168,12 @@ class MonitorMethodsTestCase(unittest.TestCase):
         result = methods.get_experiment_ups_session_ids.call(category, experiment)
         self.assertEquals( [], result ) 
 
-        status = self.ups.reserve_experiment( sess_id, ExperimentId( experiment, category ), "{}", ClientAddress.ClientAddress( "127.0.0.1" ))
+        status = self.ups.reserve_experiment( sess_id, ExperimentId( experiment, category ), "{}", "{}", ClientAddress.ClientAddress( "127.0.0.1" ))
 
         result = methods.get_experiment_ups_session_ids.call(category, experiment)
         self.assertEquals( 1, len(result) )
         session_id, login, reservation_id = result[0]
-        self.assertEquals( status.reservation_id.id, session_id ) 
+        self.assertEquals( status.reservation_id.id.split(';')[0], session_id ) 
         self.assertEquals( "student2", login ) 
 
     def test_get_ups_session_ids_from_username(self):
@@ -194,7 +199,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
 
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
-        self.ups.reserve_experiment(sess_id, ExperimentId( experiment, category ), "{}", ClientAddress.ClientAddress( "127.0.0.1" ))
+        self.ups.reserve_experiment(sess_id, ExperimentId( experiment, category ), "{}", "{}", ClientAddress.ClientAddress( "127.0.0.1" ))
 
         reservation_id = methods.get_reservation_id.call(sess_id.id)
         self.assertNotEquals(None, reservation_id)
@@ -205,7 +210,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
 
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
-        status = self.ups.reserve_experiment(sess_id, ExperimentId( experiment, category ), "{}", ClientAddress.ClientAddress( "127.0.0.1" ))
+        status = self.ups.reserve_experiment(sess_id, ExperimentId( experiment, category ), "{}", "{}", ClientAddress.ClientAddress( "127.0.0.1" ))
 
         reservation_session_id = status.reservation_id
 

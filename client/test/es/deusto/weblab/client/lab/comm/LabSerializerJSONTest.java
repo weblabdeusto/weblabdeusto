@@ -89,12 +89,15 @@ public class LabSerializerJSONTest extends GWTTestCase{
 	public void testParseGetReservationStatusResponse_Confirmed() throws Exception{
 		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseGetReservationStatusResponse(
-			"{\"result\": {\"reservation_id\" : {\"id\" : \"my_reservation_id\"}, \"status\": \"Reservation::confirmed\", \"time\": 28.771512031555176, \"initial_configuration\" : \"foo\"}, \"is_exception\": false}"
+			"{\"result\": {\"reservation_id\" : {\"id\" : \"my_reservation_id\"}, \"status\": \"Reservation::confirmed\", \"time\": 28.771512031555176, \"initial_configuration\" : \"foo\", \"url\" : \"http://...\", \"remote_reservation_id\" : { \"id\": \"\"} }, \"is_exception\": false}"
 		);
 		Assert.assertEquals("my_reservation_id", reservation.getReservationId());
 		Assert.assertTrue(reservation instanceof ConfirmedReservationStatus);
 		Assert.assertEquals(28, ((ConfirmedReservationStatus)reservation).getTime());
 		Assert.assertEquals("foo", ((ConfirmedReservationStatus)reservation).getInitialConfiguration());
+		Assert.assertEquals("http://...", ((ConfirmedReservationStatus)reservation).getUrl());
+		Assert.assertEquals("", ((ConfirmedReservationStatus)reservation).getRemoteReservationId());
+		Assert.assertFalse(((ConfirmedReservationStatus)reservation).isRemote());
 	}
 	
 	public void testParseGetReservationStatusResponse_Exceptions() throws Exception{
@@ -600,12 +603,29 @@ public class LabSerializerJSONTest extends GWTTestCase{
 	public void testParseReserveExperimentResponse_Confirmed() throws Exception{
 		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ReservationStatus reservation = weblabSerializer.parseReserveExperimentResponse(
-			"{\"result\": {\"reservation_id\" : {\"id\" : \"my_reservation_id\"}, \"status\": \"Reservation::confirmed\", \"time\": 28.771512031555176, \"initial_configuration\" : \"foo\"}, \"is_exception\": false}"
+			"{\"result\": {\"reservation_id\" : {\"id\" : \"my_reservation_id\"}, \"status\": \"Reservation::confirmed\", \"time\": 28.771512031555176, \"initial_configuration\" : \"foo\", \"url\" : \"http://...\", \"remote_reservation_id\" : { \"id\" : \"\" } }, \"is_exception\": false}"
 		);
 		Assert.assertEquals("my_reservation_id", reservation.getReservationId());
 		Assert.assertTrue(reservation instanceof ConfirmedReservationStatus);
 		Assert.assertEquals(28, ((ConfirmedReservationStatus)reservation).getTime());
 		Assert.assertEquals("foo", ((ConfirmedReservationStatus)reservation).getInitialConfiguration());
+		Assert.assertEquals("http://...", ((ConfirmedReservationStatus)reservation).getUrl());
+		Assert.assertEquals("", ((ConfirmedReservationStatus)reservation).getRemoteReservationId());
+		Assert.assertFalse(((ConfirmedReservationStatus)reservation).isRemote());
+	}
+	
+	public void testParseReserveExperimentResponse_ConfirmedRemote() throws Exception{
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
+		final ReservationStatus reservation = weblabSerializer.parseReserveExperimentResponse(
+			"{\"result\": {\"reservation_id\" : {\"id\" : \"my_reservation_id\"}, \"status\": \"Reservation::confirmed\", \"time\": 28.771512031555176, \"initial_configuration\" : \"foo\", \"url\" : \"http://...\", \"remote_reservation_id\" : { \"id\" : \"foobar\" }}, \"is_exception\": false}"
+		);
+		Assert.assertEquals("my_reservation_id", reservation.getReservationId());
+		Assert.assertTrue(reservation instanceof ConfirmedReservationStatus);
+		Assert.assertEquals(28, ((ConfirmedReservationStatus)reservation).getTime());
+		Assert.assertEquals("foo", ((ConfirmedReservationStatus)reservation).getInitialConfiguration());
+		Assert.assertEquals("http://...", ((ConfirmedReservationStatus)reservation).getUrl());
+		Assert.assertEquals("foobar", ((ConfirmedReservationStatus)reservation).getRemoteReservationId());
+		Assert.assertTrue(((ConfirmedReservationStatus)reservation).isRemote());
 	}
 	
 	public void testParseReserveExperimentResponse_Exceptions() throws Exception{
@@ -814,7 +834,7 @@ public class LabSerializerJSONTest extends GWTTestCase{
 		final String serializedMessage = weblabSerializer.serializeReserveExperimentRequest(sessionId, experiment, new JSONObject());
 		Assert.assertEquals(
 				"{\"params\":{\"session_id\":{\"id\":\"" + MESSAGE + "\"}," +
-						" \"experiment_id\":{\"exp_name\":\"weblab-pld\", \"cat_name\":\"WebLab-PLD experiments\"}, \"client_initial_data\":\"{}\"}, " +
+						" \"experiment_id\":{\"exp_name\":\"weblab-pld\", \"cat_name\":\"WebLab-PLD experiments\"}, \"client_initial_data\":\"{}\", \"consumer_data\":\"{}\"}, " +
 						"\"method\":\"reserve_experiment\"}",
 				serializedMessage
 			);

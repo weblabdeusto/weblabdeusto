@@ -20,6 +20,7 @@ from weblab.data.experiments import ExperimentInstanceId
 import weblab.core.exc as coreExc
 
 COORDINATOR_LABORATORY_SERVERS="core_coordinator_laboratory_servers"
+COORDINATOR_EXTERNAL_SERVERS="core_coordinator_external_servers"
 
 class CoordinationConfigurationParser(object):
 
@@ -28,6 +29,38 @@ class CoordinationConfigurationParser(object):
 
     def __init__(self, cfg_manager):
         self._cfg_manager = cfg_manager
+
+    def parse_external_servers(self):
+        # 
+        # {
+        #    'experiment_id_str' : [ 'resource_type_name' ]
+        # }
+        # 
+        external_servers = self._cfg_manager.get_value(COORDINATOR_EXTERNAL_SERVERS, {})
+        for external_server in external_servers:
+            external_servers[external_server] = set(external_servers[external_server])
+        return external_servers
+        
+
+    def parse_resources_for_experiment_ids(self):
+        raw_configuration = self.parse_configuration()
+        
+        # 
+        # {
+        #    'experiment_id_str' : set('resource_type_name1', 'resource_type_name2')
+        # }
+        # 
+        configuration = self.parse_external_servers()
+        for laboratory in raw_configuration:
+            laboratory_config = raw_configuration[laboratory]
+            for experiment_instance_id in laboratory_config:
+                resource_type_name = laboratory_config[experiment_instance_id].resource_type
+                experiment_id_str = experiment_instance_id.to_experiment_id().to_weblab_str()
+                if not experiment_id_str in configuration:
+                    configuration[experiment_id_str] = set()
+                configuration[experiment_id_str].add(resource_type_name)
+
+        return configuration
 
     def parse_configuration(self):
         # 

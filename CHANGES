@@ -1,0 +1,129 @@
+=======
+CHANGES
+=======
+
+4.5
+===
+
+Date: (pending)
+
+- server
+  - scheduling
+    - support for batch experiments
+
+  - federation
+    - support for federated experiments (sharing experiments among different 
+      universities)
+
+    - support for subcontracting experiments (university A provides experiment
+      X to University B: then University B can provide experiment X to School
+      C)
+
+    - support for load balance among different universities (if university A 
+      and B have experiment X, then users will see it as a single queue)
+
+  - big module and package naming changes
+    - modules are now lowercase and have more straightforward names
+
+  (...)
+
+- experiments
+  - Experimental support for LabVIEW Remote Panel as a unmanaged experiment
+
+- requirements
+  - Drop support for Python 2.5
+
+- other
+  - migrated from SVN to Mercurial
+
+4.0M1 
+=====
+
+Date: April 7th, 2011
+
+- server
+  - scheduling
+    - rewritten, supporting multiqueues and composed experiments of different
+      server types
+
+
+  - authentication
+    - Support of OpenID
+
+    - Support of Facebook through OAuth 2
+
+
+  - administration
+    - Creation of the Administration Panel (web-based, few features) and
+      dbmanager
+
+    - WebLab will automatically check the experiments status and discard those
+      that fail to reply from the schedulin system, mailing administrators, and
+      it will automatically mark them as fixed once they are fixed
+
+
+  - internal
+    - Database tables simplified
+
+    - Removed SQL code: now we are using sqlalchemy ORM
+
+    - Should be independent of MySQL, but we have not tested it
+
+
+- client
+  - adaptation to mobile phones
+
+  - new login panel
+
+  - Optional support for HTML5 audio tag
+
+
+- experiments
+  - Support of experiments based on Virtual Machines (first type of unmanaged
+    experiments)
+ 
+  - Integration of VISIR
+
+
+- license
+  - Moved from GNU GPL 2 to New BSD 2-clause license
+
+
+- requirements
+  - Drop support for Python 2.4; start support for Python 2.7
+
+  - Client does not need to be recompiled to add Java or Flash experiments
+
+  - No PHP or mod_python required, neither Java for deploying the system
+
+3.9
+===
+
+Date: January 25th, 2010
+
+ - First Open Source release!
+(...)
+
+3.5
+===
+
+
+
+3.0
+===
+
+Date: November, 2007
+
+2.0
+===
+
+Date: November, 2005
+
+
+1.0
+===
+Date: February, 2005
+
+
+
+

@@ -28,20 +28,25 @@ public class ConfirmedReservationStatusTransition extends ReservationStatusTrans
 	public void perform(final ReservationStatus reservationStatus) {
 		this.reservationStatusCallback.getController().setReservationId(reservationStatus.getReservationId());
 
+		
 		this.reservationStatusCallback.getPollingHandler().start();
 		
-		final ExperimentID experimentID = this.reservationStatusCallback.getExperimentBeingReserved();
-		try {
-			ConfirmedReservationStatus confirmedStatus = (ConfirmedReservationStatus)reservationStatus;
-			this.reservationStatusCallback.getUimanager().onExperimentReserved(
-					experimentID,
-					this.reservationStatusCallback.getExperimentBaseBeingReserved()
-				);
-			this.reservationStatusCallback.getExperimentBaseBeingReserved().start(confirmedStatus.getTime(), confirmedStatus.getInitialConfiguration());
-			this.reservationStatusCallback.getExperimentBaseBeingReserved().setTime(confirmedStatus.getTime());
-		} catch (final ExperimentException e) {
-			this.reservationStatusCallback.getUimanager().onError(e.getMessage());
-			return;
+		final ConfirmedReservationStatus confirmedStatus = (ConfirmedReservationStatus)reservationStatus;
+		if(confirmedStatus.isLocal()){
+			final ExperimentID experimentID = this.reservationStatusCallback.getExperimentBeingReserved();
+			try {
+				this.reservationStatusCallback.getUimanager().onExperimentReserved(
+						experimentID,
+						this.reservationStatusCallback.getExperimentBaseBeingReserved()
+					);
+				this.reservationStatusCallback.getExperimentBaseBeingReserved().start(confirmedStatus.getTime(), confirmedStatus.getInitialConfiguration());
+				this.reservationStatusCallback.getExperimentBaseBeingReserved().setTime(confirmedStatus.getTime());
+			} catch (final ExperimentException e) {
+				this.reservationStatusCallback.getUimanager().onError(e.getMessage());
+				return;
+			}	
+		}else{
+			this.reservationStatusCallback.getUimanager().onRemoteExperimentReserved(confirmedStatus.getUrl(), confirmedStatus.getRemoteReservationId());
 		}
 	}
 }

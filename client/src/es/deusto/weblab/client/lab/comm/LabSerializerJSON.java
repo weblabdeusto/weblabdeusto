@@ -103,8 +103,11 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
 		    return new WaitingConfirmationReservationStatus(reservationId);
 		}else if(status.equals("Reservation::confirmed")){
 		    final double time = this.json2double(result.get("time"));
-		    final String initial_configuration = this.json2string(result.get("initial_configuration"));
-		    return new ConfirmedReservationStatus(reservationId, (int)time, initial_configuration);
+		    final String initialConfiguration = this.json2string(result.get("initial_configuration"));
+		    final String url = this.json2string(result.get("url"));
+		    final JSONObject remoteReservationIdObj = json2object(result.get("remote_reservation_id"));
+		    final String remoteReservationId = this.json2string(remoteReservationIdObj.get("id"));
+		    return new ConfirmedReservationStatus(reservationId, (int)time, initialConfiguration, url, remoteReservationId );
 		}else if(status.equals("Reservation::waiting")){
 		    final int position = this.json2int(result.get("position"));
 		    return new WaitingReservationStatus(reservationId, position);
@@ -394,7 +397,9 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
     @Override
 	public String serializeReserveExperimentRequest(SessionID sessionId, ExperimentID experimentId, JSONValue clientInitialData) throws SerializationException {
 		//{"params": {"session_id": {"id": "svAsc-rCIKLP1qeU"}, 
-		//  "experiment_id": {"exp_name": "ud-dummy", "cat_name": "Dummy experiments"}}, 
+		//  "experiment_id": {"exp_name": "ud-dummy", "cat_name": "Dummy experiments"},
+    	//  "client_initial_data" : "{}",
+    	//  "consumer_data" : "{}"}, 
 		// "method": "reserve_experiment"}
 		final JSONObject params = new JSONObject();
 		params.put("session_id", this.serializeSessionId(sessionId));
@@ -406,6 +411,9 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
 			params.put("client_initial_data", new JSONString("{}"));
 		else
 			params.put("client_initial_data", new JSONString(clientInitialData.toString()));
+		// Client will never implement the consumer_data, since this argument is intended to be used with an external
+		// entity such as a LMS or an external WebLab-Deusto, and will include things such as "user_identifier", etc.
+		params.put("consumer_data", new JSONString("{}"));
 		return this.serializeRequest("reserve_experiment", params);
     }
 

@@ -35,6 +35,18 @@ class UdDemoXilinxExperiment(UdXilinxExperiment.UdXilinxExperiment):
         file_path = os.path.dirname(__file__) + os.sep + self.FILES[self._xilinx_device]
         self.file_content = ExperimentUtil.serialize(open(file_path, "rb").read())
         
+    
+    @Override(UdXilinxExperiment.UdXilinxExperiment)
+    @caller_check(ServerType.Laboratory)
+    @logged("info")
+    def do_get_api(self):
+        """
+        Returns the API version. Unlike the Xilinx base it inherits from, this has not yet
+        been ported to version 2.
+        """
+        return "1"
+    
+        
     @Override(UdXilinxExperiment.UdXilinxExperiment)
     @caller_check(ServerType.Laboratory)
     @logged("info")

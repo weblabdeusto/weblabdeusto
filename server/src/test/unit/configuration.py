@@ -307,8 +307,13 @@ core_scheduling_systems = {
         "res_type"     : ("PRIORITY_QUEUE", {}),
     }
 
+core_server_url = 'http://localhost/weblab/'
+
 core_coordinator_db_username = 'weblab'
 core_coordinator_db_password = 'weblab'
+
+core_universal_identifier       = 'da2579d6-e3b2-11e0-a66a-00216a5807c8'
+core_universal_identifier_human = 'server X at Sample university'
 
 ####################################
 # Coordinator Server configuration #

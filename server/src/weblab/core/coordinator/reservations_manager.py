@@ -59,7 +59,7 @@ class ReservationsManager(object):
         try:
             reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
             if reservation is None:
-                return "{}"
+                return "{}", "{}"
             return reservation.request_info, reservation.client_initial_data
         finally:
             session.close()
@@ -126,6 +126,7 @@ class ReservationsManager(object):
             pending_to_finish = session.query(PendingToFinishReservation).filter_by(id=reservation_id).first()
             if pending_to_finish is not None:
                 session.delete(pending_to_finish)
+            session.commit()
         finally:
             session.close()
 

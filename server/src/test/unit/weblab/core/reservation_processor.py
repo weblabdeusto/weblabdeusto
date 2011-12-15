@@ -46,6 +46,7 @@ import weblab.data.dto.users as Role
 import weblab.db.session as DbSession
 
 from weblab.core.coordinator.resource import Resource
+from weblab.core.coordinator.config_parser import COORDINATOR_LABORATORY_SERVERS
 
 import weblab.core.exc as coreExc
 import weblab.lab.exc as LaboratoryExceptions
@@ -68,6 +69,11 @@ class ReservationProcessorTestCase(unittest.TestCase):
 
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
+        self.cfg_manager._set_value(COORDINATOR_LABORATORY_SERVERS, {
+            'server:laboratoryserver@labmachine' : {
+                'inst|ud-dummy|Dummy experiments' : 'res_inst@res_type'
+            }
+        })
 
         self.commands_store = TemporalInformationStore.CommandsTemporalInformationStore()
 
@@ -87,16 +93,16 @@ class ReservationProcessorTestCase(unittest.TestCase):
                 )
 
     def create_reservation_processor(self):
-        status = self.user_processor.reserve_experiment( ExperimentId('ud-dummy', 'Dummy experiments'), "{}", ClientAddress.ClientAddress("127.0.0.1"))
+        status = self.user_processor.reserve_experiment( ExperimentId('ud-dummy', 'Dummy experiments'), "{}", "{}", ClientAddress.ClientAddress("127.0.0.1"), 'uuid')
         self.reservation_processor = ReservationProcessor(
                     self.cfg_manager,
-                    SessionId.SessionId(status.reservation_id),
+                    SessionId.SessionId(status.reservation_id.split(';')[0]),
                     {
 'session_polling'    : (time.time(), ReservationProcessor.EXPIRATION_TIME_NOT_SET),
                         'latest_timestamp'   : 0,
                         'experiment_id'      : ExperimentId('ud-dummy', 'Dummy experiments'),
                         'creator_session_id' : '',
-                        'reservation_id'     : SessionId.SessionId(status.reservation_id),
+                        'reservation_id'     : SessionId.SessionId(status.reservation_id.split(';')[0]),
                     },
                     self.coordinator,
                     self.locator,
@@ -105,6 +111,15 @@ class ReservationProcessorTestCase(unittest.TestCase):
 
     def tearDown(self):
         self.coordinator.stop()
+
+    def test_get_info(self):
+        self.create_reservation_processor()
+
+        self.coordinator.confirmer._confirm_handler.join()
+
+        reservation_info = self.reservation_processor.get_info()
+        self.assertEquals('ud-dummy',          reservation_info.exp_name)
+        self.assertEquals('Dummy experiments', reservation_info.cat_name)
 
     def test_is_polling(self):
         self.create_reservation_processor()
@@ -191,7 +206,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
         
     def test_send_async_file_ok(self):
         file_content = "SAMPLE CONTENT"
-        lab_response  = "LAB RESPONSE"
+        lab_response  = Command.Command("LAB RESPONSE")
         file_info    = 'program'
         self._return_reserved()
 
@@ -219,7 +234,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
 
     def test_send_file_ok(self):
         file_content = "SAMPLE CONTENT"
-        lab_response  = "LAB RESPONSE"
+        lab_response  = Command.Command("LAB RESPONSE")
         file_info    = 'program'
         self._return_reserved()
 
@@ -357,7 +372,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self._return_reserved()
 
         command = Command.Command("Your command")
-        lab_response  = "LAB RESPONSE"
+        lab_response  = Command.Command("LAB RESPONSE")
         self.lab_mock.send_async_command(SessionId.SessionId('my_lab_session_id'), command)
         self.mocker.result(lab_response)
 
@@ -386,7 +401,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self._return_reserved()
 
         command = Command.Command("Your command")
-        lab_response  = "LAB RESPONSE"
+        lab_response  = Command.Command("LAB RESPONSE")
         self.lab_mock.send_command(SessionId.SessionId('my_lab_session_id'), command)
         self.mocker.result(lab_response)
 
@@ -533,6 +548,9 @@ class FakeDatabase(object):
         self.experiment_uses = [ generate_experiment_use("student2", self.experiments[0]) ], 1
         self.users = [ User.User("admin1", "Admin Test User", "admin1@deusto.es", Role.Role("administrator")) ]
         self.roles = [ Role.Role("student"), Role.Role("Professor"), Role.Role("Administrator") ]
+
+    def is_access_forward(self, db_session_id):
+        return True
 
     def store_experiment_usage(self, db_session_id, reservation_info, experiment_usage):
         pass

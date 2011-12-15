@@ -100,7 +100,6 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.assertEquals(sess['db_session_id'].username, db_sess_id.username)
         self.ups.logout(sess_id)
 
-
     def test_list_experiments(self):
         # student1
         db_sess_id1 = DatabaseSession.ValidDatabaseSessionId('student1', "student")
@@ -148,6 +147,32 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
         self.ups.logout(sess_id)
 
+    def test_get_reservation_info(self):
+        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
+        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+
+        exp_id = ExperimentId('ud-dummy','Dummy experiments')
+       
+        lab_sess_id = SessionId.SessionId("lab_session_id")
+        self.lab_mock.reserve_experiment(exp_id, "{}")
+        self.mocker.result(lab_sess_id)
+        self.mocker.count(0, 1)
+        self.lab_mock.resolve_experiment_address(lab_sess_id)
+        self.mocker.result(CoordAddress.CoordAddress.translate_address('foo:bar@machine'))
+        self.mocker.count(0, 1)
+        self.mocker.replay()
+
+        reservation = self.ups.reserve_experiment(
+            sess_id, exp_id, "{}", "{}",
+            ClientAddress.ClientAddress("127.0.0.1")
+        )
+
+        reservation_info = self.ups.get_reservation_info(reservation.reservation_id)
+        self.assertEquals('ud-dummy', reservation_info.exp_name)
+        self.assertEquals('Dummy experiments', reservation_info.cat_name)
+
+        self.ups.logout(sess_id)
+
     def test_reserve_experiment(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
@@ -157,7 +182,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.assertRaises(
             coreExc.UnknownExperimentIdException,
             self.ups.reserve_experiment,
-            sess_id, exp_id, "{}", ClientAddress.ClientAddress("127.0.0.1")
+            sess_id, exp_id, "{}", "{}", ClientAddress.ClientAddress("127.0.0.1")
         )
 
         exp_id = ExperimentId('ud-dummy','Dummy experiments')
@@ -172,15 +197,11 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.mocker.replay()
 
         reservation = self.ups.reserve_experiment(
-            sess_id,
-            exp_id,
-            "{}",
+            sess_id, exp_id, "{}", "{}",
             ClientAddress.ClientAddress("127.0.0.1")
         )
 
-        self.assertTrue(
-            isinstance(reservation,Reservation.Reservation)
-        )
+        self.assertTrue( isinstance(reservation,Reservation.Reservation))
 
         self.ups.logout(sess_id)
 
@@ -196,7 +217,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
     def test_get_groups_all(self):
         groups = self._test_get_groups_with_permission(parent_id=None)
 
-        self.assertEquals(2, len(groups) )
+        self.assertEquals(3, len(groups) )
         
         self.assertEquals('Course 2008/09', groups[0].name)
         self.assertEquals(2, len(groups[0].children) )
@@ -546,7 +567,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
         # Make sure that the number of users it returns matches the number of users
         # that we currently have in the test database.
-        self.assertEquals(len(users), 19)
+        self.assertEquals(len(users), 27)
         
         user_logins = list( ( user.login for user in users ) )
         

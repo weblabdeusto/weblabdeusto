@@ -61,6 +61,28 @@ class Method(object):
             return postvar[0]
         return default_value
 
+    def get_status(self):
+        return 200
+
+    def get_other_cookies(self):
+        return []
+
+    def get_content_type(self):
+        return "text/html"
+
+    def get_GET_argument(self, name, default_value = None):
+        for arg_name, value in self.get_arguments():
+            if arg_name == name:
+                return value
+        return default_value
+
+    def get_POST_argument(self, name, default_value = None):
+        self.read_post_arguments()
+        postvar = self.postvars.get(name, None)
+        if postvar is None or len(postvar) == 0:
+            return default_value
+        return postvar[0]
+
     def get_arguments(self):
         if self.relative_path.find('?') < 0:
             return []
@@ -138,11 +160,17 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     original_server = None
 
     def do_GET(self):
-        if self.server_route is not None:
-            route = self.server_route
-            self.weblab_cookie = "weblabsessionid=anythinglikeasessid.%s" % route
-        else:
-            self.weblab_cookie = "weblabsessionid=sessid.not.found"
+        self.weblab_cookie = None
+        for current_cookie in (self.headers.getheader('cookie') or '').split('; '):
+            if current_cookie.startswith('weblabsessionid'):
+                self.weblab_cookie = current_cookie
+
+        if self.weblab_cookie is None:
+            if self.server_route is not None:
+                route = self.server_route
+                self.weblab_cookie = "weblabsessionid=anythinglikeasessid.%s" % route
+            else:
+                self.weblab_cookie = "weblabsessionid=sessid.not.found"
 
         create_context(self.server, self.headers)
         try:
@@ -150,7 +178,7 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 if method.matches(self.path):
                     m = method(self, self.cfg_manager, self.original_server)
                     message = m.run()
-                    self._write(200, message)
+                    self._write(m.get_status(), m.get_content_type(), m.get_other_cookies(), message)
                     break
             else:
                 NotFoundMethod(self, self.cfg_manager, self.original_server).run()
@@ -159,29 +187,31 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         except MethodException as e:
             log.log( self, log.level.Error, str(e))
             log.log_exc( self, log.level.Warning)
-            self._write(e.status, e.msg)
+            self._write(e.status, 'text/html', [], e.msg)
         except Exception as e:
             import traceback
             traceback.print_exc()
 
             log.log( self, log.level.Error, str(e))
             log.log_exc( self, log.level.Warning)
-            self._write(500, 'Error in server. Contact administrator')
+            self._write(500, 'text/html', [], 'Error in server. Contact administrator')
         finally:
             delete_context()
 
     do_POST = do_GET
 
-    def _write(self, status, response):
+    def _write(self, status, content_type, other_cookies, response):
         self.send_response(status)
-        self.send_header("Content-type", "text/html")
+        self.send_header("Content-type", content_type)
         self.send_header("Content-length", str(len(response)))
         if self.server_route is not None:
             route = get_context().route
             if route is None:
                 route = self.server_route
-            self.send_header("Set-Cookie", "weblabsessionid=anythinglikeasessid.%s; path=/" % route)
+            self.send_header("Set-Cookie", "%s; path=/" % self.weblab_cookie)
             self.send_header("Set-Cookie", "loginweblabsessionid=anythinglikeasessid.%s; path=/; Expires=%s" % (route, strdate(hours=1)))
+            for cookie in other_cookies:
+                self.send_header("Set-Cookie", cookie)
 
         self.end_headers()
         self.wfile.write(response)

@@ -857,6 +857,8 @@ public class AdminPanelWindow extends BaseWindow {
 	        	// Modify the avatar
 	        	if(userRec != null) {
 	        		String url = userRec.getAttributeAsString("avatar");
+	        		if(url.equals(""))
+	        			url = "../weblabclientadmin/img/smiley.png";
 	        		avatarImg.setSrc(url);
 	        		avatarImg.redraw();
 	        	} else {
@@ -875,7 +877,6 @@ public class AdminPanelWindow extends BaseWindow {
 		            
 		            // Retrieve and display the user's permissions.
 		            permissionsListGrid.filterData(currentUserCriteria);
-		                
 
 		            
 		            AdminPanelWindow.this.userPermissionDS.fetchData(currentUserCriteria);

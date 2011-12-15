@@ -51,6 +51,12 @@ class BinaryExperiment(UdXilinxExperiment.UdXilinxExperiment):
             traceback.print_stack()
             import sys
             sys.stdout.flush()
+            
+    @Override(Experiment.Experiment)
+    @caller_check(ServerType.Laboratory)
+    @logged("info")
+    def do_get_api(self):
+        return "1"
     
     def do_send_command_to_device(self, command):
         if command == 'AutoProgram':

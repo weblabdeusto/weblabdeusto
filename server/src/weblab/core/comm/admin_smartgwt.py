@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
 
 import datetime
@@ -27,6 +28,11 @@ from weblab.comm.context import get_context, create_context, delete_context
 import voodoo.log as log
 
 class Criteria(object):
+    """
+    Describes a basic server-side Criteria which can be used with
+    the client-side SmartGWT Criteria that is used for filtering
+    within queries
+    """
 
     DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
     DATETIME_FIELDS = ('start_date', 'end_date')
@@ -40,6 +46,11 @@ class Criteria(object):
 
     @staticmethod
     def parse(request):
+        """
+        parse(request)
+        Deserializes a Criteria. Criterias used by SmartGWT are serialized
+        to a specific JSON code, which this method is able to parse.
+        """
         # It's actually JSON
         # criteria={"fieldName":"start_date","operator":"greaterOrEqual","value":"2010-06-08T22:00:00"}
         # criteria={"fieldName":"end_date","operator":"lessOrEqual","value":"2010-09-24T21:59:59"}
@@ -79,6 +90,11 @@ class Criteria(object):
         return "<Criteria field_name='%s' operator='%s' value='%s' />" % (self.field_name, self.operator, self.value)
 
 class AdvancedCriteria(object):
+    """
+    Describes an advanced server-side Criteria which can be used with
+    the client-side SmartGWT AdvancedCriteria that is used for filtering
+    within queries
+    """
 
     def __init__(self, criterias, operator, sort_by, start_row, end_row, text_match_style):
         self.criterias        = criterias
@@ -90,6 +106,11 @@ class AdvancedCriteria(object):
 
     @staticmethod
     def parse(parameters):
+        """
+        parse(request)
+        Deserializes an AdvancedCriteria. AdvancedCriterias used by SmartGWT are serialized
+        to a specific JSON code, which this method is able to parse.
+        """
         filter_parameter = lambda name : [ param[param.find('=') + 1:] for param in parameters if param.startswith(name + '=') ]
         parsed_criterias = map(lambda x: Criteria.parse(x), filter_parameter('criteria')) # [ crit1, crit2, crit3...]
         criterias  = dict([ (criteria.field_name, criteria) for criteria in parsed_criterias ]) # { criteria_name : Criteria object }
@@ -125,6 +146,14 @@ class MethodException(Exception):
     pass
 
 class Methods(object):
+    """
+    Methods is a class which simply encompasses the static server-side 
+    methods that are required to handle queries from the SmartGWT admin
+    panel data sources. These queries are encoded in a SmartGWT specific
+    JSON, so they must be parsed and an appropriate JSON response
+    generated. They are the first server-side layer to receive them.
+    """
+    
     @staticmethod
     def get_experiments(handler, session_id, parameters):
         request_args = { 'id' : session_id }
@@ -138,6 +167,107 @@ class Methods(object):
                                 'category' : exp.category.name 
                             } 
                             for exp in experiments 
+                        ] 
+                    }
+                }
+    
+    @staticmethod
+    def get_permission_types(handler, session_id, parameters):
+        """
+        get_permission_types(handler, session_id, parameters)
+        
+        Retrieves permission types, returning them in a JSON-encoded string
+        which will be understood by the client-side SmartGWT data source.
+        """
+        request_args = { 'id' : session_id }
+        permission_types = handler.facade_manager.get_permission_types(request_args)
+        return { 'response' : 
+            { 'data' : 
+                [ 
+                    { 
+                        'name'  : ptype.name,
+                        'description' : ptype.description,
+                        'user_applicable_id' : ptype.user_applicable_id,
+                        'group_applicable_id' : ptype.group_applicable_id,
+                        'ee_applicable_id' : ptype.ee_applicable_id
+                    } 
+                    for ptype in permission_types 
+                ] 
+            }
+        }
+        
+    @staticmethod
+    def get_roles(handler, session_id, parameters):
+        """
+        get_roles(handler, session_id, parameters)
+        
+        Retrieves roles, returning them in a JSON-encoded string which will be
+        understood by the client-side SmartGWT data source.
+        """
+        request_args = { 'id' : session_id }
+        roles = handler.facade_manager.get_roles(request_args)
+        return { 'response' : 
+                    { 'data' : 
+                        [ 
+                            { 
+                                'name' : role.name
+                            } 
+                            for role in roles 
+                        ] 
+                    }
+                }
+        
+    @staticmethod
+    def get_user_permissions(handler, session_id, parameters):
+        """
+        get_user_permissions(handler, session_id, parameters)
+        
+        Retrieves user permissions, returning them in a JSON-encoded string 
+        which will be understood by the client-side SmartGWT data source.
+        """
+        request_args = { 'id' : session_id }
+        user_permissions = handler.facade_manager.get_user_permissions(request_args)
+        return { 'response' : 
+                    { 'data' : 
+                        [ 
+                            { 
+                                # TODO: Consider what to to with this id. The DTO currently does not store
+                                # the id. This follows the trend set by most DTOs. As of now, the client
+                                # uses it though, but it might be possible to replace it with the permanent
+                                # id.
+                                'id' : up.permanent_id,
+                                'user_id' : up.user_id,
+                                'applicable_permission_type_id' : up.email,
+                                'permanent_id' : up.permanent_id,
+                                'date' : up.date,
+                                'comments' : up.comments
+                            } 
+                            for up in user_permissions 
+                        ] 
+                    }
+                }
+
+    @staticmethod 
+    def get_users(handler, session_id, parameters):
+        """
+        get_users(handler, session_id, parameters)
+        
+        Retrieves users, returning them in a JSON-encoded string which will be
+        understood by the client-side SmartGWT data source.
+        """
+        request_args = { 'id' : session_id }
+        users = handler.facade_manager.get_users(request_args)
+        return { 'response' : 
+                    { 'data' : 
+                        [ 
+                            { 
+                                'login' : user.login, 
+                                'full_name' : user.full_name,
+                                'email' : user.email,
+                                'avatar' : "",
+                                'role' : user.role.name
+                            } 
+                            for user in users 
                         ] 
                     }
                 }
@@ -209,8 +339,8 @@ class Methods(object):
                     'data' : [
                         {
                             'id'                  : experiment_use.id,
-                            'start_date'          : experiment_use.start_date.strftime(Criteria.DATETIME_FORMAT),
-                            'end_date'            : experiment_use.end_date.strftime(Criteria.DATETIME_FORMAT),
+                            'start_date'          : experiment_use.start_date.strftime(Criteria.DATETIME_FORMAT) if experiment_use.start_date is not None else None,
+                            'end_date'            : experiment_use.end_date.strftime(Criteria.DATETIME_FORMAT) if experiment_use.end_date is not None else None,
                             'agent_login'         : experiment_use.agent.login,
                             'agent_name'          : experiment_use.agent.full_name,
                             'agent_email'         : experiment_use.agent.email,

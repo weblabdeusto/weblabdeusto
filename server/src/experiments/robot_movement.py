@@ -38,6 +38,11 @@ class RobotMovement(Experiment.Experiment):
         the same manager from the actual Virtual Machine Manager, and some may be implementation-specific.
         """
         pass
+    
+    @Override(Experiment.Experiment)
+    @logged("info")
+    def do_get_api(self):
+        return "1"
 
     @Override(Experiment.Experiment)
     @logged("info")

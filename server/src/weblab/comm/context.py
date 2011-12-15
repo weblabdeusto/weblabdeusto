@@ -26,17 +26,18 @@ def get_context():
 
 def create_context(server, headers):
     global _contexts
-    _contexts[_get_identifier()] = RemoteFacadeContext(server, headers, None)
+    _contexts[_get_identifier()] = RemoteFacadeContext(server, headers, None, None)
 
 def delete_context():
     global _contexts
     _contexts.pop(_get_identifier())
 
 class RemoteFacadeContext(object):
-    def __init__(self, server, headers, route):
-        self._server  = server
-        self._headers = headers
-        self.route    = route
+    def __init__(self, server, headers, route, session_id):
+        self._server        = server
+        self._headers       = headers
+        self.route          = route
+        self.session_id     = session_id
 
     def get_ip_address(self):
         try:
@@ -67,5 +68,5 @@ class RemoteFacadeContext(object):
 
 class NullRemoteFacadeContext(RemoteFacadeContext):
     def __init__(self):
-        super(NullRemoteFacadeContext, self).__init__('', {}, None)
+        super(NullRemoteFacadeContext, self).__init__('', {}, None, None)
 

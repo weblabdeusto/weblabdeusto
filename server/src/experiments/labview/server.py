@@ -115,6 +115,11 @@ class LabViewExperiment(Experiment.Experiment):
 
     @Override(Experiment.Experiment)
     @logged("info")
+    def do_get_api(self):
+        return "1"
+
+    @Override(Experiment.Experiment)
+    @logged("info")
     @debugged
     def do_start_experiment(self):
         self.is_programmed = False

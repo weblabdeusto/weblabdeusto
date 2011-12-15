@@ -103,14 +103,14 @@ public class DefaultTheme extends LabThemeBase {
 	}
 
 	@Override
-	public void onExperimentChosen(final ExperimentAllowed experimentAllowed, ExperimentBase experimentBase) {
+	public void onExperimentChosen(final ExperimentAllowed experimentAllowed, ExperimentBase experimentBase, boolean reserved) {
 		this.experimentAllowed = experimentAllowed;
 		this.experimentBase = experimentBase;
 
 		// Important note: the calling order MUST be this or FileUpload will cause problems
 		this.loadExperimentWindow();
 		this.themePanel.add(this.experimentWindow.getWidget());    
-		this.experimentWindow.loadExperimentReservationPanels();
+		this.experimentWindow.loadExperimentReservationPanels(reserved);
 		// end of Important note
 	}
 	
@@ -134,6 +134,11 @@ public class DefaultTheme extends LabThemeBase {
 		this.experimentBase = experimentBase;
 
 		this.experimentWindow.loadUsingExperimentPanels();
+	}
+	
+	@Override
+	public void onRemoteExperimentReserved(String url, String reservationId) {
+		this.experimentWindow.loadRemoteExperimentPanel(url, reservationId);
 	}
 
 	@Override
