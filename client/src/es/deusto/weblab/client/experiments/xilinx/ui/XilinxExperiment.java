@@ -98,7 +98,6 @@ public class XilinxExperiment extends ExperimentBase{
 	@UiField Button uploadButton;
 	@UiField Label selectProgram;
 	
-	
 	@UiField HorizontalPanel timerMessagesPanel;
 	@UiField WlWaitingLabel messages;
 	@UiField WlClockActivator clockActivator;
@@ -489,6 +488,7 @@ public class XilinxExperiment extends ExperimentBase{
 		this.webcam.setVisible(true);
 		this.webcam.start();
 		
+	
 		this.messages.setText("Sending file");
 		this.messages.start();
 		
