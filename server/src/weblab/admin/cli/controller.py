@@ -258,16 +258,20 @@ class Controller(object):
             users_created_successfully = 0
             num_users = len(user_logins)
             for user_data in ldap.get_users(user_logins):
-                user = self.db.insert_user(user_data["login"], user_data["full_name"], user_data["email"], None, role)
-                if user is not None:
-                    self.ui.notify("User created:\n%r" % user)
-                    user_auth = self.db.insert_user_auth(user, auth, None)
-                    assert user_auth is not None
-                    self.ui.notify("UserAuth created:\n%r" % user_auth)
-                    users_created_successfully += 1
-                else:
-                    self.ui.error("The User '%s' already exists." % user_data["login"])     
-            self.ui.notify("Created %d users out of %d." % (users_created_successfully, num_users) )
+                try:
+                    user = self.db.insert_user(user_data["login"], user_data["full_name"], user_data["email"], None, role)
+                    if user is not None:
+                        self.ui.notify("User created:\n%r" % user)
+                        user_auth = self.db.insert_user_auth(user, auth, None)
+                        assert user_auth is not None
+                        self.ui.notify("UserAuth created:\n%r" % user_auth)
+                        users_created_successfully += 1
+                    else:
+                        self.ui.error("The User '%s' already exists." % user_data["login"])
+                        self.db.session.rollback()     
+                except Exception, ex:
+                    self.ui.error("The User '%s' could not be created. Ignoring him/her. Reason: %r" % (user_data["login"], ex))                     
+            self.ui.notify("Created %d users out of %d." % (users_created_successfully, num_users))
             self.ui.wait()
         except GoBackException:
             return
