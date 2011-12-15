@@ -34,7 +34,6 @@ import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
-import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
 import es.deusto.weblab.client.ui.widgets.WlButton.IWlButtonUsed;
 import es.deusto.weblab.client.ui.widgets.WlClockActivator;
@@ -249,12 +248,12 @@ public class XilinxExperiment extends ExperimentBase{
 		
 		final JSONValue parsedInitialConfiguration = JSONParser.parseStrict(initialConfiguration);
 		
-		
 		try
 		{
 			final String webcamUrl = parsedInitialConfiguration.isObject().get("webcam").isString().stringValue();
 			this.webcam.setUrl(webcamUrl);
 		} catch(Exception e) {
+			this.messages.setText("Error: experiment server did not provide a webcam URL");
 			System.out.println("[DBG/XILINX]: Did not receive the webcam parameter. Experiment might be using the deprecated API.");		
 		}
 		
