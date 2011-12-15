@@ -50,7 +50,7 @@ class UdDemoXilinxExperiment(UdXilinxExperiment.UdXilinxExperiment):
     @Override(UdXilinxExperiment.UdXilinxExperiment)
     @caller_check(ServerType.Laboratory)
     @logged("info")
-    def do_start_experiment(self):
+    def do_start_experiment(self, *args, **kwargs):
         super(UdDemoXilinxExperiment, self).do_send_file_to_device(self.file_content, "program")
         return json.dumps({ "initial_configuration" : "{ \"webcam\" : \"%s\" }" % self.webcam_url, "batch" : False })
 
