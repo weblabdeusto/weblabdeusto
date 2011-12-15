@@ -291,27 +291,24 @@ public class XilinxExperiment extends ExperimentBase{
 		
 		final JSONValue parsedInitialConfiguration = JSONParser.parseStrict(initialConfiguration);
 		
-		try
-		{
+		try {
 			final String webcamUrl = parsedInitialConfiguration.isObject().get("webcam").isString().stringValue();
 			this.webcam.setUrl(webcamUrl);
 		} catch(Exception e) {
+			this.messages.setText("[Xilinx] Did not receive the webcam parameter.");
     		GWT.log("[Xilinx] Did not receive the webcam parameter.", null);
+    		return;
 		}
 		
-		try
-		{
+		try {
 			double expectedProgrammingTime = parsedInitialConfiguration.isObject().get("expected_programming_time").isNumber().doubleValue();
 			XilinxExperiment.this.expectedProgrammingTime = (int)(expectedProgrammingTime * 1000);
 		} catch(Exception e) {	
+			this.messages.setText("[Xilinx] Did not receive the expected_programming_time parameter.");
     		GWT.log("[Xilinx] Did not receive the expected_programming_time parameter.", null);
+    		return;
 		}
 	
-		
-		if(isDemo()){
-			
-		}
-		
 		// If it's not a demo, the user will have been prompted a file uploading form.
 		// He might have indeed chosen a file to upload, or he might not.
 		if(!isDemo()) {
@@ -323,6 +320,9 @@ public class XilinxExperiment extends ExperimentBase{
 			// be uploaded to the server.
 			if(!success)
 				this.uploadButton.setVisible(true);
+			
+		} else {
+			this.loadStartControls();
 		}
 		
 		// The experiment started, so we should start the timer.
