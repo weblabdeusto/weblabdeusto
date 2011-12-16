@@ -90,12 +90,8 @@ class CommandSent(object):
         self.timestamp_after = timestamp_after
 
     def __repr__(self):
-        return u'<CommandSent before="%s" after="%s"><Command>%s</Command><Response>%s</Response></CommandSent>' % (
-                self.timestamp_before,
-                self.timestamp_after,
-                self.command,
-                self.response
-            )
+        return u'CommandSent(command = %r, timestamp_before = %r, response = %r, timestamp_after = %r)' % (
+                        self.command, self.timestamp_before, self.response, self.timestamp_after,)
 
 class FileSent(object):
     def __init__(self, file_sent, file_hash, timestamp_before, response = None, timestamp_after = None, file_info = None):
@@ -110,26 +106,28 @@ class FileSent(object):
         self.timestamp_after  = timestamp_after
 
     def __repr__(self):
-        return u'<FileSent start="%s" end="%s" info="%s"><file_sent>%s</file_sent><file_hash>%s</file_hash><response>%s</response></FileSent>' % (
-                self.timestamp_before,
-                self.timestamp_after,
-                self.file_info,
-                self.file_sent,
-                self.file_hash,
-                self.response
-            )
+        return u'FileSent(file_sent = %r, file_hash = %r, timestamp_before = %r, response = %r, timestamp_after = %r, file_info = %r)' % (
+                     self.file_sent, self.file_hash, self.timestamp_before, self.response, self.timestamp_after, self.file_info )
 
 class ExperimentUsage(object):
-    def __init__(self):
-        self.experiment_use_id      = None # int
-        self.start_date             = None # seconds.millis since 1970 in GMT
-        self.end_date               = None # seconds.millis since 1970 in GMT
-        self.from_ip                = u"unknown"
-        self.experiment_id          = None # weblab.data.experiments.ExperimentId
-        self.reservation_id         = None # string, the reservation identifier
-        self.coord_address          = None # voodoo.gen.coordinator.CoordAddress.CoordAddress
-        self.commands               = []   # [CommandSent]
-        self.sent_files             = []   # [FileSent]
+    def __init__(self, experiment_use_id = None, start_date = None, end_date = None, from_ip = u"unknown", experiment_id = None, reservation_id = None, coord_address = None, commands = None, sent_files = None):
+        self.experiment_use_id      = experiment_use_id # int
+        self.start_date             = start_date        # seconds.millis since 1970 in GMT
+        self.end_date               = end_date          # seconds.millis since 1970 in GMT
+        self.from_ip                = from_ip 
+        self.experiment_id          = experiment_id     # weblab.data.experiments.ExperimentId
+        self.reservation_id         = reservation_id    # string, the reservation identifier
+        self.coord_address          = coord_address     # voodoo.gen.coordinator.CoordAddress.CoordAddress
+
+        if commands is None:
+            self.commands           = []   # [CommandSent]
+        else:
+            self.commands           = commands
+
+        if sent_files is None:
+            self.sent_files         = []   # [FileSent]
+        else:
+            self.sent_files         = sent_files
 
     def append_command(self, command_sent):
         """
@@ -160,18 +158,6 @@ class ExperimentUsage(object):
         self.sent_files[file_id] = file_sent
 
     def __repr__(self):
-        usages = u"""<ExperimentUsage usage_id="%s" start_date="%s" end_date="%s" from_ip="%s" to="%s"><experiment_id>%s</experiment_id><commands>""" % (
-                self.experiment_use_id,
-                self.start_date,
-                self.end_date,
-                self.coord_address,
-                self.from_ip,
-                self.experiment_id,
-            )
-        for command in self.commands:
-            usages += unicode(command)
-        usages += u'</commands><sent_files>'
-        for sent_file in self.sent_files:
-            usages += unicode(sent_file)
-        return usages + u'</sent_files></ExperimentUsage>'
+        return   u"""ExperimentUsage(experiment_use_id = %r, start_date = %r, end_date = %r, from_ip = %r, experiment_id = %r, reservation_id = %r, coord_address = %r, commands = %r, sent_files = %r)""" % (
+                                self.experiment_use_id, self.start_date, self.end_date, self.from_ip, self.experiment_id, self.reservation_id, self.coord_address, self.commands, self.sent_files )
 
