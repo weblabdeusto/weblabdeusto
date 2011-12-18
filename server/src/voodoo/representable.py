@@ -13,25 +13,41 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-class Representable(object):
-    def __repr__(self):
-        my_class = type(self)
-        repr_str = "%s(" % my_class.__name__
-        repr_str += ', '.join([ '%s = %r' % (v, getattr(self, v)) for v in my_class.__init__.func_code.co_varnames[1:] ])
-        repr_str += ")"
-        return repr_str
+def _repr_impl(self):
+    my_class = type(self)
+    repr_str = "%s(" % my_class.__name__
+    repr_str += ', '.join([ '%s = %r' % (v, getattr(self, v)) for v in my_class.__init__.func_code.co_varnames[1:] ])
+    repr_str += ")"
+    return repr_str
 
-    def __eq__(self, other):
-        if type(self) != type(other):
+def _eq_impl(self, other):
+    if type(self) != type(other):
+        return False
+
+    for var_name in ( var_name for var_name in type(self).__init__.func_code.co_varnames[1:] ):
+
+        if not hasattr(other, var_name):
             return False
 
-        for var_name in ( var_name for var_name in type(self).__init__.func_code.co_varnames[1:] ):
+        if getattr(self, var_name) != getattr(other, var_name):
+            return False
 
-            if not hasattr(other, var_name):
-                return False
+    return True
 
-            if getattr(self, var_name) != getattr(other, var_name):
-                return False
+class Representable(type):
+    def __new__(mcs, name, bases, dict):
+        if not '__repr__' in dict:
+            dict['__repr__'] = _repr_impl
+        if not '__eq__' in dict:
+            dict['__eq__']   = _eq_impl
+        return type.__new__(mcs, name, bases, dict)
 
-        return True
+    def __call__(*args, **kwargs):
+        obj = type.__call__(*args, **kwargs)
+        my_class = type(obj)
+        for field in [ v for v in my_class.__init__.func_code.co_varnames[1:] ]:
+            if not hasattr(obj, field):
+                raise TypeError("%s type %s has no field %s, provided in the constructor" % (Representable.__name__, my_class.__name__, field))
+
+        return obj
 

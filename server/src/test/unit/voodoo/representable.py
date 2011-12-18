@@ -17,7 +17,10 @@ import unittest
 
 from voodoo.representable import Representable
 
-class DirectClass(Representable):
+class DirectClass(object):
+
+    __metaclass__ = Representable
+
     def __init__(self, a, b):
         self.a = a
         self.b = b
@@ -29,6 +32,15 @@ class ChildClass(DirectClass):
 
 class GrandChildClass(ChildClass):
     pass
+
+class WrongClass(object):
+
+    __metaclass__ = Representable
+
+    def __init__(self, a, b, missing_field):
+        self.a = a
+        self.b = b
+        # No field called "missing_field"
 
 class RepresentableTestCase(unittest.TestCase):
 
@@ -58,6 +70,13 @@ class RepresentableTestCase(unittest.TestCase):
     def test_grand_child_repr(self):
         self.assertEquals(GrandChildClass(5,6,7), eval(repr(GrandChildClass(5,6,7))))
         self.assertNotEquals(GrandChildClass(6,5,7), eval(repr(GrandChildClass(5,6,7))))
+
+    def test_field_requirement(self):
+        try:
+            WrongClass('a', 'b', 'c')
+            self.fail("TypeError expected")
+        except TypeError as te:
+            self.assertTrue('missing_field' in str(te))
 
 def suite():
     return unittest.makeSuite(RepresentableTestCase)
