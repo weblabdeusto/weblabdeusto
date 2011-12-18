@@ -90,6 +90,13 @@ class ExperimentWindow extends BaseWindow {
 		this.user              = user;
 		
 		this.loadWidgets();
+		
+		this.loggedPanel = new LoggedPanel(this.user, this.callback);
+		this.mainPanel.add(this.loggedPanel);
+
+		final Widget wid = this.uiBinder.createAndBindUi(this);
+		this.loggedPanel.contentPanel.clear();
+		this.loggedPanel.contentPanel.add(wid);
 	}
 
 	void loadExperimentReservationPanels(boolean reserved) {	    
@@ -102,14 +109,7 @@ class ExperimentWindow extends BaseWindow {
 			this.selectedExperimentLabel.setVisible(false);
 			this.reserveExperimentLabel.setVisible(true);
 		}
-		
-		this.loggedPanel = new LoggedPanel(this.user, this.callback);
-		this.mainPanel.add(this.loggedPanel);
-
-		final Widget wid = this.uiBinder.createAndBindUi(this);
-		this.loggedPanel.contentPanel.clear();
-		this.loggedPanel.contentPanel.add(wid);
-		
+				
 		this.experimentName.setText(this.experimentAllowed.getExperiment().getName());
 		this.experimentCategory.setText(this.experimentAllowed.getExperiment().getCategory().getCategory());
 		this.timeAllowed.setText("" + this.experimentAllowed.getTimeAllowed());

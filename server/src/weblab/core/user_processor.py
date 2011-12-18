@@ -229,6 +229,16 @@ class UserProcessor(object):
     def _utc_timestamp(self):
         return self.time_module.time()
 
+    def get_experiment_use_by_id(self, reservation_id):
+        db_session_id         = self._session['db_session_id']
+        # TODO: check if it's none and then check in the reservation system
+        return self._db_manager.get_experiment_uses_by_id(db_session_id, [reservation_id])
+
+    def get_experiment_uses_by_id(self, reservation_ids):
+        db_session_id         = self._session['db_session_id']
+        # TODO: check if it's none and then check in the reservation system
+        return self._db_manager.get_experiment_uses_by_id(db_session_id, reservation_ids)
+
     #
     # admin service
     #

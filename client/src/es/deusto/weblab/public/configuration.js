@@ -189,7 +189,7 @@
 	                        	   "experiment.category" : "Dummy experiments"
 	                           }
 	                       ],
-	   	        "dummybatch" : [
+	                "dummybatch" : [
 		                           {
 		                        	   "experiment.name"     : "ud-dummy-batch",
 		                        	   "experiment.category" : "Dummy experiments"
@@ -205,7 +205,7 @@
 	                			}
 	                		],
 	                			
-	       	                "dummybatch" : [
+	       	        "robot-movement" : [
 	                			{
 	                				"experiment.name" : "robot-movement",
 						        	"experiment.picture" : "/img/experiments/robot.jpg",
@@ -223,6 +223,14 @@
 	                        	    "experiment.info.description" : "wiki"
 	                			}
 	                		],
+	                "blank" : [
+	                           {
+	                        	   "experiment.name"     : "external-robot-movement",
+	                        	   "experiment.category" : "Robot experiments",
+	                        	   "experiment.picture"  : "/img/experiments/robot.jpg",
+	                        	   "html"                : "This is an experiment which we know that it is only in external systems. Therefore, unless we want to use the initialization API, we don't need to have the client installed in the consumer system. We can just use a blank client and whenever the experiment is reserved, we'll use the remote client."
+	                           }
+	                        ],
 	                "visir" : [
 	                           {
 	                        	   "experiment.name"     : "visirtest",
@@ -298,6 +306,16 @@
 	                        	   "experiment.category" : "PIC experiments",
 	                        	   "experiment.picture"  : "/img/experiments/microchip.jpg"
 	                           }
-	                        ]
+	                        ],
+                    "ilab-batch" : [
+                                {
+                                    "experiment.name"    : "microelectronics",
+                                    "experiment.category" : "iLab experiments",
+                                    "archive" : "http://weblab2.mit.edu/client/v7.0b5/signed_Weblab-client.jar",
+                                    "code" : "weblab.client.graphicalUI.GraphicalApplet",
+                                    "lab_server_id" : "microelectronics",
+                                    "service_broker" : "http://www.weblab.deusto.es/weblab/web/ilab/"
+                                }
+                            ]
 		}
 }

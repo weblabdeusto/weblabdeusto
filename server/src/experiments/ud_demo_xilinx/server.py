@@ -21,6 +21,8 @@ import os
 import weblab.data.server_type as ServerType
 import weblab.experiment.util as ExperimentUtil
 
+import json
+
 class UdDemoXilinxExperiment(UdXilinxExperiment.UdXilinxExperiment):
 
     FILES = {
@@ -33,29 +35,23 @@ class UdDemoXilinxExperiment(UdXilinxExperiment.UdXilinxExperiment):
         file_path = os.path.dirname(__file__) + os.sep + self.FILES[self._xilinx_device]
         self.file_content = ExperimentUtil.serialize(open(file_path, "rb").read())
         
-    
     @Override(UdXilinxExperiment.UdXilinxExperiment)
     @caller_check(ServerType.Laboratory)
     @logged("info")
-    def do_get_api(self):
+    def do_start_experiment(self, *args, **kwargs):
         """
-        Returns the API version. Unlike the Xilinx base it inherits from, this has not yet
-        been ported to version 2.
+        Handles experiment startup, returning certain initial configuration parameters.
+        (Thus makes use of the API version 2).
         """
-        return "1"
-    
-        
-    @Override(UdXilinxExperiment.UdXilinxExperiment)
-    @caller_check(ServerType.Laboratory)
-    @logged("info")
-    def do_start_experiment(self):
         super(UdDemoXilinxExperiment, self).do_send_file_to_device(self.file_content, "program")
+        return json.dumps({ "initial_configuration" : """{ "webcam" : "%s", "expected_programming_time" : %s }""" % (self.webcam_url, self._programmer_time), "batch" : False })
 
     @Override(UdXilinxExperiment.UdXilinxExperiment)
     @caller_check(ServerType.Laboratory)
     @logged("info")
     def do_dispose(self):
         super(UdDemoXilinxExperiment, self).do_dispose()
+        return "ok"
 
     @Override(UdXilinxExperiment.UdXilinxExperiment)
     @caller_check(ServerType.Laboratory)

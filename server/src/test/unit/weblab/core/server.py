@@ -280,7 +280,45 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.ups.logout(sess_id)
 
         self.assertEquals(0, len(experiments) )
+
+    def test_get_experiment_uses_by_id(self):
+        # 
+        # Two users: student2, that started before "any" but finished after "any", and "any" then. Both use
+        # the same experiment. 
+        # 
+        reservation_id1 = SessionId.SessionId('5')
+        reservation_id2 = SessionId.SessionId('6')
+        experiment_id1 = self.ups._db_manager._gateway._insert_user_used_experiment("student1", "ud-fpga", "FPGA experiments", time.time() - 3600, "192.168.1.1", "fpga:process1@scabb", reservation_id1.id, time.time() - 1000)
+        experiment_id2 = self.ups._db_manager._gateway._insert_user_used_experiment("student2", "ud-fpga", "FPGA experiments", time.time() - 3600, "192.168.1.2", "fpga:process1@scabb", reservation_id2.id, time.time() - 1000)
+
+        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
+
+        sess_id, _ = self.ups.do_reserve_session(db_sess_id)       
+        experiment_uses = self.ups.get_experiment_uses_by_id(sess_id, (reservation_id1, reservation_id2))
+        print experiment_uses
         
+#         self.ups._db_manager._gateway._insert_user_used_experiment("any", "ud-fpga", "FPGA experiments", time.time() - 1800, "127.0.0.1", "fpga:process1@scabb", '6', time.time() - 1700)
+#         if not use_experiment_id:
+#             experiment_id = None
+#         elif use_experiment_id == 'other':
+#             experiment_id += 2
+# 
+#         # 
+#         # student4 uses a different experiment, after both student2 and any
+#         # 
+#         self.ups._db_manager._gateway._insert_user_used_experiment("student4", "ud-dummy", "Dummy experiments", time.time() - 60, "unknown", "fpga:process1@scabb", '7', time.time() - 60)
+# 
+#         self.ups._db_manager._gateway._insert_ee_used_experiment("ee1", "ud-dummy", "Dummy experiments", time.time() - 60, "unknown", "dummy:process1@plunder", '8', time.time() - 60)
+#         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
+#         
+#         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+#         experiment_uses, experiment_uses_number = self.ups.get_experiment_uses(sess_id, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by)
+#         self.ups.logout(sess_id)
+# 
+#         return experiment_uses, experiment_uses_number
+        pass
+
+       
     def _test_get_experiment_uses(self, from_date, to_date, group_id, use_experiment_id, start_row, end_row, sort_by):
         # 
         # Two users: student2, that started before "any" but finished after "any", and "any" then. Both use

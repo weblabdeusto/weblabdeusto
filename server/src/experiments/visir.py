@@ -33,6 +33,7 @@ CFG_BASE_URL = "vt_base_url"
 CFG_LOGIN_EMAIL = "vt_login_email"
 CFG_LOGIN_PASSWORD = "vt_login_password"
 CFG_SAVEDATA = "vt_savedata"
+CFG_TEACHER  = "vt_teacher"
 CFG_CLIENT_URL = "vt_client_url"
 
 DEFAULT_USE_VISIR_PHP = True
@@ -43,6 +44,7 @@ DEFAULT_BASE_URL = """https://weblab-visir.deusto.es/"""
 DEFAULT_LOGIN_EMAIL = "guest"
 DEFAULT_LOGIN_PASSWORD = "guest"
 DEFAULT_SAVEDATA = ""
+DEFAULT_TEACHER  = True
 DEFAULT_CLIENT_URL = "visir/loader.swf"
 
 DEBUG = True
@@ -66,8 +68,9 @@ class VisirTestExperiment(Experiment.Experiment):
         """
 
         # Common configuration values
-        self.savedata = self._cfg_manager.get_value(CFG_SAVEDATA, DEFAULT_SAVEDATA)
-        self.client_url = self._cfg_manager.get_value(CFG_CLIENT_URL, DEFAULT_CLIENT_URL);
+        self.savedata   = self._cfg_manager.get_value(CFG_SAVEDATA, DEFAULT_SAVEDATA)
+        self.teacher    = self._cfg_manager.get_value(CFG_TEACHER, DEFAULT_TEACHER)
+        self.client_url = self._cfg_manager.get_value(CFG_CLIENT_URL, DEFAULT_CLIENT_URL)
         self.measure_server_addr = self._cfg_manager.get_value(CFG_MEASURE_SERVER_ADDRESS, DEFAULT_MEASURE_SERVER_ADDRESS)
         self.measure_server_target = self._cfg_manager.get_value(CFG_MEASURE_SERVER_TARGET, DEFAULT_MEASURE_SERVER_TARGET)
 
@@ -106,29 +109,30 @@ class VisirTestExperiment(Experiment.Experiment):
         # a login to obtain the cookie the client should use
         if command == 'GIVE_ME_SETUP_DATA':
             if not self.use_visir_php:
-                return self.build_setup_data("", self.savedata, self.client_url)
+                return self.build_setup_data("", self.client_url)
 
             if(DEBUG):
                 print "[VisirTestExperiment] Performing login with %s / %s"  % (self.login_email, self.login_password)
             
             cookie = self.perform_visir_web_login(self.loginurl, self.login_email, self.login_password)
             
-            return self.build_setup_data(cookie, self.savedata, self.client_url)
+            return self.build_setup_data(cookie, self.client_url)
         
         # Otherwise, it's a VISIR XML command, and should just be forwarded
         # to the VISIR measurement server
         return self.forward_request(command) 
 
         
-    def build_setup_data(self, cookie, savedata, url):
+    def build_setup_data(self, cookie, url):
         """
         Helper function that will build and return a JSON-encoded reply to the 
         SETUP_DATA request.
         """
         data = {
-                "cookie" : cookie,
-                "savedata" : urllib.quote(savedata, ''),
-                "url" : url
+                "cookie"   : cookie,
+                "savedata" : urllib.quote(self.savedata, ''),
+                "url"      : url,
+                "teacher"  : self.teacher
                 }
         resp = json.dumps(data)
         return str(resp)

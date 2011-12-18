@@ -389,19 +389,28 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
-    def get_my_experiment_use_full(self, user_login, reservation_id):
+    @logged()
+    def get_experiment_uses_by_id(self, user_login, reservation_ids):
+        """ Retrieve the full information of these reservation_ids, if the user has permissions to do so. By default 
+         a user can only access to those reservations that he made in the past."""
+
+        results = []
         session = self.Session()
         try:
             user = session.query(Model.DbUser).filter_by(login = user_login).first()
             if user is None:
-                return
-            experiment_use = session.query(Model.DbUserUsedExperiment).filter_by(reservation_id == reservation_id.id, user = user).first()
-            if experiment_use is None:
-                return
+                return [None] * len(reservation_ids)
 
-            return experiment_use.to_full_dto()
+            for reservation_id in reservation_ids:
+                experiment_use = session.query(Model.DbUserUsedExperiment).filter_by(reservation_id = reservation_id.id, user = user).first()
+                if experiment_use is None:
+                    results.append(None)
+                else:
+                    results.append(experiment_use.to_business())
         finally:
             session.close()
+
+        return results
 
     @admin_panel_operation
     @logged()
