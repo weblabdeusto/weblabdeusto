@@ -13,6 +13,8 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+from abc import ABCMeta
+
 def _repr_impl(self):
     """__repr__: it takes all the arguments of the constructor and
     checks for their value in the object"""
@@ -37,6 +39,18 @@ def _eq_impl(self, other):
 
     return True
 
+def _populate_dict(dict):
+    if not '__repr__' in dict:
+        dict['__repr__'] = _repr_impl
+    if not '__eq__' in dict:
+        dict['__eq__']   = _eq_impl
+
+def _check_obj(obj):
+    my_class = type(obj)
+    for field in [ v for v in my_class.__init__.func_code.co_varnames[1:] ]:
+        if not hasattr(obj, field):
+            raise TypeError("%s type %s has no field %s, provided in the constructor" % (Representable.__name__, my_class.__name__, field))
+
 class Representable(type):
     """Metaclass that defines the __repr__ and __eq__ methods of a class. When creating an instance
     of the class, it checks that all the arguments of the __init__ method exist in the resulting 
@@ -60,18 +74,24 @@ class Representable(type):
     >>> 
     """
     def __new__(mcs, name, bases, dict):
-        if not '__repr__' in dict:
-            dict['__repr__'] = _repr_impl
-        if not '__eq__' in dict:
-            dict['__eq__']   = _eq_impl
+        _populate_dict(dict)
         return type.__new__(mcs, name, bases, dict)
 
     def __call__(*args, **kwargs):
         obj = type.__call__(*args, **kwargs)
-        my_class = type(obj)
-        for field in [ v for v in my_class.__init__.func_code.co_varnames[1:] ]:
-            if not hasattr(obj, field):
-                raise TypeError("%s type %s has no field %s, provided in the constructor" % (Representable.__name__, my_class.__name__, field))
+        _check_obj(obj)
+        return obj
 
+class AbstractRepresentable(ABCMeta):
+
+    """Same as Representable, but inheriting from ABCMeta"""
+
+    def __new__(mcs, name, bases, dict):
+        _populate_dict(dict)
+        return ABCMeta.__new__(mcs, name, bases, dict)
+
+    def __call__(*args, **kwargs):
+        obj = ABCMeta.__call__(*args, **kwargs)
+        _check_obj(obj)
         return obj
 

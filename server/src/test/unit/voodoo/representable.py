@@ -15,7 +15,14 @@
 
 import unittest
 
-from voodoo.representable import Representable
+from abc import ABCMeta, abstractmethod
+from voodoo.representable import Representable, AbstractRepresentable
+
+#########################################################
+# 
+# Regular scenario: parent class is representable,
+# the inherited classes are also representable.
+# 
 
 class DirectClass(object):
 
@@ -33,6 +40,13 @@ class ChildClass(DirectClass):
 class GrandChildClass(ChildClass):
     pass
 
+###########################################################
+# 
+# Wrong case: the constructor does not set a field that
+# appears in the constructor of the class. This should 
+# fail when creating the object.
+# 
+
 class WrongClass(object):
 
     __metaclass__ = Representable
@@ -41,6 +55,59 @@ class WrongClass(object):
         self.a = a
         self.b = b
         # No field called "missing_field"
+
+#############################################################
+# 
+# Abstract class: enable classes to be abstract and 
+# representables at the very same time.
+# 
+
+class AbstractClass(object):
+
+    __metaclass__ = AbstractRepresentable
+
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+    @abstractmethod
+    def method(self):
+        pass
+
+class ConcreteClass(AbstractClass):
+    def __init__(self, a, b, c):
+        super(ConcreteClass, self).__init__(a,b)
+        self.c = c
+
+    def method(self):
+        pass
+
+##############################################################
+# 
+# Abstract class: enable a class to be abstract, and then
+# a derived class to be representable
+# 
+
+class PureAbstractClass(object):
+    __metaclass__ = ABCMeta
+
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+    @abstractmethod
+    def method(self):
+        pass
+
+class ConcreteRepresentableClass(PureAbstractClass):
+    __metaclass__ = AbstractRepresentable
+
+    def __init__(self, a, b, c):
+        super(ConcreteRepresentableClass, self).__init__(a, b)
+        self.c = c
+
+    def method(self):
+        pass
 
 class RepresentableTestCase(unittest.TestCase):
 
@@ -77,6 +144,18 @@ class RepresentableTestCase(unittest.TestCase):
             self.fail("TypeError expected")
         except TypeError as te:
             self.assertTrue('missing_field' in str(te))
+
+    def test_child_abstract_repr(self):
+        # It's still abstract
+        self.assertRaises(TypeError, AbstractClass, 5, 6)
+
+        # But the concrete class is representable
+        self.assertEquals(ConcreteClass(5,6,7), eval(repr(ConcreteClass(5,6,7))))
+        self.assertNotEquals(ConcreteClass(6,5,7), eval(repr(ConcreteClass(5,6,7))))
+
+    def test_child_pure_abstract_repr(self):
+        self.assertEquals(ConcreteRepresentableClass(5,6,7), eval(repr(ConcreteRepresentableClass(5,6,7))))
+        self.assertNotEquals(ConcreteRepresentableClass(6,5,7), eval(repr(ConcreteRepresentableClass(5,6,7))))
 
 def suite():
     return unittest.makeSuite(RepresentableTestCase)
