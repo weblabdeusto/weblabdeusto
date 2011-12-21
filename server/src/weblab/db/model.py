@@ -522,7 +522,7 @@ class DbUserFile(Base):
             self.file_sent,
             self.file_hash,
             _splitted_utc_datetime_to_timestamp(self.timestamp_before, self.timestamp_before_micro),
-            Command(self.response),
+            Command(self.response) if self.response is not None else NullCommand(),
             _splitted_utc_datetime_to_timestamp(self.timestamp_after, self.timestamp_after_micro),
             self.file_info
             )
