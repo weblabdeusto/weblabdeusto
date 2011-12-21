@@ -82,6 +82,13 @@ class ConcreteClass(AbstractClass):
     def method(self):
         pass
 
+class ClassWithVariables(object):
+    __metaclass__ = Representable
+
+    def __init__(self, a):
+        self.a = a
+        something = 5
+
 ##############################################################
 # 
 # Abstract class: enable a class to be abstract, and then
@@ -118,6 +125,9 @@ class RepresentableTestCase(unittest.TestCase):
     def test_repr(self):
         self.assertEquals(DirectClass(5,6), eval(repr(DirectClass(5,6))))
         self.assertNotEquals(DirectClass(6,5), eval(repr(DirectClass(5,6))))
+
+    def test_repr_with_vars_in_ctor(self):
+        self.assertEquals(ClassWithVariables(5), eval(repr(ClassWithVariables(5))))
 
     def test_child_equality(self):
         self.assertEquals(ChildClass(5,6,7), ChildClass(5,6,7))

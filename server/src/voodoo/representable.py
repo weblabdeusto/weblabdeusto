@@ -19,8 +19,10 @@ def _repr_impl(self):
     """__repr__: it takes all the arguments of the constructor and
     checks for their value in the object"""
     my_class = type(self)
+    ctor_func_code = my_class.__init__.func_code
+    ctor_arguments = ctor_func_code.co_varnames[1:ctor_func_code.co_argcount]
     repr_str = "%s(" % my_class.__name__
-    repr_str += ', '.join([ '%s = %r' % (v, getattr(self, v)) for v in my_class.__init__.func_code.co_varnames[1:] ])
+    repr_str += ', '.join([ '%s = %r' % (v, getattr(self, v)) for v in ctor_arguments ])
     repr_str += ")"
     return repr_str
 
@@ -29,7 +31,10 @@ def _eq_impl(self, other):
     if type(self) != type(other):
         return False
 
-    for var_name in ( var_name for var_name in type(self).__init__.func_code.co_varnames[1:] ):
+    ctor_func_code = type(self).__init__.func_code
+    ctor_arguments = ctor_func_code.co_varnames[1:ctor_func_code.co_argcount]
+
+    for var_name in ( var_name for var_name in ctor_arguments ):
 
         if not hasattr(other, var_name):
             return False
@@ -47,7 +52,11 @@ def _populate_dict(dict):
 
 def _check_obj(obj):
     my_class = type(obj)
-    for field in [ v for v in my_class.__init__.func_code.co_varnames[1:] ]:
+
+    ctor_func_code = my_class.__init__.func_code
+    ctor_arguments = ctor_func_code.co_varnames[1:ctor_func_code.co_argcount]
+
+    for field in [ v for v in ctor_arguments ]:
         if not hasattr(obj, field):
             raise TypeError("%s type %s has no field %s, provided in the constructor" % (Representable.__name__, my_class.__name__, field))
 
