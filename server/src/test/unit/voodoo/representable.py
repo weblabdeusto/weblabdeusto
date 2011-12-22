@@ -17,7 +17,7 @@ import unittest
 
 from abc import ABCMeta, abstractmethod
 from voodoo.representable import Representable, AbstractRepresentable
-from voodoo.checker import typecheck
+from voodoo.typechecker import typecheck
 
 #########################################################
 # 
