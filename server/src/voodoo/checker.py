@@ -16,6 +16,8 @@
 import weakref
 from functools import wraps
 
+CHECKING = True
+
 def _check_types(func, args, kwargs, types):
     if len(args) + len(kwargs) != len(types):
         raise TypeError("%s: %s types provided but %s arguments passed" % (func.__name__, len(types), (len(args) + len(kwargs))))
@@ -46,7 +48,6 @@ def _check_types(func, args, kwargs, types):
 
 
 def typecheck(*types):
-
     class TypeChecker(object):
         def __init__(self, func):
             self.func = func
@@ -62,10 +63,12 @@ def typecheck(*types):
 
         def __call__(self, *args, **kwargs):
             if self.obj is not None:
-                _check_types(self.func, args, kwargs, types)
+                if CHECKING:
+                    _check_types(self.func, args, kwargs, types)
                 return self.func(self, *args, **kwargs)
             else:
-                _check_types(self.func, args, kwargs, types)
+                if CHECKING:
+                   _check_types(self.func, args, kwargs, types)
                 return self.func(*args, **kwargs)
 
     return TypeChecker

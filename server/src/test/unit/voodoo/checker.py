@@ -15,6 +15,7 @@
 
 import unittest
 
+import voodoo.checker as checker
 from voodoo.checker import typecheck
 
 class Calculator(object):
@@ -78,6 +79,14 @@ class TypeCheckTest(unittest.TestCase):
         self.assertRaises(TypeError, sum, 1, 2, 3)
         self.assertRaises(TypeError, sum, 1, arg3=2)
         self.assertRaises(TypeError, sum, 1, arg1=2)
+
+    def test_checking(self):
+        checker.CHECKING = False
+        try:
+            calc = Calculator()
+            calc.sum('1','2')
+        finally:
+            checker.CHECKING = True
 
 def suite():
     return unittest.makeSuite(TypeCheckTest)
