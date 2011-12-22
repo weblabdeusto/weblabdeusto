@@ -15,12 +15,17 @@
 
 from abc import ABCMeta
 
+def _extract_ctor_args(klass):
+    if hasattr(klass.__init__, '_original_args'):
+        return klass.__init__._original_args[1:]
+    ctor_func_code = klass.__init__.func_code
+    return ctor_func_code.co_varnames[1:ctor_func_code.co_argcount]
+
 def _repr_impl(self):
     """__repr__: it takes all the arguments of the constructor and
     checks for their value in the object"""
     my_class = type(self)
-    ctor_func_code = my_class.__init__.func_code
-    ctor_arguments = ctor_func_code.co_varnames[1:ctor_func_code.co_argcount]
+    ctor_arguments = _extract_ctor_args(my_class)
     repr_str = "%s(" % my_class.__name__
     repr_str += ', '.join([ '%s = %r' % (v, getattr(self, v)) for v in ctor_arguments ])
     repr_str += ")"
@@ -31,8 +36,7 @@ def _eq_impl(self, other):
     if type(self) != type(other):
         return False
 
-    ctor_func_code = type(self).__init__.func_code
-    ctor_arguments = ctor_func_code.co_varnames[1:ctor_func_code.co_argcount]
+    ctor_arguments = _extract_ctor_args(type(self))
 
     for var_name in ( var_name for var_name in ctor_arguments ):
 
@@ -53,8 +57,7 @@ def _populate_dict(dict):
 def _check_obj(obj):
     my_class = type(obj)
 
-    ctor_func_code = my_class.__init__.func_code
-    ctor_arguments = ctor_func_code.co_varnames[1:ctor_func_code.co_argcount]
+    ctor_arguments = _extract_ctor_args(my_class)
 
     for field in [ v for v in ctor_arguments ]:
         if not hasattr(obj, field):

@@ -17,6 +17,7 @@ import unittest
 
 from abc import ABCMeta, abstractmethod
 from voodoo.representable import Representable, AbstractRepresentable
+from voodoo.checker import typecheck
 
 #########################################################
 # 
@@ -38,6 +39,31 @@ class ChildClass(DirectClass):
         self.c = c
 
 class GrandChildClass(ChildClass):
+    pass
+
+#########################################################
+# 
+# Typed Regular scenario: parent class is representable,
+# the inherited classes are also representable.
+# 
+
+class TypedDirectClass(object):
+
+    __metaclass__ = Representable
+
+    @typecheck(int, int)
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+class TypedChildClass(TypedDirectClass):
+
+    @typecheck(int, int, int)
+    def __init__(self, a, b, c):
+        super(TypedChildClass, self).__init__(a, b)
+        self.c = c
+
+class TypedGrandChildClass(TypedChildClass):
     pass
 
 ###########################################################
@@ -126,6 +152,10 @@ class RepresentableTestCase(unittest.TestCase):
         self.assertEquals(DirectClass(5,6), eval(repr(DirectClass(5,6))))
         self.assertNotEquals(DirectClass(6,5), eval(repr(DirectClass(5,6))))
 
+    def test_typed_repr(self):
+        self.assertEquals(TypedDirectClass(5,6), eval(repr(TypedDirectClass(5,6))))
+        self.assertNotEquals(TypedDirectClass(6,5), eval(repr(TypedDirectClass(5,6))))
+
     def test_repr_with_vars_in_ctor(self):
         self.assertEquals(ClassWithVariables(5), eval(repr(ClassWithVariables(5))))
 
@@ -137,7 +167,11 @@ class RepresentableTestCase(unittest.TestCase):
     def test_child_repr(self):
         self.assertEquals(ChildClass(5,6,7), eval(repr(ChildClass(5,6,7))))
         self.assertNotEquals(ChildClass(6,5,7), eval(repr(ChildClass(5,6,7))))
-       
+
+    def test_typed_child_repr(self):
+        self.assertEquals(TypedChildClass(5,6,7), eval(repr(TypedChildClass(5,6,7))))
+        self.assertNotEquals(TypedChildClass(6,5,7), eval(repr(TypedChildClass(5,6,7))))
+      
     def test_grand_child_equality(self):
         self.assertEquals(GrandChildClass(5,6,7), GrandChildClass(5,6,7))
         self.assertNotEquals(GrandChildClass(5,6,7), GrandChildClass(5,6,8))
