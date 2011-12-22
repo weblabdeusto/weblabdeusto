@@ -13,11 +13,13 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 
 from voodoo.representable import Representable
+from voodoo.checker import typecheck
 
 class Command(object):
 
     __metaclass__ = Representable
 
+    @typecheck((basestring, typecheck.NONE))
     def __init__(self, commandstring):
         self.commandstring = commandstring
 
