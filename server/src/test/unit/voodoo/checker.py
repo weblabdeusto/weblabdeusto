@@ -32,6 +32,18 @@ class Calculator(object):
 def sum(arg1, arg2):
     return arg1 + arg2
 
+@typecheck(int, (int, typecheck.NONE))
+def sumnone(arg1, arg2):
+    if arg2 is None:
+        return "none"
+    return arg1 + arg2
+
+@typecheck(int, typecheck.ANY)
+def sumany(arg1, arg2):
+    if arg2 == "foo":
+        return "foo"
+    return arg1 + arg2
+
 class TypeCheckTest(unittest.TestCase):
 
     def test_normal(self):
@@ -47,6 +59,15 @@ class TypeCheckTest(unittest.TestCase):
 
         result = sum(3,4)
         self.assertEquals(7, result)
+
+    def test_none(self):
+        self.assertEquals(10, sumnone(5,5))
+        self.assertEquals("none", sumnone(5,None))
+
+    def test_any(self):
+        self.assertEquals(10, sumany(5,5))
+        self.assertEquals("foo", sumany(5,"foo"))
+
 
     def test_keywords(self):
         calc = Calculator()

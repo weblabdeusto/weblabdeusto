@@ -18,6 +18,9 @@ from functools import wraps
 
 CHECKING = True
 
+ANY  = object()
+NONE = type(None)
+
 def _check_types(func, args, kwargs, types):
     if len(args) + len(kwargs) != len(types):
         raise TypeError("%s: %s types provided but %s arguments passed" % (func.__name__, len(types), (len(args) + len(kwargs))))
@@ -37,11 +40,9 @@ def _check_types(func, args, kwargs, types):
     complete_ordered_args_list = list(args) + kwargs_var_values
     
     for arg, arg_type in zip(complete_ordered_args_list, types):
-        if isinstance(arg_type, tuple):
-            if not any(map(lambda concrete_arg_type : isinstance(arg, concrete_arg_type), arg_type)):
-                raise TypeError("Possible argument types: %s. Got: %s" % (arg_type, type(arg)))
+        if arg_type == ANY:
             continue
-        
+
         if not isinstance(arg, arg_type):
             raise TypeError("Expected argument type: %s. Got: %s" % (arg_type, type(arg)))
         
@@ -73,3 +74,5 @@ def typecheck(*types):
 
     return TypeChecker
 
+typecheck.NONE = NONE
+typecheck.ANY  = ANY
