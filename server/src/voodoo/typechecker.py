@@ -57,8 +57,13 @@ def _check_types(func, args, kwargs, types):
             raise TypeError("Expected argument type: %s. Got: %s" % (arg_type, type(arg)))
         
 
+def dummytypecheck(func):
+    return func
 
 def typecheck(*types):
+    if not CHECKING:
+        return dummytypecheck
+
     class TypeChecker(object):
         def __init__(self, func):
             self.func = func
@@ -73,13 +78,12 @@ def typecheck(*types):
             return self.__class__(self.func.__get__(obj, type))
 
         def __call__(self, *args, **kwargs):
+            if CHECKING:
+               _check_types(self.func, args, kwargs, types)
+
             if self.obj is not None:
-                if CHECKING:
-                    _check_types(self.func, args, kwargs, types)
                 return self.func(self, *args, **kwargs)
             else:
-                if CHECKING:
-                   _check_types(self.func, args, kwargs, types)
                 return self.func(*args, **kwargs)
 
     return TypeChecker
