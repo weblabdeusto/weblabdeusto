@@ -13,13 +13,18 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+import datetime
+
 import weblab.data.command as Command
+
 from voodoo.representable import Representable
+from voodoo.typechecker import typecheck
 
 class ExperimentId(object):
 
     __metaclass__ = Representable
 
+    @typecheck(basestring, basestring)
     def __init__(self, exp_name, cat_name):
         self.exp_name  = unicode(exp_name)
         self.cat_name  = unicode(cat_name)
@@ -49,6 +54,7 @@ class ExperimentInstanceId(object):
     
     __metaclass__ = Representable
 
+    @typecheck(basestring, basestring, basestring)
     def __init__(self, inst_name, exp_name, cat_name):
         self.inst_name = unicode(inst_name)
         self.exp_name  = unicode(exp_name)
@@ -69,7 +75,9 @@ class ExperimentInstanceId(object):
 class CommandSent(object):
 
     __metaclass__ = Representable
-
+    
+    # TODO: This is clearly a mess and should be made unique
+    @typecheck((Command.Command, basestring), (datetime.datetime, float), (Command.Command, basestring), (datetime.datetime, float, type(None)))
     def __init__(self, command, timestamp_before, response = None, timestamp_after = None):
         self.command          = command          # Command
         self.timestamp_before = timestamp_before # seconds.millis since 1970 in GMT
@@ -83,6 +91,8 @@ class FileSent(object):
 
     __metaclass__ = Representable
 
+    # TODO: This is clearly a mess and should be made unique
+    @typecheck((Command.Command, basestring), basestring, (datetime.datetime, float), (Command.Command,basestring), (datetime.datetime, float, type(None)), basestring)
     def __init__(self, file_sent, file_hash, timestamp_before, response = None, timestamp_after = None, file_info = None):
         self.file_sent        = file_sent
         self.file_hash        = file_hash
