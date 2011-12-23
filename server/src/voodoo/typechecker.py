@@ -46,7 +46,7 @@ def _check_types(func, args, kwargs, types):
 
     complete_ordered_args_list = list(args) + kwargs_var_values
     
-    for arg, arg_type in zip(complete_ordered_args_list, types):
+    for pos, (arg, arg_type) in enumerate(zip(complete_ordered_args_list, types)):
         if arg == NOT_FOUND:
             continue
 
@@ -54,7 +54,7 @@ def _check_types(func, args, kwargs, types):
             continue
 
         if not isinstance(arg, arg_type):
-            raise TypeError("Expected argument type: %s. Got: %s" % (arg_type, type(arg)))
+            raise TypeError("Expected argument type for '%s' on method '%s': %s. Got: %s" % (var_names[pos], func.__name__, arg_type, type(arg)))
         
 
 def dummytypecheck(func):

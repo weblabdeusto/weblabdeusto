@@ -92,7 +92,7 @@ class FileSent(object):
     __metaclass__ = Representable
 
     # TODO: This is clearly a mess and should be made unique
-    @typecheck((Command.Command, basestring), basestring, (datetime.datetime, float), (Command.Command,basestring), (datetime.datetime, float, type(None)), basestring)
+    @typecheck((Command.Command, basestring), basestring, (datetime.datetime, float), (Command.Command,basestring), (datetime.datetime, float, type(None)), (basestring, type(None)))
     def __init__(self, file_sent, file_hash, timestamp_before, response = None, timestamp_after = None, file_info = None):
         self.file_sent        = file_sent
         self.file_hash        = file_hash
