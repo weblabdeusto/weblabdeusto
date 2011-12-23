@@ -44,6 +44,10 @@ def sumany(arg1, arg2):
         return "foo"
     return arg1 + arg2
 
+@typecheck(int, basestring, basestring)
+def sumdefaults(arg1, arg2 = 'foo', arg3 = 'bar'):
+    return str(arg1) + arg2 + arg3
+
 class TypeCheckTest(unittest.TestCase):
 
     def test_normal(self):
@@ -108,6 +112,13 @@ class TypeCheckTest(unittest.TestCase):
             calc.sum('1','2')
         finally:
             typechecker.CHECKING = True
+
+    def test_defaults(self):
+        self.assertRaises(TypeError, sumdefaults)
+        self.assertEquals('1foobar', sumdefaults(1))
+        self.assertEquals('1barbar', sumdefaults(1, 'bar'))
+        self.assertEquals('1barfoo', sumdefaults(1, 'bar', 'foo'))
+        self.assertRaises(TypeError, sumdefaults, 1, 'bar', 'foo', 'foobar')
 
 def suite():
     return unittest.makeSuite(TypeCheckTest)
