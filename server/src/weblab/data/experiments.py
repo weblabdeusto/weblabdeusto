@@ -17,6 +17,7 @@ import datetime
 
 import weblab.data.command as Command
 
+from voodoo.gen.coordinator.CoordAddress import CoordAddress
 from voodoo.representable import Representable
 from voodoo.typechecker import typecheck
 
@@ -108,6 +109,8 @@ class ExperimentUsage(object):
 
     __metaclass__ = Representable
 
+    # TODO: This is clearly a mess and should be made unique
+    @typecheck(int, (datetime.datetime, float), (datetime.datetime, float), basestring, ExperimentId, basestring, CoordAddress, list, list)
     def __init__(self, experiment_use_id = None, start_date = None, end_date = None, from_ip = u"unknown", experiment_id = None, reservation_id = None, coord_address = None, commands = None, sent_files = None):
         self.experiment_use_id      = experiment_use_id # int
         self.start_date             = start_date        # seconds.millis since 1970 in GMT
@@ -127,6 +130,7 @@ class ExperimentUsage(object):
         else:
             self.sent_files         = sent_files
 
+    @typecheck(CommandSent)
     def append_command(self, command_sent):
         """
         append_command(command_sent)
@@ -142,15 +146,18 @@ class ExperimentUsage(object):
         self.commands.append(command_sent)
         return len(self.commands) - 1
 
+    @typecheck(int, CommandSent)
     def update_command(self, command_id, command_sent):
         # isinstance(command_sent, CommandSent)
         self.commands[command_id] = command_sent
 
+    @typecheck(FileSent)
     def append_file(self, file_sent):
         # isinstance(file_sent, FileSent)
         self.sent_files.append(file_sent)
         return len(self.sent_files) - 1
 
+    @typecheck(int, FileSent)
     def update_file(self, file_id, file_sent):
         # isinstance(file_sent, FileSent)
         self.sent_files[file_id] = file_sent
