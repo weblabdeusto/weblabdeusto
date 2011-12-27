@@ -16,7 +16,18 @@
 import weakref
 from functools import wraps
 
-CHECKING = True
+from voodoo.resources_manager import is_testing
+
+###########################################
+# 
+# By default, it only checks the data
+# types whenever we are unit testing.
+# This way, we keep the system documented
+# and catch the failures while testing,
+# but it has no performance impact in 
+# production.
+# 
+CHECKING = __debug__ and is_testing()
 
 ANY  = object()
 NONE = type(None)
