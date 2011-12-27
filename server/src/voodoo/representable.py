@@ -27,7 +27,17 @@ def _repr_impl(self):
     my_class = type(self)
     ctor_arguments = _extract_ctor_args(my_class)
     repr_str = "%s(" % my_class.__name__
-    repr_str += ', '.join([ '%s = %r' % (v, getattr(self, v)) for v in ctor_arguments ])
+
+    var_names = {}
+    for var_name in ctor_arguments:
+        if not hasattr(self, var_name) and hasattr(self, '_%s' % var_name):
+            var_names[var_name] = '_%s' % var_name
+        elif not hasattr(self, var_name) and hasattr(self, '_%s__%s' % (my_class.__name__, var_name)):
+            var_names[var_name] = '_%s__%s' % (my_class.__name__, var_name)
+        else:
+            var_names[var_name] = var_name
+
+    repr_str += ', '.join([ '%s = %r' % (v, getattr(self, var_names[v])) for v in ctor_arguments ])
     repr_str += ")"
     return repr_str
 
@@ -36,14 +46,23 @@ def _eq_impl(self, other):
     if type(self) != type(other):
         return False
 
-    ctor_arguments = _extract_ctor_args(type(self))
+    my_class = type(self)
+
+    ctor_arguments = _extract_ctor_args(my_class)
 
     for var_name in ( var_name for var_name in ctor_arguments ):
 
-        if not hasattr(other, var_name):
+        if not hasattr(self, var_name) and hasattr(self, '_%s' % var_name):
+            real_var_name = '_%s' % var_name
+        elif not hasattr(self, var_name) and hasattr(self, '_%s__%s' % (my_class.__name__, var_name)):
+            real_var_name = '_%s__%s' % (my_class.__name__, var_name)
+        else:
+            real_var_name = var_name
+
+        if not hasattr(other, real_var_name):
             return False
 
-        if getattr(self, var_name) != getattr(other, var_name):
+        if getattr(self, real_var_name) != getattr(other, real_var_name):
             return False
 
     return True
@@ -60,7 +79,7 @@ def _check_obj(obj):
     ctor_arguments = _extract_ctor_args(my_class)
 
     for field in [ v for v in ctor_arguments ]:
-        if not hasattr(obj, field):
+        if not hasattr(obj, field) and not hasattr(obj, '_%s' % field) and not hasattr(obj, '_%s__%s' % (my_class.__name__, field)):
             raise TypeError("%s type %s has no field %s, provided in the constructor" % (Representable.__name__, my_class.__name__, field))
 
 class Representable(type):
