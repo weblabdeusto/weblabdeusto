@@ -24,8 +24,6 @@ class ExperimentIdsTestCase(unittest.TestCase):
     def setUp(self):
         self.experiment_id          = ExperimentId('exp', 'cat')
         self.experiment_instance_id = ExperimentInstanceId('inst', 'exp', 'cat')
-        # self.command_sent1          = CommandSent('command', ''
-        # TODO
 
     def _check_repr(self, obj):
         self.assertEquals(repr(obj), repr(eval(repr(obj))))
