@@ -66,6 +66,43 @@ class TypedChildClass(TypedDirectClass):
 class TypedGrandChildClass(TypedChildClass):
     pass
 
+#############################################################
+# 
+# Don't cause problems when using _field or __field, neither
+# with properties
+# 
+
+class ClassWithProtectedData(object):
+
+    __metaclass__ = Representable
+
+    def __init__(self, x, y):
+        self._x = x
+        self._y = y
+
+class ClassWithPrivateData(object):
+
+    __metaclass__ = Representable
+
+    def __init__(self, x, y):
+        self.__x = x
+        self.__y = y
+
+class ClassWithProperties(object):
+
+    __metaclass__ = Representable
+
+    def __init__(self, x):
+        self._x = x
+
+    @property
+    def x(self):
+        return self._x
+
+    @x.setter
+    def x(self, value):
+        self._x = value
+
 ###########################################################
 # 
 # Wrong case: the constructor does not set a field that
@@ -155,6 +192,18 @@ class RepresentableTestCase(unittest.TestCase):
     def test_typed_repr(self):
         self.assertEquals(TypedDirectClass(5,6), eval(repr(TypedDirectClass(5,6))))
         self.assertNotEquals(TypedDirectClass(6,5), eval(repr(TypedDirectClass(5,6))))
+
+    def test_class_with_private(self):
+        self.assertEquals(ClassWithPrivateData(5,6), eval(repr(ClassWithPrivateData(5,6))))
+        self.assertNotEquals(ClassWithPrivateData(6,5), eval(repr(ClassWithPrivateData(5,6))))
+
+    def test_class_with_protected(self):
+        self.assertEquals(ClassWithProtectedData(5,6), eval(repr(ClassWithProtectedData(5,6))))
+        self.assertNotEquals(ClassWithProtectedData(6,5), eval(repr(ClassWithProtectedData(5,6))))
+
+    def test_class_with_properties(self):
+        self.assertEquals(ClassWithProperties(5), eval(repr(ClassWithProperties(5))))
+        self.assertNotEquals(ClassWithProperties(6), eval(repr(ClassWithProperties(5))))
 
     def test_repr_with_vars_in_ctor(self):
         self.assertEquals(ClassWithVariables(5), eval(repr(ClassWithVariables(5))))

@@ -16,7 +16,7 @@
 import unittest
 
 import voodoo.typechecker as typechecker
-from voodoo.typechecker import typecheck
+from voodoo.typechecker import typecheck, typecheckprop
 
 class Calculator(object):
 
@@ -48,6 +48,21 @@ def sumany(arg1, arg2):
 def sumdefaults(arg1, arg2 = 'foo', arg3 = 'bar'):
     return str(arg1) + arg2 + arg3
 
+class PropertiesClass(object):
+    @typecheck(int, int)
+    def __init__(self, x, y):
+        self._x = x
+        self._y = y
+
+    @property
+    def x(self):
+        return self._x
+
+    @x.setter
+    @typecheckprop(int)
+    def x(self, value):
+        self._x = value
+
 class TypeCheckTest(unittest.TestCase):
 
     def test_normal(self):
@@ -71,7 +86,15 @@ class TypeCheckTest(unittest.TestCase):
     def test_any(self):
         self.assertEquals(10, sumany(5,5))
         self.assertEquals("foo", sumany(5,"foo"))
-
+    
+    def test_properties(self):
+        point = PropertiesClass(5,6)
+        self.assertEquals(5, point.x)
+        point.x = 10
+        self.assertEquals(10, point.x)
+        def setter():
+            point.x = "foo"
+        self.assertRaises(TypeError, setter)
 
     def test_keywords(self):
         calc = Calculator()

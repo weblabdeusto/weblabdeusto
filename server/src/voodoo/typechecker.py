@@ -99,5 +99,8 @@ def typecheck(*types):
 
     return TypeChecker
 
+def typecheckprop(*types):
+    return typecheck(ANY, *types)
+
 typecheck.NONE = NONE
 typecheck.ANY  = ANY
