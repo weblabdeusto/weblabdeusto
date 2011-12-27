@@ -79,7 +79,7 @@ class CommandSent(object):
     __metaclass__ = Representable
     
     # TODO: This is clearly a mess and should be made unique
-    @typecheck((Command.Command, basestring), (datetime.datetime, float), (Command.Command, basestring), (datetime.datetime, float, type(None)))
+    @typecheck(Command.Command, float, Command.Command, (float, type(None)))
     def __init__(self, command, timestamp_before, response = None, timestamp_after = None):
         self.command          = command          # Command
         self.timestamp_before = timestamp_before # seconds.millis since 1970 in GMT
@@ -94,7 +94,7 @@ class FileSent(object):
     __metaclass__ = Representable
 
     # TODO: This is clearly a mess and should be made unique
-    @typecheck((Command.Command, basestring), basestring, (datetime.datetime, float), (Command.Command,basestring), (datetime.datetime, float, type(None)), (basestring, type(None)))
+    @typecheck((Command.Command, basestring), basestring, float, Command.Command, (float, type(None)), (basestring, type(None)))
     def __init__(self, file_sent, file_hash, timestamp_before, response = None, timestamp_after = None, file_info = None):
         self.file_sent        = file_sent
         self.file_hash        = file_hash

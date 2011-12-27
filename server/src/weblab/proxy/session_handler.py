@@ -15,6 +15,7 @@
 
 import hashlib
 from weblab.data.experiments import CommandSent, FileSent
+from weblab.data.command import Command
 import weblab.lab.exc as LaboratoryExceptions
 import weblab.proxy.exc as ProxyExceptions
 import time
@@ -75,6 +76,7 @@ class ProxySessionHandler(object):
             millis = int((cur_time - int(cur_time)) * 1000)
             return s + str(millis)
 
+        file_content = file_content.commandstring
         if isinstance(file_content, unicode):
             file_content_encoded = file_content.encode('utf8')
         else:
@@ -119,7 +121,7 @@ class ProxySessionHandler(object):
         translation = self._translator.on_finish(self._session['trans_session_id'])
         if translation is not None:
             timestamp_after = self._utc_timestamp()
-            self._append_command("translation", timestamp_before, translation, timestamp_after)
+            self._append_command(Command("on_finish"), timestamp_before, translation, timestamp_after)
         return self._session['commands'], self._session['files']
 
     #===============================================================================
