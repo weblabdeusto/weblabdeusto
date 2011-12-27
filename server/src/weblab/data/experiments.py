@@ -78,7 +78,6 @@ class CommandSent(object):
 
     __metaclass__ = Representable
     
-    # TODO: This is clearly a mess and should be made unique
     @typecheck(Command.Command, float, Command.Command, (float, type(None)))
     def __init__(self, command, timestamp_before, response = None, timestamp_after = None):
         self.command          = command          # Command
@@ -93,8 +92,8 @@ class FileSent(object):
 
     __metaclass__ = Representable
 
-    # TODO: This is clearly a mess and should be made unique
-    @typecheck((Command.Command, basestring), basestring, float, Command.Command, (float, type(None)), (basestring, type(None)))
+    # TODO: file_sent should not be a basestring, but a Command
+    @typecheck(basestring, basestring, float, Command.Command, (float, type(None)), (basestring, type(None)))
     def __init__(self, file_sent, file_hash, timestamp_before, response = None, timestamp_after = None, file_info = None):
         self.file_sent        = file_sent
         self.file_hash        = file_hash
@@ -110,8 +109,7 @@ class ExperimentUsage(object):
 
     __metaclass__ = Representable
 
-    # TODO: This is clearly a mess and should be made unique
-    @typecheck(int, (datetime.datetime, float), (datetime.datetime, float), basestring, ExperimentId, basestring, CoordAddress, list, list)
+    @typecheck(int, float, float, basestring, ExperimentId, basestring, CoordAddress, list, list)
     def __init__(self, experiment_use_id = None, start_date = None, end_date = None, from_ip = u"unknown", experiment_id = None, reservation_id = None, coord_address = None, commands = None, sent_files = None):
         self.experiment_use_id      = experiment_use_id # int
         self.start_date             = start_date        # seconds.millis since 1970 in GMT
