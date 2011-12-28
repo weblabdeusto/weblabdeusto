@@ -295,7 +295,12 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)       
         experiment_uses = self.ups.get_experiment_uses_by_id(sess_id, (reservation_id1, reservation_id2))
-        print experiment_uses
+        self.assertEquals(2, len(experiment_uses))
+        # reservation_id2 is for student2, and the session is for student1, so it returns None
+        self.assertEquals(None, experiment_uses[1])
+        # reservation_id1 is for student1, so it returns a real object
+        self.assertNotEquals(None, experiment_uses[0])
+        print experiment_uses[0]
         
 #         self.ups._db_manager._gateway._insert_user_used_experiment("any", "ud-fpga", "FPGA experiments", time.time() - 1800, "127.0.0.1", "fpga:process1@scabb", '6', time.time() - 1700)
 #         if not use_experiment_id:

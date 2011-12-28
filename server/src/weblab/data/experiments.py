@@ -92,7 +92,6 @@ class FileSent(object):
 
     __metaclass__ = Representable
 
-    # TODO: file_sent should not be a basestring, but a Command
     @typecheck(basestring, basestring, float, Command.Command, (float, type(None)), (basestring, type(None)))
     def __init__(self, file_sent, file_hash, timestamp_before, response = None, timestamp_after = None, file_info = None):
         self.file_sent        = file_sent
