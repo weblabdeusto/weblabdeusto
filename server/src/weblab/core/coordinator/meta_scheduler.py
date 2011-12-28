@@ -13,8 +13,6 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-import voodoo.log as log
-
 from voodoo.log import logged
 from weblab.core.coordinator.exc import NoSchedulerFoundException
 from weblab.core.coordinator.scheduler import Scheduler

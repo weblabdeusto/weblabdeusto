@@ -13,9 +13,6 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-import datetime
-import numbers
-
 import weblab.data.command as Command
 
 from voodoo.gen.coordinator.CoordAddress import CoordAddress

@@ -14,7 +14,6 @@
 # 
 
 import weakref
-from functools import wraps
 
 from voodoo.resources_manager import is_testing
 

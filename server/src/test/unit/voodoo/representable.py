@@ -151,6 +151,7 @@ class ClassWithVariables(object):
     def __init__(self, a):
         self.a = a
         something = 5
+        something += 1
 
 ##############################################################
 # 

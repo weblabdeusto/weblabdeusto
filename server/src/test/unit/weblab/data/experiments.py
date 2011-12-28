@@ -14,9 +14,8 @@
 # 
 
 import unittest
-import datetime
 
-from weblab.data.experiments import ExperimentId, ExperimentInstanceId, CommandSent, FileSent, ExperimentUsage
+from weblab.data.experiments import ExperimentId, ExperimentInstanceId
 
 
 class ExperimentIdsTestCase(unittest.TestCase):
