@@ -57,8 +57,11 @@ class Address(object):
         """"""  
 
     @abstractmethod
-    def __eq__(self):
+    def __eq__(self, other):
         """"""
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
 class IpBasedAddress(Address):
     """

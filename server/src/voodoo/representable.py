@@ -67,11 +67,16 @@ def _eq_impl(self, other):
 
     return True
 
+def _ne_impl(self, other):
+    return not self.__eq__(other)
+
 def _populate_dict(dict):
     if not '__repr__' in dict:
         dict['__repr__'] = _repr_impl
     if not '__eq__' in dict:
         dict['__eq__']   = _eq_impl
+    if not '__ne__' in dict:
+        dict['__ne__']   = _ne_impl
 
 def _check_obj(obj):
     my_class = type(obj)

@@ -27,6 +27,8 @@ class ImplementorClass(Address.IpBasedAddress):
         return Address.IpBasedAddress._compare(self,other)
     def __eq__(self, other):
         return self.__cmp__(other) == 0
+    def __ne__(self, other):
+        return self.__cmp__(other) != 0
 
 class AddressImplementorClass(Address.Address):
     def __init__(self,address):
@@ -41,6 +43,8 @@ class AddressImplementorClass(Address.Address):
     def __cmp__(self,other):
         pass
     def __eq__(self,other):
+        pass
+    def __ne__(self, other):
         pass
 
 class AddressTestCase(unittest.TestCase):
