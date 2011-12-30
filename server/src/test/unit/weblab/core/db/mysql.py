@@ -137,7 +137,7 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
 
         self.assertEquals( 2, len(full_usage.sent_files) )
 
-        self.assertEquals( file1.file_sent, full_usage.sent_files[0].file_sent)
+        self.assertEquals( file1.file_path, full_usage.sent_files[0].file_path)
         self.assertEquals( file1.file_hash, full_usage.sent_files[0].file_hash)
         self.assertEquals( file1.file_info, full_usage.sent_files[0].file_info)
         self.assertEquals( file1.timestamp_before, full_usage.sent_files[0].timestamp_before)
@@ -145,7 +145,7 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         if file1.timestamp_after is not None:
             self.assertEquals( file1.timestamp_after, full_usage.sent_files[0].timestamp_after)
 
-        self.assertEquals( file2.file_sent, full_usage.sent_files[1].file_sent)
+        self.assertEquals( file2.file_path, full_usage.sent_files[1].file_path)
         self.assertEquals( file2.file_hash, full_usage.sent_files[1].file_hash)
         self.assertEquals( file2.file_info, full_usage.sent_files[1].file_info)
         self.assertEquals( file2.timestamp_before, full_usage.sent_files[1].timestamp_before)

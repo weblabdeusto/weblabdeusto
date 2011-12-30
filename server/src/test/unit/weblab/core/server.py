@@ -37,7 +37,10 @@ import weblab.core.coordinator.config_parser as CoordinationConfigurationParser
 
 import weblab.core.exc as coreExc
 
+from weblab.data.command import Command
 from weblab.data.experiments import ExperimentId
+from weblab.data.experiments import ExperimentUsage, CommandSent, FileSent
+
 import weblab.data.dto.experiments as Category
 import weblab.data.dto.experiments as Experiment
 import weblab.data.dto.experiments as ExperimentAllowed
@@ -286,21 +289,80 @@ class UserProcessingServerTestCase(unittest.TestCase):
         # Two users: student2, that started before "any" but finished after "any", and "any" then. Both use
         # the same experiment. 
         # 
-        reservation_id1 = SessionId.SessionId('5')
-        reservation_id2 = SessionId.SessionId('6')
-        experiment_id1 = self.ups._db_manager._gateway._insert_user_used_experiment("student1", "ud-fpga", "FPGA experiments", time.time() - 3600, "192.168.1.1", "fpga:process1@scabb", reservation_id1.id, time.time() - 1000)
-        experiment_id2 = self.ups._db_manager._gateway._insert_user_used_experiment("student2", "ud-fpga", "FPGA experiments", time.time() - 3600, "192.168.1.2", "fpga:process1@scabb", reservation_id2.id, time.time() - 1000)
+        reservation_id1 = SessionId.SessionId(u'5')
+
+        initial_usage1 = ExperimentUsage()
+        initial_usage1.start_date    = time.time()
+        initial_usage1.end_date      = time.time()
+        initial_usage1.from_ip       = u"130.206.138.16"
+        initial_usage1.experiment_id = ExperimentId(u"ud-dummy",u"Dummy experiments")
+        initial_usage1.coord_address = CoordAddress.CoordAddress(u"machine1",u"instance1",u"server1") #.translate_address("server1:instance1@machine1")
+        initial_usage1.reservation_id = reservation_id1.id
+
+        file1 = FileSent( u'path/to/file1', u'{sha}12345', time.time())
+        
+        file2 = FileSent( u'path/to/file2', u'{sha}123456',
+                    time.time(), Command(u'response'),
+                    time.time(), file_info = u'program')
+
+        command1 = CommandSent( Command(u"your command1"), time.time())
+        command2 = CommandSent( Command(u"your command2"), time.time(),
+                    Command(u"your response2"), time.time())
+
+        initial_usage1.append_command(command1)
+        initial_usage1.append_command(command2)
+        initial_usage1.append_file(file1)
+        initial_usage1.append_file(file2)
+
+        reservation_id2 = SessionId.SessionId(u'6')
+
+        initial_usage2 = ExperimentUsage()
+        initial_usage2.start_date    = time.time()
+        initial_usage2.end_date      = time.time()
+        initial_usage2.from_ip       = u"130.206.138.16"
+        initial_usage2.experiment_id = ExperimentId(u"ud-dummy",u"Dummy experiments")
+        initial_usage2.coord_address = CoordAddress.CoordAddress(u"machine1",u"instance1",u"server1") #.translate_address("server1:instance1@machine1")
+        initial_usage2.reservation_id = reservation_id2.id
+
+        file1 = FileSent( u'path/to/file1', u'{sha}12345',
+                    time.time())
+        
+        file2 = FileSent( u'path/to/file2', u'{sha}123456',
+                    time.time(), Command(u'response'),
+                    time.time(), file_info = u'program')
+
+        command1 = CommandSent( Command(u"your command1"), time.time())
+        
+        command2 = CommandSent( Command(u"your command2"), time.time(),
+                    Command(u"your response2"), time.time())
+
+        initial_usage2.append_command(command1)
+        initial_usage2.append_command(command2)
+        initial_usage2.append_file(file1)
+        initial_usage2.append_file(file2)
+
+        self.ups._db_manager._gateway.store_experiment_usage('student1', {}, initial_usage1)
+
+        self.ups._db_manager._gateway.store_experiment_usage('student2', {}, initial_usage2)
+
 
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
 
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id)       
+        sess_id, _ = self.ups.do_reserve_session(db_sess_id) 
         experiment_uses = self.ups.get_experiment_uses_by_id(sess_id, (reservation_id1, reservation_id2))
+
         self.assertEquals(2, len(experiment_uses))
         # reservation_id2 is for student2, and the session is for student1, so it returns None
         self.assertEquals(None, experiment_uses[1])
         # reservation_id1 is for student1, so it returns a real object
         self.assertNotEquals(None, experiment_uses[0])
-        print experiment_uses[0]
+
+        experiment_uses[0].experiment_use_id = None
+
+        exp_id1 = experiment_uses[0].experiment_id
+        exp_id2 = initial_usage1.experiment_id
+
+        self.assertEquals(initial_usage1, experiment_uses[0])
         
 #         self.ups._db_manager._gateway._insert_user_used_experiment("any", "ud-fpga", "FPGA experiments", time.time() - 1800, "127.0.0.1", "fpga:process1@scabb", '6', time.time() - 1700)
 #         if not use_experiment_id:

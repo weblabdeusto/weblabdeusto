@@ -31,10 +31,10 @@ class ExperimentId(object):
     def __cmp__(self, other):
         if isinstance(other, ExperimentId):
             return -1
-        elif self.exp_name != other.exp_name:
+        if self.exp_name != other.exp_name:
             return cmp(self.exp_name, other.exp_name)
-        else:
-            return cmp(self.cat_name, other.cat_name)
+
+        return cmp(self.cat_name, other.cat_name)
 
     def to_dict(self):
         return {'exp_name': self.exp_name, 'cat_name': self.cat_name}
@@ -90,8 +90,8 @@ class FileSent(object):
     __metaclass__ = Representable
 
     @typecheck(basestring, basestring, float, Command.Command, (float, type(None)), (basestring, type(None)))
-    def __init__(self, file_sent, file_hash, timestamp_before, response = None, timestamp_after = None, file_info = None):
-        self.file_sent        = file_sent
+    def __init__(self, file_path, file_hash, timestamp_before, response = None, timestamp_after = None, file_info = None):
+        self.file_path        = file_path
         self.file_hash        = file_hash
         self.file_info        = file_info
         self.timestamp_before = timestamp_before

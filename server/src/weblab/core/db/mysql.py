@@ -24,7 +24,7 @@ from sqlalchemy.sql.expression import desc
 
 from voodoo.log import logged
 
-import weblab.db.model as Model
+import weblab.db.model as model
 
 import weblab.db.mysql as dbMySQLGateway
 
@@ -106,7 +106,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                 p_priority                     = self._get_int_parameter_from_permission(session, permission, 'priority', ExperimentAllowed.DEFAULT_PRIORITY)
                 p_initialization_in_accounting = self._get_bool_parameter_from_permission(session, permission, 'initialization_in_accounting', ExperimentAllowed.DEFAULT_INITIALIZATION_IN_ACCOUNTING)
                 
-                experiment = session.query(Model.DbExperiment).filter_by(name=p_permanent_id).filter(Model.DbExperimentCategory.name==p_category_id).one() 
+                experiment = session.query(model.DbExperiment).filter_by(name=p_permanent_id).filter(model.DbExperimentCategory.name==p_category_id).one() 
                 experiment_allowed = ExperimentAllowed.ExperimentAllowed(experiment.to_business(), p_time_allowed, p_priority, p_initialization_in_accounting)
                 
                 experiment_unique_id = p_permanent_id+"@"+p_category_id
@@ -143,7 +143,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
     def store_experiment_usage(self, user_login, reservation_info, experiment_usage):
         session = self.Session()
         try:
-            use = Model.DbUserUsedExperiment(
+            use = model.DbUserUsedExperiment(
                         self._get_user(session, user_login),
                         self._get_experiment(session, experiment_usage.experiment_id.exp_name, experiment_usage.experiment_id.cat_name),
                         experiment_usage.start_date,
@@ -162,7 +162,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                 # a string. Generally, we will, unless the command was asynchronous
                 # and it didn't finish executing.
                 if type(c.response) != type(""):
-                    session.add(Model.DbUserCommand(
+                    session.add(model.DbUserCommand(
                                     use,
                                     c.command.commandstring,
                                     c.timestamp_before,
@@ -174,7 +174,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                     # that we have not updated it with the real response. Probably,
                     # it was an asynchronous command which did not finish executing
                     # by the time the experiment ended.
-                    session.add(Model.DbUserCommand(
+                    session.add(model.DbUserCommand(
                                     use,
                                     c.command.commandstring,
                                     c.timestamp_before,
@@ -182,9 +182,9 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                                     c.timestamp_after
                                 ))
             for f in experiment_usage.sent_files:
-                session.add(Model.DbUserFile(
+                session.add(model.DbUserFile(
                                 use,
-                                f.file_sent,
+                                f.file_path,
                                 f.file_hash,
                                 f.timestamp_before,
                                 f.file_info,
@@ -193,13 +193,13 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                             ))
 
             for reservation_info_key in reservation_info:
-                db_key = session.query(Model.DbUserUsedExperimentProperty).filter_by(name = reservation_info_key).first()
+                db_key = session.query(model.DbUserUsedExperimentProperty).filter_by(name = reservation_info_key).first()
                 if db_key is None:
-                    db_key = Model.DbUserUsedExperimentProperty(reservation_info_key)
+                    db_key = model.DbUserUsedExperimentProperty(reservation_info_key)
                     session.add(db_key)
 
                 value = reservation_info[reservation_info_key]
-                session.add(Model.DbUserUsedExperimentPropertyValue( str(value), db_key, use ))
+                session.add(model.DbUserUsedExperimentPropertyValue( str(value), db_key, use ))
 
             session.commit()
         finally:
@@ -209,13 +209,13 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
     def finish_experiment_usage(self, reservation_id, end_date, last_command ):
         session = self.Session()
         try:
-            user_used_experiment = session.query(Model.DbUserUsedExperiment).filter_by(reservation_id = reservation_id).first()
+            user_used_experiment = session.query(model.DbUserUsedExperiment).filter_by(reservation_id = reservation_id).first()
             if user_used_experiment is None:
                 return False
 
             user_used_experiment.set_end_date(end_date)
             session.add(user_used_experiment)
-            session.add(Model.DbUserCommand(
+            session.add(model.DbUserCommand(
                             user_used_experiment,
                             last_command.command.commandstring,
                             last_command.timestamp_before,
@@ -231,10 +231,10 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
     def append_command(self, reservation_id, command ):
         session = self.Session()
         try:
-            user_used_experiment = session.query(Model.DbUserUsedExperiment).filter_by(reservation_id = reservation_id).first()
+            user_used_experiment = session.query(model.DbUserUsedExperiment).filter_by(reservation_id = reservation_id).first()
             if user_used_experiment is None:
                 return False
-            db_command = Model.DbUserCommand(
+            db_command = model.DbUserCommand(
                             user_used_experiment,
                             command.command.commandstring,
                             command.timestamp_before,
@@ -251,7 +251,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
     def update_command(self, command_id, response, end_timestamp ):
         session = self.Session()
         try:
-            db_command = session.query(Model.DbUserCommand).filter_by(id = command_id).first()
+            db_command = session.query(model.DbUserCommand).filter_by(id = command_id).first()
             if db_command is None:
                 return False
 
@@ -267,12 +267,12 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
     def append_file(self, reservation_id, file_sent ):
         session = self.Session()
         try:
-            user_used_experiment = session.query(Model.DbUserUsedExperiment).filter_by(reservation_id = reservation_id).first()
+            user_used_experiment = session.query(model.DbUserUsedExperiment).filter_by(reservation_id = reservation_id).first()
             if user_used_experiment is None:
                 return False
-            db_file_sent = Model.DbUserFile(
+            db_file_sent = model.DbUserFile(
                             user_used_experiment,
-                            file_sent.file_sent,
+                            file_sent.file_path,
                             file_sent.file_hash,
                             file_sent.timestamp_before,
                             file_sent.file_info,
@@ -289,7 +289,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
     def update_file(self, file_id, response, end_timestamp ):
         session = self.Session()
         try:
-            db_file_sent = session.query(Model.DbUserFile).filter_by(id = file_id).first()
+            db_file_sent = session.query(model.DbUserFile).filter_by(id = file_id).first()
             if db_file_sent is None:
                 return False
 
@@ -306,7 +306,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         session = self.Session()
         try:
             user = self._get_user(session, user_login)
-            uses = session.query(Model.DbUserUsedExperiment).filter_by(user=user).offset(first).limit(limit).all()
+            uses = session.query(model.DbUserUsedExperiment).filter_by(user=user).offset(first).limit(limit).all()
             return [ use.to_business_light() for use in uses ]
         finally:
             session.close()
@@ -315,7 +315,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
     def retrieve_usage(self, usage_id):
         session = self.Session()
         try:
-            use = session.query(Model.DbUserUsedExperiment).filter_by(id=usage_id).one()
+            use = session.query(model.DbUserUsedExperiment).filter_by(id=usage_id).one()
             return use.to_business()
         finally:
             session.close()
@@ -336,7 +336,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         
         session = self.Session()
         try:
-            groups = session.query(Model.DbGroup).filter_by(parent_id=parent_id).order_by(Model.DbGroup.name).all()
+            groups = session.query(model.DbGroup).filter_by(parent_id=parent_id).order_by(model.DbGroup.name).all()
             dto_groups = get_dto_children_recursively(groups)
             return tuple(dto_groups)
         finally:
@@ -349,7 +349,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         
         session = self.Session()
         try:
-            users = session.query(Model.DbUser).all()
+            users = session.query(model.DbUser).all()
             # TODO: Consider sorting users.
             dto_users = [ user.to_dto() for user in users ]
             return tuple(dto_users)
@@ -362,7 +362,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         """ Retrieves every role from the database """
         session = self.Session()
         try:
-            roles = session.query(Model.DbRole).all()
+            roles = session.query(model.DbRole).all()
             dto_roles = [role.to_dto() for role in roles]
             return tuple(dto_roles)
         finally:
@@ -382,7 +382,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
             
         session = self.Session()
         try:
-            experiments = session.query(Model.DbExperiment).all()
+            experiments = session.query(model.DbExperiment).all()
             experiments.sort(cmp=sort_by_category_and_exp_name)
             dto_experiments = [ experiment.to_dto() for experiment in experiments ]
             return tuple(dto_experiments)
@@ -397,12 +397,12 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         results = []
         session = self.Session()
         try:
-            user = session.query(Model.DbUser).filter_by(login = user_login).first()
+            user = session.query(model.DbUser).filter_by(login = user_login).first()
             if user is None:
                 return [None] * len(reservation_ids)
 
             for reservation_id in reservation_ids:
-                experiment_use = session.query(Model.DbUserUsedExperiment).filter_by(reservation_id = reservation_id.id, user = user).first()
+                experiment_use = session.query(model.DbUserUsedExperiment).filter_by(reservation_id = reservation_id.id, user = user).first()
                 if experiment_use is None:
                     results.append(None)
                 else:
@@ -420,16 +420,16 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
 
         session = self.Session()
         try:
-            query_object = session.query(Model.DbUserUsedExperiment)
+            query_object = session.query(model.DbUserUsedExperiment)
 
             # Applying filters
 
             if from_date is not None:
-                query_object = query_object.filter(Model.DbUserUsedExperiment.end_date >= from_date)
+                query_object = query_object.filter(model.DbUserUsedExperiment.end_date >= from_date)
             if to_date is not None:
-                query_object = query_object.filter(Model.DbUserUsedExperiment.start_date <= to_date)
+                query_object = query_object.filter(model.DbUserUsedExperiment.start_date <= to_date)
             if experiment_id is not None:
-                query_object = query_object.filter(Model.DbUserUsedExperiment.experiment_id == experiment_id)
+                query_object = query_object.filter(model.DbUserUsedExperiment.experiment_id == experiment_id)
 
             if group_id is not None:
                 def get_children_recursively(groups):
@@ -438,13 +438,13 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                         new_groups.extend(get_children_recursively(group.children))
                     return [ group for group in new_groups ]
 
-                parent_groups = session.query(Model.DbGroup).filter(Model.DbGroup.id == group_id).all()
+                parent_groups = session.query(model.DbGroup).filter(model.DbGroup.id == group_id).all()
                 group_ids = [ group.id for group in get_children_recursively(parent_groups) ]
 
-                groups = session.query(Model.DbGroup).filter(Model.DbGroup.id.in_(group_ids)).subquery()
-                users = session.query(Model.DbUser)
-                users_in_group = users.join((groups, Model.DbUser.groups)).subquery()
-                query_object = query_object.join((users_in_group, Model.DbUserUsedExperiment.user))
+                groups = session.query(model.DbGroup).filter(model.DbGroup.id.in_(group_ids)).subquery()
+                users = session.query(model.DbUser)
+                users_in_group = users.join((groups, model.DbUser.groups)).subquery()
+                query_object = query_object.join((users_in_group, model.DbUserUsedExperiment.user))
  
             # Sorting
             if sort_by is not None and len(sort_by) > 0:
@@ -455,18 +455,18 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                 for current_sort_by in sort_by:
                     if current_sort_by in ('start_date','-start_date','end_date','-end_date','origin','-origin','id','-id'):
                         if current_sort_by.startswith('-'):
-                            sorters.append(desc(getattr(Model.DbUserUsedExperiment, current_sort_by[1:])))
+                            sorters.append(desc(getattr(model.DbUserUsedExperiment, current_sort_by[1:])))
                         else:
-                            sorters.append(getattr(Model.DbUserUsedExperiment, current_sort_by))
+                            sorters.append(getattr(model.DbUserUsedExperiment, current_sort_by))
 
                     elif current_sort_by in ('agent_login', '-agent_login', 'agent_name', '-agent_name', 'agent_email', '-agent_email'):
-                        tables_to_join.append((Model.DbUser, Model.DbUserUsedExperiment.user))
+                        tables_to_join.append((model.DbUser, model.DbUserUsedExperiment.user))
                         if current_sort_by.endswith('agent_login'):
-                            sorter = Model.DbUser.login
+                            sorter = model.DbUser.login
                         elif current_sort_by.endswith('agent_name'):
-                            sorter = Model.DbUser.full_name
+                            sorter = model.DbUser.full_name
                         else: # current_sort_by.endswith('agent_email')
-                            sorter = Model.DbUser.email
+                            sorter = model.DbUser.email
 
                         if current_sort_by.startswith('-'):
                             sorters.append(desc(sorter))
@@ -474,19 +474,19 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
                             sorters.append(sorter)
 
                     elif current_sort_by in ('experiment_name', '-experiment_name'):
-                        tables_to_join.append((Model.DbExperiment, Model.DbUserUsedExperiment.experiment))
+                        tables_to_join.append((model.DbExperiment, model.DbUserUsedExperiment.experiment))
                         if current_sort_by.startswith('-'):
-                            sorters.append(desc(Model.DbExperiment.name))
+                            sorters.append(desc(model.DbExperiment.name))
                         else:
-                            sorters.append(Model.DbExperiment.name)
+                            sorters.append(model.DbExperiment.name)
 
                     elif current_sort_by in ('experiment_category', '-experiment_category'):
-                        tables_to_join.append((Model.DbExperiment, Model.DbUserUsedExperiment.experiment))
-                        tables_to_join.append((Model.DbExperimentCategory, Model.DbExperiment.category))
+                        tables_to_join.append((model.DbExperiment, model.DbUserUsedExperiment.experiment))
+                        tables_to_join.append((model.DbExperimentCategory, model.DbExperiment.category))
                         if current_sort_by.startswith('-'):
-                            sorters.append(desc(Model.DbExperimentCategory.name))
+                            sorters.append(desc(model.DbExperimentCategory.name))
                         else:
-                            sorters.append(Model.DbExperimentCategory.name)
+                            sorters.append(model.DbExperimentCategory.name)
 
                 while len(tables_to_join) > 0:
                     table, field = tables_to_join.pop(0)
@@ -528,7 +528,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         """
         session = self.Session()
         try:
-            ptypes = session.query(Model.DbPermissionType).all()
+            ptypes = session.query(model.DbPermissionType).all()
             dto_ptypes = [ ptype.to_dto() for ptype in ptypes ]
             return tuple(dto_ptypes)
         finally:
@@ -540,7 +540,7 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         session = self.Session()
         try:
             user = self._get_user(session, user_login)
-            permission_types = session.query(Model.DbPermissionType).all()
+            permission_types = session.query(model.DbPermissionType).all()
             permissions = []
             for pt in permission_types:
                 permissions.extend(self._gather_permissions(session, user, pt.name))
@@ -551,14 +551,14 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
     
     def _get_user(self, session, user_login):
         try:
-            return session.query(Model.DbUser).filter_by(login=user_login).one()
+            return session.query(model.DbUser).filter_by(login=user_login).one()
         except NoResultFound:
             raise DbExceptions.DbProvidedUserNotFoundException("Unable to find a User with the provided login: '%s'" % user_login)
     
     def _get_experiment(self, session, exp_name, cat_name):
         try:
-            return session.query(Model.DbExperiment) \
-                        .filter(Model.DbExperimentCategory.name == cat_name) \
+            return session.query(model.DbExperiment) \
+                        .filter(model.DbExperimentCategory.name == cat_name) \
                         .filter_by(name=exp_name).one()
         except NoResultFound:
             raise DbExceptions.DbProvidedExperimentNotFoundException("Unable to find an Experiment with the provided unique id: '%s@%s'" % (exp_name, cat_name))
@@ -622,27 +622,33 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         """ IMPORTANT: SHOULD NEVER BE USED IN PRODUCTION, IT'S HERE ONLY FOR TESTS """
         session = self.Session()
         try:
-            uu = session.query(Model.DbUserUsedExperiment).all()
+            uu = session.query(model.DbUserUsedExperiment).all()
             for i in uu:
                 session.delete(i)
-            eu = session.query(Model.DbExternalEntityUsedExperiment).all()
+            eu = session.query(model.DbExternalEntityUsedExperiment).all()
             for i in eu:
                 session.delete(i)
             session.commit()               
         finally:
             session.close()
 
-    def _insert_user_used_experiment(self, user_login, experiment_name, experiment_category_name, start_time, origin, coord_address, reservation_id, end_date):
+    def _insert_user_used_experiment(self, user_login, experiment_name, experiment_category_name, start_time, origin, coord_address, reservation_id, end_date, commands = None, files = None):
         """ IMPORTANT: SHOULD NEVER BE USED IN PRODUCTION, IT'S HERE ONLY FOR TESTS """
+        if commands is None:
+            commands = []
+
+        if files is None:
+            files    = []
+
         session = self.Session()
         try:
-            user = session.query(Model.DbUser).filter_by(login=user_login).one()
-            category = session.query(Model.DbExperimentCategory).filter_by(name=experiment_category_name).one()
-            experiment = session.query(Model.DbExperiment). \
+            user = session.query(model.DbUser).filter_by(login=user_login).one()
+            category = session.query(model.DbExperimentCategory).filter_by(name=experiment_category_name).one()
+            experiment = session.query(model.DbExperiment). \
                                     filter_by(name=experiment_name). \
                                     filter_by(category=category).one()
             experiment_id = experiment.id
-            exp_use = Model.DbUserUsedExperiment(user, experiment, start_time, origin, coord_address, reservation_id, end_date)
+            exp_use = model.DbUserUsedExperiment(user, experiment, start_time, origin, coord_address, reservation_id, end_date)
             session.add(exp_use)
             session.commit()
             return experiment_id
@@ -653,12 +659,12 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         """ IMPORTANT: SHOULD NEVER BE USED IN PRODUCTION, IT'S HERE ONLY FOR TESTS """
         session = self.Session()
         try:
-            ee = session.query(Model.DbExternalEntity).filter_by(name=ee_name).one()
-            category = session.query(Model.DbExperimentCategory).filter_by(name=experiment_category_name).one()
-            experiment = session.query(Model.DbExperiment). \
+            ee = session.query(model.DbExternalEntity).filter_by(name=ee_name).one()
+            category = session.query(model.DbExperimentCategory).filter_by(name=experiment_category_name).one()
+            experiment = session.query(model.DbExperiment). \
                                     filter_by(name=experiment_name). \
                                     filter_by(category=category).one()
-            exp_use = Model.DbExternalEntityUsedExperiment(ee, experiment, start_time, origin, coord_address, reservation_id, end_date)
+            exp_use = model.DbExternalEntityUsedExperiment(ee, experiment, start_time, origin, coord_address, reservation_id, end_date)
             session.add(exp_use)
             session.commit()
         finally:
