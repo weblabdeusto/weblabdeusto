@@ -47,7 +47,7 @@ class CoordinationDatabaseManager(object):
 
             if engine == 'sqlite':
                 sqlalchemy_engine_str = 'sqlite:///%s' % get_sqlite_dbname(dbname)
-                pool = sqlalchemy.pool.SingletonThreadPool(getconn)
+                pool = sqlalchemy.pool.NullPool(getconn)
             else:
                 sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine, username, password, host, dbname)
 

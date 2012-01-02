@@ -53,7 +53,7 @@ class AuthDatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
 
             if engine == 'sqlite':
                 connection_url = 'sqlite:///%s' % get_sqlite_dbname(dbname)
-                pool = sqlalchemy.pool.SingletonThreadPool(getconn)
+                pool = sqlalchemy.pool.NullPool(getconn)
             else:
                 connection_url = "%(ENGINE)s://%(USER)s:%(PASSWORD)s@%(HOST)s/%(DATABASE)s" % \
                                 { "ENGINE":   engine,

@@ -77,7 +77,7 @@ class SessionSqlalchemyGateway(object):
 
             if engine_name == 'sqlite':
                 sqlalchemy_engine_str = 'sqlite:///%s' % get_sqlite_dbname(dbname)
-                pool = sqlalchemy.pool.SingletonThreadPool(getconn)
+                pool = sqlalchemy.pool.NullPool(getconn)
             else:
                 sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine_name, username, password, host, dbname)
                 pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
