@@ -16,6 +16,7 @@
 import uuid
 import datetime
 
+from voodoo.dbutil import get_table_kwargs
 from weblab.data.experiments import ExperimentId
 from weblab.data.experiments import ExperimentInstanceId
 import weblab.core.coordinator.exc as CoordExc
@@ -42,7 +43,7 @@ def load():
     import weblab.core.coordinator.externals.ilab_batch_scheduler_model as ilab_batch_scheduler_model
     assert ilab_batch_scheduler_model.Base == Base
 
-TABLE_KWARGS = {'mysql_engine' : 'InnoDB'}
+TABLE_KWARGS = get_table_kwargs()
 
 ######################################################################################
 # 

@@ -9,6 +9,7 @@ regex:
 .swp$
 
 ^server/consumers/php/cookiefile
+^server/src/env
 ^server/launch/.*/logs$
 ^server/launch/.*/.*\.pid$
 ^server/launch/.*/_file_notifier.pid$

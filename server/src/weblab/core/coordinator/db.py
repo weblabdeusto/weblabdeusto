@@ -13,6 +13,8 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+from voodoo.dbutil import generate_getconn
+
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker 
 
@@ -43,10 +45,7 @@ class CoordinationDatabaseManager(object):
         sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine, username, password, host, dbname)
 
         if CoordinationDatabaseManager.engine is None or cfg_manager.get_value(WEBLAB_DB_FORCE_ENGINE_RECREATION, DEFAULT_WEBLAB_DB_FORCE_ENGINE_RECREATION):
-            def getconn():
-                import MySQLdb as dbi
-                return dbi.connect(user = username, passwd = password, host = host, db = dbname, client_flag = 2)
-
+            getconn = generate_getconn(engine, username, password, host, dbname)
             pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
             CoordinationDatabaseManager.engine = sqlalchemy.create_engine(sqlalchemy_engine_str, convert_unicode=True, echo=False, pool = pool)
 

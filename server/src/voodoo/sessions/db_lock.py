@@ -18,6 +18,7 @@ import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 
+from voodoo.dbutil import generate_getconn
 import voodoo.sessions.db_lock_data as DbData
 
 import voodoo.sessions.exc as SessionExceptions
@@ -36,16 +37,10 @@ SESSION_LOCK_SQLALCHEMY_PASSWORD  = 'session_lock_sqlalchemy_password'
 
 MAX_TIME_TRYING_TO_LOCK  = 120 # seconds
 
-def getconn():
-    import MySQLdb as dbi
-    return dbi.connect(user = DbLock.username, passwd = DbLock.password, 
-                        host = DbLock.host, db = DbLock.dbname, client_flag = 2)
-
 
 class DbLock(object):
 
     MAX_TIME_TRYING_TO_LOCK = MAX_TIME_TRYING_TO_LOCK
-    pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
     engine = None
 
     def __init__(self, cfg_manager, session_pool_id):
@@ -68,7 +63,10 @@ class DbLock(object):
         sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine_name, username, password, host, dbname)
 
         if DbLock.engine is None:
-            DbLock.engine = sqlalchemy.create_engine(sqlalchemy_engine_str, convert_unicode=True, echo=False, pool = self.pool)
+            getconn = generate_getconn(engine_name, username, password, host, dbname)
+            pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
+
+            DbLock.engine = sqlalchemy.create_engine(sqlalchemy_engine_str, convert_unicode=True, echo=False, pool = pool)
 
         self._session_maker = sessionmaker(bind=self.engine, autoflush = True, autocommit = False)
 
