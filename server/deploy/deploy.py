@@ -112,7 +112,7 @@ def check_installed_python_modules(error_handler):
     """
     Check for installed Python modules first:
 
-        * python-mysqldb
+        * python-mysqldb or (python-pymysql with pymysql_sa)
         * python-sqlalchemy
         * python-simplejson [not required in Python >= 2.6]
         * python-soappy  [optional]
@@ -122,13 +122,7 @@ def check_installed_python_modules(error_handler):
         * python-serial  [optional]
         * mocker         [optional]
     """
-    REQUIRED_MODULES = ['MySQLdb','sqlalchemy']
-
-    # simplejson is replaced in Python 2.6 by the "json" module, which comes with the
-    # Python Standard Library. Before that (we support Python >= 2.5), we use simplejson.
-    if sys.version_info[0:2] == (2,5):
-        REQUIRED_MODULES.append('simplejson')
-
+    REQUIRED_MODULES = ['sqlalchemy'] # + (MySQLdb or (pymysql + pymysql_sa))
     OPTIONAL_MODULES = ('ZSI','SOAPpy','lxml','mocker','serial','ldap')
 
     not_installed_modules = []
@@ -141,6 +135,15 @@ def check_installed_python_modules(error_handler):
     
     Required = 'Required'
     Optional = 'Optional'
+
+    try_module('MySQLdb', Required)
+    if not_installed_modules:
+        not_installed_modules = []
+        try_module('pymysql', Required)
+        try_module('pymysql_sa', Required)
+        if not_installed_modules: # Add it again so as to document it
+            try_module('MySQLdb', Required)
+            
 
     for i in REQUIRED_MODULES:
         try_module(i, Required)

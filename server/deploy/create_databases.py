@@ -10,7 +10,6 @@ import datetime
 import subprocess
 
 import libraries
-import MySQLdb as dbi
 import weblab.db.model as Model
 import weblab.core.coordinator.model as CoordinatorModel
 
@@ -27,10 +26,19 @@ except ImportError:
     sys.exit(1)
 
 try:
-	from configuration import weblab_db_username, weblab_db_password, core_coordinator_db_username , core_coordinator_db_password, weblab_sessions_db_username, weblab_sessions_db_password
+	from configuration import weblab_db_username, weblab_db_password, core_coordinator_db_username, core_coordinator_db_password, weblab_sessions_db_username, weblab_sessions_db_password
 except ImportError, e:
 	print >> sys.stderr, "Error: configuration.py doesn't exist or doesn't have all the required parameters: %s " % e
 	sys.exit(2)
+
+try:
+    import MySQLdb
+    dbi = MySQLdb
+except ImportError:
+    import pymysql_sa
+    pymysql_sa.make_default_mysql_dialect()
+    import pymysql
+    dbi = pymysql
 
 def _connect(admin_username, admin_password):
     try:
@@ -1032,7 +1040,7 @@ for coord in ('','2','3'):
     print "Populating 'WebLabCoordination%s' database...\t" % coord,
     t = time.time()
 
-    engine = create_engine('mysql://weblab:weblab@localhost/WebLabCoordination%s' % coord, echo = False)
+    engine = create_engine('mysql://%s:%s@localhost/WebLabCoordination%s' % (core_coordinator_db_username, core_coordinator_db_password, coord), echo = False)
 
     CoordinatorModel.load()
 
@@ -1052,7 +1060,7 @@ for coord in ('','2','3'):
 print "Populating 'WebLabSessions' database...\t\t",
 t = time.time()
 
-engine = create_engine('mysql://wl_session_user:wl_session_user_password@localhost/WebLabSessions', echo = False)
+engine = create_engine('mysql://%s:%s@localhost/WebLabSessions' % (weblab_sessions_db_username, weblab_sessions_db_password), echo = False)
 
 metadata = DbLockData.SessionLockBase.metadata
 metadata.drop_all(engine)
