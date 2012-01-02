@@ -72,7 +72,11 @@ class SessionSqlalchemyGateway(object):
 
         self._lock       = DbLock.DbLock(cfg_manager, session_pool_id)
 
-        sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine_name, username, password, host, dbname)
+        if engine_name == 'sqlite':
+            sqlalchemy_engine_str = 'sqlite:///%s.db' % dbname
+        else:
+            sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine_name, username, password, host, dbname)
+
         if SessionSqlalchemyGateway.engine is None:
             getconn = generate_getconn(engine_name, username, password, host, dbname)
             pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)

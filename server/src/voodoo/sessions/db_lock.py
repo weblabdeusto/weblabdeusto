@@ -60,7 +60,10 @@ class DbLock(object):
         DbLock.host     = host
         DbLock.dbname   = dbname
 
-        sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine_name, username, password, host, dbname)
+        if engine_name == 'sqlite':
+            sqlalchemy_engine_str = 'sqlite:///%s.db' % dbname
+        else:
+            sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine_name, username, password, host, dbname)
 
         if DbLock.engine is None:
             getconn = generate_getconn(engine_name, username, password, host, dbname)

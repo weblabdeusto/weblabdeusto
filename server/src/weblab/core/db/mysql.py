@@ -67,8 +67,11 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         host     = self.host
         dbname   = self.database_name
         engine   = self.engine_name
-
-        connection_url = "%(ENGINE)s://%(USER)s:%(PASSWORD)s@%(HOST)s/%(DATABASE)s" % \
+        
+        if engine == 'sqlite':
+            connection_url = 'sqlite:///%s.db' % dbname
+        else:
+            connection_url = "%(ENGINE)s://%(USER)s:%(PASSWORD)s@%(HOST)s/%(DATABASE)s" % \
                             { "ENGINE":   engine,
                               "USER":     user, "PASSWORD": password,
                               "HOST":     host, "DATABASE": dbname  }

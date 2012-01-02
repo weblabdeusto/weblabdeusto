@@ -41,8 +41,11 @@ class CoordinationDatabaseManager(object):
         password = CoordinationDatabaseManager.password = cfg_manager.get_value(COORDINATOR_DB_PASSWORD) # REQUIRED!
         host     = CoordinationDatabaseManager.host     = cfg_manager.get_value(COORDINATOR_DB_HOST,    DEFAULT_COORDINATOR_DB_HOST)
         dbname   = CoordinationDatabaseManager.dbname   = cfg_manager.get_value(COORDINATOR_DB_NAME,    DEFAULT_COORDINATOR_DB_NAME)
-
-        sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine, username, password, host, dbname)
+        
+        if engine == 'sqlite':
+            sqlalchemy_engine_str = 'sqlite:///%s.db' % dbname
+        else:
+            sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine, username, password, host, dbname)
 
         if CoordinationDatabaseManager.engine is None or cfg_manager.get_value(WEBLAB_DB_FORCE_ENGINE_RECREATION, DEFAULT_WEBLAB_DB_FORCE_ENGINE_RECREATION):
             getconn = generate_getconn(engine, username, password, host, dbname)
