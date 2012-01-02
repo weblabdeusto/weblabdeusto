@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-from voodoo.dbutil import generate_getconn
+from voodoo.dbutil import generate_getconn, get_sqlite_dbname
 
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker 
@@ -42,14 +42,17 @@ class CoordinationDatabaseManager(object):
         host     = CoordinationDatabaseManager.host     = cfg_manager.get_value(COORDINATOR_DB_HOST,    DEFAULT_COORDINATOR_DB_HOST)
         dbname   = CoordinationDatabaseManager.dbname   = cfg_manager.get_value(COORDINATOR_DB_NAME,    DEFAULT_COORDINATOR_DB_NAME)
         
-        if engine == 'sqlite':
-            sqlalchemy_engine_str = 'sqlite:///%s.db' % dbname
-        else:
-            sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine, username, password, host, dbname)
-
         if CoordinationDatabaseManager.engine is None or cfg_manager.get_value(WEBLAB_DB_FORCE_ENGINE_RECREATION, DEFAULT_WEBLAB_DB_FORCE_ENGINE_RECREATION):
             getconn = generate_getconn(engine, username, password, host, dbname)
-            pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
+
+            if engine == 'sqlite':
+                sqlalchemy_engine_str = 'sqlite:///%s' % get_sqlite_dbname(dbname)
+                pool = sqlalchemy.pool.SingletonThreadPool(getconn)
+            else:
+                sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine, username, password, host, dbname)
+
+                pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
+
             CoordinationDatabaseManager.engine = sqlalchemy.create_engine(sqlalchemy_engine_str, convert_unicode=True, echo=False, pool = pool)
 
         self.session_maker = sessionmaker(bind=self.engine, autoflush = True, autocommit = False)

@@ -24,7 +24,7 @@ from sqlalchemy.orm.exc import NoResultFound
 import weblab.db.model as Model
 
 import hashlib
-from voodoo.dbutil import generate_getconn
+from voodoo.dbutil import generate_getconn, get_sqlite_dbname
 from voodoo.log import logged
 import voodoo.log as log
 
@@ -48,18 +48,19 @@ class AuthDatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         dbname   = self.database_name
         engine   = self.engine_name
 
-        if engine == 'sqlite':
-            connection_url = 'sqlite:///%s.db' % dbname
-        else:
-            connection_url = "%(ENGINE)s://%(USER)s:%(PASSWORD)s@%(HOST)s/%(DATABASE)s" % \
-                            { "ENGINE":   engine,
-                              "USER":     user, "PASSWORD": password,
-                              "HOST":     host, "DATABASE": dbname }
-
         if AuthDatabaseGateway.engine is None or cfg_manager.get_value(WEBLAB_DB_FORCE_ENGINE_RECREATION, DEFAULT_WEBLAB_DB_FORCE_ENGINE_RECREATION):
             getconn = generate_getconn(engine, user, password, host, dbname)
 
-            pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
+            if engine == 'sqlite':
+                connection_url = 'sqlite:///%s' % get_sqlite_dbname(dbname)
+                pool = sqlalchemy.pool.SingletonThreadPool(getconn)
+            else:
+                connection_url = "%(ENGINE)s://%(USER)s:%(PASSWORD)s@%(HOST)s/%(DATABASE)s" % \
+                                { "ENGINE":   engine,
+                                  "USER":     user, "PASSWORD": password,
+                                  "HOST":     host, "DATABASE": dbname }
+
+                pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
             AuthDatabaseGateway.engine = create_engine(connection_url, echo=False, convert_unicode=True, pool = pool)
 
         self.Session = sessionmaker(bind=self.engine)

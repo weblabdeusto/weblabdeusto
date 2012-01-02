@@ -19,7 +19,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import and_
 
-from voodoo.dbutil import generate_getconn
+from voodoo.dbutil import generate_getconn, get_sqlite_dbname 
 import voodoo.sessions.sqlalchemy_data as DbData
 
 import voodoo.sessions.generator  as SessionGenerator
@@ -72,14 +72,16 @@ class SessionSqlalchemyGateway(object):
 
         self._lock       = DbLock.DbLock(cfg_manager, session_pool_id)
 
-        if engine_name == 'sqlite':
-            sqlalchemy_engine_str = 'sqlite:///%s.db' % dbname
-        else:
-            sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine_name, username, password, host, dbname)
-
         if SessionSqlalchemyGateway.engine is None:
             getconn = generate_getconn(engine_name, username, password, host, dbname)
-            pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
+
+            if engine_name == 'sqlite':
+                sqlalchemy_engine_str = 'sqlite:///%s' % get_sqlite_dbname(dbname)
+                pool = sqlalchemy.pool.SingletonThreadPool(getconn)
+            else:
+                sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine_name, username, password, host, dbname)
+                pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
+
             SessionSqlalchemyGateway.engine = sqlalchemy.create_engine(sqlalchemy_engine_str, convert_unicode=True, echo=False, pool = pool)
 
         self._session_maker = sessionmaker(bind=self.engine, autoflush = True, autocommit = False)

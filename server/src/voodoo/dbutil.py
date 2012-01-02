@@ -13,6 +13,8 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+import os
+
 def generate_getconn(engine, user, password, host, dbname):
 
     kwargs = {}
@@ -45,10 +47,25 @@ def generate_getconn(engine, user, password, host, dbname):
     # And once imported, we take the base.dialect.dbapi
     dbi = getattr(dialects, engine).base.dialect.dbapi()        
 
-    def getconn():
-        return dbi.connect(user = user, passwd = password, host = host, db = dbname, **kwargs)
+    if engine == 'sqlite':
+        def getconn_sqlite():
+            return dbi.connect(database = get_sqlite_dbname(dbname), **kwargs)
+        getconn = getconn_sqlite
+    else:
+        def getconn_else():
+            return dbi.connect(user = user, passwd = password, host = host, db = dbname, **kwargs)
+        getconn = getconn_else
 
     return getconn
+
+def get_sqlite_dbname(dbname):
+    upper_dir = os.sep.join(('..', 'db', '%s.db' % dbname))
+    if os.path.exists(upper_dir):
+        return upper_dir
+    upper_upper_dir = os.sep.join(('..', upper_dir))
+    if os.path.exists(upper_upper_dir):
+        return upper_upper_dir
+    raise Exception("Could not find %s. Did you run deploy.py?" % dbname)
 
 def get_table_kwargs():
     return {'mysql_engine' : 'InnoDB'}
