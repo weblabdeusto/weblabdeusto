@@ -89,6 +89,7 @@ tools/Bot/logs.txt.*
 tools/Bot/.*.html
 tools/Bot/.*.dump
 tools/Bot/.*_log.txt
+tools/Bot/nohup.out
 
 tools/Bot/figures/*
 tools/Bot/logs/*
