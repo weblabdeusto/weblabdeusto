@@ -13,9 +13,6 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-#import pymysql_sa
-#pymysql_sa.make_default_mysql_dialect()
-
 """
 Importing this module automatically adds to the PYTHONPATH the libraries found in "lib" and "lib_branch".
 
