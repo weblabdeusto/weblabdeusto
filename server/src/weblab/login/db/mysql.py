@@ -46,7 +46,7 @@ class AuthDatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         password = cfg_manager.get_value(WEBLAB_DB_PASSWORD_PROPERTY)
         host     = self.host
         dbname   = self.database_name
-        engine   = 'mysql' # TODO By the moment
+        engine   = self.engine_name
 
         connection_url = "%(ENGINE)s://%(USER)s:%(PASSWORD)s@%(HOST)s/%(DATABASE)s" % \
                             { "ENGINE":   engine,
