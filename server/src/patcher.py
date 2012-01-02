@@ -14,6 +14,7 @@
 #
 
 import sys
+from functools import wraps
 
 ##########################################################
 # 
@@ -89,6 +90,42 @@ def patchZsiPyExpat():
             ZSI.TC.XMLString.parse(self, *args)
 
     ZSI.TC.XMLString = PatchedXMLString
+
+#########################################################
+#
+#     ZSI and FaultFromException
+#
+# Description:
+# 
+#   ZSI's FaultFromException method does not properly
+#   handle exceptions, as detailed here:
+# 
+#   http://sourceforge.net/mailarchive/forum.php?thread_name=1184353550.25689.32.camel%40wcary458.ca.nortel.com&forum_name=pywebsvcs-talk
+# 
+
+@patch
+def patchZsiFaultFromException():
+
+    try:
+        import ZSI
+    except ImportError:
+        print >> sys.stderr, "patchZsiFaultFromException skipped; ZSI not installed"
+        return
+    
+    original = ZSI.FaultFromException
+
+    @wraps(original)
+    def wrapped(ex, *args, **kwargs):
+        if isinstance(ex, ZSI.Fault):
+            return ex
+        return original(ex, *args, **kwargs)
+
+    import ZSI.fault as fault
+    import ZSI.dispatch as dispatch
+    import ZSI.ServiceContainer as ServiceContainer
+
+    for mod in ZSI, fault, dispatch, ServiceContainer:
+        mod.FaultFromException = wrapped
 
 #########################################################
 
