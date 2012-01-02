@@ -23,6 +23,7 @@ def generate_getconn(engine, user, password, host, dbname):
         # to load and register pymysql
         try:
             import MySQLdb
+            assert MySQLdb is not None # It can never be: just avoid pyflakes warnings
         except ImportError:
             import pymysql_sa
             pymysql_sa.make_default_mysql_dialect()
