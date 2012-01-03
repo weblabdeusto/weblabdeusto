@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
+
 """
 Importing this module automatically adds to the PYTHONPATH the libraries found in "lib" and "lib_branch".
 

@@ -23,10 +23,6 @@ class SessionNotFoundException(SessionException):
     def __init__(self,*args,**kargs):
         SessionException.__init__(self,*args,**kargs)
 
-class SessionDatabaseConnectionException(SessionException):
-    def __init__(self,*args,**kargs):
-        SessionException.__init__(self,*args,**kargs)
-
 class SessionDatabaseExecutionException(SessionException):
     def __init__(self,*args,**kargs):
         SessionException.__init__(self,*args,**kargs)
@@ -56,10 +52,6 @@ class SessionTypeNotImplementedException(SessionException):
         SessionException.__init__(self,*args,**kargs)
 
 class VariableNotFoundInSessionException(SessionException):
-    def __init__(self,*args,**kargs):
-        SessionException.__init__(self,*args,**kargs)
-
-class CouldntAcquireSessionException(SessionException):
     def __init__(self,*args,**kargs):
         SessionException.__init__(self,*args,**kargs)
 

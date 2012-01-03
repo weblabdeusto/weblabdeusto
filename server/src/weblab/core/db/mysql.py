@@ -22,6 +22,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import desc
 
+from voodoo.dbutil import generate_getconn, get_sqlite_dbname
 from voodoo.log import logged
 
 import weblab.db.model as model
@@ -65,18 +66,21 @@ class DatabaseGateway(dbMySQLGateway.AbstractDatabaseGateway):
         password = cfg_manager.get_value(WEBLAB_DB_PASSWORD_PROPERTY)
         host     = self.host
         dbname   = self.database_name
-
-        connection_url = "mysql://%(USER)s:%(PASSWORD)s@%(HOST)s/%(DATABASE)s" % \
-                            { "USER":     user,
-                              "PASSWORD": password,
-                              "HOST":     host,
-                              "DATABASE": dbname  }
-
+        engine   = self.engine_name
+        
         if DatabaseGateway.engine is None or cfg_manager.get_value(WEBLAB_DB_FORCE_ENGINE_RECREATION, DEFAULT_WEBLAB_DB_FORCE_ENGINE_RECREATION):
-            def getconn():
-                import MySQLdb as dbi
-                return dbi.connect(user = user, passwd = password, host = host, db = dbname, client_flag = 2)
-            pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
+            getconn = generate_getconn(engine, user, password, host, dbname)
+
+            if engine == 'sqlite':
+                connection_url = 'sqlite:///%s' % get_sqlite_dbname(dbname)
+                pool = sqlalchemy.pool.NullPool(getconn)
+            else:
+                connection_url = "%(ENGINE)s://%(USER)s:%(PASSWORD)s@%(HOST)s/%(DATABASE)s" % \
+                                { "ENGINE":   engine,
+                                  "USER":     user, "PASSWORD": password,
+                                  "HOST":     host, "DATABASE": dbname  }
+
+                pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
 
             DatabaseGateway.engine = create_engine(connection_url, echo=False, convert_unicode=True, pool = pool)
 

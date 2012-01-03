@@ -9,6 +9,7 @@ regex:
 .swp$
 
 ^server/consumers/php/cookiefile
+^server/src/env
 ^server/launch/.*/logs$
 ^server/launch/.*/.*\.pid$
 ^server/launch/.*/_file_notifier.pid$
@@ -17,6 +18,7 @@ regex:
 ^server/launch/.*/.*\.sock$
 ^server/launch/.*/files_stored$
 ^server/launch/deusto
+^server/db/.*\.db$
 ^client/gwt-unitCache
 
 #

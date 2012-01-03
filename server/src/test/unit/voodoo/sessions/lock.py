@@ -17,6 +17,7 @@ import unittest
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 
+from voodoo.dbutil import get_sqlite_dbname 
 import voodoo.sessions.db_lock_data as DbData
 
 import voodoo.sessions.db_lock as DbLock
@@ -31,8 +32,11 @@ def _remove_sessions(cfg_manager):
     db_name     = cfg_manager.get_value(DbLock.SESSION_LOCK_SQLALCHEMY_DB_NAME, DbLock.DEFAULT_SESSION_LOCK_SQLALCHEMY_DB_NAME)
     username    = cfg_manager.get_value(DbLock.SESSION_LOCK_SQLALCHEMY_USERNAME)
     password    = cfg_manager.get_value(DbLock.SESSION_LOCK_SQLALCHEMY_PASSWORD)
-    
-    sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine_name, username, password, host, db_name)
+
+    if engine_name == 'sqlite':
+        sqlalchemy_engine_str = 'sqlite:///%s' % get_sqlite_dbname(db_name)
+    else:
+        sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine_name, username, password, host, db_name)
     engine = sqlalchemy.create_engine(sqlalchemy_engine_str, convert_unicode=True, echo=False)
 
     session = sessionmaker(bind=engine, autoflush = True, autocommit = False)()

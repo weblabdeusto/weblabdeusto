@@ -14,11 +14,12 @@
 # 
 
 
+from voodoo.dbutil import get_table_kwargs
 from sqlalchemy import Column, Integer, String
 
 from weblab.core.coordinator.model import Base, RESERVATION_ID_SIZE
 
-TABLE_KWARGS = {'mysql_engine' : 'InnoDB'}
+TABLE_KWARGS = get_table_kwargs()
 
 SUFFIX = 'ILAB_BATCH_'
 

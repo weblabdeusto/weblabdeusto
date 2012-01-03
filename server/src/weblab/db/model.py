@@ -16,6 +16,8 @@
 import datetime
 import calendar
 
+from voodoo.dbutil import get_table_kwargs
+
 from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, UniqueConstraint, Table
 from sqlalchemy.orm import relation, backref
 from sqlalchemy.ext.declarative import declarative_base
@@ -38,8 +40,7 @@ from weblab.data.dto.experiments import ExperimentUse
 
 Base = declarative_base()
 
-TABLE_KWARGS = {'mysql_engine' : 'InnoDB'}
-
+TABLE_KWARGS = get_table_kwargs()
 
 def link_relation(entity, object_to_link, relation_attr, fk_field=None):
     """
