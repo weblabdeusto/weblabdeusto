@@ -32,6 +32,13 @@ def generate_getconn(engine, user, password, host, dbname):
 
         # In the case of MySQL, we need to activate this flag
         kwargs['client_flag'] = 2
+    elif engine == 'sqlite':
+        # By default, sqlite uses a timeout of 5 seconds. Given the 
+        # concurrency levels that WebLab-Deusto might achieve with
+        # multiple users in a queue, this might not be enough. We
+        # increase it to a minute and a half to avoid problems with
+        # multiple concurrent users
+        kwargs['timeout'] = 90 
 
     # Then load the sqlalchemy dialect. In order to do the 
     # equivalent to:
