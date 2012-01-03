@@ -19,9 +19,12 @@ import os
 
 # db_engine = 'sqlite'
 db_engine = 'mysql'
-core_coordinator_db_engine     = db_engine
 session_sqlalchemy_engine      = db_engine
 session_lock_sqlalchemy_engine = db_engine
+
+core_coordinator_db_engine     = db_engine
+#core_coordinator_db_engine     = 'sqlite'
+#core_coordinator_db_name = ':memory:'
 
 #########################
 # General configuration #

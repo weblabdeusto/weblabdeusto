@@ -63,9 +63,10 @@ class CoordinationDatabaseManager(object):
 
             CoordinationDatabaseManager.engine = sqlalchemy.create_engine(sqlalchemy_engine_str, convert_unicode=True, echo=False, connect_args = connect_args, pool = pool)
 
-            if engine == 'sqlite' and dbname == 'memory':
+            if engine == 'sqlite' and dbname == ':memory:':
                 coord_model.load()
                 metadata = coord_model.Base.metadata
+                metadata.drop_all(self.engine)
                 metadata.create_all(self.engine)
 
 
