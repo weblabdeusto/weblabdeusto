@@ -15,6 +15,8 @@
 
 from voodoo.dbutil import generate_getconn, get_sqlite_dbname
 
+import weblab.core.coordinator.model as coord_model
+
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker 
 
@@ -45,15 +47,27 @@ class CoordinationDatabaseManager(object):
         if CoordinationDatabaseManager.engine is None or cfg_manager.get_value(WEBLAB_DB_FORCE_ENGINE_RECREATION, DEFAULT_WEBLAB_DB_FORCE_ENGINE_RECREATION):
             getconn = generate_getconn(engine, username, password, host, dbname)
 
+            connect_args = {}
+
             if engine == 'sqlite':
                 sqlalchemy_engine_str = 'sqlite:///%s' % get_sqlite_dbname(dbname)
-                pool = sqlalchemy.pool.NullPool(getconn)
+                if dbname == ':memory:':
+                    connect_args['check_same_thread'] = False
+                    pool = sqlalchemy.pool.StaticPool(getconn)
+                else:
+                    pool = sqlalchemy.pool.NullPool(getconn)
             else:
                 sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine, username, password, host, dbname)
 
                 pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
 
-            CoordinationDatabaseManager.engine = sqlalchemy.create_engine(sqlalchemy_engine_str, convert_unicode=True, echo=False, pool = pool)
+            CoordinationDatabaseManager.engine = sqlalchemy.create_engine(sqlalchemy_engine_str, convert_unicode=True, echo=False, connect_args = connect_args, pool = pool)
+
+            if engine == 'sqlite' and dbname == 'memory':
+                coord_model.load()
+                metadata = coord_model.Base.metadata
+                metadata.create_all(self.engine)
+
 
         self.session_maker = sessionmaker(bind=self.engine, autoflush = True, autocommit = False)
 

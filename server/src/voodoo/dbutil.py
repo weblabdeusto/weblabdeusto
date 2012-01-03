@@ -59,6 +59,8 @@ def generate_getconn(engine, user, password, host, dbname):
     return getconn
 
 def get_sqlite_dbname(dbname):
+    if dbname == ':memory:':
+        return dbname
     upper_dir = os.sep.join(('..', 'db', '%s.db' % dbname))
     if os.path.exists(upper_dir):
         return upper_dir
