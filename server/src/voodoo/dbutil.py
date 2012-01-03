@@ -38,7 +38,9 @@ def generate_getconn(engine, user, password, host, dbname):
         # multiple users in a queue, this might not be enough. We
         # increase it to a minute and a half to avoid problems with
         # multiple concurrent users
-        kwargs['timeout'] = 90 
+        kwargs['timeout'] = 90
+        if dbname == ':memory:':
+            kwargs['check_same_thread'] = False
 
     # Then load the sqlalchemy dialect. In order to do the 
     # equivalent to:
