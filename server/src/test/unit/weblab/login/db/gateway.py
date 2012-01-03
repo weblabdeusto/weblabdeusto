@@ -20,18 +20,18 @@ import test.unit.configuration as configuration
 
 import voodoo.configuration as ConfigurationManager
 
-import weblab.login.db.mysql as DatabaseMySQLGateway
+import weblab.login.db.gateway as DatabaseGateway
 import weblab.login.db.dao.user as UserAuth
 
 import weblab.db.exc as DbExceptions
 
 
-class DatabaseMySQLGatewayTestCase(unittest.TestCase):
+class DatabaseGatewayTestCase(unittest.TestCase):
     
     def setUp(self):
         cfg_manager= ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration)
-        self.auth_gateway = DatabaseMySQLGateway.AuthDatabaseGateway(cfg_manager)
+        self.auth_gateway = DatabaseGateway.AuthDatabaseGateway(cfg_manager)
 
     def test_user_password(self):
         #This user doesn't exist
@@ -119,7 +119,7 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
         
 
 def suite():
-    return unittest.makeSuite(DatabaseMySQLGatewayTestCase)
+    return unittest.makeSuite(DatabaseGatewayTestCase)
 
 if __name__ == '__main__':
     unittest.main()

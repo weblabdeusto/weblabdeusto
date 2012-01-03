@@ -79,7 +79,7 @@ def create_usage(gateway, reservation_id = 'my_reservation_id'):
         gateway.store_experiment_usage(student1.login, {'facebook' : False}, initial_usage)
         return student1, initial_usage, command1, command2, file1, file2
 
-class DatabaseMySQLGatewayTestCase(unittest.TestCase):
+class DatabaseGatewayTestCase(unittest.TestCase):
     """Note: Methods tested from UserProcessingServer won't be tested again here."""
 
     def setUp(self):
@@ -584,7 +584,7 @@ class DatabaseMySQLGatewayTestCase(unittest.TestCase):
 
         
 def suite():
-    return unittest.makeSuite(DatabaseMySQLGatewayTestCase)
+    return unittest.makeSuite(DatabaseGatewayTestCase)
 
 if __name__ == '__main__':
     unittest.main()
