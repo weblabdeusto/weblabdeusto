@@ -138,13 +138,14 @@ class UserProcessor(object):
         self._session['experiment_id'] = experiment_id
 
         reservation_info = self._session['reservation_information'] = {}
-        reservation_info['user_agent']    = context.get_user_agent()
-        reservation_info['referer']       = context.get_referer()
-        reservation_info['mobile']        = context.is_mobile()
-        reservation_info['facebook']      = context.is_facebook()
-        reservation_info['from_ip']       = client_address.client_address
-        reservation_info['username']      = self._session['db_session_id'].username
-        reservation_info['role']          = self._session['db_session_id'].role
+        reservation_info['user_agent']     = context.get_user_agent()
+        reservation_info['referer']        = context.get_referer()
+        reservation_info['mobile']         = context.is_mobile()
+        reservation_info['facebook']       = context.is_facebook()
+        reservation_info['from_ip']        = client_address.client_address
+        reservation_info['from_direct_ip'] = client_address.client_address
+        reservation_info['username']       = self._session['db_session_id'].username
+        reservation_info['role']           = self._session['db_session_id'].role
 
         try:
             client_initial_data = json.loads(serialized_client_initial_data)
@@ -230,14 +231,30 @@ class UserProcessor(object):
         return self.time_module.time()
 
     def get_experiment_use_by_id(self, reservation_id):
-        db_session_id         = self._session['db_session_id']
-        # TODO: check if it's none and then check in the reservation system
-        return self._db_manager.get_experiment_uses_by_id(db_session_id, [reservation_id])
+        db_session_id   = self._session['db_session_id']
+        experiment_uses = self._db_manager.get_experiment_uses_by_id(db_session_id, [reservation_id])
+        experiment_use  = experiment_uses[0]
+        if experiment_use is None:
+            return self._manage_not_existing_reservation_id(reservation_id)
+        return experiment_use
 
     def get_experiment_uses_by_id(self, reservation_ids):
         db_session_id         = self._session['db_session_id']
-        # TODO: check if it's none and then check in the reservation system
-        return self._db_manager.get_experiment_uses_by_id(db_session_id, reservation_ids)
+        experiment_uses = self._db_manager.get_experiment_uses_by_id(db_session_id, reservation_ids)
+        return map( 
+                    lambda (use, reservation_id) : 
+                        self._manage_not_existing_reservation_id(reservation_id) if use is None else use, 
+                    zip(experiment_uses, reservation_ids))
+
+    def _manage_not_existing_reservation_id(self, reservation_id):
+        """Given a reservation_id not present in the usage db, check if it is still running or waiting, or it did never enter the system"""
+        try:
+            reservation_status = self._coordinator.get_reservation_status(reservation_id.id)
+            # By the moment
+            return reservation_status
+        except coord_exc.ExpiredSessionException, e:
+            return None
+
 
     #
     # admin service

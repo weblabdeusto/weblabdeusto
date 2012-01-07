@@ -18,6 +18,7 @@ import Queue
 
 import json
 
+from voodoo.typechecker import typecheck
 from voodoo.log import logged
 import voodoo.log as log
 import voodoo.admin_notifier as AdminNotifier
@@ -236,6 +237,7 @@ class Coordinator(object):
     def _get_scheduler_per_resource(self, resource):
         return self.schedulers[resource.resource_type]
 
+    @typecheck(basestring)
     def _get_scheduler_aggregator_per_reservation(self, reservation_id):
         experiment_id = self.reservations_manager.get_experiment_id(reservation_id)
         return self._get_scheduler_aggregator(experiment_id)
@@ -395,14 +397,17 @@ class Coordinator(object):
     # 
     # Given a reservation_id, it returns in which state the reservation is
     # 
+    @typecheck(basestring)
     @logged()
     def get_reservation_status(self, reservation_id):
+        # Just in case it was stored with the route
+        reservation_id_without_route = reservation_id.split(';')[0]
         try:
-            aggregator = self._get_scheduler_aggregator_per_reservation(reservation_id)
-            return aggregator.get_reservation_status(reservation_id)
+            aggregator = self._get_scheduler_aggregator_per_reservation(reservation_id_without_route)
+            return aggregator.get_reservation_status(reservation_id_without_route)
 
         except CoordExc.ExpiredSessionException:
-            reservation_status = self.post_reservation_data_manager.find(reservation_id)
+            reservation_status = self.post_reservation_data_manager.find(reservation_id_without_route)
             if reservation_status is not None:
                 return reservation_status
             raise

@@ -64,7 +64,11 @@ def _check_types(func, args, kwargs, types):
             continue
 
         if not isinstance(arg, arg_type):
-            raise TypeError("Expected argument type for '%s' on method '%s': %s. Got: %s" % (var_names[pos], func.__name__, arg_type, type(arg)))
+            if len(var_names) > pos:
+                var_name = var_names[pos]
+            else:
+                var_name = "Unknown variable name, one of %s" % (var_names,)
+            raise TypeError("Expected argument type for '%s' on method '%s': %s. Got: %s" % (var_name, func.__name__, arg_type, type(arg)))
         
 
 def dummytypecheck(func):
