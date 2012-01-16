@@ -19,6 +19,7 @@ from voodoo.log import logged
 from voodoo.override import Override
 from voodoo.sessions.checker import check_session
 from weblab.data import server_type as ServerType
+from weblab.data.command import Command
 import weblab.translator.exc as TranslatorExceptions
 import weblab.translator.translator as Translator
 import weblab.experiment.util as ExperimentUtil
@@ -49,7 +50,7 @@ class AddsATrippleAAtTheBeginingTranslator(Translator.Translator):
     @check_session(*check_session_params)
     def do_before_send_command(self, session, command):
         session['log'] += "before_send_command "
-        return "AAA%s" % command
+        return Command("AAA%s" % command.commandstring)
     
     @Override(Translator.Translator)
     @logged(log.level.Info)
@@ -57,7 +58,7 @@ class AddsATrippleAAtTheBeginingTranslator(Translator.Translator):
     @check_session(*check_session_params)
     def do_after_send_command(self, session, response):
         session['log'] += "after_send_command "
-        return "AAA%s" % response
+        return Command("AAA%s" % response.commandstring)
     
     @Override(Translator.Translator)
     @logged(log.level.Info)
@@ -65,8 +66,8 @@ class AddsATrippleAAtTheBeginingTranslator(Translator.Translator):
     @check_session(*check_session_params)
     def do_before_send_file(self, session, file):
         session['log'] += "before_send_file "
-        file_content = ExperimentUtil.deserialize(file)
-        return ExperimentUtil.serialize("AAA%s" % file_content)
+        file_content = ExperimentUtil.deserialize(file.commandstring)
+        return Command(ExperimentUtil.serialize("AAA%s" % file_content))
     
     @Override(Translator.Translator)
     @logged(log.level.Info)
@@ -74,7 +75,7 @@ class AddsATrippleAAtTheBeginingTranslator(Translator.Translator):
     @check_session(*check_session_params)
     def do_after_send_file(self, session, response):
         session['log'] += "after_send_file "
-        return "AAA%s" % response
+        return Command("AAA%s" % response.commandstring)
     
     @Override(Translator.Translator)
     @logged(log.level.Info)
@@ -82,4 +83,4 @@ class AddsATrippleAAtTheBeginingTranslator(Translator.Translator):
     @check_session(*check_session_params)
     def do_on_finish(self, session):
         session['log'] += "do_on_finish "
-        return session['log']
+        return Command(session['log'])

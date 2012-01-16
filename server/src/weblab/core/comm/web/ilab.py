@@ -20,7 +20,6 @@ from voodoo.sessions.session_id import SessionId
 from weblab.data.experiments import ExperimentId
 import weblab.data.client_address as ClientAddress
 
-from weblab.core.exc import SessionNotFoundException
 import weblab.comm.web_server as WebFacadeServer
 from weblab.core.coordinator.clients.ilab_batch import RequestSerializer
 

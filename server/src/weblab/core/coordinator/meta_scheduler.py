@@ -13,8 +13,6 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-import voodoo.log as log
-
 from voodoo.log import logged
 from weblab.core.coordinator.exc import NoSchedulerFoundException
 from weblab.core.coordinator.scheduler import Scheduler
@@ -179,8 +177,7 @@ class IndependentSchedulerAggregator(Scheduler):
         if len(all_reservation_status) == 0:
             raise NoSchedulerFoundException("There must be at least one reservation status, zero provided!")
 
-        all_reservation_status.sort()
-        return all_reservation_status[0]
+        return sorted(all_reservation_status)[0]
 
     @logged()
     @Override(Scheduler)

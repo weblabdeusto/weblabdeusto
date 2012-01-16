@@ -102,9 +102,7 @@ class MetaSchedulerTestCase(unittest.TestCase):
         self._test_schedulers(self.post1,   (self.wc1, self.w_four, self.wi_four, self.res1, self.post1))
 
     def _test_schedulers(self, best, all_status):
-        list_all_status = list(all_status)
-        list_all_status.sort()
-        best_reservation_status = list_all_status[0]
+        best_reservation_status = sorted(all_status)[0]
 
         try:
             best[0]

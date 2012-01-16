@@ -511,6 +511,17 @@ class UserProcessingServer(object):
     def get_experiment_uses(self, user_processor, session, from_date=None, to_date=None, group_id=None, experiment_id=None, start_row=None, end_row=None, sort_by=None):
         return user_processor.get_experiment_uses(from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by)
 
+    @logged(log.level.Info)
+    @check_session(**check_session_params)
+    @load_user_processor
+    def get_experiment_use_by_id(self, user_processor, session, reservation_id):
+        return user_processor.get_experiment_use_by_id(reservation_id)
+
+    @logged(log.level.Info)
+    @check_session(**check_session_params)
+    @load_user_processor
+    def get_experiment_uses_by_id(self, user_processor, session, reservation_ids):
+        return user_processor.get_experiment_uses_by_id(reservation_ids)
 
     @logged(log.level.Info)
     @check_session(**check_session_params)

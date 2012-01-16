@@ -16,6 +16,8 @@
 import datetime
 import calendar
 
+from voodoo.dbutil import get_table_kwargs
+
 from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, UniqueConstraint, Table
 from sqlalchemy.orm import relation, backref
 from sqlalchemy.ext.declarative import declarative_base
@@ -38,8 +40,7 @@ from weblab.data.dto.experiments import ExperimentUse
 
 Base = declarative_base()
 
-TABLE_KWARGS = {'mysql_engine' : 'InnoDB'}
-
+TABLE_KWARGS = get_table_kwargs()
 
 def link_relation(entity, object_to_link, relation_attr, fk_field=None):
     """
@@ -522,7 +523,7 @@ class DbUserFile(Base):
             self.file_sent,
             self.file_hash,
             _splitted_utc_datetime_to_timestamp(self.timestamp_before, self.timestamp_before_micro),
-            Command(self.response),
+            Command(self.response) if self.response is not None else NullCommand(),
             _splitted_utc_datetime_to_timestamp(self.timestamp_after, self.timestamp_after_micro),
             self.file_info
             )

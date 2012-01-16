@@ -10,7 +10,6 @@ import datetime
 import subprocess
 
 import libraries
-import MySQLdb as dbi
 import weblab.db.model as Model
 import weblab.core.coordinator.model as CoordinatorModel
 
@@ -27,47 +26,85 @@ except ImportError:
     sys.exit(1)
 
 try:
-	from configuration import weblab_db_username, weblab_db_password, core_coordinator_db_username , core_coordinator_db_password, weblab_sessions_db_username, weblab_sessions_db_password
+	from configuration import weblab_db_username, weblab_db_password, core_coordinator_db_username, core_coordinator_db_password, weblab_sessions_db_username, weblab_sessions_db_password, db_engine
 except ImportError, e:
 	print >> sys.stderr, "Error: configuration.py doesn't exist or doesn't have all the required parameters: %s " % e
 	sys.exit(2)
 
-def _connect(admin_username, admin_password):
+if db_engine == 'mysql':
     try:
-        return dbi.connect(user = admin_username, passwd = admin_password)
-    except dbi.OperationalError, oe:
-        traceback.print_exc()
-        print >> sys.stderr, ""
-        print >> sys.stderr, "    Tip: did you run create_weblab_administrator.py first?"
-        print >> sys.stderr, ""
-        sys.exit(-1)
+        import MySQLdb
+        dbi = MySQLdb
+    except ImportError:
+        import pymysql_sa
+        pymysql_sa.make_default_mysql_dialect()
+        import pymysql
+        dbi = pymysql
+
+    weblab_db_str = 'mysql://%s:%s@localhost/WebLab' % (weblab_db_username, weblab_db_password)
+    weblab_test_db_str = 'mysql://%s:%s@localhost/WebLabTests%s' % (weblab_db_username, weblab_db_password, '%s')
+    weblab_coord_db_str = 'mysql://%s:%s@localhost/WebLabCoordination%s' % (core_coordinator_db_username, core_coordinator_db_password, '%s')
+    weblab_sessions_db_str = 'mysql://%s:%s@localhost/WebLabSessions' % (weblab_sessions_db_username, weblab_sessions_db_password)
+
+    def _connect(admin_username, admin_password):
+        try:
+            return dbi.connect(user = admin_username, passwd = admin_password)
+        except dbi.OperationalError, oe:
+            traceback.print_exc()
+            print >> sys.stderr, ""
+            print >> sys.stderr, "    Tip: did you run create_weblab_administrator.py first?"
+            print >> sys.stderr, ""
+            sys.exit(-1)
 
 
-def create_database(admin_username, admin_password, database_name, new_user, new_password, host = "localhost"):
-    args = {
-            'DATABASE_NAME' : database_name,
-            'USER'          : new_user,
-            'PASSWORD'      : new_password,
-            'HOST'          : host
-        }
+    def create_database(admin_username, admin_password, database_name, new_user, new_password, host = "localhost"):
+        args = {
+                'DATABASE_NAME' : database_name,
+                'USER'          : new_user,
+                'PASSWORD'      : new_password,
+                'HOST'          : host
+            }
 
 
-    sentence1 = "DROP DATABASE IF EXISTS %(DATABASE_NAME)s;" % args
-    sentence2 = "CREATE DATABASE %(DATABASE_NAME)s;" % args
-    sentence3 = "GRANT ALL ON %(DATABASE_NAME)s.* TO %(USER)s@%(HOST)s IDENTIFIED BY '%(PASSWORD)s';" % args
-    
-    try:
-        dbi.connect(db=database_name, user = admin_username, passwd = admin_password).close()
-    except dbi.OperationalError, e:
-        if e[1].startswith("Unknown database"):
-            sentence1 = "SELECT 1"
+        sentence1 = "DROP DATABASE IF EXISTS %(DATABASE_NAME)s;" % args
+        sentence2 = "CREATE DATABASE %(DATABASE_NAME)s;" % args
+        sentence3 = "GRANT ALL ON %(DATABASE_NAME)s.* TO %(USER)s@%(HOST)s IDENTIFIED BY '%(PASSWORD)s';" % args
+        
+        try:
+            dbi.connect(db=database_name, user = admin_username, passwd = admin_password).close()
+        except dbi.OperationalError, e:
+            if e[1].startswith("Unknown database"):
+                sentence1 = "SELECT 1"
 
-    for sentence in (sentence1, sentence2, sentence3):
-        connection = _connect(admin_username, admin_password)
-        cursor = connection.cursor()
-        cursor.execute(sentence)
-        connection.commit()
-        connection.close()
+        for sentence in (sentence1, sentence2, sentence3):
+            connection = _connect(admin_username, admin_password)
+            cursor = connection.cursor()
+            cursor.execute(sentence)
+            connection.commit()
+            connection.close()
+
+elif db_engine == 'sqlite':
+    import sqlite3
+    dbi = sqlite3
+
+    db_dir = os.sep.join(('..','db'))
+
+    if not os.path.exists(db_dir):
+        os.mkdir(db_dir)
+
+    weblab_db_str = 'sqlite:///../db/WebLab.db' 
+    weblab_test_db_str = 'sqlite:///../db/WebLabTests%s.db' 
+    weblab_coord_db_str = 'sqlite:///../db/WebLabCoordination%s.db' 
+    weblab_sessions_db_str = 'sqlite:///../db/WebLabSessions.db'
+
+    def create_database(admin_username, admin_password, database_name, new_user, new_password, host = "localhost"):
+        fname = os.sep.join((db_dir, '%s.db' % database_name))
+        if os.path.exists(fname):
+            os.remove(fname)
+        sqlite3.connect(database = fname).close()
+
+else:
+    raise Exception("db engine %s not supported" % db_engine)
 
 t = time.time()
 
@@ -148,7 +185,7 @@ print "Populating 'WebLab' database...   \t\t",
 
 t = time.time()
 
-engine = create_engine('mysql://%s:%s@localhost/WebLab' % (weblab_db_username, weblab_db_password), echo = False)
+engine = create_engine(weblab_db_str, echo = False)
 metadata = Model.Base.metadata
 metadata.drop_all(engine)
 metadata.create_all(engine)
@@ -1011,7 +1048,7 @@ for tests in ('','2','3'):
     print "Populating 'WebLabTests%s' database...   \t\t" % tests, 
     t = time.time()
 
-    engine = create_engine('mysql://%s:%s@localhost/WebLabTests%s' % (weblab_db_username, weblab_db_password, tests), echo = False)
+    engine = create_engine(weblab_test_db_str % tests, echo = False)
     metadata = Model.Base.metadata
     metadata.drop_all(engine)
     metadata.create_all(engine)   
@@ -1032,7 +1069,7 @@ for coord in ('','2','3'):
     print "Populating 'WebLabCoordination%s' database...\t" % coord,
     t = time.time()
 
-    engine = create_engine('mysql://weblab:weblab@localhost/WebLabCoordination%s' % coord, echo = False)
+    engine = create_engine(weblab_coord_db_str % coord, echo = False)
 
     CoordinatorModel.load()
 
@@ -1052,7 +1089,7 @@ for coord in ('','2','3'):
 print "Populating 'WebLabSessions' database...\t\t",
 t = time.time()
 
-engine = create_engine('mysql://wl_session_user:wl_session_user_password@localhost/WebLabSessions', echo = False)
+engine = create_engine(weblab_sessions_db_str, echo = False)
 
 metadata = DbLockData.SessionLockBase.metadata
 metadata.drop_all(engine)

@@ -108,9 +108,9 @@ def generate_base(methods, ClientSocket):
         for stub in stubs:
             func = stub(method_name)
             # Setting docstring
-            func.__doc__ = func.__doc__.replace('METHOD_NAME', method_name)
+            func.__doc__ = (func.__doc__ if func.__doc__ is not None else '').replace('METHOD_NAME', method_name)
             if isinstance(all_methods, dict):
-                func.__doc__ = func.__doc__.replace('DOCUMENTATION', all_methods[method_name])
+                func.__doc__ = (func.__doc__ if func.__doc__ is not None else '').replace('DOCUMENTATION', all_methods[method_name])
             # Taking "prefix_" from "_prefix_stub" 
             stub_prefix = stub.func_name[len('_generate_'):]
             stub_prefix = stub_prefix[:stub_prefix.rfind('stub')]

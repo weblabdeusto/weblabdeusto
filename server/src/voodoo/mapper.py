@@ -123,6 +123,9 @@ class _DtoMissing(object):
     def __eq__(self, other):
         return cmp(self, other) == 0
 
+    def __ne__(self, other):
+        return cmp(self, other) != 0
+
 class _Node(object):
     
     BASIC     = 'basic'

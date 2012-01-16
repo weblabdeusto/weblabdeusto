@@ -112,10 +112,10 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         reservation_id2b = self._test_reservation(session_id, self.dummy1, 'Provider 1', True, False)
 
         self.consumer_core_client.finished_experiment(reservation_id1)
-        reservation_id1b = self._test_reservation(session_id, self.dummy1, 'Consumer', True, False)
+        self._test_reservation(session_id, self.dummy1, 'Consumer', True, False)
 
         self.consumer_core_client.finished_experiment(reservation_id3)
-        reservation_id3b = self._test_reservation(session_id, self.dummy1, 'Provider 2', True, False)
+        self._test_reservation(session_id, self.dummy1, 'Provider 2', True, False)
 
         # 
         # What if another 2 come in? What is the position of their queues?

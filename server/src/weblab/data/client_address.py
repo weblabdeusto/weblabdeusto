@@ -12,8 +12,12 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 
+from voodoo.representable import Representable
+
 class ClientAddress(object):
-    def __init__(self, address):
-        self.client_address = address
-    def __repr__(self):
-        return "<ClientAddress address='%s' />" % self.client_address
+
+    __metadata__ = Representable
+
+    def __init__(self, client_address):
+        self.client_address = client_address
+

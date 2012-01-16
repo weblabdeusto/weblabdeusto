@@ -12,16 +12,19 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 
+from voodoo.representable import Representable
+from voodoo.typechecker import typecheck
+
 class Command(object):
+
+    __metaclass__ = Representable
+
+    @typecheck((basestring, typecheck.NONE))
     def __init__(self, commandstring):
-        super(Command, self).__init__()
         self.commandstring = commandstring
 
     def get_command_string(self):
         return self.commandstring
-
-    def __repr__(self):
-        return u'<Command value="%s" />' % self.commandstring
 
     def __cmp__(self, other):
         if isinstance(other, Command):
@@ -32,8 +35,7 @@ class Command(object):
         return {'commandstring': self.commandstring}
 
 class NullCommand(Command):
+
     def __init__(self):
         super(NullCommand, self).__init__(None)
-    def __repr__(self):
-        return u'<NullCommand/>'
 

@@ -23,6 +23,7 @@ import time
 import unittest
 import voodoo.configuration as ConfigurationManager
 import weblab.experiment.util as ExperimentUtil
+from weblab.data.command import Command
 from weblab.translator.translators import StoresEverythingTranslator
 
 
@@ -62,7 +63,7 @@ class ProxySessionHandlerTestCase(mocker.MockerTestCase):
         fake_time.TIME_TO_RETURN = 1289548551.2617509 # 2010_11_12___07_55_51
 
         proxy = self._create_proxy_session_handler(time_mock=fake_time)
-        path, hash = proxy._store_file(FILE_CONTENT, "student1", "my_session_id")
+        path, hash = proxy._store_file(Command(FILE_CONTENT), "student1", "my_session_id")
         self.assertEquals(
             '2010_11_12___07_55_51_261_student1_my_session_id',
             path
