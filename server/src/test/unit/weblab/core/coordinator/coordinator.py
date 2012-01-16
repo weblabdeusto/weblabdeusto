@@ -578,7 +578,7 @@ class CoordinatorTestCase(unittest.TestCase):
 
         "If a user has no reservation, an ExpiredSessionException is raised"
 
-        self.assertRaises( CoordExc.ExpiredSessionException, self.coordinator.get_reservation_status, 1 )
+        self.assertRaises( CoordExc.ExpiredSessionException, self.coordinator.get_reservation_status, "1" )
 
     def test_remove_experiment_id(self):
 
