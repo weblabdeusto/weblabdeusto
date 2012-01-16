@@ -173,6 +173,9 @@ class CoordAddress(object):
     def __eq__(self, other):
         return self.__cmp__(other) == 0
 
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __str__(self):
         return '%(name)s <%(address)s>' % {
             'name'      : self.__class__.__name__,
@@ -180,9 +183,8 @@ class CoordAddress(object):
         }
 
     def __repr__(self):
-        return '<voodoo.gen.coordinator.CoordAddress: <%(address)s>' % {
-            'address'   : self.address
-        }
+        return 'CoordAddress(%r, %r, %r)' % (
+            self._machine_id, self._instance_id, self._server_id )
 
     def __hash__(self):
         return hash(self.address) + 1

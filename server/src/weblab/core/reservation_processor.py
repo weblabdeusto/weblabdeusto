@@ -518,7 +518,8 @@ class ReservationProcessor(object):
         # TODO: this is a very dirty way to implement this. Anyway until the good approach is taken, this will store the students programs
         # TODO: there should be two global variables: first, if store_student_files is not activated, do nothing.
         #       but, if store_student_files is activated, it should check that for a given experiment, they should be stored or not.
-        #       For instance, I may want to store GPIB experiments but not FPGA experiments
+        #       For instance, I may want to store GPIB experiments but not FPGA experiments. Indeed, this should be stored in the db
+        #       in the permission of the student/group with the particular experiment, with a default value to True.
         should_i_store = self._cfg_manager.get_value('core_store_students_programs',False)
         timestamp_before   = self._utc_timestamp()
         if should_i_store:

@@ -291,6 +291,7 @@ class MachineLauncher(AbstractLauncher):
                 debugger_port = self.debugger_ports.get(instance_name, "None")
             args = (
                         "python",
+                        "-OO",
                         __file__, 
                         self.config_dir, 
                         self.machine_name, instance_name,

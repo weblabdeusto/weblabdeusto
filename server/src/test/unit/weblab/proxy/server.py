@@ -20,6 +20,7 @@ from voodoo.gen.exceptions.locator import LocatorExceptions
 from voodoo.gen.locator import EasyLocator
 from voodoo.sessions import session_id as SessionId
 from weblab.data import server_type as ServerType
+from weblab.data.command import Command
 import weblab.lab.exc as LaboratoryExceptions
 import weblab.proxy.exc as ProxyExceptions
 from weblab.proxy import server as ProxyServer
@@ -110,15 +111,15 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
     #===========================================================================
     
     def _test_command_sent(self, command_sent, expected_command, expected_response):
-        self.assertEquals(expected_command, command_sent.command)
-        self.assertEquals(expected_response, command_sent.response)
+        self.assertEquals(expected_command, command_sent.command.commandstring)
+        self.assertEquals(expected_response, command_sent.response.commandstring)
         self.assertTrue(isinstance(command_sent.timestamp_before, float))
         self.assertTrue(isinstance(command_sent.timestamp_after, float))
         self.assertTrue(command_sent.timestamp_after >= command_sent.timestamp_before)
         
     def _test_file_sent(self, file_sent, expected_file_info, expected_response):
         self.assertEquals(expected_file_info, file_sent.file_info)
-        self.assertEquals(expected_response, file_sent.response)
+        self.assertEquals(expected_response, file_sent.response.commandstring)
         self.assertTrue(isinstance(file_sent.timestamp_before, float))
         self.assertTrue(isinstance(file_sent.timestamp_after, float))
         self.assertTrue(file_sent.timestamp_after >= file_sent.timestamp_before)
@@ -131,21 +132,21 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
         fake_time.TIME_TO_RETURN = 1289548551.2617509 # 2010_11_12___07_55_51
         
         laboratory = self.mocker.mock()
-        laboratory.send_command(self.LAB_SESS_ID, 'Do this!')
-        self.mocker.result('Done!')
-        laboratory.send_file(self.LAB_SESS_ID, FILE_CONTENT, FILE_INFO)
-        self.mocker.result('File received!')
+        laboratory.send_command(self.LAB_SESS_ID, Command('Do this!'))
+        self.mocker.result(Command('Done!'))
+        laboratory.send_file(self.LAB_SESS_ID, Command(FILE_CONTENT), FILE_INFO)
+        self.mocker.result(Command('File received!'))
         
         self.mocker.replay()
         proxy = self._create_proxy(laboratories=(laboratory,), time_mock=fake_time)
 
         proxy.do_enable_access(self.RESERVATION_ID, "ud-fpga@FPGA experiments", "student1", self.LAB_COORD_ADDR, self.LAB_SESS_ID)
         
-        command_response = proxy.send_command(self.RESERVATION_SESS_ID, 'Do this!')
-        self.assertEquals('Done!', command_response)
+        command_response = proxy.send_command(self.RESERVATION_SESS_ID, Command('Do this!'))
+        self.assertEquals(Command('Done!'), command_response)
         
-        file_response = proxy.send_file(self.RESERVATION_SESS_ID, FILE_CONTENT, FILE_INFO)
-        self.assertEquals('File received!', file_response)
+        file_response = proxy.send_file(self.RESERVATION_SESS_ID, Command(FILE_CONTENT), FILE_INFO)
+        self.assertEquals(Command('File received!'), file_response)
         
         proxy.do_disable_access(self.RESERVATION_ID)
         
@@ -165,7 +166,7 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
         )
         self._test_command_sent(
             commands[1],
-            'translation', 'on_start before_send_command after_send_command before_send_file after_send_file do_on_finish '
+            'on_finish', 'on_start before_send_command after_send_command before_send_file after_send_file do_on_finish '
         )
         
         self.assertEquals(1, len(files))

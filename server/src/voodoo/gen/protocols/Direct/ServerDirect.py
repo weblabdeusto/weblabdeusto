@@ -75,9 +75,9 @@ def generate(cfg_manager, methods):
     for method_name in all_methods:
         func = _generate_skeleton(method_name)
         func.func_name = method_name
-        func.__doc__ = func.__doc__.replace('METHOD_NAME', method_name)
+        func.__doc__ = (func.__doc__ if func.__doc__ is not None else '').replace('METHOD_NAME', method_name)
         if isinstance(all_methods, dict):
-            func.__doc__ = func.__doc__.replace('DOCUMENTATION', all_methods[method_name])
+            func.__doc__ = (func.__doc__ if func.__doc__ is not None else '').replace('DOCUMENTATION', all_methods[method_name])
         setattr(ServerDirect, method_name, func)
 
     return ServerDirect

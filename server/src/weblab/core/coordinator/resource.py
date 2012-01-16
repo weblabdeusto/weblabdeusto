@@ -13,16 +13,12 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+from voodoo.representable import Representable
+
 class Resource(object):
+    __metaclass__ = Representable
+
     def __init__(self, resource_type, resource_instance):
         self.resource_type     = resource_type
         self.resource_instance = resource_instance
-
-    def __eq__(self, other):
-        if not isinstance(other, Resource):
-            return False
-        return self.resource_type == other.resource_type and self.resource_instance == other.resource_instance
-
-    def __repr__(self):
-        return "Resource(resource_type = %r, resource_instance = %r)" % (self.resource_type, self.resource_instance)
 

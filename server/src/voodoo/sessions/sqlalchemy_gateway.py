@@ -19,6 +19,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import and_
 
+from voodoo.dbutil import generate_getconn, get_sqlite_dbname 
 import voodoo.sessions.sqlalchemy_data as DbData
 
 import voodoo.sessions.generator  as SessionGenerator
@@ -42,14 +43,8 @@ DEFAULT_SESSION_SQLALCHEMY_DB_NAME = 'WebLabSessions'
 SESSION_SQLALCHEMY_USERNAME  = 'session_sqlalchemy_username'
 SESSION_SQLALCHEMY_PASSWORD  = 'session_sqlalchemy_password'
 
-def getconn():
-    import MySQLdb as dbi
-    return dbi.connect(user = SessionSqlalchemyGateway.username, passwd = SessionSqlalchemyGateway.password, 
-                        host = SessionSqlalchemyGateway.host, db = SessionSqlalchemyGateway.dbname, client_flag = 2)
-
 class SessionSqlalchemyGateway(object):
 
-    pool   = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
     engine = None
 
     def __init__(self, cfg_manager, session_pool_id, timeout):
@@ -77,9 +72,17 @@ class SessionSqlalchemyGateway(object):
 
         self._lock       = DbLock.DbLock(cfg_manager, session_pool_id)
 
-        sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine_name, username, password, host, dbname)
         if SessionSqlalchemyGateway.engine is None:
-            SessionSqlalchemyGateway.engine = sqlalchemy.create_engine(sqlalchemy_engine_str, convert_unicode=True, echo=False, pool = self.pool)
+            getconn = generate_getconn(engine_name, username, password, host, dbname)
+
+            if engine_name == 'sqlite':
+                sqlalchemy_engine_str = 'sqlite:///%s' % get_sqlite_dbname(dbname)
+                pool = sqlalchemy.pool.NullPool(getconn)
+            else:
+                sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine_name, username, password, host, dbname)
+                pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
+
+            SessionSqlalchemyGateway.engine = sqlalchemy.create_engine(sqlalchemy_engine_str, convert_unicode=True, echo=False, pool = pool)
 
         self._session_maker = sessionmaker(bind=self.engine, autoflush = True, autocommit = False)
 

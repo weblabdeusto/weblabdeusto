@@ -37,7 +37,10 @@ import weblab.core.coordinator.config_parser as CoordinationConfigurationParser
 
 import weblab.core.exc as coreExc
 
+from weblab.data.command import Command
 from weblab.data.experiments import ExperimentId
+from weblab.data.experiments import ExperimentUsage, CommandSent, FileSent
+
 import weblab.data.dto.experiments as Category
 import weblab.data.dto.experiments as Experiment
 import weblab.data.dto.experiments as ExperimentAllowed
@@ -280,7 +283,143 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.ups.logout(sess_id)
 
         self.assertEquals(0, len(experiments) )
+
+    def test_get_experiment_use_by_id_found(self):
+        reservations, usages = self._store_two_reservations()
+
+        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
+
+        sess_id, _ = self.ups.do_reserve_session(db_sess_id) 
+        experiment_use = self.ups.get_experiment_use_by_id(sess_id, reservations[0])
+
+        # reservation_id1 is for student1, so it returns a real object (with a real experiment_use_id)
+        experiment_use.experiment_use_id = None
+        self.assertEquals(usages[0], experiment_use)
+
+
+    def test_get_experiment_uses_by_id_found(self):
+        reservations, usages = self._store_two_reservations()
+
+        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
+
+        sess_id, _ = self.ups.do_reserve_session(db_sess_id) 
+        experiment_uses = self.ups.get_experiment_uses_by_id(sess_id, reservations)
+
+        self.assertEquals(2, len(experiment_uses))
+
+        # reservation_id1 is for student1, so it returns a real object (with a real experiment_use_id)
+        experiment_uses[0].experiment_use_id = None
+        self.assertEquals(usages[0], experiment_uses[0])
+
+        # reservation_id2 is for student2, and the session is for student1, so it returns None
+        self.assertEquals(None, experiment_uses[1])
+
+    def test_get_experiment_uses_by_id_notfound(self):
+        reservations, usages = self._store_two_reservations()
+
+        reservation1 = self._reserve_experiment()
+        reservation2 = self._reserve_experiment()
+
+        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
+
+        sess_id, _ = self.ups.do_reserve_session(db_sess_id) 
+        experiment_uses = self.ups.get_experiment_uses_by_id(sess_id, (reservations[0], reservation1, reservation2))
+
+        self.assertEquals(3, len(experiment_uses))
+
+        # reservation_id1 is for student1, so it returns a real object (with a real experiment_use_id)
+        experiment_uses[0].experiment_use_id = None
+        self.assertEquals(usages[0], experiment_uses[0])
+
+        # reservation_id2 is for student2, and the session is for student1, so it returns None
+        experiment_uses[1].experiment_use_id = None
+        experiment_uses[2].experiment_use_id = None
+        # TODO: do something with the reservations
+
+    def _reserve_experiment(self):
+        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
+        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+
+        exp_id = ExperimentId('ud-dummy','Dummy experiments')
+       
+        lab_sess_id = SessionId.SessionId("lab_session_id")
+        self.lab_mock.reserve_experiment(exp_id, "{}")
+        self.mocker.result(lab_sess_id)
+        self.mocker.count(0, 1)
+        self.lab_mock.resolve_experiment_address(lab_sess_id)
+        self.mocker.result(CoordAddress.CoordAddress.translate_address('foo:bar@machine'))
+        self.mocker.count(0, 1)
+        self.mocker.replay()
+
+        reservation = self.ups.reserve_experiment(
+            sess_id, exp_id, "{}", "{}",
+            ClientAddress.ClientAddress("127.0.0.1"))
+        return reservation.reservation_id
+
+
+    def _store_two_reservations(self):
+        # 
+        # Two users: student2, that started before "any" but finished after "any", and "any" then. Both use
+        # the same experiment. 
+        # 
+        reservation_id1 = SessionId.SessionId(u'5')
+
+        initial_usage1 = ExperimentUsage()
+        initial_usage1.start_date    = time.time()
+        initial_usage1.end_date      = time.time()
+        initial_usage1.from_ip       = u"130.206.138.16"
+        initial_usage1.experiment_id = ExperimentId(u"ud-dummy",u"Dummy experiments")
+        initial_usage1.coord_address = CoordAddress.CoordAddress(u"machine1",u"instance1",u"server1") #.translate_address("server1:instance1@machine1")
+        initial_usage1.reservation_id = reservation_id1.id
+
+        file1 = FileSent( u'path/to/file1', u'{sha}12345', time.time())
         
+        file2 = FileSent( u'path/to/file2', u'{sha}123456',
+                    time.time(), Command(u'response'),
+                    time.time(), file_info = u'program')
+
+        command1 = CommandSent( Command(u"your command1"), time.time())
+        command2 = CommandSent( Command(u"your command2"), time.time(),
+                    Command(u"your response2"), time.time())
+
+        initial_usage1.append_command(command1)
+        initial_usage1.append_command(command2)
+        initial_usage1.append_file(file1)
+        initial_usage1.append_file(file2)
+
+        reservation_id2 = SessionId.SessionId(u'6')
+
+        initial_usage2 = ExperimentUsage()
+        initial_usage2.start_date    = time.time()
+        initial_usage2.end_date      = time.time()
+        initial_usage2.from_ip       = u"130.206.138.16"
+        initial_usage2.experiment_id = ExperimentId(u"ud-dummy",u"Dummy experiments")
+        initial_usage2.coord_address = CoordAddress.CoordAddress(u"machine1",u"instance1",u"server1") #.translate_address("server1:instance1@machine1")
+        initial_usage2.reservation_id = reservation_id2.id
+
+        file1 = FileSent( u'path/to/file1', u'{sha}12345', time.time())
+        
+        file2 = FileSent( u'path/to/file2', u'{sha}123456',
+                    time.time(), Command(u'response'),
+                    time.time(), file_info = u'program')
+
+        command1 = CommandSent( Command(u"your command1"), time.time())
+        
+        command2 = CommandSent( Command(u"your command2"), time.time(),
+                    Command(u"your response2"), time.time())
+
+        initial_usage2.append_command(command1)
+        initial_usage2.append_command(command2)
+        initial_usage2.append_file(file1)
+        initial_usage2.append_file(file2)
+
+        self.ups._db_manager._gateway.store_experiment_usage('student1', {}, initial_usage1)
+
+        self.ups._db_manager._gateway.store_experiment_usage('student2', {}, initial_usage2)
+
+        return (reservation_id1, reservation_id2), (initial_usage1, initial_usage2)
+
+      
     def _test_get_experiment_uses(self, from_date, to_date, group_id, use_experiment_id, start_row, end_row, sort_by):
         # 
         # Two users: student2, that started before "any" but finished after "any", and "any" then. Both use

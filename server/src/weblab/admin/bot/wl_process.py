@@ -88,7 +88,7 @@ class WebLabProcess(object):
         return self.popen.poll() is not None
     
     def start(self):
-        self.popen = subprocess.Popen(["python", self.launch_file],
+        self.popen = subprocess.Popen(["python", "-OO", self.launch_file],
                                       cwd=self.launch_path,
                                       stdin=subprocess.PIPE,
                                       stdout=subprocess.PIPE,

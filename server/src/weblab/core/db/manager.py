@@ -67,7 +67,10 @@ class UserProcessingDatabaseManager(object):
     
     def get_experiments(self, session_id):
         return self._gateway.get_experiments(session_id.username)
-    
+
+    def get_experiment_uses_by_id(self, session_id, reservation_ids):
+        return self._gateway.get_experiment_uses_by_id( session_id.username, reservation_ids )
+   
     def get_experiment_uses(self, session_id, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by ):
         return self._gateway.get_experiment_uses( session_id.username, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by )
     

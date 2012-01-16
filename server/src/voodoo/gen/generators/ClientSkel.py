@@ -177,7 +177,7 @@ def generate(methods):
     for method in methods:
         for method_to_generate in methods_to_generate:
             new_method = method_to_generate(method)
-            if new_method.__doc__ != None:
+            if new_method.__doc__ is not None:
                 new_method.__doc__ = new_method.__doc__.replace('METHOD_NAME',method)
             method_name = method_to_generate.func_name
             new_method_name = method_name[:method_name.rfind('method')] + method
