@@ -25,6 +25,8 @@ import weblab.comm.context as RemoteFacadeContext
 import weblab.core.exc as core_exc
 import weblab.core.coordinator.exc as coord_exc
 
+from weblab.data.experiments import AliveReservationResult, CancelledReservationResult, FinishedReservationResult
+
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessor")
 
 #TODO: configuration
@@ -234,26 +236,30 @@ class UserProcessor(object):
         db_session_id   = self._session['db_session_id']
         experiment_uses = self._db_manager.get_experiment_uses_by_id(db_session_id, [reservation_id])
         experiment_use  = experiment_uses[0]
-        if experiment_use is None:
-            return self._manage_not_existing_reservation_id(reservation_id)
-        return experiment_use
+        return self._manage_not_existing_reservation_id(experiment_use, reservation_id)
 
     def get_experiment_uses_by_id(self, reservation_ids):
         db_session_id         = self._session['db_session_id']
         experiment_uses = self._db_manager.get_experiment_uses_by_id(db_session_id, reservation_ids)
-        return map( 
-                    lambda (use, reservation_id) : 
-                        self._manage_not_existing_reservation_id(reservation_id) if use is None else use, 
-                    zip(experiment_uses, reservation_ids))
+        
+        results = []
+        for experiment_use, reservation_id in zip(experiment_uses, reservation_ids):
+            result = self._manage_not_existing_reservation_id(experiment_use, reservation_id)
+            results.append(result)
 
-    def _manage_not_existing_reservation_id(self, reservation_id):
+        return results
+                    
+
+    def _manage_not_existing_reservation_id(self, use, reservation_id):
         """Given a reservation_id not present in the usage db, check if it is still running or waiting, or it did never enter the system"""
+        if use is not None:
+            return FinishedReservationResult(use)
         try:
-            reservation_status = self._coordinator.get_reservation_status(reservation_id.id)
-            # By the moment
-            return reservation_status
+            # We don't actually care about the result. The question is: has it expired or is it running?
+            self._coordinator.get_reservation_status(reservation_id.id)
+            return AliveReservationResult()
         except coord_exc.ExpiredSessionException, e:
-            return None
+            return CancelledReservationResult()
 
 
     #

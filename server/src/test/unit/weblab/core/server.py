@@ -38,8 +38,7 @@ import weblab.core.coordinator.config_parser as CoordinationConfigurationParser
 import weblab.core.exc as coreExc
 
 from weblab.data.command import Command
-from weblab.data.experiments import ExperimentId
-from weblab.data.experiments import ExperimentUsage, CommandSent, FileSent
+from weblab.data.experiments import ExperimentId, ExperimentUsage, CommandSent, FileSent, AliveReservationResult, FinishedReservationResult, CancelledReservationResult
 
 import weblab.data.dto.experiments as Category
 import weblab.data.dto.experiments as Experiment
@@ -290,11 +289,13 @@ class UserProcessingServerTestCase(unittest.TestCase):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
 
         sess_id, _ = self.ups.do_reserve_session(db_sess_id) 
-        experiment_use = self.ups.get_experiment_use_by_id(sess_id, reservations[0])
+        finished_result = self.ups.get_experiment_use_by_id(sess_id, reservations[0])
+
+        self.assertTrue( finished_result.is_finished() )
 
         # reservation_id1 is for student1, so it returns a real object (with a real experiment_use_id)
-        experiment_use.experiment_use_id = None
-        self.assertEquals(usages[0], experiment_use)
+        finished_result.experiment_use.experiment_use_id = None
+        self.assertEquals(FinishedReservationResult(usages[0]), finished_result)
 
 
     def test_get_experiment_uses_by_id_found(self):
@@ -303,16 +304,17 @@ class UserProcessingServerTestCase(unittest.TestCase):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
 
         sess_id, _ = self.ups.do_reserve_session(db_sess_id) 
-        experiment_uses = self.ups.get_experiment_uses_by_id(sess_id, reservations)
+        experiment_results = self.ups.get_experiment_uses_by_id(sess_id, reservations)
 
-        self.assertEquals(2, len(experiment_uses))
+        self.assertEquals(2, len(experiment_results))
 
+        self.assertTrue( experiment_results[0].is_finished() )
         # reservation_id1 is for student1, so it returns a real object (with a real experiment_use_id)
-        experiment_uses[0].experiment_use_id = None
-        self.assertEquals(usages[0], experiment_uses[0])
+        experiment_results[0].experiment_use.experiment_use_id = None
+        self.assertEquals(FinishedReservationResult(usages[0]), experiment_results[0])
 
         # reservation_id2 is for student2, and the session is for student1, so it returns None
-        self.assertEquals(None, experiment_uses[1])
+        self.assertTrue(experiment_results[1].is_cancelled())
 
     def test_get_experiment_uses_by_id_notfound(self):
         reservations, usages = self._store_two_reservations()
@@ -323,18 +325,18 @@ class UserProcessingServerTestCase(unittest.TestCase):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
 
         sess_id, _ = self.ups.do_reserve_session(db_sess_id) 
-        experiment_uses = self.ups.get_experiment_uses_by_id(sess_id, (reservations[0], reservation1, reservation2))
+        experiment_results = self.ups.get_experiment_uses_by_id(sess_id, (reservations[0], reservation1, reservation2))
 
-        self.assertEquals(3, len(experiment_uses))
+        self.assertEquals(3, len(experiment_results))
 
         # reservation_id1 is for student1, so it returns a real object (with a real experiment_use_id)
-        experiment_uses[0].experiment_use_id = None
-        self.assertEquals(usages[0], experiment_uses[0])
+        self.assertTrue(experiment_results[0].is_finished())
+        experiment_results[0].experiment_use.experiment_use_id = None
+        self.assertEquals(FinishedReservationResult(usages[0]), experiment_results[0])
 
         # reservation_id2 is for student2, and the session is for student1, so it returns None
-        experiment_uses[1].experiment_use_id = None
-        experiment_uses[2].experiment_use_id = None
-        # TODO: do something with the reservations
+        self.assertTrue( experiment_results[1].is_alive() )
+        self.assertTrue( experiment_results[2].is_alive() )
 
     def _reserve_experiment(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")

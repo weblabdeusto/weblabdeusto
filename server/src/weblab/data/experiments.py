@@ -13,10 +13,13 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+from abc import abstractmethod
+
 import weblab.data.command as Command
 
+from voodoo.override import Override
 from voodoo.gen.coordinator.CoordAddress import CoordAddress
-from voodoo.representable import Representable
+from voodoo.representable import AbstractRepresentable, Representable
 from voodoo.typechecker import typecheck
 
 class ExperimentId(object):
@@ -156,4 +159,45 @@ class ExperimentUsage(object):
     def update_file(self, file_id, file_sent):
         # isinstance(file_sent, FileSent)
         self.sent_files[file_id] = file_sent
+
+class ReservationResult(object):
+
+    __metaclass__ = AbstractRepresentable
+
+    def is_alive(self):
+        return False
+
+    def is_finished(self):
+        return False
+
+    def is_cancelled(self):
+        return False
+
+class AliveReservationResult(ReservationResult):
+
+    def __init__(self):
+        pass
+
+    @Override(ReservationResult)
+    def is_alive(self):
+        return True
+
+class CancelledReservationResult(ReservationResult):
+
+    def __init__(self):
+        pass
+
+    @Override(ReservationResult)
+    def is_cancelled(self):
+        return True
+
+class FinishedReservationResult(ReservationResult):
+
+    @typecheck(ExperimentUsage)
+    def __init__(self, experiment_use):
+        self.experiment_use = experiment_use
+
+    @Override(ReservationResult)
+    def is_finished(self):
+        return True
 
