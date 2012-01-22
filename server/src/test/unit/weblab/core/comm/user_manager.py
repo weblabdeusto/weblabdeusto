@@ -49,6 +49,28 @@ import weblab.core.exc as coreExc
 import weblab.exc as WebLabExceptions
 import voodoo.gen.exceptions.exceptions as VoodooExceptions
 
+def generate_mock_method(method_name, ordered_arguments):
+
+    def method(self, *args, **kwargs):
+        # Reorder the arguments
+        final_arguments = list(args)
+        ordered_kwargs  = []
+        for kwarg in kwargs:
+            pos = ordered_arguments.index(kwarg)
+            ordered_kwargs[(pos, kwargs[kwarg])]
+        ordered_kwargs.sort(lambda ((x1, y1), (x2, y2)) : cmp(x1,x2))
+        final_arguments.extend(map(lambda (pos, kwarg) : kwarg, ordered_kwargs))
+
+        # Now store them and throw an exception if required
+        self.arguments[method_name] = final_arguments
+        if self.exceptions.has_key(method_name):
+            raise self.exceptions[method_name]
+        return self.return_values[method_name]
+
+    method.__name__ = method_name
+    return method
+
+
 class MockUPS(object):
     
     def __init__(self):
@@ -57,107 +79,23 @@ class MockUPS(object):
         self.return_values = {}
         self.exceptions    = {}
 
-    def logout(self, session_id):
-        self.arguments['logout'] = (session_id,)
-        if self.exceptions.has_key('logout'):
-            raise self.exceptions['logout']
-        return self.return_values['logout']
-    
-    def list_experiments(self, session_id):
-        self.arguments['list_experiments'] = (session_id, )
-        if self.exceptions.has_key('list_experiments'):
-            raise self.exceptions['list_experiments']
-        return self.return_values['list_experiments']
-
-    def reserve_experiment(self, session_id, experiment, client_initial_data, consumer_data, client_address):
-        self.arguments['reserve_experiment'] = (session_id, experiment, client_initial_data, consumer_data, client_address)
-        if self.exceptions.has_key('reserve_experiment'):
-            raise self.exceptions['reserve_experiment']
-        return self.return_values['reserve_experiment']
-
-    def finished_experiment(self, session_id):
-        self.arguments['finished_experiment'] = (session_id, )
-        if self.exceptions.has_key('finished_experiment'):
-            raise self.exceptions['finished_experiment']
-        return self.return_values['finished_experiment']
-
-    def get_reservation_status(self, session_id):
-        self.arguments['get_reservation_status'] = (session_id, )
-        if self.exceptions.has_key('get_reservation_status'):
-            raise self.exceptions['get_reservation_status']
-        return self.return_values['get_reservation_status']
-
-    def send_file(self, session_id, file_content, file_info):
-        self.arguments['send_file'] = (session_id, file_content, file_info)
-        if self.exceptions.has_key('send_file'):
-            raise self.exceptions['send_file']
-        return self.return_values['send_file']
-     
-    def send_async_file(self, session_id, file_content, file_info):
-        self.arguments['send_async_file'] = (session_id, file_content, file_info)
-        if self.exceptions.has_key('send_async_file'):
-            raise self.exceptions['send_async_file']
-        return self.return_values['send_async_file']
-
-    def send_command(self, session_id, command):
-        self.arguments['send_command'] = (session_id, command)
-        if self.exceptions.has_key('send_command'):
-            raise self.exceptions['send_command']
-        return self.return_values['send_command']
-    
-    def send_async_command(self, session_id, command):
-        self.arguments['send_command'] = (session_id, command)
-        if self.exceptions.has_key('send_command'):
-            raise self.exceptions['send_command']
-        return self.return_values['send_command']
-    
-    def poll(self, session_id):
-        self.arguments['poll'] = (session_id, )
-        if self.exceptions.has_key('poll'):
-            raise self.exceptions['poll']
-        return self.return_values['poll']
-
-    def get_user_information(self, session_id):
-        self.arguments['get_user_information'] = (session_id, )
-        if self.exceptions.has_key('get_user_information'):
-            raise self.exceptions['get_user_information']
-        return self.return_values['get_user_information']
-    
-    def get_roles(self, session_id):
-        self.arguments['get_roles'] = (session_id, )
-        if self.exceptions.has_key('get_roles'):
-            raise self.exceptions['get_roles']
-        return self.return_values['get_roles']
-    
-    def get_groups(self, session_id):
-        self.arguments['get_groups'] = (session_id, )
-        if self.exceptions.has_key('get_groups'):
-            raise self.exceptions['get_groups']
-        return self.return_values['get_groups']
-    
-    def get_users(self, session_id):
-        self.arguments['get_users'] = (session_id, )
-        if self.exceptions.has_key('get_users'):
-            raise self.exceptions['get_users']
-        return self.return_values['get_users']
-    
-    def get_experiments(self, session_id):
-        self.arguments['get_experiments'] = (session_id, )
-        if self.exceptions.has_key('get_experiments'):
-            raise self.exceptions['get_experiments']
-        return self.return_values['get_experiments']
-    
-    def get_experiment_uses(self, session_id, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by):
-        self.arguments['get_experiment_uses'] = (session_id, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by)
-        if self.exceptions.has_key('get_experiment_uses'):
-            raise self.exceptions['get_experiment_uses']
-        return self.return_values['get_experiment_uses']
-    
-    def get_user_permissions(self, session_id):
-        self.arguments['get_user_permissions'] = (session_id, )
-        if self.exceptions.has_key('get_user_permissions'):
-            raise self.exceptions['get_user_permissions']
-        return self.return_values['get_user_permissions']
+    logout                 = generate_mock_method('logout', ('session_id',))
+    list_experiments       = generate_mock_method('list_experiments', ('session_id',))
+    reserve_experiment     = generate_mock_method('reserve_experiment', ('session_id', 'experiment', 'client_initial_data', 'consumer_data', 'client_address'))
+    finished_experiment    = generate_mock_method('finished_experiment',('session_id',))
+    get_reservation_status = generate_mock_method('get_reservation_status',('session_id',))
+    send_file              = generate_mock_method('send_file',('session_id', 'file_content', 'file_info'))
+    send_async_file        = generate_mock_method('send_async_file',('session_id', 'file_content', 'file_info'))
+    send_command           = generate_mock_method('send_command',('session_id', 'command'))
+    send_async_command     = generate_mock_method('send_async_command',('session_id', 'command'))
+    poll                   = generate_mock_method('poll',('session_id',))
+    get_user_information   = generate_mock_method('get_user_information',('session_id',))
+    get_roles              = generate_mock_method('get_roles',('session_id',))
+    get_groups             = generate_mock_method('get_groups',('session_id',))
+    get_users              = generate_mock_method('get_users',('session_id',))
+    get_experiments        = generate_mock_method('get_experiments',('session_id',))
+    get_experiment_uses    = generate_mock_method('get_experiment_uses',('session_id', 'from_date', 'to_date', 'group_id', 'experiment_id', 'start_row', 'end_row', 'sort_by'))
+    get_user_permissions   = generate_mock_method('get_user_permissions',('session_id',))
 
 
 class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
@@ -178,34 +116,18 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
 
     def test_return_logout(self):
         expected_sess_id = SessionId.SessionId("whatever")
-    
         self.mock_ups.return_values['logout'] = expected_sess_id
 
-        self.assertEquals(
-                expected_sess_id.id,
-                self.rfm.logout(expected_sess_id).id
-            )
-        
-        self.assertEquals(
-                expected_sess_id.id,
-                self.mock_ups.arguments['logout'][0].id
-            )
+        self.assertEquals( expected_sess_id.id, self.rfm.logout(expected_sess_id).id )
+        self.assertEquals( expected_sess_id.id, self.mock_ups.arguments['logout'][0].id )
     
     def test_return_list_experiments(self):
         expected_sess_id = SessionId.SessionId("whatever")
         experiments_allowed = _generate_experiments_allowed()
-    
         self.mock_ups.return_values['list_experiments'] = experiments_allowed
 
-        self.assertEquals(
-                experiments_allowed,
-                self.rfm.list_experiments(expected_sess_id)
-            )
-        
-        self.assertEquals(
-                expected_sess_id.id,
-                self.mock_ups.arguments['list_experiments'][0].id
-            )
+        self.assertEquals( experiments_allowed, self.rfm.list_experiments(expected_sess_id) ) 
+        self.assertEquals( expected_sess_id.id, self.mock_ups.arguments['list_experiments'][0].id )
     
     def test_return_reserve_experiment(self):
         expected_sess_id = SessionId.SessionId("whatever")
@@ -214,31 +136,13 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
     
         self.mock_ups.return_values['reserve_experiment'] = expected_reservation
 
-        self.assertEquals(
-                expected_reservation,
-                self.rfm.reserve_experiment(
-                    expected_sess_id, 
-                    experimentA.to_experiment_id(),
-                    "{}", "{}"
-                )
-            )
+        self.assertEquals( expected_reservation,
+                self.rfm.reserve_experiment( expected_sess_id, experimentA.to_experiment_id(), "{}", "{}"))
         
-        self.assertEquals(
-                expected_sess_id.id,
-                self.mock_ups.arguments['reserve_experiment'][0].id
-            )
-        self.assertEquals(
-                experimentA.name,
-                self.mock_ups.arguments['reserve_experiment'][1].exp_name
-            )
-        self.assertEquals(
-                experimentA.category.name,
-                self.mock_ups.arguments['reserve_experiment'][1].cat_name
-            )
-        self.assertEquals(
-                "{}",
-                self.mock_ups.arguments['reserve_experiment'][2]
-            )
+        self.assertEquals( expected_sess_id.id, self.mock_ups.arguments['reserve_experiment'][0].id )
+        self.assertEquals( experimentA.name, self.mock_ups.arguments['reserve_experiment'][1].exp_name )
+        self.assertEquals( experimentA.category.name, self.mock_ups.arguments['reserve_experiment'][1].cat_name )
+        self.assertEquals( "{}", self.mock_ups.arguments['reserve_experiment'][2] )
 
     def test_return_finished_experiment(self):
         expected_sess_id = SessionId.SessionId("whatever")
@@ -247,10 +151,7 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
 
         self.rfm.finished_experiment(expected_sess_id)
         
-        self.assertEquals(
-                expected_sess_id.id,
-                self.mock_ups.arguments['finished_experiment'][0].id
-            )
+        self.assertEquals( expected_sess_id.id, self.mock_ups.arguments['finished_experiment'][0].id )
     
     def test_return_get_reservation_status(self):
         expected_sess_id = SessionId.SessionId("whatever")
@@ -262,20 +163,9 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
 
         reservation = self.rfm.get_reservation_status(expected_sess_id)
         
-        self.assertEquals(
-                expected_sess_id.id,
-                self.mock_ups.arguments['get_reservation_status'][0].id
-            )
-        
-        self.assertEquals(
-                expected_reservation.status,
-                reservation.status
-            )
-
-        self.assertEquals(
-                expected_reservation.time,
-                reservation.time
-            )
+        self.assertEquals( expected_sess_id.id, self.mock_ups.arguments['get_reservation_status'][0].id )
+        self.assertEquals( expected_reservation.status, reservation.status )
+        self.assertEquals( expected_reservation.time, reservation.time )
 
     def test_return_send_file(self):
         expected_sess_id      = SessionId.SessionId("whatever")
@@ -283,21 +173,10 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
 
         self.mock_ups.return_values['send_file']        = None
 
-        self.rfm.send_file(
-                expected_sess_id,
-                expected_file_content,
-                'program'
-            )
+        self.rfm.send_file( expected_sess_id, expected_file_content, 'program' )
         
-        self.assertEquals(
-                expected_sess_id.id,
-                self.mock_ups.arguments['send_file'][0].id
-            )
-        
-        self.assertEquals(
-                expected_file_content,
-                self.mock_ups.arguments['send_file'][1]
-            )
+        self.assertEquals( expected_sess_id.id, self.mock_ups.arguments['send_file'][0].id )
+        self.assertEquals( expected_file_content, self.mock_ups.arguments['send_file'][1] )
 
     def test_return_send_command(self):
         expected_sess_id = SessionId.SessionId("whatever")
@@ -305,20 +184,10 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
 
         self.mock_ups.return_values['send_command'] = None
 
-        self.rfm.send_command(
-                expected_sess_id,
-                expected_command
-            )
+        self.rfm.send_command( expected_sess_id, expected_command )
         
-        self.assertEquals(
-                expected_sess_id.id,
-                self.mock_ups.arguments['send_command'][0].id
-            )
-        
-        self.assertEquals(
-                expected_command.get_command_string(),
-                self.mock_ups.arguments['send_command'][1].get_command_string()
-            )
+        self.assertEquals( expected_sess_id.id, self.mock_ups.arguments['send_command'][0].id )
+        self.assertEquals( expected_command.get_command_string(), self.mock_ups.arguments['send_command'][1].get_command_string() )
 
     def test_return_poll(self):
         expected_sess_id = SessionId.SessionId("whatever")
@@ -327,10 +196,7 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
 
         self.rfm.poll(expected_sess_id)
         
-        self.assertEquals(
-                expected_sess_id.id,
-                self.mock_ups.arguments['poll'][0].id
-            )
+        self.assertEquals( expected_sess_id.id, self.mock_ups.arguments['poll'][0].id )
 
     def test_return_get_user_information(self):
         expected_sess_id = SessionId.SessionId("whatever")
@@ -346,30 +212,11 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
 
         user_information = self.rfm.get_user_information(expected_sess_id)
         
-        self.assertEquals(
-                expected_sess_id.id,
-                self.mock_ups.arguments['get_user_information'][0].id
-            )
-
-        self.assertEquals(
-                expected_user_information.login,
-                user_information.login
-            )
-
-        self.assertEquals(
-                expected_user_information.full_name,
-                user_information.full_name
-            )
-
-        self.assertEquals(
-                expected_user_information.email,
-                user_information.email
-            )
-
-        self.assertEquals(
-                expected_user_information.role.name,
-                user_information.role.name
-            )
+        self.assertEquals( expected_sess_id.id, self.mock_ups.arguments['get_user_information'][0].id )
+        self.assertEquals( expected_user_information.login, user_information.login ) 
+        self.assertEquals( expected_user_information.full_name, user_information.full_name )
+        self.assertEquals( expected_user_information.email, user_information.email )
+        self.assertEquals( expected_user_information.role.name, user_information.role.name)
 
     def _generate_real_mock_raising(self, method, exception, message):
         self.mock_ups.exceptions[method] = exception(message)
@@ -608,15 +455,8 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
     
         self.mock_ups.return_values['logout'] = expected_sess_id
 
-        self.assertEquals(
-                expected_sess_id['id'],
-                self.rfm.logout(expected_sess_id)['id']
-            )
-        
-        self.assertEquals(
-                expected_sess_id['id'],
-                self.mock_ups.arguments['logout'][0].id
-            )
+        self.assertEquals( expected_sess_id['id'], self.rfm.logout(expected_sess_id)['id'] )
+        self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['logout'][0].id )
     
     def test_return_list_experiments(self):
         expected_sess_id = {'id': "whatever"}
@@ -624,15 +464,8 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
     
         self.mock_ups.return_values['list_experiments'] = experiments_allowed
 
-        self.assertEquals(
-                experiments_allowed,
-                self.rfm.list_experiments(expected_sess_id)
-            )
-        
-        self.assertEquals(
-                expected_sess_id['id'],
-                self.mock_ups.arguments['list_experiments'][0].id
-            )
+        self.assertEquals( experiments_allowed, self.rfm.list_experiments(expected_sess_id) )
+        self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['list_experiments'][0].id )
     
     def test_return_reserve_experiment(self):
         expected_sess_id = {'id': "whatever"}
@@ -641,25 +474,12 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
     
         self.mock_ups.return_values['reserve_experiment'] = expected_reservation
 
-        self.assertEquals(
-                expected_reservation,
-                self.rfm.reserve_experiment(
-                    expected_sess_id, 
-                    experimentA.to_experiment_id().to_dict(),
-                    "{}", "{}"))
+        self.assertEquals( expected_reservation,
+                self.rfm.reserve_experiment( expected_sess_id, experimentA.to_experiment_id().to_dict(), "{}", "{}"))
         
-        self.assertEquals(
-                expected_sess_id['id'],
-                self.mock_ups.arguments['reserve_experiment'][0].id
-            )
-        self.assertEquals(
-                experimentA.name,
-                self.mock_ups.arguments['reserve_experiment'][1].exp_name
-            )
-        self.assertEquals(
-                experimentA.category.name,
-                self.mock_ups.arguments['reserve_experiment'][1].cat_name
-            )
+        self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['reserve_experiment'][0].id )
+        self.assertEquals( experimentA.name, self.mock_ups.arguments['reserve_experiment'][1].exp_name )
+        self.assertEquals( experimentA.category.name, self.mock_ups.arguments['reserve_experiment'][1].cat_name )
 
     def test_return_finished_experiment(self):
         expected_sess_id = {'id': "whatever"}
@@ -668,10 +488,7 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
 
         self.rfm.finished_experiment(expected_sess_id)
         
-        self.assertEquals(
-                expected_sess_id['id'],
-                self.mock_ups.arguments['finished_experiment'][0].id
-            )
+        self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['finished_experiment'][0].id)
     
     def test_return_get_reservation_status(self):
         expected_sess_id = {'id': "whatever"}
@@ -683,20 +500,9 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
 
         reservation = self.rfm.get_reservation_status(expected_sess_id)
         
-        self.assertEquals(
-                expected_sess_id['id'],
-                self.mock_ups.arguments['get_reservation_status'][0].id
-            )
-        
-        self.assertEquals(
-                expected_reservation.status,
-                reservation.status
-            )
-
-        self.assertEquals(
-                expected_reservation.time,
-                reservation.time
-            )
+        self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['get_reservation_status'][0].id )
+        self.assertEquals( expected_reservation.status, reservation.status )
+        self.assertEquals( expected_reservation.time, reservation.time )
 
     def test_return_send_file(self):
         expected_sess_id      = {'id': "whatever"}
@@ -704,21 +510,10 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
 
         self.mock_ups.return_values['send_file']        = None
 
-        self.rfm.send_file(
-                expected_sess_id,
-                expected_file_content,
-                'program'
-            )
+        self.rfm.send_file( expected_sess_id, expected_file_content, 'program' )
         
-        self.assertEquals(
-                expected_sess_id['id'],
-                self.mock_ups.arguments['send_file'][0].id
-            )
-        
-        self.assertEquals(
-                expected_file_content,
-                self.mock_ups.arguments['send_file'][1]
-            )
+        self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['send_file'][0].id )
+        self.assertEquals( expected_file_content, self.mock_ups.arguments['send_file'][1] )
 
     def test_return_send_command(self):
         expected_sess_id = {'id': "whatever"}
@@ -726,20 +521,10 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
 
         self.mock_ups.return_values['send_command'] = None
 
-        self.rfm.send_command(
-                expected_sess_id,
-                expected_command.to_dict()
-            )
+        self.rfm.send_command( expected_sess_id, expected_command.to_dict() )
         
-        self.assertEquals(
-                expected_sess_id['id'],
-                self.mock_ups.arguments['send_command'][0].id
-            )
-        
-        self.assertEquals(
-                expected_command.get_command_string(),
-                self.mock_ups.arguments['send_command'][1].get_command_string()
-            )
+        self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['send_command'][0].id )
+        self.assertEquals( expected_command.get_command_string(), self.mock_ups.arguments['send_command'][1].get_command_string() )
 
     def test_return_poll(self):
         expected_sess_id = {'id': "whatever"}
@@ -748,49 +533,22 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
 
         self.rfm.poll(expected_sess_id)
         
-        self.assertEquals(
-                expected_sess_id['id'],
-                self.mock_ups.arguments['poll'][0].id
-            )
+        self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['poll'][0].id )
 
     def test_return_get_user_information(self):
         expected_sess_id = {'id': "whatever"}
 
-        expected_user_information = User(
-                'porduna', 
-                'Pablo Orduna', 
-                'weblab@deusto.es',
-                Role("student")
-            )
+        expected_user_information = User( 'porduna', 'Pablo Orduna', 'weblab@deusto.es', Role("student") )
     
         self.mock_ups.return_values['get_user_information'] = expected_user_information
 
         user_information = self.rfm.get_user_information(expected_sess_id)
         
-        self.assertEquals(
-                expected_sess_id['id'],
-                self.mock_ups.arguments['get_user_information'][0].id
-            )
-
-        self.assertEquals(
-                expected_user_information.login,
-                user_information.login
-            )
-
-        self.assertEquals(
-                expected_user_information.full_name,
-                user_information.full_name
-            )
-
-        self.assertEquals(
-                expected_user_information.email,
-                user_information.email
-            )
-
-        self.assertEquals(
-                expected_user_information.role.name,
-                user_information.role.name
-            )
+        self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['get_user_information'][0].id )
+        self.assertEquals( expected_user_information.login, user_information.login )
+        self.assertEquals( expected_user_information.full_name, user_information.full_name )
+        self.assertEquals( expected_user_information.email, user_information.email )
+        self.assertEquals( expected_user_information.role.name, user_information.role.name )
     
     def test_return_get_groups(self):
         expected_sess_id = {'id' : 'whatever'}
@@ -798,15 +556,8 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
     
         self.mock_ups.return_values['get_groups'] = groups
 
-        self.assertEquals(
-                groups,
-                self.rfm.get_groups(expected_sess_id)
-            )
-        
-        self.assertEquals(
-                expected_sess_id['id'],
-                self.mock_ups.arguments['get_groups'][0].id
-            )
+        self.assertEquals( groups, self.rfm.get_groups(expected_sess_id) )
+        self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['get_groups'][0].id )
         
     def test_return_get_users(self):
         expected_sess_id = {'id' : "whatever"}
@@ -814,15 +565,8 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
         
         self.mock_ups.return_values['get_users'] = users
 
-        self.assertEquals(
-                users,
-                self.rfm.get_users(expected_sess_id)
-            )
-        
-        self.assertEquals(
-                expected_sess_id['id'],
-                self.mock_ups.arguments['get_users'][0].id
-            )
+        self.assertEquals( users, self.rfm.get_users(expected_sess_id) )
+        self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['get_users'][0].id )
         
         
     def test_return_get_roles(self):
@@ -831,15 +575,8 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
     
         self.mock_ups.return_values['get_roles'] = roles
 
-        self.assertEquals(
-                roles,
-                self.rfm.get_roles(expected_sess_id)
-            )
-        
-        self.assertEquals(
-                expected_sess_id['id'],
-                self.mock_ups.arguments['get_roles'][0].id
-            )
+        self.assertEquals( roles, self.rfm.get_roles(expected_sess_id) )
+        self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['get_roles'][0].id )
         
     
     def test_return_get_experiments(self):
@@ -848,15 +585,8 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
     
         self.mock_ups.return_values['get_experiments'] = experiments
 
-        self.assertEquals(
-                experiments,
-                self.rfm.get_experiments(expected_sess_id)
-            )
-        
-        self.assertEquals(
-                expected_sess_id['id'],
-                self.mock_ups.arguments['get_experiments'][0].id
-            )
+        self.assertEquals( experiments, self.rfm.get_experiments(expected_sess_id) )
+        self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['get_experiments'][0].id )
     
     def test_return_get_experiment_uses(self):
         expected_sess_id = {'id' : "whatever"}
@@ -864,35 +594,12 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
     
         self.mock_ups.return_values['get_experiment_uses'] = experiment_uses
 
-        self.assertEquals(
-                experiment_uses,
-                self.rfm.get_experiment_uses(expected_sess_id, None, None, None, None, None, None, None)
-            )
-        
-        self.assertEquals(
-                expected_sess_id['id'],
-                self.mock_ups.arguments['get_experiment_uses'][0].id
-            )
-        
-        self.assertEquals(
-                None,
-                self.mock_ups.arguments['get_experiment_uses'][1]
-            )
-        
-        self.assertEquals(
-                None,
-                self.mock_ups.arguments['get_experiment_uses'][2]
-            )
-        
-        self.assertEquals(
-                None,
-                self.mock_ups.arguments['get_experiment_uses'][3]
-            )
-        
-        self.assertEquals(
-                None,
-                self.mock_ups.arguments['get_experiment_uses'][4]
-            )
+        self.assertEquals( experiment_uses, self.rfm.get_experiment_uses(expected_sess_id, None, None, None, None, None, None, None) )
+        self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['get_experiment_uses'][0].id )
+        self.assertEquals( None, self.mock_ups.arguments['get_experiment_uses'][1] )
+        self.assertEquals( None, self.mock_ups.arguments['get_experiment_uses'][2] )
+        self.assertEquals( None, self.mock_ups.arguments['get_experiment_uses'][3] )
+        self.assertEquals( None, self.mock_ups.arguments['get_experiment_uses'][4] )
     
     def test_return_get_user_permissions(self):
         expected_sess_id = {'id' : "whatever"}
@@ -900,15 +607,8 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
     
         self.mock_ups.return_values['get_user_permissions'] = permissions
 
-        self.assertEquals(
-                permissions,
-                self.rfm.get_user_permissions(expected_sess_id)
-            )
-        
-        self.assertEquals(
-                expected_sess_id['id'],
-                self.mock_ups.arguments['get_user_permissions'][0].id
-            )
+        self.assertEquals( permissions, self.rfm.get_user_permissions(expected_sess_id) )
+        self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['get_user_permissions'][0].id )
 
     def _generate_real_mock_raising(self, method, exception, message):
         self.mock_ups.exceptions[method] = exception(message)
