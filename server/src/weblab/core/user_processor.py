@@ -18,9 +18,13 @@ import time as time_module
 import json
 
 from voodoo.cache import cache
+from voodoo.typechecker import typecheck
+from voodoo.sessions.session_id import SessionId
 import voodoo.resources_manager as ResourceManager
 
 import weblab.comm.context as RemoteFacadeContext
+
+from weblab.data.experiments import ExperimentUsage
 
 import weblab.core.exc as core_exc
 import weblab.core.coordinator.exc as coord_exc
@@ -232,12 +236,14 @@ class UserProcessor(object):
     def _utc_timestamp(self):
         return self.time_module.time()
 
+    @typecheck(SessionId)
     def get_experiment_use_by_id(self, reservation_id):
         db_session_id   = self._session['db_session_id']
         experiment_uses = self._db_manager.get_experiment_uses_by_id(db_session_id, [reservation_id])
         experiment_use  = experiment_uses[0]
         return self._manage_not_existing_reservation_id(experiment_use, reservation_id)
 
+    @typecheck(typecheck.ITERATION(SessionId))
     def get_experiment_uses_by_id(self, reservation_ids):
         db_session_id         = self._session['db_session_id']
         experiment_uses = self._db_manager.get_experiment_uses_by_id(db_session_id, reservation_ids)
@@ -250,6 +256,7 @@ class UserProcessor(object):
         return results
                     
 
+    @typecheck((ExperimentUsage, typecheck.NONE), SessionId)
     def _manage_not_existing_reservation_id(self, use, reservation_id):
         """Given a reservation_id not present in the usage db, check if it is still running or waiting, or it did never enter the system"""
         if use is not None:
