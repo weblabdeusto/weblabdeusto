@@ -137,5 +137,8 @@ def typecheck(*types):
 def typecheckprop(*types):
     return typecheck(ANY, *types)
 
-typecheck.NONE = NONE
-typecheck.ANY  = ANY
+typecheck.NONE      = NONE
+typecheck.ANY       = ANY
+typecheck.LIST      = LIST
+typecheck.TUPLE     = TUPLE
+typecheck.ITERATION = ITERATION
