@@ -14,6 +14,7 @@
 # 
 
 import unittest
+import operator
 
 import voodoo.typechecker as typechecker
 from voodoo.typechecker import typecheck, typecheckprop
@@ -63,6 +64,18 @@ class PropertiesClass(object):
     def x(self, value):
         self._x = value
 
+@typecheck(typechecker.LIST(int))
+def check_list_integer(elements):
+    return reduce(operator.add, elements)
+
+@typecheck(typechecker.TUPLE(float))
+def check_tuple_float(elements):
+    return reduce(operator.add, elements)
+
+@typecheck(typechecker.ITERATION(float))
+def check_iteration_float(elements):
+    return reduce(operator.add, elements)
+
 class TypeCheckTest(unittest.TestCase):
 
     def test_normal(self):
@@ -78,6 +91,29 @@ class TypeCheckTest(unittest.TestCase):
 
         result = sum(3,4)
         self.assertEquals(7, result)
+
+    def test_list_int(self):
+        result = check_list_integer([1, 2, 3])
+        self.assertEquals(1 + 2 + 3, result)
+
+        self.assertRaises(TypeError, check_list_integer, (1, 2, 3))
+        self.assertRaises(TypeError, check_list_integer, [1, 2, 3.0])
+
+    def test_tuple_float(self):
+        result = check_tuple_float((1.0, 2.0, 3.0))
+        self.assertEquals(1.0 + 2.0 + 3.0, result)
+
+        self.assertRaises(TypeError, check_tuple_float, (1.0, 2.0, 3))
+        self.assertRaises(TypeError, check_tuple_float, [1.0, 2.0, 3.0])
+
+    def test_iteration_float(self):
+        result = check_iteration_float((1.0, 2.0, 3.0))
+        self.assertEquals(1.0 + 2.0 + 3.0, result)
+
+        result = check_iteration_float([1.0, 2.0, 3.0])
+        self.assertEquals(1.0 + 2.0 + 3.0, result)
+
+        self.assertRaises(TypeError, check_iteration_float, (1.0, 2.0, 3))
 
     def test_none(self):
         self.assertEquals(10, sumnone(5,5))
