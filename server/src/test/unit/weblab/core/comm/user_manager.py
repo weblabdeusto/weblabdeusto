@@ -216,12 +216,7 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
     def test_return_get_user_information(self):
         expected_sess_id = SessionId.SessionId("whatever")
 
-        expected_user_information = User(
-                'porduna', 
-                'Pablo Orduna', 
-                'weblab@deusto.es',
-                Role("student")
-            )
+        expected_user_information = User( 'porduna', 'Pablo Orduna', 'weblab@deusto.es', Role("student"))
     
         self.mock_ups.return_values['get_user_information'] = expected_user_information
 

@@ -241,26 +241,29 @@ class UserProcessor(object):
         db_session_id   = self._session['db_session_id']
         experiment_uses = self._db_manager.get_experiment_uses_by_id(db_session_id, [reservation_id])
         experiment_use  = experiment_uses[0]
-        return self._manage_not_existing_reservation_id(experiment_use, reservation_id)
+        return self._process_use(experiment_use, reservation_id)
 
     @typecheck(typecheck.ITERATION(SessionId))
     def get_experiment_uses_by_id(self, reservation_ids):
-        db_session_id         = self._session['db_session_id']
+        db_session_id   = self._session['db_session_id']
         experiment_uses = self._db_manager.get_experiment_uses_by_id(db_session_id, reservation_ids)
         
         results = []
         for experiment_use, reservation_id in zip(experiment_uses, reservation_ids):
-            result = self._manage_not_existing_reservation_id(experiment_use, reservation_id)
+            result = self._process_use(experiment_use, reservation_id)
             results.append(result)
 
         return results
                     
 
     @typecheck((ExperimentUsage, typecheck.NONE), SessionId)
-    def _manage_not_existing_reservation_id(self, use, reservation_id):
+    def _process_use(self, use, reservation_id):
         """Given a reservation_id not present in the usage db, check if it is still running or waiting, or it did never enter the system"""
         if use is not None:
+            storage_path = self._cfg_manager.get_value('core_store_students_programs_path')
+            use.load_files(storage_path)
             return FinishedReservationResult(use)
+
         try:
             # We don't actually care about the result. The question is: has it expired or is it running?
             self._coordinator.get_reservation_status(reservation_id.id)

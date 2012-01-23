@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+import os
 from abc import abstractmethod
 
 import weblab.data.command as Command
@@ -88,6 +89,22 @@ class CommandSent(object):
             self.response = response
         self.timestamp_after = timestamp_after
 
+class LoadedFileSent(object):
+
+    __metaclass__ = Representable
+
+    @typecheck(basestring, float, Command.Command, (float, type(None)), (basestring, type(None)))
+    def __init__(self, file_content, timestamp_before, response, timestamp_after, file_info):
+        self.file_content     = file_content
+        self.timestamp_before = timestamp_before
+        self.response         = response
+        self.timestamp_after  = timestamp_after
+        self.file_info        = file_info
+
+    # Just in case
+    def load(self):
+        return self
+
 class FileSent(object):
 
     __metaclass__ = Representable
@@ -103,6 +120,11 @@ class FileSent(object):
         else:
             self.response = response
         self.timestamp_after  = timestamp_after
+
+    @typecheck(basestring)
+    def load(self, storage_path):
+        content = open(os.sep.join((storage_path, self.file_path)), 'rb').read()
+        return LoadedFileSent(content, self.timestamp_before, self.response, self.timestamp_after, self.file_info)
 
 class ExperimentUsage(object):
 
@@ -159,6 +181,15 @@ class ExperimentUsage(object):
     def update_file(self, file_id, file_sent):
         # isinstance(file_sent, FileSent)
         self.sent_files[file_id] = file_sent
+
+    @typecheck(basestring)
+    def load_files(self, path):
+        loaded_sent_files = []
+        for sent_file in self.sent_files:
+            loaded_sent_file = sent_file.load(path)
+            loaded_sent_files.append(loaded_sent_file)
+        self.sent_files = loaded_sent_files
+        return self
 
 class ReservationResult(object):
 

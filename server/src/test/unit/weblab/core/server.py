@@ -14,6 +14,7 @@
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
+import os
 import unittest
 import datetime
 import time
@@ -295,7 +296,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
         # reservation_id1 is for student1, so it returns a real object (with a real experiment_use_id)
         finished_result.experiment_use.experiment_use_id = None
-        self.assertEquals(FinishedReservationResult(usages[0]), finished_result)
+        self.assertEquals(FinishedReservationResult(usages[0].load_files('.')), finished_result)
 
 
     def test_get_experiment_uses_by_id_found(self):
@@ -311,7 +312,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.assertTrue( experiment_results[0].is_finished() )
         # reservation_id1 is for student1, so it returns a real object (with a real experiment_use_id)
         experiment_results[0].experiment_use.experiment_use_id = None
-        self.assertEquals(FinishedReservationResult(usages[0]), experiment_results[0])
+        self.assertEquals(FinishedReservationResult(usages[0].load_files('.')), experiment_results[0])
 
         # reservation_id2 is for student2, and the session is for student1, so it returns None
         self.assertTrue(experiment_results[1].is_cancelled())
@@ -332,7 +333,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         # reservation_id1 is for student1, so it returns a real object (with a real experiment_use_id)
         self.assertTrue(experiment_results[0].is_finished())
         experiment_results[0].experiment_use.experiment_use_id = None
-        self.assertEquals(FinishedReservationResult(usages[0]), experiment_results[0])
+        self.assertEquals(FinishedReservationResult(usages[0].load_files('.')), experiment_results[0])
 
         # reservation_id2 is for student2, and the session is for student1, so it returns None
         self.assertTrue( experiment_results[1].is_alive() )
@@ -374,9 +375,10 @@ class UserProcessingServerTestCase(unittest.TestCase):
         initial_usage1.coord_address = CoordAddress.CoordAddress(u"machine1",u"instance1",u"server1") #.translate_address("server1:instance1@machine1")
         initial_usage1.reservation_id = reservation_id1.id
 
-        file1 = FileSent( u'path/to/file1', u'{sha}12345', time.time())
+        valid_file_path = os.path.relpath(os.sep.join(('test','__init__.py')))
+        file1 = FileSent( valid_file_path, u'{sha}12345', time.time())
         
-        file2 = FileSent( u'path/to/file2', u'{sha}123456',
+        file2 = FileSent( valid_file_path, u'{sha}123456',
                     time.time(), Command(u'response'),
                     time.time(), file_info = u'program')
 
@@ -399,9 +401,9 @@ class UserProcessingServerTestCase(unittest.TestCase):
         initial_usage2.coord_address = CoordAddress.CoordAddress(u"machine1",u"instance1",u"server1") #.translate_address("server1:instance1@machine1")
         initial_usage2.reservation_id = reservation_id2.id
 
-        file1 = FileSent( u'path/to/file1', u'{sha}12345', time.time())
+        file1 = FileSent( valid_file_path, u'{sha}12345', time.time())
         
-        file2 = FileSent( u'path/to/file2', u'{sha}123456',
+        file2 = FileSent( valid_file_path, u'{sha}123456',
                     time.time(), Command(u'response'),
                     time.time(), file_info = u'program')
 
