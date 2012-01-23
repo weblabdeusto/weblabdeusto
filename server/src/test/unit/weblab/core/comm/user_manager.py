@@ -79,24 +79,25 @@ class MockUPS(object):
         self.return_values = {}
         self.exceptions    = {}
 
-    logout                 = generate_mock_method('logout', ('session_id',))
-    list_experiments       = generate_mock_method('list_experiments', ('session_id',))
-    reserve_experiment     = generate_mock_method('reserve_experiment', ('session_id', 'experiment', 'client_initial_data', 'consumer_data', 'client_address'))
-    finished_experiment    = generate_mock_method('finished_experiment',('session_id',))
-    get_reservation_status = generate_mock_method('get_reservation_status',('session_id',))
-    send_file              = generate_mock_method('send_file',('session_id', 'file_content', 'file_info'))
-    send_async_file        = generate_mock_method('send_async_file',('session_id', 'file_content', 'file_info'))
-    send_command           = generate_mock_method('send_command',('session_id', 'command'))
-    send_async_command     = generate_mock_method('send_async_command',('session_id', 'command'))
-    poll                   = generate_mock_method('poll',('session_id',))
-    get_user_information   = generate_mock_method('get_user_information',('session_id',))
-    get_roles              = generate_mock_method('get_roles',('session_id',))
-    get_groups             = generate_mock_method('get_groups',('session_id',))
-    get_users              = generate_mock_method('get_users',('session_id',))
-    get_experiments        = generate_mock_method('get_experiments',('session_id',))
-    get_experiment_uses    = generate_mock_method('get_experiment_uses',('session_id', 'from_date', 'to_date', 'group_id', 'experiment_id', 'start_row', 'end_row', 'sort_by'))
-    get_user_permissions   = generate_mock_method('get_user_permissions',('session_id',))
-
+    logout                    = generate_mock_method('logout',                    ('session_id',))
+    list_experiments          = generate_mock_method('list_experiments',          ('session_id',))
+    reserve_experiment        = generate_mock_method('reserve_experiment',        ('session_id', 'experiment', 'client_initial_data', 'consumer_data', 'client_address'))
+    finished_experiment       = generate_mock_method('finished_experiment',       ('session_id',))
+    get_reservation_status    = generate_mock_method('get_reservation_status',    ('session_id',))
+    send_file                 = generate_mock_method('send_file',                 ('session_id', 'file_content', 'file_info'))
+    send_async_file           = generate_mock_method('send_async_file',           ('session_id', 'file_content', 'file_info'))
+    send_command              = generate_mock_method('send_command',              ('session_id', 'command'))
+    send_async_command        = generate_mock_method('send_async_command',        ('session_id', 'command'))
+    poll                      = generate_mock_method('poll',                      ('session_id',))
+    get_user_information      = generate_mock_method('get_user_information',      ('session_id',))
+    get_roles                 = generate_mock_method('get_roles',                 ('session_id',))
+    get_groups                = generate_mock_method('get_groups',                ('session_id',))
+    get_users                 = generate_mock_method('get_users',                 ('session_id',))
+    get_experiments           = generate_mock_method('get_experiments',           ('session_id',))
+    get_experiment_uses       = generate_mock_method('get_experiment_uses',       ('session_id', 'from_date', 'to_date', 'group_id', 'experiment_id', 'start_row', 'end_row', 'sort_by'))
+    get_user_permissions      = generate_mock_method('get_user_permissions',      ('session_id',))
+    get_experiment_use_by_id  = generate_mock_method('get_experiment_use_by_id',  ('session_id','reservation_id'))
+    get_experiment_uses_by_id = generate_mock_method('get_experiment_uses_by_id', ('session_id','reservation_ids'))
 
 class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
 
@@ -197,6 +198,20 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         self.rfm.poll(expected_sess_id)
         
         self.assertEquals( expected_sess_id.id, self.mock_ups.arguments['poll'][0].id )
+
+    def test_return_get_experiment_use_by_id(self):
+        expected_sess_id = SessionId.SessionId("whatever")
+
+        expected_user_information = User( 'porduna', 'Pablo Orduna', 'weblab@deusto.es', Role("student"))
+    
+        self.mock_ups.return_values['get_user_information'] = expected_user_information
+        self.mock_ups.return_values['get_experiment_use_by_id'] = expected_user_information
+
+        user_information = self.rfm.get_experiment_use_by_id(expected_sess_id, SessionId.SessionId('reservation'))
+
+        print "test_return_get_experiment_use_by_id"
+        #10/0
+        
 
     def test_return_get_user_information(self):
         expected_sess_id = SessionId.SessionId("whatever")
