@@ -164,6 +164,13 @@ class ReservationResult(object):
 
     __metaclass__ = AbstractRepresentable
 
+    ALIVE     = 'alive'
+    CANCELLED = 'cancelled'
+    FINISHED  = 'finished'
+
+    def __init__(self, status):
+        self.status = status
+
     def is_alive(self):
         return False
 
@@ -176,7 +183,7 @@ class ReservationResult(object):
 class AliveReservationResult(ReservationResult):
 
     def __init__(self):
-        pass
+        super(AliveReservationResult, self).__init__(ReservationResult.ALIVE)
 
     @Override(ReservationResult)
     def is_alive(self):
@@ -185,7 +192,7 @@ class AliveReservationResult(ReservationResult):
 class CancelledReservationResult(ReservationResult):
 
     def __init__(self):
-        pass
+        super(CancelledReservationResult, self).__init__(ReservationResult.CANCELLED)
 
     @Override(ReservationResult)
     def is_cancelled(self):
@@ -195,6 +202,7 @@ class FinishedReservationResult(ReservationResult):
 
     @typecheck(ExperimentUsage)
     def __init__(self, experiment_use):
+        super(FinishedReservationResult, self).__init__(ReservationResult.FINISHED)
         self.experiment_use = experiment_use
 
     @Override(ReservationResult)

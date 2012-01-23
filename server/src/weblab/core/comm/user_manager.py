@@ -179,7 +179,37 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
         """
         sess_id = self._parse_session_id(session_id)
         return self._server.get_user_information(sess_id)
-   
+
+    @logged()
+    @RFM.check_exceptions(EXCEPTIONS)
+    def get_experiment_use_by_id(self, session_id, reservation_id):
+        """ get_experiment_use_by_id(session_id, reservation_id) -> ReservationResult
+            raise SessionNotFoundException
+        """
+        sess_id = self._parse_session_id(session_id)
+        reservation_id    = self._parse_session_id(reservation_id)
+        experiment_result = self._server.get_user_information(sess_id, reservation_id)
+        return self._serialize_experiment_result(experiment_result)
+
+    @logged()
+    @RFM.check_exceptions(EXCEPTIONS)
+    def get_experiment_uses_by_id(self, session_id, reservation_ids):
+        """ get_experiment_uses_by_id(session_id, reservation_ids) -> ReservationResult
+            raise SessionNotFoundException
+        """
+        sess_id = self._parse_session_id(session_id)
+        parsed_reservation_ids = []
+        for reservation_id in reservation_ids:
+            parsed_reservation_id = self._parse_session_id(reservation_id)
+            parsed_reservation_ids.append(parsed_reservation_id)
+        experiment_results = self._server.get_user_information(sess_id, parsed_reservation_ids)
+        
+        serialized_experiment_results = []
+        for experiment_result in experiment_results:
+            serialized_experiment_result = self._serialize_experiment_result(experiment_result)
+            serialized_experiment_results(serialized_experiment_result)
+        return serialized_experiment_results
+
     #
     # admin service
     #
@@ -261,6 +291,9 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
         # This is the default behaviuor. Overrided by XML-RPC, 
         # where None is not an option
         return response
+
+    def _serialize_experiment_result(self, experiment_result):
+        return experiment_result
 
 class AbstractUserProcessingRemoteFacadeManagerObject(AbstractUserProcessingRemoteFacadeManager):
     # When accessing structures, this class uses instance.attribute
