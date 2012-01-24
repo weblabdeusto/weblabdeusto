@@ -23,10 +23,6 @@ import os
 import re
 import mimetypes
 
-FILE_SENT = 'file_sent'
-FILE_INFO = 'file_info'
-SESSION_ID = 'session_id'
-IS_ASYNC = 'is_async'
 
 
 VISIR_LOCATION = "C:/shared/weblab-hg/weblabdeusto/client/war/weblabclient/visir/"
@@ -67,13 +63,22 @@ class  VisirMethod(WebFacadeServer.Method):
                                           'THE_FAULT_MESSAGE' : "The URI should not contain .." }
         
         # Find out the location of the file. 
-        file = re.sub(r"(/weblab/web/visir/)(.*)", VISIR_LOCATION + r"\2", self.uri, 1)
+        fileonly = re.sub(r"(/weblab/web/visir/)(.*)", r"\2", self.uri, 1)
+        file = VISIR_LOCATION + fileonly
         
-        f = open(file, "rb")
-        content = f.read(-1)
+        try:
+            f = open(file, "rb")
+            content = f.read(-1)
+        except:
+            return FAULT_HTML_TEMPLATE % { 
+                              'THE_FAULT_CODE' : "404",  
+                              'THE_FAULT_MESSAGE' : "File not found (or not readable)" }
         
         # TODO: Ensure that this is actually done only once.
         mimetypes.init()
+        
+        if fileonly == "save":
+            return self.intercept_save()
         
         # Use the file path to guess the mimetype
         mimetype = mimetypes.guess_type(file)[0]
@@ -82,8 +87,18 @@ class  VisirMethod(WebFacadeServer.Method):
         
         self.set_content_type(mimetype)
         
+        if fileonly == "breadboard/library.xml":
+            return self.intercept_library(content, mimetype)
+        
         return content
 
+    def intercept_save(self):
+        return "SAVE REQUEST CAUGHT"
+
+    def intercept_library(self, content, mimetype):
+        return content
+        #self.set_content_type("text/html")
+        #return "INTERCEPTING LIBRARY XML"
 
 class VisirException(Exception):
     pass
