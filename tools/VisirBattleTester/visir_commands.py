@@ -12,14 +12,20 @@ visir_login_response = u"""<protocol version="1.3">
 """
 
 def parse_login_response(response):
-    xml_str  = response.commandstring
-    dom_tree = minidom.parseString(xml_str)
-    return dom_tree.getElementsByTagName('login')[0].getAttribute("sessionkey")
+    try:
+        xml_str  = response.commandstring
+        dom_tree = minidom.parseString(xml_str)
+        return dom_tree.getElementsByTagName('login')[0].getAttribute("sessionkey")
+    except:
+        raise Exception("Invalid response: %s" % response)
 
 def parse_command_response(response):
-    xml_str  = response.commandstring
-    dom_tree = minidom.parseString(xml_str)
-    return float(dom_tree.getElementsByTagName('dmm_result')[0].getAttribute("value"))
+    try:
+        xml_str  = response.commandstring
+        dom_tree = minidom.parseString(xml_str)
+        return float(dom_tree.getElementsByTagName('dmm_result')[0].getAttribute("value"))
+    except:
+        raise Exception("Invalid response: %s" % response)
 
 visir_request_11k = """<protocol version="1.3">
   <request sessionkey="%s">
