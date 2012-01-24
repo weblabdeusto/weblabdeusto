@@ -25,6 +25,8 @@ from weblab.comm.context import get_context, create_context, delete_context
 
 import voodoo.log as log
 
+DEFAULT_CONTENT_TYPE = "text/html"
+
 class MethodException(Exception):
     def __init__(self, status, msg):
         super(MethodException, self).__init__((status, msg))
@@ -43,6 +45,7 @@ class Method(object):
         self.cfg_manager = cfg_manager
         self.server      = server
         self.post_read   = False
+        self.content_type = DEFAULT_CONTENT_TYPE
 
     def run(self):
         return "Method %s does not implement run method!" % self.__class__.__name__
@@ -68,7 +71,10 @@ class Method(object):
         return []
 
     def get_content_type(self):
-        return "text/html"
+        return self.content_type
+    
+    def set_content_type(self, content_type):
+        self.content_type = content_type
 
     def get_GET_argument(self, name, default_value = None):
         for arg_name, value in self.get_arguments():

@@ -21,6 +21,7 @@ import weblab.experiment.util as Util
 
 import os
 import re
+import mimetypes
 
 FILE_SENT = 'file_sent'
 FILE_INFO = 'file_info'
@@ -64,7 +65,15 @@ class  VisirMethod(WebFacadeServer.Method):
         f = open(file, "rb")
         content = f.read(-1)
         
-        #return content
+        # TODO: Ensure that this is actually done only once.
+        mimetypes.init()
+        mimetype = mimetypes.guess_type(file)[0]
+        if mimetype is None:
+            mimetype = "application/octet-stream"
+        
+        self.set_content_type(mimetype)
+        
+        return content
         
         return SUCCESS_HTML_TEMPLATE % {
                     'RESULT' : self.uri + " | " + os.getcwd() + " | " + file + " | " + self.get_content_type()
