@@ -60,6 +60,13 @@ class  VisirMethod(WebFacadeServer.Method):
         This will redirect every request to serve the VISIR files.
         """
         
+        # Just deny any request with an URL containing .. to prevent security issues
+        if ".." in self.uri:
+            return FAULT_HTML_TEMPLATE % { 
+                                          'THE_FAULT_CODE' : "Invalid URI",  
+                                          'THE_FAULT_MESSAGE' : "The URI should not contain .." }
+        
+        # Find out the location of the file. 
         file = re.sub(r"(/weblab/web/visir/)(.*)", VISIR_LOCATION + r"\2", self.uri, 1)
         
         f = open(file, "rb")
@@ -67,6 +74,8 @@ class  VisirMethod(WebFacadeServer.Method):
         
         # TODO: Ensure that this is actually done only once.
         mimetypes.init()
+        
+        # Use the file path to guess the mimetype
         mimetype = mimetypes.guess_type(file)[0]
         if mimetype is None:
             mimetype = "application/octet-stream"
@@ -74,10 +83,6 @@ class  VisirMethod(WebFacadeServer.Method):
         self.set_content_type(mimetype)
         
         return content
-        
-        return SUCCESS_HTML_TEMPLATE % {
-                    'RESULT' : self.uri + " | " + os.getcwd() + " | " + file + " | " + self.get_content_type()
-                }
 
 
 class VisirException(Exception):
