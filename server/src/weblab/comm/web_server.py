@@ -133,7 +133,7 @@ class Method(object):
         # If coming from /weblab001/web/login/?foo=bar will return
         # /login/?foo=bar
         # 
-        # If coming from /foo/?bar will erturn
+        # If coming from /foo/?bar will return
         # /foo/?bar
         finder = '/web/'
         if path.find(finder) >= 0:
