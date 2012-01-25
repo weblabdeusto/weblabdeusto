@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import json
 import urllib2
@@ -39,7 +39,7 @@ class WebLabDeustoClient(object):
             'method' : method,
             'params' : kwargs
         })
-        uopen = self.opener.open(url, data = request) 
+        uopen = self.opener.open(url, data = request)
         content = uopen.read()
         cookies = [ c for c in self.cj if c.name == 'weblabsessionid' ]
         if len(cookies) > 0:
@@ -76,9 +76,9 @@ class WebLabDeustoClient(object):
                                 'cat_name' : experiment_id.cat_name
                             }
         reservation_holder = self._core_call('reserve_experiment',
-                        session_id=serialized_session_id, 
-                        experiment_id=serialized_experiment_id, 
-                        client_initial_data=client_initial_data, 
+                        session_id=serialized_session_id,
+                        experiment_id=serialized_experiment_id,
+                        client_initial_data=client_initial_data,
                         consumer_data=consumer_data)
         reservation = self._parse_reservation_holder(reservation_holder)
         return reservation
@@ -133,7 +133,7 @@ class WebLabDeustoClient(object):
             return AliveReservationResult()
         elif experiment_result['status'] == ReservationResult.CANCELLED:
             return CancelledReservationResult()
-        
+
         experiment_use = experiment_result['experiment_use']
 
         experiment_id = ExperimentId(experiment_use['experiment_id']['exp_name'], experiment_use['experiment_id']['cat_name'])

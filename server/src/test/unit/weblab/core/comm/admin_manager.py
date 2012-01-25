@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import unittest
 import datetime
 
@@ -84,7 +84,7 @@ class AdminFacadeManagerJSONTestCase(unittest.TestCase):
         self.mock_ups = MockUPS()
 
         server_admin_mail = self.cfg_manager.get_value(RFM.SERVER_ADMIN_EMAIL, RFM.DEFAULT_SERVER_ADMIN_EMAIL)
-        self.weblab_general_error_message = RFM.UNEXPECTED_ERROR_MESSAGE_TEMPLATE % server_admin_mail 
+        self.weblab_general_error_message = RFM.UNEXPECTED_ERROR_MESSAGE_TEMPLATE % server_admin_mail
 
         self.rfm = AdminFacadeManager.AdminRemoteFacadeManagerJSON(
                 self.cfg_manager,
@@ -223,40 +223,40 @@ class AdminFacadeManagerJSONTestCase(unittest.TestCase):
         # Production mode: A general error message is received
         self.cfg_manager._set_value(RFM.DEBUG_MODE, False)
 
-        self._test_exception(method, args,  
-                        coreExc.WebLabCoreException, MESSAGE, 
+        self._test_exception(method, args,
+                        coreExc.WebLabCoreException, MESSAGE,
                         'JSON:' + UserProcessingRFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)
 
-        self._test_exception(method, args,  
-                        WebLabExceptions.WebLabException, MESSAGE, 
+        self._test_exception(method, args,
+                        WebLabExceptions.WebLabException, MESSAGE,
                         'JSON:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)
 
-        self._test_exception(method, args,  
-                        VoodooExceptions.GeneratorException, MESSAGE, 
+        self._test_exception(method, args,
+                        VoodooExceptions.GeneratorException, MESSAGE,
                         'JSON:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)
 
-        self._test_exception(method, args,  
-                        Exception, MESSAGE, 
-                        'JSON:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)            
+        self._test_exception(method, args,
+                        Exception, MESSAGE,
+                        'JSON:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)
 
         # Debug mode: The error message is received
         self.cfg_manager._set_value(RFM.DEBUG_MODE, True)
 
-        self._test_exception(method, args,  
-                        coreExc.WebLabCoreException, MESSAGE, 
+        self._test_exception(method, args,
+                        coreExc.WebLabCoreException, MESSAGE,
                         'JSON:' + UserProcessingRFCodes.UPS_GENERAL_EXCEPTION_CODE, MESSAGE)
 
-        self._test_exception(method, args,  
-                        WebLabExceptions.WebLabException, MESSAGE, 
+        self._test_exception(method, args,
+                        WebLabExceptions.WebLabException, MESSAGE,
                         'JSON:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, MESSAGE)
 
-        self._test_exception(method, args,  
-                        VoodooExceptions.GeneratorException, MESSAGE, 
+        self._test_exception(method, args,
+                        VoodooExceptions.GeneratorException, MESSAGE,
                         'JSON:' + RFCodes.VOODOO_GENERAL_EXCEPTION_CODE, MESSAGE)
 
-        self._test_exception(method, args,  
-                        Exception, MESSAGE, 
-                        'JSON:' + RFCodes.PYTHON_GENERAL_EXCEPTION_CODE, MESSAGE)            
+        self._test_exception(method, args,
+                        Exception, MESSAGE,
+                        'JSON:' + RFCodes.PYTHON_GENERAL_EXCEPTION_CODE, MESSAGE)
 
 
 def _generate_two_experiments():

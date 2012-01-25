@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import threading
 import time
@@ -124,7 +124,7 @@ class TemporalInformationRetriever(threading.Thread):
             if information.is_command:
                 if information.is_before:
                     result = self._process_pre_command(information)
-                else: 
+                else:
                     result = self._process_post_command(information)
             else: # not is_command: is file
                 if information.is_before:
@@ -164,7 +164,7 @@ class TemporalInformationRetriever(threading.Thread):
         return True
 
     def _process_pre_file(self, information):
-        file_sent = information.payload 
+        file_sent = information.payload
         command_id = self.db_manager.append_file(information.reservation_id, file_sent)
 
         if command_id is False or command_id is None:

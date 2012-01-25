@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import unittest
 import StringIO
@@ -220,7 +220,7 @@ class CoordinationInformationTestCase(unittest.TestCase):
 
         # append accesses to the server
         map.append_accesses('machine', 'instance', 'server1',
-                ( 
+                (
                     access1_direct,
                     access1_soap
                 )
@@ -267,7 +267,7 @@ class CoordinationInformationTestCase(unittest.TestCase):
                 )
 
         map.append_accesses('machine', 'instance', 'server2',
-                ( 
+                (
                     access2_direct,
                     access2_soap
                 )
@@ -279,7 +279,7 @@ class CoordinationInformationTestCase(unittest.TestCase):
         server2 = map[server2_address]
 
         networks = server1.can_connect(server2)
-        # There should be only 2 networks (130.206.137.61:8080@NETWORK3 is 
+        # There should be only 2 networks (130.206.137.61:8080@NETWORK3 is
         # at NETWORK3, which is different to 130.206.137.60)
         self.assertEquals(len(networks),2)
         # First one: the direct one
@@ -320,13 +320,13 @@ class CoordinationInformationTestCase(unittest.TestCase):
 
         # Invalid key
         self.assertRaises(
-                CoordExceptions.CoordInvalidKey, 
+                CoordExceptions.CoordInvalidKey,
                 lambda : map[5])
 
-        self.assertRaises(CoordExceptions.CoordInvalidKey, 
+        self.assertRaises(CoordExceptions.CoordInvalidKey,
                 lambda : map['machine'][5])
 
-        self.assertRaises(CoordExceptions.CoordInvalidKey, 
+        self.assertRaises(CoordExceptions.CoordInvalidKey,
                 lambda : map['machine']['instance'][5])
 
         # And that's all :-)
@@ -390,10 +390,10 @@ class CoordinationInformationTestCase(unittest.TestCase):
                     # 1st: address
                     server_ip_address1 = SOAPAddress.Address(
                         '192.168.0.%i:%i@NETWORK'
-                        % ( 
+                        % (
                             machine_num + 1,
                             8000 + machine_num * 100
-                            + instance_num * 10 
+                            + instance_num * 10
                             + server_num
                         )
                     )
@@ -413,10 +413,10 @@ class CoordinationInformationTestCase(unittest.TestCase):
 
                     # append accesses to the server
                     map.append_accesses(
-                        'machine' + str(machine_num), 
-                        'instance' + str(instance_num), 
+                        'machine' + str(machine_num),
+                        'instance' + str(instance_num),
                         'server' + str(server_num),
-                        ( 
+                        (
                             access_direct,
                             access_soap
                         )

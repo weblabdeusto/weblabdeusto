@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import voodoo.gen.coordinator.Access  as Access
 import voodoo.gen.protocols.protocols as Protocols
@@ -64,7 +64,7 @@ class CoordinatorMapBuilder(object):
         for instance_name in machine_configuration.instances.keys():
             map.add_new_instance(machine_name, instance_name)
             self._fill_instance(
-                    map, 
+                    map,
                     machine_configuration.instances[instance_name],
                     machine_name,
                     instance_name
@@ -76,7 +76,7 @@ class CoordinatorMapBuilder(object):
         for machine_name in global_configuration.machines.keys():
             map.add_new_machine(machine_name)
             self._fill_machine(
-                    map, 
+                    map,
                     global_configuration.machines[machine_name],
                     machine_name
                 )

@@ -7,12 +7,12 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
 import unittest
 
@@ -98,7 +98,7 @@ class AssignedExperimentsTestCase(unittest.TestCase):
         self.assertRaises(
             LaboratoryExceptions.AlreadyFreedExperimentException,
             self._assigned_micro_servers.free_experiment,
-            self.exp_inst_id 
+            self.exp_inst_id
         )
 
     def test_bounds(self):

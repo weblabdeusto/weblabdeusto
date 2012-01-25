@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import base64
 import os
@@ -136,7 +136,7 @@ class ExperimentUsage(object):
         self.experiment_use_id      = experiment_use_id # int
         self.start_date             = start_date        # seconds.millis since 1970 in GMT
         self.end_date               = end_date          # seconds.millis since 1970 in GMT
-        self.from_ip                = from_ip 
+        self.from_ip                = from_ip
         self.experiment_id          = experiment_id     # weblab.data.experiments.ExperimentId
         self.reservation_id         = reservation_id    # string, the reservation identifier
         self.coord_address          = coord_address     # voodoo.gen.coordinator.CoordAddress.CoordAddress
@@ -160,7 +160,7 @@ class ExperimentUsage(object):
         can be retrieved for logging or other purposes.
 
         @param command_sent The command that was just sent, which we will register
-        @return The index of the command we just added in the internal list. Mostly, 
+        @return The index of the command we just added in the internal list. Mostly,
         for identification purposes.
         """
         # isinstance(command_sent, CommandSent)

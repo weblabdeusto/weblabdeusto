@@ -7,7 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -55,7 +55,7 @@ class PermissionType(object):
                 self.user_applicable,
                 self.role_applicable,
                 self.ee_applicable
-            )    
+            )
 
 
 class PermissionParameter(object):
@@ -67,7 +67,7 @@ class PermissionParameter(object):
         super(PermissionParameter, self).__init__()
         self.name = name
         self.datatype = datatype
-        self.value = value   
+        self.value = value
 
     def __repr__(self):
         return "PermissionParameter(name = '%s', datatype = '%s', value = '%s')" % (

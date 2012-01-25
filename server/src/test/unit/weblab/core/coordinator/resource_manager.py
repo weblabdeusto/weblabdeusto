@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 
 import unittest
@@ -153,12 +153,12 @@ class ResourcesManagerTestCase(unittest.TestCase):
 
         exp_invalid_type = ExperimentInstanceId("exp1","ud-pld.invalid", "PLD Experiments")
 
-        self.assertRaises( CoordExc.ExperimentNotFoundException, 
+        self.assertRaises( CoordExc.ExperimentNotFoundException,
                             self.resources_manager.get_resource_instance_by_experiment_instance_id,
                             exp_invalid_type )
 
         exp_invalid_inst = ExperimentInstanceId("exp.invalid","ud-pld", "PLD Experiments")
-        self.assertRaises( CoordExc.ExperimentNotFoundException, 
+        self.assertRaises( CoordExc.ExperimentNotFoundException,
                             self.resources_manager.get_resource_instance_by_experiment_instance_id,
                             exp_invalid_inst )
 

@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import unittest
 
@@ -56,7 +56,7 @@ class CoordinatorMapBuilderTestCase(unittest.TestCase):
 
         self.assertEquals(
                 Protocols.Direct,
-                access1.protocol 
+                access1.protocol
             )
         self.assertEquals(
                 AccessLevel.instance,
@@ -69,7 +69,7 @@ class CoordinatorMapBuilderTestCase(unittest.TestCase):
 
         self.assertEquals(
                 Protocols.XMLRPC,
-                access2.protocol 
+                access2.protocol
             )
         self.assertEquals(
                 AccessLevel.network,

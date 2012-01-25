@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 from voodoo.log import logged
 import weblab.comm.manager as RFM
@@ -26,7 +26,7 @@ import weblab.login.comm.codes as LFCodes
 EXCEPTIONS = (
         #
         # EXCEPTION                                   CODE                                               PROPAGATE TO CLIENT
-        #                                                               
+        #
         (LoginExceptions.InvalidCredentialsException, LFCodes.CLIENT_INVALID_CREDENTIALS_EXCEPTION_CODE, True),
         (LoginExceptions.LoginException,              LFCodes.LOGIN_SERVER_EXCEPTION_CODE,               False),
         (WebLabExceptions.WebLabException,            LFCodes.WEBLAB_GENERAL_EXCEPTION_CODE,             False),

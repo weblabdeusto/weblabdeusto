@@ -7,7 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -132,7 +132,7 @@ class Method(object):
     def get_relative_path(path):
         # If coming from /weblab001/web/login/?foo=bar will return
         # /login/?foo=bar
-        # 
+        #
         # If coming from /foo/?bar will erturn
         # /foo/?bar
         finder = '/web/'
@@ -258,7 +258,7 @@ class WebProtocolRemoteFacadeServer(RFS.AbstractProtocolRemoteFacadeServer):
                 self._rfs.FACADE_WEB_PORT,
                 **{
                     self._rfs.FACADE_WEB_LISTEN: self._rfs.DEFAULT_FACADE_WEB_LISTEN
-                } 
+                }
            )
         listen = getattr(values, self._rfs.FACADE_WEB_LISTEN)
         port   = getattr(values, self._rfs.FACADE_WEB_PORT)

@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
 from voodoo import log
 from voodoo.gen.caller_checker import caller_check
@@ -35,7 +35,7 @@ class AddsATrippleAAtTheBeginingTranslator(Translator.Translator):
     """This Translator exists only for testing purposes. It's used with two aims:
     1. To test that ProxyServer really calls the methods in Translator (it acts as a fake logger).
     2. To have a first example (executed when tests are runned) of a Translator that stores info in a session_manager.
-    Since this Translators uses the SessionManager provided by ProxyServer, it can not be instanced as a stand-alone WebLab server."""  
+    Since this Translators uses the SessionManager provided by ProxyServer, it can not be instanced as a stand-alone WebLab server."""
 
     @Override(Translator.Translator)
     @logged(log.level.Info)

@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import sys
 import threading
 
@@ -54,7 +54,7 @@ def generate(methods):
     # * A dictionary for each method, having the server result (__server_results_MN)
     #
     # * A dictionary with locks for each key of each method (__key_locks_MN)
-    # 
+    #
     # * A counter for each method, which will be incremented
     #   whenever _get_new_key is called (__key_counter_MN)
     #
@@ -188,12 +188,12 @@ def generate(methods):
 
 #This function will return a dynamically generated class which will be
 #a subclass of a dynamically generated ClientSkell with the methods
-#passed in "methods". The subclass will use the "protocol" type of 
+#passed in "methods". The subclass will use the "protocol" type of
 #communication to communicate the client with the server
 #
 #This way, all the code subclassing the returned class will be
 #in practice independent from the type of communication. By changing
-#the "protocol" value, all the code down will use other kind of 
+#the "protocol" value, all the code down will use other kind of
 #communication (such as direct communication, SOAP, XML-RPC, Jabber...)
 
 def factory(protocol, methods):

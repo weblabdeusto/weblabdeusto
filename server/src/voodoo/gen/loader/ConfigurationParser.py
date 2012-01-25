@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import os
 import xml.dom.minidom as minidom
@@ -91,10 +91,10 @@ class ServerParser(AbstractParser):
         # Return structure
         server_configuration = ConfigurationData.ServerConfiguration(
                     None,
-                    configurations, 
-                    server_type, 
+                    configurations,
+                    server_type,
                     server_type_module,
-                    methods, 
+                    methods,
                     implementation,
                     restrictions,
                     protocols
@@ -237,20 +237,20 @@ class AbstractConfigPlusLevelParser(AbstractParser):
         # Return structure
         level_configuration = self.CONFIG_CLASS(
                     None,
-                    configurations, 
+                    configurations,
                     sub_levels
                 )
 
-        # We know there can be 0 or 1 node...       
+        # We know there can be 0 or 1 node...
         if len(user_nodes) > 0:
-            level_configuration.user = LoaderUtilities.obtain_text_safe(user_nodes[0]) 
+            level_configuration.user = LoaderUtilities.obtain_text_safe(user_nodes[0])
 
         return level_configuration
 
     def _parse_level(self, address, directory, sub_level_nodes):
-        sub_level_names = [ 
-                LoaderUtilities.obtain_text_safe(sub_level_node) 
-                for sub_level_node in sub_level_nodes 
+        sub_level_names = [
+                LoaderUtilities.obtain_text_safe(sub_level_node)
+                for sub_level_node in sub_level_nodes
             ]
 
         sub_level_parser = self.PARSER()

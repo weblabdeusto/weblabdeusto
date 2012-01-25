@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import time
 import unittest
@@ -56,48 +56,48 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self.provider1_handler.stop()
         self.provider2_handler.stop()
 
-    # 
-    # This test may take even 20-30 seconds; therefore it is not splitted 
+    #
+    # This test may take even 20-30 seconds; therefore it is not splitted
     # into subtests (the setup and teardown are long)
-    # 
+    #
     def test_federated_experiment(self):
         #######################################################
-        # 
+        #
         #   Local testing  (to check that everything is right)
-        # 
+        #
         #   We enter as a student of Consumer, and we ask for an
-        #   experiment that only the Consumer university has 
+        #   experiment that only the Consumer university has
         #   (dummy2).
-        # 
+        #
         session_id = self.consumer_login_client.login('fedstudent1', 'password')
 
         self._test_reservation(session_id, self.dummy2, 'Consumer', True, True)
 
         #######################################################
-        # 
+        #
         #   Simple federation
-        # 
+        #
         #   Now we ask for an experiment that only Provider 1
-        #   has. There is no load balance, neither 
+        #   has. There is no load balance, neither
         #   subcontracting
         #
         self._test_reservation(session_id, self.dummy3, 'Provider 1', True, True)
 
         #######################################################
-        # 
+        #
         #   Subcontracted federation
-        # 
+        #
         #   Now we ask for an experiment that only Provider 2
-        #   has. There is no load balance, but Consumer will 
+        #   has. There is no load balance, but Consumer will
         #   contact Provider 1, which will contact Provider 2
         #
         self._test_reservation(session_id, self.dummy4, 'Provider 2', True, True)
 
         #######################################################
-        # 
+        #
         #   Cross-domain load balancing
-        # 
-        #   Now we ask for an experiment that Consumer has, 
+        #
+        #   Now we ask for an experiment that Consumer has,
         #   but also Provider 1 and Provider 2.
         #
 
@@ -105,9 +105,9 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         reservation_id2 = self._test_reservation(session_id, self.dummy1, 'Provider 1', True, False)
         reservation_id3 = self._test_reservation(session_id, self.dummy1, 'Provider 2', True, False)
 
-        # 
+        #
         # What if one of them goes out and another comes? Is the load of experiments balanced correctly?
-        # 
+        #
         self.consumer_core_client.finished_experiment(reservation_id2)
         reservation_id2b = self._test_reservation(session_id, self.dummy1, 'Provider 1', True, False)
 
@@ -117,7 +117,7 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self.consumer_core_client.finished_experiment(reservation_id3)
         self._test_reservation(session_id, self.dummy1, 'Provider 2', True, False)
 
-        # 
+        #
         # What if another 2 come in? What is the position of their queues?
         #
 
@@ -131,9 +131,9 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self.assertEquals(Reservation.WAITING, reservation_status.status)
         self.assertEquals(1, reservation_status.position)
 
-        # 
+        #
         # Once again, freeing a session affects them?
-        # 
+        #
         self.consumer_core_client.finished_experiment(reservation_id2b)
         self._wait_reservation(reservation_4, 'Provider 1', True)
 

@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 ALL_VERBOSE = False
 TEST_VERBOSE = False
@@ -26,7 +26,7 @@ def uses_module(module, verbose = None):
 
     uses_module will use the '_resource_manager' variable in that module
     (which is an instance of voodoo.resources_manager), will check how many
-    resources are used before calling to the test and how many after 
+    resources are used before calling to the test and how many after
     calling the test, and it will try to clean the new ones. The main
     drawback of this code is that it misses the resources created in the
     setUp method and those disposed in the tearDown method.

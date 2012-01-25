@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
 from voodoo import log
 from voodoo.gen.caller_checker import caller_check
@@ -97,7 +97,7 @@ class ProxyServer(object):
         )
 
     def _create_session_manager(self):
-        session_type = self._cfg_manager.get_value(WEBLAB_PROXY_SERVER_SESSION_TYPE, DEFAULT_WEBLAB_PROXY_SERVER_SESSION_TYPE) 
+        session_type = self._cfg_manager.get_value(WEBLAB_PROXY_SERVER_SESSION_TYPE, DEFAULT_WEBLAB_PROXY_SERVER_SESSION_TYPE)
         session_pool_id   = self._cfg_manager.get_value(WEBLAB_PROXY_SERVER_SESSION_POOL_ID, DEFAULT_WEBLAB_PROXY_SERVER_SESSION_POOL_ID)
         if session_type in SessionType.getSessionTypeValues():
             return SessionManager.SessionManager(self._cfg_manager, session_type, session_pool_id)
@@ -133,7 +133,7 @@ class ProxyServer(object):
         data = {
                 'reservation_id': reservation_id,
                 'user_login': user_login,
-                'lab_coord_addr': lab_coord_addr, 
+                'lab_coord_addr': lab_coord_addr,
                 'lab_sess_id': lab_sess_id,
                 'trans_session_id': trans_session_id,
                 'trans_coord_addr': translator.get_coord_addr() if not is_a_default_translator else None,

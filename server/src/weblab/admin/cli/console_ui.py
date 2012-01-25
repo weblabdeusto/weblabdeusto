@@ -7,7 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
@@ -39,8 +39,8 @@ class ConsoleUI(object):
     These reading functions consider the following pre-conditions:
         * Keeping the input value blank means to accept the default value.
         * If there's no default value and the field is nullable, the default value will be None.
-        * It's now allowed to give a default value when the field is nullable. A programming exception will be raised. 
-    """        
+        * It's now allowed to give a default value when the field is nullable. A programming exception will be raised.
+    """
 
     def _format_label(self, label, nullable=False, default=None):
         assert not ( nullable and default is not None )
@@ -77,8 +77,8 @@ class ConsoleUI(object):
                 result = input.lower() in ('y','yes')
                 break
             except ValueError:
-                pass 
-        return result           
+                pass
+        return result
 
     def _read_int(self, label, default):
         while True:
@@ -91,8 +91,8 @@ class ConsoleUI(object):
                 result = int(input) if input is not None else None
                 break
             except ValueError:
-                pass 
-        return result           
+                pass
+        return result
 
     def _read_str(self, label, default):
         while True:
@@ -105,8 +105,8 @@ class ConsoleUI(object):
                 result = input
                 break
             except ValueError:
-                pass 
-        return result    
+                pass
+        return result
 
     def _read_password(self, label, default):
         while True:
@@ -119,8 +119,8 @@ class ConsoleUI(object):
                 result = input
                 break
             except ValueError:
-                pass 
-        return result   
+                pass
+        return result
 
     #
     # 2nd layer: Low-level Fields (responsible for the 'nullable' parameter)
@@ -178,7 +178,7 @@ class ConsoleUI(object):
 
     def _read_field_verified_password(self, label, nullable=False):
         response1 = self._read_field_password(label, nullable)
-        response2 = self._read_field_password(label+" (verify)", nullable)    
+        response2 = self._read_field_password(label+" (verify)", nullable)
         while response1 != response2:
             response1 = self._read_field_password(label, nullable)
             response2 = self._read_field_password(label+" (verify)", nullable)
@@ -198,7 +198,7 @@ class ConsoleUI(object):
         response = self._read_field_str(label, nullable, default)
         while response is not None and "@" not in response and "." not in response:
             response = self._read_field_str(label, nullable, default)
-        return response if response is not None else None    
+        return response if response is not None else None
 
     def _read_field_emails(self, label, nullable=False, default=None):
         response = self._read_field_str(label+" (separate by ,)", nullable, default)
@@ -210,7 +210,7 @@ class ConsoleUI(object):
 
     #
     # 4th layer: Application-level fields
-    #    
+    #
 
     def _read_field_full_users_file(self, label, nullable=False, default=None):
         """
@@ -233,7 +233,7 @@ class ConsoleUI(object):
 
     #
     # 4th layer: Application-level fields
-    #    
+    #
 
     def _read_field_full_users_db_file(self, label, nullable=False, default=None):
         """
@@ -262,7 +262,7 @@ class ConsoleUI(object):
         response = self._read_field_file(label, nullable, default)
         if response is not None:
             user_logins = [ login for login in
-                                    (''.join(char for char in line if not char.isspace()) for line in response) 
+                                    (''.join(char for char in line if not char.isspace()) for line in response)
                                   if not login.startswith('#') and not len(login) == 0
                           ]
             return user_logins
@@ -295,7 +295,7 @@ class ConsoleUI(object):
     def dialog_menu(self):
         self._clean(False)
         self._print("Main Menu")
-        self._print() 
+        self._print()
         self._print(" 1. Add Group")
         self._print(" 2. Add Experiment Category")
         self._print(" 3. Add Experiment")
@@ -342,7 +342,7 @@ class ConsoleUI(object):
         self._print("Add Experiment")
         self._print()
         return self._read_field_str("Name"), \
-               self._read_field_choose("Category", categories)        
+               self._read_field_choose("Category", categories)
 
     def dialog_add_users_to_group(self, groups, default_users_file):
         self._clean()
@@ -373,7 +373,7 @@ class ConsoleUI(object):
         self._print()
         return self._read_field_str("Username"), \
                self._read_field_password("Password"), \
-               self._read_field_str("Domain")               
+               self._read_field_str("Domain")
 
     def dialog_add_users_with_ldap_authtype(self, roles, auths, default_users_file):
         self._clean()
@@ -384,7 +384,7 @@ class ConsoleUI(object):
             self._print(" %s" % user_login)
         return user_logins, \
                self._read_field_choose("Role", roles, True), \
-               self._read_field_choose("Auth", auths)             
+               self._read_field_choose("Auth", auths)
 
     def dialog_add_users_with_openid_authtype(self, roles, auths, default_users_file):
         """
@@ -404,7 +404,7 @@ class ConsoleUI(object):
         for user_login in user_logins:
             self._print(" %s" % str(user_login))
 
-        # Let the user choose a role to apply to every user 
+        # Let the user choose a role to apply to every user
         role = self._read_field_choose("Role", roles, True)
         return user_logins, role
 
@@ -426,7 +426,7 @@ class ConsoleUI(object):
         for user_login in user_logins:
             self._print(" %s" % str(user_login))
 
-        # Let the user choose a role to apply to every user 
+        # Let the user choose a role to apply to every user
         role = self._read_field_choose("Role", roles, True)
         return user_logins, role
 
@@ -524,7 +524,7 @@ class ConsoleUI(object):
         self._clean()
         self._print("List Users")
         self._print()
-        if len(users) > 0: 
+        if len(users) > 0:
             for user in users:
                 self._print(user)
         else:
@@ -540,7 +540,7 @@ class ConsoleUI(object):
         response = ""
         while response.lower() not in ("y", "n"):
             response = self._raw_input("%s (y/n): " % question)
-        return response == "y"  
+        return response == "y"
 
     def notify(self, message):
         self._print()

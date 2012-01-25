@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import os
 import sys
@@ -70,7 +70,7 @@ class ResourceManager(object):
     # The rest of the methods will never be called in
     # production, so there is no need to reimplement
     # them in a not-locked version
-    # 
+    #
 
     @locked('_lock')
     def get_current_resources(self):

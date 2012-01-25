@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 from __future__ import with_statement
 
@@ -152,13 +152,13 @@ class LoginServerTestCase(unittest.TestCase):
             ldap_module = mockr.mock()
             ldap_module.initialize('ldaps://castor.cdk.deusto.es')
             mockr.result(ldap_object)
-            LoginAuth._ldap_provider.ldap_module = ldap_module 
+            LoginAuth._ldap_provider.ldap_module = ldap_module
 
             with mockr:
                 self.assertRaises(
                     LoginExceptions.InvalidCredentialsException,
                     self.login_server.login,
-                    fake_ldap_user, 
+                    fake_ldap_user,
                     fake_ldap_invalid_passwd
                 )
 

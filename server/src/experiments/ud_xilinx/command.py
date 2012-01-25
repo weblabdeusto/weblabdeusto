@@ -7,21 +7,21 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import re
 
 import experiments.ud_xilinx.exc as UdXilinxExperimentExceptions
 
 class UdBoardCommand(object):
 
-    _REGEX_FORMAT="^((%(complete-syntax)s, )*%(complete-syntax)s)$" 
+    _REGEX_FORMAT="^((%(complete-syntax)s, )*%(complete-syntax)s)$"
     @staticmethod
     def get_syntax():
-        return UdBoardCommand._REGEX_FORMAT % { 
+        return UdBoardCommand._REGEX_FORMAT % {
             'complete-syntax' : UdBoardSimpleCommand.get_full_syntax()
         }
 
@@ -97,7 +97,7 @@ class ChangeSwitchCommand(UdBoardSimpleCommand):
 
     def __str__(self):
         return "ChangeSwitch %s %s" % (
-                bool_to_on_off(self.switch_on), 
+                bool_to_on_off(self.switch_on),
                 self.number
             )
 

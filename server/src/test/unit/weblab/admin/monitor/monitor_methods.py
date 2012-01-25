@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import unittest
 
@@ -23,7 +23,7 @@ import test.unit.configuration as configuration_module
 import weblab.admin.monitor.monitor_methods           as methods
 import voodoo.configuration      as ConfigurationManager
 import weblab.core.server    as UserProcessingServer
-import weblab.core.coordinator.coordinator as Coordinator 
+import weblab.core.coordinator.coordinator as Coordinator
 import weblab.core.coordinator.confirmer   as Confirmer
 import weblab.core.exc as core_exc
 from weblab.core.coordinator.config_parser import COORDINATOR_LABORATORY_SERVERS
@@ -70,7 +70,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         self.cfg_manager._set_value(COORDINATOR_LABORATORY_SERVERS, {
             'server:laboratoryserver@labmachine' : {
                 'inst|ud-dummy|Dummy experiments' : 'res_inst@res_type'
-            }        
+            }
         })
 
         # With this one we clean everything before creating the UPS
@@ -162,19 +162,19 @@ class MonitorMethodsTestCase(unittest.TestCase):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
 
-        # 
+        #
         # It returns only the sessions_ids of the experiments
-        # 
+        #
         result = methods.get_experiment_ups_session_ids.call(category, experiment)
-        self.assertEquals( [], result ) 
+        self.assertEquals( [], result )
 
         status = self.ups.reserve_experiment( sess_id, ExperimentId( experiment, category ), "{}", "{}", ClientAddress.ClientAddress( "127.0.0.1" ))
 
         result = methods.get_experiment_ups_session_ids.call(category, experiment)
         self.assertEquals( 1, len(result) )
         session_id, login, reservation_id = result[0]
-        self.assertEquals( status.reservation_id.id.split(';')[0], session_id ) 
-        self.assertEquals( "student2", login ) 
+        self.assertEquals( status.reservation_id.id.split(';')[0], session_id )
+        self.assertEquals( "student2", login )
 
     def test_get_ups_session_ids_from_username(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")

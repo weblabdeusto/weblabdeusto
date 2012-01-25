@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import cPickle as pickle
 
@@ -21,7 +21,7 @@ import sys
 import time as time_module
 
 class _HasheableKey(object):
-    """ If args are hasheable and there is no kwargs (which will 
+    """ If args are hasheable and there is no kwargs (which will
     never be hasheable), then there is no need to pickle anything, so
     everything will run far faster.
     """
@@ -154,7 +154,7 @@ def cache(time_to_wait = None, resource_manager = None):
             self.lock         = threading.RLock()
             self.dictionaries_per_inst = {
                     # inst : { # if it's not an inst, None is the key
-                    #   'dict': {}, 
+                    #   'dict': {},
                     #   'list': []
                     # }
                  }

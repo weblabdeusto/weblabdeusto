@@ -7,7 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -151,7 +151,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         self.assertEquals( file2.timestamp_before, full_usage.sent_files[1].timestamp_before)
         self.assertEquals( file2.response, full_usage.sent_files[1].response)
         if file2.timestamp_after is not None:
-            self.assertEquals( file2.timestamp_after, full_usage.sent_files[1].timestamp_after)  
+            self.assertEquals( file2.timestamp_after, full_usage.sent_files[1].timestamp_after)
 
 
     def test_add_command(self):
@@ -524,14 +524,14 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         gpib_permissions = [ perm for perm in permissions if perm.get_parameter("experiment_permanent_id").value == "ud-gpib"]
         self.assertEquals(1, len(gpib_permissions) )
 
-        second_permission = gpib_permissions[0]        
+        second_permission = gpib_permissions[0]
         self.assertEquals(len(second_permission.parameters), 3)
         self.assertEquals(second_permission.get_parameter('experiment_permanent_id').value, 'ud-gpib')
         self.assertEquals(second_permission.get_parameter('experiment_category_id').value, 'GPIB experiments')
         self.assertEquals(second_permission.get_parameter('time_allowed').value, '150')
         self.assertEquals(second_permission.get_permission_type().name, 'experiment_allowed')
 
-        self.assertEquals(first_permission.get_permission_type(), second_permission.get_permission_type())        
+        self.assertEquals(first_permission.get_permission_type(), second_permission.get_permission_type())
         self.assertEquals(
                 first_permission.get_parameter('experiment_permanent_id').permission_type_parameter,
                 second_permission.get_parameter('experiment_permanent_id').permission_type_parameter,
@@ -551,7 +551,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         self.assertEquals(fpga_permission.get_parameter('time_allowed').value, '150')
         self.assertEquals(fpga_permission.get_permission_type().name, 'experiment_allowed')
         self.assertEquals(fpga_permission.get_parameter('experiment_permanent_id').get_name(), 'experiment_permanent_id')
-        self.assertEquals(fpga_permission.get_parameter('experiment_permanent_id').get_datatype(), 'string')   
+        self.assertEquals(fpga_permission.get_parameter('experiment_permanent_id').get_datatype(), 'string')
 
         experiments = self.gateway.get_experiments(student2.login)
         self.assertEquals(len(experiments), 0)

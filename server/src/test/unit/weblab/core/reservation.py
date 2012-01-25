@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import datetime
 import time
@@ -26,9 +26,9 @@ class ReservationTest(unittest.TestCase):
     def assertCorrectReservation(self, reservation):
         self.assertEquals(str(reservation), str(eval(str(reservation))))
 
-    # 
+    #
     # __str__
-    # 
+    #
     def test_str_waiting_reservation(self):
         reservation = WaitingReservation("reservation_id", 5)
         self.assertCorrectReservation(reservation)
@@ -49,9 +49,9 @@ class ReservationTest(unittest.TestCase):
         reservation = PostReservationReservation("reservation_id", True, "{}", '{"foo"="bar"}')
         self.assertCorrectReservation(reservation)
 
-    # 
+    #
     # translate_reservation
-    # 
+    #
     def test_translate_reservation_waiting_instances(self):
         status = WSS.WaitingInstancesQueueStatus('foo', 5)
         reservation = Reservation.translate_reservation(status)
@@ -108,9 +108,9 @@ class ReservationTest(unittest.TestCase):
         self.assertTrue(reservation.finished)
         self.assertEquals(status, reservation.to_status())
 
-    # 
+    #
     # translate_reservation_from_data
-    # 
+    #
     def test_translate_reservation_from_data_waiting(self):
         reservation = Reservation.translate_reservation_from_data(Reservation.WAITING, 'foo', 5, None, None, None, None, None, None, None)
         self.assertEquals(Reservation.WAITING, reservation.status)

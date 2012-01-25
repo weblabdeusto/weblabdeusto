@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Luis Rodríguez <luis.rodriguez@opendeusto.es>
-# 
+#
 
 import weblab.experiment.experiment as Experiment
 
@@ -77,7 +77,7 @@ class RobotProglist(Experiment.Experiment):
     @Override(Experiment.Experiment)
     @logged("info")
     def do_send_file_to_device(self, content, file_info):
-        """ 
+        """
         Callback for when the client sends a file to the experiment
         server.
         """

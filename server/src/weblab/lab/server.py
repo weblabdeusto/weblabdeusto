@@ -7,13 +7,13 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
-# 
+#
 
 import re
 
@@ -64,12 +64,12 @@ DEBUG = False
 
 ##########################################################
 #
-# The Laboratory Server is a proxy server between WebLab 
+# The Laboratory Server is a proxy server between WebLab
 # and the experiments. The main purpose is to provide
-# low level features (such as encryption, low level 
+# low level features (such as encryption, low level
 # protocols, etc.) to the experiment, through the WebLab
 # stack.
-# 
+#
 class LaboratoryServer(object):
 
     # exp_inst_name|exp_name|exp_cat;coord_address
@@ -78,9 +78,9 @@ class LaboratoryServer(object):
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(LaboratoryServer,self).__init__(*args, **kwargs)
 
-        session_type    = cfg_manager.get_value(WEBLAB_LABORATORY_SERVER_SESSION_TYPE, 
+        session_type    = cfg_manager.get_value(WEBLAB_LABORATORY_SERVER_SESSION_TYPE,
                                            DEFAULT_WEBLAB_LABORATORY_SERVER_SESSION_TYPE)
-        session_pool_id = cfg_manager.get_value(WEBLAB_LABORATORY_SERVER_SESSION_POOL_ID, 
+        session_pool_id = cfg_manager.get_value(WEBLAB_LABORATORY_SERVER_SESSION_POOL_ID,
                                            DEFAULT_WEBLAB_LABORATORY_SERVER_SESSION_POOL_ID)
         self._session_manager = SessionManager.SessionManager(
                 cfg_manager,
@@ -91,7 +91,7 @@ class LaboratoryServer(object):
         self._locator               = locator
         self._cfg_manager           = cfg_manager
 
-        # This dictionary will be used to store the ongoing and not-yet-queried 
+        # This dictionary will be used to store the ongoing and not-yet-queried
         # async requests. They will be stored by session.
         # TODO: Consider refactoring this.
         self._async_requests = {}
@@ -102,9 +102,9 @@ class LaboratoryServer(object):
 
     #######################################################
     #
-    # Parse the configuration and load all the experiments 
+    # Parse the configuration and load all the experiments
     # found. This task is executed at the beginning.
-    # 
+    #
     def _parse_assigned_experiments(self):
         assigned_experiments = self._cfg_manager.get_value(WEBLAB_LABORATORY_SERVER_ASSIGNED_EXPERIMENTS)
 
@@ -113,7 +113,7 @@ class LaboratoryServer(object):
         for experiment_instance_id, data in assigned_experiments.items():
             mo = re.match(self.EXPERIMENT_INSTANCE_ID_REGEX, experiment_instance_id)
             if mo == None:
-                raise LaboratoryExceptions.InvalidLaboratoryConfigurationException("Invalid configuration entry. Expected format: %s; found: %s" % 
+                raise LaboratoryExceptions.InvalidLaboratoryConfigurationException("Invalid configuration entry. Expected format: %s; found: %s" %
                     (LaboratoryServer.EXPERIMENT_INSTANCE_ID_REGEX, experiment_instance_id))
             else:
                 # ExperimentInstanceId
@@ -155,9 +155,9 @@ class LaboratoryServer(object):
             self._assigned_experiments.add_server(exp_inst_id, coord_address, checking_handlers)
 
     #####################################################
-    # 
+    #
     # Experiments management
-    # 
+    #
 
     @logged(log.level.Info)
     @caller_check(ServerType.UserProcessing)
@@ -197,7 +197,7 @@ class LaboratoryServer(object):
         if api is None:
             reported_api = self._get_experiment_api(experiment_instance_id)
             if reported_api is None:
-                log.log( LaboratoryServer, log.level.Warning, "It was not possible to find out the api version of %r. Using current version as default." 
+                log.log( LaboratoryServer, log.level.Warning, "It was not possible to find out the api version of %r. Using current version as default."
                          % experiment_coord_address)
                 if DEBUG:
                     print "[DBG] Was not possible to find out the api version of %r" % experiment_coord_address
@@ -284,7 +284,7 @@ class LaboratoryServer(object):
 
         @param experiment_instance_id The id of the experiment instance whose API to retrieve
         @return The API version, or None if an error occurred or it wasn't possible to retrieve the version.
-        """        
+        """
         try:
             experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
             experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
@@ -299,8 +299,8 @@ class LaboratoryServer(object):
                 try:
                     reported_api = experiment_server.get_api()
                 except:
-                    # Failed again to get_api, but test had previously worked? 
-                    # Then it is probably using the version 1, 
+                    # Failed again to get_api, but test had previously worked?
+                    # Then it is probably using the version 1,
                     # where the get_api method was not supported
                     reported_api = ExperimentApiLevel.level_1
             except:
@@ -313,7 +313,7 @@ class LaboratoryServer(object):
     @logged(log.level.Info)
     @caller_check(ServerType.UserProcessing)
     def do_check_experiments_resources(self):
-        """Are the resources that the assigned experiment servers use working? It does not matter if this 
+        """Are the resources that the assigned experiment servers use working? It does not matter if this
         experiment is being used or not, this method will only check things like certain IP addresses replying,
         webcams returning valid images, or the experiment server returning correctly on test_me.
         """
@@ -338,7 +338,7 @@ class LaboratoryServer(object):
                 error_message = '; '.join(error_messages)
                 failing_experiment_instance_ids[experiment_instance_id] = error_message
                 self.log_error(experiment_instance_id, error_message)
-            else: 
+            else:
                 # No error yet, so probably the host is up and running; try to call the WebLab service
                 experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
                 try:
@@ -360,7 +360,7 @@ class LaboratoryServer(object):
     @caller_check(ServerType.UserProcessing)
     def do_experiment_is_up_and_running(self, experiment_instance_id):
         """Does the experiment server consider that the experiment is up and running? This method will only
-        be called by the coordinator whenever there is an available slot, so the experiment server can 
+        be called by the coordinator whenever there is an available slot, so the experiment server can
         perform a test knowing that it is not going to be interrupted."""
         api = self._assigned_experiments.get_api(experiment_instance_id)
         if api == ExperimentApiLevel.level_1:
@@ -384,12 +384,12 @@ class LaboratoryServer(object):
             experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
             return experiment_server.should_finish()
 
-    # 
+    #
     # TODO
     # If an experiment can handle multiple users, then
     # we'll have a coord_address with multiple uses,
     # so this method might not actually be not be useful
-    # 
+    #
     @logged(log.level.Info)
     @check_session(*check_session_params)
     @caller_check(ServerType.UserProcessing)
@@ -398,9 +398,9 @@ class LaboratoryServer(object):
         return self._assigned_experiments.get_coord_address(experiment_instance_id)
 
     #####################################################
-    # 
+    #
     # Experiments interaction
-    # 
+    #
 
     @logged(log.level.Info,except_for=(('file_content',2),))
     @check_session(*check_session_params)
@@ -439,7 +439,7 @@ class LaboratoryServer(object):
     @threaded()
     def _send_async_file_t(self, session, file_content, file_info):
         """
-        This method is used for asynchronously calling the experiment server's 
+        This method is used for asynchronously calling the experiment server's
         send_file_to_device, and for that purpose runs on its own thread.
         This implies that its response will arrive asynchronously to the client.
         """
@@ -462,17 +462,17 @@ class LaboratoryServer(object):
     def do_send_async_file(self, session, file_content, file_info):
         """
         Runs the experiment server's send_file_to_device asynchronously, by running the
-        call on its own thread and storing the result, to be returned through the 
-        check_async_command_status request. 
+        call on its own thread and storing the result, to be returned through the
+        check_async_command_status request.
 
         @param session: Session
         @param request_identifiers: List of request identifiers whose status to check.
         @return A dictionary with each request identifier as key and a (status, contents) tuple as values.
         The status can either be "ok", if the request is done, "error", if it failed, and "running", if it
-        has not finished yet. In the first two cases, contents will return the response. 
+        has not finished yet. In the first two cases, contents will return the response.
         """
 
-        # Call the async method which will run on its own thread. Store the object 
+        # Call the async method which will run on its own thread. Store the object
         # it returns, so that we can know whether it has finished.
         threadobj = self._send_async_file_t(session, file_content, file_info)
 
@@ -504,7 +504,7 @@ class LaboratoryServer(object):
         @param request_identifiers: List of request identifiers whose status to check.
         @return A dictionary with each request identifier as key and a (status, contents) tuple as values.
         The status can either be "ok", if the request is done, "error", if it failed, and "running", if it
-        has not finished yet. In the first two cases, contents will return the response. 
+        has not finished yet. In the first two cases, contents will return the response.
         """
 
         session_id = session['session_id']
@@ -520,7 +520,7 @@ class LaboratoryServer(object):
             # will simply ignore it and return nothing about it. We will handle
             # the remaining request ids normally.
             # TODO: Consider whether doing this is appropriate.
-            if( req_id not in self._async_requests[session_id] ): 
+            if( req_id not in self._async_requests[session_id] ):
                 continue
 
             req = self._async_requests[session_id][req_id]
@@ -548,7 +548,7 @@ class LaboratoryServer(object):
     @threaded()
     def _send_async_command_t(self, session, command):
         """
-        This method is used for asynchronously calling the experiment server's 
+        This method is used for asynchronously calling the experiment server's
         send_command_to_device, and for that purpose runs on its own thread.
         This implies that its response will arrive asynchronously to the client.
         """
@@ -570,14 +570,14 @@ class LaboratoryServer(object):
     def do_send_async_command(self, session, command):
         """
         Runs the experiment server's send_command_to_device asynchronously, by running the
-        call on its own thread and storing the result, to be returned through the 
+        call on its own thread and storing the result, to be returned through the
         check_async_command_status request.
 
-        @param session: Session 
+        @param session: Session
         @param command: Command to execute asynchronously
         """
 
-        # Call the async method which will run on its own thread. Store the object 
+        # Call the async method which will run on its own thread. Store the object
         # it returns, so that we can know whether it has finished.
         threadobj = self._send_async_command_t(session, command)
 

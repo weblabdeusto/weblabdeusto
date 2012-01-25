@@ -7,7 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -186,7 +186,7 @@ class ServerLocatorTestCase(unittest.TestCase):
             # 4 servers
             # We are in machine0, instance0, server0
 
-            # They all have Direct 
+            # They all have Direct
 
             # 1st: address
             address1 = map['machine0']['instance0']['server0'].address
@@ -251,16 +251,16 @@ class ServerLocatorTestCase(unittest.TestCase):
             soap_network4 = SOAPNetwork.SOAPNetwork(server_ip_address4)
 
             # 3rd: accesses
-            access_soap1 = Access.Access( 
+            access_soap1 = Access.Access(
                 Protocols.SOAP,AccessLevel.network, ( soap_network1, )
             )
-            access_soap2 = Access.Access( 
+            access_soap2 = Access.Access(
                 Protocols.SOAP,AccessLevel.network, ( soap_network2, )
             )
-            access_soap3 = Access.Access( 
+            access_soap3 = Access.Access(
                 Protocols.SOAP,AccessLevel.network, ( soap_network3, )
             )
-            access_soap4 = Access.Access( 
+            access_soap4 = Access.Access(
                 Protocols.SOAP,AccessLevel.network, ( soap_network4, )
             )
 
@@ -357,7 +357,7 @@ class ServerLocatorTestCase(unittest.TestCase):
 
             def wrong_test_me(self,arg):
                 YetAnother2.do_test_me = old_test_me
-                return arg * 2 
+                return arg * 2
 
             YetAnother2.do_test_me = wrong_test_me
 
@@ -385,13 +385,13 @@ class ServerLocatorTestCase(unittest.TestCase):
                 )
 
             def wrong_test_me_forever(self,arg):
-                return arg * 2 
+                return arg * 2
 
             YetAnother2.do_test_me = wrong_test_me_forever
 
             locator.inform_server_not_working(yet_another_login_server,SampleServerType.Login,None)
 
-            return # TODO: 
+            return # TODO:
 
             # YetAnother2 doesn't work anymore, and the other two ports are not going to work
             self.assertRaises(
@@ -425,10 +425,10 @@ class ServerLocatorTestCase(unittest.TestCase):
             soap_network2 = SOAPNetwork.SOAPNetwork(server_ip_address2)
 
             # 3rd: accesses
-            access_soap1 = Access.Access( 
+            access_soap1 = Access.Access(
                 Protocols.SOAP,AccessLevel.network, ( soap_network1, )
             )
-            access_soap2 = Access.Access( 
+            access_soap2 = Access.Access(
                 Protocols.SOAP,AccessLevel.network, ( soap_network2, )
             )
 
@@ -461,7 +461,7 @@ class ServerLocatorTestCase(unittest.TestCase):
             s1= RealCoordinatorServer(
                     cfg_manager,
                     map,
-                    Direct = (coordinator_server_address.address,), 
+                    Direct = (coordinator_server_address.address,),
                     SOAP = ('',12349)
                 )
             s1.start()
@@ -476,7 +476,7 @@ class ServerLocatorTestCase(unittest.TestCase):
                 def do_method1(self,arg):
                     return arg * 3
 
-            s2 = RealLoginServer( 
+            s2 = RealLoginServer(
                     SOAP = ('',12350)
                 )
             s2.start()
@@ -682,7 +682,7 @@ class ServerLocatorTestCase(unittest.TestCase):
                 ()
             )
 
-        # CoordinatorImplementor says "The first time, I find the 
+        # CoordinatorImplementor says "The first time, I find the
         # login_server1_address; the second time, I don't find any"
         login_server1_address = self.login_server1_address
         global keep_returning_login_server
@@ -788,7 +788,7 @@ class ServerLocatorTestCase(unittest.TestCase):
                 ()
             )
 
-        # CoordinatorImplementor says "The first time, I find the 
+        # CoordinatorImplementor says "The first time, I find the
         # login_server1_address; the second time, I don't find any"
         login_server1_address = self.login_server1_address
         global keep_returning_login_server
@@ -907,7 +907,7 @@ class ServerLocatorTestCase(unittest.TestCase):
             return [
                     (
                         # It should be a CoordServer, but...
-                        obj1, 
+                        obj1,
                         (
                             FakeNetwork(
                                 login_server1_address
@@ -916,7 +916,7 @@ class ServerLocatorTestCase(unittest.TestCase):
                     ),
                     (
                         # It should be a CoordServer, but...
-                        obj2, 
+                        obj2,
                         (
                             FakeNetwork(
                                 login_server2_address

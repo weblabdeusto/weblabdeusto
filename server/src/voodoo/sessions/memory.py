@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import threading
 import time
 import sys
@@ -129,13 +129,13 @@ class SessionMemoryGateway(object):
         #  session = get_session_locking(session_id)
         #  something()
         #  modify_session_unlocking(session_id, session)
-        # 
+        #
         # And something() calls again:
         # session = get_session_locking(same_session_id)
         # session['foo'] = 'bar'
         # modify_session_unlocking(same_session_id, session)
-        # 
-        # Then once "something" is called, the first function will store 
+        #
+        # Then once "something" is called, the first function will store
         # the original session, therefore removing the changes performed
         # in "something". That's really dangerous, so we use here a
         # threading.Lock so the thread is locked and this can't happen.
@@ -231,7 +231,7 @@ class SessionMemoryGateway(object):
         return total_session_ids
 
     def clear(self):
-        """ If calling this method concurrently with a create_session, 
+        """ If calling this method concurrently with a create_session,
         it might happen that in no moment the sessions is empty. """
         for first_chars in self._sessions:
             lock, sessions = self._sessions[first_chars]

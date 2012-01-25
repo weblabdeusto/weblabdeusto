@@ -7,7 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -43,9 +43,9 @@ def generate(cfg_manager, methods):
             self._full_address = full_address
 
         def register_parent(self,parent):
-            self._parent = parent           
+            self._parent = parent
             # We should also register the server in the ServerRegistry
-            import voodoo.gen.registry.server_registry as ServerRegistry 
+            import voodoo.gen.registry.server_registry as ServerRegistry
             import voodoo.gen.exceptions.registry.RegistryExceptions as RegistryExceptions
             registry = ServerRegistry.get_instance()
             try:

@@ -7,12 +7,12 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 #         Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 from functools import wraps
 
@@ -110,7 +110,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                 p_priority                     = self._get_int_parameter_from_permission(session, permission, 'priority', ExperimentAllowed.DEFAULT_PRIORITY)
                 p_initialization_in_accounting = self._get_bool_parameter_from_permission(session, permission, 'initialization_in_accounting', ExperimentAllowed.DEFAULT_INITIALIZATION_IN_ACCOUNTING)
 
-                experiment = session.query(model.DbExperiment).filter_by(name=p_permanent_id).filter(model.DbExperimentCategory.name==p_category_id).one() 
+                experiment = session.query(model.DbExperiment).filter_by(name=p_permanent_id).filter(model.DbExperimentCategory.name==p_category_id).one()
                 experiment_allowed = ExperimentAllowed.ExperimentAllowed(experiment.to_business(), p_time_allowed, p_priority, p_initialization_in_accounting)
 
                 experiment_unique_id = p_permanent_id+"@"+p_category_id
@@ -158,7 +158,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                 )
             session.add(use)
             # TODO: The c.response of an standard command is an object with
-            # a commandstring, whereas the response to an async command is 
+            # a commandstring, whereas the response to an async command is
             # a simple string to identify the request. The way in which the logger
             # currently handles these cases is somewhat shady.
             for c in experiment_usage.commands:
@@ -395,7 +395,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
 
     @logged()
     def get_experiment_uses_by_id(self, user_login, reservation_ids):
-        """ Retrieve the full information of these reservation_ids, if the user has permissions to do so. By default 
+        """ Retrieve the full information of these reservation_ids, if the user has permissions to do so. By default
          a user can only access to those reservations that he made in the past."""
 
         results = []
@@ -419,7 +419,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
     @admin_panel_operation
     @logged()
     def get_experiment_uses(self, user_login, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by):
-        """ All the experiment uses are returned by the moment. Filters are optional (they may be null), but if 
+        """ All the experiment uses are returned by the moment. Filters are optional (they may be null), but if
         applied the results should chang.e The result is represented as (dto_objects, total_number_of_registers) """
 
         session = self.Session()
@@ -496,7 +496,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                     table, field = tables_to_join.pop(0)
                     # Just in case it was added twice, for instance if sorting by experiment name *and* category name
                     if (table,field) in tables_to_join:
-                        tables_to_join.remove((table,field)) 
+                        tables_to_join.remove((table,field))
                     query_object = query_object.join((table, field))
 
                 query_object = query_object.order_by(*sorters) # Apply all sorters in order
@@ -604,7 +604,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                     permission.get_permission_type().name,
                     value
                 )
-            )       
+            )
 
     def _get_int_parameter_from_permission(self, session, permission, parameter_name, default_value = DEFAULT_VALUE):
         value = self._get_parameter_from_permission(session, permission, parameter_name, default_value)
@@ -617,10 +617,10 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                     permission.get_permission_type().name,
                     value
                 )
-            )       
+            )
 
     def _get_bool_parameter_from_permission(self, session, permission, parameter_name, default_value = DEFAULT_VALUE):
-        return self._get_parameter_from_permission(session, permission, parameter_name, default_value) 
+        return self._get_parameter_from_permission(session, permission, parameter_name, default_value)
 
     def _delete_all_uses(self):
         """ IMPORTANT: SHOULD NEVER BE USED IN PRODUCTION, IT'S HERE ONLY FOR TESTS """
@@ -632,7 +632,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
             eu = session.query(model.DbExternalEntityUsedExperiment).all()
             for i in eu:
                 session.delete(i)
-            session.commit()               
+            session.commit()
         finally:
             session.close()
 

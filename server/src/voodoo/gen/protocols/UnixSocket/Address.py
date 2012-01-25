@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
 import voodoo.gen.coordinator.Address as cAddress
 import voodoo.gen.generators.ClientSkel as ClientSkel
@@ -21,7 +21,7 @@ import voodoo.gen.protocols.UnixSocket.Exceptions as Exceptions
 
 import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
 
-from voodoo.override import Override 
+from voodoo.override import Override
 
 class Address(cAddress.Address):
 
@@ -56,7 +56,7 @@ class Address(cAddress.Address):
             return cmp_machine_id
         cmp_path_id = cmp(self.path_id,other.path_id)
         if cmp_path_id != 0:
-            return cmp_path_id      
+            return cmp_path_id
         return 0
 
     @Override(cAddress.Address)

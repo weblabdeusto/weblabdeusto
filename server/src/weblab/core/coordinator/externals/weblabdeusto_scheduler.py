@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import time as time_mod
 import cPickle as pickle
@@ -64,9 +64,9 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         return client
 
     #######################################################################
-    # 
+    #
     # Given a reservation_id, it returns in which state the reservation is
-    # 
+    #
     @logged()
     @Override(Scheduler)
     def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info):
@@ -116,9 +116,9 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         return reservation_status
 
     #######################################################################
-    # 
+    #
     # Given a reservation_id, it returns in which state the reservation is
-    # 
+    #
     @logged()
     @Override(Scheduler)
     def get_reservation_status(self, reservation_id):
@@ -160,7 +160,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     @Override(Scheduler)
     def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
         # At some point, we must call the upper level to say that we want to confirm
-        # at this point, it's normal that they call us back, even if there is nothing 
+        # at this point, it's normal that they call us back, even if there is nothing
         # to do
         pass
 
@@ -189,9 +189,9 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         client.finished_experiment(SessionId(remote_reservation_id))
 
     ##############################################################
-    # 
+    #
     # ONLY FOR TESTING: It completely removes the whole database
-    # 
+    #
     @Override(Scheduler)
     def _clean(self):
         session = self.session_maker()

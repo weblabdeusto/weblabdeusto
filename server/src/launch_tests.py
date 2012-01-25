@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import libraries
 import os
@@ -131,7 +131,7 @@ def runXml(folder):
         wasSuccessful &= runSuite(current_suite, file_name)
 
     if not wasSuccessful:
-        sys.exit(-1)    
+        sys.exit(-1)
 
 def debugThreads():
     import threading
@@ -144,7 +144,7 @@ def debugThreads():
 
 #DEFAULT_UI     = 'xml'
 #DEFAULT_UI     = 'gui'
-DEFAULT_UI     = 'console' 
+DEFAULT_UI     = 'console'
 
 def check_flakes():
     try:
@@ -153,7 +153,7 @@ def check_flakes():
         return
 
     stdout = sys.stdout
-    sys.stdout = StringIO.StringIO() 
+    sys.stdout = StringIO.StringIO()
     number_of_lines = main_pyflakes(("weblab", "test", "voodoo", "experiments"))
     results = sys.stdout
     sys.stdout = stdout

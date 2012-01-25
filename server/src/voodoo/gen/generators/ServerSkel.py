@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 from abc import ABCMeta, abstractmethod
 
 import voodoo.gen.generators.Args as Args
@@ -20,7 +20,7 @@ import voodoo.gen.protocols.protocols as _Protocols
 def _generate_abstract_class(methods):
     methods_code = ""
     for method in methods:
-        methods_code += """    
+        methods_code += """
     @abstractmethod
     def %s(self):
         pass
@@ -112,7 +112,7 @@ def _generate_server_skel(methods,servers):
 #
 #This way, all the code subclassing the returned class will be
 #in practice independent from the type of communication. By changing
-#the "protocols" value, all the code down will use other kind of 
+#the "protocols" value, all the code down will use other kind of
 #communication (such as direct communication, SOAP, XML-RPC, Jabber...)
 
 def factory(cfg_manager, protocols, methods):
@@ -140,7 +140,7 @@ def factory(cfg_manager, protocols, methods):
         mySystem = __name__[:__name__.find('generators')]
         full_module_name = mySystem+'protocols.'+protocol+'.'+moduleName
         mod = __import__(full_module_name, globals(), locals(), [ moduleName ])
-        return mod.generate(cfg_manager, methods) 
+        return mod.generate(cfg_manager, methods)
 
     # "servers" will be a dictionary with the name of the callback as key
     # and a class which uses this protocol to offer the parameters asked

@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import datetime
 
@@ -40,9 +40,9 @@ import json
 EXPIRATION_TIME  = 3600 # seconds
 
 ###########################################################
-# 
-# TODO write some documentation 
-# 
+#
+# TODO write some documentation
+#
 
 def exc_checker(func):
     def wrapper(*args, **kwargs):
@@ -131,9 +131,9 @@ class PriorityQueueScheduler(Scheduler):
 
 
     #######################################################################
-    # 
+    #
     # Given a reservation_id, it returns in which state the reservation is
-    # 
+    #
     @exc_checker
     @logged()
     @Override(Scheduler)
@@ -154,12 +154,12 @@ class PriorityQueueScheduler(Scheduler):
         return_current_status = False
         session = self.session_maker()
         try:
-            # 
-            # If the current user is actually in a reservation assigned to a 
-            # certain laboratory, it may be in a Reserved state or in a 
+            #
+            # If the current user is actually in a reservation assigned to a
+            # certain laboratory, it may be in a Reserved state or in a
             # WaitingConfirmation state (meaning that it is still waiting for
             # a response from the Laboratory).
-            # 
+            #
             concrete_current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == reservation_id).first()
             if concrete_current_reservation is not None:
                 resource_instance     = concrete_current_reservation.slot_reservation.current_resource_slot.resource_instance
@@ -206,20 +206,20 @@ class PriorityQueueScheduler(Scheduler):
             resource_type = session.query(ResourceType).filter_by(name = self.resource_type_name).one()
             waiting_reservation = session.query(WaitingReservation).filter_by(reservation_id = reservation_id, resource_type_id = resource_type.id).first()
 
-            # 
+            #
             # If it has not been assigned to any laboratory, then it might
-            # be waiting in the queue of that resource type (Waiting) or 
+            # be waiting in the queue of that resource type (Waiting) or
             # waiting for instances (WaitingInstances, meaning that there is
             # no resource of that type implemented)
-            # 
+            #
             waiting_reservations = session.query(WaitingReservation)\
                     .filter(WaitingReservation.resource_type == waiting_reservation.resource_type).order_by(WaitingReservation.priority, WaitingReservation.id).all()
 
             if waiting_reservation is None or waiting_reservation not in waiting_reservations:
-                # 
-                # The position has changed and it is not in the list anymore! 
+                #
+                # The position has changed and it is not in the list anymore!
                 # This has happened using WebLab Bot with 65 users.
-                # 
+                #
                 return_current_status = True
 
             else:
@@ -252,14 +252,14 @@ class PriorityQueueScheduler(Scheduler):
         self._remove_expired_reservations()
 
         session = self.session_maker()
-        try:    
+        try:
             if not self.reservations_manager.check(session, reservation_id):
                 return
 
             possible_concrete_current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == reservation_id).first()
             concrete_current_reservation = None
             if possible_concrete_current_reservation is not None:
-                slot = possible_concrete_current_reservation.slot_reservation 
+                slot = possible_concrete_current_reservation.slot_reservation
                 if slot is not None:
                     current_resource_slot = slot.current_resource_slot
                     if current_resource_slot is not None:
@@ -292,14 +292,14 @@ class PriorityQueueScheduler(Scheduler):
         self._remove_expired_reservations()
 
         session = self.session_maker()
-        try: 
+        try:
             possible_current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == reservation_id).first()
 
             # Clean current reservation... if the current reservation is assigned to this scheduler
             concrete_current_reservation = None
             enqueue_free_experiment_args = None
             if possible_current_reservation is not None:
-                slot = possible_current_reservation.slot_reservation 
+                slot = possible_current_reservation.slot_reservation
                 if slot is not None:
                     current_resource_slot = slot.current_resource_slot
                     if current_resource_slot is not None:
@@ -313,7 +313,7 @@ class PriorityQueueScheduler(Scheduler):
             db_resource_type = session.query(ResourceType).filter_by(name = self.resource_type_name).first()
             reservation_to_delete = concrete_current_reservation or session.query(WaitingReservation).filter_by(reservation_id = reservation_id, resource_type = db_resource_type).first()
             if reservation_to_delete is not None:
-                session.delete(reservation_to_delete) 
+                session.delete(reservation_to_delete)
 
             session.commit()
             if enqueue_free_experiment_args is not None:
@@ -345,43 +345,43 @@ class PriorityQueueScheduler(Scheduler):
         self._update_queues()
 
     #############################################################
-    # 
+    #
     # Take the queue of a given Resource Type and update it
-    # 
+    #
     @exc_checker
     def _update_queues(self):
         ###########################################################
-        # There are reasons why a waiting reservation may not be 
+        # There are reasons why a waiting reservation may not be
         # able to be promoted while the next one is. For instance,
-        # if a user is waiting for "pld boards", but only for 
+        # if a user is waiting for "pld boards", but only for
         # instances of "pld boards" which have a "ud-binary@Binary
-        # experiments" server running. If only a "ud-pld@PLD 
+        # experiments" server running. If only a "ud-pld@PLD
         # Experiments" is available, then this user will not be
-        # promoted and the another user which is waiting for a 
+        # promoted and the another user which is waiting for a
         # "ud-pld@PLD Experiments" can be promoted.
-        # 
-        # Therefore, we have a list of the IDs of the waiting 
+        #
+        # Therefore, we have a list of the IDs of the waiting
         # reservations we previously thought that they couldn't be
-        # promoted in this iteration. They will have another 
+        # promoted in this iteration. They will have another
         # chance in the next run of _update_queues.
-        # 
+        #
         previously_waiting_reservation_ids = []
 
         ###########################################################
-        # While there are free instances and waiting reservations, 
-        # take the first waiting reservation and set it to current 
-        # reservation. Make this repeatedly because we want to 
+        # While there are free instances and waiting reservations,
+        # take the first waiting reservation and set it to current
+        # reservation. Make this repeatedly because we want to
         # commit each change
-        # 
+        #
         while True:
             session = self.session_maker()
             try:
                 resource_type = session.query(ResourceType).filter(ResourceType.name == self.resource_type_name).first()
 
-                # 
+                #
                 # Retrieve the first waiting reservation. If there is no one that
                 # we haven't tried already, return
-                # 
+                #
                 first_waiting_reservations = session.query(WaitingReservation).filter(WaitingReservation.resource_type == resource_type).order_by(WaitingReservation.priority, WaitingReservation.id)[:len(previously_waiting_reservation_ids) + 1]
                 first_waiting_reservation = None
                 for waiting_reservation in first_waiting_reservations:
@@ -394,12 +394,12 @@ class PriorityQueueScheduler(Scheduler):
 
                 previously_waiting_reservation_ids.append(first_waiting_reservation.id)
 
-                # 
-                # For the current resource_type, let's ask for 
+                #
+                # For the current resource_type, let's ask for
                 # all the resource instances available (i.e. those
                 # who have no SchedulingSchemaIndependentSlotReservation
                 # associated)
-                # 
+                #
                 free_instances = session.query(CurrentResourceSlot)\
                         .select_from(join(CurrentResourceSlot, ResourceInstance))\
                         .filter(not_(CurrentResourceSlot.slot_reservations.any()))\
@@ -413,24 +413,24 @@ class PriorityQueueScheduler(Scheduler):
                 #
                 # Select the correct free_instance for the current student among
                 # all the free_instances
-                # 
+                #
                 for free_instance in free_instances:
 
                     resource_type = free_instance.resource_instance.resource_type
                     if resource_type is None:
                         continue # If suddenly the free_instance is not a free_instance anymore, try with other free_instance
 
-                    # 
-                    # IMPORTANT: from here on every "continue" should first revoke the 
+                    #
+                    # IMPORTANT: from here on every "continue" should first revoke the
                     # reservations_manager and resources_manager confirmations
-                    # 
+                    #
 
                     self.reservations_manager.confirm(session, first_waiting_reservation.reservation_id)
                     slot_reservation = self.resources_manager.acquire_resource(session, free_instance)
                     total_time = first_waiting_reservation.time
                     initialization_in_accounting = first_waiting_reservation.initialization_in_accounting
                     start_time = self.time_provider.get_time()
-                    concrete_current_reservation = ConcreteCurrentReservation(slot_reservation, first_waiting_reservation.reservation_id, 
+                    concrete_current_reservation = ConcreteCurrentReservation(slot_reservation, first_waiting_reservation.reservation_id,
                                                         total_time, start_time, first_waiting_reservation.priority, first_waiting_reservation.initialization_in_accounting)
                     concrete_current_reservation.timestamp_before = self.time_provider.get_time()
 
@@ -477,26 +477,26 @@ class PriorityQueueScheduler(Scheduler):
                         session.rollback()
                         break
                     else:
-                        # 
+                        #
                         # Enqueue the confirmation, since it might take a long time
                         # (for instance, if the laboratory server does not reply because
                         # of any network problem, or it just takes too much in replying),
                         # so this method might take too long. That's why we enqueue these
                         # petitions and run them in other threads.
-                        # 
+                        #
                         deserialized_server_initial_data = {
                                 'priority.queue.slot.length'                       : '%s' % total_time,
                                 'priority.queue.slot.start'                        : '%s' % datetime.datetime.fromtimestamp(start_time),
-                                'priority.queue.slot.initialization_in_accounting' : initialization_in_accounting 
+                                'priority.queue.slot.initialization_in_accounting' : initialization_in_accounting
                             }
                         server_initial_data = json.dumps(deserialized_server_initial_data)
                         # server_initial_data will contain information such as "what was the last experiment used?".
                         # If a single resource was used by a binary experiment, then the next time may not require reprogramming the device
                         self.confirmer.enqueue_confirmation(laboratory_coord_address, reservation_id, experiment_instance_id, client_initial_data, server_initial_data)
-                        # 
-                        # After it, keep in the while True in order to add the next 
+                        #
+                        # After it, keep in the while True in order to add the next
                         # reservation
-                        # 
+                        #
                         break
             except (ConcurrentModificationError, IntegrityError) as ie:
                 # Something happened somewhere else, such as the user being confirmed twice, the experiment being reserved twice or so on.
@@ -567,9 +567,9 @@ class PriorityQueueScheduler(Scheduler):
             session.close()
 
     ##############################################################
-    # 
+    #
     # ONLY FOR TESTING: It completely removes the whole database
-    # 
+    #
     @Override(Scheduler)
     def _clean(self):
         session = self.session_maker()

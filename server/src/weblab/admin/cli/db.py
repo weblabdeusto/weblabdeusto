@@ -7,12 +7,12 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 #         Pablo Orduña <pablo.orduna@deusto.es>
-# 
+#
 
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
@@ -35,19 +35,19 @@ class DbGateway(object):
         self.session = self.Session()
 
     def get_experiment_category(self, experiment_category_name):
-        try:       
+        try:
             return self.session.query(Model.DbExperimentCategory).filter_by(name=experiment_category_name).one()
         except NoResultFound:
             return None
 
     def get_group(self, group_name):
-        try:       
+        try:
             return self.session.query(Model.DbGroup).filter_by(name=group_name).one()
         except NoResultFound:
             return None
 
     def get_permission_type(self, permission_type_name):
-        try:       
+        try:
             return self.session.query(Model.DbPermissionType).filter_by(name=permission_type_name).one()
         except NoResultFound:
             return None
@@ -99,7 +99,7 @@ class DbGateway(object):
             self.session.commit()
             return group
         except IntegrityError:
-            return None   
+            return None
 
     def insert_experiment_category(self, experiment_category_name):
         try:

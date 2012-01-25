@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import weblab.comm.server as RFS
 import weblab.login.comm.manager as LFM
@@ -58,23 +58,23 @@ class LoginRemoteFacadeServer(RFS.AbstractRemoteFacadeServer):
     if ZSI_AVAILABLE:
         SERVERS = RFS.AbstractRemoteFacadeServer.SERVERS + (LoginRemoteFacadeServerZSI,)
 
-    FACADE_ZSI_LISTEN                            = LOGIN_FACADE_ZSI_LISTEN     
-    DEFAULT_FACADE_ZSI_LISTEN                    = DEFAULT_LOGIN_FACADE_ZSI_LISTEN                    
-    FACADE_ZSI_PORT                              = LOGIN_FACADE_ZSI_PORT                       
-    FACADE_ZSI_SERVICE_NAME                      = LOGIN_FACADE_ZSI_SERVICE_NAME                   
-    DEFAULT_FACADE_ZSI_SERVICE_NAME              = DEFAULT_LOGIN_FACADE_ZSI_SERVICE_NAME              
-    FACADE_ZSI_PUBLIC_SERVER_HOST                = LOGIN_FACADE_ZSI_PUBLIC_SERVER_HOST         
-    DEFAULT_FACADE_ZSI_PUBLIC_SERVER_HOST        = DEFAULT_LOGIN_FACADE_ZSI_PUBLIC_SERVER_HOST 
-    FACADE_ZSI_PUBLIC_SERVER_PORT                = LOGIN_FACADE_ZSI_PUBLIC_SERVER_PORT         
-    DEFAULT_FACADE_ZSI_PUBLIC_SERVER_PORT        = DEFAULT_LOGIN_FACADE_ZSI_PUBLIC_SERVER_PORT 
+    FACADE_ZSI_LISTEN                            = LOGIN_FACADE_ZSI_LISTEN
+    DEFAULT_FACADE_ZSI_LISTEN                    = DEFAULT_LOGIN_FACADE_ZSI_LISTEN
+    FACADE_ZSI_PORT                              = LOGIN_FACADE_ZSI_PORT
+    FACADE_ZSI_SERVICE_NAME                      = LOGIN_FACADE_ZSI_SERVICE_NAME
+    DEFAULT_FACADE_ZSI_SERVICE_NAME              = DEFAULT_LOGIN_FACADE_ZSI_SERVICE_NAME
+    FACADE_ZSI_PUBLIC_SERVER_HOST                = LOGIN_FACADE_ZSI_PUBLIC_SERVER_HOST
+    DEFAULT_FACADE_ZSI_PUBLIC_SERVER_HOST        = DEFAULT_LOGIN_FACADE_ZSI_PUBLIC_SERVER_HOST
+    FACADE_ZSI_PUBLIC_SERVER_PORT                = LOGIN_FACADE_ZSI_PUBLIC_SERVER_PORT
+    DEFAULT_FACADE_ZSI_PUBLIC_SERVER_PORT        = DEFAULT_LOGIN_FACADE_ZSI_PUBLIC_SERVER_PORT
 
-    FACADE_JSON_LISTEN                           = LOGIN_FACADE_JSON_LISTEN    
-    DEFAULT_FACADE_JSON_LISTEN                   = DEFAULT_LOGIN_FACADE_JSON_LISTEN                   
-    FACADE_JSON_PORT                             = LOGIN_FACADE_JSON_PORT                      
+    FACADE_JSON_LISTEN                           = LOGIN_FACADE_JSON_LISTEN
+    DEFAULT_FACADE_JSON_LISTEN                   = DEFAULT_LOGIN_FACADE_JSON_LISTEN
+    FACADE_JSON_PORT                             = LOGIN_FACADE_JSON_PORT
 
-    FACADE_XMLRPC_LISTEN                         = LOGIN_FACADE_XMLRPC_LISTEN   
-    DEFAULT_FACADE_XMLRPC_LISTEN                 = DEFAULT_LOGIN_FACADE_XMLRPC_LISTEN                 
-    FACADE_XMLRPC_PORT                           = LOGIN_FACADE_XMLRPC_PORT                    
+    FACADE_XMLRPC_LISTEN                         = LOGIN_FACADE_XMLRPC_LISTEN
+    DEFAULT_FACADE_XMLRPC_LISTEN                 = DEFAULT_LOGIN_FACADE_XMLRPC_LISTEN
+    FACADE_XMLRPC_PORT                           = LOGIN_FACADE_XMLRPC_PORT
 
     FACADE_SERVER_ROUTE                          = LOGIN_FACADE_SERVER_ROUTE
     DEFAULT_SERVER_ROUTE                         = DEFAULT_LOGIN_SERVER_ROUTE

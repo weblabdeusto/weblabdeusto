@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import urllib2
 import base64
@@ -146,7 +146,7 @@ class FacebookMethod(WebFacadeServer.Method):
                     </style>
                 </head>
                 <body>
-                <center><img src="../../../logo.png"></center> 
+                <center><img src="../../../logo.png"></center>
                 <p>It seems that your Facebook account has not been linked with a WebLab-Deusto account, or that you don't have a WebLab-Deusto account.</p>
                 <br>
                 <h2>Already have a WebLab-Deusto account?</h2>

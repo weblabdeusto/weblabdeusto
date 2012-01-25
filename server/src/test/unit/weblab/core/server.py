@@ -7,12 +7,12 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
 import os
 import unittest
@@ -131,10 +131,10 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.assertTrue( 'ud-dummy' in experiment_names )
         self.assertTrue( 'ud-fpga' in experiment_names )
         self.assertTrue( 'ud-pld' in experiment_names )
-        self.assertTrue( 'ud-gpib' in experiment_names )        
-        self.assertTrue( 'ud-logic' in experiment_names )        
-        self.assertTrue( 'javadummy' in experiment_names )        
-        self.assertTrue( 'flashdummy' in experiment_names )        
+        self.assertTrue( 'ud-gpib' in experiment_names )
+        self.assertTrue( 'ud-logic' in experiment_names )
+        self.assertTrue( 'javadummy' in experiment_names )
+        self.assertTrue( 'flashdummy' in experiment_names )
 
         self.ups.logout(sess_id2)
 
@@ -289,7 +289,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
 
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id) 
+        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
         finished_result = self.ups.get_experiment_use_by_id(sess_id, reservations[0])
 
         self.assertTrue( finished_result.is_finished() )
@@ -304,7 +304,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
 
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id) 
+        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
         experiment_results = self.ups.get_experiment_uses_by_id(sess_id, reservations)
 
         self.assertEquals(2, len(experiment_results))
@@ -325,7 +325,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
 
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id) 
+        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
         experiment_results = self.ups.get_experiment_uses_by_id(sess_id, (reservations[0], reservation1, reservation2))
 
         self.assertEquals(3, len(experiment_results))
@@ -361,10 +361,10 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
 
     def _store_two_reservations(self):
-        # 
+        #
         # Two users: student2, that started before "any" but finished after "any", and "any" then. Both use
-        # the same experiment. 
-        # 
+        # the same experiment.
+        #
         reservation_id1 = SessionId.SessionId(u'5')
 
         initial_usage1 = ExperimentUsage()
@@ -425,10 +425,10 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
 
     def _test_get_experiment_uses(self, from_date, to_date, group_id, use_experiment_id, start_row, end_row, sort_by):
-        # 
+        #
         # Two users: student2, that started before "any" but finished after "any", and "any" then. Both use
-        # the same experiment. 
-        # 
+        # the same experiment.
+        #
         experiment_id = self.ups._db_manager._gateway._insert_user_used_experiment("student2", "ud-fpga", "FPGA experiments", time.time() - 3600, "192.168.1.1", "fpga:process1@scabb", '5', time.time() - 1000)
         self.ups._db_manager._gateway._insert_user_used_experiment("any", "ud-fpga", "FPGA experiments", time.time() - 1800, "127.0.0.1", "fpga:process1@scabb", '6', time.time() - 1700)
         if not use_experiment_id:
@@ -436,9 +436,9 @@ class UserProcessingServerTestCase(unittest.TestCase):
         elif use_experiment_id == 'other':
             experiment_id += 2
 
-        # 
+        #
         # student4 uses a different experiment, after both student2 and any
-        # 
+        #
         self.ups._db_manager._gateway._insert_user_used_experiment("student4", "ud-dummy", "Dummy experiments", time.time() - 60, "unknown", "fpga:process1@scabb", '7', time.time() - 60)
 
         self.ups._db_manager._gateway._insert_ee_used_experiment("ee1", "ud-dummy", "Dummy experiments", time.time() - 60, "unknown", "dummy:process1@plunder", '8', time.time() - 60)
@@ -677,7 +677,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         result = self.ups.get_experiment_uses(sess_id)
         self.ups.logout(sess_id)
 
-        self.assertEquals(0, len(result) )   
+        self.assertEquals(0, len(result) )
 
     def test_get_roles(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
@@ -725,7 +725,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.assertTrue("studentLDAPwithoutUserAuth" in user_logins)
 
         # Check mails
-        user_mails = list( user.email for user in users ) 
+        user_mails = list( user.email for user in users )
         user_mails_set = set(user_mails)
         self.assertEquals(len(user_mails_set), 1)
         self.assertTrue( "weblab@deusto.es" in user_mails_set )
@@ -734,7 +734,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         for i in range(1, 9):
             self.assertTrue( ("student%d" % i, "Name of student %d" % i) in user_logins_names )
         for i in range(1, 3):
-            self.assertTrue( ("admin%d" % i, "Name of administrator %d" % i) in user_logins_names ) 
+            self.assertTrue( ("admin%d" % i, "Name of administrator %d" % i) in user_logins_names )
 
     def test_get_users_without_permission(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")

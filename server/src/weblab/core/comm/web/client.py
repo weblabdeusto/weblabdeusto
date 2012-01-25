@@ -7,12 +7,12 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
-# 
+#
 
 from voodoo.sessions.session_id import SessionId
 from weblab.core.exc import SessionNotFoundException
@@ -91,7 +91,7 @@ class ClientMethod(WebFacadeServer.Method):
         """ run()
 
         If there is a GET argument named %(reservation_id)s, it will take it and resend it as a
-        POST argument. If it was passed through the history, then it will be again sent as a 
+        POST argument. If it was passed through the history, then it will be again sent as a
         POST argument. Finally, if it is received as a POST argument, it will generate a redirect
         to the client, using the proper current structure.
         """ % { 'reservation_id' : RESERVATION_ID }

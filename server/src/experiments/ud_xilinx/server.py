@@ -7,13 +7,13 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
-# 
+#
 
 from voodoo.gen.caller_checker import caller_check
 from voodoo.log import logged
@@ -87,7 +87,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         return UdXilinxCommandSender.create(device_name, self._cfg_manager)
 
     def _load_webcam_url(self):
-        cfg_webcam_url = "%s_webcam_url" % self._xilinx_device.lower()        
+        cfg_webcam_url = "%s_webcam_url" % self._xilinx_device.lower()
         return self._cfg_manager.get_value(cfg_webcam_url, "http://localhost")
 
     def get_state(self):
@@ -191,8 +191,8 @@ class UdXilinxExperiment(Experiment.Experiment):
     @caller_check(ServerType.Laboratory)
     def do_send_command_to_device(self, command):
         try:
-            # Reply with the current state of the experiment. Particularly, the clients 
-            # will need to know whether the programming has been done and whether we are 
+            # Reply with the current state of the experiment. Particularly, the clients
+            # will need to know whether the programming has been done and whether we are
             # hence ready to start receiving real commands.
             if command == 'STATE':
                 reply = "STATE="+ self._current_state

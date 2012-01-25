@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import sys
 import time
 import traceback
@@ -37,7 +37,7 @@ def log(instance_or_module_or_class, level, message):
     elif isinstance(instance_or_module_or_class, new.classobj) or isinstance(instance_or_module_or_class, type):
         logger_name = instance_or_module_or_class.__module__ + '.' + instance_or_module_or_class.__name__
     else:
-        logger_name = instance_or_module_or_class.__class__.__module__ + '.' + instance_or_module_or_class.__class__.__name__ 
+        logger_name = instance_or_module_or_class.__class__.__module__ + '.' + instance_or_module_or_class.__class__.__name__
     logger = logging.getLogger(logger_name)
     logger.log(logging_log_level,message)
 
@@ -83,7 +83,7 @@ def logged(level='debug', except_for=None):
     call logging.getLogger(str(self.__class__)) (so use only with methods!) before and after
     calling the function itself.
 
-    If you don't want all parameters to be showed, use except_for providing a sequence of the parameters 
+    If you don't want all parameters to be showed, use except_for providing a sequence of the parameters
     you want to hide, being each parameter identified by:
 
      * the name of the parameter.
@@ -98,7 +98,7 @@ def logged(level='debug', except_for=None):
 
         login("foo","bar")
 
-    will work, since it will infer that "password" is the second parameter. However, if you do something 
+    will work, since it will infer that "password" is the second parameter. However, if you do something
     like:
 
         @logged(except_for=('password',))
@@ -109,7 +109,7 @@ def logged(level='debug', except_for=None):
         login("foo",password="bar")
         login("foo","bar")
 
-    Then the first one will work, but for the second call it will be impossible to infer it, 
+    Then the first one will work, but for the second call it will be impossible to infer it,
     so a warning will be displayed in stderr. In this case, it would also work:
 
         @logged(except_for=(2,))
@@ -193,7 +193,7 @@ def logged(level='debug', except_for=None):
                     self.fake_kargs = kargs.copy()
 
                     if isinstance(except_for,basestring) or isinstance(except_for, int):
-                        except_for_parameters = (except_for,) 
+                        except_for_parameters = (except_for,)
                     else:
                         except_for_parameters = except_for
 
@@ -232,7 +232,7 @@ def logged(level='debug', except_for=None):
                     self.fake_kargs = kargs
 
 
-            def __str__(self): 
+            def __str__(self):
                 strtime = self.entry.initial_strtime
 
                 return '++++%(call_id)s++++ %(thread_id)s Calling %(func_name)s with parameters %(args)s and kargs: %(kargs)s at %(time)s' % {

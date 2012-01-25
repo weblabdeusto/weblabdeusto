@@ -7,7 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -100,7 +100,7 @@ def generate(methods):
             func.__doc__ = (func.__doc__ if func.__doc__ is not None else '').replace('METHOD_NAME', method_name)
             if isinstance(all_methods, dict):
                 func.__doc__ = (func.__doc__ if func.__doc__ is not None else '').replace('DOCUMENTATION', all_methods[method_name])
-            # Taking "prefix_" from "_prefix_stub" 
+            # Taking "prefix_" from "_prefix_stub"
             stub_prefix = stub.func_name[len('_generate_'):]
             stub_prefix = stub_prefix[:stub_prefix.rfind('stub')]
             func_name = stub_prefix + method_name

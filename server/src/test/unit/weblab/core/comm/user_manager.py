@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import sys
 import time
 import unittest
@@ -111,7 +111,7 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         self.mock_ups      = MockUPS()
 
         server_admin_mail = self.cfg_manager.get_value(RFM.SERVER_ADMIN_EMAIL, RFM.DEFAULT_SERVER_ADMIN_EMAIL)
-        self.weblab_general_error_message = RFM.UNEXPECTED_ERROR_MESSAGE_TEMPLATE % server_admin_mail 
+        self.weblab_general_error_message = RFM.UNEXPECTED_ERROR_MESSAGE_TEMPLATE % server_admin_mail
 
         self.rfm = UserProcessingFacadeManager.UserProcessingRemoteFacadeManagerZSI(
                 self.cfg_manager,
@@ -130,7 +130,7 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         experiments_allowed = _generate_experiments_allowed()
         self.mock_ups.return_values['list_experiments'] = experiments_allowed
 
-        self.assertEquals( experiments_allowed, self.rfm.list_experiments(expected_sess_id) ) 
+        self.assertEquals( experiments_allowed, self.rfm.list_experiments(expected_sess_id) )
         self.assertEquals( expected_sess_id.id, self.mock_ups.arguments['list_experiments'][0].id )
 
     def test_return_reserve_experiment(self):
@@ -151,7 +151,7 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
     def test_return_finished_experiment(self):
         expected_sess_id = SessionId.SessionId("whatever")
 
-        self.mock_ups.return_values['finished_experiment'] = None   
+        self.mock_ups.return_values['finished_experiment'] = None
 
         self.rfm.finished_experiment(expected_sess_id)
 
@@ -248,7 +248,7 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         user_information = self.rfm.get_user_information(expected_sess_id)
 
         self.assertEquals( expected_sess_id.id, self.mock_ups.arguments['get_user_information'][0].id )
-        self.assertEquals( expected_user_information.login, user_information.login ) 
+        self.assertEquals( expected_user_information.login, user_information.login )
         self.assertEquals( expected_user_information.full_name, user_information.full_name )
         self.assertEquals( expected_user_information.email, user_information.email )
         self.assertEquals( expected_user_information.role.name, user_information.role.name)
@@ -273,47 +273,47 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         # Production mode: A general error message is received
         self.cfg_manager._set_value(RFM.DEBUG_MODE, False)
 
-        self._test_exception(method, args,  
-                        coreExc.WebLabCoreException, MESSAGE, 
+        self._test_exception(method, args,
+                        coreExc.WebLabCoreException, MESSAGE,
                         'ZSI:' + UserProcessingRFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)
 
-        self._test_exception(method, args,  
-                        WebLabExceptions.WebLabException, MESSAGE, 
+        self._test_exception(method, args,
+                        WebLabExceptions.WebLabException, MESSAGE,
                         'ZSI:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)
 
-        self._test_exception(method, args,  
-                        VoodooExceptions.GeneratorException, MESSAGE, 
+        self._test_exception(method, args,
+                        VoodooExceptions.GeneratorException, MESSAGE,
                         'ZSI:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)
 
-        self._test_exception(method, args,  
-                        Exception, MESSAGE, 
-                        'ZSI:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)            
+        self._test_exception(method, args,
+                        Exception, MESSAGE,
+                        'ZSI:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)
 
         # Debug mode: The error message is received
         self.cfg_manager._set_value(RFM.DEBUG_MODE, True)
 
-        self._test_exception(method, args,  
-                        coreExc.WebLabCoreException, MESSAGE, 
+        self._test_exception(method, args,
+                        coreExc.WebLabCoreException, MESSAGE,
                         'ZSI:' + UserProcessingRFCodes.UPS_GENERAL_EXCEPTION_CODE, MESSAGE)
 
-        self._test_exception(method, args,  
-                        WebLabExceptions.WebLabException, MESSAGE, 
+        self._test_exception(method, args,
+                        WebLabExceptions.WebLabException, MESSAGE,
                         'ZSI:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, MESSAGE)
 
-        self._test_exception(method, args,  
-                        VoodooExceptions.GeneratorException, MESSAGE, 
+        self._test_exception(method, args,
+                        VoodooExceptions.GeneratorException, MESSAGE,
                         'ZSI:' + RFCodes.VOODOO_GENERAL_EXCEPTION_CODE, MESSAGE)
 
-        self._test_exception(method, args,  
-                        Exception, MESSAGE, 
-                        'ZSI:' + RFCodes.PYTHON_GENERAL_EXCEPTION_CODE, MESSAGE)            
+        self._test_exception(method, args,
+                        Exception, MESSAGE,
+                        'ZSI:' + RFCodes.PYTHON_GENERAL_EXCEPTION_CODE, MESSAGE)
 
-    def test_exception_logout(self):            
+    def test_exception_logout(self):
         MESSAGE = "The exception message"
         expected_sess_id  = SessionId.SessionId("whatever")
 
-        self._test_exception('logout', (expected_sess_id,),  
-                        coreExc.SessionNotFoundException, MESSAGE, 
+        self._test_exception('logout', (expected_sess_id,),
+                        coreExc.SessionNotFoundException, MESSAGE,
                         'ZSI:' + UserProcessingRFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE, MESSAGE)
 
         self._test_general_exceptions('logout', expected_sess_id)
@@ -323,8 +323,8 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         MESSAGE = "The exception message"
         expected_sess_id  = SessionId.SessionId("whatever")
 
-        self._test_exception('list_experiments', (expected_sess_id,),  
-                        coreExc.SessionNotFoundException, MESSAGE, 
+        self._test_exception('list_experiments', (expected_sess_id,),
+                        coreExc.SessionNotFoundException, MESSAGE,
                         'ZSI:' + UserProcessingRFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE, MESSAGE)
 
         self._test_general_exceptions('list_experiments', expected_sess_id)
@@ -335,13 +335,13 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         expected_sess_id  = SessionId.SessionId("whatever")
         experimentA, _ = _generate_two_experiments()
 
-        self._test_exception('reserve_experiment', (expected_sess_id, experimentA.to_experiment_id(), "{}", "{}"),  
-                        coreExc.SessionNotFoundException, MESSAGE, 
-                        'ZSI:' + UserProcessingRFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE, MESSAGE)            
+        self._test_exception('reserve_experiment', (expected_sess_id, experimentA.to_experiment_id(), "{}", "{}"),
+                        coreExc.SessionNotFoundException, MESSAGE,
+                        'ZSI:' + UserProcessingRFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE, MESSAGE)
 
-        self._test_exception('reserve_experiment', (expected_sess_id, experimentA.to_experiment_id(), "{}", "{}"),  
-                        coreExc.UnknownExperimentIdException, MESSAGE, 
-                        'ZSI:' + UserProcessingRFCodes.CLIENT_UNKNOWN_EXPERIMENT_ID_EXCEPTION_CODE, MESSAGE)            
+        self._test_exception('reserve_experiment', (expected_sess_id, experimentA.to_experiment_id(), "{}", "{}"),
+                        coreExc.UnknownExperimentIdException, MESSAGE,
+                        'ZSI:' + UserProcessingRFCodes.CLIENT_UNKNOWN_EXPERIMENT_ID_EXCEPTION_CODE, MESSAGE)
 
         self._test_general_exceptions('reserve_experiment', expected_sess_id, experimentA.to_experiment_id(), "{}", "{}")
 
@@ -349,13 +349,13 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         MESSAGE = "The exception message"
         expected_sess_id  = SessionId.SessionId("whatever")
 
-        self._test_exception('finished_experiment', (expected_sess_id,),  
-                        coreExc.SessionNotFoundException, MESSAGE, 
+        self._test_exception('finished_experiment', (expected_sess_id,),
+                        coreExc.SessionNotFoundException, MESSAGE,
                         'ZSI:' + UserProcessingRFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE, MESSAGE)
 
-        self._test_exception('finished_experiment', (expected_sess_id,),   
-                        coreExc.NoCurrentReservationException, MESSAGE, 
-                        'ZSI:' + UserProcessingRFCodes.CLIENT_NO_CURRENT_RESERVATION_EXCEPTION_CODE, MESSAGE)                   
+        self._test_exception('finished_experiment', (expected_sess_id,),
+                        coreExc.NoCurrentReservationException, MESSAGE,
+                        'ZSI:' + UserProcessingRFCodes.CLIENT_NO_CURRENT_RESERVATION_EXCEPTION_CODE, MESSAGE)
 
         self._test_general_exceptions('finished_experiment', expected_sess_id)
 
@@ -364,13 +364,13 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         MESSAGE = "The exception message"
         expected_sess_id  = SessionId.SessionId("whatever")
 
-        self._test_exception('get_reservation_status', (expected_sess_id,),  
-                        coreExc.SessionNotFoundException, MESSAGE, 
+        self._test_exception('get_reservation_status', (expected_sess_id,),
+                        coreExc.SessionNotFoundException, MESSAGE,
                         'ZSI:' + UserProcessingRFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE, MESSAGE)
 
-        self._test_exception('get_reservation_status', (expected_sess_id,),   
-                        coreExc.NoCurrentReservationException, MESSAGE, 
-                        'ZSI:' + UserProcessingRFCodes.CLIENT_NO_CURRENT_RESERVATION_EXCEPTION_CODE, MESSAGE)                   
+        self._test_exception('get_reservation_status', (expected_sess_id,),
+                        coreExc.NoCurrentReservationException, MESSAGE,
+                        'ZSI:' + UserProcessingRFCodes.CLIENT_NO_CURRENT_RESERVATION_EXCEPTION_CODE, MESSAGE)
 
         self._test_general_exceptions('get_reservation_status', expected_sess_id)
 
@@ -379,28 +379,28 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         expected_sess_id  = SessionId.SessionId("whatever")
         FILE_CONTENT = 'whatever'
 
-        self._test_exception('send_file', (expected_sess_id, FILE_CONTENT, 'program',),  
-                        coreExc.SessionNotFoundException, MESSAGE, 
+        self._test_exception('send_file', (expected_sess_id, FILE_CONTENT, 'program',),
+                        coreExc.SessionNotFoundException, MESSAGE,
                         'ZSI:' + UserProcessingRFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE, MESSAGE)
 
-        self._test_exception('send_file', (expected_sess_id, FILE_CONTENT, 'program',),  
-                        coreExc.NoCurrentReservationException, MESSAGE, 
-                        'ZSI:' + UserProcessingRFCodes.CLIENT_NO_CURRENT_RESERVATION_EXCEPTION_CODE, MESSAGE)                   
+        self._test_exception('send_file', (expected_sess_id, FILE_CONTENT, 'program',),
+                        coreExc.NoCurrentReservationException, MESSAGE,
+                        'ZSI:' + UserProcessingRFCodes.CLIENT_NO_CURRENT_RESERVATION_EXCEPTION_CODE, MESSAGE)
 
         self._test_general_exceptions('send_file', expected_sess_id, FILE_CONTENT, 'program')
 
-    def test_exception_send_command(self):            
+    def test_exception_send_command(self):
         MESSAGE = "The exception message"
         expected_sess_id  = SessionId.SessionId("whatever")
         COMMAND = Command.Command('whatever')
 
-        self._test_exception('send_command', (expected_sess_id, COMMAND,),  
-                        coreExc.SessionNotFoundException, MESSAGE, 
+        self._test_exception('send_command', (expected_sess_id, COMMAND,),
+                        coreExc.SessionNotFoundException, MESSAGE,
                         'ZSI:' + UserProcessingRFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE, MESSAGE)
 
-        self._test_exception('send_command', (expected_sess_id, COMMAND,),   
-                        coreExc.NoCurrentReservationException, MESSAGE, 
-                        'ZSI:' + UserProcessingRFCodes.CLIENT_NO_CURRENT_RESERVATION_EXCEPTION_CODE, MESSAGE)                   
+        self._test_exception('send_command', (expected_sess_id, COMMAND,),
+                        coreExc.NoCurrentReservationException, MESSAGE,
+                        'ZSI:' + UserProcessingRFCodes.CLIENT_NO_CURRENT_RESERVATION_EXCEPTION_CODE, MESSAGE)
 
         self._test_general_exceptions('send_command', expected_sess_id, COMMAND)
 
@@ -408,13 +408,13 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         MESSAGE = "The exception message"
         expected_sess_id  = SessionId.SessionId("whatever")
 
-        self._test_exception('poll', (expected_sess_id,),  
-                        coreExc.SessionNotFoundException, MESSAGE, 
+        self._test_exception('poll', (expected_sess_id,),
+                        coreExc.SessionNotFoundException, MESSAGE,
                         'ZSI:' + UserProcessingRFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE, MESSAGE)
 
-        self._test_exception('poll', (expected_sess_id,),   
-                        coreExc.NoCurrentReservationException, MESSAGE, 
-                        'ZSI:' + UserProcessingRFCodes.CLIENT_NO_CURRENT_RESERVATION_EXCEPTION_CODE, MESSAGE)                   
+        self._test_exception('poll', (expected_sess_id,),
+                        coreExc.NoCurrentReservationException, MESSAGE,
+                        'ZSI:' + UserProcessingRFCodes.CLIENT_NO_CURRENT_RESERVATION_EXCEPTION_CODE, MESSAGE)
 
         self._test_general_exceptions('poll', expected_sess_id)
 
@@ -423,8 +423,8 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         MESSAGE = "The exception message"
         expected_sess_id  = SessionId.SessionId("whatever")
 
-        self._test_exception('get_user_information', (expected_sess_id,),  
-                        coreExc.SessionNotFoundException, MESSAGE, 
+        self._test_exception('get_user_information', (expected_sess_id,),
+                        coreExc.SessionNotFoundException, MESSAGE,
                         'ZSI:' + UserProcessingRFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE, MESSAGE)
 
         self._test_general_exceptions('get_user_information', expected_sess_id)
@@ -441,7 +441,7 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
         self.mock_ups = MockUPS()
 
         server_admin_mail = self.cfg_manager.get_value(RFM.SERVER_ADMIN_EMAIL, RFM.DEFAULT_SERVER_ADMIN_EMAIL)
-        self.weblab_general_error_message = RFM.UNEXPECTED_ERROR_MESSAGE_TEMPLATE % server_admin_mail 
+        self.weblab_general_error_message = RFM.UNEXPECTED_ERROR_MESSAGE_TEMPLATE % server_admin_mail
 
         self.rfm = UserProcessingFacadeManager.UserProcessingRemoteFacadeManagerJSON(
                 self.cfg_manager,
@@ -519,7 +519,7 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
     def test_return_finished_experiment(self):
         expected_sess_id = {'id': "whatever"}
 
-        self.mock_ups.return_values['finished_experiment'] = None   
+        self.mock_ups.return_values['finished_experiment'] = None
 
         self.rfm.finished_experiment(expected_sess_id)
 
@@ -665,40 +665,40 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
         # Production mode: A general error message is received
         self.cfg_manager._set_value(RFM.DEBUG_MODE, False)
 
-        self._test_exception(method, args,  
-                        coreExc.WebLabCoreException, MESSAGE, 
+        self._test_exception(method, args,
+                        coreExc.WebLabCoreException, MESSAGE,
                         'JSON:' + UserProcessingRFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)
 
-        self._test_exception(method, args,  
-                        WebLabExceptions.WebLabException, MESSAGE, 
+        self._test_exception(method, args,
+                        WebLabExceptions.WebLabException, MESSAGE,
                         'JSON:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)
 
-        self._test_exception(method, args,  
-                        VoodooExceptions.GeneratorException, MESSAGE, 
+        self._test_exception(method, args,
+                        VoodooExceptions.GeneratorException, MESSAGE,
                         'JSON:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)
 
-        self._test_exception(method, args,  
-                        Exception, MESSAGE, 
-                        'JSON:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)            
+        self._test_exception(method, args,
+                        Exception, MESSAGE,
+                        'JSON:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)
 
         # Debug mode: The error message is received
         self.cfg_manager._set_value(RFM.DEBUG_MODE, True)
 
-        self._test_exception(method, args,  
-                        coreExc.WebLabCoreException, MESSAGE, 
+        self._test_exception(method, args,
+                        coreExc.WebLabCoreException, MESSAGE,
                         'JSON:' + UserProcessingRFCodes.UPS_GENERAL_EXCEPTION_CODE, MESSAGE)
 
-        self._test_exception(method, args,  
-                        WebLabExceptions.WebLabException, MESSAGE, 
+        self._test_exception(method, args,
+                        WebLabExceptions.WebLabException, MESSAGE,
                         'JSON:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, MESSAGE)
 
-        self._test_exception(method, args,  
-                        VoodooExceptions.GeneratorException, MESSAGE, 
+        self._test_exception(method, args,
+                        VoodooExceptions.GeneratorException, MESSAGE,
                         'JSON:' + RFCodes.VOODOO_GENERAL_EXCEPTION_CODE, MESSAGE)
 
-        self._test_exception(method, args,  
-                        Exception, MESSAGE, 
-                        'JSON:' + RFCodes.PYTHON_GENERAL_EXCEPTION_CODE, MESSAGE)            
+        self._test_exception(method, args,
+                        Exception, MESSAGE,
+                        'JSON:' + RFCodes.PYTHON_GENERAL_EXCEPTION_CODE, MESSAGE)
 
 
 def _generate_two_experiments():

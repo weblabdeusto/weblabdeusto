@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import threading
 import random
 import time
@@ -435,7 +435,7 @@ class ServerLocator(object):
                 )
 
     def _get_server_from_cache(self,server_type,restrictions):
-        """ 
+        """
         Returns the server if it's found in the cache, or
         None if it's not found.
         """
@@ -473,7 +473,7 @@ class ServerLocator(object):
                     )
                 import traceback
                 traceback.print_stack()
-                print 
+                print
                 print
             self._registry.reregister_server(address.address,server)
         finally:

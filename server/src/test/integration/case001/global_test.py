@@ -7,12 +7,12 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
-# 
+#
 
 from test.util.module_disposer import uses_module, case_uses_module
 from experiments.ud_xilinx.command_senders import SerialPortCommandSender
@@ -121,7 +121,7 @@ class Case001TestCase(object):
         map.add_new_server( 'WL_MACHINE1', 'WL_SERVER1', 'experiment2',  ServerType.Experiment, (), ('ud-pld@PLD experiments',))
 
         if len(protocols) == 1 and protocols[0] == Protocols.Direct:
-            # They all have Direct 
+            # They all have Direct
 
             # 1st: address
             address1 = map['WL_MACHINE1']['WL_SERVER1']['login1'].address
@@ -156,7 +156,7 @@ class Case001TestCase(object):
             map.append_accesses( 'WL_MACHINE1', 'WL_SERVER1', 'experiment2', ( access_direct8, ))
 
         else:
-            # They all have SOAP 
+            # They all have SOAP
 
             # 1st: address
             address1 = SOAPAddress.Address('127.0.0.1:10025@NETWORK')
@@ -261,7 +261,7 @@ class Case001TestCase(object):
 
         generated_login_server = ServerSkel.factory(
                 self.generate_configuration_server(),
-                protocols, 
+                protocols,
                 weblab_exported_methods.Login
             )
 
@@ -287,16 +287,16 @@ class Case001TestCase(object):
 
         generated_ups = ServerSkel.factory(
                 cfg_manager,
-                protocols, 
+                protocols,
                 weblab_exported_methods.UserProcessing
             )
 
         class RealUserProcessingServer(UserProcessingServer.UserProcessingServer,generated_ups):
             def __init__(self, coord_address, locator, cfg_manager, *args,**kargs):
                 UserProcessingServer.UserProcessingServer.__init__(
-                        self, 
-                        coord_address, 
-                        locator, 
+                        self,
+                        coord_address,
+                        locator,
                         cfg_manager,
                         *args,
                         **kargs
@@ -321,17 +321,17 @@ class Case001TestCase(object):
     def generate_fake_experiment(self, cfg_manager, fake_xilinx_impact, fake_serial_port, number, experiment_name, experiment_category_name, protocols):
         generated_experiment = ServerSkel.factory(
                 cfg_manager,
-                protocols, 
+                protocols,
                 weblab_exported_methods.Experiment
             )
 
         class RealUdXilinxExperiment(FakeUdXilinxExperiment,generated_experiment):
             def __init__(self, coord_address, locator, cfg_manager, fake_xilinx_impact, fake_serial_port, *args,**kargs):
                 FakeUdXilinxExperiment.__init__(
-                        self, 
+                        self,
                         coord_address,
                         locator,
-                        cfg_manager, 
+                        cfg_manager,
                         fake_xilinx_impact,
                         fake_serial_port,
                         *args,
@@ -352,7 +352,7 @@ class Case001TestCase(object):
 
         def on_finish():
             experiment_client = locator.get_server(
-                            ServerType.Experiment, 
+                            ServerType.Experiment,
                             experiment_name + '@' + experiment_category_name
                         )
             return experiment_client, real_experiment
@@ -361,7 +361,7 @@ class Case001TestCase(object):
     def generate_laboratory_server(self, cfg_manager, protocols):
         generated_laboratory_server = ServerSkel.factory(
                 cfg_manager,
-                protocols, 
+                protocols,
                 weblab_exported_methods.Laboratory
             )
         locator = self.generate_locator()
@@ -369,9 +369,9 @@ class Case001TestCase(object):
         class RealLaboratoryServer(LaboratoryServer.LaboratoryServer,generated_laboratory_server):
             def __init__(self, coord_address, locator, cfg_manager, *args,**kargs):
                 LaboratoryServer.LaboratoryServer.__init__(
-                        self, 
+                        self,
                         coord_address,
-                        locator, 
+                        locator,
                         cfg_manager,
                         *args,
                         **kargs
@@ -420,7 +420,7 @@ class Case001TestCase(object):
         self.real_ups = reals
         self.real_servers.append(reals)
         on_finish1                     = self.generate_fake_experiment(
-                                self.cfg_manager, 
+                                self.cfg_manager,
                                 self.fake_impact1,
                                 self.fake_serial_port1,
                                 '1',
@@ -429,7 +429,7 @@ class Case001TestCase(object):
                                 protocols
                             )
         on_finish2                     = self.generate_fake_experiment(
-                                self.cfg_manager, 
+                                self.cfg_manager,
                                 self.fake_impact2,
                                 self.fake_serial_port2,
                                 '2',
@@ -443,7 +443,7 @@ class Case001TestCase(object):
         self.real_servers.append(reals)
 
         self.laboratory_server, reals   = self.generate_laboratory_server(
-                                self.cfg_manager, 
+                                self.cfg_manager,
                                 protocols
                             )
         self.real_servers.append(reals)
@@ -574,11 +574,11 @@ class Case001TestCase(object):
                     )
         self.assertTrue(
                 isinstance(
-                    reservation, 
-                    Reservation.ConfirmedReservation 
+                    reservation,
+                    Reservation.ConfirmedReservation
                 ),
                 "Reservation %s is not Confirmed, as expected by this time" % reservation
-            )   
+            )
 
 
 
@@ -648,16 +648,16 @@ class Case001TestCase(object):
             )
 
         # ClockActivation on 250
-        self.assertEquals(  
+        self.assertEquals(
                 (3 + initial_total,1),
                 self.fake_serial_port1.dict['open'][1 + initial_open]
             )
-        self.assertEquals(  
+        self.assertEquals(
                 (4 + initial_total,32),
                 self.fake_serial_port1.dict['send'][1 + initial_send]
             )
 
-        self.assertEquals(  
+        self.assertEquals(
                 (5 + initial_total,None),
                 self.fake_serial_port1.dict['close'][1 + initial_close]
             )
@@ -668,7 +668,7 @@ class Case001TestCase(object):
 
     def _single_use(self, logout = True, plus_async_use = True):
         """
-        Will use an experiment. 
+        Will use an experiment.
         @param logout If true, the user will be logged out after the use. Otherwise not.
         @param plus_async_use If true, after using the experiment synchronously, it will use it
         again using the asynchronous versions of the send_command and send_file requests.
@@ -736,8 +736,8 @@ class Case001TestCase(object):
                     )
         self.assertTrue(
                 isinstance(
-                    reservation, 
-                    Reservation.ConfirmedReservation 
+                    reservation,
+                    Reservation.ConfirmedReservation
                 ),
                 "Reservation %s is not Confirmed, as expected by this time" % reservation
             )
@@ -812,16 +812,16 @@ class Case001TestCase(object):
             )
 
         # ClockActivation on 250
-        self.assertEquals(  
+        self.assertEquals(
                 (3 + initial_total,1),
                 self.fake_serial_port1.dict['open'][1 + initial_open]
             )
-        self.assertEquals(  
+        self.assertEquals(
                 (4 + initial_total,32),
                 self.fake_serial_port1.dict['send'][1 + initial_send]
             )
 
-        self.assertEquals(  
+        self.assertEquals(
                 (5 + initial_total,None),
                 self.fake_serial_port1.dict['close'][1 + initial_close]
             )
@@ -903,7 +903,7 @@ class Case001TestCase(object):
                 isinstance(
                     self.real_ups.get_reservation_status(
                         user1_reservation_id
-                    ), 
+                    ),
                     Reservation.ConfirmedReservation
                 )
             )
@@ -912,7 +912,7 @@ class Case001TestCase(object):
                 isinstance(
                     self.real_ups.get_reservation_status(
                         user2_reservation_id
-                    ), 
+                    ),
                     Reservation.ConfirmedReservation
                 )
             )
@@ -981,57 +981,57 @@ class Case001TestCase(object):
         initial_total = initial_open + initial_send + initial_close
 
         # ChangeSwitch off 1
-        self.assertEquals(  
+        self.assertEquals(
                 (0 + initial_total,1),
                 self.fake_serial_port1.dict['open'][0 + initial_open]
             )
-        self.assertEquals(  
+        self.assertEquals(
                 (1 + initial_total,4),
                 self.fake_serial_port1.dict['send'][0 + initial_send]
             )
-        self.assertEquals(  
+        self.assertEquals(
                 (2 + initial_total,None),
                 self.fake_serial_port1.dict['close'][0 + initial_close]
             )
 
-        self.assertEquals(  
+        self.assertEquals(
                 (0 + initial_total,1),
                 self.fake_serial_port2.dict['open'][0 + initial_open]
             )
-        self.assertEquals(  
+        self.assertEquals(
                 (1 + initial_total,1),
                 self.fake_serial_port2.dict['send'][0 + initial_send]
             )
-        self.assertEquals(  
+        self.assertEquals(
                 (2 + initial_total,None),
                 self.fake_serial_port2.dict['close'][0 + initial_close]
             )
 
         # ClockActivation on 250
-        self.assertEquals(  
+        self.assertEquals(
                 (3 + initial_total,1),
                 self.fake_serial_port1.dict['open'][1 + initial_open]
             )
-        self.assertEquals(  
+        self.assertEquals(
                 (4 + initial_total,32),
                 self.fake_serial_port1.dict['send'][1 + initial_send]
             )
 
-        self.assertEquals(  
+        self.assertEquals(
                 (5 + initial_total,None),
                 self.fake_serial_port1.dict['close'][1 + initial_close]
             )
 
-        self.assertEquals(  
+        self.assertEquals(
                 (3 + initial_total,1),
                 self.fake_serial_port2.dict['open'][1 + initial_open]
             )
-        self.assertEquals(  
+        self.assertEquals(
                 (4 + initial_total,32),
                 self.fake_serial_port2.dict['send'][1 + initial_send]
             )
 
-        self.assertEquals(  
+        self.assertEquals(
                 (5 + initial_total,None),
                 self.fake_serial_port2.dict['close'][1 + initial_close]
             )

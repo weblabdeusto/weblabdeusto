@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 from abc import ABCMeta, abstractmethod
 
@@ -41,7 +41,7 @@ class Address(object):
 
         Given the list (or dictionary) of methods, this method
         will return an instance with the "methods" methods, and
-        each time a method is invoked, the server with this 
+        each time a method is invoked, the server with this
         address executes the method.
         """
 
@@ -54,7 +54,7 @@ class Address(object):
 
     @abstractmethod
     def __cmp__(self):
-        """"""  
+        """"""
 
     @abstractmethod
     def __eq__(self, other):

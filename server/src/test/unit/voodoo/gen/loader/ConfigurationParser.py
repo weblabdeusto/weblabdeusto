@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import unittest
 
@@ -36,7 +36,7 @@ SERVER_PATH   = 'test/deployments/WebLabSkel/NAME_OF_MACHINE1/NAME_OF_INSTANCE1/
 
 SERVER_CONFIG_SAMPLE = """<?xml version="1.0" encoding="UTF-8"?>
 <server
-    xmlns="http://www.weblab.deusto.es/configuration" 
+    xmlns="http://www.weblab.deusto.es/configuration"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"
 >
@@ -243,15 +243,15 @@ class ServerParserTestCase(unittest.TestCase):
 
     def _real_test_results(self, parsed_server):
         self.assertEquals(
-                2, 
+                2,
                 len(parsed_server.configurations)
             )
         self.assertEquals(
-                SERVER_PATH + u'server_config.py', 
+                SERVER_PATH + u'server_config.py',
                 parsed_server.configurations[0]
             )
         self.assertEquals(
-                SERVER_PATH + u'server_config.py', 
+                SERVER_PATH + u'server_config.py',
                 parsed_server.configurations[1]
             )
         self.assertEquals(
@@ -369,8 +369,8 @@ class ServerParserTestCase(unittest.TestCase):
 
 
 INSTANCE_CONFIG_SAMPLE = """<?xml version="1.0" encoding="UTF-8"?>
-<servers 
-        xmlns="http://www.weblab.deusto.es/configuration" 
+<servers
+        xmlns="http://www.weblab.deusto.es/configuration"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="instance_configuration.xsd"
 >
@@ -457,7 +457,7 @@ class InstanceParserTestCase(unittest.TestCase):
 
     def _real_test_results(self, parsed_instance, user):
         self.assertEquals(
-                2, 
+                2,
                 len(parsed_instance.configurations)
             )
         self.assertEquals(
@@ -465,11 +465,11 @@ class InstanceParserTestCase(unittest.TestCase):
                 parsed_instance.user
             )
         self.assertEquals(
-                INSTANCE_PATH + u'instance_config.py', 
+                INSTANCE_PATH + u'instance_config.py',
                 parsed_instance.configurations[0]
             )
         self.assertEquals(
-                INSTANCE_PATH + u'instance_config.py', 
+                INSTANCE_PATH + u'instance_config.py',
                 parsed_instance.configurations[1]
             )
         self.assertTrue(
@@ -479,15 +479,15 @@ class InstanceParserTestCase(unittest.TestCase):
                 )
             )
         self.assertTrue(
-                isinstance( 
+                isinstance(
                     parsed_instance.servers[u'NAME_OF_SERVER2'],
                     ConfigurationData.ServerConfiguration
                 )
             )
 
 MACHINE_CONFIG_SAMPLE = """<?xml version="1.0" encoding="UTF-8"?>
-<instances 
-        xmlns="http://www.weblab.deusto.es/configuration" 
+<instances
+        xmlns="http://www.weblab.deusto.es/configuration"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="machine_configuration.xsd"
 >
@@ -571,33 +571,33 @@ class MachineParserTestCase(unittest.TestCase):
 
     def _real_test_results(self, parsed_machine):
         self.assertEquals(
-                2, 
+                2,
                 len(parsed_machine.configurations)
             )
         self.assertEquals(
-                MACHINE_PATH + u'machine_config.py', 
+                MACHINE_PATH + u'machine_config.py',
                 parsed_machine.configurations[0]
             )
         self.assertEquals(
-                MACHINE_PATH + u'machine_config.py', 
+                MACHINE_PATH + u'machine_config.py',
                 parsed_machine.configurations[1]
             )
         self.assertTrue(
-                isinstance( 
+                isinstance(
                     parsed_machine.instances[u'NAME_OF_INSTANCE1'],
                     ConfigurationData.InstanceConfiguration
                 )
             )
         self.assertTrue(
-                isinstance( 
+                isinstance(
                     parsed_machine.instances[u'NAME_OF_INSTANCE2'],
                     ConfigurationData.InstanceConfiguration
                 )
             )
 
 GLOBAL_CONFIG_SAMPLE = """<?xml version="1.0" encoding="UTF-8"?>
-<machines 
-        xmlns="http://www.weblab.deusto.es/configuration" 
+<machines
+        xmlns="http://www.weblab.deusto.es/configuration"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="global_configuration.xsd"
 >
@@ -672,19 +672,19 @@ class GlobalParserTestCase(unittest.TestCase):
 
     def _real_test_results(self, parsed_global):
         self.assertEquals(
-                2, 
+                2,
                 len(parsed_global.configurations)
             )
         self.assertEquals(
-                GLOBAL_PATH + u'global_config.py', 
+                GLOBAL_PATH + u'global_config.py',
                 parsed_global.configurations[0]
             )
         self.assertEquals(
-                GLOBAL_PATH + u'global_config.py', 
+                GLOBAL_PATH + u'global_config.py',
                 parsed_global.configurations[1]
             )
         self.assertTrue(
-                isinstance( 
+                isinstance(
                     parsed_global.machines[u'NAME_OF_MACHINE1'],
                     ConfigurationData.MachineConfiguration
                 )

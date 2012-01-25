@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import sys
 import threading
@@ -60,7 +60,7 @@ def strdate(days=0,hours=0,minutes=0,seconds=0):
 def simplify_response(response, limit = 15, counter = 0):
     """
     Recursively serializes the response into a JSON dictionary. Because the response object could actually
-    contain cyclic references, we limit the maximum depth. 
+    contain cyclic references, we limit the maximum depth.
     """
     if counter == limit:
         return None
@@ -101,7 +101,7 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def do_POST(self):
         """
-        This do_POST callback handles an HTTP request containing a JSON-encoded RPC request. 
+        This do_POST callback handles an HTTP request containing a JSON-encoded RPC request.
         """
         create_context(self.server, self.headers)
 
@@ -124,7 +124,7 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 self.finish_error(response)
                 return
 
-            # Retrieve the parameters of the method being invoked. 
+            # Retrieve the parameters of the method being invoked.
             params = decoded.get('params')
             if params is None:
                 response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"Missing 'params' attr"}
@@ -132,14 +132,14 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 return
 
             # Ensure that we actually have a facade manager, as we should.
-            # (The method specified in the JSON request, which we are going to invoke, 
+            # (The method specified in the JSON request, which we are going to invoke,
             # is actually located in the facade manager).
             if self.facade_manager is None:
                 response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"Facade manager not set"}
                 self.finish_error(response)
                 return
 
-            # Ensure that the method that is remotely being called does exist. 
+            # Ensure that the method that is remotely being called does exist.
             if not hasattr(self.facade_manager, method_name):
                 response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"Method not recognized"}
                 self.finish_error(response)
@@ -158,7 +158,7 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 self.finish_error(response)
                 return
 
-            # Call the method specified in the request, 
+            # Call the method specified in the request,
             # with the parameters from the dictionary we just built.
             try:
                 return_value = method(**newparams)
@@ -172,7 +172,7 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 return
 
             # No exception was raised so the request was successful. We will now return the response to
-            # the remote caller. 
+            # the remote caller.
             try:
                 # Serialize the response to a JSON dictionary.
                 parsed_return_value = simplify_response(return_value)
@@ -424,7 +424,7 @@ class AbstractRemoteFacadeServerZSI(AbstractProtocolRemoteFacadeServer):
                 **{
                     self._rfs.FACADE_ZSI_LISTEN: self._rfs.DEFAULT_FACADE_ZSI_LISTEN,
                     self._rfs.FACADE_ZSI_SERVICE_NAME: self._rfs.DEFAULT_FACADE_ZSI_SERVICE_NAME
-                } 
+                }
            )
         listen       = getattr(values, self._rfs.FACADE_ZSI_LISTEN)
         port         = getattr(values, self._rfs.FACADE_ZSI_PORT)
@@ -437,13 +437,13 @@ class AbstractRemoteFacadeServerZSI(AbstractProtocolRemoteFacadeServer):
             server_route = the_server_route
 
         return _AvoidTimeoutServiceContainer(
-                (listen,port), 
+                (listen,port),
                 RequestHandlerClass=NewWebLabRequestHandlerClass
             )
 
     def initialize(self):
         if not ZSI_AVAILABLE:
-            msg = "The optional library 'ZSI' is not available, so the server will not support SOAP clients. However, it's being used so problems will arise." 
+            msg = "The optional library 'ZSI' is not available, so the server will not support SOAP clients. However, it's being used so problems will arise."
             print >> sys.stderr, msg
             log.log( self, log.level.Error, msg)
 
@@ -468,7 +468,7 @@ class RemoteFacadeServerJSON(AbstractProtocolRemoteFacadeServer):
                 self._rfs.FACADE_JSON_PORT,
                 **{
                     self._rfs.FACADE_JSON_LISTEN: self._rfs.DEFAULT_FACADE_JSON_LISTEN
-                } 
+                }
            )
         listen = getattr(values, self._rfs.FACADE_JSON_LISTEN)
         port   = getattr(values, self._rfs.FACADE_JSON_PORT)
@@ -492,7 +492,7 @@ class RemoteFacadeServerXMLRPC(AbstractProtocolRemoteFacadeServer):
                 self._rfs.FACADE_XMLRPC_PORT,
                 **{
                     self._rfs.FACADE_XMLRPC_LISTEN: self._rfs.DEFAULT_FACADE_XMLRPC_LISTEN
-                } 
+                }
            )
         listen = getattr(values, self._rfs.FACADE_XMLRPC_LISTEN)
         port   = getattr(values, self._rfs.FACADE_XMLRPC_PORT)

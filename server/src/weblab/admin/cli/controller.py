@@ -7,7 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
@@ -100,12 +100,12 @@ class Controller(object):
         group_names = [ (group.id, group.name) for group in groups ]
         try:
             group_name, parent_group_id = self.ui.dialog_add_group(group_names)
-            parent_group = [ group for group in groups if group.id == parent_group_id ][0] if parent_group_id is not None else None             
+            parent_group = [ group for group in groups if group.id == parent_group_id ][0] if parent_group_id is not None else None
             group = self.db.insert_group(group_name, parent_group)
             if group is not None:
                 self.ui.notify("Group created:\n%r" % group)
             else:
-                self.ui.error("The Group '%s' already exists." % group_name)     
+                self.ui.error("The Group '%s' already exists." % group_name)
             self.ui.wait()
         except GoBackException:
             return
@@ -118,7 +118,7 @@ class Controller(object):
             if category is not None:
                 self.ui.notify("ExperimentCategory created:\n%r" % category)
             else:
-                self.ui.error("The ExperimentCategory '%s' already exists." % category_name)     
+                self.ui.error("The ExperimentCategory '%s' already exists." % category_name)
             self.ui.wait()
         except GoBackException:
             return
@@ -135,7 +135,7 @@ class Controller(object):
             if experiment is not None:
                 self.ui.notify("Experiment created:\n%r" % experiment)
             else:
-                self.ui.error("The Experiment '%s' already exists." % experiment_name)     
+                self.ui.error("The Experiment '%s' already exists." % experiment_name)
             self.ui.wait()
         except GoBackException:
             return
@@ -184,7 +184,7 @@ class Controller(object):
                 assert user_auth is not None
                 self.ui.notify("UserAuth created:\n%r" % user_auth)
             else:
-                self.ui.error("The User '%s' already exists." % login)     
+                self.ui.error("The User '%s' already exists." % login)
             self.ui.wait()
         except GoBackException:
             return
@@ -226,7 +226,7 @@ class Controller(object):
                     assert user_auth is not None
                     self.ui.notify("UserAuth created:\n%r" % user_auth)
                 else:
-                    self.ui.error("The User '%s' already exists." % str(user_data) )     
+                    self.ui.error("The User '%s' already exists." % str(user_data) )
             self.ui.wait()
 
         except GoBackException:
@@ -268,9 +268,9 @@ class Controller(object):
                         users_created_successfully += 1
                     else:
                         self.ui.error("The User '%s' already exists." % user_data["login"])
-                        self.db.session.rollback()     
+                        self.db.session.rollback()
                 except Exception, ex:
-                    self.ui.error("The User '%s' could not be created. Ignoring him/her. Reason: " % (user_data["login"], ex.__repr__))                     
+                    self.ui.error("The User '%s' could not be created. Ignoring him/her. Reason: " % (user_data["login"], ex.__repr__))
             self.ui.notify("Created %d users out of %d." % (users_created_successfully, num_users))
             self.ui.wait()
         except GoBackException:
@@ -313,7 +313,7 @@ class Controller(object):
                     assert user_auth is not None
                     self.ui.notify("UserAuth created:\n%r" % user_auth)
                 else:
-                    self.ui.error("The User '%s' already exists." % str(user_data) )     
+                    self.ui.error("The User '%s' already exists." % str(user_data) )
             self.ui.wait()
 
         except GoBackException:
@@ -330,7 +330,7 @@ class Controller(object):
             group = [ group for group in groups if group.id == group_id ][0] if group_id is not None else None
             experiment = [ experiment for experiment in experiments if experiment.id == experiment_id ][0] if experiment_id is not None else None
             experiment_unique_id = "%s@%s" % (experiment.name, experiment.category.name)
-            group_permission_permanent_id = "%s::%s" % (group.name, experiment_unique_id) 
+            group_permission_permanent_id = "%s::%s" % (group.name, experiment_unique_id)
             group_permission = self.db.grant_on_experiment_to_group(
                     group,
                     permission_type,
@@ -347,7 +347,7 @@ class Controller(object):
                 for parameter in group_permission.parameters:
                     self.ui.notify("GroupPermissionParameter created:\n%r" % parameter)
             else:
-                self.ui.error("The GroupPermission '%s' already exists." % group_permission_permanent_id)     
+                self.ui.error("The GroupPermission '%s' already exists." % group_permission_permanent_id)
             self.ui.wait()
         except GoBackException:
             return
@@ -363,7 +363,7 @@ class Controller(object):
             user = [ user for user in users if user.id == user_id ][0] if user_id is not None else None
             experiment = [ experiment for experiment in experiments if experiment.id == experiment_id ][0] if experiment_id is not None else None
             experiment_unique_id = "%s@%s" % (experiment.name, experiment.category.name)
-            user_permission_permanent_id = "%s::%s" % (user.login, experiment_unique_id) 
+            user_permission_permanent_id = "%s::%s" % (user.login, experiment_unique_id)
             user_permission = self.db.grant_on_experiment_to_user(
                     user,
                     permission_type,
@@ -380,10 +380,10 @@ class Controller(object):
                 for parameter in user_permission.parameters:
                     self.ui.notify("UserPermissionParameter created:\n%r" % parameter)
             else:
-                self.ui.error("The UserPermission '%s' already exists." % user_permission_permanent_id)     
+                self.ui.error("The UserPermission '%s' already exists." % user_permission_permanent_id)
             self.ui.wait()
         except GoBackException:
-            return   
+            return
 
     def grant_on_admin_panel_to_group(self):
         groups = self.db.get_groups()
@@ -422,10 +422,10 @@ class Controller(object):
                 for parameter in user_permission.parameters:
                     self.ui.notify("UserPermissionParameter created:\n%r" % parameter)
             else:
-                self.ui.error("The UserPermission '%s' already exists." % user_permission_permanent_id)     
+                self.ui.error("The UserPermission '%s' already exists." % user_permission_permanent_id)
             self.ui.wait()
         except GoBackException:
-            return   
+            return
 
     def grant_on_access_forward_to_group(self):
         groups = self.db.get_groups()
@@ -464,10 +464,10 @@ class Controller(object):
                 for parameter in user_permission.parameters:
                     self.ui.notify("UserPermissionParameter created:\n%r" % parameter)
             else:
-                self.ui.error("The UserPermission '%s' already exists." % user_permission_permanent_id)     
+                self.ui.error("The UserPermission '%s' already exists." % user_permission_permanent_id)
             self.ui.wait()
         except GoBackException:
-            return   
+            return
 
     def list_users(self):
         groups = self.db.get_groups()
@@ -507,7 +507,7 @@ class Controller(object):
     def notify_users_with_passwords(self):
         """
         Will send a mail to every specified user with their welcome text. That welcome text
-        will include the password. Because passwords are not stored in the database (only 
+        will include the password. Because passwords are not stored in the database (only
         their hashes are), a "dbusers" file will need to be specified to extract the passwords
         from.
         """
@@ -523,10 +523,10 @@ class Controller(object):
                                                      )
             users = [ group.users for group in groups if group.id == group_id ][0] if group_id is not None else self.db.get_users()
 
-            # The DB does not contain the passwords, so we will retrieve them from the DBUSERS file. 
+            # The DB does not contain the passwords, so we will retrieve them from the DBUSERS file.
             users_from_file = self.ui.dialog_read_db_users_file_for_notify(DEFAULT_DB_USERS_FILE)
 
-            # Store the passwords in a dictionary, associating them with the login names. 
+            # Store the passwords in a dictionary, associating them with the login names.
             user_pwds = {}
             for entry in users_from_file:
                 user_pwds[entry[0]] = entry[3]

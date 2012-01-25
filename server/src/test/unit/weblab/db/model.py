@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
 import unittest
 import datetime
@@ -90,7 +90,7 @@ class ModelTestCase(unittest.TestCase):
         )
         user_permission_p1 = Model.DbUserPermissionParameter(user_permission, permission_type_p1, "ud-pld")
         user_permission_p2 = Model.DbUserPermissionParameter(user_permission, permission_type_p2, "PLD experiments")
-        user_permission_p3 = Model.DbUserPermissionParameter(user_permission, permission_type_p3, "100")   
+        user_permission_p3 = Model.DbUserPermissionParameter(user_permission, permission_type_p3, "100")
 
         group_permission = Model.DbGroupPermission(
             group,
@@ -101,7 +101,7 @@ class ModelTestCase(unittest.TestCase):
         )
         group_permission_p1 = Model.DbGroupPermissionParameter(group_permission, permission_type_p1, "ud-dummy")
         group_permission_p2 = Model.DbGroupPermissionParameter(group_permission, permission_type_p2, "Dummy experiments")
-        group_permission_p3 = Model.DbGroupPermissionParameter(group_permission, permission_type_p3, "300")    
+        group_permission_p3 = Model.DbGroupPermissionParameter(group_permission, permission_type_p3, "300")
 
         role_permission = Model.DbRolePermission(
             role,
@@ -112,7 +112,7 @@ class ModelTestCase(unittest.TestCase):
         )
         role_permission_p1 = Model.DbRolePermissionParameter(role_permission, permission_type_p1, "ud-dummy")
         role_permission_p2 = Model.DbRolePermissionParameter(role_permission, permission_type_p2, "Dummy experiments")
-        role_permission_p3 = Model.DbRolePermissionParameter(role_permission, permission_type_p3, "300")        
+        role_permission_p3 = Model.DbRolePermissionParameter(role_permission, permission_type_p3, "300")
 
         ee_permission = Model.DbExternalEntityPermission(
             ee,
@@ -123,11 +123,11 @@ class ModelTestCase(unittest.TestCase):
         )
         ee_permission_p1 = Model.DbExternalEntityPermissionParameter(ee_permission, permission_type_p1, "ud-dummy")
         ee_permission_p2 = Model.DbExternalEntityPermissionParameter(ee_permission, permission_type_p2, "Dummy experiments")
-        ee_permission_p3 = Model.DbExternalEntityPermissionParameter(ee_permission, permission_type_p3, "300")                   
+        ee_permission_p3 = Model.DbExternalEntityPermissionParameter(ee_permission, permission_type_p3, "300")
 
         #
         # Method __repr__()
-        #        
+        #
         variables = locals()
         variables.pop("self")
         for k in variables.keys():

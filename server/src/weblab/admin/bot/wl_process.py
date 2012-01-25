@@ -7,7 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Authors: Jaime Irurzun <jaime.irurzun@gmail.com>
@@ -126,7 +126,7 @@ class WebLabProcess(object):
     def shutdown(self):
         if not self._has_finished():
             (self.out, self.err) = self.popen.communicate(input="\n")
-            maxtime = 5 # seconds            
+            maxtime = 5 # seconds
             time_expired = False
             initialtime = time.time()
             while not self._has_finished() and not time_expired:

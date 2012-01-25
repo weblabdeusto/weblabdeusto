@@ -7,7 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -80,16 +80,16 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
         exp_id = ExperimentId('ud-dummy','Dummy Experiments')
 
         self.entry1 = TemporalInformationStore.InitialInformationEntry(
-                        RESERVATION1, exp_id, coord_addr('ser:inst@mach'),  
+                        RESERVATION1, exp_id, coord_addr('ser:inst@mach'),
                         DATA1, self.initial_time, self.end_time, request_info.copy(), DATA_REQUEST1)
         self.entry2 = TemporalInformationStore.InitialInformationEntry(
-                        RESERVATION2, exp_id, coord_addr('ser:inst@mach'),  
+                        RESERVATION2, exp_id, coord_addr('ser:inst@mach'),
                         DATA2, self.initial_time, self.end_time, request_info.copy(), DATA_REQUEST2)
         self.entry3 = TemporalInformationStore.InitialInformationEntry(
-                        RESERVATION3, exp_id, coord_addr('ser:inst@mach'),  
+                        RESERVATION3, exp_id, coord_addr('ser:inst@mach'),
                         DATA3, self.initial_time, self.end_time, request_info.copy(), DATA_REQUEST3)
         self.entry4 = TemporalInformationStore.InitialInformationEntry(
-                        RESERVATION4, exp_id, coord_addr('ser:inst@mach'),  
+                        RESERVATION4, exp_id, coord_addr('ser:inst@mach'),
                         DATA4, self.initial_time, self.end_time, request_info.copy(), DATA_REQUEST3)
 
 

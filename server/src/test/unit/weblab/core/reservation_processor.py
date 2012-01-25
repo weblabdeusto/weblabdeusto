@@ -7,7 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -27,7 +27,7 @@ from   test.util.module_disposer import case_uses_module
 import weblab.core.user_processor as UserProcessor
 from weblab.core.reservation_processor import ReservationProcessor
 import weblab.core.reservations as Reservation
-import weblab.core.coordinator.coordinator as Coordinator 
+import weblab.core.coordinator.coordinator as Coordinator
 import weblab.core.coordinator.confirmer as Confirmer
 import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.data.server_type as ServerType
@@ -266,8 +266,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
         file_content = "SAMPLE CONTENT"
         file_info    = "program"
         self.lab_mock.send_file(SessionId.SessionId('my_lab_session_id'), file_content, file_info)
-        self.mocker.throw( 
-                LaboratoryExceptions.SessionNotFoundInLaboratoryServerException("problem@laboratory") 
+        self.mocker.throw(
+                LaboratoryExceptions.SessionNotFoundInLaboratoryServerException("problem@laboratory")
             )
         self.mocker.replay()
 
@@ -293,8 +293,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
         file_content = "SAMPLE CONTENT"
         file_info    = "program"
         self.lab_mock.send_async_file(SessionId.SessionId('my_lab_session_id'), file_content, file_info)
-        self.mocker.throw( 
-                LaboratoryExceptions.SessionNotFoundInLaboratoryServerException("problem@laboratory") 
+        self.mocker.throw(
+                LaboratoryExceptions.SessionNotFoundInLaboratoryServerException("problem@laboratory")
             )
         self.mocker.replay()
 
@@ -320,8 +320,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
         file_content = "SAMPLE CONTENT"
         file_info    = "program"
         self.lab_mock.send_async_file(SessionId.SessionId('my_lab_session_id'), file_content, file_info)
-        self.mocker.throw( 
-                LaboratoryExceptions.FailedToInteractException("problem@laboratory") 
+        self.mocker.throw(
+                LaboratoryExceptions.FailedToInteractException("problem@laboratory")
             )
         self.mocker.replay()
 
@@ -347,8 +347,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
         file_content = "SAMPLE CONTENT"
         file_info    = "program"
         self.lab_mock.send_file(SessionId.SessionId('my_lab_session_id'), file_content, file_info)
-        self.mocker.throw( 
-                LaboratoryExceptions.FailedToInteractException("problem@laboratory") 
+        self.mocker.throw(
+                LaboratoryExceptions.FailedToInteractException("problem@laboratory")
             )
         self.mocker.replay()
 
@@ -430,8 +430,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
 
         command = Command.Command("Your command")
         self.lab_mock.send_command(SessionId.SessionId('my_lab_session_id'), command)
-        self.mocker.throw( 
-                LaboratoryExceptions.SessionNotFoundInLaboratoryServerException("problem@laboratory") 
+        self.mocker.throw(
+                LaboratoryExceptions.SessionNotFoundInLaboratoryServerException("problem@laboratory")
             )
         self.mocker.replay()
 
@@ -456,8 +456,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
 
         command = Command.Command("Your command")
         self.lab_mock.send_async_command(SessionId.SessionId('my_lab_session_id'), command)
-        self.mocker.throw( 
-                LaboratoryExceptions.SessionNotFoundInLaboratoryServerException("problem@laboratory") 
+        self.mocker.throw(
+                LaboratoryExceptions.SessionNotFoundInLaboratoryServerException("problem@laboratory")
             )
         self.mocker.replay()
 
@@ -481,8 +481,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
 
         command = Command.Command("Your command")
         self.lab_mock.send_async_command(SessionId.SessionId('my_lab_session_id'), command)
-        self.mocker.throw( 
-                LaboratoryExceptions.FailedToInteractException("problem@laboratory") 
+        self.mocker.throw(
+                LaboratoryExceptions.FailedToInteractException("problem@laboratory")
             )
         self.mocker.replay()
 
@@ -506,8 +506,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
 
         command = Command.Command("Your command")
         self.lab_mock.send_command(SessionId.SessionId('my_lab_session_id'), command)
-        self.mocker.throw( 
-                LaboratoryExceptions.FailedToInteractException("problem@laboratory") 
+        self.mocker.throw(
+                LaboratoryExceptions.FailedToInteractException("problem@laboratory")
             )
         self.mocker.replay()
 

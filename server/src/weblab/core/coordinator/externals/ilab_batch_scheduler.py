@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import random
 import json
@@ -50,9 +50,9 @@ class ILabBatchScheduler(Scheduler):
         return iLabBatchLabServerProxy(self.lab_server_url, self.identifier, self.passkey)
 
     #######################################################################
-    # 
+    #
     # Given a reservation_id, it returns in which state the reservation is
-    # 
+    #
     @logged()
     @Override(Scheduler)
     def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info):
@@ -64,7 +64,7 @@ class ILabBatchScheduler(Scheduler):
             config = client.get_lab_configuration()
             return WSS.PostReservationStatus(reservation_id, True, config, '')
         elif client_initial_data['operation'] == 'submit':
-            # TODO!!! 
+            # TODO!!!
             remote_experiment_id  = random.randint(1000000, 200000000)
             session = self.session_maker()
             try:
@@ -83,9 +83,9 @@ class ILabBatchScheduler(Scheduler):
             raise Exception("Invalid operation in client_initial_data")
 
     #######################################################################
-    # 
+    #
     # Given a reservation_id, it returns in which state the reservation is
-    # 
+    #
     @logged()
     @Override(Scheduler)
     def get_reservation_status(self, reservation_id):
@@ -106,7 +106,7 @@ class ILabBatchScheduler(Scheduler):
         # public const int BATCH_TERMINATED = 3; // if terminated normally
         # public const int BATCH_TERMINATED_ERROR = 4; // if terminated with errors (this includes cancellation by user in mid-execution)
         # public const int BATCH_CANCELLED = 5; // if cancelled by user before execution had begun
-        # public const int BATCH_UNKNOWN = 6; // if unknown labExperimentID. 
+        # public const int BATCH_UNKNOWN = 6; // if unknown labExperimentID.
         # public const int BATCH_NOT_VALID = 7; // Assigned by Service Broker if experiment is not valid (done in submit call)
 
         client = self._create_client()
@@ -137,7 +137,7 @@ class ILabBatchScheduler(Scheduler):
     @Override(Scheduler)
     def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
         # At some point, we must call the upper level to say that we want to confirm
-        # at this point, it's normal that they call us back, even if there is nothing 
+        # at this point, it's normal that they call us back, even if there is nothing
         # to do
         pass
 
@@ -164,9 +164,9 @@ class ILabBatchScheduler(Scheduler):
         client.cancel(remote_experiment_id)
 
     ##############################################################
-    # 
+    #
     # ONLY FOR TESTING: It completely removes the whole database
-    # 
+    #
     @Override(Scheduler)
     def _clean(self):
         session = self.session_maker()

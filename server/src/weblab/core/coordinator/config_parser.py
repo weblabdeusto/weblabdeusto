@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import re
 
@@ -31,11 +31,11 @@ class CoordinationConfigurationParser(object):
         self._cfg_manager = cfg_manager
 
     def parse_external_servers(self):
-        # 
+        #
         # {
         #    'experiment_id_str' : [ 'resource_type_name' ]
         # }
-        # 
+        #
         external_servers = self._cfg_manager.get_value(COORDINATOR_EXTERNAL_SERVERS, {})
         for external_server in external_servers:
             external_servers[external_server] = set(external_servers[external_server])
@@ -45,11 +45,11 @@ class CoordinationConfigurationParser(object):
     def parse_resources_for_experiment_ids(self):
         raw_configuration = self.parse_configuration()
 
-        # 
+        #
         # {
         #    'experiment_id_str' : set('resource_type_name1', 'resource_type_name2')
         # }
-        # 
+        #
         configuration = self.parse_external_servers()
         for laboratory in raw_configuration:
             laboratory_config = raw_configuration[laboratory]
@@ -63,13 +63,13 @@ class CoordinationConfigurationParser(object):
         return configuration
 
     def parse_configuration(self):
-        # 
+        #
         # configuration = {
         #      "laboratory1:WL_SERVER1@WL_MACHINE1" : {
         #                 ExperimentInstanceId("exp1", "ud-pld", "PLD Experiments") : ("pld1", "ud-pld-boards")
         #      }
         # }
-        # 
+        #
         configuration = {}
 
         laboratory_servers = self._cfg_manager.get_value(COORDINATOR_LABORATORY_SERVERS)

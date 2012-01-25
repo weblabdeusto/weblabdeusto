@@ -7,7 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
@@ -88,9 +88,9 @@ class BotIteration(object):
         all_calls_by_name = self.get_all_calls_by_name()
 
         for call_name in all_calls_by_name:
-            xxx_by_name[call_name] = func([ 
-                                call.time() 
-                                for call in all_calls_by_name[call_name] 
+            xxx_by_name[call_name] = func([
+                                call.time()
+                                for call in all_calls_by_name[call_name]
                             ]
                     )
         return xxx_by_name
@@ -160,7 +160,7 @@ class BotTrial(object):
             for iteration in self.iterations:
                 number_of_exception_instances.append(iteration.get_number_of_exception_instances(exceptions[exception_name].get_name()))
             exceptions[exception_name].set_max(max(number_of_exception_instances))
-            exceptions[exception_name].set_min(min(number_of_exception_instances))  
+            exceptions[exception_name].set_min(min(number_of_exception_instances))
             exceptions[exception_name].set_avg(avg(number_of_exception_instances))
 
         self.max_time = max(times)
@@ -238,7 +238,7 @@ class BotTrial(object):
         print >> fobj,  "  min call time: ", result.min_call_times
         print >> fobj,  ""
         for exception_name in result.exceptions:
-            print >> fobj,  "" 
+            print >> fobj,  ""
             print >> fobj,  "  For exception...", exception_name
             print >> fobj,  "    max times:", result.exceptions[exception_name].max
             print >> fobj,  "    avg times:", result.exceptions[exception_name].avg

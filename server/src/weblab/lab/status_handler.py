@@ -7,7 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
@@ -20,7 +20,7 @@ is intended to be used for checking common issues to most of the
 experiments. Examples:
    -> Is that webcam (url) returning a JPG image?
    -> Is that host (ip, port) listening?
-All these requests will not require a slot in the scheduling system, so they can 
+All these requests will not require a slot in the scheduling system, so they can
 be requested at any moment, even if there is a user using the experiment.
 """
 

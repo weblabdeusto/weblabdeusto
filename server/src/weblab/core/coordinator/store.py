@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 from abc import ABCMeta, abstractmethod
 import Queue
@@ -20,12 +20,12 @@ class TemporalInformationStore(object):
     """ Temporal synchronized store for initial and finishing information.
 
     The coordinator will be asking the experiment whether it has finished or not.
-    Given that this process is not synchronized with the UserProcessingManager, not 
-    even with the user session (if an experiment takes a long time and the user 
+    Given that this process is not synchronized with the UserProcessingManager, not
+    even with the user session (if an experiment takes a long time and the user
     session has finished, we still want to store the results of that experiment).
-    Therefore, this store will store the information. From time to time, the 
+    Therefore, this store will store the information. From time to time, the
     UserProcessingManager will call this store to ask for information to store in
-    the database. This class provides synchronized solution, so the UPS will be 
+    the database. This class provides synchronized solution, so the UPS will be
     able to get blocked until some information is available.
     """
 
@@ -59,7 +59,7 @@ class InitialInformationEntry(object):
         self.exp_coordaddr         = exp_coordaddr
         self.initial_configuration = initial_configuration
         self.initial_time          = initial_time
-        self.end_time              = end_time 
+        self.end_time              = end_time
         self.request_info          = request_info
         self.client_initial_data   = serialized_client_initial_data
 
@@ -77,7 +77,7 @@ class CommandOrFileInformationEntry(object):
         self.is_before       = is_before  # or after
         self.is_command      = is_command # or file
         self.entry_id        = entry_id # random number identifying the entry
-        self.payload         = payload 
+        self.payload         = payload
         self.timestamp       = timestamp
 
 class CommandsTemporalInformationStore(TemporalInformationStore):

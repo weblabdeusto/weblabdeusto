@@ -7,25 +7,25 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import weakref
 
 from voodoo.resources_manager import is_testing
 
 ###########################################
-# 
+#
 # By default, it only checks the data
 # types whenever we are unit testing.
 # This way, we keep the system documented
 # and catch the failures while testing,
-# but it has no performance impact in 
+# but it has no performance impact in
 # production.
-# 
+#
 CHECKING = __debug__ and is_testing()
 
 ANY  = object()

@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import unittest
 
@@ -20,10 +20,10 @@ from voodoo.representable import Representable, AbstractRepresentable
 from voodoo.typechecker import typecheck
 
 #########################################################
-# 
+#
 # Regular scenario: parent class is representable,
 # the inherited classes are also representable.
-# 
+#
 
 class DirectClass(object):
 
@@ -42,10 +42,10 @@ class GrandChildClass(ChildClass):
     pass
 
 #########################################################
-# 
+#
 # Typed Regular scenario: parent class is representable,
 # the inherited classes are also representable.
-# 
+#
 
 class TypedDirectClass(object):
 
@@ -67,10 +67,10 @@ class TypedGrandChildClass(TypedChildClass):
     pass
 
 #############################################################
-# 
+#
 # Don't cause problems when using _field or __field, neither
 # with properties
-# 
+#
 
 class ClassWithProtectedData(object):
 
@@ -104,11 +104,11 @@ class ClassWithProperties(object):
         self._x = value
 
 ###########################################################
-# 
+#
 # Wrong case: the constructor does not set a field that
-# appears in the constructor of the class. This should 
+# appears in the constructor of the class. This should
 # fail when creating the object.
-# 
+#
 
 class WrongClass(object):
 
@@ -120,10 +120,10 @@ class WrongClass(object):
         # No field called "missing_field"
 
 #############################################################
-# 
-# Abstract class: enable classes to be abstract and 
+#
+# Abstract class: enable classes to be abstract and
 # representables at the very same time.
-# 
+#
 
 class AbstractClass(object):
 
@@ -154,10 +154,10 @@ class ClassWithVariables(object):
         something += 1
 
 ##############################################################
-# 
+#
 # Abstract class: enable a class to be abstract, and then
 # a derived class to be representable
-# 
+#
 
 class PureAbstractClass(object):
     __metaclass__ = ABCMeta

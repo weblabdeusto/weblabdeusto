@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
 import datetime
 import calendar
@@ -26,14 +26,14 @@ import voodoo.gen.coordinator.CoordAddress as CoordAddress
 
 import weblab.login.db.dao.user as UserAuth
 
-from weblab.data.dto.experiments import Experiment  
-from weblab.data.dto.experiments import ExperimentCategory  
+from weblab.data.dto.experiments import Experiment
+from weblab.data.dto.experiments import ExperimentCategory
 from weblab.data.dto.permissions import Permission, PermissionParameter, PermissionType
 from weblab.data.experiments import ExperimentId, ExperimentUsage, FileSent, CommandSent
 from weblab.data.command import Command, NullCommand
 from weblab.data.dto.users import User
 from weblab.data.dto.users import Role
-from weblab.data.dto.users import Group  
+from weblab.data.dto.users import Group
 from weblab.data.dto.users import ExternalEntity
 from weblab.data.dto.experiments import ExperimentUse
 
@@ -94,8 +94,8 @@ class DbRole(Base):
             self.name
         )
 
-    def to_dto(self):        
-        return Role(self.name)   
+    def to_dto(self):
+        return Role(self.name)
 
 
 class DbUser(Base):
@@ -104,7 +104,7 @@ class DbUser(Base):
 
     id        = Column(Integer, primary_key = True)
     login     = Column(String(32), nullable = False)
-    full_name = Column(String(200), nullable = False) 
+    full_name = Column(String(200), nullable = False)
     email     = Column(String(255), nullable = False)
     avatar    = Column(String(255))
     role_id   = Column(Integer, ForeignKey("Role.id"))
@@ -129,7 +129,7 @@ class DbUser(Base):
                 self.role
             )
 
-    def to_dto(self):        
+    def to_dto(self):
         return User(self.login, self.full_name, self.email, self.role.to_dto())
 
 
@@ -161,7 +161,7 @@ class DbAuth(Base):
     priority      = Column(Integer, nullable = False)
     configuration = Column(Text)
 
-    auth_type = relation("DbAuthType", backref=backref("auths", order_by=id, cascade='all,delete'))    
+    auth_type = relation("DbAuthType", backref=backref("auths", order_by=id, cascade='all,delete'))
 
     def __init__(self, auth_type, name, priority, configuration=None):
         super(DbAuth, self).__init__()
@@ -195,8 +195,8 @@ class DbUserAuth(Base):
     auth_id       = Column(Integer, ForeignKey('Auth.id'), nullable = False)
     configuration = Column(Text)
 
-    user = relation("DbUser", backref=backref("auths", order_by=id, cascade='all,delete'))    
-    auth = relation("DbAuth", backref=backref("user_auths", order_by=id, cascade='all,delete'))    
+    user = relation("DbUser", backref=backref("auths", order_by=id, cascade='all,delete'))
+    auth = relation("DbAuth", backref=backref("user_auths", order_by=id, cascade='all,delete'))
 
     def __init__(self, user, auth, configuration=None):
         super(DbUserAuth, self).__init__()
@@ -227,7 +227,7 @@ class DbExternalEntity(Base):
     name        = Column(String(255), nullable = False)
     country     = Column(String(20), nullable = False)
     description = Column(Text, nullable = False)
-    email       = Column(String(255), nullable = False)    
+    email       = Column(String(255), nullable = False)
     password    = Column(String(255), nullable = False)
 
     def __init__(self, name, country, description, email, password):
@@ -245,10 +245,10 @@ class DbExternalEntity(Base):
             self.country,
             self.description,
             self.email
-        )    
+        )
 
     def to_business(self):
-        return ExternalEntity(self.id, self.name, self.country, self.description, self.email)    
+        return ExternalEntity(self.id, self.name, self.country, self.description, self.email)
 
     def to_dto(self):
         return self.to_business() # Temporal
@@ -262,7 +262,7 @@ class DbGroup(Base):
     name      = Column(String(250), nullable = False)
     parent_id = Column(Integer, ForeignKey("Group.id"))
 
-    children = relation("DbGroup", backref=backref("parent", remote_side=id, cascade='all,delete'))     
+    children = relation("DbGroup", backref=backref("parent", remote_side=id, cascade='all,delete'))
     users    = relation("DbUser", secondary=t_user_is_member_of, backref="groups")
     ees      = relation("DbExternalEntity", secondary=t_ee_is_member_of, backref="groups")
 
@@ -280,10 +280,10 @@ class DbGroup(Base):
             self.id,
             self.name,
             parent_str
-        )        
+        )
 
     def to_business_light(self):
-        return Group(self.name, self.id) 
+        return Group(self.name, self.id)
 
     def to_dto(self):
         return self.to_business_light() # Temporal
@@ -307,10 +307,10 @@ class DbExperimentCategory(Base):
         return "DbExperimentCategory(id = %r, name = '%s')" % (
             self.id,
             self.name
-        )      
+        )
 
     def to_business(self):
-        return ExperimentCategory(self.name)              
+        return ExperimentCategory(self.name)
 
 
 class DbExperiment(Base):
@@ -323,7 +323,7 @@ class DbExperiment(Base):
     start_date  = Column(DateTime, nullable = False)
     end_date    = Column(DateTime, nullable = False)
 
-    category = relation("DbExperimentCategory", backref=backref("experiments", order_by=id, cascade='all,delete')) 
+    category = relation("DbExperimentCategory", backref=backref("experiments", order_by=id, cascade='all,delete'))
 
     def __init__(self, name, category, start_date, end_date):
         super(DbExperiment, self).__init__()
@@ -339,7 +339,7 @@ class DbExperiment(Base):
             self.category,
             self.start_date,
             self.end_date
-        )       
+        )
 
     def to_business(self):
         return Experiment(
@@ -348,10 +348,10 @@ class DbExperiment(Base):
             self.start_date,
             self.end_date,
             self.id
-            )      
+            )
 
     def to_dto(self):
-        return self.to_business() # Temporal        
+        return self.to_business() # Temporal
 
 
 ##############################################################################
@@ -373,8 +373,8 @@ class DbUserUsedExperiment(Base):
     coord_address    = Column(String(255), nullable = False)
     reservation_id   = Column(String(50))
 
-    user       = relation("DbUser", backref=backref("experiment_uses", order_by=id))    
-    experiment = relation("DbExperiment", backref=backref("user_uses", order_by=id))  
+    user       = relation("DbUser", backref=backref("experiment_uses", order_by=id))
+    experiment = relation("DbExperiment", backref=backref("user_uses", order_by=id))
 
     def __init__(self, user, experiment, start_date, origin, coord_address, reservation_id, end_date):
         super(DbUserUsedExperiment, self).__init__()
@@ -401,7 +401,7 @@ class DbUserUsedExperiment(Base):
             self.origin,
             self.coord_address,
             self.reservation_id
-        )       
+        )
 
     def to_business_light(self):
         usage = ExperimentUsage()
@@ -412,7 +412,7 @@ class DbUserUsedExperiment(Base):
         usage.reservation_id    = self.reservation_id
         usage.experiment_id     = ExperimentId(self.experiment.name, self.experiment.category.name)
         usage.coord_address     = CoordAddress.CoordAddress.translate_address(self.coord_address)
-        return usage    
+        return usage
 
     def to_business(self):
         usage = self.to_business_light()
@@ -431,9 +431,9 @@ class DbUserUsedExperiment(Base):
         )
         return use
 
-# 
+#
 # These properties will be added. The names will be "facebook", "mobile", "openid", "user.agent", etc.
-# 
+#
 class DbUserUsedExperimentProperty(Base):
     __tablename__   = 'UserUsedExperimentProperty'
     __table_args__  = (UniqueConstraint('name'), TABLE_KWARGS)
@@ -489,7 +489,7 @@ class DbUserFile(Base):
     timestamp_after        = Column(DateTime)
     timestamp_after_micro  = Column(Integer)
 
-    experiment_use = relation("DbUserUsedExperiment", backref=backref("files", order_by=id, cascade='all,delete')) 
+    experiment_use = relation("DbUserUsedExperiment", backref=backref("files", order_by=id, cascade='all,delete'))
 
     def __init__(self, experiment_use, file_sent, file_hash, timestamp_before, file_info=None, response=None, timestamp_after=None):
         super(DbUserFile, self).__init__()
@@ -516,7 +516,7 @@ class DbUserFile(Base):
             self.timestamp_before_micro,
             self.timestamp_after,
             self.timestamp_after_micro
-        )     
+        )
 
     def to_business(self):
         return FileSent(
@@ -542,7 +542,7 @@ class DbUserCommand(Base):
     timestamp_after        = Column(DateTime)
     timestamp_after_micro  = Column(Integer)
 
-    experiment_use = relation("DbUserUsedExperiment", backref=backref("commands", order_by=id, cascade='all,delete'))  
+    experiment_use = relation("DbUserUsedExperiment", backref=backref("commands", order_by=id, cascade='all,delete'))
 
     def __init__(self, experiment_use, command, timestamp_before, response=None, timestamp_after=None):
         super(DbUserCommand, self).__init__()
@@ -565,7 +565,7 @@ class DbUserCommand(Base):
             self.timestamp_before_micro,
             self.timestamp_after,
             self.timestamp_after_micro
-        )       
+        )
 
     def to_business(self):
         return CommandSent(
@@ -573,7 +573,7 @@ class DbUserCommand(Base):
             _splitted_utc_datetime_to_timestamp(self.timestamp_before, self.timestamp_before_micro),
             Command(self.response) if self.response is not None else NullCommand(),
             _splitted_utc_datetime_to_timestamp(self.timestamp_after, self.timestamp_after_micro)
-            )                
+            )
 
 
 class DbExternalEntityUsedExperiment(Base):
@@ -591,7 +591,7 @@ class DbExternalEntityUsedExperiment(Base):
     coord_address    = Column(String(255), nullable = False)
     reservation_id   = Column(String(50))
 
-    ee         = relation("DbExternalEntity", backref=backref("experiment_uses", order_by=id))  
+    ee         = relation("DbExternalEntity", backref=backref("experiment_uses", order_by=id))
     experiment = relation("DbExperiment", backref=backref("ee_uses", order_by=id))
 
     def __init__(self, ee, experiment, start_date, origin, coord_address, reservation_id, end_date):
@@ -616,7 +616,7 @@ class DbExternalEntityUsedExperiment(Base):
             self.origin,
             self.coord_address,
             self.reservation_id
-        )   
+        )
 
     def to_dto(self):
         use = ExperimentUse(
@@ -645,7 +645,7 @@ class DbExternalEntityFile(Base):
     timestamp_after        = Column(DateTime)
     timestamp_after_micro  = Column(Integer)
 
-    experiment_use = relation("DbExternalEntityUsedExperiment", backref=backref("files", order_by=id, cascade='all,delete')) 
+    experiment_use = relation("DbExternalEntityUsedExperiment", backref=backref("files", order_by=id, cascade='all,delete'))
 
     def __init__(self, experiment_use, file_sent, file_hash, timestamp_before, timestamp_before_micro, file_info=None, response=None, timestamp_after=None, timestamp_after_micro=None):
         super(DbExternalEntityFile, self).__init__()
@@ -671,7 +671,7 @@ class DbExternalEntityFile(Base):
             self.timestamp_before_micro,
             self.timestamp_after,
             self.timestamp_after_micro
-        )       
+        )
 
 
 class DbExternalEntityCommand(Base):
@@ -687,7 +687,7 @@ class DbExternalEntityCommand(Base):
     timestamp_after        = Column(DateTime)
     timestamp_after_micro  = Column(Integer)
 
-    experiment_use = relation("DbExternalEntityUsedExperiment", backref=backref("commands", order_by=id, cascade='all,delete'))     
+    experiment_use = relation("DbExternalEntityUsedExperiment", backref=backref("commands", order_by=id, cascade='all,delete'))
 
     def __init__(self, experiment_use, command, timestamp_before, timestamp_before_micro, response=None, timestamp_after=None, timestamp_after_micro=None):
         super(DbExternalEntityCommand, self).__init__()
@@ -709,7 +709,7 @@ class DbExternalEntityCommand(Base):
             self.timestamp_before_micro,
             self.timestamp_after,
             self.timestamp_after_micro
-        )       
+        )
 
 
 ##############################################################################
@@ -760,7 +760,7 @@ class DbPermissionType(Base):
             self.ee_applicable
         )
 
-    def get_parameter(self, parameter_name):          
+    def get_parameter(self, parameter_name):
         return [ param for param in self.parameters if param.name == parameter_name ][0]
 
     def to_dto(self):
@@ -801,7 +801,7 @@ class DbPermissionTypeParameter(Base):
             self.name,
             self.datatype,
             self.description
-        )       
+        )
 
 
 class DbUserApplicablePermissionType(Base):
@@ -816,7 +816,7 @@ class DbUserApplicablePermissionType(Base):
     def __repr__(self):
         return "DbUserApplicablePermissionType(id = %r)" % (
             self.id
-        )       
+        )
 
 
 class DbUserPermission(Base):
@@ -854,8 +854,8 @@ class DbUserPermission(Base):
     def get_permission_type(self):
         return self.applicable_permission_type.permission_type[0]
 
-    def get_parameter(self, parameter_name):          
-        return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]      
+    def get_parameter(self, parameter_name):
+        return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]
 
     def to_dto(self):
         permission = Permission(
@@ -893,10 +893,10 @@ class DbUserPermissionParameter(Base):
         )
 
     def get_name(self):
-        return self.permission_type_parameter.name         
+        return self.permission_type_parameter.name
 
     def get_datatype(self):
-        return self.permission_type_parameter.datatype        
+        return self.permission_type_parameter.datatype
 
     def to_dto(self):
         return PermissionParameter(
@@ -917,7 +917,7 @@ class DbRoleApplicablePermissionType(Base):
     def __repr__(self):
         return "DbRoleApplicablePermissionType(id = %r)" % (
             self.id
-        )               
+        )
 
 class DbRolePermission(Base):
     __tablename__  = 'RolePermission'
@@ -949,13 +949,13 @@ class DbRolePermission(Base):
             self.permanent_id,
             self.date,
             self.comments
-        )               
+        )
 
     def get_permission_type(self):
         return self.applicable_permission_type.permission_type[0]
 
-    def get_parameter(self, parameter_name):          
-        return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]     
+    def get_parameter(self, parameter_name):
+        return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]
 
     def to_dto(self):
         permission = Permission(
@@ -990,20 +990,20 @@ class DbRolePermissionParameter(Base):
             self.permission,
             self.permission_type_parameter,
             self.value
-        )              
+        )
 
     def get_name(self):
-        return self.permission_type_parameter.name    
+        return self.permission_type_parameter.name
 
     def get_datatype(self):
-        return self.permission_type_parameter.datatype            
+        return self.permission_type_parameter.datatype
 
     def to_dto(self):
         return PermissionParameter(
                     self.permission_type_parameter.name,
                     self.permission_type_parameter.datatype,
                     self.value
-                )      
+                )
 
 
 class DbGroupApplicablePermissionType(Base):
@@ -1018,7 +1018,7 @@ class DbGroupApplicablePermissionType(Base):
     def __repr__(self):
         return "DbGroupApplicablePermissionType(id = %r)" % (
             self.id
-        )               
+        )
 
 
 class DbGroupPermission(Base):
@@ -1051,13 +1051,13 @@ class DbGroupPermission(Base):
             self.permanent_id,
             self.date,
             self.comments
-        )               
+        )
 
     def get_permission_type(self):
         return self.applicable_permission_type.permission_type[0]
 
-    def get_parameter(self, parameter_name):          
-        return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]     
+    def get_parameter(self, parameter_name):
+        return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]
 
     def to_dto(self):
         permission = Permission(
@@ -1092,13 +1092,13 @@ class DbGroupPermissionParameter(Base):
             self.permission,
             self.permission_type_parameter,
             self.value
-        )               
+        )
 
     def get_name(self):
-        return self.permission_type_parameter.name      
+        return self.permission_type_parameter.name
 
     def get_datatype(self):
-        return self.permission_type_parameter.datatype            
+        return self.permission_type_parameter.datatype
 
     def to_dto(self):
         return PermissionParameter(
@@ -1120,7 +1120,7 @@ class DbExternalEntityApplicablePermissionType(Base):
     def __repr__(self):
         return "DbExternalEntityApplicablePermissionType(id = %r)" % (
             self.id
-        )               
+        )
 
 class DbExternalEntityPermission(Base):
     __tablename__  = 'ExternalEntityPermission'
@@ -1152,13 +1152,13 @@ class DbExternalEntityPermission(Base):
             self.permanent_id,
             self.date,
             self.comments
-        )               
+        )
 
     def get_permission_type(self):
         return self.applicable_permission_type.permission_type[0]
 
-    def get_parameter(self, parameter_name):          
-        return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]     
+    def get_parameter(self, parameter_name):
+        return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]
 
     def to_dto(self):
         permission = Permission(
@@ -1185,7 +1185,7 @@ class DbExternalEntityPermissionParameter(Base):
         super(DbExternalEntityPermissionParameter, self).__init__()
         link_relation(self, permission, "permission")
         link_relation(self, permission_type_parameter, "permission_type_parameter")
-        self.value = value        
+        self.value = value
 
     def __repr__(self):
         return "DbExternalEntityPermissionParameter(id = %r, permission = %r, permission_type_parameter = %r, value = '%s')" % (
@@ -1196,10 +1196,10 @@ class DbExternalEntityPermissionParameter(Base):
         )
 
     def get_name(self):
-        return self.permission_type_parameter.name         
+        return self.permission_type_parameter.name
 
     def get_datatype(self):
-        return self.permission_type_parameter.datatype      
+        return self.permission_type_parameter.datatype
 
     def to_dto(self):
         return PermissionParameter(

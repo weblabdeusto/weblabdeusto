@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import voodoo.methods as voodoo_exported_methods
 
@@ -49,18 +49,18 @@ class ServerLoader(object):
         global_configuration = global_parser.parse(global_folder)
 
         if (
-                not global_configuration.machines.has_key(machine_name) 
-                or 
+                not global_configuration.machines.has_key(machine_name)
+                or
                 not global_configuration.machines[machine_name].instances.has_key(instance_name)
             ):
             raise Exception("instance@machine not found")
 
         if len(global_configuration.machines[machine_name].instances[instance_name].servers.keys()) == 0:
-            raise Exception("Zero servers found!")  
+            raise Exception("Zero servers found!")
 
         self._create_coordinator_server(
-                global_configuration, 
-                machine_name, 
+                global_configuration,
+                machine_name,
                 instance_name
             )
 
@@ -69,8 +69,8 @@ class ServerLoader(object):
         started_servers = []
         for server_name in instance.servers:
             locator = self._generate_easy_locator(
-                    global_configuration, 
-                    machine_name, 
+                    global_configuration,
+                    machine_name,
                     instance_name,
                     server_name
                 )
@@ -123,7 +123,7 @@ class ServerLoader(object):
 
         server_type = getattr(any_server.server_type_module,'Coordinator')
 
-        map.add_new_server( 
+        map.add_new_server(
                 machine_name,
                 instance_name,
                 coordinator_server_name,
@@ -137,7 +137,7 @@ class ServerLoader(object):
                 DirectAddress.from_coord_address(coordinator_coord_address)
             )
         coordinator_access = Access.Access(
-                Protocols.Direct, 
+                Protocols.Direct,
                 AccessLevel.instance,
                 (coordinator_network,)
             )
@@ -227,7 +227,7 @@ class ServerLoader(object):
 
     def _generate_coordinator_server_name(self, machine_name, instance_name):
         return '__%s_%s_coordinator__' % (
-                        machine_name, 
+                        machine_name,
                         instance_name
                     )
 

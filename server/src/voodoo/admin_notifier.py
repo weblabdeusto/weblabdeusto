@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import voodoo.log as log
 import voodoo.configuration as ConfigurationManager
 
@@ -42,10 +42,10 @@ MAIL_NOTIFICATION_SENDER_NAME  = 'mail_notification_sender'
 MAIL_NOTIFICATION_SUBJECT_NAME = 'mail_notification_subject'
 
 class AdminNotifier(object):
-    """ 
+    """
         This class wraps the notification system.
         In the future, it would be cool if different
-        notifier engines were available and used 
+        notifier engines were available and used
         transparently through this class, but right now
         the only system available is the mailing system.
 
@@ -92,8 +92,8 @@ class AdminNotifier(object):
                 mail_notif_sender   = self._configuration.get_value(MAIL_NOTIFICATION_SENDER_NAME)
             except ConfigurationManager.KeyNotFoundException as knfe:
                 log.log(
-                    AdminNotifier, 
-                    log.level.Critical, 
+                    AdminNotifier,
+                    log.level.Critical,
                     "Couldn't find property %s. Couldn't notify administrator about critical problem with message <%s>..." % (knfe.key, message)
                 )
                 return -1
@@ -143,8 +143,8 @@ class AdminNotifier(object):
 
             except Exception as e:
                 log.log(
-                    AdminNotifier, 
-                    log.level.Critical, 
+                    AdminNotifier,
+                    log.level.Critical,
                     "Unexpected error while notifying administrator with message %s: %s" % (message, e)
                 )
                 return -2

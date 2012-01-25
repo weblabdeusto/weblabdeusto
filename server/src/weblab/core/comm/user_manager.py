@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 from voodoo.log import logged
 import voodoo.sessions.session_id as SessionId
@@ -167,7 +167,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     def poll(self, reservation_id):
         """ poll(session_id)
             raise SessionNotFoundException
-        """        
+        """
         sess_id = self._parse_session_id(reservation_id)
         return self._server.poll(sess_id)
 
@@ -290,7 +290,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
         pass
 
     def _check_nullable_response(self, response):
-        # This is the default behaviuor. Overrided by XML-RPC, 
+        # This is the default behaviuor. Overrided by XML-RPC,
         # where None is not an option
         return response
 
@@ -335,7 +335,7 @@ class AbstractUserProcessingRemoteFacadeManagerDict(AbstractUserProcessingRemote
 
     def _parse_request_identifiers(self, request_identifiers):
         """ Like the other _parse methods, thise receives the parameter and
-            returns the appropriate object. In this case, it receives and 
+            returns the appropriate object. In this case, it receives and
             returns a simple list, so nothing needs to be done
         """
         print "[DBG] Request identifiers dict: " + str(request_identifiers)

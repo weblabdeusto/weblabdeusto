@@ -7,7 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -147,7 +147,7 @@ class MethodException(Exception):
 
 class Methods(object):
     """
-    Methods is a class which simply encompasses the static server-side 
+    Methods is a class which simply encompasses the static server-side
     methods that are required to handle queries from the SmartGWT admin
     panel data sources. These queries are encoded in a SmartGWT specific
     JSON, so they must be parsed and an appropriate JSON response
@@ -158,16 +158,16 @@ class Methods(object):
     def get_experiments(handler, session_id, parameters):
         request_args = { 'id' : session_id }
         experiments = handler.facade_manager.get_experiments(request_args)
-        return { 'response' : 
-                    { 'data' : 
-                        [ 
-                            { 
-                                'id' : exp.id, 
-                                'name' : exp.name, 
-                                'category' : exp.category.name 
-                            } 
-                            for exp in experiments 
-                        ] 
+        return { 'response' :
+                    { 'data' :
+                        [
+                            {
+                                'id' : exp.id,
+                                'name' : exp.name,
+                                'category' : exp.category.name
+                            }
+                            for exp in experiments
+                        ]
                     }
                 }
 
@@ -181,18 +181,18 @@ class Methods(object):
         """
         request_args = { 'id' : session_id }
         permission_types = handler.facade_manager.get_permission_types(request_args)
-        return { 'response' : 
-            { 'data' : 
-                [ 
-                    { 
+        return { 'response' :
+            { 'data' :
+                [
+                    {
                         'name'  : ptype.name,
                         'description' : ptype.description,
                         'user_applicable_id' : ptype.user_applicable_id,
                         'group_applicable_id' : ptype.group_applicable_id,
                         'ee_applicable_id' : ptype.ee_applicable_id
-                    } 
-                    for ptype in permission_types 
-                ] 
+                    }
+                    for ptype in permission_types
+                ]
             }
         }
 
@@ -206,14 +206,14 @@ class Methods(object):
         """
         request_args = { 'id' : session_id }
         roles = handler.facade_manager.get_roles(request_args)
-        return { 'response' : 
-                    { 'data' : 
-                        [ 
-                            { 
+        return { 'response' :
+                    { 'data' :
+                        [
+                            {
                                 'name' : role.name
-                            } 
-                            for role in roles 
-                        ] 
+                            }
+                            for role in roles
+                        ]
                     }
                 }
 
@@ -222,15 +222,15 @@ class Methods(object):
         """
         get_user_permissions(handler, session_id, parameters)
 
-        Retrieves user permissions, returning them in a JSON-encoded string 
+        Retrieves user permissions, returning them in a JSON-encoded string
         which will be understood by the client-side SmartGWT data source.
         """
         request_args = { 'id' : session_id }
         user_permissions = handler.facade_manager.get_user_permissions(request_args)
-        return { 'response' : 
-                    { 'data' : 
-                        [ 
-                            { 
+        return { 'response' :
+                    { 'data' :
+                        [
+                            {
                                 # TODO: Consider what to to with this id. The DTO currently does not store
                                 # the id. This follows the trend set by most DTOs. As of now, the client
                                 # uses it though, but it might be possible to replace it with the permanent
@@ -241,13 +241,13 @@ class Methods(object):
                                 'permanent_id' : up.permanent_id,
                                 'date' : up.date,
                                 'comments' : up.comments
-                            } 
-                            for up in user_permissions 
-                        ] 
+                            }
+                            for up in user_permissions
+                        ]
                     }
                 }
 
-    @staticmethod 
+    @staticmethod
     def get_users(handler, session_id, parameters):
         """
         get_users(handler, session_id, parameters)
@@ -257,18 +257,18 @@ class Methods(object):
         """
         request_args = { 'id' : session_id }
         users = handler.facade_manager.get_users(request_args)
-        return { 'response' : 
-                    { 'data' : 
-                        [ 
-                            { 
-                                'login' : user.login, 
+        return { 'response' :
+                    { 'data' :
+                        [
+                            {
+                                'login' : user.login,
                                 'full_name' : user.full_name,
                                 'email' : user.email,
                                 'avatar' : "",
                                 'role' : user.role.name
-                            } 
-                            for user in users 
-                        ] 
+                            }
+                            for user in users
+                        ]
                     }
                 }
 
@@ -289,15 +289,15 @@ class Methods(object):
         groups = handler.facade_manager.get_groups(session_id, parent_id)
         return { 'response' :
                     { 'data' :
-                        [ 
-                            { 
-                                'id' : group.id, 
-                                'name' : group.name, 
+                        [
+                            {
+                                'id' : group.id,
+                                'name' : group.name,
                                 'parent_id' : None if group._parent is None else group._parent.id,
                                 'isFolder'  : len(group.children) > 0
                             }
                             for group in groups
-                        ] 
+                        ]
                     }
                 }
 
@@ -397,7 +397,7 @@ class SmartGwtHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 json_response = json.dumps(response)
             else:
                 self._write(400, "method %s not implemented" % urllib2.quote(method_name))
-                return 
+                return
 
             self._write(200, json_response)
         except Exception as e:

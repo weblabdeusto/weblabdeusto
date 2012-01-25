@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import weblab.experiment.exc as ExperimentExceptions
 
 import weblab.experiment.level as ExperimentApiLevel
@@ -37,7 +37,7 @@ class Experiment(object):
         current one. Experiments may override this method to return a different one.
 
         TODO: Providing such a default might lead to errors, because if a new api was released
-        old experiments which didn't override get_api would without warning be using a wrong api. 
+        old experiments which didn't override get_api would without warning be using a wrong api.
         It might be safer to enforce get_api() overriding, or to at least issue some kind of
         warning if an experiment doesn't.
         """
@@ -60,7 +60,7 @@ class Experiment(object):
             )
 
     def do_should_finish(self):
-        """ 
+        """
         Should the experiment finish? If the experiment server should be able to
         say "I've finished", it will be asked every few time; if the experiment
         is completely interactive (so it's up to the user and the permissions of
@@ -76,7 +76,7 @@ class Experiment(object):
     def do_dispose(self):
         """
         Experiment should clean the resources now, and optionally return data. Default implementation: yes, I have finished.
-        """ 
+        """
         return json.dumps({ Coordinator.FINISH_FINISHED_MESSAGE : True, Coordinator.FINISH_DATA_MESSAGE : ""})
 
     def do_is_up_and_running(self):
@@ -87,13 +87,13 @@ class Experiment(object):
         assigned to other student while this method is called. The result
         is an array of integer + String, where the first argument is:
 
-          - result >= 0: "the experiment is OK; please check again 
+          - result >= 0: "the experiment is OK; please check again
                          within $result seconds"
           - result == 0: the experiment is OK and I can't perform a proper
                          estimation
           - result == -1: "the experiment is broken"
 
-        And the second (String) argument is the message detailing while 
+        And the second (String) argument is the message detailing while
         it failed
         """
         return (600, '') # Default value: check every 10 minutes

@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
 from test.unit.weblab.proxy import adds_triple_translator, fake_time
 from voodoo.sessions import exc as SessionExceptions
@@ -157,7 +157,7 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
         # Since this is not a really default Translator, we have to make it available for the test
         ProxyServer.DEFAULT_TRANSLATORS['AddsATrippleAAtTheBeginingTranslator'] = adds_triple_translator.AddsATrippleAAtTheBeginingTranslator
 
-        commands, files = self._test_happy_path("AddsATrippleAAtTheBeginingTranslator")        
+        commands, files = self._test_happy_path("AddsATrippleAAtTheBeginingTranslator")
 
         self.assertEquals(2, len(commands))
         self._test_command_sent(
@@ -207,9 +207,9 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
             ProxyExceptions.InvalidReservationIdException,
             proxy.poll,
             self.RESERVATION_SESS_ID
-        )   
+        )
 
-        # Can't work with the experiment 
+        # Can't work with the experiment
         self.assertRaises(
             ProxyExceptions.InvalidReservationIdException,
             proxy.send_command,
@@ -231,9 +231,9 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
             ProxyExceptions.AccessDisabledException,
             proxy.poll,
             self.RESERVATION_SESS_ID
-        )   
+        )
 
-        # Can't work with the experiment 
+        # Can't work with the experiment
         self.assertRaises(
             ProxyExceptions.AccessDisabledException,
             proxy.send_command,
@@ -250,7 +250,7 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
             ProxyExceptions.AccessDisabledException,
             proxy.do_disable_access,
             self.RESERVATION_ID
-        )   
+        )
 
         # CAN retrieve results!
         proxy.do_retrieve_results(self.RESERVATION_ID)

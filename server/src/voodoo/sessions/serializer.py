@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import cPickle as pickle
 
 import voodoo.sessions.exc as SessionExceptions
@@ -42,5 +42,5 @@ class SessionSerializer(object):
         else:
             raise SessionExceptions.SessionSerializationNotImplementedException(
                     "Session serialization not implemented"
-                ) 
+                )
 

@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 from abc import ABCMeta, abstractmethod
 import os
@@ -166,8 +166,8 @@ class EventWaitHolder(threading.Thread):
 
 class AbstractLauncher(object):
     def __init__(self,
-                    config_dir, machine_name, 
-                    event_waiters, logging_file_config, 
+                    config_dir, machine_name,
+                    event_waiters, logging_file_config,
                     before_finish_callback = None, event_notifiers = None):
 
         super(AbstractLauncher, self).__init__()
@@ -217,9 +217,9 @@ class AbstractLauncher(object):
             self.before_finish_callback()
 
 class Launcher(AbstractLauncher):
-    def __init__(self, 
-                    config_dir, machine_name, instance_name, 
-                    event_waiters, logging_file_config, 
+    def __init__(self,
+                    config_dir, machine_name, instance_name,
+                    event_waiters, logging_file_config,
                     before_finish_callback = None, event_notifiers = None):
         super(Launcher, self).__init__(
                     config_dir, machine_name,
@@ -246,8 +246,8 @@ class Launcher(AbstractLauncher):
 
 class MachineLauncher(AbstractLauncher):
     def __init__(self,
-            config_dir, machine_name, 
-            event_waiters, logging_file_config, 
+            config_dir, machine_name,
+            event_waiters, logging_file_config,
             before_finish_callback = None, event_notifiers = None,
             pid_file = None, waiting_port = 54321, debugger_ports = None):
         super(MachineLauncher, self).__init__(
@@ -292,8 +292,8 @@ class MachineLauncher(AbstractLauncher):
             args = (
                         "python",
                         "-OO",
-                        __file__, 
-                        self.config_dir, 
+                        __file__,
+                        self.config_dir,
                         self.machine_name, instance_name,
                         logging_file_config,
                         str(self.waiting_port),

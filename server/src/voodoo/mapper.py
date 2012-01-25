@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import thread as _thread
 import threading as _threading
 import new as _new
@@ -23,20 +23,20 @@ import urllib2 as _urllib2
 import __builtin__
 
 """
-When trying to serialize something to XML or with pickle and so on, we 
+When trying to serialize something to XML or with pickle and so on, we
 usually find that, since locks, files, and so on can't be serialized, the
 module sometimes raises an exception.
 
 In those cases, we can create a copy of the instance, acting as a Data Access
-Object, with a deep copy of the information of the instance except fot these 
+Object, with a deep copy of the information of the instance except fot these
 types, and we will later serialize this instance.
 
-This module just tries to avoid doing it with everytime. 
+This module just tries to avoid doing it with everytime.
 
-Anyway, in some situations it might not work. It will happen when, trying to 
+Anyway, in some situations it might not work. It will happen when, trying to
 serialize something that can't be serialized, an exception is raised. To
 avoid this problem, just add the type of that class in the _default_exceptions,
-or provide a sequence of exceptions as second parameter of dto_generator and 
+or provide a sequence of exceptions as second parameter of dto_generator and
 load_from_dto.
 
 The other time when this module will fail is when you're handling some type
@@ -136,7 +136,7 @@ class _Node(object):
     OBJECT    = 'object'
     EXCEPTION = 'exception'
     BUILTIN_E = 'builtin_e'
-    IGNORABLE = 'ignorable' 
+    IGNORABLE = 'ignorable'
 
     def __init__(self,parent,name,element,address):
         self.parent    = parent
@@ -182,7 +182,7 @@ class _Node(object):
         children = ""
         for child, childvalue in self.children:
             children += ' ' * n + "<child name='%s'>\n%s%s\n%s</child>\n" % (
-                                        child, 
+                                        child,
                                         ' ' * (n + 1),
                                         childvalue._repr(n + 2),
                                         ' ' * n
@@ -211,10 +211,10 @@ class _Node(object):
 class _InstanceDictionary(object):
     """
     A common dictionary is based on the hash of the keys. The
-    problem is that some data types are not hasheable (for 
+    problem is that some data types are not hasheable (for
     example dictionaries and lists), or eve tuples that have
-    dictionaries or lists, for example. This is because, if 
-    they were hasheables, the hash could vary in time. 
+    dictionaries or lists, for example. This is because, if
+    they were hasheables, the hash could vary in time.
 
     Anyway, we can develop a dictionary which doesn't rely on
     the hash code of the keys, for situations where we know
@@ -342,7 +342,7 @@ def remove_unpickables(instance):
             return new_dict
         elif type_instance ==  _new.instance or hasattr(instance,'__reduce__') or hasattr(instance, '__reduce_ex__'):
             attributes = ( attr for attr in dir(instance)
-                            #if not attr.startswith('__') or not attr.endswith('__') 
+                            #if not attr.startswith('__') or not attr.endswith('__')
                         )
 
             for attr in attributes:
@@ -426,7 +426,7 @@ def dto_generator(instance,exceptions = None):
 
         elif new_node.data_type in (_Node.INSTANCE, _Node.OBJECT, _Node.EXCEPTION, _Node.BUILTIN_E):
             # Elements are the elements which we will take
-            elements = [ i for i in dir(current_instance) 
+            elements = [ i for i in dir(current_instance)
                 if not i.startswith('__') or not i.endswith('__')]
 
             for i in elements:
@@ -441,7 +441,7 @@ def dto_generator(instance,exceptions = None):
 
         else:
             raise TypeError(
-                'Unrecognized type: %s. Configure it at voodoo.mapper.py' 
+                'Unrecognized type: %s. Configure it at voodoo.mapper.py'
                 % new_node.data_type
             )
 
@@ -484,7 +484,7 @@ def dto_generator(instance,exceptions = None):
             dto_parsed_instances[current_node.element] = new_dict
             for i, element in current_node.children:
                 # A dictionary is a set of tuples, where
-                # the first element is the key and the 
+                # the first element is the key and the
                 # second element is the value
                 this_tuple = get_dto_value(element)
                 key   = this_tuple[0]
@@ -565,7 +565,7 @@ def load_from_dto(instance,exceptions = None,skip_recoverables=False):
         elif new_node.data_type in (_Node.INSTANCE, _Node.OBJECT, _Node.EXCEPTION, _Node.BUILTIN_E):
 
             # Elements are the elements which we will take
-            elements = [ i for i in dir(current_instance) 
+            elements = [ i for i in dir(current_instance)
                 if not i.startswith('__') or not i.endswith('__')]
 
             for i in elements:
@@ -576,7 +576,7 @@ def load_from_dto(instance,exceptions = None,skip_recoverables=False):
 
         else:
             raise TypeError(
-                'Unrecognized type: %s. Configure it at voodoo.mapper.py' 
+                'Unrecognized type: %s. Configure it at voodoo.mapper.py'
                 % new_node.data_type
             )
 
@@ -617,7 +617,7 @@ def load_from_dto(instance,exceptions = None,skip_recoverables=False):
             dto_parsed_instances[current_node.element] = new_dict
             for i, element in current_node.children:
                 # A dictionary is a set of tuples, where
-                # the first element is the key and the 
+                # the first element is the key and the
                 # second element is the value
                 this_tuple = load_dto_value(element)
                 key   = this_tuple[0]
@@ -687,8 +687,8 @@ def load_from_dto(instance,exceptions = None,skip_recoverables=False):
                     return c
                 else:
                     raise TypeError(
-                        """No handler for the missing value %s at %s. 
-                    Check that you don't have a value in _recoverable_exceptions, 
+                        """No handler for the missing value %s at %s.
+                    Check that you don't have a value in _recoverable_exceptions,
                     and no handler in load_from_dto"""
                             % (i,dto_object)
                         )

@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import datetime
 import unittest
@@ -51,8 +51,8 @@ class MetaSchedulerTestCase(unittest.TestCase):
 
     def test_query_best_reservation__waiting_instances_equals(self):
         "Among Waiting for instances, the lower number the better"
-        self._test_schedulers(self.wi_four, (self.wi_four, self.wi_five)) 
-        self._test_schedulers(self.wi_four, (self.wi_five, self.wi_four)) 
+        self._test_schedulers(self.wi_four, (self.wi_four, self.wi_five))
+        self._test_schedulers(self.wi_four, (self.wi_five, self.wi_four))
 
     def test_query_best_reservation__waiting_equals(self):
         "Among Waiting, the lower number the better"
@@ -106,7 +106,7 @@ class MetaSchedulerTestCase(unittest.TestCase):
 
         try:
             best[0]
-        except TypeError:            
+        except TypeError:
             self.assertEquals(best, best_reservation_status)
         else:
             self.assertTrue(best_reservation_status in best)

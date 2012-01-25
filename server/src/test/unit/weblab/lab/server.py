@@ -7,13 +7,13 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
-# 
+#
 
 import unittest
 
@@ -42,35 +42,35 @@ import fake_urllib2 as FakeUrllib2
 import fake_socket as FakeSocket
 import time
 
-# 
+#
 # In this file you'll find three test cases:
-# 
+#
 #  * LaboratoryServerLoadingTestCase: testing the configuration parsing
 #  * LaboratoryServerManagementTestCase: testing the management of reserves
 #              and experiments
-#  * LaboratoryServerSendingTestCase: testing the interaction with 
+#  * LaboratoryServerSendingTestCase: testing the interaction with
 #              experiment servers
-# 
-# Take into account that each test case relies on the previous test 
+#
+# Take into account that each test case relies on the previous test
 # case. If LaboratoryServerLoadingTestCase fails, the rest might fail.
 # If LaboratoryServerManagementTestCase fails, LaboratoryServerSendingTestCase
 # might fail.
-# 
+#
 # Additionally, you'll find two fake objects, used by the test cases.
-# 
+#
 
 
 ###################################################################
-# 
-#   T E S T     C A S E S 
-# 
-# 
+#
+#   T E S T     C A S E S
+#
+#
 
 ################################################
-# 
+#
 # This TestCase test the configuration parsing
 # performed by the LaboratoryServer
-# 
+#
 class LaboratoryServerLoadingTestCase(unittest.TestCase):
     def setUp(self):
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
@@ -128,10 +128,10 @@ class LaboratoryServerLoadingTestCase(unittest.TestCase):
                             None, self.locator, self.cfg_manager )
 
 #####################################################
-# 
+#
 # This TestCase test the management of experiments.
 # It relies on the previous testcase.
-# 
+#
 class LaboratoryServerManagementTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -206,12 +206,12 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self.assertEquals(0, self.fake_client.disposed)
 
         # If we used the new API then the dispose would indeed return the following text. However,
-        # the old API should always return "ok". 
+        # the old API should always return "ok".
         not_expected_return =  '{"foo" : "bar"}'
         self.fake_client.next_dispose = not_expected_return
 
         return_value = self.lab.do_free_experiment(lab_session_id)
-        self.assertEquals('ok', return_value) 
+        self.assertEquals('ok', return_value)
         self.assertNotEquals(not_expected_return, return_value)
         self.assertEquals(1, self.fake_client.started_old)
         self.assertEquals(0, self.fake_client.started_new)
@@ -299,7 +299,7 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
 
         self.lab.do_free_experiment(lab_session_id3)
 
-        # Laboratory server DOES NOT manage the state of the experiments. The 
+        # Laboratory server DOES NOT manage the state of the experiments. The
         # core.coordination package does that.
 
         self.assertEquals(3, self.fake_client.started_new)
@@ -310,10 +310,10 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         FakeSocket.reset()
         exp_handler = self.lab._assigned_experiments._retrieve_experiment_handler(self.experiment_instance_id)
         exp_handler.is_up_and_running_handlers[0]._urllib2 = FakeUrllib2
-        exp_handler.is_up_and_running_handlers[1]._socket = FakeSocket   
+        exp_handler.is_up_and_running_handlers[1]._socket = FakeSocket
         exp_handler2 = self.lab._assigned_experiments._retrieve_experiment_handler(self.experiment_instance_id_old)
         exp_handler2.is_up_and_running_handlers[0]._urllib2 = FakeUrllib2
-        exp_handler2.is_up_and_running_handlers[1]._socket = FakeSocket   
+        exp_handler2.is_up_and_running_handlers[1]._socket = FakeSocket
 
     def test_check_experiments_resources(self):
         self._fake_is_up_and_running_handlers()
@@ -434,7 +434,7 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
         self.assertRaises(
             LaboratoryExceptions.FailedToSendCommandException,
             self.lab.do_send_command,
-            lab_session_id, 
+            lab_session_id,
             Command.Command("foo")
         )
 
@@ -455,13 +455,13 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
             result = self.lab.do_check_async_command_status(lab_session_id, (reqid,))
             tup = result[reqid]
 
-            self.assertTrue( tup[0] in ("running", "ok", "error") )     
+            self.assertTrue( tup[0] in ("running", "ok", "error") )
             self.assertNotEquals("ok", tup[0], "Expected an error")
             if(tup[0] != "running"):
                 self.assertTrue("error", tup[0])
-                self.assertTrue(tup[1] is not None)  
-                break  
-        return 
+                self.assertTrue(tup[1] is not None)
+                break
+        return
 
     def test_send_async_file_ok(self):
         lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
@@ -541,13 +541,13 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
             result = self.lab.do_check_async_command_status(lab_session_id, (reqid,))
             tup = result[reqid]
 
-            self.assertTrue( tup[0] in ("running", "ok", "error") )     
+            self.assertTrue( tup[0] in ("running", "ok", "error") )
             self.assertNotEquals("ok", tup[0], "Expected an error")
             if(tup[0] != "running"):
                 self.assertTrue("error", tup[0])
                 self.assertTrue(tup[1] is not None)
-                break  
-        return 
+                break
+        return
 
     def test_send_file_fail(self):
         lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
@@ -556,21 +556,21 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
         self.assertRaises(
             LaboratoryExceptions.FailedToSendFileException,
             self.lab.do_send_file,
-            lab_session_id, 
+            lab_session_id,
             "foo",
             "file_info"
         )
 
 
 ###################################################################
-# 
-#   F A K E      O B J E C T S 
-#  
+#
+#   F A K E      O B J E C T S
+#
 
 
 ###############################################
 # Fake Locator
-# 
+#
 class FakeLocator(object):
     def __init__(self, clients):
         self.clients = clients
@@ -592,7 +592,7 @@ class FakeLocator(object):
 
 ###############################################
 # Fake Client
-# 
+#
 
 class FakeClient(object):
 
@@ -613,7 +613,7 @@ class FakeClient(object):
     def _set_fake_api(self, api):
         """
         Sets the fake api version that we want this fake client to return when
-        get_api gets called. 
+        get_api gets called.
         @param api The string describing the version
         @see get_api
         """
@@ -656,7 +656,7 @@ class FakeClient(object):
         return self.files == expected
 
 
-###################################################################  
+###################################################################
 
 def suite():
     return unittest.TestSuite(

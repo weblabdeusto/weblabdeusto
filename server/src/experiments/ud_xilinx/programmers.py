@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
 from abc import ABCMeta, abstractmethod
 from voodoo.override import Override
@@ -38,7 +38,7 @@ class UdXilinxProgrammer(object):
         elif device_name == 'DigilentAdept':
             return DigilentAdeptSvfProgrammer(cfg_manager, xilinx_impact_device)
         else:
-            raise InvalidDeviceToProgramException(device_name)   
+            raise InvalidDeviceToProgramException(device_name)
 
     @abstractmethod
     def program(self, file_name):

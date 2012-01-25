@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 
 from voodoo.dbutil import get_table_kwargs
@@ -32,7 +32,7 @@ class ExternalWebLabDeustoReservation(Base):
     local_reservation_id             = Column(String(RESERVATION_ID_SIZE))
 
     # It might come with the cookie value
-    remote_reservation_id            = Column(String(RESERVATION_ID_SIZE * 3)) 
+    remote_reservation_id            = Column(String(RESERVATION_ID_SIZE * 3))
 
     # In tests, it took up to 726 characters. Just in case, we store more than twice more
     cookies                          = Column(String(1536))

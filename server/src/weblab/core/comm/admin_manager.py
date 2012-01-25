@@ -7,12 +7,12 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
-# 
+#
 
 from voodoo.log import logged
 import voodoo.sessions.session_id as SessionId
@@ -93,7 +93,7 @@ class AbstractAdminRemoteFacadeManager(RFM.AbstractRemoteFacadeManager):
         return response
 
     def _check_nullable_response(self, response):
-        # This is the default behaviuor. Overrided by XML-RPC, 
+        # This is the default behaviuor. Overrided by XML-RPC,
         # where None is not an option
         return response
 

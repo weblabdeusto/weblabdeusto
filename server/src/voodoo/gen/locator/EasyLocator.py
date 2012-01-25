@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import voodoo.log as log
 import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
@@ -75,7 +75,7 @@ class EasyLocator(object):
             # same name. If method is "reserve_session", calling
             #
             # easy_server.reserve_session(db_session_id)
-            # 
+            #
             # will actually call the reserve_method (trying all
             # the servers the locator can find)
 
@@ -119,8 +119,8 @@ def _generate_call(server_type, method):
                 return getattr(server, method)(*args, **kwargs)
             except ProtocolExceptions.RemoteException as re:
                 log.log(
-                    EasyLocator, 
-                    log.level.Warning, 
+                    EasyLocator,
+                    log.level.Warning,
                     "%s failed in reserve_session" % server_type
                 )
                 if not server in wrong_servers:
@@ -155,8 +155,8 @@ def _generate_call_from_coordaddr(server_type, method):
                 return getattr(server, method)(*args, **kwargs)
             except ProtocolExceptions.RemoteException:
                 log.log(
-                    EasyLocator, 
-                    log.level.Warning, 
+                    EasyLocator,
+                    log.level.Warning,
                     "%s failed in reserve_session" % server_type
                 )
                 log.log_exc( EasyLocator, log.level.Warning )

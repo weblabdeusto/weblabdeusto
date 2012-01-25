@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
 from voodoo.override import Override
 from experiments.ud_xilinx.exc import InvalidDeviceToSendCommandsException
@@ -38,7 +38,7 @@ class UdXilinxCommandSender(object):
         elif device_name == 'SerialPort':
             return SerialPortCommandSender(cfg_manager)
         else:
-            raise InvalidDeviceToSendCommandsException(device_name)   
+            raise InvalidDeviceToSendCommandsException(device_name)
 
     def send_command(self, command):
         raise NotImplementedError("This method must be overriden in a subclass.")

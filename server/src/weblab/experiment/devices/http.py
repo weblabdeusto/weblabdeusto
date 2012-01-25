@@ -55,7 +55,7 @@ class WlHttpDeviceHTTPErrorException(WlHttpDeviceException):
     def __init__(self, e = None):
         text = "The server couldn't fulfill the request"
         if hasattr(e, "code"):
-            text += ": %(c)i" % {'c':e.code}        
+            text += ": %(c)i" % {'c':e.code}
         else:
             text += ": %s" % e
         WlHttpDeviceException.__init__(self, text)

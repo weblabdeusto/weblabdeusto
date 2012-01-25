@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import re
 
 import voodoo.gen.exceptions.coordinator.CoordinatorExceptions as CoordExceptions
@@ -32,17 +32,17 @@ class CoordAddress(object):
             * machine_id
             * instance_id
             * server_id
-            * address (an address converted to string 
+            * address (an address converted to string
                 with CoordAddress.FORMAT format)
 
         Just in the same way networks ending are represented ending with 0s,
-        the CoordAddresses with server field empty are the address for an 
+        the CoordAddresses with server field empty are the address for an
         instance, and the CoordAddresses with server and instances fields
         empty are the addresses for machines.
         """
         if not type(machine_id) in (str,unicode) or machine_id == '':
             raise CoordExceptions.CoordInvalidAddressParams( "%s: not a valid machine_id" % machine_id)
-        if not type(instance_id) in (str,unicode): 
+        if not type(instance_id) in (str,unicode):
             raise CoordExceptions.CoordInvalidAddressParams( "%s: not a valid instance_id" % instance_id)
         if not type(server_id) in (str,unicode):
             raise CoordExceptions.CoordInvalidAddressParams( "%s: not a valid server_id" % server_id)
@@ -110,7 +110,7 @@ class CoordAddress(object):
 
     @staticmethod
     def translate_address(address):
-        """ translate_address(address) -> CoordAddress 
+        """ translate_address(address) -> CoordAddress
 
         Given a Coordinator Address in CoordAddress.FORMAT format,
         translate_address will provide the corresponding CoordAddress

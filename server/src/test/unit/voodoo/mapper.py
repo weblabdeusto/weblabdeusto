@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import unittest
 import threading
@@ -210,7 +210,7 @@ class MapperTestCase(unittest.TestCase):
         self.assertEquals(23  , sc2.time.hour)
         self.assertEquals(55  , sc2.time.minute)
 
-    def test_skip_recoverables(self):        
+    def test_skip_recoverables(self):
         a = SimpleClass()
         a.l = threading.Lock()
 
