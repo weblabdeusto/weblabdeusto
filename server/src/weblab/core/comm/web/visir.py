@@ -62,9 +62,15 @@ class  VisirMethod(WebFacadeServer.Method):
                                           'THE_FAULT_CODE' : "Invalid URI",  
                                           'THE_FAULT_MESSAGE' : "The URI should not contain .." }
         
+        
         # Find out the location of the file. 
         fileonly = re.sub(r"(/weblab/web/visir/)(.*)", r"\2", self.uri, 1)
         file = VISIR_LOCATION + fileonly
+        
+                
+        # Intercept the save request
+        if fileonly == "save":
+            return self.intercept_save()
         
         try:
             f = open(file, "rb")
@@ -76,9 +82,7 @@ class  VisirMethod(WebFacadeServer.Method):
         
         # TODO: Ensure that this is actually done only once.
         mimetypes.init()
-        
-        if fileonly == "save":
-            return self.intercept_save()
+
         
         # Use the file path to guess the mimetype
         mimetype = mimetypes.guess_type(file)[0]

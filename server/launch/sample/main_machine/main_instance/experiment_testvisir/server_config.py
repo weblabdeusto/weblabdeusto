@@ -9,7 +9,7 @@ vt_login_url = """https://weblab-visir.deusto.es/electronics/student.php"""
 vt_login_email = "guest"
 vt_login_password = "guest"
 
-vt_client_url = "visir/loader.swf"
+vt_client_url = "../weblab/web/visir/loader.swf"
 
 # 
 # Uncomment these two lines to enable the student mode with a given configuration
