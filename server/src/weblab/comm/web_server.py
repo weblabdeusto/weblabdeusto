@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
 
 import cgi
@@ -46,6 +47,7 @@ class Method(object):
         self.server      = server
         self.post_read   = False
         self.content_type = DEFAULT_CONTENT_TYPE
+        self.other_headers = {}
 
     def run(self):
         return "Method %s does not implement run method!" % self.__class__.__name__
@@ -63,7 +65,23 @@ class Method(object):
                 return default_value
             return postvar[0]
         return default_value
-
+    
+    def get_other_headers(self):
+        """
+        Retrieves a map containing additional HTTP headers to include. 
+        HTTP headers may be added through add_other_header method.
+        @see add_other_header
+        """
+        return self.other_headers
+    
+    def add_other_header(self, name, value):
+        """
+        Adds a new additional HTTP header to include in the response.
+        @param name Name of the header
+        @param value Value of the header
+        """
+        self.other_headers[name] = value
+    
     def get_status(self):
         return 200
 
@@ -184,7 +202,7 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 if method.matches(self.path):
                     m = method(self, self.cfg_manager, self.original_server)
                     message = m.run()
-                    self._write(m.get_status(), m.get_content_type(), m.get_other_cookies(), message)
+                    self._write(m.get_status(), m.get_content_type(), m.get_other_cookies(), message, m.get_other_headers())
                     break
             else:
                 NotFoundMethod(self, self.cfg_manager, self.original_server).run()
@@ -206,10 +224,24 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     do_POST = do_GET
 
-    def _write(self, status, content_type, other_cookies, response):
+    def _write(self, status, content_type, other_cookies, response, other_headers = {}):
+        """
+        Writes the HTTP response.
+        @param status HTTP status code.
+        @param content_type Mimetype of the response. Often, text/html, but may be specified.
+        @param other_cookies Additional cookies to include.
+        @param response The contents themselves.
+        @param other_headers Additional HTTP headers to include (Besides Content-type, Content-length, and cookies).
+        """
+        
         self.send_response(status)
         self.send_header("Content-type", content_type)
         self.send_header("Content-length", str(len(response)))
+        
+        # Write also the additional headers specified, if any. 
+        for name, val in other_headers.items():
+            self.send_header(name, val)
+            
         if self.server_route is not None:
             route = get_context().route
             if route is None:
