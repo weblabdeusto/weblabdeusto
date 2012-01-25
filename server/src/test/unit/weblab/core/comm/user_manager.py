@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 import sys
+import time
 import unittest
 import datetime
 
@@ -39,6 +40,8 @@ import weblab.data.dto.experiments as Experiment
 import weblab.data.dto.experiments as Category
 import weblab.data.command as Command
 import weblab.data.dto.users as Group
+
+from weblab.data.experiments import AliveReservationResult, FinishedReservationResult, CancelledReservationResult, ExperimentUsage, LoadedFileSent, CommandSent, ExperimentId
 
 from weblab.data.dto.users import User
 from weblab.data.dto.users import Role
@@ -202,17 +205,39 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
     def test_return_get_experiment_use_by_id(self):
         expected_sess_id = SessionId.SessionId("whatever")
 
-        expected_user_information = User( 'porduna', 'Pablo Orduna', 'weblab@deusto.es', Role("student"))
-    
-        self.mock_ups.return_values['get_user_information'] = expected_user_information
-        self.mock_ups.return_values['get_experiment_use_by_id'] = expected_user_information
+        expected_alive_result = AliveReservationResult()
+        self.mock_ups.return_values['get_experiment_use_by_id'] = expected_alive_result
 
-        user_information = self.rfm.get_experiment_use_by_id(expected_sess_id, SessionId.SessionId('reservation'))
+        alive_result = self.rfm.get_experiment_use_by_id(expected_sess_id, SessionId.SessionId('reservation'))
+        self.assertEquals(expected_alive_result.status, alive_result.status)
 
-        print "test_return_get_experiment_use_by_id"
-        #10/0
-        
+    def test_return_get_experiment_uses_by_id(self):
+        expected_sess_id = SessionId.SessionId("whatever")
 
+        expected_usage = ExperimentUsage(10, time.time(), time.time(), '127.0.0.1', ExperimentId("exp","cat"))
+
+        command_sent = CommandSent(Command.Command("request"), time.time(), Command.Command("response"), time.time())
+        expected_usage.append_command(command_sent)
+
+        loaded_file_sent = LoadedFileSent('content-of-the-file', time.time(), Command.Command("response"), time.time(), 'program')
+        expected_usage.append_file(loaded_file_sent)
+
+        expected_finished_result  = FinishedReservationResult(expected_usage)
+        expected_alive_result     = AliveReservationResult()
+        expected_cancelled_result = CancelledReservationResult()
+
+        self.mock_ups.return_values['get_experiment_uses_by_id'] = (expected_finished_result, expected_alive_result, expected_cancelled_result)
+
+        results = self.rfm.get_experiment_uses_by_id(expected_sess_id, (SessionId.SessionId('reservation'), SessionId.SessionId('reservation2'), SessionId.SessionId('reservation3') ))
+
+        self.assertEquals(3, len(results))
+        self.assertEquals(expected_finished_result.status,  results[0].status)
+        self.assertEquals(expected_alive_result.status,     results[1].status)
+        self.assertEquals(expected_cancelled_result.status, results[2].status)
+
+        self.assertEquals(expected_usage, expected_finished_result.experiment_use)
+
+       
     def test_return_get_user_information(self):
         expected_sess_id = SessionId.SessionId("whatever")
 

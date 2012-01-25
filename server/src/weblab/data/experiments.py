@@ -168,18 +168,15 @@ class ExperimentUsage(object):
 
     @typecheck(int, CommandSent)
     def update_command(self, command_id, command_sent):
-        # isinstance(command_sent, CommandSent)
         self.commands[command_id] = command_sent
 
-    @typecheck(FileSent)
+    @typecheck((FileSent, LoadedFileSent))
     def append_file(self, file_sent):
-        # isinstance(file_sent, FileSent)
         self.sent_files.append(file_sent)
         return len(self.sent_files) - 1
 
     @typecheck(int, FileSent)
     def update_file(self, file_id, file_sent):
-        # isinstance(file_sent, FileSent)
         self.sent_files[file_id] = file_sent
 
     @typecheck(basestring)

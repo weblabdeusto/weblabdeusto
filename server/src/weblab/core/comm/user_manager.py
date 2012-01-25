@@ -188,7 +188,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
         """
         sess_id = self._parse_session_id(session_id)
         reservation_id    = self._parse_session_id(reservation_id)
-        experiment_result = self._server.get_user_information(sess_id, reservation_id)
+        experiment_result = self._server.get_experiment_use_by_id(sess_id, reservation_id)
         return self._serialize_experiment_result(experiment_result)
 
     @logged()
@@ -202,12 +202,14 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
         for reservation_id in reservation_ids:
             parsed_reservation_id = self._parse_session_id(reservation_id)
             parsed_reservation_ids.append(parsed_reservation_id)
-        experiment_results = self._server.get_user_information(sess_id, parsed_reservation_ids)
-        
+
+        experiment_results = self._server.get_experiment_uses_by_id(sess_id, parsed_reservation_ids)
+
         serialized_experiment_results = []
         for experiment_result in experiment_results:
             serialized_experiment_result = self._serialize_experiment_result(experiment_result)
-            serialized_experiment_results(serialized_experiment_result)
+            serialized_experiment_results.append(serialized_experiment_result)
+        
         return serialized_experiment_results
 
     #
