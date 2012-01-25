@@ -100,14 +100,15 @@ class Tester(object):
 
             weblab.finished_experiment(reservation_id)
         except Exception as exception:
-            print "Finished with exception"
-            traceback.print_exc()
-
             if reservation_id is not None:
                 try:
                     weblab.finished_experiment(reservation_id)
+                    loggedout = True
                 except:
-                    pass
+                    loggedout = False
+            print "Finished with exception and logged out: %s" % loggedout
+            traceback.print_exc()
+
             return TesterResult(True, assertions, exception, times)
         else:
             print "Finished without exception"

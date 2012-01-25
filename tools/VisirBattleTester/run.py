@@ -12,7 +12,7 @@ import libraries
 from visir_tester import Tester
 
 EXECUTIONS =  15
-PROCESSES  =  50
+PROCESSES  =  80
 
 def f(n):
     time.sleep(0.01 * n)
@@ -31,11 +31,14 @@ if __name__ == '__main__':
             failed += 1
         time_results.extend(result.times)
     
-    print "Failed %s of %s"   % (failed, len(results))
-    print "Max time: %.3f s"  % np.max(time_results)
-    print "Min time: %.3f s"  % np.min(time_results)
-    print "Mean time: %.3f s" % np.mean(time_results)
-    print "Std time: %.3f"    % np.std(time_results)
+    msg = ""
+    msg += "Failed %s of %s\n"   % (failed, len(results))
+    msg += "Max time: %.3f s\n"  % np.max(time_results)
+    msg += "Min time: %.3f s\n"  % np.min(time_results)
+    msg += "Mean time: %.3f s\n" % np.mean(time_results)
+    msg += "Std time: %.3f\n"    % np.std(time_results)
+    print msg
+    print >> sys.stderr, msg
 
     pickle.dump(results, open("results.dump","w"))
     pickle.dump(time_results, open("time_results.dump","w"))
