@@ -94,7 +94,7 @@ class WebLabDeustoClient(object):
         serialized_reservation_ids = []
         for reservation_id in reservation_ids:
             serialized_reservation_id = {'id' : reservation_id.id}
-            serialized_reservation_ids.append(serialized_session_id)
+            serialized_reservation_ids.append(serialized_reservation_id)
 
         serialized_experiment_results = self._core_call('get_experiment_uses_by_id', session_id = serialized_session_id, reservation_ids = serialized_reservation_ids)
         experiment_results = []
@@ -142,5 +142,16 @@ class WebLabDeustoClient(object):
         coord_address = CoordAddress(addr['machine_id'],addr['instance_id'],addr['server_id'])
 
         use = ExperimentUsage(experiment_use['experiment_use_id'], experiment_use['start_date'], experiment_use['end_date'], experiment_use['from_ip'], experiment_id, experiment_use['reservation_id'], coord_address)
+        for sent_file in experiment_use['sent_files']:
+            response = Command(sent_file['response']['commandstring']) if 'commandstring' in sent_file['response'] else NullCommand
+            unserialized_sent_file = LoadedFileSent( sent_file['file_content'], sent_file['timestamp_before'], response, sent_file['timestamp_after'], sent_file['file_info'])
+            use.append_file(unserialized_sent_file)
+
+        for command in experiment_use['commands']:
+            request = Command(command['command']['commandstring']) if 'commandstring' in command['command'] else NullCommand
+            response = Command(command['response']['commandstring']) if 'commandstring' in command['response'] else NullCommand
+            unserialized_command = CommandSent(request, command['timestamp_before'], response, command['timestamp_after'])
+            use.append_command(unserialized_command)
+        # print experiment_use['commands']
         return FinishedReservationResult(use)
 

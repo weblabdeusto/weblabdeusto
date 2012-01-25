@@ -516,14 +516,20 @@ class UserProcessingIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
 
             self.mock_server.return_values['get_experiment_uses_by_id'] = (expected_finished_result, expected_alive_result, expected_cancelled_result)
 
-            results = client.get_experiment_uses_by_id(expected_sess_id, (SessionId.SessionId('reservation'), SessionId.SessionId('reservation2'), SessionId.SessionId('reservation3') ))
+            expected_reservations = (SessionId.SessionId('reservation'), SessionId.SessionId('reservation2'), SessionId.SessionId('reservation3') )
+
+            results = client.get_experiment_uses_by_id(expected_sess_id, expected_reservations)
+
+            self.assertEquals( expected_sess_id.id, self.mock_server.arguments['get_experiment_uses_by_id'][0])
+            self.assertEquals( expected_reservations, tuple(self.mock_server.arguments['get_experiment_uses_by_id'][1]))
+
 
             self.assertEquals(3, len(results))
             self.assertEquals(expected_finished_result.status,  results[0].status)
             self.assertEquals(expected_alive_result.status,     results[1].status)
             self.assertEquals(expected_cancelled_result.status, results[2].status)
 
-            self.assertEquals(expected_usage, expected_finished_result.experiment_use)
+            self.assertEquals(expected_usage, results[0].experiment_use)
 
         finally:
             self.rfs.stop()
