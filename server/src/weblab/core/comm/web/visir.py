@@ -98,7 +98,9 @@ class  VisirMethod(WebFacadeServer.Method):
 
     def intercept_save(self):
         save = self.get_argument("save", "", False)
-        return "SAVE REQUEST CAUGHT: <br>" + save
+        self.set_content_type("text/html")
+        self.add_other_header("Content-Disposition", "attachment; filename=\"circuit.cir\"")
+        return save
 
     def intercept_library(self, content, mimetype):
         return content

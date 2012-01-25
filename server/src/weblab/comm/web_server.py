@@ -241,7 +241,7 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         # Write also the additional headers specified, if any. 
         for name, val in other_headers.items():
             self.send_header(name, val)
-            
+        
         if self.server_route is not None:
             route = get_context().route
             if route is None:
