@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+import base64
 import os
 from abc import abstractmethod
 
@@ -123,7 +124,7 @@ class FileSent(object):
 
     @typecheck(basestring)
     def load(self, storage_path):
-        content = open(os.sep.join((storage_path, self.file_path)), 'rb').read()
+        content = base64.encodestring(open(os.sep.join((storage_path, self.file_path)), 'rb').read())
         return LoadedFileSent(content, self.timestamp_before, self.response, self.timestamp_after, self.file_info)
 
 class ExperimentUsage(object):
