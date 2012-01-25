@@ -57,7 +57,7 @@ def strdate(days=0,hours=0,minutes=0,seconds=0):
 # JSON/HTTP code #
 ##################
 
-def simplify_response(response, limit = 10, counter = 0):
+def simplify_response(response, limit = 15, counter = 0):
     """
     Recursively serializes the response into a JSON dictionary. Because the response object could actually
     contain cyclic references, we limit the maximum depth. 

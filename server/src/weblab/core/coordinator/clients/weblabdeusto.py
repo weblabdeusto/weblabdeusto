@@ -17,9 +17,11 @@ import json
 import urllib2
 import cookielib
 
+from voodoo.gen.coordinator.CoordAddress import CoordAddress
 from voodoo.sessions.session_id import SessionId
 from weblab.core.reservations import Reservation
 from weblab.data.command import Command
+from weblab.data.experiments import ReservationResult, AliveReservationResult, CancelledReservationResult, FinishedReservationResult, ExperimentUsage, LoadedFileSent, CommandSent, ExperimentId
 
 class WebLabDeustoClient(object):
 
@@ -81,6 +83,27 @@ class WebLabDeustoClient(object):
         reservation = self._parse_reservation_holder(reservation_holder)
         return reservation
 
+    def get_experiment_use_by_id(self, session_id, reservation_id):
+        serialized_session_id     = {'id' : session_id.id}
+        serialized_reservation_id = {'id' : reservation_id.id}
+        experiment_result = self._core_call('get_experiment_use_by_id', session_id = serialized_session_id, reservation_id = serialized_reservation_id)
+        return self._parse_experiment_result(experiment_result)
+
+    def get_experiment_uses_by_id(self, session_id, reservation_ids):
+        serialized_session_id     = {'id' : session_id.id}
+        serialized_reservation_ids = []
+        for reservation_id in reservation_ids:
+            serialized_reservation_id = {'id' : reservation_id.id}
+            serialized_reservation_ids.append(serialized_session_id)
+
+        serialized_experiment_results = self._core_call('get_experiment_uses_by_id', session_id = serialized_session_id, reservation_ids = serialized_reservation_ids)
+        experiment_results = []
+        for serialized_experiment_result in serialized_experiment_results:
+            experiment_result = self._parse_experiment_result(serialized_experiment_result)
+            experiment_results.append(experiment_result)
+
+        return experiment_results
+
     def send_command(self, reservation_id, command):
         serialized_reservation_id = {'id' : reservation_id.id}
         serialized_command = { 'commandstring' : command.commandstring }
@@ -105,4 +128,19 @@ class WebLabDeustoClient(object):
 
         return Reservation.translate_reservation_from_data(reservation_holder['status'], reservation_holder['reservation_id']['id'], reservation_holder.get('position'), reservation_holder.get('time'), reservation_holder.get('initial_configuration'), reservation_holder.get('end_data'), reservation_holder.get('url'), reservation_holder.get('finished'), reservation_holder.get('initial_data'), remote_reservation_id)
 
+    def _parse_experiment_result(self, experiment_result):
+        if experiment_result['status'] == ReservationResult.ALIVE:
+            return AliveReservationResult()
+        elif experiment_result['status'] == ReservationResult.CANCELLED:
+            return CancelledReservationResult()
+        
+        experiment_use = experiment_result['experiment_use']
+
+        experiment_id = ExperimentId(experiment_use['experiment_id']['exp_name'], experiment_use['experiment_id']['cat_name'])
+
+        addr = experiment_use['coord_address']
+        coord_address = CoordAddress(addr['machine_id'],addr['instance_id'],addr['server_id'])
+
+        use = ExperimentUsage(experiment_use['experiment_use_id'], experiment_use['start_date'], experiment_use['end_date'], experiment_use['from_ip'], experiment_id, experiment_use['reservation_id'], coord_address)
+        return FinishedReservationResult(use)
 

@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
+import time
 import sys
 import unittest
 
@@ -28,6 +29,8 @@ import voodoo.sessions.session_id as SessionId
 import weblab.data.dto.experiments as ExperimentAllowed
 import weblab.data.dto.experiments as Experiment
 import weblab.data.dto.experiments as Category
+from weblab.data.experiments import AliveReservationResult, FinishedReservationResult, CancelledReservationResult, ExperimentUsage, LoadedFileSent, CommandSent, ExperimentId
+from voodoo.gen.coordinator.CoordAddress import CoordAddress
 
 from weblab.data.dto.users import User
 from weblab.data.dto.users import Role
@@ -469,6 +472,61 @@ class UserProcessingIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
         finally:
             self.rfs.stop()
 
+    @uses_module(RemoteFacadeServer)
+    def test_get_experiment_use_by_id(self):
+        port = 15129
+        self.configurationManager._set_value(self.rfs.FACADE_JSON_PORT, port)
+        self.rfs.start()
+        try:
+            client = WebLabDeustoClient("http://localhost:%s/weblab/" % port)
+
+            expected_sess_id = SessionId.SessionId("whatever")
+            expected_reservation_id = SessionId.SessionId("foobar")
+            expected_alive_result = AliveReservationResult()
+
+            self.mock_server.return_values['get_experiment_use_by_id'] = expected_alive_result
+
+
+            obtained_result = client.get_experiment_use_by_id(expected_sess_id, expected_reservation_id)
+            self.assertEquals(AliveReservationResult(), obtained_result)
+        finally:
+            self.rfs.stop()
+
+    @uses_module(RemoteFacadeServer)
+    def test_get_experiment_uses_by_id(self):
+        port = 15131
+        self.configurationManager._set_value(self.rfs.FACADE_JSON_PORT, port)
+        self.rfs.start()
+        try:
+            client = WebLabDeustoClient("http://localhost:%s/weblab/" % port)
+
+            expected_sess_id = SessionId.SessionId("whatever")
+            expected_reservation_id = SessionId.SessionId("reser1")
+            expected_usage = ExperimentUsage(10, time.time(), time.time(), '127.0.0.1', ExperimentId("exp","cat"), 'reser1', CoordAddress('machine','instance','server'))
+
+            command_sent = CommandSent(Command.Command("request"), time.time(), Command.Command("response"), time.time())
+            expected_usage.append_command(command_sent)
+
+            loaded_file_sent = LoadedFileSent('content-of-the-file', time.time(), Command.Command("response"), time.time(), 'program')
+            expected_usage.append_file(loaded_file_sent)
+
+            expected_finished_result  = FinishedReservationResult(expected_usage)
+            expected_alive_result     = AliveReservationResult()
+            expected_cancelled_result = CancelledReservationResult()
+
+            self.mock_server.return_values['get_experiment_uses_by_id'] = (expected_finished_result, expected_alive_result, expected_cancelled_result)
+
+            results = client.get_experiment_uses_by_id(expected_sess_id, (SessionId.SessionId('reservation'), SessionId.SessionId('reservation2'), SessionId.SessionId('reservation3') ))
+
+            self.assertEquals(3, len(results))
+            self.assertEquals(expected_finished_result.status,  results[0].status)
+            self.assertEquals(expected_alive_result.status,     results[1].status)
+            self.assertEquals(expected_cancelled_result.status, results[2].status)
+
+            self.assertEquals(expected_usage, expected_finished_result.experiment_use)
+
+        finally:
+            self.rfs.stop()
     @uses_module(RemoteFacadeServer)
     def test_get_reservation_status(self):
         port = 15128
