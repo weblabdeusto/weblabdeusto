@@ -93,7 +93,8 @@ class  VisirMethod(WebFacadeServer.Method):
         return content
 
     def intercept_save(self):
-        return "SAVE REQUEST CAUGHT"
+        save = self.get_argument("save", "", False)
+        return "SAVE REQUEST CAUGHT: <br>" + save
 
     def intercept_library(self, content, mimetype):
         return content
