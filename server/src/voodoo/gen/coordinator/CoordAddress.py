@@ -41,29 +41,18 @@ class CoordAddress(object):
         empty are the addresses for machines.
         """
         if not type(machine_id) in (str,unicode) or machine_id == '':
-            raise CoordExceptions.CoordInvalidAddressParams(
-                        "%s: not a valid machine_id" 
-                        % machine_id
-                    )
+            raise CoordExceptions.CoordInvalidAddressParams( "%s: not a valid machine_id" % machine_id)
         if not type(instance_id) in (str,unicode): 
-            raise CoordExceptions.CoordInvalidAddressParams(
-                        "%s: not a valid instance_id"
-                        % instance_id
-                    )
+            raise CoordExceptions.CoordInvalidAddressParams( "%s: not a valid instance_id" % instance_id)
         if not type(server_id) in (str,unicode):
-            raise CoordExceptions.CoordInvalidAddressParams(
-                        "%s: not a valid server_id"
-                        % server_id
-                    )
+            raise CoordExceptions.CoordInvalidAddressParams( "%s: not a valid server_id" % server_id)
         if instance_id == '' and server_id != '':
-            raise CoordExceptions.CoordInvalidAddressParams(
-                        "%s, %s: not valid parameters"
-                        % (instance_id, server_id)
-                    )
+            raise CoordExceptions.CoordInvalidAddressParams( "%s, %s: not valid parameters" % (instance_id, server_id))
 
-        self._machine_id = machine_id
-        self._instance_id = instance_id
-        self._server_id = server_id
+        self.machine_id = machine_id
+        self.instance_id = instance_id
+        self.server_id = server_id
+
         self._reload_address()
 
     def _reload_address(self):
@@ -72,20 +61,6 @@ class CoordAddress(object):
                 'instance'  : self.instance_id,
                 'machine'   : self.machine_id
             }
-
-    # read-only properties
-
-    @property
-    def machine_id(self):
-        return self._machine_id
-
-    @property
-    def instance_id(self):
-        return self._instance_id
-
-    @property
-    def server_id(self):
-        return self._server_id
 
     @property
     def address(self):
@@ -108,7 +83,7 @@ class CoordAddress(object):
                         '%s: not a server_address' % self
                     )
         new_addr = self.copy()
-        new_addr._server_id = ''
+        new_addr.server_id = ''
         new_addr._reload_address()
         return new_addr
 
@@ -118,7 +93,7 @@ class CoordAddress(object):
                         '%s: not a server or instance address' % self
                     )
         new_addr = self.copy()
-        new_addr._server_id = new_addr._instance_id = ''
+        new_addr.server_id = new_addr.instance_id = ''
         new_addr._reload_address()
         return new_addr
 
@@ -184,7 +159,7 @@ class CoordAddress(object):
 
     def __repr__(self):
         return 'CoordAddress(%r, %r, %r)' % (
-            self._machine_id, self._instance_id, self._server_id )
+            self.machine_id, self.instance_id, self.server_id )
 
     def __hash__(self):
         return hash(self.address) + 1
