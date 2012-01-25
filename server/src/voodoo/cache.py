@@ -214,12 +214,12 @@ def cache(time_to_wait = None, resource_manager = None):
         def _get_dictionaries(self, inst = "this.is.not.an.instance"):
             if inst == "this.is.not.an.instance":
                 inst = self._inst
-            if not self.dictionaries_per_inst.has_key(inst):
+            if not inst in self.dictionaries_per_inst:
                 self.lock.acquire()
                 try:
                     # Double ask, just to avoid acquiring and releasing
                     # without need
-                    if not self.dictionaries_per_inst.has_key(inst):
+                    if not inst in self.dictionaries_per_inst:
                         self.dictionaries_per_inst[inst] = {
                             'dict' : {},
                             'list' : []
@@ -270,7 +270,7 @@ class fast_cache(object):
             if self._inst is not None:
                 args = (self._inst(),) + args
 
-            if self.cache.has_key(args):
+            if args in self.cache:
                 return self.cache[args]
             else:
                 return_value = self.func(*args)

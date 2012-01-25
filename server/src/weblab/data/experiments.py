@@ -15,8 +15,6 @@
 
 import base64
 import os
-from abc import abstractmethod
-
 import weblab.data.command as Command
 
 from voodoo.override import Override

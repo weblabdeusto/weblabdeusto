@@ -165,7 +165,7 @@ class WebLabMonitor(object):
             ups_orphans = []
             information = []
             for ups_session_id, login, wlc_session_id in ups_session_ids:
-                if users_status.has_key(wlc_session_id):
+                if wlc_session_id in users_status:
                     status = users_status.pop(wlc_session_id)
                     information.append((login, status, ups_session_id, wlc_session_id))
                 else:

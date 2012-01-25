@@ -57,7 +57,7 @@ class ProxySessionHandler(object):
         self._session['files'].append(file_sent)
 
     def _is_polling(self):
-        return self._session.has_key('session_polling')
+        return 'session_polling' in self._session
 
     def _stop_polling(self):
         if self._is_polling():

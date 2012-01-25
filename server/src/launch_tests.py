@@ -112,7 +112,7 @@ def runXml(folder):
         else:
             class_ = suite.__class__
             classname = class_.__module__ + "." + class_.__name__
-            if all_suites_ordered.has_key(classname):
+            if classname in all_suites_ordered:
                 all_suites_ordered[classname].append(suite)
             else:
                 all_suites_ordered[classname] = [suite]

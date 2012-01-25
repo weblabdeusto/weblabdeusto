@@ -45,13 +45,13 @@ class MockLogin(object):
 
     def login(self, username, password):
         self.arguments['login'] = (username, password)
-        if self.exceptions.has_key('login'):
+        if 'login' in self.exceptions:
             raise self.exceptions['login']
         return self.return_values['login']
 
     def extensible_login(self, system, credentials):
         self.arguments['login_based_on_other_credentials'] = (system, credentials)
-        if self.exceptions.has_key('login_based_on_other_credentials'):
+        if 'login_based_on_other_credentials' in self.exceptions:
             raise self.exceptions['login_based_on_other_credentials']
         return self.return_values['login_based_on_other_credentials']
 

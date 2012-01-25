@@ -501,7 +501,6 @@ class UserProcessingIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
             client = WebLabDeustoClient("http://localhost:%s/weblab/" % port)
 
             expected_sess_id = SessionId.SessionId("whatever")
-            expected_reservation_id = SessionId.SessionId("reser1")
             expected_usage = ExperimentUsage(10, time.time(), time.time(), '127.0.0.1', ExperimentId("exp","cat"), 'reser1', CoordAddress('machine','instance','server'))
 
             command_sent = CommandSent(Command.Command("request"), time.time(), Command.Command("response"), time.time())

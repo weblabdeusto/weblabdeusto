@@ -45,7 +45,7 @@ class ConfigurationManagerFake(object):
         super(ConfigurationManagerFake,self).__init__()
         self._configuration = configuration
     def get_value(self, key, other = 'lalala'):
-        if self._configuration.has_key(key):
+        if key in self._configuration:
             return self._configuration[key]
         elif other != 'lalala':
             return other

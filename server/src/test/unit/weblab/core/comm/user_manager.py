@@ -66,7 +66,7 @@ def generate_mock_method(method_name, ordered_arguments):
 
         # Now store them and throw an exception if required
         self.arguments[method_name] = final_arguments
-        if self.exceptions.has_key(method_name):
+        if method_name in self.exceptions:
             raise self.exceptions[method_name]
         return self.return_values[method_name]
 

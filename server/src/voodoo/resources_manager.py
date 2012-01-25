@@ -22,7 +22,7 @@ import voodoo.log as log
 
 def is_testing():
     # if there is no test module loaded, it's not testing
-    if not sys.modules.has_key('test'):
+    if not 'test' in sys.modules:
         return False
     # if the test.* module is our test module...
     voodoo_file = sys.modules['voodoo'].__file__

@@ -20,7 +20,7 @@ import cookielib
 from voodoo.gen.coordinator.CoordAddress import CoordAddress
 from voodoo.sessions.session_id import SessionId
 from weblab.core.reservations import Reservation
-from weblab.data.command import Command
+from weblab.data.command import Command, NullCommand
 from weblab.data.experiments import ReservationResult, AliveReservationResult, CancelledReservationResult, FinishedReservationResult, ExperimentUsage, LoadedFileSent, CommandSent, ExperimentId
 
 class WebLabDeustoClient(object):
@@ -45,7 +45,7 @@ class WebLabDeustoClient(object):
         if len(cookies) > 0:
             self.weblabsessionid = cookies[0].value
         response = json.loads(content)
-        if response.has_key('is_exception') and response['is_exception']:
+        if response.get('is_exception', False):
             raise Exception(response["message"])
         return response['result']
 

@@ -92,7 +92,7 @@ class ConfigurationManager(object):
     def _set_value(self, key, value):
         self._values_writelock.acquire()
         try:
-            if self._values.has_key(key):
+            if key in self._values:
                 log.log(
                         ConfigurationManager,
                         log.level.Info,
@@ -159,7 +159,7 @@ class ConfigurationManager(object):
     def get_value(self, key, default_value = _not_a_default_value):
         self._values_readlock.acquire()
         try:
-            if self._values.has_key(key):
+            if key in self._values:
                 return self._values[key]
             elif default_value != _not_a_default_value:
                 return default_value

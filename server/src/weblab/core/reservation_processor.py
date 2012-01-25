@@ -73,7 +73,7 @@ class ReservationProcessor(object):
         # usage-related information locally. We will store it in the session object instead.
         # TODO: As of now, if the async_commands_ids is not in session we will initialize it.
         # Probably that initialization should be moved to wherever session is initialized.
-        if(not self._reservation_session.has_key("async_commands_ids")):
+        if not "async_commands_ids" in self._reservation_session:
             self._reservation_session["async_commands_ids"] = {}
 
     def get_session(self):

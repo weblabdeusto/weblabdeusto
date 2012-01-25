@@ -111,7 +111,7 @@ def list_all_users():
             session = session_mgr.get_session(session_id)
         except SessionExceptions.SessionException:
             continue
-        if session.has_key('user_information'):
+        if 'user_information' in session:
             user_info = session['user_information']
         else:
             # It may happen if we list the experiments before gathering this information
@@ -137,7 +137,7 @@ def get_ups_session_ids_from_username(login):
         except SessionExceptions.SessionException:
             continue
 
-        if session.has_key('user_information'):
+        if 'user_information' in session:
             if session['user_information'].login == login:
                 ups_session_ids.append(session_id)
     return ups_session_ids

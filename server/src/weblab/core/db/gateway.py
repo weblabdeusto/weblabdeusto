@@ -114,7 +114,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                 experiment_allowed = ExperimentAllowed.ExperimentAllowed(experiment.to_business(), p_time_allowed, p_priority, p_initialization_in_accounting)
 
                 experiment_unique_id = p_permanent_id+"@"+p_category_id
-                if grouped_experiments.has_key(experiment_unique_id):
+                if experiment_unique_id in grouped_experiments:
                     grouped_experiments[experiment_unique_id].append(experiment_allowed)
                 else:
                     grouped_experiments[experiment_unique_id] = [experiment_allowed]

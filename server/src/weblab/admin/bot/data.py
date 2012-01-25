@@ -121,7 +121,7 @@ class BotIteration(object):
         return self._get_xxx_time_per_call_by_name(avg)
 
     def get_number_of_exception_instances(self, exception_name):
-        if self.exceptions.has_key(exception_name):
+        if exception_name in self.exceptions:
             return len(self.exceptions[exception_name].instances)
         else:
             return 0
@@ -204,7 +204,7 @@ class BotTrial(object):
 
     def _add_exception(self, exceptions_dict, exception):
         """ { "ExceptionType1": <BotException>, "ExceptionType2": <BotException>, ... } """
-        if exceptions_dict.has_key(exception.__class__.__name__):
+        if exception.__class__.__name__ in exceptions_dict:
             exceptions_dict[exception.__class__.__name__].add_instance(exception)
         else:
             exceptions_dict[exception.__class__.__name__] = BotException(exception)

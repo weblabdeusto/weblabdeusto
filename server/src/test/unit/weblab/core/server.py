@@ -39,7 +39,7 @@ import weblab.core.coordinator.config_parser as CoordinationConfigurationParser
 import weblab.core.exc as coreExc
 
 from weblab.data.command import Command
-from weblab.data.experiments import ExperimentId, ExperimentUsage, CommandSent, FileSent, AliveReservationResult, FinishedReservationResult, CancelledReservationResult
+from weblab.data.experiments import ExperimentId, ExperimentUsage, CommandSent, FileSent, FinishedReservationResult
 
 import weblab.data.dto.experiments as Category
 import weblab.data.dto.experiments as Experiment

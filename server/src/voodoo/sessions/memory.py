@@ -103,7 +103,7 @@ class SessionMemoryGateway(object):
             # The user wants a specific session_id
             lock, sessions = self._get_lock_and_sessions(desired_sess_id)
             lock.acquire()
-            if sessions.has_key(desired_sess_id):
+            if desired_sess_id in sessions:
                 lock.release()
                 raise SessionExceptions.DesiredSessionIdAlreadyExistsException("session_id: %s" % desired_sess_id)
             session_id = desired_sess_id
@@ -115,7 +115,7 @@ class SessionMemoryGateway(object):
                 session_id = self._generator.generate_id()
                 lock, sessions = self._get_lock_and_sessions(session_id)
                 lock.acquire()
-                must_repeat = sessions.has_key(session_id)
+                must_repeat = session_id in sessions
                 if must_repeat:
                     lock.release()
 
@@ -147,12 +147,12 @@ class SessionMemoryGateway(object):
     def has_session(self, session_id):
         lock, sessions = self._get_lock_and_sessions(session_id)
         with lock:
-            return sessions.has_key(session_id)
+            return session_id in sessions
 
     def get_session_obj(self, session_id):
         lock, sessions = self._get_lock_and_sessions(session_id)
         with lock:
-            if not sessions.has_key(session_id):
+            if not session_id in sessions:
                 raise SessionExceptions.SessionNotFoundException(
                             "Session not found: " + session_id
                         )
@@ -173,7 +173,7 @@ class SessionMemoryGateway(object):
             sess_obj = self._serializer.serialize(sess_obj)
         lock, sessions = self._get_lock_and_sessions(sess_id)
         with lock:
-            if not sessions.has_key(sess_id):
+            if not sess_id in sessions:
                 raise SessionExceptions.SessionNotFoundException(
                             "Session not found: " + sess_id
                         )
@@ -245,7 +245,7 @@ class SessionMemoryGateway(object):
         session_locks  = self._get_session_lock(session_id)
 
         with lock:
-            if sessions.has_key(session_id):
+            if session_id in sessions:
                 sessions.pop(session_id)
                 session_locks.pop(session_id)
             else:
@@ -258,7 +258,7 @@ class SessionMemoryGateway(object):
         session_locks  = self._get_session_lock(session_id)
 
         with lock:
-            if sessions.has_key(session_id):
+            if session_id in sessions:
                 sessions.pop(session_id)
                 session_lock = session_locks.pop(session_id)
                 session_lock.release()

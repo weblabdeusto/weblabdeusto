@@ -231,9 +231,9 @@ if ZSI_AVAILABLE:
             self.weblabsessionid = "<unknown>"
 
         def _call(self, method, **kwargs):
-            if kwargs.has_key('session_id') and not kwargs.has_key('session'):
+            if 'session_id' in kwargs and not 'session' in kwargs:
                 kwargs['session'] = kwargs.pop('session_id')
-            if kwargs.has_key('file_content') and not kwargs.has_key('content'):
+            if 'file_content' in kwargs and not 'content' in kwargs:
                 kwargs['content'] = kwargs.pop('file_content')
             try:
                 if method == 'login':
@@ -334,7 +334,7 @@ class BotJSON(AbstractBotDict):
         if len(cookies) > 0:
             self.weblabsessionid = cookies[0].value
         response = json.loads(content)
-        if response.has_key('is_exception') and response['is_exception']:
+        if response.get('is_exception', False):
             raise Exception(response["message"])
         return response['result']
 

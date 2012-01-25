@@ -56,7 +56,7 @@ class BotLauncher(object):
 
     def _add_exception(self, exceptions_dict, (exception, trace)):
         """ { "ExceptionType1": <BotException>, "ExceptionType2": <BotException>, ... } """
-        if exceptions_dict.has_key(exception.__class__.__name__):
+        if exception.__class__.__name__ in exceptions_dict:
             exceptions_dict[exception.__class__.__name__].add_instance((exception, trace))
         else:
             exceptions_dict[exception.__class__.__name__] = Data.BotException((exception, trace))

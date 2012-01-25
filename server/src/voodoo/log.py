@@ -56,7 +56,7 @@ def _get_full_class_name(class_type, func):
     func_name = func.__name__
 
     def find_class(cur_class, func_name):
-        if cur_class.__dict__.has_key(func_name):
+        if func_name in cur_class.__dict__:
             return cur_class
         for base_class in cur_class.__bases__:
             found = find_class(base_class, func_name)
@@ -210,7 +210,7 @@ def logged(level='debug', except_for=None):
                             else:
                                 parameter_name, given_position = parameter
 
-                            if kargs.has_key(parameter_name):
+                            if parameter_name in kargs:
                                 self.fake_kargs[parameter_name] = '<hidden>'
                                 replaced = True
                             else:

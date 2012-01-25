@@ -147,8 +147,7 @@ class UserProcessorTestCase(unittest.TestCase):
                     "{}", '{ "%s" : [["%s","server x"]]}' % (UserProcessor.SERVER_UUIDS, uuid),
                     ClientAddress.ClientAddress("127.0.0.1"), uuid
                 )
-
-        self.assertTrue( 'replicated' )
+        self.assertEquals( 'replicated', status )
 
 
 class FakeDatabase(object):

@@ -45,31 +45,31 @@ class MockUPS(object):
 
     def get_roles(self, session_id):
         self.arguments['get_roles'] = (session_id, )
-        if self.exceptions.has_key('get_roles'):
+        if 'get_roles' in self.exceptions:
             raise self.exceptions['get_roles']
         return self.return_values['get_roles']
 
     def get_groups(self, session_id, parent_id):
         self.arguments['get_groups'] = (session_id, parent_id, )
-        if self.exceptions.has_key('get_groups'):
+        if 'get_groups' in self.exceptions:
             raise self.exceptions['get_groups']
         return self.return_values['get_groups']
 
     def get_users(self, session_id):
         self.arguments['get_users'] = (session_id, )
-        if self.exceptions.has_key('get_users'):
+        if 'get_users' in self.exceptions:
             raise self.exceptions['get_users']
         return self.return_values['get_users']
 
     def get_experiments(self, session_id):
         self.arguments['get_experiments'] = (session_id, )
-        if self.exceptions.has_key('get_experiments'):
+        if 'get_experiments' in self.exceptions:
             raise self.exceptions['get_experiments']
         return self.return_values['get_experiments']
 
     def get_experiment_uses(self, session_id, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by):
         self.arguments['get_experiment_uses'] = (session_id, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by)
-        if self.exceptions.has_key('get_experiment_uses'):
+        if 'get_experiment_uses' in self.exceptions:
             raise self.exceptions['get_experiment_uses']
         return self.return_values['get_experiment_uses']
 

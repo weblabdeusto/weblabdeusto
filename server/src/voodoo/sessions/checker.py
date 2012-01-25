@@ -24,7 +24,7 @@ def check_session_parameters(parameters):
         def session_parameters_wrapper(self, session, *args, **kargs):
             #TODO: test me
             for i in parameters:
-                if not session.has_key(i):
+                if not i in session:
                     raise SessionExceptions.VariableNotFoundInSessionException(
                             "Variable not found in session: %s" % i
                         )

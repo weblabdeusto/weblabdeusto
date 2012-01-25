@@ -239,7 +239,7 @@ class LaboratoryServer(object):
             # It seems that they might still be running when free gets called.
             # TODO: Consider possible issues.
             session_id = session['session_id']
-            if( self._async_requests.has_key(session_id) ):
+            if session_id in self._async_requests:
                 del self._async_requests[session_id]
 
             experiment_instance_id = session['experiment_instance_id']
