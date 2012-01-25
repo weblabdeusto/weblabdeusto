@@ -30,7 +30,7 @@ class Command(object):
         if isinstance(other, Command):
             return cmp(self.commandstring, other.commandstring)
         return -1
-    
+
     def to_dict(self):
         return {'commandstring': self.commandstring}
 

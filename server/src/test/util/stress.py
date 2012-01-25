@@ -36,7 +36,7 @@ class RunningThread(threading.Thread):
         self.times         = []
         self.iterations    = iterations
         self.waiting       = False
-    
+
     def run(self):
         self.condition.acquire()
         try:

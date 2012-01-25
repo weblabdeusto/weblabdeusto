@@ -17,7 +17,7 @@ if __name__ == '__main__':
     import sys
     assert len(sys.argv) == 11, "Linker example: ilink32 -Tpe -c whatever.obj c0x32, whatever.exe, , visa32 import32 cw32 bidsf \n\
 Got %s arguments; \"%s\"" % ( len(sys.argv), ' '.join(sys.argv) )
-    
+
     # assert sys.argv[0] == 'ilink32' #Not in the fake version
     assert sys.argv[1]  == '-Tpe' 
     assert sys.argv[2]  == '-c'

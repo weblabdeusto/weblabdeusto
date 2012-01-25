@@ -169,7 +169,7 @@ class CoordinatorTestCase(unittest.TestCase):
         _, reservation1_id = self.coordinator.reserve_experiment(ExperimentId("exp1","cat1"), DEFAULT_TIME, DEFAULT_PRIORITY, True, DEFAULT_INITIAL_DATA, DEFAULT_REQUEST_INFO, DEFAULT_CONSUMER_DATA)
         _, reservation2_id = self.coordinator.reserve_experiment(ExperimentId("exp1","cat1"), DEFAULT_TIME, DEFAULT_PRIORITY, True, DEFAULT_INITIAL_DATA, DEFAULT_REQUEST_INFO, DEFAULT_CONSUMER_DATA)
         _, reservation3_id = self.coordinator.reserve_experiment(ExperimentId("exp1","cat1"), DEFAULT_TIME, DEFAULT_PRIORITY, True, DEFAULT_INITIAL_DATA, DEFAULT_REQUEST_INFO, DEFAULT_CONSUMER_DATA)
-       
+
         result = self.coordinator.list_sessions( ExperimentId('exp1','cat1') )
         self.assertEquals( { 
                 reservation1_id : WSS.WaitingConfirmationQueueStatus("reservation_id", DEFAULT_URL),
@@ -263,8 +263,8 @@ class CoordinatorTestCase(unittest.TestCase):
         status, reservation5_id = self.coordinator.reserve_experiment(ExperimentId("exp1","cat1"), DEFAULT_TIME, 3, True, DEFAULT_INITIAL_DATA, DEFAULT_REQUEST_INFO, DEFAULT_CONSUMER_DATA)
         expected_status = WSS.WaitingQueueStatus(reservation5_id, 1) 
         self.assertEquals( expected_status, status )
-      
-        
+
+
     def test_adding_experiment_instance_updates_waiting_users(self):
 
         "If there are users waiting in the queue, and a new instance is added, then the queue is updated "
@@ -272,15 +272,15 @@ class CoordinatorTestCase(unittest.TestCase):
         status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId("exp1","cat1"), DEFAULT_TIME, DEFAULT_PRIORITY, True, DEFAULT_INITIAL_DATA, DEFAULT_REQUEST_INFO, DEFAULT_CONSUMER_DATA)
         expected_status = WSS.WaitingConfirmationQueueStatus(reservation1_id, DEFAULT_URL)
         self.assertEquals( expected_status, status )
-       
+
         status, reservation2_id = self.coordinator.reserve_experiment(ExperimentId("exp1","cat1"), DEFAULT_TIME, DEFAULT_PRIORITY, True, DEFAULT_INITIAL_DATA, DEFAULT_REQUEST_INFO, DEFAULT_CONSUMER_DATA)
         expected_status = WSS.WaitingConfirmationQueueStatus(reservation2_id, DEFAULT_URL)
         self.assertEquals( expected_status, status )
-       
+
         status, reservation3_id = self.coordinator.reserve_experiment(ExperimentId("exp1","cat1"), DEFAULT_TIME, DEFAULT_PRIORITY, True, DEFAULT_INITIAL_DATA, DEFAULT_REQUEST_INFO, DEFAULT_CONSUMER_DATA)
         expected_status = WSS.WaitingQueueStatus(reservation3_id, 0)
         self.assertEquals( expected_status, status )
-       
+
         status, reservation4_id = self.coordinator.reserve_experiment(ExperimentId("exp1","cat1"), DEFAULT_TIME, DEFAULT_PRIORITY, True, DEFAULT_INITIAL_DATA, DEFAULT_REQUEST_INFO, DEFAULT_CONSUMER_DATA)
         expected_status = WSS.WaitingQueueStatus(reservation4_id, 1)
         self.assertEquals( expected_status, status )
@@ -305,11 +305,11 @@ class CoordinatorTestCase(unittest.TestCase):
         status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId("exp1","cat1"), DEFAULT_TIME, DEFAULT_PRIORITY, True, DEFAULT_INITIAL_DATA, DEFAULT_REQUEST_INFO, DEFAULT_CONSUMER_DATA)
         expected_status = WSS.WaitingInstancesQueueStatus(reservation1_id, 0)
         self.assertEquals( expected_status, status )
-       
+
         status, reservation2_id = self.coordinator.reserve_experiment(ExperimentId("exp1","cat1"), DEFAULT_TIME, DEFAULT_PRIORITY, True, DEFAULT_INITIAL_DATA, DEFAULT_REQUEST_INFO, DEFAULT_CONSUMER_DATA)
         expected_status = WSS.WaitingInstancesQueueStatus(reservation2_id, 1)
         self.assertEquals( expected_status, status )
-       
+
         self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('inst1', 'exp1','cat1'), Resource("res_type", "res_inst1"))
 
         status = self.coordinator.get_reservation_status(reservation1_id)
@@ -429,8 +429,8 @@ class CoordinatorTestCase(unittest.TestCase):
         self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentInstanceId('inst1', 'exp1', 'cat1'), reservation1_id, "lab:server@mach", SessionId.SessionId("mysessionid"), "{}", now, now)
         status = self.coordinator.get_reservation_status(reservation1_id)
         expected_status = WSS.LocalReservedStatus(reservation1_id, coord_addr("lab1:inst@machine"), SessionId.SessionId("mysessionid"), DEFAULT_TIME, "{}", now, now, True, DEFAULT_TIME, 'http://www.weblab.deusto.es/weblab/client/foo')
-        
-        
+
+
         self.assertTrue("Unexpected status due to timestamp_before: %s; expected something like %s" % (status, expected_status), 
                             status.timestamp_before >= now and status.timestamp_before <= now + datetime.timedelta(seconds=10))
         self.assertTrue("Unexpected status due to timestamp_after: %s; expected something like %s" % (status, expected_status),
@@ -832,7 +832,7 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         #    RES.INST (pld1) : res1
         #    RES.INST (pld2) : res2
         #    RES.INST (fpga1): res3
-        
+
         status, reservation5_id = self.coordinator.reserve_experiment(ExperimentId("ud-fpga","FPGA experiments"), DEFAULT_TIME + 5, DEFAULT_PRIORITY, True, DEFAULT_INITIAL_DATA, DEFAULT_REQUEST_INFO, DEFAULT_CONSUMER_DATA)
         expected_status = WSS.WaitingQueueStatus(reservation5_id, 1)
         self.assertEquals( expected_status, status )
@@ -942,7 +942,7 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         status = self.coordinator.get_reservation_status(reservation9_id)
         expected_status = WSS.WaitingConfirmationQueueStatus(reservation9_id, DEFAULT_URL)
         self.assertEquals( expected_status, status )
-     
+
         # 
         # If this user goes out, then that experiment is available, so next user requesting a ud-pld@PLD experiments will get it
         # 
@@ -988,7 +988,7 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         status = self.coordinator.get_reservation_status(reservation4_id)
         expected_status = WSS.WaitingConfirmationQueueStatus(reservation4_id, DEFAULT_URL)
         self.assertEquals( expected_status, status )
-    
+
         status = self.coordinator.get_reservation_status(reservation5_id)
         expected_status = WSS.WaitingQueueStatus(reservation5_id, 0)
         self.assertEquals( expected_status, status )

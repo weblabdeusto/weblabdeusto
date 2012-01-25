@@ -299,10 +299,10 @@ class CoordPatch(object):
                 self.changes[change.address].append_change(change)
 
         elif change.address.is_server():
-            
+
             machine_address = change.address.get_machine_address()
             instance_address = change.address.get_instance_address()
-    
+
             if self.changes.has_key(machine_address):
                 self.changes[machine_address].append_change(change)
             elif self.changes.has_key(instance_address):
@@ -321,7 +321,7 @@ class CoordPatch(object):
 #                             CoordVersion                                    #
 #                                                                             #
 ###############################################################################
-            
+
 
 class CoordVersion(object):
     def __init__(self,address):

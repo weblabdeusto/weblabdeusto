@@ -39,7 +39,7 @@ class FakeChecker(object):
         counter += 1
         if coordinator == original_coordinator:
             right_coordinator = True
-        
+
     def check(self):
         global checked
         checked = True
@@ -50,7 +50,7 @@ class FakeFailingChecker(object):
         counter += 1
         if coordinator == original_coordinator:
             right_coordinator = True
-        
+
     def check(self):
         global checked
         checked = True
@@ -81,7 +81,7 @@ class ResourcesCheckerThreadTestCase(unittest.TestCase):
         finally:
             RCT.ResourcesCheckerThread.Checker = OriginalChecker
             RCT.sleep = original_sleep
-        
+
     def test_checking_failing(self):
         OriginalChecker = RCT.ResourcesCheckerThread.Checker
         RCT.ResourcesCheckerThread.Checker = FakeFailingChecker
@@ -104,7 +104,7 @@ class ResourcesCheckerThreadTestCase(unittest.TestCase):
         finally:
             RCT.ResourcesCheckerThread.Checker = OriginalChecker
             RCT.sleep = original_sleep
- 
+
 def suite():
     return unittest.makeSuite(ResourcesCheckerThreadTestCase)
 

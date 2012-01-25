@@ -88,7 +88,7 @@ class CoordinationConfigurationParserTestCase(unittest.TestCase):
             coreExc.CoordinationConfigurationParsingException,
             self.coordination_configuration_parser.parse_configuration
         )
-       
+
     def test_coordination_configuration_parser_fail2(self):
         self.cfg_manager._set_value(CoordinationConfigurationParser.COORDINATOR_LABORATORY_SERVERS, {
                         'laboratory1:WL_SERVER1@WL_MACHINE1' : {
@@ -99,7 +99,7 @@ class CoordinationConfigurationParserTestCase(unittest.TestCase):
             coreExc.CoordinationConfigurationParsingException,
             self.coordination_configuration_parser.parse_configuration
         )
-       
+
 
 
 

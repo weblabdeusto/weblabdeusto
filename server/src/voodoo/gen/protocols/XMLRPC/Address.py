@@ -31,7 +31,7 @@ class Address(cAddress.IpBasedAddress):
         'port'      : '([0-9]{1,5})', #Port
         'uri'       : '(/[/_%0-9a-zA-Z]*)?'
     }
-   
+
     def __init__(self, address):
         cAddress.IpBasedAddress.__init__(self,address)
 
@@ -64,7 +64,7 @@ class Address(cAddress.IpBasedAddress):
     @Override(cAddress.IpBasedAddress)
     def __cmp__(self,other):
         return cAddress.IpBasedAddress._compare(self,other)
-        
+
     @Override(cAddress.IpBasedAddress)
     def __eq__(self, other):
         return self.__cmp__(other) == 0

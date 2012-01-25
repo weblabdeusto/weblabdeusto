@@ -25,20 +25,20 @@ DEBUG = False
 
 
 class RobotMovement(Experiment.Experiment):
-    
+
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(RobotMovement, self).__init__(*args, **kwargs)
         self._cfg_manager = cfg_manager
         self.read_base_config()
 
-        
+
     def read_base_config(self):
         """
         Reads the base config parameters from the config file. More parameters will be read through
         the same manager from the actual Virtual Machine Manager, and some may be implementation-specific.
         """
         pass
-    
+
     @Override(Experiment.Experiment)
     @logged("info")
     def do_get_api(self):
@@ -99,5 +99,5 @@ class RobotMovement(Experiment.Experiment):
         if(DEBUG):
             print "[Robot*] do_dispose called"
         return "Ok"
-    
+
 

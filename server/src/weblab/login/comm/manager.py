@@ -72,7 +72,7 @@ class AbstractLoginRemoteFacadeManager(RFM.AbstractRemoteFacadeManager):
     @RFM.check_exceptions(EXCEPTIONS)
     def _extensible_login_impl(self, system, credentials):
         return self._server.extensible_login(system, credentials)
-        
+
     @logged(except_for='password')
     def grant_external_credentials(self, username, password, system, credentials):
         """ grant_external_credentials(username, password, system, credentials) -> SessionID """

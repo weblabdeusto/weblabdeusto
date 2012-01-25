@@ -205,7 +205,7 @@ class PriorityQueueScheduler(Scheduler):
 
             resource_type = session.query(ResourceType).filter_by(name = self.resource_type_name).one()
             waiting_reservation = session.query(WaitingReservation).filter_by(reservation_id = reservation_id, resource_type_id = resource_type.id).first()
-          
+
             # 
             # If it has not been assigned to any laboratory, then it might
             # be waiting in the queue of that resource type (Waiting) or 
@@ -294,7 +294,7 @@ class PriorityQueueScheduler(Scheduler):
         session = self.session_maker()
         try: 
             possible_current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == reservation_id).first()
-           
+
             # Clean current reservation... if the current reservation is assigned to this scheduler
             concrete_current_reservation = None
             enqueue_free_experiment_args = None
@@ -309,7 +309,7 @@ class PriorityQueueScheduler(Scheduler):
                             if resource_type is not None and resource_type.name == self.resource_type_name:
                                 concrete_current_reservation = possible_current_reservation
                                 enqueue_free_experiment_args = self._clean_current_reservation(session, concrete_current_reservation)
-                
+
             db_resource_type = session.query(ResourceType).filter_by(name = self.resource_type_name).first()
             reservation_to_delete = concrete_current_reservation or session.query(WaitingReservation).filter_by(reservation_id = reservation_id, resource_type = db_resource_type).first()
             if reservation_to_delete is not None:
@@ -573,7 +573,7 @@ class PriorityQueueScheduler(Scheduler):
     @Override(Scheduler)
     def _clean(self):
         session = self.session_maker()
-    
+
         try:
             for waiting_reservation in session.query(WaitingReservation).all():
                 session.delete(waiting_reservation)

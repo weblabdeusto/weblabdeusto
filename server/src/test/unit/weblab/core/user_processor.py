@@ -180,10 +180,10 @@ class FakeDatabase(object):
 
     def get_groups(self, db_session_id):
         return self.groups
-    
+
     def get_roles(self, db_session_id):
         return self.roles
-    
+
     def get_users(self, db_session_id):
         return self.users
 

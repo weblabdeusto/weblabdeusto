@@ -107,7 +107,7 @@ class SessionMemoryGateway(object):
                 lock.release()
                 raise SessionExceptions.DesiredSessionIdAlreadyExistsException("session_id: %s" % desired_sess_id)
             session_id = desired_sess_id
-            
+
         else:
             # We generate the session_id:
             must_repeat = True
@@ -182,12 +182,12 @@ class SessionMemoryGateway(object):
     def get_session_locking(self, session_id):
         lock, sessions = self._get_lock_and_sessions(session_id)
         session_locks  = self._get_session_lock(session_id)
-        
+
         with lock:
             session  = self.get_session(session_id)
             lck      = session_locks[session_id]
             acquired = lck.acquire(False)
-        
+
         if not acquired:
             lck.acquire()
             session = self.get_session(session_id)

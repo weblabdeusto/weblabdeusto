@@ -23,7 +23,7 @@ import weblab.core.exc as coreExc
 NULL_POSITION = 100000
 
 class Reservation(object):
-    
+
     __metaclass__ = ABCMeta
 
     WAITING              = "Reservation::waiting"
@@ -84,7 +84,7 @@ class Reservation(object):
     # XXX TODO: a new state would be required, but I don't have to deal with that
     def is_null(self):
         return isinstance(self, WaitingInstances) and self.position == NULL_POSITION
-    
+
     @abstractmethod
     def to_status(self):
         """ Create a scheduling status """

@@ -22,7 +22,7 @@ import weblab.comm.manager as RFM
 from weblab.core.comm.user_manager import EXCEPTIONS
 
 class AbstractAdminRemoteFacadeManager(RFM.AbstractRemoteFacadeManager):
-    
+
     @logged()
     @RFM.check_exceptions(EXCEPTIONS)
     @RFM.check_nullable
@@ -45,28 +45,28 @@ class AbstractAdminRemoteFacadeManager(RFM.AbstractRemoteFacadeManager):
     def get_users(self, session_id):
         """
         get_users(session_id)
-        
+
         @param session_id A possibly-encoded session ID
         @return Users and its data, possibly encoded as well
         """
         sess_id = self._parse_session_id(session_id)
         response = self._server.get_users(sess_id)
         return response
-    
+
     @logged()
     @RFM.check_exceptions(EXCEPTIONS)
     @RFM.check_nullable
     def get_user_permissions(self, session_id):
         """
         get_user_permissions(session_id)
-        
+
         @param session_id A possibly-encoded session ID
         @return User permissions
         """
         sess_id = self._parse_session_id(session_id)
         response = self._server.get_user_permissions(sess_id)
         return response
-    
+
     @logged()
     @RFM.check_exceptions(EXCEPTIONS)
     @RFM.check_nullable
@@ -74,7 +74,7 @@ class AbstractAdminRemoteFacadeManager(RFM.AbstractRemoteFacadeManager):
         sess_id = self._parse_session_id(session_id)
         response = self._server.get_permission_types(sess_id)
         return response
-        
+
 
     @logged()
     @RFM.check_exceptions(EXCEPTIONS)

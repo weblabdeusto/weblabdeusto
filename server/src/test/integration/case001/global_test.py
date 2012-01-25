@@ -107,7 +107,7 @@ class FakeSerialPort(object):
 
 # Abstract
 class Case001TestCase(object):
-    
+
     def gen_coordination_map(self, protocols):
         map = CoordInfo.CoordinationMap()
 
@@ -388,7 +388,7 @@ class Case001TestCase(object):
 
         laboratory_client = locator.get_server(ServerType.Laboratory, None)
         return laboratory_client, real_laboratory_server
-    
+
     def setUp(self):
         protocols                      = self.get_protocols()
 
@@ -472,7 +472,7 @@ class Case001TestCase(object):
             self._single_use()
         self._single_use()
         self._single_use()
-        
+
     def _wait_async_done(self, session_id, reqids):
         """
         _wait_async_done(session_id, reqids)
@@ -493,8 +493,8 @@ class Case001TestCase(object):
                 if status != "running":
                     self.assertEquals("ok", status, "Contents: " + req[1])
                     reqsl.remove(rid)
-        
-        
+
+
     def _get_async_response(self, session_id, reqid):
         """
         _get_async_response(reqids)
@@ -514,7 +514,7 @@ class Case001TestCase(object):
             if status != "running":
                 self.assertEquals("ok", status, "Contents: " + req[1])
                 return Command.Command(req[1])
-        
+
     def _single_async_use(self, logout = True):
         self.fake_impact1.clear()
         self.fake_impact2.clear()
@@ -522,7 +522,7 @@ class Case001TestCase(object):
         self.fake_serial_port2.clear()
 
         session_id = self.real_login.login('student1','password')
-        
+
         user_information = self.real_ups.get_user_information(session_id)
         self.assertEquals(
                 'student1',
@@ -540,7 +540,7 @@ class Case001TestCase(object):
 
         experiments = self.real_ups.list_experiments(session_id)
         self.assertEquals( 5, len(experiments))
-        
+
         fpga_experiments = [ exp.experiment for exp in experiments if exp.experiment.name == 'ud-fpga' ]
         self.assertEquals(
                 len(fpga_experiments),
@@ -559,7 +559,7 @@ class Case001TestCase(object):
 
         # wait until it is reserved
         short_time = 0.1
-        
+
         # Time extended from 9.0 to 15.0 because at times the test failed, possibly for that reason.
         times      = 15.0 / short_time
 
@@ -579,19 +579,19 @@ class Case001TestCase(object):
                 ),
                 "Reservation %s is not Confirmed, as expected by this time" % reservation
             )   
-        
-        
-        
+
+
+
         # send the program again, but asynchronously. Though this should work, it is not really very customary
         # to send_file more than once in the same session. In fact, it is a feature which might get removed in
         # the future. When/if that happens, this will need to be modified.
         CONTENT = "content of the program FPGA"
         reqid = self.real_ups.send_async_file(reservation_id, ExperimentUtil.serialize(CONTENT), 'program')
-        
+
         # Wait until send_async_file query is actually finished.
         #self._get_async_response(session_id, reqid)
         self._wait_async_done(reservation_id, (reqid,))
-        
+
         # We need to wait for the programming to finish, while at the same
         # time making sure that the tests don't dead-lock.
         start_time = time.time()
@@ -601,14 +601,14 @@ class Case001TestCase(object):
             respcmd = self._get_async_response(reservation_id, reqid)
             response = respcmd.get_command_string()
             time.sleep(0.2)
-        
+
         # Check that the current state is "Ready"
         self.assertEquals("STATE=ready", response)
-        
-        
+
+
         reqid = self.real_ups.send_async_command(reservation_id, Command.Command("ChangeSwitch on 0"))
         self._wait_async_done(reservation_id, (reqid,))
-        
+
         reqid = self.real_ups.send_async_command(reservation_id, Command.Command("ClockActivation on 250"))
         self._wait_async_done(reservation_id, (reqid,))
 
@@ -656,16 +656,16 @@ class Case001TestCase(object):
                 (4 + initial_total,32),
                 self.fake_serial_port1.dict['send'][1 + initial_send]
             )
-    
+
         self.assertEquals(  
                 (5 + initial_total,None),
                 self.fake_serial_port1.dict['close'][1 + initial_close]
             )
-        
+
         if logout:
             self.real_ups.logout(session_id)
-            
-   
+
+
     def _single_use(self, logout = True, plus_async_use = True):
         """
         Will use an experiment. 
@@ -679,14 +679,14 @@ class Case001TestCase(object):
 
 
     def _single_sync_use(self, logout = True):
-        
+
         self.fake_impact1.clear()
         self.fake_impact2.clear()
         self.fake_serial_port1.clear()
         self.fake_serial_port2.clear()
 
         session_id = self.real_login.login('student1','password')
-        
+
         user_information = self.real_ups.get_user_information(session_id)
         self.assertEquals(
                 'student1',
@@ -704,7 +704,7 @@ class Case001TestCase(object):
 
         experiments = self.real_ups.list_experiments(session_id)
         self.assertEquals( 5, len(experiments))
-        
+
         fpga_experiments = [ exp.experiment for exp in experiments if exp.experiment.name == 'ud-fpga' ]
         self.assertEquals(
                 len(fpga_experiments),
@@ -746,7 +746,7 @@ class Case001TestCase(object):
         # send a program synchronously (the "traditional" way)
         CONTENT = "content of the program FPGA"
         self.real_ups.send_file(reservation_id, ExperimentUtil.serialize(CONTENT), 'program')
-        
+
         # We need to wait for the programming to finish, while at the same
         # time making sure that the tests don't dead-lock.
         start_time = time.time()
@@ -755,11 +755,11 @@ class Case001TestCase(object):
             respcmd = self.real_ups.send_command(reservation_id, Command.Command("STATE"))
             response = respcmd.get_command_string()
             time.sleep(0.2)
-        
+
         # Check that the current state is "Ready"
         self.assertEquals("STATE=ready", response)
-        
-        
+
+
         # We need to wait for the programming to finish, while at the same
         # time making sure that the tests don't dead-lock.
         start_time = time.time()
@@ -768,11 +768,11 @@ class Case001TestCase(object):
             respcmd = self.real_ups.send_command(reservation_id, Command.Command("STATE"))
             response = respcmd.get_command_string()
             time.sleep(0.2)
-        
+
         # Check that the current state is "Ready"
         self.assertEquals("STATE=ready", response)
-        
-        
+
+
         self.real_ups.send_command(reservation_id, Command.Command("ChangeSwitch on 0"))
         self.real_ups.send_command(reservation_id, Command.Command("ClockActivation on 250"))
 
@@ -820,22 +820,22 @@ class Case001TestCase(object):
                 (4 + initial_total,32),
                 self.fake_serial_port1.dict['send'][1 + initial_send]
             )
-    
+
         self.assertEquals(  
                 (5 + initial_total,None),
                 self.fake_serial_port1.dict['close'][1 + initial_close]
             )
-        
-        
+
+
 #         end session
 #         Note: Before async commands were implemented, this was actually done before
 #         checking the commands sent. If it was that way for a reason, it might be
 #         necessary to change it in the future.
         if logout:
             self.real_ups.logout(session_id)
-        
-        
-        
+
+
+
 
     @uses_module(UserProcessingServer)
     @uses_module(UserProcessor)
@@ -847,7 +847,7 @@ class Case001TestCase(object):
                 5,
                 len(user1_experiments)
             )
-        
+
         fpga_experiments = [ exp.experiment for exp in user1_experiments if exp.experiment.name == 'ud-fpga' ]
         self.assertEquals(
                 len(fpga_experiments),
@@ -870,7 +870,7 @@ class Case001TestCase(object):
                 7,
                 len(user2_experiments)
             )
-        
+
         pld_experiments = [ exp.experiment for exp in user2_experiments if exp.experiment.name == 'ud-pld' ]
         self.assertEquals(
                 len(pld_experiments),
@@ -920,7 +920,7 @@ class Case001TestCase(object):
         # send a program
         CONTENT1 = "content of the program FPGA"
         self.real_ups.send_file(user1_reservation_id, ExperimentUtil.serialize(CONTENT1), 'program')
-        
+
         # We need to wait for the programming to finish.
         start_time = time.time()
         response = "STATE=not_ready"
@@ -928,16 +928,16 @@ class Case001TestCase(object):
             respcmd = self.real_ups.send_command(user1_reservation_id, Command.Command("STATE"))
             response = respcmd.get_command_string()
             time.sleep(0.2)
-        
+
         # Check that the current state is "Ready"
         self.assertEquals("STATE=ready", response)
-        
+
         self.real_ups.send_command(user1_reservation_id, Command.Command("ChangeSwitch off 1"))
         self.real_ups.send_command(user1_reservation_id, Command.Command("ClockActivation on 250"))
 
         CONTENT2 = "content of the program PLD"
         self.real_ups.send_file(user2_reservation_id, ExperimentUtil.serialize(CONTENT2), 'program')
-       
+
         # We need to wait for the programming to finish.
         start_time = time.time()
         response = "STATE=not_ready"
@@ -945,10 +945,10 @@ class Case001TestCase(object):
             respcmd = self.real_ups.send_command(user1_reservation_id, Command.Command("STATE"))
             response = respcmd.get_command_string()
             time.sleep(0.2)
-            
+
         # Check that the current state is "Ready"
         self.assertEquals("STATE=ready", response)
-        
+
         self.real_ups.send_command(user2_reservation_id, Command.Command("ChangeSwitch on 0"))
         self.real_ups.send_command(user2_reservation_id, Command.Command("ClockActivation on 250"))
 
@@ -1016,7 +1016,7 @@ class Case001TestCase(object):
                 (4 + initial_total,32),
                 self.fake_serial_port1.dict['send'][1 + initial_send]
             )
-    
+
         self.assertEquals(  
                 (5 + initial_total,None),
                 self.fake_serial_port1.dict['close'][1 + initial_close]
@@ -1030,7 +1030,7 @@ class Case001TestCase(object):
                 (4 + initial_total,32),
                 self.fake_serial_port2.dict['send'][1 + initial_send]
             )
-    
+
         self.assertEquals(  
                 (5 + initial_total,None),
                 self.fake_serial_port2.dict['close'][1 + initial_close]

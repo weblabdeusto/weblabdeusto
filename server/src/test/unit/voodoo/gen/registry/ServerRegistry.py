@@ -74,20 +74,20 @@ class ServerRegistryTestCase(unittest.TestCase):
             self._registry.get_server,
             address1
         )
-        
+
         self.assertRaises(
             RegistryExceptions.ServerNotFoundInRegistryException,
             self._registry.deregister_server,
             address3
         )
-        
+
         self._registry.clear()
         self.assertRaises(
             RegistryExceptions.ServerNotFoundInRegistryException,
             self._registry.deregister_server,
             address2
         )
-    
+
 def suite():
     return unittest.makeSuite(ServerRegistryTestCase)
 

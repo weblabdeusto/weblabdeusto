@@ -101,7 +101,7 @@ class ConfigurationManager(object):
             self._values[key] = value
         finally:
             self._values_writelock.release()
-    
+
     def _append_holder_values(self, holder):
         for i in dir(holder):
             if not i.startswith('_'):

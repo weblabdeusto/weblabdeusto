@@ -26,7 +26,7 @@ class DatabaseServerTestCase(unittest.TestCase):
         cfg_manager = ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration)
         self.dm = DatabaseManager.LoginDatabaseManager(cfg_manager)
-        
+
     def test_login_user(self):
         session_id = self.dm.check_credentials('admin1','password')
         self.assertTrue(

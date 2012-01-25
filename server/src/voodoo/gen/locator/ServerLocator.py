@@ -44,7 +44,7 @@ class ServerLocator(object):
         # }
         self._cache = {}
         self._cache_lock = threading.RLock()
-        
+
         self._coordinator = self._retrieve_coordinator(coordinator_server_address,server_type_handler)
 
     def _time(self):
@@ -97,7 +97,7 @@ class ServerLocator(object):
                 )
 
         try:
-        
+
             there_are_more_servers = True
             while there_are_more_servers:
                 try:
@@ -124,7 +124,7 @@ class ServerLocator(object):
                         return server_found_in_cache.get_server()
                     else:
                         return server
-                
+
                 # Server was not in the ServerRegistry neither in the cache
                 methods = self._server_type_handler.retrieve_methods(
                         server_type
@@ -187,7 +187,7 @@ class ServerLocator(object):
         all_servers = self._retrieve_all_servers_from_coordinator(original_server_address,server_type,restrictions)
 
         ret_value = []
-        
+
         for server, networks in all_servers:
             server_instances = self._retrieve_server_instances_from_networks(
                     networks,
@@ -224,7 +224,7 @@ class ServerLocator(object):
 
                 server_instances.append(cur_server)
                 continue
-            
+
             # Server was not in the ServerRegistry
             methods = self._server_type_handler.retrieve_methods(
                     server_type
@@ -263,7 +263,7 @@ class ServerLocator(object):
 
     def _test_server(self,server,address):
         """ _test_server(self,server,address) -> bool
-        
+
         It returns True (if we could perform a call to "test_me"), or False (if we couldn't)
         """
         # Check if the server is up and running
@@ -495,7 +495,7 @@ class ServerLocator(object):
                 )
         finally:
             self._cache_lock.release()
-    
+
     def _save_server_in_registry_and_cache(self, server, server_type, restrictions, address):
         self._cache_lock.acquire()
         try:

@@ -95,7 +95,7 @@ class SOAPAddressTestCase(unittest.TestCase):
                 )
 
             SOAPAddress.ClientSOAP = csoap
-            
+
 
         @uses_module(ServerSOAP)
         def test_soap_create_client(self):
@@ -114,11 +114,11 @@ class SOAPAddressTestCase(unittest.TestCase):
                     SOAP = ('',self.port)
                 )
             soap_server_instance.start()
-            
+
             soap_addr = SOAPAddress.Address(
                     self.host + ':' + str(self.port) + '@NetworkA'
                 )
-            
+
             soap_client = soap_addr.create_client(self.methods)
             self.assertEquals(
                 soap_client.say_hello(self.message1),

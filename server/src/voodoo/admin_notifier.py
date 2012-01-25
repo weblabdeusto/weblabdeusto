@@ -26,7 +26,7 @@ Subject: %(subject)s
 EMAIL_BODY = """There was a critical error in WebLab server %(server_hostaddress)s!
 
 Message: %(message)s
-    
+
 WebLab
 """
 
@@ -80,7 +80,7 @@ class AdminNotifier(object):
 
     def __init__(self, cfg_manager):
         self._configuration = cfg_manager
-        
+
     def notify(self, message = None, recipients = None, subject = None, body = None):
         if self._configuration.get_value(MAIL_NOTIFICATION_ENABLED_NAME, DEFAULT_MAIL_NOTIFICATION_ENABLED_NAME):
             try:
@@ -97,7 +97,7 @@ class AdminNotifier(object):
                     "Couldn't find property %s. Couldn't notify administrator about critical problem with message <%s>..." % (knfe.key, message)
                 )
                 return -1
-            
+
             if subject is None:
                 mail_notification_subject = self._configuration.get_value(MAIL_NOTIFICATION_SUBJECT_NAME, AdminNotifier.DEFAULT_NOTIFICATION_SUBJECT)
             else:
@@ -140,7 +140,7 @@ class AdminNotifier(object):
                         server.close()
                     except:
                         pass
-                
+
             except Exception as e:
                 log.log(
                     AdminNotifier, 

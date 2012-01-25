@@ -27,7 +27,7 @@ class ConfigurationManagerPrintTestCase(unittest.TestCase):
 
         def func():
             self.cfg_manager.get_value("db_driver")
-   
+
         self.runner = stress_util.MainRunner(func, "ConfigurationManager")
 
     def test_print_results(self):

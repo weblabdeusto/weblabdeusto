@@ -34,13 +34,13 @@ class UdBoardCommand(object):
         self._commands = []
         for i in command.split(', '):
             self._commands.append(UdBoardSimpleCommand.create(i))
-    
+
     def get_codes(self):
         codes = ()
         for i in self._commands:
             codes += (i.get_code(),)
         return codes
-    
+
 class UdBoardSimpleCommand(object):
 
     SUBCLASSES = ()
@@ -88,7 +88,7 @@ class ChangeSwitchCommand(UdBoardSimpleCommand):
         super(ChangeSwitchCommand,self).__init__()
         self.switch_on = on_off_to_bool(switch_on)
         self.number = int(number)
-    
+
     def get_code(self):
         num = (self.number + 1) * 2
         if self.switch_on:
@@ -112,7 +112,7 @@ class SetPulseCommand(UdBoardSimpleCommand):
         super(SetPulseCommand,self).__init__()
         self.switch_on = on_off_to_bool(switch_on)
         self.number = int(number)
-    
+
     def get_code(self):
         num = self.number * 2
         if self.switch_on:
@@ -139,7 +139,7 @@ class ClockActivationCommand(UdBoardSimpleCommand):
     def __init__(self, freq):
         super(ClockActivationCommand,self).__init__()
         self.freq     = int(freq)
-    
+
     def get_code(self):
         num = ClockActivationCommand._frequences.index(self.freq)
         num += 32
@@ -157,7 +157,7 @@ class ClockDeactivationCommand(UdBoardSimpleCommand):
 
     def __init__(self):
         super(ClockDeactivationCommand,self).__init__()
-    
+
     def get_code(self):
         return 37
 
@@ -173,7 +173,7 @@ class CleanCommand(UdBoardSimpleCommand):
 
     def __init__(self):
         super(CleanCommand,self).__init__()
-    
+
     def get_code(self):
         return 0 # Not implemented in PIC
 

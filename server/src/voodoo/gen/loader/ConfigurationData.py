@@ -61,14 +61,14 @@ class ServerConfiguration(object):
     @property
     def protocols(self):
         return self._protocols[:]
-    
+
     def append_protocol(self, protocol):
         self._protocols.append(protocol)
 
     @property
     def configurations(self):
         return self._configurations[:]
-    
+
     def append_configuration(self, configuration):
         self._configurations.append(configuration)
 

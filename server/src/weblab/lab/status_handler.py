@@ -57,7 +57,7 @@ class AbstractLightweightIsUpAndRunningHandler(object):
             else:
                 return []
         return messages
-    
+
     @abstractmethod
     def run(self):
         pass
@@ -66,15 +66,15 @@ HANDLERS = ()
 
 
 class HostIsUpAndRunningHandler(AbstractLightweightIsUpAndRunningHandler):
-    
+
     _socket = socket
     DEFAULT_TIMES = 2
-    
+
     def __init__(self, hostname, port, *args, **kwargs):
         super(HostIsUpAndRunningHandler, self).__init__(*args, **kwargs)
         self.hostname = hostname
         self.port = port
-        
+
     @Override(AbstractLightweightIsUpAndRunningHandler)
     def run(self):
         s = self._socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -86,17 +86,17 @@ class HostIsUpAndRunningHandler(AbstractLightweightIsUpAndRunningHandler):
             s.close()
 
 HANDLERS += (HostIsUpAndRunningHandler.__name__,)
-        
+
 
 class WebcamIsUpAndRunningHandler(AbstractLightweightIsUpAndRunningHandler):
-    
+
     _urllib2 = urllib2
     DEFAULT_TIMES = 3
-    
+
     def __init__(self, img_url, *args, **kwargs):
         super(WebcamIsUpAndRunningHandler, self).__init__(*args, **kwargs)
         self.img_url = img_url
-        
+
     @Override(AbstractLightweightIsUpAndRunningHandler)
     def run(self):
         try:

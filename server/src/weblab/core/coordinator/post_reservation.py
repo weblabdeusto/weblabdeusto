@@ -44,7 +44,7 @@ class PostReservationDataManager(object):
             session.commit()
         finally:
             session.close()
-       
+
 
     def find(self, reservation_id):
         session = self._session_maker()
@@ -56,7 +56,7 @@ class PostReservationDataManager(object):
             return WSS.PostReservationStatus(reservation_id, reservation.finished, reservation.initial_data, reservation.end_data)
         finally:
             session.close()
-       
+
 
     ##############################################################
     # 

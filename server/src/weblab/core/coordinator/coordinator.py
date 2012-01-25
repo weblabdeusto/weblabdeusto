@@ -135,7 +135,7 @@ class Coordinator(object):
             if not scheduling_system in SCHEDULING_SYSTEMS:
                 raise CoordExc.UnregisteredSchedulingSystemException("Unregistered scheduling system: %r" % scheduling_system)
             SchedulingSystemClass = SCHEDULING_SYSTEMS[scheduling_system]
-            
+
             generic_scheduler_arguments = Scheduler.GenericSchedulerArguments(
                                                 cfg_manager          = self.cfg_manager, 
                                                 resource_type_name   = resource_type_name, 
@@ -280,7 +280,7 @@ class Coordinator(object):
         """ list_sessions( experiment_id ) -> { session_id : status } """
 
         reservation_ids = self.reservations_manager.list_sessions(experiment_id)
-        
+
         result = {}
         for reservation_id in reservation_ids:
             try:
@@ -524,7 +524,7 @@ class Coordinator(object):
             except Exception as e:
                 log.log( Coordinator, log.level.Error, "Could not parse experiment server finishing response: %s; %s" % (e, experiment_response) )
                 log.log_exc( Coordinator, log.level.Warning )
-                
+
         if not experiment_finished:
             time.sleep(time_remaining)
             # We just ignore the data retrieved, if any, and perform the query again

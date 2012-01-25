@@ -26,7 +26,7 @@ class SessionGenerator(object):
         # ",": problems with cookies (considered a different cookie)
         # "+": problems with GWT (considering "foo+bar" as "foo bar")
         self.alphabet += '_-' # So as to get an alphabet of 64 (6 bits)
-        
+
     def generate_id(self, number_of_chars = 16):
         # Generates IDs of 16 chars of an alphabet of 64 possible chars
         # ( 115792089237316195423570985008687907853269984665640564039457584007913129639936 possibilities )

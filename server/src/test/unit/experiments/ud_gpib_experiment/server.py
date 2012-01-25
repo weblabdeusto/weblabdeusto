@@ -64,7 +64,7 @@ class FakeLauncher(object):
         f.write(self.next_content)
         f.close()
         return 0,'stdout result','stderr result'
-    
+
     def poll(self):
         return self.poll_ok
 
@@ -97,7 +97,7 @@ class WrappedUdGpibExperiment(UdGpibExperiment.UdGpibExperiment):
             raise Exception("error!")
 
 class UdGpibExperimentTestCase(unittest.TestCase):
-    
+
     def setUp(self):
         self.compiler = FakeCompiler()
         self.launcher = FakeLauncher()
@@ -170,7 +170,7 @@ class UdGpibExperimentTestCase(unittest.TestCase):
                 EXE_FILE_CONTENT,
                 self.launcher.files_content[0]
             )
-            
+
     def test_send_command_to_device_poll_ok(self):
         self.launcher.poll_ok = True
         response = self.experiment.do_send_command_to_device("POLL")
@@ -185,7 +185,7 @@ class UdGpibExperimentTestCase(unittest.TestCase):
         self.launcher.result_code = 0
         response = self.experiment.do_send_command_to_device("RESULT code")
         self.assertEquals(0, response)
-        
+
     def test_send_command_to_device_result_stdout(self):
         self.launcher.result_stdout = "Weblab rulez!"
         response = self.experiment.do_send_command_to_device("RESULT stdout")
@@ -208,14 +208,14 @@ class UdGpibExperimentTestCase(unittest.TestCase):
         self.experiment.output_file_content = "This is my output file!"
         response = self.experiment.do_send_command_to_device("RESULT file")
         self.assertEqual("ER", response[0:2])
-        
+
     def test_send_command_to_device_unknown_command(self):
         self.assertRaises(
             GpibExceptions.UnknownUdGpibCommandException,
             self.experiment.do_send_command_to_device,
             "ThisIsNotAValidCommand!"
         )
-            
+
     def test_failures(self):
         CPP_FILE_CONTENT = """Content of the cpp file"""
         self.compiler.fail_on_next = True

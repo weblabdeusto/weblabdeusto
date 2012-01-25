@@ -30,7 +30,7 @@ class FakeScheduler(object):
         if reservation_id != self.expected_reservation_id:
             raise ValueError("Expected: %s; found %s" % (self.expected_reservation_id, reservation_id))
         return self.reservation_status
-        
+
 
 class MetaSchedulerTestCase(unittest.TestCase):
     def setUp(self):

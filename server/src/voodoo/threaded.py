@@ -77,7 +77,7 @@ def threaded(resource_manager = None, logging = True):
     @threaded()
     def foo(self, param1, param2):
         # This code will be executed in a new thread
-    
+
     handler = foo(1,2)
     #handler is _ThreadedFunc
     handler.join()

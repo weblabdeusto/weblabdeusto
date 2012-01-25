@@ -91,7 +91,7 @@ class Representable(type):
     """Metaclass that defines the __repr__ and __eq__ methods of a class. When creating an instance
     of the class, it checks that all the arguments of the __init__ method exist in the resulting 
     object. For instance:
-    
+
     >>> class A(object):
     ...     __metaclass__ = Representable
     ...     def __init__(self, field1, field2):
@@ -99,11 +99,11 @@ class Representable(type):
     ...         self.field2 = field2
     ... 
     >>> 
-    
+
     In this case, the metaclass will check that field1 and field2 are set in __init__. Failing to
     do so will complain with a TypeError. Once thisis validated, any instance will have a standard
     repr method implementation:
-    
+
     >>> a = A('one', 2)
     >>> a 
     A(field1 = 'one', field2 = 2)

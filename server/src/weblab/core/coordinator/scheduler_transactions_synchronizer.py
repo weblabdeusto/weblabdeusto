@@ -98,7 +98,7 @@ class SchedulerTransactionsSynchronizer(threading.Thread):
                 else:
                     self._latest_update = time.time()
                     self._update_period_between_updates()
-                    
+
             if execute:
                 try:
                     self.scheduler.update()
@@ -111,7 +111,7 @@ class SchedulerTransactionsSynchronizer(threading.Thread):
 
 
     def _notify_elements(self, elements):
-        
+
         with self.pending_elements_condition:
             for element in elements:
                 if element in self.pending_elements:

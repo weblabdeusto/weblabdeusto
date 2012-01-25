@@ -65,7 +65,7 @@ class CoordinatorServer(object):
             raise CoordinatorServerExceptions.NeitherMapNorFileProvidedException("Can't build the Coordination Map if neither map nor map_file fields are provided!")
         else:
             raise RuntimeError("This possibility should never happen -voodoo.gen.coordinator.CoordinatorServer.__init__-")
-    
+
     def do_new_query(self, original_server_address, server_type, restrictions):
         """ 
         Returns a new session_id for coordination server. This session_id corresponds to an empty session which contains

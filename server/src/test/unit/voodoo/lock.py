@@ -53,7 +53,7 @@ class RWLockTestCase(unittest.TestCase):
         evt.wait(SHORT_TIMEOUT)
         self.assertTrue(evt.isSet())
         thread.join()
-    
+
     def test_rw_lock_only_one_write(self):
         rwlock = lock.RWLock()
 

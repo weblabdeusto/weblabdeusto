@@ -75,7 +75,7 @@ def generate_mock_method(method_name, ordered_arguments):
 
 
 class MockUPS(object):
-    
+
     def __init__(self):
         super(MockUPS, self).__init__()
         self.arguments     = {}
@@ -124,7 +124,7 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
 
         self.assertEquals( expected_sess_id.id, self.rfm.logout(expected_sess_id).id )
         self.assertEquals( expected_sess_id.id, self.mock_ups.arguments['logout'][0].id )
-    
+
     def test_return_list_experiments(self):
         expected_sess_id = SessionId.SessionId("whatever")
         experiments_allowed = _generate_experiments_allowed()
@@ -132,17 +132,17 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
 
         self.assertEquals( experiments_allowed, self.rfm.list_experiments(expected_sess_id) ) 
         self.assertEquals( expected_sess_id.id, self.mock_ups.arguments['list_experiments'][0].id )
-    
+
     def test_return_reserve_experiment(self):
         expected_sess_id = SessionId.SessionId("whatever")
         experimentA, _ = _generate_two_experiments()
         expected_reservation = Reservation.ConfirmedReservation("reservation_id", 100, "{}", 'http://www.weblab.deusto.es/...','')
-    
+
         self.mock_ups.return_values['reserve_experiment'] = expected_reservation
 
         self.assertEquals( expected_reservation,
                 self.rfm.reserve_experiment( expected_sess_id, experimentA.to_experiment_id(), "{}", "{}"))
-        
+
         self.assertEquals( expected_sess_id.id, self.mock_ups.arguments['reserve_experiment'][0].id )
         self.assertEquals( experimentA.name, self.mock_ups.arguments['reserve_experiment'][1].exp_name )
         self.assertEquals( experimentA.category.name, self.mock_ups.arguments['reserve_experiment'][1].cat_name )
@@ -154,19 +154,19 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         self.mock_ups.return_values['finished_experiment'] = None   
 
         self.rfm.finished_experiment(expected_sess_id)
-        
+
         self.assertEquals( expected_sess_id.id, self.mock_ups.arguments['finished_experiment'][0].id )
-    
+
     def test_return_get_reservation_status(self):
         expected_sess_id = SessionId.SessionId("whatever")
-    
+
         expected_reservation = Reservation.ConfirmedReservation("reservation_id", 100, "{}", 'http://www.weblab.deusto.es/...','')
 
         self.mock_ups.return_values['get_reservation_status'] = expected_reservation
 
 
         reservation = self.rfm.get_reservation_status(expected_sess_id)
-        
+
         self.assertEquals( expected_sess_id.id, self.mock_ups.arguments['get_reservation_status'][0].id )
         self.assertEquals( expected_reservation.status, reservation.status )
         self.assertEquals( expected_reservation.time, reservation.time )
@@ -178,7 +178,7 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         self.mock_ups.return_values['send_file']        = None
 
         self.rfm.send_file( expected_sess_id, expected_file_content, 'program' )
-        
+
         self.assertEquals( expected_sess_id.id, self.mock_ups.arguments['send_file'][0].id )
         self.assertEquals( expected_file_content, self.mock_ups.arguments['send_file'][1] )
 
@@ -189,17 +189,17 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         self.mock_ups.return_values['send_command'] = None
 
         self.rfm.send_command( expected_sess_id, expected_command )
-        
+
         self.assertEquals( expected_sess_id.id, self.mock_ups.arguments['send_command'][0].id )
         self.assertEquals( expected_command.get_command_string(), self.mock_ups.arguments['send_command'][1].get_command_string() )
 
     def test_return_poll(self):
         expected_sess_id = SessionId.SessionId("whatever")
-    
+
         self.mock_ups.return_values['poll'] = None
 
         self.rfm.poll(expected_sess_id)
-        
+
         self.assertEquals( expected_sess_id.id, self.mock_ups.arguments['poll'][0].id )
 
     def test_return_get_experiment_use_by_id(self):
@@ -237,16 +237,16 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
 
         self.assertEquals(expected_usage, expected_finished_result.experiment_use)
 
-       
+
     def test_return_get_user_information(self):
         expected_sess_id = SessionId.SessionId("whatever")
 
         expected_user_information = User( 'porduna', 'Pablo Orduna', 'weblab@deusto.es', Role("student"))
-    
+
         self.mock_ups.return_values['get_user_information'] = expected_user_information
 
         user_information = self.rfm.get_user_information(expected_sess_id)
-        
+
         self.assertEquals( expected_sess_id.id, self.mock_ups.arguments['get_user_information'][0].id )
         self.assertEquals( expected_user_information.login, user_information.login ) 
         self.assertEquals( expected_user_information.full_name, user_information.full_name )
@@ -255,7 +255,7 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
 
     def _generate_real_mock_raising(self, method, exception, message):
         self.mock_ups.exceptions[method] = exception(message)
- 
+
 
     def _test_exception(self, method, args, exc_to_raise, exc_message, expected_code, expected_exc_message):
         self._generate_real_mock_raising(method, exc_to_raise, exc_message )
@@ -266,7 +266,7 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         except ZSI.Fault as e:
             self.assertEquals(expected_code, e.code)
             self.assertEquals(expected_exc_message, e.string)
-    
+
     def _test_general_exceptions(self, method, *args):
         MESSAGE = "The exception message"
 
@@ -288,7 +288,7 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         self._test_exception(method, args,  
                         Exception, MESSAGE, 
                         'ZSI:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)            
-           
+
         # Debug mode: The error message is received
         self.cfg_manager._set_value(RFM.DEBUG_MODE, True)
 
@@ -307,34 +307,34 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         self._test_exception(method, args,  
                         Exception, MESSAGE, 
                         'ZSI:' + RFCodes.PYTHON_GENERAL_EXCEPTION_CODE, MESSAGE)            
-           
+
     def test_exception_logout(self):            
         MESSAGE = "The exception message"
         expected_sess_id  = SessionId.SessionId("whatever")
-        
+
         self._test_exception('logout', (expected_sess_id,),  
                         coreExc.SessionNotFoundException, MESSAGE, 
                         'ZSI:' + UserProcessingRFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE, MESSAGE)
-        
+
         self._test_general_exceptions('logout', expected_sess_id)
 
 
     def test_exception_list_experiments(self):
         MESSAGE = "The exception message"
         expected_sess_id  = SessionId.SessionId("whatever")
-        
+
         self._test_exception('list_experiments', (expected_sess_id,),  
                         coreExc.SessionNotFoundException, MESSAGE, 
                         'ZSI:' + UserProcessingRFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE, MESSAGE)
-        
+
         self._test_general_exceptions('list_experiments', expected_sess_id)
-            
+
 
     def test_exception_reserve_experiment(self):
         MESSAGE = "The exception message"
         expected_sess_id  = SessionId.SessionId("whatever")
         experimentA, _ = _generate_two_experiments()
-        
+
         self._test_exception('reserve_experiment', (expected_sess_id, experimentA.to_experiment_id(), "{}", "{}"),  
                         coreExc.SessionNotFoundException, MESSAGE, 
                         'ZSI:' + UserProcessingRFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE, MESSAGE)            
@@ -342,47 +342,47 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         self._test_exception('reserve_experiment', (expected_sess_id, experimentA.to_experiment_id(), "{}", "{}"),  
                         coreExc.UnknownExperimentIdException, MESSAGE, 
                         'ZSI:' + UserProcessingRFCodes.CLIENT_UNKNOWN_EXPERIMENT_ID_EXCEPTION_CODE, MESSAGE)            
-        
+
         self._test_general_exceptions('reserve_experiment', expected_sess_id, experimentA.to_experiment_id(), "{}", "{}")
-            
+
     def test_exception_finished_experiment(self):
         MESSAGE = "The exception message"
         expected_sess_id  = SessionId.SessionId("whatever")
-        
+
         self._test_exception('finished_experiment', (expected_sess_id,),  
                         coreExc.SessionNotFoundException, MESSAGE, 
                         'ZSI:' + UserProcessingRFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE, MESSAGE)
-            
+
         self._test_exception('finished_experiment', (expected_sess_id,),   
                         coreExc.NoCurrentReservationException, MESSAGE, 
                         'ZSI:' + UserProcessingRFCodes.CLIENT_NO_CURRENT_RESERVATION_EXCEPTION_CODE, MESSAGE)                   
-            
+
         self._test_general_exceptions('finished_experiment', expected_sess_id)
-            
+
 
     def test_exception_get_reservation_status(self):
         MESSAGE = "The exception message"
         expected_sess_id  = SessionId.SessionId("whatever")
-        
+
         self._test_exception('get_reservation_status', (expected_sess_id,),  
                         coreExc.SessionNotFoundException, MESSAGE, 
                         'ZSI:' + UserProcessingRFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE, MESSAGE)
-            
+
         self._test_exception('get_reservation_status', (expected_sess_id,),   
                         coreExc.NoCurrentReservationException, MESSAGE, 
                         'ZSI:' + UserProcessingRFCodes.CLIENT_NO_CURRENT_RESERVATION_EXCEPTION_CODE, MESSAGE)                   
-            
+
         self._test_general_exceptions('get_reservation_status', expected_sess_id)
-            
+
     def test_exception_send_file(self):
         MESSAGE = "The exception message"
         expected_sess_id  = SessionId.SessionId("whatever")
         FILE_CONTENT = 'whatever'
-        
+
         self._test_exception('send_file', (expected_sess_id, FILE_CONTENT, 'program',),  
                         coreExc.SessionNotFoundException, MESSAGE, 
                         'ZSI:' + UserProcessingRFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE, MESSAGE)
-            
+
         self._test_exception('send_file', (expected_sess_id, FILE_CONTENT, 'program',),  
                         coreExc.NoCurrentReservationException, MESSAGE, 
                         'ZSI:' + UserProcessingRFCodes.CLIENT_NO_CURRENT_RESERVATION_EXCEPTION_CODE, MESSAGE)                   
@@ -393,42 +393,42 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         MESSAGE = "The exception message"
         expected_sess_id  = SessionId.SessionId("whatever")
         COMMAND = Command.Command('whatever')
-        
+
         self._test_exception('send_command', (expected_sess_id, COMMAND,),  
                         coreExc.SessionNotFoundException, MESSAGE, 
                         'ZSI:' + UserProcessingRFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE, MESSAGE)
-        
+
         self._test_exception('send_command', (expected_sess_id, COMMAND,),   
                         coreExc.NoCurrentReservationException, MESSAGE, 
                         'ZSI:' + UserProcessingRFCodes.CLIENT_NO_CURRENT_RESERVATION_EXCEPTION_CODE, MESSAGE)                   
 
         self._test_general_exceptions('send_command', expected_sess_id, COMMAND)
-            
+
     def test_exception_poll(self):
         MESSAGE = "The exception message"
         expected_sess_id  = SessionId.SessionId("whatever")
-        
+
         self._test_exception('poll', (expected_sess_id,),  
                         coreExc.SessionNotFoundException, MESSAGE, 
                         'ZSI:' + UserProcessingRFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE, MESSAGE)
-            
+
         self._test_exception('poll', (expected_sess_id,),   
                         coreExc.NoCurrentReservationException, MESSAGE, 
                         'ZSI:' + UserProcessingRFCodes.CLIENT_NO_CURRENT_RESERVATION_EXCEPTION_CODE, MESSAGE)                   
-            
+
         self._test_general_exceptions('poll', expected_sess_id)
-            
+
 
     def test_exception_get_user_information(self):
         MESSAGE = "The exception message"
         expected_sess_id  = SessionId.SessionId("whatever")
-        
+
         self._test_exception('get_user_information', (expected_sess_id,),  
                         coreExc.SessionNotFoundException, MESSAGE, 
                         'ZSI:' + UserProcessingRFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE, MESSAGE)
-            
+
         self._test_general_exceptions('get_user_information', expected_sess_id)
-     
+
 
 
 class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
@@ -439,7 +439,7 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
         self.cfg_manager.append_module(configuration)
 
         self.mock_ups = MockUPS()
-        
+
         server_admin_mail = self.cfg_manager.get_value(RFM.SERVER_ADMIN_EMAIL, RFM.DEFAULT_SERVER_ADMIN_EMAIL)
         self.weblab_general_error_message = RFM.UNEXPECTED_ERROR_MESSAGE_TEMPLATE % server_admin_mail 
 
@@ -456,12 +456,12 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
         group1.add_child(group11)
         group1.add_child(group12)
         return group1, group2
-    
+
     def _generate_users(self):
         user1 = User("Login", "FullName", "Email@deusto.es", Role("student"))
         user2 = User("Login2", "FullName2", "Email2@deusto.es", Role("administrator"))
         return user1, user2
-    
+
     def _generate_roles(self):
         role1 = Role("student")
         role2 = Role("professor")
@@ -482,36 +482,36 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
                 'end_date'
             )
         return experimentA, experimentB
-    
+
 
 
     def test_return_logout(self):
         expected_sess_id = {'id': "whatever"}
-    
+
         self.mock_ups.return_values['logout'] = expected_sess_id
 
         self.assertEquals( expected_sess_id['id'], self.rfm.logout(expected_sess_id)['id'] )
         self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['logout'][0].id )
-    
+
     def test_return_list_experiments(self):
         expected_sess_id = {'id': "whatever"}
         experiments_allowed = _generate_experiments_allowed()
-    
+
         self.mock_ups.return_values['list_experiments'] = experiments_allowed
 
         self.assertEquals( experiments_allowed, self.rfm.list_experiments(expected_sess_id) )
         self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['list_experiments'][0].id )
-    
+
     def test_return_reserve_experiment(self):
         expected_sess_id = {'id': "whatever"}
         experimentA, _ = _generate_two_experiments()
         expected_reservation = Reservation.ConfirmedReservation("reservation_id", 100, "{}", 'http://www.weblab.deusto.es/...','')
-    
+
         self.mock_ups.return_values['reserve_experiment'] = expected_reservation
 
         self.assertEquals( expected_reservation,
                 self.rfm.reserve_experiment( expected_sess_id, experimentA.to_experiment_id().to_dict(), "{}", "{}"))
-        
+
         self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['reserve_experiment'][0].id )
         self.assertEquals( experimentA.name, self.mock_ups.arguments['reserve_experiment'][1].exp_name )
         self.assertEquals( experimentA.category.name, self.mock_ups.arguments['reserve_experiment'][1].cat_name )
@@ -522,19 +522,19 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
         self.mock_ups.return_values['finished_experiment'] = None   
 
         self.rfm.finished_experiment(expected_sess_id)
-        
+
         self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['finished_experiment'][0].id)
-    
+
     def test_return_get_reservation_status(self):
         expected_sess_id = {'id': "whatever"}
-    
+
         expected_reservation = Reservation.ConfirmedReservation("reservation_id", 100, "{}", 'http://www.weblab.deusto.es/...','')
 
         self.mock_ups.return_values['get_reservation_status'] = expected_reservation
 
 
         reservation = self.rfm.get_reservation_status(expected_sess_id)
-        
+
         self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['get_reservation_status'][0].id )
         self.assertEquals( expected_reservation.status, reservation.status )
         self.assertEquals( expected_reservation.time, reservation.time )
@@ -546,7 +546,7 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
         self.mock_ups.return_values['send_file']        = None
 
         self.rfm.send_file( expected_sess_id, expected_file_content, 'program' )
-        
+
         self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['send_file'][0].id )
         self.assertEquals( expected_file_content, self.mock_ups.arguments['send_file'][1] )
 
@@ -557,76 +557,76 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
         self.mock_ups.return_values['send_command'] = None
 
         self.rfm.send_command( expected_sess_id, expected_command.to_dict() )
-        
+
         self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['send_command'][0].id )
         self.assertEquals( expected_command.get_command_string(), self.mock_ups.arguments['send_command'][1].get_command_string() )
 
     def test_return_poll(self):
         expected_sess_id = {'id': "whatever"}
-    
+
         self.mock_ups.return_values['poll'] = None
 
         self.rfm.poll(expected_sess_id)
-        
+
         self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['poll'][0].id )
 
     def test_return_get_user_information(self):
         expected_sess_id = {'id': "whatever"}
 
         expected_user_information = User( 'porduna', 'Pablo Orduna', 'weblab@deusto.es', Role("student") )
-    
+
         self.mock_ups.return_values['get_user_information'] = expected_user_information
 
         user_information = self.rfm.get_user_information(expected_sess_id)
-        
+
         self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['get_user_information'][0].id )
         self.assertEquals( expected_user_information.login, user_information.login )
         self.assertEquals( expected_user_information.full_name, user_information.full_name )
         self.assertEquals( expected_user_information.email, user_information.email )
         self.assertEquals( expected_user_information.role.name, user_information.role.name )
-    
+
     def test_return_get_groups(self):
         expected_sess_id = {'id' : 'whatever'}
         groups = self._generate_groups()
-    
+
         self.mock_ups.return_values['get_groups'] = groups
 
         self.assertEquals( groups, self.rfm.get_groups(expected_sess_id) )
         self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['get_groups'][0].id )
-        
+
     def test_return_get_users(self):
         expected_sess_id = {'id' : "whatever"}
         users = self._generate_users()
-        
+
         self.mock_ups.return_values['get_users'] = users
 
         self.assertEquals( users, self.rfm.get_users(expected_sess_id) )
         self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['get_users'][0].id )
-        
-        
+
+
     def test_return_get_roles(self):
         expected_sess_id = {'id' : "whatever"}
         roles = self._generate_roles()
-    
+
         self.mock_ups.return_values['get_roles'] = roles
 
         self.assertEquals( roles, self.rfm.get_roles(expected_sess_id) )
         self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['get_roles'][0].id )
-        
-    
+
+
     def test_return_get_experiments(self):
         expected_sess_id = {'id' : "whatever"}
         experiments = self._generate_experiments()
-    
+
         self.mock_ups.return_values['get_experiments'] = experiments
 
         self.assertEquals( experiments, self.rfm.get_experiments(expected_sess_id) )
         self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['get_experiments'][0].id )
-    
+
     def test_return_get_experiment_uses(self):
         expected_sess_id = {'id' : "whatever"}
         experiment_uses = _generate_experiment_uses()
-    
+
         self.mock_ups.return_values['get_experiment_uses'] = experiment_uses
 
         self.assertEquals( experiment_uses, self.rfm.get_experiment_uses(expected_sess_id, None, None, None, None, None, None, None) )
@@ -635,11 +635,11 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
         self.assertEquals( None, self.mock_ups.arguments['get_experiment_uses'][2] )
         self.assertEquals( None, self.mock_ups.arguments['get_experiment_uses'][3] )
         self.assertEquals( None, self.mock_ups.arguments['get_experiment_uses'][4] )
-    
+
     def test_return_get_user_permissions(self):
         expected_sess_id = {'id' : "whatever"}
         permissions = _generate_permissions()
-    
+
         self.mock_ups.return_values['get_user_permissions'] = permissions
 
         self.assertEquals( permissions, self.rfm.get_user_permissions(expected_sess_id) )
@@ -647,7 +647,7 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
 
     def _generate_real_mock_raising(self, method, exception, message):
         self.mock_ups.exceptions[method] = exception(message)
- 
+
 
     def _test_exception(self, method, args, exc_to_raise, exc_message, expected_code, expected_exc_message):
         self._generate_real_mock_raising(method, exc_to_raise, exc_message )
@@ -658,7 +658,7 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
         except ZSI.Fault as e:
             self.assertEquals(expected_code, e.code)
             self.assertEquals(expected_exc_message, e.string)
-    
+
     def _test_general_exceptions(self, method, *args):
         MESSAGE = "The exception message"
 
@@ -680,7 +680,7 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
         self._test_exception(method, args,  
                         Exception, MESSAGE, 
                         'JSON:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)            
-           
+
         # Debug mode: The error message is received
         self.cfg_manager._set_value(RFM.DEBUG_MODE, True)
 
@@ -757,8 +757,8 @@ def _generate_experiment_uses():
             Role("student")),
         "unknown")
     return (use1, use2), 2
-    
-    
+
+
 def _generate_permissions():
     p1 = Permission("experiment_allowed")
     p1.add_parameter(PermissionParameter("experiment_name", "string", "ud-fpga"))
@@ -775,7 +775,7 @@ def suite():
         test_cases.append(unittest.makeSuite(UserProcessingFacadeManagerZSITestCase))
     else:
         print >> sys.stderr, "Optional module 'ZSI' not available. Tests in UserProcessingFacadeManagerZSITestCase skipped."
-    
+
     return unittest.TestSuite(test_cases)
 
 if __name__ == '__main__':

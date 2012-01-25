@@ -94,7 +94,7 @@ stubs = (
 )           
 
 def generate_base(methods, ClientSocket):
-    
+
     # Adding properly the testing method to check availability
     if isinstance(methods, dict):
         all_methods = methods.keys()
@@ -117,5 +117,5 @@ def generate_base(methods, ClientSocket):
             func_name = stub_prefix + method_name
             func.func_name = func_name      
             setattr(ClientSocket, func_name, func)
-        
+
     return ClientSocket

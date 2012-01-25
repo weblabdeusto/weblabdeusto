@@ -89,7 +89,7 @@ class ResourcesManagerTestCase(unittest.TestCase):
         try:
             resource_types = session.query(CoordinatorModel.ResourceType).all()
             self.assertEquals(0, len(resource_types), "No resource expected in the beginning of the test")
-    
+
             exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
             self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
             self._check_resource_added(session)
@@ -103,7 +103,7 @@ class ResourcesManagerTestCase(unittest.TestCase):
         try:
             resource_types = session.query(CoordinatorModel.ResourceType).all()
             self.assertEquals(0, len(resource_types), "No resource expected in the beginning of the test")
-    
+
             exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
             self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
 
@@ -113,7 +113,7 @@ class ResourcesManagerTestCase(unittest.TestCase):
             # Everything is all right
             self._check_resource_added(session)
             self._check_experiment_instance_id_added(session)
-    
+
             # However, we can't add another time the same experiment instance with a different laboratory id:
             self.assertRaises(CoordExc.InvalidExperimentConfigException,
                     self.resources_manager.add_experiment_instance_id,

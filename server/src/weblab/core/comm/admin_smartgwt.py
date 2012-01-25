@@ -132,7 +132,7 @@ class AdvancedCriteria(object):
                 op = None
         except (ValueError, IndexError) as e:
             raise MethodException("Invalid advanced criteria value: %s" % urllib2.quote(str(e)))
-        
+
         return AdvancedCriteria(criterias, op, sort_by, start_row, end_row, text_match_styles[0])
 
 
@@ -153,7 +153,7 @@ class Methods(object):
     JSON, so they must be parsed and an appropriate JSON response
     generated. They are the first server-side layer to receive them.
     """
-    
+
     @staticmethod
     def get_experiments(handler, session_id, parameters):
         request_args = { 'id' : session_id }
@@ -170,12 +170,12 @@ class Methods(object):
                         ] 
                     }
                 }
-    
+
     @staticmethod
     def get_permission_types(handler, session_id, parameters):
         """
         get_permission_types(handler, session_id, parameters)
-        
+
         Retrieves permission types, returning them in a JSON-encoded string
         which will be understood by the client-side SmartGWT data source.
         """
@@ -195,12 +195,12 @@ class Methods(object):
                 ] 
             }
         }
-        
+
     @staticmethod
     def get_roles(handler, session_id, parameters):
         """
         get_roles(handler, session_id, parameters)
-        
+
         Retrieves roles, returning them in a JSON-encoded string which will be
         understood by the client-side SmartGWT data source.
         """
@@ -216,12 +216,12 @@ class Methods(object):
                         ] 
                     }
                 }
-        
+
     @staticmethod
     def get_user_permissions(handler, session_id, parameters):
         """
         get_user_permissions(handler, session_id, parameters)
-        
+
         Retrieves user permissions, returning them in a JSON-encoded string 
         which will be understood by the client-side SmartGWT data source.
         """
@@ -251,7 +251,7 @@ class Methods(object):
     def get_users(handler, session_id, parameters):
         """
         get_users(handler, session_id, parameters)
-        
+
         Retrieves users, returning them in a JSON-encoded string which will be
         understood by the client-side SmartGWT data source.
         """
@@ -276,7 +276,7 @@ class Methods(object):
     def get_groups(handler, session_id, parameters):
         session_id = { 'id' : session_id }
         parent_ids = [ param for param in parameters if param.startswith('parent_id=') ]
-        
+
         if len(parent_ids) == 0:
             raise MethodException("No parent_id provided")
 

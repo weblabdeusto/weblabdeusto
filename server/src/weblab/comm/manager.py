@@ -94,7 +94,7 @@ class AbstractRemoteFacadeManager(object):
 
     def _get_client_address(self):
         return RemoteFacadeContext.get_context().get_ip_address()
-   
+
 def _propagate_stack_trace(cfg_manager, msg):
     formatted_exc = traceback.format_exc()
     propagate = cfg_manager.get_value(PROPAGATE_STACK_TRACES_TO_CLIENT, DEFAULT_PROPAGATE_STACK_TRACES_TO_CLIENT)
@@ -130,7 +130,7 @@ class AbstractXMLRPC(object):
                 exp_id['exp_name'],
                 exp_id['cat_name']
             )
-       
+
     def _fix_dates_in_experiments(self, experiments_allowed):
         for experiment_allowed in experiments_allowed:
             experiment = experiment_allowed.experiment

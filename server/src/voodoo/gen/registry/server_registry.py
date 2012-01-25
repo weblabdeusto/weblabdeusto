@@ -41,14 +41,14 @@ class ServerRegistry(object):
     @locked('_servers_write_lock')
     def reregister_server(self,address,server):
         self._servers[address] = server
-    
+
     @locked('_servers_write_lock')
     def deregister_server(self, address):
         if not self._servers.has_key(address):
             raise RegistryExceptions.ServerNotFoundInRegistryException(
                 'Address %s not found in registry' % address
             )
-    
+
         self._servers.pop(address)
 
     @locked('_servers_read_lock')

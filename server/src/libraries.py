@@ -60,7 +60,7 @@ def configure_path(libraries_dir):
     # 
     sys.path.insert(0,libraries_dir + os.sep + sys.platform + os.sep + version + os.sep + bits)
     check_more_imports()
-    
+
     #
     # Required so .dll work fine in windows
     # 

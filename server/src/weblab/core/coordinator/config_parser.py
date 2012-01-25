@@ -40,11 +40,11 @@ class CoordinationConfigurationParser(object):
         for external_server in external_servers:
             external_servers[external_server] = set(external_servers[external_server])
         return external_servers
-        
+
 
     def parse_resources_for_experiment_ids(self):
         raw_configuration = self.parse_configuration()
-        
+
         # 
         # {
         #    'experiment_id_str' : set('resource_type_name1', 'resource_type_name2')
@@ -103,7 +103,7 @@ class CoordinationConfigurationParser(object):
                 ) = mo_resource_instance.groups()
 
                 resource = Resource(resource_type, resource_instance)
-                 
+
                 laboratory_configuration[experiment_instance_id] = resource
 
         return configuration

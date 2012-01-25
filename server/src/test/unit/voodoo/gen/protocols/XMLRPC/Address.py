@@ -93,7 +93,7 @@ class XMLRPCAddressTestCase(unittest.TestCase):
             )
 
         XMLRPCAddress.ClientXMLRPC = cxmlrpc
-        
+
 
     @uses_module(ServerXMLRPC)
     def test_xmlrpc_create_client(self):
@@ -112,11 +112,11 @@ class XMLRPCAddressTestCase(unittest.TestCase):
                 XMLRPC = ('',self.port)
             )
         xmlrpc_server_instance.start()
-        
+
         xmlrpc_addr = XMLRPCAddress.Address(
                 self.host + ':' + str(self.port) + '@NetworkA'
             )
-        
+
         xmlrpc_client = xmlrpc_addr.create_client(self.methods)
         self.assertEquals(
             xmlrpc_client.say_hello(self.message1),

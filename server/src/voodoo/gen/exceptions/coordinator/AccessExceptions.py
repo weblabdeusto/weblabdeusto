@@ -26,12 +26,12 @@ class AccessNotAnAddressException(AccessException):
 class AccessNotAnIpAddressException(AccessNotAnAddressException):
     def __init__(self,*args,**kargs):
         AccessNotAnAddressException.__init__(self,*args,**kargs)
-    
+
 class AccessInvalidIpBasedFormat(AccessException):
     def __init__(self,*args,**kargs):
         AccessException.__init__(self,*args,**kargs)
-        
+
 class AccessInvalidPort(AccessInvalidIpBasedFormat):
     def __init__(self,*args,**kargs):
         AccessInvalidIpBasedFormat.__init__(self,*args,**kargs)
-    
+

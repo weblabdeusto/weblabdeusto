@@ -111,7 +111,7 @@ def patchZsiFaultFromException():
     except ImportError:
         print >> sys.stderr, "patchZsiFaultFromException skipped; ZSI not installed"
         return
-    
+
     original = ZSI.FaultFromException
 
     @wraps(original)

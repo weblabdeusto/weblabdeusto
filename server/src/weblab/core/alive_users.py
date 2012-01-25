@@ -90,7 +90,7 @@ class AliveUsersCollection(object):
                     # session_id,
                 ]
             )
-    
+
     def _set_min_time_between_checks(self):
         self._min_time_between_checks = self._cfg_manager.get_value( USER_PROCESSING_TIME_BETWEEN_CHECKS, DEFAULT_TIME_BETWEEN_CHECKS )
 

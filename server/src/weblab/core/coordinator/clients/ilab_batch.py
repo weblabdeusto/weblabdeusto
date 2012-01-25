@@ -310,7 +310,7 @@ class RequestSerializer(object):
     def parse_get_lab_info_response(self, payload):
         tree = self._load(payload)
         return tree.find("./*/{http://ilab.mit.edu}GetLabInfoResponse/{http://ilab.mit.edu}GetLabInfoResult").text
-        
+
     def parse_get_lab_status_response(self, payload):
         tree = self._load(payload)
         online = tree.find("./*/{http://ilab.mit.edu}GetLabStatusResponse/{http://ilab.mit.edu}GetLabStatusResult/{http://ilab.mit.edu}online").text == 'true'
@@ -366,7 +366,7 @@ class RequestSerializer(object):
     def parse_get_lab_configuration_request(self, payload):
         tree = self._load(payload)
         return tree.find("./*/{http://ilab.mit.edu}GetLabConfiguration/{http://ilab.mit.edu}labServerID").text
-    
+
     def parse_submit_request(self, payload):
         tree = self._load(payload)
         submit = tree.find("./*/{http://ilab.mit.edu}Submit")

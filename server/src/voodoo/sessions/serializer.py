@@ -37,7 +37,7 @@ class SessionSerializer(object):
                     "Session object not deserializable with pickle: %s" % pe,
                     pe
             )
-        
+
             return deserialized
         else:
             raise SessionExceptions.SessionSerializationNotImplementedException(

@@ -19,9 +19,9 @@ from voodoo.gen.protocols.BaseSocket.SocketManager import InternetSocketManager
 
 def generate(methods):
     clientSkel = ClientSkel.generate(methods)
-    
+
     class ClientInternetSocket(clientSkel):
         def __init__(self, hostname, port):
             clientSkel.__init__(self, InternetSocketManager(hostname=hostname, port=port))
-    
+
     return ClientBaseSocket.generate_base(methods, ClientInternetSocket)

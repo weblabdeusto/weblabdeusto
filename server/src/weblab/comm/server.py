@@ -104,7 +104,7 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         This do_POST callback handles an HTTP request containing a JSON-encoded RPC request. 
         """
         create_context(self.server, self.headers)
-        
+
         try:
             length = int(self.headers['content-length'])
             post_content = self.rfile.read(length)
@@ -184,7 +184,7 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 log.log_exc( JsonHttpHandler, log.level.Warning )
                 self.finish_error(response)
                 return
-                
+
             self.finish_post(response)
         finally:
             delete_context()
@@ -292,11 +292,11 @@ class XmlRpcServer(SocketServer.ThreadingMixIn, SimpleXMLRPCServer.SimpleXMLRPCS
     daemon_threads = True
     request_queue_size = 50 #TODO: parameter!
     allow_reuse_address = True
-    
+
     def __init__(self, server_address, manager, the_server_route):
         class NewXmlRpcRequestHandler(XmlRpcRequestHandler):
             server_route = the_server_route
-        
+
         SimpleXMLRPCServer.SimpleXMLRPCServer.__init__(self, server_address, NewXmlRpcRequestHandler, allow_none = True)
         self.register_instance(manager)
 
@@ -367,7 +367,7 @@ def _show_help(request_inst, protocol, methods, methods_help):
 
         for method in methods:
             response += """<li><b>%s</b>: %s</li>\n""" % (method, methods_help[method])
-        
+
         response += """</ul>
         </body>
         </html>

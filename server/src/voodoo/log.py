@@ -54,7 +54,7 @@ _CALL_ID_ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVW
 @fast_cache
 def _get_full_class_name(class_type, func):
     func_name = func.__name__
-    
+
     def find_class(cur_class, func_name):
         if cur_class.__dict__.has_key(func_name):
             return cur_class
@@ -128,7 +128,7 @@ def logged(level='debug', except_for=None):
 
         login("foo","bar") # Works
         login("foo",password="bar") # Works
-    
+
     You can also provide a single parameter by providing only the name or the position.
 
     Instead of these values, it will say "<hidden>".
@@ -209,7 +209,7 @@ def logged(level='debug', except_for=None):
                                 parameter_name = parameter
                             else:
                                 parameter_name, given_position = parameter
-                            
+
                             if kargs.has_key(parameter_name):
                                 self.fake_kargs[parameter_name] = '<hidden>'
                                 replaced = True

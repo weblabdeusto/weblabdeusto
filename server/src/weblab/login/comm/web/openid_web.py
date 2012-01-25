@@ -119,7 +119,7 @@ class OpenIdMethod(WebFacadeServer.Method):
                 full_url = self.get_argument(USER_ID)
                 if full_url is None:
                     return "A username (%s) + domain (%s) or a user identifier (%s) must be provided " % (USERNAME, DOMAIN, USER_ID)
-            
+
             # full_url contains the user identifier
             oidconsumer = self.getConsumer()
             try:

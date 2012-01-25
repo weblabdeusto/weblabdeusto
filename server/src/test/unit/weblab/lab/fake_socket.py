@@ -25,7 +25,7 @@ def reset():
     expected_action = OK
 
 class socket(object):
-    
+
     def __init__(self, *args, **kargs):
         super(socket, self).__init__()
 
@@ -36,6 +36,6 @@ class socket(object):
             raise real_socket.error("")
         else:
             raise RuntimeError("Unknown value for return_value in fake socket.connect()")
-        
+
     def close(self):
         pass

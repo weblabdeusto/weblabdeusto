@@ -75,7 +75,7 @@ def get_experiment_status(category, experiment):
 @monitor_method
 def get_experiment_ups_session_ids(category, experiment):
     ups = _find_ups()
-    
+
     user_session_mgr   = ups._session_manager
     session_mgr        = ups._alive_users_collection._session_manager
     users_session_mgr  = ups._alive_users_collection._users_session_manager

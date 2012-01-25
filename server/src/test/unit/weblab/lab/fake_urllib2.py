@@ -39,14 +39,14 @@ def urlopen(url):
 
 
 class HttpResponseOk(urllib2.addinfourl):
-    
+
     def __init__(self):
         urllib2.addinfourl.__init__(self, StringIO(""), {}, "")
         self.headers['content-type'] = 'image/jpg'
-        
-        
+
+
 class HttpResponseBadContent(urllib2.addinfourl):
-    
+
     def __init__(self):
         urllib2.addinfourl.__init__(self, StringIO(""), {}, "")
         self.headers['content-type'] = 'application/xml'

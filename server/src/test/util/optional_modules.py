@@ -20,7 +20,7 @@ import unittest
 class OptionalModuleTestCase(unittest.TestCase):
     MODULE    = None
     ATTR_NAME = None
-    
+
     def setUp(self):
         self._backup_available = getattr(self.MODULE, self.ATTR_NAME)
         setattr(self.MODULE, self.ATTR_NAME, False)

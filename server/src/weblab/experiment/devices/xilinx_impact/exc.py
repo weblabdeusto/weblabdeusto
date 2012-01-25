@@ -37,7 +37,7 @@ class ErrorWaitingForProgrammingFinishedException(DeviceExceptions.ProgrammingDe
 class ProgrammingGotErrors(DeviceExceptions.ProgrammingDeviceException):
     def __init__(self,*args,**kargs):
         DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
-        
+
 class GeneratingSvfFileGotErrors(DeviceExceptions.ProgrammingDeviceException):
     def __init__(self,*args,**kargs):
         DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)

@@ -82,9 +82,9 @@ stubs = (
 
 def generate(methods):
     clientSkel = ClientSkel.generate(methods)
-    
+
     class ClientXMLRPC(clientSkel):
-        
+
         def __init__(self, url, port=80, uri='/'):
             clientSkel.__init__(self,xmlrpclib.Server('http://'+url+':'+str(port)+uri, allow_none = True))
 
@@ -94,7 +94,7 @@ def generate(methods):
     else:
         all_methods = list(methods[:])
     all_methods.append('test_me')
-    
+
     # Generating stubs dinamically
     for method_name in all_methods:
         # Each method can have many stubs (with different prefixes)
@@ -110,5 +110,5 @@ def generate(methods):
             func_name = stub_prefix + method_name
             func.func_name = func_name          
             setattr(ClientXMLRPC, func_name, func)
-            
+
     return ClientXMLRPC

@@ -52,7 +52,7 @@ class FacebookMethod(WebFacadeServer.Method):
             base_auth_url = self.cfg_manager.get_value(AUTH_URL_PROPERTY, DEFAULT_AUTH_URL)
             facebook_app_id = self.cfg_manager.get_value(APP_ID_PROPERTY)
             canvas_url = self.cfg_manager.get_value(CANVAS_URL_PROPERTY)
-            
+
             auth_url = base_auth_url % (facebook_app_id, urllib2.quote(canvas_url))
 
             return "<html><body><script>top.location.href='%s';</script></body></html>" % auth_url

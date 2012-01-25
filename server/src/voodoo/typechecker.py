@@ -51,7 +51,7 @@ def _check_types(func, args, kwargs, types):
     default_number = 0 if func.func_defaults is None else len(func.func_defaults)
     if len(args) + len(kwargs) > len(types) or default_number + len(args) + len(kwargs) < len(types):
         raise TypeError("%s: %s types provided but %s arguments passed" % (func.__name__, len(types), (len(args) + len(kwargs))))
-    
+
     is_class = hasattr(func, 'im_func')
     func_code = func.func_code
     var_names = func_code.co_varnames[:func_code.co_argcount]
@@ -71,7 +71,7 @@ def _check_types(func, args, kwargs, types):
                 raise TypeError("Argument missing: %s" % name)
 
     complete_ordered_args_list = list(args) + kwargs_var_values
-    
+
     for pos, (arg, arg_type) in enumerate(zip(complete_ordered_args_list, types)):
         if arg == NOT_FOUND:
             continue
@@ -101,7 +101,7 @@ def _check_types(func, args, kwargs, types):
             else:
                 var_name = "Unknown variable name, one of %s" % (var_names,)
             raise TypeError("Expected argument type for '%s' on method '%s': %s. Got: %s" % (var_name, func.__name__, arg_type, type(arg)))
-        
+
 
 def dummytypecheck(func):
     return func

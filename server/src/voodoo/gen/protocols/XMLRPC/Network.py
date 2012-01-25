@@ -17,10 +17,10 @@ import voodoo.gen.coordinator.Access as Access
 name = "XMLRPC"
 
 class XMLRPCNetwork(Access.IpBasedNetwork):
-    
+
     def __init__(self,address):
         Access.IpBasedNetwork.__init__(self,address)
-        
+
     def get_protocol(self):
         import voodoo.gen.protocols.XMLRPC.Network as Network
         return Network

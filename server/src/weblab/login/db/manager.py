@@ -18,7 +18,7 @@ import weblab.db.session as DbSession
 import weblab.db.exc as DbExceptions
 
 class LoginDatabaseManager(object):
-    
+
     def __init__(self, cfg_manager):
         self._auth_gateway = DbGateway.create_auth_gateway(cfg_manager)
 

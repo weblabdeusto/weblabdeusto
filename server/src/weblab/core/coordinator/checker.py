@@ -53,7 +53,7 @@ class ResourcesChecker(object):
                     resource = experiments[experiment]
                     if not resource in broken_resources:
                         self.coordinator.mark_resource_as_fixed(resource)
-            
+
         except:
             traceback.print_exc()
             log.log( ResourcesChecker, log.level.Critical,

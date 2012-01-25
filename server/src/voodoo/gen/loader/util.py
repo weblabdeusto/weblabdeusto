@@ -77,7 +77,7 @@ def obtain_module(name):
         except ImportError:
             pass
     return the_module
-    
+
 def obtain_from_python_path(name):
     """ obtain_from_python_path(name) -> whatever :-)
 

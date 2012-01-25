@@ -109,7 +109,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
 
         result   = methods.get_experiment_status.call(category, experiment)
         self.assertEquals({}, result)
-        
+
 
     def test_get_experiment_status__one_reservation(self):
         category   = "Dummy experiments"
@@ -125,7 +125,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
 
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
-      
+
         result = methods.list_all_users.call()
         self.assertEquals(1, len(result))
         session_id, user_info, latest = result[0]
@@ -144,7 +144,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         sess_mgr = self.ups._session_manager
         sess_obj = sess_mgr.get_session(sess_id)
         sess_obj.pop('user_information')
-      
+
         result = methods.list_all_users.call()
         self.assertEquals(1, len(result))
         session_id, user_info, latest = result[0]

@@ -122,7 +122,7 @@ class TypeCheckTest(unittest.TestCase):
     def test_any(self):
         self.assertEquals(10, sumany(5,5))
         self.assertEquals("foo", sumany(5,"foo"))
-    
+
     def test_properties(self):
         point = PropertiesClass(5,6)
         self.assertEquals(5, point.x)

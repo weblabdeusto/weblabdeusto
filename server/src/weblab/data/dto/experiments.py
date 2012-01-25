@@ -27,7 +27,7 @@ class ExperimentCategory(object):
         self.name = unicode(name)
 
 class Experiment(object):
-    
+
     __metaclass__ = Representable
 
     def __init__(self, name, category, start_date, end_date, id=None):
@@ -51,7 +51,7 @@ class Experiment(object):
 class ExperimentUse(object):
 
     __metaclass__ = Representable
-    
+
     def __init__(self, start_date, end_date, experiment, agent, origin, id=None):
 
         self.start_date = start_date

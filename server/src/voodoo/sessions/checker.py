@@ -40,14 +40,14 @@ def check_session(
         cut_session_id = None
     ):
     """ check_session(exception_to_raise,what_session,session_manager_field_name) -> decorator 
-    
+
     The code snippet below:
 
     @check_session(my.own.exception,"My System")
     def method(self,session, param):
         tell_me = raw_input()
         session["received"] = tell_me
-    
+
     @check_session(my.own.exception,"My System")
     def method2(self,session):
         print "Received: ", session["received"]
@@ -69,7 +69,7 @@ def check_session(
             session_id_str = session_id.id
             if cut_session_id is not None:
                 session_id = SessionId.SessionId(session_id_str.split(cut_session_id)[0])
-            
+
             session_manager = getattr(self, session_manager_field_name)
             if session_manager.has_session(session_id):
                 session = session_manager.get_session_locking(session_id)
@@ -89,7 +89,7 @@ def check_session(
                             modified = True
                     else:
                         modified = True
-                    
+
                     if modified:
                         session_manager.modify_session_unlocking( session_id, session )
                     else:

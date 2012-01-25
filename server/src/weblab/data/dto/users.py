@@ -15,7 +15,7 @@
 # 
 
 class User(object):
-    
+
     def __init__(self, login, full_name, email, role):
         super(User,self).__init__()
         self.login = login
@@ -32,7 +32,7 @@ class User(object):
             )
 
 class ExternalEntity(object):
-    
+
     def __init__(self, name, country, description, email, id=None):
         super(ExternalEntity,self).__init__()
         self.id = id
@@ -50,22 +50,22 @@ class ExternalEntity(object):
             )
 
 class Group(object):
-    
+
     def __init__(self, name, id=None):
         super(Group, self).__init__()
         self.id = id
         self.name = name
         self._parent = None
         self.children = []
-        
+
     def add_child(self, child):
         child._parent = self
         self.children.append(child)
-    
+
     def set_children(self, children):
         for child in children:
             self.add_child(child) 
-        
+
     def get_full_name(self):
         if self._parent is None:
             return self.name
@@ -79,11 +79,11 @@ class Group(object):
             )
 
 class Role(object):
-    
+
     def __init__(self, name):
         super(Role, self).__init__()
         self.name = name
-        
+
     def __repr__(self):
         return "Role(name = '%s')" % (
                 self.name

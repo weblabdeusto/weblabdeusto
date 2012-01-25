@@ -17,7 +17,7 @@ import voodoo.gen.exceptions.coordinator.CoordinatorExceptions as CoordException
 class CoordMappingException(CoordExceptions.CoordinatorException):
     def __init__(self,*args,**kargs):
         CoordExceptions.CoordinatorException.__init__(self,*args,**kargs)
-    
+
 class CoordLoadingException(CoordMappingException):
     def __init__(self,message,nested_exception,*args,**kargs):
         CoordMappingException.__init__(
@@ -25,7 +25,7 @@ class CoordLoadingException(CoordMappingException):
             )
         self.message = message
         self.nested_exception = nested_exception
-        
+
 class CoordDumpingException(CoordMappingException):
     def __init__(self,message,nested_exception,*args,**kargs):
         CoordMappingException.__init__(

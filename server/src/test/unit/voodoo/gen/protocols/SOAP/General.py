@@ -54,14 +54,14 @@ class GeneralSOAPTestCase(unittest.TestCase):
                         'localhost',
                         PORT
                     )
-            
+
             self.assertEquals(client.method1(msg1),msg1 + msg2)
 
             self.assertRaises(
                     ArithmeticError,
                     client.method2
                 )
-            
+
             my_error = None
             try:
                 client.method2()
@@ -74,7 +74,7 @@ class GeneralSOAPTestCase(unittest.TestCase):
                 )
     else:
         print >> sys.stderr, "GeneralSOAPTestCase skipped; SOAPpy not installed"
-        
+
 
 def suite():
     return unittest.makeSuite(GeneralSOAPTestCase)

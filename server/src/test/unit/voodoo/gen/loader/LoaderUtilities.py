@@ -87,7 +87,7 @@ class LoaderUtilitiesTestCase(unittest.TestCase):
         sample = """<?xml version="1.0" encoding="utf-8"?>
             <server></server>
             """
-        
+
         root_node = minidom.parse(StringIO.StringIO(sample))
         nodes = LoaderUtilities.find_nodes(
                 'file_name',root_node,'server2'
@@ -125,7 +125,7 @@ class LoaderUtilitiesTestCase(unittest.TestCase):
                 None,
                 LoaderUtilities.obtain_module('I guess this does not exist')
             )
-    
+
     def test_obtain_from_python_path(self):
         self.assertEquals(
                 os.path.sep,

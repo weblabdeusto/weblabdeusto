@@ -133,7 +133,7 @@ class TemporalInformationRetriever(threading.Thread):
                     result = self._process_post_file(information)
             if result is False:
                 self.commands_store.put(information)
-                    
+
     def _process_pre_command(self, information):
         command = CommandSent(
                         information.payload,

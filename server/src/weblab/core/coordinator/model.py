@@ -401,7 +401,7 @@ class PostReservationRetrievedData(Base):
         self.finished               = finished
         self.initial_data           = initial_data
         self.end_data               = end_data
-    
+
     def __repr__(self):
         return "PostReservationRetrievedData(%r, %r, %r, %r, %r, %r, %r)" % (self.id, self.reservation_id, self.finished, self.date, self.expiration_date, self.initial_data, self.end_data)
 

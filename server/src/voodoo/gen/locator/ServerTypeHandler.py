@@ -40,7 +40,7 @@ class ServerTypeHandler(object):
         self._module = server_type_module
 
         self._methods = methods
-        
+
     def retrieve_methods(self,server_type):
         if self._methods.has_key(server_type):
             return self._methods[server_type]

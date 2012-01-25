@@ -25,7 +25,7 @@ class NoScheduler(Scheduler):
 
     def stop(self):
         pass
-    
+
     @Override(Scheduler)
     def is_remote(self):
         return False
@@ -38,7 +38,7 @@ class NoScheduler(Scheduler):
 
     def _reserved(self):
         reservation_id_with_route = '%s;%s.%s' % (reservation_id, reservation_id, self.core_server_route)
-        
+
         # 
         # TODO: will always be the same, even if there are plenty of them. 
         # With no_scheduler, there is no load balance: all the users go
@@ -69,7 +69,7 @@ class NoScheduler(Scheduler):
         # database
         # 
         initialization_in_accounting = True
-        
+
         return WSS.LocalReservedStatus(reservation_id_with_route, lab_coord_address, SessionId.SessionId(lab_session_id), obtained_time, initial_configuration, timestamp_before, timestamp_after, initialization_in_accounting, remaining, self.core_server_url)
 
 

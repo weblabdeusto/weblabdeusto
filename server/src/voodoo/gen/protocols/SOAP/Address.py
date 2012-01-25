@@ -23,7 +23,7 @@ import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
 from voodoo.override import Override
 
 class Address(cAddress.IpBasedAddress):
-    
+
     def __init__(self, address):
         cAddress.IpBasedAddress.__init__(self,address)
 
@@ -51,7 +51,7 @@ class Address(cAddress.IpBasedAddress):
     @Override(cAddress.IpBasedAddress)
     def __cmp__(self,other):
         return cAddress.IpBasedAddress._compare(self,other)
-        
+
     @Override(cAddress.IpBasedAddress)
     def __eq__(self, other):
         return self.__cmp__(other) == 0

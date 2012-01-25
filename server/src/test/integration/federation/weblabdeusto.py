@@ -72,7 +72,7 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         session_id = self.consumer_login_client.login('fedstudent1', 'password')
 
         self._test_reservation(session_id, self.dummy2, 'Consumer', True, True)
-        
+
         #######################################################
         # 
         #   Simple federation
@@ -100,7 +100,7 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         #   Now we ask for an experiment that Consumer has, 
         #   but also Provider 1 and Provider 2.
         #
-        
+
         reservation_id1 = self._test_reservation(session_id, self.dummy1, 'Consumer', True, False)
         reservation_id2 = self._test_reservation(session_id, self.dummy1, 'Provider 1', True, False)
         reservation_id3 = self._test_reservation(session_id, self.dummy1, 'Provider 2', True, False)
@@ -142,14 +142,14 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
 
     def _test_reservation(self, session_id, experiment_id, expected_server_info, wait, finish):
         reservation_status = self.consumer_core_client.reserve_experiment(session_id, experiment_id, "{}", "{}")
-        
+
         reservation_id = reservation_status.reservation_id
 
         if not wait:
             if finish:
                 self.consumer_core_client.finished_experiment(reservation_id)
             return reservation_id
-        
+
         return self._wait_reservation(reservation_id, expected_server_info, finish)
 
     def _wait_reservation(self, reservation_id, expected_server_info, finish):
@@ -162,13 +162,13 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
                 self.fail("Waiting too long in the queue for %s" % expected_server_info)
             time.sleep(0.1)
             reservation_status = self.consumer_core_client.get_reservation_status(reservation_id)
-        
+
         self.assertEquals(Reservation.CONFIRMED, reservation_status.status)
 
         experiment_reservation_id = reservation_status.remote_reservation_id
         if experiment_reservation_id.id == '':
             experiment_reservation_id = reservation_id
-            
+
         client = WebLabDeustoClient( reservation_status.url )
 
         response = client.send_command(experiment_reservation_id, Command("server_info"))

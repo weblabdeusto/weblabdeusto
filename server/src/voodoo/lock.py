@@ -68,7 +68,7 @@ class _InternalReadLock(object):
 class _InternalWriteLock(object):
     def __init__(self, rwlock):
         self.rwlock = rwlock
-    
+
     def acquire(self):
         self.rwlock._acquire_writing()
 
@@ -130,7 +130,7 @@ class RWLock(object):
         try:
             while self._someone_else_is_writing():
                 self._condition.wait()
-            
+
             self._increment_reading()
 
             self._condition.notifyAll()

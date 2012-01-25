@@ -22,7 +22,7 @@ import fake_socket as FakeSocket
 
 
 class AbstractLightweightIsUpAndRunningHandlerTestCase(unittest.TestCase):
-    
+
     def test_not_implemented(self):
         self.assertRaises(
             TypeError,
@@ -31,23 +31,23 @@ class AbstractLightweightIsUpAndRunningHandlerTestCase(unittest.TestCase):
 
 
 class WebcamIsUpAndRunningHandlerTestCase(unittest.TestCase):
-    
+
     def setUp(self):
         self.handler = WebcamIsUpAndRunningHandler("https://...")
         FakeUrllib2.reset()
         self.handler._urllib2 = FakeUrllib2
-    
+
     def test_run_ok(self):
         FakeUrllib2.expected_action = FakeUrllib2.HTTP_OK
         self.handler.run()
-        
+
     def test_run_exception_bad_response(self):
         FakeUrllib2.expected_action = FakeUrllib2.HTTP_URL_ERROR
         self.assertRaises(
             LaboratoryExceptions.ImageURLDidNotRetrieveAResponseException,
             self.handler.run
         )
-        
+
     def test_run_exception_bad_content(self):
         FakeUrllib2.expected_action = FakeUrllib2.HTTP_BAD_CONTENT
         self.assertRaises(
@@ -61,26 +61,26 @@ class WebcamIsUpAndRunningHandlerTestCase(unittest.TestCase):
         FakeUrllib2.expected_action = FakeUrllib2.HTTP_BAD_CONTENT
         messages = self.handler.run_times()
         self.assertEquals(WebcamIsUpAndRunningHandler.DEFAULT_TIMES, len(messages))
-        
+
 
 class HostIsUpAndRunningHandlerTestCase(unittest.TestCase):
-    
+
     def setUp(self):
         FakeSocket.reset()
         self.handler = HostIsUpAndRunningHandler("hostname", 80)
         self.handler._socket = FakeSocket
-    
+
     def test_run_ok(self):
         FakeSocket.expected_action = FakeSocket.OK
         self.handler.run()
-        
+
     def test_run_error(self):
         FakeSocket.expected_action = FakeSocket.ERROR
         self.assertRaises(
             LaboratoryExceptions.UnableToConnectHostnameInPortException,
             self.handler.run
         )
-        
+
 
 def suite():
     return unittest.TestSuite(

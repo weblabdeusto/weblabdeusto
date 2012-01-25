@@ -34,7 +34,7 @@ class ILabBatchReservation(Base):
     lab_server_url                   = Column(String(255))
 
     remote_experiment_id            = Column(Integer)
-    
+
     def __init__(self, local_reservation_id, lab_server_url, remote_experiment_id):
         self.local_reservation_id = local_reservation_id
         self.lab_server_url       = lab_server_url

@@ -29,12 +29,12 @@ class UdDemoXilinxExperiment(UdXilinxExperiment.UdXilinxExperiment):
             'PLD'  : 'cpld.jed',
             'FPGA' : 'fpga.bit',
         }
-    
+
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(UdDemoXilinxExperiment,self).__init__(coord_address, locator, cfg_manager, *args, **kwargs)
         file_path = os.path.dirname(__file__) + os.sep + self.FILES[self._xilinx_device]
         self.file_content = ExperimentUtil.serialize(open(file_path, "rb").read())
-        
+
     @Override(UdXilinxExperiment.UdXilinxExperiment)
     @caller_check(ServerType.Laboratory)
     @logged("info")

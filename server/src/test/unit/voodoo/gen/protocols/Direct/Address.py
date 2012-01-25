@@ -91,7 +91,7 @@ class DirectAddressTestCase(unittest.TestCase):
         machine_id  = 'a'
         instance_id = 'b'
         server_id   = 'c'
-        
+
         coordAddress = CoordAddress.CoordAddress(
                 machine_id,
                 instance_id,
@@ -99,7 +99,7 @@ class DirectAddressTestCase(unittest.TestCase):
             )
 
         addr = DirectAddress.from_coord_address(coordAddress)
-        
+
         self.assertEquals(
                 addr.machine_id,
                 machine_id
@@ -117,7 +117,7 @@ class DirectAddressTestCase(unittest.TestCase):
         machine_id  = 'a'
         instance_id = 'b'
         server_id   = 'c'
-        
+
         coordAddress1 = CoordAddress.CoordAddress(
                 machine_id,
                 instance_id,
@@ -153,14 +153,14 @@ class DirectAddressTestCase(unittest.TestCase):
         self.assertNotEquals(addr1,addr3)
         self.assertNotEquals(addr1,addr4)
         self.assertNotEquals(addr1,addr5)
-    
+
     def test_bad_from_coord_address(self):
         self.assertRaises(
                 DirectExceptions.NotACoordAddressException,
                 DirectAddress.from_coord_address,
                 5
             )
-    
+
     def test_direct_create_client(self):
         message2 = self.message2
 
@@ -186,7 +186,7 @@ class DirectAddressTestCase(unittest.TestCase):
             direct_client.say_hello(self.message1),
             self.message1 + message2
         )
-    
+
     def test_bad_client_creation(self):
         message2 = self.message2
         direct_addr = DirectAddress.Address(
@@ -224,7 +224,7 @@ class DirectAddressTestCase(unittest.TestCase):
             'not valid methods'
         )
 
-    
+
 def suite():
     return unittest.makeSuite(DirectAddressTestCase)
 

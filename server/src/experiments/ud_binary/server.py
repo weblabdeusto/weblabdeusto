@@ -25,7 +25,7 @@ from voodoo.gen.caller_checker import caller_check
 from voodoo.log import logged
 
 class BinaryExperiment(UdXilinxExperiment.UdXilinxExperiment):
-    
+
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(BinaryExperiment,self).__init__(coord_address, locator, cfg_manager, *args, **kwargs)
 
@@ -51,13 +51,13 @@ class BinaryExperiment(UdXilinxExperiment.UdXilinxExperiment):
             traceback.print_stack()
             import sys
             sys.stdout.flush()
-            
+
     @Override(Experiment.Experiment)
     @caller_check(ServerType.Laboratory)
     @logged("info")
     def do_get_api(self):
         return "1"
-    
+
     def do_send_command_to_device(self, command):
         if command == 'AutoProgram':
             self._autoprogram()

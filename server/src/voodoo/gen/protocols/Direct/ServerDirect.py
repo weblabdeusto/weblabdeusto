@@ -36,9 +36,9 @@ def _generate_skeleton(METHOD_NAME):
 # Don't use this method directly.
 # Use voodoo.gen.generators.ServerSkel.factory(cfg_manager,protocols,methods)
 def generate(cfg_manager, methods):
-    
+
     class ServerDirect(object):
-        
+
         def __init__(self, full_address):
             self._full_address = full_address
 
@@ -62,7 +62,7 @@ def generate(cfg_manager, methods):
             pass #No need
         def stop(self):
             pass #No need
-    
+
     # Adding properly the testing method to check availability
     if isinstance(methods,dict):
         all_methods = methods.copy()
@@ -70,7 +70,7 @@ def generate(cfg_manager, methods):
     else:
         all_methods = list(methods[:])
         all_methods.append('test_me')
-    
+
     # Generating skeletons dinamically
     for method_name in all_methods:
         func = _generate_skeleton(method_name)

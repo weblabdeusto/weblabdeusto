@@ -37,7 +37,7 @@ import weblab.core.coordinator.coordinator as Coordinator
 import weblab.core.coordinator.status as WSS
 
 class MockLocator(object):
-    
+
     def __init__(self):
         self.real_mock = None
         # This way, a MockLocator is passed to the Confirmer,
@@ -56,7 +56,7 @@ def coord_addr(coord_addr_str):
 DEFAULT_REQUEST_INFO = {'facebook' : False, 'mobile' : False}
 
 class ConfirmerTestCase(mocker.MockerTestCase):
-    
+
     def setUp(self):
 
         self.coord_address = CoordAddress.CoordAddress.translate_address( "server0:instance0@machine0")
@@ -85,7 +85,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
     def test_free_experiment_success(self):
         mock_laboratory = self.mocker.mock()
         mock_laboratory.free_experiment('lab_session_id')
-        
+
         self.mock_locator.real_mock = self.mocker.mock()
         self.mock_locator.real_mock.get_server_from_coordaddress(
                 self.coord_address,
@@ -137,7 +137,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         now = datetime.datetime.fromtimestamp(int(time.time())) # Remove milliseconds as MySQL do
         self.coordinator.confirmer._confirm_handler.join()
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
-        
+
         status = self.coordinator.get_reservation_status(reservation1_id)
         expected_status =  WSS.LocalReservedStatus(reservation1_id, CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, 30, '{}', now, now, True, 30, 'http://www.weblab.deusto.es/weblab/client/adfas')
 
@@ -168,7 +168,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5, True, 'sample initial data', DEFAULT_REQUEST_INFO, {})
         self.coordinator.confirmer._confirm_handler.join()
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
-        
+
         status = self.coordinator.get_reservation_status(reservation1_id)
         expected_status =  WSS.WaitingInstancesQueueStatus(reservation1_id, 0)
         self.assertEquals( expected_status, status )
@@ -187,7 +187,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId('exp1','cat1'), 30, 5, True, 'sample initial data', DEFAULT_REQUEST_INFO, {})
         self.coordinator.confirmer._confirm_handler.join()
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
-        
+
         status = self.coordinator.get_reservation_status(reservation1_id)
         expected_status =  WSS.WaitingInstancesQueueStatus(reservation1_id, 0)
         self.assertEquals( expected_status, status )

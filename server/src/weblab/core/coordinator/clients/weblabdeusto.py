@@ -22,7 +22,7 @@ from weblab.core.reservations import Reservation
 from weblab.data.command import Command
 
 class WebLabDeustoClient(object):
-    
+
     LOGIN_SUFFIX = 'login/json/'
     CORE_SUFFIX  = 'json/'
 
@@ -55,7 +55,7 @@ class WebLabDeustoClient(object):
 
     def get_cookies(self):
         return [ cookie for cookie in self.cj if cookie.name in ['weblabsessionid', 'loginweblabsessionid'] ]
-        
+
     def set_cookies(self, cookies):
         for cookie in cookies:
             self.cj.set_cookie(cookie)

@@ -279,7 +279,7 @@ class CacheTestCase(unittest.TestCase):
 
         current_time += wait_time + 1
         #time.sleep(wait_time * 2)
-        
+
         before_calls = 8 + 1
 
         self.assertEquals(13,fibonacci(7))
@@ -303,7 +303,7 @@ class CacheTestCase(unittest.TestCase):
 
         self.assertEquals(21, fibonacci(8))
         self.assertEquals(8 + 1 + before_calls, self._calls)
-    
+
 class FastCacheTestCase(unittest.TestCase):
     def testFoo(self):
 

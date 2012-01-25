@@ -23,7 +23,7 @@ class CoordAddress(object):
         'instance' : '(.*)',
         'machine' : '(.*)'
     } + '$'
-    
+
     def __init__(self,machine_id,instance_id='',server_id=''):
         """ CoordAddress(machine_id,instance_id,server_id) -> CoordAddress
 
@@ -60,7 +60,7 @@ class CoordAddress(object):
                         "%s, %s: not valid parameters"
                         % (instance_id, server_id)
                     )
-            
+
         self._machine_id = machine_id
         self._instance_id = instance_id
         self._server_id = server_id
@@ -74,7 +74,7 @@ class CoordAddress(object):
             }
 
     # read-only properties
-    
+
     @property
     def machine_id(self):
         return self._machine_id
@@ -90,14 +90,14 @@ class CoordAddress(object):
     @property
     def address(self):
         return self._address
-    
+
     # is_* methods
     def is_server(self):
         return self.server_id != ''
 
     def is_instance(self):
         return self.server_id == '' and self.instance_id != ''
-    
+
     def is_machine(self):
         return self.server_id == '' and self.instance_id == ''
 
@@ -123,16 +123,16 @@ class CoordAddress(object):
         return new_addr
 
     # deep copy method
-    
+
     def copy(self):
         return CoordAddress(
                 self.machine_id,
                 self.instance_id,
                 self.server_id
             )
-        
+
     # factory in order to create new CoordAddresses
-        
+
     @staticmethod
     def translate_address(address):
         """ translate_address(address) -> CoordAddress 
@@ -158,9 +158,9 @@ class CoordAddress(object):
         else:
             server,instance,machine = m.groups()
             return CoordAddress(machine,instance,server)
-    
+
     # Auxiliar methods
-    
+
     def __cmp__(self,other):
         if other is None:
             return cmp(self.address,None)

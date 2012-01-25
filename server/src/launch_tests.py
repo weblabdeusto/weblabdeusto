@@ -34,7 +34,7 @@ def get_suites(avoid_integration = False, avoid_stress = True):
         if avoid_stress:
             if module.__name__.split('.')[-1] == 'stress':
                 return
-            
+
         for content in os.listdir(directory):
             content_path = directory + os.sep + content
             if content_path.endswith('.py') and content_path != '__init__.py':
@@ -48,7 +48,7 @@ def get_suites(avoid_integration = False, avoid_stress = True):
                 mod = __import__(module.__name__ + '.' + module_name, globals(), locals(), [module_name])
                 setattr(module, module_name, mod)
                 recursion_on_modules(mod, content_path)
-                
+
     recursion_on_modules(test, ROOT_DIRECTORY + 'test')
     return suites
 
@@ -116,10 +116,10 @@ def runXml(folder):
                 all_suites_ordered[classname].append(suite)
             else:
                 all_suites_ordered[classname] = [suite]
-    
+
     import xmlrunner
     suites = get_suites(avoid_stress=True)
-    
+
     for suite in suites:
         orderRecursively(suite)
 
@@ -184,7 +184,7 @@ if __name__ == '__main__':
                 argv = [sys.argv[0]] + sys.argv[3:]
         else:
             argv = [sys.argv[0]] + sys.argv[2:]
-            
+
         runConsole(avoid_integration, argv)
     elif ui == 'gui':
         avoid_integration = False

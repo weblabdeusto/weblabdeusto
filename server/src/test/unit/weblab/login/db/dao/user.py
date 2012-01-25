@@ -26,7 +26,7 @@ class DbUserAuthTestCase(unittest.TestCase):
             'whatever that does not exist',
             'the configuration'
         )
-            
+
     def test_invalid_ldap_configuration(self):
         self.assertRaises(
             DbExceptions.DbInvalidUserAuthConfigurationException,

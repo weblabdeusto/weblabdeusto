@@ -15,18 +15,18 @@
 
 class BotException(Exception):
     """ Base Exception for this tool. """
-    
+
     def __init__(self, *args, **kargs):
         Exception.__init__(self, *args, **kargs)
-        
+
 class InvalidUserOrPasswordException(BotException):
     def __init__(self, *args, **kargs):
         BotException.__init__(self, *args, **kargs)
-        
+
 class ListOfExperimentsIsEmptyException(BotException):
     def __init__(self, *args, **kargs):
         BotException.__init__(self, *args, **kargs)
-        
+
 class ExperimentDoesNotExistException(BotException):
     def __init__(self, *args, **kargs):
         BotException.__init__(self, *args, **kargs)
@@ -34,4 +34,4 @@ class ExperimentDoesNotExistException(BotException):
 class UserAssertionException(BotException):
     def __init__(self, *args, **kargs):
         BotException.__init__(self, *args, **kargs)
-        
+

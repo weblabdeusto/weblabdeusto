@@ -158,12 +158,12 @@ class LogicExperiment(Experiment.Experiment):
             ConsoleInterface()
         ]
         self.interfaces = HardwareInterfaceCollector(interfaces)
-        
-        
+
+
     @Override(Experiment.Experiment)
     def do_get_api(self):
         return "2"
-    
+
 
     @Override(Experiment.Experiment)
     def do_start_experiment(self, *args, **kwargs):

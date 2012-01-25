@@ -23,7 +23,7 @@ import weblab.db.model as Model
 
 
 class DbGateway(object):
-    
+
     def __init__(self, host, db, username, password):
         super(DbGateway, self).__init__()
         connection_url = "mysql://%(USER)s:%(PASS)s@%(HOST)s/%(NAME)s" % {
@@ -33,7 +33,7 @@ class DbGateway(object):
                                 "NAME": db }
         self.Session = sessionmaker(bind=create_engine(connection_url, echo=False))
         self.session = self.Session()
-    
+
     def get_experiment_category(self, experiment_category_name):
         try:       
             return self.session.query(Model.DbExperimentCategory).filter_by(name=experiment_category_name).one()
@@ -51,13 +51,13 @@ class DbGateway(object):
             return self.session.query(Model.DbPermissionType).filter_by(name=permission_type_name).one()
         except NoResultFound:
             return None
-                
+
     def get_groups(self):
         try:
             return self.session.query(Model.DbGroup).order_by('id').all()
         except NoResultFound:
             return []
-                
+
     def get_users(self, users_logins=None):
         try:
             if users_logins is None:
@@ -66,19 +66,19 @@ class DbGateway(object):
                 return self.session.query(Model.DbUser).filter(Model.DbUser.login.in_(users_logins)).all()
         except NoResultFound:
             return []
-        
+
     def get_experiment_categories(self):
         try:
             return self.session.query(Model.DbExperimentCategory).order_by('id').all()
         except NoResultFound:
             return []
-        
+
     def get_experiments(self):
         try:
             return self.session.query(Model.DbExperiment).order_by('id').all()
         except NoResultFound:
             return []
-                
+
     def get_roles(self):
         try:
             return self.session.query(Model.DbRole).order_by('id').all()
@@ -100,7 +100,7 @@ class DbGateway(object):
             return group
         except IntegrityError:
             return None   
-            
+
     def insert_experiment_category(self, experiment_category_name):
         try:
             experiment_category = Model.DbExperimentCategory(name=experiment_category_name)
@@ -109,7 +109,7 @@ class DbGateway(object):
             return experiment_category
         except IntegrityError:
             return None
-            
+
     def insert_experiment(self, experiment_name, experiment_category, start_date, end_date):
         try:
             experiment = Model.DbExperiment(experiment_name, experiment_category, start_date, end_date)
@@ -127,7 +127,7 @@ class DbGateway(object):
             return user
         except IntegrityError:
             return None
-                
+
     def insert_user_auth(self, user, auth, configuration):
         try:
             user_auth = Model.DbUserAuth(user, auth, configuration)
@@ -136,7 +136,7 @@ class DbGateway(object):
             return user_auth
         except IntegrityError:
             return None
-                
+
     def add_user_to_group(self, user, group):
         try:
             group.users.append(user)
@@ -144,7 +144,7 @@ class DbGateway(object):
             return user, group
         except IntegrityError:
             return None, None
-                
+
     def grant_on_experiment_to_group(self, group, permission_type, permanent_id, date, comments, experiment, time_allowed, priority, initialization_in_accounting):
         try:
             group_permission = Model.DbGroupPermission(
@@ -190,7 +190,7 @@ class DbGateway(object):
             return group_permission
         except IntegrityError:
             return None
-                
+
     def grant_on_experiment_to_user(self, user, permission_type, permanent_id, date, comments, experiment, time_allowed, priority, initialization_in_accounting):
         try:
             user_permission = Model.DbUserPermission(
@@ -257,7 +257,7 @@ class DbGateway(object):
             return group_permission
         except IntegrityError:
             return None
-                
+
     def grant_on_admin_panel_to_user(self, user, permission_type, permanent_id, date, comments):
         try:
             user_permission = Model.DbUserPermission(
@@ -293,7 +293,7 @@ class DbGateway(object):
             return group_permission
         except IntegrityError:
             return None
-                
+
     def grant_on_access_forward_to_user(self, user, permission_type, permanent_id, date, comments):
         try:
             user_permission = Model.DbUserPermission(

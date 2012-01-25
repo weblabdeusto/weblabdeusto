@@ -41,16 +41,16 @@ class ClientXMLRPCTestCase(unittest.TestCase):
         setattr(Fake, 'Util.method1', Fake.method1)
         setattr(Fake, 'Util.method2', Fake.method2)
         setattr(Fake, 'Util.method3', Fake.method3)
-    
+
         fake = Fake()
-        
+
         newfunctions = []
         for i in methods:
             newfunction = ClientXMLRPC._generate_stub(i)
             newfunctions.append(newfunction)
-    
+
         self.assertEquals(msg1 + msg2,newfunctions[0](fake,msg1))
-        
+
         self.assertRaises(
                 Exceptions.UnknownFaultType,
                 newfunctions[1],

@@ -33,7 +33,7 @@ class DataTestCase(unittest.TestCase):
         botexc  = Data.BotException((Exception("foo"), "foobar"), 2,4,6)
         botuser = User.StandardBotUser({"XMLRPC": ("http://foo", "http://foo/login")},"XMLRPC","user","passwd","exp_name","cat_name","bar", 0.05)
         botit   = Data.BotIteration(100, {"Exception":botexc}, [botuser], "stdout", "stderr")
-        
+
         bottri  = Data.BotTrial([botit])
         self.assertTrue(repr(bottri).find('iterations') > 0)
 

@@ -19,7 +19,7 @@ from weblab.data.experiments import ExperimentId, ExperimentInstanceId
 
 
 class ExperimentIdsTestCase(unittest.TestCase):
-    
+
     def setUp(self):
         self.experiment_id          = ExperimentId('exp', 'cat')
         self.experiment_instance_id = ExperimentInstanceId('inst', 'exp', 'cat')
@@ -29,7 +29,7 @@ class ExperimentIdsTestCase(unittest.TestCase):
 
     def test_experiment_id(self):
         self._check_repr(self.experiment_id)
-        
+
     def test_experiment_instance_id(self):
         self._check_repr(self.experiment_instance_id)
 

@@ -18,11 +18,11 @@ import voodoo.gen.coordinator.Access as Access
 name = "UnixSocket"
 
 class UnixSocketNetwork(Access.Network):
-    
+
     def __init__(self, address):
         """ address is CoordAddress representing the server """
         Access.Network.__init__(self, address)
-        
+
     def check(self, other):
         return [ i for i in other.networks 
             if isinstance(i, UnixSocketNetwork) and self.__both_servers_in_same_machine(i) ]

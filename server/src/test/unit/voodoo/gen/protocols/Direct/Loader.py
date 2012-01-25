@@ -18,7 +18,7 @@ import unittest
 class DirectLoaderTestCase(unittest.TestCase):
     # TODO
     pass
-    
+
 def suite():
     return unittest.makeSuite(DirectLoaderTestCase)
 

@@ -61,4 +61,4 @@ class InvalidContentTypeRetrievedFromImageURLException(WebcamIsReturningAnImageH
 
 class UnableToConnectHostnameInPortException(CheckingHandlerException):
     pass
-        
+

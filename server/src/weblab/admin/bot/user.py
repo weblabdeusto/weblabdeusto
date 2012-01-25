@@ -50,7 +50,7 @@ class BotUser(threading.Thread):
 
     def time(self):
         return self.bot.time()
-    
+
     def get_number_of_exceptions(self):
         return self.bot.get_number_of_exceptions()
 
@@ -85,7 +85,7 @@ class BotUser(threading.Thread):
 
     def __repr__(self):
         return "<BotUser type='%s' />" % self.__class__.__name__
-    
+
 class StandardBotUser(BotUser):
 
     # 

@@ -103,7 +103,7 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
             self.initial_store.put(self.entry2)
             self.initial_store.put(self.entry3)
             self.finished_store.put(RESERVATION4, DATA4, self.initial_time, self.end_time)
-            
+
             # Wait and then populate the RESERVATION3 (the last one in the queue)
             wait_for(self.retriever)
 
@@ -143,7 +143,7 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
             self.assertNotEqual(None, full_usage4.end_date)
 
             # While in the rest it's not yet filled
-            
+
             full_usage1 = self.dbmanager._gateway.retrieve_usage(usages[0].experiment_use_id)
             self.assertEquals(DATA1, full_usage1.commands[-1].response.commandstring)
             self.assertEquals(None, full_usage1.end_date)
@@ -179,7 +179,7 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
             self.assertEquals(0, len(usages))
 
             self.initial_store.put(self.entry1)
-            
+
             wait_for(self.retriever)
 
             usages = self.dbmanager._gateway.list_usages_per_user('student1')

@@ -49,11 +49,11 @@ class Controller(object):
         self.ui = ConsoleUI()
         self.init()
         self.menu()
-        
+
     def init(self):
         db_name, db_user, db_pass = self.ui.dialog_init(DEFAULT_DB_NAME, DEFAULT_DB_USER, DEFAULT_DB_PASS)
         self.db = DbGateway(DB_HOST, db_name, db_user, db_pass)
-        
+
     def menu(self):
         option = None
         while option != 0:
@@ -109,7 +109,7 @@ class Controller(object):
             self.ui.wait()
         except GoBackException:
             return
-        
+
 
     def add_experiment_category(self):
         try:
@@ -122,7 +122,7 @@ class Controller(object):
             self.ui.wait()
         except GoBackException:
             return
-                    
+
     def add_experiment(self):
         categories = self.db.get_experiment_categories()
         category_names = [ (category.id, category.name) for category in categories ]
@@ -139,7 +139,7 @@ class Controller(object):
             self.ui.wait()
         except GoBackException:
             return
-        
+
     def add_users_to_group(self):
         groups = self.db.get_groups()
         group_names = [ (group.id, group.name) for group in groups ]
@@ -166,7 +166,7 @@ class Controller(object):
             self.ui.wait()
         except GoBackException:
             return
-        
+
     def add_user_with_db_authtype(self):
         roles = self.db.get_roles()
         role_names = [ (role.id, role.name) for role in roles ]
@@ -188,18 +188,18 @@ class Controller(object):
             self.ui.wait()
         except GoBackException:
             return
-        
+
     def add_users_batch_with_db_authtype(self):
         # Retrieve every role from the database
         roles = self.db.get_roles()
         role_names = [ (role.id, role.name) for role in roles ]
-        
+
         # Retrieve every DB auth
         auths = self.db.get_auths("DB")
         auth_names = [ (auth.id, auth.name) for auth in auths ]
-        
+
         try:
-            
+
             # Get the data (asking the user if needed) about the users to add and the
             # role to assign them.
             user_logins, role_id = self.ui.dialog_add_users_batch_with_db_authtype(
@@ -207,15 +207,15 @@ class Controller(object):
                                                             auth_names,
                                                             DEFAULT_DB_USERS_FILE
                                                         )
-            
+
             # Get the actual role object through the role id we obtained before.
             role = [ role for role in roles if role.id == role_id ][0] if role_id is not None else None
-            
+
             # Get the first DB auth. We will assume that there is one at most.
             if len(auths) < 1:
                 self.ui.error("There is no auth available of the type DB")
             auth = auths[0]
-      
+
             for user_data in user_logins:
                 # create the user object using the login, full name, email and password we have
                 # retrieved from the provided DB USERS file.
@@ -228,10 +228,10 @@ class Controller(object):
                 else:
                     self.ui.error("The User '%s' already exists." % str(user_data) )     
             self.ui.wait()
-            
+
         except GoBackException:
             return
-        
+
     def add_users_with_ldap_authtype(self):
         if LdapGatewayClass is None:
             self.ui.error("LDAP is not available. Is python-ldap installed?")
@@ -254,7 +254,7 @@ class Controller(object):
                                auth_domain,
                                auth.get_config_value("base"),
                                auth_username, auth_password)
-            
+
             users_created_successfully = 0
             num_users = len(user_logins)
             for user_data in ldap.get_users(user_logins):
@@ -275,18 +275,18 @@ class Controller(object):
             self.ui.wait()
         except GoBackException:
             return
-        
+
     def add_users_with_openid_authtype(self):
         # Retrieve every role from the database
         roles = self.db.get_roles()
         role_names = [ (role.id, role.name) for role in roles ]
-        
+
         # Retrieve every OpenID auth
         auths = self.db.get_auths("OPENID")
         auth_names = [ (auth.id, auth.name) for auth in auths ]
-        
+
         try:
-            
+
             # Get the data (asking the user if needed) about the users to add and the
             # role to assign them.
             user_logins, role_id = self.ui.dialog_add_users_with_openid_authtype(
@@ -294,15 +294,15 @@ class Controller(object):
                                                             auth_names,
                                                             DEFAULT_OPENID_USERS_FILE
                                                         )
-            
+
             # Get the actual role object through the role id we obtained before.
             role = [ role for role in roles if role.id == role_id ][0] if role_id is not None else None
-            
+
             # Get the first OpenID auth. We will assume that there is one at most.
             if len(auths) < 1:
                 self.ui.error("There is no auth available of the type OpenID")
             auth = auths[0]
-      
+
             for user_data in user_logins:
                 # create the user object using the login, full name, and email we have
                 # retrieved from the provided OpenID USERS file.
@@ -315,7 +315,7 @@ class Controller(object):
                 else:
                     self.ui.error("The User '%s' already exists." % str(user_data) )     
             self.ui.wait()
-            
+
         except GoBackException:
             return
 
@@ -351,7 +351,7 @@ class Controller(object):
             self.ui.wait()
         except GoBackException:
             return
-        
+
     def grant_on_experiment_to_user(self):
         users = self.db.get_users()
         user_names = [ (user.id, user.login) for user in users ]
@@ -405,7 +405,7 @@ class Controller(object):
             self.ui.wait()
         except GoBackException:
             return
-        
+
     def grant_on_admin_panel_to_user(self):
         users = self.db.get_users()
         user_names = [ (user.id, user.login) for user in users ]
@@ -447,7 +447,7 @@ class Controller(object):
             self.ui.wait()
         except GoBackException:
             return
-        
+
     def grant_on_access_forward_to_user(self):
         users = self.db.get_users()
         user_names = [ (user.id, user.login) for user in users ]
@@ -468,7 +468,7 @@ class Controller(object):
             self.ui.wait()
         except GoBackException:
             return   
- 
+
     def list_users(self):
         groups = self.db.get_groups()
         group_names = [ (group.id, group.name) for group in groups ]
@@ -479,7 +479,7 @@ class Controller(object):
             self.ui.wait()
         except GoBackException:
             return
-        
+
     def notify_users(self):
         groups = self.db.get_groups()
         group_names = [ (group.id, group.name) for group in groups ]
@@ -503,7 +503,7 @@ class Controller(object):
             self.ui.wait()
         except GoBackException:
             return
-        
+
     def notify_users_with_passwords(self):
         """
         Will send a mail to every specified user with their welcome text. That welcome text
@@ -522,17 +522,17 @@ class Controller(object):
                                                             DEFAULT_NOTIFICATION_WITH_PASSWORD_TEXT_FILE
                                                      )
             users = [ group.users for group in groups if group.id == group_id ][0] if group_id is not None else self.db.get_users()
-            
+
             # The DB does not contain the passwords, so we will retrieve them from the DBUSERS file. 
             users_from_file = self.ui.dialog_read_db_users_file_for_notify(DEFAULT_DB_USERS_FILE)
-            
+
             # Store the passwords in a dictionary, associating them with the login names. 
             user_pwds = {}
             for entry in users_from_file:
                 user_pwds[entry[0]] = entry[3]
-                            
+
             if len(users) > 0 and len(users_from_file) > 0:
-                
+
                 smtp = SmtpGateway(SMTP_HOST, SMTP_HELO)
                 for user in users:
                     if( user.login in user_pwds ):
@@ -547,7 +547,7 @@ class Controller(object):
             self.ui.wait()
         except GoBackException:
             return
-        
+
     def _password2sha(self, password):
         randomstuff = ""
         for _ in range(4):

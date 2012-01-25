@@ -28,7 +28,7 @@ class CoordinatorMapBuilder(object):
             for address in protocol.coordinations.filled_coordinations:
                 network = NetworkClass(address)
                 networks.append(network)
-            
+
             access = Access.Access(
                     getattr(Protocols, protocol.name),
                     protocol.coordinations.filled_level,

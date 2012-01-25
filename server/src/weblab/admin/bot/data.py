@@ -37,7 +37,7 @@ class BotException(object):
 
     def add_instance(self, (exception, trace)):
         self.instances.append((exception, trace))
-        
+
     def set_max(self, number):
         self.max = number
 
@@ -62,19 +62,19 @@ class BotIteration(object):
         self.botusers   = botusers
         self.out        = out
         self.err        = err
-        
+
     def get_times(self):
         return [ botuser.time() for botuser in self.botusers ]
 
     def get_routes(self):
         return [ botuser.route for botuser in self.botusers ]
-    
+
     def get_number_of_exceptions(self):
         number_of_exceptions = 0
         for botuser in self.botusers:
             number_of_exceptions += botuser.get_number_of_exceptions()
         return number_of_exceptions
-            
+
     def get_exceptions(self):
         exceptions_lists = [ self.exceptions[exception_name].instances for exception_name in self.exceptions ]
         exceptions = []
@@ -125,7 +125,7 @@ class BotIteration(object):
             return len(self.exceptions[exception_name].instances)
         else:
             return 0
-        
+
     def __repr__(self):
         s = "<BotIteration: time='%s'><exceptions>" % self.time
         for exc in self.exceptions:
@@ -179,7 +179,7 @@ class BotTrial(object):
             self.max_call_times[method_name] = max([ (it.get_max_time_per_call_by_name().get(method_name) or 0) for it in self.iterations ])
             self.min_call_times[method_name] = min([ (it.get_min_time_per_call_by_name().get(method_name) or 365 * 24 * 3600) for it in self.iterations ])
 
-        
+
         all_calls = {}
         for iteration in self.iterations:
             all_calls_by_name = iteration.get_all_calls_by_name()

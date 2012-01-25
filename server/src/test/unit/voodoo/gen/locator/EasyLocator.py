@@ -38,7 +38,7 @@ class EasyLocatorTestCase(unittest.TestCase):
                 self.coord_addr,
                 self.locator
             )
-        
+
     def test_get_server(self):
         self.locator.get_server(
                 self.coord_addr.address,
@@ -87,7 +87,7 @@ class EasyLocatorTestCase(unittest.TestCase):
                 ServerTypeSample.Login,
                 5
             )
-        
+
         result = MyLoginServer()
         self.locator_mocker.result([result])
         self.locator_mocker.replay()

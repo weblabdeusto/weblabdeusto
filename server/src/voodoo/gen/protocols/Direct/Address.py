@@ -31,7 +31,7 @@ from voodoo.override import Override
 import voodoo.gen.protocols.Direct.Exceptions as Exceptions
 
 class Address(cAddress.Address):
-    
+
     def __init__(self, machine_id, instance_id, server_id):
         cAddress.Address.__init__(self)
         if not isinstance(machine_id,basestring):
@@ -116,11 +116,11 @@ class Address(cAddress.Address):
                     ("Exception instaciating the client: %s" % e),
                     e
                 )
-    
+
     @Override(cAddress.Address)
     def get_protocol(self):
         return Protocols.Direct
-        
+
 def from_coord_address(coord_address):
     if not isinstance(coord_address,CoordAddress.CoordAddress):
         raise Exceptions.NotACoordAddressException(

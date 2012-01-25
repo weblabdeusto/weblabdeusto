@@ -45,7 +45,7 @@ class ResourcesCheckerThread(threading.Thread):
 
                 if self.stopping:
                     break
-                
+
                 if self.coordinator is None:
                     continue
 

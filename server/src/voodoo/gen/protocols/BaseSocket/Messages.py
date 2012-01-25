@@ -25,7 +25,7 @@ class FunctionCall(object):
         self.name = name
         self.args = args
         self.kargs = kargs
-        
+
     def __repr__(self):
         result = self.name+"( "
         for a in self.args:
@@ -64,12 +64,12 @@ class FunctionResultError(FunctionResult):
 
     def answer(self):
         raise self.exception
-        
+
 class MessageFormatter(object):
-    
+
     def __init__(self):
         super(MessageFormatter, self).__init__()
-        
+
     def _data2message(self, data):
         encoded_data = base64.encodestring(data)
         message_length = str(len(encoded_data)).zfill(10)
@@ -78,20 +78,20 @@ class MessageFormatter(object):
             'PAYLOAD'        : encoded_data
         }
         return message
-                
+
     def pack_call(self, name, *args, **kargs):
         call = FunctionCall(name, *args, **kargs)
         call_dto = mapper.dto_generator(call)
         data = cPickle.dumps(call_dto)      
         message = self._data2message(data)
         return message
-    
+
     def pack_result(self, result):
         result_dto = mapper.dto_generator(result)
         data = cPickle.dumps(result_dto)
         message = self._data2message(data)
         return message
-        
+
     def unpack_call(self, data):
         encoded_data = data[10:-1]
         decoded_data = base64.decodestring(encoded_data)
@@ -100,7 +100,7 @@ class MessageFormatter(object):
         if not isinstance(call, FunctionCall):
             pass # TODO: raise something
         return call
-        
+
     def unpack_result(self, data):
         encoded_data = data[10:-1]
         decoded_data = base64.decodestring(encoded_data)

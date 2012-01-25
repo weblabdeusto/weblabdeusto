@@ -57,11 +57,11 @@ class AbstractParser(object):
             configurations.append(
                 os.path.join(directory,relative_file)
             )
-            
+
         return configurations
 
 class ServerParser(AbstractParser):
-    
+
     def _parse_from_stream(self, stream, directory, file_path, address):
         server_dom = self._parse_dom(stream, file_path)
 
@@ -87,7 +87,7 @@ class ServerParser(AbstractParser):
         implementation     = self._parse_implementation(implementation_node)
         restrictions       = self._parse_restrictions(directory, restrictions_nodes)
         protocols          = self._parse_protocols(file_path, protocols_nodes, address)
-        
+
         # Return structure
         server_configuration = ConfigurationData.ServerConfiguration(
                     None,
@@ -145,9 +145,9 @@ class ServerParser(AbstractParser):
             restrictions.append(
                 restriction
             )
-            
+
         return restrictions
-    
+
     def _parse_protocols(self, file_path, protocols_node, address):
         protocol_nodes = [ node
                 for node in protocols_node.childNodes
@@ -188,7 +188,7 @@ class ServerParser(AbstractParser):
             parameters = self._parse_parameters(file_path, coordination_node)
             coordination = ConfigurationData.CoordinationConfiguration(parameters)
             coordinations.append(coordination)
-        
+
         coordinations_configuration = ConfigurationData.CoordinationsConfiguration(
                 coordinations
             )
@@ -233,18 +233,18 @@ class AbstractConfigPlusLevelParser(AbstractParser):
         # Parse nodes
         configurations      = self._parse_configurations(directory, configuration_nodes)
         sub_levels          = self._parse_level(address, directory, sub_level_nodes)
-        
+
         # Return structure
         level_configuration = self.CONFIG_CLASS(
                     None,
                     configurations, 
                     sub_levels
                 )
-                
+
         # We know there can be 0 or 1 node...       
         if len(user_nodes) > 0:
             level_configuration.user = LoaderUtilities.obtain_text_safe(user_nodes[0]) 
-                
+
         return level_configuration
 
     def _parse_level(self, address, directory, sub_level_nodes):
@@ -281,7 +281,7 @@ class InstanceParser(AbstractConfigPlusLevelParser):
                 address.instance_id,
                 name
             )
-        
+
 
 class MachineParser(AbstractConfigPlusLevelParser):
     CONFIG_CLASS  = ConfigurationData.MachineConfiguration

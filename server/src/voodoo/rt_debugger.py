@@ -102,7 +102,7 @@ class Debugger(threading.Thread):
                 s.close()
             except:
                 pass
-            
+
     def close(self):
         self.sock.close()
 

@@ -17,7 +17,7 @@ import smtplib
 TEMPLATE = """From: %(FROM)s
 To: %(TO)s
 Subject: %(SUBJECT)s
-    
+
 %(TEXT)s
 """
 
@@ -30,6 +30,6 @@ class SmtpGateway(object):
         self.server = smtplib.SMTP(self.host)
         self.server.starttls()
         self.server.helo(self.helo)
-        
+
     def send(self, fromm, to, subject, text):
         self.server.sendmail(fromm, to, TEMPLATE % {'FROM': fromm, 'TO': to, 'SUBJECT': subject, 'TEXT': text})

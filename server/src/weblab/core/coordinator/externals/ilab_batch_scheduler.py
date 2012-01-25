@@ -35,7 +35,7 @@ class ILabBatchScheduler(Scheduler):
 
     def stop(self):
         pass
-    
+
     @Override(Scheduler)
     def is_remote(self):
         return True
@@ -99,7 +99,7 @@ class ILabBatchScheduler(Scheduler):
             remote_experiment_id = reservation.remote_experiment_id
         finally:
             session.close()
-        
+
         #     public class StorageStatus
         # public const int BATCH_QUEUED = 1; // if waiting in the execution queue
         # public const int BATCH_RUNNING = 2; //if currently running
@@ -126,7 +126,7 @@ class ILabBatchScheduler(Scheduler):
              return WSS.PostReservationStatus(reservation_id, True, response, '')
         else:
             return WSS.PostReservationStatus(reservation_id, True, "ERROR: WebLab-Deusto can't handle status code %s at this point" % code, '')
-       
+
 
 
     ################################################################

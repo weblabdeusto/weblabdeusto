@@ -175,7 +175,7 @@ class UserProcessor(object):
                 raise core_exc.WebLabCoreException( "Invalid serialized_consumer_data provided: a json-serialized object expected" )
         else:
             consumer_data = {}
-            
+
 
         experiments = [ 
                 exp for exp in self.list_experiments()
@@ -202,7 +202,7 @@ class UserProcessor(object):
             # 
             # Don't take into account initialization unless both agree
             initialization_in_accounting = experiment_allowed.initialization_in_accounting and consumer_data.get('initialization_in_accounting', experiment_allowed.initialization_in_accounting)
-                
+
             status, reservation_id    = self._coordinator.reserve_experiment(
                     experiment_allowed.experiment.to_experiment_id(), 
                     time_allowed, 
@@ -223,7 +223,7 @@ class UserProcessor(object):
 
         self._session['reservation_information'].pop('from_ip', None)
         self._session['reservation_id']   = reservation_id
-            
+
         return status
 
     def logout(self):
@@ -247,14 +247,14 @@ class UserProcessor(object):
     def get_experiment_uses_by_id(self, reservation_ids):
         db_session_id   = self._session['db_session_id']
         experiment_uses = self._db_manager.get_experiment_uses_by_id(db_session_id, reservation_ids)
-        
+
         results = []
         for experiment_use, reservation_id in zip(experiment_uses, reservation_ids):
             result = self._process_use(experiment_use, reservation_id)
             results.append(result)
 
         return results
-                    
+
 
     @typecheck((ExperimentUsage, typecheck.NONE), SessionId)
     def _process_use(self, use, reservation_id):
@@ -275,7 +275,7 @@ class UserProcessor(object):
     #
     # admin service
     #
-    
+
     def get_users(self):
         """
         Retrieves the users from the database itself.
@@ -286,7 +286,7 @@ class UserProcessor(object):
     def get_groups(self, parent_id=None):
         db_session_id         = self._session['db_session_id']
         return get_groups(self._db_manager, db_session_id, parent_id)
-    
+
     def get_roles(self):
         db_session_id         = self._session['db_session_id']
         return get_roles(self._db_manager, db_session_id)
@@ -302,7 +302,7 @@ class UserProcessor(object):
     def get_user_permissions(self):
         db_session_id         = self._session['db_session_id']
         return get_user_permissions(self._db_manager, db_session_id)
-    
+
     def get_permission_types(self):
         db_session_id         = self._session['db_session_id']
         return get_permission_types(self._db_manager, db_session_id)

@@ -46,10 +46,10 @@ class CachePrintTestCase(unittest.TestCase):
             my_cache_func(arg=fobj)
 
         self.runner_unpickable  = stress_util.MainRunner(func_cache_unpickable, "cache_unpickable")
-            
+
         def func_fast_cache():
             my_fast_cache_func(5)
-   
+
         self.runner_fast  = stress_util.MainRunner(func_fast_cache, "cache_fast")
 
     def test_print_results(self):

@@ -39,7 +39,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
 
     def stop(self):
         pass
-    
+
     @Override(Scheduler)
     def is_remote(self):
         return True
@@ -85,13 +85,13 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         for forwarded_key in FORWARDED_KEYS:
             if forwarded_key in request_info:
                 consumer_data[forwarded_key] = request_info[forwarded_key]
-        
+
         # TODO: identifier of the server
         login_client = self._create_login_client()
         session_id = login_client.login(self.username, self.password)
 
         client = self._create_client(login_client.get_cookies())
-        
+
         serialized_client_initial_data = json.dumps(client_initial_data)
         serialized_consumer_data       = json.dumps(consumer_data)
         external_reservation = client.reserve_experiment(session_id, experiment_id, serialized_client_initial_data, serialized_consumer_data)
@@ -134,7 +134,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
             serialized_cookies    = reservation.cookies
         finally:
             session.close()
-        
+
         cookies = pickle.loads(str(serialized_cookies))
         client = self._create_client(cookies)
 
@@ -149,7 +149,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
             reservation_status.set_remote_reservation_id(remote_reservation_id)
 
         return reservation_status
-       
+
 
 
     ################################################################

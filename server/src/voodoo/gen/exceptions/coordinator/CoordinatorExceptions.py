@@ -34,7 +34,7 @@ class CoordInvalidAddressParams(CoordinatorException):
 class CoordInvalidLevelAddress(CoordinatorException):
     def __init__(self,*args,**kargs):
         CoordinatorException.__init__(self,*args,**kargs)
-        
+
 class CoordInvalidKey(CoordinatorException):
     def __init__(self,*args,**kargs):
         CoordinatorException.__init__(self,*args,**kargs)
@@ -42,11 +42,11 @@ class CoordInvalidKey(CoordinatorException):
 class CoordNodeNotFound(CoordinatorException):
     def __init__(self,*args,**kargs):
         CoordinatorException.__init__(self,*args,**kargs)
-    
+
 class CoordMapNotInitialized(CoordinatorException):
     def __init__(self,*args,**kargs):
         CoordinatorException.__init__(self,*args,**kargs)
-    
+
 # CoordNodeNotFound children
 
 class CoordMachineNotFound(CoordNodeNotFound):

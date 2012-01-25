@@ -61,7 +61,7 @@ class LabViewMethod(WebFacadeServer.Method):
         session_id = self.get_argument(SESSION_ID)
         if session_id is None:
             raise LabViewException("%s argument not provided!" % SESSION_ID)
-        
+
         return session_id
 
 class LabViewException(Exception):

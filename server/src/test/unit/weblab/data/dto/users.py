@@ -19,14 +19,14 @@ import weblab.data.dto.users as Group
 
 
 class GroupTestCase(unittest.TestCase):
-    
+
     def test_get_full_name(self):
         group1 = Group.Group("group 1")
         group12 = Group.Group("group 1.2")
         group121 = Group.Group("group 1.2.1")
         group12.add_child(group121)
         group1.add_child(group12)
-        
+
         self.assertEquals(group1.get_full_name(), "group 1")
         self.assertEquals(group12.get_full_name(), "group 1 > group 1.2")
         self.assertEquals(group121.get_full_name(), "group 1 > group 1.2 > group 1.2.1")

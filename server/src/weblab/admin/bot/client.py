@@ -59,7 +59,7 @@ class Call(object):
 
     def time(self):
         return self.end - self.begin
-    
+
     def get_exception(self):
         return self.exception
 
@@ -132,10 +132,10 @@ class AbstractBot(object):
 
     def get_number_of_exceptions(self):
         return len([ call.get_exception() for call in self.calls if call.get_exception() != (None, None) ])
-    
+
     def get_exceptions(self):
         return [ call.get_exception() for call in self.calls if call.get_exception() != (None, None) ]
-    
+
     def get_calls(self):
         return self.calls[:]
 

@@ -27,8 +27,8 @@ class AssignedExperimentsTestCase(unittest.TestCase):
     def setUp(self):
         self._assigned_micro_servers = AssignedExperiments.AssignedExperiments()
         self.exp_inst_id = ExperimentInstanceId("exp_inst","exp_name","exp_cat")
-        
-    
+
+
     def test_add_server(self):
         clients_coord_addresses = CoordAddress.CoordAddress.translate_address("myserver:myinstance@mymachine")
         checking_handlers = ('WebcamIsUpAndRunningHandler',)
@@ -70,7 +70,7 @@ class AssignedExperimentsTestCase(unittest.TestCase):
         self._assigned_micro_servers.reserve_experiment(self.exp_inst_id, "foo")
         lab_session_id = self._assigned_micro_servers.get_lab_session_id(self.exp_inst_id)
         self.assertEquals("foo", lab_session_id)
-        
+
     def test_get_is_up_and_running_handlers(self):
         clients_coord_addresses = CoordAddress.CoordAddress.translate_address("myserver:myinstance@mymachine")
         checking_handlers = ('WebcamIsUpAndRunningHandler',)

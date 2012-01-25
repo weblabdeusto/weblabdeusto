@@ -103,7 +103,7 @@ class FakeSerialPort(object):
 
 # Abstract    
 class Case002TestCase(object):
-    
+
     def gen_coordination_map(self, protocols):
         map = CoordInfo.CoordinationMap()
 
@@ -383,7 +383,7 @@ class Case002TestCase(object):
 
         laboratory_client = locator.get_server(ServerType.Laboratory, None)
         return laboratory_client, real_laboratory_server
-    
+
     def setUp(self):
         protocols                      = self.get_protocols()
 
@@ -441,7 +441,7 @@ class Case002TestCase(object):
                                 protocols
                             )
         self.real_servers.append(reals)
-    
+
     @uses_module(UserProcessingServer)
     @uses_module(UserProcessor)
     @uses_module(ServerSOAP)
@@ -458,7 +458,7 @@ class Case002TestCase(object):
         session_id4 = self.real_login.login('student4','password')
         session_id5 = self.real_login.login('student5','password')
         session_id6 = self.real_login.login('student6','password')
-    
+
         # they all have access to the ud-fpga experiment
         experiments1 = self.real_ups.list_experiments(session_id1)
         fpga_experiments1 = [ exp.experiment for exp in experiments1 if exp.experiment.name == 'ud-fpga' ]
@@ -611,8 +611,8 @@ class Case002TestCase(object):
         # send a program
         CONTENT = "content of the program FPGA"
         self.real_ups.send_file(reservation_id1, ExperimentUtil.serialize(CONTENT), 'program')
-        
-        
+
+
         # We need to wait for the programming to finish.
         start_time = time.time()
         response = "STATE=not_ready"
@@ -620,11 +620,11 @@ class Case002TestCase(object):
             respcmd = self.real_ups.send_command(reservation_id1, Command.Command("STATE"))
             response = respcmd.get_command_string()
             time.sleep(0.2)
-        
+
         # Check that the current state is "Ready"
         self.assertEquals("STATE=ready", response)
-        
-        
+
+
         self.real_ups.send_command(reservation_id1, Command.Command("ChangeSwitch on 0"))
         self.real_ups.send_command(reservation_id1, Command.Command("ClockActivation on 250"))
 
@@ -674,7 +674,7 @@ class Case002TestCase(object):
                 (4 + initial_total,32),
                 self.fake_serial_port1.dict['send'][1 + initial_send]
             )
-    
+
         self.assertEquals(  
                 (5 + initial_total,None),
                 self.fake_serial_port1.dict['close'][1 + initial_close]

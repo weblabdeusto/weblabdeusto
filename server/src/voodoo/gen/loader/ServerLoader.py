@@ -47,7 +47,7 @@ class ServerLoader(object):
     def load_instance(self, global_folder, machine_name, instance_name):
         global_parser = ConfigurationParser.GlobalParser()
         global_configuration = global_parser.parse(global_folder)
-        
+
         if (
                 not global_configuration.machines.has_key(machine_name) 
                 or 
@@ -57,7 +57,7 @@ class ServerLoader(object):
 
         if len(global_configuration.machines[machine_name].instances[instance_name].servers.keys()) == 0:
             raise Exception("Zero servers found!")  
-        
+
         self._create_coordinator_server(
                 global_configuration, 
                 machine_name, 
@@ -120,7 +120,7 @@ class ServerLoader(object):
                 )
 
         any_server = global_config.machines[machine_name].instances[instance_name].servers.values()[0]
-        
+
         server_type = getattr(any_server.server_type_module,'Coordinator')
 
         map.add_new_server( 
@@ -155,7 +155,7 @@ class ServerLoader(object):
                 machine_name,
                 instance_name
             )
-   
+
         generated_coordinator = ServerSkel.factory(
                     cfg_manager,
                     protocols,
@@ -219,7 +219,7 @@ class ServerLoader(object):
                     if current_server_type != server.server_type_module:
                         raise Exception("Too many server types found!")
                     map[server.server_type] = server.methods
-        
+
         if current_server_type is None:
             raise Exception("No server type found!")
         map[current_server_type.Coordinator] = voodoo_exported_methods.coordinator

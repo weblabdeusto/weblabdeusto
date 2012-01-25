@@ -101,7 +101,7 @@ class SocketWait(EventWait):
     def __init__(self, port):
         super(SocketNotifier, self).__init__()
         self.port = port
-        
+
     def wait(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.bind(('localhost', self.port))
@@ -115,19 +115,19 @@ class EventNotifier(object):
     @abstractmethod
     def notify(self):
         pass
-    
+
 class FileNotifier(EventNotifier):
     def __init__(self, filepath, message):
         super(FileNotifier, self).__init__()
         self.message  = message
         self.filepath = filepath
-    
+
     def notify(self):
         of = open(self.filepath, 'w')
         of.write(self.message)
         of.flush()
         of.close()
-        
+
     def dispose(self):
         os.remove(self.filepath)
 
@@ -136,7 +136,7 @@ class SocketNotifier(EventNotifier):
         super(SocketNotifier, self).__init__()
         self.host = host
         self.port = port
-        
+
     def notify(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.connect((self.host, self.port))
@@ -144,7 +144,7 @@ class SocketNotifier(EventNotifier):
 
     def dispose(self):
         self.s.close()
-       
+
 # We could add SignalNotifier, etc. etc.
 
 ###################
@@ -183,12 +183,12 @@ class AbstractLauncher(object):
         if self.event_notifiers is not None:
             for event_notifier in self.event_notifiers:
                 event_notifier.notify()
-                
+
     def dispose_notifiers(self):
         if self.event_notifiers is not None:
             for event_notifier in self.event_notifiers:
                 event_notifier.dispose()
-        
+
     def wait(self):
         holders = []
         ev  = threading.Event()
@@ -205,12 +205,12 @@ class AbstractLauncher(object):
 
     def notify_and_wait(self):
         self.notify()
-        
+
         try:
             self.wait()
         finally:
             self.dispose_notifiers()
-        
+
         rt_debugger.stop_debugger() # Even if it has not been initialized
 
         if self.before_finish_callback is not None:
@@ -354,7 +354,7 @@ if __name__ == '__main__':
     if len(sys.argv) != 7:
         print >> sys.stderr, "Error: invalid number of arguments"
         sys.exit(-1)
-    
+
     _, config_dir, machine_name, instance_name, logging_file, waiting_port, debugger_port = sys.argv
     waiters = (RawInputWait(""),)
     notifiers = (SocketNotifier("localhost", int(waiting_port)),)

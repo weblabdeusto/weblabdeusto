@@ -21,7 +21,7 @@ class SessionId(object):
             raise SessionExceptions.SessionInvalidSessionIdException( "Not a string: %s" % real_id )
 
         self.id = real_id
-    
+
     def __cmp__(self, other):
         if isinstance(other,SessionId):
             return cmp(self.id,other.id)

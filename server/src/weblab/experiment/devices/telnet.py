@@ -14,9 +14,9 @@
 #
 
 import telnetlib
-        
+
 class TelnetDevice(object):
-    
+
     def __init__(self, hostname, port=23, encoding='utf-8'):
         super(TelnetDevice,self).__init__()
         self.hostname = hostname
@@ -24,16 +24,16 @@ class TelnetDevice(object):
         self.encoding = encoding
         self._telnet_device = self._create_telnet()
         self._output = ""
-        
+
     def write(self, buffer):
         output = self._telnet_device.write(buffer.encode(self.encoding))
         if output is not None:
             self._output += output
-        
+
     def read(self):
         response = self._output
         self._output = ""
         return response
-    
+
     def _create_telnet(self):
         return telnetlib.Telnet(self.hostname, self.port)

@@ -18,10 +18,10 @@ import voodoo.gen.coordinator.Access as Access
 name = "InternetSocket"
 
 class InternetSocketNetwork(Access.IpBasedNetwork):
-    
+
     def __init__(self, address):
         Access.IpBasedNetwork.__init__(self, address)
-        
+
     def get_protocol(self):
         import voodoo.gen.protocols.InternetSocket.Network as Network
         return Network

@@ -59,7 +59,7 @@ class DbLockTestCase(unittest.TestCase):
     def setUp(self):
         self.cfg_manager= ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
-        
+
 
 
         self.locker = WrappedFastDbLock(self.cfg_manager, "mypool")

@@ -24,7 +24,7 @@ class DummyExperiment(Experiment.Experiment):
         self.cfg_manager = cfg_manager
         self.verbose           = cfg_manager.get_value('dummy_verbose', True)
         self.server_identifier = cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN, 'core server not available from dummy configuration')
-        
+
     @Override(Experiment.Experiment)
     def do_get_api(self):
         return "1"

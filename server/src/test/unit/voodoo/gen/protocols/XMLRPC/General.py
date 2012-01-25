@@ -53,7 +53,7 @@ class GeneralXMLRPCTestCase(unittest.TestCase):
                     'localhost',
                     PORT
                 )
-        
+
         self.assertEquals(client.method1(msg1),msg1 + msg2)
 
         self.assertRaises(

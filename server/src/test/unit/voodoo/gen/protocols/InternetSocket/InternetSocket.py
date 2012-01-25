@@ -69,7 +69,7 @@ class InternetSocketTestCase(unittest.TestCase):
         self.assertNotEquals(klz.method0.__doc__.find("foo"*100), -1, "method0() has not its documentation in its docstring")
         self.assertNotEquals(klz.method1.__doc__.find("bar"*100), -1, "method1() has not its documentation in its docstring")
         self.assertNotEquals(klz.method2.__doc__.find("foobar"*100), -1, "method2() has not its documentation in its docstring")
-        
+
     def _test_client_generate_with_parameter(self, methods):
         klz = ClientInternetSocket.generate(methods)
         for method_name in methods:
@@ -77,7 +77,7 @@ class InternetSocketTestCase(unittest.TestCase):
             self.assertNotEquals(getattr(klz, method_name).__doc__.find(method_name), -1, "%s() has not its name in its docstring" % method_name)
         self.assertTrue( hasattr(klz, "test_me"), "generate() was intended to generate a class with the method test_me()")
         return klz
-        
+
     def test_client_generate_with_a_tuple(self):
         methods = ("method0", "method1", "method2")
         self._test_client_generate_with_parameter(methods)

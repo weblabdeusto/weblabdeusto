@@ -73,7 +73,7 @@ class UdPicBoardCommandTestCase(unittest.TestCase):
             "PULSE=3 100",
             str(SetPulseCommand("3","100"))
         )
-        
+
         command = UdPicBoardCommand.UdPicBoardCommand("PULSE=3 1")
         self.assertEquals(3, command._commands[0].number)
         self.assertEquals(1, command._commands[0].millis)
@@ -103,7 +103,7 @@ class UdPicBoardCommandTestCase(unittest.TestCase):
             "ADJUST=0 4.9",
             str(AdjustCommand("0","4.9"))
         )
-        
+
         command = UdPicBoardCommand.UdPicBoardCommand("ADJUST=0 5.0")
         self.assertEquals(0, command._commands[0].number)
         self.assertEquals(5.0, command._commands[0].power)
@@ -133,7 +133,7 @@ class UdPicBoardCommandTestCase(unittest.TestCase):
             "WRITE=0 have you tried to turn it off and on again? EOT",
             str(WriteCommand("0","have you tried to turn it off and on again?"))
         )
-        
+
         command = UdPicBoardCommand.UdPicBoardCommand("WRITE=0 text EOT")
         self.assertEquals(0, command._commands[0].number)
         self.assertEquals("text", command._commands[0].text)

@@ -188,7 +188,7 @@ class UserProcessingServer(object):
         self._alive_users_collection = AliveUsersCollection.AliveUsersCollection(
                 self._locator, self._cfg_manager, session_type, self._reservations_session_manager, self._coordinator, self._commands_store, self._coordinator.finished_reservations_store)
 
-        
+
         # 
         # Initialize facade (comm) servers
         # 
@@ -243,7 +243,7 @@ class UserProcessingServer(object):
                 reservation_processor.get_reservation_session_id(),
                 reservation_processor.get_session()
             )
-    
+
     def _check_other_sessions_finished(self):
         expired_users = self._alive_users_collection.check_expired_users()
         if len(expired_users) > 0:
@@ -415,7 +415,7 @@ class UserProcessingServer(object):
         """
         self._check_reservation_not_expired_and_poll( reservation_processor )
         return reservation_processor.send_command( command )
-            
+
     @logged(log.level.Info, except_for=(('file_content',2),))
     @check_session(**check_reservation_session_params)
     @load_reservation_processor
@@ -441,7 +441,7 @@ class UserProcessingServer(object):
         """ 
         check_async_command_status(session_id, request_identifiers)
         Checks the status of several asynchronous commands. 
-        
+
         @param session: Session id
         @param request_identifiers: A list of the request identifiers of the
         requests to check. 
@@ -536,10 +536,10 @@ class UserProcessingServer(object):
     def get_users(self, user_processor, session):
         """
         get_users(user_processor, session)
-        
+
         Receives the get_users petition sent by the client and handles the request through
         a user processor for the calling session.
-        
+
         @param user_processor UserProcessor object through which to handle the request
         @param session Session string
         @return List of users and their data

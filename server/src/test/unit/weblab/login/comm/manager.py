@@ -63,7 +63,7 @@ class LoginFacadeManagerTestCase(unittest.TestCase):
             self.cfg_manager.append_module(configuration)
 
             self.mock_login      = MockLogin()
-            
+
             server_admin_mail = self.cfg_manager.get_value(RFM.SERVER_ADMIN_EMAIL, RFM.DEFAULT_SERVER_ADMIN_EMAIL)
             self.weblab_general_error_message = RFM.UNEXPECTED_ERROR_MESSAGE_TEMPLATE % server_admin_mail 
 
@@ -112,7 +112,7 @@ class LoginFacadeManagerTestCase(unittest.TestCase):
 
         def _test_general_exceptions(self, method, *args):
             MESSAGE = "The exception message"
-    
+
             # Production mode: A general error message is received
             self.cfg_manager._set_value(RFM.DEBUG_MODE, False)
 
@@ -131,7 +131,7 @@ class LoginFacadeManagerTestCase(unittest.TestCase):
             self._test_exception(method, args,  
                             Exception, MESSAGE, 
                             'ZSI:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)            
-               
+
             # Debug mode: The error message is received
             self.cfg_manager._set_value(RFM.DEBUG_MODE, True)
 
@@ -161,7 +161,7 @@ class LoginFacadeManagerTestCase(unittest.TestCase):
                             LoginExceptions.InvalidCredentialsException, MESSAGE, 
                             'ZSI:' + LoginRFCodes.CLIENT_INVALID_CREDENTIALS_EXCEPTION_CODE, MESSAGE)
 
-                
+
             self._test_general_exceptions('login', expected_username, expected_password)
 
         def test_exception_extensible_login(self):
@@ -171,12 +171,12 @@ class LoginFacadeManagerTestCase(unittest.TestCase):
                             LoginExceptions.InvalidCredentialsException, MESSAGE, 
                             'ZSI:' + LoginRFCodes.CLIENT_INVALID_CREDENTIALS_EXCEPTION_CODE, MESSAGE)
 
-                
+
             self._test_general_exceptions('login_based_on_other_credentials', 'facebook', '(my credentials)')
 
     else:
         print >> sys.stderr, "Optional library 'ZSI' not available. Tests in weblab.login.comm.RemoteFacadeManager skipped"
-            
+
 def suite():
     return unittest.makeSuite(LoginFacadeManagerTestCase)
 

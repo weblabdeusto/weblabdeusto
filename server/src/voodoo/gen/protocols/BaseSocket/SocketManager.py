@@ -68,9 +68,9 @@ class SocketManager(object):
 
     def disconnect(self):
         self._socket.close()
-        
+
 class InternetSocketManager(SocketManager):
-    
+
     def __init__(self, hostname=None, port=None, socket=None):
         if socket != None:
             super(InternetSocketManager, self).__init__(socket_type=_socket.AF_INET, socket=socket)
@@ -78,9 +78,9 @@ class InternetSocketManager(SocketManager):
             super(InternetSocketManager, self).__init__(socket_type=_socket.AF_INET, address=(hostname, port))
         else:
             raise InternetSocketManagerConstructionException("You must provide a (hostname, port) or a socket")
-        
+
 class UnixSocketManager(SocketManager):
-    
+
     def __init__(self, path=None, socket=None):
         if socket != None:
             super(UnixSocketManager, self).__init__(socket_type=_socket.AF_UNIX, socket=socket)

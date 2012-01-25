@@ -82,12 +82,12 @@ class AddressTestCase(unittest.TestCase):
                 Address.IpBasedAddress,
                 valid_addresses[0]
             )
-    
+
 
         for i in valid_addresses:
             # No problem
             ImplementorClass(i)
-        
+
         for i in invalid_addresses:
             self.assertRaises(
                 AccessExceptions.AccessInvalidIpBasedFormat,
@@ -106,9 +106,9 @@ class AddressTestCase(unittest.TestCase):
                             address1,
                             address3
                         )
-        
 
-    
+
+
 def suite():
     return unittest.makeSuite(AddressTestCase)
 

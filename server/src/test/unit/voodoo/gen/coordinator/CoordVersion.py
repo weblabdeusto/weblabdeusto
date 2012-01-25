@@ -34,7 +34,7 @@ class VersionTestCase(unittest.TestCase):
                 'machine_id',
                 CoordVersion.ChangeActions.NEW
             )
-    
+
 def suite():
     return unittest.makeSuite(VersionTestCase)
 

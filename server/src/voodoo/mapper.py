@@ -127,7 +127,7 @@ class _DtoMissing(object):
         return cmp(self, other) != 0
 
 class _Node(object):
-    
+
     BASIC     = 'basic'
     TUPLE     = 'tuple'
     LIST      = 'list'
@@ -137,7 +137,7 @@ class _Node(object):
     EXCEPTION = 'exception'
     BUILTIN_E = 'builtin_e'
     IGNORABLE = 'ignorable' 
-    
+
     def __init__(self,parent,name,element,address):
         self.parent    = parent
         self.name      = name
@@ -146,7 +146,7 @@ class _Node(object):
         self.address   = address
         self.data_type = self.get_data_type()
         self.repeated  = False
-        
+
     def get_data_type(self):
         def is_builtin():
             if not hasattr(self.element, '__class__'):
@@ -172,7 +172,7 @@ class _Node(object):
         else:
             _log.log(_Node, _log.level.Warning, 'Unrecognized type: %s, %r, %r. Configure it at voodoo.mapper.py' % (type(self.element), self.name, self.parent))
             return _Node.IGNORABLE
-           
+
     def _repr(self, n):
         parent = self.parent
         parents = str(self.name)
@@ -197,7 +197,7 @@ class _Node(object):
 
     def __repr__(self):
         return self._repr(1)
-        
+
     def append_child(self,name,element):
         new_node = _Node(
                 self, #parent
@@ -224,13 +224,13 @@ class _InstanceDictionary(object):
         # a list of tuples like (key,value)
         self.not_hasheable_instances = []
         self.hasheable_instances = {}
-        
+
     def _is_hasheable(self,key):
         try:
             return not hasattr(key,'__getattr__') and hash(key) == hash(key)
         except:
             return False
-        
+
     def has_key(self,key):
         if self._is_hasheable(key):
             return self.hasheable_instances.has_key(key)
@@ -249,7 +249,7 @@ class _InstanceDictionary(object):
         for i,j in self.not_hasheable_instances:
             keys.append(i)
         return keys
-    
+
     def __getitem__(self,key):
         if self._is_hasheable(key):
             return self.hasheable_instances[key]
@@ -258,13 +258,13 @@ class _InstanceDictionary(object):
                 if i == key:
                     return j
             raise KeyError(key)
-        
+
     def __setitem__(self,key,value):
         if self._is_hasheable(key):
             self.hasheable_instances[key] = value
         else:
             self.not_hasheable_instances.append((key,value))
-            
+
     def __iter__(self):
         for i in self.hasheable_instances.keys():
             yield i
@@ -284,7 +284,7 @@ def remove_unpickables(instance):
                             #           str(instance) : [instances]
                             #    }
                             # }
-                            
+
     def removing_unpickables(instance):
         type_instance = type(instance)
 
@@ -392,7 +392,7 @@ def dto_generator(instance,exceptions = None):
         for exce in exceptions:
             if issubclass(type(current_instance),exce):
                 return
-        
+
         if type(current_instance) in _recoverable_exceptions:
             # TODO: 2 references to the same missing instance
             # would create 2 different instances
@@ -411,24 +411,24 @@ def dto_generator(instance,exceptions = None):
         else:
             parsed_instances[current_instance] = [new_node]
         if new_node.data_type in (_Node.TUPLE, _Node.LIST):
-            
+
             # Tuples and lists have elements inside
             # They name will be their number
             for number,value in enumerate(current_instance):
                 fill_tree(new_node,number,value)
-                
+
         elif new_node.data_type == _Node.DICT:
-            
+
             # Their name will be their key
             # Very important: in dictionaries, the values will be pairs of (key,value)
             for i in current_instance:
                 fill_tree(new_node,i,(i,current_instance[i]))
-                
+
         elif new_node.data_type in (_Node.INSTANCE, _Node.OBJECT, _Node.EXCEPTION, _Node.BUILTIN_E):
             # Elements are the elements which we will take
             elements = [ i for i in dir(current_instance) 
                 if not i.startswith('__') or not i.endswith('__')]
-                
+
             for i in elements:
                 if hasattr(current_instance.__class__,i):
                     data_type = getattr(current_instance.__class__,i)
@@ -438,38 +438,38 @@ def dto_generator(instance,exceptions = None):
                     continue # Deprecated
                 element = getattr(current_instance,i)
                 fill_tree(new_node,i,element)
-            
+
         else:
             raise TypeError(
                 'Unrecognized type: %s. Configure it at voodoo.mapper.py' 
                 % new_node.data_type
             )
-   
+
     first_node = _Node(None,None,None,())
     fill_tree(first_node,None,instance)
     # At this point, instance_tree has been created
     dto_parsed_instances = _InstanceDictionary()
-    
+
     # Let's create the dto structure
     def get_dto_value(current_node):
         if current_node.data_type == _Node.IGNORABLE:
             return "Unable to serialize this data type <%s>, so it was replaced by this str" % type(current_node)
-        
+
         if current_node.data_type == _Node.BASIC:
             return current_node.element
-        
+
         # Check parsed_instances
         if dto_parsed_instances.has_key(current_node.element):
             return dto_parsed_instances[current_node.element]
-        
+
         if   current_node.data_type == _Node.TUPLE:
-            
+
             new_tuple = ()
             for i,element in current_node.children:
                 new_tuple = new_tuple + (get_dto_value(element),)
             dto_parsed_instances[current_node.element] = new_tuple
             return new_tuple
-        
+
         elif current_node.data_type == _Node.LIST:
 
             new_list = []
@@ -502,24 +502,24 @@ def dto_generator(instance,exceptions = None):
                 new_instance = _DtoBuiltin()
             else:
                 new_instance = _DtoObject()
-                
+
             dto_parsed_instances[current_node.element] = new_instance
-            
+
             for i, element in current_node.children:
                 setattr(new_instance,i,get_dto_value(element))
 
             new_instance._old_name      = current_node.element.__class__.__name__
             new_instance._old_doc       = current_node.element.__class__.__doc__
             new_instance._old_module    = current_node.element.__class__.__module__
-                
+
             return new_instance
-        
+
         else:
             raise TypeError(
                 'Unrecognized type: %s. Configure it at voodoo.mapper.py, get_dto_value'
                 % current_node.data_type
             )
-    
+
     return get_dto_value(first_node.children[0][1])
 
 def load_from_dto(instance,exceptions = None,skip_recoverables=False):
@@ -549,60 +549,60 @@ def load_from_dto(instance,exceptions = None,skip_recoverables=False):
             parsed_instances[current_instance] = [new_node]
 
         if new_node.data_type in (_Node.TUPLE, _Node.LIST):
-            
+
             # Tuples and lists have elements inside
             # They name will be their number
             for number,value in enumerate(current_instance):
                 fill_tree(new_node,number,value)
-                
+
         elif new_node.data_type == _Node.DICT:
-            
+
             # Their name will be their key
             # Very important: in dictionaries, the values will be pairs of (key,value)
             for i in current_instance:
                 fill_tree(new_node,i,(i,current_instance[i]))
-                
+
         elif new_node.data_type in (_Node.INSTANCE, _Node.OBJECT, _Node.EXCEPTION, _Node.BUILTIN_E):
 
             # Elements are the elements which we will take
             elements = [ i for i in dir(current_instance) 
                 if not i.startswith('__') or not i.endswith('__')]
-           
+
             for i in elements:
                 if new_node.data_type == _Node.EXCEPTION and i == 'message':
                     continue # Deprecated
                 element = getattr(current_instance,i)
                 fill_tree(new_node,i,element)
-                
+
         else:
             raise TypeError(
                 'Unrecognized type: %s. Configure it at voodoo.mapper.py' 
                 % new_node.data_type
             )
-            
+
     first_node = _Node(None,None,None,())
     fill_tree(first_node,None,instance)
     # At this point, instance_tree has been created
 
     dto_parsed_instances = _InstanceDictionary()
-    
+
     # Let's create the dto structure
     def load_dto_value(current_node):
         if current_node.data_type == _Node.BASIC:
             return current_node.element
-        
+
         # Check parsed_instances
         if dto_parsed_instances.has_key(current_node.element):
             return dto_parsed_instances[current_node.element]
-        
+
         if   current_node.data_type == _Node.TUPLE:
-            
+
             new_tuple = ()
             for i,element in current_node.children:
                 new_tuple = new_tuple + (load_dto_value(element),)
             dto_parsed_instances[current_node.element] = new_tuple
             return new_tuple
-        
+
         elif current_node.data_type == _Node.LIST:
 
             new_list = []
@@ -624,13 +624,13 @@ def load_from_dto(instance,exceptions = None,skip_recoverables=False):
                 value = this_tuple[1]
                 new_dict[key] = value
             return new_dict
-        
+
         elif current_node.data_type == _Node.BUILTIN_E:
             dto_object = _DtoBuiltin()
-            
+
             for i, element in current_node.children:
                 setattr(dto_object,i,load_dto_value(element))
-            
+
             builtin_type = getattr(__builtin__, dto_object._old_name)
             inst = builtin_type()
 
@@ -655,9 +655,9 @@ def load_from_dto(instance,exceptions = None,skip_recoverables=False):
                 dto_object = _DtoObject()
             else:
                 dto_object = _DtoException()
-                
+
             dto_parsed_instances[current_node.element] = dto_object
-           
+
             for i, element in current_node.children:
                 setattr(dto_object,i,load_dto_value(element))
 
@@ -666,13 +666,13 @@ def load_from_dto(instance,exceptions = None,skip_recoverables=False):
             __import__(old_module,globals(),locals(),[])
             the_class = getattr(_sys.modules[old_module],old_name)
             dto_object.__class__ = the_class
-           
+
             if hasattr(dto_object,'deserialize'):
                 dto_object.deserialize()
 
             del dto_object._old_module
             del dto_object._old_name
-            
+
             if isinstance(dto_object,_DtoMissing):
                 if skip_recoverables:
                     return None
@@ -698,6 +698,6 @@ def load_from_dto(instance,exceptions = None,skip_recoverables=False):
                 'Unrecognized type: %s. Configure it at voodoo.mapper.py, load_dto_value'
                 % current_node.data_type
             )
-            
+
     return load_dto_value(first_node.children[0][1])
 

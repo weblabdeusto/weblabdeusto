@@ -52,7 +52,7 @@ class HardwareInterfaceCollector(HardwareInterface):
     def send_message(self, msg):
         for interface in self.interfaces:
             interface.send_message(msg)
-        
+
     def turn_on(self):
         for interface in self.interfaces:
             interface.turn_on()
@@ -74,7 +74,7 @@ class ConsoleInterface(HardwareInterface):
 
     def turn_on(self):
         print "ConsoleInterface::turn on"
-    
+
     def turn_off(self):
         print "ConsoleInterface::turn on"
 
@@ -82,7 +82,7 @@ class ConsoleInterface(HardwareInterface):
         print "ConsoleInterface::clear"
 
 class PicInterface(HardwareInterface):
-    
+
     def __init__(self, ip):
         self.ip = ip
         self.last_message = ""

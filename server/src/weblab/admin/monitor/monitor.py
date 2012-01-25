@@ -75,7 +75,7 @@ def connected_method(func):
     return wrapper
 
 class WebLabShell(object):
-    
+
     def __init__(self, address, port):
         super(WebLabShell, self).__init__()
         self.address = address
@@ -85,7 +85,7 @@ class WebLabShell(object):
         if isinstance(u, unicode):
             return u.encode('utf-8')
         return u
-        
+
     def send(self, command):
         command = self._to_str(command)
         self.telnet.write(command+"\n")
@@ -134,7 +134,7 @@ class WebLabShell(object):
     @connected_method
     def get_ups_session_ids_from_username(self, login):
         return self.send_and_receive("get_ups_session_ids_from_username", login)
- 
+
     @connected_method
     def list_experiments(self):
         return self.send_and_receive("list_experiments")
@@ -147,7 +147,7 @@ class WebLabShell(object):
     def kickout_from_coordinator(self, reservation_id):
         return self.send_and_receive("kickout_from_coordinator", reservation_id)
 
-                   
+
 class WebLabMonitor(object):
     def __init__(self, (ups_ip, ups_port)):
         super(WebLabMonitor, self).__init__()
@@ -155,13 +155,13 @@ class WebLabMonitor(object):
 
     def list_experiments(self):
         return self._shell.list_experiments()
-    
+
     def list_users(self, full_experiment):
         if full_experiment.find("@") != -1:
             experiment, category = full_experiment.split("@")
             users_status = self._shell.get_experiment_status(category, experiment)
             ups_session_ids = self._shell.get_experiment_ups_session_ids(category, experiment)
-            
+
             ups_orphans = []
             information = []
             for ups_session_id, login, wlc_session_id in ups_session_ids:

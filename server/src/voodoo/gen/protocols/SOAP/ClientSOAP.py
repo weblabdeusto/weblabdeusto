@@ -101,7 +101,7 @@ def _generate_call_begin_stub(METHOD_NAME):
              Method name: METHOD_NAME. Documentation: DOCUMENTATION """
         return getattr(self._server,'begin_'+METHOD_NAME)(*parameters,**kparameters)
     return _call_begin_stub
-   
+
 def _generate_call_is_running_stub(METHOD_NAME):
     # Not used for the moment but requierd by ClientSkel
     def _call_is_running_stub(self,server_key,block):
@@ -128,7 +128,7 @@ stubs = (
 
 def generate(methods):
     clientSkel = ClientSkel.generate(methods)
-    
+
     class ClientSOAP(clientSkel):
         def __init__(self, url, port=80):
             if SOAPPY_AVAILABLE:
@@ -147,7 +147,7 @@ def generate(methods):
     else:
         all_methods = list(methods[:])
     all_methods.append('test_me')
-    
+
     # Generating stubs dinamically
     for method_name in all_methods:
 
@@ -164,5 +164,5 @@ def generate(methods):
             func_name = stub_prefix + method_name
             func.func_name = func_name          
             setattr(ClientSOAP, func_name, func)
-            
+
     return ClientSOAP

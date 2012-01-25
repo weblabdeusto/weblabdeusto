@@ -29,13 +29,13 @@ class UdBoardCommandTestCase(unittest.TestCase):
                 codes,
                 (27,1,32)
             )
-        
+
         self.assertRaises(
                 UdXilinxExperimentExceptions.InvalidUdBoardCommandException,
                 UdBoardCommand.UdBoardCommand,
                 "foo"
             )
-    
+
     def test_str(self):
         self.assertEquals(
             "ChangeSwitch on 0",
@@ -88,7 +88,7 @@ class UdBoardCommandTestCase(unittest.TestCase):
             str(ClockDeactivationCommand())
         )
 
-        
+
     def test_bounds(self):
         # ChangeSwitch
         self.assertEquals(

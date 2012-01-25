@@ -18,11 +18,11 @@ import weblab.exc as wlExc
 class ProxyException(wlExc.WebLabException):
     def __init__(self, *args, **kargs):
         wlExc.WebLabException.__init__(self, *args, **kargs)
-        
+
 #
 # from ProxyException
 #        
-        
+
 class NotASessionTypeException(ProxyException):
     def __init__(self, *args, **kargs):
         ProxyException.__init__(self, *args, **kargs)    
@@ -30,19 +30,19 @@ class NotASessionTypeException(ProxyException):
 class InvalidReservationIdException(ProxyException):
     def __init__(self, *args, **kargs):
         ProxyException.__init__(self, *args, **kargs)
-        
+
 class AccessDisabledException(ProxyException):
     def __init__(self, *args, **kargs):
         ProxyException.__init__(self, *args, **kargs)
-        
+
 class InvalidDefaultTranslatorNameException(ProxyException):
     def __init__(self, *args, **kargs):
         ProxyException.__init__(self, *args, **kargs)
-        
+
 class FailedToSendCommandException(ProxyException):
     def __init__(self, *args, **kargs):
         ProxyException.__init__(self, *args, **kargs)
-        
+
 class FailedToSendFileException(ProxyException):
     def __init__(self, *args, **kargs):
         ProxyException.__init__(self, *args, **kargs)

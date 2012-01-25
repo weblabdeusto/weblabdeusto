@@ -20,18 +20,18 @@ import voodoo.configuration as ConfigurationManager
 
 
 class StoresEverythingExceptForFilesTranslatorTestCase(unittest.TestCase):
-    
+
     def setUp(self):
         self._cfg_manager = ConfigurationManager.ConfigurationManager()
         self._cfg_manager.append_module(configuration_module)
         self.translator = StoresEverythingExceptForFilesTranslator(None, None, self._cfg_manager)
-        
+
     def test(self):
         self.assertEquals(
             None,
             self.translator.do_on_start('session_id')
         )
-        
+
         self.assertEquals(
             'command',
             self.translator.do_before_send_command('session_id', 'command')
@@ -56,7 +56,7 @@ class StoresEverythingExceptForFilesTranslatorTestCase(unittest.TestCase):
             None,
             self.translator.do_on_finish('session_id')
         )
-                          
+
 
 def suite():
     return unittest.makeSuite(StoresEverythingExceptForFilesTranslatorTestCase)

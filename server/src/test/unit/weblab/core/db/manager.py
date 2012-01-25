@@ -22,12 +22,12 @@ import weblab.core.db.manager as DatabaseManager
 
 class DatabaseServerTestCase(unittest.TestCase):
     """Note: Methods tested from UserProcessingServer won't be tested again here."""
-    
+
     def setUp(self):
         cfg_manager= ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration)
         self.dm = DatabaseManager.UserProcessingDatabaseManager(cfg_manager)
-        
+
 
 def suite():
     return unittest.makeSuite(DatabaseServerTestCase)

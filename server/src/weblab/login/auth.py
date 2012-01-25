@@ -43,7 +43,7 @@ class LoginAuth(object):
                     user_auth.name
                 )
             )
-    
+
     @abstractmethod
     def authenticate(self, login, password):
         pass

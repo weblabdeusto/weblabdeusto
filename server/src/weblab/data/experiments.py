@@ -54,7 +54,7 @@ class ExperimentId(object):
         return ExperimentId(experiment_name, category_name)
 
 class ExperimentInstanceId(object):
-    
+
     __metaclass__ = Representable
 
     @typecheck(basestring, basestring, basestring)
@@ -78,7 +78,7 @@ class ExperimentInstanceId(object):
 class CommandSent(object):
 
     __metaclass__ = Representable
-    
+
     @typecheck(Command.Command, float, Command.Command, (float, type(None)))
     def __init__(self, command, timestamp_before, response = None, timestamp_after = None):
         self.command          = command          # Command
@@ -157,7 +157,7 @@ class ExperimentUsage(object):
         Appends the specified command to the local list of commands,
         so that later the commands that were sent during the session
         can be retrieved for logging or other purposes.
-        
+
         @param command_sent The command that was just sent, which we will register
         @return The index of the command we just added in the internal list. Mostly, 
         for identification purposes.

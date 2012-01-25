@@ -184,7 +184,7 @@ class CoordinatorServerTestCase(unittest.TestCase):
             coord_server.do_get_server,
             "p0wn3d"
         )
-        
+
         my_address = map['machine0']['instance0']['server0'].address
 
         # What if there are problems serializing?
@@ -252,7 +252,7 @@ class CoordinatorServerTestCase(unittest.TestCase):
                 cfg_manager,
                 map
             )
-        
+
         my_address = map['machine0']['instance0']['server0'].address
 
         everything = coord_server.do_get_all_servers(
@@ -263,7 +263,7 @@ class CoordinatorServerTestCase(unittest.TestCase):
                 3,
                 len(everything)
             )
-    
+
         server0, networks0 = everything[0]
         server1, networks1 = everything[1]
         server2, networks2 = everything[2]
@@ -323,7 +323,7 @@ class CoordinatorServerTestCase(unittest.TestCase):
                 cfg_manager,
                 map
             )
-        
+
         my_address = map['machine0']['instance0']['server0'].address
 
         other_address1 = map['machine0']['instance0']['server1'].address

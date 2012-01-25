@@ -35,4 +35,4 @@ def Override(classes):
         else:
             return func
     return wrapped
-        
+

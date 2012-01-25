@@ -35,7 +35,7 @@ def fill_coordinations(coordinations_configuration, address):
         raise LoaderExceptions.InvalidConfigurationException(
             "Unexpected parameter: expected 'sockpath' and found:" % parameter.name
         )
-    
+
 
     coordinations_configuration.filled_coordinations = [
             Address.Address(address.machine_id, parameter.value)

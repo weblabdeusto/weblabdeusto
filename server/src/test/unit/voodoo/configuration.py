@@ -102,7 +102,7 @@ class ConfigurationManagerTestCase(unittest.TestCase):
         self._refill_module(module_name)
 
         confManager.reload()
-        
+
         self.assertEquals(
             confManager.get_value('mynumber'),
             6
@@ -163,25 +163,25 @@ class ConfigurationManagerTestCase(unittest.TestCase):
             values.mystr,
             "hello world"
         )
-        
+
         #
         # With a provided default value
         #
-        
+
         # 1st way: As a known key in the source code
         values = confManager.get_values(not_found='expected_value')
         self.assertEquals(
             'expected_value',
             values.not_found
         )
-        
+
         # 2nd way: As an unknown key in the source code
         values = confManager.get_values( **{"not_found": 'expected_value'})
         self.assertEquals(
             'expected_value',
             getattr(values, "not_found")
         )
-        
+
         os.remove(module_name)
         os.remove(module_name + 'c')
 

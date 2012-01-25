@@ -76,7 +76,7 @@ class ServerTypeHandlerTestCase(unittest.TestCase):
                 ServerTypeSample
             )
 
-    
+
 def suite():
     return unittest.makeSuite(ServerTypeHandlerTestCase)
 

@@ -43,7 +43,7 @@ class HttpDevice(object):
 class WlHttpDeviceException(DeviceExceptions.DeviceException):
     def __init__(self, msg):
         DeviceExceptions.DeviceException.__init__(self, "Exception related to Weblab's Http device: %s" % msg)
- 
+
 class WlHttpDeviceURLErrorException(WlHttpDeviceException):
     def __init__(self, e = None):
         text = "Failed reaching the server"

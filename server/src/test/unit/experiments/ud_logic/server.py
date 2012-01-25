@@ -33,7 +33,7 @@ class CircuitGeneratorTestCase(unittest.TestCase):
         gate2 = LogicExperiment.Gate('and', switch1, switch2)
         gate3 = LogicExperiment.Gate('and', switch3, switch4)
         gate1 = LogicExperiment.Gate('or', gate2, gate3)
-        
+
         self.assertFalse(gate1.turned)
         switch1.set_turned(True)
         self.assertFalse(gate1.turned)

@@ -221,7 +221,7 @@ class RepresentableTestCase(unittest.TestCase):
     def test_typed_child_repr(self):
         self.assertEquals(TypedChildClass(5,6,7), eval(repr(TypedChildClass(5,6,7))))
         self.assertNotEquals(TypedChildClass(6,5,7), eval(repr(TypedChildClass(5,6,7))))
-      
+
     def test_grand_child_equality(self):
         self.assertEquals(GrandChildClass(5,6,7), GrandChildClass(5,6,7))
         self.assertNotEquals(GrandChildClass(5,6,7), GrandChildClass(5,6,8))

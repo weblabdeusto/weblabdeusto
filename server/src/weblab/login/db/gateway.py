@@ -187,7 +187,7 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
                 auth_info = None
             else:
                 auth_info = self._retrieve_auth_information(user, session)
-            
+
             return user.role, user.id, auth_info
         finally:
             session.close()

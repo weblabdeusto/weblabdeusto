@@ -36,7 +36,7 @@ class ReservationTest(unittest.TestCase):
     def test_str_waiting_instances_reservation(self):
         reservation = WaitingInstances("reservation_id", 5)
         self.assertCorrectReservation(reservation)
-        
+
     def test_str_confirmed_reservation(self):
         reservation = ConfirmedReservation("reservation_id", datetime.datetime.now(), "{}", 'http://www.weblab.deusto.es/...', "remote_reservation_id")
         self.assertCorrectReservation(reservation)

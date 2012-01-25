@@ -32,12 +32,12 @@ class Access(object):
         self.protocol  = protocol
         self.access_level = access_level
         self.networks = list(networks)
-            
+
     def possible_connections(self,other):
         if other.access_level != self.access_level or other.protocol != self.protocol:
             return []
         #Now, let's check networks
-        
+
         return_value = []
         for i in self.networks:
             for j in i.check(other):
@@ -56,7 +56,7 @@ class Network(object):
     @abstractmethod
     def check(self,other):
         """ check(self,other) -> [Network1,...]
-        
+
         Given this network and an instance of Access called "other",
         check will return a list of networks of "other" which are
         interoperable with this network

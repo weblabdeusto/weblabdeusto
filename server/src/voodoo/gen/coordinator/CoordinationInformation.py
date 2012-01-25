@@ -63,7 +63,7 @@ class CoordServer(object):
         * parent_instance is a member of CoordInstance, and can be later 
         * accesses is a sequence of instances of Access
         * restrictions is a sequence of restrictions. For instance, a server for FPGAs, etc.
-        
+
         modified with the "parent" property.
         """
         object.__init__(self)
@@ -77,7 +77,7 @@ class CoordServer(object):
         self._version       = 0
         self._accesses      = list(accesses)
         self._restrictions      = list(restrictions)
-        
+
         # Addressing information
         self._name      = server_name
         self._parent        = parent_instance
@@ -119,7 +119,7 @@ class CoordServer(object):
     @property
     def server_type(self):
         return self._server_type
-    
+
     @property
     def address(self):
         return self._address
@@ -142,13 +142,13 @@ class CoordServer(object):
     def _set_status(self,new_status):
         self._status = new_status
         self._increase_version()
-    
+
     @locked('_accesses_write_lock')
     def _append_accesses(self,accesses):
         for i in accesses:
             self._accesses.append(i)
         self._increase_version()
-       
+
     @locked('_accesses_read_lock')
     def can_connect(self,other_server):
         """ can_connect(self,other_server) -> list
@@ -162,7 +162,7 @@ class CoordServer(object):
                 for k in i.possible_connections(j):
                     networks.append(k)
         return networks
-    
+
     def get_accesses(self):
         """ get_accesses(self) -> iterator
 
@@ -241,7 +241,7 @@ class CoordInstance(object):
     @locked('_servers_read_lock')
     def version(self):
         return self._version
-    
+
     def get_servers(self):
         """ get_servers() -> iterator
 
@@ -252,9 +252,9 @@ class CoordInstance(object):
         """
         walked_servers = []
         while True:
-            
+
             self._servers_read_lock.acquire()
-            
+
             keys = [ i for i in self._servers.keys() if not i in walked_servers ]
             if len(keys) >= 1:
                 server = self._servers[keys[0]]
@@ -284,7 +284,7 @@ class CoordInstance(object):
             )
         self._servers[server_name] = new_server
         self._increase_version()
-    
+
     @locked('_servers_write_lock')
     def _append_accesses(self,server_name,accesses):
         if not self._servers.has_key(server_name):
@@ -294,7 +294,7 @@ class CoordInstance(object):
                     )
         self._servers[server_name]._append_accesses(accesses)
         self._increase_version()
-            
+
     @locked('_servers_write_lock')
     def _set_status(self,server_name,new_status):
         if not self._servers.has_key(server_name):
@@ -326,12 +326,12 @@ class CoordInstance(object):
                         self.name
                     )
             )
-            
+
     @locked('_servers_write_lock')
     def __setitem__(self,number,value):
         self._servers[number] = value
         self._increase_version()
-            
+
 ###############################################################################
 #                                                                             #
 #                             CoordMachine                                    #
@@ -349,7 +349,7 @@ class CoordMachine(object):
         self._instances_write_lock = self._instances_lock.write_lock()
         self._instances     = {}
         self._version       = 0
-    
+
         # Addressing information
         self.name       = machine_id
         self.parent     = parent_map
@@ -414,7 +414,7 @@ class CoordMachine(object):
                 accesses
             )
         self._increase_version()
-   
+
     @locked('_instances_write_lock')
     def _set_status(self, instance_name, server_name, new_status):
         if not self._instances.has_key(instance_name):
@@ -439,9 +439,9 @@ class CoordMachine(object):
         """
         walked_instances = []
         while True:
-            
+
             self._instances_read_lock.acquire()
-            
+
             keys = [ i for i in self._instances.keys() if not i in walked_instances ]
             if len(keys) >= 1:
                 instance = self._instances[keys[0]]
@@ -452,7 +452,7 @@ class CoordMachine(object):
                 #End :-)
                 self._instances_read_lock.release()
                 return
-    
+
     def _update_info(self,other_machine):
         for other_instance in other_machine.get_instances():
             self._instances_write_lock.acquire()
@@ -503,7 +503,7 @@ class CoordMachine(object):
     def __setitem__(self,number,value):
         self._instances[number] = value
         self._increase_version()
-            
+
 ###############################################################################
 #                                                                             #
 #                           CoordinationMap                                   #
@@ -541,7 +541,7 @@ class CoordinationMap(object):
     @locked('_machines_read_lock')
     def version(self):
         return self._version
-    
+
     def _increase_version(self):
         # Important: this method should be called
         # after a self._accesses_lock.acquire()
@@ -559,7 +559,7 @@ class CoordinationMap(object):
             )
         self._machines[machine_name] = new_machine
         self._increase_version()
-   
+
     @locked('_machines_write_lock')
     def add_new_instance(self, machine_name, instance_name):
         if not self._machines.has_key(machine_name):
@@ -569,7 +569,7 @@ class CoordinationMap(object):
             )
         self._machines[machine_name]._add_new_instance(instance_name)
         self._increase_version()
-    
+
     @locked('_machines_write_lock')
     def add_new_server(self, 
             machine_name, 
@@ -607,7 +607,7 @@ class CoordinationMap(object):
                 accesses
             )
         self._increase_version()
-    
+
     @locked('_machines_write_lock')
     def set_status(self, machine_name, instance_name, server_name, new_status):
         if not self._machines.has_key(machine_name):
@@ -632,9 +632,9 @@ class CoordinationMap(object):
         """
         walked_machines = []
         while True:
-            
+
             self._machines_read_lock.acquire()
-            
+
             keys = [ i for i in self._machines.keys() if not i in walked_machines ]
             if len(keys) >= 1:
                 machine = self._machines[keys[0]]
@@ -687,7 +687,7 @@ class CoordinationMap(object):
 
     def get_servers(self,original_server, server_type, restriction = None):
         """ get_servers(original_server,server_type) -> iterator 
-        
+
         original_server is an instance of CoordServer
         server_type is a member of an enumerator listing the types of server
 
@@ -711,7 +711,7 @@ class CoordinationMap(object):
                 )
         instance_address = original_server.address.get_instance_address()
         instance = self[instance_address]
-        
+
         # The first place to look for is in the same instance
         for i in instance.get_servers():
             if i.server_type == server_type:
@@ -724,11 +724,11 @@ class CoordinationMap(object):
         # The next place to look for is in the same machine
         machine_address = original_server.address.get_machine_address()
         machine = self[machine_address]
-        
+
         # TODO: This could be optimized so that when checking another
         # instance and a server is added to a walked instance, the
         # new server would be checked
-        
+
         # Let's look for all the instances in the same machine
         # (except for the instance we have just checked)
         for i in machine.get_instances():
@@ -739,7 +739,7 @@ class CoordinationMap(object):
                             networks = original_server.can_connect(j)
                             if len(networks) > 0:
                                 yield j,networks
-        
+
         # The next place to look for is in other machine
         for i in self.get_machines():
             if i != machine:
@@ -817,7 +817,7 @@ class CoordinationMapController(object):
     @locked('_map_write_lock')
     def load(self,where):
         """ load(self,where)
-        
+
         Loads current coordination map from "where".
         Right now, where should be a file object.
 
@@ -834,12 +834,12 @@ class CoordinationMapController(object):
     def get_servers(self, original_server_address, server_type, restriction = None):
         original_server = self._map[original_server_address]
         return self._map.get_servers(original_server, server_type, restriction)
-        
+
     @_map_checker
     @locked('_map_read_lock')
     def can_connect(self, server_address1, server_address2):
         server1 = self._map[server_address1]
         server2 = self._map[server_address2]
         return server1.can_connect(server2)
-    
+
 

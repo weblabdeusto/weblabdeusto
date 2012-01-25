@@ -43,7 +43,7 @@ class AssignedExperiments(object):
         if by_experiment == None:
             by_experiment = {}
             by_category[exp_inst_id.exp_name] = by_experiment
-            
+
         by_instance = by_experiment.get( exp_inst_id.inst_name )
         if by_instance != None:
             raise LaboratoryExceptions.ExperimentAlreadyFoundException(
@@ -88,10 +88,10 @@ class AssignedExperiments(object):
         Gets the API version that the specified experiment instance is currently using.
         """ 
         return self._retrieve_experiment_handler( experiment_instance_id ).api
-    
+
     def set_api(self, experiment_instance_id, api):
         """
-        
+
         """
         self._retrieve_experiment_handler( experiment_instance_id ).api = api
 
@@ -103,7 +103,7 @@ class AssignedExperiments(object):
             return self._experiments[cat_name][exp_name][inst_name]
         except KeyError:
             raise LaboratoryExceptions.ExperimentNotFoundException( "Experiment instance not found! %s" % experiment_instance_id )
-        
+
     def get_is_up_and_running_handlers(self, experiment_instance_id):
         exp_handler = self._retrieve_experiment_handler( experiment_instance_id )
         return exp_handler.is_up_and_running_handlers

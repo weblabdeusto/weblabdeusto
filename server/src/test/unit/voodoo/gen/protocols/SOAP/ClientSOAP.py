@@ -54,31 +54,31 @@ class ClientSOAPTestCase(unittest.TestCase):
 
                 def method4(self):
                     raise NameError('ha ha')
-            
+
             fake = Fake()
-            
+
             newfunctions = []
             for i in methods:
                 newfunction = ClientSOAP._generate_stub(i)
                 newfunctions.append(newfunction)
-        
+
             if ServerSOAP.SERIALIZE:
                 #TODO: this must be tested
                 return
             self.assertEquals(msg1 + msg2,newfunctions[0](fake,msg1))
-            
+
             self.assertRaises(
                     TypeError,
                     newfunctions[1],
                     fake
                 )
-            
+
             the_error = None
             try:
                 newfunctions[1](fake)
             except TypeError as te:
                 the_error = te
-                
+
             self.assertEquals( the_error.args[0], exc_msg )
 
             self.assertRaises(

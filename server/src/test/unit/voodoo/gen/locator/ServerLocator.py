@@ -144,7 +144,7 @@ class ServerLocatorTestCase(unittest.TestCase):
 
     def tearDown(self):
         ServerRegistry.get_instance().clear()
-    
+
     def _get_new_locator(self):
         return ServerLocator.ServerLocator(
             self.coordinator_server_address,
@@ -305,7 +305,7 @@ class ServerLocatorTestCase(unittest.TestCase):
                     return arg * 3
             s2 = YetAnother2( Direct = (address2.address,), SOAP = ('',12346))
             s2.start()
-        
+
             server_type_handler = ServerTypeHandler.ServerTypeHandler(
                     SampleServerType,
                     {
@@ -480,7 +480,7 @@ class ServerLocatorTestCase(unittest.TestCase):
                     SOAP = ('',12350)
                 )
             s2.start()
-        
+
             server_type_handler = ServerTypeHandler.ServerTypeHandler(
                     SampleServerType,
                     {
@@ -544,7 +544,7 @@ class ServerLocatorTestCase(unittest.TestCase):
             )
         # Reset the cache
         self._reset_locator_cache(locator)
-        
+
         # By _save_server_in_registry_and_cache
         locator._save_server_in_registry_and_cache(
                 self._login_server1,
@@ -565,7 +565,7 @@ class ServerLocatorTestCase(unittest.TestCase):
                     self.login_server1_address
                 )
             )
-    
+
     def test_errors(self):
         locator = self._get_new_locator()
         self.assertRaises(
@@ -756,7 +756,7 @@ class ServerLocatorTestCase(unittest.TestCase):
             return login_server1_address
 
         self._coordinatorImplementor.do_get_server = do_get_server4
-        
+
         self._reset_locator_cache(locator)
         generated_server4 = locator.get_server('address',ServerTypeSample.Login,())
         self.assertEquals(
@@ -862,7 +862,7 @@ class ServerLocatorTestCase(unittest.TestCase):
             return login_server1_address
 
         self._coordinatorImplementor.do_get_server = do_get_server4
-        
+
         self._reset_locator_cache(locator)
         generated_server4 = locator.get_server('address',ServerTypeSample.Login,())
         self.assertEquals(
@@ -960,12 +960,12 @@ class ServerLocatorTestCase(unittest.TestCase):
                 1,
                 len(generated_server1[1])
             )
-    
+
         self.assertEquals(
                 1,
                 len(generated_server2[1])
             )
-    
+
         generated_server1_client = generated_server1[1][0]
         generated_server2_client = generated_server2[1][0]
 
@@ -1024,7 +1024,7 @@ class ServerLocatorTestCase(unittest.TestCase):
                 random_msg + " through Login Server",
                 server_instance.method1(random_msg)
             )
-        
+
         self._coordinatorImplementor.do_get_networks = old_do_get_networks
 
 def suite():

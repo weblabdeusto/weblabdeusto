@@ -74,7 +74,7 @@ class LaboratoryServer(object):
 
     # exp_inst_name|exp_name|exp_cat;coord_address
     EXPERIMENT_INSTANCE_ID_REGEX = r"^(.*)\:(.*)\@(.*)$"
-    
+
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(LaboratoryServer,self).__init__(*args, **kwargs)
 
@@ -90,14 +90,14 @@ class LaboratoryServer(object):
         self._coord_address         = coord_address
         self._locator               = locator
         self._cfg_manager           = cfg_manager
-        
+
         # This dictionary will be used to store the ongoing and not-yet-queried 
         # async requests. They will be stored by session.
         # TODO: Consider refactoring this.
         self._async_requests = {}
 
         self._load_assigned_experiments()
-        
+
 
 
     #######################################################
@@ -129,7 +129,7 @@ class LaboratoryServer(object):
                     coord_address = CoordAddress.CoordAddress.translate_address(data['coord_address'])
                 except GeneratorExceptions.GeneratorException:
                     raise LaboratoryExceptions.InvalidLaboratoryConfigurationException("Invalid coordination address: %s" % data['coord_address'])
-                
+
                 # CheckingHandlers
                 checkers = data.get('checkers', ())
                 checking_handlers = []
@@ -150,7 +150,7 @@ class LaboratoryServer(object):
     def _load_assigned_experiments(self):
         self._assigned_experiments = AssignedExperiments.AssignedExperiments()
         parsed_experiments         = self._parse_assigned_experiments()
-        
+
         for exp_inst_id, coord_address, checking_handlers in parsed_experiments:
             self._assigned_experiments.add_server(exp_inst_id, coord_address, checking_handlers)
 
@@ -189,10 +189,10 @@ class LaboratoryServer(object):
                 'experiment_coord_address' : experiment_coord_address,
                 'session_id' : lab_sess_id
             })
-        
+
         # Check whether we know the API version already.
         api = self._assigned_experiments.get_api(experiment_instance_id)
-        
+
         # If we don't know the API version yet, we will have to ask the experiment server itself
         if api is None:
             reported_api = self._get_experiment_api(experiment_instance_id)
@@ -241,7 +241,7 @@ class LaboratoryServer(object):
             session_id = session['session_id']
             if( self._async_requests.has_key(session_id) ):
                 del self._async_requests[session_id]
-            
+
             experiment_instance_id = session['experiment_instance_id']
             try:
                 experiment_response = self._free_experiment_from_assigned_experiments(experiment_instance_id)
@@ -273,15 +273,15 @@ class LaboratoryServer(object):
             return "ok"
         else:
             return return_value
-        
+
     @logged(log.level.Info)
     def _get_experiment_api(self, experiment_instance_id):
         """
         _get_experiment_api(experiment_instance_id) -> api
-        
+
         Retrieves the API version of the specified experiment instance (which will generally be the same
         for every experiment of the same kind).
-        
+
         @param experiment_instance_id The id of the experiment instance whose API to retrieve
         @return The API version, or None if an error occurred or it wasn't possible to retrieve the version.
         """        
@@ -306,7 +306,7 @@ class LaboratoryServer(object):
             except:
                 # It's not online. No get_api.
                 reported_api = None
-        
+
         return reported_api
 
 
@@ -323,7 +323,7 @@ class LaboratoryServer(object):
             }
 
         exclude_checking = self._cfg_manager.get_value(WEBLAB_LABORATORY_EXCLUDE_CHECKING, DEFAULT_WEBLAB_LABORATORY_EXCLUDE_CHECKING)
-        
+
         for experiment_instance_id in experiment_instance_ids:
             if experiment_instance_id.to_weblab_str() in exclude_checking:
                 continue # Exclude experiment
@@ -408,7 +408,7 @@ class LaboratoryServer(object):
     def do_send_file(self, session, file_content, file_info):
         experiment_coord_address = session['experiment_coord_address']
         experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
-        
+
         try:
             response = experiment_server.send_file_to_device(file_content, file_info)
         except Exception as e:
@@ -424,7 +424,7 @@ class LaboratoryServer(object):
     def do_send_command(self, session, command):
         experiment_coord_address = session['experiment_coord_address']
         experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
-        
+
         try:
             response = experiment_server.send_command_to_device(command.get_command_string())
         except Exception as e:
@@ -433,8 +433,8 @@ class LaboratoryServer(object):
             raise LaboratoryExceptions.FailedToSendCommandException("Couldn't send command: %s" % str(e))
 
         return Command.Command(str(response))
-    
-    
+
+
     @logged(log.level.Info)
     @threaded()
     def _send_async_file_t(self, session, file_content, file_info):
@@ -445,7 +445,7 @@ class LaboratoryServer(object):
         """
         experiment_coord_address = session['experiment_coord_address']
         experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
-        
+
         try:
             response = experiment_server.send_file_to_device(file_content, file_info)
         except Exception as e:
@@ -454,7 +454,7 @@ class LaboratoryServer(object):
             raise LaboratoryExceptions.FailedToSendFileException("Couldn't send async file: %s" % str(e))
 
         return Command.Command(str(response))
-    
+
 
     @logged(log.level.Info,except_for=(('file_content',2),))
     @check_session(*check_session_params)
@@ -464,29 +464,29 @@ class LaboratoryServer(object):
         Runs the experiment server's send_file_to_device asynchronously, by running the
         call on its own thread and storing the result, to be returned through the 
         check_async_command_status request. 
-        
+
         @param session: Session
         @param request_identifiers: List of request identifiers whose status to check.
         @return A dictionary with each request identifier as key and a (status, contents) tuple as values.
         The status can either be "ok", if the request is done, "error", if it failed, and "running", if it
         has not finished yet. In the first two cases, contents will return the response. 
         """
-        
+
         # Call the async method which will run on its own thread. Store the object 
         # it returns, so that we can know whether it has finished.
         threadobj = self._send_async_file_t(session, file_content, file_info)
-        
+
         # Create a new identifier for the new request
         # TODO: Consider refactoring this
         gen = SessionGenerator.SessionGenerator()
         request_id = gen.generate_id(16)
-        
+
         # Store the new request in our dictionary
         session_id = session['session_id']
         if(session_id not in self._async_requests):
             self._async_requests[session_id] = {}
         self._async_requests[session_id][request_id] = threadobj
-        
+
         return request_id
 
 
@@ -499,35 +499,35 @@ class LaboratoryServer(object):
         Note that at this respect there is no difference between a standard async command and an async send_file.
         This method will work for either, and request_identifiers of both types can be mixed freely.
         Requests reported as finished (either successfully or not) will be removed.
-        
+
         @param session: Session
         @param request_identifiers: List of request identifiers whose status to check.
         @return A dictionary with each request identifier as key and a (status, contents) tuple as values.
         The status can either be "ok", if the request is done, "error", if it failed, and "running", if it
         has not finished yet. In the first two cases, contents will return the response. 
         """
-        
+
         session_id = session['session_id']
         if(session_id not in self._async_requests):
             self._async_requests[session_id] = {}
-        
+
         # Build and return a dictionary with information about the status of every
         # specified async command.
         response = {}
         for req_id in request_identifiers:
-            
+
             # If one of the specified request ids does not seem to exist, we
             # will simply ignore it and return nothing about it. We will handle
             # the remaining request ids normally.
             # TODO: Consider whether doing this is appropriate.
             if( req_id not in self._async_requests[session_id] ): 
                 continue
-            
+
             req = self._async_requests[session_id][req_id]
-            
+
             status = None
             contents = None
-            
+
             if(req.raised_exc is not None):
                 status = AsyncRequest.STATUS_ERROR
                 contents = str(req.raised_exc)
@@ -538,12 +538,12 @@ class LaboratoryServer(object):
                 del self._async_requests[session_id][req_id]
             else:
                 status = AsyncRequest.STATUS_RUNNING
-            
-            
+
+
             response[req_id] = (status, contents)
-            
+
         return response
-    
+
     @logged(log.level.Info)
     @threaded()
     def _send_async_command_t(self, session, command):
@@ -554,7 +554,7 @@ class LaboratoryServer(object):
         """
         experiment_coord_address = session['experiment_coord_address']
         experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
-        
+
         try:
             response = experiment_server.send_command_to_device(command.get_command_string())
         except Exception as e:
@@ -572,24 +572,24 @@ class LaboratoryServer(object):
         Runs the experiment server's send_command_to_device asynchronously, by running the
         call on its own thread and storing the result, to be returned through the 
         check_async_command_status request.
-        
+
         @param session: Session 
         @param command: Command to execute asynchronously
         """
-        
+
         # Call the async method which will run on its own thread. Store the object 
         # it returns, so that we can know whether it has finished.
         threadobj = self._send_async_command_t(session, command)
-        
+
         # Create a new identifier for the new request
         # TODO: Consider refactoring this
         gen = SessionGenerator.SessionGenerator()
         request_id = gen.generate_id(16)
-        
+
         # Store the new request in our dictionary
         session_id = session['session_id']
         if(session_id not in self._async_requests):
             self._async_requests[session_id] = {}
         self._async_requests[session_id][request_id] = threadobj
-        
+
         return request_id

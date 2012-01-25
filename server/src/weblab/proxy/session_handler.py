@@ -28,11 +28,11 @@ DEFAULT_EXPERIMENT_POLL_TIME = 300  # seconds
 
 
 class ProxySessionHandler(object):
-    
+
     _time = time
-    
+
     EXPIRATION_TIME_NOT_SET = -1234
-    
+
     def __init__(self, session, laboratory, translator, cfg_manager, locator, session_manager):
         super(ProxySessionHandler, self).__init__()
         self._session = session
@@ -41,10 +41,10 @@ class ProxySessionHandler(object):
         self._cfg_manager = cfg_manager
         self._locator = locator
         self._session_manager = session_manager
-    
+
     def _utc_timestamp(self):
         return self._time.time()
-        
+
     def update_latest_timestamp(self):
         self._session['latest_timestamp'] = self._utc_timestamp()
 
@@ -96,7 +96,7 @@ class ProxySessionHandler(object):
     #===============================================================================
     # API to Core Server
     #===============================================================================
-    
+
     def enable_access(self):
         self._session['access_enabled'] = True
         self._session['session_polling'] = (self._time.time(), ProxySessionHandler.EXPIRATION_TIME_NOT_SET)
@@ -115,7 +115,7 @@ class ProxySessionHandler(object):
         elif expiration_time != ProxySessionHandler.EXPIRATION_TIME_NOT_SET and current_time > expiration_time:
             return "Y <expiration-time-expired>"
         return "N"
-    
+
     def retrieve_results(self):
         timestamp_before = self._utc_timestamp()
         translation = self._translator.on_finish(self._session['trans_session_id'])
@@ -127,7 +127,7 @@ class ProxySessionHandler(object):
     #===============================================================================
     # API to Client
     #===============================================================================
-        
+
     def poll(self):
         if self._is_polling():
             self._session['session_polling'] = (self._time.time(), ProxySessionHandler.EXPIRATION_TIME_NOT_SET) 

@@ -19,12 +19,12 @@ import voodoo.gen.exceptions.locator.LocatorExceptions as LocatorExceptions
 import voodoo.gen.locator.ServerLocator as ServerLocator
 
 class EasyLocator(object):
-    
+
     def __init__(self, server_coordadd, server_locator):
         super(EasyLocator, self).__init__()
         self._server_coordaddr = server_coordadd
         self._server_locator          = server_locator
-    
+
     def get_server_coordaddr(self):
         return self._server_coordaddr
 
@@ -41,7 +41,7 @@ class EasyLocator(object):
     def check_server_at_coordaddr(self, coord_addr, server_type):
         if len(self._get_server_from_coordaddr(coord_addr, server_type)) == 0:
             raise Exception("Could not connect to experiment %s through any interface" % coord_addr)
-       
+
     def _get_server_from_coordaddr(self, coord_addr, server_type, how_many=1):
         return self._server_locator.get_server_from_coord_address(
                 self._server_coordaddr,
@@ -78,7 +78,7 @@ class EasyLocator(object):
             # 
             # will actually call the reserve_method (trying all
             # the servers the locator can find)
-            
+
             func = _generate_call(server_type, method)
             setattr(EasyServer,method,func)
 
@@ -114,7 +114,7 @@ def _generate_call(server_type, method):
                 raise LocatorExceptions.UnableToCompleteOperationException(
                         "Couldn't connect to %s" % server_type
                     )
-        
+
             try:
                 return getattr(server, method)(*args, **kwargs)
             except ProtocolExceptions.RemoteException as re:
@@ -165,7 +165,7 @@ def _generate_call_from_coordaddr(server_type, method):
                         server_type,
                         ()
                     )
-        
+
         log.log( EasyLocator, log.level.Error, "Can't get a %s server! Error in get_server after testing %s servers " % (server_type, tested))
         raise LocatorExceptions.UnableToCompleteOperationException(
                 "Couldn't connect to any %s" % server_type

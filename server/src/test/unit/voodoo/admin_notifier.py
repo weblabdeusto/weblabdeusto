@@ -24,7 +24,7 @@ import voodoo.configuration as ConfigurationManager
 import voodoo.configuration as ConfigurationExceptions
 
 class AdminNotifierFake(AdminNotifier.AdminNotifier):
-    
+
     def __init__(self, configuration, expected, smtp_mock):
         super(AdminNotifierFake, self).__init__(configuration)
         self.verification = False
@@ -56,7 +56,7 @@ class ConfigurationManagerFake(object):
             )
 
 class AdminNotifierTestCase(mocker.MockerTestCase):
-    
+
     def setUp(self):
         self.default_config = dict(
             server_hostaddress        = 'weblab.deusto.es',
@@ -67,7 +67,7 @@ class AdminNotifierTestCase(mocker.MockerTestCase):
             mail_server_helo          = 'weblab.deusto.es',
             mail_notification_sender  = 'weblab@deusto.es'
         )
-    
+
     def test_with_real_configuration(self):
         cfg_manager= ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration_module)
@@ -89,7 +89,7 @@ class AdminNotifierTestCase(mocker.MockerTestCase):
         cfg_manager= ConfigurationManagerFake(self.default_config)
         self.smtp_mock = self.mocker.mock()
         notifier = AdminNotifierFake(cfg_manager, 'rigel.deusto.es', self.smtp_mock)
-        
+
         self.mocker.replay()
         result = notifier.notify('message')
         self.assertEquals(-1, result)
@@ -114,7 +114,7 @@ def real_test():
 
     notifier = AdminNotifier.AdminNotifier(cfg_manager)
     notifier.notify('message')
-    
+
     print "Verify in your e-mail address :-D"
 
 

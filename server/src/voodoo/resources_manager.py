@@ -51,7 +51,7 @@ class ResourceManager(object):
         @locked('_lock')
         def add_resource_testing(self, resource):
             self._resources.append(resource)
-        
+
         @locked('_lock')
         def remove_resource_testing(self, resource):
             if resource in self._resources:

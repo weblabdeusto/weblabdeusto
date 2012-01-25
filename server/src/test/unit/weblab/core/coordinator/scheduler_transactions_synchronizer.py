@@ -53,11 +53,11 @@ class SchedulerTransactionsSynchronizerTestCase(unittest.TestCase):
 
     def test_concurrent_updates(self):
         self.scheduler.time_to_sleep = 0.2
-        
+
         self.assertEquals(0, self.scheduler.updates)
 
         t_initial = self._request_threaded()
-        
+
         # Wait for it to be initialized
         while self.requests == 0:
             time.sleep(0.001)

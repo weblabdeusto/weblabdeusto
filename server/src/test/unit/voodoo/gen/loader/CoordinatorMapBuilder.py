@@ -29,7 +29,7 @@ class CoordinatorMapBuilderTestCase(unittest.TestCase):
     def setUp(self):
         global_parser = ConfigurationParser.GlobalParser()
         self.global_configuration = global_parser.parse(GLOBAL_PATH)
-    
+
     def test_map_loaded(self):
         coordinatorMapBuilder = CoordinatorMapBuilder.CoordinatorMapBuilder()
         map = coordinatorMapBuilder.build(self.global_configuration)
@@ -53,7 +53,7 @@ class CoordinatorMapBuilderTestCase(unittest.TestCase):
         accesses1 = server1.get_accesses()
         access1   = accesses1.next()
         access2   = accesses1.next()
-        
+
         self.assertEquals(
                 Protocols.Direct,
                 access1.protocol 

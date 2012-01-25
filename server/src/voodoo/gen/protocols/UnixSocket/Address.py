@@ -24,7 +24,7 @@ import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
 from voodoo.override import Override 
 
 class Address(cAddress.Address):
-    
+
     def __init__(self, machine_id, path_id):
         cAddress.Address.__init__(self)
         if not isinstance(machine_id,basestring):
@@ -77,7 +77,7 @@ class Address(cAddress.Address):
             return client_class(path=self._path_id)
         except Exception as e:
             raise ProtocolExceptions.ClientInstanciationException(("Exception instaciating the client: %s" % e), e)
-    
+
     @Override(cAddress.Address)
     def get_protocol(self):
         return Protocols.UnixSocket

@@ -66,7 +66,7 @@ class IndependentSchedulerAggregator(Scheduler):
         # Local schedulers go first
         # 
         self.ordered_schedulers = local_schedulers + remote_schedulers
-        
+
         self.experiment_id            = experiment_id
         self.schedulers               = schedulers
         self.particular_configuration = particular_configuration
@@ -166,7 +166,7 @@ class IndependentSchedulerAggregator(Scheduler):
                     self.resources_manager.dissociate_scheduler_from_reservation(reservation_id, self.experiment_id, resource_type_name)
 
         best_reservation = self.select_best_reservation_status(all_reservation_status.values())
-        
+
         if DEBUG:
             print tabs, "</", url, best_reservation, "/>"
             print 

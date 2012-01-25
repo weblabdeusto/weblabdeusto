@@ -27,7 +27,7 @@ import weblab.db.exc as DbExceptions
 
 
 class DatabaseGatewayTestCase(unittest.TestCase):
-    
+
     def setUp(self):
         cfg_manager= ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration)
@@ -83,7 +83,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
             'student8',
             'password'
         )
-        
+
     def test_user_password_ldap(self):
         role, user_id, user_auths = self.auth_gateway.check_user_password(
                 'studentLDAP1',
@@ -108,7 +108,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
             'ldaps://castor.cdk.deusto.es',
             user_auths[0].ldap_uri
         )
-    
+
     def test_user_password_user_auth_without_user_auth(self):
         self.assertRaises(
             DbExceptions.DbNoUserAuthNorPasswordFoundException,
@@ -116,7 +116,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
             'studentLDAPwithoutUserAuth',
             None
         )
-        
+
 
 def suite():
     return unittest.makeSuite(DatabaseGatewayTestCase)
