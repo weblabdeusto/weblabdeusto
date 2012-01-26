@@ -260,6 +260,8 @@ class UserProcessor(object):
     def _process_use(self, use, reservation_id):
         """Given a reservation_id not present in the usage db, check if it is still running or waiting, or it did never enter the system"""
         if use is not None:
+            if use.end_date is None:
+                return AliveReservationResult()
             storage_path = self._cfg_manager.get_value('core_store_students_programs_path')
             use.load_files(storage_path)
             return FinishedReservationResult(use)
