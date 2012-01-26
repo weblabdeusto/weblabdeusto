@@ -306,7 +306,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
         experiment_results = self.ups.get_experiment_uses_by_id(sess_id, reservations)
-
+        
         self.assertEquals(2, len(experiment_results))
 
         self.assertTrue( experiment_results[0].is_finished() )
@@ -314,8 +314,8 @@ class UserProcessingServerTestCase(unittest.TestCase):
         experiment_results[0].experiment_use.experiment_use_id = None
         self.assertEquals(FinishedReservationResult(usages[0].load_files('.')), experiment_results[0])
 
-        # reservation_id2 is for student2, and the session is for student1, so it returns None
-        self.assertTrue(experiment_results[1].is_cancelled())
+        # reservation_id2 is for student2, and the session is for student1, so it is forbidden
+        self.assertTrue(experiment_results[1].is_forbidden())
 
     def test_get_experiment_uses_by_id_notfound(self):
         reservations, usages = self._store_two_reservations()

@@ -194,6 +194,7 @@ class ReservationResult(object):
     ALIVE     = 'alive'
     CANCELLED = 'cancelled'
     FINISHED  = 'finished'
+    FORBIDDEN = 'forbidden'
 
     def __init__(self, status):
         self.status = status
@@ -205,6 +206,9 @@ class ReservationResult(object):
         return False
 
     def is_cancelled(self):
+        return False
+
+    def is_forbidden(self):
         return False
 
 class AliveReservationResult(ReservationResult):
@@ -223,6 +227,15 @@ class CancelledReservationResult(ReservationResult):
 
     @Override(ReservationResult)
     def is_cancelled(self):
+        return True
+
+class ForbiddenReservationResult(ReservationResult):
+
+    def __init__(self):
+        super(ForbiddenReservationResult, self).__init__(ReservationResult.FORBIDDEN)
+
+    @Override(ReservationResult)
+    def is_forbidden(self):
         return True
 
 class FinishedReservationResult(ReservationResult):

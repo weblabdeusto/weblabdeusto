@@ -29,7 +29,7 @@ from weblab.data.experiments import ExperimentUsage
 import weblab.core.exc as core_exc
 import weblab.core.coordinator.exc as coord_exc
 
-from weblab.data.experiments import AliveReservationResult, CancelledReservationResult, FinishedReservationResult
+from weblab.data.experiments import AliveReservationResult, CancelledReservationResult, FinishedReservationResult, ForbiddenReservationResult
 
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessor")
 
@@ -256,10 +256,12 @@ class UserProcessor(object):
         return results
 
 
-    @typecheck((ExperimentUsage, typecheck.NONE), SessionId)
+    @typecheck((ExperimentUsage, str, typecheck.NONE), SessionId)
     def _process_use(self, use, reservation_id):
         """Given a reservation_id not present in the usage db, check if it is still running or waiting, or it did never enter the system"""
         if use is not None:
+            if use == self._db_manager._gateway.forbidden_access:
+                return ForbiddenReservationResult()
             if use.end_date is None:
                 return AliveReservationResult()
             storage_path = self._cfg_manager.get_value('core_store_students_programs_path')

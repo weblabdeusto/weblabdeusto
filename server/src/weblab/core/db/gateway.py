@@ -59,6 +59,8 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
 
     engine = None
 
+    forbidden_access = 'forbidden_access'
+
     def __init__(self, cfg_manager):
         super(DatabaseGateway, self).__init__(cfg_manager)
 
@@ -403,14 +405,17 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         try:
             user = session.query(model.DbUser).filter_by(login = user_login).first()
             if user is None:
-                return [None] * len(reservation_ids)
+                return [self.forbidden_access] * len(reservation_ids)
 
             for reservation_id in reservation_ids:
-                experiment_use = session.query(model.DbUserUsedExperiment).filter_by(reservation_id = reservation_id.id, user = user).first()
+                experiment_use = session.query(model.DbUserUsedExperiment).filter_by(reservation_id = reservation_id.id).first()
                 if experiment_use is None:
                     results.append(None)
                 else:
-                    results.append(experiment_use.to_business())
+                    if experiment_use.user == user:
+                        results.append(experiment_use.to_business())
+                    else:
+                        results.append(self.forbidden_access)
         finally:
             session.close()
 
