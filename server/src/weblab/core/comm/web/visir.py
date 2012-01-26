@@ -20,12 +20,15 @@ import weblab.comm.web_server as WebFacadeServer
 import weblab.experiment.util as Util
 
 import os
-import re
 import mimetypes
 
+import weblab
 
+# VISIR_LOCATION = "C:/shared/weblab-hg/weblabdeusto/client/war/weblabclient/visir/"
 
-VISIR_LOCATION = "C:/shared/weblab-hg/weblabdeusto/client/war/weblabclient/visir/"
+VISIR_RELATIVE_PATH = os.sep.join(('..','..','..','client','war','weblabclient','visir')) + os.sep
+
+VISIR_LOCATION = os.path.abspath(os.sep.join((os.path.dirname(weblab.__file__), VISIR_RELATIVE_PATH))) + os.sep
 
 BASE_HTML_TEMPLATE="""<?xml version="1.0"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -62,19 +65,25 @@ class  VisirMethod(WebFacadeServer.Method):
                                           'THE_FAULT_CODE' : "Invalid URI",  
                                           'THE_FAULT_MESSAGE' : "The URI should not contain .." }
         
-        
         # Find out the location of the file. 
-        fileonly = re.sub(r"(/weblab/web/visir/)(.*)", r"\2", self.uri, 1)
+        fileonly = self.uri.split('/web/visir/')[1]
+        
         file = VISIR_LOCATION + fileonly
         
-                
+        if not os.path.abspath(file).startswith(VISIR_LOCATION):
+            return FAULT_HTML_TEMPLATE % { 
+                                          'THE_FAULT_CODE' : "Invalid URI",  
+                                          'THE_FAULT_MESSAGE' : "The URI tried to go outside the scope of VISIR" }
+
+               
         # Intercept the save request
         if fileonly == "save":
             return self.intercept_save()
         
+        
         try:
             f = open(file, "rb")
-            content = f.read(-1)
+            content = f.read()
         except:
             return FAULT_HTML_TEMPLATE % { 
                               'THE_FAULT_CODE' : "404",  
@@ -99,7 +108,7 @@ class  VisirMethod(WebFacadeServer.Method):
     def intercept_save(self):
         save = self.get_argument("save", "", False)
         self.set_content_type("application/download")
-        self.add_other_header("Content-Disposition", "attachment; filename=\"circuit.cir\"")
+        self.add_other_header("Content-Disposition", "attachment; filename=circuit.cir")
         return save
 
     def intercept_library(self, content, mimetype):
