@@ -105,12 +105,12 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         reservation_id2 = self._test_reservation(session_id, self.dummy1, 'Provider 1', True, False)
         reservation_id3 = self._test_reservation(session_id, self.dummy1, 'Provider 2', True, False)
 
-        reservation_ids = (reservation_id1, reservation_id2, reservation_id2)
+        reservation_ids = (reservation_id1, reservation_id2, reservation_id3)
         reservation_results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
 
         self.assertEquals(AliveReservationResult(), reservation_results[0])
-        self.assertEquals(AliveReservationResult(), reservation_results[0])
-        self.assertEquals(AliveReservationResult(), reservation_results[0])
+        self.assertEquals(AliveReservationResult(), reservation_results[1])
+        self.assertEquals(AliveReservationResult(), reservation_results[2])
 
 
         #
@@ -118,6 +118,12 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         #
         self.consumer_core_client.finished_experiment(reservation_id2)
         reservation_results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
+
+        self.assertEquals(AliveReservationResult(), reservation_results[0])
+        # Given that it has not been propagated yet, this fails
+        self.assertEquals(FinishedReservationResult, reservation_results[1])
+        self.assertEquals(AliveReservationResult(), reservation_results[2])
+
         reservation_id2b = self._test_reservation(session_id, self.dummy1, 'Provider 1', True, False)
 
         self.consumer_core_client.finished_experiment(reservation_id1)
