@@ -19,10 +19,13 @@ import weblab.experiment.experiment as Experiment
 import httplib
 import urllib2
 import urllib
+import threading
+import time
 
 import json
 
 from voodoo.override import Override
+from voodoo.lock import locked
 
 CFG_USE_VISIR_PHP = "vt_use_visir_php"
 
@@ -49,6 +52,49 @@ DEFAULT_CLIENT_URL = "visir/loader.swf"
 
 DEBUG = True
 
+HEARTBEAT_REQUEST = """<protocol version="1.3"><heartbeat/></protocol>"""
+HEARTBEAT_PERIOD  = 20 
+
+
+class Heartbeater(threading.Thread):
+    """
+    The Heartbeater is a different thread, which will periodically send a heartbeat
+    request if no other requests have been sent recently.
+    """
+    
+    def __init__(self):
+        self.last_sent = time.time()
+        
+    def tick(self):
+        """
+        tick()
+        Should be called, both internally or externally, whenever a heartbeat or any
+        other packet is sent to reset the heartbeat timer.
+        """
+        self.last_sent = time.time()
+        print "[DBG] HB TICK"
+    
+    def run(self, experiment):
+        
+        # Initialize the timer. We assume the thread is started just after login.
+        self.last_sent = time.time()
+        
+        print "[DBG] HB INIT"
+        
+        while(True):
+            # Evaluate the time left for the next potential heartbeat.
+            time_left = time.time() - self.last_sent + HEARTBEAT_PERIOD
+            
+            # If time_left is zero or negative, a heartbeat IS due.
+            if(time_left <= 0):
+                print "[DBG] HB FORWARDING"             
+                experiment.forward_request(HEARTBEAT_REQUEST)
+            
+            # Otherwise, we will just sleep. 
+            print "[DBG] HB SLEEPING FOR %d" % (time_left)
+            time.sleep(time_left)
+            
+
 
 class VisirTestExperiment(Experiment.Experiment):
     
@@ -56,6 +102,7 @@ class VisirTestExperiment(Experiment.Experiment):
         super(VisirTestExperiment, self).__init__(*args, **kwargs)
         self._cfg_manager = cfg_manager
         self.read_config()
+        self.heartbeater = Heartbeater()
         
     @Override(Experiment.Experiment)
     def do_get_api(self):
@@ -138,6 +185,7 @@ class VisirTestExperiment(Experiment.Experiment):
         return str(resp)
     
         
+    @locked()
     def forward_request(self, request):
         """
         Forwards a request to the VISIR Measurement Server through an
@@ -152,6 +200,9 @@ class VisirTestExperiment(Experiment.Experiment):
         response = conn.getresponse()
         data = response.read()
         conn.close()
+        
+        # We just sent a request. Tick the heartbeater.
+        self.heartbeater.tick()
         
         if(DEBUG):
             print "[VisirTestExperiment] Received response: ", data
@@ -195,6 +246,11 @@ class VisirTestExperiment(Experiment.Experiment):
             o.open("%s/electronics/experiment.php?cookie=%s" % (self.baseurl, c.value))
             #experiments_content = experiments_page.read()
             #"<a href=/electronics/experiment.php?[a-zA-Z0-9;&=]+\">(.*)"
+            
+            # We are now logged in. Start the heartbeater so that VISIR does not kick us
+            # out due to inactivity.
+            self.heartbeater.start()
+            
             return c.value
         
         # No cookies retrieved, login must have failed.
@@ -220,5 +276,9 @@ class VisirTestExperiment(Experiment.Experiment):
         """
         if(DEBUG):
             print "[VisirTestExperiment] do_dispose called"
+            
+        # Stop the heartbeater
+        self.heartbeater.stop()
+        
         return "Ok"
 
