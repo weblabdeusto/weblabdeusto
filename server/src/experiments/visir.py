@@ -62,8 +62,9 @@ class Heartbeater(threading.Thread):
     request if no other requests have been sent recently.
     """
     
-    def __init__(self):
+    def __init__(self, experiment):
         self.last_sent = time.time()
+        self.experiment = experiment
         
     def tick(self):
         """
@@ -74,7 +75,7 @@ class Heartbeater(threading.Thread):
         self.last_sent = time.time()
         print "[DBG] HB TICK"
     
-    def run(self, experiment):
+    def run(self):
         
         # Initialize the timer. We assume the thread is started just after login.
         self.last_sent = time.time()
@@ -88,7 +89,7 @@ class Heartbeater(threading.Thread):
             # If time_left is zero or negative, a heartbeat IS due.
             if(time_left <= 0):
                 print "[DBG] HB FORWARDING"             
-                experiment.forward_request(HEARTBEAT_REQUEST)
+                self.experiment.forward_request(HEARTBEAT_REQUEST)
             
             # Otherwise, we will just sleep. 
             print "[DBG] HB SLEEPING FOR %d" % (time_left)
@@ -102,7 +103,7 @@ class VisirTestExperiment(Experiment.Experiment):
         super(VisirTestExperiment, self).__init__(*args, **kwargs)
         self._cfg_manager = cfg_manager
         self.read_config()
-        self.heartbeater = Heartbeater()
+        self.heartbeater = Heartbeater(self)
         
     @Override(Experiment.Experiment)
     def do_get_api(self):
