@@ -62,9 +62,11 @@ class Heartbeater(threading.Thread):
     request if no other requests have been sent recently.
     """
     
-    def __init__(self, experiment):
+    def __init__(self, experiment, sessionkey):
+        threading.Thread.__init__(self)
         self.last_sent = time.time()
         self.experiment = experiment
+        self.sessionkey = sessionkey
         
     def tick(self):
         """
@@ -84,16 +86,18 @@ class Heartbeater(threading.Thread):
         
         while(True):
             # Evaluate the time left for the next potential heartbeat.
-            time_left = time.time() - self.last_sent + HEARTBEAT_PERIOD
+            time_left = (self.last_sent + HEARTBEAT_PERIOD) - time.time()
             
             # If time_left is zero or negative, a heartbeat IS due.
             if(time_left <= 0):
                 print "[DBG] HB FORWARDING"             
                 self.experiment.forward_request(HEARTBEAT_REQUEST)
-            
-            # Otherwise, we will just sleep. 
-            print "[DBG] HB SLEEPING FOR %d" % (time_left)
-            time.sleep(time_left)
+                
+            else:
+                # Otherwise, we will just sleep. 
+                print "[DBG] HB SLEEPING FOR %d" % (time_left)
+                time.sleep(5)
+                print "[DBG] Not sleeping anymore"
             
 
 
@@ -103,7 +107,7 @@ class VisirTestExperiment(Experiment.Experiment):
         super(VisirTestExperiment, self).__init__(*args, **kwargs)
         self._cfg_manager = cfg_manager
         self.read_config()
-        self.heartbeater = Heartbeater(self)
+        self.heartbeater = None
         
     @Override(Experiment.Experiment)
     def do_get_api(self):
@@ -185,8 +189,7 @@ class VisirTestExperiment(Experiment.Experiment):
         resp = json.dumps(data)
         return str(resp)
     
-        
-    @locked()
+ 
     def forward_request(self, request):
         """
         Forwards a request to the VISIR Measurement Server through an
@@ -250,6 +253,7 @@ class VisirTestExperiment(Experiment.Experiment):
             
             # We are now logged in. Start the heartbeater so that VISIR does not kick us
             # out due to inactivity.
+            self.heartbeater = Heartbeater(self, "44134124")
             self.heartbeater.start()
             
             return c.value
@@ -277,9 +281,6 @@ class VisirTestExperiment(Experiment.Experiment):
         """
         if(DEBUG):
             print "[VisirTestExperiment] do_dispose called"
-            
-        # Stop the heartbeater
-        self.heartbeater.stop()
         
         return "Ok"
 
