@@ -21,6 +21,7 @@ import urllib2
 import urllib
 import threading
 import time
+import xml.dom.minidom as xml
 
 import json
 
@@ -52,7 +53,7 @@ DEFAULT_CLIENT_URL = "visir/loader.swf"
 
 DEBUG = True
 
-HEARTBEAT_REQUEST = """<protocol version="1.3"><heartbeat/></protocol>"""
+HEARTBEAT_REQUEST = """<protocol version="1.3"><heartbeat sessionkey="%s"/></protocol>"""
 HEARTBEAT_PERIOD  = 20 
 
 
@@ -91,7 +92,7 @@ class Heartbeater(threading.Thread):
             # If time_left is zero or negative, a heartbeat IS due.
             if(time_left <= 0):
                 print "[DBG] HB FORWARDING"             
-                self.experiment.forward_request(HEARTBEAT_REQUEST)
+                self.experiment.forward_request(HEARTBEAT_REQUEST % (self.sessionkey))
                 
             else:
                 # Otherwise, we will just sleep. 
@@ -108,6 +109,7 @@ class VisirTestExperiment(Experiment.Experiment):
         self._cfg_manager = cfg_manager
         self.read_config()
         self.heartbeater = None
+        self.sessionkey = None
         
     @Override(Experiment.Experiment)
     def do_get_api(self):
@@ -172,9 +174,54 @@ class VisirTestExperiment(Experiment.Experiment):
         
         # Otherwise, it's a VISIR XML command, and should just be forwarded
         # to the VISIR measurement server
-        return self.forward_request(command) 
-
+        data = self.forward_request(command) 
         
+        # Find out the request type
+        request_type = self.parse_request_type(command)
+        
+        print "[DBG] REQUEST TYPE: " + request_type
+        
+        # If it was a login request, we will extract the session key from the response.
+        if request_type == "login":
+            self.sessionkey = self.extract_sessionkey(data)
+            print "[DBG] Extracted sessionkey: " + self.sessionkey
+            self.heartbeater = Heartbeater(self, self.sessionkey)
+            self.heartbeater.start()
+            print "[DBG] Started the heartbeater with the specified session key" 
+            
+        return data
+
+    def extract_sessionkey(self, command):
+        """
+        Extracts the sessionkey from the response to a <login> request.
+        @param command The request, in a string containing the raw XML of the response.
+        """
+        dom = xml.parseString(command)
+        protocol_node = dom.firstChild
+        
+        # Find the next non-text node.
+        for n in protocol_node.childNodes:
+            if n.nodeName != "#text":
+                login_node = n
+                
+        sessionkey = login_node.getAttribute("sessionkey")
+        
+        return sessionkey
+    
+    
+    def parse_request_type(self, command):
+        """
+        Will obtain the request type. That is, the name of the node beneath the root <protocol> node.
+        @param command (String) The raw XML request or response.
+        """
+        dom = xml.parseString(command)
+        protocol_node = dom.firstChild
+        
+        # Find the next non-text node.
+        for n in protocol_node.childNodes:
+            if n.nodeName != "#text":
+                return n.nodeName
+    
     def build_setup_data(self, cookie, url):
         """
         Helper function that will build and return a JSON-encoded reply to the 
@@ -206,7 +253,8 @@ class VisirTestExperiment(Experiment.Experiment):
         conn.close()
         
         # We just sent a request. Tick the heartbeater.
-        self.heartbeater.tick()
+        if self.heartbeater is not None:
+            self.heartbeater.tick()
         
         if(DEBUG):
             print "[VisirTestExperiment] Received response: ", data
@@ -253,8 +301,9 @@ class VisirTestExperiment(Experiment.Experiment):
             
             # We are now logged in. Start the heartbeater so that VISIR does not kick us
             # out due to inactivity.
-            self.heartbeater = Heartbeater(self, "44134124")
-            self.heartbeater.start()
+            # TODO: Explain why this is no longer here (due to login / sessionkey issues).
+            # self.heartbeater = Heartbeater(self, self.sessionkey)
+            # self.heartbeater.start()
             
             return c.value
         
