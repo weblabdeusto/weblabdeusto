@@ -25,8 +25,6 @@ import xml.dom.minidom as xml
 
 import json
 
-import voodoo.lock as lock
-
 from voodoo.override import Override
 from voodoo.lock import locked
 
@@ -59,9 +57,7 @@ DEFAULT_TEACHER  = True
 DEFAULT_CLIENT_URL = "visir/loader.swf"
 DEFAULT_HEARTBEAT_PERIOD = 30
 
-DEBUG = True
-
-
+DEBUG = False
 
 HEARTBEAT_REQUEST = """<protocol version="1.3"><request sessionkey="%s"/></protocol>"""
 
@@ -126,7 +122,7 @@ class Heartbeater(threading.Thread):
         other packet is sent to reset the heartbeat timer.
         """
         self.last_sent = time.time()
-        print "[DBG] HB TICK"
+        if DEBUG: print "[DBG] HB TICK"
     
     
     def run(self):
@@ -140,7 +136,7 @@ class Heartbeater(threading.Thread):
         # Initialize the timer. We assume the thread is started just after login.
         self.last_sent = time.time()
         
-        print "[DBG] HB INIT"
+        if DEBUG: print "[DBG] HB INIT"
         
         while(True):
             # Evaluate the time left for the next potential heartbeat.
@@ -148,14 +144,14 @@ class Heartbeater(threading.Thread):
             
             # If time_left is zero or negative, a heartbeat IS due.
             if(time_left <= 0):
-                print "[DBG] HB FORWARDING"             
+                if DEBUG: print "[DBG] HB FORWARDING"             
                 self.experiment.forward_request(HEARTBEAT_REQUEST % (self.session_key))
                 
             else:
                 # Otherwise, we will just sleep. 
-                print "[DBG] HB SLEEPING FOR %d" % (time_left)
+                if DEBUG: print "[DBG] HB SLEEPING FOR %d" % (time_left)
                 time.sleep(time_left)
-                print "[DBG] Not sleeping anymore"
+                if DEBUG: print "[DBG] Not sleeping anymore"
                 
             if self.stopped():
                 return
@@ -211,8 +207,8 @@ class VisirTestExperiment(Experiment.Experiment):
         """
         Callback run when the experiment is started
         """
-        print "Measure server address: ", self.measure_server_addr
-        print "Measure server target: ", self.measure_server_target
+        if DEBUG: print "[DBG] Measure server address: ", self.measure_server_addr
+        if DEBUG: print "[DBG] Measure server target: ", self.measure_server_target
         return "Ok"
 
     @Override(Experiment.Experiment)
@@ -228,8 +224,7 @@ class VisirTestExperiment(Experiment.Experiment):
             if not self.use_visir_php:
                 return self.build_setup_data("", self.client_url)
 
-            if(DEBUG):
-                print "[VisirTestExperiment] Performing login with %s / %s"  % (self.login_email, self.login_password)
+            if(DEBUG): print "[VisirTestExperiment] Performing login with %s / %s"  % (self.login_email, self.login_password)
             
             cookie = self.perform_visir_web_login(self.loginurl, self.login_email, self.login_password)
             
@@ -242,17 +237,17 @@ class VisirTestExperiment(Experiment.Experiment):
         # Find out the request type
         request_type = self.parse_request_type(command)
         
-        print "[DBG] REQUEST TYPE: " + request_type
+        if DEBUG: print "[DBG] REQUEST TYPE: " + request_type
         
         # If it was a login request, we will extract the session key from the response.
         if request_type == "login":
             self.sessionkey = self.extract_sessionkey(data)
-            print "[DBG] Extracted sessionkey: " + self.sessionkey
+            if DEBUG: print "[DBG] Extracted sessionkey: " + self.sessionkey
             if self.heartbeater is not None:
                 self.heartbeater.stop()
             self.heartbeater = Heartbeater(self, self.heartbeat_period, self.sessionkey)
             self.heartbeater.start()
-            print "[DBG] Started the heartbeater with the specified session key" 
+            if DEBUG: print "[DBG] Started the heartbeater with the specified session key" 
             
         return data
 
@@ -360,7 +355,7 @@ class VisirTestExperiment(Experiment.Experiment):
         # If there is a cookie in the jar, assume it's the one we seek,
         # and return its value.
         for c in cp.cookiejar:
-            print "Cookie found: ", c
+            if DEBUG: print "Cookie found: ", c
             o.open("%s/electronics/experiment.php?cookie=%s" % (self.baseurl, c.value))
             #experiments_content = experiments_page.read()
             #"<a href=/electronics/experiment.php?[a-zA-Z0-9;&=]+\">(.*)"
