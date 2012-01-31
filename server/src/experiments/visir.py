@@ -25,8 +25,11 @@ import xml.dom.minidom as xml
 
 import json
 
+import voodoo.lock as lock
+
 from voodoo.override import Override
 from voodoo.lock import locked
+
 
 CFG_USE_VISIR_PHP = "vt_use_visir_php"
 
@@ -39,6 +42,7 @@ CFG_LOGIN_PASSWORD = "vt_login_password"
 CFG_SAVEDATA = "vt_savedata"
 CFG_TEACHER  = "vt_teacher"
 CFG_CLIENT_URL = "vt_client_url"
+CFG_HEARTBEAT_PERIOD = "vt_heartbeat_period"
 
 DEFAULT_USE_VISIR_PHP = True
 DEFAULT_MEASURE_SERVER_ADDRESS = "130.206.138.35:8080"
@@ -50,11 +54,13 @@ DEFAULT_LOGIN_PASSWORD = "guest"
 DEFAULT_SAVEDATA = ""
 DEFAULT_TEACHER  = True
 DEFAULT_CLIENT_URL = "visir/loader.swf"
+DEFAULT_HEARTBEAT_PERIOD = 30
 
 DEBUG = True
 
-HEARTBEAT_REQUEST = """<protocol version="1.3"><heartbeat sessionkey="%s"/></protocol>"""
-HEARTBEAT_PERIOD  = 20 
+
+
+HEARTBEAT_REQUEST = """<protocol version="1.3"><request sessionkey="%s"/></protocol>"""
 
 
 class Heartbeater(threading.Thread):
@@ -63,12 +69,12 @@ class Heartbeater(threading.Thread):
     request if no other requests have been sent recently.
     """
     
-    def __init__(self, experiment, random_request):
+    def __init__(self, experiment, session_key):
         threading.Thread.__init__(self)
         self.is_stopped = False
         self.last_sent = time.time()
         self.experiment = experiment
-        self.random_request = random_request
+        self.session_key = session_key
         
     def stop(self):
         self.is_stopped = True
@@ -103,7 +109,7 @@ class Heartbeater(threading.Thread):
             # If time_left is zero or negative, a heartbeat IS due.
             if(time_left <= 0):
                 print "[DBG] HB FORWARDING"             
-                self.experiment.forward_request(self.random_request)
+                self.experiment.forward_request(HEARTBEAT_REQUEST % (self.session_key))
                 
             else:
                 # Otherwise, we will just sleep. 
@@ -122,6 +128,7 @@ class VisirTestExperiment(Experiment.Experiment):
         super(VisirTestExperiment, self).__init__(*args, **kwargs)
         self._cfg_manager = cfg_manager
         self.read_config()
+        self._requesting_lock = lock.RWLock()
         self.heartbeater = None
         self.sessionkey = None
         
@@ -156,6 +163,7 @@ class VisirTestExperiment(Experiment.Experiment):
             self.baseurl = self._cfg_manager.get_value(CFG_BASE_URL, DEFAULT_BASE_URL)
             self.login_email = self._cfg_manager.get_value(CFG_LOGIN_EMAIL, DEFAULT_LOGIN_EMAIL)
             self.login_password = self._cfg_manager.get_value(CFG_LOGIN_PASSWORD, DEFAULT_LOGIN_PASSWORD)
+            
 
     @Override(Experiment.Experiment)
     def do_start_experiment(self, *args, **kwargs):
@@ -196,13 +204,12 @@ class VisirTestExperiment(Experiment.Experiment):
         print "[DBG] REQUEST TYPE: " + request_type
         
         # If it was a login request, we will extract the session key from the response.
-        if request_type == "request":
-            self.random_request = command
+        if request_type == "login":
             self.sessionkey = self.extract_sessionkey(data)
             print "[DBG] Extracted sessionkey: " + self.sessionkey
             if self.heartbeater is not None:
                 self.heartbeater.stop()
-            self.heartbeater = Heartbeater(self, self.random_request)
+            self.heartbeater = Heartbeater(self, self.sessionkey)
             self.heartbeater.start()
             print "[DBG] Started the heartbeater with the specified session key" 
             
@@ -254,6 +261,7 @@ class VisirTestExperiment(Experiment.Experiment):
         return str(resp)
     
  
+    @locked('_requesting_lock')
     def forward_request(self, request):
         """
         Forwards a request to the VISIR Measurement Server through an
