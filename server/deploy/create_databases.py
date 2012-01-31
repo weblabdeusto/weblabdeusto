@@ -734,7 +734,7 @@ def populate_weblab_tests(engine):
     session.add(up_any_visirtest_allowed_p1)
     up_any_visirtest_allowed_p2 = Model.DbUserPermissionParameter(up_any_visirtest_allowed, experiment_allowed_p2, "Dummy experiments")
     session.add(up_any_visirtest_allowed_p2)
-    up_any_visirtest_allowed_p3 = Model.DbUserPermissionParameter(up_any_visirtest_allowed, experiment_allowed_p3, "200")
+    up_any_visirtest_allowed_p3 = Model.DbUserPermissionParameter(up_any_visirtest_allowed, experiment_allowed_p3, "3600")
     session.add(up_any_visirtest_allowed_p3)    
 
     up_any_logic_allowed = Model.DbUserPermission(
