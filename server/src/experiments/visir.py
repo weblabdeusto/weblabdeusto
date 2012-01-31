@@ -63,12 +63,12 @@ class Heartbeater(threading.Thread):
     request if no other requests have been sent recently.
     """
     
-    def __init__(self, experiment, login_request):
+    def __init__(self, experiment, random_request):
         threading.Thread.__init__(self)
         self.is_stopped = False
         self.last_sent = time.time()
         self.experiment = experiment
-        self.login_request = login_request
+        self.random_request = random_request
         
     def stop(self):
         self.is_stopped = True
@@ -103,7 +103,7 @@ class Heartbeater(threading.Thread):
             # If time_left is zero or negative, a heartbeat IS due.
             if(time_left <= 0):
                 print "[DBG] HB FORWARDING"             
-                self.experiment.forward_request(self.login_request)
+                self.experiment.forward_request(self.random_request)
                 
             else:
                 # Otherwise, we will just sleep. 
@@ -196,13 +196,13 @@ class VisirTestExperiment(Experiment.Experiment):
         print "[DBG] REQUEST TYPE: " + request_type
         
         # If it was a login request, we will extract the session key from the response.
-        if request_type == "login":
-            self.login_request = command
+        if request_type == "request":
+            self.random_request = command
             self.sessionkey = self.extract_sessionkey(data)
             print "[DBG] Extracted sessionkey: " + self.sessionkey
             if self.heartbeater is not None:
                 self.heartbeater.stop()
-            self.heartbeater = Heartbeater(self, self.login_request)
+            self.heartbeater = Heartbeater(self, self.random_request)
             self.heartbeater.start()
             print "[DBG] Started the heartbeater with the specified session key" 
             
