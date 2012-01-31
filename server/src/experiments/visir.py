@@ -63,11 +63,22 @@ class Heartbeater(threading.Thread):
     request if no other requests have been sent recently.
     """
     
-    def __init__(self, experiment, sessionkey):
+    def __init__(self, experiment, login_request):
         threading.Thread.__init__(self)
+        self.is_stopped = False
         self.last_sent = time.time()
         self.experiment = experiment
-        self.sessionkey = sessionkey
+        self.login_request = login_request
+        
+    def stop(self):
+        self.is_stopped = True
+        
+    def stopped(self):
+        """
+        Returns true if the thread has been explicitly stopped. False otherwise.
+        Note that before the thread has been started, stopped will still be false.
+        """
+        return self.is_stopped
         
     def tick(self):
         """
@@ -92,13 +103,16 @@ class Heartbeater(threading.Thread):
             # If time_left is zero or negative, a heartbeat IS due.
             if(time_left <= 0):
                 print "[DBG] HB FORWARDING"             
-                self.experiment.forward_request(HEARTBEAT_REQUEST % (self.sessionkey))
+                self.experiment.forward_request(self.login_request)
                 
             else:
                 # Otherwise, we will just sleep. 
                 print "[DBG] HB SLEEPING FOR %d" % (time_left)
-                time.sleep(5)
+                time.sleep(time_left)
                 print "[DBG] Not sleeping anymore"
+                
+            if self.stopped():
+                return
             
 
 
@@ -183,9 +197,12 @@ class VisirTestExperiment(Experiment.Experiment):
         
         # If it was a login request, we will extract the session key from the response.
         if request_type == "login":
+            self.login_request = command
             self.sessionkey = self.extract_sessionkey(data)
             print "[DBG] Extracted sessionkey: " + self.sessionkey
-            self.heartbeater = Heartbeater(self, self.sessionkey)
+            if self.heartbeater is not None:
+                self.heartbeater.stop()
+            self.heartbeater = Heartbeater(self, self.login_request)
             self.heartbeater.start()
             print "[DBG] Started the heartbeater with the specified session key" 
             
@@ -330,6 +347,9 @@ class VisirTestExperiment(Experiment.Experiment):
         """
         if(DEBUG):
             print "[VisirTestExperiment] do_dispose called"
+        
+        if self.heartbeater is not None:
+            self.heartbeater.stop()
         
         return "Ok"
 
