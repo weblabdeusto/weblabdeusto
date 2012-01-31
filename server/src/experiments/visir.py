@@ -29,6 +29,8 @@ import voodoo.lock as lock
 
 from voodoo.override import Override
 from voodoo.lock import locked
+
+
 from voodoo.typechecker import typecheck
 
 
@@ -70,6 +72,7 @@ class Heartbeater(threading.Thread):
     request if no other requests have been sent recently.
     """
     
+    @typecheck(typecheck.ANY, int, basestring)
     def __init__(self, experiment, heartbeat_period, session_key):
         """
         Creates the Heartbeater object. The Heartbeater is a thread which will periodically
@@ -165,7 +168,7 @@ class VisirTestExperiment(Experiment.Experiment):
         super(VisirTestExperiment, self).__init__(*args, **kwargs)
         self._cfg_manager = cfg_manager
         self.read_config()
-        self._requesting_lock = lock.RWLock()
+        self._requesting_lock = threading.Lock()
         self.heartbeater = None
         self.sessionkey = None
         
@@ -362,11 +365,10 @@ class VisirTestExperiment(Experiment.Experiment):
             #experiments_content = experiments_page.read()
             #"<a href=/electronics/experiment.php?[a-zA-Z0-9;&=]+\">(.*)"
             
-            # We are now logged in. Start the heartbeater so that VISIR does not kick us
-            # out due to inactivity.
-            # TODO: Explain why this is no longer here (due to login / sessionkey issues).
-            # self.heartbeater = Heartbeater(self, self.sessionkey)
-            # self.heartbeater.start()
+            # Note: Normally we would want to start the heartbeater here, but because the 
+            # standard <heartbeat> request does not work, we need to send standard requests
+            # instead. These require a sessionkey, and we do not have one available until 
+            # the user first sends a request.
             
             return c.value
         
