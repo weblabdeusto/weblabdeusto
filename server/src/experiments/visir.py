@@ -29,6 +29,7 @@ import voodoo.lock as lock
 
 from voodoo.override import Override
 from voodoo.lock import locked
+from voodoo.typechecker import typecheck
 
 
 CFG_USE_VISIR_PHP = "vt_use_visir_php"
@@ -69,20 +70,49 @@ class Heartbeater(threading.Thread):
     request if no other requests have been sent recently.
     """
     
-    def __init__(self, experiment, session_key):
+    def __init__(self, experiment, heartbeat_period, session_key):
+        """
+        Creates the Heartbeater object. The Heartbeater is a thread which will periodically
+        send requests as heartbeats (because actual heartbeat or even login requests do not work).
+        
+        The heartbeat may be inhibited through periodical tick() calls.
+        
+        For the Heartbeater to start working, it needs to be started through start(). To stop it,
+        stop() must be called. It is noteworthy that stop is not immediate. 
+        
+        @param experiment Reference to the VisirTestExperiment.
+        @param heartbeat_period Number of seconds between heartbeats.
+        @param session_key Active session keys
+        
+        @see start
+        @see stop
+        @see tick
+        """
         threading.Thread.__init__(self)
         self.is_stopped = False
         self.last_sent = time.time()
         self.experiment = experiment
         self.session_key = session_key
+        self.heartbeat_period = heartbeat_period
         
     def stop(self):
+        """
+        Stops the thread. The thread is not stopped immediately. Instead, a flag is
+        internally set and the actual thread will finish when possible.
+        Once called, stopped() will return true (without waiting for the thread to
+        actually finish).
+        
+        @see stopped
+        """
         self.is_stopped = True
         
     def stopped(self):
         """
         Returns true if the thread has been explicitly stopped. False otherwise.
         Note that before the thread has been started, stopped will still be false.
+        That is, it will start returning true just as soon as stop is called.
+        
+        @see stop
         """
         return self.is_stopped
         
@@ -95,7 +125,14 @@ class Heartbeater(threading.Thread):
         self.last_sent = time.time()
         print "[DBG] HB TICK"
     
+    
     def run(self):
+        """
+        run()
+        
+        Thread process. Thread starts running here when start() is called.
+        @see start
+        """
         
         # Initialize the timer. We assume the thread is started just after login.
         self.last_sent = time.time()
@@ -104,7 +141,7 @@ class Heartbeater(threading.Thread):
         
         while(True):
             # Evaluate the time left for the next potential heartbeat.
-            time_left = (self.last_sent + HEARTBEAT_PERIOD) - time.time()
+            time_left = (self.last_sent + self.heartbeat_period) - time.time()
             
             # If time_left is zero or negative, a heartbeat IS due.
             if(time_left <= 0):
@@ -148,6 +185,7 @@ class VisirTestExperiment(Experiment.Experiment):
         self.client_url = self._cfg_manager.get_value(CFG_CLIENT_URL, DEFAULT_CLIENT_URL)
         self.measure_server_addr = self._cfg_manager.get_value(CFG_MEASURE_SERVER_ADDRESS, DEFAULT_MEASURE_SERVER_ADDRESS)
         self.measure_server_target = self._cfg_manager.get_value(CFG_MEASURE_SERVER_TARGET, DEFAULT_MEASURE_SERVER_TARGET)
+        self.heartbeat_period = self._cfg_manager.get_value(CFG_HEARTBEAT_PERIOD, DEFAULT_HEARTBEAT_PERIOD)
 
         # 
         # There are two ways of deploying VISIR:
@@ -209,7 +247,7 @@ class VisirTestExperiment(Experiment.Experiment):
             print "[DBG] Extracted sessionkey: " + self.sessionkey
             if self.heartbeater is not None:
                 self.heartbeater.stop()
-            self.heartbeater = Heartbeater(self, self.sessionkey)
+            self.heartbeater = Heartbeater(self, self.heartbeat_period, self.sessionkey)
             self.heartbeater.start()
             print "[DBG] Started the heartbeater with the specified session key" 
             
