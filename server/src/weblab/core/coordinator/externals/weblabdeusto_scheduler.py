@@ -29,6 +29,10 @@ from weblab.core.coordinator.externals.weblabdeusto_scheduler_model import Exter
 from weblab.core.coordinator.externals.weblabdeusto_scheduler_retriever import ResultsRetriever
 from voodoo.log import logged
 
+RETRIEVAL_PERIOD_PROPERTY_NAME = 'core_weblabdeusto_federation_retrieval_period'
+DEFAULT_RETRIEVAL_PERIOD = 10
+
+
 class ExternalWebLabDeustoScheduler(Scheduler):
 
     def __init__(self, generic_scheduler_arguments, baseurl, username, password, login_baseurl = None, **kwargs):
@@ -40,7 +44,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         self.password      = password
 
         # TODO: put it in other way
-        period = self.cfg_manager.get_value('core_weblabdeusto_federation_retrieval_period', 10)
+        period = self.cfg_manager.get_value(RETRIEVAL_PERIOD_PROPERTY_NAME, DEFAULT_RETRIEVAL_PERIOD)
         self.retriever     = ResultsRetriever(self.session_maker, self.resource_type_name, period)
         self.retriever.start()
 
