@@ -44,6 +44,7 @@ CFG_SAVEDATA = "vt_savedata"
 CFG_TEACHER  = "vt_teacher"
 CFG_CLIENT_URL = "vt_client_url"
 CFG_HEARTBEAT_PERIOD = "vt_heartbeat_period"
+CFG_DEBUG_PRINTS = "vt_debug_prints"
 
 DEFAULT_USE_VISIR_PHP = True
 DEFAULT_MEASURE_SERVER_ADDRESS = "130.206.138.35:8080"
@@ -56,10 +57,13 @@ DEFAULT_SAVEDATA = ""
 DEFAULT_TEACHER  = True
 DEFAULT_CLIENT_URL = "visir/loader.swf"
 DEFAULT_HEARTBEAT_PERIOD = 30
-
-DEBUG = False
+DEFAULT_DEBUG_PRINTS = False
 
 HEARTBEAT_REQUEST = """<protocol version="1.3"><request sessionkey="%s"/></protocol>"""
+
+
+# Actually defined through the configuration.
+DEBUG = None
 
 
 class Heartbeater(threading.Thread):
@@ -197,6 +201,9 @@ class VisirTestExperiment(Experiment.Experiment):
         self.measure_server_addr = self._cfg_manager.get_value(CFG_MEASURE_SERVER_ADDRESS, DEFAULT_MEASURE_SERVER_ADDRESS)
         self.measure_server_target = self._cfg_manager.get_value(CFG_MEASURE_SERVER_TARGET, DEFAULT_MEASURE_SERVER_TARGET)
         self.heartbeat_period = self._cfg_manager.get_value(CFG_HEARTBEAT_PERIOD, DEFAULT_HEARTBEAT_PERIOD)
+        
+        global DEBUG
+        DEBUG = self._cfg_manager.get_value(CFG_DEBUG_PRINTS, DEFAULT_DEBUG_PRINTS)
 
         # 
         # There are two ways of deploying VISIR:
