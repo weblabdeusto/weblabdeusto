@@ -159,12 +159,13 @@ class Heartbeater(threading.Thread):
                 # Otherwise, we will just sleep. 
                 if DEBUG: print "[DBG] HB SLEEPING FOR %d" % (time_left)
                 
-                # Sleep at most 30 seconds, so that we can gracefully finish this 
+                # Sleep at most 5 seconds, so that we can gracefully finish this 
                 # thread if externally requested within a reasonable time frame,
-                # no matter what the heartbeat period is set to.
+                # no matter what the heartbeat period is set to. Could be fully optimized
+                # with semaphores but not really worth it.
                 time_to_sleep = time_left
-                if time_left > 30:
-                    time_left = 30
+                if time_left > 5:
+                    time_left = 5
                     
                 time.sleep(time_to_sleep)
                 if DEBUG: print "[DBG] Not sleeping anymore"
