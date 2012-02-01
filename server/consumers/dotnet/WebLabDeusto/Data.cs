@@ -22,6 +22,41 @@ namespace WebLabDeusto
         }
     }
 
+    public class ExperimentPermission
+    {
+        private readonly string name;
+        private readonly string category;
+        private readonly double assignedTime;
+
+        public ExperimentPermission(string name, string category, double assignedTime)
+        {
+            this.name = name;
+            this.category = category;
+            this.assignedTime = assignedTime;
+        }
+
+        public string Name
+        {
+            get{
+                return this.name;
+            }
+        }
+
+        public string Category
+        {
+            get{
+                return this.category;
+            }
+        }
+
+        public double AssignedTime
+        {
+            get{
+                return this.assignedTime;
+            }
+        }
+    }
+
     public class ReservationId
     {
         private readonly string id;

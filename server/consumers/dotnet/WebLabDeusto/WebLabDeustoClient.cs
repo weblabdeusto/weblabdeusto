@@ -42,6 +42,27 @@ namespace WebLabDeusto
             return new SessionId((string)response["id"]);
         }
 
+        public ExperimentPermission [] ListExperiments(SessionId sessionId)
+        {
+            JsonData parameters = new JsonData();
+            parameters["session_id"] = new JsonData();
+            parameters["session_id"]["id"] = sessionId.Id;
+
+            JsonData jsonPermissions = PerformCoreRequest("list_experiments", parameters);
+
+            ExperimentPermission [] experimentPermissions = new ExperimentPermission[jsonPermissions.Count];
+
+            for(int i = 0; i < experimentPermissions.Length; ++i) {
+                string name       = (string)jsonPermissions[i]["experiment"]["name"];
+                string category   = (string)jsonPermissions[i]["experiment"]["category"]["name"];
+                double timeAllowed = (double)jsonPermissions[i]["time_allowed"];
+
+                experimentPermissions[i] = new ExperimentPermission(name, category, timeAllowed);
+            }
+            return experimentPermissions;
+        }
+
+
         public Reservation ReserveExperiment(SessionId sessid, string experimentName, string categoryName, string initialData) 
         {
             return ReserveExperiment(sessid, experimentName, categoryName, initialData, new Dictionary<string, object>());

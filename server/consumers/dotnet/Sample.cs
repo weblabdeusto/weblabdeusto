@@ -13,6 +13,9 @@ namespace Sample
 
             SessionId sessionId = weblab.Login("any", "password");
 
+            foreach(ExperimentPermission permission in weblab.ListExperiments(sessionId))
+                Console.WriteLine("I have permission to use {0} of category {1} during {2} seconds", permission.Name, permission.Category, permission.AssignedTime);
+
 //
 // Consumer data is an optional argument that can be used to ask the weblab
 // server to store different information rather than the one it can try to
