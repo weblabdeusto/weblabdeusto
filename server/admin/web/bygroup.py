@@ -39,10 +39,13 @@ def index(req):
                 result += "<b>Experiment: %s</b><br>\n" % (GROUPS[group][0] + '@' + GROUPS[group][1])
                 result += "<b>Group: %s</b><br>\n" % group
                 result += "<b>Total uses: %s</b><br>\n" % total_uses
+                result += "<b>Total users: %s</b><br>\n" % len(user_names)
+                result += "<b>Mean by user: %.2f</b><br>\n" % (1.0 * total_uses / len(user_names))
                 result += "<br><br>\n"
                 result += '<table cellspacing="10">\n'
                 result += "<tr><td><b>Username</b></td><td><b>Name</b></td><td><b>Uses</b></td></tr>\n" 
-                for user in uses_per_user:
+                sorted_keys = sorted(zip(uses_per_user.keys(), uses_per_user.values()), cmp = lambda (key1, value1), (key2, value2) : -1 * cmp(value1, value2))
+                for user, _ in sorted_keys:
                     result += "<tr><td>%s</td><td>%s</td><td>%s</td></tr>\n" % (user, user_names[user].title(), uses_per_user[user])
                 result += "</table>\n"
         finally: 

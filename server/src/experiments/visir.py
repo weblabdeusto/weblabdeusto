@@ -173,6 +173,7 @@ class Heartbeater(threading.Thread):
             if self.stopped():
                 return
 
+DEBUG_MESSAGES = DEBUG and False
 
 
 class VisirTestExperiment(Experiment.Experiment):
@@ -324,13 +325,14 @@ class VisirTestExperiment(Experiment.Experiment):
         HTTP POST.
         @param request String containing the request to be forwarded
         """
-        if(DEBUG):
+        if DEBUG_MESSAGES:
             print "[VisirTestExperiment] Forwarding request: ", request
             
         conn = httplib.HTTPConnection(self.measure_server_addr)
         conn.request("POST", self.measure_server_target, request)
         response = conn.getresponse()
         data = response.read()
+        response.close()
         conn.close()
         
         # We just sent a request. Tick the heartbeater.
