@@ -29,7 +29,7 @@ from voodoo.override import Override
 from voodoo.lock import locked
 
 
-from voodoo.typechecker import typecheck
+from voodoo.typechecker import typecheck, ANY
 
 
 CFG_USE_VISIR_PHP = "vt_use_visir_php"
@@ -68,7 +68,7 @@ class Heartbeater(threading.Thread):
     request if no other requests have been sent recently.
     """
     
-    @typecheck(typecheck.ANY, int, basestring)
+    @typecheck(ANY, int, basestring)
     def __init__(self, experiment, heartbeat_period, session_key):
         """
         Creates the Heartbeater object. The Heartbeater is a thread which will periodically
@@ -94,6 +94,7 @@ class Heartbeater(threading.Thread):
         self.session_key = session_key
         self.heartbeat_period = heartbeat_period
         
+        
     def stop(self):
         """
         Stops the thread. The thread is not stopped immediately. Instead, a flag is
@@ -112,8 +113,10 @@ class Heartbeater(threading.Thread):
         That is, it will start returning true just as soon as stop is called.
         
         @see stop
+        @see is_alive
         """
         return self.is_stopped
+    
         
     def tick(self):
         """
@@ -145,17 +148,26 @@ class Heartbeater(threading.Thread):
             # If time_left is zero or negative, a heartbeat IS due.
             if(time_left <= 0):
                 if DEBUG: print "[DBG] HB FORWARDING"             
-                self.experiment.forward_request(HEARTBEAT_REQUEST % (self.session_key))
+                ret = self.experiment.forward_request(HEARTBEAT_REQUEST % (self.session_key))
+                if DEBUG: print "[DBG] Heartbeat response: ", ret
                 
             else:
                 # Otherwise, we will just sleep. 
                 if DEBUG: print "[DBG] HB SLEEPING FOR %d" % (time_left)
-                time.sleep(time_left)
+                
+                # Sleep at most 30 seconds, so that we can gracefully finish this 
+                # thread if externally requested within a reasonable time frame,
+                # no matter what the heartbeat period is set to.
+                time_to_sleep = time_left
+                if time_left > 30:
+                    time_left = 30
+                    
+                time.sleep(time_to_sleep)
                 if DEBUG: print "[DBG] Not sleeping anymore"
                 
             if self.stopped():
                 return
-            
+
 
 
 class VisirTestExperiment(Experiment.Experiment):
@@ -393,6 +405,10 @@ class VisirTestExperiment(Experiment.Experiment):
         
         if self.heartbeater is not None:
             self.heartbeater.stop()
+            self.heartbeater.join(60)
+            
+        if self.heartbeater.is_alive():
+            raise Exception("[ERROR/Visir] The heartbeater thread could not be stopped in time")
         
         return "Ok"
 
