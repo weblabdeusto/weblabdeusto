@@ -272,7 +272,7 @@ class UserProcessor(object):
             # We don't actually care about the result. The question is: has it expired or is it running?
             self._coordinator.get_reservation_status(reservation_id.id)
             return AliveReservationResult()
-        except coord_exc.ExpiredSessionException, e:
+        except coord_exc.ExpiredSessionException:
             return CancelledReservationResult()
 
 
