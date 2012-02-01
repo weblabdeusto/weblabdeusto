@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="1.7.0" method="upgrade">
+ 
+	<name>COM_WEBLAB</name>
+	<!-- The following elements are optional and free of formatting conttraints -->
+	<creationDate>February 2012</creationDate>
+	<author>Mikel Emaldi - Pablo Ordu&ntilde;a</author>
+	<authorEmail>m.emaldi@deusto.es - pablo.orduna@deusto.es</authorEmail>
+	<authorUrl>https://www.weblab.deusto.es/</authorUrl>
+	<copyright>2005-2012 University of Deusto</copyright>
+	<license>This software is licensed as described in the file COPYING, which you should have received as part of this distribution.</license>
+	<!--  The version string is recorded in the components table -->
+	<version>1.0</version>
+	<!-- The description is optional and defaults to the name -->
+	<description>COM_WEBLAB_DESCRIPTION</description>
+ 
+	<install> <!-- Runs on install -->
+		<sql>
+			<file driver="mysql" charset="utf8">sql/install.mysql.utf8.sql</file>
+		</sql>
+	</install>
+	<uninstall> <!-- Runs on uninstall -->
+		<sql>
+			<file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
+		</sql>
+	</uninstall>
+	<!--<update>
+		<schemas>
+			<schemapath type="mysql">sql/updates/mysql</schemapath>
+		</schemas>
+	</update> -->
+ 
+	<!-- Site Main File Copy Section -->
+	<!-- Note the folder attribute: This attribute describes the folder
+		to copy FROM in the package to install therefore files copied
+		in this section are copied from /site/ in the package -->
+	<files folder="site">
+		<filename>index.html</filename>
+		<filename>weblab.php</filename>
+		<filename>controller.php</filename>
+		<folder>views</folder>
+		<folder>models</folder>
+		<folder>language</folder>
+		<folder>lib</folder>
+	</files>
+ 
+	<media destination="com_weblab" folder="media">
+		<filename>index.html</filename>
+		<folder>images</folder>
+	</media>
+ 
+	<administration>
+		<!-- Administration Menu Section -->
+		<menu img="../media/com_weblab/images/weblab-16x16.png">COM_WEBLAB_MENU</menu>
+		<!-- Administration Main File Copy Section -->
+		<!-- Note the folder attribute: This attribute describes the folder
+			to copy FROM in the package to install therefore files copied
+			in this section are copied from /admin/ in the package -->
+		<files folder="admin">
+			<!-- Admin Main File Copy Section -->
+			<filename>index.html</filename>
+			<filename>weblab.php</filename>
+			<filename>controller.php</filename>
+			<!-- SQL files section -->
+			<folder>sql</folder>
+			<!-- tables files section -->
+			<folder>tables</folder>
+			<!-- models files section -->
+			<folder>models</folder>
+			<!-- views files section -->
+			<folder>views</folder>
+			<!-- controllers files section -->
+			<folder>controllers</folder>
+			<folder>lib</folder>
+			<!-- helpers files section -->
+			<!--<folder>helpers</folder>-->
+		</files>
+ 
+		<languages folder="admin">
+			<language tag="en-GB">language/en-GB/en-GB.com_weblab.ini</language>
+			<language tag="en-GB">language/en-GB/en-GB.com_weblab.sys.ini</language>
+		</languages>
+	</administration>
+ 
+</extension>
