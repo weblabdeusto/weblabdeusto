@@ -79,6 +79,7 @@ class PriorityQueueScheduler(Scheduler):
         self._synchronizer = SchedulerTransactionsSynchronizer(self)
         self._synchronizer.start()
 
+    @Override(Scheduler)
     def stop(self):
         self._synchronizer.stop()
 

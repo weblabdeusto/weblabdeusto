@@ -115,6 +115,9 @@ class Scheduler(object):
 
         self.core_server_uuid_human = self.cfg_manager.get_value(core_server.WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN, core_server.DEFAULT_WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN)
 
+    def stop(self):
+        pass
+
     @abstractmethod
     def is_remote(self):
         pass

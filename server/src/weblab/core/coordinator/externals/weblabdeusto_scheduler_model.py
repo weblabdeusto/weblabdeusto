@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-
+from voodoo.typechecker import typecheck
 from voodoo.dbutil import get_table_kwargs
 from sqlalchemy import Column, Integer, String
 
@@ -39,6 +39,7 @@ class ExternalWebLabDeustoReservation(Base):
 
     start_time                       = Column(Integer)
 
+    @typecheck(typecheck.ANY, basestring, basestring, basestring, float)
     def __init__(self, local_reservation_id, remote_reservation_id, cookies, start_time):
         self.local_reservation_id  = local_reservation_id
         self.remote_reservation_id = remote_reservation_id
@@ -47,9 +48,39 @@ class ExternalWebLabDeustoReservation(Base):
 
     def __repr__(self):
         return SUFFIX + "ExternalWebLabDeustoReservation(%r, %r, %r, %r)" % (
-                            self.local_reservation_id,
-                            self.remote_reservation_id,
-                            self.cookies,
-                            self.start_time
-                        )
+                            self.local_reservation_id, self.remote_reservation_id, self.cookies, self.start_time)
+
+class ExternalWeblabDeustoReservationPendingResults(Base):
+    __tablename__  = SUFFIX + 'ExternalWebLabDeustoPendingResults'
+    __table_args__ = TABLE_KWARGS
+
+    id = Column(Integer, primary_key=True)
+    
+    reservation_id     = Column(String(RESERVATION_ID_SIZE))
+    resource_type_name = Column(String(255))
+   
+    def __init__(self, reservation_id, resource_type_name):
+        self.reservation_id     = reservation_id
+        self.resource_type_name = resource_type_name
+
+    def __repr__(self):
+        return SUFFIX + "ExternalWeblabDeustoReservationPendingResults(%r, %r)" % (
+                            self.reservation_id, self.resource_type_name)
+
+class ExternalWeblabDeustoReservationProcessingResults(Base):
+    __tablename__  = SUFFIX + 'ExternalWebLabDeustoProcessingResults'
+    __table_args__ = TABLE_KWARGS
+
+    id = Column(Integer, primary_key=True)
+    
+    reservation_id     = Column(String(RESERVATION_ID_SIZE))
+    resource_type_name = Column(String(255))
+   
+    def __init__(self, reservation_id, resource_type_name):
+        self.reservation_id     = reservation_id
+        self.resource_type_name = resource_type_name
+
+    def __repr__(self):
+        return SUFFIX + "ExternalWeblabDeustoReservationProcessingResults(%r, %r)" % (
+                            self.reservation_id, self.resource_type_name)
 

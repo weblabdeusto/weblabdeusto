@@ -25,6 +25,8 @@ import weblab.core.coordinator.status as WSS
 from weblab.core.coordinator.scheduler import Scheduler
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 from weblab.core.coordinator.externals.weblabdeusto_scheduler_model import ExternalWebLabDeustoReservation
+
+from weblab.core.coordinator.externals.weblabdeusto_scheduler_retriever import ResultsRetriever
 from voodoo.log import logged
 
 class ExternalWebLabDeustoScheduler(Scheduler):
@@ -37,8 +39,13 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         self.username      = username
         self.password      = password
 
+        # TODO: put it in other way
+        period = self.cfg_manager.get_value('core_weblabdeusto_federation_retrieval_period', 10)
+        self.retriever     = ResultsRetriever(self.session_maker, self.resource_type_name, period)
+        self.retriever.start()
+
     def stop(self):
-        pass
+        self.retriever.stop()
 
     @Override(Scheduler)
     def is_remote(self):
