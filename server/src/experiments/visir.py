@@ -48,6 +48,7 @@ DEFAULT_TEACHER  = True
 DEFAULT_CLIENT_URL = "visir/loader.swf"
 
 DEBUG = True
+DEBUG_MESSAGES = DEBUG and False
 
 
 class VisirTestExperiment(Experiment.Experiment):
@@ -144,16 +145,17 @@ class VisirTestExperiment(Experiment.Experiment):
         HTTP POST.
         @param request String containing the request to be forwarded
         """
-        if(DEBUG):
+        if DEBUG_MESSAGES:
             print "[VisirTestExperiment] Forwarding request: ", request
             
         conn = httplib.HTTPConnection(self.measure_server_addr)
         conn.request("POST", self.measure_server_target, request)
         response = conn.getresponse()
         data = response.read()
+        response.close()
         conn.close()
         
-        if(DEBUG):
+        if DEBUG_MESSAGES:
             print "[VisirTestExperiment] Received response: ", data
             
         return data
