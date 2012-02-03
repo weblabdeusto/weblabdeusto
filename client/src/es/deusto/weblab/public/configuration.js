@@ -309,12 +309,13 @@
 	                        ],
                     "ilab-batch" : [
                                 {
-                                    "experiment.name"    : "microelectronics",
+	                        	    "experiment.picture"  : "/img/experiments/MIT.jpg",
+                                    "experiment.name"     : "microelectronics",
                                     "experiment.category" : "iLab experiments",
-                                    "archive" : "http://weblab2.mit.edu/client/v7.0b5/signed_Weblab-client.jar",
-                                    "code" : "weblab.client.graphicalUI.GraphicalApplet",
-                                    "lab_server_id" : "microelectronics",
-                                    "service_broker" : "http://www.weblab.deusto.es/weblab/web/ilab/"
+                                    "archive"             : "http://weblab2.mit.edu/client/v7.0b5/signed_Weblab-client.jar",
+                                    "code"                : "weblab.client.graphicalUI.GraphicalApplet",
+                                    "lab_server_id"       : "microelectronics",
+                                    "service_broker"      : "http://www.weblab.deusto.es/weblab/web/ilab/"
                                 }
                             ]
 		}

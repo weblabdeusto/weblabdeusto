@@ -344,6 +344,13 @@ class UserProcessingServer(object):
     def get_user_information(self, user_processor, session):
         return user_processor.get_user_information()
 
+    @logged(log.level.Info)
+    @update_session_id
+    @check_session(**check_session_params)
+    @load_user_processor
+    def get_reservation_id_by_session_id(self, user_processor, session):
+        return session.get('reservation_id')
+
     # # # # # # # # # # # # # # # # #
     # Experiment related operations #
     # # # # # # # # # # # # # # # # #

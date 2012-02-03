@@ -346,8 +346,12 @@ class RequestSerializer(object):
         labExpId      = None
         #minTimetoLive = float(result.find("./{http://ilab.mit.edu}minTimetoLive").text)
         minTimetoLive = None
-
-        queue_length = int(result.find("./{http://ilab.mit.edu}wait/{http://ilab.mit.edu}effectiveQueueLength").text)
+        
+        queue_length_node = result.find("./{http://ilab.mit.edu}wait/{http://ilab.mit.edu}effectiveQueueLength")
+        if queue_length_node is not None:
+            queue_length = int(result.find("./{http://ilab.mit.edu}wait/{http://ilab.mit.edu}effectiveQueueLength").text)
+        else:
+            queue_length = 1
         #wait         = float(result.find("./{http://ilab.mit.edu}wait/{http://ilab.mit.edu}estWait").text)
         wait         = None
 

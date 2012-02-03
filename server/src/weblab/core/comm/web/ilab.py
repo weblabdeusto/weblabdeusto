@@ -14,6 +14,7 @@
 # 
 
 import json
+import traceback
 
 from voodoo.sessions.session_id import SessionId
 
@@ -45,6 +46,15 @@ class ILabMethod(WebFacadeServer.Method):
                 self.sess_id = SessionId('.'.join(cur_cookie[len('weblabsessionid='):].split('.')[:-1]))
             if cur_cookie.startswith('weblab_reservation_id='):
                 self.reservation_id = SessionId(cur_cookie[len('weblab_reservation_id='):].split('.')[0])
+
+        if self.reservation_id is None and self.sess_id is not None:
+            try:
+                reservation_id_str = self.server.get_reservation_id_by_session_id(self.sess_id)
+                if reservation_id_str is not None:
+                    self.reservation_id = SessionId(reservation_id_str)
+            except:
+                traceback.print_exc()
+                self.reservation_id = None
 
         if self.sess_id is None:
             return "Not logged in!"
@@ -118,6 +128,7 @@ class ILabMethod(WebFacadeServer.Method):
     def process_GetExperimentStatus(self):
         if self.reservation_id is None:
             return "Reservation id not found in cookie"
+
         reservation_status = self.server.get_reservation_status(self.reservation_id)
         if reservation_status.status == "Reservation::waiting":
             length = reservation_status.position
@@ -152,6 +163,9 @@ class ILabMethod(WebFacadeServer.Method):
 </soap:Envelope>""" % (status, length)
 
     def process_RetrieveResult(self):
+        if self.reservation_id is None:
+            return "Reservation id not found in cookie"
+
         reservation_status = self.server.get_reservation_status(self.reservation_id)
         try:
             response = json.loads(reservation_status.initial_data)
