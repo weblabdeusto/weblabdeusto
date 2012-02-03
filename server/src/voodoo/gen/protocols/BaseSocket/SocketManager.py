@@ -7,7 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
@@ -16,7 +16,7 @@
 import socket as _socket
 
 class SocketManagerConstructionException(Exception):
-    pass    
+    pass
 class InternetSocketManagerConstructionException(Exception):
     pass
 class UnixSocketManagerConstructionException(Exception):
@@ -52,7 +52,7 @@ class SocketManager(object):
         while total_sent < len(message):
             total_sent += self._socket.send(message[total_sent:])
 
-    def receive(self):  
+    def receive(self):
         # Reading the size of the message
         size_str = self._socket.recv(10)
         if not size_str:
@@ -68,9 +68,9 @@ class SocketManager(object):
 
     def disconnect(self):
         self._socket.close()
-        
+
 class InternetSocketManager(SocketManager):
-    
+
     def __init__(self, hostname=None, port=None, socket=None):
         if socket != None:
             super(InternetSocketManager, self).__init__(socket_type=_socket.AF_INET, socket=socket)
@@ -78,9 +78,9 @@ class InternetSocketManager(SocketManager):
             super(InternetSocketManager, self).__init__(socket_type=_socket.AF_INET, address=(hostname, port))
         else:
             raise InternetSocketManagerConstructionException("You must provide a (hostname, port) or a socket")
-        
+
 class UnixSocketManager(SocketManager):
-    
+
     def __init__(self, path=None, socket=None):
         if socket != None:
             super(UnixSocketManager, self).__init__(socket_type=_socket.AF_UNIX, socket=socket)

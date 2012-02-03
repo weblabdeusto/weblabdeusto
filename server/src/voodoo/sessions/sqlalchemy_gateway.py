@@ -6,11 +6,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import datetime
 
@@ -19,7 +19,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import and_
 
-from voodoo.dbutil import generate_getconn, get_sqlite_dbname 
+from voodoo.dbutil import generate_getconn, get_sqlite_dbname
 import voodoo.sessions.sqlalchemy_data as DbData
 
 import voodoo.sessions.generator  as SessionGenerator
@@ -32,10 +32,10 @@ import voodoo.sessions.exc as SessionExceptions
 MAX_TIME_TRYING_TO_LOCK  = 300 # seconds
 
 SESSION_SQLALCHEMY_ENGINE = 'session_sqlalchemy_engine'
-DEFAULT_SESSION_SQLALCHEMY_ENGINE = 'mysql' 
+DEFAULT_SESSION_SQLALCHEMY_ENGINE = 'mysql'
 
 SESSION_SQLALCHEMY_HOST = 'session_sqlalchemy_host'
-DEFAULT_SESSION_SQLALCHEMY_HOST = 'localhost' 
+DEFAULT_SESSION_SQLALCHEMY_HOST = 'localhost'
 
 SESSION_SQLALCHEMY_DB_NAME = 'session_sqlalchemy_db_name'
 DEFAULT_SESSION_SQLALCHEMY_DB_NAME = 'WebLabSessions'
@@ -56,7 +56,7 @@ class SessionSqlalchemyGateway(object):
 
         (
             engine_name,
-            host, 
+            host,
             dbname,
             username,
             password

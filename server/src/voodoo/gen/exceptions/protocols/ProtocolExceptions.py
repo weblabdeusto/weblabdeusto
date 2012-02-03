@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import voodoo.gen.exceptions.exceptions as genExceptions
 
@@ -22,9 +22,9 @@ class ProtocolException(genExceptions.GeneratorException):
 # Generic exceptions
 
 class RemoteException(ProtocolException):
-    """ Every exception generated at protocol level must implement this class. This 
+    """ Every exception generated at protocol level must implement this class. This
     way, the locator systems knows whether the exception was propagated from the server
-    or it was generated due to a communication problem (since it will try to call the 
+    or it was generated due to a communication problem (since it will try to call the
     server again if it's the last case)
     """
     def __init__(self, msg, exception,*args,**kargs):

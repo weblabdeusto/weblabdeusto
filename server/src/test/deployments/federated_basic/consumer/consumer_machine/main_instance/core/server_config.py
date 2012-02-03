@@ -33,10 +33,10 @@ core_coordinator_external_servers = {
     'dummy4@Dummy experiments'  : [ 'dummy4' ],
 }
 
-_provider1_scheduling_config = ("EXTERNAL_WEBLAB_DEUSTO", { 
-                                    'baseurl' : 'http://127.0.0.1:28345/weblab/', 
+_provider1_scheduling_config = ("EXTERNAL_WEBLAB_DEUSTO", {
+                                    'baseurl' : 'http://127.0.0.1:28345/weblab/',
                                     'login_baseurl' : 'http://127.0.0.1:28645/weblab/',
-                                    'username' : 'consumer1', 
+                                    'username' : 'consumer1',
                                     'password' : 'password',
                             })
 

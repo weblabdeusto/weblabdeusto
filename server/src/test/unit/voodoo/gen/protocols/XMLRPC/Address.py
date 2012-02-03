@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import unittest
 
 from test.util.module_disposer import uses_module
@@ -93,7 +93,7 @@ class XMLRPCAddressTestCase(unittest.TestCase):
             )
 
         XMLRPCAddress.ClientXMLRPC = cxmlrpc
-        
+
 
     @uses_module(ServerXMLRPC)
     def test_xmlrpc_create_client(self):
@@ -112,11 +112,11 @@ class XMLRPCAddressTestCase(unittest.TestCase):
                 XMLRPC = ('',self.port)
             )
         xmlrpc_server_instance.start()
-        
+
         xmlrpc_addr = XMLRPCAddress.Address(
                 self.host + ':' + str(self.port) + '@NetworkA'
             )
-        
+
         xmlrpc_client = xmlrpc_addr.create_client(self.methods)
         self.assertEquals(
             xmlrpc_client.say_hello(self.message1),

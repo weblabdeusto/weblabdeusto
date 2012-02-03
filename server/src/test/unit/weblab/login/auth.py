@@ -7,12 +7,12 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
 import sys
 import unittest
@@ -35,7 +35,7 @@ passwd_that_will_raise_exception = 'passwd_that_will_raise_exception'
 uri_that_will_fail               = 'uri that will fail'
 
 class LoginAuthTestCase(mocker.MockerTestCase):
-    
+
     if LoginAuth.LDAP_AVAILABLE:
 
         def _create_user_auth(self):
@@ -76,7 +76,7 @@ class LoginAuthTestCase(mocker.MockerTestCase):
             self.mocker.result(ldap_object)
             ldap_object.unbind_s()
             LoginAuth._ldap_provider.ldap_module = ldap_module
-            
+
             self.mocker.replay()
             self.assertTrue(
                 login_auth.authenticate(valid_user, valid_passwd)
@@ -93,7 +93,7 @@ class LoginAuthTestCase(mocker.MockerTestCase):
             ldap_module.initialize('ldaps://castor.cdk.deusto.es')
             self.mocker.result(ldap_object)
             LoginAuth._ldap_provider.ldap_module = ldap_module
-            
+
             self.mocker.replay()
             self.assertFalse(
                 login_auth.authenticate(valid_user, invalid_passwd)
@@ -115,15 +115,15 @@ class LoginAuthTestCase(mocker.MockerTestCase):
             self.assertRaises(
                 LoginExceptions.LdapBindingException,
                 login_auth.authenticate,
-                valid_user, 
+                valid_user,
                 passwd_that_will_raise_exception
             )
-        
+
         def test_ldap_login_auth_general_exception_initializing(self):
             user_auth = self._create_user_auth()
             user_auth.ldap_uri = uri_that_will_fail
             login_auth = LoginAuth.LoginAuth.create(user_auth)
-            
+
             ldap_module = self.mocker.mock()
             ldap_module.initialize(uri_that_will_fail)
             self.mocker.throw(Exception("fail"))
@@ -133,16 +133,16 @@ class LoginAuthTestCase(mocker.MockerTestCase):
             self.assertRaises(
                 LoginExceptions.LdapInitializingException,
                 login_auth.authenticate,
-                valid_user, 
+                valid_user,
                 valid_passwd
             )
-    
+
     else:
         print >> sys.stderr, "LoginAuth tests skipped since ldap module is not available"
 
 
 class LdapNotAvailableTestCase(OptionalModuleTestCase):
-    
+
     MODULE    = LoginAuth
     ATTR_NAME = 'LDAP_AVAILABLE'
 

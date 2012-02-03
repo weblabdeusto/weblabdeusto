@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import sys
 import time
 import traceback
@@ -37,7 +37,7 @@ def log(instance_or_module_or_class, level, message, max_size = 250):
     elif isinstance(instance_or_module_or_class, new.classobj) or isinstance(instance_or_module_or_class, type):
         logger_name = instance_or_module_or_class.__module__ + '.' + instance_or_module_or_class.__name__
     else:
-        logger_name = instance_or_module_or_class.__class__.__module__ + '.' + instance_or_module_or_class.__class__.__name__ 
+        logger_name = instance_or_module_or_class.__class__.__module__ + '.' + instance_or_module_or_class.__class__.__name__
     logger = logging.getLogger(logger_name)
 
     message_repr = repr(message)
@@ -59,9 +59,9 @@ _CALL_ID_ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVW
 @fast_cache
 def _get_full_class_name(class_type, func):
     func_name = func.__name__
-    
+
     def find_class(cur_class, func_name):
-        if cur_class.__dict__.has_key(func_name):
+        if func_name in cur_class.__dict__:
             return cur_class
         for base_class in cur_class.__bases__:
             found = find_class(base_class, func_name)
@@ -88,7 +88,7 @@ def logged(level='debug', except_for=None, max_size = 250):
     call logging.getLogger(str(self.__class__)) (so use only with methods!) before and after
     calling the function itself.
 
-    If you don't want all parameters to be showed, use except_for providing a sequence of the parameters 
+    If you don't want all parameters to be showed, use except_for providing a sequence of the parameters
     you want to hide, being each parameter identified by:
 
      * the name of the parameter.
@@ -103,7 +103,7 @@ def logged(level='debug', except_for=None, max_size = 250):
 
         login("foo","bar")
 
-    will work, since it will infer that "password" is the second parameter. However, if you do something 
+    will work, since it will infer that "password" is the second parameter. However, if you do something
     like:
 
         @logged(except_for=('password',))
@@ -114,7 +114,7 @@ def logged(level='debug', except_for=None, max_size = 250):
         login("foo",password="bar")
         login("foo","bar")
 
-    Then the first one will work, but for the second call it will be impossible to infer it, 
+    Then the first one will work, but for the second call it will be impossible to infer it,
     so a warning will be displayed in stderr. In this case, it would also work:
 
         @logged(except_for=(2,))
@@ -133,7 +133,7 @@ def logged(level='debug', except_for=None, max_size = 250):
 
         login("foo","bar") # Works
         login("foo",password="bar") # Works
-    
+
     You can also provide a single parameter by providing only the name or the position.
 
     Instead of these values, it will say "<hidden>".
@@ -198,7 +198,7 @@ def logged(level='debug', except_for=None, max_size = 250):
                     self.fake_kargs = kargs.copy()
 
                     if isinstance(except_for,basestring) or isinstance(except_for, int):
-                        except_for_parameters = (except_for,) 
+                        except_for_parameters = (except_for,)
                     else:
                         except_for_parameters = except_for
 
@@ -214,8 +214,8 @@ def logged(level='debug', except_for=None, max_size = 250):
                                 parameter_name = parameter
                             else:
                                 parameter_name, given_position = parameter
-                            
-                            if kargs.has_key(parameter_name):
+
+                            if parameter_name in kargs:
                                 self.fake_kargs[parameter_name] = '<hidden>'
                                 replaced = True
                             else:
@@ -237,7 +237,7 @@ def logged(level='debug', except_for=None, max_size = 250):
                     self.fake_kargs = kargs
 
 
-            def __str__(self): 
+            def __str__(self):
                 strtime = self.entry.initial_strtime
 
                 repr_args = []

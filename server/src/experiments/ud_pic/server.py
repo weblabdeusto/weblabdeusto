@@ -105,7 +105,7 @@ class UdPicExperiment(Experiment.Experiment):
     def _create_http_device(self, hostname, port, app):
         # For testing purposes
         return HttpDevice.HttpDevice(hostname, port, app)
-    
+
     @Override(Experiment.Experiment)
     @caller_check(ServerType.Laboratory)
     @logged("info")

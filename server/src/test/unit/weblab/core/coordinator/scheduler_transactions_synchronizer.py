@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import time
 import unittest
@@ -53,11 +53,11 @@ class SchedulerTransactionsSynchronizerTestCase(unittest.TestCase):
 
     def test_concurrent_updates(self):
         self.scheduler.time_to_sleep = 0.2
-        
+
         self.assertEquals(0, self.scheduler.updates)
 
         t_initial = self._request_threaded()
-        
+
         # Wait for it to be initialized
         while self.requests == 0:
             time.sleep(0.001)

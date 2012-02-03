@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 from abc import ABCMeta, abstractmethod
 
@@ -19,25 +19,25 @@ import voodoo.gen.exceptions.coordinator.AccessExceptions as AccessExceptions
 import voodoo.gen.coordinator.Address as Address
 
 class Access(object):
-    """A CoordServer will have different "Access"es. For example, a Server can have an Access for 
+    """A CoordServer will have different "Access"es. For example, a Server can have an Access for
     "Direct connections" (with protocol = Direct), and an Access for SOAP, and inside this Access,
-    it could have different "SOAPNetwork"s. For example, it could have 2 different networks, one 
-    with address '192.168.0.1:8080@Network1' and another with address '130.206.136.137:8080@Network2'. The 
-    Direct or machine access would have one network with a CoordAddress address. 
+    it could have different "SOAPNetwork"s. For example, it could have 2 different networks, one
+    with address '192.168.0.1:8080@Network1' and another with address '130.206.136.137:8080@Network2'. The
+    Direct or machine access would have one network with a CoordAddress address.
 
-    Right now we don't have any MachineNetwork available, since we don't have any IPC protocol available such 
+    Right now we don't have any MachineNetwork available, since we don't have any IPC protocol available such
     as dbus.
     """
     def __init__(self, protocol, access_level, networks):
         self.protocol  = protocol
         self.access_level = access_level
         self.networks = list(networks)
-            
+
     def possible_connections(self,other):
         if other.access_level != self.access_level or other.protocol != self.protocol:
             return []
         #Now, let's check networks
-        
+
         return_value = []
         for i in self.networks:
             for j in i.check(other):
@@ -56,7 +56,7 @@ class Network(object):
     @abstractmethod
     def check(self,other):
         """ check(self,other) -> [Network1,...]
-        
+
         Given this network and an instance of Access called "other",
         check will return a list of networks of "other" which are
         interoperable with this network
@@ -77,6 +77,6 @@ class IpBasedNetwork(Network):
             raise AccessExceptions.AccessNotAnIpAddressException("Not an IpBasedAddress: %s" % address)
         Network.__init__(self,address)
     def check(self,other):
-        return [ i for i in other.networks 
+        return [ i for i in other.networks
             if isinstance(i,IpBasedNetwork) and self.address._net_name == i.address._net_name ]
 

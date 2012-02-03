@@ -7,12 +7,12 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
-# 
+#
 
 import random
 import hashlib
@@ -41,15 +41,15 @@ EXPERIMENT_POLL_TIME            = 'core_experiment_poll_time'
 
 
 class ReservationProcessor(object):
-    """ This class encapsulates the methods of the user dependent on the 
-    interaction with the experiment. This is a middle step before moving 
-    this class to the proxy server.  Previously, all these methods were 
-    implemented in the UserProcessor class, but all methods here only 
-    rely on the reservation_id (instead of relying on the session_id). 
-    The difference is that it will be possible to handle more than one 
-    concurrent reservation with the same session (which is desirable 
-    when using calendars), and it will be possible to provide a 
-    reservation_id (that can interact with the experiment) without 
+    """ This class encapsulates the methods of the user dependent on the
+    interaction with the experiment. This is a middle step before moving
+    this class to the proxy server.  Previously, all these methods were
+    implemented in the UserProcessor class, but all methods here only
+    rely on the reservation_id (instead of relying on the session_id).
+    The difference is that it will be possible to handle more than one
+    concurrent reservation with the same session (which is desirable
+    when using calendars), and it will be possible to provide a
+    reservation_id (that can interact with the experiment) without
     compromising the rest of the session. """
 
     EXPIRATION_TIME_NOT_SET=-1234
@@ -64,16 +64,16 @@ class ReservationProcessor(object):
         self._commands_store         = commands_store
         self.time_module             = time_module
 
-        # The response to asynchronous commands is not immediately available, so we need to 
-        # use this map to store the ids of the usage objects (commands sent), identified through 
+        # The response to asynchronous commands is not immediately available, so we need to
+        # use this map to store the ids of the usage objects (commands sent), identified through
         # their request_ids (which are not the same). As their responses become available, we will
         # use the request_ids to find the ids of the usage objects, and update them.
-        # 
+        #
         # It seems that the UserProcessor is re-created rather often, so we cannot store
         # usage-related information locally. We will store it in the session object instead.
         # TODO: As of now, if the async_commands_ids is not in session we will initialize it.
         # Probably that initialization should be moved to wherever session is initialized.
-        if(not self._reservation_session.has_key("async_commands_ids")):
+        if not "async_commands_ids" in self._reservation_session:
             self._reservation_session["async_commands_ids"] = {}
 
     def get_session(self):
@@ -86,11 +86,11 @@ class ReservationProcessor(object):
         return self._reservation_session['experiment_id']
 
     ##############################################################################
-    # 
-    # 
+    #
+    #
     #                     STATUS MANAGEMENT
-    # 
-    # 
+    #
+    #
 
     def get_status(self):
         """ get_status() -> Reservation
@@ -147,25 +147,25 @@ class ReservationProcessor(object):
         self._reservation_session['latest_timestamp'] = self._utc_timestamp()
 
     ##############################################################################
-    # 
-    # 
+    #
+    #
     #                     POLLING MANAGEMENT
-    # 
-    # 
-    # Whenever the experiment finishes, the server notifies the Reservation 
+    #
+    #
+    # Whenever the experiment finishes, the server notifies the Reservation
     # Processor. Polling is therefore only required to kick those users that
     # are not using the experiment for a long time.
-    # 
+    #
     # The variable is created when the reservation is created. It is removed
     # when the experiment finishes.
     #
-    # TODO: the reservation system should tell the processor whether this 
+    # TODO: the reservation system should tell the processor whether this
     # experiments expects polling or not.
-    # 
+    #
 
     def is_polling(self):
 
-        """Is this user in a queue or using an experiment, and therefore it should be 
+        """Is this user in a queue or using an experiment, and therefore it should be
         continuosly informing that it is alive? Otherwise, weblab will kick him"""
 
         return 'session_polling' in self._reservation_session
@@ -198,7 +198,7 @@ class ReservationProcessor(object):
         if not self.is_polling():
            return True
 
-        # 
+        #
         # But if it polling and it hasn't polled in some time
         #
         current_time = self.time_module.time()
@@ -215,19 +215,19 @@ class ReservationProcessor(object):
             self._reservation_session.pop('session_polling')
 
     ##############################################################################
-    # 
-    # 
+    #
+    #
     #                     SENDING COMMANDS AND FILES
-    # 
-    ######################### 
-    # 
+    #
+    #########################
+    #
     # Communications
-    # 
+    #
 
     def send_file(self, file_content, file_info ):
-        # 
+        #
         # Check that the reservation is enabled
-        # 
+        #
         lab_session_id = self._reservation_session.get('lab_session_id')
         lab_coordaddr  = self._reservation_session.get('lab_coordaddr')
         if lab_session_id is None or lab_coordaddr is None:
@@ -235,7 +235,7 @@ class ReservationProcessor(object):
 
         #
         # Retrieve the laboratory server
-        # 
+        #
 
         laboratory_server = self._locator.get_server_from_coordaddr( lab_coordaddr, ServerType.Laboratory )
 
@@ -266,9 +266,9 @@ class ReservationProcessor(object):
 
 
     def send_command(self, command):
-        # 
+        #
         # Check the that the experiment is enabled
-        # 
+        #
         lab_session_id = self._reservation_session.get('lab_session_id')
         lab_coordaddr  = self._reservation_session.get('lab_coordaddr')
 
@@ -278,7 +278,7 @@ class ReservationProcessor(object):
         laboratory_server = self._locator.get_server_from_coordaddr( lab_coordaddr, ServerType.Laboratory )
         command_id_pack = self._append_command(command)
         try:
-            
+
             # We call the laboratory server's send_command, which will finally
             # get the command to be handled by the experiment.
             response = laboratory_server.send_command( lab_session_id, command )
@@ -289,7 +289,7 @@ class ReservationProcessor(object):
             self._update_command_or_file(command_id_pack, response)
 
             return response
-        
+
         except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
             self._update_command_or_file(command_id_pack, Command.Command("ERROR: SessionNotFound: None"))
             try:
@@ -309,18 +309,18 @@ class ReservationProcessor(object):
             raise core_exc.FailedToInteractException(
                     "Failed to send command: %s" % ftspe
                 )
-        
+
 
     def send_async_file(self, file_content, file_info ):
         """
         Sends a file asynchronously. Status of the request may be checked through
         check_async_command_status.
-        
+
         @param file_content: Content of the file being sent
         @param file_info: File information of the file being sent
         @see check_async_command_status
         """
-       
+
         lab_session_id = self._reservation_session.get('lab_session_id')
         lab_coordaddr  = self._reservation_session.get('lab_coordaddr')
 
@@ -356,22 +356,22 @@ class ReservationProcessor(object):
             raise core_exc.FailedToInteractException(
                     "Failed to send file: %s" % ftspe
                 )
-        
+
 
     def check_async_command_status(self, request_identifiers):
-        """ 
+        """
         Checks the status of several asynchronous commands. The request will be
         internally forwarded to the lab server. Standard async commands
-        and file_send commands are treated in the same way. 
+        and file_send commands are treated in the same way.
         Commands reported as finished (either successfully or not) will be
         removed, so check_async_command_status should not be called on them again.
         Before removing the commands, it will also register their response for
         logging purposes.
-        
+
         @param request_identifiers: List of the identifiers to check
         @return: Dictionary by request-id of tuples: (status, content)
         """
-       
+
         lab_session_id = self._reservation_session.get('lab_session_id')
         lab_coordaddr  = self._reservation_session.get('lab_coordaddr')
 
@@ -379,7 +379,7 @@ class ReservationProcessor(object):
             raise core_exc.NoCurrentReservationException("check_async_command called but no current reservation")
 
         laboratory_server = self._locator.get_server_from_coordaddr( lab_coordaddr, ServerType.Laboratory )
-        
+
         try:
             response = laboratory_server.check_async_command_status( lab_session_id, request_identifiers)
 
@@ -408,7 +408,7 @@ class ReservationProcessor(object):
                 'Experiment reservation expired'
             )
         except LaboratoryExceptions.FailedToInteractException as ftspe:
-            # There was an error while trying to send the command. 
+            # There was an error while trying to send the command.
             # We'll finish the experiment.
             #self._update_command(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
             try:
@@ -425,7 +425,7 @@ class ReservationProcessor(object):
         """
         Runs a command asynchronously. Status of the request may be checked
         through the check_async_command_status method.
-        
+
         @param command The command to run
         @see check_async_command_status
         """
@@ -438,17 +438,17 @@ class ReservationProcessor(object):
 
         laboratory_server = self._locator.get_server_from_coordaddr(lab_coordaddr, ServerType.Laboratory)
         command_id_pack = self._append_command(command)
-        
+
         try:
-            
+
             # We forward the request to the laboratory server, which
-            # will forward it to the actual experiment. Because this is 
+            # will forward it to the actual experiment. Because this is
             # an asynchronous call, we will not receive the actual response
-            # to the command, but simply an ID identifying our request. This also 
+            # to the command, but simply an ID identifying our request. This also
             # means that by the time this call returns, the real response to the
             # command is most likely not available yet.
             request_id = laboratory_server.send_async_command(lab_session_id, command)
-            
+
             # If this was a standard, synchronous send_command, we would now store the response
             # we received, so that later, when the experiment finishes, the log is properly
             # written. However, the real response is not available yet, so we can't do that here.
@@ -459,7 +459,7 @@ class ReservationProcessor(object):
             # TODO: when do we store async commands? whenever user asks for status? what if they don't ever ask?
 
             return request_id
-        
+
         except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
             self._update_command_or_file(command_id_pack, Command.Command("ERROR: SessionNotFound: None"))
             try:
@@ -482,29 +482,29 @@ class ReservationProcessor(object):
 
 
     ##############################################################################
-    # 
-    # 
+    #
+    #
     #                     SENDING COMMANDS AND FILES
-    # 
-    ######################### 
-    # 
-    # Storage. 
+    #
+    #########################
+    #
+    # Storage.
     # No reference to session, only to _reservation_id
-    # 
+    #
 
     def _append_command(self, command):
         return self._append_command_or_file(command, True)
 
     def _append_file(self, command):
         return self._append_command_or_file(command, False)
-       
+
     def _append_command_or_file(self, command, command_or_file):
         command_id = random.randint(0, 1000 * 1000 * 1000)
         timestamp = self._utc_timestamp()
         command_entry = TemporalInformationStore.CommandOrFileInformationEntry(self._reservation_id, True, command_or_file, command_id, command, timestamp)
         self._commands_store.put(command_entry)
         return command_id, command_or_file
-       
+
 
     def _update_command_or_file(self, (command_id, command_or_file), response):
         timestamp = self._utc_timestamp()
@@ -536,7 +536,7 @@ class ReservationProcessor(object):
                 file_content_encoded = file_content
             deserialized_file_content = ExperimentUtil.deserialize(file_content_encoded)
             storage_path = self._cfg_manager.get_value('core_store_students_programs_path')
-            relative_file_path = get_time_in_str() + '_' + self._reservation_id 
+            relative_file_path = get_time_in_str() + '_' + self._reservation_id
             sha_obj            = hashlib.new('sha')
             sha_obj.update(deserialized_file_content)
             file_hash          = sha_obj.hexdigest()

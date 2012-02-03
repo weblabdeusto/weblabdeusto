@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import types
 import threading
 import voodoo.log as log
@@ -45,9 +45,9 @@ class _ConfigurationPath(object):
             class Holder(object):
                 execfile(self._path)
         except Exception as e:
-            log.log( 
-                    _ConfigurationPath, 
-                    log.level.Warning, 
+            log.log(
+                    _ConfigurationPath,
+                    log.level.Warning,
                     "Couldn't reload path %s: %s. Skipping..." % (self.name, e)
             )
         self.holder = Holder
@@ -55,14 +55,14 @@ class _ConfigurationPath(object):
 #
 # If passing this value as a default value, the ConfigurationManager will think
 # that in fact there is no default value provided
-# 
+#
 _not_a_default_value = object()
 
 #
 # XXX
 # At the moment, WebLab-Deusto does not support dynamic reloading, so
 # locking makes no sense. As soon as it's supported, modify this.
-# 
+#
 CFG_LOCKING = False
 
 class NullLock(object):
@@ -92,16 +92,16 @@ class ConfigurationManager(object):
     def _set_value(self, key, value):
         self._values_writelock.acquire()
         try:
-            if self._values.has_key(key):
-                log.log( 
-                        ConfigurationManager, 
-                        log.level.Info, 
-                        "Substituting existing configuration key (%s), from value %s to %s" % (key, self._values[key], value) 
+            if key in self._values:
+                log.log(
+                        ConfigurationManager,
+                        log.level.Info,
+                        "Substituting existing configuration key (%s), from value %s to %s" % (key, self._values[key], value)
                 )
             self._values[key] = value
         finally:
             self._values_writelock.release()
-    
+
     def _append_holder_values(self, holder):
         for i in dir(holder):
             if not i.startswith('_'):
@@ -147,10 +147,10 @@ class ConfigurationManager(object):
                     self._modules[i].reload()
                     self._append_holder_values(self._modules[i].holder)
                 except ImportError:
-                    log.log( 
-                            ConfigurationManager, 
-                            log.level.Warning, 
-                            "Couldn't reload module %s. Skipping..." % name 
+                    log.log(
+                            ConfigurationManager,
+                            log.level.Warning,
+                            "Couldn't reload module %s. Skipping..." % name
                     )
         finally:
             self._values_writelock.release()
@@ -159,7 +159,7 @@ class ConfigurationManager(object):
     def get_value(self, key, default_value = _not_a_default_value):
         self._values_readlock.acquire()
         try:
-            if self._values.has_key(key):
+            if key in self._values:
                 return self._values[key]
             elif default_value != _not_a_default_value:
                 return default_value
@@ -174,7 +174,7 @@ class ConfigurationManager(object):
         """
         The default values can be provided in two ways:
            -> get_values("key1", "key2", key3 = "defvalue3")         # The prettiest one :-)
-           -> get_values("key1", "key2", ** { "key3": "defvalue3" }) # Useful when "key3" is unknown in the source code 
+           -> get_values("key1", "key2", ** { "key3": "defvalue3" }) # Useful when "key3" is unknown in the source code
         """
         class Values(object):
             def __init__(self, values):

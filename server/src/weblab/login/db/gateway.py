@@ -7,12 +7,12 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
 import re
 
@@ -70,8 +70,8 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
     ###########################################################################
     @logged()
     def check_external_credentials(self, external_id, system):
-        """ Given an External ID, such as the ID in Facebook or Moodle or whatever, and selecting 
-        the system, return the first username that matches with that user_id. The method will 
+        """ Given an External ID, such as the ID in Facebook or Moodle or whatever, and selecting
+        the system, return the first username that matches with that user_id. The method will
         expect that the system uses something that starts by the id"""
         session = self.Session()
         try:
@@ -187,7 +187,7 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
                 auth_info = None
             else:
                 auth_info = self._retrieve_auth_information(user, session)
-            
+
             return user.role, user.id, auth_info
         finally:
             session.close()

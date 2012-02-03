@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import voodoo.sessions.manager as SessionManager
 import voodoo.sessions.session_type    as SessionType
 
@@ -29,13 +29,13 @@ DEFAULT_COORDINATOR_SERVER_SESSION_POOL_ID = "CoordinatorServer"
 
 class CoordinatorServer(object):
     def __init__(self, cfg_manager, map = None, map_file = None, *args, **kwargs):
-        """ 
-        session_type: member of voodoo.sessions.session_type 
+        """
+        session_type: member of voodoo.sessions.session_type
         map: voodoo.gen.coordinator.CoordinationInformation.CoordinationMap
         map_file: file object
 
-        The parameter session_type must be provided; if "map" parameter is provided, the CoordinatorServer 
-        uses this map. If map_file is provided, a new CoordinatorMap is created, and loaded from the map_file. 
+        The parameter session_type must be provided; if "map" parameter is provided, the CoordinatorServer
+        uses this map. If map_file is provided, a new CoordinatorMap is created, and loaded from the map_file.
         If no one of these two parameters is provided, a new CoordinatorMap is created, waiting for the method
         "load" to be called. Finally, if both parameters are provided, an exception is raised.
         """
@@ -65,9 +65,9 @@ class CoordinatorServer(object):
             raise CoordinatorServerExceptions.NeitherMapNorFileProvidedException("Can't build the Coordination Map if neither map nor map_file fields are provided!")
         else:
             raise RuntimeError("This possibility should never happen -voodoo.gen.coordinator.CoordinatorServer.__init__-")
-    
+
     def do_new_query(self, original_server_address, server_type, restrictions):
-        """ 
+        """
         Returns a new session_id for coordination server. This session_id corresponds to an empty session which contains
         the server_type and the restrictions.
         """
@@ -93,10 +93,10 @@ class CoordinatorServer(object):
                 )
         #
         # already_checked_servers controls which servers has the server with this session_id already checked.
-        # Whenever the method get_server is called, the session will be retrieved, and, for each server the 
+        # Whenever the method get_server is called, the session will be retrieved, and, for each server the
         # CoordinationMap finds that fulfills the server type and the restrictions, it is checked if all its
         # networks have already been checked.
-        # 
+        #
         return sess_id
 
     def do_logout(self, session_id):
@@ -136,14 +136,14 @@ class CoordinatorServer(object):
                 else:
                     if len(networks) == 0:
                         # a server with no network is not useful. It shouldn't happen, but still
-                        continue 
+                        continue
                     #This server is the server
                     network = self._add_server_and_network_to_server(coord_address,networks,session)
 
                 #At this point, the "server" (and "network" are chosen), we just need to save the cache and return them
                 return network.address
             raise CoordinatorServerExceptions.NoServerFoundException(
-                    "No server found for server_type: " + server_type + " and restrictions: " + str(restrictions) 
+                    "No server found for server_type: " + server_type + " and restrictions: " + str(restrictions)
                 )
         finally:
             self._session_manager.modify_session_unlocking(

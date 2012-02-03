@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import voodoo.gen.exceptions.locator.LocatorExceptions as LocatorExceptions
 
 class ServerTypeHandler(object):
@@ -40,7 +40,7 @@ class ServerTypeHandler(object):
         self._module = server_type_module
 
         self._methods = methods
-        
+
     def retrieve_methods(self,server_type):
         if self._methods.has_key(server_type):
             return self._methods[server_type]

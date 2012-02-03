@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import voodoo.gen.exceptions.exceptions as genExceptions
 
@@ -34,7 +34,7 @@ class CoordInvalidAddressParams(CoordinatorException):
 class CoordInvalidLevelAddress(CoordinatorException):
     def __init__(self,*args,**kargs):
         CoordinatorException.__init__(self,*args,**kargs)
-        
+
 class CoordInvalidKey(CoordinatorException):
     def __init__(self,*args,**kargs):
         CoordinatorException.__init__(self,*args,**kargs)
@@ -42,11 +42,11 @@ class CoordInvalidKey(CoordinatorException):
 class CoordNodeNotFound(CoordinatorException):
     def __init__(self,*args,**kargs):
         CoordinatorException.__init__(self,*args,**kargs)
-    
+
 class CoordMapNotInitialized(CoordinatorException):
     def __init__(self,*args,**kargs):
         CoordinatorException.__init__(self,*args,**kargs)
-    
+
 # CoordNodeNotFound children
 
 class CoordMachineNotFound(CoordNodeNotFound):

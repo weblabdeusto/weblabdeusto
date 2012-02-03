@@ -7,7 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
@@ -20,7 +20,7 @@ is intended to be used for checking common issues to most of the
 experiments. Examples:
    -> Is that webcam (url) returning a JPG image?
    -> Is that host (ip, port) listening?
-All these requests will not require a slot in the scheduling system, so they can 
+All these requests will not require a slot in the scheduling system, so they can
 be requested at any moment, even if there is a user using the experiment.
 """
 
@@ -57,7 +57,7 @@ class AbstractLightweightIsUpAndRunningHandler(object):
             else:
                 return []
         return messages
-    
+
     @abstractmethod
     def run(self):
         pass
@@ -66,15 +66,15 @@ HANDLERS = ()
 
 
 class HostIsUpAndRunningHandler(AbstractLightweightIsUpAndRunningHandler):
-    
+
     _socket = socket
     DEFAULT_TIMES = 2
-    
+
     def __init__(self, hostname, port, *args, **kwargs):
         super(HostIsUpAndRunningHandler, self).__init__(*args, **kwargs)
         self.hostname = hostname
         self.port = port
-        
+
     @Override(AbstractLightweightIsUpAndRunningHandler)
     def run(self):
         s = self._socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -86,17 +86,17 @@ class HostIsUpAndRunningHandler(AbstractLightweightIsUpAndRunningHandler):
             s.close()
 
 HANDLERS += (HostIsUpAndRunningHandler.__name__,)
-        
+
 
 class WebcamIsUpAndRunningHandler(AbstractLightweightIsUpAndRunningHandler):
-    
+
     _urllib2 = urllib2
     DEFAULT_TIMES = 3
-    
+
     def __init__(self, img_url, *args, **kwargs):
         super(WebcamIsUpAndRunningHandler, self).__init__(*args, **kwargs)
         self.img_url = img_url
-        
+
     @Override(AbstractLightweightIsUpAndRunningHandler)
     def run(self):
         try:

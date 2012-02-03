@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import urllib2
 import base64
@@ -52,7 +52,7 @@ class FacebookMethod(WebFacadeServer.Method):
             base_auth_url = self.cfg_manager.get_value(AUTH_URL_PROPERTY, DEFAULT_AUTH_URL)
             facebook_app_id = self.cfg_manager.get_value(APP_ID_PROPERTY)
             canvas_url = self.cfg_manager.get_value(CANVAS_URL_PROPERTY)
-            
+
             auth_url = base_auth_url % (facebook_app_id, urllib2.quote(canvas_url))
 
             return "<html><body><script>top.location.href='%s';</script></body></html>" % auth_url
@@ -146,7 +146,7 @@ class FacebookMethod(WebFacadeServer.Method):
                     </style>
                 </head>
                 <body>
-                <center><img src="../../../logo.png"></center> 
+                <center><img src="../../../logo.png"></center>
                 <p>It seems that your Facebook account has not been linked with a WebLab-Deusto account, or that you don't have a WebLab-Deusto account.</p>
                 <br>
                 <h2>Already have a WebLab-Deusto account?</h2>

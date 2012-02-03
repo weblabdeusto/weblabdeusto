@@ -47,7 +47,13 @@ def use(req, **kwargs):
 
     result = """<html><head><title>Use</title></head><body>
                 <h2>General</h2>
+                <b>Login:</b> %(login)s<br/>
+                <b>Name:</b> %(full_name)s<br/>
+                <b>Experiment:</b> %(experiment_name)s@%(category_name)s<br/>
+                <b>Date:</b> %(date)s<br/>
+                <b>Origin:</b> %(origin)s<br/>
                 <b>Use id:</b> %(use_id)s<br/>
+                <b>Reservation id:</b> %(reservation_id)s<br/>
                 <b>Mobile:</b> %(mobile)s<br/>
                 <b>Facebook:</b> %(facebook)s<br/>
                 <b>Referer:</b> %(referer)s<br/>
@@ -63,6 +69,14 @@ def use(req, **kwargs):
     try:
         cursor = connection.cursor()
         try:
+            SENTENCE = "SELECT u.login, u.full_name, e.name, c.name, uue.start_date, uue.origin, uue.reservation_id " + \
+                        "FROM UserUsedExperiment as uue, User as u, Experiment as e, ExperimentCategory as c " + \
+                        "WHERE u.id = uue.user_id AND e.id = uue.experiment_id AND e.category_id = c.id AND uue.id = %s "
+
+            cursor.execute(SENTENCE, (use_id,))
+            elements = cursor.fetchall()
+            login, full_name, experiment_name, category_name, start_date, origin, reservation_id = elements[0]
+
             # Property values
             SENTENCE = "SELECT ep.name, epv.value " + \
                         "FROM UserUsedExperimentProperty as ep, UserUsedExperimentPropertyValue as epv " + \
@@ -72,12 +86,19 @@ def use(req, **kwargs):
             properties = dict(elements)
 
             result = result % {
-                        'use_id'        : use_id,
-                        'mobile'        : cgi.escape(properties.get('mobile', "Don't know")),
-                        'facebook'      : cgi.escape(properties.get('facebook', "Don't know")),
-                        'referer'       : cgi.escape(properties.get('referer', "Don't know")),
-                        'user_agent'    : cgi.escape(properties.get('user_agent', "Don't know")),
-                        'external_user' : cgi.escape(properties.get('external_user', "Himself")),
+                        'use_id'          : use_id,
+                        'mobile'          : cgi.escape(properties.get('mobile', "Don't know")),
+                        'facebook'        : cgi.escape(properties.get('facebook', "Don't know")),
+                        'referer'         : cgi.escape(properties.get('referer', "Don't know")),
+                        'user_agent'      : cgi.escape(properties.get('user_agent', "Don't know")),
+                        'external_user'   : cgi.escape(properties.get('external_user', "Himself")),
+                        'reservation_id'  : cgi.escape(reservation_id   or 'not stored'),
+                        'login'           : cgi.escape(login            or 'not stored'),
+                        'full_name'       : cgi.escape(full_name        or 'not stored'),
+                        'experiment_name' : cgi.escape(experiment_name  or 'not stored'),
+                        'category_name'   : cgi.escape(category_name    or 'not stored'),
+                        'date'            : cgi.escape(str(start_date)),
+                        'origin'          : cgi.escape(origin           or 'not stored'),
                     }
 
             # Commands

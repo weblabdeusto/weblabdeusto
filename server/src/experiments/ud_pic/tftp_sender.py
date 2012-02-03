@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import tempfile
 import os
@@ -19,7 +19,7 @@ import os
 import experiments.ud_pic.exc as UdPicExperimentExceptions
 
 class TFtpProgramSender(object):
-    
+
     def __init__(self, tftp_device, tftp_remote_filename):
         super(TFtpProgramSender, self).__init__()
         self._tftp_device = tftp_device
@@ -34,7 +34,7 @@ class TFtpProgramSender(object):
                 os.write(fd, file_content)
             finally:
                 os.close(fd)
-            
+
             result, stdout_result, stderr_result = self._tftp_device.put(
                     "put %s %s" % (file_name,self._tftp_remote_filename)
                 )

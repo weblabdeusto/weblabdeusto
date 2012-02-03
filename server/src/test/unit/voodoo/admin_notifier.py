@@ -7,12 +7,12 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
 import unittest
 import mocker
@@ -24,7 +24,7 @@ import voodoo.configuration as ConfigurationManager
 import voodoo.configuration as ConfigurationExceptions
 
 class AdminNotifierFake(AdminNotifier.AdminNotifier):
-    
+
     def __init__(self, configuration, expected, smtp_mock):
         super(AdminNotifierFake, self).__init__(configuration)
         self.verification = False
@@ -45,7 +45,7 @@ class ConfigurationManagerFake(object):
         super(ConfigurationManagerFake,self).__init__()
         self._configuration = configuration
     def get_value(self, key, other = 'lalala'):
-        if self._configuration.has_key(key):
+        if key in self._configuration:
             return self._configuration[key]
         elif other != 'lalala':
             return other
@@ -56,7 +56,7 @@ class ConfigurationManagerFake(object):
             )
 
 class AdminNotifierTestCase(mocker.MockerTestCase):
-    
+
     def setUp(self):
         self.default_config = dict(
             server_hostaddress        = 'weblab.deusto.es',
@@ -67,7 +67,7 @@ class AdminNotifierTestCase(mocker.MockerTestCase):
             mail_server_helo          = 'weblab.deusto.es',
             mail_notification_sender  = 'weblab@deusto.es'
         )
-    
+
     def test_with_real_configuration(self):
         cfg_manager= ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration_module)
@@ -89,7 +89,7 @@ class AdminNotifierTestCase(mocker.MockerTestCase):
         cfg_manager= ConfigurationManagerFake(self.default_config)
         self.smtp_mock = self.mocker.mock()
         notifier = AdminNotifierFake(cfg_manager, 'rigel.deusto.es', self.smtp_mock)
-        
+
         self.mocker.replay()
         result = notifier.notify('message')
         self.assertEquals(-1, result)
@@ -114,7 +114,7 @@ def real_test():
 
     notifier = AdminNotifier.AdminNotifier(cfg_manager)
     notifier.notify('message')
-    
+
     print "Verify in your e-mail address :-D"
 
 

@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import re
 
 import voodoo.gen.exceptions.coordinator.CoordinatorExceptions as CoordExceptions
@@ -23,7 +23,7 @@ class CoordAddress(object):
         'instance' : '(.*)',
         'machine' : '(.*)'
     } + '$'
-    
+
     def __init__(self,machine_id,instance_id='',server_id=''):
         """ CoordAddress(machine_id,instance_id,server_id) -> CoordAddress
 
@@ -32,38 +32,27 @@ class CoordAddress(object):
             * machine_id
             * instance_id
             * server_id
-            * address (an address converted to string 
+            * address (an address converted to string
                 with CoordAddress.FORMAT format)
 
         Just in the same way networks ending are represented ending with 0s,
-        the CoordAddresses with server field empty are the address for an 
+        the CoordAddresses with server field empty are the address for an
         instance, and the CoordAddresses with server and instances fields
         empty are the addresses for machines.
         """
         if not type(machine_id) in (str,unicode) or machine_id == '':
-            raise CoordExceptions.CoordInvalidAddressParams(
-                        "%s: not a valid machine_id" 
-                        % machine_id
-                    )
-        if not type(instance_id) in (str,unicode): 
-            raise CoordExceptions.CoordInvalidAddressParams(
-                        "%s: not a valid instance_id"
-                        % instance_id
-                    )
+            raise CoordExceptions.CoordInvalidAddressParams( "%s: not a valid machine_id" % machine_id)
+        if not type(instance_id) in (str,unicode):
+            raise CoordExceptions.CoordInvalidAddressParams( "%s: not a valid instance_id" % instance_id)
         if not type(server_id) in (str,unicode):
-            raise CoordExceptions.CoordInvalidAddressParams(
-                        "%s: not a valid server_id"
-                        % server_id
-                    )
+            raise CoordExceptions.CoordInvalidAddressParams( "%s: not a valid server_id" % server_id)
         if instance_id == '' and server_id != '':
-            raise CoordExceptions.CoordInvalidAddressParams(
-                        "%s, %s: not valid parameters"
-                        % (instance_id, server_id)
-                    )
-            
-        self._machine_id = machine_id
-        self._instance_id = instance_id
-        self._server_id = server_id
+            raise CoordExceptions.CoordInvalidAddressParams( "%s, %s: not valid parameters" % (instance_id, server_id))
+
+        self.machine_id = machine_id
+        self.instance_id = instance_id
+        self.server_id = server_id
+
         self._reload_address()
 
     def _reload_address(self):
@@ -73,31 +62,17 @@ class CoordAddress(object):
                 'machine'   : self.machine_id
             }
 
-    # read-only properties
-    
-    @property
-    def machine_id(self):
-        return self._machine_id
-
-    @property
-    def instance_id(self):
-        return self._instance_id
-
-    @property
-    def server_id(self):
-        return self._server_id
-
     @property
     def address(self):
         return self._address
-    
+
     # is_* methods
     def is_server(self):
         return self.server_id != ''
 
     def is_instance(self):
         return self.server_id == '' and self.instance_id != ''
-    
+
     def is_machine(self):
         return self.server_id == '' and self.instance_id == ''
 
@@ -108,7 +83,7 @@ class CoordAddress(object):
                         '%s: not a server_address' % self
                     )
         new_addr = self.copy()
-        new_addr._server_id = ''
+        new_addr.server_id = ''
         new_addr._reload_address()
         return new_addr
 
@@ -118,24 +93,24 @@ class CoordAddress(object):
                         '%s: not a server or instance address' % self
                     )
         new_addr = self.copy()
-        new_addr._server_id = new_addr._instance_id = ''
+        new_addr.server_id = new_addr.instance_id = ''
         new_addr._reload_address()
         return new_addr
 
     # deep copy method
-    
+
     def copy(self):
         return CoordAddress(
                 self.machine_id,
                 self.instance_id,
                 self.server_id
             )
-        
+
     # factory in order to create new CoordAddresses
-        
+
     @staticmethod
     def translate_address(address):
-        """ translate_address(address) -> CoordAddress 
+        """ translate_address(address) -> CoordAddress
 
         Given a Coordinator Address in CoordAddress.FORMAT format,
         translate_address will provide the corresponding CoordAddress
@@ -158,9 +133,9 @@ class CoordAddress(object):
         else:
             server,instance,machine = m.groups()
             return CoordAddress(machine,instance,server)
-    
+
     # Auxiliar methods
-    
+
     def __cmp__(self,other):
         if other is None:
             return cmp(self.address,None)
@@ -184,7 +159,7 @@ class CoordAddress(object):
 
     def __repr__(self):
         return 'CoordAddress(%r, %r, %r)' % (
-            self._machine_id, self._instance_id, self._server_id )
+            self.machine_id, self.instance_id, self.server_id )
 
     def __hash__(self):
         return hash(self.address) + 1

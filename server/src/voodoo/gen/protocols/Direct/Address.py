@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import voodoo.gen.coordinator.Address as cAddress
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 
@@ -31,7 +31,7 @@ from voodoo.override import Override
 import voodoo.gen.protocols.Direct.Exceptions as Exceptions
 
 class Address(cAddress.Address):
-    
+
     def __init__(self, machine_id, instance_id, server_id):
         cAddress.Address.__init__(self)
         if not isinstance(machine_id,basestring):
@@ -78,7 +78,7 @@ class Address(cAddress.Address):
             return cmp_instance_id
         cmp_server_id = cmp(self.server_id,other.server_id)
         if cmp_server_id != 0:
-            return cmp_server_id        
+            return cmp_server_id
         return 0
 
     @Override(cAddress.Address)
@@ -116,11 +116,11 @@ class Address(cAddress.Address):
                     ("Exception instaciating the client: %s" % e),
                     e
                 )
-    
+
     @Override(cAddress.Address)
     def get_protocol(self):
         return Protocols.Direct
-        
+
 def from_coord_address(coord_address):
     if not isinstance(coord_address,CoordAddress.CoordAddress):
         raise Exceptions.NotACoordAddressException(

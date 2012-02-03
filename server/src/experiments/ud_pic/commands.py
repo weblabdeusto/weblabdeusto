@@ -7,20 +7,20 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import re
 
 import experiments.ud_pic.exc as UdPicExperimentExceptions
 
 class UdPicBoardCommand(object):
-    _REGEX_FORMAT="^((%(complete-syntax)s, )*%(complete-syntax)s)$" 
+    _REGEX_FORMAT="^((%(complete-syntax)s, )*%(complete-syntax)s)$"
     @staticmethod
     def get_syntax():
-        return UdPicBoardCommand._REGEX_FORMAT % { 
+        return UdPicBoardCommand._REGEX_FORMAT % {
             'complete-syntax' : UdPicBoardSimpleCommand.get_full_syntax()
         }
 
@@ -36,7 +36,7 @@ class UdPicBoardCommand(object):
 
     def get_commands(self):
         return self._commands[:]
-    
+
 class UdPicBoardSimpleCommand(object):
 
     SUBCLASSES = ()
@@ -84,7 +84,7 @@ class ChangeSwitchCommand(UdPicBoardSimpleCommand):
         super(ChangeSwitchCommand,self).__init__()
         self.switch_on = on_off_to_bool(switch_on)
         self.number = int(number)
-    
+
     def __str__(self):
         return "SWITCH=%s %s" % (
                 self.number,
@@ -104,7 +104,7 @@ class SetPulseCommand(UdPicBoardSimpleCommand):
         super(SetPulseCommand,self).__init__()
         self.number = int(number)
         self.millis = int(millis)
-    
+
     def __str__(self):
         return "PULSE=%s %s" % (
                 self.number,
@@ -122,7 +122,7 @@ class AdjustCommand(UdPicBoardSimpleCommand):
         super(AdjustCommand,self).__init__()
         self.number   = int(number)
         self.power    = float(power)
-    
+
     def __str__(self):
         return "ADJUST=%s %s" % (self.number, self.power)
 
@@ -137,7 +137,7 @@ class WriteCommand(UdPicBoardSimpleCommand):
         super(WriteCommand,self).__init__()
         self.number   = int(number)
         self.text     = text
-    
+
     def __str__(self):
         return "WRITE=%s %s EOT" % (self.number, self.text)
 
@@ -150,7 +150,7 @@ class ResetCommand(UdPicBoardSimpleCommand):
 
     def __init__(self):
         super(ResetCommand,self).__init__()
-    
+
     def __str__(self):
         return "RESET="
 

@@ -7,7 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -78,21 +78,21 @@ stubs = (
 
 def generate(methods):
     clientSkel = ClientSkel.generate(methods)
-    
+
     class ClientDirect(clientSkel):
         def __init__(self,server):
             clientSkel.__init__(self,server)
-    
+
     # Adding properly the testing method to check availability
     if isinstance(methods,dict):
         all_methods = methods.keys()
     else:
         all_methods = list(methods[:])
     all_methods.append('test_me')
-    
+
     # Generating stubs dinamically
     for method_name in all_methods:
-        
+
         # Each method can have many stubs (with different prefixes)
         for stub in stubs:
             func = stub(method_name)
@@ -100,11 +100,11 @@ def generate(methods):
             func.__doc__ = (func.__doc__ if func.__doc__ is not None else '').replace('METHOD_NAME', method_name)
             if isinstance(all_methods, dict):
                 func.__doc__ = (func.__doc__ if func.__doc__ is not None else '').replace('DOCUMENTATION', all_methods[method_name])
-            # Taking "prefix_" from "_prefix_stub" 
+            # Taking "prefix_" from "_prefix_stub"
             stub_prefix = stub.func_name[len('_generate_'):]
             stub_prefix = stub_prefix[:stub_prefix.rfind('stub')]
             func_name = stub_prefix + method_name
             func.func_name = func_name
             setattr(ClientDirect, func_name, func)
-    
+
     return ClientDirect

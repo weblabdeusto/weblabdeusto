@@ -7,12 +7,12 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
-# 
+#
 
 from weblab.comm.codes import WEBLAB_GENERAL_EXCEPTION_CODE, PYTHON_GENERAL_EXCEPTION_CODE
 from voodoo.sessions.session_id import SessionId
@@ -49,7 +49,7 @@ class FileUploadMethod(WebFacadeServer.Method):
         """
         run()
         Handles file uploading. It will extract the required parameters FILE_SENT, FILE_INFO,
-        SESSION_ID, and the optional parameter IS_ASYNC, and call either send_file or 
+        SESSION_ID, and the optional parameter IS_ASYNC, and call either send_file or
         send_async_file depending on this last one.
         @return HTML defined above, with the success or failure response.
         """
@@ -57,12 +57,12 @@ class FileUploadMethod(WebFacadeServer.Method):
             file_info, file_sent, session_id, is_async = self._check_arguments()
             file_content = Util.serialize(file_sent)
             sid = SessionId(session_id)
-            
+
             if(not is_async):
                 result = self.server.send_file(sid, file_content, file_info)
             else:
                 result = self.server.send_async_file(sid, file_content, file_info)
-                
+
         except FileUploadException as fue:
             code, message = fue.args
             return FAULT_HTML_TEMPLATE % {
@@ -76,14 +76,14 @@ class FileUploadMethod(WebFacadeServer.Method):
                         'THE_FAULT_MESSAGE' : message
                     }
         else:
-            
+
             if not is_async:
                 resultstr = result.commandstring
             else:
                 resultstr = result
-                
+
             print "[DBG] Returning result from file upload: " + resultstr
-                
+
             return SUCCESS_HTML_TEMPLATE % {
                             'RESULT' : resultstr
                     }
@@ -104,9 +104,9 @@ class FileUploadMethod(WebFacadeServer.Method):
         session_id = self.get_argument(SESSION_ID)
         if session_id is None:
             raise FileUploadException(WEBLAB_GENERAL_EXCEPTION_CODE, "%s argument not provided!" % SESSION_ID)
-        
+
         # Read the IS_ASYNC parameter, which will indicate us whether we should execute the send_file asynchronously
-        # or synchronously. 
+        # or synchronously.
         is_async_str = self.get_argument(IS_ASYNC)
         if is_async_str is None:
             is_async = False

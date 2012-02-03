@@ -7,7 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
@@ -32,7 +32,7 @@ def avg(elements):
         return 0
 
 class BotLauncher(object):
-    
+
     def __init__(self, weblab_path, launch_file_name, host, pickle_file_name, logging_cfg_file_name, scenario, iterations, ports):
         super(BotLauncher, self).__init__()
         self.weblab_path = weblab_path
@@ -47,16 +47,16 @@ class BotLauncher(object):
 
         self._set_logging_cfg()
         self._set_users()
-        
+
     def _set_logging_cfg(self):
         logging.config.fileConfig(self.logging_cfg_file_name)
-        
+
     def _set_users(self):
         self.users = len(self.scenario)
-            
+
     def _add_exception(self, exceptions_dict, (exception, trace)):
         """ { "ExceptionType1": <BotException>, "ExceptionType2": <BotException>, ... } """
-        if exceptions_dict.has_key(exception.__class__.__name__):
+        if exception.__class__.__name__ in exceptions_dict:
             exceptions_dict[exception.__class__.__name__].add_instance((exception, trace))
         else:
             exceptions_dict[exception.__class__.__name__] = Data.BotException((exception, trace))
@@ -64,7 +64,7 @@ class BotLauncher(object):
     def _print(self, message):
         sys.stdout.write(message)
         sys.stdout.flush()
-        
+
     def _dump_results(self):
         results     = self.get_results()
         pickle_file = open(self.pickle_file_name,'w')
@@ -77,7 +77,7 @@ class BotLauncher(object):
         # Launching trials...
         print "New trial. %i iterations" % self.iterations
         self.bot_trial = self._launch_trial()
-        
+
         print "Cleaning results...", time.asctime()
         self.bot_trial = mapper.remove_unpickables(self.bot_trial)
 
@@ -88,7 +88,7 @@ class BotLauncher(object):
                 print "Results stored",time.asctime()
             except Exception as e:
                 print "Error: Couldn't store results into %s: %r" % (self.pickle_file_name, e)
-        
+
     def _launch_trial(self):
 
         # Launching iterations...
@@ -102,7 +102,7 @@ class BotLauncher(object):
         return Data.BotTrial(iterations)
 
     def _launch_iteration(self):
-        
+
         # Launching botusers...
         self.weblab_process = WebLabProcess.WebLabProcess(self.weblab_path, self.launch_file, self.host, self.ports)
         self.weblab_process.start()
@@ -135,14 +135,14 @@ class BotLauncher(object):
                 routes[route] = 1
 
         self._print("  %s" % routes)
-        
+
         # Compiling iteration data...
         exceptions = {}
         for botuser in botusers:
             for exception, trace in botuser.get_exceptions():
                 self._add_exception(exceptions, (exception, trace))
         return Data.BotIteration(iteration_time, exceptions, botusers, self.weblab_process.out, self.weblab_process.err)
-        
+
     def len(self):
         return self.users / self.step
 

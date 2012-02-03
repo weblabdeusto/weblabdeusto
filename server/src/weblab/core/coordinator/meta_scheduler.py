@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 from voodoo.log import logged
 from weblab.core.coordinator.exc import NoSchedulerFoundException
@@ -23,27 +23,27 @@ import weblab.core.coordinator.status as WSS
 DEBUG = False
 
 #############################################################
-# 
-# The Independent Scheduler Aggregator aggregates different 
-# schedulers that schedule independent resources. For 
-# instance, one experiment that can be executed in two 
+#
+# The Independent Scheduler Aggregator aggregates different
+# schedulers that schedule independent resources. For
+# instance, one experiment that can be executed in two
 # different types of "rigs" will be waiting in two queues
-# at the same time. This class will handle established 
+# at the same time. This class will handle established
 # policies such as priorities among schedulers.
-# 
+#
 # Take into account that a possible scheduler is an external
-# scheduler (such as another WebLab-Deusto). Therefore 
+# scheduler (such as another WebLab-Deusto). Therefore
 # policies can become complex here.
-# 
-# In summary, IndependentSchedulerAggregator is an 'OR' 
+#
+# In summary, IndependentSchedulerAggregator is an 'OR'
 # aggregator, since it reserves in all the aggregated
 # schedulers and then it it responds with the best option.
-# 
-# Therefore, while it is compliant with the Scheduler 
+#
+# Therefore, while it is compliant with the Scheduler
 # API, it can not be configured as such in the core config
-# files: it will be created by the coordinator in the 
+# files: it will be created by the coordinator in the
 # constructor, creating one per experiment_id.
-# 
+#
 class IndependentSchedulerAggregator(Scheduler):
 
     def __init__(self, generic_scheduler_arguments, experiment_id, schedulers, particular_configuration):
@@ -62,11 +62,11 @@ class IndependentSchedulerAggregator(Scheduler):
             else:
                 local_schedulers.append(resource_type_name)
 
-        #  
+        #
         # Local schedulers go first
-        # 
+        #
         self.ordered_schedulers = local_schedulers + remote_schedulers
-        
+
         self.experiment_id            = experiment_id
         self.schedulers               = schedulers
         self.particular_configuration = particular_configuration
@@ -115,7 +115,7 @@ class IndependentSchedulerAggregator(Scheduler):
 
         if any_assigned:
             for resource_type_name in used_schedulers:
-                used_scheduler = self.schedulers[resource_type_name] 
+                used_scheduler = self.schedulers[resource_type_name]
                 used_scheduler.finish_reservation(reservation_id)
                 all_reservation_status.pop(resource_type_name)
                 self.resources_manager.dissociate_scheduler_from_reservation(reservation_id, self.experiment_id, resource_type_name)
@@ -128,7 +128,7 @@ class IndependentSchedulerAggregator(Scheduler):
         all_reservation_status = {}
 
         if DEBUG:
-            print 
+            print
             session = self.session_maker()
             url = str(session.get_bind().url)
             session.close()
@@ -160,16 +160,16 @@ class IndependentSchedulerAggregator(Scheduler):
         if assigned_resource_type_name is not None:
             for resource_type_name in reservation_schedulers:
                 if resource_type_name != assigned_resource_type_name:
-                    used_scheduler = self.schedulers[resource_type_name] 
+                    used_scheduler = self.schedulers[resource_type_name]
                     used_scheduler.finish_reservation(reservation_id)
                     all_reservation_status.pop(resource_type_name, None)
                     self.resources_manager.dissociate_scheduler_from_reservation(reservation_id, self.experiment_id, resource_type_name)
 
         best_reservation = self.select_best_reservation_status(all_reservation_status.values())
-        
+
         if DEBUG:
             print tabs, "</", url, best_reservation, "/>"
-            print 
+            print
         return best_reservation
 
 
@@ -201,26 +201,26 @@ class IndependentSchedulerAggregator(Scheduler):
         pass
 
 ###########################################################
-# 
+#
 # The SharedSchedulerAggregator is a scheduler aggregator
-# for resources being shared through more than one 
+# for resources being shared through more than one
 # scheduler. We could say that it is an 'AND' scheduler:
 # it reserves only in one scheduler.
-# 
-# An interesting use case for this class is if an 
-# experiment can be shared through queues and booking. 
+#
+# An interesting use case for this class is if an
+# experiment can be shared through queues and booking.
 # Depending on the reservation, it will only call one of
 # the schedulers (the most appropriate). But whenever we
-# want to know free slots or position in a queue, we 
+# want to know free slots or position in a queue, we
 # have to ask all the aggregated systems.
-# 
-# Another possible use case for this class would be 
+#
+# Another possible use case for this class would be
 # sharing a single experiment through different mechanisms,
 # such as weblabdeusto and an external one (VISIR, iLabs,
-# Sahara). One of the schedulers would check in the 
+# Sahara). One of the schedulers would check in the
 # internal database and define whether it is possible to
 # serve the experiment or not
-# 
+#
 
 class SharedSchedulerAggregator(object):
 

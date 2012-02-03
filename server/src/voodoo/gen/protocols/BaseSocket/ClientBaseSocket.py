@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
 import voodoo.gen.protocols.BaseSocket.Messages as Messages
 
@@ -91,10 +91,10 @@ stubs = (
     _generate_call_begin_stub,
     _generate_call_is_running_stub,
     _generate_call_get_result_stub
-)           
+)
 
 def generate_base(methods, ClientSocket):
-    
+
     # Adding properly the testing method to check availability
     if isinstance(methods, dict):
         all_methods = methods.keys()
@@ -111,11 +111,11 @@ def generate_base(methods, ClientSocket):
             func.__doc__ = (func.__doc__ if func.__doc__ is not None else '').replace('METHOD_NAME', method_name)
             if isinstance(all_methods, dict):
                 func.__doc__ = (func.__doc__ if func.__doc__ is not None else '').replace('DOCUMENTATION', all_methods[method_name])
-            # Taking "prefix_" from "_prefix_stub" 
+            # Taking "prefix_" from "_prefix_stub"
             stub_prefix = stub.func_name[len('_generate_'):]
             stub_prefix = stub_prefix[:stub_prefix.rfind('stub')]
             func_name = stub_prefix + method_name
-            func.func_name = func_name      
+            func.func_name = func_name
             setattr(ClientSocket, func_name, func)
-        
+
     return ClientSocket

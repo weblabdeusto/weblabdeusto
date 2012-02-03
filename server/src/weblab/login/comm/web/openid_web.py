@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 try:
     from urlparse import parse_qsl as url_parse_qsl
@@ -119,7 +119,7 @@ class OpenIdMethod(WebFacadeServer.Method):
                 full_url = self.get_argument(USER_ID)
                 if full_url is None:
                     return "A username (%s) + domain (%s) or a user identifier (%s) must be provided " % (USERNAME, DOMAIN, USER_ID)
-            
+
             # full_url contains the user identifier
             oidconsumer = self.getConsumer()
             try:

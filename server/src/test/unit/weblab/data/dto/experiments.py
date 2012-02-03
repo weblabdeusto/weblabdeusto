@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo.orduna@deusto.es>
-# 
+#
 
 import unittest
 import datetime
@@ -20,7 +20,7 @@ from weblab.data.dto.experiments import Experiment, ExperimentCategory, Experime
 
 
 class ExperimentsTestCase(unittest.TestCase):
-    
+
     def setUp(self):
         self.category   = ExperimentCategory("Dummy experiments")
         self.experiment = Experiment("ud-dummy", self.category, datetime.datetime.now(), datetime.datetime.now(), 5L)
@@ -32,16 +32,16 @@ class ExperimentsTestCase(unittest.TestCase):
 
     def test_experiment(self):
         self._check_repr(self.experiment)
-        
+
     def test_experiment_category(self):
         self._check_repr(self.category)
-        
+
     def test_experiment_use(self):
         self._check_repr(self.use)
-        
+
     def test_experiment_allowed(self):
         self._check_repr(self.allowed)
-        
+
 
 def suite():
     return unittest.makeSuite(ExperimentsTestCase)

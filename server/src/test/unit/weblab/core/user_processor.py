@@ -7,7 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -24,7 +24,7 @@ from   test.util.module_disposer import case_uses_module
 
 from weblab.core.server import WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER
 import weblab.core.user_processor as UserProcessor
-import weblab.core.coordinator.coordinator as Coordinator 
+import weblab.core.coordinator.coordinator as Coordinator
 import weblab.core.coordinator.confirmer as Confirmer
 import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.core.coordinator.status as WebLabSchedulingStatus
@@ -71,7 +71,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.cfg_manager._set_value(COORDINATOR_LABORATORY_SERVERS, {
             'server:laboratoryserver@labmachine' : {
                 'inst1|ud-dummy|Dummy experiments' : 'res_inst@res_type'
-            }        
+            }
         })
 
         self.commands_store = TemporalInformationStore.CommandsTemporalInformationStore()
@@ -147,8 +147,7 @@ class UserProcessorTestCase(unittest.TestCase):
                     "{}", '{ "%s" : [["%s","server x"]]}' % (UserProcessor.SERVER_UUIDS, uuid),
                     ClientAddress.ClientAddress("127.0.0.1"), uuid
                 )
-
-        self.assertTrue( 'replicated' )
+        self.assertEquals( 'replicated', status )
 
 
 class FakeDatabase(object):
@@ -180,10 +179,10 @@ class FakeDatabase(object):
 
     def get_groups(self, db_session_id):
         return self.groups
-    
+
     def get_roles(self, db_session_id):
         return self.roles
-    
+
     def get_users(self, db_session_id):
         return self.users
 

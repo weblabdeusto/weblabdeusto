@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import unittest
 
 import voodoo.gen.protocols.XMLRPC.ClientXMLRPC as ClientXMLRPC
@@ -41,16 +41,16 @@ class ClientXMLRPCTestCase(unittest.TestCase):
         setattr(Fake, 'Util.method1', Fake.method1)
         setattr(Fake, 'Util.method2', Fake.method2)
         setattr(Fake, 'Util.method3', Fake.method3)
-    
+
         fake = Fake()
-        
+
         newfunctions = []
         for i in methods:
             newfunction = ClientXMLRPC._generate_stub(i)
             newfunctions.append(newfunction)
-    
+
         self.assertEquals(msg1 + msg2,newfunctions[0](fake,msg1))
-        
+
         self.assertRaises(
                 Exceptions.UnknownFaultType,
                 newfunctions[1],

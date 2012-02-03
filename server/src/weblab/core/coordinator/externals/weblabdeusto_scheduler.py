@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import time as time_mod
 import cPickle as pickle
@@ -25,7 +25,13 @@ import weblab.core.coordinator.status as WSS
 from weblab.core.coordinator.scheduler import Scheduler
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 from weblab.core.coordinator.externals.weblabdeusto_scheduler_model import ExternalWebLabDeustoReservation
+
+from weblab.core.coordinator.externals.weblabdeusto_scheduler_retriever import ResultsRetriever
 from voodoo.log import logged
+
+RETRIEVAL_PERIOD_PROPERTY_NAME = 'core_weblabdeusto_federation_retrieval_period'
+DEFAULT_RETRIEVAL_PERIOD = 10
+
 
 class ExternalWebLabDeustoScheduler(Scheduler):
 
@@ -37,9 +43,14 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         self.username      = username
         self.password      = password
 
+        # TODO: put it in other way
+        period = self.cfg_manager.get_value(RETRIEVAL_PERIOD_PROPERTY_NAME, DEFAULT_RETRIEVAL_PERIOD)
+        self.retriever     = ResultsRetriever(self.session_maker, self.resource_type_name, period)
+        self.retriever.start()
+
     def stop(self):
-        pass
-    
+        self.retriever.stop()
+
     @Override(Scheduler)
     def is_remote(self):
         return True
@@ -64,9 +75,9 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         return client
 
     #######################################################################
-    # 
+    #
     # Given a reservation_id, it returns in which state the reservation is
-    # 
+    #
     @logged()
     @Override(Scheduler)
     def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info):
@@ -85,13 +96,13 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         for forwarded_key in FORWARDED_KEYS:
             if forwarded_key in request_info:
                 consumer_data[forwarded_key] = request_info[forwarded_key]
-        
+
         # TODO: identifier of the server
         login_client = self._create_login_client()
         session_id = login_client.login(self.username, self.password)
 
         client = self._create_client(login_client.get_cookies())
-        
+
         serialized_client_initial_data = json.dumps(client_initial_data)
         serialized_consumer_data       = json.dumps(consumer_data)
         external_reservation = client.reserve_experiment(session_id, experiment_id, serialized_client_initial_data, serialized_consumer_data)
@@ -116,9 +127,9 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         return reservation_status
 
     #######################################################################
-    # 
+    #
     # Given a reservation_id, it returns in which state the reservation is
-    # 
+    #
     @logged()
     @Override(Scheduler)
     def get_reservation_status(self, reservation_id):
@@ -134,7 +145,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
             serialized_cookies    = reservation.cookies
         finally:
             session.close()
-        
+
         cookies = pickle.loads(str(serialized_cookies))
         client = self._create_client(cookies)
 
@@ -149,7 +160,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
             reservation_status.set_remote_reservation_id(remote_reservation_id)
 
         return reservation_status
-       
+
 
 
     ################################################################
@@ -160,7 +171,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     @Override(Scheduler)
     def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
         # At some point, we must call the upper level to say that we want to confirm
-        # at this point, it's normal that they call us back, even if there is nothing 
+        # at this point, it's normal that they call us back, even if there is nothing
         # to do
         pass
 
@@ -189,9 +200,9 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         client.finished_experiment(SessionId(remote_reservation_id))
 
     ##############################################################
-    # 
+    #
     # ONLY FOR TESTING: It completely removes the whole database
-    # 
+    #
     @Override(Scheduler)
     def _clean(self):
         session = self.session_maker()

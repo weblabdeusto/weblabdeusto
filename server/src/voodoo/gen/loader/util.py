@@ -7,17 +7,17 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import xml.dom.minidom as minidom
 import voodoo.gen.exceptions.loader.LoaderExceptions as LoaderExceptions
 
 def find_nodes(file_name, root_node, node_name):
-    return [ child_node 
+    return [ child_node
         for child_node in root_node.childNodes
         if isinstance(child_node, minidom.Element) and child_node.tagName == node_name
     ]
@@ -26,7 +26,7 @@ def find_nodes_at_least_one(file_name, root_node, node_name):
     nodes = find_nodes(file_name, root_node, node_name)
     if len(nodes) == 0:
         raise LoaderExceptions.InvalidSyntaxFileConfigurationException(
-            "Couldn't find %s node in %s" % (file_name, node_name), 
+            "Couldn't find %s node in %s" % (file_name, node_name),
             file_name
         )
     return nodes
@@ -35,7 +35,7 @@ def find_node(file_name, root_node, node_name):
     nodes = find_nodes_at_least_one(file_name, root_node, node_name)
     if len(nodes) > 1:
         raise LoaderExceptions.InvalidSyntaxFileConfigurationException(
-            "Too many %s nodes in %s" % (file_name, node_name), 
+            "Too many %s nodes in %s" % (file_name, node_name),
             file_name
         )
     return nodes[0]
@@ -65,7 +65,7 @@ def last_point(name):
 
 def obtain_module(name):
     """ obtain_module(name) -> module
-    Given a name like "os.path.sep" in str form, this function will return the module os.path (or os, if __import__ provides os) 
+    Given a name like "os.path.sep" in str form, this function will return the module os.path (or os, if __import__ provides os)
     or None if no module is found.
     """
     the_module = None
@@ -77,7 +77,7 @@ def obtain_module(name):
         except ImportError:
             pass
     return the_module
-    
+
 def obtain_from_python_path(name):
     """ obtain_from_python_path(name) -> whatever :-)
 

@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import weblab.experiment.devices.exc as DeviceExceptions
 
 class CantFindXilinxProperty(DeviceExceptions.MisconfiguredDeviceException):
@@ -37,7 +37,7 @@ class ErrorWaitingForProgrammingFinishedException(DeviceExceptions.ProgrammingDe
 class ProgrammingGotErrors(DeviceExceptions.ProgrammingDeviceException):
     def __init__(self,*args,**kargs):
         DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
-        
+
 class GeneratingSvfFileGotErrors(DeviceExceptions.ProgrammingDeviceException):
     def __init__(self,*args,**kargs):
         DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)

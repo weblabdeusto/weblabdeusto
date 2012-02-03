@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import cPickle as pickle
 
@@ -21,7 +21,7 @@ import sys
 import time as time_module
 
 class _HasheableKey(object):
-    """ If args are hasheable and there is no kwargs (which will 
+    """ If args are hasheable and there is no kwargs (which will
     never be hasheable), then there is no need to pickle anything, so
     everything will run far faster.
     """
@@ -154,7 +154,7 @@ def cache(time_to_wait = None, resource_manager = None):
             self.lock         = threading.RLock()
             self.dictionaries_per_inst = {
                     # inst : { # if it's not an inst, None is the key
-                    #   'dict': {}, 
+                    #   'dict': {},
                     #   'list': []
                     # }
                  }
@@ -214,12 +214,12 @@ def cache(time_to_wait = None, resource_manager = None):
         def _get_dictionaries(self, inst = "this.is.not.an.instance"):
             if inst == "this.is.not.an.instance":
                 inst = self._inst
-            if not self.dictionaries_per_inst.has_key(inst):
+            if not inst in self.dictionaries_per_inst:
                 self.lock.acquire()
                 try:
                     # Double ask, just to avoid acquiring and releasing
                     # without need
-                    if not self.dictionaries_per_inst.has_key(inst):
+                    if not inst in self.dictionaries_per_inst:
                         self.dictionaries_per_inst[inst] = {
                             'dict' : {},
                             'list' : []
@@ -270,7 +270,7 @@ class fast_cache(object):
             if self._inst is not None:
                 args = (self._inst(),) + args
 
-            if self.cache.has_key(args):
+            if args in self.cache:
                 return self.cache[args]
             else:
                 return_value = self.func(*args)
