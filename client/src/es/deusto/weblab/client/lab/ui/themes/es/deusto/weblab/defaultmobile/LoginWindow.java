@@ -54,6 +54,7 @@ class LoginWindow extends BaseWindow {
 	@UiField WlWaitingLabel waitingLabel;
 	
 	@UiField Anchor languages;
+	@UiField Anchor classicLink;
 
 	@UiField Label messages;
 
@@ -114,6 +115,8 @@ class LoginWindow extends BaseWindow {
 				simplePopup.show();
 			}
 		});
+		
+		this.classicLink.setHref(WebLabClient.getNewUrl(WebLabClient.MOBILE_URL_PARAM, "false"));
 		
 		this.mainPanel.add(wid);
 	}

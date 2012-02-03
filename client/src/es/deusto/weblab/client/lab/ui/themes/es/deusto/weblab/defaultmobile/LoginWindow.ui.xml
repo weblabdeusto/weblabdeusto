@@ -83,7 +83,7 @@
 					<g:Label text="mobile" styleName="{style.bold-text}"></g:Label>
 				</g:Cell>
 				<g:Cell horizontalAlignment="ALIGN_LEFT">
-					<g:Anchor text="classic" href="."></g:Anchor>
+					<g:Anchor ui:field="classicLink" text="classic" href="."></g:Anchor>
 				</g:Cell>
 			</g:HorizontalPanel>
 		</g:Cell>
