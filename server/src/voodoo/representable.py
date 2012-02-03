@@ -14,6 +14,7 @@
 # 
 
 from abc import ABCMeta
+import voodoo.log as log
 
 def _extract_ctor_args(klass):
     if hasattr(klass.__init__, '_original_args'):
@@ -24,21 +25,26 @@ def _extract_ctor_args(klass):
 def _repr_impl(self):
     """__repr__: it takes all the arguments of the constructor and
     checks for their value in the object"""
-    my_class = type(self)
-    ctor_arguments = _extract_ctor_args(my_class)
-    repr_str = "%s(" % my_class.__name__
+    try:
+        my_class = type(self)
+        ctor_arguments = _extract_ctor_args(my_class)
+        repr_str = "%s(" % my_class.__name__
 
-    var_names = {}
-    for var_name in ctor_arguments:
-        if not hasattr(self, var_name) and hasattr(self, '_%s' % var_name):
-            var_names[var_name] = '_%s' % var_name
-        elif not hasattr(self, var_name) and hasattr(self, '_%s__%s' % (my_class.__name__, var_name)):
-            var_names[var_name] = '_%s__%s' % (my_class.__name__, var_name)
-        else:
-            var_names[var_name] = var_name
+        var_names = {}
+        for var_name in ctor_arguments:
+            if not hasattr(self, var_name) and hasattr(self, '_%s' % var_name):
+                var_names[var_name] = '_%s' % var_name
+            elif not hasattr(self, var_name) and hasattr(self, '_%s__%s' % (my_class.__name__, var_name)):
+                var_names[var_name] = '_%s__%s' % (my_class.__name__, var_name)
+            else:
+                var_names[var_name] = var_name
 
-    repr_str += ', '.join([ '%s = %r' % (v, getattr(self, var_names[v])) for v in ctor_arguments ])
-    repr_str += ")"
+        repr_str += ', '.join([ '%s = %r' % (v, getattr(self, var_names[v])) for v in ctor_arguments ])
+        repr_str += ")"
+    except:
+        log.log(Representable, log.level.Error, "Could not generate a representation of object of type %s" % type(self))
+        log.log_exc(Representable, log.level.Error)
+        repr_str = '"Could not generate a representation. See the logs"'
     return repr_str
 
 def _eq_impl(self, other):
