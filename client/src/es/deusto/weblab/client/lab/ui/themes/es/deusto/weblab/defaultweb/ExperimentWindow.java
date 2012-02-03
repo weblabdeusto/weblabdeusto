@@ -98,6 +98,8 @@ class ExperimentWindow extends BaseWindow {
 	private static final String EXPERIMENT_INFODESCRIPTION_PROPERTY = "experiment.info.description";
 	private static final String DEFAULT_EXPERIMENT_INFODESCRIPTION = "";
 	
+	private static final String RESERVE_BUTTON_SHOWN_PROPERTY = "experiment.reserve.button.shown";
+	private static final boolean DEFAULT_RESERVE_BUTTON_SHOWN  = true;
     
 	// DTOs
 	private final User user;
@@ -128,6 +130,8 @@ class ExperimentWindow extends BaseWindow {
 	public void loadWidgets(){		
 		ExperimentWindow.uiBinder.createAndBindUi(this);
 		
+	    this.reserveButton.setVisible(this.configurationManager.getBoolProperty(RESERVE_BUTTON_SHOWN_PROPERTY, DEFAULT_RESERVE_BUTTON_SHOWN));
+	    
 		final boolean visibleHeader = HistoryProperties.getBooleanValue(HistoryProperties.HEADER_VISIBLE, true);
 	    this.headerPanel.setVisible(visibleHeader);
 	    this.navigationPanel.setVisible(visibleHeader);
