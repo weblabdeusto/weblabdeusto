@@ -40,7 +40,7 @@ public class VersionWriter {
     	final String message;
     	
     	if(LINK_TO_VERSION)
-    		message = "var wlVersionMessage = \"WebLab-Deusto r<a href=\\\"http://code.google.com/p/weblabdeusto/source/detail?r=" + global + "\\\">" + local + "</a> | Last update: " + date + "\";";
+    		message = "var wlVersionMessage = \"WebLab-Deusto r<a href=\\\"http://code.google.com/p/weblabdeusto/source/list?r=" + global + "\\\">" + local + "</a> | Last update: " + date + "\";";
     	else
     		message = "var wlVersionMessage = \"WebLab-Deusto r<a href=\\\"http://code.google.com/p/weblabdeusto/source/list\\\">" + local + "</a> | Last update: " + date + "\";";
     	
