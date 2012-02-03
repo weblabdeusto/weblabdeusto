@@ -121,7 +121,10 @@ public abstract class CommonCommunication implements ICommonCommunication {
 			try {
 				sessionId = CommonCommunication.this.serializer.parseLoginResponse(response);
 			} catch (final SerializationException e) {
-				this.sessionIdCallback.onFailure(e);
+				if(response.contains("503 for URL"))
+					this.sessionIdCallback.onFailure(new SerializationException("Is the WebLab-Deusto server down? Got an " + e.getMessage(), e));
+				else
+					this.sessionIdCallback.onFailure(e);
 				return;
 			} catch (final InvalidCredentialsException e) {
 				this.sessionIdCallback.onFailure(e);
