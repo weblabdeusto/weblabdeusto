@@ -130,7 +130,8 @@ class ExperimentWindow extends BaseWindow {
 	public void loadWidgets(){		
 		ExperimentWindow.uiBinder.createAndBindUi(this);
 		
-	    this.reserveButton.setVisible(this.configurationManager.getBoolProperty(RESERVE_BUTTON_SHOWN_PROPERTY, DEFAULT_RESERVE_BUTTON_SHOWN));
+		final IConfigurationRetriever retriever = ExperimentFactory.getExperimentConfigurationRetriever(this.experimentAllowed.getExperiment().getExperimentUniqueName());
+	    this.reserveButton.setVisible(retriever.getBoolProperty(RESERVE_BUTTON_SHOWN_PROPERTY, DEFAULT_RESERVE_BUTTON_SHOWN));
 	    
 		final boolean visibleHeader = HistoryProperties.getBooleanValue(HistoryProperties.HEADER_VISIBLE, true);
 	    this.headerPanel.setVisible(visibleHeader);

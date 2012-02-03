@@ -32,7 +32,8 @@ public class ILabBatchExperiment extends ExperimentBase {
 	public ILabBatchExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
 		super(configurationRetriever, commandSender);
 		this.widget = new VerticalPanel();
-		this.html = new HTML("<div/>");
+		this.widget.setWidth("100%");
+		this.html = new HTML("<div width=\"100%\"/>");
 		this.widget.add(this.html);
 	}
 
@@ -55,7 +56,7 @@ public class ILabBatchExperiment extends ExperimentBase {
 	}	
 	
     private static native void createJavaScriptCode(Element element, String archive, String code, int width, int height, String serviceBroker, String labServerId) /*-{
-		element.innerHTML = "" +
+		element.innerHTML = "<div width=\"100%\"><center>This laboratory is managed by a Java applet that will pop up.</center></div><br/>" +
 	    	"<applet archive='" + archive + "' " + 
 	    		"code='" + code + "' " + 
 	    		"width='" + width + "' " +  
@@ -65,6 +66,7 @@ public class ILabBatchExperiment extends ExperimentBase {
 	    		"<PARAM NAME=\"serviceURL\" VALUE=\"" + serviceBroker + "\">" +
 	    		"<PARAM NAME=\"labServerID\" VALUE=\"" + labServerId + "\">" +
 	    		"<PARAM NAME=\"initial_focus\" VALUE=\"false\">" +
+	    		"<noapplet><b>Your web browser does not support Java applets</b></noapplet>" +
 	    	"</applet>" +
 	    	"";
 	}-*/;
