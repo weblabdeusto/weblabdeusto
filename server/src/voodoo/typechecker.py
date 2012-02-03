@@ -95,6 +95,9 @@ def _check_types(func, args, kwargs, types):
                     raise TypeError("Expected argument type for '%s' on method '%s': %s. Got: %s" % (var_name, func.__name__, arg_type[1], type(element)))
             continue
 
+        if isinstance(arg_type, basestring):
+            arg_type = func.func_globals.get(arg_type)
+
         if not isinstance(arg, arg_type):
             if len(var_names) > pos:
                 var_name = var_names[pos]
@@ -106,7 +109,7 @@ def _check_types(func, args, kwargs, types):
 def dummytypecheck(func):
     return func
 
-def typecheck(*types):
+def typecheck(*types, **kwargs):
     if not CHECKING:
         return dummytypecheck
 
@@ -117,6 +120,11 @@ def typecheck(*types):
             self.func_varnames = self.func.func_code.co_varnames
             self.func_argcount = self.func.func_code.co_argcount
             self._original_args = self.func_varnames[0:self.func_argcount]
+            if kwargs.get('check_module', False):
+                for t in types:
+                    if isinstance(t, basestring):
+                        if not t in func.func_globals:
+                            raise TypeError("Type %s not found in the scope of function %s" % (t, func))
 
         def __get__(self, obj, type = None):
             if obj is not None:

@@ -76,6 +76,26 @@ def check_tuple_float(elements):
 def check_iteration_float(elements):
     return reduce(operator.add, elements)
 
+
+@typecheck('Point', 'Point')
+def sum_points(point1, point2):
+    return point1 + point2
+
+class Point(object):
+    @typecheck(int, int)
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    @typecheck('Point')
+    def __add__(self, other):
+        return Point( self.x + other.x, self.y + other.y )
+
+@typecheck('Point', 'Point', check_module = True)
+def sum_two_points(point1, point2):
+    return point1 + point2
+
+
 class TypeCheckTest(unittest.TestCase):
 
     def test_normal(self):
@@ -122,6 +142,40 @@ class TypeCheckTest(unittest.TestCase):
     def test_any(self):
         self.assertEquals(10, sumany(5,5))
         self.assertEquals("foo", sumany(5,"foo"))
+
+    def test_using_str_in_class(self):
+        p1 = Point(1, 2)
+        p2 = Point(3, 4)
+        p3 = p1 + p2
+        self.assertEquals(4, p3.x)
+        self.assertEquals(6, p3.y)
+
+        self.assertRaises(TypeError, p1.__add__, 5)
+
+    def test_using_str_in_function(self):
+        p1 = Point(1, 2)
+        p2 = Point(3, 4)
+        p3 = sum_points(p1, p2)
+        self.assertEquals(4, p3.x)
+        self.assertEquals(6, p3.y)
+
+        self.assertRaises(TypeError, sum_points, p1, 5)
+
+        p3 = sum_two_points(p1, p2)
+        self.assertEquals(4, p3.x)
+        self.assertEquals(6, p3.y)
+
+        self.assertRaises(TypeError, sum_points, p1, 5)
+
+    def test_using_str_wrongly(self):
+        def method_that_fails(check):
+            @typecheck('this.does.not.exist', check_module = check)
+            def function(arg):
+                pass
+
+        self.assertRaises(TypeError, method_that_fails, True)
+        method_that_fails(False) # No problem
+
 
     def test_properties(self):
         point = PropertiesClass(5,6)
