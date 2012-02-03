@@ -30,7 +30,7 @@ class level(object):
     Info     = 'Info'
     Debug    = 'Debug'
 
-def log(instance_or_module_or_class, level, message):
+def log(instance_or_module_or_class, level, message, max_size = 250):
     logging_log_level = getattr(logging,level.upper())
     if isinstance(instance_or_module_or_class,str):
         logger_name = instance_or_module_or_class
@@ -39,7 +39,12 @@ def log(instance_or_module_or_class, level, message):
     else:
         logger_name = instance_or_module_or_class.__class__.__module__ + '.' + instance_or_module_or_class.__class__.__name__ 
     logger = logging.getLogger(logger_name)
-    logger.log(logging_log_level,message)
+
+    message_repr = repr(message)
+    if len(message_repr) > max_size:
+        message_repr = message_repr[:max_size-3] + '...'
+
+    logger.log(logging_log_level,message_repr)
 
 def log_exc(instance_or_module_or_class, level):
     f = StringIO.StringIO()
@@ -75,7 +80,7 @@ def _get_logger(logger_name):
 # This code defers the logging requests to a thread pool
 # It's experimental code, so by default it's not enabled
 
-def logged(level='debug', except_for=None):
+def logged(level='debug', except_for=None, max_size = 250):
     """
     logged([except_for]) -> function
 
@@ -235,14 +240,25 @@ def logged(level='debug', except_for=None):
             def __str__(self): 
                 strtime = self.entry.initial_strtime
 
+                repr_args = []
+                for arg in self.fake_args:
+                    result_repr = repr(arg)
+                    if len(result_repr) > max_size:
+                        result_repr = result_repr[:max_size-3] + '...'
+                    repr_args.append(result_repr)
+
+                repr_kwargs = {}
+                for karg in self.fake_kargs:
+                    value = self.fake_kargs[karg]
+                    result_repr = repr(value)
+                    if len(result_repr) > max_size:
+                        result_repr = result_repr[:max_size-3] + '...'
+                    repr_kwargs[karg] = result_repr
+
                 return '++++%(call_id)s++++ %(thread_id)s Calling %(func_name)s with parameters %(args)s and kargs: %(kargs)s at %(time)s' % {
-                            'call_id'   : self.entry.call_id,
-                            'thread_id' : self.entry.current_thread,
-                            'func_name' : func_name,
-                            'args'      : self.fake_args,
-                            'kargs'     : self.fake_kargs,
-                            'time'      : strtime
-                        }
+                            'call_id'   : self.entry.call_id, 'thread_id' : self.entry.current_thread,
+                            'func_name' : func_name,          'args'      : repr_args,
+                            'kargs'     : repr_kwargs,        'time'      : strtime }
 
         class FooterExcLine(object):
             def __init__(self, entry, logger_name):
@@ -289,11 +305,15 @@ def logged(level='debug', except_for=None):
                 millis     = call_time - math.floor(call_time)
                 strtime    = '<' + time.strftime("%Y-%m-%d %H:%M:%S", local_time) + ',' + ('%0.3f' % millis)[2:] + '>'
 
+                result_repr = repr(self.result)
+                if len(result_repr) > max_size:
+                    result_repr = result_repr[:max_size-3] + '...'
+
                 return '----%(call_id)s---- %(func_name)s started at %(time)s finished at %(finish_time)s finished with value <%(result)s>' % {
                             'call_id'       : self.entry.call_id,
                             'func_name'     : func_name,
                             'time'          : self.entry.initial_strtime,
-                            'result'        : self.result,
+                            'result'        : result_repr,
                             'finish_time'   : strtime
                         }
 
