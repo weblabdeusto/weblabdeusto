@@ -17,6 +17,7 @@ import random
 import json
 
 from voodoo.override import Override
+import voodoo.log as log
 
 import weblab.core.coordinator.status as WSS
 from weblab.core.coordinator.scheduler import Scheduler
@@ -161,7 +162,11 @@ class ILabBatchScheduler(Scheduler):
             session.close()
 
         client = self._create_client()
-        client.cancel(remote_experiment_id)
+        try:
+            client.cancel(remote_experiment_id)
+        except:
+            log.log(ILabBatchScheduler, log.level.Error, "Skipping error when cancelling iLab reservation")
+            log.log_exc(ILabBatchScheduler, log.level.Error)
 
     ##############################################################
     # 

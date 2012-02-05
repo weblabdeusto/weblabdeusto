@@ -9,13 +9,13 @@ class RequestSerializer(object):
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   <soap:Header>
     <AuthHeader xmlns="http://ilab.mit.edu">
-      <identifier>string</identifier>
-      <passKey>string</passKey>
+      <identifier>%(identifier)s</identifier>
+      <passKey>%(passkey)s</passKey>
     </AuthHeader>
   </soap:Header>
   <soap:Body>
     <Cancel xmlns="http://ilab.mit.edu">
-      <experimentID>int</experimentID>
+      <experimentID>%(experiment_id)s</experimentID>
     </Cancel>
   </soap:Body>
 </soap:Envelope>""" % {
