@@ -67,7 +67,7 @@ class ReservationConfirmer(object):
             else:
                 end_time = datetime.datetime.now()
                 experiment_coordaddress = CoordAddress.CoordAddress.translate_address(experiment_coordaddress_str)
-                self.coordinator.confirm_experiment(experiment_coordaddress, experiment_instance_id, reservation_id, lab_coordaddress.address, lab_session_id, server_initialization_response, initial_time, end_time)
+                self.coordinator.confirm_experiment(experiment_coordaddress, experiment_instance_id.to_experiment_id(), reservation_id, lab_coordaddress.address, lab_session_id, server_initialization_response, initial_time, end_time)
         except:
             log.log(ReservationConfirmer, log.level.Critical, "Unexpected exception confirming experiment")
             log.log_exc(ReservationConfirmer, log.level.Critical)

@@ -431,9 +431,9 @@ class Coordinator(object):
     #
     # Called when it is confirmed by the Laboratory Server.
     #
-    @typecheck(CoordAddress, ExperimentInstanceId, basestring, basestring, SessionId, (basestring, type(None)), datetime.datetime, datetime.datetime)
+    @typecheck(CoordAddress, ExperimentId, basestring, basestring, SessionId, (basestring, type(None)), datetime.datetime, datetime.datetime)
     @logged()
-    def confirm_experiment(self, experiment_coordaddress, experiment_instance_id, reservation_id, lab_coordaddress_str, lab_session_id, server_initialization_response, initial_time, end_time):
+    def confirm_experiment(self, experiment_coordaddress, experiment_id, reservation_id, lab_coordaddress_str, lab_session_id, server_initialization_response, initial_time, end_time):
         default_still_initialing      = False
         default_batch                 = False
         default_initial_configuration = "{}"
@@ -456,7 +456,6 @@ class Coordinator(object):
 
         serialized_request_info, serialized_client_initial_data = self.reservations_manager.get_request_info_and_client_initial_data(reservation_id)
         request_info  = json.loads(serialized_request_info)
-        experiment_id = experiment_instance_id.to_experiment_id()
 
         # Put the entry into a queue that is continuosly storing information into the db
         initial_information_entry = TemporalInformationStore.InitialInformationEntry(

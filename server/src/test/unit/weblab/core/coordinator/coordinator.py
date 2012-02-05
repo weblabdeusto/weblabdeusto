@@ -426,7 +426,7 @@ class CoordinatorTestCase(unittest.TestCase):
         self.assertEquals( u'lab1:inst@machine', self.coordinator.confirmer.uses_confirm[0][0] )
         self.assertEquals( ExperimentInstanceId('inst1','exp1','cat1'), self.coordinator.confirmer.uses_confirm[0][2] )
 
-        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentInstanceId('inst1', 'exp1', 'cat1'), reservation1_id, "lab:server@mach", SessionId.SessionId("mysessionid"), "{}", now, now)
+        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('exp1', 'cat1'), reservation1_id, "lab:server@mach", SessionId.SessionId("mysessionid"), "{}", now, now)
         status = self.coordinator.get_reservation_status(reservation1_id)
         expected_status = WSS.LocalReservedStatus(reservation1_id, coord_addr("lab1:inst@machine"), SessionId.SessionId("mysessionid"), DEFAULT_TIME, "{}", now, now, True, DEFAULT_TIME, 'http://www.weblab.deusto.es/weblab/client/foo')
 
@@ -458,7 +458,7 @@ class CoordinatorTestCase(unittest.TestCase):
             'initial_configuration' : 'foobar'
         }
 
-        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentInstanceId('inst1', 'exp1', 'cat1'), reservation1_id, "lab:server@mach", SessionId.SessionId("mysessionid"), json.dumps(response), now, now)
+        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('exp1', 'cat1'), reservation1_id, "lab:server@mach", SessionId.SessionId("mysessionid"), json.dumps(response), now, now)
 
         status = self.coordinator.get_reservation_status(reservation1_id)
         expected_status = WSS.PostReservationStatus(reservation1_id, True, '"foobar"', 'null')
@@ -936,7 +936,7 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         #    RES.INST (pld2) : res9
         #    RES.INST (fpga1): res3
 
-        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentInstanceId('???','ud-pld','PLD experiments'), reservation2_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now)
+        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation2_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now)
         self.coordinator.finish_reservation(reservation2_id)
 
         status = self.coordinator.get_reservation_status(reservation9_id)
@@ -959,7 +959,7 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         #    RES.INST (pld2) : res10
         #    RES.INST (fpga1): res3
 
-        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentInstanceId('???','ud-pld','PLD experiments'), reservation9_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now)
+        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation9_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now)
         self.coordinator.finish_reservation(reservation9_id)
 
         status, reservation10_id = self.coordinator.reserve_experiment(ExperimentId("ud-pld","PLD experiments"), DEFAULT_TIME + 10, DEFAULT_PRIORITY, True, DEFAULT_INITIAL_DATA, DEFAULT_REQUEST_INFO, DEFAULT_CONSUMER_DATA)
@@ -982,7 +982,7 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         #    RES.INST (pld2) : res10
         #    RES.INST (fpga1): res4
         #
-        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentInstanceId('???','ud-pld','PLD experiments'), reservation3_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now)
+        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation3_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now)
         self.coordinator.finish_reservation(reservation3_id)
 
         status = self.coordinator.get_reservation_status(reservation4_id)
@@ -1013,7 +1013,7 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         #    RES.INST (pld2) : res10
         #    RES.INST (fpga1): res4
         #
-        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentInstanceId('???','ud-pld','PLD experiments'), reservation1_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now)
+        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation1_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now)
         self.coordinator.finish_reservation(reservation1_id)
 
         status = self.coordinator.get_reservation_status(reservation8_id)
@@ -1051,11 +1051,11 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         #    RES.INST (pld2) : <empty>
         #    RES.INST (fpga1): <empty>
         #
-        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentInstanceId('???','ud-pld','PLD experiments'), reservation4_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now)
+        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation4_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now)
         self.coordinator.finish_reservation(reservation4_id)
-        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentInstanceId('???','ud-pld','PLD experiments'), reservation8_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now)
+        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation8_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now)
         self.coordinator.finish_reservation(reservation8_id)
-        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentInstanceId('???','ud-pld','PLD experiments'), reservation10_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now)
+        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation10_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now)
         self.coordinator.finish_reservation(reservation10_id)
 
 
