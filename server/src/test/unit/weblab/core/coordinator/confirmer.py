@@ -141,10 +141,11 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         status = self.coordinator.get_reservation_status(reservation1_id)
         expected_status =  WSS.LocalReservedStatus(reservation1_id, CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, 30, '{}', now, now, True, 30, 'http://www.weblab.deusto.es/weblab/client/adfas')
 
-        self.assertTrue("Unexpected status due to timestamp_before: %s; expected something like %s" % (status, expected_status),
-                            status.timestamp_before >= now and status.timestamp_before <= now + datetime.timedelta(seconds=10))
-        self.assertTrue("Unexpected status due to timestamp_after: %s; expected something like %s" % (status, expected_status),
-                            status.timestamp_after  >= now and status.timestamp_after  <= now + datetime.timedelta(seconds=10))
+        self.assertTrue(hasattr(status, 'timestamp_before'),  "Unexpected status. Expected\n %s\n, but the obtained does not have timestamp_before:\n %s\n" % (status, expected_status))
+        self.assertTrue(status.timestamp_before >= now and status.timestamp_before <= now + datetime.timedelta(seconds=10),
+                        "Unexpected status due to timestamp_before: %s; expected something like %s" % (status, expected_status))
+        self.assertTrue(status.timestamp_after  >= now and status.timestamp_after  <= now + datetime.timedelta(seconds=10),
+                        "Unexpected status due to timestamp_after: %s; expected something like %s" % (status, expected_status))
 
         status.timestamp_before = now
         status.timestamp_after = now
