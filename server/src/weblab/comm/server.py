@@ -20,6 +20,9 @@ import SocketServer
 # ZSI
 try:
     import ZSI.ServiceContainer as ServiceContainer
+    import weblab.core.comm.generated.weblabdeusto_client as weblabdeusto_client
+    # Avoid pyflakes warning
+    assert weblabdeusto_client is not None
 except ImportError:
     ZSI_AVAILABLE = False
 else:
