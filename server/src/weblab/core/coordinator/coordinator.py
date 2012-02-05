@@ -18,7 +18,7 @@ import Queue
 
 import json
 
-from voodoo.typechecker import typecheck, ITERATION, ANY
+from voodoo.typechecker import typecheck, ITERATION
 from voodoo.log import logged
 import voodoo.log as log
 import voodoo.admin_notifier as AdminNotifier
@@ -394,7 +394,7 @@ class Coordinator(object):
     #
     # Perform a new reservation
     #
-    @typecheck(ExperimentId, ANY, int, bool, (dict, basestring), dict, dict)
+    @typecheck(ExperimentId, (float, int), int, bool, (dict, basestring), dict, dict)
     @logged()
     def reserve_experiment(self, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info, consumer_data):
         """
@@ -486,7 +486,7 @@ class Coordinator(object):
     # Called when the experiment returns information about if the
     # session should end or not.
     #
-    @typecheck(basestring, SessionId, basestring, basestring, ANY)
+    @typecheck(basestring, SessionId, basestring, basestring, (int, float))
     @logged()
     def confirm_should_finish(self, lab_coordaddress_str, lab_session_id, reservation_id, experiment_response):
         # If not reserved, don't try again
@@ -517,7 +517,7 @@ class Coordinator(object):
     # Called when the Laboratory Server states that the experiment
     # was cleaned
     #
-    @typecheck(basestring, basestring, (SessionId, type(None), basestring), ExperimentInstanceId, ANY, ANY, ANY)
+    @typecheck(basestring, basestring, (SessionId, type(None), basestring), ExperimentInstanceId, (basestring, type(None)), datetime.datetime, datetime.datetime)
     @logged()
     def confirm_resource_disposal(self, lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id, experiment_response, initial_time, end_time):
 
