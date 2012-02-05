@@ -304,8 +304,11 @@ def logged(level='debug', except_for=None, max_size = 250):
                 local_time = time.localtime(call_time)
                 millis     = call_time - math.floor(call_time)
                 strtime    = '<' + time.strftime("%Y-%m-%d %H:%M:%S", local_time) + ',' + ('%0.3f' % millis)[2:] + '>'
-
-                result_repr = repr(self.result)
+                
+                try:
+                    result_repr = repr(self.result)
+                except:
+                    result_repr = "WARNING. COULD NOT REPRESENT RESULT DATA"
                 if len(result_repr) > max_size:
                     result_repr = result_repr[:max_size-3] + '...'
 
