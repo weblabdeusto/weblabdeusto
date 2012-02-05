@@ -18,13 +18,14 @@ import Queue
 
 import json
 
-from voodoo.typechecker import typecheck
+from voodoo.typechecker import typecheck, ITERATION, ANY
 from voodoo.log import logged
 import voodoo.log as log
 import voodoo.admin_notifier as AdminNotifier
+from voodoo.gen.coordinator.CoordAddress import CoordAddress
 from voodoo.sessions.session_id import SessionId
 
-from weblab.data.experiments import ExperimentId
+from weblab.data.experiments import ExperimentId, ExperimentInstanceId
 
 import weblab.core.coordinator.exc as CoordExc
 
@@ -43,6 +44,7 @@ from weblab.core.coordinator.no_scheduler import NoScheduler
 from weblab.core.coordinator.priority_queue_scheduler import PriorityQueueScheduler
 from weblab.core.coordinator.externals.weblabdeusto_scheduler import ExternalWebLabDeustoScheduler
 from weblab.core.coordinator.externals.ilab_batch_scheduler import ILabBatchScheduler
+from weblab.core.coordinator.resource import Resource
 import weblab.core.coordinator.checker_threaded as ResourcesCheckerThread
 
 NO_SCHEDULER           = 'NO_SCHEDULER'
@@ -234,6 +236,7 @@ class Coordinator(object):
     #
     #   Methods to retrieve the proper schedulers
     #
+    @typecheck(Resource)
     def _get_scheduler_per_resource(self, resource):
         return self.schedulers[resource.resource_type]
 
@@ -242,6 +245,7 @@ class Coordinator(object):
         experiment_id = self.reservations_manager.get_experiment_id(reservation_id)
         return self._get_scheduler_aggregator(experiment_id)
 
+    @typecheck(ExperimentId)
     def _get_scheduler_aggregator(self, experiment_id):
         experiment_id_str = experiment_id.to_weblab_str()
         aggregator = self.aggregators.get(experiment_id_str)
@@ -254,6 +258,7 @@ class Coordinator(object):
     #
     # General experiments and sessions management
     #
+    @typecheck(basestring, ExperimentInstanceId, Resource)
     @logged()
     def add_experiment_instance_id(self, laboratory_coord_address, experiment_instance_id, resource):
         session = self._session_maker()
@@ -275,6 +280,7 @@ class Coordinator(object):
     def list_resource_types(self):
         return self.schedulers.keys()
 
+    @typecheck(ExperimentId)
     @logged()
     def list_sessions(self, experiment_id):
         """ list_sessions( experiment_id ) -> { session_id : status } """
@@ -294,11 +300,13 @@ class Coordinator(object):
             result[reservation_id] = best_reservation_status
         return result
 
+    #@typecheck(ExperimentInstanceId, ITERATION(basestring))
     @logged()
     def mark_experiment_as_broken(self, experiment_instance_id, messages = []):
         resource_instance = self.resources_manager.get_resource_instance_by_experiment_instance_id(experiment_instance_id)
         return self.mark_resource_as_broken(resource_instance, messages)
 
+    @typecheck(Resource, ITERATION(basestring))
     @logged()
     def mark_resource_as_broken(self, resource_instance, messages = []):
         scheduler = self._get_scheduler_per_resource(resource_instance)
@@ -323,6 +331,7 @@ class Coordinator(object):
             if self.notifications_enabled:
                 self._notify_experiment_status('broken', resource_instance, messages)
 
+    @typecheck(Resource)
     @logged()
     def mark_resource_as_fixed(self, resource_instance):
         session = self._session_maker()
@@ -340,6 +349,7 @@ class Coordinator(object):
             if self.notifications_enabled:
                 self._notify_experiment_status('fixed', resource_instance)
 
+    @typecheck(basestring, Resource, ITERATION(basestring))
     def _notify_experiment_status(self, new_status, resource_instance, messages = []):
         experiment_instance_ids = self.resources_manager.list_experiment_instance_ids_by_resource(resource_instance)
         if new_status == 'fixed':
@@ -384,6 +394,7 @@ class Coordinator(object):
     #
     # Perform a new reservation
     #
+    @typecheck(ExperimentId, ANY, int, bool, (dict, basestring), dict, dict)
     @logged()
     def reserve_experiment(self, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info, consumer_data):
         """
@@ -420,9 +431,9 @@ class Coordinator(object):
     #
     # Called when it is confirmed by the Laboratory Server.
     #
+    @typecheck(CoordAddress, ExperimentInstanceId, basestring, basestring, SessionId, (basestring, type(None)), datetime.datetime, datetime.datetime)
     @logged()
     def confirm_experiment(self, experiment_coordaddress, experiment_instance_id, reservation_id, lab_coordaddress_str, lab_session_id, server_initialization_response, initial_time, end_time):
-
         default_still_initialing      = False
         default_batch                 = False
         default_initial_configuration = "{}"
@@ -476,6 +487,7 @@ class Coordinator(object):
     # Called when the experiment returns information about if the
     # session should end or not.
     #
+    @typecheck(basestring, SessionId, basestring, basestring, ANY)
     @logged()
     def confirm_should_finish(self, lab_coordaddress_str, lab_session_id, reservation_id, experiment_response):
         # If not reserved, don't try again
@@ -506,6 +518,7 @@ class Coordinator(object):
     # Called when the Laboratory Server states that the experiment
     # was cleaned
     #
+    @typecheck(basestring, basestring, (SessionId, type(None), basestring), ExperimentInstanceId, ANY, ANY, ANY)
     @logged()
     def confirm_resource_disposal(self, lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id, experiment_response, initial_time, end_time):
 
@@ -551,6 +564,7 @@ class Coordinator(object):
     #
     # Called when the user disconnects or finishes the experiment.
     #
+    @typecheck(basestring)
     @logged()
     def finish_reservation(self, reservation_id):
         if self.reservations_manager.initialize_deletion(reservation_id):

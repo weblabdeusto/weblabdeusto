@@ -24,7 +24,7 @@ from weblab.core.user_processor import FORWARDED_KEYS, SERVER_UUIDS
 import weblab.core.coordinator.status as WSS
 from weblab.core.coordinator.scheduler import Scheduler
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
-from weblab.core.coordinator.externals.weblabdeusto_scheduler_model import ExternalWebLabDeustoReservation
+from weblab.core.coordinator.externals.weblabdeusto_scheduler_model import ExternalWebLabDeustoReservation, ExternalWebLabDeustoReservationPendingResults
 
 from weblab.core.coordinator.externals.weblabdeusto_scheduler_retriever import ResultsRetriever
 from voodoo.log import logged
@@ -43,9 +43,8 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         self.username      = username
         self.password      = password
 
-        # TODO: put it in other way
         period = self.cfg_manager.get_value(RETRIEVAL_PERIOD_PROPERTY_NAME, DEFAULT_RETRIEVAL_PERIOD)
-        self.retriever     = ResultsRetriever(self.session_maker, self.resource_type_name, period)
+        self.retriever     = ResultsRetriever(self.session_maker, self.resource_type_name, self.core_server_url, period, self._create_logged_in_client)
         self.retriever.start()
 
     def stop(self):
@@ -73,6 +72,13 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         if cookies is not None:
             client.set_cookies(cookies)
         return client
+
+    def _create_logged_in_client(self, cookies):
+        login_client = self._create_login_client(cookies)
+        session_id = login_client.login(self.username, self.password)
+        client = self._create_client(login_client.get_cookies())
+        return session_id, client
+
 
     #######################################################################
     #
@@ -118,7 +124,9 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         session = self.session_maker()
         try:
             reservation = ExternalWebLabDeustoReservation(reservation_id, remote_reservation_id, serialized_cookies, time_mod.time())
+            pending_results = ExternalWebLabDeustoReservationPendingResults(reservation_id, remote_reservation_id, self.resource_type_name, self.core_server_url)
             session.add(reservation)
+            session.add(pending_results)
             session.commit()
         finally:
             session.close()
@@ -213,5 +221,4 @@ class ExternalWebLabDeustoScheduler(Scheduler):
             session.commit()
         finally:
             session.close()
-
 

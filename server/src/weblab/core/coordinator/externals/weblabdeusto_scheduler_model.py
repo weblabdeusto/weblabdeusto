@@ -50,37 +50,27 @@ class ExternalWebLabDeustoReservation(Base):
         return SUFFIX + "ExternalWebLabDeustoReservation(%r, %r, %r, %r)" % (
                             self.local_reservation_id, self.remote_reservation_id, self.cookies, self.start_time)
 
-class ExternalWeblabDeustoReservationPendingResults(Base):
+class ExternalWebLabDeustoReservationPendingResults(Base):
     __tablename__  = SUFFIX + 'ExternalWebLabDeustoPendingResults'
     __table_args__ = TABLE_KWARGS
 
     id = Column(Integer, primary_key=True)
     
-    reservation_id     = Column(String(RESERVATION_ID_SIZE))
-    resource_type_name = Column(String(255))
+    reservation_id        = Column(String(RESERVATION_ID_SIZE))
+    remote_reservation_id = Column(String(RESERVATION_ID_SIZE * 3))
+    resource_type_name    = Column(String(255))
+    # In order to avoid concurrence among different servers, every sever will know 
+    # who stored it and therefore who should retrieve the results
+    server_route          = Column(String(255))
    
-    def __init__(self, reservation_id, resource_type_name):
-        self.reservation_id     = reservation_id
-        self.resource_type_name = resource_type_name
+    @typecheck(typecheck.ANY, basestring, basestring, basestring, basestring)
+    def __init__(self, reservation_id, remote_reservation_id, resource_type_name, server_route):
+        self.reservation_id        = reservation_id
+        self.remote_reservation_id = remote_reservation_id
+        self.resource_type_name    = resource_type_name
+        self.server_route          = server_route
 
     def __repr__(self):
-        return SUFFIX + "ExternalWeblabDeustoReservationPendingResults(%r, %r)" % (
-                            self.reservation_id, self.resource_type_name)
-
-class ExternalWeblabDeustoReservationProcessingResults(Base):
-    __tablename__  = SUFFIX + 'ExternalWebLabDeustoProcessingResults'
-    __table_args__ = TABLE_KWARGS
-
-    id = Column(Integer, primary_key=True)
-    
-    reservation_id     = Column(String(RESERVATION_ID_SIZE))
-    resource_type_name = Column(String(255))
-   
-    def __init__(self, reservation_id, resource_type_name):
-        self.reservation_id     = reservation_id
-        self.resource_type_name = resource_type_name
-
-    def __repr__(self):
-        return SUFFIX + "ExternalWeblabDeustoReservationProcessingResults(%r, %r)" % (
-                            self.reservation_id, self.resource_type_name)
+        return SUFFIX + "ExternalWeblabDeustoReservationPendingResults(%r, %r, %r, %r)" % (
+                            self.reservation_id, self.remote_reservation_id, self.resource_type_name, self.server_route)
 

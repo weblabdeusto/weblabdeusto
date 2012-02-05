@@ -22,10 +22,7 @@ class WebLabDeustoModelTestCase(unittest.TestCase):
         repr(WLDM.ExternalWebLabDeustoReservation("foo", "bar", "", 5.0)) # No exception is raised
 
     def test_repr_external_pending_results(self):
-        repr(WLDM.ExternalWeblabDeustoReservationPendingResults("foo", "bar")) # No exception is raised
-
-    def test_repr_external_processing_results(self):
-        repr(WLDM.ExternalWeblabDeustoReservationProcessingResults("foo", "bar")) # No exception is raised
+        repr(WLDM.ExternalWebLabDeustoReservationPendingResults("reservation_id", "remote_reservation_id", "resource_type_name", "route1")) # No exception is raised
 
 
 def suite():
