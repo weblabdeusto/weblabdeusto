@@ -117,8 +117,11 @@ def typecheck(*types, **kwargs):
         def __init__(self, func):
             self.func = func
             self.obj  = None
+            self.__name__      = self.func.__name__
+            self.__doc__       = self.func.__doc__
             self.func_varnames = self.func.func_code.co_varnames
             self.func_argcount = self.func.func_code.co_argcount
+            self.func_code     = self.func.func_code
             self._original_args = self.func_varnames[0:self.func_argcount]
             if kwargs.get('check_module', False):
                 for t in types:
