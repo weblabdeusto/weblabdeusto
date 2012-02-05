@@ -166,8 +166,12 @@ class Heartbeater(threading.Thread):
                 time_to_sleep = time_left
                 if time_left > 5:
                     time_left = 5
-                    
-                time.sleep(time_to_sleep)
+                
+                step_time = 0.1
+                steps = time_to_sleep / step_time
+                while not self.stopped() and steps > 0:
+                    time.sleep(step_time)
+                    steps -= 1
                 if DEBUG: print "[DBG] Not sleeping anymore"
                 
             if self.stopped():
