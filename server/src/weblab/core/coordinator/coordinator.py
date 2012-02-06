@@ -300,9 +300,9 @@ class Coordinator(object):
             result[reservation_id] = best_reservation_status
         return result
 
-    #@typecheck(ExperimentInstanceId, ITERATION(basestring))
+    @typecheck(ExperimentInstanceId, ITERATION(basestring))
     @logged()
-    def mark_experiment_as_broken(self, experiment_instance_id, messages = []):
+    def mark_experiment_as_broken(self, experiment_instance_id, messages):
         resource_instance = self.resources_manager.get_resource_instance_by_experiment_instance_id(experiment_instance_id)
         return self.mark_resource_as_broken(resource_instance, messages)
 
@@ -517,7 +517,7 @@ class Coordinator(object):
     # Called when the Laboratory Server states that the experiment
     # was cleaned
     #
-    @typecheck(basestring, basestring, (SessionId, type(None), basestring), ExperimentInstanceId, (basestring, type(None)), datetime.datetime, datetime.datetime)
+    @typecheck(basestring, basestring, (basestring, type(None)), ExperimentInstanceId, (basestring, type(None)), datetime.datetime, datetime.datetime)
     @logged()
     def confirm_resource_disposal(self, lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id, experiment_response, initial_time, end_time):
 
