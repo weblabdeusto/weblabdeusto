@@ -170,6 +170,11 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         reservation_status.set_reservation_id(local_reservation_id)
         if reservation_status.status == WSS.WebLabSchedulingStatus.RESERVED_REMOTE and reservation_status.remote_reservation_id == '':
             reservation_status.set_remote_reservation_id(remote_reservation_id)
+            #initial_information_entry = TemporalInformationStore.InitialInformationEntry(
+            #    reservation_id, experiment_id, experiment_coordaddress,
+            #    initial_configuration, initial_time, end_time, request_info,
+            #    serialized_client_initial_data )
+            # TODO
 
         return reservation_status
 

@@ -18,7 +18,7 @@ from abc import ABCMeta, abstractmethod
 import weblab.core.comm.user_server as comm_user_server
 
 class GenericSchedulerArguments(object):
-    def __init__(self, cfg_manager, resource_type_name, reservations_manager, resources_manager, confirmer, session_maker, time_provider, core_server_url, **kwargs):
+    def __init__(self, cfg_manager, resource_type_name, reservations_manager, resources_manager, confirmer, session_maker, time_provider, core_server_url, initial_store, finished_store, **kwargs):
         self.cfg_manager          = cfg_manager
         self.resource_type_name   = resource_type_name
         self.reservations_manager = reservations_manager
@@ -27,6 +27,8 @@ class GenericSchedulerArguments(object):
         self.session_maker        = session_maker
         self.time_provider        = time_provider
         self.core_server_url      = core_server_url
+        self.initial_store        = initial_store
+        self.finished_store       = finished_store
 
         if 'enqueuing_timeout' in kwargs:
             self.confirmer.enqueuing_timeout = kwargs.pop('enqueuing_timeout')

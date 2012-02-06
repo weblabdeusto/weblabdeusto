@@ -146,7 +146,9 @@ class Coordinator(object):
                                                 confirmer            = self.confirmer,
                                                 session_maker        = self._session_maker,
                                                 time_provider        = self.time_provider,
-                                                core_server_url      = core_server_url
+                                                core_server_url      = core_server_url,
+                                                initial_store        = self.initial_store,
+                                                finished_store       = self.finished_store
                                         )
 
             self.schedulers[resource_type_name] = SchedulingSystemClass(generic_scheduler_arguments, **arguments)
@@ -177,7 +179,9 @@ class Coordinator(object):
                                                 confirmer            = self.confirmer,
                                                 session_maker        = self._session_maker,
                                                 time_provider        = self.time_provider,
-                                                core_server_url      = core_server_url
+                                                core_server_url      = core_server_url,
+                                                initial_store        = self.initial_store,
+                                                finished_store       = self.finished_store
                                         )
 
 
