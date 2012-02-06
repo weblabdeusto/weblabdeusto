@@ -48,6 +48,8 @@ class Method(object):
         self.post_read   = False
         self.content_type = DEFAULT_CONTENT_TYPE
         self.other_headers = {}
+        self.if_none_match = self.req.getheader('If-None-Match')
+        self.if_modified_since = self.req.getheader('If-Modified-Since')
 
     def run(self):
         return "Method %s does not implement run method!" % self.__class__.__name__

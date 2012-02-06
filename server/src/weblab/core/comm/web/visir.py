@@ -18,6 +18,12 @@ from weblab.comm.codes import WEBLAB_GENERAL_EXCEPTION_CODE, PYTHON_GENERAL_EXCE
 from voodoo.sessions.session_id import SessionId
 import weblab.comm.web_server as WebFacadeServer
 import weblab.experiment.util as Util
+__builtins__
+
+# To convert from HTTP date to standard time
+import email.utils as eut
+import datetime
+import time
 
 import os
 import mimetypes
@@ -81,6 +87,21 @@ class  VisirMethod(WebFacadeServer.Method):
             return self.intercept_save()
         
         
+        # We did not intercept the request, we will just serve the file.
+        
+        # Client already has a version of the file. Check whether
+        # ours is newer. 
+        if self.if_modified_since is not None:
+            since_time = self.http_date_to_time(self.if_modified_since)
+            mod_time = os.path.getmtime(file)
+            
+            # The file we have is newer. We need to serve it.
+            if mod_time > since_time:
+                self.add_other_header("Last-Modified", self.time_to_http_date(mod_time))
+            
+            
+        
+        
         try:
             f = open(file, "rb")
             content = f.read()
@@ -104,6 +125,26 @@ class  VisirMethod(WebFacadeServer.Method):
             return self.intercept_library(content, mimetype)
         
         return content
+    
+    # TODO: There might be issues related to UTC and local time etc. 
+    def http_date_to_time(self, datestr):
+        """
+        http_date_to_time(datestr)
+        Converts an HTTP date string to a timestamp. 
+        """
+        return time.mktime(eut.parsedate(datestr))
+    
+    def time_to_http_date(self, tm):
+        """
+        time_to_http_date(tm)
+        Converts a timestamp to an http date string.
+        @param tm The timestamp to convert to an http date.
+        """
+        return eut.formatdate(
+            timeval     = tm,
+            localtime   = False,
+            usegmt      = True
+        )
 
     def intercept_save(self):
         save = self.get_argument("save", "", False)
