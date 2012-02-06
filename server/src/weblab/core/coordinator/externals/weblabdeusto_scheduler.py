@@ -146,9 +146,13 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         try:
             reservation = session.query(ExternalWebLabDeustoReservation).filter_by(local_reservation_id = reservation_id).first()
             if reservation is None:
-                # TODO
-                raise Exception("reservation not stored in local database")
+                pending_result = session.query(ExternalWebLabDeustoReservationPendingResults).filter_by(resource_type_name = self.resource_type_name, server_route = self.server_route, reservation_id = reservation_id).first()
+                if pending_result is None:
+                    print "Asking for reservation_status"
+                    raise Exception("reservation not yet stored in local database")
 
+                return WSS.PostReservationStatus(reservation_id, False, '', '')
+            
             remote_reservation_id = reservation.remote_reservation_id
             serialized_cookies    = reservation.cookies
         finally:
