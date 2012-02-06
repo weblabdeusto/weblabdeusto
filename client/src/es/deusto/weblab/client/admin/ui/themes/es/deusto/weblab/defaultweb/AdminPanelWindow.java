@@ -879,7 +879,7 @@ public class AdminPanelWindow extends BaseWindow {
 		            permissionsListGrid.filterData(currentUserCriteria);
 
 		            
-		            AdminPanelWindow.this.userPermissionDS.fetchData(currentUserCriteria);
+		            AdminPanelWindow.this.userPermissionDS.fetchData(currentUserCriteria, null);
 	        	} else {
 	        		permissionsListGrid.clear();
 	        	}
