@@ -45,10 +45,10 @@ public class ExperimentUsesDataSource extends WebLabRestDataSource {
 	    idField.setCanEdit(false);  
 	    
 	    final DataSourceDateTimeField startDateDSField = new DataSourceDateTimeField(ExperimentUseRecord.START_DATE, "Start Date");
-	    startDateDSField.setDateFormatter(DateDisplayFormat.TOEUROPEANSHORTDATE);
+	    startDateDSField.setDisplayFormat(DateDisplayFormat.TOEUROPEANSHORTDATE);
 	    
 	    final DataSourceDateTimeField endDateDSField = new DataSourceDateTimeField(ExperimentUseRecord.END_DATE, "End Date");
-	    endDateDSField.setDateFormatter(DateDisplayFormat.TOEUROPEANSHORTDATE);
+	    endDateDSField.setDisplayFormat(DateDisplayFormat.TOEUROPEANSHORTDATE);
 	    
 	    final DataSourceTextField agentLoginDSField = new DataSourceTextField(ExperimentUseRecord.AGENT_LOGIN, "Login");
 	    final DataSourceTextField agentNameDSField = new DataSourceTextField(ExperimentUseRecord.AGENT_NAME, "Name");
