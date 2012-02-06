@@ -50,6 +50,10 @@ class Method(object):
         self.other_headers = {}
         self.if_none_match = self.req.getheader('If-None-Match')
         self.if_modified_since = self.req.getheader('If-Modified-Since')
+        
+        # The status code the method will report will generally be 200,
+        # but it might be changed.
+        self.status_code = 200 
 
     def run(self):
         return "Method %s does not implement run method!" % self.__class__.__name__
@@ -85,7 +89,20 @@ class Method(object):
         self.other_headers[name] = value
     
     def get_status(self):
-        return 200
+        """
+        get_status()
+        Returns the HTTP status code that the method will report. It will
+        be 200 by default, but it can be changed through set_status.
+        @see set_status
+        """
+        return self.status_code
+
+    def set_status(self, code):
+        """
+        set_status(code)
+        Sets the status code to return.
+        """
+        self.status_code = code
 
     def get_other_cookies(self):
         return []

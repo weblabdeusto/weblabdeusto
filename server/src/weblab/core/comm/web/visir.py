@@ -95,9 +95,14 @@ class  VisirMethod(WebFacadeServer.Method):
             since_time = self.http_date_to_time(self.if_modified_since)
             mod_time = os.path.getmtime(file)
             
-            # The file we have is newer. We need to serve it.
+            # The client's file is outdated. We need to serve the new one.
             if mod_time > since_time:
                 self.add_other_header("Last-Modified", self.time_to_http_date(mod_time))
+            # The file was not modified. Report as such. 
+            else:
+                self.set_status("304")
+                return "304 Not Modified"
+                
             
             
         
