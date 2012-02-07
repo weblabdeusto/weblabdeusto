@@ -132,7 +132,7 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard{
 	 * @param swfFile Path to the swf file, relative to the gwt module base.
 	 */
 	public void setSwfFile(String swfFile) {
-		this.swfFile = GWT.getModuleBaseURL() + swfFile;
+		this.swfFile = GWT.getHostPageBaseURL() + swfFile;
 	}
 	
 	
