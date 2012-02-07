@@ -45,7 +45,7 @@ public class RequestForwarder extends HttpServlet{
 		
 		this.forwardStreamToEnd(req.getInputStream(), serverConnection.getOutputStream());
 		
-		String[] postHeaders = new String[]{ "Server", "Date", "Content-type", "Content-length", "Set-Cookie", "Content-encoding", "Vary", "If-None-Match", "If-Modified-Since"};
+		String[] postHeaders = new String[]{ "Server", "Date", "Content-type", "Content-length", "Set-Cookie", "Content-encoding", "Vary", "Last-Modified"};
 		this.forwardHeadersToBrowser(resp, serverConnection, postHeaders);
 		resp.addHeader("Connection", "close");
 		resp.addHeader("X-Foo", "bar");
@@ -63,7 +63,7 @@ public class RequestForwarder extends HttpServlet{
 		serverConnection.addRequestProperty("Connection", "close");
 		serverConnection.addRequestProperty("X-Faa", "ber");
 		
-		String[] getHeaders = new String[]{ "Server", "Date", "Set-Cookie", "Content-encoding", "Vary", "If-None-Match", "If-Modified-Since"};
+		String[] getHeaders = new String[]{ "Server", "Date", "Set-Cookie", "Content-encoding", "Vary", "Last-Modified"};
 		this.forwardHeadersToBrowser(resp, serverConnection, getHeaders); // This makes the request!
 		resp.addHeader("Connection", "close");
 		resp.addHeader("X-Foo", "bar");

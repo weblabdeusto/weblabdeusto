@@ -89,26 +89,27 @@ class  VisirMethod(WebFacadeServer.Method):
         
         # We did not intercept the request, we will just serve the file.
         
+        # We will need to report the Last-Modified date. Otherwise the browser
+        # won't send if-modified-since.
+        mod_time = os.path.getmtime(file)
+        self.add_other_header("Last-Modified", self.time_to_http_date(mod_time))
+        #print "[DBG]: Sending LAST_MODIFIED: " + self.time_to_http_date(mod_time)
+        
         # Client already has a version of the file. Check whether
         # ours is newer. 
         if self.if_modified_since is not None:
             print "[DBG] If-modified-since header received."
             since_time = self.http_date_to_time(self.if_modified_since)
-            mod_time = os.path.getmtime(file)
             
-            # The client's file is outdated. We need to serve the new one.
-            if mod_time > since_time:
-                self.add_other_header("Last-Modified", self.time_to_http_date(mod_time))
-                print "[DBG] THE FILE IS NEW: LAST-MODIFIED SET TO: " + self.time_to_http_date(mod_time)
-            # The file was not modified. Report as such. 
-            else:
+            # The file was not modified. Report as such.
+            if mod_time <= since_time:
                 self.set_status("304")
                 print "[DBG] REPORTING 304 NOT MODIFIED"
                 return "304 Not Modified"
         
         try:
-            f = open(file, "rb")
-            content = f.read()
+            with open(file, "rb") as f:
+                content = f.read()
         except:
             return FAULT_HTML_TEMPLATE % { 
                               'THE_FAULT_CODE' : "404",  

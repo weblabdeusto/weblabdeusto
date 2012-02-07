@@ -53,7 +53,7 @@ class Method(object):
         
         print "[DBG] If-None-Match: " + str(self.if_none_match)
         print "[DBG] If-Modified-Since: " + str(self.if_modified_since)
-        print "[DBG] HEADERS: " + str(self.req.headers)
+        #print "[DBG] HEADERS: " + str(self.req.headers)
         
         # The status code the method will report will generally be 200,
         # but it might be changed.
