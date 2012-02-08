@@ -91,7 +91,9 @@ class  VisirMethod(WebFacadeServer.Method):
         
         # We will need to report the Last-Modified date. Otherwise the browser
         # won't send if-modified-since.
-        mod_time = os.path.getmtime(file)
+        # Getmtime returns a localtime, so we also convert it to gmt. Also, we want
+        # a timestamp and not a tuple.
+        mod_time = time.mktime(time.gmtime(os.path.getmtime(file)))
         self.add_other_header("Last-Modified", self.time_to_http_date(mod_time))
         #print "[DBG]: Sending LAST_MODIFIED: " + self.time_to_http_date(mod_time)
         
@@ -101,11 +103,15 @@ class  VisirMethod(WebFacadeServer.Method):
             print "[DBG] If-modified-since header received."
             since_time = self.http_date_to_time(self.if_modified_since)
             
+            print "[DBG]: since_time is: " + str(since_time) + " | Current is: " + str(time.time()) + " Modtime: " + str(mod_time)
+            
             # The file was not modified. Report as such.
             if mod_time <= since_time:
-                self.set_status("304")
+                self.set_status(304)
                 print "[DBG] REPORTING 304 NOT MODIFIED"
                 return "304 Not Modified"
+            else:
+                print "[DBG] IS MODIFIED"
         
         try:
             with open(file, "rb") as f:
@@ -131,19 +137,31 @@ class  VisirMethod(WebFacadeServer.Method):
         
         return content
     
-    # TODO: There might be issues related to UTC and local time etc. 
-    def http_date_to_time(self, datestr):
+
+    def http_date_to_time(self, datestr, want_gmt = True):
         """
         http_date_to_time(datestr)
-        Converts an HTTP date string to a timestamp. 
+        Converts an HTTP date string to a localtime timestamp.
+        
+        @param datestr HTTP date string, generally GMT, which is specified in the
+        string itself
+        
+        @param want_gmt If True (the default) then the timestamp returned will be GMT.
+        Otherwise, it will be localtime.
+        
+        @return Timestamp which corresponds to the specified date. It will be the GMT
+        timestamp if want_gmt is set to true (the default), false otherwise.
         """
-        return time.mktime(eut.parsedate(datestr))
+        t = time.mktime(eut.parsedate(datestr))
+        if want_gmt: return time.gmtime(t)
+        else: return t
     
     def time_to_http_date(self, tm):
         """
         time_to_http_date(tm)
-        Converts a timestamp to an http date string.
-        @param tm The timestamp to convert to an http date.
+        Converts a timestamp to an http date string. 
+        @param tm The timestamp to convert to an http date. The timestamp should
+        represent the GMT time.
         """
         return eut.formatdate(
             timeval     = tm,
