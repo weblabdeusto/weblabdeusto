@@ -14,23 +14,17 @@
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
-from weblab.comm.codes import WEBLAB_GENERAL_EXCEPTION_CODE, PYTHON_GENERAL_EXCEPTION_CODE
-from voodoo.sessions.session_id import SessionId
 import weblab.comm.web_server as WebFacadeServer
-import weblab.experiment.util as Util
 __builtins__
 
 # To convert from HTTP date to standard time
 import email.utils as eut
-import datetime
 import time
 
 import os
 import mimetypes
 
 import weblab
-
-# VISIR_LOCATION = "C:/shared/weblab-hg/weblabdeusto/client/war/weblabclient/visir/"
 
 VISIR_RELATIVE_PATH = os.sep.join(('..','..','..','client','war','weblabclient','visir')) + os.sep
 
@@ -95,23 +89,16 @@ class  VisirMethod(WebFacadeServer.Method):
         # a timestamp and not a tuple.
         mod_time = time.mktime(time.gmtime(os.path.getmtime(file)))
         self.add_other_header("Last-Modified", self.time_to_http_date(mod_time))
-        #print "[DBG]: Sending LAST_MODIFIED: " + self.time_to_http_date(mod_time)
         
         # Client already has a version of the file. Check whether
         # ours is newer. 
         if self.if_modified_since is not None:
-            print "[DBG] If-modified-since header received."
             since_time = self.http_date_to_time(self.if_modified_since)
-            
-            print "[DBG]: since_time is: " + str(since_time) + " | Current is: " + str(time.time()) + " Modtime: " + str(mod_time)
             
             # The file was not modified. Report as such.
             if mod_time <= since_time:
                 self.set_status(304)
-                print "[DBG] REPORTING 304 NOT MODIFIED"
                 return "304 Not Modified"
-            else:
-                print "[DBG] IS MODIFIED"
         
         try:
             with open(file, "rb") as f:
@@ -177,8 +164,6 @@ class  VisirMethod(WebFacadeServer.Method):
 
     def intercept_library(self, content, mimetype):
         return content
-        #self.set_content_type("text/html")
-        #return "INTERCEPTING LIBRARY XML"
 
 class VisirException(Exception):
     pass
