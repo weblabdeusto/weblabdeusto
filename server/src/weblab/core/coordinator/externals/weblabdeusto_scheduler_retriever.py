@@ -16,6 +16,7 @@
 import threading
 import time
 import weblab
+import urllib2
 import cPickle as pickle
 
 import voodoo.log as log
@@ -67,10 +68,16 @@ class ResultsRetriever(threading.Thread):
             session.close()
 
         if len(pending_results) > 0:
-            session_id, client = self.create_client_func(None)
+            try:
+                session_id, client = self.create_client_func(None)
+            except urllib2.URLError:
+                # Remote server is down, try later
+                return
 
             remote_reservation_ids = [ SessionId(pending_result.remote_reservation_id) for pending_result in pending_results ]
 
             results = client.get_experiment_uses_by_id(session_id, remote_reservation_ids)
-            print results
+            for pending_result, result in zip(pending_results, results):
+                # print result
+                pass
 

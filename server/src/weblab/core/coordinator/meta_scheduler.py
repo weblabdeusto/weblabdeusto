@@ -14,7 +14,7 @@
 #
 
 from voodoo.log import logged
-from weblab.core.coordinator.exc import NoSchedulerFoundException
+from weblab.core.coordinator.exc import NoSchedulerFoundException, ExpiredSessionException
 from weblab.core.coordinator.scheduler import Scheduler
 from voodoo.override import Override
 
@@ -165,6 +165,9 @@ class IndependentSchedulerAggregator(Scheduler):
                     all_reservation_status.pop(resource_type_name, None)
                     self.resources_manager.dissociate_scheduler_from_reservation(reservation_id, self.experiment_id, resource_type_name)
 
+        if len(all_reservation_status) == 0:
+            raise ExpiredSessionException("Expired reservation")
+
         best_reservation = self.select_best_reservation_status(all_reservation_status.values())
 
         if DEBUG:
@@ -175,6 +178,8 @@ class IndependentSchedulerAggregator(Scheduler):
 
     def select_best_reservation_status(self, all_reservation_status):
         if len(all_reservation_status) == 0:
+            import traceback
+            traceback.print_stack()
             raise NoSchedulerFoundException("There must be at least one reservation status, zero provided!")
 
         return sorted(all_reservation_status)[0]

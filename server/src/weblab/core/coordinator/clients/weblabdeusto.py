@@ -108,7 +108,7 @@ class WebLabDeustoClient(object):
         serialized_reservation_id = {'id' : reservation_id.id}
         serialized_command = { 'commandstring' : command.commandstring }
         response_command = self._core_call('send_command', reservation_id = serialized_reservation_id, command = serialized_command)
-        return Command(response_command['commandstring'])
+        return Command(response_command['commandstring'] if 'commandstring' in response_command and response_command['commandstring'] is not None else NullCommand())
 
     def get_reservation_status(self, reservation_id):
         serialized_reservation_id = {'id' : reservation_id.id}
@@ -145,13 +145,17 @@ class WebLabDeustoClient(object):
 
         use = ExperimentUsage(experiment_use['experiment_use_id'], experiment_use['start_date'], experiment_use['end_date'], experiment_use['from_ip'], experiment_id, experiment_use['reservation_id'], coord_address)
         for sent_file in experiment_use['sent_files']:
-            response = Command(sent_file['response']['commandstring']) if 'commandstring' in sent_file['response'] else NullCommand
+            response = Command(sent_file['response']['commandstring']) if 'commandstring' in sent_file['response'] and sent_file['response'] is not None else NullCommand
             unserialized_sent_file = LoadedFileSent( sent_file['file_content'], sent_file['timestamp_before'], response, sent_file['timestamp_after'], sent_file['file_info'])
             use.append_file(unserialized_sent_file)
 
         for command in experiment_use['commands']:
-            request = Command(command['command']['commandstring']) if 'commandstring' in command['command'] else NullCommand
-            response = Command(command['response']['commandstring']) if 'commandstring' in command['response'] else NullCommand
+            request = Command(command['command']['commandstring']) if 'commandstring' in command['command'] and command['command'] is not None else NullCommand
+            try:
+                response = Command(command['response']['commandstring']) if 'commandstring' in command['response'] and command['response'] is not None else NullCommand
+            except:
+                print command['response']['commandstring']
+                raise
             unserialized_command = CommandSent(request, command['timestamp_before'], response, command['timestamp_after'])
             use.append_command(unserialized_command)
         # print experiment_use['commands']

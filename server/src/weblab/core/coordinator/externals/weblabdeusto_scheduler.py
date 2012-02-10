@@ -17,6 +17,8 @@ import time as time_mod
 import cPickle as pickle
 import json
 
+from sqlalchemy.orm.exc import StaleDataError
+
 from voodoo.override import Override
 from voodoo.sessions.session_id import SessionId
 
@@ -44,7 +46,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         self.password      = password
 
         period = self.cfg_manager.get_value(RETRIEVAL_PERIOD_PROPERTY_NAME, DEFAULT_RETRIEVAL_PERIOD)
-        self.retriever     = ResultsRetriever(self.session_maker, self.resource_type_name, self.core_server_url, period, self._create_logged_in_client)
+        self.retriever     = ResultsRetriever(self.session_maker, self.resource_type_name, self.core_server_route, period, self._create_logged_in_client)
         self.retriever.start()
 
     def stop(self):
@@ -124,7 +126,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         session = self.session_maker()
         try:
             reservation = ExternalWebLabDeustoReservation(reservation_id, remote_reservation_id, serialized_cookies, time_mod.time())
-            pending_results = ExternalWebLabDeustoReservationPendingResults(reservation_id, remote_reservation_id, self.resource_type_name, self.core_server_url)
+            pending_results = ExternalWebLabDeustoReservationPendingResults(reservation_id, remote_reservation_id, self.resource_type_name, self.core_server_route)
             session.add(reservation)
             session.add(pending_results)
             session.commit()
@@ -146,7 +148,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         try:
             reservation = session.query(ExternalWebLabDeustoReservation).filter_by(local_reservation_id = reservation_id).first()
             if reservation is None:
-                pending_result = session.query(ExternalWebLabDeustoReservationPendingResults).filter_by(resource_type_name = self.resource_type_name, server_route = self.server_route, reservation_id = reservation_id).first()
+                pending_result = session.query(ExternalWebLabDeustoReservationPendingResults).filter_by(resource_type_name = self.resource_type_name, server_route = self.core_server_route, reservation_id = reservation_id).first()
                 if pending_result is None:
                     print "Asking for reservation_status"
                     raise Exception("reservation not yet stored in local database")
@@ -206,7 +208,10 @@ class ExternalWebLabDeustoScheduler(Scheduler):
                 remote_reservation_id = reservation.remote_reservation_id
                 serialized_cookies = reservation.cookies
                 session.delete(reservation)
-                session.commit()
+                try:
+                    session.commit()
+                except StaleDataError:
+                    pass
             else:
                 return
         finally:

@@ -13,6 +13,8 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+from sqlalchemy.orm.exc import StaleDataError
+
 from weblab.core.coordinator.model import ResourceType, ResourceInstance, CurrentResourceSlot, SchedulingSchemaIndependentSlotReservation, ExperimentInstance, ExperimentType, ActiveReservationSchedulerAssociation
 import weblab.core.coordinator.exc as CoordExc
 
@@ -247,7 +249,10 @@ class ResourcesManager(object):
             association = session.query(ActiveReservationSchedulerAssociation).filter_by(reservation_id = reservation_id, experiment_type = db_experiment_type, resource_type = db_resource_type).first()
             if association is not None:
                 session.delete(association)
-                session.commit()
+                try:
+                    session.commit()
+                except StaleDataError:
+                    pass
         finally:
             session.close()
 

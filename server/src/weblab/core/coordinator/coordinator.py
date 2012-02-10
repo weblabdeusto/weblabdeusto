@@ -426,6 +426,10 @@ class Coordinator(object):
             if reservation_status is not None:
                 return reservation_status
             raise
+        except:
+            import traceback
+            traceback.print_exc()
+            raise
 
 
     def is_post_reservation(self, reservation_id):

@@ -207,14 +207,18 @@ class PriorityQueueScheduler(Scheduler):
             resource_type = session.query(ResourceType).filter_by(name = self.resource_type_name).one()
             waiting_reservation = session.query(WaitingReservation).filter_by(reservation_id = reservation_id, resource_type_id = resource_type.id).first()
 
-            #
-            # If it has not been assigned to any laboratory, then it might
-            # be waiting in the queue of that resource type (Waiting) or
-            # waiting for instances (WaitingInstances, meaning that there is
-            # no resource of that type implemented)
-            #
-            waiting_reservations = session.query(WaitingReservation)\
-                    .filter(WaitingReservation.resource_type == waiting_reservation.resource_type).order_by(WaitingReservation.priority, WaitingReservation.id).all()
+            if waiting_reservation is None:
+                waiting_reservations = []
+            else:
+                
+                #
+                # If it has not been assigned to any laboratory, then it might
+                # be waiting in the queue of that resource type (Waiting) or
+                # waiting for instances (WaitingInstances, meaning that there is
+                # no resource of that type implemented)
+                #
+                waiting_reservations = session.query(WaitingReservation)\
+                        .filter(WaitingReservation.resource_type == waiting_reservation.resource_type).order_by(WaitingReservation.priority, WaitingReservation.id).all()
 
             if waiting_reservation is None or waiting_reservation not in waiting_reservations:
                 #

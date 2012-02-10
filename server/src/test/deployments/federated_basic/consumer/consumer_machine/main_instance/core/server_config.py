@@ -48,3 +48,5 @@ core_scheduling_systems = {
         "dummy1_external" : _provider1_scheduling_config,
     }
 
+core_weblabdeusto_federation_retrieval_period = 0.1
+
