@@ -21,6 +21,7 @@ import voodoo.log as log
 import sqlalchemy
 from sqlalchemy import not_
 from sqlalchemy.orm import join
+from sqlalchemy.orm.exc import StaleDataError
 from sqlalchemy.exc import IntegrityError, OperationalError, ConcurrentModificationError
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
@@ -141,12 +142,15 @@ class PriorityQueueScheduler(Scheduler):
     def get_reservation_status(self, reservation_id):
         self._remove_expired_reservations()
 
-        session = self.session_maker()
         try:
-            self.reservations_manager.update(session, reservation_id)
-            session.commit()
-        finally:
-            session.close()
+            session = self.session_maker()
+            try:
+                self.reservations_manager.update(session, reservation_id)
+                session.commit()
+            finally:
+                session.close()
+        except StaleDataError:
+            return self.get_reservation_status(reservation_id)
 
         self._synchronizer.request_and_wait()
 
