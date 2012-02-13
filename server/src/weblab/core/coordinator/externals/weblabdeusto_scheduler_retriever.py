@@ -27,14 +27,14 @@ from voodoo.sessions.session_id import SessionId
 from weblab.core.coordinator.externals.weblabdeusto_scheduler_model import ExternalWebLabDeustoReservationPendingResults
 
 class ResultsRetriever(threading.Thread):
-    def __init__(self, session_maker, resource_type_name, server_route, server_url, period, create_client_func):
+    def __init__(self, weblabdeusto_scheduler, period, create_client_func):
         threading.Thread.__init__(self)
         self.setName(next_name("ResultsRetriever"))
-        self.session_maker      = session_maker
-        self.resource_type_name = resource_type_name
+        self.session_maker      = weblabdeusto_scheduler.session_maker
+        self.resource_type_name = weblabdeusto_scheduler.resource_type_name
+        self.server_route       = weblabdeusto_scheduler.core_server_route
+        self.server_url         = weblabdeusto_scheduler.core_server_url # Not required, but helpful for debugging
         self.period             = period
-        self.server_route       = server_route
-        self.server_url         = server_url # Not required, but helpful for debugging
         self.create_client_func = create_client_func
         self.stopped            = False
 
@@ -79,7 +79,7 @@ class ResultsRetriever(threading.Thread):
             remote_reservation_ids = [ SessionId(pending_result.remote_reservation_id) for pending_result in pending_results ]
 
             results = client.get_experiment_uses_by_id(session_id, remote_reservation_ids)
-            print self.server_url, zip([ (pending_result.reservation_id, pending_result.remote_reservation_id) for pending_result in pending_results ], results)
+            # print self.server_url, zip([ (pending_result.reservation_id, pending_result.remote_reservation_id) for pending_result in pending_results ], results)
 
             for pending_result, result in zip(pending_results, results):
                 if result.is_alive():
@@ -95,5 +95,6 @@ class ResultsRetriever(threading.Thread):
                     session.close()
 
                 if result.is_finished():
-                    print "Here I store..."
+                    use = result.experiment_use
+                    print use
                     pass
