@@ -293,7 +293,7 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard{
 		var flashHtml    = "<object classid=\"clsid:D27CDB6E-AE6D-11cf-96B8-444553540000\" type=\"application/x-shockwave-flash\" width=\"" + width + "\" height=\"" + height + "\" id=\"flashobj\">" + 
 								"<param name=\"movie\" value=\"" + swfFile + "\" id\"flash_emb\"/>" + 
 								"<param name=\"flashvars\" value=\"" + flashvars + "\"/>" + 
-								"<embed src=\"" + swfFile + "\" width=\"" + width + "\" height=\"" + height + "\" flashvars=\"" + flashvars + "\"   />" + 
+								"<embed type=\"application/x-shockwave-flash\" src=\"" + swfFile + "\" width=\"" + width + "\" height=\"" + height + "\" flashvars=\"" + flashvars + "\"   />" + 
 							"</object>";
 		
 		var completeHtml = "<html>" +
