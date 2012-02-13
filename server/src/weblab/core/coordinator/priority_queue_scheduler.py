@@ -13,7 +13,9 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import time
 import datetime
+import random
 
 from voodoo.log import logged
 import voodoo.log as log
@@ -71,6 +73,7 @@ def exc_checker(func):
 	wrapper.__doc__ = func.__doc__
     return wrapper
 	
+TIME_ANTI_RACE_CONDITIONS = 0.1
 
 class PriorityQueueScheduler(Scheduler):
 
@@ -127,7 +130,7 @@ class PriorityQueueScheduler(Scheduler):
             session.commit()
         finally:
             session.close()
-
+        
         return self.get_reservation_status(reservation_id)
 
 
@@ -150,6 +153,7 @@ class PriorityQueueScheduler(Scheduler):
             finally:
                 session.close()
         except StaleDataError:
+            time.sleep(TIME_ANTI_RACE_CONDITIONS * random.random())
             return self.get_reservation_status(reservation_id)
 
         self._synchronizer.request_and_wait()
@@ -242,6 +246,7 @@ class PriorityQueueScheduler(Scheduler):
             session.close()
 
         if return_current_status:
+            time.sleep(TIME_ANTI_RACE_CONDITIONS * random.random())
             return self.get_reservation_status(reservation_id)
 
         if remaining_working_instances:

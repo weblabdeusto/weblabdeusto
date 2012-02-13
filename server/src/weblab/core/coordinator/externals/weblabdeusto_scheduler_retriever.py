@@ -15,9 +15,7 @@
 
 import threading
 import time
-import weblab
 import urllib2
-import cPickle as pickle
 
 import voodoo.log as log
 from voodoo.counter import next_name
