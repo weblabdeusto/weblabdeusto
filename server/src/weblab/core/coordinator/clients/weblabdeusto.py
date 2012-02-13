@@ -159,7 +159,12 @@ class WebLabDeustoClient(object):
                 response = NullCommand()
             else:
                 response = Command(response_command)
-            unserialized_command = CommandSent(request, command['timestamp_before'], response, command['timestamp_after'])
+            
+            if command['timestamp_after'] is None or command['timestamp_after'] == {}:
+                timestamp_after = None
+            else:
+                timestamp_after = command['timestamp_after']
+            unserialized_command = CommandSent(request, command['timestamp_before'], response, timestamp_after)
             use.append_command(unserialized_command)
         return FinishedReservationResult(use)
 

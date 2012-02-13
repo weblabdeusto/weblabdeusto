@@ -24,12 +24,15 @@ from sqlalchemy.sql.expression import desc
 
 from voodoo.dbutil import generate_getconn, get_sqlite_dbname
 from voodoo.log import logged
+from voodoo.typechecker import typecheck
 
 import weblab.db.model as model
 
 import weblab.db.gateway as dbGateway
 
+from weblab.data.command import Command
 import weblab.data.dto.experiments as ExperimentAllowed
+from weblab.data.experiments import ExperimentUsage, CommandSent
 
 import weblab.db.exc as DbExceptions
 
@@ -88,6 +91,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
 
         self.Session = sessionmaker(bind=self.engine)
 
+    @typecheck(basestring)
     @logged()
     def get_user_by_name(self, user_login):
         session = self.Session()
@@ -97,6 +101,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
             session.close()
 
 
+    @typecheck(basestring)
     @logged()
     def list_experiments(self, user_login):
         session = self.Session()
@@ -135,6 +140,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
+    @typecheck(basestring)
     @logged()
     def is_access_forward(self, user_login):
         session = self.Session()
@@ -145,6 +151,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
+    @typecheck(basestring, dict, ExperimentUsage)
     @logged()
     def store_experiment_usage(self, user_login, reservation_info, experiment_usage):
         session = self.Session()
@@ -211,6 +218,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
+    @typecheck(basestring, float, CommandSent)
     @logged()
     def finish_experiment_usage(self, reservation_id, end_date, last_command ):
         session = self.Session()
@@ -233,6 +241,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
+    @typecheck(basestring, CommandSent)
     @logged()
     def append_command(self, reservation_id, command ):
         session = self.Session()
@@ -253,6 +262,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
+    @typecheck((int,long), Command, float)
     @logged()
     def update_command(self, command_id, response, end_timestamp ):
         session = self.Session()
