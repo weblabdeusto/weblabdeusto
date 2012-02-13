@@ -154,13 +154,12 @@ class WebLabDeustoClient(object):
 
         for command in experiment_use['commands']:
             request = Command(command['command']['commandstring']) if 'commandstring' in command['command'] and command['command'] is not None else NullCommand
-            try:
-                response = Command(command['response']['commandstring']) if 'commandstring' in command['response'] and command['response'] is not None else NullCommand
-            except:
-                print command['response']['commandstring']
-                raise
+            response_command = command['response']['commandstring'] if 'commandstring' in command['response'] and command['response'] is not None else None
+            if response_command is None or response_command == {}:
+                response = NullCommand()
+            else:
+                response = Command(response_command)
             unserialized_command = CommandSent(request, command['timestamp_before'], response, command['timestamp_after'])
             use.append_command(unserialized_command)
-        # print experiment_use['commands']
         return FinishedReservationResult(use)
 
