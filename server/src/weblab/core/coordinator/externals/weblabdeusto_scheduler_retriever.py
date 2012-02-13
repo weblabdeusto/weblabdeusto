@@ -17,6 +17,9 @@ import threading
 import time
 import urllib2
 
+from sqlalchemy.orm.exc import StaleDataError
+from sqlalchemy.exc import IntegrityError, ConcurrentModificationError
+
 import voodoo.log as log
 from voodoo.counter import next_name
 from voodoo.sessions.session_id import SessionId
@@ -24,13 +27,14 @@ from voodoo.sessions.session_id import SessionId
 from weblab.core.coordinator.externals.weblabdeusto_scheduler_model import ExternalWebLabDeustoReservationPendingResults
 
 class ResultsRetriever(threading.Thread):
-    def __init__(self, session_maker, resource_type_name, server_route, period, create_client_func):
+    def __init__(self, session_maker, resource_type_name, server_route, server_url, period, create_client_func):
         threading.Thread.__init__(self)
         self.setName(next_name("ResultsRetriever"))
         self.session_maker      = session_maker
         self.resource_type_name = resource_type_name
         self.period             = period
         self.server_route       = server_route
+        self.server_url         = server_url # Not required, but helpful for debugging
         self.create_client_func = create_client_func
         self.stopped            = False
 
@@ -75,7 +79,21 @@ class ResultsRetriever(threading.Thread):
             remote_reservation_ids = [ SessionId(pending_result.remote_reservation_id) for pending_result in pending_results ]
 
             results = client.get_experiment_uses_by_id(session_id, remote_reservation_ids)
-            for pending_result, result in zip(pending_results, results):
-                # print result
-                pass
+            print self.server_url, zip([ (pending_result.reservation_id, pending_result.remote_reservation_id) for pending_result in pending_results ], results)
 
+            for pending_result, result in zip(pending_results, results):
+                if result.is_alive():
+                    continue
+
+                session = self.session_maker()
+                try:
+                    session.delete(pending_result)
+                    session.commit()
+                except (IntegrityError, ConcurrentModificationError, StaleDataError):
+                    pass
+                finally:
+                    session.close()
+
+                if result.is_finished():
+                    print "Here I store..."
+                    pass

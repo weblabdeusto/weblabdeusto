@@ -46,7 +46,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         self.password      = password
 
         period = self.cfg_manager.get_value(RETRIEVAL_PERIOD_PROPERTY_NAME, DEFAULT_RETRIEVAL_PERIOD)
-        self.retriever     = ResultsRetriever(self.session_maker, self.resource_type_name, self.core_server_route, period, self._create_logged_in_client)
+        self.retriever     = ResultsRetriever(self.session_maker, self.resource_type_name, self.core_server_route, self.core_server_url, period, self._create_logged_in_client)
         self.retriever.start()
 
     def stop(self):

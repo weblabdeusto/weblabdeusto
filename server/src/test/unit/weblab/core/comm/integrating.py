@@ -29,7 +29,7 @@ import voodoo.sessions.session_id as SessionId
 import weblab.data.dto.experiments as ExperimentAllowed
 import weblab.data.dto.experiments as Experiment
 import weblab.data.dto.experiments as Category
-from weblab.data.experiments import AliveReservationResult, FinishedReservationResult, CancelledReservationResult, ExperimentUsage, LoadedFileSent, CommandSent, ExperimentId
+from weblab.data.experiments import RunningReservationResult, FinishedReservationResult, CancelledReservationResult, ExperimentUsage, LoadedFileSent, CommandSent, ExperimentId
 from voodoo.gen.coordinator.CoordAddress import CoordAddress
 
 from weblab.data.dto.users import User
@@ -482,13 +482,13 @@ class UserProcessingIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
 
             expected_sess_id = SessionId.SessionId("whatever")
             expected_reservation_id = SessionId.SessionId("foobar")
-            expected_alive_result = AliveReservationResult()
+            expected_alive_result = RunningReservationResult()
 
             self.mock_server.return_values['get_experiment_use_by_id'] = expected_alive_result
 
 
             obtained_result = client.get_experiment_use_by_id(expected_sess_id, expected_reservation_id)
-            self.assertEquals(AliveReservationResult(), obtained_result)
+            self.assertEquals(RunningReservationResult(), obtained_result)
         finally:
             self.rfs.stop()
 
@@ -510,7 +510,7 @@ class UserProcessingIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
             expected_usage.append_file(loaded_file_sent)
 
             expected_finished_result  = FinishedReservationResult(expected_usage)
-            expected_alive_result     = AliveReservationResult()
+            expected_alive_result     = RunningReservationResult()
             expected_cancelled_result = CancelledReservationResult()
 
             self.mock_server.return_values['get_experiment_uses_by_id'] = (expected_finished_result, expected_alive_result, expected_cancelled_result)

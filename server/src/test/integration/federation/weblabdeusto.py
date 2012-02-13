@@ -19,7 +19,7 @@ import unittest
 import voodoo.gen.loader.ServerLoader as ServerLoader
 
 from weblab.data.command import Command
-from weblab.data.experiments import ExperimentId, AliveReservationResult
+from weblab.data.experiments import ExperimentId, WaitingReservationResult, RunningReservationResult
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 from weblab.core.reservations import Reservation
 
@@ -108,21 +108,27 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         reservation_ids = (reservation_id1, reservation_id2, reservation_id3)
         reservation_results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
 
-        self.assertEquals(AliveReservationResult(), reservation_results[0])
-        self.assertEquals(AliveReservationResult(), reservation_results[1])
-        self.assertEquals(AliveReservationResult(), reservation_results[2])
+        self.assertEquals(RunningReservationResult(), reservation_results[0])
+        self.assertEquals(RunningReservationResult(), reservation_results[1])
+        self.assertEquals(RunningReservationResult(), reservation_results[2])
 
 
         #
         # What if one of them goes out and another comes? Is the load of experiments balanced correctly?
         #
         self.consumer_core_client.finished_experiment(reservation_id2)
+        time.sleep(10)
         reservation_results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
 
-        self.assertEquals(AliveReservationResult(), reservation_results[0])
+        self.assertEquals(RunningReservationResult(), reservation_results[0])
         # Given that it has not been propagated yet, this fails
-        # self.assertEquals(FinishedReservationResult, reservation_results[1])
-        self.assertEquals(AliveReservationResult(), reservation_results[2])
+        print "\n" * 2 + "*" * 20
+        print reservation_ids[1]
+        print reservation_results[1]
+        print "\n" * 2 + "*" * 20
+        #self.assertTrue( reservation_results[1].is_finished() ) 
+        # XXX
+        self.assertEquals(RunningReservationResult(), reservation_results[2])
 
         reservation_id2b = self._test_reservation(session_id, self.dummy1, 'Provider 1', True, False)
 

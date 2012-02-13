@@ -122,6 +122,10 @@
 				<xsd:sequence>
                     <!-- alive, cancelled, finished -->
 					<xsd:element minOccurs="0" maxOccurs="1" name="status" type="xsd:string" />
+                    <!-- Only set if alive -->
+					<xsd:element minOccurs="0" maxOccurs="1" name="running" type="xsd:string" />
+                    <!-- Only set if alive -->
+					<xsd:element minOccurs="0" maxOccurs="1" name="waiting" type="xsd:string" />
                     <!-- only if status = finished -->
 					<xsd:element minOccurs="0" maxOccurs="1" name="experiment_use" type="tns:ExperimentUsageType" />
     			</xsd:sequence>

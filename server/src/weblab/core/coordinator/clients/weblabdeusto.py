@@ -21,7 +21,7 @@ from voodoo.gen.coordinator.CoordAddress import CoordAddress
 from voodoo.sessions.session_id import SessionId
 from weblab.core.reservations import Reservation
 from weblab.data.command import Command, NullCommand
-from weblab.data.experiments import ReservationResult, AliveReservationResult, CancelledReservationResult, FinishedReservationResult, ExperimentUsage, LoadedFileSent, CommandSent, ExperimentId, ForbiddenReservationResult
+from weblab.data.experiments import ReservationResult, RunningReservationResult, WaitingReservationResult, CancelledReservationResult, FinishedReservationResult, ExperimentUsage, LoadedFileSent, CommandSent, ExperimentId, ForbiddenReservationResult
 
 class WebLabDeustoClient(object):
 
@@ -130,7 +130,10 @@ class WebLabDeustoClient(object):
 
     def _parse_experiment_result(self, experiment_result):
         if experiment_result['status'] == ReservationResult.ALIVE:
-            return AliveReservationResult()
+            if experiment_result['running']:
+                return RunningReservationResult()
+            else:
+                return WaitingReservationResult()
         elif experiment_result['status'] == ReservationResult.CANCELLED:
             return CancelledReservationResult()
         elif experiment_result['status'] == ReservationResult.FORBIDDEN:

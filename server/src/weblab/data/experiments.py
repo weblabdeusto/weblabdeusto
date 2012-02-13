@@ -213,12 +213,24 @@ class ReservationResult(object):
 
 class AliveReservationResult(ReservationResult):
 
-    def __init__(self):
+    def __init__(self, running):
         super(AliveReservationResult, self).__init__(ReservationResult.ALIVE)
+        self.running = running
+        self.waiting = not running
 
     @Override(ReservationResult)
     def is_alive(self):
         return True
+
+class RunningReservationResult(AliveReservationResult):
+
+    def __init__(self):
+        super(RunningReservationResult, self).__init__(True)
+
+class WaitingReservationResult(AliveReservationResult):
+
+    def __init__(self):
+        super(WaitingReservationResult, self).__init__(True)
 
 class CancelledReservationResult(ReservationResult):
 

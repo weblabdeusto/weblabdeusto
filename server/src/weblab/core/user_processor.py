@@ -29,7 +29,9 @@ from weblab.data.experiments import ExperimentUsage
 import weblab.core.exc as core_exc
 import weblab.core.coordinator.exc as coord_exc
 
-from weblab.data.experiments import AliveReservationResult, CancelledReservationResult, FinishedReservationResult, ForbiddenReservationResult
+from weblab.core.coordinator.status import WebLabSchedulingStatus
+
+from weblab.data.experiments import RunningReservationResult, WaitingReservationResult, CancelledReservationResult, FinishedReservationResult, ForbiddenReservationResult
 
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessor")
 
@@ -263,15 +265,18 @@ class UserProcessor(object):
             if use == self._db_manager._gateway.forbidden_access:
                 return ForbiddenReservationResult()
             if use.end_date is None:
-                return AliveReservationResult()
+                return RunningReservationResult()
             storage_path = self._cfg_manager.get_value('core_store_students_programs_path')
             use.load_files(storage_path)
             return FinishedReservationResult(use)
 
         try:
             # We don't actually care about the result. The question is: has it expired or is it running?
-            self._coordinator.get_reservation_status(reservation_id.id)
-            return AliveReservationResult()
+            status = self._coordinator.get_reservation_status(reservation_id.id)
+            if status.status in WebLabSchedulingStatus.NOT_USED_YET_EXPERIMENT_STATUS:
+                return WaitingReservationResult()
+            else:
+                return RunningReservationResult()
         except coord_exc.ExpiredSessionException:
             return CancelledReservationResult()
 

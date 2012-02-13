@@ -41,7 +41,7 @@ import weblab.data.dto.experiments as Category
 import weblab.data.command as Command
 import weblab.data.dto.users as Group
 
-from weblab.data.experiments import AliveReservationResult, FinishedReservationResult, CancelledReservationResult, ExperimentUsage, LoadedFileSent, CommandSent, ExperimentId
+from weblab.data.experiments import WaitingReservationResult, FinishedReservationResult, CancelledReservationResult, ExperimentUsage, LoadedFileSent, CommandSent, ExperimentId
 
 from weblab.data.dto.users import User
 from weblab.data.dto.users import Role
@@ -205,7 +205,7 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
     def test_return_get_experiment_use_by_id(self):
         expected_sess_id = SessionId.SessionId("whatever")
 
-        expected_alive_result = AliveReservationResult()
+        expected_alive_result = WaitingReservationResult()
         self.mock_ups.return_values['get_experiment_use_by_id'] = expected_alive_result
 
         alive_result = self.rfm.get_experiment_use_by_id(expected_sess_id, SessionId.SessionId('reservation'))
@@ -223,7 +223,7 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         expected_usage.append_file(loaded_file_sent)
 
         expected_finished_result  = FinishedReservationResult(expected_usage)
-        expected_alive_result     = AliveReservationResult()
+        expected_alive_result     = WaitingReservationResult()
         expected_cancelled_result = CancelledReservationResult()
 
         self.mock_ups.return_values['get_experiment_uses_by_id'] = (expected_finished_result, expected_alive_result, expected_cancelled_result)
