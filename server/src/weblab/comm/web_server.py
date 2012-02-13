@@ -51,11 +51,6 @@ class Method(object):
         self.if_none_match = self.req.headers.getheader('If-None-Match')
         self.if_modified_since = self.req.headers.getheader('If-Modified-Since')
         
-        if self.if_none_match is not None or self.if_modified_since is not None:
-            print "[DBG] If-None-Match: " + str(self.if_none_match)
-            print "[DBG] If-Modified-Since: " + str(self.if_modified_since)
-        #print "[DBG] HEADERS: " + str(self.req.headers)
-        
         # The status code the method will report will generally be 200,
         # but it might be changed.
         self.status_code = 200 
