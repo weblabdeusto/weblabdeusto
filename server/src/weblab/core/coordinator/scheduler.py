@@ -18,7 +18,7 @@ from abc import ABCMeta, abstractmethod
 import weblab.core.comm.user_server as comm_user_server
 
 class GenericSchedulerArguments(object):
-    def __init__(self, cfg_manager, resource_type_name, reservations_manager, resources_manager, confirmer, session_maker, time_provider, core_server_url, initial_store, finished_store, **kwargs):
+    def __init__(self, cfg_manager, resource_type_name, reservations_manager, resources_manager, confirmer, session_maker, time_provider, core_server_url, initial_store, finished_store, post_reservation_data_manager, **kwargs):
         self.cfg_manager          = cfg_manager
         self.resource_type_name   = resource_type_name
         self.reservations_manager = reservations_manager
@@ -29,6 +29,7 @@ class GenericSchedulerArguments(object):
         self.core_server_url      = core_server_url
         self.initial_store        = initial_store
         self.finished_store       = finished_store
+        self.post_reservation_data_manager = post_reservation_data_manager
 
         if 'enqueuing_timeout' in kwargs:
             self.confirmer.enqueuing_timeout = kwargs.pop('enqueuing_timeout')
@@ -116,6 +117,8 @@ class Scheduler(object):
         self.core_server_uuid       = self.cfg_manager.get_value(core_server.WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER, core_server.DEFAULT_WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER)
 
         self.core_server_uuid_human = self.cfg_manager.get_value(core_server.WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN, core_server.DEFAULT_WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN)
+
+        self.post_reservation_data_manager = generic_scheduler_arguments.post_reservation_data_manager
 
     def stop(self):
         pass

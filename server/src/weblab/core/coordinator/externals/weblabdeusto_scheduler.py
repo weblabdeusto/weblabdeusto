@@ -16,6 +16,7 @@
 import time as time_mod
 import cPickle as pickle
 import json
+import datetime
 
 from sqlalchemy.orm.exc import StaleDataError
 
@@ -44,6 +45,10 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         self.login_baseurl = login_baseurl
         self.username      = username
         self.password      = password
+
+        from weblab.core.coordinator.coordinator import POST_RESERVATION_EXPIRATION_TIME, DEFAULT_POST_RESERVATION_EXPIRATION_TIME
+        post_reservation_expiration_time = self.cfg_manager.get_value(POST_RESERVATION_EXPIRATION_TIME, DEFAULT_POST_RESERVATION_EXPIRATION_TIME)
+        self.expiration_delta = datetime.timedelta(seconds=post_reservation_expiration_time)
 
         period = self.cfg_manager.get_value(RETRIEVAL_PERIOD_PROPERTY_NAME, DEFAULT_RETRIEVAL_PERIOD)
         self.retriever     = ResultsRetriever(self.session_maker, self.resource_type_name, self.core_server_route, self.core_server_url, period, self._create_logged_in_client)
@@ -220,6 +225,14 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         cookies = pickle.loads(str(serialized_cookies))
         client = self._create_client(cookies)
         client.finished_experiment(SessionId(remote_reservation_id))
+        try:
+            client.get_reservation_status(SessionId(remote_reservation_id))
+        except:
+            # TODO: Actually check that the reservation was expired
+            pass # Expired reservation
+        else:
+            now = self.time_provider.get_datetime()
+            self.post_reservation_data_manager.create(reservation_id, now, now + self.expiration_delta, json.dumps("''"))
 
     ##############################################################
     #

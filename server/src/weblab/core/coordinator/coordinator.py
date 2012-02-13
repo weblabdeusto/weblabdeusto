@@ -148,7 +148,8 @@ class Coordinator(object):
                                                 time_provider        = self.time_provider,
                                                 core_server_url      = core_server_url,
                                                 initial_store        = self.initial_store,
-                                                finished_store       = self.finished_store
+                                                finished_store       = self.finished_store,
+                                                post_reservation_data_manager = self.post_reservation_data_manager
                                         )
 
             self.schedulers[resource_type_name] = SchedulingSystemClass(generic_scheduler_arguments, **arguments)
@@ -181,7 +182,8 @@ class Coordinator(object):
                                                 time_provider        = self.time_provider,
                                                 core_server_url      = core_server_url,
                                                 initial_store        = self.initial_store,
-                                                finished_store       = self.finished_store
+                                                finished_store       = self.finished_store,
+                                                post_reservation_data_manager = self.post_reservation_data_manager
                                         )
 
 
