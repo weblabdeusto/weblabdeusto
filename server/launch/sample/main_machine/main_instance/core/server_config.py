@@ -53,7 +53,8 @@ core_coordinator_laboratory_servers = {
             "exp1|robot-standard|Robot experiments"  : "robot@robot",
 #            "exp1|robot-movement|Robot experiments"  : "robot@robot",
             "exp1|robot-proglist|Robot experiments"  : "robot@robot",
-            "exp1|blink-led|LabVIEW experiments"     : "labview@labview"
+            "exp1|blink-led|LabVIEW experiments"     : "labview@labview",
+            "exp1|ud-pic18|PIC experiments"          : "pic18@pic18"
         }
 }
 
@@ -93,6 +94,7 @@ core_scheduling_systems = {
         "vm-win"      : ("PRIORITY_QUEUE", {}),
         "robot"       : ("PRIORITY_QUEUE", {}),
         "labview"     : ("PRIORITY_QUEUE", {}),
+        "pic18"       : ("PRIORITY_QUEUE", {})
     }
 
 core_universal_identifier       = 'da2579d6-e3b2-11e0-a66a-00216a5807c8'
