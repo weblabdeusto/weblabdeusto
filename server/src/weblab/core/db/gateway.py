@@ -15,6 +15,7 @@
 #
 
 from functools import wraps
+import numbers
 
 import sqlalchemy
 from sqlalchemy import create_engine
@@ -32,7 +33,7 @@ import weblab.db.gateway as dbGateway
 
 from weblab.data.command import Command
 import weblab.data.dto.experiments as ExperimentAllowed
-from weblab.data.experiments import ExperimentUsage, CommandSent
+from weblab.data.experiments import ExperimentUsage, CommandSent, FileSent
 
 import weblab.db.exc as DbExceptions
 
@@ -262,7 +263,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
-    @typecheck((int,long), Command, float)
+    @typecheck(numbers.Integral, Command, float)
     @logged()
     def update_command(self, command_id, response, end_timestamp ):
         session = self.Session()
@@ -279,6 +280,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
+    @typecheck(basestring, FileSent)
     @logged()
     def append_file(self, reservation_id, file_sent ):
         session = self.Session()
@@ -301,6 +303,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
+    @typecheck(numbers.Integral, Command, float)
     @logged()
     def update_file(self, file_id, response, end_timestamp ):
         session = self.Session()
