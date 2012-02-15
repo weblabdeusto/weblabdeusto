@@ -203,7 +203,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                     session.add(db_key)
 
                 value = reservation_info[reservation_info_key]
-                session.add(model.DbUserUsedExperimentPropertyValue( str(value), db_key, use ))
+                session.add(model.DbUserUsedExperimentPropertyValue( unicode(value), db_key, use ))
 
             session.commit()
         finally:
