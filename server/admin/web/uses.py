@@ -174,6 +174,28 @@ padding:15px;
         connection.close()
     return result + """</table></body></html>"""
 
+def user(req, login):
+    connection = dbi.connect(host="localhost",user=_USERNAME, passwd=_PASSWORD, db=DB_NAME)
+    try:
+        cursor = connection.cursor()
+        try:
+            SENTENCE = "SELECT uue.id, u.login, u.full_name, e.name, c.name, uue.start_date, uue.origin " + \
+                        "FROM UserUsedExperiment as uue, User as u, Experiment as e, ExperimentCategory as c " + \
+                        "WHERE u.login = %s AND u.id = uue.user_id AND e.id = uue.experiment_id AND e.category_id = c.id " + \
+                        "ORDER BY uue.start_date DESC LIMIT %s" % LIMIT
+            cursor.execute(SENTENCE, (login,) )
+            elements = cursor.fetchall()
+            result = """<html><head><title>Latest uses</title></head><body><table cellspacing="10">
+                        <tr> <td><b>User</b></td> <td><b>Name</b></td> <td><b>Experiment</b></td> <td><b>Date</b></td> <td><b>From </b> </td> <td><b>Use</b></td></tr>
+                        """
+            for use_id, user_login, user_full_name, experiment_name, category_name, start_date, uue_from in elements:
+                result += "\t<tr> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> <a href=\"use?use_id=%s\">use</a> </td> </tr>\n" % ( user_login, user_full_name, experiment_name + '@' + category_name, utc2local_str(start_date), uue_from, use_id )
+        finally: 
+            cursor.close()
+    finally:
+        connection.close()
+    return result + """</table></body></html>"""
+
 def index(req):
     connection = dbi.connect(host="localhost",user=_USERNAME, passwd=_PASSWORD, db=DB_NAME)
     try:
@@ -189,7 +211,7 @@ def index(req):
                         <tr> <td><b>User</b></td> <td><b>Name</b></td> <td><b>Experiment</b></td> <td><b>Date</b></td> <td><b>From </b> </td> <td><b>Use</b></td></tr>
                         """
             for use_id, user_login, user_full_name, experiment_name, category_name, start_date, uue_from in elements:
-                result += "\t<tr> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> <a href=\"uses.py/use?use_id=%s\">use</a> </td> </tr>\n" % ( user_login, user_full_name, experiment_name + '@' + category_name, utc2local_str(start_date), uue_from, use_id )
+                result += "\t<tr> <td> <a href=\"uses.py/user?login=%s\">%s</a> </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> <a href=\"uses.py/use?use_id=%s\">use</a> </td> </tr>\n" % ( user_login, user_login, user_full_name, experiment_name + '@' + category_name, utc2local_str(start_date), uue_from, use_id )
         finally: 
             cursor.close()
     finally:
