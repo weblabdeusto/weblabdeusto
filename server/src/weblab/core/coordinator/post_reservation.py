@@ -32,6 +32,17 @@ class PostReservationDataManager(object):
         finally:
             session.close()
 
+    def delete(self, reservation_id):
+        session = self._session_maker()
+        try:
+            reservation = session.query(PostReservationRetrievedData).filter(PostReservationRetrievedData.reservation_id == reservation_id).first()
+            if reservation is None:
+                return
+            session.delete(reservation)
+            session.commit()
+        finally:
+            session.close()
+
     def finish(self, reservation_id, end_data):
         session = self._session_maker()
         try:

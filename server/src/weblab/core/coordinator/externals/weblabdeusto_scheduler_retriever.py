@@ -36,6 +36,7 @@ class ResultsRetriever(threading.Thread):
         self.server_route       = weblabdeusto_scheduler.core_server_route
         self.server_url         = weblabdeusto_scheduler.core_server_url # Not required, but helpful for debugging
         self.completed_store    = weblabdeusto_scheduler.completed_store
+        self.post_reservation_data_manager = weblabdeusto_scheduler.post_reservation_data_manager
         self.period             = period
         self.create_client_func = create_client_func
         self.stopped            = False
@@ -81,7 +82,7 @@ class ResultsRetriever(threading.Thread):
             remote_reservation_ids = [ SessionId(pending_result.remote_reservation_id) for pending_result in pending_results ]
 
             results = client.get_experiment_uses_by_id(session_id, remote_reservation_ids)
-            # print self.server_url, zip([ (pending_result.reservation_id, pending_result.remote_reservation_id) for pending_result in pending_results ], results)
+            print self.server_url, zip([ (pending_result.reservation_id, pending_result.remote_reservation_id) for pending_result in pending_results ], results)
 
             for pending_result, result in zip(pending_results, results):
                 if result.is_alive():
@@ -94,6 +95,7 @@ class ResultsRetriever(threading.Thread):
                     log.log(ResultsRetriever, log.level.Critical, "Probably serialized_request_info was truncated in %s" % pending_result)
                     log.log_exc(ResultsRetriever, log.level.Error)
                     request_info  = {'error' : 'could not be stored: %s' % e}
+                reservation_id = pending_result.reservation_id
 
                 session = self.session_maker()
                 try:
@@ -106,7 +108,8 @@ class ResultsRetriever(threading.Thread):
 
                 if result.is_finished():
                     use = result.experiment_use
-                    print "Storing..."
+                    print "Storing...", reservation_id
                     self.completed_store.put(username, request_info, use)
+                    self.post_reservation_data_manager.delete(reservation_id)
 
 
