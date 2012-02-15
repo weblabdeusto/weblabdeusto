@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import time
 import random
@@ -27,15 +27,15 @@ _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessing
 
 ############################################################
 #
-# Certain operations, such as updating the queues, we 
-# only want them to be executed by one thread at a time. 
-# We can execute them more often, but it simply does not 
+# Certain operations, such as updating the queues, we
+# only want them to be executed by one thread at a time.
+# We can execute them more often, but it simply does not
 # make sense. This class provides one public method, called
 # request_and_wait. The method makes sure that the update
-# method of the scheduler is called once since the method 
+# method of the scheduler is called once since the method
 # is invoked, without mattering if somebody else requested
 # it.
-# 
+#
 class SchedulerTransactionsSynchronizer(threading.Thread):
     def __init__(self, scheduler, min_time_between_updates = 0.0, max_time_between_updates = 0.0):
         super(SchedulerTransactionsSynchronizer, self).__init__()
@@ -98,7 +98,7 @@ class SchedulerTransactionsSynchronizer(threading.Thread):
                 else:
                     self._latest_update = time.time()
                     self._update_period_between_updates()
-                    
+
             if execute:
                 try:
                     self.scheduler.update()
@@ -111,7 +111,7 @@ class SchedulerTransactionsSynchronizer(threading.Thread):
 
 
     def _notify_elements(self, elements):
-        
+
         with self.pending_elements_condition:
             for element in elements:
                 if element in self.pending_elements:

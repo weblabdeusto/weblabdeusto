@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import json
 import traceback
@@ -140,7 +140,7 @@ class ILabMethod(WebFacadeServer.Method):
             length = 0
             status = 3
         else:
-            raise Exception("Unexpected status in get_experimen_status: %s" % reservation_status.status) 
+            raise Exception("Unexpected status in get_experimen_status: %s" % reservation_status.status)
 
         return """<?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
@@ -179,9 +179,9 @@ class ILabMethod(WebFacadeServer.Method):
         return self.serializer.generate_retrieve_result_response(code, results, xmlResults)
 
     ###############################################################
-    # 
+    #
     # Methods not implemented in WebLab-Deusto
-    # 
+    #
     def process_GetExperimentInformation(self):
         return """<?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
@@ -221,7 +221,7 @@ class ILabMethod(WebFacadeServer.Method):
 </SaveAnnotationResponse>
 </soap:Body>
 </soap:Envelope>"""
-    
+
     def process_ListAllClientItems(self):
         return """<?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">

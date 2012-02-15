@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import traceback
 from sqlalchemy.exc import IntegrityError, ConcurrentModificationError
@@ -44,7 +44,7 @@ class PostReservationDataManager(object):
             session.commit()
         finally:
             session.close()
-       
+
 
     def find(self, reservation_id):
         session = self._session_maker()
@@ -56,12 +56,12 @@ class PostReservationDataManager(object):
             return WSS.PostReservationStatus(reservation_id, reservation.finished, reservation.initial_data, reservation.end_data)
         finally:
             session.close()
-       
+
 
     ##############################################################
-    # 
+    #
     # Clean expired PostReservationRetrievedData
-    # 
+    #
     def clean_expired(self):
         session = self._session_maker()
         try:

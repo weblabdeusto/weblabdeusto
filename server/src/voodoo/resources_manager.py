@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import os
 import sys
@@ -22,7 +22,7 @@ import voodoo.log as log
 
 def is_testing():
     # if there is no test module loaded, it's not testing
-    if not sys.modules.has_key('test'):
+    if not 'test' in sys.modules:
         return False
     # if the test.* module is our test module...
     voodoo_file = sys.modules['voodoo'].__file__
@@ -51,7 +51,7 @@ class ResourceManager(object):
         @locked('_lock')
         def add_resource_testing(self, resource):
             self._resources.append(resource)
-        
+
         @locked('_lock')
         def remove_resource_testing(self, resource):
             if resource in self._resources:
@@ -70,7 +70,7 @@ class ResourceManager(object):
     # The rest of the methods will never be called in
     # production, so there is no need to reimplement
     # them in a not-locked version
-    # 
+    #
 
     @locked('_lock')
     def get_current_resources(self):

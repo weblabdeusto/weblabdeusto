@@ -7,7 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -68,7 +68,7 @@ class ReservationsManager(object):
         reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
         if reservation is None:
             raise CoordExc.ExpiredSessionException("Expired reservation")
-        
+
         reservation.update()
 
     def confirm(self, session, reservation_id):
@@ -84,7 +84,7 @@ class ReservationsManager(object):
         if current_reservation is None:
             return # Already downgraded
         session.delete(current_reservation)
- 
+
     def list_expired_reservations(self, session, expiration_time):
         return ( expired_reservation.id for expired_reservation in session.query(Reservation).filter(Reservation.latest_access < expiration_time).all() )
 
@@ -97,7 +97,7 @@ class ReservationsManager(object):
                 raise CoordExc.ExperimentNotFoundException("Experiment %s not found" % experiment_id)
 
             reservation_ids = []
-            
+
             for reservation in experiment_type.reservations:
                 reservation_ids.append(reservation.id)
 

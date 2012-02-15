@@ -7,12 +7,12 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
 from weblab.data.experiments import ExperimentInstanceId
 from weblab.data.experiments import ExperimentId
@@ -27,7 +27,7 @@ class ExperimentCategory(object):
         self.name = unicode(name)
 
 class Experiment(object):
-    
+
     __metaclass__ = Representable
 
     def __init__(self, name, category, start_date, end_date, id=None):
@@ -51,7 +51,7 @@ class Experiment(object):
 class ExperimentUse(object):
 
     __metaclass__ = Representable
-    
+
     def __init__(self, start_date, end_date, experiment, agent, origin, id=None):
 
         self.start_date = start_date

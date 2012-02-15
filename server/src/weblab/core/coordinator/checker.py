@@ -7,7 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -53,7 +53,7 @@ class ResourcesChecker(object):
                     resource = experiments[experiment]
                     if not resource in broken_resources:
                         self.coordinator.mark_resource_as_fixed(resource)
-            
+
         except:
             traceback.print_exc()
             log.log( ResourcesChecker, log.level.Critical,

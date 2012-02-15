@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import time
 import unittest
@@ -19,7 +19,7 @@ import unittest
 import voodoo.gen.loader.ServerLoader as ServerLoader
 
 from weblab.data.command import Command
-from weblab.data.experiments import ExperimentId
+from weblab.data.experiments import ExperimentId, WaitingReservationResult, RunningReservationResult
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 from weblab.core.reservations import Reservation
 
@@ -56,59 +56,80 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self.provider1_handler.stop()
         self.provider2_handler.stop()
 
-    # 
-    # This test may take even 20-30 seconds; therefore it is not splitted 
+    #
+    # This test may take even 20-30 seconds; therefore it is not splitted
     # into subtests (the setup and teardown are long)
-    # 
+    #
     def test_federated_experiment(self):
         #######################################################
-        # 
+        #
         #   Local testing  (to check that everything is right)
-        # 
+        #
         #   We enter as a student of Consumer, and we ask for an
-        #   experiment that only the Consumer university has 
+        #   experiment that only the Consumer university has
         #   (dummy2).
-        # 
+        #
         session_id = self.consumer_login_client.login('fedstudent1', 'password')
 
         self._test_reservation(session_id, self.dummy2, 'Consumer', True, True)
-        
+
         #######################################################
-        # 
+        #
         #   Simple federation
-        # 
+        #
         #   Now we ask for an experiment that only Provider 1
-        #   has. There is no load balance, neither 
+        #   has. There is no load balance, neither
         #   subcontracting
         #
         self._test_reservation(session_id, self.dummy3, 'Provider 1', True, True)
 
         #######################################################
-        # 
+        #
         #   Subcontracted federation
-        # 
+        #
         #   Now we ask for an experiment that only Provider 2
-        #   has. There is no load balance, but Consumer will 
+        #   has. There is no load balance, but Consumer will
         #   contact Provider 1, which will contact Provider 2
         #
         self._test_reservation(session_id, self.dummy4, 'Provider 2', True, True)
 
         #######################################################
-        # 
+        #
         #   Cross-domain load balancing
-        # 
-        #   Now we ask for an experiment that Consumer has, 
+        #
+        #   Now we ask for an experiment that Consumer has,
         #   but also Provider 1 and Provider 2.
         #
-        
+
         reservation_id1 = self._test_reservation(session_id, self.dummy1, 'Consumer', True, False)
         reservation_id2 = self._test_reservation(session_id, self.dummy1, 'Provider 1', True, False)
         reservation_id3 = self._test_reservation(session_id, self.dummy1, 'Provider 2', True, False)
 
-        # 
+        reservation_ids = (reservation_id1, reservation_id2, reservation_id3)
+        reservation_results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
+
+        self.assertEquals(RunningReservationResult(), reservation_results[0])
+        self.assertEquals(RunningReservationResult(), reservation_results[1])
+        self.assertEquals(RunningReservationResult(), reservation_results[2])
+
+
+        #
         # What if one of them goes out and another comes? Is the load of experiments balanced correctly?
-        # 
+        #
         self.consumer_core_client.finished_experiment(reservation_id2)
+        time.sleep(10)
+        reservation_results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
+
+        self.assertEquals(RunningReservationResult(), reservation_results[0])
+        # Given that it has not been propagated yet, this fails
+        print "\n" * 2 + "*" * 20
+        print reservation_ids[1]
+        print reservation_results[1]
+        print "\n" * 2 + "*" * 20
+        #self.assertTrue( reservation_results[1].is_finished() ) 
+        # XXX
+        self.assertEquals(RunningReservationResult(), reservation_results[2])
+
         reservation_id2b = self._test_reservation(session_id, self.dummy1, 'Provider 1', True, False)
 
         self.consumer_core_client.finished_experiment(reservation_id1)
@@ -117,7 +138,7 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self.consumer_core_client.finished_experiment(reservation_id3)
         self._test_reservation(session_id, self.dummy1, 'Provider 2', True, False)
 
-        # 
+        #
         # What if another 2 come in? What is the position of their queues?
         #
 
@@ -131,9 +152,9 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self.assertEquals(Reservation.WAITING, reservation_status.status)
         self.assertEquals(1, reservation_status.position)
 
-        # 
+        #
         # Once again, freeing a session affects them?
-        # 
+        #
         self.consumer_core_client.finished_experiment(reservation_id2b)
         self._wait_reservation(reservation_4, 'Provider 1', True)
 
@@ -142,14 +163,14 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
 
     def _test_reservation(self, session_id, experiment_id, expected_server_info, wait, finish):
         reservation_status = self.consumer_core_client.reserve_experiment(session_id, experiment_id, "{}", "{}")
-        
+
         reservation_id = reservation_status.reservation_id
 
         if not wait:
             if finish:
                 self.consumer_core_client.finished_experiment(reservation_id)
             return reservation_id
-        
+
         return self._wait_reservation(reservation_id, expected_server_info, finish)
 
     def _wait_reservation(self, reservation_id, expected_server_info, finish):
@@ -162,13 +183,13 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
                 self.fail("Waiting too long in the queue for %s" % expected_server_info)
             time.sleep(0.1)
             reservation_status = self.consumer_core_client.get_reservation_status(reservation_id)
-        
+
         self.assertEquals(Reservation.CONFIRMED, reservation_status.status)
 
         experiment_reservation_id = reservation_status.remote_reservation_id
         if experiment_reservation_id.id == '':
             experiment_reservation_id = reservation_id
-            
+
         client = WebLabDeustoClient( reservation_status.url )
 
         response = client.send_command(experiment_reservation_id, Command("server_info"))

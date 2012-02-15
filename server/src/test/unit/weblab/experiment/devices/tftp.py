@@ -17,7 +17,7 @@ from mock import patch
 import unittest
 
 from weblab.experiment.devices.tftp import TFtpDevice
-from weblab.experiment.devices import tftp 
+from weblab.experiment.devices import tftp
 
 
 class TFtpDeviceTestCase(unittest.TestCase):

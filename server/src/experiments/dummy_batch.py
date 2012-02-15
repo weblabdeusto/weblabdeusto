@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import json
 import time
@@ -24,11 +24,11 @@ from voodoo.override import Override
 class DummyBatchExperiment(Experiment.Experiment):
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(DummyBatchExperiment,self).__init__(*args, **kwargs)
-        
+
     @Override(Experiment.Experiment)
     def do_get_api(self):
         return "2"
-    
+
 
     @Override(Experiment.Experiment)
     def do_start_experiment(self, serialized_client_initial_data, serialized_server_initial_data):

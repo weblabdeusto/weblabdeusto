@@ -7,13 +7,13 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
-
+from voodoo.typechecker import typecheck
 from voodoo.dbutil import get_table_kwargs
 from sqlalchemy import Column, Integer, String
 
@@ -32,13 +32,14 @@ class ExternalWebLabDeustoReservation(Base):
     local_reservation_id             = Column(String(RESERVATION_ID_SIZE))
 
     # It might come with the cookie value
-    remote_reservation_id            = Column(String(RESERVATION_ID_SIZE * 3)) 
-    
+    remote_reservation_id            = Column(String(RESERVATION_ID_SIZE * 3))
+
     # In tests, it took up to 726 characters. Just in case, we store more than twice more
     cookies                          = Column(String(1536))
 
     start_time                       = Column(Integer)
 
+    @typecheck(typecheck.ANY, basestring, basestring, basestring, float)
     def __init__(self, local_reservation_id, remote_reservation_id, cookies, start_time):
         self.local_reservation_id  = local_reservation_id
         self.remote_reservation_id = remote_reservation_id
@@ -47,9 +48,29 @@ class ExternalWebLabDeustoReservation(Base):
 
     def __repr__(self):
         return SUFFIX + "ExternalWebLabDeustoReservation(%r, %r, %r, %r)" % (
-                            self.local_reservation_id,
-                            self.remote_reservation_id,
-                            self.cookies,
-                            self.start_time
-                        )
+                            self.local_reservation_id, self.remote_reservation_id, self.cookies, self.start_time)
+
+class ExternalWebLabDeustoReservationPendingResults(Base):
+    __tablename__  = SUFFIX + 'ExternalWebLabDeustoPendingResults'
+    __table_args__ = TABLE_KWARGS
+
+    id = Column(Integer, primary_key=True)
+    
+    reservation_id        = Column(String(RESERVATION_ID_SIZE))
+    remote_reservation_id = Column(String(RESERVATION_ID_SIZE * 3))
+    resource_type_name    = Column(String(255))
+    # In order to avoid concurrence among different servers, every sever will know 
+    # who stored it and therefore who should retrieve the results
+    server_route          = Column(String(255))
+   
+    @typecheck(typecheck.ANY, basestring, basestring, basestring, basestring)
+    def __init__(self, reservation_id, remote_reservation_id, resource_type_name, server_route):
+        self.reservation_id        = reservation_id
+        self.remote_reservation_id = remote_reservation_id
+        self.resource_type_name    = resource_type_name
+        self.server_route          = server_route
+
+    def __repr__(self):
+        return SUFFIX + "ExternalWeblabDeustoReservationPendingResults(%r, %r, %r, %r)" % (
+                            self.reservation_id, self.remote_reservation_id, self.resource_type_name, self.server_route)
 

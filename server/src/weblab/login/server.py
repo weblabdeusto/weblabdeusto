@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import voodoo.log as log
 from voodoo.log import logged
 import time
@@ -67,11 +67,11 @@ class LoginServer(object):
 
     @logged(log.level.Info, except_for='password')
     def login(self, username, password):
-        """ do_login(username, password) -> SessionId 
+        """ do_login(username, password) -> SessionId
 
-        raises ( 
-            LoginExceptions.UnableToCompleteOperationException, 
-            LoginExceptions.InvalidCredentialsException 
+        raises (
+            LoginExceptions.UnableToCompleteOperationException,
+            LoginExceptions.InvalidCredentialsException
         )
         """
         db_session_id = self._validate_local_user(username, password)

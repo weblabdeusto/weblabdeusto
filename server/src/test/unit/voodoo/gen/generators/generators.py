@@ -7,7 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -86,7 +86,7 @@ class GeneratorsTestCase(unittest.TestCase):
                     rand_value
                 )
                 server.stop()
-   
+
     if ServerSOAP.SOAPPY_AVAILABLE:
         @uses_module(ServerSOAP)
         def test_soap(self):
@@ -141,7 +141,7 @@ class GeneratorsTestCase(unittest.TestCase):
                                     sentence + rand_value
                                 )
                     server.stop()
-                    
+
         @uses_module(ServerSOAP)
         def test_two_soap_in_one_port(self):
             for sentence in sentences:
@@ -157,7 +157,7 @@ class GeneratorsTestCase(unittest.TestCase):
                     )(SOAP = ('',PORT))
                 server1.start()
                 server2.start()
-                
+
                 client1 = get_client(
                         Protocols.SOAP,
                         methods1
@@ -166,7 +166,7 @@ class GeneratorsTestCase(unittest.TestCase):
                         Protocols.SOAP,
                         methods2
                     )('localhost',PORT)
-                
+
                 for i in methods1:
                     method = getattr(client1,i)
                     rand_value = str(random.random())
@@ -175,7 +175,7 @@ class GeneratorsTestCase(unittest.TestCase):
                             result,
                             sentence + rand_value
                         )
-                    
+
                 for i in methods2:
                     method = getattr(client2,i)
                     rand_value = str(random.random())
@@ -188,8 +188,8 @@ class GeneratorsTestCase(unittest.TestCase):
                 server2.stop()
     else:
         print >> sys.stderr, "Some tests at GeneratorsTestCase skipped; SOAPpy not installed"
-            
-        
+
+
 def suite():
     return unittest.makeSuite(GeneratorsTestCase)
 

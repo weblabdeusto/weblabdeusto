@@ -7,14 +7,15 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 #         Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 from functools import wraps
+import numbers
 
 import sqlalchemy
 from sqlalchemy import create_engine
@@ -24,12 +25,15 @@ from sqlalchemy.sql.expression import desc
 
 from voodoo.dbutil import generate_getconn, get_sqlite_dbname
 from voodoo.log import logged
+from voodoo.typechecker import typecheck
 
 import weblab.db.model as model
 
 import weblab.db.gateway as dbGateway
 
+from weblab.data.command import Command
 import weblab.data.dto.experiments as ExperimentAllowed
+from weblab.data.experiments import ExperimentUsage, CommandSent, FileSent
 
 import weblab.db.exc as DbExceptions
 
@@ -59,15 +63,17 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
 
     engine = None
 
+    forbidden_access = 'forbidden_access'
+
     def __init__(self, cfg_manager):
         super(DatabaseGateway, self).__init__(cfg_manager)
-       
+
         user     = cfg_manager.get_value(WEBLAB_DB_USERNAME_PROPERTY, DEFAULT_WEBLAB_DB_USERNAME)
         password = cfg_manager.get_value(WEBLAB_DB_PASSWORD_PROPERTY)
         host     = self.host
         dbname   = self.database_name
         engine   = self.engine_name
-        
+
         if DatabaseGateway.engine is None or cfg_manager.get_value(WEBLAB_DB_FORCE_ENGINE_RECREATION, DEFAULT_WEBLAB_DB_FORCE_ENGINE_RECREATION):
             getconn = generate_getconn(engine, user, password, host, dbname)
 
@@ -86,6 +92,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
 
         self.Session = sessionmaker(bind=self.engine)
 
+    @typecheck(basestring)
     @logged()
     def get_user_by_name(self, user_login):
         session = self.Session()
@@ -95,13 +102,14 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
             session.close()
 
 
+    @typecheck(basestring)
     @logged()
     def list_experiments(self, user_login):
         session = self.Session()
         try:
             user = self._get_user(session, user_login)
             permissions = self._gather_permissions(session, user, 'experiment_allowed')
-            
+
             grouped_experiments = {}
             for permission in permissions:
                 p_permanent_id                 = self._get_parameter_from_permission(session, permission, 'experiment_permanent_id')
@@ -109,16 +117,16 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                 p_time_allowed                 = self._get_float_parameter_from_permission(session, permission, 'time_allowed')
                 p_priority                     = self._get_int_parameter_from_permission(session, permission, 'priority', ExperimentAllowed.DEFAULT_PRIORITY)
                 p_initialization_in_accounting = self._get_bool_parameter_from_permission(session, permission, 'initialization_in_accounting', ExperimentAllowed.DEFAULT_INITIALIZATION_IN_ACCOUNTING)
-                
-                experiment = session.query(model.DbExperiment).filter_by(name=p_permanent_id).filter(model.DbExperimentCategory.name==p_category_id).one() 
+
+                experiment = session.query(model.DbExperiment).filter_by(name=p_permanent_id).filter(model.DbExperimentCategory.name==p_category_id).one()
                 experiment_allowed = ExperimentAllowed.ExperimentAllowed(experiment.to_business(), p_time_allowed, p_priority, p_initialization_in_accounting)
-                
+
                 experiment_unique_id = p_permanent_id+"@"+p_category_id
-                if grouped_experiments.has_key(experiment_unique_id):
+                if experiment_unique_id in grouped_experiments:
                     grouped_experiments[experiment_unique_id].append(experiment_allowed)
                 else:
                     grouped_experiments[experiment_unique_id] = [experiment_allowed]
-                
+
             # If any experiment is duplicated, only the less restrictive one is given
             experiments = []
             for experiment_unique_id in grouped_experiments:
@@ -133,6 +141,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
+    @typecheck(basestring)
     @logged()
     def is_access_forward(self, user_login):
         session = self.Session()
@@ -143,6 +152,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
+    @typecheck(basestring, dict, ExperimentUsage)
     @logged()
     def store_experiment_usage(self, user_login, reservation_info, experiment_usage):
         session = self.Session()
@@ -158,7 +168,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                 )
             session.add(use)
             # TODO: The c.response of an standard command is an object with
-            # a commandstring, whereas the response to an async command is 
+            # a commandstring, whereas the response to an async command is
             # a simple string to identify the request. The way in which the logger
             # currently handles these cases is somewhat shady.
             for c in experiment_usage.commands:
@@ -209,6 +219,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
+    @typecheck(basestring, float, CommandSent)
     @logged()
     def finish_experiment_usage(self, reservation_id, end_date, last_command ):
         session = self.Session()
@@ -230,7 +241,8 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
             return True
         finally:
             session.close()
-  
+
+    @typecheck(basestring, CommandSent)
     @logged()
     def append_command(self, reservation_id, command ):
         session = self.Session()
@@ -251,6 +263,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
+    @typecheck(numbers.Integral, Command, float)
     @logged()
     def update_command(self, command_id, response, end_timestamp ):
         session = self.Session()
@@ -267,6 +280,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
+    @typecheck(basestring, FileSent)
     @logged()
     def append_file(self, reservation_id, file_sent ):
         session = self.Session()
@@ -289,6 +303,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
+    @typecheck(numbers.Integral, Command, float)
     @logged()
     def update_file(self, file_id, response, end_timestamp ):
         session = self.Session()
@@ -314,7 +329,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
             return [ use.to_business_light() for use in uses ]
         finally:
             session.close()
-    
+
     @logged()
     def retrieve_usage(self, usage_id):
         session = self.Session()
@@ -323,12 +338,12 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
             return use.to_business()
         finally:
             session.close()
-            
+
     @admin_panel_operation
     @logged()
     def get_groups(self, user_login, parent_id=None):
         """ The user's permissions are not checked at the moment """
-        
+
         def get_dto_children_recursively(groups):
             dto_groups = []
             for group in groups:
@@ -337,7 +352,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                     dto_group.set_children(get_dto_children_recursively(group.children))
                 dto_groups.append(dto_group)
             return dto_groups
-        
+
         session = self.Session()
         try:
             groups = session.query(model.DbGroup).filter_by(parent_id=parent_id).order_by(model.DbGroup.name).all()
@@ -345,12 +360,12 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
             return tuple(dto_groups)
         finally:
             session.close()
-            
+
     @admin_panel_operation
     @logged()
     def get_users(self, user_login):
         """ Retrieves every user from the database """
-        
+
         session = self.Session()
         try:
             users = session.query(model.DbUser).all()
@@ -359,7 +374,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
             return tuple(dto_users)
         finally:
             session.close()
-            
+
     @admin_panel_operation
     @logged()
     def get_roles(self, user_login):
@@ -371,19 +386,19 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
             return tuple(dto_roles)
         finally:
             session.close()
-            
+
 
     @admin_panel_operation
     @logged()
     def get_experiments(self, user_login):
         """ All the experiments are returned by the moment """
-        
+
         def sort_by_category_and_exp_name(exp1, exp2):
             if exp1.category.name != exp2.category.name:
                 return cmp(exp1.category.name, exp2.category.name)
             else:
                 return cmp(exp1.name, exp2.name)
-            
+
         session = self.Session()
         try:
             experiments = session.query(model.DbExperiment).all()
@@ -395,7 +410,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
 
     @logged()
     def get_experiment_uses_by_id(self, user_login, reservation_ids):
-        """ Retrieve the full information of these reservation_ids, if the user has permissions to do so. By default 
+        """ Retrieve the full information of these reservation_ids, if the user has permissions to do so. By default
          a user can only access to those reservations that he made in the past."""
 
         results = []
@@ -403,14 +418,17 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         try:
             user = session.query(model.DbUser).filter_by(login = user_login).first()
             if user is None:
-                return [None] * len(reservation_ids)
+                return [self.forbidden_access] * len(reservation_ids)
 
             for reservation_id in reservation_ids:
-                experiment_use = session.query(model.DbUserUsedExperiment).filter_by(reservation_id = reservation_id.id, user = user).first()
+                experiment_use = session.query(model.DbUserUsedExperiment).filter_by(reservation_id = reservation_id.id).first()
                 if experiment_use is None:
                     results.append(None)
                 else:
-                    results.append(experiment_use.to_business())
+                    if experiment_use.user == user:
+                        results.append(experiment_use.to_business())
+                    else:
+                        results.append(self.forbidden_access)
         finally:
             session.close()
 
@@ -419,7 +437,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
     @admin_panel_operation
     @logged()
     def get_experiment_uses(self, user_login, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by):
-        """ All the experiment uses are returned by the moment. Filters are optional (they may be null), but if 
+        """ All the experiment uses are returned by the moment. Filters are optional (they may be null), but if
         applied the results should chang.e The result is represented as (dto_objects, total_number_of_registers) """
 
         session = self.Session()
@@ -449,7 +467,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                 users = session.query(model.DbUser)
                 users_in_group = users.join((groups, model.DbUser.groups)).subquery()
                 query_object = query_object.join((users_in_group, model.DbUserUsedExperiment.user))
- 
+
             # Sorting
             if sort_by is not None and len(sort_by) > 0:
                 # Lists instead of sets, since the order of elements inside matters (first add Experiment, only then Category)
@@ -496,7 +514,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                     table, field = tables_to_join.pop(0)
                     # Just in case it was added twice, for instance if sorting by experiment name *and* category name
                     if (table,field) in tables_to_join:
-                        tables_to_join.remove((table,field)) 
+                        tables_to_join.remove((table,field))
                     query_object = query_object.join((table, field))
 
                 query_object = query_object.order_by(*sorters) # Apply all sorters in order
@@ -514,20 +532,20 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                 ending = end_row
             else:
                 ending = total_number
-            
+
             experiment_uses = query_object[starting:ending]
 
             dto_experiment_uses = [ experiment_use.to_dto() for experiment_use in experiment_uses ]
             return tuple(dto_experiment_uses), total_number
         finally:
             session.close()
-            
+
     @admin_panel_operation
     @logged()
     def get_permission_types(self, user_login):
         """
         get_permission_types(user_login)
-        
+
         Retrieves every permission type from the database
         """
         session = self.Session()
@@ -537,7 +555,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
             return tuple(dto_ptypes)
         finally:
             session.close()
-    
+
 
     @logged()
     def get_user_permissions(self, user_login):
@@ -552,13 +570,13 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
             return tuple(dto_permissions)
         finally:
             session.close()
-    
+
     def _get_user(self, session, user_login):
         try:
             return session.query(model.DbUser).filter_by(login=user_login).one()
         except NoResultFound:
             raise DbExceptions.DbProvidedUserNotFoundException("Unable to find a User with the provided login: '%s'" % user_login)
-    
+
     def _get_experiment(self, session, exp_name, cat_name):
         try:
             return session.query(model.DbExperiment) \
@@ -566,7 +584,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                         .filter_by(name=exp_name).one()
         except NoResultFound:
             raise DbExceptions.DbProvidedExperimentNotFoundException("Unable to find an Experiment with the provided unique id: '%s@%s'" % (exp_name, cat_name))
-    
+
     def _gather_permissions(self, session, user, permission_type_name):
         permissions = []
         self._add_or_replace_permissions(permissions, self._get_permissions(session, user.role, permission_type_name))
@@ -577,10 +595,10 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
 
     def _add_or_replace_permissions(self, permissions, permissions_to_add):
         permissions.extend(permissions_to_add)
-        
+
     def _get_permissions(self, session, user_or_role_or_group_or_ee, permission_type_name):
         return [ pi for pi in user_or_role_or_group_or_ee.permissions if pi.get_permission_type().name == permission_type_name ]
-    
+
     def _get_parameter_from_permission(self, session, permission, parameter_name, default_value = DEFAULT_VALUE):
         try:
             param = [ p for p in permission.parameters if p.get_name() == parameter_name ][0]
@@ -592,7 +610,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
             else:
                 return default_value
         return param.value
-    
+
     def _get_float_parameter_from_permission(self, session, permission, parameter_name, default_value = DEFAULT_VALUE):
         value = self._get_parameter_from_permission(session, permission, parameter_name, default_value)
         try:
@@ -604,7 +622,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                     permission.get_permission_type().name,
                     value
                 )
-            )       
+            )
 
     def _get_int_parameter_from_permission(self, session, permission, parameter_name, default_value = DEFAULT_VALUE):
         value = self._get_parameter_from_permission(session, permission, parameter_name, default_value)
@@ -617,11 +635,11 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                     permission.get_permission_type().name,
                     value
                 )
-            )       
-   
+            )
+
     def _get_bool_parameter_from_permission(self, session, permission, parameter_name, default_value = DEFAULT_VALUE):
-        return self._get_parameter_from_permission(session, permission, parameter_name, default_value) 
-    
+        return self._get_parameter_from_permission(session, permission, parameter_name, default_value)
+
     def _delete_all_uses(self):
         """ IMPORTANT: SHOULD NEVER BE USED IN PRODUCTION, IT'S HERE ONLY FOR TESTS """
         session = self.Session()
@@ -632,7 +650,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
             eu = session.query(model.DbExternalEntityUsedExperiment).all()
             for i in eu:
                 session.delete(i)
-            session.commit()               
+            session.commit()
         finally:
             session.close()
 
@@ -658,7 +676,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
             return experiment_id
         finally:
             session.close()
-            
+
     def _insert_ee_used_experiment(self, ee_name, experiment_name, experiment_category_name, start_time, origin, coord_address, reservation_id, end_date):
         """ IMPORTANT: SHOULD NEVER BE USED IN PRODUCTION, IT'S HERE ONLY FOR TESTS """
         session = self.Session()

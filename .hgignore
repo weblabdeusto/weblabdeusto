@@ -92,6 +92,7 @@ tools/Bot/.*.html
 tools/Bot/.*.dump
 tools/Bot/.*_log.txt
 tools/Bot/nohup.out
+tools/VisirBattleTester/.*dump.*
 
 tools/Bot/figures/*
 tools/Bot/logs/*

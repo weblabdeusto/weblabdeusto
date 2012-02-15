@@ -7,17 +7,17 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
-# 
+#
 # The systems presented in this file are those which delegate to
 # other system the authentication, so no password is sent to LoginServer
 # but external tokens. This can be the case of Facebook or SecondLife
-# 
+#
 
 import base64
 import urllib2

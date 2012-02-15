@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import sys
 import threading
 
@@ -45,7 +45,7 @@ def generate(methods):
             methods = new_methods
     except TypeError:
         raise TypeError('methods "%s" must be a dict or a list-able structure' % methods)
-        
+
     #
     # The ClientSkel will have (being MN the name of the method):
     #
@@ -54,7 +54,7 @@ def generate(methods):
     # * A dictionary for each method, having the server result (__server_results_MN)
     #
     # * A dictionary with locks for each key of each method (__key_locks_MN)
-    # 
+    #
     # * A counter for each method, which will be incremented
     #   whenever _get_new_key is called (__key_counter_MN)
     #
@@ -78,7 +78,7 @@ def generate(methods):
                 setattr(self,'__method_lock_'+method_name,threading.Lock())
                 setattr(self,'__key_locks_'+method_name,{})
             self._general_lock.release()
-            
+
             method_lock = getattr(self,'__method_lock_'+method_name)
             method_lock.acquire()
             try:
@@ -89,7 +89,7 @@ def generate(methods):
             finally:
                 method_lock.release()
             return new_key
-        
+
         def _get_method_lock(self,method_name):
             return getattr(self,'__method_lock_'+method_name)
         def _get_key_lock(self,method_name,key):
@@ -116,7 +116,7 @@ def generate(methods):
                 server_keys[key] = server_key
             finally:
                 method_lock.release()
-        
+
     def generate_begin_method(METHOD_NAME):
         def begin_method(self,*parameters,**kparameters):
             """ Dynamically generated method. Protocols: Direct. Method name: METHOD_NAME. It starts the call in background """
@@ -133,7 +133,7 @@ def generate(methods):
             server_key = self._get_server_key(METHOD_NAME,key)
             return getattr(self,'call_is_running_'+METHOD_NAME)(server_key,block)
         return is_running_method
-    
+
     def generate_end_method(METHOD_NAME):
         def end_method(self,key):
             """ Dynamically generated method. Protocols: Direct. Method name: METHOD_NAME. It will wait until the method is finished, and will return the result. """
@@ -143,7 +143,7 @@ def generate(methods):
                 pass
             return get_result_method(key)
         return end_method
-    
+
     def generate_get_result_and_wait_method(METHOD_NAME):
         def get_result_and_wait_method(self,key):
             server_key = self._get_server_key(METHOD_NAME,key)
@@ -156,7 +156,7 @@ def generate(methods):
             finally:
                 key_lock.release()
         return get_result_and_wait_method
-        
+
     def generate_get_result_method(METHOD_NAME):
         def get_result_method(self,key):
             server_key = self._get_server_key(METHOD_NAME,key)
@@ -173,7 +173,7 @@ def generate(methods):
         return get_result_method
 
     methods_to_generate = (generate_begin_method, generate_end_method, generate_is_running_method, generate_get_result_and_wait_method, generate_get_result_method)
-    
+
     for method in methods:
         for method_to_generate in methods_to_generate:
             new_method = method_to_generate(method)
@@ -188,12 +188,12 @@ def generate(methods):
 
 #This function will return a dynamically generated class which will be
 #a subclass of a dynamically generated ClientSkell with the methods
-#passed in "methods". The subclass will use the "protocol" type of 
+#passed in "methods". The subclass will use the "protocol" type of
 #communication to communicate the client with the server
 #
 #This way, all the code subclassing the returned class will be
 #in practice independent from the type of communication. By changing
-#the "protocol" value, all the code down will use other kind of 
+#the "protocol" value, all the code down will use other kind of
 #communication (such as direct communication, SOAP, XML-RPC, Jabber...)
 
 def factory(protocol, methods):
@@ -204,7 +204,7 @@ def factory(protocol, methods):
     #If protocol is a valid protocol (ie 'Direct') it will look for the following class:
     # mySystem.calls.Direct.ClientDirect
     moduleName = 'Client'+protocol
-    
+
     #mySystem will be something like 'voodoo.'
     mySystem = __name__[:__name__.find('generators')]
     full_module_name = mySystem+'protocols.'+protocol+'.'+moduleName

@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
 from test.unit.weblab.proxy import fake_time
 from voodoo.gen.coordinator import CoordAddress
@@ -28,15 +28,15 @@ from weblab.translator.translators import StoresEverythingTranslator
 
 
 class ProxySessionHandlerTestCase(mocker.MockerTestCase):
-    
+
     def setUp(self):
         self._cfg_manager = ConfigurationManager.ConfigurationManager()
         self._cfg_manager.append_module(configuration_module)
-        
+
         self.ANY_COORD_ADDR = CoordAddress.CoordAddress.translate_address('myserver:myprocess@mymachine')
-        
+
         self._clean_up_files_stored_dir()
-        
+
     def _clean_up_files_stored_dir(self):
         path = self._cfg_manager.get_value('proxy_store_students_programs_path')
         if not os.path.isdir(path):
@@ -44,7 +44,7 @@ class ProxySessionHandlerTestCase(mocker.MockerTestCase):
         for i in os.listdir(path):
             if not os.path.isdir(os.sep.join([path, i])) and not i.endswith('.hidden'):
                 os.remove(os.sep.join([path, i]))
-        
+
     def _create_proxy_session_handler(self, session={}, laboratory=None, translator=None, time_mock=None):
         if translator is None:
             translator = StoresEverythingTranslator(None, None, self._cfg_manager)
@@ -75,13 +75,13 @@ class ProxySessionHandlerTestCase(mocker.MockerTestCase):
             '{sha}14b69e2393ace3feb980510e59dc8a1fc467575a', # sha of 'AAAHuuuuuuuuge file!'
             hash
         )
-    
+
     def test_store_file_string(self):
         self._test_store_file('Huuuuuuuuge file!')
 
     def test_store_file_unicode(self):
         self._test_store_file(u'Huuuuuuuuge file!')
-        
+
     #===================================================================
     # poll()
     #===================================================================
@@ -89,7 +89,7 @@ class ProxySessionHandlerTestCase(mocker.MockerTestCase):
     def test_poll_when_polling(self):
         session = {'session_polling': (time.time() - 1, ProxySessionHandler.ProxySessionHandler.EXPIRATION_TIME_NOT_SET)}
         psh = self._create_proxy_session_handler(session=session)
-        
+
         timestamp_before = psh._session['session_polling'][0]
         psh.poll()
         timestamp_after = psh._session['session_polling'][0]
@@ -98,7 +98,7 @@ class ProxySessionHandlerTestCase(mocker.MockerTestCase):
     #===========================================================================
     # is_expired()
     #===========================================================================
-    
+
     def test_is_expired_when_not_polling(self):
         session = {'trans_session_id': 'my_trans_session_id'}
         psh = self._create_proxy_session_handler(session=session)
@@ -107,11 +107,11 @@ class ProxySessionHandlerTestCase(mocker.MockerTestCase):
     def test_is_expired_when_polling_but_time_expired_without_expiration_time_set(self):
         session = {'trans_session_id': 'my_trans_session_id'}
         psh = self._create_proxy_session_handler(session=session, time_mock=fake_time)
-        
+
         fake_time.TIME_TO_RETURN = time.time()
         psh.enable_access()
         self.assertEquals("N", psh.is_expired())
-        
+
         self._cfg_manager._set_value(ProxySessionHandler.EXPERIMENT_POLL_TIME, 30)
         fake_time.TIME_TO_RETURN = fake_time.TIME_TO_RETURN + 31
         self.assertEquals("Y <poll-time-expired>", psh.is_expired())
@@ -119,11 +119,11 @@ class ProxySessionHandlerTestCase(mocker.MockerTestCase):
     def test_is_expired_when_polling_but_time_expired_due_to_expiration_time(self):
         session = {'trans_session_id': 'my_trans_session_id'}
         psh = self._create_proxy_session_handler(session=session, time_mock=fake_time)
-        
+
         fake_time.TIME_TO_RETURN = time.time()
         psh.enable_access()
         self.assertEquals("N", psh.is_expired())
-        
+
         self._cfg_manager._set_value(ProxySessionHandler.EXPERIMENT_POLL_TIME, 30)
         psh._renew_expiration_time(fake_time.TIME_TO_RETURN + 10)
         fake_time.TIME_TO_RETURN = fake_time.TIME_TO_RETURN + 11

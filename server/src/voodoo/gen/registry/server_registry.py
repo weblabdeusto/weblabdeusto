@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import voodoo.lock as lock
 from voodoo.lock import locked
 import voodoo.gen.exceptions.registry.RegistryExceptions as RegistryExceptions
@@ -41,14 +41,14 @@ class ServerRegistry(object):
     @locked('_servers_write_lock')
     def reregister_server(self,address,server):
         self._servers[address] = server
-    
+
     @locked('_servers_write_lock')
     def deregister_server(self, address):
         if not self._servers.has_key(address):
             raise RegistryExceptions.ServerNotFoundInRegistryException(
                 'Address %s not found in registry' % address
             )
-    
+
         self._servers.pop(address)
 
     @locked('_servers_read_lock')

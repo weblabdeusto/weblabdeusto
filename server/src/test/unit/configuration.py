@@ -323,6 +323,7 @@ core_coordinator_db_password = 'weblab'
 
 core_universal_identifier       = 'da2579d6-e3b2-11e0-a66a-00216a5807c8'
 core_universal_identifier_human = 'server X at Sample university'
+core_store_students_programs_path = '.'
 
 ####################################
 # Coordinator Server configuration #

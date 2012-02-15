@@ -7,7 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Authors: Jaime Irurzun <jaime.irurzun@gmail.com>
@@ -33,7 +33,7 @@ class WebLabProcess(object):
         self.host        = host
         self.ports       = ports
         self._set_paths()
-        
+
     def _set_paths(self):
         os_sep_found = os.sep in self.launch_file
         slash_found = '/' in self.launch_file
@@ -51,7 +51,7 @@ class WebLabProcess(object):
             self.launch_file = self.launch_file[self.launch_file.rfind(sep) + 1:]
 
         self.launch_path = os.path.abspath( os.sep.join(launch_path) )
-        
+
     def _has_started(self):
         try:
             matches = True
@@ -83,17 +83,17 @@ class WebLabProcess(object):
             return matches
         except Exception:
             return False
-    
+
     def _has_finished(self):
         return self.popen.poll() is not None
-    
+
     def start(self):
         self.popen = subprocess.Popen(["python", "-OO", self.launch_file],
                                       cwd=self.launch_path,
                                       stdin=subprocess.PIPE,
                                       stdout=subprocess.PIPE,
                                       stderr=subprocess.PIPE)
-        
+
         time.sleep(2)
         if self.popen.poll() is not None:
             print self.popen.stdout.read()
@@ -112,7 +112,7 @@ class WebLabProcess(object):
             raise Exception("Server couldn't start!")
         self._wait_file_notifier(os.path.join(self.launch_path, "_file_notifier"))
         time.sleep(4)
-        
+
     def _wait_file_notifier(self, filepath):
         while True:
             try:
@@ -122,11 +122,11 @@ class WebLabProcess(object):
             else:
                 break
         #time.sleep(1)
-        
+
     def shutdown(self):
         if not self._has_finished():
             (self.out, self.err) = self.popen.communicate(input="\n")
-            maxtime = 5 # seconds            
+            maxtime = 5 # seconds
             time_expired = False
             initialtime = time.time()
             while not self._has_finished() and not time_expired:

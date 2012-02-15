@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import unittest
 import threading
@@ -64,7 +64,7 @@ class MapperTestCase(unittest.TestCase):
         jac1 = JetAnotherClass(None)
         jac2 = JetAnotherClass(jac1)
         jac1.otherReference = jac2
-        
+
         # mc and moc can't be pickled
         # pickle raises pickle.PicklingError in Python < 2.7 but TypeError in Python 2.7; we try both exceptions
         try:
@@ -93,7 +93,7 @@ class MapperTestCase(unittest.TestCase):
                 pickle.dumps,
                 moc
             )
-        
+
         my_dto = mapper.dto_generator(mc)
 
         self.assertEquals(
@@ -125,7 +125,7 @@ class MapperTestCase(unittest.TestCase):
                 my_dto.and_another._first_field,
                 mc.and_another._first_field
             )
-        
+
         # What about moc?
         my_other_dto = mapper.dto_generator(moc)
         self.assertEquals(
@@ -141,22 +141,22 @@ class MapperTestCase(unittest.TestCase):
         my_other_jac1 = mapper.dto_generator(jac1)
         my_other_jac1.otherReference
 
-        
+
         # Go ahead! Pickle me! ;-D
         pickled     = pickle.dumps(my_dto)
         my_dto2     = pickle.loads(pickled)
 
         pickled     = pickle.dumps(my_other_dto)
         my_other_dto2   = pickle.loads(pickled)
-        
+
         # Let's try to unload them
         my_dto2 = mapper.load_from_dto(my_dto2)
-        
+
         my_other_dto2 = mapper.load_from_dto(my_other_dto2)
 
         # Let's check locks work
         my_dto2.my_method() #Nothing happens :-)
-        
+
     def test_mapping_ignorable(self):
         native_obj = expat_parser.ParserCreate()
         self.assertRaises(
@@ -164,13 +164,13 @@ class MapperTestCase(unittest.TestCase):
                     pickle.dumps,
                     native_obj
             )
-        
+
         class MyClass(object):
             pass
-        
+
         my_class = MyClass()
         my_class.native_obj = native_obj
-        
+
         dto = mapper.dto_generator(my_class)
         my_class2 = mapper.load_from_dto(dto)
         self.assertTrue(isinstance(my_class2.native_obj,str))
@@ -198,7 +198,7 @@ class MapperTestCase(unittest.TestCase):
         generated = mapper.load_from_dto(dto)
         self.assertTrue(isinstance(generated,AttributeError))
         self.assertEquals("foo", generated.args[0] )
- 
+
     def test_dto_datetime(self):
         sc = SimpleClass()
         sc.time = datetime.datetime(2007, 12, 31, 23, 55)
@@ -210,10 +210,10 @@ class MapperTestCase(unittest.TestCase):
         self.assertEquals(23  , sc2.time.hour)
         self.assertEquals(55  , sc2.time.minute)
 
-    def test_skip_recoverables(self):        
+    def test_skip_recoverables(self):
         a = SimpleClass()
         a.l = threading.Lock()
-        
+
         dto = mapper.dto_generator(a)
         a2  = mapper.load_from_dto(dto, skip_recoverables = True)
         self.assertEquals(None, a2.l)
@@ -252,10 +252,10 @@ class MapperTestCase(unittest.TestCase):
                     pickle.dumps,
                     parser
             )
-        
+
         my_class = MyClass2()
         my_class.parser = parser
-        
+
         mapper.remove_unpickables(my_class)
 
         pickle.dumps(my_class) # No problem now
@@ -271,7 +271,7 @@ class MapperTestCase(unittest.TestCase):
         jac1 = JetAnotherClass(None)
         jac2 = JetAnotherClass(jac1)
         jac1.otherReference = jac2
-        
+
         # mc and moc can't be pickled
         # pickle raises pickle.PicklingError in Python < 2.7 but TypeError in Python 2.7; we try both exceptions
         try:
@@ -294,14 +294,14 @@ class MapperTestCase(unittest.TestCase):
         except:
             if failed_first_time:
                raise
-       
+
 
         self.assertRaises(
                 TypeError,
                 pickle.dumps,
                 moc
             )
-        
+
         mapper.remove_unpickables(mc)
 
         self.assertEquals(
@@ -333,7 +333,7 @@ class MapperTestCase(unittest.TestCase):
                 1,
                 mc.and_another._first_field
             )
-        
+
         # What about moc?
         mapper.remove_unpickables(moc)
         self.assertEquals(
@@ -347,7 +347,7 @@ class MapperTestCase(unittest.TestCase):
 
         # What about JetAnotherClass?
         mapper.remove_unpickables(jac1)
-        
+
         # Go ahead! Pickle me! ;-D
         pickled      = pickle.dumps(mc)
         pickle.loads(pickled)
@@ -367,14 +367,14 @@ class MapperTestCase(unittest.TestCase):
         removed = mapper.remove_unpickables(e)
         pickled = pickle.dumps(removed)
         pickle.loads(pickled)
-        
+
     def test_condition(self):
         c1 = threading.Condition()
         dto = mapper.dto_generator(c1)
         c2 = mapper.load_from_dto(dto)
         self.assertTrue(hasattr(c2, 'acquire'))
         self.assertTrue(hasattr(c2, 'release'))
-        
+
 def suite():
     return unittest.makeSuite(MapperTestCase)
 

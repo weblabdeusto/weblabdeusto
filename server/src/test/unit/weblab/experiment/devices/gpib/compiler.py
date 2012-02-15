@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import unittest
 import mocker
@@ -30,17 +30,17 @@ class FakeTimer(object):
     @staticmethod
     def sleep(time):
         pass # :-)
-       
+
 class WrappedCompiler(Gpib.Compiler):
-    
+
     _time = FakeTimer
-    
+
     _fail_in_create_popen = False
-    
+
     def __init__(self, popen_mock, *args, **kargs):
         super(WrappedCompiler, self).__init__(*args, **kargs)
         self._popen_mock = popen_mock
-     
+
     def _create_popen(self, cmd_file):
         if self._fail_in_create_popen:
             raise Exception("alehop")
@@ -49,15 +49,15 @@ class WrappedCompiler(Gpib.Compiler):
             return super(WrappedCompiler, self)._create_popen(cmd_file)
         else:
             return self._popen_mock
-        
+
     def _check(self, file_path):
         pass
-    
+
     def _log(self, action, result_code, output, stderr):
         pass
 
 class GpibCompilerTestCase(mocker.MockerTestCase):
-    
+
     def setUp(self):
         self.cfg_manager= ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
@@ -65,13 +65,13 @@ class GpibCompilerTestCase(mocker.MockerTestCase):
     def test_error_creating_popen(self):
         compiler = WrappedCompiler(None, self.cfg_manager)
         compiler._fail_in_create_popen = True
-        
+
         self.assertRaises(
             GpibExceptions.ErrorProgrammingDeviceException,
             compiler.compile_file,
             'whatever.exe'
         )
-        
+
         self.mocker.restore()
 
     def test_error_waiting(self):
@@ -167,7 +167,7 @@ class GpibCompilerTestCase(mocker.MockerTestCase):
             compiler.compile_file,
             "return -1.cpp"
         )
-        
+
     def test_compiler_errors(self):
         compiler = WrappedCompiler(None, self.cfg_manager)
 
@@ -179,7 +179,7 @@ class GpibCompilerTestCase(mocker.MockerTestCase):
             "foo"
         )
         self.cfg_manager._values.pop('gpib_compiler_command')
-                
+
         self.assertRaises(
             GpibExceptions.CantFindGpibProperty,
             compiler.compile_file,
@@ -197,13 +197,13 @@ class GpibCompilerTestCase(mocker.MockerTestCase):
             "foo"
         )
         self.cfg_manager._values.pop('gpib_linker_command')
-                
+
         self.assertRaises(
             GpibExceptions.CantFindGpibProperty,
             compiler.compile_file,
             "bar"
         )
-        
+
     def tearDown(self):
         self.cfg_manager.reload()
 

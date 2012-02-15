@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import weblab.exc as wlExc
 
 class DatabaseException(wlExc.WebLabException):
@@ -45,7 +45,7 @@ class DbIllegalStatusException(DatabaseException):
 class DbMisconfiguredException(DatabaseException):
     def __init__(self, *args, **kargs):
         DatabaseException.__init__(self,*args,**kargs)
-        
+
 class InvalidPermissionParameterFormatException(DatabaseException):
     def __init__(self, *args, **kargs):
         DatabaseException.__init__(self,*args,**kargs)

@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import random
 
 class SessionGenerator(object):
@@ -26,7 +26,7 @@ class SessionGenerator(object):
         # ",": problems with cookies (considered a different cookie)
         # "+": problems with GWT (considering "foo+bar" as "foo bar")
         self.alphabet += '_-' # So as to get an alphabet of 64 (6 bits)
-        
+
     def generate_id(self, number_of_chars = 16):
         # Generates IDs of 16 chars of an alphabet of 64 possible chars
         # ( 115792089237316195423570985008687907853269984665640564039457584007913129639936 possibilities )

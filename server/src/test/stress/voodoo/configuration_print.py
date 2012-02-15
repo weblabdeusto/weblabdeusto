@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import unittest
 
@@ -27,7 +27,7 @@ class ConfigurationManagerPrintTestCase(unittest.TestCase):
 
         def func():
             self.cfg_manager.get_value("db_driver")
-   
+
         self.runner = stress_util.MainRunner(func, "ConfigurationManager")
 
     def test_print_results(self):

@@ -7,11 +7,13 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+
+from sqlalchemy.orm.exc import StaleDataError
 
 from weblab.core.coordinator.model import ResourceType, ResourceInstance, CurrentResourceSlot, SchedulingSchemaIndependentSlotReservation, ExperimentInstance, ExperimentType, ActiveReservationSchedulerAssociation
 import weblab.core.coordinator.exc as CoordExc
@@ -25,12 +27,12 @@ class ResourcesManager(object):
         if db_resource_type is None:
             db_resource_type = ResourceType(resource.resource_type)
             session.add(db_resource_type)
-        
+
         db_resource_instance = session.query(ResourceInstance).filter_by(name = resource.resource_instance, resource_type = db_resource_type).first()
         if db_resource_instance is None:
             db_resource_instance = ResourceInstance(db_resource_type, resource.resource_instance)
             session.add(db_resource_instance)
-       
+
         db_slot = db_resource_instance.slot
         if db_slot is None:
             db_slot = CurrentResourceSlot(db_resource_instance)
@@ -56,7 +58,7 @@ class ResourcesManager(object):
         self.add_resource(session, resource)
 
         db_resource_type, db_experiment_type = self.add_experiment_id(session, experiment_instance_id.to_experiment_id(), resource.resource_type)
-        
+
         db_resource_instance = session.query(ResourceInstance).filter_by(name = resource.resource_instance, resource_type = db_resource_type).first()
 
         db_experiment_instance = session.query(ExperimentInstance).filter_by(experiment_instance_id = experiment_instance_id.inst_name, experiment_type = db_experiment_type).first()
@@ -124,7 +126,7 @@ class ResourcesManager(object):
 
     def mark_resource_as_broken(self, session, resource):
         db_resource_instance = self._get_resource_instance(session, resource)
-               
+
         db_slot = db_resource_instance.slot
         if not db_slot is None:
             session.delete(db_slot)
@@ -133,7 +135,7 @@ class ResourcesManager(object):
 
     def mark_resource_as_fixed(self, session, resource):
         db_resource_instance = self._get_resource_instance(session, resource)
-       
+
         db_slot = db_resource_instance.slot
         if db_slot is None:
             db_slot = CurrentResourceSlot(db_resource_instance)
@@ -160,7 +162,7 @@ class ResourcesManager(object):
         resource_instance = session.query(ResourceInstance).filter_by(name = resource.resource_instance, resource_type = resource_type).first()
         if resource_instance is None:
             return # The resource is no there anyway
-        
+
         for experiment_instance in resource_instance.experiment_instances:
             experiment_instance_id = experiment_instance.to_experiment_instance_id()
             self.remove_resource_instance_id(session, experiment_instance_id)
@@ -223,7 +225,7 @@ class ResourcesManager(object):
                 laboratories_addresses[experiment_instance.laboratory_coord_address] = current
         finally:
             session.close()
-        
+
         return laboratories_addresses
 
     def associate_scheduler_to_reservation(self, reservation_id, experiment_id, resource_type_name):
@@ -247,7 +249,10 @@ class ResourcesManager(object):
             association = session.query(ActiveReservationSchedulerAssociation).filter_by(reservation_id = reservation_id, experiment_type = db_experiment_type, resource_type = db_resource_type).first()
             if association is not None:
                 session.delete(association)
-                session.commit()
+                try:
+                    session.commit()
+                except StaleDataError:
+                    pass
         finally:
             session.close()
 
@@ -279,7 +284,7 @@ class ResourcesManager(object):
 
             return resource_type_names
         finally:
-            session.close()       
+            session.close()
 
     def _clean(self):
         session = self._session_maker()

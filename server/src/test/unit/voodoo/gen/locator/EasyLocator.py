@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import unittest
 
 import mocker
@@ -38,7 +38,7 @@ class EasyLocatorTestCase(unittest.TestCase):
                 self.coord_addr,
                 self.locator
             )
-        
+
     def test_get_server(self):
         self.locator.get_server(
                 self.coord_addr.address,
@@ -87,7 +87,7 @@ class EasyLocatorTestCase(unittest.TestCase):
                 ServerTypeSample.Login,
                 5
             )
-        
+
         result = MyLoginServer()
         self.locator_mocker.result([result])
         self.locator_mocker.replay()

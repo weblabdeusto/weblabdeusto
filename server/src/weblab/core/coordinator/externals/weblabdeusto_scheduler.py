@@ -7,15 +7,18 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import time as time_mod
 import cPickle as pickle
 import json
+import datetime
+
+from sqlalchemy.orm.exc import StaleDataError
 
 from voodoo.override import Override
 from voodoo.sessions.session_id import SessionId
@@ -24,8 +27,14 @@ from weblab.core.user_processor import FORWARDED_KEYS, SERVER_UUIDS
 import weblab.core.coordinator.status as WSS
 from weblab.core.coordinator.scheduler import Scheduler
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
-from weblab.core.coordinator.externals.weblabdeusto_scheduler_model import ExternalWebLabDeustoReservation
+from weblab.core.coordinator.externals.weblabdeusto_scheduler_model import ExternalWebLabDeustoReservation, ExternalWebLabDeustoReservationPendingResults
+
+from weblab.core.coordinator.externals.weblabdeusto_scheduler_retriever import ResultsRetriever
 from voodoo.log import logged
+
+RETRIEVAL_PERIOD_PROPERTY_NAME = 'core_weblabdeusto_federation_retrieval_period'
+DEFAULT_RETRIEVAL_PERIOD = 10
+
 
 class ExternalWebLabDeustoScheduler(Scheduler):
 
@@ -37,9 +46,17 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         self.username      = username
         self.password      = password
 
+        from weblab.core.coordinator.coordinator import POST_RESERVATION_EXPIRATION_TIME, DEFAULT_POST_RESERVATION_EXPIRATION_TIME
+        post_reservation_expiration_time = self.cfg_manager.get_value(POST_RESERVATION_EXPIRATION_TIME, DEFAULT_POST_RESERVATION_EXPIRATION_TIME)
+        self.expiration_delta = datetime.timedelta(seconds=post_reservation_expiration_time)
+
+        period = self.cfg_manager.get_value(RETRIEVAL_PERIOD_PROPERTY_NAME, DEFAULT_RETRIEVAL_PERIOD)
+        self.retriever     = ResultsRetriever(self, period, self._create_logged_in_client)
+        self.retriever.start()
+
     def stop(self):
-        pass
-    
+        self.retriever.stop()
+
     @Override(Scheduler)
     def is_remote(self):
         return True
@@ -63,10 +80,17 @@ class ExternalWebLabDeustoScheduler(Scheduler):
             client.set_cookies(cookies)
         return client
 
+    def _create_logged_in_client(self, cookies):
+        login_client = self._create_login_client(cookies)
+        session_id = login_client.login(self.username, self.password)
+        client = self._create_client(login_client.get_cookies())
+        return session_id, client
+
+
     #######################################################################
-    # 
+    #
     # Given a reservation_id, it returns in which state the reservation is
-    # 
+    #
     @logged()
     @Override(Scheduler)
     def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info):
@@ -85,13 +109,13 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         for forwarded_key in FORWARDED_KEYS:
             if forwarded_key in request_info:
                 consumer_data[forwarded_key] = request_info[forwarded_key]
-        
+
         # TODO: identifier of the server
         login_client = self._create_login_client()
         session_id = login_client.login(self.username, self.password)
 
         client = self._create_client(login_client.get_cookies())
-        
+
         serialized_client_initial_data = json.dumps(client_initial_data)
         serialized_consumer_data       = json.dumps(consumer_data)
         external_reservation = client.reserve_experiment(session_id, experiment_id, serialized_client_initial_data, serialized_consumer_data)
@@ -107,7 +131,9 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         session = self.session_maker()
         try:
             reservation = ExternalWebLabDeustoReservation(reservation_id, remote_reservation_id, serialized_cookies, time_mod.time())
+            pending_results = ExternalWebLabDeustoReservationPendingResults(reservation_id, remote_reservation_id, self.resource_type_name, self.core_server_route)
             session.add(reservation)
+            session.add(pending_results)
             session.commit()
         finally:
             session.close()
@@ -116,9 +142,9 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         return reservation_status
 
     #######################################################################
-    # 
+    #
     # Given a reservation_id, it returns in which state the reservation is
-    # 
+    #
     @logged()
     @Override(Scheduler)
     def get_reservation_status(self, reservation_id):
@@ -127,14 +153,18 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         try:
             reservation = session.query(ExternalWebLabDeustoReservation).filter_by(local_reservation_id = reservation_id).first()
             if reservation is None:
-                # TODO
-                raise Exception("reservation not stored in local database")
+                pending_result = session.query(ExternalWebLabDeustoReservationPendingResults).filter_by(resource_type_name = self.resource_type_name, server_route = self.core_server_route, reservation_id = reservation_id).first()
+                if pending_result is None:
+                    print "Asking for reservation_status"
+                    raise Exception("reservation not yet stored in local database")
 
+                return WSS.PostReservationStatus(reservation_id, False, '', '')
+            
             remote_reservation_id = reservation.remote_reservation_id
             serialized_cookies    = reservation.cookies
         finally:
             session.close()
-        
+
         cookies = pickle.loads(str(serialized_cookies))
         client = self._create_client(cookies)
 
@@ -147,9 +177,14 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         reservation_status.set_reservation_id(local_reservation_id)
         if reservation_status.status == WSS.WebLabSchedulingStatus.RESERVED_REMOTE and reservation_status.remote_reservation_id == '':
             reservation_status.set_remote_reservation_id(remote_reservation_id)
+            #initial_information_entry = TemporalInformationStore.InitialInformationEntry(
+            #    reservation_id, experiment_id, experiment_coordaddress,
+            #    initial_configuration, initial_time, end_time, request_info,
+            #    serialized_client_initial_data )
+            # TODO
 
         return reservation_status
-       
+
 
 
     ################################################################
@@ -160,7 +195,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     @Override(Scheduler)
     def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
         # At some point, we must call the upper level to say that we want to confirm
-        # at this point, it's normal that they call us back, even if there is nothing 
+        # at this point, it's normal that they call us back, even if there is nothing
         # to do
         pass
 
@@ -178,7 +213,10 @@ class ExternalWebLabDeustoScheduler(Scheduler):
                 remote_reservation_id = reservation.remote_reservation_id
                 serialized_cookies = reservation.cookies
                 session.delete(reservation)
-                session.commit()
+                try:
+                    session.commit()
+                except StaleDataError:
+                    pass
             else:
                 return
         finally:
@@ -187,11 +225,19 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         cookies = pickle.loads(str(serialized_cookies))
         client = self._create_client(cookies)
         client.finished_experiment(SessionId(remote_reservation_id))
+        try:
+            client.get_reservation_status(SessionId(remote_reservation_id))
+        except:
+            # TODO: Actually check that the reservation was expired
+            pass # Expired reservation
+        else:
+            now = self.time_provider.get_datetime()
+            self.post_reservation_data_manager.create(reservation_id, now, now + self.expiration_delta, json.dumps("''"))
 
     ##############################################################
-    # 
+    #
     # ONLY FOR TESTING: It completely removes the whole database
-    # 
+    #
     @Override(Scheduler)
     def _clean(self):
         session = self.session_maker()
@@ -202,5 +248,4 @@ class ExternalWebLabDeustoScheduler(Scheduler):
             session.commit()
         finally:
             session.close()
-
 

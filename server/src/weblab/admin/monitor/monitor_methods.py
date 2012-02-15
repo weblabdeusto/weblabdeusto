@@ -7,17 +7,17 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-# 
+#
 # Here are all the methods that the Monitor will call. The point is
 # that instead of doing nasty code in strings inside the Monitor class
 # we can write this methods with variables, loops, and so on, and the
-# Monitor will call them serializing the result with pickle, so we 
+# Monitor will call them serializing the result with pickle, so we
 # don't need to parse Python code, etc.
 #
 
@@ -33,10 +33,10 @@ from voodoo.sessions.session_id import SessionId
 import voodoo.gen.registry.server_registry as ServerRegistry
 import sys
 
-# 
+#
 # We take these values when the application is started. Later,
 # when replaced, we still use the original ones.
-# 
+#
 stdout = sys.stdout
 stderr = sys.stderr
 stdin  = sys.stdin
@@ -66,16 +66,16 @@ def list_experiments():
 
 @monitor_method
 def get_experiment_status(category, experiment):
-    # 
+    #
     # Returns a dictionary of reservation_id: weblab.core.coordinator.WebLabQueueSessions.* objects
-    # 
+    #
     ups = _find_ups()
     return ups._coordinator.list_sessions(ExperimentId(experiment, category))
 
 @monitor_method
 def get_experiment_ups_session_ids(category, experiment):
     ups = _find_ups()
-    
+
     user_session_mgr   = ups._session_manager
     session_mgr        = ups._alive_users_collection._session_manager
     users_session_mgr  = ups._alive_users_collection._users_session_manager
@@ -111,9 +111,9 @@ def list_all_users():
             session = session_mgr.get_session(session_id)
         except SessionExceptions.SessionException:
             continue
-        if session.has_key('user_information'):
+        if 'user_information' in session:
             user_info = session['user_information']
-        else: 
+        else:
             # It may happen if we list the experiments before gathering this information
             user_info = User('<unknown>', '<unknown>', '<unknown>', Role("student"))
         last = session.get('latest_timestamp') or 0
@@ -137,7 +137,7 @@ def get_ups_session_ids_from_username(login):
         except SessionExceptions.SessionException:
             continue
 
-        if session.has_key('user_information'):
+        if 'user_information' in session:
             if session['user_information'].login == login:
                 ups_session_ids.append(session_id)
     return ups_session_ids

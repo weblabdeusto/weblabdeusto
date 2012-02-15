@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import unittest
 
 import experiments.logic.server as LogicExperiment
@@ -33,7 +33,7 @@ class CircuitGeneratorTestCase(unittest.TestCase):
         gate2 = LogicExperiment.Gate('and', switch1, switch2)
         gate3 = LogicExperiment.Gate('and', switch3, switch4)
         gate1 = LogicExperiment.Gate('or', gate2, gate3)
-        
+
         self.assertFalse(gate1.turned)
         switch1.set_turned(True)
         self.assertFalse(gate1.turned)

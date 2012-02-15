@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 from __future__ import with_statement
 
@@ -26,7 +26,7 @@ except ImportError:
     LDAP_AVAILABLE = False
 else:
     LDAP_AVAILABLE = True
-    
+
 import weblab.data.server_type as ServerType
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
@@ -91,7 +91,7 @@ def broken_reserve_session(self, db_session_id):
     raise ProtocolExceptions.RemoteException("p0wn3d","p0wn3d")
 
 class LoginServerTestCase(unittest.TestCase):
-    
+
     def setUp(self):
         coord_address = CoordAddress.CoordAddress.translate_address(
                 "server0:instance0@machine0"
@@ -132,13 +132,13 @@ class LoginServerTestCase(unittest.TestCase):
             fake_right_user,
             fake_wrong_passwd
         )
-        
+
     if LDAP_AVAILABLE:
         def test_ldap_user_right(self):
             mockr = mocker.Mocker()
             LoginAuth._ldap_provider.ldap_module = mockr.mock()
             session_id = self.login_server.login(fake_ldap_user, fake_ldap_passwd)
-            
+
             self.assertEquals(
                 fake_ups_session_id,
                 session_id
@@ -152,13 +152,13 @@ class LoginServerTestCase(unittest.TestCase):
             ldap_module = mockr.mock()
             ldap_module.initialize('ldaps://castor.cdk.deusto.es')
             mockr.result(ldap_object)
-            LoginAuth._ldap_provider.ldap_module = ldap_module 
+            LoginAuth._ldap_provider.ldap_module = ldap_module
 
             with mockr:
                 self.assertRaises(
                     LoginExceptions.InvalidCredentialsException,
                     self.login_server.login,
-                    fake_ldap_user, 
+                    fake_ldap_user,
                     fake_ldap_invalid_passwd
                 )
 
@@ -215,7 +215,7 @@ class LoginServerTestCase(unittest.TestCase):
     def test_no_server_found_retrieving(self):
         old_get_server = FakeLocator.get_server
         FakeLocator.get_server = get_no_server
-        
+
         try:
             self.assertRaises(
                 LocatorExceptions.UnableToCompleteOperationException,

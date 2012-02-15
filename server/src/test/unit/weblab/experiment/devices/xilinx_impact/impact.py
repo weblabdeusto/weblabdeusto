@@ -7,12 +7,12 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 import unittest
 
 
@@ -24,7 +24,7 @@ import weblab.experiment.devices.xilinx_impact.impact as XilinxImpact
 import weblab.experiment.devices.xilinx_impact.exc as XilinxImpactExceptions
 
 class XilinxImpactTestCase(unittest.TestCase):
-    
+
     def setUp(self):
         self.cfg_manager= ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
@@ -55,7 +55,7 @@ class XilinxImpactTestCase(unittest.TestCase):
             impact.program_device,
             "return-1.file"
         )
-                
+
         impact._busy = True
         self.assertRaises(
             XilinxImpactExceptions.AlreadyProgrammingDeviceException,
@@ -72,22 +72,22 @@ class XilinxImpactTestCase(unittest.TestCase):
             "file.file"
         )
         self.cfg_manager._values.pop('xilinx_impact_full_path')
-                
+
         self.assertRaises(
             XilinxImpactExceptions.CantFindXilinxProperty,
             impact.program_device,
             "file.file"
         )
         self.cfg_manager.reload()
-        
+
     def test_source2svf(self):
         self._fpga.source2svf("everything_ok.bit")
         self._pld.source2svf("everything_ok.jed")
-        
+
     def test_source2svf_errors(self):
         self._test_source2svf_errors(self._fpga)
         self._test_source2svf_errors(self._pld)
-        
+
     def _test_source2svf_errors(self, impact):
         self.assertRaises(
             XilinxImpactExceptions.GeneratingSvfFileGotErrors,
@@ -108,14 +108,14 @@ class XilinxImpactTestCase(unittest.TestCase):
             "file.file"
         )
         self.cfg_manager._values.pop('xilinx_impact_full_path')
-                
+
         self.assertRaises(
             XilinxImpactExceptions.CantFindXilinxProperty,
             impact.source2svf,
             "file.file"
         )
         self.cfg_manager.reload()
-        
+
 
 def suite():
     return unittest.makeSuite(XilinxImpactTestCase)

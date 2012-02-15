@@ -7,18 +7,18 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import weblab.login.db.gateway as DbGateway
 import weblab.db.session as DbSession
 import weblab.db.exc as DbExceptions
 
 class LoginDatabaseManager(object):
-    
+
     def __init__(self, cfg_manager):
         self._auth_gateway = DbGateway.create_auth_gateway(cfg_manager)
 

@@ -7,12 +7,12 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
-# 
+#
 
 from test.util.module_disposer import uses_module, case_uses_module
 from experiments.ud_xilinx.command_senders import SerialPortCommandSender
@@ -107,7 +107,7 @@ class FakeSerialPort(object):
 
 # Abstract
 class Case001TestCase(object):
-    
+
     def gen_coordination_map(self, protocols):
         map = CoordInfo.CoordinationMap()
 
@@ -121,7 +121,7 @@ class Case001TestCase(object):
         map.add_new_server( 'WL_MACHINE1', 'WL_SERVER1', 'experiment2',  ServerType.Experiment, (), ('ud-pld@PLD experiments',))
 
         if len(protocols) == 1 and protocols[0] == Protocols.Direct:
-            # They all have Direct 
+            # They all have Direct
 
             # 1st: address
             address1 = map['WL_MACHINE1']['WL_SERVER1']['login1'].address
@@ -156,7 +156,7 @@ class Case001TestCase(object):
             map.append_accesses( 'WL_MACHINE1', 'WL_SERVER1', 'experiment2', ( access_direct8, ))
 
         else:
-            # They all have SOAP 
+            # They all have SOAP
 
             # 1st: address
             address1 = SOAPAddress.Address('127.0.0.1:10025@NETWORK')
@@ -261,7 +261,7 @@ class Case001TestCase(object):
 
         generated_login_server = ServerSkel.factory(
                 self.generate_configuration_server(),
-                protocols, 
+                protocols,
                 weblab_exported_methods.Login
             )
 
@@ -287,16 +287,16 @@ class Case001TestCase(object):
 
         generated_ups = ServerSkel.factory(
                 cfg_manager,
-                protocols, 
+                protocols,
                 weblab_exported_methods.UserProcessing
             )
 
         class RealUserProcessingServer(UserProcessingServer.UserProcessingServer,generated_ups):
             def __init__(self, coord_address, locator, cfg_manager, *args,**kargs):
                 UserProcessingServer.UserProcessingServer.__init__(
-                        self, 
-                        coord_address, 
-                        locator, 
+                        self,
+                        coord_address,
+                        locator,
                         cfg_manager,
                         *args,
                         **kargs
@@ -321,17 +321,17 @@ class Case001TestCase(object):
     def generate_fake_experiment(self, cfg_manager, fake_xilinx_impact, fake_serial_port, number, experiment_name, experiment_category_name, protocols):
         generated_experiment = ServerSkel.factory(
                 cfg_manager,
-                protocols, 
+                protocols,
                 weblab_exported_methods.Experiment
             )
 
         class RealUdXilinxExperiment(FakeUdXilinxExperiment,generated_experiment):
             def __init__(self, coord_address, locator, cfg_manager, fake_xilinx_impact, fake_serial_port, *args,**kargs):
                 FakeUdXilinxExperiment.__init__(
-                        self, 
+                        self,
                         coord_address,
                         locator,
-                        cfg_manager, 
+                        cfg_manager,
                         fake_xilinx_impact,
                         fake_serial_port,
                         *args,
@@ -352,7 +352,7 @@ class Case001TestCase(object):
 
         def on_finish():
             experiment_client = locator.get_server(
-                            ServerType.Experiment, 
+                            ServerType.Experiment,
                             experiment_name + '@' + experiment_category_name
                         )
             return experiment_client, real_experiment
@@ -361,7 +361,7 @@ class Case001TestCase(object):
     def generate_laboratory_server(self, cfg_manager, protocols):
         generated_laboratory_server = ServerSkel.factory(
                 cfg_manager,
-                protocols, 
+                protocols,
                 weblab_exported_methods.Laboratory
             )
         locator = self.generate_locator()
@@ -369,9 +369,9 @@ class Case001TestCase(object):
         class RealLaboratoryServer(LaboratoryServer.LaboratoryServer,generated_laboratory_server):
             def __init__(self, coord_address, locator, cfg_manager, *args,**kargs):
                 LaboratoryServer.LaboratoryServer.__init__(
-                        self, 
+                        self,
                         coord_address,
-                        locator, 
+                        locator,
                         cfg_manager,
                         *args,
                         **kargs
@@ -388,7 +388,7 @@ class Case001TestCase(object):
 
         laboratory_client = locator.get_server(ServerType.Laboratory, None)
         return laboratory_client, real_laboratory_server
-    
+
     def setUp(self):
         protocols                      = self.get_protocols()
 
@@ -420,7 +420,7 @@ class Case001TestCase(object):
         self.real_ups = reals
         self.real_servers.append(reals)
         on_finish1                     = self.generate_fake_experiment(
-                                self.cfg_manager, 
+                                self.cfg_manager,
                                 self.fake_impact1,
                                 self.fake_serial_port1,
                                 '1',
@@ -429,7 +429,7 @@ class Case001TestCase(object):
                                 protocols
                             )
         on_finish2                     = self.generate_fake_experiment(
-                                self.cfg_manager, 
+                                self.cfg_manager,
                                 self.fake_impact2,
                                 self.fake_serial_port2,
                                 '2',
@@ -443,7 +443,7 @@ class Case001TestCase(object):
         self.real_servers.append(reals)
 
         self.laboratory_server, reals   = self.generate_laboratory_server(
-                                self.cfg_manager, 
+                                self.cfg_manager,
                                 protocols
                             )
         self.real_servers.append(reals)
@@ -472,7 +472,7 @@ class Case001TestCase(object):
             self._single_use()
         self._single_use()
         self._single_use()
-        
+
     def _wait_async_done(self, session_id, reqids):
         """
         _wait_async_done(session_id, reqids)
@@ -493,8 +493,8 @@ class Case001TestCase(object):
                 if status != "running":
                     self.assertEquals("ok", status, "Contents: " + req[1])
                     reqsl.remove(rid)
-        
-        
+
+
     def _get_async_response(self, session_id, reqid):
         """
         _get_async_response(reqids)
@@ -514,7 +514,7 @@ class Case001TestCase(object):
             if status != "running":
                 self.assertEquals("ok", status, "Contents: " + req[1])
                 return Command.Command(req[1])
-        
+
     def _single_async_use(self, logout = True):
         self.fake_impact1.clear()
         self.fake_impact2.clear()
@@ -522,7 +522,7 @@ class Case001TestCase(object):
         self.fake_serial_port2.clear()
 
         session_id = self.real_login.login('student1','password')
-        
+
         user_information = self.real_ups.get_user_information(session_id)
         self.assertEquals(
                 'student1',
@@ -540,7 +540,7 @@ class Case001TestCase(object):
 
         experiments = self.real_ups.list_experiments(session_id)
         self.assertEquals( 5, len(experiments))
-        
+
         fpga_experiments = [ exp.experiment for exp in experiments if exp.experiment.name == 'ud-fpga' ]
         self.assertEquals(
                 len(fpga_experiments),
@@ -559,7 +559,7 @@ class Case001TestCase(object):
 
         # wait until it is reserved
         short_time = 0.1
-        
+
         # Time extended from 9.0 to 15.0 because at times the test failed, possibly for that reason.
         times      = 15.0 / short_time
 
@@ -574,24 +574,24 @@ class Case001TestCase(object):
                     )
         self.assertTrue(
                 isinstance(
-                    reservation, 
-                    Reservation.ConfirmedReservation 
+                    reservation,
+                    Reservation.ConfirmedReservation
                 ),
                 "Reservation %s is not Confirmed, as expected by this time" % reservation
-            )   
-        
-        
-        
+            )
+
+
+
         # send the program again, but asynchronously. Though this should work, it is not really very customary
         # to send_file more than once in the same session. In fact, it is a feature which might get removed in
         # the future. When/if that happens, this will need to be modified.
         CONTENT = "content of the program FPGA"
         reqid = self.real_ups.send_async_file(reservation_id, ExperimentUtil.serialize(CONTENT), 'program')
-        
+
         # Wait until send_async_file query is actually finished.
         #self._get_async_response(session_id, reqid)
         self._wait_async_done(reservation_id, (reqid,))
-        
+
         # We need to wait for the programming to finish, while at the same
         # time making sure that the tests don't dead-lock.
         start_time = time.time()
@@ -601,14 +601,14 @@ class Case001TestCase(object):
             respcmd = self._get_async_response(reservation_id, reqid)
             response = respcmd.get_command_string()
             time.sleep(0.2)
-        
+
         # Check that the current state is "Ready"
         self.assertEquals("STATE=ready", response)
-        
-        
+
+
         reqid = self.real_ups.send_async_command(reservation_id, Command.Command("ChangeSwitch on 0"))
         self._wait_async_done(reservation_id, (reqid,))
-        
+
         reqid = self.real_ups.send_async_command(reservation_id, Command.Command("ClockActivation on 250"))
         self._wait_async_done(reservation_id, (reqid,))
 
@@ -648,27 +648,27 @@ class Case001TestCase(object):
             )
 
         # ClockActivation on 250
-        self.assertEquals(  
+        self.assertEquals(
                 (3 + initial_total,1),
                 self.fake_serial_port1.dict['open'][1 + initial_open]
             )
-        self.assertEquals(  
+        self.assertEquals(
                 (4 + initial_total,32),
                 self.fake_serial_port1.dict['send'][1 + initial_send]
             )
-    
-        self.assertEquals(  
+
+        self.assertEquals(
                 (5 + initial_total,None),
                 self.fake_serial_port1.dict['close'][1 + initial_close]
             )
-        
+
         if logout:
             self.real_ups.logout(session_id)
-            
-   
+
+
     def _single_use(self, logout = True, plus_async_use = True):
         """
-        Will use an experiment. 
+        Will use an experiment.
         @param logout If true, the user will be logged out after the use. Otherwise not.
         @param plus_async_use If true, after using the experiment synchronously, it will use it
         again using the asynchronous versions of the send_command and send_file requests.
@@ -679,14 +679,14 @@ class Case001TestCase(object):
 
 
     def _single_sync_use(self, logout = True):
-        
+
         self.fake_impact1.clear()
         self.fake_impact2.clear()
         self.fake_serial_port1.clear()
         self.fake_serial_port2.clear()
 
         session_id = self.real_login.login('student1','password')
-        
+
         user_information = self.real_ups.get_user_information(session_id)
         self.assertEquals(
                 'student1',
@@ -704,7 +704,7 @@ class Case001TestCase(object):
 
         experiments = self.real_ups.list_experiments(session_id)
         self.assertEquals( 5, len(experiments))
-        
+
         fpga_experiments = [ exp.experiment for exp in experiments if exp.experiment.name == 'ud-fpga' ]
         self.assertEquals(
                 len(fpga_experiments),
@@ -736,8 +736,8 @@ class Case001TestCase(object):
                     )
         self.assertTrue(
                 isinstance(
-                    reservation, 
-                    Reservation.ConfirmedReservation 
+                    reservation,
+                    Reservation.ConfirmedReservation
                 ),
                 "Reservation %s is not Confirmed, as expected by this time" % reservation
             )
@@ -746,7 +746,7 @@ class Case001TestCase(object):
         # send a program synchronously (the "traditional" way)
         CONTENT = "content of the program FPGA"
         self.real_ups.send_file(reservation_id, ExperimentUtil.serialize(CONTENT), 'program')
-        
+
         # We need to wait for the programming to finish, while at the same
         # time making sure that the tests don't dead-lock.
         start_time = time.time()
@@ -755,11 +755,11 @@ class Case001TestCase(object):
             respcmd = self.real_ups.send_command(reservation_id, Command.Command("STATE"))
             response = respcmd.get_command_string()
             time.sleep(0.2)
-        
+
         # Check that the current state is "Ready"
         self.assertEquals("STATE=ready", response)
-        
-        
+
+
         # We need to wait for the programming to finish, while at the same
         # time making sure that the tests don't dead-lock.
         start_time = time.time()
@@ -768,11 +768,11 @@ class Case001TestCase(object):
             respcmd = self.real_ups.send_command(reservation_id, Command.Command("STATE"))
             response = respcmd.get_command_string()
             time.sleep(0.2)
-        
+
         # Check that the current state is "Ready"
         self.assertEquals("STATE=ready", response)
-        
-        
+
+
         self.real_ups.send_command(reservation_id, Command.Command("ChangeSwitch on 0"))
         self.real_ups.send_command(reservation_id, Command.Command("ClockActivation on 250"))
 
@@ -812,30 +812,30 @@ class Case001TestCase(object):
             )
 
         # ClockActivation on 250
-        self.assertEquals(  
+        self.assertEquals(
                 (3 + initial_total,1),
                 self.fake_serial_port1.dict['open'][1 + initial_open]
             )
-        self.assertEquals(  
+        self.assertEquals(
                 (4 + initial_total,32),
                 self.fake_serial_port1.dict['send'][1 + initial_send]
             )
-    
-        self.assertEquals(  
+
+        self.assertEquals(
                 (5 + initial_total,None),
                 self.fake_serial_port1.dict['close'][1 + initial_close]
             )
-        
-        
+
+
 #         end session
 #         Note: Before async commands were implemented, this was actually done before
 #         checking the commands sent. If it was that way for a reason, it might be
 #         necessary to change it in the future.
         if logout:
             self.real_ups.logout(session_id)
-        
-        
-        
+
+
+
 
     @uses_module(UserProcessingServer)
     @uses_module(UserProcessor)
@@ -847,7 +847,7 @@ class Case001TestCase(object):
                 5,
                 len(user1_experiments)
             )
-        
+
         fpga_experiments = [ exp.experiment for exp in user1_experiments if exp.experiment.name == 'ud-fpga' ]
         self.assertEquals(
                 len(fpga_experiments),
@@ -870,7 +870,7 @@ class Case001TestCase(object):
                 7,
                 len(user2_experiments)
             )
-        
+
         pld_experiments = [ exp.experiment for exp in user2_experiments if exp.experiment.name == 'ud-pld' ]
         self.assertEquals(
                 len(pld_experiments),
@@ -903,7 +903,7 @@ class Case001TestCase(object):
                 isinstance(
                     self.real_ups.get_reservation_status(
                         user1_reservation_id
-                    ), 
+                    ),
                     Reservation.ConfirmedReservation
                 )
             )
@@ -912,7 +912,7 @@ class Case001TestCase(object):
                 isinstance(
                     self.real_ups.get_reservation_status(
                         user2_reservation_id
-                    ), 
+                    ),
                     Reservation.ConfirmedReservation
                 )
             )
@@ -920,7 +920,7 @@ class Case001TestCase(object):
         # send a program
         CONTENT1 = "content of the program FPGA"
         self.real_ups.send_file(user1_reservation_id, ExperimentUtil.serialize(CONTENT1), 'program')
-        
+
         # We need to wait for the programming to finish.
         start_time = time.time()
         response = "STATE=not_ready"
@@ -928,16 +928,16 @@ class Case001TestCase(object):
             respcmd = self.real_ups.send_command(user1_reservation_id, Command.Command("STATE"))
             response = respcmd.get_command_string()
             time.sleep(0.2)
-        
+
         # Check that the current state is "Ready"
         self.assertEquals("STATE=ready", response)
-        
+
         self.real_ups.send_command(user1_reservation_id, Command.Command("ChangeSwitch off 1"))
         self.real_ups.send_command(user1_reservation_id, Command.Command("ClockActivation on 250"))
 
         CONTENT2 = "content of the program PLD"
         self.real_ups.send_file(user2_reservation_id, ExperimentUtil.serialize(CONTENT2), 'program')
-       
+
         # We need to wait for the programming to finish.
         start_time = time.time()
         response = "STATE=not_ready"
@@ -945,10 +945,10 @@ class Case001TestCase(object):
             respcmd = self.real_ups.send_command(user1_reservation_id, Command.Command("STATE"))
             response = respcmd.get_command_string()
             time.sleep(0.2)
-            
+
         # Check that the current state is "Ready"
         self.assertEquals("STATE=ready", response)
-        
+
         self.real_ups.send_command(user2_reservation_id, Command.Command("ChangeSwitch on 0"))
         self.real_ups.send_command(user2_reservation_id, Command.Command("ClockActivation on 250"))
 
@@ -981,57 +981,57 @@ class Case001TestCase(object):
         initial_total = initial_open + initial_send + initial_close
 
         # ChangeSwitch off 1
-        self.assertEquals(  
+        self.assertEquals(
                 (0 + initial_total,1),
                 self.fake_serial_port1.dict['open'][0 + initial_open]
             )
-        self.assertEquals(  
+        self.assertEquals(
                 (1 + initial_total,4),
                 self.fake_serial_port1.dict['send'][0 + initial_send]
             )
-        self.assertEquals(  
+        self.assertEquals(
                 (2 + initial_total,None),
                 self.fake_serial_port1.dict['close'][0 + initial_close]
             )
 
-        self.assertEquals(  
+        self.assertEquals(
                 (0 + initial_total,1),
                 self.fake_serial_port2.dict['open'][0 + initial_open]
             )
-        self.assertEquals(  
+        self.assertEquals(
                 (1 + initial_total,1),
                 self.fake_serial_port2.dict['send'][0 + initial_send]
             )
-        self.assertEquals(  
+        self.assertEquals(
                 (2 + initial_total,None),
                 self.fake_serial_port2.dict['close'][0 + initial_close]
             )
 
         # ClockActivation on 250
-        self.assertEquals(  
+        self.assertEquals(
                 (3 + initial_total,1),
                 self.fake_serial_port1.dict['open'][1 + initial_open]
             )
-        self.assertEquals(  
+        self.assertEquals(
                 (4 + initial_total,32),
                 self.fake_serial_port1.dict['send'][1 + initial_send]
             )
-    
-        self.assertEquals(  
+
+        self.assertEquals(
                 (5 + initial_total,None),
                 self.fake_serial_port1.dict['close'][1 + initial_close]
             )
 
-        self.assertEquals(  
+        self.assertEquals(
                 (3 + initial_total,1),
                 self.fake_serial_port2.dict['open'][1 + initial_open]
             )
-        self.assertEquals(  
+        self.assertEquals(
                 (4 + initial_total,32),
                 self.fake_serial_port2.dict['send'][1 + initial_send]
             )
-    
-        self.assertEquals(  
+
+        self.assertEquals(
                 (5 + initial_total,None),
                 self.fake_serial_port2.dict['close'][1 + initial_close]
             )

@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
 import hashlib
 from weblab.data.experiments import CommandSent, FileSent
@@ -28,11 +28,11 @@ DEFAULT_EXPERIMENT_POLL_TIME = 300  # seconds
 
 
 class ProxySessionHandler(object):
-    
+
     _time = time
-    
+
     EXPIRATION_TIME_NOT_SET = -1234
-    
+
     def __init__(self, session, laboratory, translator, cfg_manager, locator, session_manager):
         super(ProxySessionHandler, self).__init__()
         self._session = session
@@ -41,10 +41,10 @@ class ProxySessionHandler(object):
         self._cfg_manager = cfg_manager
         self._locator = locator
         self._session_manager = session_manager
-    
+
     def _utc_timestamp(self):
         return self._time.time()
-        
+
     def update_latest_timestamp(self):
         self._session['latest_timestamp'] = self._utc_timestamp()
 
@@ -57,7 +57,7 @@ class ProxySessionHandler(object):
         self._session['files'].append(file_sent)
 
     def _is_polling(self):
-        return self._session.has_key('session_polling')
+        return 'session_polling' in self._session
 
     def _stop_polling(self):
         if self._is_polling():
@@ -65,7 +65,7 @@ class ProxySessionHandler(object):
 
     def _renew_expiration_time(self, expiration_time):
         if self._is_polling():
-            self._session['session_polling'] = (self._time.time(), expiration_time)  
+            self._session['session_polling'] = (self._time.time(), expiration_time)
 
     def _store_file(self, file_content, user_login, session_id):
         # TODO: this is a very dirty way to implement this.
@@ -91,12 +91,12 @@ class ProxySessionHandler(object):
         f = open(where,'w')
         f.write(deserialized_file_content)
         f.close()
-        return relative_file_path, "{sha}%s" % file_hash  
+        return relative_file_path, "{sha}%s" % file_hash
 
     #===============================================================================
     # API to Core Server
     #===============================================================================
-    
+
     def enable_access(self):
         self._session['access_enabled'] = True
         self._session['session_polling'] = (self._time.time(), ProxySessionHandler.EXPIRATION_TIME_NOT_SET)
@@ -105,7 +105,7 @@ class ProxySessionHandler(object):
     def disable_access(self):
         self._session['access_enabled'] = False
 
-    def is_expired(self):    
+    def is_expired(self):
         if not self._is_polling():
             return "Y <still-polling>"
         current_time = self._time.time()
@@ -115,7 +115,7 @@ class ProxySessionHandler(object):
         elif expiration_time != ProxySessionHandler.EXPIRATION_TIME_NOT_SET and current_time > expiration_time:
             return "Y <expiration-time-expired>"
         return "N"
-    
+
     def retrieve_results(self):
         timestamp_before = self._utc_timestamp()
         translation = self._translator.on_finish(self._session['trans_session_id'])
@@ -127,12 +127,12 @@ class ProxySessionHandler(object):
     #===============================================================================
     # API to Client
     #===============================================================================
-        
+
     def poll(self):
         if self._is_polling():
-            self._session['session_polling'] = (self._time.time(), ProxySessionHandler.EXPIRATION_TIME_NOT_SET) 
+            self._session['session_polling'] = (self._time.time(), ProxySessionHandler.EXPIRATION_TIME_NOT_SET)
 
-    def send_command(self, command):    
+    def send_command(self, command):
         translated_command = self._translator.before_send_command(self._session['trans_session_id'], command)
         timestamp_before = self._utc_timestamp()
         try:
@@ -153,7 +153,7 @@ class ProxySessionHandler(object):
         translated_file = self._translator.before_send_file(self._session['trans_session_id'], file_content)
         timestamp_before = self._utc_timestamp()
         try:
-            lab_response = self._laboratory.send_file(self._session['lab_sess_id'], file_content, file_info)            
+            lab_response = self._laboratory.send_file(self._session['lab_sess_id'], file_content, file_info)
             timestamp_after = self._utc_timestamp()
             translated_response = self._translator.after_send_file(self._session['trans_session_id'], lab_response)
             if translated_file is not None or translated_response is not None:

@@ -7,7 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
@@ -25,7 +25,7 @@ def reset():
     expected_action = OK
 
 class socket(object):
-    
+
     def __init__(self, *args, **kargs):
         super(socket, self).__init__()
 
@@ -36,6 +36,6 @@ class socket(object):
             raise real_socket.error("")
         else:
             raise RuntimeError("Unknown value for return_value in fake socket.connect()")
-        
+
     def close(self):
         pass

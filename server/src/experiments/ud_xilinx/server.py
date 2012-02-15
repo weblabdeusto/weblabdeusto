@@ -7,13 +7,13 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
-# 
+#
 
 from voodoo.gen.caller_checker import caller_check
 from voodoo.log import logged
@@ -46,14 +46,14 @@ STATE_FAILED = "failed"
 
 #TODO: which exceptions should the user see and which ones should not?
 class UdXilinxExperiment(Experiment.Experiment):
-    
-    
+
+
     @Override(Experiment.Experiment)
     @caller_check(ServerType.Laboratory)
     @logged("info")
     def do_get_api(self):
         return "2"
-    
+
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(UdXilinxExperiment,self).__init__(*args, **kwargs)
         self._coord_address = coord_address
@@ -64,12 +64,12 @@ class UdXilinxExperiment(Experiment.Experiment):
         self._programmer = self._load_programmer()
         self._command_sender = self._load_command_sender()
         self.webcam_url = self._load_webcam_url()
-        
+
         self._programming_thread = None
         self._current_state = STATE_NOT_READY
         self._programmer_time = self._cfg_manager.get_value('xilinx_programmer_time', "25") # Seconds
         self._switches_reversed = self._cfg_manager.get_value('switches_reversed', False) # Seconds
-        
+
     def _load_xilinx_device(self):
         device_name = self._cfg_manager.get_value('weblab_xilinx_experiment_xilinx_device')
         devices = [ i for i in XilinxDevices.getXilinxDeviceValues() if i == device_name ]
@@ -77,22 +77,22 @@ class UdXilinxExperiment(Experiment.Experiment):
             return devices[0], XilinxImpact.create(devices[0], self._cfg_manager)
         else:
             raise UdXilinxExperimentExceptions.InvalidXilinxDeviceException(device_name)
-        
+
     def _load_programmer(self):
         device_name = self._cfg_manager.get_value('xilinx_device_to_program')
         return UdXilinxProgrammer.create(device_name, self._cfg_manager, self._xilinx_impact)
-        
+
     def _load_command_sender(self):
         device_name = self._cfg_manager.get_value('xilinx_device_to_send_commands')
         return UdXilinxCommandSender.create(device_name, self._cfg_manager)
-        
+
     def _load_webcam_url(self):
-        cfg_webcam_url = "%s_webcam_url" % self._xilinx_device.lower()        
+        cfg_webcam_url = "%s_webcam_url" % self._xilinx_device.lower()
         return self._cfg_manager.get_value(cfg_webcam_url, "http://localhost")
-    
+
     def get_state(self):
         return self._current_state
-    
+
     @Override(Experiment.Experiment)
     @caller_check(ServerType.Laboratory)
     @logged("info",except_for='file_content')
@@ -103,8 +103,8 @@ class UdXilinxExperiment(Experiment.Experiment):
         """
         self._programming_thread = self._program_file_t(file_content)
         return "STATE=" + STATE_PROGRAMMING
-        
-    
+
+
     @threaded()
     def _program_file_t(self, file_content):
         """
@@ -141,7 +141,7 @@ class UdXilinxExperiment(Experiment.Experiment):
             finally:
                 os.remove(file_name)
         except Exception as e:
-            
+
             #TODO: test me
             log.log(
                 UdXilinxExperiment,
@@ -164,8 +164,8 @@ class UdXilinxExperiment(Experiment.Experiment):
             raise ExperimentExceptions.SendingCommandFailureException(
                 "Error sending command to device: %s" % e
             )
-            
-    
+
+
     @Override(Experiment.Experiment)
     @logged("info")
     def do_dispose(self):
@@ -178,26 +178,26 @@ class UdXilinxExperiment(Experiment.Experiment):
             # Cleaning references
             self._programming_thread = None
         return "ok"
-        
-            
+
+
     @Override(Experiment.Experiment)
     @logged("info")
     def do_start_experiment(self, *args, **kwargs):
         self._current_state = STATE_NOT_READY
         return json.dumps({ "initial_configuration" : """{ "webcam" : "%s", "expected_programming_time" : %s }""" % (self.webcam_url, self._programmer_time), "batch" : False })
-    
+
     @logged("info")
     @Override(Experiment.Experiment)
     @caller_check(ServerType.Laboratory)
     def do_send_command_to_device(self, command):
         try:
-            # Reply with the current state of the experiment. Particularly, the clients 
-            # will need to know whether the programming has been done and whether we are 
+            # Reply with the current state of the experiment. Particularly, the clients
+            # will need to know whether the programming has been done and whether we are
             # hence ready to start receiving real commands.
             if command == 'STATE':
                 reply = "STATE="+ self._current_state
                 return reply
-            
+
             # Otherwise we assume that the command is intended for the actual device handler
             # If it isn't, it throw an exception itself.
 

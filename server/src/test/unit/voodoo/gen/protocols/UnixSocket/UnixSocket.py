@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
 import socket
 
@@ -32,7 +32,7 @@ if hasattr(socket, 'AF_UNIX'):
         def __init__(self):
             super(TestServer, self).__init__()
         def do_method0(self):
-            return "This is the result of method0()"                
+            return "This is the result of method0()"
         def do_method1(self, arg1):
             return "This is the result of method1() (arg1=%s)" % arg1
         def do_method2(self, arg1, arg2):
@@ -71,7 +71,7 @@ if hasattr(socket, 'AF_UNIX'):
             self.assertNotEquals(klz.method0.__doc__.find("foo"*100), -1, "method0() has not its documentation in its docstring")
             self.assertNotEquals(klz.method1.__doc__.find("bar"*100), -1, "method1() has not its documentation in its docstring")
             self.assertNotEquals(klz.method2.__doc__.find("foobar"*100), -1, "method2() has not its documentation in its docstring")
-            
+
         def _test_client_generate_with_parameter(self, methods):
             klz = ClientUnixSocket.generate(methods)
             for method_name in methods:
@@ -79,7 +79,7 @@ if hasattr(socket, 'AF_UNIX'):
                 self.assertNotEquals(getattr(klz, method_name).__doc__.find(method_name), -1, "%s() has not its name in its docstring" % method_name)
             self.assertTrue( hasattr(klz, "test_me"), "generate() was intended to generate a class with the method test_me()")
             return klz
-            
+
         def test_client_generate_with_a_tuple(self):
             methods = ("method0", "method1", "method2")
             self._test_client_generate_with_parameter(methods)
@@ -93,7 +93,7 @@ if hasattr(socket, 'AF_UNIX'):
             klz = self._test_server_generate_with_parameter(methods)
             self.assertNotEquals(klz.method0.__doc__.find("foo"*100), -1, "method0() has not its documentation in its docstring")
             self.assertNotEquals(klz.method1.__doc__.find("bar"*100), -1, "method1() has not its documentation in its docstring")
-            self.assertNotEquals(klz.method2.__doc__.find("foobar"*100), -1, "method2() has not its documentation in its docstring")                
+            self.assertNotEquals(klz.method2.__doc__.find("foobar"*100), -1, "method2() has not its documentation in its docstring")
 
         @uses_module(ServerUnixSocket)
         def test_server_on_off(self):
@@ -102,7 +102,7 @@ if hasattr(socket, 'AF_UNIX'):
             try:
                 os.remove("foobar.socket")
             except:
-                pass        
+                pass
             internet_socket_server = klz("foobar.socket")
             try:
                 parent = TestServer()

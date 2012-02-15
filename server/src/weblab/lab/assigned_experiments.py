@@ -7,12 +7,12 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
 from weblab.data.experiments import ExperimentInstanceId
 import weblab.lab.experiment_handler as ExperimentHandler
@@ -43,7 +43,7 @@ class AssignedExperiments(object):
         if by_experiment == None:
             by_experiment = {}
             by_category[exp_inst_id.exp_name] = by_experiment
-            
+
         by_instance = by_experiment.get( exp_inst_id.inst_name )
         if by_instance != None:
             raise LaboratoryExceptions.ExperimentAlreadyFoundException(
@@ -86,12 +86,12 @@ class AssignedExperiments(object):
     def get_api(self, experiment_instance_id):
         """
         Gets the API version that the specified experiment instance is currently using.
-        """ 
+        """
         return self._retrieve_experiment_handler( experiment_instance_id ).api
-    
+
     def set_api(self, experiment_instance_id, api):
         """
-        
+
         """
         self._retrieve_experiment_handler( experiment_instance_id ).api = api
 
@@ -103,7 +103,7 @@ class AssignedExperiments(object):
             return self._experiments[cat_name][exp_name][inst_name]
         except KeyError:
             raise LaboratoryExceptions.ExperimentNotFoundException( "Experiment instance not found! %s" % experiment_instance_id )
-        
+
     def get_is_up_and_running_handlers(self, experiment_instance_id):
         exp_handler = self._retrieve_experiment_handler( experiment_instance_id )
         return exp_handler.is_up_and_running_handlers

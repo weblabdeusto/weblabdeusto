@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import voodoo.gen.coordinator.AccessLevel as AccessLevel
 import voodoo.gen.protocols.UnixSocket.Address as Address
@@ -35,7 +35,7 @@ def fill_coordinations(coordinations_configuration, address):
         raise LoaderExceptions.InvalidConfigurationException(
             "Unexpected parameter: expected 'sockpath' and found:" % parameter.name
         )
-    
+
 
     coordinations_configuration.filled_coordinations = [
             Address.Address(address.machine_id, parameter.value)

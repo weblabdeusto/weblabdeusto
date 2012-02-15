@@ -7,11 +7,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import threading
 import time
@@ -39,7 +39,7 @@ def locked(lock_name = '_lock'):
     return locked_with_name
 
 class UnfairLock(object):
-    # This is far better than 0.01 or 0.0001, but I haven't tried other values. 
+    # This is far better than 0.01 or 0.0001, but I haven't tried other values.
     # Of course, this value depends much on the computer
     SLICE = 0.001
     def __init__(self):
@@ -68,7 +68,7 @@ class _InternalReadLock(object):
 class _InternalWriteLock(object):
     def __init__(self, rwlock):
         self.rwlock = rwlock
-    
+
     def acquire(self):
         self.rwlock._acquire_writing()
 
@@ -130,7 +130,7 @@ class RWLock(object):
         try:
             while self._someone_else_is_writing():
                 self._condition.wait()
-            
+
             self._increment_reading()
 
             self._condition.notifyAll()
