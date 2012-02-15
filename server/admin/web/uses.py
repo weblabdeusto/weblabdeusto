@@ -91,11 +91,11 @@ def use(req, **kwargs):
                 if timestamp_before is None:
                     before = "<not provided>"
                 else:
-                    before = "%s:%s" % (timestamp_before.strftime("%d/%m/%y %H:%M:%S"), str(timestamp_before_micro).zfill(6))
+                    before = "%s:%s" % (utc2local_str(timestamp_before), str(timestamp_before_micro).zfill(6))
                 if timestamp_after is None:
                     after  = "<not provided>"
                 else:
-                    after  = "%s:%s" % (timestamp_after.strftime("%d/%m/%y %H:%M:%S"), str(timestamp_after_micro).zfill(6))
+                    after  = "%s:%s" % (utc2local_str(timestamp_after), str(timestamp_after_micro).zfill(6))
                 
                 if command is None:
                     command = "(None)"
@@ -118,11 +118,11 @@ def use(req, **kwargs):
                 if timestamp_before is None:
                     before = "<not provided>"
                 else:
-                    before = "%s:%s" % (timestamp_before.strftime("%d/%m/%y %H:%M:%S"), str(timestamp_before_micro).zfill(6))
+                    before = "%s:%s" % (utc2local_str(timestamp_before), str(timestamp_before_micro).zfill(6))
                 if timestamp_after is None:
                     after  = "<not provided>"
                 else:
-                    after  = "%s:%s" % (timestamp_after.strftime("%d/%m/%y %H:%M:%S"), str(timestamp_after_micro).zfill(6))
+                    after  = "%s:%s" % (utc2local_str(timestamp_after), str(timestamp_after_micro).zfill(6))
                 
                 if file_hash is None:
                     file_hash = "(None)"
