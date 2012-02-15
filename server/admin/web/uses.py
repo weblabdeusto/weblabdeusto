@@ -185,7 +185,7 @@ def index(req):
                         "ORDER BY uue.start_date DESC LIMIT %s" % LIMIT
             cursor.execute(SENTENCE)
             elements = cursor.fetchall()
-            result = """<html><head><title>Latest uses</title></head><body><table>
+            result = """<html><head><title>Latest uses</title></head><body><table cellspacing="10">
                         <tr> <td><b>User</b></td> <td><b>Name</b></td> <td><b>Experiment</b></td> <td><b>Date</b></td> <td><b>From </b> </td> <td><b>Use</b></td></tr>
                         """
             for use_id, user_login, user_full_name, experiment_name, category_name, start_date, uue_from in elements:
