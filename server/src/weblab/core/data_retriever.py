@@ -29,16 +29,17 @@ class TemporalInformationRetriever(threading.Thread):
 
     PRINT_ERRORS = True
 
-    def __init__(self, initial_store, finished_store, commands_store, db_manager):
+    def __init__(self, initial_store, finished_store, commands_store, completed_store, db_manager):
         threading.Thread.__init__(self)
 
-        self.keep_running = True
-        self.initial_store  = initial_store
-        self.finished_store = finished_store
-        self.commands_store = commands_store
-        self.iterations     = 0
-        self.db_manager     = db_manager
-        self.timeout        = None
+        self.keep_running         = True
+        self.initial_store        = initial_store
+        self.finished_store       = finished_store
+        self.commands_store       = commands_store
+        self.completed_store      = completed_store
+        self.iterations           = 0
+        self.db_manager           = db_manager
+        self.timeout              = None # Take the default of TemporalInformationStore
         self.entry_id2command_id  = {}
         self.entry_id2command_id_lock = threading.Lock()
         self.setDaemon(True)
@@ -64,6 +65,8 @@ class TemporalInformationRetriever(threading.Thread):
             self.iterate_finish()
         if self.keep_running:
             self.iterate_command()
+        if self.keep_running:
+            self.iterate_completed()
 
     def iterate_initial(self):
         initial_information = self.initial_store.get(timeout=self.timeout)
@@ -98,6 +101,13 @@ class TemporalInformationRetriever(threading.Thread):
             usage.append_command(command_response)
 
             self.db_manager.store_experiment_usage(DbSession.ValidDatabaseSessionId(username, role), initial_information.request_info, usage)
+
+    def iterate_completed(self):
+        completed_information = self.completed_store.get(timeout=self.timeout)
+        if completed_information is not None:
+            username, request_info, usage = completed_information
+            self.db_manager.store_experiment_usage(DbSession.ValidDatabaseSessionId(username, ''), request_info, usage)
+
 
     def iterate_finish(self):
         information = self.finished_store.get(timeout=self.timeout)

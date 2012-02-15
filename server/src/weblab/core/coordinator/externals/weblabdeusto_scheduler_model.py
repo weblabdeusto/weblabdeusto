@@ -61,16 +61,21 @@ class ExternalWebLabDeustoReservationPendingResults(Base):
     resource_type_name    = Column(String(255))
     # In order to avoid concurrence among different servers, every sever will know 
     # who stored it and therefore who should retrieve the results
-    server_route          = Column(String(255))
+    server_route            = Column(String(255))
+
+    username                = Column(String(255))
+    serialized_request_info = Column(String(1536))
    
-    @typecheck(typecheck.ANY, basestring, basestring, basestring, basestring)
-    def __init__(self, reservation_id, remote_reservation_id, resource_type_name, server_route):
-        self.reservation_id        = reservation_id
-        self.remote_reservation_id = remote_reservation_id
-        self.resource_type_name    = resource_type_name
-        self.server_route          = server_route
+    @typecheck(typecheck.ANY, basestring, basestring, basestring, basestring, basestring, basestring)
+    def __init__(self, reservation_id, remote_reservation_id, resource_type_name, server_route, username, serialized_request_info):
+        self.reservation_id          = reservation_id
+        self.remote_reservation_id   = remote_reservation_id
+        self.resource_type_name      = resource_type_name
+        self.server_route            = server_route
+        self.username                = username
+        self.serialized_request_info = serialized_request_info
 
     def __repr__(self):
-        return SUFFIX + "ExternalWeblabDeustoReservationPendingResults(%r, %r, %r, %r)" % (
-                            self.reservation_id, self.remote_reservation_id, self.resource_type_name, self.server_route)
+        return SUFFIX + "ExternalWeblabDeustoReservationPendingResults(%r, %r, %r, %r, %r, %r)" % (
+                            self.reservation_id, self.remote_reservation_id, self.resource_type_name, self.server_route, self.username, self.serialized_request_info)
 

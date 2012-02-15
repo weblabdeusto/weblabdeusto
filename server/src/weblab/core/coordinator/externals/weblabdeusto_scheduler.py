@@ -131,7 +131,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         session = self.session_maker()
         try:
             reservation = ExternalWebLabDeustoReservation(reservation_id, remote_reservation_id, serialized_cookies, time_mod.time())
-            pending_results = ExternalWebLabDeustoReservationPendingResults(reservation_id, remote_reservation_id, self.resource_type_name, self.core_server_route)
+            pending_results = ExternalWebLabDeustoReservationPendingResults(reservation_id, remote_reservation_id, self.resource_type_name, self.core_server_route, request_info.get('username', ''), pickle.dumps(request_info))
             session.add(reservation)
             session.add(pending_results)
             session.commit()

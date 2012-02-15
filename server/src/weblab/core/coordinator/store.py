@@ -40,7 +40,7 @@ class TemporalInformationStore(object):
         Given that the same thread calls more than one store, the timeout should be quite small.
         """
         if timeout is None:
-            real_timeout = 0.5
+            real_timeout = 0.05
         else:
             real_timeout = timeout
         try:
@@ -83,4 +83,8 @@ class CommandOrFileInformationEntry(object):
 class CommandsTemporalInformationStore(TemporalInformationStore):
     def put(self, command_information_entry):
         self.queue.put_nowait(command_information_entry)
+
+class CompletedInformationStore(TemporalInformationStore):
+    def put(self, username, request_info, usage):
+        self.queue.put_nowait((username, request_info, usage))
 

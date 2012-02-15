@@ -117,6 +117,7 @@ class Coordinator(object):
 
         self.initial_store  = TemporalInformationStore.InitialTemporalInformationStore()
         self.finished_store = TemporalInformationStore.FinishTemporalInformationStore()
+        self.completed_store = TemporalInformationStore.CompletedInformationStore()
         self.finished_reservations_store = Queue.Queue()
 
         #
@@ -149,6 +150,7 @@ class Coordinator(object):
                                                 core_server_url      = core_server_url,
                                                 initial_store        = self.initial_store,
                                                 finished_store       = self.finished_store,
+                                                completed_store      = self.completed_store,
                                                 post_reservation_data_manager = self.post_reservation_data_manager
                                         )
 
@@ -183,6 +185,7 @@ class Coordinator(object):
                                                 core_server_url      = core_server_url,
                                                 initial_store        = self.initial_store,
                                                 finished_store       = self.finished_store,
+                                                completed_store      = self.completed_store,
                                                 post_reservation_data_manager = self.post_reservation_data_manager
                                         )
 

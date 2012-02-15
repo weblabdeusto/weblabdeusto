@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import cPickle as pickle
 import threading
 import time
 import urllib2
@@ -34,6 +35,7 @@ class ResultsRetriever(threading.Thread):
         self.resource_type_name = weblabdeusto_scheduler.resource_type_name
         self.server_route       = weblabdeusto_scheduler.core_server_route
         self.server_url         = weblabdeusto_scheduler.core_server_url # Not required, but helpful for debugging
+        self.completed_store    = weblabdeusto_scheduler.completed_store
         self.period             = period
         self.create_client_func = create_client_func
         self.stopped            = False
@@ -85,6 +87,14 @@ class ResultsRetriever(threading.Thread):
                 if result.is_alive():
                     continue
 
+                username      = pending_result.username
+                try:
+                    request_info  = pickle.loads(pending_result.serialized_request_info)
+                except Exception as e:
+                    log.log(ResultsRetriever, log.level.Critical, "Probably serialized_request_info was truncated in %s" % pending_result)
+                    log.log_exc(ResultsRetriever, log.level.Error)
+                    request_info  = {'error' : 'could not be stored: %s' % e}
+
                 session = self.session_maker()
                 try:
                     session.delete(pending_result)
@@ -96,5 +106,7 @@ class ResultsRetriever(threading.Thread):
 
                 if result.is_finished():
                     use = result.experiment_use
-                    print use
-                    pass
+                    print "Storing..."
+                    self.completed_store.put(username, request_info, use)
+
+
