@@ -777,13 +777,13 @@ def populate_weblab_tests(engine):
     up_any_pic18_allowed = Model.DbUserPermission(
         any,
         experiment_allowed.group_applicable,
-        "any::weblab-pic18",
+        "any::pic18",
         datetime.datetime.utcnow(),
         "Permission for any to use ud-pic18"
     )
 
     session.add(up_any_pic18_allowed)
-    up_any_pic18_allowed_p1 = Model.DbUserPermissionParameter(up_any_pic18_allowed, experiment_allowed_p1, "pic18")
+    up_any_pic18_allowed_p1 = Model.DbUserPermissionParameter(up_any_pic18_allowed, experiment_allowed_p1, "ud-pic18")
     session.add(up_any_pic18_allowed_p1)
     up_any_pic18_allowed_p2 = Model.DbUserPermissionParameter(up_any_pic18_allowed, experiment_allowed_p2, "pic experiments")
     session.add(up_any_pic18_allowed_p2)

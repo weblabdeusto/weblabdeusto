@@ -10,7 +10,7 @@
 # This software consists of contributions made by many individuals, 
 # listed below:
 #
-# Author: Pablo Orduña <pablo@ordunya.com>
+# Author: Pablo OrduÃ±a <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 

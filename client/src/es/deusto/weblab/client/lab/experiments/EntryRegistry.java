@@ -30,6 +30,7 @@ import es.deusto.weblab.client.experiments.ilab_batch.ILabBatchCreatorFactory;
 import es.deusto.weblab.client.experiments.labview.LabVIEWCreatorFactory;
 import es.deusto.weblab.client.experiments.logic.LogicCreatorFactory;
 import es.deusto.weblab.client.experiments.pic.PicCreatorFactory;
+import es.deusto.weblab.client.experiments.pic18.Pic18CreatorFactory;
 import es.deusto.weblab.client.experiments.pic2.Pic2CreatorFactory;
 import es.deusto.weblab.client.experiments.robot_movement.RobotMovementCreatorFactory;
 import es.deusto.weblab.client.experiments.robot_proglist.RobotProglistCreatorFactory;
@@ -65,6 +66,7 @@ class EntryRegistry {
 		new Gpib2CreatorFactory(),
 		new PicCreatorFactory(),
 		new Pic2CreatorFactory(),
+		new Pic18CreatorFactory(),
 		new RobotStandardCreatorFactory(),
 		new RobotMovementCreatorFactory(),
 		new RobotProglistCreatorFactory(),

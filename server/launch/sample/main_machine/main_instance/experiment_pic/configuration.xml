@@ -12,7 +12,7 @@
 
 	<implementation>experiments.ud_pic.server.UdPicDummyExperiment</implementation>
 
-	<restriction>ud-pic@PIC experiments</restriction>
+	<restriction>ud-pic18@PIC experiments</restriction>
 
 	<protocols>
 		<!-- This server supports both Direct calls, as SOAP calls -->

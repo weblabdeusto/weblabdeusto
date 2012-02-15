@@ -25,18 +25,18 @@
 		<protocol name="SOAP">
 			<coordinations>
 				<coordination>
-					<parameter name="address" value="127.0.0.1:11032@PLD" />
+					<parameter name="address" value="127.0.0.1:11036@PLD" />
 				</coordination>
 				<coordination>
-					<parameter name="address" value="192.168.0.1:11032@LABORATORYNETWORK" />
+					<parameter name="address" value="192.168.0.1:11036@LABORATORYNETWORK" />
 				</coordination>
 				<coordination>
-					<parameter name="address" value="130.206.100.16:11032@INTERNET" />
+					<parameter name="address" value="130.206.100.16:11036@INTERNET" />
 				</coordination>
 			</coordinations>
 			<creation>
 				<parameter name="address" value=""     />
-				<parameter name="port"    value="11032" />
+				<parameter name="port"    value="11036" />
 			</creation>
 		</protocol>
 	</protocols>
