@@ -45,7 +45,22 @@ def use(req, **kwargs):
     except:
         return "You need to provide use_id, being an ID of a use"
 
-    result = """<html><head><title>Use</title></head><body>
+    result = """<html><head><title>Use</title>
+                <style type="text/css">
+table
+{
+border-collapse:collapse;
+}
+table, td, th
+{
+border:1px solid;
+}
+td
+{
+padding:15px;
+}
+
+                </style></head><body>
                 <h2>General</h2>
                 <b>Login:</b> %(login)s<br/>
                 <b>Name:</b> %(full_name)s<br/>
@@ -61,8 +76,8 @@ def use(req, **kwargs):
                 <b>In the name of:</b> %(external_user)s<br/>
                 <h2>Commands</h2>
                 (<a href="#files">files below</a>)
-                <table cellspacing="20">
-                <tr> <td><b>Command</b></td> <td><b>Response</b></td> <td><b>Time before</b></td> <td><b>Time after</b></td></tr>
+                <table>
+                <tr> <td><b>Time before</b></td> <td><b>Time after</b></td> <td><b>Command</b></td> <td><b>Response</b></td> </tr>
                 """
 
     connection = dbi.connect(host="localhost",user=_USERNAME, passwd=_PASSWORD, db=DB_NAME)
@@ -122,11 +137,11 @@ def use(req, **kwargs):
                     command = "(None)"
                 if response is None:
                     response = "(None)"
-                result += "\t<tr> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> </tr>\n" % ( cgi.escape(command), cgi.escape(response), before, after )
+                result += "\t<tr> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> </tr>\n" % ( before, after, cgi.escape(command), cgi.escape(response) )
 
             result += """</table>\n"""
             result += """<br/><br/><a name="files"><h2>Files</h2>\n"""
-            result += """<table cellspacing="20">\n"""
+            result += """<table>\n"""
             result += """<tr> <td><b>File hash</b></td> <td><b>File info</b></td> <td><b>Response</b></td> <td><b>Time before</b></td> <td><b>Time after</b></td> <td><b>link</b></td></tr>"""
 
             SENTENCE = "SELECT uf.id, uf.file_info, uf.file_hash, uf.response, uf.timestamp_before, uf.timestamp_before_micro, uf.timestamp_after, uf.timestamp_after_micro " + \
@@ -170,7 +185,7 @@ def index(req):
                         "ORDER BY uue.start_date DESC LIMIT %s" % LIMIT
             cursor.execute(SENTENCE)
             elements = cursor.fetchall()
-            result = """<html><head><title>Latest uses</title></head><body><table cellspacing="20">
+            result = """<html><head><title>Latest uses</title></head><body><table>
                         <tr> <td><b>User</b></td> <td><b>Name</b></td> <td><b>Experiment</b></td> <td><b>Date</b></td> <td><b>From </b> </td> <td><b>Use</b></td></tr>
                         """
             for use_id, user_login, user_full_name, experiment_name, category_name, start_date, uue_from in elements:
