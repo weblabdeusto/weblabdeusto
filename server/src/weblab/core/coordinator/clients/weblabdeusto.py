@@ -34,12 +34,13 @@ class WebLabDeustoClient(object):
         self.opener          = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cj))
         self.weblabsessionid = "(not set)"
 
-    def _call(self, url, method, **kwargs):
+    def _call(self, url, method, user_agent, **kwargs):
         request = json.dumps({
             'method' : method,
             'params' : kwargs
         })
-        uopen = self.opener.open(url, data = request)
+        req = urllib2.Request(url, data = request, headers = {'User-agent' : user_agent or 'WebLab-Deusto'})
+        uopen = self.opener.open(req)
         content = uopen.read()
         cookies = [ c for c in self.cj if c.name == 'weblabsessionid' ]
         if len(cookies) > 0:
@@ -49,11 +50,11 @@ class WebLabDeustoClient(object):
             raise Exception(response["message"])
         return response['result']
 
-    def _login_call(self, method, **kwargs):
-        return self._call(self.baseurl + self.LOGIN_SUFFIX, method, **kwargs)
+    def _login_call(self, method, user_agent = None, **kwargs):
+        return self._call(self.baseurl + self.LOGIN_SUFFIX, method, user_agent, **kwargs)
 
-    def _core_call(self, method, **kwargs):
-        return self._call(self.baseurl + self.CORE_SUFFIX, method, **kwargs)
+    def _core_call(self, method, user_agent = None, **kwargs):
+        return self._call(self.baseurl + self.CORE_SUFFIX, method, user_agent, **kwargs)
 
     def get_cookies(self):
         return [ cookie for cookie in self.cj if cookie.name in ['weblabsessionid', 'loginweblabsessionid'] ]
@@ -69,13 +70,14 @@ class WebLabDeustoClient(object):
         session_holder = self._login_call('login', username=username, password=password)
         return SessionId(session_holder['id'])
 
-    def reserve_experiment(self, session_id, experiment_id, client_initial_data, consumer_data):
+    def reserve_experiment(self, session_id, experiment_id, client_initial_data, consumer_data, user_agent = None):
         serialized_session_id = {'id' : session_id.id}
         serialized_experiment_id = {
                                 'exp_name' : experiment_id.exp_name,
                                 'cat_name' : experiment_id.cat_name
                             }
         reservation_holder = self._core_call('reserve_experiment',
+                        user_agent = user_agent,
                         session_id=serialized_session_id,
                         experiment_id=serialized_experiment_id,
                         client_initial_data=client_initial_data,

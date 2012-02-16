@@ -105,9 +105,9 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         #   but also Provider 1 and Provider 2.
         #
 
-        reservation_id1 = self._test_reservation(session_id, self.dummy1, 'Consumer', True, False)
-        reservation_id2 = self._test_reservation(session_id, self.dummy1, 'Provider 1', True, False)
-        reservation_id3 = self._test_reservation(session_id, self.dummy1, 'Provider 2', True, False)
+        reservation_id1 = self._test_reservation(session_id, self.dummy1, 'Consumer',  True, False,  user_agent = 'Chrome')
+        reservation_id2 = self._test_reservation(session_id, self.dummy1, 'Provider 1', True, False, user_agent = 'Firefox')
+        reservation_id3 = self._test_reservation(session_id, self.dummy1, 'Provider 2', True, False, user_agent = 'Safari')
 
         reservation_ids = (reservation_id1, reservation_id2, reservation_id3)
         reservation_results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
@@ -167,8 +167,8 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self.consumer_core_client.finished_experiment(reservation_4)
         self._wait_reservation(reservation_5, 'Provider 1', True)
 
-    def _test_reservation(self, session_id, experiment_id, expected_server_info, wait, finish):
-        reservation_status = self.consumer_core_client.reserve_experiment(session_id, experiment_id, "{}", "{}")
+    def _test_reservation(self, session_id, experiment_id, expected_server_info, wait, finish, user_agent = None):
+        reservation_status = self.consumer_core_client.reserve_experiment(session_id, experiment_id, "{}", "{}", user_agent = user_agent)
 
         reservation_id = reservation_status.reservation_id
 
