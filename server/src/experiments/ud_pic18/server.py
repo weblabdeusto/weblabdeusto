@@ -18,9 +18,9 @@
 from voodoo.gen.caller_checker import caller_check
 from voodoo.log import logged
 from voodoo.override import Override
-import experiments.ud_xilinx.exc as UdXilinxExperimentExceptions
-from experiments.ud_xilinx.command_senders import UdXilinxCommandSender
-from experiments.ud_xilinx.programmers import UdXilinxProgrammer
+import experiments.ud_pic18.exc as UdXilinxExperimentExceptions
+from experiments.ud_pic18.command_senders import UdXilinxCommandSender
+from experiments.ud_pic18.programmers import UdXilinxProgrammer
 import os
 import tempfile
 import voodoo.log as log
@@ -101,6 +101,7 @@ class UdPic18Experiment(Experiment.Experiment):
         Will spawn a new thread which will program the xilinx board with the
         provided file.
         """
+        print "Sending file..."
         self._programming_thread = self._program_file_t(file_content)
         return "STATE=" + STATE_PROGRAMMING
         
@@ -113,9 +114,14 @@ class UdPic18Experiment(Experiment.Experiment):
         """
         try:
             self._current_state = STATE_PROGRAMMING
+            print "Programming file..."
             self._program_file(file_content)
+            print "File programmed"
             self._current_state = STATE_READY
         except Exception as e:
+            print e
+            import traceback
+            traceback.print_exc()
             # Note: Currently, running the fake xilinx will raise this exception when
             # trying to do a CleanInputs, for which apparently serial is needed.
             self._current_state = STATE_FAILED
@@ -137,11 +143,15 @@ class UdPic18Experiment(Experiment.Experiment):
                     os.write(fd, file_content_recovered)
                 finally:
                     os.close(fd)
+                print "File ready in %s" % file_name
                 self._programmer.program(file_name)
+                print "File sent with programmer: ", self._programmer
             finally:
                 os.remove(file_name)
         except Exception as e:
-            
+            print "Error sending file"
+            import traceback
+            traceback.print_exc()
             #TODO: test me
             log.log(
                 UdPic18Experiment,
@@ -155,7 +165,7 @@ class UdPic18Experiment(Experiment.Experiment):
             raise ExperimentExceptions.SendingFileFailureException(
                     "Error sending file to device: %s" % e
                 )
-        self._clear()
+        # self._clear()
 
     def _clear(self):
         try:

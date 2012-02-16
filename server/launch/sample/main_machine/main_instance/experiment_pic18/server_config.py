@@ -38,6 +38,10 @@ exit
 digilent_adept_full_path = ["python","../../src/test/unit/weblab/experiment/devices/digilent_adept/fake_digilent_adept.py" ]
 digilent_adept_batch_content = """something with the variable $FILE"""
 
+pic_http_device_ip   = "192.168.50.138"
+pic_http_device_port = 80
+pic_http_device_app  = ""
+
 xilinx_http_device_ip_FPGA        = "192.168.50.138"
 xilinx_http_device_port_FPGA      = 80
 xilinx_http_device_app_FPGA       = ""
