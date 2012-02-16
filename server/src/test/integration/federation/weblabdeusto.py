@@ -46,9 +46,13 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self.provider2_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 38645 )
         self.provider2_core_client  = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 38345 )
 
+        # dummy1: deployed in consumer, provider1, provider2
         self.dummy1 = ExperimentId("dummy1", "Dummy experiments")
+        # dummy2: deployed in consumer
         self.dummy2 = ExperimentId("dummy2", "Dummy experiments")
+        # dummy3: deployed in provider1
         self.dummy3 = ExperimentId("dummy3", "Dummy experiments")
+        # dummy4: deployed in provider2
         self.dummy4 = ExperimentId("dummy4", "Dummy experiments")
 
     def tearDown(self):
@@ -121,13 +125,7 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         reservation_results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
 
         self.assertEquals(RunningReservationResult(), reservation_results[0])
-        # Given that it has not been propagated yet, this fails
-        print "\n" * 2 + "*" * 20
-        print reservation_ids[1]
-        print reservation_results[1]
-        print "\n" * 2 + "*" * 20
-        #self.assertTrue( reservation_results[1].is_finished() ) 
-        # XXX
+        self.assertTrue( reservation_results[1].is_finished() ) 
         self.assertEquals(RunningReservationResult(), reservation_results[2])
 
         reservation_id2b = self._test_reservation(session_id, self.dummy1, 'Provider 1', True, False)

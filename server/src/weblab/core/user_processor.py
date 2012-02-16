@@ -254,7 +254,6 @@ class UserProcessor(object):
         for experiment_use, reservation_id in zip(experiment_uses, reservation_ids):
             result = self._process_use(experiment_use, reservation_id)
             results.append(result)
-        # print results, experiment_uses
         return results
 
 
@@ -265,7 +264,6 @@ class UserProcessor(object):
             if use == self._db_manager._gateway.forbidden_access:
                 return ForbiddenReservationResult()
             if use.end_date is None:
-                # print reservation_id, use
                 return RunningReservationResult()
             storage_path = self._cfg_manager.get_value('core_store_students_programs_path')
             use.load_files(storage_path)
@@ -277,8 +275,6 @@ class UserProcessor(object):
             if status.status in WebLabSchedulingStatus.NOT_USED_YET_EXPERIMENT_STATUS:
                 return WaitingReservationResult()
             else:
-                if status.status == WebLabSchedulingStatus.POST_RESERVATION and status.finished:
-                    print "ALGO RARO PASA", reservation_id, status.status
                 return RunningReservationResult()
         except coord_exc.ExpiredSessionException:
             return CancelledReservationResult()

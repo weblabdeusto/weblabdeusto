@@ -125,8 +125,6 @@ class ExternalWebLabDeustoScheduler(Scheduler):
 
         remote_reservation_id = external_reservation.reservation_id.id
 
-        print "LINK", reservation_id, remote_reservation_id
-
         cookies = client.get_cookies()
         serialized_cookies = pickle.dumps(cookies)
 
@@ -157,7 +155,6 @@ class ExternalWebLabDeustoScheduler(Scheduler):
             if reservation is None:
                 pending_result = session.query(ExternalWebLabDeustoReservationPendingResults).filter_by(resource_type_name = self.resource_type_name, server_route = self.core_server_route, reservation_id = reservation_id).first()
                 if pending_result is None:
-                    print "Asking for reservation_status"
                     raise Exception("reservation not yet stored in local database")
 
                 return WSS.PostReservationStatus(reservation_id, False, '', '')

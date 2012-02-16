@@ -82,7 +82,6 @@ class ResultsRetriever(threading.Thread):
             remote_reservation_ids = [ SessionId(pending_result.remote_reservation_id) for pending_result in pending_results ]
 
             results = client.get_experiment_uses_by_id(session_id, remote_reservation_ids)
-            # print self.server_url, zip([ (pending_result.reservation_id, pending_result.remote_reservation_id) for pending_result in pending_results ], results)
 
             for pending_result, result in zip(pending_results, results):
                 if result.is_alive():
@@ -96,6 +95,7 @@ class ResultsRetriever(threading.Thread):
                     log.log_exc(ResultsRetriever, log.level.Error)
                     request_info  = {'error' : 'could not be stored: %s' % e}
                 reservation_id = pending_result.reservation_id
+                remote_reservation_id = pending_result.remote_reservation_id
 
                 session = self.session_maker()
                 try:
@@ -108,7 +108,8 @@ class ResultsRetriever(threading.Thread):
 
                 if result.is_finished():
                     use = result.experiment_use
-                    print "Storing...", reservation_id
+                    use.remote_reservation_id = remote_reservation_id
+                    use.reservation_id = reservation_id
                     self.completed_store.put(username, request_info, use)
                     self.post_reservation_data_manager.delete(reservation_id)
 

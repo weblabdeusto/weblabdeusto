@@ -119,8 +119,7 @@ class TemporalInformationRetriever(threading.Thread):
 
             command = CommandSent(
                     Command.Command("@@@finish@@@"), initial_timestamp,
-                    Command.Command(str(obj)), end_timestamp
-            )
+                    Command.Command(str(obj)), end_timestamp)
 
             if not self.db_manager.finish_experiment_usage(reservation_id, initial_timestamp, command):
                 # If it could not be added because the experiment id
