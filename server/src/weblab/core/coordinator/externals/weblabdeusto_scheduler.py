@@ -125,6 +125,8 @@ class ExternalWebLabDeustoScheduler(Scheduler):
 
         remote_reservation_id = external_reservation.reservation_id.id
 
+        print "LINK", reservation_id, remote_reservation_id
+
         cookies = client.get_cookies()
         serialized_cookies = pickle.dumps(cookies)
 

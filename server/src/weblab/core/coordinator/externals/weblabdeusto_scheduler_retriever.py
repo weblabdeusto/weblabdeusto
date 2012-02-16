@@ -82,7 +82,7 @@ class ResultsRetriever(threading.Thread):
             remote_reservation_ids = [ SessionId(pending_result.remote_reservation_id) for pending_result in pending_results ]
 
             results = client.get_experiment_uses_by_id(session_id, remote_reservation_ids)
-            print self.server_url, zip([ (pending_result.reservation_id, pending_result.remote_reservation_id) for pending_result in pending_results ], results)
+            # print self.server_url, zip([ (pending_result.reservation_id, pending_result.remote_reservation_id) for pending_result in pending_results ], results)
 
             for pending_result, result in zip(pending_results, results):
                 if result.is_alive():
