@@ -552,7 +552,7 @@ class FakeDatabase(object):
     def is_access_forward(self, db_session_id):
         return True
 
-    def store_experiment_usage(self, db_session_id, reservation_info, experiment_usage):
+    def store_experiment_usage(self, db_session_id, experiment_usage):
         pass
 
     def get_available_experiments(self, db_session_id):

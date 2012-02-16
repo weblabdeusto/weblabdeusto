@@ -412,6 +412,14 @@ class DbUserUsedExperiment(Base):
         usage.reservation_id    = self.reservation_id
         usage.experiment_id     = ExperimentId(self.experiment.name, self.experiment.category.name)
         usage.coord_address     = CoordAddress.CoordAddress.translate_address(self.coord_address)
+        
+        request_info = {}
+        for prop in self.properties:
+            name  = prop.property_name.name
+            value = prop.value
+            request_info[name] = value
+        
+        usage.request_info = request_info
         return usage
 
     def to_business(self):

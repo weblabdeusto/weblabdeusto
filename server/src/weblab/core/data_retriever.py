@@ -86,6 +86,7 @@ class TemporalInformationRetriever(threading.Thread):
             usage.experiment_id  = initial_information.experiment_id
             usage.reservation_id = initial_information.reservation_id
             usage.coord_address  = initial_information.exp_coordaddr
+            usage.request_info   = initial_information.request_info
 
             command_request = CommandSent(
                     Command.Command("@@@initial::request@@@"), initial_timestamp,
@@ -100,13 +101,13 @@ class TemporalInformationRetriever(threading.Thread):
             usage.append_command(command_request)
             usage.append_command(command_response)
 
-            self.db_manager.store_experiment_usage(DbSession.ValidDatabaseSessionId(username, role), initial_information.request_info, usage)
+            self.db_manager.store_experiment_usage(DbSession.ValidDatabaseSessionId(username, role), usage)
 
     def iterate_completed(self):
         completed_information = self.completed_store.get(timeout=self.timeout)
         if completed_information is not None:
-            username, request_info, usage = completed_information
-            self.db_manager.store_experiment_usage(DbSession.ValidDatabaseSessionId(username, ''), request_info, usage)
+            username, usage = completed_information
+            self.db_manager.store_experiment_usage(DbSession.ValidDatabaseSessionId(username, ''), usage)
 
 
     def iterate_finish(self):

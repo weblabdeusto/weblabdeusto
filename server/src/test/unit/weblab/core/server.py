@@ -417,9 +417,9 @@ class UserProcessingServerTestCase(unittest.TestCase):
         initial_usage2.append_file(file1)
         initial_usage2.append_file(file2)
 
-        self.ups._db_manager._gateway.store_experiment_usage('student1', {}, initial_usage1)
+        self.ups._db_manager._gateway.store_experiment_usage('student1', initial_usage1)
 
-        self.ups._db_manager._gateway.store_experiment_usage('student2', {}, initial_usage2)
+        self.ups._db_manager._gateway.store_experiment_usage('student2', initial_usage2)
 
         return (reservation_id1, reservation_id2), (initial_usage1, initial_usage2)
 

@@ -121,12 +121,20 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         # What if one of them goes out and another comes? Is the load of experiments balanced correctly?
         #
         self.consumer_core_client.finished_experiment(reservation_id2)
-        time.sleep(10)
+
+        # Wait a couple of seconds to check that it is propagated
+        time.sleep(1)
+
         reservation_results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
 
+        # The other two are still running
         self.assertEquals(RunningReservationResult(), reservation_results[0])
-        self.assertTrue( reservation_results[1].is_finished() ) 
         self.assertEquals(RunningReservationResult(), reservation_results[2])
+        
+        # But the one finished is actually finished
+        self.assertTrue( reservation_results[1].is_finished() ) 
+        print reservation_results[1].experiment_use.request_info
+
 
         reservation_id2b = self._test_reservation(session_id, self.dummy1, 'Provider 1', True, False)
 

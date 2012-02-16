@@ -152,9 +152,9 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
-    @typecheck(basestring, dict, ExperimentUsage)
+    @typecheck(basestring, ExperimentUsage)
     @logged()
-    def store_experiment_usage(self, user_login, reservation_info, experiment_usage):
+    def store_experiment_usage(self, user_login, experiment_usage):
         session = self.Session()
         try:
             use = model.DbUserUsedExperiment(
@@ -206,13 +206,13 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                                 f.timestamp_after
                             ))
 
-            for reservation_info_key in reservation_info:
+            for reservation_info_key in experiment_usage.request_info:
                 db_key = session.query(model.DbUserUsedExperimentProperty).filter_by(name = reservation_info_key).first()
                 if db_key is None:
                     db_key = model.DbUserUsedExperimentProperty(reservation_info_key)
                     session.add(db_key)
 
-                value = reservation_info[reservation_info_key]
+                value = experiment_usage.request_info[reservation_info_key]
                 session.add(model.DbUserUsedExperimentPropertyValue( unicode(value), db_key, use ))
 
             session.commit()

@@ -129,8 +129,8 @@ class ExperimentUsage(object):
 
     __metaclass__ = Representable
 
-    @typecheck(int, float, float, basestring, ExperimentId, basestring, CoordAddress, list, list)
-    def __init__(self, experiment_use_id = None, start_date = None, end_date = None, from_ip = u"unknown", experiment_id = None, reservation_id = None, coord_address = None, commands = None, sent_files = None):
+    @typecheck(int, float, float, basestring, ExperimentId, basestring, CoordAddress, dict, list, list)
+    def __init__(self, experiment_use_id = None, start_date = None, end_date = None, from_ip = u"unknown", experiment_id = None, reservation_id = None, coord_address = None, request_info = None, commands = None, sent_files = None):
         self.experiment_use_id      = experiment_use_id # int
         self.start_date             = start_date        # seconds.millis since 1970 in GMT
         self.end_date               = end_date          # seconds.millis since 1970 in GMT
@@ -138,6 +138,10 @@ class ExperimentUsage(object):
         self.experiment_id          = experiment_id     # weblab.data.experiments.ExperimentId
         self.reservation_id         = reservation_id    # string, the reservation identifier
         self.coord_address          = coord_address     # voodoo.gen.coordinator.CoordAddress.CoordAddress
+        if request_info is None:
+            self.request_info       = {}
+        else:
+            self.request_info       = request_info
 
         if commands is None:
             self.commands           = []   # [CommandSent]

@@ -28,8 +28,8 @@ class UserProcessingDatabaseManager(object):
     def get_available_experiments(self, session_id):
         return self._gateway.list_experiments( session_id.username )
 
-    def store_experiment_usage(self, session_id, reservation_info, experiment_usage):
-        return self._gateway.store_experiment_usage( session_id.username, reservation_info, experiment_usage )
+    def store_experiment_usage(self, session_id, experiment_usage):
+        return self._gateway.store_experiment_usage( session_id.username, experiment_usage )
 
     def is_access_forward(self, session_id):
         return self._gateway.is_access_forward( session_id.username)

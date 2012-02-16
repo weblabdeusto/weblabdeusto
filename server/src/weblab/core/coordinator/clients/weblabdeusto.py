@@ -146,7 +146,7 @@ class WebLabDeustoClient(object):
         addr = experiment_use['coord_address']
         coord_address = CoordAddress(addr['machine_id'],addr['instance_id'],addr['server_id'])
 
-        use = ExperimentUsage(experiment_use['experiment_use_id'], experiment_use['start_date'], experiment_use['end_date'], experiment_use['from_ip'], experiment_id, experiment_use['reservation_id'], coord_address)
+        use = ExperimentUsage(experiment_use['experiment_use_id'], experiment_use['start_date'], experiment_use['end_date'], experiment_use['from_ip'], experiment_id, experiment_use['reservation_id'], coord_address, experiment_use['request_info'])
         for sent_file in experiment_use['sent_files']:
             response = Command(sent_file['response']['commandstring']) if 'commandstring' in sent_file['response'] and sent_file['response'] is not None else NullCommand
             unserialized_sent_file = LoadedFileSent( sent_file['file_content'], sent_file['timestamp_before'], response, sent_file['timestamp_after'], sent_file['file_info'])

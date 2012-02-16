@@ -89,7 +89,7 @@ class ResultsRetriever(threading.Thread):
 
                 username      = pending_result.username
                 try:
-                    request_info  = pickle.loads(pending_result.serialized_request_info)
+                    request_info  = pickle.loads(pending_result.serialized_request_info.encode('utf-8'))
                 except Exception as e:
                     log.log(ResultsRetriever, log.level.Critical, "Probably serialized_request_info was truncated in %s" % pending_result)
                     log.log_exc(ResultsRetriever, log.level.Error)
@@ -110,7 +110,8 @@ class ResultsRetriever(threading.Thread):
                     use = result.experiment_use
                     use.remote_reservation_id = remote_reservation_id
                     use.reservation_id = reservation_id
-                    self.completed_store.put(username, request_info, use)
+                    use.request_info   = request_info
+                    self.completed_store.put(username, use)
                     self.post_reservation_data_manager.delete(reservation_id)
 
 
