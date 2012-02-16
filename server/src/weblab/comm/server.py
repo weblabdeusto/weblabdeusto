@@ -106,7 +106,7 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         """
         This do_POST callback handles an HTTP request containing a JSON-encoded RPC request.
         """
-        create_context(self.server, self.headers)
+        create_context(self.server, self.client_address, self.headers)
 
         try:
             length = int(self.headers['content-length'])
@@ -268,7 +268,7 @@ class XmlRpcRequestHandler(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
         _show_help(self, "XML-RPC", methods, methods_help)
 
     def do_POST(self, *args, **kwargs):
-        create_context(self.server, self.headers)
+        create_context(self.server, self.client_address, self.headers)
         try:
             SimpleXMLRPCServer.SimpleXMLRPCRequestHandler.do_POST(self, *args, **kwargs)
         finally:
@@ -317,7 +317,7 @@ if ZSI_AVAILABLE:
         server_route = None
 
         def do_POST(self, *args, **kwargs):
-            create_context(self.server, self.headers)
+            create_context(self.server, self.client_address, self.headers)
             try:
                 ServiceContainer.SOAPRequestHandler.do_POST(self, *args, **kwargs)
             finally:

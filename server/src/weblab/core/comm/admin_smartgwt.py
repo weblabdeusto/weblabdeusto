@@ -358,7 +358,7 @@ class SmartGwtHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     server_route   = None
 
     def do_GET(self):
-        create_context(self.server, self.headers)
+        create_context(self.server, self.client_address, self.headers)
         try:
             first_question_mark = self.path.find("?")
             if first_question_mark >= 0:

@@ -24,26 +24,27 @@ def get_context():
     global _contexts
     return _contexts.get(_get_identifier()) or NullRemoteFacadeContext()
 
-def create_context(server, headers):
+def create_context(server, client_address, headers):
     global _contexts
-    _contexts[_get_identifier()] = RemoteFacadeContext(server, headers, None, None)
+    _contexts[_get_identifier()] = RemoteFacadeContext(server, client_address, headers, None, None)
 
 def delete_context():
     global _contexts
     _contexts.pop(_get_identifier())
 
 class RemoteFacadeContext(object):
-    def __init__(self, server, headers, route, session_id):
-        self._server        = server
-        self._headers       = headers
-        self.route          = route
-        self.session_id     = session_id
+    def __init__(self, server, client_address, headers, route, session_id):
+        self._server         = server
+        self._client_address = client_address
+        self._headers        = headers
+        self.route           = route
+        self.session_id      = session_id
 
     def get_ip_address(self):
         try:
-            return self._headers.get('X-Forwarded-For') or '<unknown client>'
+            return self._headers.get('X-Forwarded-For') or ('<unknown client. retrieved from %s>' % self._client_address[0])
         except KeyError:
-            return '<unknown client>'
+            return '<unknown client. retrieved from %s>' % self._client_address[0]
 
     def get_user_agent(self):
         try:
@@ -68,5 +69,5 @@ class RemoteFacadeContext(object):
 
 class NullRemoteFacadeContext(RemoteFacadeContext):
     def __init__(self):
-        super(NullRemoteFacadeContext, self).__init__('', {}, None, None)
+        super(NullRemoteFacadeContext, self).__init__('', ('', 80), {}, None, None)
 

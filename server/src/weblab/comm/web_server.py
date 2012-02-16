@@ -172,7 +172,7 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             else:
                 self.weblab_cookie = "weblabsessionid=sessid.not.found"
 
-        create_context(self.server, self.headers)
+        create_context(self.server, self.client_address, self.headers)
         try:
             for method in self.methods:
                 if method.matches(self.path):
