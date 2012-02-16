@@ -7,6 +7,7 @@ regex:
 .pyo$
 .class$
 .swp$
+.metadata
 
 ^server/consumers/php/cookiefile
 ^server/src/env
