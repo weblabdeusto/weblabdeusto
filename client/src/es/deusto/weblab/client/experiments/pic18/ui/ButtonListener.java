@@ -11,7 +11,7 @@
 * Author: Pablo Orduña <pablo@ordunya.com>
 *
 */ 
-package es.deusto.weblab.client.experiments.xilinx.ui;
+package es.deusto.weblab.client.experiments.pic18.ui;
 
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.experiments.xilinx.commands.PulseCommand;

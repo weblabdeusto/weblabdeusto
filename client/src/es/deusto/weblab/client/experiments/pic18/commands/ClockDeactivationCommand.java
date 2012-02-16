@@ -11,7 +11,7 @@
 * Author: Pablo Orduña <pablo@ordunya.com>
 *
 */ 
-package es.deusto.weblab.client.experiments.xilinx.commands;
+package es.deusto.weblab.client.experiments.pic18.commands;
 
 import es.deusto.weblab.client.dto.experiments.Command;
 
