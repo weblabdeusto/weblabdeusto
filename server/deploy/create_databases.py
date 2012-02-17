@@ -473,6 +473,9 @@ def populate_weblab_tests(engine):
     dummy3 = Model.DbExperiment("dummy3", cat_dummy, start_date, end_date)
     session.add(dummy3)
 
+    dummy3_with_other_name = Model.DbExperiment("dummy3_with_other_name", cat_dummy, start_date, end_date)
+    session.add(dummy3_with_other_name)
+
     dummy4 = Model.DbExperiment("dummy4", cat_dummy, start_date, end_date)
     session.add(dummy4)
 
@@ -599,6 +602,21 @@ def populate_weblab_tests(engine):
     session.add(gp_federated_dummy3_allowed_p2)
     gp_federated_dummy3_allowed_p3 = Model.DbGroupPermissionParameter(gp_federated_dummy3_allowed, experiment_allowed_p3, "300")
     session.add(gp_federated_dummy3_allowed_p3)
+
+    gp_federated_dummy3_with_other_name_allowed = Model.DbGroupPermission(
+        group_federated,
+        experiment_allowed.group_applicable,
+        "Federated users::dummy3_with_other_name",
+        datetime.datetime.utcnow(),
+        "Permission for group Federated users to use dummy3_with_other_name"
+    )
+    session.add(gp_federated_dummy3_with_other_name_allowed)
+    gp_federated_dummy3_with_other_name_allowed_p1 = Model.DbGroupPermissionParameter(gp_federated_dummy3_with_other_name_allowed, experiment_allowed_p1, "dummy3_with_other_name")
+    session.add(gp_federated_dummy3_with_other_name_allowed_p1)
+    gp_federated_dummy3_with_other_name_allowed_p2 = Model.DbGroupPermissionParameter(gp_federated_dummy3_with_other_name_allowed, experiment_allowed_p2, "Dummy experiments")
+    session.add(gp_federated_dummy3_with_other_name_allowed_p2)
+    gp_federated_dummy3_with_other_name_allowed_p3 = Model.DbGroupPermissionParameter(gp_federated_dummy3_with_other_name_allowed, experiment_allowed_p3, "300")
+    session.add(gp_federated_dummy3_with_other_name_allowed_p3)
 
     gp_federated_dummy4_allowed = Model.DbGroupPermission(
         group_federated,

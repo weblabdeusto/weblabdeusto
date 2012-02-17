@@ -23,6 +23,8 @@ from sqlalchemy.orm.exc import StaleDataError
 from voodoo.override import Override
 from voodoo.sessions.session_id import SessionId
 
+from weblab.data.experiments import ExperimentId
+
 from weblab.core.user_processor import FORWARDED_KEYS, SERVER_UUIDS
 import weblab.core.coordinator.status as WSS
 from weblab.core.coordinator.scheduler import Scheduler
@@ -38,13 +40,17 @@ DEFAULT_RETRIEVAL_PERIOD = 10
 
 class ExternalWebLabDeustoScheduler(Scheduler):
 
-    def __init__(self, generic_scheduler_arguments, baseurl, username, password, login_baseurl = None, **kwargs):
+    def __init__(self, generic_scheduler_arguments, baseurl, username, password, login_baseurl = None, experiments_map = None, **kwargs):
         super(ExternalWebLabDeustoScheduler, self).__init__(generic_scheduler_arguments, **kwargs)
 
         self.baseurl       = baseurl
         self.login_baseurl = login_baseurl
         self.username      = username
         self.password      = password
+        if experiments_map is None:
+            self.experiments_map = {}
+        else:
+            self.experiments_map = experiments_map
 
         from weblab.core.coordinator.coordinator import POST_RESERVATION_EXPIRATION_TIME, DEFAULT_POST_RESERVATION_EXPIRATION_TIME
         post_reservation_expiration_time = self.cfg_manager.get_value(POST_RESERVATION_EXPIRATION_TIME, DEFAULT_POST_RESERVATION_EXPIRATION_TIME)
@@ -94,7 +100,6 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     @logged()
     @Override(Scheduler)
     def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info):
-
         server_uuids = list(request_info.get(SERVER_UUIDS, []))
         server_uuids.append((self.core_server_uuid, self.core_server_uuid_human))
 
@@ -118,7 +123,10 @@ class ExternalWebLabDeustoScheduler(Scheduler):
 
         serialized_client_initial_data = json.dumps(client_initial_data)
         serialized_consumer_data       = json.dumps(consumer_data)
-        external_reservation = client.reserve_experiment(session_id, experiment_id, serialized_client_initial_data, serialized_consumer_data)
+        # If the administrator has mapped that this experiment_id is other, take that other. Otherwide, take the same one
+        requested_experiment_id_str    = self.experiments_map.get(experiment_id.to_weblab_str(), experiment_id.to_weblab_str())
+        requested_experiment_id        = ExperimentId.parse(requested_experiment_id_str)
+        external_reservation = client.reserve_experiment(session_id, requested_experiment_id, serialized_client_initial_data, serialized_consumer_data)
 
         if external_reservation.is_null():
             return None

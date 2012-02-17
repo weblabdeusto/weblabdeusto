@@ -11,5 +11,5 @@
 	<server>core</server>
 	<server>laboratory</server>
 	<server>experiment_dummy1</server>
-	<server>experiment_dummy3</server>
+	<server>experiment_dummy3_with_other_name</server>
 </servers>

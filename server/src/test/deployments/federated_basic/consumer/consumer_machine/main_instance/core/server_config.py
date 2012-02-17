@@ -38,6 +38,7 @@ _provider1_scheduling_config = ("EXTERNAL_WEBLAB_DEUSTO", {
                                     'login_baseurl' : 'http://127.0.0.1:28645/weblab/',
                                     'username' : 'consumer1',
                                     'password' : 'password',
+                                    'experiments_map' : {'dummy3@Dummy experiments' : 'dummy3_with_other_name@Dummy experiments'}
                             })
 
 core_scheduling_systems = {

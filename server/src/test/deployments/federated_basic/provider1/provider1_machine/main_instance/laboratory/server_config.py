@@ -8,9 +8,9 @@ laboratory_assigned_experiments = {
                  'coord_address': 'experiment_dummy1:main_instance@provider1_machine',
                  'checkers': ()
             },
-        'exp1:dummy3@Dummy experiments':
+        'exp1:dummy3_with_other_name@Dummy experiments':
             {
-                 'coord_address': 'experiment_dummy3:main_instance@provider1_machine',
+                 'coord_address': 'experiment_dummy3_with_other_name:main_instance@provider1_machine',
                  'checkers': ()
             },
     }
