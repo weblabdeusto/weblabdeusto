@@ -146,14 +146,13 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self._test_reservation(session_id, self.dummy1, 'Provider 2', True, False)
 
         time.sleep(1)
-
         reservation_results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
         self.assertTrue( reservation_results[0].is_finished() )
         self.assertEquals('Chrome', reservation_results[0].experiment_use.request_info['user_agent'])
         self.assertEquals('Consumer', reservation_results[0].experiment_use.commands[2].response.commandstring)
-        #self.assertTrue( reservation_results[2].is_finished() )
-        #self.assertEquals('Safari', reservation_results[2].experiment_use.request_info['user_agent'])
-        #self.assertEquals('Provider 2', reservation_results[2].experiment_use.commands[2].response.commandstring)
+        self.assertTrue( reservation_results[2].is_finished() )
+        self.assertEquals('Safari', reservation_results[2].experiment_use.request_info['user_agent'])
+        self.assertEquals('Provider 2', reservation_results[2].experiment_use.commands[2].response.commandstring)
 
         #
         # What if another 2 come in? What is the position of their queues?

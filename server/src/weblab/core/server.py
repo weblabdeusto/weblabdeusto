@@ -522,14 +522,12 @@ class UserProcessingServer(object):
     @check_session(**check_session_params)
     @load_user_processor
     def get_experiment_use_by_id(self, user_processor, session, reservation_id):
-        reservation_id = SessionId(reservation_id.id.split(';')[0])
         return user_processor.get_experiment_use_by_id(reservation_id)
 
     @logged(log.level.Info)
     @check_session(**check_session_params)
     @load_user_processor
     def get_experiment_uses_by_id(self, user_processor, session, reservation_ids):
-        reservation_ids = map( lambda reservation_id : SessionId(reservation_id.id.split(';')[0]), reservation_ids )
         return user_processor.get_experiment_uses_by_id(reservation_ids)
 
     @logged(log.level.Info)
