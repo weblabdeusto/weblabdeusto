@@ -16,6 +16,7 @@
 import cPickle as pickle
 import threading
 import time
+import numbers
 import urllib2
 
 from sqlalchemy.orm.exc import StaleDataError
@@ -110,6 +111,10 @@ class ResultsRetriever(threading.Thread):
                     use = result.experiment_use
                     use.remote_reservation_id = remote_reservation_id
                     use.reservation_id = reservation_id
+
+                    for key in [ key for key in request_info ]:
+                        if not isinstance(request_info[key], (basestring, numbers.Number)):
+                            request_info.pop(key)
                     use.request_info   = request_info
                     self.completed_store.put(username, use)
                     self.post_reservation_data_manager.delete(reservation_id)

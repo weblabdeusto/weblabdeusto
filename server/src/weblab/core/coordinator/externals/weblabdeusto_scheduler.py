@@ -149,20 +149,31 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     @Override(Scheduler)
     def get_reservation_status(self, reservation_id):
 
-        session = self.session_maker()
-        try:
-            reservation = session.query(ExternalWebLabDeustoReservation).filter_by(local_reservation_id = reservation_id).first()
-            if reservation is None:
-                pending_result = session.query(ExternalWebLabDeustoReservationPendingResults).filter_by(resource_type_name = self.resource_type_name, server_route = self.core_server_route, reservation_id = reservation_id).first()
-                if pending_result is None:
-                    raise Exception("reservation not yet stored in local database")
+        reservation_found = False
+        max_iterations = 10
 
-                return WSS.PostReservationStatus(reservation_id, False, '', '')
+        while not reservation_found and max_iterations >= 0:
+            session = self.session_maker()
+            try:
+                reservation = session.query(ExternalWebLabDeustoReservation).filter_by(local_reservation_id = reservation_id).first()
+                if reservation is None:
+                    pending_result = session.query(ExternalWebLabDeustoReservationPendingResults).filter_by(resource_type_name = self.resource_type_name, server_route = self.core_server_route, reservation_id = reservation_id).first()
+                    if pending_result is None:
+                        # reservation not yet stored in local database
+                        pass
+                    else:
+                        return WSS.PostReservationStatus(reservation_id, False, '', '')
+                else:
+                    reservation_found = True
+                    remote_reservation_id = reservation.remote_reservation_id
+                    serialized_cookies    = reservation.cookies
+            finally:
+                session.close()
             
-            remote_reservation_id = reservation.remote_reservation_id
-            serialized_cookies    = reservation.cookies
-        finally:
-            session.close()
+            # Introduce a delay to let the system store the reservation in the local database
+            if not reservation_found:
+                time.sleep(0.1)
+                max_iterations -= 1
 
         cookies = pickle.loads(str(serialized_cookies))
         client = self._create_client(cookies)
