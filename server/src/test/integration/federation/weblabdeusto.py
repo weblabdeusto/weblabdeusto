@@ -161,6 +161,12 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self.assertTrue( reservation_results[0].is_finished() )
         self.assertEquals('Chrome', reservation_results[0].experiment_use.request_info['user_agent'])
         self.assertEquals('Consumer', reservation_results[0].experiment_use.commands[2].response.commandstring)
+
+        print "*" * 20
+        print
+        print reservation_ids[2]
+        print 
+        print "*" * 20
         self.assertTrue( reservation_results[2].is_finished() )
         self.assertEquals('Safari', reservation_results[2].experiment_use.request_info['user_agent'])
         self.assertEquals('Provider 2', reservation_results[2].experiment_use.commands[2].response.commandstring)
