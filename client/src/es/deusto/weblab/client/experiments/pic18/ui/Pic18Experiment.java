@@ -40,6 +40,7 @@ import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
 import es.deusto.weblab.client.ui.widgets.WlClockActivator;
+import es.deusto.weblab.client.ui.widgets.WlPotentiometer;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar;
 import es.deusto.weblab.client.ui.widgets.WlSwitch;
 import es.deusto.weblab.client.ui.widgets.WlTimedButton;
@@ -59,10 +60,10 @@ public class Pic18Experiment extends ExperimentBase{
 	 * UIBINDER RELATED
 	 ******************/
 	
-	interface WlDeustoXilinxBasedBoardUiBinder extends UiBinder<Widget, Pic18Experiment> {
+	interface PIC18UiBinder extends UiBinder<Widget, Pic18Experiment> {
 	}
 
-	private static final WlDeustoXilinxBasedBoardUiBinder uiBinder = GWT.create(WlDeustoXilinxBasedBoardUiBinder.class);
+	private static final PIC18UiBinder uiBinder = GWT.create(PIC18UiBinder.class);
 	
 	private static final String XILINX_DEMO_PROPERTY                  = "is.demo";
 	private static final boolean DEFAULT_XILINX_DEMO                  = false;
@@ -181,9 +182,9 @@ public class Pic18Experiment extends ExperimentBase{
 		for(int i = 0; i < this.switchesRow.getWidgetCount(); ++i){
 			final Widget wid = this.switchesRow.getWidget(i);
 			if(wid instanceof WlSwitch) {
-				final WlSwitch swi = (WlSwitch)wid;
-				this.addInteractiveWidget(swi);
-			}
+				this.addInteractiveWidget(wid);
+			}else if(wid instanceof WlPotentiometer)
+				this.addInteractiveWidget(wid);
 		}
 		
 		// Find timed buttons

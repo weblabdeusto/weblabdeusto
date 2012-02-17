@@ -68,6 +68,15 @@ public class WlPotentiometer extends VerticalPanel implements IWlWidget {
 		
 		this.add(this.visiblePanel);
 	}
+	
+	public void setPower(double power) {
+		this.textbox.setText(new Double(power));
+		this.power = power;
+	}
+	
+	public void setMaxPower(double maxPower) {
+		this.textbox.setMaxValue(maxPower);
+	}
 	 
 	@Override
 	public void setTitle(String title) {

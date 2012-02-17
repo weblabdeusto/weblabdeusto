@@ -42,6 +42,7 @@
 					<w:WlSwitch title="2"></w:WlSwitch>
 					<w:WlSwitch title="1"></w:WlSwitch>
 					<w:WlSwitch title="0"></w:WlSwitch>
+					<w:WlPotentiometer maxPower="3.3" power="2.0" title="AN0"/>
 				</g:HorizontalPanel>
 			
 				<!--  Panel with the buttons -->

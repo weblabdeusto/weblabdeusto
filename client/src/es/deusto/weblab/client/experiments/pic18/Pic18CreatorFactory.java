@@ -18,7 +18,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
-import es.deusto.weblab.client.experiments.xilinx.ui.XilinxExperiment;
+import es.deusto.weblab.client.experiments.pic18.ui.Pic18Experiment;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
@@ -40,7 +40,7 @@ public class Pic18CreatorFactory implements IExperimentCreatorFactory {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new XilinxExperiment(
+						callback.onExperimentLoaded(new Pic18Experiment(
 								configurationRetriever,
 								boardController
 							));
