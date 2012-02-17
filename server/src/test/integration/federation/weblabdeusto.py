@@ -122,8 +122,12 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         #
         self.consumer_core_client.finished_experiment(reservation_id2)
 
-        # Wait a couple of seconds to check that it is propagated
-        time.sleep(1)
+        # Wait a couple of seconds to check that it has been propagated
+        for _ in range(20):
+            time.sleep(0.5)
+            # Checking every half second
+            if self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)[1].is_finished():
+                break
 
         reservation_results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
 
@@ -145,7 +149,14 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self.consumer_core_client.finished_experiment(reservation_id3)
         self._test_reservation(session_id, self.dummy1, 'Provider 2', True, False)
 
-        time.sleep(1)
+        # Check for the other uses
+        for _ in range(40):
+            time.sleep(0.5)
+            # Checking every half second
+            results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
+            if results[0].is_finished() and results[2].is_finished():
+                break
+
         reservation_results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
         self.assertTrue( reservation_results[0].is_finished() )
         self.assertEquals('Chrome', reservation_results[0].experiment_use.request_info['user_agent'])

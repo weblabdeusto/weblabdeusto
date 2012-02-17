@@ -158,7 +158,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     def get_reservation_status(self, reservation_id):
 
         reservation_found = False
-        max_iterations = 10
+        max_iterations = 15
 
         while not reservation_found and max_iterations >= 0:
             session = self.session_maker()
@@ -182,6 +182,9 @@ class ExternalWebLabDeustoScheduler(Scheduler):
             if not reservation_found:
                 time_mod.sleep(0.1)
                 max_iterations -= 1
+
+        if not reservation_found:
+            raise Exception("At the External WebLab-Deusto Scheduler, we could not find a local reservation with reservation_id %s neither a stored reservation with that id" % reservation_id)
 
         cookies = pickle.loads(str(serialized_cookies))
         client = self._create_client(cookies)
