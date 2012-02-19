@@ -49,7 +49,7 @@ class ReservationsManager(object):
         try:
             reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
             if reservation is None:
-                raise CoordExc.ExpiredSessionException("Expired reservation: no experiment id found for that reservation")
+                raise CoordExc.ExpiredSessionException("Expired reservation: no experiment id found for that reservation (%s)" % reservation_id)
             return reservation.experiment_type.to_experiment_id()
         finally:
             session.close()
