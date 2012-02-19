@@ -103,7 +103,8 @@ class ResultsRetriever(threading.Thread):
                     session.delete(pending_result)
                     session.commit()
                 except (IntegrityError, ConcurrentModificationError, StaleDataError):
-                    pass
+                    # Somebody else is already handling this
+                    continue
                 finally:
                     session.close()
 
