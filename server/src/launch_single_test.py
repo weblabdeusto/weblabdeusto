@@ -13,18 +13,26 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import libraries, sys, os, unittest
+import libraries
+import sys
+import os
+import unittest
+import logging
 
 if len(sys.argv) < 2:
-        print >> sys.stderr, "python %s [-g] <testfile>" % sys.argv[0]
+        print >> sys.stderr, "python %s [-g][d] <testfile>" % sys.argv[0]
         sys.exit(1)
 
-if len(sys.argv) == 3 and sys.argv[1] == '-g':
+if sys.argv[1].startswith('-'):
     testfile = sys.argv[2]
-    gui = True
+    debug = 'd' in sys.argv[1]
+    gui   = 'g' in sys.argv[1]
+    args_passed = True
 else:
     testfile = sys.argv[1]
-    gui = False
+    gui   = False
+    debug = False
+    args_passed = False
 
 if not testfile.endswith('.py'):
         print >> sys.stderr, "python %s <testfile>" % sys.argv[0]
@@ -44,11 +52,16 @@ def debugThreads():
 print "Launching... %s" % module_name
 module =  __import__(module_name, globals(), locals(), [module_name])
 suite = module.suite
+
+if debug:
+    logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+
 if gui:
     import unittestgui
     unittestgui.main(__name__ + '.suite')
 else:
     try:
-        unittest.main(module = module, defaultTest = 'suite', argv = [sys.argv[0]] + sys.argv[2:])
+        min_args = 3 if args_passed else 2
+        unittest.main(module = module, defaultTest = 'suite', argv = [sys.argv[0]] + sys.argv[min_args:])
     finally:
         debugThreads()
