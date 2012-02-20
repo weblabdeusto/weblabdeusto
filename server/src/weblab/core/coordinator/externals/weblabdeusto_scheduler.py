@@ -20,6 +20,7 @@ import datetime
 
 from sqlalchemy.orm.exc import StaleDataError
 
+import voodoo.log as log
 from voodoo.override import Override
 from voodoo.sessions.session_id import SessionId
 
@@ -132,6 +133,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
             return None
 
         remote_reservation_id = external_reservation.reservation_id.id
+        log.log(ExternalWebLabDeustoScheduler, log.level.Info, "Local reservation_id %s is linked to remote reservation %s" % (reservation_id, remote_reservation_id))
 
         cookies = client.get_cookies()
         serialized_cookies = pickle.dumps(cookies)

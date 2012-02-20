@@ -17,6 +17,7 @@
 import time as time_module
 import json
 
+import voodoo.log as log
 from voodoo.cache import cache
 from voodoo.typechecker import typecheck
 from voodoo.sessions.session_id import SessionId
@@ -264,6 +265,7 @@ class UserProcessor(object):
             if use == self._db_manager._gateway.forbidden_access:
                 return ForbiddenReservationResult()
             if use.end_date is None:
+                log.log(UserProcessor, log.level.Debug, "Reservation %s is running since end_time is None" % reservation_id)
                 return RunningReservationResult()
             storage_path = self._cfg_manager.get_value('core_store_students_programs_path')
             use.load_files(storage_path)
@@ -275,8 +277,10 @@ class UserProcessor(object):
             if status.status in WebLabSchedulingStatus.NOT_USED_YET_EXPERIMENT_STATUS:
                 return WaitingReservationResult()
             else:
+                log.log(UserProcessor, log.level.Debug, "Reservation %s is running due to status %r" % (reservation_id, status))
                 return RunningReservationResult()
-        except coord_exc.ExpiredSessionException:
+        except coord_exc.ExpiredSessionException, ese:
+            log.log(UserProcessor, log.level.Debug, "Reservation %s is cancelled due to expired session: %s" % (reservation_id, ese))
             return CancelledReservationResult()
 
 
