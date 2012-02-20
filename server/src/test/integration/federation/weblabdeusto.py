@@ -145,6 +145,20 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
 
         #self.consumer_core_client.finished_experiment(reservation_id1)
         #self._test_reservation(session_id, self.dummy1, 'Consumer', True, False)
+        reservation_status = self.consumer_core_client.get_reservation_status(reservation_id3)
+        provider1_reservation_id = reservation_status.remote_reservation_id
+        print provider1_reservation_id, reservation_status
+        provider2_reservation_id = self.provider2_core_client.get_reservation_status(provider1_reservation_id).remote_reservation_id
+
+        print "================="
+        print 
+        print "consumer",  reservation_id3
+        print "provider1", provider1_reservation_id
+        print "provider2", provider2_reservation_id
+        print
+        print "================="
+
+
 
         self.consumer_core_client.finished_experiment(reservation_id3)
         #self._test_reservation(session_id, self.dummy1, 'Provider 2', True, False)

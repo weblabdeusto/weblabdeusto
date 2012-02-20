@@ -198,8 +198,23 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     def _convert_reservation_to_status(self, reservation, local_reservation_id, remote_reservation_id):
         reservation_status = reservation.to_status()
         reservation_status.set_reservation_id(local_reservation_id)
-        if reservation_status.status == WSS.WebLabSchedulingStatus.RESERVED_REMOTE and reservation_status.remote_reservation_id == '':
-            reservation_status.set_remote_reservation_id(remote_reservation_id)
+        if reservation_status.status == WSS.WebLabSchedulingStatus.RESERVED_REMOTE:
+            # 
+            # If it has been successfully reserved in a remote server, it can mean two things:
+            # 
+            #  a) the remote_reservation_id can be empty, and therefore the remote server we're 
+            #     contacting is the one with the resource
+            #  
+            #  b) the remote_reservation_id is other address, and therefore the remote server is
+            #     proxying the communications another server
+            # 
+            # We have to change the remote reservation id if it is empty
+            # 
+            if reservation_status.remote_reservation_id == '':
+                reservation_status.set_remote_reservation_id(remote_reservation_id)
+            else:
+                print reservation_status.remote_reservation_id
+                print reservation_status.url
 
         reservation_id_with_route = '%s;%s.%s' % (local_reservation_id, local_reservation_id, self.core_server_route)
         reservation_status.reservation_id = reservation_id_with_route
