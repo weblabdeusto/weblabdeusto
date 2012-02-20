@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+from voodoo.representable import Representable
 from voodoo.typechecker import typecheck
 from voodoo.dbutil import get_table_kwargs
 from sqlalchemy import Column, Integer, String
@@ -78,4 +79,17 @@ class ExternalWebLabDeustoReservationPendingResults(Base):
     def __repr__(self):
         return SUFFIX + "ExternalWeblabDeustoReservationPendingResults(%r, %r, %r, %r, %r, %r)" % (
                             self.reservation_id, self.remote_reservation_id, self.resource_type_name, self.server_route, self.username, self.serialized_request_info)
+
+    def to_dto(self):
+        return ExternalWebLabDeustoReservationPendingResultDTO(self.id, self.reservation_id, self.remote_reservation_id, self.username, self.serialized_request_info)
+
+class ExternalWebLabDeustoReservationPendingResultDTO(object):
+    __metaclass__ = Representable
+
+    def __init__(self, id, reservation_id, remote_reservation_id, username, serialized_request_info):
+        self.id                      = id
+        self.reservation_id          = reservation_id
+        self.remote_reservation_id   = remote_reservation_id
+        self.username                = username
+        self.serialized_request_info = serialized_request_info
 

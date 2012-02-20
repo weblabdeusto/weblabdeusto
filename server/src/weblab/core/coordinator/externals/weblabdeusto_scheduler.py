@@ -266,6 +266,8 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         try:
             for reservation in session.query(ExternalWebLabDeustoReservation).all():
                 session.delete(reservation)
+            for pending_reservation in session.query(ExternalWebLabDeustoReservationPendingResults).all():
+                session.delete(pending_reservation)
             session.commit()
         finally:
             session.close()

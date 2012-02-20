@@ -69,7 +69,7 @@ class ResultsRetriever(threading.Thread):
     def _process(self):
         session = self.session_maker()
         try:
-            pending_results = session.query(ExternalWebLabDeustoReservationPendingResults).filter_by(resource_type_name = self.resource_type_name, server_route = self.server_route).all()
+            pending_results = [ pending_result.to_dto() for pending_result in session.query(ExternalWebLabDeustoReservationPendingResults).filter_by(resource_type_name = self.resource_type_name, server_route = self.server_route).all() ]
         finally:
             session.close()
 
@@ -100,8 +100,12 @@ class ResultsRetriever(threading.Thread):
 
                 session = self.session_maker()
                 try:
-                    session.delete(pending_result)
-                    session.commit()
+                    db_pending_result = session.query(ExternalWebLabDeustoReservationPendingResults).filter_by(id = pending_result.id).first()
+                    if db_pending_result is not None:
+                        session.delete(db_pending_result)
+                        session.commit()
+                    else:
+                        continue
                 except (IntegrityError, ConcurrentModificationError, StaleDataError):
                     # Somebody else is already handling this
                     continue
@@ -119,5 +123,6 @@ class ResultsRetriever(threading.Thread):
                     use.request_info   = request_info
                     self.completed_store.put(username, use)
                     self.post_reservation_data_manager.delete(reservation_id)
-
+                else:
+                    log.log(ResultsRetriever, log.level.Info, "Reservation id %s was cancelled and therefore not stored" % reservation_id)
 
