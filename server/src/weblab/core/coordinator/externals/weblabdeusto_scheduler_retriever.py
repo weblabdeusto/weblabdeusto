@@ -105,8 +105,11 @@ class ResultsRetriever(threading.Thread):
                         session.delete(db_pending_result)
                         session.commit()
                     else:
+                        log.log(ResultsRetriever, log.level.Info, "Pending reservation %r not found. Assuming it is managed by other thread" % pending_result)
                         continue
                 except (IntegrityError, ConcurrentModificationError, StaleDataError):
+                    log.log(ResultsRetriever, log.level.Info, "Pending reservation %r deletion failed. Assuming it is managed by other thread" % pending_result)
+                    log.log_exc(ResultsRetriever, log.level.Debug)
                     # Somebody else is already handling this
                     continue
                 finally:
