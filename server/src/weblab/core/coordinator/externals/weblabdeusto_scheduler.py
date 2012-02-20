@@ -212,9 +212,6 @@ class ExternalWebLabDeustoScheduler(Scheduler):
             # 
             if reservation_status.remote_reservation_id == '':
                 reservation_status.set_remote_reservation_id(remote_reservation_id)
-            else:
-                print reservation_status.remote_reservation_id
-                print reservation_status.url
 
         reservation_id_with_route = '%s;%s.%s' % (local_reservation_id, local_reservation_id, self.core_server_route)
         reservation_status.reservation_id = reservation_id_with_route
@@ -270,8 +267,11 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         try:
             reservation = session.query(ExternalWebLabDeustoReservation).filter_by(local_reservation_id = reservation_id).first()
             if reservation is not None:
-                session.delete(reservation)
-                session.commit()
+                try:
+                    session.delete(reservation)
+                    session.commit()
+                except StaleDataError:
+                    log.log(ExternalWebLabDeustoScheduler, log.level.Info, "Could not remove reservation_id %s from ExternalWebLabDeustoReservation since somebody already did it" % reservation_id)
             else:
                 log.log(ExternalWebLabDeustoScheduler, log.level.Info, "Not deleting reservation %s from ExternalWebLabDeustoReservation since somebody already did it" % reservation_id)
                 return

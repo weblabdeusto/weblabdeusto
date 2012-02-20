@@ -75,7 +75,7 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         #
         session_id = self.consumer_login_client.login('fedstudent1', 'password')
 
-        #self._test_reservation(session_id, self.dummy2, 'Consumer', True, True)
+        self._test_reservation(session_id, self.dummy2, 'Consumer', True, True)
 
         #######################################################
         #
@@ -85,7 +85,7 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         #   has. There is no load balance, neither
         #   subcontracting
         #
-        #self._test_reservation(session_id, self.dummy3, 'Provider 1', True, True)
+        self._test_reservation(session_id, self.dummy3, 'Provider 1', True, True)
 
         #######################################################
         #
@@ -95,7 +95,7 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         #   has. There is no load balance, but Consumer will
         #   contact Provider 1, which will contact Provider 2
         #
-        #self._test_reservation(session_id, self.dummy4, 'Provider 2', True, True)
+        self._test_reservation(session_id, self.dummy4, 'Provider 2', True, True)
 
         #######################################################
         #
@@ -120,73 +120,59 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         #
         # What if one of them goes out and another comes? Is the load of experiments balanced correctly?
         #
-        # self.consumer_core_client.finished_experiment(reservation_id2)
+        self.consumer_core_client.finished_experiment(reservation_id2)
 
         # Wait a couple of seconds to check that it has been propagated
-        #for _ in range(20):
-        #    time.sleep(0.5)
-        #    # Checking every half second
-        #    if self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)[1].is_finished():
-        #        break
+        for _ in range(20):
+            time.sleep(0.5)
+            # Checking every half second
+            if self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)[1].is_finished():
+                break
 
-        #reservation_results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
+        reservation_results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
 
         # The other two are still running
-        #self.assertEquals(RunningReservationResult(), reservation_results[0])
-        #self.assertEquals(RunningReservationResult(), reservation_results[2])
+        self.assertEquals(RunningReservationResult(), reservation_results[0])
+        self.assertEquals(RunningReservationResult(), reservation_results[2])
         
         # But the one finished is actually finished
-        #self.assertTrue( reservation_results[1].is_finished() ) 
-        #self.assertEquals('Firefox', reservation_results[1].experiment_use.request_info['user_agent'])
-        #self.assertEquals(4, len(reservation_results[1].experiment_use.commands))
-        #self.assertEquals('Provider 1', reservation_results[1].experiment_use.commands[2].response.commandstring)
+        self.assertTrue( reservation_results[1].is_finished() ) 
+        self.assertEquals('Firefox', reservation_results[1].experiment_use.request_info['user_agent'])
+        self.assertEquals(4, len(reservation_results[1].experiment_use.commands))
+        self.assertEquals('Provider 1', reservation_results[1].experiment_use.commands[2].response.commandstring)
 
-        #reservation_id2b = self._test_reservation(session_id, self.dummy1, 'Provider 1', True, False)
+        reservation_id2b = self._test_reservation(session_id, self.dummy1, 'Provider 1', True, False)
 
-        #self.consumer_core_client.finished_experiment(reservation_id1)
-        #self._test_reservation(session_id, self.dummy1, 'Consumer', True, False)
+        self.consumer_core_client.finished_experiment(reservation_id1)
+        self._test_reservation(session_id, self.dummy1, 'Consumer', True, False)
         reservation_status = self.consumer_core_client.get_reservation_status(reservation_id3)
-        provider1_reservation_id = reservation_status.remote_reservation_id
-        print provider1_reservation_id, reservation_status
-        provider2_reservation_id = self.provider2_core_client.get_reservation_status(provider1_reservation_id).remote_reservation_id
-
-        print "================="
-        print 
-        print "consumer",  reservation_id3
-        print "provider1", provider1_reservation_id
-        print "provider2", provider2_reservation_id
-        print
-        print "================="
-
-
+        provider2_reservation_id = reservation_status.remote_reservation_id
 
         self.consumer_core_client.finished_experiment(reservation_id3)
-        #self._test_reservation(session_id, self.dummy1, 'Provider 2', True, False)
+        self._test_reservation(session_id, self.dummy1, 'Provider 2', True, False)
 
         # Check for the other uses
         for _ in range(20):
             time.sleep(0.5)
             # Checking every half second
             results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
-            #if results[0].is_finished() and results[2].is_finished():
-            if results[2].is_finished():
+            if results[0].is_finished() and results[2].is_finished():
                 break
 
         reservation_results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
-        #self.assertTrue( reservation_results[0].is_finished() )
-        #self.assertEquals('Chrome', reservation_results[0].experiment_use.request_info['user_agent'])
-        #self.assertEquals('Consumer', reservation_results[0].experiment_use.commands[2].response.commandstring)
+        self.assertTrue( reservation_results[0].is_finished() )
+        self.assertEquals('Chrome', reservation_results[0].experiment_use.request_info['user_agent'])
+        self.assertEquals('Consumer', reservation_results[0].experiment_use.commands[2].response.commandstring)
 
-        print "*" * 20
-        print
-        print reservation_ids[2]
-        print 
-        print "*" * 20
         self.assertTrue( reservation_results[2].is_finished() )
         self.assertEquals('Safari', reservation_results[2].experiment_use.request_info['user_agent'])
         self.assertEquals('Provider 2', reservation_results[2].experiment_use.commands[2].response.commandstring)
 
-        return
+        provider2_session_id = self.provider2_login_client.login('provider1', 'password')
+        provider2_result = self.provider2_core_client.get_experiment_use_by_id(provider2_session_id, provider2_reservation_id)
+        self.assertTrue(provider2_result.is_finished())
+        self.assertEquals('Safari', provider2_result.experiment_use.request_info['user_agent'])
+
         #
         # What if another 2 come in? What is the position of their queues?
         #
