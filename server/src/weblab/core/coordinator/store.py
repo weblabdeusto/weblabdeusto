@@ -85,6 +85,6 @@ class CommandsTemporalInformationStore(TemporalInformationStore):
         self.queue.put_nowait(command_information_entry)
 
 class CompletedInformationStore(TemporalInformationStore):
-    def put(self, username, usage):
-        self.queue.put_nowait((username, usage))
+    def put(self, username, usage, callback):
+        self.queue.put_nowait((username, usage, callback))
 

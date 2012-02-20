@@ -248,12 +248,8 @@ class ExternalWebLabDeustoScheduler(Scheduler):
             if reservation is not None:
                 remote_reservation_id = reservation.remote_reservation_id
                 serialized_cookies = reservation.cookies
-                session.delete(reservation)
-                try:
-                    session.commit()
-                except StaleDataError:
-                    pass
             else:
+                log.log(ExternalWebLabDeustoScheduler, log.level.Info, "Not finishing reservation %s since somebody already did it" % reservation_id)
                 return
         finally:
             session.close()
@@ -269,6 +265,19 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         else:
             now = self.time_provider.get_datetime()
             self.post_reservation_data_manager.create(reservation_id, now, now + self.expiration_delta, json.dumps("''"))
+
+        session = self.session_maker()
+        try:
+            reservation = session.query(ExternalWebLabDeustoReservation).filter_by(local_reservation_id = reservation_id).first()
+            if reservation is not None:
+                session.delete(reservation)
+                session.commit()
+            else:
+                log.log(ExternalWebLabDeustoScheduler, log.level.Info, "Not deleting reservation %s from ExternalWebLabDeustoReservation since somebody already did it" % reservation_id)
+                return
+        finally:
+            session.close()
+
 
     ##############################################################
     #

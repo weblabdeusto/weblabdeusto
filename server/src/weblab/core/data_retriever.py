@@ -106,8 +106,9 @@ class TemporalInformationRetriever(threading.Thread):
     def iterate_completed(self):
         completed_information = self.completed_store.get(timeout=self.timeout)
         if completed_information is not None:
-            username, usage = completed_information
+            username, usage, callback = completed_information
             self.db_manager.store_experiment_usage(DbSession.ValidDatabaseSessionId(username, ''), usage)
+            callback()
 
 
     def iterate_finish(self):

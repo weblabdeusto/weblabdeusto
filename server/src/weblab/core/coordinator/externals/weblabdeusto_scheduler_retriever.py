@@ -124,8 +124,8 @@ class ResultsRetriever(threading.Thread):
                         if not isinstance(request_info[key], (basestring, numbers.Number)):
                             request_info.pop(key)
                     use.request_info   = request_info
-                    self.completed_store.put(username, use)
-                    self.post_reservation_data_manager.delete(reservation_id)
+                    callback = lambda : self.post_reservation_data_manager.delete(reservation_id)
+                    self.completed_store.put(username, use, callback)
                 else:
                     log.log(ResultsRetriever, log.level.Info, "Reservation id %s was cancelled and therefore not stored" % reservation_id)
 

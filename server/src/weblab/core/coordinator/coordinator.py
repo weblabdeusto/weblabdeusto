@@ -579,6 +579,7 @@ class Coordinator(object):
     @typecheck(basestring)
     @logged()
     def finish_reservation(self, reservation_id):
+        reservation_id = reservation_id.split(';')[0]
         if self.reservations_manager.initialize_deletion(reservation_id):
             self.finished_reservations_store.put(SessionId(reservation_id))
             try:
