@@ -241,7 +241,7 @@ class UserProcessor(object):
     @typecheck(SessionId)
     def get_experiment_use_by_id(self, reservation_id):
         db_session_id   = self._session['db_session_id']
-        experiment_uses = self._db_manager.get_experiment_uses_by_id(db_session_id, [SessionId(reservation_id.split(';')[0])])
+        experiment_uses = self._db_manager.get_experiment_uses_by_id(db_session_id, [SessionId(reservation_id.id.split(';')[0])])
         experiment_use  = experiment_uses[0]
         return self._process_use(experiment_use, reservation_id)
 
