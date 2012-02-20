@@ -196,6 +196,20 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self.consumer_core_client.finished_experiment(reservation_4)
         self._wait_reservation(reservation_5, 'Provider 1', True)
 
+        # Check for the other uses
+        for _ in range(20):
+            time.sleep(0.5)
+            # Checking every half second
+            results = self.consumer_core_client.get_experiment_uses_by_id(session_id, (reservation_id2b, reservation_4))
+            if results[0].is_finished() and results[1].is_finished():
+                break
+
+        final_reservation_results = self.consumer_core_client.get_experiment_uses_by_id(session_id, (reservation_id2b, reservation_4))
+        self.assertTrue(final_reservation_results[0].is_finished())
+        self.assertTrue(final_reservation_results[1].is_finished())
+        self.assertEquals('Provider 1', final_reservation_results[0].experiment_use.commands[2].response.commandstring)
+        self.assertEquals('Provider 1', final_reservation_results[1].experiment_use.commands[2].response.commandstring)
+
     def _test_reservation(self, session_id, experiment_id, expected_server_info, wait, finish, user_agent = None):
         reservation_status = self.consumer_core_client.reserve_experiment(session_id, experiment_id, "{}", "{}", user_agent = user_agent)
 
