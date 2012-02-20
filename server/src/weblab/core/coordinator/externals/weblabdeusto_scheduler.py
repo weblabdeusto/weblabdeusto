@@ -186,7 +186,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
                 max_iterations -= 1
 
         if not reservation_found:
-            raise Exception("At the External WebLab-Deusto Scheduler, we could not find a local reservation with reservation_id %s neither a stored reservation with that id" % reservation_id)
+            return WSS.PostReservationStatus(reservation_id, False, '', '')
 
         cookies = pickle.loads(str(serialized_cookies))
         client = self._create_client(cookies)
