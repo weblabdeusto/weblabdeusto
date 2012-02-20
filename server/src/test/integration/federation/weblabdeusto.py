@@ -152,7 +152,7 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self._test_reservation(session_id, self.dummy1, 'Provider 2', True, False)
 
         # Check for the other uses
-        for _ in range(20):
+        for _ in range(70):
             time.sleep(0.5)
             # Checking every half second
             results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
@@ -197,7 +197,7 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self._wait_reservation(reservation_5, 'Provider 1', True)
 
         # Check for the other uses
-        for _ in range(20):
+        for _ in range(50):
             time.sleep(0.5)
             # Checking every half second
             results = self.consumer_core_client.get_experiment_uses_by_id(session_id, (reservation_id2b, reservation_4))
