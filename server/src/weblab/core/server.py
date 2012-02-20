@@ -522,15 +522,12 @@ class UserProcessingServer(object):
     @check_session(**check_session_params)
     @load_user_processor
     def get_experiment_use_by_id(self, user_processor, session, reservation_id):
-        print reservation_id
         return user_processor.get_experiment_use_by_id(reservation_id)
 
     @logged(log.level.Info)
     @check_session(**check_session_params)
     @load_user_processor
     def get_experiment_uses_by_id(self, user_processor, session, reservation_ids):
-        for reservation_id in reservation_ids:
-            print reservation_id
         return user_processor.get_experiment_uses_by_id(reservation_ids)
 
     @logged(log.level.Info)

@@ -264,7 +264,6 @@ class UserProcessor(object):
             if use == self._db_manager._gateway.forbidden_access:
                 return ForbiddenReservationResult()
             if use.end_date is None:
-                print "Stored, not finished", reservation_id
                 return RunningReservationResult()
             storage_path = self._cfg_manager.get_value('core_store_students_programs_path')
             use.load_files(storage_path)
@@ -276,7 +275,6 @@ class UserProcessor(object):
             if status.status in WebLabSchedulingStatus.NOT_USED_YET_EXPERIMENT_STATUS:
                 return WaitingReservationResult()
             else:
-                print "Not stored", reservation_id, status
                 return RunningReservationResult()
         except coord_exc.ExpiredSessionException:
             return CancelledReservationResult()
