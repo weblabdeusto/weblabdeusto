@@ -12,6 +12,8 @@ admin_facade_json_port   = 18545
 
 core_web_facade_port   = 19745
 
+core_facade_server_route = 'consumer-route'
+
 # Will only work in JSON in this config file :-(
 core_server_url = 'http://127.0.0.1:%s/weblab/' % core_facade_json_port
 

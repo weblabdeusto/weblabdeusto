@@ -11,6 +11,7 @@ core_facade_json_port   = 38345
 admin_facade_json_port   = 38545
 
 core_web_facade_port   = 39745
+core_facade_server_route = 'provider2-route'
 
 core_server_url = 'http://127.0.0.1:%s/weblab/' % core_facade_json_port
 
