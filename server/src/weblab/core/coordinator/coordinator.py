@@ -592,7 +592,7 @@ class Coordinator(object):
                 finally:
                     session.close()
             except CoordExc.ExpiredSessionException:
-                pass
+                log.log(Coordinator, log.level.Info, "Ignore finish_reservation(%r), given that it had already expired" % reservation_id)
             finally:
                 self.reservations_manager.clean_deletion(reservation_id)
 

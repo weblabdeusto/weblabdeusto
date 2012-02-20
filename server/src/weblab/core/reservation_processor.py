@@ -101,6 +101,8 @@ class ReservationProcessor(object):
         try:
             status = self._coordinator.get_reservation_status( self._reservation_id )
         except coord_exc.ExpiredSessionException:
+            log.log(ReservationProcessor, log.level.Debug, "reason for rejecting:")
+            log.log_exc(ReservationProcessor, log.level.Debug)
             raise core_exc.NoCurrentReservationException("get_reservation_status called but coordinator rejected reservation id")
         else:
             if status.status == scheduling_status.WebLabSchedulingStatus.RESERVED_LOCAL:
