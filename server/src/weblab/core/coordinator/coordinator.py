@@ -499,7 +499,7 @@ class Coordinator(object):
     # Called when the experiment returns information about if the
     # session should end or not.
     #
-    @typecheck(basestring, SessionId, basestring, basestring, (int, float))
+    @typecheck(basestring, SessionId, basestring, (int, float))
     @logged()
     def confirm_should_finish(self, lab_coordaddress_str, lab_session_id, reservation_id, experiment_response):
         # If not reserved, don't try again
