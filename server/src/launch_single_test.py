@@ -54,7 +54,7 @@ module =  __import__(module_name, globals(), locals(), [module_name])
 suite = module.suite
 
 if debug:
-    logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+    logging.basicConfig(level=logging.DEBUG, stream=sys.stdout, format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
 if gui:
     import unittestgui
