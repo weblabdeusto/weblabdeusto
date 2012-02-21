@@ -26,6 +26,8 @@ from weblab.comm.context import get_context, create_context, delete_context
 
 import voodoo.log as log
 
+import pickle
+
 DEFAULT_CONTENT_TYPE = "text/html"
 
 class MethodException(Exception):
@@ -162,7 +164,24 @@ class Method(object):
         if self.method == 'POST':
             ctype, pdict = cgi.parse_header(self.req.headers.getheader('content-type'))
             if ctype == 'multipart/form-data':
-                self.postvars = cgi.parse_multipart(self.req.rfile, pdict)
+                print "[DBG]: MULTIPART HEADERS: ", repr(self.req.headers.items())
+#                self.postvars = cgi.parse_multipart(self.req.rfile, pdict)
+
+                length = int(self.req.headers.getheader('content-length'))
+                data = self.req.rfile.read(length)
+                
+                fs = cgi.FieldStorage(fp=self.req.rfile, headers=pdict)
+                
+                
+                print "[DBG]: Field storage: ", repr(fs)
+                print "[DBG]: Fields received: ", repr(fs.keys())
+                
+                pickle.dump(fs, 'c:/tmp/fs.pk')
+                
+                print "[DBG]: Field: ", fs.getlist('Filedata')
+                self.postvars = {}
+                
+                
             elif ctype == 'application/x-www-form-urlencoded':
                 length = int(self.req.headers.getheader('content-length'))
                 self.postvars = cgi.parse_qs(self.req.rfile.read(length), keep_blank_values=1)

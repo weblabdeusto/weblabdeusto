@@ -185,9 +185,6 @@ class  VisirMethod(WebFacadeServer.Method):
         print "[DBG]: Filedata: ", self.get_argument("Filedata", "", False)
         print "[DBG]: Filename: ", self.get_argument("Filename", "", False)
         
-        self.read_post_arguments()
-        print "[DBG] Postvars:\n", self.postvars
-        
         if ctype != "multipart/form-data":
             return "Unexpected mimetype"
         
