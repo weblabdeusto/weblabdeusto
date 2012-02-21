@@ -170,16 +170,13 @@ class Method(object):
                 length = int(self.req.headers.getheader('content-length'))
                 data = self.req.rfile.read(length)
                 
-                fs = cgi.FieldStorage(fp=self.req.rfile, headers=pdict)
-                
-                
-                print "[DBG]: Field storage: ", repr(fs)
-                print "[DBG]: Fields received: ", repr(fs.keys())
-                
-                pickle.dump(fs, 'c:/tmp/fs.pk')
-                
-                print "[DBG]: Field: ", fs.getlist('Filedata')
+                print "[DBG]: BEGIN RAW DATA\n", data, "\nRAW DATA END"
                 self.postvars = {}
+                
+                f = file("c:/tmp/out.txt", "w+")
+                f.write(self.req.headers.getheader('content-type') + "\n")
+                f.write(data)
+                f.close()
                 
                 
             elif ctype == 'application/x-www-form-urlencoded':

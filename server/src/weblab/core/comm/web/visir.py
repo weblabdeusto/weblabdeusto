@@ -27,6 +27,8 @@ import cgi
 
 import weblab
 
+import re
+
 VISIR_RELATIVE_PATH = os.sep.join(('..','..','..','client','war','weblabclient','visir')) + os.sep
 
 VISIR_LOCATION = os.path.abspath(os.sep.join((os.path.dirname(weblab.__file__), VISIR_RELATIVE_PATH))) + os.sep
@@ -196,4 +198,64 @@ class  VisirMethod(WebFacadeServer.Method):
 
 class VisirException(Exception):
     pass
+
+
+
+class UploadExtractor(object):
+    
+    def __init__(self, data, boundary):
+        """
+        Initializes the UploadExtractor object.
+        @param data Contents of the multipart POST, from which the files will be
+        extracted.
+        @param boundary Boundary delimiting each part, as specified by the Content-type
+        header.
+        @return A (headers, filedata) tuple. Headers is a dictionary containing the
+        headers of the part. Filedata is the actual content of that part.
+        """
+        self.data = data
+        self.boundary = boundary
+        self._index = 0 # To indicate how far we have parsed into the string.
+    
+    def extract_file(self):
+        """
+        Extracts the next file from the stream. Returns None if no more
+        files are present.
+        """
+        ind_start = self.data.find(self.boundary, self._index)
+        if ind_start == -1:
+            return None
+        # We take into account the new-line characters.
+        ind_start += len(self.boundary) + 2
+        ind_end = self.data.find(self.boundary, ind_start)
+        ind_end -= 2
+        rawdata = self.data[ind_start:ind_end]
+        self._index = ind_end
+        
+        # rawdata now contains the headers and content of each part.
+        # Extract the headers off it.
+        headers_end = rawdata.find("\r\n\r\n")
+        if headers_end == -1:
+            return None
+        
+        # Use a regex to extract the headers.
+        headers = dict(re.findall(r"(?P<name>.*?): (?P<value>.*?)\r\n", rawdata[0:headers_end+2]))
+        
+        # Separate the data from the headers
+        filedata = rawdata[headers_end+4 :]
+        
+    
+        return headers, filedata
+    
+
+f = file("c:/tmp/out.txt", "r")
+f.readline()
+data = f.read()        
+boundary = """------------KM7gL6cH2KM7Ij5GI3ae0ei4ei4gL6"""
+u = UploadExtractor(data, boundary)
+
+print "DATA:  \n", u.extract_file()
+print "DATA:  \n", u.extract_file()
+print "DATA:  \n", u.extract_file()
+print "DATA:  \n", u.extract_file()
 
