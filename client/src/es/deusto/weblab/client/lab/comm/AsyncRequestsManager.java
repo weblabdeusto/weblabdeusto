@@ -17,7 +17,7 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCheckAsyncCommandStat
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 
 /*
-* Copyright (C) 2005-2009 University of Deusto
+* Copyright (C) 2005 onwards University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
