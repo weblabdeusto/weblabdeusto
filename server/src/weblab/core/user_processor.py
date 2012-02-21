@@ -252,9 +252,27 @@ class UserProcessor(object):
         experiment_uses = self._db_manager.get_experiment_uses_by_id(db_session_id, [SessionId(reservation_id.id.split(';')[0]) for reservation_id in reservation_ids])
 
         results = []
-        for experiment_use, reservation_id in zip(experiment_uses, reservation_ids):
+        cancelled_results = []
+        for pos, (experiment_use, reservation_id) in enumerate(zip(experiment_uses, reservation_ids)):
             result = self._process_use(experiment_use, reservation_id)
             results.append(result)
+            if result.is_cancelled():
+                cancelled_results.append((pos, reservation_id))
+
+        if len(cancelled_results) > 0:
+            # Sometimes, the system recognizes as cancelled a reservation which was removed 
+            # between the moment we asked for results and the moment we stored the results.
+            # Just in case, we check again those results
+
+            tentatively_cancelled_experiment_uses = self._db_manager.get_experiment_uses_by_id(db_session_id, [SessionId(reservation_id.id.split(';')[0]) for pos, reservation_id in cancelled_results])
+            for (pos, reservation_id), tentatively_cancelled_use in zip(cancelled_results, tentatively_cancelled_experiment_uses):
+                # Only process the use if the use is now not None
+                if tentatively_cancelled_use is not None:
+                    tentatively_cancelled_result = self._process_use(tentatively_cancelled_use, reservation_id)
+                    if not tentatively_cancelled_result.is_cancelled():
+                        # If it is not cancelled anymore, then we replace the previous value
+                        results[pos] = tentatively_cancelled_result
+            
         return results
 
 
