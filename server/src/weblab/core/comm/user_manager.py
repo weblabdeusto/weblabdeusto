@@ -23,19 +23,19 @@ import weblab.data.client_address as ClientAddress
 from weblab.data.experiments import ExperimentId
 
 import weblab.core.exc as coreExc
-import weblab.exc as WebLabExceptions
-import voodoo.gen.exceptions.exceptions as VoodooExceptions
+import weblab.exc as WebLabErrors
+import voodoo.gen.exceptions.exceptions as VoodooErrors
 
 import weblab.core.comm.codes as UPFCodes
 
 EXCEPTIONS = (
         # EXCEPTION                                              CODE                                                   PROPAGATE TO CLIENT
-        (coreExc.SessionNotFoundException,      UPFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE,      True),
-        (coreExc.NoCurrentReservationException, UPFCodes.CLIENT_NO_CURRENT_RESERVATION_EXCEPTION_CODE, True),
-        (coreExc.UnknownExperimentIdException,  UPFCodes.CLIENT_UNKNOWN_EXPERIMENT_ID_EXCEPTION_CODE,  True),
-        (coreExc.WebLabCoreException,       UPFCodes.UPS_GENERAL_EXCEPTION_CODE,                   False),
-        (WebLabExceptions.WebLabException,                       UPFCodes.WEBLAB_GENERAL_EXCEPTION_CODE,                False),
-        (VoodooExceptions.GeneratorException,                    UPFCodes.VOODOO_GENERAL_EXCEPTION_CODE,                False),
+        (coreExc.SessionNotFoundError,      UPFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE,      True),
+        (coreExc.NoCurrentReservationError, UPFCodes.CLIENT_NO_CURRENT_RESERVATION_EXCEPTION_CODE, True),
+        (coreExc.UnknownExperimentIdError,  UPFCodes.CLIENT_UNKNOWN_EXPERIMENT_ID_EXCEPTION_CODE,  True),
+        (coreExc.WebLabCoreError,       UPFCodes.UPS_GENERAL_EXCEPTION_CODE,                   False),
+        (WebLabErrors.WebLabError,                       UPFCodes.WEBLAB_GENERAL_EXCEPTION_CODE,                False),
+        (VoodooErrors.GeneratorError,                    UPFCodes.VOODOO_GENERAL_EXCEPTION_CODE,                False),
         (Exception,                                              UPFCodes.PYTHON_GENERAL_EXCEPTION_CODE,                False)
     )
 
@@ -54,7 +54,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     @RFM.check_exceptions(EXCEPTIONS)
     def list_experiments(self, session_id):
         """ list_experiments(session_id) -> array of ExperimentAllowed
-            raises SessionNotFoundException
+            raises SessionNotFoundError
         """
         sess_id = self._parse_session_id(session_id)
         experiments = self._server.list_experiments(sess_id)
@@ -66,7 +66,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     @RFM.check_exceptions(EXCEPTIONS)
     def reserve_experiment(self, session_id, experiment_id, client_initial_data, consumer_data):
         """ reserve_experiment(session_id, experiment_id, client_initial_data) -> Reservation
-            raises SessionNotFoundException, NoAvailableExperimentFoundException
+            raises SessionNotFoundError, NoAvailableExperimentFoundError
         """
         current_client_address = ClientAddress.ClientAddress(self._get_client_address())
         sess_id = self._parse_session_id(session_id)
@@ -80,7 +80,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     @RFM.check_nullable
     def finished_experiment(self, reservation_id):
         """ finished_experiment(reservation_id)
-            raise SessionNotFoundException
+            raise SessionNotFoundError
         """
         sess_id = self._parse_session_id(reservation_id)
         response = self._server.finished_experiment(sess_id)
@@ -90,7 +90,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     @RFM.check_exceptions(EXCEPTIONS)
     def get_reservation_status(self, reservation_id):
         """ get_reservation_status(reservation_id) -> Reservation
-            raise SessionNotFoundException
+            raise SessionNotFoundError
         """
         sess_id = self._parse_session_id(reservation_id)
         return self._server.get_reservation_status(sess_id)
@@ -101,7 +101,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     @RFM.check_nullable
     def send_file(self, reservation_id, file_content, file_info):
         """ send_file(reservation_id, file_content, file_info)
-            raise SessionNotFoundException
+            raise SessionNotFoundError
         """
         sess_id = self._parse_session_id(reservation_id)
         response = self._server.send_file(sess_id, file_content, file_info)
@@ -114,7 +114,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     def send_async_file(self, reservation_id, file_content, file_info):
         """ send_async_file(reservation_id, file_content, file_info)
             Sends a file. The request will be executed asynchronously.
-            raise SessionNotFoundException
+            raise SessionNotFoundError
         """
         sess_id = self._parse_session_id(reservation_id)
         response = self._server.send_async_file(sess_id, file_content, file_info)
@@ -125,7 +125,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     @RFM.check_nullable
     def send_async_command(self, reservation_id, command):
         """ send_command(reservation_id, command)
-            raise SessionNotFoundException
+            raise SessionNotFoundError
         """
         sess_id = self._parse_session_id(reservation_id)
         cmd     = self._parse_command(command)
@@ -138,7 +138,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     @RFM.check_nullable
     def send_command(self, reservation_id, command):
         """ send_command(reservation_id, command)
-            raise SessionNotFoundException
+            raise SessionNotFoundError
         """
         sess_id = self._parse_session_id(reservation_id)
         cmd     = self._parse_command(command)
@@ -151,7 +151,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     @RFM.check_nullable
     def check_async_command_status(self, reservation_id, request_identifiers):
         """ check_async_command_status(reservation_id, command)
-            raise SessionNotFoundException
+            raise SessionNotFoundError
         """
 
         # TODO: This will most likely require modifications.
@@ -166,7 +166,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     @RFM.check_nullable
     def poll(self, reservation_id):
         """ poll(session_id)
-            raise SessionNotFoundException
+            raise SessionNotFoundError
         """
         sess_id = self._parse_session_id(reservation_id)
         return self._server.poll(sess_id)
@@ -175,7 +175,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     @RFM.check_exceptions(EXCEPTIONS)
     def get_user_information(self, session_id):
         """ get_user_information(session_id) -> User
-            raise SessionNotFoundException
+            raise SessionNotFoundError
         """
         sess_id = self._parse_session_id(session_id)
         return self._server.get_user_information(sess_id)
@@ -184,7 +184,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     @RFM.check_exceptions(EXCEPTIONS)
     def get_experiment_use_by_id(self, session_id, reservation_id):
         """ get_experiment_use_by_id(session_id, reservation_id) -> ReservationResult
-            raise SessionNotFoundException
+            raise SessionNotFoundError
         """
         sess_id = self._parse_session_id(session_id)
         reservation_id    = self._parse_session_id(reservation_id)
@@ -195,7 +195,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     @RFM.check_exceptions(EXCEPTIONS)
     def get_experiment_uses_by_id(self, session_id, reservation_ids):
         """ get_experiment_uses_by_id(session_id, reservation_ids) -> ReservationResult
-            raise SessionNotFoundException
+            raise SessionNotFoundError
         """
         sess_id = self._parse_session_id(session_id)
         parsed_reservation_ids = []
@@ -220,7 +220,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     @RFM.check_exceptions(EXCEPTIONS)
     def get_groups(self, session_id):
         """ get_groups(session_id) -> array of Group
-            raises SessionNotFoundException
+            raises SessionNotFoundError
         """
         sess_id = self._parse_session_id(session_id)
         groups = self._server.get_groups(sess_id)
@@ -230,7 +230,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     @RFM.check_exceptions(EXCEPTIONS)
     def get_experiments(self, session_id):
         """ get_experiments(session_id) -> array of Experiment
-            raises SessionNotFoundException
+            raises SessionNotFoundError
         """
         sess_id = self._parse_session_id(session_id)
         experiments = self._server.get_experiments(sess_id)
@@ -240,7 +240,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     @RFM.check_exceptions(EXCEPTIONS)
     def get_users(self, session_id):
         """get_users(session_id) -> array of User
-    	   raises SessionNotFoundException
+    	   raises SessionNotFoundError
 		"""
         sess_id = self._parse_session_id(session_id)
         users = self._server.get_users(sess_id)
@@ -250,7 +250,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     @RFM.check_exceptions(EXCEPTIONS)
     def get_roles(self, session_id):
         """get_roles(session_id) -> array of Role
-           raises SessionNotFoundException
+           raises SessionNotFoundError
         """
         sess_id = self._parse_session_id(session_id)
         roles = self._server.get_roles(sess_id)
@@ -260,7 +260,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     @RFM.check_exceptions(EXCEPTIONS)
     def get_experiment_uses(self, session_id, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by):
         """ get_experiment_uses(session_id, from_date, to_date, group_id, experiment_id) -> array of ExperimentUse
-            raises SessionNotFoundException
+            raises SessionNotFoundError
         """
         sess_id = self._parse_session_id(session_id)
         experiment_uses = self._server.get_experiment_uses(sess_id, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by)
@@ -270,7 +270,7 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     @RFM.check_exceptions(EXCEPTIONS)
     def get_user_permissions(self, session_id):
         """ get_user_permissions(session_id) -> array of Permission
-            raises SessionNotFoundException
+            raises SessionNotFoundError
         """
         sess_id = self._parse_session_id(session_id)
         permissions = self._server.get_user_permissions(sess_id)

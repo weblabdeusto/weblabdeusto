@@ -15,7 +15,7 @@
 
 from abc import ABCMeta, abstractmethod
 from voodoo.override import Override
-from experiments.ud_xilinx.exc import InvalidDeviceToProgramException
+from experiments.ud_xilinx.exc import InvalidDeviceToProgramError
 from weblab.experiment.devices.digilent_adept import DigilentAdept
 from weblab.experiment.devices.jtag_blazer import JTagBlazer
 
@@ -38,7 +38,7 @@ class UdXilinxProgrammer(object):
         elif device_name == 'DigilentAdept':
             return DigilentAdeptSvfProgrammer(cfg_manager, xilinx_impact_device)
         else:
-            raise InvalidDeviceToProgramException(device_name)
+            raise InvalidDeviceToProgramError(device_name)
 
     @abstractmethod
     def program(self, file_name):

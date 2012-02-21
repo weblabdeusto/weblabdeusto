@@ -16,7 +16,7 @@
 import unittest
 
 from weblab.admin.cli.console_ui import ConsoleUI, GO_BACK_KEYWORD
-from weblab.admin.cli.exc import GoBackException
+from weblab.admin.cli.exc import GoBackError
 
 class ConsoleUITestCase(unittest.TestCase):
 
@@ -104,7 +104,7 @@ class ConsoleUITestCase(unittest.TestCase):
 
     def test_read_int_back(self):
         self.ui._raw_input_buffer = GO_BACK_KEYWORD
-        self.assertRaises(GoBackException,
+        self.assertRaises(GoBackError,
                           self.ui._read_int,
                           "Number", default=None)
 
@@ -124,7 +124,7 @@ class ConsoleUITestCase(unittest.TestCase):
 
     def test_read_str_back(self):
         self.ui._raw_input_buffer = GO_BACK_KEYWORD
-        self.assertRaises(GoBackException,
+        self.assertRaises(GoBackError,
                           self.ui._read_str,
                           "Name", default=None)
 
@@ -144,7 +144,7 @@ class ConsoleUITestCase(unittest.TestCase):
 
     def test_read_password_back(self):
         self.ui._getpass_buffer = GO_BACK_KEYWORD
-        self.assertRaises(GoBackException,
+        self.assertRaises(GoBackError,
                           self.ui._read_password,
                           "Password", default=None)
 

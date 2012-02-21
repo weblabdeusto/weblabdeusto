@@ -49,7 +49,7 @@ class JetAnotherClass:
 class MyClass2(object):
     pass
 
-class MyException(Exception): pass
+class MyError(Exception): pass
 
 class SimpleClass: pass
 
@@ -186,10 +186,10 @@ class MapperTestCase(unittest.TestCase):
         self.assertEquals(dt.value, dt2["foo"].value)
 
     def test_dto_exception(self):
-        exception = MyException("foo")
+        exception = MyError("foo")
         dto = mapper.dto_generator(exception)
         generated = mapper.load_from_dto(dto)
-        self.assertTrue(isinstance(generated,MyException))
+        self.assertTrue(isinstance(generated,MyError))
         self.assertEquals("foo", generated.args[0] )
 
     def test_dto_builtin(self):

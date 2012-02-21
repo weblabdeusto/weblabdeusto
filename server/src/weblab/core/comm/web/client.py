@@ -15,7 +15,7 @@
 #
 
 from voodoo.sessions.session_id import SessionId
-from weblab.core.exc import SessionNotFoundException
+from weblab.core.exc import SessionNotFoundError
 import weblab.comm.web_server as WebFacadeServer
 
 RESERVATION_ID   = 'reservation_id'
@@ -113,7 +113,7 @@ class ClientMethod(WebFacadeServer.Method):
         reservation_session_id = SessionId(reservation_id.split(';')[0])
         try:
             experiment_id = self.server.get_reservation_info(reservation_session_id)
-        except SessionNotFoundException:
+        except SessionNotFoundError:
             return ERROR_CODE % reservation_id
 
         client_address = "../../client#exp.name=%(exp_name)s&exp.category=%(exp_cat)s&reservation_id=%(reservation_id)s&header.visible=false" % {

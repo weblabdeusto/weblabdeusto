@@ -68,9 +68,9 @@ class ResourcesManager(object):
         else:
             retrieved_laboratory_coord_address = db_experiment_instance.laboratory_coord_address
             if retrieved_laboratory_coord_address != laboratory_coord_address:
-                raise CoordExc.InvalidExperimentConfigException("Attempt to register the experiment %s in the laboratory %s; this experiment is already registered in the laboratory %s" % (experiment_instance_id, laboratory_coord_address, retrieved_laboratory_coord_address))
+                raise CoordExc.InvalidExperimentConfigError("Attempt to register the experiment %s in the laboratory %s; this experiment is already registered in the laboratory %s" % (experiment_instance_id, laboratory_coord_address, retrieved_laboratory_coord_address))
             if db_experiment_instance.resource_instance != db_resource_instance:
-                raise CoordExc.InvalidExperimentConfigException("Attempt to register the experiment %s with resource %s when it was already bound to resource %s" % (experiment_instance_id, resource, db_experiment_instance.resource_instance.to_resource()))
+                raise CoordExc.InvalidExperimentConfigError("Attempt to register the experiment %s with resource %s when it was already bound to resource %s" % (experiment_instance_id, resource, db_experiment_instance.resource_instance.to_resource()))
 
         db_experiment_instance.resource_instance = db_resource_instance
 
@@ -96,7 +96,7 @@ class ResourcesManager(object):
         try:
             experiment_type = session.query(ExperimentType).filter_by(cat_name = experiment_id.cat_name, exp_name = experiment_id.exp_name).first()
             if experiment_type is None:
-                raise CoordExc.ExperimentNotFoundException("Experiment not found: %s" % experiment_id)
+                raise CoordExc.ExperimentNotFoundError("Experiment not found: %s" % experiment_id)
 
             resource_types = set()
             for resource_type in experiment_type.resource_types:
@@ -110,11 +110,11 @@ class ResourcesManager(object):
         try:
             experiment_type = session.query(ExperimentType).filter_by(cat_name = experiment_instance_id.cat_name, exp_name = experiment_instance_id.exp_name).first()
             if experiment_type is None:
-                raise CoordExc.ExperimentNotFoundException("Experiment not found: %s" % experiment_instance_id)
+                raise CoordExc.ExperimentNotFoundError("Experiment not found: %s" % experiment_instance_id)
 
             experiment_instance = session.query(ExperimentInstance).filter_by(experiment_type = experiment_type, experiment_instance_id = experiment_instance_id.inst_name).first()
             if experiment_instance is None:
-                raise CoordExc.ExperimentNotFoundException("Experiment not found: %s" % experiment_instance_id)
+                raise CoordExc.ExperimentNotFoundError("Experiment not found: %s" % experiment_instance_id)
             return experiment_instance.resource_instance.to_resource()
         finally:
             session.close()

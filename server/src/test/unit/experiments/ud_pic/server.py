@@ -24,8 +24,8 @@ from experiments.ud_pic.server import UdPicExperiment
 import weblab.experiment.util as ExperimentUtil
 import voodoo.configuration as ConfigurationManager
 
-import weblab.experiment.exc as ExperimentExceptions
-import experiments.ud_pic.exc as UdPicExperimentExceptions
+import weblab.experiment.exc as ExperimentErrors
+import experiments.ud_pic.exc as UdPicExperimentErrors
 
 
 class UdPicExperimentTestCase(unittest.TestCase):
@@ -48,7 +48,7 @@ class UdPicExperimentTestCase(unittest.TestCase):
 
     def test_send_command_invalid_command(self):
         self.assertRaises(
-            UdPicExperimentExceptions.InvalidUdPicBoardCommandException,
+            UdPicExperimentErrors.InvalidUdPicBoardCommandError,
             self.experiment.do_send_command_to_device,
             'PULSE.THAT.DOES.NOT.EXIST=0 1000'
         )
@@ -64,7 +64,7 @@ class UdPicExperimentTestCase(unittest.TestCase):
 #               pmock.return_value(StringIO.StringIO('not ok'))
 #           )
 #       self.assertRaises(
-#           UdPicExperimentExceptions.UdPicInvalidResponseException,
+#           UdPicExperimentErrors.UdPicInvalidResponseError,
 #           self.experiment.do_send_command_to_device,
 #           "PULSE 0 1000"
 #       )
@@ -131,7 +131,7 @@ class UdPicExperimentTestCase(unittest.TestCase):
         popen.stderr.read.return_value = ''
 
         self.assertRaises(
-                ExperimentExceptions.SendingFileFailureException,
+                ExperimentErrors.SendingFileFailureError,
                 self.experiment.do_send_file_to_device,
                 ExperimentUtil.serialize('whatever the file content is \xff\x00'),
                 'program'
@@ -147,7 +147,7 @@ class UdPicExperimentTestCase(unittest.TestCase):
         popen.stderr.read.return_value = ''
 
         self.assertRaises(
-                ExperimentExceptions.SendingFileFailureException,
+                ExperimentErrors.SendingFileFailureError,
                 self.experiment.do_send_file_to_device,
                 ExperimentUtil.serialize('whatever the file content is \xff\x00'),
                 'program'
@@ -163,7 +163,7 @@ class UdPicExperimentTestCase(unittest.TestCase):
         popen.stderr.read.return_value = 'some message in stderr'
 
         self.assertRaises(
-                ExperimentExceptions.SendingFileFailureException,
+                ExperimentErrors.SendingFileFailureError,
                 self.experiment.do_send_file_to_device,
                 ExperimentUtil.serialize('whatever the file content is \xff\x00'),
                 'program'

@@ -25,13 +25,13 @@ from weblab.comm.context import get_context, create_context, delete_context
 
 import voodoo.log as log
 
-class MethodException(Exception):
+class MethodError(Exception):
     def __init__(self, status, msg):
-        super(MethodException, self).__init__((status, msg))
+        super(MethodError, self).__init__((status, msg))
         self.status = status
         self.msg    = msg
 
-class RequestManagedException(Exception):
+class RequestManagedError(Exception):
     pass
 
 class Method(object):
@@ -91,7 +91,7 @@ class Method(object):
 
 
     def raise_exc(self, status, message):
-        raise MethodException(status, message)
+        raise MethodError(status, message)
 
     def get_context(self):
         return get_context()
@@ -182,9 +182,9 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                     break
             else:
                 NotFoundMethod(self, self.cfg_manager, self.original_server).run()
-        except RequestManagedException as e:
+        except RequestManagedError as e:
             return
-        except MethodException as e:
+        except MethodError as e:
             log.log( self, log.level.Error, str(e))
             log.log_exc( self, log.level.Warning)
             self._write(e.status, 'text/html', [], e.msg)

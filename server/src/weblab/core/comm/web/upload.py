@@ -63,7 +63,7 @@ class FileUploadMethod(WebFacadeServer.Method):
             else:
                 result = self.server.send_async_file(sid, file_content, file_info)
 
-        except FileUploadException as fue:
+        except FileUploadError as fue:
             code, message = fue.args
             return FAULT_HTML_TEMPLATE % {
                         'THE_FAULT_CODE' : code,
@@ -97,13 +97,13 @@ class FileUploadMethod(WebFacadeServer.Method):
         """
         file_info = self.get_argument(FILE_INFO)
         if file_info is None:
-            raise FileUploadException(WEBLAB_GENERAL_EXCEPTION_CODE, "%s argument not provided!" % FILE_INFO)
+            raise FileUploadError(WEBLAB_GENERAL_EXCEPTION_CODE, "%s argument not provided!" % FILE_INFO)
         file_sent = self.get_argument(FILE_SENT)
         if file_sent is None:
-            raise FileUploadException(WEBLAB_GENERAL_EXCEPTION_CODE, "%s argument not provided!" % FILE_SENT)
+            raise FileUploadError(WEBLAB_GENERAL_EXCEPTION_CODE, "%s argument not provided!" % FILE_SENT)
         session_id = self.get_argument(SESSION_ID)
         if session_id is None:
-            raise FileUploadException(WEBLAB_GENERAL_EXCEPTION_CODE, "%s argument not provided!" % SESSION_ID)
+            raise FileUploadError(WEBLAB_GENERAL_EXCEPTION_CODE, "%s argument not provided!" % SESSION_ID)
 
         # Read the IS_ASYNC parameter, which will indicate us whether we should execute the send_file asynchronously
         # or synchronously.
@@ -117,9 +117,9 @@ class FileUploadMethod(WebFacadeServer.Method):
             elif is_async_str in ("false", "no", "0"):
                 is_async = False
             else:
-                raise FileUploadException(WEBLAB_GENERAL_EXCEPTION_CODE, "%s argument is present but not valid (should be a boolean)!" % IS_ASYNC)
+                raise FileUploadError(WEBLAB_GENERAL_EXCEPTION_CODE, "%s argument is present but not valid (should be a boolean)!" % IS_ASYNC)
         return file_info, file_sent, session_id, is_async
 
-class FileUploadException(Exception):
+class FileUploadError(Exception):
     pass
 

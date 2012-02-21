@@ -12,25 +12,25 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
-import weblab.experiment.exc as ExperimentExceptions
+import weblab.experiment.exc as ExperimentErrors
 
-class UdPicExperimentException(ExperimentExceptions.ExperimentException):
+class UdPicExperimentError(ExperimentErrors.ExperimentError):
     def __init__(self,*args,**kargs):
-        ExperimentExceptions.ExperimentException.__init__(self,*args,**kargs)
+        ExperimentErrors.ExperimentError.__init__(self,*args,**kargs)
 
-class UdPicBoardCommandException(UdPicExperimentException):
+class UdPicBoardCommandError(UdPicExperimentError):
     def __init__(self, *args, **kargs):
-        UdPicExperimentException.__init__(self, *args, **kargs)
+        UdPicExperimentError.__init__(self, *args, **kargs)
 
-class InvalidUdPicBoardCommandException(UdPicBoardCommandException):
+class InvalidUdPicBoardCommandError(UdPicBoardCommandError):
     def __init__(self, *args, **kargs):
-        UdPicBoardCommandException.__init__(self, *args, **kargs)
+        UdPicBoardCommandError.__init__(self, *args, **kargs)
 
-class IllegalStatusUdPicBoardCommandException(UdPicBoardCommandException):
+class IllegalStatusUdPicBoardCommandError(UdPicBoardCommandError):
     def __init__(self, *args, **kargs):
-        UdPicBoardCommandException.__init__(self, *args, **kargs)
+        UdPicBoardCommandError.__init__(self, *args, **kargs)
 
-class UdPicInvalidResponseException(UdPicExperimentException):
+class UdPicInvalidResponseError(UdPicExperimentError):
     def __init__(self, *args, **kargs):
-        ExperimentExceptions.ExperimentException.__init__(self, *args, **kargs)
+        ExperimentErrors.ExperimentError.__init__(self, *args, **kargs)
 

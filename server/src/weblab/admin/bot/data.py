@@ -23,10 +23,10 @@ def avg(elements):
     else:
         return 0
 
-class BotException(object):
+class BotError(object):
 
     def __init__(self, (exception, trace), max_number=0, min_number=0, avg_number=0):
-        super(BotException, self).__init__()
+        super(BotError, self).__init__()
         self.instances = [(exception, trace)]
         self.max = max_number
         self.min = min_number
@@ -48,7 +48,7 @@ class BotException(object):
         self.avg = number
 
     def __repr__(self):
-        s = "<BotException max='%s' min='%s' avg='%s'><instances>" % (self.max, self.min, self.avg)
+        s = "<BotError max='%s' min='%s' avg='%s'><instances>" % (self.max, self.min, self.avg)
         for instance, trace in self.instances:
             s += '<Exception type="%s" str="%s">%s</Exception>' % (instance.__class__.__name__, str(instance), trace)
         return s + "</instances></BotInstance>"
@@ -203,11 +203,11 @@ class BotTrial(object):
 
 
     def _add_exception(self, exceptions_dict, exception):
-        """ { "ExceptionType1": <BotException>, "ExceptionType2": <BotException>, ... } """
+        """ { "ExceptionType1": <BotError>, "ExceptionType2": <BotError>, ... } """
         if exception.__class__.__name__ in exceptions_dict:
             exceptions_dict[exception.__class__.__name__].add_instance(exception)
         else:
-            exceptions_dict[exception.__class__.__name__] = BotException(exception)
+            exceptions_dict[exception.__class__.__name__] = BotError(exception)
 
     def _add_exceptions(self, exceptions_dict, exceptions):
         for exception in exceptions:

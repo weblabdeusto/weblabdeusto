@@ -12,31 +12,31 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
-import voodoo.gen.exceptions.coordinator.CoordinatorExceptions as CoordExceptions
+import voodoo.gen.exceptions.coordinator.CoordinatorErrors as CoordErrors
 
-class CoordMappingException(CoordExceptions.CoordinatorException):
+class CoordMappingError(CoordErrors.CoordinatorError):
     def __init__(self,*args,**kargs):
-        CoordExceptions.CoordinatorException.__init__(self,*args,**kargs)
+        CoordErrors.CoordinatorError.__init__(self,*args,**kargs)
 
-class CoordLoadingException(CoordMappingException):
+class CoordLoadingError(CoordMappingError):
     def __init__(self,message,nested_exception,*args,**kargs):
-        CoordMappingException.__init__(
+        CoordMappingError.__init__(
                 self, message, nested_exception, *args, **kargs
             )
         self.message = message
         self.nested_exception = nested_exception
 
-class CoordDumpingException(CoordMappingException):
+class CoordDumpingError(CoordMappingError):
     def __init__(self,message,nested_exception,*args,**kargs):
-        CoordMappingException.__init__(
+        CoordMappingError.__init__(
                 self, message, nested_exception, *args, **kargs
             )
         self.message = message
         self.nested_exception = nested_exception
 
-class CoordSerializingException(CoordMappingException):
+class CoordSerializingError(CoordMappingError):
     def __init__(self,message,nested_exception,*args,**kargs):
-        CoordMappingException.__init__(
+        CoordMappingError.__init__(
                 self, message, nested_exception, *args, **kargs
             )
         self.message = message

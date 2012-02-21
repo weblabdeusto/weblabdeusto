@@ -16,8 +16,8 @@
 import hashlib
 from weblab.data.experiments import CommandSent, FileSent
 from weblab.data.command import Command
-import weblab.lab.exc as LaboratoryExceptions
-import weblab.proxy.exc as ProxyExceptions
+import weblab.lab.exc as LaboratoryErrors
+import weblab.proxy.exc as ProxyErrors
 import time
 import weblab.experiment.util as ExperimentUtil
 
@@ -142,12 +142,12 @@ class ProxySessionHandler(object):
             if translated_command is not None or translated_response is not None:
                 self._append_command(translated_command, timestamp_before, translated_response, timestamp_after)
             return lab_response
-        except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
+        except LaboratoryErrors.SessionNotFoundInLaboratoryServerError:
             self.disable_access()
-            raise ProxyExceptions.NoCurrentReservationException('Experiment reservation expired')
-        except LaboratoryExceptions.FailedToSendCommandException as e:
+            raise ProxyErrors.NoCurrentReservationError('Experiment reservation expired')
+        except LaboratoryErrors.FailedToSendCommandError as e:
             self.disable_access()
-            raise ProxyExceptions.FailedToSendCommandException("Failed to send command: %s" % e)
+            raise ProxyErrors.FailedToSendCommandError("Failed to send command: %s" % e)
 
     def send_file(self, file_content, file_info):
         translated_file = self._translator.before_send_file(self._session['trans_session_id'], file_content)
@@ -164,9 +164,9 @@ class ProxySessionHandler(object):
                     file_path, file_hash = ("<file not stored>",) * 2
                 self._append_file(file_path, file_hash, timestamp_before, translated_response, timestamp_after, file_info)
             return lab_response
-        except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
+        except LaboratoryErrors.SessionNotFoundInLaboratoryServerError:
             self.disable_access()
-            raise ProxyExceptions.NoCurrentReservationException('Experiment reservation expired')
-        except LaboratoryExceptions.FailedToSendFileException as e:
+            raise ProxyErrors.NoCurrentReservationError('Experiment reservation expired')
+        except LaboratoryErrors.FailedToSendFileError as e:
             self.disable_access()
-            raise ProxyExceptions.FailedToSendFileException("Failed to send file: %s" % e)
+            raise ProxyErrors.FailedToSendFileError("Failed to send file: %s" % e)

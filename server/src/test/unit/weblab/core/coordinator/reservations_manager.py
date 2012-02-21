@@ -50,7 +50,7 @@ class ReservationsManagerTestCase(unittest.TestCase):
         exp_id = ExperimentId("exp.that.doesnt.exist","cat1")
 
         self.assertRaises(
-            CoordExc.ExperimentNotFoundException,
+            CoordExc.ExperimentNotFoundError,
             self.reservations_manager.list_sessions,
             exp_id
         )

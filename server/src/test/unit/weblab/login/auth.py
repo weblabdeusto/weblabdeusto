@@ -26,7 +26,7 @@ except ImportError:
 from test.util.optional_modules import OptionalModuleTestCase
 import weblab.login.auth as LoginAuth
 import weblab.login.db.dao.user as UserAuth
-import weblab.login.exc as LoginExceptions
+import weblab.login.exc as LoginErrors
 
 valid_user                       = 'valid_user'
 valid_passwd                     = 'valid_passwd'
@@ -60,7 +60,7 @@ class LoginAuthTestCase(mocker.MockerTestCase):
             something_with_a_name = SomethingThatHasAName()
             something_with_a_name.name = "something that does not exist"
             self.assertRaises(
-                LoginExceptions.LoginUserAuthNotImplementedException,
+                LoginErrors.LoginUserAuthNotImplementedError,
                 LoginAuth.LoginAuth.create,
                 something_with_a_name
             )
@@ -113,7 +113,7 @@ class LoginAuthTestCase(mocker.MockerTestCase):
 
             self.mocker.replay()
             self.assertRaises(
-                LoginExceptions.LdapBindingException,
+                LoginErrors.LdapBindingError,
                 login_auth.authenticate,
                 valid_user,
                 passwd_that_will_raise_exception
@@ -131,7 +131,7 @@ class LoginAuthTestCase(mocker.MockerTestCase):
 
             self.mocker.replay()
             self.assertRaises(
-                LoginExceptions.LdapInitializingException,
+                LoginErrors.LdapInitializingError,
                 login_auth.authenticate,
                 valid_user,
                 valid_passwd

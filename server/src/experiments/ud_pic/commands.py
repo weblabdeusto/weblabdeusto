@@ -14,7 +14,7 @@
 #
 import re
 
-import experiments.ud_pic.exc as UdPicExperimentExceptions
+import experiments.ud_pic.exc as UdPicExperimentErrors
 
 class UdPicBoardCommand(object):
     _REGEX_FORMAT="^((%(complete-syntax)s, )*%(complete-syntax)s)$"
@@ -27,7 +27,7 @@ class UdPicBoardCommand(object):
     def __init__(self, command):
         mo = re.match(UdPicBoardCommand.get_syntax(), command)
         if mo == None:
-            raise UdPicExperimentExceptions.InvalidUdPicBoardCommandException(
+            raise UdPicExperimentErrors.InvalidUdPicBoardCommandError(
                     "Invalid command format; %s required" % UdPicBoardCommand.get_syntax()
                 )
         self._commands = []
@@ -64,7 +64,7 @@ def on_off_to_bool(on_off):
     elif on_off.upper() == "OFF":
         return False
     else:
-        raise UdPicExperimentExceptions.IllegalStatusUdPicBoardCommandException("%s is not on nor off" % on_off)
+        raise UdPicExperimentErrors.IllegalStatusUdPicBoardCommandError("%s is not on nor off" % on_off)
 
 def bool_to_on_off(on_off):
     if on_off:

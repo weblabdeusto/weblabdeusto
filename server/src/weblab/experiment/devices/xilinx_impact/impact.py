@@ -19,15 +19,15 @@ import os
 import subprocess
 import tempfile
 import threading
-import voodoo.configuration as ConfigurationExceptions
+import voodoo.configuration as ConfigurationErrors
 import voodoo.log as log
-import weblab.experiment.devices.xilinx_impact.exc as XilinxImpactExceptions
+import weblab.experiment.devices.xilinx_impact.exc as XilinxImpactErrors
 import weblab.experiment.devices.xilinx_impact.devices as XilinxDevices
 
 
 def create(xilinx_device, cfg_manager):
     if not xilinx_device in XilinxDevices.getXilinxDeviceValues():
-        raise XilinxImpactExceptions.NotAXilinxDeviceEnumException(
+        raise XilinxImpactErrors.NotAXilinxDeviceEnumError(
                 "Not a Xilinx Device Enumeration: %s" % xilinx_device
             )
     if xilinx_device == XilinxDevices.FPGA:
@@ -35,7 +35,7 @@ def create(xilinx_device, cfg_manager):
     elif xilinx_device == XilinxDevices.PLD:
         return _XilinxImpactPLD(cfg_manager)
     else:
-        raise XilinxImpactExceptions.XilinxDeviceNotFoundException(
+        raise XilinxImpactErrors.XilinxDeviceNotFoundError(
                 "Couldn't find xilinx device gateway: %s" % xilinx_device
             )
 
@@ -56,7 +56,7 @@ class XilinxImpact(object):
                 # so that if the program is finished, it starts programming the next device
                 # Consider that this might happen with any device, so 
                 # XilinxImpact might be a subclass of Experiment or sth
-                raise XilinxImpactExceptions.AlreadyProgrammingDeviceException(
+                raise XilinxImpactErrors.AlreadyProgrammingDeviceError(
                     "This experiment is already programming the device"
                 )
             self._busy = True
@@ -88,11 +88,11 @@ class XilinxImpact(object):
         if out.find("ERROR") >= 0 or len(err) > 0:
             error_messages = [ i for i in out.split('\n') if i.find('ERROR') >= 0 ] 
             error_messages += '; ' + err
-            raise XilinxImpactExceptions.ProgrammingGotErrors(
+            raise XilinxImpactErrors.ProgrammingGotErrors(
                     "Impact raised errors while programming the device: %s" % error_messages
                 )
         if res != 0:
-            raise XilinxImpactExceptions.ProgrammingGotErrors(
+            raise XilinxImpactErrors.ProgrammingGotErrors(
                     "Impact returned %i" % res
                 )
 
@@ -114,20 +114,20 @@ class XilinxImpact(object):
             if out.find("ERROR") >= 0:
                 error_messages = [ i for i in out.split('\n') if i.find('ERROR') >= 0 ] 
                 error_messages += '; ' + err
-                raise XilinxImpactExceptions.GeneratingSvfFileGotErrors(
+                raise XilinxImpactErrors.GeneratingSvfFileGotErrors(
                     "Impact raised errors while generating the .SVF file: %s" % error_messages
                 )
             if res != 0:
-                raise XilinxImpactExceptions.GeneratingSvfFileGotErrors("Impact returned %i" % res) 
+                raise XilinxImpactErrors.GeneratingSvfFileGotErrors("Impact returned %i" % res) 
         else:
             if out.find("ERROR") >= 0:
                 error_messages = [ i for i in out.split('\n') if i.find('ERROR') >= 0 ]
                 error_messages += '; ' + err
-                raise XilinxImpactExceptions.GeneratingSvfFileGotErrors(
+                raise XilinxImpactErrors.GeneratingSvfFileGotErrors(
                     "Impact raised errors while generating the .SVF file: %s" % error_messages
                 )
             if res != 0:
-                raise XilinxImpactExceptions.GeneratingSvfFileGotErrors("Impact returned %i" % res)
+                raise XilinxImpactErrors.GeneratingSvfFileGotErrors("Impact returned %i" % res)
     
     def _execute(self, cmd_file_name, xilinx_impact):
         full_cmd_line = xilinx_impact + ['-batch',cmd_file_name]
@@ -140,14 +140,14 @@ class XilinxImpact(object):
                 stderr = subprocess.PIPE
             )
         except Exception as e:
-            raise XilinxImpactExceptions.ErrorProgrammingDeviceException(
+            raise XilinxImpactErrors.ErrorProgrammingDeviceError(
                 "There was an error while executing Xilinx Impact: %s" % e
             )
         # TODO: make use of popen.poll to make this asynchronous
         try:
             result = popen.wait()
         except Exception as e:
-            raise XilinxImpactExceptions.ErrorWaitingForProgrammingFinishedException(
+            raise XilinxImpactErrors.ErrorWaitingForProgrammingFinishedError(
                 "There was an error while waiting for Xilinx Impact to finish: %s" % e
             )
 
@@ -155,7 +155,7 @@ class XilinxImpact(object):
             stdout_result = popen.stdout.read()
             stderr_result = popen.stderr.read()
         except Exception as e:
-            raise XilinxImpactExceptions.ErrorRetrievingOutputFromProgrammingProgramException(
+            raise XilinxImpactErrors.ErrorRetrievingOutputFromProgrammingProgramError(
                 "There was an error while retrieving the output of Xilinx Impact: %s" % e
             )
         return result, stdout_result, stderr_result
@@ -164,8 +164,8 @@ class XilinxImpact(object):
         try:
             program_file_content = self._cfg_manager.get_value('xilinx_batch_content_' + device)
             xilinx_impact = self._cfg_manager.get_value('xilinx_impact_full_path')
-        except ConfigurationExceptions.KeyNotFoundException as knfe:
-            raise XilinxImpactExceptions.CantFindXilinxProperty(
+        except ConfigurationErrors.KeyNotFoundError as knfe:
+            raise XilinxImpactErrors.CantFindXilinxProperty(
                     "Can't find in configuration manager the property '%s'" % knfe.key
                 )
         return program_file_content, xilinx_impact
@@ -174,8 +174,8 @@ class XilinxImpact(object):
         try:
             svf2jsvf_file_content = self._cfg_manager.get_value('xilinx_source2svf_batch_content_' + device)
             xilinx_impact = self._cfg_manager.get_value('xilinx_impact_full_path')
-        except ConfigurationExceptions.KeyNotFoundException as knfe:
-            raise XilinxImpactExceptions.CantFindXilinxProperty(
+        except ConfigurationErrors.KeyNotFoundError as knfe:
+            raise XilinxImpactErrors.CantFindXilinxProperty(
                     "Can't find in configuration manager the property '%s'" % knfe.key
                 )
         return svf2jsvf_file_content, xilinx_impact

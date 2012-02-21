@@ -21,7 +21,7 @@ from sqlalchemy.exc import IntegrityError
 from voodoo.dbutil import generate_getconn, get_sqlite_dbname
 import voodoo.sessions.db_lock_data as DbData
 
-import voodoo.sessions.exc as SessionExceptions
+import voodoo.sessions.exc as SessionErrors
 
 SESSION_LOCK_SQLALCHEMY_ENGINE = 'session_lock_sqlalchemy_engine'
 DEFAULT_SESSION_LOCK_SQLALCHEMY_ENGINE = 'mysql'
@@ -102,14 +102,14 @@ class DbLock(object):
             finally:
                 session.close()
 
-        raise SessionExceptions.SessionAlreadyAcquiredException( "Session already acquired")
+        raise SessionErrors.SessionAlreadyAcquiredError( "Session already acquired")
 
     def release(self, session_id):
         session = self._session_maker()
         try:
             lock = session.query(DbData.SessionLock).filter_by(sess_id="%s::%s" % (self.pool_id, session_id)).first()
             if lock is None:
-                raise SessionExceptions.CouldntReleaseSessionException("Couldn't find session id: %s" % session_id)
+                raise SessionErrors.CouldntReleaseSessionError("Couldn't find session id: %s" % session_id)
 
             session.delete(lock)
 

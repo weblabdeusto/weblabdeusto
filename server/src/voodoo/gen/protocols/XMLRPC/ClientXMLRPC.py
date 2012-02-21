@@ -13,11 +13,11 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 import voodoo.gen.generators.ClientSkel as ClientSkel
-import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
+import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 
 import xmlrpclib
 
-import voodoo.gen.protocols.XMLRPC.Exceptions as Exceptions
+import voodoo.gen.protocols.XMLRPC.Errors as Exceptions
 
 # Stubs of client methods to dynamically generate
 # All of them must have the same name format:
@@ -42,7 +42,7 @@ def _generate_stub(METHOD_NAME):
                     ft
                 )
         except Exception as e:
-            raise ProtocolExceptions.UnknownRemoteException(
+            raise ProtocolErrors.UnknownRemoteError(
                     "Unknown exception: " + str(e.__class__) + "; " + str(e),
                     e
                 )

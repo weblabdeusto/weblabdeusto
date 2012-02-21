@@ -16,7 +16,7 @@ import unittest
 
 
 import voodoo.gen.coordinator.Address as Address
-import voodoo.gen.exceptions.coordinator.AccessExceptions as AccessExceptions
+import voodoo.gen.exceptions.coordinator.AccessErrors as AccessErrors
 
 class ImplementorClass(Address.IpBasedAddress):
     def create_client(self,methods):
@@ -90,7 +90,7 @@ class AddressTestCase(unittest.TestCase):
 
         for i in invalid_addresses:
             self.assertRaises(
-                AccessExceptions.AccessInvalidIpBasedFormat,
+                AccessErrors.AccessInvalidIpBasedFormat,
                 ImplementorClass,
                 i
             )

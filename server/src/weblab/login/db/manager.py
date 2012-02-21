@@ -15,7 +15,7 @@
 
 import weblab.login.db.gateway as DbGateway
 import weblab.db.session as DbSession
-import weblab.db.exc as DbExceptions
+import weblab.db.exc as DbErrors
 
 class LoginDatabaseManager(object):
 
@@ -25,7 +25,7 @@ class LoginDatabaseManager(object):
     def check_credentials(self, username, password):
         try:
             role, user_id, user_auths = self._auth_gateway.check_user_password( username, password )
-        except DbExceptions.DbInvalidUserOrPasswordException:
+        except DbErrors.DbInvalidUserOrPasswordError:
             return DbSession.InvalidDatabaseSessionId()
 
         if user_auths is None:

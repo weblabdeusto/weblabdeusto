@@ -17,19 +17,19 @@ import unittest
 
 import voodoo.gen.coordinator.CoordVersion as CoordVersion
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
-import voodoo.gen.exceptions.coordinator.CoordVersionExceptions as CoordVersionExceptions
+import voodoo.gen.exceptions.coordinator.CoordVersionErrors as CoordVersionErrors
 
 class VersionTestCase(unittest.TestCase):
     def test_version_change(self):
         address = CoordAddress.CoordAddress('machine_id')
         self.assertRaises(
-                CoordVersionExceptions.CoordVersionNotAnActionException,
+                CoordVersionErrors.CoordVersionNotAnActionError,
                 CoordVersion.CoordVersionChange,
                 address,
                 'NEW2'
             )
         self.assertRaises(
-                CoordVersionExceptions.CoordVersionNotAnAddressException,
+                CoordVersionErrors.CoordVersionNotAnAddressError,
                 CoordVersion.CoordVersionChange,
                 'machine_id',
                 CoordVersion.ChangeActions.NEW

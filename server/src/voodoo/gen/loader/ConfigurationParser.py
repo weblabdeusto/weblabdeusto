@@ -18,7 +18,7 @@ import xml.dom.minidom as minidom
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.gen.protocols as protocols_package
-import voodoo.gen.exceptions.loader.LoaderExceptions as LoaderExceptions
+import voodoo.gen.exceptions.loader.LoaderErrors as LoaderErrors
 import voodoo.gen.loader.ConfigurationData as ConfigurationData
 import voodoo.gen.loader.schema_checker as SchemaChecker
 import voodoo.gen.loader.util as LoaderUtilities
@@ -34,11 +34,11 @@ class AbstractParser(object):
         try:
             return open(file_path), file_path
         except Exception as e:
-            raise LoaderExceptions.InvalidConfigurationException("Couldn't parse '%s': %s" % (file_path,e))
+            raise LoaderErrors.InvalidConfigurationError("Couldn't parse '%s': %s" % (file_path,e))
 
     def parse(self, directory, address = None):
         if not isinstance(self, GlobalParser) and address is None:
-            raise LoaderExceptions.InvalidConfigurationException(
+            raise LoaderErrors.InvalidConfigurationError(
                     "Missing address parameter"
                 )
         stream, file_path = self._retrieve_stream(directory)
@@ -48,7 +48,7 @@ class AbstractParser(object):
         try:
             return minidom.parse(stream)
         except Exception as e:
-            raise LoaderExceptions.InvalidConfigurationException("Couldn't load xml file %s: %s" % (file_path, e))
+            raise LoaderErrors.InvalidConfigurationError("Couldn't load xml file %s: %s" % (file_path, e))
 
     def _parse_configurations(self, directory, configuration_nodes):
         configurations = []
@@ -107,7 +107,7 @@ class ServerParser(AbstractParser):
     def _parse_server_type_module(self, server_type_node):
         text_value = LoaderUtilities.obtain_text_safe(server_type_node)
         if text_value.count('::') != 1:
-            raise LoaderExceptions.InvalidConfigurationException(
+            raise LoaderErrors.InvalidConfigurationError(
                         'Unknown format: %s. module::variable expected' % text_value
                     )
 
@@ -121,7 +121,7 @@ class ServerParser(AbstractParser):
     def _retrieve_variable(self, format_node):
         text_value = LoaderUtilities.obtain_text_safe(format_node)
         if text_value.count('::') != 1:
-            raise LoaderExceptions.InvalidConfigurationException(
+            raise LoaderErrors.InvalidConfigurationError(
                         'Unknown format: %s. module::variable expected' % text_value
                     )
 
@@ -130,7 +130,7 @@ class ServerParser(AbstractParser):
         try:
             return getattr(module_inst, variable)
         except AttributeError:
-            raise LoaderExceptions.InvalidConfigurationException(
+            raise LoaderErrors.InvalidConfigurationError(
                     'Unknown format: couldn\'t find %s in %s' % (variable, module_name)
                 )
 

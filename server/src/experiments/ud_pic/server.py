@@ -28,7 +28,7 @@ import weblab.data.server_type as ServerType
 
 import weblab.experiment.experiment as Experiment
 
-import weblab.experiment.exc as ExperimentExceptions
+import weblab.experiment.exc as ExperimentErrors
 
 # TODO: this is wrong. It wouldn't work for multiple pic experiments
 TFTP_SERVER_HOSTNAME = 'pic_tftp_server_hostname'
@@ -157,7 +157,7 @@ class UdPicExperiment(Experiment.Experiment):
                 UdPicExperiment,
                 log.level.Warning,
             )
-            raise ExperimentExceptions.SendingFileFailureException(
+            raise ExperimentErrors.SendingFileFailureError(
                     "Error sending file to device: %s" % e.args[0]
                 )
 
@@ -178,7 +178,7 @@ class UdPicExperiment(Experiment.Experiment):
             self._http_device.send_message(str(cmd))
             # TODO: check the response code (200)
             #if response.lower() != "ok":
-            #   raise UdPicExperimentExceptions.UdPicInvalidResponseException("the ") #TODO: message
+            #   raise UdPicExperimentErrors.UdPicInvalidResponseError("the ") #TODO: message
             pass
 
     @logged("info")

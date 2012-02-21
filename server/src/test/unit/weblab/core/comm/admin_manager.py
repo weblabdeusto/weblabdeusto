@@ -32,8 +32,8 @@ from weblab.data.dto.users import Role
 from weblab.data.dto.experiments import ExperimentUse
 
 import weblab.core.exc as coreExc
-import weblab.exc as WebLabExceptions
-import voodoo.gen.exceptions.exceptions as VoodooExceptions
+import weblab.exc as WebLabErrors
+import voodoo.gen.exceptions.exceptions as VoodooErrors
 
 class MockUPS(object):
 
@@ -224,15 +224,15 @@ class AdminFacadeManagerJSONTestCase(unittest.TestCase):
         self.cfg_manager._set_value(RFM.DEBUG_MODE, False)
 
         self._test_exception(method, args,
-                        coreExc.WebLabCoreException, MESSAGE,
+                        coreExc.WebLabCoreError, MESSAGE,
                         'JSON:' + UserProcessingRFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)
 
         self._test_exception(method, args,
-                        WebLabExceptions.WebLabException, MESSAGE,
+                        WebLabErrors.WebLabError, MESSAGE,
                         'JSON:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)
 
         self._test_exception(method, args,
-                        VoodooExceptions.GeneratorException, MESSAGE,
+                        VoodooErrors.GeneratorError, MESSAGE,
                         'JSON:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)
 
         self._test_exception(method, args,
@@ -243,15 +243,15 @@ class AdminFacadeManagerJSONTestCase(unittest.TestCase):
         self.cfg_manager._set_value(RFM.DEBUG_MODE, True)
 
         self._test_exception(method, args,
-                        coreExc.WebLabCoreException, MESSAGE,
+                        coreExc.WebLabCoreError, MESSAGE,
                         'JSON:' + UserProcessingRFCodes.UPS_GENERAL_EXCEPTION_CODE, MESSAGE)
 
         self._test_exception(method, args,
-                        WebLabExceptions.WebLabException, MESSAGE,
+                        WebLabErrors.WebLabError, MESSAGE,
                         'JSON:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, MESSAGE)
 
         self._test_exception(method, args,
-                        VoodooExceptions.GeneratorException, MESSAGE,
+                        VoodooErrors.GeneratorError, MESSAGE,
                         'JSON:' + RFCodes.VOODOO_GENERAL_EXCEPTION_CODE, MESSAGE)
 
         self._test_exception(method, args,

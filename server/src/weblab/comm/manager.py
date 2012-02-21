@@ -112,13 +112,13 @@ class AbstractZSI(object):
             log.log( self, log.level.Error, msg )
             print >> sys.stderr, msg
 
-class JSONException(Exception):
+class JSONError(Exception):
     pass
 
 class AbstractJSON(object):
     def _raise_exception(self, code, msg):
         msg = _propagate_stack_trace(self._cfg_manager, msg)
-        raise JSONException({ 'is_exception' : True, 'code' : 'JSON:' + code, 'message' : msg })
+        raise JSONError({ 'is_exception' : True, 'code' : 'JSON:' + code, 'message' : msg })
 
 class AbstractXMLRPC(object):
     def _raise_exception(self, code, msg):

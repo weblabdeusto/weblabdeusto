@@ -35,7 +35,7 @@ import traceback
 from Cookie import SimpleCookie
 
 import weblab.comm.web_server as WebFacadeServer
-import weblab.login.exc as LoginExceptions
+import weblab.login.exc as LoginErrors
 
 USERNAME = "username"
 DOMAIN   = "domain"
@@ -138,7 +138,7 @@ class OpenIdMethod(WebFacadeServer.Method):
                         self.req.send_response(302)
                         self.req.send_header('Location', redirect_url)
                         self.req.end_headers()
-                        raise WebFacadeServer.RequestManagedException()
+                        raise WebFacadeServer.RequestManagedError()
                     else:
                         form_html = request.formMarkup( trust_root, return_to, form_tag_attrs={'id':'openid_message'}, immediate=False)
                         return self.autoSubmit(form_html, 'openid_message')
@@ -153,7 +153,7 @@ class OpenIdMethod(WebFacadeServer.Method):
                 self.getSession()['validated'] = info.identity_url
                 try:
                     session_id = self.server.extensible_login('OPENID','%s' % self.getSession()['id'])
-                except LoginExceptions.LoginException:
+                except LoginErrors.LoginError:
                     return "Successfully authenticated; however your account does not seem to be registered in WebLab-Deusto. Do please contact with administrators"
                 full_client_url = "%s?session_id=%s;%s" % (self.client_url, session_id.id, self.weblab_cookie)
                 return "<html><body><script>top.location.href='%s';</script><a href='%s'>Continue</a></body></html>" % (full_client_url, full_client_url)

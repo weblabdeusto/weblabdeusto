@@ -49,7 +49,7 @@ class ReservationsManager(object):
         try:
             reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
             if reservation is None:
-                raise CoordExc.ExpiredSessionException("Expired reservation: no experiment id found for that reservation (%s)" % reservation_id)
+                raise CoordExc.ExpiredSessionError("Expired reservation: no experiment id found for that reservation (%s)" % reservation_id)
             return reservation.experiment_type.to_experiment_id()
         finally:
             session.close()
@@ -67,14 +67,14 @@ class ReservationsManager(object):
     def update(self, session, reservation_id):
         reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
         if reservation is None:
-            raise CoordExc.ExpiredSessionException("Expired reservation")
+            raise CoordExc.ExpiredSessionError("Expired reservation")
 
         reservation.update()
 
     def confirm(self, session, reservation_id):
         reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
         if reservation is None:
-            raise CoordExc.ExpiredSessionException("Expired reservation")
+            raise CoordExc.ExpiredSessionError("Expired reservation")
 
         current_reservation = CurrentReservation(reservation.id)
         session.add(current_reservation)
@@ -94,7 +94,7 @@ class ReservationsManager(object):
         try:
             experiment_type = session.query(ExperimentType).filter_by(exp_name = experiment_id.exp_name, cat_name = experiment_id.cat_name).first()
             if experiment_type is None:
-                raise CoordExc.ExperimentNotFoundException("Experiment %s not found" % experiment_id)
+                raise CoordExc.ExperimentNotFoundError("Experiment %s not found" % experiment_id)
 
             reservation_ids = []
 

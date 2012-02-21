@@ -12,7 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
-import weblab.experiment.exc as ExperimentExceptions
+import weblab.experiment.exc as ExperimentErrors
 
 import weblab.experiment.level as ExperimentApiLevel
 
@@ -45,17 +45,17 @@ class Experiment(object):
 
     def do_send_file_to_device(self, file_content, file_info):
         """do_send_file_to_device(file_content, file_info)
-        raises (FeatureNotImplemented, SendingFileFailureException)
+        raises (FeatureNotImplemented, SendingFileFailureError)
         """
-        raise ExperimentExceptions.FeatureNotImplementedException(
+        raise ExperimentErrors.FeatureNotImplementedError(
                 "send_file_to_device has not been implemented in this experiment"
             )
 
     def do_send_command_to_device(self, command):
         """do_send_command_to_device(command)
-        raises (FeatureNotImplemented, SendingCommandFailureException)
+        raises (FeatureNotImplemented, SendingCommandFailureError)
         """
-        raise ExperimentExceptions.FeatureNotImplementedException(
+        raise ExperimentErrors.FeatureNotImplementedError(
                 "send_command_to_device has not been implemented in this experiment"
             )
 

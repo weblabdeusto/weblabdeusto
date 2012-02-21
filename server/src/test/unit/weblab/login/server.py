@@ -30,8 +30,8 @@ else:
 import weblab.data.server_type as ServerType
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
-import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
-import voodoo.gen.exceptions.locator.LocatorExceptions as LocatorExceptions
+import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
+import voodoo.gen.exceptions.locator.LocatorErrors as LocatorErrors
 import voodoo.gen.locator.EasyLocator as EasyLocator
 import voodoo.configuration      as ConfigurationManager
 
@@ -39,7 +39,7 @@ import weblab.methods as weblab_methods
 
 import weblab.login.server as LoginServer
 import weblab.login.auth as LoginAuth
-import weblab.login.exc as LoginExceptions
+import weblab.login.exc as LoginErrors
 
 import test.unit.configuration as configuration_module
 
@@ -82,13 +82,13 @@ class FakeLocator(object):
         self.servers_not_working.append(server)
 
 def get_no_server(self, coord_address, server_type, restrictions):
-    raise LocatorExceptions.NoServerFoundException("lol")
+    raise LocatorErrors.NoServerFoundError("lol")
 
 def broken_login_user(self, username, password):
-    raise ProtocolExceptions.RemoteException("p0wn3d","p0wn3d")
+    raise ProtocolErrors.RemoteError("p0wn3d","p0wn3d")
 
 def broken_reserve_session(self, db_session_id):
-    raise ProtocolExceptions.RemoteException("p0wn3d","p0wn3d")
+    raise ProtocolErrors.RemoteError("p0wn3d","p0wn3d")
 
 class LoginServerTestCase(unittest.TestCase):
 
@@ -118,7 +118,7 @@ class LoginServerTestCase(unittest.TestCase):
     def test_invalid_user_and_invalid_password(self):
         LoginServer.LOGIN_FAILED_DELAY = 0.2
         self.assertRaises(
-            LoginExceptions.InvalidCredentialsException,
+            LoginErrors.InvalidCredentialsError,
             self.login_server.login,
             fake_wrong_user,
             fake_wrong_passwd
@@ -127,7 +127,7 @@ class LoginServerTestCase(unittest.TestCase):
     def test_valid_user_and_invalid_password(self):
         LoginServer.LOGIN_FAILED_DELAY = 0.2
         self.assertRaises(
-            LoginExceptions.InvalidCredentialsException,
+            LoginErrors.InvalidCredentialsError,
             self.login_server.login,
             fake_right_user,
             fake_wrong_passwd
@@ -156,7 +156,7 @@ class LoginServerTestCase(unittest.TestCase):
 
             with mockr:
                 self.assertRaises(
-                    LoginExceptions.InvalidCredentialsException,
+                    LoginErrors.InvalidCredentialsError,
                     self.login_server.login,
                     fake_ldap_user,
                     fake_ldap_invalid_passwd
@@ -172,7 +172,7 @@ class LoginServerTestCase(unittest.TestCase):
         ERROR_MARGIN = 0.01
         start_time = time.time()
         self.assertRaises(
-                LoginExceptions.InvalidCredentialsException,
+                LoginErrors.InvalidCredentialsError,
                 self.login_server.login,
                 fake_wrong_user,
                 fake_wrong_passwd
@@ -195,7 +195,7 @@ class LoginServerTestCase(unittest.TestCase):
         FakeUPServer.reserve_session = broken_reserve_session
         try:
             self.assertRaises(
-                LocatorExceptions.UnableToCompleteOperationException,
+                LocatorErrors.UnableToCompleteOperationError,
                 self.login_server.login,
                 fake_right_user,
                 fake_right_passwd
@@ -218,7 +218,7 @@ class LoginServerTestCase(unittest.TestCase):
 
         try:
             self.assertRaises(
-                LocatorExceptions.UnableToCompleteOperationException,
+                LocatorErrors.UnableToCompleteOperationError,
                 self.login_server.login,
                 fake_right_user,
                 fake_right_passwd

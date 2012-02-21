@@ -24,11 +24,11 @@ else:
     SOAPPY_AVAILABLE = True
 
 import voodoo.gen.generators.ClientSkel as ClientSkel
-import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
+import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 import voodoo.log as log
 
 import voodoo.gen.protocols.SOAP.ServerSOAP as ServerSOAP
-import voodoo.gen.protocols.SOAP.Exceptions as Exceptions
+import voodoo.gen.protocols.SOAP.Errors as Exceptions
 import voodoo.mapper as mapper
 
 def _retrieve_class(complete_class_name):
@@ -88,7 +88,7 @@ def _generate_stub(METHOD_NAME):
                     ft
                 )
         except Exception as e:
-            raise ProtocolExceptions.UnknownRemoteException(
+            raise ProtocolErrors.UnknownRemoteError(
                     "Unknown exception: " + str(e.__class__) + "; " + str(e),
                     e
                 )

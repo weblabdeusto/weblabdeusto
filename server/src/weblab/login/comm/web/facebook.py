@@ -17,7 +17,7 @@ import urllib2
 import base64
 
 import weblab.comm.web_server as WebFacadeServer
-import weblab.login.exc as LoginExceptions
+import weblab.login.exc as LoginErrors
 
 REQUEST_FIELD           = 'signed_request'
 FACEBOOK_APP_PROPERTY   = "login_facebook_url"
@@ -59,7 +59,7 @@ class FacebookMethod(WebFacadeServer.Method):
 
         try:
             session_id = self.server.extensible_login('FACEBOOK', signed_request)
-        except LoginExceptions.InvalidCredentialsException:
+        except LoginErrors.InvalidCredentialsError:
             return self._handle_unauthenticated_clients(signed_request)
 
         return self._show_weblab(session_id, signed_request)
@@ -114,7 +114,7 @@ class FacebookMethod(WebFacadeServer.Method):
         password = self.get_argument('password')
         try:
             session_id = self.server.grant_external_credentials(username, password, 'FACEBOOK', signed_request)
-        except LoginExceptions.InvalidCredentialsException:
+        except LoginErrors.InvalidCredentialsError:
             return "Invalid username or password!"
         else:
             return self._show_weblab(session_id, signed_request)
@@ -122,7 +122,7 @@ class FacebookMethod(WebFacadeServer.Method):
     def _handle_creating_accounts(self, signed_request):
         try:
             session_id = self.server.create_external_user('FACEBOOK', signed_request)
-        except LoginExceptions.InvalidCredentialsException:
+        except LoginErrors.InvalidCredentialsError:
             return "Invalid username or password!"
         else:
             return self._show_weblab(session_id, signed_request)

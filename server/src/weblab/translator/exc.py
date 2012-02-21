@@ -15,18 +15,18 @@
 
 import weblab.exc as wlExc
 
-class TranslatorException(wlExc.WebLabException):
+class TranslatorError(wlExc.WebLabError):
     def __init__(self, *args, **kargs):
-        wlExc.WebLabException.__init__(self, *args, **kargs)
+        wlExc.WebLabError.__init__(self, *args, **kargs)
 
 #
-# from TranslatorException
+# from TranslatorError
 #
 
-class NotASessionTypeException(TranslatorException):
+class NotASessionTypeError(TranslatorError):
     def __init__(self, *args, **kargs):
-        TranslatorException.__init__(self, *args, **kargs)
+        TranslatorError.__init__(self, *args, **kargs)
 
-class InvalidTranslatorSessionIdException(TranslatorException):
+class InvalidTranslatorSessionIdError(TranslatorError):
     def __init__(self, *args, **kargs):
-        TranslatorException.__init__(self, *args, **kargs)
+        TranslatorError.__init__(self, *args, **kargs)

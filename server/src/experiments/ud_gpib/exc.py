@@ -12,12 +12,12 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
-import weblab.experiment.exc as ExperimentExceptions
+import weblab.experiment.exc as ExperimentErrors
 
-class UdGpibExperimentException(ExperimentExceptions.ExperimentException):
+class UdGpibExperimentError(ExperimentErrors.ExperimentError):
     def __init__(self,*args,**kargs):
-        ExperimentExceptions.ExperimentException.__init__(self,*args,**kargs)
+        ExperimentErrors.ExperimentError.__init__(self,*args,**kargs)
 
-class UnknownUdGpibCommandException(UdGpibExperimentException):
+class UnknownUdGpibCommandError(UdGpibExperimentError):
     def __init__(self,*args,**kargs):
-        UdGpibExperimentException.__init__(self,*args,**kargs)
+        UdGpibExperimentError.__init__(self,*args,**kargs)

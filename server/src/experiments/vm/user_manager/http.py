@@ -44,11 +44,11 @@ class HttpQueryUserManager(UserManager):
         
         If the query is successfully carried out, the function returns nothing.
         If after retrying a certain number of times the VM can't be reached, or if is rached
-        but the HTTP returns an error message, a ConfigureException will be raised.
+        but the HTTP returns an error message, a ConfigureError will be raised.
         
-        The ConfigureException will be either a PermanentConfigureException or a 
-        TemporaryConfigureException, depending what failed. Because the configure method itself
-        does already retry a fair number of times, generally even a TemporaryConfigureException
+        The ConfigureError will be either a PermanentConfigureError or a 
+        TemporaryConfigureError, depending what failed. Because the configure method itself
+        does already retry a fair number of times, generally even a TemporaryConfigureError
         will actually be permanent.
         """
         times_tried = 0 

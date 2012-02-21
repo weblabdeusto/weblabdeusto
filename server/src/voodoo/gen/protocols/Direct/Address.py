@@ -23,27 +23,27 @@ import voodoo.gen.protocols.Direct.ServerDirect as ServerDirect
 
 import voodoo.gen.registry.server_registry as ServerRegistry
 
-import voodoo.gen.exceptions.registry.RegistryExceptions as RegistryExceptions
-import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
+import voodoo.gen.exceptions.registry.RegistryErrors as RegistryErrors
+import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 
 from voodoo.override import Override
 
-import voodoo.gen.protocols.Direct.Exceptions as Exceptions
+import voodoo.gen.protocols.Direct.Errors as Exceptions
 
 class Address(cAddress.Address):
 
     def __init__(self, machine_id, instance_id, server_id):
         cAddress.Address.__init__(self)
         if not isinstance(machine_id,basestring):
-            raise Exceptions.InvalidArgumentAddressException(
+            raise Exceptions.InvalidArgumentAddressError(
                     "machine_id not a str: %s" % server_id
                 )
         elif not isinstance(instance_id,basestring):
-            raise Exceptions.InvalidArgumentAddressException(
+            raise Exceptions.InvalidArgumentAddressError(
                     "instance_id not a str: %s" % server_id
                 )
         elif not isinstance(server_id,basestring):
-            raise Exceptions.InvalidArgumentAddressException(
+            raise Exceptions.InvalidArgumentAddressError(
                     "server_id not a str: %s" % server_id
                 )
         self._machine_id = machine_id
@@ -97,22 +97,22 @@ class Address(cAddress.Address):
                 ServerDirect._SERVER_PREFIX + self.address
                 #ServerDirect._SERVER_PREFIX + self._machine_id + "__" + self._instance_id + "__" + self._server_id
             )
-        except RegistryExceptions.RegistryException as rex:
-            raise ProtocolExceptions.ClientCreationException(
+        except RegistryErrors.RegistryError as rex:
+            raise ProtocolErrors.ClientCreationError(
                     ("Registry exception while retrieving server from registry: %s" % rex),
                     rex
             )
         try:
             client_class = ClientSkel.factory(Protocols.Direct,methods)
         except Exception as e:
-            raise ProtocolExceptions.ClientClassCreationException(
+            raise ProtocolErrors.ClientClassCreationError(
                     ("Client class creation exception: %s" % e),
                     e
                 )
         try:
             return client_class(server)
         except Exception as e:
-            raise ProtocolExceptions.ClientInstanciationException(
+            raise ProtocolErrors.ClientInstanciationError(
                     ("Exception instaciating the client: %s" % e),
                     e
                 )
@@ -123,7 +123,7 @@ class Address(cAddress.Address):
 
 def from_coord_address(coord_address):
     if not isinstance(coord_address,CoordAddress.CoordAddress):
-        raise Exceptions.NotACoordAddressException(
+        raise Exceptions.NotACoordAddressError(
                 "Not a CoordAddress: %s" % coord_address
             )
     return Address(

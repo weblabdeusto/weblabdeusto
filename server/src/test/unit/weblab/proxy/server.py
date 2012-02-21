@@ -14,15 +14,15 @@
 #
 
 from test.unit.weblab.proxy import adds_triple_translator, fake_time
-from voodoo.sessions import exc as SessionExceptions
+from voodoo.sessions import exc as SessionErrors
 from voodoo.gen.coordinator import CoordAddress
-from voodoo.gen.exceptions.locator import LocatorExceptions
+from voodoo.gen.exceptions.locator import LocatorErrors
 from voodoo.gen.locator import EasyLocator
 from voodoo.sessions import session_id as SessionId
 from weblab.data import server_type as ServerType
 from weblab.data.command import Command
-import weblab.lab.exc as LaboratoryExceptions
-import weblab.proxy.exc as ProxyExceptions
+import weblab.lab.exc as LaboratoryErrors
+import weblab.proxy.exc as ProxyErrors
 from weblab.proxy import server as ProxyServer
 from weblab.translator.translators import StoresNothingTranslator, StoresEverythingTranslator
 import mocker
@@ -42,14 +42,14 @@ class CreatingProxyServerTestCase(mocker.MockerTestCase):
     def test_invalid_session_type_name(self):
         self._cfg_manager._set_value(ProxyServer.WEBLAB_PROXY_SERVER_SESSION_TYPE, "this_will_never_be_a_valid_session_type")
         self.assertRaises(
-            ProxyExceptions.NotASessionTypeException,
+            ProxyErrors.NotASessionTypeError,
             ProxyServer.ProxyServer, None, None, self._cfg_manager
         )
 
     def test_invalid_default_translator_klazz_name(self):
         self._cfg_manager._set_value(ProxyServer.WEBLAB_PROXY_SERVER_DEFAULT_TRANSLATOR_NAME, "ThisWillNeverBeAValidDefaultTranslatorKlazzName")
         self.assertRaises(
-            ProxyExceptions.InvalidDefaultTranslatorNameException,
+            ProxyErrors.InvalidDefaultTranslatorNameError,
             ProxyServer.ProxyServer, None, None, self._cfg_manager
         )
 
@@ -186,7 +186,7 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
 
         # Can't disable access, of course
         self.assertRaises(
-            ProxyExceptions.InvalidReservationIdException,
+            ProxyErrors.InvalidReservationIdError,
             proxy.do_disable_access,
             self.RESERVATION_ID
         )
@@ -197,26 +197,26 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
 
         # Can't retrieve results
         self.assertRaises(
-            SessionExceptions.SessionNotFoundException,
+            SessionErrors.SessionNotFoundError,
             proxy.do_retrieve_results,
             self.RESERVATION_ID
         )
 
         # Can't poll
         self.assertRaises(
-            ProxyExceptions.InvalidReservationIdException,
+            ProxyErrors.InvalidReservationIdError,
             proxy.poll,
             self.RESERVATION_SESS_ID
         )
 
         # Can't work with the experiment
         self.assertRaises(
-            ProxyExceptions.InvalidReservationIdException,
+            ProxyErrors.InvalidReservationIdError,
             proxy.send_command,
             self.RESERVATION_SESS_ID, 'command'
         )
         self.assertRaises(
-            ProxyExceptions.InvalidReservationIdException,
+            ProxyErrors.InvalidReservationIdError,
             proxy.send_file,
             self.RESERVATION_SESS_ID, 'file'
         )
@@ -228,26 +228,26 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
 
         # Can't poll
         self.assertRaises(
-            ProxyExceptions.AccessDisabledException,
+            ProxyErrors.AccessDisabledError,
             proxy.poll,
             self.RESERVATION_SESS_ID
         )
 
         # Can't work with the experiment
         self.assertRaises(
-            ProxyExceptions.AccessDisabledException,
+            ProxyErrors.AccessDisabledError,
             proxy.send_command,
             self.RESERVATION_SESS_ID, 'command'
         )
         self.assertRaises(
-            ProxyExceptions.AccessDisabledException,
+            ProxyErrors.AccessDisabledError,
             proxy.send_file,
             self.RESERVATION_SESS_ID, 'file'
         )
 
         # Can't disable access again, of course
         self.assertRaises(
-            ProxyExceptions.AccessDisabledException,
+            ProxyErrors.AccessDisabledError,
             proxy.do_disable_access,
             self.RESERVATION_ID
         )
@@ -258,7 +258,7 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
     def test_failed_to_send_command(self):
         laboratory = self.mocker.mock()
         laboratory.send_command(self.LAB_SESS_ID, 'command')
-        self.mocker.throw(LaboratoryExceptions.FailedToSendCommandException)
+        self.mocker.throw(LaboratoryErrors.FailedToSendCommandError)
 
         self.mocker.replay()
         proxy = self._create_proxy(laboratories=(laboratory,))
@@ -266,14 +266,14 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
         proxy.do_enable_access(self.RESERVATION_ID, "ud-fpga@FPGA experiments", "student1", self.LAB_COORD_ADDR, self.LAB_SESS_ID)
 
         self.assertRaises(
-            ProxyExceptions.FailedToSendCommandException,
+            ProxyErrors.FailedToSendCommandError,
             proxy.send_command,
             self.RESERVATION_SESS_ID, 'command'
         )
 
         # Access becomes disabled
         self.assertRaises(
-            ProxyExceptions.AccessDisabledException,
+            ProxyErrors.AccessDisabledError,
             proxy.send_command,
             self.RESERVATION_SESS_ID, 'command'
         )
@@ -281,7 +281,7 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
     def test_failed_to_send_file(self):
         laboratory = self.mocker.mock()
         laboratory.send_file(self.LAB_SESS_ID, 'file', 'info')
-        self.mocker.throw(LaboratoryExceptions.FailedToSendFileException)
+        self.mocker.throw(LaboratoryErrors.FailedToSendFileError)
 
         self.mocker.replay()
         proxy = self._create_proxy(laboratories=(laboratory,))
@@ -289,14 +289,14 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
         proxy.do_enable_access(self.RESERVATION_ID, "ud-fpga@FPGA experiments", "student1", self.LAB_COORD_ADDR, self.LAB_SESS_ID)
 
         self.assertRaises(
-            ProxyExceptions.FailedToSendFileException,
+            ProxyErrors.FailedToSendFileError,
             proxy.send_file,
             self.RESERVATION_SESS_ID, 'file', 'info'
         )
 
         # Access becomes disabled
         self.assertRaises(
-            ProxyExceptions.AccessDisabledException,
+            ProxyErrors.AccessDisabledError,
             proxy.send_file,
             self.RESERVATION_SESS_ID, 'file', 'info'
         )
@@ -304,7 +304,7 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
     def test_invalid_laboratory_session_id_when_sending_a_command(self):
         laboratory = self.mocker.mock()
         laboratory.send_command(self.LAB_SESS_ID, 'command')
-        self.mocker.throw(LaboratoryExceptions.SessionNotFoundInLaboratoryServerException)
+        self.mocker.throw(LaboratoryErrors.SessionNotFoundInLaboratoryServerError)
 
         self.mocker.replay()
         proxy = self._create_proxy(laboratories=(laboratory,))
@@ -312,7 +312,7 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
         proxy.do_enable_access(self.RESERVATION_ID, "ud-fpga@FPGA experiments", "student1", self.LAB_COORD_ADDR, self.LAB_SESS_ID)
 
         self.assertRaises(
-            ProxyExceptions.NoCurrentReservationException,
+            ProxyErrors.NoCurrentReservationError,
             proxy.send_command,
             self.RESERVATION_SESS_ID, 'command'
         )
@@ -320,7 +320,7 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
     def test_invalid_laboratory_session_id_when_sending_a_file(self):
         laboratory = self.mocker.mock()
         laboratory.send_file(self.LAB_SESS_ID, 'file', 'info')
-        self.mocker.throw(LaboratoryExceptions.SessionNotFoundInLaboratoryServerException)
+        self.mocker.throw(LaboratoryErrors.SessionNotFoundInLaboratoryServerError)
 
         self.mocker.replay()
         proxy = self._create_proxy(laboratories=(laboratory,))
@@ -328,7 +328,7 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
         proxy.do_enable_access(self.RESERVATION_ID, "ud-fpga@FPGA experiments", "student1", self.LAB_COORD_ADDR, self.LAB_SESS_ID)
 
         self.assertRaises(
-            ProxyExceptions.NoCurrentReservationException,
+            ProxyErrors.NoCurrentReservationError,
             proxy.send_file,
             self.RESERVATION_SESS_ID, 'file', 'info'
         )
@@ -369,7 +369,7 @@ class FakeLocator(object):
             if len(self.clients['translators']) > 0:
                 return self.clients['translators'][0]
             else:
-                raise LocatorExceptions.NoServerFoundException()
+                raise LocatorErrors.NoServerFoundError()
         else:
             return self.clients['laboratories'][0]
 

@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 import voodoo.sessions.session_type as SessionType
-import voodoo.sessions.exc as SessionExceptions
+import voodoo.sessions.exc as SessionErrors
 
 def get_gateway_class(session_type):
     if session_type == SessionType.Memory:
@@ -23,7 +23,7 @@ def get_gateway_class(session_type):
         from voodoo.sessions.sqlalchemy_gateway import SessionSqlalchemyGateway
         return SessionSqlalchemyGateway
     else:
-        raise SessionExceptions.SessionTypeNotImplementedException(
+        raise SessionErrors.SessionTypeNotImplementedError(
                 "Session Type %s not implemented" % session_type.name
             )
 

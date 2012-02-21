@@ -183,7 +183,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         exp_id = ExperimentId('this does not experiment','this neither')
 
         self.assertRaises(
-            coreExc.UnknownExperimentIdException,
+            coreExc.UnknownExperimentIdError,
             self.ups.reserve_experiment,
             sess_id, exp_id, "{}", "{}", ClientAddress.ClientAddress("127.0.0.1")
         )

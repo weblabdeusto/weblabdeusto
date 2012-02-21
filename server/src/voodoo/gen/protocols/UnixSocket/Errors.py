@@ -12,13 +12,13 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
-import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
+import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 
-class NotACoordAddressException(ProtocolExceptions.ProtocolException):
+class NotACoordAddressError(ProtocolErrors.ProtocolError):
     def __init__(self,*args,**kargs):
-        ProtocolExceptions.ProtocolException.__init__(self,*args,**kargs)
+        ProtocolErrors.ProtocolError.__init__(self,*args,**kargs)
 
-class InvalidArgumentAddressException(ProtocolExceptions.ProtocolException):
+class InvalidArgumentAddressError(ProtocolErrors.ProtocolError):
     def __init__(self,*args,**kargs):
-        ProtocolExceptions.ProtocolException.__init__(self,*args,**kargs)
+        ProtocolErrors.ProtocolError.__init__(self,*args,**kargs)
 

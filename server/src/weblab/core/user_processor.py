@@ -160,7 +160,7 @@ class UserProcessor(object):
             client_initial_data = json.loads(serialized_client_initial_data)
         except ValueError:
             # TODO: to be tested
-            raise core_exc.WebLabCoreException( "Invalid client_initial_data provided: a json-serialized object expected" )
+            raise core_exc.WebLabCoreError( "Invalid client_initial_data provided: a json-serialized object expected" )
 
         if self.is_access_forward_enabled():
             try:
@@ -175,7 +175,7 @@ class UserProcessor(object):
                         return 'replicated'
                 reservation_info[SERVER_UUIDS] = server_uuids
             except ValueError:
-                raise core_exc.WebLabCoreException( "Invalid serialized_consumer_data provided: a json-serialized object expected" )
+                raise core_exc.WebLabCoreError( "Invalid serialized_consumer_data provided: a json-serialized object expected" )
         else:
             consumer_data = {}
 
@@ -187,7 +187,7 @@ class UserProcessor(object):
             ]
 
         if len(experiments) == 0:
-            raise core_exc.UnknownExperimentIdException( "User can't access that experiment (or that experiment type does not exist)" )
+            raise core_exc.UnknownExperimentIdError( "User can't access that experiment (or that experiment type does not exist)" )
 
         experiment_allowed = experiments[0]
         try:
@@ -215,8 +215,8 @@ class UserProcessor(object):
                     reservation_info,
                     consumer_data
                 )
-        except coord_exc.ExperimentNotFoundException:
-            raise core_exc.NoAvailableExperimentFoundException(
+        except coord_exc.ExperimentNotFoundError:
+            raise core_exc.NoAvailableExperimentFoundError(
                 "No experiment of type <%s,%s> is currently deployed" % (
                         experiment_id.exp_name,
                         experiment_id.cat_name
@@ -297,7 +297,7 @@ class UserProcessor(object):
             else:
                 log.log(UserProcessor, log.level.Debug, "Reservation %s is running due to status %r" % (reservation_id, status))
                 return RunningReservationResult()
-        except coord_exc.ExpiredSessionException, ese:
+        except coord_exc.ExpiredSessionError, ese:
             log.log(UserProcessor, log.level.Debug, "Reservation %s is cancelled due to expired session: %s" % (reservation_id, ese))
             return CancelledReservationResult()
 

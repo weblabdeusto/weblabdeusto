@@ -13,17 +13,17 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import voodoo.gen.exceptions.exceptions as genExceptions
+import voodoo.gen.exceptions.exceptions as genErrors
 
-class RegistryException(genExceptions.GeneratorException):
+class RegistryError(genErrors.GeneratorError):
     def __init__(self,*args,**kargs):
-        genExceptions.GeneratorException.__init__(self,*args,**kargs)
+        genErrors.GeneratorError.__init__(self,*args,**kargs)
 
-class AddressAlreadyRegisteredException(RegistryException):
+class AddressAlreadyRegisteredError(RegistryError):
     def __init__(self,*args,**kargs):
-        RegistryException.__init__(self,*args,**kargs)
+        RegistryError.__init__(self,*args,**kargs)
 
-class ServerNotFoundInRegistryException(RegistryException):
+class ServerNotFoundInRegistryError(RegistryError):
     def __init__(self,*args,**kargs):
-        RegistryException.__init__(self,*args,**kargs)
+        RegistryError.__init__(self,*args,**kargs)
 

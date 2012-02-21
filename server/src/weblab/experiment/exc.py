@@ -14,19 +14,19 @@
 #
 import weblab.exc as wlExc
 
-class ExperimentException(wlExc.WebLabException):
+class ExperimentError(wlExc.WebLabError):
     def __init__(self,*args,**kargs):
-        wlExc.WebLabException.__init__(self,*args,**kargs)
+        wlExc.WebLabError.__init__(self,*args,**kargs)
 
-class FeatureNotImplementedException(ExperimentException):
+class FeatureNotImplementedError(ExperimentError):
     def __init__(self, *args, **kargs):
-        ExperimentException.__init__(self,*args,**kargs)
+        ExperimentError.__init__(self,*args,**kargs)
 
-class SendingFileFailureException(ExperimentException):
+class SendingFileFailureError(ExperimentError):
     def __init__(self, *args, **kargs):
-        ExperimentException.__init__(self, *args, **kargs)
+        ExperimentError.__init__(self, *args, **kargs)
 
-class SendingCommandFailureException(ExperimentException):
+class SendingCommandFailureError(ExperimentError):
     def __init__(self, *args, **kargs):
-        ExperimentException.__init__(self, *args, **kargs)
+        ExperimentError.__init__(self, *args, **kargs)
 

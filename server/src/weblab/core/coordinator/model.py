@@ -267,7 +267,7 @@ class Reservation(Base):
                 id = str(uuid.uuid4())
                 experiment_type = session.query(ExperimentType).filter_by(exp_name = experiment_id.exp_name, cat_name = experiment_id.cat_name).first()
                 if experiment_type is None:
-                    raise CoordExc.ExperimentNotFoundException("Couldn't find experiment_type %s when creating Reservation" % experiment_id)
+                    raise CoordExc.ExperimentNotFoundError("Couldn't find experiment_type %s when creating Reservation" % experiment_id)
 
                 reservation = Reservation(id, client_initial_data, server_initial_data, request_info, now)
                 reservation.experiment_type = experiment_type

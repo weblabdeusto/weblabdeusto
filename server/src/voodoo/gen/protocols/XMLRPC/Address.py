@@ -18,7 +18,7 @@ import voodoo.gen.protocols.protocols as Protocols
 
 import voodoo.gen.protocols.XMLRPC.ClientXMLRPC as ClientXMLRPC
 
-import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
+import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 
 from voodoo.override import Override
 
@@ -45,14 +45,14 @@ class Address(cAddress.IpBasedAddress):
         try:
             client_class = ClientXMLRPC.generate(methods)
         except Exception as e:
-            raise ProtocolExceptions.ClientClassCreationException(
+            raise ProtocolErrors.ClientClassCreationError(
                     ("Client class creation exception: %s" % e),
                     e
                 )
         try:
             return client_class(url = self.ip_address, port = self.port, uri = self.uri)
         except Exception as e:
-            raise ProtocolExceptions.ClientInstanciationException(("Unable to instanciate the XMLRPC client: %s" % e),e)
+            raise ProtocolErrors.ClientInstanciationError(("Unable to instanciate the XMLRPC client: %s" % e),e)
 
     def __repr__(self):
         return "<XMLRPCAddress: %s>" % self.address

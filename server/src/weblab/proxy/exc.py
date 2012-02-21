@@ -15,38 +15,38 @@
 
 import weblab.exc as wlExc
 
-class ProxyException(wlExc.WebLabException):
+class ProxyError(wlExc.WebLabError):
     def __init__(self, *args, **kargs):
-        wlExc.WebLabException.__init__(self, *args, **kargs)
+        wlExc.WebLabError.__init__(self, *args, **kargs)
 
 #
-# from ProxyException
+# from ProxyError
 #
 
-class NotASessionTypeException(ProxyException):
+class NotASessionTypeError(ProxyError):
     def __init__(self, *args, **kargs):
-        ProxyException.__init__(self, *args, **kargs)
+        ProxyError.__init__(self, *args, **kargs)
 
-class InvalidReservationIdException(ProxyException):
+class InvalidReservationIdError(ProxyError):
     def __init__(self, *args, **kargs):
-        ProxyException.__init__(self, *args, **kargs)
+        ProxyError.__init__(self, *args, **kargs)
 
-class AccessDisabledException(ProxyException):
+class AccessDisabledError(ProxyError):
     def __init__(self, *args, **kargs):
-        ProxyException.__init__(self, *args, **kargs)
+        ProxyError.__init__(self, *args, **kargs)
 
-class InvalidDefaultTranslatorNameException(ProxyException):
+class InvalidDefaultTranslatorNameError(ProxyError):
     def __init__(self, *args, **kargs):
-        ProxyException.__init__(self, *args, **kargs)
+        ProxyError.__init__(self, *args, **kargs)
 
-class FailedToSendCommandException(ProxyException):
+class FailedToSendCommandError(ProxyError):
     def __init__(self, *args, **kargs):
-        ProxyException.__init__(self, *args, **kargs)
+        ProxyError.__init__(self, *args, **kargs)
 
-class FailedToSendFileException(ProxyException):
+class FailedToSendFileError(ProxyError):
     def __init__(self, *args, **kargs):
-        ProxyException.__init__(self, *args, **kargs)
+        ProxyError.__init__(self, *args, **kargs)
 
-class NoCurrentReservationException(ProxyException):
+class NoCurrentReservationError(ProxyError):
     def __init__(self, *args, **kargs):
-        ProxyException.__init__(self, *args, **kargs)
+        ProxyError.__init__(self, *args, **kargs)

@@ -113,7 +113,7 @@ class UserProcessingIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
                         self.mock_server.arguments['logout'][0]
                     )
 
-                self.mock_server.exceptions['logout'] = coreExc.SessionNotFoundException(MESSAGE)
+                self.mock_server.exceptions['logout'] = coreExc.SessionNotFoundError(MESSAGE)
 
                 try:
                     wds.logout(expected_sess_id)

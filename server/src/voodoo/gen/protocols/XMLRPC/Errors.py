@@ -12,13 +12,13 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
-import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
+import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 
-class NotACoordAddressException(ProtocolExceptions.ProtocolException):
+class XMLRPCInvalidServerParameterError(ProtocolErrors.InvalidServerParameterError):
     def __init__(self,*args,**kargs):
-        ProtocolExceptions.ProtocolException.__init__(self,*args,**kargs)
+        ProtocolErrors.InvalidServerParameterError.__init__(self,*args,**kargs)
 
-class InvalidArgumentAddressException(ProtocolExceptions.ProtocolException):
+class UnknownFaultType(ProtocolErrors.RemoteError):
     def __init__(self,*args,**kargs):
-        ProtocolExceptions.ProtocolException.__init__(self,*args,**kargs)
+        ProtocolErrors.RemoteError(self,*args,**kargs)
 

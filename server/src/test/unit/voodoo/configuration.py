@@ -20,7 +20,7 @@ import unittest
 
 
 import voodoo.configuration as ConfigurationManager
-import voodoo.configuration as ConfigurationExceptions
+import voodoo.configuration as ConfigurationErrors
 
 module1_code = """
 mynumber = 5
@@ -114,7 +114,7 @@ class ConfigurationManagerTestCase(unittest.TestCase):
         )
 
         self.assertRaises(
-            ConfigurationExceptions.KeyNotFoundException,
+            ConfigurationErrors.KeyNotFoundError,
             confManager.get_value,
             'not_found'
         )
@@ -128,7 +128,7 @@ class ConfigurationManagerTestCase(unittest.TestCase):
         )
 
         self.assertRaises(
-                ConfigurationExceptions.NotAModuleException,
+                ConfigurationErrors.NotAModuleError,
                 confManager.append_modules,
                 'os'
             )
@@ -148,7 +148,7 @@ class ConfigurationManagerTestCase(unittest.TestCase):
         # Without a provided default value
         #
         self.assertRaises(
-            ConfigurationExceptions.KeysNotFoundException,
+            ConfigurationErrors.KeysNotFoundError,
             confManager.get_values,
             'this.does.not.exist', 'this.neither'
         )

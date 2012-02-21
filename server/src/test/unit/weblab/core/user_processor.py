@@ -96,7 +96,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
     def test_reserve_unknown_experiment_name(self):
         self.assertRaises(
-            coreExc.UnknownExperimentIdException,
+            coreExc.UnknownExperimentIdError,
             self.processor.reserve_experiment,
             ExperimentId('<invalid>', 'Dummy experiments'),
             "{}", "{}",
@@ -106,7 +106,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
     def test_reserve_unknown_experiment_category(self):
         self.assertRaises(
-            coreExc.UnknownExperimentIdException,
+            coreExc.UnknownExperimentIdError,
             self.processor.reserve_experiment,
             ExperimentId('ud-dummy','<invalid>'),
             "{}", "{}",
@@ -118,7 +118,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.coordinator._clean()
 
         self.assertRaises(
-            coreExc.NoAvailableExperimentFoundException,
+            coreExc.NoAvailableExperimentFoundError,
             self.processor.reserve_experiment,
             ExperimentId('ud-dummy', 'Dummy experiments'),
             "{}", "{}",

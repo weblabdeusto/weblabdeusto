@@ -90,7 +90,7 @@ class AdminNotifier(object):
                 mail_server_use_tls = self._configuration.get_value(MAIL_SERVER_USE_TLS_NAME)
                 mail_server_helo    = self._configuration.get_value(MAIL_SERVER_HELO_NAME)
                 mail_notif_sender   = self._configuration.get_value(MAIL_NOTIFICATION_SENDER_NAME)
-            except ConfigurationManager.KeyNotFoundException as knfe:
+            except ConfigurationManager.KeyNotFoundError as knfe:
                 log.log(
                     AdminNotifier,
                     log.level.Critical,

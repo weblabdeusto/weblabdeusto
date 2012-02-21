@@ -102,7 +102,7 @@ import threading
 #
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
-import voodoo.gen.exceptions.coordinator.CoordVersionExceptions as CoordVersionExceptions
+import voodoo.gen.exceptions.coordinator.CoordVersionErrors as CoordVersionErrors
 
 ###############################################################################
 #                                                                             #
@@ -133,11 +133,11 @@ class CoordVersionChange(object):
         object.__init__(self)
 
         if not action in ChangeActions.getChangeActionValues():
-            raise CoordVersionExceptions.CoordVersionNotAnActionException(
+            raise CoordVersionErrors.CoordVersionNotAnActionError(
                         '%s: not a ChangeAction' % action
                     )
         if not address.__class__ == CoordAddress.CoordAddress:
-            raise CoordVersionExceptions.CoordVersionNotAnAddressException(
+            raise CoordVersionErrors.CoordVersionNotAnAddressError(
                         '%s: not a CoordAddress' % address
                     )
         self.address = address

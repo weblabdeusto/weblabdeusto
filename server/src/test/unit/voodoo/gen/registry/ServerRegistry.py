@@ -16,7 +16,7 @@
 import unittest
 
 import voodoo.gen.registry.server_registry as ServerRegistry
-import voodoo.gen.exceptions.registry.RegistryExceptions as RegistryExceptions
+import voodoo.gen.exceptions.registry.RegistryErrors as RegistryErrors
 
 
 
@@ -43,7 +43,7 @@ class ServerRegistryTestCase(unittest.TestCase):
         self._registry.register_server(address1,server1)
 
         self.assertRaises(
-            RegistryExceptions.AddressAlreadyRegisteredException,
+            RegistryErrors.AddressAlreadyRegisteredError,
             self._registry.register_server,
             address1,
             server2
@@ -63,27 +63,27 @@ class ServerRegistryTestCase(unittest.TestCase):
         )
 
         self.assertRaises(
-            RegistryExceptions.ServerNotFoundInRegistryException,
+            RegistryErrors.ServerNotFoundInRegistryError,
             self._registry.get_server,
             address3
         )
 
         self._registry.deregister_server(address1)
         self.assertRaises(
-            RegistryExceptions.ServerNotFoundInRegistryException,
+            RegistryErrors.ServerNotFoundInRegistryError,
             self._registry.get_server,
             address1
         )
 
         self.assertRaises(
-            RegistryExceptions.ServerNotFoundInRegistryException,
+            RegistryErrors.ServerNotFoundInRegistryError,
             self._registry.deregister_server,
             address3
         )
 
         self._registry.clear()
         self.assertRaises(
-            RegistryExceptions.ServerNotFoundInRegistryException,
+            RegistryErrors.ServerNotFoundInRegistryError,
             self._registry.deregister_server,
             address2
         )

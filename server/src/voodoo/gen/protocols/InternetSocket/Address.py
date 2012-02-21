@@ -17,7 +17,7 @@ import voodoo.gen.coordinator.Address as cAddress
 import voodoo.gen.generators.ClientSkel as ClientSkel
 import voodoo.gen.protocols.protocols as Protocols
 
-import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
+import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 
 from voodoo.override import Override
 
@@ -31,11 +31,11 @@ class Address(cAddress.IpBasedAddress):
         try:
             client_class = ClientSkel.factory(Protocols.InternetSocket, methods)
         except Exception as e:
-            raise ProtocolExceptions.ClientClassCreationException(("Client class creation exception: %s" % e), e)
+            raise ProtocolErrors.ClientClassCreationError(("Client class creation exception: %s" % e), e)
         try:
             return client_class(hostname=self.ip_address, port=self.port)
         except Exception as e:
-            raise ProtocolExceptions.ClientInstanciationException(("Unable to instanciate the InternetSocket client: %s" % e),e)
+            raise ProtocolErrors.ClientInstanciationError(("Unable to instanciate the InternetSocket client: %s" % e),e)
 
     @Override(cAddress.IpBasedAddress)
     def get_protocol(self):

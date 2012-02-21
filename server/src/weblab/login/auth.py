@@ -25,7 +25,7 @@ else:
 import voodoo.log as log
 import weblab.data.client_address as ClientAddress
 import weblab.login.db.dao.user as UserAuth
-import weblab.login.exc as LoginExceptions
+import weblab.login.exc as LoginErrors
 
 class LoginAuth(object):
 
@@ -38,7 +38,7 @@ class LoginAuth(object):
         for i in LoginAuth.HANDLERS:
             if i.NAME == user_auth.name:
                 return i(user_auth)
-        raise LoginExceptions.LoginUserAuthNotImplementedException(
+        raise LoginErrors.LoginUserAuthNotImplementedError(
                 "UserAuth not implemented in LoginAuth: %s" % (
                     user_auth.name
                 )
@@ -86,7 +86,7 @@ class LdapLoginAuth(LoginAuth):
                 self._user_auth.ldap_uri
             )
         except Exception as e:
-            raise LoginExceptions.LdapInitializingException(
+            raise LoginErrors.LdapInitializingError(
                 "Exception initializing the LDAP module: %s" % e
             )
 
@@ -98,7 +98,7 @@ class LdapLoginAuth(LoginAuth):
         except ldap.INVALID_CREDENTIALS as e:
             return False
         except Exception as e:
-            raise LoginExceptions.LdapBindingException(
+            raise LoginErrors.LdapBindingError(
                 "Exception binding to the server: %s" % e
             )
         else:

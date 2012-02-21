@@ -14,59 +14,59 @@
 #
 import weblab.exc as wlExc
 
-class DatabaseException(wlExc.WebLabException):
+class DatabaseError(wlExc.WebLabError):
     def __init__(self,*args,**kargs):
-        wlExc.WebLabException.__init__(self,*args,**kargs)
+        wlExc.WebLabError.__init__(self,*args,**kargs)
 
-class DbInvalidUserOrPasswordException(DatabaseException):
+class DbInvalidUserOrPasswordError(DatabaseError):
     def __init__(self,*args,**kargs):
-        DatabaseException.__init__(self,*args,**kargs)
+        DatabaseError.__init__(self,*args,**kargs)
 
-class DbUserNotFoundException(DbInvalidUserOrPasswordException):
+class DbUserNotFoundError(DbInvalidUserOrPasswordError):
     def __init__(self,*args,**kargs):
-        DbInvalidUserOrPasswordException.__init__(self,*args,**kargs)
+        DbInvalidUserOrPasswordError.__init__(self,*args,**kargs)
 
-class DbProvidedUserNotFoundException(DatabaseException):
+class DbProvidedUserNotFoundError(DatabaseError):
     def __init__(self,*args,**kargs):
-        DatabaseException.__init__(self,*args,**kargs)
+        DatabaseError.__init__(self,*args,**kargs)
 
-class DbHashAlgorithmNotFoundException(DatabaseException):
+class DbHashAlgorithmNotFoundError(DatabaseError):
     def __init__(self,*args,**kargs):
-        DatabaseException.__init__(self,*args,**kargs)
+        DatabaseError.__init__(self,*args,**kargs)
 
-class DbInvalidPasswordFormatException(DatabaseException):
+class DbInvalidPasswordFormatError(DatabaseError):
     def __init__(self,*args,**kargs):
-        DatabaseException.__init__(self,*args,**kargs)
+        DatabaseError.__init__(self,*args,**kargs)
 
-class DbIllegalStatusException(DatabaseException):
+class DbIllegalStatusError(DatabaseError):
     def __init__(self,*args,**kargs):
-        DatabaseException.__init__(self,*args,**kargs)
+        DatabaseError.__init__(self,*args,**kargs)
 
-class DbMisconfiguredException(DatabaseException):
+class DbMisconfiguredError(DatabaseError):
     def __init__(self, *args, **kargs):
-        DatabaseException.__init__(self,*args,**kargs)
+        DatabaseError.__init__(self,*args,**kargs)
 
-class InvalidPermissionParameterFormatException(DatabaseException):
+class InvalidPermissionParameterFormatError(DatabaseError):
     def __init__(self, *args, **kargs):
-        DatabaseException.__init__(self,*args,**kargs)
+        DatabaseError.__init__(self,*args,**kargs)
 
-class DbProvidedExperimentNotFoundException(DatabaseException):
+class DbProvidedExperimentNotFoundError(DatabaseError):
     def __init__(self, *args, **kargs):
-        DatabaseException.__init__(self,*args,**kargs)
+        DatabaseError.__init__(self,*args,**kargs)
 
-class DbUserAuthException(DatabaseException):
+class DbUserAuthError(DatabaseError):
     def __init__(self, *args, **kargs):
-        DatabaseException.__init__(self, *args, **kargs)
+        DatabaseError.__init__(self, *args, **kargs)
 
-class DbUnsupportedUserAuth(DbUserAuthException):
+class DbUnsupportedUserAuth(DbUserAuthError):
     def __init__(self, *args, **kargs):
-        DbUserAuthException.__init__(self, *args, **kargs)
+        DbUserAuthError.__init__(self, *args, **kargs)
 
-class DbInvalidUserAuthConfigurationException(DbUserAuthException):
+class DbInvalidUserAuthConfigurationError(DbUserAuthError):
     def __init__(self, *args, **kargs):
-        DbUserAuthException.__init__(self, *args, **kargs)
+        DbUserAuthError.__init__(self, *args, **kargs)
 
-class DbNoUserAuthNorPasswordFoundException(DbUserAuthException):
+class DbNoUserAuthNorPasswordFoundError(DbUserAuthError):
     def __init__(self, *args, **kargs):
-        DbUserAuthException.__init__(self, *args, **kargs)
+        DbUserAuthError.__init__(self, *args, **kargs)
 

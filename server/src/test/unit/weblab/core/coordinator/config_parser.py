@@ -85,7 +85,7 @@ class CoordinationConfigurationParserTestCase(unittest.TestCase):
                             },
                     })
         self.assertRaises(
-            coreExc.CoordinationConfigurationParsingException,
+            coreExc.CoordinationConfigurationParsingError,
             self.coordination_configuration_parser.parse_configuration
         )
 
@@ -96,7 +96,7 @@ class CoordinationConfigurationParserTestCase(unittest.TestCase):
                             },
                     })
         self.assertRaises(
-            coreExc.CoordinationConfigurationParsingException,
+            coreExc.CoordinationConfigurationParsingError,
             self.coordination_configuration_parser.parse_configuration
         )
 

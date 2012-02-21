@@ -21,7 +21,7 @@ import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
 
 import weblab.experiment.devices.xilinx_impact.impact as XilinxImpact
-import weblab.experiment.devices.xilinx_impact.exc as XilinxImpactExceptions
+import weblab.experiment.devices.xilinx_impact.exc as XilinxImpactErrors
 
 class XilinxImpactTestCase(unittest.TestCase):
 
@@ -41,24 +41,24 @@ class XilinxImpactTestCase(unittest.TestCase):
 
     def _test_program_device_errors(self, impact):
         self.assertRaises(
-            XilinxImpactExceptions.ProgrammingGotErrors,
+            XilinxImpactErrors.ProgrammingGotErrors,
             impact.program_device,
             "error.file"
         )
         self.assertRaises(
-            XilinxImpactExceptions.ProgrammingGotErrors,
+            XilinxImpactErrors.ProgrammingGotErrors,
             impact.program_device,
             "stderr.file"
         )
         self.assertRaises(
-            XilinxImpactExceptions.ProgrammingGotErrors,
+            XilinxImpactErrors.ProgrammingGotErrors,
             impact.program_device,
             "return-1.file"
         )
 
         impact._busy = True
         self.assertRaises(
-            XilinxImpactExceptions.AlreadyProgrammingDeviceException,
+            XilinxImpactErrors.AlreadyProgrammingDeviceError,
             impact.program_device,
             "file.file"
         )
@@ -67,14 +67,14 @@ class XilinxImpactTestCase(unittest.TestCase):
         self.cfg_manager._values['xilinx_impact_full_path'] = ['p0wn3d']
 
         self.assertRaises(
-            XilinxImpactExceptions.ErrorProgrammingDeviceException,
+            XilinxImpactErrors.ErrorProgrammingDeviceError,
             impact.program_device,
             "file.file"
         )
         self.cfg_manager._values.pop('xilinx_impact_full_path')
 
         self.assertRaises(
-            XilinxImpactExceptions.CantFindXilinxProperty,
+            XilinxImpactErrors.CantFindXilinxProperty,
             impact.program_device,
             "file.file"
         )
@@ -90,12 +90,12 @@ class XilinxImpactTestCase(unittest.TestCase):
 
     def _test_source2svf_errors(self, impact):
         self.assertRaises(
-            XilinxImpactExceptions.GeneratingSvfFileGotErrors,
+            XilinxImpactErrors.GeneratingSvfFileGotErrors,
             impact.source2svf,
             "error.file"
         )
         self.assertRaises(
-            XilinxImpactExceptions.GeneratingSvfFileGotErrors,
+            XilinxImpactErrors.GeneratingSvfFileGotErrors,
             impact.source2svf,
             "return-1.file"
         )
@@ -103,14 +103,14 @@ class XilinxImpactTestCase(unittest.TestCase):
         self.cfg_manager._values['xilinx_impact_full_path'] = ['p0wn3d']
 
         self.assertRaises(
-            XilinxImpactExceptions.ErrorProgrammingDeviceException,
+            XilinxImpactErrors.ErrorProgrammingDeviceError,
             impact.source2svf,
             "file.file"
         )
         self.cfg_manager._values.pop('xilinx_impact_full_path')
 
         self.assertRaises(
-            XilinxImpactExceptions.CantFindXilinxProperty,
+            XilinxImpactErrors.CantFindXilinxProperty,
             impact.source2svf,
             "file.file"
         )

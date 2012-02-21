@@ -31,7 +31,7 @@ import weblab.core.coordinator.exc as coord_exc
 import weblab.core.coordinator.status as scheduling_status
 import weblab.core.coordinator.store as TemporalInformationStore
 
-import weblab.lab.exc as LaboratoryExceptions
+import weblab.lab.exc as LaboratoryErrors
 
 import weblab.experiment.util as ExperimentUtil
 
@@ -100,10 +100,10 @@ class ReservationProcessor(object):
         """
         try:
             status = self._coordinator.get_reservation_status( self._reservation_id )
-        except coord_exc.ExpiredSessionException:
+        except coord_exc.ExpiredSessionError:
             log.log(ReservationProcessor, log.level.Debug, "reason for rejecting:")
             log.log_exc(ReservationProcessor, log.level.Debug)
-            raise core_exc.NoCurrentReservationException("get_reservation_status called but coordinator rejected reservation id")
+            raise core_exc.NoCurrentReservationError("get_reservation_status called but coordinator rejected reservation id")
         else:
             if status.status == scheduling_status.WebLabSchedulingStatus.RESERVED_LOCAL:
                 self.process_reserved_status(status)
@@ -140,7 +140,7 @@ class ReservationProcessor(object):
         except Exception as e:
             log.log( ReservationProcessor, log.level.Error, "Exception finishing reservation: %s" % e )
             log.log_exc( ReservationProcessor, log.level.Warning )
-            raise core_exc.FailedToFreeReservationException(
+            raise core_exc.FailedToFreeReservationError(
                     "There was an error freeing reservation: %s" % e
                 )
 
@@ -184,7 +184,7 @@ class ReservationProcessor(object):
         """Inform that it is still online and interested on the reservation"""
 
         if not self.is_polling():
-            raise core_exc.NoCurrentReservationException("poll called but no current reservation")
+            raise core_exc.NoCurrentReservationError("poll called but no current reservation")
 
         latest_poll, expiration_time = self._reservation_session['session_polling']
         self._reservation_session['session_polling'] = (
@@ -233,7 +233,7 @@ class ReservationProcessor(object):
         lab_session_id = self._reservation_session.get('lab_session_id')
         lab_coordaddr  = self._reservation_session.get('lab_coordaddr')
         if lab_session_id is None or lab_coordaddr is None:
-            raise core_exc.NoCurrentReservationException("send_file called but the reservation was not enabled")
+            raise core_exc.NoCurrentReservationError("send_file called but the reservation was not enabled")
 
         #
         # Retrieve the laboratory server
@@ -247,22 +247,22 @@ class ReservationProcessor(object):
             response = laboratory_server.send_file( lab_session_id, file_content, file_info )
             self._update_command_or_file(command_id_pack, response)
             return response
-        except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
+        except LaboratoryErrors.SessionNotFoundInLaboratoryServerError:
             self._update_command_or_file(command_id_pack, Command.Command("ERROR: SessionNotFound"))
             try:
                 self.finish()
-            except core_exc.FailedToFreeReservationException:
+            except core_exc.FailedToFreeReservationError:
                 pass
-            raise core_exc.NoCurrentReservationException(
+            raise core_exc.NoCurrentReservationError(
                 'Experiment reservation expired'
             )
-        except LaboratoryExceptions.FailedToInteractException as ftie:
+        except LaboratoryErrors.FailedToInteractError as ftie:
             self._update_command_or_file(command_id_pack, Command.Command("ERROR: " + str(ftie)))
             try:
                 self.finish()
-            except core_exc.FailedToFreeReservationException:
+            except core_exc.FailedToFreeReservationError:
                 pass
-            raise core_exc.FailedToInteractException(
+            raise core_exc.FailedToInteractError(
                     "Failed to send: %s" % ftie
                 )
 
@@ -275,7 +275,7 @@ class ReservationProcessor(object):
         lab_coordaddr  = self._reservation_session.get('lab_coordaddr')
 
         if lab_session_id is None or lab_coordaddr is None:
-            raise core_exc.NoCurrentReservationException("send_command called but the reservation is not enabled")
+            raise core_exc.NoCurrentReservationError("send_command called but the reservation is not enabled")
 
         laboratory_server = self._locator.get_server_from_coordaddr( lab_coordaddr, ServerType.Laboratory )
         command_id_pack = self._append_command(command)
@@ -292,23 +292,23 @@ class ReservationProcessor(object):
 
             return response
 
-        except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
+        except LaboratoryErrors.SessionNotFoundInLaboratoryServerError:
             self._update_command_or_file(command_id_pack, Command.Command("ERROR: SessionNotFound: None"))
             try:
                 self.finish()
-            except core_exc.FailedToFreeReservationException:
+            except core_exc.FailedToFreeReservationError:
                 pass
-            raise core_exc.NoCurrentReservationException(
+            raise core_exc.NoCurrentReservationError(
                 'Experiment reservation expired'
             )
-        except LaboratoryExceptions.FailedToInteractException as ftspe:
+        except LaboratoryErrors.FailedToInteractError as ftspe:
             self._update_command_or_file(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
             try:
                 self.finish()
-            except core_exc.FailedToFreeReservationException:
+            except core_exc.FailedToFreeReservationError:
                 pass
 
-            raise core_exc.FailedToInteractException(
+            raise core_exc.FailedToInteractError(
                     "Failed to send command: %s" % ftspe
                 )
 
@@ -328,7 +328,7 @@ class ReservationProcessor(object):
 
 
         if lab_session_id is None or lab_coordaddr is None:
-            raise core_exc.NoCurrentReservationException("send_async_file called but no current reservation")
+            raise core_exc.NoCurrentReservationError("send_async_file called but no current reservation")
 
         laboratory_server = self._locator.get_server_from_coordaddr( lab_coordaddr, ServerType.Laboratory)
 
@@ -340,22 +340,22 @@ class ReservationProcessor(object):
             # TODO: how do we store async files? whenever somebody ask for the status? what if they don't ask for it?
 
             return response
-        except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
+        except LaboratoryErrors.SessionNotFoundInLaboratoryServerError:
             self._update_command_or_file(command_id_pack, Command.Command("ERROR: SessionNotFound: None"))
             try:
                 self.finish()
-            except core_exc.FailedToFreeReservationException:
+            except core_exc.FailedToFreeReservationError:
                 pass
-            raise core_exc.NoCurrentReservationException(
+            raise core_exc.NoCurrentReservationError(
                 'Experiment reservation expired'
             )
-        except LaboratoryExceptions.FailedToInteractException as ftspe:
+        except LaboratoryErrors.FailedToInteractError as ftspe:
             self._update_command_or_file(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
             try:
                 self.finish()
-            except core_exc.FailedToFreeReservationException:
+            except core_exc.FailedToFreeReservationError:
                 pass
-            raise core_exc.FailedToInteractException(
+            raise core_exc.FailedToInteractError(
                     "Failed to send file: %s" % ftspe
                 )
 
@@ -378,7 +378,7 @@ class ReservationProcessor(object):
         lab_coordaddr  = self._reservation_session.get('lab_coordaddr')
 
         if lab_session_id is None or lab_coordaddr is None:
-            raise core_exc.NoCurrentReservationException("check_async_command called but no current reservation")
+            raise core_exc.NoCurrentReservationError("check_async_command called but no current reservation")
 
         laboratory_server = self._locator.get_server_from_coordaddr( lab_coordaddr, ServerType.Laboratory )
 
@@ -398,27 +398,27 @@ class ReservationProcessor(object):
 
             return response
 
-        except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
+        except LaboratoryErrors.SessionNotFoundInLaboratoryServerError:
             # We did not find the specified session in the laboratory server.
             # We'll finish the experiment.
             #self._update_command(command_id_pack, Command.Command("ERROR: SessionNotFound: None"))
             try:
                 self.finish()
-            except core_exc.FailedToFreeReservationException:
+            except core_exc.FailedToFreeReservationError:
                 pass
-            raise core_exc.NoCurrentReservationException(
+            raise core_exc.NoCurrentReservationError(
                 'Experiment reservation expired'
             )
-        except LaboratoryExceptions.FailedToInteractException as ftspe:
+        except LaboratoryErrors.FailedToInteractError as ftspe:
             # There was an error while trying to send the command.
             # We'll finish the experiment.
             #self._update_command(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
             try:
                 self.finish()
-            except core_exc.FailedToFreeReservationException:
+            except core_exc.FailedToFreeReservationError:
                 pass
 
-            raise core_exc.FailedToInteractException(
+            raise core_exc.FailedToInteractError(
                     "Failed to send command: %s" % ftspe
                 )
 
@@ -436,7 +436,7 @@ class ReservationProcessor(object):
         lab_coordaddr  = self._reservation_session.get('lab_coordaddr')
 
         if lab_session_id is None or lab_coordaddr is None:
-            raise core_exc.NoCurrentReservationException("send_async_command called but no current reservation")
+            raise core_exc.NoCurrentReservationError("send_async_command called but no current reservation")
 
         laboratory_server = self._locator.get_server_from_coordaddr(lab_coordaddr, ServerType.Laboratory)
         command_id_pack = self._append_command(command)
@@ -462,23 +462,23 @@ class ReservationProcessor(object):
 
             return request_id
 
-        except LaboratoryExceptions.SessionNotFoundInLaboratoryServerException:
+        except LaboratoryErrors.SessionNotFoundInLaboratoryServerError:
             self._update_command_or_file(command_id_pack, Command.Command("ERROR: SessionNotFound: None"))
             try:
                 self.finish()
-            except core_exc.FailedToFreeReservationException:
+            except core_exc.FailedToFreeReservationError:
                 pass
-            raise core_exc.NoCurrentReservationException(
+            raise core_exc.NoCurrentReservationError(
                 'Experiment reservation expired'
             )
-        except LaboratoryExceptions.FailedToInteractException as ftspe:
+        except LaboratoryErrors.FailedToInteractError as ftspe:
             self._update_command_or_file(command_id_pack, Command.Command("ERROR: " + str(ftspe)))
             try:
                 self.finish()
-            except core_exc.FailedToFreeReservationException:
+            except core_exc.FailedToFreeReservationError:
                 pass
 
-            raise core_exc.FailedToInteractException(
+            raise core_exc.FailedToInteractError(
                     "Failed to send command: %s" % ftspe
                 )
 

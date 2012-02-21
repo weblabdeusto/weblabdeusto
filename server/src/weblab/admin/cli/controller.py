@@ -19,7 +19,7 @@ import random
 import sha
 
 from console_ui import ConsoleUI
-from exc import GoBackException
+from exc import GoBackError
 
 from db import DbGateway
 from smtp import SmtpGateway
@@ -107,7 +107,7 @@ class Controller(object):
             else:
                 self.ui.error("The Group '%s' already exists." % group_name)
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
 
 
@@ -120,7 +120,7 @@ class Controller(object):
             else:
                 self.ui.error("The ExperimentCategory '%s' already exists." % category_name)
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
 
     def add_experiment(self):
@@ -137,7 +137,7 @@ class Controller(object):
             else:
                 self.ui.error("The Experiment '%s' already exists." % experiment_name)
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
 
     def add_users_to_group(self):
@@ -164,7 +164,7 @@ class Controller(object):
             else:
                 self.ui.error("There are no Users to be added to the Group.")
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
 
     def add_user_with_db_authtype(self):
@@ -186,7 +186,7 @@ class Controller(object):
             else:
                 self.ui.error("The User '%s' already exists." % login)
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
 
     def add_users_batch_with_db_authtype(self):
@@ -229,7 +229,7 @@ class Controller(object):
                     self.ui.error("The User '%s' already exists." % str(user_data) )
             self.ui.wait()
 
-        except GoBackException:
+        except GoBackError:
             return
 
     def add_users_with_ldap_authtype(self):
@@ -273,7 +273,7 @@ class Controller(object):
                     self.ui.error("The User '%s' could not be created. Ignoring him/her. Reason: " % (user_data["login"], ex.__repr__))
             self.ui.notify("Created %d users out of %d." % (users_created_successfully, num_users))
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
 
     def add_users_with_openid_authtype(self):
@@ -316,7 +316,7 @@ class Controller(object):
                     self.ui.error("The User '%s' already exists." % str(user_data) )
             self.ui.wait()
 
-        except GoBackException:
+        except GoBackError:
             return
 
     def grant_on_experiment_to_group(self):
@@ -349,7 +349,7 @@ class Controller(object):
             else:
                 self.ui.error("The GroupPermission '%s' already exists." % group_permission_permanent_id)
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
 
     def grant_on_experiment_to_user(self):
@@ -382,7 +382,7 @@ class Controller(object):
             else:
                 self.ui.error("The UserPermission '%s' already exists." % user_permission_permanent_id)
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
 
     def grant_on_admin_panel_to_group(self):
@@ -403,7 +403,7 @@ class Controller(object):
             else:
                 self.ui.error("The GroupPermission '%s' already exists." % group_permission_permanent_id)
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
 
     def grant_on_admin_panel_to_user(self):
@@ -424,7 +424,7 @@ class Controller(object):
             else:
                 self.ui.error("The UserPermission '%s' already exists." % user_permission_permanent_id)
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
 
     def grant_on_access_forward_to_group(self):
@@ -445,7 +445,7 @@ class Controller(object):
             else:
                 self.ui.error("The GroupPermission '%s' already exists." % group_permission_permanent_id)
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
 
     def grant_on_access_forward_to_user(self):
@@ -466,7 +466,7 @@ class Controller(object):
             else:
                 self.ui.error("The UserPermission '%s' already exists." % user_permission_permanent_id)
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
 
     def list_users(self):
@@ -477,7 +477,7 @@ class Controller(object):
             users = [ group.users for group in groups if group.id == group_id ][0] if group_id is not None else self.db.get_users()
             self.ui.dialog_list_users_show_users(users)
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
 
     def notify_users(self):
@@ -501,7 +501,7 @@ class Controller(object):
             else:
                 self.ui.error("The selected Group has no Users to notify.")
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
 
     def notify_users_with_passwords(self):
@@ -545,7 +545,7 @@ class Controller(object):
             else:
                 self.ui.error("The selected Group has no Users to notify, or the users file specified is empty.")
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
 
     def _password2sha(self, password):

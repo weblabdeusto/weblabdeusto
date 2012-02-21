@@ -55,13 +55,13 @@ import voodoo.sessions.session_type as SessionType
 import voodoo.resources_manager as ResourceManager
 
 check_session_params = dict(
-        exception_to_raise = coreExc.SessionNotFoundException,
+        exception_to_raise = coreExc.SessionNotFoundError,
         what_session       = "Core Users ",
         cut_session_id     = ';'
     )
 
 check_reservation_session_params = dict(
-        exception_to_raise         = coreExc.SessionNotFoundException,
+        exception_to_raise         = coreExc.SessionNotFoundError,
         what_session               = "Core Reservations ",
         session_manager_field_name = "_reservations_session_manager",
         cut_session_id             = ';'
@@ -156,7 +156,7 @@ class UserProcessingServer(object):
 
         session_type    = cfg_manager.get_value(WEBLAB_CORE_SERVER_SESSION_TYPE, DEFAULT_WEBLAB_CORE_SERVER_SESSION_TYPE)
         if not session_type in SessionType.getSessionTypeValues():
-            raise coreExc.NotASessionTypeException( 'Not a session type: %s' % session_type )
+            raise coreExc.NotASessionTypeError( 'Not a session type: %s' % session_type )
 
         session_pool_id = cfg_manager.get_value(WEBLAB_CORE_SERVER_SESSION_POOL_ID, "UserProcessingServer")
         self._session_manager              = SessionManager.SessionManager( cfg_manager, session_type, session_pool_id )
@@ -230,11 +230,11 @@ class UserProcessingServer(object):
     def _check_reservation_not_expired_and_poll(self, reservation_processor, check_expired = True):
         if check_expired and reservation_processor.is_expired():
             reservation_processor.finish()
-            raise coreExc.NoCurrentReservationException( 'Current user does not have any experiment assigned' )
+            raise coreExc.NoCurrentReservationError( 'Current user does not have any experiment assigned' )
 
         try:
             reservation_processor.poll()
-        except coreExc.NoCurrentReservationException:
+        except coreExc.NoCurrentReservationError:
             if check_expired:
                 raise
         reservation_processor.update_latest_timestamp()
@@ -326,7 +326,7 @@ class UserProcessingServer(object):
 
             self._session_manager.delete_session(session_id)
         else:
-            raise coreExc.SessionNotFoundException( "User Processing Server session not found")
+            raise coreExc.SessionNotFoundError( "User Processing Server session not found")
 
 
     @logged(log.level.Info)

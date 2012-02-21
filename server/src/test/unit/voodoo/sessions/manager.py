@@ -22,7 +22,7 @@ import voodoo.sessions.memory as SessionMemoryGateway
 import voodoo.sessions.session_type          as SessionType
 import voodoo.sessions.session_id            as SessionId
 
-import voodoo.sessions.exc as SessionExceptions
+import voodoo.sessions.exc as SessionErrors
 
 import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
@@ -63,43 +63,43 @@ class SessionManagerTestCase(unittest.TestCase):
 
     def test_checking_parameter(self):
         self.assertRaises(
-            SessionExceptions.SessionInvalidSessionTypeException,
+            SessionErrors.SessionInvalidSessionTypeError,
             SessionManager.SessionManager,
             None,
             5,
             "foo"
         )
         self.assertRaises(
-            SessionExceptions.SessionInvalidSessionIdException,
+            SessionErrors.SessionInvalidSessionIdError,
             self.memory_server1.get_session,
             'test'
         )
         self.assertRaises(
-            SessionExceptions.SessionInvalidSessionIdException,
+            SessionErrors.SessionInvalidSessionIdError,
             self.memory_server1.get_session_locking,
             'test'
         )
         self.assertRaises(
-            SessionExceptions.SessionInvalidSessionIdException,
+            SessionErrors.SessionInvalidSessionIdError,
             self.memory_server1.modify_session,
             'test',
             'something'
         )
         self.assertRaises(
-            SessionExceptions.SessionInvalidSessionIdException,
+            SessionErrors.SessionInvalidSessionIdError,
             self.memory_server1.modify_session_unlocking,
             'test',
             'something'
         )
         self.assertRaises(
-            SessionExceptions.SessionInvalidSessionIdException,
+            SessionErrors.SessionInvalidSessionIdError,
             self.memory_server1.delete_session,
             'test'
         )
 
     def test_session_id(self):
         self.assertRaises(
-            SessionExceptions.SessionInvalidSessionIdException,
+            SessionErrors.SessionInvalidSessionIdError,
             SessionId.SessionId,
             5
         )
@@ -112,7 +112,7 @@ class SessionManagerTestCase(unittest.TestCase):
 
         # The second time must fail
         self.assertRaises(
-            SessionExceptions.DesiredSessionIdAlreadyExistsException,
+            SessionErrors.DesiredSessionIdAlreadyExistsError,
             server.create_session, DESIRED_SESS_ID1
         )
 
@@ -125,7 +125,7 @@ class SessionManagerTestCase(unittest.TestCase):
         self.assertEquals(server.get_session(sess_id),information)
 
         self.assertRaises(
-                SessionExceptions.SessionNotSerializableException,
+                SessionErrors.SessionNotSerializableError,
                 server.modify_session,
                 sess_id,
                 invalid_information
@@ -133,18 +133,18 @@ class SessionManagerTestCase(unittest.TestCase):
 
         server.delete_session(sess_id)
         self.assertRaises(
-                SessionExceptions.SessionNotFoundException,
+                SessionErrors.SessionNotFoundError,
                 server.get_session,
                 sess_id
             )
         self.assertRaises(
-                SessionExceptions.SessionNotFoundException,
+                SessionErrors.SessionNotFoundError,
                 server.modify_session,
                 sess_id,
                 ''
             )
         self.assertRaises(
-                SessionExceptions.SessionNotFoundException,
+                SessionErrors.SessionNotFoundError,
                 server.delete_session,
                 sess_id
             )

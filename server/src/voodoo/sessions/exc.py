@@ -13,56 +13,56 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import voodoo.exc as VoodooExceptions
+import voodoo.exc as VoodooErrors
 
-class SessionException(VoodooExceptions.VoodooException):
+class SessionError(VoodooErrors.VoodooError):
     def __init__(self,*args,**kargs):
-        VoodooExceptions.VoodooException.__init__(self,*args,**kargs)
+        VoodooErrors.VoodooError.__init__(self,*args,**kargs)
 
-class SessionNotFoundException(SessionException):
+class SessionNotFoundError(SessionError):
     def __init__(self,*args,**kargs):
-        SessionException.__init__(self,*args,**kargs)
+        SessionError.__init__(self,*args,**kargs)
 
-class SessionDatabaseExecutionException(SessionException):
+class SessionDatabaseExecutionError(SessionError):
     def __init__(self,*args,**kargs):
-        SessionException.__init__(self,*args,**kargs)
+        SessionError.__init__(self,*args,**kargs)
 
-class SessionNotSerializableException(SessionException):
+class SessionNotSerializableError(SessionError):
     def __init__(self,*args,**kargs):
-        SessionException.__init__(self,*args,**kargs)
+        SessionError.__init__(self,*args,**kargs)
 
-class SessionNotDeserializableException(SessionException):
+class SessionNotDeserializableError(SessionError):
     def __init__(self,*args,**kargs):
-        SessionException.__init__(self,*args,**kargs)
+        SessionError.__init__(self,*args,**kargs)
 
-class SessionSerializationNotImplementedException(SessionException):
+class SessionSerializationNotImplementedError(SessionError):
     def __init__(self,*args,**kargs):
-        SessionException.__init__(self,*args,**kargs)
+        SessionError.__init__(self,*args,**kargs)
 
-class SessionInvalidSessionIdException(SessionException):
+class SessionInvalidSessionIdError(SessionError):
     def __init__(self,*args,**kargs):
-        SessionException.__init__(self,*args,**kargs)
+        SessionError.__init__(self,*args,**kargs)
 
-class SessionInvalidSessionTypeException(SessionException):
+class SessionInvalidSessionTypeError(SessionError):
     def __init__(self,*args,**kargs):
-        SessionException.__init__(self,*args,**kargs)
+        SessionError.__init__(self,*args,**kargs)
 
-class SessionTypeNotImplementedException(SessionException):
+class SessionTypeNotImplementedError(SessionError):
     def __init__(self,*args,**kargs):
-        SessionException.__init__(self,*args,**kargs)
+        SessionError.__init__(self,*args,**kargs)
 
-class VariableNotFoundInSessionException(SessionException):
+class VariableNotFoundInSessionError(SessionError):
     def __init__(self,*args,**kargs):
-        SessionException.__init__(self,*args,**kargs)
+        SessionError.__init__(self,*args,**kargs)
 
-class CouldntReleaseSessionException(SessionException):
+class CouldntReleaseSessionError(SessionError):
     def __init__(self,*args,**kargs):
-        SessionException.__init__(self,*args,**kargs)
+        SessionError.__init__(self,*args,**kargs)
 
-class SessionAlreadyAcquiredException(SessionException):
+class SessionAlreadyAcquiredError(SessionError):
     def __init__(self,*args,**kargs):
-        SessionException.__init__(self,*args,**kargs)
+        SessionError.__init__(self,*args,**kargs)
 
-class DesiredSessionIdAlreadyExistsException(SessionException):
+class DesiredSessionIdAlreadyExistsError(SessionError):
     def __init__(self,*args,**kargs):
-        SessionException.__init__(self,*args,**kargs)
+        SessionError.__init__(self,*args,**kargs)

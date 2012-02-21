@@ -45,8 +45,8 @@ import voodoo.resources_manager as ResourceManager
 import weblab.comm.manager as RemoteFacadeManager
 from weblab.comm.context import get_context, create_context, delete_context
 from weblab.comm.codes import WEBLAB_GENERAL_EXCEPTION_CODE
-import weblab.comm.exc as FacadeExceptions
-import voodoo.configuration as ConfigurationExceptions
+import weblab.comm.exc as FacadeErrors
+import voodoo.configuration as ConfigurationErrors
 
 RFS_TIMEOUT_NAME                      = 'facade_timeout'
 DEFAULT_TIMEOUT                       = 0.5
@@ -165,7 +165,7 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             # with the parameters from the dictionary we just built.
             try:
                 return_value = method(**newparams)
-            except RemoteFacadeManager.JSONException as jsone:
+            except RemoteFacadeManager.JSONError as jsone:
                 response = jsone.args[0]
                 self.finish_error(response)
                 return
@@ -415,8 +415,8 @@ class AbstractProtocolRemoteFacadeServer(threading.Thread):
     def parse_configuration(self, *args, **kargs):
         try:
             return self._configuration_manager.get_values(*args, **kargs)
-        except ConfigurationExceptions.ConfigurationException as ce:
-            raise FacadeExceptions.MisconfiguredException("Missing params: " + ce.args[0])
+        except ConfigurationErrors.ConfigurationError as ce:
+            raise FacadeErrors.MisconfiguredError("Missing params: " + ce.args[0])
 
 class AbstractRemoteFacadeServerZSI(AbstractProtocolRemoteFacadeServer):
     protocol_name = "zsi"

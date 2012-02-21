@@ -12,32 +12,32 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
-import weblab.experiment.devices.exc as DeviceExceptions
+import weblab.experiment.devices.exc as DeviceErrors
 
-class InvalidGpibProperty(DeviceExceptions.MisconfiguredDeviceException):
+class InvalidGpibProperty(DeviceErrors.MisconfiguredDeviceError):
     def __init__(self, *args, **kargs):
-        DeviceExceptions.MisconfiguredDeviceException.__init__(self, *args, **kargs)
+        DeviceErrors.MisconfiguredDeviceError.__init__(self, *args, **kargs)
 
-class CantFindGpibProperty(DeviceExceptions.MisconfiguredDeviceException):
+class CantFindGpibProperty(DeviceErrors.MisconfiguredDeviceError):
     def __init__(self, *args, **kargs):
-        DeviceExceptions.MisconfiguredDeviceException.__init__(self, *args, **kargs)
+        DeviceErrors.MisconfiguredDeviceError.__init__(self, *args, **kargs)
 
-class AlreadyProgrammingDeviceException(DeviceExceptions.AlreadyProgrammingDeviceException):
+class AlreadyProgrammingDeviceError(DeviceErrors.AlreadyProgrammingDeviceError):
     def __init__(self, *args, **kargs):
-        DeviceExceptions.AlreadyProgrammingDeviceException.__init__(self, *args, **kargs)
+        DeviceErrors.AlreadyProgrammingDeviceError.__init__(self, *args, **kargs)
 
-class ErrorProgrammingDeviceException(DeviceExceptions.ProgrammingDeviceException):
+class ErrorProgrammingDeviceError(DeviceErrors.ProgrammingDeviceError):
     def __init__(self,*args,**kargs):
-        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
+        DeviceErrors.ProgrammingDeviceError.__init__(self,*args,**kargs)
 
-class ErrorRetrievingOutputFromProgrammingProgramException(DeviceExceptions.ProgrammingDeviceException):
+class ErrorRetrievingOutputFromProgrammingProgramError(DeviceErrors.ProgrammingDeviceError):
     def __init__(self,*args,**kargs):
-        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
+        DeviceErrors.ProgrammingDeviceError.__init__(self,*args,**kargs)
 
-class ErrorWaitingForProgrammingFinishedException(DeviceExceptions.ProgrammingDeviceException):
+class ErrorWaitingForProgrammingFinishedError(DeviceErrors.ProgrammingDeviceError):
     def __init__(self,*args,**kargs):
-        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
+        DeviceErrors.ProgrammingDeviceError.__init__(self,*args,**kargs)
 
-class ProgrammingGotErrors(DeviceExceptions.ProgrammingDeviceException):
+class ProgrammingGotErrors(DeviceErrors.ProgrammingDeviceError):
     def __init__(self,*args,**kargs):
-        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
+        DeviceErrors.ProgrammingDeviceError.__init__(self,*args,**kargs)

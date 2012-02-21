@@ -21,7 +21,7 @@ import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
 
 import weblab.experiment.devices.gpib.gpib as Gpib
-import weblab.experiment.devices.gpib.exc as GpibExceptions
+import weblab.experiment.devices.gpib.exc as GpibErrors
 
 class WrappedLauncherPopen(Gpib.Launcher):
 
@@ -50,7 +50,7 @@ class GpibLauncherTestCase(mocker.MockerTestCase):
 
         self.mocker.replay()
         self.assertRaises(
-            GpibExceptions.ErrorProgrammingDeviceException,
+            GpibErrors.ErrorProgrammingDeviceError,
             launcher.execute,
             'whatever.exe',
             False
@@ -62,7 +62,7 @@ class GpibLauncherTestCase(mocker.MockerTestCase):
 
         self.mocker.replay()
         self.assertRaises(
-            GpibExceptions.ErrorProgrammingDeviceException,
+            GpibErrors.ErrorProgrammingDeviceError,
             launcher.execute,
             'whatever.exe',
             True
@@ -75,7 +75,7 @@ class GpibLauncherTestCase(mocker.MockerTestCase):
 
         self.mocker.replay()
         self.assertRaises(
-            GpibExceptions.ErrorWaitingForProgrammingFinishedException,
+            GpibErrors.ErrorWaitingForProgrammingFinishedError,
             launcher.execute,
             'whatever.exe',
             False
@@ -91,7 +91,7 @@ class GpibLauncherTestCase(mocker.MockerTestCase):
         self.assertEquals(None, result_execute)
 
         self.assertRaises(
-            GpibExceptions.ErrorWaitingForProgrammingFinishedException,
+            GpibErrors.ErrorWaitingForProgrammingFinishedError,
             launcher.poll
         )
 
@@ -104,7 +104,7 @@ class GpibLauncherTestCase(mocker.MockerTestCase):
 
         self.mocker.replay()
         self.assertRaises(
-            GpibExceptions.ErrorRetrievingOutputFromProgrammingProgramException,
+            GpibErrors.ErrorRetrievingOutputFromProgrammingProgramError,
             launcher.execute,
             'whatever.exe',
             False
@@ -122,7 +122,7 @@ class GpibLauncherTestCase(mocker.MockerTestCase):
         self.assertEquals(None, result_execute)
 
         self.assertRaises(
-            GpibExceptions.ErrorRetrievingOutputFromProgrammingProgramException,
+            GpibErrors.ErrorRetrievingOutputFromProgrammingProgramError,
             launcher.poll
         )
 

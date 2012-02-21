@@ -27,7 +27,7 @@ from weblab.admin.monitor.monitor import monitor_method
 from weblab.core.server import UserProcessingServer
 
 from weblab.data.experiments import ExperimentId
-import voodoo.sessions.exc as SessionExceptions
+import voodoo.sessions.exc as SessionErrors
 
 from voodoo.sessions.session_id import SessionId
 import voodoo.gen.registry.server_registry as ServerRegistry
@@ -109,7 +109,7 @@ def list_all_users():
             continue
         try:
             session = session_mgr.get_session(session_id)
-        except SessionExceptions.SessionException:
+        except SessionErrors.SessionError:
             continue
         if 'user_information' in session:
             user_info = session['user_information']
@@ -134,7 +134,7 @@ def get_ups_session_ids_from_username(login):
             continue
         try:
             session = session_mgr.get_session(session_id)
-        except SessionExceptions.SessionException:
+        except SessionErrors.SessionError:
             continue
 
         if 'user_information' in session:

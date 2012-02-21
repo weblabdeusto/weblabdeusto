@@ -63,7 +63,7 @@ class Criteria(object):
             str_operator = obj["operator"]
             str_value    = obj['value']
         except KeyError as ke:
-            raise MethodException("Missing criteria field: %s" % ke)
+            raise MethodError("Missing criteria field: %s" % ke)
 
         try:
             if field_name in Criteria.DATETIME_FIELDS:
@@ -71,9 +71,9 @@ class Criteria(object):
             elif field_name in Criteria.INT_FIELDS:
                 value = int(str_value)
             else:
-                raise MethodException("Unrecognized field name! %s" % urllib2.quote(field_name))
+                raise MethodError("Unrecognized field name! %s" % urllib2.quote(field_name))
         except ValueError as ve:
-            raise MethodException("Couldn't parse value! %s" % ve)
+            raise MethodError("Couldn't parse value! %s" % ve)
 
         if str_operator == 'greaterOrEqual':
             op = operator.ge
@@ -82,7 +82,7 @@ class Criteria(object):
         elif str_operator == 'equals':
             op = operator.eq
         else:
-            raise MethodException("Unrecognized operator!")
+            raise MethodError("Unrecognized operator!")
 
         return Criteria( field_name, op, value )
 
@@ -127,11 +127,11 @@ class AdvancedCriteria(object):
                 if operators[0] == 'and':
                     op = operator.and_
                 else:
-                    raise MethodException("Invalid advanced_criteria operator %s" % urllib2.quote(operators[0]))
+                    raise MethodError("Invalid advanced_criteria operator %s" % urllib2.quote(operators[0]))
             else:
                 op = None
         except (ValueError, IndexError) as e:
-            raise MethodException("Invalid advanced criteria value: %s" % urllib2.quote(str(e)))
+            raise MethodError("Invalid advanced criteria value: %s" % urllib2.quote(str(e)))
 
         return AdvancedCriteria(criterias, op, sort_by, start_row, end_row, text_match_styles[0])
 
@@ -142,7 +142,7 @@ class AdvancedCriteria(object):
             representation += "\n\t" + str(criteria)
         return representation + "\n</AdvancedCriteria>"
 
-class MethodException(Exception):
+class MethodError(Exception):
     pass
 
 class Methods(object):
@@ -278,13 +278,13 @@ class Methods(object):
         parent_ids = [ param for param in parameters if param.startswith('parent_id=') ]
 
         if len(parent_ids) == 0:
-            raise MethodException("No parent_id provided")
+            raise MethodError("No parent_id provided")
 
         parent_id_str = parent_ids[0][len('parent_id') + 1:]
         try:
             parent_id     = None if parent_id_str == 'null' else int(parent_id_str)
         except ValueError:
-            raise MethodException("parent_id must be an int or 'null'")
+            raise MethodError("parent_id must be an int or 'null'")
 
         groups = handler.facade_manager.get_groups(session_id, parent_id)
         return { 'response' :
@@ -387,7 +387,7 @@ class SmartGwtHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 method = getattr(Methods, 'get_%s' % method_name)
                 try:
                     response = method(self, session_id, parameters)
-                except MethodException as me:
+                except MethodError as me:
 #                    import traceback
 #                    traceback.print_exc()
                     log.log( self, log.level.Error, str(me))

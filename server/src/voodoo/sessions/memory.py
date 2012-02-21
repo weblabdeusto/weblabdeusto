@@ -20,7 +20,7 @@ import voodoo.sessions.generator as SessionGenerator
 import voodoo.sessions.serializer as SessionSerializer
 import voodoo.log as log
 
-import voodoo.sessions.exc as SessionExceptions
+import voodoo.sessions.exc as SessionErrors
 
 SERIALIZE_MEMORY_GATEWAY_SESSIONS  = 'session_memory_gateway_serialize'
 
@@ -89,7 +89,7 @@ class SessionMemoryGateway(object):
                 session_obj = self.get_session_obj(session_id)
                 if session_obj.is_expired(self._timeout):
                     self.delete_session(session_id)
-            except SessionExceptions.SessionNotFoundException:
+            except SessionErrors.SessionNotFoundError:
                 # The session was removed during the iteration of this loop
                 continue
             except:
@@ -105,7 +105,7 @@ class SessionMemoryGateway(object):
             lock.acquire()
             if desired_sess_id in sessions:
                 lock.release()
-                raise SessionExceptions.DesiredSessionIdAlreadyExistsException("session_id: %s" % desired_sess_id)
+                raise SessionErrors.DesiredSessionIdAlreadyExistsError("session_id: %s" % desired_sess_id)
             session_id = desired_sess_id
 
         else:
@@ -153,7 +153,7 @@ class SessionMemoryGateway(object):
         lock, sessions = self._get_lock_and_sessions(session_id)
         with lock:
             if not session_id in sessions:
-                raise SessionExceptions.SessionNotFoundException(
+                raise SessionErrors.SessionNotFoundError(
                             "Session not found: " + session_id
                         )
             session = sessions[session_id]
@@ -174,7 +174,7 @@ class SessionMemoryGateway(object):
         lock, sessions = self._get_lock_and_sessions(sess_id)
         with lock:
             if not sess_id in sessions:
-                raise SessionExceptions.SessionNotFoundException(
+                raise SessionErrors.SessionNotFoundError(
                             "Session not found: " + sess_id
                         )
             sessions[sess_id] = SessionObj(sess_obj)
@@ -249,7 +249,7 @@ class SessionMemoryGateway(object):
                 sessions.pop(session_id)
                 session_locks.pop(session_id)
             else:
-                raise SessionExceptions.SessionNotFoundException(
+                raise SessionErrors.SessionNotFoundError(
                             "Session not found: " + session_id
                         )
 
@@ -263,7 +263,7 @@ class SessionMemoryGateway(object):
                 session_lock = session_locks.pop(session_id)
                 session_lock.release()
             else:
-                raise SessionExceptions.SessionNotFoundException(
+                raise SessionErrors.SessionNotFoundError(
                             "Session not found: " + session_id
                         )
 

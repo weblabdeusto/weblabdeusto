@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-class VoodooException(Exception):
+class VoodooError(Exception):
     def __init__(self,*args,**kargs):
         Exception.__init__(self,*args,**kargs)
 

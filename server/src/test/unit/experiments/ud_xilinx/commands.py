@@ -18,7 +18,7 @@ import experiments.ud_xilinx.command as UdBoardCommand
 from experiments.ud_xilinx.command import UdBoardSimpleCommand
 from experiments.ud_xilinx.command import ChangeSwitchCommand, SetPulseCommand, ClockActivationCommand, ClockDeactivationCommand
 
-import experiments.ud_xilinx.exc as UdXilinxExperimentExceptions
+import experiments.ud_xilinx.exc as UdXilinxExperimentErrors
 
 class UdBoardCommandTestCase(unittest.TestCase):
     def test_udboard(self):
@@ -31,7 +31,7 @@ class UdBoardCommandTestCase(unittest.TestCase):
             )
 
         self.assertRaises(
-                UdXilinxExperimentExceptions.InvalidUdBoardCommandException,
+                UdXilinxExperimentErrors.InvalidUdBoardCommandError,
                 UdBoardCommand.UdBoardCommand,
                 "foo"
             )

@@ -15,11 +15,11 @@
 
 import socket as _socket
 
-class SocketManagerConstructionException(Exception):
+class SocketManagerConstructionError(Exception):
     pass
-class InternetSocketManagerConstructionException(Exception):
+class InternetSocketManagerConstructionError(Exception):
     pass
-class UnixSocketManagerConstructionException(Exception):
+class UnixSocketManagerConstructionError(Exception):
     pass
 
 class SocketManager(object):
@@ -32,7 +32,7 @@ class SocketManager(object):
             s = SocketManager(socket_type=socket.AF_UNIX, socket=mysocket)"""
         super(SocketManager, self).__init__()
         if socket_type == None:
-            raise SocketManagerConstructionException("socket_type argument must have a value")
+            raise SocketManagerConstructionError("socket_type argument must have a value")
         self._type = socket_type
         if socket != None:
             self._socket = socket
@@ -41,7 +41,7 @@ class SocketManager(object):
             self._address = address
             self._socket = None
         else:
-            raise SocketManagerConstructionException("You must provide an address or a socket")
+            raise SocketManagerConstructionError("You must provide an address or a socket")
 
     def connect(self):
         self._socket = _socket.socket(self._type, _socket.SOCK_STREAM)
@@ -77,7 +77,7 @@ class InternetSocketManager(SocketManager):
         elif hostname != None and port != None:
             super(InternetSocketManager, self).__init__(socket_type=_socket.AF_INET, address=(hostname, port))
         else:
-            raise InternetSocketManagerConstructionException("You must provide a (hostname, port) or a socket")
+            raise InternetSocketManagerConstructionError("You must provide a (hostname, port) or a socket")
 
 class UnixSocketManager(SocketManager):
 
@@ -87,4 +87,4 @@ class UnixSocketManager(SocketManager):
         elif path != None:
             super(UnixSocketManager, self).__init__(socket_type=_socket.AF_UNIX, address=path)
         else:
-            raise UnixSocketManagerConstructionException("You must provide a path or a socket")
+            raise UnixSocketManagerConstructionError("You must provide a path or a socket")

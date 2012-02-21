@@ -21,7 +21,7 @@ import voodoo.gen.coordinator.CoordinationInformation as CoordInfo
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.gen.coordinator.Access as Access
 import voodoo.gen.coordinator.AccessLevel as AccessLevel
-import voodoo.gen.exceptions.coordinator.CoordinatorExceptions as CoordExceptions
+import voodoo.gen.exceptions.coordinator.CoordinatorErrors as CoordErrors
 
 import voodoo.gen.protocols.Direct.Network as DirectNetwork
 import voodoo.gen.protocols.Direct.Address as DirectAddress
@@ -291,7 +291,7 @@ class CoordinationInformationTestCase(unittest.TestCase):
 
         # Machine does not exist
         self.assertRaises(
-                CoordExceptions.CoordMachineNotFound,
+                CoordErrors.CoordMachineNotFound,
                 map.add_new_instance,
                 'machine_not_exists',
                 'instanceX'
@@ -299,7 +299,7 @@ class CoordinationInformationTestCase(unittest.TestCase):
 
         # Instance does not exist
         self.assertRaises(
-                CoordExceptions.CoordInstanceNotFound,
+                CoordErrors.CoordInstanceNotFound,
                 map.add_new_server,
                 'machine',
                 'instance_not_exists',
@@ -310,7 +310,7 @@ class CoordinationInformationTestCase(unittest.TestCase):
 
         # Server does not exist
         self.assertRaises(
-                CoordExceptions.CoordServerNotFound,
+                CoordErrors.CoordServerNotFound,
                 map.append_accesses,
                 'machine',
                 'instance',
@@ -320,13 +320,13 @@ class CoordinationInformationTestCase(unittest.TestCase):
 
         # Invalid key
         self.assertRaises(
-                CoordExceptions.CoordInvalidKey,
+                CoordErrors.CoordInvalidKey,
                 lambda : map[5])
 
-        self.assertRaises(CoordExceptions.CoordInvalidKey,
+        self.assertRaises(CoordErrors.CoordInvalidKey,
                 lambda : map['machine'][5])
 
-        self.assertRaises(CoordExceptions.CoordInvalidKey,
+        self.assertRaises(CoordErrors.CoordInvalidKey,
                 lambda : map['machine']['instance'][5])
 
         # And that's all :-)
@@ -508,17 +508,17 @@ class CoordinationInformationTestCase(unittest.TestCase):
                 ()
             )
         self.assertRaises(
-            CoordExceptions.CoordMachineNotFound,
+            CoordErrors.CoordMachineNotFound,
             map.__getitem__,
             'whatever'
         )
         self.assertRaises(
-            CoordExceptions.CoordInstanceNotFound,
+            CoordErrors.CoordInstanceNotFound,
             map['machine'].__getitem__,
             'whatever'
         )
         self.assertRaises(
-            CoordExceptions.CoordServerNotFound,
+            CoordErrors.CoordServerNotFound,
             map['machine']['instance'].__getitem__,
             'whatever'
         )

@@ -20,13 +20,13 @@ from voodoo.override import Override
 from voodoo.sessions.checker import check_session
 from weblab.data import server_type as ServerType
 from weblab.data.command import Command
-import weblab.translator.exc as TranslatorExceptions
+import weblab.translator.exc as TranslatorErrors
 import weblab.translator.translator as Translator
 import weblab.experiment.util as ExperimentUtil
 
 
 check_session_params = (
-        TranslatorExceptions.InvalidTranslatorSessionIdException,
+        TranslatorErrors.InvalidTranslatorSessionIdError,
         "Translator Server"
     )
 

@@ -15,10 +15,10 @@
 
 import base64
 
-# This class doesn't inherit from WebLabException since it is used in fileUpload.py
-# Inheriting from WebLabException would mean that we would need to load weblab.exceptions
+# This class doesn't inherit from WebLabError since it is used in fileUpload.py
+# Inheriting from WebLabError would mean that we would need to load weblab.exceptions
 # in fileUpload.py
-class UnableToDeserializeException(Exception):
+class UnableToDeserializeError(Exception):
     def __init__(self,*args,**kargs):
         Exception.__init__(self,*args,**kargs)
 
@@ -30,6 +30,6 @@ def deserialize(serialized_content):
     try:
         deserialized_content = base64.decodestring(serialized_content)
     except Exception as e:
-        raise UnableToDeserializeException("Couldn't deserialize base64 content: %s" % serialized_content, e)
+        raise UnableToDeserializeError("Couldn't deserialize base64 content: %s" % serialized_content, e)
     return deserialized_content
 

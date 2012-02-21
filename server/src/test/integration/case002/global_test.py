@@ -605,7 +605,7 @@ class Case002TestCase(object):
             self.real_ups.poll(reservation_id2)
             self.real_ups.poll(reservation_id2)
             self.real_ups.poll(reservation_id2)
-        except core_exc.NoCurrentReservationException:
+        except core_exc.NoCurrentReservationError:
             pass # All right :-)
 
         # send a program

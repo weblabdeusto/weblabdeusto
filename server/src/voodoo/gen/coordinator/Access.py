@@ -15,7 +15,7 @@
 
 from abc import ABCMeta, abstractmethod
 
-import voodoo.gen.exceptions.coordinator.AccessExceptions as AccessExceptions
+import voodoo.gen.exceptions.coordinator.AccessErrors as AccessErrors
 import voodoo.gen.coordinator.Address as Address
 
 class Access(object):
@@ -50,7 +50,7 @@ class Network(object):
 
     def __init__(self, address):
         if not isinstance(address,Address.Address):
-            raise AccessExceptions.AccessNotAnAddressException("Not an Address: %s" % address)
+            raise AccessErrors.AccessNotAnAddressError("Not an Address: %s" % address)
         self.address = address
 
     @abstractmethod
@@ -74,7 +74,7 @@ class IpBasedNetwork(Network):
     def __init__(self,address):
         """ Address will have this format: 'IP:PORT@NETWORK_NAME' """
         if not isinstance(address,Address.IpBasedAddress):
-            raise AccessExceptions.AccessNotAnIpAddressException("Not an IpBasedAddress: %s" % address)
+            raise AccessErrors.AccessNotAnIpAddressError("Not an IpBasedAddress: %s" % address)
         Network.__init__(self,address)
     def check(self,other):
         return [ i for i in other.networks

@@ -15,8 +15,8 @@
 import voodoo.sessions.manager as SessionManager
 import voodoo.sessions.session_type    as SessionType
 
-import voodoo.gen.exceptions.coordinator.CoordinatorServerExceptions as CoordinatorServerExceptions
-import voodoo.sessions.exc as SessionExceptions
+import voodoo.gen.exceptions.coordinator.CoordinatorServerErrors as CoordinatorServerErrors
+import voodoo.sessions.exc as SessionErrors
 
 import voodoo.gen.coordinator.CoordinationInformation as CoordinationInformation
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
@@ -49,7 +49,7 @@ class CoordinatorServer(object):
                     session_pool_id
                 )
         else:
-            raise CoordinatorServerExceptions.NotASessionTypeException(
+            raise CoordinatorServerErrors.NotASessionTypeError(
                     "Not a session_type: %s" % session_type
                 )
         if map is not None and map_file is None:
@@ -58,11 +58,11 @@ class CoordinatorServer(object):
             self._coordination_map_controller = CoordinationInformation.CoordinationMapController()
             self._coordination_map_controller.load(map_file)
         elif map is not None and map_file is not None:
-            raise CoordinatorServerExceptions.BothMapAndMapFileProvidedException(
+            raise CoordinatorServerErrors.BothMapAndMapFileProvidedError(
                 "Can't provide both map_file and map to CoordinatorServer"
             )
         elif map is None and map_file is None:
-            raise CoordinatorServerExceptions.NeitherMapNorFileProvidedException("Can't build the Coordination Map if neither map nor map_file fields are provided!")
+            raise CoordinatorServerErrors.NeitherMapNorFileProvidedError("Can't build the Coordination Map if neither map nor map_file fields are provided!")
         else:
             raise RuntimeError("This possibility should never happen -voodoo.gen.coordinator.CoordinatorServer.__init__-")
 
@@ -86,8 +86,8 @@ class CoordinatorServer(object):
                     }
                 )
             )
-        except SessionExceptions.SessionException as se:
-            raise CoordinatorServerExceptions.CouldNotCreateSessionException(
+        except SessionErrors.SessionError as se:
+            raise CoordinatorServerErrors.CouldNotCreateSessionError(
                     "Couldn't create session: " + str(se),
                     se
                 )
@@ -102,14 +102,14 @@ class CoordinatorServer(object):
     def do_logout(self, session_id):
         try:
             self._session_manager.delete_session(session_id)
-        except SessionExceptions.SessionException:
+        except SessionErrors.SessionError:
             pass
 
     def do_get_server(self, session_id):
         try:
             session = self._session_manager.get_session_locking(session_id)
-        except SessionExceptions.SessionInvalidSessionIdException as sisi:
-            raise CoordinatorServerExceptions.SessionNotFoundException(*sisi.args)
+        except SessionErrors.SessionInvalidSessionIdError as sisi:
+            raise CoordinatorServerErrors.SessionNotFoundError(*sisi.args)
         try:
             server_type                 = session['server_type']
             restrictions                = session['restrictions']
@@ -142,7 +142,7 @@ class CoordinatorServer(object):
 
                 #At this point, the "server" (and "network" are chosen), we just need to save the cache and return them
                 return network.address
-            raise CoordinatorServerExceptions.NoServerFoundException(
+            raise CoordinatorServerErrors.NoServerFoundError(
                     "No server found for server_type: " + server_type + " and restrictions: " + str(restrictions)
                 )
         finally:

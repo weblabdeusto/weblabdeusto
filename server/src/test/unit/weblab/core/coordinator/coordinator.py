@@ -159,7 +159,7 @@ class CoordinatorTestCase(unittest.TestCase):
 
         "List the available sessions for an experiment which does not exist "
 
-        self.assertRaises( CoordExc.ExperimentNotFoundException,
+        self.assertRaises( CoordExc.ExperimentNotFoundError,
             self.coordinator.list_sessions, ExperimentId('not','found') )
 
     def test_list_sessions_found(self):
@@ -184,7 +184,7 @@ class CoordinatorTestCase(unittest.TestCase):
         "Reserve an experiment that doesn't exist"
 
         self.assertRaises(
-            CoordExc.ExperimentNotFoundException,
+            CoordExc.ExperimentNotFoundError,
             self.coordinator.reserve_experiment,
             ExperimentId("this.doesnt.exist","this.neither"),
             DEFAULT_TIME, DEFAULT_PRIORITY, True, DEFAULT_INITIAL_DATA, DEFAULT_REQUEST_INFO, DEFAULT_CONSUMER_DATA )
@@ -206,7 +206,7 @@ class CoordinatorTestCase(unittest.TestCase):
         # is actually a problem
         #
         self.assertRaises(
-                CoordExc.InvalidExperimentConfigException,
+                CoordExc.InvalidExperimentConfigError,
                 self.coordinator.add_experiment_instance_id,
                 "lab3:inst@machine",  # This is different
                 ExperimentInstanceId('inst2', 'exp1', 'cat1'),
@@ -217,7 +217,7 @@ class CoordinatorTestCase(unittest.TestCase):
         # Or saying that that experiment is bound to other resource instance
         #
         self.assertRaises(
-                CoordExc.InvalidExperimentConfigException,
+                CoordExc.InvalidExperimentConfigError,
                 self.coordinator.add_experiment_instance_id,
                 "lab2:inst@machine",
                 ExperimentInstanceId('inst2', 'exp1', 'cat1'),
@@ -361,9 +361,9 @@ class CoordinatorTestCase(unittest.TestCase):
         # Now, some time later (1 day after), they are all expired (both Current and Waiting Users)
         #
         self.coordinator.time_provider._TEST_TIME = now + 3600 * 24
-        self.assertRaises( CoordExc.ExpiredSessionException, self.coordinator.get_reservation_status, reservation1_id )
-        self.assertRaises( CoordExc.ExpiredSessionException, self.coordinator.get_reservation_status, reservation2_id )
-        self.assertRaises( CoordExc.ExpiredSessionException, self.coordinator.get_reservation_status, reservation3_id )
+        self.assertRaises( CoordExc.ExpiredSessionError, self.coordinator.get_reservation_status, reservation1_id )
+        self.assertRaises( CoordExc.ExpiredSessionError, self.coordinator.get_reservation_status, reservation2_id )
+        self.assertRaises( CoordExc.ExpiredSessionError, self.coordinator.get_reservation_status, reservation3_id )
 
     def test_reserved_timed_out(self):
 
@@ -405,7 +405,7 @@ class CoordinatorTestCase(unittest.TestCase):
         # and the third one is in WaitingConfirmation (actually, in expected_status1)
         #
         self.coordinator.time_provider._TEST_TIME = now + DEFAULT_TIME * 1.5
-        self.assertRaises( CoordExc.ExpiredSessionException, self.coordinator.get_reservation_status, reservation1_id )
+        self.assertRaises( CoordExc.ExpiredSessionError, self.coordinator.get_reservation_status, reservation1_id )
         status = self.coordinator.get_reservation_status(reservation2_id)
         self.assertEquals( expected_status2, status )
 
@@ -576,9 +576,9 @@ class CoordinatorTestCase(unittest.TestCase):
 
     def test_get_reservation_status_expired_session(self):
 
-        "If a user has no reservation, an ExpiredSessionException is raised"
+        "If a user has no reservation, an ExpiredSessionError is raised"
 
-        self.assertRaises( CoordExc.ExpiredSessionException, self.coordinator.get_reservation_status, "1" )
+        self.assertRaises( CoordExc.ExpiredSessionError, self.coordinator.get_reservation_status, "1" )
 
     def test_remove_experiment_id(self):
 
@@ -597,7 +597,7 @@ class CoordinatorTestCase(unittest.TestCase):
 
         self.coordinator.finish_reservation(reservation1_id)
 
-        self.assertRaises( CoordExc.ExpiredSessionException, self.coordinator.get_reservation_status, reservation1_id )
+        self.assertRaises( CoordExc.ExpiredSessionError, self.coordinator.get_reservation_status, reservation1_id )
 
 
     def test_remove_current_user_frees_queue(self):

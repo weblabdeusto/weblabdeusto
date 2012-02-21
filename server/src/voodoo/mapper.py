@@ -98,7 +98,7 @@ class _DtoClass:
 class _DtoObject(object):
     pass
 
-class _DtoException(Exception):
+class _DtoError(Exception):
     pass
 
 class _DtoBuiltin(object):
@@ -495,7 +495,7 @@ def dto_generator(instance,exceptions = None):
         elif current_node.data_type in (_Node.INSTANCE, _Node.OBJECT, _Node.EXCEPTION, _Node.BUILTIN_E):
 
             if current_node.data_type == _Node.EXCEPTION:
-                new_instance = _DtoException()
+                new_instance = _DtoError()
             elif current_node.data_type == _Node.INSTANCE:
                 new_instance = _DtoClass()
             elif current_node.data_type == _Node.BUILTIN_E:
@@ -654,7 +654,7 @@ def load_from_dto(instance,exceptions = None,skip_recoverables=False):
             elif current_node.data_type == _Node.OBJECT:
                 dto_object = _DtoObject()
             else:
-                dto_object = _DtoException()
+                dto_object = _DtoError()
 
             dto_parsed_instances[current_node.element] = dto_object
 

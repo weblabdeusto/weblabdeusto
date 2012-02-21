@@ -46,11 +46,11 @@ def generate(cfg_manager, methods):
             self._parent = parent
             # We should also register the server in the ServerRegistry
             import voodoo.gen.registry.server_registry as ServerRegistry
-            import voodoo.gen.exceptions.registry.RegistryExceptions as RegistryExceptions
+            import voodoo.gen.exceptions.registry.RegistryErrors as RegistryErrors
             registry = ServerRegistry.get_instance()
             try:
                 registry.register_server(_SERVER_PREFIX + self._full_address, self._parent)
-            except RegistryExceptions.AddressAlreadyRegisteredException as aar:
+            except RegistryErrors.AddressAlreadyRegisteredError as aar:
                 log.log(
                         ServerDirect,
                         log.level.Warning,

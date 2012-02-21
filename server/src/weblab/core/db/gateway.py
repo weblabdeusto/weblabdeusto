@@ -35,7 +35,7 @@ from weblab.data.command import Command
 import weblab.data.dto.experiments as ExperimentAllowed
 from weblab.data.experiments import ExperimentUsage, CommandSent, FileSent
 
-import weblab.db.exc as DbExceptions
+import weblab.db.exc as DbErrors
 
 from weblab.db.properties import WEBLAB_DB_USERNAME_PROPERTY, DEFAULT_WEBLAB_DB_USERNAME, WEBLAB_DB_PASSWORD_PROPERTY, WEBLAB_DB_FORCE_ENGINE_RECREATION, DEFAULT_WEBLAB_DB_FORCE_ENGINE_RECREATION
 
@@ -575,7 +575,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         try:
             return session.query(model.DbUser).filter_by(login=user_login).one()
         except NoResultFound:
-            raise DbExceptions.DbProvidedUserNotFoundException("Unable to find a User with the provided login: '%s'" % user_login)
+            raise DbErrors.DbProvidedUserNotFoundError("Unable to find a User with the provided login: '%s'" % user_login)
 
     def _get_experiment(self, session, exp_name, cat_name):
         try:
@@ -583,7 +583,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                         .filter(model.DbExperimentCategory.name == cat_name) \
                         .filter_by(name=exp_name).one()
         except NoResultFound:
-            raise DbExceptions.DbProvidedExperimentNotFoundException("Unable to find an Experiment with the provided unique id: '%s@%s'" % (exp_name, cat_name))
+            raise DbErrors.DbProvidedExperimentNotFoundError("Unable to find an Experiment with the provided unique id: '%s@%s'" % (exp_name, cat_name))
 
     def _gather_permissions(self, session, user, permission_type_name):
         permissions = []
@@ -604,7 +604,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
             param = [ p for p in permission.parameters if p.get_name() == parameter_name ][0]
         except IndexError:
             if default_value == DEFAULT_VALUE:
-                raise DbExceptions.DbIllegalStatusException(
+                raise DbErrors.DbIllegalStatusError(
                     permission.get_permission_type().name + " permission without " + parameter_name
                 )
             else:
@@ -616,7 +616,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         try:
             return float(value)
         except ValueError:
-            raise DbExceptions.InvalidPermissionParameterFormatException(
+            raise DbErrors.InvalidPermissionParameterFormatError(
                 "Expected float as parameter '%s' of '%s', found: '%s'" % (
                     parameter_name,
                     permission.get_permission_type().name,
@@ -629,7 +629,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         try:
             return int(value)
         except ValueError:
-            raise DbExceptions.InvalidPermissionParameterFormatException(
+            raise DbErrors.InvalidPermissionParameterFormatError(
                 "Expected int as parameter '%s' of '%s', found: '%s'" % (
                     parameter_name,
                     permission.get_permission_type().name,

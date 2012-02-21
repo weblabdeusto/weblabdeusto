@@ -13,7 +13,7 @@
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 #
 
-import weblab.experiment.devices.exc as DeviceExceptions
+import weblab.experiment.devices.exc as DeviceErrors
 import subprocess
 
 class TFtpDevice(object):
@@ -32,33 +32,33 @@ class TFtpDevice(object):
                 stderr = subprocess.PIPE
             )
         except Exception as e:
-            raise WlTFtpDeviceCallingProcessException(e)
+            raise WlTFtpDeviceCallingProcessError(e)
         popen.stdin.write('binary\n' + command + '\n')
         popen.stdin.close()
         try:
             result = popen.wait()
         except Exception as e:
-            raise WlTFtpDeviceWaitingCommandException(e)
+            raise WlTFtpDeviceWaitingCommandError(e)
         try:
             stdout_result = popen.stdout.read()
             stderr_result = popen.stderr.read()
         except Exception as e:
-            raise WlTFtpDeviceRetrievingOutputFromCommandException(e)
+            raise WlTFtpDeviceRetrievingOutputFromCommandError(e)
         return result, stdout_result, stderr_result
 
-class WlTFtpDeviceException(DeviceExceptions.DeviceException):
+class WlTFtpDeviceError(DeviceErrors.DeviceError):
     def __init__(self, msg):
-        DeviceExceptions.DeviceException.__init__(self, "Exception related to Weblab's TFtp device: %s" % msg)
+        DeviceErrors.DeviceError.__init__(self, "Exception related to Weblab's TFtp device: %s" % msg)
 
-class WlTFtpDeviceCallingProcessException(WlTFtpDeviceException):
+class WlTFtpDeviceCallingProcessError(WlTFtpDeviceError):
     def __init__(self, e):
-        WlTFtpDeviceException.__init__(self, "Failed calling tftp process: %s" % str(e))
+        WlTFtpDeviceError.__init__(self, "Failed calling tftp process: %s" % str(e))
 
-class WlTFtpDeviceWaitingCommandException(WlTFtpDeviceException):
+class WlTFtpDeviceWaitingCommandError(WlTFtpDeviceError):
     def __init__(self, e):
-        WlTFtpDeviceException.__init__(self, "An error ocurred while waiting for tftp command response: %s" % str(e) )
+        WlTFtpDeviceError.__init__(self, "An error ocurred while waiting for tftp command response: %s" % str(e) )
 
-class WlTFtpDeviceRetrievingOutputFromCommandException(WlTFtpDeviceException):
+class WlTFtpDeviceRetrievingOutputFromCommandError(WlTFtpDeviceError):
     def __init__(self, msg):
-        WlTFtpDeviceException.__init__(self, msg)
+        WlTFtpDeviceError.__init__(self, msg)
 

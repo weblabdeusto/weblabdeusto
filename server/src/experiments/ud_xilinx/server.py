@@ -18,14 +18,14 @@
 from voodoo.gen.caller_checker import caller_check
 from voodoo.log import logged
 from voodoo.override import Override
-import experiments.ud_xilinx.exc as UdXilinxExperimentExceptions
+import experiments.ud_xilinx.exc as UdXilinxExperimentErrors
 from experiments.ud_xilinx.command_senders import UdXilinxCommandSender
 from experiments.ud_xilinx.programmers import UdXilinxProgrammer
 import os
 import tempfile
 import voodoo.log as log
 import weblab.data.server_type as ServerType
-import weblab.experiment.exc as ExperimentExceptions
+import weblab.experiment.exc as ExperimentErrors
 import weblab.experiment.experiment as Experiment
 import weblab.experiment.util as ExperimentUtil
 import weblab.experiment.devices.xilinx_impact.devices as XilinxDevices
@@ -76,7 +76,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         if len(devices) == 1:
             return devices[0], XilinxImpact.create(devices[0], self._cfg_manager)
         else:
-            raise UdXilinxExperimentExceptions.InvalidXilinxDeviceException(device_name)
+            raise UdXilinxExperimentErrors.InvalidXilinxDeviceError(device_name)
 
     def _load_programmer(self):
         device_name = self._cfg_manager.get_value('xilinx_device_to_program')
@@ -152,7 +152,7 @@ class UdXilinxExperiment(Experiment.Experiment):
                 UdXilinxExperiment,
                 log.level.Debug
             )
-            raise ExperimentExceptions.SendingFileFailureException(
+            raise ExperimentErrors.SendingFileFailureError(
                     "Error sending file to device: %s" % e
                 )
         self._clear()
@@ -161,7 +161,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         try:
             self._command_sender.send_command("CleanInputs")
         except Exception as e:
-            raise ExperimentExceptions.SendingCommandFailureException(
+            raise ExperimentErrors.SendingCommandFailureError(
                 "Error sending command to device: %s" % e
             )
 
@@ -206,6 +206,6 @@ class UdXilinxExperiment(Experiment.Experiment):
                     command = command.replace(command[-1], str(9 - int(command[-1])))
             self._command_sender.send_command(command)
         except Exception as e:
-            raise ExperimentExceptions.SendingCommandFailureException(
+            raise ExperimentErrors.SendingCommandFailureError(
                     "Error sending command to device: %s" % e
                 )

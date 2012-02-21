@@ -22,8 +22,8 @@ import weblab.login.db.manager as DatabaseManager
 import weblab.login.comm.server as LoginFacadeServer
 import weblab.login.comm.web_server as WebFacadeServer
 import weblab.data.server_type as ServerType
-import weblab.login.exc as LoginExceptions
-import weblab.db.exc as DbExceptions
+import weblab.login.exc as LoginErrors
+import weblab.db.exc as DbErrors
 import weblab.db.session as DbSession
 import weblab.comm.context as RemoteFacadeContext
 
@@ -70,8 +70,8 @@ class LoginServer(object):
         """ do_login(username, password) -> SessionId
 
         raises (
-            LoginExceptions.UnableToCompleteOperationException,
-            LoginExceptions.InvalidCredentialsException
+            LoginErrors.UnableToCompleteOperationError,
+            LoginErrors.InvalidCredentialsError
         )
         """
         db_session_id = self._validate_local_user(username, password)
@@ -83,7 +83,7 @@ class LoginServer(object):
         if isinstance(db_session_id, DbSession.InvalidDatabaseSessionId):
             log.log( LoginServer, log.level.Warning, "Invalid username: %s" % username )
             time.sleep(LOGIN_FAILED_DELAY)
-            raise LoginExceptions.InvalidCredentialsException(
+            raise LoginErrors.InvalidCredentialsError(
                         "Invalid username or password!"
                     )
         elif isinstance(db_session_id, DbSession.NotAuthenticatedSessionId):
@@ -94,7 +94,7 @@ class LoginServer(object):
                     break
                 log.log( LoginServer, log.level.Warning, "Username: %s with user_auth %s: FAIL" % (username, user_auth) )
             else :
-                raise LoginExceptions.InvalidCredentialsException(
+                raise LoginErrors.InvalidCredentialsError(
                     "Invalid username or password!"
                 )
         return db_session_id
@@ -116,19 +116,19 @@ class LoginServer(object):
         # It's a valid external user, book it if there is a user linked
         try:
             db_session_id = self._db_manager.check_external_credentials(external_user_id, system)
-        except DbExceptions.DbUserNotFoundException:
-            raise LoginExceptions.InvalidCredentialsException("%s User ID not found: %s" % (system, external_user_id))
+        except DbErrors.DbUserNotFoundError:
+            raise LoginErrors.InvalidCredentialsError("%s User ID not found: %s" % (system, external_user_id))
 
         return self._reserve_session(db_session_id)
 
     def _validate_remote_user(self, system, credentials):
         system = system.upper()
         if not system in self._external_id_providers:
-            raise LoginExceptions.LoginException("Invalid system!")
+            raise LoginErrors.LoginError("Invalid system!")
 
         external_user_id = self._external_id_providers[system].get_user_id(credentials)
         if external_user_id == "":
-            raise LoginExceptions.InvalidCredentialsException(
+            raise LoginErrors.InvalidCredentialsError(
                 "Invalid username or password!"
             )
         external_user = self._external_id_providers[system].get_user(credentials)
@@ -138,11 +138,11 @@ class LoginServer(object):
     @logged(log.level.Info, except_for="password")
     def grant_external_credentials(self, username, password, system, credentials):
         if not self._cfg_manager.get_value(LINKING_EXTERNAL_USERS, True):
-            raise LoginExceptions.LoginException("Linking external users not enabled!")
+            raise LoginErrors.LoginError("Linking external users not enabled!")
         not_linkable_users = self._cfg_manager.get_value(NOT_LINKABLE_USERS, [])
         for not_linkable_user in not_linkable_users:
             if username == not_linkable_user:
-                raise LoginExceptions.LoginException("Username not linkable!")
+                raise LoginErrors.LoginError("Username not linkable!")
 
         local_db_session_id  = self._validate_local_user(username, password)
         external_user_id, _ = self._validate_remote_user(system, credentials)
@@ -153,10 +153,10 @@ class LoginServer(object):
     @logged(log.level.Info)
     def create_external_user(self, system, credentials):
         if not self._cfg_manager.get_value(CREATING_EXTERNAL_USERS, True):
-            raise LoginExceptions.LoginException("Creating external users not enabled!")
+            raise LoginErrors.LoginError("Creating external users not enabled!")
         external_user_id, external_user = self._validate_remote_user(system, credentials)
         if external_user is None:
-            raise LoginExceptions.LoginException("Creation of external user not supported by delegated login system!")
+            raise LoginErrors.LoginError("Creation of external user not supported by delegated login system!")
         group_names = self._cfg_manager.get_value(DEFAULT_GROUPS, [])
         self._db_manager.create_external_user(external_user, external_user_id, system, group_names)
         return self.extensible_login(system, credentials)

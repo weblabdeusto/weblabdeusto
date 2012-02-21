@@ -21,7 +21,7 @@ from voodoo.dbutil import get_sqlite_dbname
 import voodoo.sessions.db_lock_data as DbData
 
 import voodoo.sessions.db_lock as DbLock
-import voodoo.sessions.exc as SessionExceptions
+import voodoo.sessions.exc as SessionErrors
 
 import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
@@ -78,7 +78,7 @@ class DbLockTestCase(unittest.TestCase):
     def test_lock_failing(self):
         self.locker.acquire(SESSION_ID1)
         self.assertRaises(
-            SessionExceptions.SessionAlreadyAcquiredException,
+            SessionErrors.SessionAlreadyAcquiredError,
             self.locker.acquire,
             SESSION_ID1
         )
@@ -86,7 +86,7 @@ class DbLockTestCase(unittest.TestCase):
     def test_acquire_lock_failing(self):
         self.locker.acquire(SESSION_ID1)
         self.assertRaises(
-            SessionExceptions.SessionAlreadyAcquiredException,
+            SessionErrors.SessionAlreadyAcquiredError,
             self.locker.acquire,
             SESSION_ID1
         )

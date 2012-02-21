@@ -15,12 +15,12 @@
 
 from voodoo import log
 from voodoo.gen.caller_checker import caller_check
-from voodoo.gen.exceptions.locator import LocatorExceptions
+from voodoo.gen.exceptions.locator import LocatorErrors
 from voodoo.log import logged
 from voodoo.sessions import session_type as SessionType, manager as SessionManager, session_id as SessionId
 from voodoo.sessions.checker import check_session
 from weblab.data import server_type as ServerType
-import weblab.proxy.exc as ProxyExceptions
+import weblab.proxy.exc as ProxyErrors
 from weblab.proxy import session_handler as ProxySessionHandler
 from weblab.translator.translators import StoresEverythingTranslator, StoresNothingTranslator, StoresEverythingExceptForFilesTranslator
 
@@ -34,7 +34,7 @@ DEFAULT_WEBLAB_PROXY_SERVER_SESSION_POOL_ID         = "ProxyServer"
 DEFAULT_WEBLAB_PROXY_SERVER_DEFAULT_TRANSLATOR_NAME = "StoresEverythingTranslator"
 
 check_session_params = (
-        ProxyExceptions.InvalidReservationIdException,
+        ProxyErrors.InvalidReservationIdError,
         "Proxy Server"
     )
 
@@ -50,7 +50,7 @@ def access_enabled_required(func):
     """
     def wrapped(self, session, *args, **kargs):
         if not session['access_enabled']:
-            raise ProxyExceptions.AccessDisabledException("Access is disabled for the provided reservation_id in this Proxy: %s" % session['reservation_id'])
+            raise ProxyErrors.AccessDisabledError("Access is disabled for the provided reservation_id in this Proxy: %s" % session['reservation_id'])
         return func(self, session, *args, **kargs)
     wrapped.__name__ = func.__name__
     wrapped.__doc__ = func.__doc__
@@ -102,19 +102,19 @@ class ProxyServer(object):
         if session_type in SessionType.getSessionTypeValues():
             return SessionManager.SessionManager(self._cfg_manager, session_type, session_pool_id)
         else:
-            raise ProxyExceptions.NotASessionTypeException('Not a session type: %s' % session_type)
+            raise ProxyErrors.NotASessionTypeError('Not a session type: %s' % session_type)
 
     def _read_default_translator_klazz(self):
         klazz_name = self._cfg_manager.get_value(WEBLAB_PROXY_SERVER_DEFAULT_TRANSLATOR_NAME, DEFAULT_WEBLAB_PROXY_SERVER_DEFAULT_TRANSLATOR_NAME)
         if klazz_name not in DEFAULT_TRANSLATORS:
-            raise ProxyExceptions.InvalidDefaultTranslatorNameException("Provided: %s. Valids: %s" % (klazz_name, DEFAULT_TRANSLATORS.keys()))
+            raise ProxyErrors.InvalidDefaultTranslatorNameError("Provided: %s. Valids: %s" % (klazz_name, DEFAULT_TRANSLATORS.keys()))
         return DEFAULT_TRANSLATORS[klazz_name]
 
     def _find_translator(self, experiment_unique_id):
         try:
             translator = self._locator.get_server(ServerType.Translator, restrictions=experiment_unique_id)
             is_default = False
-        except LocatorExceptions.NoServerFoundException:
+        except LocatorErrors.NoServerFoundError:
             translator = self._create_default_translator()
             is_default = True
         return translator, is_default

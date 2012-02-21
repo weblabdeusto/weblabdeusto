@@ -120,7 +120,7 @@ class StandardBotUser(BotUser):
             if len(experiments_found) > 0:
                 reservation = self.bot.do_reserve_experiment(experiments_found[0].to_experiment_id(), "{}", "{}")
             else:
-                raise Exceptions.ExperimentDoesNotExistException("Desired experiment doesn't exist: %s." % self.experiment_name)
+                raise Exceptions.ExperimentDoesNotExistError("Desired experiment doesn't exist: %s." % self.experiment_name)
 
             while isinstance(reservation, Reservation.WaitingReservation) or isinstance(reservation, Reservation.WaitingConfirmationReservation):
                 if isinstance(reservation, Reservation.WaitingReservation):
@@ -132,7 +132,7 @@ class StandardBotUser(BotUser):
 
             if not isinstance(reservation, Reservation.ConfirmedReservation):
                 exc = self.bot.calls[-1].exception
-                raise Exceptions.UserAssertionException("At this point, it should be a ConfirmedReservation. Found: <%s>; <%s>" % (reservation, exc) )
+                raise Exceptions.UserAssertionError("At this point, it should be a ConfirmedReservation. Found: <%s>; <%s>" % (reservation, exc) )
             self.bot.do_send_file(self.program,"program")
 
             #for _ in xrange(10):

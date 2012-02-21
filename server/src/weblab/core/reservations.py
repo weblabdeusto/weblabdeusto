@@ -62,7 +62,7 @@ class Reservation(object):
         elif status.status == WSS.WebLabSchedulingStatus.POST_RESERVATION:
             reservation = PostReservationReservation(status.reservation_id, status.finished, status.initial_data, status.end_data)
         else:
-            raise coreExc.InvalidReservationStatusException( "Invalid reservation status.status: '%s'" % status.status)
+            raise coreExc.InvalidReservationStatusError( "Invalid reservation status.status: '%s'" % status.status)
         return reservation
 
     @staticmethod
@@ -78,7 +78,7 @@ class Reservation(object):
         elif status_text == Reservation.POST_RESERVATION:
             reservation = PostReservationReservation(reservation_id, finished, initial_data, end_data)
         else:
-            raise coreExc.InvalidReservationStatusException("Invalid reservation status_text: '%s'." % ( status_text ) )
+            raise coreExc.InvalidReservationStatusError("Invalid reservation status_text: '%s'." % ( status_text ) )
         return reservation
 
     # XXX TODO: a new state would be required, but I don't have to deal with that

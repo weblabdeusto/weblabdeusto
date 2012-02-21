@@ -13,54 +13,54 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import voodoo.gen.exceptions.exceptions as genExceptions
+import voodoo.gen.exceptions.exceptions as genErrors
 
-class ProtocolException(genExceptions.GeneratorException):
+class ProtocolError(genErrors.GeneratorError):
     def __init__(self,*args,**kargs):
-        genExceptions.GeneratorException.__init__(self,*args,**kargs)
+        genErrors.GeneratorError.__init__(self,*args,**kargs)
 
 # Generic exceptions
 
-class RemoteException(ProtocolException):
+class RemoteError(ProtocolError):
     """ Every exception generated at protocol level must implement this class. This
     way, the locator systems knows whether the exception was propagated from the server
     or it was generated due to a communication problem (since it will try to call the
     server again if it's the last case)
     """
     def __init__(self, msg, exception,*args,**kargs):
-        ProtocolException.__init__(self,msg,*args,**kargs)
+        ProtocolError.__init__(self,msg,*args,**kargs)
         self.msg = msg
         self.cause_exception = exception
 
-class UnknownRemoteException(RemoteException):
+class UnknownRemoteError(RemoteError):
     def __init__(self, msg, exception, *args, **kargs):
-        RemoteException.__init__(self,msg,exception,*args,**kargs)
+        RemoteError.__init__(self,msg,exception,*args,**kargs)
 
 # Client Exceptions
 
-class ClientProtocolException(ProtocolException):
+class ClientProtocolError(ProtocolError):
     def __init__(self,*args,**kargs):
-        ProtocolException.__init__(self,*args,**kargs)
+        ProtocolError.__init__(self,*args,**kargs)
 
-class ClientCreationException(ClientProtocolException):
+class ClientCreationError(ClientProtocolError):
     def __init__(self,*args,**kargs):
-        ClientProtocolException.__init__(self,*args,**kargs)
+        ClientProtocolError.__init__(self,*args,**kargs)
 
-class ClientInstanciationException(ClientCreationException):
+class ClientInstanciationError(ClientCreationError):
     def __init__(self,*args,**kargs):
-        ClientCreationException.__init__(self,*args,**kargs)
+        ClientCreationError.__init__(self,*args,**kargs)
 
-class ClientClassCreationException(ClientCreationException):
+class ClientClassCreationError(ClientCreationError):
     def __init__(self,*args,**kargs):
-        ClientCreationException.__init__(self,*args,**kargs)
+        ClientCreationError.__init__(self,*args,**kargs)
 
 # Server Exceptions
 
-class ServerProtocolException(ProtocolException):
+class ServerProtocolError(ProtocolError):
     def __init__(self,*args,**kargs):
-        ProtocolException.__init__(self,*args,**kargs)
+        ProtocolError.__init__(self,*args,**kargs)
 
-class InvalidServerParameterException(ServerProtocolException):
+class InvalidServerParameterError(ServerProtocolError):
     def __init__(self,*args,**kargs):
-        ServerProtocolException.__init__(self,*args,**kargs)
+        ServerProtocolError.__init__(self,*args,**kargs)
 

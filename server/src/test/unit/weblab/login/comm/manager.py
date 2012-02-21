@@ -32,9 +32,9 @@ import weblab.comm.codes as RFCodes
 import weblab.comm.manager as RFM
 import weblab.login.comm.codes as LoginRFCodes
 
-import weblab.login.exc as LoginExceptions
-import weblab.exc as WebLabExceptions
-import voodoo.gen.exceptions.exceptions as VoodooExceptions
+import weblab.login.exc as LoginErrors
+import weblab.exc as WebLabErrors
+import voodoo.gen.exceptions.exceptions as VoodooErrors
 
 class MockLogin(object):
     def __init__(self):
@@ -117,15 +117,15 @@ class LoginFacadeManagerTestCase(unittest.TestCase):
             self.cfg_manager._set_value(RFM.DEBUG_MODE, False)
 
             self._test_exception(method, args,
-                            LoginExceptions.LoginException, MESSAGE,
+                            LoginErrors.LoginError, MESSAGE,
                             'ZSI:' + LoginRFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)
 
             self._test_exception(method, args,
-                            WebLabExceptions.WebLabException, MESSAGE,
+                            WebLabErrors.WebLabError, MESSAGE,
                             'ZSI:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)
 
             self._test_exception(method, args,
-                            VoodooExceptions.GeneratorException, MESSAGE,
+                            VoodooErrors.GeneratorError, MESSAGE,
                             'ZSI:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)
 
             self._test_exception(method, args,
@@ -136,15 +136,15 @@ class LoginFacadeManagerTestCase(unittest.TestCase):
             self.cfg_manager._set_value(RFM.DEBUG_MODE, True)
 
             self._test_exception(method, args,
-                            LoginExceptions.LoginException, MESSAGE,
+                            LoginErrors.LoginError, MESSAGE,
                             'ZSI:' + LoginRFCodes.LOGIN_SERVER_EXCEPTION_CODE, MESSAGE)
 
             self._test_exception(method, args,
-                            WebLabExceptions.WebLabException, MESSAGE,
+                            WebLabErrors.WebLabError, MESSAGE,
                             'ZSI:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, MESSAGE)
 
             self._test_exception(method, args,
-                            VoodooExceptions.GeneratorException, MESSAGE,
+                            VoodooErrors.GeneratorError, MESSAGE,
                             'ZSI:' + RFCodes.VOODOO_GENERAL_EXCEPTION_CODE, MESSAGE)
 
             self._test_exception(method, args,
@@ -158,7 +158,7 @@ class LoginFacadeManagerTestCase(unittest.TestCase):
             MESSAGE = 'whatever the message'
 
             self._test_exception('login', (expected_username, expected_password, ),
-                            LoginExceptions.InvalidCredentialsException, MESSAGE,
+                            LoginErrors.InvalidCredentialsError, MESSAGE,
                             'ZSI:' + LoginRFCodes.CLIENT_INVALID_CREDENTIALS_EXCEPTION_CODE, MESSAGE)
 
 
@@ -168,7 +168,7 @@ class LoginFacadeManagerTestCase(unittest.TestCase):
             MESSAGE = 'whatever the message'
 
             self._test_exception('login_based_on_other_credentials', ('facebook', '(my credentials)', ),
-                            LoginExceptions.InvalidCredentialsException, MESSAGE,
+                            LoginErrors.InvalidCredentialsError, MESSAGE,
                             'ZSI:' + LoginRFCodes.CLIENT_INVALID_CREDENTIALS_EXCEPTION_CODE, MESSAGE)
 
 

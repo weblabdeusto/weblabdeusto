@@ -15,53 +15,53 @@
 import weblab.exc as wlExc
 
 #
-# from WebLabException
+# from WebLabError
 #
 
-class WebLabCoreException(wlExc.WebLabException):
-    pass
-
-#
-# from WebLabCoreException
-#
-
-class SessionNotFoundException(WebLabCoreException):
-    pass
-
-class NoCurrentReservationException(WebLabCoreException):
-    pass
-
-class FailedToInteractException(WebLabCoreException):
-    pass
-
-class FailedToSendFileException(FailedToInteractException):
-    pass
-
-class FailedToSendCommandException(FailedToInteractException):
-    pass
-
-class FailedToFreeReservationException(WebLabCoreException):
-    pass
-
-class CoordinationConfigurationParsingException(WebLabCoreException):
-    pass
-
-class ReservationFailedException(WebLabCoreException):
+class WebLabCoreError(wlExc.WebLabError):
     pass
 
 #
-# from ReservationFailedException
+# from WebLabCoreError
 #
 
-class UnknownExperimentIdException(ReservationFailedException):
+class SessionNotFoundError(WebLabCoreError):
     pass
 
-class NoAvailableExperimentFoundException(ReservationFailedException):
+class NoCurrentReservationError(WebLabCoreError):
     pass
 
-class InvalidReservationStatusException(ReservationFailedException):
+class FailedToInteractError(WebLabCoreError):
     pass
 
-class NotASessionTypeException(ReservationFailedException):
+class FailedToSendFileError(FailedToInteractError):
+    pass
+
+class FailedToSendCommandError(FailedToInteractError):
+    pass
+
+class FailedToFreeReservationError(WebLabCoreError):
+    pass
+
+class CoordinationConfigurationParsingError(WebLabCoreError):
+    pass
+
+class ReservationFailedError(WebLabCoreError):
+    pass
+
+#
+# from ReservationFailedError
+#
+
+class UnknownExperimentIdError(ReservationFailedError):
+    pass
+
+class NoAvailableExperimentFoundError(ReservationFailedError):
+    pass
+
+class InvalidReservationStatusError(ReservationFailedError):
+    pass
+
+class NotASessionTypeError(ReservationFailedError):
     pass
 

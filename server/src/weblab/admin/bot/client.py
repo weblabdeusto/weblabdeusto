@@ -42,8 +42,8 @@ except ImportError:
 else:
     ZSI_AVAILABLE = True
 
-from exc import InvalidUserOrPasswordException
-from exc import ListOfExperimentsIsEmptyException
+from exc import InvalidUserOrPasswordError
+from exc import ListOfExperimentsIsEmptyError
 
 class Call(object):
 
@@ -162,7 +162,7 @@ class AbstractBot(object):
         if self.session_id is not None:
             return self.session_id
         else:
-            raise InvalidUserOrPasswordException("Unable to login with username=%s and password=%s" % (self.username, self.password))
+            raise InvalidUserOrPasswordError("Unable to login with username=%s and password=%s" % (self.username, self.password))
 
     @logged
     def do_list_experiments(self):
@@ -171,7 +171,7 @@ class AbstractBot(object):
         if len(experiments) > 0:
             return experiments
         else:
-            raise ListOfExperimentsIsEmptyException("Received list of experiments is empty")
+            raise ListOfExperimentsIsEmptyError("Received list of experiments is empty")
 
     @logged
     def do_reserve_experiment(self, experiment_id, client_initial_data, consumer_data):

@@ -15,21 +15,21 @@
 
 import weblab.core.exc as coreExc
 
-class CoordinatorException(coreExc.WebLabCoreException):
+class CoordinatorError(coreExc.WebLabCoreError):
     pass
 
-class ExperimentNotFoundException(CoordinatorException):
+class ExperimentNotFoundError(CoordinatorError):
     pass
 
-class ExpiredSessionException(CoordinatorException):
+class ExpiredSessionError(CoordinatorError):
     pass
 
-class InvalidExperimentConfigException(CoordinatorException):
+class InvalidExperimentConfigError(CoordinatorError):
     pass
 
-class UnregisteredSchedulingSystemException(CoordinatorException):
+class UnregisteredSchedulingSystemError(CoordinatorError):
     pass
 
-class NoSchedulerFoundException(CoordinatorException):
+class NoSchedulerFoundError(CoordinatorError):
     pass
 

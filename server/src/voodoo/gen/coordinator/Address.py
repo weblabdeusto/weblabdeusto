@@ -15,7 +15,7 @@
 
 from abc import ABCMeta, abstractmethod
 
-import voodoo.gen.exceptions.coordinator.AccessExceptions as AccessExceptions
+import voodoo.gen.exceptions.coordinator.AccessErrors as AccessErrors
 
 from voodoo.override import Override
 import re
@@ -82,7 +82,7 @@ class IpBasedAddress(Address):
         Address.__init__(self)
         o = re.match(self.REGEX_FORMAT,address)
         if o is None:
-            raise AccessExceptions.AccessInvalidIpBasedFormat(
+            raise AccessErrors.AccessInvalidIpBasedFormat(
                 'Invalid IP format: %s. Current Format: %s'
                 % ( address, self.FORMAT)
             )
@@ -93,7 +93,7 @@ class IpBasedAddress(Address):
         self._ip_address, self._port, self._net_name = groups
         self._port = int(self.port)
         if self._port > 65535:
-            raise AccessExceptions.AccessInvalidPort(
+            raise AccessErrors.AccessInvalidPort(
                     'Invalid port: %s' % self._port
                 )
         self._address = self._ip_address + ':' + str(self._port)

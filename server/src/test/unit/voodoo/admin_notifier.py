@@ -21,7 +21,7 @@ import test.unit.configuration as configuration_module
 
 import voodoo.admin_notifier as AdminNotifier
 import voodoo.configuration as ConfigurationManager
-import voodoo.configuration as ConfigurationExceptions
+import voodoo.configuration as ConfigurationErrors
 
 class AdminNotifierFake(AdminNotifier.AdminNotifier):
 
@@ -50,7 +50,7 @@ class ConfigurationManagerFake(object):
         elif other != 'lalala':
             return other
         else:
-            raise ConfigurationExceptions.KeyNotFoundException(
+            raise ConfigurationErrors.KeyNotFoundError(
                 'lalalaa',
                 'lelele'
             )

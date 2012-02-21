@@ -26,7 +26,7 @@ import voodoo.gen.protocols.protocols as Protocols
 import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
 
-import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
+import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 
 class FakeClientClass(object):
     def __init__(self, *args):
@@ -82,14 +82,14 @@ class SOAPAddressTestCase(unittest.TestCase):
             SOAPAddress.ClientSOAP = fake_client_soap_module
 
             self.assertRaises(
-                    ProtocolExceptions.ClientClassCreationException,
+                    ProtocolErrors.ClientClassCreationError,
                     addr.create_client,
                     ('method1','method2')
                 )
 
             FakeClientSOAPModule.fail = False
             self.assertRaises(
-                    ProtocolExceptions.ClientInstanciationException,
+                    ProtocolErrors.ClientInstanciationError,
                     addr.create_client,
                     ('method1','method2')
                 )

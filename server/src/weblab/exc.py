@@ -12,7 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
-class WebLabException(Exception):
+class WebLabError(Exception):
     def __init__(self,*args,**kargs):
         Exception.__init__(self,*args,**kargs)
 

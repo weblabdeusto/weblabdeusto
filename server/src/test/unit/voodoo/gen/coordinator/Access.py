@@ -19,7 +19,7 @@ import voodoo.gen.protocols.protocols as Protocols
 import voodoo.gen.coordinator.Access as Access
 import voodoo.gen.coordinator.AccessLevel as AccessLevel
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
-import voodoo.gen.exceptions.coordinator.AccessExceptions as AccessExceptions
+import voodoo.gen.exceptions.coordinator.AccessErrors as AccessErrors
 
 import voodoo.gen.protocols.Direct.Network as DirectNetwork
 import voodoo.gen.protocols.Direct.Address as DirectAddress
@@ -74,9 +74,9 @@ class AccessTestCase(unittest.TestCase):
         ip_addr3 = '192.168.2.1:8080@net2'
 
         self.assertRaises(
-            AccessExceptions.AccessNotAnIpAddressException,
+            AccessErrors.AccessNotAnIpAddressError,
             SOAPNetwork.SOAPNetwork,
-            'not an IpAddressException'
+            'not an IpAddressError'
         )
 
         addr1 = SOAPAddress.Address(ip_addr1)

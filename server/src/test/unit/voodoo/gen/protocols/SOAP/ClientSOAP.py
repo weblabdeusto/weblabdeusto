@@ -18,8 +18,8 @@ import unittest
 from test.util.optional_modules import OptionalModuleTestCase
 import voodoo.gen.protocols.SOAP.ClientSOAP as ClientSOAP
 import voodoo.gen.protocols.SOAP.ServerSOAP as ServerSOAP
-import voodoo.gen.protocols.SOAP.Exceptions as Exceptions
-import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
+import voodoo.gen.protocols.SOAP.Errors as Exceptions
+import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 
 try:
     import SOAPpy
@@ -88,7 +88,7 @@ class ClientSOAPTestCase(unittest.TestCase):
                 )
 
             self.assertRaises(
-                    ProtocolExceptions.UnknownRemoteException,
+                    ProtocolErrors.UnknownRemoteError,
                     newfunctions[3],
                     fake
                 )

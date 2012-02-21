@@ -18,14 +18,14 @@ import unittest
 import experiments.ud_pic.commands as UdPicBoardCommand
 from experiments.ud_pic.commands import ChangeSwitchCommand, SetPulseCommand, AdjustCommand, WriteCommand
 
-import experiments.ud_pic.exc as UdPicExperimentExceptions
+import experiments.ud_pic.exc as UdPicExperimentErrors
 
 class UdPicBoardCommandTestCase(unittest.TestCase):
     def test_ud_pic_board(self):
         UdPicBoardCommand.UdPicBoardCommand("PULSE=3 1000, SWITCH=0 ON, ADJUST=0 0.5")
 
         self.assertRaises(
-                UdPicExperimentExceptions.InvalidUdPicBoardCommandException,
+                UdPicExperimentErrors.InvalidUdPicBoardCommandError,
                 UdPicBoardCommand.UdPicBoardCommand,
                 "foo"
             )

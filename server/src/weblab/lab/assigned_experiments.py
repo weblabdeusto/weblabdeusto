@@ -16,7 +16,7 @@
 
 from weblab.data.experiments import ExperimentInstanceId
 import weblab.lab.experiment_handler as ExperimentHandler
-import weblab.lab.exc as LaboratoryExceptions
+import weblab.lab.exc as LaboratoryErrors
 
 class AssignedExperiments(object):
     def __init__(self):
@@ -46,7 +46,7 @@ class AssignedExperiments(object):
 
         by_instance = by_experiment.get( exp_inst_id.inst_name )
         if by_instance != None:
-            raise LaboratoryExceptions.ExperimentAlreadyFoundException(
+            raise LaboratoryErrors.ExperimentAlreadyFoundError(
                 "Experiment instance already found in server"
             )
 
@@ -73,7 +73,7 @@ class AssignedExperiments(object):
     def free_experiment(self, experiment_instance_id):
         exp_handler = self._retrieve_experiment_handler( experiment_instance_id )
         if not exp_handler.free():
-            raise LaboratoryExceptions.AlreadyFreedExperimentException( "Experiment was already free" )
+            raise LaboratoryErrors.AlreadyFreedExperimentError( "Experiment was already free" )
 
     def get_coord_address(self, experiment_instance_id):
         exp_handler = self._retrieve_experiment_handler( experiment_instance_id )
@@ -102,7 +102,7 @@ class AssignedExperiments(object):
         try:
             return self._experiments[cat_name][exp_name][inst_name]
         except KeyError:
-            raise LaboratoryExceptions.ExperimentNotFoundException( "Experiment instance not found! %s" % experiment_instance_id )
+            raise LaboratoryErrors.ExperimentNotFoundError( "Experiment instance not found! %s" % experiment_instance_id )
 
     def get_is_up_and_running_handlers(self, experiment_instance_id):
         exp_handler = self._retrieve_experiment_handler( experiment_instance_id )

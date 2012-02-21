@@ -14,7 +14,7 @@
 #
 
 from voodoo.override import Override
-from experiments.ud_xilinx.exc import InvalidDeviceToSendCommandsException
+from experiments.ud_xilinx.exc import InvalidDeviceToSendCommandsError
 from weblab.experiment.devices.http import HttpDevice
 from weblab.experiment.devices.serial_port import SerialPort
 from experiments.ud_xilinx import command as UdBoardCommand
@@ -38,7 +38,7 @@ class UdXilinxCommandSender(object):
         elif device_name == 'SerialPort':
             return SerialPortCommandSender(cfg_manager)
         else:
-            raise InvalidDeviceToSendCommandsException(device_name)
+            raise InvalidDeviceToSendCommandsError(device_name)
 
     def send_command(self, command):
         raise NotImplementedError("This method must be overriden in a subclass.")

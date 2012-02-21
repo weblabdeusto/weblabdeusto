@@ -27,7 +27,7 @@ from voodoo.lock import locked
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.gen.coordinator.CoordinationInformationMapper as CoordinationInformationMapper
 
-import voodoo.gen.exceptions.coordinator.CoordinatorExceptions as CoordExceptions
+import voodoo.gen.exceptions.coordinator.CoordinatorErrors as CoordErrors
 
 #
 # In this file, the following classes are defined
@@ -288,7 +288,7 @@ class CoordInstance(object):
     @locked('_servers_write_lock')
     def _append_accesses(self,server_name,accesses):
         if not self._servers.has_key(server_name):
-            raise CoordExceptions.CoordServerNotFound(
+            raise CoordErrors.CoordServerNotFound(
                         'Server %s not found'
                         % server_name
                     )
@@ -298,7 +298,7 @@ class CoordInstance(object):
     @locked('_servers_write_lock')
     def _set_status(self,server_name,new_status):
         if not self._servers.has_key(server_name):
-            raise CoordExceptions.CoordServerNotFound(
+            raise CoordErrors.CoordServerNotFound(
                         'Server %s not found'
                         % server_name
                     )
@@ -312,14 +312,14 @@ class CoordInstance(object):
         elif isinstance(name,CoordAddress.CoordAddress) and name.is_server():
             key = name.server_id
         else:
-            raise CoordExceptions.CoordInvalidKey(
+            raise CoordErrors.CoordInvalidKey(
                 "Invalid key: %s. Only strings and server CoordAddress are allowed"
                 % name
             )
         if self._servers.has_key(key):
             return self._servers[key]
         else:
-            raise CoordExceptions.CoordServerNotFound(
+            raise CoordErrors.CoordServerNotFound(
                     'server %s not found in %s' %
                     (
                         name,
@@ -390,7 +390,7 @@ class CoordMachine(object):
     @locked('_instances_write_lock')
     def _add_new_server(self,instance_name,server_name,server_type,accesses,restrictions = ()):
         if not self._instances.has_key(instance_name):
-            raise CoordExceptions.CoordInstanceNotFound(
+            raise CoordErrors.CoordInstanceNotFound(
                 "Instance %s not found. Couldn't add server"
                 % instance_name
             )
@@ -405,7 +405,7 @@ class CoordMachine(object):
     @locked('_instances_write_lock')
     def _append_accesses(self, instance_name, server_name, accesses):
         if not self._instances.has_key(instance_name):
-            raise CoordExceptions.CoordInstanceNotFound(
+            raise CoordErrors.CoordInstanceNotFound(
                         'Instance %s not found'
                         % instance_name
                     )
@@ -418,7 +418,7 @@ class CoordMachine(object):
     @locked('_instances_write_lock')
     def _set_status(self, instance_name, server_name, new_status):
         if not self._instances.has_key(instance_name):
-            raise CoordExceptions.CoordInstanceNotFound(
+            raise CoordErrors.CoordInstanceNotFound(
                         'Instance %s not found'
                         % instance_name
                     )
@@ -459,7 +459,7 @@ class CoordMachine(object):
             try:
                 try:
                     instance = self._instances[other_instance.name]
-                except CoordExceptions.CoordInstanceNotFound:
+                except CoordErrors.CoordInstanceNotFound:
                     instance = self._add_new_instance(
                             other_instance.name
                         )
@@ -476,7 +476,7 @@ class CoordMachine(object):
             ):
             key = name.instance_id
         else:
-            raise CoordExceptions.CoordInvalidKey(
+            raise CoordErrors.CoordInvalidKey(
                 "Invalid key: %s. Only strings and server or instance CoordAddress are allowed"
                 % name
             )
@@ -485,7 +485,7 @@ class CoordMachine(object):
             if self._instances.has_key(key):
                 instance = self._instances[key]
             else:
-                raise CoordExceptions.CoordInstanceNotFound(
+                raise CoordErrors.CoordInstanceNotFound(
                         'Instance %s not found in %s' %
                         (
                             name,
@@ -563,7 +563,7 @@ class CoordinationMap(object):
     @locked('_machines_write_lock')
     def add_new_instance(self, machine_name, instance_name):
         if not self._machines.has_key(machine_name):
-            raise CoordExceptions.CoordMachineNotFound(
+            raise CoordErrors.CoordMachineNotFound(
                 "Machine %s not found. Couldn't add instance"
                 % machine_name
             )
@@ -581,7 +581,7 @@ class CoordinationMap(object):
         ):
         if not self._machines.has_key(machine_name):
             #TODO: testme (and all exceptions in this file)
-            raise CoordExceptions.CoordMachineNotFound(
+            raise CoordErrors.CoordMachineNotFound(
                 "Machine %s not found. Couldn't add instance"
                 % machine_name
             )
@@ -597,7 +597,7 @@ class CoordinationMap(object):
     @locked('_machines_write_lock')
     def append_accesses(self, machine_name, instance_name, server_name, accesses):
         if not self._machines.has_key(machine_name):
-            raise CoordExceptions.CoordMachineNotFound(
+            raise CoordErrors.CoordMachineNotFound(
                         'machine %s not found'
                         % machine_name
                     )
@@ -611,7 +611,7 @@ class CoordinationMap(object):
     @locked('_machines_write_lock')
     def set_status(self, machine_name, instance_name, server_name, new_status):
         if not self._machines.has_key(machine_name):
-            raise CoordExceptions.CoordMachineNotFound(
+            raise CoordErrors.CoordMachineNotFound(
                         'machine %s not found'
                         % machine_name
                     )
@@ -665,7 +665,7 @@ class CoordinationMap(object):
         elif isinstance(name,CoordAddress.CoordAddress):
             key = name.machine_id
         else:
-            raise CoordExceptions.CoordInvalidKey(
+            raise CoordErrors.CoordInvalidKey(
                 "Invalid key: %s. Only strings and CoordAddress are allowed"
                 % name
             )
@@ -674,7 +674,7 @@ class CoordinationMap(object):
             if self._machines.has_key(key):
                 machine = self._machines[key]
             else:
-                raise CoordExceptions.CoordMachineNotFound(
+                raise CoordErrors.CoordMachineNotFound(
                         'Machine %s not found' %
                         name
                 )
@@ -705,7 +705,7 @@ class CoordinationMap(object):
         which will provide the way to connect to that network.
         """
         if original_server.address is None:
-            raise CoordExceptions.CoordInvalidServer(
+            raise CoordErrors.CoordInvalidServer(
                     "Can't search original_server's address: %s"
                         % original_server
                 )
@@ -762,7 +762,7 @@ def _map_checker(func):
         self._map_read_lock.acquire()
         try:
             if self._map is None:
-                raise CoordExceptions.CoordMapNotInitialized(
+                raise CoordErrors.CoordMapNotInitialized(
                     'Map not initialized at %s' % self
                 )
         finally:
@@ -821,7 +821,7 @@ class CoordinationMapController(object):
         Loads current coordination map from "where".
         Right now, where should be a file object.
 
-        Can raise any voodoo.gen.exceptions.coordination.CoordMappingException
+        Can raise any voodoo.gen.exceptions.coordination.CoordMappingError
         exception
         """
         # This could be improved using get_machines, etc.

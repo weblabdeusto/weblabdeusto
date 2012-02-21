@@ -13,9 +13,9 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import voodoo.exc as VoodooExceptions
+import voodoo.exc as VoodooErrors
 
-class GeneratorException(VoodooExceptions.VoodooException):
+class GeneratorError(VoodooErrors.VoodooError):
     def __init__(self,*args,**kargs):
-        VoodooExceptions.VoodooException.__init__(self,*args,**kargs)
+        VoodooErrors.VoodooError.__init__(self,*args,**kargs)
 

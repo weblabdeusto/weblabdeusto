@@ -220,7 +220,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         reservation_id = methods.get_reservation_id.call(sess_id.id)
         methods.kickout_from_coordinator.call(reservation_id)
 
-        self.assertRaises( core_exc.NoCurrentReservationException, self.ups.get_reservation_status, reservation_session_id )
+        self.assertRaises( core_exc.NoCurrentReservationError, self.ups.get_reservation_status, reservation_session_id )
 
     def test_kickout_from_ups(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
@@ -228,7 +228,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
 
         methods.kickout_from_ups.call(sess_id.id)
 
-        self.assertRaises( core_exc.SessionNotFoundException,
+        self.assertRaises( core_exc.SessionNotFoundError,
                 self.ups.get_reservation_status, sess_id)
 
 class FakeLocator(object):

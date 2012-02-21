@@ -136,7 +136,7 @@ class Coordinator(object):
         for resource_type_name in scheduling_systems:
             scheduling_system, arguments = scheduling_systems[resource_type_name]
             if not scheduling_system in SCHEDULING_SYSTEMS:
-                raise CoordExc.UnregisteredSchedulingSystemException("Unregistered scheduling system: %r" % scheduling_system)
+                raise CoordExc.UnregisteredSchedulingSystemError("Unregistered scheduling system: %r" % scheduling_system)
             SchedulingSystemClass = SCHEDULING_SYSTEMS[scheduling_system]
 
             generic_scheduler_arguments = Scheduler.GenericSchedulerArguments(
@@ -259,7 +259,7 @@ class Coordinator(object):
         experiment_id_str = experiment_id.to_weblab_str()
         aggregator = self.aggregators.get(experiment_id_str)
         if aggregator is None:
-            raise CoordExc.ExperimentNotFoundException("Could not find scheduler aggregator associated to experiment id %s." % (experiment_id_str))
+            raise CoordExc.ExperimentNotFoundError("Could not find scheduler aggregator associated to experiment id %s." % (experiment_id_str))
         return aggregator
 
 
@@ -301,7 +301,7 @@ class Coordinator(object):
             try:
                 aggregator = self._get_scheduler_aggregator_per_reservation(reservation_id)
                 best_reservation_status = aggregator.get_reservation_status(reservation_id)
-            except CoordExc.CoordinatorException:
+            except CoordExc.CoordinatorError:
                 # The reservation_id may expire since we called list_sessions,
                 # so if there is a coordinator exception we just skip this
                 # reservation_id
@@ -426,7 +426,7 @@ class Coordinator(object):
             aggregator = self._get_scheduler_aggregator_per_reservation(reservation_id_without_route)
             return aggregator.get_reservation_status(reservation_id_without_route)
 
-        except CoordExc.ExpiredSessionException:
+        except CoordExc.ExpiredSessionError:
             reservation_status = self.post_reservation_data_manager.find(reservation_id_without_route)
             if reservation_status is not None:
                 return reservation_status
@@ -507,7 +507,7 @@ class Coordinator(object):
             current_status = self.get_reservation_status(reservation_id)
             if not isinstance(current_status, (coord_status.LocalReservedStatus, coord_status.RemoteReservedStatus)):
                 return
-        except CoordExc.CoordinatorException:
+        except CoordExc.CoordinatorError:
             return
 
         # 0: don't ask again
@@ -592,7 +592,7 @@ class Coordinator(object):
                     session.commit()
                 finally:
                     session.close()
-            except CoordExc.ExpiredSessionException:
+            except CoordExc.ExpiredSessionError:
                 log.log(Coordinator, log.level.Info, "Ignore finish_reservation(%r), given that it had already expired" % reservation_id)
             finally:
                 self.reservations_manager.clean_deletion(reservation_id)

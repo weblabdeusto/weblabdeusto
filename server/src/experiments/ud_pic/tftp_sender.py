@@ -16,7 +16,7 @@
 import tempfile
 import os
 
-import experiments.ud_pic.exc as UdPicExperimentExceptions
+import experiments.ud_pic.exc as UdPicExperimentErrors
 
 class TFtpProgramSender(object):
 
@@ -39,11 +39,11 @@ class TFtpProgramSender(object):
                     "put %s %s" % (file_name,self._tftp_remote_filename)
                 )
             if result != 0:
-                raise UdPicExperimentExceptions.UdPicInvalidResponseException("tftp returned %s" % result)
+                raise UdPicExperimentErrors.UdPicInvalidResponseError("tftp returned %s" % result)
             if stdout_result.lower().find('tftp> tftp> sent') != 0 and stdout_result.lower().find('tftp> tftp> tftp>') != 0:
-                raise UdPicExperimentExceptions.UdPicInvalidResponseException("Expected stdout: 'tftp> tftp> Sent' or 'tftp> tftp> tftp>'; found '%s'" % stdout_result)
+                raise UdPicExperimentErrors.UdPicInvalidResponseError("Expected stdout: 'tftp> tftp> Sent' or 'tftp> tftp> tftp>'; found '%s'" % stdout_result)
             if len(stderr_result) > 0:
-                raise UdPicExperimentExceptions.UdPicInvalidResponseException("Expected stderr: ''; found '%s'" % stderr_result)
+                raise UdPicExperimentErrors.UdPicInvalidResponseError("Expected stderr: ''; found '%s'" % stderr_result)
         finally:
             os.remove(file_name)
 

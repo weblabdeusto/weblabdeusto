@@ -13,23 +13,23 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import voodoo.gen.exceptions.exceptions as genExceptions
+import voodoo.gen.exceptions.exceptions as genErrors
 
-class AccessException(genExceptions.GeneratorException):
+class AccessError(genErrors.GeneratorError):
     def __init__(self,*args,**kargs):
-        genExceptions.GeneratorException.__init__(self,*args,**kargs)
+        genErrors.GeneratorError.__init__(self,*args,**kargs)
 
-class AccessNotAnAddressException(AccessException):
+class AccessNotAnAddressError(AccessError):
     def __init__(self,*args,**kargs):
-        AccessException.__init__(self,*args,**kargs)
+        AccessError.__init__(self,*args,**kargs)
 
-class AccessNotAnIpAddressException(AccessNotAnAddressException):
+class AccessNotAnIpAddressError(AccessNotAnAddressError):
     def __init__(self,*args,**kargs):
-        AccessNotAnAddressException.__init__(self,*args,**kargs)
+        AccessNotAnAddressError.__init__(self,*args,**kargs)
 
-class AccessInvalidIpBasedFormat(AccessException):
+class AccessInvalidIpBasedFormat(AccessError):
     def __init__(self,*args,**kargs):
-        AccessException.__init__(self,*args,**kargs)
+        AccessError.__init__(self,*args,**kargs)
 
 class AccessInvalidPort(AccessInvalidIpBasedFormat):
     def __init__(self,*args,**kargs):

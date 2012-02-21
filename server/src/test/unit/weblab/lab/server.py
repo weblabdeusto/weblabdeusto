@@ -22,7 +22,7 @@ import weblab.data.command as Command
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.gen.locator.EasyLocator as EasyLocator
 
-import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
+import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 
 import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
@@ -31,7 +31,7 @@ import weblab.core.coordinator.coordinator as Coordinator
 import weblab.lab.server as LaboratoryServer
 import weblab.lab.status_handler as IsUpAndRunningHandler
 
-import weblab.lab.exc as LaboratoryExceptions
+import weblab.lab.exc as LaboratoryErrors
 
 import weblab.methods as weblab_methods
 
@@ -110,7 +110,7 @@ class LaboratoryServerLoadingTestCase(unittest.TestCase):
                                                    'checkers': ( ('WebcamIsUpAndRunningHandler', ("https://...",)),
                                                                  ('HostIsUpAndRunningHandler', ("hostname", 80), {}), )} })
 
-        self.assertRaises( LaboratoryExceptions.InvalidLaboratoryConfigurationException,
+        self.assertRaises( LaboratoryErrors.InvalidLaboratoryConfigurationError,
                             LaboratoryServer.LaboratoryServer,
                             None, self.locator, self.cfg_manager )
 
@@ -123,7 +123,7 @@ class LaboratoryServerLoadingTestCase(unittest.TestCase):
                                                    'checkers': ( ('WebcamIsUpAndRunningHandler', ("https://...",)),
                                                                  ('HostIsUpAndRunningHandler', ("hostname", 80), {}), )} })
 
-        self.assertRaises( LaboratoryExceptions.InvalidLaboratoryConfigurationException,
+        self.assertRaises( LaboratoryErrors.InvalidLaboratoryConfigurationError,
                             LaboratoryServer.LaboratoryServer,
                             None, self.locator, self.cfg_manager )
 
@@ -432,7 +432,7 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
         self.fake_client.fail = True
 
         self.assertRaises(
-            LaboratoryExceptions.FailedToSendCommandException,
+            LaboratoryErrors.FailedToSendCommandError,
             self.lab.do_send_command,
             lab_session_id,
             Command.Command("foo")
@@ -554,7 +554,7 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
         self.fake_client.fail = True
 
         self.assertRaises(
-            LaboratoryExceptions.FailedToSendFileException,
+            LaboratoryErrors.FailedToSendFileError,
             self.lab.do_send_file,
             lab_session_id,
             "foo",
@@ -637,14 +637,14 @@ class FakeClient(object):
 
     def send_command_to_device(self, command):
         if self.fail:
-            raise ProtocolExceptions.RemoteException("lelele","Lalala")
+            raise ProtocolErrors.RemoteError("lelele","Lalala")
         else:
             self.commands.append(command)
             return self.responses.pop(0)
 
     def send_file_to_device(self, file, file_info):
         if self.fail:
-            raise ProtocolExceptions.RemoteException("lelele","Lalala")
+            raise ProtocolErrors.RemoteError("lelele","Lalala")
         else:
             self.files.append((file, file_info))
             return self.responses.pop(0)

@@ -29,7 +29,7 @@ import voodoo.gen.coordinator.Access as Access
 import voodoo.gen.coordinator.AccessLevel as AccessLevel
 import voodoo.gen.coordinator.CoordinatorServer as CoordinatorServer
 
-import voodoo.gen.exceptions.coordinator.CoordinatorServerExceptions as CoordinatorServerExceptions
+import voodoo.gen.exceptions.coordinator.CoordinatorServerErrors as CoordinatorServerErrors
 
 import voodoo.gen.protocols.protocols as Protocols
 import voodoo.gen.protocols.Direct.Network as DirectNetwork
@@ -157,14 +157,14 @@ class CoordinatorServerTestCase(unittest.TestCase):
         cfg_manager.append_module(configuration_module)
 
         self.assertRaises(
-                CoordinatorServerExceptions.BothMapAndMapFileProvidedException,
+                CoordinatorServerErrors.BothMapAndMapFileProvidedError,
                 CoordinatorServer.CoordinatorServer,
                 cfg_manager,
                 map      = ":-)",
                 map_file = ":-("
             )
         self.assertRaises(
-                CoordinatorServerExceptions.NeitherMapNorFileProvidedException,
+                CoordinatorServerErrors.NeitherMapNorFileProvidedError,
                 CoordinatorServer.CoordinatorServer,
                 cfg_manager
             )
@@ -180,7 +180,7 @@ class CoordinatorServerTestCase(unittest.TestCase):
                 map
             )
         self.assertRaises(
-            CoordinatorServerExceptions.SessionNotFoundException,
+            CoordinatorServerErrors.SessionNotFoundError,
             coord_server.do_get_server,
             "p0wn3d"
         )
@@ -189,7 +189,7 @@ class CoordinatorServerTestCase(unittest.TestCase):
 
         # What if there are problems serializing?
         self.assertRaises(
-            CoordinatorServerExceptions.CouldNotCreateSessionException,
+            CoordinatorServerErrors.CouldNotCreateSessionError,
             coord_server.do_new_query,
             threading.Lock(), SampleServerType.Login, None
         )
@@ -238,7 +238,7 @@ class CoordinatorServerTestCase(unittest.TestCase):
 
             # There are no more servers!
             self.assertRaises(
-                CoordinatorServerExceptions.NoServerFoundException,
+                CoordinatorServerErrors.NoServerFoundError,
                 coord_server.do_get_server,
                 sess_id
             )

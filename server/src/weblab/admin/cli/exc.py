@@ -12,6 +12,6 @@
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 
-class GoBackException(Exception):
+class GoBackError(Exception):
     def __init__(self):
-        super(GoBackException, self).__init__()
+        super(GoBackError, self).__init__()

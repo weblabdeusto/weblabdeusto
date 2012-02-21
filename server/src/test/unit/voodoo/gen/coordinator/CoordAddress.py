@@ -18,7 +18,7 @@ import unittest
 
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
-import voodoo.gen.exceptions.coordinator.CoordinatorExceptions as CoordExceptions
+import voodoo.gen.exceptions.coordinator.CoordinatorErrors as CoordErrors
 
 class CoordAddressTestCase(unittest.TestCase):
     def test_hashable(self):
@@ -42,7 +42,7 @@ class CoordAddressTestCase(unittest.TestCase):
 
         self.assertEqual(coordAddress,coordAddress2)
         self.assertRaises(
-                CoordExceptions.CoordInvalidAddressName,
+                CoordErrors.CoordInvalidAddressName,
                 CoordAddress.CoordAddress.translate_address,
                 'whatever'
             )

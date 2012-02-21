@@ -16,7 +16,7 @@
 
 import unittest
 
-import weblab.lab.exc as LaboratoryExceptions
+import weblab.lab.exc as LaboratoryErrors
 
 import weblab.lab.assigned_experiments as AssignedExperiments
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
@@ -36,7 +36,7 @@ class AssignedExperimentsTestCase(unittest.TestCase):
         self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, checking_handlers )
 
         self.assertRaises(
-            LaboratoryExceptions.ExperimentAlreadyFoundException,
+            LaboratoryErrors.ExperimentAlreadyFoundError,
             self._assigned_micro_servers.add_server,
             self.exp_inst_id,
             clients_coord_addresses,
@@ -96,14 +96,14 @@ class AssignedExperimentsTestCase(unittest.TestCase):
         check_reserve()
         self._assigned_micro_servers.free_experiment(self.exp_inst_id)
         self.assertRaises(
-            LaboratoryExceptions.AlreadyFreedExperimentException,
+            LaboratoryErrors.AlreadyFreedExperimentError,
             self._assigned_micro_servers.free_experiment,
             self.exp_inst_id
         )
 
     def test_bounds(self):
         self.assertRaises(
-            LaboratoryExceptions.ExperimentNotFoundException,
+            LaboratoryErrors.ExperimentNotFoundError,
             self._assigned_micro_servers.reserve_experiment,
             self.exp_inst_id,
             "my session id"

@@ -17,9 +17,9 @@ from voodoo.log import logged
 import weblab.comm.manager as RFM
 import weblab.data.client_address as ClientAddress
 
-import weblab.login.exc as LoginExceptions
-import weblab.exc as WebLabExceptions
-import voodoo.gen.exceptions.exceptions as VoodooExceptions
+import weblab.login.exc as LoginErrors
+import weblab.exc as WebLabErrors
+import voodoo.gen.exceptions.exceptions as VoodooErrors
 
 import weblab.login.comm.codes as LFCodes
 
@@ -27,10 +27,10 @@ EXCEPTIONS = (
         #
         # EXCEPTION                                   CODE                                               PROPAGATE TO CLIENT
         #
-        (LoginExceptions.InvalidCredentialsException, LFCodes.CLIENT_INVALID_CREDENTIALS_EXCEPTION_CODE, True),
-        (LoginExceptions.LoginException,              LFCodes.LOGIN_SERVER_EXCEPTION_CODE,               False),
-        (WebLabExceptions.WebLabException,            LFCodes.WEBLAB_GENERAL_EXCEPTION_CODE,             False),
-        (VoodooExceptions.GeneratorException,         LFCodes.VOODOO_GENERAL_EXCEPTION_CODE,             False),
+        (LoginErrors.InvalidCredentialsError, LFCodes.CLIENT_INVALID_CREDENTIALS_EXCEPTION_CODE, True),
+        (LoginErrors.LoginError,              LFCodes.LOGIN_SERVER_EXCEPTION_CODE,               False),
+        (WebLabErrors.WebLabError,            LFCodes.WEBLAB_GENERAL_EXCEPTION_CODE,             False),
+        (VoodooErrors.GeneratorError,         LFCodes.VOODOO_GENERAL_EXCEPTION_CODE,             False),
         (Exception,                                   LFCodes.PYTHON_GENERAL_EXCEPTION_CODE,             False)
     )
 
@@ -41,7 +41,7 @@ class AbstractLoginRemoteFacadeManager(RFM.AbstractRemoteFacadeManager):
     @logged()
     def login_based_on_client_address(self, username, client_address):
         """ login_based_on_client_address(username, client_address) -> SessionID
-            raises LoginException, InvalidCredentialsException
+            raises LoginError, InvalidCredentialsError
         """
         current_client_address = self._get_client_address()
         addresses_calling_this_method = self._cfg_manager.get_value(ADDRESSES_CALLING_LOGIN_BASED_ON_CLIENT_ADDRESS, DEFAULT_ADDRESSES_CALLING_LOGIN_BASED_ON_CLIENT_ADDRESS)
@@ -56,7 +56,7 @@ class AbstractLoginRemoteFacadeManager(RFM.AbstractRemoteFacadeManager):
     @logged(except_for='password')
     def login(self, username, password):
         """ login(username, password) -> SessionID
-            raises LoginException, InvalidCredentialsException
+            raises LoginError, InvalidCredentialsError
         """
         return self._login_impl(username, password)
 

@@ -21,7 +21,7 @@ import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
 
 import weblab.experiment.devices.gpib.gpib as Gpib
-import weblab.experiment.devices.gpib.exc as GpibExceptions
+import weblab.experiment.devices.gpib.exc as GpibErrors
 
 import test.unit.weblab.experiment.devices.gpib.fake_compiler_linker_nice as fake_compiler_linker_nice
 
@@ -67,7 +67,7 @@ class GpibCompilerTestCase(mocker.MockerTestCase):
         compiler._fail_in_create_popen = True
 
         self.assertRaises(
-            GpibExceptions.ErrorProgrammingDeviceException,
+            GpibErrors.ErrorProgrammingDeviceError,
             compiler.compile_file,
             'whatever.exe'
         )
@@ -81,7 +81,7 @@ class GpibCompilerTestCase(mocker.MockerTestCase):
 
         self.mocker.replay()
         self.assertRaises(
-            GpibExceptions.ErrorWaitingForProgrammingFinishedException,
+            GpibErrors.ErrorWaitingForProgrammingFinishedError,
             compiler.compile_file,
             'whatever.exe'
         )
@@ -95,7 +95,7 @@ class GpibCompilerTestCase(mocker.MockerTestCase):
 
         self.mocker.replay()
         self.assertRaises(
-            GpibExceptions.ErrorRetrievingOutputFromProgrammingProgramException,
+            GpibErrors.ErrorRetrievingOutputFromProgrammingProgramError,
             compiler.compile_file,
             'whatever.exe'
         )
@@ -114,12 +114,12 @@ class GpibCompilerTestCase(mocker.MockerTestCase):
 
         # Change to the bad compiler
         self.assertRaises(
-            GpibExceptions.ProgrammingGotErrors,
+            GpibErrors.ProgrammingGotErrors,
             compiler.compile_file,
             "show error.cpp"
         )
         self.assertRaises(
-            GpibExceptions.ProgrammingGotErrors,
+            GpibErrors.ProgrammingGotErrors,
             compiler.compile_file,
             "return -1.cpp"
         )
@@ -158,12 +158,12 @@ class GpibCompilerTestCase(mocker.MockerTestCase):
 
         # The others don't
         self.assertRaises(
-            GpibExceptions.ProgrammingGotErrors,
+            GpibErrors.ProgrammingGotErrors,
             compiler.compile_file,
             "show error.cpp"
         )
         self.assertRaises(
-            GpibExceptions.ProgrammingGotErrors,
+            GpibErrors.ProgrammingGotErrors,
             compiler.compile_file,
             "return -1.cpp"
         )
@@ -174,14 +174,14 @@ class GpibCompilerTestCase(mocker.MockerTestCase):
         self.cfg_manager._values['gpib_compiler_command'] = []
 
         self.assertRaises(
-            GpibExceptions.InvalidGpibProperty,
+            GpibErrors.InvalidGpibProperty,
             compiler.compile_file,
             "foo"
         )
         self.cfg_manager._values.pop('gpib_compiler_command')
 
         self.assertRaises(
-            GpibExceptions.CantFindGpibProperty,
+            GpibErrors.CantFindGpibProperty,
             compiler.compile_file,
             "bar"
         )
@@ -192,14 +192,14 @@ class GpibCompilerTestCase(mocker.MockerTestCase):
         self.cfg_manager._values['gpib_linker_command'] = []
 
         self.assertRaises(
-            GpibExceptions.InvalidGpibProperty,
+            GpibErrors.InvalidGpibProperty,
             compiler.compile_file,
             "foo"
         )
         self.cfg_manager._values.pop('gpib_linker_command')
 
         self.assertRaises(
-            GpibExceptions.CantFindGpibProperty,
+            GpibErrors.CantFindGpibProperty,
             compiler.compile_file,
             "bar"
         )

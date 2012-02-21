@@ -14,12 +14,12 @@
 #
 import weblab.exc as wlExc
 
-class FacadeException(wlExc.WebLabException):
+class FacadeError(wlExc.WebLabError):
     def __init__(self,*args,**kargs):
-        wlExc.WebLabException.__init__(self,*args,**kargs)
+        wlExc.WebLabError.__init__(self,*args,**kargs)
 
-class MisconfiguredException(FacadeException):
+class MisconfiguredError(FacadeError):
     def __init__(self, msg, *args, **kargs):
-        FacadeException.__init__(self, msg, *args, **kargs)
+        FacadeError.__init__(self, msg, *args, **kargs)
         self.message = msg
 

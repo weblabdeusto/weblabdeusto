@@ -15,16 +15,16 @@
 
 import voodoo.gen.exceptions.exceptions as exceptions
 
-class LoaderException(exceptions.GeneratorException):
+class LoaderError(exceptions.GeneratorError):
     def __init__(self, *args, **kargs):
-        exceptions.GeneratorException.__init__(self,*args,**kargs)
+        exceptions.GeneratorError.__init__(self,*args,**kargs)
 
-class InvalidConfigurationException(LoaderException):
+class InvalidConfigurationError(LoaderError):
     def __init__(self,*args,**kargs):
-        LoaderException.__init__(self,*args,**kargs)
+        LoaderError.__init__(self,*args,**kargs)
 
-class InvalidSyntaxFileConfigurationException(InvalidConfigurationException):
+class InvalidSyntaxFileConfigurationError(InvalidConfigurationError):
     def __init__(self,what,file,*args,**kargs):
-        InvalidConfigurationException.__init__(self,what,file,*args,**kargs)
+        InvalidConfigurationError.__init__(self,what,file,*args,**kargs)
         self.file = file
 

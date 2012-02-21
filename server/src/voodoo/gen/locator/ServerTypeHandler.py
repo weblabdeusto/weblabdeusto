@@ -12,7 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
-import voodoo.gen.exceptions.locator.LocatorExceptions as LocatorExceptions
+import voodoo.gen.exceptions.locator.LocatorErrors as LocatorErrors
 
 class ServerTypeHandler(object):
     def __init__(self,server_type_module, methods):
@@ -31,11 +31,11 @@ class ServerTypeHandler(object):
 
         for klass in methods:
             if not isinstance(methods[klass], (list, tuple)):
-                raise LocatorExceptions.InvalidListOfMethodsException("Invalid format at ServerTypeHandler. Expected tuple or list, found: %s" % methods[klass] )
+                raise LocatorErrors.InvalidListOfMethodsError("Invalid format at ServerTypeHandler. Expected tuple or list, found: %s" % methods[klass] )
 
 #        for klass in methods:
 #            if not hasattr(server_type_type, klass):
-#                raise LocatorExceptions.MoreServersThanExpectedException("Unexpected class %s for module %s" % (klass, server_type_type))
+#                raise LocatorErrors.MoreServersThanExpectedError("Unexpected class %s for module %s" % (klass, server_type_type))
 
         self._module = server_type_module
 
@@ -45,7 +45,7 @@ class ServerTypeHandler(object):
         if self._methods.has_key(server_type):
             return self._methods[server_type]
         else:
-            raise LocatorExceptions.NoSuchServerTypeFoundException(
+            raise LocatorErrors.NoSuchServerTypeFoundError(
                     "Server type '%s' not found retrieving methods" % server_type
                 )
 

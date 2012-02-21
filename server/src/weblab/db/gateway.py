@@ -13,8 +13,8 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import weblab.db.exc as DbExceptions
-import voodoo.configuration as CfgExceptions
+import weblab.db.exc as DbErrors
+import voodoo.configuration as CfgErrors
 
 DB_HOST = 'db_host'
 DEFAULT_DB_HOST = 'localhost'
@@ -33,8 +33,8 @@ class AbstractDatabaseGateway(object):
             self.host          = cfg_manager.get_value(DB_HOST, DEFAULT_DB_HOST)
             self.database_name = cfg_manager.get_value(DB_DATABASE, DEFAULT_DB_DATABASE)
             self.engine_name   = cfg_manager.get_value(DB_ENGINE, DEFAULT_DB_ENGINE)
-        except CfgExceptions.KeyNotFoundException as knfe:
-            raise DbExceptions.DbMisconfiguredException(
+        except CfgErrors.KeyNotFoundError as knfe:
+            raise DbErrors.DbMisconfiguredError(
                     "Configuration manager didn't provide values for at least one parameter: %s" % knfe,
                     knfe
                 )

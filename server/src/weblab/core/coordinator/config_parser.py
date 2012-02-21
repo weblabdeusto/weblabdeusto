@@ -83,11 +83,11 @@ class CoordinationConfigurationParser(object):
                 resource_instance = experiment_instances[experiment_instance]
                 mo_experiment_instance = re.match(self.EXPERIMENT_INSTANCE_REGEX, experiment_instance)
                 if mo_experiment_instance is None:
-                    raise coreExc.CoordinationConfigurationParsingException("Error in coordination parsing: %s doesn't match the regular expression %s" % (experiment_instance, self.EXPERIMENT_INSTANCE_REGEX))
+                    raise coreExc.CoordinationConfigurationParsingError("Error in coordination parsing: %s doesn't match the regular expression %s" % (experiment_instance, self.EXPERIMENT_INSTANCE_REGEX))
 
                 mo_resource_instance = re.match(self.RESOURCE_INSTANCE_REGEX, resource_instance)
                 if mo_resource_instance is None:
-                    raise coreExc.CoordinationConfigurationParsingException("Error in coordination parsing: %s doesn't match the regular expression %s" % (resource_instance, self.RESOURCE_INSTANCE_REGEX))
+                    raise coreExc.CoordinationConfigurationParsingError("Error in coordination parsing: %s doesn't match the regular expression %s" % (resource_instance, self.RESOURCE_INSTANCE_REGEX))
 
                 (
                     inst_name,

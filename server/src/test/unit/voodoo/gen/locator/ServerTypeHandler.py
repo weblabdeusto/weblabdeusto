@@ -15,14 +15,14 @@
 import unittest
 
 import voodoo.gen.locator.ServerTypeHandler as ServerTypeHandler
-import voodoo.gen.exceptions.locator.LocatorExceptions as LocatorExceptions
+import voodoo.gen.exceptions.locator.LocatorErrors as LocatorErrors
 
 import test.unit.voodoo.gen.locator.ServerTypeSample as ServerTypeSample
 
 class ServerTypeHandlerTestCase(unittest.TestCase):
     def test_exceptions(self):
         self.assertRaises(
-            LocatorExceptions.InvalidListOfMethodsException,
+            LocatorErrors.InvalidListOfMethodsError,
             ServerTypeHandler.ServerTypeHandler,
             ServerTypeSample,
             {
@@ -33,7 +33,7 @@ class ServerTypeHandlerTestCase(unittest.TestCase):
         )
 
 #         self.assertRaises(
-#             LocatorExceptions.MoreServersThanExpectedException,
+#             LocatorErrors.MoreServersThanExpectedError,
 #             ServerTypeHandler.ServerTypeHandler,
 #             ServerTypeSample,
 #             {
@@ -50,7 +50,7 @@ class ServerTypeHandlerTestCase(unittest.TestCase):
                     }
                 )
         self.assertRaises(
-            LocatorExceptions.NoSuchServerTypeFoundException,
+            LocatorErrors.NoSuchServerTypeFoundError,
             server_type_handler.retrieve_methods,
             ':-)'
         )

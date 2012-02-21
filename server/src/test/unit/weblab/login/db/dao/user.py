@@ -16,12 +16,12 @@
 import unittest
 
 import weblab.login.db.dao.user as UserAuth
-import weblab.db.exc as DbExceptions
+import weblab.db.exc as DbErrors
 
 class DbUserAuthTestCase(unittest.TestCase):
     def test_create_user_failed(self):
         self.assertRaises(
-            DbExceptions.DbUnsupportedUserAuth,
+            DbErrors.DbUnsupportedUserAuth,
             UserAuth.UserAuth.create_user_auth,
             'whatever that does not exist',
             'the configuration'
@@ -29,7 +29,7 @@ class DbUserAuthTestCase(unittest.TestCase):
 
     def test_invalid_ldap_configuration(self):
         self.assertRaises(
-            DbExceptions.DbInvalidUserAuthConfigurationException,
+            DbErrors.DbInvalidUserAuthConfigurationError,
             UserAuth.UserAuth.create_user_auth,
             UserAuth.LdapUserAuth.NAME,
             'the configuration'

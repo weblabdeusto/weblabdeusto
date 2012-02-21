@@ -14,7 +14,7 @@
 #
 import re
 
-import experiments.ud_xilinx.exc as UdXilinxExperimentExceptions
+import experiments.ud_xilinx.exc as UdXilinxExperimentErrors
 
 class UdBoardCommand(object):
 
@@ -28,7 +28,7 @@ class UdBoardCommand(object):
     def __init__(self, command):
         mo = re.match(UdBoardCommand.get_syntax(), command)
         if mo == None:
-            raise UdXilinxExperimentExceptions.InvalidUdBoardCommandException(
+            raise UdXilinxExperimentErrors.InvalidUdBoardCommandError(
                     "Invalid command format; %s required" % UdBoardCommand.get_syntax()
                 )
         self._commands = []
@@ -68,7 +68,7 @@ def on_off_to_bool(on_off):
     elif on_off == "off":
         return False
     else:
-        raise UdXilinxExperimentExceptions.IllegalStatusUdBoardCommandException("%s is not on nor off" % on_off)
+        raise UdXilinxExperimentErrors.IllegalStatusUdBoardCommandError("%s is not on nor off" % on_off)
 
 def bool_to_on_off(on_off):
     if on_off:

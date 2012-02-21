@@ -17,13 +17,13 @@
 import pickle
 import voodoo.mapper as mapper
 
-import voodoo.gen.exceptions.coordinator.CoordMappingExceptions as CoordMapExceptions
+import voodoo.gen.exceptions.coordinator.CoordMappingErrors as CoordMapErrors
 
 def dump_to_file(coordination_map,file):
     try:
         dto_object = mapper.dto_generator(coordination_map)
     except Exception as e:
-        raise CoordMapExceptions.CoordSerializingException(
+        raise CoordMapErrors.CoordSerializingError(
                 "Exception <%s> caught serializing coordination_map <%s>"
                 % (e,coordination_map),
                 e
@@ -31,7 +31,7 @@ def dump_to_file(coordination_map,file):
     try:
         pickle.dump(dto_object,file)
     except Exception as e:
-        raise CoordMapExceptions.CoordDumpingException(
+        raise CoordMapErrors.CoordDumpingError(
                 "Exception <%s> caught dumping coordination_map <%s> to file <%s>"
                 % (e,coordination_map,file),
                 e
@@ -41,7 +41,7 @@ def load_from_file(file):
     try:
         dto_object = pickle.load(file)
     except Exception as e:
-        raise CoordMapExceptions.CoordLoadingException(
+        raise CoordMapErrors.CoordLoadingError(
                 "Exception <%s> caught loading coordmap from file <%s>"
                 % (e,file),
                 e
@@ -49,7 +49,7 @@ def load_from_file(file):
     try:
         dto_object = mapper.load_from_dto(dto_object)
     except Exception as e:
-        raise CoordMapExceptions.CoordLoadingException(
+        raise CoordMapErrors.CoordLoadingError(
                 "Exception <%s> caught deserializing dto_object <%s> received from file <%s>"
                 % (e,dto_object,file),
                 e

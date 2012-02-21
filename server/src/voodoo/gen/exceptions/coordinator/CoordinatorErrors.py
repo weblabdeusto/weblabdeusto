@@ -13,39 +13,39 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import voodoo.gen.exceptions.exceptions as genExceptions
+import voodoo.gen.exceptions.exceptions as genErrors
 
-class CoordinatorException(genExceptions.GeneratorException):
+class CoordinatorError(genErrors.GeneratorError):
     def __init__(self,*args,**kargs):
-        genExceptions.GeneratorException.__init__(self,*args,**kargs)
+        genErrors.GeneratorError.__init__(self,*args,**kargs)
 
-class CoordInvalidAddressName(CoordinatorException):
+class CoordInvalidAddressName(CoordinatorError):
     def __init__(self,*args,**kargs):
-        CoordinatorException.__init__(self,*args,**kargs)
+        CoordinatorError.__init__(self,*args,**kargs)
 
-class CoordInvalidServer(CoordinatorException):
+class CoordInvalidServer(CoordinatorError):
     def __init__(self,*args,**kargs):
-        CoordinatorException.__init__(self,*args,**kargs)
+        CoordinatorError.__init__(self,*args,**kargs)
 
-class CoordInvalidAddressParams(CoordinatorException):
+class CoordInvalidAddressParams(CoordinatorError):
     def __init__(self,*args,**kargs):
-        CoordinatorException.__init__(self,*args,**kargs)
+        CoordinatorError.__init__(self,*args,**kargs)
 
-class CoordInvalidLevelAddress(CoordinatorException):
+class CoordInvalidLevelAddress(CoordinatorError):
     def __init__(self,*args,**kargs):
-        CoordinatorException.__init__(self,*args,**kargs)
+        CoordinatorError.__init__(self,*args,**kargs)
 
-class CoordInvalidKey(CoordinatorException):
+class CoordInvalidKey(CoordinatorError):
     def __init__(self,*args,**kargs):
-        CoordinatorException.__init__(self,*args,**kargs)
+        CoordinatorError.__init__(self,*args,**kargs)
 
-class CoordNodeNotFound(CoordinatorException):
+class CoordNodeNotFound(CoordinatorError):
     def __init__(self,*args,**kargs):
-        CoordinatorException.__init__(self,*args,**kargs)
+        CoordinatorError.__init__(self,*args,**kargs)
 
-class CoordMapNotInitialized(CoordinatorException):
+class CoordMapNotInitialized(CoordinatorError):
     def __init__(self,*args,**kargs):
-        CoordinatorException.__init__(self,*args,**kargs)
+        CoordinatorError.__init__(self,*args,**kargs)
 
 # CoordNodeNotFound children
 

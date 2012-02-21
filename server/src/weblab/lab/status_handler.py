@@ -81,7 +81,7 @@ class HostIsUpAndRunningHandler(AbstractLightweightIsUpAndRunningHandler):
         try:
             s.connect((self.hostname, self.port))
         except socket.error as e:
-            raise labExc.UnableToConnectHostnameInPortException(self.hostname, self.port, e)
+            raise labExc.UnableToConnectHostnameInPortError(self.hostname, self.port, e)
         finally:
             s.close()
 
@@ -102,9 +102,9 @@ class WebcamIsUpAndRunningHandler(AbstractLightweightIsUpAndRunningHandler):
         try:
             response = self._urllib2.urlopen(self.img_url)
         except urllib2.URLError as e:
-            raise labExc.ImageURLDidNotRetrieveAResponseException(self.img_url, e)
+            raise labExc.ImageURLDidNotRetrieveAResponseError(self.img_url, e)
         if response.headers['content-type'] not in VALID_IMAGE_FORMATS:
-            raise labExc.InvalidContentTypeRetrievedFromImageURLException(self.img_url)
+            raise labExc.InvalidContentTypeRetrievedFromImageURLError(self.img_url)
 
 HANDLERS += (WebcamIsUpAndRunningHandler.__name__,)
 

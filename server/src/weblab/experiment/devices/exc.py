@@ -13,21 +13,21 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import weblab.experiment.exc as ExperimentExceptions
+import weblab.experiment.exc as ExperimentErrors
 
-class DeviceException(ExperimentExceptions.ExperimentException):
+class DeviceError(ExperimentErrors.ExperimentError):
     def __init__(self,*args,**kargs):
-        ExperimentExceptions.ExperimentException.__init__(self,*args,**kargs)
+        ExperimentErrors.ExperimentError.__init__(self,*args,**kargs)
 
-class MisconfiguredDeviceException(DeviceException):
+class MisconfiguredDeviceError(DeviceError):
     def __init__(self, *args, **kargs):
-        DeviceException.__init__(self, *args, **kargs)
+        DeviceError.__init__(self, *args, **kargs)
 
-class AlreadyProgrammingDeviceException(DeviceException):
+class AlreadyProgrammingDeviceError(DeviceError):
     def __init__(self, *args, **kargs):
-        DeviceException.__init__(self, *args, **kargs)
+        DeviceError.__init__(self, *args, **kargs)
 
-class ProgrammingDeviceException(DeviceException):
+class ProgrammingDeviceError(DeviceError):
     def __init__(self, *args, **kargs):
-        DeviceException.__init__(self, *args, **kargs)
+        DeviceError.__init__(self, *args, **kargs)
 

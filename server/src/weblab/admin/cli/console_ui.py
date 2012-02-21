@@ -17,7 +17,7 @@ import sys
 import os
 import getpass
 
-from exc import GoBackException
+from exc import GoBackError
 
 GO_BACK_KEYWORD = "[back]"
 
@@ -69,7 +69,7 @@ class ConsoleUI(object):
             try:
                 input = self._raw_input(label)
                 if input == GO_BACK_KEYWORD:
-                    raise GoBackException()
+                    raise GoBackError()
                 if len(input) == 0:
                     input = default
                 if input.lower() not in ('y','yes','n','no'):
@@ -85,7 +85,7 @@ class ConsoleUI(object):
             try:
                 input = self._raw_input(label)
                 if input == GO_BACK_KEYWORD:
-                    raise GoBackException()
+                    raise GoBackError()
                 if len(input) == 0:
                     input = default
                 result = int(input) if input is not None else None
@@ -99,7 +99,7 @@ class ConsoleUI(object):
             try:
                 input = self._raw_input(label)
                 if input == GO_BACK_KEYWORD:
-                    raise GoBackException()
+                    raise GoBackError()
                 if len(input) == 0:
                     input = default
                 result = input
@@ -113,7 +113,7 @@ class ConsoleUI(object):
             try:
                 input = self._getpass(label)
                 if input == GO_BACK_KEYWORD:
-                    raise GoBackException()
+                    raise GoBackError()
                 if len(input) == 0:
                     input = default
                 result = input
@@ -320,7 +320,7 @@ class ConsoleUI(object):
             try:
                 option = self._read_field_int("Option", 0, 17)
                 break
-            except GoBackException:
+            except GoBackError:
                 pass
         return option
 

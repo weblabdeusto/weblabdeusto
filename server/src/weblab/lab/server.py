@@ -22,12 +22,12 @@ from voodoo.log import logged
 from voodoo.sessions.checker import check_session
 import voodoo.sessions.session_type as SessionType
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
-import voodoo.gen.exceptions.exceptions as GeneratorExceptions
+import voodoo.gen.exceptions.exceptions as GeneratorErrors
 
 from voodoo.threaded import threaded
 import weblab.lab.async_request as AsyncRequest
 
-import weblab.lab.exc as LaboratoryExceptions
+import weblab.lab.exc as LaboratoryErrors
 
 from voodoo.gen.caller_checker import caller_check
 
@@ -47,7 +47,7 @@ from voodoo.sessions import generator as SessionGenerator
 import json
 
 check_session_params = (
-        LaboratoryExceptions.SessionNotFoundInLaboratoryServerException,
+        LaboratoryErrors.SessionNotFoundInLaboratoryServerError,
         "Laboratory Server"
     )
 
@@ -113,7 +113,7 @@ class LaboratoryServer(object):
         for experiment_instance_id, data in assigned_experiments.items():
             mo = re.match(self.EXPERIMENT_INSTANCE_ID_REGEX, experiment_instance_id)
             if mo == None:
-                raise LaboratoryExceptions.InvalidLaboratoryConfigurationException("Invalid configuration entry. Expected format: %s; found: %s" %
+                raise LaboratoryErrors.InvalidLaboratoryConfigurationError("Invalid configuration entry. Expected format: %s; found: %s" %
                     (LaboratoryServer.EXPERIMENT_INSTANCE_ID_REGEX, experiment_instance_id))
             else:
                 # ExperimentInstanceId
@@ -127,8 +127,8 @@ class LaboratoryServer(object):
                 # CoordAddress
                 try:
                     coord_address = CoordAddress.CoordAddress.translate_address(data['coord_address'])
-                except GeneratorExceptions.GeneratorException:
-                    raise LaboratoryExceptions.InvalidLaboratoryConfigurationException("Invalid coordination address: %s" % data['coord_address'])
+                except GeneratorErrors.GeneratorError:
+                    raise LaboratoryErrors.InvalidLaboratoryConfigurationError("Invalid coordination address: %s" % data['coord_address'])
 
                 # CheckingHandlers
                 checkers = data.get('checkers', ())
@@ -143,7 +143,7 @@ class LaboratoryServer(object):
                             argss = checker[1]
                         checking_handlers.append(eval('IsUpAndRunningHandler.'+klazz)(*argss, **kargss))
                     else:
-                        raise LaboratoryExceptions.InvalidLaboratoryConfigurationException("Invalid IsUpAndRunningHandler: %s" % klazz)
+                        raise LaboratoryErrors.InvalidLaboratoryConfigurationError("Invalid IsUpAndRunningHandler: %s" % klazz)
                 parsed_experiments.append( (experiment_instance_id, coord_address, checking_handlers ) )
         return parsed_experiments
 
@@ -165,7 +165,7 @@ class LaboratoryServer(object):
         lab_sess_id = self._session_manager.create_session()
         try:
             experiment_coord_address = self._assigned_experiments.reserve_experiment(experiment_instance_id, lab_sess_id)
-        except LaboratoryExceptions.BusyExperimentException:
+        except LaboratoryErrors.BusyExperimentError:
             # If it was already busy, free it and reserve it again
             try:
                 old_lab_sess_id = self._assigned_experiments.get_lab_session_id(experiment_instance_id)
@@ -178,7 +178,7 @@ class LaboratoryServer(object):
 
             try:
                 experiment_coord_address = self._assigned_experiments.reserve_experiment(experiment_instance_id, lab_sess_id)
-            except LaboratoryExceptions.BusyExperimentException:
+            except LaboratoryErrors.BusyExperimentError:
                 # The session might have expired and that's why this experiment is still reserved. Free it directly from
                 # assigned_experiments.
                 self._free_experiment_from_assigned_experiments(experiment_instance_id)
@@ -414,7 +414,7 @@ class LaboratoryServer(object):
         except Exception as e:
             log.log( LaboratoryServer, log.level.Warning, "Exception sending file to experiment: %s" % e )
             log.log_exc(LaboratoryServer, log.level.Info)
-            raise LaboratoryExceptions.FailedToSendFileException("Couldn't send file: %s" % str(e))
+            raise LaboratoryErrors.FailedToSendFileError("Couldn't send file: %s" % str(e))
 
         return Command.Command(str(response))
 
@@ -430,7 +430,7 @@ class LaboratoryServer(object):
         except Exception as e:
             log.log( LaboratoryServer, log.level.Warning, "Exception sending command to experiment: %s" % e )
             log.log_exc(LaboratoryServer, log.level.Info)
-            raise LaboratoryExceptions.FailedToSendCommandException("Couldn't send command: %s" % str(e))
+            raise LaboratoryErrors.FailedToSendCommandError("Couldn't send command: %s" % str(e))
 
         return Command.Command(str(response))
 
@@ -451,7 +451,7 @@ class LaboratoryServer(object):
         except Exception as e:
             log.log( LaboratoryServer, log.level.Warning, "Exception sending async file to experiment: %s" % e )
             log.log_exc(LaboratoryServer, log.level.Info)
-            raise LaboratoryExceptions.FailedToSendFileException("Couldn't send async file: %s" % str(e))
+            raise LaboratoryErrors.FailedToSendFileError("Couldn't send async file: %s" % str(e))
 
         return Command.Command(str(response))
 
@@ -560,7 +560,7 @@ class LaboratoryServer(object):
         except Exception as e:
             log.log( LaboratoryServer, log.level.Warning, "Exception sending async command to experiment: %s" % e )
             log.log_exc(LaboratoryServer, log.level.Info)
-            raise LaboratoryExceptions.FailedToSendCommandException("Couldn't send async command: %s" % str(e))
+            raise LaboratoryErrors.FailedToSendCommandError("Couldn't send async command: %s" % str(e))
 
         return Command.Command(str(response))
 

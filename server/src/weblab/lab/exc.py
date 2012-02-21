@@ -14,51 +14,51 @@
 #
 import weblab.exc as wlExc
 
-class LaboratoryException(wlExc.WebLabException):
+class LaboratoryError(wlExc.WebLabError):
     pass
 
-class ExperimentNotFoundException(LaboratoryException):
+class ExperimentNotFoundError(LaboratoryError):
     pass
 
-class ExperimentAlreadyFoundException(LaboratoryException):
+class ExperimentAlreadyFoundError(LaboratoryError):
     pass
 
-class BusyExperimentException(LaboratoryException):
+class BusyExperimentError(LaboratoryError):
     pass
 
-class AlreadyFreedExperimentException(LaboratoryException):
+class AlreadyFreedExperimentError(LaboratoryError):
     pass
 
-class FailedToInteractException(LaboratoryException):
+class FailedToInteractError(LaboratoryError):
     pass
 
-class FailedToSendFileException(FailedToInteractException):
+class FailedToSendFileError(FailedToInteractError):
     pass
 
-class FailedToSendCommandException(FailedToInteractException):
+class FailedToSendCommandError(FailedToInteractError):
     pass
 
-class SessionNotFoundInLaboratoryServerException(LaboratoryException):
+class SessionNotFoundInLaboratoryServerError(LaboratoryError):
     pass
 
-class NotASessionTypeException(LaboratoryException):
+class NotASessionTypeError(LaboratoryError):
     pass
 
-class InvalidLaboratoryConfigurationException(LaboratoryException):
+class InvalidLaboratoryConfigurationError(LaboratoryError):
     pass
 
-class CheckingHandlerException(LaboratoryException):
+class CheckingHandlerError(LaboratoryError):
     pass
 
-class WebcamIsReturningAnImageHandlerException(CheckingHandlerException):
+class WebcamIsReturningAnImageHandlerError(CheckingHandlerError):
     pass
 
-class ImageURLDidNotRetrieveAResponseException(WebcamIsReturningAnImageHandlerException):
+class ImageURLDidNotRetrieveAResponseError(WebcamIsReturningAnImageHandlerError):
     pass
 
-class InvalidContentTypeRetrievedFromImageURLException(WebcamIsReturningAnImageHandlerException):
+class InvalidContentTypeRetrievedFromImageURLError(WebcamIsReturningAnImageHandlerError):
     pass
 
-class UnableToConnectHostnameInPortException(CheckingHandlerException):
+class UnableToConnectHostnameInPortError(CheckingHandlerError):
     pass
 

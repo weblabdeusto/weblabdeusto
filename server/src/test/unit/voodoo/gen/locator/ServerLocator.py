@@ -29,9 +29,9 @@ import voodoo.configuration as ConfigurationManager
 import voodoo.gen.locator.ServerLocator as ServerLocator
 import voodoo.gen.locator.ServerTypeHandler as ServerTypeHandler
 
-import voodoo.gen.exceptions.locator.LocatorExceptions as LocatorExceptions
-import voodoo.gen.exceptions.coordinator.CoordinatorServerExceptions as CoordinatorServerExceptions
-import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
+import voodoo.gen.exceptions.locator.LocatorErrors as LocatorErrors
+import voodoo.gen.exceptions.coordinator.CoordinatorServerErrors as CoordinatorServerErrors
+import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 
 import voodoo.gen.generators.ServerSkel as ServerSkel
 
@@ -84,7 +84,7 @@ class ServerLocatorTestCase(unittest.TestCase):
             def do_new_query(self, address, server_type, restrictions):
                 return "the session"
             def do_get_server(self, session_id):
-                raise CoordinatorServerExceptions.NoServerFoundException("No server found for session_id = " + session_id)
+                raise CoordinatorServerErrors.NoServerFoundError("No server found for session_id = " + session_id)
             def do_get_all_servers(self):
                 raise NotImplementedError("Not implemented get_all_servers")
             def do_get_networks(self):
@@ -395,7 +395,7 @@ class ServerLocatorTestCase(unittest.TestCase):
 
             # YetAnother2 doesn't work anymore, and the other two ports are not going to work
             self.assertRaises(
-                LocatorExceptions.NoServerFoundException,
+                LocatorErrors.NoServerFoundError,
                 locator.get_server,
                 coordinator_server_address.address,
                 SampleServerType.Login,
@@ -536,7 +536,7 @@ class ServerLocatorTestCase(unittest.TestCase):
                 )
             )
         self.assertRaises(
-                LocatorExceptions.ServerFoundInCacheException,
+                LocatorErrors.ServerFoundInCacheError,
                 locator._save_server_in_cache,
                 self._login_server1,
                 ServerTypeSample.Login,
@@ -569,7 +569,7 @@ class ServerLocatorTestCase(unittest.TestCase):
     def test_errors(self):
         locator = self._get_new_locator()
         self.assertRaises(
-                LocatorExceptions.NotAServerTypeException,
+                LocatorErrors.NotAServerTypeError,
                 locator.get_server,
                 "address",
                 ":-D",
@@ -581,9 +581,9 @@ class ServerLocatorTestCase(unittest.TestCase):
 
         class Sample:
             def new_query(self, address, server_type,restrictions):
-                raise ProtocolExceptions.ProtocolException("lalala")
+                raise ProtocolErrors.ProtocolError("lalala")
             def get_server(self,session_id):
-                raise ProtocolExceptions.ProtocolException("lalala")
+                raise ProtocolErrors.ProtocolError("lalala")
 
         class Sample2:
             def new_query(self, address, server_type, restrictions):
@@ -593,28 +593,28 @@ class ServerLocatorTestCase(unittest.TestCase):
 
         locator._coordinator = Sample()
         self.assertRaises(
-            LocatorExceptions.ProblemCommunicatingWithCoordinatorException,
+            LocatorErrors.ProblemCommunicatingWithCoordinatorError,
             locator._retrieve_session_id_from_coordinator,
             'address',
             'la',
             'le'
         )
         self.assertRaises(
-            LocatorExceptions.ProblemCommunicatingWithCoordinatorException,
+            LocatorErrors.ProblemCommunicatingWithCoordinatorError,
             locator._get_server_from_coordinator,
             'la'
         )
 
         locator._coordinator = Sample2()
         self.assertRaises(
-            LocatorExceptions.ProblemCommunicatingWithCoordinatorException,
+            LocatorErrors.ProblemCommunicatingWithCoordinatorError,
             locator._retrieve_session_id_from_coordinator,
             'address',
             'la',
             'le'
         )
         self.assertRaises(
-            LocatorExceptions.ProblemCommunicatingWithCoordinatorException,
+            LocatorErrors.ProblemCommunicatingWithCoordinatorError,
             locator._get_server_from_coordinator,
             'la'
         )
@@ -670,12 +670,12 @@ class ServerLocatorTestCase(unittest.TestCase):
         # CoordinatorImplementor says "I don't find any server"
         old_do_get_server = self._coordinatorImplementor.do_get_server
         def do_get_server1(self, session_id):
-            raise CoordinatorServerExceptions.NoServerFoundException("No server found for session_id = " + session_id)
+            raise CoordinatorServerErrors.NoServerFoundError("No server found for session_id = " + session_id)
         self._coordinatorImplementor.do_get_server = do_get_server1
 
         # By default, no server is found
         self.assertRaises(
-                LocatorExceptions.NoServerFoundException,
+                LocatorErrors.NoServerFoundError,
                 locator.get_server,
                 'address',
                 ServerTypeSample.Login,
@@ -694,7 +694,7 @@ class ServerLocatorTestCase(unittest.TestCase):
                 keep_returning_login_server = False
                 return login_server1_address
             else:
-                raise CoordinatorServerExceptions.NoServerFoundException("No server found for session_id = " + session_id)
+                raise CoordinatorServerErrors.NoServerFoundError("No server found for session_id = " + session_id)
         self._coordinatorImplementor.do_get_server = do_get_server2
 
         generated_server = locator.get_server("address",ServerTypeSample.Login,())
@@ -746,7 +746,7 @@ class ServerLocatorTestCase(unittest.TestCase):
                 generated_server3
             )
 
-        # Now let's try the ServerFoundInCacheException :-)
+        # Now let's try the ServerFoundInCacheError :-)
         def do_get_server4(self, session_id):
             locator._save_server_in_cache(
                     generated_server,
@@ -776,12 +776,12 @@ class ServerLocatorTestCase(unittest.TestCase):
         # CoordinatorImplementor says "I don't find any server"
         old_do_get_server = self._coordinatorImplementor.do_get_server
         def do_get_server1(self, session_id):
-            raise CoordinatorServerExceptions.NoServerFoundException("No server found for session_id = " + session_id)
+            raise CoordinatorServerErrors.NoServerFoundError("No server found for session_id = " + session_id)
         self._coordinatorImplementor.do_get_server = do_get_server1
 
         # By default, no server is found
         self.assertRaises(
-                LocatorExceptions.NoServerFoundException,
+                LocatorErrors.NoServerFoundError,
                 locator.get_server,
                 'address',
                 ServerTypeSample.Login,
@@ -800,7 +800,7 @@ class ServerLocatorTestCase(unittest.TestCase):
                 keep_returning_login_server = False
                 return login_server1_address
             else:
-                raise CoordinatorServerExceptions.NoServerFoundException("No server found for session_id = " + session_id)
+                raise CoordinatorServerErrors.NoServerFoundError("No server found for session_id = " + session_id)
         self._coordinatorImplementor.do_get_server = do_get_server2
 
         generated_server = locator.get_server("address",ServerTypeSample.Login,())
@@ -852,7 +852,7 @@ class ServerLocatorTestCase(unittest.TestCase):
                 generated_server3
             )
 
-        # Now let's try the ServerFoundInCacheException :-)
+        # Now let's try the ServerFoundInCacheError :-)
         def do_get_server4(self, session_id):
             locator._save_server_in_cache(
                     generated_server,
@@ -995,9 +995,9 @@ class ServerLocatorTestCase(unittest.TestCase):
             return []
         self._coordinatorImplementor.do_get_networks = do_get_networks1
 
-        # If no network is available, LocatorExceptions.NoNetworkAvailableException is raised
+        # If no network is available, LocatorErrors.NoNetworkAvailableError is raised
         self.assertRaises(
-                LocatorExceptions.NoNetworkAvailableException,
+                LocatorErrors.NoNetworkAvailableError,
                 locator.get_server_from_coord_address,
                 self.coordinator_server_address,
                 self.login_server1_address,

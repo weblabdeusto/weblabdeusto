@@ -40,7 +40,7 @@ class LabViewMethod(WebFacadeServer.Method):
             session_id = self._check_arguments()
             sid = SessionId(session_id)
             result = self.server.send_command(sid, Command.Command("get_html"))
-        except LabViewException as lve:
+        except LabViewError as lve:
             message = lve.args[0]
             return HTML_TEMPLATE % {
                         'MESSAGE' : "Failed to load LabVIEW experiment. Reason: %s." % message
@@ -60,10 +60,10 @@ class LabViewMethod(WebFacadeServer.Method):
     def _check_arguments(self):
         session_id = self.get_argument(SESSION_ID)
         if session_id is None:
-            raise LabViewException("%s argument not provided!" % SESSION_ID)
+            raise LabViewError("%s argument not provided!" % SESSION_ID)
 
         return session_id
 
-class LabViewException(Exception):
+class LabViewError(Exception):
     pass
 

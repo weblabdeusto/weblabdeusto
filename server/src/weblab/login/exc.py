@@ -15,49 +15,49 @@
 import weblab.exc as wlExc
 
 #
-# from WebLabException
+# from WebLabError
 #
 
-class LoginException(wlExc.WebLabException):
+class LoginError(wlExc.WebLabError):
     def __init__(self,*args,**kargs):
-        wlExc.WebLabException.__init__(self,*args,**kargs)
+        wlExc.WebLabError.__init__(self,*args,**kargs)
 
 #
-# from LoginException
+# from LoginError
 #
 
-class InvalidCredentialsException(LoginException):
+class InvalidCredentialsError(LoginError):
     def __init__(self,*args,**kargs):
-        LoginException.__init__(self,*args,**kargs)
+        LoginError.__init__(self,*args,**kargs)
 
-class UnableToCompleteOperationException(LoginException):
+class UnableToCompleteOperationError(LoginError):
     def __init__(self,*args,**kargs):
-        LoginException.__init__(self,*args,**kargs)
+        LoginError.__init__(self,*args,**kargs)
 
-class LoginAuthException(LoginException):
+class LoginAuthError(LoginError):
     def __init__(self,*args,**kargs):
-        LoginException.__init__(self,*args,**kargs)
+        LoginError.__init__(self,*args,**kargs)
 
-class LdapAuthException(LoginException):
+class LdapAuthError(LoginError):
     def __init__(self,*args,**kargs):
-        LoginException.__init__(self,*args,**kargs)
+        LoginError.__init__(self,*args,**kargs)
 
 #
-# from LoginAuthException
+# from LoginAuthError
 #
 
-class LoginUserAuthNotImplementedException(LoginAuthException):
+class LoginUserAuthNotImplementedError(LoginAuthError):
     def __init__(self,*args,**kargs):
-        LoginAuthException.__init__(self,*args,**kargs)
+        LoginAuthError.__init__(self,*args,**kargs)
 
 #
-# from LdapAuthException
+# from LdapAuthError
 #
 
-class LdapInitializingException(LdapAuthException):
+class LdapInitializingError(LdapAuthError):
     def __init__(self,*args,**kargs):
-        LdapAuthException.__init__(self,*args,**kargs)
+        LdapAuthError.__init__(self,*args,**kargs)
 
-class LdapBindingException(LdapAuthException):
+class LdapBindingError(LdapAuthError):
     def __init__(self,*args,**kargs):
-        LdapAuthException.__init__(self,*args,**kargs)
+        LdapAuthError.__init__(self,*args,**kargs)

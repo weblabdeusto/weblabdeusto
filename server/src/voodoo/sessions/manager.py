@@ -21,7 +21,7 @@ import voodoo.sessions.session_type as SessionType
 import voodoo.sessions.gateway as SessionGateway
 import voodoo.sessions.session_id as SessionId
 
-import voodoo.sessions.exc as SessionExceptions
+import voodoo.sessions.exc as SessionErrors
 
 DEBUGGING = True
 
@@ -76,7 +76,7 @@ class SessionManager(object):
         """
         object.__init__(self)
         if not session_type in SessionType.getSessionTypeValues():
-            raise SessionExceptions.SessionInvalidSessionTypeException(
+            raise SessionErrors.SessionInvalidSessionTypeError(
                     "Not a session type: %s " % session_type
                 )
 
@@ -105,7 +105,7 @@ class SessionManager(object):
         if isinstance(sess_id,SessionId.SessionId):
             return self.gateway.get_session(sess_id.id)
         else:
-            raise SessionExceptions.SessionInvalidSessionIdException(
+            raise SessionErrors.SessionInvalidSessionIdError(
                 "Not a SessionId: %s " % sess_id
             )
 
@@ -113,7 +113,7 @@ class SessionManager(object):
         if isinstance(sess_id,SessionId.SessionId):
             return self.gateway.get_session_locking(sess_id.id)
         else:
-            raise SessionExceptions.SessionInvalidSessionIdException(
+            raise SessionErrors.SessionInvalidSessionIdError(
                 "Not a SessionId: %s " % sess_id
             )
 
@@ -121,7 +121,7 @@ class SessionManager(object):
         if isinstance(sess_id,SessionId.SessionId):
             return self.gateway.modify_session(sess_id.id,sess_obj)
         else:
-            raise SessionExceptions.SessionInvalidSessionIdException(
+            raise SessionErrors.SessionInvalidSessionIdError(
                 "Not a SessionId: %s " % sess_id
             )
 
@@ -129,7 +129,7 @@ class SessionManager(object):
         if isinstance(sess_id,SessionId.SessionId):
             return self.gateway.modify_session_unlocking(sess_id.id,sess_obj)
         else:
-            raise SessionExceptions.SessionInvalidSessionIdException(
+            raise SessionErrors.SessionInvalidSessionIdError(
                 "Not a SessionId: %s " % sess_id
             )
 
@@ -137,7 +137,7 @@ class SessionManager(object):
         if isinstance(sess_id,SessionId.SessionId):
             return self.gateway.unlock_without_modifying(sess_id.id)
         else:
-            raise SessionExceptions.SessionInvalidSessionIdException(
+            raise SessionErrors.SessionInvalidSessionIdError(
                 "Not a SessionId: %s " % sess_id
             )
 
@@ -151,7 +151,7 @@ class SessionManager(object):
         if isinstance(sess_id,SessionId.SessionId):
             return self.gateway.delete_session(sess_id.id)
         else:
-            raise SessionExceptions.SessionInvalidSessionIdException(
+            raise SessionErrors.SessionInvalidSessionIdError(
                 "Not a SessionId: %s " % sess_id
             )
 
@@ -159,7 +159,7 @@ class SessionManager(object):
         if isinstance(sess_id,SessionId.SessionId):
             return self.gateway.delete_session_unlocking(sess_id.id)
         else:
-            raise SessionExceptions.SessionInvalidSessionIdException(
+            raise SessionErrors.SessionInvalidSessionIdError(
                 "Not a SessionId: %s " % sess_id
             )
 

@@ -13,25 +13,25 @@
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 #
 
-class BotException(Exception):
+class BotError(Exception):
     """ Base Exception for this tool. """
 
     def __init__(self, *args, **kargs):
         Exception.__init__(self, *args, **kargs)
 
-class InvalidUserOrPasswordException(BotException):
+class InvalidUserOrPasswordError(BotError):
     def __init__(self, *args, **kargs):
-        BotException.__init__(self, *args, **kargs)
+        BotError.__init__(self, *args, **kargs)
 
-class ListOfExperimentsIsEmptyException(BotException):
+class ListOfExperimentsIsEmptyError(BotError):
     def __init__(self, *args, **kargs):
-        BotException.__init__(self, *args, **kargs)
+        BotError.__init__(self, *args, **kargs)
 
-class ExperimentDoesNotExistException(BotException):
+class ExperimentDoesNotExistError(BotError):
     def __init__(self, *args, **kargs):
-        BotException.__init__(self, *args, **kargs)
+        BotError.__init__(self, *args, **kargs)
 
-class UserAssertionException(BotException):
+class UserAssertionError(BotError):
     def __init__(self, *args, **kargs):
-        BotException.__init__(self, *args, **kargs)
+        BotError.__init__(self, *args, **kargs)
 

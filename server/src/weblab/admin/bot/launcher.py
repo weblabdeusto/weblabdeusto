@@ -55,11 +55,11 @@ class BotLauncher(object):
         self.users = len(self.scenario)
 
     def _add_exception(self, exceptions_dict, (exception, trace)):
-        """ { "ExceptionType1": <BotException>, "ExceptionType2": <BotException>, ... } """
+        """ { "ExceptionType1": <BotError>, "ExceptionType2": <BotError>, ... } """
         if exception.__class__.__name__ in exceptions_dict:
             exceptions_dict[exception.__class__.__name__].add_instance((exception, trace))
         else:
-            exceptions_dict[exception.__class__.__name__] = Data.BotException((exception, trace))
+            exceptions_dict[exception.__class__.__name__] = Data.BotError((exception, trace))
 
     def _print(self, message):
         sys.stdout.write(message)

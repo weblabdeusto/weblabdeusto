@@ -15,7 +15,7 @@
 
 import urllib2
 
-import weblab.experiment.devices.exc as DeviceExceptions
+import weblab.experiment.devices.exc as DeviceErrors
 
 class HttpDevice(object):
 
@@ -34,28 +34,28 @@ class HttpDevice(object):
             url = urllib2.urlopen( full_url, text )
             return url.read()
         except urllib2.HTTPError as e:
-            raise WlHttpDeviceHTTPErrorException(e)
+            raise WlHttpDeviceHTTPErrorError(e)
         except urllib2.URLError as e:
-            raise WlHttpDeviceURLErrorException(e)
+            raise WlHttpDeviceURLErrorError(e)
         except Exception as e:
-            raise WlHttpDeviceException(e)
+            raise WlHttpDeviceError(e)
 
-class WlHttpDeviceException(DeviceExceptions.DeviceException):
+class WlHttpDeviceError(DeviceErrors.DeviceError):
     def __init__(self, msg):
-        DeviceExceptions.DeviceException.__init__(self, "Exception related to Weblab's Http device: %s" % msg)
+        DeviceErrors.DeviceError.__init__(self, "Exception related to Weblab's Http device: %s" % msg)
 
-class WlHttpDeviceURLErrorException(WlHttpDeviceException):
+class WlHttpDeviceURLErrorError(WlHttpDeviceError):
     def __init__(self, e = None):
         text = "Failed reaching the server"
         if hasattr(e, "reason"):
             text += ": %(r)s" % {'r':e.reason}
-        WlHttpDeviceException.__init__(self, text)
+        WlHttpDeviceError.__init__(self, text)
 
-class WlHttpDeviceHTTPErrorException(WlHttpDeviceException):
+class WlHttpDeviceHTTPErrorError(WlHttpDeviceError):
     def __init__(self, e = None):
         text = "The server couldn't fulfill the request"
         if hasattr(e, "code"):
             text += ": %(c)i" % {'c':e.code}
         else:
             text += ": %s" % e
-        WlHttpDeviceException.__init__(self, text)
+        WlHttpDeviceError.__init__(self, text)

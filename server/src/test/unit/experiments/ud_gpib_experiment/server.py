@@ -22,8 +22,8 @@ import experiments.ud_gpib.server as UdGpibExperiment
 import weblab.experiment.util as ExperimentUtil
 import voodoo.configuration as ConfigurationManager
 
-import weblab.experiment.exc as ExperimentExceptions
-import experiments.ud_gpib.exc as GpibExceptions
+import weblab.experiment.exc as ExperimentErrors
+import experiments.ud_gpib.exc as GpibErrors
 
 class FakeCompiler(object):
     def __init__(self):
@@ -211,7 +211,7 @@ class UdGpibExperimentTestCase(unittest.TestCase):
 
     def test_send_command_to_device_unknown_command(self):
         self.assertRaises(
-            GpibExceptions.UnknownUdGpibCommandException,
+            GpibErrors.UnknownUdGpibCommandError,
             self.experiment.do_send_command_to_device,
             "ThisIsNotAValidCommand!"
         )
@@ -220,7 +220,7 @@ class UdGpibExperimentTestCase(unittest.TestCase):
         CPP_FILE_CONTENT = """Content of the cpp file"""
         self.compiler.fail_on_next = True
         self.assertRaises(
-            ExperimentExceptions.SendingFileFailureException,
+            ExperimentErrors.SendingFileFailureError,
             self.experiment.do_send_file_to_device,
             ExperimentUtil.serialize(CPP_FILE_CONTENT),
             'program'

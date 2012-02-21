@@ -20,7 +20,7 @@ import StringIO
 
 import voodoo.gen.coordinator.AccessLevel  as AccessLevel
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
-import voodoo.gen.exceptions.loader.LoaderExceptions as LoaderExceptions
+import voodoo.gen.exceptions.loader.LoaderErrors as LoaderErrors
 import voodoo.gen.loader.ConfigurationData as ConfigurationData
 import voodoo.gen.loader.ConfigurationParser as ConfigurationParser
 
@@ -100,14 +100,14 @@ class ServerParserTestCase(unittest.TestCase):
 
     def test_address_is_none(self):
         self.assertRaises(
-                LoaderExceptions.InvalidConfigurationException,
+                LoaderErrors.InvalidConfigurationError,
                 self.server_parser.parse,
                 SERVER_PATH,
             )
 
     def test_parse_file_not_found(self):
         self.assertRaises(
-            LoaderExceptions.InvalidConfigurationException,
+            LoaderErrors.InvalidConfigurationError,
             self.server_parser.parse,
             '.',
             SERVER_ADDRESS
@@ -115,7 +115,7 @@ class ServerParserTestCase(unittest.TestCase):
 
     def test_parse_not_an_xml(self):
         self.assertRaises(
-            LoaderExceptions.InvalidConfigurationException,
+            LoaderErrors.InvalidConfigurationError,
             self.server_parser._parse_from_stream,
             StringIO.StringIO(
                 """this is not an xml"""
@@ -127,7 +127,7 @@ class ServerParserTestCase(unittest.TestCase):
 
     def test_parse_invalid_xml(self):
         self.assertRaises(
-            LoaderExceptions.InvalidSyntaxFileConfigurationException,
+            LoaderErrors.InvalidSyntaxFileConfigurationError,
             self.server_parser._parse_from_stream,
             StringIO.StringIO(
                 """<?xml version="1.0" encoding="utf-8"?>
@@ -140,7 +140,7 @@ class ServerParserTestCase(unittest.TestCase):
 
     def test_parse_invalid_methods_format_two_points_not_found(self):
         self.assertRaises(
-            LoaderExceptions.InvalidConfigurationException,
+            LoaderErrors.InvalidConfigurationError,
             self.server_parser._parse_from_stream,
             StringIO.StringIO(
                 SERVER_CONFIG_SAMPLE % {
@@ -156,7 +156,7 @@ class ServerParserTestCase(unittest.TestCase):
 
     def test_parse_invalid_methods_format_methods_does_not_exist_in_module(self):
         self.assertRaises(
-            LoaderExceptions.InvalidConfigurationException,
+            LoaderErrors.InvalidConfigurationError,
             self.server_parser._parse_from_stream,
             StringIO.StringIO(
                 SERVER_CONFIG_SAMPLE % {
@@ -172,7 +172,7 @@ class ServerParserTestCase(unittest.TestCase):
 
     def test_parse_invalid_server_type_format_two_points_not_found(self):
         self.assertRaises(
-            LoaderExceptions.InvalidConfigurationException,
+            LoaderErrors.InvalidConfigurationError,
             self.server_parser._parse_from_stream,
             StringIO.StringIO(
                 SERVER_CONFIG_SAMPLE % {
@@ -188,7 +188,7 @@ class ServerParserTestCase(unittest.TestCase):
 
     def test_parse_invalid_server_type_format_methods_does_not_exist_in_module(self):
         self.assertRaises(
-            LoaderExceptions.InvalidConfigurationException,
+            LoaderErrors.InvalidConfigurationError,
             self.server_parser._parse_from_stream,
             StringIO.StringIO(
                 SERVER_CONFIG_SAMPLE % {
@@ -205,7 +205,7 @@ class ServerParserTestCase(unittest.TestCase):
 
     def test_parse_invalid_implementation(self):
         self.assertRaises(
-            LoaderExceptions.InvalidConfigurationException,
+            LoaderErrors.InvalidConfigurationError,
             self.server_parser._parse_from_stream,
             StringIO.StringIO(
                 SERVER_CONFIG_SAMPLE % {
@@ -391,14 +391,14 @@ class InstanceParserTestCase(unittest.TestCase):
 
     def test_address_is_none(self):
         self.assertRaises(
-                LoaderExceptions.InvalidConfigurationException,
+                LoaderErrors.InvalidConfigurationError,
                 self.instance_parser.parse,
                 INSTANCE_PATH,
             )
 
     def test_parse_not_an_xml(self):
         self.assertRaises(
-            LoaderExceptions.InvalidConfigurationException,
+            LoaderErrors.InvalidConfigurationError,
             self.instance_parser._parse_from_stream,
             StringIO.StringIO(
                 """this is not an xml"""
@@ -410,7 +410,7 @@ class InstanceParserTestCase(unittest.TestCase):
 
     def test_parse_invalid_xml(self):
         self.assertRaises(
-            LoaderExceptions.InvalidSyntaxFileConfigurationException,
+            LoaderErrors.InvalidSyntaxFileConfigurationError,
             self.instance_parser._parse_from_stream,
             StringIO.StringIO(
                 """<?xml version="1.0" encoding="utf-8"?>
@@ -423,7 +423,7 @@ class InstanceParserTestCase(unittest.TestCase):
 
     def test_parse_invalid_server(self):
         self.assertRaises(
-            LoaderExceptions.InvalidConfigurationException,
+            LoaderErrors.InvalidConfigurationError,
             self.instance_parser._parse_from_stream,
             StringIO.StringIO(
                 INSTANCE_CONFIG_SAMPLE % {
@@ -505,14 +505,14 @@ class MachineParserTestCase(unittest.TestCase):
 
     def test_address_is_none(self):
         self.assertRaises(
-                LoaderExceptions.InvalidConfigurationException,
+                LoaderErrors.InvalidConfigurationError,
                 self.machine_parser.parse,
                 MACHINE_PATH,
             )
 
     def test_parse_not_an_xml(self):
         self.assertRaises(
-            LoaderExceptions.InvalidConfigurationException,
+            LoaderErrors.InvalidConfigurationError,
             self.machine_parser._parse_from_stream,
             StringIO.StringIO(
                 """this is not an xml"""
@@ -524,7 +524,7 @@ class MachineParserTestCase(unittest.TestCase):
 
     def test_parse_invalid_xml(self):
         self.assertRaises(
-            LoaderExceptions.InvalidSyntaxFileConfigurationException,
+            LoaderErrors.InvalidSyntaxFileConfigurationError,
             self.machine_parser._parse_from_stream,
             StringIO.StringIO(
                 """<?xml version="1.0" encoding="utf-8"?>
@@ -537,7 +537,7 @@ class MachineParserTestCase(unittest.TestCase):
 
     def test_parse_invalid_server(self):
         self.assertRaises(
-            LoaderExceptions.InvalidConfigurationException,
+            LoaderErrors.InvalidConfigurationError,
             self.machine_parser._parse_from_stream,
             StringIO.StringIO(
                 MACHINE_CONFIG_SAMPLE % {
@@ -614,7 +614,7 @@ class GlobalParserTestCase(unittest.TestCase):
 
     def test_parse_not_an_xml(self):
         self.assertRaises(
-            LoaderExceptions.InvalidConfigurationException,
+            LoaderErrors.InvalidConfigurationError,
             self.global_parser._parse_from_stream,
             StringIO.StringIO(
                 """this is not an xml"""
@@ -626,7 +626,7 @@ class GlobalParserTestCase(unittest.TestCase):
 
     def test_parse_invalid_xml(self):
         self.assertRaises(
-            LoaderExceptions.InvalidSyntaxFileConfigurationException,
+            LoaderErrors.InvalidSyntaxFileConfigurationError,
             self.global_parser._parse_from_stream,
             StringIO.StringIO(
                 """<?xml version="1.0" encoding="utf-8"?>
@@ -639,7 +639,7 @@ class GlobalParserTestCase(unittest.TestCase):
 
     def test_parse_invalid_server(self):
         self.assertRaises(
-            LoaderExceptions.InvalidConfigurationException,
+            LoaderErrors.InvalidConfigurationError,
             self.global_parser._parse_from_stream,
             StringIO.StringIO(
                 GLOBAL_CONFIG_SAMPLE % {

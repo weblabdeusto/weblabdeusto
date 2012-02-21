@@ -15,7 +15,7 @@
 
 from voodoo.sessions import session_id as SessionId
 import cPickle as pickle
-import voodoo.sessions.exc as SessionExceptions
+import voodoo.sessions.exc as SessionErrors
 from functools import wraps
 
 def check_session_parameters(parameters):
@@ -25,7 +25,7 @@ def check_session_parameters(parameters):
             #TODO: test me
             for i in parameters:
                 if not i in session:
-                    raise SessionExceptions.VariableNotFoundInSessionException(
+                    raise SessionErrors.VariableNotFoundInSessionError(
                             "Variable not found in session: %s" % i
                         )
             return func(self, session, *args, **kargs)

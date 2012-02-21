@@ -14,7 +14,7 @@
 #
 
 import xml.dom.minidom as minidom
-import voodoo.gen.exceptions.loader.LoaderExceptions as LoaderExceptions
+import voodoo.gen.exceptions.loader.LoaderErrors as LoaderErrors
 
 def find_nodes(file_name, root_node, node_name):
     return [ child_node
@@ -25,7 +25,7 @@ def find_nodes(file_name, root_node, node_name):
 def find_nodes_at_least_one(file_name, root_node, node_name):
     nodes = find_nodes(file_name, root_node, node_name)
     if len(nodes) == 0:
-        raise LoaderExceptions.InvalidSyntaxFileConfigurationException(
+        raise LoaderErrors.InvalidSyntaxFileConfigurationError(
             "Couldn't find %s node in %s" % (file_name, node_name),
             file_name
         )
@@ -34,7 +34,7 @@ def find_nodes_at_least_one(file_name, root_node, node_name):
 def find_node(file_name, root_node, node_name):
     nodes = find_nodes_at_least_one(file_name, root_node, node_name)
     if len(nodes) > 1:
-        raise LoaderExceptions.InvalidSyntaxFileConfigurationException(
+        raise LoaderErrors.InvalidSyntaxFileConfigurationError(
             "Too many %s nodes in %s" % (file_name, node_name),
             file_name
         )
@@ -51,7 +51,7 @@ def obtain_text(text_node):
 def obtain_text_safe(text_node):
     text = [ i for i in text_node.childNodes if isinstance(i,minidom.Text) ]
     if len(text) == 0:
-        raise LoaderExceptions.InvalidConfigurationException(
+        raise LoaderErrors.InvalidConfigurationError(
                     "Empty Text Node"
                 )
     else:
@@ -88,7 +88,7 @@ def obtain_from_python_path(name):
     the_module = obtain_module(name)
     #If the_module is still None, the path is wrong
     if the_module == None:
-        raise LoaderExceptions.InvalidConfigurationException(
+        raise LoaderErrors.InvalidConfigurationError(
                     """I can't import any module from "%s" """ % name
                 )
 
@@ -102,7 +102,7 @@ def obtain_from_python_path(name):
         try:
             current_block = getattr(current_block,i)
         except AttributeError:
-            raise LoaderExceptions.InvalidConfigurationException(
+            raise LoaderErrors.InvalidConfigurationError(
                     """Couldn't find %s in module: %s""" % (
                             i,
                             name

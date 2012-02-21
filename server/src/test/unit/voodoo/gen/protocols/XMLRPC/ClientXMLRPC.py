@@ -15,8 +15,8 @@
 import unittest
 
 import voodoo.gen.protocols.XMLRPC.ClientXMLRPC as ClientXMLRPC
-import voodoo.gen.protocols.XMLRPC.Exceptions as Exceptions
-import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
+import voodoo.gen.protocols.XMLRPC.Errors as Exceptions
+import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 
 import xmlrpclib
 
@@ -58,7 +58,7 @@ class ClientXMLRPCTestCase(unittest.TestCase):
             )
 
         self.assertRaises(
-                ProtocolExceptions.UnknownRemoteException,
+                ProtocolErrors.UnknownRemoteError,
                 newfunctions[2],
                 fake
             )

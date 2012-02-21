@@ -20,10 +20,10 @@ import voodoo.log as log
 
 import voodoo.gen.registry.server_registry as ServerRegistry
 
-import voodoo.gen.exceptions.registry.RegistryExceptions as RegistryExceptions
-import voodoo.gen.exceptions.locator.LocatorExceptions as LocatorExceptions
-import voodoo.gen.exceptions.coordinator.CoordinatorServerExceptions as CoordinatorServerExceptions
-import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
+import voodoo.gen.exceptions.registry.RegistryErrors as RegistryErrors
+import voodoo.gen.exceptions.locator.LocatorErrors as LocatorErrors
+import voodoo.gen.exceptions.coordinator.CoordinatorServerErrors as CoordinatorServerErrors
+import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 
 ALL = "all"
 MAX_CACHE_TIME = 5 # seconds
@@ -79,7 +79,7 @@ class ServerLocator(object):
 
     def get_server(self,original_server_address, server_type,restrictions):
         if not self._server_type_handler.isMember(server_type):
-            raise LocatorExceptions.NotAServerTypeException('%s not a member of %s' %
+            raise LocatorErrors.NotAServerTypeError('%s not a member of %s' %
                     (
                         server_type,
                         self._server_type_handler.module
@@ -102,7 +102,7 @@ class ServerLocator(object):
             while there_are_more_servers:
                 try:
                     address = self._get_server_from_coordinator(session_id)
-                except CoordinatorServerExceptions.NoServerFoundException:
+                except CoordinatorServerErrors.NoServerFoundError:
                     there_are_more_servers = False
                     continue
                 server = self._get_server_from_registry(address)
@@ -117,7 +117,7 @@ class ServerLocator(object):
                     # Now add it to the cache and return it
                     try:
                         self._save_server_in_cache(server, server_type, restrictions)
-                    except LocatorExceptions.ServerFoundInCacheException as server_found_in_cache:
+                    except LocatorErrors.ServerFoundInCacheError as server_found_in_cache:
                         # While we were calling the coordinator, some
                         # other thread retrieved the server. Use the
                         # server that was already in the cache
@@ -131,7 +131,7 @@ class ServerLocator(object):
                     )
                 try:
                     server = address.create_client(methods)
-                except ProtocolExceptions.ClientProtocolException as ccce:
+                except ProtocolErrors.ClientProtocolError as ccce:
                     # TODO: not tested
                     # There was some error creating the client
                     log.log(
@@ -161,12 +161,12 @@ class ServerLocator(object):
                             restrictions,
                             address
                         )
-                except LocatorExceptions.ServerFoundInCacheException as e:
+                except LocatorErrors.ServerFoundInCacheError as e:
                     return e.get_server()
                 else:
                     return server
             else:
-                raise LocatorExceptions.NoServerFoundException(
+                raise LocatorErrors.NoServerFoundError(
                     "No server found of type %s and restrictions %s" %
                     (server_type, restrictions)
                 )
@@ -177,7 +177,7 @@ class ServerLocator(object):
     def get_all_servers(self,original_server_address, server_type,restrictions =()):
         if not self._server_type_handler.isMember(server_type):
             #TODO: not tested
-            raise LocatorExceptions.NotAServerTypeException('%s not a member of %s' %
+            raise LocatorErrors.NotAServerTypeError('%s not a member of %s' %
                     (
                         server_type,
                         self._server_type_handler
@@ -202,7 +202,7 @@ class ServerLocator(object):
                     server_coord_address
                 )
         if len(networks) == 0:
-            raise LocatorExceptions.NoNetworkAvailableException(
+            raise LocatorErrors.NoNetworkAvailableError(
                 "Couldn't find a network for communicating original_server_address '%s' and server_coord_address '%s'" % (
                     original_server_address,
                     server_coord_address
@@ -231,7 +231,7 @@ class ServerLocator(object):
                 )
             try:
                 cur_server = address.create_client(methods)
-            except ProtocolExceptions.ClientClassCreationException as ccce:
+            except ProtocolErrors.ClientClassCreationError as ccce:
                 # TODO: not unittested
                 # There was some error creating the client
                 log.log(
@@ -301,11 +301,11 @@ class ServerLocator(object):
     def _retrieve_session_id_from_coordinator(self,original_server_address,server_type,restrictions):
         try:
             return self._coordinator.new_query(original_server_address,server_type,restrictions)
-        except ProtocolExceptions.ProtocolException as pe:
+        except ProtocolErrors.ProtocolError as pe:
             log.log( ServerLocator, log.level.Error, "Problem while asking for new session id to the coordinator server. %s" % pe )
             log.log_exc( ServerLocator, log.level.Warning )
 
-            raise LocatorExceptions.ProblemCommunicatingWithCoordinatorException(
+            raise LocatorErrors.ProblemCommunicatingWithCoordinatorError(
                     "Couldn't retrieve new session id from coordinator server: " + str(pe),
                     pe
                 )
@@ -313,7 +313,7 @@ class ServerLocator(object):
             log.log( ServerLocator, log.level.Error, "Unexpected exception while asking for new session id to the coordinator server. %s" % e )
             log.log_exc( ServerLocator, log.level.Warning )
 
-            raise LocatorExceptions.ProblemCommunicatingWithCoordinatorException(
+            raise LocatorErrors.ProblemCommunicatingWithCoordinatorError(
                     "Unexpected exception while asking new session id from coordinator server: " + str(e),
                     e
                 )
@@ -328,7 +328,7 @@ class ServerLocator(object):
     def _retrieve_all_servers_from_coordinator(self,original_server_address,server_type,restrictions):
         try:
             return self._coordinator.get_all_servers(original_server_address,server_type,restrictions)
-        except ProtocolExceptions.ProtocolException as pe:
+        except ProtocolErrors.ProtocolError as pe:
             # TODO: not unittested
             log.log(
                     ServerLocator,
@@ -340,7 +340,7 @@ class ServerLocator(object):
                     log.level.Warning
                 )
 
-            raise LocatorExceptions.ProblemCommunicatingWithCoordinatorException(
+            raise LocatorErrors.ProblemCommunicatingWithCoordinatorError(
                     "Couldn't retrieve all servers from coordinator server: " + str(pe),
                     pe
                 )
@@ -356,7 +356,7 @@ class ServerLocator(object):
                     log.level.Warning
                 )
 
-            raise LocatorExceptions.ProblemCommunicatingWithCoordinatorException(
+            raise LocatorErrors.ProblemCommunicatingWithCoordinatorError(
                     "Unexpected exception while asking all servers from coordinator server: " + str(e),
                     e
                 )
@@ -364,7 +364,7 @@ class ServerLocator(object):
     def _retrieve_networks_from_coordinator(self,original_server_address,server_coord_address):
         try:
             return self._coordinator.get_networks(original_server_address,server_coord_address)
-        except ProtocolExceptions.ProtocolException as pe:
+        except ProtocolErrors.ProtocolError as pe:
             # TODO: not unittested
             log.log(
                     ServerLocator,
@@ -376,7 +376,7 @@ class ServerLocator(object):
                     log.level.Warning
                 )
 
-            raise LocatorExceptions.ProblemCommunicatingWithCoordinatorException(
+            raise LocatorErrors.ProblemCommunicatingWithCoordinatorError(
                     "Couldn't retrieve networks from coordinator server: " + str(pe),
                     pe
                 )
@@ -395,7 +395,7 @@ class ServerLocator(object):
             import traceback
             traceback.print_exc()
 
-            raise LocatorExceptions.ProblemCommunicatingWithCoordinatorException(
+            raise LocatorErrors.ProblemCommunicatingWithCoordinatorError(
                     "Unexpected exception while asking for networks from coordinator server: " + str(e),
                     e
                 )
@@ -403,9 +403,9 @@ class ServerLocator(object):
     def _get_server_from_coordinator(self, session_id):
         try:
             return self._coordinator.get_server(session_id)
-        except CoordinatorServerExceptions.NoServerFoundException as nsfe:
+        except CoordinatorServerErrors.NoServerFoundError as nsfe:
             raise nsfe
-        except ProtocolExceptions.ProtocolException as pe:
+        except ProtocolErrors.ProtocolError as pe:
             log.log(
                     ServerLocator,
                     log.level.Error,
@@ -415,7 +415,7 @@ class ServerLocator(object):
                     ServerLocator,
                     log.level.Warning
                 )
-            raise LocatorExceptions.ProblemCommunicatingWithCoordinatorException(
+            raise LocatorErrors.ProblemCommunicatingWithCoordinatorError(
                     "Couldn't ask for other server to coordinator server: " + str(pe),
                     pe
                 )
@@ -429,7 +429,7 @@ class ServerLocator(object):
                     ServerLocator,
                     log.level.Warning
                 )
-            raise LocatorExceptions.ProblemCommunicatingWithCoordinatorException(
+            raise LocatorErrors.ProblemCommunicatingWithCoordinatorError(
                     "Unexpected exception while asking for other server to the coordinator server: " + str(e),
                     e
                 )
@@ -460,12 +460,12 @@ class ServerLocator(object):
         try:
             try:
                 self._registry.register_server(address.address,server)
-            except RegistryExceptions.RegistryException as e:
+            except RegistryErrors.RegistryError as e:
                 # TODO: not unittested
                 log.log(
                         ServerLocator,
                         log.level.Info,
-                        "RegistryException found registring server %s with address %s in registry: %s" % (server,address.address,e)
+                        "RegistryError found registring server %s with address %s in registry: %s" % (server,address.address,e)
                     )
                 log.log_exc(
                         ServerLocator,
@@ -489,7 +489,7 @@ class ServerLocator(object):
             if not server_type_cache.has_key(restrictions):
                 server_type_cache[restrictions] = (server, self._time())
             else:
-                raise LocatorExceptions.ServerFoundInCacheException(
+                raise LocatorErrors.ServerFoundInCacheError(
                     server_type_cache[restrictions][0],
                     "There is already a server for server type %s and restrictions %s" % (server_type,restrictions)
                 )
@@ -507,7 +507,7 @@ class ServerLocator(object):
     def _get_server_from_registry(self,address):
         try:
             return self._registry.get_server(address.address)
-        except RegistryExceptions.RegistryException:
+        except RegistryErrors.RegistryError:
             # It was not found in the registry
             return None
 

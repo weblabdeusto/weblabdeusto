@@ -14,7 +14,7 @@
 #
 import voodoo.lock as lock
 from voodoo.lock import locked
-import voodoo.gen.exceptions.registry.RegistryExceptions as RegistryExceptions
+import voodoo.gen.exceptions.registry.RegistryErrors as RegistryErrors
 
 class ServerRegistry(object):
     """
@@ -35,7 +35,7 @@ class ServerRegistry(object):
     @locked('_servers_write_lock')
     def register_server(self, address, server):
         if self._servers.has_key(address):
-            raise RegistryExceptions.AddressAlreadyRegisteredException('Key %s already found in ServerRegistry' % address)
+            raise RegistryErrors.AddressAlreadyRegisteredError('Key %s already found in ServerRegistry' % address)
         self._servers[address] = server
 
     @locked('_servers_write_lock')
@@ -45,7 +45,7 @@ class ServerRegistry(object):
     @locked('_servers_write_lock')
     def deregister_server(self, address):
         if not self._servers.has_key(address):
-            raise RegistryExceptions.ServerNotFoundInRegistryException(
+            raise RegistryErrors.ServerNotFoundInRegistryError(
                 'Address %s not found in registry' % address
             )
 
@@ -54,7 +54,7 @@ class ServerRegistry(object):
     @locked('_servers_read_lock')
     def get_server(self, address):
         if not self._servers.has_key(address):
-            raise RegistryExceptions.ServerNotFoundInRegistryException(
+            raise RegistryErrors.ServerNotFoundInRegistryError(
                 'Address %s not found in registry' % address
             )
         return self._servers[address]

@@ -15,7 +15,7 @@
 
 import re
 
-import weblab.db.exc as DbExceptions
+import weblab.db.exc as DbErrors
 
 class UserAuth(object):
     @staticmethod
@@ -29,7 +29,7 @@ class UserAuth(object):
         elif name == FacebookUserAuth.NAME:
             return FacebookUserAuth(configuration)
         else:
-            raise DbExceptions.DbUnsupportedUserAuth("UserAuth %s not supported" % name)
+            raise DbErrors.DbUnsupportedUserAuth("UserAuth %s not supported" % name)
 
 class LdapUserAuth(object):
     NAME = 'LDAP'
@@ -37,7 +37,7 @@ class LdapUserAuth(object):
     def __init__(self, configuration):
         mo = re.match(LdapUserAuth.REGEX, configuration)
         if mo is None:
-            raise DbExceptions.DbInvalidUserAuthConfigurationException(
+            raise DbErrors.DbInvalidUserAuthConfigurationError(
                 "Invalid configuration: %s" % configuration
             )
         ldap_uri, domain, base = mo.groups()

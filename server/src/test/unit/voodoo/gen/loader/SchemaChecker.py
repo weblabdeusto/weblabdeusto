@@ -17,7 +17,7 @@ import unittest
 
 from test.util.optional_modules import OptionalModuleTestCase
 import voodoo.gen.loader.schema_checker as SchemaChecker
-import voodoo.gen.exceptions.loader.LoaderExceptions as LoaderExceptions
+import voodoo.gen.exceptions.loader.LoaderErrors as LoaderErrors
 
 class WrappedSchemaChecker(SchemaChecker.SchemaChecker):
     def __init__(self, xml_content, xsd_content):
@@ -66,7 +66,7 @@ class SchemaCheckerTestCase(unittest.TestCase):
                     SAMPLE_XML_SCHEMA
                 )
             self.assertRaises(
-                LoaderExceptions.InvalidSyntaxFileConfigurationException,
+                LoaderErrors.InvalidSyntaxFileConfigurationError,
                 schema_checker.check_schema,
                 'whatever',
                 'whatever'
@@ -77,7 +77,7 @@ class SchemaCheckerTestCase(unittest.TestCase):
                     SAMPLE_XML_SCHEMA
                 )
             self.assertRaises(
-                LoaderExceptions.InvalidSyntaxFileConfigurationException,
+                LoaderErrors.InvalidSyntaxFileConfigurationError,
                 schema_checker.check_schema,
                 'whatever',
                 'whatever'
