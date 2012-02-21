@@ -23,6 +23,7 @@ import time
 
 import os
 import mimetypes
+import cgi
 
 import weblab
 
@@ -59,6 +60,9 @@ class  VisirMethod(WebFacadeServer.Method):
         This will redirect every request to serve the VISIR files.
         """
         
+        print "[DBG] On VisirMethod: ", self.uri
+        
+        
         # Just deny any request with an URL containing .. to prevent security issues
         if ".." in self.uri:
             return FAULT_HTML_TEMPLATE % { 
@@ -79,6 +83,9 @@ class  VisirMethod(WebFacadeServer.Method):
         # Intercept the save request
         if fileonly == "save":
             return self.intercept_save()
+        
+        if fileonly == "store_temporary.php":
+            return self.intercept_store()
         
         
         # We did not intercept the request, we will just serve the file.
@@ -164,6 +171,31 @@ class  VisirMethod(WebFacadeServer.Method):
 
     def intercept_library(self, content, mimetype):
         return content
+    
+    def intercept_store(self):
+        print "[DBG] INTERCEPTING STORE REQUEST"
+        args = self.get_arguments()
+        print "[DBG] ARGS: ", repr(args)
+
+        ctype = self.req.headers.gettype()
+        boundary = self.req.headers.getparam("boundary")
+        
+        print "[DBG] Mimetype: %s | Boundary: %s" % (ctype, boundary)
+        
+        print "[DBG]: Filedata: ", self.get_argument("Filedata", "", False)
+        print "[DBG]: Filename: ", self.get_argument("Filename", "", False)
+        
+        self.read_post_arguments()
+        print "[DBG] Postvars:\n", self.postvars
+        
+        if ctype != "multipart/form-data":
+            return "Unexpected mimetype"
+        
+
+        
+        
+        
+        return "yes"
 
 class VisirException(Exception):
     pass
