@@ -257,7 +257,6 @@ class JsonHttpServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
 
 class XmlRpcRequestHandler(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
 
-    rpc_paths    = ('/','/RPC2','/weblab/xmlrpc','/weblab/xmlrpc/', '/weblab/login/xmlrpc', '/weblab/login/xmlrpc/')
     server_route = None
 
     def do_GET(self):
@@ -296,9 +295,19 @@ class XmlRpcServer(SocketServer.ThreadingMixIn, SimpleXMLRPCServer.SimpleXMLRPCS
     request_queue_size = 50 #TODO: parameter!
     allow_reuse_address = True
 
-    def __init__(self, server_address, manager, the_server_route):
+    def __init__(self, server_address, manager, the_server_route, base_location):
+        the_rpc_paths = []
+
+        location_to_append = base_location[:-1] if base_location.endswith('/') else base_location
+
+        for path in '/','/RPC2','/weblab/xmlrpc','/weblab/xmlrpc/', '/weblab/login/xmlrpc', '/weblab/login/xmlrpc/':
+            the_rpc_paths.append(path)
+            if location_to_append:
+                the_rpc_paths.append(location_to_append + path)
+
         class NewXmlRpcRequestHandler(XmlRpcRequestHandler):
             server_route = the_server_route
+            rpc_paths = the_rpc_paths
 
         SimpleXMLRPCServer.SimpleXMLRPCServer.__init__(self, server_address, NewXmlRpcRequestHandler, allow_none = True)
         self.register_instance(manager)
@@ -505,7 +514,8 @@ class RemoteFacadeServerXMLRPC(AbstractProtocolRemoteFacadeServer):
         timeout = self.get_timeout()
         listen, port = self._retrieve_configuration()
         server_route = self._configuration_manager.get_value( self._rfs.FACADE_SERVER_ROUTE, self._rfs.DEFAULT_SERVER_ROUTE )
-        self._server = XmlRpcServer((listen, port), self._rfm, server_route)
+        base_location = '/' # TODO: establish the route
+        self._server = XmlRpcServer((listen, port), self._rfm, server_route, base_location)
         self._server.socket.settimeout(timeout)
 
 
