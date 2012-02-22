@@ -30,7 +30,7 @@ class TestingLog(object):
     def wrong_method_wrap(self):
         try:
             self.wrong_method()
-        except:
+        except ZeroDivisionError:
             pass
 
 class LogTestCase(unittest.TestCase):
