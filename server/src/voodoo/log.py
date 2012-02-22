@@ -39,6 +39,8 @@ def log(instance_or_module_or_class, level, message, max_size = 250):
     else:
         logger_name = instance_or_module_or_class.__class__.__module__ + '.' + instance_or_module_or_class.__class__.__name__
     logger = logging.getLogger(logger_name)
+    if not logger.isEnabledFor(logging_log_level):
+        return
 
     message_repr = repr(message)
     if len(message_repr) > max_size:
@@ -138,8 +140,8 @@ def logged(level='debug', except_for=None, max_size = 250):
 
     Instead of these values, it will say "<hidden>".
     """
-    levelname = level.lower()
-    if not hasattr(logging, levelname):
+    _levelname = level.lower()
+    if not hasattr(logging, _levelname):
         raise RuntimeError("level %s does not exist")
 
     def real_logger(f):
@@ -148,6 +150,10 @@ def logged(level='debug', except_for=None, max_size = 250):
         # parameter_names will be ['name1','name2','name3']
         parameter_names = list(f.func_code.co_varnames[:f.func_code.co_argcount])
         func_name       = f.__name__
+
+        levelname       = _levelname
+        uplevelname     = _levelname.upper()
+        logging_level   = getattr(logging, uplevelname)
 
         class LogEntry(object):
             def __init__(self):
@@ -178,18 +184,16 @@ def logged(level='debug', except_for=None, max_size = 250):
                 return self._call_id
 
         class HeaderLine(object):
-            def __init__(self, entry, logger_name):
-                self.entry       = entry
-                self.logger_name = logger_name
+            def __init__(self, entry, log_writer):
+                self.entry      = entry
+                self.log_writer = log_writer
 
             def log(self, args, kargs):
-                logger     = _get_logger(self.logger_name)
-                log_writer = getattr(logger, levelname)
                 # Build it always: the purpose is to alert
                 # everytime that a method is incorrectly
                 # called
                 self._build_fake_args(args, kargs)
-                log_writer(self)
+                self.log_writer(self)
 
             def _build_fake_args(self, args, kargs):
                 # args doesn't include "self"
@@ -261,14 +265,12 @@ def logged(level='debug', except_for=None, max_size = 250):
                             'kargs'     : repr_kwargs,        'time'      : strtime }
 
         class FooterExcLine(object):
-            def __init__(self, entry, logger_name):
+            def __init__(self, entry, log_writer):
                 self.entry       = entry
-                self.logger_name = logger_name
+                self.log_writer  = log_writer
 
             def log(self):
-                logger     = _get_logger(self.logger_name)
-                log_writer = getattr(logger, levelname)
-                log_writer(self)
+                self.log_writer(self)
 
             def __str__(self):
                 call_time        = time.time()
@@ -288,15 +290,13 @@ def logged(level='debug', except_for=None, max_size = 250):
                         }
 
         class FooterReturnLine(object):
-            def __init__(self, entry, logger_name):
+            def __init__(self, entry, log_writer):
                 self.entry       = entry
-                self.logger_name = logger_name
+                self.log_writer = log_writer
 
             def log(self, result):
-                logger     = _get_logger(self.logger_name)
-                log_writer = getattr(logger, levelname)
                 self.result = result
-                log_writer(self)
+                self.log_writer(self)
 
             def __str__(self):
                 call_time        = time.time()
@@ -322,18 +322,23 @@ def logged(level='debug', except_for=None, max_size = 250):
 
         def wrapped(self,*args, **kargs):
             logger_name = _get_full_class_name(self.__class__, f)
+            logger = _get_logger(logger_name)
+            if not logger.isEnabledFor(logging_level):
+                return f(self, *args, **kargs)
+
+            log_writer = getattr(logger, levelname)
 
             entry  = LogEntry()
-            header = HeaderLine(entry, logger_name)
+            header = HeaderLine(entry, log_writer)
             header.log(args, kargs)
             try:
                 result = f(self,*args,**kargs)
             except:
-                footer_exc = FooterExcLine(entry, logger_name)
+                footer_exc = FooterExcLine(entry, log_writer)
                 footer_exc.log()
                 raise
             else:
-                footer_return = FooterReturnLine(entry, logger_name)
+                footer_return = FooterReturnLine(entry, log_writer)
                 footer_return.log(result)
 
             return result
