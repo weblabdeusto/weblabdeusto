@@ -247,10 +247,15 @@ class  VisirMethod(WebFacadeServer.Method):
         
         print "[DBG] FILENAME IS: ", filename
         print "[DBG] FILEDATA IS: ", filedata
-        
-        print "[DBG]: Saving file to: ", VISIR_TEMP_FILES
-        
+
         filepath = os.sep.join((VISIR_TEMP_FILES, filename.strip()))
+        
+                
+        if not os.path.exists(filepath):
+            os.makedirs(filepath)
+        
+        print "[DBG]: Saving file to: ", filepath
+        
         fo = file(filepath, "w")
         fo.write(filedata)
         fo.close()
