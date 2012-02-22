@@ -115,9 +115,6 @@ class  VisirMethod(WebFacadeServer.Method):
         This will redirect every request to serve the VISIR files.
         """
         
-        print "[DBG] On VisirMethod: ", self.uri
-        
-        
         # Just deny any request with an URL containing .. to prevent security issues
         if ".." in self.uri:
             return FAULT_HTML_TEMPLATE % { 
@@ -228,10 +225,6 @@ class  VisirMethod(WebFacadeServer.Method):
         return content
     
     def intercept_store(self):
-        print "[DBG] INTERCEPTING STORE REQUEST"
-        args = self.get_arguments()
-        print "[DBG] ARGS: ", repr(args)
-
         ctype = self.req.headers.gettype()
         boundary = self.req.headers.getparam("boundary")
         length = int(self.req.headers.getheader('content-length'))
@@ -242,11 +235,10 @@ class  VisirMethod(WebFacadeServer.Method):
         
         extractor = UploadExtractor(data, boundary)
         
-        partheaders, filename = extractor.extract_file()
-        partheaders, filedata = extractor.extract_file()
+        partheaders, filename = extractor.extract_file() #@UnusedVariable
+        partheaders, filedata = extractor.extract_file() #@UnusedVariable
         
-        print "[DBG] FILENAME IS: ", filename
-        print "[DBG] FILEDATA IS: ", filedata
+        filename = "circuit.cir" # Override the name so that it is always the same one.
 
         filepath = os.sep.join((VISIR_TEMP_FILES, filename.strip()))
         
@@ -254,14 +246,11 @@ class  VisirMethod(WebFacadeServer.Method):
         if not os.path.exists(filepath):
             os.makedirs(filepath)
         
-        print "[DBG]: Saving file to: ", filepath
-        
         fo = file(filepath, "w")
         fo.write(filedata)
         fo.close()
         
-        
-        return "yes"
+        return "RELOAD"
 
 class VisirException(Exception):
     pass
