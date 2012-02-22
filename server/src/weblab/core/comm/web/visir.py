@@ -23,7 +23,6 @@ import time
 
 import os
 import mimetypes
-import cgi
 
 import weblab
 
@@ -32,6 +31,7 @@ import re
 VISIR_RELATIVE_PATH = os.sep.join(('..','..','..','client','war','weblabclient','visir')) + os.sep
 
 VISIR_LOCATION = os.path.abspath(os.sep.join((os.path.dirname(weblab.__file__), VISIR_RELATIVE_PATH))) + os.sep
+VISIR_TEMP_FILES = os.sep.join((VISIR_LOCATION, 'temp')) + os.sep
 
 BASE_HTML_TEMPLATE="""<?xml version="1.0"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -50,6 +50,59 @@ SUCCESS_HTML_TEMPLATE = BASE_HTML_TEMPLATE % {
 FAULT_HTML_TEMPLATE = BASE_HTML_TEMPLATE % {
 		"MESSAGE" : "ERROR@%(THE_FAULT_CODE)s@%(THE_FAULT_MESSAGE)s"
 	}
+
+
+
+class UploadExtractor(object):
+    """
+    Utility class for being able to easily extract parts from multipart
+    HTTP requests. There seem to be some issues with the standard cgi library
+    alternatives which limit their usage.
+    """
+    
+    def __init__(self, data, boundary):
+        """
+        Initializes the UploadExtractor object.
+        @param data Contents of the multipart POST, from which the files will be
+        extracted.
+        @param boundary Boundary delimiting each part, as specified by the Content-type
+        header.
+        @return A (headers, filedata) tuple. Headers is a dictionary containing the
+        headers of the part. Filedata is the actual content of that part.
+        """
+        self.data = data
+        self.boundary = boundary
+        self._index = 0 # To indicate how far we have parsed into the string.
+    
+    def extract_file(self):
+        """
+        Extracts the next file from the stream. Returns None if no more
+        files are present.
+        """
+        ind_start = self.data.find(self.boundary, self._index)
+        if ind_start == -1:
+            return None
+        # We take into account the new-line characters.
+        ind_start += len(self.boundary) + 2
+        ind_end = self.data.find(self.boundary, ind_start)
+        ind_end -= 2
+        rawdata = self.data[ind_start:ind_end-2]
+        self._index = ind_end
+        
+        # rawdata now contains the headers and content of each part.
+        # Extract the headers off it.
+        headers_end = rawdata.find("\r\n\r\n")
+        if headers_end == -1:
+            return None
+        
+        # Use a regex to extract the headers.
+        headers = dict(re.findall(r"(?P<name>.*?): (?P<value>.*?)\r\n", rawdata[0:headers_end+2]))
+        
+        # Separate the data from the headers
+        filedata = rawdata[headers_end+4 :]
+        
+    
+        return headers, filedata
 
 
 
@@ -181,17 +234,26 @@ class  VisirMethod(WebFacadeServer.Method):
 
         ctype = self.req.headers.gettype()
         boundary = self.req.headers.getparam("boundary")
-        
-        print "[DBG] Mimetype: %s | Boundary: %s" % (ctype, boundary)
-        
-        print "[DBG]: Filedata: ", self.get_argument("Filedata", "", False)
-        print "[DBG]: Filename: ", self.get_argument("Filename", "", False)
+        length = int(self.req.headers.getheader('content-length'))
+        data = self.req.rfile.read(length)
         
         if ctype != "multipart/form-data":
             return "Unexpected mimetype"
         
-
+        extractor = UploadExtractor(data, boundary)
         
+        partheaders, filename = extractor.extract_file()
+        partheaders, filedata = extractor.extract_file()
+        
+        print "[DBG] FILENAME IS: ", filename
+        print "[DBG] FILEDATA IS: ", filedata
+        
+        print "[DBG]: Saving file to: ", VISIR_TEMP_FILES
+        
+        filepath = os.sep.join((VISIR_TEMP_FILES, filename.strip()))
+        fo = file(filepath, "w")
+        fo.write(filedata)
+        fo.close()
         
         
         return "yes"
@@ -201,51 +263,7 @@ class VisirException(Exception):
 
 
 
-class UploadExtractor(object):
-    
-    def __init__(self, data, boundary):
-        """
-        Initializes the UploadExtractor object.
-        @param data Contents of the multipart POST, from which the files will be
-        extracted.
-        @param boundary Boundary delimiting each part, as specified by the Content-type
-        header.
-        @return A (headers, filedata) tuple. Headers is a dictionary containing the
-        headers of the part. Filedata is the actual content of that part.
-        """
-        self.data = data
-        self.boundary = boundary
-        self._index = 0 # To indicate how far we have parsed into the string.
-    
-    def extract_file(self):
-        """
-        Extracts the next file from the stream. Returns None if no more
-        files are present.
-        """
-        ind_start = self.data.find(self.boundary, self._index)
-        if ind_start == -1:
-            return None
-        # We take into account the new-line characters.
-        ind_start += len(self.boundary) + 2
-        ind_end = self.data.find(self.boundary, ind_start)
-        ind_end -= 2
-        rawdata = self.data[ind_start:ind_end]
-        self._index = ind_end
-        
-        # rawdata now contains the headers and content of each part.
-        # Extract the headers off it.
-        headers_end = rawdata.find("\r\n\r\n")
-        if headers_end == -1:
-            return None
-        
-        # Use a regex to extract the headers.
-        headers = dict(re.findall(r"(?P<name>.*?): (?P<value>.*?)\r\n", rawdata[0:headers_end+2]))
-        
-        # Separate the data from the headers
-        filedata = rawdata[headers_end+4 :]
-        
-    
-        return headers, filedata
+
     
 
 f = file("c:/tmp/out.txt", "r")

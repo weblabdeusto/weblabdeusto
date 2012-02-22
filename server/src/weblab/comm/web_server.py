@@ -164,21 +164,7 @@ class Method(object):
         if self.method == 'POST':
             ctype, pdict = cgi.parse_header(self.req.headers.getheader('content-type'))
             if ctype == 'multipart/form-data':
-                print "[DBG]: MULTIPART HEADERS: ", repr(self.req.headers.items())
-#                self.postvars = cgi.parse_multipart(self.req.rfile, pdict)
-
-                length = int(self.req.headers.getheader('content-length'))
-                data = self.req.rfile.read(length)
-                
-                print "[DBG]: BEGIN RAW DATA\n", data, "\nRAW DATA END"
-                self.postvars = {}
-                
-                f = file("c:/tmp/out.txt", "w+")
-                f.write(self.req.headers.getheader('content-type') + "\n")
-                f.write(data)
-                f.close()
-                
-                
+                self.postvars = cgi.parse_multipart(self.req.rfile, pdict)
             elif ctype == 'application/x-www-form-urlencoded':
                 length = int(self.req.headers.getheader('content-length'))
                 self.postvars = cgi.parse_qs(self.req.rfile.read(length), keep_blank_values=1)
