@@ -39,7 +39,7 @@ def log(instance_or_module_or_class, level, message, max_size = 250):
     else:
         logger_name = instance_or_module_or_class.__class__.__module__ + '.' + instance_or_module_or_class.__class__.__name__
     logger = logging.getLogger(logger_name)
-    if len(logger.handlers) == 0 or not logger.isEnabledFor(logging_log_level):
+    if not logger.isEnabledFor(logging_log_level):
         return
 
     message_repr = repr(message)
@@ -153,6 +153,7 @@ def logged(level='debug', except_for=None, max_size = 250):
 
         levelname       = _levelname
         uplevelname     = _levelname.upper()
+        logging_level   = getattr(logging, uplevelname)
 
         class LogEntry(object):
             def __init__(self):
@@ -322,7 +323,7 @@ def logged(level='debug', except_for=None, max_size = 250):
         def wrapped(self,*args, **kargs):
             logger_name = _get_full_class_name(self.__class__, f)
             logger = _get_logger(logger_name)
-            if len(logger.handlers) == 0 or logger.isEnabledFor(getattr(logging, uplevelname)):
+            if not logger.isEnabledFor(logging_level):
                 return f(self, *args, **kargs)
 
             log_writer = getattr(logger, levelname)
