@@ -23,9 +23,10 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class WlWebcam extends HorizontalPanel implements IWlWidget{
+public class WlWebcam extends VerticalPanel implements IWlWidget{
 	
 	public static final String DEFAULT_IMAGE_URL = GWT.getModuleBaseURL() + "/waiting_url_image.jpg";
 	public static final int DEFAULT_REFRESH_TIME = 400;
@@ -34,6 +35,7 @@ public class WlWebcam extends HorizontalPanel implements IWlWidget{
 	
 	private final int time;
 	private String url;
+	private String streamingUrl;
 	private Timer timer;
 	private boolean running;
 
@@ -46,15 +48,18 @@ public class WlWebcam extends HorizontalPanel implements IWlWidget{
 	}
 	
 	public WlWebcam(int time, String url){
-		
-		this.setWidth("100%");
-		this.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		final HorizontalPanel imagePanel = new HorizontalPanel();
+		imagePanel.setWidth("100%");
+		imagePanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		this.time = time;
 		this.url = url;
 		
 		this.image = new Image(this.getDifferentUrl());
 		
-		this.add(this.image);
+		imagePanel.add(this.image);
+		this.setWidth("100%");
+		this.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		this.add(imagePanel);
 	}
 	
 	public void start(){
@@ -66,6 +71,12 @@ public class WlWebcam extends HorizontalPanel implements IWlWidget{
 			}
 		};
 		this.reload();
+	}
+	
+	public void stop(){
+		this.running = false;
+		if(this.timer != null)
+			this.timer.cancel();
 	}
 	
 	@Override
@@ -130,6 +141,6 @@ public class WlWebcam extends HorizontalPanel implements IWlWidget{
 	
 	@Override
 	public Widget getWidget(){
-		return this.image;
+		return this;
 	}
 }
