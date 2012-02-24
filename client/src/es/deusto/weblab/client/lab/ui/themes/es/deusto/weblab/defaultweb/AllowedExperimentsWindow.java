@@ -57,6 +57,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 	}
 	
 	// Widgets
+	@UiField Image logoImage;
 	@UiField VerticalPanel containerPanel;
 	@UiField Label userLabel;
 	@UiField Anchor logoutLink;
@@ -99,7 +100,10 @@ class AllowedExperimentsWindow extends BaseWindow {
 	protected ExperimentAllowed [] loadWidgets(){
 		final List<ExperimentAllowed> failedExperiments = new Vector<ExperimentAllowed>();
 	    AllowedExperimentsWindow.uiBinder.createAndBindUi(this);
-	    
+
+		final String hostEntityImage = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_IMAGE, "");
+		this.logoImage.setUrl(GWT.getModuleBaseURL() + hostEntityImage);
+		
 	    final boolean visibleHeader = HistoryProperties.getBooleanValue(HistoryProperties.HEADER_VISIBLE, true);
 	    this.headerPanel.setVisible(visibleHeader);
 	    this.navigationPanel.setVisible(visibleHeader);
