@@ -50,6 +50,7 @@ import voodoo.configuration as ConfigurationErrors
 
 RFS_TIMEOUT_NAME                      = 'facade_timeout'
 DEFAULT_TIMEOUT                       = 0.5
+BASE_LOCATION_PROPERTY                = 'base_location'
 
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("RemoteFacadeServer")
 
@@ -435,12 +436,14 @@ class AbstractRemoteFacadeServerZSI(AbstractProtocolRemoteFacadeServer):
                 self._rfs.FACADE_ZSI_PORT,
                 **{
                     self._rfs.FACADE_ZSI_LISTEN: self._rfs.DEFAULT_FACADE_ZSI_LISTEN,
-                    self._rfs.FACADE_ZSI_SERVICE_NAME: self._rfs.DEFAULT_FACADE_ZSI_SERVICE_NAME
+                    self._rfs.FACADE_ZSI_SERVICE_NAME: self._rfs.DEFAULT_FACADE_ZSI_SERVICE_NAME,
+                    BASE_LOCATION_PROPERTY : ''
                 }
            )
-        listen       = getattr(values, self._rfs.FACADE_ZSI_LISTEN)
-        port         = getattr(values, self._rfs.FACADE_ZSI_PORT)
-        service_name = getattr(values, self._rfs.FACADE_ZSI_SERVICE_NAME)
+        listen        = getattr(values, self._rfs.FACADE_ZSI_LISTEN)
+        port          = getattr(values, self._rfs.FACADE_ZSI_PORT)
+        base_location = getattr(values, BASE_LOCATION_PROPERTY)
+        service_name  = base_location + getattr(values, self._rfs.FACADE_ZSI_SERVICE_NAME)
         return listen, port, service_name
 
     def _create_service_container(self, listen, port, the_server_route):
@@ -503,18 +506,19 @@ class RemoteFacadeServerXMLRPC(AbstractProtocolRemoteFacadeServer):
         values = self.parse_configuration(
                 self._rfs.FACADE_XMLRPC_PORT,
                 **{
-                    self._rfs.FACADE_XMLRPC_LISTEN: self._rfs.DEFAULT_FACADE_XMLRPC_LISTEN
+                    self._rfs.FACADE_XMLRPC_LISTEN: self._rfs.DEFAULT_FACADE_XMLRPC_LISTEN,
+                    BASE_LOCATION_PROPERTY : ''
                 }
            )
-        listen = getattr(values, self._rfs.FACADE_XMLRPC_LISTEN)
-        port   = getattr(values, self._rfs.FACADE_XMLRPC_PORT)
-        return listen, port
+        listen        = getattr(values, self._rfs.FACADE_XMLRPC_LISTEN)
+        port          = getattr(values, self._rfs.FACADE_XMLRPC_PORT)
+        base_location = getattr(values, BASE_LOCATION_PROPERTY)
+        return listen, port, base_location
 
     def initialize(self):
         timeout = self.get_timeout()
-        listen, port = self._retrieve_configuration()
+        listen, port, base_location = self._retrieve_configuration()
         server_route = self._configuration_manager.get_value( self._rfs.FACADE_SERVER_ROUTE, self._rfs.DEFAULT_SERVER_ROUTE )
-        base_location = '/' # TODO: establish the route
         self._server = XmlRpcServer((listen, port), self._rfm, server_route, base_location)
         self._server.socket.settimeout(timeout)
 
