@@ -186,9 +186,6 @@ class ExperimentWindow extends BaseWindow {
 		// Open the info page in a new window.
 		this.informationLink.setTarget("_blank");
 		
-		String href = this.informationLink.getHref();
-		
-		
 		// If there is actually no information available, we will just hide the label
 		if(this.informationLink.getHref().isEmpty())
 			this.informationLinkLabel.setVisible(false);

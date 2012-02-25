@@ -91,7 +91,7 @@ class ExperimentWindow extends BaseWindow {
 		
 		this.loadWidgets();
 		
-		this.loggedPanel = new LoggedPanel(this.user, this.callback);
+		this.loggedPanel = new LoggedPanel(this.user, this.callback, configurationManager);
 		this.mainPanel.add(this.loggedPanel);
 
 		final Widget wid = this.uiBinder.createAndBindUi(this);

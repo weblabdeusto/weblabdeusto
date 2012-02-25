@@ -52,7 +52,7 @@
 			<g:HorizontalPanel horizontalAlignment="ALIGN_CENTER" verticalAlignment="ALIGN_MIDDLE">
 				
 				<g:Label>Powered by:</g:Label>
-				<w:WlAHref href="http://code.google.com/p/weblabdeusto/" target="_blank">
+				<w:WlAHref href="http://www.weblab.deusto.es/" target="_blank">
 					<g:Image resource='{res.logoSmall}' />
 				</w:WlAHref>
 				

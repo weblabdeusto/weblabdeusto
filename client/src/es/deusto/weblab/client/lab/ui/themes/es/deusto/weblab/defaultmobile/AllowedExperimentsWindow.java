@@ -64,7 +64,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 		super(configurationManager);
 		
 	    this.callback = callback;
-		this.loggedPanel = new LoggedPanel(user, callback);
+		this.loggedPanel = new LoggedPanel(user, callback, configurationManager);
 	    this.experimentsAllowed = experimentsAllowed;
 		
 		super.loadWidgets();
