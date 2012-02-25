@@ -19,13 +19,14 @@ import com.smartgwt.client.data.fields.DataSourceTextField;
 import com.smartgwt.client.types.DSOperationType;
 import com.smartgwt.client.types.DSProtocol;
 
+import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
 
 
 public class UsersDataSource extends WebLabRestDataSource {
 
-	public UsersDataSource(SessionID sessionId) {
-		super(sessionId);
+	public UsersDataSource(SessionID sessionId, IConfigurationManager configurationManager) {
+		super(sessionId, configurationManager);
 	}
 	
 	@Override
@@ -60,7 +61,7 @@ public class UsersDataSource extends WebLabRestDataSource {
 	    
 	    this.setFields(loginDSField, fullNameDSField, emailDSField, avatarDSField, roleIdDSField);
 	    
-	    this.setFetchDataURL("/weblab/administration/json/users");
+	    this.setFetchDataURL(this.baseLocation + "/weblab/administration/json/users");
 	    //this.setFetchDataURL("data/users_fetch.js");
 	    this.setRemoveDataURL("data/user_remove.js");
 	    this.setAddDataURL("data/user_add.js");

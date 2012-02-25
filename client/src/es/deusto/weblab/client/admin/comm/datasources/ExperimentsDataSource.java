@@ -21,12 +21,13 @@ import com.smartgwt.client.types.DSOperationType;
 import com.smartgwt.client.types.DSProtocol;
 
 import es.deusto.weblab.client.admin.dto.ExperimentRecord;
+import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
 
 public class ExperimentsDataSource extends WebLabRestDataSource {
 
-	public ExperimentsDataSource(SessionID sessionId) {
-		super(sessionId);
+	public ExperimentsDataSource(SessionID sessionId, IConfigurationManager configurationManager) {
+		super(sessionId, configurationManager);
 	}
 	
 	@Override
@@ -45,6 +46,6 @@ public class ExperimentsDataSource extends WebLabRestDataSource {
 	    final DataSourceTextField categoryDSField = new DataSourceTextField(ExperimentRecord.CATEGORY, "Category");
 	    
 	    this.setFields(idField, nameDSField, categoryDSField);  
-	    this.setFetchDataURL("/weblab/administration/json/experiments");
+	    this.setFetchDataURL(this.baseLocation + "/weblab/administration/json/experiments");
 	}
 }

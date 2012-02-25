@@ -33,6 +33,9 @@ import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
 public abstract class WebLabClient implements EntryPoint {
 	
+	public static final String BASE_LOCATION = "base.location";
+	public static final String DEFAULT_BASE_LOCATION = "";
+
 	public static final int MAX_FACEBOOK_WIDTH = 735;
 	private static final String MAIN_SLOT = "weblab_slot";
 	private static final String SCRIPT_CONFIG_FILE = GWT.getModuleBaseURL() + "configuration.js";
