@@ -106,12 +106,9 @@
 			<g:HorizontalPanel horizontalAlignment="ALIGN_CENTER" verticalAlignment="ALIGN_MIDDLE">
 				
 				<g:Label>Powered by:</g:Label>
-				<!--  
-				<g:Anchor href="http://code.google.com/p/weblabdeusto/">
-					
-				</g:Anchor>
-				 -->
-				 <g:Image resource='{res.logoSmall}' />
+				<w:WlAHref href="http://code.google.com/p/weblabdeusto/" target="_blank">
+					<g:Image resource='{res.logoSmall}' />
+				</w:WlAHref>
 				
 			</g:HorizontalPanel>
 		</g:HorizontalPanel>
