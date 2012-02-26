@@ -18,6 +18,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.configuration.exceptions.ConfigurationException;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
@@ -47,7 +48,7 @@ public class ILabBatchExperiment extends ExperimentBase {
 			final String archive       = this.configurationRetriever.getProperty("archive");
 			final String code          = this.configurationRetriever.getProperty("code");
 			final String labServerId   = this.configurationRetriever.getProperty("lab_server_id");
-			final String serviceBroker = this.configurationRetriever.getProperty("service_broker", "/weblab/web/ilab/");
+			final String serviceBroker = WebLabClient.baseLocation + this.configurationRetriever.getProperty("service_broker", "/weblab/web/ilab/");
 			
 			createJavaScriptCode(this.html.getElement(), archive, code, 1, 1, serviceBroker, labServerId);
 		}catch(ConfigurationException ce){

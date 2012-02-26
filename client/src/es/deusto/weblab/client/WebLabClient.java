@@ -36,6 +36,8 @@ public abstract class WebLabClient implements EntryPoint {
 	public static final String BASE_LOCATION = "base.location";
 	public static final String DEFAULT_BASE_LOCATION = "";
 
+    public static String baseLocation;
+
 	public static final int MAX_FACEBOOK_WIDTH = 735;
 	private static final String MAIN_SLOT = "weblab_slot";
 	private static final String SCRIPT_CONFIG_FILE = GWT.getModuleBaseURL() + "configuration.js";
@@ -176,6 +178,7 @@ public abstract class WebLabClient implements EntryPoint {
 		this.configurationManager = new ConfigurationManager(configFile, new IConfigurationLoadedCallback(){
 			@Override
 			public void onLoaded() {
+                WebLabClient.this.baseLocation = WebLabClient.this.configurationManager.getProperty(BASE_LOCATION, DEFAULT_BASE_LOCATION);
 				final String trackingCode = WebLabClient.this.configurationManager.getProperty(GOOGLE_ANALYTICS_TRACKING_CODE, null);
 				if(trackingCode != null)
 					loadGoogleAnalytics(trackingCode);
