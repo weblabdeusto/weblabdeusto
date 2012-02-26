@@ -19,6 +19,8 @@ import time
 import urllib2
 import datetime
 
+import configuration_doc
+
 from weblab.data.dto.experiments import ExperimentUse
 from weblab.data.dto.experiments    import Experiment
 from weblab.data.dto.experiments      import ExperimentCategory
@@ -167,7 +169,7 @@ class AdminRemoteFacadeServerTestCase(unittest.TestCase):
     def setUp(self):
         self.configurationManager = ConfigurationManager.ConfigurationManager()
         self.configurationManager.append_module(configuration)
-        self.configurationManager._set_value(RemoteFacadeServer.RFS_TIMEOUT_NAME, 0.01)
+        self.configurationManager._set_value(configuration_doc.FACADE_TIMEOUT, 0.01)
 
         time.sleep( 0.01 * 5 )
 

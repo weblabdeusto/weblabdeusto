@@ -34,8 +34,6 @@ import traceback
 import weblab.comm.context as RemoteFacadeContext
 import weblab.comm.codes as RemoteFacadeManagerCodes
 
-import configuration_doc
-
 UNEXPECTED_ERROR_MESSAGE_TEMPLATE               = "Unexpected error ocurred in WebLab-Deusto. Please contact the administrator at %s"
 SERVER_ADMIN_EMAIL                              = 'server_admin'
 DEFAULT_SERVER_ADMIN_EMAIL                      = '<server_admin not set>'

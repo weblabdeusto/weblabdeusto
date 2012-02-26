@@ -21,6 +21,8 @@ try:
 except ImportError:
     pass
 
+import configuration_doc
+
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 import voodoo.sessions.session_id as SessionId
 
@@ -43,7 +45,7 @@ class LoginIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
             self.configurationManager = ConfigurationManager.ConfigurationManager()
             self.configurationManager.append_module(configuration)
 
-            self.configurationManager._set_value(RemoteFacadeServer.RFS_TIMEOUT_NAME, 0.001)
+            self.configurationManager._set_value(configuration_doc.FACADE_TIMEOUT, 0.001)
 
             self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_ZSI_PORT, 10223)
             self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_ZSI_SERVICE_NAME, '/weblab/soap/')
@@ -153,7 +155,7 @@ class LoginIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
         self.configurationManager = ConfigurationManager.ConfigurationManager()
         self.configurationManager.append_module(configuration)
 
-        self.configurationManager._set_value(RemoteFacadeServer.RFS_TIMEOUT_NAME, 0.001)
+        self.configurationManager._set_value(configuration_doc.FACADE_TIMEOUT, 0.001)
 
         self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_ZSI_PORT, 10223)
         self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_ZSI_SERVICE_NAME, '/weblab/soap/')

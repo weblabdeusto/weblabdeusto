@@ -79,6 +79,19 @@ _sorted_variables.extend([
     (WEBLAB_DB_FORCE_ENGINE_CREATION, _Argument(DATABASE, bool, False,       "Force the creation of an engine each time")),
 ])
 
+# 
+# Sessions
+# 
+
+SESSIONS = (COMMON, 'Sessions')
+
+SESSION_LOCKER_MYSQL_HOST                 = 'session_locker_mysql_host'
+SESSION_LOCKER_MYSQL_DB_NAME              = 'session_locker_mysql_db_name'
+SESSION_LOCKER_MYSQL_USERNAME             = 'session_locker_mysql_username'
+SESSION_LOCKER_MYSQL_PASSWORD             = 'session_locker_mysql_password'
+SESSION_LOCKER_MYSQL_CONNECTION_POOL_SIZE = 'session_locker_mysql_connection_pool_size'
+
+
 # ==== Sessions ====
 # 
 # !WebLab-Deusto supports two types of Session Managers:
