@@ -109,14 +109,17 @@ public class VisirExperiment extends FlashExperiment {
 	
 	@Override
 	public void onFlashReady() {
+		initOnLoadCircuit();
 		modFrame();
 	}
 	
+	private static native void initOnLoadCircuit() /*-{
+		$wnd.callOnLoadCircuit = function(id) {
+			this.@es.deusto.weblab.client.experiments.visir.VisirExperiment::onLoadCircuit(I)(id);
+		};
+	}-*/;
+	
 	private static native void modFrame() /*-{
-		
-		$wnd.alert('First');
-		
-		initOnLoadCircuit();
 		
 		$wnd.alert('Second');
 		
@@ -131,11 +134,7 @@ public class VisirExperiment extends FlashExperiment {
 		$wnd.alert('Hello world');
 	}-*/;
 	
-	private static native void initOnLoadCircuit() /*-{
-		$wnd.callOnLoadCircuit = function(id) {
-			this.@es.deusto.weblab.client.experiments.visir.VisirExperiment::onLoadCircuit(id);
-		};
-	}-*/;
+
 	
 	private void onLoadCircuit(int id) {
 		System.out.println("Should load circuit number: " + id);
