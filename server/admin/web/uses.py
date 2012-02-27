@@ -1,6 +1,7 @@
 import MySQLdb as dbi
 import cgi
 import time
+import datetime
 import calendar
 
 from configuration import _USERNAME, _PASSWORD, DB_NAME, _FILES_PATH
@@ -74,6 +75,7 @@ padding:15px;
                 <b>Referer:</b> %(referer)s<br/>
                 <b>User agent:</b> %(user_agent)s<br/>
                 <b>In the name of:</b> %(external_user)s<br/>
+                <b>Longest command:</b> %(longest_command)s</br>
                 <h2>Commands</h2>
                 (<a href="#files">files below</a>)
                 <table>
@@ -114,6 +116,7 @@ padding:15px;
                         'category_name'   : cgi.escape(category_name    or 'not stored'),
                         'date'            : cgi.escape(str(start_date)),
                         'origin'          : cgi.escape(origin           or 'not stored'),
+                        'longest_command' : '%s',
                     }
 
             # Commands
@@ -123,6 +126,8 @@ padding:15px;
                         "ORDER BY uc.timestamp_before DESC LIMIT %s" % LIMIT
             cursor.execute(SENTENCE, (use_id,))
             elements = cursor.fetchall()
+            command_results = ""
+            max_time_taken = 0
             for command, response, timestamp_before, timestamp_before_micro, timestamp_after, timestamp_after_micro in elements:
                 if timestamp_before is None:
                     before = "<not provided>"
@@ -132,12 +137,21 @@ padding:15px;
                     after  = "<not provided>"
                 else:
                     after  = "%s:%s" % (utc2local_str(timestamp_after), str(timestamp_after_micro).zfill(6))
+
+                if timestamp_after is not None and timestamp_before is not None:
+                    time_taken = timestamp_after.replace(microsecond=timestamp_after_micro) - timestamp_before.replace(microsecond=timestamp_before_micro)
+                else:
+                    time_taken = datetime.timedelta(0)
+                current_seconds = time_taken.days * 24 * 3600 + time_taken.seconds + time_taken.microseconds * 1e-6
+                if current_seconds > max_time_taken:
+                    max_time_taken = current_seconds
                 
                 if command is None:
                     command = "(None)"
                 if response is None:
                     response = "(None)"
-                result += "\t<tr> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> </tr>\n" % ( before, after, cgi.escape(command), cgi.escape(response) )
+                command_results += "\t<tr> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> </tr>\n" % ( before, after, cgi.escape(command), cgi.escape(response) )
+            result = (result % max_time_taken) + command_results
 
             result += """</table>\n"""
             result += """<br/><br/><a name="files"><h2>Files</h2>\n"""

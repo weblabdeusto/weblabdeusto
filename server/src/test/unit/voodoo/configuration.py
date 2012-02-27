@@ -89,49 +89,26 @@ class ConfigurationManagerTestCase(unittest.TestCase):
         #
         # Without a provided default value
         #
-        self.assertEquals(
-            confManager.get_value('mynumber'),
-            5
-        )
+        self.assertEquals( confManager.get_value('mynumber'), 5)
 
-        self.assertEquals(
-            confManager.get_value('mystr'),
-            "hello world"
-        )
+        self.assertEquals( confManager.get_value('mystr'), "hello world")
 
         self._refill_module(module_name)
 
         confManager.reload()
 
-        self.assertEquals(
-            confManager.get_value('mynumber'),
-            6
-        )
+        self.assertEquals( confManager.get_value('mynumber'), 6)
 
-        self.assertEquals(
-            confManager.get_value('mystr'),
-            "bye world"
-        )
+        self.assertEquals( confManager.get_value('mystr'), "bye world")
 
-        self.assertRaises(
-            ConfigurationErrors.KeyNotFoundError,
-            confManager.get_value,
-            'not_found'
-        )
+        self.assertRaises( ConfigurationErrors.KeyNotFoundError, confManager.get_value, 'not_found')
 
         #
         # With a provided default value
         #
-        self.assertEquals(
-            'expected_value',
-            confManager.get_value('not_found','expected_value')
-        )
+        self.assertEquals( 'expected_value', confManager.get_value('not_found','expected_value'))
 
-        self.assertRaises(
-                ConfigurationErrors.NotAModuleError,
-                confManager.append_modules,
-                'os'
-            )
+        self.assertRaises( ConfigurationErrors.NotAModuleError, confManager.append_modules, 'os')
 
         os.remove(module_name)
         os.remove(module_name + 'c')

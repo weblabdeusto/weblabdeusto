@@ -18,6 +18,8 @@ import mocker
 import sys
 import time
 
+import configuration_doc
+
 import weblab.admin.bot.client as Client
 
 import weblab.comm.server as RemoteFacadeServer
@@ -54,7 +56,7 @@ class UserProcessingRemoteFacadeServerTestCase(mocker.MockerTestCase):
     def setUp(self):
         self.configurationManager = ConfigurationManager.ConfigurationManager()
         self.configurationManager.append_module(configuration)
-        self.configurationManager._set_value(RemoteFacadeServer.RFS_TIMEOUT_NAME, 0.01)
+        self.configurationManager._set_value(configuration_doc.FACADE_TIMEOUT, 0.01)
 
         time.sleep( 0.01 * 5 )
 

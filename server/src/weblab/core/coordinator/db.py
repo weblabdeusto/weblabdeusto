@@ -13,14 +13,14 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-from voodoo.dbutil import generate_getconn, get_sqlite_dbname
-
-import weblab.core.coordinator.model as coord_model
-
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 
-from weblab.db.properties import WEBLAB_DB_FORCE_ENGINE_RECREATION, DEFAULT_WEBLAB_DB_FORCE_ENGINE_RECREATION
+import configuration_doc
+
+from voodoo.dbutil import generate_getconn, get_sqlite_dbname
+
+import weblab.core.coordinator.model as coord_model
 
 COORDINATOR_DB_USERNAME   = 'core_coordinator_db_username'
 COORDINATOR_DB_PASSWORD   = 'core_coordinator_db_password'
@@ -44,7 +44,7 @@ class CoordinationDatabaseManager(object):
         host     = CoordinationDatabaseManager.host     = cfg_manager.get_value(COORDINATOR_DB_HOST,    DEFAULT_COORDINATOR_DB_HOST)
         dbname   = CoordinationDatabaseManager.dbname   = cfg_manager.get_value(COORDINATOR_DB_NAME,    DEFAULT_COORDINATOR_DB_NAME)
 
-        if CoordinationDatabaseManager.engine is None or cfg_manager.get_value(WEBLAB_DB_FORCE_ENGINE_RECREATION, DEFAULT_WEBLAB_DB_FORCE_ENGINE_RECREATION):
+        if CoordinationDatabaseManager.engine is None or cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_FORCE_ENGINE_CREATION):
             getconn = generate_getconn(engine, username, password, host, dbname)
 
             connect_args = {}
