@@ -85,28 +85,41 @@ _sorted_variables.extend([
 
 SESSIONS = (COMMON, 'Sessions')
 
-SESSION_LOCKER_MYSQL_HOST                 = 'session_locker_mysql_host'
-SESSION_LOCKER_MYSQL_DB_NAME              = 'session_locker_mysql_db_name'
-SESSION_LOCKER_MYSQL_USERNAME             = 'session_locker_mysql_username'
-SESSION_LOCKER_MYSQL_PASSWORD             = 'session_locker_mysql_password'
-SESSION_LOCKER_MYSQL_CONNECTION_POOL_SIZE = 'session_locker_mysql_connection_pool_size'
-
-
-# ==== Sessions ====
-# 
 # !WebLab-Deusto supports two types of Session Managers:
 #  * "Memory", storing all the sessions in memory. Fastest.
 #  * "MySQL", storing all the sessions in MySQL tables. Far slower, but it can be shared among two servers to provide fault tolerance.
-# 
-# || *Property* || *Type* || *Default value* || *Description* || 
-# || session_locker_mysql_host || str || "localhost" || Location of the locking database server || 
-# || session_locker_mysql_db_name || str || "!WebLabSessions" || Database name of the locking database || 
-# || session_locker_mysql_username || str ||  || Username for connecting to the locking database || 
-# || session_locker_mysql_password || str ||  || Password for connecting to the locking database || 
-# || session_locker_mysql_connection_pool_size || int || 25 || Maximum number of concurrent connections to the locking database per process || 
-# || session_locker_mysql_connection_timeout || int || 60 || In seconds, how long will the server wait for connecting to the locking database || 
-# || session_manager_default_timeout || int || 3600 `*` 2 || Maximum time that a session will be stored in a Session Manager. In seconds. || 
-# || session_memory_gateway_serialize || bool || False || Sessions can be stored in a database or in memory. If they are stored in memory, they can be serialized in memory or not, to check the behaviour || 
+
+SESSION_MANAGER_DEFAULT_TIMEOUT              = 'session_manager_default_timeout'
+SESSION_MEMORY_GATEWAY_SERIALIZE             = 'session_memory_gateway_serialize'
+
+SESSION_SQLALCHEMY_ENGINE                    = 'session_sqlalchemy_engine'
+SESSION_SQLALCHEMY_HOST                      = 'session_sqlalchemy_host'
+SESSION_SQLALCHEMY_DB_NAME                   = 'session_sqlalchemy_db_name'
+SESSION_SQLALCHEMY_USERNAME                  = 'session_sqlalchemy_username'
+SESSION_SQLALCHEMY_PASSWORD                  = 'session_sqlalchemy_password'
+
+SESSION_LOCK_SQLALCHEMY_ENGINE               = 'session_lock_sqlalchemy_engine'
+SESSION_LOCK_SQLALCHEMY_HOST                 = 'session_lock_sqlalchemy_host'
+SESSION_LOCK_SQLALCHEMY_DB_NAME              = 'session_lock_sqlalchemy_db_name'
+SESSION_LOCK_SQLALCHEMY_USERNAME             = 'session_lock_sqlalchemy_username'
+SESSION_LOCK_SQLALCHEMY_PASSWORD             = 'session_lock_sqlalchemy_password'
+
+_sorted_variables.extend([
+    (SESSION_SQLALCHEMY_ENGINE,                    _Argument(SESSIONS, str,  'mysql',           "Database engine used for sessions the database. Example: mysql")),
+    (SESSION_SQLALCHEMY_HOST,                      _Argument(SESSIONS, str,  'localhost',       "Location of the sessions database server")),
+    (SESSION_SQLALCHEMY_DB_NAME,                   _Argument(SESSIONS, str,  'WebLabSessions',  "Database name of the sessions database")),
+    (SESSION_SQLALCHEMY_USERNAME,                  _Argument(SESSIONS, str,  NO_DEFAULT,        "Username for connecting to the sessions database" )),
+    (SESSION_SQLALCHEMY_PASSWORD,                  _Argument(SESSIONS, str,  NO_DEFAULT,        "Password for connecting to the sessions database")),
+
+    (SESSION_LOCK_SQLALCHEMY_ENGINE,               _Argument(SESSIONS, str,  'mysql',           "Database engine used for locking the database. Example: mysql")),
+    (SESSION_LOCK_SQLALCHEMY_HOST,                 _Argument(SESSIONS, str,  'localhost',       "Location of the locking database server")),
+    (SESSION_LOCK_SQLALCHEMY_DB_NAME,              _Argument(SESSIONS, str,  'WebLabSessions',  "Database name of the locking database")),
+    (SESSION_LOCK_SQLALCHEMY_USERNAME,             _Argument(SESSIONS, str,  NO_DEFAULT,        "Username for connecting to the locking database" )),
+    (SESSION_LOCK_SQLALCHEMY_PASSWORD,             _Argument(SESSIONS, str,  NO_DEFAULT,        "Password for connecting to the locking database")),
+
+    (SESSION_MANAGER_DEFAULT_TIMEOUT,              _Argument(SESSIONS, int,  3600 * 2,          "Maximum time that a session will be stored in a Session Manager. In seconds.")),
+    (SESSION_MEMORY_GATEWAY_SERIALIZE,             _Argument(SESSIONS, bool, False,             "Sessions can be stored in a database or in memory. If they are stored in memory, they can be serialized in memory or not, to check the behaviour")),
+])
 
 
 ######################################
