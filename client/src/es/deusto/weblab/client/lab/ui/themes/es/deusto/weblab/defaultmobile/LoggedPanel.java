@@ -21,11 +21,14 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.users.User;
+import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.DefaultTheme;
 import es.deusto.weblab.client.ui.widgets.WlUtil;
 
 class LoggedPanel extends Composite {
@@ -43,18 +46,20 @@ class LoggedPanel extends Composite {
     @UiField VerticalPanel contentPanel;  
     @UiField Label userLabel;
 	@UiField Anchor logoutLink;
+	@UiField Image logoImage;
 	
 	// DTOs
 	private final User user;
     private final ILoggedPanelCallback callback;
 	
-    LoggedPanel(User user, ILoggedPanelCallback callback) {
+    LoggedPanel(User user, ILoggedPanelCallback callback, IConfigurationManager configurationManager) {
 		this.user = user;
 		this.callback = callback;
 	
 	    final Widget wid = LoggedPanel.uiBinder.createAndBindUi(this);
 	    this.initWidget(wid);
-
+	    
+	    this.logoImage.setUrl(GWT.getModuleBaseURL() + configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_MOBILE_IMAGE, ""));
 		this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
 	}
 

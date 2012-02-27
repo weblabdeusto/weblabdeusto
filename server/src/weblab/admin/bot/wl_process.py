@@ -25,13 +25,14 @@ LAUNCH_DIR = os.sep.join(('..','launch'))
 
 class WebLabProcess(object):
 
-    def __init__(self, weblab_path, launch_file, host, ports):
+    def __init__(self, weblab_path, launch_file, host, ports, base_location = ''):
         # ports = { "soap" : (10123, 20123), "xmlrpc" : (...) ...}
         super(WebLabProcess, self).__init__()
         self.weblab_path = list(weblab_path)
         self.launch_file = launch_file
         self.host        = host
         self.ports       = ports
+        self.base_location = base_location
         self._set_paths()
 
     def _set_paths(self):
@@ -57,27 +58,27 @@ class WebLabProcess(object):
             matches = True
 
             for port in self.ports['soap']:
-                current_content = urllib2.urlopen('http://%s:%s/weblab/soap/?WSDL' % (self.host, port)).read()
+                current_content = urllib2.urlopen('http://%s:%s%s/weblab/soap/?WSDL' % (self.host, port, self.base_location)).read()
                 matches &= current_content.find("definitions targetNamespace") > 0
 
             for port in self.ports['xmlrpc']:
-                current_content = urllib2.urlopen('http://%s:%s/weblab/xmlrpc/' % (self.host, port)).read()
+                current_content = urllib2.urlopen('http://%s:%s%s/weblab/xmlrpc/' % (self.host, port, self.base_location)).read()
                 matches &= current_content.find("XML-RPC service") > 0
 
             for port in self.ports['json']:
-                current_content = urllib2.urlopen('http://%s:%s/weblab/json/' % (self.host, port)).read()
+                current_content = urllib2.urlopen('http://%s:%s%s/weblab/json/' % (self.host, port, self.base_location)).read()
                 matches &= current_content.find("JSON service") > 0
 
             for port in self.ports['soap_login']:
-                current_content = urllib2.urlopen('http://%s:%s/weblab/login/soap/?WSDL' % (self.host, port)).read()
+                current_content = urllib2.urlopen('http://%s:%s%s/weblab/login/soap/?WSDL' % (self.host, port, self.base_location)).read()
                 matches &= current_content.find("definitions targetNamespace") > 0
 
             for port in self.ports['xmlrpc_login']:
-                current_content = urllib2.urlopen('http://%s:%s/weblab/login/xmlrpc/' % (self.host, port)).read()
+                current_content = urllib2.urlopen('http://%s:%s%s/weblab/login/xmlrpc/' % (self.host, port, self.base_location)).read()
                 matches &= current_content.find("XML-RPC service") > 0
 
             for port in self.ports['json_login']:
-                current_content = urllib2.urlopen('http://%s:%s/weblab/login/json/' % (self.host, port)).read()
+                current_content = urllib2.urlopen('http://%s:%s%s/weblab/login/json/' % (self.host, port, self.base_location)).read()
                 matches &= current_content.find("JSON service") > 0
 
             return matches

@@ -20,12 +20,13 @@ import com.smartgwt.client.data.fields.DataSourceTextField;
 import com.smartgwt.client.types.DSOperationType;
 import com.smartgwt.client.types.DSProtocol;
 
+import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
 
 public class UserPermissionsDataSource extends WebLabRestDataSource {
 
-	public UserPermissionsDataSource(SessionID sessionId) {
-		super(sessionId);
+	public UserPermissionsDataSource(SessionID sessionId, IConfigurationManager configurationManager) {
+		super(sessionId, configurationManager);
 	}
 	
 	@Override
@@ -50,7 +51,7 @@ public class UserPermissionsDataSource extends WebLabRestDataSource {
 	    
 	    
 	    //this.setFetchDataURL("data/permissions_fetch.js");
-	    this.setFetchDataURL("/weblab/administration/json/user_permissions");
+	    this.setFetchDataURL(this.baseLocation + "/weblab/administration/json/user_permissions");
 	}
 }
 

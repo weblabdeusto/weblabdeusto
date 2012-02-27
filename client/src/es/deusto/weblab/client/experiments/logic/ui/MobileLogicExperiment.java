@@ -35,6 +35,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.Command;
@@ -174,7 +175,7 @@ public class MobileLogicExperiment extends ExperimentBase {
 		this.removableWidgetsPanel.add(new Label("Welcome to the WebLab-Deusto Logic Game!"));
 		this.removableWidgetsPanel.add(new Label("Replace the unknown gate with the correct one so the LED turns on."));
 		this.removableWidgetsPanel.add(new Label("Solve as many circuits as possible to get more points and become the champion!"));
-		this.removableWidgetsPanel.add(new HTML("You can check your score at <a href='/weblab/admin/winners.py'>the winners page</a>"));
+		this.removableWidgetsPanel.add(new HTML("You can check your score at <a href='" + WebLabClient.baseLocation + "/weblab/admin/winners.py'>the winners page</a>"));
 		
 		this.widget.add(this.removableWidgetsPanel);
 	}
@@ -338,7 +339,7 @@ public class MobileLogicExperiment extends ExperimentBase {
 			this.messages.setText("Finished. Waiting for your punctuation...");
 		}else{
 			this.messages.setText("Finished. Your punctuation: " + endData);
-			this.widget.add(new HTML("Check the ranking <a href=\"/weblab/admin/winners.py\">here</a>"));
+			this.widget.add(new HTML("Check the ranking <a href=\"" + WebLabClient.baseLocation + "/weblab/admin/winners.py\">here</a>"));
 		}
 	}
 	

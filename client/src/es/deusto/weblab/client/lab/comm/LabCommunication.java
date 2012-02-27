@@ -24,6 +24,7 @@ import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.client.ui.Hidden;
 
+import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.comm.ICommonSerializer;
 import es.deusto.weblab.client.comm.CommonCommunication;
 import es.deusto.weblab.client.comm.WebLabRequestCallback;
@@ -68,7 +69,8 @@ public class LabCommunication extends CommonCommunication implements ILabCommuni
 	}
 	
 	private String getFilePostUrl(){
-		return this.configurationManager.getProperty(
+		final String baseLocation = this.configurationManager.getProperty(WebLabClient.BASE_LOCATION, WebLabClient.DEFAULT_BASE_LOCATION);
+		return baseLocation + this.configurationManager.getProperty(
 					LabCommunication.WEBLAB_FILE_UPLOAD_POST_SERVICE_URL_PROPERTY, 
 					LabCommunication.DEFAULT_WEBLAB_FILE_UPLOAD_POST_SERVICE_URL
 				);
