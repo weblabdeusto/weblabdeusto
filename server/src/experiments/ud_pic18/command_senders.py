@@ -32,7 +32,7 @@ class UdXilinxCommandSender(object):
         self._cfg_manager = cfg_manager
         
     @staticmethod
-    def create(device_name, cfg_manager):
+    def create(cfg_manager):
         return HttpCommandSender(cfg_manager)
     
     def send_command(self, command):

@@ -20,37 +20,42 @@
 				<g:HorizontalPanel horizontalAlignment='ALIGN_CENTER' width="100%" spacing="30">
 					<w:WlPredictiveProgressBar ui:field="progressBar" visible="false" width="75%" resolution="20"></w:WlPredictiveProgressBar>
 				</g:HorizontalPanel>
-							
-				<g:HorizontalPanel ui:field="timerMessagesPanel" borderWidth="0" width="100%" horizontalAlignment="ALIGN_CENTER">
+				
+				<g:HorizontalPanel ui:field="timerMessagesPanel" borderWidth="0" width="100%" horizontalAlignment="ALIGN_CENTER" verticalAlignment="ALIGN_MIDDLE">
 					<w:WlTimer ui:field="timer" width="30%" styleName="wl-time_remaining"></w:WlTimer>
 					
 					<w:WlWaitingLabel ui:field="messages" horizontalAlignment="ALIGN_CENTER"></w:WlWaitingLabel>
 					
 					
-					<w:WlClockActivator ui:field="clockActivator" width="70%" styleName="wl-clock_activation_panel" visible="false"></w:WlClockActivator>
+					<g:VerticalPanel horizontalAlignment="ALIGN_CENTER">
+						<g:Label ui:field="clockInput" visible="false">TMR1/3 CKI</g:Label>
+						<w:WlClockActivator ui:field="clockActivator" width="70%" styleName="wl-clock_activation_panel" visible="false"></w:WlClockActivator>
+					</g:VerticalPanel>
 				</g:HorizontalPanel>
 				
 				<!--  Panel with the switches -->
 				<g:HorizontalPanel borderWidth="0" ui:field="switchesRow" width="100%" horizontalAlignment="ALIGN_CENTER">
-					<w:WlSwitch title="9"></w:WlSwitch>
-					<w:WlSwitch title="8"></w:WlSwitch>
-					<w:WlSwitch title="7"></w:WlSwitch>
-					<w:WlSwitch title="6"></w:WlSwitch>
-					<w:WlSwitch title="5"></w:WlSwitch>
-					<w:WlSwitch title="4"></w:WlSwitch>
-					<w:WlSwitch title="3"></w:WlSwitch>
-					<w:WlSwitch title="2"></w:WlSwitch>
-					<w:WlSwitch title="1"></w:WlSwitch>
-					<w:WlSwitch title="0"></w:WlSwitch>
-					<w:WlPotentiometer maxPower="3.3" power="2.0" title="AN0"/>
+					<w:WlSwitch ui:field="switch5" title="RB5"></w:WlSwitch>
+					<w:WlSwitch ui:field="switch4" title="RB4"></w:WlSwitch>
+					<w:WlSwitch ui:field="switch3" title="RB3"></w:WlSwitch>
+					<w:WlSwitch ui:field="switch2" title="RB2"></w:WlSwitch>
+					<w:WlSwitch ui:field="switch1" title="RB1"></w:WlSwitch>
+					<w:WlSwitch ui:field="switch0" title="RB0"></w:WlSwitch>
+					<w:WlPotentiometer ui:field="pot0" maxPower="3.3" power="2.0" title="AN6"/>
+					<w:WlPotentiometer ui:field="pot1" maxPower="3.3" power="2.0" title="AN5"/>
 				</g:HorizontalPanel>
 			
 				<!--  Panel with the buttons -->
 				<g:HorizontalPanel borderWidth="0" ui:field="buttonsRow" width="100%" horizontalAlignment="ALIGN_CENTER">
-					<w:WlTimedButton title="3"></w:WlTimedButton>
-					<w:WlTimedButton title="2"></w:WlTimedButton>
-					<w:WlTimedButton title="1"></w:WlTimedButton>
-					<w:WlTimedButton title="0"></w:WlTimedButton>					
+					<w:WlTimedButton ui:field="timedButton4" title="RD7"></w:WlTimedButton>
+					<w:WlTimedButton ui:field="timedButton3" title="RD6"></w:WlTimedButton>
+					<w:WlTimedButton ui:field="timedButton2" title="RD5"></w:WlTimedButton>
+					<w:WlTimedButton ui:field="timedButton1" title="RD4"></w:WlTimedButton>					
+				</g:HorizontalPanel>
+				
+				<!--  Panel With serial String -->
+				<g:HorizontalPanel borderWidth="0" ui:field="serialRow" width="100%" horizontalAlignment="ALIGN_CENTER">
+					<w:WlTextBoxWithButton ui:field="serial0" title="Send Serial"></w:WlTextBoxWithButton>
 				</g:HorizontalPanel>
 				
 			</g:VerticalPanel>

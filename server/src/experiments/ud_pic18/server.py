@@ -18,7 +18,6 @@
 from voodoo.gen.caller_checker import caller_check
 from voodoo.log import logged
 from voodoo.override import Override
-import experiments.ud_pic18.exc as UdXilinxExperimentExceptions
 from experiments.ud_pic18.command_senders import UdXilinxCommandSender
 from experiments.ud_pic18.programmers import UdXilinxProgrammer
 import os
@@ -28,8 +27,6 @@ import weblab.data.server_type as ServerType
 import weblab.experiment.exc as ExperimentExceptions
 import weblab.experiment.experiment as Experiment
 import weblab.experiment.util as ExperimentUtil
-import weblab.experiment.devices.xilinx_impact.devices as XilinxDevices
-import weblab.experiment.devices.xilinx_impact.impact as XilinxImpact
 
 import json
 
@@ -60,34 +57,23 @@ class UdPic18Experiment(Experiment.Experiment):
         self._locator = locator
         self._cfg_manager = cfg_manager
 
-        self._xilinx_device, self._xilinx_impact = self._load_xilinx_device()
         self._programmer = self._load_programmer()
         self._command_sender = self._load_command_sender()
         self.webcam_url = self._load_webcam_url()
         
         self._programming_thread = None
         self._current_state = STATE_NOT_READY
-        self._programmer_time = self._cfg_manager.get_value('xilinx_programmer_time', "25") # Seconds
+        self._programmer_time = self._cfg_manager.get_value('programmer_time', "25") # Seconds
         self._switches_reversed = self._cfg_manager.get_value('switches_reversed', False) # Seconds
         
-    def _load_xilinx_device(self):
-        device_name = self._cfg_manager.get_value('weblab_xilinx_experiment_xilinx_device')
-        devices = [ i for i in XilinxDevices.getXilinxDeviceValues() if i == device_name ]
-        if len(devices) == 1:
-            return devices[0], XilinxImpact.create(devices[0], self._cfg_manager)
-        else:
-            raise UdXilinxExperimentExceptions.InvalidXilinxDeviceException(device_name)
-        
     def _load_programmer(self):
-        device_name = self._cfg_manager.get_value('xilinx_device_to_program')
-        return UdXilinxProgrammer.create(device_name, self._cfg_manager, self._xilinx_impact)
+        return UdXilinxProgrammer.create(self._cfg_manager)
         
     def _load_command_sender(self):
-        device_name = self._cfg_manager.get_value('xilinx_device_to_send_commands')
-        return UdXilinxCommandSender.create(device_name, self._cfg_manager)
+        return UdXilinxCommandSender.create(self._cfg_manager)
         
     def _load_webcam_url(self):
-        cfg_webcam_url = "%s_webcam_url" % self._xilinx_device.lower()        
+        cfg_webcam_url = "webcam_url"
         return self._cfg_manager.get_value(cfg_webcam_url, "http://localhost")
     
     def get_state(self):
@@ -131,7 +117,7 @@ class UdPic18Experiment(Experiment.Experiment):
     # This is used in the demo experiment
     def _program_file(self, file_content):
         try:
-            fd, file_name = tempfile.mkstemp(prefix='ud_xilinx_experiment_program', suffix='.' + self._xilinx_impact.get_suffix())
+            fd, file_name = tempfile.mkstemp(prefix='pic18_experiment_program', suffix='.hex')
             try:
                 try:
                     #TODO: encode? utf8?

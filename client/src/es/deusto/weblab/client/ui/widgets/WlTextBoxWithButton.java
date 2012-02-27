@@ -18,7 +18,7 @@ public class WlTextBoxWithButton extends VerticalPanel implements IWlWidget{
 	private final Widget widget;
 	private final WlActionListenerContainer actionListenerContainer;
 	
-	private static final int DEFAULT_LENGTH      = 10;
+	private static final int DEFAULT_LENGTH      = 20;
 	private static final int BUTTON_MILLISECONDS = 500;
 	
 	private final Label title = new Label();
@@ -79,6 +79,8 @@ public class WlTextBoxWithButton extends VerticalPanel implements IWlWidget{
 	public String getText(){
 		return this.textbox.getText();
 	}
+	
+	
 	
 	public void addActionListener(IWlActionListener listener){
 		this.actionListenerContainer.addActionListener(listener);

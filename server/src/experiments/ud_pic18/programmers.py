@@ -30,7 +30,7 @@ class UdXilinxProgrammer(object):
         self._cfg_manager = cfg_manager
 
     @staticmethod
-    def create(device_name, cfg_manager, xilinx_impact_device):
+    def create(cfg_manager):
         return PICProgrammer(cfg_manager)
     
     @abstractmethod

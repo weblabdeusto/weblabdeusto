@@ -39,11 +39,13 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
+import es.deusto.weblab.client.ui.widgets.IWlWidget;
 import es.deusto.weblab.client.ui.widgets.WlClockActivator;
 import es.deusto.weblab.client.ui.widgets.WlPotentiometer;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar;
 import es.deusto.weblab.client.ui.widgets.WlSwitch;
 import es.deusto.weblab.client.ui.widgets.WlTimedButton;
+import es.deusto.weblab.client.ui.widgets.WlTextBoxWithButton;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
@@ -98,16 +100,35 @@ public class Pic18Experiment extends ExperimentBase{
 	
 	@UiField Button uploadButton;
 	@UiField Label selectProgram;
-	
+	@UiField Label clockInput;
+
 	@UiField HorizontalPanel timerMessagesPanel;
 	@UiField WlWaitingLabel messages;
 	@UiField WlClockActivator clockActivator;
-
+ 
 	@UiField HorizontalPanel switchesRow;
 	@UiField HorizontalPanel buttonsRow;
+	@UiField HorizontalPanel serialRow;
 	@UiField HorizontalPanel webcamPanel;
 	
 	@UiField WlPredictiveProgressBar progressBar;
+	
+	@UiField WlSwitch switch5;
+	@UiField WlSwitch switch4;
+	@UiField WlSwitch switch3;
+	@UiField WlSwitch switch2;
+	@UiField WlSwitch switch1;
+	@UiField WlSwitch switch0;
+	
+	@UiField WlPotentiometer pot0;
+	@UiField WlPotentiometer pot1;	
+	
+	@UiField WlTimedButton timedButton1;
+	@UiField WlTimedButton timedButton2;
+	@UiField WlTimedButton timedButton3;
+	@UiField WlTimedButton timedButton4;
+	
+	@UiField WlTextBoxWithButton serial0;
 	
 	//@UiField(provided=true)
 	private UploadStructure uploadStructure;
@@ -178,13 +199,14 @@ public class Pic18Experiment extends ExperimentBase{
 	 */
 	private void findInteractiveWidgets() {
 		
-		// Find switches
+		// Find switches & potentiometers (All in the same Row)
 		for(int i = 0; i < this.switchesRow.getWidgetCount(); ++i){
 			final Widget wid = this.switchesRow.getWidget(i);
 			if(wid instanceof WlSwitch) {
 				this.addInteractiveWidget(wid);
-			}else if(wid instanceof WlPotentiometer)
+			}else if(wid instanceof WlPotentiometer){
 				this.addInteractiveWidget(wid);
+			}			
 		}
 		
 		// Find timed buttons
@@ -192,6 +214,15 @@ public class Pic18Experiment extends ExperimentBase{
 			final Widget wid = this.buttonsRow.getWidget(i);
 			if(wid instanceof WlTimedButton) {
 				final WlTimedButton swi = (WlTimedButton)wid;
+				this.addInteractiveWidget(swi);
+			}
+		}
+		
+		// Add the textboxs for serial sending (Initially just one)
+		for(int i = 0; i < this.buttonsRow.getWidgetCount(); ++i) {
+			final Widget wid = this.serialRow.getWidget(0);
+			if(wid instanceof WlTextBoxWithButton ) {
+				final WlTextBoxWithButton swi = (WlTextBoxWithButton)wid;
 				this.addInteractiveWidget(swi);
 			}
 		}
@@ -345,6 +376,7 @@ public class Pic18Experiment extends ExperimentBase{
 	    this.widget.setVisible(true);
 	    this.selectProgram.setVisible(false);
 	    
+	    
 		this.loadWidgets();
 		this.disableInteractiveWidgets();
 	}
@@ -463,6 +495,7 @@ public class Pic18Experiment extends ExperimentBase{
 		this.enableInteractiveWidgets();
 		this.messages.setText("Device ready");
 		this.messages.stop();
+		this.clockInput.setVisible(true);
 	}
 	
 	
@@ -503,8 +536,95 @@ public class Pic18Experiment extends ExperimentBase{
 		this.prepareButtonsRow();
 		
 		this.innerVerticalPanel.setSpacing(20);
+		
+/*		IWlActionListener switchesListener = new IWlActionListener() {
+			@Override
+			public void onAction(IWlWidget widget) {
+				//WlSwitch swicthItem = (WlSwitch)widget;
+				String message = "SWITCH ";
+				if(widget.equals(switch0)) {
+					message += "0";
+				}else if(widget.equals(switch1)) {
+					message += "1";
+				}else if(widget.equals(switch2)) {
+					message += "2";
+				}else if(widget.equals(switch3)) {
+					message += "3";
+				}else if(widget.equals(switch4)) {
+					message += "4";
+				}else if(widget.equals(switch5)) {
+					message += "5";
+				} 
+				
+				Pic18Experiment.this.boardController.sendCommand(message);
+			}
+		};*/
+		
+		this.pot1.addActionListener(new IWlActionListener(){
+			@Override
+			public void onAction(IWlWidget widget) {
+				String message = "Analog 1 ";
+				message += Double.toString(Pic18Experiment.this.pot1.getPower());
+				if ((message.charAt(9) <= '9') && (message.charAt(9) >= '0') && (message.charAt(11) <= '9') && (message.charAt(11) >= '0') && (message.charAt(10)=='.')){
+					Pic18Experiment.this.boardController.sendCommand(message);
+				}else {
+					Pic18Experiment.this.messages.setText("Valor no válido en potenciómetro: " + Double.toString(Pic18Experiment.this.pot0.getPower()));
+				}
+			}
+		});
+		
+		this.pot0.addActionListener(new IWlActionListener(){
+			@Override
+			public void onAction(IWlWidget widget) {
+				String message = "Analog 0 ";
+				message += Double.toString(Pic18Experiment.this.pot0.getPower());
+				if ((message.charAt(9) <= '9') && (message.charAt(9) >= '0') && (message.charAt(11) <= '9') && (message.charAt(11) >= '0') && (message.charAt(10)=='.')){
+					Pic18Experiment.this.boardController.sendCommand(message);
+				}else {
+					Pic18Experiment.this.messages.setText("Valor no válido en potenciómetro: " + Double.toString(Pic18Experiment.this.pot0.getPower()));
+				}
+								
+			}
+		});
+		
+		this.serial0.addActionListener(new IWlActionListener(){
+			@Override
+			public void onAction(IWlWidget widget) {
+				String message = "STRING ";
+				message += Pic18Experiment.this.serial0.getText();
+				message += '\0';				
+				Pic18Experiment.this.boardController.sendCommand(message);
+			}
+		});
+		
+		this.timedButton1.addButtonListener(new ButtonListener(1));
+		this.timedButton2.addButtonListener(new ButtonListener(2));
+		this.timedButton3.addButtonListener(new ButtonListener(3));
+		this.timedButton4.addButtonListener(new ButtonListener(4));
 	}
+	
+	private class ButtonListener implements IWlButtonUsed {
+		 
+		 private int n;
+		 
+		 public ButtonListener(int n) {
+			 this.n = n;
+		 }
+		 
+		 @Override
+		 public void onPressed() {
+			 String message = "timed button " + this.n + " on";
+			 Pic18Experiment.this.boardController.sendCommand(message);				
+		 }
 
+		 @Override
+		 public void onReleased() {
+			 String message = "timed button " + this.n + " off";
+			 Pic18Experiment.this.boardController.sendCommand(message);				
+		 }
+	 }
+	
+	
 	private void loadProgressBar() {
 		this.progressBar.setResolution(40);
 		this.progressBar.setTextUpdater(new IProgressBarTextUpdater(){
@@ -554,21 +674,21 @@ public class Pic18Experiment extends ExperimentBase{
 	 */
 	private HorizontalPanel prepareSwitchesRow() {
 		
-		for(int i = 0; i < this.switchesRow.getWidgetCount(); ++i){
-			final Widget wid = this.switchesRow.getWidget(i);
-			if(wid instanceof WlSwitch) {
-				final WlSwitch swi = (WlSwitch)wid;
+		final WlSwitch [] switches = {
+				this.switch0,
+				this.switch1,
+				this.switch2,
+				this.switch3,
+				this.switch4,
+				this.switch5
+		};
+		
+		for(int i = 0; i < switches.length; ++i){
+			final WlSwitch swi = switches[i];
 				
-				// Avoid trying to convert non-numerical titles (which serve
-				// as identifiers). Not exactly an elegant way to do it.
-				if(swi.getTitle().length() != 1) 
-					continue;
-				
-				final int id = this.switchesRow.getWidgetCount() - Integer.parseInt(swi.getTitle()) - 1;
-				final IWlActionListener actionListener = new SwitchListener(id, this.boardController, this.getResponseCommandCallback());
-				swi.addActionListener(actionListener);
-				this.addInteractiveWidget(swi);
-			}
+			final IWlActionListener actionListener = new SwitchListener(i, this.boardController, this.getResponseCommandCallback());
+			swi.addActionListener(actionListener);
+			this.addInteractiveWidget(swi);
 		}
 		
 		return this.switchesRow;
@@ -585,16 +705,7 @@ public class Pic18Experiment extends ExperimentBase{
 		for(int i = 0; i < this.buttonsRow.getWidgetCount(); ++i) {
 			final Widget wid = this.buttonsRow.getWidget(i);
 			if(wid instanceof WlTimedButton) {
-				final WlTimedButton timedButton = (WlTimedButton)wid;
-				
-				if(timedButton.getTitle().length() != 1)
-					continue;
-				
-				final int id = Integer.parseInt(timedButton.getTitle());
-				final IWlButtonUsed buttonUsed = 
-					new ButtonListener(id, this.boardController, this.getResponseCommandCallback());
-				timedButton.addButtonListener(buttonUsed);
-				this.addInteractiveWidget(timedButton);
+				this.addInteractiveWidget(wid);
 			}
 		}
 		
