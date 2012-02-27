@@ -140,12 +140,16 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard{
 	 * We must create an iframe and inside this iframe build the flash object because Flash's ExternalInterface
 	 * doesn't seem to work on Microsoft Internet Explorer (v8) if the flash object is dynamically created. Opera, 
 	 * Chrome, Firefox performed well with the dynamically created flash object.
+	 * 
+	 * We also add a div after the iframe, for whatever purpose.
 	 */
 	private static native void createJavaScriptCode(Element element, int width, int height) /*-{
 		var iFrameHtml   = "<iframe name=\"wlframe\" frameborder=\"0\"  vspace=\"0\"  hspace=\"0\"  marginwidth=\"0\"  marginheight=\"0\" " +
 									"width=\"" + width + "\"  scrolling=\"no\"  height=\"" + height +  "\" " +
 								"></iframe>";
-		element.innerHTML = iFrameHtml;
+		var divHtml = "<div id=\"div_extra\"></div>";
+		element.innerHTML = iFrameHtml + divHtml;
+		$wnd.wl_div_extra = $doc.getElementById('div_extra');
 		$wnd.wl_iframe    = element.getElementsByTagName('iframe')[0];
 		$wnd.wl_inst  = null;
     }-*/;
@@ -233,6 +237,9 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard{
 				// should not set it again. In fact, we do not necessarily even store the value.
 				if(FlashExperiment.this.deferred)
 					AbstractExternalAppBasedBoard.setTimeImpl(FlashExperiment.this.timeSet);
+				
+				// Flash is now ready. Notify.
+				onFlashReady();
 			}
 			
 		};
@@ -245,6 +252,15 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard{
 			this.initializationTimer.schedule(FlashExperiment.WAIT_AFTER_START);
 		else
 			this.initializationTimer.schedule(1);
+	}
+	
+	
+	/**
+	 * Method that gets automatically called once the flash applet is ready.
+	 * Meant to be overridden by derived classes if needed.
+	 */
+	public void onFlashReady() {
+		
 	}
 	
 	@Override
@@ -295,10 +311,12 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard{
 								"<param name=\"flashvars\" value=\"" + flashvars + "\"/>" + 
 								"<embed src=\"" + swfFile + "\" width=\"" + width + "\" height=\"" + height + "\" flashvars=\"" + flashvars + "\"   />" + 
 							"</object>";
+							
+		var other		= "<div id=\"div_iframe_extra\"></div>";
 		
 		var completeHtml = "<html>" +
 								"<head>" + functionsHtml + "</head>" +
-								"<body>" + flashHtml + "</body>" +
+								"<body>" + flashHtml + other + "</body>" +
 							"</html>";
 		
 		doc.open();

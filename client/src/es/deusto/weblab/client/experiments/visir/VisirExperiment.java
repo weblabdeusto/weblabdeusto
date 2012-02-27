@@ -61,6 +61,8 @@ public class VisirExperiment extends FlashExperiment {
 	public void setTime(int time) {
 		super.setTime(time);
 	}
+	
+
 
 	@Override
 	public void start(final int time, final String initialConfiguration) {
@@ -89,6 +91,7 @@ public class VisirExperiment extends FlashExperiment {
 						} else {
 							System.out.println("Could not parse response: " + responseCommand.getCommandString());
 						}
+						
 					}
 
 					@Override
@@ -102,6 +105,42 @@ public class VisirExperiment extends FlashExperiment {
 		//super.start();
 		
 	}
+	
+	
+	@Override
+	public void onFlashReady() {
+		modFrame();
+	}
+	
+	private static native void modFrame() /*-{
+		
+		$wnd.alert('First');
+		
+		initOnLoadCircuit();
+		
+		$wnd.alert('Second');
+		
+		var doc = $wnd.wl_iframe.contentDocument;
+		if (doc == undefined || doc == null)
+	    	doc = $wnd.wl_iframe.contentWindow.document;
+	    	
+	    $wnd.alert('Third');
+	    	
+	 	$doc.getElementById('div_extra').innerHTML = "<div align='left'><font color='red'>HELLO WORLD</font></div>";
+	    	
+		$wnd.alert('Hello world');
+	}-*/;
+	
+	private static native void initOnLoadCircuit() /*-{
+		$wnd.callOnLoadCircuit = function(id) {
+			this.@es.deusto.weblab.client.experiments.visir.VisirExperiment::onLoadCircuit(id);
+		};
+	}-*/;
+	
+	private void onLoadCircuit(int id) {
+		System.out.println("Should load circuit number: " + id);
+	}
+	
 
 	/**
 	 * Will set or update the flash vars with local parameters such as cookie or savedata.
