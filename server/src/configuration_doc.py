@@ -130,7 +130,13 @@ _sorted_variables.extend([
 CORE_SERVER = 'Core Server'
 
 
+# 
+# General
+# 
+
 CORE = (CORE_SERVER,'General')
+
+# || core_checking_time || int || 3 || How often the server will check what sessions have expired and delete them. Expressed in seconds. || 
 
 WEBLAB_CORE_SERVER_SESSION_TYPE     = 'core_session_type'
 WEBLAB_CORE_SERVER_SESSION_POOL_ID  = 'core_session_pool_id'
@@ -140,9 +146,23 @@ _sorted_variables.extend([
     (WEBLAB_CORE_SERVER_SESSION_POOL_ID, _Argument(CORE, str, 'UserProcessingServer', """ A unique identifier of the type of sessions, in order to manage them. For instance, if there are four servers (A, B, C and D), the load of users can be splitted in two groups: those being sent to A and B, and those being sent to C and D. A and B can share those sessions to provide fault tolerance (if A falls down, B can keep working from the same point A was) using a MySQL session manager, and the same may apply to C and D. The problem is that if A and B want to delete all the sessions -at the beginning, for example-, but they don't want to delete sessions of C and D, then they need a unique identifier shared for A and B, and another for C and D. In this case, "!UserProcessing_A_B" and "!UserProcessing_C_D" would be enough.""")),
 ])
 
+# ==== Facade ====
+# || *Property* || *Type* || *Default value* || *Description* || 
+# || core_facade_server_route || str || "`<route-to-server>`" || Identifier of the server or groups of servers that will receive requests, for load balancing purposes. || 
+# || core_facade_soap_bind || str || "" || Binding address for the SOAP facade at Core Server || 
+# || core_facade_soap_port || int ||  || Port number for the SOAP facade at Core Server || 
+# || core_facade_soap_service_name || str || "/!WebLab/soap/" || Service name for the SOAP facade at Core Server || 
+# || core_facade_soap_public_server_host || str || "www.weblab.deusto.es" || Public server host, used for generating the WSDL file. || 
+# || core_facade_soap_public_server_port || int || 80 || Public server port, used for generating the WSDL file. || 
+# || core_facade_json_bind || str || "" || Binding address for the JSON facade at Core Server || 
+# || core_facade_json_port || int ||  || Port number for the JSON facade at Core Server || 
+# || core_facade_xmlrpc_bind || str || "" || Binding address for the XML-RPC facade at Core Server || 
+# || core_facade_xmlrpc_port || int ||  || Port number for the XML-RPC facade at Core Server || 
+
+
 #####################################
 # 
-# The rest
+# Generation
 # 
 
 
