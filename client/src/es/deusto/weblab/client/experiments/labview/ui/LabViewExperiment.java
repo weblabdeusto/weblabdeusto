@@ -25,6 +25,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
@@ -200,7 +201,7 @@ public class LabViewExperiment extends ExperimentBase {
 				LabViewExperiment.this.openPopupButton.addClickHandler(new ClickHandler() {
 					@Override
 					public void onClick(ClickEvent event) {
-						Window.open("/weblab/web/labview/?session_id=" + LabViewExperiment.this.boardController.getSessionId().getRealId(), "_blank", "resizable=yes,scrollbars=yes,dependent=yes,width=1000,height=800,top=0");
+						Window.open(WebLabClient.baseLocation + "/weblab/web/labview/?session_id=" + LabViewExperiment.this.boardController.getSessionId().getRealId(), "_blank", "resizable=yes,scrollbars=yes,dependent=yes,width=1000,height=800,top=0");
 					}
 				});
 				/*

@@ -85,9 +85,6 @@ class LoginWindow extends BaseWindow {
 	private static final String ADMIN_EMAIL_PROPERTY = "admin.email";
 	private static final String DEFAULT_ADMIN_EMAIL = "<admin.email not set>";
 	
-	private static final String HOST_ENTITY_IMAGE_PROPERTY = "host.entity.image";
-	private static final String DEFAULT_HOST_ENTITY_IMAGE  = "";
-	
 	private static final String DEMO_AVAILABLE_PROPERTY = "demo.available";
 	private static final boolean DEFAULT_DEMO_AVAILABLE = false;
 	
@@ -160,7 +157,7 @@ class LoginWindow extends BaseWindow {
 		this.usernameTextbox.addKeyDownHandler(keyboardHandler);
 		this.passwordTextbox.addKeyDownHandler(keyboardHandler);
 		
-		String hostEntityImage = this.configurationManager.getProperty(HOST_ENTITY_IMAGE_PROPERTY, DEFAULT_HOST_ENTITY_IMAGE);
+		String hostEntityImage = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_LOGIN_IMAGE, "");
 		if(!hostEntityImage.isEmpty()){
 			if(hostEntityImage.startsWith("/"))
 				hostEntityImage = GWT.getModuleBaseURL() + hostEntityImage;

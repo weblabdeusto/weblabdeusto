@@ -18,6 +18,7 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 
+import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.admin.comm.callbacks.IPermissionsCallback;
 import es.deusto.weblab.client.comm.ICommonSerializer;
 import es.deusto.weblab.client.comm.CommonCommunication;
@@ -46,7 +47,8 @@ public class AdminCommunication extends CommonCommunication implements IAdminCom
 	}
 	
 	private String getAdminServiceUrl(){
-		return this.configurationManager.getProperty(
+		final String baseLocation = this.configurationManager.getProperty(WebLabClient.BASE_LOCATION, WebLabClient.DEFAULT_BASE_LOCATION);
+		return baseLocation + this.configurationManager.getProperty(
 					AdminCommunication.WEBLAB_ADMIN_SERVICE_URL_PROPERTY,
 					AdminCommunication.DEFAULT_WEBLAB_ADMIN_SERVICE_URL
 				);

@@ -160,34 +160,34 @@ public class AdminPanelWindow extends BaseWindow {
 
 		// Create the data sources that the panel will use
 
-		this.experimentUsesDS = new ExperimentUsesDataSource(sessionId);
+		this.experimentUsesDS = new ExperimentUsesDataSource(sessionId, configurationManager);
 		this.experimentUsesDS.initialize();
 
-		this.groupsDS = new GroupsDataSource(sessionId);
+		this.groupsDS = new GroupsDataSource(sessionId, configurationManager);
 		this.groupsDS.initialize();
 
-		this.experimentsDS = new ExperimentsDataSource(sessionId);
+		this.experimentsDS = new ExperimentsDataSource(sessionId, configurationManager);
 		this.experimentsDS.initialize();
 
-		this.rolesDS = new RolesDataSource(sessionId);
+		this.rolesDS = new RolesDataSource(sessionId, configurationManager);
 		this.rolesDS.initialize();
 
-		this.usersDS = new UsersDataSource(sessionId);
+		this.usersDS = new UsersDataSource(sessionId, configurationManager);
 		this.usersDS.initialize();
 		
-		this.authsDS = new AuthsDataSource(sessionId);
+		this.authsDS = new AuthsDataSource(sessionId, configurationManager);
 		this.authsDS.initialize();
 		
-		this.userPermissionDS = new UserPermissionsDataSource(sessionId);
+		this.userPermissionDS = new UserPermissionsDataSource(sessionId, configurationManager);
 		this.userPermissionDS.initialize();
 		
-		this.permissionTypeDS = new PermissionTypeDataSource(sessionId);
+		this.permissionTypeDS = new PermissionTypeDataSource(sessionId, configurationManager);
 		this.permissionTypeDS.initialize();
 		
-		this.permissionTypeParameterDS = new PermissionTypeParameterDataSource(sessionId);
+		this.permissionTypeParameterDS = new PermissionTypeParameterDataSource(sessionId, configurationManager);
 		this.permissionTypeParameterDS.initialize();
 		
-		this.userPermissionParameterDS = new UserPermissionParameterDataSource(sessionId);
+		this.userPermissionParameterDS = new UserPermissionParameterDataSource(sessionId, configurationManager);
 		this.userPermissionParameterDS.initialize();
 	
 		this.loadWidgets();

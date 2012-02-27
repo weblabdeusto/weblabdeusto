@@ -27,7 +27,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Hyperlink;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -63,6 +63,7 @@ class ExperimentWindow extends BaseWindow {
 	}
 
 	// Widgets
+	@UiField Image logoImage;
 	@UiField VerticalPanel containerPanel;
 	@UiField Label userLabel;
 	@UiField Anchor logoutLink;
@@ -130,6 +131,9 @@ class ExperimentWindow extends BaseWindow {
 	public void loadWidgets(){		
 		ExperimentWindow.uiBinder.createAndBindUi(this);
 		
+		final String hostEntityImage = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_IMAGE, "");
+		this.logoImage.setUrl(GWT.getModuleBaseURL() + hostEntityImage);
+		
 		final IConfigurationRetriever retriever = ExperimentFactory.getExperimentConfigurationRetriever(this.experimentAllowed.getExperiment().getExperimentUniqueName());
 	    this.reserveButton.setVisible(retriever.getBoolProperty(RESERVE_BUTTON_SHOWN_PROPERTY, DEFAULT_RESERVE_BUTTON_SHOWN));
 	    
@@ -181,9 +185,6 @@ class ExperimentWindow extends BaseWindow {
 		
 		// Open the info page in a new window.
 		this.informationLink.setTarget("_blank");
-		
-		String href = this.informationLink.getHref();
-		
 		
 		// If there is actually no information available, we will just hide the label
 		if(this.informationLink.getHref().isEmpty())

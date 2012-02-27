@@ -22,6 +22,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.user.client.DOM;
 
+import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
@@ -58,7 +59,8 @@ public abstract class CommonCommunication implements ICommonCommunication {
 	}
 	
 	private String getServiceUrl(){
-		return this.configurationManager.getProperty(
+		final String baseLocation = this.configurationManager.getProperty(WebLabClient.BASE_LOCATION, WebLabClient.DEFAULT_BASE_LOCATION);
+		return baseLocation + this.configurationManager.getProperty(
 					CommonCommunication.WEBLAB_SERVICE_URL_PROPERTY,
 					CommonCommunication.DEFAULT_WEBLAB_SERVICE_URL
 				);
@@ -82,7 +84,8 @@ public abstract class CommonCommunication implements ICommonCommunication {
 	}	
 	
 	private String getLoginServiceUrl(){
-		return this.configurationManager.getProperty(
+		final String baseLocation = this.configurationManager.getProperty(WebLabClient.BASE_LOCATION, WebLabClient.DEFAULT_BASE_LOCATION);
+		return baseLocation + this.configurationManager.getProperty(
 					CommonCommunication.WEBLAB_LOGIN_SERVICE_URL_PROPERTY,
 					CommonCommunication.DEFAULT_WEBLAB_LOGIN_SERVICE_URL
 				);
