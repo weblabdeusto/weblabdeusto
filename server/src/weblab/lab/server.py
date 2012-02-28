@@ -250,7 +250,7 @@ class LaboratoryServer(object):
                 log.log_exc(LaboratoryServer, log.level.Error)
                 experiment_response = ''
 
-            if experiment_response is not None and experiment_response != 'ok' and experiment_response != '':
+            if experiment_response is not None and experiment_response.lower() != 'ok' and experiment_response != '':
                 try:
                     response = json.loads(experiment_response)
                     finished = response.get(Coordinator.FINISH_FINISHED_MESSAGE)
