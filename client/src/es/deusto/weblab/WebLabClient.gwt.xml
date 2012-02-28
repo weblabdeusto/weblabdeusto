@@ -19,8 +19,21 @@
 	<extend-property name="locale" values="eu"/>
 	
 	<source path="client">
-		<exclude name="admin/**java"/>
+		<exclude name="admin/**java" />
 	</source>
+
+	<replace-with class="es.deusto.weblab.client.ui.widgets.WlWebcam">
+		<when-type-is class="es.deusto.weblab.client.ui.widgets.WlWebcam" />
+	</replace-with>
+
+	<!-- Mozilla is the only one supported MJPEG -->
+	<replace-with class="es.deusto.weblab.client.ui.widgets.WlWebcamFirefox">
+		<when-type-is class="es.deusto.weblab.client.ui.widgets.WlWebcam" />
+		<any>
+			<when-property-is name="user.agent" value="gecko" />
+			<when-property-is name="user.agent" value="gecko1_8" />
+		</any>
+	</replace-with>
 	
 	<public path="public"></public>
 </module>

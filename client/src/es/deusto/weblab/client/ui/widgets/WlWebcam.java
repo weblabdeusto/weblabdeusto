@@ -13,22 +13,13 @@
 */ 
 package es.deusto.weblab.client.ui.widgets;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ErrorEvent;
 import com.google.gwt.event.dom.client.ErrorHandler;
 import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.Anchor;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
@@ -37,33 +28,16 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class WlWebcam extends VerticalPanel implements IWlWidget{
 	
-	private static enum WebcamFormat {
-		jpeg,
-		mjpeg
-	}
-	
-	private static Map<WebcamFormat, String> NAMES = new HashMap<WebcamFormat, String>();
-	
-	static {
-		NAMES.put(WebcamFormat.jpeg, "jpg");
-		NAMES.put(WebcamFormat.mjpeg, "video (mjpeg)");
-		
-		if(NAMES.size() != WebcamFormat.values().length)
-			System.err.println("Error: missing value for " + WebcamFormat.class.getName());
-	}
-	
 	public static final String DEFAULT_IMAGE_URL = GWT.getModuleBaseURL() + "/waiting_url_image.jpg";
 	public static final int DEFAULT_REFRESH_TIME = 400;
 	
-	private final Image image;
+	protected final Image image;
 	
-	private final int time;
-	private String url;
-	private String streamingUrl;
-	private Timer timer;
-	private boolean running;
-	private WebcamFormat currentWebcam = WebcamFormat.jpeg;
-	private HorizontalPanel choicePanel;
+	protected int time;
+	protected String url;
+	protected String streamingUrl;
+	protected Timer timer;
+	protected boolean running;
 	
 	public WlWebcam(){
 		this(WlWebcam.DEFAULT_REFRESH_TIME, WlWebcam.DEFAULT_IMAGE_URL);
@@ -81,7 +55,7 @@ public class WlWebcam extends VerticalPanel implements IWlWidget{
 		final HorizontalPanel imagePanel = new HorizontalPanel();
 		imagePanel.setWidth("100%");
 		imagePanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		this.time = time;
+		this.time         = time;
 		this.url          = url;
 		this.streamingUrl = streamingUrl;
 		
@@ -91,10 +65,6 @@ public class WlWebcam extends VerticalPanel implements IWlWidget{
 		this.setWidth("100%");
 		this.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		this.add(imagePanel);
-		this.choicePanel = new HorizontalPanel();
-		this.choicePanel.setWidth("160px");
-		this.choicePanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		this.add(this.choicePanel);
 	}
 	
 	public void start(){
@@ -110,7 +80,7 @@ public class WlWebcam extends VerticalPanel implements IWlWidget{
 	
 	public void stop(){
 		this.running = false;
-		if(this.timer != null)
+		if(this.timer != null) 
 			this.timer.cancel();
 	}
 	
@@ -132,23 +102,11 @@ public class WlWebcam extends VerticalPanel implements IWlWidget{
 	
 	public void reload(){
 		if(this.running){
-			switch(this.currentWebcam) {
-				case jpeg:
-					reloadJpeg();
-					break;
-				case mjpeg:
-					reloadMJpeg();
-					break;
-			}
+			reloadJpeg();
 		}
 	}
 
-	private void reloadMJpeg() {
-		if(this.image.getUrl() != this.streamingUrl)
-			this.image.setUrl(this.streamingUrl);
-	}
-
-	private void reloadJpeg() {
+	protected void reloadJpeg() {
 		this.image.setUrl(this.getDifferentUrl());
 		this.image.addErrorHandler(new ErrorHandler() {
 		    
@@ -168,11 +126,11 @@ public class WlWebcam extends VerticalPanel implements IWlWidget{
 		);
 	}
 	
-	private String randomStuff(){
+	protected String randomStuff(){
 		return "?" + Random.nextInt();
 	}
 	
-	private String getDifferentUrl(){
+	protected String getDifferentUrl(){
 		return this.url + this.randomStuff();
 	}
 
@@ -184,41 +142,16 @@ public class WlWebcam extends VerticalPanel implements IWlWidget{
 		return this.streamingUrl;
 	}
 	
-	private void reloadPanel(WebcamFormat format) {
-		final List<WebcamFormat> possibleFormats = new Vector<WebcamFormat>();
-		if(this.url != DEFAULT_IMAGE_URL) {
-			possibleFormats.add(WebcamFormat.jpeg);
-		}
-		if(this.streamingUrl != DEFAULT_IMAGE_URL) {
-			possibleFormats.add(WebcamFormat.mjpeg);
-		}
-
-		if(format != null)
-			this.currentWebcam = format;
-		else if(possibleFormats.size() > 0)
-			this.currentWebcam = possibleFormats.get(0);
-
-		this.choicePanel.clear();
-		if(possibleFormats.size() > 1) {
-			for(final WebcamFormat webcam : possibleFormats) {
-				final Widget anchor;
-				if(webcam.equals(this.currentWebcam)) {
-					anchor = new HTML("<b>" + NAMES.get(webcam) + "</b>");
-				} else {
-					anchor = new Anchor(NAMES.get(webcam));
-					((Anchor)anchor).addClickHandler(new ClickHandler() {
-						@Override
-						public void onClick(ClickEvent event) {
-							reloadPanel(webcam);
-						}
-					});
-				}
-				this.choicePanel.add(anchor);
-			}
-		}
+	protected void reloadPanel() {
 		reload();
-		if(this.image.getWidth() > 0)
-			this.choicePanel.setWidth((this.image.getWidth() / 2) + "px");
+	}
+	
+	public void setTime(int time) {
+		this.time = time;
+		if(this.running) {
+			stop();
+			start();
+		}
 	}
 
 	/**
@@ -228,7 +161,7 @@ public class WlWebcam extends VerticalPanel implements IWlWidget{
 	 */
 	public void setUrl(String url) {
 		this.url = url;
-		this.reloadPanel(null);
+		this.reloadPanel();
 	}
 	
 	/**
@@ -238,7 +171,7 @@ public class WlWebcam extends VerticalPanel implements IWlWidget{
 	 */
 	public void setStreamingUrl(String streamingUrl) {
 		this.streamingUrl = streamingUrl;
-		this.reloadPanel(null);
+		this.reloadPanel();
 	}
 	
 	@Override

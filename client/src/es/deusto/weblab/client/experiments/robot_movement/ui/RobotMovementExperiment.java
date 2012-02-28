@@ -122,8 +122,8 @@ public class RobotMovementExperiment extends ExperimentBase {
 	private void createProvidedWidgets() {
 		this.timer = new WlTimer(false);	
 		
-		// TODO: Add a default url to the webcam.
-		this.webcam = new WlWebcam(this.getWebcamRefreshingTime());
+		this.webcam = GWT.create(WlWebcam.class);
+		this.webcam.setTime(this.getWebcamRefreshingTime());
 	}
 	
 	private int getWebcamRefreshingTime() {
