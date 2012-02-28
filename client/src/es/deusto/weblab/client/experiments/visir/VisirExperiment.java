@@ -121,17 +121,12 @@ public class VisirExperiment extends FlashExperiment {
 	
 	private static native void modFrame() /*-{
 		
-		$wnd.alert('Second');
-		
 		var doc = $wnd.wl_iframe.contentDocument;
 		if (doc == undefined || doc == null)
 	    	doc = $wnd.wl_iframe.contentWindow.document;
 	    	
-	    $wnd.alert('Third');
+	 	//$doc.getElementById('div_extra').innerHTML = "<div align='left'><font color='red'>HELLO WORLD</font></div>";
 	    	
-	 	$doc.getElementById('div_extra').innerHTML = "<div align='left'><font color='red'>HELLO WORLD</font></div>";
-	    	
-		$wnd.alert('Hello world');
 	}-*/;
 	
 
