@@ -252,14 +252,15 @@ class VisirTestExperiment(Experiment.Experiment):
         # a login to obtain the cookie the client should use
         if command == 'GIVE_ME_SETUP_DATA':
             if not self.use_visir_php:
-                return self.build_setup_data("", self.client_url)
+                return self.build_setup_data("", self.client_url, self.circuits.keys())
 
             if(DEBUG): print "[VisirTestExperiment] Performing login with %s / %s"  % (self.login_email, self.login_password)
             
             cookie = self.perform_visir_web_login(self.loginurl, self.login_email, self.login_password)
             
-            return self.build_setup_data(cookie, self.client_url)
+            return self.build_setup_data(cookie, self.client_url, self.circuits.keys())
         
+        # This command is currently not used.
         elif command == "GIVE_ME_CIRCUIT_LIST":
             circuit_list = self.circuits.keys()
             circuit_list_string = ""
@@ -325,16 +326,23 @@ class VisirTestExperiment(Experiment.Experiment):
             if n.nodeName != "#text":
                 return n.nodeName
     
-    def build_setup_data(self, cookie, url):
+    def build_setup_data(self, cookie, url, circuits_list):
         """
         Helper function that will build and return a JSON-encoded reply to the 
         SETUP_DATA request.
+        
+        @param cookie Visir cookie for the session.
+        @param url URL for the client to find the visir files.
+        @param circuits_list List of the names of the circuits that are available.
         """
         data = {
                 "cookie"   : cookie,
                 "savedata" : urllib.quote(self.savedata, ''),
                 "url"      : url,
-                "teacher"  : self.teacher
+                "teacher"  : self.teacher,
+                "experiments" : self.teacher,
+                
+                "circuits" : circuits_list
                 }
         resp = json.dumps(data)
         return str(resp)
