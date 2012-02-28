@@ -31,13 +31,16 @@ public class WlWebcam extends VerticalPanel implements IWlWidget{
 	public static final String DEFAULT_IMAGE_URL = GWT.getModuleBaseURL() + "/waiting_url_image.jpg";
 	public static final int DEFAULT_REFRESH_TIME = 400;
 	
-	protected final Image image;
+	protected Image image;
 	
 	protected int time;
 	protected String url;
 	protected String streamingUrl;
+	protected int streamingWidth;
+	protected int streamingHeight;
 	protected Timer timer;
 	protected boolean running;
+	protected final HorizontalPanel imagePanel;
 	
 	public WlWebcam(){
 		this(WlWebcam.DEFAULT_REFRESH_TIME, WlWebcam.DEFAULT_IMAGE_URL);
@@ -52,19 +55,19 @@ public class WlWebcam extends VerticalPanel implements IWlWidget{
 	}
 	
 	public WlWebcam(int time, String url, String streamingUrl){
-		final HorizontalPanel imagePanel = new HorizontalPanel();
-		imagePanel.setWidth("100%");
-		imagePanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		this.imagePanel = new HorizontalPanel();
+		this.imagePanel.setWidth("100%");
+		this.imagePanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		this.time         = time;
 		this.url          = url;
 		this.streamingUrl = streamingUrl;
 		
 		this.image = new Image(this.getDifferentUrl());
 		
-		imagePanel.add(this.image);
+		this.imagePanel.add(this.image);
 		this.setWidth("100%");
 		this.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		this.add(imagePanel);
+		this.add(this.imagePanel);
 	}
 	
 	public void start(){
@@ -169,8 +172,10 @@ public class WlWebcam extends VerticalPanel implements IWlWidget{
 	 * automatically shows the video stream.
 	 * @param url URL of the image.
 	 */
-	public void setStreamingUrl(String streamingUrl) {
-		this.streamingUrl = streamingUrl;
+	public void setStreamingUrl(String streamingUrl, int width, int height) {
+		this.streamingUrl    = streamingUrl;
+		this.streamingHeight = height; 
+		this.streamingWidth  = width; 
 		this.reloadPanel();
 	}
 	

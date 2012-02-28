@@ -74,7 +74,7 @@ public class RequestWebcamCommand extends Command{
 							webcam.setUrl(url);
 							// TODO: REMOVE THIS
 							if(url.contains("robot1"))
-								webcam.setStreamingUrl("http://www.weblab.deusto.es/webcam/robot0/video.mjpeg");
+								webcam.setStreamingUrl("http://www.weblab.deusto.es/webcam/robot0/video.mjpeg", 320, 240);
 						}
 					}
 
