@@ -38,3 +38,40 @@ vt_debug_prints = False
 </save>
 """
 
+
+vt_circuits = {}
+
+vt_circuits["Basic experiment"] = \
+"""
+<save>
+	<instruments+list="breadboard/breadboard.swf|multimeter/multimeter.swf|functiongenerator/functiongenerator.swf|oscilloscope/oscilloscope.swf|tripledc/tripledc.swf"+/>
+	<multimeter+/>
+		<circuit>
+			<circuitlist>
+				<component>R+1.6k+52+26+0</component>
+				<component>R+2.7k+117+26+0</component>
+				<component>R+10k+182+78+0</component>
+				<component>R+10k+182+52+0</component>
+				<component>R+10k+182+26+0</component>
+				<component>C+56n+247+39+0</component>
+				<component>C+56n+247+91+0</component>
+			</circuitlist>
+		</circuit>
+</save>
+"""
+
+
+vt_circuits["Other experiment"] = \
+"""
+<save>
+	<instruments+list="breadboard/breadboard.swf|multimeter/multimeter.swf|functiongenerator/functiongenerator.swf|oscilloscope/oscilloscope.swf|tripledc/tripledc.swf"+/>
+	<multimeter+/>
+		<circuit>
+			<circuitlist>
+				<component>R+1.6k+52+26+0</component>
+				<component>R+2.7k+117+26+0</component>
+				<component>R+10k+182+78+0</component>
+			</circuitlist>
+		</circuit>
+</save>
+"""

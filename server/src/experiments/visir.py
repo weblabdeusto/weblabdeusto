@@ -44,7 +44,9 @@ CFG_SAVEDATA = "vt_savedata"
 CFG_TEACHER  = "vt_teacher"
 CFG_CLIENT_URL = "vt_client_url"
 CFG_HEARTBEAT_PERIOD = "vt_heartbeat_period"
+CFG_CIRCUITS = "vt_circuits"
 CFG_DEBUG_PRINTS = "vt_debug_prints"
+
 
 DEFAULT_USE_VISIR_PHP = True
 DEFAULT_MEASURE_SERVER_ADDRESS = "130.206.138.35:8080"
@@ -57,7 +59,9 @@ DEFAULT_SAVEDATA = ""
 DEFAULT_TEACHER  = True
 DEFAULT_CLIENT_URL = "visir/loader.swf"
 DEFAULT_HEARTBEAT_PERIOD = 30
+DEFAULT_CIRCUITS = None
 DEFAULT_DEBUG_PRINTS = False
+
 
 HEARTBEAT_REQUEST = """<protocol version="1.3"><request sessionkey="%s"/></protocol>"""
 
@@ -207,6 +211,7 @@ class VisirTestExperiment(Experiment.Experiment):
         self.measure_server_addr = self._cfg_manager.get_value(CFG_MEASURE_SERVER_ADDRESS, DEFAULT_MEASURE_SERVER_ADDRESS)
         self.measure_server_target = self._cfg_manager.get_value(CFG_MEASURE_SERVER_TARGET, DEFAULT_MEASURE_SERVER_TARGET)
         self.heartbeat_period = self._cfg_manager.get_value(CFG_HEARTBEAT_PERIOD, DEFAULT_HEARTBEAT_PERIOD)
+        self.circuits = self._cfg_manager.get_value(CFG_CIRCUITS, DEFAULT_CIRCUITS)
         
         global DEBUG
         DEBUG = self._cfg_manager.get_value(CFG_DEBUG_PRINTS, DEFAULT_DEBUG_PRINTS)
@@ -243,7 +248,7 @@ class VisirTestExperiment(Experiment.Experiment):
         @param command Command sent by the client, as a string.
         """
         
-        # Check whether it's a GIVEMECOOKIE command, which will carry out
+        # Check whether it's a GIVE_ME_SETUP_DATA command, which will carry out
         # a login to obtain the cookie the client should use
         if command == 'GIVE_ME_SETUP_DATA':
             if not self.use_visir_php:
@@ -254,6 +259,19 @@ class VisirTestExperiment(Experiment.Experiment):
             cookie = self.perform_visir_web_login(self.loginurl, self.login_email, self.login_password)
             
             return self.build_setup_data(cookie, self.client_url)
+        
+        elif command == "GIVE_ME_CIRCUIT_LIST":
+            circuit_list = self.circuits.keys()
+            circuit_list_string = ""
+            for c in circuit_list:
+                circuit_list_string += c
+                circuit_list_string += ','
+            return circuit_list_string
+        
+        elif command.startswith("GIVE_ME_CIRCUIT_DATA"):
+            circuit_name = command.split(' ', 1)[1]
+            circuit_data = self.circuits[circuit_name]
+            return circuit_data
         
         # Otherwise, it's a VISIR XML command, and should just be forwarded
         # to the VISIR measurement server
