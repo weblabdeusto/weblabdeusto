@@ -42,11 +42,11 @@ class RobotProglist(Experiment.Experiment):
     @Override(Experiment.Experiment)
     @logged("info")
     def do_get_api(self):
-        return "1"
+        return "2"
 
     @Override(Experiment.Experiment)
     @logged("info")
-    def do_start_experiment(self):
+    def do_start_experiment(self, *args, **kwargs):
         """
         Callback run when the experiment is started.
         """
