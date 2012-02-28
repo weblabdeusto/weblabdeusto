@@ -14,6 +14,10 @@
 
 package es.deusto.weblab.client.experiments.visir;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -34,6 +38,12 @@ public class VisirSetupDataRequestCommand extends Command {
 	private String saveData;
 	private String url;
 	private boolean teacher;
+	
+	private List<String> circuitsAvailable;
+	
+	public List<String> getCircuitsAvailable() {
+		return this.circuitsAvailable;
+	}
 	
 	public String getCookie() { 
 		return this.cookie;  
@@ -71,6 +81,8 @@ public class VisirSetupDataRequestCommand extends Command {
 			final JSONValue urlval      = obj.get("url");
 			final JSONValue teacherval  = obj.get("teacher"); 
 			
+			final JSONValue circuitsList = obj.get("circuits");
+			
 			if( cookieval == null || savedataval == null || urlval == null)
 				return false;
 			
@@ -90,6 +102,21 @@ public class VisirSetupDataRequestCommand extends Command {
 				this.teacher = teacherbool != null && teacherbool.booleanValue();
 			}else
 				this.teacher = false;
+			
+			// We will now parse the list of available circuits. This is a list containing
+			// the names of available circuits. Their actual data is not included and needs to 
+			// be requested separatedly.
+			this.circuitsAvailable = new ArrayList<String>();
+			if(circuitsList == null) {
+			} else {
+				JSONArray circuitsAvailableArray = circuitsList.isArray();
+				
+				for( int i = 0 ; i < circuitsAvailableArray.size(); ++i ) {
+					final JSONValue circuitName = circuitsAvailableArray.get(i);
+					final String circuitNameStr = circuitName.toString();
+					this.circuitsAvailable.add(circuitNameStr);
+				}
+			}
 			
 		} catch(Throwable e) {
 			return false;

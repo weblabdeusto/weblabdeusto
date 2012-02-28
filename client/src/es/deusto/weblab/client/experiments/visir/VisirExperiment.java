@@ -14,7 +14,8 @@
 
 package es.deusto.weblab.client.experiments.visir;
 
-import com.google.gwt.core.client.GWT;
+import java.util.List;
+
 import com.google.gwt.http.client.URL;
 
 import es.deusto.weblab.client.comm.exceptions.CommException;
@@ -31,6 +32,8 @@ public class VisirExperiment extends FlashExperiment {
 	private String cookie = null;
 	private String url = null;
 	private String savedata = null;
+	
+	private List<String> circuitsAvailable;
 
 	/**
 	 * Constructs a Board for the Visir client. It does not actually generate the
@@ -83,6 +86,8 @@ public class VisirExperiment extends FlashExperiment {
 							VisirExperiment.this.savedata = reqData.getSaveData();
 							VisirExperiment.this.url      = reqData.getURL();
 							VisirExperiment.this.teacher  = reqData.isTeacher(); 
+							
+							VisirExperiment.this.circuitsAvailable = reqData.getCircuitsAvailable();
 							
 							VisirExperiment.this.updateFlashVars();
 							VisirExperiment.this.setSwfFile(VisirExperiment.this.url);
