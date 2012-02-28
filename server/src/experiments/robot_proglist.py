@@ -18,7 +18,7 @@ import weblab.experiment.experiment as Experiment
 from voodoo.override import Override
 from voodoo.log import logged
 
-
+import json
 import time
 
 DEBUG = False
@@ -52,7 +52,7 @@ class RobotProglist(Experiment.Experiment):
         """
         if(DEBUG):
             print "[Robot*] do_start_experiment called"
-        return "Ok"
+        return json.dumps({ "initial_configuration" : json.dumps({ "webcam" : "https://www.weblab.deusto.es/webcam/proxied.py/robot1", "mjpeg" : "https://www.weblab.deusto.es/webcam/robot0/video.mjpeg", "mjpegHeight" : 240, "mjpegWidth" : 320}), "batch" : False })
 
     @Override(Experiment.Experiment)
     @logged("info")

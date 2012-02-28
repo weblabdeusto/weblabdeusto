@@ -72,9 +72,6 @@ public class RequestWebcamCommand extends Command{
 						final String url = RequestWebcamCommand.retrieveWebcamURL(responseCommand.getCommandString());
 						if(url != null && url.length() > 0) {
 							webcam.setUrl(url);
-							// TODO: REMOVE THIS
-							if(url.contains("robot1"))
-								webcam.setStreamingUrl("http://www.weblab.deusto.es/webcam/robot0/video.mjpeg", 320, 240);
 						}
 					}
 

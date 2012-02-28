@@ -1,9 +1,9 @@
 DIRECTORY = '/home/weblab/weblab/server/admin/monitor/'
 _FILES_PATH = '/home/weblab/files_stored/'
 
-DB_NAME ="WebLab"
-_USERNAME="wl_administrator"
-_PASSWORD="wl_administrator_password"
+DB_NAME ="WebLabTests"
+_USERNAME="weblab"
+_PASSWORD="weblab"
 
 LOCATIONS_DB_NAME ="Locations"
 _LOCATIONS_USERNAME=_USERNAME

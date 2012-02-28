@@ -19,8 +19,12 @@ import java.util.Vector;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -132,7 +136,9 @@ public class RobotProglistExperiment extends ExperimentBase {
 	    
 	    this.setupWidgets();
 
-	    RequestWebcamCommand.createAndSend(this.boardController, this.webcam, this.messages);
+	    if(parseWebcamConfig(initialConfiguration))
+	    	return;
+	    
 	    this.webcam.setVisible(true);
 	    this.webcam.start();
 	    
@@ -191,6 +197,46 @@ public class RobotProglistExperiment extends ExperimentBase {
 	    this.setMessage("Retrieving programs");
 	    this.messages.start();
 	}	
+	
+	private boolean parseWebcamConfig(String initialConfiguration) {
+		final JSONValue initialConfigValue   = JSONParser.parseStrict(initialConfiguration);
+	    final JSONObject initialConfigObject = initialConfigValue.isObject();
+	    if(initialConfigObject == null) {
+	    	Window.alert("Error parsing robot configuration: not an object: " + initialConfiguration);
+	    	return true;
+	    }
+	    
+	    final JSONValue webcamValue = initialConfigObject.get("webcam");
+	    if(webcamValue != null) {
+	    	final String urlWebcam = webcamValue.isString().stringValue();
+	    	this.webcam.setUrl(urlWebcam);
+	    }
+	    
+	    final JSONValue mjpegValue = initialConfigObject.get("mjpeg");
+	    if(mjpegValue != null) {
+	    	final String mjpeg = mjpegValue.isString().stringValue();
+	    	int width = 320;
+	    	int height = 240;
+	    	if(initialConfigObject.get("mjpegWidth") != null) {
+	    		final JSONValue mjpegWidth = initialConfigObject.get("mjpegWidth");
+	    		if(mjpegWidth.isNumber() != null) {
+	    			width = (int)mjpegWidth.isNumber().doubleValue();
+	    		} else if(mjpegWidth.isString() != null) {
+	    			width = Integer.parseInt(mjpegWidth.isString().stringValue());
+	    		}
+	    	}
+	    	if(initialConfigObject.get("mjpegHeight") != null) {
+	    		final JSONValue mjpegHeight = initialConfigObject.get("mjpegHeight");
+	    		if(mjpegHeight.isNumber() != null) {
+	    			height = (int)mjpegHeight.isNumber().doubleValue();
+	    		} else if(mjpegHeight.isString() != null) {
+	    			height = Integer.parseInt(mjpegHeight.isString().stringValue());
+	    		}
+	    	}
+	    	this.webcam.setStreamingUrl(mjpeg, width, height);
+	    }
+	    return false;
+	}
 	
 	@Override
 	public void setTime(int time) {
