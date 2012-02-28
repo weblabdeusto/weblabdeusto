@@ -260,14 +260,15 @@ class VisirException(Exception):
 
     
 
-f = file("c:/tmp/out.txt", "r")
-f.readline()
-data = f.read()        
-boundary = """------------KM7gL6cH2KM7Ij5GI3ae0ei4ei4gL6"""
-u = UploadExtractor(data, boundary)
-
-print "DATA:  \n", u.extract_file()
-print "DATA:  \n", u.extract_file()
-print "DATA:  \n", u.extract_file()
-print "DATA:  \n", u.extract_file()
+## TODO: Make this a real test.
+#f = file("c:/tmp/out.txt", "r")
+#f.readline()
+#data = f.read()        
+#boundary = """------------KM7gL6cH2KM7Ij5GI3ae0ei4ei4gL6"""
+#u = UploadExtractor(data, boundary)
+#
+#print "DATA:  \n", u.extract_file()
+#print "DATA:  \n", u.extract_file()
+#print "DATA:  \n", u.extract_file()
+#print "DATA:  \n", u.extract_file()
 
