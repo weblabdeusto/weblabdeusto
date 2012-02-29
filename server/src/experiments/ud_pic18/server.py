@@ -57,25 +57,35 @@ class UdPic18Experiment(Experiment.Experiment):
         self._locator = locator
         self._cfg_manager = cfg_manager
 
-        self._programmer = self._load_programmer()
-        self._command_sender = self._load_command_sender()
-        self.webcam_url = self._load_webcam_url()
+        self._programmer     = UdXilinxProgrammer.create(self._cfg_manager)
+        self._command_sender = UdXilinxCommandSender.create(self._cfg_manager)
+        self.webcam_url      = self._cfg_manager.get_value("webcam_url",   None)
+        self.mjpeg_url       = self._cfg_manager.get_value("mjpeg_url",    None)
+        self.mjpeg_width     = self._cfg_manager.get_value("mjpeg_width",  None)
+        self.mjpeg_height    = self._cfg_manager.get_value("mjpeg_height", None)
         
         self._programming_thread = None
         self._current_state = STATE_NOT_READY
         self._programmer_time = self._cfg_manager.get_value('programmer_time', "25") # Seconds
         self._switches_reversed = self._cfg_manager.get_value('switches_reversed', False) # Seconds
         
-    def _load_programmer(self):
-        return UdXilinxProgrammer.create(self._cfg_manager)
-        
-    def _load_command_sender(self):
-        return UdXilinxCommandSender.create(self._cfg_manager)
-        
-    def _load_webcam_url(self):
-        cfg_webcam_url = "webcam_url"
-        return self._cfg_manager.get_value(cfg_webcam_url, "http://localhost")
-    
+    @Override(Experiment.Experiment)
+    @logged("info")
+    def do_start_experiment(self, *args, **kwargs):
+        self._current_state = STATE_NOT_READY
+        initial_configuration = {}
+        if self.webcam_url is not None:
+            initial_configuration['webcam'] = self.webcam_url
+        if self.mjpeg_url is not None:
+            initial_configuration['mjpeg'] = self.mjpeg_url
+        if self.mjpeg_width is not None:
+            initial_configuration['mjpegWidth'] = self.mjpeg_width
+        if self.mjpeg_height is not None:
+            initial_configuration['mjpegHeight'] = self.mjpeg_height
+
+        initial_configuration['expected_programming_time'] = self._programmer_time
+        return json.dumps({ "initial_configuration" : json.dumps(initial_configuration), "batch" : False })
+
     def get_state(self):
         return self._current_state
     
@@ -176,12 +186,7 @@ class UdPic18Experiment(Experiment.Experiment):
         return "ok"
         
             
-    @Override(Experiment.Experiment)
-    @logged("info")
-    def do_start_experiment(self, *args, **kwargs):
-        self._current_state = STATE_NOT_READY
-        return json.dumps({ "initial_configuration" : """{ "webcam" : "%s", "expected_programming_time" : %s }""" % (self.webcam_url, self._programmer_time), "batch" : False })
-    
+   
     @logged("info")
     @Override(Experiment.Experiment)
     @caller_check(ServerType.Laboratory)
