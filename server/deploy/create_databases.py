@@ -456,7 +456,7 @@ def populate_weblab_tests(engine):
 
     # Experiments
     start_date = datetime.datetime.utcnow()
-    end_date = start_date.replace(year=start_date.year+10)
+    end_date = start_date.replace(year=start_date.year+12) # So leap years are not a problem
 
     dummy = Model.DbExperiment("ud-dummy", cat_dummy, start_date, end_date)
     session.add(dummy)
