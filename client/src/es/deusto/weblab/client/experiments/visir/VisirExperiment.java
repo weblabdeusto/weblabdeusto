@@ -114,27 +114,39 @@ public class VisirExperiment extends FlashExperiment {
 	
 	@Override
 	public void onFlashReady() {
-		initOnLoadCircuit();
-		modFrame();
+		initJavascriptAPI();
+		modifyFrame();
 	}
 	
-	private static native void initOnLoadCircuit() /*-{
+	private static native void initJavascriptAPI() /*-{
 		$wnd.callOnLoadCircuit = function(id) {
 			this.@es.deusto.weblab.client.experiments.visir.VisirExperiment::onLoadCircuit(I)(id);
 		};
+		
+		$wnd.callRefresh = function() {
+			$entry(this.@es.deusto.weblab.client.experiments.visir.VisirExperiment::refresh()());
+		};
+		
+		alert('API loaded');
 	}-*/;
 	
-	private static native void modFrame() /*-{
+	private static native void modifyFrame() /*-{
 		
 		var doc = $wnd.wl_iframe.contentDocument;
 		if (doc == undefined || doc == null)
 	    	doc = $wnd.wl_iframe.contentWindow.document;
 	    	
-	 	//$doc.getElementById('div_extra').innerHTML = "<div align='left'><font color='red'>HELLO WORLD</font></div>";
+	 	$doc.getElementById('div_extra').innerHTML = 
+	 	"<div align='left'><font color='red'>HELLO WORLD</font></div>" +
+	 	"<div align='left'><a href=\"javascript:callRefresh();\">REFRESH</a></div>";
 	    	
 	}-*/;
 	
 
+	private void refresh() {
+		System.out.println("Doing REFRESH");
+		initJavascriptAPI();
+	}
 	
 	private void onLoadCircuit(int id) {
 		System.out.println("Should load circuit number: " + id);
