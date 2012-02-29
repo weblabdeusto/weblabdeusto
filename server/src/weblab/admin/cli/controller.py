@@ -130,7 +130,7 @@ class Controller(object):
             experiment_name, category_id = self.ui.dialog_add_experiment(category_names)
             category = [ category for category in categories if category.id == category_id ][0]
             start_date = datetime.datetime.utcnow()
-            end_date = start_date.replace(year=start_date.year+10)
+            end_date = start_date.replace(year=start_date.year+12)
             experiment = self.db.insert_experiment(experiment_name, category, start_date, end_date)
             if experiment is not None:
                 self.ui.notify("Experiment created:\n%r" % experiment)
