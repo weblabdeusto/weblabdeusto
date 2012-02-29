@@ -18,12 +18,14 @@ import java.util.Vector;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -40,20 +42,20 @@ import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
 import es.deusto.weblab.client.ui.widgets.IWlWidget;
+import es.deusto.weblab.client.ui.widgets.WlButton.IWlButtonUsed;
 import es.deusto.weblab.client.ui.widgets.WlClockActivator;
 import es.deusto.weblab.client.ui.widgets.WlPotentiometer;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar;
-import es.deusto.weblab.client.ui.widgets.WlSwitch;
-import es.deusto.weblab.client.ui.widgets.WlTimedButton;
-import es.deusto.weblab.client.ui.widgets.WlTextBoxWithButton;
-import es.deusto.weblab.client.ui.widgets.WlTimer;
-import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
-import es.deusto.weblab.client.ui.widgets.WlWebcam;
-import es.deusto.weblab.client.ui.widgets.WlButton.IWlButtonUsed;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarListener;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarTextUpdater;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.TextProgressBarTextUpdater;
+import es.deusto.weblab.client.ui.widgets.WlSwitch;
+import es.deusto.weblab.client.ui.widgets.WlTextBoxWithButton;
+import es.deusto.weblab.client.ui.widgets.WlTimedButton;
+import es.deusto.weblab.client.ui.widgets.WlTimer;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
+import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
+import es.deusto.weblab.client.ui.widgets.WlWebcam;
 
 public class Pic18Experiment extends ExperimentBase{
 
@@ -67,16 +69,11 @@ public class Pic18Experiment extends ExperimentBase{
 
 	private static final PIC18UiBinder uiBinder = GWT.create(PIC18UiBinder.class);
 	
-	private static final String XILINX_DEMO_PROPERTY                  = "is.demo";
-	private static final boolean DEFAULT_XILINX_DEMO                  = false;
+	private static final String DEMO_PROPERTY                         = "is.demo";
+	private static final boolean DEFAULT_DEMO                         = false;
 	
-	private static final String XILINX_MULTIRESOURCE_DEMO_PROPERTY   = "is.multiresource.demo";
-	private static final boolean DEFAULT_MULTIRESOURCE_XILINX_DEMO   = false;
-	
-	private static final String DEFAULT_XILINX_WEBCAM_IMAGE_URL       = GWT.getModuleBaseURL() + "/waiting_url_image.jpg";
-	
-	private static final String XILINX_WEBCAM_REFRESH_TIME_PROPERTY   = "webcam.refresh.millis";
-	private static final int    DEFAULT_XILINX_WEBCAM_REFRESH_TIME    = 400;
+	private static final String WEBCAM_REFRESH_TIME_PROPERTY          = "webcam.refresh.millis";
+	private static final int    DEFAULT_WEBCAM_REFRESH_TIME           = 400;
 	
 	private final int DEFAULT_EXPECTED_PROGRAMMING_TIME = 25000;
 
@@ -162,32 +159,21 @@ public class Pic18Experiment extends ExperimentBase{
 		this.disableInteractiveWidgets();
 		
 		if(isDemo()){
-			if(isMultiresourceDemo()){
-				this.selectProgram.setText("This demo demonstrates the multiresource queues of WebLab-Deusto. You will use a CPLD or a FPGA depending on which one is available. You can test to log in ud-demo-pld and ud-demo-fpga and then log in this experiment to check that it will go to the one you free. If this wasn't a demo, you would select here the program that would be sent to the device. Since it could be harmful, in the demo we always send the same demonstration file.");
-			}else{
-				this.selectProgram.setText("If this wasn't a demo, you would select here the program that would be sent to the device. Since it could be harmful, in the demo we always send the same demonstration file.");
-			}
+			this.selectProgram.setText("If this wasn't a demo, you would select here the program that would be sent to the device. Since it could be harmful, in the demo we always send the same demonstration file.");
 		}
 	}
 	
 	private boolean isDemo(){
 		return this.configurationRetriever.getBoolProperty(
-				Pic18Experiment.XILINX_DEMO_PROPERTY, 
-				Pic18Experiment.DEFAULT_XILINX_DEMO
+				Pic18Experiment.DEMO_PROPERTY, 
+				Pic18Experiment.DEFAULT_DEMO
 			);
 	}
 	
-	private boolean isMultiresourceDemo(){
-		return this.configurationRetriever.getBoolProperty(
-				Pic18Experiment.XILINX_MULTIRESOURCE_DEMO_PROPERTY, 
-				Pic18Experiment.DEFAULT_MULTIRESOURCE_XILINX_DEMO
-			);
-	}
-
 	private int getWebcamRefreshingTime() {
 		return this.configurationRetriever.getIntProperty(
-				Pic18Experiment.XILINX_WEBCAM_REFRESH_TIME_PROPERTY, 
-				Pic18Experiment.DEFAULT_XILINX_WEBCAM_REFRESH_TIME
+				Pic18Experiment.WEBCAM_REFRESH_TIME_PROPERTY, 
+				Pic18Experiment.DEFAULT_WEBCAM_REFRESH_TIME
 			);
 	}	
 	
@@ -235,10 +221,8 @@ public class Pic18Experiment extends ExperimentBase{
 	 * allocated using the default ctor.
 	 */
 	private void createProvidedWidgets() {
-		this.webcam = new WlWebcam(
-				this.getWebcamRefreshingTime(),
-				Pic18Experiment.DEFAULT_XILINX_WEBCAM_IMAGE_URL
-			);
+		this.webcam = GWT.create(WlWebcam.class);
+		this.webcam.setTime(this.getWebcamRefreshingTime());
 		
 		this.timer = new WlTimer(false);
 		
@@ -321,23 +305,16 @@ public class Pic18Experiment extends ExperimentBase{
 	@Override
 	public void start(int time, String initialConfiguration){
 		
-		final JSONValue parsedInitialConfiguration = JSONParser.parseStrict(initialConfiguration);
+	    if(parseWebcamConfig(initialConfiguration))
+	    	return;
 		
 		try {
-			final String webcamUrl = parsedInitialConfiguration.isObject().get("webcam").isString().stringValue();
-			this.webcam.setUrl(webcamUrl);
-		} catch(Exception e) {
-			this.messages.setText("[Xilinx] Did not receive the webcam parameter.");
-    		GWT.log("[Xilinx] Did not receive the webcam parameter.", null);
-    		return;
-		}
-		
-		try {
+			final JSONValue parsedInitialConfiguration = JSONParser.parseStrict(initialConfiguration);
 			double expectedProgrammingTime = parsedInitialConfiguration.isObject().get("expected_programming_time").isNumber().doubleValue();
 			Pic18Experiment.this.expectedProgrammingTime = (int)(expectedProgrammingTime * 1000);
 		} catch(Exception e) {	
-			this.messages.setText("[Xilinx] Did not receive the expected_programming_time parameter.");
-    		GWT.log("[Xilinx] Did not receive the expected_programming_time parameter.", null);
+			this.messages.setText("[PIC18] Did not receive the expected_programming_time parameter.");
+    		GWT.log("[PIC18] Did not receive the expected_programming_time parameter.", null);
     		return;
 		}
 	
@@ -365,6 +342,45 @@ public class Pic18Experiment extends ExperimentBase{
 		setupReadyTimer();
 	}
 	
+	private boolean parseWebcamConfig(String initialConfiguration) {
+		final JSONValue initialConfigValue   = JSONParser.parseStrict(initialConfiguration);
+	    final JSONObject initialConfigObject = initialConfigValue.isObject();
+	    if(initialConfigObject == null) {
+	    	Window.alert("Error parsing robot configuration: not an object: " + initialConfiguration);
+	    	return true;
+	    }
+	    
+	    final JSONValue webcamValue = initialConfigObject.get("webcam");
+	    if(webcamValue != null) {
+	    	final String urlWebcam = webcamValue.isString().stringValue();
+	    	this.webcam.setUrl(urlWebcam);
+	    }
+	    
+	    final JSONValue mjpegValue = initialConfigObject.get("mjpeg");
+	    if(mjpegValue != null) {
+	    	final String mjpeg = mjpegValue.isString().stringValue();
+	    	int width = 320;
+	    	int height = 240;
+	    	if(initialConfigObject.get("mjpegWidth") != null) {
+	    		final JSONValue mjpegWidth = initialConfigObject.get("mjpegWidth");
+	    		if(mjpegWidth.isNumber() != null) {
+	    			width = (int)mjpegWidth.isNumber().doubleValue();
+	    		} else if(mjpegWidth.isString() != null) {
+	    			width = Integer.parseInt(mjpegWidth.isString().stringValue());
+	    		}
+	    	}
+	    	if(initialConfigObject.get("mjpegHeight") != null) {
+	    		final JSONValue mjpegHeight = initialConfigObject.get("mjpegHeight");
+	    		if(mjpegHeight.isNumber() != null) {
+	    			height = (int)mjpegHeight.isNumber().doubleValue();
+	    		} else if(mjpegHeight.isString() != null) {
+	    			height = Integer.parseInt(mjpegHeight.isString().stringValue());
+	    		}
+	    	}
+	    	this.webcam.setStreamingUrl(mjpeg, width, height);
+	    }
+	    return false;
+	}
 	
 	/**
 	 * Loads those controls that are meant to be displayed
