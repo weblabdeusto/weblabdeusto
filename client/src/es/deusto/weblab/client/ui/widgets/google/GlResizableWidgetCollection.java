@@ -136,12 +136,16 @@ public class GlResizableWidgetCollection implements ResizeHandler,
     @Override
     public void run() {
       // Ignore changes that result from window resize events
-      if (windowHeight != Window.getClientHeight()
-          || windowWidth != Window.getClientWidth()) {
-        windowHeight = Window.getClientHeight();
-        windowWidth = Window.getClientWidth();
-        schedule(resizeCheckDelay);
-        return;
+      try{
+	      if (windowHeight != Window.getClientHeight()
+	          || windowWidth != Window.getClientWidth()) {
+	        windowHeight = Window.getClientHeight();
+	        windowWidth = Window.getClientWidth();
+	        schedule(resizeCheckDelay);
+	        return;
+	      }
+      }catch(ClassCastException cce) {
+    	  
       }
 
       // Look for elements that have new dimensions
