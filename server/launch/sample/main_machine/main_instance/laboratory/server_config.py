@@ -108,4 +108,9 @@ laboratory_assigned_experiments = {
                  'coord_address': 'experiment_blinkled:main_instance@main_machine',
                  'checkers': ()
             },
+        'exp1:ud-pic18@PIC experiments':
+            {
+                'coord_address' : 'experiment_pic18:main_instance@main_machine',
+                'checkers': ()
+            },
     }

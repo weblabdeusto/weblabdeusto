@@ -309,6 +309,13 @@
 	                        	   "experiment.picture"  : "/img/experiments/microchip.jpg"
 	                           }
 	                        ],
+	                "pic18"	: [
+	                			{
+	                			   "experiment.name"	 : "ud-pic18",
+	                			   "experiment.category" : "PIC experiments",
+	                			   "experiment.picture"  : "/img/experiments/microchip.jpg"
+	                			}
+	                		], 
                     "ilab-batch" : [
                                 {
                                 	"experiment.reserve.button.shown" : false,
