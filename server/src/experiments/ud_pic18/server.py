@@ -205,6 +205,8 @@ class UdPic18Experiment(Experiment.Experiment):
             if self._switches_reversed:
                 if command.startswith("ChangeSwitch"):
                     command = command.replace(command[-1], str(9 - int(command[-1])))
+            if command is not None and command.upper().startswith('STRING'):
+                command = command + '\0'
             self._command_sender.send_command(command)
         except Exception as e:
             raise ExperimentExceptions.SendingCommandFailureException(
