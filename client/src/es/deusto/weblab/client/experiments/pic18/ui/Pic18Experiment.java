@@ -608,7 +608,6 @@ public class Pic18Experiment extends ExperimentBase{
 			public void onAction(IWlWidget widget) {
 				String message = "STRING ";
 				message += Pic18Experiment.this.serial0.getText();
-				message += '\0';				
 				Pic18Experiment.this.boardController.sendCommand(message);
 			}
 		});
