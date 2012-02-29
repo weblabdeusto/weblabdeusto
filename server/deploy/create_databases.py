@@ -456,7 +456,7 @@ def populate_weblab_tests(engine):
 
     # Experiments
     start_date = datetime.datetime.utcnow()
-    end_date = start_date.replace(year=start_date.year+10)
+    end_date = start_date.replace(year=start_date.year+12) # So leap years are not a problem
 
     dummy = Model.DbExperiment("ud-dummy", cat_dummy, start_date, end_date)
     session.add(dummy)
@@ -541,6 +541,9 @@ def populate_weblab_tests(engine):
 
     microelectronics = Model.DbExperiment("microelectronics", cat_ilab, start_date, end_date)
     session.add(microelectronics)
+    
+    pic18 = Model.DbExperiment("ud-pic18", cat_pic, start_date, end_date)
+    session.add(pic18)
 
     # Permissions
     gp_course0809_fpga_allowed = Model.DbGroupPermission(
@@ -786,6 +789,24 @@ def populate_weblab_tests(engine):
     session.add(up_any_dummy_allowed_p2)
     up_any_dummy_allowed_p3 = Model.DbUserPermissionParameter(up_any_dummy_allowed, experiment_allowed_p3, "200")
     session.add(up_any_dummy_allowed_p3)    
+    
+    
+    
+    up_any_pic18_allowed = Model.DbUserPermission(
+        any,
+        experiment_allowed.group_applicable,
+        "any::pic18",
+        datetime.datetime.utcnow(),
+        "Permission for any to use ud-pic18"
+    )
+
+    session.add(up_any_pic18_allowed)
+    up_any_pic18_allowed_p1 = Model.DbUserPermissionParameter(up_any_pic18_allowed, experiment_allowed_p1, "ud-pic18")
+    session.add(up_any_pic18_allowed_p1)
+    up_any_pic18_allowed_p2 = Model.DbUserPermissionParameter(up_any_pic18_allowed, experiment_allowed_p2, "pic experiments")
+    session.add(up_any_pic18_allowed_p2)
+    up_any_pic18_allowed_p3 = Model.DbUserPermissionParameter(up_any_pic18_allowed, experiment_allowed_p3, "200")
+    session.add(up_any_pic18_allowed_p3)  
 
 
     up_any_vm_allowed = Model.DbUserPermission(
