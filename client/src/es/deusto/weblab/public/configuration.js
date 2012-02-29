@@ -314,6 +314,24 @@
 	                			   "experiment.name"	 : "ud-pic18",
 	                			   "experiment.category" : "PIC experiments",
 	                			   "experiment.picture"  : "/img/experiments/microchip.jpg"
+	                			},
+	                			{
+	                			   "experiment.name"	 : "ud-test-pic18-1",
+	                			   "experiment.category" : "PIC experiments",
+	                			   "experiment.picture"  : "/img/experiments/microchip.jpg",
+								   "is.demo"             : true
+	                			},
+	                			{
+	                			   "experiment.name"	 : "ud-test-pic18-2",
+	                			   "experiment.category" : "PIC experiments",
+	                			   "experiment.picture"  : "/img/experiments/microchip.jpg",
+								   "is.demo"             : true
+	                			},
+	                			{
+	                			   "experiment.name"	 : "ud-test-pic18-3",
+	                			   "experiment.category" : "PIC experiments",
+	                			   "experiment.picture"  : "/img/experiments/microchip.jpg",
+								   "is.demo"             : true
 	                			}
 	                		], 
                     "ilab-batch" : [
