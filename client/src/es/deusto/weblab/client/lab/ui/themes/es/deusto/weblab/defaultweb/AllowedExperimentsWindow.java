@@ -207,12 +207,12 @@ class AllowedExperimentsWindow extends BaseWindow {
 			categoryPanel.setWidth("100%");
 			categoryPanel.addStyleName("experiment-list-category-panel");
 			
-			final DecoratorPanel decoratedCategoryPanel = new DecoratorPanel();
-			decoratedCategoryPanel.add(categoryPanel);
-			decoratedCategoryPanel.setWidth("100%");
-			decoratedCategoryPanel.addStyleName("experiment-list-DecoratorPanel");
+//			final DecoratorPanel decoratedCategoryPanel = new DecoratorPanel();
+//			decoratedCategoryPanel.add(categoryPanel);
+//			decoratedCategoryPanel.setWidth("100%");
+//			decoratedCategoryPanel.addStyleName("experiment-list-DecoratorPanel");
 			
-			this.experimentsTable.setWidget(i / COLUMNS, i % COLUMNS, decoratedCategoryPanel);
+			this.experimentsTable.setWidget(i / COLUMNS, i % COLUMNS, categoryPanel);
 			this.experimentsTable.getCellFormatter().setVerticalAlignment(i / COLUMNS, i % COLUMNS, HasVerticalAlignment.ALIGN_TOP);
 		}
 		
