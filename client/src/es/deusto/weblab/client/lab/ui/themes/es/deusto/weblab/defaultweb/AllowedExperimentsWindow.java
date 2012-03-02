@@ -141,7 +141,8 @@ class AllowedExperimentsWindow extends BaseWindow {
 	    if(this.user != null)
 	    	this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
 
-	    final int COLUMNS = 3;
+	    final int INTENDED_COLUMNS = 3;
+	    final int COLUMNS = this.experimentsAllowed.size() > INTENDED_COLUMNS? INTENDED_COLUMNS : this.experimentsAllowed.size();
 	    
 		this.experimentsTable.resize(this.experimentsAllowed.size() / COLUMNS + 1, COLUMNS);
 
@@ -204,10 +205,12 @@ class AllowedExperimentsWindow extends BaseWindow {
 			categoryPanel.setAnimationEnabled(true);
 			categoryPanel.setOpen(true);
 			categoryPanel.setWidth("100%");
+			categoryPanel.addStyleName("experiment-list-category-panel");
 			
 			final DecoratorPanel decoratedCategoryPanel = new DecoratorPanel();
 			decoratedCategoryPanel.add(categoryPanel);
 			decoratedCategoryPanel.setWidth("100%");
+			decoratedCategoryPanel.addStyleName("experiment-list-DecoratorPanel");
 			
 			this.experimentsTable.setWidget(i / COLUMNS, i % COLUMNS, decoratedCategoryPanel);
 			this.experimentsTable.getCellFormatter().setVerticalAlignment(i / COLUMNS, i % COLUMNS, HasVerticalAlignment.ALIGN_TOP);
