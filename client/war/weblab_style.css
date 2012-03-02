@@ -171,12 +171,13 @@ body
 
 .web-logged-header-profile
 {
-	margin-right: 0px;
+/*	margin-right: 0px;
 	margin-left: auto;
 	margin-top: 25px;
-	padding-right: 0px;
+	padding-right: 0px;*/
+	width: 100%;
 	height: 100%;
-	text-align: right !important;
+	text-align: right;
 	display: block;
 	border-spacing: 8px;
 }
