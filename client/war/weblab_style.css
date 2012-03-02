@@ -29,6 +29,17 @@
    background: #e7f1fb;
 }
 
+.experiment-list-DecoratorPanel .middleCenter {
+   height: 100%;
+   width: 100%;
+   background: #FFFFFF;
+   padding: 5px;
+}
+
+.experiment-list-category-panel {
+	padding: 5px;
+}
+
 /************************************************
  *
  * lab's es.deusto.weblab.defaultweb Template
