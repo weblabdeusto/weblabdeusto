@@ -7,38 +7,35 @@
     
 	<g:VerticalPanel ui:field="containerPanel" styleName="web-logged-container" horizontalAlignment="CENTER">
 
-		<g:DecoratorPanel>
-		<g:HorizontalPanel ui:field="headerPanel" styleName="web-logged-header" horizontalAlignment="CENTER">
+		<g:HorizontalPanel ui:field="headerPanel" styleName="web-logged-header">
 
-			<g:DecoratorPanel width="100%">
-			<g:HorizontalPanel styleName="web-logged-header-logo" horizontalAlignment="LEFT">
+			<g:HorizontalPanel styleName="web-logged-header-logo">
 				
 				<g:Image ui:field="logoImage" />
 			
 			</g:HorizontalPanel>
-			</g:DecoratorPanel>
 			
-			<g:DecoratorPanel width="100%">
-			<g:HorizontalPanel styleName="web-logged-header-profile"  horizontalAlignment="RIGHT">
+			<g:cell horizontalAlignment="ALIGN_RIGHT">
+				<g:HorizontalPanel>
+					<g:cell horizontalAlignment="ALIGN_RIGHT">
+						<g:HorizontalPanel styleName="web-logged-header-profile">
+						
+							<g:Label ui:field="userLabel"></g:Label>
+					
+						 	<g:Label ui:field="separatorLabel" text="|" styleName="web-logged-header-profile-separator"></g:Label>
+						 	
+						 	<w:WlSoundSwitch imgWidth="20px" imgHeight="20px"></w:WlSoundSwitch>
+						 	
+						 	<g:Label ui:field="separatorLabel2" text="|" styleName="web-logged-header-profile-separator"></g:Label>
+					
+						 	<g:Anchor ui:field="logoutLink" text="{i18n.logOut}"></g:Anchor>		
 			
-				<g:HorizontalPanel horizontalAlignment="RIGHT" width="100%">
-				<g:Label ui:field="userLabel"></g:Label>
-		
-			 	<g:Label ui:field="separatorLabel" text="|" styleName="web-logged-header-profile-separator"></g:Label>
-			 	
-			 	<w:WlSoundSwitch imgWidth="20px" imgHeight="20px"></w:WlSoundSwitch>
-			 	
-			 	<g:Label ui:field="separatorLabel2" text="|" styleName="web-logged-header-profile-separator"></g:Label>
-			 	
-			 	<g:Anchor ui:field="logoutLink" text="{i18n.logOut}"></g:Anchor>
-			 	</g:HorizontalPanel>	
-
-			</g:HorizontalPanel>
-			</g:DecoratorPanel>
-
+						</g:HorizontalPanel>
+					</g:cell>
+				</g:HorizontalPanel>
+			</g:cell>
 		</g:HorizontalPanel>
-		</g:DecoratorPanel>
-		
+
 		<g:HorizontalPanel styleName="web-logged-navigation">
 			
 			<g:AbsolutePanel ui:field="navigationPanel"></g:AbsolutePanel>
