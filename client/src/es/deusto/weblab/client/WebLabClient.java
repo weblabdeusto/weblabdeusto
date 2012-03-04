@@ -132,30 +132,16 @@ public abstract class WebLabClient implements EntryPoint {
 		if(localeConfigured())
 			return;
 		
-		String currentLocaleName = LocaleInfo.getCurrentLocale().getLocaleName();
-		if(currentLocaleName.equals("default"))
-			currentLocaleName = "en";
-		
 		final String weblabLocaleCookie = Cookies.getCookie(WebLabClient.LOCALE_COOKIE);
 		if(weblabLocaleCookie != null){
+			String currentLocaleName = LocaleInfo.getCurrentLocale().getLocaleName();
+			if(currentLocaleName.equals("default"))
+				currentLocaleName = "en";
 			if(!currentLocaleName.equals(weblabLocaleCookie))
 				WebLabClient.refresh(weblabLocaleCookie);
 			return;
 		} 
-		
-		// Here we should try to check the User-Agent, but that's not possible in HTML, since it is an HTTP header
-		try{
-			if(getAcceptLanguageHeader() != null) {
-				final String firstLanguage = getAcceptLanguageHeader().split(";")[0].split(",")[0].split("-")[0];
-				if(!currentLocaleName.equals(firstLanguage))
-					WebLabClient.refresh(firstLanguage);
 				
-				return;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
 		// Else, check if there is a default language. If there is, show it
 		this.languageDecisionPending = true;
 	}
@@ -215,9 +201,27 @@ public abstract class WebLabClient implements EntryPoint {
 			public void onLoaded() {
                 WebLabClient.baseLocation = WebLabClient.this.configurationManager.getProperty(BASE_LOCATION, DEFAULT_BASE_LOCATION);
                 
-                final String hostDefaultLanguage = WebLabClient.this.configurationManager.getProperty(HOST_ENTITY_DEFAULT_LANGUAGE, DEFAULT_HOST_ENTITY_DEFAULT_LANGUAGE);
-				if(!hostDefaultLanguage.equals("en") && WebLabClient.this.languageDecisionPending)
-					refresh(hostDefaultLanguage);
+                if(WebLabClient.this.languageDecisionPending) {
+        			String currentLocaleName = LocaleInfo.getCurrentLocale().getLocaleName();
+        			if(currentLocaleName.equals("default"))
+        				currentLocaleName = "en";
+
+	        		try{
+	        			if(getAcceptLanguageHeader() != null) {
+	        				final String firstLanguage = getAcceptLanguageHeader().split(";")[0].split(",")[0].split("-")[0];
+	        				if(!currentLocaleName.equals(firstLanguage))
+	        					WebLabClient.refresh(firstLanguage);
+	        				
+	        				return;
+	        			}
+	        		} catch (Exception e) {
+	        			e.printStackTrace();
+	        		}
+	        		
+	                final String hostDefaultLanguage = WebLabClient.this.configurationManager.getProperty(HOST_ENTITY_DEFAULT_LANGUAGE, DEFAULT_HOST_ENTITY_DEFAULT_LANGUAGE);
+					if(!hostDefaultLanguage.equals("en") && WebLabClient.this.languageDecisionPending)
+						refresh(hostDefaultLanguage);
+                }
                 
 				final String trackingCode = WebLabClient.this.configurationManager.getProperty(GOOGLE_ANALYTICS_TRACKING_CODE, null);
 				if(trackingCode != null)
