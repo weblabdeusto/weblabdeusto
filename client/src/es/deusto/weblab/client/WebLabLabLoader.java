@@ -71,6 +71,8 @@ public class WebLabLabLoader {
 		
 		final boolean isUsingMobile = this.weblabClient.isMobile();
 		
+		WebLabClient.IS_MOBILE = isUsingMobile; 
+		
 		final ILabController controller = new LabController(
 				this.configurationManager,
 				communications,

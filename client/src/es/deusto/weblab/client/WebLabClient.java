@@ -38,6 +38,7 @@ public abstract class WebLabClient implements EntryPoint {
 	public static final String DEFAULT_BASE_LOCATION = "";
 
     public static String baseLocation;
+    public static boolean IS_MOBILE = false;
 
 	public static final int MAX_FACEBOOK_WIDTH = 735;
 	private static final String MAIN_SLOT = "weblab_slot";

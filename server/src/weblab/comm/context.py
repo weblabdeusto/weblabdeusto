@@ -59,6 +59,8 @@ class RemoteFacadeContext(object):
             return ''
 
     def is_mobile(self):
+        if self._headers.get('weblabdeusto-client') == 'weblabdeusto-web-mobile':
+            return True
         referer = self.get_referer()
         return referer.find('mobile=true') >= 0 or referer.find('mobile=yes') >= 0
 
