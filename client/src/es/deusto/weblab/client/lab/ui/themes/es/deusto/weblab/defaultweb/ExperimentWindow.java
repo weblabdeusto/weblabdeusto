@@ -72,6 +72,7 @@ class ExperimentWindow extends BaseWindow {
 	@UiField VerticalPanel experimentAreaPanel;
 	@UiField Label contentTitleLabel;
 	@UiField Label contentTitleLabelSelected;
+	@UiField Anchor contentTitleLabelInfo;
 	@UiField Grid detailsGrid;
 	@UiField Label experimentNameLabel;
 	@UiField Label experimentCategoryLabel;
@@ -106,6 +107,8 @@ class ExperimentWindow extends BaseWindow {
 	private final User user;
 	private final ExperimentAllowed experimentAllowed;
 	private final ExperimentBase experimentBase;
+	
+	private String infolink = null;
     
 	public ExperimentWindow(IConfigurationManager configurationManager, User user, ExperimentAllowed experimentAllowed, ExperimentBase experimentBase, IExperimentWindowCallback callback){
 	    super(configurationManager);
@@ -164,31 +167,29 @@ class ExperimentWindow extends BaseWindow {
 			retriever = ExperimentFactory.getExperimentConfigurationRetriever(this.experimentAllowed.getExperiment().getExperimentUniqueName());
 			
 			// Retrieve the address of the experiment info page
-			final String infolink = retriever.getProperty(ExperimentWindow.EXPERIMENT_INFOLINK_PROPERTY, 
-					ExperimentWindow.DEFAULT_EXPERIMENT_INFOLINK
-			);
+			this.infolink = retriever.getProperty(ExperimentWindow.EXPERIMENT_INFOLINK_PROPERTY, ExperimentWindow.DEFAULT_EXPERIMENT_INFOLINK);
 			
 			// Retrieve the short description of the experiment info page
-			final String infodesc = retriever.getProperty(ExperimentWindow.EXPERIMENT_INFODESCRIPTION_PROPERTY,
-					ExperimentWindow.DEFAULT_EXPERIMENT_INFODESCRIPTION
-					);
+			final String infodesc = retriever.getProperty(ExperimentWindow.EXPERIMENT_INFODESCRIPTION_PROPERTY, ExperimentWindow.DEFAULT_EXPERIMENT_INFODESCRIPTION);
 			
-			if(!infolink.isEmpty())
-				this.informationLink.setHref(infolink);
+			if(this.infolink != null && !this.infolink.isEmpty())
+				this.informationLink.setHref(this.infolink);
+			else
+				this.infolink = null;
 			this.informationLink.setText(infodesc);
 			
 		} catch(IllegalArgumentException e){
 			e.printStackTrace();
 			
 			this.informationLink.setText("<not available>");
+			this.infolink = null;
 		}
 		
-		// Open the info page in a new window.
-		this.informationLink.setTarget("_blank");
-		
 		// If there is actually no information available, we will just hide the label
-		if(this.informationLink.getHref().isEmpty())
+		if(this.informationLink.getHref().isEmpty()) {
 			this.informationLinkLabel.setVisible(false);
+			this.informationLink.setVisible(false);
+		}
 	}
 	
 	
@@ -214,6 +215,10 @@ class ExperimentWindow extends BaseWindow {
 	}
 
 	public void loadUsingExperimentPanels() {
+		this.contentTitleLabelInfo.setVisible(this.infolink != null);
+		if(this.infolink != null)
+			this.contentTitleLabelInfo.setHref(this.infolink);
+
 	    this.contentTitleLabel.setText(this.experimentAllowed.getExperiment().getName());
 	    this.contentTitleLabelSelected.setText(this.experimentAllowed.getExperiment().getName());
 	    this.detailsGrid.setVisible(false);
