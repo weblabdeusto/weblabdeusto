@@ -46,6 +46,9 @@ public abstract class WebLabClient implements EntryPoint {
 	
 	public static final String LOCALE_COOKIE = "weblabdeusto.locale";
 	public static final String MOBILE_COOKIE = "weblabdeusto.mobile";
+	
+	public static final String HOST_ENTITY_DEFAULT_LANGUAGE = "host.entity.default.language";
+	public static final String DEFAULT_HOST_ENTITY_DEFAULT_LANGUAGE = "en";
 
 	public static final String THEME_PROPERTY = "theme";
 	public static final String DEFAULT_THEME = "deusto";
@@ -60,6 +63,7 @@ public abstract class WebLabClient implements EntryPoint {
 	protected static final String INDEX_ADMIN_HTML = "index-admin.html";
 	
 	public ConfigurationManager configurationManager;
+	private boolean languageDecisionPending = false;
 
 	public void putWidget(Widget widget){
 		while(RootPanel.get(WebLabClient.MAIN_SLOT).getWidgetCount() > 0)
@@ -106,7 +110,7 @@ public abstract class WebLabClient implements EntryPoint {
 		
 		// It was not specified. Now, we will first try to find a cookie that tells us what to do.
 		final String cookieSaysIsMobile = Cookies.getCookie(MOBILE_COOKIE);
-		if(cookieSaysIsMobile != null) 
+		if(cookieSaysIsMobile != null)
 			return cookieSaysIsMobile.equals("true");
 		
 		
@@ -123,9 +127,16 @@ public abstract class WebLabClient implements EntryPoint {
 	}
 	
 	private void selectLanguage(){
-		final String weblabLocaleCookie = Cookies.getCookie(WebLabClient.LOCALE_COOKIE);
-		if(weblabLocaleCookie != null && !this.localeConfigured()){
-			WebLabClient.refresh(weblabLocaleCookie);
+		if(!localeConfigured()) {
+			final String weblabLocaleCookie = Cookies.getCookie(WebLabClient.LOCALE_COOKIE);
+			if(weblabLocaleCookie != null){
+				WebLabClient.refresh(weblabLocaleCookie);
+			} else {
+				// Here we should try to check the User-Agent, but that's not possible in HTML, since it is an HTTP header
+				
+				// Else, check if there is a default language. If there is, show it
+				this.languageDecisionPending = true;
+			}
 		}
 	}
 	
@@ -178,7 +189,12 @@ public abstract class WebLabClient implements EntryPoint {
 		this.configurationManager = new ConfigurationManager(configFile, new IConfigurationLoadedCallback(){
 			@Override
 			public void onLoaded() {
-                WebLabClient.this.baseLocation = WebLabClient.this.configurationManager.getProperty(BASE_LOCATION, DEFAULT_BASE_LOCATION);
+                WebLabClient.baseLocation = WebLabClient.this.configurationManager.getProperty(BASE_LOCATION, DEFAULT_BASE_LOCATION);
+                
+                final String hostDefaultLanguage = WebLabClient.this.configurationManager.getProperty(HOST_ENTITY_DEFAULT_LANGUAGE, DEFAULT_HOST_ENTITY_DEFAULT_LANGUAGE);
+				if(!hostDefaultLanguage.equals("en") && WebLabClient.this.languageDecisionPending)
+					refresh(hostDefaultLanguage);
+                
 				final String trackingCode = WebLabClient.this.configurationManager.getProperty(GOOGLE_ANALYTICS_TRACKING_CODE, null);
 				if(trackingCode != null)
 					loadGoogleAnalytics(trackingCode);
