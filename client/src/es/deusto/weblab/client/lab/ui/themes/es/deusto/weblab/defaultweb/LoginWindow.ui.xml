@@ -116,6 +116,15 @@
 							<w:WlWaitingLabel ui:field="waitingLabel" styleName="web-waiting-label" visible="false"></w:WlWaitingLabel>
 							<g:Label ui:field="generalErrorLabel" styleName="web-error-message"  visible="false"></g:Label>
 						</g:VerticalPanel>
+						
+						<g:VerticalPanel width="100%" ui:field="guestPanel" spacing="10" visible="false">
+							<g:cell horizontalAlignment="ALIGN_CENTER">
+								<g:Label text="{i18n.someExperimentsAreAvailableForDemo}" />
+							</g:cell>
+							<g:cell horizontalAlignment="ALIGN_CENTER">
+								<g:Button text="{i18n.loginAsGuest}" ui:field="guestButton" />
+							</g:cell>
+						</g:VerticalPanel>
 					</g:VerticalPanel>
 				</g:DecoratorPanel>
 				

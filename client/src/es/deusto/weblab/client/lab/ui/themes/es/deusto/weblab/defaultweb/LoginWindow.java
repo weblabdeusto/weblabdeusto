@@ -77,6 +77,7 @@ class LoginWindow extends BaseWindow {
 	@UiField DecoratorPanel adminPanel;
 	@UiField Image hostEntityLogo;
 	@UiField HTML introText;
+	@UiField VerticalPanel guestPanel;
 	
 	// Callbacks
 	private final ILoginWindowCallback callback;
@@ -172,19 +173,14 @@ class LoginWindow extends BaseWindow {
 			);
 		
 		if ( demoAvailable ) {
-			final String demoUsername = this.configurationManager.getProperty(
-					LoginWindow.DEMO_USERNAME_PROPERTY,
-					LoginWindow.DEFAULT_DEMO_USERNAME
-				);		
-			final String demoPassword = this.configurationManager.getProperty(
-					LoginWindow.DEMO_PASSWORD_PROPERTY,
-					LoginWindow.DEFAULT_DEMO_PASSWORD
-				);	
-			
+			final String demoUsername = this.configurationManager.getProperty( LoginWindow.DEMO_USERNAME_PROPERTY, LoginWindow.DEFAULT_DEMO_USERNAME);		
+			final String demoPassword = this.configurationManager.getProperty( LoginWindow.DEMO_PASSWORD_PROPERTY, LoginWindow.DEFAULT_DEMO_PASSWORD);	
 			this.demoAvailableHTML.setHTML(this.i18nMessages.demoLoginDetails(demoUsername, demoPassword));
+			
 		}else{
 			this.featuresGrid.removeRow(1);
 		}
+		this.guestPanel.setVisible(demoAvailable);
 		
 		final boolean createAccountVisible = this.configurationManager.getBoolProperty(CREATE_ACCOUNT_VISIBLE_PROPERTY, DEFAULT_CREATE_ACCOUNT_VISIBLE);
 		if(!createAccountVisible)
@@ -266,12 +262,24 @@ class LoginWindow extends BaseWindow {
 		errors |= this.checkUsernameTextbox();
 		errors |= this.checkPasswordTextbox();
 		if(!errors){
-			LoginWindow.this.waitingLabel.setText(LoginWindow.this.i18nMessages.loggingIn());
-			LoginWindow.this.waitingLabel.start();
-			LoginWindow.this.waitingLabel.setVisible(true);
-			LoginWindow.this.loginButton.setEnabled(false);
-			LoginWindow.this.callback.onLoginButtonClicked(this.getUsername(), this.getPassword());
+			startLoginProcess(getUsername(), getPassword());
 		}
+	}
+	
+	@UiHandler("guestButton")
+	void onGuestButtonClicked(@SuppressWarnings("unused") ClickEvent e) {
+		final String demoUsername = this.configurationManager.getProperty( LoginWindow.DEMO_USERNAME_PROPERTY, LoginWindow.DEFAULT_DEMO_USERNAME);		
+		final String demoPassword = this.configurationManager.getProperty( LoginWindow.DEMO_PASSWORD_PROPERTY, LoginWindow.DEFAULT_DEMO_PASSWORD);	
+
+		startLoginProcess(demoUsername, demoPassword);
+	}
+
+	private void startLoginProcess(String username, String password) {
+		this.waitingLabel.setText(LoginWindow.this.i18nMessages.loggingIn());
+		this.waitingLabel.start();
+		this.waitingLabel.setVisible(true);
+		this.loginButton.setEnabled(false);
+		this.callback.onLoginButtonClicked(username, password);
 	}
 	
 	@UiHandler("createAccountButton")
