@@ -21,6 +21,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.ScriptElement;
+import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Label;
@@ -126,19 +127,41 @@ public abstract class WebLabClient implements EntryPoint {
 		return false;
 	}
 	
-	private void selectLanguage(){
-		if(!localeConfigured()) {
-			final String weblabLocaleCookie = Cookies.getCookie(WebLabClient.LOCALE_COOKIE);
-			if(weblabLocaleCookie != null){
+	private void selectLanguage(){		
+		if(localeConfigured())
+			return;
+		
+		String currentLocaleName = LocaleInfo.getCurrentLocale().getLocaleName();
+		if(currentLocaleName.equals("default"))
+			currentLocaleName = "en";
+		
+		final String weblabLocaleCookie = Cookies.getCookie(WebLabClient.LOCALE_COOKIE);
+		if(weblabLocaleCookie != null){
+			if(!currentLocaleName.equals(weblabLocaleCookie))
 				WebLabClient.refresh(weblabLocaleCookie);
-			} else {
-				// Here we should try to check the User-Agent, but that's not possible in HTML, since it is an HTTP header
+			return;
+		} 
+		
+		// Here we should try to check the User-Agent, but that's not possible in HTML, since it is an HTTP header
+		try{
+			if(getAcceptLanguageHeader() != null) {
+				final String firstLanguage = getAcceptLanguageHeader().split(";")[0].split(",")[0].split("-")[0];
+				if(!currentLocaleName.equals(firstLanguage))
+					WebLabClient.refresh(firstLanguage);
 				
-				// Else, check if there is a default language. If there is, show it
-				this.languageDecisionPending = true;
+				return;
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+		
+		// Else, check if there is a default language. If there is, show it
+		this.languageDecisionPending = true;
 	}
+	
+	public static native String getAcceptLanguageHeader() /*-{
+		return $wnd.acceptLanguageHeader;
+	}-*/;
 	
 	public static String getNewUrl(String parameterName, String parameterValue){
 		String newUrl = Window.Location.getPath() + "?";
@@ -181,8 +204,8 @@ public abstract class WebLabClient implements EntryPoint {
 		final WlWaitingLabel loadingLabel = new WlWaitingLabel("Loading WebLab-Deusto");
 		loadingLabel.start();
 		this.putWidget(loadingLabel.getWidget());
-				
-		this.selectLanguage();
+		
+		this.selectLanguage();		
 		
 		final String configFile = WebLabClient.SCRIPT_CONFIG_FILE;
 		
