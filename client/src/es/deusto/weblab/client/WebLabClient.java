@@ -209,10 +209,10 @@ public abstract class WebLabClient implements EntryPoint {
 	        		try{
 	        			if(getAcceptLanguageHeader() != null) {
 	        				final String firstLanguage = getAcceptLanguageHeader().split(";")[0].split(",")[0].split("-")[0];
-	        				if(!currentLocaleName.equals(firstLanguage))
+	        				if(!currentLocaleName.equals(firstLanguage)) {
 	        					WebLabClient.refresh(firstLanguage);
-	        				
-	        				return;
+		        				return;
+	        				}
 	        			}
 	        		} catch (Exception e) {
 	        			e.printStackTrace();
