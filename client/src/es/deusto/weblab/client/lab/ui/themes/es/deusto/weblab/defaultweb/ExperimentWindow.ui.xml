@@ -50,6 +50,9 @@
 		        
 			<g:Label ui:field="contentTitleLabel" text="{i18n.reserveThisExperiment}" styleName="web-logged-content-title"></g:Label>
 			<g:Label ui:field="contentTitleLabelSelected" text="{i18n.selectedExperiment}" styleName="web-logged-content-title"></g:Label>
+			<g:cell horizontalAlignment="ALIGN_CENTER">
+				<g:Anchor ui:field="contentTitleLabelInfo" text="{i18n.information}" visible="false" target="_blank"/>
+			</g:cell>
 			
 			<g:Grid ui:field="detailsGrid" styleName="web-experiment-details">
                 <g:row>
@@ -81,7 +84,7 @@
                 		<g:Label ui:field="informationLinkLabel" text="{i18n.information}:"></g:Label>
                 	</g:customCell>
                 	<g:customCell>
-                        <g:Anchor ui:field="informationLink" styleName="web-experiment-detail"></g:Anchor>
+                        <g:Anchor ui:field="informationLink" styleName="web-experiment-detail" target="_blank"></g:Anchor>
                     </g:customCell>
                 </g:row>
 			</g:Grid>
