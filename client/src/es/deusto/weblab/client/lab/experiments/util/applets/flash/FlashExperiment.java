@@ -163,8 +163,7 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard{
 	
 	
 	public void refreshIframe() {
-		System.out.println("[DBG] Refreshing Iframe");
-		FlashExperiment.refreshIframe(this.swfFile + "oo", this.width, this.height, this.width + 10, this.height +10, this.flashvars);
+		FlashExperiment.refreshIframe(this.swfFile, this.width, this.height, this.width + 10, this.height +10, this.flashvars);
 	}
 
 	/**
@@ -288,10 +287,10 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard{
 		
 		// Replace the flash object html				
 		var flashHtmlObj = $wnd.wl_iframe.contentWindow.document.getElementById("wl_flashobj");
-		flashHtmlObj.innerNode = flashHtml;
+		flashHtmlObj.innerHTML = flashHtml;
 		
-		// Force a reload
-		$wnd.wl_iframe.contentWindow.document.location.reload(true);
+		// Force the reload. This does not seem to be necessary.
+		// $wnd.wl_iframe.contentWindow.document.location.reload(true);
 	}-*/;
 
 	private static native void populateIframe(String swfFile, int width, int height, int iframeWidth, int iframeHeight, String flashvars) /*-{
@@ -301,6 +300,10 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard{
         	
         $wnd.wl_iframe.height = iframeHeight;
         $wnd.wl_iframe.width = iframeWidth;
+        
+        var metasHtml = "<meta http-Equiv=\"Cache-Control\" Content=\"no-cache\">\n" +
+							"<meta http-Equiv=\"Pragma\" Content=\"no-cache\">\n" +
+							"<meta http-Equiv=\"Expires\" Content=\"0\">\n\n";
         
 		var functionsHtml = "<script language=\"JavaScript\">\n" +
 				"function wl_getIntProperty(name){ " +
@@ -336,7 +339,7 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard{
 		var other		= "<div id=\"div_iframe_extra\"></div>";
 		
 		var completeHtml = "<html>" +
-								"<head>" + functionsHtml + "</head>" +
+								"<head>" + metasHtml + functionsHtml + "</head>" +
 								"<body>" + flashHtml + other + "</body>" +
 							"</html>";
 		
