@@ -84,7 +84,12 @@ public class VisirExperiment extends FlashExperiment {
 						
 						if(success) {
 							VisirExperiment.this.cookie   = reqData.getCookie();
-							VisirExperiment.this.savedata = reqData.getSaveData();
+							
+							// Data is received encoded through Python, decoded, and encoded again. This avoids certain
+							// encoding issues that seem to be occurring. We enable teacher mode so that the
+							// plus sign that gives us access to the full component palette is available.
+							VisirExperiment.this.savedata = URL.decodeQueryString(reqData.getSaveData());
+							
 							VisirExperiment.this.url      = reqData.getURL();
 							VisirExperiment.this.teacher  = reqData.isTeacher(); 
 							
@@ -167,15 +172,11 @@ public class VisirExperiment extends FlashExperiment {
 	protected void updateFlashVars() {
 		//final String testsavedata = "<save><instruments+list=\"breadboard/breadboard.swf|multimeter/multimeter.swf|functiongenerator/functiongenerator.swf|oscilloscope/oscilloscope.swf|tripledc/tripledc.swf\"+/><multimeter+/><circuit><circuitlist><component>R+1.6k+52+26+0</component><component>R+2.7k+117+26+0</component><component>R+10k+182+78+0</component><component>R+10k+182+52+0</component><component>R+10k+182+26+0</component><component>C+56n+247+39+0</component><component>C+56n+247+91+0</component></circuitlist></circuit></save>&amp;http=1<save><instruments+list=\"breadboard/breadboard.swf|multimeter/multimeter.swf|functiongenerator/functiongenerator.swf|oscilloscope/oscilloscope.swf|tripledc/tripledc.swf\"+/><multimeter+/><circuit><circuitlist><component>R+1.6k+52+26+0</component><component>R+2.7k+117+26+0</component><component>R+10k+182+78+0</component><component>R+10k+182+52+0</component><component>R+10k+182+26+0</component><component>C+56n+247+39+0</component><component>C+56n+247+91+0</component></circuitlist></circuit></save>";
 		
-		// Data is received encoded through Python, decoded, and encoded again. This avoids certain
-		// encoding issues that seem to be occurring. We enable teacher mode so that the
-		// plus sign that gives us access to the full component palette is available.
-		final String decodedSaveData = URL.decodeQueryString(this.savedata);
 		String flashvars = "teacher=" + (this.teacher?"1":"0");
 		if(this.cookie != "")
 			flashvars += "&cookie="+this.cookie;
 		if(this.savedata != "")
-			flashvars += "&savedata="+URL.encode(decodedSaveData);
+			flashvars += "&savedata="+URL.encode(this.savedata);
 		
 		// Data is received encoded, and used to generate the website straightaway.
 		//final String flashvars = "cookie="+this.cookie+"&savedata="+this.savedata;
@@ -185,4 +186,5 @@ public class VisirExperiment extends FlashExperiment {
 		
 		this.setFlashVars(flashvars);
 	}
+
 }
