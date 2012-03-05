@@ -150,7 +150,7 @@ public class VisirExperiment extends FlashExperiment {
 
 	private void refresh() {
 		System.out.println("Doing REFRESH");
-		initJavascriptAPI();
+		this.refreshIframe();
 	}
 	
 	private void onLoadCircuit(int id) {

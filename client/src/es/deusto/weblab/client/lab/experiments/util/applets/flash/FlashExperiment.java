@@ -160,6 +160,12 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard{
 			FlashExperiment.populateIframe(this.swfFile, this.width, 
 					this.height, this.width + 10, this.height + 10, this.flashvars);
 	}
+	
+	
+	public void refreshIframe() {
+		System.out.println("[DBG] Refreshing Iframe");
+		FlashExperiment.refreshIframe(this.swfFile + "oo", this.width, this.height, this.width + 10, this.height +10, this.flashvars);
+	}
 
 	/**
 	 * Called by the WebLab server to tell the experiment
@@ -272,6 +278,21 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard{
 			AbstractExternalAppBasedBoard.endImpl();
 		}
 	}
+	
+	private static native void refreshIframe(String swfFile, int width, int height, int iframeWidth, int iframeHeight, String flashvars) /*-{
+		var flashHtml    = "<object id=\"wl_flashobj\" classid=\"clsid:D27CDB6E-AE6D-11cf-96B8-444553540000\" type=\"application/x-shockwave-flash\" width=\"" + width + "\" height=\"" + height + "\" id=\"flashobj\">" + 
+							"<param name=\"movie\" value=\"" + swfFile + "\" id\"flash_emb\"/>" + 
+							"<param name=\"flashvars\" value=\"" + flashvars + "\"/>" + 
+							"<embed src=\"" + swfFile + "\" width=\"" + width + "\" height=\"" + height + "\" flashvars=\"" + flashvars + "\"   />" + 
+						"</object>";
+		
+		// Replace the flash object html				
+		var flashHtmlObj = $wnd.wl_iframe.contentWindow.document.getElementById("wl_flashobj");
+		flashHtmlObj.innerNode = flashHtml;
+		
+		// Force a reload
+		$wnd.wl_iframe.contentWindow.document.location.reload(true);
+	}-*/;
 
 	private static native void populateIframe(String swfFile, int width, int height, int iframeWidth, int iframeHeight, String flashvars) /*-{
 		var doc = $wnd.wl_iframe.contentDocument;
@@ -306,7 +327,7 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard{
 					"return parent.wl_onClean(); " +
 				"} \n" +
 				"</script>";
-		var flashHtml    = "<object classid=\"clsid:D27CDB6E-AE6D-11cf-96B8-444553540000\" type=\"application/x-shockwave-flash\" width=\"" + width + "\" height=\"" + height + "\" id=\"flashobj\">" + 
+		var flashHtml    = "<object id=\"wl_flashobj\" classid=\"clsid:D27CDB6E-AE6D-11cf-96B8-444553540000\" type=\"application/x-shockwave-flash\" width=\"" + width + "\" height=\"" + height + "\" id=\"flashobj\">" + 
 								"<param name=\"movie\" value=\"" + swfFile + "\" id\"flash_emb\"/>" + 
 								"<param name=\"flashvars\" value=\"" + flashvars + "\"/>" + 
 								"<embed src=\"" + swfFile + "\" width=\"" + width + "\" height=\"" + height + "\" flashvars=\"" + flashvars + "\"   />" + 
