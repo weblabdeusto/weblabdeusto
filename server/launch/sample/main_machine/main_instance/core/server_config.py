@@ -61,6 +61,7 @@ core_coordinator_laboratory_servers = {
 core_coordinator_external_servers = {
     'microelectronics@iLab experiments'  : [ 'microelectronics_external' ],
     'robot-movement@Robot experiments'   : [ 'robot_external' ],
+    'external-robot-movement@Robot experiments'   : [ 'robot_external' ],
     'ud-logic@PIC experiments'           : [ 'logic_external' ],
 }
 
@@ -74,6 +75,7 @@ weblabdeusto_federation_demo = ("EXTERNAL_WEBLAB_DEUSTO", {
     'baseurl' : 'http://www.weblab.deusto.es/weblab/',
     'username' : 'weblabfed',
     'password' : 'password',
+    'experiments_map' : {'external-robot-movement@Robot experiments' : 'robot-movement@Robot experiments'}
 })
 
 core_scheduling_systems = {
