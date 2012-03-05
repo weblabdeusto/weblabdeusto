@@ -16,6 +16,7 @@ package es.deusto.weblab.client.experiments.visir;
 
 import java.util.List;
 
+import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.http.client.URL;
 
 import es.deusto.weblab.client.comm.exceptions.CommException;
@@ -117,28 +118,32 @@ public class VisirExperiment extends FlashExperiment {
 		initJavascriptAPI();
 		modifyFrame();
 	}
+
 	
-	private static native void initJavascriptAPI() /*-{
-		$wnd.callOnLoadCircuit = function(id) {
-			this.@es.deusto.weblab.client.experiments.visir.VisirExperiment::onLoadCircuit(I)(id);
-		};
+	private native void initJavascriptAPI() /*-{
 		
-		$wnd.callRefresh = function() {
-			$entry(this.@es.deusto.weblab.client.experiments.visir.VisirExperiment::refresh()());
-		};
+		var that = this;
+		
+		$wnd.callOnLoadCircuit = $entry(function(id) {
+			that.@es.deusto.weblab.client.experiments.visir.VisirExperiment::onLoadCircuit(I)(id);
+		});
+		
+		$wnd.callRefresh = $entry(function() {
+			that.@es.deusto.weblab.client.experiments.visir.VisirExperiment::refresh()();
+		});
 		
 		alert('API loaded');
 	}-*/;
 	
-	private static native void modifyFrame() /*-{
-		
+	private native void modifyFrame() /*-{
+	
 		var doc = $wnd.wl_iframe.contentDocument;
 		if (doc == undefined || doc == null)
 	    	doc = $wnd.wl_iframe.contentWindow.document;
 	    	
 	 	$doc.getElementById('div_extra').innerHTML = 
 	 	"<div align='left'><font color='red'>HELLO WORLD</font></div>" +
-	 	"<div align='left'><a href=\"javascript:callRefresh();\">REFRESH</a></div>";
+	 	"<div align='left'><a href=\"\" OnClick=\"javascript:callRefresh();return false;\">REFRESH</a></div>";
 	    	
 	}-*/;
 	
