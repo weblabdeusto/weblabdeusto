@@ -291,6 +291,8 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard{
 					return;
 				}
 				
+				System.out.println("[DBG]: Flash reference successfully found");
+				
 				// If we are here, we managed to find the flash reference and it
 				// seems to be working. We are ready to "talk" with the flash app.
 				
@@ -416,7 +418,7 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard{
 		
 		// Returns a reference to a flash object, whether it is an <object> or an <embed>. The <object> must have 'flash_obj' as id, 
 		// and the <embed> 'flash_emb'. It uses flash testEcho to test the JS/Flash connection.
-		function getAndTestFlashObject(){
+		function getAndTestFlashObject() {
 			var doc = $wnd.wl_iframe.contentDocument;
 	    	if (doc == undefined || doc == null)
 	        	doc = $wnd.wl_iframe.contentWindow.document;
@@ -449,9 +451,8 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard{
 		    }
 		    
 		    throw "Flash does not seem to be working: " + errorMessages;
-		}
-		if($wnd.wl_inst == null){
-			$wnd.wl_inst = getAndTestFlashObject();
-		}
+		} //!function getAndTestFlashObject
+		
+		$wnd.wl_inst = getAndTestFlashObject();
 	}-*/;
 }
