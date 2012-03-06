@@ -27,7 +27,13 @@ import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard;
 
-public class FlashExperiment extends AbstractExternalAppBasedBoard{
+
+/**
+ * Flash-based experiment class. Though many flash experiments, especially
+ * relatively simple ones, should work with it straightaway, more complicated
+ * ones may create a derived class and override whichever methods they need.
+ */
+public class FlashExperiment extends AbstractExternalAppBasedBoard {
 
 	public static final int WAIT_AFTER_START = 500;
 	
@@ -48,9 +54,16 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard{
 	// True if flash failed to start.
 	private boolean startTimedOut = false;
 	
-	
 	// We need to store the time set when we are in deferred mode.
 	private int timeSet;
+	
+	// The time when the time was last set. This indicates us whether the
+	// flash app has been initialized and when.
+	private long timeSetTime;
+	
+	// To indicate whether flash has been ever initialized or not.
+	// (Further inits are needed after refreshing).
+	private boolean flashEverInitialized = false;
 	
 	/**
 	 * Constructs a FlashExperiment. The flash applet is placed on the
@@ -141,7 +154,10 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard{
 	 * doesn't seem to work on Microsoft Internet Explorer (v8) if the flash object is dynamically created. Opera, 
 	 * Chrome, Firefox performed well with the dynamically created flash object.
 	 * 
-	 * We also add a div after the iframe, for whatever purpose.
+	 * We also add a div (with the id div_extra) after the iframe, for whatever purpose.
+	 * 
+	 * Note that this method does not actually place the flash object itself, it simply sets up the base.
+	 * Should only be called once.
 	 */
 	private static native void createJavaScriptCode(Element element, int width, int height) /*-{
 		var iFrameHtml   = "<iframe name=\"wlframe\" frameborder=\"0\"  vspace=\"0\"  hspace=\"0\"  marginwidth=\"0\"  marginheight=\"0\" " +
@@ -155,6 +171,10 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard{
     }-*/;
 	
 	@Override
+	/**
+	 * Called on initialization. It will populate the Iframe (add the flash object itself, etc) if it 
+	 * has to (that is, if it's not a deferred flash app).
+	 */
 	public void initialize(){
 		if(!this.deferred)
 			FlashExperiment.populateIframe(this.swfFile, this.width, 
@@ -162,7 +182,12 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard{
 	}
 	
 	
-	public void refreshIframe() {
+	/**
+	 * Internal method which will call the refreshIframe JS method to re-create the flash object.
+	 * The flash app will through it be restarted, possibly with a different source file or
+	 * different arguments.
+	 */
+	private void refreshIframe() {
 		FlashExperiment.refreshIframe(this.swfFile, this.width, this.height, this.width + 10, this.height +10, this.flashvars);
 	}
 
@@ -187,11 +212,18 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard{
 		if(!this.deferred) {
 			FlashExperiment.findFlashReference();
 			AbstractExternalAppBasedBoard.setTimeImpl(time);
+			FlashExperiment.this.timeSetTime = (new Date()).getTime();
 		} else {
 			this.timeSet = time;
 		}
 	}
 	
+	/**
+	 * Called by the WebLab server to tell the experiment that it is
+	 * meant to start. We will make sure that the flash app is ready and running,
+	 * we will find a reference to it, and we will initialize and notify it 
+	 * as necessary.
+	 */
 	@Override
 	public void start(int time, String initialConfiguration) {
 		
@@ -201,6 +233,22 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard{
 			FlashExperiment.populateIframe(this.swfFile, this.width, 
 				this.height, this.width+10, this.height+10, this.flashvars);
 		
+		// Initialize the flash applet (for the first time).
+		doFlashAppletInitialization();
+	}
+	
+	
+	/**
+	 * Initializes the flash applet. This initialization consists of certain steps that
+	 * need to be carried out before the applet may be used. Particularly, a reference to the
+	 * flash object needs to be found, the JS connection to flash needs to be verified, and
+	 * startInteraction and setTime notifications may need to be sent to the flash applet, 
+	 * depending on whether the applet is running on standard or in deferred mode.
+	 * 
+	 * Note that this method may be called for the first initialization, or for initialization
+	 * after a reload.
+	 */
+	public void doFlashAppletInitialization() {
 		
 		// Now we must guarantee that we can access the Flash application.
 		// Because they often take a long time to be available (they might take
@@ -240,11 +288,15 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard{
 				// not sent to the flash app yet. If, however, we are running on non-deferred mode,
 				// the time will have been sent already, just as soon as it was received. Hence, we 
 				// should not set it again. In fact, we do not necessarily even store the value.
-				if(FlashExperiment.this.deferred)
+				// We will also call setTime if we are re-initializing after a refresh.
+				if(FlashExperiment.this.deferred || FlashExperiment.this.flashEverInitialized) {
 					AbstractExternalAppBasedBoard.setTimeImpl(FlashExperiment.this.timeSet);
+					FlashExperiment.this.timeSetTime = (new Date()).getTime();
+				}
 				
 				// Flash is now ready. Notify.
 				onFlashReady();
+				FlashExperiment.this.flashEverInitialized = true;
 			}
 			
 		};
@@ -259,66 +311,25 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard{
 			this.initializationTimer.schedule(1);
 	}
 	
+	/**
+	 * Method to refresh the flash application. Certain parameters, such as the source
+	 * of the flash application itself or the arguments may be changed before calling it.
+	 * The flash applet will be reloaded, and notifications will be sent to it again
+	 * (such as the interaction start and set time notifications).
+	 * 
+	 * TODO: There are some possible issues which have not yet been fully considered.
+	 * For instance, the onEnd() method is not being called on the flsah applets before they
+	 * are replaced. Also, not all experiments may reliably support refresh.
+	 */
 	public void refreshFlash() {
+		
+		// Refresh the frame itself. This will reload the applet with the new args,
+		// but the JS connection to the applet will be lost, and its state will of
+		// course be reset.
 		this.refreshIframe();
 
-		// Now we must guarantee that we can access the Flash application.
-		// Because they often take a long time to be available (they might take
-		// a while to download, to load, or simply to be available), we will
-		// retry to connect to it a sensible amount of times before giving up.
-		
-		final long whenStarted = (new Date()).getTime();
-		this.initializationTimer = new Timer() {
-			
-			@Override
-			public void run() {
-				try{
-					// Find a reference to the flash app. Very likely to fail
-					// at first because of the app loading delay.
-					FlashExperiment.findFlashReference();
-				}catch(Exception e){
-					
-					final long ended = (new Date()).getTime();
-					final long elapsed = ended - whenStarted;
-					
-					// Make sure we have not spent too much time waiting for flash to start
-					if(elapsed > FlashExperiment.this.flashTimeout*1000){	
-						FlashExperiment.this.startTimedOut = true;
-						Window.alert("Flash does not seem to be reachable by your web browser. Contact the administrator saying what web browser you are using and this line: " + e.getMessage());
-						e.printStackTrace();
-					}else
-						FlashExperiment.this.initializationTimer.schedule(FlashExperiment.WAIT_AFTER_START);
-					return;
-				}
-				
-				System.out.println("[DBG]: Flash reference successfully found");
-				
-				// If we are here, we managed to find the flash reference and it
-				// seems to be working. We are ready to "talk" with the flash app.
-				
-				AbstractExternalAppBasedBoard.startInteractionImpl();
-				
-				// If the application is running on deferred mode, the time has been stored but
-				// not sent to the flash app yet. If, however, we are running on non-deferred mode,
-				// the time will have been sent already, just as soon as it was received. Hence, we 
-				// should not set it again. In fact, we do not necessarily even store the value.
-				if(FlashExperiment.this.deferred)
-					AbstractExternalAppBasedBoard.setTimeImpl(FlashExperiment.this.timeSet);
-				
-				// Flash is now ready. Notify.
-				onFlashReady();
-				
-				System.out.println("Flash ready again");
-			}
-			
-		};
-		
-		// As explained above, we must give the flash app time to load. This is done through this
-		// callback, which will be internally re-scheduled if the first attempt fails.
-		// We use the same technique for the non-deferred mode, because the flash could take a long
-		// time to load just the same.
-		this.initializationTimer.schedule(1);
-		
+		// We need to re-initialize the flash applet after reloading it.
+		doFlashAppletInitialization();
 	}
 	
 	
