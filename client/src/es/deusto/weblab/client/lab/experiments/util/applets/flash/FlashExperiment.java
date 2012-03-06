@@ -259,13 +259,72 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard{
 			this.initializationTimer.schedule(1);
 	}
 	
+	public void refreshFlash() {
+		this.refreshIframe();
+
+		// Now we must guarantee that we can access the Flash application.
+		// Because they often take a long time to be available (they might take
+		// a while to download, to load, or simply to be available), we will
+		// retry to connect to it a sensible amount of times before giving up.
+		
+		final long whenStarted = (new Date()).getTime();
+		this.initializationTimer = new Timer() {
+			
+			@Override
+			public void run() {
+				try{
+					// Find a reference to the flash app. Very likely to fail
+					// at first because of the app loading delay.
+					FlashExperiment.findFlashReference();
+				}catch(Exception e){
+					
+					final long ended = (new Date()).getTime();
+					final long elapsed = ended - whenStarted;
+					
+					// Make sure we have not spent too much time waiting for flash to start
+					if(elapsed > FlashExperiment.this.flashTimeout*1000){	
+						FlashExperiment.this.startTimedOut = true;
+						Window.alert("Flash does not seem to be reachable by your web browser. Contact the administrator saying what web browser you are using and this line: " + e.getMessage());
+						e.printStackTrace();
+					}else
+						FlashExperiment.this.initializationTimer.schedule(FlashExperiment.WAIT_AFTER_START);
+					return;
+				}
+				
+				// If we are here, we managed to find the flash reference and it
+				// seems to be working. We are ready to "talk" with the flash app.
+				
+				AbstractExternalAppBasedBoard.startInteractionImpl();
+				
+				// If the application is running on deferred mode, the time has been stored but
+				// not sent to the flash app yet. If, however, we are running on non-deferred mode,
+				// the time will have been sent already, just as soon as it was received. Hence, we 
+				// should not set it again. In fact, we do not necessarily even store the value.
+				if(FlashExperiment.this.deferred)
+					AbstractExternalAppBasedBoard.setTimeImpl(FlashExperiment.this.timeSet);
+				
+				// Flash is now ready. Notify.
+				onFlashReady();
+				
+				System.out.println("Flash ready again");
+			}
+			
+		};
+		
+		// As explained above, we must give the flash app time to load. This is done through this
+		// callback, which will be internally re-scheduled if the first attempt fails.
+		// We use the same technique for the non-deferred mode, because the flash could take a long
+		// time to load just the same.
+		this.initializationTimer.schedule(1);
+		
+	}
+	
 	
 	/**
 	 * Method that gets automatically called once the flash applet is ready.
 	 * Meant to be overridden by derived classes if needed.
 	 */
 	public void onFlashReady() {
-		
 	}
 	
 	@Override
