@@ -59,6 +59,7 @@ class UdPic18Experiment(Experiment.Experiment):
 
         self._programmer     = UdXilinxProgrammer.create(self._cfg_manager)
         self._command_sender = UdXilinxCommandSender.create(self._cfg_manager)
+        self.conf_demo       = self._cfg_manager.get_value("demo",         False)
         self.webcam_url      = self._cfg_manager.get_value("webcam_url",   None)
         self.mjpeg_url       = self._cfg_manager.get_value("mjpeg_url",    None)
         self.mjpeg_width     = self._cfg_manager.get_value("mjpeg_width",  None)
@@ -68,11 +69,22 @@ class UdPic18Experiment(Experiment.Experiment):
         self._current_state = STATE_NOT_READY
         self._programmer_time = self._cfg_manager.get_value('programmer_time', "25") # Seconds
         self._switches_reversed = self._cfg_manager.get_value('switches_reversed', False) # Seconds
+        self.demo = False
         
+        file_path = os.path.dirname(__file__) + os.sep + 'demo.hex'
+        self.file_content = ExperimentUtil.serialize(open(file_path, "rb").read())
+
     @Override(Experiment.Experiment)
     @logged("info")
-    def do_start_experiment(self, *args, **kwargs):
+    def do_start_experiment(self, client_arguments, server_arguments, *args, **kwargs):
+        experiment_name = json.loads(server_arguments).get('request.experiment_id.experiment_name')
+
+        self.demo = self.conf_demo or experiment_name is not None and (experiment_name.find('demo') >= 0 or experiment_name.find('test') >= 0)
+        if self.demo:
+            self._programming_thread = self._program_file_t(self.file_content)
+
         self._current_state = STATE_NOT_READY
+
         initial_configuration = {}
         if self.webcam_url is not None:
             initial_configuration['webcam'] = self.webcam_url
@@ -98,8 +110,11 @@ class UdPic18Experiment(Experiment.Experiment):
         provided file.
         """
         print "Sending file..."
-        self._programming_thread = self._program_file_t(file_content)
-        return "STATE=" + STATE_PROGRAMMING
+        if self.demo:
+            return "Can not program file. Reason: this experiment is setup as a demo"
+        else:
+            self._programming_thread = self._program_file_t(file_content)
+            return "STATE=" + STATE_PROGRAMMING
         
     
     @threaded()
