@@ -271,7 +271,6 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.assertTrue('ud-fpga@FPGA experiments'     in unique_names)
         self.assertTrue('ud-gpib@GPIB experiments'     in unique_names)
         self.assertTrue('ud-logic@PIC experiments'     in unique_names)
-        self.assertTrue('ud-pic@PIC experiments'       in unique_names)
         self.assertTrue('ud-pld@PLD experiments'       in unique_names)
         self.assertTrue('ud-pld2@PLD experiments'      in unique_names)
 

@@ -295,20 +295,6 @@
 	                        	   "experiment.category" : "GPIB experiments"
 	                           }   
 	                        ],
-	                "pic"   : [
-	                           {
-	                        	   "experiment.name"     : "ud-pic",
-	                        	   "experiment.category" : "PIC experiments",
-	                        	   "experiment.picture"  : "/img/experiments/microchip.jpg"
-	                           }
-	                        ],
-	                "pic2"  : [
-	                           {
-	                        	   "experiment.name"     : "ud-pic2",
-	                        	   "experiment.category" : "PIC experiments",
-	                        	   "experiment.picture"  : "/img/experiments/microchip.jpg"
-	                           }
-	                        ],
 	                "pic18"	: [
 	                			{
 	                			   "experiment.name"	 : "ud-pic18",

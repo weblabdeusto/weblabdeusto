@@ -41,7 +41,6 @@ core_coordinator_laboratory_servers = {
             "exp1|ud-demo-xilinx|Xilinx experiments" : "pld@pld",
             "exp2|ud-demo-xilinx|Xilinx experiments" : "fpga@fpga",
             "exp1|ud-gpib|GPIB experiments"          : "gpib@gpib",
-            "exp1|ud-pic|PIC experiments"            : "pic@pic",
             "exp1|ud-dummy|Dummy experiments"        : "dummy@dummy",
             "exp1|ud-dummy-batch|Dummy experiments"  : "dummy-batch@dummy-batch",
             "exp1|ud-logic|PIC experiments"          : "logic@logic",
@@ -61,6 +60,7 @@ core_coordinator_laboratory_servers = {
 core_coordinator_external_servers = {
     'microelectronics@iLab experiments'  : [ 'microelectronics_external' ],
     'robot-movement@Robot experiments'   : [ 'robot_external' ],
+    'external-robot-movement@Robot experiments'   : [ 'robot_external' ],
     'ud-logic@PIC experiments'           : [ 'logic_external' ],
 }
 
@@ -74,6 +74,7 @@ weblabdeusto_federation_demo = ("EXTERNAL_WEBLAB_DEUSTO", {
     'baseurl' : 'http://www.weblab.deusto.es/weblab/',
     'username' : 'weblabfed',
     'password' : 'password',
+    'experiments_map' : {'external-robot-movement@Robot experiments' : 'robot-movement@Robot experiments'}
 })
 
 core_scheduling_systems = {
@@ -83,7 +84,6 @@ core_scheduling_systems = {
         "fpga"        : ("PRIORITY_QUEUE", {}),
         "pld"         : ("PRIORITY_QUEUE", {}),
         "gpib"        : ("PRIORITY_QUEUE", {}),
-        "pic"         : ("PRIORITY_QUEUE", {}),
         "dummy"       : ("PRIORITY_QUEUE", {}),
         "dummy-batch" : ("PRIORITY_QUEUE", {}),
         "logic"       : ("PRIORITY_QUEUE", {}),

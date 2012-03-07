@@ -111,6 +111,14 @@ class CoordinatorTestCase(unittest.TestCase):
                 'inst2|exp1|cat1' : 'res_inst2@res_type'
             }
         })
+        scheduling_systems = { 
+            "fpga boards"   : ("PRIORITY_QUEUE",    {'randomize_instances' : False}), 
+            "pld boards"     : ("PRIORITY_QUEUE",   {'randomize_instances' : False}),
+            "dummy boards"     : ("PRIORITY_QUEUE", {'randomize_instances' : False}),
+            "res_type"     : ("PRIORITY_QUEUE",     {'randomize_instances' : False}),
+        }
+        self.cfg_manager._set_value('core_scheduling_systems', scheduling_systems)
+
 
         self.coordinator = WrappedCoordinator(locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
         self.coordinator._clean()
@@ -640,6 +648,12 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
 
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
+        scheduling_systems = { 
+            "fpga boards"   : ("PRIORITY_QUEUE", {'randomize_instances' : False}), 
+            "pld boards"     : ("PRIORITY_QUEUE", {'randomize_instances' : False}),
+        }
+        self.cfg_manager._set_value('core_scheduling_systems', scheduling_systems)
+         
 
     def tearDown(self):
         self.coordinator.stop()

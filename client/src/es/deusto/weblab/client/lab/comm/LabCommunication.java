@@ -243,10 +243,13 @@ public class LabCommunication extends CommonCommunication implements ILabCommuni
 			callback.onFailure(e1);
 			return;
 		}
+		final Map<String, String> headers = new HashMap<String, String>();
+		headers.put("weblabdeusto-client", WebLabClient.IS_MOBILE?"weblabdeusto-web-mobile":"weblabdeusto-web-desktop");
 		this.performRequest(
 				requestSerialized, 
 				callback, 
-				new ReserveExperimentRequestCallback(callback)
+				new ReserveExperimentRequestCallback(callback),
+				headers
 			);
 	}
 	

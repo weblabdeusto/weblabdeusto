@@ -119,8 +119,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 	    		default:
 	    			img = new Image(res.yellowBall());
 	    	}
-	    	
-	    	img.setWidth("100%");
+	    	img.setWidth("20px");
 	    	
 	    	this.experimentsTable.setWidget(i, 0, img);
 	    	this.experimentsTable.setWidget(i, 1, name);

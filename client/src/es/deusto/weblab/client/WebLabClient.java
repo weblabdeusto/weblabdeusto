@@ -21,6 +21,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.ScriptElement;
+import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Label;
@@ -37,6 +38,7 @@ public abstract class WebLabClient implements EntryPoint {
 	public static final String DEFAULT_BASE_LOCATION = "";
 
     public static String baseLocation;
+    public static boolean IS_MOBILE = false;
 
 	public static final int MAX_FACEBOOK_WIDTH = 735;
 	private static final String MAIN_SLOT = "weblab_slot";
@@ -46,6 +48,9 @@ public abstract class WebLabClient implements EntryPoint {
 	
 	public static final String LOCALE_COOKIE = "weblabdeusto.locale";
 	public static final String MOBILE_COOKIE = "weblabdeusto.mobile";
+	
+	public static final String HOST_ENTITY_DEFAULT_LANGUAGE = "host.entity.default.language";
+	public static final String DEFAULT_HOST_ENTITY_DEFAULT_LANGUAGE = "en";
 
 	public static final String THEME_PROPERTY = "theme";
 	public static final String DEFAULT_THEME = "deusto";
@@ -60,6 +65,7 @@ public abstract class WebLabClient implements EntryPoint {
 	protected static final String INDEX_ADMIN_HTML = "index-admin.html";
 	
 	public ConfigurationManager configurationManager;
+	private boolean languageDecisionPending = false;
 
 	public void putWidget(Widget widget){
 		while(RootPanel.get(WebLabClient.MAIN_SLOT).getWidgetCount() > 0)
@@ -106,7 +112,7 @@ public abstract class WebLabClient implements EntryPoint {
 		
 		// It was not specified. Now, we will first try to find a cookie that tells us what to do.
 		final String cookieSaysIsMobile = Cookies.getCookie(MOBILE_COOKIE);
-		if(cookieSaysIsMobile != null) 
+		if(cookieSaysIsMobile != null)
 			return cookieSaysIsMobile.equals("true");
 		
 		
@@ -122,12 +128,27 @@ public abstract class WebLabClient implements EntryPoint {
 		return false;
 	}
 	
-	private void selectLanguage(){
+	private void selectLanguage(){		
+		if(localeConfigured())
+			return;
+		
 		final String weblabLocaleCookie = Cookies.getCookie(WebLabClient.LOCALE_COOKIE);
-		if(weblabLocaleCookie != null && !this.localeConfigured()){
-			WebLabClient.refresh(weblabLocaleCookie);
-		}
+		if(weblabLocaleCookie != null){
+			String currentLocaleName = LocaleInfo.getCurrentLocale().getLocaleName();
+			if(currentLocaleName.equals("default"))
+				currentLocaleName = "en";
+			if(!currentLocaleName.equals(weblabLocaleCookie))
+				WebLabClient.refresh(weblabLocaleCookie);
+			return;
+		} 
+				
+		// Else, check if there is a default language. If there is, show it
+		this.languageDecisionPending = true;
 	}
+	
+	public static native String getAcceptLanguageHeader() /*-{
+		return $wnd.acceptLanguageHeader;
+	}-*/;
 	
 	public static String getNewUrl(String parameterName, String parameterValue){
 		String newUrl = Window.Location.getPath() + "?";
@@ -170,15 +191,38 @@ public abstract class WebLabClient implements EntryPoint {
 		final WlWaitingLabel loadingLabel = new WlWaitingLabel("Loading WebLab-Deusto");
 		loadingLabel.start();
 		this.putWidget(loadingLabel.getWidget());
-				
-		this.selectLanguage();
+		
+		this.selectLanguage();		
 		
 		final String configFile = WebLabClient.SCRIPT_CONFIG_FILE;
 		
 		this.configurationManager = new ConfigurationManager(configFile, new IConfigurationLoadedCallback(){
 			@Override
 			public void onLoaded() {
-                WebLabClient.this.baseLocation = WebLabClient.this.configurationManager.getProperty(BASE_LOCATION, DEFAULT_BASE_LOCATION);
+                WebLabClient.baseLocation = WebLabClient.this.configurationManager.getProperty(BASE_LOCATION, DEFAULT_BASE_LOCATION);
+                
+                if(WebLabClient.this.languageDecisionPending) {
+        			String currentLocaleName = LocaleInfo.getCurrentLocale().getLocaleName();
+        			if(currentLocaleName.equals("default"))
+        				currentLocaleName = "en";
+
+	        		try{
+	        			if(getAcceptLanguageHeader() != null) {
+	        				final String firstLanguage = getAcceptLanguageHeader().split(";")[0].split(",")[0].split("-")[0];
+	        				if(!currentLocaleName.equals(firstLanguage)) {
+	        					WebLabClient.refresh(firstLanguage);
+		        				return;
+	        				}
+	        			}
+	        		} catch (Exception e) {
+	        			e.printStackTrace();
+	        		}
+	        		
+	                final String hostDefaultLanguage = WebLabClient.this.configurationManager.getProperty(HOST_ENTITY_DEFAULT_LANGUAGE, DEFAULT_HOST_ENTITY_DEFAULT_LANGUAGE);
+					if(!hostDefaultLanguage.equals("en") && WebLabClient.this.languageDecisionPending)
+						refresh(hostDefaultLanguage);
+                }
+                
 				final String trackingCode = WebLabClient.this.configurationManager.getProperty(GOOGLE_ANALYTICS_TRACKING_CODE, null);
 				if(trackingCode != null)
 					loadGoogleAnalytics(trackingCode);

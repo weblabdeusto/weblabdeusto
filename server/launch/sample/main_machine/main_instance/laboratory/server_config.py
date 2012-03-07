@@ -38,11 +38,6 @@ laboratory_assigned_experiments = {
                  'coord_address': 'experiment_gpib:main_instance@main_machine',
                  'checkers': (),
             },
-        'exp1:ud-pic@PIC experiments':
-            {
-                 'coord_address': 'experiment_pic:main_instance@main_machine',
-                 'checkers': ()
-            },
         'exp1:ud-dummy@Dummy experiments':
             {
                  'coord_address': 'experiment_dummy:main_instance@main_machine',
