@@ -36,30 +36,30 @@ class RemoteFacadeContext(object):
     def __init__(self, server, client_address, headers, route, session_id):
         self._server         = server
         self._client_address = client_address
-        self._headers        = headers
+        self.headers         = headers
         self.route           = route
         self.session_id      = session_id
 
     def get_ip_address(self):
         try:
-            return self._headers.get('X-Forwarded-For') or ('<unknown client. retrieved from %s>' % self._client_address[0])
+            return self.headers.get('X-Forwarded-For') or ('<unknown client. retrieved from %s>' % self._client_address[0])
         except KeyError:
             return '<unknown client. retrieved from %s>' % self._client_address[0]
 
     def get_user_agent(self):
         try:
-            return self._headers.get('User-Agent') or '<unknown>'
+            return self.headers.get('User-Agent') or '<unknown>'
         except KeyError:
             return '<unknown>'
 
     def get_referer(self):
         try:
-            return self._headers.get('Referer') or ''
+            return self.headers.get('Referer') or ''
         except KeyError:
             return ''
 
     def is_mobile(self):
-        if self._headers.get('weblabdeusto-client') == 'weblabdeusto-web-mobile':
+        if self.headers.get('weblabdeusto-client') == 'weblabdeusto-web-mobile':
             return True
         referer = self.get_referer()
         return referer.find('mobile=true') >= 0 or referer.find('mobile=yes') >= 0
