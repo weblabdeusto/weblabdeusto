@@ -67,6 +67,7 @@ padding:15px;
                 <b>Experiment:</b> %(experiment_name)s@%(category_name)s<br/>
                 <b>Date:</b> %(date)s<br/>
                 <b>Origin:</b> %(origin)s<br/>
+                <b>Device used:</b> %(device)s<br/>
                 <b>Server IP (if federated):</b> %(ip)s<br/>
                 <b>Use id:</b> %(use_id)s<br/>
                 <b>Reservation id:</b> %(reservation_id)s<br/>
@@ -85,13 +86,13 @@ padding:15px;
     try:
         cursor = connection.cursor()
         try:
-            SENTENCE = "SELECT u.login, u.full_name, e.name, c.name, uue.start_date, uue.origin, uue.reservation_id " + \
+            SENTENCE = "SELECT u.login, u.full_name, e.name, c.name, uue.start_date, uue.origin, uue.reservation_id, uue.coord_address " + \
                         "FROM UserUsedExperiment as uue, User as u, Experiment as e, ExperimentCategory as c " + \
                         "WHERE u.id = uue.user_id AND e.id = uue.experiment_id AND e.category_id = c.id AND uue.id = %s "
 
             cursor.execute(SENTENCE, (use_id,))
             elements = cursor.fetchall()
-            login, full_name, experiment_name, category_name, start_date, origin, reservation_id = elements[0]
+            login, full_name, experiment_name, category_name, start_date, origin, reservation_id, device = elements[0]
 
             # Property values
             SENTENCE = "SELECT ep.name, epv.value " + \
@@ -116,6 +117,7 @@ padding:15px;
                         'date'            : cgi.escape(str(start_date)),
                         'origin'          : cgi.escape(origin           or 'not stored'),
                         'ip'              : cgi.escape(properties.get('from_direct_ip', "Don't know")),
+                        'device'          : cgi.escape(device           or 'not stored'),
                     }
 
             # Commands

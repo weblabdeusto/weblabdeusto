@@ -509,7 +509,9 @@ class PriorityQueueScheduler(Scheduler):
                         deserialized_server_initial_data = {
                                 'priority.queue.slot.length'                       : '%s' % total_time,
                                 'priority.queue.slot.start'                        : '%s' % datetime.datetime.fromtimestamp(start_time),
-                                'priority.queue.slot.initialization_in_accounting' : initialization_in_accounting
+                                'priority.queue.slot.initialization_in_accounting' : initialization_in_accounting,
+                                'request.experiment_id.experiment_name'            : experiment_instance_id.exp_name,
+                                'request.experiment_id.category_name'              : experiment_instance_id.cat_name,
                             }
                         server_initial_data = json.dumps(deserialized_server_initial_data)
                         # server_initial_data will contain information such as "what was the last experiment used?".
