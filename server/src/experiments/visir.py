@@ -189,6 +189,8 @@ class VisirTestExperiment(Experiment.Experiment):
         self._requesting_lock = threading.Lock()
         self.heartbeater = None
         self.sessionkey = None
+        self._users_counter_lock = threading.Lock()
+        self.users_counter = 0
         
     @Override(Experiment.Experiment)
     def do_get_api(self):
@@ -242,8 +244,13 @@ class VisirTestExperiment(Experiment.Experiment):
         if(DEBUG): print "[VisirTestExperiment] Performing login with %s / %s"  % (self.login_email, self.login_password)
         cookie = self.perform_visir_web_login(self.loginurl, self.login_email, self.login_password)
         
-        
         setup_data = self.build_setup_data(cookie, self.client_url)
+        
+        # Increment the user's counter, which indicates how many users are using the experiment.
+        with self._users_counter_lock:
+            self.users_counter += 1
+        
+        if(DEBUG): print "[VisirTestExperiment][Start]: Current users: ", self.users_counter
 
         return json.dumps({ "initial_configuration" : setup_data, "batch" : False })
     
@@ -416,6 +423,13 @@ class VisirTestExperiment(Experiment.Experiment):
         """
         if(DEBUG):
             print "[VisirTestExperiment] do_dispose called"
+            
+        if(DEBUG): print "[VisirTestExperiment][Dispose]: Current users: ", self.users_counter
+ 
+        # Decrease the users counter
+        with self._users_counter_lock:
+            self.users_counter -= 1
+ 
         
         if self.heartbeater is not None:
             self.heartbeater.stop()
