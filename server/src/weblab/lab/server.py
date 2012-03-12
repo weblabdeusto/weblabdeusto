@@ -158,6 +158,43 @@ class LaboratoryServer(object):
     #
     # Experiments management
     #
+    
+    
+    def _find_api(self, experiment_instance_id, experiment_coord_address = None):
+        """
+        _find_api(experiment_instance_id)
+        
+        Tries to retrieve the API version of the specified experiment.
+        
+        @param experiment_instance_id Experiment instance identifier for the experiment whose API 
+        we want.
+        @param experiment_coord_address Experiment coord address. May be None.
+        @return API version, as a string. Will return the current API if for any reason
+        it is unable to obtain the version.
+        """
+        
+        # Check whether we know the API version already.
+        api = self._assigned_experiments.get_api(experiment_instance_id)
+
+        # If we don't know the API version yet, we will have to ask the experiment server itself
+        if api is None:
+            reported_api = self._get_experiment_api(experiment_instance_id)
+            if reported_api is None:
+                log.log( LaboratoryServer, log.level.Warning, "It was not possible to find out the api version of %r. Using current version as default."
+                         % experiment_coord_address)
+                if DEBUG:
+                    print "[DBG] Was not possible to find out the api version of %r" % experiment_coord_address
+            else:
+                # Remember the api version that we retrieved
+                self._assigned_experiments.set_api(experiment_instance_id, reported_api)
+                api = reported_api
+
+        # If we don't know the api, we will use the current version as default.
+        if api is None:
+            api = ExperimentApiLevel.current
+            
+        return api
+    
 
     @logged(log.level.Info)
     @caller_check(ServerType.UserProcessing)
@@ -181,7 +218,7 @@ class LaboratoryServer(object):
             except LaboratoryErrors.BusyExperimentError:
                 # The session might have expired and that's why this experiment is still reserved. Free it directly from
                 # assigned_experiments.
-                self._free_experiment_from_assigned_experiments(experiment_instance_id)
+                self._free_experiment_from_assigned_experiments(experiment_instance_id, lab_sess_id)
                 experiment_coord_address = self._assigned_experiments.reserve_experiment(experiment_instance_id, lab_sess_id)
 
         self._session_manager.modify_session(lab_sess_id, {
@@ -189,35 +226,23 @@ class LaboratoryServer(object):
                 'experiment_coord_address' : experiment_coord_address,
                 'session_id' : lab_sess_id
             })
-
-        # Check whether we know the API version already.
-        api = self._assigned_experiments.get_api(experiment_instance_id)
-
-        # If we don't know the API version yet, we will have to ask the experiment server itself
-        if api is None:
-            reported_api = self._get_experiment_api(experiment_instance_id)
-            if reported_api is None:
-                log.log( LaboratoryServer, log.level.Warning, "It was not possible to find out the api version of %r. Using current version as default."
-                         % experiment_coord_address)
-                if DEBUG:
-                    print "[DBG] Was not possible to find out the api version of %r" % experiment_coord_address
-            else:
-                # Remember the api version that we retrieved
-                self._assigned_experiments.set_api(experiment_instance_id, reported_api)
-                api = reported_api
-
+        
+        # Obtain the API of the experiment.
+        api = self._find_api(self, experiment_instance_id, experiment_coord_address)
 
         experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
-
-        # If we don't know the api, we will use the current version as default.
-        if api is None:
-            api = ExperimentApiLevel.current
 
         if api == ExperimentApiLevel.level_1:
             experiment_server.start_experiment()
             experiment_server_response = "ok"
-        else:
+        elif api == ExperimentApiLevel.level_2:
             experiment_server_response = experiment_server.start_experiment(client_initial_data, server_initial_data)
+        # If the API version is concurrent, we will also send the session id, to be able to identify the user for each request.
+        elif api == ExperimentApiLevel.level_2 + "_concurrent":
+            experiment_server_response = experiment_server.start_experiment(lab_sess_id, client_initial_data, server_initial_data)
+        else:
+            # ERROR: Unrecognized version.
+            experiment_server_response = experiment_server.start_experiment(lab_sess_id, client_initial_data, server_initial_data)
 
         return lab_sess_id, experiment_server_response, experiment_coord_address.address
 
@@ -244,7 +269,7 @@ class LaboratoryServer(object):
 
             experiment_instance_id = session['experiment_instance_id']
             try:
-                experiment_response = self._free_experiment_from_assigned_experiments(experiment_instance_id)
+                experiment_response = self._free_experiment_from_assigned_experiments(experiment_instance_id, lab_session_id)
             except Exception as e:
                 log.log( LaboratoryServer, log.level.Error, "Exception freeing experiment" % e )
                 log.log_exc(LaboratoryServer, log.level.Error)
@@ -264,15 +289,34 @@ class LaboratoryServer(object):
                 self._session_manager.modify_session_unlocking(lab_session_id, session)
             return experiment_response
 
-    def _free_experiment_from_assigned_experiments(self, experiment_instance_id):
+    def _free_experiment_from_assigned_experiments(self, experiment_instance_id, lab_session_id ):
+        """
+        _free_experiment_from_assigned_experiments(lab_session_id, experiment_instance_id)
+        
+        Frees the experiment, calling the appropriate dispose on it.
+        @param lab_session_id To identify the user
+        @param experiment_instance_id To identify the experiment instance
+        """
         experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
         experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
+        
+        # Find out which api we're supposed to use
         api = self._assigned_experiments.get_api(experiment_instance_id)
-        return_value = experiment_server.dispose()
+        
         if api == ExperimentApiLevel.level_1:
+            # First version. Can't return information through dispose.
+            experiment_server.dispose()
             return "ok"
+        elif api == ExperimentApiLevel.level_2:
+            # Second version. Result of dispose is reported.
+            return experiment_server.dispose()
+        elif api == ExperimentApiLevel.level_2 + "_concurrent":
+            # Concurrent version of the second version. The sessionid is provided
+            # so that the client may be identified.
+            return experiment_server.dispose(lab_session_id)
         else:
-            return return_value
+            # TODO: Error: Unrecognized version
+            return experiment_server.dispose()
 
     @logged(log.level.Info)
     def _get_experiment_api(self, experiment_instance_id):
@@ -406,11 +450,19 @@ class LaboratoryServer(object):
     @check_session(*check_session_params)
     @caller_check(ServerType.UserProcessing)
     def do_send_file(self, session, file_content, file_info):
+        
+        lab_session_id = session['session_id']
+        experiment_instance_id = session['experiment_instance_id']
+        api = self._assigned_experiments.get_api(experiment_instance_id)
+        
         experiment_coord_address = session['experiment_coord_address']
         experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
 
         try:
-            response = experiment_server.send_file_to_device(file_content, file_info)
+            if api.endswith("concurrent"):
+                response = experiment_server.send_file_to_device(lab_session_id, file_content, file_info)
+            else:
+                response = experiment_server.send_file_to_device(file_content, file_info)
         except Exception as e:
             log.log( LaboratoryServer, log.level.Warning, "Exception sending file to experiment: %s" % e )
             log.log_exc(LaboratoryServer, log.level.Info)
@@ -422,11 +474,19 @@ class LaboratoryServer(object):
     @check_session(*check_session_params)
     @caller_check(ServerType.UserProcessing)
     def do_send_command(self, session, command):
+        
+        lab_session_id = session['session_id']
+        experiment_instance_id = session['experiment_instance_id']
+        api = self._assigned_experiments.get_api(experiment_instance_id)
+        
         experiment_coord_address = session['experiment_coord_address']
         experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
 
         try:
-            response = experiment_server.send_command_to_device(command.get_command_string())
+            if api.endswith("concurrent"):
+                response = experiment_server.send_command_to_device(lab_session_id, command.get_command_string())
+            else:
+                response = experiment_server.send_command_to_device(command.get_command_string())
         except Exception as e:
             log.log( LaboratoryServer, log.level.Warning, "Exception sending command to experiment: %s" % e )
             log.log_exc(LaboratoryServer, log.level.Info)
@@ -443,11 +503,19 @@ class LaboratoryServer(object):
         send_file_to_device, and for that purpose runs on its own thread.
         This implies that its response will arrive asynchronously to the client.
         """
+        
+        lab_session_id = session['session_id']
+        experiment_instance_id = session['experiment_instance_id']
+        api = self._assigned_experiments.get_api(experiment_instance_id)
+        
         experiment_coord_address = session['experiment_coord_address']
         experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
 
         try:
-            response = experiment_server.send_file_to_device(file_content, file_info)
+            if api.endswith("concurrent"):
+                response = experiment_server.send_file_to_device(lab_session_id, file_content, file_info)
+            else:
+                response = experiment_server.send_file_to_device(file_content, file_info)
         except Exception as e:
             log.log( LaboratoryServer, log.level.Warning, "Exception sending async file to experiment: %s" % e )
             log.log_exc(LaboratoryServer, log.level.Info)
@@ -552,11 +620,19 @@ class LaboratoryServer(object):
         send_command_to_device, and for that purpose runs on its own thread.
         This implies that its response will arrive asynchronously to the client.
         """
+        
+        lab_session_id = session['session_id']
+        experiment_instance_id = session['experiment_instance_id']
+        api = self._assigned_experiments.get_api(experiment_instance_id)
+        
         experiment_coord_address = session['experiment_coord_address']
         experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
 
         try:
-            response = experiment_server.send_command_to_device(command.get_command_string())
+            if api.endswith("concurrent"):
+                response = experiment_server.send_command_to_device(command.get_command_string())
+            else:
+                response = experiment_server.send_command_to_device(lab_session_id, command.get_command_string())
         except Exception as e:
             log.log( LaboratoryServer, log.level.Warning, "Exception sending async command to experiment: %s" % e )
             log.log_exc(LaboratoryServer, log.level.Info)
