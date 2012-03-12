@@ -16,7 +16,6 @@ package es.deusto.weblab.client.experiments.visir;
 
 import java.util.List;
 
-import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.http.client.URL;
 
 import es.deusto.weblab.client.comm.exceptions.CommException;
@@ -80,7 +79,7 @@ public class VisirExperiment extends FlashExperiment {
 					public void onSuccess(ResponseCommand responseCommand) {
 						
 						// Use the command's helper method to parse the JSON response
-						boolean success = reqData.parseResponse(responseCommand.getCommandString());
+						final boolean success = reqData.parseResponse(responseCommand.getCommandString());
 						
 						if(success) {
 							VisirExperiment.this.cookie   = reqData.getCookie();
@@ -121,7 +120,25 @@ public class VisirExperiment extends FlashExperiment {
 	@Override
 	public void onFlashReady() {
 		initJavascriptAPI();
-		modifyFrame();
+		modifyFrame(this.generateCircuitsTableHTML());
+	}
+	
+	public String generateCircuitsTableHTML() {
+		final StringBuilder sb = new StringBuilder();
+		
+		sb.append("<div align='left'>\n");
+		int circuitIndex = 1;
+		for(final String circ : this.circuitsAvailable) {
+			sb.append("<a href=\"\" OnClick=\"javascript:callOnLoadCircuit(");
+			sb.append(circuitIndex);
+			sb.append(");return false;\">");
+			sb.append(circ);
+			sb.append("</a><br>\n");
+			circuitIndex++;
+		}
+		sb.append("<br><br></div>\n");
+		
+		return sb.toString();
 	}
 
 	
@@ -137,10 +154,9 @@ public class VisirExperiment extends FlashExperiment {
 			that.@es.deusto.weblab.client.experiments.visir.VisirExperiment::refresh()();
 		});
 		
-		alert('API loaded');
 	}-*/;
 	
-	private native void modifyFrame() /*-{
+	private native void modifyFrame(String circuitsTableHTML) /*-{
 	
 		var doc = $wnd.wl_iframe.contentDocument;
 		if (doc == undefined || doc == null)
@@ -148,8 +164,8 @@ public class VisirExperiment extends FlashExperiment {
 	    	
 	 	$doc.getElementById('div_extra').innerHTML = 
 	 	"<div align='left'><font color='red'>HELLO WORLD</font></div>" +
-	 	"<div align='left'><a href=\"\" OnClick=\"javascript:callRefresh();return false;\">REFRESH</a></div>";
-	    	
+	 	"<div align='left'><a href=\"\" OnClick=\"javascript:callRefresh();return false;\">REFRESH</a></div>" +
+	 	circuitsTableHTML;
 	}-*/;
 	
 
