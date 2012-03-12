@@ -16,12 +16,8 @@ package es.deusto.weblab.client.experiments.visir;
 
 import com.google.gwt.http.client.URL;
 
-import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
-import es.deusto.weblab.client.dto.experiments.ResponseCommand;
-import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
-import es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard;
 import es.deusto.weblab.client.lab.experiments.util.applets.flash.FlashExperiment;
 
 public class VisirExperiment extends FlashExperiment {
@@ -64,41 +60,23 @@ public class VisirExperiment extends FlashExperiment {
 	@Override
 	public void start(final int time, final String initialConfiguration) {
 		
-		// Request the visir session "cookie" to the server.
-		final VisirSetupDataRequestCommand reqData = new VisirSetupDataRequestCommand();
-		AbstractExternalAppBasedBoard.staticBoardController.sendCommand(reqData, 
-				new IResponseCommandCallback() {
-
-					@Override
-					public void onSuccess(ResponseCommand responseCommand) {
-						
-						// Use the command's helper method to parse the JSON response
-						boolean success = reqData.parseResponse(responseCommand.getCommandString());
-						
-						if(success) {
-							VisirExperiment.this.cookie   = reqData.getCookie();
-							VisirExperiment.this.savedata = reqData.getSaveData();
-							VisirExperiment.this.url      = reqData.getURL();
-							VisirExperiment.this.teacher  = reqData.isTeacher(); 
-						
-							VisirExperiment.this.updateFlashVars();
-							VisirExperiment.this.setSwfFile(VisirExperiment.this.url);
-							
-							VisirExperiment.super.start(time, initialConfiguration);
-						} else {
-							System.out.println("Could not parse response: " + responseCommand.getCommandString());
-						}
-					}
-
-					@Override
-					public void onFailure(CommException e) {
-						System.out.println("Error: Could not retrieve data");
-						VisirExperiment.super.start(time, initialConfiguration);
-					}
-				}
-		);
+		// The VISIR experiment now receives the initialization cookie it needs through
+		// the new weblab API and its initialConfiguration parameter.
+		final VisirSetupData initialConfig = new VisirSetupData();
+		boolean success = initialConfig.parseData(initialConfiguration);
+		if(success) {
+			VisirExperiment.this.cookie   = initialConfig.getCookie();
+			VisirExperiment.this.savedata = initialConfig.getSaveData();
+			VisirExperiment.this.url      = initialConfig.getURL();
+			VisirExperiment.this.teacher  = initialConfig.isTeacher(); 
 		
-		//super.start();
+			VisirExperiment.this.updateFlashVars();
+			VisirExperiment.this.setSwfFile(VisirExperiment.this.url);
+			
+			VisirExperiment.super.start(time, initialConfiguration);
+		} else {
+			System.out.println("Could not parse initial configuration: " + initialConfiguration);
+		}
 		
 	}
 

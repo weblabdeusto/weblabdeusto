@@ -192,7 +192,7 @@ class VisirTestExperiment(Experiment.Experiment):
         
     @Override(Experiment.Experiment)
     def do_get_api(self):
-        return "1"
+        return "2"
         
     def read_config(self):
         """
@@ -234,7 +234,19 @@ class VisirTestExperiment(Experiment.Experiment):
         """
         if DEBUG: print "[DBG] Measure server address: ", self.measure_server_addr
         if DEBUG: print "[DBG] Measure server target: ", self.measure_server_target
-        return "Ok"
+        
+        # We need to provide the client with the cookie. We do so here, using weblab API 2,
+        # which supports this kind of initialization data.
+        if not self.use_visir_php:
+            return self.build_setup_data("", self.client_url)
+        if(DEBUG): print "[VisirTestExperiment] Performing login with %s / %s"  % (self.login_email, self.login_password)
+        cookie = self.perform_visir_web_login(self.loginurl, self.login_email, self.login_password)
+        
+        
+        setup_data = self.build_setup_data(cookie, self.client_url)
+
+        return json.dumps({ "initial_configuration" : setup_data, "batch" : False })
+    
 
     @Override(Experiment.Experiment)
     def do_send_command_to_device(self, command):
@@ -243,17 +255,6 @@ class VisirTestExperiment(Experiment.Experiment):
         @param command Command sent by the client, as a string.
         """
         
-        # Check whether it's a GIVEMECOOKIE command, which will carry out
-        # a login to obtain the cookie the client should use
-        if command == 'GIVE_ME_SETUP_DATA':
-            if not self.use_visir_php:
-                return self.build_setup_data("", self.client_url)
-
-            if(DEBUG): print "[VisirTestExperiment] Performing login with %s / %s"  % (self.login_email, self.login_password)
-            
-            cookie = self.perform_visir_web_login(self.loginurl, self.login_email, self.login_password)
-            
-            return self.build_setup_data(cookie, self.client_url)
         
         # Otherwise, it's a VISIR XML command, and should just be forwarded
         # to the VISIR measurement server
@@ -309,8 +310,8 @@ class VisirTestExperiment(Experiment.Experiment):
     
     def build_setup_data(self, cookie, url):
         """
-        Helper function that will build and return a JSON-encoded reply to the 
-        SETUP_DATA request.
+        Helper function that will return a structure with the initialization data,
+        json-encoded in a string.
         """
         data = {
                 "cookie"   : cookie,
@@ -318,8 +319,7 @@ class VisirTestExperiment(Experiment.Experiment):
                 "url"      : url,
                 "teacher"  : self.teacher
                 }
-        resp = json.dumps(data)
-        return str(resp)
+        return json.dumps(data)
     
  
     @locked('_requesting_lock')
