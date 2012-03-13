@@ -95,7 +95,7 @@ class Heartbeater(threading.Thread):
         
         Every heartbeat will be carried out from the same thread, sequentially. Hence, especially
         with a high number of users, it may theoretically take a long time to send a specific
-        heartbeat.
+        heartbeat. This should not be an issue unless the heartbeat frequency is set too low.
         
         @param experiment Reference to the VisirTestExperiment. Will make use of the user map within it.
         @param heartbeat_period Number of seconds between heartbeats.
@@ -256,6 +256,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         # We will initialize and start it later
         self.heartbeater = None
         
+        self._users_map_lock = threading.RLock()
         self.users_map = {} # To store the list of users and their data
         
     @Override(ConcurrentExperiment.ConcurrentExperiment)
@@ -303,19 +304,20 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         """
         
         # New user entered the experiment
-        self.users_map[lab_session_id] = {}
+        with self._users_map_lock:
+            self.users_map[lab_session_id] = {}
         
         
-        # Consider whether we should initialize the heartbeater now. If we are the first
-        # user, the heartbeater will not have started yet.        
-        if self.heartbeater is None:
-            self.heartbeater = Heartbeater(self, self.heartbeat_period)
-            self.heartbeater.start()
+            # Consider whether we should initialize the heartbeater now. If we are the first
+            # user, the heartbeater will not have started yet.        
+            if self.heartbeater is None:
+                self.heartbeater = Heartbeater(self, self.heartbeat_period)
+                self.heartbeater.start()
         
-        if DEBUG: print "[DBG] Current number of users: ", len(self.users_map)
-        if DEBUG: print "[DBG] Lab Session Id: ", lab_session_id
-        if DEBUG: print "[DBG] Measure server address: ", self.measure_server_addr
-        if DEBUG: print "[DBG] Measure server target: ", self.measure_server_target
+            if DEBUG: print "[DBG] Current number of users: ", len(self.users_map)
+            if DEBUG: print "[DBG] Lab Session Id: ", lab_session_id
+            if DEBUG: print "[DBG] Measure server address: ", self.measure_server_addr
+            if DEBUG: print "[DBG] Measure server target: ", self.measure_server_target
 
         return "Ok"
 
@@ -350,7 +352,8 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         if DEBUG: print "[DBG] REQUEST TYPE: " + request_type
         
         
-        user = self.users_map[lab_session_id]
+        with self._users_map_lock:
+            user = self.users_map[lab_session_id]
         
         # If it was a login request, we will extract the session key from the response.
         # Once the session is in a logged in state, it will need to start receiving
@@ -520,22 +523,23 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         # from the internal users map.
         self.heartbeater.remove_session(lab_session_id)
         
-        # Remove the user/session from the internal list.
-        del self.users_map[lab_session_id]
-        
-        # If there are no more users, we will stop the heartbeater.
-        if len(self.users_map) == 0:
+        with self._users_map_lock:
+            # Remove the user/session from the internal list.
+            del self.users_map[lab_session_id]
             
-            if DEBUG: print "[DBG] No users left. Stopping heartbeater thread."
-            
-            heartbeater = self.heartbeater
-            self.heartbeater = None
-            heartbeater.stop()
-            heartbeater.join(60)
-            
-            if heartbeater.is_alive():
-                raise Exception("[ERROR/Visir] The heartbeater thread could not be stopped in time")
+            # If there are no more users, we will stop the heartbeater.
+            if len(self.users_map) == 0:
                 
+                if DEBUG: print "[DBG] No users left. Stopping heartbeater thread."
+                
+                heartbeater = self.heartbeater
+                self.heartbeater = None
+                heartbeater.stop()
+                heartbeater.join(60)
+                
+                if heartbeater.is_alive():
+                    raise Exception("[ERROR/Visir] The heartbeater thread could not be stopped in time")
+                    
             if DEBUG: print "[DBG] Heartbeater thread successfully stopped."
         
         if DEBUG: print "[DBG] Finished successfully: ", lab_session_id 
