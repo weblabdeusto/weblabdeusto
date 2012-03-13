@@ -97,7 +97,6 @@ class Heartbeater(threading.Thread):
         self.experiment = experiment
         self.session_key = session_key
         self.heartbeat_period = heartbeat_period
-        self.users_map = {} # To store the list of users and their data
         
         
     def stop(self):
@@ -190,6 +189,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         self._requesting_lock = threading.Lock()
         self.heartbeater = None
         self.sessionkey = None
+        self.users_map = {} # To store the list of users and their data
         
     @Override(ConcurrentExperiment.ConcurrentExperiment)
     def do_get_api(self):
