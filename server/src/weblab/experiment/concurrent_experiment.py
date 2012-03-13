@@ -48,7 +48,7 @@ class ConcurrentExperiment(object):
         It might be safer to enforce get_api() overriding, or to at least issue some kind of
         warning if an experiment doesn't.
         """
-        return ExperimentApiLevel.current
+        return ExperimentApiLevel.current + "_concurrent"
 
     def do_send_file_to_device(self, lab_session_id, file_content, file_info):
         """do_send_file_to_device(file_content, file_info)

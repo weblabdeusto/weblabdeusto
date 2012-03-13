@@ -97,6 +97,7 @@ class Heartbeater(threading.Thread):
         self.experiment = experiment
         self.session_key = session_key
         self.heartbeat_period = heartbeat_period
+        self.users_map = {} # To store the list of users and their data
         
         
     def stop(self):
@@ -192,7 +193,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         
     @Override(ConcurrentExperiment.ConcurrentExperiment)
     def do_get_api(self):
-        return "2-concurrent"
+        return "2_concurrent"
         
     def read_config(self):
         """
@@ -232,9 +233,14 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         """
         Callback run when the experiment is started
         """
+        
+        # New user entered the experiment
+        self.users_map[lab_session_id] = {}
+        
         if DEBUG: print "[DBG] Lab Session Id: ", lab_session_id
         if DEBUG: print "[DBG] Measure server address: ", self.measure_server_addr
         if DEBUG: print "[DBG] Measure server target: ", self.measure_server_target
+
         return "Ok"
 
     @Override(ConcurrentExperiment.ConcurrentExperiment)
@@ -418,6 +424,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         """
         Callback to perform cleaning after the experiment ends.
         """
+        
         if DEBUG: print "[DBG] Lab Session Id: ", lab_session_id        
         if(DEBUG):
             print "[VisirTestExperiment] do_dispose called"
@@ -428,6 +435,9 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
             
         if self.heartbeater.is_alive():
             raise Exception("[ERROR/Visir] The heartbeater thread could not be stopped in time")
+        
+        # User leaving the experiment
+        del self.users_map[lab_session_id]
         
         return "Ok"
 
