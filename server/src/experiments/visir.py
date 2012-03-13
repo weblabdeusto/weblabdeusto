@@ -61,6 +61,7 @@ DEFAULT_HEARTBEAT_PERIOD = 30
 DEFAULT_DEBUG_PRINTS = False
 
 HEARTBEAT_REQUEST = """<protocol version="1.3"><request sessionkey="%s"/></protocol>"""
+HEARTBEAT_MAX_SLEEP = 5
 
 
 # Actually defined through the configuration.
@@ -74,20 +75,24 @@ class Heartbeater(threading.Thread):
     """
     
     @typecheck(ANY, basestring, int, basestring)
-    def __init__(self, experiment, lab_session_id, heartbeat_period, session_key):
+    def __init__(self, experiment, heartbeat_period):
         """
         Creates the Heartbeater object. The Heartbeater is a thread which will periodically
         send requests as heartbeats (because actual heartbeat or even login requests do not work).
         
+        There should be a single Heartbeater, which will send the periodical requests to every
+        user that needs so. To do so, it accesses the users map contained within the experiment
+        object.
+        
         The heartbeat may be inhibited through periodical tick() calls.
+        
+        Tick() calls should also be used for the initialization of new users.
         
         For the Heartbeater to start working, it needs to be started through start(). To stop it,
         stop() must be called. It is noteworthy that stop is not immediate. 
         
-        @param experiment Reference to the VisirTestExperiment.
-        @param lab_session_id Identifier of the user this heartbeater works for.
+        @param experiment Reference to the VisirTestExperiment. Will make use of the user map within it.
         @param heartbeat_period Number of seconds between heartbeats.
-        @param session_key Active session keys
         
         @see start
         @see stop
@@ -95,12 +100,10 @@ class Heartbeater(threading.Thread):
         """
         threading.Thread.__init__(self)
         self.is_stopped = False
-        self.last_sent = time.time()
         self.experiment = experiment
-        self.session_key = session_key
         self.heartbeat_period = heartbeat_period
-        self.lab_session_id = lab_session_id
-        
+        self.users_map = experiment.users_map
+         
         
     def stop(self):
         """
@@ -125,13 +128,15 @@ class Heartbeater(threading.Thread):
         return self.is_stopped
     
         
-    def tick(self):
+    def tick(self, lab_session_id):
         """
         tick()
+        @param lab_session_id Session id of the user counter to tick
         Should be called, both internally or externally, whenever a heartbeat or any
-        other packet is sent to reset the heartbeat timer.
+        other packet is sent to reset OR INITIALIZE the heartbeat timer.
         """
-        self.last_sent = time.time()
+        user = self.users_map[lab_session_id]
+        user['last_heartbeat_sent'] = time.time()
         if DEBUG: print "[DBG] HB TICK"
     
     
@@ -143,33 +148,37 @@ class Heartbeater(threading.Thread):
         @see start
         """
         
-        # Initialize the timer. We assume the thread is started just after login.
-        self.last_sent = time.time()
-        
         if DEBUG: print "[DBG] HB INIT"
         
         while(True):
-            # Evaluate the time left for the next potential heartbeat.
-            time_left = (self.last_sent + self.heartbeat_period) - time.time()
             
-            # If time_left is zero or negative, a heartbeat IS due.
-            if(time_left <= 0):
-                if DEBUG: print "[DBG] HB FORWARDING"             
-                ret = self.experiment.forward_request(self.lab_session_id, HEARTBEAT_REQUEST % (self.session_key))
-                if DEBUG_MESSAGES: print "[DBG] Heartbeat response: ", ret
+            # Sleep at most HEARTBEAT_MAX_SLEEP. We will most likely overwrite this
+            # with a lower value, depending on the pending requests.
+            time_to_sleep = HEARTBEAT_MAX_SLEEP 
+            
+            # Loop through every user that is using the experiment concurrently, and consider 
+            # whether we should update it or not.
+            for sid, user in self.users_map.items():
                 
-            else:
-                # Otherwise, we will just sleep. 
-                if DEBUG: print "[DBG] HB SLEEPING FOR %d" % (time_left)
+                # Evaluate the time left for the next potential heartbeat.
+                last_sent = user['last_heartbeat_sent']
+                session_key = user['sessionkey']
+                time_left = (last_sent + self.heartbeat_period) - time.time()
                 
-                # Sleep at most 5 seconds, so that we can gracefully finish this 
-                # thread if externally requested within a reasonable time frame,
-                # no matter what the heartbeat period is set to. Could be fully optimized
-                # with semaphores but not really worth it.
-                time_to_sleep = time_left
-                if time_left > 5:
-                    time_left = 5
-                
+                # If time_left is zero or negative, a heartbeat IS due.
+                if(time_left <= 0):
+                    if DEBUG: print "[DBG] HB FORWARDING"             
+                    ret = self.experiment.forward_request(sid, HEARTBEAT_REQUEST % (session_key))
+                    if DEBUG_MESSAGES: print "[DBG] Heartbeat response: ", ret
+                    
+                else:
+                    # Otherwise, we will just sleep. 
+                    if DEBUG: print "[DBG] HB SLEEPING FOR %d" % (time_left)
+                    
+                    # We wish to sleep the maximum only if there are no pending
+                    # requests (and if it doesn't go over the MAX).
+                    time_to_sleep = min(time_left, time_to_sleep)
+            
                 step_time = 0.1
                 steps = time_to_sleep / step_time
                 while not self.stopped() and steps > 0:
