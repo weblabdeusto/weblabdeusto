@@ -16,7 +16,6 @@
 
 
 # TODO: Add tests related to the concurrency API and maybe the heartbeater.
-# TODO: Make sure everything is thread-safe after the concurrency additions.
 
 import weblab.experiment.concurrent_experiment as ConcurrentExperiment
 
