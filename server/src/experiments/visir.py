@@ -93,6 +93,10 @@ class Heartbeater(threading.Thread):
         For the Heartbeater to start working, it needs to be started through start(). To stop it,
         stop() must be called. It is noteworthy that stop is not immediate. 
         
+        Every heartbeat will be carried out from the same thread, sequentially. Hence, especially
+        with a high number of users, it may theoretically take a long time to send a specific
+        heartbeat.
+        
         @param experiment Reference to the VisirTestExperiment. Will make use of the user map within it.
         @param heartbeat_period Number of seconds between heartbeats.
         
@@ -107,6 +111,7 @@ class Heartbeater(threading.Thread):
         self.experiment = experiment
         self.heartbeat_period = heartbeat_period
         self.sessions = {}
+        self._sessions_lock = threading.Lock()
         
         
     def register_session(self, lab_session_id, sessionkey):
@@ -117,8 +122,9 @@ class Heartbeater(threading.Thread):
         @param visir session key to send requests with. It is actually linked
         to the laboratory session.
         """
-        self.sessions[lab_session_id] = {}
-        self.sessions[lab_session_id]['sessionkey'] = sessionkey
+        with self._sessions_lock:
+            self.sessions[lab_session_id] = {}
+            self.sessions[lab_session_id]['sessionkey'] = sessionkey
         
     def remove_session(self, lab_session_id):
         """
@@ -126,8 +132,9 @@ class Heartbeater(threading.Thread):
         heartbeats. If the session does not exist, this will have no effect.
         @param lab_session_id Laboratory session of the user to remove.
         """
-        if lab_session_id in self.sessions:
-            del self.sessions[lab_session_id]
+        with self._sessions_lock:
+            if lab_session_id in self.sessions:
+                del self.sessions[lab_session_id]
          
         
     def stop(self):
@@ -166,12 +173,15 @@ class Heartbeater(threading.Thread):
         
         # If the session id is not registered within the sessions map, we will simply
         # return without doing anything. This can happen for the initial login request.
-        if lab_session_id not in self.sessions:
-            return
         
-        sessiondata = self.sessions[lab_session_id]
-        sessiondata['last_heartbeat_sent'] = time.time()
-        if DEBUG: print "[DBG] HB TICK"
+        with self._sessions_lock:
+            if lab_session_id not in self.sessions:
+                return
+        
+            sessiondata = self.sessions[lab_session_id]
+            
+            sessiondata['last_heartbeat_sent'] = time.time()
+            if DEBUG: print "[DBG] HB TICK"
     
     
     def run(self):
@@ -192,41 +202,42 @@ class Heartbeater(threading.Thread):
             
             # Loop through every user that is using the experiment concurrently, and consider 
             # whether we should update it or not.
-            for sid, sessiondata in self.sessions.items():
-                
-                # Evaluate the time left for the next potential heartbeat.
-                if 'last_heartbeat_sent' not in sessiondata:
-                    # If we actually don't have a last_heartbeat_sent yet,
-                    # initialize it.
-                    sessiondata['last_heartbeat_sent'] = time.time()
-                last_sent = sessiondata['last_heartbeat_sent']
-                session_key = sessiondata['sessionkey']
-                time_left = (last_sent + self.heartbeat_period) - time.time()
-                
-                # If time_left is zero or negative, a heartbeat IS due.
-                if(time_left <= 0):
-                    if DEBUG: print "[DBG] HB FORWARDING"             
-                    ret = self.experiment.forward_request(sid, HEARTBEAT_REQUEST % (session_key))
-                    if DEBUG_MESSAGES: print "[DBG] Heartbeat response: ", ret
+            with self._sessions_lock:
+                for sid, sessiondata in self.sessions.items():
                     
-                else:
-                    # Otherwise, we will just sleep. 
-                    if DEBUG: print "[DBG] HB SLEEPING FOR %d" % (time_left)
+                    # Evaluate the time left for the next potential heartbeat.
+                    if 'last_heartbeat_sent' not in sessiondata:
+                        # If we actually don't have a last_heartbeat_sent yet,
+                        # initialize it.
+                        sessiondata['last_heartbeat_sent'] = time.time()
+                    last_sent = sessiondata['last_heartbeat_sent']
+                    session_key = sessiondata['sessionkey']
+                    time_left = (last_sent + self.heartbeat_period) - time.time()
                     
-                    # We wish to sleep the maximum only if there are no pending
-                    # requests (and if it doesn't go over the MAX).
-                    time_to_sleep = min(time_left, time_to_sleep)
+                    # If time_left is zero or negative, a heartbeat IS due.
+                    if(time_left <= 0):
+                        if DEBUG: print "[DBG] HB FORWARDING"             
+                        ret = self.experiment.forward_request(sid, HEARTBEAT_REQUEST % (session_key))
+                        if DEBUG_MESSAGES: print "[DBG] Heartbeat response: ", ret
+                        
+                    else:
+                        # Otherwise, we will just sleep. 
+                        if DEBUG: print "[DBG] HB SLEEPING FOR %d" % (time_left)
+                        
+                        # We wish to sleep the maximum only if there are no pending
+                        # requests (and if it doesn't go over the MAX).
+                        time_to_sleep = min(time_left, time_to_sleep)
             
-                # We will actually not sleep the whole time_to_sleep at once, so that
-                # we can check whether the thread has finished more often.
-                # TODO: Consider doing this through semaphores so that we do not need 
-                # this work-around.
-                step_time = 0.1
-                steps = time_to_sleep / step_time
-                while not self.stopped() and steps > 0:
-                    time.sleep(step_time)
-                    steps -= 1
-                if DEBUG: print "[DBG] Not sleeping anymore"
+            # We will actually not sleep the whole time_to_sleep at once, so that
+            # we can check whether the thread has finished more often.
+            # TODO: Consider doing this through semaphores so that we do not need 
+            # this work-around.
+            step_time = 0.1
+            steps = time_to_sleep / step_time
+            while not self.stopped() and steps > 0:
+                time.sleep(step_time)
+                steps -= 1
+            if DEBUG: print "[DBG] Not sleeping anymore"
                 
             if self.stopped():
                 return
