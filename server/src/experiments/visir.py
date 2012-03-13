@@ -14,7 +14,7 @@
 #         Pablo Orduña <pablo@ordunya.com>
 # 
 
-import weblab.experiment.experiment as Experiment
+import weblab.experiment.concurrent_experiment as ConcurrentExperiment
 
 import httplib
 import urllib2
@@ -180,7 +180,7 @@ class Heartbeater(threading.Thread):
 DEBUG_MESSAGES = DEBUG and False
 
 
-class VisirTestExperiment(Experiment.Experiment):
+class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
     
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(VisirTestExperiment, self).__init__(*args, **kwargs)
@@ -190,9 +190,9 @@ class VisirTestExperiment(Experiment.Experiment):
         self.heartbeater = None
         self.sessionkey = None
         
-    @Override(Experiment.Experiment)
+    @Override(ConcurrentExperiment.ConcurrentExperiment)
     def do_get_api(self):
-        return "1"
+        return "2-concurrent"
         
     def read_config(self):
         """
@@ -227,21 +227,24 @@ class VisirTestExperiment(Experiment.Experiment):
             self.login_password = self._cfg_manager.get_value(CFG_LOGIN_PASSWORD, DEFAULT_LOGIN_PASSWORD)
             
 
-    @Override(Experiment.Experiment)
-    def do_start_experiment(self, *args, **kwargs):
+    @Override(ConcurrentExperiment.ConcurrentExperiment)
+    def do_start_experiment(self, lab_session_id, *args, **kwargs):
         """
         Callback run when the experiment is started
         """
+        if DEBUG: print "[DBG] Lab Session Id: ", lab_session_id
         if DEBUG: print "[DBG] Measure server address: ", self.measure_server_addr
         if DEBUG: print "[DBG] Measure server target: ", self.measure_server_target
         return "Ok"
 
-    @Override(Experiment.Experiment)
-    def do_send_command_to_device(self, command):
+    @Override(ConcurrentExperiment.ConcurrentExperiment)
+    def do_send_command_to_device(self, lab_session_id, command):
         """
         Callback run when the client sends a command to the experiment
         @param command Command sent by the client, as a string.
         """
+        
+        if DEBUG: print "[DBG] Lab Session Id: ", lab_session_id
         
         # Check whether it's a GIVEMECOOKIE command, which will carry out
         # a login to obtain the cookie the client should use
@@ -397,23 +400,25 @@ class VisirTestExperiment(Experiment.Experiment):
         return None
     
 
-    @Override(Experiment.Experiment)
-    def do_send_file_to_device(self, content, file_info):
+    @Override(ConcurrentExperiment.ConcurrentExperiment)
+    def do_send_file_to_device(self, lab_session_id, content, file_info):
         """ 
         Callback for when the client sends a file to the experiment
         server. Currently unused for this experiment, should never get 
         called.
         """
+        if DEBUG: print "[DBG] Lab Session Id: ", lab_session_id
         if(DEBUG):
             print "[VisirTestExperiment] do_send_file_to_device called"
         return "Ok"
+ 
 
-
-    @Override(Experiment.Experiment)
-    def do_dispose(self):
+    @Override(ConcurrentExperiment.ConcurrentExperiment)
+    def do_dispose(self, lab_session_id):
         """
         Callback to perform cleaning after the experiment ends.
         """
+        if DEBUG: print "[DBG] Lab Session Id: ", lab_session_id        
         if(DEBUG):
             print "[VisirTestExperiment] do_dispose called"
         

@@ -228,7 +228,7 @@ class LaboratoryServer(object):
             })
         
         # Obtain the API of the experiment.
-        api = self._find_api(self, experiment_instance_id, experiment_coord_address)
+        api = self._find_api(experiment_instance_id, experiment_coord_address)
 
         experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
 
