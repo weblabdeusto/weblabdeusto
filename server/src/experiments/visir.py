@@ -105,18 +105,21 @@ class Heartbeater(threading.Thread):
         self.sessions = {}
         
         
-    def register_session(self, lab_session_id):
+    def register_session(self, lab_session_id, sessionkey):
         """
         Register the specified session. The session will start receiving
         heartbeats.
         @param lab_session_id Laboratory session id of the user to register.
+        @param visir session key to send requests with. It is actually linked
+        to the laboratory session.
         """
-        self.sessions[lab_session_id]
+        self.sessions[lab_session_id] = {}
+        self.sessions[lab_session_id]['sessionkey'] = sessionkey
         
     def remove_session(self, lab_session_id):
         """
         Remove the specified session. The session will no longer receive
-        heartbeats.
+        heartbeats. If the session does not exist, this will have no effect.
         @param lab_session_id Laboratory session of the user to remove.
         """
         if lab_session_id in self.sessions:
@@ -149,12 +152,18 @@ class Heartbeater(threading.Thread):
     def tick(self, lab_session_id):
         """
         tick()
+        Ticks to update the time for a given session. If the session has not been registered
+        the tick operation does nothing.
+        
         @param lab_session_id Session id of the user counter to tick
         Should be called, both internally or externally, whenever a heartbeat or any
         other packet is sent to reset OR INITIALIZE the heartbeat timer.
         """
+        
+        # If the session id is not registered within the sessions map, we will simply
+        # return without doing anything. This can happen for the initial login request.
         if lab_session_id not in self.sessions:
-            raise Exception("ERROR: Heartbeater: Cannot tick: Specified session is not registered.")
+            return
         
         sessiondata = self.sessions[lab_session_id]
         sessiondata['last_heartbeat_sent'] = time.time()
@@ -182,6 +191,10 @@ class Heartbeater(threading.Thread):
             for sid, sessiondata in self.sessions.items():
                 
                 # Evaluate the time left for the next potential heartbeat.
+                if 'last_heartbeat_sent' not in sessiondata:
+                    # If we actually don't have a last_heartbeat_sent yet,
+                    # initialize it.
+                    sessiondata['last_heartbeat_sent'] = time.time()
                 last_sent = sessiondata['last_heartbeat_sent']
                 session_key = sessiondata['sessionkey']
                 time_left = (last_sent + self.heartbeat_period) - time.time()
@@ -332,7 +345,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
             
             # Register the new logged in user with the heartbeater, so that its session 
             # starts receiving updates.
-            self.heartbeater.register_session(lab_session_id)
+            self.heartbeater.register_session(lab_session_id, user['sessionkey'])
             if DEBUG: print "[DBG] Registered with the heartbeater the lab session ", lab_session_id 
             
         return data
