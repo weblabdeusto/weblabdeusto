@@ -238,13 +238,8 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         self.read_config()
         self._requesting_lock = threading.Lock()
         
-        # There will be a single heartbeater and a single thread, which will update
-        # every concurrent user using this experiment.
-        self.heartbeater = Heartbeater(self, self.heartbeat_period)
-        
-        # We start the heartbeater thread straightaway. The thread will actually do nothing
-        # until there are sessions logged in which are awaiting heartbeats.
-        self.heartbeater.start()
+        # We will initialize and start it later
+        self.heartbeater = None
         
         self.users_map = {} # To store the list of users and their data
         
@@ -294,6 +289,13 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         
         # New user entered the experiment
         self.users_map[lab_session_id] = {}
+        
+        
+        # Consider whether we should initialize the heartbeater now. If we are the first
+        # user, the heartbeater will not have started yet.        
+        if self.heartbeater is None:
+            self.heartbeater = Heartbeater(self, self.heartbeat_period)
+            self.heartbeater.start()
         
         if DEBUG: print "[DBG] Current number of users: ", len(self.users_map)
         if DEBUG: print "[DBG] Lab Session Id: ", lab_session_id
@@ -498,18 +500,28 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         if(DEBUG):
             print "[VisirTestExperiment] do_dispose called"
             
-        
-        # TODO: For now, we will never stop the heartbeater thread. Eventually,
-        # we maight wanna consider stoping it when there are 0 users, though in that
-        # case it would probably have to be re-created before being started again.
-        #user['heartbeater'].stop()
-            
-        #if user['heartbeater'].is_alive():
-        #    raise Exception("[ERROR/Visir] The heartbeater thread could not be stopped in time")
-        
+
         # User leaving the experiment. Remove it from the heartbeater, and remove it
         # from the internal users map.
         self.heartbeater.remove_session(lab_session_id)
+        
+        # Remove the user/session from the internal list.
+        del self.users_map[lab_session_id]
+        
+        # If there are no more users, we will stop the heartbeater.
+        if len(self.users_map) == 0:
+            
+            if DEBUG: print "[DBG] No users left. Stopping heartbeater thread."
+            
+            heartbeater = self.heartbeater
+            self.heartbeater = None
+            heartbeater.stop()
+            heartbeater.join(60)
+            
+            if heartbeater.is_alive():
+                raise Exception("[ERROR/Visir] The heartbeater thread could not be stopped in time")
+                
+            if DEBUG: print "[DBG] Heartbeater thread successfully stopped."
         
         if DEBUG: print "[DBG] Finished successfully: ", lab_session_id 
         
