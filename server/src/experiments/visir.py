@@ -72,8 +72,8 @@ class Heartbeater(threading.Thread):
     request if no other requests have been sent recently.
     """
     
-    @typecheck(ANY, int, basestring)
-    def __init__(self, experiment, heartbeat_period, session_key):
+    @typecheck(ANY, basestring, int, basestring)
+    def __init__(self, experiment, lab_session_id, heartbeat_period, session_key):
         """
         Creates the Heartbeater object. The Heartbeater is a thread which will periodically
         send requests as heartbeats (because actual heartbeat or even login requests do not work).
@@ -84,6 +84,7 @@ class Heartbeater(threading.Thread):
         stop() must be called. It is noteworthy that stop is not immediate. 
         
         @param experiment Reference to the VisirTestExperiment.
+        @param lab_session_id Identifier of the user this heartbeater works for.
         @param heartbeat_period Number of seconds between heartbeats.
         @param session_key Active session keys
         
@@ -97,6 +98,7 @@ class Heartbeater(threading.Thread):
         self.experiment = experiment
         self.session_key = session_key
         self.heartbeat_period = heartbeat_period
+        self.lab_session_id = lab_session_id
         
         
     def stop(self):
@@ -152,7 +154,7 @@ class Heartbeater(threading.Thread):
             # If time_left is zero or negative, a heartbeat IS due.
             if(time_left <= 0):
                 if DEBUG: print "[DBG] HB FORWARDING"             
-                ret = self.experiment.forward_request(HEARTBEAT_REQUEST % (self.session_key))
+                ret = self.experiment.forward_request(self.lab_session_id, HEARTBEAT_REQUEST % (self.session_key))
                 if DEBUG: print "[DBG] Heartbeat response: ", ret
                 
             else:
@@ -187,9 +189,13 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         self._cfg_manager = cfg_manager
         self.read_config()
         self._requesting_lock = threading.Lock()
-        self.heartbeater = None
-        self.sessionkey = None
+        
+        # On a first iteration for the concurrency impl, we will have one heartbeater per user.
+        #self.heartbeater = None
+        
         self.users_map = {} # To store the list of users and their data
+        # Info that will be stored for each user:
+        #   sessionkey
         
     @Override(ConcurrentExperiment.ConcurrentExperiment)
     def do_get_api(self):
@@ -266,21 +272,25 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         
         # Otherwise, it's a VISIR XML command, and should just be forwarded
         # to the VISIR measurement server
-        data = self.forward_request(command) 
+        data = self.forward_request(lab_session_id, command) 
         
         # Find out the request type
         request_type = self.parse_request_type(command)
         
         if DEBUG: print "[DBG] REQUEST TYPE: " + request_type
         
+        
+        user = self.users_map[lab_session_id]
+        
         # If it was a login request, we will extract the session key from the response.
         if request_type == "login":
-            self.sessionkey = self.extract_sessionkey(data)
-            if DEBUG: print "[DBG] Extracted sessionkey: " + self.sessionkey
-            if self.heartbeater is not None:
-                self.heartbeater.stop()
-            self.heartbeater = Heartbeater(self, self.heartbeat_period, self.sessionkey)
-            self.heartbeater.start()
+            # Store the session for the user
+            user['sessionkey'] = self.extract_sessionkey(data)
+            if DEBUG: print "[DBG] Extracted sessionkey: " + user['sessionkey']
+            if 'heartbeater' in user:
+                user['heartbeater'].stop()
+            user['heartbeater'] = Heartbeater(self, lab_session_id, self.heartbeat_period, user['sessionkey'])
+            user['heartbeater'].start()
             if DEBUG: print "[DBG] Started the heartbeater with the specified session key" 
             
         return data
@@ -332,7 +342,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
     
  
     @locked('_requesting_lock')
-    def forward_request(self, request):
+    def forward_request(self, lab_session_id, request):
         """
         Forwards a request to the VISIR Measurement Server through an
         HTTP POST.
@@ -340,6 +350,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         """
         if DEBUG_MESSAGES:
             print "[VisirTestExperiment] Forwarding request: ", request
+
             
         conn = httplib.HTTPConnection(self.measure_server_addr)
         conn.request("POST", self.measure_server_target, request)
@@ -348,9 +359,12 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         response.close()
         conn.close()
         
+                    
+        user = self.users_map[lab_session_id]
+        
         # We just sent a request. Tick the heartbeater.
-        if self.heartbeater is not None:
-            self.heartbeater.tick()
+        if 'heartbeater' in user:
+            user['heartbeater'].tick()
         
         if(DEBUG):
             print "[VisirTestExperiment] Received response: ", data
@@ -428,12 +442,14 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         if DEBUG: print "[DBG] Lab Session Id: ", lab_session_id        
         if(DEBUG):
             print "[VisirTestExperiment] do_dispose called"
-        
-        if self.heartbeater is not None:
-            self.heartbeater.stop()
-            self.heartbeater.join(60)
             
-        if self.heartbeater.is_alive():
+        user = self.users_map[lab_session_id]
+        
+        if 'heartbeater' in self.users_map:
+            user['heartbeater'].stop()
+            user['heartbeater'].join(60)
+            
+        if user['heartbeater'].is_alive():
             raise Exception("[ERROR/Visir] The heartbeater thread could not be stopped in time")
         
         # User leaving the experiment
