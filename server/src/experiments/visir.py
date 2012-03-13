@@ -25,6 +25,7 @@ import xml.dom.minidom as xml
 
 import json
 
+from voodoo.log import logged
 from voodoo.override import Override
 from voodoo.lock import locked
 
@@ -155,7 +156,7 @@ class Heartbeater(threading.Thread):
             if(time_left <= 0):
                 if DEBUG: print "[DBG] HB FORWARDING"             
                 ret = self.experiment.forward_request(self.lab_session_id, HEARTBEAT_REQUEST % (self.session_key))
-                if DEBUG: print "[DBG] Heartbeat response: ", ret
+                if DEBUG_MESSAGES: print "[DBG] Heartbeat response: ", ret
                 
             else:
                 # Otherwise, we will just sleep. 
@@ -235,6 +236,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
             
 
     @Override(ConcurrentExperiment.ConcurrentExperiment)
+    @logged()
     def do_start_experiment(self, lab_session_id, *args, **kwargs):
         """
         Callback run when the experiment is started
@@ -243,6 +245,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         # New user entered the experiment
         self.users_map[lab_session_id] = {}
         
+        if DEBUG: print "[DBG] Current number of users: ", len(self.users_map)
         if DEBUG: print "[DBG] Lab Session Id: ", lab_session_id
         if DEBUG: print "[DBG] Measure server address: ", self.measure_server_addr
         if DEBUG: print "[DBG] Measure server target: ", self.measure_server_target
@@ -366,7 +369,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         if 'heartbeater' in user:
             user['heartbeater'].tick()
         
-        if(DEBUG):
+        if DEBUG_MESSAGES:
             print "[VisirTestExperiment] Received response: ", data
             
         return data
@@ -421,6 +424,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
     
 
     @Override(ConcurrentExperiment.ConcurrentExperiment)
+    @logged()
     def do_send_file_to_device(self, lab_session_id, content, file_info):
         """ 
         Callback for when the client sends a file to the experiment
@@ -434,6 +438,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
  
 
     @Override(ConcurrentExperiment.ConcurrentExperiment)
+    @logged()
     def do_dispose(self, lab_session_id):
         """
         Callback to perform cleaning after the experiment ends.
@@ -445,7 +450,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
             
         user = self.users_map[lab_session_id]
         
-        if 'heartbeater' in self.users_map:
+        if 'heartbeater' in user:
             user['heartbeater'].stop()
             user['heartbeater'].join(60)
             
@@ -454,6 +459,8 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         
         # User leaving the experiment
         del self.users_map[lab_session_id]
+        
+        if DEBUG: print "[DBG] Finished successfully: ", lab_session_id 
         
         return "Ok"
 
