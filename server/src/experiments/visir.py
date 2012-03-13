@@ -81,13 +81,11 @@ class Heartbeater(threading.Thread):
         send requests as heartbeats (because actual heartbeat or even login requests do not work).
         
         There should be a single Heartbeater, which will send the periodical requests to every
-        user that needs so. To do so, it accesses the users map contained within the experiment
-        object.
+        user that needs so. New sessions to handle should be registered through register_session and removed through
+        remove_session.
         
         The heartbeat may be inhibited through periodical tick() calls.
-        
-        Tick() calls should also be used for the initialization of new users.
-        
+    
         For the Heartbeater to start working, it needs to be started through start(). To stop it,
         stop() must be called. It is noteworthy that stop is not immediate. 
         
@@ -97,12 +95,32 @@ class Heartbeater(threading.Thread):
         @see start
         @see stop
         @see tick
+        @see register_session
+        @see remove_session
         """
         threading.Thread.__init__(self)
         self.is_stopped = False
         self.experiment = experiment
         self.heartbeat_period = heartbeat_period
-        self.users_map = experiment.users_map
+        self.sessions = {}
+        
+        
+    def register_session(self, lab_session_id):
+        """
+        Register the specified session. The session will start receiving
+        heartbeats.
+        @param lab_session_id Laboratory session id of the user to register.
+        """
+        self.sessions[lab_session_id]
+        
+    def remove_session(self, lab_session_id):
+        """
+        Remove the specified session. The session will no longer receive
+        heartbeats.
+        @param lab_session_id Laboratory session of the user to remove.
+        """
+        if lab_session_id in self.sessions:
+            del self.sessions[lab_session_id]
          
         
     def stop(self):
@@ -135,8 +153,11 @@ class Heartbeater(threading.Thread):
         Should be called, both internally or externally, whenever a heartbeat or any
         other packet is sent to reset OR INITIALIZE the heartbeat timer.
         """
-        user = self.users_map[lab_session_id]
-        user['last_heartbeat_sent'] = time.time()
+        if lab_session_id not in self.sessions:
+            raise Exception("ERROR: Heartbeater: Cannot tick: Specified session is not registered.")
+        
+        sessiondata = self.sessions[lab_session_id]
+        sessiondata['last_heartbeat_sent'] = time.time()
         if DEBUG: print "[DBG] HB TICK"
     
     
@@ -158,11 +179,11 @@ class Heartbeater(threading.Thread):
             
             # Loop through every user that is using the experiment concurrently, and consider 
             # whether we should update it or not.
-            for sid, user in self.users_map.items():
+            for sid, sessiondata in self.sessions.items():
                 
                 # Evaluate the time left for the next potential heartbeat.
-                last_sent = user['last_heartbeat_sent']
-                session_key = user['sessionkey']
+                last_sent = sessiondata['last_heartbeat_sent']
+                session_key = sessiondata['sessionkey']
                 time_left = (last_sent + self.heartbeat_period) - time.time()
                 
                 # If time_left is zero or negative, a heartbeat IS due.
@@ -179,6 +200,10 @@ class Heartbeater(threading.Thread):
                     # requests (and if it doesn't go over the MAX).
                     time_to_sleep = min(time_left, time_to_sleep)
             
+                # We will actually not sleep the whole time_to_sleep at once, so that
+                # we can check whether the thread has finished more often.
+                # TODO: Consider doing this through semaphores so that we do not need 
+                # this work-around.
                 step_time = 0.1
                 steps = time_to_sleep / step_time
                 while not self.stopped() and steps > 0:
@@ -200,12 +225,15 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         self.read_config()
         self._requesting_lock = threading.Lock()
         
-        # On a first iteration for the concurrency impl, we will have one heartbeater per user.
-        #self.heartbeater = None
+        # There will be a single heartbeater and a single thread, which will update
+        # every concurrent user using this experiment.
+        self.heartbeater = Heartbeater(self, self.heartbeat_period)
+        
+        # We start the heartbeater thread straightaway. The thread will actually do nothing
+        # until there are sessions logged in which are awaiting heartbeats.
+        self.heartbeater.start()
         
         self.users_map = {} # To store the list of users and their data
-        # Info that will be stored for each user:
-        #   sessionkey
         
     @Override(ConcurrentExperiment.ConcurrentExperiment)
     def do_get_api(self):
@@ -295,17 +323,20 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         user = self.users_map[lab_session_id]
         
         # If it was a login request, we will extract the session key from the response.
+        # Once the session is in a logged in state, it will need to start receiving
+        # heartbeats.
         if request_type == "login":
             # Store the session for the user
             user['sessionkey'] = self.extract_sessionkey(data)
             if DEBUG: print "[DBG] Extracted sessionkey: " + user['sessionkey']
-            if 'heartbeater' in user:
-                user['heartbeater'].stop()
-            user['heartbeater'] = Heartbeater(self, lab_session_id, self.heartbeat_period, user['sessionkey'])
-            user['heartbeater'].start()
-            if DEBUG: print "[DBG] Started the heartbeater with the specified session key" 
+            
+            # Register the new logged in user with the heartbeater, so that its session 
+            # starts receiving updates.
+            self.heartbeater.register_session(lab_session_id)
+            if DEBUG: print "[DBG] Registered with the heartbeater the lab session ", lab_session_id 
             
         return data
+
 
     def extract_sessionkey(self, command):
         """
@@ -372,11 +403,8 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         conn.close()
         
                     
-        user = self.users_map[lab_session_id]
-        
         # We just sent a request. Tick the heartbeater.
-        if 'heartbeater' in user:
-            user['heartbeater'].tick()
+        self.heartbeater.tick(lab_session_id)
         
         if DEBUG_MESSAGES:
             print "[VisirTestExperiment] Received response: ", data
@@ -457,17 +485,18 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         if(DEBUG):
             print "[VisirTestExperiment] do_dispose called"
             
-        user = self.users_map[lab_session_id]
         
-        if 'heartbeater' in user:
-            user['heartbeater'].stop()
-            user['heartbeater'].join(60)
+        # TODO: For now, we will never stop the heartbeater thread. Eventually,
+        # we maight wanna consider stoping it when there are 0 users, though in that
+        # case it would probably have to be re-created before being started again.
+        #user['heartbeater'].stop()
             
-        if user['heartbeater'].is_alive():
-            raise Exception("[ERROR/Visir] The heartbeater thread could not be stopped in time")
+        #if user['heartbeater'].is_alive():
+        #    raise Exception("[ERROR/Visir] The heartbeater thread could not be stopped in time")
         
-        # User leaving the experiment
-        del self.users_map[lab_session_id]
+        # User leaving the experiment. Remove it from the heartbeater, and remove it
+        # from the internal users map.
+        self.heartbeater.remove_session(lab_session_id)
         
         if DEBUG: print "[DBG] Finished successfully: ", lab_session_id 
         
