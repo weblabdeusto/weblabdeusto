@@ -146,19 +146,91 @@ _sorted_variables.extend([
     (WEBLAB_CORE_SERVER_SESSION_POOL_ID, _Argument(CORE, str, 'UserProcessingServer', """ A unique identifier of the type of sessions, in order to manage them. For instance, if there are four servers (A, B, C and D), the load of users can be splitted in two groups: those being sent to A and B, and those being sent to C and D. A and B can share those sessions to provide fault tolerance (if A falls down, B can keep working from the same point A was) using a MySQL session manager, and the same may apply to C and D. The problem is that if A and B want to delete all the sessions -at the beginning, for example-, but they don't want to delete sessions of C and D, then they need a unique identifier shared for A and B, and another for C and D. In this case, "!UserProcessing_A_B" and "!UserProcessing_C_D" would be enough.""")),
 ])
 
+# 
+# Core Facade
+# 
+
+CORE_FACADE = (CORE_SERVER, 'Facade')
+
+CORE_FACADE_SERVER_ROUTE            = 'core_facade_server_route'
+CORE_FACADE_SOAP_BIND               = 'core_facade_soap_bind'
+CORE_FACADE_SOAP_PORT               = 'core_facade_soap_port'
+CORE_FACADE_SOAP_SERVICE_NAME       = 'core_facade_soap_service_name'
+CORE_FACADE_SOAP_PUBLIC_SERVER_HOST = 'core_facade_soap_public_server_host'
+CORE_FACADE_SOAP_PUBLIC_SERVER_PORT = 'core_facade_soap_public_server_port'
+CORE_FACADE_JSON_BIND               = 'core_facade_json_bind'
+CORE_FACADE_JSON_PORT               = 'core_facade_json_port'
+CORE_FACADE_XMLRPC_BIND             = 'core_facade_xmlrpc_bind'
+CORE_FACADE_XMLRPC_PORT             = 'core_facade_xmlrpc_port'
+
+_sorted_variables.extend([
+    (CORE_FACADE_SERVER_ROUTE,            _Argument(CORE_FACADE, str, 'default-route-to-server', """Identifier of the server or groups of servers that will receive requests, for load balancing purposes.""")),
+    (CORE_FACADE_SOAP_BIND,               _Argument(CORE_FACADE, str, '',                        """Binding address for the SOAP facade at Core Server""")),
+    (CORE_FACADE_SOAP_PORT,               _Argument(CORE_FACADE, int, NO_DEFAULT,                """Port number for the SOAP facade at Core Server""")),
+    (CORE_FACADE_SOAP_SERVICE_NAME,       _Argument(CORE_FACADE, str, '/weblab/soap/',           """Service name for the SOAP facade at Core Server""")),
+    (CORE_FACADE_SOAP_PUBLIC_SERVER_HOST, _Argument(CORE_FACADE, str, 'www.weblab.deusto.es',    """Public server host, used for generating the WSDL file.""")),
+    (CORE_FACADE_SOAP_PUBLIC_SERVER_PORT, _Argument(CORE_FACADE, int, 80,                        """Public server port, used for generating the WSDL file.""")),
+    (CORE_FACADE_JSON_BIND,               _Argument(CORE_FACADE, str, '',                        """Binding address for the JSON facade at Core Server""")),
+    (CORE_FACADE_JSON_PORT,               _Argument(CORE_FACADE, int, NO_DEFAULT,                """Binding address for the JSON facade at Core Server""")),
+    (CORE_FACADE_XMLRPC_BIND,             _Argument(CORE_FACADE, str, '',                        """Binding address for the XML-RPC facade at Core Server""")),
+    (CORE_FACADE_XMLRPC_PORT,             _Argument(CORE_FACADE, int, NO_DEFAULT,                """Port number for the XML-RPC facade at Core Server""")),
+])
+
+# Coordinator
+# || *Property* || *Type* || *Default value* || *Description* || 
+# || core_coordinator_db_host || str || "localhost" || Host of the database server. || 
+# || core_coordinator_db_name || str || "!WebLabCoordination" || Name of the coordination database. || 
+# || core_coordinator_db_username || str ||  || Username to access the coordination database. || 
+# || core_coordinator_db_password || str ||  || Password to access the coordination database. || 
+# || core_coordinator_db_engine || str || "mysql" || Driver used for the coordination database. We currently have only tested MySQL, although it should be possible to use other engines. || 
+# || core_coordinator_laboratory_servers || list ||  || Available laboratory servers. It's a list of strings, having each string this format: "laboratory1:main_instance@main_machine;exp1|ud-fpga|FPGA experiments", for the "laboratory1" in the instance "main_instance" at the machine "main_machine", which will handle the experiment instance "exp1" of the experiment type "ud-fpga" of the category "FPGA experiments". A laboratory can handle many experiments, and each experiment type may have many experiment instances with unique identifiers (such as "exp1" of "ud-fpga|FPGA experiments"). || 
+# || core_coordinator_clean || bool || True || Whether this server will clean the coordinator tables or not. If there are two core servers, and one of them is turned off, you don't want that it deletes everything on the database when that server is turned on, because all the sessions handled by the other core server will be lost. || 
+
+
+
+# === Login Server ===
+# 
 # ==== Facade ====
 # || *Property* || *Type* || *Default value* || *Description* || 
-# || core_facade_server_route || str || "`<route-to-server>`" || Identifier of the server or groups of servers that will receive requests, for load balancing purposes. || 
-# || core_facade_soap_bind || str || "" || Binding address for the SOAP facade at Core Server || 
-# || core_facade_soap_port || int ||  || Port number for the SOAP facade at Core Server || 
-# || core_facade_soap_service_name || str || "/!WebLab/soap/" || Service name for the SOAP facade at Core Server || 
-# || core_facade_soap_public_server_host || str || "www.weblab.deusto.es" || Public server host, used for generating the WSDL file. || 
-# || core_facade_soap_public_server_port || int || 80 || Public server port, used for generating the WSDL file. || 
-# || core_facade_json_bind || str || "" || Binding address for the JSON facade at Core Server || 
-# || core_facade_json_port || int ||  || Port number for the JSON facade at Core Server || 
-# || core_facade_xmlrpc_bind || str || "" || Binding address for the XML-RPC facade at Core Server || 
-# || core_facade_xmlrpc_port || int ||  || Port number for the XML-RPC facade at Core Server || 
-
+# || login_facade_trusted_addresses || tuple || ('127.0.0.1',) || The IP addresses on which the Login server will trust. Moodle can access !WebLab from a well known IP address, and if Moodle says "I'm user foo", and in !WebLab-Deusto, the user "foo" can be accessed from the IP address of that moodle, then Moodle will be able to log in as this user without any password. || 
+# || login_facade_soap_bind || str || "" || Binding address for the SOAP facade at Login Server || 
+# || login_facade_soap_port || int ||  || Port number for the SOAP facade at Login Server || 
+# || login_facade_soap_service_name || str || "/!WebLab/login/soap/" || Service name for the SOAP facade at Login Server || 
+# || login_facade_soap_public_server_host || str || "www.weblab.deusto.es" || Public server host, used for generating the WSDL file. || 
+# || login_facade_soap_public_server_port || int || 80 || Public server port, used for generating the WSDL file. || 
+# || login_facade_json_bind || str || "" || Binding address for the JSON facade at Login Server || 
+# || login_facade_json_port || int ||  || Port number for the JSON facade at Login Server || 
+# || login_facade_xmlrpc_bind || str || "" || Binding address for the XML-RPC facade at Login Server || 
+# || login_facade_xmlrpc_port || int ||  || Port number for the XML-RPC facade at Login Server || 
+# 
+# 
+# === Proxy Server ===
+# || *Property* || *Type* || *Default value* || *Description* || 
+# || proxy_experiment_poll_time || int || 30 || Maximum amount of time that the server will wait for polls from a user using an experiment, in seconds, before considering that the user is not connected anymore. || 
+# || proxy_store_students_programs_path || str ||  || Local path to store the files sent by the students with send_file() (only when the proper Translator decides to store the program). || 
+# 
+# 
+# === Laboratory Server ===
+# || *Property* || *Type* || *Default value* || *Description* || 
+# || laboratory_session_type || str || "Memory" || What type of session manager the Core Server will use: Memory or MySQL. || 
+# || laboratory_session_pool_id || str || "!LaboratoryServer" || See "core_session_pool_id" in the core server. || 
+# || laboratory_assigned_experiments || list ||  || List of strings representing which experiments are available through this particular laboratory server. Each string contains something like 'exp1|ud-fpga|FPGA experiments;experiment_fpga:main_instance@main_machine', where exp1|ud-fpga|FPGA experiments is the identifier of the experiment (see core_coordinator_laboratory_servers), and "experiment_fpga:main_instance@main_machine" is the !WebLab Address of the experiment server. || 
+# || laboratory_exclude_checking || list || [] || List of ids of experiments upon which checks will not be run || 
+# 
+# === Experiment Server ===
+# 
+# Apart from the general properties, every Experiment Developer can add as many properties as desired in order to make the experiment parametrizable. For instance, the GPIB *experiment* developed at the University of Deusto has its own properties:
+# 
+# || *Property* || *Type* || *Default value* || *Description* || 
+# || gpib_just_testing || bool || False || Only testing the server or not. || 
+# || gpib_public_output_file_filename || str ||  || The expected file name that the server will check after the experiment was executed. || 
+# 
+# Since Experiment Developers can develop both experiments and reutilizable devices, both components can manage their own properties. Following the same example, the GPIB experiment makes use of a generic GPIB *device* cappable of managing the particularities of a generic GPIB connection. And this device has the following properties:
+# 
+# || *Property* || *Type* || *Default value* || *Description* || 
+# || gpib_compiler_command || str ||  || A list as ['bcc32','-c','$CPP_FILE'], so as to compile with the Borland C Compiler || 
+# || gpib_linker_command || str ||  || A list as ["ilink32","-Tpe","-c","$OBJ_FILE","c0x32,", "$EXE_FILE,",",","visa32","import32","cw32"] for linking the compiled object || 
+# 
 
 #####################################
 # 
