@@ -8,6 +8,11 @@ _Argument = namedtuple('Argument', 'category type default message')
 _sorted_variables = []
 
 
+# 
+# Regexp magic :-)
+# :'<,'>s/|| \([a-z_]*\) || \([a-z]*\) || \(.*\) || \(.*\) ||/    (\U\1\E,      _Argument(COORDINATOR, \2, \3, """\4""")),/
+# 
+
 ######################################
 # 
 # COMMON
@@ -176,61 +181,109 @@ _sorted_variables.extend([
     (CORE_FACADE_XMLRPC_PORT,             _Argument(CORE_FACADE, int, NO_DEFAULT,                """Port number for the XML-RPC facade at Core Server""")),
 ])
 
+# 
 # Coordinator
-# || *Property* || *Type* || *Default value* || *Description* || 
-# || core_coordinator_db_host || str || "localhost" || Host of the database server. || 
-# || core_coordinator_db_name || str || "!WebLabCoordination" || Name of the coordination database. || 
-# || core_coordinator_db_username || str ||  || Username to access the coordination database. || 
-# || core_coordinator_db_password || str ||  || Password to access the coordination database. || 
-# || core_coordinator_db_engine || str || "mysql" || Driver used for the coordination database. We currently have only tested MySQL, although it should be possible to use other engines. || 
-# || core_coordinator_laboratory_servers || list ||  || Available laboratory servers. It's a list of strings, having each string this format: "laboratory1:main_instance@main_machine;exp1|ud-fpga|FPGA experiments", for the "laboratory1" in the instance "main_instance" at the machine "main_machine", which will handle the experiment instance "exp1" of the experiment type "ud-fpga" of the category "FPGA experiments". A laboratory can handle many experiments, and each experiment type may have many experiment instances with unique identifiers (such as "exp1" of "ud-fpga|FPGA experiments"). || 
-# || core_coordinator_clean || bool || True || Whether this server will clean the coordinator tables or not. If there are two core servers, and one of them is turned off, you don't want that it deletes everything on the database when that server is turned on, because all the sessions handled by the other core server will be lost. || 
+# 
+
+COORDINATOR = (CORE_SERVER, 'Coordinator')
+
+CORE_COORDINATOR_DB_HOST            = 'core_coordinator_db_host'
+CORE_COORDINATOR_DB_NAME            = 'core_coordinator_db_name'
+CORE_COORDINATOR_DB_USERNAME        = 'core_coordinator_db_username'
+CORE_COORDINATOR_DB_PASSWORD        = 'core_coordinator_db_password'
+CORE_COORDINATOR_DB_ENGINE          = 'core_coordinator_db_engine'
+CORE_COORDINATOR_LABORATORY_SERVERS = 'core_coordinator_laboratory_servers'
+CORE_COORDINATOR_CLEAN              = 'core_coordinator_clean'
+
+_sorted_variables.extend([
+    (CORE_COORDINATOR_DB_HOST,            _Argument(COORDINATOR, str, "localhost", """Host of the database server.""")), 
+    (CORE_COORDINATOR_DB_NAME,            _Argument(COORDINATOR, str, "!WebLabCoordination", """Name of the coordination database.""")), 
+    (CORE_COORDINATOR_DB_USERNAME,        _Argument(COORDINATOR, str, NO_DEFAULT, """Username to access the coordination database.""")), 
+    (CORE_COORDINATOR_DB_PASSWORD,        _Argument(COORDINATOR, str, NO_DEFAULT, """Password to access the coordination database.""")), 
+    (CORE_COORDINATOR_DB_ENGINE,          _Argument(COORDINATOR, str, "mysql", """Driver used for the coordination database. We currently have only tested MySQL, although it should be possible to use other engines.""")), 
+    (CORE_COORDINATOR_LABORATORY_SERVERS, _Argument(COORDINATOR, list, NO_DEFAULT, """Available laboratory servers. It's a list of strings, having each string this format: "laboratory1:main_instance@main_machine;exp1|ud-fpga|FPGA experiments", for the "laboratory1" in the instance "main_instance" at the machine "main_machine", which will handle the experiment instance "exp1" of the experiment type "ud-fpga" of the category "FPGA experiments". A laboratory can handle many experiments, and each experiment type may have many experiment instances with unique identifiers (such as "exp1" of "ud-fpga|FPGA experiments").""")), 
+    (CORE_COORDINATOR_CLEAN,              _Argument(COORDINATOR, bool, True, """Whether this server will clean the coordinator tables or not. If there are two core servers, and one of them is turned off, you don't want that it deletes everything on the database when that server is turned on, because all the sessions handled by the other core server will be lost.""")), 
+])
+
+
+######################################
+# 
+# LOGIN SERVER
+#
+
+LOGIN_SERVER = 'Login Server'
+
+
+# 
+# Facade
+# 
+
+LOGIN_FACADE = (LOGIN_SERVER, 'Facade')
+
+LOGIN_FACADE_TRUSTED_ADDRESSES       = 'login_facade_trusted_addresses'
+LOGIN_FACADE_SOAP_BIND               = 'login_facade_soap_bind'
+LOGIN_FACADE_SOAP_PORT               = 'login_facade_soap_port'
+LOGIN_FACADE_SOAP_SERVICE_NAME       = 'login_facade_soap_service_name'
+LOGIN_FACADE_SOAP_PUBLIC_SERVER_HOST = 'login_facade_soap_public_server_host'
+LOGIN_FACADE_SOAP_PUBLIC_SERVER_PORT = 'login_facade_soap_public_server_port'
+LOGIN_FACADE_JSON_BIND               = 'login_facade_json_bind'
+LOGIN_FACADE_JSON_PORT               = 'login_facade_json_port'
+LOGIN_FACADE_XMLRPC_BIND             = 'login_facade_xmlrpc_bind'
+LOGIN_FACADE_XMLRPC_PORT             = 'login_facade_xmlrpc_port'
+
+_sorted_variables.extend([
+    (LOGIN_FACADE_TRUSTED_ADDRESSES,       _Argument(LOGIN_FACADE, tuple, ('127.0.0.1',), """The IP addresses on which the Login server will trust. Moodle can access !WebLab from a well known IP address, and if Moodle says "I'm user foo", and in !WebLab-Deusto, the user "foo" can be accessed from the IP address of that moodle, then Moodle will be able to log in as this user without any password.""")), 
+    (LOGIN_FACADE_SOAP_BIND,               _Argument(LOGIN_FACADE, str, "", """Binding address for the SOAP facade at Login Server""")), 
+    (LOGIN_FACADE_SOAP_PORT,               _Argument(LOGIN_FACADE, int, NO_DEFAULT, """Port number for the SOAP facade at Login Server""")), 
+    (LOGIN_FACADE_SOAP_SERVICE_NAME,       _Argument(LOGIN_FACADE, str, "/!WebLab/login/soap/", """Service name for the SOAP facade at Login Server""")), 
+    (LOGIN_FACADE_SOAP_PUBLIC_SERVER_HOST, _Argument(LOGIN_FACADE, str, "www.weblab.deusto.es", """Public server host, used for generating the WSDL file.""")), 
+    (LOGIN_FACADE_SOAP_PUBLIC_SERVER_PORT, _Argument(LOGIN_FACADE, int, 80, """Public server port, used for generating the WSDL file.""")), 
+    (LOGIN_FACADE_JSON_BIND,               _Argument(LOGIN_FACADE, str, "", """Binding address for the JSON facade at Login Server""")), 
+    (LOGIN_FACADE_JSON_PORT,               _Argument(LOGIN_FACADE, int, NO_DEFAULT, """Port number for the JSON facade at Login Server""")), 
+    (LOGIN_FACADE_XMLRPC_BIND,             _Argument(LOGIN_FACADE, str, "", """Binding address for the XML-RPC facade at Login Server""")), 
+    (LOGIN_FACADE_XMLRPC_PORT,             _Argument(LOGIN_FACADE, int, NO_DEFAULT, """Port number for the XML-RPC facade at Login Server""")), 
+])
 
 
 
-# === Login Server ===
+######################################
 # 
-# ==== Facade ====
-# || *Property* || *Type* || *Default value* || *Description* || 
-# || login_facade_trusted_addresses || tuple || ('127.0.0.1',) || The IP addresses on which the Login server will trust. Moodle can access !WebLab from a well known IP address, and if Moodle says "I'm user foo", and in !WebLab-Deusto, the user "foo" can be accessed from the IP address of that moodle, then Moodle will be able to log in as this user without any password. || 
-# || login_facade_soap_bind || str || "" || Binding address for the SOAP facade at Login Server || 
-# || login_facade_soap_port || int ||  || Port number for the SOAP facade at Login Server || 
-# || login_facade_soap_service_name || str || "/!WebLab/login/soap/" || Service name for the SOAP facade at Login Server || 
-# || login_facade_soap_public_server_host || str || "www.weblab.deusto.es" || Public server host, used for generating the WSDL file. || 
-# || login_facade_soap_public_server_port || int || 80 || Public server port, used for generating the WSDL file. || 
-# || login_facade_json_bind || str || "" || Binding address for the JSON facade at Login Server || 
-# || login_facade_json_port || int ||  || Port number for the JSON facade at Login Server || 
-# || login_facade_xmlrpc_bind || str || "" || Binding address for the XML-RPC facade at Login Server || 
-# || login_facade_xmlrpc_port || int ||  || Port number for the XML-RPC facade at Login Server || 
+# LABORATORY SERVER
+#
+
+LABORATORY_SERVER = 'Laboratory Server'
+LABORATORY = (LABORATORY_SERVER, 'General')
+
+LABORATORY_SESSION_TYPE              = 'laboratory_session_type'
+LABORATORY_SESSION_POOL_ID           = 'laboratory_session_pool_id'
+LABORATORY_ASSIGNED_EXPERIMENTS      = 'laboratory_assigned_experiments'
+LABORATORY_EXCLUDE_CHECKING          = 'laboratory_exclude_checking'
+
+_sorted_variables.extend([
+    (LABORATORY_SESSION_TYPE,         _Argument(LABORATORY, str, "Memory", """What type of session manager the Core Server will use: Memory or MySQL.""")), 
+    (LABORATORY_SESSION_POOL_ID,      _Argument(LABORATORY, str, "!LaboratoryServer", """See "core_session_pool_id" in the core server.""")), 
+    (LABORATORY_ASSIGNED_EXPERIMENTS, _Argument(LABORATORY, list, NO_DEFAULT, """List of strings representing which experiments are available through this particular laboratory server. Each string contains something like 'exp1|ud-fpga|FPGA experiments;experiment_fpga:main_instance@main_machine', where exp1|ud-fpga|FPGA experiments is the identifier of the experiment (see core_coordinator_laboratory_servers), and "experiment_fpga:main_instance@main_machine" is the !WebLab Address of the experiment server.""")), 
+    (LABORATORY_EXCLUDE_CHECKING,     _Argument(LABORATORY, list, [], """List of ids of experiments upon which checks will not be run""")), 
+])
+
+
+######################################
 # 
-# 
-# === Proxy Server ===
-# || *Property* || *Type* || *Default value* || *Description* || 
-# || proxy_experiment_poll_time || int || 30 || Maximum amount of time that the server will wait for polls from a user using an experiment, in seconds, before considering that the user is not connected anymore. || 
-# || proxy_store_students_programs_path || str ||  || Local path to store the files sent by the students with send_file() (only when the proper Translator decides to store the program). || 
-# 
-# 
-# === Laboratory Server ===
-# || *Property* || *Type* || *Default value* || *Description* || 
-# || laboratory_session_type || str || "Memory" || What type of session manager the Core Server will use: Memory or MySQL. || 
-# || laboratory_session_pool_id || str || "!LaboratoryServer" || See "core_session_pool_id" in the core server. || 
-# || laboratory_assigned_experiments || list ||  || List of strings representing which experiments are available through this particular laboratory server. Each string contains something like 'exp1|ud-fpga|FPGA experiments;experiment_fpga:main_instance@main_machine', where exp1|ud-fpga|FPGA experiments is the identifier of the experiment (see core_coordinator_laboratory_servers), and "experiment_fpga:main_instance@main_machine" is the !WebLab Address of the experiment server. || 
-# || laboratory_exclude_checking || list || [] || List of ids of experiments upon which checks will not be run || 
-# 
-# === Experiment Server ===
-# 
-# Apart from the general properties, every Experiment Developer can add as many properties as desired in order to make the experiment parametrizable. For instance, the GPIB *experiment* developed at the University of Deusto has its own properties:
-# 
-# || *Property* || *Type* || *Default value* || *Description* || 
-# || gpib_just_testing || bool || False || Only testing the server or not. || 
-# || gpib_public_output_file_filename || str ||  || The expected file name that the server will check after the experiment was executed. || 
-# 
-# Since Experiment Developers can develop both experiments and reutilizable devices, both components can manage their own properties. Following the same example, the GPIB experiment makes use of a generic GPIB *device* cappable of managing the particularities of a generic GPIB connection. And this device has the following properties:
-# 
-# || *Property* || *Type* || *Default value* || *Description* || 
-# || gpib_compiler_command || str ||  || A list as ['bcc32','-c','$CPP_FILE'], so as to compile with the Borland C Compiler || 
-# || gpib_linker_command || str ||  || A list as ["ilink32","-Tpe","-c","$OBJ_FILE","c0x32,", "$EXE_FILE,",",","visa32","import32","cw32"] for linking the compiled object || 
-# 
+# PROXY SERVER
+#
+
+PROXY_SERVER = 'Proxy Server'
+PROXY = (PROXY_SERVER, 'General')
+
+PROXY_EXPERIMENT_POLL_TIME         = 'proxy_experiment_poll_time'
+PROXY_STORE_STUDENTS_PROGRAMS_PATH = 'proxy_store_students_programs_path'
+
+_sorted_variables.extend([
+    (PROXY_EXPERIMENT_POLL_TIME,         _Argument(PROXY, int, 30, """Maximum amount of time that the server will wait for polls from a user using an experiment, in seconds, before considering that the user is not connected anymore.""")), 
+    (PROXY_STORE_STUDENTS_PROGRAMS_PATH, _Argument(PROXY, str, NO_DEFAULT, """Local path to store the files sent by the students with send_file() (only when the proper Translator decides to store the program).""")), 
+])
+
+
 
 #####################################
 # 
