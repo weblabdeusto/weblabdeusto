@@ -197,7 +197,7 @@ CORE_COORDINATOR_CLEAN              = 'core_coordinator_clean'
 
 _sorted_variables.extend([
     (CORE_COORDINATOR_DB_HOST,            _Argument(COORDINATOR, str, "localhost", """Host of the database server.""")), 
-    (CORE_COORDINATOR_DB_NAME,            _Argument(COORDINATOR, str, "!WebLabCoordination", """Name of the coordination database.""")), 
+    (CORE_COORDINATOR_DB_NAME,            _Argument(COORDINATOR, str, "WebLabCoordination", """Name of the coordination database.""")), 
     (CORE_COORDINATOR_DB_USERNAME,        _Argument(COORDINATOR, str, NO_DEFAULT, """Username to access the coordination database.""")), 
     (CORE_COORDINATOR_DB_PASSWORD,        _Argument(COORDINATOR, str, NO_DEFAULT, """Password to access the coordination database.""")), 
     (CORE_COORDINATOR_DB_ENGINE,          _Argument(COORDINATOR, str, "mysql", """Driver used for the coordination database. We currently have only tested MySQL, although it should be possible to use other engines.""")), 
@@ -235,7 +235,7 @@ _sorted_variables.extend([
     (LOGIN_FACADE_TRUSTED_ADDRESSES,       _Argument(LOGIN_FACADE, tuple, ('127.0.0.1',), """The IP addresses on which the Login server will trust. Moodle can access !WebLab from a well known IP address, and if Moodle says "I'm user foo", and in !WebLab-Deusto, the user "foo" can be accessed from the IP address of that moodle, then Moodle will be able to log in as this user without any password.""")), 
     (LOGIN_FACADE_SOAP_BIND,               _Argument(LOGIN_FACADE, str, "", """Binding address for the SOAP facade at Login Server""")), 
     (LOGIN_FACADE_SOAP_PORT,               _Argument(LOGIN_FACADE, int, NO_DEFAULT, """Port number for the SOAP facade at Login Server""")), 
-    (LOGIN_FACADE_SOAP_SERVICE_NAME,       _Argument(LOGIN_FACADE, str, "/!WebLab/login/soap/", """Service name for the SOAP facade at Login Server""")), 
+    (LOGIN_FACADE_SOAP_SERVICE_NAME,       _Argument(LOGIN_FACADE, str, "/weblab/login/soap/", """Service name for the SOAP facade at Login Server""")), 
     (LOGIN_FACADE_SOAP_PUBLIC_SERVER_HOST, _Argument(LOGIN_FACADE, str, "www.weblab.deusto.es", """Public server host, used for generating the WSDL file.""")), 
     (LOGIN_FACADE_SOAP_PUBLIC_SERVER_PORT, _Argument(LOGIN_FACADE, int, 80, """Public server port, used for generating the WSDL file.""")), 
     (LOGIN_FACADE_JSON_BIND,               _Argument(LOGIN_FACADE, str, "", """Binding address for the JSON facade at Login Server""")), 
@@ -261,7 +261,7 @@ LABORATORY_EXCLUDE_CHECKING          = 'laboratory_exclude_checking'
 
 _sorted_variables.extend([
     (LABORATORY_SESSION_TYPE,         _Argument(LABORATORY, str, "Memory", """What type of session manager the Core Server will use: Memory or MySQL.""")), 
-    (LABORATORY_SESSION_POOL_ID,      _Argument(LABORATORY, str, "!LaboratoryServer", """See "core_session_pool_id" in the core server.""")), 
+    (LABORATORY_SESSION_POOL_ID,      _Argument(LABORATORY, str, "LaboratoryServer", """See "core_session_pool_id" in the core server.""")), 
     (LABORATORY_ASSIGNED_EXPERIMENTS, _Argument(LABORATORY, list, NO_DEFAULT, """List of strings representing which experiments are available through this particular laboratory server. Each string contains something like 'exp1|ud-fpga|FPGA experiments;experiment_fpga:main_instance@main_machine', where exp1|ud-fpga|FPGA experiments is the identifier of the experiment (see core_coordinator_laboratory_servers), and "experiment_fpga:main_instance@main_machine" is the !WebLab Address of the experiment server.""")), 
     (LABORATORY_EXCLUDE_CHECKING,     _Argument(LABORATORY, list, [], """List of ids of experiments upon which checks will not be run""")), 
 ])
