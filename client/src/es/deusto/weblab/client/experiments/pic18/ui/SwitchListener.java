@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005 onwards University of Deusto
+* Copyright (C) 2005-2009 University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -11,10 +11,11 @@
 * Author: Pablo Orduña <pablo@ordunya.com>
 *
 */ 
-package es.deusto.weblab.client.experiments.pic.ui;
+package es.deusto.weblab.client.experiments.pic18.ui;
 
 import es.deusto.weblab.client.dto.experiments.Command;
-import es.deusto.weblab.client.experiments.pic.commands.SwitchCommand;
+import es.deusto.weblab.client.experiments.xilinx.commands.SwitchCommand;
+import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
 import es.deusto.weblab.client.ui.widgets.IWlWidget;
@@ -24,16 +25,18 @@ class SwitchListener implements IWlActionListener{
 
 	private final int n;
 	private final IBoardBaseController commandSender;
+	private final IResponseCommandCallback commandCallback;
 	
-	public SwitchListener(int n, IBoardBaseController commandSender){
+	public SwitchListener(int n, IBoardBaseController commandSender, IResponseCommandCallback commandCallback){
 		this.n = n;
 		this.commandSender = commandSender;
+		this.commandCallback = commandCallback;
 	}
 	
 	@Override
 	public void onAction(IWlWidget widget) {
 		final WlSwitch wlswitch = (WlSwitch)widget;
 		final Command command = new SwitchCommand(this.n, wlswitch.isSwitched());
-		this.commandSender.sendCommand(command);
+		this.commandSender.sendCommand(command, this.commandCallback);
 	}
 }

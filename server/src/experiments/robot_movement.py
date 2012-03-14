@@ -18,7 +18,7 @@ import weblab.experiment.experiment as Experiment
 from voodoo.override import Override
 from voodoo.log import logged
 
-
+import json
 import time
 
 DEBUG = False
@@ -42,17 +42,17 @@ class RobotMovement(Experiment.Experiment):
     @Override(Experiment.Experiment)
     @logged("info")
     def do_get_api(self):
-        return "1"
+        return "2"
 
     @Override(Experiment.Experiment)
     @logged("info")
-    def do_start_experiment(self):
+    def do_start_experiment(self, *args, **kwargs):
         """
         Callback run when the experiment is started.
         """
         if(DEBUG):
             print "[Robot*] do_start_experiment called"
-        return "Ok"
+        return json.dumps({ "initial_configuration" : json.dumps({ "webcam" : "https://www.weblab.deusto.es/webcam/proxied.py/robot1", "mjpeg" : "https://www.weblab.deusto.es/webcam/robot0/video.mjpeg", "mjpegHeight" : 240, "mjpegWidth" : 320}), "batch" : False })
 
     @Override(Experiment.Experiment)
     @logged("info")

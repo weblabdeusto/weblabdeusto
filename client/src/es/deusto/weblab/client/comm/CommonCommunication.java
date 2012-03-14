@@ -15,6 +15,8 @@
 
 package es.deusto.weblab.client.comm;
 
+import java.util.Map;
+
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.http.client.RequestBuilder;
@@ -75,7 +77,15 @@ public abstract class CommonCommunication implements ICommonCommunication {
 	 * @param rci Callback to invoke when the request finishes.
 	 */
 	public void performRequest(String requestSerialized, IWebLabAsyncCallback failureCallback, RequestCallback rci){
+		performRequest(requestSerialized, failureCallback, rci, null);
+	}
+	
+	public void performRequest(String requestSerialized, IWebLabAsyncCallback failureCallback, RequestCallback rci, Map<String, String> headers){
 		final RequestBuilder rb = this.createRequestBuilder(RequestBuilder.POST, this.getServiceUrl());
+		if(headers != null)
+			for(String header : headers.keySet()) 
+				rb.setHeader(header, headers.get(header));
+			
 		try {
 			rb.sendRequest(requestSerialized, rci);
 		} catch (final RequestException e) {

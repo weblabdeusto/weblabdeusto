@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005 onwards University of Deusto
+* Copyright (C) 2005-2009 University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -11,21 +11,20 @@
 * Author: Pablo Orduña <pablo@ordunya.com>
 *
 */ 
-package es.deusto.weblab.client.experiments.pic.commands;
+package es.deusto.weblab.client.experiments.pic18.commands;
 
 import es.deusto.weblab.client.dto.experiments.Command;
 
-public class PulseCommand extends Command{
-	private final int number;
-	private final int millis;
+public class ClockActivationCommand extends Command{
 	
-	public PulseCommand(int number, int millis){
-		this.number = number;
-		this.millis = millis;
+	private final int n;
+	
+	public ClockActivationCommand(int n){
+		this.n = n;
 	}
-
+	
 	@Override
 	public String getCommandString() {
-		return "PULSE=" + this.number + " " + this.millis;
+		return "ClockActivation on " + this.n;
 	}
 }

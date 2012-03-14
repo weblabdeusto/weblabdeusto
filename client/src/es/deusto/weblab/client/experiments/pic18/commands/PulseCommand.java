@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005 onwards University of Deusto
+* Copyright (C) 2005-2009 University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -11,21 +11,22 @@
 * Author: Pablo Orduña <pablo@ordunya.com>
 *
 */ 
-package es.deusto.weblab.client.experiments.pic.commands;
+package es.deusto.weblab.client.experiments.pic18.commands;
 
 import es.deusto.weblab.client.dto.experiments.Command;
 
-public class SwitchCommand extends Command{
-	private final int n;
+public class PulseCommand extends Command{
+	private final int number;
 	private final boolean state;
 	
-	public SwitchCommand(int n, boolean state){
-		this.n = n;
-		this.state = state;
+	public PulseCommand(int number, boolean state){
+		this.number = number;
+		this.state  = state;
+		
 	}
-	
+
 	@Override
 	public String getCommandString() {
-		return "SWITCH=" + this.n + " " + (this.state?"ON":"OFF");
+		return "SetPulse " + (this.state?"on":"off") + " " + this.number;
 	}
 }

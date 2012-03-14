@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005 onwards University of Deusto
+* Copyright (C) 2005-2009 University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -11,21 +11,13 @@
 * Author: Pablo Orduña <pablo@ordunya.com>
 *
 */ 
-package es.deusto.weblab.client.experiments.pic.commands;
+package es.deusto.weblab.client.experiments.pic18.commands;
 
 import es.deusto.weblab.client.dto.experiments.Command;
 
-public class WriteCommand extends Command{
-	private final int boxCode;
-	private final String text;
-	
-	public WriteCommand(int boxCode, String text){
-		this.boxCode = boxCode;
-		this.text    = text;
-	}
-	
+public class ClockDeactivationCommand extends Command{
 	@Override
 	public String getCommandString() {
-		return "WRITE=" + this.boxCode + " " + this.text + " EOT";
+		return "ClockActivation off";
 	}
 }

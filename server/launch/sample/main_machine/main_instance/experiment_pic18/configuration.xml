@@ -10,9 +10,9 @@
 	<type>weblab.data.server_type::Experiment</type>
 	<methods>weblab.methods::Experiment</methods>
 
-	<implementation>experiments.ud_pic.server.UdPicDummyExperiment</implementation>
+	<implementation>experiments.ud_pic18.server.UdPic18Experiment</implementation>
 
-	<restriction>ud-pic@PIC experiments</restriction>
+	<restriction>ud-pic18@PIC experiments</restriction>
 
 	<protocols>
 		<!-- This server supports both Direct calls, as SOAP calls -->

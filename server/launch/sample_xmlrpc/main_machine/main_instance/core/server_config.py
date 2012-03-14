@@ -12,15 +12,12 @@ weblab_db_password = 'weblab'
 
 core_coordinator_laboratory_servers = {
     "laboratory:main_instance@main_machine" : {
-            "exp1|ud-pic|PIC experiments"            : "pic@pic",
-            "exp1|ud-pic2|PIC experiments"           : "pic@pic",
             "exp1|ud-dummy|Dummy experiments"        : "dummy@dummy",
             "exp1|javadummy|Dummy experiments"       : "javadummy@javadummy",
         }
 }
 
 core_scheduling_systems = {
-        "pic"        : ("PRIORITY_QUEUE", {}),
         "dummy"      : ("PRIORITY_QUEUE", {}),
         "javadummy"  : ("PRIORITY_QUEUE", {}),
     }

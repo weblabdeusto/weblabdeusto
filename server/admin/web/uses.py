@@ -68,6 +68,7 @@ padding:15px;
                 <b>Experiment:</b> %(experiment_name)s@%(category_name)s<br/>
                 <b>Date:</b> %(date)s<br/>
                 <b>Origin:</b> %(origin)s<br/>
+                <b>Server IP (if federated):</b> %(ip)s<br/>
                 <b>Use id:</b> %(use_id)s<br/>
                 <b>Reservation id:</b> %(reservation_id)s<br/>
                 <b>Mobile:</b> %(mobile)s<br/>
@@ -117,6 +118,7 @@ padding:15px;
                         'date'            : cgi.escape(str(start_date)),
                         'origin'          : cgi.escape(origin           or 'not stored'),
                         'longest_command' : '%s',
+                        'ip'              : cgi.escape(properties.get('from_direct_ip', "Don't know")),
                     }
 
             # Commands
@@ -198,7 +200,20 @@ def user(req, login):
                         "WHERE u.login = %s AND u.id = uue.user_id AND e.id = uue.experiment_id AND e.category_id = c.id " + \
                         "ORDER BY uue.start_date DESC LIMIT %s" % LIMIT
             cursor.execute(SENTENCE, (login,) )
-            elements = cursor.fetchall()
+            elements = [ list(row) for row in cursor.fetchall()]
+            for row in elements:
+                uue_id = row[0]
+                origin = row[-1]
+                SENTENCE = "SELECT uuepv.value " + \
+                            "FROM UserUsedExperimentPropertyValue as uuepv, UserUsedExperimentProperty as uuep " + \
+                            "WHERE uuepv.experiment_use_id = %s AND uuepv.property_name_id = uuep.id AND uuep.name = 'from_direct_ip'"
+                cursor.execute(SENTENCE, uue_id)
+                direct_ips = list(cursor.fetchall())
+                if len(direct_ips) > 0:
+                    direct_ip = direct_ips[0][0]
+                    if direct_ip != origin:
+                        row[-1] = '%s@%s' % (cgi.escape(origin), cgi.escape(direct_ip))
+
             result = """<html><head><title>Latest uses</title></head><body><table cellspacing="10">
                         <tr> <td><b>User</b></td> <td><b>Name</b></td> <td><b>Experiment</b></td> <td><b>Date</b></td> <td><b>From </b> </td> <td><b>Use</b></td></tr>
                         """
@@ -220,7 +235,19 @@ def index(req):
                         "WHERE u.id = uue.user_id AND e.id = uue.experiment_id AND e.category_id = c.id " + \
                         "ORDER BY uue.start_date DESC LIMIT %s" % LIMIT
             cursor.execute(SENTENCE)
-            elements = cursor.fetchall()
+            elements = [ list(row) for row in cursor.fetchall()]
+            for row in elements:
+                uue_id = row[0]
+                origin = row[-1]
+                SENTENCE = "SELECT uuepv.value " + \
+                            "FROM UserUsedExperimentPropertyValue as uuepv, UserUsedExperimentProperty as uuep " + \
+                            "WHERE uuepv.experiment_use_id = %s AND uuepv.property_name_id = uuep.id AND uuep.name = 'from_direct_ip'"
+                cursor.execute(SENTENCE, uue_id)
+                direct_ips = list(cursor.fetchall())
+                if len(direct_ips) > 0:
+                    direct_ip = direct_ips[0][0]
+                    if direct_ip != origin:
+                        row[-1] = '%s@%s' % (cgi.escape(origin), cgi.escape(direct_ip))
             result = """<html><head><title>Latest uses</title></head><body><table cellspacing="10">
                         <tr> <td><b>User</b></td> <td><b>Name</b></td> <td><b>Experiment</b></td> <td><b>Date</b></td> <td><b>From </b> </td> <td><b>Use</b></td></tr>
                         """

@@ -14,8 +14,12 @@
 package es.deusto.weblab.client.experiments.robot_standard.ui;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -27,11 +31,10 @@ import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
-import es.deusto.weblab.client.lab.experiments.commands.RequestWebcamCommand;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
+import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
-import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 public class RobotStandardExperiment extends ExperimentBase {
 	
@@ -97,8 +100,8 @@ public class RobotStandardExperiment extends ExperimentBase {
 	private void createProvidedWidgets() {
 		this.timer = new WlTimer(false);	
 		
-		// TODO: Add a default url to the webcam.
-		this.webcam = new WlWebcam(this.getWebcamRefreshingTime());
+		this.webcam = GWT.create(WlWebcam.class);
+		this.webcam.setTime(this.getWebcamRefreshingTime());
 		
 		this.uploadStructure = new UploadStructure();
 		this.uploadStructure.setFileInfo("program");
@@ -132,7 +135,9 @@ public class RobotStandardExperiment extends ExperimentBase {
 	    
 	    this.setupWidgets();
 	    
-	    RequestWebcamCommand.createAndSend(this.boardController, this.webcam, this.messages);
+	    if(parseWebcamConfig(initialConfiguration))
+	    	return;
+	    
 	    this.webcam.setVisible(true);
 	    this.webcam.start();
 
@@ -164,6 +169,46 @@ public class RobotStandardExperiment extends ExperimentBase {
 	    
 	    this.sendGetConfigurationCommand();
 	}	
+	
+	private boolean parseWebcamConfig(String initialConfiguration) {
+		final JSONValue initialConfigValue   = JSONParser.parseStrict(initialConfiguration);
+	    final JSONObject initialConfigObject = initialConfigValue.isObject();
+	    if(initialConfigObject == null) {
+	    	Window.alert("Error parsing robot configuration: not an object: " + initialConfiguration);
+	    	return true;
+	    }
+	    
+	    final JSONValue webcamValue = initialConfigObject.get("webcam");
+	    if(webcamValue != null) {
+	    	final String urlWebcam = webcamValue.isString().stringValue();
+	    	this.webcam.setUrl(urlWebcam);
+	    }
+	    
+	    final JSONValue mjpegValue = initialConfigObject.get("mjpeg");
+	    if(mjpegValue != null) {
+	    	final String mjpeg = mjpegValue.isString().stringValue();
+	    	int width = 320;
+	    	int height = 240;
+	    	if(initialConfigObject.get("mjpegWidth") != null) {
+	    		final JSONValue mjpegWidth = initialConfigObject.get("mjpegWidth");
+	    		if(mjpegWidth.isNumber() != null) {
+	    			width = (int)mjpegWidth.isNumber().doubleValue();
+	    		} else if(mjpegWidth.isString() != null) {
+	    			width = Integer.parseInt(mjpegWidth.isString().stringValue());
+	    		}
+	    	}
+	    	if(initialConfigObject.get("mjpegHeight") != null) {
+	    		final JSONValue mjpegHeight = initialConfigObject.get("mjpegHeight");
+	    		if(mjpegHeight.isNumber() != null) {
+	    			height = (int)mjpegHeight.isNumber().doubleValue();
+	    		} else if(mjpegHeight.isString() != null) {
+	    			height = Integer.parseInt(mjpegHeight.isString().stringValue());
+	    		}
+	    	}
+	    	this.webcam.setStreamingUrl(mjpeg, width, height);
+	    }
+	    return false;
+	}
 	
 	@Override
 	public void setTime(int time) {

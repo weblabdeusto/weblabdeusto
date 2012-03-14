@@ -41,7 +41,6 @@ core_coordinator_laboratory_servers = {
             "exp1|ud-demo-xilinx|Xilinx experiments" : "pld@pld",
             "exp2|ud-demo-xilinx|Xilinx experiments" : "fpga@fpga",
             "exp1|ud-gpib|GPIB experiments"          : "gpib@gpib",
-            "exp1|ud-pic|PIC experiments"            : "pic@pic",
             "exp1|ud-dummy|Dummy experiments"        : "dummy@dummy",
             "exp1|ud-dummy-batch|Dummy experiments"  : "dummy-batch@dummy-batch",
             "exp1|ud-logic|PIC experiments"          : "logic@logic",
@@ -53,13 +52,15 @@ core_coordinator_laboratory_servers = {
             "exp1|robot-standard|Robot experiments"  : "robot@robot",
 #            "exp1|robot-movement|Robot experiments"  : "robot@robot",
             "exp1|robot-proglist|Robot experiments"  : "robot@robot",
-            "exp1|blink-led|LabVIEW experiments"     : "labview@labview"
+            "exp1|blink-led|LabVIEW experiments"     : "labview@labview",
+            "exp1|ud-pic18|PIC experiments"          : "pic18@pic18"
         }
 }
 
 core_coordinator_external_servers = {
     'microelectronics@iLab experiments'  : [ 'microelectronics_external' ],
     'robot-movement@Robot experiments'   : [ 'robot_external' ],
+    'external-robot-movement@Robot experiments'   : [ 'robot_external' ],
     'ud-logic@PIC experiments'           : [ 'logic_external' ],
 }
 
@@ -73,6 +74,7 @@ weblabdeusto_federation_demo = ("EXTERNAL_WEBLAB_DEUSTO", {
     'baseurl' : 'http://www.weblab.deusto.es/weblab/',
     'username' : 'weblabfed',
     'password' : 'password',
+    'experiments_map' : {'external-robot-movement@Robot experiments' : 'robot-movement@Robot experiments'}
 })
 
 core_scheduling_systems = {
@@ -82,7 +84,6 @@ core_scheduling_systems = {
         "fpga"        : ("PRIORITY_QUEUE", {}),
         "pld"         : ("PRIORITY_QUEUE", {}),
         "gpib"        : ("PRIORITY_QUEUE", {}),
-        "pic"         : ("PRIORITY_QUEUE", {}),
         "dummy"       : ("PRIORITY_QUEUE", {}),
         "dummy-batch" : ("PRIORITY_QUEUE", {}),
         "logic"       : ("PRIORITY_QUEUE", {}),
@@ -93,6 +94,7 @@ core_scheduling_systems = {
         "vm-win"      : ("PRIORITY_QUEUE", {}),
         "robot"       : ("PRIORITY_QUEUE", {}),
         "labview"     : ("PRIORITY_QUEUE", {}),
+        "pic18"       : ("PRIORITY_QUEUE", {})
     }
 
 core_universal_identifier       = 'da2579d6-e3b2-11e0-a66a-00216a5807c8'

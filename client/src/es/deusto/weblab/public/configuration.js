@@ -295,20 +295,31 @@
 	                        	   "experiment.category" : "GPIB experiments"
 	                           }   
 	                        ],
-	                "pic"   : [
-	                           {
-	                        	   "experiment.name"     : "ud-pic",
-	                        	   "experiment.category" : "PIC experiments",
-	                        	   "experiment.picture"  : "/img/experiments/microchip.jpg"
-	                           }
-	                        ],
-	                "pic2"  : [
-	                           {
-	                        	   "experiment.name"     : "ud-pic2",
-	                        	   "experiment.category" : "PIC experiments",
-	                        	   "experiment.picture"  : "/img/experiments/microchip.jpg"
-	                           }
-	                        ],
+	                "pic18"	: [
+	                			{
+	                			   "experiment.name"	 : "ud-pic18",
+	                			   "experiment.category" : "PIC experiments",
+	                			   "experiment.picture"  : "/img/experiments/microchip.jpg"
+	                			},
+	                			{
+	                			   "experiment.name"	 : "ud-test-pic18-1",
+	                			   "experiment.category" : "PIC experiments",
+	                			   "experiment.picture"  : "/img/experiments/microchip.jpg",
+								   "is.demo"             : true
+	                			},
+	                			{
+	                			   "experiment.name"	 : "ud-test-pic18-2",
+	                			   "experiment.category" : "PIC experiments",
+	                			   "experiment.picture"  : "/img/experiments/microchip.jpg",
+								   "is.demo"             : true
+	                			},
+	                			{
+	                			   "experiment.name"	 : "ud-test-pic18-3",
+	                			   "experiment.category" : "PIC experiments",
+	                			   "experiment.picture"  : "/img/experiments/microchip.jpg",
+								   "is.demo"             : true
+	                			}
+	                		], 
                     "ilab-batch" : [
                                 {
                                 	"experiment.reserve.button.shown" : false,

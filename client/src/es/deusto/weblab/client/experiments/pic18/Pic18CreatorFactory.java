@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005 onwards University of Deusto
+* Copyright (C) 2005-2009 University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -8,28 +8,28 @@
 * This software consists of contributions made by many individuals, 
 * listed below:
 *
-* Author: Pablo Orduña <pablo@ordunya.com>
+* Author: FILLME
 *
 */
 
-package es.deusto.weblab.client.experiments.pic2;
+package es.deusto.weblab.client.experiments.pic18;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
-import es.deusto.weblab.client.experiments.pic2.ui.Pic2Experiment;
+import es.deusto.weblab.client.experiments.pic18.ui.Pic18Experiment;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
-import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
-import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
+import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
+import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
 
-public class Pic2CreatorFactory implements IExperimentCreatorFactory {
+public class Pic18CreatorFactory implements IExperimentCreatorFactory {
 
 	@Override
 	public String getCodeName() {
-		return "pic2";
+		return "pic18";
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class Pic2CreatorFactory implements IExperimentCreatorFactory {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new Pic2Experiment(
+						callback.onExperimentLoaded(new Pic18Experiment(
 								configurationRetriever,
 								boardController
 							));
@@ -54,4 +54,5 @@ public class Pic2CreatorFactory implements IExperimentCreatorFactory {
 			}
 		};
 	}
+
 }

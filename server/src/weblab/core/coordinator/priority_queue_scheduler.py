@@ -77,8 +77,10 @@ TIME_ANTI_RACE_CONDITIONS = 0.1
 
 class PriorityQueueScheduler(Scheduler):
 
-    def __init__(self, generic_scheduler_arguments, **kwargs):
+    def __init__(self, generic_scheduler_arguments, randomize_instances = True, **kwargs):
         super(PriorityQueueScheduler, self).__init__(generic_scheduler_arguments, **kwargs)
+
+        self.randomize_instances = randomize_instances
 
         self._synchronizer = SchedulerTransactionsSynchronizer(self)
         self._synchronizer.start()
@@ -428,7 +430,13 @@ class PriorityQueueScheduler(Scheduler):
                 # Select the correct free_instance for the current student among
                 # all the free_instances
                 #
-                for free_instance in free_instances:
+                if self.randomize_instances:
+                    randomized_free_instances = [ free_instance for free_instance in free_instances ]
+                    random.shuffle(randomized_free_instances)
+                else:
+                    randomized_free_instances = free_instances
+
+                for free_instance in randomized_free_instances:
 
                     resource_type = free_instance.resource_instance.resource_type
                     if resource_type is None:

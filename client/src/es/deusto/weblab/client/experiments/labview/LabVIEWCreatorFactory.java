@@ -32,7 +32,7 @@ public class LabVIEWCreatorFactory implements IExperimentCreatorFactory {
 	}
 	@Override
 	public ExperimentCreator createExperimentCreator(final IConfigurationRetriever configurationRetriever) {
-		return	new ExperimentCreator(MobileSupport.limited, getCodeName()){
+		return	new ExperimentCreator(MobileSupport.disabled, getCodeName()){
 			@Override
 			public void createWeb(final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 				GWT.runAsync(new RunAsyncCallback() {

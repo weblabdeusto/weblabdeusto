@@ -23,20 +23,25 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class WlWebcam extends HorizontalPanel implements IWlWidget{
+public class WlWebcam extends VerticalPanel implements IWlWidget{
 	
 	public static final String DEFAULT_IMAGE_URL = GWT.getModuleBaseURL() + "/waiting_url_image.jpg";
 	public static final int DEFAULT_REFRESH_TIME = 400;
 	
-	private final Image image;
+	protected Image image;
 	
-	private final int time;
-	private String url;
-	private Timer timer;
-	private boolean running;
-
+	protected int time;
+	protected String url;
+	protected String streamingUrl;
+	protected int streamingWidth;
+	protected int streamingHeight;
+	protected Timer timer;
+	protected boolean running;
+	protected final HorizontalPanel imagePanel;
+	
 	public WlWebcam(){
 		this(WlWebcam.DEFAULT_REFRESH_TIME, WlWebcam.DEFAULT_IMAGE_URL);
 	}
@@ -46,15 +51,23 @@ public class WlWebcam extends HorizontalPanel implements IWlWidget{
 	}
 	
 	public WlWebcam(int time, String url){
-		
-		this.setWidth("100%");
-		this.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		this.time = time;
-		this.url = url;
+		this(time, url, WlWebcam.DEFAULT_IMAGE_URL);
+	}
+	
+	public WlWebcam(int time, String url, String streamingUrl){
+		this.imagePanel = new HorizontalPanel();
+		this.imagePanel.setWidth("100%");
+		this.imagePanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		this.time         = time;
+		this.url          = url;
+		this.streamingUrl = streamingUrl;
 		
 		this.image = new Image(this.getDifferentUrl());
 		
-		this.add(this.image);
+		this.imagePanel.add(this.image);
+		this.setWidth("100%");
+		this.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		this.add(this.imagePanel);
 	}
 	
 	public void start(){
@@ -66,6 +79,12 @@ public class WlWebcam extends HorizontalPanel implements IWlWidget{
 			}
 		};
 		this.reload();
+	}
+	
+	public void stop(){
+		this.running = false;
+		if(this.timer != null) 
+			this.timer.cancel();
 	}
 	
 	@Override
@@ -86,36 +105,56 @@ public class WlWebcam extends HorizontalPanel implements IWlWidget{
 	
 	public void reload(){
 		if(this.running){
-			this.image.setUrl(this.getDifferentUrl());
-			this.image.addErrorHandler(new ErrorHandler() {
-			    
-			    @Override
-			    public void onError(ErrorEvent event) {
-			    	if(WlWebcam.this.timer != null)
-			    		WlWebcam.this.timer.schedule(WlWebcam.this.time);
-			    }
-			});
-			this.image.addLoadHandler(new LoadHandler(){
-					@Override
-					public void onLoad(LoadEvent event) {
-						if(WlWebcam.this.timer != null)
-							WlWebcam.this.timer.schedule(WlWebcam.this.time);
-					}
-				}
-			);
+			reloadJpeg();
 		}
 	}
+
+	protected void reloadJpeg() {
+		this.image.setUrl(this.getDifferentUrl());
+		this.image.addErrorHandler(new ErrorHandler() {
+		    
+		    @Override
+		    public void onError(ErrorEvent event) {
+		    	if(WlWebcam.this.timer != null)
+		    		WlWebcam.this.timer.schedule(WlWebcam.this.time);
+		    }
+		});
+		this.image.addLoadHandler(new LoadHandler(){
+				@Override
+				public void onLoad(LoadEvent event) {
+					if(WlWebcam.this.timer != null)
+						WlWebcam.this.timer.schedule(WlWebcam.this.time);
+				}
+			}
+		);
+	}
 	
-	private String randomStuff(){
+	protected String randomStuff(){
 		return "?" + Random.nextInt();
 	}
 	
-	private String getDifferentUrl(){
+	protected String getDifferentUrl(){
 		return this.url + this.randomStuff();
 	}
 
 	public String getUrl() {
 		return this.url;
+	}
+
+	public String getStreamingUrl() {
+		return this.streamingUrl;
+	}
+	
+	protected void reloadPanel() {
+		reload();
+	}
+	
+	public void setTime(int time) {
+		this.time = time;
+		if(this.running) {
+			stop();
+			start();
+		}
 	}
 
 	/**
@@ -125,11 +164,23 @@ public class WlWebcam extends HorizontalPanel implements IWlWidget{
 	 */
 	public void setUrl(String url) {
 		this.url = url;
-		this.reload();
+		this.reloadPanel();
+	}
+	
+	/**
+	 * Sets the URL to obtain the webcam image in MJPEG format so it 
+	 * automatically shows the video stream.
+	 * @param url URL of the image.
+	 */
+	public void setStreamingUrl(String streamingUrl, int width, int height) {
+		this.streamingUrl    = streamingUrl;
+		this.streamingHeight = height; 
+		this.streamingWidth  = width; 
+		this.reloadPanel();
 	}
 	
 	@Override
 	public Widget getWidget(){
-		return this.image;
+		return this;
 	}
 }
