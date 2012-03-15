@@ -12,10 +12,13 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
-import voodoo.log as log
-import voodoo.configuration as ConfigurationManager
 
 import smtplib
+
+import configuration_doc
+
+import voodoo.log as log
+import voodoo.configuration as ConfigurationManager
 
 EMAIL_HEADER = """From: WebLab Notifier <%(mail_notif_sender)s>
 To: %(recipients)s
@@ -29,17 +32,6 @@ Message: %(message)s
 
 WebLab
 """
-
-MAIL_NOTIFICATION_ENABLED_NAME = 'mail_notification_enabled'
-DEFAULT_MAIL_NOTIFICATION_ENABLED_NAME = False
-
-SERVER_HOSTADDRESS_NAME        = 'server_hostaddress'
-SERVER_ADMIN_NAME              = 'server_admin'
-MAIL_SERVER_HOST_NAME          = 'mail_server_host'
-MAIL_SERVER_USE_TLS_NAME       = 'mail_server_use_tls'
-MAIL_SERVER_HELO_NAME          = 'mail_server_helo'
-MAIL_NOTIFICATION_SENDER_NAME  = 'mail_notification_sender'
-MAIL_NOTIFICATION_SUBJECT_NAME = 'mail_notification_subject'
 
 class AdminNotifier(object):
     """
@@ -82,14 +74,14 @@ class AdminNotifier(object):
         self._configuration = cfg_manager
 
     def notify(self, message = None, recipients = None, subject = None, body = None):
-        if self._configuration.get_value(MAIL_NOTIFICATION_ENABLED_NAME, DEFAULT_MAIL_NOTIFICATION_ENABLED_NAME):
+        if self._configuration.get_doc_value(configuration_doc.MAIL_NOTIFICATION_ENABLED):
             try:
-                server_hostaddress  = self._configuration.get_value(SERVER_HOSTADDRESS_NAME)
-                server_admin        = self._configuration.get_value(SERVER_ADMIN_NAME)
-                mail_server_host    = self._configuration.get_value(MAIL_SERVER_HOST_NAME)
-                mail_server_use_tls = self._configuration.get_value(MAIL_SERVER_USE_TLS_NAME)
-                mail_server_helo    = self._configuration.get_value(MAIL_SERVER_HELO_NAME)
-                mail_notif_sender   = self._configuration.get_value(MAIL_NOTIFICATION_SENDER_NAME)
+                server_hostaddress  = self._configuration.get_doc_value(configuration_doc.SERVER_HOSTADDRESS)
+                server_admin        = self._configuration.get_doc_value(configuration_doc.SERVER_ADMIN)
+                mail_server_host    = self._configuration.get_doc_value(configuration_doc.MAIL_SERVER_HOST)
+                mail_server_use_tls = self._configuration.get_doc_value(configuration_doc.MAIL_SERVER_USE_TLS)
+                mail_server_helo    = self._configuration.get_doc_value(configuration_doc.MAIL_SERVER_HELO)
+                mail_notif_sender   = self._configuration.get_doc_value(configuration_doc.MAIL_NOTIFICATION_SENDER)
             except ConfigurationManager.KeyNotFoundError as knfe:
                 log.log(
                     AdminNotifier,
@@ -99,7 +91,7 @@ class AdminNotifier(object):
                 return -1
 
             if subject is None:
-                mail_notification_subject = self._configuration.get_value(MAIL_NOTIFICATION_SUBJECT_NAME, AdminNotifier.DEFAULT_NOTIFICATION_SUBJECT)
+                mail_notification_subject = self._configuration.get_doc_value(configuration_doc.MAIL_NOTIFICATION_SUBJECT)
             else:
                 mail_notification_subject = subject
 

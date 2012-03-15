@@ -13,26 +13,17 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import configuration_doc
 import weblab.db.exc as DbErrors
 import voodoo.configuration as CfgErrors
-
-DB_HOST = 'db_host'
-DEFAULT_DB_HOST = 'localhost'
-
-DB_DATABASE = 'db_database'
-DEFAULT_DB_DATABASE = 'WebLab'
-
-DB_ENGINE = 'db_engine'
-DEFAULT_DB_ENGINE = 'mysql'
-
 
 class AbstractDatabaseGateway(object):
     def __init__(self, cfg_manager):
 
         try:
-            self.host          = cfg_manager.get_value(DB_HOST, DEFAULT_DB_HOST)
-            self.database_name = cfg_manager.get_value(DB_DATABASE, DEFAULT_DB_DATABASE)
-            self.engine_name   = cfg_manager.get_value(DB_ENGINE, DEFAULT_DB_ENGINE)
+            self.host          = cfg_manager.get_doc_value(configuration_doc.DB_HOST)
+            self.database_name = cfg_manager.get_doc_value(configuration_doc.DB_DATABASE)
+            self.engine_name   = cfg_manager.get_doc_value(configuration_doc.DB_ENGINE)
         except CfgErrors.KeyNotFoundError as knfe:
             raise DbErrors.DbMisconfiguredError(
                     "Configuration manager didn't provide values for at least one parameter: %s" % knfe,

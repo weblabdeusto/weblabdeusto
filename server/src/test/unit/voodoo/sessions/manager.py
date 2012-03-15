@@ -17,6 +17,8 @@ import unittest
 
 import threading
 
+import configuration_doc
+
 import voodoo.sessions.manager       as SessionManager
 import voodoo.sessions.memory as SessionMemoryGateway
 import voodoo.sessions.session_type          as SessionType
@@ -33,7 +35,7 @@ class SessionManagerTestCase(unittest.TestCase):
         cfg_manager= ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration_module)
 
-        cfg_manager._set_value(SessionMemoryGateway.SERIALIZE_MEMORY_GATEWAY_SESSIONS, True)
+        cfg_manager._set_value(configuration_doc.SESSION_MEMORY_GATEWAY_SERIALIZE, True)
 
         self.memory_server1 = SessionManager.SessionManager(
                     cfg_manager,

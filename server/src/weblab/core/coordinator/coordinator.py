@@ -18,6 +18,7 @@ import Queue
 
 import json
 
+import configuration_doc
 from voodoo.typechecker import typecheck, ITERATION
 from voodoo.log import logged
 import voodoo.log as log
@@ -61,7 +62,6 @@ SCHEDULING_SYSTEMS = {
 
 CORE_SCHEDULING_SYSTEMS    = 'core_scheduling_systems'
 CORE_SCHEDULER_AGGREGATORS = 'core_scheduler_aggregators'
-CORE_SERVER_URL            = 'core_server_url'
 
 RESOURCES_CHECKER_FREQUENCY = 'core_resources_checker_frequency'
 DEFAULT_RESOURCES_CHECKER_FREQUENCY = 30 # seconds
@@ -98,7 +98,7 @@ class Coordinator(object):
     def __init__(self, locator, cfg_manager, ConfirmerClass = Confirmer.ReservationConfirmer):
         self.cfg_manager = cfg_manager
 
-        core_server_url = self.cfg_manager.get_value(CORE_SERVER_URL)
+        core_server_url = self.cfg_manager.get_doc_value(configuration_doc.CORE_SERVER_URL)
 
         self.notifier = AdminNotifier.AdminNotifier(self.cfg_manager)
         self.notifications_enabled = self.cfg_manager.get_value(RESOURCES_CHECKER_NOTIFICATIONS_ENABLED, DEFAULT_RESOURCES_CHECKER_NOTIFICATIONS_ENABLED)
@@ -381,7 +381,7 @@ class Coordinator(object):
 
     def _retrieve_recipients(self, experiment_instance_ids):
         recipients = ()
-        server_admin = self.cfg_manager.get_value(AdminNotifier.SERVER_ADMIN_NAME, None)
+        server_admin = self.cfg_manager.get_doc_value(configuration_doc.SERVER_ADMIN)
         if server_admin is not None:
             if server_admin.find(","):
                 server_admins = tuple(server_admin.replace(" ","").split(","))
