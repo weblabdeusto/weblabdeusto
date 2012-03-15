@@ -19,6 +19,8 @@ regex:
 ^server/launch/.*/.*\.sock$
 ^server/launch/.*/files_stored$
 ^server/launch/deusto
+^server/launch/urdaneta
+^server/launch/uned
 ^server/db/.*\.db$
 ^client/gwt-unitCache
 
