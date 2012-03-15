@@ -213,7 +213,18 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             route = ctx.route
             if route is None:
                 route = self.server_route
-            session_id = ctx.session_id or 'anythinglikeasessid'
+            if ctx.session_id:
+                session_id = ctx.session_id
+            else:
+                raw_cookies = ctx.headers.get('Cookie') or ''
+                cookies = [ cookie.strip().split('=')[:2] for cookie in raw_cookies.split(';') ]
+                valid_cookies = [ cookie for cookie in cookies if len(cookie) == 2 ]
+                weblab_cookies = [ value for name, value in valid_cookies if name == 'loginweblabsessionid' ]
+                weblab_cookie  = weblab_cookies[0] if len(weblab_cookies) > 0 else None
+                if weblab_cookie is not None and weblab_cookie.endswith('.%s' % route):
+                    session_id = weblab_cookie.split('.%s' % route)[0]
+                else:
+                    session_id = 'anythinglikeasessid'
             self.send_header("Set-Cookie", "weblabsessionid=%s.%s; path=/; Expires=%s" % (session_id, route, strdate(days=100)))
             self.send_header("Set-Cookie", "loginweblabsessionid=%s.%s; path=/; Expires=%s" % (session_id, route, strdate(hours=1)))
 
