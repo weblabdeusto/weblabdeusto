@@ -122,7 +122,17 @@ print "Databases created.\t\t\t\t[done] [%1.2fs]" % (time.time() - t)
 def _insert_required_initial_data(engine):
     Session = sessionmaker(bind=engine)    
     session = Session()
-    
+
+    # Roles
+    administrator = Model.DbRole("administrator")
+    session.add(administrator)
+
+    professor = Model.DbRole("professor")
+    session.add(professor)
+
+    student = Model.DbRole("student")
+    session.add(student)
+
     db = Model.DbAuthType("DB")
     session.add(db)
     ldap = Model.DbAuthType("LDAP")
@@ -133,6 +143,10 @@ def _insert_required_initial_data(engine):
     session.add(facebook)
     openid = Model.DbAuthType("OPENID")
     session.add(openid)
+
+    weblab_db = Model.DbAuth(db, "WebLab DB", 1)
+    session.add(weblab_db)
+
     session.commit()
 
     experiment_allowed = Model.DbPermissionType(
@@ -220,8 +234,7 @@ def populate_weblab_tests(engine):
     access_forward = session.query(Model.DbPermissionType).filter_by(name="access_forward").one()
 
     # Auths
-    weblab_db = Model.DbAuth(db, "WebLab DB", 1)
-    session.add(weblab_db)
+    weblab_db = session.query(Model.DbAuth).filter_by(name = "WebLab DB").one()
 
     cdk_ldap = Model.DbAuth(ldap, "Configuration of CDK at Deusto", 2, "ldap_uri=ldaps://castor.cdk.deusto.es;domain=cdk.deusto.es;base=dc=cdk,dc=deusto,dc=es")
     session.add(cdk_ldap)
@@ -238,15 +251,9 @@ def populate_weblab_tests(engine):
     auth_openid = Model.DbAuth(openid, "OpenID", 6)
     session.add(auth_openid)
 
-    # Roles
-    administrator = Model.DbRole("administrator")
-    session.add(administrator)
-
-    professor = Model.DbRole("professor")
-    session.add(professor)
-
-    student = Model.DbRole("student")
-    session.add(student)
+    administrator = session.query(Model.DbRole).filter_by(name='administrator').one()
+    professor     = session.query(Model.DbRole).filter_by(name='professor').one()
+    student       = session.query(Model.DbRole).filter_by(name='student').one()
 
     # Users
     admin1 = Model.DbUser("admin1", "Name of administrator 1", "weblab@deusto.es", None, administrator)
