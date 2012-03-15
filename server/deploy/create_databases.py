@@ -31,6 +31,11 @@ except ImportError, e:
 	print >> sys.stderr, "Error: configuration.py doesn't exist or doesn't have all the required parameters: %s " % e
 	sys.exit(2)
 
+if len(sys.argv) > 1:
+    prefix = sys.argv[1]
+else:
+    prefix = ""
+
 if db_engine == 'mysql':
     try:
         import MySQLdb
@@ -41,10 +46,10 @@ if db_engine == 'mysql':
         import pymysql
         dbi = pymysql
 
-    weblab_db_str = 'mysql://%s:%s@localhost/WebLab' % (weblab_db_username, weblab_db_password)
-    weblab_test_db_str = 'mysql://%s:%s@localhost/WebLabTests%s' % (weblab_db_username, weblab_db_password, '%s')
-    weblab_coord_db_str = 'mysql://%s:%s@localhost/WebLabCoordination%s' % (core_coordinator_db_username, core_coordinator_db_password, '%s')
-    weblab_sessions_db_str = 'mysql://%s:%s@localhost/WebLabSessions' % (weblab_sessions_db_username, weblab_sessions_db_password)
+    weblab_db_str = 'mysql://%s:%s@localhost/%sWebLab' % (weblab_db_username, weblab_db_password, prefix)
+    weblab_test_db_str = 'mysql://%s:%s@localhost/%sWebLabTests%s' % (weblab_db_username, weblab_db_password, prefix, '%s')
+    weblab_coord_db_str = 'mysql://%s:%s@localhost/%sWebLabCoordination%s' % (core_coordinator_db_username, core_coordinator_db_password, prefix, '%s')
+    weblab_sessions_db_str = 'mysql://%s:%s@localhost/%sWebLabSessions' % (weblab_sessions_db_username, weblab_sessions_db_password, prefix)
 
     def _connect(admin_username, admin_password):
         try:
@@ -92,10 +97,10 @@ elif db_engine == 'sqlite':
     if not os.path.exists(db_dir):
         os.mkdir(db_dir)
 
-    weblab_db_str = 'sqlite:///../db/WebLab.db' 
-    weblab_test_db_str = 'sqlite:///../db/WebLabTests%s.db' 
-    weblab_coord_db_str = 'sqlite:///../db/WebLabCoordination%s.db' 
-    weblab_sessions_db_str = 'sqlite:///../db/WebLabSessions.db'
+    weblab_db_str = 'sqlite:///../db/%sWebLab.db' % prefix
+    weblab_test_db_str = 'sqlite:///../db/%sWebLabTests%s.db' % prefix
+    weblab_coord_db_str = 'sqlite:///../db/%sWebLabCoordination%s.db' % prefix
+    weblab_sessions_db_str = 'sqlite:///../db/%sWebLabSessions.db' % prefix
 
     def create_database(admin_username, admin_password, database_name, new_user, new_password, host = "localhost"):
         fname = os.sep.join((db_dir, '%s.db' % database_name))
@@ -108,14 +113,14 @@ else:
 
 t = time.time()
 
-create_database(wac.wl_admin_username, wac.wl_admin_password, "WebLab",              weblab_db_username, weblab_db_password)
-create_database(wac.wl_admin_username, wac.wl_admin_password, "WebLabTests",         weblab_db_username, weblab_db_password)
-create_database(wac.wl_admin_username, wac.wl_admin_password, "WebLabTests2",        weblab_db_username, weblab_db_password)
-create_database(wac.wl_admin_username, wac.wl_admin_password, "WebLabTests3",        weblab_db_username, weblab_db_password)
-create_database(wac.wl_admin_username, wac.wl_admin_password, "WebLabCoordination",  core_coordinator_db_username, core_coordinator_db_password)
-create_database(wac.wl_admin_username, wac.wl_admin_password, "WebLabCoordination2", core_coordinator_db_username, core_coordinator_db_password)
-create_database(wac.wl_admin_username, wac.wl_admin_password, "WebLabCoordination3", core_coordinator_db_username, core_coordinator_db_password)
-create_database(wac.wl_admin_username, wac.wl_admin_password, "WebLabSessions",      weblab_sessions_db_username, weblab_sessions_db_password)
+create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLab" % prefix,              weblab_db_username, weblab_db_password)
+create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabTests" % prefix,         weblab_db_username, weblab_db_password)
+create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabTests2" % prefix,        weblab_db_username, weblab_db_password)
+create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabTests3" % prefix,        weblab_db_username, weblab_db_password)
+create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabCoordination" % prefix,  core_coordinator_db_username, core_coordinator_db_password)
+create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabCoordination2" % prefix, core_coordinator_db_username, core_coordinator_db_password)
+create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabCoordination3" % prefix, core_coordinator_db_username, core_coordinator_db_password)
+create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabSessions" % prefix,      weblab_sessions_db_username, weblab_sessions_db_password)
 
 print "Databases created.\t\t\t\t[done] [%1.2fs]" % (time.time() - t)
 
