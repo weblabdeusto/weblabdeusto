@@ -95,6 +95,7 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     facade_manager = None
     server_route   = None
+    location       = None
 
     def do_GET(self):
         methods = [ method for method in dir(self.facade_manager) if not method.startswith('_') ]
@@ -225,8 +226,12 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                     session_id = weblab_cookie.split('.%s' % route)[0]
                 else:
                     session_id = 'anythinglikeasessid'
-            self.send_header("Set-Cookie", "weblabsessionid=%s.%s; path=/; Expires=%s" % (session_id, route, strdate(days=100)))
-            self.send_header("Set-Cookie", "loginweblabsessionid=%s.%s; path=/; Expires=%s" % (session_id, route, strdate(hours=1)))
+            if self.location is not None:
+                location = self.location
+            else:
+                location = '/'
+            self.send_header("Set-Cookie", "weblabsessionid=%s.%s; path=%s; Expires=%s" % (session_id, route, location, strdate(days=100)))
+            self.send_header("Set-Cookie", "loginweblabsessionid=%s.%s; path=%s; Expires=%s" % (session_id, route, location, strdate(hours=1)))
 
         self.end_headers()
         self.wfile.write(response)
@@ -503,10 +508,17 @@ class RemoteFacadeServerJSON(AbstractProtocolRemoteFacadeServer):
     def initialize(self):
         listen, port = self._retrieve_configuration()
         the_server_route = self._configuration_manager.get_value( self._rfs.FACADE_SERVER_ROUTE, self._rfs.DEFAULT_SERVER_ROUTE )
+        core_server_url  = self._configuration_manager.get_value( 'core_server_url', '' )
+        if core_server_url.startswith('http://') or core_server_url.startswith('https://'):
+            without_protocol = '//'.join(core_server_url.split('//')[1:])
+            the_location = '/' + ( '/'.join(without_protocol.split('/')[1:]) )
+        else:
+            the_location = '/'
         timeout = self.get_timeout()
         class NewJsonHttpHandler(self.JSON_HANDLER):
             facade_manager = self._rfm
             server_route   = the_server_route
+            location       = the_location
         self._server = JsonHttpServer((listen, port), NewJsonHttpHandler)
         self._server.socket.settimeout(timeout)
 
