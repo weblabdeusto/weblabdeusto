@@ -60,7 +60,10 @@ class LoggedPanel extends Composite {
 	    this.initWidget(wid);
 	    
 	    this.logoImage.setUrl(GWT.getModuleBaseURL() + configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_MOBILE_IMAGE, ""));
-		this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
+	    if(this.user != null)
+	    	this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
+	    else
+	    	this.userLabel.setText("");
 	}
 
 	@UiHandler("logoutLink")
