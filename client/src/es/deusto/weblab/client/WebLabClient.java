@@ -23,6 +23,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.ScriptElement;
 import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.user.client.Cookies;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -163,6 +164,7 @@ public abstract class WebLabClient implements EntryPoint {
 		    }
 		    
 		newUrl += parameterName + "=" + parameterValue;
+		newUrl += "#" + History.getToken();
 		return newUrl;
 	}
 
@@ -179,6 +181,7 @@ public abstract class WebLabClient implements EntryPoint {
 		    }
 		    
 		newUrl += WebLabClient.LOCALE_URL_PARAM + "=" + locale;
+		newUrl += "#" + History.getToken();
 		Window.Location.replace(newUrl);
 	}
 	
@@ -187,7 +190,7 @@ public abstract class WebLabClient implements EntryPoint {
 	@Override
 	public void onModuleLoad() {
 		HistoryProperties.load();
-		
+
 		final WlWaitingLabel loadingLabel = new WlWaitingLabel("Loading WebLab-Deusto");
 		loadingLabel.start();
 		this.putWidget(loadingLabel.getWidget());
