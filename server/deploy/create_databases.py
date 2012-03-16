@@ -98,8 +98,8 @@ elif db_engine == 'sqlite':
         os.mkdir(db_dir)
 
     weblab_db_str = 'sqlite:///../db/%sWebLab.db' % prefix
-    weblab_test_db_str = 'sqlite:///../db/%sWebLabTests%s.db' % prefix
-    weblab_coord_db_str = 'sqlite:///../db/%sWebLabCoordination%s.db' % prefix
+    weblab_test_db_str = 'sqlite:///../db/%sWebLabTests%s.db' % (prefix, '%s')
+    weblab_coord_db_str = 'sqlite:///../db/%sWebLabCoordination%s.db' % (prefix, '%s')
     weblab_sessions_db_str = 'sqlite:///../db/%sWebLabSessions.db' % prefix
 
     def create_database(admin_username, admin_password, database_name, new_user, new_password, host = "localhost"):

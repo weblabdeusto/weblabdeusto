@@ -20,6 +20,8 @@ regex:
 ^server/launch/.*/files_stored$
 ^server/launch/deusto
 ^server/launch/urdaneta
+^server/launch/fishtank
+^server/launch/isep
 ^server/launch/uned
 ^server/db/.*\.db$
 ^client/gwt-unitCache
