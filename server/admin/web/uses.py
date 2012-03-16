@@ -75,6 +75,7 @@ padding:15px;
                 <b>Facebook:</b> %(facebook)s<br/>
                 <b>Referer:</b> %(referer)s<br/>
                 <b>User agent:</b> %(user_agent)s<br/>
+                <b>Route:</b> %(route)s</br/>
                 <b>In the name of:</b> %(external_user)s<br/>
                 <h2>Commands</h2>
                 (<a href="#files">files below</a>)
@@ -109,6 +110,7 @@ padding:15px;
                         'referer'         : cgi.escape(properties.get('referer', "Don't know")),
                         'user_agent'      : cgi.escape(properties.get('user_agent', "Don't know")),
                         'external_user'   : cgi.escape(properties.get('external_user', "Himself")),
+                        'route'           : cgi.escape(properties.get('route', "Don't know")),
                         'reservation_id'  : cgi.escape(reservation_id   or 'not stored'),
                         'login'           : cgi.escape(login            or 'not stored'),
                         'full_name'       : cgi.escape(full_name        or 'not stored'),
