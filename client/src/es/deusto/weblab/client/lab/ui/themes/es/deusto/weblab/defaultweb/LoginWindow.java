@@ -78,6 +78,7 @@ class LoginWindow extends BaseWindow {
 	@UiField Image hostEntityLogo;
 	@UiField HTML introText;
 	@UiField VerticalPanel guestPanel;
+	@UiField VerticalPanel messagesPanel;
 	
 	// Callbacks
 	private final ILoginWindowCallback callback;
@@ -233,6 +234,7 @@ class LoginWindow extends BaseWindow {
 	}
 
 	public void showWrongLoginOrPassword(){
+		this.messagesPanel.setVisible(true);
 		this.generalErrorLabel.setText(this.i18nMessages.invalidUsernameOrPassword());
 		this.generalErrorLabel.setVisible(true);
 		this.waitingLabel.stop();
@@ -245,6 +247,7 @@ class LoginWindow extends BaseWindow {
 
     @Override
 	public void showError(String message) {
+    	this.messagesPanel.setVisible(true);
 		this.generalErrorLabel.setText(message);
 		this.generalErrorLabel.setVisible(true);
 		this.waitingLabel.stop();
@@ -275,6 +278,7 @@ class LoginWindow extends BaseWindow {
 	}
 
 	private void startLoginProcess(String username, String password) {
+		this.messagesPanel.setVisible(true);
 		this.waitingLabel.setText(LoginWindow.this.i18nMessages.loggingIn());
 		this.waitingLabel.start();
 		this.waitingLabel.setVisible(true);
@@ -289,6 +293,7 @@ class LoginWindow extends BaseWindow {
 	
     @Override
 	public void showMessage(String message) {
+    	this.messagesPanel.setVisible(true);
 		this.generalErrorLabel.setText(message);
 		this.generalErrorLabel.setVisible(true);
 		this.loginButton.setEnabled(true);
