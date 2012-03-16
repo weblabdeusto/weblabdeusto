@@ -158,6 +158,7 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     server_route    = None
     cfg_manager     = None
     original_server = None
+    location        = None
 
     def do_GET(self):
         self.weblab_cookie = None
@@ -208,8 +209,12 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             route = get_context().route
             if route is None:
                 route = self.server_route
-            self.send_header("Set-Cookie", "%s; path=/" % self.weblab_cookie)
-            self.send_header("Set-Cookie", "loginweblabsessionid=anythinglikeasessid.%s; path=/; Expires=%s" % (route, strdate(hours=1)))
+            if self.location is not None:
+                location = self.location
+            else:
+                location = '/'
+            self.send_header("Set-Cookie", "%s; path=%s" % (self.weblab_cookie, location))
+            self.send_header("Set-Cookie", "loginweblabsessionid=anythinglikeasessid.%s; path=%s; Expires=%s" % (route, location, strdate(hours=1)))
             for cookie in other_cookies:
                 self.send_header("Set-Cookie", cookie)
 
@@ -234,12 +239,13 @@ class WebHttpServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
     request_queue_size  = 50 #TODO: parameter!
     allow_reuse_address = True
 
-    def __init__(self, server_address, server_methods, route, configuration_manager, server):
+    def __init__(self, server_address, server_methods, route, configuration_manager, server, the_location):
         class NewWebHttpHandler(WebHttpHandler):
             methods         = server_methods
             server_route    = route
             cfg_manager     = configuration_manager
             original_server = server
+            location        = the_location
         BaseHTTPServer.HTTPServer.__init__(self, server_address, NewWebHttpHandler)
         for method in server_methods:
             method.initialize(configuration_manager, route)
@@ -269,7 +275,14 @@ class WebProtocolRemoteFacadeServer(RFS.AbstractProtocolRemoteFacadeServer):
         the_server_route = self._configuration_manager.get_value( self._rfs.FACADE_SERVER_ROUTE, self._rfs.DEFAULT_SERVER_ROUTE )
         timeout = self.get_timeout()
         server = self._rfm
-        self._server = WebHttpServer((listen, port), self.METHODS, the_server_route, self._configuration_manager, server)
+        core_server_url  = self._configuration_manager.get_value( 'core_server_url', '' )
+        if core_server_url.startswith('http://') or core_server_url.startswith('https://'):
+            without_protocol = '//'.join(core_server_url.split('//')[1:])
+            the_location = '/' + ( '/'.join(without_protocol.split('/')[1:]) )
+        else:
+            the_location = '/'
+
+        self._server = WebHttpServer((listen, port), self.METHODS, the_server_route, self._configuration_manager, server, the_location)
         self._server.socket.settimeout(timeout)
 
 class WebRemoteFacadeServer(RFS.AbstractRemoteFacadeServer):

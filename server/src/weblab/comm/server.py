@@ -275,6 +275,7 @@ class JsonHttpServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
 class XmlRpcRequestHandler(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
 
     server_route = None
+    location     = None
 
     def do_GET(self):
         methods = self.server.system_listMethods()
@@ -295,8 +296,12 @@ class XmlRpcRequestHandler(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
             route = get_context().route
             if route is None:
                 route = self.server_route
-            self.send_header("Set-Cookie","weblabsessionid=anythinglikeasessid.%s; path=/" % route)
-            self.send_header("Set-Cookie", "loginweblabsessionid=anythinglikeasessid.%s; path=/; Expires=%s" % (route, strdate(hours=1)))
+            if self.location is not None:
+                location = self.location
+            else:
+                location = '/'
+            self.send_header("Set-Cookie","weblabsessionid=anythinglikeasessid.%s; path=%s" % (route, location))
+            self.send_header("Set-Cookie", "loginweblabsessionid=anythinglikeasessid.%s; path=%s; Expires=%s" % (route, location, strdate(hours=1)))
         SimpleXMLRPCServer.SimpleXMLRPCRequestHandler.end_headers(self)
 
     def log_message(self, format, *args):
@@ -312,7 +317,7 @@ class XmlRpcServer(SocketServer.ThreadingMixIn, SimpleXMLRPCServer.SimpleXMLRPCS
     request_queue_size = 50 #TODO: parameter!
     allow_reuse_address = True
 
-    def __init__(self, server_address, manager, the_server_route, base_location):
+    def __init__(self, server_address, manager, the_server_route, base_location, core_server_url):
         the_rpc_paths = []
 
         location_to_append = base_location[:-1] if base_location.endswith('/') else base_location
@@ -322,9 +327,16 @@ class XmlRpcServer(SocketServer.ThreadingMixIn, SimpleXMLRPCServer.SimpleXMLRPCS
             if location_to_append:
                 the_rpc_paths.append(location_to_append + path)
 
+        if core_server_url.startswith('http://') or core_server_url.startswith('https://'):
+            without_protocol = '//'.join(core_server_url.split('//')[1:])
+            the_location = '/' + ( '/'.join(without_protocol.split('/')[1:]) )
+        else:
+            the_location = '/'
+
         class NewXmlRpcRequestHandler(XmlRpcRequestHandler):
             server_route = the_server_route
-            rpc_paths = the_rpc_paths
+            rpc_paths    = the_rpc_paths
+            location     = the_location
 
         SimpleXMLRPCServer.SimpleXMLRPCServer.__init__(self, server_address, NewXmlRpcRequestHandler, allow_none = True)
         self.register_instance(manager)
@@ -341,6 +353,7 @@ class XmlRpcServer(SocketServer.ThreadingMixIn, SimpleXMLRPCServer.SimpleXMLRPCS
 if ZSI_AVAILABLE:
     class WebLabRequestHandlerClass(ServiceContainer.SOAPRequestHandler):
         server_route = None
+        location     = None
 
         def do_POST(self, *args, **kwargs):
             create_context(self.server, self.client_address, self.headers)
@@ -354,8 +367,12 @@ if ZSI_AVAILABLE:
                 route = get_context().route
                 if route is None:
                     route = self.server_route
-                self.send_header("Set-Cookie","weblabsessionid=anythinglikeasessid.%s; path=/" % route)
-                self.send_header("Set-Cookie","loginweblabsessionid=anythinglikeasessid.%s; path=/; Expires=%s" % (route, strdate(hours=1)))
+                if self.location is not None:
+                    location = self.location
+                else:
+                    location = '/'
+                self.send_header("Set-Cookie","weblabsessionid=anythinglikeasessid.%s; path=%s" % (route, location))
+                self.send_header("Set-Cookie","loginweblabsessionid=anythinglikeasessid.%s; path=%s; Expires=%s" % (route, location, strdate(hours=1)))
             ServiceContainer.SOAPRequestHandler.end_headers(self)
 
         def log_message(self, format, *args):
@@ -464,8 +481,16 @@ class AbstractRemoteFacadeServerZSI(AbstractProtocolRemoteFacadeServer):
 
     def _create_service_container(self, listen, port, the_server_route):
 
+        core_server_url  = self._configuration_manager.get_value( 'core_server_url', '' )
+        if core_server_url.startswith('http://') or core_server_url.startswith('https://'):
+            without_protocol = '//'.join(core_server_url.split('//')[1:])
+            the_location = '/' + ( '/'.join(without_protocol.split('/')[1:]) )
+        else:
+            the_location = '/'
+
         class NewWebLabRequestHandlerClass(WebLabRequestHandlerClass):
             server_route = the_server_route
+            location     = the_location
 
         return _AvoidTimeoutServiceContainer(
                 (listen,port),
@@ -541,8 +566,9 @@ class RemoteFacadeServerXMLRPC(AbstractProtocolRemoteFacadeServer):
     def initialize(self):
         timeout = self.get_timeout()
         listen, port, base_location = self._retrieve_configuration()
+        core_server_url  = self._configuration_manager.get_value( 'core_server_url', '' )
         server_route = self._configuration_manager.get_value( self._rfs.FACADE_SERVER_ROUTE, self._rfs.DEFAULT_SERVER_ROUTE )
-        self._server = XmlRpcServer((listen, port), self._rfm, server_route, base_location)
+        self._server = XmlRpcServer((listen, port), self._rfm, server_route, base_location, core_server_url)
         self._server.socket.settimeout(timeout)
 
 

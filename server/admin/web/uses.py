@@ -236,11 +236,21 @@ def index(req):
                     direct_ip = direct_ips[0][0]
                     if direct_ip != origin:
                         row[-1] = '%s@%s' % (cgi.escape(origin), cgi.escape(direct_ip))
+                        SENTENCE = "SELECT uuepv.value " + \
+                            "FROM UserUsedExperimentPropertyValue as uuepv, UserUsedExperimentProperty as uuep " + \
+                            "WHERE uuepv.experiment_use_id = %s AND uuepv.property_name_id = uuep.id AND uuep.name = 'external_user'"
+                        cursor.execute(SENTENCE, uue_id)
+                        external_users = list(cursor.fetchall())
+                        if len(external_users) > 0:
+                            external_user = external_users[0][0]
+                            row[1] = "%s@%s" % (cgi.escape(external_user), cgi.escape(row[1]))
+
+
             result = """<html><head><title>Latest uses</title></head><body><table cellspacing="10">
                         <tr> <td><b>User</b></td> <td><b>Name</b></td> <td><b>Experiment</b></td> <td><b>Date</b></td> <td><b>From </b> </td> <td><b>Use</b></td></tr>
                         """
             for use_id, user_login, user_full_name, experiment_name, category_name, start_date, uue_from in elements:
-                result += "\t<tr> <td> <a href=\"uses.py/user?login=%s\">%s</a> </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> <a href=\"uses.py/use?use_id=%s\">use</a> </td> </tr>\n" % ( user_login, user_login, user_full_name, experiment_name + '@' + category_name, utc2local_str(start_date), uue_from, use_id )
+                result += "\t<tr> <td> <a href=\"uses.py/user?login=%s\">%s</a> </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> <a href=\"uses.py/use?use_id=%s\">use</a> </td> </tr>\n" % ( user_login.split('@')[1] if '@' in user_login else user_login, user_login, user_full_name, experiment_name + '@' + category_name, utc2local_str(start_date), uue_from, use_id )
         finally: 
             cursor.close()
     finally:
