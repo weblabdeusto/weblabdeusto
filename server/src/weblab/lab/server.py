@@ -631,9 +631,9 @@ class LaboratoryServer(object):
 
         try:
             if api.endswith("concurrent"):
-                response = experiment_server.send_command_to_device(command.get_command_string())
-            else:
                 response = experiment_server.send_command_to_device(lab_session_id, command.get_command_string())
+            else:
+                response = experiment_server.send_command_to_device(command.get_command_string())
         except Exception as e:
             log.log( LaboratoryServer, log.level.Warning, "Exception sending async command to experiment: %s" % e )
             log.log_exc(LaboratoryServer, log.level.Info)
