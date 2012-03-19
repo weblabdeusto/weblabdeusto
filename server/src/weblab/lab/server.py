@@ -192,6 +192,7 @@ class LaboratoryServer(object):
         # If we don't know the api, we will use the current version as default.
         if api is None:
             api = ExperimentApiLevel.current
+            self._assigned_experiments.set_api(experiment_instance_id, api)
             
         return api
     
