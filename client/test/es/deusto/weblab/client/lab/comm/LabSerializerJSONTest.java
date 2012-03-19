@@ -719,6 +719,42 @@ public class LabSerializerJSONTest extends GWTTestCase{
 		// 2006-01-01 00:00:00
 		Assert.assertEquals(1136073600000L + timezoneOffset, experiments[1].getExperiment().getEndDate().getTime());		
 	}
+	
+	public void testParseListExperimentsResponseWithYetAnotherOtherDateFormat() throws Exception{
+		final ILabSerializer weblabSerializer = new LabSerializerJSON();
+		final ExperimentAllowed [] experiments = weblabSerializer.parseListExperimentsResponse(
+			"{\"result\": [" +
+				"{\"experiment\": {\"category\": {\"name\": \"Dummy experiments\"}, \"owner\": \"porduna@tecnologico.deusto.es\", " +
+					"\"name\": \"ud-dummy\", \"end_date\": \"2008-01-01T00:00:00.330016\", \"start_date\": \"2007-01-01T00:00:00.330016\"}, \"time_allowed\": 30.0}, " +
+				"{\"experiment\": {\"category\": {\"name\": \"FPGA experiments\"}, \"owner\": \"porduna@tecnologico.deusto.es\", " +
+					"\"name\": \"ud-fpga\", \"end_date\": \"2006-01-01T00:00:00.330016\", \"start_date\": \"2005-01-01T00:00:00.330016\"}, \"time_allowed\": 30.0}" +
+			"], \"is_exception\": false}"
+		);
+		
+		Assert.assertEquals(2, experiments.length);
+		
+		// 0
+		Assert.assertEquals(30,                              experiments[0].getTimeAllowed());
+		Assert.assertEquals("ud-dummy",                      experiments[0].getExperiment().getName());
+		Assert.assertEquals("Dummy experiments",             experiments[0].getExperiment().getCategory().getCategory());
+		
+		final long timezoneOffset = DateTimeFormat.getFormat("yyyy-MM-dd").parse("1970-01-01").getTime();
+		
+		// 2007-01-01 00:00:00
+		Assert.assertEquals(1167609600330L + timezoneOffset, experiments[0].getExperiment().getStartDate().getTime());
+		// 2008-01-01 00:00:00
+		Assert.assertEquals(1199145600330L + timezoneOffset, experiments[0].getExperiment().getEndDate().getTime());
+		
+		// 1
+		Assert.assertEquals(30,                              experiments[1].getTimeAllowed());
+		Assert.assertEquals("ud-fpga",                       experiments[1].getExperiment().getName());
+		Assert.assertEquals("FPGA experiments",              experiments[1].getExperiment().getCategory().getCategory());
+		
+		// 2005-01-01 00:00:00
+		Assert.assertEquals(1104537600330L + timezoneOffset, experiments[1].getExperiment().getStartDate().getTime());
+		// 2006-01-01 00:00:00
+		Assert.assertEquals(1136073600330L + timezoneOffset, experiments[1].getExperiment().getEndDate().getTime());		
+	}
 
 	public void testParseListExperimentsResponse_Faults() throws Exception{
 		final ILabSerializer weblabSerializer = new LabSerializerJSON();

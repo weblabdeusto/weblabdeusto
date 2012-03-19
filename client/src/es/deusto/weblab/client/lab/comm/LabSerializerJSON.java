@@ -173,6 +173,7 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
 		    final DateTimeFormat formatter1 = DateTimeFormat.getFormat("yyyy-MM-dd");
 		    final DateTimeFormat formatter2 = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss");
 		    final DateTimeFormat formatter3 = DateTimeFormat.getFormat("yyyy-MM-ddTHH:mm:ss");
+		    final DateTimeFormat formatter4 = DateTimeFormat.getFormat("yyyy-MM-ddTHH:mm:ss.S");
 		    
 		    try{
 				experiment.setStartDate(formatter1.parse(startDateString));
@@ -186,7 +187,12 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
 					    experiment.setStartDate(formatter3.parse(startDateString));
 					    experiment.setEndDate(formatter3.parse(endDateString));
 					}catch(final IllegalArgumentException iae3){
-					    throw new SerializationException("Couldn't parse date: " + startDateString + "; or: " + endDateString);
+						try{
+						    experiment.setStartDate(formatter4.parse(startDateString));
+						    experiment.setEndDate(formatter4.parse(endDateString));
+						}catch(final IllegalArgumentException iae4) {
+							throw new SerializationException("Couldn't parse date: " + startDateString + "; or: " + endDateString);
+						}
 					}
 				}
 		    }
