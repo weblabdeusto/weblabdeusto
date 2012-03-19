@@ -30,7 +30,13 @@ except ImportError:
     LdapGatewayClass = None
 
 try:
-    from configuration import DB_HOST, SMTP_HOST, SMTP_HELO
+    import configuration
+except Exception as e:
+    print "File configuration.py not found. See configuration.py.dist. Error:", str(e)
+    sys.exit(1)
+
+try:
+    from configuration import DB_HOST, DB_ENGINE, SMTP_HOST, SMTP_HELO
     from configuration import DEFAULT_DB_NAME, DEFAULT_DB_USER, DEFAULT_DB_PASS
     from configuration import DEFAULT_LDAP_USERS_FILE
     from configuration import DEFAULT_OPENID_USERS_FILE
@@ -38,7 +44,7 @@ try:
     from configuration import DEFAULT_NOTIFICATION_FROM, DEFAULT_NOTIFICATION_BCC, DEFAULT_NOTIFICATION_SUBJECT, DEFAULT_NOTIFICATION_TEXT_FILE
     from configuration import DEFAULT_NOTIFICATION_WITH_PASSWORD_TEXT_FILE
 except Exception as e:
-    print "File configuration.py not found. See configuration.py.dist. Error:", str(e)
+    print "Configuration variable missing in configuration.py. See configuration.py.dist. Error:", str(e)
     sys.exit(1)
 
 
@@ -52,7 +58,7 @@ class Controller(object):
 
     def init(self):
         db_name, db_user, db_pass = self.ui.dialog_init(DEFAULT_DB_NAME, DEFAULT_DB_USER, DEFAULT_DB_PASS)
-        self.db = DbGateway(DB_HOST, db_name, db_user, db_pass)
+        self.db = DbGateway(DB_ENGINE, DB_HOST, db_name, db_user, db_pass)
 
     def menu(self):
         option = None

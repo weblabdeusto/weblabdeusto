@@ -14,24 +14,36 @@
 #         Pablo Orduña <pablo.orduna@deusto.es>
 #
 
+import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 
+from voodoo.dbutil import generate_getconn, get_sqlite_dbname
 import weblab.db.model as Model
 
 
 class DbGateway(object):
 
-    def __init__(self, host, db, username, password):
+    def __init__(self, engine, host, dbname, user, password):
         super(DbGateway, self).__init__()
-        connection_url = "mysql://%(USER)s:%(PASS)s@%(HOST)s/%(NAME)s" % {
-                                "USER": username,
-                                "PASS": password,
-                                "HOST": host,
-                                "NAME": db }
-        self.Session = sessionmaker(bind=create_engine(connection_url, echo=False))
+        getconn = generate_getconn(engine, user, password, host, dbname)
+
+        if engine == 'sqlite':
+            connection_url = 'sqlite:///%s' % get_sqlite_dbname(dbname)
+            pool = sqlalchemy.pool.NullPool(getconn)
+        else:
+            connection_url = "%(ENGINE)s://%(USER)s:%(PASSWORD)s@%(HOST)s/%(DATABASE)s" % \
+                            { "ENGINE":   engine,
+                              "USER":     user, "PASSWORD": password,
+                              "HOST":     host, "DATABASE": dbname  }
+
+            pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
+
+        engine = create_engine(connection_url, echo=False, convert_unicode=True, pool = pool)
+
+        self.Session = sessionmaker(bind=engine)
         self.session = self.Session()
 
     def get_experiment_category(self, experiment_category_name):
