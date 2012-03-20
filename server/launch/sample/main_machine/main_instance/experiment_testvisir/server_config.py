@@ -11,7 +11,7 @@ vt_login_password = "guest"
 
 vt_client_url = "visir/loader.swf"
 
-vt_debug_prints = True
+vt_debug_prints = False
 
 # 
 # Uncomment these two lines to enable the student mode with a given configuration
