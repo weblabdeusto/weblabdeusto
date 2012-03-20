@@ -75,7 +75,11 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         #
         session_id = self.consumer_login_client.login('fedstudent1', 'password')
 
-        self._test_reservation(session_id, self.dummy2, 'Consumer', True, True)
+        reservation_id = self._test_reservation(session_id, self.dummy2, 'Consumer', True, True)
+        self._wait_multiple_reservations(20, session_id, [ reservation_id ], [0])
+        reservation_result = self.consumer_core_client.get_experiment_use_by_id(session_id, reservation_id)
+        self.assertTrue(reservation_result.is_finished())
+        self.assertEquals('Consumer', reservation_result.experiment_use.commands[2].response.commandstring)
 
         #######################################################
         #
@@ -85,7 +89,11 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         #   has. There is no load balance, neither
         #   subcontracting
         #
-        self._test_reservation(session_id, self.dummy3, 'Provider 1', True, True)
+        reservation_id = self._test_reservation(session_id, self.dummy3, 'Provider 1', True, True)
+        self._wait_multiple_reservations(20, session_id, [ reservation_id ], [0])
+        reservation_result = self.consumer_core_client.get_experiment_use_by_id(session_id, reservation_id)
+        self.assertTrue(reservation_result.is_finished())
+        self.assertEquals('Provider 1', reservation_result.experiment_use.commands[2].response.commandstring)
 
         #######################################################
         #
@@ -95,7 +103,11 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         #   has. There is no load balance, but Consumer will
         #   contact Provider 1, which will contact Provider 2
         #
-        self._test_reservation(session_id, self.dummy4, 'Provider 2', True, True)
+        reservation_id = self._test_reservation(session_id, self.dummy4, 'Provider 2', True, True)
+        self._wait_multiple_reservations(20, session_id, [ reservation_id ], [0])
+        reservation_result = self.consumer_core_client.get_experiment_use_by_id(session_id, reservation_id)
+        self.assertTrue(reservation_result.is_finished())
+        self.assertEquals('Provider 2', reservation_result.experiment_use.commands[2].response.commandstring)
 
         #######################################################
         #

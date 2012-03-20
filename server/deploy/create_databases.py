@@ -218,7 +218,7 @@ print "[done] [%1.2fs]" % (time.time() - t)
 # Populating tests database
 # 
 
-def populate_weblab_tests(engine):
+def populate_weblab_tests(engine, tests):
     Session = sessionmaker(bind=engine)    
     session = Session()
 
@@ -482,11 +482,12 @@ def populate_weblab_tests(engine):
     dummy2 = Model.DbExperiment("dummy2", cat_dummy, start_date, end_date)
     session.add(dummy2)
 
-    dummy3 = Model.DbExperiment("dummy3", cat_dummy, start_date, end_date)
-    session.add(dummy3)
-
-    dummy3_with_other_name = Model.DbExperiment("dummy3_with_other_name", cat_dummy, start_date, end_date)
-    session.add(dummy3_with_other_name)
+    if tests != '2':
+        dummy3 = Model.DbExperiment("dummy3", cat_dummy, start_date, end_date)
+        session.add(dummy3)
+    else:
+        dummy3_with_other_name = Model.DbExperiment("dummy3_with_other_name", cat_dummy, start_date, end_date)
+        session.add(dummy3_with_other_name)
 
     dummy4 = Model.DbExperiment("dummy4", cat_dummy, start_date, end_date)
     session.add(dummy4)
@@ -597,35 +598,36 @@ def populate_weblab_tests(engine):
     gp_federated_dummy2_allowed_p3 = Model.DbGroupPermissionParameter(gp_federated_dummy2_allowed, experiment_allowed_p3, "300")
     session.add(gp_federated_dummy2_allowed_p3)
 
-    gp_federated_dummy3_allowed = Model.DbGroupPermission(
-        group_federated,
-        experiment_allowed.group_applicable,
-        "Federated users::dummy3",
-        datetime.datetime.utcnow(),
-        "Permission for group Federated users to use dummy3"
-    )
-    session.add(gp_federated_dummy3_allowed)
-    gp_federated_dummy3_allowed_p1 = Model.DbGroupPermissionParameter(gp_federated_dummy3_allowed, experiment_allowed_p1, "dummy3")
-    session.add(gp_federated_dummy3_allowed_p1)
-    gp_federated_dummy3_allowed_p2 = Model.DbGroupPermissionParameter(gp_federated_dummy3_allowed, experiment_allowed_p2, "Dummy experiments")
-    session.add(gp_federated_dummy3_allowed_p2)
-    gp_federated_dummy3_allowed_p3 = Model.DbGroupPermissionParameter(gp_federated_dummy3_allowed, experiment_allowed_p3, "300")
-    session.add(gp_federated_dummy3_allowed_p3)
-
-    gp_federated_dummy3_with_other_name_allowed = Model.DbGroupPermission(
-        group_federated,
-        experiment_allowed.group_applicable,
-        "Federated users::dummy3_with_other_name",
-        datetime.datetime.utcnow(),
-        "Permission for group Federated users to use dummy3_with_other_name"
-    )
-    session.add(gp_federated_dummy3_with_other_name_allowed)
-    gp_federated_dummy3_with_other_name_allowed_p1 = Model.DbGroupPermissionParameter(gp_federated_dummy3_with_other_name_allowed, experiment_allowed_p1, "dummy3_with_other_name")
-    session.add(gp_federated_dummy3_with_other_name_allowed_p1)
-    gp_federated_dummy3_with_other_name_allowed_p2 = Model.DbGroupPermissionParameter(gp_federated_dummy3_with_other_name_allowed, experiment_allowed_p2, "Dummy experiments")
-    session.add(gp_federated_dummy3_with_other_name_allowed_p2)
-    gp_federated_dummy3_with_other_name_allowed_p3 = Model.DbGroupPermissionParameter(gp_federated_dummy3_with_other_name_allowed, experiment_allowed_p3, "300")
-    session.add(gp_federated_dummy3_with_other_name_allowed_p3)
+    if tests != '2':
+        gp_federated_dummy3_allowed = Model.DbGroupPermission(
+            group_federated,
+            experiment_allowed.group_applicable,
+            "Federated users::dummy3",
+            datetime.datetime.utcnow(),
+            "Permission for group Federated users to use dummy3"
+        )
+        session.add(gp_federated_dummy3_allowed)
+        gp_federated_dummy3_allowed_p1 = Model.DbGroupPermissionParameter(gp_federated_dummy3_allowed, experiment_allowed_p1, "dummy3")
+        session.add(gp_federated_dummy3_allowed_p1)
+        gp_federated_dummy3_allowed_p2 = Model.DbGroupPermissionParameter(gp_federated_dummy3_allowed, experiment_allowed_p2, "Dummy experiments")
+        session.add(gp_federated_dummy3_allowed_p2)
+        gp_federated_dummy3_allowed_p3 = Model.DbGroupPermissionParameter(gp_federated_dummy3_allowed, experiment_allowed_p3, "300")
+        session.add(gp_federated_dummy3_allowed_p3)
+    else:
+        gp_federated_dummy3_with_other_name_allowed = Model.DbGroupPermission(
+            group_federated,
+            experiment_allowed.group_applicable,
+            "Federated users::dummy3_with_other_name",
+            datetime.datetime.utcnow(),
+            "Permission for group Federated users to use dummy3_with_other_name"
+        )
+        session.add(gp_federated_dummy3_with_other_name_allowed)
+        gp_federated_dummy3_with_other_name_allowed_p1 = Model.DbGroupPermissionParameter(gp_federated_dummy3_with_other_name_allowed, experiment_allowed_p1, "dummy3_with_other_name")
+        session.add(gp_federated_dummy3_with_other_name_allowed_p1)
+        gp_federated_dummy3_with_other_name_allowed_p2 = Model.DbGroupPermissionParameter(gp_federated_dummy3_with_other_name_allowed, experiment_allowed_p2, "Dummy experiments")
+        session.add(gp_federated_dummy3_with_other_name_allowed_p2)
+        gp_federated_dummy3_with_other_name_allowed_p3 = Model.DbGroupPermissionParameter(gp_federated_dummy3_with_other_name_allowed, experiment_allowed_p3, "300")
+        session.add(gp_federated_dummy3_with_other_name_allowed_p3)
 
     gp_federated_dummy4_allowed = Model.DbGroupPermission(
         group_federated,
@@ -1067,7 +1069,7 @@ for tests in ('','2','3'):
     metadata.create_all(engine)   
 
     _insert_required_initial_data(engine)
-    populate_weblab_tests(engine)
+    populate_weblab_tests(engine, tests)
 
     print "[done] [%1.2fs]" % (time.time() - t)
 
