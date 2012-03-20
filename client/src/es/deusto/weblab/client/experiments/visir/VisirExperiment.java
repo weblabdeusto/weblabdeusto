@@ -171,15 +171,58 @@ public class VisirExperiment extends FlashExperiment {
 
 	private void refresh() {
 		System.out.println("Doing REFRESH");
-		this.savedata = "<save><instruments list=\"breadboard/breadboard.swf|multimeter/multimeter.swf|functiongenerator/functiongenerator.swf|oscilloscope/oscilloscope.swf|tripledc/tripledc.swf\"/><circuit><circuitlist><component>W 255 442 234 457.15 279.5 442 325</component></circuitlist></circuit></save>";
+		//this.savedata = "<save><instruments list=\"breadboard/breadboard.swf|multimeter/multimeter.swf|functiongenerator/functiongenerator.swf|oscilloscope/oscilloscope.swf|tripledc/tripledc.swf\"/><circuit><circuitlist><component>W 255 442 234 457.15 279.5 442 325</component></circuitlist></circuit></save>";
 		this.updateFlashVars();
 		this.refreshFlash();
 	}
 	
-	private void onLoadCircuit(int id) {
+	private void onLoadCircuit(final int id) {
 		System.out.println("Should load circuit number: " + id);
+		
+		assert(id > 0);
+		
+		// Get the circuit name from the internal list
+		final String circuitName = this.circuitsAvailable.get(id - 1);
+		
+		// Build the command to request the data for the specified circuit.
+		final VisirCircuitDataRequestCommand reqData = new VisirCircuitDataRequestCommand(circuitName);
+		
+		// Send the request and process the response.
+		AbstractExternalAppBasedBoard.staticBoardController.sendCommand(reqData, 
+				new IResponseCommandCallback() {
+
+					@Override
+					public void onSuccess(ResponseCommand responseCommand) {
+						
+						final String circuitData = responseCommand.getCommandString();
+						
+						// Change the current circuit to the specified one.
+						VisirExperiment.this.changeCircuit(id, circuitName, circuitData);
+					}
+
+					@Override
+					public void onFailure(CommException e) {
+						System.out.println("Error: Could not retrieve circuit data");
+					}
+					
+				});
 	}
 	
+
+
+	/**
+	 * Changes the active VISIR circuit to the specified one.
+	 * @param id Local identifier of the circuit, as determined by the in-screen circuit list.
+	 * @param circuitName Name of the circuit.
+	 * @param circuitData Data of the circuit.
+	 */
+	protected void changeCircuit(int id, String circuitName, String circuitData) {
+		System.out.println("[DBG] Changing circuit");
+		this.savedata = circuitData.trim();
+		//this.savedata = "<save><instruments list=\"breadboard/breadboard.swf|multimeter/multimeter.swf|functiongenerator/functiongenerator.swf|oscilloscope/oscilloscope.swf|tripledc/tripledc.swf\"/><circuit><circuitlist><component>W 255 442 234 457.15 279.5 442 325</component></circuitlist></circuit></save>";
+		this.updateFlashVars();
+		this.refresh();
+	}
 
 	/**
 	 * Will set or update the flash vars with local parameters such as cookie or savedata.

@@ -270,6 +270,7 @@ class VisirTestExperiment(Experiment.Experiment):
             return circuit_list_string
         
         elif command.startswith("GIVE_ME_CIRCUIT_DATA"):
+            print "[DBG] GOT GIVE_ME_CIRCUIT_DATA_REQUEST"
             circuit_name = command.split(' ', 1)[1]
             circuit_data = self.circuits[circuit_name]
             return circuit_data

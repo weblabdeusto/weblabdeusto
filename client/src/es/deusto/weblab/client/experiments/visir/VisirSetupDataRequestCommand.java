@@ -113,7 +113,7 @@ public class VisirSetupDataRequestCommand extends Command {
 				
 				for( int i = 0 ; i < circuitsAvailableArray.size(); ++i ) {
 					final JSONValue circuitName = circuitsAvailableArray.get(i);
-					final String circuitNameStr = circuitName.toString();
+					final String circuitNameStr = circuitName.isString().stringValue();
 					this.circuitsAvailable.add(circuitNameStr);
 				}
 			}
