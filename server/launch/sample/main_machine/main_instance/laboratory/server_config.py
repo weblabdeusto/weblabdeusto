@@ -73,6 +73,26 @@ laboratory_assigned_experiments = {
                  'coord_address': 'experiment_testvisir:main_instance@main_machine',
                  'checkers': ()
             },
+        'exp2:visirtest@Dummy experiments':
+            {
+                 'coord_address': 'experiment_testvisir:main_instance@main_machine',
+                 'checkers': ()
+            },
+        'exp3:visirtest@Dummy experiments':
+            {
+                 'coord_address': 'experiment_testvisir:main_instance@main_machine',
+                 'checkers': ()
+            },
+        'exp4:visirtest@Dummy experiments':
+            {
+                 'coord_address': 'experiment_testvisir:main_instance@main_machine',
+                 'checkers': ()
+            },
+        'exp5:visirtest@Dummy experiments':
+            {
+                 'coord_address': 'experiment_testvisir:main_instance@main_machine',
+                 'checkers': ()
+            },
         'exp1:vm@Dummy experiments':
             {
                  'coord_address': 'experiment_vm:main_instance@main_machine',

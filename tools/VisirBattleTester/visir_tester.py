@@ -47,7 +47,7 @@ class Tester(object):
         try:
             weblab      = WebLabDeustoClient(self.url)
             session_id  = weblab.login(self.username, self.password)
-            reservation = weblab.reserve_experiment(session_id, ExperimentId("visir", "Visir experiments"), "{}", "{}")
+            reservation = weblab.reserve_experiment(session_id, ExperimentId("visirtest", "Dummy experiments"), "{}", "{}")
 
             while reservation.status in (Reservation.WAITING_CONFIRMATION or Reservation.WAITING):
                 time.sleep(1)
@@ -106,6 +106,8 @@ class Tester(object):
                     loggedout = True
                 except:
                     loggedout = False
+            else:
+                loggedout = "no id provided"
             print "Finished with exception and logged out: %s" % loggedout
             traceback.print_exc()
 

@@ -11,12 +11,12 @@ sys.path.append(os.sep.join(('..','..','server','src')))
 import libraries
 from visir_tester import Tester
 
-EXECUTIONS =  15
-PROCESSES  =  80
+EXECUTIONS =  10
+PROCESSES  =  8
 
 def f(n):
     time.sleep(0.01 * n)
-    tester = Tester("http://www.weblab.deusto.es/weblab/", "tester", "t3st3r6", EXECUTIONS)
+    tester = Tester("http://localhost/weblab/", "any", "password", EXECUTIONS)
     result = tester.run()
     return result
 
