@@ -123,11 +123,7 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self.consumer_core_client.finished_experiment(reservation_id2)
 
         # Wait a couple of seconds to check that it has been propagated
-        for _ in range(20):
-            time.sleep(0.5)
-            # Checking every half second
-            if self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)[1].is_finished():
-                break
+        self._wait_multiple_reservations(20, session_id, reservation_ids, [1])
 
         reservation_results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
 
@@ -152,12 +148,7 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self._test_reservation(session_id, self.dummy1, 'Provider 2', True, False)
 
         # Check for the other uses
-        for _ in range(70):
-            time.sleep(0.5)
-            # Checking every half second
-            results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
-            if results[0].is_finished() and results[2].is_finished():
-                break
+        self._wait_multiple_reservations(70, session_id, reservation_ids, [0,2])
 
         reservation_results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
         self.assertTrue( reservation_results[0].is_finished() )
@@ -209,6 +200,19 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self.assertTrue(final_reservation_results[1].is_finished())
         self.assertEquals('Provider 1', final_reservation_results[0].experiment_use.commands[2].response.commandstring)
         self.assertEquals('Provider 1', final_reservation_results[1].experiment_use.commands[2].response.commandstring)
+
+    def _wait_multiple_reservations(self, times, session_id, reservation_ids, reservations_to_wait):
+        for _ in range(times):
+            time.sleep(0.5)
+            # Checking every half second
+            results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
+            all_finished = True
+
+            for reservation_to_wait in reservations_to_wait:
+                all_finished = all_finished and results[reservation_to_wait].is_finished()
+
+            if all_finished:
+                break
 
     def _test_reservation(self, session_id, experiment_id, expected_server_info, wait, finish, user_agent = None):
         reservation_status = self.consumer_core_client.reserve_experiment(session_id, experiment_id, "{}", "{}", user_agent = user_agent)
