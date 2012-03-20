@@ -66,30 +66,33 @@ class ExternalWebLabDeustoReservationPendingResults(Base):
 
     username                = Column(String(255))
     serialized_request_info = Column(String(1536))
+    experiment_id_str   = Column(String(255 * 2 + 1))
    
-    @typecheck(typecheck.ANY, basestring, basestring, basestring, basestring, basestring, basestring)
-    def __init__(self, reservation_id, remote_reservation_id, resource_type_name, server_route, username, serialized_request_info):
+    @typecheck(typecheck.ANY, basestring, basestring, basestring, basestring, basestring, basestring, basestring)
+    def __init__(self, reservation_id, remote_reservation_id, resource_type_name, server_route, username, serialized_request_info, experiment_id_str):
         self.reservation_id          = reservation_id
         self.remote_reservation_id   = remote_reservation_id
         self.resource_type_name      = resource_type_name
         self.server_route            = server_route
         self.username                = username
         self.serialized_request_info = serialized_request_info
+        self.experiment_id_str       = experiment_id_str
 
     def __repr__(self):
-        return SUFFIX + "ExternalWeblabDeustoReservationPendingResults(%r, %r, %r, %r, %r, %r)" % (
-                            self.reservation_id, self.remote_reservation_id, self.resource_type_name, self.server_route, self.username, self.serialized_request_info)
+        return SUFFIX + "ExternalWeblabDeustoReservationPendingResults(%r, %r, %r, %r, %r, %r, %r)" % (
+                            self.reservation_id, self.remote_reservation_id, self.resource_type_name, self.server_route, self.username, self.serialized_request_info, self.experiment_id_str)
 
     def to_dto(self):
-        return ExternalWebLabDeustoReservationPendingResultDTO(self.id, self.reservation_id, self.remote_reservation_id, self.username, self.serialized_request_info)
+        return ExternalWebLabDeustoReservationPendingResultDTO(self.id, self.reservation_id, self.remote_reservation_id, self.username, self.serialized_request_info, self.experiment_id_str)
 
 class ExternalWebLabDeustoReservationPendingResultDTO(object):
     __metaclass__ = Representable
 
-    def __init__(self, id, reservation_id, remote_reservation_id, username, serialized_request_info):
+    def __init__(self, id, reservation_id, remote_reservation_id, username, serialized_request_info, experiment_id_str):
         self.id                      = id
         self.reservation_id          = reservation_id
         self.remote_reservation_id   = remote_reservation_id
         self.username                = username
         self.serialized_request_info = serialized_request_info
+        self.experiment_id_str       = experiment_id_str
 

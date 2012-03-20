@@ -26,6 +26,7 @@ import voodoo.log as log
 from voodoo.counter import next_name
 from voodoo.sessions.session_id import SessionId
 
+from weblab.data.experiments import ExperimentId
 from weblab.core.coordinator.externals.weblabdeusto_scheduler_model import ExternalWebLabDeustoReservationPendingResults
 
 class ResultsRetriever(threading.Thread):
@@ -117,6 +118,7 @@ class ResultsRetriever(threading.Thread):
 
                 if result.is_finished():
                     use = result.experiment_use
+                    use.experiment_id = ExperimentId.parse(pending_result.experiment_id_str)
                     use.remote_reservation_id = remote_reservation_id
                     use.reservation_id = reservation_id
 
