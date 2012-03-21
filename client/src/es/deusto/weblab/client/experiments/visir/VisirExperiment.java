@@ -162,22 +162,22 @@ public class VisirExperiment extends FlashExperiment {
 		if (doc == undefined || doc == null)
 	    	doc = $wnd.wl_iframe.contentWindow.document;
 	    	
+	    // TODO: Internationalize "Circuits available"
 	 	$doc.getElementById('div_extra').innerHTML = 
-	 	"<div align='left'><font color='red'>HELLO WORLD</font></div>" +
-	 	"<div align='left'><a href=\"\" OnClick=\"javascript:callRefresh();return false;\">REFRESH</a></div>" +
+	 	"<div align='left'><font color='black'><b><h2>Circuits available</h2></b></font></div>" +
+	 	//"<div align='left'><a href=\"\" OnClick=\"javascript:callRefresh();return false;\">REFRESH</a></div>" +
 	 	circuitsTableHTML;
 	}-*/;
 	
 
 	private void refresh() {
-		System.out.println("Doing REFRESH");
 		//this.savedata = "<save><instruments list=\"breadboard/breadboard.swf|multimeter/multimeter.swf|functiongenerator/functiongenerator.swf|oscilloscope/oscilloscope.swf|tripledc/tripledc.swf\"/><circuit><circuitlist><component>W 255 442 234 457.15 279.5 442 325</component></circuitlist></circuit></save>";
 		this.updateFlashVars();
 		this.refreshFlash();
 	}
 	
 	private void onLoadCircuit(final int id) {
-		System.out.println("Should load circuit number: " + id);
+		//System.out.println("[DBG] Should load circuit number: " + id);
 		
 		assert(id > 0);
 		
@@ -217,7 +217,7 @@ public class VisirExperiment extends FlashExperiment {
 	 * @param circuitData Data of the circuit.
 	 */
 	protected void changeCircuit(int id, String circuitName, String circuitData) {
-		System.out.println("[DBG] Changing circuit");
+		//System.out.println("[DBG] Changing circuit");
 		this.savedata = circuitData.trim();
 		//this.savedata = "<save><instruments list=\"breadboard/breadboard.swf|multimeter/multimeter.swf|functiongenerator/functiongenerator.swf|oscilloscope/oscilloscope.swf|tripledc/tripledc.swf\"/><circuit><circuitlist><component>W 255 442 234 457.15 279.5 442 325</component></circuitlist></circuit></save>";
 		this.updateFlashVars();
