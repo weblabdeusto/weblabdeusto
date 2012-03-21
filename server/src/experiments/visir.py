@@ -323,7 +323,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
             if DEBUG: print "[DBG] Measure server address: ", self.measure_server_addr
             if DEBUG: print "[DBG] Measure server target: ", self.measure_server_target
 
-        return "Ok"
+        return "ok"
 
     @Override(ConcurrentExperiment.ConcurrentExperiment)
     def do_send_command_to_device(self, lab_session_id, command):
@@ -569,5 +569,5 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         
         if DEBUG: print "[DBG] Finished successfully: ", lab_session_id 
         
-        return "Ok"
+        return "ok"
 
