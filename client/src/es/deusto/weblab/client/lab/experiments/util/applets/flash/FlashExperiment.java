@@ -373,10 +373,11 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard {
         $wnd.wl_iframe.height = iframeHeight;
         $wnd.wl_iframe.width = iframeWidth;
         
-        var metasHtml = "<meta http-Equiv=\"Cache-Control\" Content=\"no-cache\">\n" +
-							"<meta http-Equiv=\"Pragma\" Content=\"no-cache\">\n" +
-							"<meta http-Equiv=\"Expires\" Content=\"0\">\n\n";
-        
+//        var metasHtml = "<meta http-Equiv=\"Cache-Control\" Content=\"no-cache\">\n" +
+//							"<meta http-Equiv=\"Pragma\" Content=\"no-cache\">\n" +
+//							"<meta http-Equiv=\"Expires\" Content=\"0\">\n\n";
+        var metasHtml = "";
+
 		var functionsHtml = "<script language=\"JavaScript\">\n" +
 				"function wl_getIntProperty(name){ " +
 					"return parent.wl_getIntProperty(name); " +
