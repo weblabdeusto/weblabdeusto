@@ -1,6 +1,8 @@
 import sys, os
 sys.path.append( os.sep.join( ('..', 'src') ) )
 
+from optparse import OptionParser
+
 import time
 t_initial = time.time()
 
@@ -31,10 +33,25 @@ except ImportError, e:
 	print >> sys.stderr, "Error: configuration.py doesn't exist or doesn't have all the required parameters: %s " % e
 	sys.exit(2)
 
-if len(sys.argv) > 1:
-    prefix = sys.argv[1]
-else:
-    prefix = ""
+parser = OptionParser()
+parser.add_option("-p", "--prefix", dest="prefix", default="",
+                  help="Ask for a prefix", metavar="PREFIX")
+parser.add_option("-a", "--avoid-real",
+                  action="store_true", dest="avoid_real", default=False,
+                  help="Avoid real database")
+parser.add_option("-f", "--force",
+                  action="store_true", dest="force", default=False,
+                  help="Force removing information")
+
+(options, args) = parser.parse_args()
+prefix = options.prefix
+
+if prefix != "" and not options.avoid_real and not options.force:
+    print "WARNING: You have specified a prefix and this script is going to delete all the databases (including user information, experiments, etc.). Are you sure you want to delete all the information from all the WebLab databases? You can remove only the temporary coordination and session information by providing the -a option, and you can avoid this warning in the future passing the -f option."
+    response = raw_input("Press 'y' if you are sure of this: ")
+    if response != 'y':
+        print "Cancelled by the user"
+        sys.exit(0)
 
 if db_engine == 'mysql':
     try:
@@ -46,8 +63,9 @@ if db_engine == 'mysql':
         import pymysql
         dbi = pymysql
 
-    weblab_db_str = 'mysql://%s:%s@localhost/%sWebLab' % (weblab_db_username, weblab_db_password, prefix)
-    weblab_test_db_str = 'mysql://%s:%s@localhost/%sWebLabTests%s' % (weblab_db_username, weblab_db_password, prefix, '%s')
+    if not options.avoid_real:
+        weblab_db_str = 'mysql://%s:%s@localhost/%sWebLab' % (weblab_db_username, weblab_db_password, prefix)
+        weblab_test_db_str = 'mysql://%s:%s@localhost/%sWebLabTests%s' % (weblab_db_username, weblab_db_password, prefix, '%s')
     weblab_coord_db_str = 'mysql://%s:%s@localhost/%sWebLabCoordination%s' % (core_coordinator_db_username, core_coordinator_db_password, prefix, '%s')
     weblab_sessions_db_str = 'mysql://%s:%s@localhost/%sWebLabSessions' % (weblab_sessions_db_username, weblab_sessions_db_password, prefix)
 
@@ -97,8 +115,9 @@ elif db_engine == 'sqlite':
     if not os.path.exists(db_dir):
         os.mkdir(db_dir)
 
-    weblab_db_str = 'sqlite:///../db/%sWebLab.db' % prefix
-    weblab_test_db_str = 'sqlite:///../db/%sWebLabTests%s.db' % (prefix, '%s')
+    if not options.avoid_real:
+        weblab_db_str = 'sqlite:///../db/%sWebLab.db' % prefix
+        weblab_test_db_str = 'sqlite:///../db/%sWebLabTests%s.db' % (prefix, '%s')
     weblab_coord_db_str = 'sqlite:///../db/%sWebLabCoordination%s.db' % (prefix, '%s')
     weblab_sessions_db_str = 'sqlite:///../db/%sWebLabSessions.db' % prefix
 
@@ -113,10 +132,11 @@ else:
 
 t = time.time()
 
-create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLab" % prefix,              weblab_db_username, weblab_db_password)
-create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabTests" % prefix,         weblab_db_username, weblab_db_password)
-create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabTests2" % prefix,        weblab_db_username, weblab_db_password)
-create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabTests3" % prefix,        weblab_db_username, weblab_db_password)
+if not options.avoid_real:
+    create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLab" % prefix,              weblab_db_username, weblab_db_password)
+    create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabTests" % prefix,         weblab_db_username, weblab_db_password)
+    create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabTests2" % prefix,        weblab_db_username, weblab_db_password)
+    create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabTests3" % prefix,        weblab_db_username, weblab_db_password)
 create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabCoordination" % prefix,  core_coordinator_db_username, core_coordinator_db_password)
 create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabCoordination2" % prefix, core_coordinator_db_username, core_coordinator_db_password)
 create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabCoordination3" % prefix, core_coordinator_db_username, core_coordinator_db_password)
@@ -200,18 +220,19 @@ def _insert_required_initial_data(engine):
 # Populating main database
 # 
 
-print "Populating 'WebLab' database...   \t\t", 
+if not options.avoid_real:
+    print "Populating 'WebLab' database...   \t\t", 
 
-t = time.time()
+    t = time.time()
 
-engine = create_engine(weblab_db_str, echo = False)
-metadata = Model.Base.metadata
-metadata.drop_all(engine)
-metadata.create_all(engine)
+    engine = create_engine(weblab_db_str, echo = False)
+    metadata = Model.Base.metadata
+    metadata.drop_all(engine)
+    metadata.create_all(engine)
 
-_insert_required_initial_data(engine)
+    _insert_required_initial_data(engine)
 
-print "[done] [%1.2fs]" % (time.time() - t)
+    print "[done] [%1.2fs]" % (time.time() - t)
 
 #####################################################################
 # 
@@ -1059,19 +1080,20 @@ def populate_weblab_tests(engine, tests):
                
     session.commit()
 
-for tests in ('','2','3'):
-    print "Populating 'WebLabTests%s' database...   \t\t" % tests, 
-    t = time.time()
+if not options.avoid_real:
+    for tests in ('','2','3'):
+        print "Populating 'WebLabTests%s' database...   \t\t" % tests, 
+        t = time.time()
 
-    engine = create_engine(weblab_test_db_str % tests, echo = False)
-    metadata = Model.Base.metadata
-    metadata.drop_all(engine)
-    metadata.create_all(engine)   
+        engine = create_engine(weblab_test_db_str % tests, echo = False)
+        metadata = Model.Base.metadata
+        metadata.drop_all(engine)
+        metadata.create_all(engine)   
 
-    _insert_required_initial_data(engine)
-    populate_weblab_tests(engine, tests)
+        _insert_required_initial_data(engine)
+        populate_weblab_tests(engine, tests)
 
-    print "[done] [%1.2fs]" % (time.time() - t)
+        print "[done] [%1.2fs]" % (time.time() - t)
 
 
 
