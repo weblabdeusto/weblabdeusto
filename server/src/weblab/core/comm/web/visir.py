@@ -17,6 +17,8 @@
 import weblab.comm.web_server as WebFacadeServer
 __builtins__
 
+import tempfile
+from voodoo.log import logged
 # To convert from HTTP date to standard time
 import email.utils as eut
 import time
@@ -109,7 +111,9 @@ class UploadExtractor(object):
 
 class  VisirMethod(WebFacadeServer.Method):
     path = '/visir/'
+    mimetypes_loaded = False
 
+    @logged()
     def run(self):
         """
         run()
@@ -118,9 +122,9 @@ class  VisirMethod(WebFacadeServer.Method):
         
         # Just deny any request with an URL containing .. to prevent security issues
         if ".." in self.uri:
-            return FAULT_HTML_TEMPLATE % { 
-                                          'THE_FAULT_CODE' : "Invalid URI",  
-                                          'THE_FAULT_MESSAGE' : "The URI should not contain .." }
+            self.set_status(403)
+            if DEBUG: print "Forbidden"
+            return "403 Forbidden: The URI should not contain .."
         
         # Find out the location of the file. 
         fileonly = self.uri.split('/web/visir/')[1]
@@ -130,9 +134,9 @@ class  VisirMethod(WebFacadeServer.Method):
         if DEBUG: print "Loading %s..." % fname,
         
         if not os.path.abspath(fname).startswith(VISIR_LOCATION):
-            return FAULT_HTML_TEMPLATE % { 
-                                          'THE_FAULT_CODE' : "Invalid URI",  
-                                          'THE_FAULT_MESSAGE' : "The URI tried to go outside the scope of VISIR" }
+            self.set_status(403)
+            if DEBUG: print "Forbidden"
+            return "403 Forbidden: The URI tried to go outside the scope of VISIR"
 
                
         # Intercept the save request
@@ -145,7 +149,11 @@ class  VisirMethod(WebFacadeServer.Method):
             content = self.intercept_store()
             if DEBUG: print "Intercepted %s" % len(content)
             return content
-        
+
+        if fileonly.startswith("temp/"):
+            content = self.intercept_temp(fileonly[len('temp/'):])
+            if DEBUG: print "Intercepted %s" % len(content)
+            return content
         
         # We did not intercept the request, we will just serve the file.
         
@@ -171,13 +179,13 @@ class  VisirMethod(WebFacadeServer.Method):
             with open(fname, "rb") as f:
                 content = f.read()
         except:
-            if DEBUG: print "Failed to open"
-            return FAULT_HTML_TEMPLATE % { 
-                              'THE_FAULT_CODE' : "404",  
-                              'THE_FAULT_MESSAGE' : "File not found (or not readable)" }
+            self.set_status(404)
+            if DEBUG: print "Not found"
+            return "404 Not found"
         
-        # TODO: Ensure that this is actually done only once.
-        mimetypes.init()
+        if not VisirMethod.mimetypes_loaded:
+            mimetypes.init()
+            VisirMethod.mimetypes_loaded = True
 
         
         # Use the file path to guess the mimetype
@@ -251,19 +259,30 @@ class  VisirMethod(WebFacadeServer.Method):
         partheaders, filename = extractor.extract_file() #@UnusedVariable
         partheaders, filedata = extractor.extract_file() #@UnusedVariable
         
-        filename = "circuit.cir" # Override the name so that it is always the same one.
+        fd, name = tempfile.mkstemp(suffix='.cir.tmp', prefix='weblab_visir_', dir=VISIR_TEMP_FILES)
+        os.close(fd)
 
-        filepath = os.sep.join((VISIR_TEMP_FILES, filename.strip()))
-        
-                
-        if not os.path.exists(filepath):
-            os.makedirs(filepath)
-        
-        fo = file(filepath, "w")
+        fo = file(name, "wb")
         fo.write(filedata)
         fo.close()
+
+        self.set_content_type("text/xml")
         
-        return "RELOAD"
+        return "<result><filename>%s</filename></result>" % os.path.basename(name)
+
+    def intercept_temp(self, fileonly):
+        # Avoid weird characters, .., etc.
+        filename = os.path.basename(fileonly)
+        full_filename = os.sep.join((VISIR_TEMP_FILES, filename))
+        if not os.path.exists(full_filename):
+            self.set_status(404)
+            if DEBUG: print "Not found"
+            return "404: Temporal file not found"
+
+        content = open(full_filename, 'rb').read()
+        self.set_content_type("text/xml")
+        return content
+
 
 class VisirException(Exception):
     pass
