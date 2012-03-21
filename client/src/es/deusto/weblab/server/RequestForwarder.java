@@ -55,7 +55,12 @@ public class RequestForwarder extends HttpServlet{
 	
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		final HttpURLConnection serverConnection = (HttpURLConnection)new URL("http", this.host, req.getRequestURI()+"?"+req.getQueryString()).openConnection();
+		final String queryString;
+		if(req.getQueryString() != null)
+			queryString = "?"+req.getQueryString();
+		else
+			queryString = "";
+		final HttpURLConnection serverConnection = (HttpURLConnection)new URL("http", this.host, req.getRequestURI()+queryString).openConnection();
 		serverConnection.setDoOutput(true);
 		serverConnection.setRequestMethod(req.getMethod());
 
