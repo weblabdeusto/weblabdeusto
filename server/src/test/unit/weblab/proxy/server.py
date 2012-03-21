@@ -1,28 +1,28 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
 from test.unit.weblab.proxy import adds_triple_translator, fake_time
-from voodoo.sessions import exc as SessionExceptions
+from voodoo.sessions import exc as SessionErrors
 from voodoo.gen.coordinator import CoordAddress
-from voodoo.gen.exceptions.locator import LocatorExceptions
+from voodoo.gen.exceptions.locator import LocatorErrors
 from voodoo.gen.locator import EasyLocator
 from voodoo.sessions import session_id as SessionId
 from weblab.data import server_type as ServerType
 from weblab.data.command import Command
-import weblab.lab.exc as LaboratoryExceptions
-import weblab.proxy.exc as ProxyExceptions
+import weblab.lab.exc as LaboratoryErrors
+import weblab.proxy.exc as ProxyErrors
 from weblab.proxy import server as ProxyServer
 from weblab.translator.translators import StoresNothingTranslator, StoresEverythingTranslator
 import mocker
@@ -34,7 +34,7 @@ import weblab.methods as weblab_methods
 
 
 class CreatingProxyServerTestCase(mocker.MockerTestCase):
-    
+
     def setUp(self):
         self._cfg_manager = ConfigurationManager.ConfigurationManager()
         self._cfg_manager.append_module(configuration_module)
@@ -42,30 +42,30 @@ class CreatingProxyServerTestCase(mocker.MockerTestCase):
     def test_invalid_session_type_name(self):
         self._cfg_manager._set_value(ProxyServer.WEBLAB_PROXY_SERVER_SESSION_TYPE, "this_will_never_be_a_valid_session_type")
         self.assertRaises(
-            ProxyExceptions.NotASessionTypeException,
+            ProxyErrors.NotASessionTypeError,
             ProxyServer.ProxyServer, None, None, self._cfg_manager
         )
-        
+
     def test_invalid_default_translator_klazz_name(self):
         self._cfg_manager._set_value(ProxyServer.WEBLAB_PROXY_SERVER_DEFAULT_TRANSLATOR_NAME, "ThisWillNeverBeAValidDefaultTranslatorKlazzName")
         self.assertRaises(
-            ProxyExceptions.InvalidDefaultTranslatorNameException,
+            ProxyErrors.InvalidDefaultTranslatorNameError,
             ProxyServer.ProxyServer, None, None, self._cfg_manager
         )
-        
-    
+
+
 class UsingProxyServerTestCase(mocker.MockerTestCase):
-    
+
     def setUp(self):
         self._cfg_manager = ConfigurationManager.ConfigurationManager()
         self._cfg_manager.append_module(configuration_module)
-        
+
         self.RESERVATION_ID = "my_reservation_id"
         self.RESERVATION_SESS_ID = SessionId.SessionId(self.RESERVATION_ID)
         self.LAB_SESS_ID = "my_lab_sess_id"
         self.ANY_COORD_ADDR = CoordAddress.CoordAddress.translate_address('myserver:myprocess@mymachine')
         self.LAB_COORD_ADDR = self.ANY_COORD_ADDR
-        
+
     def _create_proxy(self, laboratories=(), translators=(), time_mock=None):
         locator = FakeLocator({'laboratories': laboratories, 'translators': translators})
         easylocator = EasyLocator.EasyLocator(self.ANY_COORD_ADDR, locator)
@@ -78,11 +78,11 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
         locator = FakeLocator()
         easylocator = EasyLocator.EasyLocator(self.ANY_COORD_ADDR, locator)
         return translator_klazz(self.ANY_COORD_ADDR, easylocator, self._cfg_manager)
-    
+
     #===========================================================================
     # _find_translator()
     #===========================================================================
-    
+
     def test_find_translator_being_a_suitable_translator_available(self):
         translator = self._create_custom_translator(StoresNothingTranslator)
         proxy = self._create_proxy(translators=(translator,))
@@ -105,18 +105,18 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
         found_translator, is_default = proxy._find_translator("whichever experiment_id, because FakeLocator won't find it...")
         self.assertEquals(StoresEverythingTranslator, found_translator.__class__)
         self.assertTrue(is_default)
-    
+
     #===========================================================================
     # Using the API: enable_access(), send_command(), send_file(), are_expired(), disable_access(), retrieve_results()
     #===========================================================================
-    
+
     def _test_command_sent(self, command_sent, expected_command, expected_response):
         self.assertEquals(expected_command, command_sent.command.commandstring)
         self.assertEquals(expected_response, command_sent.response.commandstring)
         self.assertTrue(isinstance(command_sent.timestamp_before, float))
         self.assertTrue(isinstance(command_sent.timestamp_after, float))
         self.assertTrue(command_sent.timestamp_after >= command_sent.timestamp_before)
-        
+
     def _test_file_sent(self, file_sent, expected_file_info, expected_response):
         self.assertEquals(expected_file_info, file_sent.file_info)
         self.assertEquals(expected_response, file_sent.response.commandstring)
@@ -130,35 +130,35 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
 
         self._cfg_manager._set_value(ProxyServer.WEBLAB_PROXY_SERVER_DEFAULT_TRANSLATOR_NAME, translator_name)
         fake_time.TIME_TO_RETURN = 1289548551.2617509 # 2010_11_12___07_55_51
-        
+
         laboratory = self.mocker.mock()
         laboratory.send_command(self.LAB_SESS_ID, Command('Do this!'))
         self.mocker.result(Command('Done!'))
         laboratory.send_file(self.LAB_SESS_ID, Command(FILE_CONTENT), FILE_INFO)
         self.mocker.result(Command('File received!'))
-        
+
         self.mocker.replay()
         proxy = self._create_proxy(laboratories=(laboratory,), time_mock=fake_time)
 
         proxy.do_enable_access(self.RESERVATION_ID, "ud-fpga@FPGA experiments", "student1", self.LAB_COORD_ADDR, self.LAB_SESS_ID)
-        
+
         command_response = proxy.send_command(self.RESERVATION_SESS_ID, Command('Do this!'))
         self.assertEquals(Command('Done!'), command_response)
-        
+
         file_response = proxy.send_file(self.RESERVATION_SESS_ID, Command(FILE_CONTENT), FILE_INFO)
         self.assertEquals(Command('File received!'), file_response)
-        
+
         proxy.do_disable_access(self.RESERVATION_ID)
-        
+
         commands, files = proxy.do_retrieve_results(self.RESERVATION_ID)
         return commands, files
-        
+
     def test_happy_path_using_a_translator_that_stores(self):
         # Since this is not a really default Translator, we have to make it available for the test
         ProxyServer.DEFAULT_TRANSLATORS['AddsATrippleAAtTheBeginingTranslator'] = adds_triple_translator.AddsATrippleAAtTheBeginingTranslator
 
-        commands, files = self._test_happy_path("AddsATrippleAAtTheBeginingTranslator")        
-        
+        commands, files = self._test_happy_path("AddsATrippleAAtTheBeginingTranslator")
+
         self.assertEquals(2, len(commands))
         self._test_command_sent(
             commands[0],
@@ -168,112 +168,112 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
             commands[1],
             'on_finish', 'on_start before_send_command after_send_command before_send_file after_send_file do_on_finish '
         )
-        
+
         self.assertEquals(1, len(files))
         self._test_file_sent(
             files[0],
             "My file's description",
             'AAAFile received!'
         )
-        
+
     def test_happy_path_using_a_translator_that_does_not_store(self):
         commands, files = self._test_happy_path("StoresNothingTranslator")
         self.assertEquals(0, len(commands))
         self.assertEquals(0, len(files))
-            
+
     def test_doing_anything_before_enabling(self):
         proxy = self._create_proxy()
-        
+
         # Can't disable access, of course
         self.assertRaises(
-            ProxyExceptions.InvalidReservationIdException,
+            ProxyErrors.InvalidReservationIdError,
             proxy.do_disable_access,
             self.RESERVATION_ID
         )
-        
+
         # Can't check if the user is online
         expirations = proxy.do_are_expired([self.RESERVATION_ID])
         self.assertEquals("Y <sessionid-not-found>", expirations[0])
-        
+
         # Can't retrieve results
         self.assertRaises(
-            SessionExceptions.SessionNotFoundException,
+            SessionErrors.SessionNotFoundError,
             proxy.do_retrieve_results,
             self.RESERVATION_ID
         )
-        
+
         # Can't poll
         self.assertRaises(
-            ProxyExceptions.InvalidReservationIdException,
+            ProxyErrors.InvalidReservationIdError,
             proxy.poll,
             self.RESERVATION_SESS_ID
-        )   
-        
-        # Can't work with the experiment 
+        )
+
+        # Can't work with the experiment
         self.assertRaises(
-            ProxyExceptions.InvalidReservationIdException,
+            ProxyErrors.InvalidReservationIdError,
             proxy.send_command,
             self.RESERVATION_SESS_ID, 'command'
         )
         self.assertRaises(
-            ProxyExceptions.InvalidReservationIdException,
+            ProxyErrors.InvalidReservationIdError,
             proxy.send_file,
             self.RESERVATION_SESS_ID, 'file'
         )
-        
+
     def test_doing_anything_after_disabling(self):
         proxy = self._create_proxy()
         proxy.do_enable_access(self.RESERVATION_ID, "ud-fpga@FPGA experiments", "student1", self.LAB_COORD_ADDR, self.LAB_SESS_ID)
         proxy.do_disable_access(self.RESERVATION_ID)
-        
+
         # Can't poll
         self.assertRaises(
-            ProxyExceptions.AccessDisabledException,
+            ProxyErrors.AccessDisabledError,
             proxy.poll,
             self.RESERVATION_SESS_ID
-        )   
-        
-        # Can't work with the experiment 
+        )
+
+        # Can't work with the experiment
         self.assertRaises(
-            ProxyExceptions.AccessDisabledException,
+            ProxyErrors.AccessDisabledError,
             proxy.send_command,
             self.RESERVATION_SESS_ID, 'command'
         )
         self.assertRaises(
-            ProxyExceptions.AccessDisabledException,
+            ProxyErrors.AccessDisabledError,
             proxy.send_file,
             self.RESERVATION_SESS_ID, 'file'
         )
-        
+
         # Can't disable access again, of course
         self.assertRaises(
-            ProxyExceptions.AccessDisabledException,
+            ProxyErrors.AccessDisabledError,
             proxy.do_disable_access,
             self.RESERVATION_ID
-        )   
-        
+        )
+
         # CAN retrieve results!
         proxy.do_retrieve_results(self.RESERVATION_ID)
 
     def test_failed_to_send_command(self):
         laboratory = self.mocker.mock()
         laboratory.send_command(self.LAB_SESS_ID, 'command')
-        self.mocker.throw(LaboratoryExceptions.FailedToSendCommandException)
-        
+        self.mocker.throw(LaboratoryErrors.FailedToSendCommandError)
+
         self.mocker.replay()
         proxy = self._create_proxy(laboratories=(laboratory,))
-        
+
         proxy.do_enable_access(self.RESERVATION_ID, "ud-fpga@FPGA experiments", "student1", self.LAB_COORD_ADDR, self.LAB_SESS_ID)
-        
+
         self.assertRaises(
-            ProxyExceptions.FailedToSendCommandException,
+            ProxyErrors.FailedToSendCommandError,
             proxy.send_command,
             self.RESERVATION_SESS_ID, 'command'
         )
-        
+
         # Access becomes disabled
         self.assertRaises(
-            ProxyExceptions.AccessDisabledException,
+            ProxyErrors.AccessDisabledError,
             proxy.send_command,
             self.RESERVATION_SESS_ID, 'command'
         )
@@ -281,65 +281,65 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
     def test_failed_to_send_file(self):
         laboratory = self.mocker.mock()
         laboratory.send_file(self.LAB_SESS_ID, 'file', 'info')
-        self.mocker.throw(LaboratoryExceptions.FailedToSendFileException)
-        
+        self.mocker.throw(LaboratoryErrors.FailedToSendFileError)
+
         self.mocker.replay()
         proxy = self._create_proxy(laboratories=(laboratory,))
-        
+
         proxy.do_enable_access(self.RESERVATION_ID, "ud-fpga@FPGA experiments", "student1", self.LAB_COORD_ADDR, self.LAB_SESS_ID)
-                
+
         self.assertRaises(
-            ProxyExceptions.FailedToSendFileException,
+            ProxyErrors.FailedToSendFileError,
             proxy.send_file,
             self.RESERVATION_SESS_ID, 'file', 'info'
         )
-        
+
         # Access becomes disabled
         self.assertRaises(
-            ProxyExceptions.AccessDisabledException,
+            ProxyErrors.AccessDisabledError,
             proxy.send_file,
             self.RESERVATION_SESS_ID, 'file', 'info'
         )
-        
+
     def test_invalid_laboratory_session_id_when_sending_a_command(self):
         laboratory = self.mocker.mock()
         laboratory.send_command(self.LAB_SESS_ID, 'command')
-        self.mocker.throw(LaboratoryExceptions.SessionNotFoundInLaboratoryServerException)
-        
+        self.mocker.throw(LaboratoryErrors.SessionNotFoundInLaboratoryServerError)
+
         self.mocker.replay()
         proxy = self._create_proxy(laboratories=(laboratory,))
-        
+
         proxy.do_enable_access(self.RESERVATION_ID, "ud-fpga@FPGA experiments", "student1", self.LAB_COORD_ADDR, self.LAB_SESS_ID)
-        
+
         self.assertRaises(
-            ProxyExceptions.NoCurrentReservationException,
+            ProxyErrors.NoCurrentReservationError,
             proxy.send_command,
             self.RESERVATION_SESS_ID, 'command'
         )
-        
+
     def test_invalid_laboratory_session_id_when_sending_a_file(self):
         laboratory = self.mocker.mock()
         laboratory.send_file(self.LAB_SESS_ID, 'file', 'info')
-        self.mocker.throw(LaboratoryExceptions.SessionNotFoundInLaboratoryServerException)
-        
+        self.mocker.throw(LaboratoryErrors.SessionNotFoundInLaboratoryServerError)
+
         self.mocker.replay()
         proxy = self._create_proxy(laboratories=(laboratory,))
-        
+
         proxy.do_enable_access(self.RESERVATION_ID, "ud-fpga@FPGA experiments", "student1", self.LAB_COORD_ADDR, self.LAB_SESS_ID)
-        
+
         self.assertRaises(
-            ProxyExceptions.NoCurrentReservationException,
+            ProxyErrors.NoCurrentReservationError,
             proxy.send_file,
             self.RESERVATION_SESS_ID, 'file', 'info'
         )
-        
+
     def test_are_expired(self):
         proxy = self._create_proxy()
         session_ids = ["reservation_id1", "reservation_id2", "reservation_id3"]
         proxy.do_enable_access(session_ids[0], "ud-fpga@FPGA experiments", "student1", self.LAB_COORD_ADDR, self.LAB_SESS_ID)
         proxy.do_enable_access(session_ids[1], "ud-fpga@FPGA experiments", "student1", self.LAB_COORD_ADDR, self.LAB_SESS_ID)
         proxy.do_enable_access("invalid-reservation-id", "ud-fpga@FPGA experiments", "student1", self.LAB_COORD_ADDR, self.LAB_SESS_ID)
-        
+
         expirations = proxy.do_are_expired(session_ids)
         self.assertEquals(3, len(expirations))
         self.assertEquals("N", expirations[0])
@@ -348,7 +348,7 @@ class UsingProxyServerTestCase(mocker.MockerTestCase):
 
 
 class FakeLocator(object):
-    
+
     def __init__(self, clients={}):
         self.clients = clients
 
@@ -363,19 +363,19 @@ class FakeLocator(object):
             return self.clients['translators']
         else:
             return self.clients['laboratories']
-        
+
     def get_server(self, coord_addr, server_type, restrictions=()):
         if server_type == ServerType.Translator:
             if len(self.clients['translators']) > 0:
                 return self.clients['translators'][0]
             else:
-                raise LocatorExceptions.NoServerFoundException()
+                raise LocatorErrors.NoServerFoundError()
         else:
             return self.clients['laboratories'][0]
 
     def inform_server_not_working(self, server_not_working, server_type, restrictions_of_server):
         pass
-    
+
 
 def suite():
     return unittest.TestSuite(

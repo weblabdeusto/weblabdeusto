@@ -16,12 +16,14 @@
 	// 
 	// "weblab.service.fileupload.post.url" : "/weblab/fileUpload.php", 
 	"development"                    : true, // To see the latest features, although they might not be working
-	"admin.email"                    : "weblab@deusto.es",
 	"demo.available"                 : true,
-	"google.analytics.tracking.code" : "UA-12576838-6",
 	"sound.enabled"					 : false,
+	"admin.email"                    : "weblab@deusto.es",
+	"google.analytics.tracking.code" : "UA-12576838-6",
 	"experiments.default_picture"	 : "/img/experiments/default.jpg",
-	"host.entity.image"              : "/img/udeusto-logo.jpg",
+	"host.entity.image.login"        : "/img/udeusto-logo.jpg",
+	"host.entity.image"              : "/img/udeusto-logo-main.jpg",
+	"host.entity.image.mobile"       : "/img/udeusto-logo-mobile.jpg",
 	"experiments" : { 
 					// Experiments not developed in GWT (such as those developed in Flash or Java) don't require
 					// recompiling the client to be loaded. Adding them to this configuration file is enough.
@@ -293,20 +295,31 @@
 	                        	   "experiment.category" : "GPIB experiments"
 	                           }   
 	                        ],
-	                "pic"   : [
-	                           {
-	                        	   "experiment.name"     : "ud-pic",
-	                        	   "experiment.category" : "PIC experiments",
-	                        	   "experiment.picture"  : "/img/experiments/microchip.jpg"
-	                           }
-	                        ],
-	                "pic2"  : [
-	                           {
-	                        	   "experiment.name"     : "ud-pic2",
-	                        	   "experiment.category" : "PIC experiments",
-	                        	   "experiment.picture"  : "/img/experiments/microchip.jpg"
-	                           }
-	                        ],
+	                "pic18"	: [
+	                			{
+	                			   "experiment.name"	 : "ud-pic18",
+	                			   "experiment.category" : "PIC experiments",
+	                			   "experiment.picture"  : "/img/experiments/microchip.jpg"
+	                			},
+	                			{
+	                			   "experiment.name"	 : "ud-test-pic18-1",
+	                			   "experiment.category" : "PIC experiments",
+	                			   "experiment.picture"  : "/img/experiments/microchip.jpg",
+								   "is.demo"             : true
+	                			},
+	                			{
+	                			   "experiment.name"	 : "ud-test-pic18-2",
+	                			   "experiment.category" : "PIC experiments",
+	                			   "experiment.picture"  : "/img/experiments/microchip.jpg",
+								   "is.demo"             : true
+	                			},
+	                			{
+	                			   "experiment.name"	 : "ud-test-pic18-3",
+	                			   "experiment.category" : "PIC experiments",
+	                			   "experiment.picture"  : "/img/experiments/microchip.jpg",
+								   "is.demo"             : true
+	                			}
+	                		], 
                     "ilab-batch" : [
                                 {
                                 	"experiment.reserve.button.shown" : false,

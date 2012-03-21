@@ -1,31 +1,31 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import weblab.login.db.gateway as DbGateway
 import weblab.db.session as DbSession
-import weblab.db.exc as DbExceptions
+import weblab.db.exc as DbErrors
 
 class LoginDatabaseManager(object):
-    
+
     def __init__(self, cfg_manager):
         self._auth_gateway = DbGateway.create_auth_gateway(cfg_manager)
 
     def check_credentials(self, username, password):
         try:
             role, user_id, user_auths = self._auth_gateway.check_user_password( username, password )
-        except DbExceptions.DbInvalidUserOrPasswordException:
+        except DbErrors.DbInvalidUserOrPasswordError:
             return DbSession.InvalidDatabaseSessionId()
 
         if user_auths is None:

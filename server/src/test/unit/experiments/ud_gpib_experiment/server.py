@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import unittest
 import tempfile
 import os
@@ -22,8 +22,8 @@ import experiments.ud_gpib.server as UdGpibExperiment
 import weblab.experiment.util as ExperimentUtil
 import voodoo.configuration as ConfigurationManager
 
-import weblab.experiment.exc as ExperimentExceptions
-import experiments.ud_gpib.exc as GpibExceptions
+import weblab.experiment.exc as ExperimentErrors
+import experiments.ud_gpib.exc as GpibErrors
 
 class FakeCompiler(object):
     def __init__(self):
@@ -64,7 +64,7 @@ class FakeLauncher(object):
         f.write(self.next_content)
         f.close()
         return 0,'stdout result','stderr result'
-    
+
     def poll(self):
         return self.poll_ok
 
@@ -97,7 +97,7 @@ class WrappedUdGpibExperiment(UdGpibExperiment.UdGpibExperiment):
             raise Exception("error!")
 
 class UdGpibExperimentTestCase(unittest.TestCase):
-    
+
     def setUp(self):
         self.compiler = FakeCompiler()
         self.launcher = FakeLauncher()
@@ -137,7 +137,7 @@ class UdGpibExperimentTestCase(unittest.TestCase):
             )
         self.experiment.do_dispose()
 
-        # Check the compiler        
+        # Check the compiler
         self.assertEquals(
                 1,
                 len(self.compiler.file_paths)
@@ -170,7 +170,7 @@ class UdGpibExperimentTestCase(unittest.TestCase):
                 EXE_FILE_CONTENT,
                 self.launcher.files_content[0]
             )
-            
+
     def test_send_command_to_device_poll_ok(self):
         self.launcher.poll_ok = True
         response = self.experiment.do_send_command_to_device("POLL")
@@ -185,7 +185,7 @@ class UdGpibExperimentTestCase(unittest.TestCase):
         self.launcher.result_code = 0
         response = self.experiment.do_send_command_to_device("RESULT code")
         self.assertEquals(0, response)
-        
+
     def test_send_command_to_device_result_stdout(self):
         self.launcher.result_stdout = "Weblab rulez!"
         response = self.experiment.do_send_command_to_device("RESULT stdout")
@@ -208,19 +208,19 @@ class UdGpibExperimentTestCase(unittest.TestCase):
         self.experiment.output_file_content = "This is my output file!"
         response = self.experiment.do_send_command_to_device("RESULT file")
         self.assertEqual("ER", response[0:2])
-        
+
     def test_send_command_to_device_unknown_command(self):
         self.assertRaises(
-            GpibExceptions.UnknownUdGpibCommandException,
+            GpibErrors.UnknownUdGpibCommandError,
             self.experiment.do_send_command_to_device,
             "ThisIsNotAValidCommand!"
         )
-            
+
     def test_failures(self):
         CPP_FILE_CONTENT = """Content of the cpp file"""
         self.compiler.fail_on_next = True
         self.assertRaises(
-            ExperimentExceptions.SendingFileFailureException,
+            ExperimentErrors.SendingFileFailureError,
             self.experiment.do_send_file_to_device,
             ExperimentUtil.serialize(CPP_FILE_CONTENT),
             'program'

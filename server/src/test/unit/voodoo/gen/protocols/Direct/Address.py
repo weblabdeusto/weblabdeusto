@@ -1,27 +1,27 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import unittest
 
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.gen.protocols.Direct.Address as DirectAddress
-import voodoo.gen.protocols.Direct.Exceptions as DirectExceptions
+import voodoo.gen.protocols.Direct.Errors as DirectErrors
 
 import voodoo.gen.generators.ServerSkel as ServerSkel
 
-import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
+import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 import voodoo.gen.protocols.protocols as Protocols
 
 import test.unit.configuration as configuration_module
@@ -66,21 +66,21 @@ class DirectAddressTestCase(unittest.TestCase):
         instance_id = 'b'
         server_id   = 'c'
         self.assertRaises(
-                DirectExceptions.InvalidArgumentAddressException,
+                DirectErrors.InvalidArgumentAddressError,
                 DirectAddress.Address,
                 5,
                 instance_id,
                 server_id
             )
         self.assertRaises(
-                DirectExceptions.InvalidArgumentAddressException,
+                DirectErrors.InvalidArgumentAddressError,
                 DirectAddress.Address,
                 machine_id,
                 5,
                 server_id
             )
         self.assertRaises(
-                DirectExceptions.InvalidArgumentAddressException,
+                DirectErrors.InvalidArgumentAddressError,
                 DirectAddress.Address,
                 machine_id,
                 instance_id,
@@ -91,7 +91,7 @@ class DirectAddressTestCase(unittest.TestCase):
         machine_id  = 'a'
         instance_id = 'b'
         server_id   = 'c'
-        
+
         coordAddress = CoordAddress.CoordAddress(
                 machine_id,
                 instance_id,
@@ -99,7 +99,7 @@ class DirectAddressTestCase(unittest.TestCase):
             )
 
         addr = DirectAddress.from_coord_address(coordAddress)
-        
+
         self.assertEquals(
                 addr.machine_id,
                 machine_id
@@ -117,7 +117,7 @@ class DirectAddressTestCase(unittest.TestCase):
         machine_id  = 'a'
         instance_id = 'b'
         server_id   = 'c'
-        
+
         coordAddress1 = CoordAddress.CoordAddress(
                 machine_id,
                 instance_id,
@@ -153,14 +153,14 @@ class DirectAddressTestCase(unittest.TestCase):
         self.assertNotEquals(addr1,addr3)
         self.assertNotEquals(addr1,addr4)
         self.assertNotEquals(addr1,addr5)
-    
+
     def test_bad_from_coord_address(self):
         self.assertRaises(
-                DirectExceptions.NotACoordAddressException,
+                DirectErrors.NotACoordAddressError,
                 DirectAddress.from_coord_address,
                 5
             )
-    
+
     def test_direct_create_client(self):
         message2 = self.message2
 
@@ -186,7 +186,7 @@ class DirectAddressTestCase(unittest.TestCase):
             direct_client.say_hello(self.message1),
             self.message1 + message2
         )
-    
+
     def test_bad_client_creation(self):
         message2 = self.message2
         direct_addr = DirectAddress.Address(
@@ -195,7 +195,7 @@ class DirectAddressTestCase(unittest.TestCase):
                 'wrong_server_id'
             )
         self.assertRaises(
-            ProtocolExceptions.ClientCreationException,
+            ProtocolErrors.ClientCreationError,
             direct_addr.create_client,
             self.methods
         )
@@ -219,12 +219,12 @@ class DirectAddressTestCase(unittest.TestCase):
             )
 
         self.assertRaises(
-            ProtocolExceptions.ClientClassCreationException,
+            ProtocolErrors.ClientClassCreationError,
             direct_addr.create_client,
             'not valid methods'
         )
 
-    
+
 def suite():
     return unittest.makeSuite(DirectAddressTestCase)
 

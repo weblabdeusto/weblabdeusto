@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 from abc import ABCMeta, abstractmethod
 
@@ -23,7 +23,7 @@ import weblab.core.exc as coreExc
 NULL_POSITION = 100000
 
 class Reservation(object):
-    
+
     __metaclass__ = ABCMeta
 
     WAITING              = "Reservation::waiting"
@@ -62,7 +62,7 @@ class Reservation(object):
         elif status.status == WSS.WebLabSchedulingStatus.POST_RESERVATION:
             reservation = PostReservationReservation(status.reservation_id, status.finished, status.initial_data, status.end_data)
         else:
-            raise coreExc.InvalidReservationStatusException( "Invalid reservation status.status: '%s'" % status.status)
+            raise coreExc.InvalidReservationStatusError( "Invalid reservation status.status: '%s'" % status.status)
         return reservation
 
     @staticmethod
@@ -78,13 +78,13 @@ class Reservation(object):
         elif status_text == Reservation.POST_RESERVATION:
             reservation = PostReservationReservation(reservation_id, finished, initial_data, end_data)
         else:
-            raise coreExc.InvalidReservationStatusException("Invalid reservation status_text: '%s'." % ( status_text ) )
+            raise coreExc.InvalidReservationStatusError("Invalid reservation status_text: '%s'." % ( status_text ) )
         return reservation
 
     # XXX TODO: a new state would be required, but I don't have to deal with that
     def is_null(self):
         return isinstance(self, WaitingInstances) and self.position == NULL_POSITION
-    
+
     @abstractmethod
     def to_status(self):
         """ Create a scheduling status """

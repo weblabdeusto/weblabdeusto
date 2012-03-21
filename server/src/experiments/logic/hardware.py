@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 from abc import ABCMeta, abstractmethod
 from voodoo.threaded import threaded
@@ -52,7 +52,7 @@ class HardwareInterfaceCollector(HardwareInterface):
     def send_message(self, msg):
         for interface in self.interfaces:
             interface.send_message(msg)
-        
+
     def turn_on(self):
         for interface in self.interfaces:
             interface.turn_on()
@@ -74,7 +74,7 @@ class ConsoleInterface(HardwareInterface):
 
     def turn_on(self):
         print "ConsoleInterface::turn on"
-    
+
     def turn_off(self):
         print "ConsoleInterface::turn on"
 
@@ -82,7 +82,7 @@ class ConsoleInterface(HardwareInterface):
         print "ConsoleInterface::clear"
 
 class PicInterface(HardwareInterface):
-    
+
     def __init__(self, ip):
         self.ip = ip
         self.last_message = ""

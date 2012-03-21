@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Luis Rodriguez <luis.rodriguez@opendeusto.es>
-# 
+#
 
 STATUS_RUNNING  = "running"
 STATUS_OK       = "ok"
@@ -24,7 +24,7 @@ STATUS_ERROR    = "error"
 #    """
 #    Contains information about the state and result of an asynchronous request.
 #    """
-#    
+#
 #    def __init__(self, request_id, threadobj = None):
 #        """
 #        Creates a new AsyncRequest object, which will be identified
@@ -35,7 +35,7 @@ STATUS_ERROR    = "error"
 #        self._command = None
 #        self._contents = None
 #        self._thread = threadobj
-#        
+#
 #    def get_contents(self):
 #        """
 #        Retrieves the contents field of the async request. If the content has finished
@@ -43,18 +43,18 @@ STATUS_ERROR    = "error"
 #        the error message.
 #        """
 #        return self._command
-#    
+#
 #    def get_request_id(self):
 #        """ Retrieves the request's identifier. """
 #        return self._request_id
-#    
+#
 #    def get_status(self):
 #        """ Retrieves the request's status. """
 #        return self._status
-#    
+#
 #    def get_thread(self):
-#        """ 
-#        Retrieves the thread object that is running the request. 
-#        May return None. 
+#        """
+#        Retrieves the thread object that is running the request.
+#        May return None.
 #        """
 #        return self._thread

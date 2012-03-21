@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 #-*-*- encoding: utf-8 -*-*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import json
 import unittest
@@ -48,9 +48,9 @@ class ReservationsManagerTestCase(unittest.TestCase):
 
     def test_list_sessions_not_existing(self):
         exp_id = ExperimentId("exp.that.doesnt.exist","cat1")
-        
+
         self.assertRaises(
-            CoordExc.ExperimentNotFoundException,
+            CoordExc.ExperimentNotFoundError,
             self.reservations_manager.list_sessions,
             exp_id
         )
@@ -66,7 +66,7 @@ class ReservationsManagerTestCase(unittest.TestCase):
         reservation2 = self.reservations_manager.create(exp_id1, "{}", REQUEST_INFO)
 
         self.reservations_manager.create(exp_id2, "{}", REQUEST_INFO)
-        
+
         sessions = self.reservations_manager.list_sessions(exp_id1)
         self.assertEquals(2, len(sessions))
         self.assertTrue(reservation1 in sessions)

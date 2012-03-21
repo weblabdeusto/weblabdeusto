@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import os
 import os.path as path
@@ -20,7 +20,7 @@ import unittest
 
 
 import voodoo.configuration as ConfigurationManager
-import voodoo.configuration as ConfigurationExceptions
+import voodoo.configuration as ConfigurationErrors
 
 module1_code = """
 mynumber = 5
@@ -102,7 +102,7 @@ class ConfigurationManagerTestCase(unittest.TestCase):
         self._refill_module(module_name)
 
         confManager.reload()
-        
+
         self.assertEquals(
             confManager.get_value('mynumber'),
             6
@@ -114,7 +114,7 @@ class ConfigurationManagerTestCase(unittest.TestCase):
         )
 
         self.assertRaises(
-            ConfigurationExceptions.KeyNotFoundException,
+            ConfigurationErrors.KeyNotFoundError,
             confManager.get_value,
             'not_found'
         )
@@ -128,7 +128,7 @@ class ConfigurationManagerTestCase(unittest.TestCase):
         )
 
         self.assertRaises(
-                ConfigurationExceptions.NotAModuleException,
+                ConfigurationErrors.NotAModuleError,
                 confManager.append_modules,
                 'os'
             )
@@ -148,7 +148,7 @@ class ConfigurationManagerTestCase(unittest.TestCase):
         # Without a provided default value
         #
         self.assertRaises(
-            ConfigurationExceptions.KeysNotFoundException,
+            ConfigurationErrors.KeysNotFoundError,
             confManager.get_values,
             'this.does.not.exist', 'this.neither'
         )
@@ -163,25 +163,25 @@ class ConfigurationManagerTestCase(unittest.TestCase):
             values.mystr,
             "hello world"
         )
-        
+
         #
         # With a provided default value
         #
-        
+
         # 1st way: As a known key in the source code
         values = confManager.get_values(not_found='expected_value')
         self.assertEquals(
             'expected_value',
             values.not_found
         )
-        
+
         # 2nd way: As an unknown key in the source code
         values = confManager.get_values( **{"not_found": 'expected_value'})
         self.assertEquals(
             'expected_value',
             getattr(values, "not_found")
         )
-        
+
         os.remove(module_name)
         os.remove(module_name + 'c')
 

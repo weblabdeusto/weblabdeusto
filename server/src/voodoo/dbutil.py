@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import os
 
@@ -33,7 +33,7 @@ def generate_getconn(engine, user, password, host, dbname):
         # In the case of MySQL, we need to activate this flag
         kwargs['client_flag'] = 2
     elif engine == 'sqlite':
-        # By default, sqlite uses a timeout of 5 seconds. Given the 
+        # By default, sqlite uses a timeout of 5 seconds. Given the
         # concurrency levels that WebLab-Deusto might achieve with
         # multiple users in a queue, this might not be enough. We
         # increase it to a minute and a half to avoid problems with
@@ -42,19 +42,19 @@ def generate_getconn(engine, user, password, host, dbname):
         if dbname == ':memory:':
             kwargs['check_same_thread'] = False
 
-    # Then load the sqlalchemy dialect. In order to do the 
+    # Then load the sqlalchemy dialect. In order to do the
     # equivalent to:
-    # 
-    #   from sqlalchemy.dialects.mysql import base 
+    #
+    #   from sqlalchemy.dialects.mysql import base
     #   dbi = base.dialect.dbapi()
-    # 
+    #
     # We import the module itself (sqlalchemy.dialects.mysql)
 
     import sqlalchemy.dialects as dialects
     __import__('sqlalchemy.dialects.%s' % engine)
 
     # And once imported, we take the base.dialect.dbapi
-    dbi = getattr(dialects, engine).base.dialect.dbapi()        
+    dbi = getattr(dialects, engine).base.dialect.dbapi()
 
     if engine == 'sqlite':
         def getconn_sqlite():

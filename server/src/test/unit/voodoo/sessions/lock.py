@@ -1,27 +1,27 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import unittest
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 
-from voodoo.dbutil import get_sqlite_dbname 
+from voodoo.dbutil import get_sqlite_dbname
 import voodoo.sessions.db_lock_data as DbData
 
 import voodoo.sessions.db_lock as DbLock
-import voodoo.sessions.exc as SessionExceptions
+import voodoo.sessions.exc as SessionErrors
 
 import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
@@ -59,7 +59,7 @@ class DbLockTestCase(unittest.TestCase):
     def setUp(self):
         self.cfg_manager= ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
-        
+
 
 
         self.locker = WrappedFastDbLock(self.cfg_manager, "mypool")
@@ -78,7 +78,7 @@ class DbLockTestCase(unittest.TestCase):
     def test_lock_failing(self):
         self.locker.acquire(SESSION_ID1)
         self.assertRaises(
-            SessionExceptions.SessionAlreadyAcquiredException,
+            SessionErrors.SessionAlreadyAcquiredError,
             self.locker.acquire,
             SESSION_ID1
         )
@@ -86,7 +86,7 @@ class DbLockTestCase(unittest.TestCase):
     def test_acquire_lock_failing(self):
         self.locker.acquire(SESSION_ID1)
         self.assertRaises(
-            SessionExceptions.SessionAlreadyAcquiredException,
+            SessionErrors.SessionAlreadyAcquiredError,
             self.locker.acquire,
             SESSION_ID1
         )

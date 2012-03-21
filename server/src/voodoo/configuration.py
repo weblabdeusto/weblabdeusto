@@ -1,29 +1,29 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import types
 import threading
 import voodoo.log as log
 from voodoo.lock import RWLock
 
-import voodoo.exc as VoodooExceptions
+import voodoo.exc as VoodooErrors
 
 
 class _ConfigurationModule(object):
     def __init__(self, module):
         if not isinstance(module,types.ModuleType):
-            raise NotAModuleException(
+            raise NotAModuleError(
                     "parameter %s expected to be a module" % module
                 )
         self.holder = module
@@ -45,9 +45,9 @@ class _ConfigurationPath(object):
             class Holder(object):
                 execfile(self._path)
         except Exception as e:
-            log.log( 
-                    _ConfigurationPath, 
-                    log.level.Warning, 
+            log.log(
+                    _ConfigurationPath,
+                    log.level.Warning,
                     "Couldn't reload path %s: %s. Skipping..." % (self.name, e)
             )
         self.holder = Holder
@@ -55,14 +55,14 @@ class _ConfigurationPath(object):
 #
 # If passing this value as a default value, the ConfigurationManager will think
 # that in fact there is no default value provided
-# 
+#
 _not_a_default_value = object()
 
 #
 # XXX
 # At the moment, WebLab-Deusto does not support dynamic reloading, so
 # locking makes no sense. As soon as it's supported, modify this.
-# 
+#
 CFG_LOCKING = False
 
 class NullLock(object):
@@ -92,16 +92,16 @@ class ConfigurationManager(object):
     def _set_value(self, key, value):
         self._values_writelock.acquire()
         try:
-            if self._values.has_key(key):
-                log.log( 
-                        ConfigurationManager, 
-                        log.level.Info, 
-                        "Substituting existing configuration key (%s), from value %s to %s" % (key, self._values[key], value) 
+            if key in self._values:
+                log.log(
+                        ConfigurationManager,
+                        log.level.Info,
+                        "Substituting existing configuration key (%s), from value %s to %s" % (key, self._values[key], value)
                 )
             self._values[key] = value
         finally:
             self._values_writelock.release()
-    
+
     def _append_holder_values(self, holder):
         for i in dir(holder):
             if not i.startswith('_'):
@@ -147,10 +147,10 @@ class ConfigurationManager(object):
                     self._modules[i].reload()
                     self._append_holder_values(self._modules[i].holder)
                 except ImportError:
-                    log.log( 
-                            ConfigurationManager, 
-                            log.level.Warning, 
-                            "Couldn't reload module %s. Skipping..." % name 
+                    log.log(
+                            ConfigurationManager,
+                            log.level.Warning,
+                            "Couldn't reload module %s. Skipping..." % name
                     )
         finally:
             self._values_writelock.release()
@@ -159,13 +159,13 @@ class ConfigurationManager(object):
     def get_value(self, key, default_value = _not_a_default_value):
         self._values_readlock.acquire()
         try:
-            if self._values.has_key(key):
+            if key in self._values:
                 return self._values[key]
             elif default_value != _not_a_default_value:
                 return default_value
         finally:
             self._values_readlock.release()
-        raise KeyNotFoundException(
+        raise KeyNotFoundError(
                 "Key: %s not found" % key,
                 key
             )
@@ -174,7 +174,7 @@ class ConfigurationManager(object):
         """
         The default values can be provided in two ways:
            -> get_values("key1", "key2", key3 = "defvalue3")         # The prettiest one :-)
-           -> get_values("key1", "key2", ** { "key3": "defvalue3" }) # Useful when "key3" is unknown in the source code 
+           -> get_values("key1", "key2", ** { "key3": "defvalue3" }) # Useful when "key3" is unknown in the source code
         """
         class Values(object):
             def __init__(self, values):
@@ -187,10 +187,10 @@ class ConfigurationManager(object):
         for key in args:
             try:
                 values[key] = self.get_value(key)
-            except KeyNotFoundException:
+            except KeyNotFoundError:
                 missing_configurations.append(key)
         if len(missing_configurations) > 0:
-            raise KeysNotFoundException("Missing configuration parameters: %s " % missing_configurations)
+            raise KeysNotFoundError("Missing configuration parameters: %s " % missing_configurations)
 
         # Keys with a provided default value
         for key in kargs:
@@ -198,20 +198,20 @@ class ConfigurationManager(object):
 
         return Values(values)
 
-class ConfigurationException(VoodooExceptions.VoodooException):
+class ConfigurationError(VoodooErrors.VoodooError):
     def __init__(self,*args,**kargs):
-        VoodooExceptions.VoodooException.__init__(self,*args,**kargs)
+        VoodooErrors.VoodooError.__init__(self,*args,**kargs)
 
-class KeyNotFoundException(ConfigurationException):
+class KeyNotFoundError(ConfigurationError):
     def __init__(self, msg, key, *args, **kargs):
-        ConfigurationException.__init__(self, msg, key, *args, **kargs)
+        ConfigurationError.__init__(self, msg, key, *args, **kargs)
         self.msg = msg
         self.key = key
 
-class KeysNotFoundException(ConfigurationException):
+class KeysNotFoundError(ConfigurationError):
     def __init__(self, *args, **kargs):
-        ConfigurationException.__init__(self, *args, **kargs)
+        ConfigurationError.__init__(self, *args, **kargs)
 
-class NotAModuleException(ConfigurationException):
+class NotAModuleError(ConfigurationError):
     def __init__(self, *args, **kargs):
-        ConfigurationException.__init__(self, *args, **kargs)
+        ConfigurationError.__init__(self, *args, **kargs)

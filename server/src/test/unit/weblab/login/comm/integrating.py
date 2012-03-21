@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -33,7 +33,7 @@ import weblab.login.comm.codes as LoginRFCodes
 import weblab.comm.server as RemoteFacadeServer
 import weblab.login.comm.server as LoginFacadeServer
 
-import weblab.login.exc as LoginExceptions
+import weblab.login.exc as LoginErrors
 
 from test.unit.weblab.login.comm.manager import MockLogin
 
@@ -85,7 +85,7 @@ class LoginIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
                         self.mock_server.arguments['login'][1]
                     )
 
-                self.mock_server.exceptions['login'] = LoginExceptions.InvalidCredentialsException(MESSAGE)
+                self.mock_server.exceptions['login'] = LoginErrors.InvalidCredentialsError(MESSAGE)
 
                 try:
                     wds.login(USERNAME, PASSWORD)
@@ -128,7 +128,7 @@ class LoginIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
                         self.mock_server.arguments['login_based_on_other_credentials'][1]
                     )
 
-                self.mock_server.exceptions['login_based_on_other_credentials'] = LoginExceptions.InvalidCredentialsException(MESSAGE)
+                self.mock_server.exceptions['login_based_on_other_credentials'] = LoginErrors.InvalidCredentialsError(MESSAGE)
 
                 try:
                     wds.login_based_on_other_credentials(SYSTEM, CREDENTIALS)

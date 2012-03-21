@@ -1,18 +1,18 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
-import voodoo.gen.exceptions.locator.LocatorExceptions as LocatorExceptions
+#
+import voodoo.gen.exceptions.locator.LocatorErrors as LocatorErrors
 
 class ServerTypeHandler(object):
     def __init__(self,server_type_module, methods):
@@ -31,21 +31,21 @@ class ServerTypeHandler(object):
 
         for klass in methods:
             if not isinstance(methods[klass], (list, tuple)):
-                raise LocatorExceptions.InvalidListOfMethodsException("Invalid format at ServerTypeHandler. Expected tuple or list, found: %s" % methods[klass] )
+                raise LocatorErrors.InvalidListOfMethodsError("Invalid format at ServerTypeHandler. Expected tuple or list, found: %s" % methods[klass] )
 
 #        for klass in methods:
 #            if not hasattr(server_type_type, klass):
-#                raise LocatorExceptions.MoreServersThanExpectedException("Unexpected class %s for module %s" % (klass, server_type_type))
+#                raise LocatorErrors.MoreServersThanExpectedError("Unexpected class %s for module %s" % (klass, server_type_type))
 
         self._module = server_type_module
 
         self._methods = methods
-        
+
     def retrieve_methods(self,server_type):
         if self._methods.has_key(server_type):
             return self._methods[server_type]
         else:
-            raise LocatorExceptions.NoSuchServerTypeFoundException(
+            raise LocatorErrors.NoSuchServerTypeFoundError(
                     "Server type '%s' not found retrieving methods" % server_type
                 )
 

@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import sys
 import voodoo.log as log
 from functools import wraps
@@ -94,7 +94,7 @@ class AbstractRemoteFacadeManager(object):
 
     def _get_client_address(self):
         return RemoteFacadeContext.get_context().get_ip_address()
-   
+
 def _propagate_stack_trace(cfg_manager, msg):
     formatted_exc = traceback.format_exc()
     propagate = cfg_manager.get_value(PROPAGATE_STACK_TRACES_TO_CLIENT, DEFAULT_PROPAGATE_STACK_TRACES_TO_CLIENT)
@@ -112,13 +112,13 @@ class AbstractZSI(object):
             log.log( self, log.level.Error, msg )
             print >> sys.stderr, msg
 
-class JSONException(Exception):
+class JSONError(Exception):
     pass
 
 class AbstractJSON(object):
     def _raise_exception(self, code, msg):
         msg = _propagate_stack_trace(self._cfg_manager, msg)
-        raise JSONException({ 'is_exception' : True, 'code' : 'JSON:' + code, 'message' : msg })
+        raise JSONError({ 'is_exception' : True, 'code' : 'JSON:' + code, 'message' : msg })
 
 class AbstractXMLRPC(object):
     def _raise_exception(self, code, msg):
@@ -130,7 +130,7 @@ class AbstractXMLRPC(object):
                 exp_id['exp_name'],
                 exp_id['cat_name']
             )
-       
+
     def _fix_dates_in_experiments(self, experiments_allowed):
         for experiment_allowed in experiments_allowed:
             experiment = experiment_allowed.experiment

@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005-2009 University of Deusto
+* Copyright (C) 2005 onwards University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -64,7 +64,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 		super(configurationManager);
 		
 	    this.callback = callback;
-		this.loggedPanel = new LoggedPanel(user, callback);
+		this.loggedPanel = new LoggedPanel(user, callback, configurationManager);
 	    this.experimentsAllowed = experimentsAllowed;
 		
 		super.loadWidgets();
@@ -119,8 +119,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 	    		default:
 	    			img = new Image(res.yellowBall());
 	    	}
-	    	
-	    	img.setWidth("100%");
+	    	img.setWidth("20px");
 	    	
 	    	this.experimentsTable.setWidget(i, 0, img);
 	    	this.experimentsTable.setWidget(i, 1, name);

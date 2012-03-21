@@ -1,13 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -24,11 +24,11 @@ else:
     SOAPPY_AVAILABLE = True
 
 import voodoo.gen.generators.ClientSkel as ClientSkel
-import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
+import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 import voodoo.log as log
 
 import voodoo.gen.protocols.SOAP.ServerSOAP as ServerSOAP
-import voodoo.gen.protocols.SOAP.Exceptions as Exceptions
+import voodoo.gen.protocols.SOAP.Errors as Exceptions
 import voodoo.mapper as mapper
 
 def _retrieve_class(complete_class_name):
@@ -88,7 +88,7 @@ def _generate_stub(METHOD_NAME):
                     ft
                 )
         except Exception as e:
-            raise ProtocolExceptions.UnknownRemoteException(
+            raise ProtocolErrors.UnknownRemoteError(
                     "Unknown exception: " + str(e.__class__) + "; " + str(e),
                     e
                 )
@@ -101,7 +101,7 @@ def _generate_call_begin_stub(METHOD_NAME):
              Method name: METHOD_NAME. Documentation: DOCUMENTATION """
         return getattr(self._server,'begin_'+METHOD_NAME)(*parameters,**kparameters)
     return _call_begin_stub
-   
+
 def _generate_call_is_running_stub(METHOD_NAME):
     # Not used for the moment but requierd by ClientSkel
     def _call_is_running_stub(self,server_key,block):
@@ -128,7 +128,7 @@ stubs = (
 
 def generate(methods):
     clientSkel = ClientSkel.generate(methods)
-    
+
     class ClientSOAP(clientSkel):
         def __init__(self, url, port=80):
             if SOAPPY_AVAILABLE:
@@ -147,7 +147,7 @@ def generate(methods):
     else:
         all_methods = list(methods[:])
     all_methods.append('test_me')
-    
+
     # Generating stubs dinamically
     for method_name in all_methods:
 
@@ -158,11 +158,11 @@ def generate(methods):
             func.__doc__ = (func.__doc__ if func.__doc__ is not None else '').replace('METHOD_NAME', method_name)
             if isinstance(all_methods, dict):
                 func.__doc__ = (func.__doc__ if func.__doc__ is not None else '').replace('DOCUMENTATION', all_methods[method_name])
-            # Taking "prefix_" from "_prefix_stub" 
+            # Taking "prefix_" from "_prefix_stub"
             stub_prefix = stub.func_name[len('_generate_'):]
             stub_prefix = stub_prefix[:stub_prefix.rfind('stub')]
             func_name = stub_prefix + method_name
-            func.func_name = func_name          
+            func.func_name = func_name
             setattr(ClientSOAP, func_name, func)
-            
+
     return ClientSOAP

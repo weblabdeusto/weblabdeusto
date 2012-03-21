@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -67,7 +67,7 @@ class DigilentAdeptTestCase(unittest.TestCase):
         self.device._busy = True
 
         self.assertRaises(
-            digilent_adept.AlreadyProgrammingDeviceException,
+            digilent_adept.AlreadyProgrammingDeviceError,
             self.device.program_device,
             "file.svf"
         )
@@ -78,7 +78,7 @@ class DigilentAdeptTestCase(unittest.TestCase):
         Popen.side_effect = Exception("can't create Popen!")
 
         self.assertRaises(
-            digilent_adept.ErrorProgrammingDeviceException,
+            digilent_adept.ErrorProgrammingDeviceError,
             self.device.program_device,
             "file.svf"
         )

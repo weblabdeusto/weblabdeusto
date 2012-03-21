@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 # TODO: versions are not used
 # There should be a diff system, instead of a simple _increase_version
@@ -27,7 +27,7 @@ from voodoo.lock import locked
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.gen.coordinator.CoordinationInformationMapper as CoordinationInformationMapper
 
-import voodoo.gen.exceptions.coordinator.CoordinatorExceptions as CoordExceptions
+import voodoo.gen.exceptions.coordinator.CoordinatorErrors as CoordErrors
 
 #
 # In this file, the following classes are defined
@@ -41,7 +41,7 @@ import voodoo.gen.exceptions.coordinator.CoordinatorExceptions as CoordException
 # The CoordinationMapController will create and update all the structures, and
 # it will provide the user of these classes an API to operate with them.
 #
-#       
+#
 ###############################################################################
 #                                                                             #
 #                             CoordServer                                     #
@@ -49,7 +49,7 @@ import voodoo.gen.exceptions.coordinator.CoordinatorExceptions as CoordException
 ###############################################################################
 
 class CoordServer(object):
-    def __init__(self, 
+    def __init__(self,
             server_type,
             server_name,
             parent_instance,
@@ -60,10 +60,10 @@ class CoordServer(object):
 
         * server_type is a member of an enumerator listing the types of server
         * server_name is the name of the server
-        * parent_instance is a member of CoordInstance, and can be later 
+        * parent_instance is a member of CoordInstance, and can be later
         * accesses is a sequence of instances of Access
         * restrictions is a sequence of restrictions. For instance, a server for FPGAs, etc.
-        
+
         modified with the "parent" property.
         """
         object.__init__(self)
@@ -77,7 +77,7 @@ class CoordServer(object):
         self._version       = 0
         self._accesses      = list(accesses)
         self._restrictions      = list(restrictions)
-        
+
         # Addressing information
         self._name      = server_name
         self._parent        = parent_instance
@@ -119,7 +119,7 @@ class CoordServer(object):
     @property
     def server_type(self):
         return self._server_type
-    
+
     @property
     def address(self):
         return self._address
@@ -142,13 +142,13 @@ class CoordServer(object):
     def _set_status(self,new_status):
         self._status = new_status
         self._increase_version()
-    
+
     @locked('_accesses_write_lock')
     def _append_accesses(self,accesses):
         for i in accesses:
             self._accesses.append(i)
         self._increase_version()
-       
+
     @locked('_accesses_read_lock')
     def can_connect(self,other_server):
         """ can_connect(self,other_server) -> list
@@ -162,13 +162,13 @@ class CoordServer(object):
                 for k in i.possible_connections(j):
                     networks.append(k)
         return networks
-    
+
     def get_accesses(self):
         """ get_accesses(self) -> iterator
 
         This method returns all the accesses this server has, one by one, in an iterator.
-        If, while processing each access, another access is added or one is removed, the 
-        iterator will provide the new ones and will skip the old ones. 
+        If, while processing each access, another access is added or one is removed, the
+        iterator will provide the new ones and will skip the old ones.
         """
         walked_accesses = []
         while True:
@@ -241,20 +241,20 @@ class CoordInstance(object):
     @locked('_servers_read_lock')
     def version(self):
         return self._version
-    
+
     def get_servers(self):
         """ get_servers() -> iterator
 
         get_servers provides a thread-safe iterator which will return a new
-        server in every iteration. If between iteration and iteration a server 
+        server in every iteration. If between iteration and iteration a server
         is added or removed, the iterator will return the new servers and will
         avoid the removed ones.
         """
         walked_servers = []
         while True:
-            
+
             self._servers_read_lock.acquire()
-            
+
             keys = [ i for i in self._servers.keys() if not i in walked_servers ]
             if len(keys) >= 1:
                 server = self._servers[keys[0]]
@@ -284,22 +284,22 @@ class CoordInstance(object):
             )
         self._servers[server_name] = new_server
         self._increase_version()
-    
+
     @locked('_servers_write_lock')
     def _append_accesses(self,server_name,accesses):
         if not self._servers.has_key(server_name):
-            raise CoordExceptions.CoordServerNotFound(
-                        'Server %s not found' 
+            raise CoordErrors.CoordServerNotFound(
+                        'Server %s not found'
                         % server_name
                     )
         self._servers[server_name]._append_accesses(accesses)
         self._increase_version()
-            
+
     @locked('_servers_write_lock')
     def _set_status(self,server_name,new_status):
         if not self._servers.has_key(server_name):
-            raise CoordExceptions.CoordServerNotFound(
-                        'Server %s not found' 
+            raise CoordErrors.CoordServerNotFound(
+                        'Server %s not found'
                         % server_name
                     )
         self._servers[server_name]._set_status(new_status)
@@ -312,26 +312,26 @@ class CoordInstance(object):
         elif isinstance(name,CoordAddress.CoordAddress) and name.is_server():
             key = name.server_id
         else:
-            raise CoordExceptions.CoordInvalidKey(
-                "Invalid key: %s. Only strings and server CoordAddress are allowed" 
+            raise CoordErrors.CoordInvalidKey(
+                "Invalid key: %s. Only strings and server CoordAddress are allowed"
                 % name
             )
         if self._servers.has_key(key):
             return self._servers[key]
         else:
-            raise CoordExceptions.CoordServerNotFound(
+            raise CoordErrors.CoordServerNotFound(
                     'server %s not found in %s' %
                     (
                         name,
                         self.name
                     )
             )
-            
+
     @locked('_servers_write_lock')
     def __setitem__(self,number,value):
         self._servers[number] = value
         self._increase_version()
-            
+
 ###############################################################################
 #                                                                             #
 #                             CoordMachine                                    #
@@ -349,7 +349,7 @@ class CoordMachine(object):
         self._instances_write_lock = self._instances_lock.write_lock()
         self._instances     = {}
         self._version       = 0
-    
+
         # Addressing information
         self.name       = machine_id
         self.parent     = parent_map
@@ -390,7 +390,7 @@ class CoordMachine(object):
     @locked('_instances_write_lock')
     def _add_new_server(self,instance_name,server_name,server_type,accesses,restrictions = ()):
         if not self._instances.has_key(instance_name):
-            raise CoordExceptions.CoordInstanceNotFound(
+            raise CoordErrors.CoordInstanceNotFound(
                 "Instance %s not found. Couldn't add server"
                 % instance_name
             )
@@ -405,8 +405,8 @@ class CoordMachine(object):
     @locked('_instances_write_lock')
     def _append_accesses(self, instance_name, server_name, accesses):
         if not self._instances.has_key(instance_name):
-            raise CoordExceptions.CoordInstanceNotFound(
-                        'Instance %s not found' 
+            raise CoordErrors.CoordInstanceNotFound(
+                        'Instance %s not found'
                         % instance_name
                     )
         self._instances[instance_name]._append_accesses(
@@ -414,12 +414,12 @@ class CoordMachine(object):
                 accesses
             )
         self._increase_version()
-   
+
     @locked('_instances_write_lock')
     def _set_status(self, instance_name, server_name, new_status):
         if not self._instances.has_key(instance_name):
-            raise CoordExceptions.CoordInstanceNotFound(
-                        'Instance %s not found' 
+            raise CoordErrors.CoordInstanceNotFound(
+                        'Instance %s not found'
                         % instance_name
                     )
         self._instances[instance_name]._set_status(
@@ -433,15 +433,15 @@ class CoordMachine(object):
         """ get_instances() -> iterator
 
         get_instances provides a thread-safe iterator which will return a new
-        instance in every iteration. If between iteration and iteration an 
-        instance is added or removed, the iterator will return the new 
+        instance in every iteration. If between iteration and iteration an
+        instance is added or removed, the iterator will return the new
         instance and will avoid the removed ones.
         """
         walked_instances = []
         while True:
-            
+
             self._instances_read_lock.acquire()
-            
+
             keys = [ i for i in self._instances.keys() if not i in walked_instances ]
             if len(keys) >= 1:
                 instance = self._instances[keys[0]]
@@ -452,14 +452,14 @@ class CoordMachine(object):
                 #End :-)
                 self._instances_read_lock.release()
                 return
-    
+
     def _update_info(self,other_machine):
         for other_instance in other_machine.get_instances():
             self._instances_write_lock.acquire()
             try:
                 try:
                     instance = self._instances[other_instance.name]
-                except CoordExceptions.CoordInstanceNotFound:
+                except CoordErrors.CoordInstanceNotFound:
                     instance = self._add_new_instance(
                             other_instance.name
                         )
@@ -476,8 +476,8 @@ class CoordMachine(object):
             ):
             key = name.instance_id
         else:
-            raise CoordExceptions.CoordInvalidKey(
-                "Invalid key: %s. Only strings and server or instance CoordAddress are allowed" 
+            raise CoordErrors.CoordInvalidKey(
+                "Invalid key: %s. Only strings and server or instance CoordAddress are allowed"
                 % name
             )
         self._instances_read_lock.acquire()
@@ -485,7 +485,7 @@ class CoordMachine(object):
             if self._instances.has_key(key):
                 instance = self._instances[key]
             else:
-                raise CoordExceptions.CoordInstanceNotFound(
+                raise CoordErrors.CoordInstanceNotFound(
                         'Instance %s not found in %s' %
                         (
                             name,
@@ -503,7 +503,7 @@ class CoordMachine(object):
     def __setitem__(self,number,value):
         self._instances[number] = value
         self._increase_version()
-            
+
 ###############################################################################
 #                                                                             #
 #                           CoordinationMap                                   #
@@ -541,7 +541,7 @@ class CoordinationMap(object):
     @locked('_machines_read_lock')
     def version(self):
         return self._version
-    
+
     def _increase_version(self):
         # Important: this method should be called
         # after a self._accesses_lock.acquire()
@@ -559,21 +559,21 @@ class CoordinationMap(object):
             )
         self._machines[machine_name] = new_machine
         self._increase_version()
-   
+
     @locked('_machines_write_lock')
     def add_new_instance(self, machine_name, instance_name):
         if not self._machines.has_key(machine_name):
-            raise CoordExceptions.CoordMachineNotFound(
+            raise CoordErrors.CoordMachineNotFound(
                 "Machine %s not found. Couldn't add instance"
                 % machine_name
             )
         self._machines[machine_name]._add_new_instance(instance_name)
         self._increase_version()
-    
+
     @locked('_machines_write_lock')
-    def add_new_server(self, 
-            machine_name, 
-            instance_name, 
+    def add_new_server(self,
+            machine_name,
+            instance_name,
             server_name,
             server_type,
             accesses,
@@ -581,7 +581,7 @@ class CoordinationMap(object):
         ):
         if not self._machines.has_key(machine_name):
             #TODO: testme (and all exceptions in this file)
-            raise CoordExceptions.CoordMachineNotFound(
+            raise CoordErrors.CoordMachineNotFound(
                 "Machine %s not found. Couldn't add instance"
                 % machine_name
             )
@@ -597,8 +597,8 @@ class CoordinationMap(object):
     @locked('_machines_write_lock')
     def append_accesses(self, machine_name, instance_name, server_name, accesses):
         if not self._machines.has_key(machine_name):
-            raise CoordExceptions.CoordMachineNotFound(
-                        'machine %s not found' 
+            raise CoordErrors.CoordMachineNotFound(
+                        'machine %s not found'
                         % machine_name
                     )
         self._machines[machine_name]._append_accesses(
@@ -607,12 +607,12 @@ class CoordinationMap(object):
                 accesses
             )
         self._increase_version()
-    
+
     @locked('_machines_write_lock')
     def set_status(self, machine_name, instance_name, server_name, new_status):
         if not self._machines.has_key(machine_name):
-            raise CoordExceptions.CoordMachineNotFound(
-                        'machine %s not found' 
+            raise CoordErrors.CoordMachineNotFound(
+                        'machine %s not found'
                         % machine_name
                     )
         self._machines[machine_name]._set_status(
@@ -626,15 +626,15 @@ class CoordinationMap(object):
         """ get_machines() -> iterator
 
         get_machines provides a thread-safe iterator which will return a new
-        machine in every iteration. If between iteration and iteration an 
-        machine is added or removed, the iterator will return the new 
+        machine in every iteration. If between iteration and iteration an
+        machine is added or removed, the iterator will return the new
         machine and will avoid the removed ones.
         """
         walked_machines = []
         while True:
-            
+
             self._machines_read_lock.acquire()
-            
+
             keys = [ i for i in self._machines.keys() if not i in walked_machines ]
             if len(keys) >= 1:
                 machine = self._machines[keys[0]]
@@ -649,8 +649,8 @@ class CoordinationMap(object):
     def __getitem__(self,name):
         """ __getitem__(self,name)
 
-        If name is a string, it is interpreted as a machine_id, and 
-        it returns the machine with that ID (or a CoordMachineNotFound 
+        If name is a string, it is interpreted as a machine_id, and
+        it returns the machine with that ID (or a CoordMachineNotFound
         exception).
 
         If name is a CoordAddress, it returns the node pointed by the
@@ -665,8 +665,8 @@ class CoordinationMap(object):
         elif isinstance(name,CoordAddress.CoordAddress):
             key = name.machine_id
         else:
-            raise CoordExceptions.CoordInvalidKey(
-                "Invalid key: %s. Only strings and CoordAddress are allowed" 
+            raise CoordErrors.CoordInvalidKey(
+                "Invalid key: %s. Only strings and CoordAddress are allowed"
                 % name
             )
         self._machines_read_lock.acquire()
@@ -674,7 +674,7 @@ class CoordinationMap(object):
             if self._machines.has_key(key):
                 machine = self._machines[key]
             else:
-                raise CoordExceptions.CoordMachineNotFound(
+                raise CoordErrors.CoordMachineNotFound(
                         'Machine %s not found' %
                         name
                 )
@@ -686,8 +686,8 @@ class CoordinationMap(object):
             return machine[name]
 
     def get_servers(self,original_server, server_type, restriction = None):
-        """ get_servers(original_server,server_type) -> iterator 
-        
+        """ get_servers(original_server,server_type) -> iterator
+
         original_server is an instance of CoordServer
         server_type is a member of an enumerator listing the types of server
 
@@ -695,23 +695,23 @@ class CoordinationMap(object):
         type server_type, the CoordinationMap will provide an iterator
         which will look from the closest to the furthest server which
         matches server_type. The point is that if in the same instance
-        of the original_server we have a server of server_type, that 
+        of the original_server we have a server of server_type, that
         will be the best option, and nobody needs to look for anything
         better. But, if when trying to contact this server, it has too
         much load or whatever, the .next() will look for the next closest
-        node, and so on. 
+        node, and so on.
 
         The result is an iterator of voodoo.gen.coordinator.Access.Network,
         which will provide the way to connect to that network.
         """
         if original_server.address is None:
-            raise CoordExceptions.CoordInvalidServer(
-                    "Can't search original_server's address: %s" 
+            raise CoordErrors.CoordInvalidServer(
+                    "Can't search original_server's address: %s"
                         % original_server
                 )
         instance_address = original_server.address.get_instance_address()
         instance = self[instance_address]
-        
+
         # The first place to look for is in the same instance
         for i in instance.get_servers():
             if i.server_type == server_type:
@@ -724,11 +724,11 @@ class CoordinationMap(object):
         # The next place to look for is in the same machine
         machine_address = original_server.address.get_machine_address()
         machine = self[machine_address]
-        
+
         # TODO: This could be optimized so that when checking another
         # instance and a server is added to a walked instance, the
         # new server would be checked
-        
+
         # Let's look for all the instances in the same machine
         # (except for the instance we have just checked)
         for i in machine.get_instances():
@@ -739,7 +739,7 @@ class CoordinationMap(object):
                             networks = original_server.can_connect(j)
                             if len(networks) > 0:
                                 yield j,networks
-        
+
         # The next place to look for is in other machine
         for i in self.get_machines():
             if i != machine:
@@ -762,7 +762,7 @@ def _map_checker(func):
         self._map_read_lock.acquire()
         try:
             if self._map is None:
-                raise CoordExceptions.CoordMapNotInitialized(
+                raise CoordErrors.CoordMapNotInitialized(
                     'Map not initialized at %s' % self
                 )
         finally:
@@ -774,16 +774,16 @@ def _map_checker(func):
 
 class CoordinationMapController(object):
     """ CoordinationController is a class that will provide an abstraction
-    layer for all the information available about different servers. 
+    layer for all the information available about different servers.
     Nobody except for CoordinationMap should modify any data of all
     this structure. CoordinationMap provides the methods to modify
     anything, and whenever asking for something, a deep copy will be
-    received. In order to check if information has been modified, a 
+    received. In order to check if information has been modified, a
     "version" field is given, increasing each time information is
     modified.
 
     It is important to note that this class just controls the CoordinationMap,
-    it does not communicate with any server or anything like that. That's 
+    it does not communicate with any server or anything like that. That's
     delegated in an upper layer, here we trust everything is true. If
     set_server_status is called saying that one server is down, we will change
     this in the map. Whoever calls us should check if this is true or not.
@@ -817,11 +817,11 @@ class CoordinationMapController(object):
     @locked('_map_write_lock')
     def load(self,where):
         """ load(self,where)
-        
+
         Loads current coordination map from "where".
         Right now, where should be a file object.
 
-        Can raise any voodoo.gen.exceptions.coordination.CoordMappingException
+        Can raise any voodoo.gen.exceptions.coordination.CoordMappingError
         exception
         """
         # This could be improved using get_machines, etc.
@@ -834,12 +834,12 @@ class CoordinationMapController(object):
     def get_servers(self, original_server_address, server_type, restriction = None):
         original_server = self._map[original_server_address]
         return self._map.get_servers(original_server, server_type, restriction)
-        
+
     @_map_checker
     @locked('_map_read_lock')
     def can_connect(self, server_address1, server_address2):
         server1 = self._map[server_address1]
         server2 = self._map[server_address2]
         return server1.can_connect(server2)
-    
+
 

@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 #-*-*- encoding: utf-8 -*-*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -69,8 +69,9 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
         self.initial_store  = TemporalInformationStore.InitialTemporalInformationStore()
         self.finished_store = TemporalInformationStore.FinishTemporalInformationStore()
         self.commands_store = TemporalInformationStore.CommandsTemporalInformationStore()
+        self.completed_store = TemporalInformationStore.CompletedInformationStore()
 
-        self.retriever = TemporalInformationRetriever.TemporalInformationRetriever(self.initial_store, self.finished_store, self.commands_store, self.dbmanager)
+        self.retriever = TemporalInformationRetriever.TemporalInformationRetriever(self.initial_store, self.finished_store, self.commands_store, self.completed_store, self.dbmanager)
         self.retriever.timeout = 0.001 # Be quicker instead of waiting for half a second
 
         self.initial_time = self.end_time = datetime.datetime.now()
@@ -80,16 +81,16 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
         exp_id = ExperimentId('ud-dummy','Dummy Experiments')
 
         self.entry1 = TemporalInformationStore.InitialInformationEntry(
-                        RESERVATION1, exp_id, coord_addr('ser:inst@mach'),  
+                        RESERVATION1, exp_id, coord_addr('ser:inst@mach'),
                         DATA1, self.initial_time, self.end_time, request_info.copy(), DATA_REQUEST1)
         self.entry2 = TemporalInformationStore.InitialInformationEntry(
-                        RESERVATION2, exp_id, coord_addr('ser:inst@mach'),  
+                        RESERVATION2, exp_id, coord_addr('ser:inst@mach'),
                         DATA2, self.initial_time, self.end_time, request_info.copy(), DATA_REQUEST2)
         self.entry3 = TemporalInformationStore.InitialInformationEntry(
-                        RESERVATION3, exp_id, coord_addr('ser:inst@mach'),  
+                        RESERVATION3, exp_id, coord_addr('ser:inst@mach'),
                         DATA3, self.initial_time, self.end_time, request_info.copy(), DATA_REQUEST3)
         self.entry4 = TemporalInformationStore.InitialInformationEntry(
-                        RESERVATION4, exp_id, coord_addr('ser:inst@mach'),  
+                        RESERVATION4, exp_id, coord_addr('ser:inst@mach'),
                         DATA4, self.initial_time, self.end_time, request_info.copy(), DATA_REQUEST3)
 
 
@@ -103,7 +104,7 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
             self.initial_store.put(self.entry2)
             self.initial_store.put(self.entry3)
             self.finished_store.put(RESERVATION4, DATA4, self.initial_time, self.end_time)
-            
+
             # Wait and then populate the RESERVATION3 (the last one in the queue)
             wait_for(self.retriever)
 
@@ -143,7 +144,7 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
             self.assertNotEqual(None, full_usage4.end_date)
 
             # While in the rest it's not yet filled
-            
+
             full_usage1 = self.dbmanager._gateway.retrieve_usage(usages[0].experiment_use_id)
             self.assertEquals(DATA1, full_usage1.commands[-1].response.commandstring)
             self.assertEquals(None, full_usage1.end_date)
@@ -179,7 +180,7 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
             self.assertEquals(0, len(usages))
 
             self.initial_store.put(self.entry1)
-            
+
             wait_for(self.retriever)
 
             usages = self.dbmanager._gateway.list_usages_per_user('student1')
@@ -285,7 +286,8 @@ class IterationFailerTemporalInformationRetrieverTestCase(unittest.TestCase):
         initial_store    = TemporalInformationStore.InitialTemporalInformationStore()
         finished_store   = TemporalInformationStore.FinishTemporalInformationStore()
         commands_store   = TemporalInformationStore.CommandsTemporalInformationStore()
-        fake = FakeTemporalInformationRetriever(initial_store, finished_store, commands_store, None)
+        completed_store  = TemporalInformationStore.CompletedInformationStore()
+        fake = FakeTemporalInformationRetriever(initial_store, finished_store, commands_store, completed_store, None)
         fake.start()
         try:
             initial_time = time.time()

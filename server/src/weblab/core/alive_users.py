@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 #-*-*- encoding: utf-8 -*-*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -29,11 +29,11 @@ DEFAULT_ALIVE_USERS_SESSION_POOL = "AliveUsersSessionPool"
 class AliveUsersCollection(object):
     """
     AliveUsersCollection tracks the list of users who are not answering and
-    whose session has expired. If a user's account has expired and s/he 
-    calls "send_command", send_command will first check that the user's 
+    whose session has expired. If a user's account has expired and s/he
+    calls "send_command", send_command will first check that the user's
     account has not expired before acting, so it's not a big problem.
 
-    But, if a user's browser crashes, or the user has problems with the 
+    But, if a user's browser crashes, or the user has problems with the
     network or whatever, normally no one would check this user's session
     status, which is a problem since this user may have resource to be
     disposed.
@@ -41,28 +41,28 @@ class AliveUsersCollection(object):
     So, this class manages those cases. It only has three methods:
         - add_user: adds a session_id
         - remove_user: removes a session_id
-        - check_expired_users: checks and removes the users whose 
+        - check_expired_users: checks and removes the users whose
             session has expired
 
     The first two methods manage the sessions which actively are alive.
 
-    The last method finds expired sessions, removes them from the alive 
+    The last method finds expired sessions, removes them from the alive
     list and returns them. To do so, it checks all the alive sessions and
     removes those expired. Since this may become into blocking more often
     than required, and the operation may become too heavy, we use a config
-    variable which checks that in each UPS the check_expired_users isn't 
+    variable which checks that in each UPS the check_expired_users isn't
     called more often than a certain amount of time.
 
     This is checked per UPS server, not in the global memory, since placing
-    it in global memory would actually create some blocking which wouldn't 
-    be desired. This way, the amount of calls to global memory is reduced 
+    it in global memory would actually create some blocking which wouldn't
+    be desired. This way, the amount of calls to global memory is reduced
     to "once in a certain amount of time" + when adding/removing an alive
     user.
     """
     def __init__(self, locator, cfg_manager, session_type, session_manager, coordinator, commands_store, finished_reservations_store):
         # This is an optimization. It shouldn't be stored in the SessionManager
         # since the value itself doesn't matter. The important thing is that
-        # each UPS doesn't lock too often the global session in the 
+        # each UPS doesn't lock too often the global session in the
         # SessionManager.
         self._latest_check      = 0
         self._latest_check_lock = threading.RLock()
@@ -90,7 +90,7 @@ class AliveUsersCollection(object):
                     # session_id,
                 ]
             )
-    
+
     def _set_min_time_between_checks(self):
         self._min_time_between_checks = self._cfg_manager.get_value( USER_PROCESSING_TIME_BETWEEN_CHECKS, DEFAULT_TIME_BETWEEN_CHECKS )
 
@@ -131,9 +131,9 @@ class AliveUsersCollection(object):
     def _check_expired(self, reservation_session_id):
         # Do not lock. If the user is doing something, the method
         # would get locked here. And if the user is doing something,
-        # the information is stored in a transactional way, so it 
+        # the information is stored in a transactional way, so it
         # shouldn't be a problem. Anyway, it would be nice that
-        # after the "poll" method the UPS modified the (updated) 
+        # after the "poll" method the UPS modified the (updated)
         # session without unlocking.
         reservation_session = self._session_manager.get_session(reservation_session_id)
         user_processor = ReservationProcessor( self._cfg_manager, reservation_session_id, reservation_session, self._coordinator, self._locator, self._commands_store)
@@ -164,11 +164,11 @@ class AliveUsersCollection(object):
         return finished_session_ids
 
     def check_expired_users(self):
-        """ 
-        This method will remove from the alive list and return all the sessions 
-        that have been expired. Although the method could be heavy since it 
-        needs to check all the sessions in the database, its impact is reduced 
-        since this process is only executed once in a customized time (so if 
+        """
+        This method will remove from the alive list and return all the sessions
+        that have been expired. Although the method could be heavy since it
+        needs to check all the sessions in the database, its impact is reduced
+        since this process is only executed once in a customized time (so if
         this method is called many times it almost doesn't get locked).
         """
         expired_reservation_session_ids = []

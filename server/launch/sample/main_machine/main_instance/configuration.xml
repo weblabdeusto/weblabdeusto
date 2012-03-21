@@ -18,7 +18,6 @@
 	<server>experiment_demo_xilinx1</server>
 	<server>experiment_demo_xilinx2</server>
 	<server>experiment_gpib</server>
-	<server>experiment_pic</server>
 	<server>experiment_dummy</server> 
 	<server>experiment_dummy_batch</server> 
 	<server>experiment_logic</server> 
@@ -31,4 +30,5 @@
 	<server>experiment_robot_movement</server>
 	<server>experiment_robot_proglist</server>
 	<server>experiment_blinkled</server>
+	<server>experiment_pic18</server>
 </servers>

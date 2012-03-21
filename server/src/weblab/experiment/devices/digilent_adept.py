@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -21,8 +21,8 @@ import threading
 import voodoo.log as log
 from voodoo.log import logged
 
-import voodoo.configuration as ConfigurationExceptions
-import weblab.experiment.devices.exc as DeviceExceptions
+import voodoo.configuration as ConfigurationErrors
+import weblab.experiment.devices.exc as DeviceErrors
 
 # Quick help for debugging:
 #digilentmofas = open("/tmp/digilentmofas", 'w+')
@@ -47,7 +47,7 @@ class DigilentAdept(object):
                 # so that if the program is finished, it starts programming the next device
                 # Consider that this might happen with any device, so 
                 # DigilentAdept might be a subclass of Experiment or sth
-                raise AlreadyProgrammingDeviceException(
+                raise AlreadyProgrammingDeviceError(
                     "This experiment is already programming the device"
                 )
             self._busy = True
@@ -96,14 +96,14 @@ class DigilentAdept(object):
                 stderr = subprocess.PIPE
             )
         except Exception as e:
-            raise ErrorProgrammingDeviceException(
+            raise ErrorProgrammingDeviceError(
                 "There was an error while executing Digilent Adept: %s" % e
             )
         # TODO: make use of popen.poll to make this asynchronous
         try:
             result = popen.wait()
         except Exception as e:
-            raise ErrorWaitingForProgrammingFinishedException(
+            raise ErrorWaitingForProgrammingFinishedError(
                 "There was an error while waiting for Digilent Adept to finish: %s" % e
             )
 
@@ -111,7 +111,7 @@ class DigilentAdept(object):
             stdout_result = popen.stdout.read()
             stderr_result = popen.stderr.read()
         except Exception as e:
-            raise ErrorRetrievingOutputFromProgrammingProgramException(
+            raise ErrorRetrievingOutputFromProgrammingProgramError(
                 "There was an error while retrieving the output of Digilent Adept: %s" % e
             )
         return result, stdout_result, stderr_result
@@ -120,7 +120,7 @@ class DigilentAdept(object):
         try:
             program_file_content = self._cfg_manager.get_value('digilent_adept_batch_content')
             digilent_adept = self._cfg_manager.get_value('digilent_adept_full_path')
-        except ConfigurationExceptions.KeyNotFoundException as knfe:
+        except ConfigurationErrors.KeyNotFoundError as knfe:
             raise CantFindDigilentAdeptProperty(
                     "Can't find in configuration manager the property '%s'" % knfe.key
                 )
@@ -141,26 +141,26 @@ class DigilentAdept(object):
         )
 
 
-class CantFindDigilentAdeptProperty(DeviceExceptions.MisconfiguredDeviceException):
+class CantFindDigilentAdeptProperty(DeviceErrors.MisconfiguredDeviceError):
     def __init__(self, *args, **kargs):
-        DeviceExceptions.MisconfiguredDeviceException.__init__(self, *args, **kargs)
+        DeviceErrors.MisconfiguredDeviceError.__init__(self, *args, **kargs)
 
-class AlreadyProgrammingDeviceException(DeviceExceptions.AlreadyProgrammingDeviceException):
+class AlreadyProgrammingDeviceError(DeviceErrors.AlreadyProgrammingDeviceError):
     def __init__(self, *args, **kargs):
-        DeviceExceptions.AlreadyProgrammingDeviceException.__init__(self, *args, **kargs)
+        DeviceErrors.AlreadyProgrammingDeviceError.__init__(self, *args, **kargs)
 
-class ErrorProgrammingDeviceException(DeviceExceptions.ProgrammingDeviceException):
+class ErrorProgrammingDeviceError(DeviceErrors.ProgrammingDeviceError):
     def __init__(self,*args,**kargs):
-        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
+        DeviceErrors.ProgrammingDeviceError.__init__(self,*args,**kargs)
 
-class ErrorRetrievingOutputFromProgrammingProgramException(DeviceExceptions.ProgrammingDeviceException):
+class ErrorRetrievingOutputFromProgrammingProgramError(DeviceErrors.ProgrammingDeviceError):
     def __init__(self,*args,**kargs):
-        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
+        DeviceErrors.ProgrammingDeviceError.__init__(self,*args,**kargs)
 
-class ErrorWaitingForProgrammingFinishedException(DeviceExceptions.ProgrammingDeviceException):
+class ErrorWaitingForProgrammingFinishedError(DeviceErrors.ProgrammingDeviceError):
     def __init__(self,*args,**kargs):
-        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
+        DeviceErrors.ProgrammingDeviceError.__init__(self,*args,**kargs)
 
-class ProgrammingGotErrors(DeviceExceptions.ProgrammingDeviceException):
+class ProgrammingGotErrors(DeviceErrors.ProgrammingDeviceError):
     def __init__(self,*args,**kargs):
-        DeviceExceptions.ProgrammingDeviceException.__init__(self,*args,**kargs)
+        DeviceErrors.ProgrammingDeviceError.__init__(self,*args,**kargs)

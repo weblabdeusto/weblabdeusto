@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 from weblab.core.server import WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN
 import weblab.experiment.experiment as Experiment
@@ -24,7 +24,7 @@ class DummyExperiment(Experiment.Experiment):
         self.cfg_manager = cfg_manager
         self.verbose           = cfg_manager.get_value('dummy_verbose', True)
         self.server_identifier = cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN, 'core server not available from dummy configuration')
-        
+
     @Override(Experiment.Experiment)
     def do_get_api(self):
         return "1"

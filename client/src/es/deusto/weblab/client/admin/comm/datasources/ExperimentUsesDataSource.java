@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005-2009 University of Deusto
+* Copyright (C) 2005 onwards University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -23,12 +23,13 @@ import com.smartgwt.client.types.DSProtocol;
 import com.smartgwt.client.types.DateDisplayFormat;
 
 import es.deusto.weblab.client.admin.dto.ExperimentUseRecord;
+import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
 
 public class ExperimentUsesDataSource extends WebLabRestDataSource {
 
-	public ExperimentUsesDataSource(SessionID sessionId) {
-		super(sessionId);
+	public ExperimentUsesDataSource(SessionID sessionId, IConfigurationManager configurationManager) {
+		super(sessionId, configurationManager);
 	}
 	
 	@Override
@@ -58,6 +59,6 @@ public class ExperimentUsesDataSource extends WebLabRestDataSource {
 	    final DataSourceTextField originDSField = new DataSourceTextField(ExperimentUseRecord.ORIGIN, "Origin");
 	    
 	    this.setFields(idField, startDateDSField, endDateDSField, agentLoginDSField, agentNameDSField, agentEmailDSField, experimentNameDSField, experimentCategoryDSField, originDSField);  
-	    this.setFetchDataURL("/weblab/administration/json/experiment_uses");
+	    this.setFetchDataURL(this.baseLocation + "/weblab/administration/json/experiment_uses");
 	}
 }

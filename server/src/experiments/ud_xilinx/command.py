@@ -1,46 +1,46 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import re
 
-import experiments.ud_xilinx.exc as UdXilinxExperimentExceptions
+import experiments.ud_xilinx.exc as UdXilinxExperimentErrors
 
 class UdBoardCommand(object):
 
-    _REGEX_FORMAT="^((%(complete-syntax)s, )*%(complete-syntax)s)$" 
+    _REGEX_FORMAT="^((%(complete-syntax)s, )*%(complete-syntax)s)$"
     @staticmethod
     def get_syntax():
-        return UdBoardCommand._REGEX_FORMAT % { 
+        return UdBoardCommand._REGEX_FORMAT % {
             'complete-syntax' : UdBoardSimpleCommand.get_full_syntax()
         }
 
     def __init__(self, command):
         mo = re.match(UdBoardCommand.get_syntax(), command)
         if mo == None:
-            raise UdXilinxExperimentExceptions.InvalidUdBoardCommandException(
+            raise UdXilinxExperimentErrors.InvalidUdBoardCommandError(
                     "Invalid command format; %s required" % UdBoardCommand.get_syntax()
                 )
         self._commands = []
         for i in command.split(', '):
             self._commands.append(UdBoardSimpleCommand.create(i))
-    
+
     def get_codes(self):
         codes = ()
         for i in self._commands:
             codes += (i.get_code(),)
         return codes
-    
+
 class UdBoardSimpleCommand(object):
 
     SUBCLASSES = ()
@@ -68,7 +68,7 @@ def on_off_to_bool(on_off):
     elif on_off == "off":
         return False
     else:
-        raise UdXilinxExperimentExceptions.IllegalStatusUdBoardCommandException("%s is not on nor off" % on_off)
+        raise UdXilinxExperimentErrors.IllegalStatusUdBoardCommandError("%s is not on nor off" % on_off)
 
 def bool_to_on_off(on_off):
     if on_off:
@@ -88,7 +88,7 @@ class ChangeSwitchCommand(UdBoardSimpleCommand):
         super(ChangeSwitchCommand,self).__init__()
         self.switch_on = on_off_to_bool(switch_on)
         self.number = int(number)
-    
+
     def get_code(self):
         num = (self.number + 1) * 2
         if self.switch_on:
@@ -97,7 +97,7 @@ class ChangeSwitchCommand(UdBoardSimpleCommand):
 
     def __str__(self):
         return "ChangeSwitch %s %s" % (
-                bool_to_on_off(self.switch_on), 
+                bool_to_on_off(self.switch_on),
                 self.number
             )
 
@@ -112,7 +112,7 @@ class SetPulseCommand(UdBoardSimpleCommand):
         super(SetPulseCommand,self).__init__()
         self.switch_on = on_off_to_bool(switch_on)
         self.number = int(number)
-    
+
     def get_code(self):
         num = self.number * 2
         if self.switch_on:
@@ -139,7 +139,7 @@ class ClockActivationCommand(UdBoardSimpleCommand):
     def __init__(self, freq):
         super(ClockActivationCommand,self).__init__()
         self.freq     = int(freq)
-    
+
     def get_code(self):
         num = ClockActivationCommand._frequences.index(self.freq)
         num += 32
@@ -157,7 +157,7 @@ class ClockDeactivationCommand(UdBoardSimpleCommand):
 
     def __init__(self):
         super(ClockDeactivationCommand,self).__init__()
-    
+
     def get_code(self):
         return 37
 
@@ -173,7 +173,7 @@ class CleanCommand(UdBoardSimpleCommand):
 
     def __init__(self):
         super(CleanCommand,self).__init__()
-    
+
     def get_code(self):
         return 0 # Not implemented in PIC
 

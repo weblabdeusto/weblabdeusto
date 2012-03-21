@@ -1,25 +1,25 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import sys
 import unittest
 
 from test.util.optional_modules import OptionalModuleTestCase
 import voodoo.gen.protocols.SOAP.ClientSOAP as ClientSOAP
 import voodoo.gen.protocols.SOAP.ServerSOAP as ServerSOAP
-import voodoo.gen.protocols.SOAP.Exceptions as Exceptions
-import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
+import voodoo.gen.protocols.SOAP.Errors as Exceptions
+import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 
 try:
     import SOAPpy
@@ -54,31 +54,31 @@ class ClientSOAPTestCase(unittest.TestCase):
 
                 def method4(self):
                     raise NameError('ha ha')
-            
+
             fake = Fake()
-            
+
             newfunctions = []
             for i in methods:
                 newfunction = ClientSOAP._generate_stub(i)
                 newfunctions.append(newfunction)
-        
+
             if ServerSOAP.SERIALIZE:
                 #TODO: this must be tested
                 return
             self.assertEquals(msg1 + msg2,newfunctions[0](fake,msg1))
-            
+
             self.assertRaises(
                     TypeError,
                     newfunctions[1],
                     fake
                 )
-            
+
             the_error = None
             try:
                 newfunctions[1](fake)
             except TypeError as te:
                 the_error = te
-                
+
             self.assertEquals( the_error.args[0], exc_msg )
 
             self.assertRaises(
@@ -88,7 +88,7 @@ class ClientSOAPTestCase(unittest.TestCase):
                 )
 
             self.assertRaises(
-                    ProtocolExceptions.UnknownRemoteException,
+                    ProtocolErrors.UnknownRemoteError,
                     newfunctions[3],
                     fake
                 )

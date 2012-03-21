@@ -1,43 +1,43 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
-import weblab.experiment.exc as ExperimentExceptions
+#
+import weblab.experiment.exc as ExperimentErrors
 
-class UdXilinxExperimentException(ExperimentExceptions.ExperimentException):
+class UdXilinxExperimentError(ExperimentErrors.ExperimentError):
     def __init__(self,*args,**kargs):
-        ExperimentExceptions.ExperimentException.__init__(self,*args,**kargs)
+        ExperimentErrors.ExperimentError.__init__(self,*args,**kargs)
 
-class UdBoardCommandException(UdXilinxExperimentException):
+class UdBoardCommandError(UdXilinxExperimentError):
     def __init__(self, *args, **kargs):
-        UdXilinxExperimentException.__init__(self, *args, **kargs)
+        UdXilinxExperimentError.__init__(self, *args, **kargs)
 
-class InvalidUdBoardCommandException(UdBoardCommandException):
+class InvalidUdBoardCommandError(UdBoardCommandError):
     def __init__(self, *args, **kargs):
-        UdBoardCommandException.__init__(self, *args, **kargs)
+        UdBoardCommandError.__init__(self, *args, **kargs)
 
-class IllegalStatusUdBoardCommandException(UdBoardCommandException):
+class IllegalStatusUdBoardCommandError(UdBoardCommandError):
     def __init__(self, *args, **kargs):
-        UdBoardCommandException.__init__(self, *args, **kargs)
+        UdBoardCommandError.__init__(self, *args, **kargs)
 
-class InvalidDeviceToProgramException(UdBoardCommandException):
+class InvalidDeviceToProgramError(UdBoardCommandError):
     def __init__(self, *args, **kargs):
-        UdBoardCommandException.__init__(self, *args, **kargs)
+        UdBoardCommandError.__init__(self, *args, **kargs)
 
-class InvalidDeviceToSendCommandsException(UdBoardCommandException):
+class InvalidDeviceToSendCommandsError(UdBoardCommandError):
     def __init__(self, *args, **kargs):
-        UdBoardCommandException.__init__(self, *args, **kargs)
+        UdBoardCommandError.__init__(self, *args, **kargs)
 
-class InvalidXilinxDeviceException(UdBoardCommandException):
+class InvalidXilinxDeviceError(UdBoardCommandError):
     def __init__(self, *args, **kargs):
-        UdBoardCommandException.__init__(self, *args, **kargs)
+        UdBoardCommandError.__init__(self, *args, **kargs)

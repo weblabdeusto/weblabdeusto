@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -17,7 +17,7 @@ sys.path.append(os.sep.join(('..','..','src')))
 
 import libraries
 
-from weblab.admin.cli.controller import Controller
+from weblab.admin.cli import main
 
 if __name__ == "__main__":
-    controller = Controller()
+    main()

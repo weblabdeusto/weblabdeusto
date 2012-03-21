@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import unittest
 
@@ -20,20 +20,20 @@ import weblab.admin.bot.user   as User
 
 class DataTestCase(unittest.TestCase):
     def test_botexception(self):
-        botexc = Data.BotException((Exception("foo"), "foobar"), 2,4,6)
+        botexc = Data.BotError((Exception("foo"), "foobar"), 2,4,6)
         self.assertTrue(repr(botexc).find('instances') > 0)
 
     def test_botiteration(self):
-        botexc  = Data.BotException((Exception("foo"), "foobar"), 2,4,6)
+        botexc  = Data.BotError((Exception("foo"), "foobar"), 2,4,6)
         botuser = User.StandardBotUser({"XMLRPC":("http://foo","http://foo/login")},"XMLRPC","user","passwd","exp_name","cat_name","bar", 0.05)
         botit   = Data.BotIteration(100, [botexc], [botuser], "stdout", "stderr")
         self.assertTrue(repr(botit).find('botusers') > 0)
 
     def test_bottrial(self):
-        botexc  = Data.BotException((Exception("foo"), "foobar"), 2,4,6)
+        botexc  = Data.BotError((Exception("foo"), "foobar"), 2,4,6)
         botuser = User.StandardBotUser({"XMLRPC": ("http://foo", "http://foo/login")},"XMLRPC","user","passwd","exp_name","cat_name","bar", 0.05)
         botit   = Data.BotIteration(100, {"Exception":botexc}, [botuser], "stdout", "stderr")
-        
+
         bottri  = Data.BotTrial([botit])
         self.assertTrue(repr(bottri).find('iterations') > 0)
 

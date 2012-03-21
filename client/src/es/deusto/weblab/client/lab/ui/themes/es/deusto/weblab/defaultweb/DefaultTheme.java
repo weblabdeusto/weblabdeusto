@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005-2009 University of Deusto
+* Copyright (C) 2005 onwards University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -34,6 +34,12 @@ import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.LoginWi
 
 public class DefaultTheme extends LabThemeBase {
 
+	public static class Configuration {
+		public static final String HOST_ENTITY_IMAGE        = "host.entity.image";
+		public static final String HOST_ENTITY_LOGIN_IMAGE  = "host.entity.image.login";
+		public static final String HOST_ENTITY_MOBILE_IMAGE = "host.entity.image.mobile";
+	}
+	
 	public static class Style {
 		public static final String ERROR_MESSAGE  = "wl-error_message";
 		public static final String MAIN_TITLE     = "wl-main_title";
@@ -137,8 +143,8 @@ public class DefaultTheme extends LabThemeBase {
 	}
 	
 	@Override
-	public void onRemoteExperimentReserved(String url, String reservationId) {
-		this.experimentWindow.loadRemoteExperimentPanel(url, reservationId);
+	public void onRemoteExperimentReserved(String url, String remoteReservationId) {
+		this.experimentWindow.loadRemoteExperimentPanel(url, remoteReservationId);
 	}
 
 	@Override

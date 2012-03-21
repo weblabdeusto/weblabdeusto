@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 #-*-*- encoding: utf-8 -*-*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -24,7 +24,7 @@ from   test.util.module_disposer import case_uses_module
 
 from weblab.core.server import WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER
 import weblab.core.user_processor as UserProcessor
-import weblab.core.coordinator.coordinator as Coordinator 
+import weblab.core.coordinator.coordinator as Coordinator
 import weblab.core.coordinator.confirmer as Confirmer
 import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.core.coordinator.status as WebLabSchedulingStatus
@@ -71,7 +71,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.cfg_manager._set_value(COORDINATOR_LABORATORY_SERVERS, {
             'server:laboratoryserver@labmachine' : {
                 'inst1|ud-dummy|Dummy experiments' : 'res_inst@res_type'
-            }        
+            }
         })
 
         self.commands_store = TemporalInformationStore.CommandsTemporalInformationStore()
@@ -96,7 +96,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
     def test_reserve_unknown_experiment_name(self):
         self.assertRaises(
-            coreExc.UnknownExperimentIdException,
+            coreExc.UnknownExperimentIdError,
             self.processor.reserve_experiment,
             ExperimentId('<invalid>', 'Dummy experiments'),
             "{}", "{}",
@@ -106,7 +106,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
     def test_reserve_unknown_experiment_category(self):
         self.assertRaises(
-            coreExc.UnknownExperimentIdException,
+            coreExc.UnknownExperimentIdError,
             self.processor.reserve_experiment,
             ExperimentId('ud-dummy','<invalid>'),
             "{}", "{}",
@@ -118,7 +118,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.coordinator._clean()
 
         self.assertRaises(
-            coreExc.NoAvailableExperimentFoundException,
+            coreExc.NoAvailableExperimentFoundError,
             self.processor.reserve_experiment,
             ExperimentId('ud-dummy', 'Dummy experiments'),
             "{}", "{}",
@@ -147,8 +147,7 @@ class UserProcessorTestCase(unittest.TestCase):
                     "{}", '{ "%s" : [["%s","server x"]]}' % (UserProcessor.SERVER_UUIDS, uuid),
                     ClientAddress.ClientAddress("127.0.0.1"), uuid
                 )
-
-        self.assertTrue( 'replicated' )
+        self.assertEquals( 'replicated', status )
 
 
 class FakeDatabase(object):
@@ -169,7 +168,7 @@ class FakeDatabase(object):
     def is_access_forward(self, db_session_id):
         return True
 
-    def store_experiment_usage(self, db_session_id, reservation_info, experiment_usage):
+    def store_experiment_usage(self, db_session_id, experiment_usage):
         pass
 
     def get_available_experiments(self, db_session_id):
@@ -180,10 +179,10 @@ class FakeDatabase(object):
 
     def get_groups(self, db_session_id):
         return self.groups
-    
+
     def get_roles(self, db_session_id):
         return self.roles
-    
+
     def get_users(self, db_session_id):
         return self.users
 

@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 #-*-*- encoding: utf-8 -*-*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import unittest
 
@@ -58,10 +58,10 @@ class CacheTestCase(unittest.TestCase):
             my_cache_func(arg=fobj)
 
         self.runner_unpickable  = stress_util.MainRunner(func_cache_unpickable, "cache_unpickable")
-            
+
         def func_fast_cache():
             my_fast_cache_func(5)
-   
+
         self.runner_fast  = stress_util.MainRunner(func_fast_cache, "cache_fast")
 
     def _show_results(self, l):

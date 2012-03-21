@@ -1,13 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -26,7 +26,7 @@ import voodoo.gen.protocols.protocols as Protocols
 import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
 
-import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
+import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 
 class FakeClientClass(object):
     def __init__(self, *args):
@@ -82,20 +82,20 @@ class SOAPAddressTestCase(unittest.TestCase):
             SOAPAddress.ClientSOAP = fake_client_soap_module
 
             self.assertRaises(
-                    ProtocolExceptions.ClientClassCreationException,
+                    ProtocolErrors.ClientClassCreationError,
                     addr.create_client,
                     ('method1','method2')
                 )
 
             FakeClientSOAPModule.fail = False
             self.assertRaises(
-                    ProtocolExceptions.ClientInstanciationException,
+                    ProtocolErrors.ClientInstanciationError,
                     addr.create_client,
                     ('method1','method2')
                 )
 
             SOAPAddress.ClientSOAP = csoap
-            
+
 
         @uses_module(ServerSOAP)
         def test_soap_create_client(self):
@@ -114,11 +114,11 @@ class SOAPAddressTestCase(unittest.TestCase):
                     SOAP = ('',self.port)
                 )
             soap_server_instance.start()
-            
+
             soap_addr = SOAPAddress.Address(
                     self.host + ':' + str(self.port) + '@NetworkA'
                 )
-            
+
             soap_client = soap_addr.create_client(self.methods)
             self.assertEquals(
                 soap_client.say_hello(self.message1),

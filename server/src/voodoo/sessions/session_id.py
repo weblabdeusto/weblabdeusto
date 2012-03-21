@@ -1,27 +1,27 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
-import voodoo.sessions.exc as SessionExceptions
+import voodoo.sessions.exc as SessionErrors
 
 class SessionId(object):
     def __init__(self, real_id):
         if not isinstance(real_id,basestring):
-            raise SessionExceptions.SessionInvalidSessionIdException( "Not a string: %s" % real_id )
+            raise SessionErrors.SessionInvalidSessionIdError( "Not a string: %s" % real_id )
 
         self.id = real_id
-    
+
     def __cmp__(self, other):
         if isinstance(other,SessionId):
             return cmp(self.id,other.id)

@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 #-*-*- encoding: utf-8 -*-*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 
 import unittest
@@ -89,7 +89,7 @@ class ResourcesManagerTestCase(unittest.TestCase):
         try:
             resource_types = session.query(CoordinatorModel.ResourceType).all()
             self.assertEquals(0, len(resource_types), "No resource expected in the beginning of the test")
-    
+
             exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
             self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
             self._check_resource_added(session)
@@ -103,7 +103,7 @@ class ResourcesManagerTestCase(unittest.TestCase):
         try:
             resource_types = session.query(CoordinatorModel.ResourceType).all()
             self.assertEquals(0, len(resource_types), "No resource expected in the beginning of the test")
-    
+
             exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
             self.resources_manager.add_experiment_instance_id(session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
 
@@ -113,14 +113,14 @@ class ResourcesManagerTestCase(unittest.TestCase):
             # Everything is all right
             self._check_resource_added(session)
             self._check_experiment_instance_id_added(session)
-    
+
             # However, we can't add another time the same experiment instance with a different laboratory id:
-            self.assertRaises(CoordExc.InvalidExperimentConfigException,
+            self.assertRaises(CoordExc.InvalidExperimentConfigError,
                     self.resources_manager.add_experiment_instance_id,
                     session, "laboratory2:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
 
             # Or the same experiment instance with a different resource instance:
-            self.assertRaises(CoordExc.InvalidExperimentConfigException,
+            self.assertRaises(CoordExc.InvalidExperimentConfigError,
                     self.resources_manager.add_experiment_instance_id,
                     session, "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance2"))
 
@@ -153,12 +153,12 @@ class ResourcesManagerTestCase(unittest.TestCase):
 
         exp_invalid_type = ExperimentInstanceId("exp1","ud-pld.invalid", "PLD Experiments")
 
-        self.assertRaises( CoordExc.ExperimentNotFoundException, 
+        self.assertRaises( CoordExc.ExperimentNotFoundError,
                             self.resources_manager.get_resource_instance_by_experiment_instance_id,
                             exp_invalid_type )
 
         exp_invalid_inst = ExperimentInstanceId("exp.invalid","ud-pld", "PLD Experiments")
-        self.assertRaises( CoordExc.ExperimentNotFoundException, 
+        self.assertRaises( CoordExc.ExperimentNotFoundError,
                             self.resources_manager.get_resource_instance_by_experiment_instance_id,
                             exp_invalid_inst )
 
@@ -186,7 +186,7 @@ class ResourcesManagerTestCase(unittest.TestCase):
             session.close()
 
         self.assertRaises(
-                CoordExc.ExperimentNotFoundException,
+                CoordExc.ExperimentNotFoundError,
                 self.resources_manager.get_resource_types_by_experiment_id,
                 ExperimentId("foo","bar")
             )

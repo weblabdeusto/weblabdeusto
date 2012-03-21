@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005-2009 University of Deusto
+* Copyright (C) 2005 onwards University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -70,8 +70,9 @@ public class RequestWebcamCommand extends Command{
 					@Override
 					public void onSuccess(ResponseCommand responseCommand) {
 						final String url = RequestWebcamCommand.retrieveWebcamURL(responseCommand.getCommandString());
-						if(url != null && url.length() > 0)
+						if(url != null && url.length() > 0) {
 							webcam.setUrl(url);
+						}
 					}
 
 					@Override

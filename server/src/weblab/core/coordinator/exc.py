@@ -1,35 +1,35 @@
 #!/usr/bin/env python
 #-*-*- encoding: utf-8 -*-*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import weblab.core.exc as coreExc
 
-class CoordinatorException(coreExc.WebLabCoreException):
+class CoordinatorError(coreExc.WebLabCoreError):
     pass
 
-class ExperimentNotFoundException(CoordinatorException):
+class ExperimentNotFoundError(CoordinatorError):
     pass
 
-class ExpiredSessionException(CoordinatorException):
+class ExpiredSessionError(CoordinatorError):
     pass
 
-class InvalidExperimentConfigException(CoordinatorException):
+class InvalidExperimentConfigError(CoordinatorError):
     pass
 
-class UnregisteredSchedulingSystemException(CoordinatorException):
+class UnregisteredSchedulingSystemError(CoordinatorError):
     pass
 
-class NoSchedulerFoundException(CoordinatorException):
+class NoSchedulerFoundError(CoordinatorError):
     pass
 

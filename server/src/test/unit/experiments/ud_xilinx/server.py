@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -15,7 +15,7 @@
 #
 
 from mock import patch
-import experiments.ud_xilinx.exc as UdXilinxExperimentExceptions
+import experiments.ud_xilinx.exc as UdXilinxExperimentErrors
 from experiments.ud_xilinx import command_senders as UdXilinxCommandSenders
 import test.unit.configuration as configuration_module
 import unittest
@@ -33,7 +33,7 @@ class CreatingUdXilinxExperimentTestCase(unittest.TestCase):
     def test_invalid_device_to_program(self):
         self.cfg_manager._set_value('xilinx_device_to_program', 'ThisWillNeverBeAValidDeviceToProgramName')
         self.assertRaises(
-            UdXilinxExperimentExceptions.InvalidDeviceToProgramException,
+            UdXilinxExperimentErrors.InvalidDeviceToProgramError,
             UdXilinxExperiment.UdXilinxExperiment,
             None, None, self.cfg_manager
         )
@@ -41,7 +41,7 @@ class CreatingUdXilinxExperimentTestCase(unittest.TestCase):
     def test_invalid_device_to_send_commands(self):
         self.cfg_manager._set_value('xilinx_device_to_send_commands', 'ThisWillNeverBeAValidDeviceToSendCommandsName')
         self.assertRaises(
-            UdXilinxExperimentExceptions.InvalidDeviceToSendCommandsException,
+            UdXilinxExperimentErrors.InvalidDeviceToSendCommandsError,
             UdXilinxExperiment.UdXilinxExperiment,
             None, None, self.cfg_manager
         )

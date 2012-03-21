@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005-2009 University of Deusto
+* Copyright (C) 2005 onwards University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -13,7 +13,10 @@
 */ 
 package es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import com.google.gwt.core.client.GWT;
@@ -24,8 +27,10 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -57,6 +62,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 	}
 	
 	// Widgets
+	@UiField Image logoImage;
 	@UiField VerticalPanel containerPanel;
 	@UiField Label userLabel;
 	@UiField Anchor logoutLink;
@@ -74,17 +80,42 @@ class AllowedExperimentsWindow extends BaseWindow {
 
 	// DTOs
 	private final User user;
-	private final ExperimentAllowed [] experimentsAllowed;
-	private final ExperimentAllowed [] failedExperiments;
+	private Map<String, Map<ExperimentAllowed, IConfigurationRetriever>> experimentsAllowed;
+	private ExperimentAllowed [] failedExperiments;
 	
 	public AllowedExperimentsWindow(IConfigurationManager configurationManager, User user, ExperimentAllowed[] experimentsAllowed, IAllowedExperimentsWindowCallback callback) {
 	    super(configurationManager);
 	    
 	    this.user = user;
-	    this.experimentsAllowed = experimentsAllowed;
 	    this.callback = callback;
 	    
-	    this.failedExperiments = this.loadWidgets();
+	    loadExperimentsAllowedConfigurations(experimentsAllowed);
+	    
+	    this.loadWidgets();
+	}
+	
+	private void loadExperimentsAllowedConfigurations(ExperimentAllowed [] experimentsAllowed) {
+		final List<ExperimentAllowed> failedExperiments = new Vector<ExperimentAllowed>();
+		this.experimentsAllowed = new HashMap<String, Map<ExperimentAllowed, IConfigurationRetriever>>();
+		for(ExperimentAllowed experimentAllowed : experimentsAllowed) {
+			// Try to retrieve the configuration for that experiment
+			final IConfigurationRetriever retriever;
+			try{
+				retriever = ExperimentFactory.getExperimentConfigurationRetriever(experimentAllowed.getExperiment().getExperimentUniqueName());
+			}catch(IllegalArgumentException e){
+				failedExperiments.add(experimentAllowed);
+				e.printStackTrace();
+				continue;
+			}
+			
+			// if not failed, then add it to the map
+			final String category = experimentAllowed.getExperiment().getCategory().getCategory();
+			if(!this.experimentsAllowed .containsKey(category))
+				this.experimentsAllowed .put(category, new HashMap<ExperimentAllowed, IConfigurationRetriever>());
+			this.experimentsAllowed .get(category).put(experimentAllowed, retriever);
+		}
+		
+		this.failedExperiments = failedExperiments.toArray(new ExperimentAllowed[]{});
 	}
 	
 	public ExperimentAllowed [] getFailedLoadingExperiments(){
@@ -96,65 +127,92 @@ class AllowedExperimentsWindow extends BaseWindow {
 		return this.containerPanel;
 	}		
 	
-	protected ExperimentAllowed [] loadWidgets(){
-		final List<ExperimentAllowed> failedExperiments = new Vector<ExperimentAllowed>();
+	protected void loadWidgets(){
 	    AllowedExperimentsWindow.uiBinder.createAndBindUi(this);
-	    
+
+		final String hostEntityImage = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_IMAGE, "");
+		this.logoImage.setUrl(GWT.getModuleBaseURL() + hostEntityImage);
+		
 	    final boolean visibleHeader = HistoryProperties.getBooleanValue(HistoryProperties.HEADER_VISIBLE, true);
 	    this.headerPanel.setVisible(visibleHeader);
 	    this.navigationPanel.setVisible(visibleHeader);
 
 	    if(this.user != null)
 	    	this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
-		
-		this.experimentsTable.resize(this.experimentsAllowed.length+1, 3);
 
-		final Label experimentCategoryHeader = new Label(this.i18nMessages.experimentCategory());
-		experimentCategoryHeader.setStyleName("web-allowedexperiments-table-header");
-		this.experimentsTable.setWidget(0, 0, experimentCategoryHeader);
+	    final int INTENDED_COLUMNS = 3;
+	    final int COLUMNS = this.experimentsAllowed.size() > INTENDED_COLUMNS? INTENDED_COLUMNS : this.experimentsAllowed.size();
+	    
+		this.experimentsTable.resize(this.experimentsAllowed.size() / COLUMNS + 1, COLUMNS);
 
-		final Label experimentNameHeader = new Label(this.i18nMessages.experimentName());
-		experimentNameHeader.setStyleName("web-allowedexperiments-table-header");
-		this.experimentsTable.setWidget(0, 1, experimentNameHeader);
+//		final Label experimentCategoryHeader = new Label(this.i18nMessages.experimentCategory());
+//		experimentCategoryHeader.setStyleName("web-allowedexperiments-table-header");
+//		this.experimentsTable.setWidget(0, 0, experimentCategoryHeader);
+//
+//		final Label experimentNameHeader = new Label(this.i18nMessages.experimentName());
+//		experimentNameHeader.setStyleName("web-allowedexperiments-table-header");
+//		this.experimentsTable.setWidget(0, 1, experimentNameHeader);
 		
 		//final Label experimentPictureHeader = new Label(this.i18nMessages.experimentPicture());
 		//experimentPictureHeader.setStyleName("web-allowedexperiments-table-header");
 		//this.experimentsTable.setWidget(0,2, experimentPictureHeader);
 
-		for(int i = 0; i < this.experimentsAllowed.length; ++i) {
+		final List<String> categories = new Vector<String>(this.experimentsAllowed.keySet());
+		Collections.sort(categories);
+		
+		for(int i = 0; i < categories.size(); ++i) {
 			
-			final ExperimentAllowed experiment = this.experimentsAllowed[i];
+			final String category = categories.get(i);
+			final List<ExperimentAllowed> categoryExperiments = new Vector<ExperimentAllowed>(this.experimentsAllowed.get(category).keySet());
+			Collections.sort(categoryExperiments);
 			
-			final String category = experiment.getExperiment().getCategory().getCategory();
-			final Anchor nameLink = new Anchor(experiment.getExperiment().getName());
-			nameLink.addClickHandler(new ExperimentClickListener(i));
-			
-			IConfigurationRetriever retriever;
-			try{
-				retriever = ExperimentFactory.getExperimentConfigurationRetriever(experiment.getExperiment().getExperimentUniqueName());
-			}catch(IllegalArgumentException e){
-				failedExperiments.add(experiment);
-				e.printStackTrace();
-				continue;
+			final Grid categoryGrid = new Grid();
+			categoryGrid.resize(categoryExperiments.size(), 2);
+
+			for(int j = 0; j < categoryExperiments.size(); ++j) {
+				final ExperimentAllowed experiment = categoryExperiments.get(j);
+				
+				ExperimentClickListener listener = new ExperimentClickListener(experiment);
+				final Anchor nameLink = new Anchor(experiment.getExperiment().getName());
+				nameLink.addClickHandler(listener);
+				
+				IConfigurationRetriever retriever = this.experimentsAllowed.get(category).get(experiment);
+				
+				String picture = retriever.getProperty("experiment.picture", "");
+				
+				if(picture.isEmpty())
+					picture = retriever.getProperty("experiments.default_picture", "");
+				
+	            if(picture.startsWith("/"))
+	                picture = GWT.getModuleBaseURL() + picture;
+				final Image img = new Image(picture);
+	            img.setHeight("40px");
+				img.setStyleName("web-allowedexperiments-image");
+				
+				img.addClickHandler(listener);
+							
+				categoryGrid.setWidget(j, 0, nameLink);
+				
+				categoryGrid.setWidget(j, 1, img);
+				categoryGrid.getCellFormatter().setHorizontalAlignment(j, 1, HasHorizontalAlignment.ALIGN_CENTER);
 			}
-			String picture = retriever.getProperty("experiment.picture", "");
 			
-			if(picture.isEmpty())
-				picture = retriever.getProperty("experiments.default_picture", "");
+			categoryGrid.setWidth("100%");
 			
-            if(picture.startsWith("/"))
-                picture = GWT.getModuleBaseURL() + picture;
-			final Image img = new Image(picture);
-            img.setHeight("40px");
-			img.setStyleName("web-allowedexperiments-image");
+			final DisclosurePanel categoryPanel = new DisclosurePanel(category);
+			categoryPanel.add(categoryGrid);
+			categoryPanel.setAnimationEnabled(true);
+			categoryPanel.setOpen(true);
+			categoryPanel.setWidth("100%");
+			categoryPanel.addStyleName("experiment-list-category-panel");
 			
-			img.addClickHandler(new ExperimentClickListener(i));
-						
-			this.experimentsTable.setWidget(i+1, 0, new Label(category));
-			this.experimentsTable.setWidget(i+1, 1, nameLink);
+//			final DecoratorPanel decoratedCategoryPanel = new DecoratorPanel();
+//			decoratedCategoryPanel.add(categoryPanel);
+//			decoratedCategoryPanel.setWidth("100%");
+//			decoratedCategoryPanel.addStyleName("experiment-list-DecoratorPanel");
 			
-			this.experimentsTable.setWidget(i+1, 2, img);
-            this.experimentsTable.getCellFormatter().setHorizontalAlignment(i+1, 2, HasHorizontalAlignment.ALIGN_CENTER);
+			this.experimentsTable.setWidget(i / COLUMNS, i % COLUMNS, categoryPanel);
+			this.experimentsTable.getCellFormatter().setVerticalAlignment(i / COLUMNS, i % COLUMNS, HasVerticalAlignment.ALIGN_TOP);
 		}
 		
 	    if(this.callback.startedLoggedIn()){
@@ -162,7 +220,6 @@ class AllowedExperimentsWindow extends BaseWindow {
 	    	this.separatorLabel.setVisible(false);
 	    	this.separatorLabel2.setVisible(false);
 	    }
-	    return failedExperiments.toArray(new ExperimentAllowed[]{});
 	}
 	
     @Override
@@ -184,16 +241,15 @@ class AllowedExperimentsWindow extends BaseWindow {
 	
 	private class ExperimentClickListener implements ClickHandler
 	{
-		private final int number;
+		private final ExperimentAllowed experimentAllowed;
 		
-		public ExperimentClickListener(int n) {
-			this.number = n;
+		public ExperimentClickListener(ExperimentAllowed experimentAllowed) {
+			this.experimentAllowed = experimentAllowed;
 		}
 		
 		@Override
 		public void onClick(ClickEvent event) {
-			final ExperimentAllowed ea = AllowedExperimentsWindow.this.experimentsAllowed[this.number];
-			AllowedExperimentsWindow.this.callback.onChooseExperimentButtonClicked(ea);
+			AllowedExperimentsWindow.this.callback.onChooseExperimentButtonClicked(this.experimentAllowed);
 		}
 	}	
 }

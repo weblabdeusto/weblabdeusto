@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import libraries
 import os
@@ -34,7 +34,7 @@ def get_suites(avoid_integration = False, avoid_stress = True):
         if avoid_stress:
             if module.__name__.split('.')[-1] == 'stress':
                 return
-            
+
         for content in os.listdir(directory):
             content_path = directory + os.sep + content
             if content_path.endswith('.py') and content_path != '__init__.py':
@@ -48,7 +48,7 @@ def get_suites(avoid_integration = False, avoid_stress = True):
                 mod = __import__(module.__name__ + '.' + module_name, globals(), locals(), [module_name])
                 setattr(module, module_name, mod)
                 recursion_on_modules(mod, content_path)
-                
+
     recursion_on_modules(test, ROOT_DIRECTORY + 'test')
     return suites
 
@@ -112,14 +112,14 @@ def runXml(folder):
         else:
             class_ = suite.__class__
             classname = class_.__module__ + "." + class_.__name__
-            if all_suites_ordered.has_key(classname):
+            if classname in all_suites_ordered:
                 all_suites_ordered[classname].append(suite)
             else:
                 all_suites_ordered[classname] = [suite]
-    
+
     import xmlrunner
     suites = get_suites(avoid_stress=True)
-    
+
     for suite in suites:
         orderRecursively(suite)
 
@@ -131,7 +131,7 @@ def runXml(folder):
         wasSuccessful &= runSuite(current_suite, file_name)
 
     if not wasSuccessful:
-        sys.exit(-1)    
+        sys.exit(-1)
 
 def debugThreads():
     import threading
@@ -144,7 +144,7 @@ def debugThreads():
 
 #DEFAULT_UI     = 'xml'
 #DEFAULT_UI     = 'gui'
-DEFAULT_UI     = 'console' 
+DEFAULT_UI     = 'console'
 
 def check_flakes():
     try:
@@ -153,7 +153,7 @@ def check_flakes():
         return
 
     stdout = sys.stdout
-    sys.stdout = StringIO.StringIO() 
+    sys.stdout = StringIO.StringIO()
     number_of_lines = main_pyflakes(("weblab", "test", "voodoo", "experiments"))
     results = sys.stdout
     sys.stdout = stdout
@@ -184,7 +184,7 @@ if __name__ == '__main__':
                 argv = [sys.argv[0]] + sys.argv[3:]
         else:
             argv = [sys.argv[0]] + sys.argv[2:]
-            
+
         runConsole(avoid_integration, argv)
     elif ui == 'gui':
         avoid_integration = False

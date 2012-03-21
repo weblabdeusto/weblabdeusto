@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005-2009 University of Deusto
+* Copyright (C) 2005 onwards University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -20,6 +20,7 @@ import com.smartgwt.client.data.fields.DataSourceTextField;
 import com.smartgwt.client.types.DSOperationType;
 import com.smartgwt.client.types.DSProtocol;
 
+import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
 
 /**
@@ -28,8 +29,8 @@ import es.deusto.weblab.client.dto.SessionID;
  */
 public class PermissionTypeParameterDataSource extends WebLabRestDataSource {
 
-	public PermissionTypeParameterDataSource(SessionID sessionId) {
-		super(sessionId);
+	public PermissionTypeParameterDataSource(SessionID sessionId, IConfigurationManager configurationManager) {
+		super(sessionId, configurationManager);
 	}
 	
 	@Override

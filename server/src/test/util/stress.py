@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 #-*-*- encoding: utf-8 -*-*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 
 import time
@@ -36,7 +36,7 @@ class RunningThread(threading.Thread):
         self.times         = []
         self.iterations    = iterations
         self.waiting       = False
-    
+
     def run(self):
         self.condition.acquire()
         try:
@@ -94,7 +94,7 @@ class ThreadedRunner(object):
                 time.sleep(0.1)
                 if time.time() - start_time > self.MAX_WAITING_TIME:
                     break
-            print 
+            print
         for thread in threads:
             thread.join(self.MAX_WAITING_TIME)
             if not thread.isAlive():

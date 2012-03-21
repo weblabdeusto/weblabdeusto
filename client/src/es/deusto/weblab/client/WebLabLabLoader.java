@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005-2009 University of Deusto
+* Copyright (C) 2005 onwards University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -71,6 +71,8 @@ public class WebLabLabLoader {
 		
 		final boolean isUsingMobile = this.weblabClient.isMobile();
 		
+		WebLabClient.IS_MOBILE = isUsingMobile; 
+		
 		final ILabController controller = new LabController(
 				this.configurationManager,
 				communications,
@@ -112,7 +114,7 @@ public class WebLabLabLoader {
 						if(position >= 0){
 							reservationId = providedReservationId.substring(0, position);
 							final String cookie = providedReservationId.substring(position + 1);
-							Cookies.setCookie(WebLabLabLoader.WEBLAB_SESSION_ID_COOKIE, cookie, null, null, "/", false);
+							Cookies.setCookie(WebLabLabLoader.WEBLAB_SESSION_ID_COOKIE, cookie, null, null, WebLabClient.baseLocation, false);
 						}else
 							reservationId = providedReservationId;
 						controller.startReserved(new SessionID(reservationId), experimentId);
@@ -123,7 +125,7 @@ public class WebLabLabLoader {
 						if(position >= 0){
 							sessionId = providedSessionId.substring(0, position);
 							final String cookie = providedSessionId.substring(position + 1);
-							Cookies.setCookie(WebLabLabLoader.WEBLAB_SESSION_ID_COOKIE, cookie, null, null, "/", false);
+							Cookies.setCookie(WebLabLabLoader.WEBLAB_SESSION_ID_COOKIE, cookie, null, null, WebLabClient.baseLocation, false);
 						}else
 							sessionId = providedSessionId;
 						controller.startLoggedIn(new SessionID(sessionId));

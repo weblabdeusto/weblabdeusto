@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 from test.util.module_disposer import uses_module, case_uses_module
 from experiments.ud_xilinx.command_senders import SerialPortCommandSender
@@ -101,9 +101,9 @@ class FakeSerialPort(object):
         self.dict = {'open':[], 'close':[], 'send' : []}
         self.cycle = 0
 
-# Abstract    
+# Abstract
 class Case002TestCase(object):
-    
+
     def gen_coordination_map(self, protocols):
         map = CoordInfo.CoordinationMap()
 
@@ -117,7 +117,7 @@ class Case002TestCase(object):
         map.add_new_server( 'WL_MACHINE1', 'WL_SERVER1', 'experiment2',  ServerType.Experiment, (), ('ud-pld@PLD experiments',))
 
         if len(protocols) == 1 and protocols[0] == Protocols.Direct:
-            # They all have Direct 
+            # They all have Direct
 
             # 1st: address
             address1 = map['WL_MACHINE1']['WL_SERVER1']['login1'].address
@@ -152,7 +152,7 @@ class Case002TestCase(object):
             map.append_accesses( 'WL_MACHINE1', 'WL_SERVER1', 'experiment2', ( access_direct8, ))
 
         else:
-            # They all have SOAP 
+            # They all have SOAP
 
             # 1st: address
             address1 = SOAPAddress.Address('127.0.0.1:10025@NETWORK')
@@ -256,7 +256,7 @@ class Case002TestCase(object):
 
         generated_login_server = ServerSkel.factory(
                 self.generate_configuration_server(),
-                protocols, 
+                protocols,
                 weblab_exported_methods.Login
             )
 
@@ -282,16 +282,16 @@ class Case002TestCase(object):
 
         generated_ups = ServerSkel.factory(
                 cfg_manager,
-                protocols, 
+                protocols,
                 weblab_exported_methods.UserProcessing
             )
 
         class RealUserProcessingServer(UserProcessingServer.UserProcessingServer,generated_ups):
             def __init__(self, coord_address, locator, cfg_manager, *args,**kargs):
                 UserProcessingServer.UserProcessingServer.__init__(
-                        self, 
-                        coord_address, 
-                        locator, 
+                        self,
+                        coord_address,
+                        locator,
                         cfg_manager,
                         *args,
                         **kargs
@@ -316,7 +316,7 @@ class Case002TestCase(object):
     def generate_fake_experiment(self, cfg_manager, fake_xilinx_impact, fake_serial_port, number, experiment_name, experiment_category_name, protocols):
         generated_experiment = ServerSkel.factory(
                 cfg_manager,
-                protocols, 
+                protocols,
                 weblab_exported_methods.Experiment
             )
         locator = self.generate_locator()
@@ -324,10 +324,10 @@ class Case002TestCase(object):
         class RealUdXilinxExperiment(FakeUdXilinxExperiment,generated_experiment):
             def __init__(self, coord_address, locator, cfg_manager, fake_xilinx_impact, fake_serial_port, *args,**kargs):
                 FakeUdXilinxExperiment.__init__(
-                        self, 
+                        self,
                         coord_address,
                         locator,
-                        cfg_manager, 
+                        cfg_manager,
                         fake_xilinx_impact,
                         fake_serial_port,
                         *args,
@@ -347,7 +347,7 @@ class Case002TestCase(object):
 
         def on_finish():
             experiment_client = locator.get_server(
-                            ServerType.Experiment, 
+                            ServerType.Experiment,
                             experiment_name + '@' + experiment_category_name
                         )
             return experiment_client, real_experiment
@@ -356,7 +356,7 @@ class Case002TestCase(object):
     def generate_laboratory_server(self, cfg_manager, protocols):
         generated_laboratory_server = ServerSkel.factory(
                 cfg_manager,
-                protocols, 
+                protocols,
                 weblab_exported_methods.Laboratory
             )
         locator = self.generate_locator()
@@ -364,9 +364,9 @@ class Case002TestCase(object):
         class RealLaboratoryServer(LaboratoryServer.LaboratoryServer,generated_laboratory_server):
             def __init__(self, coord_address, locator, cfg_manager, *args,**kargs):
                 LaboratoryServer.LaboratoryServer.__init__(
-                        self, 
+                        self,
                         coord_address,
-                        locator, 
+                        locator,
                         cfg_manager,
                         *args,
                         **kargs
@@ -383,7 +383,7 @@ class Case002TestCase(object):
 
         laboratory_client = locator.get_server(ServerType.Laboratory, None)
         return laboratory_client, real_laboratory_server
-    
+
     def setUp(self):
         protocols                      = self.get_protocols()
 
@@ -414,7 +414,7 @@ class Case002TestCase(object):
         self.real_ups = reals
         self.real_servers.append(reals)
         on_finish1                     = self.generate_fake_experiment(
-                                self.cfg_manager, 
+                                self.cfg_manager,
                                 self.fake_impact1,
                                 self.fake_serial_port1,
                                 '1',
@@ -423,7 +423,7 @@ class Case002TestCase(object):
                                 protocols
                             )
         on_finish2                     = self.generate_fake_experiment(
-                                self.cfg_manager, 
+                                self.cfg_manager,
                                 self.fake_impact2,
                                 self.fake_serial_port2,
                                 '2',
@@ -437,11 +437,11 @@ class Case002TestCase(object):
         self.real_servers.append(reals)
 
         self.laboratory_server, reals   = self.generate_laboratory_server(
-                                self.cfg_manager, 
+                                self.cfg_manager,
                                 protocols
                             )
         self.real_servers.append(reals)
-    
+
     @uses_module(UserProcessingServer)
     @uses_module(UserProcessor)
     @uses_module(ServerSOAP)
@@ -458,7 +458,7 @@ class Case002TestCase(object):
         session_id4 = self.real_login.login('student4','password')
         session_id5 = self.real_login.login('student5','password')
         session_id6 = self.real_login.login('student6','password')
-    
+
         # they all have access to the ud-fpga experiment
         experiments1 = self.real_ups.list_experiments(session_id1)
         fpga_experiments1 = [ exp.experiment for exp in experiments1 if exp.experiment.name == 'ud-fpga' ]
@@ -528,7 +528,7 @@ class Case002TestCase(object):
         reservation1 = self.real_ups.get_reservation_status( reservation_id1 )
         self.assertTrue(
                 isinstance(
-                    reservation1, 
+                    reservation1,
                     Reservation.ConfirmedReservation
                 )
             )
@@ -574,7 +574,7 @@ class Case002TestCase(object):
         reservation1 = self.real_ups.get_reservation_status( reservation_id1 )
         self.assertTrue(
                 isinstance(
-                    reservation1, 
+                    reservation1,
                     Reservation.ConfirmedReservation
                 )
             )
@@ -605,14 +605,14 @@ class Case002TestCase(object):
             self.real_ups.poll(reservation_id2)
             self.real_ups.poll(reservation_id2)
             self.real_ups.poll(reservation_id2)
-        except core_exc.NoCurrentReservationException:
+        except core_exc.NoCurrentReservationError:
             pass # All right :-)
 
         # send a program
         CONTENT = "content of the program FPGA"
         self.real_ups.send_file(reservation_id1, ExperimentUtil.serialize(CONTENT), 'program')
-        
-        
+
+
         # We need to wait for the programming to finish.
         start_time = time.time()
         response = "STATE=not_ready"
@@ -620,11 +620,11 @@ class Case002TestCase(object):
             respcmd = self.real_ups.send_command(reservation_id1, Command.Command("STATE"))
             response = respcmd.get_command_string()
             time.sleep(0.2)
-        
+
         # Check that the current state is "Ready"
         self.assertEquals("STATE=ready", response)
-        
-        
+
+
         self.real_ups.send_command(reservation_id1, Command.Command("ChangeSwitch on 0"))
         self.real_ups.send_command(reservation_id1, Command.Command("ClockActivation on 250"))
 
@@ -666,16 +666,16 @@ class Case002TestCase(object):
             )
 
         # ClockActivation on 250
-        self.assertEquals(  
+        self.assertEquals(
                 (3 + initial_total,1),
                 self.fake_serial_port1.dict['open'][1 + initial_open]
             )
-        self.assertEquals(  
+        self.assertEquals(
                 (4 + initial_total,32),
                 self.fake_serial_port1.dict['send'][1 + initial_send]
             )
-    
-        self.assertEquals(  
+
+        self.assertEquals(
                 (5 + initial_total,None),
                 self.fake_serial_port1.dict['close'][1 + initial_close]
             )

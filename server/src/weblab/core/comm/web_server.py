@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 #-*-*- encoding: utf-8 -*-*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -16,11 +16,12 @@
 
 import weblab.comm.web_server as WebFacadeServer
 
-from weblab.core.comm.web.upload  import FileUploadMethod
-from weblab.core.comm.web.labview import LabViewMethod
-from weblab.core.comm.web.client  import ClientMethod
-from weblab.core.comm.web.ilab    import ILabMethod
+from weblab.core.comm.web.upload   import FileUploadMethod
+from weblab.core.comm.web.labview  import LabViewMethod
+from weblab.core.comm.web.client   import ClientMethod
+from weblab.core.comm.web.ilab     import ILabMethod
 from weblab.core.comm.web.visir   import VisirMethod
+from weblab.core.comm.web.language import LanguageMethod
 
 from weblab.core.comm.user_server import USER_PROCESSING_FACADE_SERVER_ROUTE, DEFAULT_USER_PROCESSING_SERVER_ROUTE
 
@@ -36,11 +37,12 @@ class UserProcessingWebProtocolRemoteFacadeServer(WebFacadeServer.WebProtocolRem
                 LabViewMethod,
                 ClientMethod,
                 ILabMethod,
-                VisirMethod
+                VisirMethod,
+                LanguageMethod
             ]
 
 class UserProcessingWebRemoteFacadeServer(WebFacadeServer.WebRemoteFacadeServer):
-    FACADE_WEB_LISTEN          = WEB_FACADE_LISTEN    
+    FACADE_WEB_LISTEN          = WEB_FACADE_LISTEN
     DEFAULT_FACADE_WEB_LISTEN  = DEFAULT_WEB_FACADE_LISTEN
     FACADE_WEB_PORT            = WEB_FACADE_PORT
 

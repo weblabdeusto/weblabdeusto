@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import threading
 import time
 import sys
@@ -20,7 +20,7 @@ import voodoo.sessions.generator as SessionGenerator
 import voodoo.sessions.serializer as SessionSerializer
 import voodoo.log as log
 
-import voodoo.sessions.exc as SessionExceptions
+import voodoo.sessions.exc as SessionErrors
 
 SERIALIZE_MEMORY_GATEWAY_SESSIONS  = 'session_memory_gateway_serialize'
 
@@ -89,7 +89,7 @@ class SessionMemoryGateway(object):
                 session_obj = self.get_session_obj(session_id)
                 if session_obj.is_expired(self._timeout):
                     self.delete_session(session_id)
-            except SessionExceptions.SessionNotFoundException:
+            except SessionErrors.SessionNotFoundError:
                 # The session was removed during the iteration of this loop
                 continue
             except:
@@ -103,11 +103,11 @@ class SessionMemoryGateway(object):
             # The user wants a specific session_id
             lock, sessions = self._get_lock_and_sessions(desired_sess_id)
             lock.acquire()
-            if sessions.has_key(desired_sess_id):
+            if desired_sess_id in sessions:
                 lock.release()
-                raise SessionExceptions.DesiredSessionIdAlreadyExistsException("session_id: %s" % desired_sess_id)
+                raise SessionErrors.DesiredSessionIdAlreadyExistsError("session_id: %s" % desired_sess_id)
             session_id = desired_sess_id
-            
+
         else:
             # We generate the session_id:
             must_repeat = True
@@ -115,7 +115,7 @@ class SessionMemoryGateway(object):
                 session_id = self._generator.generate_id()
                 lock, sessions = self._get_lock_and_sessions(session_id)
                 lock.acquire()
-                must_repeat = sessions.has_key(session_id)
+                must_repeat = session_id in sessions
                 if must_repeat:
                     lock.release()
 
@@ -129,13 +129,13 @@ class SessionMemoryGateway(object):
         #  session = get_session_locking(session_id)
         #  something()
         #  modify_session_unlocking(session_id, session)
-        # 
+        #
         # And something() calls again:
         # session = get_session_locking(same_session_id)
         # session['foo'] = 'bar'
         # modify_session_unlocking(same_session_id, session)
-        # 
-        # Then once "something" is called, the first function will store 
+        #
+        # Then once "something" is called, the first function will store
         # the original session, therefore removing the changes performed
         # in "something". That's really dangerous, so we use here a
         # threading.Lock so the thread is locked and this can't happen.
@@ -147,13 +147,13 @@ class SessionMemoryGateway(object):
     def has_session(self, session_id):
         lock, sessions = self._get_lock_and_sessions(session_id)
         with lock:
-            return sessions.has_key(session_id)
+            return session_id in sessions
 
     def get_session_obj(self, session_id):
         lock, sessions = self._get_lock_and_sessions(session_id)
         with lock:
-            if not sessions.has_key(session_id):
-                raise SessionExceptions.SessionNotFoundException(
+            if not session_id in sessions:
+                raise SessionErrors.SessionNotFoundError(
                             "Session not found: " + session_id
                         )
             session = sessions[session_id]
@@ -173,8 +173,8 @@ class SessionMemoryGateway(object):
             sess_obj = self._serializer.serialize(sess_obj)
         lock, sessions = self._get_lock_and_sessions(sess_id)
         with lock:
-            if not sessions.has_key(sess_id):
-                raise SessionExceptions.SessionNotFoundException(
+            if not sess_id in sessions:
+                raise SessionErrors.SessionNotFoundError(
                             "Session not found: " + sess_id
                         )
             sessions[sess_id] = SessionObj(sess_obj)
@@ -182,12 +182,12 @@ class SessionMemoryGateway(object):
     def get_session_locking(self, session_id):
         lock, sessions = self._get_lock_and_sessions(session_id)
         session_locks  = self._get_session_lock(session_id)
-        
+
         with lock:
             session  = self.get_session(session_id)
             lck      = session_locks[session_id]
             acquired = lck.acquire(False)
-        
+
         if not acquired:
             lck.acquire()
             session = self.get_session(session_id)
@@ -231,7 +231,7 @@ class SessionMemoryGateway(object):
         return total_session_ids
 
     def clear(self):
-        """ If calling this method concurrently with a create_session, 
+        """ If calling this method concurrently with a create_session,
         it might happen that in no moment the sessions is empty. """
         for first_chars in self._sessions:
             lock, sessions = self._sessions[first_chars]
@@ -245,11 +245,11 @@ class SessionMemoryGateway(object):
         session_locks  = self._get_session_lock(session_id)
 
         with lock:
-            if sessions.has_key(session_id):
+            if session_id in sessions:
                 sessions.pop(session_id)
                 session_locks.pop(session_id)
             else:
-                raise SessionExceptions.SessionNotFoundException(
+                raise SessionErrors.SessionNotFoundError(
                             "Session not found: " + session_id
                         )
 
@@ -258,12 +258,12 @@ class SessionMemoryGateway(object):
         session_locks  = self._get_session_lock(session_id)
 
         with lock:
-            if sessions.has_key(session_id):
+            if session_id in sessions:
                 sessions.pop(session_id)
                 session_lock = session_locks.pop(session_id)
                 session_lock.release()
             else:
-                raise SessionExceptions.SessionNotFoundException(
+                raise SessionErrors.SessionNotFoundError(
                             "Session not found: " + session_id
                         )
 

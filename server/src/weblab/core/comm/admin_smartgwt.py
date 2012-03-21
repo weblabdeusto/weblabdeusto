@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 #-*-*- encoding: utf-8 -*-*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -63,7 +63,7 @@ class Criteria(object):
             str_operator = obj["operator"]
             str_value    = obj['value']
         except KeyError as ke:
-            raise MethodException("Missing criteria field: %s" % ke)
+            raise MethodError("Missing criteria field: %s" % ke)
 
         try:
             if field_name in Criteria.DATETIME_FIELDS:
@@ -71,9 +71,9 @@ class Criteria(object):
             elif field_name in Criteria.INT_FIELDS:
                 value = int(str_value)
             else:
-                raise MethodException("Unrecognized field name! %s" % urllib2.quote(field_name))
+                raise MethodError("Unrecognized field name! %s" % urllib2.quote(field_name))
         except ValueError as ve:
-            raise MethodException("Couldn't parse value! %s" % ve)
+            raise MethodError("Couldn't parse value! %s" % ve)
 
         if str_operator == 'greaterOrEqual':
             op = operator.ge
@@ -82,7 +82,7 @@ class Criteria(object):
         elif str_operator == 'equals':
             op = operator.eq
         else:
-            raise MethodException("Unrecognized operator!")
+            raise MethodError("Unrecognized operator!")
 
         return Criteria( field_name, op, value )
 
@@ -127,12 +127,12 @@ class AdvancedCriteria(object):
                 if operators[0] == 'and':
                     op = operator.and_
                 else:
-                    raise MethodException("Invalid advanced_criteria operator %s" % urllib2.quote(operators[0]))
+                    raise MethodError("Invalid advanced_criteria operator %s" % urllib2.quote(operators[0]))
             else:
                 op = None
         except (ValueError, IndexError) as e:
-            raise MethodException("Invalid advanced criteria value: %s" % urllib2.quote(str(e)))
-        
+            raise MethodError("Invalid advanced criteria value: %s" % urllib2.quote(str(e)))
+
         return AdvancedCriteria(criterias, op, sort_by, start_row, end_row, text_match_styles[0])
 
 
@@ -142,95 +142,95 @@ class AdvancedCriteria(object):
             representation += "\n\t" + str(criteria)
         return representation + "\n</AdvancedCriteria>"
 
-class MethodException(Exception):
+class MethodError(Exception):
     pass
 
 class Methods(object):
     """
-    Methods is a class which simply encompasses the static server-side 
+    Methods is a class which simply encompasses the static server-side
     methods that are required to handle queries from the SmartGWT admin
     panel data sources. These queries are encoded in a SmartGWT specific
     JSON, so they must be parsed and an appropriate JSON response
     generated. They are the first server-side layer to receive them.
     """
-    
+
     @staticmethod
     def get_experiments(handler, session_id, parameters):
         request_args = { 'id' : session_id }
         experiments = handler.facade_manager.get_experiments(request_args)
-        return { 'response' : 
-                    { 'data' : 
-                        [ 
-                            { 
-                                'id' : exp.id, 
-                                'name' : exp.name, 
-                                'category' : exp.category.name 
-                            } 
-                            for exp in experiments 
-                        ] 
+        return { 'response' :
+                    { 'data' :
+                        [
+                            {
+                                'id' : exp.id,
+                                'name' : exp.name,
+                                'category' : exp.category.name
+                            }
+                            for exp in experiments
+                        ]
                     }
                 }
-    
+
     @staticmethod
     def get_permission_types(handler, session_id, parameters):
         """
         get_permission_types(handler, session_id, parameters)
-        
+
         Retrieves permission types, returning them in a JSON-encoded string
         which will be understood by the client-side SmartGWT data source.
         """
         request_args = { 'id' : session_id }
         permission_types = handler.facade_manager.get_permission_types(request_args)
-        return { 'response' : 
-            { 'data' : 
-                [ 
-                    { 
+        return { 'response' :
+            { 'data' :
+                [
+                    {
                         'name'  : ptype.name,
                         'description' : ptype.description,
                         'user_applicable_id' : ptype.user_applicable_id,
                         'group_applicable_id' : ptype.group_applicable_id,
                         'ee_applicable_id' : ptype.ee_applicable_id
-                    } 
-                    for ptype in permission_types 
-                ] 
+                    }
+                    for ptype in permission_types
+                ]
             }
         }
-        
+
     @staticmethod
     def get_roles(handler, session_id, parameters):
         """
         get_roles(handler, session_id, parameters)
-        
+
         Retrieves roles, returning them in a JSON-encoded string which will be
         understood by the client-side SmartGWT data source.
         """
         request_args = { 'id' : session_id }
         roles = handler.facade_manager.get_roles(request_args)
-        return { 'response' : 
-                    { 'data' : 
-                        [ 
-                            { 
+        return { 'response' :
+                    { 'data' :
+                        [
+                            {
                                 'name' : role.name
-                            } 
-                            for role in roles 
-                        ] 
+                            }
+                            for role in roles
+                        ]
                     }
                 }
-        
+
     @staticmethod
     def get_user_permissions(handler, session_id, parameters):
         """
         get_user_permissions(handler, session_id, parameters)
-        
-        Retrieves user permissions, returning them in a JSON-encoded string 
+
+        Retrieves user permissions, returning them in a JSON-encoded string
         which will be understood by the client-side SmartGWT data source.
         """
         request_args = { 'id' : session_id }
         user_permissions = handler.facade_manager.get_user_permissions(request_args)
-        return { 'response' : 
-                    { 'data' : 
-                        [ 
-                            { 
+        return { 'response' :
+                    { 'data' :
+                        [
+                            {
                                 # TODO: Consider what to to with this id. The DTO currently does not store
                                 # the id. This follows the trend set by most DTOs. As of now, the client
                                 # uses it though, but it might be possible to replace it with the permanent
@@ -241,34 +241,34 @@ class Methods(object):
                                 'permanent_id' : up.permanent_id,
                                 'date' : up.date,
                                 'comments' : up.comments
-                            } 
-                            for up in user_permissions 
-                        ] 
+                            }
+                            for up in user_permissions
+                        ]
                     }
                 }
 
-    @staticmethod 
+    @staticmethod
     def get_users(handler, session_id, parameters):
         """
         get_users(handler, session_id, parameters)
-        
+
         Retrieves users, returning them in a JSON-encoded string which will be
         understood by the client-side SmartGWT data source.
         """
         request_args = { 'id' : session_id }
         users = handler.facade_manager.get_users(request_args)
-        return { 'response' : 
-                    { 'data' : 
-                        [ 
-                            { 
-                                'login' : user.login, 
+        return { 'response' :
+                    { 'data' :
+                        [
+                            {
+                                'login' : user.login,
                                 'full_name' : user.full_name,
                                 'email' : user.email,
                                 'avatar' : "",
                                 'role' : user.role.name
-                            } 
-                            for user in users 
-                        ] 
+                            }
+                            for user in users
+                        ]
                     }
                 }
 
@@ -276,28 +276,28 @@ class Methods(object):
     def get_groups(handler, session_id, parameters):
         session_id = { 'id' : session_id }
         parent_ids = [ param for param in parameters if param.startswith('parent_id=') ]
-        
+
         if len(parent_ids) == 0:
-            raise MethodException("No parent_id provided")
+            raise MethodError("No parent_id provided")
 
         parent_id_str = parent_ids[0][len('parent_id') + 1:]
         try:
             parent_id     = None if parent_id_str == 'null' else int(parent_id_str)
         except ValueError:
-            raise MethodException("parent_id must be an int or 'null'")
+            raise MethodError("parent_id must be an int or 'null'")
 
         groups = handler.facade_manager.get_groups(session_id, parent_id)
         return { 'response' :
                     { 'data' :
-                        [ 
-                            { 
-                                'id' : group.id, 
-                                'name' : group.name, 
+                        [
+                            {
+                                'id' : group.id,
+                                'name' : group.name,
                                 'parent_id' : None if group._parent is None else group._parent.id,
                                 'isFolder'  : len(group.children) > 0
                             }
                             for group in groups
-                        ] 
+                        ]
                     }
                 }
 
@@ -358,7 +358,7 @@ class SmartGwtHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     server_route   = None
 
     def do_GET(self):
-        create_context(self.server, self.headers)
+        create_context(self.server, self.client_address, self.headers)
         try:
             first_question_mark = self.path.find("?")
             if first_question_mark >= 0:
@@ -387,7 +387,7 @@ class SmartGwtHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 method = getattr(Methods, 'get_%s' % method_name)
                 try:
                     response = method(self, session_id, parameters)
-                except MethodException as me:
+                except MethodError as me:
 #                    import traceback
 #                    traceback.print_exc()
                     log.log( self, log.level.Error, str(me))
@@ -397,7 +397,7 @@ class SmartGwtHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 json_response = json.dumps(response)
             else:
                 self._write(400, "method %s not implemented" % urllib2.quote(method_name))
-                return 
+                return
 
             self._write(200, json_response)
         except Exception as e:

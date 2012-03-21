@@ -1,23 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import xml.dom.minidom as minidom
-import voodoo.gen.exceptions.loader.LoaderExceptions as LoaderExceptions
+import voodoo.gen.exceptions.loader.LoaderErrors as LoaderErrors
 
 def find_nodes(file_name, root_node, node_name):
-    return [ child_node 
+    return [ child_node
         for child_node in root_node.childNodes
         if isinstance(child_node, minidom.Element) and child_node.tagName == node_name
     ]
@@ -25,8 +25,8 @@ def find_nodes(file_name, root_node, node_name):
 def find_nodes_at_least_one(file_name, root_node, node_name):
     nodes = find_nodes(file_name, root_node, node_name)
     if len(nodes) == 0:
-        raise LoaderExceptions.InvalidSyntaxFileConfigurationException(
-            "Couldn't find %s node in %s" % (file_name, node_name), 
+        raise LoaderErrors.InvalidSyntaxFileConfigurationError(
+            "Couldn't find %s node in %s" % (file_name, node_name),
             file_name
         )
     return nodes
@@ -34,8 +34,8 @@ def find_nodes_at_least_one(file_name, root_node, node_name):
 def find_node(file_name, root_node, node_name):
     nodes = find_nodes_at_least_one(file_name, root_node, node_name)
     if len(nodes) > 1:
-        raise LoaderExceptions.InvalidSyntaxFileConfigurationException(
-            "Too many %s nodes in %s" % (file_name, node_name), 
+        raise LoaderErrors.InvalidSyntaxFileConfigurationError(
+            "Too many %s nodes in %s" % (file_name, node_name),
             file_name
         )
     return nodes[0]
@@ -51,7 +51,7 @@ def obtain_text(text_node):
 def obtain_text_safe(text_node):
     text = [ i for i in text_node.childNodes if isinstance(i,minidom.Text) ]
     if len(text) == 0:
-        raise LoaderExceptions.InvalidConfigurationException(
+        raise LoaderErrors.InvalidConfigurationError(
                     "Empty Text Node"
                 )
     else:
@@ -65,7 +65,7 @@ def last_point(name):
 
 def obtain_module(name):
     """ obtain_module(name) -> module
-    Given a name like "os.path.sep" in str form, this function will return the module os.path (or os, if __import__ provides os) 
+    Given a name like "os.path.sep" in str form, this function will return the module os.path (or os, if __import__ provides os)
     or None if no module is found.
     """
     the_module = None
@@ -77,7 +77,7 @@ def obtain_module(name):
         except ImportError:
             pass
     return the_module
-    
+
 def obtain_from_python_path(name):
     """ obtain_from_python_path(name) -> whatever :-)
 
@@ -88,7 +88,7 @@ def obtain_from_python_path(name):
     the_module = obtain_module(name)
     #If the_module is still None, the path is wrong
     if the_module == None:
-        raise LoaderExceptions.InvalidConfigurationException(
+        raise LoaderErrors.InvalidConfigurationError(
                     """I can't import any module from "%s" """ % name
                 )
 
@@ -102,7 +102,7 @@ def obtain_from_python_path(name):
         try:
             current_block = getattr(current_block,i)
         except AttributeError:
-            raise LoaderExceptions.InvalidConfigurationException(
+            raise LoaderErrors.InvalidConfigurationError(
                     """Couldn't find %s in module: %s""" % (
                             i,
                             name

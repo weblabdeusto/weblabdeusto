@@ -1,22 +1,22 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
 import unittest
 
-import weblab.lab.exc as LaboratoryExceptions
+import weblab.lab.exc as LaboratoryErrors
 
 import weblab.lab.assigned_experiments as AssignedExperiments
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
@@ -27,8 +27,8 @@ class AssignedExperimentsTestCase(unittest.TestCase):
     def setUp(self):
         self._assigned_micro_servers = AssignedExperiments.AssignedExperiments()
         self.exp_inst_id = ExperimentInstanceId("exp_inst","exp_name","exp_cat")
-        
-    
+
+
     def test_add_server(self):
         clients_coord_addresses = CoordAddress.CoordAddress.translate_address("myserver:myinstance@mymachine")
         checking_handlers = ('WebcamIsUpAndRunningHandler',)
@@ -36,7 +36,7 @@ class AssignedExperimentsTestCase(unittest.TestCase):
         self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, checking_handlers )
 
         self.assertRaises(
-            LaboratoryExceptions.ExperimentAlreadyFoundException,
+            LaboratoryErrors.ExperimentAlreadyFoundError,
             self._assigned_micro_servers.add_server,
             self.exp_inst_id,
             clients_coord_addresses,
@@ -70,7 +70,7 @@ class AssignedExperimentsTestCase(unittest.TestCase):
         self._assigned_micro_servers.reserve_experiment(self.exp_inst_id, "foo")
         lab_session_id = self._assigned_micro_servers.get_lab_session_id(self.exp_inst_id)
         self.assertEquals("foo", lab_session_id)
-        
+
     def test_get_is_up_and_running_handlers(self):
         clients_coord_addresses = CoordAddress.CoordAddress.translate_address("myserver:myinstance@mymachine")
         checking_handlers = ('WebcamIsUpAndRunningHandler',)
@@ -96,14 +96,14 @@ class AssignedExperimentsTestCase(unittest.TestCase):
         check_reserve()
         self._assigned_micro_servers.free_experiment(self.exp_inst_id)
         self.assertRaises(
-            LaboratoryExceptions.AlreadyFreedExperimentException,
+            LaboratoryErrors.AlreadyFreedExperimentError,
             self._assigned_micro_servers.free_experiment,
-            self.exp_inst_id 
+            self.exp_inst_id
         )
 
     def test_bounds(self):
         self.assertRaises(
-            LaboratoryExceptions.ExperimentNotFoundException,
+            LaboratoryErrors.ExperimentNotFoundError,
             self._assigned_micro_servers.reserve_experiment,
             self.exp_inst_id,
             "my session id"

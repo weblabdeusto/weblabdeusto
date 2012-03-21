@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 from voodoo.gen.caller_checker import caller_check
 from voodoo.log import logged
@@ -29,12 +29,12 @@ class UdDemoXilinxExperiment(UdXilinxExperiment.UdXilinxExperiment):
             'PLD'  : 'cpld.jed',
             'FPGA' : 'fpga.bit',
         }
-    
+
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(UdDemoXilinxExperiment,self).__init__(coord_address, locator, cfg_manager, *args, **kwargs)
         file_path = os.path.dirname(__file__) + os.sep + self.FILES[self._xilinx_device]
         self.file_content = ExperimentUtil.serialize(open(file_path, "rb").read())
-        
+
     @Override(UdXilinxExperiment.UdXilinxExperiment)
     @caller_check(ServerType.Laboratory)
     @logged("info")

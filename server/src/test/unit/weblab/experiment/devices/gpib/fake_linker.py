@@ -1,25 +1,25 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 if __name__ == '__main__':
     import sys
     assert len(sys.argv) == 11, "Linker example: ilink32 -Tpe -c whatever.obj c0x32, whatever.exe, , visa32 import32 cw32 bidsf \n\
 Got %s arguments; \"%s\"" % ( len(sys.argv), ' '.join(sys.argv) )
-    
+
     # assert sys.argv[0] == 'ilink32' #Not in the fake version
-    assert sys.argv[1]  == '-Tpe' 
+    assert sys.argv[1]  == '-Tpe'
     assert sys.argv[2]  == '-c'
     assert sys.argv[3][-4:].lower() == '.obj'
     assert sys.argv[4]  == 'c0x32,'

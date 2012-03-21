@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -17,7 +17,7 @@ from mock import patch
 import unittest
 import urllib2
 
-from weblab.experiment.devices.http import HttpDevice, WlHttpDeviceURLErrorException, WlHttpDeviceHTTPErrorException, WlHttpDeviceException
+from weblab.experiment.devices.http import HttpDevice, WlHttpDeviceURLErrorError, WlHttpDeviceHTTPErrorError, WlHttpDeviceError
 from test.util.fakeobjects import fakeaddinfourl
 
 
@@ -37,7 +37,7 @@ class HttpDeviceTestCase(unittest.TestCase):
 
         device = HttpDevice("localhost", 7779)
         self.assertRaises(
-            WlHttpDeviceHTTPErrorException,
+            WlHttpDeviceHTTPErrorError,
             device.send_message,
             "command"
         )
@@ -48,7 +48,7 @@ class HttpDeviceTestCase(unittest.TestCase):
 
         device = HttpDevice("localhost", 7779)
         self.assertRaises(
-            WlHttpDeviceURLErrorException,
+            WlHttpDeviceURLErrorError,
             device.send_message,
             "command"
         )
@@ -59,7 +59,7 @@ class HttpDeviceTestCase(unittest.TestCase):
 
         device = HttpDevice("localhost", 7779)
         self.assertRaises(
-            WlHttpDeviceException,
+            WlHttpDeviceError,
             device.send_message,
             "command"
         )

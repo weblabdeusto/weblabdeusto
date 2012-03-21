@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import unittest
 import threading
@@ -29,7 +29,7 @@ import voodoo.gen.coordinator.Access as Access
 import voodoo.gen.coordinator.AccessLevel as AccessLevel
 import voodoo.gen.coordinator.CoordinatorServer as CoordinatorServer
 
-import voodoo.gen.exceptions.coordinator.CoordinatorServerExceptions as CoordinatorServerExceptions
+import voodoo.gen.exceptions.coordinator.CoordinatorServerErrors as CoordinatorServerErrors
 
 import voodoo.gen.protocols.protocols as Protocols
 import voodoo.gen.protocols.Direct.Network as DirectNetwork
@@ -56,7 +56,7 @@ def create_coordinator_map():
     # 4 servers
     # We are in machine0, instance0, server0
 
-    # They all have Direct 
+    # They all have Direct
 
     # 1st: address
     address1 = map['machine0']['instance0']['server0'].address
@@ -121,16 +121,16 @@ def create_coordinator_map():
     soap_network4 = SOAPNetwork.SOAPNetwork(server_ip_address4)
 
     # 3rd: accesses
-    access_soap1 = Access.Access( 
+    access_soap1 = Access.Access(
         Protocols.SOAP,AccessLevel.network, ( soap_network1, )
     )
-    access_soap2 = Access.Access( 
+    access_soap2 = Access.Access(
         Protocols.SOAP,AccessLevel.network, ( soap_network2, )
     )
-    access_soap3 = Access.Access( 
+    access_soap3 = Access.Access(
         Protocols.SOAP,AccessLevel.network, ( soap_network3, )
     )
-    access_soap4 = Access.Access( 
+    access_soap4 = Access.Access(
         Protocols.SOAP,AccessLevel.network, ( soap_network4, )
     )
 
@@ -157,14 +157,14 @@ class CoordinatorServerTestCase(unittest.TestCase):
         cfg_manager.append_module(configuration_module)
 
         self.assertRaises(
-                CoordinatorServerExceptions.BothMapAndMapFileProvidedException,
+                CoordinatorServerErrors.BothMapAndMapFileProvidedError,
                 CoordinatorServer.CoordinatorServer,
                 cfg_manager,
                 map      = ":-)",
                 map_file = ":-("
             )
         self.assertRaises(
-                CoordinatorServerExceptions.NeitherMapNorFileProvidedException,
+                CoordinatorServerErrors.NeitherMapNorFileProvidedError,
                 CoordinatorServer.CoordinatorServer,
                 cfg_manager
             )
@@ -180,16 +180,16 @@ class CoordinatorServerTestCase(unittest.TestCase):
                 map
             )
         self.assertRaises(
-            CoordinatorServerExceptions.SessionNotFoundException,
+            CoordinatorServerErrors.SessionNotFoundError,
             coord_server.do_get_server,
             "p0wn3d"
         )
-        
+
         my_address = map['machine0']['instance0']['server0'].address
 
         # What if there are problems serializing?
         self.assertRaises(
-            CoordinatorServerExceptions.CouldNotCreateSessionException,
+            CoordinatorServerErrors.CouldNotCreateSessionError,
             coord_server.do_new_query,
             threading.Lock(), SampleServerType.Login, None
         )
@@ -238,7 +238,7 @@ class CoordinatorServerTestCase(unittest.TestCase):
 
             # There are no more servers!
             self.assertRaises(
-                CoordinatorServerExceptions.NoServerFoundException,
+                CoordinatorServerErrors.NoServerFoundError,
                 coord_server.do_get_server,
                 sess_id
             )
@@ -252,7 +252,7 @@ class CoordinatorServerTestCase(unittest.TestCase):
                 cfg_manager,
                 map
             )
-        
+
         my_address = map['machine0']['instance0']['server0'].address
 
         everything = coord_server.do_get_all_servers(
@@ -263,7 +263,7 @@ class CoordinatorServerTestCase(unittest.TestCase):
                 3,
                 len(everything)
             )
-    
+
         server0, networks0 = everything[0]
         server1, networks1 = everything[1]
         server2, networks2 = everything[2]
@@ -323,7 +323,7 @@ class CoordinatorServerTestCase(unittest.TestCase):
                 cfg_manager,
                 map
             )
-        
+
         my_address = map['machine0']['instance0']['server0'].address
 
         other_address1 = map['machine0']['instance0']['server1'].address

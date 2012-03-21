@@ -7,6 +7,7 @@ regex:
 .pyo$
 .class$
 .swp$
+.metadata
 
 ^server/consumers/php/cookiefile
 ^server/src/env
@@ -18,6 +19,10 @@ regex:
 ^server/launch/.*/.*\.sock$
 ^server/launch/.*/files_stored$
 ^server/launch/deusto
+^server/launch/urdaneta
+^server/launch/fishtank
+^server/launch/isep
+^server/launch/uned
 ^server/db/.*\.db$
 ^client/gwt-unitCache
 
@@ -92,6 +97,7 @@ tools/Bot/.*.html
 tools/Bot/.*.dump
 tools/Bot/.*_log.txt
 tools/Bot/nohup.out
+tools/VisirBattleTester/.*dump.*
 
 tools/Bot/figures/*
 tools/Bot/logs/*

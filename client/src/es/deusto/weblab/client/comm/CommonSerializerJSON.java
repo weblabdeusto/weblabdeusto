@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005-2009 University of Deusto
+* Copyright (C) 2005 onwards University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -15,7 +15,6 @@
 
 package es.deusto.weblab.client.comm;
 
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONException;
@@ -32,8 +31,6 @@ import es.deusto.weblab.client.comm.exceptions.core.UserProcessingException;
 import es.deusto.weblab.client.comm.exceptions.login.InvalidCredentialsException;
 import es.deusto.weblab.client.comm.exceptions.login.LoginException;
 import es.deusto.weblab.client.dto.SessionID;
-import es.deusto.weblab.client.dto.experiments.Category;
-import es.deusto.weblab.client.dto.experiments.Experiment;
 import es.deusto.weblab.client.dto.users.ExternalEntity;
 import es.deusto.weblab.client.dto.users.PermissionParameter;
 import es.deusto.weblab.client.dto.users.Role;
@@ -182,56 +179,6 @@ public class CommonSerializerJSON implements ICommonSerializer {
 		final String email = this.json2string(jsonExternalEntity.get("email"));
 		
 		return new ExternalEntity(id, name, country, description, email);
-	}
-	
-	protected Experiment parseExperiment(JSONObject jsonExperiment) throws SerializationException {
-	    final Experiment experiment = new Experiment();
-	    
-	    // id
-	    final JSONValue jsonIdValue = jsonExperiment.get("id");
-	    if(jsonIdValue == null)
-	    	throw new SerializationException("Expected id field in Experiment");
-	    experiment.setId(this.json2int(jsonIdValue));
-	    
-	    // name
-	    final JSONValue jsonNameValue = jsonExperiment.get("name");
-	    if(jsonNameValue == null)
-	    	throw new SerializationException("Expected name field in Experiment");
-	    experiment.setName(this.json2string(jsonNameValue));
-	    
-	    // category
-	    final JSONValue jsonCategoryValue = jsonExperiment.get("category");
-	    if(jsonCategoryValue == null)
-	    	throw new SerializationException("Expected category field in Experiment");
-	    final JSONObject jsonCategory = jsonCategoryValue.isObject();
-	    if(jsonCategory == null)
-	    	throw new SerializationException("Expected JSON Object as Category, found: " + jsonCategoryValue);
-	    experiment.setCategory(new Category(this.json2string(jsonCategory.get("name"))));
-	    
-	    // startDate && endDate
-	    final String startDateString = this.json2string(jsonExperiment.get("start_date"));
-	    final String endDateString   = this.json2string(jsonExperiment.get("end_date"));
-	    final DateTimeFormat formatter1 = DateTimeFormat.getFormat("yyyy-MM-dd");
-	    final DateTimeFormat formatter2 = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss");
-	    final DateTimeFormat formatter3 = DateTimeFormat.getFormat("yyyy-MM-ddTHH:mm:ss");
-	    try {
-			experiment.setStartDate(formatter1.parse(startDateString));
-			experiment.setEndDate(formatter1.parse(endDateString));
-	    } catch( final IllegalArgumentException iae ) {
-			try{
-			    experiment.setStartDate(formatter2.parse(startDateString));
-			    experiment.setEndDate(formatter2.parse(endDateString));
-			}catch(final IllegalArgumentException iae2){
-				try{
-				    experiment.setStartDate(formatter3.parse(startDateString));
-				    experiment.setEndDate(formatter3.parse(endDateString));
-				}catch(final IllegalArgumentException iae3){
-				    throw new SerializationException("Couldn't parse date: " + startDateString + "; or: " + endDateString);
-				}
-			}
-	    }
-	    
-	    return experiment;
 	}
 	
 	protected JSONString parseResultString(String response) 

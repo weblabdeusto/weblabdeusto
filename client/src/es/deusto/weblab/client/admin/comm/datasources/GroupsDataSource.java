@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005-2009 University of Deusto
+* Copyright (C) 2005 onwards University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -21,12 +21,13 @@ import com.smartgwt.client.types.DSOperationType;
 import com.smartgwt.client.types.DSProtocol;
 
 import es.deusto.weblab.client.admin.dto.GroupRecord;
+import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
 
 public class GroupsDataSource extends WebLabRestDataSource {
 
-	public GroupsDataSource(SessionID sessionId) {
-		super(sessionId);
+	public GroupsDataSource(SessionID sessionId, IConfigurationManager configurationManager) {
+		super(sessionId, configurationManager);
 	}
 	
 	@Override
@@ -46,6 +47,6 @@ public class GroupsDataSource extends WebLabRestDataSource {
         parentIdDSField.setForeignKey(GroupRecord.ID);     
         
 	    this.setFields(idField, nameDSField, parentIdDSField);  
-	    this.setFetchDataURL("/weblab/administration/json/groups");
+	    this.setFetchDataURL(this.baseLocation + "/weblab/administration/json/groups");
 	}
 }

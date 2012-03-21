@@ -1,18 +1,18 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
 import re
 
@@ -28,7 +28,7 @@ from voodoo.dbutil import generate_getconn, get_sqlite_dbname
 from voodoo.log import logged
 import voodoo.log as log
 
-import weblab.db.exc as DbExceptions
+import weblab.db.exc as DbErrors
 import weblab.db.gateway as dbGateway
 
 from weblab.db.properties import WEBLAB_DB_USERNAME_PROPERTY, DEFAULT_WEBLAB_DB_USERNAME, WEBLAB_DB_PASSWORD_PROPERTY, WEBLAB_DB_FORCE_ENGINE_RECREATION, DEFAULT_WEBLAB_DB_FORCE_ENGINE_RECREATION
@@ -70,8 +70,8 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
     ###########################################################################
     @logged()
     def check_external_credentials(self, external_id, system):
-        """ Given an External ID, such as the ID in Facebook or Moodle or whatever, and selecting 
-        the system, return the first username that matches with that user_id. The method will 
+        """ Given an External ID, such as the ID in Facebook or Moodle or whatever, and selecting
+        the system, return the first username that matches with that user_id. The method will
         expect that the system uses something that starts by the id"""
         session = self.Session()
         try:
@@ -79,12 +79,12 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
                 auth_type = session.query(Model.DbAuthType).filter_by(name=system).one()
                 auth = auth_type.auths[0]
             except (NoResultFound, KeyError):
-                raise DbExceptions.DbUserNotFoundException("System '%s' not found in database" % system)
+                raise DbErrors.DbUserNotFoundError("System '%s' not found in database" % system)
 
             try:
                 user_auth = session.query(Model.DbUserAuth).filter_by(auth = auth, configuration=external_id).one()
             except NoResultFound:
-                raise DbExceptions.DbUserNotFoundException("User '%s' not found in database" % external_id)
+                raise DbErrors.DbUserNotFoundError("User '%s' not found in database" % external_id)
 
             user = user_auth.user
             return user.login, user.role
@@ -104,16 +104,16 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
                 auth_type = session.query(Model.DbAuthType).filter_by(name=system).one()
                 auth = auth_type.auths[0]
             except (NoResultFound, KeyError):
-                raise DbExceptions.DbUserNotFoundException("System '%s' not found in database" % system)
+                raise DbErrors.DbUserNotFoundError("System '%s' not found in database" % system)
 
             try:
                 user = session.query(Model.DbUser).filter_by(login=username).one()
             except NoResultFound:
-                raise DbExceptions.DbUserNotFoundException("User '%s' not found in database" % user)
+                raise DbErrors.DbUserNotFoundError("User '%s' not found in database" % user)
 
             for user_auth in user.auths:
                 if user_auth.auth == auth:
-                    raise DbExceptions.DbUserNotFoundException("User '%s' already has credentials in system %s" % (username, system))
+                    raise DbErrors.DbUserNotFoundError("User '%s' already has credentials in system %s" % (username, system))
 
             user_auth = Model.DbUserAuth(user = user, auth = auth, configuration=str(external_id))
             session.add(user_auth)
@@ -132,14 +132,14 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
                 auth_type = session.query(Model.DbAuthType).filter_by(name=system).one()
                 auth = auth_type.auths[0]
             except (NoResultFound, KeyError):
-                raise DbExceptions.DbUserNotFoundException("System '%s' not found in database" % system)
+                raise DbErrors.DbUserNotFoundError("System '%s' not found in database" % system)
 
             groups = []
             for group_name in group_names:
                 try:
                     group = session.query(Model.DbGroup).filter_by(name=group_name).one()
                 except NoResultFound:
-                    raise DbExceptions.DbUserNotFoundException("Group '%s' not found in database" % group_name)
+                    raise DbErrors.DbUserNotFoundError("Group '%s' not found in database" % group_name)
                 groups.append(group)
 
             try:
@@ -154,7 +154,7 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
             except Exception as e:
                 log.log( AuthDatabaseGateway, log.level.Warning, "Couldn't create user: %s" % e)
                 log.log_exc(AuthDatabaseGateway, log.level.Info)
-                raise DbExceptions.DatabaseException("Couldn't create user! Contact administrator")
+                raise DbErrors.DatabaseError("Couldn't create user! Contact administrator")
         finally:
             session.close()
 
@@ -173,7 +173,7 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
             try:
                 user = session.query(Model.DbUser).filter_by(login=username).one()
             except NoResultFound:
-                raise DbExceptions.DbUserNotFoundException("User '%s' not found in database" % username)
+                raise DbErrors.DbUserNotFoundError("User '%s' not found in database" % username)
 
             try:
                 retrieved_password = [ userauth.configuration for userauth in user.auths if userauth.auth.auth_type.name == "DB" ][0]
@@ -183,11 +183,11 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
 
             if has_password:
                 if not self._check_password(retrieved_password, passwd):
-                    raise DbExceptions.DbInvalidUserOrPasswordException("Invalid password: '%s'" % passwd)
+                    raise DbErrors.DbInvalidUserOrPasswordError("Invalid password: '%s'" % passwd)
                 auth_info = None
             else:
                 auth_info = self._retrieve_auth_information(user, session)
-            
+
             return user.role, user.id, auth_info
         finally:
             session.close()
@@ -209,7 +209,7 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
         REGEX = "([a-zA-Z0-9]*){([a-zA-Z0-9_-]+)}([a-fA-F0-9]+)"
         mo = re.match(REGEX, retrieved_password)
         if mo is None:
-            raise DbExceptions.DbInvalidPasswordFormatException(
+            raise DbErrors.DbInvalidPasswordFormatError(
                     "Invalid password format"
                 )
         first_chars, algorithm, hashed_passwd = mo.groups()
@@ -220,7 +220,7 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
         try:
             hashobj = hashlib.new(algorithm)
         except Exception:
-            raise DbExceptions.DbHashAlgorithmNotFoundException(
+            raise DbErrors.DbHashAlgorithmNotFoundError(
                     "Algorithm %s not found" % algorithm
                 )
 
@@ -234,7 +234,7 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
         if len(user_auths) > 0:
             return [ user_auth.to_business() for user_auth in user_auths ]
         else:
-            raise DbExceptions.DbNoUserAuthNorPasswordFoundException(
+            raise DbErrors.DbNoUserAuthNorPasswordFoundError(
                     "No UserAuth found"
                 )
 

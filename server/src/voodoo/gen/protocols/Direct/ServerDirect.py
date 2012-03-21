@@ -1,13 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -36,21 +36,21 @@ def _generate_skeleton(METHOD_NAME):
 # Don't use this method directly.
 # Use voodoo.gen.generators.ServerSkel.factory(cfg_manager,protocols,methods)
 def generate(cfg_manager, methods):
-    
+
     class ServerDirect(object):
-        
+
         def __init__(self, full_address):
             self._full_address = full_address
 
         def register_parent(self,parent):
-            self._parent = parent           
+            self._parent = parent
             # We should also register the server in the ServerRegistry
-            import voodoo.gen.registry.server_registry as ServerRegistry 
-            import voodoo.gen.exceptions.registry.RegistryExceptions as RegistryExceptions
+            import voodoo.gen.registry.server_registry as ServerRegistry
+            import voodoo.gen.exceptions.registry.RegistryErrors as RegistryErrors
             registry = ServerRegistry.get_instance()
             try:
                 registry.register_server(_SERVER_PREFIX + self._full_address, self._parent)
-            except RegistryExceptions.AddressAlreadyRegisteredException as aar:
+            except RegistryErrors.AddressAlreadyRegisteredError as aar:
                 log.log(
                         ServerDirect,
                         log.level.Warning,
@@ -62,7 +62,7 @@ def generate(cfg_manager, methods):
             pass #No need
         def stop(self):
             pass #No need
-    
+
     # Adding properly the testing method to check availability
     if isinstance(methods,dict):
         all_methods = methods.copy()
@@ -70,7 +70,7 @@ def generate(cfg_manager, methods):
     else:
         all_methods = list(methods[:])
         all_methods.append('test_me')
-    
+
     # Generating skeletons dinamically
     for method_name in all_methods:
         func = _generate_skeleton(method_name)

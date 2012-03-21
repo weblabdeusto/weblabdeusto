@@ -1,24 +1,24 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import os
 import unittest
 
 import xml.dom.minidom as minidom
 import StringIO
 import voodoo.gen.loader.util as LoaderUtilities
-import voodoo.gen.exceptions.loader.LoaderExceptions as LoaderExceptions
+import voodoo.gen.exceptions.loader.LoaderErrors as LoaderErrors
 
 class LoaderUtilitiesTestCase(unittest.TestCase):
     def test_obtain_text(self):
@@ -59,7 +59,7 @@ class LoaderUtilitiesTestCase(unittest.TestCase):
             """
         root_node = minidom.parse(StringIO.StringIO(sample))
         self.assertRaises(
-            LoaderExceptions.InvalidSyntaxFileConfigurationException,
+            LoaderErrors.InvalidSyntaxFileConfigurationError,
             LoaderUtilities.find_node,
             "file_name",
             root_node,
@@ -76,7 +76,7 @@ class LoaderUtilitiesTestCase(unittest.TestCase):
         root_node = minidom.parse(StringIO.StringIO(sample))
         server_node = LoaderUtilities.find_node('file_name',root_node,'server')
         self.assertRaises(
-            LoaderExceptions.InvalidSyntaxFileConfigurationException,
+            LoaderErrors.InvalidSyntaxFileConfigurationError,
             LoaderUtilities.find_node,
             "file_name",
             server_node,
@@ -87,7 +87,7 @@ class LoaderUtilitiesTestCase(unittest.TestCase):
         sample = """<?xml version="1.0" encoding="utf-8"?>
             <server></server>
             """
-        
+
         root_node = minidom.parse(StringIO.StringIO(sample))
         nodes = LoaderUtilities.find_nodes(
                 'file_name',root_node,'server2'
@@ -100,7 +100,7 @@ class LoaderUtilitiesTestCase(unittest.TestCase):
             """
         root_node = minidom.parse(StringIO.StringIO(sample))
         self.assertRaises(
-            LoaderExceptions.InvalidSyntaxFileConfigurationException,
+            LoaderErrors.InvalidSyntaxFileConfigurationError,
             LoaderUtilities.find_nodes_at_least_one,
             "file_name",
             root_node,
@@ -125,7 +125,7 @@ class LoaderUtilitiesTestCase(unittest.TestCase):
                 None,
                 LoaderUtilities.obtain_module('I guess this does not exist')
             )
-    
+
     def test_obtain_from_python_path(self):
         self.assertEquals(
                 os.path.sep,
@@ -140,12 +140,12 @@ class LoaderUtilitiesTestCase(unittest.TestCase):
                 LoaderUtilities.obtain_from_python_path('os.path')
             )
         self.assertRaises(
-                LoaderExceptions.InvalidConfigurationException,
+                LoaderErrors.InvalidConfigurationError,
                 LoaderUtilities.obtain_from_python_path,
                 'I guess this does not exist'
             )
         self.assertRaises(
-                LoaderExceptions.InvalidConfigurationException,
+                LoaderErrors.InvalidConfigurationError,
                 LoaderUtilities.obtain_from_python_path,
                 'os.path.thisdoesnt'
             )

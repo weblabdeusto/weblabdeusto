@@ -38,11 +38,6 @@ laboratory_assigned_experiments = {
                  'coord_address': 'experiment_gpib:main_instance@main_machine',
                  'checkers': (),
             },
-        'exp1:ud-pic@PIC experiments':
-            {
-                 'coord_address': 'experiment_pic:main_instance@main_machine',
-                 'checkers': ()
-            },
         'exp1:ud-dummy@Dummy experiments':
             {
                  'coord_address': 'experiment_dummy:main_instance@main_machine',
@@ -78,6 +73,26 @@ laboratory_assigned_experiments = {
                  'coord_address': 'experiment_testvisir:main_instance@main_machine',
                  'checkers': ()
             },
+        'exp2:visirtest@Dummy experiments':
+            {
+                 'coord_address': 'experiment_testvisir:main_instance@main_machine',
+                 'checkers': ()
+            },
+        'exp3:visirtest@Dummy experiments':
+            {
+                 'coord_address': 'experiment_testvisir:main_instance@main_machine',
+                 'checkers': ()
+            },
+        'exp4:visirtest@Dummy experiments':
+            {
+                 'coord_address': 'experiment_testvisir:main_instance@main_machine',
+                 'checkers': ()
+            },
+        'exp5:visirtest@Dummy experiments':
+            {
+                 'coord_address': 'experiment_testvisir:main_instance@main_machine',
+                 'checkers': ()
+            },
         'exp1:vm@Dummy experiments':
             {
                  'coord_address': 'experiment_vm:main_instance@main_machine',
@@ -107,5 +122,10 @@ laboratory_assigned_experiments = {
             {
                  'coord_address': 'experiment_blinkled:main_instance@main_machine',
                  'checkers': ()
+            },
+        'exp1:ud-pic18@PIC experiments':
+            {
+                'coord_address' : 'experiment_pic18:main_instance@main_machine',
+                'checkers': ()
             },
     }

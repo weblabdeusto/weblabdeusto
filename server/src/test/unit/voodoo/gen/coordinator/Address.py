@@ -1,22 +1,22 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import unittest
 
 
 import voodoo.gen.coordinator.Address as Address
-import voodoo.gen.exceptions.coordinator.AccessExceptions as AccessExceptions
+import voodoo.gen.exceptions.coordinator.AccessErrors as AccessErrors
 
 class ImplementorClass(Address.IpBasedAddress):
     def create_client(self,methods):
@@ -82,15 +82,15 @@ class AddressTestCase(unittest.TestCase):
                 Address.IpBasedAddress,
                 valid_addresses[0]
             )
-    
+
 
         for i in valid_addresses:
             # No problem
             ImplementorClass(i)
-        
+
         for i in invalid_addresses:
             self.assertRaises(
-                AccessExceptions.AccessInvalidIpBasedFormat,
+                AccessErrors.AccessInvalidIpBasedFormat,
                 ImplementorClass,
                 i
             )
@@ -106,9 +106,9 @@ class AddressTestCase(unittest.TestCase):
                             address1,
                             address3
                         )
-        
 
-    
+
+
 def suite():
     return unittest.makeSuite(AddressTestCase)
 

@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005-2009 University of Deusto
+* Copyright (C) 2005 onwards University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -29,8 +29,7 @@ import es.deusto.weblab.client.experiments.gpib2.Gpib2CreatorFactory;
 import es.deusto.weblab.client.experiments.ilab_batch.ILabBatchCreatorFactory;
 import es.deusto.weblab.client.experiments.labview.LabVIEWCreatorFactory;
 import es.deusto.weblab.client.experiments.logic.LogicCreatorFactory;
-import es.deusto.weblab.client.experiments.pic.PicCreatorFactory;
-import es.deusto.weblab.client.experiments.pic2.Pic2CreatorFactory;
+import es.deusto.weblab.client.experiments.pic18.Pic18CreatorFactory;
 import es.deusto.weblab.client.experiments.robot_movement.RobotMovementCreatorFactory;
 import es.deusto.weblab.client.experiments.robot_proglist.RobotProglistCreatorFactory;
 import es.deusto.weblab.client.experiments.robot_standard.RobotStandardCreatorFactory;
@@ -63,8 +62,7 @@ class EntryRegistry {
 		new GpibCreatorFactory(),
 		new Gpib1CreatorFactory(),
 		new Gpib2CreatorFactory(),
-		new PicCreatorFactory(),
-		new Pic2CreatorFactory(),
+		new Pic18CreatorFactory(),
 		new RobotStandardCreatorFactory(),
 		new RobotMovementCreatorFactory(),
 		new RobotProglistCreatorFactory(),

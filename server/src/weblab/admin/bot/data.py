@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 #-*-*- encoding: utf-8 -*-*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
@@ -23,10 +23,10 @@ def avg(elements):
     else:
         return 0
 
-class BotException(object):
+class BotError(object):
 
     def __init__(self, (exception, trace), max_number=0, min_number=0, avg_number=0):
-        super(BotException, self).__init__()
+        super(BotError, self).__init__()
         self.instances = [(exception, trace)]
         self.max = max_number
         self.min = min_number
@@ -37,7 +37,7 @@ class BotException(object):
 
     def add_instance(self, (exception, trace)):
         self.instances.append((exception, trace))
-        
+
     def set_max(self, number):
         self.max = number
 
@@ -48,7 +48,7 @@ class BotException(object):
         self.avg = number
 
     def __repr__(self):
-        s = "<BotException max='%s' min='%s' avg='%s'><instances>" % (self.max, self.min, self.avg)
+        s = "<BotError max='%s' min='%s' avg='%s'><instances>" % (self.max, self.min, self.avg)
         for instance, trace in self.instances:
             s += '<Exception type="%s" str="%s">%s</Exception>' % (instance.__class__.__name__, str(instance), trace)
         return s + "</instances></BotInstance>"
@@ -62,19 +62,19 @@ class BotIteration(object):
         self.botusers   = botusers
         self.out        = out
         self.err        = err
-        
+
     def get_times(self):
         return [ botuser.time() for botuser in self.botusers ]
 
     def get_routes(self):
         return [ botuser.route for botuser in self.botusers ]
-    
+
     def get_number_of_exceptions(self):
         number_of_exceptions = 0
         for botuser in self.botusers:
             number_of_exceptions += botuser.get_number_of_exceptions()
         return number_of_exceptions
-            
+
     def get_exceptions(self):
         exceptions_lists = [ self.exceptions[exception_name].instances for exception_name in self.exceptions ]
         exceptions = []
@@ -88,9 +88,9 @@ class BotIteration(object):
         all_calls_by_name = self.get_all_calls_by_name()
 
         for call_name in all_calls_by_name:
-            xxx_by_name[call_name] = func([ 
-                                call.time() 
-                                for call in all_calls_by_name[call_name] 
+            xxx_by_name[call_name] = func([
+                                call.time()
+                                for call in all_calls_by_name[call_name]
                             ]
                     )
         return xxx_by_name
@@ -121,11 +121,11 @@ class BotIteration(object):
         return self._get_xxx_time_per_call_by_name(avg)
 
     def get_number_of_exception_instances(self, exception_name):
-        if self.exceptions.has_key(exception_name):
+        if exception_name in self.exceptions:
             return len(self.exceptions[exception_name].instances)
         else:
             return 0
-        
+
     def __repr__(self):
         s = "<BotIteration: time='%s'><exceptions>" % self.time
         for exc in self.exceptions:
@@ -160,7 +160,7 @@ class BotTrial(object):
             for iteration in self.iterations:
                 number_of_exception_instances.append(iteration.get_number_of_exception_instances(exceptions[exception_name].get_name()))
             exceptions[exception_name].set_max(max(number_of_exception_instances))
-            exceptions[exception_name].set_min(min(number_of_exception_instances))  
+            exceptions[exception_name].set_min(min(number_of_exception_instances))
             exceptions[exception_name].set_avg(avg(number_of_exception_instances))
 
         self.max_time = max(times)
@@ -179,7 +179,7 @@ class BotTrial(object):
             self.max_call_times[method_name] = max([ (it.get_max_time_per_call_by_name().get(method_name) or 0) for it in self.iterations ])
             self.min_call_times[method_name] = min([ (it.get_min_time_per_call_by_name().get(method_name) or 365 * 24 * 3600) for it in self.iterations ])
 
-        
+
         all_calls = {}
         for iteration in self.iterations:
             all_calls_by_name = iteration.get_all_calls_by_name()
@@ -203,11 +203,11 @@ class BotTrial(object):
 
 
     def _add_exception(self, exceptions_dict, exception):
-        """ { "ExceptionType1": <BotException>, "ExceptionType2": <BotException>, ... } """
-        if exceptions_dict.has_key(exception.__class__.__name__):
+        """ { "ExceptionType1": <BotError>, "ExceptionType2": <BotError>, ... } """
+        if exception.__class__.__name__ in exceptions_dict:
             exceptions_dict[exception.__class__.__name__].add_instance(exception)
         else:
-            exceptions_dict[exception.__class__.__name__] = BotException(exception)
+            exceptions_dict[exception.__class__.__name__] = BotError(exception)
 
     def _add_exceptions(self, exceptions_dict, exceptions):
         for exception in exceptions:
@@ -238,7 +238,7 @@ class BotTrial(object):
         print >> fobj,  "  min call time: ", result.min_call_times
         print >> fobj,  ""
         for exception_name in result.exceptions:
-            print >> fobj,  "" 
+            print >> fobj,  ""
             print >> fobj,  "  For exception...", exception_name
             print >> fobj,  "    max times:", result.exceptions[exception_name].max
             print >> fobj,  "    avg times:", result.exceptions[exception_name].avg

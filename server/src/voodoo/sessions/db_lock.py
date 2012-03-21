@@ -1,33 +1,33 @@
 #!/usr/bin/env python
 #-*-*- encoding: utf-8 -*-*-
-# 
-# Copyright (C) 2005-2009 University of Deusto
+#
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import time
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 
-from voodoo.dbutil import generate_getconn, get_sqlite_dbname 
+from voodoo.dbutil import generate_getconn, get_sqlite_dbname
 import voodoo.sessions.db_lock_data as DbData
 
-import voodoo.sessions.exc as SessionExceptions
+import voodoo.sessions.exc as SessionErrors
 
 SESSION_LOCK_SQLALCHEMY_ENGINE = 'session_lock_sqlalchemy_engine'
-DEFAULT_SESSION_LOCK_SQLALCHEMY_ENGINE = 'mysql' 
+DEFAULT_SESSION_LOCK_SQLALCHEMY_ENGINE = 'mysql'
 
 SESSION_LOCK_SQLALCHEMY_HOST = 'session_lock_sqlalchemy_host'
-DEFAULT_SESSION_LOCK_SQLALCHEMY_HOST = 'localhost' 
+DEFAULT_SESSION_LOCK_SQLALCHEMY_HOST = 'localhost'
 
 SESSION_LOCK_SQLALCHEMY_DB_NAME = 'session_lock_sqlalchemy_db_name'
 DEFAULT_SESSION_LOCK_SQLALCHEMY_DB_NAME = 'WebLabSessions'
@@ -49,7 +49,7 @@ class DbLock(object):
         self.pool_id     = session_pool_id
         (
             engine_name,
-            host, 
+            host,
             dbname,
             username,
             password
@@ -102,14 +102,14 @@ class DbLock(object):
             finally:
                 session.close()
 
-        raise SessionExceptions.SessionAlreadyAcquiredException( "Session already acquired")
+        raise SessionErrors.SessionAlreadyAcquiredError( "Session already acquired")
 
     def release(self, session_id):
         session = self._session_maker()
         try:
             lock = session.query(DbData.SessionLock).filter_by(sess_id="%s::%s" % (self.pool_id, session_id)).first()
             if lock is None:
-                raise SessionExceptions.CouldntReleaseSessionException("Couldn't find session id: %s" % session_id)
+                raise SessionErrors.CouldntReleaseSessionError("Couldn't find session id: %s" % session_id)
 
             session.delete(lock)
 

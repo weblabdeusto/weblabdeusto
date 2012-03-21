@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005-2009 University of Deusto
+* Copyright (C) 2005 onwards University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -17,6 +17,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.ui.widgets.exceptions.WlWidgetException;
@@ -25,7 +26,6 @@ public class WlClockActivator extends HorizontalPanel implements IWlWidget{
 
 	private final HorizontalPanel horizontalPanel;
 	private final WlNumberChooser numberChooser;
-	
 	private final Button activate;
 	private final Button deactivate;
 	
@@ -88,6 +88,7 @@ public class WlClockActivator extends HorizontalPanel implements IWlWidget{
 		
 		this.activate.setText("Activate");
 		this.deactivate.setText("Deactivate");
+		
 		
 		this.horizontalPanel.add(this.numberChooser.getWidget());
 		this.horizontalPanel.add(this.activate);

@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import StringIO
 import traceback
@@ -77,7 +77,7 @@ def threaded(resource_manager = None, logging = True):
     @threaded()
     def foo(self, param1, param2):
         # This code will be executed in a new thread
-    
+
     handler = foo(1,2)
     #handler is _ThreadedFunc
     handler.join()
@@ -107,7 +107,7 @@ def threaded(resource_manager = None, logging = True):
             else:
                 _global_threaded_thread.acquire()
                 try:
-                    # Check now again (if two threads enter at the same time, 
+                    # Check now again (if two threads enter at the same time,
                     # it might be a problem)
                     if hasattr(self, "_threaded_threads_lock"):
                         auxiliar_func(self,threaded_func)

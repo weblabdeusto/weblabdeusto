@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import time
 import random
@@ -58,10 +58,10 @@ class Gate(object):
     def __init__(self, operator, left, right):
         self.left     = left
         self.right    = right
-        self.set_operator(operator) 
+        self.set_operator(operator)
 
     def __repr__(self):
-        return ("<Gate>\n" + 
+        return ("<Gate>\n" +
                     str(self.left) + "\n" +
                     "<operator name='%s'/>\n" % self.operator +
                     str(self.right) + "\n" +
@@ -158,12 +158,12 @@ class LogicExperiment(Experiment.Experiment):
             ConsoleInterface()
         ]
         self.interfaces = HardwareInterfaceCollector(interfaces)
-        
-        
+
+
     @Override(Experiment.Experiment)
     def do_get_api(self):
         return "2"
-    
+
 
     @Override(Experiment.Experiment)
     def do_start_experiment(self, *args, **kwargs):

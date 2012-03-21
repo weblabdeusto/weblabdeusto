@@ -1,23 +1,23 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import urllib2
 import base64
 
 import weblab.comm.web_server as WebFacadeServer
-import weblab.login.exc as LoginExceptions
+import weblab.login.exc as LoginErrors
 
 REQUEST_FIELD           = 'signed_request'
 FACEBOOK_APP_PROPERTY   = "login_facebook_url"
@@ -52,14 +52,14 @@ class FacebookMethod(WebFacadeServer.Method):
             base_auth_url = self.cfg_manager.get_value(AUTH_URL_PROPERTY, DEFAULT_AUTH_URL)
             facebook_app_id = self.cfg_manager.get_value(APP_ID_PROPERTY)
             canvas_url = self.cfg_manager.get_value(CANVAS_URL_PROPERTY)
-            
+
             auth_url = base_auth_url % (facebook_app_id, urllib2.quote(canvas_url))
 
             return "<html><body><script>top.location.href='%s';</script></body></html>" % auth_url
 
         try:
             session_id = self.server.extensible_login('FACEBOOK', signed_request)
-        except LoginExceptions.InvalidCredentialsException:
+        except LoginErrors.InvalidCredentialsError:
             return self._handle_unauthenticated_clients(signed_request)
 
         return self._show_weblab(session_id, signed_request)
@@ -114,7 +114,7 @@ class FacebookMethod(WebFacadeServer.Method):
         password = self.get_argument('password')
         try:
             session_id = self.server.grant_external_credentials(username, password, 'FACEBOOK', signed_request)
-        except LoginExceptions.InvalidCredentialsException:
+        except LoginErrors.InvalidCredentialsError:
             return "Invalid username or password!"
         else:
             return self._show_weblab(session_id, signed_request)
@@ -122,7 +122,7 @@ class FacebookMethod(WebFacadeServer.Method):
     def _handle_creating_accounts(self, signed_request):
         try:
             session_id = self.server.create_external_user('FACEBOOK', signed_request)
-        except LoginExceptions.InvalidCredentialsException:
+        except LoginErrors.InvalidCredentialsError:
             return "Invalid username or password!"
         else:
             return self._show_weblab(session_id, signed_request)
@@ -146,7 +146,7 @@ class FacebookMethod(WebFacadeServer.Method):
                     </style>
                 </head>
                 <body>
-                <center><img src="../../../logo.png"></center> 
+                <center><img src="../../../logo.png"></center>
                 <p>It seems that your Facebook account has not been linked with a WebLab-Deusto account, or that you don't have a WebLab-Deusto account.</p>
                 <br>
                 <h2>Already have a WebLab-Deusto account?</h2>

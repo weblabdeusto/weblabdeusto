@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -17,7 +17,7 @@ from mock import patch
 import unittest
 
 from weblab.experiment.devices.tftp import TFtpDevice
-from weblab.experiment.devices import tftp 
+from weblab.experiment.devices import tftp
 
 
 class TFtpDeviceTestCase(unittest.TestCase):
@@ -33,7 +33,7 @@ class TFtpDeviceTestCase(unittest.TestCase):
     def test_put_create_popen_fail_value_error(self, Popen):
         Popen.side_effect = Exception('some error...')
         self.assertRaises(
-            tftp.WlTFtpDeviceCallingProcessException,
+            tftp.WlTFtpDeviceCallingProcessError,
             self.device.put,
             "any command"
         )
@@ -43,7 +43,7 @@ class TFtpDeviceTestCase(unittest.TestCase):
         popen = Popen.return_value
         popen.wait.side_effect = Exception('some error...')
         self.assertRaises(
-            tftp.WlTFtpDeviceWaitingCommandException,
+            tftp.WlTFtpDeviceWaitingCommandError,
             self.device.put,
             "any command"
         )
@@ -53,7 +53,7 @@ class TFtpDeviceTestCase(unittest.TestCase):
         popen = Popen.return_value
         popen.stdout.read.side_effect = Exception('some error...')
         self.assertRaises(
-            tftp.WlTFtpDeviceRetrievingOutputFromCommandException,
+            tftp.WlTFtpDeviceRetrievingOutputFromCommandError,
             self.device.put,
             "any command"
         )
@@ -63,7 +63,7 @@ class TFtpDeviceTestCase(unittest.TestCase):
         popen = Popen.return_value
         popen.stderr.read.side_effect = Exception('some error...')
         self.assertRaises(
-            tftp.WlTFtpDeviceRetrievingOutputFromCommandException,
+            tftp.WlTFtpDeviceRetrievingOutputFromCommandError,
             self.device.put,
             "any command"
         )

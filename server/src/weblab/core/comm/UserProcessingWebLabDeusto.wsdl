@@ -85,6 +85,52 @@
 				</xsd:sequence>
 			</xsd:complexType>
 
+			<xsd:complexType name="CommandSentType">
+				<xsd:sequence>
+					<xsd:element minOccurs="0" maxOccurs="1" name="command"               type="tns:CommandType" />
+					<xsd:element minOccurs="0" maxOccurs="1" name="timestamp_before"      type="xsd:float" />
+					<xsd:element minOccurs="0" maxOccurs="1" name="response"              type="tns:CommandType" />
+					<xsd:element minOccurs="0" maxOccurs="1" name="timestamp_after"       type="xsd:float" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:complexType name="FileSentType">
+				<xsd:sequence>
+					<xsd:element minOccurs="0" maxOccurs="1" name="file_content"          type="tns:CommandType" />
+					<xsd:element minOccurs="0" maxOccurs="1" name="file_info"             type="xsd:string" />
+					<xsd:element minOccurs="0" maxOccurs="1" name="timestamp_before"      type="xsd:float" />
+					<xsd:element minOccurs="0" maxOccurs="1" name="response"              type="tns:CommandType" />
+					<xsd:element minOccurs="0" maxOccurs="1" name="timestamp_after"       type="xsd:float" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:complexType name="ExperimentUsage">
+				<xsd:sequence>
+					<xsd:element minOccurs="0" maxOccurs="1"         name="experiment_use_id"     type="xsd:int" />
+					<xsd:element minOccurs="0" maxOccurs="1"         name="start_date"            type="xsd:string" />
+					<xsd:element minOccurs="0" maxOccurs="1"         name="end_date"              type="xsd:string" />
+					<xsd:element minOccurs="0" maxOccurs="1"         name="from_ip"               type="xsd:string" />
+					<xsd:element minOccurs="0" maxOccurs="1"         name="experiment_id"         type="tns:ExperimentIdType" />
+					<xsd:element minOccurs="0" maxOccurs="1"         name="reservation_id"        type="xsd:string" />
+					<xsd:element minOccurs="0" maxOccurs="1"         name="coord_address"         type="xsd:string" />
+					<xsd:element minOccurs="0" maxOccurs="unbounded" name="commands"              type="tns:CommandSentType" />
+					<xsd:element minOccurs="0" maxOccurs="unbounded" name="sent_files"            type="tns:FileSentType" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:complexType name="ReservationResult">
+				<xsd:sequence>
+                    <!-- alive, cancelled, finished -->
+					<xsd:element minOccurs="0" maxOccurs="1" name="status" type="xsd:string" />
+                    <!-- Only set if alive -->
+					<xsd:element minOccurs="0" maxOccurs="1" name="running" type="xsd:string" />
+                    <!-- Only set if alive -->
+					<xsd:element minOccurs="0" maxOccurs="1" name="waiting" type="xsd:string" />
+                    <!-- only if status = finished -->
+					<xsd:element minOccurs="0" maxOccurs="1" name="experiment_use" type="tns:ExperimentUsageType" />
+    			</xsd:sequence>
+			</xsd:complexType>
+
 		<!-- TODO: This is how it SHOULD be:
 			<xsd:complexType name="ReservationType">
 				<xsd:sequence>

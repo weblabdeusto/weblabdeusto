@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005-2009 University of Deusto
+* Copyright (C) 2005 onwards University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -32,7 +32,7 @@ public class LabVIEWCreatorFactory implements IExperimentCreatorFactory {
 	}
 	@Override
 	public ExperimentCreator createExperimentCreator(final IConfigurationRetriever configurationRetriever) {
-		return	new ExperimentCreator(MobileSupport.limited, getCodeName()){
+		return	new ExperimentCreator(MobileSupport.disabled, getCodeName()){
 			@Override
 			public void createWeb(final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 				GWT.runAsync(new RunAsyncCallback() {

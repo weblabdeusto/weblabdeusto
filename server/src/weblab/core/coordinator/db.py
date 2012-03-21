@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 #-*-*- encoding: utf-8 -*-*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -18,7 +18,7 @@ from voodoo.dbutil import generate_getconn, get_sqlite_dbname
 import weblab.core.coordinator.model as coord_model
 
 import sqlalchemy
-from sqlalchemy.orm import sessionmaker 
+from sqlalchemy.orm import sessionmaker
 
 from weblab.db.properties import WEBLAB_DB_FORCE_ENGINE_RECREATION, DEFAULT_WEBLAB_DB_FORCE_ENGINE_RECREATION
 
@@ -43,7 +43,7 @@ class CoordinationDatabaseManager(object):
         password = CoordinationDatabaseManager.password = cfg_manager.get_value(COORDINATOR_DB_PASSWORD) # REQUIRED!
         host     = CoordinationDatabaseManager.host     = cfg_manager.get_value(COORDINATOR_DB_HOST,    DEFAULT_COORDINATOR_DB_HOST)
         dbname   = CoordinationDatabaseManager.dbname   = cfg_manager.get_value(COORDINATOR_DB_NAME,    DEFAULT_COORDINATOR_DB_NAME)
-        
+
         if CoordinationDatabaseManager.engine is None or cfg_manager.get_value(WEBLAB_DB_FORCE_ENGINE_RECREATION, DEFAULT_WEBLAB_DB_FORCE_ENGINE_RECREATION):
             getconn = generate_getconn(engine, username, password, host, dbname)
 

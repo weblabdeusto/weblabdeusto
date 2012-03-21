@@ -1,35 +1,35 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import unittest
 
 import weblab.login.db.dao.user as UserAuth
-import weblab.db.exc as DbExceptions
+import weblab.db.exc as DbErrors
 
 class DbUserAuthTestCase(unittest.TestCase):
     def test_create_user_failed(self):
         self.assertRaises(
-            DbExceptions.DbUnsupportedUserAuth,
+            DbErrors.DbUnsupportedUserAuth,
             UserAuth.UserAuth.create_user_auth,
             'whatever that does not exist',
             'the configuration'
         )
-            
+
     def test_invalid_ldap_configuration(self):
         self.assertRaises(
-            DbExceptions.DbInvalidUserAuthConfigurationException,
+            DbErrors.DbInvalidUserAuthConfigurationError,
             UserAuth.UserAuth.create_user_auth,
             UserAuth.LdapUserAuth.NAME,
             'the configuration'
@@ -41,7 +41,7 @@ class DbUserAuthTestCase(unittest.TestCase):
         base     = 'dc=cdk,dc=deusto,dc=es'
         ldap_user_auth = UserAuth.UserAuth.create_user_auth(
                 UserAuth.LdapUserAuth.NAME,
-                'ldap_uri=' + ldap_uri + ';domain=' + domain + ';base=' + base 
+                'ldap_uri=' + ldap_uri + ';domain=' + domain + ';base=' + base
             )
         self.assertTrue(
                 isinstance(

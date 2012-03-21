@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005-2009 University of Deusto
+* Copyright (C) 2005 onwards University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -19,13 +19,14 @@ import com.smartgwt.client.data.fields.DataSourceTextField;
 import com.smartgwt.client.types.DSOperationType;
 import com.smartgwt.client.types.DSProtocol;
 
+import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
 
 
 public class RolesDataSource extends WebLabRestDataSource {
 
-	public RolesDataSource(SessionID sessionId) {
-		super(sessionId);
+	public RolesDataSource(SessionID sessionId, IConfigurationManager configurationManager) {
+		super(sessionId, configurationManager);
 	}
 	
 	@Override
@@ -45,7 +46,7 @@ public class RolesDataSource extends WebLabRestDataSource {
 	    
 	    this.setFields(nameDSField);
 	    
-	    this.setFetchDataURL("/weblab/administration/json/roles");
+	    this.setFetchDataURL(this.baseLocation + "/weblab/administration/json/roles");
 	    //this.setFetchDataURL("data/roles_fetch.js");
 	}
 	

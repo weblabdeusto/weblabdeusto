@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 class WebLabSchedulingStatus(object):
     WAITING              = 'waiting'
@@ -37,16 +37,16 @@ class WebLabSchedulingStatus(object):
         return isinstance(other, WebLabSchedulingStatus) and str(other) == str(self)
 
 ###########################################################
-# 
+#
 # This status represents that the user is in a queue,
-# waiting for an experiment which has no running instance, 
-# because these instances are all broken or because no 
+# waiting for an experiment which has no running instance,
+# because these instances are all broken or because no
 # instance is provided. Whenever a new instance is added
-# or fixed, this reservation will advance moving to 
-# WaitingConfirmation and then to Reserved. Otherwise, it 
+# or fixed, this reservation will advance moving to
+# WaitingConfirmation and then to Reserved. Otherwise, it
 # will only move when users which are before cancel the
 # reservation.
-# 
+#
 class WaitingInstancesQueueStatus(WebLabSchedulingStatus):
     def __init__(self, reservation_id, position_in_queue):
         super(WaitingInstancesQueueStatus,self).__init__(WebLabSchedulingStatus.WAITING_INSTANCES, reservation_id)
@@ -66,10 +66,10 @@ class WaitingInstancesQueueStatus(WebLabSchedulingStatus):
         return -1
 
 ############################################################
-# 
+#
 # This status represents users which are waiting for an
 # active experiment.
-# 
+#
 class WaitingQueueStatus(WebLabSchedulingStatus):
     def __init__(self, reservation_id, position_in_queue):
         super(WaitingQueueStatus,self).__init__(WebLabSchedulingStatus.WAITING, reservation_id)
@@ -89,11 +89,11 @@ class WaitingQueueStatus(WebLabSchedulingStatus):
         return -1
 
 ############################################################
-# 
-# This status represents users which have been granted to 
+#
+# This status represents users which have been granted to
 # use an experiment but who are still waiting the experiment
 # server to reply that the experiment has been initialized.
-# 
+#
 class WaitingConfirmationQueueStatus(WebLabSchedulingStatus):
     def __init__(self, reservation_id, url):
         super(WaitingConfirmationQueueStatus,self).__init__(WebLabSchedulingStatus.WAITING_CONFIRMATION, reservation_id)
@@ -104,7 +104,7 @@ class WaitingConfirmationQueueStatus(WebLabSchedulingStatus):
         return "%s( reservation_id = %r, url = %r)" % (full_name, self.reservation_id, self.url)
 
     def __eq__(self, other):
-        return isinstance(other, WaitingConfirmationQueueStatus) 
+        return isinstance(other, WaitingConfirmationQueueStatus)
 
     def __cmp__(self, other):
         if isinstance(other, (LocalReservedStatus, RemoteReservedStatus, PostReservationStatus)):
@@ -114,8 +114,8 @@ class WaitingConfirmationQueueStatus(WebLabSchedulingStatus):
         return -1
 
 ############################################################
-# 
-# This status represents users which are actively using  
+#
+# This status represents users which are actively using
 # the experiment in this campus.
 #
 class LocalReservedStatus(WebLabSchedulingStatus):
@@ -142,7 +142,7 @@ class LocalReservedStatus(WebLabSchedulingStatus):
         return self.coord_address == other.coord_address and self.lab_session_id == other.lab_session_id \
                 and self.time == other.time and self.initial_configuration == other.initial_configuration \
                 and self.timestamp_before == other.timestamp_before and self.timestamp_after == other.timestamp_after \
-                and self.initialization_in_accounting == other.initialization_in_accounting  
+                and self.initialization_in_accounting == other.initialization_in_accounting
 
     def __cmp__(self, other):
         if isinstance(other, PostReservationStatus):
@@ -154,8 +154,8 @@ class LocalReservedStatus(WebLabSchedulingStatus):
         return -1
 
 ############################################################
-# 
-# This status represents users which are actively using  
+#
+# This status represents users which are actively using
 # the experiment in other campus.
 #
 class RemoteReservedStatus(WebLabSchedulingStatus):
@@ -190,8 +190,8 @@ class RemoteReservedStatus(WebLabSchedulingStatus):
 
 
 ############################################################
-# 
-# This status represents users which are actively using  
+#
+# This status represents users which are actively using
 # the experiment.
 #
 class PostReservationStatus(WebLabSchedulingStatus):

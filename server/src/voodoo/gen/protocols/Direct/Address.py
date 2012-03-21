@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import voodoo.gen.coordinator.Address as cAddress
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 
@@ -23,27 +23,27 @@ import voodoo.gen.protocols.Direct.ServerDirect as ServerDirect
 
 import voodoo.gen.registry.server_registry as ServerRegistry
 
-import voodoo.gen.exceptions.registry.RegistryExceptions as RegistryExceptions
-import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
+import voodoo.gen.exceptions.registry.RegistryErrors as RegistryErrors
+import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 
 from voodoo.override import Override
 
-import voodoo.gen.protocols.Direct.Exceptions as Exceptions
+import voodoo.gen.protocols.Direct.Errors as Exceptions
 
 class Address(cAddress.Address):
-    
+
     def __init__(self, machine_id, instance_id, server_id):
         cAddress.Address.__init__(self)
         if not isinstance(machine_id,basestring):
-            raise Exceptions.InvalidArgumentAddressException(
+            raise Exceptions.InvalidArgumentAddressError(
                     "machine_id not a str: %s" % server_id
                 )
         elif not isinstance(instance_id,basestring):
-            raise Exceptions.InvalidArgumentAddressException(
+            raise Exceptions.InvalidArgumentAddressError(
                     "instance_id not a str: %s" % server_id
                 )
         elif not isinstance(server_id,basestring):
-            raise Exceptions.InvalidArgumentAddressException(
+            raise Exceptions.InvalidArgumentAddressError(
                     "server_id not a str: %s" % server_id
                 )
         self._machine_id = machine_id
@@ -78,7 +78,7 @@ class Address(cAddress.Address):
             return cmp_instance_id
         cmp_server_id = cmp(self.server_id,other.server_id)
         if cmp_server_id != 0:
-            return cmp_server_id        
+            return cmp_server_id
         return 0
 
     @Override(cAddress.Address)
@@ -97,33 +97,33 @@ class Address(cAddress.Address):
                 ServerDirect._SERVER_PREFIX + self.address
                 #ServerDirect._SERVER_PREFIX + self._machine_id + "__" + self._instance_id + "__" + self._server_id
             )
-        except RegistryExceptions.RegistryException as rex:
-            raise ProtocolExceptions.ClientCreationException(
+        except RegistryErrors.RegistryError as rex:
+            raise ProtocolErrors.ClientCreationError(
                     ("Registry exception while retrieving server from registry: %s" % rex),
                     rex
             )
         try:
             client_class = ClientSkel.factory(Protocols.Direct,methods)
         except Exception as e:
-            raise ProtocolExceptions.ClientClassCreationException(
+            raise ProtocolErrors.ClientClassCreationError(
                     ("Client class creation exception: %s" % e),
                     e
                 )
         try:
             return client_class(server)
         except Exception as e:
-            raise ProtocolExceptions.ClientInstanciationException(
+            raise ProtocolErrors.ClientInstanciationError(
                     ("Exception instaciating the client: %s" % e),
                     e
                 )
-    
+
     @Override(cAddress.Address)
     def get_protocol(self):
         return Protocols.Direct
-        
+
 def from_coord_address(coord_address):
     if not isinstance(coord_address,CoordAddress.CoordAddress):
-        raise Exceptions.NotACoordAddressException(
+        raise Exceptions.NotACoordAddressError(
                 "Not a CoordAddress: %s" % coord_address
             )
     return Address(

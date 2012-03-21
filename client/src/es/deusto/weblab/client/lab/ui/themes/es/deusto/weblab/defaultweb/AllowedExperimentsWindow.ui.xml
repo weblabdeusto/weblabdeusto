@@ -5,32 +5,37 @@
     <ui:with field='res' type='es.deusto.weblab.client.ui.Resources'/>
     <ui:with field="i18n" type="es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.i18n.IWebLabDeustoThemeMessages" />
     
-	<g:VerticalPanel ui:field="containerPanel" styleName="web-logged-container">
+	<g:VerticalPanel ui:field="containerPanel" styleName="web-logged-container" horizontalAlignment="CENTER">
 
 		<g:HorizontalPanel ui:field="headerPanel" styleName="web-logged-header">
 
 			<g:HorizontalPanel styleName="web-logged-header-logo">
 				
-				<g:Image resource='{res.logo}' />
+				<g:Image ui:field="logoImage" />
 			
 			</g:HorizontalPanel>
 			
-			<g:HorizontalPanel styleName="web-logged-header-profile">
+			<g:cell horizontalAlignment="ALIGN_RIGHT">
+				<g:HorizontalPanel>
+					<g:cell horizontalAlignment="ALIGN_RIGHT">
+						<g:HorizontalPanel styleName="web-logged-header-profile">
+						
+							<g:Label ui:field="userLabel"></g:Label>
+					
+						 	<g:Label ui:field="separatorLabel" text="|" styleName="web-logged-header-profile-separator"></g:Label>
+						 	
+						 	<w:WlSoundSwitch imgWidth="20px" imgHeight="20px"></w:WlSoundSwitch>
+						 	
+						 	<g:Label ui:field="separatorLabel2" text="|" styleName="web-logged-header-profile-separator"></g:Label>
+					
+						 	<g:Anchor ui:field="logoutLink" text="{i18n.logOut}"></g:Anchor>		
 			
-				<g:Label ui:field="userLabel"></g:Label>
-		
-			 	<g:Label ui:field="separatorLabel" text="|" styleName="web-logged-header-profile-separator"></g:Label>
-			 	
-			 	<w:WlSoundSwitch imgWidth="20px" imgHeight="20px"></w:WlSoundSwitch>
-			 	
-			 	<g:Label ui:field="separatorLabel2" text="|" styleName="web-logged-header-profile-separator"></g:Label>
-			 	
-			 	<g:Anchor ui:field="logoutLink" text="{i18n.logOut}"></g:Anchor>	
-
-			</g:HorizontalPanel>
-
+						</g:HorizontalPanel>
+					</g:cell>
+				</g:HorizontalPanel>
+			</g:cell>
 		</g:HorizontalPanel>
-		
+
 		<g:HorizontalPanel styleName="web-logged-navigation">
 			
 			<g:AbsolutePanel ui:field="navigationPanel"></g:AbsolutePanel>
@@ -47,6 +52,17 @@
 			<g:Label ui:field="generalErrorLabel" styleName="web-error-message"></g:Label>
 	
 		</g:VerticalPanel>
+
+		<g:HorizontalPanel horizontalAlignment="ALIGN_CENTER" width="100%">
+			<g:HorizontalPanel horizontalAlignment="ALIGN_CENTER" verticalAlignment="ALIGN_MIDDLE">
+				
+				<g:Label>Powered by:</g:Label>
+				<w:WlAHref href="http://www.weblab.deusto.es/" target="_blank">
+					<g:Image resource='{res.logoSmall}' />
+				</w:WlAHref>
+				
+			</g:HorizontalPanel>
+		</g:HorizontalPanel>
 		
 	</g:VerticalPanel>
 

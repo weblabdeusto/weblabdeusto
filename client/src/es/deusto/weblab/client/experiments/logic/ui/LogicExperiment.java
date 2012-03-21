@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005-2009 University of Deusto
+* Copyright (C) 2005 onwards University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -37,6 +37,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.Command;
@@ -330,7 +331,7 @@ public class LogicExperiment extends ExperimentBase {
 			this.messages.setText("Finished. Waiting for your punctuation...");
 		}else{
 			this.messages.setText("Finished. Your punctuation: " + endData);
-			this.widget.add(new HTML("Check the ranking <a href=\"/weblab/admin/winners.py\">here</a>"));
+			this.widget.add(new HTML("Check the ranking <a href=\"" + WebLabClient.baseLocation + "/weblab/admin/winners.py\">here</a>"));
 		}
 	}
 	

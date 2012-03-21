@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import time
 import unittest
@@ -19,7 +19,7 @@ import unittest
 import voodoo.gen.loader.ServerLoader as ServerLoader
 
 from weblab.data.command import Command
-from weblab.data.experiments import ExperimentId
+from weblab.data.experiments import ExperimentId, WaitingReservationResult, RunningReservationResult
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 from weblab.core.reservations import Reservation
 
@@ -46,9 +46,13 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self.provider2_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 38645 )
         self.provider2_core_client  = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 38345 )
 
+        # dummy1: deployed in consumer, provider1, provider2
         self.dummy1 = ExperimentId("dummy1", "Dummy experiments")
+        # dummy2: deployed in consumer
         self.dummy2 = ExperimentId("dummy2", "Dummy experiments")
+        # dummy3: deployed in provider1 as "dummy3_with_other_name"
         self.dummy3 = ExperimentId("dummy3", "Dummy experiments")
+        # dummy4: deployed in provider2
         self.dummy4 = ExperimentId("dummy4", "Dummy experiments")
 
     def tearDown(self):
@@ -56,68 +60,123 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self.provider1_handler.stop()
         self.provider2_handler.stop()
 
-    # 
-    # This test may take even 20-30 seconds; therefore it is not splitted 
+    #
+    # This test may take even 20-30 seconds; therefore it is not splitted
     # into subtests (the setup and teardown are long)
-    # 
+    #
     def test_federated_experiment(self):
         #######################################################
-        # 
+        #
         #   Local testing  (to check that everything is right)
-        # 
+        #
         #   We enter as a student of Consumer, and we ask for an
-        #   experiment that only the Consumer university has 
+        #   experiment that only the Consumer university has
         #   (dummy2).
-        # 
+        #
         session_id = self.consumer_login_client.login('fedstudent1', 'password')
 
-        self._test_reservation(session_id, self.dummy2, 'Consumer', True, True)
-        
+        reservation_id = self._test_reservation(session_id, self.dummy2, 'Consumer', True, True)
+        self._wait_multiple_reservations(20, session_id, [ reservation_id ], [0])
+        reservation_result = self.consumer_core_client.get_experiment_use_by_id(session_id, reservation_id)
+        self.assertTrue(reservation_result.is_finished())
+        self.assertEquals('Consumer', reservation_result.experiment_use.commands[2].response.commandstring)
+
         #######################################################
-        # 
+        #
         #   Simple federation
-        # 
+        #
         #   Now we ask for an experiment that only Provider 1
-        #   has. There is no load balance, neither 
+        #   has. There is no load balance, neither
         #   subcontracting
         #
-        self._test_reservation(session_id, self.dummy3, 'Provider 1', True, True)
+        reservation_id = self._test_reservation(session_id, self.dummy3, 'Provider 1', True, True)
+        self._wait_multiple_reservations(20, session_id, [ reservation_id ], [0])
+        reservation_result = self.consumer_core_client.get_experiment_use_by_id(session_id, reservation_id)
+        self.assertTrue(reservation_result.is_finished())
+        self.assertEquals('Provider 1', reservation_result.experiment_use.commands[2].response.commandstring)
 
         #######################################################
-        # 
+        #
         #   Subcontracted federation
-        # 
+        #
         #   Now we ask for an experiment that only Provider 2
-        #   has. There is no load balance, but Consumer will 
+        #   has. There is no load balance, but Consumer will
         #   contact Provider 1, which will contact Provider 2
         #
-        self._test_reservation(session_id, self.dummy4, 'Provider 2', True, True)
+        reservation_id = self._test_reservation(session_id, self.dummy4, 'Provider 2', True, True)
+        self._wait_multiple_reservations(20, session_id, [ reservation_id ], [0])
+        reservation_result = self.consumer_core_client.get_experiment_use_by_id(session_id, reservation_id)
+        self.assertTrue(reservation_result.is_finished())
+        self.assertEquals('Provider 2', reservation_result.experiment_use.commands[2].response.commandstring)
 
         #######################################################
-        # 
+        #
         #   Cross-domain load balancing
-        # 
-        #   Now we ask for an experiment that Consumer has, 
+        #
+        #   Now we ask for an experiment that Consumer has,
         #   but also Provider 1 and Provider 2.
         #
-        
-        reservation_id1 = self._test_reservation(session_id, self.dummy1, 'Consumer', True, False)
-        reservation_id2 = self._test_reservation(session_id, self.dummy1, 'Provider 1', True, False)
-        reservation_id3 = self._test_reservation(session_id, self.dummy1, 'Provider 2', True, False)
 
-        # 
+        reservation_id1 = self._test_reservation(session_id, self.dummy1, 'Consumer',  True, False,  user_agent = 'Chrome')
+        reservation_id2 = self._test_reservation(session_id, self.dummy1, 'Provider 1', True, False, user_agent = 'Firefox')
+        reservation_id3 = self._test_reservation(session_id, self.dummy1, 'Provider 2', True, False, user_agent = 'Safari')
+
+        reservation_ids = (reservation_id1, reservation_id2, reservation_id3)
+        reservation_results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
+
+        self.assertEquals(RunningReservationResult(), reservation_results[0])
+        self.assertEquals(RunningReservationResult(), reservation_results[1])
+        self.assertEquals(RunningReservationResult(), reservation_results[2])
+
+
+        #
         # What if one of them goes out and another comes? Is the load of experiments balanced correctly?
-        # 
+        #
         self.consumer_core_client.finished_experiment(reservation_id2)
+
+        # Wait a couple of seconds to check that it has been propagated
+        self._wait_multiple_reservations(20, session_id, reservation_ids, [1])
+
+        reservation_results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
+
+        # The other two are still running
+        self.assertEquals(RunningReservationResult(), reservation_results[0])
+        self.assertEquals(RunningReservationResult(), reservation_results[2])
+        
+        # But the one finished is actually finished
+        self.assertTrue( reservation_results[1].is_finished() ) 
+        self.assertEquals('Firefox', reservation_results[1].experiment_use.request_info['user_agent'])
+        self.assertEquals(4, len(reservation_results[1].experiment_use.commands))
+        self.assertEquals('Provider 1', reservation_results[1].experiment_use.commands[2].response.commandstring)
+
         reservation_id2b = self._test_reservation(session_id, self.dummy1, 'Provider 1', True, False)
 
         self.consumer_core_client.finished_experiment(reservation_id1)
         self._test_reservation(session_id, self.dummy1, 'Consumer', True, False)
+        reservation_status = self.consumer_core_client.get_reservation_status(reservation_id3)
+        provider2_reservation_id = reservation_status.remote_reservation_id
 
         self.consumer_core_client.finished_experiment(reservation_id3)
         self._test_reservation(session_id, self.dummy1, 'Provider 2', True, False)
 
-        # 
+        # Check for the other uses
+        self._wait_multiple_reservations(70, session_id, reservation_ids, [0,2])
+
+        reservation_results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
+        self.assertTrue( reservation_results[0].is_finished() )
+        self.assertEquals('Chrome', reservation_results[0].experiment_use.request_info['user_agent'])
+        self.assertEquals('Consumer', reservation_results[0].experiment_use.commands[2].response.commandstring)
+
+        self.assertTrue( reservation_results[2].is_finished() )
+        self.assertEquals('Safari', reservation_results[2].experiment_use.request_info['user_agent'])
+        self.assertEquals('Provider 2', reservation_results[2].experiment_use.commands[2].response.commandstring)
+
+        provider2_session_id = self.provider2_login_client.login('provider1', 'password')
+        provider2_result = self.provider2_core_client.get_experiment_use_by_id(provider2_session_id, provider2_reservation_id)
+        self.assertTrue(provider2_result.is_finished())
+        self.assertEquals('Safari', provider2_result.experiment_use.request_info['user_agent'])
+
+        #
         # What if another 2 come in? What is the position of their queues?
         #
 
@@ -131,25 +190,52 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self.assertEquals(Reservation.WAITING, reservation_status.status)
         self.assertEquals(1, reservation_status.position)
 
-        # 
+        #
         # Once again, freeing a session affects them?
-        # 
+        #
         self.consumer_core_client.finished_experiment(reservation_id2b)
         self._wait_reservation(reservation_4, 'Provider 1', True)
 
         self.consumer_core_client.finished_experiment(reservation_4)
         self._wait_reservation(reservation_5, 'Provider 1', True)
 
-    def _test_reservation(self, session_id, experiment_id, expected_server_info, wait, finish):
-        reservation_status = self.consumer_core_client.reserve_experiment(session_id, experiment_id, "{}", "{}")
-        
+        # Check for the other uses
+        for _ in range(50):
+            time.sleep(0.5)
+            # Checking every half second
+            results = self.consumer_core_client.get_experiment_uses_by_id(session_id, (reservation_id2b, reservation_4))
+            if results[0].is_finished() and results[1].is_finished():
+                break
+
+        final_reservation_results = self.consumer_core_client.get_experiment_uses_by_id(session_id, (reservation_id2b, reservation_4))
+        self.assertTrue(final_reservation_results[0].is_finished())
+        self.assertTrue(final_reservation_results[1].is_finished())
+        self.assertEquals('Provider 1', final_reservation_results[0].experiment_use.commands[2].response.commandstring)
+        self.assertEquals('Provider 1', final_reservation_results[1].experiment_use.commands[2].response.commandstring)
+
+    def _wait_multiple_reservations(self, times, session_id, reservation_ids, reservations_to_wait):
+        for _ in range(times):
+            time.sleep(0.5)
+            # Checking every half second
+            results = self.consumer_core_client.get_experiment_uses_by_id(session_id, reservation_ids)
+            all_finished = True
+
+            for reservation_to_wait in reservations_to_wait:
+                all_finished = all_finished and results[reservation_to_wait].is_finished()
+
+            if all_finished:
+                break
+
+    def _test_reservation(self, session_id, experiment_id, expected_server_info, wait, finish, user_agent = None):
+        reservation_status = self.consumer_core_client.reserve_experiment(session_id, experiment_id, "{}", "{}", user_agent = user_agent)
+
         reservation_id = reservation_status.reservation_id
 
         if not wait:
             if finish:
                 self.consumer_core_client.finished_experiment(reservation_id)
             return reservation_id
-        
+
         return self._wait_reservation(reservation_id, expected_server_info, finish)
 
     def _wait_reservation(self, reservation_id, expected_server_info, finish):
@@ -162,13 +248,13 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
                 self.fail("Waiting too long in the queue for %s" % expected_server_info)
             time.sleep(0.1)
             reservation_status = self.consumer_core_client.get_reservation_status(reservation_id)
-        
+
         self.assertEquals(Reservation.CONFIRMED, reservation_status.status)
 
         experiment_reservation_id = reservation_status.remote_reservation_id
         if experiment_reservation_id.id == '':
             experiment_reservation_id = reservation_id
-            
+
         client = WebLabDeustoClient( reservation_status.url )
 
         response = client.send_command(experiment_reservation_id, Command("server_info"))

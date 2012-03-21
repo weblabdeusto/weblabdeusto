@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import unittest
 
@@ -22,7 +22,7 @@ import voodoo.sessions.memory as SessionMemoryGateway
 import voodoo.sessions.session_type          as SessionType
 import voodoo.sessions.session_id            as SessionId
 
-import voodoo.sessions.exc as SessionExceptions
+import voodoo.sessions.exc as SessionErrors
 
 import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
@@ -63,59 +63,59 @@ class SessionManagerTestCase(unittest.TestCase):
 
     def test_checking_parameter(self):
         self.assertRaises(
-            SessionExceptions.SessionInvalidSessionTypeException,
+            SessionErrors.SessionInvalidSessionTypeError,
             SessionManager.SessionManager,
             None,
             5,
             "foo"
         )
         self.assertRaises(
-            SessionExceptions.SessionInvalidSessionIdException,
+            SessionErrors.SessionInvalidSessionIdError,
             self.memory_server1.get_session,
             'test'
         )
         self.assertRaises(
-            SessionExceptions.SessionInvalidSessionIdException,
+            SessionErrors.SessionInvalidSessionIdError,
             self.memory_server1.get_session_locking,
             'test'
         )
         self.assertRaises(
-            SessionExceptions.SessionInvalidSessionIdException,
+            SessionErrors.SessionInvalidSessionIdError,
             self.memory_server1.modify_session,
             'test',
             'something'
         )
         self.assertRaises(
-            SessionExceptions.SessionInvalidSessionIdException,
+            SessionErrors.SessionInvalidSessionIdError,
             self.memory_server1.modify_session_unlocking,
             'test',
             'something'
         )
         self.assertRaises(
-            SessionExceptions.SessionInvalidSessionIdException,
+            SessionErrors.SessionInvalidSessionIdError,
             self.memory_server1.delete_session,
             'test'
         )
-    
+
     def test_session_id(self):
         self.assertRaises(
-            SessionExceptions.SessionInvalidSessionIdException,
+            SessionErrors.SessionInvalidSessionIdError,
             SessionId.SessionId,
             5
         )
-                
+
     def session_create_session_given_a_sess_id(self, server):
         # The first time works ok
         DESIRED_SESS_ID1 = '-pw0EvJ1+kEQ+WC2'
         sess_id1 = server.create_session(DESIRED_SESS_ID1)
         self.assertEquals(DESIRED_SESS_ID1, sess_id1)
-        
+
         # The second time must fail
         self.assertRaises(
-            SessionExceptions.DesiredSessionIdAlreadyExistsException,
+            SessionErrors.DesiredSessionIdAlreadyExistsError,
             server.create_session, DESIRED_SESS_ID1
         )
-        
+
     def session_tester(self,server):
         sess_id = server.create_session()
         information = { 'test':'mytest' }
@@ -125,7 +125,7 @@ class SessionManagerTestCase(unittest.TestCase):
         self.assertEquals(server.get_session(sess_id),information)
 
         self.assertRaises(
-                SessionExceptions.SessionNotSerializableException,
+                SessionErrors.SessionNotSerializableError,
                 server.modify_session,
                 sess_id,
                 invalid_information
@@ -133,18 +133,18 @@ class SessionManagerTestCase(unittest.TestCase):
 
         server.delete_session(sess_id)
         self.assertRaises(
-                SessionExceptions.SessionNotFoundException,
+                SessionErrors.SessionNotFoundError,
                 server.get_session,
                 sess_id
             )
         self.assertRaises(
-                SessionExceptions.SessionNotFoundException,
+                SessionErrors.SessionNotFoundError,
                 server.modify_session,
                 sess_id,
                 ''
             )
         self.assertRaises(
-                SessionExceptions.SessionNotFoundException,
+                SessionErrors.SessionNotFoundError,
                 server.delete_session,
                 sess_id
             )
@@ -205,7 +205,7 @@ class SessionManagerTestCase(unittest.TestCase):
         self.assertEquals(1, len(sessions2))
 
         self.assertTrue(sess_id2 in sessions2)
-    
+
         server1.clear()
         sessions2 = server2.list_sessions()
         self.assertEquals(1, len(sessions2))
@@ -230,16 +230,16 @@ class SessionManagerTestCase(unittest.TestCase):
 
     def test_memory_pool_ids(self):
         self.session_tester_pool_ids(self.memory_server1, self.memory_server2)
-        
+
     def test_memory_create_session_given_a_sess_id(self):
         self.session_create_session_given_a_sess_id(self.memory_server1)
-    
+
     def test_sqlalchemy_session(self):
         self.session_tester(self.sqlalchemy_server1)
 
     def test_sqlalchemy_session_locking(self):
         self.session_tester_locking(self.sqlalchemy_server1)
-        
+
     def test_sqlalchemy_session_locking_2steps(self):
         self.session_tester_locking_2steps(self.sqlalchemy_server1)
 
@@ -248,7 +248,7 @@ class SessionManagerTestCase(unittest.TestCase):
 
     def test_sqlalchemy_pool_ids(self):
         self.session_tester_pool_ids(self.sqlalchemy_server1, self.sqlalchemy_server2)
-        
+
     def test_sqlalchemy_create_session_given_a_sess_id(self):
         self.session_create_session_given_a_sess_id(self.sqlalchemy_server1)
 

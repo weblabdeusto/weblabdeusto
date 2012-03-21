@@ -1,23 +1,23 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import sys
 import unittest
 
 from test.util.optional_modules import OptionalModuleTestCase
 import voodoo.gen.loader.schema_checker as SchemaChecker
-import voodoo.gen.exceptions.loader.LoaderExceptions as LoaderExceptions
+import voodoo.gen.exceptions.loader.LoaderErrors as LoaderErrors
 
 class WrappedSchemaChecker(SchemaChecker.SchemaChecker):
     def __init__(self, xml_content, xsd_content):
@@ -29,7 +29,7 @@ class WrappedSchemaChecker(SchemaChecker.SchemaChecker):
         return self.__xsd_content
 
 SAMPLE_XML_SCHEMA = """<?xml version="1.0"?>
-    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
         elementFormDefault="qualified"
         >
         <xs:element name="root_element">
@@ -66,7 +66,7 @@ class SchemaCheckerTestCase(unittest.TestCase):
                     SAMPLE_XML_SCHEMA
                 )
             self.assertRaises(
-                LoaderExceptions.InvalidSyntaxFileConfigurationException,
+                LoaderErrors.InvalidSyntaxFileConfigurationError,
                 schema_checker.check_schema,
                 'whatever',
                 'whatever'
@@ -77,7 +77,7 @@ class SchemaCheckerTestCase(unittest.TestCase):
                     SAMPLE_XML_SCHEMA
                 )
             self.assertRaises(
-                LoaderExceptions.InvalidSyntaxFileConfigurationException,
+                LoaderErrors.InvalidSyntaxFileConfigurationError,
                 schema_checker.check_schema,
                 'whatever',
                 'whatever'

@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005-2009 University of Deusto
+* Copyright (C) 2005 onwards University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -20,12 +20,13 @@ import com.smartgwt.client.data.fields.DataSourceTextField;
 import com.smartgwt.client.types.DSOperationType;
 import com.smartgwt.client.types.DSProtocol;
 
+import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.SessionID;
 
 public class PermissionTypeDataSource extends WebLabRestDataSource {
 
-	public PermissionTypeDataSource(SessionID sessionId) {
-		super(sessionId);
+	public PermissionTypeDataSource(SessionID sessionId, IConfigurationManager configurationManager) {
+		super(sessionId, configurationManager);
 	}
 	
 	@Override
@@ -46,6 +47,6 @@ public class PermissionTypeDataSource extends WebLabRestDataSource {
         final DataSourceIntegerField eeAppId = new DataSourceIntegerField("ee_applicable_id", "EE Applicable ID");
         
 	    this.setFields(nameDSField, descDSField, userAppId, roleAppId, groupAppId, eeAppId);  
-	    this.setFetchDataURL("weblab/administration/json/permission_types");
+	    this.setFetchDataURL(this.baseLocation + "/weblab/administration/json/permission_types");
 	}
 }

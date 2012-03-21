@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -18,8 +18,8 @@ import weblab.experiment.devices.gpib.gpib as Gpib
 
 from voodoo.gen.caller_checker import caller_check
 import weblab.experiment.util as ExperimentUtil
-import weblab.experiment.exc as ExperimentExceptions
-import experiments.ud_gpib.exc as GpibExceptions
+import weblab.experiment.exc as ExperimentErrors
+import experiments.ud_gpib.exc as GpibErrors
 import weblab.data.server_type as ServerType
 
 from voodoo.override import Override
@@ -90,7 +90,7 @@ class UdGpibExperiment(Experiment.Experiment):
                 UdGpibExperiment,
                 log.level.Info
             )
-            raise ExperimentExceptions.SendingFileFailureException(
+            raise ExperimentErrors.SendingFileFailureError(
                     "Error sending file to device: %s" % str(e.args)
                 )
 
@@ -205,4 +205,4 @@ class UdGpibExperiment(Experiment.Experiment):
                 return "ERFile <%s> not found"  % self._cfg_manager.get_value('gpib_public_output_file_filename')
                 
         else:
-            raise GpibExceptions.UnknownUdGpibCommandException("Unknown received command: %s" % command)
+            raise GpibErrors.UnknownUdGpibCommandError("Unknown received command: %s" % command)

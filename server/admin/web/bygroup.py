@@ -46,7 +46,7 @@ def index(req):
                 result += "<tr><td><b>Username</b></td><td><b>Name</b></td><td><b>Uses</b></td></tr>\n" 
                 sorted_keys = sorted(zip(uses_per_user.keys(), uses_per_user.values()), cmp = lambda (key1, value1), (key2, value2) : -1 * cmp(value1, value2))
                 for user, _ in sorted_keys:
-                    result += "<tr><td>%s</td><td>%s</td><td>%s</td></tr>\n" % (user, user_names[user].title(), uses_per_user[user])
+                    result += "<tr><td><a href=\"uses.py/user?login=%s\">%s</a></td><td>%s</td><td>%s</td></tr>\n" % (user, user, user_names[user].title(), uses_per_user[user])
                 result += "</table>\n"
         finally: 
             cursor.close()

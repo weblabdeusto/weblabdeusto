@@ -1,24 +1,24 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import unittest
 
 import experiments.ud_xilinx.command as UdBoardCommand
 from experiments.ud_xilinx.command import UdBoardSimpleCommand
 from experiments.ud_xilinx.command import ChangeSwitchCommand, SetPulseCommand, ClockActivationCommand, ClockDeactivationCommand
 
-import experiments.ud_xilinx.exc as UdXilinxExperimentExceptions
+import experiments.ud_xilinx.exc as UdXilinxExperimentErrors
 
 class UdBoardCommandTestCase(unittest.TestCase):
     def test_udboard(self):
@@ -29,13 +29,13 @@ class UdBoardCommandTestCase(unittest.TestCase):
                 codes,
                 (27,1,32)
             )
-        
+
         self.assertRaises(
-                UdXilinxExperimentExceptions.InvalidUdBoardCommandException,
+                UdXilinxExperimentErrors.InvalidUdBoardCommandError,
                 UdBoardCommand.UdBoardCommand,
                 "foo"
             )
-    
+
     def test_str(self):
         self.assertEquals(
             "ChangeSwitch on 0",
@@ -88,7 +88,7 @@ class UdBoardCommandTestCase(unittest.TestCase):
             str(ClockDeactivationCommand())
         )
 
-        
+
     def test_bounds(self):
         # ChangeSwitch
         self.assertEquals(

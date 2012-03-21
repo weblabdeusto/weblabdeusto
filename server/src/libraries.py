@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 """
 Importing this module automatically adds to the PYTHONPATH the libraries found in "lib" and "lib_branch".
@@ -42,14 +42,14 @@ else:
 	bits = bitness[:-len('bit')] # '32' or '64'
 
 ###############################################################################
-# 
-#       
-# 
+#
+#
+#
 
 def configure_path(libraries_dir):
-    # 
+    #
     # First, import the common packages, common for all platforms.
-    # 
+    #
     sys.path.insert(0,libraries_dir + os.sep + 'common')
     check_more_imports()
 
@@ -57,18 +57,18 @@ def configure_path(libraries_dir):
     # Finally, start importing the binaries for the given platform & architecture (e.g. linux2/64)
     # This folder does not need to exist, by default in darwin we use 64 + 32 bits, in win32, 32 bits,
     # and in linux2, 32 bits and then /linux2/2.5/64/ actually uses the 64 binaries.
-    # 
+    #
     sys.path.insert(0,libraries_dir + os.sep + sys.platform + os.sep + version + os.sep + bits)
     check_more_imports()
-    
+
     #
     # Required so .dll work fine in windows
-    # 
+    #
     os.environ['PATH'] = os.environ.get('PATH','') + os.pathsep + libraries_dir + os.sep + sys.platform + os.sep + version + os.sep + bits
 
     #
     # Required so shared .so files (like libmysqlclient.so.15) work fine in linux
-    # 
+    #
     os.environ['LD_LIBRARY_PATH'] = os.environ.get('LD_LIBRARY_PATH','') + os.pathsep + libraries_dir + os.sep + sys.platform + os.sep + version + os.sep + bits
 
 

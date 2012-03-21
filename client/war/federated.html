@@ -31,8 +31,10 @@
             var expire = new Date();
             expire.setTime(today + 4 * 3600 * 1000); // 4 hours
 
-            document.cookie = 'loginweblabsessionid=' + cookietext + '; expires=' + expire.toGMTString() + '; path=/weblab/';
-            document.cookie = 'weblabsessionid=' + cookietext + '; expires=' + expire.toGMTString() + '; path=/weblab/';
+            var expected_path = location.pathname.substring(0, location.pathname.lastIndexOf('client'));
+
+            document.cookie = 'loginweblabsessionid=' + cookietext + '; expires=' + expire.toGMTString() + '; path=' + expected_path;
+            document.cookie = 'weblabsessionid=' + cookietext + '; expires=' + expire.toGMTString() + '; path=' + expected_path;
 
             document.getElementById('reservation_id_text').value = reservation_id;
             document.getElementById('reservation_form').submit();

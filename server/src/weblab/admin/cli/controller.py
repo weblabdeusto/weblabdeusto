@@ -1,13 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
@@ -19,7 +19,7 @@ import random
 import sha
 
 from console_ui import ConsoleUI
-from exc import GoBackException
+from exc import GoBackError
 
 from db import DbGateway
 from smtp import SmtpGateway
@@ -30,7 +30,13 @@ except ImportError:
     LdapGatewayClass = None
 
 try:
-    from configuration import DB_HOST, SMTP_HOST, SMTP_HELO
+    import configuration
+except Exception as e:
+    print "File configuration.py not found. See configuration.py.dist. Error:", str(e)
+    sys.exit(1)
+
+try:
+    from configuration import DB_HOST, DB_ENGINE, SMTP_HOST, SMTP_HELO
     from configuration import DEFAULT_DB_NAME, DEFAULT_DB_USER, DEFAULT_DB_PASS
     from configuration import DEFAULT_LDAP_USERS_FILE
     from configuration import DEFAULT_OPENID_USERS_FILE
@@ -38,7 +44,7 @@ try:
     from configuration import DEFAULT_NOTIFICATION_FROM, DEFAULT_NOTIFICATION_BCC, DEFAULT_NOTIFICATION_SUBJECT, DEFAULT_NOTIFICATION_TEXT_FILE
     from configuration import DEFAULT_NOTIFICATION_WITH_PASSWORD_TEXT_FILE
 except Exception as e:
-    print "File configuration.py not found. See configuration.py.dist. Error:", str(e)
+    print "Configuration variable missing in configuration.py. See configuration.py.dist. Error:", str(e)
     sys.exit(1)
 
 
@@ -49,11 +55,11 @@ class Controller(object):
         self.ui = ConsoleUI()
         self.init()
         self.menu()
-        
+
     def init(self):
         db_name, db_user, db_pass = self.ui.dialog_init(DEFAULT_DB_NAME, DEFAULT_DB_USER, DEFAULT_DB_PASS)
-        self.db = DbGateway(DB_HOST, db_name, db_user, db_pass)
-        
+        self.db = DbGateway(DB_ENGINE, DB_HOST, db_name, db_user, db_pass)
+
     def menu(self):
         option = None
         while option != 0:
@@ -100,16 +106,16 @@ class Controller(object):
         group_names = [ (group.id, group.name) for group in groups ]
         try:
             group_name, parent_group_id = self.ui.dialog_add_group(group_names)
-            parent_group = [ group for group in groups if group.id == parent_group_id ][0] if parent_group_id is not None else None             
+            parent_group = [ group for group in groups if group.id == parent_group_id ][0] if parent_group_id is not None else None
             group = self.db.insert_group(group_name, parent_group)
             if group is not None:
                 self.ui.notify("Group created:\n%r" % group)
             else:
-                self.ui.error("The Group '%s' already exists." % group_name)     
+                self.ui.error("The Group '%s' already exists." % group_name)
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
-        
+
 
     def add_experiment_category(self):
         try:
@@ -118,11 +124,11 @@ class Controller(object):
             if category is not None:
                 self.ui.notify("ExperimentCategory created:\n%r" % category)
             else:
-                self.ui.error("The ExperimentCategory '%s' already exists." % category_name)     
+                self.ui.error("The ExperimentCategory '%s' already exists." % category_name)
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
-                    
+
     def add_experiment(self):
         categories = self.db.get_experiment_categories()
         category_names = [ (category.id, category.name) for category in categories ]
@@ -130,16 +136,16 @@ class Controller(object):
             experiment_name, category_id = self.ui.dialog_add_experiment(category_names)
             category = [ category for category in categories if category.id == category_id ][0]
             start_date = datetime.datetime.utcnow()
-            end_date = start_date.replace(year=start_date.year+10)
+            end_date = start_date.replace(year=start_date.year+12)
             experiment = self.db.insert_experiment(experiment_name, category, start_date, end_date)
             if experiment is not None:
                 self.ui.notify("Experiment created:\n%r" % experiment)
             else:
-                self.ui.error("The Experiment '%s' already exists." % experiment_name)     
+                self.ui.error("The Experiment '%s' already exists." % experiment_name)
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
-        
+
     def add_users_to_group(self):
         groups = self.db.get_groups()
         group_names = [ (group.id, group.name) for group in groups ]
@@ -164,9 +170,9 @@ class Controller(object):
             else:
                 self.ui.error("There are no Users to be added to the Group.")
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
-        
+
     def add_user_with_db_authtype(self):
         roles = self.db.get_roles()
         role_names = [ (role.id, role.name) for role in roles ]
@@ -184,22 +190,22 @@ class Controller(object):
                 assert user_auth is not None
                 self.ui.notify("UserAuth created:\n%r" % user_auth)
             else:
-                self.ui.error("The User '%s' already exists." % login)     
+                self.ui.error("The User '%s' already exists." % login)
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
-        
+
     def add_users_batch_with_db_authtype(self):
         # Retrieve every role from the database
         roles = self.db.get_roles()
         role_names = [ (role.id, role.name) for role in roles ]
-        
+
         # Retrieve every DB auth
         auths = self.db.get_auths("DB")
         auth_names = [ (auth.id, auth.name) for auth in auths ]
-        
+
         try:
-            
+
             # Get the data (asking the user if needed) about the users to add and the
             # role to assign them.
             user_logins, role_id = self.ui.dialog_add_users_batch_with_db_authtype(
@@ -207,15 +213,15 @@ class Controller(object):
                                                             auth_names,
                                                             DEFAULT_DB_USERS_FILE
                                                         )
-            
+
             # Get the actual role object through the role id we obtained before.
             role = [ role for role in roles if role.id == role_id ][0] if role_id is not None else None
-            
+
             # Get the first DB auth. We will assume that there is one at most.
             if len(auths) < 1:
                 self.ui.error("There is no auth available of the type DB")
             auth = auths[0]
-      
+
             for user_data in user_logins:
                 # create the user object using the login, full name, email and password we have
                 # retrieved from the provided DB USERS file.
@@ -226,12 +232,12 @@ class Controller(object):
                     assert user_auth is not None
                     self.ui.notify("UserAuth created:\n%r" % user_auth)
                 else:
-                    self.ui.error("The User '%s' already exists." % str(user_data) )     
+                    self.ui.error("The User '%s' already exists." % str(user_data) )
             self.ui.wait()
-            
-        except GoBackException:
+
+        except GoBackError:
             return
-        
+
     def add_users_with_ldap_authtype(self):
         if LdapGatewayClass is None:
             self.ui.error("LDAP is not available. Is python-ldap installed?")
@@ -254,7 +260,7 @@ class Controller(object):
                                auth_domain,
                                auth.get_config_value("base"),
                                auth_username, auth_password)
-            
+
             users_created_successfully = 0
             num_users = len(user_logins)
             for user_data in ldap.get_users(user_logins):
@@ -268,25 +274,25 @@ class Controller(object):
                         users_created_successfully += 1
                     else:
                         self.ui.error("The User '%s' already exists." % user_data["login"])
-                        self.db.session.rollback()     
+                        self.db.session.rollback()
                 except Exception, ex:
-                    self.ui.error("The User '%s' could not be created. Ignoring him/her. Reason: " % (user_data["login"], ex.__repr__))                     
+                    self.ui.error("The User '%s' could not be created. Ignoring him/her. Reason: " % (user_data["login"], ex.__repr__))
             self.ui.notify("Created %d users out of %d." % (users_created_successfully, num_users))
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
-        
+
     def add_users_with_openid_authtype(self):
         # Retrieve every role from the database
         roles = self.db.get_roles()
         role_names = [ (role.id, role.name) for role in roles ]
-        
+
         # Retrieve every OpenID auth
         auths = self.db.get_auths("OPENID")
         auth_names = [ (auth.id, auth.name) for auth in auths ]
-        
+
         try:
-            
+
             # Get the data (asking the user if needed) about the users to add and the
             # role to assign them.
             user_logins, role_id = self.ui.dialog_add_users_with_openid_authtype(
@@ -294,15 +300,15 @@ class Controller(object):
                                                             auth_names,
                                                             DEFAULT_OPENID_USERS_FILE
                                                         )
-            
+
             # Get the actual role object through the role id we obtained before.
             role = [ role for role in roles if role.id == role_id ][0] if role_id is not None else None
-            
+
             # Get the first OpenID auth. We will assume that there is one at most.
             if len(auths) < 1:
                 self.ui.error("There is no auth available of the type OpenID")
             auth = auths[0]
-      
+
             for user_data in user_logins:
                 # create the user object using the login, full name, and email we have
                 # retrieved from the provided OpenID USERS file.
@@ -313,10 +319,10 @@ class Controller(object):
                     assert user_auth is not None
                     self.ui.notify("UserAuth created:\n%r" % user_auth)
                 else:
-                    self.ui.error("The User '%s' already exists." % str(user_data) )     
+                    self.ui.error("The User '%s' already exists." % str(user_data) )
             self.ui.wait()
-            
-        except GoBackException:
+
+        except GoBackError:
             return
 
     def grant_on_experiment_to_group(self):
@@ -330,7 +336,7 @@ class Controller(object):
             group = [ group for group in groups if group.id == group_id ][0] if group_id is not None else None
             experiment = [ experiment for experiment in experiments if experiment.id == experiment_id ][0] if experiment_id is not None else None
             experiment_unique_id = "%s@%s" % (experiment.name, experiment.category.name)
-            group_permission_permanent_id = "%s::%s" % (group.name, experiment_unique_id) 
+            group_permission_permanent_id = "%s::%s" % (group.name, experiment_unique_id)
             group_permission = self.db.grant_on_experiment_to_group(
                     group,
                     permission_type,
@@ -347,11 +353,11 @@ class Controller(object):
                 for parameter in group_permission.parameters:
                     self.ui.notify("GroupPermissionParameter created:\n%r" % parameter)
             else:
-                self.ui.error("The GroupPermission '%s' already exists." % group_permission_permanent_id)     
+                self.ui.error("The GroupPermission '%s' already exists." % group_permission_permanent_id)
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
-        
+
     def grant_on_experiment_to_user(self):
         users = self.db.get_users()
         user_names = [ (user.id, user.login) for user in users ]
@@ -363,7 +369,7 @@ class Controller(object):
             user = [ user for user in users if user.id == user_id ][0] if user_id is not None else None
             experiment = [ experiment for experiment in experiments if experiment.id == experiment_id ][0] if experiment_id is not None else None
             experiment_unique_id = "%s@%s" % (experiment.name, experiment.category.name)
-            user_permission_permanent_id = "%s::%s" % (user.login, experiment_unique_id) 
+            user_permission_permanent_id = "%s::%s" % (user.login, experiment_unique_id)
             user_permission = self.db.grant_on_experiment_to_user(
                     user,
                     permission_type,
@@ -380,10 +386,10 @@ class Controller(object):
                 for parameter in user_permission.parameters:
                     self.ui.notify("UserPermissionParameter created:\n%r" % parameter)
             else:
-                self.ui.error("The UserPermission '%s' already exists." % user_permission_permanent_id)     
+                self.ui.error("The UserPermission '%s' already exists." % user_permission_permanent_id)
             self.ui.wait()
-        except GoBackException:
-            return   
+        except GoBackError:
+            return
 
     def grant_on_admin_panel_to_group(self):
         groups = self.db.get_groups()
@@ -403,9 +409,9 @@ class Controller(object):
             else:
                 self.ui.error("The GroupPermission '%s' already exists." % group_permission_permanent_id)
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
-        
+
     def grant_on_admin_panel_to_user(self):
         users = self.db.get_users()
         user_names = [ (user.id, user.login) for user in users ]
@@ -422,10 +428,10 @@ class Controller(object):
                 for parameter in user_permission.parameters:
                     self.ui.notify("UserPermissionParameter created:\n%r" % parameter)
             else:
-                self.ui.error("The UserPermission '%s' already exists." % user_permission_permanent_id)     
+                self.ui.error("The UserPermission '%s' already exists." % user_permission_permanent_id)
             self.ui.wait()
-        except GoBackException:
-            return   
+        except GoBackError:
+            return
 
     def grant_on_access_forward_to_group(self):
         groups = self.db.get_groups()
@@ -445,9 +451,9 @@ class Controller(object):
             else:
                 self.ui.error("The GroupPermission '%s' already exists." % group_permission_permanent_id)
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
-        
+
     def grant_on_access_forward_to_user(self):
         users = self.db.get_users()
         user_names = [ (user.id, user.login) for user in users ]
@@ -464,11 +470,11 @@ class Controller(object):
                 for parameter in user_permission.parameters:
                     self.ui.notify("UserPermissionParameter created:\n%r" % parameter)
             else:
-                self.ui.error("The UserPermission '%s' already exists." % user_permission_permanent_id)     
+                self.ui.error("The UserPermission '%s' already exists." % user_permission_permanent_id)
             self.ui.wait()
-        except GoBackException:
-            return   
- 
+        except GoBackError:
+            return
+
     def list_users(self):
         groups = self.db.get_groups()
         group_names = [ (group.id, group.name) for group in groups ]
@@ -477,9 +483,9 @@ class Controller(object):
             users = [ group.users for group in groups if group.id == group_id ][0] if group_id is not None else self.db.get_users()
             self.ui.dialog_list_users_show_users(users)
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
-        
+
     def notify_users(self):
         groups = self.db.get_groups()
         group_names = [ (group.id, group.name) for group in groups ]
@@ -501,13 +507,13 @@ class Controller(object):
             else:
                 self.ui.error("The selected Group has no Users to notify.")
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
-        
+
     def notify_users_with_passwords(self):
         """
         Will send a mail to every specified user with their welcome text. That welcome text
-        will include the password. Because passwords are not stored in the database (only 
+        will include the password. Because passwords are not stored in the database (only
         their hashes are), a "dbusers" file will need to be specified to extract the passwords
         from.
         """
@@ -522,17 +528,17 @@ class Controller(object):
                                                             DEFAULT_NOTIFICATION_WITH_PASSWORD_TEXT_FILE
                                                      )
             users = [ group.users for group in groups if group.id == group_id ][0] if group_id is not None else self.db.get_users()
-            
-            # The DB does not contain the passwords, so we will retrieve them from the DBUSERS file. 
+
+            # The DB does not contain the passwords, so we will retrieve them from the DBUSERS file.
             users_from_file = self.ui.dialog_read_db_users_file_for_notify(DEFAULT_DB_USERS_FILE)
-            
-            # Store the passwords in a dictionary, associating them with the login names. 
+
+            # Store the passwords in a dictionary, associating them with the login names.
             user_pwds = {}
             for entry in users_from_file:
                 user_pwds[entry[0]] = entry[3]
-                            
+
             if len(users) > 0 and len(users_from_file) > 0:
-                
+
                 smtp = SmtpGateway(SMTP_HOST, SMTP_HELO)
                 for user in users:
                     if( user.login in user_pwds ):
@@ -545,9 +551,9 @@ class Controller(object):
             else:
                 self.ui.error("The selected Group has no Users to notify, or the users file specified is empty.")
             self.ui.wait()
-        except GoBackException:
+        except GoBackError:
             return
-        
+
     def _password2sha(self, password):
         randomstuff = ""
         for _ in range(4):

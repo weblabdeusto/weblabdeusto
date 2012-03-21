@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005-2009 University of Deusto
+* Copyright (C) 2005 onwards University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -15,6 +15,8 @@
 
 package es.deusto.weblab.client.comm;
 
+import java.util.Map;
+
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.http.client.RequestBuilder;
@@ -22,6 +24,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.user.client.DOM;
 
+import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
@@ -58,7 +61,8 @@ public abstract class CommonCommunication implements ICommonCommunication {
 	}
 	
 	private String getServiceUrl(){
-		return this.configurationManager.getProperty(
+		final String baseLocation = this.configurationManager.getProperty(WebLabClient.BASE_LOCATION, WebLabClient.DEFAULT_BASE_LOCATION);
+		return baseLocation + this.configurationManager.getProperty(
 					CommonCommunication.WEBLAB_SERVICE_URL_PROPERTY,
 					CommonCommunication.DEFAULT_WEBLAB_SERVICE_URL
 				);
@@ -73,7 +77,15 @@ public abstract class CommonCommunication implements ICommonCommunication {
 	 * @param rci Callback to invoke when the request finishes.
 	 */
 	public void performRequest(String requestSerialized, IWebLabAsyncCallback failureCallback, RequestCallback rci){
+		performRequest(requestSerialized, failureCallback, rci, null);
+	}
+	
+	public void performRequest(String requestSerialized, IWebLabAsyncCallback failureCallback, RequestCallback rci, Map<String, String> headers){
 		final RequestBuilder rb = this.createRequestBuilder(RequestBuilder.POST, this.getServiceUrl());
+		if(headers != null)
+			for(String header : headers.keySet()) 
+				rb.setHeader(header, headers.get(header));
+			
 		try {
 			rb.sendRequest(requestSerialized, rci);
 		} catch (final RequestException e) {
@@ -82,7 +94,8 @@ public abstract class CommonCommunication implements ICommonCommunication {
 	}	
 	
 	private String getLoginServiceUrl(){
-		return this.configurationManager.getProperty(
+		final String baseLocation = this.configurationManager.getProperty(WebLabClient.BASE_LOCATION, WebLabClient.DEFAULT_BASE_LOCATION);
+		return baseLocation + this.configurationManager.getProperty(
 					CommonCommunication.WEBLAB_LOGIN_SERVICE_URL_PROPERTY,
 					CommonCommunication.DEFAULT_WEBLAB_LOGIN_SERVICE_URL
 				);

@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import unittest
 import StringIO
@@ -21,7 +21,7 @@ import voodoo.gen.coordinator.CoordinationInformation as CoordInfo
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.gen.coordinator.Access as Access
 import voodoo.gen.coordinator.AccessLevel as AccessLevel
-import voodoo.gen.exceptions.coordinator.CoordinatorExceptions as CoordExceptions
+import voodoo.gen.exceptions.coordinator.CoordinatorErrors as CoordErrors
 
 import voodoo.gen.protocols.Direct.Network as DirectNetwork
 import voodoo.gen.protocols.Direct.Address as DirectAddress
@@ -33,7 +33,7 @@ import voodoo.lock as lock
 import test.unit.voodoo.gen.coordinator.SampleServerType as ServerType
 
 class CoordinationInformationTestCase(unittest.TestCase):
-    
+
     def test_coord_machine(self):
         map = CoordInfo.CoordinationMap()
 
@@ -47,7 +47,7 @@ class CoordinationInformationTestCase(unittest.TestCase):
                 ServerType.Login,
                 ()
             )
-        
+
         #Basic __getitem__
         machine     = map['machine']
         instance    = machine['instance']
@@ -57,12 +57,12 @@ class CoordinationInformationTestCase(unittest.TestCase):
         self.assertEquals(machine.parent,   map)
         self.assertEquals(instance.parent,  machine)
         self.assertEquals(server1.parent,   instance)
-    
+
         #addresses
         machine_address = CoordAddress.CoordAddress(
                     'machine'
                 )
-        
+
         instance_address = CoordAddress.CoordAddress(
                     'machine',
                     'instance'
@@ -72,11 +72,11 @@ class CoordinationInformationTestCase(unittest.TestCase):
                     'instance',
                     'server1'
                 )
-    
+
         self.assertEquals(machine.address,  machine_address)
         self.assertEquals(instance.address, instance_address)
         self.assertEquals(server1.address,  server_address)
-        
+
         # machine's __getitem__
         self.assertEquals(machine[server_address],server1)
         self.assertEquals(machine['instance'],instance)
@@ -84,11 +84,11 @@ class CoordinationInformationTestCase(unittest.TestCase):
                 machine[server_address.get_instance_address()],
                 instance
             )
-    
+
         # instance's __getitem__
         self.assertEquals(instance['server1'],server1)
         self.assertEquals(instance[server_address],server1)
-        
+
     def test_iterators(self):
         map = CoordInfo.CoordinationMap()
 
@@ -102,17 +102,17 @@ class CoordinationInformationTestCase(unittest.TestCase):
                 ServerType.Login,
                 ()
             )
-        
+
 
         machine     = map['machine']
         instance    = machine['instance']
         server1     = instance['server1']
-        
+
         y = instance.get_servers()
-        
+
         next = y.next()
         self.assertEquals(next,server1)
-        
+
         map.add_new_server(
                 'machine',
                 'instance',
@@ -125,7 +125,7 @@ class CoordinationInformationTestCase(unittest.TestCase):
         next = y.next()
         self.assertEquals(next,server2)
         self.assertRaises(StopIteration,y.next)
-    
+
     def test_map_operations(self):
         map = CoordInfo.CoordinationMap()
         map.add_new_machine('machine')
@@ -141,14 +141,14 @@ class CoordinationInformationTestCase(unittest.TestCase):
         machine  = map['machine']
         instance = machine['instance']
         server1  = instance['server1']
-        
-        
-        
+
+
+
         self.assertEquals(server1.status,False)
 
         server1_copy = server1.copy()
         map.set_status('machine','instance','server1',True)
-        
+
         self.assertEquals(server1.status,True)
         self.assertEquals(server1_copy.status,False)
 
@@ -172,7 +172,7 @@ class CoordinationInformationTestCase(unittest.TestCase):
                 ServerType.Login,
                 ()
             )
-        
+
         # Create accesses for server1
 
         # 1st: address
@@ -181,14 +181,14 @@ class CoordinationInformationTestCase(unittest.TestCase):
         # 2nd: network
         server1_direct_address = DirectAddress.from_coord_address(server1_address)
         server1_direct_network = DirectNetwork.DirectNetwork(server1_direct_address)
-        
+
         # 3rd: access
         access1_direct = Access.Access(
                     Protocols.Direct,
                     AccessLevel.instance,
                     (server1_direct_network,)
                 )
-    
+
         # 1st: address
         server1_ip_address1 = SOAPAddress.Address(
                 '192.168.0.1:8080@NETWORK1'
@@ -197,17 +197,17 @@ class CoordinationInformationTestCase(unittest.TestCase):
         server1_soap_network1 = SOAPNetwork.SOAPNetwork(
                 server1_ip_address1
             )
-        
+
         # 1st: address
         server1_ip_address2 = SOAPAddress.Address(
                 '130.206.137.60:8080@NETWORK2'
             )
-        
+
         # 2nd: network
         server1_soap_network2 = SOAPNetwork.SOAPNetwork(
                 server1_ip_address2
             )
-        
+
         # access (with two networks)
         access1_soap = Access.Access(
                     Protocols.SOAP,
@@ -220,18 +220,18 @@ class CoordinationInformationTestCase(unittest.TestCase):
 
         # append accesses to the server
         map.append_accesses('machine', 'instance', 'server1',
-                ( 
+                (
                     access1_direct,
                     access1_soap
                 )
             )
-        
+
         # Same with the other server
         server2_address = map['machine']['instance']['server2'].address
         server2_direct_address = DirectAddress.from_coord_address(server2_address)
         server2_direct_network = DirectNetwork.DirectNetwork(server2_direct_address)
-    
-        
+
+
         access2_direct = Access.Access(
                     Protocols.Direct,
                     AccessLevel.instance,
@@ -246,12 +246,12 @@ class CoordinationInformationTestCase(unittest.TestCase):
         server2_soap_network1 = SOAPNetwork.SOAPNetwork(
                 server2_ip_address1
             )
-        
+
         # 1st: address
         server2_ip_address2 = SOAPAddress.Address(
                 '130.206.137.61:8080@NETWORK3'
             )
-        
+
         # 2nd: network
         server2_soap_network2 = SOAPNetwork.SOAPNetwork(
                 server2_ip_address2
@@ -265,41 +265,41 @@ class CoordinationInformationTestCase(unittest.TestCase):
                         server2_soap_network2
                     )
                 )
-        
+
         map.append_accesses('machine', 'instance', 'server2',
-                ( 
+                (
                     access2_direct,
                     access2_soap
                 )
             )
-        
+
         # Now, check results
-        
+
         server1 = map[server1_address]
         server2 = map[server2_address]
 
         networks = server1.can_connect(server2)
-        # There should be only 2 networks (130.206.137.61:8080@NETWORK3 is 
+        # There should be only 2 networks (130.206.137.61:8080@NETWORK3 is
         # at NETWORK3, which is different to 130.206.137.60)
         self.assertEquals(len(networks),2)
         # First one: the direct one
         self.assertEquals(networks[0].address.address,'server2:instance@machine')
         # Second one: the network one
         self.assertEquals(networks[1].address.address,'192.168.0.2:8080')
-        
+
         # Let's try exceptions...
-        
+
         # Machine does not exist
         self.assertRaises(
-                CoordExceptions.CoordMachineNotFound,
+                CoordErrors.CoordMachineNotFound,
                 map.add_new_instance,
                 'machine_not_exists',
                 'instanceX'
             )
-        
+
         # Instance does not exist
         self.assertRaises(
-                CoordExceptions.CoordInstanceNotFound,
+                CoordErrors.CoordInstanceNotFound,
                 map.add_new_server,
                 'machine',
                 'instance_not_exists',
@@ -307,30 +307,30 @@ class CoordinationInformationTestCase(unittest.TestCase):
                 ServerType.Login,
                 ()
             )
-        
+
         # Server does not exist
         self.assertRaises(
-                CoordExceptions.CoordServerNotFound,
+                CoordErrors.CoordServerNotFound,
                 map.append_accesses,
                 'machine',
                 'instance',
                 'server_not_exists',
                 ()
             )
-        
+
         # Invalid key
         self.assertRaises(
-                CoordExceptions.CoordInvalidKey, 
+                CoordErrors.CoordInvalidKey,
                 lambda : map[5])
 
-        self.assertRaises(CoordExceptions.CoordInvalidKey, 
+        self.assertRaises(CoordErrors.CoordInvalidKey,
                 lambda : map['machine'][5])
-        
-        self.assertRaises(CoordExceptions.CoordInvalidKey, 
+
+        self.assertRaises(CoordErrors.CoordInvalidKey,
                 lambda : map['machine']['instance'][5])
 
         # And that's all :-)
-        
+
 
     def test_get_servers(self):
         # Create map, machine and instance
@@ -362,7 +362,7 @@ class CoordinationInformationTestCase(unittest.TestCase):
                         server_type = ServerType.Login
                     else:
                         server_type = ServerType.Coordinator
-                        
+
                     map.add_new_server(
                         'machine' + str(machine_num),
                         'instance' + str(instance_num),
@@ -380,7 +380,7 @@ class CoordinationInformationTestCase(unittest.TestCase):
                     network = DirectNetwork.DirectNetwork(
                         dir_addr
                     )
-        
+
                     # 3rd: access
                     access_direct = Access.Access(
                                 Protocols.Direct,
@@ -390,10 +390,10 @@ class CoordinationInformationTestCase(unittest.TestCase):
                     # 1st: address
                     server_ip_address1 = SOAPAddress.Address(
                         '192.168.0.%i:%i@NETWORK'
-                        % ( 
+                        % (
                             machine_num + 1,
                             8000 + machine_num * 100
-                            + instance_num * 10 
+                            + instance_num * 10
                             + server_num
                         )
                     )
@@ -401,7 +401,7 @@ class CoordinationInformationTestCase(unittest.TestCase):
                     server_soap_network1 = SOAPNetwork.SOAPNetwork(
                         server_ip_address1
                     )
-        
+
                     # access
                     access_soap = Access.Access(
                             Protocols.SOAP,
@@ -413,10 +413,10 @@ class CoordinationInformationTestCase(unittest.TestCase):
 
                     # append accesses to the server
                     map.append_accesses(
-                        'machine' + str(machine_num), 
-                        'instance' + str(instance_num), 
+                        'machine' + str(machine_num),
+                        'instance' + str(instance_num),
                         'server' + str(server_num),
-                        ( 
+                        (
                             access_direct,
                             access_soap
                         )
@@ -424,7 +424,7 @@ class CoordinationInformationTestCase(unittest.TestCase):
 
         server = map['machine1']['instance0']['server0']
         it = map.get_servers(server,ServerType.Coordinator)
-        
+
         server,networks  = it.next()
         self.assertEquals(server,map['machine1']['instance0']['server1'])
         self.assertEquals(len(networks),2)
@@ -436,7 +436,7 @@ class CoordinationInformationTestCase(unittest.TestCase):
                 networks[1].address.address,
                 '192.168.0.2:8101'
             )
-        
+
         server,networks  = it.next()
         self.assertEquals(server,map['machine1']['instance1']['server1'])
         self.assertEquals(len(networks),1)
@@ -444,7 +444,7 @@ class CoordinationInformationTestCase(unittest.TestCase):
                 networks[0].address.address,
                 '192.168.0.2:8111'
             )
-        
+
         server,networks  = it.next()
         self.assertEquals(server,map['machine0']['instance0']['server1'])
         self.assertEquals(len(networks),1)
@@ -452,7 +452,7 @@ class CoordinationInformationTestCase(unittest.TestCase):
                 networks[0].address.address,
                 '192.168.0.1:8001'
             )
-    
+
         server,networks  = it.next()
         self.assertEquals(len(networks),1)
         self.assertEquals(server,map['machine0']['instance1']['server1'])
@@ -460,9 +460,9 @@ class CoordinationInformationTestCase(unittest.TestCase):
                 networks[0].address.address,
                 '192.168.0.1:8011'
             )
-        
+
         self.assertRaises(StopIteration,it.next)
-    
+
     def test_store_and_load_methods(self):
         map = CoordInfo.CoordinationMap()
         c = CoordInfo.CoordinationMapController(map)
@@ -495,7 +495,7 @@ class CoordinationInformationTestCase(unittest.TestCase):
                 type(the_lock),
                 lock.RWLock
             )
-    
+
     def test_errors_on_getitems(self):
         map = CoordInfo.CoordinationMap()
         map.add_new_machine('machine')
@@ -508,23 +508,23 @@ class CoordinationInformationTestCase(unittest.TestCase):
                 ()
             )
         self.assertRaises(
-            CoordExceptions.CoordMachineNotFound,
+            CoordErrors.CoordMachineNotFound,
             map.__getitem__,
             'whatever'
         )
         self.assertRaises(
-            CoordExceptions.CoordInstanceNotFound,
+            CoordErrors.CoordInstanceNotFound,
             map['machine'].__getitem__,
             'whatever'
         )
         self.assertRaises(
-            CoordExceptions.CoordServerNotFound,
+            CoordErrors.CoordServerNotFound,
             map['machine']['instance'].__getitem__,
             'whatever'
         )
 
 
-    
+
 def suite():
     return unittest.makeSuite(CoordinationInformationTestCase)
 

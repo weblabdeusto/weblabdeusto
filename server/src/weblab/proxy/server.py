@@ -1,26 +1,26 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
 from voodoo import log
 from voodoo.gen.caller_checker import caller_check
-from voodoo.gen.exceptions.locator import LocatorExceptions
+from voodoo.gen.exceptions.locator import LocatorErrors
 from voodoo.log import logged
 from voodoo.sessions import session_type as SessionType, manager as SessionManager, session_id as SessionId
 from voodoo.sessions.checker import check_session
 from weblab.data import server_type as ServerType
-import weblab.proxy.exc as ProxyExceptions
+import weblab.proxy.exc as ProxyErrors
 from weblab.proxy import session_handler as ProxySessionHandler
 from weblab.translator.translators import StoresEverythingTranslator, StoresNothingTranslator, StoresEverythingExceptForFilesTranslator
 
@@ -34,7 +34,7 @@ DEFAULT_WEBLAB_PROXY_SERVER_SESSION_POOL_ID         = "ProxyServer"
 DEFAULT_WEBLAB_PROXY_SERVER_DEFAULT_TRANSLATOR_NAME = "StoresEverythingTranslator"
 
 check_session_params = (
-        ProxyExceptions.InvalidReservationIdException,
+        ProxyErrors.InvalidReservationIdError,
         "Proxy Server"
     )
 
@@ -50,7 +50,7 @@ def access_enabled_required(func):
     """
     def wrapped(self, session, *args, **kargs):
         if not session['access_enabled']:
-            raise ProxyExceptions.AccessDisabledException("Access is disabled for the provided reservation_id in this Proxy: %s" % session['reservation_id'])
+            raise ProxyErrors.AccessDisabledError("Access is disabled for the provided reservation_id in this Proxy: %s" % session['reservation_id'])
         return func(self, session, *args, **kargs)
     wrapped.__name__ = func.__name__
     wrapped.__doc__ = func.__doc__
@@ -65,7 +65,7 @@ class ProxyServer(object):
         3. Core disables access so Proxy marks the 'access_enabled' field as False.
         4. Core asks for the results and Proxy removes the dict.
     """
-        
+
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(ProxyServer,self).__init__(*args, **kwargs)
         self._coord_address = coord_address
@@ -73,7 +73,7 @@ class ProxyServer(object):
         self._cfg_manager = cfg_manager
         self._session_manager = self._create_session_manager()
         self._default_translator_klazz = self._read_default_translator_klazz()
-    
+
     def _create_default_translator(self):
         return self._default_translator_klazz(self._coord_address, self._locator, self._cfg_manager, self._session_manager)
 
@@ -85,7 +85,7 @@ class ProxyServer(object):
 
     def _load_laboratory(self, session):
         return self._locator.get_server_from_coordaddr(session['lab_coord_addr'], ServerType.Laboratory)
-        
+
     def _load_proxy_session_handler(self, session):
         translator = self._load_translator(session)
         laboratory = self._load_laboratory(session)
@@ -95,34 +95,34 @@ class ProxyServer(object):
                     translator,
                     self._cfg_manager, self._locator, self._session_manager
         )
-        
+
     def _create_session_manager(self):
-        session_type = self._cfg_manager.get_value(WEBLAB_PROXY_SERVER_SESSION_TYPE, DEFAULT_WEBLAB_PROXY_SERVER_SESSION_TYPE) 
+        session_type = self._cfg_manager.get_value(WEBLAB_PROXY_SERVER_SESSION_TYPE, DEFAULT_WEBLAB_PROXY_SERVER_SESSION_TYPE)
         session_pool_id   = self._cfg_manager.get_value(WEBLAB_PROXY_SERVER_SESSION_POOL_ID, DEFAULT_WEBLAB_PROXY_SERVER_SESSION_POOL_ID)
         if session_type in SessionType.getSessionTypeValues():
             return SessionManager.SessionManager(self._cfg_manager, session_type, session_pool_id)
         else:
-            raise ProxyExceptions.NotASessionTypeException('Not a session type: %s' % session_type)
-        
+            raise ProxyErrors.NotASessionTypeError('Not a session type: %s' % session_type)
+
     def _read_default_translator_klazz(self):
         klazz_name = self._cfg_manager.get_value(WEBLAB_PROXY_SERVER_DEFAULT_TRANSLATOR_NAME, DEFAULT_WEBLAB_PROXY_SERVER_DEFAULT_TRANSLATOR_NAME)
         if klazz_name not in DEFAULT_TRANSLATORS:
-            raise ProxyExceptions.InvalidDefaultTranslatorNameException("Provided: %s. Valids: %s" % (klazz_name, DEFAULT_TRANSLATORS.keys()))
+            raise ProxyErrors.InvalidDefaultTranslatorNameError("Provided: %s. Valids: %s" % (klazz_name, DEFAULT_TRANSLATORS.keys()))
         return DEFAULT_TRANSLATORS[klazz_name]
-    
+
     def _find_translator(self, experiment_unique_id):
         try:
             translator = self._locator.get_server(ServerType.Translator, restrictions=experiment_unique_id)
             is_default = False
-        except LocatorExceptions.NoServerFoundException:
+        except LocatorErrors.NoServerFoundError:
             translator = self._create_default_translator()
             is_default = True
         return translator, is_default
-    
+
     #===========================================================================
     # API to Core Server
     #===========================================================================
-        
+
     @caller_check(ServerType.UserProcessing)
     @logged(log.level.Info)
     def do_enable_access(self, reservation_id, experiment_unique_id, user_login, lab_coord_addr, lab_sess_id):
@@ -133,7 +133,7 @@ class ProxyServer(object):
         data = {
                 'reservation_id': reservation_id,
                 'user_login': user_login,
-                'lab_coord_addr': lab_coord_addr, 
+                'lab_coord_addr': lab_coord_addr,
                 'lab_sess_id': lab_sess_id,
                 'trans_session_id': trans_session_id,
                 'trans_coord_addr': translator.get_coord_addr() if not is_a_default_translator else None,
@@ -146,7 +146,7 @@ class ProxyServer(object):
             return proxy_session_handler.enable_access()
         finally:
             proxy_session_handler.update_latest_timestamp()
-        
+
     @caller_check(ServerType.UserProcessing)
     @logged(log.level.Info)
     def do_are_expired(self, session_ids):
@@ -164,7 +164,7 @@ class ProxyServer(object):
                 is_expired = "Y <sessionid-not-found>"
             expirations.append(is_expired)
         return expirations
-        
+
     @caller_check(ServerType.UserProcessing)
     @logged(log.level.Info)
     @check_session(*check_session_params)
@@ -189,11 +189,11 @@ class ProxyServer(object):
                 proxy_session_handler.update_latest_timestamp()
         finally:
             self._session_manager.delete_session_unlocking(sess_id)
-    
+
     #===========================================================================
     # API to Client
     #===========================================================================
-    
+
     @logged(log.level.Info)
     @check_session(*check_session_params)
     @access_enabled_required
@@ -203,7 +203,7 @@ class ProxyServer(object):
             return proxy_session_handler.poll()
         finally:
             proxy_session_handler.update_latest_timestamp()
-    
+
     @logged(log.level.Info)
     @check_session(*check_session_params)
     @access_enabled_required
@@ -213,7 +213,7 @@ class ProxyServer(object):
             return proxy_session_handler.send_command(command)
         finally:
             proxy_session_handler.update_latest_timestamp()
-        
+
     @logged(log.level.Info)
     @check_session(*check_session_params)
     @access_enabled_required

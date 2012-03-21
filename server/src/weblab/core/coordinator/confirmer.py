@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 #-*-*- encoding: utf-8 -*-*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import datetime
 
@@ -44,7 +44,7 @@ class ReservationConfirmer(object):
 
     @logged()
     def enqueue_confirmation(self, lab_coordaddress_str, reservation_id, experiment_instance_id, client_initial_data, server_initial_data):
-        # We can stablish a politic such as using 
+        # We can stablish a politic such as using
         # thread pools or a queue of threads or something
         # like that... here
         lab_coordaddress = CoordAddress.CoordAddress.translate_address(lab_coordaddress_str)
@@ -67,14 +67,14 @@ class ReservationConfirmer(object):
             else:
                 end_time = datetime.datetime.now()
                 experiment_coordaddress = CoordAddress.CoordAddress.translate_address(experiment_coordaddress_str)
-                self.coordinator.confirm_experiment(experiment_coordaddress, experiment_instance_id, reservation_id, lab_coordaddress.address, lab_session_id, server_initialization_response, initial_time, end_time)
+                self.coordinator.confirm_experiment(experiment_coordaddress, experiment_instance_id.to_experiment_id(), reservation_id, lab_coordaddress.address, lab_session_id, server_initialization_response, initial_time, end_time)
         except:
             log.log(ReservationConfirmer, log.level.Critical, "Unexpected exception confirming experiment")
             log.log_exc(ReservationConfirmer, log.level.Critical)
 
     @logged()
     def enqueue_free_experiment(self, lab_coordaddress_str, reservation_id, lab_session_id, experiment_instance_id):
-        # We can stablish a policy such as using 
+        # We can stablish a policy such as using
         # thread pools or a queue of threads or something
         # like that... here
         if lab_session_id is None: # If the user didn't manage to obtain a session_id, don't call the free_experiment method

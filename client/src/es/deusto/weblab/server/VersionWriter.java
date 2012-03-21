@@ -1,6 +1,7 @@
 package es.deusto.weblab.server;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
@@ -18,14 +19,19 @@ public class VersionWriter {
 	
     public static void main(String [] args) throws Exception {
     	
-    	if(args.length != 1 || !args[0].endsWith(".js")){
+    	if((args.length != 1 && args.length != 2) || !args[0].endsWith(".js")){
     		System.err.println("Usage: " + VersionWriter.class.getSimpleName() + " file.js");
     		System.exit(-1);
     	}
     	
     	final String filename = args[0];
-    	
-    	retrieveVersion();
+        final String buildFileName;
+        if(args.length == 2)
+            buildFileName = args[1];
+        else
+            buildFileName = null;
+
+    	retrieveVersion(buildFileName);
     	if(global == UNDEFINED && local == UNDEFINED){
     		System.err.println("Error retrieving version");
     		System.exit(-2);
@@ -50,8 +56,12 @@ public class VersionWriter {
     	ps.close();
     }
 
-	private static void retrieveVersion() throws Exception{
-		final ProcessBuilder builder = new ProcessBuilder("hg","identify","-ni");
+	private static void retrieveVersion(String buildFileName) throws Exception{
+        final ProcessBuilder builder;
+        if(buildFileName == null)
+    		 builder = new ProcessBuilder("hg","identify","-ni");
+        else
+    		 builder = new ProcessBuilder("hg","identify","-ni", new File(buildFileName).getParentFile().getParent());
     	final Process process = builder.start();
     	final int code = process.waitFor();
     	if(code == 0){

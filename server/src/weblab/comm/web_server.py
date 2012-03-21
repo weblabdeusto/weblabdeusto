@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 #-*-*- encoding: utf-8 -*-*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -30,13 +30,14 @@ import pickle
 
 DEFAULT_CONTENT_TYPE = "text/html"
 
-class MethodException(Exception):
+class MethodError(Exception):
     def __init__(self, status, msg):
-        super(MethodException, self).__init__((status, msg))
+        super(MethodError, self).__init__((status, msg))
         self.status = status
         self.msg    = msg
 
-class RequestManagedException(Exception):
+
+class RequestManagedError(Exception):
     pass
 
 class Method(object):
@@ -136,7 +137,7 @@ class Method(object):
 
 
     def raise_exc(self, status, message):
-        raise MethodException(status, message)
+        raise MethodError(status, message)
 
     def get_context(self):
         return get_context()
@@ -177,7 +178,7 @@ class Method(object):
     def get_relative_path(path):
         # If coming from /weblab001/web/login/?foo=bar will return
         # /login/?foo=bar
-        # 
+        #
         # If coming from /foo/?bar will return
         # /foo/?bar
         finder = '/web/'
@@ -203,6 +204,7 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     server_route    = None
     cfg_manager     = None
     original_server = None
+    location        = None
 
     def do_GET(self):
         self.weblab_cookie = None
@@ -217,7 +219,7 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             else:
                 self.weblab_cookie = "weblabsessionid=sessid.not.found"
 
-        create_context(self.server, self.headers)
+        create_context(self.server, self.client_address, self.headers)
         try:
             for method in self.methods:
                 if method.matches(self.path):
@@ -227,9 +229,9 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                     break
             else:
                 NotFoundMethod(self, self.cfg_manager, self.original_server).run()
-        except RequestManagedException as e:
+        except RequestManagedError as e:
             return
-        except MethodException as e:
+        except MethodError as e:
             log.log( self, log.level.Error, str(e))
             log.log_exc( self, log.level.Warning)
             self._write(e.status, 'text/html', [], e.msg)
@@ -267,8 +269,12 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             route = get_context().route
             if route is None:
                 route = self.server_route
-            self.send_header("Set-Cookie", "%s; path=/" % self.weblab_cookie)
-            self.send_header("Set-Cookie", "loginweblabsessionid=anythinglikeasessid.%s; path=/; Expires=%s" % (route, strdate(hours=1)))
+            if self.location is not None:
+                location = self.location
+            else:
+                location = '/'
+            self.send_header("Set-Cookie", "%s; path=%s" % (self.weblab_cookie, location))
+            self.send_header("Set-Cookie", "loginweblabsessionid=anythinglikeasessid.%s; path=%s; Expires=%s" % (route, location, strdate(hours=1)))
             for cookie in other_cookies:
                 self.send_header("Set-Cookie", cookie)
 
@@ -293,12 +299,13 @@ class WebHttpServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
     request_queue_size  = 50 #TODO: parameter!
     allow_reuse_address = True
 
-    def __init__(self, server_address, server_methods, route, configuration_manager, server):
+    def __init__(self, server_address, server_methods, route, configuration_manager, server, the_location):
         class NewWebHttpHandler(WebHttpHandler):
             methods         = server_methods
             server_route    = route
             cfg_manager     = configuration_manager
             original_server = server
+            location        = the_location
         BaseHTTPServer.HTTPServer.__init__(self, server_address, NewWebHttpHandler)
         for method in server_methods:
             method.initialize(configuration_manager, route)
@@ -317,7 +324,7 @@ class WebProtocolRemoteFacadeServer(RFS.AbstractProtocolRemoteFacadeServer):
                 self._rfs.FACADE_WEB_PORT,
                 **{
                     self._rfs.FACADE_WEB_LISTEN: self._rfs.DEFAULT_FACADE_WEB_LISTEN
-                } 
+                }
            )
         listen = getattr(values, self._rfs.FACADE_WEB_LISTEN)
         port   = getattr(values, self._rfs.FACADE_WEB_PORT)
@@ -328,7 +335,14 @@ class WebProtocolRemoteFacadeServer(RFS.AbstractProtocolRemoteFacadeServer):
         the_server_route = self._configuration_manager.get_value( self._rfs.FACADE_SERVER_ROUTE, self._rfs.DEFAULT_SERVER_ROUTE )
         timeout = self.get_timeout()
         server = self._rfm
-        self._server = WebHttpServer((listen, port), self.METHODS, the_server_route, self._configuration_manager, server)
+        core_server_url  = self._configuration_manager.get_value( 'core_server_url', '' )
+        if core_server_url.startswith('http://') or core_server_url.startswith('https://'):
+            without_protocol = '//'.join(core_server_url.split('//')[1:])
+            the_location = '/' + ( '/'.join(without_protocol.split('/')[1:]) )
+        else:
+            the_location = '/'
+
+        self._server = WebHttpServer((listen, port), self.METHODS, the_server_route, self._configuration_manager, server, the_location)
         self._server.socket.settimeout(timeout)
 
 class WebRemoteFacadeServer(RFS.AbstractRemoteFacadeServer):

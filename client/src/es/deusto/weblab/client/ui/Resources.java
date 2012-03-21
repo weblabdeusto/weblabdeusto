@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005-2009 University of Deusto
+* Copyright (C) 2005 onwards University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -21,6 +21,9 @@ public interface Resources extends ClientBundle {
 	
 	@Source("res/logo.png")
 	ImageResource logo();
+	
+	@Source("res/logo-small.png")
+	ImageResource logoSmall();
 	
 	@Source("res/avatar.png")
 	ImageResource avatar();

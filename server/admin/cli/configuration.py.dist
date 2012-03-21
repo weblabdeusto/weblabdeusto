@@ -11,6 +11,7 @@ This is a configuration.py sample file. Copy its content to create your own conf
 # Required parameters
 #
 
+DB_ENGINE = 'mysql'
 DB_HOST   = "localhost"
 SMTP_HOST = "mail.deusto.es"
 SMTP_HELO = "deusto.es"

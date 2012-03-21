@@ -24,6 +24,7 @@ import time
 import os
 import mimetypes
 
+import hashlib
 import weblab
 
 import re
@@ -51,7 +52,7 @@ FAULT_HTML_TEMPLATE = BASE_HTML_TEMPLATE % {
 		"MESSAGE" : "ERROR@%(THE_FAULT_CODE)s@%(THE_FAULT_MESSAGE)s"
 	}
 
-
+DEBUG = True
 
 class UploadExtractor(object):
     """
@@ -124,9 +125,11 @@ class  VisirMethod(WebFacadeServer.Method):
         # Find out the location of the file. 
         fileonly = self.uri.split('/web/visir/')[1]
         
-        file = VISIR_LOCATION + fileonly
+        fname = VISIR_LOCATION + fileonly
+
+        if DEBUG: print "Loading %s..." % fname,
         
-        if not os.path.abspath(file).startswith(VISIR_LOCATION):
+        if not os.path.abspath(fname).startswith(VISIR_LOCATION):
             return FAULT_HTML_TEMPLATE % { 
                                           'THE_FAULT_CODE' : "Invalid URI",  
                                           'THE_FAULT_MESSAGE' : "The URI tried to go outside the scope of VISIR" }
@@ -134,10 +137,14 @@ class  VisirMethod(WebFacadeServer.Method):
                
         # Intercept the save request
         if fileonly == "save":
-            return self.intercept_save()
+            content = self.intercept_save()
+            if DEBUG: print "Intercepted %s" % len(content)
+            return content
         
         if fileonly == "store_temporary.php":
-            return self.intercept_store()
+            content = self.intercept_store()
+            if DEBUG: print "Intercepted %s" % len(content)
+            return content
         
         
         # We did not intercept the request, we will just serve the file.
@@ -146,7 +153,7 @@ class  VisirMethod(WebFacadeServer.Method):
         # won't send if-modified-since.
         # Getmtime returns a localtime, so we also convert it to gmt. Also, we want
         # a timestamp and not a tuple.
-        mod_time = time.mktime(time.gmtime(os.path.getmtime(file)))
+        mod_time = time.mktime(time.gmtime(os.path.getmtime(fname)))
         self.add_other_header("Last-Modified", self.time_to_http_date(mod_time))
         
         # Client already has a version of the file. Check whether
@@ -157,12 +164,14 @@ class  VisirMethod(WebFacadeServer.Method):
             # The file was not modified. Report as such.
             if mod_time <= since_time:
                 self.set_status(304)
+                if DEBUG: print "Not modified"
                 return "304 Not Modified"
         
         try:
-            with open(file, "rb") as f:
+            with open(fname, "rb") as f:
                 content = f.read()
         except:
+            if DEBUG: print "Failed to open"
             return FAULT_HTML_TEMPLATE % { 
                               'THE_FAULT_CODE' : "404",  
                               'THE_FAULT_MESSAGE' : "File not found (or not readable)" }
@@ -172,15 +181,19 @@ class  VisirMethod(WebFacadeServer.Method):
 
         
         # Use the file path to guess the mimetype
-        mimetype = mimetypes.guess_type(file)[0]
+        mimetype = mimetypes.guess_type(fname)[0]
         if mimetype is None:
             mimetype = "application/octet-stream"
         
         self.set_content_type(mimetype)
         
         if fileonly == "breadboard/library.xml":
-            return self.intercept_library(content, mimetype)
+            content = self.intercept_library(content, mimetype)
+            if DEBUG: print "Intercepted %s; md5: %s" % (len(content), hashlib.new("md5", content).hexdigest())
+            return content
+
         
+        if DEBUG: print "Returning %s bytes" % len(content)
         return content
     
 

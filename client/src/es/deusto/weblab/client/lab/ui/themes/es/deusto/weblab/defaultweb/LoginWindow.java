@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005-2009 University of Deusto
+* Copyright (C) 2005 onwards University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -77,6 +77,8 @@ class LoginWindow extends BaseWindow {
 	@UiField DecoratorPanel adminPanel;
 	@UiField Image hostEntityLogo;
 	@UiField HTML introText;
+	@UiField VerticalPanel guestPanel;
+	@UiField VerticalPanel messagesPanel;
 	
 	// Callbacks
 	private final ILoginWindowCallback callback;
@@ -84,9 +86,6 @@ class LoginWindow extends BaseWindow {
 	// Properties
 	private static final String ADMIN_EMAIL_PROPERTY = "admin.email";
 	private static final String DEFAULT_ADMIN_EMAIL = "<admin.email not set>";
-	
-	private static final String HOST_ENTITY_IMAGE_PROPERTY = "host.entity.image";
-	private static final String DEFAULT_HOST_ENTITY_IMAGE  = "";
 	
 	private static final String DEMO_AVAILABLE_PROPERTY = "demo.available";
 	private static final boolean DEFAULT_DEMO_AVAILABLE = false;
@@ -160,7 +159,7 @@ class LoginWindow extends BaseWindow {
 		this.usernameTextbox.addKeyDownHandler(keyboardHandler);
 		this.passwordTextbox.addKeyDownHandler(keyboardHandler);
 		
-		String hostEntityImage = this.configurationManager.getProperty(HOST_ENTITY_IMAGE_PROPERTY, DEFAULT_HOST_ENTITY_IMAGE);
+		String hostEntityImage = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_LOGIN_IMAGE, "");
 		if(!hostEntityImage.isEmpty()){
 			if(hostEntityImage.startsWith("/"))
 				hostEntityImage = GWT.getModuleBaseURL() + hostEntityImage;
@@ -175,19 +174,14 @@ class LoginWindow extends BaseWindow {
 			);
 		
 		if ( demoAvailable ) {
-			final String demoUsername = this.configurationManager.getProperty(
-					LoginWindow.DEMO_USERNAME_PROPERTY,
-					LoginWindow.DEFAULT_DEMO_USERNAME
-				);		
-			final String demoPassword = this.configurationManager.getProperty(
-					LoginWindow.DEMO_PASSWORD_PROPERTY,
-					LoginWindow.DEFAULT_DEMO_PASSWORD
-				);	
-			
+			final String demoUsername = this.configurationManager.getProperty( LoginWindow.DEMO_USERNAME_PROPERTY, LoginWindow.DEFAULT_DEMO_USERNAME);		
+			final String demoPassword = this.configurationManager.getProperty( LoginWindow.DEMO_PASSWORD_PROPERTY, LoginWindow.DEFAULT_DEMO_PASSWORD);	
 			this.demoAvailableHTML.setHTML(this.i18nMessages.demoLoginDetails(demoUsername, demoPassword));
+			
 		}else{
 			this.featuresGrid.removeRow(1);
 		}
+		this.guestPanel.setVisible(demoAvailable);
 		
 		final boolean createAccountVisible = this.configurationManager.getBoolProperty(CREATE_ACCOUNT_VISIBLE_PROPERTY, DEFAULT_CREATE_ACCOUNT_VISIBLE);
 		if(!createAccountVisible)
@@ -240,6 +234,7 @@ class LoginWindow extends BaseWindow {
 	}
 
 	public void showWrongLoginOrPassword(){
+		this.messagesPanel.setVisible(true);
 		this.generalErrorLabel.setText(this.i18nMessages.invalidUsernameOrPassword());
 		this.generalErrorLabel.setVisible(true);
 		this.waitingLabel.stop();
@@ -252,6 +247,7 @@ class LoginWindow extends BaseWindow {
 
     @Override
 	public void showError(String message) {
+    	this.messagesPanel.setVisible(true);
 		this.generalErrorLabel.setText(message);
 		this.generalErrorLabel.setVisible(true);
 		this.waitingLabel.stop();
@@ -269,12 +265,25 @@ class LoginWindow extends BaseWindow {
 		errors |= this.checkUsernameTextbox();
 		errors |= this.checkPasswordTextbox();
 		if(!errors){
-			LoginWindow.this.waitingLabel.setText(LoginWindow.this.i18nMessages.loggingIn());
-			LoginWindow.this.waitingLabel.start();
-			LoginWindow.this.waitingLabel.setVisible(true);
-			LoginWindow.this.loginButton.setEnabled(false);
-			LoginWindow.this.callback.onLoginButtonClicked(this.getUsername(), this.getPassword());
+			startLoginProcess(getUsername(), getPassword());
 		}
+	}
+	
+	@UiHandler("guestButton")
+	void onGuestButtonClicked(@SuppressWarnings("unused") ClickEvent e) {
+		final String demoUsername = this.configurationManager.getProperty( LoginWindow.DEMO_USERNAME_PROPERTY, LoginWindow.DEFAULT_DEMO_USERNAME);		
+		final String demoPassword = this.configurationManager.getProperty( LoginWindow.DEMO_PASSWORD_PROPERTY, LoginWindow.DEFAULT_DEMO_PASSWORD);	
+
+		startLoginProcess(demoUsername, demoPassword);
+	}
+
+	private void startLoginProcess(String username, String password) {
+		this.messagesPanel.setVisible(true);
+		this.waitingLabel.setText(LoginWindow.this.i18nMessages.loggingIn());
+		this.waitingLabel.start();
+		this.waitingLabel.setVisible(true);
+		this.loginButton.setEnabled(false);
+		this.callback.onLoginButtonClicked(username, password);
 	}
 	
 	@UiHandler("createAccountButton")
@@ -284,6 +293,7 @@ class LoginWindow extends BaseWindow {
 	
     @Override
 	public void showMessage(String message) {
+    	this.messagesPanel.setVisible(true);
 		this.generalErrorLabel.setText(message);
 		this.generalErrorLabel.setVisible(true);
 		this.loginButton.setEnabled(true);

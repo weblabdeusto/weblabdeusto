@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005-2009 University of Deusto
+* Copyright (C) 2005 onwards University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -13,7 +13,7 @@
 */ 
 package es.deusto.weblab.client.dto.experiments;
 
-public class ExperimentAllowed {
+public class ExperimentAllowed implements Comparable<ExperimentAllowed> {
 	private Experiment experiment;
 	private int timeAllowed;
 	
@@ -73,5 +73,13 @@ public class ExperimentAllowed {
 	public String toString() {
 		return "ExperimentAllowed [experiment=" + this.experiment
 				+ ", timeAllowed=" + this.timeAllowed + "]";
+	}
+
+	@Override
+	public int compareTo(ExperimentAllowed other) {
+		if(this.experiment.getExperimentUniqueName().equals(other.experiment.getExperimentUniqueName()))
+			return this.timeAllowed - other.timeAllowed;
+		
+		return this.experiment.getUniqueName().compareTo(other.experiment.getUniqueName());
 	}
 }

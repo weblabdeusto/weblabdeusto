@@ -1,21 +1,21 @@
 #!/usr/bin/env python
 #-*-*- encoding: utf-8 -*-*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
-# 
+#
 
 from voodoo.sessions.session_id import SessionId
-from weblab.core.exc import SessionNotFoundException
+from weblab.core.exc import SessionNotFoundError
 import weblab.comm.web_server as WebFacadeServer
 
 RESERVATION_ID   = 'reservation_id'
@@ -91,7 +91,7 @@ class ClientMethod(WebFacadeServer.Method):
         """ run()
 
         If there is a GET argument named %(reservation_id)s, it will take it and resend it as a
-        POST argument. If it was passed through the history, then it will be again sent as a 
+        POST argument. If it was passed through the history, then it will be again sent as a
         POST argument. Finally, if it is received as a POST argument, it will generate a redirect
         to the client, using the proper current structure.
         """ % { 'reservation_id' : RESERVATION_ID }
@@ -113,10 +113,10 @@ class ClientMethod(WebFacadeServer.Method):
         reservation_session_id = SessionId(reservation_id.split(';')[0])
         try:
             experiment_id = self.server.get_reservation_info(reservation_session_id)
-        except SessionNotFoundException:
+        except SessionNotFoundError:
             return ERROR_CODE % reservation_id
 
-        client_address = "../../client#exp.name=%(exp_name)s&exp.category=%(exp_cat)s&reservation_id=%(reservation_id)s&header.visible=false" % {
+        client_address = "../../client/index.html#exp.name=%(exp_name)s&exp.category=%(exp_cat)s&reservation_id=%(reservation_id)s&header.visible=false" % {
             'reservation_id' : reservation_id,
             'exp_name'       : experiment_id.exp_name,
             'exp_cat'        : experiment_id.cat_name

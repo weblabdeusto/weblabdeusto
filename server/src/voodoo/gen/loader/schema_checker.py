@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import os
 import sys
@@ -25,7 +25,7 @@ else:
     LXML_AVAILABLE = True
 
 import voodoo.log as log
-import voodoo.gen.exceptions.loader.LoaderExceptions as LoaderExceptions
+import voodoo.gen.exceptions.loader.LoaderErrors as LoaderErrors
 
 XSD_DIRNAME = os.path.dirname(__file__) + os.sep + 'xsd' + os.sep
 
@@ -47,7 +47,7 @@ class SchemaChecker(object):
         except Exception as e:
             log.log( SchemaChecker, log.level.Warning, 'Invalid syntax file configuration: File %s: %s' % (xsdfile_path, e))
             log.log_exc( SchemaChecker, log.level.Info)
-            raise LoaderExceptions.InvalidSyntaxFileConfigurationException( e, xsdfile_path )
+            raise LoaderErrors.InvalidSyntaxFileConfigurationError( e, xsdfile_path )
 
         try:
             sio_xml = StringIO(xmlfile_content)
@@ -55,11 +55,11 @@ class SchemaChecker(object):
             xmlschema.assertValid(xml_doc)
         except etree.DocumentInvalid as di:
             log.log( SchemaChecker, log.level.Warning, 'Not a valid configuration file. Check it with a XML Schema validator: File %s' % (xmlfile_path))
-            raise LoaderExceptions.InvalidSyntaxFileConfigurationException( 'Not a valid configuration file. Check it with a XML Schema validator. %s' % di.args, xmlfile_path)
+            raise LoaderErrors.InvalidSyntaxFileConfigurationError( 'Not a valid configuration file. Check it with a XML Schema validator. %s' % di.args, xmlfile_path)
         except Exception as e:
             log.log( SchemaChecker, log.level.Warning, 'Invalid syntax file configuration: File %s: %s' % (xmlfile_path, e))
             log.log_exc( SchemaChecker, log.level.Info)
-            raise LoaderExceptions.InvalidSyntaxFileConfigurationException( e, xmlfile_path)
+            raise LoaderErrors.InvalidSyntaxFileConfigurationError( e, xmlfile_path)
 
     # For testing purposes
     def _read_xml_file(self, xmlfile_path):

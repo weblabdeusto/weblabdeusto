@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import sys
 import threading
@@ -45,11 +45,12 @@ import voodoo.resources_manager as ResourceManager
 import weblab.comm.manager as RemoteFacadeManager
 from weblab.comm.context import get_context, create_context, delete_context
 from weblab.comm.codes import WEBLAB_GENERAL_EXCEPTION_CODE
-import weblab.comm.exc as FacadeExceptions
-import voodoo.configuration as ConfigurationExceptions
+import weblab.comm.exc as FacadeErrors
+import voodoo.configuration as ConfigurationErrors
 
 RFS_TIMEOUT_NAME                      = 'facade_timeout'
 DEFAULT_TIMEOUT                       = 0.5
+BASE_LOCATION_PROPERTY                = 'base_location'
 
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("RemoteFacadeServer")
 
@@ -60,10 +61,10 @@ def strdate(days=0,hours=0,minutes=0,seconds=0):
 # JSON/HTTP code #
 ##################
 
-def simplify_response(response, limit = 10, counter = 0):
+def simplify_response(response, limit = 15, counter = 0):
     """
     Recursively serializes the response into a JSON dictionary. Because the response object could actually
-    contain cyclic references, we limit the maximum depth. 
+    contain cyclic references, we limit the maximum depth.
     """
     if counter == limit:
         return None
@@ -94,6 +95,7 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     facade_manager = None
     server_route   = None
+    location       = None
 
     def do_GET(self):
         methods = [ method for method in dir(self.facade_manager) if not method.startswith('_') ]
@@ -104,10 +106,10 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def do_POST(self):
         """
-        This do_POST callback handles an HTTP request containing a JSON-encoded RPC request. 
+        This do_POST callback handles an HTTP request containing a JSON-encoded RPC request.
         """
-        create_context(self.server, self.headers)
-        
+        create_context(self.server, self.client_address, self.headers)
+
         try:
             length = int(self.headers['content-length'])
             post_content = self.rfile.read(length)
@@ -127,7 +129,7 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 self.finish_error(response)
                 return
 
-            # Retrieve the parameters of the method being invoked. 
+            # Retrieve the parameters of the method being invoked.
             params = decoded.get('params')
             if params is None:
                 response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"Missing 'params' attr"}
@@ -135,14 +137,14 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 return
 
             # Ensure that we actually have a facade manager, as we should.
-            # (The method specified in the JSON request, which we are going to invoke, 
+            # (The method specified in the JSON request, which we are going to invoke,
             # is actually located in the facade manager).
             if self.facade_manager is None:
                 response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"Facade manager not set"}
                 self.finish_error(response)
                 return
 
-            # Ensure that the method that is remotely being called does exist. 
+            # Ensure that the method that is remotely being called does exist.
             if not hasattr(self.facade_manager, method_name):
                 response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"Method not recognized"}
                 self.finish_error(response)
@@ -161,11 +163,11 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 self.finish_error(response)
                 return
 
-            # Call the method specified in the request, 
+            # Call the method specified in the request,
             # with the parameters from the dictionary we just built.
             try:
                 return_value = method(**newparams)
-            except RemoteFacadeManager.JSONException as jsone:
+            except RemoteFacadeManager.JSONError as jsone:
                 response = jsone.args[0]
                 self.finish_error(response)
                 return
@@ -175,7 +177,7 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 return
 
             # No exception was raised so the request was successful. We will now return the response to
-            # the remote caller. 
+            # the remote caller.
             try:
                 # Serialize the response to a JSON dictionary.
                 parsed_return_value = simplify_response(return_value)
@@ -187,7 +189,7 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 log.log_exc( JsonHttpHandler, log.level.Warning )
                 self.finish_error(response)
                 return
-                
+
             self.finish_post(response)
         finally:
             delete_context()
@@ -212,9 +214,24 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             route = ctx.route
             if route is None:
                 route = self.server_route
-            session_id = ctx.session_id or 'anythinglikeasessid'
-            self.send_header("Set-Cookie", "weblabsessionid=%s.%s; path=/; Expires=%s" % (session_id, route, strdate(days=100)))
-            self.send_header("Set-Cookie", "loginweblabsessionid=%s.%s; path=/; Expires=%s" % (session_id, route, strdate(hours=1)))
+            if ctx.session_id:
+                session_id = ctx.session_id
+            else:
+                raw_cookies = ctx.headers.get('Cookie') or ''
+                cookies = [ cookie.strip().split('=')[:2] for cookie in raw_cookies.split(';') ]
+                valid_cookies = [ cookie for cookie in cookies if len(cookie) == 2 ]
+                weblab_cookies = [ value for name, value in valid_cookies if name == 'loginweblabsessionid' ]
+                weblab_cookie  = weblab_cookies[0] if len(weblab_cookies) > 0 else None
+                if weblab_cookie is not None and weblab_cookie.endswith('.%s' % route):
+                    session_id = weblab_cookie.split('.%s' % route)[0]
+                else:
+                    session_id = 'anythinglikeasessid'
+            if self.location is not None:
+                location = self.location
+            else:
+                location = '/'
+            self.send_header("Set-Cookie", "weblabsessionid=%s.%s; path=%s; Expires=%s" % (session_id, route, location, strdate(days=100)))
+            self.send_header("Set-Cookie", "loginweblabsessionid=%s.%s; path=%s; Expires=%s" % (session_id, route, location, strdate(hours=1)))
 
         self.end_headers()
         self.wfile.write(response)
@@ -257,8 +274,8 @@ class JsonHttpServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
 
 class XmlRpcRequestHandler(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
 
-    rpc_paths    = ('/','/RPC2','/weblab/xmlrpc','/weblab/xmlrpc/', '/weblab/login/xmlrpc', '/weblab/login/xmlrpc/')
     server_route = None
+    location     = None
 
     def do_GET(self):
         methods = self.server.system_listMethods()
@@ -268,7 +285,7 @@ class XmlRpcRequestHandler(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
         _show_help(self, "XML-RPC", methods, methods_help)
 
     def do_POST(self, *args, **kwargs):
-        create_context(self.server, self.headers)
+        create_context(self.server, self.client_address, self.headers)
         try:
             SimpleXMLRPCServer.SimpleXMLRPCRequestHandler.do_POST(self, *args, **kwargs)
         finally:
@@ -279,8 +296,12 @@ class XmlRpcRequestHandler(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
             route = get_context().route
             if route is None:
                 route = self.server_route
-            self.send_header("Set-Cookie","weblabsessionid=anythinglikeasessid.%s; path=/" % route)
-            self.send_header("Set-Cookie", "loginweblabsessionid=anythinglikeasessid.%s; path=/; Expires=%s" % (route, strdate(hours=1)))
+            if self.location is not None:
+                location = self.location
+            else:
+                location = '/'
+            self.send_header("Set-Cookie","weblabsessionid=anythinglikeasessid.%s; path=%s" % (route, location))
+            self.send_header("Set-Cookie", "loginweblabsessionid=anythinglikeasessid.%s; path=%s; Expires=%s" % (route, location, strdate(hours=1)))
         SimpleXMLRPCServer.SimpleXMLRPCRequestHandler.end_headers(self)
 
     def log_message(self, format, *args):
@@ -295,11 +316,28 @@ class XmlRpcServer(SocketServer.ThreadingMixIn, SimpleXMLRPCServer.SimpleXMLRPCS
     daemon_threads = True
     request_queue_size = 50 #TODO: parameter!
     allow_reuse_address = True
-    
-    def __init__(self, server_address, manager, the_server_route):
+
+    def __init__(self, server_address, manager, the_server_route, base_location, core_server_url):
+        the_rpc_paths = []
+
+        location_to_append = base_location[:-1] if base_location.endswith('/') else base_location
+
+        for path in '/','/RPC2','/weblab/xmlrpc','/weblab/xmlrpc/', '/weblab/login/xmlrpc', '/weblab/login/xmlrpc/':
+            the_rpc_paths.append(path)
+            if location_to_append:
+                the_rpc_paths.append(location_to_append + path)
+
+        if core_server_url.startswith('http://') or core_server_url.startswith('https://'):
+            without_protocol = '//'.join(core_server_url.split('//')[1:])
+            the_location = '/' + ( '/'.join(without_protocol.split('/')[1:]) )
+        else:
+            the_location = '/'
+
         class NewXmlRpcRequestHandler(XmlRpcRequestHandler):
             server_route = the_server_route
-        
+            rpc_paths    = the_rpc_paths
+            location     = the_location
+
         SimpleXMLRPCServer.SimpleXMLRPCServer.__init__(self, server_address, NewXmlRpcRequestHandler, allow_none = True)
         self.register_instance(manager)
 
@@ -315,9 +353,10 @@ class XmlRpcServer(SocketServer.ThreadingMixIn, SimpleXMLRPCServer.SimpleXMLRPCS
 if ZSI_AVAILABLE:
     class WebLabRequestHandlerClass(ServiceContainer.SOAPRequestHandler):
         server_route = None
+        location     = None
 
         def do_POST(self, *args, **kwargs):
-            create_context(self.server, self.headers)
+            create_context(self.server, self.client_address, self.headers)
             try:
                 ServiceContainer.SOAPRequestHandler.do_POST(self, *args, **kwargs)
             finally:
@@ -328,8 +367,12 @@ if ZSI_AVAILABLE:
                 route = get_context().route
                 if route is None:
                     route = self.server_route
-                self.send_header("Set-Cookie","weblabsessionid=anythinglikeasessid.%s; path=/" % route)
-                self.send_header("Set-Cookie","loginweblabsessionid=anythinglikeasessid.%s; path=/; Expires=%s" % (route, strdate(hours=1)))
+                if self.location is not None:
+                    location = self.location
+                else:
+                    location = '/'
+                self.send_header("Set-Cookie","weblabsessionid=anythinglikeasessid.%s; path=%s" % (route, location))
+                self.send_header("Set-Cookie","loginweblabsessionid=anythinglikeasessid.%s; path=%s; Expires=%s" % (route, location, strdate(hours=1)))
             ServiceContainer.SOAPRequestHandler.end_headers(self)
 
         def log_message(self, format, *args):
@@ -370,7 +413,7 @@ def _show_help(request_inst, protocol, methods, methods_help):
 
         for method in methods:
             response += """<li><b>%s</b>: %s</li>\n""" % (method, methods_help[method])
-        
+
         response += """</ul>
         </body>
         </html>
@@ -415,8 +458,8 @@ class AbstractProtocolRemoteFacadeServer(threading.Thread):
     def parse_configuration(self, *args, **kargs):
         try:
             return self._configuration_manager.get_values(*args, **kargs)
-        except ConfigurationExceptions.ConfigurationException as ce:
-            raise FacadeExceptions.MisconfiguredException("Missing params: " + ce.args[0])
+        except ConfigurationErrors.ConfigurationError as ce:
+            raise FacadeErrors.MisconfiguredError("Missing params: " + ce.args[0])
 
 class AbstractRemoteFacadeServerZSI(AbstractProtocolRemoteFacadeServer):
     protocol_name = "zsi"
@@ -426,27 +469,37 @@ class AbstractRemoteFacadeServerZSI(AbstractProtocolRemoteFacadeServer):
                 self._rfs.FACADE_ZSI_PORT,
                 **{
                     self._rfs.FACADE_ZSI_LISTEN: self._rfs.DEFAULT_FACADE_ZSI_LISTEN,
-                    self._rfs.FACADE_ZSI_SERVICE_NAME: self._rfs.DEFAULT_FACADE_ZSI_SERVICE_NAME
-                } 
+                    self._rfs.FACADE_ZSI_SERVICE_NAME: self._rfs.DEFAULT_FACADE_ZSI_SERVICE_NAME,
+                    BASE_LOCATION_PROPERTY : ''
+                }
            )
-        listen       = getattr(values, self._rfs.FACADE_ZSI_LISTEN)
-        port         = getattr(values, self._rfs.FACADE_ZSI_PORT)
-        service_name = getattr(values, self._rfs.FACADE_ZSI_SERVICE_NAME)
+        listen        = getattr(values, self._rfs.FACADE_ZSI_LISTEN)
+        port          = getattr(values, self._rfs.FACADE_ZSI_PORT)
+        base_location = getattr(values, BASE_LOCATION_PROPERTY)
+        service_name  = base_location + getattr(values, self._rfs.FACADE_ZSI_SERVICE_NAME)
         return listen, port, service_name
 
     def _create_service_container(self, listen, port, the_server_route):
 
+        core_server_url  = self._configuration_manager.get_value( 'core_server_url', '' )
+        if core_server_url.startswith('http://') or core_server_url.startswith('https://'):
+            without_protocol = '//'.join(core_server_url.split('//')[1:])
+            the_location = '/' + ( '/'.join(without_protocol.split('/')[1:]) )
+        else:
+            the_location = '/'
+
         class NewWebLabRequestHandlerClass(WebLabRequestHandlerClass):
             server_route = the_server_route
+            location     = the_location
 
         return _AvoidTimeoutServiceContainer(
-                (listen,port), 
+                (listen,port),
                 RequestHandlerClass=NewWebLabRequestHandlerClass
             )
 
     def initialize(self):
         if not ZSI_AVAILABLE:
-            msg = "The optional library 'ZSI' is not available, so the server will not support SOAP clients. However, it's being used so problems will arise." 
+            msg = "The optional library 'ZSI' is not available, so the server will not support SOAP clients. However, it's being used so problems will arise."
             print >> sys.stderr, msg
             log.log( self, log.level.Error, msg)
 
@@ -471,7 +524,7 @@ class RemoteFacadeServerJSON(AbstractProtocolRemoteFacadeServer):
                 self._rfs.FACADE_JSON_PORT,
                 **{
                     self._rfs.FACADE_JSON_LISTEN: self._rfs.DEFAULT_FACADE_JSON_LISTEN
-                } 
+                }
            )
         listen = getattr(values, self._rfs.FACADE_JSON_LISTEN)
         port   = getattr(values, self._rfs.FACADE_JSON_PORT)
@@ -480,10 +533,17 @@ class RemoteFacadeServerJSON(AbstractProtocolRemoteFacadeServer):
     def initialize(self):
         listen, port = self._retrieve_configuration()
         the_server_route = self._configuration_manager.get_value( self._rfs.FACADE_SERVER_ROUTE, self._rfs.DEFAULT_SERVER_ROUTE )
+        core_server_url  = self._configuration_manager.get_value( 'core_server_url', '' )
+        if core_server_url.startswith('http://') or core_server_url.startswith('https://'):
+            without_protocol = '//'.join(core_server_url.split('//')[1:])
+            the_location = '/' + ( '/'.join(without_protocol.split('/')[1:]) )
+        else:
+            the_location = '/'
         timeout = self.get_timeout()
         class NewJsonHttpHandler(self.JSON_HANDLER):
             facade_manager = self._rfm
             server_route   = the_server_route
+            location       = the_location
         self._server = JsonHttpServer((listen, port), NewJsonHttpHandler)
         self._server.socket.settimeout(timeout)
 
@@ -494,18 +554,21 @@ class RemoteFacadeServerXMLRPC(AbstractProtocolRemoteFacadeServer):
         values = self.parse_configuration(
                 self._rfs.FACADE_XMLRPC_PORT,
                 **{
-                    self._rfs.FACADE_XMLRPC_LISTEN: self._rfs.DEFAULT_FACADE_XMLRPC_LISTEN
-                } 
+                    self._rfs.FACADE_XMLRPC_LISTEN: self._rfs.DEFAULT_FACADE_XMLRPC_LISTEN,
+                    BASE_LOCATION_PROPERTY : ''
+                }
            )
-        listen = getattr(values, self._rfs.FACADE_XMLRPC_LISTEN)
-        port   = getattr(values, self._rfs.FACADE_XMLRPC_PORT)
-        return listen, port
+        listen        = getattr(values, self._rfs.FACADE_XMLRPC_LISTEN)
+        port          = getattr(values, self._rfs.FACADE_XMLRPC_PORT)
+        base_location = getattr(values, BASE_LOCATION_PROPERTY)
+        return listen, port, base_location
 
     def initialize(self):
         timeout = self.get_timeout()
-        listen, port = self._retrieve_configuration()
+        listen, port, base_location = self._retrieve_configuration()
+        core_server_url  = self._configuration_manager.get_value( 'core_server_url', '' )
         server_route = self._configuration_manager.get_value( self._rfs.FACADE_SERVER_ROUTE, self._rfs.DEFAULT_SERVER_ROUTE )
-        self._server = XmlRpcServer((listen, port), self._rfm, server_route)
+        self._server = XmlRpcServer((listen, port), self._rfm, server_route, base_location, core_server_url)
         self._server.socket.settimeout(timeout)
 
 

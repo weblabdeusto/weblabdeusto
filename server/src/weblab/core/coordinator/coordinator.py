@@ -1,30 +1,31 @@
 #!/usr/bin/env python
 #-*-*- encoding: utf-8 -*-*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import time
 import datetime
 import Queue
 
 import json
 
-from voodoo.typechecker import typecheck
+from voodoo.typechecker import typecheck, ITERATION
 from voodoo.log import logged
 import voodoo.log as log
 import voodoo.admin_notifier as AdminNotifier
+from voodoo.gen.coordinator.CoordAddress import CoordAddress
 from voodoo.sessions.session_id import SessionId
 
-from weblab.data.experiments import ExperimentId
+from weblab.data.experiments import ExperimentId, ExperimentInstanceId
 
 import weblab.core.coordinator.exc as CoordExc
 
@@ -43,6 +44,7 @@ from weblab.core.coordinator.no_scheduler import NoScheduler
 from weblab.core.coordinator.priority_queue_scheduler import PriorityQueueScheduler
 from weblab.core.coordinator.externals.weblabdeusto_scheduler import ExternalWebLabDeustoScheduler
 from weblab.core.coordinator.externals.ilab_batch_scheduler import ILabBatchScheduler
+from weblab.core.coordinator.resource import Resource
 import weblab.core.coordinator.checker_threaded as ResourcesCheckerThread
 
 NO_SCHEDULER           = 'NO_SCHEDULER'
@@ -115,67 +117,76 @@ class Coordinator(object):
 
         self.initial_store  = TemporalInformationStore.InitialTemporalInformationStore()
         self.finished_store = TemporalInformationStore.FinishTemporalInformationStore()
+        self.completed_store = TemporalInformationStore.CompletedInformationStore()
         self.finished_reservations_store = Queue.Queue()
 
-        # 
+        #
         # The system administrator must define what scheduling system is used by each resource type
         # For instance:
-        # 
+        #
         # scheduling_systems = {
         #                  "pld boards"     : ("PRIORITY_QUEUE", {}),
         #                  "fpga boards"    : ("PRIORITY_QUEUE", {}),
         #                  "vm experiments" : ("BOOKING", { 'slots' : 30 * 1000 }), # Slots of 30 minutes
         #                  "something else" : ("EXTERNAL", { 'address' : 'http://192.168.1.50:8080/SchedulingServer', 'protocol' : 'SOAP' }) # If somebody else has implemented the scheduling schema in other language
         #            }
-        # 
+        #
         self.schedulers = {}
         scheduling_systems = cfg_manager.get_value(CORE_SCHEDULING_SYSTEMS)
         for resource_type_name in scheduling_systems:
             scheduling_system, arguments = scheduling_systems[resource_type_name]
             if not scheduling_system in SCHEDULING_SYSTEMS:
-                raise CoordExc.UnregisteredSchedulingSystemException("Unregistered scheduling system: %r" % scheduling_system)
+                raise CoordExc.UnregisteredSchedulingSystemError("Unregistered scheduling system: %r" % scheduling_system)
             SchedulingSystemClass = SCHEDULING_SYSTEMS[scheduling_system]
-            
+
             generic_scheduler_arguments = Scheduler.GenericSchedulerArguments(
-                                                cfg_manager          = self.cfg_manager, 
-                                                resource_type_name   = resource_type_name, 
-                                                reservations_manager = self.reservations_manager, 
-                                                resources_manager    = self.resources_manager, 
-                                                confirmer            = self.confirmer, 
-                                                session_maker        = self._session_maker, 
+                                                cfg_manager          = self.cfg_manager,
+                                                resource_type_name   = resource_type_name,
+                                                reservations_manager = self.reservations_manager,
+                                                resources_manager    = self.resources_manager,
+                                                confirmer            = self.confirmer,
+                                                session_maker        = self._session_maker,
                                                 time_provider        = self.time_provider,
-                                                core_server_url      = core_server_url
+                                                core_server_url      = core_server_url,
+                                                initial_store        = self.initial_store,
+                                                finished_store       = self.finished_store,
+                                                completed_store      = self.completed_store,
+                                                post_reservation_data_manager = self.post_reservation_data_manager
                                         )
 
             self.schedulers[resource_type_name] = SchedulingSystemClass(generic_scheduler_arguments, **arguments)
 
         self.aggregators = {
-            # experiment_id_str : IndependentSchedulerAggregator( schedulers ) 
+            # experiment_id_str : IndependentSchedulerAggregator( schedulers )
         }
 
         coordination_configuration_parser = CoordinationConfigurationParser.CoordinationConfigurationParser(cfg_manager)
         resource_types_per_experiment_id = coordination_configuration_parser.parse_resources_for_experiment_ids()
 
-        # 
+        #
         # This configuration argument has a dictionary such as:
         # {
         #     'experiment_id_str' : {'foo' : 'bar'}
         # }
-        # 
+        #
         # The argument itself is not mandatory.
-        # 
+        #
         aggregators_configuration = self.cfg_manager.get_value(CORE_SCHEDULER_AGGREGATORS, {})
 
         for experiment_id_str in resource_types_per_experiment_id:
             generic_scheduler_arguments = Scheduler.GenericSchedulerArguments(
-                                                cfg_manager          = self.cfg_manager, 
-                                                resource_type_name   = None, 
-                                                reservations_manager = self.reservations_manager, 
-                                                resources_manager    = self.resources_manager, 
-                                                confirmer            = self.confirmer, 
-                                                session_maker        = self._session_maker, 
+                                                cfg_manager          = self.cfg_manager,
+                                                resource_type_name   = None,
+                                                reservations_manager = self.reservations_manager,
+                                                resources_manager    = self.resources_manager,
+                                                confirmer            = self.confirmer,
+                                                session_maker        = self._session_maker,
                                                 time_provider        = self.time_provider,
-                                                core_server_url      = core_server_url
+                                                core_server_url      = core_server_url,
+                                                initial_store        = self.initial_store,
+                                                finished_store       = self.finished_store,
+                                                completed_store      = self.completed_store,
+                                                post_reservation_data_manager = self.post_reservation_data_manager
                                         )
 
 
@@ -231,9 +242,10 @@ class Coordinator(object):
 
 
     ##########################################################################
-    # 
+    #
     #   Methods to retrieve the proper schedulers
-    # 
+    #
+    @typecheck(Resource)
     def _get_scheduler_per_resource(self, resource):
         return self.schedulers[resource.resource_type]
 
@@ -242,18 +254,20 @@ class Coordinator(object):
         experiment_id = self.reservations_manager.get_experiment_id(reservation_id)
         return self._get_scheduler_aggregator(experiment_id)
 
+    @typecheck(ExperimentId)
     def _get_scheduler_aggregator(self, experiment_id):
         experiment_id_str = experiment_id.to_weblab_str()
         aggregator = self.aggregators.get(experiment_id_str)
         if aggregator is None:
-            raise CoordExc.ExperimentNotFoundException("Could not find scheduler aggregator associated to experiment id %s." % (experiment_id_str))
+            raise CoordExc.ExperimentNotFoundError("Could not find scheduler aggregator associated to experiment id %s." % (experiment_id_str))
         return aggregator
 
 
     ###########################################################################
-    # 
+    #
     # General experiments and sessions management
-    # 
+    #
+    @typecheck(basestring, ExperimentInstanceId, Resource)
     @logged()
     def add_experiment_instance_id(self, laboratory_coord_address, experiment_instance_id, resource):
         session = self._session_maker()
@@ -275,30 +289,33 @@ class Coordinator(object):
     def list_resource_types(self):
         return self.schedulers.keys()
 
+    @typecheck(ExperimentId)
     @logged()
     def list_sessions(self, experiment_id):
         """ list_sessions( experiment_id ) -> { session_id : status } """
 
         reservation_ids = self.reservations_manager.list_sessions(experiment_id)
-        
+
         result = {}
         for reservation_id in reservation_ids:
             try:
                 aggregator = self._get_scheduler_aggregator_per_reservation(reservation_id)
                 best_reservation_status = aggregator.get_reservation_status(reservation_id)
-            except CoordExc.CoordinatorException:
+            except CoordExc.CoordinatorError:
                 # The reservation_id may expire since we called list_sessions,
-                # so if there is a coordinator exception we just skip this 
+                # so if there is a coordinator exception we just skip this
                 # reservation_id
                 continue
             result[reservation_id] = best_reservation_status
         return result
 
+    @typecheck(ExperimentInstanceId, ITERATION(basestring))
     @logged()
-    def mark_experiment_as_broken(self, experiment_instance_id, messages = []):
+    def mark_experiment_as_broken(self, experiment_instance_id, messages):
         resource_instance = self.resources_manager.get_resource_instance_by_experiment_instance_id(experiment_instance_id)
         return self.mark_resource_as_broken(resource_instance, messages)
 
+    @typecheck(Resource, ITERATION(basestring))
     @logged()
     def mark_resource_as_broken(self, resource_instance, messages = []):
         scheduler = self._get_scheduler_per_resource(resource_instance)
@@ -323,6 +340,7 @@ class Coordinator(object):
             if self.notifications_enabled:
                 self._notify_experiment_status('broken', resource_instance, messages)
 
+    @typecheck(Resource)
     @logged()
     def mark_resource_as_fixed(self, resource_instance):
         session = self._session_maker()
@@ -340,6 +358,7 @@ class Coordinator(object):
             if self.notifications_enabled:
                 self._notify_experiment_status('fixed', resource_instance)
 
+    @typecheck(basestring, Resource, ITERATION(basestring))
     def _notify_experiment_status(self, new_status, resource_instance, messages = []):
         experiment_instance_ids = self.resources_manager.list_experiment_instance_ids_by_resource(resource_instance)
         if new_status == 'fixed':
@@ -381,9 +400,10 @@ class Coordinator(object):
         return tuple(set(recipients))
 
     ##########################################################################
-    # 
+    #
     # Perform a new reservation
-    # 
+    #
+    @typecheck(ExperimentId, (float, int), int, bool, (dict, basestring), dict, dict)
     @logged()
     def reserve_experiment(self, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info, consumer_data):
         """
@@ -394,9 +414,9 @@ class Coordinator(object):
         return aggregator.reserve_experiment(reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info), reservation_id
 
     #######################################################################
-    # 
+    #
     # Given a reservation_id, it returns in which state the reservation is
-    # 
+    #
     @typecheck(basestring)
     @logged()
     def get_reservation_status(self, reservation_id):
@@ -406,10 +426,14 @@ class Coordinator(object):
             aggregator = self._get_scheduler_aggregator_per_reservation(reservation_id_without_route)
             return aggregator.get_reservation_status(reservation_id_without_route)
 
-        except CoordExc.ExpiredSessionException:
+        except CoordExc.ExpiredSessionError:
             reservation_status = self.post_reservation_data_manager.find(reservation_id_without_route)
             if reservation_status is not None:
                 return reservation_status
+            raise
+        except:
+            import traceback
+            traceback.print_exc()
             raise
 
 
@@ -420,9 +444,9 @@ class Coordinator(object):
     #
     # Called when it is confirmed by the Laboratory Server.
     #
+    @typecheck(CoordAddress, ExperimentId, basestring, basestring, SessionId, (basestring, type(None)), datetime.datetime, datetime.datetime)
     @logged()
-    def confirm_experiment(self, experiment_coordaddress, experiment_instance_id, reservation_id, lab_coordaddress_str, lab_session_id, server_initialization_response, initial_time, end_time):
-
+    def confirm_experiment(self, experiment_coordaddress, experiment_id, reservation_id, lab_coordaddress_str, lab_session_id, server_initialization_response, initial_time, end_time):
         default_still_initialing      = False
         default_batch                 = False
         default_initial_configuration = "{}"
@@ -445,12 +469,11 @@ class Coordinator(object):
 
         serialized_request_info, serialized_client_initial_data = self.reservations_manager.get_request_info_and_client_initial_data(reservation_id)
         request_info  = json.loads(serialized_request_info)
-        experiment_id = experiment_instance_id.to_experiment_id()
 
         # Put the entry into a queue that is continuosly storing information into the db
         initial_information_entry = TemporalInformationStore.InitialInformationEntry(
             reservation_id, experiment_id, experiment_coordaddress,
-            initial_configuration, initial_time, end_time, request_info, 
+            initial_configuration, initial_time, end_time, request_info,
             serialized_client_initial_data )
 
         self.initial_store.put(initial_information_entry)
@@ -459,7 +482,7 @@ class Coordinator(object):
         self.post_reservation_data_manager.create(reservation_id, now, now + self.expiration_delta, json.dumps(initial_configuration))
 
         if still_initializing:
-            # TODO XXX 
+            # TODO XXX
             raise NotImplementedError("Not yet implemented: still_initializing")
 
         aggregator = self._get_scheduler_aggregator_per_reservation(reservation_id)
@@ -473,17 +496,18 @@ class Coordinator(object):
 
     ################################################################
     #
-    # Called when the experiment returns information about if the 
+    # Called when the experiment returns information about if the
     # session should end or not.
     #
+    @typecheck(basestring, SessionId, basestring, (int, float))
     @logged()
     def confirm_should_finish(self, lab_coordaddress_str, lab_session_id, reservation_id, experiment_response):
-        # If not reserved, don't try again 
+        # If not reserved, don't try again
         try:
             current_status = self.get_reservation_status(reservation_id)
             if not isinstance(current_status, (coord_status.LocalReservedStatus, coord_status.RemoteReservedStatus)):
                 return
-        except CoordExc.CoordinatorException:
+        except CoordExc.CoordinatorError:
             return
 
         # 0: don't ask again
@@ -492,7 +516,7 @@ class Coordinator(object):
 
         # -1: experiment finished
         if experiment_response < 0:
-            self.finish_reservation(reservation_id) 
+            self.finish_reservation(reservation_id)
             return
 
         # > 0: wait this time and ask again
@@ -506,6 +530,7 @@ class Coordinator(object):
     # Called when the Laboratory Server states that the experiment
     # was cleaned
     #
+    @typecheck(basestring, basestring, (basestring, type(None)), ExperimentInstanceId, (basestring, type(None)), datetime.datetime, datetime.datetime)
     @logged()
     def confirm_resource_disposal(self, lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id, experiment_response, initial_time, end_time):
 
@@ -524,7 +549,7 @@ class Coordinator(object):
             except Exception as e:
                 log.log( Coordinator, log.level.Error, "Could not parse experiment server finishing response: %s; %s" % (e, experiment_response) )
                 log.log_exc( Coordinator, log.level.Warning )
-                
+
         if not experiment_finished:
             time.sleep(time_remaining)
             # We just ignore the data retrieved, if any, and perform the query again
@@ -551,8 +576,10 @@ class Coordinator(object):
     #
     # Called when the user disconnects or finishes the experiment.
     #
+    @typecheck(basestring)
     @logged()
     def finish_reservation(self, reservation_id):
+        reservation_id = reservation_id.split(';')[0]
         if self.reservations_manager.initialize_deletion(reservation_id):
             self.finished_reservations_store.put(SessionId(reservation_id))
             try:
@@ -565,8 +592,8 @@ class Coordinator(object):
                     session.commit()
                 finally:
                     session.close()
-            except CoordExc.ExpiredSessionException:
-                pass
+            except CoordExc.ExpiredSessionError:
+                log.log(Coordinator, log.level.Info, "Ignore finish_reservation(%r), given that it had already expired" % reservation_id)
             finally:
                 self.reservations_manager.clean_deletion(reservation_id)
 

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -16,8 +16,8 @@
 import voodoo.log as log
 from voodoo.log import logged
 
-import voodoo.configuration as ConfigurationExceptions
-import weblab.experiment.devices.gpib.exc as GpibExceptions
+import voodoo.configuration as ConfigurationErrors
+import weblab.experiment.devices.gpib.exc as GpibErrors
 
 import subprocess
 import os
@@ -49,7 +49,7 @@ class Launcher(object):
         try:
             self.popen = self._create_popen(file_path)
         except Exception as e:
-            raise GpibExceptions.ErrorProgrammingDeviceException(
+            raise GpibErrors.ErrorProgrammingDeviceError(
                 "There was an error while compiling the device: %s" % e # TODO: "compiling"
             )
         if not background:
@@ -71,7 +71,7 @@ class Launcher(object):
                 raise Exception("Program took too much time to run")
             return result
         except Exception as e:
-            raise GpibExceptions.ErrorWaitingForProgrammingFinishedException(
+            raise GpibErrors.ErrorWaitingForProgrammingFinishedError(
                 "There was an error while waiting for the compiler to finish: %s" % e
             )
 
@@ -80,7 +80,7 @@ class Launcher(object):
             self.result_stdout = self.popen.stdout.read()
             self.result_stderr = self.popen.stderr.read()
         except Exception as e:
-            raise GpibExceptions.ErrorRetrievingOutputFromProgrammingProgramException(
+            raise GpibErrors.ErrorRetrievingOutputFromProgrammingProgramError(
                 "There was an error while retrieving the output of the compiler: %s" % e
             )
 
@@ -88,7 +88,7 @@ class Launcher(object):
         try:
             self.result_code = self.popen.poll()
         except Exception as e:
-            raise GpibExceptions.ErrorWaitingForProgrammingFinishedException(
+            raise GpibErrors.ErrorWaitingForProgrammingFinishedError(
                 "There was an error while waiting for the compiler to finish: %s" % e
             )
     
@@ -141,7 +141,7 @@ class Compiler(Launcher):
             s = command[index]
             command[index] = s.replace(name,file_name_base + ext)
         else:
-            raise GpibExceptions.InvalidGpibProperty("Experiment misconfigured: no %s found on %s" % (
+            raise GpibErrors.InvalidGpibProperty("Experiment misconfigured: no %s found on %s" % (
                     name,
                     command
                 )
@@ -154,11 +154,11 @@ class Compiler(Launcher):
         if out.find('ERROR') >= 0: #or len(err) > 0:
             errors = 'stdout: <%s>' % '; '.join([ i for i in out.split('\n') if i.find('ERROR') >= 0])
             errors += '; stderr: <%s>' % err
-            raise GpibExceptions.ProgrammingGotErrors(
+            raise GpibErrors.ProgrammingGotErrors(
                     "Errors raised while %s the file: %s" % (action, errors)
                 )
         if res != 0:
-            raise GpibExceptions.ProgrammingGotErrors(
+            raise GpibErrors.ProgrammingGotErrors(
                     "%s tool returned %s" % (action, res)
                 )
 
@@ -175,8 +175,8 @@ class Compiler(Launcher):
         try:
             compiler_command = list(self._cfg_manager.get_value('gpib_compiler_command'))
             linker_command   = list(self._cfg_manager.get_value('gpib_linker_command'))
-        except ConfigurationExceptions.KeyNotFoundException as knfe:
-            raise GpibExceptions.CantFindGpibProperty(
+        except ConfigurationErrors.KeyNotFoundError as knfe:
+            raise GpibErrors.CantFindGpibProperty(
                     "Can't find in configuration manager the property '%s'" % knfe.key
                 )
         else:
@@ -191,5 +191,5 @@ class Compiler(Launcher):
         file_content = open(file_path).read()
         bad_content = [ i for i in file_content.split('\n') if i.find('\tscanf') >= 0 or i.find('scanf') == 0 or i.find('getchar') >= 0]
         if len(bad_content) > 0:
-            raise GpibExceptions.ProgrammingGotErrors('Invalid commands found: %s' % (bad_content))
+            raise GpibErrors.ProgrammingGotErrors('Invalid commands found: %s' % (bad_content))
 

@@ -1,13 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
@@ -75,7 +75,7 @@ def connected_method(func):
     return wrapper
 
 class WebLabShell(object):
-    
+
     def __init__(self, address, port):
         super(WebLabShell, self).__init__()
         self.address = address
@@ -85,7 +85,7 @@ class WebLabShell(object):
         if isinstance(u, unicode):
             return u.encode('utf-8')
         return u
-        
+
     def send(self, command):
         command = self._to_str(command)
         self.telnet.write(command+"\n")
@@ -134,7 +134,7 @@ class WebLabShell(object):
     @connected_method
     def get_ups_session_ids_from_username(self, login):
         return self.send_and_receive("get_ups_session_ids_from_username", login)
- 
+
     @connected_method
     def list_experiments(self):
         return self.send_and_receive("list_experiments")
@@ -147,7 +147,7 @@ class WebLabShell(object):
     def kickout_from_coordinator(self, reservation_id):
         return self.send_and_receive("kickout_from_coordinator", reservation_id)
 
-                   
+
 class WebLabMonitor(object):
     def __init__(self, (ups_ip, ups_port)):
         super(WebLabMonitor, self).__init__()
@@ -155,17 +155,17 @@ class WebLabMonitor(object):
 
     def list_experiments(self):
         return self._shell.list_experiments()
-    
+
     def list_users(self, full_experiment):
         if full_experiment.find("@") != -1:
             experiment, category = full_experiment.split("@")
             users_status = self._shell.get_experiment_status(category, experiment)
             ups_session_ids = self._shell.get_experiment_ups_session_ids(category, experiment)
-            
+
             ups_orphans = []
             information = []
             for ups_session_id, login, wlc_session_id in ups_session_ids:
-                if users_status.has_key(wlc_session_id):
+                if wlc_session_id in users_status:
                     status = users_status.pop(wlc_session_id)
                     information.append((login, status, ups_session_id, wlc_session_id))
                 else:
@@ -190,7 +190,7 @@ class WebLabMonitor(object):
         except Exception as e:
             if not str(e).startswith("invalid syntax"):
                 print e
-            # It's normal that the server generates some kind of 
+            # It's normal that the server generates some kind of
             # "print" which is redirected here and gets a SyntaxError
 
         if reservation_id != None:
@@ -199,7 +199,7 @@ class WebLabMonitor(object):
             except Exception as e:
                 if not str(e).startswith("invalid syntax"):
                     print e
-                # It's normal that the server generates some kind of 
+                # It's normal that the server generates some kind of
                 # "print" which is redirected here and gets a SyntaxError
 
     def kick_user(self, username):

@@ -1,13 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
@@ -42,8 +42,8 @@ except ImportError:
 else:
     ZSI_AVAILABLE = True
 
-from exc import InvalidUserOrPasswordException
-from exc import ListOfExperimentsIsEmptyException
+from exc import InvalidUserOrPasswordError
+from exc import ListOfExperimentsIsEmptyError
 
 class Call(object):
 
@@ -59,7 +59,7 @@ class Call(object):
 
     def time(self):
         return self.end - self.begin
-    
+
     def get_exception(self):
         return self.exception
 
@@ -81,7 +81,7 @@ def logged(func):
                 return_value = func(self, *args, **kargs)
             except Exception as e:
                 return_value = None
-                exception_and_trace_raised = (e, traceback.format_exc()) 
+                exception_and_trace_raised = (e, traceback.format_exc())
                 if self.raise_exceptions:
                     raise
             else:
@@ -132,10 +132,10 @@ class AbstractBot(object):
 
     def get_number_of_exceptions(self):
         return len([ call.get_exception() for call in self.calls if call.get_exception() != (None, None) ])
-    
+
     def get_exceptions(self):
         return [ call.get_exception() for call in self.calls if call.get_exception() != (None, None) ]
-    
+
     def get_calls(self):
         return self.calls[:]
 
@@ -162,7 +162,7 @@ class AbstractBot(object):
         if self.session_id is not None:
             return self.session_id
         else:
-            raise InvalidUserOrPasswordException("Unable to login with username=%s and password=%s" % (self.username, self.password))
+            raise InvalidUserOrPasswordError("Unable to login with username=%s and password=%s" % (self.username, self.password))
 
     @logged
     def do_list_experiments(self):
@@ -171,7 +171,7 @@ class AbstractBot(object):
         if len(experiments) > 0:
             return experiments
         else:
-            raise ListOfExperimentsIsEmptyException("Received list of experiments is empty")
+            raise ListOfExperimentsIsEmptyError("Received list of experiments is empty")
 
     @logged
     def do_reserve_experiment(self, experiment_id, client_initial_data, consumer_data):
@@ -231,9 +231,9 @@ if ZSI_AVAILABLE:
             self.weblabsessionid = "<unknown>"
 
         def _call(self, method, **kwargs):
-            if kwargs.has_key('session_id') and not kwargs.has_key('session'):
+            if 'session_id' in kwargs and not 'session' in kwargs:
                 kwargs['session'] = kwargs.pop('session_id')
-            if kwargs.has_key('file_content') and not kwargs.has_key('content'):
+            if 'file_content' in kwargs and not 'content' in kwargs:
                 kwargs['content'] = kwargs.pop('file_content')
             try:
                 if method == 'login':
@@ -334,7 +334,7 @@ class BotJSON(AbstractBotDict):
         if len(cookies) > 0:
             self.weblabsessionid = cookies[0].value
         response = json.loads(content)
-        if response.has_key('is_exception') and response['is_exception']:
+        if response.get('is_exception', False):
             raise Exception(response["message"])
         return response['result']
 

@@ -1,18 +1,18 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
 import sys
 import uuid
@@ -55,13 +55,13 @@ import voodoo.sessions.session_type as SessionType
 import voodoo.resources_manager as ResourceManager
 
 check_session_params = dict(
-        exception_to_raise = coreExc.SessionNotFoundException,
+        exception_to_raise = coreExc.SessionNotFoundError,
         what_session       = "Core Users ",
         cut_session_id     = ';'
     )
 
 check_reservation_session_params = dict(
-        exception_to_raise         = coreExc.SessionNotFoundException,
+        exception_to_raise         = coreExc.SessionNotFoundError,
         what_session               = "Core Reservations ",
         session_manager_field_name = "_reservations_session_manager",
         cut_session_id             = ';'
@@ -132,8 +132,8 @@ class UserProcessingServer(object):
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(UserProcessingServer,self).__init__(*args, **kwargs)
 
-        self._stopping = False 
-        self._cfg_manager    = cfg_manager  
+        self._stopping = False
+        self._cfg_manager    = cfg_manager
         self._locator        = locator
 
         if cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER, 'default') == 'default' or cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN, 'default') == 'default':
@@ -150,13 +150,13 @@ class UserProcessingServer(object):
         self.core_server_universal_id       = cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER, DEFAULT_WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER)
         self.core_server_universal_id_human = cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN, DEFAULT_WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN)
 
-        # 
+        #
         # Create session managers
-        # 
+        #
 
-        session_type    = cfg_manager.get_value(WEBLAB_CORE_SERVER_SESSION_TYPE, DEFAULT_WEBLAB_CORE_SERVER_SESSION_TYPE) 
+        session_type    = cfg_manager.get_value(WEBLAB_CORE_SERVER_SESSION_TYPE, DEFAULT_WEBLAB_CORE_SERVER_SESSION_TYPE)
         if not session_type in SessionType.getSessionTypeValues():
-            raise coreExc.NotASessionTypeException( 'Not a session type: %s' % session_type )
+            raise coreExc.NotASessionTypeError( 'Not a session type: %s' % session_type )
 
         session_pool_id = cfg_manager.get_value(WEBLAB_CORE_SERVER_SESSION_POOL_ID, "UserProcessingServer")
         self._session_manager              = SessionManager.SessionManager( cfg_manager, session_type, session_pool_id )
@@ -164,34 +164,34 @@ class UserProcessingServer(object):
         reservations_session_pool_id = cfg_manager.get_value(WEBLAB_CORE_SERVER_RESERVATIONS_SESSION_POOL_ID, "CoreServerReservations")
         self._reservations_session_manager = SessionManager.SessionManager( cfg_manager, session_type, reservations_session_pool_id )
 
-        # 
+        #
         # Coordination
-        # 
+        #
 
-        self._coordinator    = Coordinator.Coordinator(self._locator, cfg_manager) 
+        self._coordinator    = Coordinator.Coordinator(self._locator, cfg_manager)
 
-        # 
+        #
         # Database and information storage managers
-        # 
+        #
 
         self._db_manager     = DatabaseManager.UserProcessingDatabaseManager(cfg_manager)
 
         self._commands_store = TemporalInformationStore.CommandsTemporalInformationStore()
 
-        self._temporal_information_retriever = TemporalInformationRetriever.TemporalInformationRetriever(self._coordinator.initial_store, self._coordinator.finished_store, self._commands_store, self._db_manager)
+        self._temporal_information_retriever = TemporalInformationRetriever.TemporalInformationRetriever(self._coordinator.initial_store, self._coordinator.finished_store, self._commands_store, self._coordinator.completed_store, self._db_manager)
         self._temporal_information_retriever.start()
 
         #
         # Alive users
-        # 
+        #
 
         self._alive_users_collection = AliveUsersCollection.AliveUsersCollection(
                 self._locator, self._cfg_manager, session_type, self._reservations_session_manager, self._coordinator, self._commands_store, self._coordinator.finished_reservations_store)
 
-        
-        # 
+
+        #
         # Initialize facade (comm) servers
-        # 
+        #
 
         self._server_route   = cfg_manager.get_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_SERVER_ROUTE, UserProcessingFacadeServer.DEFAULT_USER_PROCESSING_SERVER_ROUTE)
 
@@ -203,7 +203,7 @@ class UserProcessingServer(object):
 
         #
         # Start checking times
-        # 
+        #
         self._initialize_checker_timer()
 
 
@@ -230,11 +230,11 @@ class UserProcessingServer(object):
     def _check_reservation_not_expired_and_poll(self, reservation_processor, check_expired = True):
         if check_expired and reservation_processor.is_expired():
             reservation_processor.finish()
-            raise coreExc.NoCurrentReservationException( 'Current user does not have any experiment assigned' )
+            raise coreExc.NoCurrentReservationError( 'Current user does not have any experiment assigned' )
 
         try:
             reservation_processor.poll()
-        except coreExc.NoCurrentReservationException:
+        except coreExc.NoCurrentReservationError:
             if check_expired:
                 raise
         reservation_processor.update_latest_timestamp()
@@ -243,7 +243,7 @@ class UserProcessingServer(object):
                 reservation_processor.get_reservation_session_id(),
                 reservation_processor.get_session()
             )
-    
+
     def _check_other_sessions_finished(self):
         expired_users = self._alive_users_collection.check_expired_users()
         if len(expired_users) > 0:
@@ -309,13 +309,13 @@ class UserProcessingServer(object):
 
             reservation_id = session.get('reservation_id')
             if reservation_id is not None and not user_processor.is_access_forward_enabled():
-                # 
+                #
                 # If "is_access_forward_enabled", the user (or more commonly, entity) can log out without
                 # finishing his current reservation
-                # 
+                #
                 # Furthermore, whenever booking is supported, this whole idea should be taken out. Even
                 # with queues it might not make sense, depending on the particular type of experiment.
-                # 
+                #
                 reservation_session = self._reservations_session_manager.get_session(SessionId(reservation_id))
                 reservation_processor = self._load_reservation(reservation_session)
                 reservation_processor.finish()
@@ -326,7 +326,7 @@ class UserProcessingServer(object):
 
             self._session_manager.delete_session(session_id)
         else:
-            raise coreExc.SessionNotFoundException( "User Processing Server session not found")
+            raise coreExc.SessionNotFoundError( "User Processing Server session not found")
 
 
     @logged(log.level.Info)
@@ -360,7 +360,7 @@ class UserProcessingServer(object):
     @check_session(**check_session_params)
     @load_user_processor
     def reserve_experiment(self, user_processor, session, experiment_id, client_initial_data, consumer_data, client_address):
-        status = user_processor.reserve_experiment( experiment_id, client_initial_data, consumer_data, client_address, 
+        status = user_processor.reserve_experiment( experiment_id, client_initial_data, consumer_data, client_address,
                                         self.core_server_universal_id)
 
         if status == 'replicated':
@@ -422,16 +422,16 @@ class UserProcessingServer(object):
         """
         self._check_reservation_not_expired_and_poll( reservation_processor )
         return reservation_processor.send_command( command )
-            
+
     @logged(log.level.Info, except_for=(('file_content',2),))
     @check_session(**check_reservation_session_params)
     @load_reservation_processor
     def send_async_file(self, reservation_processor, session, file_content, file_info):
-        """ 
+        """
         send_async_file(session_id, file_content, file_info)
         Sends a file asynchronously to the experiment. The response
         will not be the real one, but rather, a request_id identifying
-        the asynchronous query. 
+        the asynchronous query.
         @param session Session
         @param file_content Contents of the file.
         @param file_info File information of the file.
@@ -445,13 +445,13 @@ class UserProcessingServer(object):
     @check_session(**check_reservation_session_params)
     @load_reservation_processor
     def check_async_command_status(self, reservation_processor, session, request_identifiers):
-        """ 
+        """
         check_async_command_status(session_id, request_identifiers)
-        Checks the status of several asynchronous commands. 
-        
+        Checks the status of several asynchronous commands.
+
         @param session: Session id
         @param request_identifiers: A list of the request identifiers of the
-        requests to check. 
+        requests to check.
         @return: Dictionary by request-id of the tuples: (status, content)
         """
         self._check_reservation_not_expired_and_poll( reservation_processor )
@@ -461,7 +461,7 @@ class UserProcessingServer(object):
     @check_session(**check_reservation_session_params)
     @load_reservation_processor
     def send_async_command(self, reservation_processor, session, command):
-        """ 
+        """
         send_async_command(session_id, command)
 
         send_async_command sends an abstract string <command> which will be unpacked by the
@@ -496,7 +496,7 @@ class UserProcessingServer(object):
     #
     #  Admin services
     #
-    # 
+    #
 
     @logged(log.level.Info)
     @check_session(**check_session_params)
@@ -543,10 +543,10 @@ class UserProcessingServer(object):
     def get_users(self, user_processor, session):
         """
         get_users(user_processor, session)
-        
+
         Receives the get_users petition sent by the client and handles the request through
         a user processor for the calling session.
-        
+
         @param user_processor UserProcessor object through which to handle the request
         @param session Session string
         @return List of users and their data

@@ -1,19 +1,20 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
-# 
+#
 
+import os
 import unittest
 import datetime
 import time
@@ -38,8 +39,7 @@ import weblab.core.coordinator.config_parser as CoordinationConfigurationParser
 import weblab.core.exc as coreExc
 
 from weblab.data.command import Command
-from weblab.data.experiments import ExperimentId
-from weblab.data.experiments import ExperimentUsage, CommandSent, FileSent
+from weblab.data.experiments import ExperimentId, ExperimentUsage, CommandSent, FileSent, FinishedReservationResult
 
 import weblab.data.dto.experiments as Category
 import weblab.data.dto.experiments as Experiment
@@ -57,7 +57,7 @@ laboratory_coordaddr = CoordAddress.CoordAddress.translate_address(
 @case_uses_module(Confirmer)
 class UserProcessingServerTestCase(unittest.TestCase):
     """Note: We will test the underlying layers from this level to make the testing task less repetitive."""
-    
+
     def setUp(self):
         self.coord_address = CoordAddress.CoordAddress.translate_address( "server0:instance0@machine0" )
 
@@ -83,7 +83,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
                 self.locator,
                 self.cfg_manager
             )
-        
+
         self.ups._db_manager._gateway._delete_all_uses()
 
     def tearDown(self):
@@ -117,7 +117,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.assertTrue( 'ud-fpga' in experiment_names )
         self.assertTrue( 'flashdummy' in experiment_names )
         self.assertTrue( 'javadummy' in experiment_names )
-       
+
         self.ups.logout(sess_id1)
 
         # student2
@@ -131,13 +131,13 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.assertTrue( 'ud-dummy' in experiment_names )
         self.assertTrue( 'ud-fpga' in experiment_names )
         self.assertTrue( 'ud-pld' in experiment_names )
-        self.assertTrue( 'ud-gpib' in experiment_names )        
-        self.assertTrue( 'ud-logic' in experiment_names )        
-        self.assertTrue( 'javadummy' in experiment_names )        
-        self.assertTrue( 'flashdummy' in experiment_names )        
-        
+        self.assertTrue( 'ud-gpib' in experiment_names )
+        self.assertTrue( 'ud-logic' in experiment_names )
+        self.assertTrue( 'javadummy' in experiment_names )
+        self.assertTrue( 'flashdummy' in experiment_names )
+
         self.ups.logout(sess_id2)
-        
+
     def test_get_user_information(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
@@ -155,7 +155,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
 
         exp_id = ExperimentId('ud-dummy','Dummy experiments')
-       
+
         lab_sess_id = SessionId.SessionId("lab_session_id")
         self.lab_mock.reserve_experiment(exp_id, "{}")
         self.mocker.result(lab_sess_id)
@@ -183,13 +183,13 @@ class UserProcessingServerTestCase(unittest.TestCase):
         exp_id = ExperimentId('this does not experiment','this neither')
 
         self.assertRaises(
-            coreExc.UnknownExperimentIdException,
+            coreExc.UnknownExperimentIdError,
             self.ups.reserve_experiment,
             sess_id, exp_id, "{}", "{}", ClientAddress.ClientAddress("127.0.0.1")
         )
 
         exp_id = ExperimentId('ud-dummy','Dummy experiments')
-       
+
         lab_sess_id = SessionId.SessionId("lab_session_id")
         self.lab_mock.reserve_experiment(exp_id, "{}")
         self.mocker.result(lab_sess_id)
@@ -210,25 +210,25 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
     def _test_get_groups_with_permission(self, parent_id):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
-        
+
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
         groups = self.ups.get_groups(sess_id, parent_id)
         self.ups.logout(sess_id)
-        
+
         return groups
 
     def test_get_groups_all(self):
         groups = self._test_get_groups_with_permission(parent_id=None)
 
         self.assertEquals(3, len(groups) )
-        
+
         self.assertEquals('Course 2008/09', groups[0].name)
         self.assertEquals(2, len(groups[0].children) )
         self.assertEquals('Mechatronics', groups[0].children[0].name)
         self.assertEquals(0, len(groups[0].children[0].children) )
         self.assertEquals('Telecomunications', groups[0].children[1].name)
         self.assertEquals(0, len(groups[0].children[1].children) )
-        
+
         self.assertEquals('Course 2009/10', groups[1].name)
         self.assertEquals(0, len(groups[1].children) )
 
@@ -238,22 +238,22 @@ class UserProcessingServerTestCase(unittest.TestCase):
         groups = self._test_get_groups_with_permission(parent_id=all_groups[0].id)
 
         self.assertEquals(2, len(groups) )
-        
+
         self.assertEquals('Mechatronics', groups[0].name)
         self.assertEquals(0, len(groups[0].children) )
-        
+
         self.assertEquals('Telecomunications', groups[1].name)
         self.assertEquals(0, len(groups[1].children) )
 
     def test_get_groups_without_permission(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
-        
+
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
         groups = self.ups.get_groups(sess_id, parent_id=None)
         self.ups.logout(sess_id)
 
         self.assertEquals(0, len(groups) )
-        
+
     def test_get_experiments(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
 
@@ -271,13 +271,12 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.assertTrue('ud-fpga@FPGA experiments'     in unique_names)
         self.assertTrue('ud-gpib@GPIB experiments'     in unique_names)
         self.assertTrue('ud-logic@PIC experiments'     in unique_names)
-        self.assertTrue('ud-pic@PIC experiments'       in unique_names)
         self.assertTrue('ud-pld@PLD experiments'       in unique_names)
         self.assertTrue('ud-pld2@PLD experiments'      in unique_names)
 
     def test_get_experiments_without_permission(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
-        
+
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
         experiments = self.ups.get_experiments(sess_id)
         self.ups.logout(sess_id)
@@ -289,12 +288,14 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
 
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id) 
-        experiment_use = self.ups.get_experiment_use_by_id(sess_id, reservations[0])
+        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+        finished_result = self.ups.get_experiment_use_by_id(sess_id, reservations[0])
+
+        self.assertTrue( finished_result.is_finished() )
 
         # reservation_id1 is for student1, so it returns a real object (with a real experiment_use_id)
-        experiment_use.experiment_use_id = None
-        self.assertEquals(usages[0], experiment_use)
+        finished_result.experiment_use.experiment_use_id = None
+        self.assertEquals(FinishedReservationResult(usages[0].load_files('.')), finished_result)
 
 
     def test_get_experiment_uses_by_id_found(self):
@@ -302,17 +303,18 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
 
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id) 
-        experiment_uses = self.ups.get_experiment_uses_by_id(sess_id, reservations)
+        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+        experiment_results = self.ups.get_experiment_uses_by_id(sess_id, reservations)
+        
+        self.assertEquals(2, len(experiment_results))
 
-        self.assertEquals(2, len(experiment_uses))
-
+        self.assertTrue( experiment_results[0].is_finished() )
         # reservation_id1 is for student1, so it returns a real object (with a real experiment_use_id)
-        experiment_uses[0].experiment_use_id = None
-        self.assertEquals(usages[0], experiment_uses[0])
+        experiment_results[0].experiment_use.experiment_use_id = None
+        self.assertEquals(FinishedReservationResult(usages[0].load_files('.')), experiment_results[0])
 
-        # reservation_id2 is for student2, and the session is for student1, so it returns None
-        self.assertEquals(None, experiment_uses[1])
+        # reservation_id2 is for student2, and the session is for student1, so it is forbidden
+        self.assertTrue(experiment_results[1].is_forbidden())
 
     def test_get_experiment_uses_by_id_notfound(self):
         reservations, usages = self._store_two_reservations()
@@ -322,26 +324,26 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
 
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id) 
-        experiment_uses = self.ups.get_experiment_uses_by_id(sess_id, (reservations[0], reservation1, reservation2))
+        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+        experiment_results = self.ups.get_experiment_uses_by_id(sess_id, (reservations[0], reservation1, reservation2))
 
-        self.assertEquals(3, len(experiment_uses))
+        self.assertEquals(3, len(experiment_results))
 
         # reservation_id1 is for student1, so it returns a real object (with a real experiment_use_id)
-        experiment_uses[0].experiment_use_id = None
-        self.assertEquals(usages[0], experiment_uses[0])
+        self.assertTrue(experiment_results[0].is_finished())
+        experiment_results[0].experiment_use.experiment_use_id = None
+        self.assertEquals(FinishedReservationResult(usages[0].load_files('.')), experiment_results[0])
 
         # reservation_id2 is for student2, and the session is for student1, so it returns None
-        experiment_uses[1].experiment_use_id = None
-        experiment_uses[2].experiment_use_id = None
-        # TODO: do something with the reservations
+        self.assertTrue( experiment_results[1].is_alive() )
+        self.assertTrue( experiment_results[2].is_alive() )
 
     def _reserve_experiment(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
 
         exp_id = ExperimentId('ud-dummy','Dummy experiments')
-       
+
         lab_sess_id = SessionId.SessionId("lab_session_id")
         self.lab_mock.reserve_experiment(exp_id, "{}")
         self.mocker.result(lab_sess_id)
@@ -358,10 +360,10 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
 
     def _store_two_reservations(self):
-        # 
+        #
         # Two users: student2, that started before "any" but finished after "any", and "any" then. Both use
-        # the same experiment. 
-        # 
+        # the same experiment.
+        #
         reservation_id1 = SessionId.SessionId(u'5')
 
         initial_usage1 = ExperimentUsage()
@@ -372,9 +374,10 @@ class UserProcessingServerTestCase(unittest.TestCase):
         initial_usage1.coord_address = CoordAddress.CoordAddress(u"machine1",u"instance1",u"server1") #.translate_address("server1:instance1@machine1")
         initial_usage1.reservation_id = reservation_id1.id
 
-        file1 = FileSent( u'path/to/file1', u'{sha}12345', time.time())
-        
-        file2 = FileSent( u'path/to/file2', u'{sha}123456',
+        valid_file_path = os.path.relpath(os.sep.join(('test','__init__.py')))
+        file1 = FileSent( valid_file_path, u'{sha}12345', time.time())
+
+        file2 = FileSent( valid_file_path, u'{sha}123456',
                     time.time(), Command(u'response'),
                     time.time(), file_info = u'program')
 
@@ -397,14 +400,14 @@ class UserProcessingServerTestCase(unittest.TestCase):
         initial_usage2.coord_address = CoordAddress.CoordAddress(u"machine1",u"instance1",u"server1") #.translate_address("server1:instance1@machine1")
         initial_usage2.reservation_id = reservation_id2.id
 
-        file1 = FileSent( u'path/to/file1', u'{sha}12345', time.time())
-        
-        file2 = FileSent( u'path/to/file2', u'{sha}123456',
+        file1 = FileSent( valid_file_path, u'{sha}12345', time.time())
+
+        file2 = FileSent( valid_file_path, u'{sha}123456',
                     time.time(), Command(u'response'),
                     time.time(), file_info = u'program')
 
         command1 = CommandSent( Command(u"your command1"), time.time())
-        
+
         command2 = CommandSent( Command(u"your command2"), time.time(),
                     Command(u"your response2"), time.time())
 
@@ -413,18 +416,18 @@ class UserProcessingServerTestCase(unittest.TestCase):
         initial_usage2.append_file(file1)
         initial_usage2.append_file(file2)
 
-        self.ups._db_manager._gateway.store_experiment_usage('student1', {}, initial_usage1)
+        self.ups._db_manager._gateway.store_experiment_usage('student1', initial_usage1)
 
-        self.ups._db_manager._gateway.store_experiment_usage('student2', {}, initial_usage2)
+        self.ups._db_manager._gateway.store_experiment_usage('student2', initial_usage2)
 
         return (reservation_id1, reservation_id2), (initial_usage1, initial_usage2)
 
-      
+
     def _test_get_experiment_uses(self, from_date, to_date, group_id, use_experiment_id, start_row, end_row, sort_by):
-        # 
+        #
         # Two users: student2, that started before "any" but finished after "any", and "any" then. Both use
-        # the same experiment. 
-        # 
+        # the same experiment.
+        #
         experiment_id = self.ups._db_manager._gateway._insert_user_used_experiment("student2", "ud-fpga", "FPGA experiments", time.time() - 3600, "192.168.1.1", "fpga:process1@scabb", '5', time.time() - 1000)
         self.ups._db_manager._gateway._insert_user_used_experiment("any", "ud-fpga", "FPGA experiments", time.time() - 1800, "127.0.0.1", "fpga:process1@scabb", '6', time.time() - 1700)
         if not use_experiment_id:
@@ -432,14 +435,14 @@ class UserProcessingServerTestCase(unittest.TestCase):
         elif use_experiment_id == 'other':
             experiment_id += 2
 
-        # 
+        #
         # student4 uses a different experiment, after both student2 and any
-        # 
+        #
         self.ups._db_manager._gateway._insert_user_used_experiment("student4", "ud-dummy", "Dummy experiments", time.time() - 60, "unknown", "fpga:process1@scabb", '7', time.time() - 60)
 
         self.ups._db_manager._gateway._insert_ee_used_experiment("ee1", "ud-dummy", "Dummy experiments", time.time() - 60, "unknown", "dummy:process1@plunder", '8', time.time() - 60)
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
-        
+
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
         experiment_uses, experiment_uses_number = self.ups.get_experiment_uses(sess_id, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by)
         self.ups.logout(sess_id)
@@ -450,7 +453,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         long_time_ago = datetime.datetime(2000, 1, 1)
         use_experiment_id = True
         experiment_uses, experiment_uses_number = self._test_get_experiment_uses(long_time_ago, datetime.datetime.utcnow(), None, use_experiment_id, 0, 50, ('start_date',))
-        
+
         self.assertEquals(2, len(experiment_uses) )
         self.assertEquals(2, experiment_uses_number )
         self.assertEquals('student2',  experiment_uses[0].agent.login)
@@ -460,7 +463,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         future_time = datetime.datetime(3000, 1, 1)
         use_experiment_id = True
         experiment_uses, experiment_uses_number = self._test_get_experiment_uses(future_time, datetime.datetime.utcnow(), None, use_experiment_id, 0, 50, ('start_date',))
-        
+
         self.assertEquals(0, len(experiment_uses) )
         self.assertEquals(0, experiment_uses_number )
 
@@ -468,7 +471,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         long_time_ago = datetime.datetime(2000, 1, 1)
         use_experiment_id = True
         experiment_uses, experiment_uses_number = self._test_get_experiment_uses(long_time_ago, long_time_ago, None, use_experiment_id, 0, 50, ('start_date',))
-        
+
         self.assertEquals(0, len(experiment_uses) )
         self.assertEquals(0, experiment_uses_number )
 
@@ -480,7 +483,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         use_experiment_id = False
         # Group mechatronics has only student4
         experiment_uses, experiment_uses_number = self._test_get_experiment_uses(long_time_ago, datetime.datetime.utcnow(), mechatronics_class.id, use_experiment_id, 0, 50, ('start_date',))
-        
+
         self.assertEquals(1, len(experiment_uses) )
         self.assertEquals(1, experiment_uses_number )
 
@@ -494,7 +497,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         use_experiment_id = False
         # Group mechatronics has only student2 and student4
         experiment_uses, experiment_uses_number = self._test_get_experiment_uses(long_time_ago, datetime.datetime.utcnow(), parent_group.id, use_experiment_id, 0, 50, ('start_date',))
-        
+
         self.assertEquals(2, len(experiment_uses) )
         self.assertEquals(2, experiment_uses_number )
 
@@ -504,7 +507,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         long_time_ago = datetime.datetime(2000, 1, 1)
         use_experiment_id = 'other'
         experiment_uses, experiment_uses_number = self._test_get_experiment_uses(long_time_ago, datetime.datetime.utcnow(), None, use_experiment_id, 0, 50, ('start_date',))
-        
+
         self.assertEquals(0, len(experiment_uses) )
         self.assertEquals(0, experiment_uses_number )
 
@@ -512,7 +515,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         long_time_ago = datetime.datetime(2000, 1, 1)
         use_experiment_id = True
         experiment_uses, experiment_uses_number = self._test_get_experiment_uses(long_time_ago, datetime.datetime.utcnow(), None, use_experiment_id, 50, 100, ('start_date',))
-        
+
         self.assertEquals(0, len(experiment_uses) )
         self.assertEquals(2, experiment_uses_number )
 
@@ -520,7 +523,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         long_time_ago = datetime.datetime(2000, 1, 1)
         use_experiment_id = True
         experiment_uses, experiment_uses_number = self._test_get_experiment_uses(long_time_ago, datetime.datetime.utcnow(), None, use_experiment_id, 0, 0, ('start_date',))
-        
+
         self.assertEquals(0, len(experiment_uses) )
         self.assertEquals(2, experiment_uses_number )
 
@@ -528,7 +531,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         long_time_ago = datetime.datetime(2000, 1, 1)
         use_experiment_id = True
         experiment_uses, experiment_uses_number = self._test_get_experiment_uses(long_time_ago, datetime.datetime.utcnow(), None, use_experiment_id, 0, 50, ('end_date',))
-        
+
         self.assertEquals(2, len(experiment_uses) )
         self.assertEquals(2, experiment_uses_number )
         self.assertEquals('any',       experiment_uses[0].agent.login)
@@ -538,7 +541,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         long_time_ago = datetime.datetime(2000, 1, 1)
         use_experiment_id = True
         experiment_uses, experiment_uses_number = self._test_get_experiment_uses(long_time_ago, datetime.datetime.utcnow(), None, use_experiment_id, 0, 50, ('-end_date',))
-        
+
         self.assertEquals(2, len(experiment_uses) )
         self.assertEquals(2, experiment_uses_number )
         self.assertEquals('student2',  experiment_uses[0].agent.login)
@@ -549,7 +552,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         long_time_ago = datetime.datetime(2000, 1, 1)
         use_experiment_id = True
         experiment_uses, experiment_uses_number = self._test_get_experiment_uses(long_time_ago, datetime.datetime.utcnow(), None, use_experiment_id, 0, 50, ('origin',))
-        
+
         self.assertEquals(2, len(experiment_uses) )
         self.assertEquals(2, experiment_uses_number )
         self.assertEquals('127.0.0.1',  experiment_uses[0].origin)
@@ -559,7 +562,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         long_time_ago = datetime.datetime(2000, 1, 1)
         use_experiment_id = True
         experiment_uses, experiment_uses_number = self._test_get_experiment_uses(long_time_ago, datetime.datetime.utcnow(), None, use_experiment_id, 0, 50, ('-origin',))
-        
+
         self.assertEquals(2, len(experiment_uses) )
         self.assertEquals(2, experiment_uses_number )
         self.assertEquals('192.168.1.1',  experiment_uses[0].origin)
@@ -571,7 +574,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         long_time_ago = datetime.datetime(2000, 1, 1)
         use_experiment_id = False
         experiment_uses, experiment_uses_number = self._test_get_experiment_uses(long_time_ago, datetime.datetime.utcnow(), None, use_experiment_id, 0, 50, ('experiment_name',))
-        
+
         self.assertEquals(3, len(experiment_uses) )
         self.assertEquals(3, experiment_uses_number )
         # ud-*d*ummy comes before ud-*f*pga
@@ -584,7 +587,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         long_time_ago = datetime.datetime(2000, 1, 1)
         use_experiment_id = False
         experiment_uses, experiment_uses_number = self._test_get_experiment_uses(long_time_ago, datetime.datetime.utcnow(), None, use_experiment_id, 0, 50, ('-experiment_name',))
-        
+
         self.assertEquals(3, len(experiment_uses) )
         self.assertEquals(3, experiment_uses_number )
         # ud-*d*ummy comes before ud-*f*pga
@@ -597,7 +600,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         long_time_ago = datetime.datetime(2000, 1, 1)
         use_experiment_id = False
         experiment_uses, experiment_uses_number = self._test_get_experiment_uses(long_time_ago, datetime.datetime.utcnow(), None, use_experiment_id, 0, 50, ('experiment_category',))
-        
+
         self.assertEquals(3, len(experiment_uses) )
         self.assertEquals(3, experiment_uses_number )
         # *D*ummy experiments comes before *F*PGA experiments
@@ -610,7 +613,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         long_time_ago = datetime.datetime(2000, 1, 1)
         use_experiment_id = False
         experiment_uses, experiment_uses_number = self._test_get_experiment_uses(long_time_ago, datetime.datetime.utcnow(), None, use_experiment_id, 0, 50, ('-experiment_category',))
-        
+
         self.assertEquals(3, len(experiment_uses) )
         self.assertEquals(3, experiment_uses_number )
         # *D*ummy experiments comes before *F*PGA experiments
@@ -623,7 +626,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         long_time_ago = datetime.datetime(2000, 1, 1)
         use_experiment_id = False
         experiment_uses, experiment_uses_number = self._test_get_experiment_uses(long_time_ago, datetime.datetime.utcnow(), None, use_experiment_id, 0, 50, ('agent_name',))
-        
+
         self.assertEquals(3, len(experiment_uses) )
         self.assertEquals(3, experiment_uses_number )
         self.assertEquals('any',       experiment_uses[0].agent.login)
@@ -635,7 +638,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         long_time_ago = datetime.datetime(2000, 1, 1)
         use_experiment_id = False
         experiment_uses, experiment_uses_number = self._test_get_experiment_uses(long_time_ago, datetime.datetime.utcnow(), None, use_experiment_id, 0, 50, ('-agent_name',))
-        
+
         self.assertEquals(3, len(experiment_uses) )
         self.assertEquals(3, experiment_uses_number )
         self.assertEquals('student4',  experiment_uses[0].agent.login)
@@ -648,7 +651,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         long_time_ago = datetime.datetime(2000, 1, 1)
         use_experiment_id = False
         experiment_uses, experiment_uses_number = self._test_get_experiment_uses(long_time_ago, datetime.datetime.utcnow(), None, use_experiment_id, 0, 50, ('experiment_name','agent_login'))
-        
+
         self.assertEquals(3, len(experiment_uses) )
         self.assertEquals(3, experiment_uses_number )
         # ud-dummy goes first, then "any" (both "any" and "student2" use the same experiment)
@@ -668,16 +671,16 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
     def test_get_experiment_uses_without_permission(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
-        
+
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
         result = self.ups.get_experiment_uses(sess_id)
         self.ups.logout(sess_id)
 
-        self.assertEquals(0, len(result) )   
-        
+        self.assertEquals(0, len(result) )
+
     def test_get_roles(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
-        
+
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
         roles = self.ups.get_roles(sess_id)
         self.ups.logout(sess_id)
@@ -690,16 +693,16 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
     def test_get_roles_without_permission(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
-        
+
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
         roles = self.ups.get_roles(sess_id)
         self.ups.logout(sess_id)
 
         self.assertEquals(0, len(roles) )
-        
+
     def test_get_users(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', 'student')
-        
+
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
         users = self.ups.get_users(sess_id)
         self.ups.logout(sess_id)
@@ -707,9 +710,9 @@ class UserProcessingServerTestCase(unittest.TestCase):
         # Make sure that the number of users it returns matches the number of users
         # that we currently have in the test database.
         self.assertEquals(len(users), 27)
-        
+
         user_logins = list( ( user.login for user in users ) )
-        
+
         # Make sure every single user login we currently have is present
         for i in range(1,9):
             self.assertTrue( "student%d" % i in user_logins )
@@ -719,9 +722,9 @@ class UserProcessingServerTestCase(unittest.TestCase):
             self.assertTrue( "studentLDAP%d" % i in user_logins )
         self.assertTrue("any" in user_logins)
         self.assertTrue("studentLDAPwithoutUserAuth" in user_logins)
-        
+
         # Check mails
-        user_mails = list( user.email for user in users ) 
+        user_mails = list( user.email for user in users )
         user_mails_set = set(user_mails)
         self.assertEquals(len(user_mails_set), 1)
         self.assertTrue( "weblab@deusto.es" in user_mails_set )
@@ -730,65 +733,65 @@ class UserProcessingServerTestCase(unittest.TestCase):
         for i in range(1, 9):
             self.assertTrue( ("student%d" % i, "Name of student %d" % i) in user_logins_names )
         for i in range(1, 3):
-            self.assertTrue( ("admin%d" % i, "Name of administrator %d" % i) in user_logins_names ) 
+            self.assertTrue( ("admin%d" % i, "Name of administrator %d" % i) in user_logins_names )
 
     def test_get_users_without_permission(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
-        
+
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
         users = self.ups.get_users(sess_id)
         self.ups.logout(sess_id)
 
         self.assertEquals(0, len(users) )
-        
+
     def test_get_user_permissions(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
-        
+
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
         permissions = self.ups.get_user_permissions(sess_id)
         self.ups.logout(sess_id)
 
         self.assertEquals(7, len(permissions))
-        
+
         self.assertEquals('experiment_allowed', permissions[0].name)
         self.assertEquals(3, len(permissions[0].parameters))
-        
+
         # We only check the first permission's parameters, all of them would be death...
         self.assertEquals('experiment_permanent_id', permissions[0].parameters[0].name)
         self.assertEquals('string',                  permissions[0].parameters[0].datatype)
         self.assertEquals('ud-fpga',                 permissions[0].parameters[0].value)
-        
+
         self.assertEquals('experiment_category_id',  permissions[0].parameters[1].name)
         self.assertEquals('string',                  permissions[0].parameters[1].datatype)
         self.assertEquals('FPGA experiments',        permissions[0].parameters[1].value)
-        
+
         self.assertEquals('time_allowed',            permissions[0].parameters[2].name)
         self.assertEquals('float',                   permissions[0].parameters[2].datatype)
         self.assertEquals('300',                     permissions[0].parameters[2].value)
-        
+
         self.assertEquals('experiment_allowed', permissions[1].name)
         self.assertEquals(3, len(permissions[1].parameters))
-        
+
         self.assertEquals('experiment_allowed', permissions[2].name)
         self.assertEquals(3, len(permissions[2].parameters))
-        
+
         self.assertEquals('experiment_allowed', permissions[3].name)
         self.assertEquals(3, len(permissions[3].parameters))
-        
+
         self.assertEquals('experiment_allowed', permissions[4].name)
         self.assertEquals(3, len(permissions[4].parameters))
-        
+
         self.assertEquals('experiment_allowed', permissions[5].name)
         self.assertEquals(3, len(permissions[5].parameters))
-        
+
         self.assertEquals('admin_panel_access', permissions[6].name)
         self.assertEquals(1, len(permissions[6].parameters))
-        
+
         # Ok, the last one too... it's short!
         self.assertEquals('full_privileges', permissions[6].parameters[0].name)
         self.assertEquals('bool',            permissions[6].parameters[0].datatype)
         self.assertEquals('1',               permissions[6].parameters[0].value)
-        
+
 
 class FakeLocator(object):
     def __init__(self, lab):
@@ -811,7 +814,7 @@ class FakeFacade(object):
         pass
     def stop(self):
         pass
-    
+
 class WrappedUPS(UserProcessingServer.UserProcessingServer):
     FACADE_SERVER = FakeFacade
 

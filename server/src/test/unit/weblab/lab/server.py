@@ -1,19 +1,19 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
-# 
+#
 
 import unittest
 
@@ -22,7 +22,7 @@ import weblab.data.command as Command
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.gen.locator.EasyLocator as EasyLocator
 
-import voodoo.gen.exceptions.protocols.ProtocolExceptions as ProtocolExceptions
+import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 
 import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
@@ -31,7 +31,7 @@ import weblab.core.coordinator.coordinator as Coordinator
 import weblab.lab.server as LaboratoryServer
 import weblab.lab.status_handler as IsUpAndRunningHandler
 
-import weblab.lab.exc as LaboratoryExceptions
+import weblab.lab.exc as LaboratoryErrors
 
 import weblab.methods as weblab_methods
 
@@ -42,35 +42,35 @@ import fake_urllib2 as FakeUrllib2
 import fake_socket as FakeSocket
 import time
 
-# 
+#
 # In this file you'll find three test cases:
-# 
+#
 #  * LaboratoryServerLoadingTestCase: testing the configuration parsing
 #  * LaboratoryServerManagementTestCase: testing the management of reserves
 #              and experiments
-#  * LaboratoryServerSendingTestCase: testing the interaction with 
+#  * LaboratoryServerSendingTestCase: testing the interaction with
 #              experiment servers
-# 
-# Take into account that each test case relies on the previous test 
+#
+# Take into account that each test case relies on the previous test
 # case. If LaboratoryServerLoadingTestCase fails, the rest might fail.
 # If LaboratoryServerManagementTestCase fails, LaboratoryServerSendingTestCase
 # might fail.
-# 
+#
 # Additionally, you'll find two fake objects, used by the test cases.
-# 
+#
 
 
 ###################################################################
-# 
-#   T E S T     C A S E S 
-# 
-# 
+#
+#   T E S T     C A S E S
+#
+#
 
 ################################################
-# 
+#
 # This TestCase test the configuration parsing
 # performed by the LaboratoryServer
-# 
+#
 class LaboratoryServerLoadingTestCase(unittest.TestCase):
     def setUp(self):
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
@@ -110,7 +110,7 @@ class LaboratoryServerLoadingTestCase(unittest.TestCase):
                                                    'checkers': ( ('WebcamIsUpAndRunningHandler', ("https://...",)),
                                                                  ('HostIsUpAndRunningHandler', ("hostname", 80), {}), )} })
 
-        self.assertRaises( LaboratoryExceptions.InvalidLaboratoryConfigurationException,
+        self.assertRaises( LaboratoryErrors.InvalidLaboratoryConfigurationError,
                             LaboratoryServer.LaboratoryServer,
                             None, self.locator, self.cfg_manager )
 
@@ -123,15 +123,15 @@ class LaboratoryServerLoadingTestCase(unittest.TestCase):
                                                    'checkers': ( ('WebcamIsUpAndRunningHandler', ("https://...",)),
                                                                  ('HostIsUpAndRunningHandler', ("hostname", 80), {}), )} })
 
-        self.assertRaises( LaboratoryExceptions.InvalidLaboratoryConfigurationException,
+        self.assertRaises( LaboratoryErrors.InvalidLaboratoryConfigurationError,
                             LaboratoryServer.LaboratoryServer,
                             None, self.locator, self.cfg_manager )
-        
+
 #####################################################
-# 
+#
 # This TestCase test the management of experiments.
 # It relies on the previous testcase.
-# 
+#
 class LaboratoryServerManagementTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -159,14 +159,14 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
                                                              },
                                                                            })
         self._create_lab()
-        
-       
+
+
     def _create_lab(self):
          self.lab = LaboratoryServer.LaboratoryServer( None, self.locator, self.cfg_manager)
-       
+
 
     def test_reserve_experiment_instance_id_simple(self):
-        
+
         self.assertEquals(0, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
@@ -199,24 +199,24 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self.assertEquals(0, self.fake_client.disposed)
 
         lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id_old, {}, {})
-        
+
         # Now we will make sure that on reserve, the old API version of do_start was called, and not the new one.
         self.assertEquals(1, self.fake_client.started_old)
         self.assertEquals(0, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
         # If we used the new API then the dispose would indeed return the following text. However,
-        # the old API should always return "ok". 
+        # the old API should always return "ok".
         not_expected_return =  '{"foo" : "bar"}'
         self.fake_client.next_dispose = not_expected_return
 
         return_value = self.lab.do_free_experiment(lab_session_id)
-        self.assertEquals('ok', return_value) 
+        self.assertEquals('ok', return_value)
         self.assertNotEquals(not_expected_return, return_value)
         self.assertEquals(1, self.fake_client.started_old)
         self.assertEquals(0, self.fake_client.started_new)
         self.assertEquals(1, self.fake_client.disposed)
-        
+
     def test_reserve_experiment_instance_id_old_non_python(self):
         """
         Unlike most other tests, this one uses the old API. Hence,
@@ -232,7 +232,7 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self.assertEquals(0, self.fake_client.disposed)
 
         lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id_old, {}, {})
-        
+
         # Now we will make sure that on reserve, the old API version of do_start was called, and not the new one.
         self.assertEquals(1, self.fake_client.started_old)
         self.assertEquals(0, self.fake_client.started_new)
@@ -269,9 +269,9 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self.lab.do_free_experiment(lab_session_id)
         # Now, let's check it
         self.assertEquals(3, self.fake_client.disposed)
-        
 
-      
+
+
     def test_resolve_experiment_address(self):
         lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         exp_coord_address = self.lab.do_resolve_experiment_address(lab_session_id)
@@ -299,22 +299,22 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
 
         self.lab.do_free_experiment(lab_session_id3)
 
-        # Laboratory server DOES NOT manage the state of the experiments. The 
+        # Laboratory server DOES NOT manage the state of the experiments. The
         # core.coordination package does that.
 
         self.assertEquals(3, self.fake_client.started_new)
         self.assertEquals(1, self.fake_client.disposed)
-        
+
     def _fake_is_up_and_running_handlers(self):
         FakeUrllib2.reset()
         FakeSocket.reset()
         exp_handler = self.lab._assigned_experiments._retrieve_experiment_handler(self.experiment_instance_id)
         exp_handler.is_up_and_running_handlers[0]._urllib2 = FakeUrllib2
-        exp_handler.is_up_and_running_handlers[1]._socket = FakeSocket   
+        exp_handler.is_up_and_running_handlers[1]._socket = FakeSocket
         exp_handler2 = self.lab._assigned_experiments._retrieve_experiment_handler(self.experiment_instance_id_old)
         exp_handler2.is_up_and_running_handlers[0]._urllib2 = FakeUrllib2
-        exp_handler2.is_up_and_running_handlers[1]._socket = FakeSocket   
-        
+        exp_handler2.is_up_and_running_handlers[1]._socket = FakeSocket
+
     def test_check_experiments_resources(self):
         self._fake_is_up_and_running_handlers()
         failing_experiment_instance_ids = self.lab.do_check_experiments_resources()
@@ -338,9 +338,9 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self.assertTrue(self.experiment_instance_id in failing_experiment_instance_ids)
         fails = failing_experiment_instance_ids[self.experiment_instance_id]
         self.assertTrue(message in fails)
-       
+
 class LaboratoryServerSendingTestCase(unittest.TestCase):
-    
+
     def setUp(self):
         cfg_manager= ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration_module)
@@ -370,36 +370,36 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
     def test_send_async_command_ok(self):
         lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         commands_sent = [ "foo", "bar" ]
-        
+
         responses = ["result1", "result2" ]
         request_ids = []
-        
+
         self.fake_client.responses = responses[:]
 
         # We will send the commands asynchronously.
         for command in commands_sent:
             reqid = self.lab.do_send_async_command(lab_session_id, Command.Command(command))
             request_ids.append(reqid)
-            
+
         # Build a dictionary relating the ids to the expected responses
         expected = dict(zip(request_ids, responses))
-        
+
         is_first_time = True
-        
+
         # We don't know how much time it will take so we have to keep checking
         # until we are done, for a maximum of 3 seconds.
         time_start = time.time()
         while(len(expected) > 0):
-            
+
             result = self.lab.do_check_async_command_status(lab_session_id, request_ids)
             if is_first_time:
                 self.assertEquals(2, len(result))
                 is_first_time = False
-            
+
             time_now = time.time()
             if(time_now - time_start > 3000):
                 self.assertTrue(False, "Timeout while trying to run async commands")
-                
+
             # Check every remaining command
             for id in expected.keys():
                 tup = result[id]
@@ -426,24 +426,24 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
             self.assertEquals(cur_response, result.get_command_string())
 
         self.assertTrue( self.fake_client.verify_commands(commands_sent) )
- 
+
     def test_send_command_fail(self):
         lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         self.fake_client.fail = True
 
         self.assertRaises(
-            LaboratoryExceptions.FailedToSendCommandException,
+            LaboratoryErrors.FailedToSendCommandError,
             self.lab.do_send_command,
-            lab_session_id, 
+            lab_session_id,
             Command.Command("foo")
         )
-        
+
     def test_send_async_command_fail(self):
         lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         self.fake_client.fail = True
-        
+
         reqid = self.lab.do_send_async_command(lab_session_id, Command.Command("foo"))
-        
+
         # We don't know how much time it will take so we have to keep checking
         # until we are done, for a maximum of 3 seconds.
         time_start = time.time()
@@ -451,51 +451,51 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
             time_now = time.time()
             if(time_now - time_start > 3000):
                 self.assertTrue(False, "Timeout while trying to run async commands")
-                
+
             result = self.lab.do_check_async_command_status(lab_session_id, (reqid,))
             tup = result[reqid]
-                
-            self.assertTrue( tup[0] in ("running", "ok", "error") )     
+
+            self.assertTrue( tup[0] in ("running", "ok", "error") )
             self.assertNotEquals("ok", tup[0], "Expected an error")
             if(tup[0] != "running"):
                 self.assertTrue("error", tup[0])
-                self.assertTrue(tup[1] is not None)  
-                break  
-        return 
+                self.assertTrue(tup[1] is not None)
+                break
+        return
 
     def test_send_async_file_ok(self):
         lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         files_sent = [ ("foo", "file_info1"), ("bar", "file_info2") ]
-        
+
         responses = ["result1", "result2" ]
         request_ids = []
-        
+
         self.fake_client.responses = responses[:]
 
         # We will send the commands asynchronously.
         for file in files_sent:
             reqid = self.lab.do_send_async_file(lab_session_id, file[0], file[1])
             request_ids.append(reqid)
-            
+
         # Build a dictionary relating the ids to the expected responses
         expected = dict(zip(request_ids, responses))
-        
+
         is_first_time = True
-        
+
         # We don't know how much time it will take so we have to keep checking
         # until we are done, for a maximum of 3 seconds.
         time_start = time.time()
         while(len(expected) > 0):
-            
+
             result = self.lab.do_check_async_command_status(lab_session_id, request_ids)
             if is_first_time:
                 self.assertEquals(2, len(result))
                 is_first_time = False
-            
+
             time_now = time.time()
             if(time_now - time_start > 3000):
                 self.assertTrue(False, "Timeout while trying to run async send_file")
-                
+
             # Check every remaining command
             for id in expected.keys():
                 tup = result[id]
@@ -523,13 +523,13 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
 
         # TODO: Add this somehow, taking into account thread-safety.
         # self.assertTrue( self.fake_client.verify_files(files_sent) )
-    
+
     def test_send_async_file_fail(self):
         lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         self.fake_client.fail = True
-        
+
         reqid = self.lab.do_send_async_file(lab_session_id, "foo", "file_info")
-        
+
         # We don't know how much time it will take so we have to keep checking
         # until we are done, for a maximum of 3 seconds.
         time_start = time.time()
@@ -537,40 +537,40 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
             time_now = time.time()
             if(time_now - time_start > 3000):
                 self.assertTrue(False, "Timeout while trying to run async commands")
-                
+
             result = self.lab.do_check_async_command_status(lab_session_id, (reqid,))
             tup = result[reqid]
-                
-            self.assertTrue( tup[0] in ("running", "ok", "error") )     
+
+            self.assertTrue( tup[0] in ("running", "ok", "error") )
             self.assertNotEquals("ok", tup[0], "Expected an error")
             if(tup[0] != "running"):
                 self.assertTrue("error", tup[0])
                 self.assertTrue(tup[1] is not None)
-                break  
-        return 
-    
+                break
+        return
+
     def test_send_file_fail(self):
         lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         self.fake_client.fail = True
 
         self.assertRaises(
-            LaboratoryExceptions.FailedToSendFileException,
+            LaboratoryErrors.FailedToSendFileError,
             self.lab.do_send_file,
-            lab_session_id, 
+            lab_session_id,
             "foo",
             "file_info"
         )
 
 
 ###################################################################
-# 
-#   F A K E      O B J E C T S 
-#  
+#
+#   F A K E      O B J E C T S
+#
 
 
 ###############################################
 # Fake Locator
-# 
+#
 class FakeLocator(object):
     def __init__(self, clients):
         self.clients = clients
@@ -592,10 +592,10 @@ class FakeLocator(object):
 
 ###############################################
 # Fake Client
-# 
+#
 
 class FakeClient(object):
-    
+
     def __init__(self):
         super(FakeClient,self).__init__()
         self.files     = []
@@ -613,7 +613,7 @@ class FakeClient(object):
     def _set_fake_api(self, api):
         """
         Sets the fake api version that we want this fake client to return when
-        get_api gets called. 
+        get_api gets called.
         @param api The string describing the version
         @see get_api
         """
@@ -637,26 +637,26 @@ class FakeClient(object):
 
     def send_command_to_device(self, command):
         if self.fail:
-            raise ProtocolExceptions.RemoteException("lelele","Lalala")
+            raise ProtocolErrors.RemoteError("lelele","Lalala")
         else:
             self.commands.append(command)
             return self.responses.pop(0)
 
     def send_file_to_device(self, file, file_info):
         if self.fail:
-            raise ProtocolExceptions.RemoteException("lelele","Lalala")
+            raise ProtocolErrors.RemoteError("lelele","Lalala")
         else:
             self.files.append((file, file_info))
             return self.responses.pop(0)
-    
+
     def verify_commands(self, expected):
         return self.commands == expected
-    
+
     def verify_files(self, expected):
         return self.files == expected
 
 
-###################################################################  
+###################################################################
 
 def suite():
     return unittest.TestSuite(

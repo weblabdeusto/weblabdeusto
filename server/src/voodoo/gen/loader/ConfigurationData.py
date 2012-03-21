@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 #-*-*- encoding: utf-8 -*-*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 class ParameterConfiguration(object):
     def __init__(self, name, value):
@@ -61,14 +61,14 @@ class ServerConfiguration(object):
     @property
     def protocols(self):
         return self._protocols[:]
-    
+
     def append_protocol(self, protocol):
         self._protocols.append(protocol)
 
     @property
     def configurations(self):
         return self._configurations[:]
-    
+
     def append_configuration(self, configuration):
         self._configurations.append(configuration)
 

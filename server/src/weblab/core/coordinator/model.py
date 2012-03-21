@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 #-*-*- encoding: utf-8 -*-*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import uuid
 import datetime
@@ -31,9 +31,9 @@ import sqlalchemy
 Base = declarative_base()
 
 def load():
-    # 
+    #
     # Place here all the dependences in order to populate Base
-    # 
+    #
     import weblab.core.coordinator.priority_queue_scheduler_model as PriorityQueueSchedulerModel
     assert PriorityQueueSchedulerModel.Base == Base # Just to avoid pyflakes warnings
 
@@ -46,18 +46,18 @@ def load():
 TABLE_KWARGS = get_table_kwargs()
 
 ######################################################################################
-# 
+#
 # A resource represents the actual device used by every experiment instance. They are
-# requirements of the experiment instance (every experiment instance must have one and 
-# only one resource instance, although a resource can be used by more than one 
-# experiment instance). 
+# requirements of the experiment instance (every experiment instance must have one and
+# only one resource instance, although a resource can be used by more than one
+# experiment instance).
 #
 # There are resource types (such as "ud-pld-device-board1"), and there can be multiple
 # instances of the resource type (such as "pld1-basement-of-eng-building") for each
 # resource type.
-# 
+#
 # Finally, the scheduling schemas will be built for each resource type.
-# 
+#
 
 class ResourceType(Base):
     __tablename__  = 'ResourceTypes'
@@ -99,13 +99,13 @@ class ResourceInstance(Base):
         return "ResourceInstance(%r, %r)" % (self.resource_type, self.name)
 
 ######################################################################################
-# 
-# The administrator will define that there is a certain instance of a resource 
-# somewhere. However, this instance might be broken, or currently unavailable for 
+#
+# The administrator will define that there is a certain instance of a resource
+# somewhere. However, this instance might be broken, or currently unavailable for
 # maintainance. In order to keep the integrity, we have this intermediate table that
-# will have a row per each working instance. If the experiment is broken, the row 
+# will have a row per each working instance. If the experiment is broken, the row
 # will not be present.
-# 
+#
 class CurrentResourceSlot(Base):
     __tablename__  = 'CurrentResourceSlots'
     __table_args__ = (UniqueConstraint('resource_instance_id'), TABLE_KWARGS)
@@ -128,12 +128,12 @@ class CurrentResourceSlot(Base):
         return "CurrentResourceSlot(%r)" % self.resource_instance
 
 ######################################################################################
-# 
-# Two scheduling schemas might try to reserve a slot concurrently. Since each one 
+#
+# Two scheduling schemas might try to reserve a slot concurrently. Since each one
 # would try it in its own tables, there wouldn't be any conflict. Therefore this table
-# is created, so a row in this table is added when a reservation is held, and it's 
+# is created, so a row in this table is added when a reservation is held, and it's
 # removed when it is finished.
-# 
+#
 class SchedulingSchemaIndependentSlotReservation(Base):
     __tablename__  = 'SchedulingSchemaIndependentSlotReservations'
     __table_args__ = (UniqueConstraint('current_resource_slot_id'), TABLE_KWARGS)
@@ -150,23 +150,23 @@ class SchedulingSchemaIndependentSlotReservation(Base):
         return "SchedulingSchemaIndependentSlotReservation(id=%r, current_resource_slot=%r)" % (id, self.current_resource_slot)
 
 ######################################################################################
-# 
-# An experiment is the software system that behaves as the student expects. The 
+#
+# An experiment is the software system that behaves as the student expects. The
 # student will ask for a "ud-binary@Electronics experiments", and the system will
-# provide an experiment instance whose resource is available, such as 
-# "exp1:ud-binary@Electronics experiments", which use the same CPLD as 
+# provide an experiment instance whose resource is available, such as
+# "exp1:ud-binary@Electronics experiments", which use the same CPLD as
 # "exp1:ud-pld@PLD experiments", or it uses "exp2:ud-binary@Electronics experiments"
 # which uses the same FPGA as "exp1:ud-fpga@FPGA experiments"
-# 
-# Given an experiment type, one can find all the resource types accessing all the 
+#
+# Given an experiment type, one can find all the resource types accessing all the
 # experiment instances of the experiment type, and for each experiment instance
 # checking the resource type of the resource instance associated to the experiment
-# instance. However, if there are reservations and the experiment instance is 
-# suddenly removed due to maintainance or whatever, given a reservation_id the 
+# instance. However, if there are reservations and the experiment instance is
+# suddenly removed due to maintainance or whatever, given a reservation_id the
 # system will not know how to achieve the resource type since that path has been
 # broken. Due to this, this aparently redundant table is built when the experiment
 # instances are added.
-# 
+#
 t_experiment_type_has_or_had_resource_types = Table('ExperimentTypeHasOrHadResourceTypes', Base.metadata,
     Column('experiment_type_id', Integer, ForeignKey('ExperimentTypes.id'), primary_key=True),
     Column('resource_type_id',   Integer, ForeignKey('ResourceTypes.id'),   primary_key=True)
@@ -220,8 +220,8 @@ class ExperimentInstance(Base):
         return "ExperimentInstance(%r,%r,%r)" % (self.experiment_type, self.laboratory_coord_address, self.experiment_instance_id)
 
 ######################################################################################
-# 
-# 
+#
+#
 RESERVATION_ID_SIZE = 36 # len(str(uuid.uuid4()))
 
 class Reservation(Base):
@@ -265,9 +265,9 @@ class Reservation(Base):
             session = session_maker()
             try:
                 id = str(uuid.uuid4())
-                experiment_type = session.query(ExperimentType).filter_by(exp_name = experiment_id.exp_name, cat_name = experiment_id.cat_name).first() 
+                experiment_type = session.query(ExperimentType).filter_by(exp_name = experiment_id.exp_name, cat_name = experiment_id.cat_name).first()
                 if experiment_type is None:
-                    raise CoordExc.ExperimentNotFoundException("Couldn't find experiment_type %s when creating Reservation" % experiment_id)
+                    raise CoordExc.ExperimentNotFoundError("Couldn't find experiment_type %s when creating Reservation" % experiment_id)
 
                 reservation = Reservation(id, client_initial_data, server_initial_data, request_info, now)
                 reservation.experiment_type = experiment_type
@@ -286,18 +286,18 @@ class Reservation(Base):
         return "Reservation(%r, %r, %r, %r)" % (self.id, self.client_initial_data, self.server_initial_data, self.request_info)
 
 ###############################################################################
-# 
+#
 # One single reservation may fit in many independent schedulers. For instance,
 # there could be a remote scheduler that wraps another WebLab-Deusto, and, at
 # the same time, the same reservation is in a local queue. During a certain
-# amount of time, where it is in different queues, it will be in both 
-# schedulers. However, as one of them finally decides that it is in 
+# amount of time, where it is in different queues, it will be in both
+# schedulers. However, as one of them finally decides that it is in
 # WaitingConfirmation, Reserved or PostReservation status, the aggregator must
-# know that the reservation should end in the rest of the schedulers. 
+# know that the reservation should end in the rest of the schedulers.
 # Subsequent calls to the aggregator should retrieve what active schedulers are
 # there for that reservation id. In order to know which ones are active, this
 # information is stored as records in this table.
-# 
+#
 class ActiveReservationSchedulerAssociation(Base):
     __tablename__  = 'ActiveReservationSchedulerAssociation'
     __table_args__ = TABLE_KWARGS
@@ -306,17 +306,17 @@ class ActiveReservationSchedulerAssociation(Base):
 
     reservation_id   = Column(String(RESERVATION_ID_SIZE), nullable = False)
 
-    # 
+    #
     # Each Independent Aggregator is represented by an experiment type:
-    # A "ud-dummy@Dummy experiments" might rely on different schedulers, 
+    # A "ud-dummy@Dummy experiments" might rely on different schedulers,
     # each identified by a resource type
-    # 
+    #
     experiment_type_id       = Column(Integer, ForeignKey('ExperimentTypes.id'), nullable = False)
     experiment_type          = relation(ExperimentType, backref=backref('reservation_scheduler_associations', order_by=id))
 
-    # 
+    #
     # Each Scheduler is represented by a resource_type
-    # 
+    #
     resource_type_id = Column(Integer, ForeignKey("ResourceTypes.id"), nullable = False)
     resource_type    = relation(ResourceType, backref=backref("reservation_scheduler_associations", order_by=id))
 
@@ -329,13 +329,13 @@ class ActiveReservationSchedulerAssociation(Base):
         return "ActiveReservationSchedulerAssociation(reservation_id=%r, experiment_type=%r, resource_type=%r)" % (self.reservation_id, self.experiment_type, self.resource_type)
 
 ######################################################################################
-# 
+#
 # Since a reservation can apply to different scheduling schemas of different resource
 # types, the system could try to promote the reservation to a current reservation in
 # more than one queue at the same time. Since this can't be accepted, every scheduling
 # schema must create an instance of CurrentReservation, so a single reservation can't
 # be promoted twice
-# 
+#
 
 class CurrentReservation(Base):
     __tablename__  = 'CurrentReservations'
@@ -351,14 +351,14 @@ class CurrentReservation(Base):
         return "CurrentReservation(id=%r, reservation=%r)" % (self.id, self.reservation)
 
 ######################################################################################
-# 
-# Different threads and servers might try to finish a reservation for different 
+#
+# Different threads and servers might try to finish a reservation for different
 # reasons: user request to cancel a reservation, experiment notifying that the session
 # should end, a timeout, etc. In order to coordinate them and avoid two concurrent
-# calls to finish(), we use this temporal table. Every server trying to dispose a 
-# reservation will add the reservation_id. If they don't fail, they do the process. 
+# calls to finish(), we use this temporal table. Every server trying to dispose a
+# reservation will add the reservation_id. If they don't fail, they do the process.
 # But if they fail because someone else added it first, they skip it.
-# 
+#
 
 class PendingToFinishReservation(Base):
     __tablename__  = 'PendingToFinishReservations'
@@ -373,12 +373,12 @@ class PendingToFinishReservation(Base):
         return "PendingToFinishReservation(id=%r)" % self.id
 
 ##########################################################################################
-# 
+#
 # Whenever a experiment finishes, it stores the information in the main database. However,
-# it is still possible to retrieve this information from the scheduling database, in a 
+# it is still possible to retrieve this information from the scheduling database, in a
 # status of PostReservationRetrievedData. For instance, if a user performs a reservation
 # and the reservation is finished, it will enter in this status.
-# 
+#
 
 class PostReservationRetrievedData(Base):
     __tablename__  = 'PostReservationRetrievedData'
@@ -390,7 +390,7 @@ class PostReservationRetrievedData(Base):
     finished               = Column(Boolean)     # Has the experiment finished?
     date                   = Column(DateTime)    # When did the experiment finish?
     expiration_date        = Column(DateTime)    # When should this registry be removed?
-    initial_data           = Column(Text)        # A JSON structure with the information returned by the experiment server when initializing 
+    initial_data           = Column(Text)        # A JSON structure with the information returned by the experiment server when initializing
                                                  # (useful for batch)
     end_data               = Column(Text)        # A JSON structure with the information returned by the experiment server when disposing
 
@@ -401,7 +401,7 @@ class PostReservationRetrievedData(Base):
         self.finished               = finished
         self.initial_data           = initial_data
         self.end_data               = end_data
-    
+
     def __repr__(self):
         return "PostReservationRetrievedData(%r, %r, %r, %r, %r, %r, %r)" % (self.id, self.reservation_id, self.finished, self.date, self.expiration_date, self.initial_data, self.end_data)
 

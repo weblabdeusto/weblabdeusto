@@ -1,67 +1,67 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 import weblab.exc as wlExc
 
 #
-# from WebLabException
+# from WebLabError
 #
 
-class WebLabCoreException(wlExc.WebLabException):
-    pass
-
-#
-# from WebLabCoreException
-#
-
-class SessionNotFoundException(WebLabCoreException):
-    pass
-
-class NoCurrentReservationException(WebLabCoreException):
-    pass
-
-class FailedToInteractException(WebLabCoreException):
-    pass
-
-class FailedToSendFileException(FailedToInteractException):
-    pass
-
-class FailedToSendCommandException(FailedToInteractException):
-    pass
-
-class FailedToFreeReservationException(WebLabCoreException):
-    pass
-
-class CoordinationConfigurationParsingException(WebLabCoreException):
-    pass
-
-class ReservationFailedException(WebLabCoreException):
+class WebLabCoreError(wlExc.WebLabError):
     pass
 
 #
-# from ReservationFailedException
+# from WebLabCoreError
 #
 
-class UnknownExperimentIdException(ReservationFailedException):
+class SessionNotFoundError(WebLabCoreError):
     pass
 
-class NoAvailableExperimentFoundException(ReservationFailedException):
+class NoCurrentReservationError(WebLabCoreError):
     pass
 
-class InvalidReservationStatusException(ReservationFailedException):
+class FailedToInteractError(WebLabCoreError):
     pass
 
-class NotASessionTypeException(ReservationFailedException):
+class FailedToSendFileError(FailedToInteractError):
+    pass
+
+class FailedToSendCommandError(FailedToInteractError):
+    pass
+
+class FailedToFreeReservationError(WebLabCoreError):
+    pass
+
+class CoordinationConfigurationParsingError(WebLabCoreError):
+    pass
+
+class ReservationFailedError(WebLabCoreError):
+    pass
+
+#
+# from ReservationFailedError
+#
+
+class UnknownExperimentIdError(ReservationFailedError):
+    pass
+
+class NoAvailableExperimentFoundError(ReservationFailedError):
+    pass
+
+class InvalidReservationStatusError(ReservationFailedError):
+    pass
+
+class NotASessionTypeError(ReservationFailedError):
     pass
 

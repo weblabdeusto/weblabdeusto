@@ -1,16 +1,16 @@
 #-*-*- encoding: utf-8 -*-*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import datetime
 
@@ -19,23 +19,23 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import and_
 
-from voodoo.dbutil import generate_getconn, get_sqlite_dbname 
+from voodoo.dbutil import generate_getconn, get_sqlite_dbname
 import voodoo.sessions.sqlalchemy_data as DbData
 
 import voodoo.sessions.generator  as SessionGenerator
 import voodoo.sessions.serializer as SessionSerializer
 import voodoo.sessions.db_lock            as DbLock
 
-import voodoo.sessions.exc as SessionExceptions
+import voodoo.sessions.exc as SessionErrors
 
 
 MAX_TIME_TRYING_TO_LOCK  = 300 # seconds
 
 SESSION_SQLALCHEMY_ENGINE = 'session_sqlalchemy_engine'
-DEFAULT_SESSION_SQLALCHEMY_ENGINE = 'mysql' 
+DEFAULT_SESSION_SQLALCHEMY_ENGINE = 'mysql'
 
 SESSION_SQLALCHEMY_HOST = 'session_sqlalchemy_host'
-DEFAULT_SESSION_SQLALCHEMY_HOST = 'localhost' 
+DEFAULT_SESSION_SQLALCHEMY_HOST = 'localhost'
 
 SESSION_SQLALCHEMY_DB_NAME = 'session_sqlalchemy_db_name'
 DEFAULT_SESSION_SQLALCHEMY_DB_NAME = 'WebLabSessions'
@@ -56,7 +56,7 @@ class SessionSqlalchemyGateway(object):
 
         (
             engine_name,
-            host, 
+            host,
             dbname,
             username,
             password
@@ -100,7 +100,7 @@ class SessionSqlalchemyGateway(object):
         if desired_sess_id is not None:
             # The user wants a specific session_id
             if self.has_session(desired_sess_id):
-                raise SessionExceptions.DesiredSessionIdAlreadyExistsException("session_id: %s" % desired_sess_id)
+                raise SessionErrors.DesiredSessionIdAlreadyExistsError("session_id: %s" % desired_sess_id)
             new_id = desired_sess_id
         else:
             new_id = self._generator.generate_id()
@@ -134,7 +134,7 @@ class SessionSqlalchemyGateway(object):
         try:
             result = session.query(DbData.Session).filter_by(session_pool_id = self.session_pool_id, sess_id = session_id).first()
             if result is None:
-                raise SessionExceptions.SessionNotFoundException( "Session not found: " + session_id )
+                raise SessionErrors.SessionNotFoundError( "Session not found: " + session_id )
             session_object = result.session_obj
             result.latest_access = datetime.datetime.now()
             session.commit()
@@ -150,7 +150,7 @@ class SessionSqlalchemyGateway(object):
         try:
             result = session.query(DbData.Session).filter_by(session_pool_id = self.session_pool_id, sess_id = sess_id).first()
             if result is None:
-                raise SessionExceptions.SessionNotFoundException( "Session not found: %s" % sess_id)
+                raise SessionErrors.SessionNotFoundError( "Session not found: %s" % sess_id)
 
             result.session_obj = serialized_sess_obj
             result.latest_access = datetime.datetime.now()
@@ -216,15 +216,15 @@ class SessionSqlalchemyGateway(object):
 
             result = session.query(DbData.Session).filter_by(session_pool_id = self.session_pool_id, sess_id = sess_id).first()
             if result is None:
-                raise SessionExceptions.SessionNotFoundException( "Session not found: %s" % sess_id)
+                raise SessionErrors.SessionNotFoundError( "Session not found: %s" % sess_id)
 
             session.delete(result)
             session.commit()
 
-        except SessionExceptions.SessionNotFoundException:
+        except SessionErrors.SessionNotFoundError:
             raise
         except Exception as e:
-            raise SessionExceptions.SessionDatabaseExecutionException( "Database exception retrieving session: %s" % e, e )
+            raise SessionErrors.SessionDatabaseExecutionError( "Database exception retrieving session: %s" % e, e )
 
     def delete_session_unlocking(self, sess_id):
         try:

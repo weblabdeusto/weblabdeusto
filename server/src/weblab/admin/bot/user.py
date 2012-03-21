@@ -1,13 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
@@ -50,7 +50,7 @@ class BotUser(threading.Thread):
 
     def time(self):
         return self.bot.time()
-    
+
     def get_number_of_exceptions(self):
         return self.bot.get_number_of_exceptions()
 
@@ -85,12 +85,12 @@ class BotUser(threading.Thread):
 
     def __repr__(self):
         return "<BotUser type='%s' />" % self.__class__.__name__
-    
+
 class StandardBotUser(BotUser):
 
-    # 
+    #
     # The following two methods are implemented in the client
-    # 
+    #
     def _get_waiting_reservation_poll_time(self, position):
         # See WaitingInQueueReservationProcessor.getPollTime
         min_time = 1  # WebLabControllerImpl.DEFAULT_WAITING_MIN_POLL_TIME
@@ -112,15 +112,15 @@ class StandardBotUser(BotUser):
         self.bot.do_get_user_information()
         experiments = self.bot.do_list_experiments()
         if experiments is not None:
-            experiments_found = [ exp 
-                                    for exp in experiments 
-                                    if exp.name == self.experiment_name 
-                                        and exp.category.name == self.experiment_category_name 
+            experiments_found = [ exp
+                                    for exp in experiments
+                                    if exp.name == self.experiment_name
+                                        and exp.category.name == self.experiment_category_name
                             ]
             if len(experiments_found) > 0:
                 reservation = self.bot.do_reserve_experiment(experiments_found[0].to_experiment_id(), "{}", "{}")
             else:
-                raise Exceptions.ExperimentDoesNotExistException("Desired experiment doesn't exist: %s." % self.experiment_name)
+                raise Exceptions.ExperimentDoesNotExistError("Desired experiment doesn't exist: %s." % self.experiment_name)
 
             while isinstance(reservation, Reservation.WaitingReservation) or isinstance(reservation, Reservation.WaitingConfirmationReservation):
                 if isinstance(reservation, Reservation.WaitingReservation):
@@ -132,7 +132,7 @@ class StandardBotUser(BotUser):
 
             if not isinstance(reservation, Reservation.ConfirmedReservation):
                 exc = self.bot.calls[-1].exception
-                raise Exceptions.UserAssertionException("At this point, it should be a ConfirmedReservation. Found: <%s>; <%s>" % (reservation, exc) )
+                raise Exceptions.UserAssertionError("At this point, it should be a ConfirmedReservation. Found: <%s>; <%s>" % (reservation, exc) )
             self.bot.do_send_file(self.program,"program")
 
             #for _ in xrange(10):

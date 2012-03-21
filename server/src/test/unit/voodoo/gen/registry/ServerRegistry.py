@@ -1,22 +1,22 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import unittest
 
 import voodoo.gen.registry.server_registry as ServerRegistry
-import voodoo.gen.exceptions.registry.RegistryExceptions as RegistryExceptions
+import voodoo.gen.exceptions.registry.RegistryErrors as RegistryErrors
 
 
 
@@ -43,7 +43,7 @@ class ServerRegistryTestCase(unittest.TestCase):
         self._registry.register_server(address1,server1)
 
         self.assertRaises(
-            RegistryExceptions.AddressAlreadyRegisteredException,
+            RegistryErrors.AddressAlreadyRegisteredError,
             self._registry.register_server,
             address1,
             server2
@@ -63,31 +63,31 @@ class ServerRegistryTestCase(unittest.TestCase):
         )
 
         self.assertRaises(
-            RegistryExceptions.ServerNotFoundInRegistryException,
+            RegistryErrors.ServerNotFoundInRegistryError,
             self._registry.get_server,
             address3
         )
 
         self._registry.deregister_server(address1)
         self.assertRaises(
-            RegistryExceptions.ServerNotFoundInRegistryException,
+            RegistryErrors.ServerNotFoundInRegistryError,
             self._registry.get_server,
             address1
         )
-        
+
         self.assertRaises(
-            RegistryExceptions.ServerNotFoundInRegistryException,
+            RegistryErrors.ServerNotFoundInRegistryError,
             self._registry.deregister_server,
             address3
         )
-        
+
         self._registry.clear()
         self.assertRaises(
-            RegistryExceptions.ServerNotFoundInRegistryException,
+            RegistryErrors.ServerNotFoundInRegistryError,
             self._registry.deregister_server,
             address2
         )
-    
+
 def suite():
     return unittest.makeSuite(ServerRegistryTestCase)
 

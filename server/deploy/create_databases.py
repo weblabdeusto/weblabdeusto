@@ -1,6 +1,8 @@
 import sys, os
 sys.path.append( os.sep.join( ('..', 'src') ) )
 
+from optparse import OptionParser
+
 import time
 t_initial = time.time()
 
@@ -31,6 +33,26 @@ except ImportError, e:
 	print >> sys.stderr, "Error: configuration.py doesn't exist or doesn't have all the required parameters: %s " % e
 	sys.exit(2)
 
+parser = OptionParser()
+parser.add_option("-p", "--prefix", dest="prefix", default="",
+                  help="Ask for a prefix", metavar="PREFIX")
+parser.add_option("-a", "--avoid-real",
+                  action="store_true", dest="avoid_real", default=False,
+                  help="Avoid real database")
+parser.add_option("-f", "--force",
+                  action="store_true", dest="force", default=False,
+                  help="Force removing information")
+
+(options, args) = parser.parse_args()
+prefix = options.prefix
+
+if prefix != "" and not options.avoid_real and not options.force:
+    print "WARNING: You have specified a prefix and this script is going to delete all the databases (including user information, experiments, etc.). Are you sure you want to delete all the information from all the WebLab databases? You can remove only the temporary coordination and session information by providing the -a option, and you can avoid this warning in the future passing the -f option."
+    response = raw_input("Press 'y' if you are sure of this: ")
+    if response != 'y':
+        print "Cancelled by the user"
+        sys.exit(0)
+
 if db_engine == 'mysql':
     try:
         import MySQLdb
@@ -41,10 +63,11 @@ if db_engine == 'mysql':
         import pymysql
         dbi = pymysql
 
-    weblab_db_str = 'mysql://%s:%s@localhost/WebLab' % (weblab_db_username, weblab_db_password)
-    weblab_test_db_str = 'mysql://%s:%s@localhost/WebLabTests%s' % (weblab_db_username, weblab_db_password, '%s')
-    weblab_coord_db_str = 'mysql://%s:%s@localhost/WebLabCoordination%s' % (core_coordinator_db_username, core_coordinator_db_password, '%s')
-    weblab_sessions_db_str = 'mysql://%s:%s@localhost/WebLabSessions' % (weblab_sessions_db_username, weblab_sessions_db_password)
+    if not options.avoid_real:
+        weblab_db_str = 'mysql://%s:%s@localhost/%sWebLab' % (weblab_db_username, weblab_db_password, prefix)
+        weblab_test_db_str = 'mysql://%s:%s@localhost/%sWebLabTests%s' % (weblab_db_username, weblab_db_password, prefix, '%s')
+    weblab_coord_db_str = 'mysql://%s:%s@localhost/%sWebLabCoordination%s' % (core_coordinator_db_username, core_coordinator_db_password, prefix, '%s')
+    weblab_sessions_db_str = 'mysql://%s:%s@localhost/%sWebLabSessions' % (weblab_sessions_db_username, weblab_sessions_db_password, prefix)
 
     def _connect(admin_username, admin_password):
         try:
@@ -92,10 +115,11 @@ elif db_engine == 'sqlite':
     if not os.path.exists(db_dir):
         os.mkdir(db_dir)
 
-    weblab_db_str = 'sqlite:///../db/WebLab.db' 
-    weblab_test_db_str = 'sqlite:///../db/WebLabTests%s.db' 
-    weblab_coord_db_str = 'sqlite:///../db/WebLabCoordination%s.db' 
-    weblab_sessions_db_str = 'sqlite:///../db/WebLabSessions.db'
+    if not options.avoid_real:
+        weblab_db_str = 'sqlite:///../db/%sWebLab.db' % prefix
+        weblab_test_db_str = 'sqlite:///../db/%sWebLabTests%s.db' % (prefix, '%s')
+    weblab_coord_db_str = 'sqlite:///../db/%sWebLabCoordination%s.db' % (prefix, '%s')
+    weblab_sessions_db_str = 'sqlite:///../db/%sWebLabSessions.db' % prefix
 
     def create_database(admin_username, admin_password, database_name, new_user, new_password, host = "localhost"):
         fname = os.sep.join((db_dir, '%s.db' % database_name))
@@ -108,21 +132,32 @@ else:
 
 t = time.time()
 
-create_database(wac.wl_admin_username, wac.wl_admin_password, "WebLab",              weblab_db_username, weblab_db_password)
-create_database(wac.wl_admin_username, wac.wl_admin_password, "WebLabTests",         weblab_db_username, weblab_db_password)
-create_database(wac.wl_admin_username, wac.wl_admin_password, "WebLabTests2",        weblab_db_username, weblab_db_password)
-create_database(wac.wl_admin_username, wac.wl_admin_password, "WebLabTests3",        weblab_db_username, weblab_db_password)
-create_database(wac.wl_admin_username, wac.wl_admin_password, "WebLabCoordination",  core_coordinator_db_username, core_coordinator_db_password)
-create_database(wac.wl_admin_username, wac.wl_admin_password, "WebLabCoordination2", core_coordinator_db_username, core_coordinator_db_password)
-create_database(wac.wl_admin_username, wac.wl_admin_password, "WebLabCoordination3", core_coordinator_db_username, core_coordinator_db_password)
-create_database(wac.wl_admin_username, wac.wl_admin_password, "WebLabSessions",      weblab_sessions_db_username, weblab_sessions_db_password)
+if not options.avoid_real:
+    create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLab" % prefix,              weblab_db_username, weblab_db_password)
+    create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabTests" % prefix,         weblab_db_username, weblab_db_password)
+    create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabTests2" % prefix,        weblab_db_username, weblab_db_password)
+    create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabTests3" % prefix,        weblab_db_username, weblab_db_password)
+create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabCoordination" % prefix,  core_coordinator_db_username, core_coordinator_db_password)
+create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabCoordination2" % prefix, core_coordinator_db_username, core_coordinator_db_password)
+create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabCoordination3" % prefix, core_coordinator_db_username, core_coordinator_db_password)
+create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabSessions" % prefix,      weblab_sessions_db_username, weblab_sessions_db_password)
 
 print "Databases created.\t\t\t\t[done] [%1.2fs]" % (time.time() - t)
 
 def _insert_required_initial_data(engine):
     Session = sessionmaker(bind=engine)    
     session = Session()
-    
+
+    # Roles
+    administrator = Model.DbRole("administrator")
+    session.add(administrator)
+
+    professor = Model.DbRole("professor")
+    session.add(professor)
+
+    student = Model.DbRole("student")
+    session.add(student)
+
     db = Model.DbAuthType("DB")
     session.add(db)
     ldap = Model.DbAuthType("LDAP")
@@ -133,6 +168,10 @@ def _insert_required_initial_data(engine):
     session.add(facebook)
     openid = Model.DbAuthType("OPENID")
     session.add(openid)
+
+    weblab_db = Model.DbAuth(db, "WebLab DB", 1)
+    session.add(weblab_db)
+
     session.commit()
 
     experiment_allowed = Model.DbPermissionType(
@@ -181,25 +220,26 @@ def _insert_required_initial_data(engine):
 # Populating main database
 # 
 
-print "Populating 'WebLab' database...   \t\t", 
+if not options.avoid_real:
+    print "Populating 'WebLab' database...   \t\t", 
 
-t = time.time()
+    t = time.time()
 
-engine = create_engine(weblab_db_str, echo = False)
-metadata = Model.Base.metadata
-metadata.drop_all(engine)
-metadata.create_all(engine)
+    engine = create_engine(weblab_db_str, echo = False)
+    metadata = Model.Base.metadata
+    metadata.drop_all(engine)
+    metadata.create_all(engine)
 
-_insert_required_initial_data(engine)
+    _insert_required_initial_data(engine)
 
-print "[done] [%1.2fs]" % (time.time() - t)
+    print "[done] [%1.2fs]" % (time.time() - t)
 
 #####################################################################
 # 
 # Populating tests database
 # 
 
-def populate_weblab_tests(engine):
+def populate_weblab_tests(engine, tests):
     Session = sessionmaker(bind=engine)    
     session = Session()
 
@@ -220,8 +260,7 @@ def populate_weblab_tests(engine):
     access_forward = session.query(Model.DbPermissionType).filter_by(name="access_forward").one()
 
     # Auths
-    weblab_db = Model.DbAuth(db, "WebLab DB", 1)
-    session.add(weblab_db)
+    weblab_db = session.query(Model.DbAuth).filter_by(name = "WebLab DB").one()
 
     cdk_ldap = Model.DbAuth(ldap, "Configuration of CDK at Deusto", 2, "ldap_uri=ldaps://castor.cdk.deusto.es;domain=cdk.deusto.es;base=dc=cdk,dc=deusto,dc=es")
     session.add(cdk_ldap)
@@ -238,15 +277,9 @@ def populate_weblab_tests(engine):
     auth_openid = Model.DbAuth(openid, "OpenID", 6)
     session.add(auth_openid)
 
-    # Roles
-    administrator = Model.DbRole("administrator")
-    session.add(administrator)
-
-    professor = Model.DbRole("professor")
-    session.add(professor)
-
-    student = Model.DbRole("student")
-    session.add(student)
+    administrator = session.query(Model.DbRole).filter_by(name='administrator').one()
+    professor     = session.query(Model.DbRole).filter_by(name='professor').one()
+    student       = session.query(Model.DbRole).filter_by(name='student').one()
 
     # Users
     admin1 = Model.DbUser("admin1", "Name of administrator 1", "weblab@deusto.es", None, administrator)
@@ -456,7 +489,7 @@ def populate_weblab_tests(engine):
 
     # Experiments
     start_date = datetime.datetime.utcnow()
-    end_date = start_date.replace(year=start_date.year+10)
+    end_date = start_date.replace(year=start_date.year+12) # So leap years are not a problem
 
     dummy = Model.DbExperiment("ud-dummy", cat_dummy, start_date, end_date)
     session.add(dummy)
@@ -470,8 +503,12 @@ def populate_weblab_tests(engine):
     dummy2 = Model.DbExperiment("dummy2", cat_dummy, start_date, end_date)
     session.add(dummy2)
 
-    dummy3 = Model.DbExperiment("dummy3", cat_dummy, start_date, end_date)
-    session.add(dummy3)
+    if tests != '2':
+        dummy3 = Model.DbExperiment("dummy3", cat_dummy, start_date, end_date)
+        session.add(dummy3)
+    else:
+        dummy3_with_other_name = Model.DbExperiment("dummy3_with_other_name", cat_dummy, start_date, end_date)
+        session.add(dummy3_with_other_name)
 
     dummy4 = Model.DbExperiment("dummy4", cat_dummy, start_date, end_date)
     session.add(dummy4)
@@ -506,12 +543,6 @@ def populate_weblab_tests(engine):
     gpib = Model.DbExperiment("ud-gpib", cat_gpib, start_date, end_date)
     session.add(gpib)
 
-    pic = Model.DbExperiment("ud-pic", cat_pic, start_date, end_date)
-    session.add(pic)
-
-    pic2 = Model.DbExperiment("ud-pic2", cat_pic, start_date, end_date)
-    session.add(pic2)
-
     visirtest = Model.DbExperiment("visirtest", cat_dummy, start_date, end_date)
     session.add(visirtest)
 
@@ -538,6 +569,9 @@ def populate_weblab_tests(engine):
 
     microelectronics = Model.DbExperiment("microelectronics", cat_ilab, start_date, end_date)
     session.add(microelectronics)
+    
+    pic18 = Model.DbExperiment("ud-pic18", cat_pic, start_date, end_date)
+    session.add(pic18)
 
     # Permissions
     gp_course0809_fpga_allowed = Model.DbGroupPermission(
@@ -585,20 +619,36 @@ def populate_weblab_tests(engine):
     gp_federated_dummy2_allowed_p3 = Model.DbGroupPermissionParameter(gp_federated_dummy2_allowed, experiment_allowed_p3, "300")
     session.add(gp_federated_dummy2_allowed_p3)
 
-    gp_federated_dummy3_allowed = Model.DbGroupPermission(
-        group_federated,
-        experiment_allowed.group_applicable,
-        "Federated users::dummy3",
-        datetime.datetime.utcnow(),
-        "Permission for group Federated users to use dummy3"
-    )
-    session.add(gp_federated_dummy3_allowed)
-    gp_federated_dummy3_allowed_p1 = Model.DbGroupPermissionParameter(gp_federated_dummy3_allowed, experiment_allowed_p1, "dummy3")
-    session.add(gp_federated_dummy3_allowed_p1)
-    gp_federated_dummy3_allowed_p2 = Model.DbGroupPermissionParameter(gp_federated_dummy3_allowed, experiment_allowed_p2, "Dummy experiments")
-    session.add(gp_federated_dummy3_allowed_p2)
-    gp_federated_dummy3_allowed_p3 = Model.DbGroupPermissionParameter(gp_federated_dummy3_allowed, experiment_allowed_p3, "300")
-    session.add(gp_federated_dummy3_allowed_p3)
+    if tests != '2':
+        gp_federated_dummy3_allowed = Model.DbGroupPermission(
+            group_federated,
+            experiment_allowed.group_applicable,
+            "Federated users::dummy3",
+            datetime.datetime.utcnow(),
+            "Permission for group Federated users to use dummy3"
+        )
+        session.add(gp_federated_dummy3_allowed)
+        gp_federated_dummy3_allowed_p1 = Model.DbGroupPermissionParameter(gp_federated_dummy3_allowed, experiment_allowed_p1, "dummy3")
+        session.add(gp_federated_dummy3_allowed_p1)
+        gp_federated_dummy3_allowed_p2 = Model.DbGroupPermissionParameter(gp_federated_dummy3_allowed, experiment_allowed_p2, "Dummy experiments")
+        session.add(gp_federated_dummy3_allowed_p2)
+        gp_federated_dummy3_allowed_p3 = Model.DbGroupPermissionParameter(gp_federated_dummy3_allowed, experiment_allowed_p3, "300")
+        session.add(gp_federated_dummy3_allowed_p3)
+    else:
+        gp_federated_dummy3_with_other_name_allowed = Model.DbGroupPermission(
+            group_federated,
+            experiment_allowed.group_applicable,
+            "Federated users::dummy3_with_other_name",
+            datetime.datetime.utcnow(),
+            "Permission for group Federated users to use dummy3_with_other_name"
+        )
+        session.add(gp_federated_dummy3_with_other_name_allowed)
+        gp_federated_dummy3_with_other_name_allowed_p1 = Model.DbGroupPermissionParameter(gp_federated_dummy3_with_other_name_allowed, experiment_allowed_p1, "dummy3_with_other_name")
+        session.add(gp_federated_dummy3_with_other_name_allowed_p1)
+        gp_federated_dummy3_with_other_name_allowed_p2 = Model.DbGroupPermissionParameter(gp_federated_dummy3_with_other_name_allowed, experiment_allowed_p2, "Dummy experiments")
+        session.add(gp_federated_dummy3_with_other_name_allowed_p2)
+        gp_federated_dummy3_with_other_name_allowed_p3 = Model.DbGroupPermissionParameter(gp_federated_dummy3_with_other_name_allowed, experiment_allowed_p3, "300")
+        session.add(gp_federated_dummy3_with_other_name_allowed_p3)
 
     gp_federated_dummy4_allowed = Model.DbGroupPermission(
         group_federated,
@@ -768,6 +818,24 @@ def populate_weblab_tests(engine):
     session.add(up_any_dummy_allowed_p2)
     up_any_dummy_allowed_p3 = Model.DbUserPermissionParameter(up_any_dummy_allowed, experiment_allowed_p3, "200")
     session.add(up_any_dummy_allowed_p3)    
+    
+    
+    
+    up_any_pic18_allowed = Model.DbUserPermission(
+        any,
+        experiment_allowed.group_applicable,
+        "any::pic18",
+        datetime.datetime.utcnow(),
+        "Permission for any to use ud-pic18"
+    )
+
+    session.add(up_any_pic18_allowed)
+    up_any_pic18_allowed_p1 = Model.DbUserPermissionParameter(up_any_pic18_allowed, experiment_allowed_p1, "ud-pic18")
+    session.add(up_any_pic18_allowed_p1)
+    up_any_pic18_allowed_p2 = Model.DbUserPermissionParameter(up_any_pic18_allowed, experiment_allowed_p2, "pic experiments")
+    session.add(up_any_pic18_allowed_p2)
+    up_any_pic18_allowed_p3 = Model.DbUserPermissionParameter(up_any_pic18_allowed, experiment_allowed_p3, "200")
+    session.add(up_any_pic18_allowed_p3)  
 
 
     up_any_vm_allowed = Model.DbUserPermission(
@@ -989,38 +1057,6 @@ def populate_weblab_tests(engine):
     up_student2_gpib_allowed_p3 = Model.DbUserPermissionParameter(up_student2_gpib_allowed, experiment_allowed_p3, "150")
     session.add(up_student2_gpib_allowed_p3)             
                 
-                
-    up_any_pic_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed.group_applicable,
-        "any::weblab-pic",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-pic"
-    )
-    session.add(up_any_pic_allowed)
-    up_any_pic_allowed_p1 = Model.DbUserPermissionParameter(up_any_pic_allowed, experiment_allowed_p1, "ud-pic")
-    session.add(up_any_pic_allowed_p1)
-    up_any_pic_allowed_p2 = Model.DbUserPermissionParameter(up_any_pic_allowed, experiment_allowed_p2, "pic experiments")
-    session.add(up_any_pic_allowed_p2)
-    up_any_pic_allowed_p3 = Model.DbUserPermissionParameter(up_any_pic_allowed, experiment_allowed_p3, "150")
-    session.add(up_any_pic_allowed_p3)                
-
-    up_any_pic2_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed.group_applicable,
-        "any::weblab-pic2",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-pic2"
-    )
-    session.add(up_any_pic2_allowed)
-    up_any_pic2_allowed_p1 = Model.DbUserPermissionParameter(up_any_pic2_allowed, experiment_allowed_p1, "ud-pic2")
-    session.add(up_any_pic2_allowed_p1)
-    up_any_pic2_allowed_p2 = Model.DbUserPermissionParameter(up_any_pic2_allowed, experiment_allowed_p2, "PIC experiments")
-    session.add(up_any_pic2_allowed_p2)
-    up_any_pic2_allowed_p3 = Model.DbUserPermissionParameter(up_any_pic2_allowed, experiment_allowed_p3, "150")
-    session.add(up_any_pic2_allowed_p3)
-                            
-                           
     up_student1_admin_panel_access = Model.DbUserPermission(
         student1,
         admin_panel_access.user_applicable,
@@ -1044,19 +1080,20 @@ def populate_weblab_tests(engine):
                
     session.commit()
 
-for tests in ('','2','3'):
-    print "Populating 'WebLabTests%s' database...   \t\t" % tests, 
-    t = time.time()
+if not options.avoid_real:
+    for tests in ('','2','3'):
+        print "Populating 'WebLabTests%s' database...   \t\t" % tests, 
+        t = time.time()
 
-    engine = create_engine(weblab_test_db_str % tests, echo = False)
-    metadata = Model.Base.metadata
-    metadata.drop_all(engine)
-    metadata.create_all(engine)   
+        engine = create_engine(weblab_test_db_str % tests, echo = False)
+        metadata = Model.Base.metadata
+        metadata.drop_all(engine)
+        metadata.create_all(engine)   
 
-    _insert_required_initial_data(engine)
-    populate_weblab_tests(engine)
+        _insert_required_initial_data(engine)
+        populate_weblab_tests(engine, tests)
 
-    print "[done] [%1.2fs]" % (time.time() - t)
+        print "[done] [%1.2fs]" % (time.time() - t)
 
 
 

@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 #-*-*- encoding: utf-8 -*-*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -27,7 +27,7 @@ from   test.util.module_disposer import case_uses_module
 import weblab.core.user_processor as UserProcessor
 from weblab.core.reservation_processor import ReservationProcessor
 import weblab.core.reservations as Reservation
-import weblab.core.coordinator.coordinator as Coordinator 
+import weblab.core.coordinator.coordinator as Coordinator
 import weblab.core.coordinator.confirmer as Confirmer
 import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.data.server_type as ServerType
@@ -49,7 +49,7 @@ from weblab.core.coordinator.resource import Resource
 from weblab.core.coordinator.config_parser import COORDINATOR_LABORATORY_SERVERS
 
 import weblab.core.exc as coreExc
-import weblab.lab.exc as LaboratoryExceptions
+import weblab.lab.exc as LaboratoryErrors
 
 import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
@@ -141,7 +141,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.reservation_processor.finish()
 
         self.assertTrue( self.reservation_processor.is_expired() )
-    
+
     def test_is_expired_expired_without_expiration_time_set(self):
         time_mock = self.mocker.mock()
         time_mock.time()
@@ -176,7 +176,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
         #
         # Reserve the experiment
         self.create_reservation_processor()
-   
+
         self.coordinator.confirmer._confirm_handler.join()
 
         reservation_status = self.reservation_processor.get_status()
@@ -200,10 +200,10 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.coordinator.finish_reservation = lambda *args: 10 / 0
 
         self.assertRaises(
-                coreExc.FailedToFreeReservationException,
+                coreExc.FailedToFreeReservationError,
                 self.reservation_processor.finish
             )
-        
+
     def test_send_async_file_ok(self):
         file_content = "SAMPLE CONTENT"
         lab_response  = Command.Command("LAB RESPONSE")
@@ -266,8 +266,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
         file_content = "SAMPLE CONTENT"
         file_info    = "program"
         self.lab_mock.send_file(SessionId.SessionId('my_lab_session_id'), file_content, file_info)
-        self.mocker.throw( 
-                LaboratoryExceptions.SessionNotFoundInLaboratoryServerException("problem@laboratory") 
+        self.mocker.throw(
+                LaboratoryErrors.SessionNotFoundInLaboratoryServerError("problem@laboratory")
             )
         self.mocker.replay()
 
@@ -279,22 +279,22 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.assertFalse( self.reservation_processor.is_expired() )
 
         self.assertRaises(
-                coreExc.NoCurrentReservationException,
+                coreExc.NoCurrentReservationError,
                 self.reservation_processor.send_file,
                 file_content,
                 file_info
             )
 
         self.assertEquals( self.reservation_processor.get_status().status, Reservation.Reservation.POST_RESERVATION )
-        
+
     def test_send_async_file_session_not_found_in_lab(self):
         self._return_reserved()
 
         file_content = "SAMPLE CONTENT"
         file_info    = "program"
         self.lab_mock.send_async_file(SessionId.SessionId('my_lab_session_id'), file_content, file_info)
-        self.mocker.throw( 
-                LaboratoryExceptions.SessionNotFoundInLaboratoryServerException("problem@laboratory") 
+        self.mocker.throw(
+                LaboratoryErrors.SessionNotFoundInLaboratoryServerError("problem@laboratory")
             )
         self.mocker.replay()
 
@@ -306,7 +306,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.assertFalse( self.reservation_processor.is_expired() )
 
         self.assertRaises(
-                coreExc.NoCurrentReservationException,
+                coreExc.NoCurrentReservationError,
                 self.reservation_processor.send_async_file,
                 file_content,
                 file_info
@@ -320,8 +320,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
         file_content = "SAMPLE CONTENT"
         file_info    = "program"
         self.lab_mock.send_async_file(SessionId.SessionId('my_lab_session_id'), file_content, file_info)
-        self.mocker.throw( 
-                LaboratoryExceptions.FailedToInteractException("problem@laboratory") 
+        self.mocker.throw(
+                LaboratoryErrors.FailedToInteractError("problem@laboratory")
             )
         self.mocker.replay()
 
@@ -333,7 +333,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.assertFalse( self.reservation_processor.is_expired() )
 
         self.assertRaises(
-                coreExc.FailedToInteractException,
+                coreExc.FailedToInteractError,
                 self.reservation_processor.send_async_file,
                 file_content,
                 file_info
@@ -347,8 +347,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
         file_content = "SAMPLE CONTENT"
         file_info    = "program"
         self.lab_mock.send_file(SessionId.SessionId('my_lab_session_id'), file_content, file_info)
-        self.mocker.throw( 
-                LaboratoryExceptions.FailedToInteractException("problem@laboratory") 
+        self.mocker.throw(
+                LaboratoryErrors.FailedToInteractError("problem@laboratory")
             )
         self.mocker.replay()
 
@@ -360,14 +360,14 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.assertFalse( self.reservation_processor.is_expired() )
 
         self.assertRaises(
-                coreExc.FailedToInteractException,
+                coreExc.FailedToInteractError,
                 self.reservation_processor.send_file,
                 file_content,
                 file_info
             )
 
         self.assertEquals( self.reservation_processor.get_status().status, Reservation.Reservation.POST_RESERVATION )
-        
+
     def test_send_async_command_ok(self):
         self._return_reserved()
 
@@ -394,8 +394,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.reservation_processor.finish()
 
         self.assertEquals( self.reservation_processor.get_status().status, Reservation.Reservation.POST_RESERVATION )
-        
-        
+
+
 
     def test_send_command_ok(self):
         self._return_reserved()
@@ -430,8 +430,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
 
         command = Command.Command("Your command")
         self.lab_mock.send_command(SessionId.SessionId('my_lab_session_id'), command)
-        self.mocker.throw( 
-                LaboratoryExceptions.SessionNotFoundInLaboratoryServerException("problem@laboratory") 
+        self.mocker.throw(
+                LaboratoryErrors.SessionNotFoundInLaboratoryServerError("problem@laboratory")
             )
         self.mocker.replay()
 
@@ -443,21 +443,21 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.assertFalse( self.reservation_processor.is_expired() )
 
         self.assertRaises(
-                coreExc.NoCurrentReservationException,
+                coreExc.NoCurrentReservationError,
                 self.reservation_processor.send_command,
                 command
             )
 
         self.assertEquals( self.reservation_processor.get_status().status, Reservation.Reservation.POST_RESERVATION )
-        
-        
+
+
     def test_send_async_command_session_not_found_in_lab(self):
         self._return_reserved()
 
         command = Command.Command("Your command")
         self.lab_mock.send_async_command(SessionId.SessionId('my_lab_session_id'), command)
-        self.mocker.throw( 
-                LaboratoryExceptions.SessionNotFoundInLaboratoryServerException("problem@laboratory") 
+        self.mocker.throw(
+                LaboratoryErrors.SessionNotFoundInLaboratoryServerError("problem@laboratory")
             )
         self.mocker.replay()
 
@@ -469,7 +469,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.assertFalse( self.reservation_processor.is_expired() )
 
         self.assertRaises(
-                coreExc.NoCurrentReservationException,
+                coreExc.NoCurrentReservationError,
                 self.reservation_processor.send_async_command,
                 command
             )
@@ -481,8 +481,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
 
         command = Command.Command("Your command")
         self.lab_mock.send_async_command(SessionId.SessionId('my_lab_session_id'), command)
-        self.mocker.throw( 
-                LaboratoryExceptions.FailedToInteractException("problem@laboratory") 
+        self.mocker.throw(
+                LaboratoryErrors.FailedToInteractError("problem@laboratory")
             )
         self.mocker.replay()
 
@@ -494,7 +494,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.assertFalse( self.reservation_processor.is_expired() )
 
         self.assertRaises(
-                coreExc.FailedToInteractException,
+                coreExc.FailedToInteractError,
                 self.reservation_processor.send_async_command,
                 command
             )
@@ -506,8 +506,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
 
         command = Command.Command("Your command")
         self.lab_mock.send_command(SessionId.SessionId('my_lab_session_id'), command)
-        self.mocker.throw( 
-                LaboratoryExceptions.FailedToInteractException("problem@laboratory") 
+        self.mocker.throw(
+                LaboratoryErrors.FailedToInteractError("problem@laboratory")
             )
         self.mocker.replay()
 
@@ -519,7 +519,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.assertFalse( self.reservation_processor.is_expired() )
 
         self.assertRaises(
-                coreExc.FailedToInteractException,
+                coreExc.FailedToInteractError,
                 self.reservation_processor.send_command,
                 command
             )
@@ -552,7 +552,7 @@ class FakeDatabase(object):
     def is_access_forward(self, db_session_id):
         return True
 
-    def store_experiment_usage(self, db_session_id, reservation_info, experiment_usage):
+    def store_experiment_usage(self, db_session_id, experiment_usage):
         pass
 
     def get_available_experiments(self, db_session_id):
@@ -563,10 +563,10 @@ class FakeDatabase(object):
 
     def get_groups(self, db_session_id):
         return self.groups
-    
+
     def get_roles(self, db_session_id):
         return self.roles
-    
+
     def get_users(self, db_session_id):
         return self.users
 

@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import re
 
@@ -31,25 +31,25 @@ class CoordinationConfigurationParser(object):
         self._cfg_manager = cfg_manager
 
     def parse_external_servers(self):
-        # 
+        #
         # {
         #    'experiment_id_str' : [ 'resource_type_name' ]
         # }
-        # 
+        #
         external_servers = self._cfg_manager.get_value(COORDINATOR_EXTERNAL_SERVERS, {})
         for external_server in external_servers:
             external_servers[external_server] = set(external_servers[external_server])
         return external_servers
-        
+
 
     def parse_resources_for_experiment_ids(self):
         raw_configuration = self.parse_configuration()
-        
-        # 
+
+        #
         # {
         #    'experiment_id_str' : set('resource_type_name1', 'resource_type_name2')
         # }
-        # 
+        #
         configuration = self.parse_external_servers()
         for laboratory in raw_configuration:
             laboratory_config = raw_configuration[laboratory]
@@ -63,13 +63,13 @@ class CoordinationConfigurationParser(object):
         return configuration
 
     def parse_configuration(self):
-        # 
+        #
         # configuration = {
         #      "laboratory1:WL_SERVER1@WL_MACHINE1" : {
         #                 ExperimentInstanceId("exp1", "ud-pld", "PLD Experiments") : ("pld1", "ud-pld-boards")
         #      }
         # }
-        # 
+        #
         configuration = {}
 
         laboratory_servers = self._cfg_manager.get_value(COORDINATOR_LABORATORY_SERVERS)
@@ -83,11 +83,11 @@ class CoordinationConfigurationParser(object):
                 resource_instance = experiment_instances[experiment_instance]
                 mo_experiment_instance = re.match(self.EXPERIMENT_INSTANCE_REGEX, experiment_instance)
                 if mo_experiment_instance is None:
-                    raise coreExc.CoordinationConfigurationParsingException("Error in coordination parsing: %s doesn't match the regular expression %s" % (experiment_instance, self.EXPERIMENT_INSTANCE_REGEX))
+                    raise coreExc.CoordinationConfigurationParsingError("Error in coordination parsing: %s doesn't match the regular expression %s" % (experiment_instance, self.EXPERIMENT_INSTANCE_REGEX))
 
                 mo_resource_instance = re.match(self.RESOURCE_INSTANCE_REGEX, resource_instance)
                 if mo_resource_instance is None:
-                    raise coreExc.CoordinationConfigurationParsingException("Error in coordination parsing: %s doesn't match the regular expression %s" % (resource_instance, self.RESOURCE_INSTANCE_REGEX))
+                    raise coreExc.CoordinationConfigurationParsingError("Error in coordination parsing: %s doesn't match the regular expression %s" % (resource_instance, self.RESOURCE_INSTANCE_REGEX))
 
                 (
                     inst_name,
@@ -103,7 +103,7 @@ class CoordinationConfigurationParser(object):
                 ) = mo_resource_instance.groups()
 
                 resource = Resource(resource_type, resource_instance)
-                 
+
                 laboratory_configuration[experiment_instance_id] = resource
 
         return configuration

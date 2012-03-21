@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 #-*-*- encoding: utf-8 -*-*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
@@ -49,7 +49,7 @@ class ReservationsManager(object):
         try:
             reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
             if reservation is None:
-                raise CoordExc.ExpiredSessionException("Expired reservation: no experiment id found for that reservation")
+                raise CoordExc.ExpiredSessionError("Expired reservation: no experiment id found for that reservation (%s)" % reservation_id)
             return reservation.experiment_type.to_experiment_id()
         finally:
             session.close()
@@ -67,14 +67,14 @@ class ReservationsManager(object):
     def update(self, session, reservation_id):
         reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
         if reservation is None:
-            raise CoordExc.ExpiredSessionException("Expired reservation")
-        
+            raise CoordExc.ExpiredSessionError("Expired reservation")
+
         reservation.update()
 
     def confirm(self, session, reservation_id):
         reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
         if reservation is None:
-            raise CoordExc.ExpiredSessionException("Expired reservation")
+            raise CoordExc.ExpiredSessionError("Expired reservation")
 
         current_reservation = CurrentReservation(reservation.id)
         session.add(current_reservation)
@@ -84,7 +84,7 @@ class ReservationsManager(object):
         if current_reservation is None:
             return # Already downgraded
         session.delete(current_reservation)
- 
+
     def list_expired_reservations(self, session, expiration_time):
         return ( expired_reservation.id for expired_reservation in session.query(Reservation).filter(Reservation.latest_access < expiration_time).all() )
 
@@ -94,10 +94,10 @@ class ReservationsManager(object):
         try:
             experiment_type = session.query(ExperimentType).filter_by(exp_name = experiment_id.exp_name, cat_name = experiment_id.cat_name).first()
             if experiment_type is None:
-                raise CoordExc.ExperimentNotFoundException("Experiment %s not found" % experiment_id)
+                raise CoordExc.ExperimentNotFoundError("Experiment %s not found" % experiment_id)
 
             reservation_ids = []
-            
+
             for reservation in experiment_type.reservations:
                 reservation_ids.append(reservation.id)
 

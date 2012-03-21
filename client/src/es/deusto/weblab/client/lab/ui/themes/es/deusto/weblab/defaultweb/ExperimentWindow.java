@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005-2009 University of Deusto
+* Copyright (C) 2005 onwards University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -27,7 +27,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Hyperlink;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -63,6 +63,7 @@ class ExperimentWindow extends BaseWindow {
 	}
 
 	// Widgets
+	@UiField Image logoImage;
 	@UiField VerticalPanel containerPanel;
 	@UiField Label userLabel;
 	@UiField Anchor logoutLink;
@@ -71,6 +72,7 @@ class ExperimentWindow extends BaseWindow {
 	@UiField VerticalPanel experimentAreaPanel;
 	@UiField Label contentTitleLabel;
 	@UiField Label contentTitleLabelSelected;
+	@UiField Anchor contentTitleLabelInfo;
 	@UiField Grid detailsGrid;
 	@UiField Label experimentNameLabel;
 	@UiField Label experimentCategoryLabel;
@@ -105,6 +107,8 @@ class ExperimentWindow extends BaseWindow {
 	private final User user;
 	private final ExperimentAllowed experimentAllowed;
 	private final ExperimentBase experimentBase;
+	
+	private String infolink = null;
     
 	public ExperimentWindow(IConfigurationManager configurationManager, User user, ExperimentAllowed experimentAllowed, ExperimentBase experimentBase, IExperimentWindowCallback callback){
 	    super(configurationManager);
@@ -129,6 +133,9 @@ class ExperimentWindow extends BaseWindow {
 
 	public void loadWidgets(){		
 		ExperimentWindow.uiBinder.createAndBindUi(this);
+		
+		final String hostEntityImage = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_IMAGE, "");
+		this.logoImage.setUrl(GWT.getModuleBaseURL() + hostEntityImage);
 		
 		final IConfigurationRetriever retriever = ExperimentFactory.getExperimentConfigurationRetriever(this.experimentAllowed.getExperiment().getExperimentUniqueName());
 	    this.reserveButton.setVisible(retriever.getBoolProperty(RESERVE_BUTTON_SHOWN_PROPERTY, DEFAULT_RESERVE_BUTTON_SHOWN));
@@ -160,34 +167,29 @@ class ExperimentWindow extends BaseWindow {
 			retriever = ExperimentFactory.getExperimentConfigurationRetriever(this.experimentAllowed.getExperiment().getExperimentUniqueName());
 			
 			// Retrieve the address of the experiment info page
-			final String infolink = retriever.getProperty(ExperimentWindow.EXPERIMENT_INFOLINK_PROPERTY, 
-					ExperimentWindow.DEFAULT_EXPERIMENT_INFOLINK
-			);
+			this.infolink = retriever.getProperty(ExperimentWindow.EXPERIMENT_INFOLINK_PROPERTY, ExperimentWindow.DEFAULT_EXPERIMENT_INFOLINK);
 			
 			// Retrieve the short description of the experiment info page
-			final String infodesc = retriever.getProperty(ExperimentWindow.EXPERIMENT_INFODESCRIPTION_PROPERTY,
-					ExperimentWindow.DEFAULT_EXPERIMENT_INFODESCRIPTION
-					);
+			final String infodesc = retriever.getProperty(ExperimentWindow.EXPERIMENT_INFODESCRIPTION_PROPERTY, ExperimentWindow.DEFAULT_EXPERIMENT_INFODESCRIPTION);
 			
-			if(!infolink.isEmpty())
-				this.informationLink.setHref(infolink);
+			if(this.infolink != null && !this.infolink.isEmpty())
+				this.informationLink.setHref(this.infolink);
+			else
+				this.infolink = null;
 			this.informationLink.setText(infodesc);
 			
 		} catch(IllegalArgumentException e){
 			e.printStackTrace();
 			
 			this.informationLink.setText("<not available>");
+			this.infolink = null;
 		}
 		
-		// Open the info page in a new window.
-		this.informationLink.setTarget("_blank");
-		
-		String href = this.informationLink.getHref();
-		
-		
 		// If there is actually no information available, we will just hide the label
-		if(this.informationLink.getHref().isEmpty())
+		if(this.informationLink.getHref().isEmpty()) {
 			this.informationLinkLabel.setVisible(false);
+			this.informationLink.setVisible(false);
+		}
 	}
 	
 	
@@ -213,6 +215,10 @@ class ExperimentWindow extends BaseWindow {
 	}
 
 	public void loadUsingExperimentPanels() {
+		this.contentTitleLabelInfo.setVisible(this.infolink != null);
+		if(this.infolink != null)
+			this.contentTitleLabelInfo.setHref(this.infolink);
+
 	    this.contentTitleLabel.setText(this.experimentAllowed.getExperiment().getName());
 	    this.contentTitleLabelSelected.setText(this.experimentAllowed.getExperiment().getName());
 	    this.detailsGrid.setVisible(false);

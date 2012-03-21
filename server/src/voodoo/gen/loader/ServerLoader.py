@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 #-*-*- encoding: utf-8 -*-*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import voodoo.methods as voodoo_exported_methods
 
@@ -47,20 +47,20 @@ class ServerLoader(object):
     def load_instance(self, global_folder, machine_name, instance_name):
         global_parser = ConfigurationParser.GlobalParser()
         global_configuration = global_parser.parse(global_folder)
-        
+
         if (
-                not global_configuration.machines.has_key(machine_name) 
-                or 
+                not global_configuration.machines.has_key(machine_name)
+                or
                 not global_configuration.machines[machine_name].instances.has_key(instance_name)
             ):
             raise Exception("instance@machine not found")
 
         if len(global_configuration.machines[machine_name].instances[instance_name].servers.keys()) == 0:
-            raise Exception("Zero servers found!")  
-        
+            raise Exception("Zero servers found!")
+
         self._create_coordinator_server(
-                global_configuration, 
-                machine_name, 
+                global_configuration,
+                machine_name,
                 instance_name
             )
 
@@ -69,8 +69,8 @@ class ServerLoader(object):
         started_servers = []
         for server_name in instance.servers:
             locator = self._generate_easy_locator(
-                    global_configuration, 
-                    machine_name, 
+                    global_configuration,
+                    machine_name,
                     instance_name,
                     server_name
                 )
@@ -120,10 +120,10 @@ class ServerLoader(object):
                 )
 
         any_server = global_config.machines[machine_name].instances[instance_name].servers.values()[0]
-        
+
         server_type = getattr(any_server.server_type_module,'Coordinator')
 
-        map.add_new_server( 
+        map.add_new_server(
                 machine_name,
                 instance_name,
                 coordinator_server_name,
@@ -137,7 +137,7 @@ class ServerLoader(object):
                 DirectAddress.from_coord_address(coordinator_coord_address)
             )
         coordinator_access = Access.Access(
-                Protocols.Direct, 
+                Protocols.Direct,
                 AccessLevel.instance,
                 (coordinator_network,)
             )
@@ -155,7 +155,7 @@ class ServerLoader(object):
                 machine_name,
                 instance_name
             )
-   
+
         generated_coordinator = ServerSkel.factory(
                     cfg_manager,
                     protocols,
@@ -219,7 +219,7 @@ class ServerLoader(object):
                     if current_server_type != server.server_type_module:
                         raise Exception("Too many server types found!")
                     map[server.server_type] = server.methods
-        
+
         if current_server_type is None:
             raise Exception("No server type found!")
         map[current_server_type.Coordinator] = voodoo_exported_methods.coordinator
@@ -227,7 +227,7 @@ class ServerLoader(object):
 
     def _generate_coordinator_server_name(self, machine_name, instance_name):
         return '__%s_%s_coordinator__' % (
-                        machine_name, 
+                        machine_name,
                         instance_name
                     )
 

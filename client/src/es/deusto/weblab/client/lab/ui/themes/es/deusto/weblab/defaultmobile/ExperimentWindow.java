@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2005-2009 University of Deusto
+* Copyright (C) 2005 onwards University of Deusto
 * All rights reserved.
 *
 * This software is licensed as described in the file COPYING, which
@@ -91,7 +91,7 @@ class ExperimentWindow extends BaseWindow {
 		
 		this.loadWidgets();
 		
-		this.loggedPanel = new LoggedPanel(this.user, this.callback);
+		this.loggedPanel = new LoggedPanel(this.user, this.callback, configurationManager);
 		this.mainPanel.add(this.loggedPanel);
 
 		final Widget wid = this.uiBinder.createAndBindUi(this);

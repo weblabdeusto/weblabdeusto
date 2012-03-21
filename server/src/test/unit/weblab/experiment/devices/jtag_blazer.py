@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005-2009 University of Deusto
+# Copyright (C) 2005 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -40,7 +40,7 @@ class JTagBlazerTestCase(unittest.TestCase):
 
     def test_program_device_invalid_svf(self):
         self.assertRaises(
-            jtag_blazer.InvalidSvfFileExtException,
+            jtag_blazer.InvalidSvfFileExtError,
             self.jtag_blazer.program_device,
             "file.svfxxx", "0.0.0.0"
         )
@@ -53,7 +53,7 @@ class JTagBlazerTestCase(unittest.TestCase):
         popen.stderr.read.return_value = ''
 
         self.assertRaises(
-            jtag_blazer.JTagBlazerSvf2JsvfErrorException,
+            jtag_blazer.JTagBlazerSvf2JsvfErrorError,
             self.jtag_blazer.program_device,
             "file.svf", "0.0.0.0"
         )
@@ -66,7 +66,7 @@ class JTagBlazerTestCase(unittest.TestCase):
         popen.stderr.read.return_value = 'ERROR'
 
         self.assertRaises(
-            jtag_blazer.JTagBlazerSvf2JsvfErrorException,
+            jtag_blazer.JTagBlazerSvf2JsvfErrorError,
             self.jtag_blazer.program_device,
             "file.svf", "0.0.0.0"
         )
@@ -79,7 +79,7 @@ class JTagBlazerTestCase(unittest.TestCase):
         popen.stderr.read.return_value = ''
 
         self.assertRaises(
-            jtag_blazer.JTagBlazerSvf2JsvfErrorException,
+            jtag_blazer.JTagBlazerSvf2JsvfErrorError,
             self.jtag_blazer.program_device,
             "file.svf", "0.0.0.0"
         )
@@ -92,7 +92,7 @@ class JTagBlazerTestCase(unittest.TestCase):
         popen.stderr.read.side_effect = return_values(['', ''])
 
         self.assertRaises(
-            jtag_blazer.JTagBlazerTargetErrorException,
+            jtag_blazer.JTagBlazerTargetErrorError,
             self.jtag_blazer.program_device,
             "file.svf", "0.0.0.0"
         )
@@ -105,7 +105,7 @@ class JTagBlazerTestCase(unittest.TestCase):
         popen.stderr.read.side_effect = return_values(['', 'ERROR'])
 
         self.assertRaises(
-            jtag_blazer.JTagBlazerTargetErrorException,
+            jtag_blazer.JTagBlazerTargetErrorError,
             self.jtag_blazer.program_device,
             "file.svf", "0.0.0.0"
         )
@@ -118,7 +118,7 @@ class JTagBlazerTestCase(unittest.TestCase):
         popen.stderr.read.side_effect = return_values(['', ''])
 
         self.assertRaises(
-            jtag_blazer.JTagBlazerTargetErrorException,
+            jtag_blazer.JTagBlazerTargetErrorError,
             self.jtag_blazer.program_device,
             "file.svf", "0.0.0.0"
         )
@@ -132,7 +132,7 @@ class JTagBlazerTestCase(unittest.TestCase):
         self.jtag_blazer._busy = True
 
         self.assertRaises(
-            jtag_blazer.AlreadyProgrammingDeviceException,
+            jtag_blazer.AlreadyProgrammingDeviceError,
             self.jtag_blazer.program_device,
             "file.svf", "0.0.0.0"
         )
@@ -143,7 +143,7 @@ class JTagBlazerTestCase(unittest.TestCase):
         Popen.side_effect = Exception("can't create Popen!")
 
         self.assertRaises(
-            jtag_blazer.ErrorProgrammingDeviceException,
+            jtag_blazer.ErrorProgrammingDeviceError,
             self.jtag_blazer.program_device,
             "file.svf", "0.0.0.0"
         )
