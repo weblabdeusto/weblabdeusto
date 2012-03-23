@@ -487,6 +487,9 @@ def populate_weblab_tests(engine, tests):
     cat_ilab = Model.DbExperimentCategory("iLab experiments")
     session.add(cat_ilab)
 
+    cat_visir = Model.DbExperimentCategory("Visir experiments")
+    session.add(cat_visir)
+
     # Experiments
     start_date = datetime.datetime.utcnow()
     end_date = start_date.replace(year=start_date.year+12) # So leap years are not a problem
@@ -545,6 +548,9 @@ def populate_weblab_tests(engine, tests):
 
     visirtest = Model.DbExperiment("visirtest", cat_dummy, start_date, end_date)
     session.add(visirtest)
+
+    visir = Model.DbExperiment("visir", cat_visir, start_date, end_date)
+    session.add(visir)
 
     vm = Model.DbExperiment("vm", cat_dummy, start_date, end_date)
     session.add(vm)
@@ -786,6 +792,22 @@ def populate_weblab_tests(engine, tests):
     session.add(up_any_visirtest_allowed_p2)
     up_any_visirtest_allowed_p3 = Model.DbUserPermissionParameter(up_any_visirtest_allowed, experiment_allowed_p3, "3600")
     session.add(up_any_visirtest_allowed_p3)    
+
+    up_any_visir_allowed = Model.DbUserPermission(
+        any,
+        experiment_allowed.group_applicable,
+        "any::weblab-visir",
+        datetime.datetime.utcnow(),
+        "Permission for any to use WebLab-VisirTest"
+    )
+
+    session.add(up_any_visir_allowed)
+    up_any_visir_allowed_p1 = Model.DbUserPermissionParameter(up_any_visir_allowed, experiment_allowed_p1, "visir")
+    session.add(up_any_visir_allowed_p1)
+    up_any_visir_allowed_p2 = Model.DbUserPermissionParameter(up_any_visir_allowed, experiment_allowed_p2, "Visir experiments")
+    session.add(up_any_visir_allowed_p2)
+    up_any_visir_allowed_p3 = Model.DbUserPermissionParameter(up_any_visir_allowed, experiment_allowed_p3, "3600")
+    session.add(up_any_visir_allowed_p3)    
 
     up_any_logic_allowed = Model.DbUserPermission(
         any,

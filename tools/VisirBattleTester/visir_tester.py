@@ -75,6 +75,13 @@ class Tester(object):
                 assertions.append(AssertionResult(11000.0, 200, result))
                 times.append(after - before)
 
+                before = time.time()
+                response = weblab.send_command(reservation_id, Command(visir_commands.visir_request_rectifier % visir_sessionid))
+                after = time.time()
+                # Don't know how to measure the response, but at least check that the response is a valid VISIR response
+                result = visir_commands.parse_command_response(response, 'dmm_resolution')
+                assertions.append(AssertionResult(3.5, 200, result))
+                times.append(after - before)
 
                 before = time.time()
                 response = weblab.send_command(reservation_id, Command(visir_commands.visir_request_900 % visir_sessionid))
