@@ -42,6 +42,9 @@ class LoginServer(object):
 
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(LoginServer,self).__init__(*args, **kwargs)
+
+        log.log( LoginServer, log.level.Info, "Starting Login Server")
+
         self._coord_address = coord_address
         self._db_manager    = DatabaseManager.LoginDatabaseManager(cfg_manager)
         self._locator       = locator

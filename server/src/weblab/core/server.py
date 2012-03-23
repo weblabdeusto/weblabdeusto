@@ -132,6 +132,8 @@ class UserProcessingServer(object):
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(UserProcessingServer,self).__init__(*args, **kwargs)
 
+        log.log( UserProcessingServer, log.level.Info, "Starting Core Server...")
+
         self._stopping = False
         self._cfg_manager    = cfg_manager
         self._locator        = locator
