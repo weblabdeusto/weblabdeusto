@@ -13,15 +13,15 @@ from visir_tester import Tester
 
 # EXECUTIONS = 15
 # PROCESSES  = 80
-# URL = "http://www.weblab.deusto.es/weblab/"
-# USERNAME = "tester"
-# PASSWORD = "t3st3r6"
+URL = "http://www.weblab.deusto.es/weblab/"
+USERNAME = "tester"
+PASSWORD = "t3st3r6"
 
 EXECUTIONS =  2
-PROCESSES  =  2
-URL = "http://localhost/weblab/"
-USERNAME = "any"
-PASSWORD = "password"
+PROCESSES  =  10
+# URL = "http://localhost/weblab/"
+# USERNAME = "any"
+# PASSWORD = "password"
 
 def f(n):
     time.sleep(0.01 * n)

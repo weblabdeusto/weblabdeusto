@@ -167,6 +167,16 @@
 	                        	  "experiment.name"      : "ud-pld",
 	                        	  "experiment.category"  : "PLD experiments",
 	                        	  "experiment.picture"   : "/img/experiments/xilinx.jpg"
+	                          },
+                              {
+	                        	  "experiment.name"      : "ud-pld-1",
+	                        	  "experiment.category"  : "PLD experiments",
+	                        	  "experiment.picture"   : "/img/experiments/xilinx.jpg"
+	                          },
+                              {
+	                        	  "experiment.name"      : "ud-pld-2",
+	                        	  "experiment.category"  : "PLD experiments",
+	                        	  "experiment.picture"   : "/img/experiments/xilinx.jpg"
 	                          }
 	                       ],
 	                "dummy" : [
