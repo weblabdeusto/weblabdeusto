@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
 
 import cgi
@@ -25,11 +26,16 @@ from weblab.comm.context import get_context, create_context, delete_context
 
 import voodoo.log as log
 
+import pickle
+
+DEFAULT_CONTENT_TYPE = "text/html"
+
 class MethodError(Exception):
     def __init__(self, status, msg):
         super(MethodError, self).__init__((status, msg))
         self.status = status
         self.msg    = msg
+
 
 class RequestManagedError(Exception):
     pass
@@ -43,6 +49,14 @@ class Method(object):
         self.cfg_manager = cfg_manager
         self.server      = server
         self.post_read   = False
+        self.content_type = DEFAULT_CONTENT_TYPE
+        self.other_headers = {}
+        self.if_none_match = self.req.headers.getheader('If-None-Match')
+        self.if_modified_since = self.req.headers.getheader('If-Modified-Since')
+        
+        # The status code the method will report will generally be 200,
+        # but it might be changed.
+        self.status_code = 200 
 
     def run(self):
         return "Method %s does not implement run method!" % self.__class__.__name__
@@ -60,15 +74,47 @@ class Method(object):
                 return default_value
             return postvar[0]
         return default_value
-
+    
+    def get_other_headers(self):
+        """
+        Retrieves a map containing additional HTTP headers to include. 
+        HTTP headers may be added through add_other_header method.
+        @see add_other_header
+        """
+        return self.other_headers
+    
+    def add_other_header(self, name, value):
+        """
+        Adds a new additional HTTP header to include in the response.
+        @param name Name of the header
+        @param value Value of the header
+        """
+        self.other_headers[name] = value
+    
     def get_status(self):
-        return 200
+        """
+        get_status()
+        Returns the HTTP status code that the method will report. It will
+        be 200 by default, but it can be changed through set_status.
+        @see set_status
+        """
+        return self.status_code
+
+    def set_status(self, code):
+        """
+        set_status(code)
+        Sets the status code to return.
+        """
+        self.status_code = code
 
     def get_other_cookies(self):
         return []
 
     def get_content_type(self):
-        return "text/html"
+        return self.content_type
+    
+    def set_content_type(self, content_type):
+        self.content_type = content_type
 
     def get_GET_argument(self, name, default_value = None):
         for arg_name, value in self.get_arguments():
@@ -133,7 +179,7 @@ class Method(object):
         # If coming from /weblab001/web/login/?foo=bar will return
         # /login/?foo=bar
         #
-        # If coming from /foo/?bar will erturn
+        # If coming from /foo/?bar will return
         # /foo/?bar
         finder = '/web/'
         if path.find(finder) >= 0:
@@ -179,7 +225,7 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 if method.matches(self.path):
                     m = method(self, self.cfg_manager, self.original_server)
                     message = m.run()
-                    self._write(m.get_status(), m.get_content_type(), m.get_other_cookies(), message)
+                    self._write(m.get_status(), m.get_content_type(), m.get_other_cookies(), message, m.get_other_headers())
                     break
             else:
                 NotFoundMethod(self, self.cfg_manager, self.original_server).run()
@@ -201,10 +247,24 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     do_POST = do_GET
 
-    def _write(self, status, content_type, other_cookies, response):
+    def _write(self, status, content_type, other_cookies, response, other_headers = {}):
+        """
+        Writes the HTTP response.
+        @param status HTTP status code.
+        @param content_type Mimetype of the response. Often, text/html, but may be specified.
+        @param other_cookies Additional cookies to include.
+        @param response The contents themselves.
+        @param other_headers Additional HTTP headers to include (Besides Content-type, Content-length, and cookies).
+        """
+        
         self.send_response(status)
         self.send_header("Content-type", content_type)
         self.send_header("Content-length", str(len(response)))
+        
+        # Write also the additional headers specified, if any. 
+        for name, val in other_headers.items():
+            self.send_header(name, val)
+        
         if self.server_route is not None:
             route = get_context().route
             if route is None:

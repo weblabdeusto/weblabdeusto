@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
 
 import weblab.comm.web_server as WebFacadeServer
@@ -19,6 +20,7 @@ from weblab.core.comm.web.upload   import FileUploadMethod
 from weblab.core.comm.web.labview  import LabViewMethod
 from weblab.core.comm.web.client   import ClientMethod
 from weblab.core.comm.web.ilab     import ILabMethod
+from weblab.core.comm.web.visir   import VisirMethod
 from weblab.core.comm.web.language import LanguageMethod
 
 from weblab.core.comm.user_server import USER_PROCESSING_FACADE_SERVER_ROUTE, DEFAULT_USER_PROCESSING_SERVER_ROUTE
@@ -35,6 +37,7 @@ class UserProcessingWebProtocolRemoteFacadeServer(WebFacadeServer.WebProtocolRem
                 LabViewMethod,
                 ClientMethod,
                 ILabMethod,
+                VisirMethod,
                 LanguageMethod
             ]
 

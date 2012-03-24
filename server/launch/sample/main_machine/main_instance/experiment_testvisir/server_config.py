@@ -9,7 +9,7 @@ vt_login_url = """https://weblab-visir.deusto.es/electronics/student.php"""
 vt_login_email = "guest"
 vt_login_password = "guest"
 
-vt_client_url = "visir/loader.swf"
+vt_client_url = "../../weblab/web/visir/loader.swf"
 
 vt_debug_prints = False
 
@@ -38,3 +38,40 @@ vt_debug_prints = False
 </save>
 """
 
+
+vt_circuits = {}
+
+
+
+
+vt_circuits["Single Line experiment"] = \
+"""
+<save><instruments list="breadboard/breadboard.swf|multimeter/multimeter.swf|functiongenerator/functiongenerator.swf|oscilloscope/oscilloscope.swf|tripledc/tripledc.swf"/><circuit><circuitlist><component>W 255 442 234 457.15 279.5 442 325</component></circuitlist></circuit></save>
+"""
+
+vt_circuits["House experiment"] = \
+"""
+<save>
+  <instruments list="breadboard/breadboard.swf|multimeter/multimeter.swf|functiongenerator/functiongenerator.swf|oscilloscope/oscilloscope.swf|tripledc/tripledc.swf"/>
+  <circuit>
+    <circuitlist>
+      <component>W 255 312 208 338 286 312 364</component>
+      <component>W 255 338 208 353.15 166.8 390 143</component>
+      <component>W 255 403 143 459.3 160.3 494 208</component>
+      <component>W 255 494 221 515.65 286 494 351</component>
+      <component>W 255 338 351 409.5 327.15 481 351</component>
+      <component>W 16711680 390 273 392.15 296.8 390 325</component>
+      <component>W 16711680 416 273 431.15 296.8 429 325</component>
+      <component>W 16711680 390 260 404 279 416 260</component>
+      <component>W 16776960 351 195 364 212.3 364 221</component>
+      <component>W 16776960 377 221 390 216.65 403 221</component>
+      <component>W 16776960 390 195 400.8 205.8 403 221</component>
+      <component>W 16776960 364 195 377 190.65 390 195</component>
+      <component>W 16776960 429 195 442 212.3 442 234</component>
+      <component>W 16776960 468 234 481 229.65 494 234</component>
+      <component>W 16776960 481 208 470.15 197.15 455 195</component>
+      <component>W 16776960 442 195 448.5 192.8 455 195</component>
+    </circuitlist>
+  </circuit>
+</save>
+"""
