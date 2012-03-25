@@ -14,12 +14,13 @@
 
 package es.deusto.weblab.server;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -35,63 +36,72 @@ public class RequestForwarder extends HttpServlet{
 	private final String host = "localhost";
 	
 	@Override
-	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
-		final URLConnection serverConnection = new URL("http", this.host, req.getRequestURI()).openConnection();
-		serverConnection.setDoOutput(true);
-		
-		this.forwardHeadersFromBrowser(req, serverConnection);
-		serverConnection.addRequestProperty("Connection", "close");
-		serverConnection.addRequestProperty("X-Faa", "ber");
-		
-		this.forwardStreamToEnd(req.getInputStream(), serverConnection.getOutputStream());
-		
-		String[] postHeaders = new String[]{ "Server", "Date", "Content-type", "Content-length", "Set-Cookie", "Content-encoding", "Vary", "Last-Modified"};
-		this.forwardHeadersToBrowser(resp, serverConnection, postHeaders);
-		resp.addHeader("Connection", "close");
-		resp.addHeader("X-Foo", "bar");
-		
-		this.forwardStreamToSize(serverConnection.getInputStream(), resp.getOutputStream(), serverConnection.getContentLength());
+	public void doHead(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		forwardRequest(req, resp);
 	}
-	
+
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		final String queryString;
-		if(req.getQueryString() != null)
-			queryString = "?"+req.getQueryString();
+		forwardRequest(req, resp);
+	}
+
+	@Override
+	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
+		forwardRequest(req, resp);
+	}
+	
+	private void forwardRequest(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		final HttpURLConnection serverConnection = startRequest(req);
+
+		if(req.getMethod().equals("POST"))
+			this.forwardStreamToEnd(req.getInputStream(), serverConnection.getOutputStream());
+		
+		int statusCode;
+		try{
+			statusCode = serverConnection.getResponseCode();
+		}catch(IOException e) {
+			statusCode = serverConnection.getResponseCode();
+		}
+		resp.setStatus(statusCode);
+		
+		final boolean isError = (statusCode / 100) % 1000 == 4 || (statusCode / 100) % 1000 == 5; 
+		
+		final String[] headers; 
+		
+		if(req.getMethod().equals("POST"))
+			headers = new String[]{ "Server", "Date", "Content-type", "Content-length", "Set-Cookie", "Content-encoding", "Vary", "Last-Modified"};
 		else
-			queryString = "";
-		final HttpURLConnection serverConnection = (HttpURLConnection)new URL("http", this.host, req.getRequestURI()+queryString).openConnection();
-		serverConnection.setDoOutput(true);
-		serverConnection.setRequestMethod(req.getMethod());
-
-		this.forwardHeadersFromBrowser(req, serverConnection);
-		serverConnection.addRequestProperty("Connection", "close");
-		serverConnection.addRequestProperty("X-Faa", "ber");
+			headers = new String[]{ "Server", "Date", "Set-Cookie", "Content-encoding", "Vary", "Last-Modified"};
 		
-		String[] getHeaders = new String[]{ "Server", "Date", "Set-Cookie", "Content-encoding", "Vary", "Last-Modified"};
-		this.forwardHeadersToBrowser(resp, serverConnection, getHeaders); // This makes the request!
-		resp.addHeader("Connection", "close");
-		resp.addHeader("X-Foo", "bar");
-		
-		this.forwardStreamToSize(serverConnection.getInputStream(), resp.getOutputStream(), serverConnection.getContentLength());
-	}
-
-	private void forwardHeadersFromBrowser(HttpServletRequest req, final URLConnection serverConnection) {
-	    final Enumeration<?> headersIn = req.getHeaderNames();
-	    while(headersIn.hasMoreElements()){
-	    	final String header = (String)headersIn.nextElement();
-	    	if(this.isValidHeader(header))
-	    	    serverConnection.addRequestProperty(header, req.getHeader(header));
-	    }
-	}
-
-	private void forwardHeadersToBrowser(HttpServletResponse resp, final URLConnection serverConnection, String[] headers) {
 	    for(final String header : headers){
 	        final String value = serverConnection.getHeaderField(header);
-	        if(this.isValidHeader(header) && value != null){
+	        if(isValidHeader(header) && value != null){
 	    		resp.addHeader(header, value);
 	        }
 	    }
+		resp.addHeader("Connection", "close");
+		resp.addHeader("X-Foo", "bar");
+		
+		this.forwardStreamToSize(isError?serverConnection.getErrorStream():serverConnection.getInputStream(), resp.getOutputStream(), serverConnection.getContentLength());
+	}
+
+	private HttpURLConnection startRequest(HttpServletRequest req) throws IOException {
+		final String queryString = (req.getQueryString() != null)?"?"+req.getQueryString():"";
+		final HttpURLConnection serverConnection = (HttpURLConnection)new URL("http", this.host, req.getRequestURI()+queryString).openConnection();
+		serverConnection.setDoOutput(true);
+		serverConnection.setDoInput(true);
+		serverConnection.setUseCaches(false);
+		
+	    final Enumeration<?> headersIn = req.getHeaderNames();
+	    while(headersIn.hasMoreElements()){
+	    	final String header = (String)headersIn.nextElement();
+	    	if(isValidHeader(header))
+	    	    serverConnection.addRequestProperty(header, req.getHeader(header));
+	    }
+		serverConnection.addRequestProperty("Connection", "close");
+		serverConnection.addRequestProperty("X-Faa", "ber");
+		serverConnection.connect();
+		return serverConnection;
 	}
 
 	private final static Collection<String> badHeaders = Arrays.asList("host", "connection", "keep-alive");
@@ -101,32 +111,36 @@ public class RequestForwarder extends HttpServlet{
 	}
 
 	private void forwardStreamToEnd(final InputStream is, final OutputStream os) throws IOException {
+		final BufferedInputStream bis = new BufferedInputStream(is);
+		final BufferedOutputStream bos = new BufferedOutputStream(os);
     	final byte [] buffer = new byte [4096];
     	int bytesRead;
     	do{
-    		bytesRead = is.read(buffer);
+    		bytesRead = bis.read(buffer);
     		
     		if(bytesRead > 0)
-    		    os.write(buffer, 0, bytesRead);
+    		    bos.write(buffer, 0, bytesRead);
     	}while(bytesRead != -1);
-    	is.close();
-    	os.flush();
-    	os.close();
+    	bis.close();
+    	bos.flush();
+    	bos.close();
     }
 
 	private void forwardStreamToSize(final InputStream is, final OutputStream os, int size) throws IOException {
+		final BufferedInputStream bis = new BufferedInputStream(is);
+		final BufferedOutputStream bos = new BufferedOutputStream(os);
     	final byte [] buffer = new byte [4096];
     	int bytesRead;
     	int totalRead = size;
     	do{
-    		bytesRead = is.read(buffer);
+    		bytesRead = bis.read(buffer);
     		if(bytesRead > 0){
-    		    os.write(buffer, 0, bytesRead);
+    		    bos.write(buffer, 0, bytesRead);
     		    totalRead -= bytesRead;
     		}
     	}while(bytesRead != -1 && totalRead > 0);
-    	is.close();
-    	os.flush();
-    	os.close();
+    	bis.close();
+    	bos.flush();
+    	bos.close();
     }
 }
