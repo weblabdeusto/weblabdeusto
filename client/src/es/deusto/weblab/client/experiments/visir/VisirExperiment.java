@@ -75,10 +75,11 @@ public class VisirExperiment extends FlashExperiment {
 		final VisirSetupData initialConfig = new VisirSetupData();
 		boolean success = initialConfig.parseData(initialConfiguration);
 		if(success) {
-			VisirExperiment.this.cookie   = initialConfig.getCookie();
-			VisirExperiment.this.savedata = initialConfig.getSaveData();
-			VisirExperiment.this.url      = initialConfig.getURL();
-			VisirExperiment.this.teacher  = initialConfig.isTeacher(); 
+			VisirExperiment.this.cookie            = initialConfig.getCookie();
+			VisirExperiment.this.savedata          = initialConfig.getSaveData();
+			VisirExperiment.this.url               = initialConfig.getURL();
+			VisirExperiment.this.teacher           = initialConfig.isTeacher();
+			VisirExperiment.this.circuitsAvailable = initialConfig.getCircuitsAvailable();
 						
 			VisirExperiment.this.updateFlashVars();
 			VisirExperiment.this.setSwfFile(VisirExperiment.this.url);
