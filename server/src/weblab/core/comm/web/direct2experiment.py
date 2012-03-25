@@ -56,6 +56,8 @@ class Direct2ExperimentMethod(WebFacadeServer.Method):
         except Exception:
             return HTML_ERROR_TEMPLATE
 
-        # Make a redirect
-        return """<html><body><a href="../../client/federated.html#reservation_id=%s">here</a></body></html>""" % reservation_id.reservation_id.id
+        new_location = "../../client/federated.html#reservation_id=%s" % reservation_id.reservation_id.id
+        self.set_status(302)
+        self.add_other_header('Location', new_location)
+        return """<html><body><a href="%s">Click here</a></body></html>""" % new_location
 
