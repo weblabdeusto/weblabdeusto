@@ -207,7 +207,7 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         @param response JSON-encoded response to the successfully executed JSON request.
         """
         self.send_response(200)
-        self.send_header("Content-type", "text/xml")
+        self.send_header("Content-type", "application/json")
         self.send_header("Content-length", str(len(response)))
         if self.server_route is not None:
             ctx = get_context()
