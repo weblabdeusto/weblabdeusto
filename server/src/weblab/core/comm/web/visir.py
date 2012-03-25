@@ -54,7 +54,7 @@ FAULT_HTML_TEMPLATE = BASE_HTML_TEMPLATE % {
 		"MESSAGE" : "ERROR@%(THE_FAULT_CODE)s@%(THE_FAULT_MESSAGE)s"
 	}
 
-DEBUG = True
+DEBUG = False
 
 class UploadExtractor(object):
     """
