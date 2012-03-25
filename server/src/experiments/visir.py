@@ -310,6 +310,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         return "ok"
 
     @Override(ConcurrentExperiment.ConcurrentExperiment)
+    @logged()
     def do_send_command_to_device(self, lab_session_id, command):
         """
         Callback run when the client sends a command to the experiment

@@ -259,6 +259,8 @@ class  VisirMethod(WebFacadeServer.Method):
         partheaders, filename = extractor.extract_file() #@UnusedVariable
         partheaders, filedata = extractor.extract_file() #@UnusedVariable
         
+        if not os.path.exists(VISIR_TEMP_FILES):
+            os.makedirs(VISIR_TEMP_FILES)
         fd, name = tempfile.mkstemp(suffix='.cir.tmp', prefix='weblab_visir_', dir=VISIR_TEMP_FILES)
         os.close(fd)
 

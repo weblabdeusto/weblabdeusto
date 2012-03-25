@@ -111,9 +111,6 @@ public class VisirExperiment extends FlashExperiment {
 					}
 				}
 		);
-		
-		//super.start();
-		
 	}
 	
 	
