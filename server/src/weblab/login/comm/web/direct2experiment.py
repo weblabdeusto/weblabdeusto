@@ -14,6 +14,7 @@
 #
 
 import cgi
+import urllib
 import weblab.comm.web_server as WebFacadeServer
 import weblab.login.exc as LoginErrors
 
@@ -62,6 +63,30 @@ HTML_ERROR_TEMPLATE="""<html>
 </body>
 </html>""" % (EXPERIMENT_ID, '%s')
 
+
+HTML_REDIRECT_TEMPLATE="""<html>
+<head>
+    <title>WebLab-Deusto redirector</title>
+    <script type="text/javascript">
+    <!--
+        function redirect_weblab(){
+            document.getElementById('reservation_form').submit();
+        }
+    //-->
+    </script>
+</head>
+<body onload="javascript:redirect_weblab();">
+    <p>Please, click on 'Submit'</p>
+    <form action="../../../web/direct2experiment/" method="POST" id="reservation_form">
+        <input type="text" name="session_id"    value="%(session_id)s" />
+        <input type="text" name="experiment_id" value="%(experiment_id)s" />
+        <input type="submit" value="Submit"/>
+    </form>
+    </div>
+</body>
+</html>
+"""
+
 class Direct2ExperimentMethod(WebFacadeServer.Method):
     path = '/direct2experiment/'
 
@@ -81,9 +106,8 @@ class Direct2ExperimentMethod(WebFacadeServer.Method):
         except Exception:
             return HTML_ERROR_TEMPLATE % cgi.escape(experiment_id)
 
-        # TODO: reserve experiment_id and then redirect (302) to .
-        # federated.html#reservation_id=(whatever)
-        # Even better: redirect to the core/web/direct2experiment/, and that
-        # handles all the requests.
-        return "%s;%s" % (session_id.id, self.weblab_cookie)
+        return HTML_REDIRECT_TEMPLATE % {
+            'session_id'    : session_id.id,
+            'experiment_id' : urllib.unquote(experiment_id)
+        }
 

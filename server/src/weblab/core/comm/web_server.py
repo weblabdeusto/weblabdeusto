@@ -15,11 +15,12 @@
 
 import weblab.comm.web_server as WebFacadeServer
 
-from weblab.core.comm.web.upload   import FileUploadMethod
-from weblab.core.comm.web.labview  import LabViewMethod
-from weblab.core.comm.web.client   import ClientMethod
-from weblab.core.comm.web.ilab     import ILabMethod
-from weblab.core.comm.web.language import LanguageMethod
+from weblab.core.comm.web.upload            import FileUploadMethod
+from weblab.core.comm.web.labview           import LabViewMethod
+from weblab.core.comm.web.client            import ClientMethod
+from weblab.core.comm.web.ilab              import ILabMethod
+from weblab.core.comm.web.language          import LanguageMethod
+from weblab.core.comm.web.direct2experiment import Direct2ExperimentMethod
 
 from weblab.core.comm.user_server import USER_PROCESSING_FACADE_SERVER_ROUTE, DEFAULT_USER_PROCESSING_SERVER_ROUTE
 
@@ -35,7 +36,8 @@ class UserProcessingWebProtocolRemoteFacadeServer(WebFacadeServer.WebProtocolRem
                 LabViewMethod,
                 ClientMethod,
                 ILabMethod,
-                LanguageMethod
+                LanguageMethod,
+                Direct2ExperimentMethod,
             ]
 
 class UserProcessingWebRemoteFacadeServer(WebFacadeServer.WebRemoteFacadeServer):
