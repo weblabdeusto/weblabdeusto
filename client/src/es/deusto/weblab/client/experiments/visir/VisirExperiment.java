@@ -16,11 +16,13 @@ package es.deusto.weblab.client.experiments.visir;
 
 import java.util.List;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.URL;
 
 import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.experiments.visir.i18n.IVisirMessages;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard;
@@ -34,6 +36,8 @@ public class VisirExperiment extends FlashExperiment {
 	private String savedata = null;
 	
 	private List<String> circuitsAvailable;
+	
+	private static IVisirMessages i18n = GWT.create(IVisirMessages.class);
 
 	/**
 	 * Constructs a Board for the Visir client. It does not actually generate the
@@ -43,11 +47,8 @@ public class VisirExperiment extends FlashExperiment {
 	 * @param configurationRetriever
 	 * @param boardController
 	 */
-	public VisirExperiment(IConfigurationRetriever configurationRetriever,
-			IBoardBaseController boardController) {
-		super(configurationRetriever, boardController, "", 800, 500,
-				 "",
-				 "Visir Flash Experiment", true);
+	public VisirExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController) {
+		super(configurationRetriever, boardController, "", 800, 500, "", i18n.visirExperiment(), true);
 	}
 	
 	@Override
@@ -57,7 +58,17 @@ public class VisirExperiment extends FlashExperiment {
 
 	@Override
 	protected String getDefaultFlashTimeoutMessage(String errorMessage) {
-		return "Your web browser did not find VISIR code. If it's the first time you run it, this might be normal: it just means that it took too long to download VISIR; try to refresh WebLab and it will work. If this problem persists, contact the administrator. Error: " + errorMessage;
+		return i18n.flashTimeout(errorMessage);
+	}
+	
+	@Override
+	protected String getDefaultFooterMessage() {
+		return i18n.footerMessage();
+	}
+	
+	@Override
+	protected boolean getDefaultPageTimer() {
+		return true;
 	}
 	
 	@Override
@@ -106,7 +117,7 @@ public class VisirExperiment extends FlashExperiment {
 	public void onFlashReady() {
 		initJavascriptAPI();
 		if(this.circuitsAvailable.size() > 0)
-			modifyFrame(this.generateCircuitsTableHTML());
+			modifyFrame(this.generateCircuitsTableHTML(), i18n.circuitsAvailable());
 	}
 	
 	public String generateCircuitsTableHTML() {
@@ -142,14 +153,13 @@ public class VisirExperiment extends FlashExperiment {
 		
 	}-*/;
 	
-	private native void modifyFrame(String circuitsTableHTML) /*-{
+	private native void modifyFrame(String circuitsTableHTML, String circuitsAvailableMessage) /*-{
 	
 		var doc = $wnd.wl_iframe.contentDocument;
 		if (doc == undefined || doc == null)
 	    	doc = $wnd.wl_iframe.contentWindow.document;
 	    	
-	    // TODO: Internationalize "Circuits available"
-	 	$doc.getElementById('div_extra').innerHTML = "<div align='left'><font color='black'><b><h2>Circuits available</h2></b></font></div>" + circuitsTableHTML;
+	 	$doc.getElementById('div_extra').innerHTML = "<div align='left'><font color='black'><b><h2>" + circuitsAvailableMessage + "</h2></b></font></div>" + circuitsTableHTML;
 	}-*/;
 	
 

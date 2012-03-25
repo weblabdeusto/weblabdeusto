@@ -245,29 +245,23 @@
 	                        ],
 	                "visir" : [
 	                           {
-	                        	   "experiment.name"     : "visirtest",
-	                        	   "experiment.category" : "Dummy experiments",
-	                        	   "experiment.picture"  : "/img/experiments/visir.jpg",
-	                        	   "page.timer"          : true,
-	                        	   "page.footer"         : "Powered by the wonderful <a href='http://openlabs.bth.se/index.php?page=ElectroLab'>VISIR</a> <a href='http://svn.openlabs.bth.se/'>Open Source</a> project developed at the <a href='http://www.bth.se/'>BTH</a>",
+	                        	   "experiment.name"      : "visirtest",
+	                        	   "experiment.category"  : "Dummy experiments",
+	                        	   "experiment.picture"   : "/img/experiments/visir.jpg",
 	                           	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Visir",
 	                        	   "experiment.info.description" : "wiki"
 	                           },
 	                           {
-	                        	   "experiment.name"     : "lxi_visir",
-	                        	   "experiment.category" : "Visir experiments",
-	                        	   "experiment.picture"  : "/img/experiments/visir.jpg",
-	                        	   "page.timer"          : true,
-	                        	   "page.footer"         : "Powered by the wonderful <a href='http://openlabs.bth.se/index.php?page=ElectroLab'>VISIR</a> <a href='http://svn.openlabs.bth.se/'>Open Source</a> project developed at the <a href='http://www.bth.se/'>BTH</a>",
+	                        	   "experiment.name"      : "lxi_visir",
+	                        	   "experiment.category"  : "Visir experiments",
+	                        	   "experiment.picture"   : "/img/experiments/visir.jpg",
 	                           	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Visir",
 	                        	   "experiment.info.description" : "wiki"
 	                           },
                                    {
-	                        	   "experiment.name"     : "visir",
-	                        	   "experiment.category" : "Visir experiments",
-	                        	   "experiment.picture"  : "/img/experiments/visir.jpg",
-	                        	   "page.timer"          : true,
-	                        	   "page.footer"         : "Powered by the wonderful <a href='http://openlabs.bth.se/index.php?page=ElectroLab'>VISIR</a> <a href='http://svn.openlabs.bth.se/'>Open Source</a> project developed at the <a href='http://www.bth.se/'>BTH</a>",
+	                        	   "experiment.name"      : "visir",
+	                        	   "experiment.category"  : "Visir experiments",
+	                        	   "experiment.picture"   : "/img/experiments/visir.jpg",
 	                           	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Visir",
 	                        	   "experiment.info.description" : "wiki"
 	                           }

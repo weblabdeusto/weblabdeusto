@@ -75,7 +75,7 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 		AbstractExternalAppBasedBoard.exportStaticMethods();
 		
 		// If the following display flag is disabled, we will simply never show the panel with the timer.
-		this.displayStandardTimer = configurationRetriever.getBoolProperty("page.timer", false);
+		this.displayStandardTimer = configurationRetriever.getBoolProperty("page.timer", getDefaultPageTimer());
 		this.standardTimerPanel = new VerticalPanel();
 		this.standardTimerPanel.setVisible(false);
 		this.standardTimer = new WlTimer(false);
@@ -83,7 +83,7 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 		this.standardTimer.setStyleName("wl-time_remaining");
 				
 		this.pageFooterPanel = new VerticalPanel();
-		this.pageFooter = new HTML(configurationRetriever.getProperty("page.footer", ""));
+		this.pageFooter = new HTML(configurationRetriever.getProperty("page.footer", getDefaultFooterMessage()));
 		this.pageFooterPanel.add(this.pageFooter);
 		
 		this.panel = new VerticalPanel();
@@ -94,6 +94,14 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 		this.panel.add(this.html);
 		this.panel.add(this.message);
 		this.panel.add(this.pageFooterPanel);
+	}
+	
+	protected boolean getDefaultPageTimer() {
+		return false;
+	}
+	
+	protected String getDefaultFooterMessage() {
+		return "";
 	}
 	
 	
