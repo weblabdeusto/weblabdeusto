@@ -122,9 +122,17 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard {
 		this.deferred = deferFlashApp;
 		
 
-		this.flashTimeout = configurationRetriever.getIntProperty("flash.timeout", 10);
+		this.flashTimeout = configurationRetriever.getIntProperty("flash.timeout", getDefaultFlashTimeout());
 		
 		FlashExperiment.createJavaScriptCode(this.html.getElement(), this.width+10, 0);
+	}
+	
+	protected int getDefaultFlashTimeout() {
+		return 10;
+	}
+	
+	protected String getDefaultFlashTimeoutMessage(String errorMessage) {
+		return "Flash does not seem to be reachable by your web browser. Contact the administrator saying what web browser you are using and this line: " + errorMessage;
 	}
 	
 	
@@ -272,7 +280,7 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard {
 					// Make sure we have not spent too much time waiting for flash to start
 					if(elapsed > FlashExperiment.this.flashTimeout*1000){	
 						FlashExperiment.this.startTimedOut = true;
-						Window.alert("Flash does not seem to be reachable by your web browser. Contact the administrator saying what web browser you are using and this line: " + e.getMessage());
+						Window.alert(getDefaultFlashTimeoutMessage(e.getMessage()));
 						e.printStackTrace();
 					}else
 						FlashExperiment.this.initializationTimer.schedule(FlashExperiment.WAIT_AFTER_START);

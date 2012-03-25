@@ -51,6 +51,16 @@ public class VisirExperiment extends FlashExperiment {
 	}
 	
 	@Override
+	protected int getDefaultFlashTimeout() {
+		return 60; // Increase the time for VISIR, since sometimes it becomes a high value
+	}
+
+	@Override
+	protected String getDefaultFlashTimeoutMessage(String errorMessage) {
+		return "Your web browser did not find VISIR code. If it's the first time you run it, this might be normal: it just means that it took too long to download VISIR; try to refresh WebLab and it will work. If this problem persists, contact the administrator. Error: " + errorMessage;
+	}
+	
+	@Override
 	public void end() {
 		super.end();
 	}
@@ -75,16 +85,16 @@ public class VisirExperiment extends FlashExperiment {
 		final VisirSetupData initialConfig = new VisirSetupData();
 		boolean success = initialConfig.parseData(initialConfiguration);
 		if(success) {
-			VisirExperiment.this.cookie            = initialConfig.getCookie();
-			VisirExperiment.this.savedata          = initialConfig.getSaveData();
-			VisirExperiment.this.url               = initialConfig.getURL();
-			VisirExperiment.this.teacher           = initialConfig.isTeacher();
-			VisirExperiment.this.circuitsAvailable = initialConfig.getCircuitsAvailable();
+			this.cookie            = initialConfig.getCookie();
+			this.savedata          = initialConfig.getSaveData();
+			this.url               = initialConfig.getURL();
+			this.teacher           = initialConfig.isTeacher();
+			this.circuitsAvailable = initialConfig.getCircuitsAvailable();
 						
-			VisirExperiment.this.updateFlashVars();
-			VisirExperiment.this.setSwfFile(VisirExperiment.this.url);
+			this.updateFlashVars();
+			this.setSwfFile(VisirExperiment.this.url);
 			
-			VisirExperiment.super.start(time, initialConfiguration);
+			super.start(time, initialConfiguration);
 		} else {
 			System.out.println("Could not parse initial configuration: " + initialConfiguration);
 		}
@@ -95,7 +105,8 @@ public class VisirExperiment extends FlashExperiment {
 	@Override
 	public void onFlashReady() {
 		initJavascriptAPI();
-		modifyFrame(this.generateCircuitsTableHTML());
+		if(this.circuitsAvailable.size() > 0)
+			modifyFrame(this.generateCircuitsTableHTML());
 	}
 	
 	public String generateCircuitsTableHTML() {
@@ -138,10 +149,7 @@ public class VisirExperiment extends FlashExperiment {
 	    	doc = $wnd.wl_iframe.contentWindow.document;
 	    	
 	    // TODO: Internationalize "Circuits available"
-	 	$doc.getElementById('div_extra').innerHTML = 
-	 	"<div align='left'><font color='black'><b><h2>Circuits available</h2></b></font></div>" +
-	 	//"<div align='left'><a href=\"\" OnClick=\"javascript:callRefresh();return false;\">REFRESH</a></div>" +
-	 	circuitsTableHTML;
+	 	$doc.getElementById('div_extra').innerHTML = "<div align='left'><font color='black'><b><h2>Circuits available</h2></b></font></div>" + circuitsTableHTML;
 	}-*/;
 	
 
