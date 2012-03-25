@@ -243,6 +243,8 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         # We will initialize and start it later
         self.heartbeater = None
         self.heartbeater_lock = threading.Lock()
+        self._users_counter_lock = threading.Lock()
+        self.users_counter = 0
 
         self._session_manager = SessionManager.SessionManager( cfg_manager, SessionType.Memory, "visir" )
         
@@ -306,6 +308,24 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         if DEBUG: print "[DBG] Lab Session Id: ", lab_session_id
         if DEBUG: print "[DBG] Measure server address: ", self.measure_server_addr
         if DEBUG: print "[DBG] Measure server target: ", self.measure_server_target
+        
+        # We need to provide the client with the cookie. We do so here, using weblab API 2,
+        # which supports this kind of initialization data.
+        if not self.use_visir_php:
+            return self.build_setup_data("", self.client_url)
+        if(DEBUG): print "[VisirTestExperiment] Performing login with %s / %s"  % (self.login_email, self.login_password)
+        cookie = self.perform_visir_web_login(self.loginurl, self.login_email, self.login_password)
+        
+        setup_data = self.build_setup_data(cookie, self.client_url)
+        
+        # Increment the user's counter, which indicates how many users are using the experiment.
+        with self._users_counter_lock:
+            self.users_counter += 1
+        
+        if(DEBUG): print "[VisirTestExperiment][Start]: Current users: ", self.users_counter
+
+        return json.dumps({ "initial_configuration" : setup_data, "batch" : False })
+    
 
         return "ok"
 
@@ -319,16 +339,6 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         
         if DEBUG: print "[DBG] Lab Session Id: ", lab_session_id
         
-        # a login to obtain the cookie the client should use
-        if command == 'GIVE_ME_SETUP_DATA':
-            if not self.use_visir_php:
-                return self.build_setup_data("", self.client_url, self.circuits.keys())
-
-            if(DEBUG): print "[VisirTestExperiment] Performing login with %s / %s"  % (self.login_email, self.login_password)
-            
-            cookie = self.perform_visir_web_login(self.loginurl, self.login_email, self.login_password)
-            
-            return self.build_setup_data(cookie, self.client_url, self.circuits.keys())
         
         # This command is currently not used.
         elif command == "GIVE_ME_CIRCUIT_LIST":
@@ -403,8 +413,8 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
     
     def build_setup_data(self, cookie, url, circuits_list):
         """
-        Helper function that will build and return a JSON-encoded reply to the 
-        SETUP_DATA request.
+        Helper function that will return a structure with the initialization data,
+        json-encoded in a string.
         
         @param cookie Visir cookie for the session.
         @param url URL for the client to find the visir files.
@@ -419,8 +429,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
                 
                 "circuits" : circuits_list
                 }
-        resp = json.dumps(data)
-        return str(resp)
+        return json.dumps(data)
     
  
     def forward_request(self, lab_session_id, request):
@@ -524,6 +533,13 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         if DEBUG: print "[DBG] Lab Session Id: ", lab_session_id        
         if(DEBUG):
             print "[VisirTestExperiment] do_dispose called"
+            
+        if(DEBUG): print "[VisirTestExperiment][Dispose]: Current users: ", self.users_counter
+ 
+        # Decrease the users counter
+        with self._users_counter_lock:
+            self.users_counter -= 1
+ 
             
 
         self._session_manager.delete_session(lab_session_id)

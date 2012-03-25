@@ -24,15 +24,15 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 
-import es.deusto.weblab.client.dto.experiments.Command;
-
 /**
- * Command to request the setup data to the Visir experiment server.
+ * Request which defines the initial configuration data passed to the VISIR experiment.
+ * This used to be a command on its own, but is now passed as the initial configuration
+ * of the experiment, using the new weblab API.
  * This data includes the cookie which will be used to initialise a session,
  * the URL with the VISIR client and the circuit's savedata, which defines the
  * palette for a given experiment.
  */
-public class VisirSetupDataRequestCommand extends Command {
+public class VisirSetupData {
 
 	private String cookie;
 	private String saveData;
@@ -62,12 +62,12 @@ public class VisirSetupDataRequestCommand extends Command {
 	}
 
 	/**
-	 * Parses the response, storing the received parameters for them
+	 * Parses the string, storing the received parameters for them
 	 * to be retrieved through various getters.
 	 * @param response Response that was received
 	 * @return true if the response was successfully parsed, false otherwise
 	 */
-	public boolean parseResponse(String response) {
+	public boolean parseData(String response) {
 		
 		try {
 		
@@ -125,9 +125,4 @@ public class VisirSetupDataRequestCommand extends Command {
 		return true;
 	}
 	
-	
-	@Override
-	public String getCommandString() {
-		return "GIVE_ME_SETUP_DATA";
-	}
 }
