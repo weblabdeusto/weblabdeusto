@@ -18,8 +18,12 @@ import java.util.List;
 
 import com.google.gwt.http.client.URL;
 
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
+import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
+import es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard;
 import es.deusto.weblab.client.lab.experiments.util.applets.flash.FlashExperiment;
 
 public class VisirExperiment extends FlashExperiment {

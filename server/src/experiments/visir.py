@@ -312,11 +312,11 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         # We need to provide the client with the cookie. We do so here, using weblab API 2,
         # which supports this kind of initialization data.
         if not self.use_visir_php:
-            return self.build_setup_data("", self.client_url)
+            return self.build_setup_data("", self.client_url, self.circuits.keys())
         if(DEBUG): print "[VisirTestExperiment] Performing login with %s / %s"  % (self.login_email, self.login_password)
         cookie = self.perform_visir_web_login(self.loginurl, self.login_email, self.login_password)
         
-        setup_data = self.build_setup_data(cookie, self.client_url)
+        setup_data = self.build_setup_data(cookie, self.client_url, self.circuits.keys())
         
         # Increment the user's counter, which indicates how many users are using the experiment.
         with self._users_counter_lock:
