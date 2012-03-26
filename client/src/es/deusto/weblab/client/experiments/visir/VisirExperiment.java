@@ -18,6 +18,7 @@ import java.util.List;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.URL;
+import com.google.gwt.user.client.Window;
 
 import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
@@ -37,6 +38,8 @@ public class VisirExperiment extends FlashExperiment {
 	
 	private List<String> circuitsAvailable;
 	
+	private static VisirExperiment instance;
+	
 	private static IVisirMessages i18n = GWT.create(IVisirMessages.class);
 
 	/**
@@ -49,6 +52,7 @@ public class VisirExperiment extends FlashExperiment {
 	 */
 	public VisirExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController) {
 		super(configurationRetriever, boardController, "", 800, 500, "", i18n.visirExperiment(), true);
+		instance = this;
 	}
 	
 	@Override
@@ -139,21 +143,12 @@ public class VisirExperiment extends FlashExperiment {
 	}
 
 	
-	private native void initJavascriptAPI() /*-{
-		
-		var that = this;
-		
-		$wnd.callOnLoadCircuit = $entry(function(id) {
-			that.@es.deusto.weblab.client.experiments.visir.VisirExperiment::onLoadCircuit(I)(id);
-		});
-		
-		$wnd.callRefresh = $entry(function() {
-			that.@es.deusto.weblab.client.experiments.visir.VisirExperiment::refresh()();
-		});
-		
+	private static native void initJavascriptAPI() /*-{
+		$wnd.callOnLoadCircuit = @es.deusto.weblab.client.experiments.visir.VisirExperiment::onLoadCircuit(I);
+		$wnd.callRefresh = @es.deusto.weblab.client.experiments.visir.VisirExperiment::refresh();
 	}-*/;
 	
-	private native void modifyFrame(String circuitsTableHTML, String circuitsAvailableMessage) /*-{
+	private static native void modifyFrame(String circuitsTableHTML, String circuitsAvailableMessage) /*-{
 	
 		var doc = $wnd.wl_iframe.contentDocument;
 		if (doc == undefined || doc == null)
@@ -163,19 +158,19 @@ public class VisirExperiment extends FlashExperiment {
 	}-*/;
 	
 
-	private void refresh() {
+	static void refresh() {
 		//this.savedata = "<save><instruments list=\"breadboard/breadboard.swf|multimeter/multimeter.swf|functiongenerator/functiongenerator.swf|oscilloscope/oscilloscope.swf|tripledc/tripledc.swf\"/><circuit><circuitlist><component>W 255 442 234 457.15 279.5 442 325</component></circuitlist></circuit></save>";
-		this.updateFlashVars();
-		this.refreshFlash();
+		instance.updateFlashVars();
+		instance.refreshFlash();
 	}
 	
-	private void onLoadCircuit(final int id) {
+	static void onLoadCircuit(final int id) {
 		//System.out.println("[DBG] Should load circuit number: " + id);
 		
 		assert(id > 0);
 		
 		// Get the circuit name from the internal list
-		final String circuitName = this.circuitsAvailable.get(id - 1);
+		final String circuitName = instance.circuitsAvailable.get(id - 1);
 		
 		// Build the command to request the data for the specified circuit.
 		final VisirCircuitDataRequestCommand reqData = new VisirCircuitDataRequestCommand(circuitName);
@@ -190,7 +185,7 @@ public class VisirExperiment extends FlashExperiment {
 						final String circuitData = responseCommand.getCommandString();
 						
 						// Change the current circuit to the specified one.
-						VisirExperiment.this.changeCircuit(id, circuitName, circuitData);
+						instance.changeCircuit(id, circuitName, circuitData);
 					}
 
 					@Override
@@ -210,11 +205,15 @@ public class VisirExperiment extends FlashExperiment {
 	 * @param circuitData Data of the circuit.
 	 */
 	protected void changeCircuit(int id, String circuitName, String circuitData) {
-		//System.out.println("[DBG] Changing circuit");
-		this.savedata = circuitData.trim();
-		//this.savedata = "<save><instruments list=\"breadboard/breadboard.swf|multimeter/multimeter.swf|functiongenerator/functiongenerator.swf|oscilloscope/oscilloscope.swf|tripledc/tripledc.swf\"/><circuit><circuitlist><component>W 255 442 234 457.15 279.5 442 325</component></circuitlist></circuit></save>";
-		this.updateFlashVars();
-		this.refresh();
+		try{
+			//System.out.println("[DBG] Changing circuit");
+			this.savedata = circuitData.trim();
+			//this.savedata = "<save><instruments list=\"breadboard/breadboard.swf|multimeter/multimeter.swf|functiongenerator/functiongenerator.swf|oscilloscope/oscilloscope.swf|tripledc/tripledc.swf\"/><circuit><circuitlist><component>W 255 442 234 457.15 279.5 442 325</component></circuitlist></circuit></save>";
+			this.updateFlashVars();
+			refresh();
+		}catch(Exception e) {
+			Window.alert("Unable to change circuit: " + e.getMessage());
+		}
 	}
 
 	/**
