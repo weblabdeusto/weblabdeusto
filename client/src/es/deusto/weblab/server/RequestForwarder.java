@@ -66,7 +66,7 @@ public class RequestForwarder extends HttpServlet{
 		
 		final boolean isError = (statusCode / 100) % 1000 == 4 || (statusCode / 100) % 1000 == 5; 
 		
-		final String[] headers = new String[]{ "Server", "Date", "Content-type", "Content-length", "Set-Cookie", "Content-encoding", "Vary", "Last-Modified"}; 
+		final String[] headers = new String[]{ "Server", "Date", "Content-type", "Content-length", "Set-Cookie", "Content-encoding", "Content-Disposition", "Vary", "Last-Modified"}; 
 		
 	    for(final String header : headers){
 	        final String value = serverConnection.getHeaderField(header);
