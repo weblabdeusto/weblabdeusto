@@ -366,7 +366,7 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard {
 						"</object>";
 		
 		// Replace the flash object html				
-		var flashHtmlObj = $wnd.wl_iframe.contentWindow.document.getElementById("wl_flashobj");
+		var flashHtmlObj = $wnd.wl_iframe.contentWindow.document.getElementById("wl_flashobj_container");
 		flashHtmlObj.innerHTML = flashHtml;
 		
 		// Force the reload. This does not seem to be necessary.
@@ -411,11 +411,11 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard {
 					"return parent.wl_onClean(); " +
 				"} \n" +
 				"</script>";
-		var flashHtml    = "<object id=\"wl_flashobj\" classid=\"clsid:D27CDB6E-AE6D-11cf-96B8-444553540000\" type=\"application/x-shockwave-flash\" width=\"" + width + "\" height=\"" + height + "\" id=\"flashobj\">" + 
+		var flashHtml    = "<div id=\"wl_flashobj_container\"><object id=\"wl_flashobj\" classid=\"clsid:D27CDB6E-AE6D-11cf-96B8-444553540000\" type=\"application/x-shockwave-flash\" width=\"" + width + "\" height=\"" + height + "\" id=\"flashobj\">" + 
 								"<param name=\"movie\" value=\"" + swfFile + "\" id\"flash_emb\"/>" + 
 								"<param name=\"flashvars\" value=\"" + flashvars + "\"/>" + 
 								"<embed type=\"application/x-shockwave-flash\" src=\"" + swfFile + "\" width=\"" + width + "\" height=\"" + height + "\" flashvars=\"" + flashvars + "\"   />" + 
-							"</object>";
+							"</object></div>";
 							
 		var other		= "<div id=\"div_iframe_extra\"></div>";
 		
