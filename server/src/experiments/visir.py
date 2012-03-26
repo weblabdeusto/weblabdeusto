@@ -19,6 +19,8 @@
 
 import weblab.experiment.concurrent_experiment as ConcurrentExperiment
 
+import os
+import glob
 import httplib
 import urllib2
 import urllib
@@ -52,6 +54,7 @@ CFG_TEACHER  = "vt_teacher"
 CFG_CLIENT_URL = "vt_client_url"
 CFG_HEARTBEAT_PERIOD = "vt_heartbeat_period"
 CFG_CIRCUITS = "vt_circuits"
+CFG_CIRCUITS_DIR = "vt_circuits_dir"
 CFG_DEBUG_PRINTS = "vt_debug_prints"
 
 
@@ -66,7 +69,7 @@ DEFAULT_SAVEDATA = ""
 DEFAULT_TEACHER  = True
 DEFAULT_CLIENT_URL = "visir/loader.swf"
 DEFAULT_HEARTBEAT_PERIOD = 30
-DEFAULT_CIRCUITS = None
+DEFAULT_CIRCUITS = {}
 DEFAULT_DEBUG_PRINTS = False
 
 
@@ -265,7 +268,8 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         self.measure_server_addr = self._cfg_manager.get_value(CFG_MEASURE_SERVER_ADDRESS, DEFAULT_MEASURE_SERVER_ADDRESS)
         self.measure_server_target = self._cfg_manager.get_value(CFG_MEASURE_SERVER_TARGET, DEFAULT_MEASURE_SERVER_TARGET)
         self.heartbeat_period = self._cfg_manager.get_value(CFG_HEARTBEAT_PERIOD, DEFAULT_HEARTBEAT_PERIOD)
-        self.circuits = self._cfg_manager.get_value(CFG_CIRCUITS, DEFAULT_CIRCUITS)
+        self.circuits     = self._cfg_manager.get_value(CFG_CIRCUITS, DEFAULT_CIRCUITS)
+        self.circuits_dir = self._cfg_manager.get_value(CFG_CIRCUITS_DIR, None)
         
         global DEBUG
         DEBUG = self._cfg_manager.get_value(CFG_DEBUG_PRINTS, DEFAULT_DEBUG_PRINTS)
@@ -284,7 +288,17 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
             self.baseurl = self._cfg_manager.get_value(CFG_BASE_URL, DEFAULT_BASE_URL)
             self.login_email = self._cfg_manager.get_value(CFG_LOGIN_EMAIL, DEFAULT_LOGIN_EMAIL)
             self.login_password = self._cfg_manager.get_value(CFG_LOGIN_PASSWORD, DEFAULT_LOGIN_PASSWORD)
-            
+
+    def get_circuits(self):
+        all_circuits = self.circuits.copy()
+        try:
+            if self.circuits_dir is not None:
+                for fname in glob.glob("%s*cir" % self.circuits_dir):
+                    name = os.path.basename(fname)[:-4]
+                    all_circuits[name] = open(fname, "rb").read()
+        except:
+            traceback.print_exc()
+        return all_circuits
 
     @Override(ConcurrentExperiment.ConcurrentExperiment)
     @logged()
@@ -312,11 +326,11 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         # We need to provide the client with the cookie. We do so here, using weblab API 2,
         # which supports this kind of initialization data.
         if not self.use_visir_php:
-            return self.build_setup_data("", self.client_url, self.circuits.keys())
+            return self.build_setup_data("", self.client_url, self.get_circuits().keys())
         if(DEBUG): print "[VisirTestExperiment] Performing login with %s / %s"  % (self.login_email, self.login_password)
         cookie = self.perform_visir_web_login(self.loginurl, self.login_email, self.login_password)
         
-        setup_data = self.build_setup_data(cookie, self.client_url, self.circuits.keys())
+        setup_data = self.build_setup_data(cookie, self.client_url, self.get_circuits().keys())
         
         # Increment the user's counter, which indicates how many users are using the experiment.
         with self._users_counter_lock:
@@ -342,7 +356,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         
         # This command is currently not used.
         elif command == "GIVE_ME_CIRCUIT_LIST":
-            circuit_list = self.circuits.keys()
+            circuit_list = self.get_circuits().keys()
             circuit_list_string = ""
             for c in circuit_list:
                 circuit_list_string += c
@@ -352,7 +366,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         elif command.startswith("GIVE_ME_CIRCUIT_DATA"):
             print "[DBG] GOT GIVE_ME_CIRCUIT_DATA_REQUEST"
             circuit_name = command.split(' ', 1)[1]
-            circuit_data = self.circuits[circuit_name]
+            circuit_data = self.get_circuits()[circuit_name]
             return circuit_data
         
         # Otherwise, it's a VISIR XML command, and should just be forwarded
