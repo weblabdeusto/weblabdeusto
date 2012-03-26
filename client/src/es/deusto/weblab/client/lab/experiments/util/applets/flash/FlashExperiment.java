@@ -370,7 +370,7 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard {
     	if (doc == undefined || doc == null)
         	doc = $wnd.wl_iframe.contentWindow.document;
 						
-		var flashHtmlObj = doc.getElementById("wl_flashobj_container");
+		var flashHtmlObj = doc.getElementsByTagName('div')[0];
 		flashHtmlObj.innerHTML = flashHtml;
 		
 		// Force the reload. This does not seem to be necessary.
@@ -415,6 +415,7 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard {
 					"return parent.wl_onClean(); " +
 				"} \n" +
 				"</script>";
+		// Important: this must be the first <div> element
 		var flashHtml    = "<div id=\"wl_flashobj_container\"><object id=\"wl_flashobj\" classid=\"clsid:D27CDB6E-AE6D-11cf-96B8-444553540000\" type=\"application/x-shockwave-flash\" width=\"" + width + "\" height=\"" + height + "\" id=\"flashobj\">" + 
 								"<param name=\"movie\" value=\"" + swfFile + "\" id=\"flash_emb\"/>" + 
 								"<param name=\"flashvars\" value=\"" + flashvars + "\"/>" + 
