@@ -31,6 +31,8 @@ import xml.dom.minidom as xml
 
 import json
 
+cp = urllib2.HTTPCookieProcessor()
+
 from voodoo.log import logged
 from voodoo.override import Override
 
@@ -155,7 +157,7 @@ class Heartbeater(threading.Thread):
         # If the session id is not registered within the sessions map, we will simply
         # return without doing anything. This can happen for the initial login request.
         session_object['last_heartbeat_sent'] = time.time()
-        if DEBUG: print "[DBG] HB TICK"
+        # if DEBUG: print "[DBG] HB TICK"
     
     
     def run(self):
@@ -203,13 +205,13 @@ class Heartbeater(threading.Thread):
                     
                     # If time_left is zero or negative, a heartbeat IS due.
                     if(time_left <= 0):
-                        if DEBUG: print "[DBG] HB FORWARDING"             
+                        # if DEBUG: print "[DBG] HB FORWARDING"             
                         ret = self.experiment.forward_request(session_id, HEARTBEAT_REQUEST % (session_key))
-                        if DEBUG_MESSAGES: print "[DBG] Heartbeat response: ", ret
+                        # if DEBUG_MESSAGES: print "[DBG] Heartbeat response: ", ret
                         
                     else:
                         # Otherwise, we will just sleep. 
-                        if DEBUG: print "[DBG] HB SLEEPING FOR %d" % (time_left)
+                        # if DEBUG: print "[DBG] HB SLEEPING FOR %d" % (time_left)
                         
                         # We wish to sleep the maximum only if there are no pending
                         # requests (and if it doesn't go over the MAX).
@@ -224,7 +226,7 @@ class Heartbeater(threading.Thread):
                 while not self.stopped() and steps > 0:
                     time.sleep(step_time)
                     steps -= 1
-                if DEBUG: print "[DBG] Not sleeping anymore"
+                # if DEBUG: print "[DBG] Not sleeping anymore"
                     
                 if self.stopped():
                     return
@@ -326,20 +328,21 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         if self.use_visir_php:
             if(DEBUG): print "[VisirTestExperiment] Performing login with %s / %s"  % (self.login_email, self.login_password)
             try:
-                cookie = self.perform_visir_web_login(self.loginurl, self.login_email, self.login_password)
+                cookie, electro_lab_cookie = self.perform_visir_web_login(self.loginurl, self.login_email, self.login_password)
             except:
                 traceback.print_exc()
                 raise
-            cookie_value = cookie.value
+            cookie_value = cookie
         else:
             cookie       = None
             cookie_value = ""
+            electro_lab_cookie = ""
 
         
         setup_data = self.build_setup_data(cookie_value, self.client_url, self.get_circuits().keys())
 
         self._session_manager.create_session(lab_session_id.id)
-        self._session_manager.modify_session(lab_session_id, {'cookie' : cookie})
+        self._session_manager.modify_session(lab_session_id, {'cookie' : cookie, 'electro_lab_cookie' : electro_lab_cookie})
 
         # Increment the user's counter, which indicates how many users are using the experiment.
         with self._users_counter_lock:
@@ -468,8 +471,11 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
             conn = httplib.HTTPConnection(self.measure_server_addr)
             headers = {}
             cookie = session_obj.get('cookie')
+            electro_lab_cookie = session_obj.get('electro_lab_cookie')
             if cookie is not None:
-                headers['Cookie'] = 'exp_session=%s' % cookie.value
+                cstr = 'electro_lab=%s; exp_session=%s' % (electro_lab_cookie, cookie)
+                print "FORWARDING REQUEST WITH COOKIE: " + cstr
+                headers['Cookie'] = cstr
             conn.request("POST", self.measure_server_target, request, headers)
             response = conn.getresponse()
             data = response.read()
@@ -506,7 +512,8 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
 
         # We need to use a Cookie processor to be able to retrieve
         # the auth cookie that we seek
-        cp = urllib2.HTTPCookieProcessor()
+        
+        global cp
         o = urllib2.build_opener( cp )
         #urllib2.install_opener(o)
         
@@ -518,6 +525,8 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         
         # If there is a cookie in the jar, assume it's the one we seek,
         # and return its value.
+        
+        electro_lab_cookie = ""
         for c in cp.cookiejar:
             # TODO
             # TODO
@@ -526,8 +535,19 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
             # TODO
             # TODO
             #if DEBUG: print "Cookie found: ", c
-            o.open("%s/experiment.php?cookie=%s" % (self.baseurl, c.value))
-            #experiments_content = experiments_page.read()
+
+            r = o.open("%s/experiment.php?sel=experiment_immediate&id=2&http=1&cookie=%s" % (self.baseurl, c.value))
+            for c2 in cp.cookiejar:
+                print "[SEC COOKIE] " + c2.name + " IS " + c2.value
+                if c2.name == "electro_lab":
+                    electro_lab_cookie = c2.value
+                if c2.name == "exp_session":
+                    print "[EXP_SESSION]: RETURNING: " + str(c2.value) + " | " + str(electro_lab_cookie) 
+                    return c2.value, electro_lab_cookie
+                
+            
+            experiments_content = r.read()
+            print "."
             #"<a href=/electronics/experiment.php?[a-zA-Z0-9;&=]+\">(.*)"
             
             # Note: Normally we would want to start the heartbeater here, but because the 
@@ -597,4 +617,63 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         if DEBUG: print "[DBG] Finished successfully: ", lab_session_id 
         
         return "ok"
+    
+    
+def dev_visir_web_login(url, email, password, baseurl):
+    """
+    Performs a login through the specified visir web url.
+    @param url Url to the file through which to login. May contain
+    GET parameters if required.
+    @param email Email or account name to use
+    @param password Password to use
+    @return The cookie that was returned upon a successful login, and
+    None upon a failed one
+    """
+    
+    # Create the POST data with the parameters
+    postvals = {"email" : email,
+                "password" : password }
+    postdata = urllib.urlencode(postvals)
+
+    # We need to use a Cookie processor to be able to retrieve
+    # the auth cookie that we seek
+    cp = urllib2.HTTPCookieProcessor()
+    o = urllib2.build_opener( cp )
+    #urllib2.install_opener(o)
+    
+    # Do the request iself. The cookies retrieved (which should
+    # actually be a single cookie) will be stored in the 
+    # aforementioned cookie processor's CookieJar
+    r = o.open(url, postdata)
+    r.close()
+    
+    # If there is a cookie in the jar, assume it's the one we seek,
+    # and return its value.
+    for c in cp.cookiejar:
+        
+        print "C is " + c.value
+
+
+        r = o.open("http://physicslabfarm.isep.ipp.pt/experiment.php?sel=experiment_immediate&id=2&http=1&electro_lab=%s&cookie=%s" % (c.value, c.value))
+        print len(r.read())
+        for c2 in cp.cookiejar:
+            print "[SEC COOKIE] " + c2.name + " IS " + c2.value
+            if c2.name == "exp_session":
+                return c2.value
+        
+        experiments_content = r.read()
+        print "."
+        #"<a href=/electronics/experiment.php?[a-zA-Z0-9;&=]+\">(.*)"
+        
+        # Note: Normally we would want to start the heartbeater here, but because the 
+        # standard <heartbeat> request does not work, we need to send standard requests
+        # instead. These require a sessionkey, and we do not have one available until 
+        # the user first sends a request.
+        
+        return c
+    
+    # No cookies retrieved, login must have failed.
+    return None
+
+# dev_visir_web_login("""https://physicslabfarm.isep.ipp.pt/index.php?sel=login_check""", 'guest', 'guest', 'https://physicslabfarm.isep.ipp.pt/')
 
