@@ -17,6 +17,9 @@
 
 # TODO: Add tests related to the concurrency API and maybe the heartbeater.
 
+import libraries
+libraries.load()
+
 import weblab.experiment.concurrent_experiment as ConcurrentExperiment
 
 import os
@@ -521,6 +524,12 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         # actually be a single cookie) will be stored in the 
         # aforementioned cookie processor's CookieJar
         r = o.open(url, postdata)
+        content = r.read()
+        if content.find('sel=logout') >= 0:
+            print "Found Logout link"
+        else:
+            print "WARNING: logout link not found!!!"
+        # open('output.html', 'w').write( r.read() )
         r.close()
         
         # If there is a cookie in the jar, assume it's the one we seek,
@@ -555,7 +564,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
             # instead. These require a sessionkey, and we do not have one available until 
             # the user first sends a request.
             
-            return c
+            # return c
         
         # No cookies retrieved, login must have failed.
         return None
@@ -617,63 +626,18 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         if DEBUG: print "[DBG] Finished successfully: ", lab_session_id 
         
         return "ok"
-    
-    
-def dev_visir_web_login(url, email, password, baseurl):
-    """
-    Performs a login through the specified visir web url.
-    @param url Url to the file through which to login. May contain
-    GET parameters if required.
-    @param email Email or account name to use
-    @param password Password to use
-    @return The cookie that was returned upon a successful login, and
-    None upon a failed one
-    """
-    
-    # Create the POST data with the parameters
-    postvals = {"email" : email,
-                "password" : password }
-    postdata = urllib.urlencode(postvals)
 
-    # We need to use a Cookie processor to be able to retrieve
-    # the auth cookie that we seek
-    cp = urllib2.HTTPCookieProcessor()
-    o = urllib2.build_opener( cp )
-    #urllib2.install_opener(o)
-    
-    # Do the request iself. The cookies retrieved (which should
-    # actually be a single cookie) will be stored in the 
-    # aforementioned cookie processor's CookieJar
-    r = o.open(url, postdata)
-    r.close()
-    
-    # If there is a cookie in the jar, assume it's the one we seek,
-    # and return its value.
-    for c in cp.cookiejar:
-        
-        print "C is " + c.value
+if __name__ == '__main__':
+    from voodoo.configuration import ConfigurationManager
+    from voodoo.sessions.session_id import SessionId
+    cfg_manager = ConfigurationManager()
+    cfg_manager.append_path("../launch/sample/main_machine/main_instance/experiment_testvisir/server_config.py")
 
+    experiment = VisirTestExperiment(None, None, cfg_manager)
+    lab_session_id = SessionId('my-session-id')
+    experiment.do_start_experiment(lab_session_id)
 
-        r = o.open("http://physicslabfarm.isep.ipp.pt/experiment.php?sel=experiment_immediate&id=2&http=1&electro_lab=%s&cookie=%s" % (c.value, c.value))
-        print len(r.read())
-        for c2 in cp.cookiejar:
-            print "[SEC COOKIE] " + c2.name + " IS " + c2.value
-            if c2.name == "exp_session":
-                return c2.value
-        
-        experiments_content = r.read()
-        print "."
-        #"<a href=/electronics/experiment.php?[a-zA-Z0-9;&=]+\">(.*)"
-        
-        # Note: Normally we would want to start the heartbeater here, but because the 
-        # standard <heartbeat> request does not work, we need to send standard requests
-        # instead. These require a sessionkey, and we do not have one available until 
-        # the user first sends a request.
-        
-        return c
-    
-    # No cookies retrieved, login must have failed.
-    return None
-
-# dev_visir_web_login("""https://physicslabfarm.isep.ipp.pt/index.php?sel=login_check""", 'guest', 'guest', 'https://physicslabfarm.isep.ipp.pt/')
+    login="""<protocol version="1.3">
+    <login cookie="515a398e3fce111344254d31fc627a4afecb9e2c" keepalive="1"/>
+</protocol>"""
 
