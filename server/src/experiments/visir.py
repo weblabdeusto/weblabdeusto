@@ -628,6 +628,84 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         return "ok"
 
 if __name__ == '__main__':
+    regular_request = """<protocol version="1.3">
+  <request sessionkey="%s">
+    <circuit>
+      <circuitlist>W_X OSC_1 FGEN_A</circuitlist>
+    </circuit>
+    <multimeter/>
+    <functiongenerator>
+      <fg_waveform value="sine"/>
+      <fg_frequency value="1000"/>
+      <fg_amplitude value="0.5"/>
+      <fg_offset value="0"/>
+    </functiongenerator>
+    <oscilloscope>
+      <osc_autoscale value="0"/>
+      <horizontal>
+        <horz_samplerate value="500"/>
+        <horz_refpos value="50"/>
+        <horz_recordlength value="500"/>
+      </horizontal>
+      <channels>
+        <channel number="1">
+          <chan_enabled value="1"/>
+          <chan_coupling value="dc"/>
+          <chan_range value="1"/>
+          <chan_offset value="0"/>
+          <chan_attenuation value="1.0"/>
+        </channel>
+        <channel number="2">
+          <chan_enabled value="1"/>
+          <chan_coupling value="dc"/>
+          <chan_range value="1"/>
+          <chan_offset value="0"/>
+          <chan_attenuation value="1.0"/>
+        </channel>
+      </channels>
+      <trigger>
+        <trig_source value="channel 1"/>
+        <trig_slope value="positive"/>
+        <trig_coupling value="dc"/>
+        <trig_level value="0"/>
+        <trig_mode value="autolevel"/>
+        <trig_timeout value="1.0"/>
+        <trig_delay value="0"/>
+      </trigger>
+      <measurements>
+        <measurement number="1">
+          <meas_channel value="channel 1"/>
+          <meas_selection value="none"/>
+        </measurement>
+        <measurement number="2">
+          <meas_channel value="channel 1"/>
+          <meas_selection value="none"/>
+        </measurement>
+        <measurement number="3">
+          <meas_channel value="channel 1"/>
+          <meas_selection value="none"/>
+        </measurement>
+      </measurements>
+    </oscilloscope>
+    <dcpower>
+      <dc_outputs>
+        <dc_output channel="6V+">
+          <dc_voltage value="0"/>
+          <dc_current value="0.5"/>
+        </dc_output>
+        <dc_output channel="25V+">
+          <dc_voltage value="0"/>
+          <dc_current value="0.5"/>
+        </dc_output>
+        <dc_output channel="25V-">
+          <dc_voltage value="0"/>
+          <dc_current value="0.5"/>
+        </dc_output>
+      </dc_outputs>
+    </dcpower>
+  </request>
+</protocol>
+"""
     from voodoo.configuration import ConfigurationManager
     from voodoo.sessions.session_id import SessionId
     cfg_manager = ConfigurationManager()
@@ -635,9 +713,13 @@ if __name__ == '__main__':
 
     experiment = VisirTestExperiment(None, None, cfg_manager)
     lab_session_id = SessionId('my-session-id')
-    experiment.do_start_experiment(lab_session_id)
+    cookie = json.loads(json.loads(experiment.do_start_experiment(lab_session_id))['initial_configuration'])['cookie']
 
-    login="""<protocol version="1.3">
-    <login cookie="515a398e3fce111344254d31fc627a4afecb9e2c" keepalive="1"/>
-</protocol>"""
-
+    login_request ="""<protocol version="1.3">
+    <login cookie="%s" keepalive="1"/>
+</protocol>""" % cookie 
+    login_response = experiment.do_send_command_to_device(lab_session_id, login_request)
+    sessionkey = experiment.extract_sessionkey(login_response)
+    request = regular_request % sessionkey
+    print experiment.do_send_command_to_device(lab_session_id, request)
+    
