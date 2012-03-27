@@ -306,8 +306,6 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         """
         Callback run when the experiment is started
         """
-        self._session_manager.create_session(lab_session_id.id)
-        self._session_manager.modify_session(lab_session_id, {})
         
         # Consider whether we should initialize the heartbeater now. If we are the first
         # user, the heartbeater will not have started yet.        
@@ -325,13 +323,24 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         
         # We need to provide the client with the cookie. We do so here, using weblab API 2,
         # which supports this kind of initialization data.
-        if not self.use_visir_php:
-            return self.build_setup_data("", self.client_url, self.get_circuits().keys())
-        if(DEBUG): print "[VisirTestExperiment] Performing login with %s / %s"  % (self.login_email, self.login_password)
-        cookie = self.perform_visir_web_login(self.loginurl, self.login_email, self.login_password)
+        if self.use_visir_php:
+            if(DEBUG): print "[VisirTestExperiment] Performing login with %s / %s"  % (self.login_email, self.login_password)
+            try:
+                cookie = self.perform_visir_web_login(self.loginurl, self.login_email, self.login_password)
+            except:
+                traceback.print_exc()
+                raise
+            cookie_value = cookie.value
+        else:
+            cookie       = None
+            cookie_value = ""
+
         
-        setup_data = self.build_setup_data(cookie, self.client_url, self.get_circuits().keys())
-        
+        setup_data = self.build_setup_data(cookie_value, self.client_url, self.get_circuits().keys())
+
+        self._session_manager.create_session(lab_session_id.id)
+        self._session_manager.modify_session(lab_session_id, {'cookie' : cookie})
+
         # Increment the user's counter, which indicates how many users are using the experiment.
         with self._users_counter_lock:
             self.users_counter += 1
@@ -353,9 +362,11 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         
         if DEBUG: print "[DBG] Lab Session Id: ", lab_session_id
         
+        # Find out the request type
+        request_type = self.parse_request_type(command)
         
         # This command is currently not used.
-        elif command == "GIVE_ME_CIRCUIT_LIST":
+        if command == "GIVE_ME_CIRCUIT_LIST":
             circuit_list = self.get_circuits().keys()
             circuit_list_string = ""
             for c in circuit_list:
@@ -372,10 +383,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         # Otherwise, it's a VISIR XML command, and should just be forwarded
         # to the VISIR measurement server
         data = self.forward_request(lab_session_id, command) 
-        
-        # Find out the request type
-        request_type = self.parse_request_type(command)
-        
+                
         if DEBUG: print "[DBG] REQUEST TYPE: " + request_type
         
         
@@ -458,7 +466,11 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         session_obj = self._session_manager.get_session_locking(lab_session_id)
         try:
             conn = httplib.HTTPConnection(self.measure_server_addr)
-            conn.request("POST", self.measure_server_target, request)
+            headers = {}
+            cookie = session_obj.get('cookie')
+            if cookie is not None:
+                headers['Cookie'] = 'exp_session=%s' % cookie.value
+            conn.request("POST", self.measure_server_target, request, headers)
             response = conn.getresponse()
             data = response.read()
             response.close()
@@ -507,8 +519,14 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         # If there is a cookie in the jar, assume it's the one we seek,
         # and return its value.
         for c in cp.cookiejar:
-            if DEBUG: print "Cookie found: ", c
-            o.open("%s/electronics/experiment.php?cookie=%s" % (self.baseurl, c.value))
+            # TODO
+            # TODO
+            # TODO Add /electronics/experiment.php for Deusto
+            # TODO
+            # TODO
+            # TODO
+            #if DEBUG: print "Cookie found: ", c
+            o.open("%s/experiment.php?cookie=%s" % (self.baseurl, c.value))
             #experiments_content = experiments_page.read()
             #"<a href=/electronics/experiment.php?[a-zA-Z0-9;&=]+\">(.*)"
             
@@ -517,7 +535,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
             # instead. These require a sessionkey, and we do not have one available until 
             # the user first sends a request.
             
-            return c.value
+            return c
         
         # No cookies retrieved, login must have failed.
         return None
