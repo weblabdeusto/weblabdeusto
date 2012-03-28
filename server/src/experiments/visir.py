@@ -17,6 +17,10 @@
 
 # TODO: Add tests related to the concurrency API and maybe the heartbeater.
 
+# TODO:
+# - Remove as global the HTTPCookieProcessor
+# - Avoid the "for" with a return inside: take directly the desired cookie
+
 import libraries
 libraries.load()
 
@@ -289,9 +293,9 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         self.use_visir_php = self._cfg_manager.get_value(CFG_USE_VISIR_PHP, DEFAULT_USE_VISIR_PHP)
 
         if self.use_visir_php:
-            self.loginurl = self._cfg_manager.get_value(CFG_LOGIN_URL, DEFAULT_LOGIN_URL)
-            self.baseurl = self._cfg_manager.get_value(CFG_BASE_URL, DEFAULT_BASE_URL)
-            self.login_email = self._cfg_manager.get_value(CFG_LOGIN_EMAIL, DEFAULT_LOGIN_EMAIL)
+            self.loginurl       = self._cfg_manager.get_value(CFG_LOGIN_URL, DEFAULT_LOGIN_URL)
+            self.basephpurl     = self._cfg_manager.get_value(CFG_BASE_URL, DEFAULT_BASE_URL)
+            self.login_email    = self._cfg_manager.get_value(CFG_LOGIN_EMAIL, DEFAULT_LOGIN_EMAIL)
             self.login_password = self._cfg_manager.get_value(CFG_LOGIN_PASSWORD, DEFAULT_LOGIN_PASSWORD)
 
     def get_circuits(self):
@@ -537,28 +541,21 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         
         electro_lab_cookie = ""
         for c in cp.cookiejar:
-            # TODO
-            # TODO
-            # TODO Add /electronics/experiment.php for Deusto
-            # TODO
-            # TODO
-            # TODO
-            #if DEBUG: print "Cookie found: ", c
-
-            r = o.open("%s/experiment.php?sel=experiment_immediate&id=2&http=1&cookie=%s" % (self.baseurl, c.value))
-            for c2 in cp.cookiejar:
-                print "[SEC COOKIE] " + c2.name + " IS " + c2.value
-                if c2.name == "electro_lab":
-                    electro_lab_cookie = c2.value
-                if c2.name == "exp_session":
-                    print "[EXP_SESSION]: RETURNING: " + str(c2.value) + " | " + str(electro_lab_cookie) 
-                    return c2.value, electro_lab_cookie
+            print "COOKIE USED:", c.name
+            r = o.open("%s/experiment.php?sel=experiment_immediate&id=2&http=1&cookie=%s" % (self.basephpurl, c.value))
+            try:
+                for c2 in cp.cookiejar:
+                    print "[SEC COOKIE] " + c2.name + " IS " + c2.value
+                    if c2.name == "electro_lab":
+                        electro_lab_cookie = c2.value
+                    if c2.name == "exp_session":
+                        print "[EXP_SESSION]: RETURNING: " + str(c2.value) + " | " + str(electro_lab_cookie) 
+                        return c2.value, electro_lab_cookie
+                    
                 
-            
-            experiments_content = r.read()
-            print "."
-            #"<a href=/electronics/experiment.php?[a-zA-Z0-9;&=]+\">(.*)"
-            
+                experiments_content = r.read()
+            finally:
+                r.close()
             # Note: Normally we would want to start the heartbeater here, but because the 
             # standard <heartbeat> request does not work, we need to send standard requests
             # instead. These require a sessionkey, and we do not have one available until 
