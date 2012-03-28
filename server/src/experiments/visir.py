@@ -17,10 +17,6 @@
 
 # TODO: Add tests related to the concurrency API and maybe the heartbeater.
 
-# TODO:
-# - Remove as global the HTTPCookieProcessor
-# - Avoid the "for" with a return inside: take directly the desired cookie
-
 import libraries
 libraries.load()
 
