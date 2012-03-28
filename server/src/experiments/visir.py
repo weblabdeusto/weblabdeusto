@@ -30,6 +30,7 @@ import urllib
 import threading
 import traceback
 import time
+import random
 import xml.dom.minidom as xml
 
 import json
@@ -490,17 +491,6 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
             
         return data
 
-
-    def _extract_cookies(self, cookiejar):
-        """
-        _extract_cookies(self, cookiejar)
-        Extracts every cookie from the jar.
-        @return Map containing every cookie value identified by its name.
-        """
-        cookies = dict(( (c.name, c.value) for c in cookiejar ))
-        return cookies
-    
-
     def perform_visir_web_login(self, url, email, password):
         """
         Performs a login through the specified visir web url.
@@ -542,12 +532,12 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
 
         # Do a sel=experiment_immediate query. This is the last query before the experiment
         # starts. It yields an exp_session query.
-        r = o.open("%s/experiment.php?sel=experiment_immediate&id=2&http=1" % (self.basephpurl))
+        r = o.open("%s/experiment.php?sel=experiment_immediate&id=2&http=1" % self.basephpurl)
         r.read()
         r.close()
             
         # Extract both relevant cookies; electro_lab and exp_session.
-        cookies = self._extract_cookies(cp.cookiejar)
+        cookies = dict(( (c.name, c.value) for c in cp.cookiejar ))
         
         if 'electro_lab' not in cookies:
             print "WARNING: could not find electro_lab cookie!!!"
@@ -555,7 +545,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
             print "WARNING: could not find exp_session cookie!!!"
 
         electro_lab_cookie = cookies['electro_lab']        
-        exp_session_cookie = cookies['exp_session']
+        exp_session_cookie = cookies.get('exp_session','any_exp_session_%s' % random.random())
         
         if DEBUG: print "[DBG] LOGIN DONE. ELECTRO_LAB = %s AND EXP_SESSION = %s" % (electro_lab_cookie, exp_session_cookie)
         
