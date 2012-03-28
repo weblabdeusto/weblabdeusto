@@ -540,8 +540,14 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         # and return its value.
         
         electro_lab_cookie = ""
+
+        cookies = dict(( (c.name, c.value) for c in cp.cookiejar ))
+
         for c in cp.cookiejar:
             print "COOKIE USED:", c.name
+            r = o.open("%s/experiment.php?sel=occasion&id=2" % self.basephpurl)
+            r.read()
+            r.close()
             r = o.open("%s/experiment.php?sel=experiment_immediate&id=2&http=1&cookie=%s" % (self.basephpurl, c.value))
             try:
                 for c2 in cp.cookiejar:
