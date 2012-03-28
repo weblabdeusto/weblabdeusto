@@ -38,7 +38,6 @@ import xml.dom.minidom as xml
 
 import json
 
-cp = urllib2.HTTPCookieProcessor()
 
 from voodoo.log import logged
 from voodoo.override import Override
@@ -500,6 +499,15 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         return data
 
 
+    def _extract_cookies(self, cookiejar):
+        """
+        _extract_cookies(self, cookiejar)
+        Extracts every cookie from the jar.
+        @return Map containing every cookie value identified by its name.
+        """
+        cookies = dict(( (c.name, c.value) for c in cookiejar ))
+        return cookies
+    
 
     def perform_visir_web_login(self, url, email, password):
         """
@@ -520,57 +528,47 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         # We need to use a Cookie processor to be able to retrieve
         # the auth cookie that we seek
         
-        global cp
+        cp = urllib2.HTTPCookieProcessor()
         o = urllib2.build_opener( cp )
         #urllib2.install_opener(o)
         
-        # Do the request iself. The cookies retrieved (which should
-        # actually be a single cookie) will be stored in the 
-        # aforementioned cookie processor's CookieJar
+        # Do the sel=login request. This request should yield a electro_lab cookie,
+        # and if successful a logout link will be provided in the answer.
         r = o.open(url, postdata)
         content = r.read()
         if content.find('sel=logout') >= 0:
             print "Found Logout link"
         else:
             print "WARNING: logout link not found!!!"
-        # open('output.html', 'w').write( r.read() )
         r.close()
-        
-        # If there is a cookie in the jar, assume it's the one we seek,
-        # and return its value.
-        
-        electro_lab_cookie = ""
 
-        cookies = dict(( (c.name, c.value) for c in cp.cookiejar ))
+        # Do a sel=occasion query. This is most likely not necessary, but included
+        # here to mirror the standard procedure as closely as possible.
+        r = o.open("%s/experiment.php?sel=occasion&id=2" % self.basephpurl)
+        r.read()
+        r.close()
 
-        for c in cp.cookiejar:
-            print "COOKIE USED:", c.name
-            r = o.open("%s/experiment.php?sel=occasion&id=2" % self.basephpurl)
-            r.read()
-            r.close()
-            r = o.open("%s/experiment.php?sel=experiment_immediate&id=2&http=1&cookie=%s" % (self.basephpurl, c.value))
-            try:
-                for c2 in cp.cookiejar:
-                    print "[SEC COOKIE] " + c2.name + " IS " + c2.value
-                    if c2.name == "electro_lab":
-                        electro_lab_cookie = c2.value
-                    if c2.name == "exp_session":
-                        print "[EXP_SESSION]: RETURNING: " + str(c2.value) + " | " + str(electro_lab_cookie) 
-                        return c2.value, electro_lab_cookie
-                    
-                
-                experiments_content = r.read()
-            finally:
-                r.close()
-            # Note: Normally we would want to start the heartbeater here, but because the 
-            # standard <heartbeat> request does not work, we need to send standard requests
-            # instead. These require a sessionkey, and we do not have one available until 
-            # the user first sends a request.
+        # Do a sel=experiment_immediate query. This is the last query before the experiment
+        # starts. It yields an exp_session query.
+        r = o.open("%s/experiment.php?sel=experiment_immediate&id=2&http=1" % (self.basephpurl))
+        r.read()
+        r.close()
             
-            # return c
+        # Extract both relevant cookies; electro_lab and exp_session.
+        cookies = self._extract_cookies(cp.cookiejar)
         
-        # No cookies retrieved, login must have failed.
-        return None
+        if 'electro_lab' not in cookies:
+            print "WARNING: could not find electro_lab cookie!!!"
+        if 'exp_session' not in cookies:
+            print "WARNING: could not find exp_session cookie!!!"
+
+        electro_lab_cookie = cookies['electro_lab']        
+        exp_session_cookie = cookies['exp_session']
+        
+        print "[DBG] LOGIN DONE. ELECTRO_LAB = %s AND EXP_SESSION = %s" % (electro_lab_cookie, exp_session_cookie)
+        
+        return electro_lab_cookie, exp_session_cookie
+        
     
 
     @Override(ConcurrentExperiment.ConcurrentExperiment)
@@ -712,7 +710,7 @@ if __name__ == '__main__':
     from voodoo.configuration import ConfigurationManager
     from voodoo.sessions.session_id import SessionId
     cfg_manager = ConfigurationManager()
-    cfg_manager.append_path("../launch/sample/main_machine/main_instance/experiment_testvisir/server_config.py")
+    cfg_manager.append_path("../../launch/sample/main_machine/main_instance/experiment_testvisir/server_config.py")
 
     experiment = VisirTestExperiment(None, None, cfg_manager)
     lab_session_id = SessionId('my-session-id')
