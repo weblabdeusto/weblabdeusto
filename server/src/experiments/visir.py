@@ -256,7 +256,8 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         self.heartbeater_lock = threading.Lock()
         self._users_counter_lock = threading.Lock()
         self.users_counter = 0
-
+        
+        # XXX It must be SessionType.Memory, since we are storing an HTTPConnection object
         self._session_manager = SessionManager.SessionManager( cfg_manager, SessionType.Memory, "visir" )
         
     @Override(ConcurrentExperiment.ConcurrentExperiment)
@@ -474,19 +475,16 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
 
         session_obj = self._session_manager.get_session_locking(lab_session_id)
         try:
-            conn = httplib.HTTPConnection(self.measure_server_addr)
-            headers = {}
-            cookie = session_obj.get('cookie')
-            electro_lab_cookie = session_obj.get('electro_lab_cookie')
-            if cookie is not None:
-                cstr = 'electro_lab=%s; exp_session=%s' % (electro_lab_cookie, cookie)
-                print "FORWARDING REQUEST WITH COOKIE: " + cstr
-                headers['Cookie'] = cstr
-            conn.request("POST", self.measure_server_target, request, headers)
+            if 'connection' in session_obj:
+                conn = session_obj['connection']
+            else:
+                conn = httplib.HTTPConnection(self.measure_server_addr)
+                session_obj['connection'] = conn
+
+            conn.request("POST", self.measure_server_target, request)
             response = conn.getresponse()
             data = response.read()
             response.close()
-            conn.close()
 
             # We just sent a request. Tick the heartbeater.
             self.heartbeater.tick(session_obj)
@@ -603,7 +601,12 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
             self.users_counter -= 1
  
             
-
+        sess_obj = self._session_manager.get_session(lab_session_id)
+        if 'connection' in sess_obj:
+            try:
+                sess_obj['connection'].close()
+            except:
+                traceback.print_exc()
         self._session_manager.delete_session(lab_session_id)
         with self.heartbeater_lock:
             users_left = len(self._session_manager.list_sessions()) != 0
@@ -710,7 +713,10 @@ if __name__ == '__main__':
     from voodoo.configuration import ConfigurationManager
     from voodoo.sessions.session_id import SessionId
     cfg_manager = ConfigurationManager()
-    cfg_manager.append_path("../../launch/sample/main_machine/main_instance/experiment_testvisir/server_config.py")
+    try:
+        cfg_manager.append_path("../../launch/sample/main_machine/main_instance/experiment_testvisir/server_config.py")
+    except:
+        cfg_manager.append_path("../launch/sample/main_machine/main_instance/experiment_testvisir/server_config.py")
 
     experiment = VisirTestExperiment(None, None, cfg_manager)
     lab_session_id = SessionId('my-session-id')
