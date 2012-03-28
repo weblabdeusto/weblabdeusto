@@ -2,7 +2,7 @@
 #-*-*- encoding: utf-8 -*-*-
 
 vt_use_visir_php = True
-vt_debug_prints = True
+vt_debug_prints = False
 vt_measure_server_addr = "physicslabfarm.isep.ipp.pt:8080"
 vt_measure_server_target = "/measureserver"
 vt_base_url = """https://physicslabfarm.isep.ipp.pt/"""

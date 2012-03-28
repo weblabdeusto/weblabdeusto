@@ -339,14 +339,12 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
             except:
                 traceback.print_exc()
                 raise
-            cookie_value = cookie
         else:
-            cookie       = None
-            cookie_value = ""
+            cookie       = ""
             electro_lab_cookie = ""
 
         
-        setup_data = self.build_setup_data(cookie_value, self.client_url, self.get_circuits().keys())
+        setup_data = self.build_setup_data(cookie, self.client_url, self.get_circuits().keys())
 
         self._session_manager.create_session(lab_session_id.id)
         self._session_manager.modify_session(lab_session_id, {'cookie' : cookie, 'electro_lab_cookie' : electro_lab_cookie})
@@ -535,7 +533,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         r = o.open(url, postdata)
         content = r.read()
         if content.find('sel=logout') >= 0:
-            print "Found Logout link"
+            if DEBUG: print "Found Logout link"
         else:
             print "WARNING: logout link not found!!!"
         r.close()
@@ -563,7 +561,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         electro_lab_cookie = cookies['electro_lab']        
         exp_session_cookie = cookies['exp_session']
         
-        print "[DBG] LOGIN DONE. ELECTRO_LAB = %s AND EXP_SESSION = %s" % (electro_lab_cookie, exp_session_cookie)
+        if DEBUG: print "[DBG] LOGIN DONE. ELECTRO_LAB = %s AND EXP_SESSION = %s" % (electro_lab_cookie, exp_session_cookie)
         
         return electro_lab_cookie, exp_session_cookie
         
