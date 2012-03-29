@@ -61,6 +61,7 @@ CFG_HEARTBEAT_PERIOD = "vt_heartbeat_period"
 CFG_CIRCUITS = "vt_circuits"
 CFG_CIRCUITS_DIR = "vt_circuits_dir"
 CFG_DEBUG_PRINTS = "vt_debug_prints"
+CFG_LIBRARY_XML  = "vt_library"
 
 
 DEFAULT_USE_VISIR_PHP = True
@@ -276,6 +277,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         self.heartbeat_period = self._cfg_manager.get_value(CFG_HEARTBEAT_PERIOD, DEFAULT_HEARTBEAT_PERIOD)
         self.circuits     = self._cfg_manager.get_value(CFG_CIRCUITS, DEFAULT_CIRCUITS)
         self.circuits_dir = self._cfg_manager.get_value(CFG_CIRCUITS_DIR, None)
+        self.library_xml  = self._cfg_manager.get_value(CFG_LIBRARY_XML, "failed")
         
         global DEBUG
         DEBUG = self._cfg_manager.get_value(CFG_DEBUG_PRINTS, DEFAULT_DEBUG_PRINTS)
@@ -378,6 +380,9 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
             circuit_name = command.split(' ', 1)[1]
             circuit_data = self.get_circuits()[circuit_name]
             return circuit_data
+        elif command == 'GIVE_ME_LIBRARY':
+            if DEBUG: print "[DBG] GOT GIVE_ME_LIBRARY"
+            return self.library_xml
         
         # Otherwise, it's a VISIR XML command, and should just be forwarded
         # to the VISIR measurement server

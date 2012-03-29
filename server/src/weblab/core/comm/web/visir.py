@@ -18,7 +18,10 @@ import weblab.comm.web_server as WebFacadeServer
 __builtins__
 
 import tempfile
+import traceback
 from voodoo.log import logged
+from weblab.data.command import Command
+from voodoo.sessions.session_id import SessionId
 # To convert from HTTP date to standard time
 import email.utils as eut
 import time
@@ -161,8 +164,14 @@ class  VisirMethod(WebFacadeServer.Method):
         # won't send if-modified-since.
         # Getmtime returns a localtime, so we also convert it to gmt. Also, we want
         # a timestamp and not a tuple.
-        mod_time = time.mktime(time.gmtime(os.path.getmtime(fname)))
-        self.add_other_header("Last-Modified", self.time_to_http_date(mod_time))
+        if os.path.exists(fname):
+            mod_time = time.mktime(time.gmtime(os.path.getmtime(fname)))
+            if fileonly != "breadboard/library.xml":
+                self.add_other_header("Last-Modified", self.time_to_http_date(mod_time))
+            else:
+                mod_time = None
+        else:
+            mod_time = None
         
         # Client already has a version of the file. Check whether
         # ours is newer. 
@@ -170,7 +179,7 @@ class  VisirMethod(WebFacadeServer.Method):
             since_time = self.http_date_to_time(self.if_modified_since)
             
             # The file was not modified. Report as such.
-            if mod_time <= since_time:
+            if mod_time is not None and mod_time <= since_time:
                 self.set_status(304)
                 if DEBUG: print "Not modified"
                 return "304 Not Modified"
@@ -243,7 +252,40 @@ class  VisirMethod(WebFacadeServer.Method):
         return save
 
     def intercept_library(self, content, mimetype):
-        return content
+        cookies = self.req.headers.getheader('cookie')
+        
+        reservation_id = None
+        for cur_cookie in (cookies or '').split('; '):
+            if cur_cookie.startswith("weblabsessionid="):
+                sess_id = SessionId('.'.join(cur_cookie[len('weblabsessionid='):].split('.')[:-1]))
+            if cur_cookie.startswith('weblab_reservation_id='):
+                reservation_id = SessionId(cur_cookie[len('weblab_reservation_id='):].split('.')[0])
+
+        if reservation_id is None and sess_id is not None:
+            try:
+                reservation_id_str = self.server.get_reservation_id_by_session_id(sess_id)
+                if reservation_id_str is not None:
+                    reservation_id = SessionId(reservation_id_str)
+            except:
+                traceback.print_exc()
+                reservation_id = None
+
+        if reservation_id is not None:
+            try:
+                response = self.server.send_command( reservation_id, Command("GIVE_ME_LIBRARY") )
+            except:
+                failed = True
+                traceback.print_exc()
+            else:
+                failed = response.commandstring is None or response.commandstring == 'failed'
+        else:
+            print "Can not request library since reservation_id is None"
+            failed = True
+
+        if failed:
+            return content
+        else:
+            return response.commandstring
     
     def intercept_store(self):
         ctype = self.req.headers.gettype()
