@@ -3,9 +3,8 @@
 
 vt_measure_server_addr = "130.206.138.35:8080"
 vt_measure_server_target = "/measureserver"
-vt_base_url = """https://weblab-visir.deusto.es/"""
-vt_login_url = """https://weblab-visir.deusto.es/electronics/student.php"""
-#vt_login_url = """https://weblab-visir.deusto.es/electronics/index.php?sel=login"""
+vt_base_url = """https://weblab-visir.deusto.es/electronics/"""
+vt_login_url = """https://weblab-visir.deusto.es/electronics/index.php?sel=login_check"""
 vt_login_email = "guest"
 vt_login_password = "guest"
 

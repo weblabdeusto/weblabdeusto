@@ -17,6 +17,9 @@
 
 # TODO: Add tests related to the concurrency API and maybe the heartbeater.
 
+import libraries
+libraries.load()
+
 import weblab.experiment.concurrent_experiment as ConcurrentExperiment
 
 import os
@@ -27,9 +30,11 @@ import urllib
 import threading
 import traceback
 import time
+import random
 import xml.dom.minidom as xml
 
 import json
+
 
 from voodoo.log import logged
 from voodoo.override import Override
@@ -155,7 +160,7 @@ class Heartbeater(threading.Thread):
         # If the session id is not registered within the sessions map, we will simply
         # return without doing anything. This can happen for the initial login request.
         session_object['last_heartbeat_sent'] = time.time()
-        if DEBUG: print "[DBG] HB TICK"
+        # if DEBUG: print "[DBG] HB TICK"
     
     
     def run(self):
@@ -203,13 +208,13 @@ class Heartbeater(threading.Thread):
                     
                     # If time_left is zero or negative, a heartbeat IS due.
                     if(time_left <= 0):
-                        if DEBUG: print "[DBG] HB FORWARDING"             
+                        # if DEBUG: print "[DBG] HB FORWARDING"             
                         ret = self.experiment.forward_request(session_id, HEARTBEAT_REQUEST % (session_key))
-                        if DEBUG_MESSAGES: print "[DBG] Heartbeat response: ", ret
+                        # if DEBUG_MESSAGES: print "[DBG] Heartbeat response: ", ret
                         
                     else:
                         # Otherwise, we will just sleep. 
-                        if DEBUG: print "[DBG] HB SLEEPING FOR %d" % (time_left)
+                        # if DEBUG: print "[DBG] HB SLEEPING FOR %d" % (time_left)
                         
                         # We wish to sleep the maximum only if there are no pending
                         # requests (and if it doesn't go over the MAX).
@@ -224,7 +229,7 @@ class Heartbeater(threading.Thread):
                 while not self.stopped() and steps > 0:
                     time.sleep(step_time)
                     steps -= 1
-                if DEBUG: print "[DBG] Not sleeping anymore"
+                # if DEBUG: print "[DBG] Not sleeping anymore"
                     
                 if self.stopped():
                     return
@@ -248,7 +253,8 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         self.heartbeater_lock = threading.Lock()
         self._users_counter_lock = threading.Lock()
         self.users_counter = 0
-
+        
+        # XXX It must be SessionType.Memory, since we are storing an HTTPConnection object
         self._session_manager = SessionManager.SessionManager( cfg_manager, SessionType.Memory, "visir" )
         
     @Override(ConcurrentExperiment.ConcurrentExperiment)
@@ -284,9 +290,9 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         self.use_visir_php = self._cfg_manager.get_value(CFG_USE_VISIR_PHP, DEFAULT_USE_VISIR_PHP)
 
         if self.use_visir_php:
-            self.loginurl = self._cfg_manager.get_value(CFG_LOGIN_URL, DEFAULT_LOGIN_URL)
-            self.baseurl = self._cfg_manager.get_value(CFG_BASE_URL, DEFAULT_BASE_URL)
-            self.login_email = self._cfg_manager.get_value(CFG_LOGIN_EMAIL, DEFAULT_LOGIN_EMAIL)
+            self.loginurl       = self._cfg_manager.get_value(CFG_LOGIN_URL, DEFAULT_LOGIN_URL)
+            self.basephpurl     = self._cfg_manager.get_value(CFG_BASE_URL, DEFAULT_BASE_URL)
+            self.login_email    = self._cfg_manager.get_value(CFG_LOGIN_EMAIL, DEFAULT_LOGIN_EMAIL)
             self.login_password = self._cfg_manager.get_value(CFG_LOGIN_PASSWORD, DEFAULT_LOGIN_PASSWORD)
 
     def get_circuits(self):
@@ -306,8 +312,6 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         """
         Callback run when the experiment is started
         """
-        self._session_manager.create_session(lab_session_id.id)
-        self._session_manager.modify_session(lab_session_id, {})
         
         # Consider whether we should initialize the heartbeater now. If we are the first
         # user, the heartbeater will not have started yet.        
@@ -325,13 +329,23 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         
         # We need to provide the client with the cookie. We do so here, using weblab API 2,
         # which supports this kind of initialization data.
-        if not self.use_visir_php:
-            return self.build_setup_data("", self.client_url, self.get_circuits().keys())
-        if(DEBUG): print "[VisirTestExperiment] Performing login with %s / %s"  % (self.login_email, self.login_password)
-        cookie = self.perform_visir_web_login(self.loginurl, self.login_email, self.login_password)
+        if self.use_visir_php:
+            if(DEBUG): print "[VisirTestExperiment] Performing login with %s / %s"  % (self.login_email, self.login_password)
+            try:
+                cookie, electro_lab_cookie = self.perform_visir_web_login(self.loginurl, self.login_email, self.login_password)
+            except:
+                traceback.print_exc()
+                raise
+        else:
+            cookie       = ""
+            electro_lab_cookie = ""
+
         
         setup_data = self.build_setup_data(cookie, self.client_url, self.get_circuits().keys())
-        
+
+        self._session_manager.create_session(lab_session_id.id)
+        self._session_manager.modify_session(lab_session_id, {'cookie' : cookie, 'electro_lab_cookie' : electro_lab_cookie})
+
         # Increment the user's counter, which indicates how many users are using the experiment.
         with self._users_counter_lock:
             self.users_counter += 1
@@ -339,9 +353,6 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         if(DEBUG): print "[VisirTestExperiment][Start]: Current users: ", self.users_counter
 
         return json.dumps({ "initial_configuration" : setup_data, "batch" : False })
-    
-
-        return "ok"
 
     @Override(ConcurrentExperiment.ConcurrentExperiment)
     @logged()
@@ -352,10 +363,9 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         """
         
         if DEBUG: print "[DBG] Lab Session Id: ", lab_session_id
-        
-        
+                
         # This command is currently not used.
-        elif command == "GIVE_ME_CIRCUIT_LIST":
+        if command == "GIVE_ME_CIRCUIT_LIST":
             circuit_list = self.get_circuits().keys()
             circuit_list_string = ""
             for c in circuit_list:
@@ -372,10 +382,10 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         # Otherwise, it's a VISIR XML command, and should just be forwarded
         # to the VISIR measurement server
         data = self.forward_request(lab_session_id, command) 
-        
+
         # Find out the request type
         request_type = self.parse_request_type(command)
-        
+               
         if DEBUG: print "[DBG] REQUEST TYPE: " + request_type
         
         
@@ -457,12 +467,16 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
 
         session_obj = self._session_manager.get_session_locking(lab_session_id)
         try:
-            conn = httplib.HTTPConnection(self.measure_server_addr)
+            if 'connection' in session_obj:
+                conn = session_obj['connection']
+            else:
+                conn = httplib.HTTPConnection(self.measure_server_addr)
+                session_obj['connection'] = conn
+
             conn.request("POST", self.measure_server_target, request)
             response = conn.getresponse()
             data = response.read()
             response.close()
-            conn.close()
 
             # We just sent a request. Tick the heartbeater.
             self.heartbeater.tick(session_obj)
@@ -473,8 +487,6 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
             print "[VisirTestExperiment] Received response: ", data
             
         return data
-
-
 
     def perform_visir_web_login(self, url, email, password):
         """
@@ -494,33 +506,48 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
 
         # We need to use a Cookie processor to be able to retrieve
         # the auth cookie that we seek
+        
         cp = urllib2.HTTPCookieProcessor()
         o = urllib2.build_opener( cp )
         #urllib2.install_opener(o)
         
-        # Do the request iself. The cookies retrieved (which should
-        # actually be a single cookie) will be stored in the 
-        # aforementioned cookie processor's CookieJar
+        # Do the sel=login request. This request should yield a electro_lab cookie,
+        # and if successful a logout link will be provided in the answer.
         r = o.open(url, postdata)
+        content = r.read()
+        if content.find('sel=logout') >= 0:
+            if DEBUG: print "Found Logout link"
+        else:
+            print "WARNING: logout link not found!!!"
         r.close()
-        
-        # If there is a cookie in the jar, assume it's the one we seek,
-        # and return its value.
-        for c in cp.cookiejar:
-            if DEBUG: print "Cookie found: ", c
-            o.open("%s/electronics/experiment.php?cookie=%s" % (self.baseurl, c.value))
-            #experiments_content = experiments_page.read()
-            #"<a href=/electronics/experiment.php?[a-zA-Z0-9;&=]+\">(.*)"
+
+        # Do a sel=occasion query. This is most likely not necessary, but included
+        # here to mirror the standard procedure as closely as possible.
+        r = o.open("%s/experiment.php?sel=occasion&id=2" % self.basephpurl)
+        r.read()
+        r.close()
+
+        # Do a sel=experiment_immediate query. This is the last query before the experiment
+        # starts. It yields an exp_session query.
+        r = o.open("%s/experiment.php?sel=experiment_immediate&id=2&http=1" % self.basephpurl)
+        r.read()
+        r.close()
             
-            # Note: Normally we would want to start the heartbeater here, but because the 
-            # standard <heartbeat> request does not work, we need to send standard requests
-            # instead. These require a sessionkey, and we do not have one available until 
-            # the user first sends a request.
-            
-            return c.value
+        # Extract both relevant cookies; electro_lab and exp_session.
+        cookies = dict(( (c.name, c.value) for c in cp.cookiejar ))
         
-        # No cookies retrieved, login must have failed.
-        return None
+        if 'electro_lab' not in cookies:
+            print "WARNING: could not find electro_lab cookie!!!"
+        if 'exp_session' not in cookies:
+            print "WARNING: could not find exp_session cookie!!!"
+
+        electro_lab_cookie = cookies['electro_lab']        
+        exp_session_cookie = cookies.get('exp_session','any_exp_session_%s' % random.random())
+        
+        if DEBUG: print "[DBG] LOGIN DONE. ELECTRO_LAB = %s AND EXP_SESSION = %s" % (electro_lab_cookie, exp_session_cookie)
+        
+        return electro_lab_cookie, exp_session_cookie
+        
     
 
     @Override(ConcurrentExperiment.ConcurrentExperiment)
@@ -555,7 +582,12 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
             self.users_counter -= 1
  
             
-
+        sess_obj = self._session_manager.get_session(lab_session_id)
+        if 'connection' in sess_obj:
+            try:
+                sess_obj['connection'].close()
+            except:
+                traceback.print_exc()
         self._session_manager.delete_session(lab_session_id)
         with self.heartbeater_lock:
             users_left = len(self._session_manager.list_sessions()) != 0
@@ -580,3 +612,102 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         
         return "ok"
 
+if __name__ == '__main__':
+    regular_request = """<protocol version="1.3">
+  <request sessionkey="%s">
+    <circuit>
+      <circuitlist>W_X OSC_1 FGEN_A</circuitlist>
+    </circuit>
+    <multimeter/>
+    <functiongenerator>
+      <fg_waveform value="sine"/>
+      <fg_frequency value="1000"/>
+      <fg_amplitude value="0.5"/>
+      <fg_offset value="0"/>
+    </functiongenerator>
+    <oscilloscope>
+      <osc_autoscale value="0"/>
+      <horizontal>
+        <horz_samplerate value="500"/>
+        <horz_refpos value="50"/>
+        <horz_recordlength value="500"/>
+      </horizontal>
+      <channels>
+        <channel number="1">
+          <chan_enabled value="1"/>
+          <chan_coupling value="dc"/>
+          <chan_range value="1"/>
+          <chan_offset value="0"/>
+          <chan_attenuation value="1.0"/>
+        </channel>
+        <channel number="2">
+          <chan_enabled value="1"/>
+          <chan_coupling value="dc"/>
+          <chan_range value="1"/>
+          <chan_offset value="0"/>
+          <chan_attenuation value="1.0"/>
+        </channel>
+      </channels>
+      <trigger>
+        <trig_source value="channel 1"/>
+        <trig_slope value="positive"/>
+        <trig_coupling value="dc"/>
+        <trig_level value="0"/>
+        <trig_mode value="autolevel"/>
+        <trig_timeout value="1.0"/>
+        <trig_delay value="0"/>
+      </trigger>
+      <measurements>
+        <measurement number="1">
+          <meas_channel value="channel 1"/>
+          <meas_selection value="none"/>
+        </measurement>
+        <measurement number="2">
+          <meas_channel value="channel 1"/>
+          <meas_selection value="none"/>
+        </measurement>
+        <measurement number="3">
+          <meas_channel value="channel 1"/>
+          <meas_selection value="none"/>
+        </measurement>
+      </measurements>
+    </oscilloscope>
+    <dcpower>
+      <dc_outputs>
+        <dc_output channel="6V+">
+          <dc_voltage value="0"/>
+          <dc_current value="0.5"/>
+        </dc_output>
+        <dc_output channel="25V+">
+          <dc_voltage value="0"/>
+          <dc_current value="0.5"/>
+        </dc_output>
+        <dc_output channel="25V-">
+          <dc_voltage value="0"/>
+          <dc_current value="0.5"/>
+        </dc_output>
+      </dc_outputs>
+    </dcpower>
+  </request>
+</protocol>
+"""
+    from voodoo.configuration import ConfigurationManager
+    from voodoo.sessions.session_id import SessionId
+    cfg_manager = ConfigurationManager()
+    try:
+        cfg_manager.append_path("../../launch/sample/main_machine/main_instance/experiment_testvisir/server_config.py")
+    except:
+        cfg_manager.append_path("../launch/sample/main_machine/main_instance/experiment_testvisir/server_config.py")
+
+    experiment = VisirTestExperiment(None, None, cfg_manager)
+    lab_session_id = SessionId('my-session-id')
+    cookie = json.loads(json.loads(experiment.do_start_experiment(lab_session_id))['initial_configuration'])['cookie']
+
+    login_request ="""<protocol version="1.3">
+    <login cookie="%s" keepalive="1"/>
+</protocol>""" % cookie 
+    login_response = experiment.do_send_command_to_device(lab_session_id, login_request)
+    sessionkey = experiment.extract_sessionkey(login_response)
+    request = regular_request % sessionkey
+    print experiment.do_send_command_to_device(lab_session_id, request)
+    
