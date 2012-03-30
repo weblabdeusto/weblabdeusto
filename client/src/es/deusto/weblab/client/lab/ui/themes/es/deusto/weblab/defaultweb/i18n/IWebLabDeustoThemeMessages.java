@@ -59,4 +59,6 @@ public interface IWebLabDeustoThemeMessages extends Messages {
 	public String clickHereToOpenExperiment();
 	public String someExperimentsAreAvailableForDemo();
 	public String loginAsGuest();
+	public String poweredBy();
+	public String experimentHostedBy();
 }

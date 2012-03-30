@@ -39,6 +39,7 @@ import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory;
+import es.deusto.weblab.client.ui.widgets.WlAHref;
 import es.deusto.weblab.client.ui.widgets.WlUtil;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
@@ -86,6 +87,10 @@ class ExperimentWindow extends BaseWindow {
 	@UiField Label separatorLabel;
 	@UiField Label separatorLabel2;
 	@UiField HorizontalPanel headerPanel;
+	@UiField WlAHref bottomInstitutionLink;
+	@UiField WlAHref institutionLink;
+	@UiField Image bottomLogoImage;
+	@UiField HorizontalPanel hostedByPanel;
 
 	// Callbacks
 	private final IExperimentWindowCallback callback;
@@ -137,12 +142,20 @@ class ExperimentWindow extends BaseWindow {
 		final String hostEntityImage = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_IMAGE, "");
 		this.logoImage.setUrl(GWT.getModuleBaseURL() + hostEntityImage);
 		
+		final String smallHostEntityImage = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_MOBILE_IMAGE, "");
+		this.bottomLogoImage.setUrl(GWT.getModuleBaseURL() + smallHostEntityImage);
+		
+		final String hostEntityLink = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_LINK, "");
+		this.bottomInstitutionLink.setHref(hostEntityLink);
+		this.institutionLink.setHref(hostEntityLink);
+		
 		final IConfigurationRetriever retriever = ExperimentFactory.getExperimentConfigurationRetriever(this.experimentAllowed.getExperiment().getExperimentUniqueName());
 	    this.reserveButton.setVisible(retriever.getBoolProperty(RESERVE_BUTTON_SHOWN_PROPERTY, DEFAULT_RESERVE_BUTTON_SHOWN));
 	    
 		final boolean visibleHeader = HistoryProperties.getBooleanValue(HistoryProperties.HEADER_VISIBLE, true);
 	    this.headerPanel.setVisible(visibleHeader);
 	    this.navigationPanel.setVisible(visibleHeader);
+	    this.hostedByPanel.setVisible(!visibleHeader);
 	    
 	    if(this.user != null)
 	    	this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));

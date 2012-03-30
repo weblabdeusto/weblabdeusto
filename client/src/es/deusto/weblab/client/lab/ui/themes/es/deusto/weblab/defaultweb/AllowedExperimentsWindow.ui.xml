@@ -11,7 +11,9 @@
 
 			<g:HorizontalPanel styleName="web-logged-header-logo">
 				
-				<g:Image ui:field="logoImage" />
+				<w:WlAHref ui:field="institutionLink" target="_blank">
+					<g:Image ui:field="logoImage" />
+				</w:WlAHref>
 			
 			</g:HorizontalPanel>
 			
@@ -56,7 +58,7 @@
 		<g:HorizontalPanel horizontalAlignment="ALIGN_CENTER" width="100%">
 			<g:HorizontalPanel horizontalAlignment="ALIGN_CENTER" verticalAlignment="ALIGN_MIDDLE">
 				
-				<g:Label>Powered by:</g:Label>
+				<g:Label text="{i18n.poweredBy}" />
 				<w:WlAHref href="http://www.weblab.deusto.es/" target="_blank">
 					<g:Image resource='{res.logoSmall}' />
 				</w:WlAHref>

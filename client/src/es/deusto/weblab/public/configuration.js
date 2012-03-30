@@ -24,6 +24,7 @@
 	"host.entity.image.login"        : "/img/udeusto-logo.jpg",
 	"host.entity.image"              : "/img/udeusto-logo-main.jpg",
 	"host.entity.image.mobile"       : "/img/udeusto-logo-mobile.jpg",
+	"host.entity.link"               : "http://www.deusto.es/",
 	"experiments" : { 
 					// Experiments not developed in GWT (such as those developed in Flash or Java) don't require
 					// recompiling the client to be loaded. Adding them to this configuration file is enough.

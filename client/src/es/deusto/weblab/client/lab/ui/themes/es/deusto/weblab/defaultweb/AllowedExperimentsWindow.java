@@ -43,6 +43,7 @@ import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory;
+import es.deusto.weblab.client.ui.widgets.WlAHref;
 import es.deusto.weblab.client.ui.widgets.WlUtil;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
@@ -74,6 +75,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 	@UiField Label separatorLabel;
 	@UiField Label separatorLabel2;
 	@UiField HorizontalPanel headerPanel;
+	@UiField WlAHref institutionLink;
 
 	// Callbacks
 	private final IAllowedExperimentsWindowCallback callback;
@@ -133,6 +135,9 @@ class AllowedExperimentsWindow extends BaseWindow {
 		final String hostEntityImage = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_IMAGE, "");
 		this.logoImage.setUrl(GWT.getModuleBaseURL() + hostEntityImage);
 		
+		final String hostEntityLink = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_LINK, "");
+		this.institutionLink.setHref(hostEntityLink);
+
 	    final boolean visibleHeader = HistoryProperties.getBooleanValue(HistoryProperties.HEADER_VISIBLE, true);
 	    this.headerPanel.setVisible(visibleHeader);
 	    this.navigationPanel.setVisible(visibleHeader);

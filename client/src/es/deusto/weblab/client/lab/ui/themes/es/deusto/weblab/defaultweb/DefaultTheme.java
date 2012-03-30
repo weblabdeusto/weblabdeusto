@@ -38,6 +38,7 @@ public class DefaultTheme extends LabThemeBase {
 		public static final String HOST_ENTITY_IMAGE        = "host.entity.image";
 		public static final String HOST_ENTITY_LOGIN_IMAGE  = "host.entity.image.login";
 		public static final String HOST_ENTITY_MOBILE_IMAGE = "host.entity.image.mobile";
+		public static final String HOST_ENTITY_LINK         = "host.entity.link";
 	}
 	
 	public static class Style {

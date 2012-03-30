@@ -18,7 +18,9 @@
 		    				<g:Image resource='{res.logo}' />
 		    			</g:cell>
 		    			<g:cell horizontalAlignment="ALIGN_RIGHT">
-				   			<g:Image ui:field="hostEntityLogo" />
+				   			<w:WlAHref ui:field="institutionLink" target="_blank">
+				   				<g:Image ui:field="hostEntityLogo" />
+				   			</w:WlAHref>
 				   		</g:cell>
 					</g:HorizontalPanel>
 				</g:HorizontalPanel>
