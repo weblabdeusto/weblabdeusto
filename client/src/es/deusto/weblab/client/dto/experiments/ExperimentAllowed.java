@@ -68,7 +68,7 @@ public class ExperimentAllowed implements Comparable<ExperimentAllowed> {
 			return false;
 		return true;
 	}
-
+	
 	@Override
 	public String toString() {
 		return "ExperimentAllowed [experiment=" + this.experiment
