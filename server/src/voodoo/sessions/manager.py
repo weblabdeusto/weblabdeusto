@@ -17,6 +17,8 @@ import time
 import threading
 import weakref
 
+import configuration_doc
+
 import voodoo.sessions.session_type as SessionType
 import voodoo.sessions.gateway as SessionGateway
 import voodoo.sessions.session_id as SessionId
@@ -62,9 +64,6 @@ _cleaner = SessionManagerCleaner()
 _cleaner.setDaemon(True)
 _cleaner.start()
 
-SESSION_MANAGER_DEFAULT_TIMEOUT = "session_manager_default_timeout"
-DEFAULT_SESSION_MANAGER_DEFAULT_TIMEOUT = 3600 * 2 # 2 hours
-
 class SessionManager(object):
     def __init__(self,cfg_manager, session_type, session_pool_id, timeout = "default"):
         """ SessionManager(cfg_manager, session_type, session_pool_id[, timeout])
@@ -82,7 +81,7 @@ class SessionManager(object):
 
         self._cfg_manager = cfg_manager
         if timeout == "default":
-            timeout = self._cfg_manager.get_value(SESSION_MANAGER_DEFAULT_TIMEOUT, DEFAULT_SESSION_MANAGER_DEFAULT_TIMEOUT)
+            timeout = self._cfg_manager.get_doc_value(configuration_doc.SESSION_MANAGER_DEFAULT_TIMEOUT)
 
         gateway_class = SessionGateway.get_gateway_class(session_type)
         self.gateway = gateway_class(cfg_manager, session_pool_id, timeout)

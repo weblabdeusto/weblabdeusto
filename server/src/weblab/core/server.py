@@ -21,6 +21,8 @@ import threading
 
 from functools import wraps
 
+import configuration_doc
+
 from voodoo.log import logged
 import voodoo.log as log
 import voodoo.counter as counter
@@ -75,8 +77,6 @@ GET_USER_INFORMATION_CACHE_TIME = 15 #seconds
 CHECKING_TIME_NAME    = 'core_checking_time'
 DEFAULT_CHECKING_TIME = 3 # seconds
 
-WEBLAB_CORE_SERVER_SESSION_TYPE                 = "core_session_type"
-DEFAULT_WEBLAB_CORE_SERVER_SESSION_TYPE         = SessionType.Memory
 WEBLAB_CORE_SERVER_SESSION_POOL_ID              = "core_session_pool_id"
 WEBLAB_CORE_SERVER_RESERVATIONS_SESSION_POOL_ID = "core_session_pool_id"
 
@@ -156,9 +156,10 @@ class UserProcessingServer(object):
         # Create session managers
         #
 
-        session_type    = cfg_manager.get_value(WEBLAB_CORE_SERVER_SESSION_TYPE, DEFAULT_WEBLAB_CORE_SERVER_SESSION_TYPE)
-        if not session_type in SessionType.getSessionTypeValues():
-            raise coreExc.NotASessionTypeError( 'Not a session type: %s' % session_type )
+        session_type_str    = cfg_manager.get_doc_value(configuration_doc.WEBLAB_CORE_SERVER_SESSION_TYPE)
+        if not hasattr(SessionType, session_type_str):
+            raise coreExc.NotASessionTypeError( 'Not a session type: %s' % session_type_str )
+        session_type = getattr(SessionType, session_type_str)
 
         session_pool_id = cfg_manager.get_value(WEBLAB_CORE_SERVER_SESSION_POOL_ID, "UserProcessingServer")
         self._session_manager              = SessionManager.SessionManager( cfg_manager, session_type, session_pool_id )

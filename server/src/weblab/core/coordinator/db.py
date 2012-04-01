@@ -13,38 +13,27 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-from voodoo.dbutil import generate_getconn, get_sqlite_dbname
-
-import weblab.core.coordinator.model as coord_model
-
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 
-from weblab.db.properties import WEBLAB_DB_FORCE_ENGINE_RECREATION, DEFAULT_WEBLAB_DB_FORCE_ENGINE_RECREATION
+import configuration_doc
 
-COORDINATOR_DB_USERNAME   = 'core_coordinator_db_username'
-COORDINATOR_DB_PASSWORD   = 'core_coordinator_db_password'
-COORDINATOR_DB_HOST       = 'core_coordinator_db_host'
-COORDINATOR_DB_NAME       = 'core_coordinator_db_name'
-COORDINATOR_DB_ENGINE     = 'core_coordinator_db_engine'
+from voodoo.dbutil import generate_getconn, get_sqlite_dbname
 
-DEFAULT_COORDINATOR_DB_HOST   = 'localhost'
-DEFAULT_COORDINATOR_DB_NAME   = 'WebLabCoordination'
-DEFAULT_COORDINATOR_DB_ENGINE = 'mysql' # The only one tested at the moment
-
+import weblab.core.coordinator.model as coord_model
 
 class CoordinationDatabaseManager(object):
 
     engine = None
 
     def __init__(self, cfg_manager):
-        engine   = cfg_manager.get_value(COORDINATOR_DB_ENGINE,  DEFAULT_COORDINATOR_DB_ENGINE)
-        username = CoordinationDatabaseManager.username = cfg_manager.get_value(COORDINATOR_DB_USERNAME) # REQUIRED!
-        password = CoordinationDatabaseManager.password = cfg_manager.get_value(COORDINATOR_DB_PASSWORD) # REQUIRED!
-        host     = CoordinationDatabaseManager.host     = cfg_manager.get_value(COORDINATOR_DB_HOST,    DEFAULT_COORDINATOR_DB_HOST)
-        dbname   = CoordinationDatabaseManager.dbname   = cfg_manager.get_value(COORDINATOR_DB_NAME,    DEFAULT_COORDINATOR_DB_NAME)
+        engine   = cfg_manager.get_doc_value(configuration_doc.COORDINATOR_DB_ENGINE)
+        username = CoordinationDatabaseManager.username = cfg_manager.get_doc_value(configuration_doc.COORDINATOR_DB_USERNAME)
+        password = CoordinationDatabaseManager.password = cfg_manager.get_doc_value(configuration_doc.COORDINATOR_DB_PASSWORD)
+        host     = CoordinationDatabaseManager.host     = cfg_manager.get_doc_value(configuration_doc.COORDINATOR_DB_HOST)
+        dbname   = CoordinationDatabaseManager.dbname   = cfg_manager.get_doc_value(configuration_doc.COORDINATOR_DB_NAME)
 
-        if CoordinationDatabaseManager.engine is None or cfg_manager.get_value(WEBLAB_DB_FORCE_ENGINE_RECREATION, DEFAULT_WEBLAB_DB_FORCE_ENGINE_RECREATION):
+        if CoordinationDatabaseManager.engine is None or cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_FORCE_ENGINE_CREATION):
             getconn = generate_getconn(engine, username, password, host, dbname)
 
             connect_args = {}
