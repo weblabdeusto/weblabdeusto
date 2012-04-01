@@ -49,5 +49,7 @@ public interface ILabController {
 	public void poll();
 	
 	public void setReservationId(String reservationId);
+	public void removeReservationId();
 	public SessionID getReservationId();
+	public boolean isExperimentReserved();
 }

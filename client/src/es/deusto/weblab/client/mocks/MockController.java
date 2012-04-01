@@ -189,4 +189,14 @@ public class MockController implements ILabController {
 	public void cleanExperimentPanel() {
 		loadUserHomeWindow();
 	}
+
+	@Override
+	public void removeReservationId() {
+		this.reservationId = null;
+	}
+
+	@Override
+	public boolean isExperimentReserved() {
+		return this.reservationId != null;
+	}
 }

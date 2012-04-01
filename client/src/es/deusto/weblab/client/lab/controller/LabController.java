@@ -20,8 +20,13 @@ package es.deusto.weblab.client.lab.controller;
 import java.util.Date;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.logical.shared.CloseEvent;
+import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.Window.ClosingEvent;
+import com.google.gwt.user.client.Window.ClosingHandler;
 
 import es.deusto.weblab.client.HistoryProperties;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
@@ -30,6 +35,7 @@ import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.comm.exceptions.login.LoginException;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.dto.NullSessionID;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.Experiment;
@@ -78,7 +84,6 @@ public class LabController implements ILabController {
 	// Current session variables
 	private SessionID currentSession;
 	private final IPollingHandler pollingHandler;
-	private boolean isUsingExperiment = false;
 	private ExperimentAllowed[] experimentsAllowed;
 	
 	private boolean externallyLoggedIn = false;
@@ -87,7 +92,7 @@ public class LabController implements ILabController {
 	private class SessionVariables {
 		private ExperimentBase currentExperimentBase;
 		private boolean experimentVisible = false;
-		private SessionID reservationId;
+		private SessionID reservationId = new NullSessionID();
 		
 		public void showExperiment(){
 			this.experimentVisible = true;
@@ -113,6 +118,10 @@ public class LabController implements ILabController {
 			this.reservationId = new SessionID(reservationId);
 		}
 		
+		public void removeReservationId() {
+			this.reservationId = new NullSessionID();
+		}
+		
 		public SessionID getReservationId(){
 			return this.reservationId;
 		}
@@ -134,6 +143,13 @@ public class LabController implements ILabController {
 		this.pollingHandler       = pollingHandler;
 		this.isMobile             = isMobile;
 		this.isFacebook           = isFacebook;
+		
+		Window.addWindowClosingHandler(new ClosingHandler() {
+			@Override
+			public void onWindowClosing(ClosingEvent event) {
+				onWindowClose();
+			}
+		});
 	}
 	
 	private class ExtendedTimer extends Timer{
@@ -174,14 +190,6 @@ public class LabController implements ILabController {
 		this.uimanager = uimanager;
 	}
 	
-	public boolean isUsingExperiment() {
-	    return this.isUsingExperiment;
-	}
-
-	public void setUsingExperiment(boolean isUsingExperiment) {
-	    this.isUsingExperiment = isUsingExperiment;
-	}	
-
 	public class TimerCreator{
 		public void createTimer(int millis, IControllerRunnable runnable){
 			LabController.this.createTimer(millis, runnable);
@@ -194,8 +202,18 @@ public class LabController implements ILabController {
 	}
 	
 	@Override
+	public void removeReservationId(){
+		this.sessionVariables.removeReservationId();
+	}
+	
+	@Override
 	public SessionID getReservationId(){
 		return this.sessionVariables.getReservationId();
+	}
+	
+	@Override
+	public boolean isExperimentReserved() {
+		return !this.sessionVariables.getReservationId().isNull();
 	}
 	
 	private void startSession(SessionID sessionID){
@@ -245,7 +263,7 @@ public class LabController implements ILabController {
 		this.externallyReserved = true;
 		
 		this.currentSession = null;
-		this.sessionVariables.setReservationId(reservationId.getRealId());
+		setReservationId(reservationId.getRealId());
 		
 		final IBoardBaseController boardBaseController = new BoardBaseController(this);
 	    final ExperimentFactory factory = new ExperimentFactory(boardBaseController);
@@ -417,6 +435,18 @@ public class LabController implements ILabController {
 	
 	private void pollForPostReservationData(){
 		this.communications.getReservationStatus(this.sessionVariables.getReservationId(), this.postReservationDataCallback);
+	}
+
+	private void onWindowClose() {
+		if(isExperimentReserved()) {
+			this.communications.finishedExperiment(this.sessionVariables.getReservationId(), new IVoidCallback(){
+				@Override
+				public void onFailure(CommException e) { }
+
+				@Override
+				public void onSuccess() { }
+			});
+		}
 	}
 
 	@Override

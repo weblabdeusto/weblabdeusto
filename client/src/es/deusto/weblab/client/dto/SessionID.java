@@ -23,6 +23,10 @@ public class SessionID {
 	public String getRealId() {
 		return this.realId;
 	}
+	
+	public boolean isNull() {
+		return false;
+	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
