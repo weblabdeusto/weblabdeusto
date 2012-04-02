@@ -60,6 +60,9 @@ WEBLAB_LABORATORY_SERVER_ASSIGNED_EXPERIMENTS    = "laboratory_assigned_experime
 WEBLAB_LABORATORY_EXCLUDE_CHECKING               = "laboratory_exclude_checking"
 DEFAULT_WEBLAB_LABORATORY_EXCLUDE_CHECKING       = []
 
+WEBLAB_LABORATORY_MULTI_RESOURCE_CHECKERS        = 'laboratory_multi_resource_checkers'
+DEFAULT_WEBLAB_LABORATORY_MULTI_RESOURCE_CHECKERS = []
+
 DEBUG = False
 
 ##########################################################
@@ -134,18 +137,23 @@ class LaboratoryServer(object):
                 checkers = data.get('checkers', ())
                 checking_handlers = []
                 for checker in checkers:
-                    klazz = checker[0]
-                    if klazz in IsUpAndRunningHandler.HANDLERS:
-                        argss, kargss = (), {}
-                        if len(checker) >= 3:
-                            kargss = checker[2]
-                        if len(checker) >= 2:
-                            argss = checker[1]
-                        checking_handlers.append(eval('IsUpAndRunningHandler.'+klazz)(*argss, **kargss))
-                    else:
-                        raise LaboratoryErrors.InvalidLaboratoryConfigurationError("Invalid IsUpAndRunningHandler: %s" % klazz)
+                    result = self._parse_checker(checker)
+                    checking_handlers.append(result)
+
                 parsed_experiments.append( (experiment_instance_id, coord_address, checking_handlers ) )
         return parsed_experiments
+
+    def _parse_checker(self, checker):
+        klazz = checker[0]
+        if klazz in IsUpAndRunningHandler.HANDLERS:
+            argss, kargss = (), {}
+            if len(checker) >= 3:
+                kargss = checker[2]
+            if len(checker) >= 2:
+                argss = checker[1]
+            return eval('IsUpAndRunningHandler.'+klazz)(*argss, **kargss)
+        else:
+            raise LaboratoryErrors.InvalidLaboratoryConfigurationError("Invalid IsUpAndRunningHandler: %s" % klazz)
 
     def _load_assigned_experiments(self):
         self._assigned_experiments = AssignedExperiments.AssignedExperiments()
@@ -391,6 +399,27 @@ class LaboratoryServer(object):
                 except Exception as e:
                     failing_experiment_instance_ids[experiment_instance_id] = str(e)
                     self.log_error(experiment_instance_id, str(e))
+
+        # FIXME
+        # XXX
+        # TODO: this parsing should be done only once, to avoid the laboratory start with a config failure
+        multi_resource_checkers = self._cfg_manager.get_value(WEBLAB_LABORATORY_MULTI_RESOURCE_CHECKERS, DEFAULT_WEBLAB_LABORATORY_MULTI_RESOURCE_CHECKERS)
+
+        for multi_resource_checker in multi_resource_checkers:
+            checker = multi_resource_checker.get('checker')
+            if checker is None:
+                continue
+
+            experiment_instance_ids = multi_resource_checker.get('experiment_instance_ids', ())
+            if len(experiment_instance_ids) == 0:
+                continue
+
+            handler = self._parse_checker(checker)
+            handler_messages = handler.run_times()
+            if len(handler_messages) == 0:
+                continue
+            
+            
 
         return failing_experiment_instance_ids
 
