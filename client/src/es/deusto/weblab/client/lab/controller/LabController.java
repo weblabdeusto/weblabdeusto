@@ -20,15 +20,15 @@ package es.deusto.weblab.client.lab.controller;
 import java.util.Date;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.logical.shared.CloseEvent;
-import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.ClosingEvent;
 import com.google.gwt.user.client.Window.ClosingHandler;
 
 import es.deusto.weblab.client.HistoryProperties;
+import es.deusto.weblab.client.WebLabLabLoader;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
@@ -197,6 +197,22 @@ public class LabController implements ILabController {
 	}
 	
 	@Override
+	public void checkSessionIdStillValid(SessionID sessionId, final IValidSessionCallback callback) {
+		this.communications.getUserInformation(sessionId, new IUserInformationCallback() {
+			
+			@Override
+			public void onFailure(CommException e) {
+				callback.sessionRejected();
+			}
+			
+			@Override
+			public void onSuccess(User userInformation) {
+				callback.sessionConfirmed();
+			}
+		});
+	}
+	
+	@Override
 	public void setReservationId(String reservationId){
 		this.sessionVariables.setReservationId(reservationId);
 	}
@@ -252,8 +268,8 @@ public class LabController implements ILabController {
 	}
 
 	@Override
-	public void startLoggedIn(SessionID sessionId){
-		this.externallyLoggedIn = true;
+	public void startLoggedIn(SessionID sessionId, boolean externallyLoggedIn){
+		this.externallyLoggedIn = externallyLoggedIn;
 		this.startSession(sessionId);
 	}
 	
@@ -307,11 +323,21 @@ public class LabController implements ILabController {
 		this.communications.logout(this.currentSession, new IVoidCallback(){
 			@Override
 			public void onSuccess() {
+				// Sometimes stored with different paths
+				Cookies.removeCookie(WebLabLabLoader.LOGIN_WEBLAB_SESSION_ID_COOKIE);
+				Cookies.removeCookie(WebLabLabLoader.LOGIN_WEBLAB_SESSION_ID_COOKIE);
+				Cookies.removeCookie(WebLabLabLoader.WEBLAB_SESSION_ID_COOKIE);
+				Cookies.removeCookie(WebLabLabLoader.WEBLAB_SESSION_ID_COOKIE);
 				LabController.this.uimanager.onLoggedOut();
 			}
 			
 			@Override
 			public void onFailure(CommException e) {
+				// Sometimes stored with different paths
+				Cookies.removeCookie(WebLabLabLoader.LOGIN_WEBLAB_SESSION_ID_COOKIE);
+				Cookies.removeCookie(WebLabLabLoader.LOGIN_WEBLAB_SESSION_ID_COOKIE);
+				Cookies.removeCookie(WebLabLabLoader.WEBLAB_SESSION_ID_COOKIE);
+				Cookies.removeCookie(WebLabLabLoader.WEBLAB_SESSION_ID_COOKIE);
 				LabController.this.sessionVariables.hideExperiment();
 				LabController.this.uimanager.onErrorAndFinishSession(e.getMessage());
 			}

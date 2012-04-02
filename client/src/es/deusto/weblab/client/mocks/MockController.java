@@ -28,6 +28,7 @@ import es.deusto.weblab.client.dto.users.User;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.controller.ILabController;
+import es.deusto.weblab.client.lab.controller.IValidSessionCallback;
 import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentException;
 import es.deusto.weblab.client.lab.ui.IUIManager;
 
@@ -49,7 +50,7 @@ public class MockController implements ILabController {
 	}
 
 	@Override
-	public void startLoggedIn(SessionID sessionId) {
+	public void startLoggedIn(SessionID sessionId, boolean externallyLoggedIn) {
 		final User user = new User("tester", "tester full name", "weblab@deusto.es", new Role("student"));
 	    this.uimanager.onLoggedIn(user);
 	}
@@ -198,5 +199,11 @@ public class MockController implements ILabController {
 	@Override
 	public boolean isExperimentReserved() {
 		return this.reservationId != null;
+	}
+
+	@Override
+	public void checkSessionIdStillValid(SessionID sessionId,
+			IValidSessionCallback callback) {
+		callback.sessionRejected();
 	}
 }

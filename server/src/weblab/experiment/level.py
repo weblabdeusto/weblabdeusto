@@ -29,8 +29,9 @@ level_4_0M1 = level_1
 # - start and dispose had to return something in JSON
 # - start could receive new arguments
 #
-level_2     = '2'
-level_4_1   = level_2
+level_2            = '2'
+level_4_1          = level_2
+level_2_concurrent = level_2 + '_concurrent'
 
 #
 # Current always points to the latest API

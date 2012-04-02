@@ -59,7 +59,7 @@ core_coordinator_laboratory_servers = {
             "exp1|vm|Dummy experiments"              : "vm@vm",
             "exp1|vm-win|Dummy experiments"          : "vm-win@vm-win",
             "exp1|robot-standard|Robot experiments"  : "robot@robot",
-#            "exp1|robot-movement|Robot experiments"  : "robot@robot",
+            "exp1|robot-movement|Robot experiments"  : "robot@robot",
             "exp1|robot-proglist|Robot experiments"  : "robot@robot",
             "exp1|blink-led|LabVIEW experiments"     : "labview@labview",
             "exp1|ud-pic18|PIC experiments"          : "pic18@pic18"
@@ -68,7 +68,7 @@ core_coordinator_laboratory_servers = {
 
 core_coordinator_external_servers = {
     'microelectronics@iLab experiments'  : [ 'microelectronics_external' ],
-    'robot-movement@Robot experiments'   : [ 'robot_external' ],
+#    'robot-movement@Robot experiments'   : [ 'robot_external' ],
     'external-robot-movement@Robot experiments'   : [ 'robot_external' ],
     'ud-logic@PIC experiments'           : [ 'logic_external' ],
 }

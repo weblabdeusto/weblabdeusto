@@ -66,7 +66,7 @@ class ConcurrentExperiment(object):
                 "send_command_to_device has not been implemented in this experiment"
             )
 
-    def do_should_finish(self):
+    def do_should_finish(self, lab_session_id):
         """
         Should the experiment finish? If the experiment server should be able to
         say "I've finished", it will be asked every few time; if the experiment
