@@ -142,6 +142,9 @@ class Method(object):
     def get_context(self):
         return get_context()
 
+    def avoid_weblab_cookies(self):
+        return False
+
     @property
     def relative_path(self):
         return Method.get_relative_path(self.req.path)
@@ -225,7 +228,7 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 if method.matches(self.path):
                     m = method(self, self.cfg_manager, self.original_server)
                     message = m.run()
-                    self._write(m.get_status(), m.get_content_type(), m.get_other_cookies(), message, m.get_other_headers())
+                    self._write(m.get_status(), m.get_content_type(), m.get_other_cookies(), message, m.get_other_headers(), m.avoid_weblab_cookies())
                     break
             else:
                 NotFoundMethod(self, self.cfg_manager, self.original_server).run()
@@ -247,7 +250,7 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     do_POST = do_GET
 
-    def _write(self, status, content_type, other_cookies, response, other_headers = {}):
+    def _write(self, status, content_type, other_cookies, response, other_headers = {}, avoid_weblab_cookies = False):
         """
         Writes the HTTP response.
         @param status HTTP status code.
@@ -273,8 +276,9 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 location = self.location
             else:
                 location = '/'
-            self.send_header("Set-Cookie", "%s; path=%s" % (self.weblab_cookie, location))
-            self.send_header("Set-Cookie", "loginweblabsessionid=anythinglikeasessid.%s; path=%s; Expires=%s" % (route, location, strdate(hours=1)))
+            if not avoid_weblab_cookies:
+                self.send_header("Set-Cookie", "%s; path=%s" % (self.weblab_cookie, location))
+                self.send_header("Set-Cookie", "loginweblabsessionid=anythinglikeasessid.%s; path=%s; Expires=%s" % (route, location, strdate(hours=1)))
             for cookie in other_cookies:
                 self.send_header("Set-Cookie", cookie)
 
