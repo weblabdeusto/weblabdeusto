@@ -211,16 +211,24 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def do_GET(self):
         self.weblab_cookie = None
+        self.login_weblab_cookie = None
         for current_cookie in (self.headers.getheader('cookie') or '').split('; '):
             if current_cookie.startswith('weblabsessionid'):
                 self.weblab_cookie = current_cookie
+            if current_cookie.startswith('loginweblabsessionid'):
+                self.login_weblab_cookie = current_cookie
 
         if self.weblab_cookie is None:
             if self.server_route is not None:
-                route = self.server_route
-                self.weblab_cookie = "weblabsessionid=anythinglikeasessid.%s" % route
+                self.weblab_cookie = "weblabsessionid=sessid.not.found.%s" % self.server_route
             else:
                 self.weblab_cookie = "weblabsessionid=sessid.not.found"
+
+        if self.login_weblab_cookie is None:
+            if self.server_route is not None:
+                self.login_weblab_cookie = "loginweblabsessionid=loginsessid.not.found.%s" % self.server_route
+            else:
+                self.login_weblab_cookie = "loginweblabsessionid=sessid.not.found"
 
         create_context(self.server, self.client_address, self.headers)
         try:
@@ -269,16 +277,13 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             self.send_header(name, val)
         
         if self.server_route is not None:
-            route = get_context().route
-            if route is None:
-                route = self.server_route
             if self.location is not None:
                 location = self.location
             else:
                 location = '/'
             if not avoid_weblab_cookies:
                 self.send_header("Set-Cookie", "%s; path=%s" % (self.weblab_cookie, location))
-                self.send_header("Set-Cookie", "loginweblabsessionid=anythinglikeasessid.%s; path=%s; Expires=%s" % (route, location, strdate(hours=1)))
+                self.send_header("Set-Cookie", "loginweblabsessionid=%s; path=%s; Expires=%s" % (self.login_weblab_cookie, location, strdate(hours=1)))
             for cookie in other_cookies:
                 self.send_header("Set-Cookie", cookie)
 
