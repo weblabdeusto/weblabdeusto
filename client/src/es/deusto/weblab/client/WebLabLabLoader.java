@@ -114,7 +114,7 @@ public class WebLabLabLoader {
 						if(position >= 0){
 							reservationId = providedReservationId.substring(0, position);
 							final String cookie = providedReservationId.substring(position + 1);
-							Cookies.setCookie(WebLabLabLoader.WEBLAB_SESSION_ID_COOKIE, cookie, null, null, WebLabClient.baseLocation, false);
+							Cookies.setCookie(WebLabLabLoader.WEBLAB_SESSION_ID_COOKIE, cookie, null, null, WebLabClient.baseLocation + "/weblab/", false);
 						}else
 							reservationId = providedReservationId;
 						controller.startReserved(new SessionID(reservationId), experimentId);
@@ -125,7 +125,7 @@ public class WebLabLabLoader {
 						if(position >= 0){
 							sessionId = providedSessionId.substring(0, position);
 							final String cookie = providedSessionId.substring(position + 1);
-							Cookies.setCookie(WebLabLabLoader.WEBLAB_SESSION_ID_COOKIE, cookie, null, null, WebLabClient.baseLocation, false);
+							Cookies.setCookie(WebLabLabLoader.WEBLAB_SESSION_ID_COOKIE, cookie, null, null, WebLabClient.baseLocation + "/weblab/", false);
 						}else
 							sessionId = providedSessionId;
 						controller.startLoggedIn(new SessionID(sessionId));
