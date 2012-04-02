@@ -254,6 +254,7 @@ class  VisirMethod(WebFacadeServer.Method):
     def intercept_library(self, content, mimetype):
         cookies = self.req.headers.getheader('cookie')
         
+        sess_id = None
         reservation_id = None
         for cur_cookie in (cookies or '').split('; '):
             if cur_cookie.startswith("weblabsessionid="):
