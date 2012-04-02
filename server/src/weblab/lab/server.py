@@ -239,7 +239,7 @@ class LaboratoryServer(object):
         elif api == ExperimentApiLevel.level_2:
             experiment_server_response = experiment_server.start_experiment(client_initial_data, server_initial_data)
         # If the API version is concurrent, we will also send the session id, to be able to identify the user for each request.
-        elif api == ExperimentApiLevel.level_2 + "_concurrent":
+        elif api == ExperimentApiLevel.level_2_concurrent:
             experiment_server_response = experiment_server.start_experiment(lab_sess_id, client_initial_data, server_initial_data)
         else:
             # ERROR: Unrecognized version.
@@ -311,7 +311,7 @@ class LaboratoryServer(object):
         elif api == ExperimentApiLevel.level_2:
             # Second version. Result of dispose is reported.
             return experiment_server.dispose()
-        elif api == ExperimentApiLevel.level_2 + "_concurrent":
+        elif api == ExperimentApiLevel.level_2_concurrent:
             # Concurrent version of the second version. The sessionid is provided
             # so that the client may be identified.
             return experiment_server.dispose(lab_session_id)
@@ -427,7 +427,12 @@ class LaboratoryServer(object):
         else:
             experiment_coord_address = session['experiment_coord_address']
             experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
-            return experiment_server.should_finish()
+            api = self._assigned_experiments.get_api(experiment_instance_id)
+            if api == ExperimentApiLevel.level2_concurrent:
+                lab_session_id = session['session_id']
+                return experiment_server.should_finish(lab_session_id)
+            else:
+                return experiment_server.should_finish()
 
     #
     # TODO
