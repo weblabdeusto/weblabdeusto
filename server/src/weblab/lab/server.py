@@ -428,7 +428,7 @@ class LaboratoryServer(object):
             experiment_coord_address = session['experiment_coord_address']
             experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
             api = self._assigned_experiments.get_api(experiment_instance_id)
-            if api == ExperimentApiLevel.level2_concurrent:
+            if api == ExperimentApiLevel.level_2_concurrent:
                 lab_session_id = session['session_id']
                 return experiment_server.should_finish(lab_session_id)
             else:
