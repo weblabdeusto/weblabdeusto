@@ -98,7 +98,7 @@ class Coordinator(object):
     def __init__(self, locator, cfg_manager, ConfirmerClass = Confirmer.ReservationConfirmer):
         self.cfg_manager = cfg_manager
 
-        core_server_url = self.cfg_manager.get_value(CORE_SERVER_URL)
+        self.core_server_url = self.cfg_manager.get_value(CORE_SERVER_URL)
 
         self.notifier = AdminNotifier.AdminNotifier(self.cfg_manager)
         self.notifications_enabled = self.cfg_manager.get_value(RESOURCES_CHECKER_NOTIFICATIONS_ENABLED, DEFAULT_RESOURCES_CHECKER_NOTIFICATIONS_ENABLED)
@@ -147,7 +147,7 @@ class Coordinator(object):
                                                 confirmer            = self.confirmer,
                                                 session_maker        = self._session_maker,
                                                 time_provider        = self.time_provider,
-                                                core_server_url      = core_server_url,
+                                                core_server_url      = self.core_server_url,
                                                 initial_store        = self.initial_store,
                                                 finished_store       = self.finished_store,
                                                 completed_store      = self.completed_store,
@@ -182,7 +182,7 @@ class Coordinator(object):
                                                 confirmer            = self.confirmer,
                                                 session_maker        = self._session_maker,
                                                 time_provider        = self.time_provider,
-                                                core_server_url      = core_server_url,
+                                                core_server_url      = self.core_server_url,
                                                 initial_store        = self.initial_store,
                                                 finished_store       = self.finished_store,
                                                 completed_store      = self.completed_store,
@@ -372,7 +372,7 @@ class Coordinator(object):
             body += ("\t%s\n" % experiment_instance_id.to_weblab_str())
 
         if len(messages) > 0:
-            body += "\nReasons: %r\n\nThe WebLab-Deusto system" % messages
+            body += "\nReasons: %r\n\nThe WebLab-Deusto system\n<%s>" % (messages, self.core_server_url)
         recipients = self._retrieve_recipients(experiment_instance_ids)
         subject = "[WebLab] Experiment %s: %s" % (resource_instance, new_status)
 
