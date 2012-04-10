@@ -9,7 +9,8 @@
 		<g:VerticalPanel borderWidth="0" ui:field="mainWidgetsPanel" width='100%' horizontalAlignment='ALIGN_CENTER'>
 		
 			<g:HorizontalPanel borderWidth="0" horizontalAlignment="ALIGN_CENTER" width="100%">
-				<w:WlWebcam ui:field="webcam" visible="false"></w:WlWebcam>
+				<w:WlWebcam ui:field="webcam1" visible="false"></w:WlWebcam>
+				<w:WlWebcam ui:field="webcam2" visible="false"></w:WlWebcam>
 			</g:HorizontalPanel>
 
 			<g:HorizontalPanel borderWidth="0" horizontalAlignment="ALIGN_CENTER" width="100%">
@@ -18,25 +19,37 @@
 
 			<!-- Needs to be initially hidden so as not to take space on the reserve screen. -->
 			<g:HorizontalPanel borderWidth="0" ui:field="inputWidgetsPanel" visible="false" horizontalAlignment='ALIGN_CENTER'>
-				<g:Grid>
-					<g:row>
-						<g:customCell><g:Label/></g:customCell>
-						<g:customCell><g:Image ui:field="upButton" resource='{res.up}' styleName="wl-img-button"/></g:customCell>
-						<g:customCell><g:Label/></g:customCell>
-					</g:row>
-					<g:row>
-						<g:customCell><g:Image ui:field="leftButton" resource='{res.left}' styleName="wl-img-button"/></g:customCell>
-						<g:customCell><g:Label/></g:customCell>
-						<g:customCell><g:Image ui:field="rightButton" resource='{res.right}' styleName="wl-img-button"/></g:customCell>
-					</g:row>
-					<g:row>
-						<g:customCell><g:Label/></g:customCell>
-						<g:customCell><g:Image ui:field="downButton" resource='{res.down}' styleName="wl-img-button"/></g:customCell>
-						<g:customCell><g:Label/></g:customCell>
-					</g:row>
-				</g:Grid>
-			
-			</g:HorizontalPanel>		
+				<g:HorizontalPanel spacing="100">
+					<g:Grid>
+						<g:row>
+							<g:customCell><g:Image ui:field="upButton" resource='{res.up}' styleName="wl-img-button"/></g:customCell>
+						</g:row>
+						<g:row>
+							<g:customCell height="100"><g:Label/></g:customCell>
+						</g:row>
+						<g:row>
+							<g:customCell><g:Image ui:field="downButton" resource='{res.down}' styleName="wl-img-button"/></g:customCell>
+						</g:row>
+					</g:Grid>
+					<g:Grid>
+						<g:row>
+							<g:customCell><g:Label/></g:customCell>
+							<g:customCell><g:Image ui:field="forwardButton" resource='{res.forward}' styleName="wl-img-button"/></g:customCell>
+							<g:customCell><g:Label/></g:customCell>
+						</g:row>
+						<g:row>
+							<g:customCell><g:Image ui:field="leftButton" resource='{res.left}' styleName="wl-img-button"/></g:customCell>
+							<g:customCell><g:Label/></g:customCell>
+							<g:customCell><g:Image ui:field="rightButton" resource='{res.right}' styleName="wl-img-button"/></g:customCell>
+						</g:row>
+						<g:row>
+							<g:customCell><g:Label/></g:customCell>
+							<g:customCell><g:Image ui:field="backwardButton" resource='{res.backward}' styleName="wl-img-button"/></g:customCell>
+							<g:customCell><g:Label/></g:customCell>
+						</g:row>
+					</g:Grid>
+				</g:HorizontalPanel>		
+			</g:HorizontalPanel>
 			
 			<w:WlWaitingLabel ui:field="messages" horizontalAlignment="ALIGN_CENTER"/>
 								

@@ -60,6 +60,12 @@ public class SubmarineExperiment extends ExperimentBase {
 	private static final String FORWARD_ON  = "FORWARD ON";
 	private static final String FORWARD_OFF = "FORWARD OFF";
 
+	private static final String UP_ON  = "UP ON";
+	private static final String UP_OFF = "UP OFF";
+
+	private static final String DOWN_ON  = "DOWN ON";
+	private static final String DOWN_OFF = "DOWN OFF";
+
 
 	private static final String WEBCAM_REFRESH_TIME_PROPERTY   = "webcam.refresh.millis";
 	private static final int    DEFAULT_WEBCAM_REFRESH_TIME    = 200;
@@ -87,21 +93,24 @@ public class SubmarineExperiment extends ExperimentBase {
 	@UiField HorizontalPanel inputWidgetsPanel;
 	
 	@UiField WlWaitingLabel messages;
+	@UiField Image forwardButton;
+	@UiField Image backwardButton;
 	@UiField Image upButton;
 	@UiField Image downButton;
 	@UiField Image rightButton;
 	@UiField Image leftButton;
 	
+	private boolean forwardPressed = false;
+	private boolean backwardPressed = false;
 	private boolean upPressed = false;
 	private boolean downPressed = false;
 	private boolean leftPressed = false;
 	private boolean rightPressed = false;
 	
 	private final Map<String, Image> buttons;
-	private int moveNumber = 0;
-	private boolean buttonsEnabled = true;
 	
-	@UiField(provided = true) WlWebcam webcam;
+	@UiField(provided = true) WlWebcam webcam1;
+	@UiField(provided = true) WlWebcam webcam2;
 	
 	private class InternalNativePreviewHandler implements NativePreviewHandler {
 		
@@ -119,45 +128,134 @@ public class SubmarineExperiment extends ExperimentBase {
 		public void onPreviewNativeEvent(NativePreviewEvent event) {
 			if(!this.active)
 				return;
-		
+			
 			if(event.getTypeInt() == Event.ONKEYDOWN) {
 				switch(event.getNativeEvent().getKeyCode()) {
+					case ' ':
+						onDownPressed();
+						event.cancel();
+						break;
+					case KeyCodes.KEY_BACKSPACE:
+						onUpPressed();
+						event.cancel();
+						break;
 					case KeyCodes.KEY_UP:
-						SubmarineExperiment.this.upPressed = true;
-						sendMove(FORWARD_ON);
+						onForwardPressed();
+						event.cancel();
 						break;
 					case KeyCodes.KEY_DOWN:
-						SubmarineExperiment.this.downPressed = true;
-						sendMove(BACKWARD_ON);
+						onBackwardPressed();
+						event.cancel();
 						break;
 					case KeyCodes.KEY_LEFT:
-						SubmarineExperiment.this.leftPressed = true;
-						sendMove(LEFT_ON);
+						onLeftPressed();
+						event.cancel();
 						break;
 					case KeyCodes.KEY_RIGHT:
-						SubmarineExperiment.this.rightPressed = true;
-						sendMove(RIGHT_ON);
+						onRightPressed();
+						event.cancel();
 						break;
 				}
 			} else if(event.getTypeInt() == Event.ONKEYUP) {
+				
 				switch(event.getNativeEvent().getKeyCode()) {
+					case ' ':
+						onDownReleased();
+						event.cancel();
+						break;
+					case KeyCodes.KEY_BACKSPACE:
+						onUpReleased();
+						event.cancel();
+						break;
 					case KeyCodes.KEY_UP:
-						SubmarineExperiment.this.upPressed = false;
-						sendMove(FORWARD_OFF);
+						onForwardReleased();
+						event.cancel();
 						break;
 					case KeyCodes.KEY_DOWN:
-						SubmarineExperiment.this.downPressed = false;
-						sendMove(BACKWARD_OFF);
+						onBackwardReleased();
+						event.cancel();
 						break;
 					case KeyCodes.KEY_LEFT:
-						SubmarineExperiment.this.leftPressed = false;
-						sendMove(LEFT_OFF);
+						onLeftReleased();
+						event.cancel();
 						break;
 					case KeyCodes.KEY_RIGHT:
-						SubmarineExperiment.this.rightPressed = false;
-						sendMove(RIGHT_OFF);
+						onRightReleased();
+						event.cancel();
 						break;
 				}
+			}
+		}
+
+		private void onUpReleased() {
+			SubmarineExperiment.this.upPressed = false;
+			sendMove(UP_OFF);
+		}
+		
+		private void onDownReleased() {
+			SubmarineExperiment.this.downPressed = false;
+			sendMove(DOWN_OFF);
+		}
+		
+		private void onRightReleased() {
+			SubmarineExperiment.this.rightPressed = false;
+			sendMove(RIGHT_OFF);
+		}
+
+		private void onLeftReleased() {
+			SubmarineExperiment.this.leftPressed = false;
+			sendMove(LEFT_OFF);
+		}
+
+		private void onBackwardReleased() {
+			SubmarineExperiment.this.backwardPressed = false;
+			sendMove(BACKWARD_OFF);
+		}
+
+		private void onForwardReleased() {
+			SubmarineExperiment.this.forwardPressed = false;
+			sendMove(FORWARD_OFF);
+		}
+
+		private void onUpPressed() {
+			if(!SubmarineExperiment.this.upPressed) {
+				SubmarineExperiment.this.upPressed = true;
+				sendMove(UP_ON);
+			}
+		}
+
+		private void onDownPressed() {
+			if(!SubmarineExperiment.this.downPressed) {
+				SubmarineExperiment.this.downPressed = true;
+				sendMove(DOWN_ON);
+			}
+		}
+
+		private void onRightPressed() {
+			if(!SubmarineExperiment.this.rightPressed) {
+				SubmarineExperiment.this.rightPressed = true;
+				sendMove(RIGHT_ON);
+			}
+		}
+
+		private void onLeftPressed() {
+			if(!SubmarineExperiment.this.leftPressed) {
+				SubmarineExperiment.this.leftPressed = true;
+				sendMove(LEFT_ON);
+			}
+		}
+
+		private void onBackwardPressed() {
+			if(!SubmarineExperiment.this.backwardPressed) {
+				SubmarineExperiment.this.backwardPressed = true;
+				sendMove(BACKWARD_ON);
+			}
+		}
+
+		private void onForwardPressed() {
+			if(!SubmarineExperiment.this.forwardPressed) {
+				SubmarineExperiment.this.forwardPressed = true;
+				sendMove(FORWARD_ON);
 			}
 		}
 	}
@@ -172,10 +270,12 @@ public class SubmarineExperiment extends ExperimentBase {
 		SubmarineExperiment.uiBinder.createAndBindUi(this);
 		
 		this.buttons = new HashMap<String, Image>();
-		this.buttons.put(FORWARD_ON,    this.upButton);
-		this.buttons.put(BACKWARD_ON,  this.downButton);
-		this.buttons.put(LEFT_ON,  this.leftButton);
-		this.buttons.put(RIGHT_ON, this.rightButton);
+		this.buttons.put(FORWARD_ON,   this.forwardButton);
+		this.buttons.put(BACKWARD_ON,  this.backwardButton);
+		this.buttons.put(LEFT_ON,      this.leftButton);
+		this.buttons.put(RIGHT_ON,     this.rightButton);
+		this.buttons.put(UP_ON,        this.upButton);
+		this.buttons.put(DOWN_ON,      this.downButton);
 		
 		this.nativeEventHandler = new InternalNativePreviewHandler();
 	}
@@ -202,8 +302,10 @@ public class SubmarineExperiment extends ExperimentBase {
 	private void createProvidedWidgets() {
 		this.timer = new WlTimer(false);	
 		
-		this.webcam = GWT.create(WlWebcam.class);
-		this.webcam.setTime(this.getWebcamRefreshingTime());
+		this.webcam1 = GWT.create(WlWebcam.class);
+		this.webcam1.setTime(this.getWebcamRefreshingTime());
+		this.webcam2 = GWT.create(WlWebcam.class);
+		this.webcam2.setTime(this.getWebcamRefreshingTime());
 	}
 	
 	private int getWebcamRefreshingTime() {
@@ -237,68 +339,44 @@ public class SubmarineExperiment extends ExperimentBase {
 	    if(parseWebcamConfig(initialConfiguration))
 	    	return;
 	    
-	    this.webcam.setVisible(true);
-	    this.webcam.start();
+	    this.webcam1.setVisible(true);
+	    this.webcam1.start();
+	    this.webcam2.setVisible(true);
+	    this.webcam2.start();
 
 		this.inputWidgetsPanel.setVisible(true);
 		this.messages.setText("You can now control the submarine");
 		this.messages.stop();
 		this.nativeEventHandler.activate();
 	}
-
-	private boolean parseWebcamConfig(String initialConfiguration) {
-		final JSONValue initialConfigValue   = JSONParser.parseStrict(initialConfiguration);
-	    final JSONObject initialConfigObject = initialConfigValue.isObject();
-	    if(initialConfigObject == null) {
-	    	Window.alert("Error parsing submarine configuration: not an object: " + initialConfiguration);
-	    	return true;
-	    }
-	    
-	    final JSONValue webcamValue = initialConfigObject.get("webcam");
-	    if(webcamValue != null) {
-	    	final String urlWebcam = webcamValue.isString().stringValue();
-	    	this.webcam.setUrl(urlWebcam);
-	    }
-	    
-	    final JSONValue mjpegValue = initialConfigObject.get("mjpeg");
-	    if(mjpegValue != null) {
-	    	final String mjpeg = mjpegValue.isString().stringValue();
-	    	int width = 320;
-	    	int height = 240;
-	    	if(initialConfigObject.get("mjpegWidth") != null) {
-	    		final JSONValue mjpegWidth = initialConfigObject.get("mjpegWidth");
-	    		if(mjpegWidth.isNumber() != null) {
-	    			width = (int)mjpegWidth.isNumber().doubleValue();
-	    		} else if(mjpegWidth.isString() != null) {
-	    			width = Integer.parseInt(mjpegWidth.isString().stringValue());
-	    		}
-	    	}
-	    	if(initialConfigObject.get("mjpegHeight") != null) {
-	    		final JSONValue mjpegHeight = initialConfigObject.get("mjpegHeight");
-	    		if(mjpegHeight.isNumber() != null) {
-	    			height = (int)mjpegHeight.isNumber().doubleValue();
-	    		} else if(mjpegHeight.isString() != null) {
-	    			height = Integer.parseInt(mjpegHeight.isString().stringValue());
-	    		}
-	    	}
-	    	this.webcam.setStreamingUrl(mjpeg, width, height);
-	    }
-	    return false;
-	}
 		
 	@SuppressWarnings("unused")
 	@UiHandler("upButton")
 	public void onUpMouseDown(MouseDownEvent event) {
-		sendMove(FORWARD_ON);
+		sendMove(UP_ON);
 		this.upPressed = true;
+	}
+
+	@SuppressWarnings("unused")
+	@UiHandler("downButton")
+	public void onDownMouseDown(MouseDownEvent event) {
+		sendMove(DOWN_ON);
+		this.downPressed = true;
+	}
+
+	@SuppressWarnings("unused")
+	@UiHandler("forwardButton")
+	public void onForwardMouseDown(MouseDownEvent event) {
+		sendMove(FORWARD_ON);
+		this.forwardPressed = true;
 	}
 
 	
 	@SuppressWarnings("unused")
-	@UiHandler("downButton")
-	public void onDownMouseDown(MouseDownEvent event) {
+	@UiHandler("backwardButton")
+	public void onBackwardMouseDown(MouseDownEvent event) {
 		sendMove(BACKWARD_ON);
-		this.downPressed = true;
+		this.backwardPressed = true;
 	}
 
 	
@@ -320,16 +398,30 @@ public class SubmarineExperiment extends ExperimentBase {
 	@SuppressWarnings("unused")
 	@UiHandler("upButton")
 	public void onUpMouseUp(MouseUpEvent event) {
-		sendMove(FORWARD_OFF);
+		sendMove(UP_OFF);
 		this.upPressed = false;
 	}
-
 	
 	@SuppressWarnings("unused")
 	@UiHandler("downButton")
 	public void onDownMouseUp(MouseUpEvent event) {
-		sendMove(BACKWARD_OFF);
+		sendMove(DOWN_OFF);
 		this.downPressed = false;
+	}
+	
+	@SuppressWarnings("unused")
+	@UiHandler("forwardButton")
+	public void onForwardMouseUp(MouseUpEvent event) {
+		sendMove(FORWARD_OFF);
+		this.forwardPressed = false;
+	}
+
+	
+	@SuppressWarnings("unused")
+	@UiHandler("backwardButton")
+	public void onBackwardMouseUp(MouseUpEvent event) {
+		sendMove(BACKWARD_OFF);
+		this.backwardPressed = false;
 	}
 
 	
@@ -353,10 +445,6 @@ public class SubmarineExperiment extends ExperimentBase {
 		this.buttons.get(button).setStyleName("wl-img-button");
 	}
 	
-	private void disableButton(String button){
-		this.buttons.get(button).setStyleName("wl-disabled-img-button");
-	}
-	
 	private void enableButtons(){
 		for(Image img : this.buttons.values())
 			img.setStyleName("wl-img-button");
@@ -368,28 +456,22 @@ public class SubmarineExperiment extends ExperimentBase {
 	}
 
 	private void sendMove(final String s){
-//		if(!this.buttonsEnabled)
-//			return;
-		
-//		disableButtons();
-//		enableButton(s);
-		this.buttonsEnabled = false;
-		final int currentMove = ++this.moveNumber;
+		if(s.endsWith("ON")) {
+			disableButtons();
+			enableButton(s);
+		} else 
+			enableButtons();
 		
 		this.boardController.sendCommand(s, new IResponseCommandCallback() {
 			
 			@Override
 			public void onFailure(CommException e) {
-				
+				Window.alert("Error sending message: " + e.getMessage());
 			}
 			
 			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
-				SubmarineExperiment.this.buttonsEnabled = true;
-	//			if(currentMove == SubmarineExperiment.this.moveNumber){
-	//				enableButtons();
-	//			}else
-	//				disableButton(s);
+				System.out.println(s + " sent. Obtained: " + responseCommand.getCommandString());
 			}
 		});
 	}
@@ -415,12 +497,62 @@ public class SubmarineExperiment extends ExperimentBase {
 		if(this.messages != null){
 			this.messages.stop();
 		}
-		if(this.webcam != null){
-			this.webcam.dispose();
+		if(this.webcam1 != null){
+			this.webcam1.dispose();
+		}
+		if(this.webcam2 != null){
+			this.webcam2.dispose();
 		}
 	}
 	
 	public void setMessage(String msg) {
 		this.messages.setText(msg);
 	}	
+	
+
+	private boolean parseWebcamConfig(String initialConfiguration) {
+		final JSONValue initialConfigValue   = JSONParser.parseStrict(initialConfiguration);
+	    final JSONObject initialConfigObject = initialConfigValue.isObject();
+	    if(initialConfigObject == null) {
+	    	Window.alert("Error parsing submarine configuration: not an object: " + initialConfiguration);
+	    	return true;
+	    }
+	    
+	    configureWebcam(this.webcam1, initialConfigObject, 1);
+	    configureWebcam(this.webcam2, initialConfigObject, 2);
+	    
+	    return false;
+	}
+	
+	private void configureWebcam(WlWebcam webcam, JSONObject initialConfigObject, int number) {
+		final JSONValue webcamValue = initialConfigObject.get("webcam" + number);
+	    if(webcamValue != null) {
+	    	final String urlWebcam = webcamValue.isString().stringValue();
+	    	webcam.setUrl(urlWebcam);
+	    }
+	    
+	    final JSONValue mjpegValue = initialConfigObject.get("mjpeg" + number);
+	    if(mjpegValue != null) {
+	    	final String mjpeg = mjpegValue.isString().stringValue();
+	    	int width = 320;
+	    	int height = 240;
+	    	if(initialConfigObject.get("mjpegWidth" + number) != null) {
+	    		final JSONValue mjpegWidth = initialConfigObject.get("mjpegWidth" + number);
+	    		if(mjpegWidth.isNumber() != null) {
+	    			width = (int)mjpegWidth.isNumber().doubleValue();
+	    		} else if(mjpegWidth.isString() != null) {
+	    			width = Integer.parseInt(mjpegWidth.isString().stringValue());
+	    		}
+	    	}
+	    	if(initialConfigObject.get("mjpegHeight" + number) != null) {
+	    		final JSONValue mjpegHeight = initialConfigObject.get("mjpegHeight" + number);
+	    		if(mjpegHeight.isNumber() != null) {
+	    			height = (int)mjpegHeight.isNumber().doubleValue();
+	    		} else if(mjpegHeight.isString() != null) {
+	    			height = Integer.parseInt(mjpegHeight.isString().stringValue());
+	    		}
+	    	}
+	    	webcam.setStreamingUrl(mjpeg, width, height);
+	    }
+	}
 }

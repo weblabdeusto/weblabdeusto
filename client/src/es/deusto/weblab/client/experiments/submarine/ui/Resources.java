@@ -25,6 +25,12 @@ interface Resources extends ClientBundle {
 	@Source("res/down.png")
 	ImageResource down();
 
+	@Source("res/forward.png")
+	ImageResource forward();
+
+	@Source("res/backward.png")
+	ImageResource backward();
+
 	@Source("res/left.png")
 	ImageResource left();
 
