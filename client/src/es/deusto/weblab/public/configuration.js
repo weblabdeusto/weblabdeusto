@@ -217,7 +217,6 @@
 	                        	   "experiment.info.description" : "wiki"
 	                			}
 	                		],
-	                			
 	       	        "robot-movement" : [
 	                			{
 	                				"experiment.name" : "robot-movement",
@@ -227,6 +226,15 @@
 	                        	    "experiment.info.description" : "wiki"
 	                			}
 	                		],
+	       	        "submarine" : [
+	    	                			{
+	    	                				"experiment.name" : "submarine",
+	    						        	"experiment.picture" : "/img/experiments/submarine.png",
+	    	                				"experiment.category" : "Submarine experiments",
+	    	                				"experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Submarine",
+	    	                        	    "experiment.info.description" : "wiki"
+	    	                			}
+	    	                		],
 	                "robot-proglist" : [
 	                			{
 	                				"experiment.name" : "robot-proglist",
