@@ -233,6 +233,13 @@
 	    	                				"experiment.category" : "Submarine experiments",
 	    	                				"experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Submarine",
 	    	                        	    "experiment.info.description" : "wiki"
+	    	                			},
+	    	                			{
+	    	                				"experiment.name" : "submarine",
+	    						        	"experiment.picture" : "/img/experiments/submarine.png",
+	    	                				"experiment.category" : "Aquatic experiments",
+	    	                				"experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Submarine",
+	    	                        	    "experiment.info.description" : "wiki"
 	    	                			}
 	    	                		],
 	                "robot-proglist" : [
