@@ -30,7 +30,7 @@ EXPERIMENT_NAME     = "ud-dummy"                        # Experiment name to int
 CATEGORY_NAME       = "Dummy experiments"               # Experiment category name to interact with
 PROGRAM_FILE        = "this is the content of the file" # Program file to send
 
-ITERATIONS          = 4                                # Times to repeat each launch
+ITERATIONS          = 10                                # Times to repeat each launch
 
 URL_MAPS            = {
                         "SOAP" : ("http://%s/weblab/soap/" % HOST, "http://%s/weblab/login/soap/" % HOST),
@@ -173,7 +173,7 @@ for protocol in URL_MAPS.keys():
                     number
                 )
             )
-    continue
+
     for number in range(5, 101, 5):
         SCENARIOS.append(
                 Scenario(
