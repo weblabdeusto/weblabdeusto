@@ -21,10 +21,6 @@ from BotMisc import show_time, flush
 import Configuration
 import platform
 
-import matplotlib
-matplotlib.use(Configuration.MATPLOTLIB_BACKEND)
-import matplotlib.pyplot as plt
-
 METHODS = ["login", "list_experiments", "reserve_experiment", "get_reservation_status", "logout", "finished_experiment", "send_file", "send_command", "poll", "get_user_information"]
 CALL_TIMES = ('avg_call_times', 'min_call_times', 'max_call_times')
 
@@ -134,6 +130,8 @@ def print_results(raw_information, configuration, date, verbose = True):
 
     CODE="""#!/usr/bin/env python
 import os
+import matplotlib
+matplotlib.use(%(backend)r)
 import matplotlib.pyplot as plt
 
 %(get_figure_filename)s
@@ -166,6 +164,7 @@ def print_figures():
 if __name__ == '__main__':
     print_figures()
     """ % {
+        'backend'             : Configuration.MATPLOTLIB_BACKEND,
         'get_figure_filename' : GET_FIGURE_FILENAME_CODE,
         'working_methods'     : working_methods,
         'all_data'            : json.dumps(all_data, indent=4),
