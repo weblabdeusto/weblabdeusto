@@ -30,7 +30,7 @@ EXPERIMENT_NAME     = "ud-dummy"                        # Experiment name to int
 CATEGORY_NAME       = "Dummy experiments"               # Experiment category name to interact with
 PROGRAM_FILE        = "this is the content of the file" # Program file to send
 
-ITERATIONS          = 3                                # Times to repeat each launch
+ITERATIONS          = 4                                # Times to repeat each launch
 
 URL_MAPS            = {
                         "SOAP" : ("http://%s/weblab/soap/" % HOST, "http://%s/weblab/login/soap/" % HOST),
@@ -53,12 +53,12 @@ except Exception, e:
     REVISION = "(unknown)"
 
 SYSTEMS = {
-            "blood"         : "Intel(R) Core(TM)2 Duo CPU T7250@2.00GHz reduced to 1.60 GHz; 3.5 GB RAM (32 bit); Ubuntu 9.04 Desktop. Python 2.6.2. Linux 2.6.28-14-generic",
-            "nctrun-laptop" : "Intel(R) Pentium(R) 4 CPU 3.40GHz with Hyperthreading (2); 2.0 GB RAM (32 bit); Ubuntu 9.04 Desktop. Python 2.6.2. Linux 2.6.28-15-generic",
-            "hook"          : "Intel(R) Pentium(R) 4 CPU 2.8GHz; 1.0 GB RAM (32 bit); Ubuntu 9.10 Desktop. Python 2.6.4. Linux 2.6.31-16-generic",
-            "ord3p"         : "Intel(R) Core(TM)2 Duo CPU T7250  @ 2.00GHz; 3.5 GB RAM (32 bit); Ubuntu 9.10 Desktop. Python 2.6.4. Linux 2.6.31-17-generic",
-            "skull"         : "Intel(R) Core(TM)2 Duo CPU E8400  @ 3.00GHz; 3.0 GB RAM (32 bit); Ubuntu 10.10 Desktop. Python 2.6.6. Linux 2.6.35-25-generic",
-            "lrg-ubuntu"    : "Intel(R) Xeon(R) CPU E5502  @ 1.87GHz; 4.0 GB RAM (64 bit); Ubuntu 10.04 Desktop. Python 2.6.5. Linux 2.6.32-22-generic"
+            "blood"         : "Intel(R) Core(TM)2 Duo CPU T7250@2.00GHz reduced to 1.60 GHz; 3.5 GB RAM",
+            "nctrun-laptop" : "Intel(R) Pentium(R) 4 CPU 3.40GHz with Hyperthreading (2); 2.0 GB RAM",
+            "hook"          : "Intel(R) Pentium(R) 4 CPU 2.8GHz; 1.0 GB RAM",
+            "ord3p"         : "Intel(R) Core(TM)2 Duo CPU T7250  @ 2.00GHz; 3.5 GB RAM",
+            "skull"         : "Intel(R) Core(TM)2 Duo CPU E8400  @ 3.00GHz; 3.0 GB RAM",
+            "lrg-ubuntu"    : "Intel(R) Xeon(R) CPU E5502  @ 1.87GHz; 4.0 GB RAM"
         }
 
 try:
@@ -173,7 +173,7 @@ for protocol in URL_MAPS.keys():
                     number
                 )
             )
-    
+    continue
     for number in range(5, 101, 5):
         SCENARIOS.append(
                 Scenario(

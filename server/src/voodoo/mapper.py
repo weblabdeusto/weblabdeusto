@@ -536,7 +536,7 @@ def load_from_dto(instance,exceptions = None,skip_recoverables=False):
     def fill_tree(current_node,name,current_instance):
         new_node = current_node.append_child(name,current_instance)
 
-        if   new_node.data_type == _Node.BASIC:
+        if   new_node.data_type == _Node.BASIC or new_node.data_type == _Node.IGNORABLE:
             return # No information inside a basic data type
 
         # Don't repeat twice the same instance
