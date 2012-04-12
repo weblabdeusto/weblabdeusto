@@ -14,6 +14,7 @@
 #
 
 import os
+import sys
 import json
 
 from BotMisc import show_time, flush
@@ -33,7 +34,7 @@ GET_FIGURE_FILENAME_CODE="""def get_figure_filename(protocol, method, date):
 
 exec(GET_FIGURE_FILENAME_CODE)
 
-def generate_html(protocols, methods, date):
+def generate_html(protocols, configuration, methods, date):
 
     # Retrieve this information in Linux systems
     try:
@@ -54,11 +55,11 @@ def generate_html(protocols, methods, date):
     page = """<html><head><title>Bot stats as of %s</title></head><body>
     <h1>Bot stats as of %s</h1>
     <h2>Stats information</h2>
-    Configuration: %s<br/>
+    Configuration: %s %s<br/>
     System: %s<br/>
     <a name="index"><h2>Index</h2></a>
     <ul>
-    """ % (date, date,Configuration.RUNNING_CONFIGURATION, all_system_info)
+    """ % (date, date, Configuration.RUNNING_CONFIGURATION, configuration, all_system_info)
 
     for protocol in protocols:
         page += """\t<li><a href="#%s">%s</a>: <ul>""" % (protocol, protocol)
@@ -81,7 +82,7 @@ def generate_html(protocols, methods, date):
     page += """</body></html>"""
     return page
 
-def print_results(raw_information, date, verbose = True):
+def print_results(raw_information, configuration, date, verbose = True):
     working_methods = METHODS[:]
 
     all_data = {
@@ -174,9 +175,12 @@ if __name__ == '__main__':
     generate_figures_script = "figures%sgenerate_figures_%s.py" % (os.sep, date)
     open(generate_figures_script,'w').write(CODE)
 
-    execfile(generate_figures_script)
+    print "Executing %s..." % generate_figures_script,
+    os.system("%s %s" % (sys.executable, generate_figures_script))
+    print "[done]"
 
-    html = generate_html(protocols, working_methods, date)
+
+    html = generate_html(protocols, configuration, working_methods, date)
     html_filename = 'botclient_%s.html' % date
     open(html_filename, 'w').write(html)
 
@@ -192,5 +196,5 @@ if __name__ == '__main__':
 
     from BotInformationRetriever import get_raw_information
     raw_information = get_raw_information(DATE)
-    print_results(raw_information, DATE)
+    print_results(raw_information, "configuration...", DATE)
 

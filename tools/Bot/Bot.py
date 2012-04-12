@@ -32,24 +32,30 @@ from weblab.admin.bot.launcher import BotLauncher
 
 if __name__ == "__main__":
 
-    now = datetime.datetime.now()
-    execution_unique_id = 'D_%s_%s_%s_T_%s_%s_%s_' % (
-                ('%s' % now.year).zfill(4),
-                ('%s' % now.month).zfill(2),
-                ('%s' % now.day).zfill(2),
-                ('%s' % now.hour).zfill(2),
-                ('%s' % now.minute).zfill(2),
-                ('%s' % now.second).zfill(2)
-            )
+    for num_configuration, configuration in enumerate(Cfg.CONFIGURATIONS):
+        now = datetime.datetime.now()
+        execution_unique_id = 'D_%s_%s_%s_T_%s_%s_%s_' % (
+                    ('%s' % now.year).zfill(4),
+                    ('%s' % now.month).zfill(2),
+                    ('%s' % now.day).zfill(2),
+                    ('%s' % now.hour).zfill(2),
+                    ('%s' % now.minute).zfill(2),
+                    ('%s' % now.second).zfill(2)
+                )
+        print 
+        print "*" * 20
+        print "CONFIGURATION %s" % configuration
+        print "Unique id: %s" % execution_unique_id
+        print "*" * 20
+        print 
 
-    execution_results = {}
+        execution_results = {}
 
-    for num_scenario, scenario in enumerate(Cfg.SCENARIOS):
+        for num_scenario, scenario in enumerate(Cfg.SCENARIOS):
 
-        if not scenario.category in execution_results:
-            execution_results[scenario.category] = {}
+            if not scenario.category in execution_results:
+                execution_results[scenario.category] = {}
 
-        for num_configuration, configuration in enumerate(Cfg.CONFIGURATIONS):
             pickle_filename = "logs" + os.sep + "botclient_%s_SCEN_%s_CONFIG_%s.pickle" % (
                                     execution_unique_id, 
                                     str(num_scenario).zfill(len(str(len(Cfg.SCENARIOS)))), 
@@ -72,36 +78,38 @@ if __name__ == "__main__":
             print "   -> Results stored in %s" % pickle_filename
             print "   -> Serializing results..."
             result = botlauncher.get_results()
+            del botlauncher
             execution_results[scenario.category][scenario.identifier] = result
             print "   -> Done"
 
-    raw_information = {}
-    for category in execution_results:
-        x = [ key for key in execution_results[category].keys() ]
-        y = [ execution_results[category][key] for key in x ]
-        raw_information[category] = (x,y)
+        raw_information = {}
+        for category in execution_results:
+            x = [ key for key in execution_results[category].keys() ]
+            y = [ execution_results[category][key] for key in x ]
+            raw_information[category] = (x,y)
 
-    try:
-        results_filename = "raw_information_%s.dump" % execution_unique_id
-        print "Writing results to file %s... %s" % (results_filename, datetime.datetime.now())
-        results_file = open(results_filename, 'w')
-        pickle.dump(raw_information, results_file)
-    except:
-        print "There was an error writing results to file"
-        import traceback
-        traceback.print_stack()
+        del execution_results
 
-    if Cfg.GENERATE_GRAPHICS:
-        print "Generating graphics..."
         try:
-            import BotGraphics
-            BotGraphics.print_results(raw_information, execution_unique_id, True)
-        except ImportError:
-            print "Couldn't generate graphics. Maybe matplotlib.pyplot is not installed? See http://matplotlib.sourceforge.net/"
-    else:
-        print "Not generating graphics"
+            results_filename = "raw_information_%s.dump" % execution_unique_id
+            print "Writing results to file %s... %s" % (results_filename, datetime.datetime.now())
+            results_file = open(results_filename, 'w')
+            pickle.dump(raw_information, results_file)
+        except:
+            print "There was an error writing results to file"
+            import traceback
+            traceback.print_stack()
 
-    print "Done", datetime.datetime.now()
-    
+        if Cfg.GENERATE_GRAPHICS:
+            print "Generating graphics..."
+            try:
+                import BotGraphics
+                BotGraphics.print_results(raw_information, configuration, execution_unique_id, True)
+            except ImportError:
+                print "Couldn't generate graphics. Maybe matplotlib.pyplot is not installed? See http://matplotlib.sourceforge.net/"
+        else:
+            print "Not generating graphics"
 
+        print "Done", datetime.datetime.now()
+        del raw_information
 
