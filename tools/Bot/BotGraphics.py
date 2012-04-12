@@ -14,6 +14,7 @@
 #
 
 import os
+import json
 
 from BotMisc import show_time, flush
 import Configuration
@@ -140,7 +141,7 @@ def print_figures():
     
     date            = %(date)r
     working_methods = %(working_methods)r
-    all_data        = %(all_data)r
+    all_data        = %(all_data)s
 
     for method in working_methods:
         method_data = all_data[method]
@@ -166,11 +167,11 @@ if __name__ == '__main__':
     """ % {
         'get_figure_filename' : GET_FIGURE_FILENAME_CODE,
         'working_methods'     : working_methods,
-        'all_data'            : all_data,
+        'all_data'            : json.dumps(all_data, indent=4),
         'date'                : date
     }
 
-    generate_figures_script = "generate_figures_%s.py" % date
+    generate_figures_script = "figures%sgenerate_figures_%s.py" % (os.sep, date)
     open(generate_figures_script,'w').write(CODE)
 
     execfile(generate_figures_script)
