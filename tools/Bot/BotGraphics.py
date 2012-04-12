@@ -26,8 +26,11 @@ import matplotlib.pyplot as plt
 METHODS = ["login", "list_experiments", "reserve_experiment", "get_reservation_status", "logout", "finished_experiment", "send_file", "send_command", "poll", "get_user_information"]
 CALL_TIMES = ('avg_call_times', 'min_call_times', 'max_call_times')
 
-def get_figure_filename(xxx_call_times, method, date):
-    return "figures" + os.sep + "figure_" + date + "_" + xxx_call_times + "_" + method + ".png"
+GET_FIGURE_FILENAME_CODE="""def get_figure_filename(protocol, method, date):
+    return "figures" + os.sep + "figure_" + date + "_" + protocol + "_" + method + ".png"
+"""
+
+exec(GET_FIGURE_FILENAME_CODE)
 
 def generate_html(protocols, methods, date):
 
@@ -127,6 +130,18 @@ def print_results(raw_information, date, verbose = True):
     
     # START PRINTING THIS PART
 
+    CODE="""#!/usr/bin/env python
+import os
+import matplotlib.pyplot as plt
+
+%(get_figure_filename)s
+
+def print_figures():
+    
+    date            = %(date)r
+    working_methods = %(working_methods)r
+    all_data        = %(all_data)r
+
     for method in working_methods:
         method_data = all_data[method]
         for protocol in method_data:
@@ -146,9 +161,25 @@ def print_results(raw_information, date, verbose = True):
 
             plt.savefig(get_figure_filename(protocol, method, date))
 
+if __name__ == '__main__':
+    print_figures()
+    """ % {
+        'get_figure_filename' : GET_FIGURE_FILENAME_CODE,
+        'working_methods'     : working_methods,
+        'all_data'            : all_data,
+        'date'                : date
+    }
+
+    generate_figures_script = "generate_figures_%s.py" % date
+    open(generate_figures_script,'w').write(CODE)
+
+    execfile(generate_figures_script)
+
     html = generate_html(protocols, working_methods, date)
     html_filename = 'botclient_%s.html' % date
     open(html_filename, 'w').write(html)
+
+    # END PRINTING THIS PART
 
     if verbose:
         print "HTML file available in",html_filename

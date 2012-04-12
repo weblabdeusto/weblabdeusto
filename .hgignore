@@ -96,6 +96,7 @@ tools/Bot/logs.txt.*
 tools/Bot/.*.html
 tools/Bot/.*.dump
 tools/Bot/.*_log.txt
+tools/Bot/generate_figures_*py
 tools/Bot/nohup.out
 tools/VisirBattleTester/.*dump.*
 
