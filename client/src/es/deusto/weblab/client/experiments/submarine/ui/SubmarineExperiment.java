@@ -20,6 +20,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.MouseDownEvent;
 import com.google.gwt.event.dom.client.MouseUpEvent;
+import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
@@ -41,6 +42,10 @@ import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
+import es.deusto.weblab.client.ui.widgets.IWlActionListener;
+import es.deusto.weblab.client.ui.widgets.IWlWidget;
+import es.deusto.weblab.client.ui.widgets.WlButton;
+import es.deusto.weblab.client.ui.widgets.WlSwitch;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
@@ -99,6 +104,9 @@ public class SubmarineExperiment extends ExperimentBase {
 	@UiField Image downButton;
 	@UiField Image rightButton;
 	@UiField Image leftButton;
+	@UiField Image lightImage;
+	@UiField WlButton foodButton;
+	@UiField WlSwitch lightSwitch;
 	
 	private boolean forwardPressed = false;
 	private boolean backwardPressed = false;
@@ -285,6 +293,24 @@ public class SubmarineExperiment extends ExperimentBase {
 	 * started.
 	 */
 	private void setupWidgets() {
+		this.lightSwitch.addActionListener(new IWlActionListener() {
+			
+			@Override
+			public void onAction(IWlWidget widget) {
+				boolean state = SubmarineExperiment.this.lightSwitch.isSwitched();
+				SubmarineExperiment.this.boardController.sendCommand("LIGHT " + (state?"ON":"OFF"));
+				SubmarineExperiment.this.lightImage.setUrl(GWT.getModuleBaseURL() + "img/bulb_" + (state?"on":"off") + ".png");
+			}
+		});
+		
+		this.foodButton.addActionListener(new IWlActionListener() {
+			
+			@Override
+			public void onAction(IWlWidget widget) {
+				SubmarineExperiment.this.boardController.sendCommand("FOOD");
+			}
+		});
+		
 		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
 			@Override
 			public void onFinished() {
@@ -336,8 +362,23 @@ public class SubmarineExperiment extends ExperimentBase {
 	    
 	    this.setupWidgets();
 	    
-	    if(parseWebcamConfig(initialConfiguration))
+	    final JSONObject config = parseWebcamConfig(initialConfiguration);
+	    if(config == null)
 	    	return;
+	    
+	    if(!config.containsKey("light")) {
+	    	Window.alert("\"light\" key not found in the initial configuration: " + initialConfiguration);
+	    	return;
+	    }
+	    
+	    final JSONBoolean light = config.get("light").isBoolean();
+	    if(light != null && light.booleanValue()) {
+	    	this.lightImage.setUrl(GWT.getModuleBaseURL() + "img/bulb_on.png");
+	    	this.lightSwitch.switchWithoutFiring(true);
+	    } else {
+	    	this.lightImage.setUrl(GWT.getModuleBaseURL() + "img/bulb_off.png");
+	    	this.lightSwitch.switchWithoutFiring(false);
+	    }
 	    
 	    this.webcam1.setVisible(true);
 	    this.webcam1.start();
@@ -510,18 +551,18 @@ public class SubmarineExperiment extends ExperimentBase {
 	}	
 	
 
-	private boolean parseWebcamConfig(String initialConfiguration) {
+	private JSONObject parseWebcamConfig(String initialConfiguration) {
 		final JSONValue initialConfigValue   = JSONParser.parseStrict(initialConfiguration);
 	    final JSONObject initialConfigObject = initialConfigValue.isObject();
 	    if(initialConfigObject == null) {
 	    	Window.alert("Error parsing submarine configuration: not an object: " + initialConfiguration);
-	    	return true;
+	    	return null;
 	    }
 	    
 	    configureWebcam(this.webcam1, initialConfigObject, 1);
 	    configureWebcam(this.webcam2, initialConfigObject, 2);
 	    
-	    return false;
+	    return initialConfigObject;
 	}
 	
 	private void configureWebcam(WlWebcam webcam, JSONObject initialConfigObject, int number) {

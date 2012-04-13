@@ -22,6 +22,8 @@ from voodoo.lock import locked
 from voodoo.override import Override
 from weblab.experiment.experiment import Experiment
 
+USE_REAL_DEVICE = False
+
 class Submarine(Experiment):
 
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
@@ -70,7 +72,10 @@ class Submarine(Experiment):
 
         self._clean()
 
-        return json.dumps({ "initial_configuration" : json.dumps(self.initial_configuration), "batch" : False })
+        current_config = self.initial_configuration.copy()
+        current_config['light'] = self._send('STATELIGHT').startswith('1')
+
+        return json.dumps({ "initial_configuration" : json.dumps(current_config), "batch" : False })
 
     def _clean(self):
         self._send("CleanInputs")
@@ -92,12 +97,14 @@ class Submarine(Experiment):
         if self.debug:
             print "[Submarine*] do_send_command_to_device called: %s" % command
 
-        if command not in ('UP ON','UP OFF','DOWN ON','DOWN OFF','FORWARD ON','FORWARD OFF','BACKWARD ON','BACKWARD OFF','LEFT ON','LEFT OFF','RIGHT ON','RIGHT OFF'):
+        if command not in ('FOOD', 'LIGHT ON', 'LIGHT OFF','UP ON','UP OFF','DOWN ON','DOWN OFF','FORWARD ON','FORWARD OFF','BACKWARD ON','BACKWARD OFF','LEFT ON','LEFT OFF','RIGHT ON','RIGHT OFF'):
             return "error:unknown command"
 
         msg = "ok"
 
-        if command.startswith('UP'):
+        if command == 'FOOD' or command in ('LIGHT ON','LIGHT OFF'):
+            self._send(command)
+        elif command.startswith('UP'):
             if command == 'UP ON':
                 if self.up:
                     msg = "duplicated" # Already sent
@@ -173,7 +180,11 @@ class Submarine(Experiment):
 
 
     def _send(self, command):
-        return urllib2.urlopen(self.pic_location, command).read()
+        if USE_REAL_DEVICE:
+            return urllib2.urlopen(self.pic_location, command).read()
+        else:
+            print "Simulating request...",command
+            return "ok"
 
 
     @Override(Experiment)
