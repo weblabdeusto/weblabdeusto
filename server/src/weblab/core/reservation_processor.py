@@ -36,7 +36,7 @@ import weblab.lab.exc as LaboratoryErrors
 import weblab.experiment.util as ExperimentUtil
 
 
-DEFAULT_EXPERIMENT_POLL_TIME    = 300  # seconds
+DEFAULT_EXPERIMENT_POLL_TIME    = 350  # seconds
 EXPERIMENT_POLL_TIME            = 'core_experiment_poll_time'
 
 

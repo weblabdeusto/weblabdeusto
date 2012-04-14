@@ -47,7 +47,7 @@ GET_EXPERIMENT_USES_CACHE_TIME  = 15  # seconds
 GET_USER_INFORMATION_CACHE_TIME = 200 # seconds
 GET_USER_PERMISSIONS_CACHE_TIME = 200 # seconds
 GET_PERMISSION_TYPES_CACHE_TIME = 200 # seconds
-DEFAULT_EXPERIMENT_POLL_TIME    = 300  # seconds
+DEFAULT_EXPERIMENT_POLL_TIME    = 350  # seconds
 EXPERIMENT_POLL_TIME            = 'core_experiment_poll_time'
 
 FORWARDED_KEYS = 'external_user','user_agent','referer','mobile','facebook','from_ip'
