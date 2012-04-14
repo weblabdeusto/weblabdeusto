@@ -37,4 +37,6 @@ interface Resources extends ClientBundle {
 	@Source("res/right.png")
 	ImageResource right();
 
+	@Source("res/feedfish.jpg")
+	ImageResource food();
 }

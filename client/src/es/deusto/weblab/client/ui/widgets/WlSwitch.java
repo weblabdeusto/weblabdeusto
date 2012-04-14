@@ -55,6 +55,10 @@ public class WlSwitch extends WlWidgetWithPressable{
 		this.switchedOn = false;
 	}
 	
+	public void switchWithoutFiring(boolean newState) {
+		if(newState != this.switchedOn)
+			press();
+	}
 	
 	@Override
 	public void dispose(){}
