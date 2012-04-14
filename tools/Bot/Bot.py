@@ -51,14 +51,15 @@ if __name__ == "__main__":
 
         execution_results = {}
 
-        for num_scenario, scenario in enumerate(Cfg.SCENARIOS):
+        scenarios = Cfg.generate_scenarios()
+        for num_scenario, scenario in enumerate(scenarios):
 
             if not scenario.category in execution_results:
                 execution_results[scenario.category] = {}
 
             pickle_filename = "logs" + os.sep + "botclient_%s_SCEN_%s_CONFIG_%s.pickle" % (
                                     execution_unique_id, 
-                                    str(num_scenario).zfill(len(str(len(Cfg.SCENARIOS)))), 
+                                    str(num_scenario).zfill(len(str(len(scenarios)))), 
                                     str(num_configuration).zfill(len(str(len(Cfg.CONFIGURATIONS))))
                             )
             botlauncher = BotLauncher(
@@ -81,6 +82,7 @@ if __name__ == "__main__":
             del botlauncher
             execution_results[scenario.category][scenario.identifier] = result
             print "   -> Done"
+            scenario.dispose()
 
         raw_information = {}
         for category in execution_results:

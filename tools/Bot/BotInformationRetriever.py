@@ -31,7 +31,7 @@ FILE_NAME_TEMPLATE = "logs" + os.sep + "botclient_%s__SCEN_%s_CONFIG_0.pickle"
 FILL_NUMBER = 2
 RANGES = [
         lambda : xrange(1, 5),
-        lambda : xrange(5, 101, 5)
+        lambda : xrange(5, 151, 5)
     ]
 
 def get_raw_information(date, verbose = True):

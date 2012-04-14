@@ -144,6 +144,7 @@ def print_figures():
 
     for method in working_methods:
         method_data = all_data[method]
+
         for protocol in method_data:
             protocol_data = method_data[protocol]
             fig = plt.figure()
@@ -151,13 +152,16 @@ def print_figures():
             ax.set_xlabel("Users")
             ax.set_ylabel("Time (sec)")
 
-            x, y = protocol_data['max']
-            ax.plot(x, y, 'r-')
-            x, y = protocol_data['avg']
-            _, yerr = protocol_data['std']
-            ax.errorbar(x, y, yerr=yerr, fmt='g-')
-            x, y = protocol_data['min']
-            ax.plot(x, y, 'b-')
+            sorter = lambda (x1, y1), (x2, y2): cmp(x1, x2)
+
+            max_x,  max_y  = zip(*sorted(zip(*protocol_data['max']), sorter))
+            mean_x, mean_y = zip(*sorted(zip(*protocol_data['avg']), sorter))
+            std_x,  std_y  = zip(*sorted(zip(*protocol_data['std']), sorter))
+            min_x,  min_y  = zip(*sorted(zip(*protocol_data['min']), sorter))
+
+            ax.plot(max_x, max_y, 'r-')
+            ax.errorbar(mean_x, mean_y, yerr=std_y, fmt='g-')
+            ax.plot(min_x, min_y, 'b-')
 
             plt.savefig(get_figure_filename(protocol, method, date))
 
