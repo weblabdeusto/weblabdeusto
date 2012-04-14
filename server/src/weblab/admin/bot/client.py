@@ -218,7 +218,6 @@ class AbstractBot(object):
     @logged
     def do_get_user_permissions(self):
         holder = self._call('get_user_permissions', session_id=self.session_id)
-        print holder
         return self._parse_user(holder)
 
 if ZSI_AVAILABLE:
@@ -243,7 +242,7 @@ if ZSI_AVAILABLE:
             finally:
                 if method == 'login':
                     weblabsessionid = self.login_ws.binding.cookies.get('weblabsessionid')
-                    self.ups_ws.binding.cookies['weblabsessionid'] = weblabsessionid
+                    self.ups_ws.binding.cookies['weblabsessionid'] = weblabsessionid.value
                 else:
                     weblabsessionid = self.ups_ws.binding.cookies.get('weblabsessionid')
                 if weblabsessionid is not None:

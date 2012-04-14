@@ -58,6 +58,10 @@ class BotIteration(object):
         self.out        = out
         self.err        = err
 
+    def dispose(self):
+        for botuser in self.botusers:
+            botuser.dispose()
+
     def get_times(self):
         return [ botuser.time() for botuser in self.botusers ]
 
@@ -193,6 +197,10 @@ class BotTrial(object):
         for method_name in method_names:
             self.avg_call_times[method_name] = np.mean( [ call.time() for call in all_calls[method_name] ])
             self.std_call_times[method_name] = np.std( [ call.time() for call in all_calls[method_name] ])
+
+        # All data calculated, cleaning...
+        for iteration in self.iterations:
+            iteration.dispose()
 
     def get_method_names(self):
         method_names = []

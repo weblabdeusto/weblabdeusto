@@ -48,6 +48,9 @@ class BotUser(threading.Thread):
         self.bot = Client.create_bot(protocol, url=self.url, url_login=self.url_login)
         self.initial_delay = initial_delay
 
+    def dispose(self):
+        del self.bot
+
     def time(self):
         return self.bot.time()
 

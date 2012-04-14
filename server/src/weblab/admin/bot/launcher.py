@@ -25,12 +25,6 @@ import weblab.admin.bot.data as Data
 
 import voodoo.mapper as mapper
 
-def avg(elements):
-    if len(elements) > 0:
-        return 1.0 * sum(elements)/len(elements)
-    else:
-        return 0
-
 class BotLauncher(object):
 
     def __init__(self, weblab_path, launch_file_name, host, pickle_file_name, logging_cfg_file_name, scenario, iterations, ports):
@@ -104,8 +98,8 @@ class BotLauncher(object):
     def _launch_iteration(self):
 
         # Launching botusers...
-        self.weblab_process = WebLabProcess.WebLabProcess(self.weblab_path, self.launch_file, self.host, self.ports)
-        self.weblab_process.start()
+        weblab_process = WebLabProcess.WebLabProcess(self.weblab_path, self.launch_file, self.host, self.ports)
+        weblab_process.start()
         try:
             botusers = []
             for botuser_creator_name, botuser_creator in self.scenario:
@@ -124,7 +118,7 @@ class BotLauncher(object):
                 time.sleep(0.3)
             iteration_time = time.time() - begin_time
         finally:
-            self.weblab_process.shutdown()
+            weblab_process.shutdown()
 
         botuser_routes = [ botuser.route for botuser in botusers ]
         routes = {}
@@ -141,7 +135,7 @@ class BotLauncher(object):
         for botuser in botusers:
             for exception, trace in botuser.get_exceptions():
                 self._add_exception(exceptions, (exception, trace))
-        return Data.BotIteration(iteration_time, exceptions, botusers, self.weblab_process.out, self.weblab_process.err)
+        return Data.BotIteration(iteration_time, exceptions, botusers, weblab_process.out, weblab_process.err)
 
     def len(self):
         return self.users / self.step
