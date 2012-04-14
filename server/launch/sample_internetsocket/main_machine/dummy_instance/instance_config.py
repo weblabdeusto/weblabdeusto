@@ -45,7 +45,7 @@ loader_xsd_path                   = "WebLabSkel/lib/schemas/"
 # Experiments configuration #
 #############################
 
-core_experiment_poll_time = 15 # seconds
+core_experiment_poll_time = 350 # seconds
 
 ####################################
 # Coordinator Server configuration #
