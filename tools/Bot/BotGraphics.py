@@ -64,18 +64,32 @@ def generate_html(protocols, configuration, methods, date):
         page += """\t</ul></li>\n"""
 
     page += """</ul><h2>Results</h2>\n"""
+    page += """<center><table border="0"><tr>"""
     for protocol in protocols:
-        page += """<br/><br/><a name="%s"><h3>%s</h3></a><center>\n""" % (protocol, protocol)
+        page += """<th><a name="%s"><h3>%s</h3></a><center></th>\n""" % (protocol, protocol)
+    page += "</tr>"
 
-        for method in methods:
-            page += """<a name="%s_%s"><h4>%s</h4></a>\n""" % (protocol, method, method)
-            figure_filename = get_figure_filename(protocol, method, date)
-            page += """<a href="%s"><img width="500" src="%s"/></a>\n""" % (figure_filename, figure_filename)
+    for method in methods:
+        page += "<tr>"
+
+        central_pos = len(protocols) / 2
+        for pos, protocol in enumerate(protocols):
+            page += """<td><center>"""
+            if pos == central_pos:
+                page += """<a name="%s_%s"><h4>%s</h4></a><br/>\n""" % (protocol, method, method)
+            else:
+                page += """<br/><br/>"""
+            fname = get_figure_filename(protocol, method, date)
+            real_fname = os.path.dirname(fname) + os.sep + "without_bounds_" + os.path.basename(fname)
+            page += """<a href="%s"><img width="400" src="%s"/></a>\n""" % (real_fname, fname)
             page += """<br/>\n"""
-            page += """<a href="#index">Back to index</a>"""
-        page += """</center>"""
+            if pos == central_pos:
+                page += """<a href="#index">Back to index</a>"""
+            page += """</center></td>"""
 
-    page += """</body></html>"""
+        page += """</tr>"""
+
+    page += """</table></center></body></html>"""
     return page
 
 def print_results(raw_information, configuration, date, verbose = True):
@@ -130,6 +144,7 @@ def print_results(raw_information, configuration, date, verbose = True):
 
     CODE="""#!/usr/bin/env python
 import os
+import math
 import matplotlib
 matplotlib.use(%(backend)r)
 import matplotlib.pyplot as plt
@@ -142,28 +157,47 @@ def print_figures():
     working_methods = %(working_methods)r
     all_data        = %(all_data)s
 
+    sorter = lambda (x1, y1), (x2, y2): cmp(x1, x2)
+
     for method in working_methods:
         method_data = all_data[method]
 
+        max_ys = []
         for protocol in method_data:
             protocol_data = method_data[protocol]
-            fig = plt.figure()
-            ax = fig.add_subplot(111)
-            ax.set_xlabel("Users")
-            ax.set_ylabel("Time (sec)")
+            _,  max_y  = zip(*sorted(zip(*protocol_data['max']), sorter))
+            max_ys.append(max(max_y))
 
-            sorter = lambda (x1, y1), (x2, y2): cmp(x1, x2)
+        ylim = (0, math.ceil(max(max_ys) + 0.1))
 
-            max_x,  max_y  = zip(*sorted(zip(*protocol_data['max']), sorter))
-            mean_x, mean_y = zip(*sorted(zip(*protocol_data['avg']), sorter))
-            std_x,  std_y  = zip(*sorted(zip(*protocol_data['std']), sorter))
-            min_x,  min_y  = zip(*sorted(zip(*protocol_data['min']), sorter))
+        for protocol in method_data:
+            for with_bounds in True, False:
+                protocol_data = method_data[protocol]
+                fig = plt.figure()
+                ax = fig.add_subplot(111)
+                ax.set_xlabel("Users")
+                ax.set_ylabel("Time (sec)")
 
-            ax.plot(max_x, max_y, 'r-')
-            ax.errorbar(mean_x, mean_y, yerr=std_y, fmt='g-')
-            ax.plot(min_x, min_y, 'b-')
 
-            plt.savefig(get_figure_filename(protocol, method, date))
+                max_x,  max_y  = zip(*sorted(zip(*protocol_data['max']), sorter))
+                mean_x, mean_y = zip(*sorted(zip(*protocol_data['avg']), sorter))
+                std_x,  std_y  = zip(*sorted(zip(*protocol_data['std']), sorter))
+                min_x,  min_y  = zip(*sorted(zip(*protocol_data['min']), sorter))
+
+                ax.plot(max_x, max_y, 'r-')
+                ax.errorbar(mean_x, mean_y, yerr=std_y, fmt='g-')
+                ax.plot(min_x, min_y, 'b-')
+
+                fname = get_figure_filename(protocol, method, date)
+                if with_bounds:
+                    ax.set_ybound(*ylim)
+                else:
+                    current_bounds = list(ax.get_ybound())
+                    current_bounds[0] = 0
+                    ax.set_ybound(*current_bounds)
+                    fname = os.path.dirname(fname) + os.sep + "without_bounds_" + os.path.basename(fname)
+
+                plt.savefig(fname)
 
 if __name__ == '__main__':
     print_figures()
