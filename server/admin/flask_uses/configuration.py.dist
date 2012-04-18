@@ -1,0 +1,21 @@
+DIRECTORY = '/home/weblab/weblab/server/admin/monitor/'
+_FILES_PATH = '/home/weblab/files_stored/'
+
+DB_NAME ="WebLabTests"
+_USERNAME="weblab"
+_PASSWORD="weblab"
+
+LOCATIONS_DB_NAME ="Locations"
+_LOCATIONS_USERNAME=_USERNAME
+_LOCATIONS_PASSWORD=_PASSWORD
+
+GROUPS = { 
+            '5-Ing.Tel_GPIB_2009-2010' : ('ud-gpib1', 'GPIB experiments'),
+            '5-Ing.Ind_2009-2010'      : ('ud-fpga',  'FPGA experiments')
+        }
+
+GROUP_KEYS = [
+        '5-Ing.Ind_2009-2010',
+        '5-Ing.Tel_GPIB_2009-2010'
+    ]
+
