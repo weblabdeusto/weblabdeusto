@@ -54,25 +54,30 @@ class ResourcesManager(object):
 
         return db_resource_type, db_experiment_type
 
-    def add_experiment_instance_id(self, session, laboratory_coord_address, experiment_instance_id, resource):
-        self.add_resource(session, resource)
+    def add_experiment_instance_id(self, laboratory_coord_address, experiment_instance_id, resource):
+        session = self._session_maker()
+        try:
+            self.add_resource(session, resource)
 
-        db_resource_type, db_experiment_type = self.add_experiment_id(session, experiment_instance_id.to_experiment_id(), resource.resource_type)
+            db_resource_type, db_experiment_type = self.add_experiment_id(session, experiment_instance_id.to_experiment_id(), resource.resource_type)
 
-        db_resource_instance = session.query(ResourceInstance).filter_by(name = resource.resource_instance, resource_type = db_resource_type).first()
+            db_resource_instance = session.query(ResourceInstance).filter_by(name = resource.resource_instance, resource_type = db_resource_type).first()
 
-        db_experiment_instance = session.query(ExperimentInstance).filter_by(experiment_instance_id = experiment_instance_id.inst_name, experiment_type = db_experiment_type).first()
-        if db_experiment_instance is None:
-            db_experiment_instance = ExperimentInstance(db_experiment_type, laboratory_coord_address, experiment_instance_id.inst_name)
-            session.add(db_experiment_instance)
-        else:
-            retrieved_laboratory_coord_address = db_experiment_instance.laboratory_coord_address
-            if retrieved_laboratory_coord_address != laboratory_coord_address:
-                raise CoordExc.InvalidExperimentConfigError("Attempt to register the experiment %s in the laboratory %s; this experiment is already registered in the laboratory %s" % (experiment_instance_id, laboratory_coord_address, retrieved_laboratory_coord_address))
-            if db_experiment_instance.resource_instance != db_resource_instance:
-                raise CoordExc.InvalidExperimentConfigError("Attempt to register the experiment %s with resource %s when it was already bound to resource %s" % (experiment_instance_id, resource, db_experiment_instance.resource_instance.to_resource()))
+            db_experiment_instance = session.query(ExperimentInstance).filter_by(experiment_instance_id = experiment_instance_id.inst_name, experiment_type = db_experiment_type).first()
+            if db_experiment_instance is None:
+                db_experiment_instance = ExperimentInstance(db_experiment_type, laboratory_coord_address, experiment_instance_id.inst_name)
+                session.add(db_experiment_instance)
+            else:
+                retrieved_laboratory_coord_address = db_experiment_instance.laboratory_coord_address
+                if retrieved_laboratory_coord_address != laboratory_coord_address:
+                    raise CoordExc.InvalidExperimentConfigError("Attempt to register the experiment %s in the laboratory %s; this experiment is already registered in the laboratory %s" % (experiment_instance_id, laboratory_coord_address, retrieved_laboratory_coord_address))
+                if db_experiment_instance.resource_instance != db_resource_instance:
+                    raise CoordExc.InvalidExperimentConfigError("Attempt to register the experiment %s with resource %s when it was already bound to resource %s" % (experiment_instance_id, resource, db_experiment_instance.resource_instance.to_resource()))
 
-        db_experiment_instance.resource_instance = db_resource_instance
+            db_experiment_instance.resource_instance = db_resource_instance
+            session.commit()
+        finally:
+            session.close()
 
     def acquire_resource(self, session, current_resource_slot):
         slot_reservation = SchedulingSchemaIndependentSlotReservation(current_resource_slot)
@@ -133,15 +138,20 @@ class ResourcesManager(object):
             return True
         return False
 
-    def mark_resource_as_fixed(self, session, resource):
-        db_resource_instance = self._get_resource_instance(session, resource)
-
-        db_slot = db_resource_instance.slot
-        if db_slot is None:
-            db_slot = CurrentResourceSlot(db_resource_instance)
-            session.add(db_slot)
-            return True
-        return False
+    def mark_resource_as_fixed(self, resource):
+        session = self._session_maker()
+        try:
+            db_resource_instance = self._get_resource_instance(session, resource)
+    
+            db_slot = db_resource_instance.slot
+            if db_slot is None:
+                db_slot = CurrentResourceSlot(db_resource_instance)
+                session.add(db_slot)
+                session.commit()
+                return True
+            return False
+        finally:
+            session.close()
 
     def remove_resource_instance_id(self, session, experiment_instance_id):
         exp_type = session.query(ExperimentType).filter_by(cat_name = experiment_instance_id.cat_name).first()
