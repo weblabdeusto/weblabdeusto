@@ -24,6 +24,7 @@ import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.sessions.session_id as SessionId
 
 import weblab.core.coordinator.sql.coordinator as Coordinator
+import weblab.core.coordinator.coordinator as AbstractCoordinator
 from weblab.data.experiments import ExperimentId
 from weblab.data.experiments import ExperimentInstanceId
 from weblab.core.coordinator.resource import Resource
@@ -42,7 +43,7 @@ DEFAULT_REQUEST_INFO = {"facebook" : False, "from_ip" : "192.168.1.1", "mobile" 
 DEFAULT_CONSUMER_DATA = {}
 DEFAULT_URL = 'http://www.weblab.deusto.es/weblab/client/...'
 
-class WrappedTimeProvider(Coordinator.TimeProvider):
+class WrappedTimeProvider(AbstractCoordinator.TimeProvider):
     def get_time(self):
         if hasattr(self, '_TEST_TIME'):
             return self._TEST_TIME
