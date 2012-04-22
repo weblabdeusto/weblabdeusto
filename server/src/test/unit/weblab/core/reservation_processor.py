@@ -27,11 +27,12 @@ from   test.util.module_disposer import case_uses_module
 import weblab.core.user_processor as UserProcessor
 from weblab.core.reservation_processor import ReservationProcessor
 import weblab.core.reservations as Reservation
-import weblab.core.coordinator.coordinator as Coordinator
 import weblab.core.coordinator.confirmer as Confirmer
 import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.data.server_type as ServerType
 import weblab.data.client_address as ClientAddress
+
+from weblab.core.coordinator.gateway import create as coordinator_create, SQLALCHEMY
 
 import weblab.data.command as Command
 import weblab.data.dto.users as Group
@@ -77,7 +78,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
 
         self.commands_store = TemporalInformationStore.CommandsTemporalInformationStore()
 
-        self.coordinator = Coordinator.Coordinator(self.locator, self.cfg_manager)
+        self.coordinator = coordinator_create(SQLALCHEMY, self.locator, self.cfg_manager)
         self.coordinator._clean()
         self.coordinator.add_experiment_instance_id("server:laboratoryserver@labmachine", ExperimentInstanceId('inst','ud-dummy','Dummy experiments'), Resource("res_type", "res_inst"))
 

@@ -15,7 +15,7 @@
 
 from voodoo.dbutil import generate_getconn, get_sqlite_dbname
 
-import weblab.core.coordinator.model as coord_model
+import weblab.core.coordinator.sql.model as coord_model
 
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker

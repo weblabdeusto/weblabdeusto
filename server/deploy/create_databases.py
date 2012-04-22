@@ -13,7 +13,7 @@ import subprocess
 
 import libraries
 import weblab.db.model as Model
-import weblab.core.coordinator.model as CoordinatorModel
+import weblab.core.coordinator.sql.model as CoordinatorModel
 
 import voodoo.sessions.db_lock_data as DbLockData
 import voodoo.sessions.sqlalchemy_data as SessionSqlalchemyData

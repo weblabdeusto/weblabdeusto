@@ -209,13 +209,13 @@ class Heartbeater(threading.Thread):
                     
                     # If time_left is zero or negative, a heartbeat IS due.
                     if(time_left <= 0):
-                        # if DEBUG: print "[DBG] HB FORWARDING"             
+                        if DEBUG_HEARTBEAT_MESSAGES: print "[DBG] HB FORWARDING"             
                         ret = self.experiment.forward_request(session_id, HEARTBEAT_REQUEST % (session_key))
-                        # if DEBUG_MESSAGES: print "[DBG] Heartbeat response: ", ret
+                        if DEBUG_HEARTBEAT_MESSAGES: print "[DBG] Heartbeat response: ", ret
                         
                     else:
                         # Otherwise, we will just sleep. 
-                        # if DEBUG: print "[DBG] HB SLEEPING FOR %d" % (time_left)
+                        if DEBUG_HEARTBEAT_MESSAGES: print "[DBG] HB SLEEPING FOR %d" % (time_left)
                         
                         # We wish to sleep the maximum only if there are no pending
                         # requests (and if it doesn't go over the MAX).
@@ -230,7 +230,7 @@ class Heartbeater(threading.Thread):
                 while not self.stopped() and steps > 0:
                     time.sleep(step_time)
                     steps -= 1
-                # if DEBUG: print "[DBG] Not sleeping anymore"
+                if DEBUG_HEARTBEAT_MESSAGES: print "[DBG] Not sleeping anymore"
                     
                 if self.stopped():
                     return
@@ -239,6 +239,7 @@ class Heartbeater(threading.Thread):
                 traceback.print_exc()
 
 DEBUG_MESSAGES = DEBUG and False
+DEBUG_HEARTBEAT_MESSAGES = DEBUG_MESSAGES and False
 
 
 class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):

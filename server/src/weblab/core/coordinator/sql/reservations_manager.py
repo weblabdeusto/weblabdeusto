@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-from weblab.core.coordinator.model import Reservation, CurrentReservation, ExperimentType, PendingToFinishReservation
+from weblab.core.coordinator.sql.model import Reservation, CurrentReservation, ExperimentType, PendingToFinishReservation
 import weblab.core.coordinator.exc as CoordExc
 
 from sqlalchemy.exc import IntegrityError, OperationalError, ConcurrentModificationError

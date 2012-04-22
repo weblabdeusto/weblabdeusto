@@ -15,7 +15,7 @@
 
 import datetime
 import unittest
-import weblab.core.coordinator.model as CM
+import weblab.core.coordinator.sql.model as CM
 
 class CoordinatorModelTestCase(unittest.TestCase):
 

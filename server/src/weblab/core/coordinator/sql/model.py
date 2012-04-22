@@ -34,7 +34,7 @@ def load():
     #
     # Place here all the dependences in order to populate Base
     #
-    import weblab.core.coordinator.priority_queue_scheduler_model as PriorityQueueSchedulerModel
+    import weblab.core.coordinator.sql.priority_queue_scheduler_model as PriorityQueueSchedulerModel
     assert PriorityQueueSchedulerModel.Base == Base # Just to avoid pyflakes warnings
 
     import weblab.core.coordinator.externals.weblabdeusto_scheduler_model as weblabdeusto_scheduler_model

@@ -15,7 +15,7 @@
 
 from sqlalchemy.orm.exc import StaleDataError
 
-from weblab.core.coordinator.model import ResourceType, ResourceInstance, CurrentResourceSlot, SchedulingSchemaIndependentSlotReservation, ExperimentInstance, ExperimentType, ActiveReservationSchedulerAssociation
+from weblab.core.coordinator.sql.model import ResourceType, ResourceInstance, CurrentResourceSlot, SchedulingSchemaIndependentSlotReservation, ExperimentInstance, ExperimentType, ActiveReservationSchedulerAssociation
 import weblab.core.coordinator.exc as CoordExc
 
 class ResourcesManager(object):

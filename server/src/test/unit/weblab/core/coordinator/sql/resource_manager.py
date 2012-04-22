@@ -23,10 +23,10 @@ from weblab.data.experiments import ExperimentInstanceId
 
 from weblab.data.experiments import ExperimentId
 from weblab.core.coordinator.resource import Resource
-from weblab.core.coordinator.coordinator import Coordinator
-import weblab.core.coordinator.resource_manager as ResourcesManager
-import weblab.core.coordinator.db as CoordinationDatabaseManager
-import weblab.core.coordinator.model as CoordinatorModel
+from weblab.core.coordinator.sql.coordinator import Coordinator
+import weblab.core.coordinator.sql.resource_manager as ResourcesManager
+import weblab.core.coordinator.sql.db as CoordinationDatabaseManager
+import weblab.core.coordinator.sql.model as CoordinatorModel
 import weblab.core.coordinator.exc as CoordExc
 
 class ResourcesManagerTestCase(unittest.TestCase):

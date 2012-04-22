@@ -35,7 +35,7 @@ import weblab.core.data_retriever as TemporalInformationRetriever
 import weblab.core.user_processor as UserProcessor
 from weblab.core.reservation_processor import ReservationProcessor
 import weblab.core.alive_users as AliveUsersCollection
-import weblab.core.coordinator.coordinator as Coordinator
+from weblab.core.coordinator.gateway import create as coordinator_create, SQLALCHEMY
 import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.core.db.manager as DatabaseManager
 import weblab.core.coordinator.status as WebLabSchedulingStatus
@@ -170,7 +170,7 @@ class UserProcessingServer(object):
         # Coordination
         #
 
-        self._coordinator    = Coordinator.Coordinator(self._locator, cfg_manager)
+        self._coordinator    = coordinator_create(SQLALCHEMY, self._locator, cfg_manager)
 
         #
         # Database and information storage managers

@@ -18,7 +18,7 @@ from voodoo.typechecker import typecheck
 from voodoo.dbutil import get_table_kwargs
 from sqlalchemy import Column, Integer, String
 
-from weblab.core.coordinator.model import Base, RESERVATION_ID_SIZE
+from weblab.core.coordinator.sql.model import Base, RESERVATION_ID_SIZE
 
 TABLE_KWARGS = get_table_kwargs()
 

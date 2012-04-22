@@ -17,8 +17,8 @@ from voodoo.dbutil import get_table_kwargs
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, UniqueConstraint, Text
 from sqlalchemy.orm import relation, backref
 
-from weblab.core.coordinator.model import Base, RESERVATION_ID_SIZE, ResourceType, Reservation, SchedulingSchemaIndependentSlotReservation
-from weblab.core.coordinator.model import CurrentReservation as GlobalCurrentReservation
+from weblab.core.coordinator.sql.model import Base, RESERVATION_ID_SIZE, ResourceType, Reservation, SchedulingSchemaIndependentSlotReservation
+from weblab.core.coordinator.sql.model import CurrentReservation as GlobalCurrentReservation
 
 TABLE_KWARGS = get_table_kwargs()
 
