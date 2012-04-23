@@ -42,45 +42,8 @@ def file(file_id):
 
 @app.route("/uses/use/<int:use_id>")
 def use(use_id):
-
-    result = """<html><head><title>Use</title>
-                <style type="text/css">
-table
-{
-border-collapse:collapse;
-}
-table, td, th
-{
-border:1px solid;
-}
-td
-{
-padding:15px;
-}
-
-                </style></head><body>
-                <h2>General</h2>
-                <b>Login:</b> %(login)s<br/>
-                <b>Name:</b> %(full_name)s<br/>
-                <b>Experiment:</b> %(experiment_name)s@%(category_name)s<br/>
-                <b>Date:</b> %(date)s<br/>
-                <b>Origin:</b> %(origin)s<br/>
-                <b>Device used:</b> %(device)s<br/>
-                <b>Server IP (if federated):</b> %(ip)s<br/>
-                <b>Use id:</b> %(use_id)s<br/>
-                <b>Reservation id:</b> %(reservation_id)s<br/>
-                <b>Mobile:</b> %(mobile)s<br/>
-                <b>Facebook:</b> %(facebook)s<br/>
-                <b>Referer:</b> %(referer)s<br/>
-                <b>User agent:</b> %(user_agent)s<br/>
-                <b>Route:</b> %(route)s</br/>
-                <b>In the name of:</b> %(external_user)s<br/>
-                <h2>Commands</h2>
-                (<a href="#files">files below</a>)
-                <table>
-                <tr> <td><b>Time before</b></td> <td><b>Time after</b></td> <td><b>Command</b></td> <td><b>Response</b></td> </tr>
-                """
-
+    result = ""
+    
     connection = dbi.connect(host="localhost",user=_USERNAME, passwd=_PASSWORD, db=DB_NAME)
     try:
         cursor = connection.cursor()
@@ -101,7 +64,7 @@ padding:15px;
             elements = cursor.fetchall()
             properties = dict(elements)
 
-            result = result % {
+            use = {
                         'use_id'          : use_id,
                         'mobile'          : cgi.escape(properties.get('mobile', "Don't know")),
                         'facebook'        : cgi.escape(properties.get('facebook', "Don't know")),
@@ -127,6 +90,7 @@ padding:15px;
                         "ORDER BY uc.timestamp_before DESC LIMIT %s" % LIMIT
             cursor.execute(SENTENCE, (use_id,))
             elements = cursor.fetchall()
+            commands = []
             for command, response, timestamp_before, timestamp_before_micro, timestamp_after, timestamp_after_micro in elements:
                 if timestamp_before is None:
                     before = "<not provided>"
@@ -141,7 +105,8 @@ padding:15px;
                     command = "(None)"
                 if response is None:
                     response = "(None)"
-                result += "\t<tr> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> </tr>\n" % ( before, after, cgi.escape(command), cgi.escape(response) )
+                    
+                commands.append( (before, after, cgi.escape(command), cgi.escape(response),) )
 
             result += """</table>\n"""
             result += """<br/><br/><a name="files"><h2>Files</h2>\n"""
@@ -153,6 +118,8 @@ padding:15px;
                         "WHERE uf.experiment_use_id = %s "+ \
                         "ORDER BY uf.timestamp_before DESC LIMIT %s" % LIMIT
             cursor.execute(SENTENCE, (use_id,))
+            
+            files = []
             elements = cursor.fetchall()
             for file_id, file_info, file_hash, response, timestamp_before, timestamp_before_micro, timestamp_after, timestamp_after_micro in elements:
                 if timestamp_before is None:
@@ -170,13 +137,19 @@ padding:15px;
                     file_info = "(None)"
                 if response is None:
                     response = "(None)"
-                result += "\t<tr> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> <a href=\"%s\">link</a> </td> </tr>\n" % ( cgi.escape(file_hash), cgi.escape(file_info), cgi.escape(response), before, after, url_for('file', file_id=file_id) )
+                    
+                print "YES"
+                    
+                files.append((cgi.escape(file_hash), cgi.escape(file_info), cgi.escape(response), before, after, url_for('file', file_id=file_id),))
+               
+               
+            html = render_template('use.html', use=use, commands=commands, files=files)
 
         finally: 
             cursor.close()
     finally:
         connection.close()
-    return result + """</table></body></html>"""
+    return html
 
 @app.route('/uses/user/<login>')
 def user(login):
