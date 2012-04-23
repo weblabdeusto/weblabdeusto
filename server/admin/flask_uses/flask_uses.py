@@ -108,11 +108,6 @@ def use(use_id):
                     
                 commands.append( (before, after, cgi.escape(command), cgi.escape(response),) )
 
-            result += """</table>\n"""
-            result += """<br/><br/><a name="files"><h2>Files</h2>\n"""
-            result += """<table>\n"""
-            result += """<tr> <td><b>File hash</b></td> <td><b>File info</b></td> <td><b>Response</b></td> <td><b>Time before</b></td> <td><b>Time after</b></td> <td><b>link</b></td></tr>"""
-
             SENTENCE = "SELECT uf.id, uf.file_info, uf.file_hash, uf.response, uf.timestamp_before, uf.timestamp_before_micro, uf.timestamp_after, uf.timestamp_after_micro " + \
                         "FROM UserFile as uf " + \
                         "WHERE uf.experiment_use_id = %s "+ \
@@ -141,7 +136,6 @@ def use(use_id):
                 print "YES"
                     
                 files.append((cgi.escape(file_hash), cgi.escape(file_info), cgi.escape(response), before, after, url_for('file', file_id=file_id),))
-               
                
             html = render_template('use.html', use=use, commands=commands, files=files)
 
