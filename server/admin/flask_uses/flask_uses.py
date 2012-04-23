@@ -170,7 +170,7 @@ padding:15px;
                     file_info = "(None)"
                 if response is None:
                     response = "(None)"
-                result += "\t<tr> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> <a href=\"file?file_id=%s\">link</a> </td> </tr>\n" % ( cgi.escape(file_hash), cgi.escape(file_info), cgi.escape(response), before, after, file_id )
+                result += "\t<tr> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> <a href=\"%s\">link</a> </td> </tr>\n" % ( cgi.escape(file_hash), cgi.escape(file_info), cgi.escape(response), before, after, url_for('file', file_id=file_id) )
 
         finally: 
             cursor.close()
@@ -254,7 +254,9 @@ def index():
                         <tr> <td><b>User</b></td> <td><b>Name</b></td> <td><b>Experiment</b></td> <td><b>Date</b></td> <td><b>From </b> </td> <td><b>Use</b></td></tr>
                         """
             for use_id, user_login, user_full_name, experiment_name, category_name, start_date, uue_from in elements:
-                result += "\t<tr> <td> <a href=\"uses/user/%s\">%s</a> </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> <a href=\"uses/use/%s\">use</a> </td> </tr>\n" % ( user_login.split('@')[1] if '@' in user_login else user_login, user_login, user_full_name, experiment_name + '@' + category_name, utc2local_str(start_date), uue_from, use_id )
+                login = (user_login.split('@')[1] if '@' in user_login else user_login)
+                user_url = url_for('user', login = login)
+                result += "\t<tr> <td> <a href=\"%s\">%s</a> </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> <a href=\"uses/use/%s\">use</a> </td> </tr>\n" % ( user_url, user_login, user_full_name, experiment_name + '@' + category_name, utc2local_str(start_date), uue_from, use_id )
         finally: 
             cursor.close()
     finally:
