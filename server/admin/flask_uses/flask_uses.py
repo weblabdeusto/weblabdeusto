@@ -215,6 +215,9 @@ def user(login):
     return result + """</table></body></html>"""
 
  
+@app.route('/test')
+def tindex():
+    return render_template('uses.html', hello="Hello world")
 
 @app.route('/uses')
 def index():
@@ -253,15 +256,22 @@ def index():
             result = """<html><head><title>Latest uses</title></head><body><table cellspacing="10">
                         <tr> <td><b>User</b></td> <td><b>Name</b></td> <td><b>Experiment</b></td> <td><b>Date</b></td> <td><b>From </b> </td> <td><b>Use</b></td></tr>
                         """
+            elements_to_display = []
             for use_id, user_login, user_full_name, experiment_name, category_name, start_date, uue_from in elements:
                 login = (user_login.split('@')[1] if '@' in user_login else user_login)
                 user_url = url_for('user', login = login)
-                result += "\t<tr> <td> <a href=\"%s\">%s</a> </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> <a href=\"uses/use/%s\">use</a> </td> </tr>\n" % ( user_url, user_login, user_full_name, experiment_name + '@' + category_name, utc2local_str(start_date), uue_from, use_id )
+                use_url = url_for('use', use_id = use_id)
+                start_date = utc2local_str(start_date)
+                elements_to_display.append( (use_id, user_login, user_full_name, experiment_name, category_name, start_date, uue_from, login, user_url, use_url) )
+
+            text = render_template('uses.html', elements = elements_to_display)
+        
         finally: 
             cursor.close()
     finally:
         connection.close()
-    return result + """</table></body></html>"""
+        
+    return text
 
 
 

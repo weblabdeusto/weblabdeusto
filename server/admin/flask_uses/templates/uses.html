@@ -1,0 +1,31 @@
+<html>
+<head>
+<title>Latest uses</title>
+</head>
+<body>
+	<table cellspacing="10">
+		<tr>
+			<td><b>User</b></td>
+			<td><b>Name</b></td>
+			<td><b>Experiment</b></td>
+			<td><b>Date</b></td> 
+			<td><b>From</b></td> 
+			<td><b>Use</b></td>
+		</tr>
+		
+		{% for use_id, user_login, user_full_name, experiment_name, category_name, start_date, uue_from, login, user_url, use_url in elements %}
+		<tr>
+			<td><a href="{{user_url}}">{{login}}</a></td>
+			<td>{{user_full_name}}</td>
+			<td>{{experiment_name + '@' + category_name}}</td>
+			<td>{{start_date}}</td>
+			<td>{{uue_from}}</td>
+			<td><a href="{{use_url}}">{{use_id}}</a></td>
+		</tr>
+		{% endfor %}
+	
+	</table>
+	
+	{{ hello }}
+</body>
+</html>
