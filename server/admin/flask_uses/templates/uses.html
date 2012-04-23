@@ -15,7 +15,11 @@
 		
 		{% for use_id, user_login, user_full_name, experiment_name, category_name, start_date, uue_from, login, user_url, use_url in elements %}
 		<tr>
-			<td><a href="{{user_url}}">{{login}}</a></td>
+			{% if user_url is not none %}
+				<td><a href="{{user_url}}">{{login}}</a></td>
+			{% else %}
+				<td>{{login}}</td>
+			{% endif %}
 			<td>{{user_full_name}}</td>
 			<td>{{experiment_name + '@' + category_name}}</td>
 			<td>{{start_date}}</td>
