@@ -1,4 +1,5 @@
 
+from functools import wraps
 from flask import *
 
 import MySQLdb as dbi
@@ -19,11 +20,35 @@ app.debug = True
 
 import libraries
 
+def check_auth(username, password):
+    return username == 'admin' and password == 'secret2'
+
+def authenticate():
+    return Response(
+    'Could not verify your access level for that URL.\n'
+    'You have to login with proper credentials', 401,
+    {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
+
+
 
 gw = db.DbGateway("mysql", "localhost", DB_NAME, _USERNAME, _PASSWORD)
 
 def utc2local_str(utc_datetime, format="%Y-%m-%d %H:%M:%S"):
     return time.strftime(format, time.localtime(calendar.timegm(utc_datetime.timetuple())))
+
+@app.route("/secret")
+@requires_auth
+def secret():
+    return "HELLO"
 
 @app.route("/uses/file/<int:file_id>")
 def file(file_id):
@@ -195,6 +220,7 @@ def tindex():
     return render_template('uses.html', hello="Hello world")
 
 @app.route('/uses')
+@requires_auth
 def index():
     connection = dbi.connect(host="localhost",user=_USERNAME, passwd=_PASSWORD, db=DB_NAME)
     try:
