@@ -154,6 +154,7 @@ public class VisirExperiment extends FlashExperiment {
 	private static native void initJavascriptAPI() /*-{
 		$wnd.callOnLoadCircuit = @es.deusto.weblab.client.experiments.visir.VisirExperiment::onLoadCircuit(I);
 		$wnd.callRefresh = @es.deusto.weblab.client.experiments.visir.VisirExperiment::refresh();
+		$wnd.callPublishMyCircuit = @es.deusto.weblab.client.experiments.visir.VisirExperiment::publishMyCircuit();
 	}-*/;
 	
 	private static native void modifyFrame(String initialHTML, String circuitsTableHTML, String circuitsAvailableMessage) /*-{
@@ -165,6 +166,10 @@ public class VisirExperiment extends FlashExperiment {
 	 	$doc.getElementById('div_extra').innerHTML = "<div align='left'>" + initialHTML + "<font color='black'><b><h2>" + circuitsAvailableMessage + "</h2></b></font></div>" + circuitsTableHTML;
 	}-*/;
 	
+	
+	static void publishMyCircuit() {
+		System.out.println("PUBLISHING CIRCUIT");
+	}
 
 	static void refresh() {
 		//this.savedata = "<save><instruments list=\"breadboard/breadboard.swf|multimeter/multimeter.swf|functiongenerator/functiongenerator.swf|oscilloscope/oscilloscope.swf|tripledc/tripledc.swf\"/><circuit><circuitlist><component>W 255 442 234 457.15 279.5 442 325</component></circuitlist></circuit></save>";
