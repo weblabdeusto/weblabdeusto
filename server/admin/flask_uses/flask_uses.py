@@ -1,11 +1,13 @@
 
 from flask import *
 
-
 import MySQLdb as dbi
 import cgi
 import time
 import calendar
+
+import weblab.db.model as Model
+import db
 
 from configuration import _USERNAME, _PASSWORD, DB_NAME, _FILES_PATH
 
@@ -17,6 +19,8 @@ app.debug = True
 
 import libraries
 
+
+gw = db.DbGateway("mysql", "localhost", DB_NAME, _USERNAME, _PASSWORD)
 
 def utc2local_str(utc_datetime, format="%Y-%m-%d %H:%M:%S"):
     return time.strftime(format, time.localtime(calendar.timegm(utc_datetime.timetuple())))
@@ -43,6 +47,7 @@ def file(file_id):
 @app.route("/uses/use/<int:use_id>")
 def use(use_id):
     result = ""
+    print "IN USE"
     
     connection = dbi.connect(host="localhost",user=_USERNAME, passwd=_PASSWORD, db=DB_NAME)
     try:
