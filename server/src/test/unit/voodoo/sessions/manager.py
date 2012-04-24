@@ -35,31 +35,19 @@ class SessionManagerTestCase(unittest.TestCase):
 
         cfg_manager._set_value(SessionMemoryGateway.SERIALIZE_MEMORY_GATEWAY_SESSIONS, True)
 
-        self.memory_server1 = SessionManager.SessionManager(
-                    cfg_manager,
-                    SessionType.Memory,
-                    "foo"
-                )
-        self.memory_server2 = SessionManager.SessionManager(
-                    cfg_manager,
-                    SessionType.Memory,
-                    "bar"
-                )
-        self.sqlalchemy_server1 = SessionManager.SessionManager(
-                    cfg_manager,
-                    SessionType.sqlalchemy,
-                    "foo"
-                )
-        self.sqlalchemy_server2 = SessionManager.SessionManager(
-                    cfg_manager,
-                    SessionType.sqlalchemy,
-                    "bar"
-                )
+        self.memory_server1 = SessionManager.SessionManager( cfg_manager, SessionType.Memory, "foo" )
+        self.memory_server2 = SessionManager.SessionManager( cfg_manager, SessionType.Memory, "bar" )
+        self.sqlalchemy_server1 = SessionManager.SessionManager( cfg_manager, SessionType.sqlalchemy, "foo" )
+        self.sqlalchemy_server2 = SessionManager.SessionManager( cfg_manager, SessionType.sqlalchemy, "bar" )
+        self.redis_server1 = SessionManager.SessionManager( cfg_manager, SessionType.redis, "foo" )
+        self.redis_server2 = SessionManager.SessionManager( cfg_manager, SessionType.redis, "bar" )
 
         self.memory_server1.clear()
         self.memory_server2.clear()
         self.sqlalchemy_server1.clear()
         self.sqlalchemy_server2.clear()
+        self.redis_server1.clear()
+        self.redis_server2.clear()
 
     def test_checking_parameter(self):
         self.assertRaises(
@@ -251,6 +239,24 @@ class SessionManagerTestCase(unittest.TestCase):
 
     def test_sqlalchemy_create_session_given_a_sess_id(self):
         self.session_create_session_given_a_sess_id(self.sqlalchemy_server1)
+
+    def test_redis_session(self):
+        self.session_tester(self.redis_server1)
+
+    def test_redis_session_locking(self):
+        self.session_tester_locking(self.redis_server1)
+
+    def test_redis_session_locking_2steps(self):
+        self.session_tester_locking_2steps(self.redis_server1)
+
+    def test_redis_session_list_sessions(self):
+        self.session_tester_list_sessions(self.redis_server1)
+
+    def test_redis_pool_ids(self):
+        self.session_tester_pool_ids(self.redis_server1, self.redis_server2)
+
+    def test_redis_create_session_given_a_sess_id(self):
+        self.session_create_session_given_a_sess_id(self.redis_server1)
 
 
 def suite():

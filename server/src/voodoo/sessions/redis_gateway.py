@@ -10,12 +10,13 @@
 # This software consists of contributions made by many individuals,
 # listed below:
 #
-# Author: Pablo Orduña <pablo@ordunya.com>
+# Author: Xabier Larrakoetxea <xabier.larrakoetxea@deusto.es>
 #
 
-Memory     = 'Memory'
-sqlalchemy = 'sqlalchemy'
-redis      = 'redis'
+class SessionRedisGateway(object):
+    def __init__(self, cfg_manager, session_pool_id, timeout):
+        # session_pool_id makes no sense in Memory
+        pass
 
-def getSessionTypeValues():
-    return (Memory, sqlalchemy, redis)
+    def clear(self):
+        pass
