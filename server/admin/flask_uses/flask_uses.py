@@ -21,7 +21,7 @@ app.debug = True
 import libraries
 
 def check_auth(username, password):
-    return username == 'admin' and password == 'secret2'
+    return username == 'admin' and password == 'password'
 
 def authenticate():
     return Response(
