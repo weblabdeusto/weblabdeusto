@@ -121,13 +121,21 @@ public class VisirExperiment extends FlashExperiment {
 	public void onFlashReady() {
 		initJavascriptAPI();
 		if(this.circuitsAvailable.size() > 0)
-			modifyFrame(this.generateCircuitsTableHTML(), i18n.circuitsAvailable());
+			modifyFrame(this.generatePublishMyCircuitHTML(), this.generateCircuitsTableHTML(), i18n.circuitsAvailable());
+	}
+	
+	public String generatePublishMyCircuitHTML() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append("<a href=\"\" OnClick=\"javascript:callPublishMyCircuit(); return false;\">");
+		sb.append("Publish my circuit</a>");
+		return sb.toString();
 	}
 	
 	public String generateCircuitsTableHTML() {
 		final StringBuilder sb = new StringBuilder();
 		
 		sb.append("<div align='left'>\n");
+		
 		int circuitIndex = 1;
 		for(final String circ : this.circuitsAvailable) {
 			sb.append("<a href=\"\" OnClick=\"javascript:callOnLoadCircuit(");
@@ -148,13 +156,13 @@ public class VisirExperiment extends FlashExperiment {
 		$wnd.callRefresh = @es.deusto.weblab.client.experiments.visir.VisirExperiment::refresh();
 	}-*/;
 	
-	private static native void modifyFrame(String circuitsTableHTML, String circuitsAvailableMessage) /*-{
+	private static native void modifyFrame(String initialHTML, String circuitsTableHTML, String circuitsAvailableMessage) /*-{
 	
 		var doc = $wnd.wl_iframe.contentDocument;
 		if (doc == undefined || doc == null)
 	    	doc = $wnd.wl_iframe.contentWindow.document;
 	    	
-	 	$doc.getElementById('div_extra').innerHTML = "<div align='left'><font color='black'><b><h2>" + circuitsAvailableMessage + "</h2></b></font></div>" + circuitsTableHTML;
+	 	$doc.getElementById('div_extra').innerHTML = "<div align='left'>" + initialHTML + "<font color='black'><b><h2>" + circuitsAvailableMessage + "</h2></b></font></div>" + circuitsTableHTML;
 	}-*/;
 	
 
