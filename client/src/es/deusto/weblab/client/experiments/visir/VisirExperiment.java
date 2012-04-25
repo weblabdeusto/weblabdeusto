@@ -128,6 +128,9 @@ public class VisirExperiment extends FlashExperiment {
 		final StringBuilder sb = new StringBuilder();
 		sb.append("<a href=\"\" OnClick=\"javascript:callPublishMyCircuit(); return false;\">");
 		sb.append("Publish my circuit</a>");
+		sb.append("<br>");
+		sb.append("<a href=\"\" OnClick=\"javascript:callReloadPublishedCircuits(); return false;\">");
+		sb.append("Reload circuits</a>");
 		return sb.toString();
 	}
 	
@@ -155,6 +158,7 @@ public class VisirExperiment extends FlashExperiment {
 		$wnd.callOnLoadCircuit = @es.deusto.weblab.client.experiments.visir.VisirExperiment::onLoadCircuit(I);
 		$wnd.callRefresh = @es.deusto.weblab.client.experiments.visir.VisirExperiment::refresh();
 		$wnd.callPublishMyCircuit = @es.deusto.weblab.client.experiments.visir.VisirExperiment::publishMyCircuit();
+		$wnd.callReloadPublishedCircuits = @es.deusto.weblab.client.experiments.visir.VisirExperiment::reloadPublishedCircuits();
 	}-*/;
 	
 	private static native void modifyFrame(String initialHTML, String circuitsTableHTML, String circuitsAvailableMessage) /*-{
@@ -166,6 +170,33 @@ public class VisirExperiment extends FlashExperiment {
 	 	$doc.getElementById('div_extra').innerHTML = "<div align='left'>" + initialHTML + "<font color='black'><b><h2>" + circuitsAvailableMessage + "</h2></b></font></div>" + circuitsTableHTML;
 	}-*/;
 	
+	
+	static void reloadPublishedCircuits() {
+		System.out.println("RELOADING CIRCUITS");
+		
+		// Build the command to request the data for the specified circuit.
+		final VisirPublishedCircuitsRequestCommand reqCircuits = new VisirPublishedCircuitsRequestCommand();
+		
+		// Send the request and process the response.
+		AbstractExternalAppBasedBoard.staticBoardController.sendCommand(reqCircuits, 
+				new IResponseCommandCallback() {
+
+					@Override
+					public void onSuccess(ResponseCommand responseCommand) {
+						
+						final String circuitData = responseCommand.getCommandString();
+						
+						// Change the current circuit to the specified one.
+						instance.changeCircuit(id, circuitName, circuitData);
+					}
+
+					@Override
+					public void onFailure(CommException e) {
+						System.out.println("Error: Could not retrieve circuit data");
+					}
+					
+				});
+	}
 	
 	static void publishMyCircuit() {
 		System.out.println("PUBLISHING CIRCUIT");
