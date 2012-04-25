@@ -184,15 +184,17 @@ public class VisirExperiment extends FlashExperiment {
 					@Override
 					public void onSuccess(ResponseCommand responseCommand) {
 						
-						final String circuitData = responseCommand.getCommandString();
+						final String publishedCircuitsData = responseCommand.getCommandString();
 						
-						// Change the current circuit to the specified one.
-						instance.changeCircuit(id, circuitName, circuitData);
+						reqCircuits.parseData(publishedCircuitsData);
+						
+						final List<String> publishedCircuits = reqCircuits.getPublishedCircuits();
+						
 					}
 
 					@Override
 					public void onFailure(CommException e) {
-						System.out.println("Error: Could not retrieve circuit data");
+						System.out.println("Error: Could not retrieve published circuits data");
 					}
 					
 				});
