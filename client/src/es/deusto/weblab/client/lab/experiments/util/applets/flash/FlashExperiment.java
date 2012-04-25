@@ -21,6 +21,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Button;
 
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
@@ -243,6 +244,7 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard {
 		
 		// Initialize the flash applet (for the first time).
 		doFlashAppletInitialization();
+		
 	}
 	
 	
@@ -305,6 +307,7 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard {
 				// Flash is now ready. Notify.
 				onFlashReady();
 				FlashExperiment.this.flashEverInitialized = true;
+				
 			}
 			
 		};

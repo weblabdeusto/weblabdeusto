@@ -143,7 +143,7 @@ public class VisirExperiment extends FlashExperiment {
 		for(final String circ : this.circuitsAvailable) {
 			sb.append("<a href=\"\" OnClick=\"javascript:callOnLoadCircuit(");
 			sb.append(circuitIndex);
-			sb.append(");return false;\">");
+			sb.append("); return false;\">");
 			sb.append(circ);
 			sb.append("</a><br>\n");
 			circuitIndex++;
@@ -160,7 +160,8 @@ public class VisirExperiment extends FlashExperiment {
 		$wnd.callPublishMyCircuit = @es.deusto.weblab.client.experiments.visir.VisirExperiment::publishMyCircuit();
 		$wnd.callReloadPublishedCircuits = @es.deusto.weblab.client.experiments.visir.VisirExperiment::reloadPublishedCircuits();
 	}-*/;
-	
+
+
 	private static native void modifyFrame(String initialHTML, String circuitsTableHTML, String circuitsAvailableMessage) /*-{
 	
 		var doc = $wnd.wl_iframe.contentDocument;
@@ -173,31 +174,32 @@ public class VisirExperiment extends FlashExperiment {
 	
 	static void reloadPublishedCircuits() {
 		System.out.println("RELOADING CIRCUITS");
+		return;
 		
-		// Build the command to request the data for the specified circuit.
-		final VisirPublishedCircuitsRequestCommand reqCircuits = new VisirPublishedCircuitsRequestCommand();
-		
-		// Send the request and process the response.
-		AbstractExternalAppBasedBoard.staticBoardController.sendCommand(reqCircuits, 
-				new IResponseCommandCallback() {
-
-					@Override
-					public void onSuccess(ResponseCommand responseCommand) {
-						
-						final String publishedCircuitsData = responseCommand.getCommandString();
-						
-						reqCircuits.parseData(publishedCircuitsData);
-						
-						final List<String> publishedCircuits = reqCircuits.getPublishedCircuits();
-						
-					}
-
-					@Override
-					public void onFailure(CommException e) {
-						System.out.println("Error: Could not retrieve published circuits data");
-					}
-					
-				});
+//		// Build the command to request the data for the specified circuit.
+//		final VisirPublishedCircuitsRequestCommand reqCircuits = new VisirPublishedCircuitsRequestCommand();
+//		
+//		// Send the request and process the response.
+//		AbstractExternalAppBasedBoard.staticBoardController.sendCommand(reqCircuits, 
+//				new IResponseCommandCallback() {
+//
+//					@Override
+//					public void onSuccess(ResponseCommand responseCommand) {
+//						
+//						final String publishedCircuitsData = responseCommand.getCommandString();
+//						
+//						reqCircuits.parseData(publishedCircuitsData);
+//						
+//						final List<String> publishedCircuits = reqCircuits.getPublishedCircuits();
+//						
+//					}
+//
+//					@Override
+//					public void onFailure(CommException e) {
+//						System.out.println("Error: Could not retrieve published circuits data");
+//					}
+//					
+//				});
 	}
 	
 	static void publishMyCircuit() {
