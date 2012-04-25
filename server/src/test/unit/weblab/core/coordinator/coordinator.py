@@ -23,7 +23,8 @@ import json
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.sessions.session_id as SessionId
 
-import weblab.core.coordinator.sql.coordinator as Coordinator
+import weblab.core.coordinator.sql.coordinator as sql_coordinator
+import weblab.core.coordinator.redis.coordinator as redis_coordinator
 import weblab.core.coordinator.coordinator as AbstractCoordinator
 from weblab.data.experiments import ExperimentId
 from weblab.data.experiments import ExperimentInstanceId
@@ -50,7 +51,10 @@ class WrappedTimeProvider(AbstractCoordinator.TimeProvider):
         else:
             return super(WrappedTimeProvider, self).get_time()
 
-class WrappedCoordinator(Coordinator.Coordinator):
+class WrappedSqlCoordinator(sql_coordinator.Coordinator):
+    CoordinatorTimeProvider = WrappedTimeProvider
+
+class WrappedRedisCoordinator(redis_coordinator.Coordinator):
     CoordinatorTimeProvider = WrappedTimeProvider
 
 class ConfirmerMock(object):
@@ -84,9 +88,9 @@ class SlowConfirmerMock(object):
     def enqueue_free_experiment(self, lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id):
         self.times -= 1
         if self.times == 0:
-            experiment_response = json.dumps({ Coordinator.FINISH_FINISHED_MESSAGE : True, Coordinator.FINISH_DATA_MESSAGE : "final response" })
+            experiment_response = json.dumps({ AbstractCoordinator.FINISH_FINISHED_MESSAGE : True, AbstractCoordinator.FINISH_DATA_MESSAGE : "final response" })
         else:
-            experiment_response = json.dumps({ Coordinator.FINISH_FINISHED_MESSAGE : False, Coordinator.FINISH_ASK_AGAIN_MESSAGE : SLOW_CONFIRMER_TIME })
+            experiment_response = json.dumps({ AbstractCoordinator.FINISH_FINISHED_MESSAGE : False, AbstractCoordinator.FINISH_ASK_AGAIN_MESSAGE : SLOW_CONFIRMER_TIME })
 
         if lab_session_id is not None:
             self.uses_free.append((lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id))
@@ -98,7 +102,8 @@ class SlowConfirmerMock(object):
 def coord_addr(coord_addr_str):
     return CoordAddress.CoordAddress.translate_address( coord_addr_str )
 
-class CoordinatorTestCase(unittest.TestCase):
+class AbstractCoordinatorTestCase(unittest.TestCase):
+    
     def setUp(self):
         locator_mock = None
 
@@ -121,7 +126,7 @@ class CoordinatorTestCase(unittest.TestCase):
         self.cfg_manager._set_value('core_scheduling_systems', scheduling_systems)
 
 
-        self.coordinator = WrappedCoordinator(locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
+        self.coordinator = self.WrappedCoordinator(locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
         self.coordinator._clean()
 
         self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('inst1', 'exp1','cat1'), Resource("res_type", "res_inst1"))
@@ -643,7 +648,13 @@ class CoordinatorTestCase(unittest.TestCase):
         expected_status = WSS.WaitingConfirmationQueueStatus(reservation2_id, DEFAULT_URL)
         self.assertEquals( expected_status, status )
 
-class CoordinatorMultiResourceTestCase(unittest.TestCase):
+class SqlCoordinatorTestCase(AbstractCoordinatorTestCase):
+    WrappedCoordinator = WrappedSqlCoordinator
+
+class RedisCoordinatorTestCase(AbstractCoordinatorTestCase):
+    WrappedCoordinator = WrappedRedisCoordinator
+
+class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
     def setUp(self):
         self.locator_mock = None
 
@@ -691,7 +702,7 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
                 'exp2|ud-binary|Binary experiments' : 'fpga1@fpga boards',
             },
         })
-        self.coordinator = WrappedCoordinator(self.locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
+        self.coordinator = self.WrappedCoordinator(self.locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
         self.coordinator._clean()
 
         self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('exp1', 'ud-binary','Binary experiments'), Resource("pld boards",  "pld1"  ))
@@ -730,7 +741,7 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
                 'exp2|ud-pld|PLD experiments' : 'pld2@pld boards'
             }
         })
-        self.coordinator = WrappedCoordinator(self.locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
+        self.coordinator = self.WrappedCoordinator(self.locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
         self.coordinator._clean()
 
         self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('exp1', 'ud-binary','Binary experiments'), Resource("pld boards",  "pld1"  ))
@@ -749,7 +760,7 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
                 'exp2|ud-pld|PLD experiments' : 'pld2@pld boards'
             }
         })
-        self.coordinator = WrappedCoordinator(self.locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
+        self.coordinator = self.WrappedCoordinator(self.locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
         self.coordinator._clean()
 
         self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('exp1', 'ud-binary','Binary experiments'), Resource("pld boards",  "pld1"  ))
@@ -1074,15 +1085,20 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         self.coordinator.finish_reservation(reservation10_id)
 
 
+class SqlCoordinatorMultiResourceTestCase(AbstractCoordinatorMultiResourceTestCase):
+    WrappedCoordinator = WrappedSqlCoordinator
 
-class CoordinatorWithSlowConfirmerTestCase(unittest.TestCase):
+class RedisCoordinatorMultiResourceTestCase(AbstractCoordinatorMultiResourceTestCase):
+    WrappedCoordinator = WrappedRedisCoordinator
+
+class AbstractCoordinatorWithSlowConfirmerTestCase(unittest.TestCase):
     def setUp(self):
         locator_mock = None
 
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
 
-        self.coordinator = WrappedCoordinator(locator_mock, self.cfg_manager, ConfirmerClass = SlowConfirmerMock)
+        self.coordinator = self.WrappedCoordinator(locator_mock, self.cfg_manager, ConfirmerClass = SlowConfirmerMock)
         self.coordinator._clean()
 
         self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('inst1', 'exp1','cat1'), Resource("res_type", "res_inst1"))
@@ -1097,10 +1113,20 @@ class CoordinatorWithSlowConfirmerTestCase(unittest.TestCase):
         self.assertTrue( next - previous > SLOW_CONFIRMER_TIME * 2)
         self.assertEquals( 0, self.coordinator.confirmer.times)
 
+class SqlCoordinatorWithSlowConfirmerTestCase(AbstractCoordinatorWithSlowConfirmerTestCase):
+    WrappedCoordinator = WrappedSqlCoordinator
+    
+class RedisCoordinatorWithSlowConfirmerTestCase(AbstractCoordinatorWithSlowConfirmerTestCase):
+    WrappedCoordinator = WrappedRedisCoordinator
+
 def suite():
     return unittest.TestSuite( (
-                    unittest.makeSuite(CoordinatorTestCase),
-                    unittest.makeSuite(CoordinatorMultiResourceTestCase),
+                    unittest.makeSuite(SqlCoordinatorTestCase),
+                    unittest.makeSuite(SqlCoordinatorMultiResourceTestCase),
+                    unittest.makeSuite(SqlCoordinatorWithSlowConfirmerTestCase),
+                    unittest.makeSuite(RedisCoordinatorTestCase),
+                    unittest.makeSuite(RedisCoordinatorMultiResourceTestCase),
+                    unittest.makeSuite(RedisCoordinatorWithSlowConfirmerTestCase),
                 ) )
 
 if __name__ == '__main__':

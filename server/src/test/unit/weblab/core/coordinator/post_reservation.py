@@ -18,9 +18,9 @@ import datetime
 import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
 
-from test.unit.weblab.core.coordinator.sql.coordinator import WrappedCoordinator, ConfirmerMock
+from test.unit.weblab.core.coordinator.coordinator import WrappedSqlCoordinator, WrappedRedisCoordinator, ConfirmerMock
 
-class PostReservationDataManagerTestCase(unittest.TestCase):
+class AbstractPostReservationDataManagerTestCase(unittest.TestCase):
     def setUp(self):
 
         locator_mock = None
@@ -28,7 +28,7 @@ class PostReservationDataManagerTestCase(unittest.TestCase):
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
 
-        self.coordinator = WrappedCoordinator(locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
+        self.coordinator = self.WrappedCoordinator(locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
         self.coordinator._clean()
 
         self.post_reservation_data_manager = self.coordinator.post_reservation_data_manager
@@ -81,10 +81,18 @@ class PostReservationDataManagerTestCase(unittest.TestCase):
         self.assertNotEqual(None, status)
 
 
+class SqlPostReservationDataManagerTestCase(AbstractPostReservationDataManagerTestCase):
+    WrappedCoordinator = WrappedSqlCoordinator
 
+class RedisPostReservationDataManagerTestCase(AbstractPostReservationDataManagerTestCase):
+    WrappedCoordinator = WrappedRedisCoordinator
 
 def suite():
-    return unittest.makeSuite(PostReservationDataManagerTestCase)
+    return unittest.TestSuite((
+                unittest.makeSuite(SqlPostReservationDataManagerTestCase),
+                unittest.makeSuite(RedisPostReservationDataManagerTestCase),
+            ))
+
 
 if __name__ == '__main__':
     unittest.main()

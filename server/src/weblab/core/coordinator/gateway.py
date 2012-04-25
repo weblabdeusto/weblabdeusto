@@ -16,12 +16,16 @@
 from weblab.core.coordinator.confirmer import ReservationConfirmer
 
 SQLALCHEMY = 'sqlalchemy'
+REDIS      = 'redis'
 
 
 def create(name, locator, cfg_manager, ConfirmerClass = ReservationConfirmer):
     if name == SQLALCHEMY:
         from weblab.core.coordinator.sql.coordinator import Coordinator as Coordinator_sql
         return Coordinator_sql(locator, cfg_manager, ConfirmerClass)
+    elif name == REDIS:
+        from weblab.core.coordinator.redis.coordinator import Coordinator as Coordinator_redis
+        return Coordinator_redis(locator, cfg_manager, ConfirmerClass)
     else:
         raise Exception("Coordinator %s not found" % name)
         
