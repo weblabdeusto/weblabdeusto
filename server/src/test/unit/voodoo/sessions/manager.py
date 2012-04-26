@@ -39,13 +39,17 @@ class SessionManagerTestCase(unittest.TestCase):
         self.memory_server2 = SessionManager.SessionManager( cfg_manager, SessionType.Memory, "bar" )
         self.sqlalchemy_server1 = SessionManager.SessionManager( cfg_manager, SessionType.sqlalchemy, "foo" )
         self.sqlalchemy_server2 = SessionManager.SessionManager( cfg_manager, SessionType.sqlalchemy, "bar" )
-        self.redis_server1 = SessionManager.SessionManager( cfg_manager, SessionType.redis, "foo" )
-        self.redis_server2 = SessionManager.SessionManager( cfg_manager, SessionType.redis, "bar" )
+        self.redis_server1 = SessionManager.SessionManager( cfg_manager, SessionType.redis, "0" )
+        self.redis_server2 = SessionManager.SessionManager( cfg_manager, SessionType.redis, "1" )
 
         self.memory_server1.clear()
         self.memory_server2.clear()
         self.sqlalchemy_server1.clear()
         self.sqlalchemy_server2.clear()
+        self.redis_server1.clear()
+        self.redis_server2.clear()
+    
+    def tearDown(self):
         self.redis_server1.clear()
         self.redis_server2.clear()
 

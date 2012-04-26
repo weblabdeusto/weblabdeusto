@@ -96,7 +96,8 @@ class SessionManager(object):
 
     def create_session(self, desired_sess_id=None):
         """@param desired_sess_id If given, it's the precise sess_id we want to use as a key to store data in the session_manager."""
-        return SessionId.SessionId(self.gateway.create_session(desired_sess_id))
+        str_sess_id = self.gateway.create_session(desired_sess_id)
+        return SessionId.SessionId(str_sess_id)
 
     def has_session(self, sess_id):
         return self.gateway.has_session(sess_id.id)
