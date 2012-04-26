@@ -15,71 +15,62 @@
 
 from sqlalchemy.orm.exc import StaleDataError
 
-from weblab.core.coordinator.sql.model import ResourceType, ResourceInstance, CurrentResourceSlot, SchedulingSchemaIndependentSlotReservation, ExperimentInstance, ExperimentType, ActiveReservationSchedulerAssociation
+from weblab.core.coordinator.resource import Resource
 import weblab.core.coordinator.exc as CoordExc
 
+WEBLAB_RESOURCES = "weblab:resources"
+WEBLAB_RESOURCE  = "weblab:resources:%s"
+
+WEBLAB_EXPERIMENT_TYPES = "weblab:experiment_types"
+
+WEBLAB_EXPERIMENT_INSTANCES = "weblab:experiment_types:%s:instances"
+WEBLAB_EXPERIMENT_INSTANCE  = "weblab:experiment_types:%s:instances:%s"
+
+LAB_COORD     = "laboratory_coord_address"
+RESOURCE_INST = "resource_instance"
+
 class ResourcesManager(object):
-    def __init__(self, session_maker):
-        self._session_maker = session_maker
+    def __init__(self, client_creator):
+        self._client_creator = client_creator
 
-    def add_resource(self, session, resource):
-        db_resource_type = session.query(ResourceType).filter_by(name = resource.resource_type).first()
-        if db_resource_type is None:
-            db_resource_type = ResourceType(resource.resource_type)
-            session.add(db_resource_type)
-
-        db_resource_instance = session.query(ResourceInstance).filter_by(name = resource.resource_instance, resource_type = db_resource_type).first()
-        if db_resource_instance is None:
-            db_resource_instance = ResourceInstance(db_resource_type, resource.resource_instance)
-            session.add(db_resource_instance)
-
-        db_slot = db_resource_instance.slot
-        if db_slot is None:
-            db_slot = CurrentResourceSlot(db_resource_instance)
-            session.add(db_slot)
-
-    def add_experiment_id(self, session, experiment_id, resource_type):
-        db_resource_type = session.query(ResourceType).filter_by(name = resource_type).first()
-        if db_resource_type is None:
-            db_resource_type = ResourceType(resource_type)
-            session.add(db_resource_type)
-
-        db_experiment_type = session.query(ExperimentType).filter_by(cat_name = experiment_id.cat_name, exp_name = experiment_id.exp_name).first()
-        if db_experiment_type is None:
-            db_experiment_type = ExperimentType(experiment_id.exp_name, experiment_id.cat_name)
-            session.add(db_experiment_type)
-
-        if not db_resource_type in db_experiment_type.resource_types:
-            db_experiment_type.resource_types.append(db_resource_type)
-
-        return db_resource_type, db_experiment_type
+    def add_resource(self, resource):
+        client = self._client_creator()
+        client.sadd(WEBLAB_RESOURCES, resource.resource_type)
+        client.sadd(WEBLAB_RESOURCE % resource.resource_type, resource.resource_instance)
+        
+    def add_experiment_id(self, experiment_id, resource_type):
+        client = self._client_creator()
+        client.sadd(WEBLAB_RESOURCES, resource_type)
+        client.sadd(WEBLAB_EXPERIMENT_TYPES, experiment_id.to_weblab_str())
 
     def add_experiment_instance_id(self, laboratory_coord_address, experiment_instance_id, resource):
-        session = self._session_maker()
-        try:
-            self.add_resource(session, resource)
+        self.add_resource(resource)
+        self.add_experiment_id(experiment_instance_id.to_experiment_id(), resource.resource_type)
 
-            db_resource_type, db_experiment_type = self.add_experiment_id(session, experiment_instance_id.to_experiment_id(), resource.resource_type)
+        client = self._client_creator()
 
-            db_resource_instance = session.query(ResourceInstance).filter_by(name = resource.resource_instance, resource_type = db_resource_type).first()
+        client.sadd(WEBLAB_EXPERIMENT_INSTANCES % resource.resource_type, experiment_instance_id.inst_name)
 
-            db_experiment_instance = session.query(ExperimentInstance).filter_by(experiment_instance_id = experiment_instance_id.inst_name, experiment_type = db_experiment_type).first()
-            if db_experiment_instance is None:
-                db_experiment_instance = ExperimentInstance(db_experiment_type, laboratory_coord_address, experiment_instance_id.inst_name)
-                session.add(db_experiment_instance)
-            else:
-                retrieved_laboratory_coord_address = db_experiment_instance.laboratory_coord_address
-                if retrieved_laboratory_coord_address != laboratory_coord_address:
-                    raise CoordExc.InvalidExperimentConfigError("Attempt to register the experiment %s in the laboratory %s; this experiment is already registered in the laboratory %s" % (experiment_instance_id, laboratory_coord_address, retrieved_laboratory_coord_address))
-                if db_experiment_instance.resource_instance != db_resource_instance:
+        weblab_experiment_instance = WEBLAB_EXPERIMENT_INSTANCE % (resource.resource_type, experiment_instance_id.inst_name)
+
+        retrieved_laboratory_coord_address = client.hget(weblab_experiment_instance, LAB_COORD)
+        if retrieved_laboratory_coord_address is not None: 
+            if retrieved_laboratory_coord_address != laboratory_coord_address:
+                raise CoordExc.InvalidExperimentConfigError("Attempt to register the experiment %s in the laboratory %s; this experiment is already registered in the laboratory %s" % (experiment_instance_id, laboratory_coord_address, retrieved_laboratory_coord_address))
+
+        client.hset(weblab_experiment_instance, LAB_COORD, laboratory_coord_address)
+
+        retrieved_weblab_resource_instance = client.hget(weblab_experiment_instance, RESOURCE_INST)
+
+        if retrieved_weblab_resource_instance is not None:
+            if retrieved_weblab_resource_instance != resource.to_weblab_str():
                     raise CoordExc.InvalidExperimentConfigError("Attempt to register the experiment %s with resource %s when it was already bound to resource %s" % (experiment_instance_id, resource, db_experiment_instance.resource_instance.to_resource()))
 
-            db_experiment_instance.resource_instance = db_resource_instance
-            session.commit()
-        finally:
-            session.close()
+        client.hset(weblab_experiment_instance, RESOURCE_INST, resource.to_weblab_str())
 
     def acquire_resource(self, session, current_resource_slot):
+        # TODO: XXX: this makes no sense in redis
+
         slot_reservation = SchedulingSchemaIndependentSlotReservation(current_resource_slot)
         session.add(slot_reservation)
         return slot_reservation
@@ -180,16 +171,17 @@ class ResourcesManager(object):
         session.delete(resource_instance)
 
     def list_resources(self):
-        session = self._session_maker()
-        try:
-            resource_types = session.query(ResourceType).order_by(ResourceType.id).all()
-            resource_type_names = []
-            for resource_type in resource_types:
-                resource_type_names.append(resource_type.name)
-        finally:
-            session.close()
+        client = self._client_creator()
+        return list(client.smembers(WEBLAB_RESOURCES))
 
-        return resource_type_names
+    def list_resource_instances(self):
+        client = self._client_creator()
+        resource_instances = []
+        for resource_type in client.smembers(WEBLAB_RESOURCES):
+            for resource_instance in client.smembers(WEBLAB_RESOURCE % resource_type):
+                resource_instances.append(Resource(resource_type, resource_instance))
+
+        return resource_instances
 
     def list_experiments(self):
         session = self._session_maker()
@@ -297,24 +289,27 @@ class ResourcesManager(object):
             session.close()
 
     def _clean(self):
-        session = self._session_maker()
-        try:
-            for association in session.query(ActiveReservationSchedulerAssociation).all():
-                session.delete(association)
-            for slot_reservation in session.query(SchedulingSchemaIndependentSlotReservation).all():
-                session.delete(slot_reservation)
-            for resource_slot in session.query(CurrentResourceSlot).all():
-                session.delete(resource_slot)
-            for experiment_instance in session.query(ExperimentInstance).all():
-                session.delete(experiment_instance)
-            for experiment_type in session.query(ExperimentType).all():
-                session.delete(experiment_type)
-            for resource_instance in session.query(ResourceInstance).all():
-                session.delete(resource_instance)
-            for resource_type in session.query(ResourceType).all():
-                session.delete(resource_type)
-            session.commit()
-        finally:
-            session.close()
-
+        client = self._client_creator()
+        for element in client.smembers(WEBLAB_RESOURCES):
+            client.delete(WEBLAB_RESOURCE % element)
+        client.delete(WEBLAB_RESOURCES)
+#         session = self._session_maker()
+#         try:
+#             for association in session.query(ActiveReservationSchedulerAssociation).all():
+#                 session.delete(association)
+#             for slot_reservation in session.query(SchedulingSchemaIndependentSlotReservation).all():
+#                 session.delete(slot_reservation)
+#             for resource_slot in session.query(CurrentResourceSlot).all():
+#                 session.delete(resource_slot)
+#             for experiment_instance in session.query(ExperimentInstance).all():
+#                 session.delete(experiment_instance)
+#             for experiment_type in session.query(ExperimentType).all():
+#                 session.delete(experiment_type)
+#             for resource_instance in session.query(ResourceInstance).all():
+#                 session.delete(resource_instance)
+#             for resource_type in session.query(ResourceType).all():
+#                 session.delete(resource_type)
+#             session.commit()
+#         finally:
+#             session.close()
 

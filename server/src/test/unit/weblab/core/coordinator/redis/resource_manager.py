@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import redis
 
 import unittest
 
@@ -32,75 +33,48 @@ class ResourcesManagerTestCase(unittest.TestCase):
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
 
-        self.coordinator = Coordinator(None, self.cfg_manager)
-        self.coordinator._clean()
-        self.coordinator.stop()
-
-        coordination_database = CoordinationDatabaseManager.CoordinationDatabaseManager(self.cfg_manager)
-        self.session_maker = coordination_database.session_maker
-        self.resources_manager = ResourcesManager.ResourcesManager(self.session_maker)
+        client_creator = lambda : redis.Redis()
+        self.resources_manager = ResourcesManager.ResourcesManager(client_creator)
         self.resources_manager._clean()
 
 
     def test_add_resource(self):
-        session = self.session_maker()
-        try:
-            resource_types = session.query(CoordinatorModel.ResourceType).all()
-            self.assertEquals(0, len(resource_types), "No resource expected in the beginning of the test")
-
-            self.resources_manager.add_resource(session, Resource("type", "instance"))
-            self._check_resource_added(session)
-            session.commit()
-        finally:
-            session.close()
+        self.assertEquals([], self.resources_manager.list_resources())
+        self.resources_manager.add_resource(Resource("type", "instance"))
+        self._check_resource_added()
 
         # Can be executed twice without conflicts
 
-        session = self.session_maker()
-        try:
-            self.resources_manager.add_resource(session, Resource("type", "instance"))
-            self._check_resource_added(session)
-            session.commit()
-        finally:
-            session.close()
+        self.resources_manager.add_resource(Resource("type", "instance"))
+        self._check_resource_added()
 
-    def _check_resource_added(self, session):
-        resource_types = session.query(CoordinatorModel.ResourceType).all()
+    def _check_resource_added(self):
+        resource_types = self.resources_manager.list_resources()
         self.assertEquals(1, len(resource_types))
 
         resource_type = resource_types[0]
-        self.assertEquals("type", resource_type.name)
+        self.assertEquals("type", resource_type)
 
-        resource_instances = resource_type.instances
-        self.assertEquals(1, len(resource_instances))
+        resources = self.resources_manager.list_resource_instances()
+        self.assertEquals(1, len(resources))
 
-        resource_instance = resource_instances[0]
-        self.assertEquals("instance", resource_instance.name)
-        self.assertEquals(resource_type, resource_instance.resource_type)
+        self.assertEquals('instance', resources[0].resource_instance)
 
-        slot = resource_instance.slot
-        self.assertNotEquals(None, slot)
-        self.assertEquals(resource_instance, slot.resource_instance)
+        # TODO XXX 
+        # slot = resource_instance.slot
+        # self.assertNotEquals(None, slot)
+        # self.assertEquals(resource_instance, slot.resource_instance)
 
     def test_add_experiment_instance_id(self):
-        session = self.session_maker()
-        try:
-            resource_types = session.query(CoordinatorModel.ResourceType).all()
-            self.assertEquals(0, len(resource_types), "No resource expected in the beginning of the test")
 
-            exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
-            session.commit()
-        finally:
-            session.close()
+        self.assertEquals([], self.resources_manager.list_resources())
+
+        exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
+
         self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
         
-        session = self.session_maker()
-        try:
-            self._check_resource_added(session)
-            self._check_experiment_instance_id_added(session)
-            session.commit()
-        finally:
-            session.close()
+        self._check_resource_added()
+        self._check_experiment_instance_id_added()
 
     def test_add_experiment_instance_id_redundant(self):
         session = self.session_maker()
@@ -199,7 +173,7 @@ class ResourcesManagerTestCase(unittest.TestCase):
                 ExperimentId("foo","bar")
             )
 
-    def _check_experiment_instance_id_added(self, session):
+    def _check_experiment_instance_id_added(self):
         experiment_types = session.query(CoordinatorModel.ExperimentType).all()
         self.assertEquals(1, len(experiment_types))
 

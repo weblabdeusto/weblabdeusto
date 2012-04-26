@@ -22,3 +22,6 @@ class Resource(object):
         self.resource_type     = resource_type
         self.resource_instance = resource_instance
 
+    def to_weblab_str(self):
+        return "%s@%s" % (self.resource_instance, self.resource_type)
+
