@@ -25,3 +25,10 @@ class Resource(object):
     def to_weblab_str(self):
         return "%s@%s" % (self.resource_instance, self.resource_type)
 
+    @staticmethod
+    def parse(weblab_str):
+        pos = weblab_str.find("@")
+        resource_instance = weblab_str[:pos]
+        resource_type     = weblab_str[pos + 1 :]
+        return Resource(resource_type, resource_instance)
+

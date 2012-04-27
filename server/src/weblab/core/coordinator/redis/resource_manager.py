@@ -15,16 +15,23 @@
 
 from sqlalchemy.orm.exc import StaleDataError
 
+from weblab.data.experiments import ExperimentId, ExperimentInstanceId
 from weblab.core.coordinator.resource import Resource
 import weblab.core.coordinator.exc as CoordExc
 
+from voodoo.typechecker import typecheck
+
 WEBLAB_RESOURCES = "weblab:resources"
 WEBLAB_RESOURCE  = "weblab:resources:%s"
+
 
 WEBLAB_EXPERIMENT_TYPES = "weblab:experiment_types"
 
 WEBLAB_EXPERIMENT_INSTANCES = "weblab:experiment_types:%s:instances"
 WEBLAB_EXPERIMENT_INSTANCE  = "weblab:experiment_types:%s:instances:%s"
+
+WEBLAB_RESOURCE_EXPERIMENTS = "weblab:resources:%s:experiment_types"
+WEBLAB_EXPERIMENT_RESOURCES = "weblab:experiment_types:%s:resource_types"
 
 LAB_COORD     = "laboratory_coord_address"
 RESOURCE_INST = "resource_instance"
@@ -33,25 +40,37 @@ class ResourcesManager(object):
     def __init__(self, client_creator):
         self._client_creator = client_creator
 
+    @typecheck(Resource)
     def add_resource(self, resource):
         client = self._client_creator()
         client.sadd(WEBLAB_RESOURCES, resource.resource_type)
         client.sadd(WEBLAB_RESOURCE % resource.resource_type, resource.resource_instance)
         
+    @typecheck(ExperimentId, basestring)
     def add_experiment_id(self, experiment_id, resource_type):
         client = self._client_creator()
         client.sadd(WEBLAB_RESOURCES, resource_type)
         client.sadd(WEBLAB_EXPERIMENT_TYPES, experiment_id.to_weblab_str())
-
+    
+    @typecheck(basestring, ExperimentInstanceId, Resource)
     def add_experiment_instance_id(self, laboratory_coord_address, experiment_instance_id, resource):
         self.add_resource(resource)
-        self.add_experiment_id(experiment_instance_id.to_experiment_id(), resource.resource_type)
+
+        experiment_id     = experiment_instance_id.to_experiment_id()
+        experiment_id_str = experiment_id.to_weblab_str()
+
+        self.add_experiment_id(experiment_id, resource.resource_type)
 
         client = self._client_creator()
+        client.sadd(WEBLAB_EXPERIMENT_INSTANCES % experiment_id_str, experiment_instance_id.inst_name)
 
-        client.sadd(WEBLAB_EXPERIMENT_INSTANCES % resource.resource_type, experiment_instance_id.inst_name)
+        weblab_experiment_instance = WEBLAB_EXPERIMENT_INSTANCE % (experiment_id_str, experiment_instance_id.inst_name)
 
-        weblab_experiment_instance = WEBLAB_EXPERIMENT_INSTANCE % (resource.resource_type, experiment_instance_id.inst_name)
+        weblab_resource_experiments = WEBLAB_RESOURCE_EXPERIMENTS % resource.resource_type
+        client.sadd(weblab_resource_experiments, experiment_id_str)
+        
+        weblab_experiment_resources = WEBLAB_EXPERIMENT_RESOURCES % experiment_id_str
+        client.sadd(weblab_experiment_resources, resource.resource_type)
 
         retrieved_laboratory_coord_address = client.hget(weblab_experiment_instance, LAB_COORD)
         if retrieved_laboratory_coord_address is not None: 
@@ -64,7 +83,7 @@ class ResourcesManager(object):
 
         if retrieved_weblab_resource_instance is not None:
             if retrieved_weblab_resource_instance != resource.to_weblab_str():
-                    raise CoordExc.InvalidExperimentConfigError("Attempt to register the experiment %s with resource %s when it was already bound to resource %s" % (experiment_instance_id, resource, db_experiment_instance.resource_instance.to_resource()))
+                    raise CoordExc.InvalidExperimentConfigError("Attempt to register the experiment %s with resource %s when it was already bound to resource %s" % (experiment_instance_id, resource, retrieved_weblab_resource_instance))
 
         client.hset(weblab_experiment_instance, RESOURCE_INST, resource.to_weblab_str())
 
@@ -87,33 +106,26 @@ class ResourcesManager(object):
             if slot_reservation is not None:
                 self.release_resource(session, slot_reservation)
 
+    @typecheck(ExperimentId)
     def get_resource_types_by_experiment_id(self, experiment_id):
-        session = self._session_maker()
-        try:
-            experiment_type = session.query(ExperimentType).filter_by(cat_name = experiment_id.cat_name, exp_name = experiment_id.exp_name).first()
-            if experiment_type is None:
-                raise CoordExc.ExperimentNotFoundError("Experiment not found: %s" % experiment_id)
+        client = self._client_creator()
 
-            resource_types = set()
-            for resource_type in experiment_type.resource_types:
-                resource_types.add(resource_type.name)
-            return resource_types
-        finally:
-            session.close()
+        weblab_experiment_resources = WEBLAB_EXPERIMENT_RESOURCES % experiment_id.to_weblab_str()
+        experiment_types = client.smembers(weblab_experiment_resources)
+        if not client.exists(weblab_experiment_resources):
+            raise CoordExc.ExperimentNotFoundError("Experiment not found: %s" % experiment_id)
+        return set(experiment_types)
 
     def get_resource_instance_by_experiment_instance_id(self, experiment_instance_id):
-        session = self._session_maker()
-        try:
-            experiment_type = session.query(ExperimentType).filter_by(cat_name = experiment_instance_id.cat_name, exp_name = experiment_instance_id.exp_name).first()
-            if experiment_type is None:
+        experiment_id = experiment_instance_id.to_experiment_id()
+        weblab_experiment_instance = WEBLAB_EXPERIMENT_INSTANCE % (experiment_id.to_weblab_str(), experiment_instance_id.inst_name)
+
+        client = self._client_creator()
+        resource_instance = client.hget(weblab_experiment_instance, RESOURCE_INST)
+        if resource_instance is None:
                 raise CoordExc.ExperimentNotFoundError("Experiment not found: %s" % experiment_instance_id)
 
-            experiment_instance = session.query(ExperimentInstance).filter_by(experiment_type = experiment_type, experiment_instance_id = experiment_instance_id.inst_name).first()
-            if experiment_instance is None:
-                raise CoordExc.ExperimentNotFoundError("Experiment not found: %s" % experiment_instance_id)
-            return experiment_instance.resource_instance.to_resource()
-        finally:
-            session.close()
+        return Resource.parse(resource_instance)
 
     def _get_resource_instance(self, session, resource):
         db_resource_type = session.query(ResourceType).filter_by(name = resource.resource_type).one()
@@ -184,33 +196,26 @@ class ResourcesManager(object):
         return resource_instances
 
     def list_experiments(self):
-        session = self._session_maker()
+        client = self._client_creator()
+        return [ ExperimentId.parse(exp_type) for exp_type in client.smembers(WEBLAB_EXPERIMENT_TYPES) ]
 
-        try:
-            experiment_types = session.query(ExperimentType).order_by(ExperimentType.id).all()
+    @typecheck(ExperimentId)
+    def list_experiment_instances_by_type(self, experiment_id):
+        client = self._client_creator()
+        weblab_experiment_instances = WEBLAB_EXPERIMENT_INSTANCES % experiment_id.to_weblab_str()
+        return [ 
+            ExperimentInstanceId(inst, experiment_id.exp_name, experiment_id.cat_name)
+            for inst in client.smembers(weblab_experiment_instances) ]
 
-            experiment_ids = []
+    @typecheck(basestring)
+    def list_experiment_instance_ids_by_resource(self, resource_type):
+        client = self._client_creator()
 
-            for experiment_type in experiment_types:
-                experiment_ids.append(experiment_type.to_experiment_id())
-        finally:
-            session.close()
-
-        return experiment_ids
-
-    def list_experiment_instance_ids_by_resource(self, resource):
-        session = self._session_maker()
-
-        try:
-            db_resource_instance = self._get_resource_instance(session, resource)
-            experiment_instance_ids = []
-            for experiment_instance in db_resource_instance.experiment_instances:
-                experiment_instance_id = experiment_instance.to_experiment_instance_id()
-                experiment_instance_ids.append(experiment_instance_id)
-        finally:
-            session.close()
-
-        return experiment_instance_ids
+        weblab_resource_experiments = WEBLAB_RESOURCE_EXPERIMENTS % resource_type
+        retrieved_resource_experiments = client.smembers(weblab_resource_experiments) or []
+        return [
+                    ExperimentId.parse(experiment_id_str) 
+                    for experiment_id_str in retrieved_resource_experiments]
 
 
     def list_laboratories_addresses(self):

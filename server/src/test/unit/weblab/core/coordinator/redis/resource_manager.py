@@ -49,14 +49,11 @@ class ResourcesManagerTestCase(unittest.TestCase):
         self._check_resource_added()
 
     def _check_resource_added(self):
-        resource_types = self.resources_manager.list_resources()
-        self.assertEquals(1, len(resource_types))
-
-        resource_type = resource_types[0]
-        self.assertEquals("type", resource_type)
-
         resources = self.resources_manager.list_resource_instances()
         self.assertEquals(1, len(resources))
+
+        resource = resources[0]
+        self.assertEquals("type", resources[0].resource_type)
 
         self.assertEquals('instance', resources[0].resource_instance)
 
@@ -64,6 +61,33 @@ class ResourcesManagerTestCase(unittest.TestCase):
         # slot = resource_instance.slot
         # self.assertNotEquals(None, slot)
         # self.assertEquals(resource_instance, slot.resource_instance)
+
+    def _check_experiment_instance_id_added(self):
+        experiment_types = self.resources_manager.list_experiments()
+        self.assertEquals(1, len(experiment_types))
+
+        experiment_type = experiment_types[0]
+        self.assertEquals("PLD Experiments", experiment_type.cat_name)
+        self.assertEquals("ud-pld", experiment_type.exp_name)
+
+        experiment_instances = self.resources_manager.list_experiment_instances_by_type(experiment_type)
+        self.assertEquals(1, len(experiment_instances))
+
+        experiment_instance = experiment_instances[0]
+        self.assertEquals("exp1", experiment_instance.inst_name)
+        self.assertEquals(experiment_type, experiment_instance.to_experiment_id())
+
+        resource_instance = self.resources_manager.get_resource_instance_by_experiment_instance_id(experiment_instance)
+        self.assertEquals("instance", resource_instance.resource_instance)
+
+        resource_type = resource_instance.resource_type
+
+        retrieved_resource_types = self.resources_manager.get_resource_types_by_experiment_id(experiment_type)
+        self.assertTrue(resource_type in retrieved_resource_types)
+
+        retrieved_experiment_types = self.resources_manager.list_experiment_instance_ids_by_resource(resource_type)
+        self.assertTrue(experiment_type in retrieved_experiment_types)
+
 
     def test_add_experiment_instance_id(self):
 
@@ -77,61 +101,42 @@ class ResourcesManagerTestCase(unittest.TestCase):
         self._check_experiment_instance_id_added()
 
     def test_add_experiment_instance_id_redundant(self):
-        session = self.session_maker()
-        try:
-            resource_types = session.query(CoordinatorModel.ResourceType).all()
-            self.assertEquals(0, len(resource_types), "No resource expected in the beginning of the test")
-        finally:
-            session.close()
+
+        self.assertEquals([], self.resources_manager.list_resources())
 
         exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
+
         self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
 
         # No problem in adding twice the same
         self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
+        
+        # Everything is all right
+        self._check_resource_added()
+        self._check_experiment_instance_id_added()
 
-        session = self.session_maker()
-        try:
-            # Everything is all right
-            self._check_resource_added(session)
-            self._check_experiment_instance_id_added(session)
+        # However, we can't add another time the same experiment instance with a different laboratory id:
+        self.assertRaises(CoordExc.InvalidExperimentConfigError,
+                self.resources_manager.add_experiment_instance_id,
+                "laboratory2:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
 
-            # However, we can't add another time the same experiment instance with a different laboratory id:
-            self.assertRaises(CoordExc.InvalidExperimentConfigError,
-                    self.resources_manager.add_experiment_instance_id,
-                    "laboratory2:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
-
-            # Or the same experiment instance with a different resource instance:
-            self.assertRaises(CoordExc.InvalidExperimentConfigError,
-                    self.resources_manager.add_experiment_instance_id,
-                    "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance2"))
-
-            session.commit()
-        finally:
-            session.close()
+        # Or the same experiment instance with a different resource instance:
+        self.assertRaises(CoordExc.InvalidExperimentConfigError,
+                self.resources_manager.add_experiment_instance_id,
+                "laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance2"))
 
 
     def test_get_resource_instance_by_experiment_instance_id(self):
-        session = self.session_maker()
-        try:
-            exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
-            self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
-            session.commit()
-        finally:
-            session.close()
+        exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
+        self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
 
         resource = self.resources_manager.get_resource_instance_by_experiment_instance_id(exp_id)
         expected_resource = Resource("type", "instance")
         self.assertEquals(expected_resource, resource)
 
     def test_get_resource_instance_by_experiment_instance_id_failing(self):
-        session = self.session_maker()
-        try:
-            exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
-            self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
-            session.commit()
-        finally:
-            session.close()
+        exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
+        self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
 
         exp_invalid_type = ExperimentInstanceId("exp1","ud-pld.invalid", "PLD Experiments")
 
@@ -145,13 +150,8 @@ class ResourcesManagerTestCase(unittest.TestCase):
                             exp_invalid_inst )
 
     def test_get_resource_types_by_experiment_id(self):
-        session = self.session_maker()
-        try:
-            exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
-            self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
-            session.commit()
-        finally:
-            session.close()
+        exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
+        self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
 
         exp_type_id = ExperimentId("ud-pld", "PLD Experiments")
         resource_types = self.resources_manager.get_resource_types_by_experiment_id(exp_type_id)
@@ -159,41 +159,14 @@ class ResourcesManagerTestCase(unittest.TestCase):
         self.assertTrue(u"type" in resource_types)
 
     def test_get_resource_types_by_experiment_id_error(self):
-        session = self.session_maker()
-        try:
-            exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
-            self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
-            session.commit()
-        finally:
-            session.close()
+        exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
+        self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
 
         self.assertRaises(
                 CoordExc.ExperimentNotFoundError,
                 self.resources_manager.get_resource_types_by_experiment_id,
                 ExperimentId("foo","bar")
             )
-
-    def _check_experiment_instance_id_added(self):
-        experiment_types = session.query(CoordinatorModel.ExperimentType).all()
-        self.assertEquals(1, len(experiment_types))
-
-        experiment_type = experiment_types[0]
-        self.assertEquals("PLD Experiments", experiment_type.cat_name)
-        self.assertEquals("ud-pld", experiment_type.exp_name)
-
-        experiment_instances = experiment_type.instances
-        self.assertEquals(1, len(experiment_instances))
-
-        experiment_instance = experiment_instances[0]
-        self.assertEquals("exp1", experiment_instance.experiment_instance_id)
-        self.assertEquals(experiment_type, experiment_instance.experiment_type)
-
-        resource_instance = experiment_instance.resource_instance
-        self.assertEquals("instance", resource_instance.name)
-
-        resource_type = resource_instance.resource_type
-        self.assertTrue(resource_type in experiment_type.resource_types)
-        self.assertTrue(experiment_type in resource_type.experiment_types)
 
     def test_remove_resource_instance_id(self):
         session = self.session_maker()
