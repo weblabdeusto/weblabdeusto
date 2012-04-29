@@ -31,7 +31,7 @@ class DirectNetwork(Access.Network):
             )
 
     def get_protocol(self):
-        import voodoo.gen.protocols.Direct.Network as Network
+        import voodoo.gen.protocols.Direct.network as Network
         # self.__module__ will change if someone inherits DirectNetwork
         return Network
 

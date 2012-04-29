@@ -10,18 +10,17 @@
 # This software consists of contributions made by many individuals,
 # listed below:
 #
-# Author: Jaime Irurzun <jaime.irurzun@gmail.com>
+# Author: Pablo Orduña <pablo@ordunya.com>
 #
-
 import voodoo.gen.coordinator.Access as Access
 
-name = "InternetSocket"
+name = "XMLRPC"
 
-class InternetSocketNetwork(Access.IpBasedNetwork):
+class XMLRPCNetwork(Access.IpBasedNetwork):
 
-    def __init__(self, address):
-        Access.IpBasedNetwork.__init__(self, address)
+    def __init__(self,address):
+        Access.IpBasedNetwork.__init__(self,address)
 
     def get_protocol(self):
-        import voodoo.gen.protocols.InternetSocket.Network as Network
+        import voodoo.gen.protocols.XMLRPC.network as Network
         return Network

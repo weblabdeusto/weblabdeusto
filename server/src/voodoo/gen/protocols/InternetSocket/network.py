@@ -10,17 +10,18 @@
 # This software consists of contributions made by many individuals,
 # listed below:
 #
-# Author: Pablo Orduña <pablo@ordunya.com>
+# Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 #
+
 import voodoo.gen.coordinator.Access as Access
 
-name = "SOAP"
+name = "InternetSocket"
 
-class SOAPNetwork(Access.IpBasedNetwork):
+class InternetSocketNetwork(Access.IpBasedNetwork):
 
-    def __init__(self,address):
-        Access.IpBasedNetwork.__init__(self,address)
+    def __init__(self, address):
+        Access.IpBasedNetwork.__init__(self, address)
 
     def get_protocol(self):
-        import voodoo.gen.protocols.SOAP.Network as Network
+        import voodoo.gen.protocols.InternetSocket.network as Network
         return Network

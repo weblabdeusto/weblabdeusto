@@ -30,10 +30,10 @@ import voodoo.gen.locator.EasyLocator as EasyLocator
 import voodoo.gen.locator.ServerLocator as ServerLocator
 import voodoo.gen.locator.ServerTypeHandler as ServerTypeHandler
 import voodoo.gen.protocols.Direct.Address as DirectAddress
-import voodoo.gen.protocols.Direct.Network as DirectNetwork
+import voodoo.gen.protocols.Direct.network as DirectNetwork
 import voodoo.gen.protocols.protocols as Protocols
 import voodoo.gen.protocols.SOAP.Address as SOAPAddress
-import voodoo.gen.protocols.SOAP.Network as SOAPNetwork
+import voodoo.gen.protocols.SOAP.network as SOAPNetwork
 import voodoo.gen.protocols.SOAP.server as ServerSOAP
 import voodoo.gen.registry.server_registry as ServerRegistry
 import voodoo.methods as voodoo_exported_methods

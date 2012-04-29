@@ -21,9 +21,9 @@ import voodoo.gen.coordinator.AccessLevel as AccessLevel
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.gen.exceptions.coordinator.AccessErrors as AccessErrors
 
-import voodoo.gen.protocols.Direct.Network as DirectNetwork
+import voodoo.gen.protocols.Direct.network as DirectNetwork
 import voodoo.gen.protocols.Direct.Address as DirectAddress
-import voodoo.gen.protocols.SOAP.Network as SOAPNetwork
+import voodoo.gen.protocols.SOAP.network as SOAPNetwork
 import voodoo.gen.protocols.SOAP.Address as SOAPAddress
 
 

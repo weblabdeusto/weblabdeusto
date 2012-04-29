@@ -22,8 +22,8 @@ class CoordinatorMapBuilder(object):
     def _fill_server(self, map, server, machine_name, instance_name, server_name):
         for protocol in server.protocols:
             protocol_module = getattr(protocol_pkg,protocol.name)
-            __import__(protocol_module.__name__ + '.Network', globals(), locals())
-            NetworkClass = getattr(protocol_module.Network, "%sNetwork" % protocol.name)
+            __import__(protocol_module.__name__ + '.network', globals(), locals())
+            NetworkClass = getattr(protocol_module.network, "%sNetwork" % protocol.name)
             networks = []
             for address in protocol.coordinations.filled_coordinations:
                 network = NetworkClass(address)

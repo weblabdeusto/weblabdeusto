@@ -31,6 +31,6 @@ class UnixSocketNetwork(Access.Network):
         return self.address.machine_id == i.address.machine_id
 
     def get_protocol(self):
-        import voodoo.gen.protocols.UnixSocket.Network as Network
+        import voodoo.gen.protocols.UnixSocket.network as Network
         # self.__module__ will change if someone inherits DirectNetwork
         return Network

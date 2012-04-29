@@ -32,9 +32,9 @@ import voodoo.gen.coordinator.CoordinatorServer as CoordinatorServer
 import voodoo.gen.exceptions.coordinator.CoordinatorServerErrors as CoordinatorServerErrors
 
 import voodoo.gen.protocols.protocols as Protocols
-import voodoo.gen.protocols.Direct.Network as DirectNetwork
+import voodoo.gen.protocols.Direct.network as DirectNetwork
 import voodoo.gen.protocols.Direct.Address as DirectAddress
-import voodoo.gen.protocols.SOAP.Network as SOAPNetwork
+import voodoo.gen.protocols.SOAP.network as SOAPNetwork
 import voodoo.gen.protocols.SOAP.Address as SOAPAddress
 
 def create_coordinator_map():

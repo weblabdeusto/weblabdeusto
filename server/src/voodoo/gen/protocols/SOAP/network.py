@@ -14,13 +14,13 @@
 #
 import voodoo.gen.coordinator.Access as Access
 
-name = "XMLRPC"
+name = "SOAP"
 
-class XMLRPCNetwork(Access.IpBasedNetwork):
+class SOAPNetwork(Access.IpBasedNetwork):
 
     def __init__(self,address):
         Access.IpBasedNetwork.__init__(self,address)
 
     def get_protocol(self):
-        import voodoo.gen.protocols.XMLRPC.Network as Network
+        import voodoo.gen.protocols.SOAP.network as Network
         return Network
