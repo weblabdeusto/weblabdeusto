@@ -21,17 +21,17 @@ import weblab.core.coordinator.exc as CoordExc
 
 from voodoo.typechecker import typecheck
 
-WEBLAB_RESOURCES = "weblab:resources"
-WEBLAB_RESOURCE  = "weblab:resources:%s"
 
+WEBLAB_EXPERIMENT_TYPES              = "weblab:experiment_types"
+WEBLAB_EXPERIMENT_RESOURCES          = "weblab:experiment_types:%s:resource_types"
+WEBLAB_EXPERIMENT_INSTANCES          = "weblab:experiment_types:%s:instances"
+WEBLAB_EXPERIMENT_INSTANCE           = "weblab:experiment_types:%s:instances:%s"
 
-WEBLAB_EXPERIMENT_TYPES = "weblab:experiment_types"
+WEBLAB_RESOURCES                     = "weblab:resources"
+WEBLAB_RESOURCE                      = "weblab:resources:%s"
+WEBLAB_RESOURCE_EXPERIMENTS          = "weblab:resources:%s:experiment_types"
+WEBLAB_RESOURCE_INSTANCE_EXPERIMENTS = "weblab:resources:%s:%s:experiment_instances"
 
-WEBLAB_EXPERIMENT_INSTANCES = "weblab:experiment_types:%s:instances"
-WEBLAB_EXPERIMENT_INSTANCE  = "weblab:experiment_types:%s:instances:%s"
-
-WEBLAB_RESOURCE_EXPERIMENTS = "weblab:resources:%s:experiment_types"
-WEBLAB_EXPERIMENT_RESOURCES = "weblab:experiment_types:%s:resource_types"
 
 LAB_COORD     = "laboratory_coord_address"
 RESOURCE_INST = "resource_instance"
@@ -71,6 +71,9 @@ class ResourcesManager(object):
         
         weblab_experiment_resources = WEBLAB_EXPERIMENT_RESOURCES % experiment_id_str
         client.sadd(weblab_experiment_resources, resource.resource_type)
+
+        weblab_resource_instance_experiments = WEBLAB_RESOURCE_INSTANCE_EXPERIMENTS % (resource.resource_type, resource.resource_instance)
+        client.sadd(weblab_resource_instance_experiments, experiment_instance_id.to_weblab_str())
 
         retrieved_laboratory_coord_address = client.hget(weblab_experiment_instance, LAB_COORD)
         if retrieved_laboratory_coord_address is not None: 
@@ -208,14 +211,34 @@ class ResourcesManager(object):
             for inst in client.smembers(weblab_experiment_instances) ]
 
     @typecheck(basestring)
-    def list_experiment_instance_ids_by_resource(self, resource_type):
+    def list_experiment_instance_ids_by_resource_type(self, resource_type):
         client = self._client_creator()
 
-        weblab_resource_experiments = WEBLAB_RESOURCE_EXPERIMENTS % resource_type
-        retrieved_resource_experiments = client.smembers(weblab_resource_experiments) or []
-        return [
-                    ExperimentId.parse(experiment_id_str) 
-                    for experiment_id_str in retrieved_resource_experiments]
+        experiment_instance_ids = []
+
+        instances = client.smembers(WEBLAB_RESOURCE % resource_type) or []
+        for instance in instances:
+            weblab_resource_instance_experiments = WEBLAB_RESOURCE_INSTANCE_EXPERIMENTS % (resource_type, instance)
+            current_members = client.smembers(weblab_resource_instance_experiments) or []
+            for member in current_members:
+                experiment_instance_id = ExperimentInstanceId.parse(member)
+                experiment_instance_ids.append(experiment_instance_id)
+
+        return experiment_instance_ids
+
+    @typecheck(Resource)
+    def list_experiment_instance_ids_by_resource(self, resource):
+        client = self._client_creator()
+
+        experiment_instance_ids = []
+
+        weblab_resource_instance_experiments = WEBLAB_RESOURCE_INSTANCE_EXPERIMENTS % (resource.resource_type, resource.resource_instance)
+        current_members = client.smembers(weblab_resource_instance_experiments) or []
+        for member in current_members:
+            experiment_instance_id = ExperimentInstanceId.parse(member)
+            experiment_instance_ids.append(experiment_instance_id)
+
+        return experiment_instance_ids
 
 
     def list_laboratories_addresses(self):
@@ -296,8 +319,18 @@ class ResourcesManager(object):
     def _clean(self):
         client = self._client_creator()
         for element in client.smembers(WEBLAB_RESOURCES):
+            for instance in client.smembers(WEBLAB_RESOURCE % element):
+                client.delete(WEBLAB_RESOURCE_INSTANCE_EXPERIMENTS % (element, instance))
             client.delete(WEBLAB_RESOURCE % element)
+            client.delete(WEBLAB_RESOURCE_EXPERIMENTS % element)
         client.delete(WEBLAB_RESOURCES)
+
+        for element in client.smembers(WEBLAB_EXPERIMENT_TYPES):
+            client.delete(WEBLAB_EXPERIMENT_RESOURCES % element)
+            for instance in client.smembers(WEBLAB_EXPERIMENT_INSTANCES % element):
+                client.delete(WEBLAB_EXPERIMENT_INSTANCE % (element, instance))
+            client.delete(WEBLAB_EXPERIMENT_INSTANCES % element)
+        client.delete(WEBLAB_EXPERIMENT_TYPES)
 #         session = self._session_maker()
 #         try:
 #             for association in session.query(ActiveReservationSchedulerAssociation).all():
