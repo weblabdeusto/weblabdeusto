@@ -167,8 +167,8 @@ class ServerParser(AbstractParser):
         coordinations = self._parse_coordinations(file_path, protocol_node)
         creation = self._parse_creation(file_path, protocol_node)
 
-        __import__(protocol_pkg.__name__ + '.Loader', globals(), locals())
-        protocol_pkg.Loader.fill_coordinations( coordinations, address)
+        __import__(protocol_pkg.__name__ + '.loader', globals(), locals())
+        protocol_pkg.loader.fill_coordinations( coordinations, address)
 
         protocol_configuration = ConfigurationData.ProtocolConfiguration(
                 protocol_name,
@@ -176,7 +176,7 @@ class ServerParser(AbstractParser):
                 creation
             )
 
-        protocol_pkg.Loader.fill_creation(      protocol_configuration, address)
+        protocol_pkg.loader.fill_creation(      protocol_configuration, address)
         return protocol_configuration
 
     def _parse_coordinations(self, file_path, protocol_node):

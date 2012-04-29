@@ -17,7 +17,7 @@ import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 
 import xmlrpclib
 
-import voodoo.gen.protocols.XMLRPC.Errors as Exceptions
+import voodoo.gen.protocols.XMLRPC.errors as Exceptions
 
 # Stubs of client methods to dynamically generate
 # All of them must have the same name format:

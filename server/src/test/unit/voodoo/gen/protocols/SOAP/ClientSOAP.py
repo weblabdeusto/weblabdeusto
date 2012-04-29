@@ -18,7 +18,7 @@ import unittest
 from test.util.optional_modules import OptionalModuleTestCase
 import voodoo.gen.protocols.SOAP.client as ClientSOAP
 import voodoo.gen.protocols.SOAP.server as ServerSOAP
-import voodoo.gen.protocols.SOAP.Errors as Exceptions
+import voodoo.gen.protocols.SOAP.errors as Exceptions
 import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 
 try:

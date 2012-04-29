@@ -28,7 +28,7 @@ import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 import voodoo.log as log
 
 import voodoo.gen.protocols.SOAP.server as ServerSOAP
-import voodoo.gen.protocols.SOAP.Errors as Exceptions
+import voodoo.gen.protocols.SOAP.errors as Exceptions
 import voodoo.mapper as mapper
 
 def _retrieve_class(complete_class_name):

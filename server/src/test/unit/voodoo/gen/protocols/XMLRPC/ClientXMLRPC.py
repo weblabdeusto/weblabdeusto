@@ -15,7 +15,7 @@
 import unittest
 
 import voodoo.gen.protocols.XMLRPC.client as ClientXMLRPC
-import voodoo.gen.protocols.XMLRPC.Errors as Exceptions
+import voodoo.gen.protocols.XMLRPC.errors as Exceptions
 import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 
 import xmlrpclib

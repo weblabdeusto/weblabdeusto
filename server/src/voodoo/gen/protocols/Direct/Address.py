@@ -28,7 +28,7 @@ import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 
 from voodoo.override import Override
 
-import voodoo.gen.protocols.Direct.Errors as Exceptions
+import voodoo.gen.protocols.Direct.errors as Exceptions
 
 class Address(cAddress.Address):
 

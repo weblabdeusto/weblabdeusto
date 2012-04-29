@@ -17,7 +17,7 @@ import unittest
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.gen.protocols.Direct.Address as DirectAddress
-import voodoo.gen.protocols.Direct.Errors as DirectErrors
+import voodoo.gen.protocols.Direct.errors as DirectErrors
 
 import voodoo.gen.generators.ServerSkel as ServerSkel
 

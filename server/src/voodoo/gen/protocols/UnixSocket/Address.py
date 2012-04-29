@@ -17,7 +17,7 @@ import voodoo.gen.coordinator.Address as cAddress
 import voodoo.gen.generators.ClientSkel as ClientSkel
 import voodoo.gen.protocols.protocols as Protocols
 
-import voodoo.gen.protocols.UnixSocket.Errors as Exceptions
+import voodoo.gen.protocols.UnixSocket.errors as Exceptions
 
 import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 
