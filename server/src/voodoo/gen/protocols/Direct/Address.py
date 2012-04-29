@@ -19,7 +19,7 @@ import voodoo.gen.protocols.protocols as Protocols
 
 import voodoo.gen.generators.ClientSkel as ClientSkel
 
-import voodoo.gen.protocols.Direct.ServerDirect as ServerDirect
+import voodoo.gen.protocols.Direct.server as ServerDirect
 
 import voodoo.gen.registry.server_registry as ServerRegistry
 

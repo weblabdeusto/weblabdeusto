@@ -19,7 +19,7 @@ import types
 import voodoo.log as log
 
 from test.util.module_disposer import uses_module
-import voodoo.gen.protocols.XMLRPC.ServerXMLRPC as ServerXMLRPC
+import voodoo.gen.protocols.XMLRPC.server as ServerXMLRPC
 
 PORT = 12345
 

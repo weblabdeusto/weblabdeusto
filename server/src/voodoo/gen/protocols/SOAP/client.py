@@ -27,7 +27,7 @@ import voodoo.gen.generators.ClientSkel as ClientSkel
 import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 import voodoo.log as log
 
-import voodoo.gen.protocols.SOAP.ServerSOAP as ServerSOAP
+import voodoo.gen.protocols.SOAP.server as ServerSOAP
 import voodoo.gen.protocols.SOAP.Errors as Exceptions
 import voodoo.mapper as mapper
 

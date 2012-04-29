@@ -17,7 +17,7 @@ import unittest
 import random
 
 from test.util.module_disposer import uses_module
-import voodoo.gen.protocols.SOAP.ServerSOAP as ServerSOAP
+import voodoo.gen.protocols.SOAP.server as ServerSOAP
 
 import voodoo.gen.generators.ServerSkel as ServerSkel
 import voodoo.gen.generators.ClientSkel as ClientSkel

@@ -134,7 +134,7 @@ def factory(cfg_manager, protocols, methods):
     def build_server(cfg_manager, protocol):
         #If protocols is a valid protocol (ie 'Direct') it will look for the following class:
         # mySystem.calls.Direct.ServerDirect
-        moduleName = 'Server' + protocol
+        moduleName = 'server'
 
         #mySystem will be something like 'voodoo.gen.'
         mySystem = __name__[:__name__.find('generators')]

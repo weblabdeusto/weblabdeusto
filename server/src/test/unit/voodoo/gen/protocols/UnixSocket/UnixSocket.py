@@ -19,8 +19,8 @@ if hasattr(socket, 'AF_UNIX'):
     import unittest
 
     from test.util.module_disposer import uses_module
-    import voodoo.gen.protocols.UnixSocket.ServerUnixSocket as ServerUnixSocket
-    import voodoo.gen.protocols.UnixSocket.ClientUnixSocket as ClientUnixSocket
+    import voodoo.gen.protocols.UnixSocket.server as ServerUnixSocket
+    import voodoo.gen.protocols.UnixSocket.client as ClientUnixSocket
 
     import test.unit.configuration as configuration_module
     import voodoo.configuration as ConfigurationManager

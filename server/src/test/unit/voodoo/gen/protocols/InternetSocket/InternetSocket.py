@@ -16,8 +16,8 @@
 import unittest
 
 from test.util.module_disposer import uses_module
-import voodoo.gen.protocols.InternetSocket.ServerInternetSocket as ServerInternetSocket
-import voodoo.gen.protocols.InternetSocket.ClientInternetSocket as ClientInternetSocket
+import voodoo.gen.protocols.InternetSocket.server as ServerInternetSocket
+import voodoo.gen.protocols.InternetSocket.client as ClientInternetSocket
 
 import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager

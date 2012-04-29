@@ -203,7 +203,7 @@ def factory(protocol, methods):
         raise TypeError('methods "%s" not a dict or list' % methods)
     #If protocol is a valid protocol (ie 'Direct') it will look for the following class:
     # mySystem.calls.Direct.ClientDirect
-    moduleName = 'Client'+protocol
+    moduleName = 'client'
 
     #mySystem will be something like 'voodoo.'
     mySystem = __name__[:__name__.find('generators')]

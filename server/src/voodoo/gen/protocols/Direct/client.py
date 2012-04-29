@@ -15,7 +15,7 @@
 
 import voodoo.gen.generators.ClientSkel as ClientSkel
 import voodoo.mapper as mapper
-import ServerDirect
+import voodoo.gen.protocols.Direct.server as ServerDirect
 import pickle
 
 # Stubs of client methods to dynamically generate

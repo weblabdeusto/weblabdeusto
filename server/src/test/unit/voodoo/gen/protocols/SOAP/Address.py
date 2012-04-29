@@ -18,7 +18,7 @@ import unittest
 from test.util.module_disposer import uses_module
 
 import voodoo.gen.protocols.SOAP.Address as SOAPAddress
-import voodoo.gen.protocols.SOAP.ServerSOAP as ServerSOAP
+import voodoo.gen.protocols.SOAP.server as ServerSOAP
 
 import voodoo.gen.generators.ServerSkel as ServerSkel
 import voodoo.gen.protocols.protocols as Protocols

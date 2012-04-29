@@ -46,7 +46,7 @@ def debugThreads():
     for i in threading.enumerate():
         print i,i.__module__
     print
-    import voodoo.gen.protocols.SOAP.ServerSOAP as SSOAP
+    import voodoo.gen.protocols.SOAP.server as SSOAP
     print "ServerSoap:",SSOAP._resource_manager.get_current_resources()
 
 print "Launching... %s" % module_name

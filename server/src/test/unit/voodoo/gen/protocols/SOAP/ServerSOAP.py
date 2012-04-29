@@ -17,7 +17,7 @@ import unittest
 
 from test.util.module_disposer import uses_module
 from test.util.optional_modules import OptionalModuleTestCase
-import voodoo.gen.protocols.SOAP.ServerSOAP as ServerSOAP
+import voodoo.gen.protocols.SOAP.server as ServerSOAP
 
 try:
     import SOAPpy

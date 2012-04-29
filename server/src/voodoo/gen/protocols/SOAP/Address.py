@@ -16,7 +16,7 @@ import voodoo.gen.coordinator.Address as cAddress
 
 import voodoo.gen.protocols.protocols as Protocols
 
-import voodoo.gen.protocols.SOAP.ClientSOAP as ClientSOAP
+import voodoo.gen.protocols.SOAP.client as ClientSOAP
 
 import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 

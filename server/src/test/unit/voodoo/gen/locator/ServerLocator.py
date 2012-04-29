@@ -40,7 +40,7 @@ import voodoo.gen.protocols.Direct.Address as DirectAddress
 import voodoo.gen.protocols.Direct.Network as DirectNetwork
 import voodoo.gen.protocols.SOAP.Address    as SOAPAddress
 import voodoo.gen.protocols.SOAP.Network    as SOAPNetwork
-import voodoo.gen.protocols.SOAP.ServerSOAP as ServerSOAP
+import voodoo.gen.protocols.SOAP.server as ServerSOAP
 
 import voodoo.gen.registry.server_registry as ServerRegistry
 import voodoo.methods as voodoo_methods
@@ -327,7 +327,7 @@ class ServerLocatorTestCase(unittest.TestCase):
 
             full_name = '%s.%s' % ( login_server.__class__.__module__, login_server.__class__.__name__ )
             self.assertEquals(
-                    'voodoo.gen.protocols.Direct.ClientDirect.ClientDirect',
+                    'voodoo.gen.protocols.Direct.client.ClientDirect',
                     full_name
                 )
 
@@ -374,7 +374,7 @@ class ServerLocatorTestCase(unittest.TestCase):
 
             full_name = '%s.%s' % ( yet_another_login_server.__class__.__module__, yet_another_login_server.__class__.__name__ )
             self.assertEquals(
-                    'voodoo.gen.protocols.SOAP.ClientSOAP.ClientSOAP',
+                    'voodoo.gen.protocols.SOAP.client.ClientSOAP',
                     full_name
                 )
 

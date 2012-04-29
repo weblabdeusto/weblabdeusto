@@ -16,7 +16,7 @@ import voodoo.gen.coordinator.Address as cAddress
 
 import voodoo.gen.protocols.protocols as Protocols
 
-import voodoo.gen.protocols.XMLRPC.ClientXMLRPC as ClientXMLRPC
+import voodoo.gen.protocols.XMLRPC.client as ClientXMLRPC
 
 import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 
