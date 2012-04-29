@@ -169,62 +169,45 @@ class ResourcesManagerTestCase(unittest.TestCase):
             )
 
     def test_remove_resource_instance_id(self):
-        session = self.session_maker()
-        try:
-            exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
-            self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
+        exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
+        self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, Resource("type", "instance"))
 
-            experiment_instances = session.query(CoordinatorModel.ExperimentInstance).all()
-            self.assertEquals(1, len(experiment_instances))
+        experiment_instances = self.resources_manager.list_experiment_instances_by_type(exp_id.to_experiment_id())
+        self.assertEquals(1, len(experiment_instances))
 
-            self.resources_manager.remove_resource_instance_id(session, exp_id)
+        self.resources_manager.remove_resource_instance_id(exp_id)
 
-            experiment_instances = session.query(CoordinatorModel.ExperimentInstance).all()
-            self.assertEquals(0, len(experiment_instances))
-
-            session.commit()
-        finally:
-            session.close()
+        experiment_instances = self.resources_manager.list_experiment_instances_by_type(exp_id.to_experiment_id())
+        self.assertEquals(0, len(experiment_instances))
 
     def test_remove_resource_instance(self):
-        session = self.session_maker()
-        try:
-            exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
-            resource_instance = Resource("type", "instance")
-            self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, resource_instance)
+        exp_id = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
+        resource_instance = Resource("type", "instance")
+        self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id, resource_instance)
 
-            # Checking that the resources are there
-            experiment_instances = session.query(CoordinatorModel.ExperimentInstance).all()
-            self.assertEquals(1, len(experiment_instances))
-            resource_instances = session.query(CoordinatorModel.ResourceInstance).all()
-            self.assertEquals(1, len(resource_instances))
+        # Checking that the resources are there
+        experiment_instances = self.resources_manager.list_experiment_instances_by_type(exp_id.to_experiment_id())
+        self.assertEquals(1, len(experiment_instances))
+        resource_instances = self.resources_manager.list_resource_instances()
+        self.assertEquals(1, len(resource_instances))
 
-            # Removing resource instance
-            self.resources_manager.remove_resource_instance(session, resource_instance)
+        # Removing resource instance
+        self.resources_manager.remove_resource_instance(resource_instance)
 
-            # Checking that the resources are not there, neither the experiment instances
-            resource_instances = session.query(CoordinatorModel.ResourceInstance).all()
-            self.assertEquals(0, len(resource_instances))
-            experiment_instances = session.query(CoordinatorModel.ExperimentInstance).all()
-            self.assertEquals(0, len(experiment_instances))
-
-            session.commit()
-        finally:
-            session.close()
+        # Checking that the resources are not there, neither the experiment instances
+        resource_instances = self.resources_manager.list_resource_instances()
+        self.assertEquals(0, len(resource_instances))
+        experiment_instances = self.resources_manager.list_experiment_instances_by_type(exp_id.to_experiment_id())
+        self.assertEquals(0, len(experiment_instances))
 
     def test_list_resources(self):
-        session = self.session_maker()
-        try:
-            exp_id1 = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
-            resource_instance1 = Resource("type1", "instance1")
-            self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id1, resource_instance1)
+        exp_id1 = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
+        resource_instance1 = Resource("type1", "instance1")
+        self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id1, resource_instance1)
 
-            exp_id2 = ExperimentInstanceId("exp2","ud-pld","PLD Experiments")
-            resource_instance2 = Resource("type2", "instance1")
-            self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id2, resource_instance2)
-            session.commit()
-        finally:
-            session.close()
+        exp_id2 = ExperimentInstanceId("exp2","ud-pld","PLD Experiments")
+        resource_instance2 = Resource("type2", "instance1")
+        self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id2, resource_instance2)
 
         resources = self.resources_manager.list_resources()
         self.assertEquals(2, len(resources))
@@ -232,18 +215,13 @@ class ResourcesManagerTestCase(unittest.TestCase):
         self.assertTrue('type2' in resources)
 
     def test_list_experiments(self):
-        session = self.session_maker()
-        try:
-            exp_id1 = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
-            resource_instance1 = Resource("type1", "instance1")
-            self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id1, resource_instance1)
+        exp_id1 = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
+        resource_instance1 = Resource("type1", "instance1")
+        self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id1, resource_instance1)
 
-            exp_id2 = ExperimentInstanceId("exp2","ud-pld","PLD Experiments")
-            resource_instance2 = Resource("type2", "instance1")
-            self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id2, resource_instance2)
-            session.commit()
-        finally:
-            session.close()
+        exp_id2 = ExperimentInstanceId("exp2","ud-pld","PLD Experiments")
+        resource_instance2 = Resource("type2", "instance1")
+        self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id2, resource_instance2)
 
         resources = self.resources_manager.list_experiments()
         self.assertEquals(1, len(resources))
@@ -269,24 +247,18 @@ class ResourcesManagerTestCase(unittest.TestCase):
 
 
     def test_list_laboratories_addresses(self):
-        session = self.session_maker()
-        try:
-            exp_id1 = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
-            resource_instance1 = Resource("type1", "instance1")
-            self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id1, resource_instance1)
+        exp_id1 = ExperimentInstanceId("exp1","ud-pld","PLD Experiments")
+        resource_instance1 = Resource("type1", "instance1")
+        self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id1, resource_instance1)
 
-            # Repeating laboratory1, but a set is returned so no problem
-            exp_id2 = ExperimentInstanceId("exp2","ud-pld","PLD Experiments")
-            resource_instance2 = Resource("type2", "instance1")
-            self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id2, resource_instance2)
+        # Repeating laboratory1, but a set is returned so no problem
+        exp_id2 = ExperimentInstanceId("exp2","ud-pld","PLD Experiments")
+        resource_instance2 = Resource("type2", "instance1")
+        self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_id2, resource_instance2)
 
-            exp_id3 = ExperimentInstanceId("exp3","ud-pld","PLD Experiments")
-            resource_instance3 = Resource("type2", "instance2")
-            self.resources_manager.add_experiment_instance_id("laboratory2:WL_SERVER1@WL_MACHINE1", exp_id3, resource_instance3)
-
-            session.commit()
-        finally:
-            session.close()
+        exp_id3 = ExperimentInstanceId("exp3","ud-pld","PLD Experiments")
+        resource_instance3 = Resource("type2", "instance2")
+        self.resources_manager.add_experiment_instance_id("laboratory2:WL_SERVER1@WL_MACHINE1", exp_id3, resource_instance3)
 
         addresses = self.resources_manager.list_laboratories_addresses()
         self.assertEquals(2, len(addresses))
@@ -310,14 +282,9 @@ class ResourcesManagerTestCase(unittest.TestCase):
         exp_id1 = exp_inst_id1.to_experiment_id()
         exp_id2 = exp_inst_id2.to_experiment_id()
 
-        session = self.session_maker()
-        try:
-            self.resources_manager.add_resource(session, Resource("pld_local", "instance"))
-            self.resources_manager.add_resource(session, Resource("pld_remote", "instance"))
-            self.resources_manager.add_resource(session, Resource("fpga_remote", "instance"))
-            session.commit()
-        finally:
-            session.close()
+        self.resources_manager.add_resource(Resource("pld_local", "instance"))
+        self.resources_manager.add_resource(Resource("pld_remote", "instance"))
+        self.resources_manager.add_resource(Resource("fpga_remote", "instance"))
 
         self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_inst_id1, Resource("pld_local",  "instance"))
         self.resources_manager.add_experiment_instance_id("laboratory1:WL_SERVER1@WL_MACHINE1", exp_inst_id1b, Resource("pld_remote", "instance"))

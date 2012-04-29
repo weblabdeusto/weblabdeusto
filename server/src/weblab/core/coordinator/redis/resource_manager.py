@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import json
 from sqlalchemy.orm.exc import StaleDataError
 
 from weblab.data.experiments import ExperimentId, ExperimentInstanceId
@@ -32,9 +33,12 @@ WEBLAB_RESOURCE                      = "weblab:resources:%s"
 WEBLAB_RESOURCE_EXPERIMENTS          = "weblab:resources:%s:experiment_types"
 WEBLAB_RESOURCE_INSTANCE_EXPERIMENTS = "weblab:resources:%s:%s:experiment_instances"
 
+WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS = "weblab:reservations:%s:active_schedulers"
 
-LAB_COORD     = "laboratory_coord_address"
-RESOURCE_INST = "resource_instance"
+LAB_COORD       = "laboratory_coord_address"
+RESOURCE_INST   = "resource_instance"
+EXPERIMENT_TYPE = "experiment_type"
+RESOURCE_TYPE   = "resource_type"
 
 class ResourcesManager(object):
     def __init__(self, client_creator):
@@ -159,31 +163,36 @@ class ResourcesManager(object):
         finally:
             session.close()
 
-    def remove_resource_instance_id(self, session, experiment_instance_id):
-        exp_type = session.query(ExperimentType).filter_by(cat_name = experiment_instance_id.cat_name).first()
-        if exp_type is None:
-            return # The experiment is not there anyway
+    @typecheck(ExperimentInstanceId)
+    def remove_resource_instance_id(self, experiment_instance_id):
+        client = self._client_creator()
 
-        exp_inst = session.query(ExperimentInstance).filter_by(experiment_instance_id = experiment_instance_id.inst_name, experiment_type = exp_type).first()
-        if exp_inst is None:
-            return # The experiment is not there anyway
+        experiment_id_str = experiment_instance_id.to_experiment_id().to_weblab_str()
+        weblab_experiment_instances = WEBLAB_EXPERIMENT_INSTANCES % experiment_id_str
+        weblab_experiment_instance  = WEBLAB_EXPERIMENT_INSTANCE % (experiment_id_str, experiment_instance_id.inst_name)
 
-        session.delete(exp_inst) # Delete it if it's there
+        resource_instance = client.hget(weblab_experiment_instance, RESOURCE_INST)
+        if resource_instance is not None:
+            # else it does not exist
+            resource = Resource.parse(resource_instance)
+            weblab_resource_experiment_instances = WEBLAB_RESOURCE_INSTANCE_EXPERIMENTS % (resource.resource_type, resource.resource_instance)
+            client.srem(weblab_experiment_instances, experiment_instance_id.inst_name)
+            client.delete(weblab_experiment_instance)
+            client.srem(weblab_resource_experiment_instances, experiment_instance_id.to_weblab_str())
 
-    def remove_resource_instance(self, session, resource):
-        resource_type = session.query(ResourceType).filter_by(name = resource.resource_type).first()
-        if resource_type is None:
-            return # The resource is not there anyway
+    @typecheck(Resource)
+    def remove_resource_instance(self, resource):
+        client = self._client_creator()
 
-        resource_instance = session.query(ResourceInstance).filter_by(name = resource.resource_instance, resource_type = resource_type).first()
-        if resource_instance is None:
-            return # The resource is no there anyway
-
-        for experiment_instance in resource_instance.experiment_instances:
-            experiment_instance_id = experiment_instance.to_experiment_instance_id()
-            self.remove_resource_instance_id(session, experiment_instance_id)
-
-        session.delete(resource_instance)
+        weblab_resource = WEBLAB_RESOURCE % resource.resource_type
+        if client.srem(weblab_resource, resource.resource_instance):
+            # else it did not exist
+            weblab_resource_instance_experiments = WEBLAB_RESOURCE_INSTANCE_EXPERIMENTS % (resource.resource_type, resource.resource_instance)
+            experiment_instances = client.smembers(weblab_resource_instance_experiments) or []
+            client.delete(weblab_resource_instance_experiments)
+            for experiment_instance in experiment_instances:
+                experiment_instance_id = ExperimentInstanceId.parse(experiment_instance)
+                self.remove_resource_instance_id(experiment_instance_id)
 
     def list_resources(self):
         client = self._client_creator()
@@ -240,81 +249,65 @@ class ResourcesManager(object):
 
         return experiment_instance_ids
 
-
     def list_laboratories_addresses(self):
-        session = self._session_maker()
+        client = self._client_creator()
 
-        try:
-            experiment_instances = session.query(ExperimentInstance).all()
+        laboratory_addresses = {
+            # laboratory_coord_address : {
+            #         experiment_instance_id : resource_instance
+            # }
+        }
 
-            laboratories_addresses = {}
+        for experiment_type in client.smembers(WEBLAB_EXPERIMENT_TYPES):
+            experiment_id = ExperimentId.parse(experiment_type)
+            experiment_instance_names = client.smembers(WEBLAB_EXPERIMENT_INSTANCES % experiment_type)
+            for experiment_instance_name in experiment_instance_names:
+                experiment_instance_id = ExperimentInstanceId(experiment_instance_name, experiment_id.exp_name, experiment_id.cat_name)
+                weblab_experiment_instance = WEBLAB_EXPERIMENT_INSTANCE % (experiment_type, experiment_instance_name)
+                laboratory_address = client.hget(weblab_experiment_instance, LAB_COORD)
+                resource_str       = client.hget(weblab_experiment_instance, RESOURCE_INST)
+                resource           = Resource.parse(resource_str)
+                current            = laboratory_addresses.get(laboratory_address, {})
+                current[experiment_instance_id] = resource
+                laboratory_addresses[laboratory_address] = current
 
-            for experiment_instance in experiment_instances:
-                current  = laboratories_addresses.get(experiment_instance.laboratory_coord_address, {})
-                current[experiment_instance.to_experiment_instance_id()] = experiment_instance.resource_instance.to_resource()
-                laboratories_addresses[experiment_instance.laboratory_coord_address] = current
-        finally:
-            session.close()
+        return laboratory_addresses
 
-        return laboratories_addresses
-
+    @typecheck(basestring, ExperimentId, basestring)
     def associate_scheduler_to_reservation(self, reservation_id, experiment_id, resource_type_name):
-        session = self._session_maker()
-        try:
-            db_resource_type = session.query(ResourceType).filter_by(name = resource_type_name).first()
-            db_experiment_type = session.query(ExperimentType).filter_by(cat_name = experiment_id.cat_name, exp_name = experiment_id.exp_name).first()
+        client = self._client_creator()
 
-            association = ActiveReservationSchedulerAssociation(reservation_id, db_experiment_type, db_resource_type)
-            session.add(association)
-            session.commit()
-        finally:
-            session.close()
+        reservations_active_schedulers = WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS % reservation_id
+
+        serialized = json.dumps({ EXPERIMENT_TYPE : experiment_id.to_weblab_str(), RESOURCE_TYPE : resource_type_name })
+        client.sadd(reservations_active_schedulers, serialized)
 
     def dissociate_scheduler_from_reservation(self, reservation_id, experiment_id, resource_type_name):
-        session = self._session_maker()
-        try:
-            db_resource_type = session.query(ResourceType).filter_by(name = resource_type_name).first()
-            db_experiment_type = session.query(ExperimentType).filter_by(cat_name = experiment_id.cat_name, exp_name = experiment_id.exp_name).first()
+        client = self._client_creator()
 
-            association = session.query(ActiveReservationSchedulerAssociation).filter_by(reservation_id = reservation_id, experiment_type = db_experiment_type, resource_type = db_resource_type).first()
-            if association is not None:
-                session.delete(association)
-                try:
-                    session.commit()
-                except StaleDataError:
-                    pass
-        finally:
-            session.close()
+        reservations_active_schedulers = WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS % reservation_id
+        serialized = json.dumps({ EXPERIMENT_TYPE : experiment_id.to_weblab_str(), RESOURCE_TYPE : resource_type_name })
+
+        client.srem(reservations_active_schedulers, serialized)
 
     def clean_associations_for_reservation(self, reservation_id, experiment_id):
-        session = self._session_maker()
-        try:
-            db_experiment_type = session.query(ExperimentType).filter_by(cat_name = experiment_id.cat_name, exp_name = experiment_id.exp_name).first()
-
-            associations = session.query(ActiveReservationSchedulerAssociation).filter_by(reservation_id = reservation_id, experiment_type = db_experiment_type).all()
-            found = False
-            for association in associations:
-                session.delete(association)
-                found = True
-
-            if found:
-                session.commit()
-        finally:
-            session.close()
+        client = self._client_creator()
+        reservations_active_schedulers = WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS % reservation_id
+        client.delete(reservations_active_schedulers)
 
     def retrieve_schedulers_per_reservation(self, reservation_id, experiment_id):
-        session = self._session_maker()
-        try:
-            db_experiment_type = session.query(ExperimentType).filter_by(cat_name = experiment_id.cat_name, exp_name = experiment_id.exp_name).first()
+        client = self._client_creator()
 
-            associations = session.query(ActiveReservationSchedulerAssociation).filter_by(reservation_id = reservation_id, experiment_type = db_experiment_type).all()
-            resource_type_names = []
-            for association in associations:
-                resource_type_names.append(association.resource_type.name)
+        reservations_active_schedulers = WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS % reservation_id
+        
+        associations = client.smembers(reservations_active_schedulers) or ()
+        resource_type_names = []
 
-            return resource_type_names
-        finally:
-            session.close()
+        for member in associations:
+            deserialized = json.loads(member)
+            resource_type_names.append(deserialized[RESOURCE_TYPE])
+
+        return resource_type_names
 
     def _clean(self):
         client = self._client_creator()
@@ -331,23 +324,4 @@ class ResourcesManager(object):
                 client.delete(WEBLAB_EXPERIMENT_INSTANCE % (element, instance))
             client.delete(WEBLAB_EXPERIMENT_INSTANCES % element)
         client.delete(WEBLAB_EXPERIMENT_TYPES)
-#         session = self._session_maker()
-#         try:
-#             for association in session.query(ActiveReservationSchedulerAssociation).all():
-#                 session.delete(association)
-#             for slot_reservation in session.query(SchedulingSchemaIndependentSlotReservation).all():
-#                 session.delete(slot_reservation)
-#             for resource_slot in session.query(CurrentResourceSlot).all():
-#                 session.delete(resource_slot)
-#             for experiment_instance in session.query(ExperimentInstance).all():
-#                 session.delete(experiment_instance)
-#             for experiment_type in session.query(ExperimentType).all():
-#                 session.delete(experiment_type)
-#             for resource_instance in session.query(ResourceInstance).all():
-#                 session.delete(resource_instance)
-#             for resource_type in session.query(ResourceType).all():
-#                 session.delete(resource_type)
-#             session.commit()
-#         finally:
-#             session.close()
 
