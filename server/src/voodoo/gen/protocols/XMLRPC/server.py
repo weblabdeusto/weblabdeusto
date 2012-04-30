@@ -14,6 +14,7 @@
 #
 
 import SimpleXMLRPCServer
+import SocketServer
 import threading
 import new
 import types
@@ -70,8 +71,7 @@ def _generate_skeleton(METHOD_NAME):
             raise
     return _skeleton
 
-# TODO: Threading?
-class _AvoidTimeoutXMLRPCServer(SimpleXMLRPCServer.SimpleXMLRPCServer):
+class _AvoidTimeoutXMLRPCServer(SocketServer.ThreadingMixIn, SimpleXMLRPCServer.SimpleXMLRPCServer):
 
     request_queue_size = 50 #TODO: configure this
 
