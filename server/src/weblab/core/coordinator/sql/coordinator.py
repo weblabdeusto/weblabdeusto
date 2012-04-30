@@ -46,7 +46,9 @@ class Coordinator(AbstractCoordinator):
     AGGREGATOR = IndependentSchedulerAggregator
 
     def __init__(self, locator, cfg_manager, ConfirmerClass = None):
-        super(Coordinator, self).__init__(locator, cfg_manager, ConfirmerClass)
+        coordination_database_manager = CoordinationDatabaseManager.CoordinationDatabaseManager(cfg_manager)
+        self._session_maker = coordination_database_manager.session_maker
+        super(Coordinator, self).__init__(self._session_maker, locator, cfg_manager, ConfirmerClass)
 
 
     def _initial_clean(self, coordination_configuration_parser):
@@ -62,9 +64,6 @@ class Coordinator(AbstractCoordinator):
             session.close()
 
     def _initialize_managers(self):
-        coordination_database_manager = CoordinationDatabaseManager.CoordinationDatabaseManager(self.cfg_manager)
-        self._session_maker = coordination_database_manager.session_maker
-
         self.reservations_manager          = ReservationsManager.ReservationsManager(self._session_maker)
         self.resources_manager             = ResourcesManager.ResourcesManager(self._session_maker)
         self.post_reservation_data_manager = PostReservationDataManager.PostReservationDataManager(self._session_maker, self.time_provider)

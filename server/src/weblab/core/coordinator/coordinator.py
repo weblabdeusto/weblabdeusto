@@ -80,11 +80,12 @@ class TimeProvider(object):
 class AbstractCoordinator(object):
     CoordinatorTimeProvider = TimeProvider
 
-    def __init__(self, locator, cfg_manager, ConfirmerClass):
+    def __init__(self, data_manager, locator, cfg_manager, ConfirmerClass):
         if ConfirmerClass is None:
             ConfirmerClass = Confirmer.ReservationConfirmer
 
-        self.cfg_manager = cfg_manager
+        self.cfg_manager   = cfg_manager
+        self._data_manager = data_manager
 
         self.core_server_url = self.cfg_manager.get_value(CORE_SERVER_URL)
 
@@ -129,7 +130,7 @@ class AbstractCoordinator(object):
                                                 reservations_manager = self.reservations_manager,
                                                 resources_manager    = self.resources_manager,
                                                 confirmer            = self.confirmer,
-                                                session_maker        = self._session_maker,
+                                                data_manager         = self._data_manager,
                                                 time_provider        = self.time_provider,
                                                 core_server_url      = self.core_server_url,
                                                 initial_store        = self.initial_store,
@@ -164,7 +165,7 @@ class AbstractCoordinator(object):
                                                 reservations_manager = self.reservations_manager,
                                                 resources_manager    = self.resources_manager,
                                                 confirmer            = self.confirmer,
-                                                session_maker        = self._session_maker,
+                                                data_manager         = self._data_manager,
                                                 time_provider        = self.time_provider,
                                                 core_server_url      = self.core_server_url,
                                                 initial_store        = self.initial_store,

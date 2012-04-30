@@ -33,8 +33,8 @@ class ResourcesManagerTestCase(unittest.TestCase):
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
 
-        client_creator = lambda : redis.Redis()
-        self.resources_manager = ResourcesManager.ResourcesManager(client_creator)
+        redis_maker = lambda : redis.Redis()
+        self.resources_manager = ResourcesManager.ResourcesManager(redis_maker)
         self.resources_manager._clean()
 
 

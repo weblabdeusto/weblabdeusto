@@ -18,9 +18,12 @@ from sqlalchemy.exc import IntegrityError, ConcurrentModificationError
 from weblab.core.coordinator.sql.model import PostReservationRetrievedData
 import weblab.core.coordinator.status as WSS
 
+WEBLAB_RESERVATIONS     = "weblab:reservations"
+WEBLAB_POST_RESERVATION = "weblab:reservations:%s:post_reservation"
+
 class PostReservationDataManager(object):
-    def __init__(self, session_maker, time_provider):
-        self._session_maker = session_maker
+    def __init__(self, redis_maker, time_provider):
+        self._redis_maker = redis_maker
         self.time_provider = time_provider
 
     def create(self, reservation_id, date, expiration_date, initial_data):
@@ -91,11 +94,6 @@ class PostReservationDataManager(object):
             session.close()
 
     def _clean(self):
-        session = self._session_maker()
-        try:
-            for registry in session.query(PostReservationRetrievedData).all():
-                session.delete(registry)
-            session.commit()
-        finally:
-            session.close()
-
+        client = self._redis_maker()
+        for reservation_id in client.smembers(WEBLAB_RESERVATIONS):
+            client.delete(WEBLAB_POST_RESERVATION % reservation_id)

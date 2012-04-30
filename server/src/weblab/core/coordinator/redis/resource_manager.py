@@ -31,6 +31,7 @@ WEBLAB_EXPERIMENT_INSTANCE           = "weblab:experiment_types:%s:instances:%s"
 WEBLAB_RESOURCES                     = "weblab:resources"
 WEBLAB_RESOURCE                      = "weblab:resources:%s"
 WEBLAB_RESOURCE_EXPERIMENTS          = "weblab:resources:%s:experiment_types"
+WEBLAB_RESOURCE_RESERVATIONS         = 'weblab:resources:%s:reservations'
 WEBLAB_RESOURCE_INSTANCE_EXPERIMENTS = "weblab:resources:%s:%s:experiment_instances"
 
 WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS = "weblab:reservations:%s:active_schedulers"
@@ -41,18 +42,18 @@ EXPERIMENT_TYPE = "experiment_type"
 RESOURCE_TYPE   = "resource_type"
 
 class ResourcesManager(object):
-    def __init__(self, client_creator):
-        self._client_creator = client_creator
+    def __init__(self, redis_maker):
+        self._redis_maker = redis_maker
 
     @typecheck(Resource)
     def add_resource(self, resource):
-        client = self._client_creator()
+        client = self._redis_maker()
         client.sadd(WEBLAB_RESOURCES, resource.resource_type)
         client.sadd(WEBLAB_RESOURCE % resource.resource_type, resource.resource_instance)
         
     @typecheck(ExperimentId, basestring)
     def add_experiment_id(self, experiment_id, resource_type):
-        client = self._client_creator()
+        client = self._redis_maker()
         client.sadd(WEBLAB_RESOURCES, resource_type)
         client.sadd(WEBLAB_EXPERIMENT_TYPES, experiment_id.to_weblab_str())
     
@@ -65,7 +66,7 @@ class ResourcesManager(object):
 
         self.add_experiment_id(experiment_id, resource.resource_type)
 
-        client = self._client_creator()
+        client = self._redis_maker()
         client.sadd(WEBLAB_EXPERIMENT_INSTANCES % experiment_id_str, experiment_instance_id.inst_name)
 
         weblab_experiment_instance = WEBLAB_EXPERIMENT_INSTANCE % (experiment_id_str, experiment_instance_id.inst_name)
@@ -115,7 +116,7 @@ class ResourcesManager(object):
 
     @typecheck(ExperimentId)
     def get_resource_types_by_experiment_id(self, experiment_id):
-        client = self._client_creator()
+        client = self._redis_maker()
 
         weblab_experiment_resources = WEBLAB_EXPERIMENT_RESOURCES % experiment_id.to_weblab_str()
         experiment_types = client.smembers(weblab_experiment_resources)
@@ -127,7 +128,7 @@ class ResourcesManager(object):
         experiment_id = experiment_instance_id.to_experiment_id()
         weblab_experiment_instance = WEBLAB_EXPERIMENT_INSTANCE % (experiment_id.to_weblab_str(), experiment_instance_id.inst_name)
 
-        client = self._client_creator()
+        client = self._redis_maker()
         resource_instance = client.hget(weblab_experiment_instance, RESOURCE_INST)
         if resource_instance is None:
                 raise CoordExc.ExperimentNotFoundError("Experiment not found: %s" % experiment_instance_id)
@@ -165,7 +166,7 @@ class ResourcesManager(object):
 
     @typecheck(ExperimentInstanceId)
     def remove_resource_instance_id(self, experiment_instance_id):
-        client = self._client_creator()
+        client = self._redis_maker()
 
         experiment_id_str = experiment_instance_id.to_experiment_id().to_weblab_str()
         weblab_experiment_instances = WEBLAB_EXPERIMENT_INSTANCES % experiment_id_str
@@ -182,7 +183,7 @@ class ResourcesManager(object):
 
     @typecheck(Resource)
     def remove_resource_instance(self, resource):
-        client = self._client_creator()
+        client = self._redis_maker()
 
         weblab_resource = WEBLAB_RESOURCE % resource.resource_type
         if client.srem(weblab_resource, resource.resource_instance):
@@ -195,11 +196,11 @@ class ResourcesManager(object):
                 self.remove_resource_instance_id(experiment_instance_id)
 
     def list_resources(self):
-        client = self._client_creator()
+        client = self._redis_maker()
         return list(client.smembers(WEBLAB_RESOURCES))
 
     def list_resource_instances(self):
-        client = self._client_creator()
+        client = self._redis_maker()
         resource_instances = []
         for resource_type in client.smembers(WEBLAB_RESOURCES):
             for resource_instance in client.smembers(WEBLAB_RESOURCE % resource_type):
@@ -208,12 +209,12 @@ class ResourcesManager(object):
         return resource_instances
 
     def list_experiments(self):
-        client = self._client_creator()
+        client = self._redis_maker()
         return [ ExperimentId.parse(exp_type) for exp_type in client.smembers(WEBLAB_EXPERIMENT_TYPES) ]
 
     @typecheck(ExperimentId)
     def list_experiment_instances_by_type(self, experiment_id):
-        client = self._client_creator()
+        client = self._redis_maker()
         weblab_experiment_instances = WEBLAB_EXPERIMENT_INSTANCES % experiment_id.to_weblab_str()
         return [ 
             ExperimentInstanceId(inst, experiment_id.exp_name, experiment_id.cat_name)
@@ -221,7 +222,7 @@ class ResourcesManager(object):
 
     @typecheck(basestring)
     def list_experiment_instance_ids_by_resource_type(self, resource_type):
-        client = self._client_creator()
+        client = self._redis_maker()
 
         experiment_instance_ids = []
 
@@ -237,7 +238,7 @@ class ResourcesManager(object):
 
     @typecheck(Resource)
     def list_experiment_instance_ids_by_resource(self, resource):
-        client = self._client_creator()
+        client = self._redis_maker()
 
         experiment_instance_ids = []
 
@@ -250,7 +251,7 @@ class ResourcesManager(object):
         return experiment_instance_ids
 
     def list_laboratories_addresses(self):
-        client = self._client_creator()
+        client = self._redis_maker()
 
         laboratory_addresses = {
             # laboratory_coord_address : {
@@ -275,7 +276,7 @@ class ResourcesManager(object):
 
     @typecheck(basestring, ExperimentId, basestring)
     def associate_scheduler_to_reservation(self, reservation_id, experiment_id, resource_type_name):
-        client = self._client_creator()
+        client = self._redis_maker()
 
         reservations_active_schedulers = WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS % reservation_id
 
@@ -283,7 +284,7 @@ class ResourcesManager(object):
         client.sadd(reservations_active_schedulers, serialized)
 
     def dissociate_scheduler_from_reservation(self, reservation_id, experiment_id, resource_type_name):
-        client = self._client_creator()
+        client = self._redis_maker()
 
         reservations_active_schedulers = WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS % reservation_id
         serialized = json.dumps({ EXPERIMENT_TYPE : experiment_id.to_weblab_str(), RESOURCE_TYPE : resource_type_name })
@@ -291,12 +292,12 @@ class ResourcesManager(object):
         client.srem(reservations_active_schedulers, serialized)
 
     def clean_associations_for_reservation(self, reservation_id, experiment_id):
-        client = self._client_creator()
+        client = self._redis_maker()
         reservations_active_schedulers = WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS % reservation_id
         client.delete(reservations_active_schedulers)
 
     def retrieve_schedulers_per_reservation(self, reservation_id, experiment_id):
-        client = self._client_creator()
+        client = self._redis_maker()
 
         reservations_active_schedulers = WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS % reservation_id
         
@@ -310,12 +311,15 @@ class ResourcesManager(object):
         return resource_type_names
 
     def _clean(self):
-        client = self._client_creator()
+        client = self._redis_maker()
         for element in client.smembers(WEBLAB_RESOURCES):
             for instance in client.smembers(WEBLAB_RESOURCE % element):
                 client.delete(WEBLAB_RESOURCE_INSTANCE_EXPERIMENTS % (element, instance))
             client.delete(WEBLAB_RESOURCE % element)
             client.delete(WEBLAB_RESOURCE_EXPERIMENTS % element)
+            client.delete(WEBLAB_RESOURCE_RESERVATIONS % element)
+        for element in client.keys(WEBLAB_RESOURCE_RESERVATIONS % '*'):
+            client.delete(element)
         client.delete(WEBLAB_RESOURCES)
 
         for element in client.smembers(WEBLAB_EXPERIMENT_TYPES):

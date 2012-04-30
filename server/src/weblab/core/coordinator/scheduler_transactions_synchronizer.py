@@ -21,7 +21,7 @@ import threading
 import voodoo.log as log
 import voodoo.resources_manager as ResourceManager
 import voodoo.counter as counter
-
+from voodoo.resources_manager import is_testing
 
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessingServer")
 
@@ -71,9 +71,12 @@ class SchedulerTransactionsSynchronizer(threading.Thread):
         self.stop()
 
     def run(self):
+        timeout = 0.2
+        if is_testing():
+            timeout = 0.01
         while not self.stopped:
             try:
-                element = self.queue.get(timeout=0.2)
+                element = self.queue.get(timeout=timeout)
             except Queue.Empty:
                 continue
 

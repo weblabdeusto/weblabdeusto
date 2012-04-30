@@ -42,6 +42,19 @@ import json
 
 EXPIRATION_TIME  = 3600 # seconds
 
+WEBLAB_RESERVATION_PQUEUE         = 'weblab:reservations:%s:pqueue'
+WEBLAB_RESERVATION_PQUEUE_WAITING = 'weblab:reservations:%s:pqueue:waiting_resources'
+WEBLAB_RESOURCE_RESERVATIONS      = 'weblab:resources:%s:reservations'
+
+START_TIME                   = 'start_time'
+TIME                         = 'time'
+INITIALIZATION_IN_ACCOUNTING = 'initialization_in_accounting'
+PRIORITY                     = 'priority'
+TIMESTAMP_BEFORE             = 'timestamp_before'
+TIMESTAMP_AFTER              = 'timestamp_after'
+LAB_SESSION_ID               = 'lab_session_id'
+INITIAL_CONFIGURATION        = 'initial_configuration'
+
 ###########################################################
 #
 # TODO write some documentation
@@ -596,20 +609,9 @@ class PriorityQueueScheduler(Scheduler):
     #
     @Override(Scheduler)
     def _clean(self):
-        session = self.session_maker()
+        client = self.redis_maker()
 
-        try:
-            for waiting_reservation in session.query(WaitingReservation).all():
-                session.delete(waiting_reservation)
-            for concrete_current_reservation in session.query(ConcreteCurrentReservation).all():
-                session.delete(concrete_current_reservation)
-            for current_resource_slot in session.query(CurrentResourceSlot).all():
-                session.delete(current_resource_slot)
-
-            session.commit()
-        except sqlalchemy.exceptions.ConcurrentModificationError:
-            pass # Another process is cleaning concurrently
-        finally:
-            session.close()
-
+        for reservation_id in self.reservations_manager.list_all_reservations():
+            client.delete(WEBLAB_RESERVATION_PQUEUE % reservation_id)
+            client.delete(WEBLAB_RESERVATION_PQUEUE_WAITING % reservation_id)
 

@@ -13,32 +13,75 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-from weblab.core.coordinator.sql.model import Reservation, CurrentReservation, ExperimentType, PendingToFinishReservation
-import weblab.core.coordinator.exc as CoordExc
-
-from sqlalchemy.exc import IntegrityError, OperationalError, ConcurrentModificationError
-
+import time
+import uuid
 import json
+import datetime
+
+from weblab.data.experiments import ExperimentId
+import weblab.core.coordinator.exc as CoordExc
+from voodoo.typechecker import typecheck
+
+WEBLAB_RESERVATIONS          = 'weblab:reservations'
+WEBLAB_RESERVATION           = 'weblab:reservation:%s'
+WEBLAB_RESOURCE_RESERVATIONS = 'weblab:resources:%s:reservations'
+
+WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS = 'weblab:reservations:%s:active_schedulers'
+
+LATEST_ACCESS       = 'latest_access'
+CLIENT_INITIAL_DATA = 'client_initial_data'
+SERVER_INITIAL_DATA = 'server_initial_data'
+REQUEST_INFO        = 'request_info'
+EXPERIMENT_TYPE     = 'experiment_type'
 
 class ReservationsManager(object):
-    def __init__(self, session_maker):
-        self._session_maker = session_maker
+    def __init__(self, redis_maker):
+        self._redis_maker = redis_maker
 
     def _clean(self):
-        session = self._session_maker()
-        try:
-            for current_reservation in session.query(CurrentReservation).all():
-                session.delete(current_reservation)
-            for reservation in session.query(Reservation).all():
-                session.delete(reservation)
-            session.commit()
-        finally:
-            session.close()
+        client = self._redis_maker()
 
-    def create(self, experiment_type, client_initial_data, request_info, now = None):
+        for reservation_id in client.smembers(WEBLAB_RESERVATIONS):
+            client.delete(WEBLAB_RESERVATION % reservation_id)
+            client.delete(WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS % reservation_id)
+
+        client.delete(WEBLAB_RESERVATIONS)
+
+    def list_all_reservations(self):
+        client = self._redis_maker()
+        return client.smembers(WEBLAB_RESERVATIONS)
+
+    @typecheck(ExperimentId, basestring, basestring, (type(None), datetime.datetime))
+    def create(self, experiment_id, client_initial_data, request_info, now = None):
+        client = self._redis_maker()
         serialized_client_initial_data = json.dumps(client_initial_data)
         server_initial_data = "{}"
-        return Reservation.create(self._session_maker, experiment_type, serialized_client_initial_data, server_initial_data, request_info, now)
+
+        if now is None:
+            now = datetime.datetime.utcnow()
+        now_timestamp = time.mktime(now.timetuple()) + now.microsecond / 10e6
+
+        MAX_TRIES = 10
+        for _ in xrange(MAX_TRIES):
+            reservation_id = str(uuid.uuid4())
+
+            value = client.sadd(WEBLAB_RESERVATIONS, reservation_id)
+            if value == 0:
+                continue
+
+            weblab_reservation = WEBLAB_RESERVATION % reservation_id
+            client.hset(weblab_reservation, LATEST_ACCESS, now_timestamp)
+            client.hset(weblab_reservation, REQUEST_INFO, request_info)
+            client.hset(weblab_reservation, SERVER_INITIAL_DATA, server_initial_data)
+            client.hset(weblab_reservation, CLIENT_INITIAL_DATA, serialized_client_initial_data)
+            client.hset(weblab_reservation, EXPERIMENT_TYPE, experiment_id.to_weblab_str())
+
+            weblab_resource_reservations = WEBLAB_RESOURCE_RESERVATIONS % experiment_id.to_weblab_str()
+            client.sadd(weblab_resource_reservations, reservation_id)
+            return reservation_id
+
+        raise Exception("Couldn't create a session after %s tries" % MAX_TRIES)
+
 
     def check(self, session, reservation_id):
         reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
@@ -90,22 +133,10 @@ class ReservationsManager(object):
 
     def list_sessions(self, experiment_id ):
         """ list_sessions( experiment_id ) -> [ session_id ] """
-        session = self._session_maker()
-        try:
-            experiment_type = session.query(ExperimentType).filter_by(exp_name = experiment_id.exp_name, cat_name = experiment_id.cat_name).first()
-            if experiment_type is None:
-                raise CoordExc.ExperimentNotFoundError("Experiment %s not found" % experiment_id)
-
-            reservation_ids = []
-
-            for reservation in experiment_type.reservations:
-                reservation_ids.append(reservation.id)
-
-        finally:
-            session.close()
-
-        return reservation_ids
-
+        client = self._redis_maker()
+        weblab_resource_reservations = WEBLAB_RESOURCE_RESERVATIONS % experiment_id.to_weblab_str()
+        return list(client.smembers(weblab_resource_reservations))
+        
     def initialize_deletion(self, reservation_id):
         session = self._session_maker()
         try:

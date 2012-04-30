@@ -13,6 +13,8 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import redis
+
 from voodoo.typechecker import typecheck, ITERATION
 from voodoo.log import logged
 import voodoo.log as log
@@ -45,28 +47,30 @@ class Coordinator(AbstractCoordinator):
     AGGREGATOR = IndependentSchedulerAggregator
 
     def __init__(self, locator, cfg_manager, ConfirmerClass = None):
-        super(Coordinator, self).__init__(locator, cfg_manager, ConfirmerClass)
+        connection_kwargs = {}
+        # TODO
+        # if db is not None: 
+        #    connection_kwargs['db']       = db
+        #if password is not None:
+        #    connection_kwargs['password'] = password
+        #if port is not None:
+        #    connection_kwargs['port']     = port
+        self.pool = redis.ConnectionPool(**connection_kwargs)
+        self._redis_maker = lambda : redis.Redis(connection_pool = self.pool)
+
+        super(Coordinator, self).__init__(self._redis_maker, locator, cfg_manager, ConfirmerClass)
 
 
     def _initial_clean(self, coordination_configuration_parser):
-        session = self._session_maker()
-        try:
-            external_servers_config = coordination_configuration_parser.parse_external_servers()
-            for external_server_str in external_servers_config:
-                for resource_type_name in external_servers_config[external_server_str]:
-                    self.resources_manager.add_experiment_id(session, ExperimentId.parse(external_server_str), resource_type_name)
-
-            session.commit()
-        finally:
-            session.close()
+        external_servers_config = coordination_configuration_parser.parse_external_servers()
+        for external_server_str in external_servers_config:
+            for resource_type_name in external_servers_config[external_server_str]:
+                self.resources_manager.add_experiment_id(ExperimentId.parse(external_server_str), resource_type_name)
 
     def _initialize_managers(self):
-        coordination_database_manager = CoordinationDatabaseManager.CoordinationDatabaseManager(self.cfg_manager)
-        self._session_maker = coordination_database_manager.session_maker
-
-        self.reservations_manager          = ReservationsManager.ReservationsManager(self._session_maker)
-        self.resources_manager             = ResourcesManager.ResourcesManager(self._session_maker)
-        self.post_reservation_data_manager = PostReservationDataManager.PostReservationDataManager(self._session_maker, self.time_provider)
+        self.reservations_manager          = ReservationsManager.ReservationsManager(self._redis_maker)
+        self.resources_manager             = ResourcesManager.ResourcesManager(self._redis_maker)
+        self.post_reservation_data_manager = PostReservationDataManager.PostReservationDataManager(self._redis_maker, self.time_provider)
 
     @typecheck(Resource, ITERATION(basestring))
     @logged()
