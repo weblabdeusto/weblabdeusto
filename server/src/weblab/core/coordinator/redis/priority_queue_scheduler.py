@@ -16,15 +16,10 @@
 import time
 import datetime
 import random
+import json
 
 from voodoo.log import logged
 import voodoo.log as log
-
-import sqlalchemy
-from sqlalchemy import not_
-from sqlalchemy.orm import join
-from sqlalchemy.orm.exc import StaleDataError
-from sqlalchemy.exc import IntegrityError, OperationalError, ConcurrentModificationError
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.sessions.session_id as SessionId
@@ -32,28 +27,26 @@ from voodoo.override import Override
 
 from weblab.core.coordinator.scheduler_transactions_synchronizer import SchedulerTransactionsSynchronizer
 from weblab.core.coordinator.scheduler import Scheduler
-from weblab.core.coordinator.sql.model import ResourceType, ResourceInstance, CurrentResourceSlot
-from weblab.core.coordinator.sql.priority_queue_scheduler_model import ConcreteCurrentReservation, WaitingReservation
 import weblab.core.coordinator.status as WSS
 
 from weblab.data.experiments import ExperimentInstanceId
 
-import json
+from weblab.core.coordinator.redis.constants import (
+    WEBLAB_RESERVATION_PQUEUE,
+    WEBLAB_RESERVATION_PQUEUE_WAITING,
+    WEBLAB_RESOURCE_RESERVATIONS,
+
+    START_TIME,
+    TIME,
+    INITIALIZATION_IN_ACCOUNTING,
+    PRIORITY,
+    TIMESTAMP_BEFORE,
+    TIMESTAMP_AFTER,
+    LAB_SESSION_ID,
+    INITIAL_CONFIGURATION,
+)
 
 EXPIRATION_TIME  = 3600 # seconds
-
-WEBLAB_RESERVATION_PQUEUE         = 'weblab:reservations:%s:pqueue'
-WEBLAB_RESERVATION_PQUEUE_WAITING = 'weblab:reservations:%s:pqueue:waiting_resources'
-WEBLAB_RESOURCE_RESERVATIONS      = 'weblab:resources:%s:reservations'
-
-START_TIME                   = 'start_time'
-TIME                         = 'time'
-INITIALIZATION_IN_ACCOUNTING = 'initialization_in_accounting'
-PRIORITY                     = 'priority'
-TIMESTAMP_BEFORE             = 'timestamp_before'
-TIMESTAMP_AFTER              = 'timestamp_after'
-LAB_SESSION_ID               = 'lab_session_id'
-INITIAL_CONFIGURATION        = 'initial_configuration'
 
 ###########################################################
 #
@@ -63,19 +56,7 @@ INITIAL_CONFIGURATION        = 'initial_configuration'
 def exc_checker(func):
     def wrapper(*args, **kwargs):
         try:
-            for _ in xrange(10):
-                try:
-                    return func(*args, **kwargs)
-                except OperationalError as oe:
-                    # XXX MySQL dependent!!!
-                    if oe.orig.args[0] == 1213:
-                        log.log(
-                            PriorityQueueScheduler, log.level.Error,
-                            "Deadlock found, restarting...%s" % func.__name__ )
-                        log.log_exc(PriorityQueueScheduler, log.level.Warning)
-                        continue
-                    else:
-                        raise
+            return func(*args, **kwargs)
         except:
             log.log(
                 PriorityQueueScheduler, log.level.Error,
@@ -136,16 +117,23 @@ class PriorityQueueScheduler(Scheduler):
         """
         priority: the less, the more priority
         """
-        session = self.session_maker()
-        try:
-            resource_type = session.query(ResourceType).filter_by(name = self.resource_type_name).one()
-            waiting_reservation = WaitingReservation(resource_type, reservation_id, time, priority, initialization_in_accounting)
-            session.add(waiting_reservation)
+        client = self.redis_maker()
 
-            session.commit()
-        finally:
-            session.close()
+        weblab_reservation_pqueue_waiting = WEBLAB_RESERVATION_PQUEUE_WAITING % reservation_id
+        weblab_reservation_pqueue         = WEBLAB_RESERVATION_PQUEUE % reservation_id
+        weblab_resource_reservations      = WEBLAB_RESOURCE_RESERVATIONS % self.resource_type_name
+    
+        pipeline = client.pipeline()
+
+        pipeline.sadd(weblab_reservation_pqueue_waiting, self.resource_type_name)
+        pipeline.sadd(weblab_resource_reservations,      reservation_id)
+
+        pipeline.hset(weblab_reservation_pqueue, TIME, time)
+        pipeline.hset(weblab_reservation_pqueue, INITIALIZATION_IN_ACCOUNTING, initialization_in_accounting)
+        pipeline.hset(weblab_reservation_pqueue, PRIORITY, priority)
         
+        pipeline.execute()
+
         return self.get_reservation_status(reservation_id)
 
 
@@ -552,56 +540,56 @@ class PriorityQueueScheduler(Scheduler):
     # Remove all reservations whose session has expired
     #
     def _remove_expired_reservations(self):
-        session = self.session_maker()
-        try:
-            now = self.time_provider.get_time()
-            current_expiration_time = datetime.datetime.utcfromtimestamp(now - EXPIRATION_TIME)
+        now = self.time_provider.get_time()
+        current_expiration_time = datetime.datetime.utcfromtimestamp(now - EXPIRATION_TIME)
 
-            reservations_removed = False
-            enqueue_free_experiment_args_retrieved = []
-            with_initialization = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.initialization_in_accounting == True).filter(ConcreteCurrentReservation.timestamp_before.op('+')(ConcreteCurrentReservation.time) < self.time_provider.get_time())
-            without_initialization = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.initialization_in_accounting == False).filter(ConcreteCurrentReservation.timestamp_after.op('+')(ConcreteCurrentReservation.time) < self.time_provider.get_time())
+        reservations_removed = False
+        enqueue_free_experiment_args_retrieved = []
 
-            for expired_concrete_current_reservation in with_initialization.union(without_initialization).all():
-                expired_reservation = expired_concrete_current_reservation.current_reservation_id
-                if expired_reservation is None:
-                    continue # Maybe it's not an expired_reservation anymore
-                enqueue_free_experiment_args = self._clean_current_reservation(session, expired_concrete_current_reservation)
+        # TODO: we need to know what keys are for the current resource_type
+        client.smembers(weblab_reservation_pqueue)
+
+        with_initialization = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.initialization_in_accounting == True).filter(ConcreteCurrentReservation.timestamp_before.op('+')(ConcreteCurrentReservation.time) < self.time_provider.get_time())
+        without_initialization = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.initialization_in_accounting == False).filter(ConcreteCurrentReservation.timestamp_after.op('+')(ConcreteCurrentReservation.time) < self.time_provider.get_time())
+
+        for expired_concrete_current_reservation in with_initialization.union(without_initialization).all():
+            expired_reservation = expired_concrete_current_reservation.current_reservation_id
+            if expired_reservation is None:
+                continue # Maybe it's not an expired_reservation anymore
+            enqueue_free_experiment_args = self._clean_current_reservation(session, expired_concrete_current_reservation)
+            enqueue_free_experiment_args_retrieved.append(enqueue_free_experiment_args)
+            session.delete(expired_concrete_current_reservation)
+            self.reservations_manager.delete(session, expired_reservation)
+            reservations_removed = True
+
+        for expired_reservation_id in self.reservations_manager.list_expired_reservations(session, current_expiration_time):
+            concrete_current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == expired_reservation_id).first()
+            if concrete_current_reservation is not None:
+                enqueue_free_experiment_args = self._clean_current_reservation(session, concrete_current_reservation)
                 enqueue_free_experiment_args_retrieved.append(enqueue_free_experiment_args)
-                session.delete(expired_concrete_current_reservation)
-                self.reservations_manager.delete(session, expired_reservation)
-                reservations_removed = True
+                session.delete(concrete_current_reservation)
+            waiting_reservation = session.query(WaitingReservation).filter(WaitingReservation.reservation_id == expired_reservation_id).first()
+            if waiting_reservation is not None:
+                session.delete(waiting_reservation)
 
-            for expired_reservation_id in self.reservations_manager.list_expired_reservations(session, current_expiration_time):
-                concrete_current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == expired_reservation_id).first()
-                if concrete_current_reservation is not None:
-                    enqueue_free_experiment_args = self._clean_current_reservation(session, concrete_current_reservation)
-                    enqueue_free_experiment_args_retrieved.append(enqueue_free_experiment_args)
-                    session.delete(concrete_current_reservation)
-                waiting_reservation = session.query(WaitingReservation).filter(WaitingReservation.reservation_id == expired_reservation_id).first()
-                if waiting_reservation is not None:
-                    session.delete(waiting_reservation)
+            self.reservations_manager.delete(session, expired_reservation_id)
+            reservations_removed = True
 
-                self.reservations_manager.delete(session, expired_reservation_id)
-                reservations_removed = True
-
-            if reservations_removed:
-                try:
-                    session.commit()
-                except sqlalchemy.exceptions.ConcurrentModificationError as e:
-                    log.log(
-                        PriorityQueueScheduler, log.level.Warning,
-                        "IntegrityError: %s" % e )
-                    log.log_exc(PriorityQueueScheduler, log.level.Info)
-                    pass # Someone else removed these users before us.
-                else:
-                    for enqueue_free_experiment_args in enqueue_free_experiment_args_retrieved:
-                        if enqueue_free_experiment_args is not None:
-                            self.confirmer.enqueue_free_experiment(*enqueue_free_experiment_args)
+        if reservations_removed:
+            try:
+                session.commit()
+            except sqlalchemy.exceptions.ConcurrentModificationError as e:
+                log.log(
+                    PriorityQueueScheduler, log.level.Warning,
+                    "IntegrityError: %s" % e )
+                log.log_exc(PriorityQueueScheduler, log.level.Info)
+                pass # Someone else removed these users before us.
             else:
-                session.rollback()
-        finally:
-            session.close()
+                for enqueue_free_experiment_args in enqueue_free_experiment_args_retrieved:
+                    if enqueue_free_experiment_args is not None:
+                        self.confirmer.enqueue_free_experiment(*enqueue_free_experiment_args)
+        else:
+            session.rollback()
 
     ##############################################################
     #

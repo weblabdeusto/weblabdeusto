@@ -22,17 +22,21 @@ from weblab.data.experiments import ExperimentId
 import weblab.core.coordinator.exc as CoordExc
 from voodoo.typechecker import typecheck
 
-WEBLAB_RESERVATIONS          = 'weblab:reservations'
-WEBLAB_RESERVATION           = 'weblab:reservation:%s'
-WEBLAB_RESOURCE_RESERVATIONS = 'weblab:resources:%s:reservations'
+from weblab.core.coordinator.redis.constants import (
+    WEBLAB_RESERVATIONS,
+    WEBLAB_RESERVATION,
 
-WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS = 'weblab:reservations:%s:active_schedulers'
+    WEBLAB_RESOURCE_RESERVATIONS,
+    WEBLAB_EXPERIMENT_TYPES,
 
-LATEST_ACCESS       = 'latest_access'
-CLIENT_INITIAL_DATA = 'client_initial_data'
-SERVER_INITIAL_DATA = 'server_initial_data'
-REQUEST_INFO        = 'request_info'
-EXPERIMENT_TYPE     = 'experiment_type'
+    WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS,
+
+    LATEST_ACCESS,
+    CLIENT_INITIAL_DATA,
+    SERVER_INITIAL_DATA,
+    REQUEST_INFO,
+    EXPERIMENT_TYPE,
+)
 
 class ReservationsManager(object):
     def __init__(self, redis_maker):
@@ -51,15 +55,17 @@ class ReservationsManager(object):
         client = self._redis_maker()
         return client.smembers(WEBLAB_RESERVATIONS)
 
-    @typecheck(ExperimentId, basestring, basestring, (type(None), datetime.datetime))
+    @typecheck(ExperimentId, basestring, basestring, typecheck.ANY)
     def create(self, experiment_id, client_initial_data, request_info, now = None):
         client = self._redis_maker()
         serialized_client_initial_data = json.dumps(client_initial_data)
         server_initial_data = "{}"
 
         if now is None:
-            now = datetime.datetime.utcnow()
-        now_timestamp = time.mktime(now.timetuple()) + now.microsecond / 10e6
+            now = datetime.datetime.utcnow
+        
+        current_moment = now()
+        now_timestamp = time.mktime(current_moment.timetuple()) + current_moment.microsecond / 10e6
 
         MAX_TRIES = 10
         for _ in xrange(MAX_TRIES):
@@ -134,6 +140,10 @@ class ReservationsManager(object):
     def list_sessions(self, experiment_id ):
         """ list_sessions( experiment_id ) -> [ session_id ] """
         client = self._redis_maker()
+
+        if not client.sismember(WEBLAB_EXPERIMENT_TYPES, experiment_id.to_weblab_str()):
+            raise CoordExc.ExperimentNotFoundError("Experiment %s not found" % experiment_id)
+
         weblab_resource_reservations = WEBLAB_RESOURCE_RESERVATIONS % experiment_id.to_weblab_str()
         return list(client.smembers(weblab_resource_reservations))
         

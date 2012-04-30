@@ -47,6 +47,15 @@ class ReservationsManagerTestCase(unittest.TestCase):
         self.coordinator.stop()
         self.coordinator._clean()
 
+    def test_list_sessions_not_existing(self):
+        exp_id = ExperimentId("exp.that.doesnt.exist","cat1")
+
+        self.assertRaises(
+            CoordExc.ExperimentNotFoundError,
+            self.reservations_manager.list_sessions,
+            exp_id
+        )
+
     def test_list_sessions(self):
         exp_id1 = ExperimentId("exp1","cat1")
         exp_id2 = ExperimentId("exp2","cat1")

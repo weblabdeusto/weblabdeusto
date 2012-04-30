@@ -22,24 +22,24 @@ import weblab.core.coordinator.exc as CoordExc
 
 from voodoo.typechecker import typecheck
 
+from weblab.core.coordinator.redis.constants import (
+    WEBLAB_EXPERIMENT_TYPES,
+    WEBLAB_EXPERIMENT_RESOURCES,
+    WEBLAB_EXPERIMENT_INSTANCES,
+    WEBLAB_EXPERIMENT_INSTANCE,
 
-WEBLAB_EXPERIMENT_TYPES              = "weblab:experiment_types"
-WEBLAB_EXPERIMENT_RESOURCES          = "weblab:experiment_types:%s:resource_types"
-WEBLAB_EXPERIMENT_INSTANCES          = "weblab:experiment_types:%s:instances"
-WEBLAB_EXPERIMENT_INSTANCE           = "weblab:experiment_types:%s:instances:%s"
+    WEBLAB_RESOURCES,
+    WEBLAB_RESOURCE,
+    WEBLAB_RESOURCE_EXPERIMENTS,
+    WEBLAB_RESOURCE_RESERVATIONS,
+    WEBLAB_RESOURCE_INSTANCE_EXPERIMENTS,
+    WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS,
 
-WEBLAB_RESOURCES                     = "weblab:resources"
-WEBLAB_RESOURCE                      = "weblab:resources:%s"
-WEBLAB_RESOURCE_EXPERIMENTS          = "weblab:resources:%s:experiment_types"
-WEBLAB_RESOURCE_RESERVATIONS         = 'weblab:resources:%s:reservations'
-WEBLAB_RESOURCE_INSTANCE_EXPERIMENTS = "weblab:resources:%s:%s:experiment_instances"
-
-WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS = "weblab:reservations:%s:active_schedulers"
-
-LAB_COORD       = "laboratory_coord_address"
-RESOURCE_INST   = "resource_instance"
-EXPERIMENT_TYPE = "experiment_type"
-RESOURCE_TYPE   = "resource_type"
+    LAB_COORD,
+    RESOURCE_INST,
+    EXPERIMENT_TYPE,
+    RESOURCE_TYPE
+)
 
 class ResourcesManager(object):
     def __init__(self, redis_maker):
