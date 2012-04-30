@@ -14,7 +14,7 @@
 #
 
 import voodoo.gen.coordinator.AccessLevel as AccessLevel
-import voodoo.gen.protocols.UnixSocket.Address as Address
+import voodoo.gen.protocols.UnixSocket.address as Address
 import voodoo.gen.exceptions.loader.LoaderErrors as LoaderErrors
 
 # TODO: test me

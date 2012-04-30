@@ -52,7 +52,7 @@ class Address(cAddress.Address):
         self._address = server_id + ':' + instance_id + '@' + machine_id
 
     def __repr__(self):
-        return "<Direct.Address %s>" % self._address
+        return "<Direct.address %s>" % self._address
 
     @property
     def machine_id(self):

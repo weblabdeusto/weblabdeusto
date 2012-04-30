@@ -16,7 +16,7 @@ import unittest
 
 from test.util.module_disposer import uses_module
 
-import voodoo.gen.protocols.XMLRPC.Address as XMLRPCAddress
+import voodoo.gen.protocols.XMLRPC.address as XMLRPCAddress
 import voodoo.gen.protocols.XMLRPC.server as ServerXMLRPC
 
 import voodoo.gen.generators.ServerSkel as ServerSkel

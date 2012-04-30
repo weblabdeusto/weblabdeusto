@@ -22,7 +22,7 @@ import voodoo.gen.loader.CoordinatorMapBuilder as CoordinatorMapBuilder
 
 import voodoo.gen.protocols.protocols as Protocols
 import voodoo.gen.protocols.Direct.network as DirectNetwork
-import voodoo.gen.protocols.Direct.Address as DirectAddress
+import voodoo.gen.protocols.Direct.address as DirectAddress
 
 import voodoo.gen.generators.ServerSkel as ServerSkel
 

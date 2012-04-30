@@ -33,9 +33,9 @@ import voodoo.gen.exceptions.coordinator.CoordinatorServerErrors as CoordinatorS
 
 import voodoo.gen.protocols.protocols as Protocols
 import voodoo.gen.protocols.Direct.network as DirectNetwork
-import voodoo.gen.protocols.Direct.Address as DirectAddress
+import voodoo.gen.protocols.Direct.address as DirectAddress
 import voodoo.gen.protocols.SOAP.network as SOAPNetwork
-import voodoo.gen.protocols.SOAP.Address as SOAPAddress
+import voodoo.gen.protocols.SOAP.address as SOAPAddress
 
 def create_coordinator_map():
     map = CoordInfo.CoordinationMap()
