@@ -23,6 +23,7 @@ import weblab.core.coordinator.exc as CoordExc
 from voodoo.typechecker import typecheck
 
 from weblab.core.coordinator.redis.constants import (
+    WEBLAB_RESERVATIONS_LOCK,
     WEBLAB_RESERVATIONS,
     WEBLAB_RESERVATION,
 
@@ -49,6 +50,7 @@ class ReservationsManager(object):
             client.delete(WEBLAB_RESERVATION % reservation_id)
             client.delete(WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS % reservation_id)
 
+        client.delete(WEBLAB_RESERVATIONS_LOCK)
         client.delete(WEBLAB_RESERVATIONS)
 
     def list_all_reservations(self):
@@ -113,12 +115,18 @@ class ReservationsManager(object):
         finally:
             session.close()
 
-    def update(self, session, reservation_id):
-        reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
-        if reservation is None:
-            raise CoordExc.ExpiredSessionError("Expired reservation")
+    def update(self, reservation_id):
+        client = self._redis_maker()
 
-        reservation.update()
+        current_moment = datetime.datetime.utcnow()
+        now_timestamp = time.mktime(current_moment.timetuple()) + current_moment.microsecond / 10e6
+
+        weblab_reservation = WEBLAB_RESERVATION % reservation_id
+
+        return_value = client.hset(weblab_reservation, LATEST_ACCESS, now_timestamp)
+        if return_value == 1:
+            client.hdel(weblab_reservation, LATEST_ACCESS)
+            raise CoordExc.ExpiredSessionError("Expired reservation")
 
     def confirm(self, session, reservation_id):
         reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
@@ -134,8 +142,36 @@ class ReservationsManager(object):
             return # Already downgraded
         session.delete(current_reservation)
 
-    def list_expired_reservations(self, session, expiration_time):
-        return ( expired_reservation.id for expired_reservation in session.query(Reservation).filter(Reservation.latest_access < expiration_time).all() )
+    def list_expired_reservations(self, expiration_time):
+        expiration_timestamp = time.mktime(expiration_time.timetuple()) + expiration_time.microsecond / 10e6
+        client = self._redis_maker()
+        
+        # This is not a problem in SQL, since we say "retrieve only those that have expired"
+        # However, I simply don't know how to say that in redis, even using expire or expireat. 
+        # The only way I can think of is to check the whole table of reservations. So we have
+        # established a mechanism based on expiration to avoid performing this more than once per
+        # second
+
+        acquired = client.hset(WEBLAB_RESERVATIONS_LOCK, "locked", 1)
+        if not acquired:
+            return []
+
+        client.expire(WEBLAB_RESERVATIONS_LOCK, 1) # Every second
+
+        reservation_ids = client.smembers(WEBLAB_RESERVATIONS)
+        
+        pipeline = client.pipeline()
+
+        for reservation_id in reservation_ids:
+            weblab_reservation = WEBLAB_RESERVATION % reservation_id
+            pipeline.hget(weblab_reservation, LATEST_ACCESS)
+
+        expired_reservation_ids = []
+        for reservation_id, latest_access in zip(reservation_ids, pipeline.execute()):
+            if latest_access is not None and latest_access < expiration_timestamp:
+                expired_reservation_ids.append(reservation_id)
+
+        return expired_reservation_ids
 
     def list_sessions(self, experiment_id ):
         """ list_sessions( experiment_id ) -> [ session_id ] """

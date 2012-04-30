@@ -32,9 +32,11 @@ import weblab.core.coordinator.status as WSS
 from weblab.data.experiments import ExperimentInstanceId
 
 from weblab.core.coordinator.redis.constants import (
+    WEBLAB_RESERVATIONS,
     WEBLAB_RESERVATION_PQUEUE,
     WEBLAB_RESERVATION_PQUEUE_WAITING,
     WEBLAB_RESOURCE_RESERVATIONS,
+    WEBLAB_RESOURCE_PQUEUE_RESERVATIONS,
 
     START_TIME,
     TIME,
@@ -122,11 +124,13 @@ class PriorityQueueScheduler(Scheduler):
         weblab_reservation_pqueue_waiting = WEBLAB_RESERVATION_PQUEUE_WAITING % reservation_id
         weblab_reservation_pqueue         = WEBLAB_RESERVATION_PQUEUE % reservation_id
         weblab_resource_reservations      = WEBLAB_RESOURCE_RESERVATIONS % self.resource_type_name
+        weblab_resource_pqueue_reservations = WEBLAB_RESOURCE_PQUEUE_RESERVATIONS % self.resource_type_name
     
         pipeline = client.pipeline()
 
-        pipeline.sadd(weblab_reservation_pqueue_waiting, self.resource_type_name)
-        pipeline.sadd(weblab_resource_reservations,      reservation_id)
+        pipeline.sadd(weblab_reservation_pqueue_waiting,   self.resource_type_name)
+        pipeline.sadd(weblab_resource_reservations,        reservation_id)
+        pipeline.sadd(weblab_resource_pqueue_reservations, reservation_id)
 
         pipeline.hset(weblab_reservation_pqueue, TIME, time)
         pipeline.hset(weblab_reservation_pqueue, INITIALIZATION_IN_ACCOUNTING, initialization_in_accounting)
@@ -148,105 +152,92 @@ class PriorityQueueScheduler(Scheduler):
     def get_reservation_status(self, reservation_id):
         self._remove_expired_reservations()
 
-        try:
-            session = self.session_maker()
-            try:
-                self.reservations_manager.update(session, reservation_id)
-                session.commit()
-            finally:
-                session.close()
-        except StaleDataError:
-            time.sleep(TIME_ANTI_RACE_CONDITIONS * random.random())
-            return self.get_reservation_status(reservation_id)
+        self.reservations_manager.update(reservation_id)
 
         self._synchronizer.request_and_wait()
 
         reservation_id_with_route = '%s;%s.%s' % (reservation_id, reservation_id, self.core_server_route)
 
         return_current_status = False
-        session = self.session_maker()
-        try:
-            #
-            # If the current user is actually in a reservation assigned to a
-            # certain laboratory, it may be in a Reserved state or in a
-            # WaitingConfirmation state (meaning that it is still waiting for
-            # a response from the Laboratory).
-            #
-            concrete_current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == reservation_id).first()
-            if concrete_current_reservation is not None:
-                resource_instance     = concrete_current_reservation.slot_reservation.current_resource_slot.resource_instance
-                requested_experiment_instance = None
-                for experiment_instance in resource_instance.experiment_instances:
-                    if experiment_instance.experiment_type == concrete_current_reservation.current_reservation.reservation.experiment_type:
-                        requested_experiment_instance = experiment_instance
-                        break
-                if requested_experiment_instance is None:
-                    raise Exception("Invalid state: there is an resource_instance of the resource_type the user was waiting for which doesn't have any experiment_instance of the experiment_type the user was waiting for")
+        #
+        # If the current user is actually in a reservation assigned to a
+        # certain laboratory, it may be in a Reserved state or in a
+        # WaitingConfirmation state (meaning that it is still waiting for
+        # a response from the Laboratory).
+        #
+        concrete_current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == reservation_id).first()
+        if concrete_current_reservation is not None:
+            resource_instance     = concrete_current_reservation.slot_reservation.current_resource_slot.resource_instance
+            requested_experiment_instance = None
+            for experiment_instance in resource_instance.experiment_instances:
+                if experiment_instance.experiment_type == concrete_current_reservation.current_reservation.reservation.experiment_type:
+                    requested_experiment_instance = experiment_instance
+                    break
+            if requested_experiment_instance is None:
+                raise Exception("Invalid state: there is an resource_instance of the resource_type the user was waiting for which doesn't have any experiment_instance of the experiment_type the user was waiting for")
 
-                str_lab_coord_address        = requested_experiment_instance.laboratory_coord_address
-                lab_coord_address            = CoordAddress.CoordAddress.translate_address(str_lab_coord_address)
-                obtained_time                = concrete_current_reservation.time
-                lab_session_id               = concrete_current_reservation.lab_session_id
-                initial_configuration        = concrete_current_reservation.initial_configuration
-                initialization_in_accounting = concrete_current_reservation.initialization_in_accounting
+            str_lab_coord_address        = requested_experiment_instance.laboratory_coord_address
+            lab_coord_address            = CoordAddress.CoordAddress.translate_address(str_lab_coord_address)
+            obtained_time                = concrete_current_reservation.time
+            lab_session_id               = concrete_current_reservation.lab_session_id
+            initial_configuration        = concrete_current_reservation.initial_configuration
+            initialization_in_accounting = concrete_current_reservation.initialization_in_accounting
 
-                if concrete_current_reservation.timestamp_before is None:
-                    timestamp_before  = None
-                else:
-                    timestamp_before  = datetime.datetime.fromtimestamp(concrete_current_reservation.timestamp_before)
-
-                if concrete_current_reservation.timestamp_after is None:
-                    timestamp_after   = None
-                else:
-                    timestamp_after   = datetime.datetime.fromtimestamp(concrete_current_reservation.timestamp_after)
-
-                if lab_session_id is None:
-                    return WSS.WaitingConfirmationQueueStatus(reservation_id_with_route, self.core_server_url)
-                else:
-                    if initialization_in_accounting:
-                        before = concrete_current_reservation.timestamp_before
-                    else:
-                        before = concrete_current_reservation.timestamp_after
-
-                    if before is not None:
-                        remaining = (before + obtained_time) - self.time_provider.get_time()
-                    else:
-                        remaining = obtained_time
-
-                    return WSS.LocalReservedStatus(reservation_id_with_route, lab_coord_address, SessionId.SessionId(lab_session_id), obtained_time, initial_configuration, timestamp_before, timestamp_after, initialization_in_accounting, remaining, self.core_server_url)
-
-            resource_type = session.query(ResourceType).filter_by(name = self.resource_type_name).one()
-            waiting_reservation = session.query(WaitingReservation).filter_by(reservation_id = reservation_id, resource_type_id = resource_type.id).first()
-
-            if waiting_reservation is None:
-                waiting_reservations = []
+            if concrete_current_reservation.timestamp_before is None:
+                timestamp_before  = None
             else:
-                
-                #
-                # If it has not been assigned to any laboratory, then it might
-                # be waiting in the queue of that resource type (Waiting) or
-                # waiting for instances (WaitingInstances, meaning that there is
-                # no resource of that type implemented)
-                #
-                waiting_reservations = session.query(WaitingReservation)\
-                        .filter(WaitingReservation.resource_type == waiting_reservation.resource_type).order_by(WaitingReservation.priority, WaitingReservation.id).all()
+                timestamp_before  = datetime.datetime.fromtimestamp(concrete_current_reservation.timestamp_before)
 
-            if waiting_reservation is None or waiting_reservation not in waiting_reservations:
-                #
-                # The position has changed and it is not in the list anymore!
-                # This has happened using WebLab Bot with 65 users.
-                #
-                return_current_status = True
-
+            if concrete_current_reservation.timestamp_after is None:
+                timestamp_after   = None
             else:
-                position      = waiting_reservations.index(waiting_reservation)
-                remaining_working_instances = False
-                for resource_instance in waiting_reservation.resource_type.instances:
-                    if resource_instance.slot is not None:
-                        remaining_working_instances = True
-                        break
-        finally:
-            session.close()
+                timestamp_after   = datetime.datetime.fromtimestamp(concrete_current_reservation.timestamp_after)
+
+            if lab_session_id is None:
+                return WSS.WaitingConfirmationQueueStatus(reservation_id_with_route, self.core_server_url)
+            else:
+                if initialization_in_accounting:
+                    before = concrete_current_reservation.timestamp_before
+                else:
+                    before = concrete_current_reservation.timestamp_after
+
+                if before is not None:
+                    remaining = (before + obtained_time) - self.time_provider.get_time()
+                else:
+                    remaining = obtained_time
+
+                return WSS.LocalReservedStatus(reservation_id_with_route, lab_coord_address, SessionId.SessionId(lab_session_id), obtained_time, initial_configuration, timestamp_before, timestamp_after, initialization_in_accounting, remaining, self.core_server_url)
+
+        resource_type = session.query(ResourceType).filter_by(name = self.resource_type_name).one()
+        waiting_reservation = session.query(WaitingReservation).filter_by(reservation_id = reservation_id, resource_type_id = resource_type.id).first()
+
+        if waiting_reservation is None:
+            waiting_reservations = []
+        else:
+            
+            #
+            # If it has not been assigned to any laboratory, then it might
+            # be waiting in the queue of that resource type (Waiting) or
+            # waiting for instances (WaitingInstances, meaning that there is
+            # no resource of that type implemented)
+            #
+            waiting_reservations = session.query(WaitingReservation)\
+                    .filter(WaitingReservation.resource_type == waiting_reservation.resource_type).order_by(WaitingReservation.priority, WaitingReservation.id).all()
+
+        if waiting_reservation is None or waiting_reservation not in waiting_reservations:
+            #
+            # The position has changed and it is not in the list anymore!
+            # This has happened using WebLab Bot with 65 users.
+            #
+            return_current_status = True
+
+        else:
+            position      = waiting_reservations.index(waiting_reservation)
+            remaining_working_instances = False
+            for resource_instance in waiting_reservation.resource_type.instances:
+                if resource_instance.slot is not None:
+                    remaining_working_instances = True
+                    break
 
         if return_current_status:
             time.sleep(TIME_ANTI_RACE_CONDITIONS * random.random())
@@ -546,23 +537,52 @@ class PriorityQueueScheduler(Scheduler):
         reservations_removed = False
         enqueue_free_experiment_args_retrieved = []
 
-        # TODO: we need to know what keys are for the current resource_type
-        client.smembers(weblab_reservation_pqueue)
+        client = self.redis_maker()
+        weblab_resource_pqueue_reservations = WEBLAB_RESOURCE_PQUEUE_RESERVATIONS % self.resource_type_name 
+        reservations = [ reservation_id for reservation_id in client.smembers(weblab_resource_pqueue_reservations) ]
 
-        with_initialization = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.initialization_in_accounting == True).filter(ConcreteCurrentReservation.timestamp_before.op('+')(ConcreteCurrentReservation.time) < self.time_provider.get_time())
-        without_initialization = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.initialization_in_accounting == False).filter(ConcreteCurrentReservation.timestamp_after.op('+')(ConcreteCurrentReservation.time) < self.time_provider.get_time())
+        # Since there might be a lot of reservations, create a pipeline and retrieve 
+        # every reservation data in a row
+        pipeline = client.pipeline()
+        FIELDS = 4
+        for reservation_id in reservations:
+            weblab_reservation_pqueue = WEBLAB_RESERVATION_PQUEUE % reservation_id
+            pipeline.hget(weblab_reservation_pqueue, TIMESTAMP_BEFORE)
+            pipeline.hget(weblab_reservation_pqueue, TIMESTAMP_AFTER)
+            pipeline.hget(weblab_reservation_pqueue, INITIALIZATION_IN_ACCOUNTING)
+            pipeline.hget(weblab_reservation_pqueue, TIME)
+        results = pipeline.execute()
+       
+        # Parse the results, ignoring those with a None result
+        values = []
+        current_value = []
+        counter = 0
+        for pos, value in enumerate(results):
+            if pos % FIELDS == 0:
+                reservation_id = reservations[counter]
+                current_value = [reservation_id]
+                counter += 1
+            current_value.append(value)
 
-        for expired_concrete_current_reservation in with_initialization.union(without_initialization).all():
-            expired_reservation = expired_concrete_current_reservation.current_reservation_id
-            if expired_reservation is None:
-                continue # Maybe it's not an expired_reservation anymore
-            enqueue_free_experiment_args = self._clean_current_reservation(session, expired_concrete_current_reservation)
+            if pos % FIELDS == FIELDS - 1:
+                if all(map(lambda x : x is not None, current_value)):
+                    values.append(current_value)
+
+        # For the valid results
+        for reservation_id, timestamp_before, timestamp_after, initialization_in_accounting, time in values:
+            timestamp = timestamp_before if initialization_in_accounting else timestamp_after
+            if time + timestamp >= now:
+                print "must be deleted"
+                # TODO
+                
+            enqueue_free_experiment_args = self._clean_current_reservation(reservation_id)
             enqueue_free_experiment_args_retrieved.append(enqueue_free_experiment_args)
-            session.delete(expired_concrete_current_reservation)
-            self.reservations_manager.delete(session, expired_reservation)
+            # TODO: delete
+            self.reservations_manager.delete(session, reservation_id)
             reservations_removed = True
 
-        for expired_reservation_id in self.reservations_manager.list_expired_reservations(session, current_expiration_time):
+        for expired_reservation_id in self.reservations_manager.list_expired_reservations(current_expiration_time):
+            # TODO: all this section missing
             concrete_current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == expired_reservation_id).first()
             if concrete_current_reservation is not None:
                 enqueue_free_experiment_args = self._clean_current_reservation(session, concrete_current_reservation)
@@ -575,21 +595,9 @@ class PriorityQueueScheduler(Scheduler):
             self.reservations_manager.delete(session, expired_reservation_id)
             reservations_removed = True
 
-        if reservations_removed:
-            try:
-                session.commit()
-            except sqlalchemy.exceptions.ConcurrentModificationError as e:
-                log.log(
-                    PriorityQueueScheduler, log.level.Warning,
-                    "IntegrityError: %s" % e )
-                log.log_exc(PriorityQueueScheduler, log.level.Info)
-                pass # Someone else removed these users before us.
-            else:
-                for enqueue_free_experiment_args in enqueue_free_experiment_args_retrieved:
-                    if enqueue_free_experiment_args is not None:
-                        self.confirmer.enqueue_free_experiment(*enqueue_free_experiment_args)
-        else:
-            session.rollback()
+        for enqueue_free_experiment_args in enqueue_free_experiment_args_retrieved:
+            if enqueue_free_experiment_args is not None:
+                self.confirmer.enqueue_free_experiment(*enqueue_free_experiment_args)
 
     ##############################################################
     #
@@ -602,4 +610,6 @@ class PriorityQueueScheduler(Scheduler):
         for reservation_id in self.reservations_manager.list_all_reservations():
             client.delete(WEBLAB_RESERVATION_PQUEUE % reservation_id)
             client.delete(WEBLAB_RESERVATION_PQUEUE_WAITING % reservation_id)
+
+        client.delete(WEBLAB_RESOURCE_PQUEUE_RESERVATIONS % self.resource_type_name)
 
