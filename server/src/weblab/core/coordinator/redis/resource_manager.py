@@ -32,13 +32,15 @@ from weblab.core.coordinator.redis.constants import (
     WEBLAB_RESOURCE,
     WEBLAB_RESOURCE_EXPERIMENTS,
     WEBLAB_RESOURCE_RESERVATIONS,
+    WEBLAB_RESOURCE_INSTANCE,
     WEBLAB_RESOURCE_INSTANCE_EXPERIMENTS,
     WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS,
 
     LAB_COORD,
     RESOURCE_INST,
     EXPERIMENT_TYPE,
-    RESOURCE_TYPE
+    RESOURCE_TYPE,
+    AVAILABLE,
 )
 
 class ResourcesManager(object):
@@ -194,6 +196,17 @@ class ResourcesManager(object):
             for experiment_instance in experiment_instances:
                 experiment_instance_id = ExperimentInstanceId.parse(experiment_instance)
                 self.remove_resource_instance_id(experiment_instance_id)
+
+    @typecheck(basestring)
+    def are_resource_instances_working(self, resource_type):
+        client = self._redis_maker()
+        resource_instances = client.smembers(WEBLAB_RESOURCE % resource_type)
+        available_instances = []
+        for resource_instance in resource_instances:
+            if client.hget(WEBLAB_RESOURCE_INSTANCE % (resource_type, resource_instance), AVAILABLE) == 1:
+                return True
+                
+        return False
 
     def list_resources(self):
         client = self._redis_maker()
