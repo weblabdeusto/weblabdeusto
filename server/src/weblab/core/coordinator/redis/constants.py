@@ -28,10 +28,11 @@ WEBLAB_RESOURCE_INSTANCE             = 'weblab:resources:%s:%s'
 WEBLAB_RESOURCE_INSTANCE_EXPERIMENTS = 'weblab:resources:%s:%s:experiment_instances'
 
 # PQUEUE
-WEBLAB_RESOURCE_PQUEUE_RESERVATIONS  = 'weblab:resources:%s:reservations:pqueue'
-WEBLAB_RESOURCE_PQUEUE_POSITIONS     = 'weblab:resources:%s:reservations:pqueue:positions'
-WEBLAB_RESOURCE_PQUEUE_MAP           = 'weblab:resources:%s:reservations:pqueue:map'
-WEBLAB_RESOURCE_PQUEUE_SORTED        = 'weblab:resources:%s:reservations:pqueue:sorted'
+WEBLAB_RESOURCE_PQUEUE_RESERVATIONS          = 'weblab:resources:%s:reservations:pqueue'
+WEBLAB_RESOURCE_PQUEUE_INSTANCE_RESERVATIONS = 'weblab:resources:%s:%s:reservations:pqueue'
+WEBLAB_RESOURCE_PQUEUE_POSITIONS             = 'weblab:resources:%s:reservations:pqueue:positions'
+WEBLAB_RESOURCE_PQUEUE_MAP                   = 'weblab:resources:%s:reservations:pqueue:map'
+WEBLAB_RESOURCE_PQUEUE_SORTED                = 'weblab:resources:%s:reservations:pqueue:sorted'
 
 WEBLAB_RESERVATIONS_LOCK              = 'weblab:reservations:lock'
 WEBLAB_RESERVATIONS                   = 'weblab:reservations'

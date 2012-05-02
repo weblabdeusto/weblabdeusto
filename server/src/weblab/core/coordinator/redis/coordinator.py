@@ -78,17 +78,12 @@ class Coordinator(AbstractCoordinator):
         scheduler = self._get_scheduler_per_resource(resource_instance)
 
         anything_changed = False
-        session = self._session_maker()
-        try:
-            changed = scheduler.removing_current_resource_slot(session, resource_instance)
-            anything_changed = anything_changed or changed
+        client = self._redis_maker()
+        changed = scheduler.removing_current_resource_slot(client, resource_instance)
+        anything_changed = anything_changed or changed
 
-            changed = self.resources_manager.mark_resource_as_broken(session, resource_instance)
-            anything_changed = anything_changed or changed
-            if anything_changed:
-                session.commit()
-        finally:
-            session.close()
+        changed = self.resources_manager.mark_resource_as_broken(resource_instance)
+        anything_changed = anything_changed or changed
 
         if anything_changed:
             log.log( Coordinator, log.level.Warning,
@@ -98,21 +93,11 @@ class Coordinator(AbstractCoordinator):
                 self._notify_experiment_status('broken', resource_instance, messages)
 
     def _release_resource_instance(self, experiment_instance_id):
-        session = self._session_maker()
-        try:
-            resource_instance = self.resources_manager.get_resource_instance_by_experiment_instance_id(experiment_instance_id)
-            self.resources_manager.release_resource_instance(session, resource_instance)
-            session.commit()
-        finally:
-            session.close()
+        resource_instance = self.resources_manager.get_resource_instance_by_experiment_instance_id(experiment_instance_id)
+        self.resources_manager.release_resource_instance(resource_instance)
 
     def _delete_reservation(self, reservation_id):
-        session = self._session_maker()
-        try:
-            self.reservations_manager.delete(session, reservation_id)
-            session.commit()
-        finally:
-            session.close()
+        self.reservations_manager.delete(reservation_id)
 
     def _clean(self):
         for scheduler in self.schedulers.values():

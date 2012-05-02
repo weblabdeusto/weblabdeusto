@@ -115,14 +115,9 @@ class ResourcesManager(object):
 
         client.sadd(weblab_resource_slots, current_resource.resource_instance)
 
-    def release_resource_instance(self, session, resource):
-        # TODO: test me
-        resource_instance = self._get_resource_instance(session, resource)
-        slot = resource_instance.slot
-        if slot is not None:
-            slot_reservation = slot.slot_reservation
-            if slot_reservation is not None:
-                self.release_resource(session, slot_reservation)
+    @typecheck(Resource)
+    def release_resource_instance(self, resource):
+        return self.release_resource(resource)
 
     @typecheck(ExperimentId)
     def get_resource_types_by_experiment_id(self, experiment_id):
@@ -151,36 +146,19 @@ class ResourcesManager(object):
 
         client = self._redis_maker()
         return client.hget(weblab_experiment_instance, LAB_COORD)
-        
 
-    def _get_resource_instance(self, session, resource):
-        db_resource_type = session.query(ResourceType).filter_by(name = resource.resource_type).one()
-        db_resource_instance = session.query(ResourceInstance).filter_by(name = resource.resource_instance, resource_type = db_resource_type).one()
-        return db_resource_instance
+    @typecheck(Resource)
+    def mark_resource_as_broken(self, resource):
+        client = self._redis_maker()
+        weblab_resource_working = WEBLAB_RESOURCE_WORKING % resource.resource_type
+        return client.srem(weblab_resource_working, resource.resource_instance) != 0
 
-    def mark_resource_as_broken(self, session, resource):
-        db_resource_instance = self._get_resource_instance(session, resource)
-
-        db_slot = db_resource_instance.slot
-        if not db_slot is None:
-            session.delete(db_slot)
-            return True
-        return False
-
+    @typecheck(Resource)
     def mark_resource_as_fixed(self, resource):
-        session = self._session_maker()
-        try:
-            db_resource_instance = self._get_resource_instance(session, resource)
-    
-            db_slot = db_resource_instance.slot
-            if db_slot is None:
-                db_slot = CurrentResourceSlot(db_resource_instance)
-                session.add(db_slot)
-                session.commit()
-                return True
-            return False
-        finally:
-            session.close()
+        client = self._redis_maker()
+
+        weblab_resource_working = WEBLAB_RESOURCE_WORKING % resource.resource_type
+        return client.sadd(weblab_resource_working, resource.resource_instance) != 0
 
     @typecheck(ExperimentInstanceId)
     def remove_resource_instance_id(self, experiment_instance_id):
@@ -218,6 +196,12 @@ class ResourcesManager(object):
         client = self._redis_maker()
         resource_instances = client.smembers(WEBLAB_RESOURCE_WORKING % resource_type)
         return len(resource_instances) > 0
+
+    @typecheck(Resource)
+    def check_working(self, resource):
+        client = self._redis_maker()
+        resource_instances = client.smembers(WEBLAB_RESOURCE_WORKING % resource.resource_type)
+        return resource.resource_instance in resource_instances
 
     def list_resources(self):
         client = self._redis_maker()

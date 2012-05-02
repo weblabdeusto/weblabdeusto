@@ -20,6 +20,7 @@ import json
 
 from voodoo.log import logged
 import voodoo.log as log
+from voodoo.typechecker import typecheck
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.sessions.session_id as SessionId
@@ -42,6 +43,7 @@ from weblab.core.coordinator.redis.constants import (
     WEBLAB_RESOURCE_PQUEUE_POSITIONS,
     WEBLAB_RESOURCE_PQUEUE_MAP,
     WEBLAB_RESOURCE_PQUEUE_SORTED,
+    WEBLAB_RESOURCE_PQUEUE_INSTANCE_RESERVATIONS,
 
     CLIENT_INITIAL_DATA,
     EXPERIMENT_TYPE,
@@ -105,24 +107,36 @@ class PriorityQueueScheduler(Scheduler):
     @exc_checker
     @logged()
     @Override(Scheduler)
-    def removing_current_resource_slot(self, session, resource_instance_id):
-        resource_type = session.query(ResourceType).filter_by(name = resource_instance_id.resource_type).one()
-        resource_instance = session.query(ResourceInstance).filter_by(name = resource_instance_id.resource_instance, resource_type = resource_type).one()
+    @typecheck(typecheck.ANY, typecheck.ANY, Resource)
+    def removing_current_resource_slot(self, client, resource):
+        
+        weblab_resource_instance_reservations = WEBLAB_RESOURCE_PQUEUE_INSTANCE_RESERVATIONS % (resource.resource_type, resource.resource_instance)
 
-        current_resource_slot = resource_instance.slot
+        current_reservation_ids = client.smembers(weblab_resource_instance_reservations)
+        if len(current_reservation_ids) > 0:
+            current_reservation_id = current_reservation_ids[0]
+            if client.srem(weblab_resource_instance_reservations, current_reservation_id):
+                self.reservations_manager.downgrade_confirmation(current_reservation_id)
+                self.resources_manager.release_resource(resource)
+                # Remove data that was added when confirmed
+                weblab_reservation_pqueue           = WEBLAB_RESERVATION_PQUEUE           % reservation_id
+                reservation_data_str = client.get(weblab_reservation_pqueue)
+                reservation_data = json.loads(reservation_data_str)
+                reservation_data.pop(ACTIVE_STATUS,    None)
+                reservation_data.pop(TIMESTAMP_BEFORE, None)
+                reservation_data.pop(TIMESTAMP_AFTER,  None)
+                reservation_data.pop(LAB_SESSION_ID,   None)
+                reservation_data_str = json.dumps(reservation_data)
+                reservation_data = client.set(reservation_data_str)
+                # Add back to the queue
 
-        if current_resource_slot is not None:
-            slot_reservation = current_resource_slot.slot_reservation
-            if slot_reservation is not None:
-                concrete_current_reservations = current_resource_slot.slot_reservation.pq_current_reservations
-                if len(concrete_current_reservations) > 0:
-                    concrete_current_reservation = concrete_current_reservations[0]
-                    waiting_reservation = WaitingReservation(resource_instance.resource_type, concrete_current_reservation.current_reservation_id, concrete_current_reservation.time, -1, concrete_current_reservation.initialization_in_accounting) # -1 : Highest priority
-                    self.reservations_manager.downgrade_confirmation(session, concrete_current_reservation.current_reservation_id)
-                    self.resources_manager.release_resource(session, current_resource_slot.slot_reservation)
-                    session.add(waiting_reservation)
-                    session.delete(concrete_current_reservation)
-                    return True
+                weblab_resource_pqueue_map          = WEBLAB_RESOURCE_PQUEUE_MAP          % self.resource_type_name
+                weblab_resource_pqueue_sorted       = WEBLAB_RESOURCE_PQUEUE_SORTED       % self.resource_type_name
+
+                filled_reservation_id = client.hget(weblab_resource_pqueue_map, current_reservation_id)
+                pipeline.zadd(weblab_resource_pqueue_sorted, filled_reservation_id, -1)
+                return True
+           
         return False
 
     @exc_checker
@@ -437,6 +451,11 @@ class PriorityQueueScheduler(Scheduler):
                 # reservations_manager and resources_manager confirmations
                 #
 
+                working = self.resources_manager.check_working(free_instance)
+                if not working:
+                    # The instance is not working
+                    continue
+
                 confirmed = self.reservations_manager.confirm(first_waiting_reservation_id)
                 if not confirmed:
                     # student has already been confirmed somewhere else, so don't try with other
@@ -589,6 +608,7 @@ class PriorityQueueScheduler(Scheduler):
 
         for reservation_id in self.reservations_manager.list_all_reservations():
             client.delete(WEBLAB_RESERVATION_PQUEUE % reservation_id)
+            client.delete(WEBLAB_RESOURCE_PQUEUE_INSTANCE_RESERVATIONS % (self.resource_type_name, '*'))
 
         client.delete(WEBLAB_RESOURCE_PQUEUE_RESERVATIONS % self.resource_type_name)
         client.delete(WEBLAB_RESOURCE_PQUEUE_POSITIONS    % self.resource_type_name)

@@ -226,7 +226,7 @@ class ReservationsManager(object):
         finally:
             session.close()
 
-    def delete(self, session, reservation_id):
+    def delete(self, reservation_id):
         reservation = session.query(Reservation).filter_by(id=reservation_id).first()
         if reservation is not None:
             current_reservation = session.query(CurrentReservation).filter_by(id=reservation_id).first()
