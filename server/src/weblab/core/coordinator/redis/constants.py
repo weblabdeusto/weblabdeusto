@@ -55,6 +55,8 @@ CLIENT_INITIAL_DATA          = 'client_initial_data'
 SERVER_INITIAL_DATA          = 'server_initial_data'
 REQUEST_INFO                 = 'request_info'
 EXPERIMENT_TYPE              = 'experiment_type'
+EXPERIMENT_INSTANCE          = 'experiment_instance'
+RESOURCE_INSTANCE            = 'resource_instance'
 
 START_TIME                   = 'start_time'
 TIME                         = 'time'

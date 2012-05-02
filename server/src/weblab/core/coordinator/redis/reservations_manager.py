@@ -156,10 +156,10 @@ class ReservationsManager(object):
 
         return client.hset(weblab_reservation_status, CURRENT, 1) != 0
 
-    def downgrade_confirmation(self, session, reservation_id):
+    def downgrade_confirmation(self, reservation_id):
         client = self._redis_maker()
-        weblab_reservation = WEBLAB_RESERVATION % reservation_id
-        return client.hrem(weblab_reservation, CURRENT) != 0
+        weblab_reservation_status = WEBLAB_RESERVATION_STATUS % reservation_id
+        return client.hdel(weblab_reservation_status, CURRENT) != 0
 
     def list_expired_reservations(self, expiration_time):
         expiration_timestamp = time.mktime(expiration_time.timetuple()) + expiration_time.microsecond / 10e6
@@ -227,9 +227,11 @@ class ReservationsManager(object):
             session.close()
 
     def delete(self, reservation_id):
-        reservation = session.query(Reservation).filter_by(id=reservation_id).first()
-        if reservation is not None:
-            current_reservation = session.query(CurrentReservation).filter_by(id=reservation_id).first()
-            if current_reservation is not None:
-                session.delete(current_reservation)
-            session.delete(reservation)
+        client = self._redis_maker()
+        
+        client.srem(WEBLAB_RESERVATIONS, reservation_id)
+        weblab_reservation            = WEBLAB_RESERVATION                    % reservation_id
+        weblab_reservation_status     = WEBLAB_RESERVATION_STATUS             % reservation_id
+        weblab_reservation_schedulers = WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS % reservation_id
+        client.delete(weblab_reservation, weblab_reservation_status, weblab_reservation_schedulers)
+

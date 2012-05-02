@@ -215,6 +215,11 @@ class ResourcesManager(object):
                 resource_instances.append(Resource(resource_type, resource_instance))
 
         return resource_instances
+    
+    @typecheck(basestring)
+    def list_resource_instances_by_type(self, resource_type_name):
+        client = self._redis_maker()
+        return [ Resource(resource_type_name, resource_instance) for resource_instance in client.smembers(WEBLAB_RESOURCE % resource_type_name) ]
 
     def list_experiments(self):
         client = self._redis_maker()
