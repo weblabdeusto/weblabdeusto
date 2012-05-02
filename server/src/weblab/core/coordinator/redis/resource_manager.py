@@ -30,6 +30,7 @@ from weblab.core.coordinator.redis.constants import (
 
     WEBLAB_RESOURCES,
     WEBLAB_RESOURCE,
+    WEBLAB_RESOURCE_SLOTS,
     WEBLAB_RESOURCE_EXPERIMENTS,
     WEBLAB_RESOURCE_RESERVATIONS,
     WEBLAB_RESOURCE_INSTANCE,
@@ -51,7 +52,8 @@ class ResourcesManager(object):
     def add_resource(self, resource):
         client = self._redis_maker()
         client.sadd(WEBLAB_RESOURCES, resource.resource_type)
-        client.sadd(WEBLAB_RESOURCE % resource.resource_type, resource.resource_instance)
+        client.sadd(WEBLAB_RESOURCE % resource.resource_type,      resource.resource_instance)
+        client.sadd(WEBLAB_RESOURCE_SLOTS % resource.resource_type, resource.resource_instance)
         
     @typecheck(ExperimentId, basestring)
     def add_experiment_id(self, experiment_id, resource_type):
@@ -97,15 +99,20 @@ class ResourcesManager(object):
 
         client.hset(weblab_experiment_instance, RESOURCE_INST, resource.to_weblab_str())
 
-    def acquire_resource(self, session, current_resource_slot):
-        # TODO: XXX: this makes no sense in redis
+    @typecheck(Resource)
+    def acquire_resource(self, current_resource):
+        weblab_resource_slots = WEBLAB_RESOURCE_SLOTS % current_resource.resource_type
+        client = self._redis_maker()
 
-        slot_reservation = SchedulingSchemaIndependentSlotReservation(current_resource_slot)
-        session.add(slot_reservation)
-        return slot_reservation
+        acquired = client.srem(weblab_resource_slots, current_resource.resource_instance) != 0
+        return acquired
 
-    def release_resource(self, session, slot_reservation):
-        session.delete(slot_reservation)
+    @typecheck(Resource)
+    def release_resource(self, current_resource):
+        weblab_resource_slots = WEBLAB_RESOURCE_SLOTS % current_resource.resource_type
+        client = self._redis_maker()
+
+        client.sadd(weblab_resource_slots, current_resource.resource_instance)
 
     def release_resource_instance(self, session, resource):
         # TODO: test me
@@ -136,6 +143,14 @@ class ResourcesManager(object):
                 raise CoordExc.ExperimentNotFoundError("Experiment not found: %s" % experiment_instance_id)
 
         return Resource.parse(resource_instance)
+
+    def get_laboratory_coordaddress_by_experiment_instance_id(self, experiment_instance_id):
+        experiment_id = experiment_instance_id.to_experiment_id()
+        weblab_experiment_instance = WEBLAB_EXPERIMENT_INSTANCE % (experiment_id.to_weblab_str(), experiment_instance_id.inst_name)
+
+        client = self._redis_maker()
+        return client.hget(weblab_experiment_instance, LAB_COORD)
+        
 
     def _get_resource_instance(self, session, resource):
         db_resource_type = session.query(ResourceType).filter_by(name = resource.resource_type).one()

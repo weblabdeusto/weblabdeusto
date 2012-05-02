@@ -26,12 +26,14 @@ from weblab.core.coordinator.redis.constants import (
     WEBLAB_RESERVATIONS_LOCK,
     WEBLAB_RESERVATIONS,
     WEBLAB_RESERVATION,
+    WEBLAB_RESERVATION_STATUS,
 
     WEBLAB_RESOURCE_RESERVATIONS,
     WEBLAB_EXPERIMENT_TYPES,
 
     WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS,
 
+    CURRENT,
     LATEST_ACCESS,
     CLIENT_INITIAL_DATA,
     SERVER_INITIAL_DATA,
@@ -77,15 +79,24 @@ class ReservationsManager(object):
             if value == 0:
                 continue
 
-            weblab_reservation = WEBLAB_RESERVATION % reservation_id
-            client.hset(weblab_reservation, LATEST_ACCESS, now_timestamp)
-            client.hset(weblab_reservation, REQUEST_INFO, request_info)
-            client.hset(weblab_reservation, SERVER_INITIAL_DATA, server_initial_data)
-            client.hset(weblab_reservation, CLIENT_INITIAL_DATA, serialized_client_initial_data)
-            client.hset(weblab_reservation, EXPERIMENT_TYPE, experiment_id.to_weblab_str())
+            weblab_reservation               = WEBLAB_RESERVATION % reservation_id
+            weblab_reservation_status        = WEBLAB_RESERVATION_STATUS % reservation_id
+            weblab_resource_reservations     = WEBLAB_RESOURCE_RESERVATIONS % experiment_id.to_weblab_str()
 
-            weblab_resource_reservations = WEBLAB_RESOURCE_RESERVATIONS % experiment_id.to_weblab_str()
-            client.sadd(weblab_resource_reservations, reservation_id)
+            reservation_data = {
+                REQUEST_INFO        : request_info,
+                SERVER_INITIAL_DATA : server_initial_data,
+                CLIENT_INITIAL_DATA : serialized_client_initial_data,
+                EXPERIMENT_TYPE     : experiment_id.to_weblab_str()
+            }
+            serialized_reservation_data = json.dumps(reservation_data)
+
+            pipeline = client.pipeline()
+            pipeline.hset(weblab_reservation_status, LATEST_ACCESS, now_timestamp)
+            pipeline.set(weblab_reservation, serialized_reservation_data)
+            pipeline.sadd(weblab_resource_reservations, reservation_id)
+            pipeline.execute()
+
             return reservation_id
 
         raise Exception("Couldn't create a session after %s tries" % MAX_TRIES)
@@ -105,6 +116,15 @@ class ReservationsManager(object):
         finally:
             session.close()
 
+    def get_reservation_data(self, reservation_id):
+        client = self._redis_maker()
+        weblab_reservation = WEBLAB_RESERVATION % reservation_id
+        serialized_reservation_data = client.get(weblab_reservation)
+        if serialized_reservation_data is None:
+            return None
+        else:
+            return json.loads(serialized_reservation_data)
+
     def get_request_info_and_client_initial_data(self, reservation_id):
         session = self._session_maker()
         try:
@@ -121,26 +141,27 @@ class ReservationsManager(object):
         current_moment = datetime.datetime.utcnow()
         now_timestamp = time.mktime(current_moment.timetuple()) + current_moment.microsecond / 10e6
 
-        weblab_reservation = WEBLAB_RESERVATION % reservation_id
-
-        return_value = client.hset(weblab_reservation, LATEST_ACCESS, now_timestamp)
+        weblab_reservation_status = WEBLAB_RESERVATION_STATUS % reservation_id
+        
+        return_value = client.hset(weblab_reservation_status, LATEST_ACCESS, now_timestamp)
         if return_value == 1:
-            client.hdel(weblab_reservation, LATEST_ACCESS)
+            client.delete(weblab_reservation_status)
+            # TODO: Remove more things!!!
             raise CoordExc.ExpiredSessionError("Expired reservation")
 
-    def confirm(self, session, reservation_id):
-        reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
-        if reservation is None:
+    def confirm(self, reservation_id):
+        client = self._redis_maker()
+        weblab_reservation        = WEBLAB_RESERVATION % reservation_id
+        weblab_reservation_status = WEBLAB_RESERVATION_STATUS % reservation_id
+        if not client.exists(weblab_reservation):
             raise CoordExc.ExpiredSessionError("Expired reservation")
 
-        current_reservation = CurrentReservation(reservation.id)
-        session.add(current_reservation)
+        return client.hset(weblab_reservation_status, CURRENT, 1) != 0
 
     def downgrade_confirmation(self, session, reservation_id):
-        current_reservation = session.query(CurrentReservation).filter(CurrentReservation.id == reservation_id).first()
-        if current_reservation is None:
-            return # Already downgraded
-        session.delete(current_reservation)
+        client = self._redis_maker()
+        weblab_reservation = WEBLAB_RESERVATION % reservation_id
+        return client.hrem(weblab_reservation, CURRENT) != 0
 
     def list_expired_reservations(self, expiration_time):
         expiration_timestamp = time.mktime(expiration_time.timetuple()) + expiration_time.microsecond / 10e6

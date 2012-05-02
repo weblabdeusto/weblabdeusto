@@ -29,17 +29,22 @@ from weblab.core.coordinator.scheduler_transactions_synchronizer import Schedule
 from weblab.core.coordinator.scheduler import Scheduler
 import weblab.core.coordinator.status as WSS
 
-from weblab.data.experiments import ExperimentInstanceId
+from weblab.core.coordinator.resource import Resource
+
+from weblab.data.experiments import ExperimentInstanceId, ExperimentId
 
 from weblab.core.coordinator.redis.constants import (
     WEBLAB_RESERVATIONS,
     WEBLAB_RESERVATION_PQUEUE,
+    WEBLAB_RESOURCE_SLOTS,
     WEBLAB_RESOURCE_RESERVATIONS,
     WEBLAB_RESOURCE_PQUEUE_RESERVATIONS,
     WEBLAB_RESOURCE_PQUEUE_POSITIONS,
     WEBLAB_RESOURCE_PQUEUE_MAP,
     WEBLAB_RESOURCE_PQUEUE_SORTED,
 
+    CLIENT_INITIAL_DATA,
+    EXPERIMENT_TYPE,
     START_TIME,
     TIME,
     INITIALIZATION_IN_ACCOUNTING,
@@ -65,6 +70,9 @@ def exc_checker(func):
         try:
             return func(*args, **kwargs)
         except:
+            # TODO: Remove this
+            import traceback
+            traceback.print_exc()
             log.log(
                 PriorityQueueScheduler, log.level.Error,
                 "Unexpected exception while running %s" % func.__name__ )
@@ -183,20 +191,21 @@ class PriorityQueueScheduler(Scheduler):
         client = self.redis_maker()
 
         weblab_reservation_pqueue           = WEBLAB_RESERVATION_PQUEUE           % reservation_id
-        reservation_data = client.get(weblab_reservation_pqueue)
-        if reservation_data is None:
+        reservation_data_str = client.get(weblab_reservation_pqueue)
+        if reservation_data_str is None:
             log.log(
                 PriorityQueueScheduler, log.level.Error,
                 "get_reservation_status called with a reservation_id that is not registered (not found on weblab_reservation_pqueue). Returning a WaitingInstanceStatus")
             return WSS.WaitingInstancesQueueStatus(reservation_id_with_route, 50)
 
+        reservation_data = json.loads(reservation_data_str)
+
         if ACTIVE_STATUS in reservation_data:
             # Reserved or Waiting reservation
-
             status = reservation_data[ACTIVE_STATUS]
             
             # It may be just waiting for the experiment server to respond
-            if status == STATUS_WAITING:
+            if status == STATUS_WAITING_CONFIRMATION:
                 return WSS.WaitingConfirmationQueueStatus(reservation_id_with_route, self.core_server_url)
 
             # Or the experiment server already responded and therefore we have all this data
@@ -373,6 +382,12 @@ class PriorityQueueScheduler(Scheduler):
         #
         previously_waiting_reservation_ids = []
 
+        weblab_resource_pqueue_map    = WEBLAB_RESOURCE_PQUEUE_MAP    % self.resource_type_name
+        weblab_resource_pqueue_sorted = WEBLAB_RESOURCE_PQUEUE_SORTED % self.resource_type_name 
+        weblab_resource_slots         = WEBLAB_RESOURCE_SLOTS         % self.resource_type_name 
+
+
+
         ###########################################################
         # While there are free instances and waiting reservations,
         # take the first waiting reservation and set it to current
@@ -380,149 +395,124 @@ class PriorityQueueScheduler(Scheduler):
         # commit each change
         #
         while True:
-            session = self.session_maker()
-            try:
-                resource_type = session.query(ResourceType).filter(ResourceType.name == self.resource_type_name).first()
+            client = self.redis_maker()
+            filled_waiting_reservation_ids = client.zrangebyscore(weblab_resource_pqueue_sorted, -10000, +10000, start=0, num=len(previously_waiting_reservation_ids) + 1)
+            first_waiting_reservation_id = None
+            for filled_waiting_reservation_id in filled_waiting_reservation_ids:
+                waiting_reservation_id = filled_waiting_reservation_id[filled_waiting_reservation_id.find('_')+1:]
+                if waiting_reservation_id not in previously_waiting_reservation_ids:
+                    first_waiting_reservation_id = waiting_reservation_id
+                    break
+
+            if first_waiting_reservation_id is None:
+                return # There is no waiting reservation for this resource that we haven't already tried
+
+            previously_waiting_reservation_ids.append(first_waiting_reservation_id)
+
+            #
+            # For the current resource_type, let's ask for
+            # all the resource instances available (i.e. those
+            # who are a member on weblab:resource:%s:slots )
+            #
+            free_instances = [ Resource(self.resource_type_name, resource_instance) 
+                                for resource_instance in client.smembers(weblab_resource_slots) ]
+
+            if len(free_instances) == 0:
+                # If there is no free instance, just return
+                return
+
+            #
+            # Select the correct free_instance for the current student among
+            # all the free_instances
+            #
+            if self.randomize_instances:
+                randomized_free_instances = [ free_instance for free_instance in free_instances ]
+                random.shuffle(randomized_free_instances)
+            else:
+                randomized_free_instances = free_instances
+
+            for free_instance in randomized_free_instances:
+                #
+                # IMPORTANT: from here on every "continue" should first revoke the
+                # reservations_manager and resources_manager confirmations
+                #
+
+                confirmed = self.reservations_manager.confirm(first_waiting_reservation_id)
+                if not confirmed:
+                    # student has already been confirmed somewhere else, so don't try with other
+                    # instances, but rather with other student
+                    break
+
+                acquired = self.resources_manager.acquire_resource(free_instance)
+                if not acquired:
+                    # the instance has been acquired by someone else. unconfirm student and
+                    # try again with other free_instance
+                    self.reservations_manager.downgrade_confirmation(first_waiting_reservation_id)
+                    continue
+
+                weblab_reservation_pqueue = WEBLAB_RESERVATION_PQUEUE % first_waiting_reservation_id
+                pqueue_reservation_data_str = client.get(weblab_reservation_pqueue)
+                reservation_data            = self.reservations_manager.get_reservation_data(first_waiting_reservation_id)
+                if pqueue_reservation_data_str is None or reservation_data is None:
+                    # the student is not here anymore; downgrading confirmation is not required
+                    # but releasing the resource is; and skip the rest of the free instances
+                    self.resources_manager.release_resource(free_instance)
+                    break
+
+                pqueue_reservation_data = json.loads(pqueue_reservation_data_str)
+
+                start_time                                = self.time_provider.get_time()
+                total_time                                = pqueue_reservation_data[TIME]
+                pqueue_reservation_data[START_TIME]       = start_time
+                pqueue_reservation_data[TIMESTAMP_BEFORE] = start_time
+                pqueue_reservation_data[ACTIVE_STATUS]    = STATUS_WAITING_CONFIRMATION
+                initialization_in_accounting              = pqueue_reservation_data[INITIALIZATION_IN_ACCOUNTING]
+
+                client_initial_data       = reservation_data[CLIENT_INITIAL_DATA]
+                requested_experiment_type = ExperimentId.parse(reservation_data[EXPERIMENT_TYPE])
+
+                selected_experiment_instance = None
+                experiment_instances = self.resources_manager.list_experiment_instance_ids_by_resource(free_instance)
+                for experiment_instance in experiment_instances:
+                    if experiment_instance.to_experiment_id() == requested_experiment_type:
+                        selected_experiment_instance = experiment_instance
+
+                if selected_experiment_instance is None:
+                    # This resource is not valid for this user, other free_instance should be
+                    # selected. Try with other, but first clean the acquired resources
+                    self.reservations_manager.downgrade_confirmation(first_waiting_reservation_id)
+                    self.resources_manager.release_resource(free_instance)
+                    continue
+
+                laboratory_coord_address = self.resources_manager.get_laboratory_coordaddress_by_experiment_instance_id(selected_experiment_instance)
+                client.set(weblab_reservation_pqueue, json.dumps(pqueue_reservation_data))
+
+                filled_reservation_id = client.hget(weblab_resource_pqueue_map, first_waiting_reservation_id)
+                client.zrem(weblab_resource_pqueue_sorted, filled_reservation_id)
 
                 #
-                # Retrieve the first waiting reservation. If there is no one that
-                # we haven't tried already, return
+                # Enqueue the confirmation, since it might take a long time
+                # (for instance, if the laboratory server does not reply because
+                # of any network problem, or it just takes too much in replying),
+                # so this method might take too long. That's why we enqueue these
+                # petitions and run them in other threads.
                 #
-                first_waiting_reservations = session.query(WaitingReservation).filter(WaitingReservation.resource_type == resource_type).order_by(WaitingReservation.priority, WaitingReservation.id)[:len(previously_waiting_reservation_ids) + 1]
-                first_waiting_reservation = None
-                for waiting_reservation in first_waiting_reservations:
-                    if waiting_reservation.id not in previously_waiting_reservation_ids:
-                        first_waiting_reservation = waiting_reservation
-                        break
-
-                if first_waiting_reservation is None:
-                    return # There is no waiting reservation for this resource that we haven't already tried
-
-                previously_waiting_reservation_ids.append(first_waiting_reservation.id)
-
+                deserialized_server_initial_data = {
+                        'priority.queue.slot.length'                       : '%s' % total_time,
+                        'priority.queue.slot.start'                        : '%s' % datetime.datetime.fromtimestamp(start_time),
+                        'priority.queue.slot.initialization_in_accounting' : initialization_in_accounting,
+                        'request.experiment_id.experiment_name'            : selected_experiment_instance.exp_name,
+                        'request.experiment_id.category_name'              : selected_experiment_instance.cat_name,
+                    }
+                server_initial_data = json.dumps(deserialized_server_initial_data)
+                # server_initial_data will contain information such as "what was the last experiment used?".
+                # If a single resource was used by a binary experiment, then the next time may not require reprogramming the device
+                self.confirmer.enqueue_confirmation(laboratory_coord_address, first_waiting_reservation_id, selected_experiment_instance, client_initial_data, server_initial_data)
                 #
-                # For the current resource_type, let's ask for
-                # all the resource instances available (i.e. those
-                # who have no SchedulingSchemaIndependentSlotReservation
-                # associated)
+                # After it, keep in the while True in order to add the next
+                # reservation
                 #
-                free_instances = session.query(CurrentResourceSlot)\
-                        .select_from(join(CurrentResourceSlot, ResourceInstance))\
-                        .filter(not_(CurrentResourceSlot.slot_reservations.any()))\
-                        .filter(ResourceInstance.resource_type == resource_type)\
-                        .order_by(CurrentResourceSlot.id).all()
-
-                if len(free_instances) == 0:
-                    # If there is no free instance, just return
-                    return
-
-                #
-                # Select the correct free_instance for the current student among
-                # all the free_instances
-                #
-                if self.randomize_instances:
-                    randomized_free_instances = [ free_instance for free_instance in free_instances ]
-                    random.shuffle(randomized_free_instances)
-                else:
-                    randomized_free_instances = free_instances
-
-                for free_instance in randomized_free_instances:
-
-                    resource_type = free_instance.resource_instance.resource_type
-                    if resource_type is None:
-                        continue # If suddenly the free_instance is not a free_instance anymore, try with other free_instance
-
-                    #
-                    # IMPORTANT: from here on every "continue" should first revoke the
-                    # reservations_manager and resources_manager confirmations
-                    #
-
-                    self.reservations_manager.confirm(session, first_waiting_reservation.reservation_id)
-                    slot_reservation = self.resources_manager.acquire_resource(session, free_instance)
-                    total_time = first_waiting_reservation.time
-                    initialization_in_accounting = first_waiting_reservation.initialization_in_accounting
-                    start_time = self.time_provider.get_time()
-                    concrete_current_reservation = ConcreteCurrentReservation(slot_reservation, first_waiting_reservation.reservation_id,
-                                                        total_time, start_time, first_waiting_reservation.priority, first_waiting_reservation.initialization_in_accounting)
-                    concrete_current_reservation.timestamp_before = self.time_provider.get_time()
-
-                    client_initial_data = first_waiting_reservation.reservation.client_initial_data
-
-                    reservation_id = first_waiting_reservation.reservation_id
-                    if reservation_id is None:
-                        break # If suddenly the waiting_reservation is not a waiting_reservation anymore, so reservation is None, go again to the while True.
-
-                    requested_experiment_type = first_waiting_reservation.reservation.experiment_type
-                    selected_experiment_instance = None
-                    for experiment_instance in free_instance.resource_instance.experiment_instances:
-                        if experiment_instance.experiment_type == requested_experiment_type:
-                            selected_experiment_instance = experiment_instance
-
-                    if selected_experiment_instance is None:
-                        # This resource is not valid for this user, other free_instance should be
-                        # selected. Try with other, but first clean the acquired resources
-                        self.reservations_manager.downgrade_confirmation(session, first_waiting_reservation.reservation_id)
-                        self.resources_manager.release_resource(session, slot_reservation)
-                        continue
-
-                    experiment_instance_id = ExperimentInstanceId(selected_experiment_instance.experiment_instance_id, requested_experiment_type.exp_name, requested_experiment_type.cat_name)
-
-                    laboratory_coord_address = selected_experiment_instance.laboratory_coord_address
-                    try:
-                        session.delete(first_waiting_reservation)
-                        session.add(concrete_current_reservation)
-                        session.commit()
-                    except IntegrityError as ie:
-                        # Other scheduler confirmed the user or booked the reservation, rollback and try again
-                        # But log just in case
-                        log.log(
-                            PriorityQueueScheduler, log.level.Warning,
-                            "IntegrityError looping on update_queues: %s" % ie )
-                        log.log_exc(PriorityQueueScheduler, log.level.Info)
-                        session.rollback()
-                        break
-                    except Exception as e:
-                        log.log(
-                            PriorityQueueScheduler, log.level.Warning,
-                            "Exception looping on update_queues: %s" % e )
-                        log.log_exc(PriorityQueueScheduler, log.level.Info)
-                        session.rollback()
-                        break
-                    else:
-                        #
-                        # Enqueue the confirmation, since it might take a long time
-                        # (for instance, if the laboratory server does not reply because
-                        # of any network problem, or it just takes too much in replying),
-                        # so this method might take too long. That's why we enqueue these
-                        # petitions and run them in other threads.
-                        #
-                        deserialized_server_initial_data = {
-                                'priority.queue.slot.length'                       : '%s' % total_time,
-                                'priority.queue.slot.start'                        : '%s' % datetime.datetime.fromtimestamp(start_time),
-                                'priority.queue.slot.initialization_in_accounting' : initialization_in_accounting,
-                                'request.experiment_id.experiment_name'            : experiment_instance_id.exp_name,
-                                'request.experiment_id.category_name'              : experiment_instance_id.cat_name,
-                            }
-                        server_initial_data = json.dumps(deserialized_server_initial_data)
-                        # server_initial_data will contain information such as "what was the last experiment used?".
-                        # If a single resource was used by a binary experiment, then the next time may not require reprogramming the device
-                        self.confirmer.enqueue_confirmation(laboratory_coord_address, reservation_id, experiment_instance_id, client_initial_data, server_initial_data)
-                        #
-                        # After it, keep in the while True in order to add the next
-                        # reservation
-                        #
-                        break
-            except (ConcurrentModificationError, IntegrityError) as ie:
-                # Something happened somewhere else, such as the user being confirmed twice, the experiment being reserved twice or so on.
-                # Rollback and start again
-                log.log(
-                    PriorityQueueScheduler, log.level.Warning,
-                    "Exception while updating queues, reverting and trying again: %s" % ie )
-                log.log_exc(PriorityQueueScheduler, log.level.Info)
-                session.rollback()
-            finally:
-                session.close()
-
+                break
 
     ################################################
     #
