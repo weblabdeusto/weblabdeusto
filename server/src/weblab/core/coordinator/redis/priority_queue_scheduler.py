@@ -146,7 +146,7 @@ class PriorityQueueScheduler(Scheduler):
    
         # Within the same priority, we want all to sort all the requests by the order they came.
         # In order to support this, we increase a long enough value and put it before the reservaiton_id
-        current_position = client.incr(WEBLAB_RESOURCE_PQUEUE_POSITIONS)
+        current_position = client.incr(weblab_resource_pqueue_positions)
         filled_reservation_id = "%s_%s" % (str(current_position).zfill(100), reservation_id)
 
         pipeline = client.pipeline()
@@ -538,27 +538,30 @@ class PriorityQueueScheduler(Scheduler):
         results = pipeline.execute()
        
         # Parse the results, ignoring those with a None result
-        values = []
+        current_values = []
         for reservation_id, reservation_data in zip(reservations, results):
             if reservation_data is not None:
                 data = json.loads(reservation_data)
-                if TIMESTAMP_BEFORE in data:
-                    values.append(reservation_id, data[TIMESTAMP_BEFORE], data[TIMESTAMP_AFTER], data[INITIALIZATION_IN_ACCOUNTING])
-
-        # For the valid results
-        for reservation_id, timestamp_before, timestamp_after, initialization_in_accounting, time in values:
-            timestamp = timestamp_before if initialization_in_accounting else timestamp_after
-            if time + timestamp >= now:
-                print "must be deleted"
-                # TODO
-                
-            enqueue_free_experiment_args = self._clean_current_reservation(reservation_id)
-            enqueue_free_experiment_args_retrieved.append(enqueue_free_experiment_args)
-            # TODO: delete
-            self.reservations_manager.delete(session, reservation_id)
-            reservations_removed = True
+                if ACTIVE_STATUS in data:
+                    total_time                   = data[TIME]
+                    timestamp_before             = data[TIMESTAMP_BEFORE]
+                    timestamp_after              = data.get(TIMESTAMP_AFTER)
+                    initialization_in_accounting = data[INITIALIZATION_IN_ACCOUNTING]
+                    # if timestamp_after is None and initialization should not be considered,
+                    # then we can not calculate if the time has expired, so we skip it (it will
+                    # be considered as expired for lack of LATEST_ACCESS
+                    if timestamp_after is not None or initialization_in_accounting:
+                        timestamp = timestamp_before if initialization_in_accounting else timestamp_after
+                        if now >= timestamp + total_time: # Expired!
+                            # TODO: implement all this
+                            enqueue_free_experiment_args = self._clean_current_reservation(reservation_id)
+                            enqueue_free_experiment_args_retrieved.append(enqueue_free_experiment_args)
+                            # TODO: delete
+                            self.reservations_manager.delete(session, reservation_id)
+                            reservations_removed = True
 
         for expired_reservation_id in self.reservations_manager.list_expired_reservations(current_expiration_time):
+            print "NOT IMPLEMENTED"
             # TODO: all this section missing
             concrete_current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == expired_reservation_id).first()
             if concrete_current_reservation is not None:

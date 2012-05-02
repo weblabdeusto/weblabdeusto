@@ -50,6 +50,7 @@ class ReservationsManager(object):
 
         for reservation_id in client.smembers(WEBLAB_RESERVATIONS):
             client.delete(WEBLAB_RESERVATION % reservation_id)
+            client.delete(WEBLAB_RESERVATION_STATUS % reservation_id)
             client.delete(WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS % reservation_id)
 
         client.delete(WEBLAB_RESERVATIONS_LOCK)
@@ -107,14 +108,11 @@ class ReservationsManager(object):
         return reservation is not None
 
     def get_experiment_id(self, reservation_id):
-        session = self._session_maker()
-        try:
-            reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
-            if reservation is None:
-                raise CoordExc.ExpiredSessionError("Expired reservation: no experiment id found for that reservation (%s)" % reservation_id)
-            return reservation.experiment_type.to_experiment_id()
-        finally:
-            session.close()
+        reservation_data = self.get_reservation_data(reservation_id)
+        if reservation_data is None:
+            raise CoordExc.ExpiredSessionError("Expired reservation: no experiment id found for that reservation (%s)" % reservation_id)
+        return ExperimentId.parse(reservation_data[EXPERIMENT_TYPE])
+
 
     def get_reservation_data(self, reservation_id):
         client = self._redis_maker()

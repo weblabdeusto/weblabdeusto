@@ -31,6 +31,7 @@ from weblab.core.coordinator.redis.constants import (
     WEBLAB_RESOURCES,
     WEBLAB_RESOURCE,
     WEBLAB_RESOURCE_SLOTS,
+    WEBLAB_RESOURCE_WORKING,
     WEBLAB_RESOURCE_EXPERIMENTS,
     WEBLAB_RESOURCE_RESERVATIONS,
     WEBLAB_RESOURCE_INSTANCE,
@@ -41,7 +42,6 @@ from weblab.core.coordinator.redis.constants import (
     RESOURCE_INST,
     EXPERIMENT_TYPE,
     RESOURCE_TYPE,
-    AVAILABLE,
 )
 
 class ResourcesManager(object):
@@ -52,8 +52,9 @@ class ResourcesManager(object):
     def add_resource(self, resource):
         client = self._redis_maker()
         client.sadd(WEBLAB_RESOURCES, resource.resource_type)
-        client.sadd(WEBLAB_RESOURCE % resource.resource_type,      resource.resource_instance)
-        client.sadd(WEBLAB_RESOURCE_SLOTS % resource.resource_type, resource.resource_instance)
+        client.sadd(WEBLAB_RESOURCE % resource.resource_type,         resource.resource_instance)
+        client.sadd(WEBLAB_RESOURCE_SLOTS   % resource.resource_type, resource.resource_instance)
+        client.sadd(WEBLAB_RESOURCE_WORKING % resource.resource_type, resource.resource_instance)
         
     @typecheck(ExperimentId, basestring)
     def add_experiment_id(self, experiment_id, resource_type):
@@ -215,13 +216,8 @@ class ResourcesManager(object):
     @typecheck(basestring)
     def are_resource_instances_working(self, resource_type):
         client = self._redis_maker()
-        resource_instances = client.smembers(WEBLAB_RESOURCE % resource_type)
-        available_instances = []
-        for resource_instance in resource_instances:
-            if client.hget(WEBLAB_RESOURCE_INSTANCE % (resource_type, resource_instance), AVAILABLE) == 1:
-                return True
-                
-        return False
+        resource_instances = client.smembers(WEBLAB_RESOURCE_WORKING % resource_type)
+        return len(resource_instances) > 0
 
     def list_resources(self):
         client = self._redis_maker()
@@ -346,6 +342,8 @@ class ResourcesManager(object):
             client.delete(WEBLAB_RESOURCE % element)
             client.delete(WEBLAB_RESOURCE_EXPERIMENTS % element)
             client.delete(WEBLAB_RESOURCE_RESERVATIONS % element)
+            client.delete(WEBLAB_RESOURCE_SLOTS % element)
+            client.delete(WEBLAB_RESOURCE_WORKING % element)
         for element in client.keys(WEBLAB_RESOURCE_RESERVATIONS % '*'):
             client.delete(element)
         client.delete(WEBLAB_RESOURCES)

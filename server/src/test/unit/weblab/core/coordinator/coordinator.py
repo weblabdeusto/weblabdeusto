@@ -105,6 +105,7 @@ def coord_addr(coord_addr_str):
 class AbstractCoordinatorTestCase(unittest.TestCase):
     
     def setUp(self):
+        self.maxDiff = None
         locator_mock = None
 
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
@@ -133,6 +134,7 @@ class AbstractCoordinatorTestCase(unittest.TestCase):
         self.coordinator.add_experiment_instance_id("lab2:inst@machine", ExperimentInstanceId('inst2', 'exp1','cat1'), Resource("res_type", "res_inst2"))
 
     def tearDown(self):
+        self.coordinator._clean()
         self.coordinator.stop()
 
     def test_reserve_experiment(self):

@@ -23,6 +23,7 @@ WEBLAB_RESOURCE                      = 'weblab:resources:%s'
 WEBLAB_RESOURCE_EXPERIMENTS          = 'weblab:resources:%s:experiment_types'
 WEBLAB_RESOURCE_RESERVATIONS         = 'weblab:resources:%s:reservations'
 WEBLAB_RESOURCE_SLOTS                = 'weblab:resources:%s:slots'
+WEBLAB_RESOURCE_WORKING              = 'weblab:resources:%s:working'
 WEBLAB_RESOURCE_INSTANCE             = 'weblab:resources:%s:%s'
 WEBLAB_RESOURCE_INSTANCE_EXPERIMENTS = 'weblab:resources:%s:%s:experiment_instances'
 
@@ -41,7 +42,6 @@ WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS = 'weblab:reservations:%s:active_scheduler
 # PQUEUE
 WEBLAB_RESERVATION_PQUEUE         = 'weblab:reservations:%s:pqueue'
 
-AVAILABLE                    = 'available'
 CURRENT                      = 'current'
 
 LAB_COORD                    = 'laboratory_coord_address'
