@@ -129,13 +129,12 @@ class IndependentSchedulerAggregator(Scheduler):
 
         if DEBUG:
             print
-            session = self.session_maker()
-            url = str(session.get_bind().url)
-            session.close()
+            client = self.redis_maker()
+            url = str(client.connection_pool.connection_kwargs.get('db', 0))
 
-            if url.endswith('3'):
+            if url.endswith('2'):
                 tabs = '\t\t'
-            elif url.endswith('2'):
+            elif url.endswith('1'):
                 tabs = '\t'
             else:
                 tabs = ''
