@@ -80,6 +80,8 @@ DEFAULT_WEBLAB_CORE_SERVER_SESSION_TYPE         = SessionType.Memory
 WEBLAB_CORE_SERVER_SESSION_POOL_ID              = "core_session_pool_id"
 WEBLAB_CORE_SERVER_RESERVATIONS_SESSION_POOL_ID = "core_session_pool_id"
 
+WEBLAB_CORE_SERVER_COORDINATION_IMPLEMENTATION  = "core_coordination_impl"
+
 WEBLAB_CORE_SERVER_CLEAN_COORDINATOR            = "core_coordinator_clean"
 
 WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER               = "core_universal_identifier"
@@ -170,7 +172,8 @@ class UserProcessingServer(object):
         # Coordination
         #
 
-        self._coordinator    = coordinator_create(SQLALCHEMY, self._locator, cfg_manager)
+        coordinator_implementation = cfg_manager.get_value(WEBLAB_CORE_SERVER_COORDINATION_IMPLEMENTATION, SQLALCHEMY)
+        self._coordinator    = coordinator_create(coordinator_implementation, self._locator, cfg_manager)
 
         #
         # Database and information storage managers

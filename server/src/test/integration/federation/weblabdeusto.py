@@ -23,14 +23,12 @@ from weblab.data.experiments import ExperimentId, WaitingReservationResult, Runn
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 from weblab.core.reservations import Reservation
 
-FEDERATED_DEPLOYMENTS = 'test/deployments/federated_basic'
-
-CONSUMER_CONFIG_PATH  = FEDERATED_DEPLOYMENTS + '/consumer/'
-PROVIDER1_CONFIG_PATH = FEDERATED_DEPLOYMENTS + '/provider1/'
-PROVIDER2_CONFIG_PATH = FEDERATED_DEPLOYMENTS + '/provider2/'
-
-class FederatedWebLabDeustoTestCase(unittest.TestCase):
+class AbstractFederatedWebLabDeustoTestCase(unittest.TestCase):
     def setUp(self):
+        CONSUMER_CONFIG_PATH  = self.FEDERATED_DEPLOYMENTS + '/consumer/'
+        PROVIDER1_CONFIG_PATH = self.FEDERATED_DEPLOYMENTS + '/provider1/'
+        PROVIDER2_CONFIG_PATH = self.FEDERATED_DEPLOYMENTS + '/provider2/'
+
         self.server_loader     = ServerLoader.ServerLoader()
 
         self.consumer_handler  = self.server_loader.load_instance( CONSUMER_CONFIG_PATH,   'consumer_machine', 'main_instance' )
@@ -265,8 +263,14 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
 
         return reservation_id
 
+class SqlFederatedWebLabDeustoTestCase(AbstractFederatedWebLabDeustoTestCase):
+    FEDERATED_DEPLOYMENTS = 'test/deployments/federated_basic_sql'
+
+class RedisFederatedWebLabDeustoTestCase(AbstractFederatedWebLabDeustoTestCase):
+    FEDERATED_DEPLOYMENTS = 'test/deployments/federated_basic_redis'
+
 def suite():
-    suites = (unittest.makeSuite(FederatedWebLabDeustoTestCase), )
+    suites = (unittest.makeSuite(SqlFederatedWebLabDeustoTestCase), unittest.makeSuite(RedisFederatedWebLabDeustoTestCase))
     return unittest.TestSuite( suites )
 
 if __name__ == '__main__':
