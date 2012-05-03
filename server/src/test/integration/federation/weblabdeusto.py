@@ -77,7 +77,8 @@ class AbstractFederatedWebLabDeustoTestCase(unittest.TestCase):
         self._wait_multiple_reservations(20, session_id, [ reservation_id ], [0])
         reservation_result = self.consumer_core_client.get_experiment_use_by_id(session_id, reservation_id)
         self.assertTrue(reservation_result.is_finished())
-        self.assertEquals('Consumer', reservation_result.experiment_use.commands[2].response.commandstring)
+        self._find_command(reservation_result, 'Consumer')
+
 
         #######################################################
         #
@@ -91,7 +92,7 @@ class AbstractFederatedWebLabDeustoTestCase(unittest.TestCase):
         self._wait_multiple_reservations(20, session_id, [ reservation_id ], [0])
         reservation_result = self.consumer_core_client.get_experiment_use_by_id(session_id, reservation_id)
         self.assertTrue(reservation_result.is_finished())
-        self.assertEquals('Provider 1', reservation_result.experiment_use.commands[2].response.commandstring)
+        self._find_command(reservation_result, 'Provider 1')
 
         #######################################################
         #
@@ -105,7 +106,7 @@ class AbstractFederatedWebLabDeustoTestCase(unittest.TestCase):
         self._wait_multiple_reservations(20, session_id, [ reservation_id ], [0])
         reservation_result = self.consumer_core_client.get_experiment_use_by_id(session_id, reservation_id)
         self.assertTrue(reservation_result.is_finished())
-        self.assertEquals('Provider 2', reservation_result.experiment_use.commands[2].response.commandstring)
+        self._find_command(reservation_result, 'Provider 2')
 
         #######################################################
         #
@@ -223,6 +224,16 @@ class AbstractFederatedWebLabDeustoTestCase(unittest.TestCase):
 
             if all_finished:
                 break
+
+    def _find_command(self, reservation_result, expected_response):
+        found = False
+        commands = reservation_result.experiment_use.commands
+        for command in commands:
+            if command.command.commandstring == 'server_info':
+                found = True
+                response = command.response.commandstring
+                self.assertEquals(expected_response, response, "Message %s not found in commands %s; instead found %s" % (expected_response, commands, response))
+        self.assertTrue(found, "server_info not found in commands")
 
     def _test_reservation(self, session_id, experiment_id, expected_server_info, wait, finish, user_agent = None):
         reservation_status = self.consumer_core_client.reserve_experiment(session_id, experiment_id, "{}", "{}", user_agent = user_agent)

@@ -61,7 +61,7 @@ class TemporalInformationRetriever(threading.Thread):
 
     def iterate(self):
         self.iterate_initial()
-        if self.keep_running:
+        if self.keep_running and self.commands_store.empty() and self.completed_store.empty():
             self.iterate_finish()
         if self.keep_running:
             self.iterate_command()
@@ -112,9 +112,14 @@ class TemporalInformationRetriever(threading.Thread):
 
 
     def iterate_finish(self):
-        information = self.finished_store.get(timeout=self.timeout)
+        information = self.finished_store.get(timeout=self.timeout)            
         if information is not None:
             reservation_id, obj, initial_time, end_time = information
+
+            if not self.commands_store.empty() or not self.completed_store.empty():
+                # They have higher priority
+                self.finished_store.put(reservation_id, obj, initial_time, end_time)
+                return
 
             initial_timestamp = time.mktime(initial_time.timetuple()) + initial_time.microsecond / 10e6
             end_timestamp     = time.mktime(end_time.timetuple()) + end_time.microsecond / 10e6

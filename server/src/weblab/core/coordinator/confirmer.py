@@ -29,7 +29,7 @@ import weblab.data.server_type as ServerType
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("Coordinator")
 
 # TODO
-DEBUG = True
+DEBUG = False
 
 class ReservationConfirmer(object):
     def __init__(self, coordinator, locator):

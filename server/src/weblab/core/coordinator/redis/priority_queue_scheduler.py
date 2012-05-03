@@ -66,7 +66,7 @@ from weblab.core.coordinator.redis.constants import (
 
 EXPIRATION_TIME  = 3600 # seconds
 
-DEBUG = True
+DEBUG = False
 
 ###########################################################
 #
