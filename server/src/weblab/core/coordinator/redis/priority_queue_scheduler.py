@@ -362,7 +362,7 @@ class PriorityQueueScheduler(Scheduler):
                         lab_session_id          = reservation_data.get(LAB_SESSION_ID)
                         experiment_instance_str = reservation_data.get(EXPERIMENT_INSTANCE)
                         experiment_instance_id  = ExperimentInstanceId.parse(experiment_instance_str)
-                        if experiment_instance_id is not None and lab_session_id is not None: 
+                        if experiment_instance_id is not None: 
                             # If the experiment instance doesn't exist, there is no need to call the free_experiment method
                             lab_coord_address  = reservation_data.get(LAB_COORD)
                             enqueue_free_experiment_args = (lab_coord_address, reservation_id, lab_session_id, experiment_instance_id)

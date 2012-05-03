@@ -1113,6 +1113,18 @@ class AbstractCoordinatorWithSlowConfirmerTestCase(unittest.TestCase):
 
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
+        self.cfg_manager._set_value(COORDINATOR_LABORATORY_SERVERS, {
+            'lab1:inst@machine' : {
+                'inst1|exp1|cat1' : 'res_inst1@res_type'
+            },
+            'lab2:inst@machine' : {
+                'inst2|exp1|cat1' : 'res_inst2@res_type'
+            }
+        })
+        scheduling_systems = { 
+            "res_type"     : ("PRIORITY_QUEUE",     {'randomize_instances' : False}),
+        }
+        self.cfg_manager._set_value('core_scheduling_systems', scheduling_systems)
 
         self.coordinator = self.WrappedCoordinator(locator_mock, self.cfg_manager, ConfirmerClass = SlowConfirmerMock)
         self.coordinator._clean()
