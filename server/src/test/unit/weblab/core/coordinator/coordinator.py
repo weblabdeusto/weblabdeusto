@@ -542,7 +542,19 @@ class AbstractCoordinatorTestCase(unittest.TestCase):
         #
         status = self.coordinator.get_reservation_status(reservation1_id)
         expected_status = WSS.WaitingQueueStatus(reservation1_id, 0)
-        self.assertEquals( expected_status, status )
+        # This depends on the order of redis and sqlalchemy, so choose one or the other
+        if status == expected_status:
+            status = self.coordinator.get_reservation_status(reservation2_id)
+            expected_status = WSS.WaitingConfirmationQueueStatus(reservation2_id, DEFAULT_URL)
+            self.assertEquals( expected_status, status )
+        else:
+            expected_status = WSS.WaitingConfirmationQueueStatus(reservation1_id, DEFAULT_URL)
+            self.assertEquals( expected_status, status )
+            
+            # And check the other
+            status = self.coordinator.get_reservation_status(reservation2_id)
+            expected_status = WSS.WaitingQueueStatus(reservation1_id, 0)
+            self.assertEquals( expected_status, status )
 
         status = self.coordinator.get_reservation_status(reservation3_id)
         expected_status = WSS.WaitingQueueStatus(reservation3_id, 1)

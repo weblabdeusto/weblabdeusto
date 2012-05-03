@@ -113,17 +113,16 @@ class PriorityQueueScheduler(Scheduler):
     @Override(Scheduler)
     @typecheck(typecheck.ANY, typecheck.ANY, Resource)
     def removing_current_resource_slot(self, client, resource):
-        
         weblab_resource_instance_reservations = WEBLAB_RESOURCE_PQUEUE_INSTANCE_RESERVATIONS % (resource.resource_type, resource.resource_instance)
 
         current_reservation_ids = client.smembers(weblab_resource_instance_reservations)
         if len(current_reservation_ids) > 0:
-            current_reservation_id = current_reservation_ids[0]
+            current_reservation_id = list(current_reservation_ids)[0]
             if client.srem(weblab_resource_instance_reservations, current_reservation_id):
                 self.reservations_manager.downgrade_confirmation(current_reservation_id)
                 self.resources_manager.release_resource(resource)
                 # Remove data that was added when confirmed
-                weblab_reservation_pqueue           = WEBLAB_RESERVATION_PQUEUE           % reservation_id
+                weblab_reservation_pqueue   = WEBLAB_RESERVATION_PQUEUE % current_reservation_id
                 reservation_data_str = client.get(weblab_reservation_pqueue)
                 reservation_data = json.loads(reservation_data_str)
                 reservation_data.pop(ACTIVE_STATUS,    None)
@@ -131,14 +130,14 @@ class PriorityQueueScheduler(Scheduler):
                 reservation_data.pop(TIMESTAMP_AFTER,  None)
                 reservation_data.pop(LAB_SESSION_ID,   None)
                 reservation_data_str = json.dumps(reservation_data)
-                reservation_data = client.set(reservation_data_str)
+                reservation_data = client.set(weblab_reservation_pqueue, reservation_data_str)
                 # Add back to the queue
 
                 weblab_resource_pqueue_map          = WEBLAB_RESOURCE_PQUEUE_MAP          % self.resource_type_name
                 weblab_resource_pqueue_sorted       = WEBLAB_RESOURCE_PQUEUE_SORTED       % self.resource_type_name
 
                 filled_reservation_id = client.hget(weblab_resource_pqueue_map, current_reservation_id)
-                pipeline.zadd(weblab_resource_pqueue_sorted, filled_reservation_id, -1)
+                client.zadd(weblab_resource_pqueue_sorted, filled_reservation_id, -1)
                 return True
            
         return False
@@ -202,7 +201,7 @@ class PriorityQueueScheduler(Scheduler):
         if expired:
             self._delete_reservation(reservation_id)
             raise ExpiredSessionError("Expired reservation")
-    
+   
         self._synchronizer.request_and_wait()
 
         reservation_id_with_route = '%s;%s.%s' % (reservation_id, reservation_id, self.core_server_route)
@@ -355,6 +354,8 @@ class PriorityQueueScheduler(Scheduler):
                     resource_instance_str = reservation_data.get(RESOURCE_INSTANCE)
                     if resource_instance_str is not None:
                         resource_instance       = Resource.parse(resource_instance_str)
+                        weblab_resource_pqueue_instance_reservations = WEBLAB_RESOURCE_PQUEUE_INSTANCE_RESERVATIONS % (resource_instance.resource_type, resource_instance.resource_instance)
+                        client.srem(weblab_resource_pqueue_instance_reservations, reservation_id)
                         self.resources_manager.release_resource(resource_instance)
                         lab_session_id          = reservation_data.get(LAB_SESSION_ID)
                         experiment_instance_str = reservation_data.get(EXPERIMENT_INSTANCE)
@@ -465,6 +466,10 @@ class PriorityQueueScheduler(Scheduler):
                     self.reservations_manager.downgrade_confirmation(first_waiting_reservation_id)
                     continue
 
+                weblab_resource_pqueue_instance_reservations = WEBLAB_RESOURCE_PQUEUE_INSTANCE_RESERVATIONS % (self.resource_type_name, free_instance.resource_instance)
+                client.sadd(weblab_resource_pqueue_instance_reservations, first_waiting_reservation_id)
+
+
                 weblab_reservation_pqueue = WEBLAB_RESERVATION_PQUEUE % first_waiting_reservation_id
                 pqueue_reservation_data_str = client.get(weblab_reservation_pqueue)
                 reservation_data            = self.reservations_manager.get_reservation_data(first_waiting_reservation_id)
@@ -472,6 +477,7 @@ class PriorityQueueScheduler(Scheduler):
                     # the student is not here anymore; downgrading confirmation is not required
                     # but releasing the resource is; and skip the rest of the free instances
                     self.resources_manager.release_resource(free_instance)
+                    client.srem(weblab_resource_pqueue_instance_reservations, reservation_id)
                     break
 
                 pqueue_reservation_data = json.loads(pqueue_reservation_data_str)
@@ -500,6 +506,7 @@ class PriorityQueueScheduler(Scheduler):
                     # selected. Try with other, but first clean the acquired resources
                     self.reservations_manager.downgrade_confirmation(first_waiting_reservation_id)
                     self.resources_manager.release_resource(free_instance)
+                    client.srem(weblab_resource_pqueue_instance_reservations, reservation_id)
                     continue
 
                 pqueue_reservation_data[EXPERIMENT_INSTANCE] = selected_experiment_instance.to_weblab_str()
@@ -637,6 +644,8 @@ class PriorityQueueScheduler(Scheduler):
             client.delete(WEBLAB_RESERVATION_PQUEUE % reservation_id)
             client.delete(WEBLAB_RESOURCE_PQUEUE_INSTANCE_RESERVATIONS % (self.resource_type_name, '*'))
 
+        for resource_instance in self.resources_manager.list_resource_instances_by_type(self.resource_type_name):
+            client.delete(WEBLAB_RESOURCE_PQUEUE_INSTANCE_RESERVATIONS % (self.resource_type_name, resource_instance.resource_instance))
         client.delete(WEBLAB_RESOURCE_PQUEUE_RESERVATIONS % self.resource_type_name)
         client.delete(WEBLAB_RESOURCE_PQUEUE_POSITIONS    % self.resource_type_name)
         client.delete(WEBLAB_RESOURCE_PQUEUE_MAP          % self.resource_type_name)
