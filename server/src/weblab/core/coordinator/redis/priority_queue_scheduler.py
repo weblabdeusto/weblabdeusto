@@ -506,7 +506,7 @@ class PriorityQueueScheduler(Scheduler):
                     # selected. Try with other, but first clean the acquired resources
                     self.reservations_manager.downgrade_confirmation(first_waiting_reservation_id)
                     self.resources_manager.release_resource(free_instance)
-                    client.srem(weblab_resource_pqueue_instance_reservations, reservation_id)
+                    client.srem(weblab_resource_pqueue_instance_reservations, first_waiting_reservation_id)
                     continue
 
                 pqueue_reservation_data[EXPERIMENT_INSTANCE] = selected_experiment_instance.to_weblab_str()
