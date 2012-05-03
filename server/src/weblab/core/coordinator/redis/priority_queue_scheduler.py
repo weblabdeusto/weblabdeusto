@@ -230,10 +230,11 @@ class PriorityQueueScheduler(Scheduler):
                 return WSS.WaitingConfirmationQueueStatus(reservation_id_with_route, self.core_server_url)
 
             # Or the experiment server already responded and therefore we have all this data
+            experiment_instance_id       = ExperimentInstanceId.parse(reservation_data[EXPERIMENT_INSTANCE])
+            str_lab_coord_address        = reservation_data[LAB_COORD]
             obtained_time                = reservation_data[TIME]
             initialization_in_accounting = reservation_data[INITIALIZATION_IN_ACCOUNTING]
-            str_lab_coord_address        = reservation_data[LAB_SESSION_ID]
-            lab_session_id               = reservation_data[LAB_SESSION_ID] 
+            lab_session_id               = reservation_data[LAB_SESSION_ID]  
             initial_configuration        = reservation_data[INITIAL_CONFIGURATION]
             timestamp_before_tstamp      = reservation_data[TIMESTAMP_BEFORE]
             timestamp_after_tstamp       = reservation_data[TIMESTAMP_AFTER]
@@ -287,35 +288,29 @@ class PriorityQueueScheduler(Scheduler):
     def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
         self._remove_expired_reservations()
 
-        session = self.session_maker()
-        try:
-            if not self.reservations_manager.check(session, reservation_id):
+        weblab_reservation_pqueue = WEBLAB_RESERVATION_PQUEUE % reservation_id
+
+        client = self.redis_maker()
+        pqueue_reservation_data_str = client.get(weblab_reservation_pqueue)
+        if pqueue_reservation_data_str is None:
+            return
+
+        pqueue_reservation_data = json.loads(pqueue_reservation_data_str)
+        resource_instance_str = pqueue_reservation_data.get(RESOURCE_INSTANCE)
+        if resource_instance_str is not None:
+            resource_instance = Resource.parse(resource_instance_str)
+            if not self.resources_manager.check_working(resource_instance):
+                # TODO: if the experiment is broken and the student is ACTIVE_STATUS, something should be done
+                # 
                 return
 
-            possible_concrete_current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == reservation_id).first()
-            concrete_current_reservation = None
-            if possible_concrete_current_reservation is not None:
-                slot = possible_concrete_current_reservation.slot_reservation
-                if slot is not None:
-                    current_resource_slot = slot.current_resource_slot
-                    if current_resource_slot is not None:
-                        resource_instance = current_resource_slot.resource_instance
-                        if resource_instance is not None:
-                            resource_type = resource_instance.resource_type
-                            if resource_type is not None and resource_type.name == self.resource_type_name:
-                                concrete_current_reservation = possible_concrete_current_reservation
+        pqueue_reservation_data[LAB_SESSION_ID]        = lab_session_id.id
+        pqueue_reservation_data[INITIAL_CONFIGURATION] = initial_configuration
+        pqueue_reservation_data[TIMESTAMP_AFTER]       = self.time_provider.get_time()
+        pqueue_reservation_data[ACTIVE_STATUS]         = STATUS_RESERVED
 
-            if concrete_current_reservation is None:
-                return
-
-            concrete_current_reservation.lab_session_id        = lab_session_id.id
-            concrete_current_reservation.initial_configuration = initial_configuration
-            concrete_current_reservation.timestamp_after       = self.time_provider.get_time()
-
-            session.commit()
-        finally:
-            session.close()
-
+        pqueue_reservation_data_str = json.dumps(pqueue_reservation_data)
+        client.set(weblab_reservation_pqueue, pqueue_reservation_data_str)
 
     ################################################################
     #
@@ -327,39 +322,28 @@ class PriorityQueueScheduler(Scheduler):
     def finish_reservation(self, reservation_id):
         self._remove_expired_reservations()
 
-        session = self.session_maker()
-        try:
-            possible_current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == reservation_id).first()
+        weblab_reservation_pqueue = WEBLAB_RESERVATION_PQUEUE % reservation_id
 
-            # Clean current reservation... if the current reservation is assigned to this scheduler
-            concrete_current_reservation = None
+        client = self.redis_maker()
+        pqueue_reservation_data_str = client.get(weblab_reservation_pqueue)
+        if pqueue_reservation_data_str is None:
+            return
+
+        pqueue_reservation_data = json.loads(pqueue_reservation_data_str)
+        if ACTIVE_STATUS in pqueue_reservation_data:
+            enqueue_free_experiment_args = self._clean_current_reservation(reservation_id)
+        else:
             enqueue_free_experiment_args = None
-            if possible_current_reservation is not None:
-                slot = possible_current_reservation.slot_reservation
-                if slot is not None:
-                    current_resource_slot = slot.current_resource_slot
-                    if current_resource_slot is not None:
-                        resource_instance = current_resource_slot.resource_instance
-                        if resource_instance is not None:
-                            resource_type = resource_instance.resource_type
-                            if resource_type is not None and resource_type.name == self.resource_type_name:
-                                concrete_current_reservation = possible_current_reservation
-                                enqueue_free_experiment_args = self._clean_current_reservation(session, concrete_current_reservation)
+            
+        self._delete_reservation(reservation_id)
 
-            db_resource_type = session.query(ResourceType).filter_by(name = self.resource_type_name).first()
-            reservation_to_delete = concrete_current_reservation or session.query(WaitingReservation).filter_by(reservation_id = reservation_id, resource_type = db_resource_type).first()
-            if reservation_to_delete is not None:
-                session.delete(reservation_to_delete)
-
-            session.commit()
-            if enqueue_free_experiment_args is not None:
-                self.confirmer.enqueue_free_experiment(*enqueue_free_experiment_args)
-        finally:
-            session.close()
+        if enqueue_free_experiment_args is not None:
+            self.confirmer.enqueue_free_experiment(*enqueue_free_experiment_args)
 
 
     def _clean_current_reservation(self, reservation_id):
         client = self.redis_maker()
+
         enqueue_free_experiment_args = None
         if reservation_id is not None:
             weblab_reservation_pqueue = WEBLAB_RESERVATION_PQUEUE % reservation_id
@@ -371,9 +355,10 @@ class PriorityQueueScheduler(Scheduler):
                     resource_instance_str = reservation_data.get(RESOURCE_INSTANCE)
                     if resource_instance_str is not None:
                         resource_instance       = Resource.parse(resource_instance_str)
+                        self.resources_manager.release_resource(resource_instance)
                         lab_session_id          = reservation_data.get(LAB_SESSION_ID)
                         experiment_instance_str = reservation_data.get(EXPERIMENT_INSTANCE)
-                        experiment_instance_id  = ExperimentId.parse(experiment_instance_str)
+                        experiment_instance_id  = ExperimentInstanceId.parse(experiment_instance_str)
                         if experiment_instance_id is not None and lab_session_id is not None: 
                             # If the experiment instance doesn't exist, there is no need to call the free_experiment method
                             lab_coord_address  = reservation_data.get(LAB_COORD)
@@ -494,6 +479,8 @@ class PriorityQueueScheduler(Scheduler):
                 start_time                                 = self.time_provider.get_time()
                 total_time                                 = pqueue_reservation_data[TIME]
                 pqueue_reservation_data[START_TIME]        = start_time
+
+
                 pqueue_reservation_data[TIMESTAMP_BEFORE]  = start_time
                 pqueue_reservation_data[ACTIVE_STATUS]     = STATUS_WAITING_CONFIRMATION
                 pqueue_reservation_data[RESOURCE_INSTANCE] = free_instance.to_weblab_str()
@@ -516,8 +503,8 @@ class PriorityQueueScheduler(Scheduler):
                     continue
 
                 pqueue_reservation_data[EXPERIMENT_INSTANCE] = selected_experiment_instance.to_weblab_str()
-
                 laboratory_coord_address = self.resources_manager.get_laboratory_coordaddress_by_experiment_instance_id(selected_experiment_instance)
+                pqueue_reservation_data[LAB_COORD] = laboratory_coord_address
                 client.set(weblab_reservation_pqueue, json.dumps(pqueue_reservation_data))
 
                 filled_reservation_id = client.hget(weblab_resource_pqueue_map, first_waiting_reservation_id)
@@ -551,6 +538,7 @@ class PriorityQueueScheduler(Scheduler):
     #
     # Remove all reservations whose session has expired
     #
+    @exc_checker
     def _remove_expired_reservations(self):
         now = self.time_provider.get_time()
 
@@ -589,8 +577,8 @@ class PriorityQueueScheduler(Scheduler):
                             self._delete_reservation(reservation_id)
                             reservations_removed = True
 
-        current_expiration_time = datetime.datetime.utcfromtimestamp(now - EXPIRATION_TIME)
         # Anybody with latest_access later than this point is expired
+        current_expiration_time = datetime.datetime.utcfromtimestamp(now - EXPIRATION_TIME)
 
         for expired_reservation_id in self.reservations_manager.list_expired_reservations(current_expiration_time):
             weblab_reservation_pqueue = WEBLAB_RESERVATION_PQUEUE % expired_reservation_id

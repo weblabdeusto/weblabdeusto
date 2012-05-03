@@ -129,6 +129,7 @@ class ResourcesManager(object):
             raise CoordExc.ExperimentNotFoundError("Experiment not found: %s" % experiment_id)
         return set(experiment_types)
 
+    @typecheck(ExperimentInstanceId)
     def get_resource_instance_by_experiment_instance_id(self, experiment_instance_id):
         experiment_id = experiment_instance_id.to_experiment_id()
         weblab_experiment_instance = WEBLAB_EXPERIMENT_INSTANCE % (experiment_id.to_weblab_str(), experiment_instance_id.inst_name)
@@ -136,7 +137,7 @@ class ResourcesManager(object):
         client = self._redis_maker()
         resource_instance = client.hget(weblab_experiment_instance, RESOURCE_INST)
         if resource_instance is None:
-                raise CoordExc.ExperimentNotFoundError("Experiment not found: %s" % experiment_instance_id)
+            raise CoordExc.ExperimentNotFoundError("Experiment not found: %s" % experiment_instance_id)
 
         return Resource.parse(resource_instance)
 
@@ -199,6 +200,8 @@ class ResourcesManager(object):
 
     @typecheck(Resource)
     def check_working(self, resource):
+        if resource is None:
+            return False
         client = self._redis_maker()
         resource_instances = client.smembers(WEBLAB_RESOURCE_WORKING % resource.resource_type)
         return resource.resource_instance in resource_instances

@@ -36,11 +36,13 @@ WEBLAB_RESOURCE_PQUEUE_SORTED                = 'weblab:resources:%s:reservations
 
 WEBLAB_RESERVATIONS_LOCK              = 'weblab:reservations:lock'
 WEBLAB_RESERVATIONS                   = 'weblab:reservations'
+WEBLAB_RESERVATIONS_FINISHING         = 'weblab:reservations:finishing'
 WEBLAB_RESERVATION                    = 'weblab:reservations:%s'
 WEBLAB_RESERVATION_STATUS             = 'weblab:reservations:%s:status'
 WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS = 'weblab:reservations:%s:active_schedulers'
-WEBLAB_POST_RESERVATIONS = "weblab:reservations:post_reservations"
-WEBLAB_POST_RESERVATION  = "weblab:reservations:%s:post_reservation"
+
+WEBLAB_POST_RESERVATIONS              = "weblab:reservations:post_reservations"
+WEBLAB_POST_RESERVATION               = "weblab:reservations:%s:post_reservation"
 
 # PQUEUE
 WEBLAB_RESERVATION_PQUEUE         = 'weblab:reservations:%s:pqueue'

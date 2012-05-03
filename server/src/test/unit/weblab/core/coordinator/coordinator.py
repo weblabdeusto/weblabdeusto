@@ -439,12 +439,22 @@ class AbstractCoordinatorTestCase(unittest.TestCase):
         self.assertEquals( expected_status, status )
 
         self.assertEquals( 1, len(self.coordinator.confirmer.uses_confirm) )
-        self.assertEquals( u'lab1:inst@machine', self.coordinator.confirmer.uses_confirm[0][0] )
-        self.assertEquals( ExperimentInstanceId('inst1','exp1','cat1'), self.coordinator.confirmer.uses_confirm[0][2] )
+
+        if u'lab2:inst@machine' == self.coordinator.confirmer.uses_confirm[0][0]:
+            laboratory_coord_address = u'lab2:inst@machine'
+            experiment_instance_id   = ExperimentInstanceId('inst2','exp1','cat1')
+        elif u'lab1:inst@machine' == self.coordinator.confirmer.uses_confirm[0][0]:
+            laboratory_coord_address = u'lab1:inst@machine'
+            experiment_instance_id   = ExperimentInstanceId('inst1','exp1','cat1')
+        else:
+            self.fail("expected: lab1:inst@machine or lab2:inst@machine; it depends on sqlalchemy or redis")
+
+        self.assertEquals( laboratory_coord_address, self.coordinator.confirmer.uses_confirm[0][0] )
+        self.assertEquals( experiment_instance_id, self.coordinator.confirmer.uses_confirm[0][2] )
 
         self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('exp1', 'cat1'), reservation1_id, "lab:server@mach", SessionId.SessionId("mysessionid"), "{}", now, now)
         status = self.coordinator.get_reservation_status(reservation1_id)
-        expected_status = WSS.LocalReservedStatus(reservation1_id, coord_addr("lab1:inst@machine"), SessionId.SessionId("mysessionid"), DEFAULT_TIME, "{}", now, now, True, DEFAULT_TIME, 'http://www.weblab.deusto.es/weblab/client/foo')
+        expected_status = WSS.LocalReservedStatus(reservation1_id, coord_addr(laboratory_coord_address), SessionId.SessionId("mysessionid"), DEFAULT_TIME, "{}", now, now, True, DEFAULT_TIME, 'http://www.weblab.deusto.es/weblab/client/foo')
 
 
         self.assertTrue("Unexpected status due to timestamp_before: %s; expected something like %s" % (status, expected_status),
@@ -466,8 +476,17 @@ class AbstractCoordinatorTestCase(unittest.TestCase):
         self.assertEquals( expected_status, status )
 
         self.assertEquals( 1, len(self.coordinator.confirmer.uses_confirm) )
-        self.assertEquals( u'lab1:inst@machine', self.coordinator.confirmer.uses_confirm[0][0] )
-        self.assertEquals( ExperimentInstanceId('inst1','exp1','cat1'), self.coordinator.confirmer.uses_confirm[0][2] )
+        if u'lab2:inst@machine' == self.coordinator.confirmer.uses_confirm[0][0]:
+            experiment_instance_id = ExperimentInstanceId('inst2','exp1','cat1')
+            lab_coord_address      = u'lab2:inst@machine'
+        elif u'lab1:inst@machine' == self.coordinator.confirmer.uses_confirm[0][0]:
+            experiment_instance_id = ExperimentInstanceId('inst1','exp1','cat1')
+            lab_coord_address      = u'lab1:inst@machine'
+        else:
+            self.fail("expected coord address: lab2:inst@machine or lab1:inst@machine (it depends on if you're using sqlalchemy or redis)")
+
+        self.assertEquals( lab_coord_address, self.coordinator.confirmer.uses_confirm[0][0] )
+        self.assertEquals( experiment_instance_id, self.coordinator.confirmer.uses_confirm[0][2] )
 
         response = {
             'batch' : True,

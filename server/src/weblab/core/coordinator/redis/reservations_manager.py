@@ -33,6 +33,7 @@ from weblab.core.coordinator.redis.constants import (
     WEBLAB_EXPERIMENT_TYPES,
 
     WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS,
+    WEBLAB_RESERVATIONS_FINISHING,
 
     CURRENT,
     LATEST_ACCESS,
@@ -106,11 +107,6 @@ class ReservationsManager(object):
 
         raise Exception("Couldn't create a session after %s tries" % MAX_TRIES)
 
-
-    def check(self, session, reservation_id):
-        reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
-        return reservation is not None
-
     def get_experiment_id(self, reservation_id):
         reservation_data = self.get_reservation_data(reservation_id)
         if reservation_data is None:
@@ -128,14 +124,10 @@ class ReservationsManager(object):
             return json.loads(serialized_reservation_data)
 
     def get_request_info_and_client_initial_data(self, reservation_id):
-        session = self._session_maker()
-        try:
-            reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
-            if reservation is None:
-                return "{}", "{}"
-            return reservation.request_info, reservation.client_initial_data
-        finally:
-            session.close()
+        reservation_data = self.get_reservation_data(reservation_id)
+        if reservation_data is None:
+            return "{}", "{}"
+        return reservation_data[REQUEST_INFO], reservation_data[CLIENT_INITIAL_DATA]
 
     def update(self, reservation_id):
         client = self._redis_maker()
@@ -208,28 +200,12 @@ class ReservationsManager(object):
         return list(client.smembers(weblab_resource_reservations))
         
     def initialize_deletion(self, reservation_id):
-        session = self._session_maker()
-        try:
-            pending = PendingToFinishReservation(reservation_id)
-            session.add(pending)
-            try:
-                session.commit()
-                return True
-            except (IntegrityError, OperationalError, ConcurrentModificationError):
-                # Somebody else is deleting it
-                return False
-        finally:
-            session.close()
+        client = self._redis_maker()
+        return client.sadd(WEBLAB_RESERVATIONS_FINISHING, reservation_id) != 0
 
     def clean_deletion(self, reservation_id):
-        session = self._session_maker()
-        try:
-            pending_to_finish = session.query(PendingToFinishReservation).filter_by(id=reservation_id).first()
-            if pending_to_finish is not None:
-                session.delete(pending_to_finish)
-            session.commit()
-        finally:
-            session.close()
+        client = self._redis_maker()
+        return client.srem(WEBLAB_RESERVATIONS_FINISHING, reservation_id)
 
     def delete(self, reservation_id):
         client = self._redis_maker()
