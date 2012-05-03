@@ -39,10 +39,14 @@ WEBLAB_RESERVATIONS                   = 'weblab:reservations'
 WEBLAB_RESERVATION                    = 'weblab:reservations:%s'
 WEBLAB_RESERVATION_STATUS             = 'weblab:reservations:%s:status'
 WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS = 'weblab:reservations:%s:active_schedulers'
+WEBLAB_POST_RESERVATIONS = "weblab:reservations:post_reservations"
+WEBLAB_POST_RESERVATION  = "weblab:reservations:%s:post_reservation"
 
 # PQUEUE
 WEBLAB_RESERVATION_PQUEUE         = 'weblab:reservations:%s:pqueue'
 
+# TODO: sort fields
+# Fields
 CURRENT                      = 'current'
 
 LAB_COORD                    = 'laboratory_coord_address'
@@ -70,4 +74,6 @@ ACTIVE_STATUS                = 'active_status'
 
 STATUS_RESERVED              = 'status_reserved'
 STATUS_WAITING_CONFIRMATION  = 'status_waiting_confirmation'
-
+INITIAL_DATA                 = 'initial_data'
+END_DATA                     = 'end_data'
+FINISHED                     = 'finished'

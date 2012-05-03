@@ -13,8 +13,12 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import datetime
 import traceback
+
 from sqlalchemy.exc import IntegrityError, ConcurrentModificationError
+
+from voodoo.typechecker import typecheck
 from weblab.core.coordinator.sql.model import PostReservationRetrievedData
 import weblab.core.coordinator.status as WSS
 
@@ -23,6 +27,7 @@ class PostReservationDataManager(object):
         self._session_maker = session_maker
         self.time_provider = time_provider
 
+    @typecheck(basestring, datetime.datetime, datetime.datetime, basestring)
     def create(self, reservation_id, date, expiration_date, initial_data):
         session = self._session_maker()
         try:

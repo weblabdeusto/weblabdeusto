@@ -21,6 +21,7 @@ import datetime
 from weblab.data.experiments import ExperimentId
 import weblab.core.coordinator.exc as CoordExc
 from voodoo.typechecker import typecheck
+from voodoo.resources_manager import is_testing
 
 from weblab.core.coordinator.redis.constants import (
     WEBLAB_RESERVATIONS_LOCK,
@@ -44,6 +45,7 @@ from weblab.core.coordinator.redis.constants import (
 class ReservationsManager(object):
     def __init__(self, redis_maker):
         self._redis_maker = redis_maker
+        self.now = datetime.datetime.utcnow
 
     def _clean(self):
         client = self._redis_maker()
@@ -68,6 +70,8 @@ class ReservationsManager(object):
 
         if now is None:
             now = datetime.datetime.utcnow
+        else:
+            self.now = now
         
         current_moment = now()
         now_timestamp = time.mktime(current_moment.timetuple()) + current_moment.microsecond / 10e6
@@ -135,17 +139,16 @@ class ReservationsManager(object):
 
     def update(self, reservation_id):
         client = self._redis_maker()
-
-        current_moment = datetime.datetime.utcnow()
+        
+        current_moment = self.now()
         now_timestamp = time.mktime(current_moment.timetuple()) + current_moment.microsecond / 10e6
 
         weblab_reservation_status = WEBLAB_RESERVATION_STATUS % reservation_id
         
-        return_value = client.hset(weblab_reservation_status, LATEST_ACCESS, now_timestamp)
-        if return_value == 1:
-            client.delete(weblab_reservation_status)
-            # TODO: Remove more things!!!
-            raise CoordExc.ExpiredSessionError("Expired reservation")
+        expired = client.hset(weblab_reservation_status, LATEST_ACCESS, now_timestamp)
+        # if it has created it, it means that it is expired
+        return expired != 0
+
 
     def confirm(self, reservation_id):
         client = self._redis_maker()
@@ -172,7 +175,9 @@ class ReservationsManager(object):
         # second
 
         acquired = client.hset(WEBLAB_RESERVATIONS_LOCK, "locked", 1)
-        if not acquired:
+        if not acquired and not is_testing():
+            # When testing, we want to avoid that two calls return different results, so 
+            # we ignore the mechanism
             return []
 
         client.expire(WEBLAB_RESERVATIONS_LOCK, 1) # Every second
@@ -180,13 +185,13 @@ class ReservationsManager(object):
         reservation_ids = client.smembers(WEBLAB_RESERVATIONS)
         
         pipeline = client.pipeline()
-
         for reservation_id in reservation_ids:
-            weblab_reservation = WEBLAB_RESERVATION % reservation_id
-            pipeline.hget(weblab_reservation, LATEST_ACCESS)
+            weblab_reservation_status = WEBLAB_RESERVATION_STATUS % reservation_id
+            pipeline.hget(weblab_reservation_status, LATEST_ACCESS)
 
         expired_reservation_ids = []
-        for reservation_id, latest_access in zip(reservation_ids, pipeline.execute()):
+        for reservation_id, latest_access_str in zip(reservation_ids, pipeline.execute()):
+            latest_access = float(latest_access_str)
             if latest_access is not None and latest_access < expiration_timestamp:
                 expired_reservation_ids.append(reservation_id)
 

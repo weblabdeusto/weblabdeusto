@@ -13,63 +13,80 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import datetime
 import traceback
-from sqlalchemy.exc import IntegrityError, ConcurrentModificationError
+import json
+
+from voodoo.typechecker import typecheck
+
 from weblab.core.coordinator.sql.model import PostReservationRetrievedData
 import weblab.core.coordinator.status as WSS
 
-WEBLAB_RESERVATIONS     = "weblab:reservations"
-WEBLAB_POST_RESERVATION = "weblab:reservations:%s:post_reservation"
+from weblab.core.coordinator.redis.constants import (
+    WEBLAB_POST_RESERVATION,
+    WEBLAB_POST_RESERVATIONS,
+
+    FINISHED,
+    INITIAL_DATA,
+    END_DATA,
+)
 
 class PostReservationDataManager(object):
     def __init__(self, redis_maker, time_provider):
         self._redis_maker = redis_maker
         self.time_provider = time_provider
 
+    @typecheck(basestring, datetime.datetime, datetime.datetime, basestring)
     def create(self, reservation_id, date, expiration_date, initial_data):
-        session = self._session_maker()
-        try:
-            registry = PostReservationRetrievedData(reservation_id = reservation_id, finished = False, date = date, expiration_date = expiration_date, initial_data = initial_data, end_data = None)
-            session.add(registry)
-            session.commit()
-        finally:
-            session.close()
+        client = self._redis_maker()
+        
+        pipeline = client.pipeline()
+    
+        weblab_post_reservation = WEBLAB_POST_RESERVATION % reservation_id
+        obj = json.dumps({ INITIAL_DATA : initial_data, FINISHED : False })
 
+        pipeline.sadd(WEBLAB_POST_RESERVATIONS, reservation_id)
+        pipeline.set(weblab_post_reservation, obj)
+        pipeline.expireat(weblab_post_reservation, weblab_post_reservation)
+
+        pipeline.execute()
+
+    @typecheck(basestring)
     def delete(self, reservation_id):
-        session = self._session_maker()
-        try:
-            reservation = session.query(PostReservationRetrievedData).filter(PostReservationRetrievedData.reservation_id == reservation_id).first()
-            if reservation is None:
-                return
-            session.delete(reservation)
-            session.commit()
-        finally:
-            session.close()
-
+        client = self._redis_maker()
+        pipeline = client.pipeline()
+        pipeline.srem(WEBLAB_POST_RESERVATIONS, reservation_id)
+        pipeline.delete(WEBLAB_POST_RESERVATION % reservation_id)
+        pipeline.execute()
+    
+    @typecheck(basestring, basestring)
     def finish(self, reservation_id, end_data):
-        session = self._session_maker()
-        try:
-            reservation = session.query(PostReservationRetrievedData).filter(PostReservationRetrievedData.reservation_id == reservation_id).first()
-            if reservation is None:
-                return
-            reservation.finished = True
-            reservation.end_data = end_data
-            session.add(reservation)
-            session.commit()
-        finally:
-            session.close()
+        client = self._redis_maker()
 
+        weblab_post_reservation = WEBLAB_POST_RESERVATION % reservation_id
 
+        post_reservation_data_str = client.get(weblab_post_reservation)
+        if post_reservation_data_str is None:
+            return
+
+        post_reservation_data = json.loads(post_reservation_data_str)
+        post_reservation_data[END_DATA] = end_data
+        post_reservation_data[FINISHED] = True
+        post_reservation_data_str = json.dumps(post_reservation_data)
+        client.set(weblab_post_reservation, post_reservation_data_str)
+
+    @typecheck(basestring)
     def find(self, reservation_id):
-        session = self._session_maker()
-        try:
-            reservation = session.query(PostReservationRetrievedData).filter(PostReservationRetrievedData.reservation_id == reservation_id).first()
-            if reservation is None:
-                return None
+        client = self._redis_maker()
 
-            return WSS.PostReservationStatus(reservation_id, reservation.finished, reservation.initial_data, reservation.end_data)
-        finally:
-            session.close()
+        weblab_post_reservation = WEBLAB_POST_RESERVATION % reservation_id
+
+        post_reservation_data_str = client.get(weblab_post_reservation)
+        if post_reservation_data_str is None:
+            return None
+        
+        post_reservation_data = json.loads(post_reservation_data_str)
+        return WSS.PostReservationStatus(reservation_id, post_reservation_data[FINISHED], post_reservation_data[INITIAL_DATA], post_reservation_data[END_DATA])
 
 
     ##############################################################
@@ -77,23 +94,32 @@ class PostReservationDataManager(object):
     # Clean expired PostReservationRetrievedData
     #
     def clean_expired(self):
-        session = self._session_maker()
-        try:
-            found = False
-            for expired_data in session.query(PostReservationRetrievedData).filter(PostReservationRetrievedData.expiration_date < self.time_provider.get_datetime()).all():
-                session.delete(expired_data)
-                found = True
 
-            if found:
-                try:
-                    session.commit()
-                except (ConcurrentModificationError, IntegrityError):
-                    # Somebody else did it
-                    traceback.print_exc()
-        finally:
-            session.close()
+        # Redis expires objects automatically. Here we just remove those dead references
+
+        client = self._redis_maker()
+        post_reservations = client.smembers(WEBLAB_POST_RESERVATIONS)
+
+        if len(post_reservations) == 0:
+            return
+
+        pipeline = client.pipeline()
+        for reservation_id in post_reservations:
+            pipeline.get(WEBLAB_POST_RESERVATION % reservation_id)
+        
+        dead_reservation_ids = []
+        for reservation_id, result in zip(post_reservations, pipeline.execute()):
+            if result is None:
+                dead_reservation_ids.append(WEBLAB_POST_RESERVATION % reservation_id)
+        
+        if len(dead_reservation_ids) > 0:
+            client.delete(*dead_reservation_ids)
 
     def _clean(self):
         client = self._redis_maker()
-        for reservation_id in client.smembers(WEBLAB_RESERVATIONS):
+
+        for reservation_id in client.smembers(WEBLAB_POST_RESERVATIONS):
             client.delete(WEBLAB_POST_RESERVATION % reservation_id)
+
+        client.delete(WEBLAB_POST_RESERVATIONS)
+

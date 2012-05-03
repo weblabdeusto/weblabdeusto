@@ -26,6 +26,7 @@ import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.sessions.session_id as SessionId
 from voodoo.override import Override
 
+from weblab.core.coordinator.exc import ExpiredSessionError
 from weblab.core.coordinator.scheduler_transactions_synchronizer import SchedulerTransactionsSynchronizer
 from weblab.core.coordinator.scheduler import Scheduler
 import weblab.core.coordinator.status as WSS
@@ -197,8 +198,11 @@ class PriorityQueueScheduler(Scheduler):
     def get_reservation_status(self, reservation_id):
         self._remove_expired_reservations()
 
-        self.reservations_manager.update(reservation_id)
-
+        expired = self.reservations_manager.update(reservation_id)
+        if expired:
+            self._delete_reservation(reservation_id)
+            raise ExpiredSessionError("Expired reservation")
+    
         self._synchronizer.request_and_wait()
 
         reservation_id_with_route = '%s;%s.%s' % (reservation_id, reservation_id, self.core_server_route)
@@ -549,7 +553,6 @@ class PriorityQueueScheduler(Scheduler):
     #
     def _remove_expired_reservations(self):
         now = self.time_provider.get_time()
-        current_expiration_time = datetime.datetime.utcfromtimestamp(now - EXPIRATION_TIME)
 
         reservations_removed = False
         enqueue_free_experiment_args_retrieved = []
@@ -566,7 +569,6 @@ class PriorityQueueScheduler(Scheduler):
             pipeline.get(weblab_reservation_pqueue)
         results = pipeline.execute()
        
-        # Parse the results, ignoring those with a None result
         current_values = []
         for reservation_id, reservation_data in zip(reservations, results):
             if reservation_data is not None:
@@ -587,17 +589,20 @@ class PriorityQueueScheduler(Scheduler):
                             self._delete_reservation(reservation_id)
                             reservations_removed = True
 
+        current_expiration_time = datetime.datetime.utcfromtimestamp(now - EXPIRATION_TIME)
+        # Anybody with latest_access later than this point is expired
+
         for expired_reservation_id in self.reservations_manager.list_expired_reservations(current_expiration_time):
-            print "NOT IMPLEMENTED"
-            # TODO: all this section missing
-            concrete_current_reservation = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.current_reservation_id == expired_reservation_id).first()
-            if concrete_current_reservation is not None:
-                enqueue_free_experiment_args = self._clean_current_reservation(session, concrete_current_reservation)
+            weblab_reservation_pqueue = WEBLAB_RESERVATION_PQUEUE % expired_reservation_id
+            pqueue_reservation_data_str = client.get(weblab_reservation_pqueue)
+            if pqueue_reservation_data_str is None:
+                continue
+
+            pqueue_reservation_data = json.loads(pqueue_reservation_data_str)
+
+            if ACTIVE_STATUS in pqueue_reservation_data:
+                enqueue_free_experiment_args = self._clean_current_reservation(expired_reservation_id)
                 enqueue_free_experiment_args_retrieved.append(enqueue_free_experiment_args)
-                session.delete(concrete_current_reservation)
-            waiting_reservation = session.query(WaitingReservation).filter(WaitingReservation.reservation_id == expired_reservation_id).first()
-            if waiting_reservation is not None:
-                session.delete(waiting_reservation)
 
             self._delete_reservation(expired_reservation_id)
             reservations_removed = True
@@ -608,20 +613,23 @@ class PriorityQueueScheduler(Scheduler):
 
     def _delete_reservation(self, reservation_id):
         weblab_resource_pqueue_reservations          = WEBLAB_RESOURCE_PQUEUE_RESERVATIONS % self.resource_type_name
-
-
         weblab_resource_pqueue_map                   = WEBLAB_RESOURCE_PQUEUE_MAP    % self.resource_type_name
         weblab_resource_pqueue_sorted                = WEBLAB_RESOURCE_PQUEUE_SORTED % self.resource_type_name
+        weblab_reservation_pqueue                    = WEBLAB_RESERVATION_PQUEUE % reservation_id
 
         resource_instances = self.resources_manager.list_resource_instances_by_type(self.resource_type_name)
 
         client = self.redis_maker()
+        pipeline = client.pipeline()
 
         for resource_instance in resource_instances:
             weblab_resource_pqueue_instance_reservations = WEBLAB_RESOURCE_PQUEUE_INSTANCE_RESERVATIONS % (self.resource_type_name, resource_instance.resource_instance)
-            client.srem(weblab_resource_pqueue_instance_reservations, reservation_id)
+            pipeline.srem(weblab_resource_pqueue_instance_reservations, reservation_id)
 
-        client.srem(weblab_resource_pqueue_reservations, reservation_id)
+        pipeline.srem(weblab_resource_pqueue_reservations, reservation_id)
+        pipeline.delete(weblab_reservation_pqueue)
+        pipeline.execute()
+
         filled_reservation_id = client.hget(weblab_resource_pqueue_map, reservation_id)
         client.hdel(weblab_resource_pqueue_map, reservation_id)
         client.zrem(weblab_resource_pqueue_sorted, filled_reservation_id)
