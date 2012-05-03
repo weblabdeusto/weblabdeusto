@@ -29,6 +29,8 @@ import voodoo.admin_notifier as AdminNotifier
 
 from weblab.data.experiments import ExperimentId, ExperimentInstanceId
 
+import weblab.core.coordinator.sql.db as CoordinationDatabaseManager
+
 import weblab.core.coordinator.exc as CoordExc
 import weblab.core.coordinator.scheduler as Scheduler
 import weblab.core.coordinator.store as TemporalInformationStore
@@ -84,6 +86,9 @@ class AbstractCoordinator(object):
         if ConfirmerClass is None:
             ConfirmerClass = Confirmer.ReservationConfirmer
 
+        coordination_database_manager = CoordinationDatabaseManager.CoordinationDatabaseManager(cfg_manager)
+        self._sql_session_maker = coordination_database_manager.session_maker
+
         self.cfg_manager   = cfg_manager
         self._data_manager = data_manager
 
@@ -124,13 +129,18 @@ class AbstractCoordinator(object):
                 raise CoordExc.UnregisteredSchedulingSystemError("Unregistered scheduling system: %r" % scheduling_system)
             SchedulingSystemClass = self.SCHEDULING_SYSTEMS[scheduling_system]
 
+            if scheduling_system == PRIORITY_QUEUE:
+                data_manager = self._data_manager
+            else:
+                data_manager = self._sql_session_maker
+
             generic_scheduler_arguments = Scheduler.GenericSchedulerArguments(
                                                 cfg_manager          = self.cfg_manager,
                                                 resource_type_name   = resource_type_name,
                                                 reservations_manager = self.reservations_manager,
                                                 resources_manager    = self.resources_manager,
                                                 confirmer            = self.confirmer,
-                                                data_manager         = self._data_manager,
+                                                data_manager         = data_manager,
                                                 time_provider        = self.time_provider,
                                                 core_server_url      = self.core_server_url,
                                                 initial_store        = self.initial_store,

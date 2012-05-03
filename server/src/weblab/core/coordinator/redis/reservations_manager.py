@@ -63,7 +63,7 @@ class ReservationsManager(object):
         client = self._redis_maker()
         return client.smembers(WEBLAB_RESERVATIONS)
 
-    @typecheck(ExperimentId, basestring, basestring, typecheck.ANY)
+    @typecheck(ExperimentId, (basestring, dict), basestring, typecheck.ANY)
     def create(self, experiment_id, client_initial_data, request_info, now = None):
         client = self._redis_maker()
         serialized_client_initial_data = json.dumps(client_initial_data)

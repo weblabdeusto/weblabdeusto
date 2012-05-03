@@ -18,6 +18,7 @@ core_server_url = 'http://127.0.0.1:%s/weblab/' % core_facade_json_port
 # Scheduling
 
 core_coordination_impl       = 'redis'
+coordinator_redis_db         = 3
 
 core_coordinator_db_name     = 'WebLabCoordination3'
 core_coordinator_db_username = 'weblab'
