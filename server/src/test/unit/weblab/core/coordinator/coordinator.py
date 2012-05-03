@@ -440,14 +440,9 @@ class AbstractCoordinatorTestCase(unittest.TestCase):
 
         self.assertEquals( 1, len(self.coordinator.confirmer.uses_confirm) )
 
-        if u'lab2:inst@machine' == self.coordinator.confirmer.uses_confirm[0][0]:
-            laboratory_coord_address = u'lab2:inst@machine'
-            experiment_instance_id   = ExperimentInstanceId('inst2','exp1','cat1')
-        elif u'lab1:inst@machine' == self.coordinator.confirmer.uses_confirm[0][0]:
-            laboratory_coord_address = u'lab1:inst@machine'
-            experiment_instance_id   = ExperimentInstanceId('inst1','exp1','cat1')
-        else:
-            self.fail("expected: lab1:inst@machine or lab2:inst@machine; it depends on sqlalchemy or redis")
+        laboratory_coord_address = u'lab1:inst@machine'
+        experiment_instance_id   = ExperimentInstanceId('inst1','exp1','cat1')
+        self.assertEquals(laboratory_coord_address, self.coordinator.confirmer.uses_confirm[0][0])
 
         self.assertEquals( laboratory_coord_address, self.coordinator.confirmer.uses_confirm[0][0] )
         self.assertEquals( experiment_instance_id, self.coordinator.confirmer.uses_confirm[0][2] )
@@ -476,14 +471,9 @@ class AbstractCoordinatorTestCase(unittest.TestCase):
         self.assertEquals( expected_status, status )
 
         self.assertEquals( 1, len(self.coordinator.confirmer.uses_confirm) )
-        if u'lab2:inst@machine' == self.coordinator.confirmer.uses_confirm[0][0]:
-            experiment_instance_id = ExperimentInstanceId('inst2','exp1','cat1')
-            lab_coord_address      = u'lab2:inst@machine'
-        elif u'lab1:inst@machine' == self.coordinator.confirmer.uses_confirm[0][0]:
-            experiment_instance_id = ExperimentInstanceId('inst1','exp1','cat1')
-            lab_coord_address      = u'lab1:inst@machine'
-        else:
-            self.fail("expected coord address: lab2:inst@machine or lab1:inst@machine (it depends on if you're using sqlalchemy or redis)")
+        self.assertEquals(u'lab1:inst@machine', self.coordinator.confirmer.uses_confirm[0][0])
+        experiment_instance_id = ExperimentInstanceId('inst1','exp1','cat1')
+        lab_coord_address      = u'lab1:inst@machine'
 
         self.assertEquals( lab_coord_address, self.coordinator.confirmer.uses_confirm[0][0] )
         self.assertEquals( experiment_instance_id, self.coordinator.confirmer.uses_confirm[0][2] )
@@ -543,18 +533,10 @@ class AbstractCoordinatorTestCase(unittest.TestCase):
         status = self.coordinator.get_reservation_status(reservation1_id)
         expected_status = WSS.WaitingQueueStatus(reservation1_id, 0)
         # This depends on the order of redis and sqlalchemy, so choose one or the other
-        if status == expected_status:
-            status = self.coordinator.get_reservation_status(reservation2_id)
-            expected_status = WSS.WaitingConfirmationQueueStatus(reservation2_id, DEFAULT_URL)
-            self.assertEquals( expected_status, status )
-        else:
-            expected_status = WSS.WaitingConfirmationQueueStatus(reservation1_id, DEFAULT_URL)
-            self.assertEquals( expected_status, status )
-            
-            # And check the other
-            status = self.coordinator.get_reservation_status(reservation2_id)
-            expected_status = WSS.WaitingQueueStatus(reservation1_id, 0)
-            self.assertEquals( expected_status, status )
+        self.assertEquals(status, expected_status)
+        status = self.coordinator.get_reservation_status(reservation2_id)
+        expected_status = WSS.WaitingConfirmationQueueStatus(reservation2_id, DEFAULT_URL)
+        self.assertEquals( expected_status, status )
 
         status = self.coordinator.get_reservation_status(reservation3_id)
         expected_status = WSS.WaitingQueueStatus(reservation3_id, 1)

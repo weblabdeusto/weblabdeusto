@@ -440,7 +440,7 @@ class PriorityQueueScheduler(Scheduler):
                 randomized_free_instances = [ free_instance for free_instance in free_instances ]
                 random.shuffle(randomized_free_instances)
             else:
-                randomized_free_instances = free_instances
+                randomized_free_instances = sorted(free_instances, cmp=lambda r1, r2: cmp(r1.resource_type, r2.resource_type) or cmp(r1.resource_instance, r2.resource_instance))
 
             for free_instance in randomized_free_instances:
                 #
