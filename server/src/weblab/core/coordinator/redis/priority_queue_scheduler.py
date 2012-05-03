@@ -66,6 +66,8 @@ from weblab.core.coordinator.redis.constants import (
 
 EXPIRATION_TIME  = 3600 # seconds
 
+DEBUG = False
+
 ###########################################################
 #
 # TODO write some documentation
@@ -76,9 +78,9 @@ def exc_checker(func):
         try:
             return func(*args, **kwargs)
         except:
-            # TODO: Remove this
-            import traceback
-            traceback.print_exc()
+            if DEBUG:
+                import traceback
+                traceback.print_exc()
             log.log(
                 PriorityQueueScheduler, log.level.Error,
                 "Unexpected exception while running %s" % func.__name__ )

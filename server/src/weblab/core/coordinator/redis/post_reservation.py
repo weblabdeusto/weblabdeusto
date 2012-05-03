@@ -33,8 +33,9 @@ from weblab.core.coordinator.redis.constants import (
 
 class PostReservationDataManager(object):
     def __init__(self, redis_maker, time_provider):
-        self._redis_maker = redis_maker
-        self.time_provider = time_provider
+        self._redis_maker   = redis_maker
+        self.time_provider  = time_provider
+        self.force_deletion = False
 
     @typecheck(basestring, datetime.datetime, datetime.datetime, basestring)
     def create(self, reservation_id, date, expiration_date, initial_data):
@@ -86,7 +87,7 @@ class PostReservationDataManager(object):
             return None
         
         post_reservation_data = json.loads(post_reservation_data_str)
-        return WSS.PostReservationStatus(reservation_id, post_reservation_data[FINISHED], post_reservation_data[INITIAL_DATA], post_reservation_data[END_DATA])
+        return WSS.PostReservationStatus(reservation_id, post_reservation_data[FINISHED], post_reservation_data[INITIAL_DATA], post_reservation_data.get(END_DATA))
 
 
     ##############################################################
@@ -94,8 +95,11 @@ class PostReservationDataManager(object):
     # Clean expired PostReservationRetrievedData
     #
     def clean_expired(self):
-
         # Redis expires objects automatically. Here we just remove those dead references
+        # However, we let the tester to force deletion
+
+        if self.force_deletion:
+            self._clean()
 
         client = self._redis_maker()
         post_reservations = client.smembers(WEBLAB_POST_RESERVATIONS)

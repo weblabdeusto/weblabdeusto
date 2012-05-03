@@ -60,6 +60,7 @@ class AbstractPostReservationDataManagerTestCase(unittest.TestCase):
         self.assertEquals(end_data, status.end_data)
 
     def test_expired(self):
+        self.post_reservation_data_manager.force_deletion = True
         reservation_id = "my-id"
         now = self.time_provider.get_datetime()
         initial_data = '{ "initial" : "data" }'
@@ -73,6 +74,7 @@ class AbstractPostReservationDataManagerTestCase(unittest.TestCase):
         self.assertEquals(None, status)
 
         expiration = now + datetime.timedelta(seconds=1000)
+        self.post_reservation_data_manager.force_deletion = False
 
         self.post_reservation_data_manager.create(reservation_id, now, expiration, initial_data)
         self.post_reservation_data_manager.clean_expired()
