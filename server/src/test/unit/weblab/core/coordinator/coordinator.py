@@ -684,6 +684,7 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
 
     def tearDown(self):
         self.coordinator.stop()
+        self.coordinator._clean()
 
     def _deploy_cplds_and_fpgas_configuration(self):
         #
@@ -1117,6 +1118,10 @@ class AbstractCoordinatorWithSlowConfirmerTestCase(unittest.TestCase):
         self.coordinator._clean()
 
         self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('inst1', 'exp1','cat1'), Resource("res_type", "res_inst1"))
+
+    def tearDown(self):
+        self.coordinator.stop()
+        self.coordinator._clean()
 
     def test_confirming_free_experiment(self):
         status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId("exp1","cat1"), DEFAULT_TIME, DEFAULT_PRIORITY, True, DEFAULT_INITIAL_DATA, DEFAULT_REQUEST_INFO, DEFAULT_CONSUMER_DATA)
