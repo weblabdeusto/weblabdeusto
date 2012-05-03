@@ -23,7 +23,7 @@ from weblab.data.experiments import ExperimentInstanceId
 from weblab.core.coordinator.resource import Resource
 import weblab.core.coordinator.exc as CoordExc
 
-from test.unit.weblab.core.coordinator.sql.coordinator import WrappedCoordinator, ConfirmerMock
+from test.unit.weblab.core.coordinator.coordinator import WrappedSqlCoordinator, ConfirmerMock
 
 REQUEST_INFO = json.dumps({'facebook' : False, 'mobile' : False})
 
@@ -35,7 +35,7 @@ class ReservationsManagerTestCase(unittest.TestCase):
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
 
-        self.coordinator = WrappedCoordinator(locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
+        self.coordinator = WrappedSqlCoordinator(locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
         self.coordinator._clean()
 
         self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('inst1', 'exp1','cat1'), Resource("res_type", "res_inst1"))
