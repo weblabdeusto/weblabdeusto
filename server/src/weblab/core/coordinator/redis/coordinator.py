@@ -66,6 +66,10 @@ class Coordinator(AbstractCoordinator):
 
         super(Coordinator, self).__init__(self._redis_maker, locator, cfg_manager, ConfirmerClass)
 
+    def stop(self):
+        super(Coordinator, self).stop()
+
+        self.pool.disconnect()
 
     def _initial_clean(self, coordination_configuration_parser):
         external_servers_config = coordination_configuration_parser.parse_external_servers()

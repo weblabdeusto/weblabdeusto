@@ -33,10 +33,13 @@ class ResourcesManagerTestCase(unittest.TestCase):
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
 
-        redis_maker = lambda : redis.Redis()
+        self.pool = redis.ConnectionPool()
+        redis_maker = lambda : redis.Redis(connection_pool = self.pool)
         self.resources_manager = ResourcesManager.ResourcesManager(redis_maker)
         self.resources_manager._clean()
 
+    def tearDown(self):
+        self.pool.disconnect()
 
     def test_add_resource(self):
         self.assertEquals([], self.resources_manager.list_resources())

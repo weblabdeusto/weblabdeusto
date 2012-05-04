@@ -36,6 +36,7 @@ class AbstractPostReservationDataManagerTestCase(unittest.TestCase):
 
     def tearDown(self):
         self.coordinator.stop()
+        self.coordinator._clean()
 
     def test_create_find(self):
         reservation_id = "my-id"
