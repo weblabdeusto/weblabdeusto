@@ -689,32 +689,32 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
     def _deploy_cplds_and_fpgas_configuration(self):
         #
         # There are 3 physical devices:
-        # - pld1  (pld boards), in lab1:inst@machine
-        # - pld2  (pld boards), in lab2:inst@machine
+        # - pld1  (pld boards),  in lab1:inst@machine
+        # - pld2  (pld boards),  in lab2:inst@machine
         # - fpga1 (fpga boards), in lab3:inst@machine
         #
         # There are 3 types of experiments:
-        # - ud-pld@PLD experiments, which can only run on pld boards
-        # - ud-fpga@FPGA experiments, which can only run on fpga boards
+        # - ud-pld@PLD experiments,       which can only run on pld boards
+        # - ud-fpga@FPGA experiments,     which can only run on fpga boards
         # - ud-binary@Binary experiments, which can run on both types of boards
         #
         # And we are managing 5 experiment instances:
-        # - exp1:binary@Binary experiments (using pld1:pld boards)
-        # - exp2:binary@Binary experiments (using fpga1:fpga boards)
-        # - exp1:ud-pld@PLD experiments (using pld1:pld boards)
-        # - exp2:ud-pld@PLD experiments (using pld2@pld boards)
-        # - exp1:ud-fpga@FPGA experiments (using fpga1:fpga boards)
+        # - exp1:binary@Binary experiments (using pld1@pld   boards)
+        # - exp2:binary@Binary experiments (using fpga1@fpga boards)
+        # - exp1:ud-pld@PLD experiments    (using pld1@pld   boards)
+        # - exp2:ud-pld@PLD experiments    (using pld2@pld   boards)
+        # - exp1:ud-fpga@FPGA experiments  (using fpga1@fpga boards)
         #
         self.cfg_manager._set_value(COORDINATOR_LABORATORY_SERVERS, {
             'lab1:inst@machine' : {
                 'exp1|ud-binary|Binary experiments' : 'pld1@pld boards',
-                'exp1|ud-pld|PLD experiments' : 'pld1@pld boards',
+                'exp1|ud-pld|PLD experiments'       : 'pld1@pld boards',
             },
             'lab2:inst@machine' : {
-                'exp2|ud-pld|PLD experiments' : 'pld2@pld boards'
+                'exp2|ud-pld|PLD experiments'       : 'pld2@pld boards'
             },
             'lab3:inst@machine' : {
-                'exp1|ud-fpga|FPGA experiments' : 'fpga1@fpga boards',
+                'exp1|ud-fpga|FPGA experiments'     : 'fpga1@fpga boards',
                 'exp2|ud-binary|Binary experiments' : 'fpga1@fpga boards',
             },
         })
@@ -801,9 +801,12 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # The queues are empty:
         #
-        #    TYPE (pld)      : <empty>
-        #    TYPE (fpga)     : <empty>
-        #    TYPE (binary)   : <empty>
+        #    TYPE QUEUE (pld)      : <empty>
+        #    TYPE QUEUE (fpga)     : <empty>
+        #    TYPE QUEUE (binary)   : <empty>
+        #  
+        #    RES QUEUE (pld)  : <empty>
+        #    RES QUEUE (fpga) : <empty>
         #
         #    RES.INST (pld1) : <empty>
         #    RES.INST (pld2) : <empty>
@@ -820,9 +823,12 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE (pld)      : <empty>
-        #    TYPE (fpga)     : <empty>
-        #    TYPE (binary)   : <empty>
+        #    TYPE QUEUE (pld)      : <empty>
+        #    TYPE QUEUE (fpga)     : <empty>
+        #    TYPE QUEUE (binary)   : <empty>
+        #
+        #    RES QUEUE (pld)  : <empty>
+        #    RES QUEUE (fpga) : <empty>
         #
         #    RES.INST (pld1) : res1
         #    RES.INST (pld2) : res2
@@ -848,9 +854,12 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE (pld)      : <empty>
-        #    TYPE (fpga)     : <empty>
-        #    TYPE (binary)   : res4 (0)
+        #    TYPE QUEUE (pld)      : <empty>
+        #    TYPE QUEUE (fpga)     : <empty>
+        #    TYPE QUEUE (binary)   : res4 (0)
+        #
+        #    RES QUEUE (pld)  : res4
+        #    RES QUEUE (fpga) : res4
         #
         #    RES.INST (pld1) : res1
         #    RES.INST (pld2) : res2
@@ -867,10 +876,13 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE (pld)      : res6 (1)
-        #    TYPE (fpga)     : res5 (1)
-        #    TYPE (binary)   : res4 (0)
+        #    TYPE QUEUE (pld)      : res6 (1)
+        #    TYPE QUEUE (fpga)     : res5 (1)
+        #    TYPE QUEUE (binary)   : res4 (0)
         #
+        #    RES QUEUE (pld)  : res4, res6
+        #    RES QUEUE (fpga) : res4, res5
+        # 
         #    RES.INST (pld1) : res1
         #    RES.INST (pld2) : res2
         #    RES.INST (fpga1): res3
@@ -890,10 +902,13 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE (pld)      : res6 (1), res7 (2)
-        #    TYPE (fpga)     : res5 (1)
-        #    TYPE (binary)   : res4 (0)
+        #    TYPE QUEUE (pld)      : res6 (1), res7 (2)
+        #    TYPE QUEUE (fpga)     : res5 (1)
+        #    TYPE QUEUE (binary)   : res4 (0)
         #
+        #    RES QUEUE (pld)  : res4, res6, res7
+        #    RES QUEUE (fpga) : res4, res5
+        # 
         #    RES.INST (pld1) : res1
         #    RES.INST (pld2) : res2
         #    RES.INST (fpga1): res3
@@ -909,10 +924,13 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE (pld)      : res6 (1), res7 (2)
-        #    TYPE (fpga)     : res5 (1)
-        #    TYPE (binary)   : res4 (0), res8 (2)
+        #    TYPE QUEUE (pld)      : res6 (1), res7 (2)
+        #    TYPE QUEUE (fpga)     : res5 (1)
+        #    TYPE QUEUE (binary)   : res4 (0), res8 (2)
         #
+        #    RES QUEUE (pld)  : res4, res6, res7, res8
+        #    RES QUEUE (fpga) : res4, res5, res8
+        # 
         #    RES.INST (pld1) : res1
         #    RES.INST (pld2) : res2
         #    RES.INST (fpga1): res3
@@ -928,10 +946,13 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE (pld)      : <empty>
-        #    TYPE (fpga)     : res5 (1)
-        #    TYPE (binary)   : res4 (0), res8 (1)
+        #    TYPE QUEUE (pld)      : <empty>
+        #    TYPE QUEUE (fpga)     : res5 (1)
+        #    TYPE QUEUE (binary)   : res4 (0), res8 (1)
         #
+        #    RES QUEUE (pld)  : res4, res8
+        #    RES QUEUE (fpga) : res4, res5, res8
+        # 
         #    RES.INST (pld1) : res1
         #    RES.INST (pld2) : res2
         #    RES.INST (fpga1): res3
@@ -950,10 +971,13 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE (pld)      : res9 (2)
-        #    TYPE (fpga)     : res5 (1)
-        #    TYPE (binary)   : res4 (0), res8 (1)
+        #    TYPE QUEUE (pld)      : res9 (2)
+        #    TYPE QUEUE (fpga)     : res5 (1)
+        #    TYPE QUEUE (binary)   : res4 (0), res8 (1)
         #
+        #    RES QUEUE (pld)  : res4, res8, res9
+        #    RES QUEUE (fpga) : res4, res5, res8
+        # 
         #    RES.INST (pld1) : res1
         #    RES.INST (pld2) : res2
         #    RES.INST (fpga1): res3
@@ -963,17 +987,20 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         self.assertEquals( expected_status, status )
 
         #
-        # However, if the instance of the resource of "pld boards" that doesn't support ud-pld@PLD experiments is released, this last user goes first, since
+        # However, if the instance of the resource of "pld boards" that does only support ud-pld@PLD experiments is released, this last user goes first, since
         # the other people waiting for "pld boards" are waiting for a resource instance of "pld boards" that supports "ud-binary@Binary experiments"
         #
         # Old: res2[assigned(pld2)]
         #
         # Queues:
         #
-        #    TYPE (pld)      : <empty>
-        #    TYPE (fpga)     : res5 (1)
-        #    TYPE (binary)   : res4 (0), res8 (1)
+        #    TYPE QUEUE (pld)      : <empty>
+        #    TYPE QUEUE (fpga)     : res5 (1)
+        #    TYPE QUEUE (binary)   : res4 (0), res8 (1)
         #
+        #    RES QUEUE (pld)  : res4, res8
+        #    RES QUEUE (fpga) : res4, res5, res8
+        # 
         #    RES.INST (pld1) : res1
         #    RES.INST (pld2) : res9
         #    RES.INST (fpga1): res3
@@ -993,10 +1020,13 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE (pld)      : <empty>
-        #    TYPE (fpga)     : res5 (1)
-        #    TYPE (binary)   : res4 (0), res8 (1)
+        #    TYPE QUEUE (pld)      : <empty>
+        #    TYPE QUEUE (fpga)     : res5 (1)
+        #    TYPE QUEUE (binary)   : res4 (0), res8 (1)
         #
+        #    RES QUEUE (pld)  : res4, res8
+        #    RES QUEUE (fpga) : res4, res5, res8
+        # 
         #    RES.INST (pld1) : res1
         #    RES.INST (pld2) : res10
         #    RES.INST (fpga1): res3
@@ -1016,10 +1046,13 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE (pld)      : <empty>
-        #    TYPE (fpga)     : res5 (0)
-        #    TYPE (binary)   : res8 (0)
+        #    TYPE QUEUE (pld)      : <empty>
+        #    TYPE QUEUE (fpga)     : res5 (0)
+        #    TYPE QUEUE (binary)   : res8 (0)
         #
+        #    RES QUEUE (pld)  : res8
+        #    RES QUEUE (fpga) : res5, res8
+        # 
         #    RES.INST (pld1) : res1
         #    RES.INST (pld2) : res10
         #    RES.INST (fpga1): res4
@@ -1047,10 +1080,13 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE (pld)      : <empty>
-        #    TYPE (fpga)     : res5 (0)
-        #    TYPE (binary)   : <empty>
+        #    TYPE QUEUE (pld)      : <empty>
+        #    TYPE QUEUE (fpga)     : res5 (0)
+        #    TYPE QUEUE (binary)   : <empty>
         #
+        #    RES QUEUE (pld)  : <empty>
+        #    RES QUEUE (fpga) : res5
+        # 
         #    RES.INST (pld1) : res8
         #    RES.INST (pld2) : res10
         #    RES.INST (fpga1): res4
@@ -1069,10 +1105,13 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE (pld)      : <empty>
-        #    TYPE (fpga)     : <empty>
-        #    TYPE (binary)   : <empty>
+        #    TYPE QUEUE (pld)      : <empty>
+        #    TYPE QUEUE (fpga)     : <empty>
+        #    TYPE QUEUE (binary)   : <empty>
         #
+        #    RES QUEUE (pld)  : <empty>
+        #    RES QUEUE (fpga) : <empty>
+        # 
         #    RES.INST (pld1) : res8
         #    RES.INST (pld2) : res10
         #    RES.INST (fpga1): res4
@@ -1085,10 +1124,13 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE (pld)      : <empty>
-        #    TYPE (fpga)     : <empty>
-        #    TYPE (binary)   : <empty>
+        #    TYPE QUEUE (pld)      : <empty>
+        #    TYPE QUEUE (fpga)     : <empty>
+        #    TYPE QUEUE (binary)   : <empty>
         #
+        #    RES QUEUE (pld)  : <empty>
+        #    RES QUEUE (fpga) : <empty>
+        # 
         #    RES.INST (pld1) : <empty>
         #    RES.INST (pld2) : <empty>
         #    RES.INST (fpga1): <empty>
