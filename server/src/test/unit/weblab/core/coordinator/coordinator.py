@@ -830,9 +830,9 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         #    RES QUEUE (pld)  : <empty>
         #    RES QUEUE (fpga) : <empty>
         #
-        #    RES.INST (pld1) : res1
-        #    RES.INST (pld2) : res2
-        #    RES.INST (fpga1): res3
+        #    RES.INST (pld1) : res1*
+        #    RES.INST (pld2) : res2*
+        #    RES.INST (fpga1): res3*
         #
 
         status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId("ud-pld","PLD experiments"), DEFAULT_TIME + 1, DEFAULT_PRIORITY, True, DEFAULT_INITIAL_DATA, DEFAULT_REQUEST_INFO, DEFAULT_CONSUMER_DATA)
@@ -856,10 +856,10 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         #    TYPE QUEUE (pld)      : <empty>
         #    TYPE QUEUE (fpga)     : <empty>
-        #    TYPE QUEUE (binary)   : res4 (0)
+        #    TYPE QUEUE (binary)   : res4 (0)*
         #
-        #    RES QUEUE (pld)  : res4
-        #    RES QUEUE (fpga) : res4
+        #    RES QUEUE (pld)  : res4*
+        #    RES QUEUE (fpga) : res4*
         #
         #    RES.INST (pld1) : res1
         #    RES.INST (pld2) : res2
@@ -876,12 +876,12 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE QUEUE (pld)      : res6 (1)
-        #    TYPE QUEUE (fpga)     : res5 (1)
+        #    TYPE QUEUE (pld)      : res6 (1)*
+        #    TYPE QUEUE (fpga)     : res5 (1)*
         #    TYPE QUEUE (binary)   : res4 (0)
         #
-        #    RES QUEUE (pld)  : res4, res6
-        #    RES QUEUE (fpga) : res4, res5
+        #    RES QUEUE (pld)  : res4, res6*
+        #    RES QUEUE (fpga) : res4, res5*
         # 
         #    RES.INST (pld1) : res1
         #    RES.INST (pld2) : res2
@@ -902,11 +902,11 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE QUEUE (pld)      : res6 (1), res7 (2)
+        #    TYPE QUEUE (pld)      : res6 (1), res7 (2)*
         #    TYPE QUEUE (fpga)     : res5 (1)
         #    TYPE QUEUE (binary)   : res4 (0)
         #
-        #    RES QUEUE (pld)  : res4, res6, res7
+        #    RES QUEUE (pld)  : res4, res6, res7*
         #    RES QUEUE (fpga) : res4, res5
         # 
         #    RES.INST (pld1) : res1
@@ -926,10 +926,10 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         #    TYPE QUEUE (pld)      : res6 (1), res7 (2)
         #    TYPE QUEUE (fpga)     : res5 (1)
-        #    TYPE QUEUE (binary)   : res4 (0), res8 (2)
+        #    TYPE QUEUE (binary)   : res4 (0), res8 (2)*
         #
-        #    RES QUEUE (pld)  : res4, res6, res7, res8
-        #    RES QUEUE (fpga) : res4, res5, res8
+        #    RES QUEUE (pld)  : res4, res6, res7, res8*
+        #    RES QUEUE (fpga) : res4, res5, res8*
         # 
         #    RES.INST (pld1) : res1
         #    RES.INST (pld2) : res2
@@ -946,11 +946,11 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE QUEUE (pld)      : <empty>
+        #    TYPE QUEUE (pld)      : <empty>             [removed res6, res7]*
         #    TYPE QUEUE (fpga)     : res5 (1)
         #    TYPE QUEUE (binary)   : res4 (0), res8 (1)
         #
-        #    RES QUEUE (pld)  : res4, res8
+        #    RES QUEUE (pld)  : res4, res8               [removed res6, res7]*
         #    RES QUEUE (fpga) : res4, res5, res8
         # 
         #    RES.INST (pld1) : res1
@@ -971,11 +971,11 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE QUEUE (pld)      : res9 (2)
+        #    TYPE QUEUE (pld)      : res9 (2)*
         #    TYPE QUEUE (fpga)     : res5 (1)
         #    TYPE QUEUE (binary)   : res4 (0), res8 (1)
         #
-        #    RES QUEUE (pld)  : res4, res8, res9
+        #    RES QUEUE (pld)  : res4, res8, res9*
         #    RES QUEUE (fpga) : res4, res5, res8
         # 
         #    RES.INST (pld1) : res1
@@ -994,15 +994,15 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE QUEUE (pld)      : <empty>
+        #    TYPE QUEUE (pld)      : <empty>            [moved res9]*
         #    TYPE QUEUE (fpga)     : res5 (1)
         #    TYPE QUEUE (binary)   : res4 (0), res8 (1)
         #
-        #    RES QUEUE (pld)  : res4, res8
+        #    RES QUEUE (pld)  : res4, res8              [moved res9]*
         #    RES QUEUE (fpga) : res4, res5, res8
         # 
         #    RES.INST (pld1) : res1
-        #    RES.INST (pld2) : res9
+        #    RES.INST (pld2) : res9* [removed res2]*
         #    RES.INST (fpga1): res3
 
         self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation2_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now)
@@ -1028,7 +1028,7 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         #    RES QUEUE (fpga) : res4, res5, res8
         # 
         #    RES.INST (pld1) : res1
-        #    RES.INST (pld2) : res10
+        #    RES.INST (pld2) : res10* [removed res9]*
         #    RES.INST (fpga1): res3
 
         self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation9_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now)
@@ -1048,14 +1048,14 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         #    TYPE QUEUE (pld)      : <empty>
         #    TYPE QUEUE (fpga)     : res5 (0)
-        #    TYPE QUEUE (binary)   : res8 (0)
+        #    TYPE QUEUE (binary)   : res8 (0) [moved res4]*
         #
-        #    RES QUEUE (pld)  : res8
-        #    RES QUEUE (fpga) : res5, res8
+        #    RES QUEUE (pld)  : res8          [moved res4]*
+        #    RES QUEUE (fpga) : res5, res8    [moved res4]*
         # 
         #    RES.INST (pld1) : res1
         #    RES.INST (pld2) : res10
-        #    RES.INST (fpga1): res4
+        #    RES.INST (fpga1): res4*          [removed res3]*
         #
         self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation3_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now)
         self.coordinator.finish_reservation(reservation3_id)
@@ -1082,12 +1082,12 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         #    TYPE QUEUE (pld)      : <empty>
         #    TYPE QUEUE (fpga)     : res5 (0)
-        #    TYPE QUEUE (binary)   : <empty>
+        #    TYPE QUEUE (binary)   : <empty> [moved res8]*
         #
-        #    RES QUEUE (pld)  : <empty>
-        #    RES QUEUE (fpga) : res5
+        #    RES QUEUE (pld)  : <empty>      [moved res8]*
+        #    RES QUEUE (fpga) : res5         [moved res8]*
         # 
-        #    RES.INST (pld1) : res8
+        #    RES.INST (pld1) : res8*         [removed res1]*
         #    RES.INST (pld2) : res10
         #    RES.INST (fpga1): res4
         #
@@ -1106,11 +1106,11 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         # Queues:
         #
         #    TYPE QUEUE (pld)      : <empty>
-        #    TYPE QUEUE (fpga)     : <empty>
+        #    TYPE QUEUE (fpga)     : <empty> [removed res5]*
         #    TYPE QUEUE (binary)   : <empty>
         #
         #    RES QUEUE (pld)  : <empty>
-        #    RES QUEUE (fpga) : <empty>
+        #    RES QUEUE (fpga) : <empty>      [removed res5]*
         # 
         #    RES.INST (pld1) : res8
         #    RES.INST (pld2) : res10
@@ -1131,9 +1131,9 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         #    RES QUEUE (pld)  : <empty>
         #    RES QUEUE (fpga) : <empty>
         # 
-        #    RES.INST (pld1) : <empty>
-        #    RES.INST (pld2) : <empty>
-        #    RES.INST (fpga1): <empty>
+        #    RES.INST (pld1) : <empty> [removed res8 ]*
+        #    RES.INST (pld2) : <empty> [removed res10]*
+        #    RES.INST (fpga1): <empty> [removed res4 ]*
         #
         self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation4_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now)
         self.coordinator.finish_reservation(reservation4_id)
