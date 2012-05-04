@@ -45,7 +45,7 @@ WEBLAB_POST_RESERVATIONS              = "weblab:reservations:post_reservations"
 WEBLAB_POST_RESERVATION               = "weblab:reservations:%s:post_reservation"
 
 # PQUEUE
-WEBLAB_RESERVATION_PQUEUE         = 'weblab:reservations:%s:pqueue'
+WEBLAB_RESOURCE_RESERVATION_PQUEUE    = 'weblab:resource:%s:reservations:%s:pqueue'
 
 # TODO: sort fields
 # Fields

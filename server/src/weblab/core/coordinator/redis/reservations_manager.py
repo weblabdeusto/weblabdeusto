@@ -209,7 +209,7 @@ class ReservationsManager(object):
 
     def delete(self, reservation_id):
         client = self._redis_maker()
-        
+      
         client.srem(WEBLAB_RESERVATIONS, reservation_id)
         weblab_reservation            = WEBLAB_RESERVATION                    % reservation_id
         weblab_reservation_status     = WEBLAB_RESERVATION_STATUS             % reservation_id
