@@ -93,7 +93,10 @@ class ReservationProcessorTestCase(unittest.TestCase):
                     self.commands_store
                 )
 
-    def create_reservation_processor(self):
+    def create_reservation_processor(self, faking_response = False):
+        if faking_response:
+            self._fake_simple_lab_response()
+
         status = self.user_processor.reserve_experiment( ExperimentId('ud-dummy', 'Dummy experiments'), "{}", "{}", ClientAddress.ClientAddress("127.0.0.1"), 'uuid')
         self.reservation_processor = ReservationProcessor(
                     self.cfg_manager,
@@ -114,18 +117,20 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.coordinator.stop()
 
     def test_get_info(self):
-        self.create_reservation_processor()
+        self.create_reservation_processor(True)
 
-        self.coordinator.confirmer._confirm_handler.join()
+        self.coordinator.confirmer._confirm_handler.join(10)
+        self.assertFalse(self.coordinator.confirmer._confirm_handler.isAlive())
 
         reservation_info = self.reservation_processor.get_info()
         self.assertEquals('ud-dummy',          reservation_info.exp_name)
         self.assertEquals('Dummy experiments', reservation_info.cat_name)
 
     def test_is_polling(self):
-        self.create_reservation_processor()
+        self.create_reservation_processor(True)
 
-        self.coordinator.confirmer._confirm_handler.join()
+        self.coordinator.confirmer._confirm_handler.join(10)
+        self.assertFalse(self.coordinator.confirmer._confirm_handler.isAlive())
 
         self.assertTrue( self.reservation_processor.is_polling() )
 
@@ -134,8 +139,9 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.assertFalse( self.reservation_processor.is_polling() )
 
     def test_is_expired_didnt_expire(self):
-        self.create_reservation_processor()
-        self.coordinator.confirmer._confirm_handler.join()
+        self.create_reservation_processor(True)
+        self.coordinator.confirmer._confirm_handler.join(10)
+        self.assertFalse(self.coordinator.confirmer._confirm_handler.isAlive())
 
         self.assertFalse( self.reservation_processor.is_expired() )
 
@@ -154,7 +160,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.mocker.replay()
 
         self.create_reservation_processor()
-        self.coordinator.confirmer._confirm_handler.join()
+        self.coordinator.confirmer._confirm_handler.join(10)
+        self.assertFalse(self.coordinator.confirmer._confirm_handler.isAlive())
 
         self.reservation_processor.time_module = time_mock
 
@@ -178,7 +185,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
         # Reserve the experiment
         self.create_reservation_processor()
 
-        self.coordinator.confirmer._confirm_handler.join()
+        self.coordinator.confirmer._confirm_handler.join(10)
+        self.assertFalse(self.coordinator.confirmer._confirm_handler.isAlive())
 
         reservation_status = self.reservation_processor.get_status()
 
@@ -189,21 +197,22 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.assertTrue( self.reservation_processor.is_expired() )
 
     def test_finished_experiment_ok(self):
-        self.create_reservation_processor()
-        self.coordinator.confirmer._confirm_handler.join()
+        self.create_reservation_processor(True)
+        self.coordinator.confirmer._confirm_handler.join(10)
+        self.assertFalse(self.coordinator.confirmer._confirm_handler.isAlive())
         self.reservation_processor.finish()
 
     def test_finished_experiment_coordinator_error(self):
-        self.create_reservation_processor()
-        self.coordinator.confirmer._confirm_handler.join()
+        self.create_reservation_processor(True)
+        self.coordinator.confirmer._confirm_handler.join(10)
+        self.assertFalse(self.coordinator.confirmer._confirm_handler.isAlive())
 
         # Force the coordinator to fail when invoking finish_reservation
         self.coordinator.finish_reservation = lambda *args: 10 / 0
 
         self.assertRaises(
                 coreExc.FailedToFreeReservationError,
-                self.reservation_processor.finish
-            )
+                self.reservation_processor.finish)
 
     def test_send_async_file_ok(self):
         file_content = "SAMPLE CONTENT"
@@ -218,7 +227,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
 
         self.create_reservation_processor()
 
-        self.coordinator.confirmer._confirm_handler.join()
+        self.coordinator.confirmer._confirm_handler.join(10)
+        self.assertFalse(self.coordinator.confirmer._confirm_handler.isAlive())
         self.reservation_processor.get_status()
 
         self.assertFalse( self.reservation_processor.is_expired() )
@@ -246,7 +256,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
 
         self.create_reservation_processor()
 
-        self.coordinator.confirmer._confirm_handler.join()
+        self.coordinator.confirmer._confirm_handler.join(10)
+        self.assertFalse(self.coordinator.confirmer._confirm_handler.isAlive())
         self.reservation_processor.get_status()
 
         self.assertFalse( self.reservation_processor.is_expired() )
@@ -273,7 +284,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.mocker.replay()
 
         self.create_reservation_processor()
-        self.coordinator.confirmer._confirm_handler.join()
+        self.coordinator.confirmer._confirm_handler.join(10)
+        self.assertFalse(self.coordinator.confirmer._confirm_handler.isAlive())
 
         self.reservation_processor.get_status()
 
@@ -300,7 +312,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.mocker.replay()
 
         self.create_reservation_processor()
-        self.coordinator.confirmer._confirm_handler.join()
+        self.coordinator.confirmer._confirm_handler.join(10)
+        self.assertFalse(self.coordinator.confirmer._confirm_handler.isAlive())
 
         self.reservation_processor.get_status()
 
@@ -327,7 +340,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.mocker.replay()
 
         self.create_reservation_processor()
-        self.coordinator.confirmer._confirm_handler.join()
+        self.coordinator.confirmer._confirm_handler.join(10)
+        self.assertFalse(self.coordinator.confirmer._confirm_handler.isAlive())
 
         self.reservation_processor.get_status()
 
@@ -354,7 +368,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.mocker.replay()
 
         self.create_reservation_processor()
-        self.coordinator.confirmer._confirm_handler.join()
+        self.coordinator.confirmer._confirm_handler.join(10)
+        self.assertFalse(self.coordinator.confirmer._confirm_handler.isAlive())
 
         self.reservation_processor.get_status()
 
@@ -380,7 +395,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.mocker.replay()
 
         self.create_reservation_processor()
-        self.coordinator.confirmer._confirm_handler.join()
+        self.coordinator.confirmer._confirm_handler.join(10)
+        self.assertFalse(self.coordinator.confirmer._confirm_handler.isAlive())
 
         self.reservation_processor.get_status()
 
@@ -409,7 +425,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.mocker.replay()
 
         self.create_reservation_processor()
-        self.coordinator.confirmer._confirm_handler.join()
+        self.coordinator.confirmer._confirm_handler.join(10)
+        self.assertFalse(self.coordinator.confirmer._confirm_handler.isAlive())
 
         self.reservation_processor.get_status()
 
@@ -437,7 +454,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.mocker.replay()
 
         self.create_reservation_processor()
-        self.coordinator.confirmer._confirm_handler.join()
+        self.coordinator.confirmer._confirm_handler.join(10)
+        self.assertFalse(self.coordinator.confirmer._confirm_handler.isAlive())
 
         self.reservation_processor.get_status()
 
@@ -463,7 +481,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.mocker.replay()
 
         self.create_reservation_processor()
-        self.coordinator.confirmer._confirm_handler.join()
+        self.coordinator.confirmer._confirm_handler.join(10)
+        self.assertFalse(self.coordinator.confirmer._confirm_handler.isAlive())
 
         self.reservation_processor.get_status()
 
@@ -488,7 +507,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.mocker.replay()
 
         self.create_reservation_processor()
-        self.coordinator.confirmer._confirm_handler.join()
+        self.coordinator.confirmer._confirm_handler.join(10)
+        self.assertFalse(self.coordinator.confirmer._confirm_handler.isAlive())
 
         self.reservation_processor.get_status()
 
@@ -513,7 +533,8 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.mocker.replay()
 
         self.create_reservation_processor()
-        self.coordinator.confirmer._confirm_handler.join()
+        self.coordinator.confirmer._confirm_handler.join(10)
+        self.assertFalse(self.coordinator.confirmer._confirm_handler.isAlive())
 
         self.reservation_processor.get_status()
 
@@ -527,6 +548,14 @@ class ReservationProcessorTestCase(unittest.TestCase):
 
         self.assertEquals( self.reservation_processor.get_status().status, Reservation.Reservation.POST_RESERVATION )
 
+    def _fake_simple_lab_response(self):
+        self.lab_mock.reserve_experiment(ExperimentInstanceId('inst','ud-dummy','Dummy experiments'), "{}", mocker.ANY)
+        self.mocker.result((SessionId.SessionId('my_lab_session_id'), 'ok', 'servexp:inst@mach'))
+        self.lab_mock.resolve_experiment_address('my_lab_session_id')
+        self.mocker.result(CoordAddress.CoordAddress("exp","inst","mach"))
+        self.lab_mock.should_experiment_finish(SessionId.SessionId('my_lab_session_id'))
+        self.mocker.result(0)
+        self.mocker.replay()
 
     def _return_reserved(self):
         self.lab_mock.reserve_experiment(ExperimentInstanceId('inst','ud-dummy','Dummy experiments'), "{}", mocker.ANY)
@@ -590,12 +619,6 @@ class FakeLocator(object):
         if server_type == ServerType.Laboratory and laboratory_coordaddr == coord_addr:
             return self.lab
         raise Exception("Server not found")
-
-class FakeConfirmer(object):
-    def enqueue_confirmation(self, *args):
-        pass
-    def enqueue_free_experiment(self, *args):
-        pass
 
 def generate_experiment(exp_name,exp_cat_name):
     cat = Category.ExperimentCategory(exp_cat_name)

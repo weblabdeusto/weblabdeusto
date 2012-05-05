@@ -134,15 +134,13 @@ class ReservationProcessor(object):
 
         self._stop_polling()
         self._reservation_session.pop('lab_session_id', None)
-
         try:
             self._coordinator.finish_reservation(self._reservation_id)
         except Exception as e:
             log.log( ReservationProcessor, log.level.Error, "Exception finishing reservation: %s" % e )
             log.log_exc( ReservationProcessor, log.level.Warning )
-            raise core_exc.FailedToFreeReservationError(
-                    "There was an error freeing reservation: %s" % e
-                )
+            raise core_exc.FailedToFreeReservationError( "There was an error freeing reservation: %s" % e)
+
 
     def update_latest_timestamp(self):
         """ Used in weblab.admin.monitor to check the status of current users """
