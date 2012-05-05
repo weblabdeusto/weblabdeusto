@@ -137,24 +137,70 @@ class TemporalInformationRetriever(threading.Thread):
     def iterate_command(self):
         information = self.commands_store.get(timeout=self.timeout)
         if information is not None:
-            if information.is_command:
-                if information.is_before:
-                    result = self._process_pre_command(information)
+            all_information = [ information ]
+            while not self.commands_store.empty():
+                information = self.commands_store.get(timeout=0)
+                if information is not None:
+                    all_information.append(information)
+
+            command_pairs     = []
+            file_pairs        = []
+            command_responses = []
+            file_responses    = []
+            command_requests  = {}
+            file_requests     = {}
+
+            for information in all_information:
+                if information.is_command:
+                    if information.is_before:
+                        command_requests[information.entry_id] = (information.reservation_id, CommandSent( information.payload, information.timestamp))
+                    else:
+                        command_request = command_requests.pop(information.entry_id, None)
+                        if command_request is not None:
+                            command_pairs.append((command_request, information.payload, information.timestamp))
+                        else:
+                            with self.entry_id2command_id_lock:
+                                command_id = self.entry_id2command_id.pop(information.entry_id, None)
+                            if command_id is None:
+                                self.commands_store.put(information)
+                            else:
+                                self.command_responses.append((command_id, information.payload, information.timestamp))
                 else:
-                    result = self._process_post_command(information)
-            else: # not is_command: is file
-                if information.is_before:
-                    result = self._process_pre_file(information)
-                else: # not is_before
-                    result = self._process_post_file(information)
-            if result is False:
-                self.commands_store.put(information)
+                    if information.is_before:
+                        file_requests[information.entry_id] = (information.reservation_id, information.payload)
+                    else:
+                        file_request = file_requests.pop(inforrmation.entry_id, None)
+                        if file_request is not None:
+                            file_pairs.append((file_request, information.payload, information.timestamp))
+                        else:
+                            with self.entry_id2command_id_lock:
+                                command_id = self.entry_id2command_id.pop(information.entry_id, None)
+                            if command_id is None:
+                                self.commands_store.put(information)
+                            else:
+                                self.file_responses.append((command_id, information.payload, information.timestamp))
+
+            # At this point, we have all the information processed and 
+            # ready to be passed to the database in a single commit
+                        
+
+
+                # TODO: improve this
+                if information.is_command:
+                    if information.is_before:
+                        result = self._process_pre_command(information)
+                    else:
+                        result = self._process_post_command(information)
+                else: # not is_command: is file
+                    if information.is_before:
+                        result = self._process_pre_file(information)
+                    else: # not is_before
+                        result = self._process_post_file(information)
+                if result is False:
+                    self.commands_store.put(information)
 
     def _process_pre_command(self, information):
-        command = CommandSent(
-                        information.payload,
-                        information.timestamp
-                    )
+        command = CommandSent( information.payload, information.timestamp)
 
         command_id = self.db_manager.append_command(information.reservation_id, command)
         if command_id is False or command_id is None:
