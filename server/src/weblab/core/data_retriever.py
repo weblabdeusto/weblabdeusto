@@ -19,7 +19,7 @@ import time
 import voodoo.log as log
 
 import weblab.db.session as DbSession
-from weblab.data.experiments import CommandSent, ExperimentUsage
+from weblab.data.experiments import CommandSent, ExperimentUsage, FileSent
 import weblab.data.command as Command
 
 class TemporalInformationRetriever(threading.Thread):
@@ -90,13 +90,11 @@ class TemporalInformationRetriever(threading.Thread):
 
             command_request = CommandSent(
                     Command.Command("@@@initial::request@@@"), initial_timestamp,
-                    Command.Command(str(initial_information.client_initial_data)), end_timestamp
-            )
+                    Command.Command(str(initial_information.client_initial_data)), end_timestamp)
 
             command_response = CommandSent(
                     Command.Command("@@@initial::response@@@"), initial_timestamp,
-                    Command.Command(str(initial_information.initial_configuration)), end_timestamp
-            )
+                    Command.Command(str(initial_information.initial_configuration)), end_timestamp)
 
             usage.append_command(command_request)
             usage.append_command(command_response)
@@ -138,117 +136,86 @@ class TemporalInformationRetriever(threading.Thread):
         information = self.commands_store.get(timeout=self.timeout)
         if information is not None:
             all_information = [ information ]
-            while not self.commands_store.empty():
+            
+            # Retrieve all the remaining information to ensure that it it finally empty,
+            # with a maximum of 1000 registries per request
+            max_registries = 1000
+            counter = 0
+            while not self.commands_store.empty() and counter < max_registries:
+                counter += 1
                 information = self.commands_store.get(timeout=0)
                 if information is not None:
                     all_information.append(information)
 
             command_pairs     = []
-            file_pairs        = []
             command_responses = []
-            file_responses    = []
             command_requests  = {}
+
+            file_pairs        = []
+            file_responses    = []
             file_requests     = {}
 
+            backup_information           = {}
+            backup_information_responses = {}
+
+            # Process
             for information in all_information:
                 if information.is_command:
                     if information.is_before:
+                        backup_information[information.entry_id] = information
                         command_requests[information.entry_id] = (information.reservation_id, CommandSent( information.payload, information.timestamp))
                     else:
+                        backup_information_responses[information.entry_id] = information
                         command_request = command_requests.pop(information.entry_id, None)
                         if command_request is not None:
-                            command_pairs.append((command_request, information.payload, information.timestamp))
+                            reservation_id, command_sent = command_request
+                            complete_command = CommandSent(
+                                                    command_sent.command, command_sent.timestamp_before,
+                                                    information.payload, information.timestamp)
+                            command_pairs.append((reservation_id, information.entry_id, complete_command))
                         else:
                             with self.entry_id2command_id_lock:
                                 command_id = self.entry_id2command_id.pop(information.entry_id, None)
                             if command_id is None:
                                 self.commands_store.put(information)
                             else:
-                                self.command_responses.append((command_id, information.payload, information.timestamp))
+                                command_responses.append((information.entry_id, command_id, information.payload, information.timestamp))
                 else:
                     if information.is_before:
+                        backup_information[information.entry_id] = information
                         file_requests[information.entry_id] = (information.reservation_id, information.payload)
                     else:
-                        file_request = file_requests.pop(inforrmation.entry_id, None)
+                        backup_information_responses[information.entry_id] = information
+                        file_request = file_requests.pop(information.entry_id, None)
                         if file_request is not None:
-                            file_pairs.append((file_request, information.payload, information.timestamp))
+                            reservation_id, file_sent = file_request
+                            complete_file = FileSent(file_sent.file_path, file_sent.file_hash, file_sent.timestamp_before,
+                                                    information.payload, information.timestamp)
+                            file_pairs.append((reservation_id, information.entry_id, complete_file))
                         else:
                             with self.entry_id2command_id_lock:
                                 command_id = self.entry_id2command_id.pop(information.entry_id, None)
                             if command_id is None:
                                 self.commands_store.put(information)
                             else:
-                                self.file_responses.append((command_id, information.payload, information.timestamp))
+                                file_responses.append((information.entry_id, command_id, information.payload, information.timestamp))
 
             # At this point, we have all the information processed and 
             # ready to be passed to the database in a single commit
-                        
+            mappings = self.db_manager.store_commands(command_pairs, command_requests, command_responses, file_pairs, file_requests, file_responses)
 
-
-                # TODO: improve this
-                if information.is_command:
-                    if information.is_before:
-                        result = self._process_pre_command(information)
+            elements_to_backup = []
+            with self.entry_id2command_id_lock:
+                for entry_id in mappings:
+                    command_id = mappings[entry_id]
+                    if command_id is not None and command_id is not False:
+                        self.entry_id2command_id[entry_id] = mappings[entry_id]
                     else:
-                        result = self._process_post_command(information)
-                else: # not is_command: is file
-                    if information.is_before:
-                        result = self._process_pre_file(information)
-                    else: # not is_before
-                        result = self._process_post_file(information)
-                if result is False:
-                    self.commands_store.put(information)
+                        elements_to_backup.append(entry_id)
 
-    def _process_pre_command(self, information):
-        command = CommandSent( information.payload, information.timestamp)
-
-        command_id = self.db_manager.append_command(information.reservation_id, command)
-        if command_id is False or command_id is None:
-            return False
-
-        with self.entry_id2command_id_lock:
-            self.entry_id2command_id[information.entry_id] = command_id
-
-        return True
-
-    def _process_post_command(self, information):
-
-        with self.entry_id2command_id_lock:
-            command_id = self.entry_id2command_id.pop(information.entry_id, None)
-
-        if command_id is None: # Command not yet stored
-            return False
-
-        response_command = information.payload
-
-        self.db_manager.update_command(command_id, response_command, information.timestamp)
-
-        return True
-
-    def _process_pre_file(self, information):
-        file_sent = information.payload
-        command_id = self.db_manager.append_file(information.reservation_id, file_sent)
-
-        if command_id is False or command_id is None:
-            return False
-
-        with self.entry_id2command_id_lock:
-            self.entry_id2command_id[information.entry_id] = command_id
-
-        return True
-
-    def _process_post_file(self, information):
-
-        with self.entry_id2command_id_lock:
-            command_id = self.entry_id2command_id.pop(information.entry_id, None)
-
-        if command_id is None: # Command not yet stored
-            return False
-
-        response_command = information.payload
-
-        self.db_manager.update_file(command_id, response_command, information.timestamp)
-
-        return True
-
+            for entry_id in elements_to_backup:
+                if entry_id in backup_information:
+                    self.commands_store.put(backup_information[entry_id])
+                if entry_id in backup_information_responses:
+                    self.commands_store.put(backup_information_responses[entry_id])
 
