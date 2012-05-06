@@ -183,6 +183,8 @@ class ReservationsManager(object):
 
         expired_reservation_ids = []
         for reservation_id, latest_access_str in zip(reservation_ids, pipeline.execute()):
+            if latest_access_str is None:
+                continue
             latest_access = float(latest_access_str)
             if latest_access is not None and latest_access < expiration_timestamp:
                 expired_reservation_ids.append(reservation_id)

@@ -194,7 +194,7 @@ CONFIGURATIONS      = [
 #                        "sample_internetsocket/launch_sample_internetsocket_machine.py",
 #                        "sample_unixsocket/launch_sample_unixsocket_machine.py",
 #                        "sample_balanced1/launch_sample_balanced1_machine.py",
-#                        "sample_balanced2/launch_sample_balanced2_machine.py",
+                        "sample_balanced2/launch_sample_balanced2_machine.py",
                         "sample_balanced2_concurrent_experiments/launch_sample_balanced2_concurrent_experiments_machine.py",
                       ]
 
