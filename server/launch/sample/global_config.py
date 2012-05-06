@@ -7,3 +7,4 @@ core_coordinator_db_engine     = db_engine
 session_sqlalchemy_engine      = db_engine
 session_lock_sqlalchemy_engine = db_engine
 
+core_coordination_impl = 'redis'
