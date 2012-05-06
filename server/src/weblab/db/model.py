@@ -364,7 +364,7 @@ class DbUserUsedExperiment(Base):
 
     id               = Column(Integer, primary_key = True)
     user_id          = Column(Integer, ForeignKey("User.id"), nullable = False, index = True)
-    experiment_id    = Column(Integer, ForeignKey("Experiment.id"), nullable = False)
+    experiment_id    = Column(Integer, ForeignKey("Experiment.id"), nullable = False, index = True)
     start_date       = Column(DateTime, nullable = False)
     start_date_micro = Column(Integer, nullable = False)
     end_date         = Column(DateTime)
