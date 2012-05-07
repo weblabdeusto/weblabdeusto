@@ -23,7 +23,7 @@ import weblab.core.coordinator.exc as CoordExc
 
 from weblab.core.coordinator.resource import Resource
 
-from sqlalchemy import Column, Boolean, Integer, String, DateTime, ForeignKey, UniqueConstraint, Table, Text
+from sqlalchemy import Column, Boolean, Integer, String, DateTime, ForeignKey, UniqueConstraint, Table, Text, Index
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relation, backref
 import sqlalchemy
@@ -64,7 +64,7 @@ class ResourceType(Base):
     __table_args__ = (UniqueConstraint('name'), TABLE_KWARGS)
 
     id = Column(Integer, primary_key = True)
-    name = Column(String(255))
+    name = Column(String(255), index = True)
 
     def __init__(self, name):
         self.name = name
@@ -77,9 +77,9 @@ class ResourceInstance(Base):
     __table_args__ = (UniqueConstraint('resource_type_id', 'name'), TABLE_KWARGS)
 
     id = Column(Integer, primary_key = True)
-    name = Column(String(255))
+    name = Column(String(255), index = True)
 
-    resource_type_id = Column(Integer, ForeignKey("ResourceTypes.id"))
+    resource_type_id = Column(Integer, ForeignKey("ResourceTypes.id"), index = True)
     resource_type    = relation(ResourceType, backref=backref("instances", order_by=id))
 
     def __init__(self, resource_type, name):
@@ -112,7 +112,7 @@ class CurrentResourceSlot(Base):
 
     id = Column(Integer, primary_key = True)
 
-    resource_instance_id = Column(Integer, ForeignKey("ResourceInstances.id"))
+    resource_instance_id = Column(Integer, ForeignKey("ResourceInstances.id"), index = True)
     resource_instance    = relation(ResourceInstance, backref=backref("slots", order_by=id))
 
     def __init__(self, resource_instance):
@@ -177,8 +177,8 @@ class ExperimentType(Base):
     __table_args__ = (UniqueConstraint('exp_name', 'cat_name'), TABLE_KWARGS)
 
     id       = Column(Integer, primary_key = True)
-    exp_name = Column(String(255))
-    cat_name = Column(String(255))
+    exp_name = Column(String(255), index = True)
+    cat_name = Column(String(255), index = True)
 
     resource_types = relation(ResourceType, secondary=t_experiment_type_has_or_had_resource_types, backref="experiment_types")
 
@@ -199,7 +199,7 @@ class ExperimentInstance(Base):
     id = Column(Integer, primary_key=True)
 
     laboratory_coord_address = Column(String(255))
-    experiment_instance_id   = Column(String(255))
+    experiment_instance_id   = Column(String(255), index = True)
 
     experiment_type_id       = Column(Integer, ForeignKey('ExperimentTypes.id'))
     experiment_type          = relation(ExperimentType, backref=backref('instances', order_by=id))
@@ -230,7 +230,7 @@ class Reservation(Base):
     __table_args__ = TABLE_KWARGS
 
     id = Column(String(RESERVATION_ID_SIZE), primary_key=True)
-    latest_access      = Column(DateTime)
+    latest_access      = Column(DateTime, index = True)
     experiment_type_id = Column(Integer, ForeignKey('ExperimentTypes.id'))
     experiment_type    = relation(ExperimentType, backref=backref('reservations', order_by=id))
     # The initial data is provided by the client. It must be sent to the server as a first command.
@@ -304,7 +304,7 @@ class ActiveReservationSchedulerAssociation(Base):
 
     id               = Column(Integer, primary_key = True)
 
-    reservation_id   = Column(String(RESERVATION_ID_SIZE), nullable = False)
+    reservation_id   = Column(String(RESERVATION_ID_SIZE), nullable = False, index = True)
 
     #
     # Each Independent Aggregator is represented by an experiment type:
@@ -328,6 +328,9 @@ class ActiveReservationSchedulerAssociation(Base):
     def __repr__(self):
         return "ActiveReservationSchedulerAssociation(reservation_id=%r, experiment_type=%r, resource_type=%r)" % (self.reservation_id, self.experiment_type, self.resource_type)
 
+Index('ix_active_schedulers_reservation', ActiveReservationSchedulerAssociation.reservation_id, ActiveReservationSchedulerAssociation.experiment_type_id, ActiveReservationSchedulerAssociation.resource_type_id)
+Index('ix_active_schedulers', ActiveReservationSchedulerAssociation.experiment_type_id, ActiveReservationSchedulerAssociation.resource_type_id)
+
 ######################################################################################
 #
 # Since a reservation can apply to different scheduling schemas of different resource
@@ -341,7 +344,7 @@ class CurrentReservation(Base):
     __tablename__  = 'CurrentReservations'
     __table_args__ = TABLE_KWARGS
 
-    id                               = Column(String(RESERVATION_ID_SIZE), ForeignKey('Reservations.id'), primary_key = True)
+    id                               = Column(String(RESERVATION_ID_SIZE), ForeignKey('Reservations.id'), primary_key = True, index = True)
     reservation                      = relation(Reservation, backref=backref('current_reservations', order_by=id))
 
     def __init__(self, id):
@@ -386,13 +389,13 @@ class PostReservationRetrievedData(Base):
 
     id                     = Column(Integer, primary_key=True)
 
-    reservation_id         = Column(String(RESERVATION_ID_SIZE))
-    finished               = Column(Boolean)     # Has the experiment finished?
-    date                   = Column(DateTime)    # When did the experiment finish?
-    expiration_date        = Column(DateTime)    # When should this registry be removed?
-    initial_data           = Column(Text)        # A JSON structure with the information returned by the experiment server when initializing
-                                                 # (useful for batch)
-    end_data               = Column(Text)        # A JSON structure with the information returned by the experiment server when disposing
+    reservation_id         = Column(String(RESERVATION_ID_SIZE), index = True)
+    finished               = Column(Boolean)                # Has the experiment finished?
+    date                   = Column(DateTime)               # When did the experiment finish?
+    expiration_date        = Column(DateTime, index = True) # When should this registry be removed?
+    initial_data           = Column(Text)                   # A JSON structure with the information returned by the experiment server when initializing
+                                                            # (useful for batch)
+    end_data               = Column(Text)                   # A JSON structure with the information returned by the experiment server when disposing
 
     def __init__(self, reservation_id, finished, date, expiration_date, initial_data, end_data):
         self.reservation_id         = reservation_id

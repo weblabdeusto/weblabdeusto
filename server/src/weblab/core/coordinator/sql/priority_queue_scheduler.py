@@ -290,7 +290,7 @@ class PriorityQueueScheduler(Scheduler):
 
             concrete_current_reservation.lab_session_id        = lab_session_id.id
             concrete_current_reservation.initial_configuration = initial_configuration
-            concrete_current_reservation.timestamp_after       = self.time_provider.get_time()
+            concrete_current_reservation.set_timestamp_after(self.time_provider.get_time())
 
             session.commit()
         finally:
@@ -454,7 +454,7 @@ class PriorityQueueScheduler(Scheduler):
                     start_time = self.time_provider.get_time()
                     concrete_current_reservation = ConcreteCurrentReservation(slot_reservation, first_waiting_reservation.reservation_id,
                                                         total_time, start_time, first_waiting_reservation.priority, first_waiting_reservation.initialization_in_accounting)
-                    concrete_current_reservation.timestamp_before = self.time_provider.get_time()
+                    concrete_current_reservation.set_timestamp_before(self.time_provider.get_time())
 
                     client_initial_data = first_waiting_reservation.reservation.client_initial_data
 
@@ -546,10 +546,9 @@ class PriorityQueueScheduler(Scheduler):
 
             reservations_removed = False
             enqueue_free_experiment_args_retrieved = []
-            with_initialization = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.initialization_in_accounting == True).filter(ConcreteCurrentReservation.timestamp_before.op('+')(ConcreteCurrentReservation.time) < self.time_provider.get_time())
-            without_initialization = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.initialization_in_accounting == False).filter(ConcreteCurrentReservation.timestamp_after.op('+')(ConcreteCurrentReservation.time) < self.time_provider.get_time())
+            expired_query = session.query(ConcreteCurrentReservation).filter(ConcreteCurrentReservation.expired_timestamp != 0).filter(ConcreteCurrentReservation.expired_timestamp < self.time_provider.get_time())
 
-            for expired_concrete_current_reservation in with_initialization.union(without_initialization).all():
+            for expired_concrete_current_reservation in expired_query.all():
                 expired_reservation = expired_concrete_current_reservation.current_reservation_id
                 if expired_reservation is None:
                     continue # Maybe it's not an expired_reservation anymore

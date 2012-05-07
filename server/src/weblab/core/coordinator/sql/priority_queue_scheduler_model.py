@@ -14,7 +14,7 @@
 #
 
 from voodoo.dbutil import get_table_kwargs
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, UniqueConstraint, Text
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, UniqueConstraint, Text, Index
 from sqlalchemy.orm import relation, backref
 
 from weblab.core.coordinator.sql.model import Base, RESERVATION_ID_SIZE, ResourceType, Reservation, SchedulingSchemaIndependentSlotReservation
@@ -33,7 +33,7 @@ class ConcreteCurrentReservation(Base):
     slot_reservation_id              = Column(Integer, ForeignKey('SchedulingSchemaIndependentSlotReservations.id'))
     slot_reservation                 = relation(SchedulingSchemaIndependentSlotReservation, backref=backref('pq_current_reservations', order_by=id))
 
-    current_reservation_id           = Column(String(RESERVATION_ID_SIZE), ForeignKey('CurrentReservations.id'))
+    current_reservation_id           = Column(String(RESERVATION_ID_SIZE), ForeignKey('CurrentReservations.id'), index = True)
     current_reservation              = relation(GlobalCurrentReservation, backref=backref('pq_current_reservations'))
 
     # For how many seconds the user has access
@@ -47,6 +47,8 @@ class ConcreteCurrentReservation(Base):
 
     timestamp_before                 = Column(Integer)
     timestamp_after                  = Column(Integer)
+
+    expired_timestamp                = Column(Integer, index = True)
 
     priority                         = Column(Integer)
     lab_session_id                   = Column(String(255))
@@ -64,6 +66,16 @@ class ConcreteCurrentReservation(Base):
         self.timestamp_before              = None
         self.timestamp_after               = None
 
+    def set_timestamp_before(self, timestamp_before):
+        self.timestamp_before = timestamp_before
+        if self.initialization_in_accounting:
+            self.expired_timestamp = self.time + timestamp_before
+
+    def set_timestamp_after(self, timestamp_after):
+        self.timestamp_after = timestamp_after
+        if not self.initialization_in_accounting:
+            self.expired_timestamp = self.time + timestamp_after
+
     def __repr__(self):
         return SUFFIX + "ConcreteCurrentReservation(%r, %r, %r, %r, %r, %r, %r, %r, %r, %r)" % (
                             self.slot_reservation,
@@ -78,14 +90,18 @@ class ConcreteCurrentReservation(Base):
                             self.initialization_in_accounting
                         )
 
+# TODO: instead of doing this, make a new column which is already the sum of both, and make an index on that column
+Index('ix_pq_concrete_with_initial',    ConcreteCurrentReservation.initialization_in_accounting, ConcreteCurrentReservation.timestamp_before, ConcreteCurrentReservation.time)
+Index('ix_pq_concrete_without_initial', ConcreteCurrentReservation.initialization_in_accounting, ConcreteCurrentReservation.timestamp_after, ConcreteCurrentReservation.time)
+
 class WaitingReservation(Base):
     __tablename__  = SUFFIX + 'WaitingReservations'
     __table_args__ = (UniqueConstraint('reservation_id','resource_type_id'), TABLE_KWARGS)
 
     id = Column(Integer, primary_key=True)
 
-    resource_type_id             = Column(Integer, ForeignKey('ResourceTypes.id'))
-    reservation_id               = Column(String(RESERVATION_ID_SIZE), ForeignKey('Reservations.id'))
+    resource_type_id             = Column(Integer, ForeignKey('ResourceTypes.id'), index = True)
+    reservation_id               = Column(String(RESERVATION_ID_SIZE), ForeignKey('Reservations.id'), index = True)
     reservation                  = relation(Reservation, backref=backref('pq_waiting_reservations', order_by=id))
     time                         = Column(Integer)
     priority                     = Column(Integer)
@@ -109,3 +125,4 @@ class WaitingReservation(Base):
                     self.initialization_in_accounting
                 )
 
+Index('ix_pq_waiting_rese_reso', WaitingReservation.reservation_id, WaitingReservation.resource_type_id)
