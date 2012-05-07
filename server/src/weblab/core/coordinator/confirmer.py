@@ -28,7 +28,6 @@ import weblab.data.server_type as ServerType
 
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("Coordinator")
 
-# TODO
 DEBUG = False
 
 class ReservationConfirmer(object):
@@ -62,7 +61,8 @@ class ReservationConfirmer(object):
             initial_time = datetime.datetime.now()
             try:
                 labserver = self.locator.get_server_from_coordaddr(lab_coordaddress, ServerType.Laboratory)
-                lab_session_id, server_initialization_response, experiment_coordaddress_str = labserver.reserve_experiment(experiment_instance_id, client_initial_data, server_initial_data)
+                reservation_result  = labserver.reserve_experiment(experiment_instance_id, client_initial_data, server_initial_data)
+                lab_session_id, server_initialization_response, experiment_coordaddress_str = reservation_result
             except Exception as e:
                 if DEBUG:
                     traceback.print_exc()

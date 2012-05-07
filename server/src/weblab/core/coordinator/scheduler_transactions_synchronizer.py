@@ -131,8 +131,9 @@ class SchedulerTransactionsSynchronizer(threading.Thread):
 
         self.queue.put_nowait(request_id)
 
+
         with self.pending_elements_condition:
-            while request_id in self.pending_elements:
-                self.pending_elements_condition.wait()
+            while request_id in self.pending_elements and self.isAlive():
+                self.pending_elements_condition.wait(timeout=5)
 
 
