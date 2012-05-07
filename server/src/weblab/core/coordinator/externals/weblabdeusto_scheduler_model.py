@@ -16,7 +16,7 @@
 from voodoo.representable import Representable
 from voodoo.typechecker import typecheck
 from voodoo.dbutil import get_table_kwargs
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Index
 
 from weblab.core.coordinator.sql.model import Base, RESERVATION_ID_SIZE
 
@@ -30,7 +30,7 @@ class ExternalWebLabDeustoReservation(Base):
 
     id = Column(Integer, primary_key=True)
 
-    local_reservation_id             = Column(String(RESERVATION_ID_SIZE))
+    local_reservation_id             = Column(String(RESERVATION_ID_SIZE), index = True)
 
     # It might come with the cookie value
     remote_reservation_id            = Column(String(RESERVATION_ID_SIZE * 3))
@@ -57,7 +57,7 @@ class ExternalWebLabDeustoReservationPendingResults(Base):
 
     id = Column(Integer, primary_key=True)
     
-    reservation_id        = Column(String(RESERVATION_ID_SIZE))
+    reservation_id        = Column(String(RESERVATION_ID_SIZE), index = True)
     remote_reservation_id = Column(String(RESERVATION_ID_SIZE * 3))
     resource_type_name    = Column(String(255))
     # In order to avoid concurrence among different servers, every sever will know 
@@ -84,6 +84,10 @@ class ExternalWebLabDeustoReservationPendingResults(Base):
 
     def to_dto(self):
         return ExternalWebLabDeustoReservationPendingResultDTO(self.id, self.reservation_id, self.remote_reservation_id, self.username, self.serialized_request_info, self.experiment_id_str)
+
+Index('ix_EWLD_results_reso_route', ExternalWebLabDeustoReservationPendingResults.server_route, ExternalWebLabDeustoReservationPendingResults.resource_type_name)
+
+Index('ix_EWLD_results_reso_route_rese', ExternalWebLabDeustoReservationPendingResults.server_route, ExternalWebLabDeustoReservationPendingResults.resource_type_name, ExternalWebLabDeustoReservationPendingResults.reservation_id)
 
 class ExternalWebLabDeustoReservationPendingResultDTO(object):
     __metaclass__ = Representable

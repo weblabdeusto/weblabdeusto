@@ -15,7 +15,7 @@
 
 
 from voodoo.dbutil import get_table_kwargs
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Index
 
 from weblab.core.coordinator.sql.model import Base, RESERVATION_ID_SIZE
 
@@ -46,4 +46,4 @@ class ILabBatchReservation(Base):
                             self.lab_server_url,
                             self.remote_experiment_id,
                         )
-
+Index('ix_ilabbatch_rese_lab', ILabBatchReservation.local_reservation_id, ILabBatchReservation.lab_server_url)
