@@ -23,6 +23,7 @@ libraries.load()
 import weblab.experiment.concurrent_experiment as ConcurrentExperiment
 
 import os
+import sys
 import glob
 import httplib
 import urllib2
@@ -544,10 +545,12 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         
         if 'electro_lab' not in cookies:
             print "WARNING: could not find electro_lab cookie!!!"
+            sys.stdout.flush()
         if 'exp_session' not in cookies:
             print "WARNING: could not find exp_session cookie!!!"
+            sys.stdout.flush()
 
-        electro_lab_cookie = cookies['electro_lab']        
+        electro_lab_cookie = cookies.get('electro_lab','')
         exp_session_cookie = cookies.get('exp_session','any_exp_session_%s' % random.random())
         
         if DEBUG: print "[DBG] LOGIN DONE. ELECTRO_LAB = %s AND EXP_SESSION = %s" % (electro_lab_cookie, exp_session_cookie)
