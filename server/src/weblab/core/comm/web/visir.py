@@ -262,6 +262,14 @@ class  VisirMethod(WebFacadeServer.Method):
             if cur_cookie.startswith('weblab_reservation_id='):
                 reservation_id = SessionId(cur_cookie[len('weblab_reservation_id='):].split('.')[0])
 
+        try:
+            response = self.server.send_command( sess_id, Command("GIVE_ME_LIBRARY") )
+        except:
+            pass
+        else:
+            if response.commandstring is not None and response.commandstring != 'failed':
+                return response.commandstring
+
         if reservation_id is None and sess_id is not None:
             try:
                 reservation_id_str = self.server.get_reservation_id_by_session_id(sess_id)
