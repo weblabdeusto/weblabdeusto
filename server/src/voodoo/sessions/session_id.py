@@ -13,12 +13,12 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import voodoo.sessions.exc as SessionErrors
+from voodoo.sessions.exc import SessionInvalidSessionIdError
 
 class SessionId(object):
     def __init__(self, real_id):
         if not isinstance(real_id,basestring):
-            raise SessionErrors.SessionInvalidSessionIdError( "Not a string: %s" % real_id )
+            raise SessionInvalidSessionIdError( "Not a string: %s" % real_id )
 
         self.id = real_id
 
