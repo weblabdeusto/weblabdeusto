@@ -22,7 +22,7 @@ import voodoo.log as log
 import weblab.core.coordinator.status as WSS
 from weblab.core.coordinator.scheduler import Scheduler
 from weblab.core.coordinator.clients.ilab_batch import iLabBatchLabServerProxy
-from weblab.core.coordinator.externals.ilab_batch_scheduler_model import ILabBatchReservation
+from weblab.core.coordinator.sql.externals.ilab_batch_scheduler_model import ILabBatchReservation
 from voodoo.log import logged
 
 class ILabBatchScheduler(Scheduler):

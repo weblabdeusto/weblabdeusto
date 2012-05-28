@@ -27,8 +27,8 @@ import weblab.core.coordinator.sql.post_reservation as PostReservationDataManage
 from weblab.core.coordinator.sql.meta_scheduler import IndependentSchedulerAggregator
 from weblab.core.coordinator.sql.no_scheduler import NoScheduler
 from weblab.core.coordinator.sql.priority_queue_scheduler import PriorityQueueScheduler
-from weblab.core.coordinator.externals.weblabdeusto_scheduler import ExternalWebLabDeustoScheduler
-from weblab.core.coordinator.externals.ilab_batch_scheduler import ILabBatchScheduler
+from weblab.core.coordinator.sql.externals.weblabdeusto_scheduler import ExternalWebLabDeustoScheduler
+from weblab.core.coordinator.sql.externals.ilab_batch_scheduler import ILabBatchScheduler
 from weblab.core.coordinator.resource import Resource
 
 from weblab.core.coordinator.coordinator import AbstractCoordinator

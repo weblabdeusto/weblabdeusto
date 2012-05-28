@@ -30,9 +30,9 @@ from weblab.core.user_processor import FORWARDED_KEYS, SERVER_UUIDS
 import weblab.core.coordinator.status as WSS
 from weblab.core.coordinator.scheduler import Scheduler
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
-from weblab.core.coordinator.externals.weblabdeusto_scheduler_model import ExternalWebLabDeustoReservation, ExternalWebLabDeustoReservationPendingResults
+from weblab.core.coordinator.sql.externals.weblabdeusto_scheduler_model import ExternalWebLabDeustoReservation, ExternalWebLabDeustoReservationPendingResults
 
-from weblab.core.coordinator.externals.weblabdeusto_scheduler_retriever import ResultsRetriever
+from weblab.core.coordinator.sql.externals.weblabdeusto_scheduler_retriever import ResultsRetriever
 from voodoo.log import logged
 
 RETRIEVAL_PERIOD_PROPERTY_NAME = 'core_weblabdeusto_federation_retrieval_period'

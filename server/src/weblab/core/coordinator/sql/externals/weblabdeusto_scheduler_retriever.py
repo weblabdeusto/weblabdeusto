@@ -27,7 +27,7 @@ from voodoo.counter import next_name
 from voodoo.sessions.session_id import SessionId
 
 from weblab.data.experiments import ExperimentId
-from weblab.core.coordinator.externals.weblabdeusto_scheduler_model import ExternalWebLabDeustoReservationPendingResults
+from weblab.core.coordinator.sql.externals.weblabdeusto_scheduler_model import ExternalWebLabDeustoReservationPendingResults
 
 class ResultsRetriever(threading.Thread):
     def __init__(self, weblabdeusto_scheduler, period, create_client_func):

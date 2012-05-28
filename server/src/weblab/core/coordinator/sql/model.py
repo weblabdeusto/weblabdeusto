@@ -37,10 +37,10 @@ def load():
     import weblab.core.coordinator.sql.priority_queue_scheduler_model as PriorityQueueSchedulerModel
     assert PriorityQueueSchedulerModel.Base == Base # Just to avoid pyflakes warnings
 
-    import weblab.core.coordinator.externals.weblabdeusto_scheduler_model as weblabdeusto_scheduler_model
+    import weblab.core.coordinator.sql.externals.weblabdeusto_scheduler_model as weblabdeusto_scheduler_model
     assert weblabdeusto_scheduler_model.Base == Base
 
-    import weblab.core.coordinator.externals.ilab_batch_scheduler_model as ilab_batch_scheduler_model
+    import weblab.core.coordinator.sql.externals.ilab_batch_scheduler_model as ilab_batch_scheduler_model
     assert ilab_batch_scheduler_model.Base == Base
 
 TABLE_KWARGS = get_table_kwargs()

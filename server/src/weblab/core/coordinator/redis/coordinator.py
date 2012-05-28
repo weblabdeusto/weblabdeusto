@@ -28,8 +28,8 @@ import weblab.core.coordinator.redis.post_reservation as PostReservationDataMana
 from weblab.core.coordinator.redis.meta_scheduler import IndependentSchedulerAggregator
 from weblab.core.coordinator.redis.no_scheduler import NoScheduler
 from weblab.core.coordinator.redis.priority_queue_scheduler import PriorityQueueScheduler
-from weblab.core.coordinator.externals.weblabdeusto_scheduler import ExternalWebLabDeustoScheduler
-from weblab.core.coordinator.externals.ilab_batch_scheduler import ILabBatchScheduler
+from weblab.core.coordinator.redis.externals.weblabdeusto_scheduler import ExternalWebLabDeustoScheduler
+from weblab.core.coordinator.redis.externals.ilab_batch_scheduler import ILabBatchScheduler
 from weblab.core.coordinator.resource import Resource
 
 from weblab.core.coordinator.coordinator import AbstractCoordinator
