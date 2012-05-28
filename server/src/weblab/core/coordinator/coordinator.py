@@ -129,10 +129,7 @@ class AbstractCoordinator(object):
                 raise CoordExc.UnregisteredSchedulingSystemError("Unregistered scheduling system: %r" % scheduling_system)
             SchedulingSystemClass = self.SCHEDULING_SYSTEMS[scheduling_system]
 
-            if scheduling_system == PRIORITY_QUEUE:
-                data_manager = self._data_manager
-            else:
-                data_manager = self._sql_session_maker
+            data_manager = self._data_manager
 
             generic_scheduler_arguments = Scheduler.GenericSchedulerArguments(
                                                 cfg_manager          = self.cfg_manager,

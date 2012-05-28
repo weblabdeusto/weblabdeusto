@@ -67,10 +67,10 @@ class ResultsRetriever(threading.Thread):
                 log.log_exc(ResultsRetriever, log.level.Error)
 
     def _process(self):
-        client = self.redis_maker()
+        redis_client = self.redis_maker()
         pending_results = []
-        for reservation_id in client.hkeys(self.external_weblabdeusto_pending):
-            pending_result_str = client.hget(self.external_weblabdeusto_pending)
+        for reservation_id in redis_client.hkeys(self.external_weblabdeusto_pending):
+            pending_result_str = redis_client.hget(self.external_weblabdeusto_pending, reservation_id)
             if pending_result_str is not None:
                 pending_result = json.loads(pending_result_str)
                 pending_result['reservation_id'] = reservation_id
@@ -101,7 +101,7 @@ class ResultsRetriever(threading.Thread):
                 reservation_id = pending_result['reservation_id']
                 remote_reservation_id = pending_result['remote_reservation_id']
 
-                if not client.hdel(self.external_weblabdeusto_pending, reservation_id):
+                if not redis_client.hdel(self.external_weblabdeusto_pending, reservation_id):
                     log.log(ResultsRetriever, log.level.Info, "Pending reservation %r not found. Assuming it is managed by other thread" % pending_result)
                     continue
 

@@ -140,8 +140,8 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         serialized_cookies = pickle.dumps(cookies)
 
 
-        client = self.redis_maker()
-        pipeline = client.pipeline()
+        redis_client = self.redis_maker()
+        pipeline = redis_client.pipeline()
         pipeline.hset(self.external_weblabdeusto_reservations, reservation_id, json.dumps({
             'remote_reservation_id' : remote_reservation_id,
             'cookies'               : serialized_cookies,
@@ -175,8 +175,8 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         while not reservation_found and max_iterations >= 0:
             client = self.redis_maker()
             
-            reservation = client.hget(self.external_weblabdeusto_reservations, reservation_id)
-            if reservation is None:
+            reservation_str = client.hget(self.external_weblabdeusto_reservations, reservation_id)
+            if reservation_str is None:
                 external_weblabdeusto_pending_results = self.EXTERNAL_WEBLABDEUSTO_PENDING_RESULTS % (self.resource_type_name, self.core_server_route)
                 pending_result = client.hget(external_weblabdeusto_pending_results, reservation_id)
                 if pending_result is None:
@@ -185,6 +185,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
                 else:
                     return WSS.PostReservationStatus(reservation_id, False, '', '')
             else:
+                reservation = json.loads(reservation_str)
                 reservation_found = True
                 remote_reservation_id = reservation['remote_reservation_id']
                 serialized_cookies    = reservation['cookies']
@@ -248,9 +249,10 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     @logged()
     @Override(Scheduler)
     def finish_reservation(self, reservation_id):
-        client = self.redis_maker()
-        reservation = client.hget(self.external_weblabdeusto_reservations, reservation_id)
-        if reservation is not None:
+        redis_client = self.redis_maker()
+        reservation_str = redis_client.hget(self.external_weblabdeusto_reservations, reservation_id)
+        if reservation_str is not None:
+            reservation = json.loads(reservation_str)
             remote_reservation_id = reservation['remote_reservation_id']
             serialized_cookies = reservation['cookies']
         else:
@@ -269,7 +271,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
             now = self.time_provider.get_datetime()
             self.post_reservation_data_manager.create(reservation_id, now, now + self.expiration_delta, json.dumps("''"))
 
-        result = client.hdel(self.external_weblabdeusto_reservations, reservation_id)
+        result = redis_client.hdel(self.external_weblabdeusto_reservations, reservation_id)
         if not result:
             log.log(ExternalWebLabDeustoScheduler, log.level.Info, "Not deleting reservation %s from ExternalWebLabDeustoReservation since somebody already did it" % reservation_id)
             return
