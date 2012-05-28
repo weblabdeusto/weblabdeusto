@@ -17,6 +17,7 @@ import time
 import unittest
 
 import voodoo.gen.loader.ServerLoader as ServerLoader
+from voodoo.gen.registry.server_registry import _registry
 
 from weblab.data.command import Command
 from weblab.data.experiments import ExperimentId, WaitingReservationResult, RunningReservationResult
@@ -25,6 +26,10 @@ from weblab.core.reservations import Reservation
 
 class AbstractFederatedWebLabDeustoTestCase(unittest.TestCase):
     def setUp(self):
+
+        # Clean the global registry of servers
+        _registry.clear()
+
         CONSUMER_CONFIG_PATH  = self.FEDERATED_DEPLOYMENTS + '/consumer/'
         PROVIDER1_CONFIG_PATH = self.FEDERATED_DEPLOYMENTS + '/provider1/'
         PROVIDER2_CONFIG_PATH = self.FEDERATED_DEPLOYMENTS + '/provider2/'
