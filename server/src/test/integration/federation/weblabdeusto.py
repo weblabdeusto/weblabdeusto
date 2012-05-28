@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import sys
 import time
 import unittest
 
@@ -23,6 +24,15 @@ from weblab.data.command import Command
 from weblab.data.experiments import ExperimentId, WaitingReservationResult, RunningReservationResult
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 from weblab.core.reservations import Reservation
+
+DEBUG = True
+
+def debug(msg):
+    if DEBUG:
+        print
+        print "DEBUG:",msg
+        print 
+        sys.stdout.flush()
 
 class AbstractFederatedWebLabDeustoTestCase(unittest.TestCase):
     def setUp(self):
@@ -68,6 +78,8 @@ class AbstractFederatedWebLabDeustoTestCase(unittest.TestCase):
     # into subtests (the setup and teardown are long)
     #
     def test_federated_experiment(self):
+        debug("Test test_federated_experiment starts")
+
         #######################################################
         #
         #   Local testing  (to check that everything is right)
@@ -217,6 +229,8 @@ class AbstractFederatedWebLabDeustoTestCase(unittest.TestCase):
         self.assertEquals('Provider 1', final_reservation_results[0].experiment_use.commands[2].response.commandstring)
         self.assertEquals('Provider 1', final_reservation_results[1].experiment_use.commands[2].response.commandstring)
 
+        debug("Test test_federated_experiment finishes successfully")
+
     def _wait_multiple_reservations(self, times, session_id, reservation_ids, reservations_to_wait):
         for _ in range(times):
             time.sleep(0.5)
@@ -241,16 +255,21 @@ class AbstractFederatedWebLabDeustoTestCase(unittest.TestCase):
         self.assertTrue(found, "server_info not found in commands")
 
     def _test_reservation(self, session_id, experiment_id, expected_server_info, wait, finish, user_agent = None):
+        debug("Reserving with session_id %r a experiment %r; will I wait? %s; will I finish? %s" % (session_id, experiment_id, wait, finish))
         reservation_status = self.consumer_core_client.reserve_experiment(session_id, experiment_id, "{}", "{}", user_agent = user_agent)
 
         reservation_id = reservation_status.reservation_id
 
         if not wait:
             if finish:
+                debug("Finishing... %r" % reservation_id)
                 self.consumer_core_client.finished_experiment(reservation_id)
+            debug("Not waiting... %r" % reservation_id)
             return reservation_id
 
-        return self._wait_reservation(reservation_id, expected_server_info, finish)
+        reservation_id = self._wait_reservation(reservation_id, expected_server_info, finish)
+        debug("Finished waiting... %r" % reservation_id)
+        return reservation_id
 
     def _wait_reservation(self, reservation_id, expected_server_info, finish):
         max_timeout = 10
