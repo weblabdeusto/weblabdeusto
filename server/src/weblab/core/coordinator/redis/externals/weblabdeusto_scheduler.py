@@ -18,8 +18,6 @@ import cPickle as pickle
 import json
 import datetime
 
-from sqlalchemy.orm.exc import StaleDataError
-
 import voodoo.log as log
 from voodoo.override import Override
 from voodoo.sessions.session_id import SessionId
@@ -30,7 +28,6 @@ from weblab.core.user_processor import FORWARDED_KEYS, SERVER_UUIDS
 import weblab.core.coordinator.status as WSS
 from weblab.core.coordinator.scheduler import Scheduler
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
-from weblab.core.coordinator.redis.externals.weblabdeusto_scheduler_model import ExternalWebLabDeustoReservation, ExternalWebLabDeustoReservationPendingResults
 
 from weblab.core.coordinator.redis.externals.weblabdeusto_scheduler_retriever import ResultsRetriever
 from voodoo.log import logged
@@ -38,8 +35,10 @@ from voodoo.log import logged
 RETRIEVAL_PERIOD_PROPERTY_NAME = 'core_weblabdeusto_federation_retrieval_period'
 DEFAULT_RETRIEVAL_PERIOD = 10
 
-
 class ExternalWebLabDeustoScheduler(Scheduler):
+
+    EXTERNAL_WEBLABDEUSTO_RESERVATIONS    = 'weblab:externals:weblabdeusto:%s:%s:reservations'
+    EXTERNAL_WEBLABDEUSTO_PENDING_RESULTS = 'weblab:externals:weblabdeusto:pending:%s:%s'
 
     def __init__(self, generic_scheduler_arguments, baseurl, username, password, login_baseurl = None, experiments_map = None, **kwargs):
         super(ExternalWebLabDeustoScheduler, self).__init__(generic_scheduler_arguments, **kwargs)
@@ -60,6 +59,8 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         period = self.cfg_manager.get_value(RETRIEVAL_PERIOD_PROPERTY_NAME, DEFAULT_RETRIEVAL_PERIOD)
         self.retriever     = ResultsRetriever(self, period, self._create_logged_in_client)
         self.retriever.start()
+
+        self.external_weblabdeusto_reservations = self.EXTERNAL_WEBLABDEUSTO_RESERVATIONS % (self.baseurl, self.resource_type_name)
 
     def stop(self):
         self.retriever.stop()
@@ -138,15 +139,24 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         cookies = client.get_cookies()
         serialized_cookies = pickle.dumps(cookies)
 
-        session = self.session_maker()
-        try:
-            reservation = ExternalWebLabDeustoReservation(reservation_id, remote_reservation_id, serialized_cookies, time_mod.time())
-            pending_results = ExternalWebLabDeustoReservationPendingResults(reservation_id, remote_reservation_id, self.resource_type_name, self.core_server_route, request_info.get('username', ''), pickle.dumps(request_info), experiment_id.to_weblab_str())
-            session.add(reservation)
-            session.add(pending_results)
-            session.commit()
-        finally:
-            session.close()
+
+        client = self.redis_maker()
+        pipeline = client.pipeline()
+        pipeline.hset(self.external_weblabdeusto_reservations, reservation_id, json.dumps({
+            'remote_reservation_id' : remote_reservation_id,
+            'cookies'               : serialized_cookies,
+            'start_time'            : time_mod.time(),
+        }))
+
+        external_weblabdeusto_pending_results = self.EXTERNAL_WEBLABDEUSTO_PENDING_RESULTS % (self.resource_type_name, self.core_server_route)
+        pipeline.hset(external_weblabdeusto_pending_results, reservation_id, json.dumps({
+            'remote_reservation_id'   : remote_reservation_id,
+            'username'                : request_info.get('username',''),
+            'serialized_request_info' : pickle.dumps(request_info),
+            'experiment_id_str'       : experiment_id.to_weblab_str(),
+        }))
+
+        pipeline.execute()
 
         reservation_status = self._convert_reservation_to_status(external_reservation, reservation_id, remote_reservation_id)
         return reservation_status
@@ -163,22 +173,21 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         max_iterations = 15
 
         while not reservation_found and max_iterations >= 0:
-            session = self.session_maker()
-            try:
-                reservation = session.query(ExternalWebLabDeustoReservation).filter_by(local_reservation_id = reservation_id).first()
-                if reservation is None:
-                    pending_result = session.query(ExternalWebLabDeustoReservationPendingResults).filter_by(resource_type_name = self.resource_type_name, server_route = self.core_server_route, reservation_id = reservation_id).first()
-                    if pending_result is None:
-                        # reservation not yet stored in local database
-                        pass
-                    else:
-                        return WSS.PostReservationStatus(reservation_id, False, '', '')
+            client = self.redis_maker()
+            
+            reservation = client.hget(self.external_weblabdeusto_reservations, reservation_id)
+            if reservation is None:
+                external_weblabdeusto_pending_results = self.EXTERNAL_WEBLABDEUSTO_PENDING_RESULTS % (self.resource_type_name, self.core_server_route)
+                pending_result = client.hget(external_weblabdeusto_pending_results, reservation_id)
+                if pending_result is None:
+                    # reservation not yet stored in local database
+                    pass
                 else:
-                    reservation_found = True
-                    remote_reservation_id = reservation.remote_reservation_id
-                    serialized_cookies    = reservation.cookies
-            finally:
-                session.close()
+                    return WSS.PostReservationStatus(reservation_id, False, '', '')
+            else:
+                reservation_found = True
+                remote_reservation_id = reservation['remote_reservation_id']
+                serialized_cookies    = reservation['cookies']
             
             # Introduce a delay to let the system store the reservation in the local database
             if not reservation_found:
@@ -239,17 +248,14 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     @logged()
     @Override(Scheduler)
     def finish_reservation(self, reservation_id):
-        session = self.session_maker()
-        try:
-            reservation = session.query(ExternalWebLabDeustoReservation).filter_by(local_reservation_id = reservation_id).first()
-            if reservation is not None:
-                remote_reservation_id = reservation.remote_reservation_id
-                serialized_cookies = reservation.cookies
-            else:
-                log.log(ExternalWebLabDeustoScheduler, log.level.Info, "Not finishing reservation %s since somebody already did it" % reservation_id)
-                return
-        finally:
-            session.close()
+        client = self.redis_maker()
+        reservation = client.hget(self.external_weblabdeusto_reservations, reservation_id)
+        if reservation is not None:
+            remote_reservation_id = reservation['remote_reservation_id']
+            serialized_cookies = reservation['cookies']
+        else:
+            log.log(ExternalWebLabDeustoScheduler, log.level.Info, "Not finishing reservation %s since somebody already did it" % reservation_id)
+            return
 
         cookies = pickle.loads(str(serialized_cookies))
         client = self._create_client(cookies)
@@ -263,20 +269,10 @@ class ExternalWebLabDeustoScheduler(Scheduler):
             now = self.time_provider.get_datetime()
             self.post_reservation_data_manager.create(reservation_id, now, now + self.expiration_delta, json.dumps("''"))
 
-        session = self.session_maker()
-        try:
-            reservation = session.query(ExternalWebLabDeustoReservation).filter_by(local_reservation_id = reservation_id).first()
-            if reservation is not None:
-                try:
-                    session.delete(reservation)
-                    session.commit()
-                except StaleDataError:
-                    log.log(ExternalWebLabDeustoScheduler, log.level.Info, "Could not remove reservation_id %s from ExternalWebLabDeustoReservation since somebody already did it" % reservation_id)
-            else:
-                log.log(ExternalWebLabDeustoScheduler, log.level.Info, "Not deleting reservation %s from ExternalWebLabDeustoReservation since somebody already did it" % reservation_id)
-                return
-        finally:
-            session.close()
+        result = client.hdel(self.external_weblabdeusto_reservations, reservation_id)
+        if not result:
+            log.log(ExternalWebLabDeustoScheduler, log.level.Info, "Not deleting reservation %s from ExternalWebLabDeustoReservation since somebody already did it" % reservation_id)
+            return
 
 
     ##############################################################
@@ -285,14 +281,9 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     #
     @Override(Scheduler)
     def _clean(self):
-        session = self.session_maker()
+        client = self.redis_maker()
+        client.delete(self.external_weblabdeusto_reservations)
 
-        try:
-            for reservation in session.query(ExternalWebLabDeustoReservation).all():
-                session.delete(reservation)
-            for pending_reservation in session.query(ExternalWebLabDeustoReservationPendingResults).all():
-                session.delete(pending_reservation)
-            session.commit()
-        finally:
-            session.close()
+        for key in client.keys(self.EXTERNAL_WEBLABDEUSTO_PENDING_RESULTS % (self.resource_type_name, '*')):
+            client.delete(key)
 

@@ -14,12 +14,10 @@
 #
 
 import datetime
-import traceback
 import json
 
 from voodoo.typechecker import typecheck
 
-from weblab.core.coordinator.sql.model import PostReservationRetrievedData
 import weblab.core.coordinator.status as WSS
 
 from weblab.core.coordinator.redis.constants import (

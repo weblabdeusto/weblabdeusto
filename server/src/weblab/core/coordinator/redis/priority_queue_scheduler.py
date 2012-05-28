@@ -36,7 +36,6 @@ from weblab.core.coordinator.resource import Resource
 from weblab.data.experiments import ExperimentInstanceId, ExperimentId
 
 from weblab.core.coordinator.redis.constants import (
-    WEBLAB_RESERVATIONS,
     WEBLAB_RESOURCE_RESERVATION_PQUEUE,
     WEBLAB_RESOURCE_SLOTS,
     WEBLAB_RESOURCE_RESERVATIONS,
@@ -207,8 +206,6 @@ class PriorityQueueScheduler(Scheduler):
         self._synchronizer.request_and_wait()
 
         reservation_id_with_route = '%s;%s.%s' % (reservation_id, reservation_id, self.core_server_route)
-
-        return_current_status = False
 
         client = self.redis_maker()
 

@@ -22,8 +22,9 @@ import voodoo.log as log
 import weblab.core.coordinator.status as WSS
 from weblab.core.coordinator.scheduler import Scheduler
 from weblab.core.coordinator.clients.ilab_batch import iLabBatchLabServerProxy
-from weblab.core.coordinator.redis.externals.ilab_batch_scheduler_model import ILabBatchReservation
 from voodoo.log import logged
+
+ILAB_BATCH = "weblab:externals:ilab:batch:%s:reservations"
 
 class ILabBatchScheduler(Scheduler):
 
@@ -67,13 +68,11 @@ class ILabBatchScheduler(Scheduler):
         elif client_initial_data['operation'] == 'submit':
             # TODO!!!
             remote_experiment_id  = random.randint(1000000, 200000000)
-            session = self.session_maker()
-            try:
-                reservation = ILabBatchReservation(reservation_id, self.lab_server_url, remote_experiment_id)
-                session.add(reservation)
-                session.commit()
-            finally:
-                session.close()
+            client = self.redis_maker()
+            ilab_batch = ILAB_BATCH % self.lab_server_url
+            client.hset(ilab_batch, reservation_id, json.dumps({
+                'remote_experiment_id' : remote_experiment_id,
+            }))
 
             # submit(self, experiment_id, experiment_specification, user_group, priority_hint)
             experiment_specification = client_initial_data['payload']
@@ -90,16 +89,14 @@ class ILabBatchScheduler(Scheduler):
     @logged()
     @Override(Scheduler)
     def get_reservation_status(self, reservation_id):
-        session = self.session_maker()
-        try:
-            reservation = session.query(ILabBatchReservation).filter_by(local_reservation_id = reservation_id, lab_server_url = self.lab_server_url).first()
-            if reservation is None:
-                # TODO
-                raise Exception("reservation not stored in local database")
+        client = self.redis_maker()
+        ilab_batch = ILAB_BATCH % self.lab_server_url
+        reservation = client.hget(ilab_batch, reservation_id)
+        if reservation is None:
+            # TODO
+            raise Exception("reservation not stored in local database")
 
-            remote_experiment_id = reservation.remote_experiment_id
-        finally:
-            session.close()
+        remote_experiment_id = reservation['remote_experiment_id']
 
         #     public class StorageStatus
         # public const int BATCH_QUEUED = 1; // if waiting in the execution queue
@@ -149,17 +146,15 @@ class ILabBatchScheduler(Scheduler):
     @logged()
     @Override(Scheduler)
     def finish_reservation(self, reservation_id):
-        session = self.session_maker()
-        try:
-            reservation = session.query(ILabBatchReservation).filter_by(local_reservation_id = reservation_id, lab_server_url = self.lab_server_url).first()
-            if reservation is not None:
-                remote_experiment_id = reservation.remote_experiment_id
-                session.delete(reservation)
-                session.commit()
-            else:
+        client = self.redis_maker()
+        ilab_batch = ILAB_BATCH % self.lab_server_url
+        reservation = client.hget(ilab_batch, reservation_id)
+        if reservation is not None:
+            remote_experiment_id = reservation['remote_experiment_id']
+            if not client.hdel(ilab_batch, reservation_id):
                 return
-        finally:
-            session.close()
+        else:
+            return
 
         client = self._create_client()
         try:
@@ -174,13 +169,7 @@ class ILabBatchScheduler(Scheduler):
     #
     @Override(Scheduler)
     def _clean(self):
-        session = self.session_maker()
-
-        try:
-            for reservation in session.query(ILabBatchReservation).all():
-                session.delete(reservation)
-            session.commit()
-        finally:
-            session.close()
-
+        client = self.redis_maker()
+        ilab_batch = ILAB_BATCH % self.lab_server_url
+        client.delete(ilab_batch)
 

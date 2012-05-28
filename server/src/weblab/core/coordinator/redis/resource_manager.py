@@ -14,7 +14,6 @@
 #
 
 import json
-from sqlalchemy.orm.exc import StaleDataError
 
 from weblab.data.experiments import ExperimentId, ExperimentInstanceId
 from weblab.core.coordinator.resource import Resource
@@ -34,7 +33,6 @@ from weblab.core.coordinator.redis.constants import (
     WEBLAB_RESOURCE_WORKING,
     WEBLAB_RESOURCE_EXPERIMENTS,
     WEBLAB_RESOURCE_RESERVATIONS,
-    WEBLAB_RESOURCE_INSTANCE,
     WEBLAB_RESOURCE_INSTANCE_EXPERIMENTS,
     WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS,
 

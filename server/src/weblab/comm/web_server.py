@@ -26,8 +26,6 @@ from weblab.comm.context import get_context, create_context, delete_context
 
 import voodoo.log as log
 
-import pickle
-
 DEFAULT_CONTENT_TYPE = "text/html"
 
 class MethodError(Exception):
