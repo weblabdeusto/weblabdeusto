@@ -249,6 +249,9 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         self.read_config()
         self._requesting_lock = threading.Lock()
         
+        # To contain an ever-increasing id for published circuits
+        self.published_circuits_id_counter = 1
+        
         # We will initialize and start it later
         self.heartbeater = None
         self.heartbeater_lock = threading.Lock()
@@ -375,11 +378,44 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
                 circuit_list_string += ','
             return circuit_list_string
         
+        elif command.startswith("GIVE_ME_PUBLISHED_CIRCUITS"):
+            # TODO: Consider merging with the command above, or removing the 
+            # command above all together.
+            # Note: Currently, this command somewhat unintuitively returns the
+            # whole list of circuits, (that is, standard and published), and not
+            # simply published ones. Might be changed in the future.
+            print "[DBG] GOT GIVE_ME_PUBLISHED_CIRCUITS REQUEST"
+            circuit_list = self.get_circuits().keys()
+            circuit_list_string = ""
+            for c in circuit_list:
+                circuit_list_string += c
+                circuit_list_string += ','
+            return circuit_list_string
+
+        
+        elif command.startswith("PUBLISH_CIRCUIT"):
+            print "[DBG] GOT PUBLISH_CIRCUIT REQUEST"
+            circuit_data = command.split(' ', 1)[1]
+            circuit_name = "[PUBLISHED] " + str(self.published_circuits_id_counter)
+            self.published_circuits_id_counter += 1
+            
+            # Add our new circuit to the list. 
+            # TODO: In the future, it might be a good idea to differentiate between
+            # standard circuits (loaded from the experiment config), and user-published
+            # circuits.
+            self.circuits[circuit_name] = circuit_data
+            
+            # Return the name of the circuit as a response to this command.
+            return circuit_name
+            
+        
         elif command.startswith("GIVE_ME_CIRCUIT_DATA"):
-            print "[DBG] GOT GIVE_ME_CIRCUIT_DATA_REQUEST"
+            print "[DBG] GOT GIVE_ME_CIRCUIT_DATA REQUEST"
             circuit_name = command.split(' ', 1)[1]
             circuit_data = self.get_circuits()[circuit_name]
             return circuit_data
+        
+        
         elif command == 'GIVE_ME_LIBRARY':
             if DEBUG: print "[DBG] GOT GIVE_ME_LIBRARY"
             return self.library_xml
