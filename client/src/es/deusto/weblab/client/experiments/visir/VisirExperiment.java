@@ -204,34 +204,35 @@ public class VisirExperiment extends FlashExperiment {
 		// Build the command to request the data for the specified circuit.
 		final VisirPublishedCircuitsRequestCommand reqCircuits = new VisirPublishedCircuitsRequestCommand();
 		
-		if(instance.circuitsAvailable.size() > 0)
-			refreshCircuitsTable(instance.generateCircuitsTableHTML());
-		
-		return;
-		
-//		// Send the request and process the response.
-//		AbstractExternalAppBasedBoard.staticBoardController.sendCommand(reqCircuits, 
-//				new IResponseCommandCallback() {
-//
-//					@Override
-//					public void onSuccess(ResponseCommand responseCommand) {
-//						
-//						final String publishedCircuitsData = responseCommand.getCommandString();
-//						
-//						reqCircuits.parseData(publishedCircuitsData);
-//						
-//						final List<String> publishedCircuits = reqCircuits.getPublishedCircuits();
-//						
-//						if(instance.circuitsAvailable.size() > 0)
-//							refreshCircuitsTable(instance.generateCircuitsTableHTML());
-//					}
-//
-//					@Override
-//					public void onFailure(CommException e) {
-//						System.out.println("Error: Could not retrieve published circuits data");
-//					}
-//					
-//				});
+		// Send the request and process the response.
+		AbstractExternalAppBasedBoard.staticBoardController.sendCommand(reqCircuits, 
+				new IResponseCommandCallback() {
+
+					@Override
+					public void onSuccess(ResponseCommand responseCommand) {
+						
+						final String publishedCircuitsData = responseCommand.getCommandString();
+						
+						reqCircuits.parseData(publishedCircuitsData);
+						
+						final List<String> publishedCircuits = reqCircuits.getPublishedCircuits();
+						
+						// Update the internal list of available circuits. 
+						// For now, the published list includes also the base circuits (those which
+						// are provided during initialization, and defined in the server-side from
+						// the start).
+						instance.circuitsAvailable = publishedCircuits;
+						
+						if(instance.circuitsAvailable.size() > 0)
+							refreshCircuitsTable(instance.generateCircuitsTableHTML());
+					}
+
+					@Override
+					public void onFailure(CommException e) {
+						System.out.println("Error: Could not retrieve published circuits data");
+					}
+					
+				});
 	}
 	
 	
