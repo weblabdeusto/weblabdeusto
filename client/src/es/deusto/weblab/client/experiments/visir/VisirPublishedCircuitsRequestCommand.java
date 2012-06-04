@@ -58,7 +58,9 @@ public class VisirPublishedCircuitsRequestCommand extends Command {
 	}
 	
 	/**
-	 * Parses the JSON containing the circuit names.
+	 * Parses the JSON containing the circuit names. Important to remark that it only contains
+	 * the NAMES. Hence, to obtain the actual circuit data, it will be necessary to request it
+	 * separatedly.
 	 * @param response Response that was received
 	 * @return true if the response was successfully parsed, false otherwise
 	 */

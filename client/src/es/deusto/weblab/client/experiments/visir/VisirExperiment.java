@@ -38,6 +38,9 @@ public class VisirExperiment extends FlashExperiment {
 	
 	private List<String> circuitsAvailable;
 	
+	// This is to be able to access ourselves on static methods, as there seems to be
+	// no way to use JNI with non-static methods. 
+	// TODO: Consider refactoring this somehow
 	private static VisirExperiment instance;
 	
 	private static IVisirMessages i18n = GWT.create(IVisirMessages.class);
@@ -168,8 +171,17 @@ public class VisirExperiment extends FlashExperiment {
 		if (doc == undefined || doc == null)
 	    	doc = $wnd.wl_iframe.contentWindow.document;
 	    	
-	 	$doc.getElementById('div_extra').innerHTML = "<div align='left'>" + initialHTML + "<font color='black'><b><h2>" + circuitsAvailableMessage + "</h2></b></font></div>" + circuitsTableHTML;
+	 	$doc.getElementById('div_extra').innerHTML = "<div align='left'>" + initialHTML + "<font color='black'><b><h2>" + circuitsAvailableMessage + "</h2></b></font></div> <div id='div_circuits_table' align='left'>" + circuitsTableHTML + "</div>";
 	}-*/;
+	
+	private static native void refreshCircuitsTable(String circuitsTableHTML) /*-{
+	
+	var doc = $wnd.wl_iframe.contentDocument;
+	if (doc == undefined || doc == null)
+    	doc = $wnd.wl_iframe.contentWindow.document;
+    	
+ 	$doc.getElementById('div_circuits_table').innerHTML = circuitsTableHTML;
+}-*/;
 	
 	/**
 	 * This native method will invoke the flash client's SaveExperiment method to retrieve
@@ -188,11 +200,15 @@ public class VisirExperiment extends FlashExperiment {
 	
 	static void reloadPublishedCircuits() {
 		System.out.println("RELOADING CIRCUITS");
+		
+		// Build the command to request the data for the specified circuit.
+		final VisirPublishedCircuitsRequestCommand reqCircuits = new VisirPublishedCircuitsRequestCommand();
+		
+		if(instance.circuitsAvailable.size() > 0)
+			refreshCircuitsTable(instance.generateCircuitsTableHTML());
+		
 		return;
 		
-//		// Build the command to request the data for the specified circuit.
-//		final VisirPublishedCircuitsRequestCommand reqCircuits = new VisirPublishedCircuitsRequestCommand();
-//		
 //		// Send the request and process the response.
 //		AbstractExternalAppBasedBoard.staticBoardController.sendCommand(reqCircuits, 
 //				new IResponseCommandCallback() {
@@ -206,6 +222,8 @@ public class VisirExperiment extends FlashExperiment {
 //						
 //						final List<String> publishedCircuits = reqCircuits.getPublishedCircuits();
 //						
+//						if(instance.circuitsAvailable.size() > 0)
+//							refreshCircuitsTable(instance.generateCircuitsTableHTML());
 //					}
 //
 //					@Override
@@ -216,6 +234,10 @@ public class VisirExperiment extends FlashExperiment {
 //				});
 	}
 	
+	
+	/**
+	 * Publishes the current circuit. 
+	 */
 	static void publishMyCircuit() {
 		System.out.println("PUBLISHING CIRCUIT");
 		
@@ -247,6 +269,7 @@ public class VisirExperiment extends FlashExperiment {
 				});
 	}
 
+	
 	static void refresh() {
 		//this.savedata = "<save><instruments list=\"breadboard/breadboard.swf|multimeter/multimeter.swf|functiongenerator/functiongenerator.swf|oscilloscope/oscilloscope.swf|tripledc/tripledc.swf\"/><circuit><circuitlist><component>W 255 442 234 457.15 279.5 442 325</component></circuitlist></circuit></save>";
 		instance.updateFlashVars();
