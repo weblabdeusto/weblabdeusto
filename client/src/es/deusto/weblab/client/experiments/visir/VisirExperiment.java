@@ -178,7 +178,10 @@ public class VisirExperiment extends FlashExperiment {
 	 * @return XML description of the current VISIR client.
 	 */
 	private static native String retrieveCurrentCircuit() /*-{
-		return "";
+		// Reference to the flash client is in: $wnd.wl_inst
+		var fl = $wnd.wl_inst;
+		var circuit = fl.SaveExperiment();
+		return circuit;
 }-*/;
 
 	
@@ -215,6 +218,7 @@ public class VisirExperiment extends FlashExperiment {
 	
 	static void publishMyCircuit() {
 		System.out.println("PUBLISHING CIRCUIT");
+		System.out.println(retrieveCurrentCircuit());
 	}
 
 	static void refresh() {
