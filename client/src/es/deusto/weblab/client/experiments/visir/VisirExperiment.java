@@ -218,7 +218,33 @@ public class VisirExperiment extends FlashExperiment {
 	
 	static void publishMyCircuit() {
 		System.out.println("PUBLISHING CIRCUIT");
-		System.out.println(retrieveCurrentCircuit());
+		
+		final String circuitData = retrieveCurrentCircuit();
+		
+		// Build the command to publish the circuit.
+		final VisirPublishCircuitCommand command = 
+			new VisirPublishCircuitCommand(circuitData);
+		
+		// Send the command and handle the response.
+		AbstractExternalAppBasedBoard.staticBoardController.sendCommand(command, 
+				new IResponseCommandCallback() {
+
+					@Override
+					public void onSuccess(ResponseCommand responseCommand) {
+						
+						final String publishCircuitResponse = responseCommand.getCommandString();
+						
+						command.parseResponse(publishCircuitResponse);
+						
+						final String publishedCircuitName = command.getAssignedCircuitName();
+					}
+
+					@Override
+					public void onFailure(CommException e) {
+						System.out.println("Error: Could not publish circuit");
+					}
+					
+				});
 	}
 
 	static void refresh() {
