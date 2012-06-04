@@ -171,6 +171,17 @@ public class VisirExperiment extends FlashExperiment {
 	 	$doc.getElementById('div_extra').innerHTML = "<div align='left'>" + initialHTML + "<font color='black'><b><h2>" + circuitsAvailableMessage + "</h2></b></font></div>" + circuitsTableHTML;
 	}-*/;
 	
+	/**
+	 * This native method will invoke the flash client's SaveExperiment method to retrieve
+	 * the XML description of the current circuit. The SaveExperiment callback method is an 
+	 * addition to the standard VISIR client, and is analogous to the LoadExperiment method.
+	 * @return XML description of the current VISIR client.
+	 */
+	private static native String retrieveCurrentCircuit() /*-{
+		return "";
+}-*/;
+
+	
 	
 	static void reloadPublishedCircuits() {
 		System.out.println("RELOADING CIRCUITS");
