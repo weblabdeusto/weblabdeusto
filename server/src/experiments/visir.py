@@ -386,11 +386,8 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
             # simply published ones. Might be changed in the future.
             print "[DBG] GOT GIVE_ME_PUBLISHED_CIRCUITS REQUEST"
             circuit_list = self.get_circuits().keys()
-            circuit_list_string = ""
-            for c in circuit_list:
-                circuit_list_string += c
-                circuit_list_string += ','
-            return circuit_list_string
+            data = { "circuits" : circuit_list }
+            return json.dumps(data)
 
         
         elif command.startswith("PUBLISH_CIRCUIT"):
