@@ -246,12 +246,24 @@ class  VisirMethod(WebFacadeServer.Method):
         )
 
     def intercept_save(self):
+        """
+        intercept_save()
+        Handles the VISIR save requests. That is, the request to save the current circuit
+        to a local file, which the user can start through the 'save' button.
+        """
         save = self.get_argument("save", "", False)
         self.set_content_type("application/download")
         self.add_other_header("Content-Disposition", "attachment; filename=circuit.cir")
         return save
 
     def intercept_library(self, content, mimetype):
+        """
+        intercept_library(content, mimetype)
+        Intercepts VISIR's standard request to access the library.xml file, which specifies
+        every available component. Through this, the library.xml dynamic file becomes dynamic,
+        and is obtained through VISIR's experiment's 'GIVE_ME_LIBRARY' command, which adds
+        flexibility.
+        """
         cookies = self.req.headers.getheader('cookie')
         
         sess_id = None
@@ -297,6 +309,12 @@ class  VisirMethod(WebFacadeServer.Method):
             return response.commandstring
     
     def intercept_store(self):
+        """
+        intercept_store()
+        Intercepts the store request. That is, the request initiated through the
+        'load' button. Stores the specified circuit file in the server, in a temporary 
+        folder.
+        """
         ctype = self.req.headers.gettype()
         boundary = self.req.headers.getparam("boundary")
         length = int(self.req.headers.getheader('content-length'))
@@ -324,6 +342,10 @@ class  VisirMethod(WebFacadeServer.Method):
         return "<result><filename>%s</filename></result>" % os.path.basename(name)
 
     def intercept_temp(self, fileonly):
+        """
+        Intercepts the /temp accessing request, providing the specified 
+        temporary circuit file.
+        """
         # Avoid weird characters, .., etc.
         filename = os.path.basename(fileonly)
         full_filename = os.sep.join((VISIR_TEMP_FILES, filename))
