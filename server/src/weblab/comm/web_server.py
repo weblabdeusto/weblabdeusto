@@ -220,15 +220,15 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         if self.weblab_cookie is None:
             if self.server_route is not None:
-                self.weblab_cookie = "weblabsessionid=sessid.not.found.%s" % self.server_route
+                self.weblab_cookie = "weblabsessionid=sessidnotfound.%s" % self.server_route
             else:
-                self.weblab_cookie = "weblabsessionid=sessid.not.found"
+                self.weblab_cookie = "weblabsessionid=sessidnotfound"
 
         if self.login_weblab_cookie is None:
             if self.server_route is not None:
                 self.login_weblab_cookie = "loginweblabsessionid=loginsessid.not.found.%s" % self.server_route
             else:
-                self.login_weblab_cookie = "loginweblabsessionid=sessid.not.found"
+                self.login_weblab_cookie = "loginweblabsessionid=sessidnotfound"
 
         create_context(self.server, self.client_address, self.headers)
         try:
