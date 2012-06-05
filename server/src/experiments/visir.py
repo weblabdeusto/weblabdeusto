@@ -251,6 +251,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         
         # To contain an ever-increasing id for published circuits
         self.published_circuits_id_counter = 1
+        self._published_circuits_lock = threading.Lock()
         
         # We will initialize and start it later
         self.heartbeater = None
@@ -384,8 +385,10 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         elif command.startswith("PUBLISH_CIRCUIT"):
             if DEBUG: print "[DBG] GOT PUBLISH_CIRCUIT REQUEST"
             circuit_data = command.split(' ', 1)[1]
-            circuit_name = "[PUBLISHED] " + str(self.published_circuits_id_counter)
-            self.published_circuits_id_counter += 1
+            with self._published_circuits_lock:
+                id = self.published_circuits_id_counter
+                self.published_circuits_id_counter += 1
+            circuit_name = "[PUBLISHED] " + str(id)
             
             # Add our new circuit to the list. 
             # TODO: In the future, it might be a good idea to differentiate between
@@ -566,9 +569,9 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         cookies = dict(( (c.name, c.value) for c in cp.cookiejar ))
         
         if 'electro_lab' not in cookies:
-            print "WARNING: could not find electro_lab cookie!!!"
+            if DEBUG: print "WARNING: could not find electro_lab cookie!!!"
         if 'exp_session' not in cookies:
-            print "WARNING: could not find exp_session cookie!!!"
+            if DEBUG: print "WARNING: could not find exp_session cookie!!!"
 
         electro_lab_cookie = cookies['electro_lab']        
         exp_session_cookie = cookies.get('exp_session','any_exp_session_%s' % random.random())
