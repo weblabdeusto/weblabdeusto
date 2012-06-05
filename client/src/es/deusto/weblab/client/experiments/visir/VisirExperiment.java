@@ -259,6 +259,7 @@ public class VisirExperiment extends FlashExperiment {
 						
 						command.parseResponse(publishCircuitResponse);
 						
+						@SuppressWarnings("unused")
 						final String publishedCircuitName = command.getAssignedCircuitName();
 					}
 

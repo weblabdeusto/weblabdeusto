@@ -210,7 +210,7 @@ class Heartbeater(threading.Thread):
                     # If time_left is zero or negative, a heartbeat IS due.
                     if(time_left <= 0):
                         # if DEBUG: print "[DBG] HB FORWARDING"             
-                        ret = self.experiment.forward_request(session_id, HEARTBEAT_REQUEST % (session_key))
+                        ret = self.experiment.forward_request(session_id, HEARTBEAT_REQUEST % (session_key)) #@UnusedVariable
                         # if DEBUG_MESSAGES: print "[DBG] Heartbeat response: ", ret
                         
                     else:
