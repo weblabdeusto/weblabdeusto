@@ -368,30 +368,21 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         """
         
         if DEBUG: print "[DBG] Lab Session Id: ", lab_session_id
-                
-        # This command is currently not used.
-        if command == "GIVE_ME_CIRCUIT_LIST":
-            circuit_list = self.get_circuits().keys()
-            circuit_list_string = ""
-            for c in circuit_list:
-                circuit_list_string += c
-                circuit_list_string += ','
-            return circuit_list_string
         
-        elif command.startswith("GIVE_ME_PUBLISHED_CIRCUITS"):
+        if command.startswith("GIVE_ME_PUBLISHED_CIRCUITS"):
             # TODO: Consider merging with the command above, or removing the 
             # command above all together.
             # Note: Currently, this command somewhat unintuitively returns the
             # whole list of circuits, (that is, standard and published), and not
             # simply published ones. Might be changed in the future.
-            print "[DBG] GOT GIVE_ME_PUBLISHED_CIRCUITS REQUEST"
+            if DEBUG: print "[DBG] GOT GIVE_ME_PUBLISHED_CIRCUITS REQUEST"
             circuit_list = self.get_circuits().keys()
             data = { "circuits" : circuit_list }
             return json.dumps(data)
 
         
         elif command.startswith("PUBLISH_CIRCUIT"):
-            print "[DBG] GOT PUBLISH_CIRCUIT REQUEST"
+            if DEBUG: print "[DBG] GOT PUBLISH_CIRCUIT REQUEST"
             circuit_data = command.split(' ', 1)[1]
             circuit_name = "[PUBLISHED] " + str(self.published_circuits_id_counter)
             self.published_circuits_id_counter += 1
@@ -407,7 +398,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
             
         
         elif command.startswith("GIVE_ME_CIRCUIT_DATA"):
-            print "[DBG] GOT GIVE_ME_CIRCUIT_DATA REQUEST"
+            if DEBUG: print "[DBG] GOT GIVE_ME_CIRCUIT_DATA REQUEST"
             circuit_name = command.split(' ', 1)[1]
             circuit_data = self.get_circuits()[circuit_name]
             return circuit_data
