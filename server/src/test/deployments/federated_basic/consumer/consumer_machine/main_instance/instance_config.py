@@ -1,5 +1,3 @@
-weblab_db_force_engine_creation = True
-
 # It must be here to retrieve this information from the dummy
 core_universal_identifier       = 'd9d94986-ea14-11e0-bd1d-00216a5807c8'
 core_universal_identifier_human = 'Consumer'
@@ -8,7 +6,6 @@ db_database = "WebLabTests"
 weblab_db_username = 'weblab'
 weblab_db_password = 'weblab'
 
-server_admin = 'weblab@deusto.es'
 debug_mode   = True
 
 #########################
@@ -23,11 +20,6 @@ server_admin       = 'weblab@deusto.es'
 ################################
 
 mail_notification_enabled = False
-mail_server_host          = 'rigel.deusto.es'
-mail_server_use_tls       = 'yes'
-mail_server_helo          = server_hostaddress
-mail_notification_sender  = 'weblab@deusto.es'
-mail_notification_subject = '[WebLab] CRITICAL ERROR!'
 
 ##########################
 # Sessions configuration #
@@ -36,5 +28,5 @@ mail_notification_subject = '[WebLab] CRITICAL ERROR!'
 session_mysql_username = 'wl_session_user'
 session_mysql_password = 'wl_session_user_password'
 
-session_locker_mysql_username = 'wl_session_user'
-session_locker_mysql_password = 'wl_session_user_password'
+session_locker_mysql_username = session_mysql_username
+session_locker_mysql_password = session_mysql_password

@@ -53,13 +53,37 @@ def weblab_create(directory):
                                                   help = "From which port start counting.")
 
     parser.add_option("--db-engine",              dest="db_engine",       choices = DATABASE_ENGINES,
-                                                  help = "Database engine to use. Values: %s." % (', '.join(DATABASE_ENGINES)))
+                                                  help = "Core database engine to use. Values: %s." % (', '.join(DATABASE_ENGINES)))
+
+
+    parser.add_option("--db-name",                dest="db_name",         type="string", default="WebLabTests",
+                                                  help = "Core database name.")
+
+    parser.add_option("--db-user",                dest="db_user",         type="string", default="",
+                                                  help = "Core database username.")
+
+    parser.add_option("--db-passwd",              dest="db_passwd",       type="string", default="",
+                                                  help = "Core database password.")
 
     parser.add_option("--coordination-engine",    dest="coord_engine",    choices = COORDINATION_ENGINES,
                                                   help = "Coordination engine used. Values: %s." % (', '.join(COORDINATION_ENGINES)))
 
     parser.add_option("--coordination-db-engine", dest="coord_db_engine", choices = DATABASE_ENGINES,
                                                   help = "Coordination database engine used, if the coordination is based on a database. Values: %s." % (', '.join(DATABASE_ENGINES)))
+
+    parser.add_option("--coordination-db-name",   dest="coord_db_name",   type="string", default="WebLabCoordination",
+
+                                                  help = "Coordination database name used, if the coordination is based on a database.")
+
+    parser.add_option("--coordination-db-user",   dest="coord_db_user",   type="string", default="",
+                                                  help = "Coordination database userused, if the coordination is based on a database.")
+
+    parser.add_option("--coordination-db-passwd", dest="coord_db_passwd",   type="string", default="",
+                                                  help = "Coordination database password used, if the coordination is based on a database.")
+
+    parser.add_option("--coordination-redis-db",  dest="coord_redis_db",   type="int", default=0,
+                                                  help = "Coordination redis DB used, if the coordination is based on redis.")
+
 
     parser.add_option("--session-storage",        dest="session_storage", choices = SESSION_ENGINES,
                                                   help = "Session storage used. Values: %s." % (', '.join(SESSION_ENGINES)) )
@@ -72,6 +96,19 @@ def weblab_create(directory):
                                                    help = "Overwrite the contents even if the directory already existed.")
 
     (options, args) = parser.parse_args()
+
+    if options.cores <= 0:
+        print >> sys.stderr, "ERROR: There must be at least one core server."
+        sys.exit(-1)
+
+    if options.start_ports < 1 or options.start_ports >= 65535:
+        print >> sys.stderr, "ERROR: starting port number must be at least 1"
+        sys.exit(-1)
+
+    if options.inline_lab_serv and options.cores > 1:
+        print >> sys.stderr, "ERROR: Inline lab server is incompatible with more than one core servers. It would require the lab server, which does not make sense."
+        sys.exit(-1)
+        
 
     if os.path.exists(directory) and not options.force:
         print >> sys.stderr, "ERROR: Directory %s already exists. Use --force if you want to overwrite the contents." % directory
@@ -89,5 +126,39 @@ def weblab_create(directory):
             print >> sys.stderr, "ERROR: Could not create directory %s: %s" % (directory, str(e))
             sys.exit(-1)
 
-    print options.cores, options.db_engine, options.inline_lab_serv
+    open(os.path.join(directory, 'configuration.xml'), 'w').write("""<?xml version="1.0" encoding="UTF-8"?>""" 
+    """<machines
+        xmlns="http://www.weblab.deusto.es/configuration" 
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="global_configuration.xsd"
+    >
 
+    <machine>core_machine</machine>"""
+    "\n\n</machines>\n")
+
+    machine_dir = os.path.join(directory, 'core_machine')
+    if not os.path.exists(machine_dir):
+        os.mkdir(machine_dir)
+
+    machine_configuration_xml = ("""<?xml version="1.0" encoding="UTF-8"?>"""
+    """<instances
+        xmlns="http://www.weblab.deusto.es/configuration" 
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="machine_configuration.xsd"
+    >
+
+    <configuration file="machine_config.py"/>
+
+    """)
+    for core_n in range(1, options.cores + 1):
+        machine_configuration_xml += "<instance>core_server%s</instance>\n    " % core_n
+
+    machine_configuration_xml += "\n</instances>\n"
+
+    machine_config_py = ""
+
+    open(os.path.join(machine_dir, 'configuration.xml'), 'w').write(machine_configuration_xml)
+    open(os.path.join(machine_dir, 'machine_config.py'), 'w').write(machine_config_py)
+
+    print options.cores, options.db_engine, options.inline_lab_serv
+    
