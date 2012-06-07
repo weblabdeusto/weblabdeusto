@@ -15,7 +15,7 @@
 
 import os
 import sys
-from optparse import OptionParser
+from optparse import OptionParser, OptionGroup
 
 COMMANDS = {
     'create'     : 'Create a new weblab instance', 
@@ -52,41 +52,17 @@ def weblab_create(directory):
     parser.add_option("--start-port",             dest="start_ports",     type="int",    default=10000,
                                                   help = "From which port start counting.")
 
-    parser.add_option("--db-engine",              dest="db_engine",       choices = DATABASE_ENGINES,
-                                                  help = "Core database engine to use. Values: %s." % (', '.join(DATABASE_ENGINES)))
+    parser.add_option("-i", "--system-identifier",dest="system_identifier", type="string", default="",
+                                                  help = "A human readable identifier for this system.")
 
+    parser.add_option("--admin-mail",             dest="admin_mail",     type="string",    default="",
+                                                  help = "E-mail address of the system administrator.")
 
-    parser.add_option("--db-name",                dest="db_name",         type="string", default="WebLabTests",
-                                                  help = "Core database name.")
+    parser.add_option("--server-url",             dest="server_url",     type="string",    default="http://localhost/weblab/",
+                                                  help = "Final public application address. Example: http://weblab.domain/weblab/.")
 
-    parser.add_option("--db-user",                dest="db_user",         type="string", default="",
-                                                  help = "Core database username.")
-
-    parser.add_option("--db-passwd",              dest="db_passwd",       type="string", default="",
-                                                  help = "Core database password.")
-
-    parser.add_option("--coordination-engine",    dest="coord_engine",    choices = COORDINATION_ENGINES,
-                                                  help = "Coordination engine used. Values: %s." % (', '.join(COORDINATION_ENGINES)))
-
-    parser.add_option("--coordination-db-engine", dest="coord_db_engine", choices = DATABASE_ENGINES,
-                                                  help = "Coordination database engine used, if the coordination is based on a database. Values: %s." % (', '.join(DATABASE_ENGINES)))
-
-    parser.add_option("--coordination-db-name",   dest="coord_db_name",   type="string", default="WebLabCoordination",
-
-                                                  help = "Coordination database name used, if the coordination is based on a database.")
-
-    parser.add_option("--coordination-db-user",   dest="coord_db_user",   type="string", default="",
-                                                  help = "Coordination database userused, if the coordination is based on a database.")
-
-    parser.add_option("--coordination-db-passwd", dest="coord_db_passwd",   type="string", default="",
-                                                  help = "Coordination database password used, if the coordination is based on a database.")
-
-    parser.add_option("--coordination-redis-db",  dest="coord_redis_db",   type="int", default=0,
-                                                  help = "Coordination redis DB used, if the coordination is based on redis.")
-
-
-    parser.add_option("--session-storage",        dest="session_storage", choices = SESSION_ENGINES,
-                                                  help = "Session storage used. Values: %s." % (', '.join(SESSION_ENGINES)) )
+    parser.add_option("--server-host",            dest="server_host",     type="string",    default="localhost",
+                                                  help = "Host address of this machine. Example: weblab.domain.")
 
     parser.add_option("--inline-lab-server",      dest="inline_lab_serv", action="store_true", default=False,
                                                   help = "Laboratory server included in the same process as the core server. " 
@@ -94,6 +70,71 @@ def weblab_create(directory):
 
     parser.add_option("-f", "--force",            dest="force", action="store_true", default=False,
                                                    help = "Overwrite the contents even if the directory already existed.")
+
+    sess = OptionGroup(parser, "Session options",
+                                "WebLab-Deusto may store sessions in a database, in memory or in redis."
+                                "Choose one system and configure it." )
+
+    sess.add_option("--session-storage",          dest="session_storage", choices = SESSION_ENGINES,
+                                                  help = "Session storage used. Values: %s." % (', '.join(SESSION_ENGINES)) )
+
+    sess.add_option("--session-db-name",          dest="session_db_name", type="string", default="WebLabSessions",
+                                                  help = "Select the name of the sessions database.")
+
+    sess.add_option("--session-db-user",          dest="session_db_user", type="string", default="",
+                                                  help = "Select the username to access the sessions database.")
+
+    sess.add_option("--session-db-passwd",        dest="session_db_passwd", type="string", default="",
+                                                  help = "Select the password to access the sessions database.")
+                                                  
+    sess.add_option("--session-redis-db",         dest="session_redis_db", type="int", default=1,
+                                                  help = "Select the redis db on which store the sessions.")
+
+    parser.add_option_group(sess)
+
+    dbopt = OptionGroup(parser, "Database options",
+                                "WebLab-Deusto uses a relational database for storing users, permissions, etc."
+                                "The database must be configured: which engine, database name, user and password." )
+
+    dbopt.add_option("--db-engine",               dest="db_engine",       choices = DATABASE_ENGINES,
+                                                  help = "Core database engine to use. Values: %s." % (', '.join(DATABASE_ENGINES)))
+
+    dbopt.add_option("--db-name",                 dest="db_name",         type="string", default="WebLabTests",
+                                                  help = "Core database name.")
+
+    dbopt.add_option("--db-user",                 dest="db_user",         type="string", default="",
+                                                  help = "Core database username.")
+
+    dbopt.add_option("--db-passwd",               dest="db_passwd",       type="string", default="",
+                                                  help = "Core database password.")
+
+    
+    parser.add_option_group(dbopt)
+
+    coord = OptionGroup(parser, "Scheduling options",
+                                "These options are related to the scheduling system.  "
+                                "You must select if you want to use a database or redis, and configure it.")
+
+    coord.add_option("--coordination-engine",    dest="coord_engine",    choices = COORDINATION_ENGINES,
+                                                  help = "Coordination engine used. Values: %s." % (', '.join(COORDINATION_ENGINES)))
+
+    coord.add_option("--coordination-db-engine", dest="coord_db_engine", choices = DATABASE_ENGINES,
+                                                  help = "Coordination database engine used, if the coordination is based on a database. Values: %s." % (', '.join(DATABASE_ENGINES)))
+
+    coord.add_option("--coordination-db-name",   dest="coord_db_name",   type="string", default="WebLabCoordination",
+
+                                                  help = "Coordination database name used, if the coordination is based on a database.")
+
+    coord.add_option("--coordination-db-user",   dest="coord_db_user",   type="string", default="",
+                                                  help = "Coordination database userused, if the coordination is based on a database.")
+
+    coord.add_option("--coordination-db-passwd", dest="coord_db_passwd",   type="string", default="",
+                                                  help = "Coordination database password used, if the coordination is based on a database.")
+
+    coord.add_option("--coordination-redis-db",  dest="coord_redis_db",   type="int", default=0,
+                                                  help = "Coordination redis DB used, if the coordination is based on redis.")
+
+    parser.add_option_group(coord)
 
     (options, args) = parser.parse_args()
 
