@@ -62,6 +62,9 @@ def weblab_create(directory):
     parser.add_option("--server-url",             dest="server_url",     type="string",    default="http://localhost/weblab/",
                                                   help = "Final public application address. Example: http://weblab.domain/weblab/.")
 
+    parser.add_option("--base-url",               dest="base_url",       type="string",    default="",
+                                                  help = "Base location, before /weblab/. Example: /deusto.")
+
     parser.add_option("--server-host",            dest="server_host",     type="string",    default="localhost",
                                                   help = "Host address of this machine. Example: weblab.domain.")
 
@@ -141,6 +144,10 @@ def weblab_create(directory):
 
     if options.cores <= 0:
         print >> sys.stderr, "ERROR: There must be at least one core server."
+        sys.exit(-1)
+
+    if options.base_url != '' and options.base_url[0] != '/':
+        print >> sys.stderr, "ERROR: Base URL must start by /"
         sys.exit(-1)
 
     if options.start_ports < 1 or options.start_ports >= 65535:
@@ -525,6 +532,18 @@ def weblab_create(directory):
 		"""    </protocols>\n"""
 		"""</server>\n"""))
 
+    files_stored_dir = os.path.join(directory, 'files_stored')
+    if not os.path.exists(files_stored_dir):
+        os.mkdir(files_stored_dir)
+
+    db_dir = os.path.join(directory, 'db')
+    if not os.path.exists(db_dir):
+        os.mkdir(db_dir)
+
+    logs_dir = os.path.join(directory, 'logs')
+    if not os.path.exists(logs_dir):
+        os.mkdir(logs_dir)
+
     apache_dir = os.path.join(directory, 'apache')
     if not os.path.exists(apache_dir):
         os.mkdir(apache_dir)
@@ -628,7 +647,7 @@ def weblab_create(directory):
     apache_conf += """</Proxy>\n"""
     apache_conf += """\n"""
 
-    apache_conf = apache_conf % { 'root' : '' }
+    apache_conf = apache_conf % { 'root' : options.base_url }
 
     open(os.path.join(apache_dir, 'apache_weblab_generic.conf'), 'w').write( apache_conf )
 
