@@ -246,7 +246,7 @@ def weblab_create(directory):
                         "\n"
                         "core_coordinator_laboratory_servers = {\n"
                         "    'laboratory:laboratory@core_machine' : {\n"
-                        "            'exp1|dummy1|Dummy experiments'        : 'dummy@dummy',\n"
+                        "            'exp1|dummy|Dummy experiments'        : 'dummy@dummy',\n"
                         "        }\n"
                         "}\n"
                         "\n"
@@ -363,6 +363,7 @@ def weblab_create(directory):
             'admin'  : current_port + 8,
             'route'  : 'route%s' % core_number,
         }
+        ports['core'].append(core_config)
 
         core_port = current_port + 9
 
@@ -480,6 +481,19 @@ def weblab_create(directory):
 		"""    </protocols>\n"""
 		"""</server>\n""") % {'port' : current_port})
 
+    open(os.path.join(lab_dir, 'server_config.py'), 'w').write((
+		"""##################################\n"""
+		"""# Laboratory Server configuration #\n"""
+		"""##################################\n"""
+		"""\n"""
+		"""laboratory_assigned_experiments = {\n"""
+		"""        'exp1:dummy@Dummy experiments' : {\n"""
+		"""                'coord_address' : 'experiment:laboratory@core_machine',\n"""
+		"""                'checkers' : ()\n"""
+		"""            }\n"""
+		"""    }\n"""
+    ))
+
     experiment_dir = os.path.join(lab_instance_dir, 'experiment')
     if not os.path.exists(experiment_dir):
         os.mkdir(experiment_dir)
@@ -499,7 +513,7 @@ def weblab_create(directory):
 		"""\n"""
 		"""    <implementation>experiments.dummy.DummyExperiment</implementation>\n"""
 		"""\n"""
-		"""    <restriction>ud-dummy@Dummy experiments</restriction>\n"""
+		"""    <restriction>dummy@Dummy experiments</restriction>\n"""
 		"""\n"""
 		"""    <protocols>\n"""
 		"""        <protocol name="Direct">\n"""
@@ -511,5 +525,112 @@ def weblab_create(directory):
 		"""    </protocols>\n"""
 		"""</server>\n"""))
 
-    print options.cores, options.db_engine, options.inline_lab_serv
+    apache_dir = os.path.join(directory, 'apache')
+    if not os.path.exists(apache_dir):
+        os.mkdir(apache_dir)
+
+    apache_conf = (
+		"""ProxyVia On\n"""
+		"""\n"""
+		"""ProxyPass                       %(root)s/soap/                 balancer://weblab_cluster_soap/          stickysession=weblabsessionid lbmethod=bybusyness\n"""
+		"""ProxyPassReverse                %(root)s/soap/                 balancer://weblab_cluster_soap/          stickysession=weblabsessionid\n"""
+		"""ProxyPass                       %(root)s/json/                 balancer://weblab_cluster_json/          stickysession=weblabsessionid lbmethod=bybusyness\n"""
+		"""ProxyPassReverse                %(root)s/json/                 balancer://weblab_cluster_json/          stickysession=weblabsessionid\n"""
+		"""ProxyPass                       %(root)s/xmlrpc/               balancer://weblab_cluster_xmlrpc/        stickysession=weblabsessionid lbmethod=bybusyness\n"""
+		"""ProxyPassReverse                %(root)s/xmlrpc/               balancer://weblab_cluster_xmlrpc/        stickysession=weblabsessionid\n"""
+		"""ProxyPass                       %(root)s/web/                  balancer://weblab_cluster_web/           stickysession=weblabsessionid lbmethod=bybusyness\n"""
+		"""ProxyPassReverse                %(root)s/web/                  balancer://weblab_cluster_web/           stickysession=weblabsessionid\n"""
+		"""ProxyPass                       %(root)s/login/soap/           balancer://weblab_cluster_login_soap/    stickysession=loginweblabsessionid lbmethod=bybusyness\n"""
+		"""ProxyPassReverse                %(root)s/login/soap/           balancer://weblab_cluster_login_soap/    stickysession=loginweblabsessionid\n"""
+		"""ProxyPass                       %(root)s/login/json/           balancer://weblab_cluster_login_json/    stickysession=loginweblabsessionid lbmethod=bybusyness\n"""
+		"""ProxyPassReverse                %(root)s/login/json/           balancer://weblab_cluster_login_json/    stickysession=loginweblabsessionid\n"""
+		"""ProxyPass                       %(root)s/login/xmlrpc/         balancer://weblab_cluster_login_xmlrpc/  stickysession=loginweblabsessionid lbmethod=bybusyness\n"""
+		"""ProxyPassReverse                %(root)s/login/xmlrpc/         balancer://weblab_cluster_login_xmlrpc/  stickysession=loginweblabsessionid\n"""
+		"""ProxyPass                       %(root)s/login/web/            balancer://weblab_cluster_login_web/     stickysession=loginweblabsessionid lbmethod=bybusyness\n"""
+		"""ProxyPassReverse                %(root)s/login/web/            balancer://weblab_cluster_login_web/     stickysession=loginweblabsessionid\n"""
+		"""ProxyPass                       %(root)s/administration/       balancer://weblab_cluster_administration/ stickysession=weblabsessionid lbmethod=bybusyness\n"""
+		"""ProxyPassReverse                %(root)s/administration/       balancer://weblab_cluster_administration/ stickysession=weblabsessionid\n""")
+
+    apache_conf += "\n"
+    apache_conf += "<Proxy balancer://weblab_cluster_soap>\n"
     
+    for core_configuration in ports['core']:
+        apache_conf += "    BalancerMember http://localhost:%(port)s%(root)s/weblab/soap route=%(route)s\n" % {
+            'port' : core_configuration['soap'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+    
+    apache_conf += "</Proxy>\n"
+    apache_conf += "\n"
+    
+    apache_conf += """<Proxy balancer://weblab_cluster_json>\n"""
+
+    for core_configuration in ports['core']:
+	    apache_conf += """    BalancerMember http://localhost:%(port)s%(root)s/weblab/json route=%(route)s\n""" % {
+            'port' : core_configuration['json'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+
+    apache_conf += """</Proxy>\n"""
+    apache_conf += """\n"""
+
+    apache_conf += """<Proxy balancer://weblab_cluster_xmlrpc>\n"""
+
+    for core_configuration in ports['core']:
+        apache_conf += """    BalancerMember http://localhost:%(port)s%(root)s/weblab/xmlrpc route=%(route)s\n""" % {
+            'port' : core_configuration['xmlrpc'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+
+    apache_conf += """</Proxy>\n"""
+    apache_conf += """\n"""
+    apache_conf += """<Proxy balancer://weblab_cluster_web>\n"""
+
+    for core_configuration in ports['core']:
+        apache_conf += """    BalancerMember http://localhost:%(port)s%(root)s/weblab/web route=%(route)s\n""" % {
+            'port' : core_configuration['web'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+
+    apache_conf += """</Proxy>\n"""
+    apache_conf += """\n"""
+    apache_conf += """<Proxy balancer://weblab_cluster_administration>\n"""
+
+    for core_configuration in ports['core']:
+        apache_conf += """    BalancerMember http://localhost:%(port)s%(root)s/weblab/administration/ route=%(route)s\n""" % {
+            'port' : core_configuration['admin'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+
+    apache_conf += """</Proxy>\n"""
+    apache_conf += """\n"""
+
+    apache_conf += """<Proxy balancer://weblab_cluster_login_soap>\n"""
+
+    for core_configuration in ports['login']:
+        apache_conf += """    BalancerMember http://localhost:%(port)s%(root)s/weblab/login/soap route=%(route)s \n""" % {
+            'port' : core_configuration['soap'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+
+    apache_conf += """</Proxy>\n"""
+    apache_conf += """\n"""
+    apache_conf += """<Proxy balancer://weblab_cluster_login_json>\n"""
+
+    for core_configuration in ports['login']:
+        apache_conf += """    BalancerMember http://localhost:%(port)s%(root)s/weblab/login/json route=%(route)s\n""" % {
+            'port' : core_configuration['json'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+
+    apache_conf += """</Proxy>\n"""
+    apache_conf += """\n"""
+    apache_conf += """<Proxy balancer://weblab_cluster_login_xmlrpc>\n"""
+
+    for core_configuration in ports['login']:
+        apache_conf += """    BalancerMember http://localhost:%(port)s%(root)s/weblab/login/xmlrpc route=%(route)s\n""" % {
+            'port' : core_configuration['xmlrpc'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+
+    apache_conf += """</Proxy>\n"""
+    apache_conf += """\n"""
+    apache_conf += """<Proxy balancer://weblab_cluster_login_web>\n"""
+
+    for core_configuration in ports['login']:
+        apache_conf += """    BalancerMember http://localhost:%(port)s%(root)s/weblab/login/web route=%(route)s\n""" % {
+            'port' : core_configuration['web'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+
+    apache_conf += """</Proxy>\n"""
+    apache_conf += """\n"""
+
+    apache_conf = apache_conf % { 'root' : '' }
+
+    open(os.path.join(apache_dir, 'apache_weblab_generic.conf'), 'w').write( apache_conf )
+
+    print options.cores, options.db_engine, options.inline_lab_serv
+
