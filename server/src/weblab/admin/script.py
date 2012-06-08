@@ -15,6 +15,7 @@
 
 import os
 import sys
+import uuid
 from optparse import OptionParser, OptionGroup
 
 COMMANDS = {
@@ -75,7 +76,7 @@ def weblab_create(directory):
                                 "WebLab-Deusto may store sessions in a database, in memory or in redis."
                                 "Choose one system and configure it." )
 
-    sess.add_option("--session-storage",          dest="session_storage", choices = SESSION_ENGINES,
+    sess.add_option("--session-storage",          dest="session_storage", choices = SESSION_ENGINES, default='sql',
                                                   help = "Session storage used. Values: %s." % (', '.join(SESSION_ENGINES)) )
 
     sess.add_option("--session-db-name",          dest="session_db_name", type="string", default="WebLabSessions",
@@ -96,16 +97,16 @@ def weblab_create(directory):
                                 "WebLab-Deusto uses a relational database for storing users, permissions, etc."
                                 "The database must be configured: which engine, database name, user and password." )
 
-    dbopt.add_option("--db-engine",               dest="db_engine",       choices = DATABASE_ENGINES,
+    dbopt.add_option("--db-engine",               dest="db_engine",       choices = DATABASE_ENGINES, default = 'sqlite',
                                                   help = "Core database engine to use. Values: %s." % (', '.join(DATABASE_ENGINES)))
 
     dbopt.add_option("--db-name",                 dest="db_name",         type="string", default="WebLabTests",
                                                   help = "Core database name.")
 
-    dbopt.add_option("--db-user",                 dest="db_user",         type="string", default="",
+    dbopt.add_option("--db-user",                 dest="db_user",         type="string", default="weblab",
                                                   help = "Core database username.")
 
-    dbopt.add_option("--db-passwd",               dest="db_passwd",       type="string", default="",
+    dbopt.add_option("--db-passwd",               dest="db_passwd",       type="string", default="weblab",
                                                   help = "Core database password.")
 
     
@@ -115,10 +116,10 @@ def weblab_create(directory):
                                 "These options are related to the scheduling system.  "
                                 "You must select if you want to use a database or redis, and configure it.")
 
-    coord.add_option("--coordination-engine",    dest="coord_engine",    choices = COORDINATION_ENGINES,
+    coord.add_option("--coordination-engine",    dest="coord_engine",    choices = COORDINATION_ENGINES, default = 'sql',
                                                   help = "Coordination engine used. Values: %s." % (', '.join(COORDINATION_ENGINES)))
 
-    coord.add_option("--coordination-db-engine", dest="coord_db_engine", choices = DATABASE_ENGINES,
+    coord.add_option("--coordination-db-engine", dest="coord_db_engine", choices = DATABASE_ENGINES, default = 'sqlite',
                                                   help = "Coordination database engine used, if the coordination is based on a database. Values: %s." % (', '.join(DATABASE_ENGINES)))
 
     coord.add_option("--coordination-db-name",   dest="coord_db_name",   type="string", default="WebLabCoordination",
@@ -194,12 +195,179 @@ def weblab_create(directory):
     for core_n in range(1, options.cores + 1):
         machine_configuration_xml += "<instance>core_server%s</instance>\n    " % core_n
 
-    machine_configuration_xml += "\n</instances>\n"
+    machine_configuration_xml += ("\n"
+    "    <instance>laboratory</instance>\n\n"
+    "</instances>\n"
+    )
 
-    machine_config_py = ""
+    machine_config_py =("# It must be here to retrieve this information from the dummy\n"
+                        "core_universal_identifier       = %(core_universal_identifier)r\n"
+                        "core_universal_identifier_human = %(core_universal_identifier_human)r\n"
+                        "\n"
+                        "db_database = %(db_name)r\n"
+                        "weblab_db_username = %(db_user)r\n"
+                        "weblab_db_password = %(db_password)r\n"
+                        "\n"
+                        "debug_mode   = True\n"
+                        "\n"
+                        "#########################\n"
+                        "# General configuration #\n"
+                        "#########################\n"
+                        "\n"
+                        "server_hostaddress = %(server_hostaddress)r\n"
+                        "server_admin       = %(server_admin)r\n"
+                        "\n"
+                        "################################\n"
+                        "# Admin Notifier configuration #\n"
+                        "################################\n"
+                        "\n"
+                        "mail_notification_enabled = False\n"
+                        "\n"
+                        "##########################\n"
+                        "# Sessions configuration #\n"
+                        "##########################\n"
+                        "\n"
+                        "\n"
+                        "##############################\n"
+                        "# Core generic configuration #\n"
+                        "##############################\n"
+                        "core_store_students_programs      = False\n"
+                        "core_store_students_programs_path = 'files_stored'\n"
+                        "core_experiment_poll_time         = 350 # seconds\n"
+                        "\n"
+                        "core_server_url = ''\n"
+                        "\n"
+                        "############################\n"
+                        "# Scheduling configuration #\n"
+                        "############################\n"
+                        "\n"
+                        "%(coord_db)score_coordinator_db_username = %(core_coordinator_db_username)r\n"
+                        "%(coord_db)score_coordinator_db_password = %(core_coordinator_db_password)r\n"
+                        "\n"
+                        "core_coordinator_laboratory_servers = {\n"
+                        "    'laboratory:laboratory@core_machine' : {\n"
+                        "            'exp1|dummy1|Dummy experiments'        : 'dummy@dummy',\n"
+                        "        }\n"
+                        "}\n"
+                        "\n"
+                        "core_coordinator_external_servers = {\n"
+                        "    'external-robot-movement@Robot experiments'   : [ 'robot_external' ],\n"
+                        "}\n"
+                        "\n"
+                        "_provider1_scheduling_config = ('EXTERNAL_WEBLAB_DEUSTO', {\n"
+                        "                                    'baseurl' : 'https://www.weblab.deusto.es/weblab/',\n"
+                        "                                    'login_baseurl' : 'https://www.weblab.deusto.es/weblab/',\n"
+                        "                                    'username' : 'weblabfed',\n"
+                        "                                    'password' : 'password',\n"
+                        "                                    'experiments_map' : {'external-robot-movement@Robot experiments' : 'robot-movement@Robot experiments'}\n"
+                        "                            })\n"
+                        "\n"
+                        "core_scheduling_systems = {\n"
+                        "        'dummy'            : ('PRIORITY_QUEUE', {}),\n"
+                        "        'robot_external'   : weblabdeusto_federation_demo,\n"
+                        "    }\n"
+                        "\n") % {
+        'core_universal_identifier'       : uuid.uuid4(),
+        'core_universal_identifier_human' : options.system_identifier or 'Generic system; not identified',
+        'db_name'                         : options.db_name,
+        'db_user'                         : options.db_user,
+        'db_password'                     : options.db_passwd,
+        'server_hostaddress'              : options.server_host,
+        'server_admin'                    : options.admin_mail,
+        'core_coordinator_db_username'    : options.coord_db_user,
+        'core_coordinator_db_password'    : options.coord_db_passwd,
+        'coord_db'                        : '' if options.coord_engine == 'sql' else '#',
+    }
+
+    # TODO: provide the rest of fields: sessions, coordination...
+
 
     open(os.path.join(machine_dir, 'configuration.xml'), 'w').write(machine_configuration_xml)
     open(os.path.join(machine_dir, 'machine_config.py'), 'w').write(machine_config_py)
+
+    for core_number in range(1, options.cores + 1):
+        core_instance_dir = os.path.join(machine_dir, 'core_server%s' % core_number)
+        if not os.path.exists(core_instance_dir):
+           os.mkdir(core_instance_dir)
+       
+        open(os.path.join(core_instance_dir, 'configuration.xml'), 'w').write("""<?xml version="1.0" encoding="UTF-8"?>"""
+		"""<servers \n"""
+		"""    xmlns="http://www.weblab.deusto.es/configuration" \n"""
+		"""    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
+		"""    xsi:schemaLocation="instance_configuration.xsd"\n"""
+		""">\n"""
+		"""    <user>weblab</user>\n"""
+		"""\n"""
+		"""    <server>login</server>\n"""
+		"""    <server>core</server>\n"""
+        """\n"""
+		"""</servers>\n""")
+
+        core_dir = os.path.join(core_instance_dir, 'core')
+        if not os.path.exists(core_dir):
+            os.mkdir(core_dir)
+
+        login_dir = os.path.join(core_instance_dir, 'login')
+        if not os.path.exists(login_dir):
+            os.mkdir(login_dir)
+
+
+        open(os.path.join(login_dir, 'configuration.xml'), 'w').write("""?xml version="1.0" encoding="UTF-8"?>"""
+		"""<server\n"""
+		"""    xmlns="http://www.weblab.deusto.es/configuration" \n"""
+		"""    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
+		"""    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
+		""">\n"""
+		"""\n"""
+		"""    <configuration file="server_config.py" />\n"""
+		"""\n"""
+		"""    <type>weblab.data.server_type::UserProcessing</type>\n"""
+		"""    <methods>weblab.methods::UserProcessing</methods>\n"""
+		"""\n"""
+		"""    <implementation>weblab.core.server.UserProcessingServer</implementation>\n"""
+		"""\n"""
+		"""    <!-- <restriction>something else</restriction> -->\n"""
+		"""\n"""
+		"""    <protocols>\n"""
+		"""        <!-- This server supports both Direct calls, as SOAP calls -->\n"""
+		"""        <protocol name="Direct">\n"""
+		"""            <coordinations>\n"""
+		"""                <coordination></coordination>\n"""
+		"""            </coordinations>\n"""
+		"""            <creation></creation>\n"""
+		"""        </protocol>\n"""
+		"""    </protocols>\n"""
+		"""</server>\n""")
+
+        # TODO: ports
+        open(os.path.join(core_dir, 'configuration.xml'), 'w').write("""?xml version="1.0" encoding="UTF-8"?>"""
+		"""<server\n"""
+		"""    xmlns="http://www.weblab.deusto.es/configuration" \n"""
+		"""    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
+		"""    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
+		""">\n"""
+		"""\n"""
+		"""    <configuration file="server_config.py" />\n"""
+		"""\n"""
+		"""    <type>weblab.data.server_type::UserProcessing</type>\n"""
+		"""    <methods>weblab.methods::UserProcessing</methods>\n"""
+		"""\n"""
+		"""    <implementation>weblab.core.server.UserProcessingServer</implementation>\n"""
+		"""\n"""
+		"""    <!-- <restriction>something else</restriction> -->\n"""
+		"""\n"""
+		"""    <protocols>\n"""
+		"""        <!-- This server supports both Direct calls, as SOAP calls -->\n"""
+		"""        <protocol name="Direct">\n"""
+		"""            <coordinations>\n"""
+		"""                <coordination></coordination>\n"""
+		"""            </coordinations>\n"""
+		"""            <creation></creation>\n"""
+		"""        </protocol>\n"""
+		"""    </protocols>\n"""
+		"""</server>\n""")
+
+
 
     print options.cores, options.db_engine, options.inline_lab_serv
     
