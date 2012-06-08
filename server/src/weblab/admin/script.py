@@ -279,11 +279,18 @@ def weblab_create(directory):
         'coord_db'                        : '' if options.coord_engine == 'sql' else '#',
     }
 
-    # TODO: provide the rest of fields: sessions, coordination...
 
+    # TODO: provide the rest of fields: sessions, coordination...
 
     open(os.path.join(machine_dir, 'configuration.xml'), 'w').write(machine_configuration_xml)
     open(os.path.join(machine_dir, 'machine_config.py'), 'w').write(machine_config_py)
+
+    ports = {
+        'core'  : [],
+        'login' : [],
+    }
+
+    current_port = options.start_ports
 
     for core_number in range(1, options.cores + 1):
         core_instance_dir = os.path.join(machine_dir, 'core_server%s' % core_number)
@@ -339,6 +346,35 @@ def weblab_create(directory):
 		"""    </protocols>\n"""
 		"""</server>\n""")
 
+        login_config = {
+            'soap'   : current_port + 0,
+            'xmlrpc' : current_port + 1,
+            'json'   : current_port + 2,
+            'web'    : current_port + 3,
+            'route'  : 'route%s' % core_number,
+        }
+        ports['login'].append(login_config)
+
+        core_config = {
+            'soap'   : current_port + 4,
+            'xmlrpc' : current_port + 5,
+            'json'   : current_port + 6,
+            'web'    : current_port + 7,
+            'admin'  : current_port + 8,
+            'route'  : 'route%s' % core_number,
+        }
+
+        core_port = current_port + 9
+
+        current_port += 10
+
+        open(os.path.join(login_dir, 'server_config.py'), 'w').write((
+        "login_facade_server_route = %(route)r\n"
+		"login_facade_soap_port    = %(soap)r\n"
+		"login_facade_xmlrpc_port  = %(xmlrpc)r\n"
+		"login_facade_json_port    = %(json)r\n"
+		"login_web_facade_port     = %(web)r\n") % login_config)
+
         # TODO: ports
         open(os.path.join(core_dir, 'configuration.xml'), 'w').write("""?xml version="1.0" encoding="UTF-8"?>"""
 		"""<server\n"""
@@ -364,10 +400,116 @@ def weblab_create(directory):
 		"""            </coordinations>\n"""
 		"""            <creation></creation>\n"""
 		"""        </protocol>\n"""
+		"""        <protocol name="SOAP">\n"""
+		"""            <coordinations>\n"""
+		"""                <coordination>\n"""
+		"""                    <parameter name="address" value="127.0.0.1:%(port)s@NETWORK" />\n"""
+		"""                </coordination>\n"""
+		"""            </coordinations>\n"""
+		"""            <creation>\n"""
+		"""                <parameter name="address" value=""     />\n"""
+		"""                <parameter name="port"    value="%(port)s" />\n"""
+		"""            </creation>\n"""
+		"""        </protocol>\n"""
 		"""    </protocols>\n"""
-		"""</server>\n""")
+		"""</server>\n""" % { 'port' : core_port })
 
+        open(os.path.join(core_dir, 'server_config.py'), 'w').write((
+        "core_facade_server_route = %(route)r\n"
+		"core_facade_soap_port    = %(soap)r\n"
+		"core_facade_xmlrpc_port  = %(xmlrpc)r\n"
+		"core_facade_json_port    = %(json)r\n"
+		"core_web_facade_port     = %(web)r\n"
+        "admin_facade_json_port   = %(admin)r\n") % core_config)
 
+    lab_instance_dir = os.path.join(machine_dir, 'laboratory')
+    if not os.path.exists(lab_instance_dir):
+        os.mkdir(lab_instance_dir)
+
+    open(os.path.join(lab_instance_dir, 'configuration.xml'), 'w').write((
+		"""<?xml version="1.0" encoding="UTF-8"?>\n"""
+		"""<servers \n"""
+		"""    xmlns="http://www.weblab.deusto.es/configuration" \n"""
+		"""    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
+		"""    xsi:schemaLocation="instance_configuration.xsd"\n"""
+		""">\n"""
+		"""    <user>weblab</user>\n"""
+		"""\n"""
+		"""    <server>laboratory</server>\n"""
+		"""    <server>experiment</server>\n"""
+		"""</servers>\n"""
+    ))
+
+    lab_dir = os.path.join(lab_instance_dir, 'laboratory')
+    if not os.path.exists(lab_dir):
+        os.mkdir(lab_dir)
+
+    open(os.path.join(lab_dir, 'configuration.xml'), 'w').write((
+		"""<?xml version="1.0" encoding="UTF-8"?>\n"""
+		"""<server\n"""
+		"""    xmlns="http://www.weblab.deusto.es/configuration" \n"""
+		"""    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
+		"""    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
+		""">\n"""
+		"""\n"""
+		"""    <configuration file="server_config.py" />\n"""
+		"""\n"""
+		"""    <type>weblab.data.server_type::Laboratory</type>\n"""
+		"""    <methods>weblab.methods::Laboratory</methods>\n"""
+		"""\n"""
+		"""    <implementation>weblab.lab.server.LaboratoryServer</implementation>\n"""
+		"""\n"""
+		"""    <protocols>\n"""
+		"""        <protocol name="Direct">\n"""
+		"""            <coordinations>\n"""
+		"""                <coordination></coordination>\n"""
+		"""            </coordinations>\n"""
+		"""            <creation></creation>\n"""
+		"""        </protocol>\n"""
+		"""        <protocol name="SOAP">\n"""
+		"""            <coordinations>\n"""
+		"""                <coordination>\n"""
+		"""                    <parameter name="address" value="127.0.0.1:%(port)s@NETWORK" />\n"""
+		"""                </coordination>\n"""
+		"""            </coordinations>\n"""
+		"""            <creation>\n"""
+		"""                <parameter name="address" value=""     />\n"""
+		"""                <parameter name="port"    value="%(port)s" />\n"""
+		"""            </creation>\n"""
+		"""        </protocol>\n"""
+		"""    </protocols>\n"""
+		"""</server>\n""") % {'port' : current_port})
+
+    experiment_dir = os.path.join(lab_instance_dir, 'experiment')
+    if not os.path.exists(experiment_dir):
+        os.mkdir(experiment_dir)
+
+    open(os.path.join(experiment_dir, 'configuration.xml'), 'w').write((
+		"""<?xml version="1.0" encoding="UTF-8"?>\n"""
+		"""<server\n"""
+		"""    xmlns="http://www.weblab.deusto.es/configuration" \n"""
+		"""    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
+		"""    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
+		""">\n"""
+		"""\n"""
+		"""    <configuration file="server_config.py" />\n"""
+		"""\n"""
+		"""    <type>weblab.data.server_type::Experiment</type>\n"""
+		"""    <methods>weblab.methods::Experiment</methods>\n"""
+		"""\n"""
+		"""    <implementation>experiments.dummy.DummyExperiment</implementation>\n"""
+		"""\n"""
+		"""    <restriction>ud-dummy@Dummy experiments</restriction>\n"""
+		"""\n"""
+		"""    <protocols>\n"""
+		"""        <protocol name="Direct">\n"""
+		"""            <coordinations>\n"""
+		"""                <coordination></coordination>\n"""
+		"""            </coordinations>\n"""
+		"""            <creation></creation>\n"""
+		"""        </protocol>\n"""
+		"""    </protocols>\n"""
+		"""</server>\n"""))
 
     print options.cores, options.db_engine, options.inline_lab_serv
     
