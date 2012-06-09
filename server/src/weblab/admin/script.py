@@ -14,7 +14,9 @@
 # 
 
 import os
+import signal
 import sys
+import stat
 import uuid
 from optparse import OptionParser, OptionGroup
 
@@ -27,16 +29,33 @@ COMMANDS = {
     'monitor'    : 'Monitor the current use of a weblab instance',
 }
 
+def check_dir_exists(directory):
+    if not os.path.exists(directory):
+        print >> sys.stderr,"ERROR: Directory %s does not exist" % directory
+        sys.exit(-1)
+    if not os.path.isdir(directory):
+        print >> sys.stderr,"ERROR: File %s exists, but it is not a directory" % directory
+        sys.exit(-1)
+
 def weblab():
     if len(sys.argv) in (1, 2) or sys.argv[1] not in COMMANDS:
         command_list = ""
+        max_size = max((len(command) for command in COMMANDS))
         for command, help_text in COMMANDS.items():
-            command_list += "\t%s\t\t%s\n" % (command, help_text)
+            filled_command = command + ' ' * (max_size - len(command))
+            command_list += "\t%s\t%s\n" % (filled_command, help_text)
         print >> sys.stderr, "Usage: %s option DIR [option arguments]\n\n%s\n" % (sys.argv[0], command_list)
         sys.exit(0)
     main_command = sys.argv[1]
     if main_command == 'create':
         weblab_create(sys.argv[2])
+        sys.exit(0)
+
+    check_dir_exists(sys.argv[2])
+    if main_command == 'start':
+        weblab_start(sys.argv[2])
+    elif main_command == 'stop':
+        weblab_stop(sys.argv[2])
     else:
         print >>sys.stderr, "Command %s not yet implemented" % sys.argv[1]
 
@@ -766,10 +785,6 @@ def weblab_create(directory):
         """#-*-*- encoding: utf-8 -*-*-\n"""
         """import signal\n"""
         """\n"""
-        """import sys\n"""
-        """sys.path.append('../../src')\n"""
-        """import libraries\n"""
-        """import weblab\n"""
         """import voodoo.gen.loader.Launcher as Launcher\n"""
         """\n"""
         """def before_shutdown():\n"""
@@ -805,6 +820,7 @@ def weblab_create(directory):
     )
 
     open(os.path.join(directory, 'launch.py'), 'w').write( launch_script )
+    os.chmod(os.path.join(directory, 'launch.py'), stat.S_IRWXU)
 
     ###########################################
     # 
@@ -921,3 +937,16 @@ def weblab_create(directory):
 
     print options.cores, options.db_engine, options.inline_lab_serv
 
+def weblab_start(directory):
+    old_cwd = os.getcwd()
+    os.chdir(directory)
+    try:
+        execfile('launch.py')
+    except:
+        os.chdir(old_cwd)
+
+def weblab_stop(directory):
+    if os.name.lower().startswith('win'):
+        print >> sys.stderr, "Stopping not yet supported. Try killing the process from the Task Manager or simply press enter"
+        sys.exit(-1)
+    os.kill(int(open(os.path.join(directory, 'weblab.pid')).read()), signal.SIGTERM)
