@@ -875,7 +875,7 @@ def weblab_create(directory):
         debugging_core_port = current_port
         debugging_ports.append(debugging_core_port)
         current_port += 1
-        launch_script += """                 'core_number%s' : %s, \n""" % (core_number, debugging_core_port)
+        launch_script += """                 'core_server%s' : %s, \n""" % (core_number, debugging_core_port)
     launch_script += ("""            }\n"""
         """        )\n"""
         """launcher.launch()\n"""
