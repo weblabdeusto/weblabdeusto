@@ -85,8 +85,8 @@ def weblab_create(directory):
     parser.add_option("--admin-mail",             dest="admin_mail",     type="string",    default="",
                                                   help = "E-mail address of the system administrator.")
 
-    parser.add_option("--server-url",             dest="server_url",     type="string",    default="http://localhost/weblab/",
-                                                  help = "Final public application address. Example: http://weblab.domain/weblab/.")
+    parser.add_option("--enable-https",           dest="enable_https",   action="store_true", default=False,
+                                                  help = "Tell external federated servers that they must use https when connecting here")
 
     parser.add_option("--base-url",               dest="base_url",       type="string",    default="",
                                                   help = "Base location, before /weblab/. Example: /deusto.")
@@ -94,9 +94,22 @@ def weblab_create(directory):
     parser.add_option("--server-host",            dest="server_host",     type="string",    default="localhost",
                                                   help = "Host address of this machine. Example: weblab.domain.")
 
+    # TODO
     parser.add_option("--inline-lab-server",      dest="inline_lab_serv", action="store_true", default=False,
                                                   help = "Laboratory server included in the same process as the core server. " 
                                                          "Only available if a single core is used." )
+
+    # TODO
+    parser.add_option("--xmlrpc-experiment",      dest="xmlrpc_experiment", action="store_true", default=False,
+                                                  help = "By default, the Experiment Server is located in the same process as the  " 
+                                                         "Laboratory server. However, it is possible to force that the laboratory  "
+                                                         "uses XML-RPC to contact the Experiment Server. If you want to test a "
+                                                         "Java, C++, .NET, etc. Experiment Server, you can enable this option, "
+                                                         "and the system will try to find the Experiment Server in other port ")
+
+    # TODO
+    parser.add_option("--xmlrpc-experiment-port", dest="xmlrpc_experiment_port", type="int",    default=None,
+                                                  help = "What port should the Experiment Server use.")
 
     parser.add_option("-f", "--force",            dest="force", action="store_true", default=False,
                                                    help = "Overwrite the contents even if the directory already existed.")
@@ -105,20 +118,27 @@ def weblab_create(directory):
                                 "WebLab-Deusto may store sessions in a database, in memory or in redis."
                                 "Choose one system and configure it." )
 
+    # TODO
     sess.add_option("--session-storage",          dest="session_storage", choices = SESSION_ENGINES, default='sql',
                                                   help = "Session storage used. Values: %s." % (', '.join(SESSION_ENGINES)) )
 
+    # TODO
     sess.add_option("--session-db-name",          dest="session_db_name", type="string", default="WebLabSessions",
                                                   help = "Select the name of the sessions database.")
 
+    # TODO
     sess.add_option("--session-db-user",          dest="session_db_user", type="string", default="",
                                                   help = "Select the username to access the sessions database.")
 
+    # TODO
     sess.add_option("--session-db-passwd",        dest="session_db_passwd", type="string", default="",
                                                   help = "Select the password to access the sessions database.")
                                                   
+    # TODO
     sess.add_option("--session-redis-db",         dest="session_redis_db", type="int", default=1,
                                                   help = "Select the redis db on which store the sessions.")
+
+    # TODO: test the provided configuration
 
     parser.add_option_group(sess)
 
@@ -126,9 +146,11 @@ def weblab_create(directory):
                                 "WebLab-Deusto uses a relational database for storing users, permissions, etc."
                                 "The database must be configured: which engine, database name, user and password." )
 
+    # TODO
     dbopt.add_option("--db-engine",               dest="db_engine",       choices = DATABASE_ENGINES, default = 'sqlite',
                                                   help = "Core database engine to use. Values: %s." % (', '.join(DATABASE_ENGINES)))
 
+    # TODO
     dbopt.add_option("--db-name",                 dest="db_name",         type="string", default="WebLabTests",
                                                   help = "Core database name.")
 
@@ -137,6 +159,7 @@ def weblab_create(directory):
 
     dbopt.add_option("--db-passwd",               dest="db_passwd",       type="string", default="weblab",
                                                   help = "Core database password.")
+    # TODO: test the provided configuration
 
     
     parser.add_option_group(dbopt)
@@ -145,24 +168,32 @@ def weblab_create(directory):
                                 "These options are related to the scheduling system.  "
                                 "You must select if you want to use a database or redis, and configure it.")
 
+    # TODO
     coord.add_option("--coordination-engine",    dest="coord_engine",    choices = COORDINATION_ENGINES, default = 'sql',
                                                   help = "Coordination engine used. Values: %s." % (', '.join(COORDINATION_ENGINES)))
 
+    # TODO
     coord.add_option("--coordination-db-engine", dest="coord_db_engine", choices = DATABASE_ENGINES, default = 'sqlite',
                                                   help = "Coordination database engine used, if the coordination is based on a database. Values: %s." % (', '.join(DATABASE_ENGINES)))
 
+    # TODO
     coord.add_option("--coordination-db-name",   dest="coord_db_name",   type="string", default="WebLabCoordination",
 
                                                   help = "Coordination database name used, if the coordination is based on a database.")
 
+    # TODO
     coord.add_option("--coordination-db-user",   dest="coord_db_user",   type="string", default="",
                                                   help = "Coordination database userused, if the coordination is based on a database.")
 
+    # TODO
     coord.add_option("--coordination-db-passwd", dest="coord_db_passwd",   type="string", default="",
                                                   help = "Coordination database password used, if the coordination is based on a database.")
 
+    # TODO
     coord.add_option("--coordination-redis-db",  dest="coord_redis_db",   type="int", default=0,
                                                   help = "Coordination redis DB used, if the coordination is based on redis.")
+
+    # TODO: test the configuration provided
 
     parser.add_option_group(coord)
 
@@ -178,9 +209,18 @@ def weblab_create(directory):
         print >> sys.stderr, "ERROR: There must be at least one core server."
         sys.exit(-1)
 
-    if options.base_url != '' and options.base_url[0] != '/':
-        print >> sys.stderr, "ERROR: Base URL must start by /"
-        sys.exit(-1)
+    base_url = options.base_url
+    if base_url != '' and not base_url.startswith('/'):
+        base_url = '/' + base_url
+    if base_url.endswith('/'):
+        base_url = base_url[:len(base_url) - 1]
+    if options.enable_https:
+        protocol = 'https://'
+    else:
+        protocol = 'http://'
+    server_url = protocol + options.server_host + base_url + '/weblab/'
+
+
 
     if options.start_ports < 1 or options.start_ports >= 65535:
         print >> sys.stderr, "ERROR: starting port number must be at least 1"
@@ -279,7 +319,7 @@ def weblab_create(directory):
                         "core_store_students_programs_path = 'files_stored'\n"
                         "core_experiment_poll_time         = 350 # seconds\n"
                         "\n"
-                        "core_server_url = ''\n"
+                        "core_server_url = %(server_url)r\n"
                         "\n"
                         "############################\n"
                         "# Scheduling configuration #\n"
@@ -318,6 +358,7 @@ def weblab_create(directory):
         'db_password'                     : options.db_passwd,
         'server_hostaddress'              : options.server_host,
         'server_admin'                    : options.admin_mail,
+        'server_url'                      : server_url,
         'core_coordinator_db_username'    : options.coord_db_user,
         'core_coordinator_db_password'    : options.coord_db_passwd,
         'coord_db'                        : '' if options.coord_engine == 'sql' else '#',
