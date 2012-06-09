@@ -45,6 +45,13 @@ DATABASE_ENGINES     = ['mysql', 'sqlite' ]
 SESSION_ENGINES      = ['sql',   'redis', 'memory']
 
 def weblab_create(directory):
+
+    ###########################################
+    # 
+    # Define possible options
+    # 
+
+
     parser = OptionParser(usage="%prog create DIR [options]")
 
     parser.add_option("--cores",                  dest="cores",           type="int",    default=1,
@@ -142,6 +149,12 @@ def weblab_create(directory):
 
     (options, args) = parser.parse_args()
 
+    ###########################################
+    # 
+    # Validate basic options
+    # 
+
+
     if options.cores <= 0:
         print >> sys.stderr, "ERROR: There must be at least one core server."
         sys.exit(-1)
@@ -162,7 +175,12 @@ def weblab_create(directory):
     if os.path.exists(directory) and not options.force:
         print >> sys.stderr, "ERROR: Directory %s already exists. Use --force if you want to overwrite the contents." % directory
         sys.exit(-1)
-    
+
+    ###########################################
+    # 
+    # Create voodoo infrastructure
+    # 
+
     if os.path.exists(directory):
         if not os.path.isdir(directory):
             print >> sys.stderr, "ERROR: %s is not a directory. Delete it before proceeding." % directory
@@ -261,7 +279,7 @@ def weblab_create(directory):
                         "    'external-robot-movement@Robot experiments'   : [ 'robot_external' ],\n"
                         "}\n"
                         "\n"
-                        "_provider1_scheduling_config = ('EXTERNAL_WEBLAB_DEUSTO', {\n"
+                        "weblabdeusto_federation_demo = ('EXTERNAL_WEBLAB_DEUSTO', {\n"
                         "                                    'baseurl' : 'https://www.weblab.deusto.es/weblab/',\n"
                         "                                    'login_baseurl' : 'https://www.weblab.deusto.es/weblab/',\n"
                         "                                    'username' : 'weblabfed',\n"
@@ -274,7 +292,7 @@ def weblab_create(directory):
                         "        'robot_external'   : weblabdeusto_federation_demo,\n"
                         "    }\n"
                         "\n") % {
-        'core_universal_identifier'       : uuid.uuid4(),
+        'core_universal_identifier'       : str(uuid.uuid4()),
         'core_universal_identifier_human' : options.system_identifier or 'Generic system; not identified',
         'db_name'                         : options.db_name,
         'db_user'                         : options.db_user,
@@ -326,7 +344,8 @@ def weblab_create(directory):
             os.mkdir(login_dir)
 
 
-        open(os.path.join(login_dir, 'configuration.xml'), 'w').write("""?xml version="1.0" encoding="UTF-8"?>"""
+        open(os.path.join(login_dir, 'configuration.xml'), 'w').write(
+        """<?xml version="1.0" encoding="UTF-8"?>"""
 		"""<server\n"""
 		"""    xmlns="http://www.weblab.deusto.es/configuration" \n"""
 		"""    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
@@ -335,12 +354,10 @@ def weblab_create(directory):
 		"""\n"""
 		"""    <configuration file="server_config.py" />\n"""
 		"""\n"""
-		"""    <type>weblab.data.server_type::UserProcessing</type>\n"""
-		"""    <methods>weblab.methods::UserProcessing</methods>\n"""
+		"""    <type>weblab.data.server_type::Login</type>\n"""
+		"""    <methods>weblab.methods::Login</methods>\n"""
 		"""\n"""
-		"""    <implementation>weblab.core.server.UserProcessingServer</implementation>\n"""
-		"""\n"""
-		"""    <!-- <restriction>something else</restriction> -->\n"""
+		"""    <implementation>weblab.login.server.LoginServer</implementation>\n"""
 		"""\n"""
 		"""    <protocols>\n"""
 		"""        <!-- This server supports both Direct calls, as SOAP calls -->\n"""
@@ -369,6 +386,7 @@ def weblab_create(directory):
             'web'    : current_port + 7,
             'admin'  : current_port + 8,
             'route'  : 'route%s' % core_number,
+            'clean'  : core_number == 1
         }
         ports['core'].append(core_config)
 
@@ -383,8 +401,8 @@ def weblab_create(directory):
 		"login_facade_json_port    = %(json)r\n"
 		"login_web_facade_port     = %(web)r\n") % login_config)
 
-        # TODO: ports
-        open(os.path.join(core_dir, 'configuration.xml'), 'w').write("""?xml version="1.0" encoding="UTF-8"?>"""
+        open(os.path.join(core_dir, 'configuration.xml'), 'w').write(
+        """<?xml version="1.0" encoding="UTF-8"?>"""
 		"""<server\n"""
 		"""    xmlns="http://www.weblab.deusto.es/configuration" \n"""
 		"""    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
@@ -423,6 +441,7 @@ def weblab_create(directory):
 		"""</server>\n""" % { 'port' : core_port })
 
         open(os.path.join(core_dir, 'server_config.py'), 'w').write((
+        "core_coordinator_clean   = %(clean)r\n"
         "core_facade_server_route = %(route)r\n"
 		"core_facade_soap_port    = %(soap)r\n"
 		"core_facade_xmlrpc_port  = %(xmlrpc)r\n"
@@ -532,6 +551,9 @@ def weblab_create(directory):
 		"""    </protocols>\n"""
 		"""</server>\n"""))
 
+    open(os.path.join(experiment_dir, 'server_config.py'), 'w').write(
+        "dummy_verbose = True\n")
+
     files_stored_dir = os.path.join(directory, 'files_stored')
     if not os.path.exists(files_stored_dir):
         os.mkdir(files_stored_dir)
@@ -540,9 +562,255 @@ def weblab_create(directory):
     if not os.path.exists(db_dir):
         os.mkdir(db_dir)
 
+    ###########################################
+    # 
+    # Generate logs directory and config
+    # 
+
     logs_dir = os.path.join(directory, 'logs')
     if not os.path.exists(logs_dir):
         os.mkdir(logs_dir)
+
+    logs_config_dir = os.path.join(logs_dir, 'config')
+    if not os.path.exists(logs_config_dir):
+        os.mkdir(logs_config_dir)
+
+    # TODO: use the generation module instead of hardcoding it here
+
+    server_names = []
+    for core_number in range(1, options.cores + 1):
+        server_names.append('server%s' % core_number)
+
+    server_names.append('laboratory')
+    server_names.append('experiment')
+
+    for server_name in server_names:
+        logging_file = (
+            """# \n"""
+            """# logging module file generated by generate_logging_file.py\n"""
+            """# \n"""
+            """# You should change the script configuration instead of\n"""
+            """# this file directly.\n"""
+            """# \n"""
+            """# Call it like: \n"""
+            """#   Generator( \n"""
+            """#       {'weblab.core.coordinator': ('WARNING', False), 'weblab.login': ('INFO', True), 'weblab.login.database': ('WARNING', False), 'weblab.lab': ('INFO', True), 'weblab.facade': ('INFO', True), 'weblab.core.facade': ('WARNING', False), 'weblab': ('WARNING', True), 'weblab.core.database': ('WARNING', False), 'weblab.login.facade': ('WARNING', False), 'voodoo': ('WARNING', True), 'weblab.core': ('INFO', True)}, \n"""
+            """#       logs/sample_, \n"""
+            """#       logs.txt, \n"""
+            """#       52428800, \n"""
+            """#       1099511627776, \n"""
+            """#       False  \n"""
+            """#   )\n"""
+            """# \n"""
+            """\n"""
+            """[loggers]\n"""
+            """keys=root,weblab_core_coordinator,weblab_login,weblab_login_database,weblab.lab,weblab_facade,weblab_core_facade,weblab,weblab_core_database,weblab_login_facade,voodoo,weblab_core\n"""
+            """\n"""
+            """[handlers]\n"""
+            """keys=root_handler,weblab_login_handler,weblab.lab_handler,weblab_facade_handler,weblab_handler,voodoo_handler,weblab_core_handler\n"""
+            """\n"""
+            """[formatters]\n"""
+            """keys=simpleFormatter\n"""
+            """\n"""
+            """[logger_root]\n"""
+            """level=NOTSET\n"""
+            """handlers=root_handler\n"""
+            """propagate=0\n"""
+            """parent=\n"""
+            """channel=\n"""
+            """\n"""
+            """[logger_voodoo]\n"""
+            """level=WARNING\n"""
+            """handlers=voodoo_handler\n"""
+            """qualname=voodoo\n"""
+            """propagate=0\n"""
+            """parent=root\n"""
+            """channel=voodoo\n"""
+            """\n"""
+            """[logger_weblab]\n"""
+            """level=WARNING\n"""
+            """handlers=weblab_handler\n"""
+            """qualname=weblab\n"""
+            """propagate=0\n"""
+            """parent=root\n"""
+            """channel=weblab\n"""
+            """\n"""
+            """[logger_weblab_facade]\n"""
+            """level=INFO\n"""
+            """handlers=weblab_facade_handler\n"""
+            """qualname=weblab.facade\n"""
+            """propagate=0\n"""
+            """parent=weblab\n"""
+            """channel=weblab_facade\n"""
+            """\n"""
+            """[logger_weblab.lab]\n"""
+            """level=INFO\n"""
+            """handlers=weblab.lab_handler\n"""
+            """qualname=weblab.lab\n"""
+            """propagate=0\n"""
+            """parent=weblab\n"""
+            """channel=weblab.lab\n"""
+            """\n"""
+            """[logger_weblab_core]\n"""
+            """level=INFO\n"""
+            """handlers=weblab_core_handler\n"""
+            """qualname=weblab.core\n"""
+            """propagate=0\n"""
+            """parent=weblab\n"""
+            """channel=weblab_core\n"""
+            """\n"""
+            """[logger_weblab_core_facade]\n"""
+            """level=WARNING\n"""
+            """handlers=weblab_core_handler\n"""
+            """qualname=weblab.core.facade\n"""
+            """propagate=1\n"""
+            """parent=weblab_core\n"""
+            """channel=weblab_core_facade\n"""
+            """\n"""
+            """[logger_weblab_core_coordinator]\n"""
+            """level=WARNING\n"""
+            """handlers=weblab_core_handler\n"""
+            """qualname=weblab.core.coordinator\n"""
+            """propagate=1\n"""
+            """parent=weblab_core\n"""
+            """channel=weblab_core_coordinator\n"""
+            """\n"""
+            """[logger_weblab_core_database]\n"""
+            """level=WARNING\n"""
+            """handlers=weblab_core_handler\n"""
+            """qualname=weblab.core.database\n"""
+            """propagate=1\n"""
+            """parent=weblab_core\n"""
+            """channel=weblab_core_database\n"""
+            """\n"""
+            """[logger_weblab_login]\n"""
+            """level=INFO\n"""
+            """handlers=weblab_login_handler\n"""
+            """qualname=weblab.login\n"""
+            """propagate=0\n"""
+            """parent=weblab\n"""
+            """channel=weblab_login\n"""
+            """\n"""
+            """[logger_weblab_login_facade]\n"""
+            """level=WARNING\n"""
+            """handlers=weblab_login_handler\n"""
+            """qualname=weblab.login.facade\n"""
+            """propagate=1\n"""
+            """parent=weblab_login\n"""
+            """channel=weblab_login_facade\n"""
+            """\n"""
+            """[logger_weblab_login_database]\n"""
+            """level=WARNING\n"""
+            """handlers=weblab_login_handler\n"""
+            """qualname=weblab.login.database\n"""
+            """propagate=1\n"""
+            """parent=weblab_login\n"""
+            """channel=weblab_login_database\n"""
+            """\n"""
+            """[handler_root_handler]\n"""
+            """class=handlers.RotatingFileHandler\n"""
+            """formatter=simpleFormatter\n"""
+            """args=('logs/sample__root_logs.%(server_number)s.txt','a',52428800,20971)\n"""
+            """\n"""
+            """[handler_weblab_login_handler]\n"""
+            """class=handlers.RotatingFileHandler\n"""
+            """formatter=simpleFormatter\n"""
+            """args=('logs/sample__weblab_login_logs.%(server_number)s.txt','a',52428800,20971)\n"""
+            """\n"""
+            """[handler_weblab.lab_handler]\n"""
+            """class=handlers.RotatingFileHandler\n"""
+            """formatter=simpleFormatter\n"""
+            """args=('logs/sample__weblab.lab_logs.%(server_number)s.txt','a',52428800,20971)\n"""
+            """\n"""
+            """[handler_weblab_facade_handler]\n"""
+            """class=handlers.RotatingFileHandler\n"""
+            """formatter=simpleFormatter\n"""
+            """args=('logs/sample__weblab_facade_logs.%(server_number)s.txt','a',52428800,20971)\n"""
+            """\n"""
+            """[handler_weblab_handler]\n"""
+            """class=handlers.RotatingFileHandler\n"""
+            """formatter=simpleFormatter\n"""
+            """args=('logs/sample__weblab_logs.%(server_number)s.txt','a',52428800,20971)\n"""
+            """\n"""
+            """[handler_voodoo_handler]\n"""
+            """class=handlers.RotatingFileHandler\n"""
+            """formatter=simpleFormatter\n"""
+            """args=('logs/sample__voodoo_logs.%(server_number)s.txt','a',52428800,20971)\n"""
+            """\n"""
+            """[handler_weblab_core_handler]\n"""
+            """class=handlers.RotatingFileHandler\n"""
+            """formatter=simpleFormatter\n"""
+            """args=('logs/sample__weblab_core_logs.%(server_number)s.txt','a',52428800,20971)\n"""
+            """\n"""
+            """[formatter_simpleFormatter]\n"""
+            """format=%(asctime)s - %(name)s - %(levelname)s - %(message)s\n"""
+            """datefmt=\n"""
+            """class=logging.Formatter\n""") % {
+                'server_number' : server_name,
+                'asctime'       : '%(asctime)s',
+                'name'          : '%(name)s',
+                'levelname'     : '%(levelname)s',
+                'message'       : '%(message)s',
+            }
+        open(os.path.join(logs_config_dir, 'logging.configuration.%s.txt' % server_name), 'w').write(logging_file)
+
+
+
+    ###########################################
+    # 
+    # Generate launch script
+    # 
+
+    launch_script = (
+        """#!/usr/bin/env python\n"""
+        """#-*-*- encoding: utf-8 -*-*-\n"""
+        """import signal\n"""
+        """\n"""
+        """import sys\n"""
+        """sys.path.append('../../src')\n"""
+        """import libraries\n"""
+        """import weblab\n"""
+        """import voodoo.gen.loader.Launcher as Launcher\n"""
+        """\n"""
+        """def before_shutdown():\n"""
+        """    print "Stopping servers..."\n"""
+        """\n"""
+        """launcher = Launcher.MachineLauncher(\n"""
+        """            '.',\n"""
+        """            'core_machine',\n"""
+        """            (\n"""
+        """                Launcher.SignalWait(signal.SIGTERM),\n"""
+        """                Launcher.SignalWait(signal.SIGINT),\n"""
+        """                Launcher.RawInputWait("Press <enter> or send a sigterm or a sigint to finish\\n")\n"""
+        """            ),\n"""
+        """            {\n""")
+    for core_number in range(1, options.cores + 1):
+        launch_script += """                "core_server%s"     : "logs%sconfig%slogging.configuration.server%s.txt",\n""" % (core_number, os.sep, os.sep, core_number)
+        
+    launch_script += (("""                "laboratory" : "logs%sconfig%slogging.configuration.laboratory.txt",\n""" % (os.sep, os.sep)) +
+        """            },\n"""
+        """            before_shutdown,\n"""
+        """            (\n"""
+        """                 Launcher.FileNotifier("_file_notifier", "server started"),\n"""
+        """            ),\n"""
+        """            pid_file = 'weblab.pid',\n"""
+        """            debugger_ports = { \n""")
+    for core_number in range(1, options.cores + 1):
+        debugging_core_port = current_port
+        current_port += 1
+        launch_script += """                 'core_number%s' : %s, \n""" % (core_number, debugging_core_port)
+    launch_script += ("""            }\n"""
+        """        )\n"""
+        """launcher.launch()\n"""
+    )
+
+    open(os.path.join(directory, 'launch.py'), 'w').write( launch_script )
+
+    ###########################################
+    # 
+    # Generate apache configuration file
+    # 
+
 
     apache_dir = os.path.join(directory, 'apache')
     if not os.path.exists(apache_dir):
