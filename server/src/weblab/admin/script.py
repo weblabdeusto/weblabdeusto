@@ -65,6 +65,18 @@ def weblab():
     else:
         print >>sys.stderr, "Command %s not yet implemented" % sys.argv[1]
 
+
+#########################################################################################
+# 
+# 
+# 
+#      W E B L A B     D I R E C T O R Y     C R E A T I O N
+# 
+# 
+# 
+
+
+
 COORDINATION_ENGINES = ['sql',   'redis'  ]
 DATABASE_ENGINES     = ['mysql', 'sqlite' ]
 SESSION_ENGINES      = ['sql',   'redis', 'memory']
@@ -993,6 +1005,16 @@ def weblab_create(directory):
 
     print options.cores, options.db_engine, options.inline_lab_serv
 
+
+#########################################################################################
+# 
+# 
+# 
+#      W E B L A B     R U N N I N G      A N D     S T O P P I N G 
+# 
+# 
+# 
+
 def weblab_start(directory):
     old_cwd = os.getcwd()
     os.chdir(directory)
@@ -1006,6 +1028,16 @@ def weblab_stop(directory):
         print >> sys.stderr, "Stopping not yet supported. Try killing the process from the Task Manager or simply press enter"
         sys.exit(-1)
     os.kill(int(open(os.path.join(directory, 'weblab.pid')).read()), signal.SIGTERM)
+
+
+#########################################################################################
+# 
+# 
+# 
+#      W E B L A B     M O N I T O R I N G
+# 
+# 
+# 
 
 def weblab_monitor(directory):
     new_globals = {}
