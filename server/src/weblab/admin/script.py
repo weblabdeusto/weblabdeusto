@@ -24,14 +24,15 @@ from optparse import OptionParser, OptionGroup
 from weblab.admin.monitor.monitor import WebLabMonitor
 import weblab.core.coordinator.status as WebLabQueueStatus
 
-COMMANDS = {
-    'create'     : 'Create a new weblab instance', 
-    'rebuild-db' : 'Rebuild the database of the weblab instance', 
-    'start'      : 'Start an existing weblab instance', 
-    'stop'       : 'Stop an existing weblab instance',
-    'admin'      : 'Adminstrate a weblab instance',
-    'monitor'    : 'Monitor the current use of a weblab instance',
-}
+SORTED_COMMANDS = []
+SORTED_COMMANDS.append(('create',     'Create a new weblab instance')), 
+SORTED_COMMANDS.append(('start',      'Start an existing weblab instance')), 
+SORTED_COMMANDS.append(('stop',       'Stop an existing weblab instance')),
+SORTED_COMMANDS.append(('admin',      'Adminstrate a weblab instance')),
+SORTED_COMMANDS.append(('monitor', 'Monitor the current use of a weblab instance')),
+SORTED_COMMANDS.append(('rebuild-db', 'Rebuild the database of the weblab instance')), 
+
+COMMANDS = dict(SORTED_COMMANDS)
 
 def check_dir_exists(directory):
     if not os.path.exists(directory):
@@ -45,7 +46,7 @@ def weblab():
     if len(sys.argv) in (1, 2) or sys.argv[1] not in COMMANDS:
         command_list = ""
         max_size = max((len(command) for command in COMMANDS))
-        for command, help_text in COMMANDS.items():
+        for command, help_text in SORTED_COMMANDS:
             filled_command = command + ' ' * (max_size - len(command))
             command_list += "\t%s\t%s\n" % (filled_command, help_text)
         print >> sys.stderr, "Usage: %s option DIR [option arguments]\n\n%s\n" % (sys.argv[0], command_list)
@@ -62,6 +63,10 @@ def weblab():
         weblab_stop(sys.argv[2])
     elif main_command == 'monitor':
         weblab_monitor(sys.argv[2])
+    elif main_command == 'admin':
+        weblab_admin(sys.argv[2])
+    elif main_command == 'rebuild-db':
+        weblab_rebuild_db(sys.argv[2])
     else:
         print >>sys.stderr, "Command %s not yet implemented" % sys.argv[1]
 
@@ -1172,4 +1177,32 @@ def weblab_monitor(directory):
         else:
             option_parser.print_help()
             break
+
+#########################################################################################
+# 
+# 
+# 
+#      W E B L A B     A D M I N
+# 
+# 
+# 
+
+def weblab_admin(directory):
+    print >> sys.stderr, "Administrating the database is not yet implemented"
+    sys.exit(-1)
+
+
+#########################################################################################
+# 
+# 
+# 
+#      W E B L A B     R E B U I L D     D A T A B A S E
+# 
+# 
+# 
+
+
+def weblab_rebuild_db(directory):
+    print >> sys.stderr, "Rebuilding database is not yet implemented"
+    sys.exit(-1)
 
