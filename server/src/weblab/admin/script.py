@@ -843,42 +843,47 @@ def weblab_create(directory):
     launch_script = (
         """#!/usr/bin/env python\n"""
         """#-*-*- encoding: utf-8 -*-*-\n"""
-        """import signal\n"""
-        """\n"""
-        """import voodoo.gen.loader.Launcher as Launcher\n"""
-        """\n"""
-        """def before_shutdown():\n"""
-        """    print "Stopping servers..."\n"""
-        """\n"""
-        """launcher = Launcher.MachineLauncher(\n"""
-        """            '.',\n"""
-        """            'core_machine',\n"""
-        """            (\n"""
-        """                Launcher.SignalWait(signal.SIGTERM),\n"""
-        """                Launcher.SignalWait(signal.SIGINT),\n"""
-        """                Launcher.RawInputWait("Press <enter> or send a sigterm or a sigint to finish\\n")\n"""
-        """            ),\n"""
-        """            {\n""")
+        """try:\n"""
+        """    import signal\n"""
+        """    \n"""
+        """    import voodoo.gen.loader.Launcher as Launcher\n"""
+        """    \n"""
+        """    def before_shutdown():\n"""
+        """        print "Stopping servers..."\n"""
+        """    \n"""
+        """    launcher = Launcher.MachineLauncher(\n"""
+        """                '.',\n"""
+        """                'core_machine',\n"""
+        """                (\n"""
+        """                    Launcher.SignalWait(signal.SIGTERM),\n"""
+        """                    Launcher.SignalWait(signal.SIGINT),\n"""
+        """                    Launcher.RawInputWait("Press <enter> or send a sigterm or a sigint to finish\\n")\n"""
+        """                ),\n"""
+        """                {\n""")
     for core_number in range(1, options.cores + 1):
-        launch_script += """                "core_server%s"     : "logs%sconfig%slogging.configuration.server%s.txt",\n""" % (core_number, os.sep, os.sep, core_number)
+        launch_script += """                    "core_server%s"     : "logs%sconfig%slogging.configuration.server%s.txt",\n""" % (core_number, os.sep, os.sep, core_number)
         
-    launch_script += (("""                "laboratory" : "logs%sconfig%slogging.configuration.laboratory.txt",\n""" % (os.sep, os.sep)) +
-        """            },\n"""
-        """            before_shutdown,\n"""
-        """            (\n"""
-        """                 Launcher.FileNotifier("_file_notifier", "server started"),\n"""
-        """            ),\n"""
-        """            pid_file = 'weblab.pid',\n"""
-        """            debugger_ports = { \n""")
+    launch_script += (("""                    "laboratory" : "logs%sconfig%slogging.configuration.laboratory.txt",\n""" % (os.sep, os.sep)) +
+        """                },\n"""
+        """                before_shutdown,\n"""
+        """                (\n"""
+        """                     Launcher.FileNotifier("_file_notifier", "server started"),\n"""
+        """                ),\n"""
+        """                pid_file = 'weblab.pid',\n"""
+        """                debugger_ports = { \n""")
     debugging_ports = []
     for core_number in range(1, options.cores + 1):
         debugging_core_port = current_port
         debugging_ports.append(debugging_core_port)
         current_port += 1
-        launch_script += """                 'core_server%s' : %s, \n""" % (core_number, debugging_core_port)
-    launch_script += ("""            }\n"""
-        """        )\n"""
-        """launcher.launch()\n"""
+        launch_script += """                     'core_server%s' : %s, \n""" % (core_number, debugging_core_port)
+    launch_script += ("""                }\n"""
+        """            )\n"""
+        """    launcher.launch()\n"""
+        """except:\n"""
+        """    import traceback\n"""
+        """    traceback.print_exc()\n"""
+        """    raise\n"""
     )
 
     debugging_config = "SERVERS = [\n"
