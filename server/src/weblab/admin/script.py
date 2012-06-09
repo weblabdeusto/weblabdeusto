@@ -96,6 +96,9 @@ def weblab_create(directory):
 
     parser = OptionParser(usage="%prog create DIR [options]")
 
+    parser.add_option("-f", "--force",            dest="force", action="store_true", default=False,
+                                                   help = "Overwrite the contents even if the directory already existed.")
+
     parser.add_option("--cores",                  dest="cores",           type="int",    default=1,
                                                   help = "Number of core servers.")
 
@@ -117,6 +120,9 @@ def weblab_create(directory):
     parser.add_option("--server-host",            dest="server_host",     type="string",    default="localhost",
                                                   help = "Host address of this machine. Example: weblab.domain.")
 
+    parser.add_option("--poll-time",              dest="poll_time",     type="int",    default=350,
+                                                  help = "Time in seconds that will wait before expiring a user session.")
+
     # TODO
     parser.add_option("--inline-lab-server",      dest="inline_lab_serv", action="store_true", default=False,
                                                   help = "Laboratory server included in the same process as the core server. " 
@@ -134,32 +140,36 @@ def weblab_create(directory):
     parser.add_option("--xmlrpc-experiment-port", dest="xmlrpc_experiment_port", type="int",    default=None,
                                                   help = "What port should the Experiment Server use.")
 
-    parser.add_option("-f", "--force",            dest="force", action="store_true", default=False,
-                                                   help = "Overwrite the contents even if the directory already existed.")
-
     sess = OptionGroup(parser, "Session options",
                                 "WebLab-Deusto may store sessions in a database, in memory or in redis."
                                 "Choose one system and configure it." )
 
-    # TODO
-    sess.add_option("--session-storage",          dest="session_storage", choices = SESSION_ENGINES, default='sql',
+    sess.add_option("--session-storage",          dest="session_storage", choices = SESSION_ENGINES, default='memory',
                                                   help = "Session storage used. Values: %s." % (', '.join(SESSION_ENGINES)) )
 
-    # TODO
+    sess.add_option("--session-db-engine",        dest="session_db_engine", type="string", default="sqlite",
+                                                  help = "Select the engine of the sessions database.")
+
+    sess.add_option("--session-db-host",          dest="session_db_host", type="string", default="localhost",
+                                                  help = "Select the host of the session server, if any.")
+
     sess.add_option("--session-db-name",          dest="session_db_name", type="string", default="WebLabSessions",
                                                   help = "Select the name of the sessions database.")
 
-    # TODO
     sess.add_option("--session-db-user",          dest="session_db_user", type="string", default="",
                                                   help = "Select the username to access the sessions database.")
 
-    # TODO
     sess.add_option("--session-db-passwd",        dest="session_db_passwd", type="string", default="",
                                                   help = "Select the password to access the sessions database.")
                                                   
-    # TODO
     sess.add_option("--session-redis-db",         dest="session_redis_db", type="int", default=1,
                                                   help = "Select the redis db on which store the sessions.")
+
+    sess.add_option("--session-redis-host",       dest="session_redis_host", type="string", default="localhost",
+                                                  help = "Select the redis server host on which store the sessions.")
+
+    sess.add_option("--session-redis-port",       dest="session_redis_port", type="int", default=6379,
+                                                  help = "Select the redis server port on which store the sessions.")
 
     # TODO: test the provided configuration
 
@@ -169,11 +179,9 @@ def weblab_create(directory):
                                 "WebLab-Deusto uses a relational database for storing users, permissions, etc."
                                 "The database must be configured: which engine, database name, user and password." )
 
-    # TODO
     dbopt.add_option("--db-engine",               dest="db_engine",       choices = DATABASE_ENGINES, default = 'sqlite',
                                                   help = "Core database engine to use. Values: %s." % (', '.join(DATABASE_ENGINES)))
 
-    # TODO
     dbopt.add_option("--db-name",                 dest="db_name",         type="string", default="WebLabTests",
                                                   help = "Core database name.")
 
@@ -191,30 +199,33 @@ def weblab_create(directory):
                                 "These options are related to the scheduling system.  "
                                 "You must select if you want to use a database or redis, and configure it.")
 
-    # TODO
     coord.add_option("--coordination-engine",    dest="coord_engine",    choices = COORDINATION_ENGINES, default = 'sql',
                                                   help = "Coordination engine used. Values: %s." % (', '.join(COORDINATION_ENGINES)))
 
-    # TODO
     coord.add_option("--coordination-db-engine", dest="coord_db_engine", choices = DATABASE_ENGINES, default = 'sqlite',
                                                   help = "Coordination database engine used, if the coordination is based on a database. Values: %s." % (', '.join(DATABASE_ENGINES)))
 
-    # TODO
     coord.add_option("--coordination-db-name",   dest="coord_db_name",   type="string", default="WebLabCoordination",
 
                                                   help = "Coordination database name used, if the coordination is based on a database.")
 
-    # TODO
     coord.add_option("--coordination-db-user",   dest="coord_db_user",   type="string", default="",
                                                   help = "Coordination database userused, if the coordination is based on a database.")
 
-    # TODO
-    coord.add_option("--coordination-db-passwd", dest="coord_db_passwd",   type="string", default="",
+    coord.add_option("--coordination-db-passwd", dest="coord_db_passwd",  type="string", default="",
                                                   help = "Coordination database password used, if the coordination is based on a database.")
 
-    # TODO
-    coord.add_option("--coordination-redis-db",  dest="coord_redis_db",   type="int", default=0,
+    coord.add_option("--coordination-db-host",    dest="coord_db_host",    type="string", default="localhost",
+                                                  help = "Coordination database host used, if the coordination is based on a database.")
+
+    coord.add_option("--coordination-redis-db",  dest="coord_redis_db",   type="int", default=None,
                                                   help = "Coordination redis DB used, if the coordination is based on redis.")
+
+    coord.add_option("--coordination-redis-passwd",  dest="coord_redis_passwd",   type="string", default=None,
+                                                  help = "Coordination redis password used, if the coordination is based on redis.")
+
+    coord.add_option("--coordination-redis-port",  dest="coord_redis_port",   type="int", default=None,
+                                                  help = "Coordination redis port used, if the coordination is based on redis.")
 
     # TODO: test the configuration provided
 
@@ -227,6 +238,17 @@ def weblab_create(directory):
     # Validate basic options
     # 
 
+    if options.coord_engine == 'sql':
+        coord_engine = 'sqlalchemy'
+    else:
+        coord_engine = options.coord_engine
+
+    if options.session_storage == 'sql':
+        session_storage = 'sqlalchemy'
+    elif options.session_storage == 'memory':
+        session_storage = 'Memory'
+    else:
+        session_storage = options.session_storage
 
     if options.cores <= 0:
         print >> sys.stderr, "ERROR: There must be at least one core server."
@@ -311,7 +333,8 @@ def weblab_create(directory):
                         "core_universal_identifier       = %(core_universal_identifier)r\n"
                         "core_universal_identifier_human = %(core_universal_identifier_human)r\n"
                         "\n"
-                        "db_database = %(db_name)r\n"
+                        "db_engine          = %(db_engine)r\n"
+                        "db_database        = %(db_name)r\n"
                         "weblab_db_username = %(db_user)r\n"
                         "weblab_db_password = %(db_password)r\n"
                         "\n"
@@ -334,13 +357,23 @@ def weblab_create(directory):
                         "# Sessions configuration #\n"
                         "##########################\n"
                         "\n"
+                        "core_session_type = %(session_storage)r\n"
+                        "\n"
+                        "%(session_db)ssession_sqlalchemy_engine   = %(session_db_engine)r\n"
+                        "%(session_db)ssession_sqlalchemy_host     = %(session_db_host)r\n"
+                        "%(session_db)ssession_sqlalchemy_username = %(session_db_user)r\n"
+                        "%(session_db)ssession_sqlalchemy_password = %(session_db_passwd)r\n"
+                        "\n"
+                        "%(session_redis)ssession_redis_host = %(session_redis_host)r\n"
+                        "%(session_redis)ssession_redis_port = %(session_redis_port)r\n"
+                        "%(session_redis)ssession_redis_db   = %(session_redis_db)r\n"
                         "\n"
                         "##############################\n"
                         "# Core generic configuration #\n"
                         "##############################\n"
                         "core_store_students_programs      = False\n"
                         "core_store_students_programs_path = 'files_stored'\n"
-                        "core_experiment_poll_time         = 350 # seconds\n"
+                        "core_experiment_poll_time         = %(poll_time)r # seconds\n"
                         "\n"
                         "core_server_url = %(server_url)r\n"
                         "\n"
@@ -348,8 +381,17 @@ def weblab_create(directory):
                         "# Scheduling configuration #\n"
                         "############################\n"
                         "\n"
-                        "%(coord_db)score_coordinator_db_username = %(core_coordinator_db_username)r\n"
-                        "%(coord_db)score_coordinator_db_password = %(core_coordinator_db_password)r\n"
+                        "core_coordination_impl = %(core_coordinator_engine)r\n"
+                        "\n"
+                        "%(coord_redis)scoordinator_redis_db       = %(core_coordinator_redis_db)r\n"
+                        "%(coord_redis)scoordinator_redis_password = %(core_coordinator_redis_password)r\n"
+                        "%(coord_redis)scoordinator_redis_port     = %(core_coordinator_redis_port)r\n"
+                        "\n"
+                        "%(coord_db)score_coordinator_db_name      = %(core_coordinator_db_name)r\n"
+                        "%(coord_db)score_coordinator_db_engine    = %(core_coordinator_db_engine)r\n"
+                        "%(coord_db)score_coordinator_db_host      = %(core_coordinator_db_host)r\n"
+                        "%(coord_db)score_coordinator_db_username  = %(core_coordinator_db_username)r\n"
+                        "%(coord_db)score_coordinator_db_password  = %(core_coordinator_db_password)r\n"
                         "\n"
                         "core_coordinator_laboratory_servers = {\n"
                         "    'laboratory:laboratory@core_machine' : {\n"
@@ -376,15 +418,43 @@ def weblab_create(directory):
                         "\n") % {
         'core_universal_identifier'       : str(uuid.uuid4()),
         'core_universal_identifier_human' : options.system_identifier or 'Generic system; not identified',
+        'db_engine'                       : options.db_engine,
         'db_name'                         : options.db_name,
         'db_user'                         : options.db_user,
         'db_password'                     : options.db_passwd,
         'server_hostaddress'              : options.server_host,
         'server_admin'                    : options.admin_mail,
         'server_url'                      : server_url,
+        'poll_time'                       : options.poll_time,
+
+        'session_storage'                 : session_storage,
+
+        'session_db_engine'               : options.session_db_engine,
+        'session_db_host'                 : options.session_db_host,
+        'session_db_name'                 : options.session_db_name,
+        'session_db_user'                 : options.session_db_user,
+        'session_db_passwd'               : options.session_db_passwd,
+
+        'session_redis_host'              : options.session_redis_host,
+        'session_redis_port'              : options.session_redis_port,
+        'session_redis_db'                : options.session_redis_db,
+
+        'core_coordinator_engine'         : coord_engine,
+
+        'core_coordinator_redis_db'       : options.coord_redis_db,
+        'core_coordinator_redis_password' : options.coord_redis_passwd,
+        'core_coordinator_redis_port'     : options.coord_redis_port,
+
         'core_coordinator_db_username'    : options.coord_db_user,
         'core_coordinator_db_password'    : options.coord_db_passwd,
-        'coord_db'                        : '' if options.coord_engine == 'sql' else '#',
+        'core_coordinator_db_name'        : options.coord_db_name,
+        'core_coordinator_db_engine'      : options.coord_db_engine,
+        'core_coordinator_db_host'        : options.coord_db_host,
+
+        'coord_db'                        : '' if options.coord_engine == 'sql' else '# ',
+        'coord_redis'                     : '' if options.coord_engine == 'redis' else '# ',
+        'session_db'                      : '' if session_storage == 'sqlalchemy' else '# ',
+        'session_redis'                   : '' if session_storage == 'redis' else '# ',
     }
 
 
