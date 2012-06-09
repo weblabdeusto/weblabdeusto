@@ -21,8 +21,12 @@ import uuid
 import time
 from optparse import OptionParser, OptionGroup
 
+import weblab
 from weblab.admin.monitor.monitor import WebLabMonitor
 import weblab.core.coordinator.status as WebLabQueueStatus
+
+WEBLAB_SRC_PATH = os.path.abspath(os.path.join(os.path.dirname(weblab.__file__), '..'))
+WEBLAB_PATH     = os.path.abspath(os.path.join(WEBLAB_SRC_PATH, '..', '..'))
 
 SORTED_COMMANDS = []
 SORTED_COMMANDS.append(('create',     'Create a new weblab instance')), 
@@ -980,7 +984,32 @@ def weblab_create(directory):
     if not os.path.exists(apache_dir):
         os.mkdir(apache_dir)
 
+    client_dir = os.path.join(directory, 'client')
+    if not os.path.exists(client_dir):
+        os.mkdir(client_dir)
+
+    client_images_dir = os.path.join(client_dir, 'images')
+    if not os.path.exists(client_images_dir):
+        os.mkdir(client_images_dir)
+
     apache_conf = (
+        "\n"
+        """# Apache redirects the regular paths to the particular directories \n"""
+        """RedirectMatch ^%(root)s$ %(root)s/weblab/client\n"""
+        """RedirectMatch ^%(root)s/$ %(root)s/weblab/client\n"""
+        """RedirectMatch ^%(root)s/weblab/$ %(root)s/weblab/client\n"""
+        """RedirectMatch ^%(root)s/weblab/client/$ %(root)s/weblab/client/index.html\n"""
+        """\n"""
+        """Alias %(root)s/weblab/client/weblabclient/configuration.js      %(directory)s/client/configuration.js\n"""
+        """Alias %(root)s/weblab/client/weblabclientadmin/configuration.js %(directory)s/client/configuration.js\n"""
+        """\n"""
+        """Alias %(root)s/weblab/client/weblabclient//img%(root)s/         %(directory)s/client/images/\n"""
+        """Alias %(root)s/weblab/client/weblabclientadmin//img%(root)s/    %(directory)s/client/images/\n"""
+        """\n"""
+        """Alias %(root)s/weblab/client                                    %(weblab_path)s/client/war\n"""
+        """Alias %(root)s/weblab/                                          %(weblab_path)s/server/src/webserver/\n"""
+        """\n"""
+        """# Apache redirects the requests retrieved to the particular server, using a stickysession if the sessions are based on memory\n"""
 		"""ProxyVia On\n"""
 		"""\n"""
 		"""ProxyPass                       %(root)s/soap/                 balancer://weblab_cluster_soap/          stickysession=weblabsessionid lbmethod=bybusyness\n"""
@@ -1000,7 +1029,9 @@ def weblab_create(directory):
 		"""ProxyPass                       %(root)s/login/web/            balancer://weblab_cluster_login_web/     stickysession=loginweblabsessionid lbmethod=bybusyness\n"""
 		"""ProxyPassReverse                %(root)s/login/web/            balancer://weblab_cluster_login_web/     stickysession=loginweblabsessionid\n"""
 		"""ProxyPass                       %(root)s/administration/       balancer://weblab_cluster_administration/ stickysession=weblabsessionid lbmethod=bybusyness\n"""
-		"""ProxyPassReverse                %(root)s/administration/       balancer://weblab_cluster_administration/ stickysession=weblabsessionid\n""")
+		"""ProxyPassReverse                %(root)s/administration/       balancer://weblab_cluster_administration/ stickysession=weblabsessionid\n"""
+        "\n")
+
 
     apache_conf += "\n"
     apache_conf += "<Proxy balancer://weblab_cluster_soap>\n"
@@ -1079,7 +1110,7 @@ def weblab_create(directory):
     apache_conf += """</Proxy>\n"""
     apache_conf += """\n"""
 
-    apache_conf = apache_conf % { 'root' : options.base_url }
+    apache_conf = apache_conf % { 'root' : options.base_url, 'directory' : os.path.abspath(directory), 'weblab_path' : WEBLAB_PATH }
 
     open(os.path.join(apache_dir, 'apache_weblab_generic.conf'), 'w').write( apache_conf )
 
