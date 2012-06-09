@@ -18,7 +18,11 @@ import signal
 import sys
 import stat
 import uuid
+import time
 from optparse import OptionParser, OptionGroup
+
+from weblab.admin.monitor.monitor import WebLabMonitor
+import weblab.core.coordinator.status as WebLabQueueStatus
 
 COMMANDS = {
     'create'     : 'Create a new weblab instance', 
@@ -56,6 +60,8 @@ def weblab():
         weblab_start(sys.argv[2])
     elif main_command == 'stop':
         weblab_stop(sys.argv[2])
+    elif main_command == 'monitor':
+        weblab_monitor(sys.argv[2])
     else:
         print >>sys.stderr, "Command %s not yet implemented" % sys.argv[1]
 
@@ -566,6 +572,7 @@ def weblab_create(directory):
 		"""        </protocol>\n"""
 		"""    </protocols>\n"""
 		"""</server>\n""") % {'port' : current_port})
+    current_port += 1
 
     open(os.path.join(lab_dir, 'server_config.py'), 'w').write((
 		"""##################################\n"""
@@ -851,8 +858,10 @@ def weblab_create(directory):
         """            ),\n"""
         """            pid_file = 'weblab.pid',\n"""
         """            debugger_ports = { \n""")
+    debugging_ports = []
     for core_number in range(1, options.cores + 1):
         debugging_core_port = current_port
+        debugging_ports.append(debugging_core_port)
         current_port += 1
         launch_script += """                 'core_number%s' : %s, \n""" % (core_number, debugging_core_port)
     launch_script += ("""            }\n"""
@@ -860,8 +869,14 @@ def weblab_create(directory):
         """launcher.launch()\n"""
     )
 
-    open(os.path.join(directory, 'launch.py'), 'w').write( launch_script )
-    os.chmod(os.path.join(directory, 'launch.py'), stat.S_IRWXU)
+    debugging_config = "SERVERS = [\n"
+    for debugging_port in debugging_ports:
+        debugging_config += "    ('127.0.0.1','%s'),\n" % debugging_port
+    debugging_config += "]\n"
+
+    open(os.path.join(directory, 'run.py'), 'w').write( launch_script )
+    open(os.path.join(directory, 'debugging.py'), 'w').write( debugging_config )
+    os.chmod(os.path.join(directory, 'run.py'), stat.S_IRWXU)
 
     ###########################################
     # 
@@ -982,7 +997,7 @@ def weblab_start(directory):
     old_cwd = os.getcwd()
     os.chdir(directory)
     try:
-        execfile('launch.py')
+        execfile('run.py')
     except:
         os.chdir(old_cwd)
 
@@ -991,3 +1006,133 @@ def weblab_stop(directory):
         print >> sys.stderr, "Stopping not yet supported. Try killing the process from the Task Manager or simply press enter"
         sys.exit(-1)
     os.kill(int(open(os.path.join(directory, 'weblab.pid')).read()), signal.SIGTERM)
+
+def weblab_monitor(directory):
+    new_globals = {}
+    new_locals  = {}
+    execfile(os.path.join(directory, 'debugging.py'), new_globals, new_locals)
+
+    SERVERS = new_locals['SERVERS']
+
+    def list_users(experiment):
+        information, ups_orphans, coordinator_orphans = wl.list_users(experiment)
+
+        print "%15s\t%25s\t%11s\t%11s" % ("LOGIN","STATUS","UPS_SESSID","RESERV_ID")
+        for login, status, ups_session_id, reservation_id in information:
+            if isinstance(status, WebLabQueueStatus.WaitingQueueStatus) or isinstance(status, WebLabQueueStatus.WaitingInstancesQueueStatus):
+                status_str = "%s: %s" % (status.status, status.position)
+            else:
+                status_str = status.status
+
+            if options.full_info:
+                    print "%15s\t%25s\t%8s\t%8s" % (login, status_str, ups_session_id, reservation_id)
+            else:
+                    print "%15s\t%25s\t%8s...\t%8s..." % (login, status_str, ups_session_id[:8], reservation_id)
+
+        if len(ups_orphans) > 0:
+            print 
+            print "UPS ORPHANS"
+            for ups_info in ups_orphans:
+                print ups_info
+
+        if len(coordinator_orphans) > 0:
+            print 
+            print "COORDINATOR ORPHANS"
+            for coordinator_info in coordinator_orphans:
+                print coordinator_info
+
+    def show_server(number):
+        if number > 0:
+            print 
+        print "Server %s" % (number + 1)
+
+    option_parser = OptionParser()
+
+    option_parser.add_option( "-e", "--list-experiments",
+                              action="store_true",
+                              dest="list_experiments",
+                              help="Lists all the available experiments" )
+                            
+    option_parser.add_option( "-u", "--list-users",
+                              dest="list_users",
+                              nargs=1,
+                              default=None,
+                              help="Lists all users using a certain experiment (format: experiment@category)" )
+
+    option_parser.add_option( "-a", "--list-experiment-users",
+                              action="store_true",
+                              dest="list_experiment_users",
+                              help="Lists all users using any experiment" )
+
+    option_parser.add_option( "-l", "--list-all-users",
+                              action="store_true",
+                              dest="list_all_users",
+                              help="Lists all connected users" )
+
+    option_parser.add_option( "-f", "--full-info",
+                      action="store_true",
+                              dest="full_info",
+                              help="Shows full information (full session ids instead of only the first characteres)" )
+                             
+    option_parser.add_option( "-k", "--kick-session",
+                              dest="kick_session",
+                              nargs=1,
+                              default=None,
+                              help="Given the full UPS Session ID, it kicks out a user from the system" )
+
+    option_parser.add_option( "-b", "--kick-user",
+                              dest="kick_user",
+                              nargs=1,
+                              default=None,
+                              help="Given the user login, it kicks him out from the system" )
+
+    options, _ = option_parser.parse_args()
+
+    for num, server in enumerate(SERVERS):
+        wl = WebLabMonitor(server)
+
+        if options.list_experiments:
+            print wl.list_experiments(),
+
+        elif options.list_experiment_users:
+            show_server(num)
+            experiments = wl.list_experiments()
+            if experiments != '':
+                for experiment in experiments.split('\n')[:-1]:
+                    print 
+                    print "%s..." % experiment
+                    print 
+                    list_users(experiment)
+            
+        elif options.list_users != None:
+            show_server(num)
+            list_users(options.list_users)
+            
+        elif options.list_all_users:
+            show_server(num)
+            all_users = wl.list_all_users()
+
+            print "%15s\t%11s\t%17s\t%24s" % ("LOGIN","UPS_SESSID","FULL_NAME","LATEST TIMESTAMP")
+
+            for ups_session_id, user_information, latest_timestamp in all_users:
+                latest = time.asctime(time.localtime(latest_timestamp))
+                if options.full_info:
+                    print "%15s\t%11s\t%17s\t%24s" % (user_information.login, ups_session_id.id, user_information.full_name, latest)
+                else:
+                    if len(user_information.full_name) <= 14:
+                        print "%15s\t%8s...\t%s\t%24s" % (user_information.login, ups_session_id.id[:8], user_information.full_name, latest)
+                    else:
+                        print "%15s\t%8s...\t%14s...\t%24s" % (user_information.login, ups_session_id.id[:8], user_information.full_name[:14], latest)
+            
+        elif options.kick_session != None:
+            show_server(num)
+            wl.kick_session(options.kick_session)
+
+        elif options.kick_user != None:
+            show_server(num)
+            wl.kick_user(options.kick_user)
+           
+        else:
+            option_parser.print_help()
+            break
+
