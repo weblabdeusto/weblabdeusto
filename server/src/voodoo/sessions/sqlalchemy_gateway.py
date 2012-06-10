@@ -195,6 +195,9 @@ class SessionSqlalchemyGateway(object):
             session.close()
 
     def delete_expired_sessions(self):
+        if self.timeout is None:
+            return
+
         session = self._session_maker()
         try:
             # NOW() - latest_access > timeout

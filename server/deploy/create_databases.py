@@ -1131,7 +1131,7 @@ if not options.avoid_real:
         engine = create_engine(weblab_test_db_str % tests, echo = False)
         metadata = Model.Base.metadata
         metadata.drop_all(engine)
-        metadata.create_all(engine)   
+        metadata.create_all(engine)
 
         _insert_required_initial_data(engine)
         populate_weblab_tests(engine, tests)

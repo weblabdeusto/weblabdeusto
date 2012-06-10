@@ -30,6 +30,12 @@ import weblab
 from weblab.admin.monitor.monitor import WebLabMonitor
 import weblab.core.coordinator.status as WebLabQueueStatus
 
+import weblab.db.model as Model
+import weblab.core.coordinator.model as CoordinatorModel
+
+import voodoo.sessions.db_lock_data as DbLockData
+import voodoo.sessions.sqlalchemy_data as SessionSqlalchemyData
+
 WEBLAB_SRC_PATH = os.path.abspath(os.path.join(os.path.dirname(weblab.__file__), '..'))
 WEBLAB_PATH     = os.path.abspath(os.path.join(WEBLAB_SRC_PATH, '..', '..'))
 
@@ -96,6 +102,7 @@ DATABASE_ENGINES     = ['mysql', 'sqlite' ]
 SESSION_ENGINES      = ['sql',   'redis', 'memory']
 
 def _test_redis(what, redis_port, redis_passwd, redis_db, redis_host):
+    if verbose: print "Checking redis connection for %s..." % what,; sys.stdout.flush()
     kwargs = {}
     if redis_port   is not None: kwargs['port']     = redis_port
     if redis_passwd is not None: kwargs['password'] = redis_passwd
@@ -114,10 +121,12 @@ def _test_redis(what, redis_port, redis_passwd, redis_db, redis_host):
             print >> "redis selected for %s; but could not use the provided configuration" % what
             traceback.print_exc()
             sys.exit(-1)
+        else:
+            if verbose: print "[done]"
 
-def _check_database_connection(what, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd):
-    
-    
+def _check_database_connection(what, metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd):
+    if verbose: print "Checking database connection for %s..." % what,; sys.stdout.flush()
+
     if db_engine == 'sqlite':
         location = '/' + os.path.join(os.path.abspath(directory), 'db', '%s.db' % db_name)
         sqlite3.connect(database = location).close()
@@ -145,13 +154,12 @@ def _check_database_connection(what, directory, verbose, db_engine, db_host, db_
         else:
             print >> sys.stderr, "error: Use -v to get more detailed information"
         sys.exit(-1)
-
-
-    return
-
-    metadata = Model.Base.metadata
-    metadata.drop_all(engine)
-    metadata.create_all(engine)
+    else:
+        if verbose: print "[done]"
+        if verbose: print "Adding information to the %s database..." % what,; sys.stdout.flush()
+        metadata.drop_all(engine)
+        metadata.create_all(engine)
+        if verbose: print "[done]"
 
 
 
@@ -310,6 +318,8 @@ def weblab_create(directory):
     # Validate basic options
     # 
 
+    if verbose: print "Validating basic operations...",; sys.stdout.flush()
+
     if options.coord_engine == 'sql':
         coord_engine = 'sqlalchemy'
     else:
@@ -347,6 +357,7 @@ def weblab_create(directory):
         print >> sys.stderr, "ERROR: Inline lab server is incompatible with more than one core servers. It would require the lab server, which does not make sense."
         sys.exit(-1)
         
+    if verbose: print "[done]"
 
     if os.path.exists(directory) and not options.force:
         print >> sys.stderr, "ERROR: Directory %s already exists. Use --force if you want to overwrite the contents." % directory
@@ -368,6 +379,8 @@ def weblab_create(directory):
     # Validate database configurations
     # 
 
+    if verbose: print "Start building database configuration"; sys.stdout.flush()
+
     db_dir = os.path.join(directory, 'db')
     if not os.path.exists(db_dir):
         os.mkdir(db_dir)
@@ -384,7 +397,8 @@ def weblab_create(directory):
         db_name    = options.coord_db_name
         db_user    = options.coord_db_user
         db_passwd  = options.coord_db_passwd
-        _check_database_connection("coordination", directory, verbose, db_engine, db_host, db_name, db_user, db_passwd)
+        CoordinatorModel.load()
+        _check_database_connection("coordination", CoordinatorModel.Base.metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd)
     else:
         print >> sys.stderr, "The coordination engine %s is not registered" % options.coord_engine
         sys.exit(-1)
@@ -402,7 +416,8 @@ def weblab_create(directory):
         db_name   = options.session_db_name
         db_user   = options.session_db_user
         db_passwd = options.session_db_passwd
-        _check_database_connection("sessions", directory, verbose, db_engine, db_host, db_name, db_user, db_passwd)
+        _check_database_connection("sessions", SessionSqlalchemyData.SessionBase.metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd)
+        _check_database_connection("sessions locking", DbLockData.SessionLockBase.metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd)
     elif options.session_storage != 'memory':
         print >> sys.stderr, "The session engine %s is not registered" % options.session_storage
         sys.exit(-1)
@@ -412,13 +427,15 @@ def weblab_create(directory):
     db_host   = options.db_host
     db_user   = options.db_user
     db_passwd = options.db_passwd
-    _check_database_connection("core database", directory, verbose, db_engine, db_host, db_name, db_user, db_passwd)
+    _check_database_connection("core database", Model.Base.metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd)
 
 
     ###########################################
     # 
     # Create voodoo infrastructure
     # 
+
+    if verbose: print "Creating configuration files and directories...",; sys.stdout.flush()
 
     open(os.path.join(directory, 'configuration.xml'), 'w').write("""<?xml version="1.0" encoding="UTF-8"?>""" 
     """<machines
@@ -487,6 +504,11 @@ def weblab_create(directory):
                         "%(session_db)ssession_sqlalchemy_host     = %(session_db_host)r\n"
                         "%(session_db)ssession_sqlalchemy_username = %(session_db_user)r\n"
                         "%(session_db)ssession_sqlalchemy_password = %(session_db_passwd)r\n"
+                        "\n"
+                        "%(session_db)ssession_lock_sqlalchemy_engine   = %(session_db_engine)r\n"
+                        "%(session_db)ssession_lock_sqlalchemy_host     = %(session_db_host)r\n"
+                        "%(session_db)ssession_lock_sqlalchemy_username = %(session_db_user)r\n"
+                        "%(session_db)ssession_lock_sqlalchemy_password = %(session_db_passwd)r\n"
                         "\n"
                         "%(session_redis)ssession_redis_host = %(session_redis_host)r\n"
                         "%(session_redis)ssession_redis_port = %(session_redis_port)r\n"
@@ -582,8 +604,6 @@ def weblab_create(directory):
         'session_redis'                   : '' if session_storage == 'redis' else '# ',
     }
 
-
-    # TODO: provide the rest of fields: sessions, coordination...
 
     open(os.path.join(machine_dir, 'configuration.xml'), 'w').write(machine_configuration_xml)
     open(os.path.join(machine_dir, 'machine_config.py'), 'w').write(machine_config_py)
@@ -837,10 +857,14 @@ def weblab_create(directory):
     if not os.path.exists(files_stored_dir):
         os.mkdir(files_stored_dir)
 
+    if verbose: print "[done]"
+
     ###########################################
     # 
     # Generate logs directory and config
     # 
+
+    if verbose: print "Creating logs directories and configuration files...",; sys.stdout.flush()
 
     logs_dir = os.path.join(directory, 'logs')
     if not os.path.exists(logs_dir):
@@ -1030,11 +1054,14 @@ def weblab_create(directory):
         open(os.path.join(logs_config_dir, 'logging.configuration.%s.txt' % server_name), 'w').write(logging_file)
 
 
+    if verbose: print "[done]"
 
     ###########################################
     # 
     # Generate launch script
     # 
+
+    if verbose: print "Creating launch file...",; sys.stdout.flush()
 
     launch_script = (
         """#!/usr/bin/env python\n"""
@@ -1091,11 +1118,14 @@ def weblab_create(directory):
     open(os.path.join(directory, 'debugging.py'), 'w').write( debugging_config )
     os.chmod(os.path.join(directory, 'run.py'), stat.S_IRWXU)
 
+    if verbose: print "[done]"
+
     ###########################################
     # 
     # Generate apache configuration file
     # 
 
+    if verbose: print "Creating apache configuration files...",; sys.stdout.flush()
 
     apache_dir = os.path.join(directory, 'apache')
     if not os.path.exists(apache_dir):
@@ -1233,6 +1263,8 @@ def weblab_create(directory):
 
     open(apache_conf_path, 'w').write( apache_conf )
 
+    if verbose: print "[done]"
+
     print
     print "Congratulations!"
     print "WebLab-Deusto system created"
@@ -1242,7 +1274,6 @@ def weblab_create(directory):
     print 
     print "Execute '%s start %s' to start the system." % (sys.argv[0], directory)
     print 
-
 
 #########################################################################################
 # 
