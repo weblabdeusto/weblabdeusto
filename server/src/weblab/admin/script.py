@@ -20,6 +20,7 @@ import stat
 import uuid
 import time
 import traceback
+import sqlite3
 from optparse import OptionParser, OptionGroup
 
 from sqlalchemy import create_engine
@@ -118,7 +119,8 @@ def _check_database_connection(what, directory, verbose, db_engine, db_host, db_
     
     
     if db_engine == 'sqlite':
-        location = os.path.join(os.path.abspath(directory), 'db', '%s.db' % db_name)
+        location = '/' + os.path.join(os.path.abspath(directory), 'db', '%s.db' % db_name)
+        sqlite3.connect(database = location).close()
     else:
         location = "%(user)s:%(password)s@%(host)s/%(name)s" % { 
                         'user'     : db_user, 
