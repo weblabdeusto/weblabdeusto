@@ -19,7 +19,11 @@ import sys
 import stat
 import uuid
 import time
+import traceback
 from optparse import OptionParser, OptionGroup
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 import weblab
 from weblab.admin.monitor.monitor import WebLabMonitor
@@ -90,6 +94,65 @@ COORDINATION_ENGINES = ['sql',   'redis'  ]
 DATABASE_ENGINES     = ['mysql', 'sqlite' ]
 SESSION_ENGINES      = ['sql',   'redis', 'memory']
 
+def _test_redis(what, redis_port, redis_passwd, redis_db, redis_host):
+    kwargs = {}
+    if redis_port   is not None: kwargs['port']     = redis_port
+    if redis_passwd is not None: kwargs['password'] = redis_passwd
+    if redis_db     is not None: kwargs['db']       = redis_db
+    if redis_host   is not None: kwargs['host']     = redis_host
+    try:
+        import redis
+    except ImportError:
+        print >> sys.stderr, "redis selected for %s; but redis module is not available. Try installing it with 'pip install redis'" % what
+        sys.exit(-1)
+    else:
+        try:
+            client = redis.Redis(**kwargs)
+            client.get("this.should.not.exist")
+        except:
+            print >> "redis selected for %s; but could not use the provided configuration" % what
+            traceback.print_exc()
+            sys.exit(-1)
+
+def _check_database_connection(what, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd):
+    
+    
+    if db_engine == 'sqlite':
+        location = os.path.join(os.path.abspath(directory), 'db', '%s.db' % db_name)
+    else:
+        location = "%(user)s:%(password)s@%(host)s/%(name)s" % { 
+                        'user'     : db_user, 
+                        'password' : db_passwd, 
+                        'host'     : db_host,
+                        'name'     : db_name
+                    }
+    
+    db_str = "%(engine)s://%(location)s" % { 
+                        'engine'   : db_engine,
+                        'location' : location,
+                    }
+
+    try:
+        engine = create_engine(db_str, echo = False)
+        engine.execute("select 1")
+    except Exception as e:
+        print >> sys.stderr, "error: database used for %s is misconfigured" % what
+        print >> sys.stderr, "error: %s"  % str(e)
+        if verbose:
+            traceback.print_exc()
+        else:
+            print >> sys.stderr, "error: Use -v to get more detailed information"
+        sys.exit(-1)
+
+
+    return
+
+    metadata = Model.Base.metadata
+    metadata.drop_all(engine)
+    metadata.create_all(engine)
+
+
+
 def weblab_create(directory):
 
     ###########################################
@@ -102,6 +165,9 @@ def weblab_create(directory):
 
     parser.add_option("-f", "--force",            dest="force", action="store_true", default=False,
                                                    help = "Overwrite the contents even if the directory already existed.")
+
+    parser.add_option("-v", "--verbose",          dest="verbose", action="store_true", default=False,
+                                                   help = "Show more information about the process.")
 
     parser.add_option("--cores",                  dest="cores",           type="int",    default=1,
                                                   help = "Number of core servers.")
@@ -175,8 +241,6 @@ def weblab_create(directory):
     sess.add_option("--session-redis-port",       dest="session_redis_port", type="int", default=6379,
                                                   help = "Select the redis server port on which store the sessions.")
 
-    # TODO: test the provided configuration
-
     parser.add_option_group(sess)
 
     dbopt = OptionGroup(parser, "Database options",
@@ -189,12 +253,14 @@ def weblab_create(directory):
     dbopt.add_option("--db-name",                 dest="db_name",         type="string", default="WebLabTests",
                                                   help = "Core database name.")
 
+    dbopt.add_option("--db-host",                 dest="db_host",         type="string", default="localhost",
+                                                  help = "Core database host.")
+
     dbopt.add_option("--db-user",                 dest="db_user",         type="string", default="weblab",
                                                   help = "Core database username.")
 
     dbopt.add_option("--db-passwd",               dest="db_passwd",       type="string", default="weblab",
                                                   help = "Core database password.")
-    # TODO: test the provided configuration
 
     
     parser.add_option_group(dbopt)
@@ -231,11 +297,11 @@ def weblab_create(directory):
     coord.add_option("--coordination-redis-port",  dest="coord_redis_port",   type="int", default=None,
                                                   help = "Coordination redis port used, if the coordination is based on redis.")
 
-    # TODO: test the configuration provided
-
     parser.add_option_group(coord)
 
-    (options, args) = parser.parse_args()
+    options, args = parser.parse_args()
+
+    verbose = options.verbose
 
     ###########################################
     # 
@@ -284,22 +350,73 @@ def weblab_create(directory):
         print >> sys.stderr, "ERROR: Directory %s already exists. Use --force if you want to overwrite the contents." % directory
         sys.exit(-1)
 
-    ###########################################
-    # 
-    # Create voodoo infrastructure
-    # 
-
     if os.path.exists(directory):
         if not os.path.isdir(directory):
             print >> sys.stderr, "ERROR: %s is not a directory. Delete it before proceeding." % directory
             sys.exit(-1)
     else:
         try:
-
             os.mkdir(directory)
         except Exception as e:
             print >> sys.stderr, "ERROR: Could not create directory %s: %s" % (directory, str(e))
             sys.exit(-1)
+
+    ###########################################
+    # 
+    # Validate database configurations
+    # 
+
+    db_dir = os.path.join(directory, 'db')
+    if not os.path.exists(db_dir):
+        os.mkdir(db_dir)
+
+    if options.coord_engine == 'redis':
+        redis_passwd = options.coord_redis_passwd
+        redis_port   = options.coord_redis_port
+        redis_db     = options.coord_redis_db
+        redis_host   = None
+        _test_redis('coordination', redis_port, redis_passwd, redis_db, redis_host)
+    elif options.coord_engine in ('sql', 'sqlalchemy'):
+        db_engine  = options.coord_db_engine
+        db_host    = options.coord_db_host
+        db_name    = options.coord_db_name
+        db_user    = options.coord_db_user
+        db_passwd  = options.coord_db_passwd
+        _check_database_connection("coordination", directory, verbose, db_engine, db_host, db_name, db_user, db_passwd)
+    else:
+        print >> sys.stderr, "The coordination engine %s is not registered" % options.coord_engine
+        sys.exit(-1)
+        
+
+    if options.session_storage == 'redis':
+        redis_passwd = None
+        redis_port   = options.session_redis_port
+        redis_db     = options.session_redis_db
+        redis_host   = options.session_redis_host
+        _test_redis('sessions', redis_port, redis_passwd, redis_db, redis_host)
+    elif options.session_storage in ('sql', 'sqlalchemy'):
+        db_engine = options.session_db_engine
+        db_host   = options.session_db_host
+        db_name   = options.session_db_name
+        db_user   = options.session_db_user
+        db_passwd = options.session_db_passwd
+        _check_database_connection("sessions", directory, verbose, db_engine, db_host, db_name, db_user, db_passwd)
+    elif options.session_storage != 'memory':
+        print >> sys.stderr, "The session engine %s is not registered" % options.session_storage
+        sys.exit(-1)
+
+    db_engine = options.db_engine
+    db_name   = options.db_name
+    db_host   = options.db_host
+    db_user   = options.db_user
+    db_passwd = options.db_passwd
+    _check_database_connection("core database", directory, verbose, db_engine, db_host, db_name, db_user, db_passwd)
+
+
+    ###########################################
+    # 
+    # Create voodoo infrastructure
+    # 
 
     open(os.path.join(directory, 'configuration.xml'), 'w').write("""<?xml version="1.0" encoding="UTF-8"?>""" 
     """<machines
@@ -338,6 +455,7 @@ def weblab_create(directory):
                         "core_universal_identifier_human = %(core_universal_identifier_human)r\n"
                         "\n"
                         "db_engine          = %(db_engine)r\n"
+                        "db_host            = %(db_host)r\n"
                         "db_database        = %(db_name)r\n"
                         "weblab_db_username = %(db_user)r\n"
                         "weblab_db_password = %(db_password)r\n"
@@ -423,6 +541,7 @@ def weblab_create(directory):
         'core_universal_identifier'       : str(uuid.uuid4()),
         'core_universal_identifier_human' : options.system_identifier or 'Generic system; not identified',
         'db_engine'                       : options.db_engine,
+        'db_host'                         : options.db_host,
         'db_name'                         : options.db_name,
         'db_user'                         : options.db_user,
         'db_password'                     : options.db_passwd,
@@ -715,10 +834,6 @@ def weblab_create(directory):
     files_stored_dir = os.path.join(directory, 'files_stored')
     if not os.path.exists(files_stored_dir):
         os.mkdir(files_stored_dir)
-
-    db_dir = os.path.join(directory, 'db')
-    if not os.path.exists(db_dir):
-        os.mkdir(db_dir)
 
     ###########################################
     # 
@@ -1112,9 +1227,19 @@ def weblab_create(directory):
 
     apache_conf = apache_conf % { 'root' : options.base_url, 'directory' : os.path.abspath(directory), 'weblab_path' : WEBLAB_PATH }
 
-    open(os.path.join(apache_dir, 'apache_weblab_generic.conf'), 'w').write( apache_conf )
+    apache_conf_path = os.path.join(apache_dir, 'apache_weblab_generic.conf')
 
-    print options.cores, options.db_engine, options.inline_lab_serv
+    open(apache_conf_path, 'w').write( apache_conf )
+
+    print
+    print "Congratulations!"
+    print "WebLab-Deusto system created"
+    print 
+    print r"Append the following line to your apache httpd.conf ( typically /etc/apache2/httpd.conf or C:\xampp\apache\conf\ )"
+    print "Include %s" % apache_conf_path
+    print 
+    print "Execute '%s start %s' to start the system." % (sys.argv[0], directory)
+    print 
 
 
 #########################################################################################
