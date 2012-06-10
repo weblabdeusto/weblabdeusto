@@ -1011,7 +1011,7 @@ def generate_create_database(engine_str):
             import pymysql
             dbi = pymysql
 
-        def create_database_mysql(admin_username, admin_password, database_name, new_user, new_password, host = "localhost", db_dir = '.'):
+        def create_database_mysql(error_message, admin_username, admin_password, database_name, new_user, new_password, host = "localhost", db_dir = '.'):
             args = {
                     'DATABASE_NAME' : database_name,
                     'USER'          : new_user,
@@ -1036,7 +1036,7 @@ def generate_create_database(engine_str):
                 except dbi.OperationalError:
                     traceback.print_exc()
                     print >> sys.stderr, ""
-                    print >> sys.stderr, "    Tip: did you run create_weblab_administrator.py first?"
+                    print >> sys.stderr, "    %s" % error_message
                     print >> sys.stderr, ""
                     sys.exit(-1)
                 else:

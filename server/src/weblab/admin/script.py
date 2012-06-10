@@ -14,6 +14,7 @@
 # 
 
 import os
+import getpass
 import signal
 import sys
 import stat
@@ -131,6 +132,9 @@ def _test_redis(what, verbose, redis_port, redis_passwd, redis_db, redis_host):
         else:
             if verbose: print "[done]"
 
+DB_ROOT     = None
+DB_PASSWORD = None
+
 def _check_database_connection(what, metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd):
     if verbose: print "Checking database connection for %s..." % what,; sys.stdout.flush()
 
@@ -160,14 +164,54 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
             traceback.print_exc()
         else:
             print >> sys.stderr, "error: Use -v to get more detailed information"
-        sys.exit(-1)
-    else:
-        if verbose: print "[done]"
-        if verbose: print "Adding information to the %s database..." % what,; sys.stdout.flush()
-        metadata.drop_all(engine)
-        metadata.create_all(engine)
-        if verbose: print "[done]"
-        return engine
+
+        try:
+            create_database = deploy.generate_create_database(db_engine)
+        except Exception as e:
+            print >> sys.stderr, "error: You must create the database and the db credentials"
+            print >> sys.stderr, "error: reason: there was an error trying to offer you the creation of users:", str(e)
+            sys.exit(-1)
+        else:
+            if create_database is None:
+                print >> sys.stderr, "error: You must create the database and the db credentials"
+                print >> sys.stderr, "error: reason: weblab does not support creating a database with engine %s" % db_engine
+                sys.exit(-1)
+            else:
+                should_create = raw_input('Would you like to create it now? (y/N) ').lower().startswith('y')
+                if not should_create:
+                    print >> sys.stderr, "not creating"
+                    sys.exit(-1)
+                if db_engine == 'sqlite':
+                    create_database("Error", None, None, db_name, None, None, db_dir = os.path.join(directory, 'db'))
+                elif db_engine == 'mysql':
+                    global DB_ROOT, DB_PASSWORD
+                    if DB_ROOT is None or DB_PASSWORD is None:
+                        admin_username = raw_input("Enter the administrator username (typically root): ") or 'root'
+                        admin_password = getpass.getpass("Enter the administrator password: ")
+                    else:
+                        admin_username = DB_ROOT
+                        admin_password = DB_PASSWORD
+                    try:
+                        create_database("Did you type your password incorrectly?", admin_username, admin_password, db_name, db_user, db_passwd, db_host)
+                    except Exception as e:
+                        print >> sys.stderr, "error: could not create database. reason:", str(e)
+                        sys.exit(-1)
+                    else:
+                        DB_ROOT     = admin_username
+                        DB_PASSWORD = admin_password
+                else:
+                    print >> sys.stderr, "error: You must create the database and the db credentials"
+                    print >> sys.stderr, "error: reason: weblab does not support gathering information to create a database with engine %s" % db_engine
+                    sys.exit(-1)
+
+
+
+    if verbose: print "[done]"
+    if verbose: print "Adding information to the %s database..." % what,; sys.stdout.flush()
+    metadata.drop_all(engine)
+    metadata.create_all(engine)
+    if verbose: print "[done]"
+    return engine
 
 
 

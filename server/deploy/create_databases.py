@@ -96,16 +96,18 @@ if create_database is None:
 
 t = time.time()
 
-if not options.avoid_real:
-    create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLab" % prefix,              weblab_db_username, weblab_db_password, db_dir = db_dir)
-    create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabTests" % prefix,         weblab_db_username, weblab_db_password, db_dir = db_dir)
-    create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabTests2" % prefix,        weblab_db_username, weblab_db_password, db_dir = db_dir)
-    create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabTests3" % prefix,        weblab_db_username, weblab_db_password, db_dir = db_dir)
+error_message = "Tip: did you run create_weblab_administrator.py first?"
 
-create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabCoordination" % prefix,  core_coordinator_db_username, core_coordinator_db_password, db_dir = db_dir)
-create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabCoordination2" % prefix, core_coordinator_db_username, core_coordinator_db_password, db_dir = db_dir)
-create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabCoordination3" % prefix, core_coordinator_db_username, core_coordinator_db_password, db_dir = db_dir)
-create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabSessions" % prefix,      weblab_sessions_db_username, weblab_sessions_db_password, db_dir = db_dir)
+if not options.avoid_real:
+    create_database(error_message, wac.wl_admin_username, wac.wl_admin_password, "%sWebLab" % prefix,              weblab_db_username, weblab_db_password, db_dir = db_dir)
+    create_database(error_message, wac.wl_admin_username, wac.wl_admin_password, "%sWebLabTests" % prefix,         weblab_db_username, weblab_db_password, db_dir = db_dir)
+    create_database(error_message, wac.wl_admin_username, wac.wl_admin_password, "%sWebLabTests2" % prefix,        weblab_db_username, weblab_db_password, db_dir = db_dir)
+    create_database(error_message, wac.wl_admin_username, wac.wl_admin_password, "%sWebLabTests3" % prefix,        weblab_db_username, weblab_db_password, db_dir = db_dir)
+
+create_database(error_message, wac.wl_admin_username, wac.wl_admin_password, "%sWebLabCoordination" % prefix,  core_coordinator_db_username, core_coordinator_db_password, db_dir = db_dir)
+create_database(error_message, wac.wl_admin_username, wac.wl_admin_password, "%sWebLabCoordination2" % prefix, core_coordinator_db_username, core_coordinator_db_password, db_dir = db_dir)
+create_database(error_message, wac.wl_admin_username, wac.wl_admin_password, "%sWebLabCoordination3" % prefix, core_coordinator_db_username, core_coordinator_db_password, db_dir = db_dir)
+create_database(error_message, wac.wl_admin_username, wac.wl_admin_password, "%sWebLabSessions" % prefix,      weblab_sessions_db_username, weblab_sessions_db_password, db_dir = db_dir)
 
 print "Databases created.\t\t\t\t[done] [%1.2fs]" % (time.time() - t)
 
