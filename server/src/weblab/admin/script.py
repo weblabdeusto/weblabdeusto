@@ -32,6 +32,8 @@ import weblab.core.coordinator.status as WebLabQueueStatus
 import weblab.db.model as Model
 import weblab.core.coordinator.model as CoordinatorModel
 
+import weblab.admin.deploy as deploy
+
 import voodoo.sessions.db_lock_data as DbLockData
 import voodoo.sessions.sqlalchemy_data as SessionSqlalchemyData
 
@@ -167,6 +169,7 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
         metadata.drop_all(engine)
         metadata.create_all(engine)
         if verbose: print "[done]"
+        return engine
 
 
 
@@ -185,6 +188,9 @@ def weblab_create(directory):
 
     parser.add_option("-v", "--verbose",          dest="verbose", action="store_true", default=False,
                                                    help = "Show more information about the process.")
+
+    parser.add_option("--add-test-data",          dest="add_test_data", action="store_true", default=False,
+                                                  help = "Populate the database with sample data")
 
     parser.add_option("--cores",                  dest="cores",           type="int",    default=1,
                                                   help = "Number of core servers.")
@@ -434,8 +440,15 @@ def weblab_create(directory):
     db_host   = options.db_host
     db_user   = options.db_user
     db_passwd = options.db_passwd
-    _check_database_connection("core database", Model.Base.metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd)
-
+    engine = _check_database_connection("core database", Model.Base.metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd)
+    
+    if verbose: print "Adding required initial data...",; sys.stdout.flush()
+    deploy.insert_required_initial_data(engine)
+    if verbose: print "[done]"
+    if options.add_test_data:
+        if verbose: print "Adding test data...",; sys.stdout.flush()
+        deploy.populate_weblab_tests(engine, '1')
+        if verbose: print "[done]"
 
     ###########################################
     # 
