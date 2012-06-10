@@ -39,6 +39,14 @@ import voodoo.sessions.sqlalchemy_data as SessionSqlalchemyData
 WEBLAB_SRC_PATH = os.path.abspath(os.path.join(os.path.dirname(weblab.__file__), '..'))
 WEBLAB_PATH     = os.path.abspath(os.path.join(WEBLAB_SRC_PATH, '..', '..'))
 
+# 
+# TODO
+#  - Create the database if it does not exist (in MySQL)
+#  - Populate the database with required information
+#  - Add sample information (if requested by the user)
+#  - Support admin
+#  - Support rebuild-db
+
 SORTED_COMMANDS = []
 SORTED_COMMANDS.append(('create',     'Create a new weblab instance')), 
 SORTED_COMMANDS.append(('start',      'Start an existing weblab instance')), 
