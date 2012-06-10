@@ -24,7 +24,6 @@ import sqlite3
 from optparse import OptionParser, OptionGroup
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 import weblab
 from weblab.admin.monitor.monitor import WebLabMonitor
@@ -109,7 +108,7 @@ COORDINATION_ENGINES = ['sql',   'redis'  ]
 DATABASE_ENGINES     = ['mysql', 'sqlite' ]
 SESSION_ENGINES      = ['sql',   'redis', 'memory']
 
-def _test_redis(what, redis_port, redis_passwd, redis_db, redis_host):
+def _test_redis(what, verbose, redis_port, redis_passwd, redis_db, redis_host):
     if verbose: print "Checking redis connection for %s..." % what,; sys.stdout.flush()
     kwargs = {}
     if redis_port   is not None: kwargs['port']     = redis_port
@@ -398,7 +397,7 @@ def weblab_create(directory):
         redis_port   = options.coord_redis_port
         redis_db     = options.coord_redis_db
         redis_host   = None
-        _test_redis('coordination', redis_port, redis_passwd, redis_db, redis_host)
+        _test_redis('coordination', verbose, redis_port, redis_passwd, redis_db, redis_host)
     elif options.coord_engine in ('sql', 'sqlalchemy'):
         db_engine  = options.coord_db_engine
         db_host    = options.coord_db_host
@@ -417,7 +416,7 @@ def weblab_create(directory):
         redis_port   = options.session_redis_port
         redis_db     = options.session_redis_db
         redis_host   = options.session_redis_host
-        _test_redis('sessions', redis_port, redis_passwd, redis_db, redis_host)
+        _test_redis('sessions', verbose, redis_port, redis_passwd, redis_db, redis_host)
     elif options.session_storage in ('sql', 'sqlalchemy'):
         db_engine = options.session_db_engine
         db_host   = options.session_db_host
