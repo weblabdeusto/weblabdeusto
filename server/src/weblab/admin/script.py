@@ -43,8 +43,6 @@ WEBLAB_PATH     = os.path.abspath(os.path.join(WEBLAB_SRC_PATH, '..', '..'))
 # 
 # TODO
 #  - Create the database if it does not exist (in MySQL)
-#  - Populate the database with required information
-#  - Add sample information (if requested by the user)
 #  - Support admin
 #  - Support rebuild-db
 

@@ -13,7 +13,10 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
+import os
+import sys
 import datetime
+import traceback
 
 from sqlalchemy.orm import sessionmaker
 
@@ -979,4 +982,70 @@ def populate_weblab_tests(engine, tests):
     session.add(up_any_access_forward)
                
     session.commit()
+
+def generate_create_database(engine_str):
+    "Generate a create_database function that creates the database"
+
+    if engine_str == 'sqlite':
+
+        import sqlite3
+        dbi = sqlite3
+        def create_database_sqlite(admin_username, admin_password, database_name, new_user, new_password, host = "localhost", db_dir = '.'):
+            fname = os.path.join(db_dir, '%s.db' % database_name)
+            if os.path.exists(fname):
+                os.remove(fname)
+            sqlite3.connect(database = fname).close()
+        return create_database_sqlite
+
+    elif engine_str == 'mysql':
+
+        try:
+            import MySQLdb
+            dbi = MySQLdb
+        except ImportError:
+            try:
+                import pymysql_sa
+            except ImportError:
+                raise Exception("Neither MySQLdb nor pymysql have been installed. First install them by running 'pip install pymysql' or 'pip install mysqldb'")
+            pymysql_sa.make_default_mysql_dialect()
+            import pymysql
+            dbi = pymysql
+
+        def create_database_mysql(admin_username, admin_password, database_name, new_user, new_password, host = "localhost", db_dir = '.'):
+            args = {
+                    'DATABASE_NAME' : database_name,
+                    'USER'          : new_user,
+                    'PASSWORD'      : new_password,
+                    'HOST'          : host
+                }
+
+
+            sentence1 = "DROP DATABASE IF EXISTS %(DATABASE_NAME)s;" % args
+            sentence2 = "CREATE DATABASE %(DATABASE_NAME)s;" % args
+            sentence3 = "GRANT ALL ON %(DATABASE_NAME)s.* TO %(USER)s@%(HOST)s IDENTIFIED BY '%(PASSWORD)s';" % args
+            
+            try:
+                dbi.connect(db=database_name, user = admin_username, passwd = admin_password).close()
+            except dbi.OperationalError, e:
+                if e[1].startswith("Unknown database"):
+                    sentence1 = "SELECT 1"
+
+            for sentence in (sentence1, sentence2, sentence3):
+                try:
+                    connection = dbi.connect(user = admin_username, passwd = admin_password)
+                except dbi.OperationalError:
+                    traceback.print_exc()
+                    print >> sys.stderr, ""
+                    print >> sys.stderr, "    Tip: did you run create_weblab_administrator.py first?"
+                    print >> sys.stderr, ""
+                    sys.exit(-1)
+                else:
+                    cursor = connection.cursor()
+                    cursor.execute(sentence)
+                    connection.commit()
+                    connection.close()
+        return create_database_mysql
+
+    else:
+        return None
 
