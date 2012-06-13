@@ -43,9 +43,12 @@ WEBLAB_PATH     = os.path.abspath(os.path.join(WEBLAB_SRC_PATH, '..', '..'))
 
 # 
 # TODO
-#  - Create the database if it does not exist (in MySQL)
+#  - Check if /etc/apache2/httpd.conf or C:\XAMPP\... exists
+#  - --visir
+#  - inline server, xmlrpc server
 #  - Support admin
 #  - Support rebuild-db
+# 
 
 SORTED_COMMANDS = []
 SORTED_COMMANDS.append(('create',     'Create a new weblab instance')), 
@@ -1170,11 +1173,33 @@ def weblab_create(directory):
         """    traceback.print_exc()\n"""
         """    raise\n"""
     )
-
-    debugging_config = "SERVERS = [\n"
+    
+    debugging_config = "# SERVERS is used by the WebLab Monitor to gather information from these ports.\n# If you open them, you'll see a Python shell.\n"
+    debugging_config += "SERVERS = [\n"
     for debugging_port in debugging_ports:
         debugging_config += "    ('127.0.0.1','%s'),\n" % debugging_port
-    debugging_config += "]\n"
+    debugging_config += "]\n\n"
+    debugging_config += "# PORTS is used by the WebLab Bot to know what\n# ports it should wait prior to start using\n# the simulated clients.\n"
+    debugging_config += "PORTS = {\n"
+    for protocol in ('soap','xmlrpc','json'):
+        protocol_configuration = []
+        for core_configuration in ports['core']:
+            core_protocol_configuration = core_configuration.get(protocol, None)
+            if core_protocol_configuration:
+                protocol_configuration.append(core_protocol_configuration)
+        debugging_config += """    %r : %r, \n""" % (protocol, protocol_configuration)
+
+        protocol_configuration = []
+        for login_configuration in ports['login']:
+            login_protocol_configuration = login_configuration.get(protocol, None)
+            if login_protocol_configuration:
+                protocol_configuration.append(login_protocol_configuration)
+        debugging_config += """    %r : %r, \n""" % (protocol + '_login', protocol_configuration)
+    debugging_config += "}\n"
+
+
+        
+
 
     open(os.path.join(directory, 'run.py'), 'w').write( launch_script )
     open(os.path.join(directory, 'debugging.py'), 'w').write( debugging_config )
