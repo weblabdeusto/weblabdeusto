@@ -476,7 +476,7 @@ class PriorityQueueScheduler(Scheduler):
                     # the student is not here anymore; downgrading confirmation is not required
                     # but releasing the resource is; and skip the rest of the free instances
                     self.resources_manager.release_resource(free_instance)
-                    client.srem(weblab_resource_pqueue_instance_reservations, reservation_id)
+                    client.srem(weblab_resource_pqueue_instance_reservations, first_waiting_reservation_id)
                     break
 
                 pqueue_reservation_data = json.loads(pqueue_reservation_data_str)
@@ -529,6 +529,7 @@ class PriorityQueueScheduler(Scheduler):
                         'priority.queue.slot.initialization_in_accounting' : initialization_in_accounting,
                         'request.experiment_id.experiment_name'            : selected_experiment_instance.exp_name,
                         'request.experiment_id.category_name'              : selected_experiment_instance.cat_name,
+                        # TODO: add the username and user full name here
                     }
                 server_initial_data = json.dumps(deserialized_server_initial_data)
                 # server_initial_data will contain information such as "what was the last experiment used?".

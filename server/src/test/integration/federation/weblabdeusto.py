@@ -25,7 +25,7 @@ from weblab.data.experiments import ExperimentId, WaitingReservationResult, Runn
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 from weblab.core.reservations import Reservation
 
-DEBUG = True
+DEBUG = False
 
 def debug(msg):
     if DEBUG:
