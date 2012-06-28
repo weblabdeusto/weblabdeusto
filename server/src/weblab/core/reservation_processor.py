@@ -100,10 +100,13 @@ class ReservationProcessor(object):
         """
         try:
             status = self._coordinator.get_reservation_status( self._reservation_id )
-        except coord_exc.ExpiredSessionError:
+        except coord_exc.ExpiredSessionError as e:
+            from weblab.core.server import WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN, WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER
             log.log(ReservationProcessor, log.level.Debug, "reason for rejecting:")
             log.log_exc(ReservationProcessor, log.level.Debug)
-            raise core_exc.NoCurrentReservationError("get_reservation_status called but coordinator rejected reservation id")
+            human   = self._cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN, "human universal identifier not provided")
+            core_id = self._cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER, "universal identifier not provided")
+            raise core_exc.NoCurrentReservationError("get_reservation_status at %s (%s) called but coordinator rejected reservation id. Reason: %s" % (human, core_id, str(e)))
         else:
             if status.status == scheduling_status.WebLabSchedulingStatus.RESERVED_LOCAL:
                 self.process_reserved_status(status)

@@ -147,7 +147,14 @@ class IndependentSchedulerAggregator(Scheduler):
 
         for resource_type_name in reservation_schedulers:
             scheduler = self.schedulers[resource_type_name]
-            reservation_status = scheduler.get_reservation_status(reservation_id)
+            try:
+                reservation_status = scheduler.get_reservation_status(reservation_id)
+            except:
+                new_reservation_schedulers = self.resources_manager.retrieve_schedulers_per_reservation(reservation_id, self.experiment_id)
+                if resource_type_name in new_reservation_schedulers:
+                    raise
+                else:
+                    continue # That scheduler is not relevant anymore
             if DEBUG:
                 print tabs, scheduler, reservation_status
             all_reservation_status[resource_type_name] = reservation_status
@@ -159,10 +166,15 @@ class IndependentSchedulerAggregator(Scheduler):
         if assigned_resource_type_name is not None:
             for resource_type_name in reservation_schedulers:
                 if resource_type_name != assigned_resource_type_name:
+                    new_reservation_schedulers = self.resources_manager.retrieve_schedulers_per_reservation(reservation_id, self.experiment_id)
+                    if resource_type_name not in new_reservation_schedulers:
+                        continue
+
+                    self.resources_manager.dissociate_scheduler_from_reservation(reservation_id, self.experiment_id, resource_type_name)
                     used_scheduler = self.schedulers[resource_type_name]
                     used_scheduler.finish_reservation(reservation_id)
                     all_reservation_status.pop(resource_type_name, None)
-                    self.resources_manager.dissociate_scheduler_from_reservation(reservation_id, self.experiment_id, resource_type_name)
+
 
         if len(all_reservation_status) == 0:
             raise ExpiredSessionError("Expired reservation")
