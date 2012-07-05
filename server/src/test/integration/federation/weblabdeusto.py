@@ -13,24 +13,37 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import sys
 import time
 import unittest
 
 import voodoo.gen.loader.ServerLoader as ServerLoader
+from voodoo.gen.registry.server_registry import _registry
 
 from weblab.data.command import Command
 from weblab.data.experiments import ExperimentId, WaitingReservationResult, RunningReservationResult
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 from weblab.core.reservations import Reservation
 
-FEDERATED_DEPLOYMENTS = 'test/deployments/federated_basic'
+DEBUG = False
 
-CONSUMER_CONFIG_PATH  = FEDERATED_DEPLOYMENTS + '/consumer/'
-PROVIDER1_CONFIG_PATH = FEDERATED_DEPLOYMENTS + '/provider1/'
-PROVIDER2_CONFIG_PATH = FEDERATED_DEPLOYMENTS + '/provider2/'
+def debug(msg):
+    if DEBUG:
+        print
+        print "DEBUG:",msg
+        print 
+        sys.stdout.flush()
 
-class FederatedWebLabDeustoTestCase(unittest.TestCase):
+class AbstractFederatedWebLabDeustoTestCase(unittest.TestCase):
     def setUp(self):
+
+        # Clean the global registry of servers
+        _registry.clear()
+
+        CONSUMER_CONFIG_PATH  = self.FEDERATED_DEPLOYMENTS + '/consumer/'
+        PROVIDER1_CONFIG_PATH = self.FEDERATED_DEPLOYMENTS + '/provider1/'
+        PROVIDER2_CONFIG_PATH = self.FEDERATED_DEPLOYMENTS + '/provider2/'
+
         self.server_loader     = ServerLoader.ServerLoader()
 
         self.consumer_handler  = self.server_loader.load_instance( CONSUMER_CONFIG_PATH,   'consumer_machine', 'main_instance' )
@@ -65,6 +78,8 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
     # into subtests (the setup and teardown are long)
     #
     def test_federated_experiment(self):
+        debug("Test test_federated_experiment starts")
+
         #######################################################
         #
         #   Local testing  (to check that everything is right)
@@ -79,7 +94,8 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self._wait_multiple_reservations(20, session_id, [ reservation_id ], [0])
         reservation_result = self.consumer_core_client.get_experiment_use_by_id(session_id, reservation_id)
         self.assertTrue(reservation_result.is_finished())
-        self.assertEquals('Consumer', reservation_result.experiment_use.commands[2].response.commandstring)
+        self._find_command(reservation_result, 'Consumer')
+
 
         #######################################################
         #
@@ -93,7 +109,7 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self._wait_multiple_reservations(20, session_id, [ reservation_id ], [0])
         reservation_result = self.consumer_core_client.get_experiment_use_by_id(session_id, reservation_id)
         self.assertTrue(reservation_result.is_finished())
-        self.assertEquals('Provider 1', reservation_result.experiment_use.commands[2].response.commandstring)
+        self._find_command(reservation_result, 'Provider 1')
 
         #######################################################
         #
@@ -107,7 +123,7 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self._wait_multiple_reservations(20, session_id, [ reservation_id ], [0])
         reservation_result = self.consumer_core_client.get_experiment_use_by_id(session_id, reservation_id)
         self.assertTrue(reservation_result.is_finished())
-        self.assertEquals('Provider 2', reservation_result.experiment_use.commands[2].response.commandstring)
+        self._find_command(reservation_result, 'Provider 2')
 
         #######################################################
         #
@@ -213,6 +229,8 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
         self.assertEquals('Provider 1', final_reservation_results[0].experiment_use.commands[2].response.commandstring)
         self.assertEquals('Provider 1', final_reservation_results[1].experiment_use.commands[2].response.commandstring)
 
+        debug("Test test_federated_experiment finishes successfully")
+
     def _wait_multiple_reservations(self, times, session_id, reservation_ids, reservations_to_wait):
         for _ in range(times):
             time.sleep(0.5)
@@ -226,17 +244,32 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
             if all_finished:
                 break
 
+    def _find_command(self, reservation_result, expected_response):
+        found = False
+        commands = reservation_result.experiment_use.commands
+        for command in commands:
+            if command.command.commandstring == 'server_info':
+                found = True
+                response = command.response.commandstring
+                self.assertEquals(expected_response, response, "Message %s not found in commands %s; instead found %s" % (expected_response, commands, response))
+        self.assertTrue(found, "server_info not found in commands")
+
     def _test_reservation(self, session_id, experiment_id, expected_server_info, wait, finish, user_agent = None):
+        debug("Reserving with session_id %r a experiment %r; will I wait? %s; will I finish? %s" % (session_id, experiment_id, wait, finish))
         reservation_status = self.consumer_core_client.reserve_experiment(session_id, experiment_id, "{}", "{}", user_agent = user_agent)
 
         reservation_id = reservation_status.reservation_id
 
         if not wait:
             if finish:
+                debug("Finishing... %r" % reservation_id)
                 self.consumer_core_client.finished_experiment(reservation_id)
+            debug("Not waiting... %r" % reservation_id)
             return reservation_id
 
-        return self._wait_reservation(reservation_id, expected_server_info, finish)
+        reservation_id = self._wait_reservation(reservation_id, expected_server_info, finish)
+        debug("Finished waiting... %r" % reservation_id)
+        return reservation_id
 
     def _wait_reservation(self, reservation_id, expected_server_info, finish):
         max_timeout = 10
@@ -265,8 +298,14 @@ class FederatedWebLabDeustoTestCase(unittest.TestCase):
 
         return reservation_id
 
+class SqlFederatedWebLabDeustoTestCase(AbstractFederatedWebLabDeustoTestCase):
+    FEDERATED_DEPLOYMENTS = 'test/deployments/federated_basic_sql'
+
+class RedisFederatedWebLabDeustoTestCase(AbstractFederatedWebLabDeustoTestCase):
+    FEDERATED_DEPLOYMENTS = 'test/deployments/federated_basic_redis'
+
 def suite():
-    suites = (unittest.makeSuite(FederatedWebLabDeustoTestCase), )
+    suites = (unittest.makeSuite(SqlFederatedWebLabDeustoTestCase), unittest.makeSuite(RedisFederatedWebLabDeustoTestCase))
     return unittest.TestSuite( suites )
 
 if __name__ == '__main__':
