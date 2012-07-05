@@ -50,7 +50,7 @@ GET_PERMISSION_TYPES_CACHE_TIME = 200 # seconds
 DEFAULT_EXPERIMENT_POLL_TIME    = 350  # seconds
 EXPERIMENT_POLL_TIME            = 'core_experiment_poll_time'
 
-FORWARDED_KEYS = 'external_user','user_agent','referer','mobile','facebook','from_ip'
+FORWARDED_KEYS = 'external_user','user_agent','referer','mobile','facebook','from_ip','full_name'
 SERVER_UUIDS   = 'server_uuid'
 
 # The following methods will be used from within the Processor itself.
@@ -157,7 +157,7 @@ class UserProcessor(object):
         reservation_info['from_ip']        = client_address.client_address
         reservation_info['from_direct_ip'] = client_address.client_address
         reservation_info['username']       = self._session['db_session_id'].username
-#        reservation_info['full_name']      = self._session['user_information'].full_name
+        reservation_info['full_name']      = self._session['user_information'].full_name
         reservation_info['role']           = self._session['db_session_id'].role
 
         try:

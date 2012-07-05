@@ -250,6 +250,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         self._cfg_manager = cfg_manager
         self.read_config()
         self._requesting_lock = threading.Lock()
+        self._users_info = {}
         
         # To contain an ever-increasing id for published circuits
         self.published_circuits_id_counter = 1
@@ -330,14 +331,17 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
 
     @Override(ConcurrentExperiment.ConcurrentExperiment)
     @logged()
-    def do_start_experiment(self, lab_session_id, *args, **kwargs):
+    def do_start_experiment(self, lab_session_id, client_initial_data, server_initial_data):
         """
         Callback run when the experiment is started
         """
+
+        username = json.loads(server_initial_data).get('request.user.username', 'anonymous')
         
         # Consider whether we should initialize the heartbeater now. If we are the first
         # user, the heartbeater will not have started yet.        
         with self.heartbeater_lock:
+            self._users_info[lab_session_id] = username
             if self.heartbeater is None:
                 self.heartbeater = Heartbeater(self, self.heartbeat_period, self._session_manager)
                 self.heartbeater.setDaemon(True)
@@ -404,7 +408,8 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
             with self._published_circuits_lock:
                 id = self.published_circuits_id_counter
                 self.published_circuits_id_counter += 1
-                circuit_name = "[PUBLISHED] " + str(id)
+                username = self._users_info[lab_session_id]
+                circuit_name = "%s shared %s" % (username, str(id))
                 
                 # Add our new circuit to the list. 
                 if lab_session_id not in self._published_circuits:
@@ -619,7 +624,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         """
         Callback to perform cleaning after the experiment ends.
         """
-        
+
         if DEBUG: print "[DBG] Lab Session Id: ", lab_session_id        
         if(DEBUG):
             print "[VisirTestExperiment] do_dispose called"
@@ -642,6 +647,8 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
                 traceback.print_exc()
         self._session_manager.delete_session(lab_session_id)
         with self.heartbeater_lock:
+            self._users_info.pop(lab_session_id, None)
+
             users_left = len(self._session_manager.list_sessions()) != 0
 
             if not users_left:

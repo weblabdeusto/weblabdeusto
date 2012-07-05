@@ -45,6 +45,7 @@ from weblab.core.coordinator.redis.constants import (
     WEBLAB_RESOURCE_PQUEUE_SORTED,
     WEBLAB_RESOURCE_PQUEUE_INSTANCE_RESERVATIONS,
 
+    REQUEST_INFO,
     LAB_COORD,
     CLIENT_INITIAL_DATA,
     EXPERIMENT_TYPE,
@@ -493,6 +494,8 @@ class PriorityQueueScheduler(Scheduler):
 
                 client_initial_data       = reservation_data[CLIENT_INITIAL_DATA]
                 requested_experiment_type = ExperimentId.parse(reservation_data[EXPERIMENT_TYPE])
+                
+                request_info = json.loads(reservation_data[REQUEST_INFO])
 
                 selected_experiment_instance = None
                 experiment_instances = self.resources_manager.list_experiment_instance_ids_by_resource(free_instance)
@@ -529,7 +532,8 @@ class PriorityQueueScheduler(Scheduler):
                         'priority.queue.slot.initialization_in_accounting' : initialization_in_accounting,
                         'request.experiment_id.experiment_name'            : selected_experiment_instance.exp_name,
                         'request.experiment_id.category_name'              : selected_experiment_instance.cat_name,
-                        # TODO: add the username and user full name here
+                        'request.user.full_name'                           : request_info.get('full_name', 'Anonymous'),
+                        'request.user.username'                            : request_info.get('username', 'anonymous'),
                     }
                 server_initial_data = json.dumps(deserialized_server_initial_data)
                 # server_initial_data will contain information such as "what was the last experiment used?".
