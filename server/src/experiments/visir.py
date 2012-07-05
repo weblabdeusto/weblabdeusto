@@ -252,6 +252,7 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         # To contain an ever-increasing id for published circuits
         self.published_circuits_id_counter = 1
         self._published_circuits_lock = threading.Lock()
+        self._published_circuits = {}
         
         # We will initialize and start it later
         self.heartbeater = None
@@ -310,6 +311,19 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
                     all_circuits[name] = open(fname, "rb").read()
         except:
             traceback.print_exc()
+
+        with self._published_circuits_lock:
+            # Add our new circuit to the list.
+            for lab_session_id in self._published_circuits:
+                circuits = self._published_circuits.get(lab_session_id, {})
+                for name in circuits:
+                    new_name = name
+                    pos = 2
+                    while new_name in all_circuits:
+                        new_name = name + ' #%s' % pos
+                        pos += 1
+                    all_circuits[new_name] = circuits[name]
+
         return all_circuits
 
     @Override(ConcurrentExperiment.ConcurrentExperiment)
@@ -388,13 +402,12 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
             with self._published_circuits_lock:
                 id = self.published_circuits_id_counter
                 self.published_circuits_id_counter += 1
-            circuit_name = "[PUBLISHED] " + str(id)
-            
-            # Add our new circuit to the list. 
-            # TODO: In the future, it might be a good idea to differentiate between
-            # standard circuits (loaded from the experiment config), and user-published
-            # circuits.
-            self.circuits[circuit_name] = circuit_data
+                circuit_name = "[PUBLISHED] " + str(id)
+                
+                # Add our new circuit to the list. 
+                if lab_session_id not in self._published_circuits:
+                    self._published_circuits[lab_session_id] = {}
+                self._published_circuits[lab_session_id][circuit_name] = circuit_data
             
             # Return the name of the circuit as a response to this command.
             return circuit_name
@@ -613,7 +626,10 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         with self._users_counter_lock:
             self.users_counter -= 1
  
-            
+        with self._published_circuits_lock:
+            # Remove the circuits added by this laboratory
+            self._published_circuits.pop(lab_session_id, None)
+    
         sess_obj = self._session_manager.get_session(lab_session_id)
         if 'connection' in sess_obj:
             try:
