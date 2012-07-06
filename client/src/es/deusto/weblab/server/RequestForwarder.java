@@ -67,10 +67,11 @@ public class RequestForwarder extends HttpServlet{
 		final boolean isError = (statusCode / 100) % 1000 == 4 || (statusCode / 100) % 1000 == 5; 
 		
 	    for(final String header : serverConnection.getHeaderFields().keySet()){
-	        final String value = serverConnection.getHeaderField(header);
-	        if(isValidHeader(header) && value != null){
-	    		resp.addHeader(header, value);
-	        }
+	    	for(final String value : serverConnection.getHeaderFields().get(header)) { 
+		        if(isValidHeader(header) && value != null){
+		    		resp.addHeader(header, value);
+		        }
+	    	}
 	    }
 		resp.addHeader("Connection", "close");
 		resp.addHeader("X-Foo", "bar");

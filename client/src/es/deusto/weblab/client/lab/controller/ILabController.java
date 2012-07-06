@@ -23,11 +23,12 @@ import es.deusto.weblab.client.lab.ui.IUIManager;
 
 public interface ILabController {
 	public void login(String username, String password);
-	public void startLoggedIn(SessionID sessionId);
+	public void startLoggedIn(SessionID sessionId, boolean externallyLoggedIn);
 	public void startReserved(SessionID sessionId, ExperimentID experimentId);
 	public boolean startedLoggedIn();
 	public boolean startedReserved();
 	public void logout();
+	public void checkSessionIdStillValid(SessionID sessionId, IValidSessionCallback callback);
 	
 	public void setUIManager(IUIManager uimanager);
 	
@@ -49,5 +50,7 @@ public interface ILabController {
 	public void poll();
 	
 	public void setReservationId(String reservationId);
+	public void removeReservationId();
 	public SessionID getReservationId();
+	public boolean isExperimentReserved();
 }

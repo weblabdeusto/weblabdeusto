@@ -218,7 +218,6 @@ class AbstractBot(object):
     @logged
     def do_get_user_permissions(self):
         holder = self._call('get_user_permissions', session_id=self.session_id)
-        print holder
         return self._parse_user(holder)
 
 if ZSI_AVAILABLE:
@@ -243,7 +242,7 @@ if ZSI_AVAILABLE:
             finally:
                 if method == 'login':
                     weblabsessionid = self.login_ws.binding.cookies.get('weblabsessionid')
-                    self.ups_ws.binding.cookies['weblabsessionid'] = weblabsessionid
+                    self.ups_ws.binding.cookies['weblabsessionid'] = weblabsessionid.value
                 else:
                     weblabsessionid = self.ups_ws.binding.cookies.get('weblabsessionid')
                 if weblabsessionid is not None:
@@ -265,7 +264,7 @@ if ZSI_AVAILABLE:
             return Reservation.Reservation.translate_reservation_from_data(reservation_holder.status, reservation_holder.reservation_id.id, reservation_holder.position, reservation_holder.time, reservation_holder.initial_configuration, reservation_holder.end_data, reservation_holder.url, reservation_holder.finished, reservation_holder.initial_data, None if reservation_holder.remote_reservation_id is None else reservation_holder.remote_reservation_id.id )
 
         def _parse_user(self, holder):
-            return User(holder.login, holder.full_name, holder.email, holder.role)
+            return User(holder.login, holder.full_name, holder.email, holder.role.name)
 
         def _parse_command(self, command_holder):
             command = Command.Command(command_holder.commandstring)

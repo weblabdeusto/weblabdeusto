@@ -23,10 +23,10 @@ import test.unit.configuration as configuration_module
 import weblab.admin.monitor.monitor_methods           as methods
 import voodoo.configuration      as ConfigurationManager
 import weblab.core.server    as UserProcessingServer
-import weblab.core.coordinator.coordinator as Coordinator
 import weblab.core.coordinator.confirmer   as Confirmer
 import weblab.core.exc as core_exc
 from weblab.core.coordinator.config_parser import COORDINATOR_LABORATORY_SERVERS
+from weblab.core.coordinator.gateway import create as coordinator_create, SQLALCHEMY
 
 import weblab.db.session                as DatabaseSession
 
@@ -58,6 +58,8 @@ class ConfirmerMock(object):
 class MonitorMethodsTestCase(unittest.TestCase):
     def setUp(self):
 
+        self.maxDiff = 2000
+
         def _find_server(server_type, name):
             return self.ups
 
@@ -74,7 +76,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         })
 
         # With this one we clean everything before creating the UPS
-        self.coordinator = Coordinator.Coordinator(self.locator, self.cfg_manager, ConfirmerClass = ConfirmerMock)
+        self.coordinator = coordinator_create(SQLALCHEMY, self.locator, self.cfg_manager, ConfirmerClass = ConfirmerMock)
         self.coordinator._clean()
 
         self.coord_address = CoordAddress.CoordAddress.translate_address( "server0:instance0@machine0" )

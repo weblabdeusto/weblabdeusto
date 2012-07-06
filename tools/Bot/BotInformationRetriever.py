@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import os, time, sys
+import os, time, sys, glob
 sys.path.append(os.sep.join(('..','..','server','src')))
 
 from BotMisc import show_time, flush
@@ -30,8 +30,8 @@ except ImportError:
 FILE_NAME_TEMPLATE = "logs" + os.sep + "botclient_%s__SCEN_%s_CONFIG_0.pickle"
 FILL_NUMBER = 2
 RANGES = [
-        lambda : xrange(1,5),
-        lambda : xrange(5, 101, 5)
+        lambda : xrange(1, 5),
+        lambda : xrange(5, 151, 5)
     ]
 
 def get_raw_information(date, verbose = True):
@@ -85,8 +85,15 @@ def get_raw_information(date, verbose = True):
         # 
         # Given a protocol and a number of users (1,2,3,4,5,10,15...),
         # it returns the results stored in that scenario
-        # 
-        filename = file_name % protocols[protocol][number]
+        #
+        found_resources = sorted(glob.glob(file_name % "*"), lambda x,y: len(x) - len(y))
+        if len(found_resources) == 0:
+            raise Exception("No similar file found: %s" % file_name)
+
+        regular_length = len(found_resources[len(found_resources)/2]) # Take the one in the middle
+        number_length  = regular_length - len(file_name % '')
+
+        filename = file_name % str(int(protocols[protocol][number])).zfill(number_length)
         results = pickle.load(open(filename))
         return results
 

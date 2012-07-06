@@ -14,6 +14,7 @@
 #
 
 import datetime
+import traceback
 
 from voodoo.threaded import threaded
 import voodoo.log as log
@@ -26,6 +27,8 @@ import voodoo.sessions.session_id as SessionId
 import weblab.data.server_type as ServerType
 
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("Coordinator")
+
+DEBUG = False
 
 class ReservationConfirmer(object):
     def __init__(self, coordinator, locator):
@@ -58,8 +61,11 @@ class ReservationConfirmer(object):
             initial_time = datetime.datetime.now()
             try:
                 labserver = self.locator.get_server_from_coordaddr(lab_coordaddress, ServerType.Laboratory)
-                lab_session_id, server_initialization_response, experiment_coordaddress_str = labserver.reserve_experiment(experiment_instance_id, client_initial_data, server_initial_data)
+                reservation_result  = labserver.reserve_experiment(experiment_instance_id, client_initial_data, server_initial_data)
+                lab_session_id, server_initialization_response, experiment_coordaddress_str = reservation_result
             except Exception as e:
+                if DEBUG:
+                    traceback.print_exc()
                 log.log( ReservationConfirmer, log.level.Error, "Exception confirming experiment: %s" % e )
                 log.log_exc( ReservationConfirmer, log.level.Warning )
 
@@ -69,6 +75,8 @@ class ReservationConfirmer(object):
                 experiment_coordaddress = CoordAddress.CoordAddress.translate_address(experiment_coordaddress_str)
                 self.coordinator.confirm_experiment(experiment_coordaddress, experiment_instance_id.to_experiment_id(), reservation_id, lab_coordaddress.address, lab_session_id, server_initialization_response, initial_time, end_time)
         except:
+            if DEBUG:
+                traceback.print_exc()
             log.log(ReservationConfirmer, log.level.Critical, "Unexpected exception confirming experiment")
             log.log_exc(ReservationConfirmer, log.level.Critical)
 
@@ -96,6 +104,8 @@ class ReservationConfirmer(object):
                 labserver = self.locator.get_server_from_coordaddr(lab_coordaddress, ServerType.Laboratory)
                 experiment_response = labserver.free_experiment(SessionId.SessionId(lab_session_id))
             except Exception as e:
+                if DEBUG:
+                    traceback.print_exc()
                 log.log( ReservationConfirmer, log.level.Error, "Exception freeing experiment: %s" % e )
                 log.log_exc( ReservationConfirmer, log.level.Warning )
 
@@ -104,6 +114,8 @@ class ReservationConfirmer(object):
                 end_time = datetime.datetime.now()
                 self.coordinator.confirm_resource_disposal(lab_coordaddress.address, reservation_id, lab_session_id, experiment_instance_id, experiment_response, initial_time, end_time)
         except:
+            if DEBUG:
+                traceback.print_exc()
             log.log(ReservationConfirmer, log.level.Critical, "Unexpected exception freeing experiment")
             log.log_exc(ReservationConfirmer, log.level.Critical)
 
@@ -121,12 +133,16 @@ class ReservationConfirmer(object):
                 received_experiment_response = labserver.should_experiment_finish(lab_session_id)
                 experiment_response = float(received_experiment_response)
             except Exception as e:
+                if DEBUG:
+                    traceback.print_exc()
                 log.log( ReservationConfirmer, log.level.Error, "Exception checking if the experiment should finish: %s" % e )
                 log.log_exc( ReservationConfirmer, log.level.Warning )
                 self.coordinator.confirm_should_finish(lab_coordaddress.address, lab_session_id, reservation_id, 0) # Don't try again with this reservation
             else:
                 self.coordinator.confirm_should_finish(lab_coordaddress.address, lab_session_id, reservation_id, experiment_response)
         except:
+            if DEBUG:
+                traceback.print_exc()
             log.log(ReservationConfirmer, log.level.Critical, "Unexpected exception checking should_finish")
             log.log_exc(ReservationConfirmer, log.level.Critical)
 

@@ -31,4 +31,5 @@
 	<server>experiment_robot_proglist</server>
 	<server>experiment_blinkled</server>
 	<server>experiment_pic18</server>
+	<server>experiment_submarine</server>
 </servers>

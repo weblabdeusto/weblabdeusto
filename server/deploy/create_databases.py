@@ -13,7 +13,7 @@ import subprocess
 
 import libraries
 import weblab.db.model as Model
-import weblab.core.coordinator.model as CoordinatorModel
+import weblab.core.coordinator.sql.model as CoordinatorModel
 
 import voodoo.sessions.db_lock_data as DbLockData
 import voodoo.sessions.sqlalchemy_data as SessionSqlalchemyData
@@ -481,6 +481,9 @@ def populate_weblab_tests(engine, tests):
     cat_robot = Model.DbExperimentCategory("Robot experiments")
     session.add(cat_robot)
 
+    cat_submarine = Model.DbExperimentCategory("Submarine experiments")
+    session.add(cat_submarine)
+
     cat_labview = Model.DbExperimentCategory("LabVIEW experiments")
     session.add(cat_labview)
 
@@ -560,6 +563,9 @@ def populate_weblab_tests(engine, tests):
 
     blink_led = Model.DbExperiment("blink-led", cat_labview, start_date, end_date)
     session.add(blink_led)
+
+    submarine = Model.DbExperiment("submarine", cat_submarine, start_date, end_date)
+    session.add(submarine)
 
     rob_std = Model.DbExperiment("robot-standard", cat_robot, start_date, end_date)
     session.add(rob_std)
@@ -895,7 +901,22 @@ def populate_weblab_tests(engine, tests):
     up_any_vm_win_allowed_p3 = Model.DbUserPermissionParameter(up_any_vm_win_allowed, experiment_allowed_p3, "200")
     session.add(up_any_vm_win_allowed_p3)
 
-          
+    up_any_submarine_allowed = Model.DbUserPermission(
+        any,
+        experiment_allowed.group_applicable,
+        "any::weblab-submarine",
+        datetime.datetime.utcnow(),
+        "Permission for any to use WebLab-robot-standard"
+    )
+
+    session.add(up_any_submarine_allowed)
+    up_any_submarine_allowed_p1 = Model.DbUserPermissionParameter(up_any_submarine_allowed, experiment_allowed_p1, "submarine")
+    session.add(up_any_submarine_allowed_p1)
+    up_any_submarine_allowed_p2 = Model.DbUserPermissionParameter(up_any_submarine_allowed, experiment_allowed_p2, "Submarine experiments")
+    session.add(up_any_submarine_allowed_p2)
+    up_any_submarine_allowed_p3 = Model.DbUserPermissionParameter(up_any_submarine_allowed, experiment_allowed_p3, "200")
+    session.add(up_any_submarine_allowed_p3)
+         
           
     up_any_rob_std_allowed = Model.DbUserPermission(
         any,

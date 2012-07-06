@@ -18,12 +18,18 @@ import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.MouseDownEvent;
+import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Event.NativePreviewEvent;
+import com.google.gwt.user.client.Event.NativePreviewHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
@@ -83,11 +89,81 @@ public class RobotMovementExperiment extends ExperimentBase {
 	@UiField Image rightButton;
 	@UiField Image leftButton;
 	
+	private boolean upPressed = false;
+	private boolean downPressed = false;
+	private boolean leftPressed = false;
+	private boolean rightPressed = false;
+	
 	private final Map<String, Image> buttons;
 	private int moveNumber = 0;
 	private boolean buttonsEnabled = true;
 	
 	@UiField(provided = true) WlWebcam webcam;
+	
+	private class InternalNativePreviewHandler implements NativePreviewHandler {
+		
+		private boolean active = false;
+		
+		void activate() {
+			this.active = true;
+		}
+
+		void deactivate() {
+			this.active = false;
+		}
+		
+		@Override
+		public void onPreviewNativeEvent(NativePreviewEvent event) {
+			if(!this.active)
+				return;
+		
+			if(event.getTypeInt() == Event.ONKEYDOWN) {
+				switch(event.getNativeEvent().getKeyCode()) {
+					case KeyCodes.KEY_UP:
+						RobotMovementExperiment.this.upPressed = true;
+						sendMove(UP);
+						event.cancel();
+						break;
+					case KeyCodes.KEY_DOWN:
+						RobotMovementExperiment.this.downPressed = true;
+						sendMove(DOWN);
+						event.cancel();
+						break;
+					case KeyCodes.KEY_LEFT:
+						RobotMovementExperiment.this.leftPressed = true;
+						sendMove(LEFT);
+						event.cancel();
+						break;
+					case KeyCodes.KEY_RIGHT:
+						RobotMovementExperiment.this.rightPressed = true;
+						sendMove(RIGHT);
+						event.cancel();
+						break;
+				}
+			} else if(event.getTypeInt() == Event.ONKEYUP) {
+				switch(event.getNativeEvent().getKeyCode()) {
+					case KeyCodes.KEY_UP:
+						RobotMovementExperiment.this.upPressed = false;
+						event.cancel();
+						break;
+					case KeyCodes.KEY_DOWN:
+						RobotMovementExperiment.this.downPressed = false;
+						event.cancel();
+						break;
+					case KeyCodes.KEY_LEFT:
+						RobotMovementExperiment.this.leftPressed = false;
+						event.cancel();
+						break;
+					case KeyCodes.KEY_RIGHT:
+						RobotMovementExperiment.this.rightPressed = false;
+						event.cancel();
+						break;
+				}
+			}
+		}
+	}
+	
+	private final InternalNativePreviewHandler nativeEventHandler;
 	
 	public RobotMovementExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
 		super(configurationRetriever, commandSender);
@@ -97,10 +173,12 @@ public class RobotMovementExperiment extends ExperimentBase {
 		RobotMovementExperiment.uiBinder.createAndBindUi(this);
 		
 		this.buttons = new HashMap<String, Image>();
-		this.buttons.put(UP, this.upButton);
-		this.buttons.put(DOWN, this.downButton);
-		this.buttons.put(LEFT, this.leftButton);
+		this.buttons.put(UP,    this.upButton);
+		this.buttons.put(DOWN,  this.downButton);
+		this.buttons.put(LEFT,  this.leftButton);
 		this.buttons.put(RIGHT, this.rightButton);
+		
+		this.nativeEventHandler = new InternalNativePreviewHandler();
 	}
 	
 	/**
@@ -152,6 +230,7 @@ public class RobotMovementExperiment extends ExperimentBase {
 	 */
 	@Override
 	public void start(int time, String initialConfiguration) {
+		Event.addNativePreviewHandler(this.nativeEventHandler);
 	    this.widget.setVisible(true);
 	    
 	    this.setupWidgets();
@@ -176,6 +255,7 @@ public class RobotMovementExperiment extends ExperimentBase {
 				RobotMovementExperiment.this.inputWidgetsPanel.setVisible(true);
 				RobotMovementExperiment.this.messages.setText("You can now control the bot");
 				RobotMovementExperiment.this.messages.stop();
+				RobotMovementExperiment.this.nativeEventHandler.activate();
 			}
 	    });
 	    
@@ -247,6 +327,65 @@ public class RobotMovementExperiment extends ExperimentBase {
 		sendMove(RIGHT);
 	}
 	
+	@SuppressWarnings("unused")
+	@UiHandler("upButton")
+	public void onUpMouseDown(MouseDownEvent event) {
+		sendMove(UP);
+		this.upPressed = true;
+	}
+
+	
+	@SuppressWarnings("unused")
+	@UiHandler("downButton")
+	public void onDownMouseDown(MouseDownEvent event) {
+		sendMove(DOWN);
+		this.downPressed = true;
+	}
+
+	
+	@SuppressWarnings("unused")
+	@UiHandler("leftButton")
+	public void onLeftMouseDown(MouseDownEvent event) {
+		sendMove(LEFT);
+		this.leftPressed = true;
+	}
+
+	
+	@SuppressWarnings("unused")
+	@UiHandler("rightButton")
+	public void onRightMouseDown(MouseDownEvent event) {
+		sendMove(RIGHT);
+		this.rightPressed = true;
+	}
+
+	@SuppressWarnings("unused")
+	@UiHandler("upButton")
+	public void onUpMouseUp(MouseUpEvent event) {
+		this.upPressed = false;
+	}
+
+	
+	@SuppressWarnings("unused")
+	@UiHandler("downButton")
+	public void onDownMouseUp(MouseUpEvent event) {
+		this.downPressed = false;
+	}
+
+	
+	@SuppressWarnings("unused")
+	@UiHandler("leftButton")
+	public void onLeftMouseUp(MouseUpEvent event) {
+		this.leftPressed = false;
+	}
+
+	
+	@SuppressWarnings("unused")
+	@UiHandler("rightButton")
+	public void onRightMouseUp(MouseUpEvent event) {
+		this.rightPressed = false;
+	}
+
+	
 	private void enableButton(String button){
 		this.buttons.get(button).setStyleName("wl-img-button");
 	}
@@ -284,9 +423,18 @@ public class RobotMovementExperiment extends ExperimentBase {
 			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
 				RobotMovementExperiment.this.buttonsEnabled = true;
-				if(currentMove == RobotMovementExperiment.this.moveNumber)
+				if(currentMove == RobotMovementExperiment.this.moveNumber){
 					enableButtons();
-				else
+					if(RobotMovementExperiment.this.upPressed) {
+						sendMove(UP);
+					} else if(RobotMovementExperiment.this.downPressed) {
+						sendMove(DOWN);
+					} else if(RobotMovementExperiment.this.rightPressed) {
+						sendMove(RIGHT);
+					} else if(RobotMovementExperiment.this.leftPressed) {
+						sendMove(LEFT);
+					}
+				}else
 					disableButton(s);
 			}
 		});
@@ -304,6 +452,8 @@ public class RobotMovementExperiment extends ExperimentBase {
 
 	@Override
 	public void end() {
+		this.nativeEventHandler.deactivate();
+		
 		if(this.timer != null){
 			this.timer.dispose();
 			this.timer = null;

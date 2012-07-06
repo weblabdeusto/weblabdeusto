@@ -19,6 +19,9 @@ import weblab.comm.web_server as WebFacadeServer
 class LanguageMethod(WebFacadeServer.Method):
     path = '/language/'
 
+    def avoid_weblab_cookies(self):
+        return True
+
     def run(self):
         accept_language = self.req.headers.get('Accept-Language')
         if accept_language is None:

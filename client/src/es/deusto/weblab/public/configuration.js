@@ -25,6 +25,7 @@
 	"host.entity.image"              : "/img/udeusto-logo-main.jpg",
 	"host.entity.image.mobile"       : "/img/udeusto-logo-mobile.jpg",
 	"host.entity.link"               : "http://www.deusto.es/",
+    "facebook.like.box.visible"      : false,
 	"experiments" : { 
 					// Experiments not developed in GWT (such as those developed in Flash or Java) don't require
 					// recompiling the client to be loaded. Adding them to this configuration file is enough.
@@ -217,7 +218,6 @@
 	                        	   "experiment.info.description" : "wiki"
 	                			}
 	                		],
-	                			
 	       	        "robot-movement" : [
 	                			{
 	                				"experiment.name" : "robot-movement",
@@ -227,6 +227,22 @@
 	                        	    "experiment.info.description" : "wiki"
 	                			}
 	                		],
+	       	        "submarine" : [
+	    	                			{
+	    	                				"experiment.name" : "submarine",
+	    						        	"experiment.picture" : "/img/experiments/submarine.png",
+	    	                				"experiment.category" : "Submarine experiments",
+	    	                				"experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Submarine",
+	    	                        	    "experiment.info.description" : "wiki"
+	    	                			},
+	    	                			{
+	    	                				"experiment.name" : "submarine",
+	    						        	"experiment.picture" : "/img/experiments/submarine.png",
+	    	                				"experiment.category" : "Aquatic experiments",
+	    	                				"experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Submarine",
+	    	                        	    "experiment.info.description" : "wiki"
+	    	                			}
+	    	                		],
 	                "robot-proglist" : [
 	                			{
 	                				"experiment.name" : "robot-proglist",

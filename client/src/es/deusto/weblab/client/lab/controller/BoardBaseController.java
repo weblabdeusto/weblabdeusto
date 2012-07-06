@@ -8,7 +8,7 @@
 * This software consists of contributions made by many individuals, 
 * listed below:
 *
-* Author: FILLME
+* Author: Pablo Orduña <pablo.orduna@deusto.es>
 *
 */
 
@@ -43,6 +43,7 @@ final class BoardBaseController implements IBoardBaseController {
 	@Override
 	public void clean(){
 		this.controller.cleanExperiment();
+		this.controller.removeReservationId();
 	}
 	
 	@Override

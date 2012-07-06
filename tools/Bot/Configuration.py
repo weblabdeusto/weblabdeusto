@@ -30,7 +30,7 @@ EXPERIMENT_NAME     = "ud-dummy"                        # Experiment name to int
 CATEGORY_NAME       = "Dummy experiments"               # Experiment category name to interact with
 PROGRAM_FILE        = "this is the content of the file" # Program file to send
 
-ITERATIONS          = 3                                # Times to repeat each launch
+ITERATIONS          = 10                                # Times to repeat each launch
 
 URL_MAPS            = {
                         "SOAP" : ("http://%s/weblab/soap/" % HOST, "http://%s/weblab/login/soap/" % HOST),
@@ -53,12 +53,12 @@ except Exception, e:
     REVISION = "(unknown)"
 
 SYSTEMS = {
-            "blood"         : "Intel(R) Core(TM)2 Duo CPU T7250@2.00GHz reduced to 1.60 GHz; 3.5 GB RAM (32 bit); Ubuntu 9.04 Desktop. Python 2.6.2. Linux 2.6.28-14-generic",
-            "nctrun-laptop" : "Intel(R) Pentium(R) 4 CPU 3.40GHz with Hyperthreading (2); 2.0 GB RAM (32 bit); Ubuntu 9.04 Desktop. Python 2.6.2. Linux 2.6.28-15-generic",
-            "hook"          : "Intel(R) Pentium(R) 4 CPU 2.8GHz; 1.0 GB RAM (32 bit); Ubuntu 9.10 Desktop. Python 2.6.4. Linux 2.6.31-16-generic",
-            "ord3p"         : "Intel(R) Core(TM)2 Duo CPU T7250  @ 2.00GHz; 3.5 GB RAM (32 bit); Ubuntu 9.10 Desktop. Python 2.6.4. Linux 2.6.31-17-generic",
-            "skull"         : "Intel(R) Core(TM)2 Duo CPU E8400  @ 3.00GHz; 3.0 GB RAM (32 bit); Ubuntu 10.10 Desktop. Python 2.6.6. Linux 2.6.35-25-generic",
-            "lrg-ubuntu"    : "Intel(R) Xeon(R) CPU E5502  @ 1.87GHz; 4.0 GB RAM (64 bit); Ubuntu 10.04 Desktop. Python 2.6.5. Linux 2.6.32-22-generic"
+            "blood"         : "Intel(R) Core(TM)2 Duo CPU T7250@2.00GHz reduced to 1.60 GHz; 3.5 GB RAM",
+            "nctrun-laptop" : "Intel(R) Pentium(R) 4 CPU 3.40GHz with Hyperthreading (2); 2.0 GB RAM",
+            "hook"          : "Intel(R) Pentium(R) 4 CPU 2.8GHz; 1.0 GB RAM",
+            "ord3p"         : "Intel(R) Core(TM)2 Duo CPU T7250  @ 2.00GHz; 3.5 GB RAM",
+            "skull"         : "Intel(R) Core(TM)2 Duo CPU E8400  @ 3.00GHz; 3.0 GB RAM",
+            "lrg-ubuntu"    : "Intel(R) Xeon(R) CPU E5502  @ 1.87GHz; 4.0 GB RAM"
         }
 
 try:
@@ -121,32 +121,6 @@ def new_bot_users(number, func, initial_delay, delay_step, *args, **kwargs):
     delayer_it = delayer(initial_delay)
     return [ (func.func_name + '_' + str(args) + '_' + str(kwargs), func(delayer_it.next(), *args, **kwargs)) for _ in xrange(number) ]
 
-class Scenario(object):
-    categories = {}
-
-    def __init__(self, users, category = "generic_category", identifier = None):
-        self.category   = category
-        if not category in self.categories:
-            self.categories[category] = []
-        if identifier is None:
-            self.identifier = self.next_id(category)
-        elif identifier in self.categories[category]:
-            raise RuntimeError("Category %s already has an identifier %s" % (category, identifier))
-        else:
-            self.identifier = identifier
-        self.categories[category].append(self.identifier)
-        self.users      = users
-
-    def next_id(self, category):
-        n = 0
-        while True:
-            if not n in self.categories[category]:
-                return n
-            n += 1
-
-    def __repr__(self):
-        return '<Scenario category="%s" identifier="%s" />' % (self.category, self.identifier)
-
 SCENARIOS           = [ 
 #            # Scenario 1: 5 StandardBotUsers
 #                    Scenario(new_bot_users(30, new_standard_bot_user))
@@ -164,33 +138,64 @@ SCENARIOS           = [
 #                    )
         ]
 
-for protocol in URL_MAPS.keys():
-    for number in range(1, 5):
-        SCENARIOS.append(
-                Scenario(
-                    new_bot_users(number, new_standard_bot_user, 0, STEP_DELAY, protocol),
-                    protocol,
-                    number
+def generate_scenarios():
+    class Scenario(object):
+        categories = {}
+
+        def __init__(self, users, category = "generic_category", identifier = None):
+            self.category   = category
+            if not category in self.categories:
+                self.categories[category] = []
+            if identifier is None:
+                self.identifier = self.next_id(category)
+            elif identifier in self.categories[category]:
+                raise RuntimeError("Category %s already has an identifier %s" % (category, identifier))
+            else:
+                self.identifier = identifier
+            self.categories[category].append(self.identifier)
+            self.users      = users
+
+        def next_id(self, category):
+            n = 0
+            while True:
+                if not n in self.categories[category]:
+                    return n
+                n += 1
+
+        def dispose(self):
+            del self.users
+
+        def __repr__(self):
+            return '<Scenario category="%s" identifier="%s" />' % (self.category, self.identifier)
+
+    scenarios = []
+    for protocol in URL_MAPS.keys():
+        for number in range(1, 5):
+            scenarios.append(
+                    Scenario(
+                        new_bot_users(number, new_standard_bot_user, 0, STEP_DELAY, protocol),
+                        protocol,
+                        number
+                    )
                 )
-            )
-    
-    for number in range(5, 101, 5):
-        SCENARIOS.append(
-                Scenario(
-                    new_bot_users(number, new_standard_bot_user, STEP_DELAY * (5 -1), STEP_DELAY, protocol),
-                    protocol,
-                    number
+        for number in range(5, 151, 5):
+            scenarios.append(
+                    Scenario(
+                        new_bot_users(number, new_standard_bot_user, STEP_DELAY * (5 -1), STEP_DELAY, protocol),
+                        protocol,
+                        number
+                    )
                 )
-            )
+    return scenarios
 
 CONFIGURATIONS      = [
-#                        "sample/launch_sample.py"
-#                        "sample_xmlrpc/launch_sample_xmlrpc_machine.py"
-#                        "sample_internetsocket/launch_sample_internetsocket_machine.py"
-#                        "sample_unixsocket/launch_sample_unixsocket_machine.py"
-#                        "sample_balanced1/launch_sample_balanced1_machine.py"
-#                        "sample_balanced2/launch_sample_balanced2_machine.py"
-                        "sample_balanced2_concurrent_experiments/launch_sample_balanced2_concurrent_experiments_machine.py"
+                        "sample/launch_sample.py",
+#                        "sample_xmlrpc/launch_sample_xmlrpc_machine.py",
+#                        "sample_internetsocket/launch_sample_internetsocket_machine.py",
+#                        "sample_unixsocket/launch_sample_unixsocket_machine.py",
+#                        "sample_balanced1/launch_sample_balanced1_machine.py",
+                        "sample_balanced2/launch_sample_balanced2_machine.py",
+                        "sample_balanced2_concurrent_experiments/launch_sample_balanced2_concurrent_experiments_machine.py",
                       ]
 
 _default_ports = {
@@ -230,5 +235,5 @@ PORTS = {
         "sample_balanced2_concurrent_experiments/launch_sample_balanced2_concurrent_experiments_machine.py" : _three_facades_ports,
     }
 
-RUNNING_CONFIGURATION = "revision %s. %s iterations; step_delay: %s seconds; %s" % (REVISION, ITERATIONS, STEP_DELAY, CONFIGURATIONS)
+RUNNING_CONFIGURATION = "revision %s. %s iterations; step_delay: %s seconds;" % (REVISION, ITERATIONS, STEP_DELAY)
 

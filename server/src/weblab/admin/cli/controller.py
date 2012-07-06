@@ -329,7 +329,7 @@ class Controller(object):
         groups = self.db.get_groups()
         group_names = [ (group.id, group.name) for group in groups ]
         experiments = self.db.get_experiments()
-        experiment_names = [ (experiment.id, experiment.name) for experiment in experiments ]
+        experiment_names = [ (experiment.id, '%s@%s' % (experiment.name, experiment.category.name)) for experiment in experiments ]
         permission_type = self.db.get_permission_type("experiment_allowed")
         try:
             group_id, experiment_id, time_allowed, priority, initialization_in_accounting = self.ui.dialog_grant_on_experiment_to_group(group_names, experiment_names)
@@ -362,7 +362,7 @@ class Controller(object):
         users = self.db.get_users()
         user_names = [ (user.id, user.login) for user in users ]
         experiments = self.db.get_experiments()
-        experiment_names = [ (experiment.id, experiment.name) for experiment in experiments ]
+        experiment_names = [ (experiment.id, '%s@%s' % (experiment.name, experiment.category.name)) for experiment in experiments ]
         permission_type = self.db.get_permission_type("experiment_allowed")
         try:
             user_id, experiment_id, time_allowed, priority, initialization_in_accounting = self.ui.dialog_grant_on_experiment_to_user(user_names, experiment_names)

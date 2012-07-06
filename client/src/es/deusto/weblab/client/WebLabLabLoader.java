@@ -24,6 +24,7 @@ import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.lab.comm.ILabCommunication;
 import es.deusto.weblab.client.lab.comm.LabCommunication;
 import es.deusto.weblab.client.lab.controller.ILabController;
+import es.deusto.weblab.client.lab.controller.IValidSessionCallback;
 import es.deusto.weblab.client.lab.controller.PollingHandler;
 import es.deusto.weblab.client.lab.controller.LabController;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory;
@@ -37,7 +38,8 @@ public class WebLabLabLoader {
 
 	private static final String SESSION_ID_URL_PARAM     = "session_id";
 	private static final String RESERVATION_ID_URL_PARAM = "reservation_id";
-	private static final String WEBLAB_SESSION_ID_COOKIE = "weblabsessionid";
+	public static final String WEBLAB_SESSION_ID_COOKIE = "weblabsessionid";
+	public static final String LOGIN_WEBLAB_SESSION_ID_COOKIE = "loginweblabsessionid";
 	private static final String FACEBOOK_URL_PARAM = "facebook";
 	
 	private ConfigurationManager configurationManager;
@@ -89,8 +91,9 @@ public class WebLabLabLoader {
 		final IWlLabThemeLoadedCallback themeLoadedCallback = new IWlLabThemeLoadedCallback() {
 			
 			@Override
-			public void onThemeLoaded(LabThemeBase theme) {
+			public void onThemeLoaded(final LabThemeBase theme) {
 				controller.setUIManager(theme);
+				boolean stillWaiting = false;
 				try{
 					String providedSessionId = Window.Location.getParameter(WebLabLabLoader.SESSION_ID_URL_PARAM);
 					if(providedSessionId == null)
@@ -114,7 +117,7 @@ public class WebLabLabLoader {
 						if(position >= 0){
 							reservationId = providedReservationId.substring(0, position);
 							final String cookie = providedReservationId.substring(position + 1);
-							Cookies.setCookie(WebLabLabLoader.WEBLAB_SESSION_ID_COOKIE, cookie, null, null, WebLabClient.baseLocation, false);
+							Cookies.setCookie(WebLabLabLoader.WEBLAB_SESSION_ID_COOKIE, cookie, null, null, WebLabClient.baseLocation + "/weblab/", false);
 						}else
 							reservationId = providedReservationId;
 						controller.startReserved(new SessionID(reservationId), experimentId);
@@ -125,12 +128,34 @@ public class WebLabLabLoader {
 						if(position >= 0){
 							sessionId = providedSessionId.substring(0, position);
 							final String cookie = providedSessionId.substring(position + 1);
-							Cookies.setCookie(WebLabLabLoader.WEBLAB_SESSION_ID_COOKIE, cookie, null, null, WebLabClient.baseLocation, false);
+							Cookies.setCookie(WebLabLabLoader.WEBLAB_SESSION_ID_COOKIE, cookie, null, null, WebLabClient.baseLocation + "/weblab/", false);
 						}else
 							sessionId = providedSessionId;
-						controller.startLoggedIn(new SessionID(sessionId));
+						controller.startLoggedIn(new SessionID(sessionId), true);
 					}else{
-						theme.onInit(); // If it's still null...
+						final String possibleSessionId = Cookies.getCookie(WebLabLabLoader.WEBLAB_SESSION_ID_COOKIE);
+						if(possibleSessionId == null) {
+							theme.onInit(); // If it's still null...
+						} else {
+							final SessionID tentativeSessionId;
+							if(possibleSessionId.contains("."))
+								tentativeSessionId = new SessionID(possibleSessionId.substring(0, possibleSessionId.indexOf('.')));
+							else
+								tentativeSessionId = new SessionID(possibleSessionId);
+							controller.checkSessionIdStillValid(tentativeSessionId, new IValidSessionCallback() {
+								@Override
+								public void sessionRejected() {
+									theme.onInit();
+									WebLabLabLoader.this.weblabClient.putWidget(theme.getWidget());
+									theme.onLoaded();
+								}
+								
+								@Override
+								public void sessionConfirmed() {
+									controller.startLoggedIn(tentativeSessionId, false);
+								}
+							});
+						}
 					}
 				
 				}catch(final Exception e){
@@ -139,8 +164,10 @@ public class WebLabLabLoader {
 					return;
 				}
 
-				WebLabLabLoader.this.weblabClient.putWidget(theme.getWidget());
-				theme.onLoaded();
+				if(!stillWaiting) {
+					WebLabLabLoader.this.weblabClient.putWidget(theme.getWidget());
+					theme.onLoaded();
+				}
 			}
 			
 			@Override

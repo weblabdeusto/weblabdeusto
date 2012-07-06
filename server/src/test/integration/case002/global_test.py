@@ -50,7 +50,7 @@ import weblab.core.reservations as Reservation
 import weblab.core.server    as UserProcessingServer
 import weblab.core.user_processor       as UserProcessor
 import weblab.core.exc             as core_exc
-import weblab.core.coordinator.coordinator as Coordinator
+from weblab.core.coordinator.gateway import create as coordinator_create, SQLALCHEMY
 
 
 
@@ -297,7 +297,7 @@ class Case002TestCase(object):
                         **kargs
                     )
 
-        coordinator = Coordinator.Coordinator(locator, cfg_manager)
+        coordinator = coordinator_create(SQLALCHEMY, self.locator, self.cfg_manager)
         coordinator._clean()
         coordinator.stop()
 
