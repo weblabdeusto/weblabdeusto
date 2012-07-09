@@ -121,32 +121,6 @@ def new_bot_users(number, func, initial_delay, delay_step, *args, **kwargs):
     delayer_it = delayer(initial_delay)
     return [ (func.func_name + '_' + str(args) + '_' + str(kwargs), func(delayer_it.next(), *args, **kwargs)) for _ in xrange(number) ]
 
-class Scenario(object):
-    categories = {}
-
-    def __init__(self, users, category = "generic_category", identifier = None):
-        self.category   = category
-        if not category in self.categories:
-            self.categories[category] = []
-        if identifier is None:
-            self.identifier = self.next_id(category)
-        elif identifier in self.categories[category]:
-            raise RuntimeError("Category %s already has an identifier %s" % (category, identifier))
-        else:
-            self.identifier = identifier
-        self.categories[category].append(self.identifier)
-        self.users      = users
-
-    def next_id(self, category):
-        n = 0
-        while True:
-            if not n in self.categories[category]:
-                return n
-            n += 1
-
-    def __repr__(self):
-        return '<Scenario category="%s" identifier="%s" />' % (self.category, self.identifier)
-
 SCENARIOS           = [ 
 #            # Scenario 1: 5 StandardBotUsers
 #                    Scenario(new_bot_users(30, new_standard_bot_user))
@@ -164,24 +138,55 @@ SCENARIOS           = [
 #                    )
         ]
 
-for protocol in URL_MAPS.keys():
-    for number in range(1, 5):
-        SCENARIOS.append(
-                Scenario(
-                    new_bot_users(number, new_standard_bot_user, 0, STEP_DELAY, protocol),
-                    protocol,
-                    number
-                )
-            )
+def generate_scenarios():
+    class Scenario(object):
+        categories = {}
 
-    for number in range(5, 101, 5):
-        SCENARIOS.append(
-                Scenario(
-                    new_bot_users(number, new_standard_bot_user, STEP_DELAY * (5 -1), STEP_DELAY, protocol),
-                    protocol,
-                    number
+        def __init__(self, users, category = "generic_category", identifier = None):
+            self.category   = category
+            if not category in self.categories:
+                self.categories[category] = []
+            if identifier is None:
+                self.identifier = self.next_id(category)
+            elif identifier in self.categories[category]:
+                raise RuntimeError("Category %s already has an identifier %s" % (category, identifier))
+            else:
+                self.identifier = identifier
+            self.categories[category].append(self.identifier)
+            self.users      = users
+
+        def next_id(self, category):
+            n = 0
+            while True:
+                if not n in self.categories[category]:
+                    return n
+                n += 1
+
+        def dispose(self):
+            del self.users
+
+        def __repr__(self):
+            return '<Scenario category="%s" identifier="%s" />' % (self.category, self.identifier)
+
+    scenarios = []
+    for protocol in URL_MAPS.keys():
+        for number in range(1, 5):
+            scenarios.append(
+                    Scenario(
+                        new_bot_users(number, new_standard_bot_user, 0, STEP_DELAY, protocol),
+                        protocol,
+                        number
+                    )
                 )
-            )
+        for number in range(5, 151, 5):
+            scenarios.append(
+                    Scenario(
+                        new_bot_users(number, new_standard_bot_user, STEP_DELAY * (5 -1), STEP_DELAY, protocol),
+                        protocol,
+                        number
+                    )
+                )
+    return scenarios
 
 CONFIGURATIONS      = [
                         "sample/launch_sample.py",
@@ -189,7 +194,7 @@ CONFIGURATIONS      = [
 #                        "sample_internetsocket/launch_sample_internetsocket_machine.py",
 #                        "sample_unixsocket/launch_sample_unixsocket_machine.py",
 #                        "sample_balanced1/launch_sample_balanced1_machine.py",
-#                        "sample_balanced2/launch_sample_balanced2_machine.py",
+                        "sample_balanced2/launch_sample_balanced2_machine.py",
                         "sample_balanced2_concurrent_experiments/launch_sample_balanced2_concurrent_experiments_machine.py",
                       ]
 

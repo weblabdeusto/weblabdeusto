@@ -23,6 +23,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import desc
 
+import configuration_doc
 from voodoo.dbutil import generate_getconn, get_sqlite_dbname
 from voodoo.log import logged
 from voodoo.typechecker import typecheck
@@ -36,8 +37,6 @@ import weblab.data.dto.experiments as ExperimentAllowed
 from weblab.data.experiments import ExperimentUsage, CommandSent, FileSent
 
 import weblab.db.exc as DbErrors
-
-from weblab.db.properties import WEBLAB_DB_USERNAME_PROPERTY, DEFAULT_WEBLAB_DB_USERNAME, WEBLAB_DB_PASSWORD_PROPERTY, WEBLAB_DB_FORCE_ENGINE_RECREATION, DEFAULT_WEBLAB_DB_FORCE_ENGINE_RECREATION
 
 def admin_panel_operation(func):
     """It checks if the requesting user has the admin_panel_access permission with full_privileges (temporal policy)."""
@@ -68,13 +67,13 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
     def __init__(self, cfg_manager):
         super(DatabaseGateway, self).__init__(cfg_manager)
 
-        user     = cfg_manager.get_value(WEBLAB_DB_USERNAME_PROPERTY, DEFAULT_WEBLAB_DB_USERNAME)
-        password = cfg_manager.get_value(WEBLAB_DB_PASSWORD_PROPERTY)
+        user     = cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_USERNAME)
+        password = cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_PASSWORD)
         host     = self.host
         dbname   = self.database_name
         engine   = self.engine_name
 
-        if DatabaseGateway.engine is None or cfg_manager.get_value(WEBLAB_DB_FORCE_ENGINE_RECREATION, DEFAULT_WEBLAB_DB_FORCE_ENGINE_RECREATION):
+        if DatabaseGateway.engine is None or cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_FORCE_ENGINE_CREATION):
             getconn = generate_getconn(engine, user, password, host, dbname)
 
             if engine == 'sqlite':
@@ -242,83 +241,155 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
+    @logged()
+    def store_commands(self, complete_commands, command_requests, command_responses, complete_files, file_requests, file_responses):
+        """ Stores all the commands in a single transaction; retrieving the ids of the file and command requests """
+        request_mappings = {
+            # entry_id : command_id
+        }
+        session = self.Session()
+        try:
+            db_commands_and_files = []
+
+            for reservation_id, entry_id, command in complete_commands:
+                db_command = self._append_command(session, reservation_id, command)
+                if db_command == False:
+                    request_mappings[entry_id] = False
+
+            for reservation_id, entry_id, command in complete_files:
+                db_file = self._append_file(session, reservation_id, command)
+                if db_file == False:
+                    request_mappings[entry_id] = False
+
+            for entry_id in command_requests:
+                reservation_id, command = command_requests[entry_id]
+                db_command = self._append_command(session, reservation_id, command)
+                if db_command == False:
+                    request_mappings[entry_id] = False
+                else:
+                    db_commands_and_files.append((entry_id, db_command))
+
+            for entry_id in file_requests:
+                reservation_id, file = file_requests[entry_id]
+                db_file = self._append_file(session, reservation_id, file)
+                if db_file == False:
+                    request_mappings[entry_id] = False
+                else:
+                    db_commands_and_files.append((entry_id, db_file))
+
+            for entry_id, command_id, response, timestamp in command_responses:
+                if not self._update_command(session, command_id, response, timestamp):
+                    request_mappings[entry_id] = False
+
+            for entry_id, file_id, response, timestamp in file_responses:
+                if not self._update_file(session, file_id, response, timestamp):
+                    request_mappings[entry_id] = False
+
+            session.commit()
+            for entry_id, db_command in db_commands_and_files:
+                request_mappings[entry_id] = db_command.id
+
+        finally:
+            session.close()
+       
+        return request_mappings
+
     @typecheck(basestring, CommandSent)
     @logged()
     def append_command(self, reservation_id, command ):
         session = self.Session()
         try:
-            user_used_experiment = session.query(model.DbUserUsedExperiment).filter_by(reservation_id = reservation_id).first()
-            if user_used_experiment is None:
-                return False
-            db_command = model.DbUserCommand(
-                            user_used_experiment,
-                            command.command.commandstring,
-                            command.timestamp_before,
-                            command.response.commandstring if command.response is not None else None,
-                            command.timestamp_after
-                        )
-            session.add(db_command)
+            db_command = self._append_command(session, reservation_id, command)
             session.commit()
             return db_command.id
         finally:
             session.close()
+
+    def _append_command(self, session, reservation_id, command):
+        user_used_experiment = session.query(model.DbUserUsedExperiment).filter_by(reservation_id = reservation_id).first()
+        if user_used_experiment is None:
+            return False
+        db_command = model.DbUserCommand(
+                        user_used_experiment,
+                        command.command.commandstring,
+                        command.timestamp_before,
+                        command.response.commandstring if command.response is not None else None,
+                        command.timestamp_after
+                    )
+        session.add(db_command)
+        return db_command
 
     @typecheck(numbers.Integral, Command, float)
     @logged()
     def update_command(self, command_id, response, end_timestamp ):
         session = self.Session()
         try:
-            db_command = session.query(model.DbUserCommand).filter_by(id = command_id).first()
-            if db_command is None:
-                return False
-
-            db_command.response = response.commandstring if response is not None else None
-            db_command.set_timestamp_after(end_timestamp)
-            session.add(db_command)
-            session.commit()
-            return True
+            if self._update_command(session, command_id, response, end_timestamp):
+                session.commit()
+                return True
+            return False
         finally:
             session.close()
 
+    def _update_command(self, session, command_id, response, end_timestamp):
+        db_command = session.query(model.DbUserCommand).filter_by(id = command_id).first()
+        if db_command is None:
+            return False
+
+        db_command.response = response.commandstring if response is not None else None
+        db_command.set_timestamp_after(end_timestamp)
+        session.add(db_command)
+        return True
+
+
     @typecheck(basestring, FileSent)
     @logged()
-    def append_file(self, reservation_id, file_sent ):
+    def append_file(self, reservation_id, file_sent):
         session = self.Session()
         try:
-            user_used_experiment = session.query(model.DbUserUsedExperiment).filter_by(reservation_id = reservation_id).first()
-            if user_used_experiment is None:
-                return False
-            db_file_sent = model.DbUserFile(
-                            user_used_experiment,
-                            file_sent.file_path,
-                            file_sent.file_hash,
-                            file_sent.timestamp_before,
-                            file_sent.file_info,
-                            file_sent.response.commandstring if file_sent.response is not None else None,
-                            file_sent.timestamp_after
-                        )
-            session.add(db_file_sent)
+            db_file_sent = self._append_file(session, reservation_id, file_sent)
             session.commit()
             return db_file_sent.id
         finally:
             session.close()
+
+    def _append_file(self, session, reservation_id, file_sent):
+        user_used_experiment = session.query(model.DbUserUsedExperiment).filter_by(reservation_id = reservation_id).first()
+        if user_used_experiment is None:
+            return False
+        db_file_sent = model.DbUserFile(
+                        user_used_experiment,
+                        file_sent.file_path,
+                        file_sent.file_hash,
+                        file_sent.timestamp_before,
+                        file_sent.file_info,
+                        file_sent.response.commandstring if file_sent.response is not None else None,
+                        file_sent.timestamp_after
+                    )
+        session.add(db_file_sent)
+        return db_file_sent
 
     @typecheck(numbers.Integral, Command, float)
     @logged()
     def update_file(self, file_id, response, end_timestamp ):
         session = self.Session()
         try:
-            db_file_sent = session.query(model.DbUserFile).filter_by(id = file_id).first()
-            if db_file_sent is None:
-                return False
-
-            db_file_sent.response = response.commandstring if response is not None else None
-            db_file_sent.set_timestamp_after(end_timestamp)
-            session.add(db_file_sent)
-            session.commit()
-            return True
+            if self._update_file(session, file_id, response, end_timestamp):
+                session.commit()
+                return True
+            return False
         finally:
             session.close()
+
+    def _update_file(self, session, file_id, response, end_timestamp):
+        db_file_sent = session.query(model.DbUserFile).filter_by(id = file_id).first()
+        if db_file_sent is None:
+            return False
+
+        db_file_sent.response = response.commandstring if response is not None else None
+        db_file_sent.set_timestamp_after(end_timestamp)
+        session.add(db_file_sent)
+        return True
 
     @logged()
     def list_usages_per_user(self, user_login, first=0, limit=20):

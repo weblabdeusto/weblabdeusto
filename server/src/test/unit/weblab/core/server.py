@@ -28,11 +28,11 @@ import weblab.core.server    as UserProcessingServer
 import weblab.core.user_processor           as UserProcessor
 import weblab.core.reservations             as Reservation
 import weblab.core.coordinator.confirmer   as Confirmer
-import weblab.core.coordinator.coordinator as Coordinator
 import voodoo.configuration      as ConfigurationManager
 import weblab.db.session                as DatabaseSession
 import weblab.data.server_type                         as ServerType
 import weblab.data.client_address                      as ClientAddress
+from weblab.core.coordinator.gateway import create as coordinator_create, SQLALCHEMY
 
 import weblab.core.coordinator.config_parser as CoordinationConfigurationParser
 
@@ -73,7 +73,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.locator = FakeLocator(self.lab_mock)
 
         # Clean the database
-        coordinator = Coordinator.Coordinator(self.locator, self.cfg_manager)
+        coordinator = coordinator_create(SQLALCHEMY, self.locator, self.cfg_manager)
         coordinator._clean()
         coordinator.stop()
 

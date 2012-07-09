@@ -15,7 +15,7 @@
 
 import cPickle as pickle
 import unittest
-import weblab.core.coordinator.externals.weblabdeusto_scheduler_model as WLDM
+import weblab.core.coordinator.sql.externals.weblabdeusto_scheduler_model as WLDM
 
 class WebLabDeustoModelTestCase(unittest.TestCase):
 

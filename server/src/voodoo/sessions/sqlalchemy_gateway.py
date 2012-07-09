@@ -19,6 +19,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import and_
 
+import configuration_doc
+
 from voodoo.dbutil import generate_getconn, get_sqlite_dbname
 import voodoo.sessions.sqlalchemy_data as DbData
 
@@ -30,18 +32,6 @@ import voodoo.sessions.exc as SessionErrors
 
 
 MAX_TIME_TRYING_TO_LOCK  = 300 # seconds
-
-SESSION_SQLALCHEMY_ENGINE = 'session_sqlalchemy_engine'
-DEFAULT_SESSION_SQLALCHEMY_ENGINE = 'mysql'
-
-SESSION_SQLALCHEMY_HOST = 'session_sqlalchemy_host'
-DEFAULT_SESSION_SQLALCHEMY_HOST = 'localhost'
-
-SESSION_SQLALCHEMY_DB_NAME = 'session_sqlalchemy_db_name'
-DEFAULT_SESSION_SQLALCHEMY_DB_NAME = 'WebLabSessions'
-
-SESSION_SQLALCHEMY_USERNAME  = 'session_sqlalchemy_username'
-SESSION_SQLALCHEMY_PASSWORD  = 'session_sqlalchemy_password'
 
 class SessionSqlalchemyGateway(object):
 
@@ -88,11 +78,11 @@ class SessionSqlalchemyGateway(object):
 
 
     def _parse_config(self):
-        engine   = self.cfg_manager.get_value(SESSION_SQLALCHEMY_ENGINE, DEFAULT_SESSION_SQLALCHEMY_ENGINE)
-        host     = self.cfg_manager.get_value(SESSION_SQLALCHEMY_HOST, DEFAULT_SESSION_SQLALCHEMY_HOST)
-        db_name  = self.cfg_manager.get_value(SESSION_SQLALCHEMY_DB_NAME, DEFAULT_SESSION_SQLALCHEMY_DB_NAME)
-        username = self.cfg_manager.get_value(SESSION_SQLALCHEMY_USERNAME)
-        password = self.cfg_manager.get_value(SESSION_SQLALCHEMY_PASSWORD)
+        engine   = self.cfg_manager.get_doc_value(configuration_doc.SESSION_SQLALCHEMY_ENGINE)
+        host     = self.cfg_manager.get_doc_value(configuration_doc.SESSION_SQLALCHEMY_HOST)
+        db_name  = self.cfg_manager.get_doc_value(configuration_doc.SESSION_SQLALCHEMY_DB_NAME)
+        username = self.cfg_manager.get_doc_value(configuration_doc.SESSION_SQLALCHEMY_USERNAME)
+        password = self.cfg_manager.get_doc_value(configuration_doc.SESSION_SQLALCHEMY_PASSWORD)
         return engine, host, db_name, username, password
 
 

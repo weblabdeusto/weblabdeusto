@@ -38,6 +38,10 @@ class UserProcessingDatabaseManager(object):
         """ Tries to finish the experiment usage (adding the end_date and appending the finish command). Returns True if it was added successfully, false otherwise """
         return self._gateway.finish_experiment_usage( reservation_id, end_date, last_command )
 
+    def store_commands(self, complete_commands, command_requests, command_responses, complete_files, file_requests, file_responses):
+        """ Stores all the commands in a single transaction; retrieving the ids of the file and command requests """
+        return self._gateway.store_commands(complete_commands, command_requests, command_responses, complete_files, file_requests, file_responses)
+
     def append_command(self, reservation_id, command):
         """ Tries to append a command. Returns True if it was added successfully, false otherwise """
         return self._gateway.append_command( reservation_id, command )
