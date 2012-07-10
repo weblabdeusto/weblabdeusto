@@ -309,6 +309,13 @@
 	                        	   "experiment.picture"   : "/img/experiments/visir.jpg",
 	                           	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Visir",
 	                        	   "experiment.info.description" : "wiki"
+	                           },
+                               {
+	                        	   "experiment.name"      : "visir-fed-balance-multiple",
+	                        	   "experiment.category"  : "Visir experiments",
+	                        	   "experiment.picture"   : "/img/experiments/visir.jpg",
+	                           	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Visir",
+	                        	   "experiment.info.description" : "wiki"
 	                           }
 	                       ],
 	                "logic" : [
