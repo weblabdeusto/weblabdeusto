@@ -31,7 +31,6 @@ from weblab.admin.monitor.monitor import WebLabMonitor
 import weblab.core.coordinator.status as WebLabQueueStatus
 
 import weblab.db.model as Model
-import weblab.core.coordinator.model as CoordinatorModel
 
 import weblab.admin.deploy as deploy
 
@@ -455,6 +454,7 @@ def weblab_create(directory):
         db_name    = options.coord_db_name
         db_user    = options.coord_db_user
         db_passwd  = options.coord_db_passwd
+        import weblab.core.coordinator.sql.model as CoordinatorModel
         CoordinatorModel.load()
         _check_database_connection("coordination", CoordinatorModel.Base.metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd)
     else:
