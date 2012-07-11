@@ -193,7 +193,12 @@ class ConfigurationManager(object):
                 raise InvalidTypeError("Configuration value '%s' expected of type '%r' but '%r' found" % (key, arg.type, value))
 
         return value
-        
+
+    def __getitem__(self, key):
+        return self.get_doc_value(key)
+    
+    def get(self, key, default = None):
+        return self.get_value(key, default)
 
     def get_values(self, *args, **kargs):
         """

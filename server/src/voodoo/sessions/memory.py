@@ -54,7 +54,7 @@ class SessionMemoryGateway(object):
         # Using SERIALIZE_MEMORY_GATEWAY_SESSIONS has an impact on performance (it will serialize
         # and deserialize every session everytime), but isolates every session just as if they
         # were stored in the database
-        self._serialize     = cfg_manager.get_doc_value(configuration_doc.SESSION_MEMORY_GATEWAY_SERIALIZE)
+        self._serialize     = cfg_manager[configuration_doc.SESSION_MEMORY_GATEWAY_SERIALIZE]
 
         self._cfg_manager   = cfg_manager
         self._generator     = SessionGenerator.SessionGenerator()
