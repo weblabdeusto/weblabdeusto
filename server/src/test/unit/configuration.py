@@ -71,6 +71,10 @@ session_sqlalchemy_db_name  = 'WebLabSessions'
 session_sqlalchemy_username = 'wl_session_user'
 session_sqlalchemy_password = 'wl_session_user_password'
 
+session_redis_host      = 'localhost'
+session_redis_port      = 6379
+session_redis_db_index  = 0
+
 
 ##########################################
 # Sessions locker database configuration #
