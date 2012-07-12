@@ -23,7 +23,6 @@ import time
 import configuration_doc
 
 import voodoo.sessions.manager       as SessionManager
-import voodoo.sessions.memory as SessionMemoryGateway
 import voodoo.sessions.session_type          as SessionType
 import voodoo.sessions.session_id            as SessionId
 
@@ -64,8 +63,7 @@ class SessionManagerTestCase(unittest.TestCase):
         cfg_manager._set_value(configuration_doc.SESSION_MANAGER_DEFAULT_TIMEOUT, 1)
         server = SessionManager.SessionManager( cfg_manager, SessionType.redis, "0" )
         try:
-            sess_id1 = server.create_session()
-
+            server.create_session()
             sessions = server.list_sessions()
             self.assertEquals(1, len(sessions))
 

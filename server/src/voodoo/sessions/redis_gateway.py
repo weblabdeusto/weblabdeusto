@@ -15,6 +15,7 @@
 #
 
 import redis
+import time
 import voodoo.sessions.generator  as SessionGenerator
 import voodoo.sessions.serializer as SessionSerializer
 import voodoo.sessions.exc as SessionErrors
