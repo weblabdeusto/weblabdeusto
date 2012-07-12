@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Xabier Larrakoetxea <xabier.larrakoetxea@deusto.es>
+#         Pablo Orduña <pablo.orduna@deusto.es>
 #
 
 import redis
@@ -68,7 +69,7 @@ class SessionRedisGateway(object):
             pool = self.redisPools[self.session_pool_id] 
         
         #We have the redis client now
-        self._client_creator = lambda : redis.StrictRedis(connection_pool=pool)
+        self._client_creator = lambda : redis.Redis(connection_pool=pool)
     
     def _parse_config(self):
         host                = self.cfg_manager.get_value(SESSION_REDIS_HOST, DEFAULT_SESSION_REDIS_HOST)
@@ -101,16 +102,16 @@ class SessionRedisGateway(object):
         #lock session access with redis method
         while True:
             done = client.hset(self.session_lock_key, new_id, 1)
-            #Create session
-            pickled_session = self._serializer.serialize({})
-            client.setex(self.session_key_prefix + new_id, self.timeout, pickled_session)
-            
             if done == 1:
                 break
             else: 
                 if desired_sess_id is not None:
                     raise SessionErrors.DesiredSessionIdAlreadyExistsError("session_id: %s" % desired_sess_id)
-                time.sleep(0.05)
+                new_id = self._generator.generate_id()
+
+        #Create session
+        pickled_session = self._serializer.serialize({})
+        client.setex(self.session_key_prefix + new_id, pickled_session, self.timeout)
                 
         #Unlock session
         client.hdel(self.session_lock_key, new_id)
@@ -145,28 +146,25 @@ class SessionRedisGateway(object):
         client = self._client_creator()
         return self._get_session(session_id, client)
 
-
-
-    def get_session_locking(self, session_id):
-        
-        client = self._client_creator()
+    def _lock(self, client, session_id):
         #lock session access with redis method
+        while True:
+            done = client.hset(self.session_lock_key, session_id, 1)
+            
+            if done == 1:
+                break
+            else: 
+                time.sleep(0.05)
+
+    def get_session_locking(self, session_id):        
+        client = self._client_creator()
+        self._lock(client, session_id)
+
         try:
-            while True:
-                done = client.hset(self.session_lock_key, session_id, 1)
-                session = self._get_session(session_id, client)
-                
-                if done == 1:
-                    break
-                else: 
-                    time.sleep(0.05)
-            
-            #Unlock session
-            #client.hdel(self.session_lock_key, session_id)
-            
+            session = self._get_session(session_id, client)
         except SessionErrors.SessionNotFoundError:
-            #Unlock session always
-            #client.hdel(self.session_lock_key, session_id)
+            #Unlock session
+            client.hdel(self.session_lock_key, session_id)
             raise SessionErrors.SessionNotFoundError( "Session not found: " + session_id )
             
         return session
@@ -180,13 +178,12 @@ class SessionRedisGateway(object):
         #insert session again and restart the expiration
         pickled_session = self._serializer.serialize(sess_obj)
        
-        #delete session
-        if not redis_client.delete(session_key):
-            print("error!")
+        if not redis_client.exists(session_key):
             raise SessionErrors.SessionNotFoundError( "Session not found: " + sess_id )
-        
-        
-        redis_client.setex(session_key, self.timeout, pickled_session)
+
+        #delete session
+        redis_client.set(session_key, pickled_session)
+        redis_client.expire(session_key, self.timeout)
 
     def modify_session(self, sess_id, sess_obj):
         
@@ -218,8 +215,8 @@ class SessionRedisGateway(object):
         
         #format and create a list with the keys
         session_keys = []
-        for i in session_redis_keys:
-            session_keys.append(i.split(':')[1])
+        for full_session_key in session_redis_keys:
+            session_keys.append(full_session_key[len(self.session_key_prefix):])
         
         return session_keys
         
@@ -234,7 +231,6 @@ class SessionRedisGateway(object):
         session_key = self.session_key_prefix + sess_id
         
         #Delete the session
-        print redis_client.keys("*")
         if not redis_client.delete(session_key):
             raise SessionErrors.SessionNotFoundError( "Session not found: " + sess_id )
     
@@ -253,14 +249,35 @@ class SessionRedisGateway(object):
             client.hdel(self.session_lock_key, sess_id)  
 
 
-    def _delete_zombie_locks():
+    def _delete_zombie_locks(self):
         
         client = self._client_creator()
         #Get all the hashes
         keys = client.hkeys(self.session_lock_key)
         
-        #check for each hash if the session exists, if doesn't exist, delete the lock
-        for i in keys:
-            if not client.exists(session_key_prefix+i):
-                client.hdel(self.session_lock_key, i)
+        # No keys, no zombie, no work
+        if len(keys) == 0:
+            return
+
+        # Obtain the existance of all those keys in a single command
+        existance_pipeline = client.pipeline()
+
+        for key in keys:
+            existance_pipeline.exists(self.session_key_prefix + key)
+
+        results = existance_pipeline.execute()
+
+        # If every element exists, no work to do
+        if all(results):
+            return
+
+         # Otherwise, mark the elements to delete in a pipeline
+        deleting_pipeline = client.pipeline()
+
+        for key, exists in zip(keys, results):
+            if not exists:
+                deleting_pipeline.hdel(self.session_lock_key, key)
+
+        # And delete them
+        deleting_pipeline.execute()
         
