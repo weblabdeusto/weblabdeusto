@@ -13,8 +13,9 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-Memory = 'Memory'
+Memory     = 'Memory'
 sqlalchemy = 'sqlalchemy'
+redis      = 'redis'
 
 def getSessionTypeValues():
-    return (Memory, sqlalchemy)
+    return (Memory, sqlalchemy, redis)

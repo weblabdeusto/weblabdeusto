@@ -15,7 +15,10 @@
 
 import unittest
 
+import redis
+
 import threading
+import time
 
 import configuration_doc
 
@@ -37,31 +40,53 @@ class SessionManagerTestCase(unittest.TestCase):
 
         cfg_manager._set_value(configuration_doc.SESSION_MEMORY_GATEWAY_SERIALIZE, True)
 
-        self.memory_server1 = SessionManager.SessionManager(
-                    cfg_manager,
-                    SessionType.Memory,
-                    "foo"
-                )
-        self.memory_server2 = SessionManager.SessionManager(
-                    cfg_manager,
-                    SessionType.Memory,
-                    "bar"
-                )
-        self.sqlalchemy_server1 = SessionManager.SessionManager(
-                    cfg_manager,
-                    SessionType.sqlalchemy,
-                    "foo"
-                )
-        self.sqlalchemy_server2 = SessionManager.SessionManager(
-                    cfg_manager,
-                    SessionType.sqlalchemy,
-                    "bar"
-                )
+        self.memory_server1 = SessionManager.SessionManager( cfg_manager, SessionType.Memory, "foo" )
+        self.memory_server2 = SessionManager.SessionManager( cfg_manager, SessionType.Memory, "bar" )
+        self.sqlalchemy_server1 = SessionManager.SessionManager( cfg_manager, SessionType.sqlalchemy, "foo" )
+        self.sqlalchemy_server2 = SessionManager.SessionManager( cfg_manager, SessionType.sqlalchemy, "bar" )
+        self.redis_server1 = SessionManager.SessionManager( cfg_manager, SessionType.redis, "0" )
+        self.redis_server2 = SessionManager.SessionManager( cfg_manager, SessionType.redis, "1" )
 
         self.memory_server1.clear()
         self.memory_server2.clear()
         self.sqlalchemy_server1.clear()
         self.sqlalchemy_server2.clear()
+        self.redis_server1.clear()
+        self.redis_server2.clear()
+    
+    def tearDown(self):
+        self.redis_server1.clear()
+        self.redis_server2.clear()
+
+    def test_redis_zombies(self):
+        cfg_manager= ConfigurationManager.ConfigurationManager()
+        cfg_manager.append_module(configuration_module)
+        cfg_manager._set_value(configuration_doc.SESSION_MANAGER_DEFAULT_TIMEOUT, 1)
+        server = SessionManager.SessionManager( cfg_manager, SessionType.redis, "0" )
+        try:
+            sess_id1 = server.create_session()
+
+            sessions = server.list_sessions()
+            self.assertEquals(1, len(sessions))
+
+            time.sleep(1)
+
+            server.gateway._lock(redis.Redis(), 'foobar')
+
+            # In redis 2.4, we can not establish a timeout lower than 1 second. So
+            # we basically wait 1 second and few time more to confirm that it has 
+            # been removed.
+            for _ in xrange(10):
+                server.delete_expired_sessions()
+                sessions = server.list_sessions()
+                if len(sessions) == 0:
+                    break
+                time.sleep(0.2)
+
+            self.assertEquals(0, len(sessions))
+        finally:
+            server.clear()
+
 
     def test_checking_parameter(self):
         self.assertRaises(
@@ -253,6 +278,24 @@ class SessionManagerTestCase(unittest.TestCase):
 
     def test_sqlalchemy_create_session_given_a_sess_id(self):
         self.session_create_session_given_a_sess_id(self.sqlalchemy_server1)
+
+    def test_redis_session(self):
+        self.session_tester(self.redis_server1)
+
+    def test_redis_session_locking(self):
+        self.session_tester_locking(self.redis_server1)
+
+    def test_redis_session_locking_2steps(self):
+        self.session_tester_locking_2steps(self.redis_server1)
+
+    def test_redis_session_list_sessions(self):
+        self.session_tester_list_sessions(self.redis_server1)
+
+    def test_redis_pool_ids(self):
+        self.session_tester_pool_ids(self.redis_server1, self.redis_server2)
+
+    def test_redis_create_session_given_a_sess_id(self):
+        self.session_create_session_given_a_sess_id(self.redis_server1)
 
 
 def suite():
