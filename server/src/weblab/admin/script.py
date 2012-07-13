@@ -42,7 +42,6 @@ WEBLAB_PATH     = os.path.abspath(os.path.join(WEBLAB_SRC_PATH, '..', '..'))
 
 # 
 # TODO
-#  - Check if /etc/apache2/httpd.conf or C:\XAMPP\... exists
 #  - --visir
 #  - inline server, xmlrpc server
 #  - Support admin
@@ -388,6 +387,19 @@ def weblab_create(directory):
         session_storage = 'Memory'
     else:
         session_storage = options.session_storage
+
+    if options.cores > 1:
+        if (coord_engine == 'sqlalchemy' and options.coord_db_engine == 'sqlite') or options.db_engine == 'sqlite':
+            sqlite_purpose = ''
+            if coord_engine == 'sqlalchemy' and options.coord_db_engine == 'sqlite':
+                sqlite_purpose = 'coordination'
+            if options.db_engine =='sqlite':
+                if sqlite_purpose:
+                    sqlite_purpose += ', '
+                sqlite_purpose += 'general database'
+                
+            print >> sys.stderr, "ERROR: sqlite engine selected for %s is incompatible with multiple cores" % sqlite_purpose
+            sys.exit(-1)
 
     if options.cores <= 0:
         print >> sys.stderr, "ERROR: There must be at least one core server."
@@ -1356,10 +1368,17 @@ def weblab_create(directory):
     print "Congratulations!"
     print "WebLab-Deusto system created"
     print 
-    print r"Append the following line to your apache httpd.conf ( typically /etc/apache2/httpd.conf or C:\xampp\apache\conf\ )"
-    print "Include %s" % apache_conf_path
+    apache_httpd_path = r'your apache httpd.conf ( typically /etc/apache2/httpd.conf or C:\xampp\apache\conf\ )'
+    if os.path.exists("/etc/apache2/httpd.conf"):
+        apache_httpd_path = '/etc/apache2/httpd.conf'
+    elif os.path.exists('C:\\xampp\\apache\\conf\\'):
+        apache_httpd_path = 'C:\\xampp\\apache\\conf\\'
+
+    print r"Append the following line to", apache_httpd_path
     print 
-    print "Execute '%s start %s' to start the system." % (sys.argv[0], directory)
+    print "    Include %s" % os.path.abspath(apache_conf_path)
+    print 
+    print "Then restart apache and execute '%s start %s' to start the WebLab-Deusto system." % (sys.argv[0], directory)
     print 
 
 #########################################################################################
