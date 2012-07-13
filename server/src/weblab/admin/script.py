@@ -1356,7 +1356,7 @@ def weblab_create(directory):
     apache_conf += """</Proxy>\n"""
     apache_conf += """\n"""
 
-    apache_conf = apache_conf % { 'root' : options.base_url, 'directory' : os.path.abspath(directory), 'weblab_path' : WEBLAB_PATH }
+    apache_conf = apache_conf % { 'root' : base_url, 'directory' : os.path.abspath(directory), 'weblab_path' : WEBLAB_PATH }
 
     apache_conf_path = os.path.join(apache_dir, 'apache_weblab_generic.conf')
 
