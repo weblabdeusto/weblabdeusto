@@ -8,7 +8,7 @@ SECRET_KEY = 'development key'
 
 
 DB_NAME = 'weblab'
-DB_HOST = ''
+DB_HOST = '127.0.0.1'
 DB_PORT = 5432
 DB_USERNAME = 'postgres'
 DB_PASSWORD = 'postgres'
