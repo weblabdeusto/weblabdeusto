@@ -43,7 +43,7 @@ WEBLAB_PATH     = os.path.abspath(os.path.join(WEBLAB_SRC_PATH, '..', '..'))
 # 
 # TODO
 #  - --visir
-#  - inline server, xmlrpc server
+#  - xmlrpc server
 #  - Support admin
 #  - Support rebuild-db
 # 
@@ -259,7 +259,6 @@ def weblab_create(directory):
     parser.add_option("--poll-time",              dest="poll_time",     type="int",    default=350,
                                                   help = "Time in seconds that will wait before expiring a user session.")
 
-    # TODO
     parser.add_option("--inline-lab-server",      dest="inline_lab_serv", action="store_true", default=False,
                                                   help = "Laboratory server included in the same process as the core server. " 
                                                          "Only available if a single core is used." )
@@ -423,7 +422,7 @@ def weblab_create(directory):
         sys.exit(-1)
 
     if options.inline_lab_serv and options.cores > 1:
-        print >> sys.stderr, "ERROR: Inline lab server is incompatible with more than one core servers. It would require the lab server, which does not make sense."
+        print >> sys.stderr, "ERROR: Inline lab server is incompatible with more than one core servers. It would require the lab server to be replicated in all the processes, which does not make sense."
         sys.exit(-1)
         
     if verbose: print "[done]"
@@ -512,6 +511,11 @@ def weblab_create(directory):
     # Create voodoo infrastructure
     # 
 
+    if options.inline_lab_serv:
+        laboratory_instance_name = 'core_server1' 
+    else:
+        laboratory_instance_name = 'laboratory'
+
     if verbose: print "Creating configuration files and directories...",; sys.stdout.flush()
 
     open(os.path.join(directory, 'configuration.xml'), 'w').write("""<?xml version="1.0" encoding="UTF-8"?>""" 
@@ -541,10 +545,10 @@ def weblab_create(directory):
     for core_n in range(1, options.cores + 1):
         machine_configuration_xml += "<instance>core_server%s</instance>\n    " % core_n
 
-    machine_configuration_xml += ("\n"
-    "    <instance>laboratory</instance>\n\n"
-    "</instances>\n"
-    )
+    machine_configuration_xml += "\n"
+    if not options.inline_lab_serv:
+        machine_configuration_xml += "    <instance>laboratory</instance>\n\n"
+    machine_configuration_xml += "</instances>\n"
 
     machine_config_py =("# It must be here to retrieve this information from the dummy\n"
                         "core_universal_identifier       = %(core_universal_identifier)r\n"
@@ -617,7 +621,7 @@ def weblab_create(directory):
                         "%(coord_db)score_coordinator_db_password  = %(core_coordinator_db_password)r\n"
                         "\n"
                         "core_coordinator_laboratory_servers = {\n"
-                        "    'laboratory:laboratory@core_machine' : {\n"
+                        "    'laboratory:%(laboratory_instance_name)s@core_machine' : {\n"
                         "            'exp1|dummy|Dummy experiments'        : 'dummy@dummy',\n"
                         "        }\n"
                         "}\n"
@@ -675,6 +679,8 @@ def weblab_create(directory):
         'core_coordinator_db_engine'      : options.coord_db_engine,
         'core_coordinator_db_host'        : options.coord_db_host,
 
+        'laboratory_instance_name'        : laboratory_instance_name,
+
         'coord_db'                        : '' if options.coord_engine == 'sql' else '# ',
         'coord_redis'                     : '' if options.coord_engine == 'redis' else '# ',
         'session_db'                      : '' if session_storage == 'sqlalchemy' else '# ',
@@ -692,12 +698,15 @@ def weblab_create(directory):
 
     current_port = options.start_ports
 
+    latest_core_server_directory = None
     for core_number in range(1, options.cores + 1):
         core_instance_dir = os.path.join(machine_dir, 'core_server%s' % core_number)
+        latest_core_server_directory = core_instance_dir
         if not os.path.exists(core_instance_dir):
            os.mkdir(core_instance_dir)
        
-        open(os.path.join(core_instance_dir, 'configuration.xml'), 'w').write("""<?xml version="1.0" encoding="UTF-8"?>"""
+        instance_configuration_xml = (
+        """<?xml version="1.0" encoding="UTF-8"?>"""
 		"""<servers \n"""
 		"""    xmlns="http://www.weblab.deusto.es/configuration" \n"""
 		"""    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
@@ -706,9 +715,19 @@ def weblab_create(directory):
 		"""    <user>weblab</user>\n"""
 		"""\n"""
 		"""    <server>login</server>\n"""
-		"""    <server>core</server>\n"""
+		"""    <server>core</server>\n""")
+
+        if options.inline_lab_serv:
+            instance_configuration_xml += """    <server>laboratory</server>\n"""
+            if not options.xmlrpc_experiment:
+                instance_configuration_xml += """    <server>experiment</server>\n"""
+            
+            
+        instance_configuration_xml += (
         """\n"""
 		"""</servers>\n""")
+
+        open(os.path.join(core_instance_dir, 'configuration.xml'), 'w').write(instance_configuration_xml)
 
         core_dir = os.path.join(core_instance_dir, 'core')
         if not os.path.exists(core_dir):
@@ -824,23 +843,26 @@ def weblab_create(directory):
 		"core_web_facade_port     = %(web)r\n"
         "admin_facade_json_port   = %(admin)r\n") % core_config)
 
-    lab_instance_dir = os.path.join(machine_dir, 'laboratory')
-    if not os.path.exists(lab_instance_dir):
-        os.mkdir(lab_instance_dir)
+    if options.inline_lab_serv:
+        lab_instance_dir = latest_core_server_directory
+    else:
+        lab_instance_dir = os.path.join(machine_dir, 'laboratory')
+        if not os.path.exists(lab_instance_dir):
+            os.mkdir(lab_instance_dir)
 
-    open(os.path.join(lab_instance_dir, 'configuration.xml'), 'w').write((
-		"""<?xml version="1.0" encoding="UTF-8"?>\n"""
-		"""<servers \n"""
-		"""    xmlns="http://www.weblab.deusto.es/configuration" \n"""
-		"""    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
-		"""    xsi:schemaLocation="instance_configuration.xsd"\n"""
-		""">\n"""
-		"""    <user>weblab</user>\n"""
-		"""\n"""
-		"""    <server>laboratory</server>\n"""
-		"""    <server>experiment</server>\n"""
-		"""</servers>\n"""
-    ))
+        open(os.path.join(lab_instance_dir, 'configuration.xml'), 'w').write((
+            """<?xml version="1.0" encoding="UTF-8"?>\n"""
+            """<servers \n"""
+            """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
+            """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
+            """    xsi:schemaLocation="instance_configuration.xsd"\n"""
+            """>\n"""
+            """    <user>weblab</user>\n"""
+            """\n"""
+            """    <server>laboratory</server>\n"""
+            """    <server>experiment</server>\n"""
+            """</servers>\n"""
+        ))
 
     lab_dir = os.path.join(lab_instance_dir, 'laboratory')
     if not os.path.exists(lab_dir):
@@ -890,11 +912,11 @@ def weblab_create(directory):
 		"""\n"""
 		"""laboratory_assigned_experiments = {\n"""
 		"""        'exp1:dummy@Dummy experiments' : {\n"""
-		"""                'coord_address' : 'experiment:laboratory@core_machine',\n"""
+		"""                'coord_address' : 'experiment:%s@core_machine',\n"""
 		"""                'checkers' : ()\n"""
 		"""            }\n"""
 		"""    }\n"""
-    ))
+    )  % laboratory_instance_name)
 
     experiment_dir = os.path.join(lab_instance_dir, 'experiment')
     if not os.path.exists(experiment_dir):
@@ -957,8 +979,10 @@ def weblab_create(directory):
     for core_number in range(1, options.cores + 1):
         server_names.append('server%s' % core_number)
 
-    server_names.append('laboratory')
-    server_names.append('experiment')
+    if not options.inline_lab_serv:
+        server_names.append('laboratory')
+    if options.xmlrpc_experiment or not options.inline_lab_serv:
+        server_names.append('experiment')
 
     for server_name in server_names:
         logging_file = (
@@ -1162,8 +1186,10 @@ def weblab_create(directory):
         """                {\n""")
     for core_number in range(1, options.cores + 1):
         launch_script += """                    "core_server%s"     : "logs%sconfig%slogging.configuration.server%s.txt",\n""" % (core_number, os.sep, os.sep, core_number)
-        
-    launch_script += (("""                    "laboratory" : "logs%sconfig%slogging.configuration.laboratory.txt",\n""" % (os.sep, os.sep)) +
+    
+    if not options.inline_lab_serv:
+        launch_script += ("""                    "laboratory" : "logs%sconfig%slogging.configuration.laboratory.txt",\n""" % (os.sep, os.sep))
+    launch_script += (
         """                },\n"""
         """                before_shutdown,\n"""
         """                (\n"""
