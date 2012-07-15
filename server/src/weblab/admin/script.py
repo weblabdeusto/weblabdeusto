@@ -1406,6 +1406,16 @@ def weblab_create(directory):
     print "    Include %s" % os.path.abspath(apache_conf_path)
     print 
     print "Then restart apache and execute '%s start %s' to start the WebLab-Deusto system." % (sys.argv[0], directory)
+    print "From that point, you'll be able to access: "
+    print
+    print "     %s " % server_url
+    print
+    print "from your web browser. You can also add users, permissions, etc. from the admin "
+    print "CLI by typing:"
+    print
+    print "    %s admin %s" % (sys.argv[0], directory)
+    print 
+    print "Enjoy!"
     print 
 
 #########################################################################################
