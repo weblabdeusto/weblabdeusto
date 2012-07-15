@@ -9,6 +9,7 @@ regex:
 .swp$
 .metadata
 
+^server/env
 ^server/consumers/php/cookiefile
 ^server/src/env
 ^server/launch/.*/logs$
