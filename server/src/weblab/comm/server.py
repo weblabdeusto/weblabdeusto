@@ -17,7 +17,7 @@ import sys
 import threading
 import SocketServer
 
-import configuration_doc
+import weblab.configuration_doc as configuration_doc
 
 # ZSI
 try:

@@ -24,7 +24,7 @@ except ImportError:
 else:
     ZSI_AVAILABLE = True
 
-import configuration_doc
+import weblab.configuration_doc as configuration_doc
 
 import voodoo.sessions.session_id as SessionId
 

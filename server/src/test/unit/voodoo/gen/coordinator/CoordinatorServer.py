@@ -16,7 +16,7 @@
 import unittest
 import threading
 
-import configuration_doc
+import weblab.configuration_doc as configuration_doc
 
 import test.unit.configuration as configuration_module
 

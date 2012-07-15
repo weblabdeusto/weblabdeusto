@@ -21,7 +21,7 @@ try:
 except ImportError:
     pass
 
-import configuration_doc
+import weblab.configuration_doc as configuration_doc
 
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 import voodoo.sessions.session_id as SessionId

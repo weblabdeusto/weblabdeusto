@@ -18,7 +18,7 @@ import sys
 import datetime
 import random
 import sha
-import configuration_doc
+import weblab.configuration_doc as configuration_doc
 
 from console_ui import ConsoleUI
 from exc import GoBackError

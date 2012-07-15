@@ -20,7 +20,7 @@ import redis
 import threading
 import time
 
-import configuration_doc
+import weblab.configuration_doc as configuration_doc
 
 import voodoo.sessions.manager       as SessionManager
 import voodoo.sessions.session_type          as SessionType
