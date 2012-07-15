@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+<head>
+<title>Use</title>
+<style type="text/css">
+	table
+	{
+	border-collapse:collapse;
+	}
+	table, td, th
+	{
+	border:1px solid;
+	}
+	td
+	{
+	padding:15px;
+	}
+</style>
+</head>
+
+<body>
+	<h2>General</h2>
+	<b>Login:</b>{{use.login}}<br/>
+	<b>Name:</b>{{use.full_name}}<br/>
+	<b>Experiment:</b>{{ use.experiment_name + '@' + use.category_name }}<br/>
+	<b>Date:</b>{{use.date}}<br/>
+	<b>Origin:</b>{{use.origin}}<br/>
+	<b>Device used:</b>{{use.device}}<br/>
+	<b>Server IP (if federated):</b>{{use.ip}}<br/>
+	<b>Use id:</b>{{use.use_id}}<br/>
+	<b>Reservation id:</b>{{use.reservation_id}}<br/>
+	<b>Mobile:</b>{{use.mobile}}<br/>
+	<b>Facebook:</b>{{use.facebook}}<br/>
+	<b>Referer:</b>{{use.referer}}<br/>
+	<b>User agent:</b>{{use.user_agent}}<br/>
+	<b>Route:</b>{{use.route}}</br/>
+	<b>In the name of:</b>{{use.external_user}}<br/>
+	
+	<h2>Commands</h2>
+	(<a href="#files">files below</a>)
+	<table>
+		<tr> 
+			<td><b>Time before</b></td>
+			<td><b>Time after</b></td>
+			<td><b>Command</b></td>
+			<td><b>Response</b></td>
+		</tr>
+		
+		{% for before, after, command, response in commands %}
+		<tr>
+			<td>{{before}}</td>
+			<td>{{after}}</td>
+			<td>{{command}}</td>
+			<td>{{response}}</td>
+		</tr>
+		{% endfor %}
+		
+	</table>
+	
+	<br/>
+	<br/>
+	
+	
+	
+	<a name="files"><h2>Files</h2></a>
+	
+	<table>
+    	<tr> 
+    		<td><b>File hash</b></td>
+    		<td><b>File info</b></td>
+    		<td><b>Response</b></td>
+    		<td><b>Time before</b></td>
+    		<td><b>Time after</b></td>
+    		<td><b>Link</b></td>
+    	</tr>
+    	
+    	{% for file_hash, file_info, response, before, after, file_url in files %}
+    	
+    	<tr>
+    		<td>{{file_hash}}</td>
+    		<td>{{file_info}}</td>
+    		<td>{{response}}</td>
+    		<td>{{before}}</td>
+    		<td>{{after}}</td>
+    		<td><a href="{{file_url}}">link</a></td>
+    	</tr>
+    	
+    	{% endfor %}
+    	
+	</table>
+
+</body>
+</html>
