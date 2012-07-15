@@ -62,6 +62,19 @@ classifiers=[
 
 cp_license="BSD"
 
+install_requires = [ 
+    'sqlalchemy>=0.7',
+    'SOAPpy',
+    'ZSI',
+    'pyflakes',
+    'mocker',
+    'mock',
+    'python-openid<2.3',
+    'ciutils',
+    'redis',
+    'hiredis',
+]
+
 setup(name='weblabdeusto',
       version='4.0',
       description="WebLab-Deusto Remote Laboratory Management System",
@@ -72,5 +85,6 @@ setup(name='weblabdeusto',
       packages=packages,
       data_files=data_files,
       license=cp_license,
-      scripts=scripts
+      scripts=scripts,
+      install_requires=install_requires,
      )
