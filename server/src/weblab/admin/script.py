@@ -30,6 +30,8 @@ import weblab
 from weblab.admin.monitor.monitor import WebLabMonitor
 import weblab.core.coordinator.status as WebLabQueueStatus
 
+from weblab.admin.cli.controller import Controller
+
 import weblab.db.model as Model
 
 import weblab.admin.deploy as deploy
@@ -44,7 +46,6 @@ WEBLAB_PATH     = os.path.abspath(os.path.join(WEBLAB_SRC_PATH, '..', '..'))
 # TODO
 #  - --visir
 #  - xmlrpc server
-#  - Support admin
 #  - Support rebuild-db
 # 
 
@@ -1579,9 +1580,12 @@ def weblab_monitor(directory):
 # 
 
 def weblab_admin(directory):
-    print >> sys.stderr, "Administrating the database is not yet implemented"
-    sys.exit(-1)
-
+    old_cwd = os.getcwd()
+    os.chdir(directory)
+    try:
+        Controller(os.path.join('core_machine', 'machine_config.py'))
+    finally:
+        os.chdir(old_cwd)
 
 #########################################################################################
 # 

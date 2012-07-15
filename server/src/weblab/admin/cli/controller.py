@@ -13,10 +13,12 @@
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 
+import os
 import sys
 import datetime
 import random
 import sha
+import configuration_doc
 
 from console_ui import ConsoleUI
 from exc import GoBackError
@@ -29,36 +31,83 @@ try:
 except ImportError:
     LdapGatewayClass = None
 
-try:
-    import configuration
-except Exception as e:
-    print "File configuration.py not found. See configuration.py.dist. Error:", str(e)
-    sys.exit(1)
-
-try:
-    from configuration import DB_HOST, DB_ENGINE, SMTP_HOST, SMTP_HELO
-    from configuration import DEFAULT_DB_NAME, DEFAULT_DB_USER, DEFAULT_DB_PASS
-    from configuration import DEFAULT_LDAP_USERS_FILE
-    from configuration import DEFAULT_OPENID_USERS_FILE
-    from configuration import DEFAULT_DB_USERS_FILE
-    from configuration import DEFAULT_NOTIFICATION_FROM, DEFAULT_NOTIFICATION_BCC, DEFAULT_NOTIFICATION_SUBJECT, DEFAULT_NOTIFICATION_TEXT_FILE
-    from configuration import DEFAULT_NOTIFICATION_WITH_PASSWORD_TEXT_FILE
-except Exception as e:
-    print "Configuration variable missing in configuration.py. See configuration.py.dist. Error:", str(e)
-    sys.exit(1)
-
-
 class Controller(object):
 
-    def __init__(self):
+    def __init__(self, cfg_file = None):
         super(Controller, self).__init__()
+
+        if cfg_file is None:
+            configuration_file = 'configuration.py'
+        else:
+            configuration_file = cfg_file
+
+        if not os.path.exists(configuration_file):
+            print >> sys.stderr, "Could not file configuration file", configuration_file
+            sys.exit(1)
+
+        execfile(configuration_file, globals(), globals())
+
+        # Use 'configuration.py'
+        if cfg_file is None:
+            try:
+                self.db_host         = globals()['DB_HOST']
+                self.db_engine       = globals()['DB_ENGINE']
+                self.smtp_host       = globals()['SMTP_HOST']
+                self.smtp_helo       = globals()['SMTP_HELO']
+                self.default_db_name = globals()['DEFAULT_DB_NAME']
+                self.default_db_user = globals()['DEFAULT_DB_USER']
+                self.default_db_pass = globals()['DEFAULT_DB_PASS']
+                self.db_name         = None
+                self.db_user         = None
+                self.db_pass         = None
+                self.default_ldap_users_file   = globals()['DEFAULT_LDAP_USERS_FILE']
+                self.default_openid_users_file = globals()['DEFAULT_OPENID_USERS_FILE']
+                self.default_db_users_file     = globals()['DEFAULT_DB_USERS_FILE']
+
+                self.default_notification_from      = globals()['DEFAULT_NOTIFICATION_FROM']
+                self.default_notification_bcc       = globals()['DEFAULT_NOTIFICATION_BCC']
+                self.default_notification_subject   = globals()['DEFAULT_NOTIFICATION_SUBJECT']
+                self.default_notification_text_file = globals()['DEFAULT_NOTIFICATION_TEXT_FILE']
+
+                self.default_notification_with_password_text_file = globals()['DEFAULT_NOTIFICATION_WITH_PASSWORD_TEXT_FILE']
+            except Exception, e:
+                print >> sys.stderr, "Configuration variable missing in %s. Error: %s" % (str(configuration_file), str(e))
+        # use regular file...
+        else:
+            self.db_host           = globals()[configuration_doc.DB_HOST]
+            self.db_engine         = globals()[configuration_doc.DB_ENGINE]
+            self.db_name           = globals()[configuration_doc.DB_DATABASE]
+            self.db_user           = globals()[configuration_doc.WEBLAB_DB_USERNAME]
+            self.db_pass           = globals()[configuration_doc.WEBLAB_DB_PASSWORD]
+
+            self.smtp_host         = globals().get(configuration_doc.MAIL_SERVER_HOST)
+            self.smtp_helo         = globals().get(configuration_doc.MAIL_SERVER_HELO)
+
+            self.default_db_name   = self.db_name
+            self.default_db_user   = self.db_user
+            self.default_db_pass   = self.db_pass
+
+            self.default_ldap_users_file   = 'USERS'
+            self.default_openid_users_file = 'USERSOID'
+            self.default_db_users_file     = 'USERSDB'
+
+            self.default_notification_from    = globals().get(configuration_doc.MAIL_NOTIFICATION_SENDER)
+            self.default_notification_bcc     = globals().get(configuration_doc.SERVER_ADMIN)
+            self.default_notification_subject = 'WebLab-Deusto notification'
+
+            self.default_notification_text_file = 'NOTIFICATION'
+            self.default_notification_with_password_text_file = 'NOTIFICATION_WITH_PASSWORD'
+
         self.ui = ConsoleUI()
         self.init()
         self.menu()
 
     def init(self):
-        db_name, db_user, db_pass = self.ui.dialog_init(DEFAULT_DB_NAME, DEFAULT_DB_USER, DEFAULT_DB_PASS)
-        self.db = DbGateway(DB_ENGINE, DB_HOST, db_name, db_user, db_pass)
+        if self.db_name is not None and self.db_user is not None and self.db_pass is not None:
+            self.db = DbGateway(self.db_engine, self.db_host, self.db_name, self.db_user, self.db_pass)
+        else:
+            db_name, db_user, db_pass = self.ui.dialog_init(self.default_db_name, self.default_db_user, self.default_db_pass)
+            self.db = DbGateway(self.db_engine, self.db_host, self.db_name, self.db_user, self.db_pass)
 
     def menu(self):
         option = None
@@ -152,7 +201,7 @@ class Controller(object):
         groups = self.db.get_groups()
         group_names = [ (group.id, group.name) for group in groups ]
         try:
-            group_id, user_logins = self.ui.dialog_add_users_to_group_file(group_names, DEFAULT_LDAP_USERS_FILE)
+            group_id, user_logins = self.ui.dialog_add_users_to_group_file(group_names, self.default_ldap_users_file)
             group = [ group for group in groups if group.id == group_id ][0]
             users = self.db.get_users(user_logins)
             if len(user_logins) > 0:
@@ -245,7 +294,7 @@ class Controller(object):
             user_logins, role_id = self.ui.dialog_add_users_batch_with_db_authtype(
                                                             role_names,
                                                             auth_names,
-                                                            DEFAULT_DB_USERS_FILE
+                                                            self.default_db_users_file
                                                         )
 
             # Get the actual role object through the role id we obtained before.
@@ -285,7 +334,7 @@ class Controller(object):
             user_logins, role_id, auth_id = self.ui.dialog_add_users_with_ldap_authtype(
                                                             role_names,
                                                             auth_names,
-                                                            DEFAULT_LDAP_USERS_FILE
+                                                            self.default_ldap_users_file
                                                   )
             role = [ role for role in roles if role.id == role_id ][0] if role_id is not None else None
             auth = [ auth for auth in auths if auth.id == auth_id ][0]
@@ -332,7 +381,7 @@ class Controller(object):
             user_logins, role_id = self.ui.dialog_add_users_with_openid_authtype(
                                                             role_names,
                                                             auth_names,
-                                                            DEFAULT_OPENID_USERS_FILE
+                                                            self.default_openid_users_file
                                                         )
 
             # Get the actual role object through the role id we obtained before.
@@ -526,14 +575,14 @@ class Controller(object):
         try:
             fromm, group_id, bcc, subject, text = self.ui.dialog_notify_users(
                                                             group_names,
-                                                            DEFAULT_NOTIFICATION_FROM,
-                                                            DEFAULT_NOTIFICATION_BCC,
-                                                            DEFAULT_NOTIFICATION_SUBJECT,
-                                                            DEFAULT_NOTIFICATION_TEXT_FILE
+                                                            self.default_notification_from,
+                                                            self.default_notification_bcc,
+                                                            self.default_notification_subject,
+                                                            self.default_notification_text_file
                                                      )
             users = [ group.users for group in groups if group.id == group_id ][0] if group_id is not None else self.db.get_users()
             if len(users) > 0:
-                smtp = SmtpGateway(SMTP_HOST, SMTP_HELO)
+                smtp = SmtpGateway(self.smtp_host, self.smtp_helo)
                 for user in users:
                     self.ui.notify_begin("Sending email to %s..." % user.email)
                     smtp.send(fromm, (user.email,) + bcc, subject, text % {'FULL_NAME': user.full_name, 'LOGIN': user.login})
@@ -556,15 +605,15 @@ class Controller(object):
         try:
             fromm, group_id, bcc, subject, text = self.ui.dialog_notify_users_with_passwords(
                                                             group_names,
-                                                            DEFAULT_NOTIFICATION_FROM,
-                                                            DEFAULT_NOTIFICATION_BCC,
-                                                            DEFAULT_NOTIFICATION_SUBJECT,
-                                                            DEFAULT_NOTIFICATION_WITH_PASSWORD_TEXT_FILE
+                                                            self.default_notification_from,
+                                                            self.default_notification_bcc,
+                                                            self.default_notification_subject,
+                                                            self.default_notification_with_password_text_file
                                                      )
             users = [ group.users for group in groups if group.id == group_id ][0] if group_id is not None else self.db.get_users()
 
             # The DB does not contain the passwords, so we will retrieve them from the DBUSERS file.
-            users_from_file = self.ui.dialog_read_db_users_file_for_notify(DEFAULT_DB_USERS_FILE)
+            users_from_file = self.ui.dialog_read_db_users_file_for_notify(self.default_db_users_file)
 
             # Store the passwords in a dictionary, associating them with the login names.
             user_pwds = {}
@@ -573,7 +622,7 @@ class Controller(object):
 
             if len(users) > 0 and len(users_from_file) > 0:
 
-                smtp = SmtpGateway(SMTP_HOST, SMTP_HELO)
+                smtp = SmtpGateway(self.smtp_host, self.smtp_helo)
                 for user in users:
                     if( user.login in user_pwds ):
                         pwd = user_pwds[user.login]
