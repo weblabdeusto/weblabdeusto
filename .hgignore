@@ -10,6 +10,7 @@ regex:
 .metadata
 
 ^server/env
+^server/src/build
 ^server/consumers/php/cookiefile
 ^server/src/env
 ^server/launch/.*/logs$
