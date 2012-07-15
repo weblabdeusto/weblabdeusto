@@ -31,9 +31,10 @@ def fullsplit(path, result=None):
         return result
     return fullsplit(head, [tail] + result)
 
-packages = []
+packages   = []
+data_files = []
 
-for weblab_dir in ['voodoo','weblab']:
+for weblab_dir in ['voodoo','weblab','experiments']:
     for dirpath, dirnames, filenames in os.walk(weblab_dir):
         # Ignore dirnames that start with '.'   
         for i, dirname in enumerate(dirnames):
@@ -42,6 +43,8 @@ for weblab_dir in ['voodoo','weblab']:
 
         if '__init__.py' in filenames:
             packages.append('.'.join(fullsplit(dirpath)))
+        elif filenames:
+            data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
 
 scripts = [ '../admin/scripts/weblab-admin.py' ]
 
@@ -67,6 +70,7 @@ setup(name='weblabdeusto',
       author_email='weblab@deusto.es',
       url='http://code.google.com/p/weblabdeusto/',
       packages=packages,
+      data_files=data_files,
       license=cp_license,
       scripts=scripts
      )
