@@ -30,7 +30,7 @@ import voodoo.gen.exceptions.loader.LoaderErrors as LoaderErrors
 XSD_DIRNAME = os.path.join( os.path.dirname(__file__), 'xsd')
 
 module_directory = os.path.join(*__name__.split('.')[:-1])
-PREFIXED_DIR_NAME = os.path.join( sys.prefix, module_directory, 'xsd' )
+PREFIXED_DIR_NAME = os.path.join( sys.prefix, 'weblabdeusto_data', module_directory, 'xsd' )
 
 class SchemaChecker(object):
     def check_schema(self, xmlfile_path, xsdfile_path):

@@ -14,6 +14,8 @@
 #
 
 import os
+import glob
+import shutil
 from distutils.core import setup
 
 # Taken from django setup.py :-)
@@ -31,6 +33,9 @@ def fullsplit(path, result=None):
         return result
     return fullsplit(head, [tail] + result)
 
+if not os.path.exists('weblabdeusto_data'):
+    os.mkdir('weblabdeusto_data')
+
 packages   = []
 data_files = []
 
@@ -44,7 +49,35 @@ for weblab_dir in ['voodoo','weblab','experiments']:
         if '__init__.py' in filenames:
             packages.append('.'.join(fullsplit(dirpath)))
         elif filenames:
-            data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
+            new_path = os.path.join('weblabdeusto_data', dirpath)
+            try:
+                os.makedirs(new_path)
+            except:
+                pass
+            
+            for f in filenames:
+                if os.path.exists(os.path.join(new_path, f)):
+                    os.remove(os.path.join(new_path, f))
+                shutil.copy2(os.path.join(dirpath, f), os.path.join(new_path, f))
+
+if len(glob.glob("../../client/war/weblabclient/*.html")) > 0:
+    # The client has been compiled. Let's copy it here.
+    shutil.rmtree("weblabdeusto_data/war", True)
+    shutil.copytree("../../client/war/","weblabdeusto_data/war")
+else:
+    print "Client was not compiled"
+    # TODO: try to compile it. If it fails, show the reason and download it
+    # TODO: in the weblab-admin script, choose between the absolute directory
+    # to the source code and sys.prefix
+
+for dirpath, dirnames, filenames in os.walk('weblabdeusto_data'):
+    # Ignore dirnames that start with '.'   
+    for i, dirname in enumerate(dirnames):
+        if dirname.startswith('.'): 
+            del dirnames[i]
+
+    data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
+
 
 scripts = [ '../admin/scripts/weblab-admin.py' ]
 
