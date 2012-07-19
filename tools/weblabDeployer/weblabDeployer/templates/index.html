@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+
+{% block navbar %}
+<ul class="nav">
+    <li class="active"><a href="#">Home</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+</ul>
+{% endblock navbar %}
+
+{% block body %}
+    <a href="{{ url_for('login') }}"><input type="button" class="btn btn-success" value="Login" /></a>
+    <a href="{{ url_for('register') }}"><input type="button" class="btn btn-primary"value="Register" /></a>
+{% endblock body %}
+
+{% block footer %}
+   CC 3.0
+{% endblock footer %}

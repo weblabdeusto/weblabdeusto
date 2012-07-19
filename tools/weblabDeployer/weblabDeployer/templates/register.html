@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+
+{% block navbar %}
+<ul class="nav">
+    <li class="active"><a href="#">Home</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+</ul>
+{% endblock navbar %}
+
+{% block body %}
+    {% from "macros/_formhelpers.html" import render_field %}
+    <form method=post action="{{ url_for('register') }}">
+      <dl>
+        {{ render_field(form.username) }}
+        {{ render_field(form.email) }}
+        {{ render_field(form.password) }}
+        {{ render_field(form.confirm) }}
+        {{ render_field(form.accept_tos) }}
+      </dl>
+      <p><input type=submit value=Register>
+    </form>
+{% endblock body %}
+
+{% block footer %}
+   CC 3.0
+{% endblock footer %}
