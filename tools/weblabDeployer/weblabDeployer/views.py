@@ -2,6 +2,11 @@ from weblabDeployer import app
 from flask import render_template, request, url_for, flash, redirect
 from forms.registrationForm import RegistrationForm
 from forms.loginForm import LoginForm
+from model.user import User
+import hashlib
+
+SESSION_TYPE = 'labdeployer_admin'
+
 
 @app.route('/')
 def index():
@@ -11,13 +16,39 @@ def index():
 def login():
     form = LoginForm(request.form)
     if request.method == 'POST' and form.validate():
+        
         email = form.email.data
         password = form.password.data
-        if email != 'slok69@gmail.com':
+        
+        user = User.query.filter_by(email=email).first()
+        
+        #User exists?
+        if user is None:
             flash('register first please', 'error')
             return redirect(url_for('register'))
-        flash('logged', 'success')
-        return redirect(url_for('index'))
+            
+        #If exists check the password
+        hash_password = hashlib.new("sha", password).hexdigest()
+        
+        if user.password == hash_password:
+            
+            #Insert data in session
+            session['logged_in'] = True
+            session['session_type'] = SESSION_TYPE
+            session['user_id'] = user.id
+            session['user_email'] = user.email
+            
+            flash('logged', 'success')
+            
+            #Redirect
+            next = request.args.get('next')
+            if next != '':
+                return redirect(url_for(next))
+                
+            return redirect(url_for('index'))
+        else:
+            flash('Failure login', 'error')
+    
     return render_template('login.html', form=form)
 
 @app.route('/register', methods=['GET', 'POST'])
