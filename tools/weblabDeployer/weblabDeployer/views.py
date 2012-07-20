@@ -4,8 +4,19 @@ from forms.registrationForm import RegistrationForm
 from forms.loginForm import LoginForm
 from model.user import User
 import hashlib
+from functools import wraps
 
 SESSION_TYPE = 'labdeployer_admin'
+
+def login_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        logged_in = session.get('logged_in', False)
+        session_type = session.get('session_type', '')
+        if not logged_in or session_type != SESSION_TYPE:
+           return redirect(url_for('login', next = request.url))
+        return f(*args, **kwargs)
+    return decorated 
 
 
 @app.route('/')
