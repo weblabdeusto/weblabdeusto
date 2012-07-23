@@ -34,7 +34,7 @@ import weblab
 
 import re
 
-VISIR_RELATIVE_PATH = os.sep.join(('..','..','..','client','war','weblabclient','visir')) + os.sep
+VISIR_RELATIVE_PATH = os.sep.join(('..','..','..','client','war','weblabclientlab','visir')) + os.sep
 
 VISIR_LOCATION = os.path.abspath(os.sep.join((os.path.dirname(weblab.__file__), VISIR_RELATIVE_PATH))) + os.sep
 VISIR_TEMP_FILES = os.sep.join((VISIR_LOCATION, 'temp')) + os.sep
