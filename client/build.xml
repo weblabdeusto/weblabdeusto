@@ -12,7 +12,7 @@
 
     <property name="gwt.style" value="OBFUSCATED"/>
 
-	<property name="lab.module.name" value="es.deusto.weblab.WebLabClient"/>
+	<property name="lab.module.name" value="es.deusto.weblab.WebLabClientLab"/>
 	<property name="admin.module.name" value="es.deusto.weblab.WebLabClientAdmin"/>
 	
 	<!--
@@ -113,6 +113,8 @@
 		  <arg value="-style"/>
           <arg value="${gwt.style}"/>
       </java>
+      <delete dir="war/weblabclient/.junit_symbolMaps" failonerror="false" />
+      <delete dir="war/weblabclientadmin/.junit_symbolMaps" failonerror="false" />
     </target>
 
     <target name="version" depends="javac">
@@ -146,6 +148,8 @@
           <arg value="${gwt.style}"/>
           <!-- <arg value="-compileReport"/>  -->
        </java>
+      <delete dir="war/weblabclient/.junit_symbolMaps" failonerror="false" />
+      <delete dir="war/weblabclientlab/.junit_symbolMaps" failonerror="false" />
     </target>
 
     <target name="gwtc" depends="gwtc-admin, gwtc-lab" description="GWT compile to JavaScript">
