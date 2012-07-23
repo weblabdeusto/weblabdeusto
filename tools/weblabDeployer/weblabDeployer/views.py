@@ -39,7 +39,7 @@ def login():
             return redirect(url_for('register'))
             
         #If exists check the password
-        hash_password = hashlib.new("sha", password).hexdigest()
+        hash_password = hashlib.sha1(password).hexdigest()
         
         if user.password == hash_password:
             
