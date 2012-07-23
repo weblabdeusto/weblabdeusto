@@ -1,7 +1,6 @@
 from weblabDeployer import app
 from flask import render_template, request, url_for, flash, redirect
-from forms.registrationForm import RegistrationForm
-from forms.loginForm import LoginForm
+from forms.forms import RegistrationForm, LoginForm
 from model.models import User
 import hashlib
 from functools import wraps
