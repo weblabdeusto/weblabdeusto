@@ -20,6 +20,4 @@ db = SQLAlchemy(app)
 #neccessary imports
 import weblabDeployer.views
 #Import before use because we need to create the databases and to manage without running the webapp
-import model.user
-import model.token
-import model.entity
+import model.models
