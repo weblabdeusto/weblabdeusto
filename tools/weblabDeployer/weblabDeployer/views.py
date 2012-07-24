@@ -55,8 +55,13 @@ def login():
         if user is None:
             flash('register first please', 'error')
             return redirect(url_for('register'))
-            
-        #If exists check the password
+        
+        #User is active
+        if not user.active:
+            flash('Your account isn\'t active', 'error')
+            return redirect(url_for('index'))
+        
+        #If exists and is active check the password
         hash_password = hashlib.sha1(password).hexdigest()
         
         if user.password == hash_password:
